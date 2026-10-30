@@ -245,7 +245,23 @@
     "review": "{count, plural, other {# thay đổi đang chờ bạn xem xét, mới nhất từ {agent}}}",
     "automationRun": "Tự động hóa “{name}”",
     "sensitiveContent": "Đã tìm thấy {kind, select, card {số thẻ thanh toán} iban {IBAN} national_id {số định danh cá nhân} private_key {khóa riêng tư} aws_key {khóa truy cập AWS} github_token {token GitHub} slack_token {token Slack} api_key {khóa API} jwt {JSON Web Token} other {nội dung nhạy cảm}} ở đây. Xem lại trong Cài đặt > Bảo mật.",
-    "pageReported": "Một khách truy cập đã báo cáo trang này: {reason, select, spam {spam hoặc lừa đảo} harmful {nội dung thù ghét, bạo lực hoặc quấy rối} illegal {nội dung bất hợp pháp} privacy {thông tin cá nhân} copyright {bản quyền} other {vấn đề khác}}. Xem trong Cài đặt > Bảo mật."
+    "pageReported": "Một khách truy cập đã báo cáo trang này: {reason, select, spam {spam hoặc lừa đảo} harmful {nội dung thù ghét, bạo lực hoặc quấy rối} illegal {nội dung bất hợp pháp} privacy {thông tin cá nhân} copyright {bản quyền} other {vấn đề khác}}. Xem trong Cài đặt > Bảo mật.",
+    "aiLimitTitle": "Chi phí AI",
+    "aiLimit": {
+      "near": "Đã dùng 80% giới hạn hằng tháng {limit, number} token",
+      "reached": "Đã đạt giới hạn hằng tháng {limit, number} token: các lần chạy dừng cho đến tháng sau",
+      "paused": "Đã tắt: tiêu quá nhanh trong ngày đầu. Hãy kiểm tra các lần chạy rồi bật lại.",
+      "raised": "Một chủ sở hữu đã nâng giới hạn lên {limit, number} token mỗi tháng",
+      "declined": "Một chủ sở hữu đã từ chối giới hạn cao hơn mà bạn yêu cầu",
+      "workspaceNear": "Không gian làm việc đã dùng 80% giới hạn chi phí AI hằng tháng",
+      "workspaceReached": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng: AI dừng cho đến tháng sau"
+    },
+    "limitRequestTitle": "Giới hạn cao hơn cho {agent}",
+    "limitRequest": "{actor} yêu cầu {tokens, number} token mỗi tháng (hiện là {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "Nâng lên {tokens, number}",
+    "limitRequestDecline": "Từ chối",
+    "limitRequestFailed": "Không thể trả lời yêu cầu. Hãy thử lại."
   },
   "templates": {
     "title": "Mẫu",

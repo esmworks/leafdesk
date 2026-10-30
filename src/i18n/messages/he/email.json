@@ -282,7 +282,19 @@
     "reviewTitle": "לבדיקה",
     "review": "{count, plural, one {{agent} הציע שינוי לבדיקה שלך} two {שני שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}} other {# שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}}}",
     "sensitiveContent": "נמצא {kind, select, card {מספר כרטיס תשלום} iban {מספר IBAN} national_id {מספר זהות לאומי} private_key {מפתח פרטי} aws_key {מפתח גישה של AWS} github_token {אסימון GitHub} slack_token {אסימון Slack} api_key {מפתח API} jwt {אסימון JSON Web Token} other {תוכן רגיש}} בדף הזה.",
-    "pageReported": "מבקר דיווח על הדף הזה: {reason, select, spam {ספאם או הונאה} harmful {תוכן של שנאה, אלימות או הטרדה} illegal {תוכן לא חוקי} privacy {מידע אישי} copyright {זכויות יוצרים} other {משהו אחר}}."
+    "pageReported": "מבקר דיווח על הדף הזה: {reason, select, spam {ספאם או הונאה} harmful {תוכן של שנאה, אלימות או הטרדה} illegal {תוכן לא חוקי} privacy {מידע אישי} copyright {זכויות יוצרים} other {משהו אחר}}.",
+    "aiLimitTitle": "הוצאות AI",
+    "aiLimit": {
+      "near": "נוצלו 80% מהמגבלה החודשית של {limit, number} אסימונים",
+      "reached": "הגיע למגבלה החודשית של {limit, number} אסימונים",
+      "paused": "כבוי: הוא הוציא הרבה במהירות ביום הראשון",
+      "raised": "בעלים העלה את המגבלה שלו ל־{limit, number} אסימונים בחודש",
+      "declined": "בעלים דחה את המגבלה הגבוהה יותר שביקשתם",
+      "workspaceNear": "סביבת העבודה ניצלה 80% ממגבלת עלות ה־AI החודשית",
+      "workspaceReached": "סביבת העבודה הגיעה למגבלת עלות ה־AI החודשית"
+    },
+    "limitRequestTitle": "מגבלה גבוהה יותר עבור {agent}",
+    "limitRequest": "{actor} מבקש {tokens, number} אסימונים בחודש"
   },
   "agentReply": {
     "aiOff": "אין באפשרותי לענות: הבינה המלאכותית כבויה בסביבת העבודה הזו.",
@@ -322,5 +334,52 @@
     "whyOwn": "נרשמת לדוא״ל הזה · {schedule}.",
     "unsubscribe": "ביטול מנוי",
     "untitled": "ללא כותרת"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} ניצל 80% מהמגבלה החודשית שלו",
+      "heading": "{agent} קרוב למגבלה שלו",
+      "body": "הסוכן {agent} ב־{workspace} ניצל 80% מהמגבלה החודשית שלו של {limit, number} אסימונים. כשיגיע למגבלה, ההרצות שלו ייעצרו עד החודש הבא."
+    },
+    "reached": {
+      "subject": "{agent} הגיע למגבלה החודשית שלו",
+      "heading": "{agent} הגיע למגבלה שלו",
+      "body": "הסוכן {agent} ב־{workspace} ניצל את המגבלה החודשית שלו של {limit, number} אסימונים. ההרצות שלו ייעצרו עד החודש הבא, אלא אם בעלים יעלה את המגבלה."
+    },
+    "paused": {
+      "subject": "{agent} כובה בגלל הוצאה מהירה",
+      "heading": "{agent} כובה",
+      "body": "הסוכן החדש {agent} ב־{workspace} השתמש באסימונים במהירות ביום הראשון שלו, ולכן כובה לפני שהוציא עוד. בדקו את ההרצות וההוראות שלו ואז הפעילו אותו שוב."
+    },
+    "raised": {
+      "subject": "המגבלה של {agent} הועלתה",
+      "heading": "הבקשה שלכם אושרה",
+      "body": "בעלים של {workspace} העלה את המגבלה החודשית של הסוכן {agent} ל־{limit, number} אסימונים, כפי שביקשתם."
+    },
+    "declined": {
+      "subject": "המגבלה של {agent} נשארת כפי שהיא",
+      "heading": "הבקשה שלכם נדחתה",
+      "body": "בעלים של {workspace} דחה את המגבלה הגבוהה יותר שביקשתם עבור הסוכן {agent}."
+    },
+    "workspaceNear": {
+      "subject": "{workspace} ניצלה 80% ממגבלת עלות ה־AI",
+      "heading": "מגבלת עלות ה־AI קרובה",
+      "body": "{workspace} ניצלה 80% ממגבלת עלות ה־AI החודשית שלה. כשתגיע למגבלה, ה־AI ייעצר לכולם עד החודש הבא."
+    },
+    "workspaceReached": {
+      "subject": "{workspace} הגיעה למגבלת עלות ה־AI",
+      "heading": "מגבלת עלות ה־AI הושגה",
+      "body": "{workspace} ניצלה את מגבלת עלות ה־AI החודשית שלה. ה־AI ייעצר לכולם עד החודש הבא, אלא אם בעלים יעלה את המגבלה."
+    },
+    "openAgent": "פתיחת הסוכן",
+    "openUsage": "פתיחת השימוש ב־AI"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} מבקש מגבלה גבוהה יותר עבור {agent}",
+    "heading": "מגבלה גבוהה יותר עבור {agent}",
+    "body": "{name} מבקש להעלות את המגבלה החודשית של הסוכן {agent} ב־{workspace} מ־{current, number} ל־{tokens, number} אסימונים.",
+    "note": "הסיבה שלו: “{note}”",
+    "answer": "אשרו או דחו בתיבת הדואר הנכנס שלכם ב־Leafdesk.",
+    "action": "פתיחת הסוכן"
   }
 }

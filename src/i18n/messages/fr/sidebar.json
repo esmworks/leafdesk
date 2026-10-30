@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} a proposé une modification à vérifier} other {# modifications attendent votre vérification, la dernière de {agent}}}",
     "automationRun": "Automatisation « {name} »",
     "sensitiveContent": "{kind, select, card {Un numéro de carte de paiement a été trouvé ici.} iban {Un IBAN a été trouvé ici.} national_id {Un numéro d’identité national a été trouvé ici.} private_key {Une clé privée a été trouvée ici.} aws_key {Une clé d’accès AWS a été trouvée ici.} github_token {Un jeton GitHub a été trouvé ici.} slack_token {Un jeton Slack a été trouvé ici.} api_key {Une clé d’API a été trouvée ici.} jwt {Un jeton JSON Web Token a été trouvé ici.} other {Du contenu sensible a été trouvé ici.}} À examiner dans Paramètres > Sécurité.",
-    "pageReported": "Un visiteur a signalé cette page : {reason, select, spam {spam ou arnaque} harmful {contenu haineux, violent ou harcelant} illegal {contenu illégal} privacy {informations personnelles} copyright {droit d'auteur} other {autre chose}}. Consultez-le dans Paramètres > Sécurité."
+    "pageReported": "Un visiteur a signalé cette page : {reason, select, spam {spam ou arnaque} harmful {contenu haineux, violent ou harcelant} illegal {contenu illégal} privacy {informations personnelles} copyright {droit d'auteur} other {autre chose}}. Consultez-le dans Paramètres > Sécurité.",
+    "aiLimitTitle": "Dépenses d’IA",
+    "aiLimit": {
+      "near": "A utilisé 80 % de sa limite mensuelle de {limit, number} tokens",
+      "reached": "A atteint sa limite mensuelle de {limit, number} tokens : les exécutions s’arrêtent jusqu’au mois prochain",
+      "paused": "Désactivé : il a dépensé vite dès son premier jour. Vérifiez ses exécutions, puis réactivez-le.",
+      "raised": "Un propriétaire a relevé sa limite à {limit, number} tokens par mois",
+      "declined": "Un propriétaire a refusé la limite plus élevée que vous aviez demandée",
+      "workspaceNear": "L’espace de travail a utilisé 80 % de sa limite mensuelle de coût d’IA",
+      "workspaceReached": "L’espace de travail a atteint sa limite mensuelle de coût d’IA : l’IA s’arrête jusqu’au mois prochain"
+    },
+    "limitRequestTitle": "Limite plus élevée pour {agent}",
+    "limitRequest": "{actor} demande {tokens, number} tokens par mois (actuellement {current, number})",
+    "limitRequestNote": "« {note} »",
+    "limitRequestApprove": "Relever à {tokens, number}",
+    "limitRequestDecline": "Refuser",
+    "limitRequestFailed": "Impossible de répondre à la demande. Réessayez."
   },
   "templates": {
     "title": "Modèles",

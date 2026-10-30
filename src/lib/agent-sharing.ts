@@ -68,5 +68,23 @@ export type AgentSharingView = {
   groups: { groupId: string; name: string; memberCount: number }[];
 };
 
-/** Who may create agents in a workspace (its `agentCreation` setting). */
-export type AgentCreation = "owners" | "members";
+/**
+ * Who may create agents in a workspace (its `agentCreation` setting): owners only, every member, or
+ * owners and the people and groups chosen (`agent_creator`).
+ */
+export const AGENT_CREATIONS = ["owners", "members", "chosen"] as const;
+export type AgentCreation = (typeof AGENT_CREATIONS)[number];
+
+/** Someone the "chosen" setting may name: a member or a group. */
+export type AgentCreatorTarget = { kind: "person"; userId: string } | { kind: "group"; groupId: string };
+
+export type AgentCreatorEntry =
+  | { kind: "person"; userId: string; name: string; email: string; image: string | null }
+  | { kind: "group"; groupId: string; name: string; memberCount: number };
+
+/** For owners: whom the "chosen" setting names, and the members and groups it may add. */
+export type AgentCreatorsView = {
+  entries: AgentCreatorEntry[];
+  members: AgentSharingView["members"];
+  groups: AgentSharingView["groups"];
+};

@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { RowUpdate } from "../../lib/row-updates";
-import { agentRun } from "./agents";
+import { agentLimitRequest, agentRun } from "./agents";
 import { databaseProperty, page, teamspace, workspace, workspaceJoinRequest } from "./app";
 import { session, user } from "./auth";
 import { databaseAutomation } from "./automations";
@@ -383,12 +383,15 @@ export const NOTIFICATION_KINDS = [
   "ai_account_detached",
   "sensitive_content",
   "page_reported",
+  "ai_limit",
+  "agent_limit_request",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /**
  * Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, a
- * scheduled run's report, the AI account the workspace ran on gone, sensitive content found, or a
- * visitor's report about a published page.
+ * scheduled run's report, the AI account the workspace ran on gone, sensitive content found, a
+ * visitor's report about a published page, AI spending near or at a limit, or a request for a
+ * higher one (and its answer, to whoever asked).
  */
 export const OWNER_KINDS = [
   "agent_approval",
@@ -397,6 +400,8 @@ export const OWNER_KINDS = [
   "ai_account_detached",
   "sensitive_content",
   "page_reported",
+  "ai_limit",
+  "agent_limit_request",
 ] as const satisfies readonly NotificationKind[];
 export type OwnerKind = (typeof OWNER_KINDS)[number];
 export const isOwnerKind = (kind: string): kind is OwnerKind => (OWNER_KINDS as readonly string[]).includes(kind);
@@ -439,7 +444,14 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * "sensitive_content": sensitive content of kind `message` (a SensitiveKind) was found on page
  * `pageId` (server/sensitive-content.ts); owners hear of a page and kind at most once a day.
  * "page_reported": a visitor reported published page `pageId` for reason `message` (a
- * ReportReason, server/page-reports.ts). Unread ones are dropped when the change is
+ * ReportReason, server/page-reports.ts).
+ * "ai_limit": AI spending (server/ai-limit-notices.ts): `message` says what happened ("near": 80% of
+ * the month's limit, "reached", "paused": a new agent spending fast was paused, "raised" or
+ * "declined": the answer to the user's request for a higher limit), about agent `actorId`, or the
+ * whole workspace's cost limit when null; `date` is the month (YYYY-MM) of "near" and "reached",
+ * which tell each person once a month. "agent_limit_request": `actorId` asked for a higher monthly
+ * token limit, request `agentLimitRequestId`; answered by an owner, it goes away. Neither has a page.
+ * Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
  */
@@ -513,6 +525,8 @@ export const notification = pgTable(
     rowEmailId: text("row_email_id").references(() => rowEmail.id, { onDelete: "cascade" }),
     /** Follow-ups: the enrollment that paused. */
     sequenceEnrollmentId: text("sequence_enrollment_id").references(() => sequenceEnrollment.id, { onDelete: "cascade" }),
+    /** Requests for a higher agent limit: the request (deciding it takes its notifications away). */
+    agentLimitRequestId: text("agent_limit_request_id").references(() => agentLimitRequest.id, { onDelete: "cascade" }),
   },
   (t) => [
     index("notification_inbox_idx").on(t.userId, t.workspaceId, t.createdAt),
@@ -524,10 +538,15 @@ export const notification = pgTable(
     index("notification_snoozed_idx").on(t.snoozedUntil).where(sql`${t.snoozedUntil} is not null`),
     // A run that proposes notes tells each owner once.
     uniqueIndex("notification_agent_memory_idx").on(t.agentRunId, t.userId).where(sql`${t.kind} = 'agent_memory'`),
-    // Only join requests, changes waiting for review, agents' approvals, notes and reports, and a detached AI account are about no page (access requests are about the page asked for).
+    // AI spending near or at a limit tells each person once a month, per agent or for the workspace.
+    uniqueIndex("notification_ai_limit_idx")
+      .on(t.userId, t.workspaceId, sql`coalesce(${t.actorId}, '')`, t.date, t.message)
+      .where(sql`${t.kind} = 'ai_limit' and ${t.date} is not null`),
+    index("notification_agent_limit_request_idx").on(t.agentLimitRequestId).where(sql`${t.agentLimitRequestId} is not null`),
+    // Only join requests, changes waiting for review, agents' approvals, notes and reports, a detached AI account and AI limits are about no page (access requests are about the page asked for).
     check(
       "notification_subject_check",
-      sql`${t.kind} in ('join_request', 'review', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached') or ${t.pageId} is not null`,
+      sql`${t.kind} in ('join_request', 'review', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached', 'ai_limit', 'agent_limit_request') or ${t.pageId} is not null`,
     ),
   ],
 );

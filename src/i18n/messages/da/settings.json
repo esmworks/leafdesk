@@ -782,7 +782,10 @@
         "repeat": "Tjek, hvornår den gentages, og dens tidszone.",
         "helpers": "Vælg op til 10 andre agenter i dette arbejdsområde, der ikke er arkiveret.",
         "shareLevel": "Vælg fuld adgang, kan redigere eller kan se og interagere.",
-        "mailRecipients": "Angiv op til 10 e-mailadresser."
+        "mailRecipients": "Angiv op til 10 e-mailadresser.",
+        "requestTokens": "Bed om et helt antal tokens over den nuværende grænse, op til 1.000.000.000.",
+        "requestNote": "Skriv hvorfor på højst 500 tegn.",
+        "noLimit": "Denne agent har ingen grænse, der kan hæves."
       },
       "noteEmpty": "Skriv, hvad agenten skal huske.",
       "noteTooLong": "En note må højst have {max} tegn.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Denne version findes ikke længere.",
       "notAllowed": "Din adgang til denne agent tillader ikke dette.",
       "ownersOnly": "Kun arbejdsområdets ejere ændrer en agents månedlige tokengrænse.",
-      "notAMember": "En agent kan kun deles med arbejdsområdets ejere, medlemmer og grupper."
+      "notAMember": "En agent kan kun deles med arbejdsområdets ejere, medlemmer og grupper.",
+      "requestNotFound": "Denne anmodning er allerede besvaret."
     },
     "connections": {
       "description": "Værktøjerne fra hver forbindelse, som denne agent må bruge. Værktøjer, der kun læser, kører med det samme, undtagen på en række fra et anonymt formularsvar; alle andre venter på en ejers godkendelse, hver gang agenten kalder dem.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Du kan se denne agent, chatte med den og omtale den. Bed en, der kan redigere den, om at ændre den.",
     "creation": {
-      "title": "Kun arbejdsområdets ejere kan oprette agenter",
-      "description": "Fra: medlemmer kan også oprette agenter og får fuld adgang til dem, de opretter. Gæster kan aldrig.",
-      "ownersOnly": "Kun arbejdsområdets ejere kan ændre dette."
+      "ownersOnly": "Kun arbejdsområdets ejere kan ændre dette.",
+      "who": "Hvem der kan oprette agenter",
+      "whoHelp": "Den, der opretter en agent, får fuld adgang til den. Gæster kan aldrig.",
+      "choices": {
+        "owners": "Kun ejere",
+        "members": "Ejere og medlemmer",
+        "chosen": "Ejere og de personer og grupper, der er valgt nedenfor"
+      },
+      "add": "Tilføj personer eller grupper",
+      "noMatches": "Ingen match",
+      "groupMembers": "{count, plural, one {# medlem} other {# medlemmer}}",
+      "remove": "Fjern {name}",
+      "list": "Personer og grupper, der kan oprette agenter",
+      "noneChosen": "Ingen er valgt endnu: kun ejere kan oprette agenter."
+    },
+    "limitRequest": {
+      "ask": "Bed om en højere grænse",
+      "change": "Rediger anmodning",
+      "help": "Kun ejere ændrer grænsen på {limit} tokens om måneden. Bed dem om flere: de får din anmodning i deres indbakke og på e-mail.",
+      "tokens": "Tokens om måneden",
+      "note": "Hvorfor (valgfrit)",
+      "send": "Send anmodning",
+      "update": "Opdater anmodning",
+      "waiting": "Du bad om {tokens} tokens om måneden den {date}. Venter på en ejer."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Personer med et tilladt e-maildomæne",
       "anyone_with_link": "Alle med deltagelseslinket",
       "members_with_approval": "Medlemmer, med en ejers godkendelse",
-      "any_member": "Ejere og medlemmer"
+      "any_member": "Ejere og medlemmer",
+      "chosen": "Ejere og valgte personer og grupper"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Satte en tidsplan for agenten “{target}”",
         "schedule_removed": "Slettede en tidsplan for agenten “{target}”",
         "shared": "Satte adgangen for {subject} til agenten “{target}”: {level}",
-        "unshared": "Fjernede {subject} fra delingen af agenten “{target}”"
+        "unshared": "Fjernede {subject} fra delingen af agenten “{target}”",
+        "creator_added": "Lod {subject} oprette agenter",
+        "creator_removed": "Fjernede {subject} fra dem, der kan oprette agenter"
       },
       "connection": {
         "created": "Tilføjede forbindelsen “{target}”",

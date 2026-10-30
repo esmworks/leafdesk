@@ -282,7 +282,19 @@
     "reviewTitle": "Zu prüfen",
     "review": "{count, plural, one {{agent} hat eine Änderung zur Prüfung vorgeschlagen} other {# Änderungen warten auf deine Prüfung, die neueste von {agent}}}",
     "sensitiveContent": "Auf dieser Seite wurde {kind, select, card {eine Zahlungskartennummer} iban {eine IBAN} national_id {eine nationale Ausweisnummer} private_key {ein privater Schlüssel} aws_key {ein AWS-Zugriffsschlüssel} github_token {ein GitHub-Token} slack_token {ein Slack-Token} api_key {ein API-Schlüssel} jwt {ein JSON Web Token} other {sensibler Inhalt}} gefunden.",
-    "pageReported": "Ein Besucher hat diese Seite gemeldet: {reason, select, spam {Spam oder Betrug} harmful {hassvolle, gewalttätige oder belästigende Inhalte} illegal {rechtswidrige Inhalte} privacy {persönliche Daten} copyright {Urheberrecht} other {etwas anderes}}."
+    "pageReported": "Ein Besucher hat diese Seite gemeldet: {reason, select, spam {Spam oder Betrug} harmful {hassvolle, gewalttätige oder belästigende Inhalte} illegal {rechtswidrige Inhalte} privacy {persönliche Daten} copyright {Urheberrecht} other {etwas anderes}}.",
+    "aiLimitTitle": "KI-Ausgaben",
+    "aiLimit": {
+      "near": "80 % des monatlichen Limits von {limit, number} Tokens verbraucht",
+      "reached": "Monatliches Limit von {limit, number} Tokens erreicht",
+      "paused": "Ausgeschaltet: Er hat am ersten Tag schnell viel verbraucht",
+      "raised": "Ein Inhaber hat sein Limit auf {limit, number} Tokens im Monat erhöht",
+      "declined": "Ein Inhaber hat das höhere Limit abgelehnt, das du angefragt hast",
+      "workspaceNear": "Der Workspace hat 80 % seines monatlichen KI-Kostenlimits verbraucht",
+      "workspaceReached": "Der Workspace hat sein monatliches KI-Kostenlimit erreicht"
+    },
+    "limitRequestTitle": "Höheres Limit für {agent}",
+    "limitRequest": "{actor} fragt {tokens, number} Tokens im Monat an"
   },
   "agentReply": {
     "aiOff": "Ich kann nicht antworten: KI ist in diesem Workspace ausgeschaltet.",
@@ -322,5 +334,52 @@
     "whyOwn": "Du hast diese E-Mail abonniert · {schedule}.",
     "unsubscribe": "Abmelden",
     "untitled": "Ohne Titel"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} hat 80 % seines Monatslimits verbraucht",
+      "heading": "{agent} nähert sich seinem Limit",
+      "body": "Der Agent {agent} in {workspace} hat 80 % seines monatlichen Limits von {limit, number} Tokens verbraucht. Sobald er das Limit erreicht, ruhen seine Durchläufe bis zum nächsten Monat."
+    },
+    "reached": {
+      "subject": "{agent} hat sein Monatslimit erreicht",
+      "heading": "{agent} hat sein Limit erreicht",
+      "body": "Der Agent {agent} in {workspace} hat sein monatliches Limit von {limit, number} Tokens verbraucht. Seine Durchläufe ruhen bis zum nächsten Monat, es sei denn, ein Inhaber erhöht das Limit."
+    },
+    "paused": {
+      "subject": "{agent} wurde wegen schnellen Verbrauchs ausgeschaltet",
+      "heading": "{agent} wurde ausgeschaltet",
+      "body": "Der neue Agent {agent} in {workspace} hat am ersten Tag schnell Tokens verbraucht und wurde deshalb ausgeschaltet, bevor er mehr verbrauchte. Prüfe seine Durchläufe und Anweisungen und schalte ihn dann wieder ein."
+    },
+    "raised": {
+      "subject": "Das Limit von {agent} wurde erhöht",
+      "heading": "Deine Anfrage wurde genehmigt",
+      "body": "Ein Inhaber von {workspace} hat das monatliche Limit des Agenten {agent} wie von dir gewünscht auf {limit, number} Tokens erhöht."
+    },
+    "declined": {
+      "subject": "Das Limit von {agent} bleibt unverändert",
+      "heading": "Deine Anfrage wurde abgelehnt",
+      "body": "Ein Inhaber von {workspace} hat das höhere Limit abgelehnt, das du für den Agenten {agent} angefragt hast."
+    },
+    "workspaceNear": {
+      "subject": "{workspace} hat 80 % seines KI-Kostenlimits verbraucht",
+      "heading": "Das KI-Kostenlimit ist fast erreicht",
+      "body": "{workspace} hat 80 % seines monatlichen KI-Kostenlimits verbraucht. Sobald es erreicht ist, pausiert die KI für alle bis zum nächsten Monat."
+    },
+    "workspaceReached": {
+      "subject": "{workspace} hat sein KI-Kostenlimit erreicht",
+      "heading": "Das KI-Kostenlimit wurde erreicht",
+      "body": "{workspace} hat sein monatliches KI-Kostenlimit verbraucht. Die KI pausiert für alle bis zum nächsten Monat, es sei denn, ein Inhaber erhöht das Limit."
+    },
+    "openAgent": "Den Agenten öffnen",
+    "openUsage": "KI-Nutzung öffnen"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} fragt ein höheres Limit für {agent} an",
+    "heading": "Ein höheres Limit für {agent}",
+    "body": "{name} möchte das monatliche Limit des Agenten {agent} in {workspace} von {current, number} auf {tokens, number} Tokens erhöhen.",
+    "note": "Die Begründung: „{note}“",
+    "answer": "Genehmige oder lehne die Anfrage in deinem Leafdesk-Posteingang ab.",
+    "action": "Den Agenten öffnen"
   }
 }

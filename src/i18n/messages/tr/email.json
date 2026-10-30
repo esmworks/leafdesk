@@ -282,7 +282,19 @@
     "reviewTitle": "İncelenecekler",
     "review": "{count, plural, one {{agent} incelemeniz için bir değişiklik önerdi} other {# değişiklik incelemenizi bekliyor, sonuncusu: {agent}}}",
     "sensitiveContent": "Bu sayfada {kind, select, card {bir ödeme kartı numarası} iban {bir IBAN} national_id {bir T.C. kimlik numarası} private_key {bir özel anahtar} aws_key {bir AWS erişim anahtarı} github_token {bir GitHub belirteci} slack_token {bir Slack belirteci} api_key {bir API anahtarı} jwt {bir JSON Web Token} other {hassas içerik}} bulundu.",
-    "pageReported": "Bir ziyaretçi bu sayfayı bildirdi: {reason, select, spam {spam veya dolandırıcılık} harmful {nefret, şiddet veya taciz} illegal {yasa dışı içerik} privacy {kişisel bilgiler} copyright {telif hakkı} other {başka bir şey}}."
+    "pageReported": "Bir ziyaretçi bu sayfayı bildirdi: {reason, select, spam {spam veya dolandırıcılık} harmful {nefret, şiddet veya taciz} illegal {yasa dışı içerik} privacy {kişisel bilgiler} copyright {telif hakkı} other {başka bir şey}}.",
+    "aiLimitTitle": "Yapay zekâ harcaması",
+    "aiLimit": {
+      "near": "Ayda {limit, number} tokenlik limitinin %80'ini kullandı",
+      "reached": "Ayda {limit, number} tokenlik limitine ulaştı",
+      "paused": "Kapatıldı: ilk gününde hızlı harcadı",
+      "raised": "Bir sahip limitini ayda {limit, number} tokene çıkardı",
+      "declined": "Bir sahip istediğiniz yüksek limiti reddetti",
+      "workspaceNear": "Çalışma alanı aylık yapay zekâ maliyet limitinin %80'ini kullandı",
+      "workspaceReached": "Çalışma alanı aylık yapay zekâ maliyet limitine ulaştı"
+    },
+    "limitRequestTitle": "{agent} için daha yüksek limit",
+    "limitRequest": "{actor} ayda {tokens, number} token istiyor"
   },
   "agentReply": {
     "aiOff": "Yanıt veremiyorum: bu çalışma alanında yapay zekâ kapalı.",
@@ -322,5 +334,52 @@
     "whyOwn": "Bu e-postaya abone oldunuz · {schedule}.",
     "unsubscribe": "Abonelikten çık",
     "untitled": "Adsız"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} aylık limitinin %80'ini kullandı",
+      "heading": "{agent} limitine yaklaştı",
+      "body": "{workspace} içindeki {agent} ajanı, ayda {limit, number} tokenlik limitinin %80'ini kullandı. Limite ulaştığında çalışmaları gelecek aya kadar durur."
+    },
+    "reached": {
+      "subject": "{agent} aylık limitine ulaştı",
+      "heading": "{agent} limitine ulaştı",
+      "body": "{workspace} içindeki {agent} ajanı, ayda {limit, number} tokenlik limitini doldurdu. Bir sahip limiti artırmazsa çalışmaları gelecek aya kadar durur."
+    },
+    "paused": {
+      "subject": "{agent} hızlı harcadığı için kapatıldı",
+      "heading": "{agent} kapatıldı",
+      "body": "{workspace} içindeki yeni {agent} ajanı ilk gününde hızla token harcadı; daha fazla harcamadan kapatıldı. Çalışmalarına ve talimatlarına bakıp yeniden açın."
+    },
+    "raised": {
+      "subject": "{agent} ajanının limiti artırıldı",
+      "heading": "İsteğiniz onaylandı",
+      "body": "{workspace} sahiplerinden biri, istediğiniz gibi {agent} ajanının aylık limitini {limit, number} tokene çıkardı."
+    },
+    "declined": {
+      "subject": "{agent} ajanının limiti değişmedi",
+      "heading": "İsteğiniz reddedildi",
+      "body": "{workspace} sahiplerinden biri, {agent} ajanı için istediğiniz yüksek limiti reddetti."
+    },
+    "workspaceNear": {
+      "subject": "{workspace} yapay zekâ maliyet limitinin %80'ini kullandı",
+      "heading": "Yapay zekâ maliyet limiti yaklaştı",
+      "body": "{workspace} aylık yapay zekâ maliyet limitinin %80'ini kullandı. Limite ulaşınca yapay zekâ herkes için gelecek aya kadar durur."
+    },
+    "workspaceReached": {
+      "subject": "{workspace} yapay zekâ maliyet limitine ulaştı",
+      "heading": "Yapay zekâ maliyet limitine ulaşıldı",
+      "body": "{workspace} aylık yapay zekâ maliyet limitini doldurdu. Bir sahip limiti artırmazsa yapay zekâ herkes için gelecek aya kadar durur."
+    },
+    "openAgent": "Ajanı aç",
+    "openUsage": "Yapay zekâ kullanımını aç"
+  },
+  "agentLimitRequest": {
+    "subject": "{name}, {agent} için daha yüksek limit istiyor",
+    "heading": "{agent} için daha yüksek limit",
+    "body": "{name}, {workspace} içindeki {agent} ajanının aylık limitini {current, number} tokenden {tokens, number} tokene çıkarmak istiyor.",
+    "note": "Gerekçesi: “{note}”",
+    "answer": "Leafdesk gelen kutunuzdan onaylayın ya da reddedin.",
+    "action": "Ajanı aç"
   }
 }

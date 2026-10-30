@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} har foreslået en ændring til din gennemgang} other {# ændringer venter på din gennemgang, den seneste fra {agent}}}",
     "automationRun": "Automatisering “{name}”",
     "sensitiveContent": "Fandt {kind, select, card {et betalingskortnummer} iban {et IBAN} national_id {et personnummer} private_key {en privat nøgle} aws_key {en AWS-adgangsnøgle} github_token {et GitHub-token} slack_token {et Slack-token} api_key {en API-nøgle} jwt {et JSON Web Token} other {følsomt indhold}} her. Gennemgå det under Indstillinger > Sikkerhed.",
-    "pageReported": "En besøgende har anmeldt denne side: {reason, select, spam {spam eller svindel} harmful {hadsk, voldeligt eller chikanerende indhold} illegal {ulovligt indhold} privacy {personoplysninger} copyright {ophavsret} other {noget andet}}. Se det under Indstillinger > Sikkerhed."
+    "pageReported": "En besøgende har anmeldt denne side: {reason, select, spam {spam eller svindel} harmful {hadsk, voldeligt eller chikanerende indhold} illegal {ulovligt indhold} privacy {personoplysninger} copyright {ophavsret} other {noget andet}}. Se det under Indstillinger > Sikkerhed.",
+    "aiLimitTitle": "AI-forbrug",
+    "aiLimit": {
+      "near": "Har brugt 80 % af sin månedlige grænse på {limit, number} tokens",
+      "reached": "Har nået sin månedlige grænse på {limit, number} tokens: kørsler stopper til næste måned",
+      "paused": "Slået fra: den brugte hurtigt på sin første dag. Tjek dens kørsler, og slå den til igen.",
+      "raised": "En ejer hævede dens grænse til {limit, number} tokens om måneden",
+      "declined": "En ejer afslog den højere grænse, du bad om",
+      "workspaceNear": "Arbejdsområdet har brugt 80 % af sin månedlige AI-omkostningsgrænse",
+      "workspaceReached": "Arbejdsområdet har nået sin månedlige AI-omkostningsgrænse: AI stopper til næste måned"
+    },
+    "limitRequestTitle": "Højere grænse til {agent}",
+    "limitRequest": "{actor} beder om {tokens, number} tokens om måneden (nu {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "Hæv til {tokens, number}",
+    "limitRequestDecline": "Afslå",
+    "limitRequestFailed": "Kunne ikke besvare anmodningen. Prøv igen."
   },
   "templates": {
     "title": "Skabeloner",

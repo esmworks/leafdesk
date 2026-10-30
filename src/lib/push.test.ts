@@ -79,6 +79,12 @@ const texts: Record<string, string> = {
   read: "Mark as read",
   reaction: "{actor} reacted {emoji} to your comment",
   people: "{name} (+{others})",
+  aiLimitTitle: "AI spending",
+  "aiLimit.near": "Used 80% of its {limit} tokens this month",
+  "aiLimit.paused": "Paused: it spent fast on its first day",
+  "aiLimit.workspaceReached": "The workspace reached its AI cost limit",
+  limitRequestTitle: "Higher limit for {agent}",
+  limitRequest: "{actor} asks for {tokens} tokens a month",
 };
 const t = (key: string, values: Record<string, string | number> = {}) => texts[key].replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ""));
 const date = (iso: string) => `on ${iso}`;
@@ -204,6 +210,31 @@ describe("pushPayload", () => {
     });
     expect(pushPayload(item({ kind: "agent_report", pageId: null, report: { ...report, status: "failed" } }), t, date)?.body).toBe("Its scheduled run didn't finish");
     expect(pushPayload(item({ kind: "agent_report", pageId: null, report: null }), t, date)).toBeNull();
+  });
+
+  it("tells about AI limits: an agent's by its name, the workspace's on its own", () => {
+    const agent = { id: "a1", name: "Board keeper", limit: 1000 };
+    expect(pushPayload(item({ kind: "ai_limit", pageId: null, pageTitle: null, aiLimit: { notice: "near", agent } }), t, date)).toMatchObject({
+      title: "Board keeper",
+      body: "Used 80% of its 1000 tokens this month",
+      url: "/w/ws1/settings?tab=agents&agent=a1",
+    });
+    expect(pushPayload(item({ kind: "ai_limit", pageId: null, aiLimit: { notice: "reached", agent: null } }), t, date)).toMatchObject({
+      title: "AI spending",
+      body: "The workspace reached its AI cost limit",
+      url: "/w/ws1/settings?tab=aiUsage",
+    });
+    expect(pushPayload(item({ kind: "ai_limit", pageId: null, aiLimit: null }), t, date)).toBeNull();
+  });
+
+  it("asks owners about a higher limit while the request waits", () => {
+    const limitRequest = { agentId: "a1", agentName: "Board keeper", tokens: 5000 };
+    expect(pushPayload(item({ kind: "agent_limit_request", pageId: null, limitRequest }), t, date)).toMatchObject({
+      title: "Higher limit for Board keeper",
+      body: "Ayşe asks for 5000 tokens a month",
+      url: "/w/ws1/settings?tab=agents&agent=a1",
+    });
+    expect(pushPayload(item({ kind: "agent_limit_request", pageId: null, limitRequest: null }), t, date)).toBeNull();
   });
 
   it("names what changed in a followed row, never what to", () => {

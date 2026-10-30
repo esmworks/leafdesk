@@ -282,7 +282,19 @@
     "reviewTitle": "Da rivedere",
     "review": "{count, plural, one {{agent} ha proposto una modifica da rivedere} other {# modifiche attendono la tua revisione, l’ultima da {agent}}}",
     "sensitiveContent": "{kind, select, card {Trovato un numero di carta di pagamento} iban {Trovato un IBAN} national_id {Trovato un numero di identificazione nazionale} private_key {Trovata una chiave privata} aws_key {Trovata una chiave di accesso AWS} github_token {Trovato un token GitHub} slack_token {Trovato un token Slack} api_key {Trovata una chiave API} jwt {Trovato un JSON Web Token} other {Trovati contenuti sensibili}} in questa pagina.",
-    "pageReported": "Un visitatore ha segnalato questa pagina: {reason, select, spam {spam o truffa} harmful {contenuti di odio, violenti o molesti} illegal {contenuti illegali} privacy {dati personali} copyright {diritto d'autore} other {altro}}."
+    "pageReported": "Un visitatore ha segnalato questa pagina: {reason, select, spam {spam o truffa} harmful {contenuti di odio, violenti o molesti} illegal {contenuti illegali} privacy {dati personali} copyright {diritto d'autore} other {altro}}.",
+    "aiLimitTitle": "Spesa IA",
+    "aiLimit": {
+      "near": "Utilizzato l’80% del limite mensile di {limit, number} token",
+      "reached": "Raggiunto il limite mensile di {limit, number} token",
+      "paused": "Disattivato: ha speso rapidamente nel primo giorno",
+      "raised": "Un proprietario ha portato il suo limite a {limit, number} token al mese",
+      "declined": "Un proprietario ha rifiutato il limite più alto che hai chiesto",
+      "workspaceNear": "Lo spazio di lavoro ha utilizzato l’80% del limite mensile di costo IA",
+      "workspaceReached": "Lo spazio di lavoro ha raggiunto il limite mensile di costo IA"
+    },
+    "limitRequestTitle": "Limite più alto per {agent}",
+    "limitRequest": "{actor} chiede {tokens, number} token al mese"
   },
   "agentReply": {
     "aiOff": "Non posso rispondere: l’IA è disattivata in questo spazio di lavoro.",
@@ -322,5 +334,52 @@
     "whyOwn": "Ti sei iscritto a questa email · {schedule}.",
     "unsubscribe": "Annulla l’iscrizione",
     "untitled": "Senza titolo"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} ha utilizzato l’80% del suo limite mensile",
+      "heading": "{agent} è vicino al suo limite",
+      "body": "L’agente {agent} in {workspace} ha utilizzato l’80% del suo limite mensile di {limit, number} token. Quando raggiunge il limite, le sue esecuzioni si fermano fino al mese prossimo."
+    },
+    "reached": {
+      "subject": "{agent} ha raggiunto il suo limite mensile",
+      "heading": "{agent} ha raggiunto il suo limite",
+      "body": "L’agente {agent} in {workspace} ha utilizzato il suo limite mensile di {limit, number} token. Le sue esecuzioni si fermano fino al mese prossimo, a meno che un proprietario non aumenti il limite."
+    },
+    "paused": {
+      "subject": "{agent} è stato disattivato per spesa rapida",
+      "heading": "{agent} è stato disattivato",
+      "body": "Il nuovo agente {agent} in {workspace} ha consumato token rapidamente nel primo giorno, quindi è stato disattivato prima che spendesse di più. Controlla le sue esecuzioni e istruzioni, poi riattivalo."
+    },
+    "raised": {
+      "subject": "Il limite di {agent} è stato aumentato",
+      "heading": "La tua richiesta è stata approvata",
+      "body": "Un proprietario di {workspace} ha portato il limite mensile dell’agente {agent} a {limit, number} token, come richiesto."
+    },
+    "declined": {
+      "subject": "Il limite di {agent} resta invariato",
+      "heading": "La tua richiesta è stata rifiutata",
+      "body": "Un proprietario di {workspace} ha rifiutato il limite più alto che hai chiesto per l’agente {agent}."
+    },
+    "workspaceNear": {
+      "subject": "{workspace} ha utilizzato l’80% del suo limite di costo IA",
+      "heading": "Il limite di costo IA è vicino",
+      "body": "{workspace} ha utilizzato l’80% del suo limite mensile di costo IA. Quando raggiunge il limite, l’IA si ferma per tutti fino al mese prossimo."
+    },
+    "workspaceReached": {
+      "subject": "{workspace} ha raggiunto il suo limite di costo IA",
+      "heading": "Il limite di costo IA è stato raggiunto",
+      "body": "{workspace} ha utilizzato il suo limite mensile di costo IA. L’IA si ferma per tutti fino al mese prossimo, a meno che un proprietario non aumenti il limite."
+    },
+    "openAgent": "Apri l’agente",
+    "openUsage": "Apri l’utilizzo dell’IA"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} chiede un limite più alto per {agent}",
+    "heading": "Un limite più alto per {agent}",
+    "body": "{name} chiede di aumentare il limite mensile dell’agente {agent} in {workspace} da {current, number} a {tokens, number} token.",
+    "note": "Il suo motivo: “{note}”",
+    "answer": "Approva o rifiuta nella tua posta in arrivo di Leafdesk.",
+    "action": "Apri l’agente"
   }
 }

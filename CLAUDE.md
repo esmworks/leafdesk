@@ -189,7 +189,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   moved between runs by `withdrawNotices`. Email:
   drafts on rows wait for review (`email-drafts.ts`); a report to the agent's own `mail_recipients`
   goes out at once from the run's person's mailbox (`send-mail.ts`, through `row-mail/send.ts`
-  `sendFromMailbox`).
+  `sendFromMailbox`). Spending guardrails: `server/ai-limit-notices.ts` (the `ai_limit` inbox
+  kind near and at a limit, one row per person and month by a unique index; a new agent spending
+  fast is turned off mid-run from `run.ts`), `agents/limits.ts` (requests for a higher limit,
+  answered from owners' inboxes), pure part `lib/agent-guardrails.ts`; who creates agents is
+  `sharing.ts` `mayCreate` (`agent_creator` when the setting is `chosen`).
 - **Connections** (outbound MCP): `src/server/connections/` (`manage.ts`, `client.ts`, `fetch.ts`
   for the address checks, `events.ts` for inbound events, `approvals.ts`). A fetch of an address a
   member or visitor gives passes `{ untrusted: true }`: only `WEB_FETCH_ALLOWED_HOSTS` applies to
@@ -464,7 +468,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention,
-  agent-schedule, agent-sharing, agent-skills, automation, button, row-buttons, timed-automation, schedule,
+  agent-schedule, agent-sharing, agent-guardrails, agent-skills, automation, button, row-buttons, timed-automation, schedule,
   row-activity, row-follow, row-mail, web-links, discussions, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.

@@ -245,7 +245,23 @@
     "review": "{count, plural, other {# perubahan menunggu tinjauan Anda, yang terbaru dari {agent}}}",
     "automationRun": "Otomatisasi “{name}”",
     "sensitiveContent": "Ditemukan {kind, select, card {nomor kartu pembayaran} iban {IBAN} national_id {nomor identitas nasional} private_key {kunci privat} aws_key {kunci akses AWS} github_token {token GitHub} slack_token {token Slack} api_key {kunci API} jwt {JSON Web Token} other {konten sensitif}} di sini. Tinjau di Pengaturan > Keamanan.",
-    "pageReported": "Seorang pengunjung melaporkan halaman ini: {reason, select, spam {spam atau penipuan} harmful {konten kebencian, kekerasan, atau pelecehan} illegal {konten ilegal} privacy {informasi pribadi} copyright {hak cipta} other {hal lain}}. Tinjau di Pengaturan > Keamanan."
+    "pageReported": "Seorang pengunjung melaporkan halaman ini: {reason, select, spam {spam atau penipuan} harmful {konten kebencian, kekerasan, atau pelecehan} illegal {konten ilegal} privacy {informasi pribadi} copyright {hak cipta} other {hal lain}}. Tinjau di Pengaturan > Keamanan.",
+    "aiLimitTitle": "Pengeluaran AI",
+    "aiLimit": {
+      "near": "Telah memakai 80% dari batas bulanan {limit, number} token",
+      "reached": "Mencapai batas bulanan {limit, number} token: eksekusi berhenti sampai bulan depan",
+      "paused": "Dimatikan: pemakaiannya cepat sekali di hari pertama. Periksa eksekusinya, lalu nyalakan kembali.",
+      "raised": "Pemilik menaikkan batasnya menjadi {limit, number} token sebulan",
+      "declined": "Pemilik menolak batas lebih tinggi yang Anda minta",
+      "workspaceNear": "Ruang kerja telah memakai 80% dari batas biaya AI bulanannya",
+      "workspaceReached": "Ruang kerja mencapai batas biaya AI bulanannya: AI berhenti sampai bulan depan"
+    },
+    "limitRequestTitle": "Batas lebih tinggi untuk {agent}",
+    "limitRequest": "{actor} meminta {tokens, number} token sebulan (sekarang {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "Naikkan ke {tokens, number}",
+    "limitRequestDecline": "Tolak",
+    "limitRequestFailed": "Tidak dapat menjawab permintaan. Coba lagi."
   },
   "templates": {
     "title": "Templat",

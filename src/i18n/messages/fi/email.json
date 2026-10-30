@@ -282,7 +282,19 @@
     "reviewTitle": "Tarkistettavat",
     "review": "{count, plural, one {{agent} ehdotti muutosta tarkistettavaksesi} other {# muutosta odottaa tarkistustasi, uusin agentilta {agent}}}",
     "sensitiveContent": "Tältä sivulta löytyi {kind, select, card {maksukortin numero} iban {IBAN-tilinumero} national_id {henkilötunnus} private_key {yksityinen avain} aws_key {AWS-käyttöavain} github_token {GitHub-tunnus} slack_token {Slack-tunnus} api_key {API-avain} jwt {JSON Web Token} other {arkaluonteista sisältöä}}.",
-    "pageReported": "Vierailija ilmoitti tästä sivusta: {reason, select, spam {roskapostia tai huijaus} harmful {vihamielistä, väkivaltaista tai häiritsevää sisältöä} illegal {laitonta sisältöä} privacy {henkilötietoja} copyright {tekijänoikeus} other {jotain muuta}}."
+    "pageReported": "Vierailija ilmoitti tästä sivusta: {reason, select, spam {roskapostia tai huijaus} harmful {vihamielistä, väkivaltaista tai häiritsevää sisältöä} illegal {laitonta sisältöä} privacy {henkilötietoja} copyright {tekijänoikeus} other {jotain muuta}}.",
+    "aiLimitTitle": "Tekoälyn kulutus",
+    "aiLimit": {
+      "near": "On käyttänyt 80 % kuukausirajastaan, {limit, number} tokenia",
+      "reached": "On saavuttanut kuukausirajansa, {limit, number} tokenia",
+      "paused": "Poistettu käytöstä: se kulutti nopeasti ensimmäisenä päivänään",
+      "raised": "Omistaja nosti sen rajaksi {limit, number} tokenia kuukaudessa",
+      "declined": "Omistaja hylkäsi pyytämäsi korkeamman rajan",
+      "workspaceNear": "Työtila on käyttänyt 80 % kuukausittaisesta tekoälykustannusrajastaan",
+      "workspaceReached": "Työtila on saavuttanut kuukausittaisen tekoälykustannusrajansa"
+    },
+    "limitRequestTitle": "Korkeampi raja agentille {agent}",
+    "limitRequest": "{actor} pyytää {tokens, number} tokenia kuukaudessa"
   },
   "agentReply": {
     "aiOff": "En voi vastata: tekoäly on poistettu käytöstä tässä työtilassa.",
@@ -322,5 +334,52 @@
     "whyOwn": "Olet tilannut tämän sähköpostin · {schedule}.",
     "unsubscribe": "Peruuta tilaus",
     "untitled": "Nimetön"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} on käyttänyt 80 % kuukausirajastaan",
+      "heading": "{agent} lähestyy rajaansa",
+      "body": "Agentti {agent} työtilassa {workspace} on käyttänyt 80 % kuukausirajastaan, {limit, number} tokenia. Kun raja täyttyy, sen ajot pysähtyvät seuraavaan kuuhun."
+    },
+    "reached": {
+      "subject": "{agent} on saavuttanut kuukausirajansa",
+      "heading": "{agent} on saavuttanut rajansa",
+      "body": "Agentti {agent} työtilassa {workspace} on käyttänyt kuukausirajansa, {limit, number} tokenia. Sen ajot pysähtyvät seuraavaan kuuhun, ellei omistaja nosta rajaa."
+    },
+    "paused": {
+      "subject": "{agent} poistettiin käytöstä nopean kulutuksen vuoksi",
+      "heading": "{agent} poistettiin käytöstä",
+      "body": "Uusi agentti {agent} työtilassa {workspace} kulutti tokeneita nopeasti ensimmäisenä päivänään, joten se poistettiin käytöstä ennen kuin se kulutti lisää. Tarkista sen ajot ja ohjeet ja ota se sitten takaisin käyttöön."
+    },
+    "raised": {
+      "subject": "Agentin {agent} rajaa nostettiin",
+      "heading": "Pyyntösi hyväksyttiin",
+      "body": "Työtilan {workspace} omistaja nosti agentin {agent} kuukausirajan arvoon {limit, number} tokenia pyytämälläsi tavalla."
+    },
+    "declined": {
+      "subject": "Agentin {agent} raja pysyy ennallaan",
+      "heading": "Pyyntösi hylättiin",
+      "body": "Työtilan {workspace} omistaja hylkäsi agentille {agent} pyytämäsi korkeamman rajan."
+    },
+    "workspaceNear": {
+      "subject": "{workspace} on käyttänyt 80 % tekoälykustannusrajastaan",
+      "heading": "Tekoälykustannusraja lähestyy",
+      "body": "{workspace} on käyttänyt 80 % kuukausittaisesta tekoälykustannusrajastaan. Kun raja täyttyy, tekoäly pysähtyy kaikilta seuraavaan kuuhun."
+    },
+    "workspaceReached": {
+      "subject": "{workspace} on saavuttanut tekoälykustannusrajansa",
+      "heading": "Tekoälykustannusraja täyttyi",
+      "body": "{workspace} on käyttänyt kuukausittaisen tekoälykustannusrajansa. Tekoäly pysähtyy kaikilta seuraavaan kuuhun, ellei omistaja nosta rajaa."
+    },
+    "openAgent": "Avaa agentti",
+    "openUsage": "Avaa tekoälyn käyttö"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} pyytää korkeampaa rajaa agentille {agent}",
+    "heading": "Korkeampi raja agentille {agent}",
+    "body": "{name} pyytää nostamaan agentin {agent} kuukausirajaa työtilassa {workspace} arvosta {current, number} arvoon {tokens, number} tokenia.",
+    "note": "Hänen perustelunsa: ”{note}”",
+    "answer": "Hyväksy tai hylkää pyyntö Leafdeskin saapuneissa.",
+    "action": "Avaa agentti"
   }
 }

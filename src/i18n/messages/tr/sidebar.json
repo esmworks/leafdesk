@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} incelemeniz için bir değişiklik önerdi} other {# değişiklik incelemenizi bekliyor, sonuncusu: {agent}}}",
     "automationRun": "“{name}” otomasyonu",
     "sensitiveContent": "Burada {kind, select, card {bir ödeme kartı numarası} iban {bir IBAN} national_id {bir T.C. kimlik numarası} private_key {bir özel anahtar} aws_key {bir AWS erişim anahtarı} github_token {bir GitHub belirteci} slack_token {bir Slack belirteci} api_key {bir API anahtarı} jwt {bir JSON Web Token} other {hassas içerik}} bulundu. Ayarlar › Güvenlik bölümünden inceleyin.",
-    "pageReported": "Bir ziyaretçi bu sayfayı bildirdi: {reason, select, spam {spam veya dolandırıcılık} harmful {nefret, şiddet veya taciz} illegal {yasa dışı içerik} privacy {kişisel bilgiler} copyright {telif hakkı} other {başka bir şey}}. Ayarlar > Güvenlik'te inceleyin."
+    "pageReported": "Bir ziyaretçi bu sayfayı bildirdi: {reason, select, spam {spam veya dolandırıcılık} harmful {nefret, şiddet veya taciz} illegal {yasa dışı içerik} privacy {kişisel bilgiler} copyright {telif hakkı} other {başka bir şey}}. Ayarlar > Güvenlik'te inceleyin.",
+    "aiLimitTitle": "Yapay zekâ harcaması",
+    "aiLimit": {
+      "near": "Ayda {limit, number} tokenlik limitinin %80'ini kullandı",
+      "reached": "Ayda {limit, number} tokenlik limitine ulaştı: çalışmaları gelecek aya kadar durur",
+      "paused": "Kapatıldı: ilk gününde hızlı harcadı. Çalışmalarına bakıp yeniden açın.",
+      "raised": "Bir sahip limitini ayda {limit, number} tokene çıkardı",
+      "declined": "Bir sahip istediğiniz yüksek limiti reddetti",
+      "workspaceNear": "Çalışma alanı aylık yapay zekâ maliyet limitinin %80'ini kullandı",
+      "workspaceReached": "Çalışma alanı aylık yapay zekâ maliyet limitine ulaştı: yapay zekâ gelecek aya kadar durur"
+    },
+    "limitRequestTitle": "{agent} için daha yüksek limit",
+    "limitRequest": "{actor} ayda {tokens, number} token istiyor (şu an {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "{tokens, number} tokene çıkar",
+    "limitRequestDecline": "Reddet",
+    "limitRequestFailed": "İstek yanıtlanamadı. Yeniden deneyin."
   },
   "templates": {
     "title": "Şablonlar",

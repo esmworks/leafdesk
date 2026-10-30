@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Guardrails for agents' spending.** *Who can create agents* has a third choice: owners and
+  the members and groups they pick. Owners, and an agent's creator, get an inbox item and an email
+  when an agent passes 80% of its monthly token limit and when it reaches it, and owners when the
+  workspace passes 80% of its AI cost limit and reaches it, once each a month. An agent less than
+  a day old that spends fast is turned off mid-run, and the same people hear why. Someone with full
+  access who isn't an owner can ask for a higher limit from the agent's *Runs* tab; owners raise
+  it or decline from the inbox, and the person who asked is told. Migration 0163.
+
 - **"A row is added" can wait until the row is filled in.** The trigger has a choice: *Right
   away*, as before, or *Once the row is filled in*. A row added with the *New* button starts out
   without a title, so an automation reading it (an agent's run, say) found it empty; with the

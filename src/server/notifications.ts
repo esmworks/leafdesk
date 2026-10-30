@@ -5,6 +5,7 @@ import type { RequestedLevel } from "@/lib/access-requests";
 import { UNSNOOZABLE_KINDS } from "@/lib/snooze";
 import {
   accessRequest,
+  agentLimitRequest,
   agentRun,
   connection,
   databaseAutomation,
@@ -26,6 +27,7 @@ import {
 } from "@/db/schema";
 import { addReactor, parseReactors, reactionSummary, removeReactor, type Reactor } from "@/lib/comment-reactions";
 import { avatarSrc } from "@/lib/avatar";
+import { isAiLimitNotice, type AiLimitNotice } from "@/lib/agent-guardrails";
 import { callConnectionName, callToSend, inboxCallInput, isScheduleRun, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
@@ -789,6 +791,26 @@ export type InboxItem = {
   reaction: InboxReaction | null;
   /** Comments: when it is about the thread's suggested edit, what happened to it (lib/suggestions). */
   suggestion: SuggestionNotice | null;
+  /** AI limits: what happened, to the agent's limit (`agent` set) or the workspace's cost limit. */
+  aiLimit: InboxAiLimit | null;
+  /** Requests for a higher agent limit: what was asked, while it waits for an answer. */
+  limitRequest: InboxLimitRequest | null;
+};
+
+export type InboxAiLimit = {
+  notice: AiLimitNotice;
+  agent: { id: string; name: string; icon: string | null; limit: number | null } | null;
+};
+
+export type InboxLimitRequest = {
+  id: string;
+  agentId: string;
+  agentName: string;
+  agentIcon: string | null;
+  tokens: number;
+  note: string;
+  /** The agent's limit as it is now. */
+  current: number | null;
 };
 
 export type InboxReaction = {
@@ -910,6 +932,8 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
       and(inArray(notification.kind, OWNER_KINDS), ownsWorkspace(userId, notification.workspaceId)),
       // Join requests are for whoever decides them: owners and membership admins.
       and(eq(notification.kind, "join_request"), managesPeopleOf(userId, notification.workspaceId)),
+      // Notices about AI limits also go to an agent's creator, who may be a member.
+      and(eq(notification.kind, "ai_limit"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // Changes waiting for review have no page: they show while the user is in the workspace.
       and(eq(notification.kind, "review"), inWorkspace(sql`${userId}`, notification.workspaceId)),
     ),
@@ -978,6 +1002,7 @@ export async function listNotifications(
       followUpSequence: emailSequence.name,
       commentId: notification.commentId,
       reactions: notification.reactions,
+      agentLimitRequestId: notification.agentLimitRequestId,
     })
     .from(notification)
     .leftJoin(page, eq(page.id, notification.pageId))
@@ -1015,7 +1040,7 @@ export async function listNotifications(
   };
   const runsOf = (kind: NotificationKind) => rows.flatMap((r) => (r.kind === kind && r.agentRunId ? [r.agentRunId] : []));
   const reviewWorkspaces = [...new Set(rows.filter((r) => r.kind === "review").map((r) => r.workspaceId))];
-  const [approvals, proposals, reports, updates, emails, reviews, reactions] = await Promise.all([
+  const [approvals, proposals, reports, updates, emails, reviews, reactions, limits, limitRequests] = await Promise.all([
     approvalsOf(userId, runsOf("agent_approval")),
     inboxProposals(userId, runsOf("agent_memory")),
     reportsOf(userId, runsOf("agent_report")),
@@ -1023,6 +1048,8 @@ export async function listNotifications(
     rowEmailsOf(userId, rows.filter((r) => r.kind === "row_email")),
     Promise.all(reviewWorkspaces.map(async (id) => [id, await countPendingFor(userId, id)] as const)).then((counts) => new Map(counts)),
     reactionsOf(rows.filter((r) => r.kind === "reaction")),
+    aiLimitAgentsOf(rows.flatMap((r) => (r.kind === "ai_limit" && r.actorId ? [r.actorId] : []))),
+    limitRequestsOf(rows.flatMap((r) => (r.kind === "agent_limit_request" && r.agentLimitRequestId ? [r.agentLimitRequestId] : []))),
   ]);
   // A row update with nothing left the user may see (a property's access changed since) isn't shown,
   // nor a call the user no longer answers (they can't open its row any more).
@@ -1033,14 +1060,23 @@ export async function listNotifications(
       (r.kind !== "row_email" || emails.has(r.id)) &&
       // Nor changes for review once none waits for the user any more.
       (r.kind !== "review" || (reviews.get(r.workspaceId) ?? 0) > 0) &&
-      !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null),
+      !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null) &&
+      // Nor a request for a higher limit that was answered meanwhile.
+      (r.kind !== "agent_limit_request" || (r.agentLimitRequestId !== null && limitRequests.has(r.agentLimitRequestId))) &&
+      (r.kind !== "ai_limit" || isAiLimitNotice(r.automationMessage)),
   );
   return Promise.all(
-    shown.map(async ({ readAt, actorEmail, actorImage, requestId, requestMessage, requestLevel, requesterLevel, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, followUpSequence, commentId, reactions: _reactions, automationMessage, ...row }) => ({
+    shown.map(async ({ readAt, actorEmail, actorImage, requestId, requestMessage, requestLevel, requesterLevel, requesterRole, agentRunId, rowDatabaseId, rowCreatedBy, rowProperties, changes, rowEmailId, followUpSequence, commentId, reactions: _reactions, automationMessage, agentLimitRequestId, ...row }) => ({
       ...row,
       actorImage: avatarSrc(actorImage),
-      // A reaction's message is the comment it quotes (see reaction below), a comment's what became of its suggestion.
-      automationMessage: row.kind === "reaction" || row.kind === "comment" ? null : automationMessage,
+      // A reaction's message is the comment it quotes (see reaction below), a comment's what became of its suggestion,
+      // an AI limit's which notice it is (aiLimit below).
+      automationMessage: row.kind === "reaction" || row.kind === "comment" || row.kind === "ai_limit" ? null : automationMessage,
+      aiLimit:
+        row.kind === "ai_limit" && isAiLimitNotice(automationMessage)
+          ? { notice: automationMessage, agent: (row.actorId && limits.get(row.actorId)) || null }
+          : null,
+      limitRequest: row.kind === "agent_limit_request" && agentLimitRequestId ? (limitRequests.get(agentLimitRequestId) ?? null) : null,
       suggestion: row.kind === "comment" && isSuggestionNotice(automationMessage) ? automationMessage : null,
       reaction: reactions.get(row.id) ?? null,
       rowUpdate: updates.get(row.id) ?? null,
@@ -1065,6 +1101,39 @@ export async function listNotifications(
           : null,
     })),
   );
+}
+
+/** The agents whose limits these notices are about, by the agents' user ids. */
+async function aiLimitAgentsOf(agentUserIds: string[]) {
+  const out = new Map<string, NonNullable<InboxAiLimit["agent"]>>();
+  if (!agentUserIds.length) return out;
+  const agents = await db
+    .select({ id: workspaceAgent.id, userId: workspaceAgent.userId, name: workspaceAgent.name, icon: workspaceAgent.icon, limit: workspaceAgent.monthlyTokenLimit })
+    .from(workspaceAgent)
+    .where(inArray(workspaceAgent.userId, [...new Set(agentUserIds)]));
+  for (const { userId, ...agent } of agents) out.set(userId, agent);
+  return out;
+}
+
+/** The requests for a higher limit these notifications are about, while they still wait. */
+async function limitRequestsOf(ids: string[]) {
+  const out = new Map<string, InboxLimitRequest>();
+  if (!ids.length) return out;
+  const found = await db
+    .select({
+      id: agentLimitRequest.id,
+      agentId: workspaceAgent.id,
+      agentName: workspaceAgent.name,
+      agentIcon: workspaceAgent.icon,
+      tokens: agentLimitRequest.tokens,
+      note: agentLimitRequest.note,
+      current: workspaceAgent.monthlyTokenLimit,
+    })
+    .from(agentLimitRequest)
+    .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentLimitRequest.agentId))
+    .where(and(inArray(agentLimitRequest.id, [...new Set(ids)]), eq(agentLimitRequest.status, "pending")));
+  for (const request of found) out.set(request.id, request);
+  return out;
 }
 
 /** What these reaction notifications tell: who reacted with what, the latest first, and to which comment. */

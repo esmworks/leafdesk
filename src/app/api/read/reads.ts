@@ -1,5 +1,5 @@
 import { agentChatInfoAction, agentChatTurnAction, agentThreadAction, agentThreadRunsAction, getAgentConversationAction } from "@/app/actions/agent-chat";
-import { sidebarAgentsAction } from "@/app/actions/agents";
+import { pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
@@ -30,6 +30,7 @@ export const READS = {
   unreadCount: unreadCountAction,
   pendingCount: pendingCountAction,
   sidebarAgents: sidebarAgentsAction,
+  agentLimitRequest: pendingAgentLimitRequestAction,
   recentSearch: recentSearchAction,
   searchFilterOptions: searchFilterOptionsAction,
   search: searchAction,

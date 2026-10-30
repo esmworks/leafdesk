@@ -282,7 +282,19 @@
     "reviewTitle": "Do przejrzenia",
     "review": "{count, plural, one {{agent} proponuje zmianę do przejrzenia} few {# zmiany czekają, aż je przejrzysz, najnowsza od: {agent}} many {# zmian czeka, aż je przejrzysz, najnowsza od: {agent}} other {# zmiany czeka, aż ją przejrzysz, najnowsza od: {agent}}}",
     "sensitiveContent": "Na tej stronie znaleziono {kind, select, card {numer karty płatniczej} iban {numer IBAN} national_id {krajowy numer identyfikacyjny} private_key {klucz prywatny} aws_key {klucz dostępu AWS} github_token {token GitHub} slack_token {token Slack} api_key {klucz API} jwt {token JWT (JSON Web Token)} other {poufne treści}}.",
-    "pageReported": "Odwiedzający zgłosił tę stronę: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}."
+    "pageReported": "Odwiedzający zgłosił tę stronę: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}.",
+    "aiLimitTitle": "Wydatki na AI",
+    "aiLimit": {
+      "near": "Wykorzystano 80% miesięcznego limitu {limit, number} tokenów",
+      "reached": "Osiągnięto miesięczny limit {limit, number} tokenów",
+      "paused": "Wyłączono: wydał zbyt szybko w pierwszym dniu",
+      "raised": "Właściciel podniósł jego limit do {limit, number} tokenów miesięcznie",
+      "declined": "Właściciel odrzucił wyższy limit, o który prosisz",
+      "workspaceNear": "Obszar roboczy wykorzystał 80% miesięcznego limitu kosztów AI",
+      "workspaceReached": "Obszar roboczy osiągnął miesięczny limit kosztów AI"
+    },
+    "limitRequestTitle": "Wyższy limit dla agenta {agent}",
+    "limitRequest": "{actor} prosi o {tokens, number} tokenów miesięcznie"
   },
   "agentReply": {
     "aiOff": "Nie mogę odpowiedzieć: AI jest wyłączone w tym obszarze roboczym.",
@@ -322,5 +334,52 @@
     "whyOwn": "Zapisałeś(-aś) się na tę wiadomość e-mail · {schedule}.",
     "unsubscribe": "Zrezygnuj z subskrypcji",
     "untitled": "Bez tytułu"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "Agent {agent} wykorzystał 80% miesięcznego limitu",
+      "heading": "Agent {agent} zbliża się do limitu",
+      "body": "Agent {agent} w obszarze {workspace} wykorzystał 80% miesięcznego limitu {limit, number} tokenów. Po jego osiągnięciu uruchomienia są wstrzymane do następnego miesiąca."
+    },
+    "reached": {
+      "subject": "Agent {agent} osiągnął miesięczny limit",
+      "heading": "Agent {agent} osiągnął limit",
+      "body": "Agent {agent} w obszarze {workspace} wykorzystał miesięczny limit {limit, number} tokenów. Jego uruchomienia są wstrzymane do następnego miesiąca, chyba że właściciel podniesie limit."
+    },
+    "paused": {
+      "subject": "Agent {agent} został wyłączony za szybkie wydatki",
+      "heading": "Agent {agent} został wyłączony",
+      "body": "Nowy agent {agent} w obszarze {workspace} zużywał tokeny bardzo szybko w pierwszym dniu, więc wyłączono go, zanim wydał więcej. Sprawdź jego uruchomienia i instrukcje, a potem włącz go ponownie."
+    },
+    "raised": {
+      "subject": "Limit agenta {agent} został podniesiony",
+      "heading": "Twoja prośba została zatwierdzona",
+      "body": "Właściciel obszaru {workspace} podniósł miesięczny limit agenta {agent} do {limit, number} tokenów, zgodnie z Twoją prośbą."
+    },
+    "declined": {
+      "subject": "Limit agenta {agent} pozostaje bez zmian",
+      "heading": "Twoja prośba została odrzucona",
+      "body": "Właściciel obszaru {workspace} odrzucił wyższy limit, o który prosisz dla agenta {agent}."
+    },
+    "workspaceNear": {
+      "subject": "Obszar {workspace} wykorzystał 80% limitu kosztów AI",
+      "heading": "Limit kosztów AI jest blisko",
+      "body": "Obszar {workspace} wykorzystał 80% miesięcznego limitu kosztów AI. Po jego osiągnięciu AI będzie wstrzymana dla wszystkich do następnego miesiąca."
+    },
+    "workspaceReached": {
+      "subject": "Obszar {workspace} osiągnął limit kosztów AI",
+      "heading": "Osiągnięto limit kosztów AI",
+      "body": "Obszar {workspace} wykorzystał miesięczny limit kosztów AI. AI jest wstrzymana dla wszystkich do następnego miesiąca, chyba że właściciel podniesie limit."
+    },
+    "openAgent": "Otwórz agenta",
+    "openUsage": "Otwórz wykorzystanie AI"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} prosi o wyższy limit dla agenta {agent}",
+    "heading": "Wyższy limit dla agenta {agent}",
+    "body": "{name} prosi o podniesienie miesięcznego limitu agenta {agent} w obszarze {workspace} z {current, number} do {tokens, number} tokenów.",
+    "note": "Powód: “{note}”",
+    "answer": "Zatwierdź lub odrzuć w skrzynce odbiorczej Leafdesk.",
+    "action": "Otwórz agenta"
   }
 }

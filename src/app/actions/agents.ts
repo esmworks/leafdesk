@@ -34,12 +34,13 @@ import {
   type AgentInput,
 } from "@/server/agents/manage";
 import { helperChoices } from "@/server/agents/helpers";
-import { agentSharing, parseShareTarget, removeAgentShare, setAgentShare } from "@/server/agents/sharing";
+import { addAgentCreator, agentCreators, agentSharing, parseShareTarget, removeAgentCreator, removeAgentShare, setAgentShare } from "@/server/agents/sharing";
 import { agentGrantSummary } from "@/server/connections/manage";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
 import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, updateAgentMemory } from "@/server/agents/memory";
 import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
+import { decideLimitRequest, pendingLimitRequest, requestHigherLimit } from "@/server/agents/limits";
 import { agentUsageMonths } from "@/server/agents/usage";
 import { getAgentVersion, listAgentVersions, restoreAgentVersion } from "@/server/agents/versions";
 import { viewStep } from "@/server/ai-chat";
@@ -52,7 +53,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -165,6 +166,35 @@ export async function removeAgentShareAction(workspaceId: string, agentId: strin
     },
     { refresh: true },
   );
+}
+
+/** For owners: the members and groups the "chosen" setting lets create agents, and those that may be added. */
+export async function agentCreatorsAction(workspaceId: string) {
+  return run(workspaceId, (userId) => agentCreators(userId, String(workspaceId)));
+}
+
+/** A person or a group from untrusted input, for the "chosen" list; null when it names neither. */
+function creatorTarget(target: unknown) {
+  const parsed = parseShareTarget(target);
+  return parsed && parsed.kind !== "everyone" ? parsed : null;
+}
+
+/** Lets a member or a group create agents; returns the list as it is now. Owners only. */
+export async function addAgentCreatorAction(workspaceId: string, target: unknown) {
+  return run(workspaceId, (userId) => {
+    const parsed = creatorTarget(target);
+    if (!parsed) throw new AgentError("notAMember", "Pick a person or a group");
+    return addAgentCreator(userId, String(workspaceId), parsed);
+  });
+}
+
+/** Takes a member or a group off those who may create agents; returns the list as it is now. Owners only. */
+export async function removeAgentCreatorAction(workspaceId: string, target: unknown) {
+  return run(workspaceId, (userId) => {
+    const parsed = creatorTarget(target);
+    if (!parsed) throw new AgentError("notAMember", "Pick a person or a group");
+    return removeAgentCreator(userId, String(workspaceId), parsed);
+  });
 }
 
 /** The connections' tools the agent may use, named, for anyone it is shared with (owners change them in the Connections tab). */
@@ -294,6 +324,21 @@ export async function removeAgentScheduleAction(workspaceId: string, agentId: st
 /** What the agent's runs used by month, this month first. */
 export async function agentUsageAction(workspaceId: string, agentId: string) {
   return run(workspaceId, (userId) => agentUsageMonths(userId, agentId));
+}
+
+/** The higher limit the viewer asked the owners for and is still waiting on, if any. */
+export async function pendingAgentLimitRequestAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => pendingLimitRequest(userId, String(agentId)));
+}
+
+/** Asks the workspace's owners for a higher monthly token limit (full access, not an owner). */
+export async function requestAgentLimitAction(workspaceId: string, agentId: string, tokens: number, note: string) {
+  return run(workspaceId, (userId) => requestHigherLimit(userId, String(agentId), tokens, note));
+}
+
+/** An owner raises the limit to what was asked for, or declines (from the inbox). */
+export async function decideAgentLimitRequestAction(workspaceId: string, requestId: string, approve: boolean) {
+  return run(workspaceId, (userId) => decideLimitRequest(userId, String(workspaceId), String(requestId), approve === true), { refresh: true });
 }
 
 /** An agent's latest runs, with the pages their steps name as the viewer may see them now. */

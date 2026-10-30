@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, check, date, doublePrecision, foreignKey, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
+import { bigint, boolean, check, date, doublePrecision, foreignKey, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique, uniqueIndex } from "drizzle-orm/pg-core";
 import type {
   AgentAccessLevel,
   AgentModel,
@@ -286,5 +286,80 @@ export const agentShare = pgTable(
     }).onDelete("cascade"),
     check("agent_share_level_check", sql`${t.level} in ('full', 'edit', 'interact')`),
     check("agent_share_one_principal", sql`${t.userId} is null or ${t.groupId} is null`),
+  ],
+);
+
+/**
+ * Who may create agents when the workspace's `agentCreation` setting is "chosen": these people and
+ * the members of these groups, besides the owners (see server/agents/sharing.ts). An entry goes
+ * with the person leaving the workspace or the group being deleted.
+ */
+export const agentCreator = pgTable(
+  "agent_creator",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    workspaceId: text("workspace_id").notNull(),
+    userId: text("user_id"),
+    groupId: text("group_id"),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("agent_creator_principal_key").on(t.workspaceId, t.userId, t.groupId).nullsNotDistinct(),
+    index("agent_creator_group_idx").on(t.groupId),
+    foreignKey({
+      name: "agent_creator_workspace_fk",
+      columns: [t.workspaceId],
+      foreignColumns: [workspace.id],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "agent_creator_member_fk",
+      columns: [t.workspaceId, t.userId],
+      foreignColumns: [workspaceMember.workspaceId, workspaceMember.userId],
+    }).onDelete("cascade"),
+    foreignKey({
+      name: "agent_creator_group_fk",
+      columns: [t.groupId, t.workspaceId],
+      foreignColumns: [memberGroup.id, memberGroup.workspaceId],
+    }).onDelete("cascade"),
+    check("agent_creator_one_principal", sql`(${t.userId} is null) <> (${t.groupId} is null)`),
+  ],
+);
+
+/**
+ * Someone with full access to an agent asking the workspace's owners for a higher monthly token
+ * limit (server/agents/limits.ts): it waits (`pending`) until an owner raises the limit to
+ * `tokens` or declines; one waits at a time per agent and person.
+ */
+export const agentLimitRequest = pgTable(
+  "agent_limit_request",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    requestedBy: text("requested_by")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** The monthly token limit asked for. */
+    tokens: integer("tokens").notNull(),
+    /** Why, in the asker's words. */
+    note: text("note").notNull().default(""),
+    status: text("status").$type<"pending" | "approved" | "declined">().notNull().default("pending"),
+    decidedBy: text("decided_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("agent_limit_request_agent_idx").on(t.agentId),
+    uniqueIndex("agent_limit_request_pending_idx").on(t.agentId, t.requestedBy).where(sql`${t.status} = 'pending'`),
+    check("agent_limit_request_status_check", sql`${t.status} in ('pending', 'approved', 'declined')`),
   ],
 );

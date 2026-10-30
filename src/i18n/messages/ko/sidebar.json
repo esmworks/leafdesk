@@ -245,7 +245,23 @@
     "review": "{count, plural, =1 {{agent}이(가) 검토할 변경을 제안했습니다} other {변경 #개가 검토를 기다립니다. 최근 제안: {agent}}}",
     "automationRun": "자동화 “{name}”",
     "sensitiveContent": "여기에서 {kind, select, card {결제 카드 번호} iban {IBAN} national_id {신분증 번호} private_key {개인 키} aws_key {AWS 액세스 키} github_token {GitHub 토큰} slack_token {Slack 토큰} api_key {API 키} jwt {JSON Web Token} other {민감한 콘텐츠}}이(가) 발견되었습니다. 설정 > 보안에서 확인하세요.",
-    "pageReported": "방문자가 이 페이지를 신고했습니다: {reason, select, spam {스팸 또는 사기} harmful {혐오, 폭력 또는 괴롭힘} illegal {불법 콘텐츠} privacy {개인정보} copyright {저작권} other {기타}}. 설정 > 보안에서 확인하세요."
+    "pageReported": "방문자가 이 페이지를 신고했습니다: {reason, select, spam {스팸 또는 사기} harmful {혐오, 폭력 또는 괴롭힘} illegal {불법 콘텐츠} privacy {개인정보} copyright {저작권} other {기타}}. 설정 > 보안에서 확인하세요.",
+    "aiLimitTitle": "AI 사용 금액",
+    "aiLimit": {
+      "near": "월 한도 {limit, number}토큰의 80%를 사용했습니다",
+      "reached": "월 한도 {limit, number}토큰에 도달했습니다. 다음 달까지 실행이 중지됩니다",
+      "paused": "꺼짐: 첫날 빠르게 소모했습니다. 실행 내역을 확인한 후 다시 켜세요.",
+      "raised": "소유자가 한도를 월 {limit, number}토큰으로 올렸습니다",
+      "declined": "소유자가 요청하신 더 높은 한도를 거절했습니다",
+      "workspaceNear": "워크스페이스가 월간 AI 비용 한도의 80%를 사용했습니다",
+      "workspaceReached": "워크스페이스가 월간 AI 비용 한도에 도달했습니다. 다음 달까지 AI가 중지됩니다"
+    },
+    "limitRequestTitle": "{agent}의 한도 상향",
+    "limitRequest": "{actor}님이 월 {tokens, number}토큰을 요청했습니다(현재 {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "{tokens, number}(으)로 올리기",
+    "limitRequestDecline": "거절",
+    "limitRequestFailed": "요청에 답변하지 못했습니다. 다시 시도하세요."
   },
   "templates": {
     "title": "템플릿",

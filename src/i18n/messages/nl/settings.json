@@ -782,7 +782,10 @@
         "repeat": "Controleer wanneer hij herhaalt en de tijdzone.",
         "helpers": "Kies maximaal 10 andere agents van deze werkruimte die niet gearchiveerd zijn.",
         "shareLevel": "Kies volledige toegang, kan bewerken of kan bekijken en gebruiken.",
-        "mailRecipients": "Vul maximaal 10 e-mailadressen in."
+        "mailRecipients": "Vul maximaal 10 e-mailadressen in.",
+        "requestTokens": "Vraag een geheel aantal tokens boven de huidige limiet, tot 1.000.000.000.",
+        "requestNote": "Geef de reden in maximaal 500 tekens.",
+        "noLimit": "Deze agent heeft geen limiet om te verhogen."
       },
       "noteEmpty": "Schrijf wat de agent moet onthouden.",
       "noteTooLong": "Een notitie mag maximaal {max} tekens hebben.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Deze versie bestaat niet meer.",
       "notAllowed": "Je toegang tot deze agent staat dit niet toe.",
       "ownersOnly": "Alleen eigenaren van de werkruimte wijzigen de maandelijkse tokenlimiet van een agent.",
-      "notAMember": "Een agent kan alleen worden gedeeld met de eigenaren, leden en groepen van de werkruimte."
+      "notAMember": "Een agent kan alleen worden gedeeld met de eigenaren, leden en groepen van de werkruimte.",
+      "requestNotFound": "Dit verzoek is al beantwoord."
     },
     "connections": {
       "description": "De tools van elke koppeling die deze agent mag gebruiken. Tools die alleen lezen, draaien direct, behalve op een rij uit een anoniem formulierantwoord; elke andere wacht op goedkeuring van een eigenaar telkens als de agent haar aanroept.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Je kunt deze agent bekijken, met hem chatten en hem vermelden. Vraag iemand die hem kan bewerken om hem te wijzigen.",
     "creation": {
-      "title": "Alleen eigenaren van de werkruimte kunnen agents maken",
-      "description": "Uit: leden kunnen ook agents maken, en krijgen volledige toegang tot de agents die ze maken. Gasten nooit.",
-      "ownersOnly": "Alleen eigenaren van de werkruimte kunnen dit wijzigen."
+      "ownersOnly": "Alleen eigenaren van de werkruimte kunnen dit wijzigen.",
+      "who": "Wie agents kan maken",
+      "whoHelp": "Wie een agent maakt, krijgt er volledige toegang toe. Gasten nooit.",
+      "choices": {
+        "owners": "Alleen eigenaren",
+        "members": "Eigenaren en leden",
+        "chosen": "Eigenaren en de hieronder gekozen mensen en groepen"
+      },
+      "add": "Mensen of groepen toevoegen",
+      "noMatches": "Geen resultaten",
+      "groupMembers": "{count, plural, one {# lid} other {# leden}}",
+      "remove": "{name} verwijderen",
+      "list": "Mensen en groepen die agents kunnen maken",
+      "noneChosen": "Nog niemand gekozen: alleen eigenaren kunnen agents maken."
+    },
+    "limitRequest": {
+      "ask": "Een hogere limiet aanvragen",
+      "change": "Verzoek wijzigen",
+      "help": "Alleen eigenaren wijzigen de limiet van {limit} tokens per maand. Vraag hen om meer: ze ontvangen je verzoek in hun inbox en per e-mail.",
+      "tokens": "Tokens per maand",
+      "note": "Reden (optioneel)",
+      "send": "Verzoek versturen",
+      "update": "Verzoek bijwerken",
+      "waiting": "Je vroeg op {date} om {tokens} tokens per maand. Wachten op een eigenaar."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Mensen met een toegestaan e-maildomein",
       "anyone_with_link": "Iedereen met de deelnamelink",
       "members_with_approval": "Leden, met goedkeuring van een eigenaar",
-      "any_member": "Eigenaren en leden"
+      "any_member": "Eigenaren en leden",
+      "chosen": "Eigenaren en gekozen mensen en groepen"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Een planning ingesteld voor de agent “{target}”",
         "schedule_removed": "Een planning van de agent “{target}” verwijderd",
         "shared": "De toegang van {subject} tot de agent “{target}” ingesteld: {level}",
-        "unshared": "{subject} verwijderd uit het delen van de agent “{target}”"
+        "unshared": "{subject} verwijderd uit het delen van de agent “{target}”",
+        "creator_added": "{subject} toestemming gegeven om agents te maken",
+        "creator_removed": "{subject} verwijderd bij wie agents kan maken"
       },
       "connection": {
         "created": "De koppeling “{target}” toegevoegd",

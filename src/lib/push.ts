@@ -3,6 +3,7 @@
  * subscription, and what a push message says about a notification (see server/push.ts).
  */
 
+import { aiLimitLine, aiLimitPath, type AiLimitNotice } from "./agent-guardrails";
 import { agentMemoryPath, agentReportPath } from "./agents";
 import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
@@ -138,6 +139,10 @@ export type PushItem = {
   reaction?: { emojis: string[]; people: { name: string }[] } | null;
   /** Comments about a suggested edit: what became of it. */
   suggestion?: SuggestionNotice | null;
+  /** AI limits: what happened, to an agent's limit or (no agent) the workspace's cost limit. */
+  aiLimit?: { notice: AiLimitNotice; agent: { id: string; name: string; limit: number | null } | null } | null;
+  /** Requests for a higher agent limit, while they wait. */
+  limitRequest?: { agentId: string; agentName: string; tokens: number } | null;
   /** When it was recorded: a verification reminder recorded at or after its date says the verification ended. */
   createdAt?: Date | string;
 };
@@ -160,6 +165,9 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.kind === "agent_report") return item.report ? agentReportPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.kind === "review") return reviewPath(item.workspaceId);
+  if (item.kind === "ai_limit") return aiLimitPath(item.workspaceId, item.aiLimit?.agent?.id ?? null);
+  // The owner answers in the inbox; the agent is where its limit and use are.
+  if (item.kind === "agent_limit_request") return aiLimitPath(item.workspaceId, item.limitRequest?.agentId ?? null);
   // The workspace's AI account is chosen in Settings > General.
   if (item.kind === "ai_account_detached") return `/w/${item.workspaceId}/settings`;
   // Findings are reviewed, and dismissed, in Settings > Security.
@@ -206,6 +214,15 @@ export function pushPayload(
     // How many, not what they change: a lock screen shows it to whoever holds the device.
     title = t("reviewTitle");
     line = t("review", { count: item.review?.count ?? 1, agent: actor });
+  } else if (item.kind === "ai_limit") {
+    if (!item.aiLimit) return null;
+    const agent = item.aiLimit.agent;
+    title = agent ? agent.name : t("aiLimitTitle");
+    line = t(`aiLimit.${aiLimitLine(item.aiLimit.notice, agent !== null)}`, { limit: agent?.limit ?? 0 });
+  } else if (item.kind === "agent_limit_request") {
+    if (!item.limitRequest) return null;
+    title = t("limitRequestTitle", { agent: item.limitRequest.agentName });
+    line = t("limitRequest", { actor, tokens: item.limitRequest.tokens });
   } else if (item.kind === "ai_account_detached") {
     title = t("aiAccountTitle");
     line = t("aiAccountDetached", { actor });

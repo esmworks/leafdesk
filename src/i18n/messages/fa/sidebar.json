@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} تغییری را برای بازبینی شما پیشنهاد کرد} other {# تغییر منتظر بازبینی شماست، آخرینش از {agent}}}",
     "automationRun": "خودکارسازی «{name}»",
     "sensitiveContent": "{kind, select, card {یک شمارهٔ کارت پرداخت} iban {یک شمارهٔ IBAN} national_id {یک شمارهٔ شناسایی ملی} private_key {یک کلید خصوصی} aws_key {یک کلید دسترسی AWS} github_token {یک توکن GitHub} slack_token {یک توکن Slack} api_key {یک کلید API} jwt {یک توکن JSON Web Token} other {محتوای حساس}} اینجا پیدا شد. آن را در تنظیمات > امنیت بررسی کنید.",
-    "pageReported": "یک بازدیدکننده این صفحه را گزارش کرد: {reason, select, spam {هرزنامه یا کلاهبرداری} harmful {محتوای نفرت‌آمیز، خشن یا آزاردهنده} illegal {محتوای غیرقانونی} privacy {اطلاعات شخصی} copyright {حق نشر} other {چیز دیگر}}. در تنظیمات > امنیت بررسی کنید."
+    "pageReported": "یک بازدیدکننده این صفحه را گزارش کرد: {reason, select, spam {هرزنامه یا کلاهبرداری} harmful {محتوای نفرت‌آمیز، خشن یا آزاردهنده} illegal {محتوای غیرقانونی} privacy {اطلاعات شخصی} copyright {حق نشر} other {چیز دیگر}}. در تنظیمات > امنیت بررسی کنید.",
+    "aiLimitTitle": "هزینهٔ هوش مصنوعی",
+    "aiLimit": {
+      "near": "80٪ از سقف ماهانهٔ {limit, number} توکن خود را مصرف کرده است",
+      "reached": "به سقف ماهانهٔ {limit, number} توکن رسیده است: اجراها تا ماه بعد متوقف می‌شوند",
+      "paused": "خاموش شد: در روز اول خیلی سریع مصرف کرد. اجراهایش را بررسی کنید و دوباره روشنش کنید.",
+      "raised": "یک مالک سقف آن را به {limit, number} توکن در ماه افزایش داد",
+      "declined": "یک مالک سقف بالاتری را که درخواست کرده بودید رد کرد",
+      "workspaceNear": "فضای کاری 80٪ از سقف ماهانهٔ هزینهٔ هوش مصنوعی خود را مصرف کرده است",
+      "workspaceReached": "فضای کاری به سقف ماهانهٔ هزینهٔ هوش مصنوعی رسیده است: هوش مصنوعی تا ماه بعد متوقف می‌شود"
+    },
+    "limitRequestTitle": "سقف بالاتر برای {agent}",
+    "limitRequest": "{actor} {tokens, number} توکن در ماه درخواست می‌کند (اکنون {current, number})",
+    "limitRequestNote": "«{note}»",
+    "limitRequestApprove": "افزایش به {tokens, number}",
+    "limitRequestDecline": "رد کردن",
+    "limitRequestFailed": "پاسخ به درخواست ممکن نشد. دوباره تلاش کنید."
   },
   "templates": {
     "title": "الگوها",

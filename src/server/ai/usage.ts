@@ -11,6 +11,7 @@
  * never load it; tests give the AI layer a ledger of their own (memoryAiUsageLedger) or none.
  */
 import type { Usage } from "@earendil-works/pi-ai";
+import { limitStage } from "@/lib/agent-guardrails";
 import { aiLimitHit, type AiLimitHit, type AiUsageRow, ZERO_AI_USAGE } from "@/lib/ai-usage";
 import { env } from "@/lib/env";
 import { AiError } from "./errors";
@@ -66,6 +67,13 @@ export async function holdToLimit(ledger: AiUsageLedger | null, workspaceId: str
   if (!ledger) return;
   const server = env.aiMonthlyLimitUsd;
   const spent = await ledger.spending(workspaceId, now);
+  // Owners hear when the month nears their limit and when it reaches it (loaded here: that module
+  // reaches notifications and mail, which the AI door mustn't import up front).
+  if (limitStage(spent.totalUsd, spent.limit)) {
+    void import("@/server/ai-limit-notices")
+      .then((m) => m.noticeWorkspaceSpending(workspaceId, spent.totalUsd, spent.limit, now))
+      .catch((error) => console.error("[ai limits] could not look at the workspace's spending", error));
+  }
   const hit: AiLimitHit = aiLimitHit({ workspace: spent.limit, server }, spent, { ownAccount });
   if (hit) {
     throw new AiError(

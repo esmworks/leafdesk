@@ -141,6 +141,8 @@ export const AUDIT_CATEGORIES = {
     "agent.schedule_removed",
     "agent.shared",
     "agent.unshared",
+    "agent.creator_added",
+    "agent.creator_removed",
     "review.approved",
     "review.dismissed",
   ],

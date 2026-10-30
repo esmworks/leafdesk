@@ -782,7 +782,10 @@
         "repeat": "Revisa cuándo se repite y su zona horaria.",
         "helpers": "Elige hasta 10 agentes más de este espacio de trabajo que no estén archivados.",
         "shareLevel": "Elige acceso completo, puede editar o puede ver e interactuar.",
-        "mailRecipients": "Escribe hasta 10 direcciones de correo."
+        "mailRecipients": "Escribe hasta 10 direcciones de correo.",
+        "requestTokens": "Pide un número entero de tokens por encima del límite actual, hasta 1.000.000.000.",
+        "requestNote": "Explica el motivo en 500 caracteres como máximo.",
+        "noLimit": "Este agente no tiene un límite que subir."
       },
       "noteEmpty": "Escribe qué debe recordar el agente.",
       "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Esta versión ya no existe.",
       "notAllowed": "Tu acceso a este agente no lo permite.",
       "ownersOnly": "Solo los propietarios del espacio de trabajo cambian el límite mensual de tokens de un agente.",
-      "notAMember": "Un agente solo se puede compartir con los propietarios, miembros y grupos del espacio de trabajo."
+      "notAMember": "Un agente solo se puede compartir con los propietarios, miembros y grupos del espacio de trabajo.",
+      "requestNotFound": "Esta solicitud ya se respondió."
     },
     "connections": {
       "description": "Las herramientas de cada conexión que este agente puede usar. Las que solo leen se ejecutan al momento, salvo en una fila que viene de una respuesta anónima a un formulario; las demás esperan la aprobación de un propietario cada vez que el agente las llama.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Puedes ver este agente, chatear con él y mencionarlo. Para cambiarlo, pídeselo a alguien que pueda editarlo.",
     "creation": {
-      "title": "Solo los propietarios del espacio de trabajo pueden crear agentes",
-      "description": "Desactivado: los miembros también pueden crear agentes y obtienen acceso completo a los que crean. Los invitados nunca.",
-      "ownersOnly": "Solo los propietarios del espacio de trabajo pueden cambiar esto."
+      "ownersOnly": "Solo los propietarios del espacio de trabajo pueden cambiar esto.",
+      "who": "Quién puede crear agentes",
+      "whoHelp": "Quien crea un agente obtiene acceso total a él. Los invitados nunca pueden.",
+      "choices": {
+        "owners": "Solo los propietarios",
+        "members": "Propietarios y miembros",
+        "chosen": "Propietarios y las personas y grupos elegidos abajo"
+      },
+      "add": "Añadir personas o grupos",
+      "noMatches": "Sin coincidencias",
+      "groupMembers": "{count, plural, one {# miembro} other {# miembros}}",
+      "remove": "Quitar a {name}",
+      "list": "Personas y grupos que pueden crear agentes",
+      "noneChosen": "Todavía no hay nadie elegido: solo los propietarios pueden crear agentes."
+    },
+    "limitRequest": {
+      "ask": "Pedir un límite mayor",
+      "change": "Cambiar la solicitud",
+      "help": "Solo los propietarios cambian el límite de {limit} tokens al mes. Pídeles más: reciben tu solicitud en su bandeja de entrada y por correo.",
+      "tokens": "Tokens al mes",
+      "note": "Motivo (opcional)",
+      "send": "Enviar solicitud",
+      "update": "Actualizar solicitud",
+      "waiting": "Pediste {tokens} tokens al mes el {date}. A la espera de un propietario."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Personas con un dominio de correo permitido",
       "anyone_with_link": "Cualquiera con el enlace para unirse",
       "members_with_approval": "Miembros, con la aprobación de un propietario",
-      "any_member": "Propietarios y miembros"
+      "any_member": "Propietarios y miembros",
+      "chosen": "Propietarios y las personas y grupos elegidos"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Programó el agente «{target}»",
         "schedule_removed": "Eliminó una programación del agente «{target}»",
         "shared": "Fijó el acceso de {subject} al agente «{target}»: {level}",
-        "unshared": "Quitó a {subject} del uso compartido del agente «{target}»"
+        "unshared": "Quitó a {subject} del uso compartido del agente «{target}»",
+        "creator_added": "Permitió a {subject} crear agentes",
+        "creator_removed": "Quitó a {subject} de quienes pueden crear agentes"
       },
       "connection": {
         "created": "Añadió la conexión «{target}»",

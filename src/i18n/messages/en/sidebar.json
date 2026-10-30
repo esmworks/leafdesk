@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} proposed a change for your review} other {# changes wait for your review, the latest from {agent}}}",
     "automationRun": "Automation “{name}”",
     "sensitiveContent": "Found {kind, select, card {a payment card number} iban {an IBAN} national_id {a national ID number} private_key {a private key} aws_key {an AWS access key} github_token {a GitHub token} slack_token {a Slack token} api_key {an API key} jwt {a JSON Web Token} other {sensitive content}} here. Review it in Settings > Security.",
-    "pageReported": "A visitor reported this page: {reason, select, spam {spam or a scam} harmful {hateful, violent or harassing content} illegal {illegal content} privacy {personal information} copyright {copyright} other {something else}}. Review it in Settings > Security."
+    "pageReported": "A visitor reported this page: {reason, select, spam {spam or a scam} harmful {hateful, violent or harassing content} illegal {illegal content} privacy {personal information} copyright {copyright} other {something else}}. Review it in Settings > Security.",
+    "aiLimitTitle": "AI spending",
+    "aiLimit": {
+      "near": "Used 80% of its monthly limit of {limit, number} tokens",
+      "reached": "Reached its monthly limit of {limit, number} tokens: runs stop until next month",
+      "paused": "Turned off: it spent fast on its first day. Check its runs, then turn it back on.",
+      "raised": "An owner raised its limit to {limit, number} tokens a month",
+      "declined": "An owner declined the higher limit you asked for",
+      "workspaceNear": "The workspace used 80% of its monthly AI cost limit",
+      "workspaceReached": "The workspace reached its monthly AI cost limit: AI stops until next month"
+    },
+    "limitRequestTitle": "Higher limit for {agent}",
+    "limitRequest": "{actor} asks for {tokens, number} tokens a month (now {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "Raise to {tokens, number}",
+    "limitRequestDecline": "Decline",
+    "limitRequestFailed": "Couldn’t answer the request. Try again."
   },
   "templates": {
     "title": "Templates",

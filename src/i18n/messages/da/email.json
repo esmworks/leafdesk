@@ -282,7 +282,19 @@
     "reviewTitle": "Til gennemgang",
     "review": "{count, plural, one {{agent} har foreslået en ændring til din gennemgang} other {# ændringer venter på din gennemgang, den seneste fra {agent}}}",
     "sensitiveContent": "Fandt {kind, select, card {et betalingskortnummer} iban {et IBAN} national_id {et personnummer} private_key {en privat nøgle} aws_key {en AWS-adgangsnøgle} github_token {et GitHub-token} slack_token {et Slack-token} api_key {en API-nøgle} jwt {et JSON Web Token} other {følsomt indhold}} på denne side.",
-    "pageReported": "En besøgende har anmeldt denne side: {reason, select, spam {spam eller svindel} harmful {hadsk, voldeligt eller chikanerende indhold} illegal {ulovligt indhold} privacy {personoplysninger} copyright {ophavsret} other {noget andet}}."
+    "pageReported": "En besøgende har anmeldt denne side: {reason, select, spam {spam eller svindel} harmful {hadsk, voldeligt eller chikanerende indhold} illegal {ulovligt indhold} privacy {personoplysninger} copyright {ophavsret} other {noget andet}}.",
+    "aiLimitTitle": "AI-forbrug",
+    "aiLimit": {
+      "near": "Har brugt 80 % af sin månedlige grænse på {limit, number} tokens",
+      "reached": "Har nået sin månedlige grænse på {limit, number} tokens",
+      "paused": "Slået fra: den brugte hurtigt på sin første dag",
+      "raised": "En ejer hævede dens grænse til {limit, number} tokens om måneden",
+      "declined": "En ejer afslog den højere grænse, du bad om",
+      "workspaceNear": "Arbejdsområdet har brugt 80 % af sin månedlige AI-omkostningsgrænse",
+      "workspaceReached": "Arbejdsområdet har nået sin månedlige AI-omkostningsgrænse"
+    },
+    "limitRequestTitle": "Højere grænse til {agent}",
+    "limitRequest": "{actor} beder om {tokens, number} tokens om måneden"
   },
   "agentReply": {
     "aiOff": "Jeg kan ikke svare: AI er slået fra i dette arbejdsområde.",
@@ -322,5 +334,52 @@
     "whyOwn": "Du har tilmeldt dig denne e-mail · {schedule}.",
     "unsubscribe": "Afmeld",
     "untitled": "Uden titel"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} har brugt 80 % af sin månedlige grænse",
+      "heading": "{agent} nærmer sig sin grænse",
+      "body": "Agenten {agent} i {workspace} har brugt 80 % af sin månedlige grænse på {limit, number} tokens. Når den når grænsen, stopper dens kørsler til næste måned."
+    },
+    "reached": {
+      "subject": "{agent} har nået sin månedlige grænse",
+      "heading": "{agent} har nået sin grænse",
+      "body": "Agenten {agent} i {workspace} har brugt sin månedlige grænse på {limit, number} tokens. Dens kørsler stopper til næste måned, medmindre en ejer hæver grænsen."
+    },
+    "paused": {
+      "subject": "{agent} blev slået fra for hurtigt forbrug",
+      "heading": "{agent} blev slået fra",
+      "body": "Den nye agent {agent} i {workspace} brugte tokens hurtigt på sin første dag, så den blev slået fra, før den brugte mere. Tjek dens kørsler og instruktioner, og slå den til igen."
+    },
+    "raised": {
+      "subject": "Grænsen for {agent} blev hævet",
+      "heading": "Din anmodning blev godkendt",
+      "body": "En ejer af {workspace} hævede den månedlige grænse for agenten {agent} til {limit, number} tokens, som du bad om."
+    },
+    "declined": {
+      "subject": "Grænsen for {agent} forbliver, som den er",
+      "heading": "Din anmodning blev afslået",
+      "body": "En ejer af {workspace} afslog den højere grænse, du bad om til agenten {agent}."
+    },
+    "workspaceNear": {
+      "subject": "{workspace} har brugt 80 % af sin AI-omkostningsgrænse",
+      "heading": "AI-omkostningsgrænsen nærmer sig",
+      "body": "{workspace} har brugt 80 % af sin månedlige AI-omkostningsgrænse. Når den nås, stopper AI for alle til næste måned."
+    },
+    "workspaceReached": {
+      "subject": "{workspace} har nået sin AI-omkostningsgrænse",
+      "heading": "AI-omkostningsgrænsen er nået",
+      "body": "{workspace} har brugt sin månedlige AI-omkostningsgrænse. AI stopper for alle til næste måned, medmindre en ejer hæver grænsen."
+    },
+    "openAgent": "Åbn agenten",
+    "openUsage": "Åbn AI-forbrug"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} beder om en højere grænse til {agent}",
+    "heading": "En højere grænse til {agent}",
+    "body": "{name} beder om at hæve den månedlige grænse for agenten {agent} i {workspace} fra {current, number} til {tokens, number} tokens.",
+    "note": "Begrundelse: “{note}”",
+    "answer": "Godkend eller afslå den i din Leafdesk-indbakke.",
+    "action": "Åbn agenten"
   }
 }

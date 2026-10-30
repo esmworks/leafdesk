@@ -16,10 +16,10 @@ export { monthOf };
 import { agentFor } from "./manage";
 
 
-/** Adds to the agent's usage for the month of `now`. */
-export async function addAgentUsage(agentId: string, used: { runs?: number; inputTokens: number; outputTokens: number; costUsd: number }, now = new Date()) {
+/** Adds to the agent's usage for the month of `now`; returns the month's tokens (input and output) with it. */
+export async function addAgentUsage(agentId: string, used: { runs?: number; inputTokens: number; outputTokens: number; costUsd: number }, now = new Date()): Promise<number> {
   const runs = used.runs ?? 0;
-  await db
+  const [row] = await db
     .insert(agentUsage)
     .values({ agentId, month: monthOf(now), runs, inputTokens: used.inputTokens, outputTokens: used.outputTokens, costUsd: used.costUsd })
     .onConflictDoUpdate({
@@ -30,7 +30,9 @@ export async function addAgentUsage(agentId: string, used: { runs?: number; inpu
         outputTokens: sql`${agentUsage.outputTokens} + ${used.outputTokens}`,
         costUsd: sql`${agentUsage.costUsd} + ${used.costUsd}`,
       },
-    });
+    })
+    .returning({ tokens: sql<number>`${agentUsage.inputTokens} + ${agentUsage.outputTokens}`.mapWith(Number) });
+  return row?.tokens ?? 0;
 }
 
 /** Whether the agent's runs used its monthly token limit (none set: never). */

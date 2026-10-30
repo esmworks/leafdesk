@@ -214,7 +214,7 @@ export function AgentShareTab({ workspaceId, agent }: { workspaceId: string; age
 
 const selectClassName = "h-7 max-w-64 rounded-md bg-transparent px-1.5 text-sm text-fg-muted hover:bg-bg-hover focus:outline-none disabled:opacity-60";
 
-function Row({ avatar, label, control }: { avatar: ReactNode; label: ReactNode; control: ReactNode }) {
+export function Row({ avatar, label, control }: { avatar: ReactNode; label: ReactNode; control: ReactNode }) {
   return (
     <li className="flex list-none items-center gap-2 py-1">
       {avatar}
@@ -224,7 +224,7 @@ function Row({ avatar, label, control }: { avatar: ReactNode; label: ReactNode; 
   );
 }
 
-function Label({ name, detail }: { name: string; detail?: string }) {
+export function Label({ name, detail }: { name: string; detail?: string }) {
   return (
     <div className="min-w-0">
       <div className="truncate text-sm">{name}</div>
@@ -237,7 +237,7 @@ function Label({ name, detail }: { name: string; detail?: string }) {
   );
 }
 
-function GroupAvatar() {
+export function GroupAvatar() {
   return (
     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-accent/15 text-accent">
       <UsersRound className="h-3.5 w-3.5" aria-hidden />

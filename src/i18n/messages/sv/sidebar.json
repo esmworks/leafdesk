@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} föreslog en ändring för din granskning} other {# ändringar väntar på din granskning, den senaste från {agent}}}",
     "automationRun": "Automatisering ”{name}”",
     "sensitiveContent": "Hittade {kind, select, card {ett betalkortsnummer} iban {ett IBAN} national_id {ett personnummer} private_key {en privat nyckel} aws_key {en AWS-åtkomstnyckel} github_token {en GitHub-token} slack_token {en Slack-token} api_key {en API-nyckel} jwt {en JSON Web Token} other {känsligt innehåll}} här. Granska det i Inställningar > Säkerhet.",
-    "pageReported": "En besökare anmälde den här sidan: {reason, select, spam {spam eller bedrägeri} harmful {hatiskt, våldsamt eller trakasserande innehåll} illegal {olagligt innehåll} privacy {personuppgifter} copyright {upphovsrätt} other {något annat}}. Granska det under Inställningar > Säkerhet."
+    "pageReported": "En besökare anmälde den här sidan: {reason, select, spam {spam eller bedrägeri} harmful {hatiskt, våldsamt eller trakasserande innehåll} illegal {olagligt innehåll} privacy {personuppgifter} copyright {upphovsrätt} other {något annat}}. Granska det under Inställningar > Säkerhet.",
+    "aiLimitTitle": "AI-kostnader",
+    "aiLimit": {
+      "near": "Har använt 80 % av månadsgränsen på {limit, number} tokens",
+      "reached": "Har nått månadsgränsen på {limit, number} tokens: körningar stoppas till nästa månad",
+      "paused": "Avstängd: den förbrukade snabbt under första dagen. Kontrollera dess körningar och slå på den igen.",
+      "raised": "En ägare höjde gränsen till {limit, number} tokens i månaden",
+      "declined": "En ägare avslog den högre gränsen du bad om",
+      "workspaceNear": "Arbetsytan har använt 80 % av månadsgränsen för AI-kostnader",
+      "workspaceReached": "Arbetsytan har nått månadsgränsen för AI-kostnader: AI stoppas till nästa månad"
+    },
+    "limitRequestTitle": "Högre gräns för {agent}",
+    "limitRequest": "{actor} ber om {tokens, number} tokens i månaden (nu {current, number})",
+    "limitRequestNote": "”{note}”",
+    "limitRequestApprove": "Höj till {tokens, number}",
+    "limitRequestDecline": "Avslå",
+    "limitRequestFailed": "Det gick inte att besvara begäran. Försök igen."
   },
   "templates": {
     "title": "Mallar",

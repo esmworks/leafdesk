@@ -107,6 +107,7 @@ import { getMailSettings } from "@/server/row-mail/settings";
 import { storageNoticeOf, type StorageNotice } from "@/lib/workspace-storage";
 import { getStorageSettings } from "@/server/storage/settings";
 import { listAgents } from "@/server/agents/manage";
+import { canCreateAgents } from "@/server/agents/sharing";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { webSearchService } from "@/server/agents/web";
 import { listConnections } from "@/server/connections/manage";
@@ -803,12 +804,12 @@ async function AgentsTab({
   /** The agent's tab a link opens (a run opens its runs). */
   agentTab?: "memory" | "schedules" | "chat";
 }) {
-  const [agents, settings, proposals] = await Promise.all([
+  const [agents, settings, proposals, canCreate] = await Promise.all([
     listAgents(userId, workspaceId, { archived: true }),
     getWorkspaceSettings(userId, workspaceId),
     proposedNoteCounts(userId, workspaceId),
+    canCreateAgents(userId, workspaceId),
   ]);
-  const canCreate = isOwner || settings.agentCreation === "members";
   // Templates that start from a connection's events are for owners: the connections are theirs.
   const templates = canCreate ? (await getLocale().then(builtinAgents)).filter((item) => isOwner || !isEventAgentKey(item.key)) : [];
   const info = await aiInfoFor(workspaceId);

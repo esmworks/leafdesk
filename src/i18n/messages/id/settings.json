@@ -782,7 +782,10 @@
         "repeat": "Periksa kapan agen berulang dan zona waktunya.",
         "helpers": "Pilih hingga 10 agen lain di ruang kerja ini yang tidak diarsipkan.",
         "shareLevel": "Pilih akses penuh, dapat mengedit, atau dapat melihat & berinteraksi.",
-        "mailRecipients": "Masukkan hingga 10 alamat email."
+        "mailRecipients": "Masukkan hingga 10 alamat email.",
+        "requestTokens": "Minta jumlah token berupa bilangan bulat di atas batas saat ini, hingga 1.000.000.000.",
+        "requestNote": "Jelaskan alasannya dalam maksimal 500 karakter.",
+        "noLimit": "Agen ini tidak punya batas yang dapat dinaikkan."
       },
       "noteEmpty": "Tulis apa yang harus diingat agen.",
       "noteTooLong": "Catatan dapat memiliki paling banyak {max} karakter.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Versi ini sudah tidak ada.",
       "notAllowed": "Akses Anda ke agen ini tidak mengizinkan hal ini.",
       "ownersOnly": "Hanya pemilik ruang kerja yang mengubah batas token bulanan agen.",
-      "notAMember": "Agen hanya dapat dibagikan kepada pemilik, anggota, dan grup ruang kerja."
+      "notAMember": "Agen hanya dapat dibagikan kepada pemilik, anggota, dan grup ruang kerja.",
+      "requestNotFound": "Permintaan ini sudah dijawab."
     },
     "connections": {
       "description": "Alat dari setiap koneksi yang boleh dipakai agen ini. Alat yang hanya membaca langsung berjalan, kecuali pada baris dari jawaban formulir anonim; yang lain menunggu persetujuan pemilik setiap kali agen memanggilnya.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Anda dapat melihat agen ini, mengobrol dengannya, dan menyebutnya. Untuk mengubahnya, minta seseorang yang dapat mengeditnya.",
     "creation": {
-      "title": "Hanya pemilik ruang kerja yang dapat membuat agen",
-      "description": "Mati: anggota juga dapat membuat agen, dan mendapat akses penuh ke agen yang mereka buat. Tamu tidak pernah bisa.",
-      "ownersOnly": "Hanya pemilik ruang kerja yang dapat mengubah ini."
+      "ownersOnly": "Hanya pemilik ruang kerja yang dapat mengubah ini.",
+      "who": "Siapa yang dapat membuat agen",
+      "whoHelp": "Siapa pun yang membuat agen mendapat akses penuh ke agen itu. Tamu tidak pernah bisa.",
+      "choices": {
+        "owners": "Hanya pemilik",
+        "members": "Pemilik dan anggota",
+        "chosen": "Pemilik serta orang dan grup yang dipilih di bawah"
+      },
+      "add": "Tambahkan orang atau grup",
+      "noMatches": "Tidak ada yang cocok",
+      "groupMembers": "{count, plural, other {# anggota}}",
+      "remove": "Hapus {name}",
+      "list": "Orang dan grup yang dapat membuat agen",
+      "noneChosen": "Belum ada yang dipilih: hanya pemilik yang dapat membuat agen."
+    },
+    "limitRequest": {
+      "ask": "Minta batas yang lebih tinggi",
+      "change": "Ubah permintaan",
+      "help": "Hanya pemilik yang dapat mengubah batas {limit} token sebulan. Minta tambahan kepada mereka: permintaan Anda masuk ke kotak masuk dan email mereka.",
+      "tokens": "Token sebulan",
+      "note": "Alasan (opsional)",
+      "send": "Kirim permintaan",
+      "update": "Perbarui permintaan",
+      "waiting": "Anda meminta {tokens} token sebulan pada {date}. Menunggu pemilik."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Orang dengan domain email yang diizinkan",
       "anyone_with_link": "Siapa pun yang memiliki tautan bergabung",
       "members_with_approval": "Anggota, dengan persetujuan pemilik",
-      "any_member": "Pemilik dan anggota"
+      "any_member": "Pemilik dan anggota",
+      "chosen": "Pemilik serta orang dan grup yang dipilih"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Mengatur jadwal untuk agen “{target}”",
         "schedule_removed": "Menghapus jadwal agen “{target}”",
         "shared": "Mengatur akses {subject} ke agen “{target}”: {level}",
-        "unshared": "Mengeluarkan {subject} dari berbagi agen “{target}”"
+        "unshared": "Mengeluarkan {subject} dari berbagi agen “{target}”",
+        "creator_added": "Mengizinkan {subject} membuat agen",
+        "creator_removed": "Menghapus {subject} dari yang dapat membuat agen"
       },
       "connection": {
         "created": "Menambahkan koneksi “{target}”",

@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} proponuje zmianę do przejrzenia} few {# zmiany czekają, aż je przejrzysz, najnowsza od: {agent}} many {# zmian czeka, aż je przejrzysz, najnowsza od: {agent}} other {# zmiany czeka, aż ją przejrzysz, najnowsza od: {agent}}}",
     "automationRun": "Automatyzacja „{name}”",
     "sensitiveContent": "Znaleziono tutaj {kind, select, card {numer karty płatniczej} iban {numer IBAN} national_id {krajowy numer identyfikacyjny} private_key {klucz prywatny} aws_key {klucz dostępu AWS} github_token {token GitHub} slack_token {token Slack} api_key {klucz API} jwt {token JWT (JSON Web Token)} other {poufne treści}}. Sprawdź w sekcji Ustawienia > Bezpieczeństwo.",
-    "pageReported": "Odwiedzający zgłosił tę stronę: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}. Sprawdź w Ustawienia > Bezpieczeństwo."
+    "pageReported": "Odwiedzający zgłosił tę stronę: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}. Sprawdź w Ustawienia > Bezpieczeństwo.",
+    "aiLimitTitle": "Wydatki na AI",
+    "aiLimit": {
+      "near": "Wykorzystano 80% miesięcznego limitu {limit, number} tokenów",
+      "reached": "Osiągnięto miesięczny limit {limit, number} tokenów: uruchomienia są wstrzymane do następnego miesiąca",
+      "paused": "Wyłączono: wydał zbyt szybko w pierwszym dniu. Sprawdź jego uruchomienia, a potem włącz go ponownie.",
+      "raised": "Właściciel podniósł jego limit do {limit, number} tokenów miesięcznie",
+      "declined": "Właściciel odrzucił wyższy limit, o który prosisz",
+      "workspaceNear": "Obszar roboczy wykorzystał 80% miesięcznego limitu kosztów AI",
+      "workspaceReached": "Obszar roboczy osiągnął miesięczny limit kosztów AI: AI jest wstrzymana do następnego miesiąca"
+    },
+    "limitRequestTitle": "Wyższy limit dla agenta {agent}",
+    "limitRequest": "{actor} prosi o {tokens, number} tokenów miesięcznie (obecnie {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "Podnieś do {tokens, number}",
+    "limitRequestDecline": "Odrzuć",
+    "limitRequestFailed": "Nie udało się odpowiedzieć na prośbę. Spróbuj ponownie."
   },
   "templates": {
     "title": "Szablony",

@@ -282,7 +282,19 @@
     "reviewTitle": "Untuk ditinjau",
     "review": "{count, plural, other {# perubahan menunggu tinjauan Anda, yang terbaru dari {agent}}}",
     "sensitiveContent": "Ditemukan {kind, select, card {nomor kartu pembayaran} iban {IBAN} national_id {nomor identitas nasional} private_key {kunci privat} aws_key {kunci akses AWS} github_token {token GitHub} slack_token {token Slack} api_key {kunci API} jwt {JSON Web Token} other {konten sensitif}} di halaman ini.",
-    "pageReported": "Seorang pengunjung melaporkan halaman ini: {reason, select, spam {spam atau penipuan} harmful {konten kebencian, kekerasan, atau pelecehan} illegal {konten ilegal} privacy {informasi pribadi} copyright {hak cipta} other {hal lain}}."
+    "pageReported": "Seorang pengunjung melaporkan halaman ini: {reason, select, spam {spam atau penipuan} harmful {konten kebencian, kekerasan, atau pelecehan} illegal {konten ilegal} privacy {informasi pribadi} copyright {hak cipta} other {hal lain}}.",
+    "aiLimitTitle": "Pengeluaran AI",
+    "aiLimit": {
+      "near": "Telah memakai 80% dari batas bulanan {limit, number} token",
+      "reached": "Mencapai batas bulanan {limit, number} token",
+      "paused": "Dimatikan: pemakaiannya cepat sekali di hari pertama",
+      "raised": "Pemilik menaikkan batasnya menjadi {limit, number} token sebulan",
+      "declined": "Pemilik menolak batas lebih tinggi yang Anda minta",
+      "workspaceNear": "Ruang kerja telah memakai 80% dari batas biaya AI bulanannya",
+      "workspaceReached": "Ruang kerja mencapai batas biaya AI bulanannya"
+    },
+    "limitRequestTitle": "Batas lebih tinggi untuk {agent}",
+    "limitRequest": "{actor} meminta {tokens, number} token sebulan"
   },
   "agentReply": {
     "aiOff": "Saya tidak dapat menjawab: AI dimatikan di ruang kerja ini.",
@@ -322,5 +334,52 @@
     "whyOwn": "Anda berlangganan email ini · {schedule}.",
     "unsubscribe": "Berhenti berlangganan",
     "untitled": "Tanpa judul"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} telah memakai 80% dari batas bulanannya",
+      "heading": "{agent} mendekati batasnya",
+      "body": "Agen {agent} di {workspace} telah memakai 80% dari batas bulanannya sebesar {limit, number} token. Saat mencapai batas, eksekusinya berhenti sampai bulan depan."
+    },
+    "reached": {
+      "subject": "{agent} mencapai batas bulanannya",
+      "heading": "{agent} mencapai batasnya",
+      "body": "Agen {agent} di {workspace} telah memakai seluruh batas bulanannya sebesar {limit, number} token. Eksekusinya berhenti sampai bulan depan, kecuali pemilik menaikkan batasnya."
+    },
+    "paused": {
+      "subject": "{agent} dimatikan karena pemakaian cepat",
+      "heading": "{agent} dimatikan",
+      "body": "Agen baru {agent} di {workspace} memakai token dengan cepat di hari pertamanya, sehingga dimatikan sebelum memakai lebih banyak. Periksa eksekusi dan instruksinya, lalu nyalakan kembali."
+    },
+    "raised": {
+      "subject": "Batas {agent} dinaikkan",
+      "heading": "Permintaan Anda disetujui",
+      "body": "Pemilik {workspace} menaikkan batas bulanan agen {agent} menjadi {limit, number} token, sesuai permintaan Anda."
+    },
+    "declined": {
+      "subject": "Batas {agent} tetap seperti semula",
+      "heading": "Permintaan Anda ditolak",
+      "body": "Pemilik {workspace} menolak batas lebih tinggi yang Anda minta untuk agen {agent}."
+    },
+    "workspaceNear": {
+      "subject": "{workspace} telah memakai 80% dari batas biaya AI-nya",
+      "heading": "Batas biaya AI hampir tercapai",
+      "body": "{workspace} telah memakai 80% dari batas biaya AI bulanannya. Saat mencapai batas, AI berhenti untuk semua orang sampai bulan depan."
+    },
+    "workspaceReached": {
+      "subject": "{workspace} mencapai batas biaya AI-nya",
+      "heading": "Batas biaya AI tercapai",
+      "body": "{workspace} telah memakai seluruh batas biaya AI bulanannya. AI berhenti untuk semua orang sampai bulan depan, kecuali pemilik menaikkan batasnya."
+    },
+    "openAgent": "Buka agen",
+    "openUsage": "Buka penggunaan AI"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} meminta batas lebih tinggi untuk {agent}",
+    "heading": "Batas lebih tinggi untuk {agent}",
+    "body": "{name} meminta menaikkan batas bulanan agen {agent} di {workspace} dari {current, number} menjadi {tokens, number} token.",
+    "note": "Alasannya: “{note}”",
+    "answer": "Setujui atau tolak di kotak masuk Leafdesk Anda.",
+    "action": "Buka agen"
   }
 }

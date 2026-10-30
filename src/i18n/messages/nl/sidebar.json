@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} heeft een wijziging ter beoordeling voorgesteld} other {# wijzigingen wachten op je beoordeling, de nieuwste van {agent}}}",
     "automationRun": "Automatisering “{name}”",
     "sensitiveContent": "Hier is {kind, select, card {een betaalkaartnummer} iban {een IBAN} national_id {een burgerservicenummer of ander nationaal ID-nummer} private_key {een privésleutel} aws_key {een AWS-toegangssleutel} github_token {een GitHub-token} slack_token {een Slack-token} api_key {een API-sleutel} jwt {een JSON Web Token} other {gevoelige inhoud}} gevonden. Bekijk het in Instellingen > Beveiliging.",
-    "pageReported": "Een bezoeker heeft deze pagina gemeld: {reason, select, spam {spam of oplichting} harmful {haatdragende, gewelddadige of intimiderende inhoud} illegal {illegale inhoud} privacy {persoonsgegevens} copyright {auteursrecht} other {iets anders}}. Bekijk het in Instellingen > Beveiliging."
+    "pageReported": "Een bezoeker heeft deze pagina gemeld: {reason, select, spam {spam of oplichting} harmful {haatdragende, gewelddadige of intimiderende inhoud} illegal {illegale inhoud} privacy {persoonsgegevens} copyright {auteursrecht} other {iets anders}}. Bekijk het in Instellingen > Beveiliging.",
+    "aiLimitTitle": "AI-uitgaven",
+    "aiLimit": {
+      "near": "80% van de maandlimiet van {limit, number} tokens gebruikt",
+      "reached": "Maandlimiet van {limit, number} tokens bereikt: uitvoeringen stoppen tot volgende maand",
+      "paused": "Uitgezet: de agent verbruikte veel op de eerste dag. Controleer de uitvoeringen en zet hem weer aan.",
+      "raised": "Een eigenaar heeft de limiet verhoogd naar {limit, number} tokens per maand",
+      "declined": "Een eigenaar heeft de hogere limiet die je vroeg afgewezen",
+      "workspaceNear": "De werkruimte heeft 80% van de maandelijkse AI-kostenlimiet gebruikt",
+      "workspaceReached": "De werkruimte heeft de maandelijkse AI-kostenlimiet bereikt: AI stopt tot volgende maand"
+    },
+    "limitRequestTitle": "Hogere limiet voor {agent}",
+    "limitRequest": "{actor} vraagt om {tokens, number} tokens per maand (nu {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "Verhogen naar {tokens, number}",
+    "limitRequestDecline": "Afwijzen",
+    "limitRequestFailed": "Het verzoek kon niet worden beantwoord. Probeer het opnieuw."
   },
   "templates": {
     "title": "Sjablonen",

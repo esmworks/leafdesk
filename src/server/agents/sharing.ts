@@ -1,6 +1,7 @@
 /**
  * Sharing an agent (lib/agent-sharing.ts): who may use an agent and how (`agent_share`), the levels
- * people have on agents, and who may create agents (the workspace's `agentCreation` setting).
+ * people have on agents, and who may create agents (the workspace's `agentCreation` setting, and
+ * the people and groups it names when it is "chosen", `agent_creator`).
  *
  * A new agent is shared with everyone in the workspace (can view and interact) and with whoever
  * created it (full access); workspace owners have full access to every agent without an entry.
@@ -10,7 +11,7 @@
  */
 import { and, count, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentShare, memberGroup, memberGroupMember, user, workspaceAgent, type WorkspaceRole } from "@/db/schema";
+import { agentCreator, agentShare, memberGroup, memberGroupMember, user, workspaceAgent, type WorkspaceRole } from "@/db/schema";
 import {
   hasAgentLevel,
   isAgentShareLevel,
@@ -18,6 +19,9 @@ import {
   type AgentLevel,
   type AgentShareEntry,
   type AgentShareLevel,
+  type AgentCreatorEntry,
+  type AgentCreatorTarget,
+  type AgentCreatorsView,
   type AgentShareTarget,
   type AgentSharingView,
 } from "@/lib/agent-sharing";
@@ -105,18 +109,139 @@ export async function agentWithLevel(userId: string, agentId: string, min: Agent
 
 // ---------------------------------------------------------------------------------- creating
 
-/** Whether the person may create agents in the workspace: owners, and members when its setting lets them. */
+/**
+ * Whether someone of the workspace may create agents: owners always; members (and membership
+ * admins) when the setting lets every member, or names them or a group they are in. Guests never.
+ */
+async function mayCreate(userId: string, workspaceId: string, role: Role): Promise<boolean> {
+  if (role === "owner") return true;
+  const creation = (await workspaceSettings(workspaceId)).agentCreation;
+  if (creation === "members") return true;
+  if (creation !== "chosen") return false;
+  const [named] = await db
+    .select({ id: agentCreator.id })
+    .from(agentCreator)
+    .where(
+      and(
+        eq(agentCreator.workspaceId, workspaceId),
+        or(
+          eq(agentCreator.userId, userId),
+          inArray(
+            agentCreator.groupId,
+            db
+              .select({ groupId: memberGroupMember.groupId })
+              .from(memberGroupMember)
+              .where(and(eq(memberGroupMember.userId, userId), eq(memberGroupMember.workspaceId, workspaceId))),
+          ),
+        ),
+      ),
+    )
+    .limit(1);
+  return Boolean(named);
+}
+
+/** Whether the person may create agents in the workspace (see mayCreate). */
 export async function canCreateAgents(userId: string, workspaceId: string): Promise<boolean> {
   const membership = await requireMember(userId, workspaceId).catch(() => null);
-  if (!membership) return false;
-  return membership.role === "owner" || (await workspaceSettings(workspaceId)).agentCreation === "members";
+  return membership ? mayCreate(userId, workspaceId, membership.role) : false;
 }
 
 /** Throws AccessError unless the person may create agents in the workspace. */
 export async function requireAgentCreator(userId: string, workspaceId: string) {
   const membership = await requireMember(userId, workspaceId);
-  if (membership.role !== "owner" && (await workspaceSettings(workspaceId)).agentCreation !== "members") throw new AccessError();
+  if (!(await mayCreate(userId, workspaceId, membership.role))) throw new AccessError();
   return membership;
+}
+
+/**
+ * The people and groups the "chosen" setting lets create agents, and those that may be added, for
+ * the workspace's owners (others see only the setting).
+ */
+export async function agentCreators(userId: string, workspaceId: string): Promise<AgentCreatorsView> {
+  await requireMembership(userId, workspaceId, "owner");
+  return creatorsOf(workspaceId);
+}
+
+async function creatorsOf(workspaceId: string): Promise<AgentCreatorsView> {
+  const groupCounts = db
+    .select({ groupId: memberGroupMember.groupId, n: count().as("n") })
+    .from(memberGroupMember)
+    .where(eq(memberGroupMember.workspaceId, workspaceId))
+    .groupBy(memberGroupMember.groupId)
+    .as("group_counts");
+  const [people, groups, members, allGroups] = await Promise.all([
+    db
+      .select({ userId: user.id, name: user.name, email: user.email, image: user.image })
+      .from(agentCreator)
+      .innerJoin(user, eq(user.id, agentCreator.userId))
+      .where(eq(agentCreator.workspaceId, workspaceId))
+      .orderBy(sql`lower(${user.name})`),
+    db
+      .select({ groupId: memberGroup.id, name: memberGroup.name, memberCount: sql<number>`coalesce(${groupCounts.n}, 0)`.mapWith(Number) })
+      .from(agentCreator)
+      .innerJoin(memberGroup, eq(memberGroup.id, agentCreator.groupId))
+      .leftJoin(groupCounts, eq(groupCounts.groupId, memberGroup.id))
+      .where(eq(agentCreator.workspaceId, workspaceId))
+      .orderBy(sql`lower(${memberGroup.name})`),
+    workspacePeople(workspaceId),
+    db
+      .select({ groupId: memberGroup.id, name: memberGroup.name, memberCount: sql<number>`coalesce(${groupCounts.n}, 0)`.mapWith(Number) })
+      .from(memberGroup)
+      .leftJoin(groupCounts, eq(groupCounts.groupId, memberGroup.id))
+      .where(eq(memberGroup.workspaceId, workspaceId))
+      .orderBy(sql`lower(${memberGroup.name})`),
+  ]);
+  const entries: AgentCreatorEntry[] = [...people.map((p) => ({ kind: "person" as const, ...p })), ...groups.map((g) => ({ kind: "group" as const, ...g }))];
+  return {
+    entries,
+    // Owners create agents anyway, so only members are offered.
+    members: members
+      .filter((m) => m.role !== "guest" && m.role !== "owner")
+      .map((m) => ({ userId: m.id, name: m.name, email: m.email, image: m.image, owner: false }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+    groups: allGroups,
+  };
+}
+
+const creatorPrincipal = (target: AgentCreatorTarget) =>
+  target.kind === "person"
+    ? and(eq(agentCreator.userId, target.userId), isNull(agentCreator.groupId))
+    : and(isNull(agentCreator.userId), eq(agentCreator.groupId, target.groupId));
+
+/** Lets a member or a group create agents while the setting is "chosen". Owners only. */
+export async function addAgentCreator(userId: string, workspaceId: string, target: AgentCreatorTarget): Promise<AgentCreatorsView> {
+  await requireMembership(userId, workspaceId, "owner");
+  const subject = await subjectOf(workspaceId, target);
+  await db.transaction(async (tx) => {
+    const added = await tx
+      .insert(agentCreator)
+      .values({
+        workspaceId,
+        userId: target.kind === "person" ? target.userId : null,
+        groupId: target.kind === "group" ? target.groupId : null,
+        createdBy: userId,
+      })
+      .onConflictDoNothing()
+      .returning({ id: agentCreator.id });
+    if (!added.length) return;
+    await recordAudit({ workspaceId, actorId: userId, action: "agent.creator_added", target: { type: "workspace", id: workspaceId }, subject }, tx);
+  });
+  return creatorsOf(workspaceId);
+}
+
+/** Takes a member or a group off those who may create agents. Owners only. */
+export async function removeAgentCreator(userId: string, workspaceId: string, target: AgentCreatorTarget): Promise<AgentCreatorsView> {
+  await requireMembership(userId, workspaceId, "owner");
+  const subject = target.kind === "person" ? { type: "user" as const, id: target.userId } : { type: "group" as const, id: target.groupId };
+  await db.transaction(async (tx) => {
+    const removed = await tx
+      .delete(agentCreator)
+      .where(and(eq(agentCreator.workspaceId, workspaceId), creatorPrincipal(target)))
+      .returning({ id: agentCreator.id });
+    if (!removed.length) return;
+    await recordAudit({ workspaceId, actorId: userId, action: "agent.creator_removed", target: { type: "workspace", id: workspaceId }, subject }, tx);
+  });
+  return creatorsOf(workspaceId);
 }
 
 /** A new agent's list: everyone in the workspace can view and interact; its creator has full access. */

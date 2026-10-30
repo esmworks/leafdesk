@@ -78,6 +78,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "teamspaces", tab: "teamspaces" },
   { id: "groups", tab: "groups" },
   { id: "agents", tab: "agents", keywords: true },
+  { id: "agentCreation", tab: "agents", label: "settings:agents.creation.who" },
   { id: "agentTemplates", tab: "agents", label: "settings:agents.templates.heading" },
   { id: "snippets", tab: "snippets", keywords: true },
   { id: "letterheads", tab: "pdf", label: "settings:letterheads.heading", keywords: true },

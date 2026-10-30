@@ -782,7 +782,10 @@
         "repeat": "Vérifiez quand elle se répète et son fuseau horaire.",
         "helpers": "Choisissez jusqu’à 10 autres agents non archivés de cet espace de travail.",
         "shareLevel": "Choisissez accès complet, peut modifier ou peut consulter et interagir.",
-        "mailRecipients": "Saisissez jusqu’à 10 adresses e-mail."
+        "mailRecipients": "Saisissez jusqu’à 10 adresses e-mail.",
+        "requestTokens": "Demandez un nombre entier de tokens supérieur à la limite actuelle, jusqu’à 1 000 000 000.",
+        "requestNote": "Expliquez pourquoi en 500 caractères au plus.",
+        "noLimit": "Cet agent n’a pas de limite à relever."
       },
       "noteEmpty": "Écrivez ce que l’agent doit retenir.",
       "noteTooLong": "Une note peut contenir au plus {max} caractères.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Cette version n’existe plus.",
       "notAllowed": "Votre accès à cet agent ne le permet pas.",
       "ownersOnly": "Seuls les propriétaires de l’espace de travail modifient la limite mensuelle de jetons d’un agent.",
-      "notAMember": "Un agent ne peut être partagé qu’avec les propriétaires, les membres et les groupes de l’espace de travail."
+      "notAMember": "Un agent ne peut être partagé qu’avec les propriétaires, les membres et les groupes de l’espace de travail.",
+      "requestNotFound": "Cette demande a déjà reçu une réponse."
     },
     "connections": {
       "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Vous pouvez consulter cet agent, discuter avec lui et le mentionner. Pour le modifier, demandez à quelqu’un qui peut le modifier.",
     "creation": {
-      "title": "Seuls les propriétaires de l’espace de travail peuvent créer des agents",
-      "description": "Désactivé : les membres peuvent aussi créer des agents et obtiennent un accès complet à ceux qu’ils créent. Les invités, jamais.",
-      "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent modifier ce paramètre."
+      "ownersOnly": "Seuls les propriétaires de l’espace de travail peuvent modifier ce paramètre.",
+      "who": "Qui peut créer des agents",
+      "whoHelp": "Celui qui crée un agent obtient un accès complet à celui-ci. Les invités ne le peuvent jamais.",
+      "choices": {
+        "owners": "Propriétaires uniquement",
+        "members": "Propriétaires et membres",
+        "chosen": "Propriétaires et les personnes et groupes choisis ci-dessous"
+      },
+      "add": "Ajouter des personnes ou des groupes",
+      "noMatches": "Aucun résultat",
+      "groupMembers": "{count, plural, one {# membre} other {# membres}}",
+      "remove": "Retirer {name}",
+      "list": "Personnes et groupes pouvant créer des agents",
+      "noneChosen": "Personne n’est encore choisi : seuls les propriétaires peuvent créer des agents."
+    },
+    "limitRequest": {
+      "ask": "Demander une limite plus élevée",
+      "change": "Modifier la demande",
+      "help": "Seuls les propriétaires modifient la limite de {limit} tokens par mois. Demandez-leur-en plus : ils reçoivent votre demande dans leur boîte de réception et par e-mail.",
+      "tokens": "Tokens par mois",
+      "note": "Motif (facultatif)",
+      "send": "Envoyer la demande",
+      "update": "Mettre à jour la demande",
+      "waiting": "Vous avez demandé {tokens} tokens par mois le {date}. En attente d’un propriétaire."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Les personnes ayant un domaine de messagerie autorisé",
       "anyone_with_link": "Toute personne ayant le lien d’accès",
       "members_with_approval": "Membres, avec l’accord d’un propriétaire",
-      "any_member": "Propriétaires et membres"
+      "any_member": "Propriétaires et membres",
+      "chosen": "Propriétaires et personnes et groupes choisis"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "A défini une planification pour l’agent « {target} »",
         "schedule_removed": "A supprimé une planification de l’agent « {target} »",
         "shared": "A défini l’accès de {subject} à l’agent « {target} » : {level}",
-        "unshared": "A retiré {subject} du partage de l’agent « {target} »"
+        "unshared": "A retiré {subject} du partage de l’agent « {target} »",
+        "creator_added": "A autorisé {subject} à créer des agents",
+        "creator_removed": "A retiré {subject} des personnes pouvant créer des agents"
       },
       "connection": {
         "created": "A ajouté la connexion « {target} »",

@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} propôs uma alteração para sua revisão} other {# alterações aguardam sua revisão, a mais recente de {agent}}}",
     "automationRun": "Automação “{name}”",
     "sensitiveContent": "Encontramos {kind, select, card {um número de cartão de pagamento} iban {um IBAN} national_id {um número de identidade nacional} private_key {uma chave privada} aws_key {uma chave de acesso da AWS} github_token {um token do GitHub} slack_token {um token do Slack} api_key {uma chave de API} jwt {um JSON Web Token} other {conteúdo sensível}} aqui. Revise em Configurações > Segurança.",
-    "pageReported": "Um visitante denunciou esta página: {reason, select, spam {spam ou golpe} harmful {conteúdo de ódio, violento ou de assédio} illegal {conteúdo ilegal} privacy {dados pessoais} copyright {direitos autorais} other {outra coisa}}. Veja em Configurações > Segurança."
+    "pageReported": "Um visitante denunciou esta página: {reason, select, spam {spam ou golpe} harmful {conteúdo de ódio, violento ou de assédio} illegal {conteúdo ilegal} privacy {dados pessoais} copyright {direitos autorais} other {outra coisa}}. Veja em Configurações > Segurança.",
+    "aiLimitTitle": "Gasto de IA",
+    "aiLimit": {
+      "near": "Usou 80% do limite mensal de {limit, number} tokens",
+      "reached": "Atingiu o limite mensal de {limit, number} tokens: as execuções param até o próximo mês",
+      "paused": "Desativado: gastou rápido no primeiro dia. Verifique as execuções e ative-o novamente.",
+      "raised": "Um proprietário aumentou o limite para {limit, number} tokens por mês",
+      "declined": "Um proprietário recusou o limite maior que você pediu",
+      "workspaceNear": "O espaço de trabalho usou 80% do limite mensal de custo de IA",
+      "workspaceReached": "O espaço de trabalho atingiu o limite mensal de custo de IA: a IA para até o próximo mês"
+    },
+    "limitRequestTitle": "Limite maior para {agent}",
+    "limitRequest": "{actor} pede {tokens, number} tokens por mês (agora {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "Aumentar para {tokens, number}",
+    "limitRequestDecline": "Recusar",
+    "limitRequestFailed": "Não foi possível responder ao pedido. Tente novamente."
   },
   "templates": {
     "title": "Modelos",

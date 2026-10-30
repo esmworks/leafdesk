@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} propuso un cambio para que lo revises} other {# cambios esperan tu revisión; el último, de {agent}}}",
     "automationRun": "Automatización “{name}”",
     "sensitiveContent": "Se encontró {kind, select, card {un número de tarjeta de pago} iban {un IBAN} national_id {un número de identificación nacional} private_key {una clave privada} aws_key {una clave de acceso de AWS} github_token {un token de GitHub} slack_token {un token de Slack} api_key {una clave de API} jwt {un JSON Web Token} other {contenido sensible}} aquí. Revisa el hallazgo en Configuración > Seguridad.",
-    "pageReported": "Un visitante denunció esta página: {reason, select, spam {spam o estafa} harmful {contenido de odio, violento o acosador} illegal {contenido ilegal} privacy {información personal} copyright {derechos de autor} other {otra cosa}}. Revísalo en Configuración > Seguridad."
+    "pageReported": "Un visitante denunció esta página: {reason, select, spam {spam o estafa} harmful {contenido de odio, violento o acosador} illegal {contenido ilegal} privacy {información personal} copyright {derechos de autor} other {otra cosa}}. Revísalo en Configuración > Seguridad.",
+    "aiLimitTitle": "Gasto de IA",
+    "aiLimit": {
+      "near": "Ha usado el 80 % de su límite mensual de {limit, number} tokens",
+      "reached": "Ha alcanzado su límite mensual de {limit, number} tokens: las ejecuciones se detienen hasta el mes que viene",
+      "paused": "Desactivado: gastó rápido en su primer día. Revisa sus ejecuciones y vuelve a activarlo.",
+      "raised": "Un propietario subió su límite a {limit, number} tokens al mes",
+      "declined": "Un propietario rechazó el límite mayor que pediste",
+      "workspaceNear": "El espacio de trabajo ha usado el 80 % de su límite mensual de coste de IA",
+      "workspaceReached": "El espacio de trabajo ha alcanzado su límite mensual de coste de IA: la IA se detiene hasta el mes que viene"
+    },
+    "limitRequestTitle": "Límite mayor para {agent}",
+    "limitRequest": "{actor} pide {tokens, number} tokens al mes (ahora {current, number})",
+    "limitRequestNote": "«{note}»",
+    "limitRequestApprove": "Subir a {tokens, number}",
+    "limitRequestDecline": "Rechazar",
+    "limitRequestFailed": "No se pudo responder a la solicitud. Inténtalo de nuevo."
   },
   "templates": {
     "title": "Plantillas",

@@ -245,7 +245,23 @@
     "review": "{count, plural, other {มี # การเปลี่ยนแปลงรอให้คุณตรวจสอบ ล่าสุดจาก {agent}}}",
     "automationRun": "ระบบอัตโนมัติ “{name}”",
     "sensitiveContent": "พบ{kind, select, card {หมายเลขบัตรชำระเงิน} iban {IBAN} national_id {เลขประจำตัวประชาชน} private_key {คีย์ส่วนตัว} aws_key {คีย์การเข้าถึง AWS} github_token {โทเค็น GitHub} slack_token {โทเค็น Slack} api_key {คีย์ API} jwt {JSON Web Token} other {เนื้อหาที่ละเอียดอ่อน}}ที่นี่ ตรวจสอบได้ใน การตั้งค่า > ความปลอดภัย",
-    "pageReported": "ผู้เยี่ยมชมรายงานหน้านี้: {reason, select, spam {สแปมหรือการหลอกลวง} harmful {เนื้อหาที่สร้างความเกลียดชัง รุนแรง หรือคุกคาม} illegal {เนื้อหาผิดกฎหมาย} privacy {ข้อมูลส่วนตัว} copyright {ลิขสิทธิ์} other {อื่น ๆ}} ตรวจสอบได้ที่ การตั้งค่า > ความปลอดภัย"
+    "pageReported": "ผู้เยี่ยมชมรายงานหน้านี้: {reason, select, spam {สแปมหรือการหลอกลวง} harmful {เนื้อหาที่สร้างความเกลียดชัง รุนแรง หรือคุกคาม} illegal {เนื้อหาผิดกฎหมาย} privacy {ข้อมูลส่วนตัว} copyright {ลิขสิทธิ์} other {อื่น ๆ}} ตรวจสอบได้ที่ การตั้งค่า > ความปลอดภัย",
+    "aiLimitTitle": "ค่าใช้จ่าย AI",
+    "aiLimit": {
+      "near": "ใช้ไป 80% ของขีดจำกัดรายเดือน {limit, number} โทเค็น",
+      "reached": "ถึงขีดจำกัดรายเดือน {limit, number} โทเค็นแล้ว: การทำงานจะหยุดจนถึงเดือนหน้า",
+      "paused": "ปิดแล้ว: ใช้เร็วในวันแรก ตรวจสอบการทำงานของเอเจนต์แล้วเปิดอีกครั้ง",
+      "raised": "เจ้าของเพิ่มขีดจำกัดเป็น {limit, number} โทเค็นต่อเดือน",
+      "declined": "เจ้าของปฏิเสธขีดจำกัดที่สูงขึ้นที่คุณขอ",
+      "workspaceNear": "พื้นที่ทำงานใช้ไป 80% ของขีดจำกัดค่าใช้จ่าย AI รายเดือน",
+      "workspaceReached": "พื้นที่ทำงานถึงขีดจำกัดค่าใช้จ่าย AI รายเดือนแล้ว: AI จะหยุดจนถึงเดือนหน้า"
+    },
+    "limitRequestTitle": "ขีดจำกัดที่สูงขึ้นสำหรับ {agent}",
+    "limitRequest": "{actor} ขอ {tokens, number} โทเค็นต่อเดือน (ตอนนี้ {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "เพิ่มเป็น {tokens, number}",
+    "limitRequestDecline": "ปฏิเสธ",
+    "limitRequestFailed": "ตอบคำขอไม่สำเร็จ ลองอีกครั้ง"
   },
   "templates": {
     "title": "เทมเพลต",

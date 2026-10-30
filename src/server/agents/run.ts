@@ -114,6 +114,7 @@ import { agentSkillRoom, runSkills } from "./skills";
 import { runWebTool, webToolsFor } from "./web";
 import { agentLevel } from "./sharing";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
+import { noticeAgentSpending } from "@/server/ai-limit-notices";
 import { pruneAiUsage } from "@/server/ai/usage-store";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
@@ -1042,9 +1043,14 @@ async function converse(
     }
     // Counted as it comes back, so a run that fails later still counts what it used; a run is one
     // of the month's runs at its first turn.
-    await addAgentUsage(agent.id, { runs: usage.rounds === 0 ? 1 : 0, ...result.usage }).catch((error) =>
-      console.error("[agents] could not count what a run used", redactError(error)),
-    );
+    const monthTokens = await addAgentUsage(agent.id, { runs: usage.rounds === 0 ? 1 : 0, ...result.usage }).catch((error) => {
+      console.error("[agents] could not count what a run used", redactError(error));
+      return null;
+    });
+    // Its limit nearing is told of; a new agent spending fast is paused, which ends this run too.
+    if (monthTokens !== null && (await noticeAgentSpending(agent, monthTokens)) === "paused") {
+      return { status: "failed", code: "agentDisabled", steps, usage };
+    }
     usage.rounds += 1;
     usage.inputTokens += result.usage.inputTokens;
     usage.outputTokens += result.usage.outputTokens;

@@ -782,7 +782,10 @@
         "repeat": "请检查重复时间及其时区。",
         "helpers": "请从此工作区选择最多 10 个其他未归档的智能体。",
         "shareLevel": "请选择完全访问、可编辑或可查看和互动。",
-        "mailRecipients": "最多输入 10 个邮箱地址。"
+        "mailRecipients": "最多输入 10 个邮箱地址。",
+        "requestTokens": "请求高于当前上限的整数令牌数，最多 1,000,000,000。",
+        "requestNote": "请用不超过 500 个字符说明原因。",
+        "noLimit": "此智能体没有可提高的上限。"
       },
       "noteEmpty": "请写下智能体应记住的内容。",
       "noteTooLong": "每条笔记最多 {max} 个字符。",
@@ -799,7 +802,8 @@
       "versionNotFound": "此版本已不存在。",
       "notAllowed": "你对此智能体的访问权限不允许此操作。",
       "ownersOnly": "只有工作区所有者可以更改智能体的每月令牌上限。",
-      "notAMember": "智能体只能分享给工作区的所有者、成员和用户组。"
+      "notAMember": "智能体只能分享给工作区的所有者、成员和用户组。",
+      "requestNotFound": "此请求已被答复。"
     },
     "connections": {
       "description": "此智能体可以使用的各个连接的工具。只读工具会立即运行（来自匿名表单答复的行除外）；其他工具在智能体每次调用时都需要所有者批准。",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "你可以查看此智能体、与它对话并提及它。要更改它，请联系可以编辑它的人。",
     "creation": {
-      "title": "只有工作区所有者可以创建智能体",
-      "description": "关闭：成员也可以创建智能体，并对自己创建的智能体拥有完全访问权限。访客始终不能创建。",
-      "ownersOnly": "只有工作区所有者可以更改此设置。"
+      "ownersOnly": "只有工作区所有者可以更改此设置。",
+      "who": "谁可以创建智能体",
+      "whoHelp": "创建智能体的人会获得它的完全访问权限。访客永远不能创建。",
+      "choices": {
+        "owners": "仅所有者",
+        "members": "所有者和成员",
+        "chosen": "所有者以及下方选定的人员和用户组"
+      },
+      "add": "添加人员或用户组",
+      "noMatches": "无匹配项",
+      "groupMembers": "{count, plural, other {# 名成员}}",
+      "remove": "移除 {name}",
+      "list": "可以创建智能体的人员和用户组",
+      "noneChosen": "尚未选择任何人：只有所有者可以创建智能体。"
+    },
+    "limitRequest": {
+      "ask": "申请更高的上限",
+      "change": "修改申请",
+      "help": "只有所有者可以更改每月 {limit} 个令牌的上限。请向他们申请更多：他们会在收件箱和邮件中收到你的申请。",
+      "tokens": "每月令牌数",
+      "note": "原因（可选）",
+      "send": "发送申请",
+      "update": "更新申请",
+      "waiting": "你已于 {date} 申请每月 {tokens} 个令牌。正在等待所有者处理。"
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "邮箱域名在允许范围内的人",
       "anyone_with_link": "任何拥有加入链接的人",
       "members_with_approval": "成员，需经所有者批准",
-      "any_member": "所有者和成员"
+      "any_member": "所有者和成员",
+      "chosen": "所有者以及选定的人员和用户组"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "为智能体“{target}”设置了定时计划",
         "schedule_removed": "删除了智能体“{target}”的一个定时计划",
         "shared": "将 {subject} 对智能体“{target}”的访问权限设为：{level}",
-        "unshared": "将 {subject} 从智能体“{target}”的分享中移除"
+        "unshared": "将 {subject} 从智能体“{target}”的分享中移除",
+        "creator_added": "允许 {subject} 创建智能体",
+        "creator_removed": "已将 {subject} 从可创建智能体的人员中移除"
       },
       "connection": {
         "created": "添加了连接“{target}”",

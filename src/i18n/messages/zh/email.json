@@ -282,7 +282,19 @@
     "reviewTitle": "待审阅",
     "review": "{count, plural, =1 {{agent} 提议了一处更改，等待你审阅} other {# 处更改等待你审阅，最新一处来自 {agent}}}",
     "sensitiveContent": "在此页面上发现了{kind, select, card {支付卡号} iban {IBAN} national_id {身份证号} private_key {私钥} aws_key {AWS 访问密钥} github_token {GitHub 令牌} slack_token {Slack 令牌} api_key {API 密钥} jwt {JSON Web Token} other {敏感内容}}。",
-    "pageReported": "有访问者举报了此页面：{reason, select, spam {垃圾信息或诈骗} harmful {仇恨、暴力或骚扰内容} illegal {违法内容} privacy {个人信息} copyright {版权} other {其他}}。"
+    "pageReported": "有访问者举报了此页面：{reason, select, spam {垃圾信息或诈骗} harmful {仇恨、暴力或骚扰内容} illegal {违法内容} privacy {个人信息} copyright {版权} other {其他}}。",
+    "aiLimitTitle": "AI 支出",
+    "aiLimit": {
+      "near": "已用完每月 {limit, number} 个令牌上限的 80%",
+      "reached": "已达到每月 {limit, number} 个令牌的上限",
+      "paused": "已关闭：首日消耗过快",
+      "raised": "所有者已将其上限提高到每月 {limit, number} 个令牌",
+      "declined": "所有者拒绝了你申请的更高上限",
+      "workspaceNear": "工作区已用完每月 AI 费用上限的 80%",
+      "workspaceReached": "工作区已达到每月 AI 费用上限"
+    },
+    "limitRequestTitle": "{agent} 的更高上限",
+    "limitRequest": "{actor} 申请每月 {tokens, number} 个令牌"
   },
   "agentReply": {
     "aiOff": "我无法回答：此工作区已关闭 AI。",
@@ -322,5 +334,52 @@
     "whyOwn": "你已订阅此邮件 · {schedule}。",
     "unsubscribe": "取消订阅",
     "untitled": "无标题"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} 已用完每月上限的 80%",
+      "heading": "{agent} 接近上限",
+      "body": "{workspace} 中的智能体 {agent} 已用完每月 {limit, number} 个令牌上限的 80%。达到上限后，其运行将停止，直到下个月。"
+    },
+    "reached": {
+      "subject": "{agent} 已达到每月上限",
+      "heading": "{agent} 已达到上限",
+      "body": "{workspace} 中的智能体 {agent} 已用完每月 {limit, number} 个令牌的上限。其运行将停止，直到下个月，除非所有者提高上限。"
+    },
+    "paused": {
+      "subject": "{agent} 因消耗过快被关闭",
+      "heading": "{agent} 已被关闭",
+      "body": "{workspace} 中的新智能体 {agent} 在首日消耗令牌过快，因此在花费更多之前被关闭。请检查其运行记录和指令，然后重新开启。"
+    },
+    "raised": {
+      "subject": "{agent} 的上限已提高",
+      "heading": "你的申请已获批准",
+      "body": "{workspace} 的一位所有者已按你的申请，将智能体 {agent} 的每月上限提高到 {limit, number} 个令牌。"
+    },
+    "declined": {
+      "subject": "{agent} 的上限保持不变",
+      "heading": "你的申请被拒绝",
+      "body": "{workspace} 的一位所有者拒绝了你为智能体 {agent} 申请的更高上限。"
+    },
+    "workspaceNear": {
+      "subject": "{workspace} 已用完 AI 费用上限的 80%",
+      "heading": "AI 费用上限即将达到",
+      "body": "{workspace} 已用完每月 AI 费用上限的 80%。达到上限后，所有人的 AI 都将停止，直到下个月。"
+    },
+    "workspaceReached": {
+      "subject": "{workspace} 已达到 AI 费用上限",
+      "heading": "已达到 AI 费用上限",
+      "body": "{workspace} 已用完每月 AI 费用上限。所有人的 AI 都将停止，直到下个月，除非所有者提高上限。"
+    },
+    "openAgent": "打开智能体",
+    "openUsage": "打开 AI 用量"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} 为 {agent} 申请更高的上限",
+    "heading": "{agent} 的更高上限",
+    "body": "{name} 申请将 {workspace} 中智能体 {agent} 的每月上限从 {current, number} 提高到 {tokens, number} 个令牌。",
+    "note": "对方的原因：“{note}”",
+    "answer": "请在你的 Leafdesk 收件箱中批准或拒绝。",
+    "action": "打开智能体"
   }
 }

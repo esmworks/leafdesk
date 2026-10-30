@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} הציע שינוי לבדיקה שלך} two {שני שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}} other {# שינויים ממתינים לבדיקה שלך, האחרון מ־{agent}}}",
     "automationRun": "האוטומציה “{name}”",
     "sensitiveContent": "נמצא כאן {kind, select, card {מספר כרטיס תשלום} iban {מספר IBAN} national_id {מספר זהות לאומי} private_key {מפתח פרטי} aws_key {מפתח גישה של AWS} github_token {אסימון GitHub} slack_token {אסימון Slack} api_key {מפתח API} jwt {אסימון JSON Web Token} other {תוכן רגיש}}. אפשר לבדוק את הממצא בהגדרות > אבטחה.",
-    "pageReported": "מבקר דיווח על הדף הזה: {reason, select, spam {ספאם או הונאה} harmful {תוכן של שנאה, אלימות או הטרדה} illegal {תוכן לא חוקי} privacy {מידע אישי} copyright {זכויות יוצרים} other {משהו אחר}}. בדקו בהגדרות > אבטחה."
+    "pageReported": "מבקר דיווח על הדף הזה: {reason, select, spam {ספאם או הונאה} harmful {תוכן של שנאה, אלימות או הטרדה} illegal {תוכן לא חוקי} privacy {מידע אישי} copyright {זכויות יוצרים} other {משהו אחר}}. בדקו בהגדרות > אבטחה.",
+    "aiLimitTitle": "הוצאות AI",
+    "aiLimit": {
+      "near": "נוצלו 80% מהמגבלה החודשית של {limit, number} אסימונים",
+      "reached": "הגיע למגבלה החודשית של {limit, number} אסימונים: ההרצות ייעצרו עד החודש הבא",
+      "paused": "כבוי: הוא הוציא הרבה במהירות ביום הראשון. בדקו את ההרצות שלו ואז הפעילו אותו שוב.",
+      "raised": "בעלים העלה את המגבלה שלו ל־{limit, number} אסימונים בחודש",
+      "declined": "בעלים דחה את המגבלה הגבוהה יותר שביקשתם",
+      "workspaceNear": "סביבת העבודה ניצלה 80% ממגבלת עלות ה־AI החודשית",
+      "workspaceReached": "סביבת העבודה הגיעה למגבלת עלות ה־AI החודשית: ה־AI ייעצר עד החודש הבא"
+    },
+    "limitRequestTitle": "מגבלה גבוהה יותר עבור {agent}",
+    "limitRequest": "{actor} מבקש {tokens, number} אסימונים בחודש (כרגע {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "העלאה ל־{tokens, number}",
+    "limitRequestDecline": "דחייה",
+    "limitRequestFailed": "לא ניתן היה לענות על הבקשה. נסו שוב."
   },
   "templates": {
     "title": "תבניות",

@@ -282,7 +282,19 @@
     "reviewTitle": "For review",
     "review": "{count, plural, one {{agent} proposed a change for your review} other {# changes wait for your review, the latest from {agent}}}",
     "sensitiveContent": "Found {kind, select, card {a payment card number} iban {an IBAN} national_id {a national ID number} private_key {a private key} aws_key {an AWS access key} github_token {a GitHub token} slack_token {a Slack token} api_key {an API key} jwt {a JSON Web Token} other {sensitive content}} on this page.",
-    "pageReported": "A visitor reported this page: {reason, select, spam {spam or a scam} harmful {hateful, violent or harassing content} illegal {illegal content} privacy {personal information} copyright {copyright} other {something else}}."
+    "pageReported": "A visitor reported this page: {reason, select, spam {spam or a scam} harmful {hateful, violent or harassing content} illegal {illegal content} privacy {personal information} copyright {copyright} other {something else}}.",
+    "aiLimitTitle": "AI spending",
+    "aiLimit": {
+      "near": "Used 80% of its monthly limit of {limit, number} tokens",
+      "reached": "Reached its monthly limit of {limit, number} tokens",
+      "paused": "Turned off: it spent fast on its first day",
+      "raised": "An owner raised its limit to {limit, number} tokens a month",
+      "declined": "An owner declined the higher limit you asked for",
+      "workspaceNear": "The workspace used 80% of its monthly AI cost limit",
+      "workspaceReached": "The workspace reached its monthly AI cost limit"
+    },
+    "limitRequestTitle": "Higher limit for {agent}",
+    "limitRequest": "{actor} asks for {tokens, number} tokens a month"
   },
   "agentReply": {
     "aiOff": "I can’t answer: AI is off in this workspace.",
@@ -322,5 +334,52 @@
     "whyOwn": "You subscribed to this email · {schedule}.",
     "unsubscribe": "Unsubscribe",
     "untitled": "Untitled"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} used 80% of its monthly limit",
+      "heading": "{agent} is near its limit",
+      "body": "The agent {agent} in {workspace} used 80% of its monthly limit of {limit, number} tokens. When it reaches the limit, its runs stop until next month."
+    },
+    "reached": {
+      "subject": "{agent} reached its monthly limit",
+      "heading": "{agent} reached its limit",
+      "body": "The agent {agent} in {workspace} used its monthly limit of {limit, number} tokens. Its runs stop until next month, unless an owner raises the limit."
+    },
+    "paused": {
+      "subject": "{agent} was turned off for spending fast",
+      "heading": "{agent} was turned off",
+      "body": "The new agent {agent} in {workspace} used tokens fast on its first day, so it was turned off before it spent more. Check its runs and instructions, then turn it back on."
+    },
+    "raised": {
+      "subject": "The limit of {agent} was raised",
+      "heading": "Your request was approved",
+      "body": "An owner of {workspace} raised the monthly limit of the agent {agent} to {limit, number} tokens, as you asked."
+    },
+    "declined": {
+      "subject": "The limit of {agent} stays as it is",
+      "heading": "Your request was declined",
+      "body": "An owner of {workspace} declined the higher limit you asked for the agent {agent}."
+    },
+    "workspaceNear": {
+      "subject": "{workspace} used 80% of its AI cost limit",
+      "heading": "The AI cost limit is near",
+      "body": "{workspace} used 80% of its monthly AI cost limit. When it reaches the limit, AI stops for everyone until next month."
+    },
+    "workspaceReached": {
+      "subject": "{workspace} reached its AI cost limit",
+      "heading": "The AI cost limit was reached",
+      "body": "{workspace} used its monthly AI cost limit. AI stops for everyone until next month, unless an owner raises the limit."
+    },
+    "openAgent": "Open the agent",
+    "openUsage": "Open AI usage"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} asks for a higher limit for {agent}",
+    "heading": "A higher limit for {agent}",
+    "body": "{name} asks to raise the monthly limit of the agent {agent} in {workspace} from {current, number} to {tokens, number} tokens.",
+    "note": "Their reason: “{note}”",
+    "answer": "Approve or decline it in your Leafdesk inbox.",
+    "action": "Open the agent"
   }
 }

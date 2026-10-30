@@ -782,7 +782,10 @@
         "repeat": "Check when it repeats and its time zone.",
         "helpers": "Choose up to 10 other agents of this workspace that aren’t archived.",
         "shareLevel": "Choose full access, can edit or can view & interact.",
-        "mailRecipients": "Enter up to 10 email addresses."
+        "mailRecipients": "Enter up to 10 email addresses.",
+        "requestTokens": "Ask for a whole number of tokens above the current limit, up to 1,000,000,000.",
+        "requestNote": "Say why in at most 500 characters.",
+        "noLimit": "This agent has no limit to raise."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",
@@ -799,7 +802,8 @@
       "versionNotFound": "This version no longer exists.",
       "notAllowed": "Your access to this agent doesn’t allow this.",
       "ownersOnly": "Only workspace owners change an agent’s monthly token limit.",
-      "notAMember": "An agent can be shared only with the workspace’s owners, members and groups."
+      "notAMember": "An agent can be shared only with the workspace’s owners, members and groups.",
+      "requestNotFound": "This request was answered already."
     },
     "connections": {
       "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "You can view this agent, chat with it and mention it. To change it, ask someone who can edit it.",
     "creation": {
-      "title": "Only workspace owners can create agents",
-      "description": "Off: members can create agents too, and get full access to the ones they create. Guests never can.",
-      "ownersOnly": "Only workspace owners can change this."
+      "ownersOnly": "Only workspace owners can change this.",
+      "who": "Who can create agents",
+      "whoHelp": "Whoever creates an agent gets full access to it. Guests never can.",
+      "choices": {
+        "owners": "Only owners",
+        "members": "Owners and members",
+        "chosen": "Owners and the people and groups chosen below"
+      },
+      "add": "Add people or groups",
+      "noMatches": "No matches",
+      "groupMembers": "{count, plural, one {# member} other {# members}}",
+      "remove": "Remove {name}",
+      "list": "People and groups who can create agents",
+      "noneChosen": "Nobody chosen yet: only owners can create agents."
+    },
+    "limitRequest": {
+      "ask": "Ask for a higher limit",
+      "change": "Change request",
+      "help": "Only owners change the limit of {limit} tokens a month. Ask them for more: they get your request in their inbox and by email.",
+      "tokens": "Tokens a month",
+      "note": "Why (optional)",
+      "send": "Send request",
+      "update": "Update request",
+      "waiting": "You asked for {tokens} tokens a month on {date}. Waiting for an owner."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "People with an allowed email domain",
       "anyone_with_link": "Anyone with the join link",
       "members_with_approval": "Members, with an owner’s approval",
-      "any_member": "Owners and members"
+      "any_member": "Owners and members",
+      "chosen": "Owners and chosen people and groups"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Set a schedule for the agent “{target}”",
         "schedule_removed": "Deleted a schedule of the agent “{target}”",
         "shared": "Set the access of {subject} to the agent “{target}”: {level}",
-        "unshared": "Removed {subject} from the sharing of the agent “{target}”"
+        "unshared": "Removed {subject} from the sharing of the agent “{target}”",
+        "creator_added": "Let {subject} create agents",
+        "creator_removed": "Removed {subject} from those who can create agents"
       },
       "connection": {
         "created": "Added the connection “{target}”",

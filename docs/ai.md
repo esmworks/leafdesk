@@ -428,7 +428,8 @@ the cell):
 
 - **The workspace's own**, which owners set in Settings → AI usage (empty: none). It counts all of
   the workspace's AI, whoever pays for it, so owners can hold their own AI account to a budget too.
-  Changing it is in the audit log.
+  Changing it is in the audit log. Owners get an inbox item and an email when the month passes
+  80% of it and when it reaches it, once each a month.
 - **The server's**, `AI_MONTHLY_LIMIT_USD`, for whoever runs the server and pays for its `AI_*` key:
   it counts only what that key paid for the workspace this month, and never holds back a workspace
   running on its own AI account (*Your own AI keys*), which spends its owner's money. A higher limit

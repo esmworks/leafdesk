@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} ha proposto una modifica da rivedere} other {# modifiche attendono la tua revisione, l’ultima da {agent}}}",
     "automationRun": "Automazione “{name}”",
     "sensitiveContent": "{kind, select, card {Trovato un numero di carta di pagamento} iban {Trovato un IBAN} national_id {Trovato un numero di identificazione nazionale} private_key {Trovata una chiave privata} aws_key {Trovata una chiave di accesso AWS} github_token {Trovato un token GitHub} slack_token {Trovato un token Slack} api_key {Trovata una chiave API} jwt {Trovato un JSON Web Token} other {Trovati contenuti sensibili}} qui. Controlla in Impostazioni > Sicurezza.",
-    "pageReported": "Un visitatore ha segnalato questa pagina: {reason, select, spam {spam o truffa} harmful {contenuti di odio, violenti o molesti} illegal {contenuti illegali} privacy {dati personali} copyright {diritto d'autore} other {altro}}. Controlla in Impostazioni > Sicurezza."
+    "pageReported": "Un visitatore ha segnalato questa pagina: {reason, select, spam {spam o truffa} harmful {contenuti di odio, violenti o molesti} illegal {contenuti illegali} privacy {dati personali} copyright {diritto d'autore} other {altro}}. Controlla in Impostazioni > Sicurezza.",
+    "aiLimitTitle": "Spesa IA",
+    "aiLimit": {
+      "near": "Utilizzato l’80% del limite mensile di {limit, number} token",
+      "reached": "Raggiunto il limite mensile di {limit, number} token: le esecuzioni si fermano fino al mese prossimo",
+      "paused": "Disattivato: ha speso rapidamente nel primo giorno. Controlla le sue esecuzioni, poi riattivalo.",
+      "raised": "Un proprietario ha portato il suo limite a {limit, number} token al mese",
+      "declined": "Un proprietario ha rifiutato il limite più alto che hai chiesto",
+      "workspaceNear": "Lo spazio di lavoro ha utilizzato l’80% del limite mensile di costo IA",
+      "workspaceReached": "Lo spazio di lavoro ha raggiunto il limite mensile di costo IA: l’IA si ferma fino al mese prossimo"
+    },
+    "limitRequestTitle": "Limite più alto per {agent}",
+    "limitRequest": "{actor} chiede {tokens, number} token al mese (ora {current, number})",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "Porta a {tokens, number}",
+    "limitRequestDecline": "Rifiuta",
+    "limitRequestFailed": "Impossibile rispondere alla richiesta. Riprova."
   },
   "templates": {
     "title": "Modelli",

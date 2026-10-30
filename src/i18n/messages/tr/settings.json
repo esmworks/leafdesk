@@ -782,7 +782,10 @@
         "repeat": "Ne zaman tekrarlandığını ve saat dilimini kontrol et.",
         "helpers": "Bu çalışma alanından arşivlenmemiş en fazla 10 başka ajan seçin.",
         "shareLevel": "Tam erişim, düzenleyebilir ya da görüntüleyebilir ve etkileşebilir seç.",
-        "mailRecipients": "En fazla 10 e-posta adresi girin."
+        "mailRecipients": "En fazla 10 e-posta adresi girin.",
+        "requestTokens": "Geçerli limitin üzerinde, en fazla 1.000.000.000 olan bir tam sayı token isteyin.",
+        "requestNote": "Gerekçenizi en fazla 500 karakterle yazın.",
+        "noLimit": "Bu ajanın artırılacak bir limiti yok."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Bu sürüm artık yok.",
       "notAllowed": "Bu ajana erişimin buna izin vermiyor.",
       "ownersOnly": "Bir ajanın aylık token sınırını yalnızca çalışma alanı sahipleri değiştirir.",
-      "notAMember": "Bir ajan yalnızca çalışma alanının sahipleri, üyeleri ve gruplarıyla paylaşılabilir."
+      "notAMember": "Bir ajan yalnızca çalışma alanının sahipleri, üyeleri ve gruplarıyla paylaşılabilir.",
+      "requestNotFound": "Bu istek zaten yanıtlandı."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Bu ajanı görüntüleyebilir, onunla sohbet edebilir ve ondan bahsedebilirsin. Değiştirmek için onu düzenleyebilen birine sor.",
     "creation": {
-      "title": "Ajanları yalnızca çalışma alanı sahipleri oluşturabilir",
-      "description": "Kapalı: üyeler de ajan oluşturabilir ve oluşturdukları ajanlara tam erişim alır. Konuklar asla.",
-      "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri değiştirebilir."
+      "ownersOnly": "Bunu yalnızca çalışma alanı sahipleri değiştirebilir.",
+      "who": "Kimler ajan oluşturabilir",
+      "whoHelp": "Ajanı oluşturan kişi ona tam erişim alır. Konuklar hiçbir zaman oluşturamaz.",
+      "choices": {
+        "owners": "Yalnızca sahipler",
+        "members": "Sahipler ve üyeler",
+        "chosen": "Sahipler ve aşağıda seçilen kişiler ve gruplar"
+      },
+      "add": "Kişi veya grup ekle",
+      "noMatches": "Eşleşme yok",
+      "groupMembers": "{count, plural, one {# üye} other {# üye}}",
+      "remove": "Kaldır: {name}",
+      "list": "Ajan oluşturabilen kişiler ve gruplar",
+      "noneChosen": "Henüz kimse seçilmedi: yalnızca sahipler ajan oluşturabilir."
+    },
+    "limitRequest": {
+      "ask": "Daha yüksek limit iste",
+      "change": "İsteği değiştir",
+      "help": "Ayda {limit} tokenlik limiti yalnızca sahipler değiştirir. Onlardan daha fazlasını isteyin: isteğiniz gelen kutularına ve e-postalarına gider.",
+      "tokens": "Aylık token",
+      "note": "Gerekçe (isteğe bağlı)",
+      "send": "İsteği gönder",
+      "update": "İsteği güncelle",
+      "waiting": "{date} tarihinde ayda {tokens} token istediniz. Bir sahibin yanıtı bekleniyor."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "İzin verilen e-posta alan adına sahip kişiler",
       "anyone_with_link": "Katılma bağlantısına sahip herkes",
       "members_with_approval": "Üyeler, bir sahibin onayıyla",
-      "any_member": "Sahipler ve üyeler"
+      "any_member": "Sahipler ve üyeler",
+      "chosen": "Sahipler ve seçilen kişiler ve gruplar"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "“{target}” ajanı için bir zamanlama kurdu",
         "schedule_removed": "“{target}” ajanının bir zamanlamasını sildi",
         "shared": "Erişim ayarlandı: {subject}, “{target}” ajanında: {level}",
-        "unshared": "Paylaşımdan çıkarıldı: {subject}, “{target}” ajanından"
+        "unshared": "Paylaşımdan çıkarıldı: {subject}, “{target}” ajanından",
+        "creator_added": "Ajan oluşturma izni verildi: {subject}",
+        "creator_removed": "Ajan oluşturma izni kaldırıldı: {subject}"
       },
       "connection": {
         "created": "“{target}” bağlantısını ekledi",

@@ -199,6 +199,20 @@ output together): once the month's tokens reach it, a run under way stops at its
 is raised. Several runs of one agent under way at once can each take one more turn past it. The
 limit counts tokens rather than money because not every provider reports a price.
 
+**Limit notices.** When an agent's month passes 80% of its limit, and again when it reaches it, the
+workspace's owners and the person who created the agent (while they are still a member) get an
+inbox item and an email, once each a month. An agent less than a day old that spends fast (more
+than a quarter of its monthly limit, or 2 million tokens when it has none) is turned off at once,
+mid-run, before it spends more: the same people hear why, and the audit log and the agent's
+history record the change as the system's. Someone turns it back on after checking its runs.
+
+**Asking for a higher limit.** Only owners change the limit. Someone else with full access to an
+agent that has one asks for more in its *Runs* tab: a number of tokens a month and, if they like, a
+reason. The owners get the request in their inbox and by email, and the first to answer raises the
+limit to that number (recorded in the agent's history and the audit log like any change of an
+owner's) or declines it; the person who asked hears which. One request waits at a time per agent
+and person: asking again changes it.
+
 **Skills.** In the agent's *Skills* tab, owners give it up to 10 [skills](ai.md#skills) of the
 workspace that they can open; each run sends their instructions to the model after the agent's
 own, in the order they were given, as part of its orders. Because a skill's body becomes the
@@ -309,8 +323,9 @@ keep it. Over MCP, `share_agent` changes the list and `get_agent` shows it, with
 access (`your_access`, also in `list_agents`).
 
 **Who creates agents.** Settings → *Agents* → *Who can create agents* lets owners keep creating
-agents to themselves (the default) or let every member create them, from scratch, from a template
-or from a description. A member who creates one gets full access to it.
+agents to themselves (the default), let every member create them, from scratch, from a template
+or from a description, or let only the members and [groups](features.md#features) they choose. Adding and
+removing those is in the audit log. Whoever creates one gets full access to it. Guests never can.
 
 **Managing agents.** In Settings → *Agents*, everyone who isn't a guest sees the agents shared
 with them and opens each at their level: owners, and those with access enough, change, pause,

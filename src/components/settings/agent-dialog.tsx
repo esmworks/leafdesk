@@ -65,6 +65,8 @@ export type AgentModelNames = { main: string; fast: string };
 export const AGENT_TABS: readonly Exclude<AgentTab, "share">[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs", "chat", "history"];
 
 // Sharing comes with its section, not with the dialog.
+// Only for those with full access who aren't owners, on an agent with a limit.
+const AgentLimitRequest = lazyPart(() => import("./agent-limit-request").then((m) => m.AgentLimitRequest));
 const AgentShareTab = lazyPart(() => import("./agent-share-tab").then((m) => m.AgentShareTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 /** An agent's emoji, or a robot when it has none. */
@@ -623,6 +625,10 @@ function RunsTab({
         </Button>
       </div>
       {usage && <UsageSummary usage={usage} limit={agent.monthlyTokenLimit} />}
+      {/* Owners change the limit themselves (Settings tab); others with full access ask them. */}
+      {!isOwner && agent.access === "full" && agent.monthlyTokenLimit !== null && !agent.archived && (
+        <AgentLimitRequest workspaceId={workspaceId} agentId={agent.id} limit={agent.monthlyTokenLimit} />
+      )}
       {!runs ? (
         <p className="py-3 text-sm text-fg-muted" role={error ? "alert" : undefined}>
           {error ?? tc("loading")}

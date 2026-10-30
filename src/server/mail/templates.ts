@@ -543,6 +543,49 @@ export function joinRequestDecidedEmail(
   });
 }
 
+/**
+ * AI spending (server/ai-limit-notices.ts): to owners, and an agent's creator, when a month's
+ * spending nears or reaches its limit or a new agent spending fast was paused; to whoever asked for
+ * a higher agent limit, what an owner decided.
+ */
+export function aiLimitEmail(
+  locale: Locale,
+  notice: {
+    notice: "near" | "reached" | "paused" | "raised" | "declined";
+    /** Null: the workspace's own cost limit. */
+    agentName: string | null;
+    workspaceName: string;
+    /** The agent's monthly token limit (as it is now). */
+    limit: number | null;
+    link: string;
+  },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = { agent: notice.agentName ?? "", workspace: notice.workspaceName, limit: notice.limit ?? 0 };
+  const key = notice.agentName === null ? (notice.notice === "reached" ? "aiLimit.workspaceReached" : "aiLimit.workspaceNear") : `aiLimit.${notice.notice}`;
+  return renderEmail(locale, {
+    subject: t(`${key}.subject` as "aiLimit.near.subject", names),
+    heading: t(`${key}.heading` as "aiLimit.near.heading", names),
+    paragraphs: [t(`${key}.body` as "aiLimit.near.body", names)],
+    action: { label: t(notice.agentName === null ? "aiLimit.openUsage" : "aiLimit.openAgent"), url: notice.link },
+  });
+}
+
+/** To a workspace's owners: someone asks for a higher monthly token limit for an agent. */
+export function agentLimitRequestEmail(
+  locale: Locale,
+  request: { askerName: string; agentName: string; workspaceName: string; current: number; tokens: number; note: string; link: string },
+): RenderedEmail {
+  const t = emailTranslator(locale);
+  const names = { name: request.askerName, agent: request.agentName, workspace: request.workspaceName, current: request.current, tokens: request.tokens };
+  return renderEmail(locale, {
+    subject: t("agentLimitRequest.subject", names),
+    heading: t("agentLimitRequest.heading", names),
+    paragraphs: [t("agentLimitRequest.body", names), ...(request.note ? [t("agentLimitRequest.note", { note: request.note })] : []), t("agentLimitRequest.answer")],
+    action: { label: t("agentLimitRequest.action"), url: request.link },
+  });
+}
+
 /** The link that proves an address belongs to its account (Better Auth's email verification). */
 export function verificationEmail(locale: Locale, verification: { name: string; url: string }): RenderedEmail {
   const t = emailTranslator(locale);

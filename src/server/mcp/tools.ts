@@ -125,6 +125,7 @@ import { refusingUnknownArguments } from "./strict-arguments";
 import * as automations from "@/server/automations/manage";
 import * as agents from "@/server/agents/manage";
 import * as agentChat from "@/server/agents/chat";
+import { aiLimitLine, aiLimitPath } from "@/lib/agent-guardrails";
 import { chatFailure } from "@/lib/agent-chat";
 import { helperIdsOf } from "@/server/agents/helpers";
 import * as agentMemory from "@/server/agents/memory";
@@ -1548,6 +1549,44 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 workspace_id: n.workspaceId,
                 workspace_name: n.workspaceName,
                 url: `${env.appUrl}/w/${n.workspaceId}/settings`,
+              };
+            }
+            // AI limits: an agent's monthly tokens or the workspace's cost limit.
+            if (n.kind === "ai_limit") {
+              const agent = n.aiLimit?.agent ?? null;
+              const summaries = {
+                near: `The agent "${agent?.name}" used 80% of its monthly limit of ${agent?.limit ?? 0} tokens`,
+                reached: `The agent "${agent?.name}" reached its monthly limit of ${agent?.limit ?? 0} tokens: its runs stop until next month or a higher limit`,
+                paused: `The new agent "${agent?.name}" was turned off for spending fast on its first day; check its runs and turn it back on`,
+                raised: `An owner raised the monthly limit of the agent "${agent?.name}" to ${agent?.limit ?? 0} tokens, as asked`,
+                declined: `An owner declined the higher limit asked for the agent "${agent?.name}"`,
+                workspaceNear: "The workspace used 80% of its monthly AI cost limit",
+                workspaceReached: "The workspace reached its monthly AI cost limit: AI stops until next month or a higher limit",
+              };
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: n.aiLimit ? summaries[aiLimitLine(n.aiLimit.notice, agent !== null)] : "",
+                actor: null,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}${aiLimitPath(n.workspaceId, agent?.id ?? null)}`,
+              };
+            }
+            // Someone asks for a higher agent limit: owners answer in the app's inbox.
+            if (n.kind === "agent_limit_request") {
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: `${who} asks to raise the monthly limit of the agent "${n.limitRequest?.agentName ?? ""}" from ${n.limitRequest?.current ?? 0} to ${n.limitRequest?.tokens ?? 0} tokens${n.limitRequest?.note ? ` (${n.limitRequest.note})` : ""}; an owner approves or declines it in the inbox`,
+                actor: n.actorName,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}${aiLimitPath(n.workspaceId, n.limitRequest?.agentId ?? null)}`,
               };
             }
             // A visitor reported a published page: owners handle it in the app.

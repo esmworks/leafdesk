@@ -282,7 +282,19 @@
     "reviewTitle": "Cần xem xét",
     "review": "{count, plural, other {# thay đổi đang chờ bạn xem xét, mới nhất từ {agent}}}",
     "sensitiveContent": "Đã tìm thấy {kind, select, card {số thẻ thanh toán} iban {IBAN} national_id {số định danh cá nhân} private_key {khóa riêng tư} aws_key {khóa truy cập AWS} github_token {token GitHub} slack_token {token Slack} api_key {khóa API} jwt {JSON Web Token} other {nội dung nhạy cảm}} trên trang này.",
-    "pageReported": "Một khách truy cập đã báo cáo trang này: {reason, select, spam {spam hoặc lừa đảo} harmful {nội dung thù ghét, bạo lực hoặc quấy rối} illegal {nội dung bất hợp pháp} privacy {thông tin cá nhân} copyright {bản quyền} other {vấn đề khác}}."
+    "pageReported": "Một khách truy cập đã báo cáo trang này: {reason, select, spam {spam hoặc lừa đảo} harmful {nội dung thù ghét, bạo lực hoặc quấy rối} illegal {nội dung bất hợp pháp} privacy {thông tin cá nhân} copyright {bản quyền} other {vấn đề khác}}.",
+    "aiLimitTitle": "Chi phí AI",
+    "aiLimit": {
+      "near": "Đã dùng 80% giới hạn hằng tháng {limit, number} token",
+      "reached": "Đã đạt giới hạn hằng tháng {limit, number} token",
+      "paused": "Đã tắt: tiêu quá nhanh trong ngày đầu",
+      "raised": "Một chủ sở hữu đã nâng giới hạn lên {limit, number} token mỗi tháng",
+      "declined": "Một chủ sở hữu đã từ chối giới hạn cao hơn mà bạn yêu cầu",
+      "workspaceNear": "Không gian làm việc đã dùng 80% giới hạn chi phí AI hằng tháng",
+      "workspaceReached": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng"
+    },
+    "limitRequestTitle": "Giới hạn cao hơn cho {agent}",
+    "limitRequest": "{actor} yêu cầu {tokens, number} token mỗi tháng"
   },
   "agentReply": {
     "aiOff": "Tôi không thể trả lời: AI đang tắt trong không gian làm việc này.",
@@ -322,5 +334,52 @@
     "whyOwn": "Bạn đã đăng ký email này · {schedule}.",
     "unsubscribe": "Hủy đăng ký",
     "untitled": "Chưa đặt tên"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "{agent} đã dùng 80% giới hạn hằng tháng",
+      "heading": "{agent} sắp đạt giới hạn",
+      "body": "Tác tử {agent} trong {workspace} đã dùng 80% giới hạn hằng tháng {limit, number} token. Khi đạt giới hạn, các lần chạy của tác tử dừng cho đến tháng sau."
+    },
+    "reached": {
+      "subject": "{agent} đã đạt giới hạn hằng tháng",
+      "heading": "{agent} đã đạt giới hạn",
+      "body": "Tác tử {agent} trong {workspace} đã dùng hết giới hạn hằng tháng {limit, number} token. Các lần chạy dừng cho đến tháng sau, trừ khi chủ sở hữu nâng giới hạn."
+    },
+    "paused": {
+      "subject": "{agent} bị tắt vì tiêu quá nhanh",
+      "heading": "{agent} đã bị tắt",
+      "body": "Tác tử mới {agent} trong {workspace} đã dùng token quá nhanh trong ngày đầu nên bị tắt trước khi tiêu thêm. Hãy kiểm tra các lần chạy và hướng dẫn của tác tử rồi bật lại."
+    },
+    "raised": {
+      "subject": "Giới hạn của {agent} đã được nâng",
+      "heading": "Yêu cầu của bạn đã được chấp thuận",
+      "body": "Một chủ sở hữu của {workspace} đã nâng giới hạn hằng tháng của tác tử {agent} lên {limit, number} token, như bạn yêu cầu."
+    },
+    "declined": {
+      "subject": "Giới hạn của {agent} giữ nguyên",
+      "heading": "Yêu cầu của bạn đã bị từ chối",
+      "body": "Một chủ sở hữu của {workspace} đã từ chối giới hạn cao hơn mà bạn yêu cầu cho tác tử {agent}."
+    },
+    "workspaceNear": {
+      "subject": "{workspace} đã dùng 80% giới hạn chi phí AI",
+      "heading": "Sắp đạt giới hạn chi phí AI",
+      "body": "{workspace} đã dùng 80% giới hạn chi phí AI hằng tháng. Khi đạt giới hạn, AI dừng với mọi người cho đến tháng sau."
+    },
+    "workspaceReached": {
+      "subject": "{workspace} đã đạt giới hạn chi phí AI",
+      "heading": "Đã đạt giới hạn chi phí AI",
+      "body": "{workspace} đã dùng hết giới hạn chi phí AI hằng tháng. AI dừng với mọi người cho đến tháng sau, trừ khi chủ sở hữu nâng giới hạn."
+    },
+    "openAgent": "Mở tác tử",
+    "openUsage": "Mở mức sử dụng AI"
+  },
+  "agentLimitRequest": {
+    "subject": "{name} yêu cầu giới hạn cao hơn cho {agent}",
+    "heading": "Giới hạn cao hơn cho {agent}",
+    "body": "{name} yêu cầu nâng giới hạn hằng tháng của tác tử {agent} trong {workspace} từ {current, number} lên {tokens, number} token.",
+    "note": "Lý do của họ: “{note}”",
+    "answer": "Hãy chấp thuận hoặc từ chối trong hộp thư đến Leafdesk của bạn.",
+    "action": "Mở tác tử"
   }
 }

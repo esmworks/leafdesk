@@ -245,7 +245,23 @@
     "review": "{count, plural, one {{agent} hat eine Änderung zur Prüfung vorgeschlagen} other {# Änderungen warten auf deine Prüfung, die neueste von {agent}}}",
     "automationRun": "Automatisierung „{name}“",
     "sensitiveContent": "Hier wurde {kind, select, card {eine Zahlungskartennummer} iban {eine IBAN} national_id {eine nationale Ausweisnummer} private_key {ein privater Schlüssel} aws_key {ein AWS-Zugriffsschlüssel} github_token {ein GitHub-Token} slack_token {ein Slack-Token} api_key {ein API-Schlüssel} jwt {ein JSON Web Token} other {sensibler Inhalt}} gefunden. Prüfe den Fund unter Einstellungen > Sicherheit.",
-    "pageReported": "Ein Besucher hat diese Seite gemeldet: {reason, select, spam {Spam oder Betrug} harmful {hassvolle, gewalttätige oder belästigende Inhalte} illegal {rechtswidrige Inhalte} privacy {persönliche Daten} copyright {Urheberrecht} other {etwas anderes}}. Prüfen Sie es unter Einstellungen > Sicherheit."
+    "pageReported": "Ein Besucher hat diese Seite gemeldet: {reason, select, spam {Spam oder Betrug} harmful {hassvolle, gewalttätige oder belästigende Inhalte} illegal {rechtswidrige Inhalte} privacy {persönliche Daten} copyright {Urheberrecht} other {etwas anderes}}. Prüfen Sie es unter Einstellungen > Sicherheit.",
+    "aiLimitTitle": "KI-Ausgaben",
+    "aiLimit": {
+      "near": "80 % des monatlichen Limits von {limit, number} Tokens verbraucht",
+      "reached": "Monatliches Limit von {limit, number} Tokens erreicht: Durchläufe ruhen bis zum nächsten Monat",
+      "paused": "Ausgeschaltet: Er hat am ersten Tag schnell viel verbraucht. Prüfe seine Durchläufe und schalte ihn dann wieder ein.",
+      "raised": "Ein Inhaber hat sein Limit auf {limit, number} Tokens im Monat erhöht",
+      "declined": "Ein Inhaber hat das höhere Limit abgelehnt, das du angefragt hast",
+      "workspaceNear": "Der Workspace hat 80 % seines monatlichen KI-Kostenlimits verbraucht",
+      "workspaceReached": "Der Workspace hat sein monatliches KI-Kostenlimit erreicht: Die KI pausiert bis zum nächsten Monat"
+    },
+    "limitRequestTitle": "Höheres Limit für {agent}",
+    "limitRequest": "{actor} fragt {tokens, number} Tokens im Monat an (jetzt {current, number})",
+    "limitRequestNote": "„{note}“",
+    "limitRequestApprove": "Auf {tokens, number} erhöhen",
+    "limitRequestDecline": "Ablehnen",
+    "limitRequestFailed": "Die Anfrage konnte nicht beantwortet werden. Versuche es erneut."
   },
   "templates": {
     "title": "Vorlagen",

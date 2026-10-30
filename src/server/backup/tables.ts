@@ -82,6 +82,7 @@ export const BACKED_UP: Record<string, Scope> = {
   agent_version: ofAgents,
   agent_helper: ofAgents,
   agent_share: own,
+  agent_creator: own,
   database_automation: own,
   page_webhook: own,
   automation_fire: (ws) => sql`automation_id in (select id from database_automation where workspace_id = ${ws})`,
@@ -113,10 +114,10 @@ export const NO_LONGER_BACKED_UP = new Set(["ai_conversation"]);
 /** The table of a workspace's members and their roles. */
 export const WORKSPACE_MEMBERS = "workspace_member";
 /**
- * Tables that make someone a member of something, or name them on an agent's sharing list (a
- * restore leaves out who has no account).
+ * Tables that make someone a member of something, or name them on an agent's sharing list or among
+ * those who may create agents (a restore leaves out who has no account).
  */
-export const MEMBERSHIP_TABLES = [WORKSPACE_MEMBERS, "teamspace_member", "member_group_member", "agent_share"];
+export const MEMBERSHIP_TABLES = [WORKSPACE_MEMBERS, "teamspace_member", "member_group_member", "agent_share", "agent_creator"];
 
 /** The tables a backup leaves out, and why. */
 export const LEFT_OUT: Record<string, string> = {
@@ -151,6 +152,7 @@ export const LEFT_OUT: Record<string, string> = {
   workspace_join_request: "pending requests to join",
   page_invitation: "pending page invitations (their links)",
   access_request: "pending access requests",
+  agent_limit_request: "requests for a higher agent limit, answered on the old server or asked again",
   notification: "inboxes",
   audit_event: "the old server's audit log; a backup file can be edited, so it would prove nothing",
   audit_stream: "where audit events are streamed, with its sealed signing secret: set up again on the new server",

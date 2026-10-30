@@ -26,7 +26,9 @@ export type AgentErrorCode =
   /** Only the workspace's owners do this (an agent's monthly token limit, its connections' tools). */
   | "ownersOnly"
   /** An agent is shared only with the workspace's owners and members. */
-  | "notAMember";
+  | "notAMember"
+  /** A request for a higher limit that was decided already, or never was. */
+  | "requestNotFound";
 
 export class AgentError extends Error {
   constructor(

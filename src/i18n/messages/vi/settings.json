@@ -782,7 +782,10 @@
         "repeat": "Hãy kiểm tra khi nào nó lặp lại và múi giờ của nó.",
         "helpers": "Hãy chọn tối đa 10 tác tử khác của không gian làm việc này chưa bị lưu trữ.",
         "shareLevel": "Hãy chọn toàn quyền, có thể chỉnh sửa hoặc có thể xem và tương tác.",
-        "mailRecipients": "Nhập tối đa 10 địa chỉ email."
+        "mailRecipients": "Nhập tối đa 10 địa chỉ email.",
+        "requestTokens": "Hãy yêu cầu một số token nguyên lớn hơn giới hạn hiện tại, tối đa 1.000.000.000.",
+        "requestNote": "Nêu lý do trong tối đa 500 ký tự.",
+        "noLimit": "Tác tử này không có giới hạn để nâng."
       },
       "noteEmpty": "Hãy viết điều tác tử nên ghi nhớ.",
       "noteTooLong": "Một ghi chú có tối đa {max} ký tự.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Phiên bản này không còn tồn tại.",
       "notAllowed": "Quyền truy cập của bạn vào tác tử này không cho phép việc này.",
       "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới thay đổi giới hạn token hằng tháng của tác tử.",
-      "notAMember": "Một tác tử chỉ có thể được chia sẻ với các chủ sở hữu, thành viên và nhóm của không gian làm việc."
+      "notAMember": "Một tác tử chỉ có thể được chia sẻ với các chủ sở hữu, thành viên và nhóm của không gian làm việc.",
+      "requestNotFound": "Yêu cầu này đã được trả lời."
     },
     "connections": {
       "description": "Các công cụ của mỗi kết nối mà tác tử này được dùng. Các công cụ chỉ đọc chạy ngay, trừ trên một hàng từ câu trả lời biểu mẫu ẩn danh; công cụ nào khác đều chờ một chủ sở hữu chấp thuận mỗi lần tác tử gọi.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Bạn có thể xem tác tử này, trò chuyện với nó và nhắc đến nó. Để thay đổi, hãy nhờ người có quyền chỉnh sửa.",
     "creation": {
-      "title": "Chỉ chủ sở hữu không gian làm việc mới có thể tạo tác tử",
-      "description": "Tắt: thành viên cũng có thể tạo tác tử, và có toàn quyền với những tác tử họ tạo. Khách thì không bao giờ.",
-      "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới có thể thay đổi mục này."
+      "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới có thể thay đổi mục này.",
+      "who": "Ai có thể tạo tác tử",
+      "whoHelp": "Người tạo tác tử sẽ có toàn quyền truy cập tác tử đó. Khách thì không bao giờ được.",
+      "choices": {
+        "owners": "Chỉ chủ sở hữu",
+        "members": "Chủ sở hữu và thành viên",
+        "chosen": "Chủ sở hữu cùng những người và nhóm được chọn bên dưới"
+      },
+      "add": "Thêm người hoặc nhóm",
+      "noMatches": "Không có kết quả phù hợp",
+      "groupMembers": "{count, plural, other {# thành viên}}",
+      "remove": "Xóa {name}",
+      "list": "Những người và nhóm có thể tạo tác tử",
+      "noneChosen": "Chưa chọn ai: chỉ chủ sở hữu mới có thể tạo tác tử."
+    },
+    "limitRequest": {
+      "ask": "Yêu cầu giới hạn cao hơn",
+      "change": "Đổi yêu cầu",
+      "help": "Chỉ chủ sở hữu mới đổi được giới hạn {limit} token mỗi tháng. Hãy xin thêm từ họ: họ nhận yêu cầu của bạn trong hộp thư đến và qua email.",
+      "tokens": "Token mỗi tháng",
+      "note": "Lý do (tùy chọn)",
+      "send": "Gửi yêu cầu",
+      "update": "Cập nhật yêu cầu",
+      "waiting": "Bạn đã yêu cầu {tokens} token mỗi tháng vào {date}. Đang chờ chủ sở hữu."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Những người có tên miền email được phép",
       "anyone_with_link": "Bất kỳ ai có liên kết tham gia",
       "members_with_approval": "Thành viên, với sự chấp thuận của chủ sở hữu",
-      "any_member": "Chủ sở hữu và thành viên"
+      "any_member": "Chủ sở hữu và thành viên",
+      "chosen": "Chủ sở hữu cùng những người và nhóm được chọn"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Đã đặt lịch chạy cho tác tử “{target}”",
         "schedule_removed": "Đã xóa một lịch chạy của tác tử “{target}”",
         "shared": "Đã đặt quyền truy cập của {subject} vào tác tử “{target}”: {level}",
-        "unshared": "Đã xóa {subject} khỏi việc chia sẻ tác tử “{target}”"
+        "unshared": "Đã xóa {subject} khỏi việc chia sẻ tác tử “{target}”",
+        "creator_added": "Cho phép {subject} tạo tác tử",
+        "creator_removed": "Đã bỏ {subject} khỏi những người có thể tạo tác tử"
       },
       "connection": {
         "created": "Đã thêm kết nối “{target}”",

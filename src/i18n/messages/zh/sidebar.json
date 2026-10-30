@@ -245,7 +245,23 @@
     "review": "{count, plural, =1 {{agent} 提议了一处更改，等待你审阅} other {# 处更改等待你审阅，最新一处来自 {agent}}}",
     "automationRun": "自动化“{name}”",
     "sensitiveContent": "在此处发现了{kind, select, card {支付卡号} iban {IBAN} national_id {身份证号} private_key {私钥} aws_key {AWS 访问密钥} github_token {GitHub 令牌} slack_token {Slack 令牌} api_key {API 密钥} jwt {JSON Web Token} other {敏感内容}}。请在 设置 > 安全 中查看。",
-    "pageReported": "有访问者举报了此页面：{reason, select, spam {垃圾信息或诈骗} harmful {仇恨、暴力或骚扰内容} illegal {违法内容} privacy {个人信息} copyright {版权} other {其他}}。请在 设置 > 安全 中查看。"
+    "pageReported": "有访问者举报了此页面：{reason, select, spam {垃圾信息或诈骗} harmful {仇恨、暴力或骚扰内容} illegal {违法内容} privacy {个人信息} copyright {版权} other {其他}}。请在 设置 > 安全 中查看。",
+    "aiLimitTitle": "AI 支出",
+    "aiLimit": {
+      "near": "已用完每月 {limit, number} 个令牌上限的 80%",
+      "reached": "已达到每月 {limit, number} 个令牌的上限：运行将停止，直到下个月",
+      "paused": "已关闭：首日消耗过快。请检查其运行记录，然后重新开启。",
+      "raised": "所有者已将其上限提高到每月 {limit, number} 个令牌",
+      "declined": "所有者拒绝了你申请的更高上限",
+      "workspaceNear": "工作区已用完每月 AI 费用上限的 80%",
+      "workspaceReached": "工作区已达到每月 AI 费用上限：AI 将停止，直到下个月"
+    },
+    "limitRequestTitle": "{agent} 的更高上限",
+    "limitRequest": "{actor} 申请每月 {tokens, number} 个令牌（当前为 {current, number}）",
+    "limitRequestNote": "“{note}”",
+    "limitRequestApprove": "提高到 {tokens, number}",
+    "limitRequestDecline": "拒绝",
+    "limitRequestFailed": "无法答复该申请。请重试。"
   },
   "templates": {
     "title": "模板",

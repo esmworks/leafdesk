@@ -782,7 +782,10 @@
         "repeat": "Prüfe, wann er sich wiederholt, und die Zeitzone.",
         "helpers": "Wähle bis zu 10 andere, nicht archivierte Agenten dieses Workspaces.",
         "shareLevel": "Wähle Vollzugriff, Kann bearbeiten oder Kann ansehen & interagieren.",
-        "mailRecipients": "Gib bis zu 10 E-Mail-Adressen ein."
+        "mailRecipients": "Gib bis zu 10 E-Mail-Adressen ein.",
+        "requestTokens": "Fordere eine ganze Zahl von Tokens über dem aktuellen Limit an, höchstens 1.000.000.000.",
+        "requestNote": "Begründe es in höchstens 500 Zeichen.",
+        "noLimit": "Dieser Agent hat kein Limit, das erhöht werden könnte."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Diese Version gibt es nicht mehr.",
       "notAllowed": "Dein Zugriff auf diesen Agenten erlaubt das nicht.",
       "ownersOnly": "Nur Workspace-Inhaber ändern das monatliche Token-Limit eines Agenten.",
-      "notAMember": "Ein Agent kann nur mit Inhabern, Mitgliedern und Gruppen des Workspace geteilt werden."
+      "notAMember": "Ein Agent kann nur mit Inhabern, Mitgliedern und Gruppen des Workspace geteilt werden.",
+      "requestNotFound": "Diese Anfrage wurde bereits beantwortet."
     },
     "connections": {
       "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort, außer bei einer Zeile aus einer anonymen Formularantwort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Du kannst diesen Agenten ansehen, mit ihm chatten und ihn erwähnen. Um ihn zu ändern, frag jemanden, der ihn bearbeiten kann.",
     "creation": {
-      "title": "Nur Workspace-Inhaber können Agenten erstellen",
-      "description": "Aus: Auch Mitglieder können Agenten erstellen und erhalten Vollzugriff auf die, die sie erstellen. Gäste nie.",
-      "ownersOnly": "Nur Workspace-Inhaber können das ändern."
+      "ownersOnly": "Nur Workspace-Inhaber können das ändern.",
+      "who": "Wer Agenten erstellen darf",
+      "whoHelp": "Wer einen Agenten erstellt, erhält vollen Zugriff darauf. Gäste dürfen das nie.",
+      "choices": {
+        "owners": "Nur Inhaber",
+        "members": "Inhaber und Mitglieder",
+        "chosen": "Inhaber und die unten ausgewählten Personen und Gruppen"
+      },
+      "add": "Personen oder Gruppen hinzufügen",
+      "noMatches": "Keine Treffer",
+      "groupMembers": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
+      "remove": "{name} entfernen",
+      "list": "Personen und Gruppen, die Agenten erstellen dürfen",
+      "noneChosen": "Noch niemand ausgewählt: Nur Inhaber können Agenten erstellen."
+    },
+    "limitRequest": {
+      "ask": "Höheres Limit anfragen",
+      "change": "Anfrage ändern",
+      "help": "Nur Inhaber ändern das Limit von {limit} Tokens im Monat. Bitte sie um mehr: Sie erhalten deine Anfrage in ihrem Posteingang und per E-Mail.",
+      "tokens": "Tokens im Monat",
+      "note": "Begründung (optional)",
+      "send": "Anfrage senden",
+      "update": "Anfrage aktualisieren",
+      "waiting": "Du hast am {date} {tokens} Tokens im Monat angefragt. Wartet auf einen Inhaber."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Personen mit einer zugelassenen E-Mail-Domain",
       "anyone_with_link": "Alle mit dem Beitrittslink",
       "members_with_approval": "Mitglieder, mit Zustimmung eines Inhabers",
-      "any_member": "Inhaber und Mitglieder"
+      "any_member": "Inhaber und Mitglieder",
+      "chosen": "Inhaber und ausgewählte Personen und Gruppen"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Hat einen Zeitplan für den Agenten „{target}“ eingerichtet",
         "schedule_removed": "Hat einen Zeitplan des Agenten „{target}“ gelöscht",
         "shared": "Hat den Zugriff von {subject} auf den Agenten „{target}“ festgelegt: {level}",
-        "unshared": "Hat {subject} aus der Freigabe des Agenten „{target}“ entfernt"
+        "unshared": "Hat {subject} aus der Freigabe des Agenten „{target}“ entfernt",
+        "creator_added": "Hat {subject} erlaubt, Agenten zu erstellen",
+        "creator_removed": "Hat {subject} aus den Personen entfernt, die Agenten erstellen dürfen"
       },
       "connection": {
         "created": "Hat die Verbindung „{target}“ hinzugefügt",

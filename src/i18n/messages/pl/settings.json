@@ -782,7 +782,10 @@
         "repeat": "Sprawdź, kiedy się powtarza, i strefę czasową.",
         "helpers": "Wybierz najwyżej 10 innych, niezarchiwizowanych agentów tego obszaru roboczego.",
         "shareLevel": "Wybierz pełny dostęp, może edytować lub może wyświetlać i używać.",
-        "mailRecipients": "Wpisz do 10 adresów e-mail."
+        "mailRecipients": "Wpisz do 10 adresów e-mail.",
+        "requestTokens": "Podaj całkowitą liczbę tokenów wyższą niż obecny limit, do 1 000 000 000.",
+        "requestNote": "Wyjaśnij powód w maksymalnie 500 znakach.",
+        "noLimit": "Ten agent nie ma limitu, który można podnieść."
       },
       "noteEmpty": "Napisz, co agent ma zapamiętać.",
       "noteTooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Ta wersja już nie istnieje.",
       "notAllowed": "Twój dostęp do tego agenta na to nie pozwala.",
       "ownersOnly": "Miesięczny limit tokenów agenta zmieniają tylko właściciele obszaru roboczego.",
-      "notAMember": "Agenta można udostępnić tylko właścicielom, członkom i grupom obszaru roboczego."
+      "notAMember": "Agenta można udostępnić tylko właścicielom, członkom i grupom obszaru roboczego.",
+      "requestNotFound": "Na tę prośbę już odpowiedziano."
     },
     "connections": {
       "description": "Narzędzia każdego połączenia, których ten agent może używać. Narzędzia tylko do odczytu działają od razu, chyba że w wierszu z anonimowej odpowiedzi z formularza; każde inne czeka na zatwierdzenie właściciela za każdym razem, gdy agent je wywołuje.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Możesz wyświetlać tego agenta, czatować z nim i go wspominać. Aby go zmienić, poproś kogoś, kto może go edytować.",
     "creation": {
-      "title": "Tylko właściciele obszaru roboczego mogą tworzyć agentów",
-      "description": "Wyłączone: członkowie też mogą tworzyć agentów i mają pełny dostęp do tych, które utworzą. Goście nigdy.",
-      "ownersOnly": "Tylko właściciele obszaru roboczego mogą to zmienić."
+      "ownersOnly": "Tylko właściciele obszaru roboczego mogą to zmienić.",
+      "who": "Kto może tworzyć agentów",
+      "whoHelp": "Kto tworzy agenta, otrzymuje do niego pełny dostęp. Goście nigdy nie mogą.",
+      "choices": {
+        "owners": "Tylko właściciele",
+        "members": "Właściciele i członkowie",
+        "chosen": "Właściciele oraz wybrane poniżej osoby i grupy"
+      },
+      "add": "Dodaj osoby lub grupy",
+      "noMatches": "Brak wyników",
+      "groupMembers": "{count, plural, one {# członek} few {# członków} many {# członków} other {# członka}}",
+      "remove": "Usuń: {name}",
+      "list": "Osoby i grupy, które mogą tworzyć agentów",
+      "noneChosen": "Nikogo jeszcze nie wybrano: agentów mogą tworzyć tylko właściciele."
+    },
+    "limitRequest": {
+      "ask": "Poproś o wyższy limit",
+      "change": "Zmień prośbę",
+      "help": "Limit {limit} tokenów miesięcznie zmieniają tylko właściciele. Poproś ich o więcej: prośba trafi do ich skrzynki odbiorczej i na e-mail.",
+      "tokens": "Tokeny miesięcznie",
+      "note": "Powód (opcjonalnie)",
+      "send": "Wyślij prośbę",
+      "update": "Zaktualizuj prośbę",
+      "waiting": "Prośba z {date}: {tokens} tokenów miesięcznie. Czeka na odpowiedź właściciela."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Osoby z dozwoloną domeną e-mail",
       "anyone_with_link": "Każdy, kto ma link do dołączenia",
       "members_with_approval": "Członkowie, za zgodą właściciela",
-      "any_member": "Właściciele i członkowie"
+      "any_member": "Właściciele i członkowie",
+      "chosen": "Właściciele oraz wybrane osoby i grupy"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Ustawiono harmonogram agenta „{target}”",
         "schedule_removed": "Usunięto harmonogram agenta „{target}”",
         "shared": "Ustawiono dostęp do agenta „{target}” ({subject}): {level}",
-        "unshared": "Usunięto z udostępniania agenta „{target}”: {subject}"
+        "unshared": "Usunięto z udostępniania agenta „{target}”: {subject}",
+        "creator_added": "Pozwolono {subject} tworzyć agentów",
+        "creator_removed": "Usunięto {subject} spośród osób, które mogą tworzyć agentów"
       },
       "connection": {
         "created": "Dodano połączenie „{target}”",

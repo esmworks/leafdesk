@@ -782,7 +782,10 @@
         "repeat": "Kontrollera när den upprepas och dess tidszon.",
         "helpers": "Välj upp till 10 andra agenter i den här arbetsytan som inte är arkiverade.",
         "shareLevel": "Välj full åtkomst, kan redigera eller kan visa och interagera.",
-        "mailRecipients": "Ange upp till 10 e-postadresser."
+        "mailRecipients": "Ange upp till 10 e-postadresser.",
+        "requestTokens": "Begär ett heltal tokens över den nuvarande gränsen, högst 1 000 000 000.",
+        "requestNote": "Ange varför med högst 500 tecken.",
+        "noLimit": "Den här agenten har ingen gräns att höja."
       },
       "noteEmpty": "Skriv vad agenten ska komma ihåg.",
       "noteTooLong": "En anteckning kan ha högst {max} tecken.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Den här versionen finns inte längre.",
       "notAllowed": "Din åtkomst till den här agenten tillåter inte detta.",
       "ownersOnly": "Bara arbetsytans ägare ändrar en agents månatliga tokengräns.",
-      "notAMember": "En agent kan bara delas med arbetsytans ägare, medlemmar och grupper."
+      "notAMember": "En agent kan bara delas med arbetsytans ägare, medlemmar och grupper.",
+      "requestNotFound": "Den här begäran har redan besvarats."
     },
     "connections": {
       "description": "Verktygen i varje anslutning som den här agenten får använda. Verktyg som bara läser körs direkt, utom på en rad från ett anonymt formulärsvar; alla andra väntar på en ägares godkännande varje gång agenten anropar dem.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Du kan visa den här agenten, chatta med den och nämna den. För att ändra den, be någon som kan redigera den.",
     "creation": {
-      "title": "Bara arbetsytans ägare kan skapa agenter",
-      "description": "Av: medlemmar kan också skapa agenter och får full åtkomst till dem de skapar. Gäster kan aldrig det.",
-      "ownersOnly": "Bara arbetsytans ägare kan ändra detta."
+      "ownersOnly": "Bara arbetsytans ägare kan ändra detta.",
+      "who": "Vem som kan skapa agenter",
+      "whoHelp": "Den som skapar en agent får full åtkomst till den. Gäster kan aldrig det.",
+      "choices": {
+        "owners": "Bara ägare",
+        "members": "Ägare och medlemmar",
+        "chosen": "Ägare och de personer och grupper som väljs nedan"
+      },
+      "add": "Lägg till personer eller grupper",
+      "noMatches": "Inga träffar",
+      "groupMembers": "{count, plural, one {# medlem} other {# medlemmar}}",
+      "remove": "Ta bort {name}",
+      "list": "Personer och grupper som kan skapa agenter",
+      "noneChosen": "Ingen vald ännu: bara ägare kan skapa agenter."
+    },
+    "limitRequest": {
+      "ask": "Be om en högre gräns",
+      "change": "Ändra begäran",
+      "help": "Bara ägare ändrar gränsen på {limit} tokens i månaden. Be dem om mer: de får din begäran i sin inkorg och med e-post.",
+      "tokens": "Tokens i månaden",
+      "note": "Varför (valfritt)",
+      "send": "Skicka begäran",
+      "update": "Uppdatera begäran",
+      "waiting": "Du bad om {tokens} tokens i månaden den {date}. Väntar på en ägare."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Personer med en tillåten e-postdomän",
       "anyone_with_link": "Alla som har länken för att gå med",
       "members_with_approval": "Medlemmar, med en ägares godkännande",
-      "any_member": "Ägare och medlemmar"
+      "any_member": "Ägare och medlemmar",
+      "chosen": "Ägare och valda personer och grupper"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Satte ett schema för agenten ”{target}”",
         "schedule_removed": "Raderade ett schema för agenten ”{target}”",
         "shared": "Satte åtkomsten för {subject} till agenten ”{target}”: {level}",
-        "unshared": "Tog bort {subject} från delningen av agenten ”{target}”"
+        "unshared": "Tog bort {subject} från delningen av agenten ”{target}”",
+        "creator_added": "Lät {subject} skapa agenter",
+        "creator_removed": "Tog bort {subject} från dem som kan skapa agenter"
       },
       "connection": {
         "created": "Lade till anslutningen ”{target}”",

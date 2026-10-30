@@ -282,7 +282,19 @@
     "reviewTitle": "للمراجعة",
     "review": "{count, plural, zero {لا تغييرات بانتظار مراجعتك} one {اقترح {agent} تغييرًا لمراجعتك} two {تغييران بانتظار مراجعتك، آخرهما من {agent}} few {# تغييرات بانتظار مراجعتك، آخرها من {agent}} many {# تغييرًا بانتظار مراجعتك، آخرها من {agent}} other {# تغيير بانتظار مراجعتك، آخرها من {agent}}}",
     "sensitiveContent": "عُثر على {kind, select, card {رقم بطاقة دفع} iban {رقم IBAN} national_id {رقم هوية وطنية} private_key {مفتاح خاص} aws_key {مفتاح وصول AWS} github_token {رمز GitHub} slack_token {رمز Slack} api_key {مفتاح API} jwt {رمز JSON Web Token} other {محتوى حساس}} في هذه الصفحة.",
-    "pageReported": "أبلغ زائر عن هذه الصفحة: {reason, select, spam {رسائل مزعجة أو احتيال} harmful {محتوى يحض على الكراهية أو العنف أو التحرش} illegal {محتوى غير قانوني} privacy {معلومات شخصية} copyright {حقوق النشر} other {شيء آخر}}."
+    "pageReported": "أبلغ زائر عن هذه الصفحة: {reason, select, spam {رسائل مزعجة أو احتيال} harmful {محتوى يحض على الكراهية أو العنف أو التحرش} illegal {محتوى غير قانوني} privacy {معلومات شخصية} copyright {حقوق النشر} other {شيء آخر}}.",
+    "aiLimitTitle": "إنفاق الذكاء الاصطناعي",
+    "aiLimit": {
+      "near": "استخدم 80% من حده الشهري البالغ {limit, number} رمز",
+      "reached": "بلغ حده الشهري البالغ {limit, number} رمز",
+      "paused": "أُوقف: أنفق بسرعة في يومه الأول",
+      "raised": "رفع أحد المالكين حده إلى {limit, number} رمز في الشهر",
+      "declined": "رفض أحد المالكين الحد الأعلى الذي طلبته",
+      "workspaceNear": "استخدمت مساحة العمل 80% من حد تكلفة الذكاء الاصطناعي الشهري",
+      "workspaceReached": "بلغت مساحة العمل حد تكلفة الذكاء الاصطناعي الشهري"
+    },
+    "limitRequestTitle": "حد أعلى لـ {agent}",
+    "limitRequest": "يطلب {actor} ‏{tokens, number} رمز في الشهر"
   },
   "agentReply": {
     "aiOff": "لا أستطيع الرد: الذكاء الاصطناعي متوقف في مساحة العمل هذه.",
@@ -322,5 +334,52 @@
     "whyOwn": "أنت مشترك في هذا البريد · {schedule}.",
     "unsubscribe": "إلغاء الاشتراك",
     "untitled": "بلا عنوان"
+  },
+  "aiLimit": {
+    "near": {
+      "subject": "استخدم {agent} 80% من حده الشهري",
+      "heading": "{agent} يقترب من حده",
+      "body": "استخدم الوكيل {agent} في {workspace} ‏80% من حده الشهري البالغ {limit, number} رمز. عندما يبلغ الحد، تتوقف تشغيلاته حتى الشهر المقبل."
+    },
+    "reached": {
+      "subject": "بلغ {agent} حده الشهري",
+      "heading": "بلغ {agent} حده",
+      "body": "استنفد الوكيل {agent} في {workspace} حده الشهري البالغ {limit, number} رمز. تتوقف تشغيلاته حتى الشهر المقبل ما لم يرفع أحد المالكين الحد."
+    },
+    "paused": {
+      "subject": "أُوقف {agent} لإنفاقه السريع",
+      "heading": "أُوقف {agent}",
+      "body": "أنفق الوكيل الجديد {agent} في {workspace} الرموز بسرعة في يومه الأول، فأُوقف قبل أن ينفق أكثر. راجع تشغيلاته وتعليماته ثم أعد تشغيله."
+    },
+    "raised": {
+      "subject": "رُفع حد {agent}",
+      "heading": "تمت الموافقة على طلبك",
+      "body": "رفع أحد مالكي {workspace} الحد الشهري للوكيل {agent} إلى {limit, number} رمز كما طلبت."
+    },
+    "declined": {
+      "subject": "حد {agent} يبقى كما هو",
+      "heading": "رُفض طلبك",
+      "body": "رفض أحد مالكي {workspace} الحد الأعلى الذي طلبته للوكيل {agent}."
+    },
+    "workspaceNear": {
+      "subject": "استخدمت {workspace} ‏80% من حد تكلفة الذكاء الاصطناعي",
+      "heading": "حد تكلفة الذكاء الاصطناعي قريب",
+      "body": "استخدمت {workspace} ‏80% من حد تكلفة الذكاء الاصطناعي الشهري. عندما يبلغ الحد، يتوقف الذكاء الاصطناعي للجميع حتى الشهر المقبل."
+    },
+    "workspaceReached": {
+      "subject": "بلغت {workspace} حد تكلفة الذكاء الاصطناعي",
+      "heading": "بُلغ حد تكلفة الذكاء الاصطناعي",
+      "body": "استنفدت {workspace} حد تكلفة الذكاء الاصطناعي الشهري. يتوقف الذكاء الاصطناعي للجميع حتى الشهر المقبل ما لم يرفع أحد المالكين الحد."
+    },
+    "openAgent": "فتح الوكيل",
+    "openUsage": "فتح استخدام الذكاء الاصطناعي"
+  },
+  "agentLimitRequest": {
+    "subject": "يطلب {name} حدًا أعلى لـ {agent}",
+    "heading": "حد أعلى لـ {agent}",
+    "body": "يطلب {name} رفع الحد الشهري للوكيل {agent} في {workspace} من {current, number} إلى {tokens, number} رمز.",
+    "note": "سببه: «{note}»",
+    "answer": "وافق عليه أو ارفضه في صندوق الوارد في Leafdesk.",
+    "action": "فتح الوكيل"
   }
 }

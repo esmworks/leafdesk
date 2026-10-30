@@ -1,10 +1,11 @@
 "use client";
 
-import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Inbox, KeyRound, ListFilter, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Gauge, Inbox, KeyRound, ListFilter, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useEffect } from "react";
 import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/actions/access-requests";
+import { decideAgentLimitRequestAction } from "@/app/actions/agents";
 import {
   archiveAction,
   archiveReadAction,
@@ -24,7 +25,8 @@ import { pushLink, SUGGESTION_LINES } from "@/lib/push";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
-import type { InboxAccessRequest, InboxItem, InboxRowUpdate } from "@/server/notifications";
+import type { InboxAccessRequest, InboxItem, InboxLimitRequest, InboxRowUpdate } from "@/server/notifications";
+import { aiLimitLine } from "@/lib/agent-guardrails";
 import { read } from "@/components/read";
 
 /**
@@ -218,6 +220,15 @@ export function InboxDialog({
                     <ClipboardCheck aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                     <span className="truncate">{t("reviewTitle")}</span>
                   </>
+                ) : item.kind === "ai_limit" || item.kind === "agent_limit_request" ? (
+                  <>
+                    <Gauge aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">
+                      {item.kind === "agent_limit_request"
+                        ? t("limitRequestTitle", { agent: item.limitRequest?.agentName ?? "" })
+                        : (item.aiLimit?.agent?.name ?? t("aiLimitTitle"))}
+                    </span>
+                  </>
                 ) : item.kind === "ai_account_detached" ? (
                   <>
                     <KeyRound aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -272,6 +283,12 @@ export function InboxDialog({
                 ? t("review", { count: item.review?.count ?? 0, agent: item.actorName || t("someone") })
                 : item.kind === "ai_account_detached"
                 ? t("aiAccountDetached", { actor: item.actorName || t("someone") })
+                : item.kind === "ai_limit"
+                ? item.aiLimit
+                  ? t(`aiLimit.${aiLimitLine(item.aiLimit.notice, item.aiLimit.agent !== null)}`, { limit: item.aiLimit.agent?.limit ?? 0 })
+                  : ""
+                : item.kind === "agent_limit_request"
+                ? t("limitRequest", { actor: item.actorName || t("someone"), tokens: item.limitRequest?.tokens ?? 0, current: item.limitRequest?.current ?? 0 })
                 : item.kind === "sensitive_content"
                 ? t("sensitiveContent", { kind: item.automationMessage ?? "" })
                 : item.kind === "page_reported"
@@ -390,6 +407,16 @@ export function InboxDialog({
             onClose();
             router.push(`/w/${workspaceId}/settings?tab=agents&agent=${item.approval!.agentId}&run=${item.approval!.runId}`);
           }}
+          onAnswered={() => {
+            setItems((list) => list?.filter((other) => other.id !== item.id) ?? list);
+            onRead();
+          }}
+        />
+      )}
+      {item.limitRequest && (
+        <LimitRequestActions
+          workspaceId={workspaceId}
+          request={item.limitRequest}
           onAnswered={() => {
             setItems((list) => list?.filter((other) => other.id !== item.id) ?? list);
             onRead();
@@ -593,6 +620,46 @@ export function InboxDialog({
 }
 
 /** Share (at a level) or decline an access request from the inbox; the notification goes away once answered. */
+/** An owner's answer to a request for a higher agent limit: raise it to what was asked, or decline. */
+function LimitRequestActions({ workspaceId, request, onAnswered }: { workspaceId: string; request: InboxLimitRequest; onAnswered: () => void }) {
+  const t = useTranslations("sidebar.inbox");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const answer = async (approve: boolean) => {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await decideAgentLimitRequestAction(workspaceId, request.id, approve);
+      if (result.ok) onAnswered();
+      else setError(result.error);
+    } catch {
+      setError(t("limitRequestFailed"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="pb-2 ps-[2.125rem] pe-3">
+      {request.note && <bdi className="mb-1.5 block text-sm break-words whitespace-pre-line text-fg-muted">{t("limitRequestNote", { note: request.note })}</bdi>}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Button size="sm" variant="primary" disabled={busy} onClick={() => void answer(true)}>
+          {t("limitRequestApprove", { tokens: request.tokens })}
+        </Button>
+        <Button size="sm" variant="ghost" disabled={busy} onClick={() => void answer(false)}>
+          {t("limitRequestDecline")}
+        </Button>
+      </div>
+      {error && (
+        <p role="alert" className="mt-1 text-xs text-danger">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function AccessRequestActions({ request, onAnswered }: { request: InboxAccessRequest; onAnswered: () => void }) {
   const ts = useTranslations("page.share");
   const [level, setLevel] = useState<ApprovalLevel>(() => initialApprovalLevel(request, "edit"));

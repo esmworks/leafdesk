@@ -1609,7 +1609,7 @@ const SETTING_VALUES: {
   publishing: ["owners", "members", "off"],
   requireTwoFactor: [false, true],
   teamspaceCreation: ["owners", "members"],
-  agentCreation: ["owners", "members"],
+  agentCreation: ["owners", "members", "chosen"],
   loginMethod: ["any", "sso"],
   ai: [true, false],
   aiMemory: [true, false],

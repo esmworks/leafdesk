@@ -782,7 +782,10 @@
         "repeat": "Tarkista, milloin se toistuu, ja sen aikavyöhyke.",
         "helpers": "Valitse enintään 10 muuta tämän työtilan agenttia, joita ei ole arkistoitu.",
         "shareLevel": "Valitse täydet oikeudet, voi muokata tai voi katsella ja käyttää.",
-        "mailRecipients": "Anna enintään 10 sähköpostiosoitetta."
+        "mailRecipients": "Anna enintään 10 sähköpostiosoitetta.",
+        "requestTokens": "Pyydä kokonaislukumäärä tokeneita nykyisen rajan yli, enintään 1 000 000 000.",
+        "requestNote": "Kerro syy enintään 500 merkillä.",
+        "noLimit": "Tällä agentilla ei ole korotettavaa rajaa."
       },
       "noteEmpty": "Kirjoita, mitä agentin pitäisi muistaa.",
       "noteTooLong": "Muistiinpanossa voi olla enintään {max} merkkiä.",
@@ -799,7 +802,8 @@
       "versionNotFound": "Tätä versiota ei ole enää olemassa.",
       "notAllowed": "Pääsysi tähän agenttiin ei salli tätä.",
       "ownersOnly": "Vain työtilan omistajat muuttavat agentin kuukausittaista tokenrajaa.",
-      "notAMember": "Agentin voi jakaa vain työtilan omistajien, jäsenten ja ryhmien kanssa."
+      "notAMember": "Agentin voi jakaa vain työtilan omistajien, jäsenten ja ryhmien kanssa.",
+      "requestNotFound": "Tähän pyyntöön on jo vastattu."
     },
     "connections": {
       "description": "Kunkin yhteyden työkalut, joita tämä agentti saa käyttää. Pelkästään lukevat työkalut toimivat heti, paitsi anonyymin lomakevastauksen rivillä; muut odottavat omistajan hyväksyntää aina, kun agentti kutsuu niitä.",
@@ -962,9 +966,30 @@
     },
     "viewOnly": "Voit katsella tätä agenttia, keskustella sen kanssa ja mainita sen. Jos haluat muuttaa sitä, pyydä joltakulta, joka voi muokata sitä.",
     "creation": {
-      "title": "Vain työtilan omistajat voivat luoda agentteja",
-      "description": "Pois päältä: myös jäsenet voivat luoda agentteja ja saavat täydet oikeudet luomiinsa agentteihin. Vieraat eivät koskaan voi.",
-      "ownersOnly": "Vain työtilan omistajat voivat muuttaa tätä."
+      "ownersOnly": "Vain työtilan omistajat voivat muuttaa tätä.",
+      "who": "Ketkä voivat luoda agentteja",
+      "whoHelp": "Agentin luonut saa siihen täydet oikeudet. Vieraat eivät koskaan voi luoda.",
+      "choices": {
+        "owners": "Vain omistajat",
+        "members": "Omistajat ja jäsenet",
+        "chosen": "Omistajat sekä alla valitut henkilöt ja ryhmät"
+      },
+      "add": "Lisää henkilöitä tai ryhmiä",
+      "noMatches": "Ei osumia",
+      "groupMembers": "{count, plural, one {# jäsen} other {# jäsentä}}",
+      "remove": "Poista {name}",
+      "list": "Henkilöt ja ryhmät, jotka voivat luoda agentteja",
+      "noneChosen": "Ketään ei ole vielä valittu: vain omistajat voivat luoda agentteja."
+    },
+    "limitRequest": {
+      "ask": "Pyydä korkeampaa rajaa",
+      "change": "Muuta pyyntöä",
+      "help": "Vain omistajat muuttavat {limit} tokenin kuukausirajaa. Pyydä heiltä lisää: pyyntösi tulee heidän saapuneisiinsa ja sähköpostiin.",
+      "tokens": "Tokenia kuukaudessa",
+      "note": "Syy (valinnainen)",
+      "send": "Lähetä pyyntö",
+      "update": "Päivitä pyyntö",
+      "waiting": "Pyysit {date} {tokens} tokenia kuukaudessa. Odottaa omistajaa."
     }
   },
   "analytics": {
@@ -1784,7 +1809,8 @@
       "allowed_domains": "Henkilöt, joilla on sallittu sähköpostin verkkotunnus",
       "anyone_with_link": "Kuka tahansa, jolla on liittymislinkki",
       "members_with_approval": "Jäsenet, omistajan hyväksynnällä",
-      "any_member": "Omistajat ja jäsenet"
+      "any_member": "Omistajat ja jäsenet",
+      "chosen": "Omistajat sekä valitut henkilöt ja ryhmät"
     },
     "actions": {
       "member": {
@@ -1922,7 +1948,9 @@
         "schedule_set": "Asetti aikataulun agentille ”{target}”",
         "schedule_removed": "Poisti agentin ”{target}” aikataulun",
         "shared": "Asetti kohteen {subject} käyttöoikeuden agenttiin ”{target}”: {level}",
-        "unshared": "Poisti kohteen {subject} agentin ”{target}” jakamisesta"
+        "unshared": "Poisti kohteen {subject} agentin ”{target}” jakamisesta",
+        "creator_added": "Antoi kohteen {subject} luoda agentteja",
+        "creator_removed": "Poisti kohteen {subject} niiden joukosta, jotka voivat luoda agentteja"
       },
       "connection": {
         "created": "Lisäsi yhteyden ”{target}”",

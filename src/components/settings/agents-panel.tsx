@@ -7,16 +7,21 @@ import { useState } from "react";
 import { archiveAgentAction, duplicateAgentAction, restoreAgentAction, updateAgentAction } from "@/app/actions/agents";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
 import { Floating, useFloating } from "@/components/database/floating";
+import { lazyPart } from "@/components/lazy-part";
 import { TabButton } from "@/components/settings/members-panel";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, DialogTitle, IconButton, MenuItem, MenuSeparator, Switch } from "@/components/ui";
-import { hasAgentLevel, type AgentCreation } from "@/lib/agent-sharing";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, DialogTitle, IconButton, MenuItem, MenuSeparator, selectClass } from "@/components/ui";
+import { AGENT_CREATIONS, hasAgentLevel, type AgentCreation } from "@/lib/agent-sharing";
+import { settingAnchor } from "@/lib/settings-search";
 import { editsAgent, MAX_AGENTS, type AgentView, type CopyLeftOut } from "@/lib/agents";
 import type { BuiltinAgentSummary } from "@/lib/builtin-agents";
 import { AgentDescribeDialog } from "./agent-describe-dialog";
 import { AgentDialog, AgentForm, AgentIcon, type AgentModelNames, type AgentTab } from "./agent-dialog";
 import { TemplateWizard } from "./agent-template-wizard";
+
+// Shown only while owners choose who creates agents.
+const AgentCreatorsList = lazyPart(() => import("./agent-creators-list").then((m) => m.AgentCreatorsList), <div aria-busy="true" className="h-16 animate-pulse rounded-md bg-bg-subtle" />);
 
 /**
  * Settings > Agents: the workspace's agents shared with the viewer (every one, for owners), active
@@ -415,7 +420,10 @@ function ArchiveDialog({ workspaceId, agent, onClose }: { workspaceId: string; a
   );
 }
 
-/** Who may create agents: owners only, or owners and members (never guests). Owners change it. */
+/**
+ * Who may create agents: owners only, owners and members, or owners and the people and groups
+ * chosen (never guests). Owners change it, and pick the people and groups.
+ */
 function CreationSetting({ workspaceId, value: initial, canEdit }: { workspaceId: string; value: AgentCreation; canEdit: boolean }) {
   const t = useTranslations("settings.agents.creation");
   const router = useRouter();
@@ -423,36 +431,52 @@ function CreationSetting({ workspaceId, value: initial, canEdit }: { workspaceId
   const { pending, error, run } = useAction();
 
   return (
-    <div className="flex items-center gap-6">
-      <div className="min-w-0 flex-1">
-        <div className="text-sm font-medium">{t("title")}</div>
-        <div className="mt-1 text-sm text-fg-muted">
-          {error ? (
-            <span className="text-danger">{error}</span>
-          ) : (
-            <>
-              {t("description")}
-              {!canEdit && <> {t("ownersOnly")}</>}
-            </>
-          )}
+    <div id={settingAnchor("agentCreation")}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+        <div className="min-w-0 flex-1">
+          <label htmlFor="agent-creation" className="block text-sm font-medium">
+            {t("who")}
+          </label>
+          <div className="mt-1 text-sm text-fg-muted">
+            {error ? (
+              <span className="text-danger">{error}</span>
+            ) : (
+              <>
+                {t("whoHelp")}
+                {!canEdit && <> {t("ownersOnly")}</>}
+              </>
+            )}
+          </div>
         </div>
+        <select
+          id="agent-creation"
+          value={value}
+          disabled={!canEdit || pending}
+          onChange={(e) => {
+            const next = e.target.value as AgentCreation;
+            const previous = value;
+            setValue(next);
+            run(async () => {
+              const result = await updateWorkspaceSettingsAction(workspaceId, { agentCreation: next });
+              if (!result.ok) setValue(previous);
+              else router.refresh();
+              return result;
+            });
+          }}
+          className={cn(selectClass, "shrink-0")}
+        >
+          {AGENT_CREATIONS.map((choice) => (
+            <option key={choice} value={choice}>
+              {t(`choices.${choice}`)}
+            </option>
+          ))}
+        </select>
       </div>
-      <Switch
-        checked={value === "owners"}
-        label={t("title")}
-        disabled={!canEdit || pending}
-        onChange={(ownersOnly) => {
-          const next = ownersOnly ? "owners" : "members";
-          const previous = value;
-          setValue(next);
-          run(async () => {
-            const result = await updateWorkspaceSettingsAction(workspaceId, { agentCreation: next });
-            if (!result.ok) setValue(previous);
-            else router.refresh();
-            return result;
-          });
-        }}
-      />
+      {value === "chosen" && canEdit && (
+        <div className="mt-3">
+          <AgentCreatorsList workspaceId={workspaceId} />
+        </div>
+      )}
     </div>
   );
 }
