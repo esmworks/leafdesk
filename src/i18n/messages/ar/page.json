@@ -1371,7 +1371,11 @@
       "mention": "ذكرته في تعليق",
       "mentionOn": "ذكرته في {place}"
     },
-    "doneQuietly": "تم."
+    "doneQuietly": "تم.",
+    "side": {
+      "label": "حول {name}",
+      "paused": "متوقف مؤقتًا"
+    }
   },
   "button": {
     "untitled": "زر",

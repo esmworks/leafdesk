@@ -381,6 +381,8 @@ because they are separate module graphs.
   own shade takes `dialogShadow`.
   A backdrop shading the whole window under a dialog carries `data-window-shade`: that component
   tells the desktop app its color, and the tab strip, which the page can't draw over, takes it too.
+  Boxes beside a chat's column on a wide page (the agent's page, the AI chat) are
+  `components/side-box.tsx` (layout classes `lib/side-layout.ts`): a container query on the page shows them, never the window's width.
   A menu or card that must leave a scrolling box is placed by `components/use-placement.ts`
   (`placePanel` in `lib/placement.ts`: below or flipped above, start or end edge, inside the
   window): through `Floating` (`database/floating.tsx`, a portal), `Popover`'s `at` (a point or an

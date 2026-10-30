@@ -1371,7 +1371,11 @@
       "mention": "L’hai menzionato in un commento",
       "mentionOn": "L’hai menzionato in {place}"
     },
-    "doneQuietly": "Fatto."
+    "doneQuietly": "Fatto.",
+    "side": {
+      "label": "Informazioni su {name}",
+      "paused": "In pausa"
+    }
   },
   "button": {
     "untitled": "Pulsante",

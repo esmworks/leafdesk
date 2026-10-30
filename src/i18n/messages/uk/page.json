@@ -1371,7 +1371,11 @@
       "mention": "Ви згадали його в коментарі",
       "mentionOn": "Ви згадали його на сторінці {place}"
     },
-    "doneQuietly": "Готово."
+    "doneQuietly": "Готово.",
+    "side": {
+      "label": "Про {name}",
+      "paused": "Призупинено"
+    }
   },
   "button": {
     "untitled": "Кнопка",

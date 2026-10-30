@@ -444,6 +444,11 @@
       "label": "Mitä tehdään",
       "chat": "Keskustelu",
       "chatHint": "Vastaa työtilan pohjalta ja tekee pyytämäsi muutokset"
+    },
+    "side": {
+      "label": "Tietoja tästä keskustelusta",
+      "sources": "Lähteet",
+      "changes": "Muutokset"
     }
   },
   "memory": {

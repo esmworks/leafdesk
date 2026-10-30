@@ -87,8 +87,11 @@ import { gzipSync } from "node:zlib";
  * Grouping by text, numbers and formulas (letters, number ranges and their labels, in
  * lib/grouping.ts, which every table loads) adds about 1 kB to a page's first load and to all
  * first loads together.
+ *
+ * The boxes beside the agent's page and the AI chat load with what fills them; the pages' new
+ * layout (lib/side-layout.ts, the agent's card) adds about 1 kB to all first loads together.
  */
-const BUDGET = { routeFirstLoad: 783, firstLoadShared: 1192, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 783, firstLoadShared: 1193, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

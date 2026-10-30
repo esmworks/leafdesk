@@ -9,16 +9,19 @@
  * the person started otherwise (schedules, tasks, mentions) come in as the agent speaking up, asked
  * for again as they go on; a block keeps conversations to pick from. Loaded only where a chat is shown.
  */
-import { ArrowUp, AtSign, Clock, ListChecks, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowUp, AtSign, Check, Clock, ListChecks, Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { deleteAgentConversationAction, sendAgentChatAction } from "@/app/actions/agent-chat";
 import { AnswerText } from "@/components/ai-chat/answer-text";
+import { ChangedPagesBox, changedPages } from "@/components/ai-chat/chat-side";
 import { CopyAction, MessageTime, questionBox, revealed, StepsFold } from "@/components/ai-chat/message-parts";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { read } from "@/components/read";
 import { AgentIcon, AgentStepLine } from "@/components/settings/agent-dialog";
+import { SideBox, SideItem } from "@/components/side-box";
 import { cn, IconButton, selectClass } from "@/components/ui";
 import {
   chatFailure,
@@ -46,6 +49,7 @@ export function AgentChat({
   place,
   variant,
   focusRun = null,
+  side = null,
 }: {
   workspaceId: string;
   agentId: string;
@@ -53,6 +57,8 @@ export function AgentChat({
   variant: "page" | "dialog" | "block";
   /** One of the agent's own chat's runs to bring into view once it loads, instead of the end (a report opened from the inbox). */
   focusRun?: string | null;
+  /** The agent's page: where its boxes go beside the chat (the runs, what they changed). */
+  side?: HTMLElement | null;
 }) {
   const t = useTranslations("page.agentChat");
   const tc = useTranslations("common");
@@ -470,7 +476,74 @@ export function AgentChat({
           </button>
         </form>
       </div>
+      {side &&
+        createPortal(
+          <SideBoxes
+            messages={messages}
+            runs={runs}
+            onRun={(id) => {
+              const item = listRef.current?.querySelector<HTMLElement>(`[data-run-id="${CSS.escape(id)}"]`);
+              if (!item) return;
+              setFocused(id);
+              item.scrollIntoView({ block: "start" });
+            }}
+            onOpen={openPage}
+          />,
+          side,
+        )}
     </Frame>
+  );
+}
+
+/** Runs the boxes beside the agent's page list at most, the latest. */
+const SIDE_RUNS = 10;
+
+/**
+ * The agent's page's boxes from its chat: the person's runs other than chats (one brings it into
+ * view in the chat), and the pages the runs and the answers made or changed.
+ */
+function SideBoxes({
+  messages,
+  runs,
+  onRun,
+  onOpen,
+}: {
+  messages: AgentChatMessageView[];
+  runs: AgentChatRunView[];
+  onRun: (id: string) => void;
+  onOpen: (pageId: string) => void;
+}) {
+  const t = useTranslations("page.agentChat");
+  const ts = useTranslations("settings.agents");
+  const format = useFormatter();
+  const latest = [...runs].sort((a, b) => b.at.localeCompare(a.at)).slice(0, SIDE_RUNS);
+  const done = [...messages, ...runs].sort((a, b) => a.at.localeCompare(b.at)).flatMap((m) => m.steps);
+  return (
+    <>
+      {latest.length > 0 && (
+        <SideBox title={ts("tabs.runs")} count={runs.length}>
+          {latest.map((run) => (
+            <SideItem
+              key={run.id}
+              icon={
+                runGoesOn(run) ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : run.status === "failed" ? (
+                  <TriangleAlert className="h-3.5 w-3.5 text-danger" />
+                ) : (
+                  <Check className="h-3.5 w-3.5" />
+                )
+              }
+              onClick={() => onRun(run.id)}
+            >
+              <span className="line-clamp-2 break-words">{run.label ? t(`from.${run.kind}On`, { place: run.label }) : t(`from.${run.kind}`)}</span>
+              <span className="block text-xs text-fg-muted">{format.dateTime(new Date(run.at), { dateStyle: "medium", timeStyle: "short" })}</span>
+            </SideItem>
+          ))}
+        </SideBox>
+      )}
+      <ChangedPagesBox pages={changedPages(done)} onOpen={(p) => onOpen(p.pageId)} />
+    </>
   );
 }
 

@@ -1371,7 +1371,11 @@
       "mention": "הזכרתם אותו בתגובה",
       "mentionOn": "הזכרתם אותו ב{place}"
     },
-    "doneQuietly": "בוצע."
+    "doneQuietly": "בוצע.",
+    "side": {
+      "label": "על {name}",
+      "paused": "מושהה"
+    }
   },
   "button": {
     "untitled": "כפתור",

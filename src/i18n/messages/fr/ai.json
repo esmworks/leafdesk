@@ -444,6 +444,11 @@
       "label": "Que faire",
       "chat": "Discussion",
       "chatHint": "Répond à partir de l’espace de travail et fait les modifications demandées"
+    },
+    "side": {
+      "label": "À propos de cette discussion",
+      "sources": "Sources",
+      "changes": "Modifications"
     }
   },
   "memory": {

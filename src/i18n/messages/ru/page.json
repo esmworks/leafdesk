@@ -1371,7 +1371,11 @@
       "mention": "Вы упомянули его в комментарии",
       "mentionOn": "Вы упомянули его на странице {place}"
     },
-    "doneQuietly": "Готово."
+    "doneQuietly": "Готово.",
+    "side": {
+      "label": "О {name}",
+      "paused": "Приостановлено"
+    }
   },
   "button": {
     "untitled": "Кнопка",

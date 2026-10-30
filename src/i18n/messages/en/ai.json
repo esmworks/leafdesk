@@ -444,6 +444,11 @@
       "label": "What to do",
       "chat": "Chat",
       "chatHint": "Answers from the workspace and makes the changes you ask for"
+    },
+    "side": {
+      "label": "About this chat",
+      "sources": "Sources",
+      "changes": "Changes"
     }
   },
   "memory": {

@@ -444,6 +444,11 @@
       "label": "Làm gì",
       "chat": "Trò chuyện",
       "chatHint": "Trả lời từ không gian làm việc và thực hiện các thay đổi bạn yêu cầu"
+    },
+    "side": {
+      "label": "Về cuộc trò chuyện này",
+      "sources": "Nguồn",
+      "changes": "Thay đổi"
     }
   },
   "memory": {

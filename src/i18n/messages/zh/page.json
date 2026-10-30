@@ -1371,7 +1371,11 @@
       "mention": "你在评论中提到了它",
       "mentionOn": "你在 {place} 中提到了它"
     },
-    "doneQuietly": "已完成。"
+    "doneQuietly": "已完成。",
+    "side": {
+      "label": "关于 {name}",
+      "paused": "已暂停"
+    }
   },
   "button": {
     "untitled": "按钮",

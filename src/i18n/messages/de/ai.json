@@ -444,6 +444,11 @@
       "label": "Was tun",
       "chat": "Chat",
       "chatHint": "Antwortet aus dem Arbeitsbereich und nimmt die Änderungen vor, um die du bittest"
+    },
+    "side": {
+      "label": "Über diesen Chat",
+      "sources": "Quellen",
+      "changes": "Änderungen"
     }
   },
   "memory": {

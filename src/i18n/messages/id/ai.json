@@ -444,6 +444,11 @@
       "label": "Apa yang dilakukan",
       "chat": "Obrolan",
       "chatHint": "Menjawab dari ruang kerja dan membuat perubahan yang kamu minta"
+    },
+    "side": {
+      "label": "Tentang obrolan ini",
+      "sources": "Sumber",
+      "changes": "Perubahan"
     }
   },
   "memory": {

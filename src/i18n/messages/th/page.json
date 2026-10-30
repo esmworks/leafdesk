@@ -1371,7 +1371,11 @@
       "mention": "คุณกล่าวถึงในความคิดเห็น",
       "mentionOn": "คุณกล่าวถึงใน {place}"
     },
-    "doneQuietly": "เสร็จแล้ว"
+    "doneQuietly": "เสร็จแล้ว",
+    "side": {
+      "label": "เกี่ยวกับ {name}",
+      "paused": "หยุดชั่วคราว"
+    }
   },
   "button": {
     "untitled": "ปุ่ม",

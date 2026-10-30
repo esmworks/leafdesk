@@ -1371,7 +1371,11 @@
       "mention": "Du hast es in einem Kommentar erwähnt",
       "mentionOn": "Du hast es auf {place} erwähnt"
     },
-    "doneQuietly": "Erledigt."
+    "doneQuietly": "Erledigt.",
+    "side": {
+      "label": "Über {name}",
+      "paused": "Pausiert"
+    }
   },
   "button": {
     "untitled": "Schaltfläche",

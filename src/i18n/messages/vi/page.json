@@ -1371,7 +1371,11 @@
       "mention": "Bạn đã nhắc đến nó trong một bình luận",
       "mentionOn": "Bạn đã nhắc đến nó trên {place}"
     },
-    "doneQuietly": "Xong."
+    "doneQuietly": "Xong.",
+    "side": {
+      "label": "Về {name}",
+      "paused": "Đã tạm dừng"
+    }
   },
   "button": {
     "untitled": "Nút",

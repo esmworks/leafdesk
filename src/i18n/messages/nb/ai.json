@@ -444,6 +444,11 @@
       "label": "Hva skal den gjøre",
       "chat": "Chat",
       "chatHint": "Svarer ut fra arbeidsområdet og gjør endringene du ber om"
+    },
+    "side": {
+      "label": "Om denne chatten",
+      "sources": "Kilder",
+      "changes": "Endringer"
     }
   },
   "memory": {

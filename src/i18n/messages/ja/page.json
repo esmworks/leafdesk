@@ -1371,7 +1371,11 @@
       "mention": "コメントでメンションしました",
       "mentionOn": "{place} でメンションしました"
     },
-    "doneQuietly": "完了しました。"
+    "doneQuietly": "完了しました。",
+    "side": {
+      "label": "{name} について",
+      "paused": "一時停止中"
+    }
   },
   "button": {
     "untitled": "ボタン",

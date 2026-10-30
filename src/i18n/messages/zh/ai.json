@@ -444,6 +444,11 @@
       "label": "要做什么",
       "chat": "聊天",
       "chatHint": "根据工作区回答，并做出你要求的更改"
+    },
+    "side": {
+      "label": "关于此对话",
+      "sources": "来源",
+      "changes": "更改"
     }
   },
   "memory": {

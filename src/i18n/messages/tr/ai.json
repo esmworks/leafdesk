@@ -444,6 +444,11 @@
       "label": "Ne yapsın",
       "chat": "Sohbet",
       "chatHint": "Çalışma alanından yanıtlar ve istediğin değişiklikleri yapar"
+    },
+    "side": {
+      "label": "Bu sohbet hakkında",
+      "sources": "Kaynaklar",
+      "changes": "Değişiklikler"
     }
   },
   "memory": {

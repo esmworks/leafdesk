@@ -444,6 +444,11 @@
       "label": "Co zrobić",
       "chat": "Czat",
       "chatHint": "Odpowiada na podstawie obszaru roboczego i wprowadza zmiany, o które prosisz"
+    },
+    "side": {
+      "label": "O tym czacie",
+      "sources": "Źródła",
+      "changes": "Zmiany"
     }
   },
   "memory": {

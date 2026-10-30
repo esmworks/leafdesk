@@ -1371,7 +1371,11 @@
       "mention": "Bir yorumda bahsettin",
       "mentionOn": "{place} sayfasında bahsettin"
     },
-    "doneQuietly": "Bitti."
+    "doneQuietly": "Bitti.",
+    "side": {
+      "label": "{name} hakkında",
+      "paused": "Duraklatıldı"
+    }
   },
   "button": {
     "untitled": "Düğme",

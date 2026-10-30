@@ -444,6 +444,11 @@
       "label": "Vad den ska göra",
       "chat": "Chatt",
       "chatHint": "Svarar utifrån arbetsytan och gör de ändringar du ber om"
+    },
+    "side": {
+      "label": "Om den här chatten",
+      "sources": "Källor",
+      "changes": "Ändringar"
     }
   },
   "memory": {

@@ -1371,7 +1371,11 @@
       "mention": "Mainitsit sen kommentissa",
       "mentionOn": "Mainitsit sen sivulla {place}"
     },
-    "doneQuietly": "Valmis."
+    "doneQuietly": "Valmis.",
+    "side": {
+      "label": "Tietoja: {name}",
+      "paused": "Keskeytetty"
+    }
   },
   "button": {
     "untitled": "Painike",

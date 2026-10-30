@@ -1371,7 +1371,11 @@
       "mention": "Você o mencionou em um comentário",
       "mentionOn": "Você o mencionou em {place}"
     },
-    "doneQuietly": "Concluído."
+    "doneQuietly": "Concluído.",
+    "side": {
+      "label": "Sobre {name}",
+      "paused": "Pausado"
+    }
   },
   "button": {
     "untitled": "Botão",

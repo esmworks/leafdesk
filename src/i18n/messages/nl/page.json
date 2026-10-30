@@ -1371,7 +1371,11 @@
       "mention": "Je noemde het in een opmerking",
       "mentionOn": "Je noemde het op {place}"
     },
-    "doneQuietly": "Klaar."
+    "doneQuietly": "Klaar.",
+    "side": {
+      "label": "Over {name}",
+      "paused": "Gepauzeerd"
+    }
   },
   "button": {
     "untitled": "Knop",

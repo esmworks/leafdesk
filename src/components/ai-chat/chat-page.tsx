@@ -11,7 +11,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRowPanel } from "@/components/database/row-panel-context";
+import { lazyPart } from "@/components/lazy-part";
 import { useIsOffline } from "@/components/offline/offline-context";
+import { SIDE_COLUMN, SIDE_CONTAINER, SIDE_SHOWN } from "@/lib/side-layout";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton } from "@/components/ui";
 import { chatPath, sourceHref, type ChatScopeView, type ChatSourceView } from "@/lib/ai-chat";
@@ -22,6 +24,9 @@ import { ChatThread } from "./chat-thread";
 import { MemoryButton } from "./memory-dialog";
 import { ScopePicker } from "./scope-picker";
 import { useChat } from "./use-chat";
+
+// Its boxes beside a conversation, from the first question on and on a wide page only.
+const ChatSide = lazyPart(() => import("./chat-side").then((m) => m.ChatSide));
 
 /** `memory`: the workspace has the chat's memory on (its Memory view is shown). */
 export function ChatPage({ workspaceId, available, memory }: { workspaceId: string; available: boolean; memory: boolean }) {
@@ -88,40 +93,52 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
 
   return (
     // The row panel steps through the answers' sources here, and gives focus back to one as it closes.
-    <div data-row-source className="flex h-full flex-col">
-      <div data-window-controls-clear className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:ps-1.5">
-        <SidebarOpenButton className="me-1 max-md:me-0" />
-        {/* A new chat's greeting says what this is; the heading stays for screen readers. */}
-        <h1 className="min-w-0 flex-1 truncate text-sm font-medium">
-          <span className={cn(!title && !chat.messages.length && "sr-only")}>{title || t("title")}</span>
-        </h1>
-        {memory && <MemoryButton workspaceId={workspaceId} className="h-7 w-7" />}
-        <IconButton label={t("newChat")} className="h-7 w-7" onClick={() => router.push(chatPath(workspaceId))} disabled={!chat.messages.length && !conversationId}>
-          <SquarePen className="h-4 w-4" />
-        </IconButton>
-      </div>
-      <ChatThread
-        chat={chat}
-        blocked={blocked}
-        onSend={(again) => void chat.send(scope, again)}
-        onSource={openSource}
-        variant="page"
-        voice={context?.voice ?? null}
-        scope={<ScopePicker workspaceId={workspaceId} pageId={null} value={scope} onChange={setScope} disabled={chat.running} />}
-        starters={
-          !blocked && (
-            <ChatStarters
-              workspaceId={workspaceId}
-              onPick={(text) => {
-                chat.setInput(text);
-                const box = chat.inputRef.current;
-                box?.focus();
-                requestAnimationFrame(() => box?.setSelectionRange(text.length, text.length));
-              }}
+    <div data-row-source className={cn(SIDE_CONTAINER, "h-full")}>
+      <div className="flex h-full flex-col">
+        <div data-window-controls-clear className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:ps-1.5">
+          <SidebarOpenButton className="me-1 max-md:me-0" />
+          {/* A new chat's greeting says what this is; the heading stays for screen readers. */}
+          <h1 className="min-w-0 flex-1 truncate text-sm font-medium">
+            <span className={cn(!title && !chat.messages.length && "sr-only")}>{title || t("title")}</span>
+          </h1>
+          {memory && <MemoryButton workspaceId={workspaceId} className="h-7 w-7" />}
+          <IconButton label={t("newChat")} className="h-7 w-7" onClick={() => router.push(chatPath(workspaceId))} disabled={!chat.messages.length && !conversationId}>
+            <SquarePen className="h-4 w-4" />
+          </IconButton>
+        </div>
+        <div className="flex min-h-0 flex-1">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <ChatThread
+              chat={chat}
+              blocked={blocked}
+              onSend={(again) => void chat.send(scope, again)}
+              onSource={openSource}
+              variant="page"
+              voice={context?.voice ?? null}
+              scope={<ScopePicker workspaceId={workspaceId} pageId={null} value={scope} onChange={setScope} disabled={chat.running} />}
+              starters={
+                !blocked && (
+                  <ChatStarters
+                    workspaceId={workspaceId}
+                    onPick={(text) => {
+                      chat.setInput(text);
+                      const box = chat.inputRef.current;
+                      box?.focus();
+                      requestAnimationFrame(() => box?.setSelectionRange(text.length, text.length));
+                    }}
+                  />
+                )
+              }
             />
-          )
-        }
-      />
+          </div>
+          {/* From the first question on, so the column moves once, as the greeting gives way to the conversation. */}
+          {chat.messages.length > 0 && (
+            <aside aria-label={t("side.label")} className={cn(SIDE_SHOWN, SIDE_COLUMN, "min-h-0 overflow-y-auto pe-4 pt-6 pb-4")}>
+              <ChatSide messages={chat.messages} onSource={openSource} />
+            </aside>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

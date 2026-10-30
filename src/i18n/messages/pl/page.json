@@ -1371,7 +1371,11 @@
       "mention": "Wspomniałeś o nim w komentarzu",
       "mentionOn": "Wspomniałeś o nim na {place}"
     },
-    "doneQuietly": "Gotowe."
+    "doneQuietly": "Gotowe.",
+    "side": {
+      "label": "O agencie {name}",
+      "paused": "Wstrzymany"
+    }
   },
   "button": {
     "untitled": "Przycisk",

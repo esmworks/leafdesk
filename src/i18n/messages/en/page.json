@@ -1371,7 +1371,11 @@
       "mention": "You mentioned it in a comment",
       "mentionOn": "You mentioned it on {place}"
     },
-    "doneQuietly": "Done."
+    "doneQuietly": "Done.",
+    "side": {
+      "label": "About {name}",
+      "paused": "Paused"
+    }
   },
   "button": {
     "untitled": "Button",

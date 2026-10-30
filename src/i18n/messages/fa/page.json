@@ -1371,7 +1371,11 @@
       "mention": "در یک نظر از او نام بردید",
       "mentionOn": "در {place} از او نام بردید"
     },
-    "doneQuietly": "انجام شد."
+    "doneQuietly": "انجام شد.",
+    "side": {
+      "label": "درباره {name}",
+      "paused": "متوقف‌شده"
+    }
   },
   "button": {
     "untitled": "دکمه",

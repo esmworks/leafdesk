@@ -1371,7 +1371,11 @@
       "mention": "Anda menyebutnya dalam komentar",
       "mentionOn": "Anda menyebutnya di {place}"
     },
-    "doneQuietly": "Selesai."
+    "doneQuietly": "Selesai.",
+    "side": {
+      "label": "Tentang {name}",
+      "paused": "Dijeda"
+    }
   },
   "button": {
     "untitled": "Tombol",

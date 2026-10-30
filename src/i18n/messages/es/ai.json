@@ -444,6 +444,11 @@
       "label": "Qué hacer",
       "chat": "Chat",
       "chatHint": "Responde desde el espacio de trabajo y hace los cambios que pidas"
+    },
+    "side": {
+      "label": "Acerca de este chat",
+      "sources": "Fuentes",
+      "changes": "Cambios"
     }
   },
   "memory": {

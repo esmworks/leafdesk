@@ -1371,7 +1371,11 @@
       "mention": "댓글에서 멘션함",
       "mentionOn": "{place}에서 멘션함"
     },
-    "doneQuietly": "완료했습니다."
+    "doneQuietly": "완료했습니다.",
+    "side": {
+      "label": "{name} 정보",
+      "paused": "일시 중지됨"
+    }
   },
   "button": {
     "untitled": "버튼",

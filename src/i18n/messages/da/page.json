@@ -1371,7 +1371,11 @@
       "mention": "Du nævnte den i en kommentar",
       "mentionOn": "Du nævnte den på {place}"
     },
-    "doneQuietly": "Færdig."
+    "doneQuietly": "Færdig.",
+    "side": {
+      "label": "Om {name}",
+      "paused": "Sat på pause"
+    }
   },
   "button": {
     "untitled": "Knap",

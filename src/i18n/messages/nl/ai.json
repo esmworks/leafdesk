@@ -444,6 +444,11 @@
       "label": "Wat te doen",
       "chat": "Chat",
       "chatHint": "Antwoordt vanuit de werkruimte en maakt de wijzigingen waar je om vraagt"
+    },
+    "side": {
+      "label": "Over deze chat",
+      "sources": "Bronnen",
+      "changes": "Wijzigingen"
     }
   },
   "memory": {
