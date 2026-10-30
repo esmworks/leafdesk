@@ -47,10 +47,12 @@ export function AgentPage({
       <Settings2 className="h-4 w-4" /> {t("tabs.settings")}
     </Link>
   );
+  // The strip and the boxes hold to the top of the workspace's scrolling page, which starts below the
+  // desktop app's tab strip already (--app-top), and are as tall as it.
   return (
     <div className={cn(SIDE_CONTAINER, "min-h-full")}>
       <div className="flex min-h-full">
-        <div className="sticky top-(--app-top) hidden h-[calc(100svh-var(--app-top))] w-10 shrink-0 items-center self-start ps-2 md:flex">
+        <div className="sticky top-0 hidden h-[calc(100svh-var(--app-top))] w-10 shrink-0 items-center self-start ps-2 md:flex">
           <div ref={setLines} />
         </div>
         <div className="mx-auto flex min-h-full max-w-3xl min-w-0 flex-1 flex-col px-4 pt-14 md:px-6 md:pt-12">
@@ -68,15 +70,21 @@ export function AgentPage({
         </div>
         <aside
           aria-label={tc("label", { name: agent.name })}
-          className={cn(SIDE_SHOWN, SIDE_COLUMN, "sticky top-(--app-top) max-h-[calc(100svh-var(--app-top))] self-start overflow-y-auto pe-4 pt-4 pb-4")}
+          className={cn(SIDE_SHOWN, SIDE_COLUMN, "sticky top-0 max-h-[calc(100svh-var(--app-top))] self-start overflow-y-auto pe-4 pt-4 pb-4")}
         >
           <section className="shrink-0 rounded-xl border border-border bg-bg p-4">
-            <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-bg-subtle text-2xl">
-              <AgentGlyph icon={agent.icon} />
-            </span>
+            <div className="mb-3 flex items-start justify-between gap-2">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg-subtle text-2xl">
+                <AgentGlyph icon={agent.icon} />
+              </span>
+              {settings}
+            </div>
             <h1 className="text-base font-semibold break-words">{agent.name}</h1>
-            {agent.description && <p className="mt-1 text-sm text-fg-muted">{agent.description}</p>}
-            <div className="mt-3">{settings}</div>
+            {agent.description && (
+              <p title={agent.description} className="mt-1 line-clamp-3 text-sm text-fg-muted">
+                {agent.description}
+              </p>
+            )}
           </section>
           {schedules.length > 0 && <Schedules schedules={schedules} />}
           <div ref={setSide} className="contents" />
