@@ -66,6 +66,7 @@
     "exportZip": "Exportar con subpáginas",
     "exportZipDatabase": "Exportar con las páginas de las filas",
     "exportPdf": "Exportar como PDF",
+    "exportDocx": "Exportar como Word (.docx)",
     "exportComments": "Incluir comentarios",
     "exportCommentsHint": "Añade los hilos de comentarios que puedes ver a las exportaciones en Markdown, ZIP y PDF, después de cada página",
     "printView": "Imprimir",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Exportar como PDF",
+    "titleDocx": "Exportar como Word",
     "letterhead": "Membrete",
     "none": "Ninguno",
     "defaultMark": "{name} (predeterminado)",
@@ -875,6 +877,7 @@
     "properties": "Incluir los valores de la fila",
     "comments": "Incluir comentarios",
     "hint": "Los diagramas y las ecuaciones se imprimen como texto; usa Imprimir para obtener la página tal como se ve.",
+    "hintDocx": "Un archivo para seguir editando en Word: el logotipo y las líneas del membrete van en el encabezado y el pie, pero no su tema PDF.",
     "download": "Descargar",
     "preparing": "Preparando…",
     "textSize": "Tamaño del texto"

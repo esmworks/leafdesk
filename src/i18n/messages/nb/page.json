@@ -66,6 +66,7 @@
     "exportZip": "Eksporter med undersider",
     "exportZipDatabase": "Eksporter med radsider",
     "exportPdf": "Eksporter som PDF",
+    "exportDocx": "Eksporter som Word (.docx)",
     "exportComments": "Ta med kommentarer",
     "exportCommentsHint": "Legger kommentartrådene du kan se til i Markdown-, ZIP- og PDF-eksporter, etter hver side",
     "printView": "Skriv ut",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Eksporter som PDF",
+    "titleDocx": "Eksporter som Word",
     "letterhead": "Brevhode",
     "none": "Ingen",
     "defaultMark": "{name} (standard)",
@@ -875,6 +877,7 @@
     "properties": "Ta med verdiene i raden",
     "comments": "Ta med kommentarer",
     "hint": "Diagrammer og ligninger skrives ut som tekst; bruk Skriv ut for å få siden nøyaktig slik den ser ut.",
+    "hintDocx": "En fil du kan redigere videre i Word: brevhodets logo og linjer kommer i topp- og bunnteksten, men ikke PDF-temaet.",
     "download": "Last ned",
     "preparing": "Klargjør…",
     "textSize": "Tekststørrelse"

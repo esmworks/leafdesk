@@ -221,8 +221,10 @@ it when it is used up rather than ending the answer.
 text), change a row's values or title (`update_row`), add a page under a page, or a private one
 at the top of the workspace (`create_page`), and change a page's or row's text block by block
 (`edit_page`: replace a block, insert after one, append or delete one, by the block ids it reads
-first), make a PDF file of a page or row (`create_pdf`, see [PDF](export.md#pdf)), and add a form view
-with its questions to a database (`create_form`, its public link when asked and allowed), as you
+first), make a PDF or Word file of a page or row (`create_pdf`, `create_docx`) or an Excel
+workbook of a database or one of its views (`create_xlsx`), attached to a page or row (see
+[PDF](export.md#pdf) and [Word](export.md#word)), and add a form view with its questions to a
+database (`create_form`, its public link when asked and allowed), as you
 and only where you may edit (and, with *Answer from* a page or teamspace, only in it). It reads a
 page's comment threads (`list_comments`) and saved versions (`page_history`, `page_version`), and
 comments or replies as you where you may comment (`add_comment`). What it may do is picked under the

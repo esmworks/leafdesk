@@ -103,27 +103,17 @@ export async function renderPdf(input: Parameters<typeof pdfDocument>[0]): Promi
   return pdfmake.createPdf(pdfDocument({ ...input, cjkFont: font })).getBuffer();
 }
 
+/** How a page is read for its file: see pagePdf. */
+export type PageDocumentOptions = { properties?: boolean; letterhead?: string; comments?: boolean };
+
 /**
- * The page `pageId` as a PDF file, read as `userId`. `properties`: a database row's values are
- * listed under its title (as the print view does; off by default, since a document made for
- * someone else rarely means to show them). `letterhead`: one of the workspace's letterheads by id,
- * "none", or left out for its default (server/letterheads.ts). Throws AccessError when the page
- * can't be viewed, ExportError while export is off and LetterheadError for a letterhead that
- * isn't the workspace's. `comments`: the comment threads `userId` can see on the page follow the
- * body (lib/export-comments). `textScale`: the body's text bigger or smaller (pdfTextScale). `record: false` leaves the export out of the audit log, for an
- * archive of many pages that is recorded once (server/export-pdf.ts).
+ * What a file of the page `pageId` holds, read as `userId` the way the print view reads it (see
+ * pagePdf): its section, images and labels, the letterhead chosen (`letterhead`: an id, "none",
+ * or left out for the workspace's default) and what a letterhead's theme fills in. Shared by the
+ * PDF and the Word document (docx-export.ts). Throws AccessError, ExportError and LetterheadError
+ * as pagePdf does.
  */
-export async function pagePdf(
-  userId: string,
-  pageId: string,
-  {
-    properties = false,
-    letterhead: choice,
-    comments = false,
-    record = true,
-    textScale = 1,
-  }: { properties?: boolean; letterhead?: string; comments?: boolean; record?: boolean; textScale?: number } = {},
-): Promise<PagePdf> {
+export async function pageDocument(userId: string, pageId: string, { properties = false, letterhead: choice, comments = false }: PageDocumentOptions = {}) {
   const target = await requirePageAccess(userId, pageId, "view");
   await assertExportAllowed(target.workspaceId);
   const letterhead = await letterheadForPdf(userId, target.workspaceId, choice);
@@ -167,20 +157,47 @@ export async function pagePdf(
       ? { heading: commentLabels.heading, resolved: commentLabels.resolved, threads: await pageThreads(userId, target.id, commentLabels) }
       : null,
   };
+  return {
+    target,
+    letterhead,
+    locale,
+    inDatabase,
+    input: {
+      title: section.title,
+      sections: [section],
+      images: await imagesOf(userId, blocks),
+      link: (url: string) => (url.startsWith("/") ? `${env.appUrl}${url}` : url),
+      labels,
+    },
+  };
+}
+
+/**
+ * The page `pageId` as a PDF file, read as `userId`. `properties`: a database row's values are
+ * listed under its title (as the print view does; off by default, since a document made for
+ * someone else rarely means to show them). `letterhead`: one of the workspace's letterheads by id,
+ * "none", or left out for its default (server/letterheads.ts). Throws AccessError when the page
+ * can't be viewed, ExportError while export is off and LetterheadError for a letterhead that
+ * isn't the workspace's. `comments`: the comment threads `userId` can see on the page follow the
+ * body (lib/export-comments). `textScale`: the body's text bigger or smaller (pdfTextScale). `record: false` leaves the export out of the audit log, for an
+ * archive of many pages that is recorded once (server/export-pdf.ts).
+ */
+export async function pagePdf(
+  userId: string,
+  pageId: string,
+  { record = true, textScale = 1, ...options }: PageDocumentOptions & { record?: boolean; textScale?: number } = {},
+): Promise<PagePdf> {
+  const { target, letterhead, locale, inDatabase, input } = await pageDocument(userId, pageId, options);
   const values = letterhead?.theme && inDatabase ? await rowValueTexts(userId, target.id, locale) : [];
   const bytes = await renderPdf({
-    title: section.title,
-    sections: [section],
-    images: await imagesOf(userId, blocks),
-    link: (url) => (url.startsWith("/") ? `${env.appUrl}${url}` : url),
-    labels,
-    ...(await framing(letterhead, { workspaceId: target.workspaceId, title: section.title, locale, properties: values })),
+    ...input,
+    ...(await framing(letterhead, { workspaceId: target.workspaceId, title: input.title, locale, properties: values })),
     textScale,
   });
   if (record) {
-    await recordExport(userId, { workspaceId: target.workspaceId, page: { id: target.id, title: target.title }, format: "pdf", comments, pages: 1 });
+    await recordExport(userId, { workspaceId: target.workspaceId, page: { id: target.id, title: target.title }, format: "pdf", comments: options.comments ?? false, pages: 1 });
   }
-  return { bytes, title: section.title, workspaceId: target.workspaceId };
+  return { bytes, title: input.title, workspaceId: target.workspaceId };
 }
 
 /** What a template's preview fills its page with, in the reader's language (settings.letterheads.preview). */

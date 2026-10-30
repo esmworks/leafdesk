@@ -163,6 +163,22 @@ in a row's files property the chat names, and the answer links to it. It is a ch
 for in *Ask* mode, refused without edit access or on a locked page). A row's values are left out
 unless asked for, since a document made for a customer rarely means to show them.
 
+### Word
+
+"Export as Word" in the page menu (not for databases) makes the page's Word file (.docx) on the
+server from what its PDF is made of, with the same choices but text size: a letterhead or none,
+a row's values, comments. The file is meant to be edited further: headings use Word's heading
+styles, lists its own numbering, footnotes are Word footnotes, tables keep merged cells and repeat
+their header rows, amounts sit on the right, and images that are PNG or JPEG uploads are embedded at
+the width they have on the page. A letterhead's logo and lines go into the document's header, its
+footer lines and page numbers into its footer; a letterhead's theme is for PDFs only. Like a PDF, it
+is an export (off while export is off, in the audit log).
+
+The AI chat makes the same file with `create_docx`, attached like a PDF (below). It also makes an
+Excel workbook of a database's rows, or of one of its views (`create_xlsx`: the view's filters,
+sorts, shown properties and order, a pivot view's table), with numbers, dates and checkboxes as
+Excel values; it is attached to a page or row the chat names, never to the database itself.
+
 ### Edit as Markdown
 
 "Edit as Markdown" in the page menu (for people who may edit the page; not for databases, locked

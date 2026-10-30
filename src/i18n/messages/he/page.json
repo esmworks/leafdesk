@@ -66,6 +66,7 @@
     "exportZip": "ייצוא עם דפי המשנה",
     "exportZipDatabase": "ייצוא עם דפי השורות",
     "exportPdf": "ייצוא כ־PDF",
+    "exportDocx": "ייצוא כ־Word (.docx)",
     "exportComments": "לכלול תגובות",
     "exportCommentsHint": "מוסיף את שרשורי התגובות שאפשר לראות לייצוא Markdown,‏ ZIP ו־PDF, אחרי כל דף",
     "printView": "הדפסה",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "ייצוא ל-PDF",
+    "titleDocx": "ייצוא כ־Word",
     "letterhead": "נייר מכתבים",
     "none": "ללא",
     "defaultMark": "{name} (ברירת מחדל)",
@@ -875,6 +877,7 @@
     "properties": "לכלול את ערכי השורה",
     "comments": "לכלול תגובות",
     "hint": "תרשימים ומשוואות מודפסים כטקסט; כדי לקבל את הדף בדיוק כפי שהוא נראה, השתמשו ב„הדפסה”.",
+    "hintDocx": "קובץ להמשך עריכה ב־Word: הלוגו והשורות של נייר המכתבים נכנסים לכותרת העליונה והתחתונה, אבל לא ערכת ה־PDF שלו.",
     "download": "הורדה",
     "preparing": "מכין…",
     "textSize": "גודל טקסט"

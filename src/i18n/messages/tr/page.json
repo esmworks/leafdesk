@@ -66,6 +66,7 @@
     "exportZip": "Alt sayfalarla dışa aktar",
     "exportZipDatabase": "Satırlarla dışa aktar",
     "exportPdf": "PDF olarak dışa aktar",
+    "exportDocx": "Word olarak dışa aktar (.docx)",
     "exportComments": "Yorumları ekle",
     "exportCommentsHint": "Görebildiğin yorum dizilerini Markdown, ZIP ve PDF dışa aktarımlarında her sayfanın sonuna ekler",
     "printView": "Yazdır",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "PDF olarak dışa aktar",
+    "titleDocx": "Word olarak dışa aktar",
     "letterhead": "Antet",
     "none": "Antetsiz",
     "defaultMark": "{name} (varsayılan)",
@@ -875,6 +877,7 @@
     "properties": "Satırın alanlarını ekle",
     "comments": "Yorumları ekle",
     "hint": "Diyagramlar ve denklemler metin olarak basılır; sayfayı göründüğü gibi almak için Yazdır'ı kullanın.",
+    "hintDocx": "Word'de düzenlemeye devam edilecek bir dosya: antedin logosu ve satırları üst ve alt bilgiye girer, PDF teması girmez.",
     "download": "İndir",
     "preparing": "Hazırlanıyor…",
     "textSize": "Yazı boyutu"

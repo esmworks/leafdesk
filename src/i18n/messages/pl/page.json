@@ -66,6 +66,7 @@
     "exportZip": "Eksportuj z podstronami",
     "exportZipDatabase": "Eksportuj ze stronami wierszy",
     "exportPdf": "Eksportuj jako PDF",
+    "exportDocx": "Eksportuj jako Word (.docx)",
     "exportComments": "Dołącz komentarze",
     "exportCommentsHint": "Dodaje wątki komentarzy, które widzisz, do eksportów Markdown, ZIP i PDF, po każdej stronie",
     "printView": "Drukuj",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Eksportuj do PDF",
+    "titleDocx": "Eksportuj jako Word",
     "letterhead": "Papier firmowy",
     "none": "Brak",
     "defaultMark": "{name} (domyślny)",
@@ -875,6 +877,7 @@
     "properties": "Dołącz wartości wiersza",
     "comments": "Dołącz komentarze",
     "hint": "Diagramy i równania drukują się jako tekst; użyj Drukuj, aby otrzymać stronę dokładnie taką, jak wygląda.",
+    "hintDocx": "Plik do dalszej edycji w Wordzie: logo i wiersze papieru firmowego trafiają do nagłówka i stopki, ale nie jego motyw PDF.",
     "download": "Pobierz",
     "preparing": "Przygotowywanie…",
     "textSize": "Rozmiar tekstu"

@@ -1250,13 +1250,14 @@ function ChangePrompt({
             t(action.action === "readWeb" ? "readWebHint" : "searchWebHint")
           ) : action.target ? (
             <>
-              {t(action.action === "updateRow" ? "row" : action.action === "editPage" || action.action === "createPdf" || comment ? "page" : "in")}
+              {t(action.action === "updateRow" ? "row" : action.action === "editPage" || action.action === "createPdf" || action.action === "createDocx" || action.action === "createXlsx" || comment ? "page" : "in")}
               <PageLink page={action.target} onSource={onSource} />
             </>
           ) : (
             t("topLevel")
           )}
         </p>
+        {action.source && <p className="text-xs break-words text-fg-muted">{t("fileSource", { name: action.source })}</p>}
         {action.letterhead && <p className="text-xs break-words text-fg-muted">{t("letterhead", { name: action.letterhead })}</p>}
         {action.fromFile && <p className="text-xs text-fg-muted">{t("fromFile", { rows: action.fromFile.rows, name: action.fromFile.name })}</p>}
         {action.properties && action.properties.length > 0 && (

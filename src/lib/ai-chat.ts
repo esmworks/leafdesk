@@ -145,8 +145,10 @@ export type ChatActionView = {
   content: string | null;
   /** A page's text changed: the blocks it changes, with one unchanged block around each. */
   diff?: BlockChange[];
-  /** A PDF: the letterhead it prints in, when it has one. */
+  /** A PDF or Word document: the letterhead it is set in, when it has one. */
   letterhead?: string;
+  /** An Excel workbook: the database (and view) its rows come from. */
+  source?: string;
   /**
    * A database added: its properties, by name, with their type and options (`changes` says the
    * same in words, for the Telegram bot). A form added: who its public link takes answers from,

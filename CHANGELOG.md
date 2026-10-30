@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Word export, and Word and Excel files from the AI chat.** "Export as Word" in the page menu
+  downloads a page or row as a .docx file meant for further editing, with the PDF export's choices
+  (letterhead, a row's values, comments): Word's heading styles, numbering and footnotes, tables
+  with merged cells and repeated header rows, embedded images, the letterhead in the document's
+  header and footer. The AI chat makes the same file with `create_docx`, and an Excel workbook of a
+  database or one of its views with `create_xlsx` (the view's filters, sorts and columns, numbers
+  and dates as Excel values), attached to a page or a row's files property like `create_pdf`'s
+  PDFs, after the person agrees in *Ask* mode. The chat's `read_page` of a database lists its views.
+  New dependency `docx`; no migration.
+
 - **Guardrails for agents' spending.** *Who can create agents* has a third choice: owners and
   the members and groups they pick. Owners, and an agent's creator, get an inbox item and an email
   when an agent passes 80% of its monthly token limit and when it reaches it, and owners when the
@@ -152,6 +162,9 @@
   only while an answer is being written.
 
 ### Fixed
+
+- **Excel exports of a database with a button property** gave the columns after the button the
+  wrong kind: numbers and dates in them came out as text, or text as numbers.
 
 - **Frozen columns no longer let text show beside them.** Scrolled sideways, a table's frozen
   columns stopped at the page's margin, and the columns scrolling past showed through in the strip

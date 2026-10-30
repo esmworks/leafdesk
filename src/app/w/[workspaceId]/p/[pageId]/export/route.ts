@@ -31,6 +31,8 @@ import { exportLabels } from "@/server/export-labels";
 import { LetterheadError } from "@/server/letterheads";
 import { getPage } from "@/server/pages";
 import { pagePdf, viewPdf } from "@/server/pdf";
+import { DOCX_MIME } from "@/server/docx-document";
+import { pageDocx } from "@/server/docx-export";
 import { tableHtml } from "@/lib/table-html";
 import { toCsv } from "@/lib/csv";
 import { getLocale } from "next-intl/server";
@@ -82,7 +84,8 @@ async function requestedView(request: Request): Promise<ViewExport> {
  * `<name>/SKILL.md` (the folder AI assistants install skills from), and `?format=pdf` the page as a
  * PDF file made on the server (server/pdf.ts), in `?letterhead=<id>` (or `none`; the workspace's
  * default when left out), a row with its values under the title with `&properties=1`, its text
- * bigger or smaller with `&scale=<percent>` (lib/pdf-text-scale).
+ * bigger or smaller with `&scale=<percent>` (lib/pdf-text-scale); `?format=docx` the page as a Word
+ * document (server/docx-export.ts) with the same letterhead, values and comments.
  * `comments=1` adds the comment threads the user can see after each page, in Markdown, ZIP and PDF
  * exports (lib/export-comments).
  * With `?subpages=1`, the page or database with everything under it as a ZIP (see server/export);
@@ -153,6 +156,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
         });
         return new Response(new Uint8Array(pdf.bytes), {
           headers: { "Content-Type": "application/pdf", "Content-Disposition": attachment(pdf.title, "pdf"), "Cache-Control": "no-store" },
+        });
+      } finally {
+        release();
+      }
+    }
+    if (query.get("format") === "docx" && target.kind !== "database") {
+      const release = startExport(userId);
+      try {
+        const docx = await pageDocx(userId, pageId, {
+          properties: query.get("properties") === "1",
+          letterhead: query.get("letterhead") ?? undefined,
+          comments,
+        });
+        return new Response(new Uint8Array(docx.bytes), {
+          headers: { "Content-Type": DOCX_MIME, "Content-Disposition": attachment(docx.title, "docx"), "Cache-Control": "no-store" },
         });
       } finally {
         release();

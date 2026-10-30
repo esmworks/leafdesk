@@ -18,6 +18,8 @@ import { commentsMarkdown, ENGLISH_COMMENT_LABELS, exportedThreads, type Comment
 import { layoutExport, relativeLink, rewriteLinks, type ExportLayout } from "@/lib/export-layout";
 import { fileIdOf, fileIdsIn, fileIdsInProperties, formatBytes } from "@/lib/files";
 import { pageLabel } from "@/lib/labels";
+import { applyView, isHiddenInView, orderProperties } from "@/lib/properties";
+import { withViewSorts } from "@/lib/views";
 import { toXlsx, type XlsxValue } from "@/lib/xlsx";
 import { cellText } from "@/lib/table-clipboard";
 import { accessRank, pageIdColumn, requireMembership, requirePageAccess } from "@/server/access";
@@ -232,7 +234,7 @@ async function exportedPivot(userId: string, databaseId: string, view: ViewExpor
         },
         texts,
         locale,
-        format === "csv",
+        format === "csv" || format === "xlsx",
       )
     : { header: [], cells: [] };
   await recordExport(userId, { workspaceId: snapshot.database.workspaceId, page: { id: databaseId, title: snapshot.database.title }, format, rows: rows.length });
@@ -256,7 +258,7 @@ export type ViewExport = { rows: string[]; properties: string[]; name: string; p
  * The rows and properties a view of a database shows (see ViewExport) as table cells, for a CSV,
  * HTML or PDF of just that view, titled after the database and the view.
  */
-export async function databaseViewTable(userId: string, databaseId: string, view: ViewExport, format: "csv" | "html" | "pdf") {
+export async function databaseViewTable(userId: string, databaseId: string, view: ViewExport, format: "csv" | "html" | "pdf" | "xlsx") {
   const { snapshot, header, cells } = view.pivot
     ? await exportedPivot(userId, databaseId, view, view.pivot, format)
     : await exportedTable(userId, databaseId, view.rows, format, view.properties);
@@ -271,9 +273,38 @@ export async function databaseViewTable(userId: string, databaseId: string, view
  */
 export async function databaseXlsx(userId: string, databaseId: string, only: string[] | null = null) {
   const { snapshot, header, cells } = await exportedTable(userId, databaseId, only, "xlsx");
-  const kinds = [null, ...snapshot.properties.map((p) => valueType(p))];
-  const typed = cells.map((row) => row.map((value, i) => typedCell(value, kinds[i])));
+  const types = columnTypes(snapshot.properties);
+  const typed = cells.map((row) => row.map((value, i) => typedCell(value, types[i])));
   return { title: snapshot.database.title, xlsx: toXlsx([header, ...typed], { name: snapshot.database.title }) };
+}
+
+/** Each column's value type, the title's first: the properties databaseTable writes (buttons left out). */
+function columnTypes(properties: Parameters<typeof valueType>[0][]): (string | null)[] {
+  return [null, ...properties.filter((p) => !isAction(p.type)).map((p) => valueType(p))];
+}
+
+/**
+ * A saved view of a database as an Excel workbook, and its title (the database's and the view's
+ * names): the rows it shows with the properties it shows, in its order, worked out the way the
+ * database page works them out for "Export view"; a pivot view's table instead, its groups by
+ * `timeZone`'s days. Null when `userId` has no such view; throws ExportError while export is off.
+ */
+export async function viewXlsx(userId: string, databaseId: string, viewId: string, timeZone = "UTC") {
+  const snapshot = await getDatabaseSnapshot(userId, databaseId);
+  const view = snapshot.views.find((v) => v.id === viewId);
+  if (!view) return null;
+  const rows = applyView(snapshot.rows, withViewSorts(view), snapshot.properties, { viewerId: snapshot.viewerId, people: snapshot.people });
+  const shown = orderProperties(snapshot.properties, view.config.propertyOrder).filter((p) => !isHiddenInView(view, p));
+  const exported: ViewExport = {
+    rows: rows.map((row) => row.id),
+    properties: shown.map((p) => p.id),
+    name: view.name,
+    ...(view.type === "pivot" ? { pivot: view.config, timeZone } : {}),
+  };
+  const { title, header, cells } = await databaseViewTable(userId, databaseId, exported, "xlsx");
+  const types = view.type === "pivot" ? [] : columnTypes(shown);
+  const typed = cells.map((row) => row.map((value, i) => typedCell(value, types[i] ?? null)));
+  return { title, rows: rows.length, xlsx: toXlsx([header, ...typed], { name: title }) };
 }
 
 /**
@@ -293,7 +324,7 @@ export type ExportRecord = {
   workspaceId: string;
   /** The page exported; null for the whole workspace. */
   page: { id: string; title: string } | null;
-  format: "zip" | "csv" | "xlsx" | "html" | "markdown" | "pdf" | "skill";
+  format: "zip" | "csv" | "xlsx" | "html" | "markdown" | "pdf" | "docx" | "skill";
   /** The pages' comments went in too. */
   comments?: boolean;
   /** How many pages (or rows, or files) it holds, when known. */
