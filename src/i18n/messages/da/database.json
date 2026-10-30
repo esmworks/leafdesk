@@ -131,6 +131,7 @@
   "viewTabs": {
     "addView": "Tilføj visning",
     "addViewHeading": "Tilføj en visning",
+    "more": "{count, plural, one {# mere} other {# mere}}",
     "personal": "Kun for mig",
     "personalHint": "En personlig visning: ingen andre ser den",
     "personalOnly": "Du kan ikke ændre databasens delte visninger, så nye visninger er personlige: kun du ser dem.",

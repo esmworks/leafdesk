@@ -131,6 +131,7 @@
   "viewTabs": {
     "addView": "添加视图",
     "addViewHeading": "添加视图",
+    "more": "{count, plural, other {另外 # 个}}",
     "personal": "仅自己可见",
     "personalHint": "个人视图：其他人看不到",
     "personalOnly": "你无法更改此数据库的共享视图，因此新视图为个人视图：只有你能看到。",

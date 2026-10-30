@@ -131,6 +131,7 @@
   "viewTabs": {
     "addView": "Weergave toevoegen",
     "addViewHeading": "Een weergave toevoegen",
+    "more": "{count, plural, one {# meer} other {# meer}}",
     "personal": "Alleen voor mij",
     "personalHint": "Een persoonlijke weergave: niemand anders ziet die",
     "personalOnly": "Je kunt de gedeelde weergaven van deze database niet wijzigen, dus nieuwe weergaven zijn persoonlijk: alleen jij ziet ze.",

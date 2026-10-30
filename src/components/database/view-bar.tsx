@@ -26,7 +26,7 @@ import {
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button, cn, Input, MenuItem, MenuSeparator, Switch } from "@/components/ui";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
 import { DatePhraseInput } from "@/components/date-phrase-input";
@@ -66,6 +66,7 @@ import {
 } from "@/lib/properties";
 import { fromPercentPoints, isPercent, valueFormat } from "@/lib/number-format";
 import { holdsOptions, holdsPeople, holdsTimestamp, PERSON_ME } from "@/lib/property-types";
+import { fitTabs } from "@/lib/tab-fit";
 import { VIEW_TYPES } from "@/lib/views";
 import { DeletedSchemaList } from "./deleted-schema";
 import { Floating, useFloating } from "./floating";
@@ -140,34 +141,127 @@ export function ViewTabs({
   };
   const drag = useReorderDrag("x", onMove);
   const movable = !readOnly && views.length > 1;
+  const adds = !readOnly || !!canAddPersonal;
+  // A personal view is its person's to rename, copy and delete, whatever they may do to the others.
+  const tabReadOnly = (view: View) => readOnly && !(mine(view) && canAddPersonal);
+  // Viewers open the open tab's menu just to export.
+  const activeHasMenu = (view: View) => !tabReadOnly(view) || !!onExport;
+
+  // Tabs that don't fit go into a menu at the end of the row. An invisible copy of each tab's face
+  // gives their widths; the row's width changes as the toolbar's search field opens beside it.
+  const row = useRef<HTMLDivElement>(null);
+  const faces = useRef<HTMLDivElement>(null);
+  const more = useFloating<HTMLButtonElement>();
+  const [hidden, setHidden] = useState<string[]>([]);
+  const { setOpen: setMoreOpen } = more;
+  useLayoutEffect(() => {
+    const el = row.current;
+    const box = faces.current;
+    if (!el || !box) return;
+    const fit = () => {
+      const widths = [...box.children].map((face) => face.getBoundingClientRect().width);
+      // Measured with every view's count; some languages' words for fewer are a little longer.
+      const moreWidth = (widths.pop() ?? 0) + 8;
+      // The track's padding, then the add button and the gap before it.
+      const room = el.clientWidth - 4 - (adds ? 28 + 4 : 0);
+      const shown = fitTabs(widths, views.findIndex((v) => v.id === activeId), room, 2, moreWidth);
+      const next = shown ? views.filter((_, i) => !shown.includes(i)).map((v) => v.id) : [];
+      setHidden((prev) => (prev.join() === next.join() ? prev : next));
+      // The button goes with the last hidden tab: its menu mustn't come back open with it.
+      if (!next.length) setMoreOpen(false);
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(el);
+    observer.observe(box);
+    return () => observer.disconnect();
+  }, [views, activeId, adds, setMoreOpen]);
+  const hiddenViews = views.filter((view) => hidden.includes(view.id));
+
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none]">
+    <div ref={row} className="relative flex min-w-0 flex-1 items-center gap-1">
+      <div aria-hidden className="pointer-events-none invisible absolute inset-0 overflow-hidden">
+        <div ref={faces} className="flex w-max">
+          {views.map((view) => {
+            const active = view.id === activeId;
+            return (
+              <span key={view.id} className={cn("inline-flex h-7 items-center gap-1.5 px-2 text-sm", active && "font-medium")}>
+                <ViewIcon type={view.type} icon={view.config.icon} />
+                <span className="max-w-40 truncate">{view.name}</span>
+                {view.ownerId && <UserRound className="h-3 w-3" />}
+                {active && activeHasMenu(view) && <ChevronDown className="h-3 w-3" />}
+              </span>
+            );
+          })}
+          <span className="inline-flex h-7 items-center gap-1 px-2 text-sm">
+            {t("viewTabs.more", { count: views.length })}
+            <ChevronDown className="h-3 w-3" />
+          </span>
+        </div>
+      </div>
       {/* The views sit on a track, the open one raised out of it. */}
       <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-bg-subtle p-0.5 shadow-[inset_0_0_0_1px_var(--color-border)]">
         {views.map((view) => {
-          // A personal view is its person's to rename, copy and delete, whatever they may do to the others.
+          if (hidden.includes(view.id)) return null;
           const own = mine(view) && canAddPersonal;
-          const tabReadOnly = readOnly && !own;
           return (
             <ViewTab
               key={view.id}
               view={view}
               active={view.id === activeId}
               canDelete={view.ownerId ? true : shared > 1}
-              readOnly={tabReadOnly}
+              readOnly={tabReadOnly(view)}
               drag={movable ? drag.handlers(view.id) : undefined}
               onSelect={() => onSelect(view.id)}
               onRename={(name) => onRename(view, name)}
               onIcon={onIcon && ((icon) => onIcon(view, icon))}
               onDelete={() => onDelete(view)}
               onExport={view.id === activeId ? onExport : undefined}
-              onDuplicate={onDuplicate && !tabReadOnly ? () => onDuplicate(view) : undefined}
+              onDuplicate={onDuplicate && !tabReadOnly(view) ? () => onDuplicate(view) : undefined}
               onShare={onShare && own ? () => onShare(view) : undefined}
             />
           );
         })}
+        {hiddenViews.length > 0 && (
+          <>
+            <button
+              ref={more.ref}
+              type="button"
+              aria-expanded={more.open}
+              // Keeps the focus where it is: an empty search field losing it closes, the row widens
+              // and the button would move from under the pointer before the click lands.
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={more.toggle}
+              className={cn(
+                "inline-flex h-7 shrink-0 items-center gap-1 rounded-md px-2 text-sm transition-colors hover:text-fg md:h-6",
+                more.open ? "text-fg" : "text-fg-muted",
+              )}
+            >
+              {t("viewTabs.more", { count: hiddenViews.length })}
+              <ChevronDown className="h-3 w-3 text-fg-faint" />
+            </button>
+            <Floating open={more.open} anchor={more.el} onClose={more.close}>
+              {/* Its items keep the focus too, or the row would change under the menu mid-click. */}
+              <div onMouseDown={(e) => e.preventDefault()}>
+                {hiddenViews.map((view) => (
+                  <MenuItem
+                    key={view.id}
+                    icon={<ViewIcon type={view.type} icon={view.config.icon} />}
+                    trailing={view.ownerId ? <UserRound className="h-3 w-3 text-fg-faint" aria-label={t("viewTabs.personalTab")} /> : undefined}
+                    onClick={() => {
+                      more.close();
+                      onSelect(view.id);
+                    }}
+                  >
+                    <span className="block max-w-60 truncate">{view.name}</span>
+                  </MenuItem>
+                ))}
+              </div>
+            </Floating>
+          </>
+        )}
       </div>
-      {(!readOnly || canAddPersonal) && (
+      {adds && (
         <>
           <button
             ref={add.ref}
@@ -297,7 +391,8 @@ function ViewTab({
         type="button"
         onClick={() => (active && hasMenu ? menu.toggle() : onSelect())}
         className={cn(
-          "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-sm transition-colors",
+          // As tall as the toolbar's buttons with the track around it; taller for fingers on phones.
+          "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-sm transition-colors md:h-6",
           active ? "bg-bg font-medium text-fg shadow-[0_0_0_1px_var(--color-border),0_1px_2px_rgb(0_0_0/0.05)]" : "text-fg-muted hover:text-fg",
         )}
       >
@@ -495,8 +590,9 @@ export function ViewSearch({ value, onChange }: { value: string; onChange: (valu
   };
   return (
     // On phones the open field covers the toolbar's row instead of pushing it off the screen.
-    <div className="relative flex w-48 items-center max-md:absolute max-md:inset-0 max-md:z-10 max-md:w-auto max-md:bg-bg">
-      <Search className="pointer-events-none absolute inset-s-2 h-3.5 w-3.5 text-fg-muted" />
+    // No box around it: the icon and the words typed are the field, like the toolbar's buttons.
+    <div className="group relative flex w-44 items-center max-md:absolute max-md:inset-0 max-md:z-10 max-md:w-auto max-md:bg-bg">
+      <Search className="pointer-events-none absolute inset-s-1.5 h-4 w-4 text-fg-muted group-focus-within:text-fg" />
       <input
         ref={input}
         type="search"
@@ -513,7 +609,7 @@ export function ViewSearch({ value, onChange }: { value: string; onChange: (valu
         onBlur={() => {
           if (!value) setOpen(false);
         }}
-        className="h-7 w-full rounded-md border border-border bg-bg px-7 text-sm text-fg outline-none placeholder:text-fg-faint focus:border-accent [&::-webkit-search-cancel-button]:hidden"
+        className="h-7 w-full border-0 bg-transparent ps-7 pe-6 text-sm text-fg outline-none placeholder:text-fg-faint high-contrast:focus:shadow-[inset_0_-1px_0_var(--color-fg)] [&::-webkit-search-cancel-button]:hidden"
       />
       {value && (
         <button

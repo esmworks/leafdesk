@@ -75,6 +75,13 @@
 
 ### Changed
 
+- **A database's view tabs that don't fit go into a "more" menu.** The tabs show in order while
+  there is room, the open one always among them in its place, and a "{count} more" button at the
+  end lists the rest; picking one opens it. The add-view button stays in sight. The row follows
+  its width as it changes, so opening the view's search field moves tabs into the menu instead of
+  pushing them out of view. That search field also sits quietly in the toolbar now: the magnifier
+  and the words typed, with no box around them. The tabs and the toolbar beside them (in table,
+  board, form and dashboard views alike) share one line and one height.
 - **Chats with agents look like the AI chat.** On an agent's page, in its Chat tab and in an Agent
   chat block, questions sit in the same box, the steps of an answer show under a running clock
   and fold into how long it took, and an answer and a question can be copied, with the time on

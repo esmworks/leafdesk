@@ -603,7 +603,7 @@ export function DatabasePage({
                     {embed?.header?.(snapshot)}
                     {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
                     {/* Phones stack the toolbar above the tabs so the tabs get the whole row. */}
-                    <div className="flex flex-col-reverse gap-1 md:flex-row md:items-end md:justify-between md:gap-2">
+                    <div className="flex flex-col-reverse gap-1 md:flex-row md:items-center md:justify-between md:gap-2">
                       <ViewTabs
                         views={views}
                         activeId={view?.id ?? ""}
@@ -622,12 +622,12 @@ export function DatabasePage({
                         onShare={readOnly || locked || linked ? undefined : (v) => void api.shareView(v)}
                       />
                       {view?.type === "dashboard" && canManageAutomations && (
-                        <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">
+                        <div className="flex shrink-0 items-center gap-1 self-end md:self-auto">
                           <AutomationsButton workspaceId={workspaceId} databaseId={databaseId} databaseTitle={snapshot.database.title} openRun={openRun} />
                         </div>
                       )}
                       {view?.type === "form" && (
-                        <div className="flex shrink-0 items-center gap-1 self-end md:pb-1.5">
+                        <div className="flex shrink-0 items-center gap-1 self-end md:self-auto">
                           <FormToolbar
                             view={view}
                             properties={snapshot.properties}
@@ -648,7 +648,7 @@ export function DatabasePage({
                         </div>
                       )}
                       {view && view.type !== "form" && view.type !== "dashboard" && (
-                        <div className="relative flex shrink-0 items-center gap-1 self-end md:pb-1.5">
+                        <div className="relative flex shrink-0 items-center gap-1 self-end md:self-auto">
                           <ViewSearch value={search} onChange={setSearch} />
                           <ViewToolbar
                             view={view}

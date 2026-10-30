@@ -131,6 +131,7 @@
   "viewTabs": {
     "addView": "Añadir vista",
     "addViewHeading": "Añadir una vista",
+    "more": "{count, plural, one {# más} other {# más}}",
     "personal": "Solo para mí",
     "personalHint": "Una vista personal: nadie más la ve",
     "personalOnly": "No puedes cambiar las vistas compartidas de esta base de datos, así que las vistas nuevas son personales: solo tú las ves.",

@@ -131,6 +131,7 @@
   "viewTabs": {
     "addView": "Lägg till vy",
     "addViewHeading": "Lägg till en vy",
+    "more": "{count, plural, one {# till} other {# till}}",
     "personal": "Bara för mig",
     "personalHint": "En personlig vy: ingen annan ser den",
     "personalOnly": "Du kan inte ändra databasens delade vyer, så nya vyer är personliga: bara du ser dem.",
