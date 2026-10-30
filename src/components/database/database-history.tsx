@@ -111,7 +111,7 @@ export function DatabaseHistoryPanel({ databaseId, onClose, onOpenRow }: { datab
     <aside
       role="dialog"
       aria-label={t("title")}
-      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex w-full flex-col border-s border-border bg-bg shadow-xl md:w-[440px]"
+      className="fixed top-(--app-top) bottom-0 inset-e-(--chat-width) z-40 flex w-full flex-col border-s border-border bg-bg shadow-xl md:w-[440px]"
     >
       <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
         <h2 className="flex items-center gap-2 text-sm font-medium">

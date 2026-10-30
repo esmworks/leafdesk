@@ -911,6 +911,20 @@
 }
 
 /*
+ * The AI chat panel's width (ai-chat/chat-panel.tsx marks the workspace data-chat-open while it is
+ * open). In wider windows the page and the row panel end where it starts, rather than lying under
+ * it; on a phone it covers the window.
+ */
+:root {
+  --chat-width: 0px;
+}
+@media (min-width: 768px) {
+  [data-chat-open] {
+    --chat-width: 400px;
+  }
+}
+
+/*
  * The row panel lies over the page's right side in wider windows (row-panel.tsx sets
  * --row-panel-room while it is open): boards and tables keep that much room at their end, so
  * their last columns and cards can scroll out from under it.

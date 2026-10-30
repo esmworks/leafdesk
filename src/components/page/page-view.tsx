@@ -5,8 +5,9 @@ import { Archive, LayoutTemplate, Lock, Paintbrush, RotateCcw, SmilePlus } from 
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { onOtherSidePanel, openingSidePanel } from "@/lib/side-panels";
 import { withRow } from "@/lib/row-panel";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode, type RefObject } from "react";
 import {
   archivePageAction,
   deletePagePermanentlyAction,
@@ -146,6 +147,21 @@ export function PageView({
   const rowLayout = useMemo<RowLayoutHost>(() => ({ setBeside: setPropertiesBeside, aside: beside ? asideEl : null }), [beside, asideEl]);
   // The graph and the comments share the room beside the page: opening one closes the other.
   const [graphOpen, setGraphOpen] = useState(false);
+  // Either of them and the AI chat, or another page's (a row's in the panel), show one at a time
+  // (lib/side-panels).
+  const sidePanel = useId();
+  const sidePanelOpen = commentsOpen || graphOpen;
+  useEffect(() => {
+    if (sidePanelOpen) openingSidePanel(sidePanel);
+  }, [sidePanelOpen, sidePanel]);
+  useEffect(
+    () =>
+      onOtherSidePanel(sidePanel, () => {
+        setCommentsOpen(false);
+        setGraphOpen(false);
+      }),
+    [sidePanel],
+  );
   // Where the body's floating outline goes (collab-editor.tsx draws it), while one is shown.
   const [outlineEl, setOutlineEl] = useState<HTMLDivElement | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);

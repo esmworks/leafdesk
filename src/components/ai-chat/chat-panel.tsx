@@ -19,6 +19,7 @@ import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
 import { read } from "@/components/read";
 import { cn, IconButton, MenuItem, MenuSeparator, Popover } from "@/components/ui";
+import { onOtherSidePanel, openingSidePanel } from "@/lib/side-panels";
 import { chatPath, isChatPath, sourceHref, type ChatOptions, type ChatScopeView, type ChatSourceView, type ConversationSummary } from "@/lib/ai-chat";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import { ChatThread } from "./chat-thread";
@@ -108,6 +109,14 @@ export function AiChatProvider({
     else setOpen(false);
   }, [onChatPage, pathname]);
 
+  // One panel beside the page at a time (lib/side-panels): the chat closes a page's comments as it
+  // opens, and closes when they open.
+  const panelShown = open && !onChatPage;
+  useEffect(() => {
+    if (panelShown) openingSidePanel("chat");
+  }, [panelShown]);
+  useEffect(() => onOtherSidePanel("chat", () => setOpen(false)), []);
+
   const refreshConversations = useCallback(async () => {
     const result = await read("chatConversations", workspaceId);
     setConversations(result.ok ? result.data : []);
@@ -135,18 +144,22 @@ export function AiChatProvider({
   return (
     <Context.Provider value={value}>
       <SharedChat.Provider value={{ chat, listener }}>
-        {children}
-        {/* The full-page chat replaces the panel while it's shown. */}
-        {open && !onChatPage && (
-          <ChatPanel
-            key={panel.key}
-            workspaceId={workspaceId}
-            available={available}
-            memory={memory}
-            initialConversation={panel.conversationId}
-            onClose={() => setOpen(false)}
-          />
-        )}
+        {/* While the panel is open, what is beside it makes room for it rather than lying under it:
+            --chat-width (globals.css) is the panel's width in wider windows. */}
+        <div className="contents" data-chat-open={panelShown ? "" : undefined}>
+          {children}
+          {/* The full-page chat replaces the panel while it's shown. */}
+          {panelShown && (
+            <ChatPanel
+              key={panel.key}
+              workspaceId={workspaceId}
+              available={available}
+              memory={memory}
+              initialConversation={panel.conversationId}
+              onClose={() => setOpen(false)}
+            />
+          )}
+        </div>
       </SharedChat.Provider>
     </Context.Provider>
   );
@@ -217,7 +230,7 @@ function ChatPanel({
   return (
     <aside
       aria-label={t("title")}
-      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex w-full flex-col border-s border-border bg-bg shadow-xl md:w-[400px]"
+      className="fixed top-(--app-top) bottom-0 inset-e-0 z-40 flex w-full flex-col border-s border-border bg-bg md:w-(--chat-width)"
     >
       <div className="flex h-11 shrink-0 items-center gap-1 border-b border-border px-3">
         <h2 className="flex-1 truncate text-sm font-semibold">{t("title")}</h2>

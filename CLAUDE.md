@@ -400,6 +400,9 @@ because they are separate module graphs.
   view) starts at `top-(--app-top)`: on macOS the desktop app lays its tab strip over the page
   beside the sidebar, where `components/desktop-tab-strip.tsx` tells it (`desktop/src/windows.ts`).
   Something sticky in the workspace's scrolling `<main>` holds at `top-0`: `<main>` starts below the strip already.
+  Something fixed to the window's end edge sits at `inset-e-(--chat-width)` (globals.css), so it stays
+  beside the AI chat panel, which `<main>` makes room for; panels beside a page that can't share
+  that room (comments, graph, the chat) close each other through `lib/side-panels.ts`.
   A dialog is `Dialog` built from `DialogHeader` (or a `DialogTitle` in the body for a short
   question), `DialogBody` and `DialogFooter` (Cancel `secondary`, the action last); a panel over its
   own shade takes `dialogShadow`.

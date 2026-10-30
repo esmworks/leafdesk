@@ -103,6 +103,11 @@
 
 ### Changed
 
+- **The AI chat panel makes room instead of covering the page.** While it is open beside a
+  page, the page, a row open beside its database and a database's history end where the chat
+  starts, rather than lying under it. The chat and a page's comments or graph now show one at a
+  time: opening one closes the other.
+
 - **A database's view tabs that don't fit go into a "more" menu.** The tabs show in order while
   there is room, the open one always among them in its place, and a "{count} more" button at the
   end lists the rest; picking one opens it. The add-view button stays in sight. The row follows
