@@ -121,6 +121,7 @@ import { checkedTheme, createLetterhead, listLetterheads, setDefaultLetterhead, 
 import { pdfThemeDoc } from "@/server/pdf-theme-docs";
 import { briefly, checked, DOC_TOPICS, docTopicOf, docUri, schemaText, see, type Doc, type DocTopic } from "./docs";
 import { idsFromLinks, jsonResult, MAX_MARKDOWN_CHARS, pageUrl, runTool, sliceText, ToolInputError, toolErrorFor } from "./format";
+import { refusingUnknownArguments } from "./strict-arguments";
 import * as automations from "@/server/automations/manage";
 import * as agents from "@/server/agents/manage";
 import * as agentChat from "@/server/agents/chat";
@@ -1364,13 +1365,18 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
   const server = new McpServer({ name: "leafdesk", title: "Leafdesk", version: APP_INFO.version }, { instructions: INSTRUCTIONS });
   // Every tool not annotated read-only runs as a write, so a workspace that lets connected apps
   // only read refuses it in its access checks (see connected-app.ts), whatever the tool checks.
-  // Ids may be given as Leafdesk links: each handler gets the ids they point at.
+  // Ids may be given as Leafdesk links: each handler gets the ids they point at. An argument the
+  // tool doesn't take is refused, not dropped: `filter` for `filters` would otherwise list every row.
   const register = server.registerTool.bind(server) as (name: string, config: unknown, handler: unknown) => unknown;
-  server.registerTool = ((name: string, config: { annotations?: { readOnlyHint?: boolean } }, handler: (...args: unknown[]) => unknown) => {
+  server.registerTool = ((
+    name: string,
+    config: { annotations?: { readOnlyHint?: boolean }; inputSchema?: unknown },
+    handler: (...args: unknown[]) => unknown,
+  ) => {
     const run = (args: unknown, ...rest: unknown[]) => handler(idsFromLinks(args), ...rest);
     return register(
       name,
-      config,
+      config.inputSchema instanceof z.ZodObject ? { ...config, inputSchema: refusingUnknownArguments(config.inputSchema) } : config,
       config.annotations?.readOnlyHint === true
         ? async (args: unknown, ...rest: unknown[]) => withContentNote((await run(args, ...rest)) as CallToolResult)
         : (args: unknown, ...rest: unknown[]) => asWrite(() => run(args, ...rest)),

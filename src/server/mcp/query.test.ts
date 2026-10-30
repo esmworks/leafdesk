@@ -486,6 +486,53 @@ describe("files properties", () => {
   });
 });
 
+describe("is_empty and is_not_empty on values that are objects or lists", () => {
+  const all: PropertyDef[] = [
+    { id: "p_place", name: "Konum", type: "place", options: {} },
+    { id: "p_files", name: "Files", type: "files", options: {} },
+    { id: "p_rel", name: "Customer", type: "relation", options: {} },
+    { id: "p_person", name: "Owner", type: "person", options: {} },
+  ];
+  const row = (id: string, properties: Record<string, unknown>): RowLike => ({
+    id,
+    title: id,
+    properties,
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
+  });
+  const rows = [
+    row("full", {
+      p_place: { lat: 41.01, lng: 28.97, address: "Fatih, İstanbul" },
+      p_files: [{ url: "/api/files/AbCdEfGhIjKlMnOpQrStUv_-", name: "a.pdf" }],
+      p_rel: ["r1"],
+      p_person: ["u1"],
+    }),
+    // A place found by its coordinates only reads as them, so it isn't empty.
+    row("coordinates", { p_place: { lat: 38.42, lng: 27.14 } }),
+    row("cleared", { p_place: null, p_files: [], p_rel: [], p_person: [] }),
+    row("never", {}),
+    // Without valid coordinates a value is no place (it shows as empty too).
+    row("broken", { p_place: { address: "Somewhere" } }),
+  ];
+  // As query_database runs them: the caller's rules in a group of their own.
+  const query = (property: string, op: "is_empty" | "is_not_empty") =>
+    applyView(rows, { filters: [{ type: "group", combinator: "and", rules: toFilterEntries(all, [{ property, op }]) }] }, all).map(
+      (r) => r.id,
+    );
+
+  it("count a place as filled when it has coordinates", () => {
+    expect(query("Konum", "is_not_empty")).toEqual(["full", "coordinates"]);
+    expect(query("Konum", "is_empty")).toEqual(["cleared", "never", "broken"]);
+  });
+
+  it("count files, related rows and people as filled when there is one", () => {
+    for (const property of ["Files", "Customer", "Owner"]) {
+      expect(query(property, "is_not_empty"), property).toEqual(["full"]);
+      expect(query(property, "is_empty"), property).toEqual(["coordinates", "cleared", "never", "broken"]);
+    }
+  });
+});
+
 describe("board column calculations", () => {
   it("names what a board's column headers show unless it is the card count", () => {
     const due: PropertyDef = { id: "p_due", name: "Due", type: "date", options: {} };
