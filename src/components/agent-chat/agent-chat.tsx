@@ -9,12 +9,13 @@
  * the person started otherwise (schedules, tasks, mentions) come in as the agent speaking up, asked
  * for again as they go on; a block keeps conversations to pick from. Loaded only where a chat is shown.
  */
-import { ArrowUp, AtSign, ChevronRight, Clock, ListChecks, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowUp, AtSign, Clock, ListChecks, Loader2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { deleteAgentConversationAction, sendAgentChatAction } from "@/app/actions/agent-chat";
 import { AnswerText } from "@/components/ai-chat/answer-text";
+import { CopyAction, MessageTime, questionBox, revealed, StepsFold } from "@/components/ai-chat/message-parts";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { read } from "@/components/read";
 import { AgentIcon, AgentStepLine } from "@/components/settings/agent-dialog";
@@ -277,6 +278,9 @@ export function AgentChat({
   };
 
   const openPage = (id: string) => router.push(`/w/${workspaceId}/p/${id}`);
+  const items = timeline(messages, runs, thread);
+  // When each question was asked, for how long its answer took.
+  const askedAt = new Map(messages.flatMap((m) => (m.role === "user" ? [[m.runId, m.at] as const] : [])));
   const block = variant === "block";
   const page = variant === "page";
 
@@ -363,12 +367,12 @@ export function AgentChat({
         </div>
       )}
 
-      <div ref={listRef} className={cn(page ? "min-h-24 scroll-mb-28 py-4" : "overflow-y-auto", block ? "max-h-[28rem] px-3 py-3" : !page && "max-h-[45vh] py-2")} aria-live="polite">
+      <div ref={listRef} className={cn(page ? "min-h-24 scroll-mb-28 py-4" : "overflow-y-auto", block ? "max-h-[28rem] px-3 py-3" : !page && "-mx-2 max-h-[45vh] px-2 py-2")} aria-live="polite">
         {messages.length === 0 && runs.length === 0 ? (
           <p className="text-sm text-fg-muted">{t(`empty.${state === "full" ? (thread ? "thread" : "full") : "readOnly"}`, { name: agent.name })}</p>
         ) : (
-          <ol className="space-y-3">
-            {timeline(messages, runs, thread).map((item) =>
+          <ol className={page ? "space-y-6" : "space-y-4"}>
+            {items.map((item, i) =>
               item.day ? (
                 <li key={`day-${item.at}`} className="pt-2 text-center text-xs text-fg-muted">
                   <DayLabel at={item.at} />
@@ -379,35 +383,44 @@ export function AgentChat({
                   data-run-id={item.run.id}
                   className={cn("-mx-2 -my-1 scroll-mt-20 rounded-lg px-2 py-1 transition-colors duration-700", focused === item.run.id && "bg-bg-hover")}
                 >
-                  <RunMessage workspaceId={workspaceId} run={item.run} connections={connections} onOpen={openPage} onAnswered={() => void refreshRuns()} />
+                  <RunMessage
+                    workspaceId={workspaceId}
+                    run={item.run}
+                    connections={connections}
+                    last={!running && i === items.length - 1}
+                    onOpen={openPage}
+                    onAnswered={() => void refreshRuns()}
+                  />
                 </li>
               ) : (
                 <li key={`${item.message.role}-${item.message.runId}`}>
                   {item.message.role === "user" ? (
-                    <div className="flex justify-end">
-                      <p className="max-w-[85%] rounded-xl bg-bg-hover px-3 py-1.5 text-sm break-words whitespace-pre-wrap">{item.message.content}</p>
-                    </div>
+                    <Question message={item.message} page={page} />
                   ) : (
-                    <Answer message={item.message} connections={connections} onOpen={openPage} />
+                    <Answer
+                      message={item.message}
+                      ms={tookMs(item.message, askedAt)}
+                      last={!running && i === items.length - 1}
+                      connections={connections}
+                      onOpen={openPage}
+                    />
                   )}
                 </li>
               ),
             )}
             {running && (
-              <li className="space-y-1.5">
-                {turn && turn.steps.length > 0 && <StepList steps={turn.steps} connections={connections} onOpen={openPage} />}
-                {waiting ? (
-                  <div className="rounded-lg border border-border p-3">
-                    <p className="mb-1.5 text-sm">{t("approval")}</p>
-                    <ApprovalActions workspaceId={workspaceId} approval={{ runId: turn!.runId, ...waiting }} onAnswered={noop} />
-                  </div>
-                ) : (
-                  <p className="flex items-center gap-1.5 text-sm text-fg-muted">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-                    {/* A call only an owner answers: the person chatting sees that it waits. */}
-                    {turn?.status === "pending" ? t("waiting") : turn?.status === "awaiting_approval" ? t("awaitingOwner") : t("working")}
-                  </p>
-                )}
+              <li>
+                <LiveTurn
+                  workspaceId={workspaceId}
+                  runId={running}
+                  status={turn?.status ?? "pending"}
+                  steps={turn?.steps ?? []}
+                  pending={waiting}
+                  startedAt={askedAt.get(running)}
+                  connections={connections}
+                  onOpen={openPage}
+                  onAnswered={noop}
+                />
               </li>
             )}
           </ol>
@@ -466,45 +479,119 @@ function Frame({ block, children }: { block: boolean; children: React.ReactNode 
   return block ? <div className="my-1 w-full rounded-lg border border-border bg-bg">{children}</div> : <div>{children}</div>;
 }
 
-/** An answer: the steps taken to it (folded), then what the agent said, or why it couldn't answer. */
-function Answer({ message, connections, onOpen }: { message: AgentChatMessageView; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
-  const t = useTranslations("page.agentChat");
-  const [open, setOpen] = useState(false);
+/** A question: its text, and on hover when it was asked and copying it. */
+function Question({ message, page }: { message: AgentChatMessageView; page: boolean }) {
   return (
-    <div className="space-y-1 text-sm">
-      {message.steps.length > 0 && (
-        <div>
-          <button
-            type="button"
-            aria-expanded={open}
-            onClick={() => setOpen(!open)}
-            className="inline-flex items-center gap-1 rounded text-xs text-fg-muted hover:text-fg"
-          >
-            <ChevronRight className={cn("h-3 w-3 transition-transform", open ? "rotate-90" : "rtl:rotate-180")} />
-            {t("steps", { count: message.steps.length })}
-          </button>
-          {open && <StepList steps={message.steps} connections={connections} onOpen={onOpen} />}
-        </div>
-      )}
-      {message.content.trim() && (
-        <div className="break-words">
-          <AnswerText text={message.content} sources={NO_SOURCES} onSource={noop} />
-        </div>
-      )}
-      {message.code && <p className="text-xs text-danger">{t(`failed.${chatFailure(message.code)}`)}</p>}
+    <div className="group/question">
+      <div className={questionBox(page)}>{message.content}</div>
+      <div className={cn("mt-1 flex items-center justify-end gap-0.5", revealed)}>
+        <MessageTime at={message.at} />
+        <CopyAction text={message.content} />
+      </div>
     </div>
   );
 }
 
-function StepList({ steps, connections, onOpen }: { steps: AgentChatStepView[]; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
+/** How long an answer took from its question, when the question is still there. */
+function tookMs(answer: AgentChatMessageView, askedAt: Map<string, string>) {
+  const asked = askedAt.get(answer.runId);
+  return asked ? Math.max(0, Date.parse(answer.at) - Date.parse(asked)) : undefined;
+}
+
+/**
+ * An answer: the steps taken to it (folded into how long it took), then what the agent said, or
+ * why it couldn't answer, and copying it (on hover, but for the latest).
+ */
+function Answer({
+  message,
+  ms,
+  last,
+  connections,
+  onOpen,
+}: {
+  message: AgentChatMessageView;
+  ms: number | undefined;
+  last: boolean;
+  connections: Record<string, string>;
+  onOpen: (pageId: string) => void;
+}) {
+  const t = useTranslations("page.agentChat");
+  const text = message.content.trim();
   return (
-    <ol className="ms-1.5 mt-1 space-y-1 border-s border-border ps-3 text-xs text-fg-muted">
-      {steps.map((step, i) => (
-        <li key={i} className="flex min-w-0 items-start gap-1.5">
-          <AgentStepLine step={step} connections={connections} onOpen={onOpen} />
-        </li>
-      ))}
-    </ol>
+    <div className="group/answer text-sm leading-normal">
+      {message.steps.length > 0 && (
+        <StepsFold live={false} ms={ms} label={t("steps", { count: message.steps.length })}>
+          <StepItems steps={message.steps} connections={connections} onOpen={onOpen} />
+        </StepsFold>
+      )}
+      {text && (
+        <div className="break-words">
+          <AnswerText text={message.content} sources={NO_SOURCES} onSource={noop} />
+        </div>
+      )}
+      {message.code && <p className="mt-1 text-xs text-danger">{t(`failed.${chatFailure(message.code)}`)}</p>}
+      {text && (
+        <div className={cn("mt-1.5 -ms-1 flex items-center gap-0.5", !last && revealed)}>
+          <CopyAction text={text} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StepItems({ steps, connections, onOpen }: { steps: AgentChatStepView[]; connections: Record<string, string>; onOpen: (pageId: string) => void }) {
+  return steps.map((step, i) => (
+    <li key={i} className="flex min-w-0 items-start gap-1.5">
+      <AgentStepLine step={step} connections={connections} onOpen={onOpen} />
+    </li>
+  ));
+}
+
+/**
+ * A run under way: its steps open under a running clock, with what it waits on last, and for the
+ * owner whose turn it is, the call to approve below.
+ */
+function LiveTurn({
+  workspaceId,
+  runId,
+  status,
+  steps,
+  pending,
+  startedAt,
+  connections,
+  onOpen,
+  onAnswered,
+}: {
+  workspaceId: string;
+  runId: string;
+  status: AgentChatRunView["status"];
+  steps: AgentChatStepView[];
+  pending: AgentChatTurn["pending"];
+  startedAt: string | undefined;
+  connections: Record<string, string>;
+  onOpen: (pageId: string) => void;
+  onAnswered: () => void;
+}) {
+  const t = useTranslations("page.agentChat");
+  return (
+    <div className="text-sm leading-normal">
+      <StepsFold live startedAt={startedAt ? Date.parse(startedAt) : undefined}>
+        <StepItems steps={steps} connections={connections} onOpen={onOpen} />
+        {!pending && (
+          <li className="flex items-center gap-1.5">
+            <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden />
+            {/* A call only an owner answers: the person chatting sees that it waits. */}
+            <span>{status === "pending" ? t("waiting") : status === "awaiting_approval" ? t("awaitingOwner") : t("working")}</span>
+          </li>
+        )}
+      </StepsFold>
+      {pending && (
+        <div className="rounded-lg border border-border p-3">
+          <p className="mb-1.5 text-sm">{t("approval")}</p>
+          <ApprovalActions workspaceId={workspaceId} approval={{ runId, ...pending }} onAnswered={onAnswered} />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -546,12 +633,14 @@ function RunMessage({
   workspaceId,
   run,
   connections,
+  last,
   onOpen,
   onAnswered,
 }: {
   workspaceId: string;
   run: AgentChatRunView;
   connections: Record<string, string>;
+  last: boolean;
   onOpen: (pageId: string) => void;
   onAnswered: () => void;
 }) {
@@ -574,22 +663,25 @@ function RunMessage({
       {run.status === "done" && !run.answer.trim() && run.steps.length === 0 ? (
         <p className="text-fg-muted">{t("doneQuietly")}</p>
       ) : run.status === "done" || run.status === "failed" ? (
-        <Answer message={{ role: "assistant", content: run.answer, runId: run.id, code: run.status === "failed" ? (run.code ?? "error") : null, steps: run.steps, at: run.at }} connections={connections} onOpen={onOpen} />
+        <Answer
+          message={{ role: "assistant", content: run.answer, runId: run.id, code: run.status === "failed" ? (run.code ?? "error") : null, steps: run.steps, at: run.at }}
+          ms={run.ms ?? undefined}
+          last={last}
+          connections={connections}
+          onOpen={onOpen}
+        />
       ) : (
-        <>
-          {run.steps.length > 0 && <StepList steps={run.steps} connections={connections} onOpen={onOpen} />}
-          {run.pending ? (
-            <div className="rounded-lg border border-border p-3">
-              <p className="mb-1.5 text-sm">{t("approval")}</p>
-              <ApprovalActions workspaceId={workspaceId} approval={{ runId: run.id, ...run.pending }} onAnswered={onAnswered} />
-            </div>
-          ) : (
-            <p className="flex items-center gap-1.5 text-sm text-fg-muted">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-              {run.status === "pending" ? t("waiting") : run.status === "awaiting_approval" ? t("awaitingOwner") : t("working")}
-            </p>
-          )}
-        </>
+        <LiveTurn
+          workspaceId={workspaceId}
+          runId={run.id}
+          status={run.status}
+          steps={run.steps}
+          pending={run.pending}
+          startedAt={run.at}
+          connections={connections}
+          onOpen={onOpen}
+          onAnswered={onAnswered}
+        />
       )}
     </div>
   );

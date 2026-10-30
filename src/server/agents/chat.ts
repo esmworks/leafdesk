@@ -348,6 +348,7 @@ export async function threadRuns(userId: string, workspaceId: string, agentId: s
             ? { callId: view.pending.callId, tool: view.pending.tool, connectionName: view.pending.connectionName, input: JSON.stringify(view.pending.arguments, null, 2) }
             : null,
         at: view.createdAt,
+        ms: row.finishedAt ? row.finishedAt.getTime() - row.createdAt.getTime() : null,
       };
     }),
   );

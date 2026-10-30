@@ -141,7 +141,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **REST API.** One route table, `API_ROUTES` in `src/server/api/routes.ts` (`defineRoute`); the
   OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`).
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
-  `embed`, `transcribe`, with limits and usage built in. Chat: `ai-chat.ts`; its tools:
+  `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats
+  (`components/agent-chat/agent-chat.tsx`) draw questions, steps and message actions with
+  `components/ai-chat/message-parts.tsx`, so they stay alike. Chat: `ai-chat.ts`; its tools:
   `ai-tools.ts` (writes reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this
   process as the person; `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without

@@ -154,6 +154,8 @@ export type AgentChatRunView = {
   steps: AgentChatStepView[];
   pending: AgentChatTurn["pending"];
   at: string;
+  /** How long it took, from when it was queued to when it ended; null while it goes on. */
+  ms: number | null;
 };
 
 /**

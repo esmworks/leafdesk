@@ -33,6 +33,10 @@
 
 ### Changed
 
+- **Chats with agents look like the AI chat.** On an agent's page, in its Chat tab and in an Agent
+  chat block, questions sit in the same box, the steps of an answer show under a running clock
+  and fold into how long it took, and an answer and a question can be copied, with the time on
+  hover. A chat box in an agent's settings no longer scrolls sideways.
 - **The chat list shows a dot only beside a conversation being answered.** Every conversation in
   the sidebar's chat list had a faint dot; now the place stays empty, and the dot fades in and out
   only while an answer is being written.
