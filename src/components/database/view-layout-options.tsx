@@ -45,10 +45,21 @@ import {
   chartSortOf,
   chartTypeOf,
 } from "@/lib/chart";
-import { GROUP_DATE_BY, groupDateByOf, SECTIONED_VIEWS, subGroupProperty } from "@/lib/grouping";
+import {
+  GROUP_DATE_BY,
+  GROUP_TEXT_BY,
+  groupDateByOf,
+  groupedType,
+  groupNumberFormat,
+  groupTextByOf,
+  isGroupableProperty,
+  isNumberGroupSize,
+  SECTIONED_VIEWS,
+  subGroupProperty,
+  type GroupSettings as ValueSettings,
+} from "@/lib/grouping";
 import {
   columnSortOf,
-  isPivotGroupable,
   PIVOT_AGGREGATE_FNS,
   pivotAggregateFunctionsOf,
   pivotColumnProperty,
@@ -56,7 +67,8 @@ import {
   pivotRowProperty,
 } from "@/lib/pivot";
 import { filterRules } from "@/lib/filters";
-import { boardGroupProperty, isGroupable, isHiddenInView, isSortable } from "@/lib/properties";
+import { isPercent } from "@/lib/number-format";
+import { boardGroupProperty, isHiddenInView, isSortable, TEXT_GROUP_TYPES } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
 import { DEFAULT_LOAD_LIMIT, LOAD_LIMITS, loadLimitOf } from "@/lib/load-limit";
 import { CARD_SIZES, coverProperty, galleryCover, OPEN_ROWS, openRowsOf, opensRows, viewDateProperty, viewPlaceProperty } from "@/lib/views";
@@ -101,7 +113,7 @@ export function ViewLayoutOptions(props: OptionsProps) {
   const groupBy =
     view.type === "board"
       ? boardGroupProperty(viewProperties, config.groupBy)
-      : viewProperties.find((p) => p.id === config.groupBy && isGroupable(p.type));
+      : viewProperties.find((p) => p.id === config.groupBy && isGroupableProperty(p));
   const dateBy = view.type === "calendar" ? viewDateProperty(config, viewProperties) : undefined;
 
   const subPage = (title: string, children: ReactNode) => (
@@ -286,7 +298,7 @@ function GroupChoices({
 }) {
   const t = useTranslations("database.toolbar");
   const config = view.config;
-  const groupProps = properties.filter((p) => isGroupable(p.type));
+  const groupProps = properties.filter((p) => isGroupableProperty(p));
   return (
     <div className="w-60">
       {view.type !== "board" && (
@@ -330,10 +342,12 @@ function GroupSettings({
   onConfig: (config: ViewConfig) => void;
 }) {
   const t = useTranslations("database.group");
-  const dates = prop.type === "date" || holdsTimestamp(prop.type);
+  const type = groupedType(prop);
+  const dates = type === "date" || holdsTimestamp(type);
   return (
     <>
       <MenuSeparator />
+      <ValueGroupSettings prop={prop} settings={config} onChange={(patch) => onConfig({ ...config, ...patch })} narrow />
       {dates && (
         <label className="flex items-center justify-between gap-3 px-2 py-1 text-sm">
           <span className="text-fg-muted">{t("dateBy")}</span>
@@ -823,7 +837,7 @@ function TimelineSettings({
   const groupBy = timelineGroupProperty(view, properties);
   const starts = timelineStartProps(properties);
   const ends = properties.filter((p) => p.type === "date" && p.id !== start?.id);
-  const groupable = properties.filter((p) => isGroupable(p.type));
+  const groupable = properties.filter((p) => isGroupableProperty(p));
   const showTable = view.config.showTable !== false;
   return (
     <>
@@ -885,7 +899,7 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
   const chartType = chartTypeOf(config);
   const groupBy = chartGroupProperty(properties, config);
   const measure = chartMeasure(config, properties);
-  const groupable = properties.filter((p) => isGroupable(p.type));
+  const groupable = properties.filter((p) => isGroupableProperty(p));
   const measurable = properties.filter((p) => chartAggregateFunctionsOf(p).length > 0);
   const accumulable = canAccumulate(chartType, groupBy, measure);
   const accumulate = chartAccumulateOf(config, groupBy, measure);
@@ -894,7 +908,8 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
   const stackBy = stackOptions.find((p) => p.id === config.stackBy);
   const hiddenGroups = config.hiddenGroups ?? [];
   const showsNoValue = !hiddenGroups.includes("");
-  const dates = groupBy && (groupBy.type === "date" || holdsTimestamp(groupBy.type));
+  const groupType = groupBy && groupedType(groupBy);
+  const dates = groupType && (groupType === "date" || holdsTimestamp(groupType));
   const bars = chartType === "bar" || chartType === "horizontal_bar";
 
   const setMeasure = (propertyId: string) => {
@@ -993,6 +1008,7 @@ function ChartSettings({ view, properties, onSet }: { view: View; properties: Pr
           />
         </SettingRow>
       )}
+      {groupBy && <ValueGroupSettings prop={groupBy} settings={config} onChange={onSet} />}
       {measureSettings}
       {calculationSettings}
       {accumulable && (
@@ -1074,9 +1090,9 @@ function PivotSettings({ view, properties, onSet }: { view: View; properties: Pr
   const rowBy = pivotRowProperty(properties, config);
   const columnBy = pivotColumnProperty(properties, config, rowBy);
   const measure = pivotMeasure(config, properties);
-  const groupable = properties.filter(isPivotGroupable);
+  const groupable = properties.filter(isGroupableProperty);
   const measurable = properties.filter((p) => pivotAggregateFunctionsOf(p).length > 0);
-  const datesOf = (p: Property | null) => !!p && (p.type === "date" || holdsTimestamp(p.type));
+  const datesOf = (p: Property | null) => !!p && (groupedType(p) === "date" || holdsTimestamp(groupedType(p)));
 
   const setMeasure = (propertyId: string) => {
     const prop = properties.find((p) => p.id === propertyId);
@@ -1136,6 +1152,7 @@ function PivotSettings({ view, properties, onSet }: { view: View; properties: Pr
       </SettingRow>
       {datesOf(rowBy) && dateBy(groupDateByOf(config), (by) => onSet({ groupDateBy: by }))}
       {rowBy?.type === "status" && statusBy(config.groupStatusBy, (by) => onSet({ groupStatusBy: by }))}
+      {rowBy && <ValueGroupSettings prop={rowBy} settings={config} onChange={onSet} />}
       {sortBy(t("pivot.sort"), chartSortOf(config), (sort) => onSet({ chartSort: sort }))}
       <MenuSeparator />
       <Heading>{t("pivot.columns")}</Heading>
@@ -1150,6 +1167,18 @@ function PivotSettings({ view, properties, onSet }: { view: View; properties: Pr
       </SettingRow>
       {datesOf(columnBy) && dateBy(groupDateByOf({ groupDateBy: config.columnDateBy }), (by) => onSet({ columnDateBy: by }))}
       {columnBy?.type === "status" && statusBy(config.columnStatusBy, (by) => onSet({ columnStatusBy: by }))}
+      {columnBy && (
+        <ValueGroupSettings
+          prop={columnBy}
+          settings={{ groupTextBy: config.columnTextBy, groupNumberBy: config.columnNumberBy }}
+          onChange={(patch) =>
+            onSet({
+              ...("groupTextBy" in patch ? { columnTextBy: patch.groupTextBy } : {}),
+              ...("groupNumberBy" in patch ? { columnNumberBy: patch.groupNumberBy } : {}),
+            })
+          }
+        />
+      )}
       {columnBy && sortBy(t("pivot.sort"), columnSortOf(config), (sort) => onSet({ columnSort: sort }))}
       <MenuSeparator />
       <Heading>{t("pivot.values")}</Heading>
@@ -1181,6 +1210,83 @@ function PivotSettings({ view, properties, onSet }: { view: View; properties: Pr
         {t("group.hideEmpty")}
       </Toggle>
     </>
+  );
+}
+
+/**
+ * How a view groups by text or a number besides the property: text by value or first letter,
+ * numbers in ranges of a width (empty: worked out from the values; a percentage's in percent
+ * points). Nothing for other types. `narrow` fits the group menu's smaller boxes.
+ */
+function ValueGroupSettings({
+  prop,
+  settings,
+  onChange,
+  narrow,
+}: {
+  prop: Property;
+  settings: Pick<ValueSettings, "groupTextBy" | "groupNumberBy">;
+  onChange: (patch: Pick<ViewConfig, "groupTextBy" | "groupNumberBy">) => void;
+  narrow?: boolean;
+}) {
+  const t = useTranslations("database.group");
+  const type = groupedType(prop);
+  if (TEXT_GROUP_TYPES.has(type)) {
+    return (
+      <SettingRow label={t("textBy")}>
+        <NativeSelect
+          label={t("textBy")}
+          value={groupTextByOf(settings)}
+          onChange={(v) => onChange({ groupTextBy: v === "letter" ? "letter" : undefined })}
+          options={GROUP_TEXT_BY.map((by) => ({ value: by, label: t(`textByOptions.${by}`) }))}
+          className={narrow ? "w-28" : "w-36"}
+        />
+      </SettingRow>
+    );
+  }
+  if (type !== "number") return null;
+  const scale = isPercent(groupNumberFormat(prop)) ? 100 : 1;
+  return (
+    <SettingRow label={t("numberBy")}>
+      <RangeWidth
+        // A new property or a change from elsewhere starts the box over.
+        key={`${prop.id}:${settings.groupNumberBy ?? ""}`}
+        value={isNumberGroupSize(settings.groupNumberBy) ? settings.groupNumberBy * scale : null}
+        onChange={(width) => onChange({ groupNumberBy: width === null ? undefined : width / scale })}
+        className={narrow ? "w-24" : "w-36"}
+      />
+    </SettingRow>
+  );
+}
+
+/** A number ranges' width, saved when the box is left or Enter is pressed; empty means automatic. */
+function RangeWidth({ value, onChange, className }: { value: number | null; onChange: (width: number | null) => void; className: string }) {
+  const t = useTranslations("database.group");
+  const [draft, setDraft] = useState(value === null ? "" : String(value));
+  const save = () => {
+    const width = draft.trim() === "" ? null : Number(draft);
+    if (width !== null && !isNumberGroupSize(width)) return setDraft(value === null ? "" : String(value));
+    if (width !== value) onChange(width);
+  };
+  return (
+    <input
+      type="number"
+      inputMode="decimal"
+      min={0}
+      step="any"
+      aria-label={t("numberBy")}
+      placeholder={t("numberByAuto")}
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={save}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") save();
+      }}
+      className={cn(
+        "h-7 min-w-0 rounded-md border border-border bg-bg px-1.5 text-sm outline-none placeholder:text-fg-faint focus:border-accent",
+        className,
+      )}
+    />
   );
 }
 

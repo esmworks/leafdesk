@@ -136,7 +136,7 @@ export function TimelineView({
   const { start: startProp, end: endProp } = timelineDates(view, properties);
   const groupBy = timelineGroupProperty(view, properties);
   const groupContext = useGroupContext(groupBy ?? undefined);
-  const groupName = useGroupName(groupBy ?? { name: "" });
+  const groupName = useGroupName(groupBy);
   // Created and edited times place bars but can't be changed by dragging them.
   const movable = !readOnly && !!startProp && !isComputed(startProp.type);
   // Without an end property a date stretches into a range of its own.

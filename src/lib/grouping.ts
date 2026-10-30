@@ -1,28 +1,43 @@
-import type { GroupDateBy, PropertyOptions, PropertyType, SelectOption, ViewConfig } from "@/db/schema/app";
+import type { GroupDateBy, GroupTextBy, NumberFormat, PropertyOptions, PropertyType, SelectOption, ViewConfig } from "@/db/schema/app";
+import type { FormulaResultType } from "./formula/types";
 import {
+  groupedType,
   groupRows,
   groupRowsByPerson,
-  isGroupable,
+  isGroupableProperty,
   localDay,
   movePersonValue,
   orderGroups,
   sortStatusOptions,
   statusGroupOf,
+  TEXT_GROUP_TYPES,
   type GroupPerson,
   type RowGroup,
 } from "./properties";
-import { holdsPeople, holdsTimestamp, isComputed, STATUS_GROUPS, type StatusGroup } from "./property-types";
+import { holdsPeople, holdsTimestamp, isComputed, isDerived, STATUS_GROUPS, type StatusGroup } from "./property-types";
+import { isErrorValue, rollupFormat } from "./derived";
+import { formatInFormat, valueFormat, type NumberFormatOptions } from "./number-format";
 import { dateDays, isDay, parseDateValue, shiftDateValue } from "./date-value";
 import { dayNumber } from "./time-zone";
 
 // The board-era helpers live in lib/properties; they are re-exported so grouping has one home.
-export { boardGroupProperty, groupRows, groupRowsByPerson, isGroupable, movePersonValue, orderGroups } from "./properties";
+export { boardGroupProperty, groupedType, groupRows, groupRowsByPerson, isGroupable, isGroupableProperty, movePersonValue, orderGroups } from "./properties";
 export type { GroupPerson, RowGroup };
 
 export const GROUP_DATE_BY = ["day", "week", "month", "quarter", "year"] as const satisfies readonly GroupDateBy[];
 export const DEFAULT_GROUP_DATE_BY: GroupDateBy = "month";
+export const GROUP_TEXT_BY = ["value", "letter"] as const satisfies readonly GroupTextBy[];
+/** Ranges a number grouping makes at most when it works out their size itself. */
+const AUTO_NUMBER_GROUPS = 10;
+/** The group of texts that don't start with a letter (digits, symbols) when grouping by first letter. */
+export const OTHER_LETTER = "#";
 
 export type GroupedProperty = { id: string; type: PropertyType; options: PropertyOptions };
+/** What naming a property's groups needs of it (published pages send no more). */
+export type GroupLabelProperty = {
+  type: PropertyType;
+  options: Pick<PropertyOptions, "number" | "rollup"> & { formula?: { type?: FormulaResultType } };
+};
 export type GroupRelationRow = { id: string; title: string; icon: string | null };
 
 /** What a group stands for; the UI labels groups from this. */
@@ -35,8 +50,12 @@ export type GroupValue =
   /** `start` and `end` are the bucket's first and last day (`YYYY-MM-DD`). */
   | { kind: "date"; by: GroupDateBy; start: string; end: string }
   | { kind: "relation"; row: GroupRelationRow }
-  /** Pivot views group text by its value (see lib/pivot). */
-  | { kind: "text"; text: string };
+  /** Text, url, email and phone values (and text formulas and rollups) as they are. */
+  | { kind: "text"; text: string }
+  /** Texts by their first letter (upper case), or OTHER_LETTER for anything else. */
+  | { kind: "letter"; letter: string }
+  /** Numbers from `start` up to, not including, `end`. */
+  | { kind: "number"; start: number; end: number };
 
 /**
  * A group of rows. `key` is stable for as long as the grouping settings stay the same (option,
@@ -46,7 +65,7 @@ export type GroupValue =
  */
 export type Group<T> = RowGroup<T> & { value: GroupValue };
 
-export type GroupSettings = Pick<ViewConfig, "groupDateBy" | "groupStatusBy">;
+export type GroupSettings = Pick<ViewConfig, "groupDateBy" | "groupStatusBy" | "groupTextBy" | "groupNumberBy">;
 
 /** The view types that group their rows into sections when `groupBy` names a groupable property. */
 export const SECTIONED_VIEWS = new Set(["table", "list", "gallery"]);
@@ -55,14 +74,14 @@ export const SECTIONED_VIEWS = new Set(["table", "list", "gallery"]);
  * A board's sub-group property (ViewConfig subGroupBy): groupable, still there and not the
  * property the columns stand for; null otherwise.
  */
-export function subGroupProperty<P extends { id: string; type: PropertyType }>(
+export function subGroupProperty<P extends { id: string; type: PropertyType; options: PropertyOptions }>(
   properties: P[],
   config: Pick<ViewConfig, "subGroupBy">,
   columns: { id: string } | undefined,
 ): P | null {
   const id = config.subGroupBy;
   if (!id || id === columns?.id) return null;
-  return properties.find((p) => p.id === id && isGroupable(p.type)) ?? null;
+  return properties.find((p) => p.id === id && isGroupableProperty(p)) ?? null;
 }
 
 export type GroupContext = {
@@ -122,6 +141,95 @@ export function groupDateByOf(settings: GroupSettings): GroupDateBy {
   return GROUP_DATE_BY.includes(settings.groupDateBy as GroupDateBy) ? settings.groupDateBy! : DEFAULT_GROUP_DATE_BY;
 }
 
+export function groupTextByOf(settings: GroupSettings): GroupTextBy {
+  return settings.groupTextBy === "letter" ? "letter" : "value";
+}
+
+/** Whether `size` can be a number grouping's range size: a finite number above zero. */
+export function isNumberGroupSize(size: unknown): size is number {
+  return typeof size === "number" && Number.isFinite(size) && size > 0;
+}
+
+/** Rounds away what floating point adds (0.1 * 3 = 0.30000000000000004). */
+const tidy = (n: number) => Number(n.toPrecision(12));
+
+/**
+ * A range size for `values` when the view sets none: 1, 2 or 5 times a power of ten, making at
+ * most AUTO_NUMBER_GROUPS ranges between the smallest and largest value. Whole numbers get whole
+ * ranges. 1 when there is nothing to go by.
+ */
+export function autoNumberGroupSize(values: number[]): number {
+  if (!values.length) return 1;
+  let min = Infinity;
+  let max = -Infinity;
+  for (const v of values) {
+    if (v < min) min = v;
+    if (v > max) max = v;
+  }
+  const span = max - min || Math.abs(max) || 1;
+  const raw = span / AUTO_NUMBER_GROUPS;
+  const power = 10 ** Math.floor(Math.log10(raw));
+  let size = [1, 2, 5, 10].map((m) => tidy(m * power)).find((s) => s >= raw) ?? tidy(10 * power);
+  // Ranges start at multiples of the size, so the values can straddle one range more than their span.
+  while (Math.floor(tidy(max / size)) - Math.floor(tidy(min / size)) + 1 > AUTO_NUMBER_GROUPS) size = nextNiceSize(size);
+  return values.every(Number.isInteger) ? Math.max(1, Math.round(size)) : size;
+}
+
+/** The next of 1, 2, 5, 10, 20, 50… after `size`. */
+function nextNiceSize(size: number) {
+  const power = 10 ** Math.floor(Math.log10(size));
+  const m = Math.round(size / power);
+  return tidy((m === 1 ? 2 : m === 2 ? 5 : 10) * power);
+}
+
+/** The range `value` falls in for ranges of `size` (from zero, below it as well). */
+export function numberRange(value: number, size: number): { start: number; end: number } {
+  const start = tidy(Math.floor(tidy(value / size)) * size);
+  return { start, end: tidy(start + size) };
+}
+
+/** The texts a value groups under: a text, a number as text, or each text of a list (a rollup listing values). */
+function textsOf(value: unknown): string[] {
+  if (typeof value === "string" || typeof value === "number") {
+    const text = String(value).trim();
+    return text ? [text] : [];
+  }
+  if (Array.isArray(value)) return [...new Set(value.flatMap((v) => (typeof v === "string" || typeof v === "number" ? textsOf(v) : [])))];
+  return [];
+}
+
+/** A text's group when grouping by first letter: the letter in upper case, or OTHER_LETTER. */
+export function firstLetter(text: string): string {
+  const first = [...text][0] ?? "";
+  return /\p{L}/u.test(first) ? first.toLocaleUpperCase() : OTHER_LETTER;
+}
+
+/**
+ * The format a number group's ends show in: the property's number format; a rollup's own (a
+ * percentage for shares, none for counts of days).
+ */
+export function groupNumberFormat(prop: GroupLabelProperty): NumberFormat | undefined {
+  if (prop.type !== "rollup") return valueFormat(prop);
+  const kind = rollupFormat(prop.options.rollup?.function);
+  if (kind === "percent") return { format: "percent" };
+  return kind === "number" ? (prop.options.rollup?.number ?? valueFormat(prop)) : undefined;
+}
+
+/**
+ * A number group's name, its ends in the property's format: "₺1,000 – ₺2,000". `number` formats
+ * with Intl in the reader's locale.
+ */
+export function numberGroupName(
+  value: Extract<GroupValue, { kind: "number" }>,
+  prop: GroupLabelProperty,
+  number: (value: number, options: NumberFormatOptions) => string,
+): string {
+  const format = groupNumberFormat(prop);
+  return `${formatInFormat(value.start, format, number)} – ${formatInFormat(value.end, format, number)}`;
+}
+
+const textCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+
 /** Status properties group by stage only when the view asks for it. */
 export function groupsByStatusStage(prop: { type: PropertyType }, settings: GroupSettings) {
   return prop.type === "status" && settings.groupStatusBy === "group";
@@ -140,7 +248,13 @@ const ids = (value: unknown) => (Array.isArray(value) ? value.filter((v): v is s
  * - date, created_time, last_edited_time: one group per day, week (from Monday), month, quarter or year
  *   that has rows, oldest first; timestamps count by `context.dayOf`;
  * - relation: one group per related row linked from any row, in the related database's order; a
- *   row shows under each row it links to. Links to rows the viewer can't see count as no value.
+ *   row shows under each row it links to. Links to rows the viewer can't see count as no value;
+ * - text, url, email, phone: one group per value (trimmed), or with `groupTextBy: "letter"` per
+ *   first letter, in alphabetical order (OTHER_LETTER first); a rollup listing values puts a row
+ *   under each of them;
+ * - number: ranges of `groupNumberBy` (from zero; worked out from the values when unset) that have
+ *   rows, smallest first;
+ * - formula, rollup: as their result type (text, number, date or checkbox); errors count as no value.
  * Row order within each group is kept.
  */
 export function groupRowsBy<T extends { properties: Record<string, unknown> }>(
@@ -150,6 +264,57 @@ export function groupRowsBy<T extends { properties: Record<string, unknown> }>(
   context: GroupContext = {},
 ): Group<T>[] {
   const none = (): Group<T> => ({ key: "", option: null, value: NONE, rows: [] });
+  if (isDerived(prop.type)) {
+    // Errors are no value: a checkbox counts them unchecked, other types put them in the no-value group.
+    const type = groupedType(prop);
+    const cleared = rows.map((row) => (isErrorValue(row.properties[prop.id]) ? { row, values: { ...row.properties, [prop.id]: null } } : null));
+    if (!cleared.some(Boolean)) return groupRowsBy(rows, { ...prop, type }, settings, context);
+    const stand = rows.map((row, i) => (cleared[i] ? { ...row, properties: cleared[i]!.values } : row));
+    const original = new Map(stand.map((s, i) => [s, rows[i]]));
+    return groupRowsBy(stand, { ...prop, type }, settings, context).map((g) => ({ ...g, rows: g.rows.map((r) => original.get(r)!) }));
+  }
+  if (TEXT_GROUP_TYPES.has(prop.type)) {
+    const letters = groupTextByOf(settings) === "letter";
+    const byText = new Map<string, Group<T>>();
+    const empty = none();
+    for (const row of rows) {
+      const keys = [...new Set(textsOf(row.properties[prop.id]).map((text) => (letters ? firstLetter(text) : text)))];
+      if (!keys.length) empty.rows.push(row);
+      for (const key of keys) {
+        let group = byText.get(key);
+        if (!group) {
+          const value: GroupValue = letters ? { kind: "letter", letter: key } : { kind: "text", text: key };
+          byText.set(key, (group = { key, option: null, value, rows: [] }));
+        }
+        group.rows.push(row);
+      }
+    }
+    const rank = (g: Group<T>) => (letters && g.key === OTHER_LETTER ? 0 : 1);
+    return [empty, ...[...byText.values()].sort((a, b) => rank(a) - rank(b) || textCollator.compare(a.key, b.key))];
+  }
+  if (prop.type === "number") {
+    const numbers = rows.map((row) => {
+      const value = row.properties[prop.id];
+      return typeof value === "number" && Number.isFinite(value) ? value : null;
+    });
+    const size = isNumberGroupSize(settings.groupNumberBy)
+      ? settings.groupNumberBy
+      : autoNumberGroupSize(numbers.filter((n): n is number => n !== null));
+    const buckets = new Map<number, Group<T> & { value: { kind: "number" } }>();
+    const empty = none();
+    rows.forEach((row, i) => {
+      const n = numbers[i];
+      if (n === null) {
+        empty.rows.push(row);
+        return;
+      }
+      const { start, end } = numberRange(n, size);
+      let bucket = buckets.get(start);
+      if (!bucket) buckets.set(start, (bucket = { key: String(start), option: null, value: { kind: "number", start, end }, rows: [] }));
+      bucket.rows.push(row);
+    });
+    return [empty, ...[...buckets.values()].sort((a, b) => a.value.start - b.value.start)];
+  }
   if (prop.type === "select" || (prop.type === "status" && !groupsByStatusStage(prop, settings))) {
     return groupRows(rows, prop).map((g) => ({ ...g, value: g.option ? { kind: "option", option: g.option } : NONE }));
   }
@@ -247,7 +412,7 @@ export function arrangeGroups<G extends Group<unknown>>(
  * options has nothing to set.
  */
 export function groupTarget(prop: GroupedProperty, group: Pick<Group<unknown>, "value">): string | null | undefined {
-  if (isComputed(prop.type)) return undefined;
+  if (isComputed(prop.type) || isDerived(prop.type)) return undefined;
   const value = group.value;
   switch (value.kind) {
     case "none":
@@ -267,6 +432,10 @@ export function groupTarget(prop: GroupedProperty, group: Pick<Group<unknown>, "
       return value.row.id;
     case "text":
       return value.text;
+    case "letter":
+    case "number":
+      // A letter or a range stands for many values: none of them is the one to give.
+      return undefined;
   }
 }
 
@@ -307,7 +476,9 @@ export function canAddToGroup(
   group: Pick<Group<unknown>, "key" | "value">,
   { viewerId, today }: { viewerId?: string | null; today?: string | null } = {},
 ) {
-  if (!isComputed(prop.type)) return group.value.kind !== "status_group" || groupTarget(prop, group) !== undefined;
+  // A formula or rollup is worked out: a new row has no result yet.
+  if (isDerived(prop.type)) return group.value.kind === "none";
+  if (!isComputed(prop.type)) return groupTarget(prop, group) !== undefined;
   const value = group.value;
   if (holdsTimestamp(prop.type)) return value.kind === "date" && !!today && value.start <= today && today <= value.end;
   return value.kind === "person" && group.key === viewerId;

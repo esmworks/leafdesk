@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { useToggleAllGroups } from "@/components/toggle-all";
-import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, isGroupable, type Group } from "@/lib/grouping";
+import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, isGroupableProperty, type Group } from "@/lib/grouping";
 import { GroupHeader, HiddenGroups, useGroupContext, useGroupName } from "./group-label";
 import { usePeople } from "./person-cell";
 import { usePropertyAccess } from "./property-access";
@@ -33,9 +33,9 @@ export function ViewSections({
   onAdd?: (values: Record<string, unknown>) => void;
   children: (rows: Row[], group: SectionGroup | null) => ReactNode;
 }) {
-  const groupBy = properties.find((p) => p.id === view.config.groupBy && isGroupable(p.type));
+  const groupBy = properties.find((p) => p.id === view.config.groupBy && isGroupableProperty(p));
   const groupContext = useGroupContext(groupBy);
-  const groupName = useGroupName(groupBy ?? { name: "" });
+  const groupName = useGroupName(groupBy);
   const access = usePropertyAccess();
   const { viewerId } = usePeople();
   const today = useToday();

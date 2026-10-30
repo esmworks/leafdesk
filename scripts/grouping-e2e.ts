@@ -2,7 +2,8 @@
  * End-to-end check of grouping against the database: dragging a row to another group (moveRow)
  * sets a sensible value for every groupable type and is validated like any edit, two-way
  * relations follow a move, who created a row and when never change, and grouped views keep their
- * settings. Groups are then built from the stored rows with the same module the UI uses.
+ * settings (text by value or letter, number ranges). Groups are then built from the stored rows
+ * with the same module the UI uses, formulas grouping by their results.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/grouping-e2e.ts
@@ -80,6 +81,9 @@ try {
   const doneBox = await addProperty(ids.owner, tasks.id, { name: "Done", type: "checkbox" });
   const due = await addProperty(ids.owner, tasks.id, { name: "Due", type: "date" });
   const notes = await addProperty(ids.owner, tasks.id, { name: "Notes", type: "text" });
+  const files = await addProperty(ids.owner, tasks.id, { name: "Files", type: "files" });
+  const hours = await addProperty(ids.owner, tasks.id, { name: "Hours", type: "number" });
+  const cost = await addProperty(ids.owner, tasks.id, { name: "Cost", type: "formula", formula: { expression: 'prop("Hours") * 50' } });
   const created = await addProperty(ids.owner, tasks.id, { name: "Created", type: "created_time" });
   const project = await addProperty(ids.owner, tasks.id, {
     name: "Project",
@@ -96,9 +100,9 @@ try {
     workspaceId,
     parentId: tasks.id,
     title: "r1",
-    properties: { Tags: ["Bug", "UI"], Project: [p1.id], Priority: "Low", Due: "2026-09-24" },
+    properties: { Tags: ["Bug", "UI"], Project: [p1.id], Priority: "Low", Due: "2026-09-24", Hours: 3 },
   });
-  const r2 = await createPage(actor, { workspaceId, parentId: tasks.id, title: "r2", properties: { Tags: ["Bug"] } });
+  const r2 = await createPage(actor, { workspaceId, parentId: tasks.id, title: "r2", properties: { Tags: ["Bug"], Hours: 12.5 } });
 
   // Multi-select: the dragged-from option is swapped for the target, the rest stays
   await moveRow(ids.member, r1.id, { groupBy: tags.id, groupFrom: bug.id, groupValue: docs.id });
@@ -164,9 +168,17 @@ try {
     "rows can't be moved between created time groups",
   );
   check(
-    await rejects(() => moveRow(ids.member, r1.id, { groupBy: notes.id, groupValue: "hello" }), "unsupportedType"),
+    await rejects(() => moveRow(ids.member, r1.id, { groupBy: files.id, groupValue: "hello" }), "unsupportedType"),
     "rows can't be moved by a property views don't group by",
   );
+  check(
+    await rejects(() => moveRow(ids.member, r1.id, { groupBy: cost.id, groupValue: "100" }), "unsupportedType"),
+    "rows can't be moved between a formula's groups",
+  );
+
+  // Text: the group's text
+  await moveRow(ids.member, r1.id, { groupBy: notes.id, groupValue: "Waiting on review" });
+  check((await values(r1.id))[notes.id] === "Waiting on review", "a text move gives the row the group's text", await values(r1.id));
   check(
     await rejects(() => moveRow(ids.member, r1.id, { groupBy: "no-such-property", groupValue: "x" }), "unknownProperty"),
     "an unknown grouping property is refused",
@@ -191,12 +203,29 @@ try {
   const r3 = await createPage(actor, { workspaceId, parentId: tasks.id, title: "r3", properties: defaults });
   check(same((await values(r3.id))[tags.id], [bug.id]), "a row added in a group gets the group's value", await values(r3.id));
 
+  // Text, numbers and formulas, as the stored rows group
+  const withValues = await getDatabaseSnapshot(ids.owner, tasks.id);
+  const named = (id: string) => withValues.properties.find((p) => p.id === id)!;
+  const titles = (groups: { key: string; rows: { title: string }[] }[]) => groups.map((g) => [g.key, g.rows.map((r) => r.title)]);
+  const byNotes = groupRowsBy(withValues.rows, named(notes.id));
+  check(same(titles(byNotes), [["", ["r2", "r3"]], ["Waiting on review", ["r1"]]]), "text groups hold each text's rows", titles(byNotes));
+  const byLetter = groupRowsBy(withValues.rows, named(notes.id), { groupTextBy: "letter" });
+  check(same(byLetter.map((g) => g.key), ["", "W"]), "text groups by first letter on request", byLetter.map((g) => g.key));
+  const byHours = groupRowsBy(withValues.rows, named(hours.id), { groupNumberBy: 5 });
+  check(same(titles(byHours), [["", ["r3"]], ["0", ["r1"]], ["10", ["r2"]]]), "numbers group in ranges of the view's width", titles(byHours));
+  const byCost = groupRowsBy(withValues.rows, named(cost.id), { groupNumberBy: 500 });
+  // r3 has no hours, which the formula reads as 0; r2's 12.5 hours cost 625.
+  check(same(titles(byCost), [["", []], ["0", ["r1", "r3"]], ["500", ["r2"]]]), "a number formula groups by its result", titles(byCost));
+  check(groupTarget(named(cost.id), byCost[1]) === undefined, "no formula group gives a row a value");
+
   // Grouped table views keep their settings; deleting the property ungroups them
   const table = await addView(ids.owner, tasks.id, { name: "By week", type: "table" });
   check(table.config.groupBy === undefined, "a new table is not grouped", table.config);
   const config = {
     groupBy: due.id,
     groupDateBy: "week" as const,
+    groupTextBy: "letter" as const,
+    groupNumberBy: 2.5,
     hideEmptyGroups: true,
     collapsedGroups: ["2026-09-21"],
     hiddenGroups: [""],
@@ -205,6 +234,14 @@ try {
   const saved = (await getDatabaseSnapshot(ids.owner, tasks.id)).views.find((v) => v.id === table.id)!;
   const kept = Object.entries(config).every(([key, value]) => same(saved.config[key as keyof typeof config], value));
   check(kept, "a grouped table view keeps its group settings", saved.config);
+  check(
+    await rejects(() => updateView(ids.member, table.id, { config: { ...config, groupNumberBy: -1 } }), "invalidViewConfig"),
+    "a range width must be above zero",
+  );
+  check(
+    await rejects(() => updateView(ids.member, table.id, { config: { ...config, groupTextBy: "word" as never } }), "invalidViewConfig"),
+    "text groups by value or letter only",
+  );
   await deleteProperty(ids.owner, due.id);
   const ungrouped = (await getDatabaseSnapshot(ids.owner, tasks.id)).views.find((v) => v.id === table.id)!;
   check(ungrouped.config.groupBy === undefined, "deleting the grouping property ungroups the view", ungrouped.config);

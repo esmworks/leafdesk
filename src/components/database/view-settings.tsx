@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { ViewConfig, ViewType } from "@/db/schema/app";
-import { isGroupable } from "@/lib/properties";
+import { isGroupableProperty } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
 import { opensRows, viewDateProperty } from "@/lib/views";
 import type { DependencyInput } from "@/lib/dependencies";
@@ -39,7 +39,7 @@ export function timelineDates(view: View, properties: Property[]) {
 
 /** The timeline's swimlane property, when it has one that can still group. */
 export function timelineGroupProperty(view: View, properties: Property[]) {
-  return properties.find((p) => p.id === view.config.groupBy && isGroupable(p.type)) ?? null;
+  return properties.find((p) => p.id === view.config.groupBy && isGroupableProperty(p)) ?? null;
 }
 
 /** Turns dependencies on or off, or changes their settings (see lib/dependencies). */

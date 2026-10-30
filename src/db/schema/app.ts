@@ -909,6 +909,8 @@ export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "fe
 /** Grouping by a date: one group per day, week (Monday to Sunday), month, quarter or year. */
 export type GroupDateBy = "day" | "week" | "month" | "quarter" | "year";
 export type GroupStatusBy = "option" | "group";
+/** Grouping by text (formulas and rollups giving text too): one group per value, or per first letter. */
+export type GroupTextBy = "value" | "letter";
 export type SortRule = { propertyId: string; direction: "asc" | "desc" };
 export type FilterOp =
   | "contains"
@@ -1141,6 +1143,10 @@ export type ViewConfig = {
   columnDateBy?: GroupDateBy;
   /** Pivot views: status grouping of the column property; per option when missing. */
   columnStatusBy?: GroupStatusBy;
+  /** Pivot views: text grouping of the column property; by value when missing. */
+  columnTextBy?: GroupTextBy;
+  /** Pivot views: range size of a number column property (see groupNumberBy). */
+  columnNumberBy?: number;
   /** Pivot views: column order; the grouping's own when missing. */
   columnSort?: ChartSort;
   /** Pivot views: row and column totals and the grand total; shown when missing. */
@@ -1167,6 +1173,13 @@ export type ViewConfig = {
   groupDateBy?: GroupDateBy;
   /** Status grouping: one group per option (the default), or per stage (to do, in progress, done). */
   groupStatusBy?: GroupStatusBy;
+  /** Text grouping (text, url, email, phone, text formulas): by value when missing, or by first letter. */
+  groupTextBy?: GroupTextBy;
+  /**
+   * Number grouping (numbers, number formulas and rollups): how wide each range is, in stored
+   * units (a percentage's fraction, a duration's minutes); worked out from the values when missing.
+   */
+  groupNumberBy?: number;
   /** Board views: what each column header shows: its card count when missing, or a calculation over one property. */
   boardAggregate?: ChartAggregate;
   /** Grouped views (boards, tables, lists, galleries, charts, pivot rows): group order by group key (see lib/grouping), "" for no value. Unlisted groups follow in their natural order. */

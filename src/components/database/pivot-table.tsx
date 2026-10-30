@@ -4,9 +4,8 @@ import { useTranslations } from "next-intl";
 import type { AggregateResult } from "@/lib/aggregate";
 import type { ChartMeasure } from "@/lib/chart";
 import type { PivotCell, PivotData } from "@/lib/pivot";
-import { GroupLabel, useGroupName } from "./group-label";
+import { GroupLabel, useGroupName, type GroupProp } from "./group-label";
 import { useFormatResult } from "./table-calculations";
-import type { Property } from "./types";
 
 const cn = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(" ");
 // lib/pivot's pivotRowCount, kept here so published pages' first load doesn't take in the grouping code.
@@ -32,8 +31,8 @@ export function PivotTable<R>({
   print = false,
 }: {
   data: PivotData<R>;
-  rowBy: Pick<Property, "name" | "type">;
-  columnBy: Pick<Property, "name" | "type"> | null;
+  rowBy: GroupProp;
+  columnBy: GroupProp | null;
   measure: ChartMeasure;
   /** What the cells show, by name: "Count", "Sum of Amount". */
   measureName: string;
@@ -44,7 +43,7 @@ export function PivotTable<R>({
   const t = useTranslations("database");
   const formatResult = useFormatResult();
   const rowName = useGroupName(rowBy);
-  const columnName = useGroupName(columnBy ?? { name: "" });
+  const columnName = useGroupName(columnBy);
   const fn = measure.kind === "count" ? "count_all" : measure.fn;
   // A sum or an average of amounts shows as an amount (currency, decimals); counts stay plain.
   const options = measure.kind === "count" ? undefined : measure.prop.options;

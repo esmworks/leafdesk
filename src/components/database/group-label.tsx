@@ -5,7 +5,7 @@ import { ChevronRight, Ellipsis, Eye, EyeOff, Plus, Square, SquareCheck } from "
 import { useFormatter, useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { cn, MenuItem } from "@/components/ui";
-import type { Group, GroupContext, GroupValue } from "@/lib/grouping";
+import { numberGroupName, type Group, type GroupContext, type GroupLabelProperty, type GroupValue } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import { statusColor } from "@/lib/properties";
 import { timestampDay } from "@/lib/time-zone";
@@ -17,6 +17,9 @@ import type { Property } from "./types";
 import { useViewerTimeZone } from "./use-today";
 
 type AnyGroup = Pick<Group<unknown>, "key" | "value">;
+
+/** What naming a property's groups needs: published pages' properties are enough. */
+export type GroupProp = Pick<Property, "id" | "name"> & GroupLabelProperty;
 
 /**
  * What grouping needs besides the rows: the people and related rows groups stand for, and the
@@ -56,15 +59,16 @@ function useDateGroupName() {
 }
 
 /** A group's name as plain text, for labels and menus. */
-export function useGroupName(prop: Pick<Property, "name">) {
+export function useGroupName(prop: GroupProp | null | undefined) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
+  const format = useFormatter();
   const dateName = useDateGroupName();
   return (group: AnyGroup) => {
     const value = group.value;
     switch (value.kind) {
       case "none":
-        return t("board.noValue", { property: prop.name });
+        return t("board.noValue", { property: prop?.name ?? "" });
       case "option":
         return value.option.name || tc("untitled");
       case "status_group":
@@ -79,12 +83,16 @@ export function useGroupName(prop: Pick<Property, "name">) {
         return pageLabel(value.row.title, tc("untitled"));
       case "text":
         return value.text;
+      case "letter":
+        return value.letter;
+      case "number":
+        return numberGroupName(value, prop ?? { type: "number", options: {} }, (n, options) => format.number(n, options));
     }
   };
 }
 
 /** How a group is titled on board columns, table sections and the hidden groups list. */
-export function GroupLabel({ prop, group, className }: { prop: Pick<Property, "type" | "name">; group: AnyGroup; className?: string }) {
+export function GroupLabel({ prop, group, className }: { prop: GroupProp; group: AnyGroup; className?: string }) {
   const name = useGroupName(prop)(group);
   const value = group.value;
   switch (value.kind) {
@@ -121,7 +129,10 @@ export function GroupLabel({ prop, group, className }: { prop: Pick<Property, "t
         </span>
       );
     case "text":
+    case "letter":
       return <span className={cn("min-w-0 truncate text-sm", className)}>{name}</span>;
+    case "number":
+      return <span className={cn("min-w-0 truncate text-sm tabular-nums", className)}>{name}</span>;
     case "date":
       // Published pages render this on the server, whose date formatting may space ranges
       // differently from the browser's.

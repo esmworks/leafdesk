@@ -326,7 +326,12 @@
     settings, *Duplicate* and *Delete*. Tables, lists and galleries can group their rows into
     sections that fold away, boards always group into columns and can split them into sub-groups
     by a second property (sections across every column; a card dragged into another changes both
-    values), and a board's columns can leave out their option colors (*Color columns*). Filters
+    values), and a board's columns can leave out their option colors (*Color columns*). Besides
+    options, statuses, people, linked rows, checkboxes and dates, views group by text, URLs, emails
+    and phone numbers (each value its own group, or one group per first letter) and by numbers, in
+    ranges of a width you set or one worked out from the values (a histogram, in a chart); formulas
+    and rollups group by what they give. Rows can't be dragged between letter, range or formula
+    groups, since those don't name one value. Filters
     combine with "and"/"or" in groups (nested up to three levels) and take relative dates: today,
     this, last or next week (Monday to Sunday), month or year, and the past or next few days. The
     filters in use show as chips under the view's toolbar: clicking one changes just that filter,
@@ -517,8 +522,8 @@
     or the sum, average, median, smallest or largest of a number, number formula or rollup, in the
     property's number format (a sum of amounts in lira shows in lira). Rows and columns group as
     other views group (options, statuses or their stages, people, linked rows, checkboxes, dates
-    by day, week, month, quarter or year), and by the exact text of a text, URL, email or phone
-    property. Totals at the end of each line, under each column and in the corner count each row
+    by day, week, month, quarter or year, text by value or first letter, numbers in ranges, formulas
+    and rollups by their results); columns take their own text and number settings. Totals at the end of each line, under each column and in the corner count each row
     once, so an average's total is the average of its rows and a row with two tags counts once.
     Lines and columns sort in the grouping's order or by value, groups without rows can be left
     out, and up to 100 columns show. Clicking a cell or a total lists the rows behind it.

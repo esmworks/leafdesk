@@ -44,7 +44,7 @@ import {
 } from "@/lib/filters";
 import { asFiles } from "@/lib/files";
 import { formDefaults, formQuestions, isPublicAskable, type ResolvedQuestion } from "@/lib/forms";
-import { groupDateByOf, type GroupContext, type GroupValue } from "@/lib/grouping";
+import { groupDateByOf, groupedType, groupTextByOf, numberGroupName, type GroupContext, type GroupSettings, type GroupValue } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import {
   CREATED_KEY,
@@ -53,6 +53,7 @@ import {
   isSortable,
   PropertyValueError,
   sortStatusOptions,
+  TEXT_GROUP_TYPES,
   TITLE_KEY,
   UPDATED_KEY,
 } from "@/lib/properties";
@@ -570,8 +571,7 @@ function describePivot(props: PropertyDef[], config: ViewConfig) {
     chart_sort: chartSortOf(config),
     pivot: {
       columns_by: columnBy?.name ?? null,
-      ...(columnBy && (columnBy.type === "date" || holdsTimestamp(columnBy.type)) ? { column_date_by: groupDateByOf(columns) } : {}),
-      ...(columnBy?.type === "status" ? { column_status_by: columns.groupStatusBy === "group" ? "group" : "option" } : {}),
+      ...(columnBy ? describeSettings(columnBy, columns, "column") : {}),
       ...(columnBy ? { column_sort: columnSortOf(config) } : {}),
       show_totals: config.showTotals !== false,
     },
@@ -639,6 +639,11 @@ function chartGroupLabel(prop: PropertyDef, value: GroupValue): string {
       return pageLabel(value.row.title);
     case "text":
       return value.text;
+    case "letter":
+      return value.letter;
+    case "number":
+      // Plain numbers, as row values are given: "1000 – 2000".
+      return numberGroupName(value, { ...prop, options: {} }, (n) => String(n));
     case "date":
       switch (value.by) {
         case "day":
@@ -734,10 +739,20 @@ function describeAutofill(config: AiAutofillConfig, props: PropertyDef[]) {
 /** The grouping settings that apply to how a view groups by `prop`. */
 function describeGrouping(prop: PropertyDef | undefined, config: ViewConfig) {
   return {
-    ...(prop && (prop.type === "date" || holdsTimestamp(prop.type)) ? { group_date_by: groupDateByOf(config) } : {}),
-    ...(prop?.type === "status" ? { group_status_by: config.groupStatusBy === "group" ? "group" : "option" } : {}),
+    ...(prop ? describeSettings(prop, config, "group") : {}),
     ...(config.hideEmptyGroups ? { hide_empty_groups: true } : {}),
   };
+}
+
+/** The settings of grouping by `prop` that apply to its type, named `group_…` or a pivot's `column_…`. */
+function describeSettings(prop: PropertyDef, settings: GroupSettings, prefix: "group" | "column") {
+  const type = groupedType(prop);
+  if (type === "date" || holdsTimestamp(type)) return { [`${prefix}_date_by`]: groupDateByOf(settings) };
+  if (type === "status") return { [`${prefix}_status_by`]: settings.groupStatusBy === "group" ? "group" : "option" };
+  if (TEXT_GROUP_TYPES.has(type)) return { [`${prefix}_text_by`]: groupTextByOf(settings) };
+  // An unset range width is worked out from the values: null says so.
+  if (type === "number") return { [`${prefix}_number_by`]: settings.groupNumberBy ?? null };
+  return {};
 }
 
 /** The caller's level on a restricted property (see server/property-access PropertyAccessInfo). */

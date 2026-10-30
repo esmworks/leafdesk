@@ -174,7 +174,7 @@
     "group": "Regrouper",
     "groupWithName": "Groupe : {name}",
     "groupBy": "Regrouper par",
-    "groupNeedsSelect": "Les vues se regroupent selon une propriété de type sélection, statut, sélection multiple, personne, date, case à cocher ou relation.",
+    "groupNeedsSelect": "Les vues se regroupent selon une propriété de type sélection, statut, sélection multiple, personne, date, case à cocher, relation, texte ou nombre.",
     "newSelectProperty": "Nouvelle propriété de sélection",
     "properties": "Propriétés",
     "shownInView": "Affichées dans cette vue",
@@ -1225,6 +1225,13 @@
       "option": "Option",
       "group": "Groupe de statut"
     },
+    "textBy": "Regrouper le texte par",
+    "textByOptions": {
+      "value": "Valeur",
+      "letter": "Première lettre"
+    },
+    "numberBy": "Largeur des tranches",
+    "numberByAuto": "Automatique",
     "hideEmpty": "Masquer les groupes vides",
     "collapse": "Replier {name}",
     "expand": "Déplier {name}",

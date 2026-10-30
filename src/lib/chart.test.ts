@@ -184,7 +184,7 @@ describe("chartData", () => {
     expect(chart(rows, { stackBy: prop("person") }).series).toEqual([]);
     expect(chart(rows, { stackBy: prop("relation") }).series).toEqual([]);
     expect(isStackable("status") && isStackable("checkbox") && isStackable("created_by")).toBe(true);
-    expect(isStackable("multi_select") || isStackable("text")).toBe(false);
+    expect(isStackable("multi_select") || isStackable("text") || isStackable("number")).toBe(false);
   });
 
   it("folds donut slices past the seven largest into Other", () => {
@@ -342,7 +342,7 @@ describe("chartMeasure", () => {
   it("groups by the property a board would take", () => {
     expect(chartGroupProperty([amount, due, select], {})?.id).toBe("p_select");
     expect(chartGroupProperty([amount, due, select], { groupBy: "p_date" })?.id).toBe("p_date");
-    expect(chartGroupProperty([amount, due, select], { groupBy: "p_number" })?.id).toBe("p_select");
+    expect(chartGroupProperty([amount, due, select], { groupBy: "p_number" })?.id).toBe("p_number");
     expect(chartGroupProperty([amount], {})).toBeNull();
   });
 });

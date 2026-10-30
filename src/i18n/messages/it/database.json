@@ -174,7 +174,7 @@
     "group": "Gruppo",
     "groupWithName": "Gruppo: {name}",
     "groupBy": "Raggruppa per",
-    "groupNeedsSelect": "Le viste raggruppano per una proprietà di tipo selezione, stato, selezione multipla, persona, data, casella di controllo o relazione.",
+    "groupNeedsSelect": "Le viste raggruppano per una proprietà di tipo selezione, stato, selezione multipla, persona, data, casella di controllo, relazione, testo o numero.",
     "newSelectProperty": "Nuova proprietà selezione",
     "properties": "Proprietà",
     "shownInView": "Mostrate in questa vista",
@@ -1225,6 +1225,13 @@
       "option": "Opzione",
       "group": "Gruppo di stato"
     },
+    "textBy": "Raggruppa il testo per",
+    "textByOptions": {
+      "value": "Valore",
+      "letter": "Iniziale"
+    },
+    "numberBy": "Ampiezza degli intervalli",
+    "numberByAuto": "Automatica",
     "hideEmpty": "Nascondi gruppi vuoti",
     "collapse": "Comprimi {name}",
     "expand": "Espandi {name}",

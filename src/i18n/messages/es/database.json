@@ -174,7 +174,7 @@
     "group": "Agrupar",
     "groupWithName": "Agrupar: {name}",
     "groupBy": "Agrupar por",
-    "groupNeedsSelect": "Las vistas se agrupan por una propiedad de selección, estado, selección múltiple, persona, fecha, casilla de verificación o relación.",
+    "groupNeedsSelect": "Las vistas se agrupan por una propiedad de selección, estado, selección múltiple, persona, fecha, casilla de verificación, relación, texto o número.",
     "newSelectProperty": "Nueva propiedad de selección",
     "properties": "Propiedades",
     "shownInView": "Visibles en esta vista",
@@ -1225,6 +1225,13 @@
       "option": "Opción",
       "group": "Grupo de estado"
     },
+    "textBy": "Agrupar texto por",
+    "textByOptions": {
+      "value": "Valor",
+      "letter": "Primera letra"
+    },
+    "numberBy": "Ancho del intervalo",
+    "numberByAuto": "Automático",
     "hideEmpty": "Ocultar grupos vacíos",
     "collapse": "Contraer {name}",
     "expand": "Expandir {name}",

@@ -83,8 +83,12 @@ import { gzipSync } from "node:zlib";
  *
  * The chat box's Thinking picker (beside the model, shown as soon as the box is) adds about 0.3 kB
  * to a page's first load.
+ *
+ * Grouping by text, numbers and formulas (letters, number ranges and their labels, in
+ * lib/grouping.ts, which every table loads) adds about 1 kB to a page's first load and to all
+ * first loads together.
  */
-const BUDGET = { routeFirstLoad: 781, firstLoadShared: 1190, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 783, firstLoadShared: 1192, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

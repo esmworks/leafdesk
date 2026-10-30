@@ -174,7 +174,7 @@
     "group": "Nhóm",
     "groupWithName": "Nhóm: {name}",
     "groupBy": "Nhóm theo",
-    "groupNeedsSelect": "Các chế độ xem nhóm theo thuộc tính lựa chọn, trạng thái, nhiều lựa chọn, người, ngày, hộp kiểm hoặc quan hệ.",
+    "groupNeedsSelect": "Các chế độ xem nhóm theo thuộc tính lựa chọn, trạng thái, nhiều lựa chọn, người, ngày, hộp kiểm, quan hệ, văn bản hoặc số.",
     "newSelectProperty": "Thuộc tính lựa chọn mới",
     "properties": "Thuộc tính",
     "shownInView": "Hiển thị trong chế độ xem này",
@@ -1225,6 +1225,13 @@
       "option": "Tùy chọn",
       "group": "Nhóm trạng thái"
     },
+    "textBy": "Nhóm văn bản theo",
+    "textByOptions": {
+      "value": "Giá trị",
+      "letter": "Chữ cái đầu"
+    },
+    "numberBy": "Độ rộng khoảng",
+    "numberByAuto": "Tự động",
     "hideEmpty": "Ẩn các nhóm trống",
     "collapse": "Thu gọn {name}",
     "expand": "Mở rộng {name}",

@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Views group by text, numbers, formulas and rollups.** Tables, lists, galleries, boards (and
+  their sub-groups), charts and pivots (lines and columns) group by a text, URL, email or phone
+  property, one group per value or per first letter, and by a number in ranges of a width the view
+  sets or one worked out from the values, so a chart by a number is a histogram. A formula or
+  rollup groups by what it gives: text, a number, a date or a checkbox. Over MCP, views take
+  `group_text_by` and `group_number_by`, pivots `column_text_by` and `column_number_by`. No
+  migration.
+
 - **Buttons on rows.** A new Button property puts a button on every row of a database, in tables,
   lists, boards, galleries and the row page. Clicking it runs the automations made for it on that
   row (new trigger *A button is clicked*), as whoever clicked; it takes edit access to the row.

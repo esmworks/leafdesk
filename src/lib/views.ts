@@ -20,7 +20,7 @@ import { CHART_ACCUMULATES, CHART_SORTS, CHART_TYPES, isBoardAggregateFn, isChar
 import { COMPARISONS, DASHBOARD_PERIODS, readDashboardPeriod } from "./dashboard-period-value";
 import { filterConfigError } from "./filters";
 import { formConfigError } from "./forms";
-import { GROUP_DATE_BY } from "./grouping";
+import { GROUP_DATE_BY, GROUP_TEXT_BY, isNumberGroupSize } from "./grouping";
 import { isLoadLimit, LOAD_LIMITS } from "./load-limit";
 import { CREATED_KEY, SELECT_COLORS } from "./properties";
 import { SUB_ITEMS_DISPLAYS } from "./sub-items";
@@ -169,6 +169,12 @@ export function layoutConfigError(config: ViewConfig): string | null {
   }
   if (c.columnStatusBy !== undefined && c.columnStatusBy !== "option" && c.columnStatusBy !== "group") {
     return "columnStatusBy must be option or group";
+  }
+  for (const key of ["groupTextBy", "columnTextBy"] as const) {
+    if (c[key] !== undefined && !(GROUP_TEXT_BY as readonly unknown[]).includes(c[key])) return `${key} must be one of: ${GROUP_TEXT_BY.join(", ")}`;
+  }
+  for (const key of ["groupNumberBy", "columnNumberBy"] as const) {
+    if (c[key] !== undefined && !isNumberGroupSize(c[key])) return `${key} must be a number above zero`;
   }
   if (c.columnSort !== undefined && !CHART_SORTS.includes(c.columnSort as ChartSort)) {
     return `Column sort must be one of: ${CHART_SORTS.join(", ")}`;

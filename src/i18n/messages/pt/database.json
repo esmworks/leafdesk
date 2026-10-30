@@ -174,7 +174,7 @@
     "group": "Agrupar",
     "groupWithName": "Grupo: {name}",
     "groupBy": "Agrupar por",
-    "groupNeedsSelect": "As visualizações agrupam por uma propriedade de seleção, status, seleção múltipla, pessoa, data, caixa de seleção ou relação.",
+    "groupNeedsSelect": "As visualizações agrupam por uma propriedade de seleção, status, seleção múltipla, pessoa, data, caixa de seleção, relação, texto ou número.",
     "newSelectProperty": "Nova propriedade de seleção",
     "properties": "Propriedades",
     "shownInView": "Exibidas nesta visualização",
@@ -1225,6 +1225,13 @@
       "option": "Opção",
       "group": "Grupo de status"
     },
+    "textBy": "Agrupar texto por",
+    "textByOptions": {
+      "value": "Valor",
+      "letter": "Primeira letra"
+    },
+    "numberBy": "Largura do intervalo",
+    "numberByAuto": "Automático",
     "hideEmpty": "Ocultar grupos vazios",
     "collapse": "Recolher {name}",
     "expand": "Expandir {name}",

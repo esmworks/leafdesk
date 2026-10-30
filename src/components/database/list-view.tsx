@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { cn, PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
-import { isGroupable, isHiddenInView } from "@/lib/properties";
+import { isGroupableProperty, isHiddenInView } from "@/lib/properties";
 import type { SubItemLine } from "@/lib/sub-items";
 import { CardTitleInput } from "./card-title-input";
 import { RowMenu } from "./gallery-view";
@@ -86,7 +86,7 @@ export function ListView({
 
   // Long lists draw only the lines near what's visible, as tables do (see useTableWindow). A list
   // in sections draws the lines of its open sections; folding one away is what makes it shorter.
-  const grouped = properties.some((p) => p.id === view.config.groupBy && isGroupable(p.type));
+  const grouped = properties.some((p) => p.id === view.config.groupBy && isGroupableProperty(p));
   const lines = subItems.lines(rows);
   const body = useTableWindow({ start, count: grouped ? 0 : lines.length, estimate: () => LINE_HEIGHT, keyOf: (i) => lines[i].row.id });
   // A new line whose title is being typed is scrolled to once, should it be outside what's drawn.

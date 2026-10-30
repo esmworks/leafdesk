@@ -13,6 +13,7 @@ import {
   boardGroupProperty,
   dateBucket,
   groupDateByOf,
+  numberRange,
   groupRowsBy,
   isGroupable,
   type Group,
@@ -20,6 +21,7 @@ import {
   type GroupedProperty,
   type GroupValue,
 } from "./grouping";
+import { TEXT_GROUP_TYPES } from "./properties";
 import { holdsTimestamp } from "./property-types";
 
 /**
@@ -125,9 +127,17 @@ export function canStack(chartType: ChartType, measure: ChartMeasure) {
 /**
  * Properties a bar can be split by: those holding one value per row, so each row lands in exactly
  * one segment and the segments add up to the bar. A row with two tags would be counted twice.
+ * Free text and numbers have as many values as rows: bars group by them, segments don't.
  */
 export function isStackable(type: PropertyType) {
-  return isGroupable(type) && type !== "multi_select" && type !== "relation" && type !== "person";
+  return (
+    isGroupable(type) &&
+    type !== "multi_select" &&
+    type !== "relation" &&
+    type !== "person" &&
+    type !== "number" &&
+    !TEXT_GROUP_TYPES.has(type)
+  );
 }
 
 /**
@@ -257,7 +267,7 @@ export type ChartInput = {
   measure: ChartMeasure;
   config: Pick<
     ViewConfig,
-    "chartType" | "chartSort" | "chartAccumulate" | "groupDateBy" | "groupStatusBy" | "groupOrder" | "hiddenGroups" | "hideEmptyGroups"
+    "chartType" | "chartSort" | "chartAccumulate" | "groupDateBy" | "groupStatusBy" | "groupTextBy" | "groupNumberBy" | "groupOrder" | "hiddenGroups" | "hideEmptyGroups"
   >;
   context?: GroupContext;
   stackContext?: GroupContext;
@@ -298,6 +308,26 @@ export function fillDateGaps<T>(groups: Group<T>[]): Group<T>[] {
   return [...groups.filter((g) => g.value.kind !== "date"), ...filled];
 }
 
+/**
+ * Number ranges with the empty ones between the first and the last added, so a chart of amounts
+ * reads as a histogram. Left as they are when that would add too many.
+ */
+export function fillNumberGaps<T>(groups: Group<T>[]): Group<T>[] {
+  const ranges = groups.filter((g): g is Group<T> & { value: { kind: "number" } } => g.value.kind === "number");
+  if (ranges.length < 2) return groups;
+  const { start: first, end } = ranges[0].value;
+  const size = end - first;
+  const last = ranges[ranges.length - 1].value.start;
+  const count = Math.round((last - first) / size) + 1;
+  if (count > MAX_FILLED_BUCKETS) return groups;
+  const byKey = new Map(ranges.map((g) => [g.key, g]));
+  const filled = Array.from({ length: count }, (_, i): Group<T> => {
+    const range = numberRange(first + (i + 0.5) * size, size);
+    return byKey.get(String(range.start)) ?? { key: String(range.start), option: null, value: { kind: "number", ...range }, rows: [] };
+  });
+  return [...groups.filter((g) => g.value.kind !== "number"), ...filled];
+}
+
 /** The no-value group goes last on a chart (an axis reads from its first real value) unless the view placed it. */
 function noValueLast<G extends { key: string; value: GroupValue }>(groups: G[], order: string[] | undefined): G[] {
   if (order?.includes("")) return groups;
@@ -319,9 +349,9 @@ function union<T>(lists: T[][]): T[] {
 export function chartData<T extends { properties: Record<string, unknown> }>(rows: T[], input: ChartInput): ChartData<T> {
   const { groupBy, measure, config } = input;
   const chartType = chartTypeOf(config);
-  const settings = { groupDateBy: groupDateByOf(config), groupStatusBy: config.groupStatusBy };
+  const settings = { groupDateBy: groupDateByOf(config), groupStatusBy: config.groupStatusBy, groupTextBy: config.groupTextBy, groupNumberBy: config.groupNumberBy };
   let grouped = groupRowsBy(rows, groupBy, settings, input.context);
-  if (isDateLike(groupBy.type) && !config.hideEmptyGroups) grouped = fillDateGaps(grouped);
+  if (!config.hideEmptyGroups) grouped = fillNumberGaps(fillDateGaps(grouped));
   const shown = noValueLast(arrangeGroups(grouped, config).shown, config.groupOrder);
   const accumulate = chartAccumulateOf(config, groupBy, measure);
   if (accumulate) return accumulated(grouped, shown, measure, accumulate);
@@ -441,7 +471,7 @@ function accumulated<T extends { properties: Record<string, unknown> }>(
 }
 
 /** The property a chart groups by: the saved one while it can group, else the one a board would take. */
-export function chartGroupProperty<P extends { id: string; type: PropertyType }>(properties: P[], config: Pick<ViewConfig, "groupBy">) {
+export function chartGroupProperty<P extends { id: string; type: PropertyType; options: PropertyOptions }>(properties: P[], config: Pick<ViewConfig, "groupBy">) {
   return boardGroupProperty(properties, config.groupBy) ?? null;
 }
 

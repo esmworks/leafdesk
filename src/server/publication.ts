@@ -3,7 +3,7 @@ import { and, asc, desc, eq, inArray, isNull, notInArray, sql } from "drizzle-or
 import { getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import { databaseProperty, databaseView, page, pagePublication, user, workspace, type CardSize, type PageKind, type ViewConfig, type ViewType } from "@/db/schema";
-import type { ChartAccumulate, ChartType, ColumnAlign, DateOptions, FormulaConfig, PropertyOptions, PropertyType } from "@/db/schema/app";
+import type { ChartAccumulate, ChartType, ColumnAlign, DateOptions, FormulaConfig, PropertyOptions } from "@/db/schema/app";
 import type { AggregateResult } from "@/lib/aggregate";
 import {
   canStack,
@@ -25,7 +25,7 @@ import type { FormulaStyle } from "@/lib/formula";
 import { LIST_WIDGET_ROWS, type DashboardLayout, type DashboardWidget, type WidgetColor, type WidgetSpan } from "@/lib/dashboard";
 import { periodProperty, periodRange, withPeriod, type DashboardPeriod, type DayRange } from "@/lib/dashboard-period";
 import type { EmbedBlockType, LinkedView } from "@/lib/embed-blocks";
-import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupable, SECTIONED_VIEWS, type GroupValue } from "@/lib/grouping";
+import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupableProperty, SECTIONED_VIEWS, type GroupValue } from "@/lib/grouping";
 import { pivotColumnProperty, pivotData, pivotMeasure, pivotRowProperty, withoutPivotRows, type PivotData } from "@/lib/pivot";
 import { parsePageBackground, type PageBackground } from "@/lib/page-background";
 import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/page-style";
@@ -384,7 +384,7 @@ export type PublishedChart = {
   measure: ChartMeasure;
   accumulate: ChartAccumulate | null;
   /** The properties the chart names: what it measures, groups and stacks by. */
-  properties: { id: string; name: string; type: PropertyType }[];
+  properties: PublishedProperty[];
   groupById: string | null;
   stackById: string | null;
   rowCount: number;
@@ -400,7 +400,7 @@ export type PublishedChart = {
 export type PublishedPivot = {
   measure: ChartMeasure;
   /** The properties the pivot names: its rows', columns' and what it measures. */
-  properties: { id: string; name: string; type: PropertyType }[];
+  properties: PublishedProperty[];
   rowById: string | null;
   columnById: string | null;
   totals: boolean;
@@ -1320,7 +1320,7 @@ function publishedChart(config: ViewConfig, properties: DatabaseProperty[], know
     chartType,
     measure,
     accumulate,
-    properties: properties.filter((p) => named.has(p.id)).map(({ id, name, type }) => ({ id, name, type })),
+    properties: properties.filter((p) => named.has(p.id)).map(publishedProperty),
     groupById: groupBy?.id ?? null,
     stackById: stackBy?.id ?? null,
     rowCount: rows.length,
@@ -1344,7 +1344,7 @@ function publishedPivot(config: ViewConfig, properties: DatabaseProperty[], know
   const named = new Set([rowBy?.id, columnBy?.id, measure.kind === "aggregate" ? measure.prop.id : undefined]);
   return {
     measure,
-    properties: properties.filter((p) => named.has(p.id)).map(({ id, name, type }) => ({ id, name, type })),
+    properties: properties.filter((p) => named.has(p.id)).map(publishedProperty),
     rowById: rowBy?.id ?? null,
     columnById: columnBy?.id ?? null,
     totals: config.showTotals !== false,
@@ -1384,7 +1384,7 @@ function publishedGroups(
     view.type === "board"
       ? boardGroupProperty(properties, view.config.groupBy)
       : SECTIONED_VIEWS.has(view.type)
-        ? properties.find((p) => p.id === view.config.groupBy && isGroupable(p.type))
+        ? properties.find((p) => p.id === view.config.groupBy && isGroupableProperty(p))
         : undefined;
   if (!property || PRIVATE_TYPES.has(property.type)) return null;
   const dayOf = (value: unknown) => (typeof value === "string" ? value.slice(0, 10) : null);

@@ -1115,7 +1115,13 @@ export type RowGroup<T> = {
 
 export type GroupPerson = { id: string; name: string; active: boolean; isAgent?: true; agentIcon?: string | null };
 
-/** Property types a view can group by (see lib/grouping for how each one buckets rows). */
+/** Types whose values group as text: by the value itself or its first letter (see lib/grouping). */
+export const TEXT_GROUP_TYPES: ReadonlySet<PropertyType> = new Set(["text", "url", "email", "phone"]);
+
+/**
+ * Value types a view can group by (see lib/grouping for how each one buckets rows). A formula or
+ * rollup groups as its result type: pass `valueType(prop)`, or use isGroupableProperty.
+ */
 export function isGroupable(type: PropertyType) {
   return (
     type === "select" ||
@@ -1124,22 +1130,35 @@ export function isGroupable(type: PropertyType) {
     type === "checkbox" ||
     type === "date" ||
     type === "relation" ||
+    type === "number" ||
+    TEXT_GROUP_TYPES.has(type) ||
     holdsTimestamp(type) ||
     holdsPeople(type)
   );
 }
 
+/** The type a property's values group as: a formula's or rollup's result type, else its own. */
+export function groupedType(prop: { type: PropertyType; options: PropertyOptions }): PropertyType {
+  return derivedType(prop) ?? prop.type;
+}
+
+/** Whether a view can group by the property: formulas and rollups by their result. */
+export function isGroupableProperty(prop: { type: PropertyType; options: PropertyOptions }) {
+  return isGroupable(groupedType(prop));
+}
+
 /**
  * The property a board groups by: the view's choice, else the first select or status, else the
- * first people property, else the first other groupable one.
+ * first people property, else the first other groupable one that has few values (never text or
+ * numbers, which a board picks only when asked).
  */
-export function boardGroupProperty<P extends { id: string; type: PropertyType }>(props: P[], groupBy?: string) {
-  const groupable = props.filter((p) => isGroupable(p.type));
+export function boardGroupProperty<P extends { id: string; type: PropertyType; options: PropertyOptions }>(props: P[], groupBy?: string) {
+  const groupable = props.filter((p) => isGroupableProperty(p));
   return (
     groupable.find((p) => p.id === groupBy) ??
     groupable.find((p) => p.type === "select" || p.type === "status") ??
     groupable.find((p) => holdsPeople(p.type)) ??
-    groupable[0]
+    groupable.find((p) => !isDerived(p.type) && p.type !== "number" && !TEXT_GROUP_TYPES.has(p.type))
   );
 }
 

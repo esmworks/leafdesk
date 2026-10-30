@@ -50,11 +50,11 @@ import { DEPENDENCY_SHIFTS, dependencySettings } from "@/lib/dependencies";
 import { MAX_FORMULA_LENGTH } from "@/lib/formula";
 import { checkNumberFormat, MAX_DECIMALS, MAX_RATING, NUMBER_FORMATS } from "@/lib/number-format";
 import { REMINDER_DAYS, type DateOptionsInput } from "@/lib/date-options";
-import { GROUP_DATE_BY } from "@/lib/grouping";
-import { isPivotGroupable, pivotAggregateFunctionsOf, pivotRowProperty } from "@/lib/pivot";
+import { GROUP_DATE_BY, GROUP_TEXT_BY, groupedType } from "@/lib/grouping";
+import { pivotAggregateFunctionsOf, pivotRowProperty } from "@/lib/pivot";
 import { pageLabel } from "@/lib/labels";
 import { valueText } from "@/lib/row-activity";
-import { isGroupable, SELECT_COLORS, sortStatusOptions, statusColor } from "@/lib/properties";
+import { isGroupableProperty, SELECT_COLORS, sortStatusOptions, statusColor, TEXT_GROUP_TYPES } from "@/lib/properties";
 import { MAX_COLOR_RULES, newColorRuleId } from "@/lib/color-rules";
 import { FILTER_COMBINATORS } from "@/lib/filters";
 import { holdsOptions, holdsTimestamp, STATUS_GROUPS } from "@/lib/property-types";
@@ -447,9 +447,11 @@ const pivotSettingsInput = z
       .string()
       .nullable()
       .optional()
-      .describe("The property whose groups make the columns: any property group_by takes, or a text, url, email or phone property (grouped by value); null for one column of values."),
+      .describe("The property whose groups make the columns: any property group_by takes; null for one column of values."),
     column_date_by: z.enum(GROUP_DATE_BY).optional().describe("Columns by a date, created_time or last_edited_time: per day, week (Mon–Sun), month (default), quarter or year."),
     column_status_by: z.enum(["option", "group"]).optional().describe('Columns by a status: "option" per option (default) or "group" (todo, in_progress, done).'),
+    column_text_by: z.enum(GROUP_TEXT_BY).optional().describe("As group_text_by, for the columns."),
+    column_number_by: z.number().positive().nullable().optional().describe("As group_number_by, for the columns."),
     column_sort: z.enum(CHART_SORTS).optional().describe('"group" keeps the grouping\'s order (default), "value_desc" / "value_asc" by column total.'),
     show_totals: z.boolean().optional().describe("Row and column totals and the grand total (default true)."),
   })
@@ -516,7 +518,7 @@ const viewLayoutInputs = {
   pivot: checked(
     pivotSettingsInput,
     "object",
-    `Pivot only: {columns_by, column_date_by, column_status_by, column_sort, show_totals}; rows are group_by, cells aggregate. ${see("pivots")}`,
+    `Pivot only: {columns_by, column_date_by, column_status_by, column_text_by, column_number_by, column_sort, show_totals}; rows are group_by, cells aggregate. ${see("pivots")}`,
   ).optional(),
   sub_items: z
     .enum(SUB_ITEMS_DISPLAYS)
@@ -638,6 +640,8 @@ type ViewInput = {
   color_columns?: boolean;
   group_date_by?: (typeof GROUP_DATE_BY)[number];
   group_status_by?: "option" | "group";
+  group_text_by?: (typeof GROUP_TEXT_BY)[number];
+  group_number_by?: number | null;
   hide_empty_groups?: boolean;
   date_by?: string;
   end_date_by?: string | null;
@@ -678,12 +682,24 @@ const groupSettingsInput = {
     .enum(["option", "group"])
     .optional()
     .describe('Grouping by a status: "option" per option (default) or "group" (todo, in_progress, done).'),
+  group_text_by: z
+    .enum(GROUP_TEXT_BY)
+    .optional()
+    .describe('Grouping by text: "value" per value (default) or "letter" per first letter.'),
+  group_number_by: z
+    .number()
+    .positive()
+    .nullable()
+    .optional()
+    .describe("Grouping by a number: range width in stored units (a percentage's fraction); null for automatic."),
   hide_empty_groups: z.boolean().optional().describe("Leave out groups without rows."),
 };
 
 const groupSettingsParams = briefly(groupSettingsInput, {
-  group_date_by: "By a date: per day, week, month (default), quarter or year.",
-  group_status_by: 'By a status: per "option" (default) or "group" (stage).',
+  group_date_by: "By a date (month by default).",
+  group_status_by: 'By a status: "group" for stages.',
+  group_text_by: 'By text: "letter" for first letters.',
+  group_number_by: "By a number: range width (null: automatic).",
 });
 
 /** A board's sub-groups and column colors, for create_database_view and update_database_view. */
@@ -806,36 +822,43 @@ function viewConfigPatch(
       patch.groupBy = undefined;
     } else {
       const prop = requireProperty(props, input.group_by);
-      if (type === "pivot" && !isPivotGroupable(prop)) {
-        throw new ToolInputError(`Pivots group rows by what other views group by, or by a text, url, email or phone property; "${prop.name}" is ${prop.type}.`);
+      if (type === "pivot" && !isGroupableProperty(prop)) {
+        throw new ToolInputError(`Pivots group rows by what other views group by; "${prop.name}" is ${prop.type}.`);
       }
-      if (type !== "pivot" && !isGroupable(prop.type)) {
+      if (type !== "pivot" && !isGroupableProperty(prop)) {
         throw new ToolInputError(
-          `Views group by a select, status, multi_select, person, created_by, last_edited_by, checkbox, date, created_time, last_edited_time or relation property; "${prop.name}" is ${prop.type}.`,
+          `Views group by a select, status, multi_select, person, created_by, last_edited_by, checkbox, date, created_time, last_edited_time, relation, text, url, email, phone or number property, or a formula or rollup giving text, a number, a date or a checkbox; "${prop.name}" is ${prop.type}.`,
         );
       }
       if (type === "map" && prop.type !== "select" && prop.type !== "status") {
         throw new ToolInputError(`Maps color their pins by a select or status property; "${prop.name}" is ${prop.type}.`);
       }
       patch.groupBy = prop.id;
-      if (input.group_date_by && prop.type !== "date" && !holdsTimestamp(prop.type)) {
+      const grouped = groupedType(prop);
+      if (input.group_date_by && grouped !== "date" && !holdsTimestamp(grouped)) {
         throw new ToolInputError(`group_date_by only applies when grouping by a date; "${prop.name}" is ${prop.type}.`);
+      }
+      if (input.group_text_by && !TEXT_GROUP_TYPES.has(grouped)) {
+        throw new ToolInputError(`group_text_by only applies when grouping by text; "${prop.name}" is ${prop.type}.`);
+      }
+      if (input.group_number_by != null && grouped !== "number") {
+        throw new ToolInputError(`group_number_by only applies when grouping by a number; "${prop.name}" is ${prop.type}.`);
       }
       if (input.group_status_by && prop.type !== "status") {
         throw new ToolInputError(`group_status_by only applies when grouping by a status; "${prop.name}" is ${prop.type}.`);
       }
     }
   }
-  const groupSettings = input.group_date_by ?? input.group_status_by ?? input.hide_empty_groups;
+  const groupSettings = input.group_date_by ?? input.group_status_by ?? input.group_text_by ?? input.group_number_by ?? input.hide_empty_groups;
   if (groupSettings !== undefined && !grouped) {
-    throw new ToolInputError("group_date_by, group_status_by and hide_empty_groups only apply to board, table, list, gallery, chart and pivot views.");
+    throw new ToolInputError("group_date_by, group_status_by, group_text_by, group_number_by and hide_empty_groups only apply to board, table, list, gallery, chart and pivot views.");
   }
   if (input.sub_group_by !== undefined) {
     only("sub_group_by", "board");
     if (input.sub_group_by === null) patch.subGroupBy = undefined;
     else {
       const prop = requireProperty(props, input.sub_group_by);
-      if (!isGroupable(prop.type)) throw new ToolInputError(`Boards sub-group by the same kinds of property they group by; "${prop.name}" is ${prop.type}.`);
+      if (!isGroupableProperty(prop)) throw new ToolInputError(`Boards sub-group by the same kinds of property they group by; "${prop.name}" is ${prop.type}.`);
       if (prop.id === (patch.groupBy ?? current.groupBy)) throw new ToolInputError(`"${prop.name}" already makes the board's columns.`);
       patch.subGroupBy = prop.id;
     }
@@ -847,6 +870,8 @@ function viewConfigPatch(
   }
   if (input.group_date_by) patch.groupDateBy = input.group_date_by;
   if (input.group_status_by) patch.groupStatusBy = input.group_status_by === "group" ? "group" : undefined;
+  if (input.group_text_by) patch.groupTextBy = input.group_text_by === "letter" ? "letter" : undefined;
+  if (input.group_number_by !== undefined) patch.groupNumberBy = input.group_number_by ?? undefined;
   if (input.hide_empty_groups !== undefined) patch.hideEmptyGroups = input.hide_empty_groups || undefined;
   if (input.date_by !== undefined) {
     only("date_by", "calendar", "timeline");
@@ -1074,16 +1099,17 @@ function pivotConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewC
     if (settings.columns_by === null) patch.columnBy = undefined;
     else {
       const prop = requireProperty(props, settings.columns_by);
-      if (!isPivotGroupable(prop)) {
-        throw new ToolInputError(`Pivot columns group by what group_by takes, or a text, url, email or phone property; "${prop.name}" is ${prop.type}.`);
+      if (!isGroupableProperty(prop)) {
+        throw new ToolInputError(`Pivot columns group by what group_by takes; "${prop.name}" is ${prop.type}.`);
       }
       if (prop.id === pivotRowProperty(props, current)?.id) throw new ToolInputError(`"${prop.name}" already makes the pivot's rows.`);
       patch.columnBy = prop.id;
     }
   }
   const columnBy = props.find((p) => p.id === (settings.columns_by === undefined ? current.columnBy : patch.columnBy));
+  const columnType = columnBy && groupedType(columnBy);
   if (settings.column_date_by !== undefined) {
-    if (!columnBy || (columnBy.type !== "date" && !holdsTimestamp(columnBy.type))) {
+    if (!columnType || (columnType !== "date" && !holdsTimestamp(columnType))) {
       throw new ToolInputError("column_date_by only applies when the columns are by a date, created_time or last_edited_time.");
     }
     patch.columnDateBy = settings.column_date_by === "month" ? undefined : settings.column_date_by;
@@ -1091,6 +1117,14 @@ function pivotConfigPatch(props: PropertyDef[], input: ViewInput, current: ViewC
   if (settings.column_status_by !== undefined) {
     if (columnBy?.type !== "status") throw new ToolInputError("column_status_by only applies when the columns are by a status.");
     patch.columnStatusBy = settings.column_status_by === "group" ? "group" : undefined;
+  }
+  if (settings.column_text_by !== undefined) {
+    if (!columnType || !TEXT_GROUP_TYPES.has(columnType)) throw new ToolInputError("column_text_by only applies when the columns are by text.");
+    patch.columnTextBy = settings.column_text_by === "letter" ? "letter" : undefined;
+  }
+  if (settings.column_number_by !== undefined) {
+    if (columnType !== "number") throw new ToolInputError("column_number_by only applies when the columns are by a number.");
+    patch.columnNumberBy = settings.column_number_by ?? undefined;
   }
   if (settings.column_sort !== undefined) patch.columnSort = settings.column_sort === "group" ? undefined : settings.column_sort;
   if (settings.show_totals !== undefined) patch.showTotals = settings.show_totals ? undefined : false;
@@ -1229,7 +1263,7 @@ async function pdfText(bytes: Buffer): Promise<{ text: string; pages: number } |
 const FILTERS_DOC =
   'List rows of a database with optional filters and sorts. Filters reference properties by name (or "title", "created_at", "updated_at") and use select / status option names as values; all must match unless filter_combinator is "or", and groups ({type: "group", combinator, rules}) mix the two, e.g. Status is Done and (Assignee contains me or Priority is High). Ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of, is_empty, is_not_empty, gt, gte, lt, lte, is_within. Text contains / does_not_contain ignore case. For a relation use contains / not_equals with a related row id or title; for a person, created_by or last_edited_by, contains / not_equals with a user id, email, name or "me". is_any_of / is_none_of take a list: option names on select and status, and on multi_select, relation and people the row holds at least one / none, e.g. {"property": "Status", "op": "is_any_of", "value": ["Todo", "In progress"]}; people lists may include "me". Numbers compare with gt, gte, lt and lte. Dates, created_time and last_edited_time use equals (that day), gt/gte/lt/lte with YYYY-MM-DD, and is_within takes today, {this,last,next}_{week,month,quarter,year} (weeks from Monday), or past_n_days / next_n_days with "days" (both include today), counted from the current date on the server. A range matches when any of its days does; times count on their day in the server time zone. Dates sort by their start. Checklists and files only support is_empty / is_not_empty. Sorting follows the grouping order of a status and the start of a date. Returns property values by name; relations as [{id, title}], people as [{id, name}], checklists as [{text, checked}], files as [{name, url}]. Values the user may not see are left out and named in hidden_properties; properties hidden in every row cannot be filtered or sorted by. Rows come a page at a time (limit, at most 200): when has_more is true, call again with cursor set to next_cursor and the same filters, sorts and view_id to read on, until next_cursor is null; total is how many rows match. properties (names) narrows each row to those values, to keep large reads small. Rows archived on their own are left out unless include_archived is true or view_id names a view that shows them.';
 const VIEWS_DOC =
-  'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "feed" (posts: each row with its body, reactions and comments, newest first unless sorted), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "pivot" (a table of figures by group_by and pivot.columns_by; see leafdesk://docs/pivots), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) or relation (one group per linked row); a row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.';
+  'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "feed" (posts: each row with its body, reactions and comments, newest first unless sorted), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "pivot" (a table of figures by group_by and pivot.columns_by; see leafdesk://docs/pivots), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) relation (one group per linked row), text, url, email, phone (group_text_by) or number (ranges, group_number_by); a formula or rollup as its result. A row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.';
 const VIEW_UPDATE_DOC =
   "Rename a saved view, switch its layout (type) or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, calendar month or week, timeline zoom and table, gallery cards, a form's questions, texts, default values and public link, or a dashboard's widgets (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.";
 const ADD_PROPERTY_DOC =
@@ -1243,7 +1277,7 @@ const WEBHOOK_NOTE =
 const AUTOMATION_STEPS_DOC =
   `Create an automation on a database: when a row is added, a property changes (optionally only to a given value), a date is N days past (optionally only for given status groups), a schedule comes round, or a JSON POST arrives at its address, do steps in order (see actions). set_properties, notify and run_agent can repeat per row an earlier find_rows found. Steps use the trigger and earlier outputs through {{templates}}; properties are named by name or id, people by id, email, name or "me". ${AUTOMATION_NOTE} ${WEBHOOK_NOTE} Call get_database first for names and options; test_automation runs it once.`;
 const PIVOTS_DOC =
-  'A "pivot" view lays the rows out as a table of figures: one line per group of group_by (as other views group: per option, person, linked row, checkbox state, date period or status stage; a pivot also groups text, url, email and phone values by their exact text), one column per group of pivot.columns_by (or a single column without it), each cell what aggregate measures over the rows in both: "count" (default) or sum, average, median, min or max of aggregate_property, a number or a number formula or rollup. A row with several tags, people or linked rows counts in each of their groups. Totals (pivot.show_totals, on by default) measure the rows they cover, each once, so an average\'s total is the average of its rows and a sum keeps to its values\' decimals. group_date_by, group_status_by, hide_empty_groups (both axes) and chart_sort shape the rows; pivot.column_date_by (day, week, month, quarter or year), column_status_by and column_sort the columns. Filters choose the rows as in any view. Up to 100 columns show; group dates by a longer period for more. query_database with a pivot view\'s view_id returns its table under pivot. Published pages, print, PDFs and the view\'s CSV download show the same table.';
+  'A "pivot" view lays the rows out as a table of figures: one line per group of group_by (as other views group), one column per group of pivot.columns_by (or a single column without it), each cell what aggregate measures over the rows in both: "count" (default) or sum, average, median, min or max of aggregate_property, a number or a number formula or rollup. A row with several tags, people or linked rows counts in each of their groups. Totals (pivot.show_totals, on by default) measure the rows they cover, each once, so an average\'s total is the average of its rows and a sum keeps to its values\' decimals. group_date_by, group_status_by, hide_empty_groups (both axes) and chart_sort shape the rows; pivot.column_date_by (day, week, month, quarter or year), column_status_by, column_text_by, column_number_by and column_sort the columns. Filters choose the rows as in any view. Up to 100 columns show; group dates by a longer period for more. query_database with a pivot view\'s view_id returns its table under pivot. Published pages, print, PDFs and the view\'s CSV download show the same table.';
 const DASHBOARDS_DOC =
   `Add a dashboard to the end of a page: a grid of up to ${MAX_WIDGETS} widgets, each showing a database of the workspace through its own view and kept up to date as rows change. A widget is a number (type "chart" with chart_type "number": one aggregate over the rows its filters keep, such as the open deals or the sum of their amounts), a chart (type "chart", the default), a list of rows (type "list") or any other view but a form; its settings work as in create_database_view. Everyone who opens the page sees a widget only if they can open its database, and then only the rows and values they may see. In get_page's Markdown a dashboard is its own line, \`<!-- leafdesk:dashboard <id> -->\`: keep it where the dashboard should stay when you rewrite the page (leaving it out removes the dashboard, and Markdown can't create one). get_page lists the widgets under dashboards; change them with update_dashboard_widget: with widget_id, its title, width, color or view settings (settings you leave out keep their values; a new database_id or type starts its view over), move it with before_widget_id or after_widget_id, or remove it with remove; without widget_id, add a widget at the end, or next to before_widget_id / after_widget_id. The page switches to its full width, which the page menu can turn off. A history snapshot is saved first.
 

@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { canSwitchLayout, layoutDefaults } from "./view-layouts";
 
 const props = [
-  { id: "n", type: "number" as const },
-  { id: "s", type: "status" as const },
-  { id: "d", type: "date" as const },
-  { id: "p", type: "place" as const },
+  { id: "n", type: "number" as const, options: {} },
+  { id: "s", type: "status" as const, options: {} },
+  { id: "d", type: "date" as const, options: {} },
+  { id: "p", type: "place" as const, options: {} },
 ];
 
 describe("canSwitchLayout", () => {

@@ -619,7 +619,10 @@ describe("person boards", () => {
     expect(boardGroupProperty([owner, status])?.id).toBe("p_select");
     expect(boardGroupProperty([owner, status], "p_person")?.id).toBe("p_person");
     expect(boardGroupProperty([owner, prop("text")])?.id).toBe("p_person");
-    expect(boardGroupProperty([prop("text")], "p_text")).toBeUndefined();
+    // Text and numbers only when chosen: one column per value is rarely what a new board wants.
+    expect(boardGroupProperty([prop("text"), prop("number")])).toBeUndefined();
+    expect(boardGroupProperty([prop("text")], "p_text")?.id).toBe("p_text");
+    expect(boardGroupProperty([prop("checklist")], "p_checklist")).toBeUndefined();
   });
 
   it("shows a card in each assignee's column and former members only while assigned", () => {

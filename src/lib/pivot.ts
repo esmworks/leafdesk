@@ -1,12 +1,8 @@
 import type { ChartSort, PropertyOptions, PropertyType, ViewConfig } from "@/db/schema/app";
 import type { AggregateFn, AggregateResult } from "./aggregate";
-import { chartAggregateFunctionsOf, CHART_SORTS, fillDateGaps, measureRows, type ChartMeasure } from "./chart";
-import { isErrorValue, valueType } from "./derived";
-import { arrangeGroups, boardGroupProperty, groupRowsBy, type Group, type GroupContext, type GroupSettings } from "./grouping";
-import { groupsByText, isPivotGroupable } from "./pivot-axis";
-import { holdsTimestamp } from "./property-types";
-
-export { isPivotGroupable };
+import { chartAggregateFunctionsOf, CHART_SORTS, fillDateGaps, fillNumberGaps, measureRows, type ChartMeasure } from "./chart";
+import { valueType } from "./derived";
+import { arrangeGroups, boardGroupProperty, groupRowsBy, isGroupableProperty, type Group, type GroupContext, type GroupSettings } from "./grouping";
 
 /**
  * Pivot views: rows grouped by one property (`groupBy`, arranged like a chart's groups) and
@@ -41,13 +37,13 @@ export function pivotMeasure(config: Pick<ViewConfig, "chartAggregate">, propert
 
 /** The property the rows stand for: the saved one while it can group, else the one a board would take. */
 export function pivotRowProperty<P extends PivotProp>(properties: P[], config: Pick<ViewConfig, "groupBy">): P | null {
-  return properties.find((p) => p.id === config.groupBy && isPivotGroupable(p)) ?? boardGroupProperty(properties, config.groupBy) ?? null;
+  return properties.find((p) => p.id === config.groupBy && isGroupableProperty(p)) ?? boardGroupProperty(properties, config.groupBy) ?? null;
 }
 
 /** The property the columns stand for, while it can group and isn't the rows' one; null for none. */
 export function pivotColumnProperty<P extends PivotProp>(properties: P[], config: Pick<ViewConfig, "columnBy">, rows: { id: string } | null): P | null {
   if (!config.columnBy || config.columnBy === rows?.id) return null;
-  return properties.find((p) => p.id === config.columnBy && isPivotGroupable(p)) ?? null;
+  return properties.find((p) => p.id === config.columnBy && isGroupableProperty(p)) ?? null;
 }
 
 export function columnSortOf(config: Pick<ViewConfig, "columnSort">): ChartSort {
@@ -58,37 +54,14 @@ function rowSortOf(config: Pick<ViewConfig, "chartSort">): ChartSort {
   return CHART_SORTS.includes(config.chartSort as ChartSort) ? config.chartSort! : "group";
 }
 
-/** The column property's grouping settings, which the view keeps apart from the rows'. */
-export function columnSettings(config: Pick<ViewConfig, "columnDateBy" | "columnStatusBy">): GroupSettings {
-  return { groupDateBy: config.columnDateBy, groupStatusBy: config.columnStatusBy };
+/** The row property's grouping settings. */
+function rowSettings(config: Pick<ViewConfig, "groupDateBy" | "groupStatusBy" | "groupTextBy" | "groupNumberBy">): GroupSettings {
+  return { groupDateBy: config.groupDateBy, groupStatusBy: config.groupStatusBy, groupTextBy: config.groupTextBy, groupNumberBy: config.groupNumberBy };
 }
 
-/**
- * Groups rows for a pivot: text by its value (trimmed; the no-value group first, then the texts
- * in alphabetical order), anything else as other views group it (lib/grouping groupRowsBy).
- */
-export function pivotGroups<T extends { properties: Record<string, unknown> }>(
-  rows: T[],
-  prop: PivotProp,
-  settings: GroupSettings = {},
-  context: GroupContext = {},
-): Group<T>[] {
-  if (!groupsByText(prop)) return groupRowsBy(rows, prop, settings, context);
-  const none: Group<T> = { key: "", option: null, value: { kind: "none" }, rows: [] };
-  const byText = new Map<string, Group<T>>();
-  for (const row of rows) {
-    const value = row.properties[prop.id];
-    const text = typeof value === "string" || typeof value === "number" ? String(value).trim() : "";
-    if (!text || isErrorValue(value)) {
-      none.rows.push(row);
-      continue;
-    }
-    let group = byText.get(text);
-    if (!group) byText.set(text, (group = { key: text, option: null, value: { kind: "text", text }, rows: [] }));
-    group.rows.push(row);
-  }
-  const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
-  return [none, ...[...byText.values()].sort((a, b) => collator.compare(a.key, b.key))];
+/** The column property's grouping settings, which the view keeps apart from the rows'. */
+export function columnSettings(config: Pick<ViewConfig, "columnDateBy" | "columnStatusBy" | "columnTextBy" | "columnNumberBy">): GroupSettings {
+  return { groupDateBy: config.columnDateBy, groupStatusBy: config.columnStatusBy, groupTextBy: config.columnTextBy, groupNumberBy: config.columnNumberBy };
 }
 
 /** Columns a pivot shows at most; the rest are left out, and counted (PivotData moreColumns). */
@@ -132,10 +105,6 @@ export function pivotRowCount(cell: { rows: unknown[]; count?: number }) {
   return cell.count ?? cell.rows.length;
 }
 
-function isDateLike(type: PropertyType) {
-  return type === "date" || holdsTimestamp(type);
-}
-
 /** The no-value group goes last unless the view placed it (a pivot reads from its first real value). */
 function noValueLast<G extends Pick<Group<unknown>, "value">>(groups: G[], placed: boolean): G[] {
   if (placed) return groups;
@@ -166,16 +135,16 @@ function union<T>(lists: T[][]): T[] {
  */
 export function pivotData<T extends { properties: Record<string, unknown> }>(rows: T[], input: PivotInput): PivotData<T> {
   const { rowBy, columnBy, measure, config } = input;
-  let grouped = pivotGroups(rows, rowBy, { groupDateBy: config.groupDateBy, groupStatusBy: config.groupStatusBy }, input.rowContext);
-  if (isDateLike(rowBy.type) && !config.hideEmptyGroups) grouped = fillDateGaps(grouped);
+  let grouped = groupRowsBy(rows, rowBy, rowSettings(config), input.rowContext);
+  if (!config.hideEmptyGroups) grouped = fillNumberGaps(fillDateGaps(grouped));
   const shown = noValueLast(arrangeGroups(grouped, config).shown, !!config.groupOrder?.includes(""));
   const shownRows = union(shown.map((g) => g.rows));
 
   let columns: (PivotHeader<T> & { members: Set<T> })[] = [];
   let moreColumns = 0;
   if (columnBy) {
-    let columnGroups = pivotGroups(shownRows, columnBy, columnSettings(config), input.columnContext);
-    if (isDateLike(columnBy.type) && !config.hideEmptyGroups) columnGroups = fillDateGaps(columnGroups);
+    let columnGroups = groupRowsBy(shownRows, columnBy, columnSettings(config), input.columnContext);
+    if (!config.hideEmptyGroups) columnGroups = fillNumberGaps(fillDateGaps(columnGroups));
     const kept = noValueLast(
       columnGroups.filter((g) => g.rows.length > 0 || (g.value.kind !== "none" && !config.hideEmptyGroups)),
       false,

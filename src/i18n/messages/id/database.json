@@ -174,7 +174,7 @@
     "group": "Kelompok",
     "groupWithName": "Kelompok: {name}",
     "groupBy": "Kelompokkan menurut",
-    "groupNeedsSelect": "Tampilan dikelompokkan menurut properti pilihan, status, pilihan ganda, orang, tanggal, kotak centang, atau relasi.",
+    "groupNeedsSelect": "Tampilan dikelompokkan menurut properti pilihan, status, pilihan ganda, orang, tanggal, kotak centang, relasi, teks, atau angka.",
     "newSelectProperty": "Properti pilihan baru",
     "properties": "Properti",
     "shownInView": "Ditampilkan di tampilan ini",
@@ -1225,6 +1225,13 @@
       "option": "Opsi",
       "group": "Kelompok status"
     },
+    "textBy": "Kelompokkan teks menurut",
+    "textByOptions": {
+      "value": "Nilai",
+      "letter": "Huruf pertama"
+    },
+    "numberBy": "Lebar rentang",
+    "numberByAuto": "Otomatis",
     "hideEmpty": "Sembunyikan kelompok kosong",
     "collapse": "Ciutkan {name}",
     "expand": "Luaskan {name}",

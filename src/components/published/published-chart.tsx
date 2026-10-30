@@ -18,9 +18,9 @@ export function PublishedChartFigures({ chart, compact = false, print = false }:
   const tc = useTranslations("database.calculate");
   const formatResult = useFormatResult();
   const named = (id: string | null) => chart.properties.find((p) => p.id === id);
-  const groupBy = named(chart.groupById) ?? { name: "" };
+  const groupBy = named(chart.groupById);
   const groupName = useGroupName(groupBy);
-  const seriesName = useGroupName(named(chart.stackById) ?? { name: "" });
+  const seriesName = useGroupName(named(chart.stackById));
   const { measure, data } = chart;
   const fn = measure.kind === "count" ? "count_all" : measure.fn;
   const options = measure.kind === "count" ? undefined : measure.prop.options;
@@ -49,7 +49,7 @@ export function PublishedChartFigures({ chart, compact = false, print = false }:
         <thead>
           <tr className="text-fg-muted">
             <th scope="col" className={cn(cell, "border-t font-normal")}>
-              {groupBy.name}
+              {groupBy?.name}
             </th>
             <th scope="col" className={cn(cell, "border-t border-s text-end font-normal")}>
               {measureName}

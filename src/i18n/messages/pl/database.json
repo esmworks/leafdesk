@@ -174,7 +174,7 @@
     "group": "Grupuj",
     "groupWithName": "Grupowanie: {name}",
     "groupBy": "Grupuj według",
-    "groupNeedsSelect": "Widoki grupują według właściwości typu wybór, status, wielokrotny wybór, osoba, data, pole wyboru lub relacja.",
+    "groupNeedsSelect": "Widoki grupują według właściwości typu wybór, status, wielokrotny wybór, osoba, data, pole wyboru, relacja, tekst lub liczba.",
     "newSelectProperty": "Nowa właściwość wyboru",
     "properties": "Właściwości",
     "shownInView": "Wyświetlane w tym widoku",
@@ -1225,6 +1225,13 @@
       "option": "Opcja",
       "group": "Grupa statusu"
     },
+    "textBy": "Grupuj tekst według",
+    "textByOptions": {
+      "value": "Wartość",
+      "letter": "Pierwsza litera"
+    },
+    "numberBy": "Szerokość przedziału",
+    "numberByAuto": "Automatycznie",
     "hideEmpty": "Ukryj puste grupy",
     "collapse": "Zwiń {name}",
     "expand": "Rozwiń {name}",

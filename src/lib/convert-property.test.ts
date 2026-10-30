@@ -167,7 +167,8 @@ describe("retypeViewConfig", () => {
     const next = retypeViewConfig(config, "p", "select", { type: "text", options: {} });
     expect(next.filters).toEqual([{ type: "group", combinator: "or", rules: [{ propertyId: "q", op: "is_empty" }] }]);
     expect(next.sorts).toEqual(config.sorts);
-    expect(next.groupBy).toBeUndefined();
+    // Text groups by value: the grouping stays, the old groups' keys (option ids) go.
+    expect(next.groupBy).toBe("p");
     expect(next.groupOrder).toBeUndefined();
     expect(next.collapsedGroups).toBeUndefined();
     expect(next.dateBy).toBeUndefined();

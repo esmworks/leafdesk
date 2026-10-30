@@ -32,7 +32,7 @@ import {
 } from "@/lib/dashboard-period";
 import { formatDateValue } from "@/lib/date-value";
 import { env } from "@/lib/env";
-import type { GroupValue } from "@/lib/grouping";
+import { numberGroupName, type GroupLabelProperty, type GroupValue } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import { calculationFormat, formatInFormat } from "@/lib/number-format";
 import { isReservedEmail } from "@/lib/reserved-emails";
@@ -503,10 +503,10 @@ function ruleSummary({ t, format }: Words, rule: RepeatRule, timeZone: string) {
   return days ? t("settings.agents.schedules.summaryOn", { how, days, time: rule.time, zone }) : t("settings.agents.schedules.summary", { how, time: rule.time, zone });
 }
 
-function groupName({ t, format }: Words, property: string, value: GroupValue) {
+function groupName({ t, format }: Words, prop: GroupLabelProperty & { name: string }, value: GroupValue) {
   switch (value.kind) {
     case "none":
-      return t("database.board.noValue", { property });
+      return t("database.board.noValue", { property: prop.name });
     case "option":
       return value.option.name || t("common.untitled");
     case "status_group":
@@ -519,6 +519,10 @@ function groupName({ t, format }: Words, property: string, value: GroupValue) {
       return pageLabel(value.row.title, t("common.untitled"));
     case "text":
       return value.text;
+    case "letter":
+      return value.letter;
+    case "number":
+      return numberGroupName(value, prop, (n, options) => format.number(n, options));
     case "date": {
       const start = new Date(`${value.start}T00:00:00Z`);
       const end = new Date(`${value.end}T00:00:00Z`);
@@ -591,13 +595,13 @@ function emailWidget(words: Words, emailT: (key: string, values?: Record<string,
       if (data.rowCount === 0) return { ...base, kind: "note", text: emailT(data.period ? "empty" : "allEmpty") };
       const accumulate = chartAccumulateOf(config, groupBy, measure);
       const measured = accumulate ? t(`database.chart.running.${accumulate}`, { measure: measureName }) : measureName;
-      const name = (g: { value: GroupValue; other?: boolean }, prop: string) => (g.other ? emailT("other") : groupName(words, prop, g.value));
+      const name = (g: { value: GroupValue; other?: boolean }, prop: GroupLabelProperty & { name: string }) => (g.other ? emailT("other") : groupName(words, prop, g.value));
       const stacked = data.chart.series.length > 0 && stackBy;
       return {
         ...base,
         kind: "table",
-        head: [groupBy.name, ...(stacked ? data.chart.series.map((s) => name(s, stackBy.name)) : [measured])],
-        rows: data.chart.groups.map((g) => ({ cells: [name(g, groupBy.name), ...(stacked ? g.segments.map((s) => show(s.result)) : [show(g.result)])] })),
+        head: [groupBy.name, ...(stacked ? data.chart.series.map((s) => name(s, stackBy)) : [measured])],
+        rows: data.chart.groups.map((g) => ({ cells: [name(g, groupBy), ...(stacked ? g.segments.map((s) => show(s.result)) : [show(g.result)])] })),
         more: null,
       };
     }

@@ -174,7 +174,7 @@
     "group": "Gruppér",
     "groupWithName": "Gruppe: {name}",
     "groupBy": "Gruppér efter",
-    "groupNeedsSelect": "Visninger grupperer efter en egenskab af typen valg, status, flervalg, person, dato, afkrydsningsfelt eller relation.",
+    "groupNeedsSelect": "Visninger grupperer efter en egenskab af typen valg, status, flervalg, person, dato, afkrydsningsfelt, relation, tekst eller tal.",
     "newSelectProperty": "Ny valgegenskab",
     "properties": "Egenskaber",
     "shownInView": "Vist i denne visning",
@@ -1225,6 +1225,13 @@
       "option": "Mulighed",
       "group": "Statusgruppe"
     },
+    "textBy": "Gruppér tekst efter",
+    "textByOptions": {
+      "value": "Værdi",
+      "letter": "Første bogstav"
+    },
+    "numberBy": "Intervalbredde",
+    "numberByAuto": "Automatisk",
     "hideEmpty": "Skjul tomme grupper",
     "collapse": "Fold {name} sammen",
     "expand": "Fold {name} ud",

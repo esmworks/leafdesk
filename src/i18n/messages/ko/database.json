@@ -174,7 +174,7 @@
     "group": "그룹",
     "groupWithName": "그룹: {name}",
     "groupBy": "그룹화 기준",
-    "groupNeedsSelect": "보기는 선택, 상태, 다중 선택, 사람, 날짜, 체크박스 또는 관계형 속성으로 그룹화할 수 있습니다.",
+    "groupNeedsSelect": "보기는 선택, 상태, 다중 선택, 사람, 날짜, 체크박스, 관계형, 텍스트 또는 숫자 속성으로 그룹화할 수 있습니다.",
     "newSelectProperty": "새 선택 속성",
     "properties": "속성",
     "shownInView": "이 보기에 표시됨",
@@ -1225,6 +1225,13 @@
       "option": "옵션",
       "group": "상태 그룹"
     },
+    "textBy": "텍스트 그룹화 단위",
+    "textByOptions": {
+      "value": "값",
+      "letter": "첫 글자"
+    },
+    "numberBy": "범위 너비",
+    "numberByAuto": "자동",
     "hideEmpty": "빈 그룹 숨기기",
     "collapse": "{name} 접기",
     "expand": "{name} 펼치기",

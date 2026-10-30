@@ -4,7 +4,7 @@ import { dateValueText, parseDateValue } from "./date-value";
 import { isErrorValue, valueType } from "./derived";
 import { asFiles } from "./files";
 import { colorRuleMentions } from "./color-rules";
-import { isPivotGroupable } from "./pivot-axis";
+import { isGroupableProperty } from "./properties";
 import { isPeriodPropertyType, PERIOD_NONE } from "./dashboard-period-value";
 import { asPlace, placeText, readPlaceInput } from "./place";
 import { mapFilterRules } from "./filters";
@@ -362,7 +362,7 @@ export function retypeViewConfig(
     hiddenGroups: regrouped ? undefined : c.hiddenGroups,
     collapsedGroups: regrouped ? undefined : c.collapsedGroups,
     subGroupBy: c.subGroupBy === id && !isGroupable(type) ? undefined : c.subGroupBy,
-    columnBy: c.columnBy === id && !isPivotGroupable(to) ? undefined : c.columnBy,
+    columnBy: c.columnBy === id && !isGroupableProperty(to) ? undefined : c.columnBy,
     collapsedSubGroups: subRegrouped ? undefined : c.collapsedSubGroups,
     dateBy: c.dateBy === id && !dates ? undefined : c.dateBy,
     endDateBy: c.endDateBy === id && !dates ? undefined : c.endDateBy,

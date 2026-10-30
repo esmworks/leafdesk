@@ -16,7 +16,7 @@ import type { RowColors } from "@/lib/color-rules";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
-import { isGroupable, isSortable, moveProperty } from "@/lib/properties";
+import { isGroupableProperty, isSortable, moveProperty } from "@/lib/properties";
 import { isAction, isReadOnlyType } from "@/lib/property-types";
 import { rowButtonLabel } from "@/lib/row-buttons";
 import { opensNewTab } from "@/lib/row-panel";
@@ -157,9 +157,9 @@ export function TableView({
   const access = usePropertyAccess();
   const buttonAutomations = useButtonAutomations();
   // Grouped only when the view asks for it (unlike boards, which always group).
-  const groupBy = properties.find((p) => p.id === view.config.groupBy && isGroupable(p.type));
+  const groupBy = properties.find((p) => p.id === view.config.groupBy && isGroupableProperty(p));
   const groupContext = useGroupContext(groupBy);
-  const groupName = useGroupName(groupBy ?? { name: "" });
+  const groupName = useGroupName(groupBy);
   // Viewers can't save the view, so their collapsing stays on this page; so does what Mod+Alt+T
   // opens or closes (components/toggle-all.ts), for everyone, until a group is clicked.
   const [ownCollapsed, setOwnCollapsed] = useState<string[] | null>(null);
@@ -862,7 +862,7 @@ export function TableView({
                         // A button holds nothing to filter or count by.
                         ...(isAction(p.type) ? { filter: undefined, calculation: undefined } : {}),
                         group:
-                          settingsReadOnly || !isGroupable(p.type) || groupBy?.id === p.id
+                          settingsReadOnly || !isGroupableProperty(p) || groupBy?.id === p.id
                             ? undefined
                             : () => setConfig({ ...view.config, groupBy: p.id }),
                         ungroup: settingsReadOnly || groupBy?.id !== p.id ? undefined : () => setConfig({ ...view.config, groupBy: undefined }),

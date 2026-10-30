@@ -77,8 +77,8 @@ export function BoardView({
   const wrapProperties = view.config.wrapProperties === true;
   const groupContext = useGroupContext(groupBy);
   const subGroupContext = useGroupContext(subGroupBy ?? undefined);
-  const groupName = useGroupName(groupBy ?? { name: "" });
-  const laneName = useGroupName(subGroupBy ?? { name: "" });
+  const groupName = useGroupName(groupBy);
+  const laneName = useGroupName(subGroupBy);
   const [dragId, setDragId] = useState<string | null>(null);
   // The column (and sub-group) a card was picked up from: a card with several people, tags or
   // linked rows shows in each of their columns, and moving it replaces only that column's value.

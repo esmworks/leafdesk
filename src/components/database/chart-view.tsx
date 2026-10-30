@@ -26,7 +26,7 @@ import {
 } from "@/lib/chart";
 import type { GroupValue } from "@/lib/grouping";
 import { SELECT_COLORS, statusColor } from "@/lib/properties";
-import { useGroupContext, useGroupName } from "./group-label";
+import { useGroupContext, useGroupName, type GroupProp } from "./group-label";
 import { GroupRows } from "./group-rows";
 import { useMeasureName } from "./measure-name";
 import { useFormatResult } from "./table-calculations";
@@ -232,8 +232,8 @@ export function Chart<R>({
   workspaceId: string;
   view: Pick<View, "config"> & Partial<View>;
   properties: Pick<Property, "id" | "name">[];
-  groupBy: Pick<Property, "name" | "type">;
-  stackBy: Pick<Property, "name"> | null;
+  groupBy: GroupProp;
+  stackBy: GroupProp | null;
   measure: ChartMeasure;
   data: ChartData<R>;
   renderRows?: (opened: OpenedMark) => ReactNode;
@@ -245,7 +245,7 @@ export function Chart<R>({
   const box = useRef<HTMLDivElement>(null);
   const width = useWidth(box);
   const groupName = useGroupName(groupBy);
-  const seriesName = useGroupName(stackBy ?? { name: "" });
+  const seriesName = useGroupName(stackBy);
   const formatResult = useFormatResult();
   const format = useFormatter();
   const [hover, setHover] = useState<(Target & { x: number; y: number }) | null>(null);

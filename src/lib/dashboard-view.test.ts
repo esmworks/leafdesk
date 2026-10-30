@@ -159,7 +159,7 @@ describe("what widgets say about properties", () => {
   });
 
   it("forgets what a widget said about a property whose new type can't do it", () => {
-    const retyped = retypeViewConfig(dashboard, "status", "select", { type: "text", options: {} });
+    const retyped = retypeViewConfig(dashboard, "status", "select", { type: "files", options: {} });
     expect(retyped.widgets?.[1].view.config.groupBy).toBeUndefined();
     expect(retyped.widgets?.[0]).toEqual(number);
   });

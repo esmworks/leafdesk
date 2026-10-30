@@ -1587,8 +1587,12 @@ describe("update_database_rows", () => {
 
 describe("database views", () => {
   it("validates board grouping before creating the view", async () => {
-    const r = await callTool(writer, "create_database_view", { database_id: "db-1", name: "By notes", type: "board", group_by: "Notes" });
-    expect(r.text).toMatch(/Views group by a select, status, multi_select, .* or relation property; "Notes" is text/);
+    const where = { id: "prop-where", name: "Where", type: "place", options: {} };
+    databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, where] });
+    const r = await callTool(writer, "create_database_view", { database_id: "db-1", name: "By place", type: "board", group_by: "Where" });
+    expect(r.text).toMatch(/Views group by a select, status, multi_select, .* property, or a formula or rollup .*; "Where" is place/);
+    const numbers = await callTool(writer, "create_database_view", { database_id: "db-1", name: "By notes", type: "board", group_by: "Notes", group_number_by: 10 });
+    expect(numbers.text).toMatch(/group_number_by only applies when grouping by a number; "Notes" is text/);
     expect(databases.addView).not.toHaveBeenCalled();
   });
 

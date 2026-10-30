@@ -174,7 +174,7 @@
     "group": "Groeperen",
     "groupWithName": "Groeperen: {name}",
     "groupBy": "Groeperen op",
-    "groupNeedsSelect": "Weergaven groeperen op een eigenschap van het type selectie, status, meervoudige selectie, persoon, datum, selectievakje of relatie.",
+    "groupNeedsSelect": "Weergaven groeperen op een eigenschap van het type selectie, status, meervoudige selectie, persoon, datum, selectievakje, relatie, tekst of getal.",
     "newSelectProperty": "Nieuwe selectie-eigenschap",
     "properties": "Eigenschappen",
     "shownInView": "Getoond in deze weergave",
@@ -1225,6 +1225,13 @@
       "option": "Optie",
       "group": "Statusgroep"
     },
+    "textBy": "Tekst groeperen per",
+    "textByOptions": {
+      "value": "Waarde",
+      "letter": "Eerste letter"
+    },
+    "numberBy": "Breedte van het bereik",
+    "numberByAuto": "Automatisch",
     "hideEmpty": "Lege groepen verbergen",
     "collapse": "{name} samenvouwen",
     "expand": "{name} uitvouwen",

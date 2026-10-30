@@ -174,7 +174,7 @@
     "group": "分组",
     "groupWithName": "分组：{name}",
     "groupBy": "分组依据",
-    "groupNeedsSelect": "视图可按单选、状态、多选、人员、日期、复选框或关联属性分组。",
+    "groupNeedsSelect": "视图可按单选、状态、多选、人员、日期、复选框、关联、文本或数字属性分组。",
     "newSelectProperty": "新建单选属性",
     "properties": "属性",
     "shownInView": "在此视图中显示",
@@ -1225,6 +1225,13 @@
       "option": "选项",
       "group": "状态组"
     },
+    "textBy": "文本分组方式",
+    "textByOptions": {
+      "value": "值",
+      "letter": "首字母"
+    },
+    "numberBy": "区间宽度",
+    "numberByAuto": "自动",
     "hideEmpty": "隐藏空分组",
     "collapse": "收起 {name}",
     "expand": "展开 {name}",

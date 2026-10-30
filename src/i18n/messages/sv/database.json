@@ -174,7 +174,7 @@
     "group": "Gruppera",
     "groupWithName": "Grupp: {name}",
     "groupBy": "Gruppera efter",
-    "groupNeedsSelect": "Vyer grupperas efter en egenskap av typen urval, status, flerval, person, datum, kryssruta eller relation.",
+    "groupNeedsSelect": "Vyer grupperas efter en egenskap av typen urval, status, flerval, person, datum, kryssruta, relation, text eller tal.",
     "newSelectProperty": "Ny urvalsegenskap",
     "properties": "Egenskaper",
     "shownInView": "Visas i den här vyn",
@@ -1225,6 +1225,13 @@
       "option": "Alternativ",
       "group": "Statusgrupp"
     },
+    "textBy": "Gruppera text efter",
+    "textByOptions": {
+      "value": "Värde",
+      "letter": "Första bokstav"
+    },
+    "numberBy": "Intervallbredd",
+    "numberByAuto": "Automatisk",
     "hideEmpty": "Dölj tomma grupper",
     "collapse": "Fäll ihop {name}",
     "expand": "Fäll ut {name}",

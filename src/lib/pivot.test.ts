@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PropertyOptions, PropertyType } from "@/db/schema/app";
-import { pivotColumnProperty, pivotData, pivotGroups, pivotMeasure, pivotRowProperty, withoutPivotRows } from "./pivot";
+import { groupRowsBy } from "./grouping";
+import { pivotColumnProperty, pivotData, pivotMeasure, pivotRowProperty, withoutPivotRows } from "./pivot";
 
 type Prop = { id: string; type: PropertyType; options: PropertyOptions; name: string };
 
@@ -95,9 +96,9 @@ describe("pivotData", () => {
   });
 });
 
-describe("pivotGroups", () => {
+describe("pivot rows by text", () => {
   it("groups text by its trimmed value, in alphabetical order", () => {
-    const groups = pivotGroups(rows, city);
+    const groups = groupRowsBy(rows, city);
     expect(groups.map((g) => [g.key, g.rows.map((r) => r.id)])).toEqual([
       ["", ["4", "5"]],
       ["Ankara", ["2", "3"]],
@@ -108,9 +109,11 @@ describe("pivotGroups", () => {
 
 describe("pivot properties", () => {
   it("falls back for rows and drops a column property that can't group or is the rows'", () => {
-    expect(pivotRowProperty(properties, { groupBy: "amount" })?.id).toBe("customer");
+    expect(pivotRowProperty(properties, { groupBy: "gone" })?.id).toBe("customer");
     expect(pivotRowProperty(properties, { groupBy: "city" })?.id).toBe("city");
-    expect(pivotColumnProperty(properties, { columnBy: "amount" }, customer)).toBeNull();
+    expect(pivotRowProperty(properties, { groupBy: "amount" })?.id).toBe("amount");
+    expect(pivotColumnProperty(properties, { columnBy: "gone" }, customer)).toBeNull();
+    expect(pivotColumnProperty(properties, { columnBy: "amount" }, customer)?.id).toBe("amount");
     expect(pivotColumnProperty(properties, { columnBy: "customer" }, customer)).toBeNull();
     expect(pivotColumnProperty(properties, { columnBy: "date" }, customer)?.id).toBe("date");
   });

@@ -1,8 +1,7 @@
 import { getTranslations } from "next-intl/server";
-import type { PropertyType } from "@/db/schema/app";
 import type { AggregateResult } from "@/lib/aggregate";
 import type { ChartMeasure } from "@/lib/chart";
-import type { GroupValue } from "@/lib/grouping";
+import { numberGroupName, type GroupLabelProperty, type GroupValue } from "@/lib/grouping";
 import { pageLabel } from "@/lib/labels";
 import { calculationFormat, formatInFormat } from "@/lib/number-format";
 import { pivotRowCount, type PivotCell, type PivotData } from "@/lib/pivot";
@@ -63,11 +62,11 @@ export async function pivotTexts(): Promise<PivotTexts> {
 }
 
 /** A group's name, as group-label's useGroupName gives it. */
-function groupName(value: GroupValue, property: string, texts: PivotTexts, locale: string): string {
+function groupName(value: GroupValue, prop: GroupLabelProperty & { name: string }, texts: PivotTexts, locale: string): string {
   const date = (options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(locale, { ...options, timeZone: "UTC" });
   switch (value.kind) {
     case "none":
-      return texts.noValue(property);
+      return texts.noValue(prop.name);
     case "option":
       return value.option.name || texts.untitled;
     case "status_group":
@@ -80,6 +79,10 @@ function groupName(value: GroupValue, property: string, texts: PivotTexts, local
       return pageLabel(value.row.title, texts.untitled);
     case "text":
       return value.text;
+    case "letter":
+      return value.letter;
+    case "number":
+      return numberGroupName(value, prop, (n, options) => new Intl.NumberFormat(locale, options).format(n));
     case "date": {
       const start = new Date(`${value.start}T00:00:00Z`);
       switch (value.by) {
@@ -100,8 +103,8 @@ function groupName(value: GroupValue, property: string, texts: PivotTexts, local
 
 export type PivotShape = {
   data: PivotData<unknown>;
-  rowBy: { name: string; type: PropertyType };
-  columnBy: { name: string; type: PropertyType } | null;
+  rowBy: GroupLabelProperty & { name: string };
+  columnBy: (GroupLabelProperty & { name: string }) | null;
   measure: ChartMeasure;
   /** The measured property's name, when the cells calculate over one. */
   measured?: string;
@@ -129,10 +132,10 @@ export function pivotCells(pivot: PivotShape, texts: PivotTexts, locale: string,
   const columns = columnBy ? data.columns : [];
   const withTotals = totals && columns.length > 0;
   const header = columnBy
-    ? [`${rowBy.name} / ${columnBy.name}`, ...columns.map((c) => groupName(c.value, columnBy.name, texts, locale)), ...(withTotals ? [texts.total] : [])]
+    ? [`${rowBy.name} / ${columnBy.name}`, ...columns.map((c) => groupName(c.value, columnBy, texts, locale)), ...(withTotals ? [texts.total] : [])]
     : [rowBy.name, measureName];
   const cells = data.rows.map((r) => [
-    groupName(r.value, rowBy.name, texts, locale),
+    groupName(r.value, rowBy, texts, locale),
     ...(columnBy ? r.cells.map(cell) : [cell(r.total)]),
     ...(withTotals ? [cell(r.total)] : []),
   ]);

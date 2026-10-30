@@ -174,7 +174,7 @@
     "group": "Ryhmittele",
     "groupWithName": "Ryhmä: {name}",
     "groupBy": "Ryhmittelyperuste",
-    "groupNeedsSelect": "Näkymät ryhmitellään valinta-, tila-, monivalinta-, henkilö-, päivämäärä-, valintaruutu- tai relaatio-ominaisuuden mukaan.",
+    "groupNeedsSelect": "Näkymät ryhmitellään valinta-, tila-, monivalinta-, henkilö-, päivämäärä-, valintaruutu-, relaatio-, teksti- tai numero-ominaisuuden mukaan.",
     "newSelectProperty": "Uusi valintaominaisuus",
     "properties": "Ominaisuudet",
     "shownInView": "Näkyvissä tässä näkymässä",
@@ -1225,6 +1225,13 @@
       "option": "Vaihtoehto",
       "group": "Tilaryhmä"
     },
+    "textBy": "Ryhmittele teksti",
+    "textByOptions": {
+      "value": "Arvo",
+      "letter": "Alkukirjain"
+    },
+    "numberBy": "Välin leveys",
+    "numberByAuto": "Automaattinen",
     "hideEmpty": "Piilota tyhjät ryhmät",
     "collapse": "Tiivistä {name}",
     "expand": "Laajenna {name}",

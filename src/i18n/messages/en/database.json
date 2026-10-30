@@ -174,7 +174,7 @@
     "group": "Group",
     "groupWithName": "Group: {name}",
     "groupBy": "Group by",
-    "groupNeedsSelect": "Views group by a select, status, multi-select, person, date, checkbox or relation property.",
+    "groupNeedsSelect": "Views group by a select, status, multi-select, person, date, checkbox, relation, text or number property.",
     "newSelectProperty": "New select property",
     "properties": "Properties",
     "shownInView": "Shown in this view",
@@ -1225,6 +1225,13 @@
       "option": "Option",
       "group": "Status group"
     },
+    "textBy": "Group text by",
+    "textByOptions": {
+      "value": "Value",
+      "letter": "First letter"
+    },
+    "numberBy": "Range width",
+    "numberByAuto": "Automatic",
     "hideEmpty": "Hide empty groups",
     "collapse": "Collapse {name}",
     "expand": "Expand {name}",

@@ -228,6 +228,8 @@ const PART_OF: Partial<Record<keyof ViewConfig, ViewPart>> = {
   subGroupBy: "groups",
   groupDateBy: "groups",
   groupStatusBy: "groups",
+  groupTextBy: "groups",
+  groupNumberBy: "groups",
   groupOrder: "groups",
   hiddenGroups: "groups",
   hideEmptyGroups: "groups",

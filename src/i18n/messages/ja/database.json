@@ -174,7 +174,7 @@
     "group": "グループ",
     "groupWithName": "グループ：{name}",
     "groupBy": "グループ化",
-    "groupNeedsSelect": "ビューは、セレクト、ステータス、マルチセレクト、ユーザー、日付、チェックボックス、リレーションのプロパティでグループ化できます。",
+    "groupNeedsSelect": "ビューは、セレクト、ステータス、マルチセレクト、ユーザー、日付、チェックボックス、リレーション、テキスト、数値のプロパティでグループ化できます。",
     "newSelectProperty": "新しいセレクトプロパティ",
     "properties": "プロパティ",
     "shownInView": "このビューに表示",
@@ -1225,6 +1225,13 @@
       "option": "オプション",
       "group": "ステータスグループ"
     },
+    "textBy": "テキストのグループ化単位",
+    "textByOptions": {
+      "value": "値",
+      "letter": "頭文字"
+    },
+    "numberBy": "範囲の幅",
+    "numberByAuto": "自動",
     "hideEmpty": "空のグループを非表示",
     "collapse": "{name}を折りたたむ",
     "expand": "{name}を展開",

@@ -1,4 +1,4 @@
-import type { PropertyType, ViewConfig, ViewType } from "@/db/schema/app";
+import type { PropertyOptions, PropertyType, ViewConfig, ViewType } from "@/db/schema/app";
 import { chartGroupProperty } from "./chart";
 import { ROW_VIEW_TYPES } from "./views";
 
@@ -18,7 +18,7 @@ export function canSwitchLayout(from: ViewType, to: ViewType): boolean {
  * groups, a pivot's rows and columns (the first date across, by month). A new view starts with these, and a view switched to another layout gets them, keeping
  * whatever it already says.
  */
-export function layoutDefaults(type: ViewType, properties: readonly { id: string; type: PropertyType }[], config: ViewConfig): ViewConfig {
+export function layoutDefaults(type: ViewType, properties: readonly { id: string; type: PropertyType; options: PropertyOptions }[], config: ViewConfig): ViewConfig {
   const first = (...types: PropertyType[]) => properties.find((p) => types.includes(p.type))?.id;
   if (type === "board" && !config.groupBy) return { groupBy: first("select", "status") };
   if ((type === "calendar" || type === "timeline") && !config.dateBy) return { dateBy: first("date") };

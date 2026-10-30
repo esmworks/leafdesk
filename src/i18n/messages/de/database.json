@@ -174,7 +174,7 @@
     "group": "Gruppieren",
     "groupWithName": "Gruppiert: {name}",
     "groupBy": "Gruppieren nach",
-    "groupNeedsSelect": "Ansichten lassen sich nach einer Eigenschaft vom Typ Auswahl, Status, Mehrfachauswahl, Person, Datum, Kontrollkästchen oder Relation gruppieren.",
+    "groupNeedsSelect": "Ansichten lassen sich nach einer Eigenschaft vom Typ Auswahl, Status, Mehrfachauswahl, Person, Datum, Kontrollkästchen, Relation, Text oder Zahl gruppieren.",
     "newSelectProperty": "Neue Auswahl-Eigenschaft",
     "properties": "Eigenschaften",
     "shownInView": "In dieser Ansicht angezeigt",
@@ -1225,6 +1225,13 @@
       "option": "Option",
       "group": "Statusgruppe"
     },
+    "textBy": "Text gruppieren nach",
+    "textByOptions": {
+      "value": "Wert",
+      "letter": "Anfangsbuchstabe"
+    },
+    "numberBy": "Bereichsbreite",
+    "numberByAuto": "Automatisch",
     "hideEmpty": "Leere Gruppen ausblenden",
     "collapse": "{name} einklappen",
     "expand": "{name} ausklappen",

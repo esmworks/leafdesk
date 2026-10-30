@@ -174,7 +174,7 @@
     "group": "Grupla",
     "groupWithName": "Grup: {name}",
     "groupBy": "Grupla",
-    "groupNeedsSelect": "Görünümler seçim, durum, çoklu seçim, kişi, tarih, onay kutusu veya ilişki özelliğine göre gruplanır.",
+    "groupNeedsSelect": "Görünümler seçim, durum, çoklu seçim, kişi, tarih, onay kutusu, ilişki, metin veya sayı özelliğine göre gruplanır.",
     "newSelectProperty": "Yeni seçim özelliği",
     "properties": "Özellikler",
     "shownInView": "Bu görünümde gösterilenler",
@@ -1225,6 +1225,13 @@
       "option": "Seçenek",
       "group": "Durum grubu"
     },
+    "textBy": "Metni grupla",
+    "textByOptions": {
+      "value": "Değer",
+      "letter": "İlk harf"
+    },
+    "numberBy": "Aralık genişliği",
+    "numberByAuto": "Otomatik",
     "hideEmpty": "Boş grupları gizle",
     "collapse": "{name} grubunu daralt",
     "expand": "{name} grubunu genişlet",
