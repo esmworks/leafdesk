@@ -131,6 +131,11 @@
 
 ### Fixed
 
+- **Resolved comments no longer break the page.** Resolving a thread, or opening *Resolved* or
+  *All* in the comments panel, showed "Something went wrong" when the thread was resolved by
+  someone who hadn't written in it (a thread an agent started and a person resolved). The thread
+  now shows at once, and who resolved it shows as soon as their name has loaded.
+
 - **Shortcuts follow the letters on your keyboard, and AltGr types again.** Saving a version,
   presenting, opening or closing every toggle, filling cells down and a table row menu's keys went
   by a key's place on a US keyboard, so on a Turkish F keyboard Ctrl+S was the key labelled İ, and

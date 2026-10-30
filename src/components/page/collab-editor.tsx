@@ -44,6 +44,7 @@ import { formatBytes } from "@/lib/files";
 import { THREADS_MAP, type CommentAnchor } from "@/lib/comments";
 import { CommentComponents, commentEditorSchema } from "./comment-mentions";
 import { CommentsPanel } from "./comments-panel";
+import { KnownResolverThread } from "./known-resolver-thread";
 import { CommentAuth, ServerThreadStore } from "./comment-store";
 import { useColumnSlashItems } from "./columns";
 import { FootnoteList, PageTrailProvider, useContentSlashItems, type TrailCrumb } from "./content-blocks";
@@ -481,7 +482,7 @@ export default function CollabEditor({
               {/* BlockNote's comment UI, with the @ menu for people in its comment boxes. */}
               <CommentComponents pageId={pageId}>
                 <FloatingComposerController />
-                <FloatingThreadController />
+                <FloatingThreadController floatingThread={KnownResolverThread} />
                 {commentsOpen && (
                   <CommentsPanel
                     pageId={pageId}

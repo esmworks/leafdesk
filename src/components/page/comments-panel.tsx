@@ -1,7 +1,7 @@
 "use client";
 
 import { CommentsExtension, type ThreadData } from "@blocknote/core/comments";
-import { Thread, useBlockNoteEditor, useExtension, useExtensionState, useThreads } from "@blocknote/react";
+import { useBlockNoteEditor, useExtension, useExtensionState, useThreads } from "@blocknote/react";
 import { ArrowDownUp, Bell, BellOff, Bookmark, BookmarkX, Check, ChevronDown, Link2, MoreHorizontal, Undo2, UserRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type FocusEvent } from "react";
@@ -23,6 +23,7 @@ import { PROPERTY_COMMENT_EVENT, takePropertyCommentRequest, type PropertyCommen
 import { isAiSuggestion, suggestionAuthor, type Decision } from "@/lib/suggestions";
 import { hasCommentBy, lastActivity, newThreadIds, threadPeople } from "@/lib/thread-activity";
 import { CommentChangeError, propertyNameOf, type ServerThreadStore } from "./comment-store";
+import { KnownResolverThread } from "./known-resolver-thread";
 
 const FILTERS = ["open", "resolved", "marked", "all"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -481,7 +482,7 @@ const SidebarThread = memo(function SidebarThread({
   const tools = { "--thread-tools": `${1.75 + (muted ? 1.5 : 0) + (marked ? 1.5 : 0) + (isNew ? 2.75 : 0)}rem` } as CSSProperties;
   return (
     <div className="comments-thread relative" style={tools}>
-      <Thread
+      <KnownResolverThread
         thread={thread}
         selected={selected}
         orphaned={orphaned}
