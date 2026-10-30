@@ -878,6 +878,7 @@
     "showWeekends": "Näytä viikonloput",
     "showIcons": "Näytä sivujen kuvakkeet",
     "showVerticalLines": "Näytä pystyviivat",
+    "stripedRows": "Vuorottelevat rivivärit",
     "openRows": "Avaa rivit kohteessa",
     "openRowsIn": {
       "panel": "Sivupaneeli",

@@ -878,6 +878,7 @@
     "showWeekends": "Hafta sonlarını göster",
     "showIcons": "Sayfa simgelerini göster",
     "showVerticalLines": "Dikey çizgileri göster",
+    "stripedRows": "Satırları dönüşümlü renklendir",
     "openRows": "Satırları aç",
     "openRowsIn": {
       "panel": "Yan panelde",

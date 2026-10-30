@@ -878,6 +878,7 @@
     "showWeekends": "Hiện cuối tuần",
     "showIcons": "Hiện biểu tượng trang",
     "showVerticalLines": "Hiện đường kẻ dọc",
+    "stripedRows": "Tô màu xen kẽ các hàng",
     "openRows": "Mở các hàng trong",
     "openRowsIn": {
       "panel": "Bảng bên",

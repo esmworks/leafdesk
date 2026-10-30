@@ -878,6 +878,7 @@
     "showWeekends": "Pokazuj weekendy",
     "showIcons": "Pokazuj ikony stron",
     "showVerticalLines": "Pokazuj linie pionowe",
+    "stripedRows": "Naprzemienne kolory wierszy",
     "openRows": "Otwieraj wiersze w",
     "openRowsIn": {
       "panel": "Panel boczny",

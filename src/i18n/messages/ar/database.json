@@ -878,6 +878,7 @@
     "showWeekends": "إظهار عطلات نهاية الأسبوع",
     "showIcons": "إظهار أيقونات الصفحات",
     "showVerticalLines": "إظهار الخطوط العمودية",
+    "stripedRows": "تلوين الصفوف بالتناوب",
     "openRows": "فتح الصفوف في",
     "openRowsIn": {
       "panel": "لوحة جانبية",

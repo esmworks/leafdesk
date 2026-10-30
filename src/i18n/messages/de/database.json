@@ -878,6 +878,7 @@
     "showWeekends": "Wochenenden anzeigen",
     "showIcons": "Seitensymbole anzeigen",
     "showVerticalLines": "Senkrechte Linien anzeigen",
+    "stripedRows": "Zeilen abwechselnd einfärben",
     "openRows": "Zeilen öffnen",
     "openRowsIn": {
       "panel": "Im Seitenbereich",

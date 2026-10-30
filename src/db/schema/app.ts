@@ -1105,6 +1105,8 @@ export type ViewConfig = {
   showTable?: boolean;
   /** Table views: the lines between columns, published tables too; shown when missing. */
   showVerticalLines?: boolean;
+  /** Table views: every other row on a faint shade, published tables too; off when missing. */
+  stripedRows?: boolean;
   /**
    * The row template "New" starts from in this view, over the database's default (see
    * server/templates.ts createRow): a template's id, or null for blank rows. The database's

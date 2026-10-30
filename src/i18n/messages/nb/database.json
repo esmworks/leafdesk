@@ -878,6 +878,7 @@
     "showWeekends": "Vis helger",
     "showIcons": "Vis sideikoner",
     "showVerticalLines": "Vis loddrette linjer",
+    "stripedRows": "Vekslende radfarger",
     "openRows": "Åpne rader i",
     "openRowsIn": {
       "panel": "Sidepanel",

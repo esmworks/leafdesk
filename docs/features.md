@@ -358,7 +358,9 @@
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
     with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
     their cards onto more lines instead of cutting them off (*Wrap all properties*), and a table
-    can leave out the lines between its columns (*Show vertical lines*; published tables too).
+    can leave out the lines between its columns (*Show vertical lines*; published tables too) or
+    put every other row on a faint shade (*Striped rows*; published tables too). The row under the
+    pointer is always lightly shaded.
     A table column's menu → *Alignment* puts its values and its name on the left, in the center or
     on the right of the column, in that view, on published and printed tables and in PDFs.
   - Large databases: a board column and a gallery show 50 cards, then *Load more* adds as many

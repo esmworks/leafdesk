@@ -80,6 +80,11 @@ describe("table lines and a view's own row template", () => {
     expect(layoutConfigError({ showVerticalLines: "no" } as unknown as ViewConfig)).toBe("showVerticalLines must be true or false");
   });
 
+  it("takes striped rows on or off", () => {
+    expect(layoutConfigError({ stripedRows: true })).toBeNull();
+    expect(layoutConfigError({ stripedRows: 1 } as unknown as ViewConfig)).toBe("stripedRows must be true or false");
+  });
+
   it("takes a template id, or null for blank rows", () => {
     expect(layoutConfigError({ defaultTemplateId: "tpl-1" })).toBeNull();
     expect(layoutConfigError({ defaultTemplateId: null })).toBeNull();

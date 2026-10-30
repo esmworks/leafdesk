@@ -878,6 +878,7 @@
     "showWeekends": "Vis weekender",
     "showIcons": "Vis sideikoner",
     "showVerticalLines": "Vis lodrette linjer",
+    "stripedRows": "Skiftende rækkefarver",
     "openRows": "Åbn rækker i",
     "openRowsIn": {
       "panel": "Sidepanel",

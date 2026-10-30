@@ -440,6 +440,8 @@ export type PublishedDatabase = {
   wrap?: true;
   /** Tables: no lines between columns, only between rows. */
   noVerticalLines?: true;
+  /** Tables: every other row on a faint shade. */
+  striped?: true;
   /** Tables: columns whose values sit centered or at the end, by property id (see ViewConfig columnAlign). */
   align?: Record<string, ColumnAlign>;
   /** Charts (layout "chart"). */
@@ -1279,6 +1281,7 @@ export async function publishedDatabase(
     ...((layout === "board" || layout === "gallery") && chosen.config.wrapProperties ? { wrap: true as const } : {}),
     // Tables without lines between their columns (see ViewConfig showVerticalLines).
     ...(layout === "table" && chosen.config.showVerticalLines === false ? { noVerticalLines: true as const } : {}),
+    ...(layout === "table" && chosen.config.stripedRows ? { striped: true as const } : {}),
     ...(layout === "table" && aligned.length ? { align: Object.fromEntries(aligned) } : {}),
     ...periodIgnored,
   };

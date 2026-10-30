@@ -878,6 +878,7 @@
     "showWeekends": "Afficher les week-ends",
     "showIcons": "Afficher les icônes de page",
     "showVerticalLines": "Afficher les lignes verticales",
+    "stripedRows": "Lignes alternées",
     "openRows": "Ouvrir les lignes dans",
     "openRowsIn": {
       "panel": "Panneau latéral",

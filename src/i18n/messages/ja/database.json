@@ -878,6 +878,7 @@
     "showWeekends": "週末を表示",
     "showIcons": "ページアイコンを表示",
     "showVerticalLines": "縦線を表示",
+    "stripedRows": "行を交互に色分け",
     "openRows": "行を開く場所",
     "openRowsIn": {
       "panel": "サイドパネル",

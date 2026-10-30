@@ -878,6 +878,7 @@
     "showWeekends": "Show weekends",
     "showIcons": "Show page icons",
     "showVerticalLines": "Show vertical lines",
+    "stripedRows": "Striped rows",
     "openRows": "Open rows in",
     "openRowsIn": {
       "panel": "Side panel",

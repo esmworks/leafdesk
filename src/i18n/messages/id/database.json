@@ -878,6 +878,7 @@
     "showWeekends": "Tampilkan akhir pekan",
     "showIcons": "Tampilkan ikon halaman",
     "showVerticalLines": "Tampilkan garis vertikal",
+    "stripedRows": "Warnai baris berselang-seling",
     "openRows": "Buka baris di",
     "openRowsIn": {
       "panel": "Panel samping",

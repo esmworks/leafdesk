@@ -584,6 +584,11 @@ function LayoutSettings({
           {t("showVerticalLines")}
         </Toggle>
       )}
+      {view.type === "table" && (
+        <Toggle on={!!config.stripedRows} onChange={(on) => set({ stripedRows: on || undefined })}>
+          {t("stripedRows")}
+        </Toggle>
+      )}
       <Toggle on={!!config.showOutdated} onChange={(on) => set({ showOutdated: on || undefined })}>
         {t("showOutdated")}
       </Toggle>

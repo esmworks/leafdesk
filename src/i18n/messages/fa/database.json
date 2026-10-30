@@ -878,6 +878,7 @@
     "showWeekends": "نمایش آخر هفته‌ها",
     "showIcons": "نمایش نماد صفحه‌ها",
     "showVerticalLines": "نمایش خطوط عمودی",
+    "stripedRows": "رنگ‌آمیزی یک‌درمیان ردیف‌ها",
     "openRows": "باز کردن ردیف‌ها در",
     "openRowsIn": {
       "panel": "پنل کناری",

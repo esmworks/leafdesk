@@ -878,6 +878,7 @@
     "showWeekends": "แสดงวันหยุดสุดสัปดาห์",
     "showIcons": "แสดงไอคอนของหน้า",
     "showVerticalLines": "แสดงเส้นแนวตั้ง",
+    "stripedRows": "สลับสีแถว",
     "openRows": "เปิดแถวใน",
     "openRowsIn": {
       "panel": "แผงด้านข้าง",

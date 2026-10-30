@@ -316,7 +316,7 @@ function Table({ rows, table, href, print }: { rows: PublishedRow[]; table: Publ
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className={cn(table.striped && "[&>tr:nth-child(even)]:bg-bg-subtle")}>
           {rows.map((row) => (
             <tr key={row.id}>
               <td className="border-b border-border px-2 py-1.5 align-top">

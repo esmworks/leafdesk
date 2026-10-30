@@ -878,6 +878,7 @@
     "showWeekends": "Mostra i fine settimana",
     "showIcons": "Mostra le icone delle pagine",
     "showVerticalLines": "Mostra le linee verticali",
+    "stripedRows": "Righe alternate",
     "openRows": "Apri le righe in",
     "openRowsIn": {
       "panel": "Pannello laterale",

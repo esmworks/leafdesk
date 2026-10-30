@@ -208,6 +208,7 @@ export function TableView({
   const nameWidth = phone ? NAME_WIDTH.phone : widthOf(TITLE, NAME_WIDTH.wide);
   const hidden = new Set(view.config.hidden ?? []);
   const showIcons = view.config.showIcons !== false;
+  const striped = !!view.config.stripedRows;
   const visible = properties.filter((p) => !hidden.has(p.id));
   const titleProp = titleProperty(databaseId, t("nameColumn"));
   const sortOf = (id: string) => view.config.sorts?.find((s) => s.propertyId === id)?.direction;
@@ -216,10 +217,15 @@ export function TableView({
   // put while the table scrolls sideways. A hidden freeze column freezes the shown ones before it.
   const box = useRef<HTMLDivElement>(null);
   const [boxWidth, setBoxWidth] = useState(0);
+  // The box's padding before the table (the page's gutter, page-gutter-table), which changes with its width.
+  const [gutter, setGutter] = useState(0);
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    const observer = new ResizeObserver(() => setBoxWidth(el.clientWidth));
+    const observer = new ResizeObserver(() => {
+      setBoxWidth(el.clientWidth);
+      setGutter(parseFloat(getComputedStyle(el).paddingInlineStart) || 0);
+    });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
@@ -254,14 +260,19 @@ export function TableView({
   // Phones, and windows too narrow to leave room to scroll past the frozen columns, ignore it.
   const frozenCount =
     frozenIndex >= 0 && !phone && (!boxWidth || leftOf(frozenIndex + 1) <= boxWidth - MIN_SCROLL_ROOM) ? frozenIndex + 1 : 0;
-  /** Position and look of column `i` (-1: the row controls) when it is frozen. */
+  /**
+   * Position and look of column `i` (-1: the row controls) when it is frozen. Sticky holds to the
+   * box's padding edge, so frozen columns move with the table across the gutter and stop at the box's
+   * edge, leaving nothing to scroll past on their side. A row's own background (--row-bg: striped,
+   * hovered) shows on its frozen cells but not on the row controls in the gutter.
+   */
   const frozen = (i: number, selected = false) =>
     frozenCount > 0 && i < frozenCount
       ? {
-          style: { insetInlineStart: i < 0 ? 0 : leftOf(i) },
+          style: { insetInlineStart: (i < 0 ? 0 : leftOf(i)) - gutter },
           className: cn(
             "sticky z-30",
-            selected ? "bg-[color-mix(in_srgb,var(--accent)_5%,var(--bg))]" : "bg-bg",
+            selected ? "bg-[color-mix(in_srgb,var(--accent)_5%,var(--bg))]" : i < 0 ? "bg-bg" : "bg-[var(--row-bg,var(--bg))]",
             i === frozenCount - 1 && "shadow-[inset_-1px_0_0_var(--border)] rtl:shadow-[inset_1px_0_0_var(--border)]",
           ),
         }
@@ -469,7 +480,9 @@ export function TableView({
         className={cn(
           "group",
           colored?.row && `tint-${colored.row}`,
-          selected && "bg-accent/5",
+          // --row-bg is what the row's cells paint (unset: nothing, so a page's pattern shows through):
+          // every other row in a striped view, the row under the pointer. Color rules paint over it.
+          selected ? "bg-accent/5" : cn(striped && at % 2 === 1 && "[--row-bg:var(--bg-subtle)]", "hover:[--row-bg:var(--bg-hover)]"),
           drag?.dragging && "opacity-50",
           drag?.dropSide === "before" && "[&>td]:shadow-[inset_0_2px_0_var(--accent)]",
           drag?.dropSide === "after" && "[&>td]:shadow-[inset_0_-2px_0_var(--accent)]",
@@ -500,7 +513,7 @@ export function TableView({
         </td>
         <td
           {...grid.cellProps(at, 0)}
-          className={cn("relative border-b border-border p-0 align-top outline-none", frozen(0, selected).className, mark(TITLE))}
+          className={cn("relative border-b border-border p-0 align-top outline-none", frozen(0, selected).className ?? "bg-(--row-bg)", mark(TITLE))}
           style={frozen(0).style}
         >
           <CellMark
@@ -556,7 +569,11 @@ export function TableView({
             <td
               key={p.id}
               {...grid.cellProps(at, i + 1)}
-              className={cn("relative border-b border-s border-border p-0 align-top outline-none", frozen(i + 1, selected).className, mark(p.id))}
+              className={cn(
+                "relative border-b border-s border-border p-0 align-top outline-none",
+                frozen(i + 1, selected).className ?? "bg-(--row-bg)",
+                mark(p.id),
+              )}
               style={frozen(i + 1).style}
             >
               <CellMark
@@ -590,7 +607,7 @@ export function TableView({
             </td>
           );
         })}
-        {!readOnly && <td className={cn("border-b border-s border-border", mark())} />}
+        {!readOnly && <td className={cn("border-b border-s border-border bg-(--row-bg)", mark())} />}
       </tr>
     );
   };

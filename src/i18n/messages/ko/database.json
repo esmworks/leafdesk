@@ -878,6 +878,7 @@
     "showWeekends": "주말 표시",
     "showIcons": "페이지 아이콘 표시",
     "showVerticalLines": "세로선 표시",
+    "stripedRows": "행 번갈아 색칠",
     "openRows": "행 열기 위치",
     "openRowsIn": {
       "panel": "사이드 패널",

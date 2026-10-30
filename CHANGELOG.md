@@ -101,6 +101,11 @@
   model thinks before answering; a conversation keeps its choice and a new one starts with your
   latest. Migration 0159.
 
+- **Striped rows in tables.** Layout → *Striped rows* puts every other row of a table view on a
+  faint shade, published tables too, so a long row is easier to follow across the columns. The row
+  under the pointer is now shaded as well, frozen columns included. Color rules still paint over
+  both.
+
 ### Changed
 
 - **The AI chat panel makes room instead of covering the page.** While it is open beside a
@@ -135,6 +140,10 @@
   only while an answer is being written.
 
 ### Fixed
+
+- **Frozen columns no longer let text show beside them.** Scrolled sideways, a table's frozen
+  columns stopped at the page's margin, and the columns scrolling past showed through in the strip
+  between them and the edge. They now move along across the margin and hold at the edge.
 
 - **Resolved comments no longer break the page.** Resolving a thread, or opening *Resolved* or
   *All* in the comments panel, showed "Something went wrong" when the thread was resolved by

@@ -878,6 +878,7 @@
     "showWeekends": "Mostrar fins de semana",
     "showIcons": "Mostrar ícones de página",
     "showVerticalLines": "Mostrar linhas verticais",
+    "stripedRows": "Linhas alternadas",
     "openRows": "Abrir linhas em",
     "openRowsIn": {
       "panel": "Painel lateral",

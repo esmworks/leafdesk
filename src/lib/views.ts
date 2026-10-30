@@ -136,7 +136,7 @@ export function layoutConfigError(config: ViewConfig): string | null {
   if (c.openRows !== undefined && !OPEN_ROWS.includes(c.openRows as OpenRows)) {
     return `openRows must be one of: ${OPEN_ROWS.join(", ")}`;
   }
-  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showIcons", "wrapProperties", "showVerticalLines", "colorColumns", "showTotals"] as const) {
+  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showIcons", "wrapProperties", "showVerticalLines", "stripedRows", "colorColumns", "showTotals"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "boolean") return `${key} must be true or false`;
   }
   if (c.defaultTemplateId !== undefined && c.defaultTemplateId !== null && (typeof c.defaultTemplateId !== "string" || !c.defaultTemplateId)) {

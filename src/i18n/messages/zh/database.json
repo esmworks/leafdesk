@@ -878,6 +878,7 @@
     "showWeekends": "显示周末",
     "showIcons": "显示页面图标",
     "showVerticalLines": "显示竖线",
+    "stripedRows": "隔行着色",
     "openRows": "行的打开方式",
     "openRowsIn": {
       "panel": "侧边面板",
