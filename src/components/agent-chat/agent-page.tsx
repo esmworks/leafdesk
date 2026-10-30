@@ -68,9 +68,9 @@ export function AgentPage({
         </div>
         <aside
           aria-label={tc("label", { name: agent.name })}
-          className={cn(SIDE_SHOWN, SIDE_COLUMN, "sticky top-(--app-top) max-h-[calc(100svh-var(--app-top))] self-start overflow-y-auto pe-4 pt-12 pb-6")}
+          className={cn(SIDE_SHOWN, SIDE_COLUMN, "sticky top-(--app-top) max-h-[calc(100svh-var(--app-top))] self-start overflow-y-auto pe-4 pt-4 pb-4")}
         >
-          <section className="rounded-xl border border-border bg-bg p-4">
+          <section className="shrink-0 rounded-xl border border-border bg-bg p-4">
             <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-bg-subtle text-2xl">
               <AgentGlyph icon={agent.icon} />
             </span>

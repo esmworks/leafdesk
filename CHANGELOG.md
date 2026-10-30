@@ -30,7 +30,7 @@
   the chat) and the pages its runs and answers changed in boxes to the right of the chat; the AI
   chat shows the sources its answers cite and the pages it changed, over the conversation's side so
   its scrollbar stays at the window's edge, starting just under its title bar. Each box folds away,
-  and a long list scrolls inside its box. On a narrower window, or with a
+  and a long list scrolls inside its box; on a short window the boxes share its height. On a narrower window, or with a
   panel open beside the page, the pages look as before. No migration.
 
 - **Finding one's way in a long chat.** In the AI chat and on an agent's page, a line per question
