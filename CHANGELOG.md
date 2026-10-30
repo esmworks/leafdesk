@@ -29,7 +29,8 @@
   it is, its schedules with their next run, its latest runs (one click brings a run into view in
   the chat) and the pages its runs and answers changed in boxes to the right of the chat; the AI
   chat shows the sources its answers cite and the pages it changed, over the conversation's side so
-  its scrollbar stays at the window's edge. Each box folds away. On a narrower window, or with a
+  its scrollbar stays at the window's edge, starting just under its title bar. Each box folds away,
+  and a long list scrolls inside its box. On a narrower window, or with a
   panel open beside the page, the pages look as before. No migration.
 
 - **Finding one's way in a long chat.** In the AI chat and on an agent's page, a line per question

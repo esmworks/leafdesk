@@ -135,7 +135,7 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
           />
           {/* Over the list's end side, which leaves them room: the list, and its scrollbar, reach the window's edge. */}
           {chat.messages.length > 0 && (
-            <aside aria-label={t("side.label")} className={cn(SIDE_SHOWN, "pointer-events-none absolute inset-y-0 end-0 pe-4 pt-6 pb-4")}>
+            <aside aria-label={t("side.label")} className={cn(SIDE_SHOWN, "pointer-events-none absolute inset-y-0 end-0 pe-4 pt-2 pb-4")}>
               <div className={cn(SIDE_COLUMN, "pointer-events-auto flex max-h-full overflow-y-auto")}>
                 <ChatSide messages={chat.messages} onSource={openSource} />
               </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useId, useState } from "react";
 import { cn } from "@/components/ui";
 
-/** A box that folds away to its title (and how many things it holds). */
+/** A box that folds away to its title (and how many things it holds); a long list scrolls inside it. */
 export function SideBox({ title, count, children }: { title: string; count?: number; children: React.ReactNode }) {
   const [open, setOpen] = useState(true);
   const id = useId();
@@ -25,7 +25,7 @@ export function SideBox({ title, count, children }: { title: string; count?: num
         </button>
       </h2>
       {open && (
-        <ul id={id} className="border-t border-border py-1">
+        <ul id={id} className="max-h-80 overflow-y-auto overscroll-contain border-t border-border py-1">
           {children}
         </ul>
       )}
