@@ -17,6 +17,7 @@ import { createPortal } from "react-dom";
 import { deleteAgentConversationAction, sendAgentChatAction } from "@/app/actions/agent-chat";
 import { AnswerText } from "@/components/ai-chat/answer-text";
 import { ChangedPagesBox, changedPages } from "@/components/ai-chat/chat-side";
+import { scrollingBox, ToLatest, TurnLines } from "@/components/chat-navigation";
 import { CopyAction, MessageTime, questionBox, revealed, StepsFold } from "@/components/ai-chat/message-parts";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { read } from "@/components/read";
@@ -50,6 +51,7 @@ export function AgentChat({
   variant,
   focusRun = null,
   side = null,
+  lines = null,
 }: {
   workspaceId: string;
   agentId: string;
@@ -59,6 +61,8 @@ export function AgentChat({
   focusRun?: string | null;
   /** The agent's page: where its boxes go beside the chat (the runs, what they changed). */
   side?: HTMLElement | null;
+  /** The agent's page: where the lines to its questions go, at the chat's side. */
+  lines?: HTMLElement | null;
 }) {
   const t = useTranslations("page.agentChat");
   const tc = useTranslations("common");
@@ -83,6 +87,12 @@ export function AgentChat({
   const placeRef = useRef(place);
   placeRef.current = place;
   const thread = place === null;
+  // The page's chat scrolls with the box the page is in (the lines and the button follow it).
+  const [scroller, setScroller] = useState<HTMLElement | null>(null);
+  const loaded = info !== null;
+  useEffect(() => {
+    if (variant === "page" && loaded) setScroller(scrollingBox(listRef.current));
+  }, [variant, loaded]);
 
   // `asked`: the thread's read already under way (load starts it beside the chat's info).
   const openThread = useCallback(async (asked?: ReturnType<typeof read<"agentThread">>) => {
@@ -289,6 +299,8 @@ export function AgentChat({
   const askedAt = new Map(messages.flatMap((m) => (m.role === "user" ? [[m.runId, m.at] as const] : [])));
   const block = variant === "block";
   const page = variant === "page";
+  const answers = new Map(messages.flatMap((m) => (m.role === "assistant" ? [[m.runId, m.content] as const] : [])));
+  const turns = messages.flatMap((m) => (m.role === "user" ? [{ id: m.runId, question: m.content, answer: answers.get(m.runId) ?? "" }] : []));
 
   if (loadFailed) {
     return (
@@ -399,7 +411,7 @@ export function AgentChat({
                   />
                 </li>
               ) : (
-                <li key={`${item.message.role}-${item.message.runId}`}>
+                <li key={`${item.message.role}-${item.message.runId}`} data-turn={item.message.role === "user" ? item.message.runId : undefined}>
                   {item.message.role === "user" ? (
                     <Question message={item.message} page={page} />
                   ) : (
@@ -434,6 +446,7 @@ export function AgentChat({
       </div>
 
       <div className={cn(block ? "border-t border-border px-3 py-2" : page ? "sticky bottom-0 bg-bg pb-6" : "pt-2")}>
+        {page && <ToLatest scroller={scroller} className="absolute -top-12 left-1/2 z-10 -translate-x-1/2" />}
         {(blocked || error) && (
           <p role={error ? "alert" : "status"} className={cn("mb-1.5 text-xs", error ? "text-danger" : "text-fg-muted")}>
             {error ?? blocked}
@@ -476,6 +489,7 @@ export function AgentChat({
           </button>
         </form>
       </div>
+      {lines && createPortal(<TurnLines scroller={scroller} turns={turns} />, lines)}
       {side &&
         createPortal(
           <SideBoxes

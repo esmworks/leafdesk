@@ -44,5 +44,10 @@
     "placeholder": "输入日期：明天 17:00、8/31、+2w",
     "preview": "{when} · 按 Enter 设置",
     "unreadable": "不是日期。试试“明天 9:00”“8/31”或“2w”。"
+  },
+  "chatNav": {
+    "label": "此对话中的问题",
+    "question": "问题 {n}",
+    "toLatest": "转到最新"
   }
 }

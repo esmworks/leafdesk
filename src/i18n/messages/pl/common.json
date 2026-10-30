@@ -44,5 +44,10 @@
     "placeholder": "Wpisz datę: jutro 17:00, 31 sie, +2w",
     "preview": "{when} · Enter, aby ustawić",
     "unreadable": "To nie jest data. Spróbuj „jutro 9:00”, „31 sierpnia” lub „2w”."
+  },
+  "chatNav": {
+    "label": "Pytania w tym czacie",
+    "question": "Pytanie {n}",
+    "toLatest": "Przejdź do najnowszych"
   }
 }

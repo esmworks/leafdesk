@@ -44,5 +44,10 @@
     "placeholder": "הקלדת תאריך: מחר 17:00, +2w",
     "preview": "{when} · Enter לקביעה",
     "unreadable": "זה לא תאריך. אפשר לנסות „מחר 9:00” או „2w”."
+  },
+  "chatNav": {
+    "label": "השאלות בשיחה הזו",
+    "question": "שאלה {n}",
+    "toLatest": "מעבר לאחרון"
   }
 }

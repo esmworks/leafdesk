@@ -42,6 +42,7 @@ import {
 import { useTranslations } from "next-intl";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
+import { lazyPart } from "@/components/lazy-part";
 import { BlockChanges } from "@/components/page/history-diff";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import {
@@ -69,6 +70,10 @@ import { CopyAction, MessageTime, questionBox, revealed, StepsFold } from "./mes
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, StepLine } from "./step-line";
 import { useReasoning, type ChangeDecision, type Chat, type ChatMessage, type ChatSkillPick, type ChatStatus, type PendingChange, type QueuedQuestion, type Reasoning } from "./use-chat";
+
+// Lines to the chat's questions, and the way back to its latest answer: loaded once there is a conversation.
+const TurnLines = lazyPart(() => import("@/components/chat-navigation").then((m) => m.TurnLines));
+const ToLatest = lazyPart(() => import("@/components/chat-navigation").then((m) => m.ToLatest));
 
 export function ChatThread({
   chat,
@@ -102,6 +107,12 @@ export function ChatThread({
   const carriesFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types).includes("Files");
   const { messages, status, error, input, setInput, running, inputRef } = chat;
   const listRef = useRef<HTMLDivElement>(null);
+  // The list as state too, for the lines and the button that follow its scrolling.
+  const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
+  const list = useCallback((el: HTMLDivElement | null) => {
+    listRef.current = el;
+    setScroller(el);
+  }, []);
   const page = variant === "page";
   // An empty page's box stands on its own under the greeting: roomier, and lifted off the page.
   const fresh = messages.length === 0;
@@ -205,61 +216,75 @@ export function ChatThread({
     last.role === "assistant" &&
     !last.steps?.some(changedThings);
 
+  const turns = page
+    ? messages.flatMap((m, i) => (m.role === "user" ? [{ id: m.key, question: m.content, answer: messages[i + 1]?.content ?? "" }] : []))
+    : [];
+
   return (
     <>
-      <div
-        ref={listRef}
-        className={cn(
-          // A scrollbar's room is kept from the start, so the column doesn't shift when the answers fill the page.
-          "min-h-0 flex-1 overflow-y-auto font-sans [scrollbar-gutter:stable]",
-          page ? "px-4 py-6 md:px-8" : "px-4 py-3",
-          // An empty page puts the greeting and the question box together a little above the middle.
-          empty && "flex flex-col justify-end pb-6",
-        )}
-        aria-live="polite"
-      >
-        <div className={cn(page && "mx-auto w-full max-w-3xl")}>
-          {messages.length === 0 ? (
-            page ? (
-              <div className="space-y-2 text-center">
-                <h2 className="text-2xl font-semibold">{t("greeting")}</h2>
-                <p className="mx-auto max-w-md text-sm text-fg-muted">{t("intro")}</p>
-              </div>
-            ) : (
-              <p className="py-6 text-sm text-fg-muted">{t("intro")}</p>
-            )
-          ) : (
-            <ol className={cn(page ? "space-y-6" : "space-y-4")}>
-              {messages.map((m, i) => (
-                <li key={m.key}>
-                  {m.role === "user" ? (
-                    <Question
-                      message={m}
-                      page={page}
-                      onEdit={askAgain && i === messages.length - 2 ? (question) => onSend({ question, skill: m.skill }) : undefined}
-                    />
-                  ) : (
-                    <Answer
-                      message={m}
-                      status={i === messages.length - 1 ? status : null}
-                      waiting={i === messages.length - 1 && chat.pending !== null}
-                      reasoning={chat.reasoning}
-                      last={i === messages.length - 1}
-                      onRetry={
-                        askAgain && i === messages.length - 1 ? () => onSend({ question: messages[i - 1].content, skill: messages[i - 1].skill }) : undefined
-                      }
-                      onSource={onSource}
-                      onMemory={() => setMemoryOpen(true)}
-                      onSaveReport={m.research && chat.conversationId ? () => chat.saveReport(i) : undefined}
-                      workspaceId={chat.workspaceId}
-                      labels={{ stopped: t("stopped"), cutOff: t("cutOff"), thinking: t("thinking") }}
-                    />
-                  )}
-                </li>
-              ))}
-            </ol>
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div
+          ref={list}
+          className={cn(
+            // A scrollbar's room is kept from the start, so the column doesn't shift when the answers fill the page.
+            "min-h-0 flex-1 overflow-y-auto font-sans [scrollbar-gutter:stable]",
+            page ? "px-4 py-6 md:px-8" : "px-4 py-3",
+            // An empty page puts the greeting and the question box together a little above the middle.
+            empty && "flex flex-col justify-end pb-6",
           )}
+          aria-live="polite"
+        >
+          {/* Room for the boxes beside the conversation on a wide page (chat-page.tsx). */}
+          <div className={cn(page && "pe-(--side-pad)")}>
+            <div className={cn(page && "mx-auto w-full max-w-3xl")}>
+              {messages.length === 0 ? (
+                page ? (
+                  <div className="space-y-2 text-center">
+                    <h2 className="text-2xl font-semibold">{t("greeting")}</h2>
+                    <p className="mx-auto max-w-md text-sm text-fg-muted">{t("intro")}</p>
+                  </div>
+                ) : (
+                  <p className="py-6 text-sm text-fg-muted">{t("intro")}</p>
+                )
+              ) : (
+                <ol className={cn(page ? "space-y-6" : "space-y-4")}>
+                  {messages.map((m, i) => (
+                    <li key={m.key} data-turn={m.role === "user" ? m.key : undefined}>
+                      {m.role === "user" ? (
+                        <Question
+                          message={m}
+                          page={page}
+                          onEdit={askAgain && i === messages.length - 2 ? (question) => onSend({ question, skill: m.skill }) : undefined}
+                        />
+                      ) : (
+                        <Answer
+                          message={m}
+                          status={i === messages.length - 1 ? status : null}
+                          waiting={i === messages.length - 1 && chat.pending !== null}
+                          reasoning={chat.reasoning}
+                          last={i === messages.length - 1}
+                          onRetry={
+                            askAgain && i === messages.length - 1 ? () => onSend({ question: messages[i - 1].content, skill: messages[i - 1].skill }) : undefined
+                          }
+                          onSource={onSource}
+                          onMemory={() => setMemoryOpen(true)}
+                          onSaveReport={m.research && chat.conversationId ? () => chat.saveReport(i) : undefined}
+                          workspaceId={chat.workspaceId}
+                          labels={{ stopped: t("stopped"), cutOff: t("cutOff"), thinking: t("thinking") }}
+                        />
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </div>
         </div>
+        {turns.length >= 3 && (
+          <div className="absolute inset-y-0 start-0 hidden items-center ps-2 md:flex">
+            <TurnLines scroller={scroller} turns={turns} />
+          </div>
+        )}
       </div>
 
       <div
@@ -270,237 +295,240 @@ export function ChatThread({
         )}
         style={{ "--gutter-l": `${gutter.left}px`, "--gutter-r": `${gutter.right}px` } as React.CSSProperties}
       >
-        <div className={cn(page && "mx-auto w-full max-w-3xl")}>
-          {blocked && (
-            <p role="status" className="mb-2 text-sm text-fg-muted">
-              {blocked}
-            </p>
-          )}
-          {error && (
-            <p role="alert" className="mb-2 text-sm text-danger">
-              {error}
-            </p>
-          )}
-          {dictation && (
-            <p role={dictation.error ? "alert" : "status"} className={cn("mb-2 text-sm", dictation.error ? "text-danger" : "text-fg-muted")}>
-              {dictation.message}
-            </p>
-          )}
-          {!chat.pending && <QueueStrip queued={chat.queued} onClear={chat.clearQueue} />}
-          {chat.pending ? (
-            <ChangePrompt pending={chat.pending} onDecide={(d) => void chat.decide(d)} onSource={onSource} />
-          ) : (
-            <div className={cn("rounded-2xl", empty && "shadow-[0_1px_3px_rgb(16_24_40/0.05),0_10px_30px_rgb(16_24_40/0.08)] dark:shadow-[0_1px_3px_rgb(0_0_0/0.28),0_10px_30px_rgb(0_0_0/0.32)]")}>
-              {/* Before the first question, a strip above the box, its lower edge tucked behind it: what kind of
-                  question, and where answers come from; both stay as picked for the conversation. Below the page in
-                  the dark, the box above it; narrow, its choices drop their icons. */}
-              {fresh && (
-                <div className="@container -mb-3.5 flex items-center gap-2 rounded-t-2xl bg-bg-subtle px-2.5 pt-2 pb-6 dark:bg-black/25">
-                  <KindTabs research={chat.research} onChange={chat.setResearch} />
-                  <span className="flex-1" />
-                  {scope}
-                </div>
-              )}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  send();
-                }}
-                onDragOver={(e) => {
-                  if (blocked || !carriesFiles(e)) return;
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = "copy";
-                  setDropping(true);
-                }}
-                onDragLeave={(e) => {
-                  if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropping(false);
-                }}
-                onDrop={(e) => {
-                  if (!carriesFiles(e)) return;
-                  e.preventDefault();
-                  setDropping(false);
-                  if (!blocked) void chat.attachFiles(Array.from(e.dataTransfer.files));
-                }}
-                className={cn(
-                  "relative flex flex-col rounded-2xl border bg-bg transition-colors dark:bg-bg-subtle",
-                  empty ? "gap-4 px-4 pt-3.5 pb-3" : "gap-2.5 px-3.5 pt-3 pb-2.5",
-                  dropping ? "border-accent ring-1 ring-accent" : "border-border",
-                )}
-              >
-                {dropping && (
-                  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-bg/90 text-sm text-fg-muted">
-                    {t("files.drop")}
+        <div className={cn(page && "pe-(--side-pad)")}>
+          <div className={cn("relative", page && "mx-auto w-full max-w-3xl")}>
+            {messages.length > 0 && <ToLatest scroller={scroller} className="absolute -top-12 left-1/2 z-10 -translate-x-1/2" />}
+            {blocked && (
+              <p role="status" className="mb-2 text-sm text-fg-muted">
+                {blocked}
+              </p>
+            )}
+            {error && (
+              <p role="alert" className="mb-2 text-sm text-danger">
+                {error}
+              </p>
+            )}
+            {dictation && (
+              <p role={dictation.error ? "alert" : "status"} className={cn("mb-2 text-sm", dictation.error ? "text-danger" : "text-fg-muted")}>
+                {dictation.message}
+              </p>
+            )}
+            {!chat.pending && <QueueStrip queued={chat.queued} onClear={chat.clearQueue} />}
+            {chat.pending ? (
+              <ChangePrompt pending={chat.pending} onDecide={(d) => void chat.decide(d)} onSource={onSource} />
+            ) : (
+              <div className={cn("rounded-2xl", empty && "shadow-[0_1px_3px_rgb(16_24_40/0.05),0_10px_30px_rgb(16_24_40/0.08)] dark:shadow-[0_1px_3px_rgb(0_0_0/0.28),0_10px_30px_rgb(0_0_0/0.32)]")}>
+                {/* Before the first question, a strip above the box, its lower edge tucked behind it: what kind of
+                    question, and where answers come from; both stay as picked for the conversation. Below the page in
+                    the dark, the box above it; narrow, its choices drop their icons. */}
+                {fresh && (
+                  <div className="@container -mb-3.5 flex items-center gap-2 rounded-t-2xl bg-bg-subtle px-2.5 pt-2 pb-6 dark:bg-black/25">
+                    <KindTabs research={chat.research} onChange={chat.setResearch} />
+                    <span className="flex-1" />
+                    {scope}
                   </div>
                 )}
-                <SkillList picker={skills} />
-                {chat.skill && (
-                  <SkillChip
-                    skill={chat.skill}
-                    onRemove={() => {
-                      chat.setSkill(null);
-                      inputRef.current?.focus();
-                    }}
-                  />
-                )}
-                {hasFiles && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {chat.files.map((f) => (
-                      <AttachmentChip key={f.id} file={f} onRemove={() => chat.removeFile(f.id)} />
-                    ))}
-                  </div>
-                )}
-                <div className="relative">
-                  {chips && <PasteChips text={input} pastes={chat.pastes} boxRef={chipsRef} className={boxText} />}
-                  <textarea
-                    ref={inputRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onScroll={(e) => {
-                      if (chipsRef.current) chipsRef.current.scrollTop = e.currentTarget.scrollTop;
-                    }}
-                    // A label is one piece: the caret steps over it.
-                    onSelect={(e) => {
-                      const box = e.currentTarget;
-                      if (box.selectionStart !== box.selectionEnd) return;
-                      const at = caretOutsideLabels(chat.pastes, box.selectionStart, caretWas.current);
-                      if (at !== box.selectionStart) box.setSelectionRange(at, at);
-                      caretWas.current = at;
-                    }}
-                    // A long paste goes in as a label (the text itself is sent in its place).
-                    onPaste={(e) => {
-                      // A copied file or image is attached, not pasted as its name.
-                      const pasted = Array.from(e.clipboardData.files).filter((f) => chatFileKind(f.type, f.name) !== null);
-                      if (pasted.length) {
-                        e.preventDefault();
-                        void chat.attachFiles(pasted);
-                        return;
-                      }
-                      const raw = e.clipboardData.getData("text/plain");
-                      if (!raw || !shouldCollapsePaste(raw)) return;
-                      e.preventDefault();
-                      const box = e.currentTarget;
-                      const caret = chat.pasteInput(normalizePaste(raw), box.selectionStart, box.selectionEnd);
-                      requestAnimationFrame(() => box.setSelectionRange(caret, caret));
-                    }}
-                    onKeyDown={(e) => {
-                      if (skills.onKeyDown(e)) {
-                        e.preventDefault();
-                        return;
-                      }
-                      // Backspace in the empty box takes off the picked skill.
-                      if (e.key === "Backspace" && !input && chat.skill) {
-                        e.preventDefault();
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    send();
+                  }}
+                  onDragOver={(e) => {
+                    if (blocked || !carriesFiles(e)) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "copy";
+                    setDropping(true);
+                  }}
+                  onDragLeave={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropping(false);
+                  }}
+                  onDrop={(e) => {
+                    if (!carriesFiles(e)) return;
+                    e.preventDefault();
+                    setDropping(false);
+                    if (!blocked) void chat.attachFiles(Array.from(e.dataTransfer.files));
+                  }}
+                  className={cn(
+                    "relative flex flex-col rounded-2xl border bg-bg transition-colors dark:bg-bg-subtle",
+                    empty ? "gap-4 px-4 pt-3.5 pb-3" : "gap-2.5 px-3.5 pt-3 pb-2.5",
+                    dropping ? "border-accent ring-1 ring-accent" : "border-border",
+                  )}
+                >
+                  {dropping && (
+                    <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-bg/90 text-sm text-fg-muted">
+                      {t("files.drop")}
+                    </div>
+                  )}
+                  <SkillList picker={skills} />
+                  {chat.skill && (
+                    <SkillChip
+                      skill={chat.skill}
+                      onRemove={() => {
                         chat.setSkill(null);
-                        return;
-                      }
-                      // …and Backspace or Delete next to a label takes all of it.
-                      const box = e.currentTarget;
-                      if ((e.key === "Backspace" || e.key === "Delete") && box.selectionStart === box.selectionEnd) {
-                        const cut = deleteLabel({ text: input, pastes: chat.pastes }, box.selectionStart, e.key);
-                        if (cut) {
+                        inputRef.current?.focus();
+                      }}
+                    />
+                  )}
+                  {hasFiles && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {chat.files.map((f) => (
+                        <AttachmentChip key={f.id} file={f} onRemove={() => chat.removeFile(f.id)} />
+                      ))}
+                    </div>
+                  )}
+                  <div className="relative">
+                    {chips && <PasteChips text={input} pastes={chat.pastes} boxRef={chipsRef} className={boxText} />}
+                    <textarea
+                      ref={inputRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onScroll={(e) => {
+                        if (chipsRef.current) chipsRef.current.scrollTop = e.currentTarget.scrollTop;
+                      }}
+                      // A label is one piece: the caret steps over it.
+                      onSelect={(e) => {
+                        const box = e.currentTarget;
+                        if (box.selectionStart !== box.selectionEnd) return;
+                        const at = caretOutsideLabels(chat.pastes, box.selectionStart, caretWas.current);
+                        if (at !== box.selectionStart) box.setSelectionRange(at, at);
+                        caretWas.current = at;
+                      }}
+                      // A long paste goes in as a label (the text itself is sent in its place).
+                      onPaste={(e) => {
+                        // A copied file or image is attached, not pasted as its name.
+                        const pasted = Array.from(e.clipboardData.files).filter((f) => chatFileKind(f.type, f.name) !== null);
+                        if (pasted.length) {
                           e.preventDefault();
-                          setInput(cut.text);
-                          caretWas.current = cut.caret;
-                          requestAnimationFrame(() => box.setSelectionRange(cut.caret, cut.caret));
+                          void chat.attachFiles(pasted);
                           return;
                         }
-                      }
-                      if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                        const raw = e.clipboardData.getData("text/plain");
+                        if (!raw || !shouldCollapsePaste(raw)) return;
                         e.preventDefault();
-                        send();
-                      }
-                    }}
-                    rows={1}
-                    disabled={Boolean(blocked)}
-                    placeholder={running ? t("placeholderBusy") : chat.research ? t("research.placeholder") : t("placeholder")}
-                    aria-label={t("placeholder")}
-                    className={cn(
-                      boxText,
-                      "relative resize-none bg-transparent outline-none placeholder:text-fg-faint disabled:opacity-60",
-                      empty ? "max-h-[220px]" : "max-h-[180px]",
-                      chips && "text-transparent caret-fg selection:bg-accent/25 selection:text-transparent",
-                    )}
-                  />
-                </div>
-                {/* The highlighted skill, for screen readers: the list itself is under the mouse. */}
-                {skills.open && skills.shown.length > 0 && (
-                  <span className="sr-only" aria-live="polite">
-                    {skills.shown[Math.min(skills.active, skills.shown.length - 1)]?.title}
-                  </span>
-                )}
-                {/* What goes in with the question and what the chat may change on the left; the model, dictation and Send on the right. */}
-                <div className={cn("flex min-w-0 items-center", empty ? "gap-3" : "gap-2")}>
-                  <AddMenu
-                    className={cn(round, "border border-border text-fg hover:bg-bg-hover disabled:opacity-40 disabled:hover:bg-transparent")}
-                    disabled={Boolean(blocked)}
-                    skillPicked={chat.skill !== null}
-                    onAttach={() => fileInput.current?.click()}
-                    onSkill={() => {
-                      if (!input) setInput("/");
-                      inputRef.current?.focus();
-                    }}
-                  />
-                  <input
-                    ref={fileInput}
-                    type="file"
-                    accept={CHAT_FILE_ACCEPT}
-                    multiple
-                    hidden
-                    onChange={(e) => {
-                      const picked = Array.from(e.currentTarget.files ?? []);
-                      e.currentTarget.value = "";
-                      if (picked.length) void chat.attachFiles(picked);
-                    }}
-                  />
-                  <ModePicker
-                    mode={chat.mode}
-                    onChange={chat.setMode}
-                    research={chat.research}
-                    asSuggestions={chat.asSuggestions}
-                    onSuggestions={chat.setAsSuggestions}
-                  />
-                  <span className="flex-1" />
-                  {chat.options.models.length > 1 && <ModelPicker models={chat.options.models} model={chat.model ?? chat.options.models[0].id} onChange={chat.setModel} />}
-                  {!chat.research && (chat.options.models.find((m) => m.id === chat.model) ?? chat.options.models[0])?.thinks && (
-                    <ThinkingPicker thinking={chat.thinking} onChange={chat.setThinking} />
-                  )}
-                  {voice && canRecord && (
-                    <DictateButton workspaceId={chat.workspaceId} limits={voice} disabled={Boolean(blocked)} onText={dictated} onNotice={setDictation} />
-                  )}
-                  {/* While an answer is on its way, Send becomes Stop, and a typed question can be queued beside it. */}
-                  {running ? (
-                    <div className="flex items-center gap-1.5">
-                      {(input.trim() || hasFiles) && (
-                        <button
-                          type="submit"
-                          aria-label={t("queue.add")}
-                          title={t("queue.add")}
-                          className={cn(round, "border border-border text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-40")}
-                          disabled={Boolean(blocked) || uploading || skills.open}
-                        >
-                          <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.25} />
-                        </button>
+                        const box = e.currentTarget;
+                        const caret = chat.pasteInput(normalizePaste(raw), box.selectionStart, box.selectionEnd);
+                        requestAnimationFrame(() => box.setSelectionRange(caret, caret));
+                      }}
+                      onKeyDown={(e) => {
+                        if (skills.onKeyDown(e)) {
+                          e.preventDefault();
+                          return;
+                        }
+                        // Backspace in the empty box takes off the picked skill.
+                        if (e.key === "Backspace" && !input && chat.skill) {
+                          e.preventDefault();
+                          chat.setSkill(null);
+                          return;
+                        }
+                        // …and Backspace or Delete next to a label takes all of it.
+                        const box = e.currentTarget;
+                        if ((e.key === "Backspace" || e.key === "Delete") && box.selectionStart === box.selectionEnd) {
+                          const cut = deleteLabel({ text: input, pastes: chat.pastes }, box.selectionStart, e.key);
+                          if (cut) {
+                            e.preventDefault();
+                            setInput(cut.text);
+                            caretWas.current = cut.caret;
+                            requestAnimationFrame(() => box.setSelectionRange(cut.caret, cut.caret));
+                            return;
+                          }
+                        }
+                        if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                          e.preventDefault();
+                          send();
+                        }
+                      }}
+                      rows={1}
+                      disabled={Boolean(blocked)}
+                      placeholder={running ? t("placeholderBusy") : chat.research ? t("research.placeholder") : t("placeholder")}
+                      aria-label={t("placeholder")}
+                      className={cn(
+                        boxText,
+                        "relative resize-none bg-transparent outline-none placeholder:text-fg-faint disabled:opacity-60",
+                        empty ? "max-h-[220px]" : "max-h-[180px]",
+                        chips && "text-transparent caret-fg selection:bg-accent/25 selection:text-transparent",
                       )}
-                      <button type="button" aria-label={t("stop")} title={t("stop")} className={filled} onClick={chat.stop}>
-                        <Square className="h-2.5 w-2.5 fill-current" />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="submit"
-                      aria-label={t("send")}
-                      title={t("send")}
-                      className={filled}
-                      disabled={Boolean(blocked) || uploading || (!input.trim() && !hasFiles) || skills.open}
-                    >
-                      <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.25} />
-                    </button>
+                    />
+                  </div>
+                  {/* The highlighted skill, for screen readers: the list itself is under the mouse. */}
+                  {skills.open && skills.shown.length > 0 && (
+                    <span className="sr-only" aria-live="polite">
+                      {skills.shown[Math.min(skills.active, skills.shown.length - 1)]?.title}
+                    </span>
                   )}
-                </div>
-              </form>
-            </div>
-          )}
-          {empty && starters}
+                  {/* What goes in with the question and what the chat may change on the left; the model, dictation and Send on the right. */}
+                  <div className={cn("flex min-w-0 items-center", empty ? "gap-3" : "gap-2")}>
+                    <AddMenu
+                      className={cn(round, "border border-border text-fg hover:bg-bg-hover disabled:opacity-40 disabled:hover:bg-transparent")}
+                      disabled={Boolean(blocked)}
+                      skillPicked={chat.skill !== null}
+                      onAttach={() => fileInput.current?.click()}
+                      onSkill={() => {
+                        if (!input) setInput("/");
+                        inputRef.current?.focus();
+                      }}
+                    />
+                    <input
+                      ref={fileInput}
+                      type="file"
+                      accept={CHAT_FILE_ACCEPT}
+                      multiple
+                      hidden
+                      onChange={(e) => {
+                        const picked = Array.from(e.currentTarget.files ?? []);
+                        e.currentTarget.value = "";
+                        if (picked.length) void chat.attachFiles(picked);
+                      }}
+                    />
+                    <ModePicker
+                      mode={chat.mode}
+                      onChange={chat.setMode}
+                      research={chat.research}
+                      asSuggestions={chat.asSuggestions}
+                      onSuggestions={chat.setAsSuggestions}
+                    />
+                    <span className="flex-1" />
+                    {chat.options.models.length > 1 && <ModelPicker models={chat.options.models} model={chat.model ?? chat.options.models[0].id} onChange={chat.setModel} />}
+                    {!chat.research && (chat.options.models.find((m) => m.id === chat.model) ?? chat.options.models[0])?.thinks && (
+                      <ThinkingPicker thinking={chat.thinking} onChange={chat.setThinking} />
+                    )}
+                    {voice && canRecord && (
+                      <DictateButton workspaceId={chat.workspaceId} limits={voice} disabled={Boolean(blocked)} onText={dictated} onNotice={setDictation} />
+                    )}
+                    {/* While an answer is on its way, Send becomes Stop, and a typed question can be queued beside it. */}
+                    {running ? (
+                      <div className="flex items-center gap-1.5">
+                        {(input.trim() || hasFiles) && (
+                          <button
+                            type="submit"
+                            aria-label={t("queue.add")}
+                            title={t("queue.add")}
+                            className={cn(round, "border border-border text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-40")}
+                            disabled={Boolean(blocked) || uploading || skills.open}
+                          >
+                            <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.25} />
+                          </button>
+                        )}
+                        <button type="button" aria-label={t("stop")} title={t("stop")} className={filled} onClick={chat.stop}>
+                          <Square className="h-2.5 w-2.5 fill-current" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="submit"
+                        aria-label={t("send")}
+                        title={t("send")}
+                        className={filled}
+                        disabled={Boolean(blocked) || uploading || (!input.trim() && !hasFiles) || skills.open}
+                      >
+                        <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.25} />
+                      </button>
+                    )}
+                  </div>
+                </form>
+              </div>
+            )}
+            {empty && starters}
+          </div>
         </div>
       </div>
       <MemoryDialog workspaceId={chat.workspaceId} open={memoryOpen} onClose={() => setMemoryOpen(false)} />

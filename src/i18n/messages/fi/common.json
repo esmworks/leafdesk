@@ -44,5 +44,10 @@
     "placeholder": "Kirjoita päivämäärä: huomenna 17:00, 31.8., +2w",
     "preview": "{when} · Enter asettaa",
     "unreadable": "Ei päivämäärä. Kokeile ”huomenna 9:00”, ”31.8.” tai ”2w”."
+  },
+  "chatNav": {
+    "label": "Tämän keskustelun kysymykset",
+    "question": "Kysymys {n}",
+    "toLatest": "Siirry uusimpaan"
   }
 }

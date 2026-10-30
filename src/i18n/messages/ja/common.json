@@ -44,5 +44,10 @@
     "placeholder": "日付を入力: 明日 17:00, 8/31, +2w",
     "preview": "{when} · Enterで設定",
     "unreadable": "日付として読めません。「明日 9:00」「8/31」「2w」などと入力してください。"
+  },
+  "chatNav": {
+    "label": "このチャットの質問",
+    "question": "質問 {n}",
+    "toLatest": "最新へ移動"
   }
 }

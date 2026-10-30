@@ -40,6 +40,8 @@ export function AgentPage({
   const tc = useTranslations("page.agentChat.side");
   // Where the chat puts its boxes, below these.
   const [side, setSide] = useState<HTMLDivElement | null>(null);
+  // And the lines to its questions, at its start side.
+  const [lines, setLines] = useState<HTMLDivElement | null>(null);
   const settings = (
     <Link href={agentPath(workspaceId, agent.id)} className={buttonClass()}>
       <Settings2 className="h-4 w-4" /> {t("tabs.settings")}
@@ -48,6 +50,9 @@ export function AgentPage({
   return (
     <div className={cn(SIDE_CONTAINER, "min-h-full")}>
       <div className="flex min-h-full">
+        <div className="sticky top-(--app-top) hidden h-[calc(100svh-var(--app-top))] w-10 shrink-0 items-center self-start ps-2 md:flex">
+          <div ref={setLines} />
+        </div>
         <div className="mx-auto flex min-h-full max-w-3xl min-w-0 flex-1 flex-col px-4 pt-14 md:px-6 md:pt-12">
           <header className={cn("mb-4 flex flex-wrap items-start gap-4", SIDE_HIDDEN)}>
             <div className="min-w-0 flex-1 basis-64">
@@ -59,7 +64,7 @@ export function AgentPage({
             </div>
             {settings}
           </header>
-          <AgentChat workspaceId={workspaceId} agentId={agent.id} place={null} variant="page" focusRun={focusRun} side={side} />
+          <AgentChat workspaceId={workspaceId} agentId={agent.id} place={null} variant="page" focusRun={focusRun} side={side} lines={lines} />
         </div>
         <aside
           aria-label={tc("label", { name: agent.name })}

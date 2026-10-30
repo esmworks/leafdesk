@@ -44,5 +44,10 @@
     "placeholder": "Skriv ett datum: imorgon 17:00, 31 aug, +2w",
     "preview": "{when} · Enter för att välja",
     "unreadable": "Inte ett datum. Prova ”imorgon 9:00”, ”31 augusti” eller ”2w”."
+  },
+  "chatNav": {
+    "label": "Frågor i den här chatten",
+    "question": "Fråga {n}",
+    "toLatest": "Gå till det senaste"
   }
 }

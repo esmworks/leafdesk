@@ -44,5 +44,10 @@
     "placeholder": "Nhập ngày: ngày mai 17:00, 31/8, +2w",
     "preview": "{when} · Enter để đặt",
     "unreadable": "Không phải ngày. Thử “ngày mai 9:00”, “31/8” hoặc “2w”."
+  },
+  "chatNav": {
+    "label": "Câu hỏi trong cuộc trò chuyện này",
+    "question": "Câu hỏi {n}",
+    "toLatest": "Đến mới nhất"
   }
 }

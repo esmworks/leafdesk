@@ -44,5 +44,10 @@
     "placeholder": "Saisir une date : demain 17:00, 31 août, +2w",
     "preview": "{when} · Entrée pour valider",
     "unreadable": "Ce n’est pas une date. Essayez « demain 9:00 », « 31 août » ou « 2w »."
+  },
+  "chatNav": {
+    "label": "Questions de cette discussion",
+    "question": "Question {n}",
+    "toLatest": "Aller au plus récent"
   }
 }

@@ -44,5 +44,10 @@
     "placeholder": "Digite uma data: amanhã 17:00, 31 ago, +2w",
     "preview": "{when} · Enter para definir",
     "unreadable": "Não é uma data. Tente “amanhã 9:00”, “31 agosto” ou “2w”."
+  },
+  "chatNav": {
+    "label": "Perguntas deste chat",
+    "question": "Pergunta {n}",
+    "toLatest": "Ir para o mais recente"
   }
 }

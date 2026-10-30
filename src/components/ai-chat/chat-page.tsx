@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { lazyPart } from "@/components/lazy-part";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { SIDE_COLUMN, SIDE_CONTAINER, SIDE_SHOWN } from "@/lib/side-layout";
+import { SIDE_COLUMN, SIDE_CONTAINER, SIDE_PAD, SIDE_SHOWN } from "@/lib/side-layout";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton } from "@/components/ui";
 import { chatPath, sourceHref, type ChatScopeView, type ChatSourceView } from "@/lib/ai-chat";
@@ -97,7 +97,8 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
   return (
     // The row panel steps through the answers' sources here, and gives focus back to one as it closes.
     <div data-row-source className={cn(SIDE_CONTAINER, "h-full")}>
-      <div className="flex h-full flex-col">
+      {/* From the first question on, so the column moves once, as the greeting gives way to the conversation. */}
+      <div className={cn("flex h-full flex-col", chat.messages.length > 0 && SIDE_PAD)}>
         <div data-window-controls-clear className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:ps-1.5">
           <SidebarOpenButton className="me-1 max-md:me-0" />
           {/* A new chat's greeting says what this is; the heading stays for screen readers. */}
@@ -109,35 +110,35 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
             <SquarePen className="h-4 w-4" />
           </IconButton>
         </div>
-        <div className="flex min-h-0 flex-1">
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <ChatThread
-              chat={chat}
-              blocked={blocked}
-              onSend={(again) => void chat.send(scope, again)}
-              onSource={openSource}
-              variant="page"
-              voice={context?.voice ?? null}
-              scope={<ScopePicker workspaceId={workspaceId} pageId={null} value={scope} onChange={setScope} disabled={chat.running} />}
-              starters={
-                !blocked && (
-                  <ChatStarters
-                    workspaceId={workspaceId}
-                    onPick={(text) => {
-                      chat.setInput(text);
-                      const box = chat.inputRef.current;
-                      box?.focus();
-                      requestAnimationFrame(() => box?.setSelectionRange(text.length, text.length));
-                    }}
-                  />
-                )
-              }
-            />
-          </div>
-          {/* From the first question on, so the column moves once, as the greeting gives way to the conversation. */}
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <ChatThread
+            chat={chat}
+            blocked={blocked}
+            onSend={(again) => void chat.send(scope, again)}
+            onSource={openSource}
+            variant="page"
+            voice={context?.voice ?? null}
+            scope={<ScopePicker workspaceId={workspaceId} pageId={null} value={scope} onChange={setScope} disabled={chat.running} />}
+            starters={
+              !blocked && (
+                <ChatStarters
+                  workspaceId={workspaceId}
+                  onPick={(text) => {
+                    chat.setInput(text);
+                    const box = chat.inputRef.current;
+                    box?.focus();
+                    requestAnimationFrame(() => box?.setSelectionRange(text.length, text.length));
+                  }}
+                />
+              )
+            }
+          />
+          {/* Over the list's end side, which leaves them room: the list, and its scrollbar, reach the window's edge. */}
           {chat.messages.length > 0 && (
-            <aside aria-label={t("side.label")} className={cn(SIDE_SHOWN, SIDE_COLUMN, "min-h-0 overflow-y-auto pe-4 pt-6 pb-4")}>
-              <ChatSide messages={chat.messages} onSource={openSource} />
+            <aside aria-label={t("side.label")} className={cn(SIDE_SHOWN, "pointer-events-none absolute inset-y-0 end-0 pe-4 pt-6 pb-4")}>
+              <div className={cn(SIDE_COLUMN, "pointer-events-auto flex max-h-full overflow-y-auto")}>
+                <ChatSide messages={chat.messages} onSource={openSource} />
+              </div>
             </aside>
           )}
         </div>

@@ -44,5 +44,10 @@
     "placeholder": "Type a date: fri 5pm, aug 31, +2w",
     "preview": "{when} · Enter to set",
     "unreadable": "Not a date. Try “tomorrow 9am”, “aug 31” or “in 2w”."
+  },
+  "chatNav": {
+    "label": "Questions in this chat",
+    "question": "Question {n}",
+    "toLatest": "Go to the latest"
   }
 }

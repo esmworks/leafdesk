@@ -44,5 +44,10 @@
     "placeholder": "날짜 입력: 내일 17:00, 8/31, +2w",
     "preview": "{when} · Enter로 설정",
     "unreadable": "날짜가 아닙니다. “내일 9:00”, “8/31” 또는 “2w”를 입력해 보세요."
+  },
+  "chatNav": {
+    "label": "이 채팅의 질문",
+    "question": "질문 {n}",
+    "toLatest": "최신으로 이동"
   }
 }

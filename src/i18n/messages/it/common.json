@@ -44,5 +44,10 @@
     "placeholder": "Scrivi una data: domani 17:00, 31 ago, +2w",
     "preview": "{when} · Invio per impostare",
     "unreadable": "Non è una data. Prova «domani 9:00», «31 agosto» o «2w»."
+  },
+  "chatNav": {
+    "label": "Domande di questa chat",
+    "question": "Domanda {n}",
+    "toLatest": "Vai al più recente"
   }
 }

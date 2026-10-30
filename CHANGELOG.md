@@ -15,8 +15,14 @@
 - **Boxes beside the agent's page and the AI chat.** On a wide window, the agent's page shows who
   it is, its schedules with their next run, its latest runs (one click brings a run into view in
   the chat) and the pages its runs and answers changed in boxes to the right of the chat; the AI
-  chat shows the sources its answers cite and the pages it changed. Each box folds away. On a
-  narrower window, or with a panel open beside the page, the pages look as before. No migration.
+  chat shows the sources its answers cite and the pages it changed, over the conversation's side so
+  its scrollbar stays at the window's edge. Each box folds away. On a narrower window, or with a
+  panel open beside the page, the pages look as before. No migration.
+
+- **Finding one's way in a long chat.** In the AI chat and on an agent's page, a line per question
+  at the conversation's side shows the question and the start of its answer on hover and brings
+  it into view on a click; once you scroll up, a button over the question box goes back to the
+  latest. No migration.
 
 - **Several mailboxes per member.** A member connects up to five mailboxes in a workspace (a shared
   sales or support address beside their own, say) under My account → Email and calendar, and makes

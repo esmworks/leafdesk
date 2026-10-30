@@ -10,5 +10,11 @@
 export const SIDE_CONTAINER = "@container/side";
 export const SIDE_SHOWN = "hidden @min-[64rem]/side:flex";
 export const SIDE_HIDDEN = "@min-[64rem]/side:hidden";
+/**
+ * Where the boxes lie over a scrolling list (the AI chat), so its scrollbar stays at the window's
+ * edge: the list's column takes this much room on its end side (`pe-(--side-pad)`), the boxes'
+ * width and the room left for the scrollbar.
+ */
+export const SIDE_PAD = "[--side-pad:0px] @min-[64rem]/side:[--side-pad:19rem]";
 /** The boxes' column: its width and the room between the boxes. */
 export const SIDE_COLUMN = "w-72 shrink-0 flex-col gap-3";

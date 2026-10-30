@@ -44,5 +44,10 @@
     "placeholder": "Ketik tanggal: besok 17:00, 31 agu, +2w",
     "preview": "{when} · Enter untuk mengatur",
     "unreadable": "Bukan tanggal. Coba “besok 9:00”, “31 agustus”, atau “2w”."
+  },
+  "chatNav": {
+    "label": "Pertanyaan dalam obrolan ini",
+    "question": "Pertanyaan {n}",
+    "toLatest": "Ke yang terbaru"
   }
 }

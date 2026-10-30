@@ -44,5 +44,10 @@
     "placeholder": "Escribe una fecha: mañana 17:00, 31 ago, +2w",
     "preview": "{when} · Intro para fijarla",
     "unreadable": "No es una fecha. Prueba «mañana 9:00», «31 agosto» o «2w»."
+  },
+  "chatNav": {
+    "label": "Preguntas de este chat",
+    "question": "Pregunta {n}",
+    "toLatest": "Ir a lo más reciente"
   }
 }

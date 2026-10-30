@@ -44,5 +44,10 @@
     "placeholder": "Datum eingeben: morgen 17:00, 31. Aug, +2w",
     "preview": "{when} · Enter zum Übernehmen",
     "unreadable": "Kein Datum. Versuch „morgen 9:00“, „31. August“ oder „2w“."
+  },
+  "chatNav": {
+    "label": "Fragen in diesem Chat",
+    "question": "Frage {n}",
+    "toLatest": "Zum Neuesten"
   }
 }
