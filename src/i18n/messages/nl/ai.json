@@ -319,7 +319,8 @@
       "noAccess": "Dat gesprek, die pagina of die vaardigheid is niet meer beschikbaar.",
       "tooLarge": "Die vraag of vaardigheid is te lang, of dit gesprek is vol. Maak haar korter of begin een nieuwe chat.",
       "disabled": "AI is uitgeschakeld in deze werkruimte.",
-      "invalid": "Typ eerst een vraag."
+      "invalid": "Typ eerst een vraag.",
+      "busy": "Er wordt nog op dit gesprek geantwoord. Wacht op het antwoord of stop het."
     },
     "approval": {
       "question": {

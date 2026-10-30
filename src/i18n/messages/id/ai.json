@@ -319,7 +319,8 @@
       "noAccess": "Percakapan, halaman, atau keterampilan itu tidak lagi tersedia.",
       "tooLarge": "Pertanyaan atau keterampilan itu terlalu panjang, atau percakapan ini penuh. Persingkat atau mulai obrolan baru.",
       "disabled": "AI dinonaktifkan di ruang kerja ini.",
-      "invalid": "Ketik pertanyaan terlebih dahulu."
+      "invalid": "Ketik pertanyaan terlebih dahulu.",
+      "busy": "Percakapan ini masih sedang dijawab. Tunggu jawabannya atau hentikan."
     },
     "approval": {
       "question": {

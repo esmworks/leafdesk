@@ -23,7 +23,9 @@ import { byRecency } from "@/lib/chat-recency";
 import { useAnswering } from "./answering";
 import { useAiChat } from "./chat-panel";
 
-const NONE: { id: string }[] = [];
+const NONE: { id: string; answering?: true }[] = [];
+/** How often the list is asked again while an answer this tab doesn't follow is on its way. */
+const ELSEWHERE_MS = 4_000;
 
 export function ConversationList() {
   const t = useTranslations("ai.chat");
@@ -43,6 +45,14 @@ export function ConversationList() {
   useEffect(() => {
     if (!offline) void refreshConversations();
   }, [offline, refreshConversations]);
+  // Answers this tab doesn't follow (asked before a reload, in another tab, or left on the server
+  // when the person moved on): the list is asked again now and then until they're done.
+  const elsewhere = !offline && (conversations ?? NONE).some((c) => c.answering && !answering.has(c.id));
+  useEffect(() => {
+    if (!elsewhere) return;
+    const timer = setInterval(() => void refreshConversations(), ELSEWHERE_MS);
+    return () => clearInterval(timer);
+  }, [elsewhere, refreshConversations]);
 
   /** Deletes conversations; one from its own menu goes at once, more (or all) after asking. */
   async function remove(ids: string[] | "all", ask: boolean) {
@@ -184,7 +194,7 @@ export function ConversationList() {
                           )}
                         >
                           {/* Only while an answer is being written for it, fading in and out; the place stays empty otherwise. */}
-                          {answering.has(c.id) && <span className="h-1.5 w-1.5 rounded-full bg-fg motion-safe:animate-pulse" />}
+                          {(answering.has(c.id) || c.answering) && <span className="h-1.5 w-1.5 rounded-full bg-fg motion-safe:animate-pulse" />}
                         </span>
                         <span className="flex-1 truncate ps-0.5">{title}</span>
                       </Link>

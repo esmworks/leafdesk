@@ -319,7 +319,8 @@
       "noAccess": "Cuộc trò chuyện, trang hoặc kỹ năng đó không còn khả dụng.",
       "tooLarge": "Câu hỏi hoặc kỹ năng đó quá dài, hoặc cuộc trò chuyện này đã đầy. Hãy rút ngắn nó hoặc bắt đầu cuộc trò chuyện mới.",
       "disabled": "AI đã bị tắt trong không gian làm việc này.",
-      "invalid": "Hãy nhập một câu hỏi trước."
+      "invalid": "Hãy nhập một câu hỏi trước.",
+      "busy": "Cuộc trò chuyện này vẫn đang được trả lời. Hãy chờ câu trả lời hoặc dừng nó."
     },
     "approval": {
       "question": {

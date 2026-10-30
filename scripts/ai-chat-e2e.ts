@@ -4,7 +4,8 @@
  * provider, and scripted per test: the question's search, the model's search_pages and read_page
  * calls, the streamed answer and its citations; conversations (kept, continued with their history,
  * listed, shown, deleted, only ever to their owner, gone when the person leaves the workspace);
- * stopping an answer; the turns of a model without a price, input and rate limits and a failing provider; the page
+ * stopping an answer, and an answer going on when the page that asked for it goes (followed again
+ * from its start, a change waiting for approval included; ai-chat-runs.ts); the turns of a model without a price, input and rate limits and a failing provider; the page
  * and teamspace scopes (kept with each question); the workspace switch and a server without AI; and access, checked on every tool call: a
  * private page shared with nobody, a private teamspace, a page shared with a group, a guest, another
  * workspace, and a page whose access is taken back between two questions. Also the model picked
@@ -48,6 +49,7 @@ const index = await import("@/server/semantic-index");
 const { deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
+const runs = await import("@/server/ai-chat-runs");
 const { decidePageReview, getPageReview } = await import("@/server/page-review");
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
 type ChatStepView = import("@/lib/ai-chat").ChatStepView;
@@ -146,13 +148,38 @@ const stepLabel = (step: ChatStepView) =>
 
 /** Runs a question to the end; returns its events and what they add up to. */
 async function ask(userId: string, input: ChatInput, options: { signal?: AbortSignal; onEvent?: (e: ChatEvent) => void | Promise<void> } = {}) {
+  return collect(await startChat(userId, input, options.signal), options.onEvent);
+}
+
+let runs_ = 0;
+/**
+ * Starts a question as the chat's route does: apart from whoever follows it. `ended`: when it has
+ * run to its end, saved.
+ */
+async function startRun(userId: string, input: ChatInput) {
+  const id = `${RUN}-run-${++runs_}`;
+  const run = runs.openRun({ id, userId, workspaceId: input.workspaceId, conversationId: input.conversationId ?? null })!;
+  const ended = runs.runEvents(run, await startChat(userId, input, run.controller.signal));
+  return { id, ended };
+}
+
+/**
+ * Follows an answer as a page does, from its start, until it ends or `signal` aborts (the page
+ * reloaded or closed); null when the person has no such answer.
+ */
+async function follow(userId: string, runId: string, options: { signal?: AbortSignal; onEvent?: (e: ChatEvent) => void | Promise<void> } = {}) {
+  const events = runs.followRun(userId, runId, options.signal);
+  return events ? collect(events, options.onEvent) : null;
+}
+
+async function collect(stream: AsyncIterable<ChatEvent>, onEvent?: (e: ChatEvent) => void | Promise<void>) {
   const events: ChatEvent[] = [];
   let text = "";
-  for await (const event of await startChat(userId, input, options.signal)) {
+  for await (const event of stream) {
     events.push(event);
     if (event.type === "text") text += event.text;
     if (event.type === "reset") text = "";
-    await options.onEvent?.(event);
+    await onEvent?.(event);
   }
   const conversation = events.find((e) => e.type === "conversation");
   const sources = events.find((e) => e.type === "sources");
@@ -454,18 +481,76 @@ try {
   // ── Stopping, limits, failures ──────────────────────────────────────────────────────────────
   fake.setChat(() => ({ text: "This is a long answer that goes on and on for quite a while before it ends [1]." }));
   fake.delayMs = 40;
-  const controller = new AbortController();
   let pieces = 0;
-  const stopped = await ask(dave, { workspaceId, message: "Tell me a long story about tyres" }, {
-    signal: controller.signal,
+  let othersStop: boolean | null = null;
+  const story = await startRun(dave, { workspaceId, message: "Tell me a long story about tyres" });
+  const stopped = (await follow(dave, story.id, {
     onEvent: (e) => {
-      if (e.type === "text" && ++pieces === 3) controller.abort();
+      if (e.type !== "text" || ++pieces !== 3) return;
+      othersStop = runs.stopRun(carol, story.id);
+      runs.stopRun(dave, story.id);
     },
-  });
+  }))!;
+  await story.ended;
   fake.delayMs = 0;
   check(stopped.error === "aborted" && stopped.text.length > 0 && !stopped.text.endsWith("ends [1]."), "an answer can be stopped midway", stopped);
+  check(othersStop === false, "…only by the person whose answer it is");
   const stoppedShown = await getConversation(dave, workspaceId, stopped.conversationId!);
   check(stoppedShown.messages[1]?.note === "stopped" && stoppedShown.messages[1].content === stopped.text, "…what was written so far is kept, marked as stopped", stoppedShown);
+  check(!runs.stopRun(dave, story.id), "…and an answer that ended can't be stopped again");
+
+  // A Stop that comes before its answer has started stops it as it starts.
+  const early = `${RUN}-early-stop`;
+  runs.stopRun(dave, early);
+  const earlyRun = runs.openRun({ id: early, userId: dave, workspaceId, conversationId: null })!;
+  check(earlyRun.controller.signal.aborted, "a Stop sent before the answer started stops it as it starts");
+  runs.dropRun(earlyRun);
+
+  // The page that asked goes (reloaded, closed) while the answer is on its way: it goes on, is
+  // saved, and the page coming back follows it again from its start.
+  fake.setChat(() => ({ text: "Winter tyres go on in October and come off in April [1]." }));
+  fake.delayMs = 40;
+  const going = await startRun(dave, { workspaceId, message: "When do winter tyres go on?" });
+  const closed = new AbortController();
+  let piecesSeen = 0;
+  const firstPage = (await follow(dave, going.id, { signal: closed.signal, onEvent: (e) => void (e.type === "text" && ++piecesSeen === 2 && closed.abort()) }))!;
+  const goingId = firstPage.conversationId!;
+  check(!firstPage.done && piecesSeen === 2, "a page that goes mid-answer stops following it", firstPage.events.map((e) => e.type));
+  check((await listConversations(dave, workspaceId)).find((c) => c.id === goingId)?.answering === true, "…the list marks its conversation as being answered");
+  const reopened = await getConversation(dave, workspaceId, goingId);
+  check(reopened.run === going.id && reopened.messages.length === 0, "…and the conversation, opened again, names the answer to follow (not saved yet)", reopened);
+  check(runs.followRun(carol, going.id) === null, "…which nobody else can follow");
+  check(await runs.conversationBusy(dave, goingId), "…and takes no other question meanwhile");
+  const secondPage = (await follow(dave, going.id))!;
+  const opening = secondPage.events[0];
+  check(
+    opening?.type === "conversation" && opening.id === goingId && opening.question?.content === "When do winter tyres go on?" && typeof opening.startedAt === "number",
+    "…followed again, it starts with its question",
+    opening,
+  );
+  check(secondPage.done && secondPage.text === "Winter tyres go on in October and come off in April [1].", "…then all it wrote, and the rest as it comes", secondPage.text);
+  await going.ended;
+  fake.delayMs = 0;
+  const saved = await getConversation(dave, workspaceId, goingId);
+  check(saved.run === null && saved.messages[1]?.content === secondPage.text && !saved.messages[1].note, "…and it is saved whole, as if the page had stayed", saved.messages);
+  check(!(await listConversations(dave, workspaceId)).find((c) => c.id === goingId)?.answering, "…no longer marked as being answered");
+  check(!(await runs.conversationBusy(dave, goingId)), "…and free for the next question");
+  const late = (await follow(dave, going.id))!;
+  check(late.done && late.text === secondPage.text, "a page following it just after it ended still gets it all");
+  check(late.events.filter((e) => e.type === "text").length === 1, "…what was written coming as one piece", late.events.map((e) => e.type));
+
+  // The same while the model is still searching, before any text.
+  fake.setChat(caller([{ name: "search_pages", arguments: { query: "tyres" } }]));
+  const searching = await startRun(dave, { workspaceId, message: "What do we know about tyres?" });
+  const leftEarly = new AbortController();
+  const beforeText = (await follow(dave, searching.id, { signal: leftEarly.signal, onEvent: (e) => void (e.type === "step" && leftEarly.abort()) }))!;
+  await searching.ended;
+  const answeredWhileAway = await getConversation(dave, workspaceId, beforeText.conversationId!);
+  check(
+    beforeText.text === "" && answeredWhileAway.messages.length === 2 && answeredWhileAway.messages[1].content.length > 0 && answeredWhileAway.messages[1].steps?.some((st) => st.kind === "search"),
+    "a page that goes while the answer searches, before any text, finds it answered when it comes back",
+    answeredWhileAway.messages,
+  );
 
   fake.setChat(() => {
     throw new Error("model down");
@@ -1005,11 +1090,40 @@ try {
 
   // Stopping while a change waits: nothing is written.
   fake.setChat(caller([write("create_row", { database_id: parts.id, title: "Never added" })]));
-  const stopWaiting = new AbortController();
-  const stoppedRun = await ask(alice, { workspaceId, message: "Add a row" }, { signal: stopWaiting.signal, onEvent: (e) => void (e.type === "approval" && stopWaiting.abort()) });
+  const waitingRun = await startRun(alice, { workspaceId, message: "Add a row" });
+  const stoppedRun = (await follow(alice, waitingRun.id, { onEvent: (e) => void (e.type === "approval" && runs.stopRun(alice, waitingRun.id)) }))!;
+  await waitingRun.ended;
   check(stoppedRun.error === "aborted" && (await rowsOf(parts.id, "Never added")).length === 0, "stopping an answer while a change waits writes nothing", stoppedRun.events.map((e) => e.type));
   const stoppedKept = stoppedRun.conversationId ? await db.select().from(aiConversation).where(eq(aiConversation.id, stoppedRun.conversationId)) : [];
   check(stoppedKept.length === 0, "…and keeps no empty conversation");
+
+  // Reloaded while a change waits: the page coming back is asked again, and its decision counts.
+  fake.setChat(caller([write("create_row", { database_id: parts.id, title: "Asked after reload" })]));
+  const reloadRun = await startRun(alice, { workspaceId, message: "Add a row for me" });
+  const reloaded = new AbortController();
+  let firstAsk: string | null = null;
+  await follow(alice, reloadRun.id, {
+    signal: reloaded.signal,
+    onEvent: (e) => {
+      if (e.type !== "approval") return;
+      firstAsk = e.id;
+      reloaded.abort();
+    },
+  });
+  let askedAgain: string | null = null;
+  const afterReload = (await follow(alice, reloadRun.id, {
+    onEvent: (e) => {
+      if (e.type !== "approval") return;
+      askedAgain = e.id;
+      decideChange(alice, e.id, "approve");
+    },
+  }))!;
+  await reloadRun.ended;
+  check(
+    firstAsk !== null && askedAgain === firstAsk && afterReload.done && (await rowsOf(parts.id, "Asked after reload")).length === 1,
+    "reloaded while a change waits, the page is asked about it again and its approval makes the change",
+    { firstAsk, askedAgain, steps: afterReload.steps },
+  );
 
   // ── Asking again ────────────────────────────────────────────────────────────────────────────
   fake.setChat(() => ({ text: "First answer." }));

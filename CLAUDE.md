@@ -144,8 +144,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats
   (`components/agent-chat/agent-chat.tsx`) draw questions, steps and message actions with
   `components/ai-chat/message-parts.tsx`, so they stay alike. The panel and the full-page chat
-  show one `useChat` held in `AiChatProvider` (`useSharedChat`): closing the request stops the
-  answer on the server, so it must outlive the page. Chat: `ai-chat.ts`; its tools:
+  show one `useChat` held in `AiChatProvider` (`useSharedChat`). An answer runs apart from its
+  request (`ai-chat-runs.ts`, keyed by a run id the browser picks): closing the request only stops
+  following it, Stop is `stopChatAction`, and `getConversation`'s `run` is followed again through
+  `GET /api/ai/chat?run=`, which replays its events from the `conversation` event (it carries the
+  question: the turn is saved only at the end). Chat: `ai-chat.ts`; its tools:
   `ai-tools.ts` (writes reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this
   process as the person; `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without

@@ -12,6 +12,7 @@ import { addMemory, deleteMemories, listMemories, MemoryError, memoryUse, setMem
 import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
 import { MAX_PROMPT_NAME, MAX_PROMPT_TEXT, MAX_SAVED_PROMPTS } from "@/lib/ai-saved-prompts";
 import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
+import { isRunId, stopRun } from "@/server/ai-chat-runs";
 import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-properties";
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
 import * as databases from "@/server/databases";
@@ -195,6 +196,14 @@ export async function decideChangeAction(approvalId: string, decision: ChatDecis
     if (decision !== "approve" && decision !== "always" && decision !== "decline") return false;
     return decideChange(userId, String(approvalId), decision);
   });
+}
+
+/**
+ * Stops the person's AI chat answer (`runId`, the browser's id for it): what it wrote so far is
+ * kept, marked as stopped. False when it was no longer on its way; one not started yet stops as it starts.
+ */
+export async function stopChatAction(runId: string) {
+  return run(async (userId) => isRunId(runId) && stopRun(userId, runId));
 }
 
 /** Saves the page to its history right before a voice note is put in at the cursor. */

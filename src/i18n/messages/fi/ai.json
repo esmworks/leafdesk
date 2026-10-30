@@ -319,7 +319,8 @@
       "noAccess": "Keskustelu, sivu tai taito ei ole enää käytettävissä.",
       "tooLarge": "Kysymys tai taito on liian pitkä, tai tämä keskustelu on täynnä. Lyhennä sitä tai aloita uusi keskustelu.",
       "disabled": "Tekoäly on poistettu käytöstä tässä työtilassa.",
-      "invalid": "Kirjoita ensin kysymys."
+      "invalid": "Kirjoita ensin kysymys.",
+      "busy": "Tähän keskusteluun vastataan vielä. Odota vastausta tai pysäytä se."
     },
     "approval": {
       "question": {

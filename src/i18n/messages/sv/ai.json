@@ -319,7 +319,8 @@
       "noAccess": "Den konversationen, sidan eller färdigheten är inte längre tillgänglig.",
       "tooLarge": "Frågan eller färdigheten är för lång, eller så är den här konversationen full. Korta ned den eller starta en ny chatt.",
       "disabled": "AI är avstängt i den här arbetsytan.",
-      "invalid": "Skriv en fråga först."
+      "invalid": "Skriv en fråga först.",
+      "busy": "Den här konversationen besvaras fortfarande. Vänta på svaret eller stoppa det."
     },
     "approval": {
       "question": {

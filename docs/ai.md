@@ -201,7 +201,10 @@ keeps questions to the page you are on, and picking one of your teamspaces
 search, reading pages and comments, querying databases and the workspace map the model gets all
 keep to it on the server, with your access checked as always. Each question shows what it was
 asked of, by the page's or teamspace's name as you may see it now. *Stop* ends an answer; what was written so far
-is kept. Under an answer are *Copy*, *Answer again* (the latest) and its time; hovering a question
+is kept. Nothing else does: an answer goes on on the server while you visit other pages, reload
+the page or close the tab, and is saved when it's done; opening its conversation again (also in
+another tab) shows it where it is, with a change waiting for your approval, and the *Chat* tab
+marks a conversation while it's being answered. Under an answer are *Copy*, *Answer again* (the latest) and its time; hovering a question
 shows its time, *Edit* (the latest: answered again in its place) and *Copy*. An answer that
 changed things can't be answered again or edited. Conversations are private to you and listed in the sidebar's *Chat* tab and under
 the panel's *Conversations*, where you can delete one, several (tick them, shift-click for a range,
@@ -230,7 +233,8 @@ value next to the new one, and the old title when it is renamed) with *Yes*, *Ye
 again* (the mode becomes *Auto*) and *No*, also as 1, 2, 3 on the keyboard (Escape says no); *Auto*
 makes changes without asking; *Read only* doesn't offer the model changes at all. A change is
 checked (the target, your edit access, the values) before you are asked; nothing is written while it
-waits, and stopping the answer, leaving the page or 15 minutes without an answer leave it unmade.
+waits, and stopping the answer or 15 minutes without an answer leave it unmade (leaving the page
+doesn't: you are asked again when you come back).
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
 

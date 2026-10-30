@@ -92,8 +92,12 @@ import { gzipSync } from "node:zlib";
  * layout (lib/side-layout.ts, the agent's card) adds about 1 kB to all first loads together.
  * The lines to a chat's questions and its button back to the latest load lazily too, but
  * ChatThread, in every workspace page's first load, takes about 1 kB more to place them.
+ *
+ * An AI chat answer that goes on through a reload (its run id, Stop on the server, following it
+ * again) reads its stream in a module loaded with the first answer, but useChat, held beside every
+ * workspace page, still adds about 0.1 kB to a page's first load.
  */
-const BUDGET = { routeFirstLoad: 783, firstLoadShared: 1194, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 784, firstLoadShared: 1194, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

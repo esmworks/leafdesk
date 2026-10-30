@@ -4,10 +4,12 @@
  * One AI chat conversation as the panel and the full-page chat show it: its messages, the question
  * being typed, the streamed answer from `/api/ai/chat` (see server/ai-chat.ts) and what the model
  * is doing meanwhile. A question asked while an answer is on its way waits in a queue and is asked
- * once that answer is done. Stop cancels the answer and gives the queued questions back: the first
- * into an empty box, the rest still queued to follow it. Switching conversations or starting a new
- * one cancels the answer too, and keeps the conversation's queued questions for when it's opened
- * again. The mode (what the chat may change) is remembered in the browser; in mode `ask` a change
+ * once that answer is done. The answer runs on the server apart from the page (server/ai-chat-runs.ts):
+ * switching conversations, starting a new one, reloading or closing the page leaves it going on and
+ * saved, and opening its conversation again (here or in another tab) follows it from its start, a
+ * change waiting for approval included. Stop stops it on the server and gives the queued questions
+ * back: the first into an empty box, the rest still queued to follow it. A conversation left
+ * mid-answer keeps its queued questions for when it's opened again in this tab. The mode (what the chat may change) is remembered in the browser; in mode `ask` a change
  * the model wants to make waits, as `pending`, for the person's decision. A long paste shows in the
  * box as a label (lib/chat-paste.ts) and is sent in its place. Files attached to a question
  * (lib/chat-attachments.ts) are uploaded as they are attached (/api/ai/chat/files), shown as chips,
@@ -18,11 +20,11 @@
  */
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { decideChangeAction, deleteConversationAction, saveReportAsPageAction } from "@/app/actions/ai";
+import { decideChangeAction, deleteConversationAction, saveReportAsPageAction, stopChatAction } from "@/app/actions/ai";
 import { read } from "@/components/read";
 import { isAiErrorCode } from "@/lib/ai";
 import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
-import { CHAT_MODES, changedThings, thoughtText, type ChatActionView, type ChatEvent, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView, type ChatThinking } from "@/lib/ai-chat";
+import { CHAT_MODES, type ChatActionView, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView, type ChatThinking } from "@/lib/ai-chat";
 import {
   CHAT_CSV_MAX_COLUMNS,
   CHAT_CSV_MAX_ROWS,
@@ -35,6 +37,7 @@ import { formatBytes } from "@/lib/files";
 import { EMPTY_DRAFT, expandDraft, insertPaste, pasteLineCount, syncDraft, uniqueLabel, type ChatDraft } from "@/lib/chat-paste";
 import { browserTimeZone } from "@/lib/time-zone";
 import { holdAnswering } from "./answering";
+import type { AnswerState } from "./chat-answer";
 
 /** What the model is doing while an answer is on its way: working on a turn, or writing. */
 export type ChatStatus = "thinking" | "writing";
@@ -119,6 +122,16 @@ export type ChangeDecision = "approve" | "always" | "decline";
 let keys = 0;
 const nextKey = () => `m${++keys}`;
 
+/** An id for an answer, so Stop can name it from the start (crypto.randomUUID needs HTTPS). */
+function newRunId() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** Why an answer's request is closed when the page leaves it: it goes on without the page. */
+const DETACHED = "detached";
+/** How long Stop waits for the server to end the answer before leaving it all the same. */
+const STOP_WAIT_MS = 5_000;
+
 const MODE_KEY = "leafdesk.aiChat.mode";
 
 function savedMode(): ChatMode {
@@ -182,6 +195,9 @@ export function useChat(
   const [queued, setQueued] = useState<QueuedQuestion[]>([]);
   const [reasoning] = useState(reasoningStore);
   const abort = useRef<AbortController | null>(null);
+  // The answer shown (its run id), and the one Stop was pressed for.
+  const runNow = useRef<string | null>(null);
+  const stopping = useRef<AbortController | null>(null);
   // Read by a queued question asked from the end of the answer before it, after renders that
   // answer's own closure never saw (its conversation, a mode changed meanwhile).
   const queue = useRef<QueuedQuestion[]>([]);
@@ -285,10 +301,10 @@ export function useChat(
   const running = status !== null;
 
   // Unmounted mid-answer (the workspace left: the chat is held beside its pages, chat-panel.tsx):
-  // the answer stops, its queue is parked.
+  // the answer goes on without it, its queue is parked.
   useEffect(
     () => () => {
-      abort.current?.abort();
+      abort.current?.abort(DETACHED);
       park(conversationRef.current, queue.current);
     },
     [],
@@ -339,9 +355,21 @@ export function useChat(
     setResearch(toBox.research);
   };
 
-  /** Stops the answer and leaves the conversation, its queued questions parked for its return. */
+  /**
+   * Leaves the conversation, its queued questions parked for its return; an answer on its way goes
+   * on without the page (the list marks it, opening the conversation follows it again).
+   */
   const leave = () => {
-    abort.current?.abort();
+    const leaving = abort.current;
+    if (leaving) {
+      leaving.abort(DETACHED);
+      abort.current = null;
+      runNow.current = null;
+      setStatus(null);
+      setPending(null);
+      reasoning.set("");
+      callbacks.current.onAnswered?.();
+    }
     park(conversationRef.current, queue.current);
     setQueue([]);
   };
@@ -380,9 +408,7 @@ export function useChat(
   }
 
   async function ask(question: string, used: ChatSkillPick | null, scope: ChatScopeView | null, again: boolean, attached: ChatFile[] = [], researching = false) {
-    setError(null);
-    const controller = new AbortController();
-    abort.current = controller;
+    const runId = newRunId();
     const startedAt = Date.now();
     const before = messages;
     // Asked again, a question keeps the files it had (the server keeps them too).
@@ -401,140 +427,177 @@ export function useChat(
       { key: nextKey(), role: "assistant", content: "", steps: [], startedAt, ...(researching ? { research: true } : {}) },
     ];
     setMessages((list) => [...(again ? list.slice(0, -2) : list), ...asked]);
-    setStatus("thinking");
-    let failed: string | null = null;
-    let finished = false;
-    // The text streamed on this turn of the model's; and whether what was streamed before a tool
-    // call is shown as a thought until the server's own step replaces it.
-    let streamed = "";
-    let provisional = false;
-    // The answer made changes: it stays, whatever happens next.
-    let changed = false;
-    try {
-      const response = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          workspaceId,
-          conversationId: conversationRef.current,
-          message: question,
-          scope: !scope ? null : scope.kind === "page" ? { pageId: scope.id } : { teamspaceId: scope.id },
-          mode: modeRef.current,
-          ...(again ? { replaceLast: true } : {}),
-          ...(used ? { skillId: used.id } : {}),
-          timeZone: browserTimeZone(),
-          ...(asSuggestionsRef.current ? { asSuggestions: true } : {}),
-          ...(attached.length ? { attachments: attached.map((f) => f.id) } : {}),
-          // Only where there is a choice: otherwise the workspace's model answers.
-          ...(options.models.length > 1 && modelNow.current ? { model: modelNow.current } : {}),
-          thinking: thinkingNow.current,
-          ...(researching ? { research: true } : {}),
+    await answer({
+      runId,
+      question: { question, skill: used, scope, files: attached, research: researching },
+      again,
+      before,
+      open: (signal) =>
+        fetch("/api/ai/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            runId,
+            workspaceId,
+            conversationId: conversationRef.current,
+            message: question,
+            scope: !scope ? null : scope.kind === "page" ? { pageId: scope.id } : { teamspaceId: scope.id },
+            mode: modeRef.current,
+            ...(again ? { replaceLast: true } : {}),
+            ...(used ? { skillId: used.id } : {}),
+            timeZone: browserTimeZone(),
+            ...(asSuggestionsRef.current ? { asSuggestions: true } : {}),
+            ...(attached.length ? { attachments: attached.map((f) => f.id) } : {}),
+            // Only where there is a choice: otherwise the workspace's model answers.
+            ...(options.models.length > 1 && modelNow.current ? { model: modelNow.current } : {}),
+            thinking: thinkingNow.current,
+            ...(researching ? { research: true } : {}),
+          }),
+          signal,
         }),
-        signal: controller.signal,
-      });
-      if (!response.ok || !response.body) {
-        const body = (await response.json().catch(() => null)) as { error?: { code?: string } } | null;
-        failed = errorText(body?.error?.code);
+    });
+  }
+
+  /**
+   * Follows an answer on its way in the conversation just opened (`saved`, its messages without
+   * it): asked before the page was reloaded, or in another tab. Its question and what it has
+   * written so far come first (its `conversation` event), then the rest as it comes.
+   */
+  async function follow(runId: string, saved: ChatMessage[]) {
+    await answer({
+      runId,
+      question: null,
+      again: false,
+      before: saved,
+      open: (signal) => fetch(`/api/ai/chat?run=${encodeURIComponent(runId)}`, { headers: { "x-leafdesk-chat": "1" }, signal }),
+    });
+  }
+
+  /**
+   * Shows an answer as its events come (`open` asks for them); `question`: the one asked here (null
+   * when following one asked before: its `conversation` event brings it), given back when the
+   * answer fails; `before`: the conversation as it was, for a question asked again that failed.
+   */
+  async function answer({
+    runId,
+    question: typed,
+    again: asking,
+    before,
+    open,
+  }: {
+    runId: string;
+    question: QueuedQuestion | null;
+    again: boolean;
+    before: ChatMessage[];
+    open: (signal: AbortSignal) => Promise<Response>;
+  }) {
+    setError(null);
+    const controller = new AbortController();
+    abort.current = controller;
+    runNow.current = runId;
+    const following = !typed;
+    setStatus("thinking");
+    // Failed: what the box says.
+    let failed: string | null = null;
+    const state: AnswerState = { question: typed, again: asking, finished: false, stopped: false, changed: false, error: null };
+    // Gone when followed (it ended a while ago): the conversation has it now.
+    let gone = false;
+    const detached = () => controller.signal.reason === DETACHED;
+    try {
+      const [response, { readAnswer }] = await Promise.all([open(controller.signal), import("./chat-answer")]);
+      if (following && response.status === 404) {
+        gone = true;
         return;
       }
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffered = "";
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffered += decoder.decode(value, { stream: true });
-        const lines = buffered.split("\n");
-        buffered = lines.pop() ?? "";
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          const event = JSON.parse(line) as ChatEvent;
-          if (event.type === "ping") continue;
-          // Whatever comes after a change was asked about means it was decided (or timed out).
-          setPending(event.type === "approval" ? { id: event.id, action: event.action } : null);
-          if (event.type === "conversation") {
-            conversationRef.current = event.id;
-            setConversationId(event.id);
-            callbacks.current.onConversation?.(event.id);
-            // The scope's title as the server read it (the panel knows the open page only by its id).
-            const asked = event.scope;
-            if (asked) setMessages((list) => list.map((m, i) => (i === list.length - 2 && m.role === "user" ? { ...m, scope: asked } : m)));
-          } else if (event.type === "thinking") {
-            setStatus("thinking");
-            reasoning.set("");
-          } else if (event.type === "reasoning") reasoning.set(reasoning.get() + event.text);
-          else if (event.type === "step") {
-            // The thinking that led to it is done.
-            reasoning.set("");
-            if (changedThings(event.step)) changed = true;
-            const replaces = provisional && event.step.kind === "thought";
-            provisional = false;
-            updateLast((m) => {
-              const steps = m.steps ?? [];
-              return { ...m, steps: [...(replaces ? steps.slice(0, -1) : steps), event.step] };
-            });
-          } else if (event.type === "text") {
-            setStatus("writing");
-            streamed += event.text;
-            reasoning.set("");
-            updateLast((m) => ({ ...m, content: m.content + event.text }));
-          } else if (event.type === "reset") {
-            // What was streamed was the model thinking aloud before a tool call: it moves into the
-            // steps at once (the server's thought step follows), and the tool runs meanwhile.
-            setStatus("thinking");
-            const thought = thoughtText(streamed);
-            streamed = "";
-            provisional = thought !== "";
-            updateLast((m) => ({ ...m, content: "", ...(thought ? { steps: [...(m.steps ?? []), { kind: "thought" as const, text: thought }] } : {}) }));
-          }
-          else if (event.type === "sources") updateLast((m) => ({ ...m, sources: event.sources }));
-          else if (event.type === "done") {
-            finished = true;
-            updateLast((m) => ({ ...m, ms: event.ms, at: new Date().toISOString(), ...(event.stopReason === "length" ? { note: "cutOff" as const } : {}) }));
-          } else if (event.type === "error") {
-            if (event.code === "aborted") updateLast((m) => ({ ...m, note: "stopped" }));
-            else failed = errorText(event.code);
-          }
-        }
+      if (!response.ok || !response.body) {
+        const body = (await response.json().catch(() => null)) as { error?: { code?: string } } | null;
+        failed = body?.error?.code === "busy" ? t("errors.busy") : errorText(body?.error?.code);
+        return;
       }
-      if (!finished && !failed && !controller.signal.aborted) failed = errorText("provider");
+      await readAnswer(response.body, state, {
+        following,
+        conversation: (id) => {
+          conversationRef.current = id;
+          setConversationId(id);
+          callbacks.current.onConversation?.(id);
+        },
+        setPending,
+        setStatus,
+        reasoning,
+        setMessages,
+        updateLast,
+        nextKey,
+      });
+      if (state.error) failed = errorText(state.error);
+      else if (!state.finished && !state.stopped && !controller.signal.aborted) failed = errorText("provider");
     } catch {
-      if (controller.signal.aborted) updateLast((m) => ({ ...m, note: "stopped" }));
+      if (detached()) {
+        // Left for another conversation: the answer goes on without this page.
+      } else if (controller.signal.aborted) updateLast((m) => ({ ...m, note: "stopped" }));
       else failed = errorText("provider");
     } finally {
-      if (abort.current === controller) abort.current = null;
-      setStatus(null);
-      setPending(null);
-      // Stopped or failed: the time it ran for, as the page saw it.
-      reasoning.set("");
-      updateLast((m) => (m.ms === undefined && m.startedAt ? { ...m, ms: Date.now() - m.startedAt } : m));
-      if (failed) {
-        setError(failed);
-        // Nothing was answered: the question goes back into the box, unless it changed things; asked
-        // again, the conversation stays as it was.
-        setMessages((list) => {
-          const last = list[list.length - 1];
-          const answered = !(last?.role === "assistant" && !last.content.trim() && !changed);
-          return answered ? list : again ? before : list.slice(0, -2);
-        });
+      if (abort.current === controller) {
+        abort.current = null;
+        runNow.current = null;
       }
-      callbacks.current.onAnswered?.();
-      // Answered: the next queued question is asked. Failed (the question first, unless it changed
-      // things), or ended without an answer by the server: they are given back. Stopped here, Stop or
-      // leaving the conversation took care of them.
-      const next = queue.current[0];
-      if (failed) giveBack(!changed && !again ? [{ question, skill: used, scope, files: attached, research: researching }] : []);
-      else if (finished && next) {
-        setQueue(queue.current.slice(1));
-        void ask(next.question, next.skill, next.scope, false, next.files, next.research);
-      } else if (!finished && !controller.signal.aborted) giveBack();
+      // Left: the conversation shown now isn't this one (leave() tidied up).
+      if (!detached()) {
+        const { question, again, changed, finished } = state;
+        setStatus(null);
+        setPending(null);
+        // Stopped or failed: the time it ran for, as the page saw it.
+        reasoning.set("");
+        updateLast((m) => (m.ms === undefined && m.startedAt ? { ...m, ms: Date.now() - m.startedAt } : m));
+        if (gone) await showSaved();
+        if (failed) {
+          setError(failed);
+          // Nothing was answered: the question goes back into the box, unless it changed things; asked
+          // again, the conversation stays as it was.
+          setMessages((list) => {
+            const last = list[list.length - 1];
+            const answered = !(last?.role === "assistant" && !last.content.trim() && !changed);
+            return answered ? list : again ? before : list.slice(0, -2);
+          });
+        }
+        callbacks.current.onAnswered?.();
+        // Answered: the next queued question is asked. Failed (the question first, unless it changed
+        // things), or ended without an answer by the server: they are given back. Stopped here, Stop
+        // took care of them.
+        const stoppedHere = stopping.current === controller || controller.signal.aborted;
+        const next = queue.current[0];
+        if (failed) giveBack(!changed && !again && question ? [question] : []);
+        else if (finished && next) {
+          setQueue(queue.current.slice(1));
+          void ask(next.question, next.skill, next.scope, false, next.files, next.research);
+        } else if (!finished && !stoppedHere && !gone) giveBack();
+      }
     }
   }
 
-  /** Stops the answer; the queued questions are given back. */
+  /** The open conversation as saved (an answer followed again had ended meanwhile). */
+  async function showSaved() {
+    const id = conversationRef.current;
+    if (!id) return;
+    const result = await read("chatConversation", workspaceId, id);
+    if (result.ok && conversationRef.current === id) setMessages(result.data.messages.map((m) => ({ ...m, key: nextKey() })));
+  }
+
+  /**
+   * Stops the answer (on the server: closing the page wouldn't); the queued questions are given
+   * back. The answer ends with what it wrote so far; if the server can't be told, it is left here.
+   */
   function stop() {
-    abort.current?.abort();
+    const controller = abort.current;
+    const runId = runNow.current;
+    if (!controller || !runId) return;
+    stopping.current = controller;
     giveBack();
+    const leaveIt = () => controller.abort();
+    void stopChatAction(runId).then((result) => {
+      if (!result.ok) leaveIt();
+    }, leaveIt);
+    // The server's end of it doesn't come (the connection is stuck): it is left all the same.
+    setTimeout(leaveIt, STOP_WAIT_MS);
   }
 
   /** Drops the queued questions. */
@@ -575,8 +638,10 @@ export function useChat(
       return false;
     }
     setError(null);
+    conversationRef.current = result.data.id;
     setConversationId(result.data.id);
-    setMessages(result.data.messages.map((m) => ({ ...m, key: nextKey() })));
+    const saved = result.data.messages.map((m) => ({ ...m, key: nextKey() }));
+    setMessages(saved);
     // The conversation goes on with its model, when it is still offered.
     if (result.data.model && options.models.some((m) => m.id === result.data.model)) setModel(result.data.model);
     setThinking(result.data.thinking);
@@ -586,6 +651,8 @@ export function useChat(
       parked.delete(result.data.id);
       giveBack(left);
     }
+    // An answer on its way there (asked before a reload, or in another tab) is followed again.
+    if (result.data.run) void follow(result.data.run, saved);
     return true;
   }
 

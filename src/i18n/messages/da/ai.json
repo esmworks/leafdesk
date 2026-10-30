@@ -319,7 +319,8 @@
       "noAccess": "Den samtale, side eller færdighed er ikke længere tilgængelig.",
       "tooLarge": "Det spørgsmål eller den færdighed er for lang, eller denne samtale er fuld. Forkort det, eller start en ny chat.",
       "disabled": "AI er slået fra i dette arbejdsområde.",
-      "invalid": "Skriv først et spørgsmål."
+      "invalid": "Skriv først et spørgsmål.",
+      "busy": "Denne samtale bliver stadig besvaret. Vent på svaret, eller stop det."
     },
     "approval": {
       "question": {

@@ -115,6 +115,7 @@ import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
 import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
+import { answeringIn, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
 import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, moreToolStep, pickMoreTool, readDocsTopic, USE_TOOL } from "@/server/ai-more-tools";
 import { chatToolNow, chatToolset, inputSummary, runConnectionTool, type ConnectionToolEntry } from "@/server/connections/tools";
 import * as ops from "@/server/operations";
@@ -239,7 +240,8 @@ const sizeOf = (messages: AiMessage[]) => messages.reduce((n, m) => n + m.conten
 /**
  * Starts answering a question. Checks and limits run first and throw AiError (nothing is sent
  * then); the returned events stream the work. `signal` cancels it: what was written so far is kept
- * in the conversation, marked as stopped.
+ * in the conversation, marked as stopped. The chat's route runs it apart from its request
+ * (ai-chat-runs.ts), so only Stop cancels it there.
  */
 export async function startChat(userId: string, input: ChatInput, signal?: AbortSignal): Promise<AsyncIterable<ChatEvent>> {
   const message = input.message.trim();
@@ -492,15 +494,28 @@ async function* runChat(
         .values({ userId, workspaceId, title: conversationTitle(message || files.records.map((a) => a.name).join(", ")), model, thinking, messages: [] })
         .returning()
     )[0];
+  const started = Date.now();
+  const scopeView: ChatScopeView | null = promptScope && scope ? { kind: scope.kind, id: scope.id, title: promptScope.title } : null;
   yield {
     type: "conversation",
     id: conversation.id,
     title: conversation.title,
-    ...(promptScope && scope ? { scope: { kind: scope.kind, id: scope.id, title: promptScope.title } } : {}),
+    ...(scopeView ? { scope: scopeView } : {}),
+    // For a page following the answer again (ai-chat-runs.ts): the turn is saved only at its end.
+    question: {
+      role: "user",
+      content: message,
+      ...(skill ? { skill: { id: skill.id, title: skill.title } } : {}),
+      ...(scopeView ? { scope: scopeView } : {}),
+      ...(files.records.length ? { attachments: files.records.map(attachmentView) } : {}),
+      ...(research ? { research: true } : {}),
+      at: new Date(started).toISOString(),
+    },
+    startedAt: started,
+    ...(replaced ? { replaceLast: true } : {}),
   };
 
   const registry: Registry = { sources: [], byKey: new Map() };
-  const started = Date.now();
   const steps: ChatStepRecord[] = [];
   const step = async (record: ChatStepRecord): Promise<ChatEvent> => {
     steps.push(record);
@@ -951,10 +966,14 @@ export async function listConversations(userId: string, workspaceId: string): Pr
     .from(aiConversation)
     .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId)))
     .orderBy(desc(aiConversation.updatedAt));
-  return rows.map((r) => ({ id: r.id, title: r.title, updatedAt: r.updatedAt.toISOString() }));
+  const answering = answeringIn(userId, workspaceId);
+  return rows.map((r) => ({ id: r.id, title: r.title, updatedAt: r.updatedAt.toISOString(), ...(answering.has(r.id) ? { answering: true as const } : {}) }));
 }
 
-/** One of the person's conversations, with its sources as they may see them now. */
+/**
+ * One of the person's conversations, with its sources as they may see them now; `run`: the id of
+ * the answer on its way in it, to follow (`GET /api/ai/chat?run=`), whose turn isn't in it yet.
+ */
 export async function getConversation(userId: string, workspaceId: string, conversationId: string) {
   await requireMembership(userId, workspaceId);
   const found = await ownConversation(userId, workspaceId, conversationId).catch(() => {
@@ -992,7 +1011,7 @@ export async function getConversation(userId: string, workspaceId: string, conve
       };
     }),
   );
-  return { id: found.id, title: found.title, model: found.model, thinking: found.thinking ?? "balanced", messages };
+  return { id: found.id, title: found.title, model: found.model, thinking: found.thinking ?? "balanced", messages, run: runningIn(userId, found.id) };
 }
 
 const attachmentView = (a: ChatAttachmentRecord): ChatAttachmentView => ({ ...a, url: chatFileUrl(a.id) });
@@ -1022,9 +1041,10 @@ export async function saveReportAsPage(
   return { pageId: made.id };
 }
 
-/** Deletes conversations of the person (only theirs). */
+/** Deletes conversations of the person (only theirs), stopping answers on their way in them. */
 export async function deleteConversations(userId: string, workspaceId: string, conversationIds: string[] | "all") {
   await requireMembership(userId, workspaceId);
+  stopRunsIn(userId, workspaceId, conversationIds);
   const theirs = and(
     eq(aiConversation.userId, userId),
     eq(aiConversation.workspaceId, workspaceId),

@@ -319,7 +319,8 @@
       "noAccess": "Quella conversazione, pagina o competenza non è più disponibile.",
       "tooLarge": "La domanda o la competenza è troppo lunga, oppure questa conversazione è piena. Accorciala o inizia una nuova chat.",
       "disabled": "L’IA è disattivata in questo spazio di lavoro.",
-      "invalid": "Scrivi prima una domanda."
+      "invalid": "Scrivi prima una domanda.",
+      "busy": "Questa conversazione è ancora in fase di risposta. Attendi la risposta o interrompila."
     },
     "approval": {
       "question": {

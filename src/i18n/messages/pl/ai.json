@@ -319,7 +319,8 @@
       "noAccess": "Ta rozmowa, strona lub umiejętność nie jest już dostępna.",
       "tooLarge": "To pytanie lub umiejętność jest za długie albo ta rozmowa jest pełna. Skróć je lub rozpocznij nowy czat.",
       "disabled": "AI jest wyłączona w tym obszarze roboczym.",
-      "invalid": "Najpierw wpisz pytanie."
+      "invalid": "Najpierw wpisz pytanie.",
+      "busy": "Ta rozmowa wciąż otrzymuje odpowiedź. Poczekaj na odpowiedź lub ją zatrzymaj."
     },
     "approval": {
       "question": {

@@ -1,8 +1,8 @@
 /**
- * Changes the AI chat waits on the person to approve (mode "ask", see ai-chat.ts): the answer's
- * stream stays open while it waits, and decideChange (the chat's server action) settles it. Only the
- * person whose answer it is can decide; nothing waits longer than APPROVAL_TIMEOUT_MS, and stopping
- * the answer (or closing the page) ends the wait with nothing written.
+ * Changes the AI chat waits on the person to approve (mode "ask", see ai-chat.ts): the answer waits
+ * (a page reloaded meanwhile is asked again, ai-chat-runs.ts), and decideChange (the chat's server
+ * action) settles it. Only the person whose answer it is can decide; nothing waits longer than
+ * APPROVAL_TIMEOUT_MS, and stopping the answer ends the wait with nothing written.
  */
 import { APPROVAL_TIMEOUT_MS } from "@/lib/ai-chat";
 import { AiError } from "@/server/ai";

@@ -319,7 +319,8 @@
       "noAccess": "Cette conversation, cette page ou cette compétence n’est plus disponible.",
       "tooLarge": "La question ou la compétence est trop longue, ou cette conversation est pleine. Raccourcissez-la ou commencez une nouvelle conversation.",
       "disabled": "L’IA est désactivée dans cet espace de travail.",
-      "invalid": "Écrivez d’abord une question."
+      "invalid": "Écrivez d’abord une question.",
+      "busy": "Cette conversation est encore en cours de réponse. Attends la réponse ou arrête-la."
     },
     "approval": {
       "question": {

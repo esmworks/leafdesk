@@ -77,6 +77,13 @@
   coming in the background and is there when you return, through the conversation list, Ask AI or
   the panel, and the panel can open the full-page chat while it answers.
 
+- **An AI chat answer survives a reload or a closed tab.** Reloading the page or closing the tab
+  mid-answer stopped the answer on the server, and when nothing had been written yet the question
+  was lost. The answer now runs on the server to its end and is saved; opening its conversation
+  again, after a reload or in another tab, picks it up where it is, a change waiting for your
+  approval included, and the chat list marks it while it's being answered. Stop is now a request of
+  its own, so it still stops the answer.
+
 - **Places find addresses with the district written first and a letter after the door number.**
   Since 0.6.7 an address such as "Buca – Zafer Mah. 2316 Sk. No: 64 A, İzmir" still found
   nothing: the letter after the door number, or a word such as "Kapı", was taken for the district,

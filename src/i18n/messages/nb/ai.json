@@ -319,7 +319,8 @@
       "noAccess": "Den samtalen, siden eller ferdigheten er ikke lenger tilgjengelig.",
       "tooLarge": "Spørsmålet eller ferdigheten er for lang, eller samtalen er full. Gjør det kortere eller start en ny chat.",
       "disabled": "KI er slått av i dette arbeidsområdet.",
-      "invalid": "Skriv inn et spørsmål først."
+      "invalid": "Skriv inn et spørsmål først.",
+      "busy": "Denne samtalen besvares fortsatt. Vent på svaret, eller stopp det."
     },
     "approval": {
       "question": {

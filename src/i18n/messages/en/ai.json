@@ -319,7 +319,8 @@
       "noAccess": "That conversation, page or skill isn't available anymore.",
       "tooLarge": "That question or skill is too long, or this conversation is full. Shorten it or start a new chat.",
       "disabled": "AI is turned off in this workspace.",
-      "invalid": "Type a question first."
+      "invalid": "Type a question first.",
+      "busy": "This conversation is still being answered. Wait for the answer or stop it."
     },
     "approval": {
       "question": {

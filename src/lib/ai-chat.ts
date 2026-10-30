@@ -186,7 +186,8 @@ export type ChatMessageView = {
   at?: string;
 };
 
-export type ConversationSummary = { id: string; title: string; updatedAt: string };
+/** `answering`: an answer is on its way in it (maybe asked in another tab, or before a reload). */
+export type ConversationSummary = { id: string; title: string; updatedAt: string; answering?: true };
 
 /** Whether an answer's step kept or dropped a note about the person (declined ones didn't). */
 export const changedMemory = (step: ChatStepView) => step.kind === "memory" && step.outcome !== "declined";
@@ -201,7 +202,8 @@ export const changedThings = (step: ChatStepView | ChatStepRecord) =>
 
 /**
  * Lines of `POST /api/ai/chat`'s newline-delimited JSON answer, in order: `conversation` (its id,
- * first), `step` for each step taken (the model's searches, reads, queries and changes, and what it
+ * first, with the question as the conversation will show it, when the answer started and whether it
+ * replaces the last question and answer: what a page following the answer again shows), `step` for each step taken (the model's searches, reads, queries and changes, and what it
  * said before them), `thinking` while the model works on a turn, `reasoning` with its thinking as
  * it comes (where the model shows it; not kept), `text` as the answer streams
  * (`reset` drops what was streamed before a tool call: it comes again as a `thought` step),
@@ -210,7 +212,7 @@ export const changedThings = (step: ChatStepView | ChatStepRecord) =>
  * its id, sending `ping` now and then meanwhile.
  */
 export type ChatEvent =
-  | { type: "conversation"; id: string; title: string; scope?: ChatScopeView }
+  | { type: "conversation"; id: string; title: string; scope?: ChatScopeView; question?: ChatMessageView; startedAt?: number; replaceLast?: boolean }
   | { type: "thinking" }
   | { type: "reasoning"; text: string }
   | { type: "step"; step: ChatStepView }
