@@ -19,8 +19,11 @@ export type StatusCondition = { propertyId: string; groups: StatusGroup[] };
 
 /** What starts an automation. */
 export type AutomationTrigger =
-  /** A row is added to the database, however (the app, a form, an import, MCP, the API). */
-  | { type: "row_created" }
+  /**
+   * A row is added to the database, however (the app, a form, an import, MCP, the API). With
+   * `filled`, a row added without a title waits until it was filled in (newRowWaitsUntil).
+   */
+  | { type: "row_created"; filled?: true }
   /**
    * A row's value of `propertyId` changes; any property when it is null. `propertyIds`, when it
    * names more than one, watches all of them (`propertyId` is then the first). With `to` (one
@@ -673,6 +676,30 @@ export function runStatusOf(steps: AutomationStep[]): AutomationRunStatus {
   if (steps.some((s) => s.status === "pending")) return "pending";
   if (steps.some((s) => s.status === "failed")) return "failed";
   return steps.some((s) => s.status === "stopped") ? "stopped" : "done";
+}
+
+/** A row added without a title is being filled in: a `filled` run waits until nobody edited it for this long. */
+export const NEW_ROW_QUIET_MS = 2 * 60_000;
+/** It waits at most this long after the row was added, edited or not. */
+export const NEW_ROW_WAIT_MS = 30 * 60_000;
+
+/**
+ * When a run of a `filled` "row added" trigger may start (server/automations/run.ts). A row added with a title
+ * (a form, an import, the API) came complete: it starts at once. One added without (the "New"
+ * button) is still being filled in: it waits for a title and then until NEW_ROW_QUIET_MS without
+ * an edit, or until whoever filled it in closed it (`closed`), and at most NEW_ROW_WAIT_MS in all.
+ * Returns when to look again, or null to start now.
+ */
+export function newRowWaitsUntil(
+  row: { title: string; updatedAt: number },
+  { addedUntitled, closed, addedAt }: { addedUntitled: boolean; closed: boolean; addedAt: number },
+  now: number,
+): number | null {
+  if (!addedUntitled || now - addedAt >= NEW_ROW_WAIT_MS) return null;
+  if (!row.title.trim()) return Math.min(now + 10_000, addedAt + NEW_ROW_WAIT_MS);
+  if (closed) return null;
+  const quiet = row.updatedAt + NEW_ROW_QUIET_MS;
+  return quiet > now ? Math.min(quiet, addedAt + NEW_ROW_WAIT_MS) : null;
 }
 
 /** The run waits for an approval's answer: the step that asks, if any. */

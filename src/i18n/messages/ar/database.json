@@ -1368,6 +1368,7 @@
     "summary": "عند {trigger} ← {actions}",
     "summaryTrigger": {
       "rowCreated": "إضافة صف",
+      "rowFilled": "إضافة صف وملؤه",
       "anyChange": "تغيّر أي خاصية",
       "changes": "تغيّر {property}",
       "becomes": "تحوّل {property} إلى {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "عند النقر على زر",
         "meeting_summarized": "تمت كتابة اجتماع"
       },
+      "rowStarts": "البدء",
+      "rowStartsAdded": "فورًا",
+      "rowStartsFilled": "بعد ملء الصف",
+      "rowFilledHelp": "ينتظر الصف المضاف بلا عنوان حتى يصبح له عنوان ولا يعدّله أحد لمدة دقيقتين، أو حتى يُغلق، بحد أقصى 30 دقيقة. الصف المضاف مع عنوانه يعمل فورًا.",
       "button": "زر",
       "chooseButton": "اختر زرًا",
       "noButtons": "لا توجد في قاعدة البيانات هذه خاصية زر بعد. أضف واحدة كخاصية جديدة ثم عد إلى هنا.",

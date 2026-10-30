@@ -128,7 +128,7 @@ export type DraftAction = { key: string; id: string } & (
 export type DraftActionOf<T extends AutomationActionType> = Extract<DraftAction, { type: T }>;
 
 export type DraftTrigger =
-  | { type: "row_created" }
+  | { type: "row_created"; filled?: boolean }
   /** `properties`: none for any property; `to` only with one. */
   | { type: "property_changed"; properties: string[]; to?: string | boolean }
   /**
@@ -215,7 +215,7 @@ export function initialValue(prop: Property): unknown {
 export const defaultSchedule = (): DraftSchedule => ({ frequency: "daily", time: "09:00", weekdays: [1], days: [1], cron: "0 9 * * 1-5" });
 
 function toDraftTrigger(stored: AutomationTrigger): DraftTrigger {
-  if (stored.type === "row_created") return { type: "row_created" };
+  if (stored.type === "row_created") return { type: "row_created", filled: stored.filled === true };
   if (stored.type === "date_passed") {
     return {
       type: "date_passed",
@@ -629,7 +629,7 @@ export const valuesOf = (entries: SetEntry[], props: Property[] | undefined) =>
 export function triggerInput(trigger: DraftTrigger) {
   switch (trigger.type) {
     case "row_created":
-      return { type: "row_created" as const };
+      return trigger.filled ? { type: "row_created" as const, filled: true } : { type: "row_created" as const };
     case "date_passed":
       return {
         type: "date_passed" as const,

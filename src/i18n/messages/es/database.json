@@ -1368,6 +1368,7 @@
     "summary": "Cuando {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "se añade una fila",
+      "rowFilled": "se añade y se rellena una fila",
       "anyChange": "cambia cualquier propiedad",
       "changes": "cambia {property}",
       "becomes": "{property} pasa a {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Se hace clic en un botón",
         "meeting_summarized": "Se redacta una reunión"
       },
+      "rowStarts": "Empieza",
+      "rowStartsAdded": "Al momento",
+      "rowStartsFilled": "Cuando la fila esté rellenada",
+      "rowFilledHelp": "Una fila añadida sin título espera hasta tener uno y que nadie la edite durante 2 minutos, o hasta que se cierre, como máximo 30 minutos. Una fila añadida con título se ejecuta al momento.",
       "button": "Botón",
       "chooseButton": "Elige un botón",
       "noButtons": "Esta base de datos aún no tiene una propiedad de botón. Añade una como propiedad nueva y vuelve aquí.",

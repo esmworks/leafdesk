@@ -10,6 +10,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, use
 import {
   archivePageAction,
   deletePagePermanentlyAction,
+  newRowClosedAction,
   restorePageAction,
   setPageBackgroundAction,
   setPageIconAction,
@@ -156,6 +157,13 @@ export function PageView({
   const canDelete = hasLevel(info.level, "full");
   // Full access verifies a page (server/verification); templates and pages in the trash aren't.
   const canVerify = canDelete && !info.template && !page.archived && !offline;
+  // An automation can wait until whoever fills in a new row is done: leaving the row says so
+  // (server/automations/run.ts `newRowClosed`).
+  const closesRow = page.isRow && canEdit ? page.id : null;
+  useEffect(() => {
+    if (!closesRow) return;
+    return () => void newRowClosedAction(closesRow).catch(() => {});
+  }, [closesRow]);
   // Locked against accidental edits (lib/page-lock; a database's lock is about its schema instead).
   // Follows the page menu at once, and other people's changes through the header event below.
   const [lockedNow, setLockedNow] = useState(info.locked);

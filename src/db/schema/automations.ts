@@ -145,9 +145,11 @@ export const automationRun = pgTable(
     triggerData: jsonb("trigger_data").$type<Record<string, unknown>>(),
     /**
      * While it runs: the `trigger` and each step's output as later steps' templates see them, not
-     * masked. Cleared when it finishes; the history keeps the masked copies in `steps`.
+     * masked. Cleared when it finishes; the history keeps the masked copies in `steps`. A run of a
+     * `filled` trigger on a row added without a title (`addedUntitled`) waits until it was filled
+     * in or `closed` (lib/automations `newRowWaitsUntil`).
      */
-    state: jsonb("state").$type<{ trigger?: unknown; outputs?: Record<string, unknown> }>(),
+    state: jsonb("state").$type<{ trigger?: unknown; outputs?: Record<string, unknown>; addedUntitled?: boolean; closed?: boolean }>(),
     status: text("status").$type<AutomationRunStatus>().notNull().default("pending"),
     steps: jsonb("steps").$type<AutomationStep[]>().notNull().default([]),
     /** The webhook body, made the first time it's sent, so every retry sends the same one. */

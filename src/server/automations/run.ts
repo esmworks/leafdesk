@@ -11,6 +11,7 @@ import {
   MAX_FOUND_ROWS,
   MAX_HTTP_RESPONSE_BYTES,
   MAX_WEBHOOK_ATTEMPTS,
+  newRowWaitsUntil,
   retriable,
   retryDelayMs,
   runEvent,
@@ -30,7 +31,7 @@ import { coerceValue } from "./values";
 import { isCredentialKey, REDACTED, redactError, redactText, redactValue } from "@/lib/redact";
 import { escapeSlackValues, slackPayload, slackWebhookUrl } from "@/lib/slack";
 import { dayString, localDay } from "@/lib/time-zone";
-import { resolvePageAccess } from "@/server/access";
+import { requirePageAccess, resolvePageAccess } from "@/server/access";
 import {
   createRows,
   getLookups,
@@ -218,6 +219,7 @@ export async function processRun(run: Run) {
           workspaceId: page.workspaceId,
           archivedAt: page.archivedAt,
           properties: page.properties,
+          updatedAt: page.updatedAt,
         })
         .from(page)
         .where(eq(page.id, run.rowId!))
@@ -231,6 +233,14 @@ export async function processRun(run: Run) {
   let payload = run.payload;
   let retryAt: Date | null = null;
   const state = { ...(run.state ?? {}) };
+  // Taken for the first time right after the row was added: without a title, someone is filling it
+  // in, and a trigger that waits for that waits (until it was left alone or closed).
+  const trigger = definition.trigger;
+  if (!run.steps.length && run.created && row && trigger.type === "row_created" && trigger.filled && !row.title.trim()) state.addedUntitled = true;
+  const filledAt =
+    state.addedUntitled && row
+      ? newRowWaitsUntil({ title: row.title, updatedAt: row.updatedAt.getTime() }, { addedUntitled: true, closed: state.closed === true, addedAt: run.createdAt.getTime() }, Date.now())
+      : null;
   const outputs: Record<string, unknown> = { ...(state.outputs ?? {}) };
   // A run from before versions whose automation changed while a webhook waited: what's left belongs to the old steps.
   const edited = steps.length !== actions.length || steps.some((s, i) => s.type !== actions[i].type);
@@ -247,9 +257,19 @@ export async function processRun(run: Run) {
   else if (rowRun && (!row || row.archivedAt || row.parentId !== automation.databaseId)) steps = endPending(steps, "rowGone", "skipped");
   else if (!runAs || !(await canManage(runAs, automation.databaseId))) {
     steps = endPending(steps, "noAccess");
+  } else if (filledAt !== null) {
+    retryAt = new Date(filledAt);
+    // Shown as a wait once there is a time to show (a row still untitled is looked at again soon).
+    if (row?.title.trim() && steps[0]) steps[0].waitUntil = retryAt.toISOString();
   } else if (waitsForTitle()) {
     retryAt = new Date(Date.now() + TITLE_POLL_MS);
   } else {
+    if (state.addedUntitled) {
+      // Filled in: it goes on like any run (a wait step's own time isn't this one).
+      delete state.addedUntitled;
+      delete state.closed;
+      if (steps[0]) delete steps[0].waitUntil;
+    }
     // The trigger as templates see it, worked out once: a run that waits sees the same one later.
     state.trigger ??= await triggerScope(automation, run, definition, row ?? null, runAs);
     const ctx: StepContext = {
@@ -428,7 +448,6 @@ export async function processRun(run: Run) {
   }
 
   // A run that counts from the row's last edit doesn't count its own edit as one.
-  const trigger = definition.trigger;
   if (trigger.type === "date_passed" && trigger.date === "last_edited_time" && run.basis !== null && run.rowId) {
     if (steps.some((s, i) => s.status === "done" && actions[i]?.type === "set_properties" && !forEachOf(actions[i]))) {
       await followOwnEdit(automation.id, run.rowId);
@@ -1118,4 +1137,23 @@ export function startAutomations() {
     clearInterval(timer);
     clearInterval(daily);
   };
+}
+
+/**
+ * Whoever filled in a new row closed it (its panel or page): runs waiting for that row to be
+ * filled in (lib/automations `newRowWaitsUntil`) go on now. Runs on rows they may not edit stay.
+ */
+export async function newRowClosed(userId: string, rowId: string) {
+  const waiting = await db
+    .select({ id: automationRun.id })
+    .from(automationRun)
+    .where(and(eq(automationRun.rowId, rowId), eq(automationRun.status, "pending"), sql`(${automationRun.state} ->> 'addedUntitled') = 'true'`));
+  if (!waiting.length) return;
+  await requirePageAccess(userId, rowId, "content");
+  await db
+    .update(automationRun)
+    // Due by the database's clock, which the worker claims by.
+    .set({ state: sql`coalesce(${automationRun.state}, '{}'::jsonb) || '{"closed": true}'::jsonb`, nextAt: sql`now()` })
+    .where(and(inArray(automationRun.id, waiting.map((r) => r.id)), eq(automationRun.status, "pending")));
+  kickAutomations();
 }

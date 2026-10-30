@@ -1368,6 +1368,7 @@
     "summary": "Når {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "en række tilføjes",
+      "rowFilled": "en række tilføjes og udfyldes",
       "anyChange": "en egenskab ændres",
       "changes": "{property} ændres",
       "becomes": "{property} bliver {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Der klikkes på en knap",
         "meeting_summarized": "Et møde er skrevet op"
       },
+      "rowStarts": "Starter",
+      "rowStartsAdded": "Med det samme",
+      "rowStartsFilled": "Når rækken er udfyldt",
+      "rowFilledHelp": "En række tilføjet uden titel venter, til den har en, og ingen har redigeret den i 2 minutter, eller til den lukkes, højst 30 minutter. En række tilføjet med titel kører med det samme.",
       "button": "Knap",
       "chooseButton": "Vælg en knap",
       "noButtons": "Denne database har endnu ingen knapegenskab. Tilføj en som ny egenskab, og kom så tilbage hertil.",

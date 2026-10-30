@@ -1368,6 +1368,7 @@
     "summary": "When {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "a row is added",
+      "rowFilled": "a row is added and filled in",
       "anyChange": "any property changes",
       "changes": "{property} changes",
       "becomes": "{property} becomes {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "A button is clicked",
         "meeting_summarized": "A meeting is written up"
       },
+      "rowStarts": "Starts",
+      "rowStartsAdded": "Right away",
+      "rowStartsFilled": "Once the row is filled in",
+      "rowFilledHelp": "A row added without a title waits until it has one and nobody has edited it for 2 minutes, or until it is closed, at most 30 minutes. A row added with its title runs at once.",
       "button": "Button",
       "chooseButton": "Choose a button",
       "noButtons": "This database has no button property yet. Add one as a new property, then come back here.",

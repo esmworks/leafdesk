@@ -51,7 +51,7 @@ const { duplicatePage } = await import("@/server/duplicate");
 const { setPagePermission } = await import("@/server/permissions");
 const manage = await import("@/server/automations/manage");
 const quick = await import("@/server/automations/slack-setup");
-const { flushAutomations } = await import("@/server/automations/run");
+const { flushAutomations, newRowClosed } = await import("@/server/automations/run");
 const { MAX_WAITING_RUNS, onThresholdRows } = await import("@/server/automations/queue");
 const { runThresholdAutomations } = await import("@/server/automations/threshold");
 const { webhookSecret } = await import("@/server/automations/webhook");
@@ -676,6 +676,38 @@ try {
   check(counting.trigger.type === "view_threshold" && counting.trigger.fn === "count_all", "counting rows is the default calculation");
   const preview = await manage.previewThreshold(ids.owner, ledger.id, { type: "view_threshold", view: "Cash and bank", comparison: "below", value: 2 });
   check(preview?.value === 1 && preview.met, "the editor's preview counts the view's rows now", preview);
+
+  // ── A row added: right away, or once it is filled in ───────────────────────────────────────
+  const leads = await createPage(owner, { workspaceId, kind: "database", title: "Leads" });
+  await addProperty(ids.owner, leads.id, { name: "Seen", type: "checkbox" });
+  await addProperty(ids.owner, leads.id, { name: "Looked up", type: "checkbox" });
+  const atOnce = await manage.createAutomation(ids.owner, leads.id, { name: "See", trigger: { type: "row_created" }, actions: [{ type: "set_properties", values: { Seen: true } }] });
+  const onceFilled = await manage.createAutomation(ids.owner, leads.id, {
+    name: "Look up",
+    trigger: { type: "row_created", filled: true },
+    actions: [{ type: "set_properties", values: { "Looked up": true } }],
+  });
+  check(onceFilled.trigger.type === "row_created" && onceFilled.trigger.filled === true && atOnce.trigger.type === "row_created" && !atOnce.trigger.filled, "the trigger keeps whether it waits");
+  const listed = (await manage.listAutomations(ids.owner, leads.id)).find((a) => a.id === onceFilled.id);
+  check(listed?.trigger.type === "row_created" && listed.trigger.filled === true, "…as listed");
+  // How many of the two checkboxes the automations ticked.
+  const leadFlags = async (rowId: string) => Object.values(await values(rowId)).filter((v) => v === true).length;
+  const [titled] = await createRows(ids.owner, leads.id, [{ title: "Acme" }]);
+  await flushAutomations();
+  check((await leadFlags(titled.id)) === 2, "a row added with its title runs both at once");
+  const [blank] = await createRows(ids.owner, leads.id, [{ title: "" }]);
+  await flushAutomations();
+  const [blankRun] = (await runsOf(onceFilled.id)).filter((r) => r.rowId === blank.id);
+  check((await leadFlags(blank.id)) === 1 && blankRun?.status === "pending", "a row added without a title runs the one that doesn't wait, and the other waits", blankRun);
+  await db.update(page).set({ title: "Bakery" }).where(eq(page.id, blank.id));
+  await db.update(automationRun).set({ nextAt: sql`now()` }).where(eq(automationRun.id, blankRun.id));
+  await flushAutomations();
+  const [named] = (await runsOf(onceFilled.id)).filter((r) => r.rowId === blank.id);
+  check(named.status === "pending" && Date.parse(named.steps[0]?.waitUntil ?? "") > Date.now() + 60_000, "…also once named, while it was just edited", named.steps);
+  await newRowClosed(ids.owner, blank.id);
+  await flushAutomations();
+  const [closed] = (await runsOf(onceFilled.id)).filter((r) => r.rowId === blank.id);
+  check(closed.status === "done" && !closed.steps[0]?.waitUntil && (await leadFlags(blank.id)) === 2, "…until it is closed", closed.steps);
 
   console.log(`\n${passed} checks passed`);
 } finally {

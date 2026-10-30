@@ -17,6 +17,10 @@ and deleting one is recorded in the audit log.
 **Triggers**
 
 - *A row is added*, however it is added: in the app, through a form, an import, MCP or the REST API.
+  It starts *Right away*, or *Once the row is filled in*: a row added without a title (the *New*
+  button) then waits until it has one and nobody has edited it for two minutes, or until whoever
+  fills it in closes its panel or page, at most 30 minutes; the run's history shows when it goes
+  on. A row added with its title starts at once either way.
 - *A property changes*: one property, several (any of them), or any property of an existing row.
   For a single select, status, checkbox, person or multi-select property it can wait for a value:
   "Status changes to Done" runs only when the value becomes Done, not when the row is saved again
@@ -82,7 +86,8 @@ use what it gave):
   this step, since the agent may open pages others can't; anyone who manages the automation may
   keep or remove it. Saving the automation shares the databases it runs the agent on with the
   agent at edit access. The run is queued and done apart, so the step counts as done once the
-  agent's run is queued.
+  agent's run is queued. Set the trigger to *Once the row is filled in* (above) when the agent
+  should read what people type into a new row.
 - *Move to trash*: the row goes to the trash, where anyone who may edit it can restore it, until
   the workspace's trash retention deletes it for good. It is always the last step and can't be
   combined with *Run an agent*, which runs later, apart. The audit log records each row an

@@ -334,7 +334,7 @@ function useSummary(automation: Automation, people: Person[], agents: AgentChoic
   const { trigger, actions } = automation.version < 1 && automation.draft ? automation.draft : automation;
   const views = useDatabaseInfo(trigger.type === "view_threshold" ? automation.databaseId : null)?.views;
   let when: string;
-  if (trigger.type === "row_created") when = t("summaryTrigger.rowCreated");
+  if (trigger.type === "row_created") when = t(trigger.filled ? "summaryTrigger.rowFilled" : "summaryTrigger.rowCreated");
   else if (trigger.type === "schedule") {
     const s = trigger.schedule;
     // January 4, 2026 is a Sunday: day n of that week names weekday n.

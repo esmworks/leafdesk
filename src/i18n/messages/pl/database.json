@@ -1368,6 +1368,7 @@
     "summary": "Gdy {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "zostanie dodany wiersz",
+      "rowFilled": "zostanie dodany i wypełniony wiersz",
       "anyChange": "zmieni się dowolna właściwość",
       "changes": "zmieni się {property}",
       "becomes": "{property} zmieni się na {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Kliknięto przycisk",
         "meeting_summarized": "Spotkanie zostało opracowane"
       },
+      "rowStarts": "Start",
+      "rowStartsAdded": "Od razu",
+      "rowStartsFilled": "Gdy wiersz zostanie wypełniony",
+      "rowFilledHelp": "Wiersz dodany bez tytułu czeka, aż będzie go miał i nikt go nie edytuje przez 2 minuty, albo aż zostanie zamknięty, najwyżej 30 minut. Wiersz dodany z tytułem uruchamia się od razu.",
       "button": "Przycisk",
       "chooseButton": "Wybierz przycisk",
       "noButtons": "Ta baza danych nie ma jeszcze właściwości przycisku. Dodaj ją jako nową właściwość i wróć tutaj.",

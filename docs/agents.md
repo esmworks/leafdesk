@@ -393,7 +393,10 @@ automation that runs it on every new row (the wins logger, a trigger on a connec
   them in a comment and ticks a checkbox.
 - **Company researcher** looks each new company up on the web (it gets web access) and fills the
   properties you pick that are still empty (website, sector, address, phone…), following their
-  descriptions, never overwriting a value, and comments its sources on the row.
+  descriptions, never overwriting a value, and comments its sources on the row. Its automation
+  starts *Once the row is filled in*: a company added with the *New* button is looked up once you
+  have named it and filled in what you know (the city or phone helps it find the right one), when
+  you close the row or two minutes after your last edit.
 - **Wins logger** reads each event a connection you pick receives (a Slack message, a GitHub pull
   request, a CRM deal or an email sent through a signed webhook) and, when it is a win or praise,
   adds a row to a wins log (the *Wins log* template makes one), filling the log's own properties as

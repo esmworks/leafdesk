@@ -104,6 +104,20 @@ export function TriggerEditor({
           </option>
         ))}
       </select>
+      {trigger.type === "row_created" && (
+        <>
+          <select
+            value={trigger.filled ? "filled" : "added"}
+            aria-label={t("form.rowStarts")}
+            onChange={(e) => onChange({ type: "row_created", filled: e.target.value === "filled" })}
+            className={selectClass}
+          >
+            <option value="added">{t("form.rowStartsAdded")}</option>
+            <option value="filled">{t("form.rowStartsFilled")}</option>
+          </select>
+          {trigger.filled && <p className="text-xs text-fg-muted">{t("form.rowFilledHelp")}</p>}
+        </>
+      )}
       {trigger.type === "date_passed" && <DatePassedEditor trigger={trigger} dates={dates} statuses={statuses} onChange={onChange} />}
       {trigger.type === "property_changed" && <PropertyChangedEditor trigger={trigger} people={people} onChange={onChange} />}
       {trigger.type === "schedule" && <ScheduleEditor schedule={trigger.schedule} onChange={(schedule) => onChange({ type: "schedule", schedule })} />}

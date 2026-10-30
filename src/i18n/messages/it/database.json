@@ -1368,6 +1368,7 @@
     "summary": "Quando {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "viene aggiunta una riga",
+      "rowFilled": "viene aggiunta e compilata una riga",
       "anyChange": "cambia una proprietà qualsiasi",
       "changes": "cambia {property}",
       "becomes": "{property} diventa {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Clic su un pulsante",
         "meeting_summarized": "Una riunione viene trascritta"
       },
+      "rowStarts": "Parte",
+      "rowStartsAdded": "Subito",
+      "rowStartsFilled": "Quando la riga è compilata",
+      "rowFilledHelp": "Una riga aggiunta senza titolo aspetta di averne uno e che nessuno la modifichi per 2 minuti, o di essere chiusa, al massimo 30 minuti. Una riga aggiunta con il titolo parte subito.",
       "button": "Pulsante",
       "chooseButton": "Scegli un pulsante",
       "noButtons": "Questo database non ha ancora una proprietà pulsante. Aggiungine una come nuova proprietà, poi torna qui.",

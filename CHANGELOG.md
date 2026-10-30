@@ -4,6 +4,14 @@
 
 ### Added
 
+- **"A row is added" can wait until the row is filled in.** The trigger has a choice: *Right
+  away*, as before, or *Once the row is filled in*. A row added with the *New* button starts out
+  without a title, so an automation reading it (an agent's run, say) found it empty; with the
+  new choice the run waits until the row has a title and nobody has edited it for two minutes, or
+  until it is closed, at most 30 minutes. Rows added with their title (forms, imports, the API) run
+  at once either way. The built-in agents (company researcher, ticket router, request answerer,
+  duplicate finder) are set up with it; MCP takes `"filled": true` on the trigger.
+
 - **Days in comments.** `@` in a comment box offers days beside people, groups and agents:
   *Today*, *Tomorrow*, *Yesterday*, *Next week* or one written out (`@next friday`,
   `@2026-11-06`). The day stays a day in the stored comment and shows in each reader's language,

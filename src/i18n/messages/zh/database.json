@@ -1368,6 +1368,7 @@
     "summary": "当{trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "添加一行时",
+      "rowFilled": "添加一行并填写完成时",
       "anyChange": "任一属性更改时",
       "changes": "{property} 更改时",
       "becomes": "{property} 变为 {value} 时",
@@ -1413,6 +1414,10 @@
         "button_clicked": "点击按钮时",
         "meeting_summarized": "会议整理完成时"
       },
+      "rowStarts": "开始",
+      "rowStartsAdded": "立即",
+      "rowStartsFilled": "行填写完成后",
+      "rowFilledHelp": "未填写标题添加的行会等到有了标题且 2 分钟内无人编辑，或被关闭时再运行，最多等待 30 分钟。带标题添加的行会立即运行。",
       "button": "按钮",
       "chooseButton": "选择按钮",
       "noButtons": "此数据库还没有按钮属性。请先将其添加为新属性，然后回到这里。",

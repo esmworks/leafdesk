@@ -1368,6 +1368,7 @@
     "summary": "Wenn {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "eine Zeile hinzugefügt wird",
+      "rowFilled": "eine Zeile hinzugefügt und ausgefüllt wird",
       "anyChange": "sich eine Eigenschaft ändert",
       "changes": "sich {property} ändert",
       "becomes": "{property} zu {value} wird",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Eine Schaltfläche wird angeklickt",
         "meeting_summarized": "Ein Meeting wird ausgewertet"
       },
+      "rowStarts": "Startet",
+      "rowStartsAdded": "Sofort",
+      "rowStartsFilled": "Sobald die Zeile ausgefüllt ist",
+      "rowFilledHelp": "Eine ohne Titel hinzugefügte Zeile wartet, bis sie einen hat und 2 Minuten lang niemand sie bearbeitet hat oder sie geschlossen wird, höchstens 30 Minuten. Eine mit Titel hinzugefügte Zeile läuft sofort.",
       "button": "Schaltfläche",
       "chooseButton": "Schaltfläche wählen",
       "noButtons": "Diese Datenbank hat noch keine Schaltflächen-Eigenschaft. Füge eine als neue Eigenschaft hinzu und komm dann hierher zurück.",

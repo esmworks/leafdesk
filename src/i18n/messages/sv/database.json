@@ -1368,6 +1368,7 @@
     "summary": "När {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "en rad läggs till",
+      "rowFilled": "en rad läggs till och fylls i",
       "anyChange": "någon egenskap ändras",
       "changes": "{property} ändras",
       "becomes": "{property} blir {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Någon klickar på en knapp",
         "meeting_summarized": "Ett möte har sammanfattats"
       },
+      "rowStarts": "Startar",
+      "rowStartsAdded": "Direkt",
+      "rowStartsFilled": "När raden är ifylld",
+      "rowFilledHelp": "En rad som läggs till utan titel väntar tills den har en och ingen har redigerat den på 2 minuter, eller tills den stängs, högst 30 minuter. En rad som läggs till med titel körs direkt.",
       "button": "Knapp",
       "chooseButton": "Välj en knapp",
       "noButtons": "Den här databasen har ingen knappegenskap än. Lägg till en som ny egenskap och kom sedan tillbaka hit.",

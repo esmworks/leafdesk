@@ -1368,6 +1368,7 @@
     "summary": "כאשר {trigger} ← {actions}",
     "summaryTrigger": {
       "rowCreated": "נוספת שורה",
+      "rowFilled": "נוספת שורה ומתמלאת",
       "anyChange": "מאפיין כלשהו משתנה",
       "changes": "{property} משתנה",
       "becomes": "{property} הופך ל־{value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "לחיצה על כפתור",
         "meeting_summarized": "פגישה סוכמה"
       },
+      "rowStarts": "התחלה",
+      "rowStartsAdded": "מיד",
+      "rowStartsFilled": "אחרי שהשורה מולאה",
+      "rowFilledHelp": "שורה שנוספה בלי כותרת ממתינה עד שתהיה לה כותרת ואיש לא ערך אותה במשך 2 דקות, או עד שהיא נסגרת, לכל היותר 30 דקות. שורה שנוספה עם כותרת רצה מיד.",
       "button": "כפתור",
       "chooseButton": "בחירת כפתור",
       "noButtons": "במסד הנתונים הזה אין עדיין מאפיין כפתור. הוסיפו אחד כמאפיין חדש וחזרו לכאן.",

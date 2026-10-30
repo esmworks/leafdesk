@@ -10,6 +10,9 @@ import {
   isDynamicValue,
   matchesTrigger,
   needsRow,
+  NEW_ROW_QUIET_MS,
+  NEW_ROW_WAIT_MS,
+  newRowWaitsUntil,
   runEvent,
   startPassed,
   statusMatch,
@@ -143,6 +146,33 @@ describe("runStatusOf", () => {
     expect(runStatusOf([step("done"), step("stopped"), step("skipped")])).toBe("stopped");
     expect(runStatusOf([step("failed"), step("stopped")])).toBe("failed");
     expect(runStatusOf([step("stopped"), step("pending")])).toBe("pending");
+  });
+});
+
+describe("newRowWaitsUntil", () => {
+  const addedAt = 1_000_000;
+  const untitled = { addedUntitled: true, closed: false, addedAt };
+  it("starts at once on a row that came with its title", () => {
+    expect(newRowWaitsUntil({ title: "Acme", updatedAt: addedAt }, { ...untitled, addedUntitled: false }, addedAt)).toBeNull();
+  });
+
+  it("waits for a title, even once the row was closed", () => {
+    expect(newRowWaitsUntil({ title: " ", updatedAt: addedAt }, untitled, addedAt + 5_000)).toBe(addedAt + 15_000);
+    expect(newRowWaitsUntil({ title: "", updatedAt: addedAt }, { ...untitled, closed: true }, addedAt + 5_000)).toBe(addedAt + 15_000);
+  });
+
+  it("then waits until the row was left alone for a while, or closed", () => {
+    const edited = addedAt + 60_000;
+    expect(newRowWaitsUntil({ title: "Acme", updatedAt: edited }, untitled, edited + 1_000)).toBe(edited + NEW_ROW_QUIET_MS);
+    expect(newRowWaitsUntil({ title: "Acme", updatedAt: edited }, untitled, edited + NEW_ROW_QUIET_MS)).toBeNull();
+    expect(newRowWaitsUntil({ title: "Acme", updatedAt: edited }, { ...untitled, closed: true }, edited + 1_000)).toBeNull();
+  });
+
+  it("waits no longer than NEW_ROW_WAIT_MS after the row was added", () => {
+    expect(newRowWaitsUntil({ title: "", updatedAt: addedAt }, untitled, addedAt + NEW_ROW_WAIT_MS - 1_000)).toBe(addedAt + NEW_ROW_WAIT_MS);
+    expect(newRowWaitsUntil({ title: "", updatedAt: addedAt }, untitled, addedAt + NEW_ROW_WAIT_MS)).toBeNull();
+    const late = addedAt + NEW_ROW_WAIT_MS - 30_000;
+    expect(newRowWaitsUntil({ title: "Acme", updatedAt: late }, untitled, late + 1_000)).toBe(addedAt + NEW_ROW_WAIT_MS);
   });
 });
 

@@ -1368,6 +1368,7 @@
     "summary": "Als {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "een rij wordt toegevoegd",
+      "rowFilled": "een rij wordt toegevoegd en ingevuld",
       "anyChange": "een eigenschap verandert",
       "changes": "{property} verandert",
       "becomes": "{property} {value} wordt",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Er wordt op een knop geklikt",
         "meeting_summarized": "Een vergadering is uitgewerkt"
       },
+      "rowStarts": "Start",
+      "rowStartsAdded": "Meteen",
+      "rowStartsFilled": "Zodra de rij is ingevuld",
+      "rowFilledHelp": "Een rij die zonder titel is toegevoegd wacht tot hij er een heeft en niemand hem 2 minuten heeft bewerkt, of tot hij wordt gesloten, hoogstens 30 minuten. Een rij die met titel is toegevoegd loopt meteen.",
       "button": "Knop",
       "chooseButton": "Kies een knop",
       "noButtons": "Deze database heeft nog geen knopeigenschap. Voeg er een toe als nieuwe eigenschap en kom dan hier terug.",

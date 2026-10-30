@@ -6,7 +6,8 @@ import type { PageKind } from "@/db/schema";
 import { LegalHoldError } from "@/lib/legal-hold";
 import type { PageBackground } from "@/lib/page-background";
 import { readSearchFilters, readSearchSort } from "@/lib/search-filters";
-import { hasLevel } from "@/server/access";
+import { AccessError, hasLevel } from "@/server/access";
+import { newRowClosed } from "@/server/automations/run";
 import * as pages from "@/server/pages";
 import { getPageSiblings } from "@/server/page-siblings";
 import { renameVersion, saveVersion, versionSaveState } from "@/server/page-versions";
@@ -78,6 +79,18 @@ export async function archivePageAction(pageId: string) {
   const userId = await requireUserId();
   const p = await pages.archivePage(userId, pageId);
   revalidatePath(`/w/${p.workspaceId}`, "layout");
+}
+
+/**
+ * A row's panel or page was closed: automations waiting for the new row to be filled in go on
+ * (server/automations/run.ts). A row someone may not edit changes nothing.
+ */
+export async function newRowClosedAction(rowId: string) {
+  const userId = await requireUserId();
+  if (typeof rowId !== "string") throw new Error("Bad request");
+  await newRowClosed(userId, rowId).catch((error) => {
+    if (!(error instanceof AccessError)) throw error;
+  });
 }
 
 export async function restorePageAction(pageId: string) {

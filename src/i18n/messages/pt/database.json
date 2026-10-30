@@ -1368,6 +1368,7 @@
     "summary": "Quando {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "uma linha é adicionada",
+      "rowFilled": "uma linha é adicionada e preenchida",
       "anyChange": "qualquer propriedade muda",
       "changes": "{property} muda",
       "becomes": "{property} passa a ser {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Um botão é clicado",
         "meeting_summarized": "Uma reunião é redigida"
       },
+      "rowStarts": "Começa",
+      "rowStartsAdded": "Na hora",
+      "rowStartsFilled": "Quando a linha estiver preenchida",
+      "rowFilledHelp": "Uma linha adicionada sem título espera até ter um e ninguém a editar por 2 minutos, ou até ser fechada, no máximo 30 minutos. Uma linha adicionada com título é executada na hora.",
       "button": "Botão",
       "chooseButton": "Escolha um botão",
       "noButtons": "Este banco de dados ainda não tem uma propriedade de botão. Adicione uma como nova propriedade e volte aqui.",

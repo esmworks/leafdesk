@@ -1368,6 +1368,7 @@
     "summary": "Kun {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "rivi lisätään",
+      "rowFilled": "rivi lisätään ja täytetään",
       "anyChange": "mikä tahansa ominaisuus muuttuu",
       "changes": "{property} muuttuu",
       "becomes": "{property} muuttuu arvoon {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Kun painiketta napsautetaan",
         "meeting_summarized": "Kokous on kirjoitettu auki"
       },
+      "rowStarts": "Alkaa",
+      "rowStartsAdded": "Heti",
+      "rowStartsFilled": "Kun rivi on täytetty",
+      "rowFilledHelp": "Ilman otsikkoa lisätty rivi odottaa, kunnes sillä on otsikko eikä kukaan ole muokannut sitä 2 minuuttiin, tai kunnes se suljetaan, enintään 30 minuuttia. Otsikon kanssa lisätty rivi ajetaan heti.",
       "button": "Painike",
       "chooseButton": "Valitse painike",
       "noButtons": "Tässä tietokannassa ei ole vielä painikeominaisuutta. Lisää sellainen uutena ominaisuutena ja palaa sitten tänne.",

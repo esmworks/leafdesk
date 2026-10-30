@@ -240,7 +240,8 @@ export async function installBuiltinAgent(
     }
     const automation = await createAutomation(userId, databaseId, {
       name: built.automation!(agent.name),
-      trigger: { type: "row_created" },
+      // Rows added with "New" are named and filled in afterwards: the agent reads them once they are.
+      trigger: { type: "row_created", filled: true },
       actions: [{ type: "run_agent", agent: agent.id, prompt: built.task }],
     });
     return { agent, automationId: automation.id, triggerId: null };

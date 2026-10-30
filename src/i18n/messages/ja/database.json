@@ -1368,6 +1368,7 @@
     "summary": "条件：{trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "行の追加",
+      "rowFilled": "行の追加と入力完了",
       "anyChange": "いずれかのプロパティの変更",
       "changes": "{property}の変更",
       "becomes": "{property}が{value}に変化",
@@ -1413,6 +1414,10 @@
         "button_clicked": "ボタンがクリックされたとき",
         "meeting_summarized": "会議がまとめられたとき"
       },
+      "rowStarts": "開始",
+      "rowStartsAdded": "すぐに",
+      "rowStartsFilled": "行の入力が済んだら",
+      "rowFilledHelp": "タイトルなしで追加された行は、タイトルが付いて 2 分間だれも編集しないか、閉じられるまで待ちます（最長 30 分）。タイトル付きで追加された行はすぐに実行されます。",
       "button": "ボタン",
       "chooseButton": "ボタンを選択",
       "noButtons": "このデータベースにはまだボタンプロパティがありません。新しいプロパティとして追加してから、ここに戻ってください。",

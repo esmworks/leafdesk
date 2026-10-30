@@ -146,7 +146,8 @@ export type AutomationInput = {
    */
   timeZone?: string;
   trigger:
-    | { type: "row_created" }
+    /** `filled`: wait until a row added without a title was filled in. */
+    | { type: "row_created"; filled?: boolean }
     /** `property` for one, `properties` for several (no `to` then); neither for any property. */
     | { type: "property_changed"; property?: string | null; properties?: string[] | null; to?: unknown }
     /**
@@ -295,7 +296,10 @@ function checkExample(value: unknown) {
 }
 
 async function checkTrigger(userId: string, databaseId: string, props: Prop[], input: AutomationInput["trigger"], timeZone: string): Promise<AutomationTrigger> {
-  if (input?.type === "row_created") return { type: "row_created" };
+  if (input?.type === "row_created") {
+    if (input.filled !== undefined && typeof input.filled !== "boolean") throw invalid('"filled" is true or false');
+    return input.filled ? { type: "row_created", filled: true } : { type: "row_created" };
+  }
   if (input?.type === "date_passed") return checkDatePassed(props, input);
   if (input?.type === "schedule") {
     const schedule = parseAutomationSchedule(input.schedule);

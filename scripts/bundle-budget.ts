@@ -100,8 +100,11 @@ import { gzipSync } from "node:zlib";
  * Shortcuts matched by the letters a keyboard types (TanStack Hotkeys' matcher in lib/shortcuts.ts,
  * which the sidebar and pages load) add about 1 kB to a page's first load and about 2 kB to all
  * first loads together.
+ *
+ * A row's page telling the server it was closed, so automations waiting for a new row to be filled
+ * in go on, adds about 0.1 kB to all first loads together.
  */
-const BUDGET = { routeFirstLoad: 787, firstLoadShared: 1197, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 787, firstLoadShared: 1198, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

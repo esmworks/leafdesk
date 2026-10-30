@@ -1368,6 +1368,7 @@
     "summary": "Khi {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "một hàng được thêm",
+      "rowFilled": "một hàng được thêm và điền xong",
       "anyChange": "bất kỳ thuộc tính nào thay đổi",
       "changes": "{property} thay đổi",
       "becomes": "{property} trở thành {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Khi bấm một nút",
         "meeting_summarized": "Một cuộc họp được tóm tắt xong"
       },
+      "rowStarts": "Bắt đầu",
+      "rowStartsAdded": "Ngay lập tức",
+      "rowStartsFilled": "Khi hàng đã được điền",
+      "rowFilledHelp": "Hàng được thêm mà không có tiêu đề sẽ chờ đến khi có tiêu đề và không ai sửa trong 2 phút, hoặc đến khi được đóng, tối đa 30 phút. Hàng được thêm cùng tiêu đề chạy ngay.",
       "button": "Nút",
       "chooseButton": "Chọn một nút",
       "noButtons": "Cơ sở dữ liệu này chưa có thuộc tính nút. Hãy thêm một thuộc tính mới rồi quay lại đây.",

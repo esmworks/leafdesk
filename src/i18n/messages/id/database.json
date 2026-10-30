@@ -1368,6 +1368,7 @@
     "summary": "Saat {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "baris ditambahkan",
+      "rowFilled": "baris ditambahkan dan diisi",
       "anyChange": "properti apa pun berubah",
       "changes": "{property} berubah",
       "becomes": "{property} menjadi {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Sebuah tombol diklik",
         "meeting_summarized": "Rapat selesai dirangkum"
       },
+      "rowStarts": "Mulai",
+      "rowStartsAdded": "Langsung",
+      "rowStartsFilled": "Setelah baris diisi",
+      "rowFilledHelp": "Baris yang ditambahkan tanpa judul menunggu sampai punya judul dan tidak ada yang mengeditnya selama 2 menit, atau sampai ditutup, paling lama 30 menit. Baris yang ditambahkan dengan judul langsung berjalan.",
       "button": "Tombol",
       "chooseButton": "Pilih tombol",
       "noButtons": "Basis data ini belum punya properti tombol. Tambahkan sebagai properti baru, lalu kembali ke sini.",

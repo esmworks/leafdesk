@@ -1368,6 +1368,7 @@
     "summary": "Quand {trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "une ligne est ajoutée",
+      "rowFilled": "une ligne est ajoutée et remplie",
       "anyChange": "une propriété change",
       "changes": "{property} change",
       "becomes": "{property} devient {value}",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Un clic sur un bouton",
         "meeting_summarized": "Une réunion est rédigée"
       },
+      "rowStarts": "Démarre",
+      "rowStartsAdded": "Tout de suite",
+      "rowStartsFilled": "Une fois la ligne remplie",
+      "rowFilledHelp": "Une ligne ajoutée sans titre attend d'en avoir un et que personne ne l'ait modifiée pendant 2 minutes, ou d'être fermée, 30 minutes au plus. Une ligne ajoutée avec son titre s'exécute tout de suite.",
       "button": "Bouton",
       "chooseButton": "Choisir un bouton",
       "noButtons": "Cette base de données n'a pas encore de propriété bouton. Ajoutez-en une comme nouvelle propriété, puis revenez ici.",

@@ -74,7 +74,7 @@ const { installBuiltinAgent } = await import("@/server/agents/builtin");
 const { flushAgentRuns, queueAgentRun } = await import("@/server/agents/run");
 const { decideApproval } = await import("@/server/connections/approvals");
 const automations = await import("@/server/automations/manage");
-const { flushAutomations } = await import("@/server/automations/run");
+const { flushAutomations, newRowClosed } = await import("@/server/automations/run");
 
 const RUN = `agents-e2e-${Date.now().toString(36)}`;
 
@@ -817,10 +817,11 @@ try {
   check(
     researchingAutomation?.id === researching.automationId &&
       researchingAutomation.trigger.type === "row_created" &&
+      researchingAutomation.trigger.filled === true &&
       researchingAutomation.actions.length === 1 &&
       researchingAutomation.actions[0].type === "run_agent" &&
       researchingAutomation.actions[0].agentId === c.id,
-    "…it runs on every new company, by an automation of the database",
+    "…it runs on every new company once it is filled in, by an automation of the database",
     researchingAutomation,
   );
   check((await pageAccessOf(c.userId, companies.id)).level === "edit", "…which shares the database with it, to edit");
@@ -834,6 +835,44 @@ try {
     researched?.status === "done" && researched.prompt === "Look this new company up on the web and fill in its empty properties." && researchTools.includes("read_web_page"),
     "a new company runs it with its task, and it may read web pages",
     { status: researched?.status, code: researched?.code, prompt: researched?.prompt, tools: researchTools },
+  );
+
+  // A company added without a name (the "New" button) is still being filled in: the agent waits
+  // for a name, then until nobody edited the row for a while or whoever filled it in closed it.
+  fake.setChat(() => ({ text: "Looked it up." }));
+  const [unnamed] = await createRows(ids.owner, companies.id, [{ title: "" }]);
+  await settle();
+  const runOnUnnamed = async () => (await db.select().from(automationRun).where(eq(automationRun.rowId, unnamed.id)))[0];
+  const agentRunsOnUnnamed = async () => db.select().from(agentRun).where(and(eq(agentRun.agentId, c.id), sql`${agentRun.source} ->> 'rowId' = ${unnamed.id}`));
+  let unnamedRun = await runOnUnnamed();
+  check(
+    unnamedRun?.status === "pending" && unnamedRun.state?.addedUntitled === true && (await agentRunsOnUnnamed()).length === 0,
+    "a company added without a name doesn't run it yet",
+    unnamedRun,
+  );
+  await newRowClosed(ids.owner, unnamed.id);
+  await settle();
+  check((await runOnUnnamed()).status === "pending" && (await agentRunsOnUnnamed()).length === 0, "…not even once it was closed, while it has no name");
+  // Named now, and the close before taken back: it is looked at again as it is being filled in.
+  await db.update(page).set({ title: "Bakery Two" }).where(eq(page.id, unnamed.id));
+  await db.update(automationRun).set({ state: { addedUntitled: true }, nextAt: sql`now()` }).where(eq(automationRun.id, unnamedRun.id));
+  await settle();
+  unnamedRun = await runOnUnnamed();
+  const goesOnAt = Date.parse(unnamedRun.steps[0]?.waitUntil ?? "");
+  check(
+    unnamedRun.status === "pending" && goesOnAt > Date.now() + 60_000 && (await agentRunsOnUnnamed()).length === 0,
+    "…nor once it has a name, while it was just edited: the step shows when it goes on",
+    unnamedRun.steps,
+  );
+  check(await fails(newRowClosed(ids.guest, unnamed.id), isAccess), "only someone who may edit the row says it was closed");
+  await newRowClosed(ids.owner, unnamed.id);
+  await settle();
+  unnamedRun = await runOnUnnamed();
+  const [unnamedAgentRun] = await agentRunsOnUnnamed();
+  check(
+    unnamedRun.status === "done" && !unnamedRun.steps[0]?.waitUntil && unnamedAgentRun?.status === "done",
+    "closing it runs the agent at once",
+    { automation: unnamedRun.steps, agent: unnamedAgentRun?.status },
   );
 
   // ── Web access ─────────────────────────────────────────────────────────────────────────────

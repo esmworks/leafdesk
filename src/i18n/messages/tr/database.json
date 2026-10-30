@@ -1368,6 +1368,7 @@
     "summary": "{trigger} → {actions}",
     "summaryTrigger": {
       "rowCreated": "Bir satır eklendiğinde",
+      "rowFilled": "Bir satır eklenip doldurulduğunda",
       "anyChange": "Herhangi bir özellik değiştiğinde",
       "changes": "{property} değiştiğinde",
       "becomes": "{property} “{value}” olduğunda",
@@ -1413,6 +1414,10 @@
         "button_clicked": "Bir butona tıklandığında",
         "meeting_summarized": "Bir toplantı yazıldığında"
       },
+      "rowStarts": "Başlama",
+      "rowStartsAdded": "Hemen",
+      "rowStartsFilled": "Satır doldurulunca",
+      "rowFilledHelp": "Başlıksız eklenen bir satır, başlığı yazılıp 2 dakika boyunca düzenlenmeyene ya da kapatılana kadar bekler, en fazla 30 dakika. Başlığıyla eklenen satır hemen çalışır.",
       "button": "Buton",
       "chooseButton": "Bir buton seç",
       "noButtons": "Bu veritabanında henüz buton özelliği yok. Yeni özellik olarak bir tane ekleyip buraya dönün.",

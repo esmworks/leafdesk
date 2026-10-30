@@ -92,7 +92,13 @@ const scheduleInput = z
 
 export const triggerInput = z
   .discriminatedUnion("type", [
-    z.object({ type: z.literal("row_created") }),
+    z.object({
+      type: z.literal("row_created"),
+      filled: z
+        .boolean()
+        .optional()
+        .describe("True to wait, on a row added without a title, until it has one and was left alone for 2 minutes or closed (at most 30 minutes)."),
+    }),
     z.object({
       type: z.literal("property_changed"),
       property: z
@@ -431,7 +437,7 @@ const toSchedule = (schedule: ScheduleArg): AutomationSchedule => schedule;
 const toTrigger = (trigger: TriggerArg): AutomationInput["trigger"] => {
   switch (trigger.type) {
     case "row_created":
-      return { type: "row_created" };
+      return { type: "row_created", filled: trigger.filled };
     case "date_passed":
       return {
         type: "date_passed",
@@ -760,7 +766,9 @@ function describeSchedule(schedule: AutomationSchedule, timeZone: string) {
 }
 
 function describeTrigger(ctx: AutomationContext, trigger: AutomationTrigger, timeZone: string) {
-  if (trigger.type === "row_created") return { type: "row_created", summary: "When a row is added" };
+  if (trigger.type === "row_created") {
+    return trigger.filled ? { type: "row_created", filled: true, summary: "When a row is added and filled in" } : { type: "row_created", summary: "When a row is added" };
+  }
   if (trigger.type === "schedule") return { type: "schedule", schedule: trigger.schedule, summary: describeSchedule(trigger.schedule, timeZone) };
   if (trigger.type === "incoming_webhook") {
     return {
