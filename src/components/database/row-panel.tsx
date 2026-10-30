@@ -91,8 +91,20 @@ function revealBesidePanel(el: HTMLElement, panelWidth: number) {
 /** A history entry with a row open: the page it's on and the row. */
 const entryOf = (rowId: string) => `${window.location.pathname}?${rowId}`;
 
-/** Puts focus back on the row in its view (or what opened it), as the panel closes. */
-function focusRow(rowId: string, origin: RowOrigin) {
+/**
+ * Puts focus back on the row in its view (or what opened it), as the panel closes. `opened`: the
+ * row the trigger opened. While the panel still shows it, focus goes back to the trigger, or the
+ * row around it: a view may show a row more than once (an AI chat cites a page in several answers),
+ * and focusing the first would scroll the view away from where the person was.
+ */
+function focusRow(rowId: string, origin: RowOrigin, opened: string | null) {
+  const trigger = origin.trigger;
+  if (trigger?.isConnected && opened === rowId) {
+    const el = trigger.closest<HTMLElement>(`[data-open-row="${CSS.escape(rowId)}"]`) ?? trigger;
+    if (el.tabIndex < 0 && !el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+    el.focus({ preventScroll: false });
+    return;
+  }
   const source = sourceOf(rowId, origin.source);
   const el = source ? rowElement(source, rowId) : null;
   if (el) {
@@ -134,6 +146,8 @@ export function RowPanelProvider({
   // another page reached since, or a row there from its address, isn't it.
   const pushed = useRef<string | null>(null);
   const origin = useRef<RowOrigin>({ source: null, trigger: null });
+  // The row the trigger in `origin` opened (the panel may have stepped to another since).
+  const triggerRow = useRef<string | null>(null);
   useEffect(() => {
     const onPop = () => void (pushed.current = null);
     window.addEventListener("popstate", onPop);
@@ -148,6 +162,7 @@ export function RowPanelProvider({
   const open = useCallback(
     (id: string, from: RowOrigin, blockId: string | null = null) => {
       origin.current = { source: from.source ?? origin.current.source, trigger: from.trigger ?? origin.current.trigger };
+      if (from.trigger) triggerRow.current = id;
       const current = rowFromSearch(window.location.search);
       // The page's editor scrolls to the block in the address as it opens (block-focus.ts).
       const href = withBlock(withRow(window.location.href, id), blockId);
@@ -178,7 +193,7 @@ export function RowPanelProvider({
     } else {
       window.history.replaceState(null, "", withBlock(withRow(window.location.href, null), null));
     }
-    if (current) setTimeout(() => focusRow(current, origin.current), 0);
+    if (current) setTimeout(() => focusRow(current, origin.current, triggerRow.current), 0);
   }, []);
 
   // Views say when their rows change, so the panel's previous and next rows follow.

@@ -153,6 +153,10 @@
 
 ### Fixed
 
+- **Closing a source beside the AI chat keeps the conversation where it was.** A page opened from
+  an answer's citation, or from the sources beside the conversation, gave focus back on closing to
+  the first place that page was cited, so a page an earlier answer also cited took the conversation
+  back to its start. Focus now goes back to what was clicked.
 - **Frozen columns no longer let text show beside them.** Scrolled sideways, a table's frozen
   columns stopped at the page's margin, and the columns scrolling past showed through in the strip
   between them and the edge. They now move along across the margin and hold at the edge.
