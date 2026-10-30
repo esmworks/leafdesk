@@ -284,7 +284,8 @@ export function useChat(
   callbacks.current = { onConversation, onAnswered };
   const running = status !== null;
 
-  // Unmounted (the panel closed, the page left) mid-answer: the answer stops, its queue is parked.
+  // Unmounted mid-answer (the workspace left: the chat is held beside its pages, chat-panel.tsx):
+  // the answer stops, its queue is parked.
   useEffect(
     () => () => {
       abort.current?.abort();

@@ -57,6 +57,12 @@
 
 ### Fixed
 
+- **An AI chat answer goes on while you visit other pages.** Leaving the full-page chat, or
+  closing the chat panel, while an answer was on its way stopped it; when nothing had been written
+  yet, the question and its new conversation were gone when you came back. The answer now keeps
+  coming in the background and is there when you return, through the conversation list, Ask AI or
+  the panel, and the panel can open the full-page chat while it answers.
+
 - **Places find addresses with the district written first and a letter after the door number.**
   Since 0.6.7 an address such as "Buca – Zafer Mah. 2316 Sk. No: 64 A, İzmir" still found
   nothing: the letter after the door number, or a word such as "Kapı", was taken for the district,

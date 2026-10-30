@@ -18,12 +18,11 @@ import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton } from "@/components/ui";
 import { chatPath, sourceHref, type ChatScopeView, type ChatSourceView } from "@/lib/ai-chat";
 import { rowFromSearch, withRow } from "@/lib/row-panel";
-import { useAiChat } from "./chat-panel";
+import { useAiChat, useSharedChat } from "./chat-panel";
 import { ChatStarters } from "./chat-starters";
 import { ChatThread } from "./chat-thread";
 import { MemoryButton } from "./memory-dialog";
 import { ScopePicker } from "./scope-picker";
-import { useChat } from "./use-chat";
 
 // Its boxes beside a conversation, from the first question on and on a wide page only.
 const ChatSide = lazyPart(() => import("./chat-side").then((m) => m.ChatSide));
@@ -40,16 +39,11 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
   const shown = useRef<string | null | undefined>(undefined);
   // The whole workspace, or one of the person's teamspaces (no page is open here).
   const [scope, setScope] = useState<ChatScopeView | null>(null);
-  const chat = useChat(workspaceId, {
-    options: context?.options,
-    onConversation: (id) => {
-      shown.current = id;
-      // Without a navigation: the answer is still streaming in. A source open beside it stays.
-      window.history.replaceState(null, "", withRow(chatPath(workspaceId, id), rowFromSearch(window.location.search)));
-      // A new conversation shows in the sidebar's list right away, not when it's answered.
-      if (id) void context?.refreshConversations();
-    },
-    onAnswered: () => void context?.refreshConversations(),
+  // Held beside the pages (chat-panel.tsx), so an answer goes on while the person is elsewhere.
+  const chat = useSharedChat((id) => {
+    shown.current = id;
+    // Without a navigation: the answer is still streaming in. A source open beside it stays.
+    window.history.replaceState(null, "", withRow(chatPath(workspaceId, id), rowFromSearch(window.location.search)));
   });
   const { conversationId, openConversation, newChat } = chat;
   const blocked = offline ? t("offline") : !available ? t("disabled") : null;
@@ -57,8 +51,17 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
 
   // Follows the address: a conversation picked in the sidebar, or a new chat.
   useEffect(() => {
+    const arriving = shown.current === undefined;
     if (requested === shown.current) return;
     shown.current = requested;
+    // The conversation it already shows: back on the page (from the panel, or another page).
+    if (requested && requested === conversationId) return;
+    // Back with an answer still on its way: it stays, with its address once the conversation has one
+    // (which brings this back to the line above).
+    if (!requested && arriving && chat.running) {
+      if (conversationId) window.history.replaceState(null, "", withRow(chatPath(workspaceId, conversationId), rowFromSearch(window.location.search)));
+      return;
+    }
     if (!requested) {
       newChat();
       return;

@@ -143,7 +143,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
   `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats
   (`components/agent-chat/agent-chat.tsx`) draw questions, steps and message actions with
-  `components/ai-chat/message-parts.tsx`, so they stay alike. Chat: `ai-chat.ts`; its tools:
+  `components/ai-chat/message-parts.tsx`, so they stay alike. The panel and the full-page chat
+  show one `useChat` held in `AiChatProvider` (`useSharedChat`): closing the request stops the
+  answer on the server, so it must outlive the page. Chat: `ai-chat.ts`; its tools:
   `ai-tools.ts` (writes reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this
   process as the person; `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without

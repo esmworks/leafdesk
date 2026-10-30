@@ -5,13 +5,15 @@
  * with citations that link to them (and scroll to the passage). Two ways to ask: the panel beside a
  * page (opened from the page's header; it stays open while the person moves between pages) and the
  * full-page chat at /w/[id]/ai (the sidebar's "Ask AI"), where the sidebar lists the conversations.
+ * Both show one chat held here, beside the pages: an answer on its way goes on while the person
+ * moves between pages or closes the panel, and is there when they come back.
  * Conversations are kept on the server for this person only. Needs the server and AI on in the
  * workspace, and says so otherwise.
  */
 import { History, Loader2, Maximize2, SquarePen, Trash2, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { MemoryButton } from "./memory-dialog";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
@@ -21,7 +23,7 @@ import { chatPath, isChatPath, sourceHref, type ChatOptions, type ChatScopeView,
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
 import { ChatThread } from "./chat-thread";
 import { ScopePicker } from "./scope-picker";
-import { useChat } from "./use-chat";
+import { useChat, type Chat } from "./use-chat";
 
 type ChatContext = {
   workspaceId: string;
@@ -47,6 +49,29 @@ const Context = createContext<ChatContext | null>(null);
 /** The chat for the sidebar, page headers and the full-page chat; null when the server has no AI provider. */
 export function useAiChat() {
   return useContext(Context);
+}
+
+/** The chat itself, apart from ChatContext: it changes with every piece of an answer. */
+type Shared = { chat: Chat; listener: RefObject<((id: string | null) => void) | null> };
+const SharedChat = createContext<Shared | null>(null);
+
+/**
+ * The chat the panel and the full-page chat show; `onConversation`: the shown one was started (by
+ * its first question) or deleted, told only while the caller is mounted. Only inside AiChatProvider
+ * (the full-page chat's route needs what the provider needs: an AI provider).
+ */
+export function useSharedChat(onConversation?: (id: string | null) => void): Chat {
+  const shared = useContext(SharedChat)!;
+  const latest = useRef(onConversation);
+  latest.current = onConversation;
+  const { listener } = shared;
+  useEffect(() => {
+    listener.current = (id) => latest.current?.(id);
+    return () => {
+      listener.current = null;
+    };
+  }, [listener]);
+  return shared.chat;
 }
 
 /**
@@ -92,6 +117,16 @@ export function AiChatProvider({
     setOpen(true);
   }, []);
   const backPath = useCallback(() => lastPage.current, []);
+  const listener = useRef<((id: string | null) => void) | null>(null);
+  const chat = useChat(workspaceId, {
+    options,
+    onConversation: (id) => {
+      listener.current?.(id);
+      // A new conversation shows in the sidebar's list right away, not when it's answered.
+      if (id) void refreshConversations();
+    },
+    onAnswered: () => void refreshConversations(),
+  });
 
   const value = useMemo(
     () => ({ workspaceId, available, voice, options, open, setOpen, openPanel, conversations, refreshConversations, backPath }),
@@ -99,18 +134,20 @@ export function AiChatProvider({
   );
   return (
     <Context.Provider value={value}>
-      {children}
-      {/* The full-page chat replaces the panel while it's shown. */}
-      {open && !onChatPage && (
-        <ChatPanel
-          key={panel.key}
-          workspaceId={workspaceId}
-          available={available}
-          memory={memory}
-          initialConversation={panel.conversationId}
-          onClose={() => setOpen(false)}
-        />
-      )}
+      <SharedChat.Provider value={{ chat, listener }}>
+        {children}
+        {/* The full-page chat replaces the panel while it's shown. */}
+        {open && !onChatPage && (
+          <ChatPanel
+            key={panel.key}
+            workspaceId={workspaceId}
+            available={available}
+            memory={memory}
+            initialConversation={panel.conversationId}
+            onClose={() => setOpen(false)}
+          />
+        )}
+      </SharedChat.Provider>
     </Context.Provider>
   );
 }
@@ -136,26 +173,30 @@ function ChatPanel({
   const currentPageId = /\/p\/([\w-]+)/.exec(pathname)?.[1] ?? null;
   const offline = useIsOffline();
   const [scope, setScope] = useState<ChatScopeView | null>(null);
-  const chat = useChat(workspaceId, { options: context.options, onAnswered: () => void refreshConversations() });
+  const chat = useSharedChat();
   const { conversationId, messages, running } = chat;
   const blocked = offline ? t("offline") : !available ? t("disabled") : null;
   // The page scope is the page open when the question is sent.
   const asked: ChatScopeView | null = scope?.kind === "page" ? (currentPageId ? { kind: "page", id: currentPageId, title: null } : null) : scope;
 
-  const openConversation = chat.openConversation;
   useEffect(() => {
-    if (initialConversation) void openConversation(initialConversation);
-    // Only when the panel opens for a conversation (it's keyed by each opening).
+    // Opened for the conversation it already shows (from the full-page chat), or with an answer
+    // still on its way: it carries on; otherwise it opens that conversation, or a new chat.
+    if (initialConversation ? initialConversation !== conversationId : !running) {
+      if (initialConversation) void chat.openConversation(initialConversation);
+      else chat.newChat();
+    }
+    // Only when the panel opens (it's keyed by each opening).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       // Not an Escape that closed something in it (a menu, editing a question).
-      if (e.key === "Escape" && !e.defaultPrevented && !running) onClose();
+      if (e.key === "Escape" && !e.defaultPrevented) onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, running]);
+  }, [onClose]);
 
   async function remove(id: string | "all") {
     if (await chat.remove(id)) await refreshConversations();
@@ -244,11 +285,9 @@ function ChatPanel({
         <IconButton label={t("newChat")} className="h-7 w-7" onClick={chat.newChat} disabled={!messages.length && !conversationId}>
           <SquarePen className="h-4 w-4" />
         </IconButton>
-        {/* Leaving mid-answer would stop it. */}
         <IconButton
           label={t("expand")}
           className="h-7 w-7 max-md:hidden"
-          disabled={running}
           onClick={() => {
             onClose();
             router.push(chatPath(workspaceId, conversationId));
