@@ -9,6 +9,7 @@ import { importGoogleDocsAction } from "@/app/actions/google-docs-import";
 import { createGithubPullsSyncAction } from "@/app/actions/github-pulls-sync";
 import { createIcalSyncAction } from "@/app/actions/ical-sync";
 import { createPostgresSyncAction } from "@/app/actions/postgres-sync";
+import { createGcalSyncAction } from "@/app/actions/gcal-sync";
 import { createSheetsSyncAction } from "@/app/actions/sheets-sync";
 import { createJiraSyncAction } from "@/app/actions/jira-sync";
 import { saveWebPageAction } from "@/app/actions/web-clip";
@@ -37,6 +38,7 @@ import { iconPrefix } from "@/lib/icon-value";
 import type { TreeNode } from "@/server/pages";
 import { GoogleDocsTab, type GoogleDocsSetup } from "./google-docs-import";
 import { GithubPullsTab, type GithubPullsSetup } from "./github-pulls-import";
+import { GcalTab, type GcalSetup } from "./gcal-import";
 import { IcalTab, type IcalSetup } from "./ical-import";
 import { PostgresTab, type PostgresSetup } from "./postgres-import";
 import { SheetsTab, type SheetsSetup } from "./sheets-import";
@@ -125,7 +127,7 @@ export function ImportDialog({
   const databases = flat.filter(({ node }) => node.kind === "database" && canEdit(node));
   const activeNode = tree.find((n) => n.id === activeId);
 
-  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "onenote" | "confluence" | "csv" | "trello" | BoardSource | "jira" | "github" | "ical" | "postgres" | "sheets" | "web">("pages");
+  const [tab, setTab] = useState<"pages" | "docx" | "googleDocs" | "pdf" | "evernote" | "onenote" | "confluence" | "csv" | "trello" | BoardSource | "jira" | "github" | "ical" | "postgres" | "sheets" | "gcal" | "web">("pages");
   const [destination, setDestination] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   // A folder that came with an Obsidian vault's settings folder (which isn't sent).
@@ -151,6 +153,7 @@ export function ImportDialog({
   const [ical, setIcal] = useState<IcalSetup | null>(null);
   const [postgresSetup, setPostgresSetup] = useState<PostgresSetup | null>(null);
   const [sheets, setSheets] = useState<SheetsSetup | null>(null);
+  const [gcal, setGcal] = useState<GcalSetup | null>(null);
   // The Google Docs tab's connection and documents, once some are chosen.
   const [googleDocs, setGoogleDocs] = useState<GoogleDocsSetup | null>(null);
   const [web, setWeb] = useState<WebClipSetupChoice | null>(null);
@@ -200,6 +203,7 @@ export function ImportDialog({
     setIcal(null);
     setPostgresSetup(null);
     setSheets(null);
+    setGcal(null);
     setGoogleDocs(null);
     setWeb(null);
     setCsvMode(activeEditable && activeNode.kind === "database" ? "existing" : "new");
@@ -413,6 +417,7 @@ export function ImportDialog({
     if (tab === "ical") return submitIcal();
     if (tab === "postgres") return submitPostgres();
     if (tab === "sheets") return submitSheets();
+    if (tab === "gcal") return submitGcal();
     if (tab === "googleDocs") return submitGoogleDocs();
     if (tab === "web") return submitWeb();
     const form = new FormData();
@@ -595,6 +600,26 @@ export function ImportDialog({
     }
   }
 
+  /** Sets a Google Calendar sync up: a server action, as nothing is uploaded. */
+  async function submitGcal() {
+    if (!gcal) return;
+    setBusy(true);
+    try {
+      const response = await createGcalSyncAction({
+        ...gcal,
+        workspaceId,
+        parentId: destination || null,
+        teamspaceId: teamspaceId === undefined ? undefined : (teamspaceId ?? "private"),
+      });
+      if (!response.ok) setError(response.error);
+      else setResult(response.data);
+    } catch {
+      setError(tc("genericError"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   /** Imports Google documents through a connection: a server action, as nothing is uploaded. */
   async function submitGoogleDocs() {
     if (!googleDocs) return;
@@ -683,6 +708,8 @@ export function ImportDialog({
                 ? postgresSetup !== null && destinationValid
               : tab === "sheets"
                 ? sheets !== null && destinationValid
+              : tab === "gcal"
+                ? gcal !== null && destinationValid
               : csv !== null &&
         (csvMode === "new"
           ? destinationValid && types.some((type, i) => type !== null || i === titleColumn)
@@ -751,7 +778,7 @@ export function ImportDialog({
       ) : (
         <DialogBody className="max-h-[70vh] overflow-y-auto" aria-busy={busy}>
           <div role="tablist" aria-label={t("title")} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-bg-hover p-0.5">
-            {(["pages", "docx", "googleDocs", "pdf", "evernote", "onenote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "ical", "postgres", "sheets", "web"] as const).map((key) => (
+            {(["pages", "docx", "googleDocs", "pdf", "evernote", "onenote", "confluence", "csv", "trello", "asana", "monday", "jira", "github", "ical", "postgres", "sheets", "gcal", "web"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
@@ -1192,6 +1219,8 @@ export function ImportDialog({
             <PostgresTab busy={busy} destinationPicker={destinationPicker} onSetup={setPostgresSetup} />
           ) : tab === "sheets" ? (
             <SheetsTab workspaceId={workspaceId} busy={busy} destinationPicker={destinationPicker} onSetup={setSheets} />
+          ) : tab === "gcal" ? (
+            <GcalTab workspaceId={workspaceId} busy={busy} destinationPicker={destinationPicker} onSetup={setGcal} />
           ) : tab === "asana" || tab === "monday" ? (
             <BoardTab
               source={tab}
@@ -1404,7 +1433,7 @@ export function ImportDialog({
             {tc("cancel")}
           </Button>
           <Button variant="primary" disabled={!ready} onClick={() => void submit()}>
-            {tab === "jira" || tab === "github" || tab === "ical" || tab === "postgres" || tab === "sheets"
+            {tab === "jira" || tab === "github" || tab === "ical" || tab === "postgres" || tab === "sheets" || tab === "gcal"
               ? busy
                 ? t("jira.submitting")
                 : t("jira.submit")

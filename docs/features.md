@@ -1253,6 +1253,31 @@
   account may only view it) shows in the dialog without pausing the sync: the change waits, and
   the row keeps it, until writing works or the sync goes back to reading only, which drops what
   waits. Tested against a fake Sheets server the e2e runs (`scripts/sheets-sync-e2e.ts`).
+- **Sync a Google Calendar calendar**: Import's Google Calendar tab reads one calendar through the
+  workspace's Google Calendar connection (Settings → Connections; owners may use it, members once
+  an owner ticks *In chat* for its `list_events` tool), so no secret address is needed: pick the
+  main calendar or another one the account sees. It makes a database like a calendar sync's
+  (title, *When*, location, description, status, organizer, a link, and the event's ID that finds
+  each row again) with the events from 90 days back to a year ahead, opening beside a calendar view
+  by *When*, and keeps it up to date every 15 minutes to every day, or when asked; rows of events
+  that leave the calendar stay. A connection signed out of Google, one the sync's person may no
+  longer read through, or a calendar that is gone pauses it. Up to 5,000 events; each read is in
+  the audit log as a call of the connection. **Direction** is *From the calendar only* or *Both
+  ways*. Both ways needs the connection's `create_event` and `update_event` tools (owners; members
+  once an owner ticks *In chat* for both), a calendar the account may change and a sync on a
+  schedule: a change to a row's title, *When*, location or description waits and brings the next
+  run to within seconds, which writes it to the event before it reads, without emailing the
+  event's guests. Times go in the calendar's time zone; a time without an end keeps the event's
+  length. Only the fields changed in Leafdesk are written, and only where the event still holds
+  the value from before the change; where the calendar changed too, its value stays and comes
+  back to the row. Events someone else organizes (unless guests may change them) and special
+  events (working location, out of office, focus time) are left as the calendar has them. A row
+  made in Leafdesk becomes an event once it has a *When* (an hour long when it has no end) and
+  takes the new event's ID; deleting a row deletes nothing in the calendar, and guests are never
+  added. The database's toolbar shows how many rows wait, with *Write now*, or that writing
+  failed; a refused write waits, without pausing the sync, until writing works or the sync goes
+  back to reading only, which drops what waits. Tested against a fake Calendar server the e2e
+  runs (`scripts/gcal-sync-e2e.ts`), not yet the real Google Calendar connection.
 - **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
   (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any

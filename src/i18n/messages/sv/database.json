@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Det gick inte att skriva till bladet: ändringarna väntar. Öppna synkroniseringen för att se varför.",
     "stopConfirm": "Sluta synkronisera den här databasen? Raderna står kvar."
   },
+  "gcalSync": {
+    "button": "Synkroniserad från Google Calendar",
+    "buttonPaused": "Google Calendar-synkronisering pausad",
+    "title": "Google Calendar-synkronisering",
+    "connectionGone": "Borttagen anslutning",
+    "lastRun": "Senast synkroniserad {when}, {count, plural, one {# händelse} other {# händelser}}",
+    "overwrite": "Kalendern är källan: de synkroniserade egenskaperna och radtitlarna skrivs över vid varje synkronisering, så ändra händelser i kalendern. Egenskaper du lägger till själv står kvar, och rader för händelser som försvinner ur kalendern lämnas orörda.",
+    "pending": "Rader som väntar på att skrivas till kalendern: {count, number}",
+    "writeFailed": "Kunde inte skriva till kalendern:",
+    "writeForbidden": "Anslutningens Google-konto får inte ändra den här kalenderns händelser, eller så får personen som synkroniseringen körs som inte skriva via anslutningen. Ändringar som görs här väntar tills det går.",
+    "waiting": "{count, plural, one {# rad väntar} other {# rader väntar}} på kalendern",
+    "waitingHelp": "Ändringar som görs här når kalendern inom sekunder. En ny rad väntar tills den har ett När.",
+    "writeNow": "Skriv nu",
+    "writingNow": "Skriver…",
+    "writeStuck": "Inte skrivet till kalendern",
+    "writeStuckHelp": "Skrivningen till kalendern misslyckades: ändringarna väntar. Öppna synkroniseringen för att se varför.",
+    "stopConfirm": "Sluta synkronisera den här databasen? Raderna står kvar."
+  },
   "history": {
     "title": "Databashistorik",
     "empty": "Inga ändringar än. Ändringar i databasens egenskaper, vyer och rader visas här.",

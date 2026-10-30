@@ -21,8 +21,8 @@ export type IcalAuth = { url: string };
 
 const TIMEOUT_MS = 30_000;
 
-/** The type a mapped property must still have to be written. */
-const TYPES: Record<IcalField, PropertyType> = {
+/** The type a mapped property must still have to be written (Google Calendar syncs write the same, server/gcal-sync). */
+export const ICAL_TYPES: Record<IcalField, PropertyType> = {
   key: "text",
   when: "date",
   location: "text",
@@ -73,16 +73,27 @@ export async function fetchCalendar(url: string, untitled?: string, now = Date.n
   return read;
 }
 
-/** Writes events into the database as `runAs` (who must be able to edit it). Returns how many rows it added and changed. */
-export async function applyEvents(database: SyncedDatabase, runAs: string, mapping: IcalMapping, rows: IcalRow[]) {
+/** By key, the fields (property ids, "title") of rows whose changes still wait to be written to the calendar (server/gcal-sync). */
+export type HeldFields = Map<string, Set<string>>;
+
+/**
+ * Writes events into the database as `runAs` (who must be able to edit it), leaving the `held`
+ * fields as they are. Returns how many rows it added and changed.
+ */
+export async function applyEvents(database: SyncedDatabase, runAs: string, mapping: IcalMapping, rows: IcalRow[], held: HeldFields = new Map()) {
   const before = await getProperties(database.id);
-  const live = liveFields<IcalField>(mapping, TYPES, "key", before);
+  const live = liveFields<IcalField>(mapping, ICAL_TYPES, "key", before);
   const statusProp = before.find((p) => p.id === live.status);
   const added = await addOptions(statusProp, ICAL_STATUSES.map((status) => ({ name: mapping.statuses[status] })));
   if (added) getCollab().broadcast(`db:${database.id}`, "schema");
   const props = added ? await getProperties(database.id) : before;
   const fields = { ...live, statuses: mapping.statuses };
-  const items = rows.map((row) => ({ key: row.key, title: row.title, values: icalValues(row, fields) }));
+  const items = rows.map((row) => {
+    const values = icalValues(row, fields);
+    const holds = held.get(row.key);
+    if (!holds) return { key: row.key, title: row.title, values };
+    return { key: row.key, title: row.title, values: Object.fromEntries(Object.entries(values).filter(([id]) => !holds.has(id))), keepTitle: holds.has("title") };
+  });
   return applyRows(database, runAs, live.key!, items, props, []);
 }
 

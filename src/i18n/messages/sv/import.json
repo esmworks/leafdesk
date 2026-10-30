@@ -18,6 +18,7 @@
     "ical": "Kalender",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Dokument",
     "web": "Webbsida"
   },
@@ -475,6 +476,35 @@
       "failed": "Synkroniseringen misslyckades. Den försöker igen nästa gång.",
       "invalidSite": "Leafdesk kan inte nå den anslutningen.",
       "invalidInput": "Kontrollera länken, rubrikraden och kolumnnamnen: De måste stämma med rubrikradens text.",
+      "alreadyRunning": "En synkronisering pågår. Försök igen om en stund."
+    }
+  },
+  "gcal": {
+    "help": "Få en databas med en Google-kalenders händelser som hålls i takt: varje händelse är en rad med när, var, anteckningar, status, arrangör och länk, och varje förekomst av en återkommande händelse är en egen rad. Händelser från {before} dagar bakåt till {after} dagar framåt kommer in. Ändringar kommer från kalendern och går även tillbaka dit om du väljer ”Åt båda hållen”.",
+    "loading": "Letar efter Google Calendar-anslutningar…",
+    "noConnection": "Det finns ingen Google Calendar-anslutning som du kan synkronisera via. En ägare lägger till Google Calendar i Inställningar → Anslutningar; medlemmar kan använda den när en ägare har kryssat i ”I chatten” för dess verktyg list_events.",
+    "connection": "Google Calendar-anslutning",
+    "calendar": "Kalender",
+    "primary": "Huvudkalender",
+    "direction": "Riktning",
+    "directionRead": "Bara från kalendern",
+    "directionBoth": "Åt båda hållen",
+    "directionBothHelp": "Ändringar av en rads titel, När, Plats och Beskrivning skrivs till kalendern vid nästa synkronisering, inom en minut eller så, utan e-post till gäster. Där en händelse också ändrats i kalendern behålls kalenderns värde. Nya rader blir händelser när de har ett När; att ta bort en rad tar inte bort något i kalendern, och händelser som någon annan arrangerar förblir som i kalendern.",
+    "directionNoWrite": "För att skriva tillbaka behöver anslutningen verktygen create_event och update_event: ägare kan använda dem, medlemmar när en ägare har kryssat i ”I chatten” för båda.",
+    "bothNeedsSchedule": "För att skriva tillbaka måste synkningen köras enligt ett schema.",
+    "errors": {
+      "unauthorized": "Google Calendar-anslutningen måste logga in på Google igen: En ägare gör det i Inställningar → Anslutningar.",
+      "forbidden": "Anslutningen kan inte användas till det här: dess Google-konto får inte öppna eller ändra kalendern, den finns i en annan arbetsyta, eller du får inte använda den.",
+      "notFound": "Kalendern finns inte, eller så har anslutningen tagits bort.",
+      "badQuery": "Google nekade:",
+      "tooManyIssues": "Kalendern har för många händelser, eller är för stor, för att synkroniseras.",
+      "unreachable": "Anslutningen gick inte att nå, eller så tog Google för lång tid. Synkroniseringen försöker igen nästa gång.",
+      "runAsGone": "Personen som konfigurerade synkroniseringen har inte längre något konto.",
+      "accessLost": "Personen som synkroniseringen körs som kan inte längre redigera databasen, eller har lämnat arbetsytan.",
+      "keyGone": "Egenskapen Händelse-ID togs bort eller bytte typ, så händelser kan inte matchas mot rader.",
+      "failed": "Synkroniseringen misslyckades. Den försöker igen nästa gång.",
+      "invalidSite": "Leafdesk kan inte nå den anslutningen.",
+      "invalidInput": "Välj en anslutning och en kalender.",
       "alreadyRunning": "En synkronisering pågår. Försök igen om en stund."
     }
   }

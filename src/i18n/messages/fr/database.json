@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "L’écriture dans la feuille a échoué : les modifications attendent. Ouvrez la synchronisation pour voir pourquoi.",
     "stopConfirm": "Arrêter de synchroniser cette base ? Ses lignes restent telles quelles."
   },
+  "gcalSync": {
+    "button": "Synchronisée depuis Google Calendar",
+    "buttonPaused": "Synchronisation Google Calendar en pause",
+    "title": "Synchronisation Google Calendar",
+    "connectionGone": "Connexion supprimée",
+    "lastRun": "Dernière synchronisation {when}, {count, plural, one {# événement} other {# événements}}",
+    "overwrite": "Le calendrier est la source : les propriétés synchronisées et les titres des lignes sont réécrits à chaque synchronisation, modifiez donc les événements dans le calendrier. Les propriétés que vous ajoutez restent telles quelles, et les lignes des événements qui quittent le calendrier ne sont pas touchées.",
+    "pending": "Lignes en attente d'écriture dans l'agenda : {count, number}",
+    "writeFailed": "Impossible d'écrire dans l'agenda :",
+    "writeForbidden": "Le compte Google de la connexion ne peut pas modifier les événements de cet agenda, ou la personne au nom de qui la synchronisation s'exécute ne peut pas écrire via la connexion. Les modifications faites ici attendent que ce soit possible.",
+    "waiting": "{count, plural, one {# ligne attend} other {# lignes attendent}} l'agenda",
+    "waitingHelp": "Les modifications faites ici arrivent dans l'agenda en quelques secondes. Une nouvelle ligne attend d'avoir un Quand.",
+    "writeNow": "Écrire maintenant",
+    "writingNow": "Écriture…",
+    "writeStuck": "Non écrit dans l'agenda",
+    "writeStuckHelp": "L'écriture dans l'agenda a échoué : les modifications attendent. Ouvrez la synchronisation pour voir pourquoi.",
+    "stopConfirm": "Arrêter de synchroniser cette base ? Ses lignes restent telles quelles."
+  },
   "history": {
     "title": "Historique de la base de données",
     "empty": "Aucune modification pour l’instant. Les modifications des propriétés, des vues et des lignes de cette base de données s’affichent ici.",

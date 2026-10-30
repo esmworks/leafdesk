@@ -18,6 +18,7 @@
     "ical": "Takvim",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Web sayfası"
   },
@@ -475,6 +476,35 @@
       "failed": "Eşitleme başarısız oldu. Bir dahaki sefere yeniden denenecek.",
       "invalidSite": "Leafdesk bu bağlantıya ulaşamıyor.",
       "invalidInput": "Bağlantıyı, başlık satırını ve sütun adlarını kontrol edin: sütun adları başlık satırındaki metinle aynı olmalı.",
+      "alreadyRunning": "Bir eşitleme sürüyor. Biraz sonra yeniden deneyin."
+    }
+  },
+  "gcal": {
+    "help": "Bir Google takviminin etkinliklerinden, eşit kalan bir veritabanı edinin: her etkinlik zamanı, yeri, notları, durumu, düzenleyeni ve bağlantısıyla bir satırdır; yinelenen bir etkinliğin her tekrarı ayrı bir satırdır. {before} gün öncesinden {after} gün sonrasına kadarki etkinlikler gelir. Değişiklikler takvimden gelir; “İki yönlü”yü seçerseniz takvime de geri yazılır.",
+    "loading": "Google Calendar bağlantıları aranıyor…",
+    "noConnection": "Eşitleme yapabileceğiniz bir Google Calendar bağlantısı yok. Bir sahip, Ayarlar → Bağlantılar'dan Google Calendar ekler; üyeler, bir sahip list_events aracı için “Sohbette” seçeneğini işaretledikten sonra kullanabilir.",
+    "connection": "Google Calendar bağlantısı",
+    "calendar": "Takvim",
+    "primary": "Ana takvim",
+    "direction": "Yön",
+    "directionRead": "Yalnız takvimden",
+    "directionBoth": "İki yönlü",
+    "directionBothHelp": "Bir satırın başlığında, Zaman'ında, Konum'unda ve Açıklama'sında yapılan değişiklikler bir sonraki eşitlemede, bir dakika kadar içinde, konuklara e-posta gitmeden takvime yazılır. Etkinlik takvimde de değiştiyse takvimdeki değer kalır. Yeni satırlar bir Zaman'ı olunca etkinlik olur; bir satırı silmek takvimde hiçbir şey silmez, başkasının düzenlediği etkinlikler de takvimdeki gibi kalır.",
+    "directionNoWrite": "Sayfaya yazmak için bağlantının create_event ve update_event araçları gerekir: sahipler bunları kullanabilir, üyeler ise bir sahip ikisi için de “Sohbette”yi işaretledikten sonra.",
+    "bothNeedsSchedule": "Sayfaya yazmak için eşitlemenin bir zamanlamayla çalışması gerekir.",
+    "errors": {
+      "unauthorized": "Google Calendar bağlantısının Google'a yeniden oturum açması gerekiyor: bunu bir sahip Ayarlar → Bağlantılar'dan yapar.",
+      "forbidden": "Bağlantı bunun için kullanılamaz: Google hesabı takvimi açamıyor veya değiştiremiyor, başka bir çalışma alanında ya da sizin kullanmanıza izin yok.",
+      "notFound": "Böyle bir takvim yok ya da bağlantı kaldırıldı.",
+      "badQuery": "Google reddetti:",
+      "tooManyIssues": "Takvimde eşitlenemeyecek kadar çok etkinlik var ya da takvim çok büyük.",
+      "unreachable": "Bağlantıya ulaşılamadı ya da Google çok uzun sürdü. Eşitleme bir dahaki sefere yeniden denenecek.",
+      "runAsGone": "Eşitlemeyi kuran kişinin artık hesabı yok.",
+      "accessLost": "Eşitlemenin adına çalıştığı kişi artık bu veritabanını düzenleyemiyor ya da çalışma alanından ayrıldı.",
+      "keyGone": "Etkinlik kimliği özelliği silindi ya da türü değişti; bu yüzden etkinlikler satırlarla eşleştirilemiyor.",
+      "failed": "Eşitleme başarısız oldu. Bir dahaki sefere yeniden denenecek.",
+      "invalidSite": "Leafdesk bu bağlantıya ulaşamıyor.",
+      "invalidInput": "Bir bağlantı ve bir takvim seçin.",
       "alreadyRunning": "Bir eşitleme sürüyor. Biraz sonra yeniden deneyin."
     }
   }

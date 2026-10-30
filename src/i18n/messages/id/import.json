@@ -18,6 +18,7 @@
     "ical": "Kalender",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Halaman web"
   },
@@ -475,6 +476,35 @@
       "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
       "invalidSite": "Leafdesk tidak dapat menjangkau koneksi itu.",
       "invalidInput": "Periksa tautan, baris header, dan nama kolom: semuanya harus cocok dengan teks baris header.",
+      "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
+    }
+  },
+  "gcal": {
+    "help": "Dapatkan database acara kalender Google yang selalu selaras: setiap acara menjadi baris berisi waktu, tempat, catatan, status, penyelenggara, dan tautannya, dan setiap kemunculan acara berulang menjadi baris tersendiri. Acara dari {before} hari ke belakang hingga {after} hari ke depan masuk. Perubahan datang dari kalender, dan juga kembali ke sana jika Anda memilih “Dua arah”.",
+    "loading": "Mencari koneksi Google Calendar…",
+    "noConnection": "Tidak ada koneksi Google Calendar yang dapat Anda gunakan untuk sinkronisasi. Pemilik menambahkan Google Calendar di Pengaturan → Koneksi; anggota dapat memakainya setelah pemilik mencentang “Di obrolan” untuk alat list_events.",
+    "connection": "Koneksi Google Calendar",
+    "calendar": "Kalender",
+    "primary": "Kalender utama",
+    "direction": "Arah",
+    "directionRead": "Hanya dari kalender",
+    "directionBoth": "Dua arah",
+    "directionBothHelp": "Perubahan judul, Waktu, Lokasi, dan Deskripsi baris ditulis ke kalender pada sinkronisasi berikutnya, dalam sekitar satu menit, tanpa mengirim email ke tamu. Jika acara juga berubah di kalender, nilai kalender yang dipakai. Baris baru menjadi acara setelah memiliki Waktu; menghapus baris tidak menghapus apa pun di kalender, dan acara yang diselenggarakan orang lain tetap seperti di kalender.",
+    "directionNoWrite": "Untuk menulis balik, koneksi memerlukan alat create_event dan update_event: pemilik dapat memakainya, anggota setelah pemilik mencentang “Di obrolan” untuk keduanya.",
+    "bothNeedsSchedule": "Menulis balik memerlukan sinkronisasi terjadwal.",
+    "errors": {
+      "unauthorized": "Koneksi Google Calendar perlu masuk ke Google lagi: pemilik melakukannya di Pengaturan → Koneksi.",
+      "forbidden": "Koneksi tidak dapat dipakai untuk ini: akun Google-nya tidak boleh membuka atau mengubah kalender, koneksi ada di ruang kerja lain, atau Anda tidak boleh menggunakannya.",
+      "notFound": "Kalender tidak ada, atau koneksi telah dihapus.",
+      "badQuery": "Google menolak:",
+      "tooManyIssues": "Kalender memiliki terlalu banyak acara atau terlalu besar untuk disinkronkan.",
+      "unreachable": "Koneksi tidak dapat dijangkau, atau Google terlalu lama. Sinkronisasi akan mencoba lagi lain kali.",
+      "runAsGone": "Orang yang menyiapkan sinkronisasi tidak lagi memiliki akun.",
+      "accessLost": "Orang yang menjalankan sinkronisasi tidak lagi bisa mengedit database ini, atau telah keluar dari ruang kerja.",
+      "keyGone": "Properti ID acara dihapus atau berubah jenis, sehingga acara tidak bisa dicocokkan dengan baris.",
+      "failed": "Sinkronisasi gagal. Akan dicoba lagi lain kali.",
+      "invalidSite": "Leafdesk tidak dapat menjangkau koneksi itu.",
+      "invalidInput": "Pilih koneksi dan kalender.",
       "alreadyRunning": "Sinkronisasi sedang berjalan. Coba lagi sebentar lagi."
     }
   }

@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Keep a database in step with a Google Calendar calendar, both ways.** Import's new *Google
+  Calendar* tab reads the main calendar, or another one the account sees, through the workspace's
+  Google Calendar connection: its events from 90 days back to a year ahead become rows with title,
+  *When*, location, description, status, organizer and a link, beside a calendar view, kept up to
+  date every 15 minutes to every day. With *Direction: Both ways*, a row's changed title, time,
+  location or description is written to its event within seconds without emailing guests, where
+  the event still holds the value from before the change (the calendar's value stays where both
+  changed), and a new row becomes an event once it has a *When*. Events someone else organizes
+  are left as they are, nothing is deleted in the calendar and guests are never added. Owners can
+  sync through the connection, members once an owner allows the AI chat its `list_events` tool
+  (and `create_event` and `update_event` to write back); each call is in the audit log. Changes
+  wait in the same table as a Google Sheets sync's, so there is no migration.
+
 - **Automations start when a meeting is written up.** A new trigger, *A meeting is written up*, runs
   a database's automations on a row once AI has written up a meeting recorded on the row's page,
   and again when the write-up is regenerated; nothing starts when nothing was heard or the write-up

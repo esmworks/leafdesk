@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Kunne ikke skrive til arket: ændringerne venter. Åbn synkroniseringen for at se hvorfor.",
     "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver."
   },
+  "gcalSync": {
+    "button": "Synkroniseret fra Google Calendar",
+    "buttonPaused": "Google Calendar-synkronisering på pause",
+    "title": "Google Calendar-synkronisering",
+    "connectionGone": "Fjernet forbindelse",
+    "lastRun": "Sidst synkroniseret {when}, {count, plural, one {# begivenhed} other {# begivenheder}}",
+    "overwrite": "Kalenderen er kilden: de synkroniserede egenskaber og rækketitler overskrives ved hver synkronisering, så ret begivenheder i kalenderen. Egenskaber, du selv tilføjer, forbliver, og rækker for begivenheder, der forsvinder fra kalenderen, lades i fred.",
+    "pending": "Rækker, der venter på at blive skrevet til kalenderen: {count, number}",
+    "writeFailed": "Kunne ikke skrive til kalenderen:",
+    "writeForbidden": "Forbindelsens Google-konto må ikke ændre denne kalenders begivenheder, eller den person, synkroniseringen kører som, må ikke skrive gennem forbindelsen. Ændringer foretaget her venter, til det kan lade sig gøre.",
+    "waiting": "{count, plural, one {# række venter} other {# rækker venter}} på kalenderen",
+    "waitingHelp": "Ændringer foretaget her når kalenderen inden for sekunder. En ny række venter, til den har et Hvornår.",
+    "writeNow": "Skriv nu",
+    "writingNow": "Skriver…",
+    "writeStuck": "Ikke skrevet til kalenderen",
+    "writeStuckHelp": "Skrivning til kalenderen mislykkedes: ændringerne venter. Åbn synkroniseringen for at se hvorfor.",
+    "stopConfirm": "Stop med at synkronisere denne database? Dens rækker forbliver."
+  },
   "history": {
     "title": "Databasehistorik",
     "empty": "Ingen ændringer endnu. Ændringer i databasens egenskaber, visninger og rækker vises her.",

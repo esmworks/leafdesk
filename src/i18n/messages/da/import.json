@@ -18,6 +18,7 @@
     "ical": "Kalender",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Webside"
   },
@@ -475,6 +476,35 @@
       "failed": "Synkroniseringen mislykkedes. Den prøver igen næste gang.",
       "invalidSite": "Leafdesk kan ikke nå den forbindelse.",
       "invalidInput": "Tjek linket, overskriftsrækken og kolonnenavnene: De skal stemme overens med overskriftsrækkens tekst.",
+      "alreadyRunning": "En synkronisering kører. Prøv igen om lidt."
+    }
+  },
+  "gcal": {
+    "help": "Få en database med en Google-kalenders begivenheder, der holdes i trit: hver begivenhed er en række med tidspunkt, sted, noter, status, arrangør og link, og hver forekomst af en gentagen begivenhed er sin egen række. Begivenheder fra {before} dage tilbage til {after} dage frem kommer med. Ændringer kommer fra kalenderen og går også tilbage til den, hvis du vælger “Begge veje”.",
+    "loading": "Leder efter Google Calendar-forbindelser…",
+    "noConnection": "Der er ingen Google Calendar-forbindelse, du kan synkronisere gennem. En ejer tilføjer Google Calendar under Indstillinger → Forbindelser; medlemmer kan bruge den, når en ejer har sat flueben ved “I chat” for dens værktøj list_events.",
+    "connection": "Google Calendar-forbindelse",
+    "calendar": "Kalender",
+    "primary": "Hovedkalender",
+    "direction": "Retning",
+    "directionRead": "Kun fra kalenderen",
+    "directionBoth": "Begge veje",
+    "directionBothHelp": "Ændringer af en rækkes titel, Hvornår, Sted og Beskrivelse skrives til kalenderen ved næste synkronisering, inden for et minuts tid, uden at gæster får e-mail. Hvor en begivenhed også er ændret i kalenderen, beholdes kalenderens værdi. Nye rækker bliver begivenheder, når de har et Hvornår; at slette en række sletter intet i kalenderen, og begivenheder, som en anden arrangerer, forbliver som i kalenderen.",
+    "directionNoWrite": "For at skrive tilbage skal forbindelsen have værktøjerne create_event og update_event: ejere kan bruge dem, medlemmer når en ejer har sat flueben ved “I chat” for begge.",
+    "bothNeedsSchedule": "For at skrive tilbage skal synkroniseringen køre efter en tidsplan.",
+    "errors": {
+      "unauthorized": "Google Calendar-forbindelsen skal logges ind på Google igen: Det gør en ejer under Indstillinger → Forbindelser.",
+      "forbidden": "Forbindelsen kan ikke bruges til dette: dens Google-konto må ikke åbne eller ændre kalenderen, den er i et andet arbejdsområde, eller du må ikke bruge den.",
+      "notFound": "Kalenderen findes ikke, eller forbindelsen er fjernet.",
+      "badQuery": "Google afviste:",
+      "tooManyIssues": "Kalenderen har for mange begivenheder eller er for stor til at synkronisere.",
+      "unreachable": "Forbindelsen kunne ikke nås, eller Google tog for lang tid. Synkroniseringen prøver igen næste gang.",
+      "runAsGone": "Personen, der satte synkroniseringen op, har ikke længere en konto.",
+      "accessLost": "Personen, synkroniseringen kører som, kan ikke længere redigere denne database eller har forladt arbejdsområdet.",
+      "keyGone": "Egenskaben Begivenheds-id blev slettet eller fik en anden type, så begivenheder kan ikke matches med rækker.",
+      "failed": "Synkroniseringen mislykkedes. Den prøver igen næste gang.",
+      "invalidSite": "Leafdesk kan ikke nå den forbindelse.",
+      "invalidInput": "Vælg en forbindelse og en kalender.",
       "alreadyRunning": "En synkronisering kører. Prøv igen om lidt."
     }
   }

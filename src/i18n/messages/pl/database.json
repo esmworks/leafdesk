@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Zapis w arkuszu nie powiódł się: zmiany czekają. Otwórz synchronizację, aby zobaczyć dlaczego.",
     "stopConfirm": "Zatrzymać synchronizację tej bazy? Jej wiersze pozostaną bez zmian."
   },
+  "gcalSync": {
+    "button": "Zsynchronizowano z Google Calendar",
+    "buttonPaused": "Synchronizacja Google Calendar wstrzymana",
+    "title": "Synchronizacja Google Calendar",
+    "connectionGone": "Usunięte połączenie",
+    "lastRun": "Ostatnia synchronizacja {when}, {count, plural, one {# wydarzenie} few {# wydarzenia} many {# wydarzeń} other {# wydarzenia}}",
+    "overwrite": "Kalendarz jest źródłem: synchronizowane właściwości i tytuły wierszy są nadpisywane przy każdej synchronizacji, więc zmieniaj wydarzenia w kalendarzu. Właściwości dodane przez Ciebie pozostają, a wiersze wydarzeń, które znikną z kalendarza, nie są ruszane.",
+    "pending": "Wiersze czekające na zapis w kalendarzu: {count, number}",
+    "writeFailed": "Nie udało się zapisać w kalendarzu:",
+    "writeForbidden": "Konto Google połączenia nie może zmieniać wydarzeń tego kalendarza albo osoba, jako która działa synchronizacja, nie może zapisywać przez połączenie. Zmiany wprowadzone tutaj czekają, aż będzie to możliwe.",
+    "waiting": "{count, plural, one {# wiersz czeka} few {# wiersze czekają} many {# wierszy czeka} other {# wiersza czeka}} na zapis w kalendarzu",
+    "waitingHelp": "Zmiany wprowadzone tutaj trafiają do kalendarza w ciągu kilku sekund. Nowy wiersz czeka, aż będzie miał termin.",
+    "writeNow": "Zapisz teraz",
+    "writingNow": "Zapisywanie…",
+    "writeStuck": "Nie zapisano w kalendarzu",
+    "writeStuckHelp": "Zapis w kalendarzu się nie udał: zmiany czekają. Otwórz synchronizację, aby zobaczyć dlaczego.",
+    "stopConfirm": "Zatrzymać synchronizację tej bazy? Jej wiersze pozostaną bez zmian."
+  },
   "history": {
     "title": "Historia bazy danych",
     "empty": "Nie ma jeszcze zmian. Tutaj pojawiają się zmiany właściwości, widoków i wierszy tej bazy danych.",

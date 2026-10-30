@@ -59,7 +59,7 @@ import { recordTitleChange } from "@/server/row-activity";
 import { queuePageSave } from "@/server/page-watch";
 import { queuePageUpdated } from "@/server/page-webhooks/queue";
 import { queueRowSave } from "@/server/row-follow";
-import { queueSheetTitle } from "@/server/sheets-sync/outbox";
+import { queueSyncTitle } from "@/server/sync-writes";
 import { authorizeCollab, parseDocName as parseName, type DocTarget } from "./authorize";
 import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
@@ -414,8 +414,8 @@ export function createCollab() {
     // A database row's title or content changed: AI autofill values that follow it may update.
     if (row.parentId) rowChanged({ rowId: pageId, databaseId: row.parentId, userId: userId ?? null });
     if (row.parentId && title !== row.title) await recordTitleChange(pageId, row.title, title, userId ?? null);
-    // A Google Sheets sync that writes back writes the new title (server/sheets-sync/outbox).
-    if (row.parentId && title !== row.title) await queueSheetTitle(pageId, row.parentId, row.title, userId ?? null);
+    // A sync that writes back writes the new title (server/sync-writes).
+    if (row.parentId && title !== row.title) await queueSyncTitle(pageId, row.parentId, row.title, userId ?? null);
     // The row's followers hear about it once its writers leave it alone (server/row-follow).
     // Watchers of other pages hear about it the same way, and its writers watch it (server/page-watch).
     const editors = wrote.size ? [...wrote] : userId ? [userId] : [];

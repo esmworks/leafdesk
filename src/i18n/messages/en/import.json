@@ -18,6 +18,7 @@
     "ical": "Calendar",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Web page"
   },
@@ -475,6 +476,35 @@
       "failed": "The sync failed. It tries again next time.",
       "invalidSite": "Leafdesk can't reach that connection.",
       "invalidInput": "Check the link, the header row and the column names: they must match the header row's text.",
+      "alreadyRunning": "A sync is running. Try again in a moment."
+    }
+  },
+  "gcal": {
+    "help": "Get a database of a Google calendar's events that stays in step: each event is a row with when it is, where, its notes, status, organizer and link, and each occurrence of a repeating event is a row of its own. Events from {before} days back to {after} days ahead come in. Changes come from the calendar, and go back to it too if you choose “Both ways”.",
+    "loading": "Looking for Google Calendar connections…",
+    "noConnection": "There is no Google Calendar connection you can sync through. An owner adds Google Calendar in Settings → Connections; members can use it once an owner ticks “In chat” for its list_events tool.",
+    "connection": "Google Calendar connection",
+    "calendar": "Calendar",
+    "primary": "Main calendar",
+    "direction": "Direction",
+    "directionRead": "From the calendar only",
+    "directionBoth": "Both ways",
+    "directionBothHelp": "Changes to a row's title, When, Location and Description are written to the calendar at the next sync, within a minute or so, without emailing guests. Where an event changed in the calendar too, the calendar's value stays. New rows become events once they have a When; deleting a row deletes nothing in the calendar, and events someone else organizes stay as the calendar has them.",
+    "directionNoWrite": "Writing back needs the connection's create_event and update_event tools: owners can use them, members once an owner ticks “In chat” for both.",
+    "bothNeedsSchedule": "Writing back needs a sync on a schedule.",
+    "errors": {
+      "unauthorized": "The Google Calendar connection needs signing in to Google again: an owner does that in Settings → Connections.",
+      "forbidden": "The connection can't be used for this: its Google account may not open or change the calendar, it is in another workspace, or you may not use it.",
+      "notFound": "No such calendar, or the connection was removed.",
+      "badQuery": "Google refused:",
+      "tooManyIssues": "The calendar has too many events, or is too big, to sync.",
+      "unreachable": "The connection couldn't be reached, or Google took too long. The sync tries again next time.",
+      "runAsGone": "The person who set the sync up no longer has an account.",
+      "accessLost": "The person the sync runs as can no longer edit this database, or left the workspace.",
+      "keyGone": "The Event ID property was deleted or changed type, so events can't be matched to rows.",
+      "failed": "The sync failed. It tries again next time.",
+      "invalidSite": "Leafdesk can't reach that connection.",
+      "invalidInput": "Choose a connection and a calendar.",
       "alreadyRunning": "A sync is running. Try again in a moment."
     }
   }

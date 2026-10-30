@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Taulukkoon kirjoittaminen epäonnistui: muutokset odottavat. Avaa synkronointi nähdäksesi syyn.",
     "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan."
   },
+  "gcalSync": {
+    "button": "Synkronoitu Google Calendarista",
+    "buttonPaused": "Google Calendar -synkronointi keskeytetty",
+    "title": "Google Calendar -synkronointi",
+    "connectionGone": "Poistettu yhteys",
+    "lastRun": "Viimeksi synkronoitu {when}, {count, plural, one {# tapahtuma} other {# tapahtumaa}}",
+    "overwrite": "Kalenteri on lähde: synkronoidut ominaisuudet ja rivien otsikot kirjoitetaan yli jokaisessa synkronoinnissa, joten muuta tapahtumia kalenterissa. Itse lisäämäsi ominaisuudet säilyvät, ja kalenterista poistuneiden tapahtumien rivit jätetään ennalleen.",
+    "pending": "Kalenteriin kirjoittamista odottavat rivit: {count, number}",
+    "writeFailed": "Kalenteriin ei voitu kirjoittaa:",
+    "writeForbidden": "Yhteyden Google-tili ei saa muuttaa tämän kalenterin tapahtumia, tai henkilö, jona synkronointi toimii, ei saa kirjoittaa yhteyden kautta. Täällä tehdyt muutokset odottavat, kunnes se onnistuu.",
+    "waiting": "{count, plural, one {# rivi odottaa} other {# riviä odottaa}} kalenteriin kirjoittamista",
+    "waitingHelp": "Täällä tehdyt muutokset menevät kalenteriin sekunneissa. Uusi rivi odottaa, kunnes sillä on Milloin.",
+    "writeNow": "Kirjoita nyt",
+    "writingNow": "Kirjoitetaan…",
+    "writeStuck": "Ei kirjoitettu kalenteriin",
+    "writeStuckHelp": "Kalenteriin kirjoittaminen epäonnistui: muutokset odottavat. Avaa synkronointi nähdäksesi syyn.",
+    "stopConfirm": "Lopetetaanko tämän tietokannan synkronointi? Rivit säilyvät ennallaan."
+  },
   "history": {
     "title": "Tietokannan historia",
     "empty": "Ei vielä muutoksia. Tämän tietokannan ominaisuuksien, näkymien ja rivien muutokset näkyvät tässä.",

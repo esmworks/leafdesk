@@ -7,6 +7,7 @@ import { AccessError } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { getProperties, requireDatabase } from "@/server/databases";
 import { runGithubPulls } from "@/server/github-pulls/run";
+import { runGcal } from "@/server/gcal-sync/run";
 import { runIcal } from "@/server/ical-sync/run";
 import { runPostgres } from "@/server/postgres-sync/run";
 import { runSheets } from "@/server/sheets-sync/run";
@@ -18,8 +19,8 @@ import { JiraError, searchIssues, type JiraAuth } from "./client";
 
 /**
  * Runs of synced databases (`database_sync`: Jira issues, lib/jira-sync, GitHub pull requests,
- * lib/github-pulls-sync, calendars, lib/ical-sync, PostgreSQL tables, lib/postgres-sync, and Google
- * Sheets, lib/sheets-sync): every minute the app server takes the syncs that are due with FOR UPDATE
+ * lib/github-pulls-sync, calendars, lib/ical-sync, PostgreSQL tables, lib/postgres-sync, Google
+ * Sheets, lib/sheets-sync, and Google calendars, lib/gcal-sync): every minute the app server takes the syncs that are due with FOR UPDATE
  * SKIP LOCKED, moves each one's next run on and holds it while it runs (`runningUntil`, let go after
  * LEASE_MS should the server die), so a sync never runs twice at once, here or on another replica;
  * "Sync now" takes the same hold.
@@ -106,6 +107,7 @@ export async function runSync(sync: SyncRow) {
   if (sync.source === "ical") return runIcal(sync, database, sync.runAs);
   if (sync.source === "postgres") return runPostgres(sync, database, sync.runAs);
   if (sync.source === "sheets") return runSheets(sync, database, sync.runAs);
+  if (sync.source === "gcal") return runGcal(sync, database, sync.runAs);
   const auth = openJson<JiraAuth>(sync.secrets);
   const issues = await searchIssues(sync.siteUrl, auth, jqlOf(sync.query as JiraQuery));
   const rows = issues.map((issue) => issueRow(issue, sync.siteUrl)).filter((row): row is JiraRow => row !== null);
@@ -203,7 +205,7 @@ const runner = globalThis as unknown as { __leafdeskSyncsSoon?: (ms: number) => 
 
 /**
  * Server only: runs syncs (Jira, GitHub, calendars, PostgreSQL, Google Sheets) as they fall due,
- * and, asked by sheets-sync/outbox, those due within `ms` once that time is up, without waiting
+ * and, asked by server/sync-writes, those due within `ms` once that time is up, without waiting
  * for the sweep. Both claim their syncs (claimDue), so they never run one twice.
  */
 export function startDatabaseSyncs() {

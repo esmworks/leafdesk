@@ -208,7 +208,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
   rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, synced databases (own
-  `database_sync` table, `source` jira, github, ical, postgres or sheets; the runs and the one-minute sweep
+  `database_sync` table, `source` jira, github, ical, gcal, postgres or sheets; the runs and the one-minute sweep
   are `jira-sync/run.ts` for all, rows written by `synced-rows.ts`, errors are `JiraError` codes;
   Jira in `jira-sync/` and `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and
   `src/lib/github-pulls-sync.ts`, people matched by their `account` with provider github;
@@ -217,11 +217,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   and reads in a read-only transaction) and `src/lib/postgres-sync.ts`; Google Sheets in
   `sheets-sync/` and `src/lib/sheets-sync.ts`, read typed through a workspace's Sheets connection
   (`get_spreadsheet`) as the person the sync runs as, checked by `sheetsAccess` on every run;
-  writing back keeps row changes in `sheets_write` (`sheets-sync/outbox.ts`, fed by
-  `afterRowWrites` and title saves in `collab/service.ts`; the run's own writes go inside
-  `fromSheet`) and the run writes them before reading (`planWrites`), leaving fields still waiting
+  Google Calendar in `gcal-sync/` and `src/lib/gcal-sync.ts` the same way (`list_events`,
+  writing with `notificationLevel: "NONE"`, times as the calendar's wall-clock time);
+  both write back through `sheets_write` (`server/sync-writes.ts`, fed by `afterRowWrites` and
+  title saves in `collab/service.ts`; a run's own writes go inside `fromSync`), and the run writes
+  them before reading (sheets: `planWrites`; gcal: `writeBack`), leaving fields still waiting
   out of what it reads; a change asks `startDatabaseSyncs` through `globalThis.__leafdeskSyncsSoon`
-  to run within seconds, and `sheets-sync/status.ts` is what the database's toolbar shows),
+  to run within seconds, and `server/sync-write-status.ts` is what the database's toolbar shows),
   GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
   check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`

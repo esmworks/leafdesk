@@ -18,6 +18,7 @@
     "ical": "カレンダー",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google ドキュメント",
     "web": "ウェブページ"
   },
@@ -475,6 +476,35 @@
       "failed": "同期に失敗しました。次回再試行します。",
       "invalidSite": "Leafdesk はその接続に到達できません。",
       "invalidInput": "リンク、ヘッダー行、列名を確認してください。ヘッダー行のテキストと一致している必要があります。",
+      "alreadyRunning": "同期の実行中です。少し待ってから再試行してください。"
+    }
+  },
+  "gcal": {
+    "help": "Google カレンダーの予定のデータベースを作り、同期し続けます。各予定は日時、場所、メモ、ステータス、主催者、リンクを持つ行になり、繰り返し予定の各回もそれぞれ 1 行になります。{before} 日前から {after} 日先までの予定が対象です。変更はカレンダーから届き、「双方向」を選ぶとカレンダーにも書き戻されます。",
+    "loading": "Google Calendar の接続を探しています…",
+    "noConnection": "同期に使える Google Calendar の接続がありません。オーナーが 設定 → 接続 で Google Calendar を追加し、list_events ツールの「チャットで使用」にチェックを入れるとメンバーも使えます。",
+    "connection": "Google Calendar の接続",
+    "calendar": "カレンダー",
+    "primary": "メインのカレンダー",
+    "direction": "方向",
+    "directionRead": "カレンダーからのみ",
+    "directionBoth": "双方向",
+    "directionBothHelp": "行のタイトル、日時、場所、説明の変更は、次の同期（1 分ほど以内）でカレンダーに書き込まれます。ゲストにメールは送られません。予定がカレンダー側でも変わっていた場合は、カレンダーの値が残ります。新しい行は日時が入ると予定になります。行を削除してもカレンダーからは何も削除されず、ほかの人が主催する予定はカレンダーのままです。",
+    "directionNoWrite": "書き戻すには、接続の create_event と update_event ツールが必要です。オーナーは使えます。メンバーは、オーナーが両方に「チャットで使用」のチェックを入れると使えます。",
+    "bothNeedsSchedule": "書き戻すには、定期的な同期が必要です。",
+    "errors": {
+      "unauthorized": "Google Calendar の接続は Google への再ログインが必要です。オーナーが 設定 → 接続 で行います。",
+      "forbidden": "この接続はここでは使えません。接続の Google アカウントがカレンダーを開けないか変更できない、別のワークスペースの接続である、またはあなたが使えない接続です。",
+      "notFound": "カレンダーが見つからないか、接続が削除されました。",
+      "badQuery": "Google に拒否されました:",
+      "tooManyIssues": "カレンダーの予定が多すぎるか、サイズが大きすぎて同期できません。",
+      "unreachable": "接続できないか、Google の応答に時間がかかりすぎました。次回再試行します。",
+      "runAsGone": "同期を設定した人のアカウントがなくなりました。",
+      "accessLost": "同期の実行者がこのデータベースを編集できなくなったか、ワークスペースを退出しました。",
+      "keyGone": "予定 ID のプロパティが削除されたか種類が変わったため、予定を行に照合できません。",
+      "failed": "同期に失敗しました。次回再試行します。",
+      "invalidSite": "Leafdesk はその接続に到達できません。",
+      "invalidInput": "接続とカレンダーを選んでください。",
       "alreadyRunning": "同期の実行中です。少し待ってから再試行してください。"
     }
   }

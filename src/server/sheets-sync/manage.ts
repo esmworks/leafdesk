@@ -29,7 +29,7 @@ import { claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "@/serve
 import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
 import { sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
-import { dropSheetWrites, forgetTwoWaySyncs } from "./outbox";
+import { dropSyncWrites, forgetTwoWaySyncs } from "@/server/sync-writes";
 import { applySheetRows, readSheet, sheetsConnection, type SheetsConnection } from "./run";
 import { asSetup } from "@/server/database-changes";
 
@@ -45,7 +45,7 @@ import { asSetup } from "@/server/database-changes";
  *
  * Writing back (`direction` "both") needs the connection's write tools for whoever turns it on and
  * whoever it runs as (lib/sheets-sync sheetsWriteAccess), and a schedule: changes are written by the
- * sync's runs, which the changes bring forward (./outbox).
+ * sync's runs, which the changes bring forward (server/sync-writes).
  */
 
 function interval(value: unknown): number {
@@ -329,7 +329,7 @@ export async function updateSheetsSync(userId: string, databaseId: string, patch
   }
   await db.update(databaseSync).set(changes).where(eq(databaseSync.id, row.id));
   forgetTwoWaySyncs();
-  if (way === "read") await dropSheetWrites(row.id);
+  if (way === "read") await dropSyncWrites(row.id);
   if (through && through.id !== row.query.connectionId) return syncSheetsNow(userId, databaseId);
   return { ...(await view((await syncOf(databaseId))!, userId)), outcome: null };
 }

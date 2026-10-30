@@ -143,8 +143,8 @@ import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/serv
 import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
-import { queueSheetWrites } from "@/server/sheets-sync/outbox";
-import { sheetsWriteStatus } from "@/server/sheets-sync/status";
+import { queueSyncWrites } from "@/server/sync-writes";
+import { syncWriteStatus } from "@/server/sync-write-status";
 import { requireNoDuplicates, sharedValue, withUniqueValues } from "@/server/unique-values";
 import {
   assignmentsTheySee,
@@ -1177,8 +1177,8 @@ export async function announceAssignments(
  * What every saved row write sets off: the rows' activity (server/row-activity), authorizing the
  * files its values gained, assignment notices, the database's automations
  * (server/automations/queue), telling the rows' followers (server/row-follow) and moving the rows
- * waiting for rows whose dates moved, and the changes a Google Sheets sync writes back
- * (server/sheets-sync/outbox). `created` for
+ * waiting for rows whose dates moved, and the changes a Google Sheets or Google Calendar sync
+ * writes back (server/sync-writes). `created` for
  * new rows, whose `before` is empty; `shifted` for the moves themselves, which don't move more;
  * `ai` for AI values written for the actor, which read as the AI's in the activity.
  */
@@ -1199,7 +1199,7 @@ export async function afterRowWrites(
   await announceAssignments(actorId, databaseId, changes);
   await queueAutomations(actorId, databaseId, changes, created, boundTo);
   if (!created && !ai) await queueRowWrites(actorId, databaseId, changes);
-  await queueSheetWrites(actorId, databaseId, changes, created);
+  await queueSyncWrites(actorId, databaseId, changes, created);
   if (!shifted && actorId) await shiftWaitingRows(actorId, databaseId, changes);
   await recording;
 }
@@ -3634,7 +3634,7 @@ export async function getDatabaseSnapshot(
       })
       .from(databaseSync)
       .where(eq(databaseSync.databaseId, databaseId)),
-    sheetsWriteStatus(userId, databaseId),
+    syncWriteStatus(userId, databaseId),
   ]);
   const rows: DatabaseRowWithPosition[] = (await withValues(userId, databaseId, stored, properties, { relations, people }, access)).map(
     ({ hasImage: _, ...row }) => (covers ? { ...row, cover: covers.get(row.id) ?? null } : row),

@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "시트에 쓰지 못했습니다. 변경 사항은 대기 중입니다. 이유를 보려면 동기화를 여세요.",
     "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남습니다."
   },
+  "gcalSync": {
+    "button": "Google Calendar에서 동기화됨",
+    "buttonPaused": "Google Calendar 동기화 일시 중지됨",
+    "title": "Google Calendar 동기화",
+    "connectionGone": "삭제된 연결",
+    "lastRun": "마지막 동기화 {when}, {count, plural, other {일정 #개}}",
+    "overwrite": "캘린더가 원본입니다. 동기화되는 속성과 행 제목은 동기화할 때마다 덮어쓰이므로 일정은 캘린더에서 변경하세요. 직접 추가한 속성은 그대로 유지되고, 캘린더에서 사라진 일정의 행도 그대로 둡니다.",
+    "pending": "캘린더에 기록을 기다리는 행: {count, number}",
+    "writeFailed": "캘린더에 기록하지 못했습니다:",
+    "writeForbidden": "연결의 Google 계정이 이 캘린더의 일정을 변경할 수 없거나, 동기화를 실행하는 사람이 연결을 통해 기록할 수 없습니다. 여기서 한 변경은 가능해질 때까지 기다립니다.",
+    "waiting": "{count, plural, other {#개 행}}이 캘린더에 쓰기를 기다리는 중",
+    "waitingHelp": "여기서 한 변경은 몇 초 안에 캘린더에 반영됩니다. 새 행은 일시가 생길 때까지 기다립니다.",
+    "writeNow": "지금 쓰기",
+    "writingNow": "쓰는 중…",
+    "writeStuck": "캘린더에 기록되지 않음",
+    "writeStuckHelp": "캘린더에 기록하지 못했습니다. 변경 사항은 대기 중입니다. 동기화를 열어 이유를 확인하세요.",
+    "stopConfirm": "이 데이터베이스의 동기화를 중지할까요? 행은 그대로 남습니다."
+  },
   "history": {
     "title": "데이터베이스 기록",
     "empty": "아직 변경 사항이 없습니다. 이 데이터베이스의 속성, 보기, 행 변경 사항이 여기에 표시됩니다.",

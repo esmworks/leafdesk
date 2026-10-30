@@ -18,6 +18,7 @@
     "ical": "Kalenteri",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Verkkosivu"
   },
@@ -475,6 +476,35 @@
       "failed": "Synkronointi epäonnistui. Se yrittää uudelleen seuraavalla kerralla.",
       "invalidSite": "Leafdesk ei saa yhteyttä tähän yhteyteen.",
       "invalidInput": "Tarkista linkki, otsikkorivi ja sarakkeiden nimet: niiden täytyy vastata otsikkorivin tekstiä.",
+      "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
+    }
+  },
+  "gcal": {
+    "help": "Hanki tietokanta Google-kalenterin tapahtumista, joka pysyy ajan tasalla: jokainen tapahtuma on rivi, jossa on sen aika, paikka, muistiinpanot, tila, järjestäjä ja linkki, ja toistuvan tapahtuman jokainen kerta on oma rivinsä. Mukaan tulevat tapahtumat {before} päivää taaksepäin ja {after} päivää eteenpäin. Muutokset tulevat kalenterista, ja ne menevät myös takaisin sinne, jos valitset ”Molempiin suuntiin”.",
+    "loading": "Etsitään Google Calendar -yhteyksiä…",
+    "noConnection": "Ei Google Calendar -yhteyttä, jonka kautta voisit synkronoida. Omistaja lisää Google Calendarin kohdassa Asetukset → Yhteydet; jäsenet voivat käyttää sitä, kun omistaja valitsee sen list_events-työkalulle ”Chatissa”.",
+    "connection": "Google Calendar -yhteys",
+    "calendar": "Kalenteri",
+    "primary": "Pääkalenteri",
+    "direction": "Suunta",
+    "directionRead": "Vain kalenterista",
+    "directionBoth": "Molempiin suuntiin",
+    "directionBothHelp": "Rivin otsikon, Milloin-, Paikka- ja Kuvaus-kentän muutokset kirjoitetaan kalenteriin seuraavassa synkronoinnissa, noin minuutin kuluessa, lähettämättä vieraille sähköpostia. Jos tapahtuma muuttui myös kalenterissa, kalenterin arvo jää voimaan. Uusista riveistä tulee tapahtumia, kun niillä on Milloin; rivin poistaminen ei poista kalenterista mitään, ja jonkun muun järjestämät tapahtumat pysyvät sellaisina kuin ne kalenterissa ovat.",
+    "directionNoWrite": "Takaisin kirjoittaminen vaatii yhteydeltä työkalut create_event ja update_event: omistajat voivat käyttää niitä, jäsenet, kun omistaja valitsee molemmille ”Chatissa”.",
+    "bothNeedsSchedule": "Takaisin kirjoittaminen vaatii aikataulun mukaan toimivan synkronoinnin.",
+    "errors": {
+      "unauthorized": "Google Calendar -yhteys täytyy kirjata uudelleen Googleen: omistaja tekee sen kohdassa Asetukset → Yhteydet.",
+      "forbidden": "Yhteyttä ei voi käyttää tähän: sen Google-tili ei saa avata tai muuttaa kalenteria, se on toisessa työtilassa tai sinä et saa käyttää sitä.",
+      "notFound": "Kalenteria ei ole, tai yhteys on poistettu.",
+      "badQuery": "Google kieltäytyi:",
+      "tooManyIssues": "Kalenterissa on liikaa tapahtumia tai se on liian suuri synkronoitavaksi.",
+      "unreachable": "Yhteyteen ei saatu yhteyttä tai Google kesti liian kauan. Synkronointi yrittää uudelleen seuraavalla kerralla.",
+      "runAsGone": "Synkronoinnin määrittäneellä henkilöllä ei ole enää tiliä.",
+      "accessLost": "Henkilö, jonka nimissä synkronointi toimii, ei voi enää muokata tätä tietokantaa tai on poistunut työtilasta.",
+      "keyGone": "Tapahtuman tunnus -ominaisuus poistettiin tai sen tyyppi muuttui, joten tapahtumia ei voi yhdistää riveihin.",
+      "failed": "Synkronointi epäonnistui. Se yrittää uudelleen seuraavalla kerralla.",
+      "invalidSite": "Leafdesk ei saa yhteyttä tähän yhteyteen.",
+      "invalidInput": "Valitse yhteys ja kalenteri.",
       "alreadyRunning": "Synkronointi on käynnissä. Yritä hetken päästä uudelleen."
     }
   }

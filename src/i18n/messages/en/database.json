@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Writing to the sheet failed: the changes wait. Open the sync to see why.",
     "stopConfirm": "Stop syncing this database? Its rows stay as they are."
   },
+  "gcalSync": {
+    "button": "Synced from Google Calendar",
+    "buttonPaused": "Google Calendar sync paused",
+    "title": "Google Calendar sync",
+    "connectionGone": "Removed connection",
+    "lastRun": "Last synced {when}, {count, plural, one {# event} other {# events}}",
+    "overwrite": "The calendar is the source: the synced properties and row titles are written over on each sync, so change events in the calendar. Properties you add yourself stay as they are, and rows of events that leave the calendar are left alone.",
+    "pending": "Rows waiting to be written to the calendar: {count, number}",
+    "writeFailed": "Couldn't write to the calendar:",
+    "writeForbidden": "The connection's Google account may not change this calendar's events, or the person the sync runs as may not write through the connection. Changes made here wait until it can.",
+    "waiting": "{count, plural, one {# row waits} other {# rows wait}} for the calendar",
+    "waitingHelp": "Changes made here go to the calendar within seconds. A new row waits until it has a When.",
+    "writeNow": "Write now",
+    "writingNow": "Writing…",
+    "writeStuck": "Not written to the calendar",
+    "writeStuckHelp": "Writing to the calendar failed: the changes wait. Open the sync to see why.",
+    "stopConfirm": "Stop syncing this database? Its rows stay as they are."
+  },
   "history": {
     "title": "Database history",
     "empty": "No changes yet. Changes to this database’s properties, views and rows show here.",

@@ -18,6 +18,7 @@
     "ical": "Calendario",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Página web"
   },
@@ -475,6 +476,35 @@
       "failed": "La sincronización falló. Lo intentará de nuevo la próxima vez.",
       "invalidSite": "Leafdesk no puede acceder a esa conexión.",
       "invalidInput": "Revisa el enlace, la fila de encabezado y los nombres de las columnas: deben coincidir con el texto de la fila de encabezado.",
+      "alreadyRunning": "Hay una sincronización en curso. Inténtalo de nuevo en un momento."
+    }
+  },
+  "gcal": {
+    "help": "Obtén una base de datos de los eventos de un calendario de Google que se mantiene al día: cada evento es una fila con cuándo es, dónde, sus notas, estado, organizador y enlace, y cada repetición de un evento periódico es una fila propia. Entran los eventos desde {before} días atrás hasta {after} días adelante. Los cambios llegan del calendario, y también vuelven a él si eliges «En ambos sentidos».",
+    "loading": "Buscando conexiones de Google Calendar…",
+    "noConnection": "No hay ninguna conexión de Google Calendar a través de la que puedas sincronizar. Un propietario añade Google Calendar en Configuración → Conexiones; los miembros pueden usarla cuando un propietario marca «En el chat» para su herramienta list_events.",
+    "connection": "Conexión de Google Calendar",
+    "calendar": "Calendario",
+    "primary": "Calendario principal",
+    "direction": "Dirección",
+    "directionRead": "Solo desde el calendario",
+    "directionBoth": "En ambos sentidos",
+    "directionBothHelp": "Los cambios en el título, Cuándo, Lugar y Descripción de una fila se escriben en el calendario en la siguiente sincronización, en un minuto más o menos, sin enviar correos a los invitados. Si un evento también cambió en el calendario, se queda el valor del calendario. Las filas nuevas se convierten en eventos cuando tienen un Cuándo; borrar una fila no borra nada en el calendario, y los eventos que organiza otra persona quedan como los tiene el calendario.",
+    "directionNoWrite": "Para escribir de vuelta, la conexión necesita las herramientas create_event y update_event: los propietarios pueden usarlas, y los miembros cuando un propietario marca «En el chat» para ambas.",
+    "bothNeedsSchedule": "Para escribir de vuelta, la sincronización debe tener una frecuencia.",
+    "errors": {
+      "unauthorized": "La conexión de Google Calendar necesita volver a iniciar sesión en Google: un propietario lo hace en Configuración → Conexiones.",
+      "forbidden": "La conexión no se puede usar para esto: su cuenta de Google no puede abrir ni cambiar el calendario, está en otro espacio de trabajo o no puedes usarla.",
+      "notFound": "No existe ese calendario, o se quitó la conexión.",
+      "badQuery": "Google lo rechazó:",
+      "tooManyIssues": "El calendario tiene demasiados eventos o es demasiado grande para sincronizarlo.",
+      "unreachable": "No se pudo acceder a la conexión o Google tardó demasiado. La sincronización lo intentará de nuevo la próxima vez.",
+      "runAsGone": "La persona que configuró la sincronización ya no tiene cuenta.",
+      "accessLost": "La persona con la que se ejecuta la sincronización ya no puede editar esta base de datos o dejó el espacio de trabajo.",
+      "keyGone": "La propiedad ID del evento se eliminó o cambió de tipo, así que los eventos no se pueden emparejar con filas.",
+      "failed": "La sincronización falló. Lo intentará de nuevo la próxima vez.",
+      "invalidSite": "Leafdesk no puede acceder a esa conexión.",
+      "invalidInput": "Elige una conexión y un calendario.",
       "alreadyRunning": "Hay una sincronización en curso. Inténtalo de nuevo en un momento."
     }
   }

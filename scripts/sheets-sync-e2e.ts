@@ -45,7 +45,7 @@ const { archivePage, createPage } = await import("@/server/pages");
 const { dropClient } = await import("@/server/connections/client");
 const { JiraError } = await import("@/server/jira-sync/client");
 const { createSheetsSync, getSheetsSync, sheetsSources, stopSheetsSync, syncSheetsNow, updateSheetsSync } = await import("@/server/sheets-sync/manage");
-const { sheetsWriteStatus } = await import("@/server/sheets-sync/status");
+const { syncWriteStatus } = await import("@/server/sync-write-status");
 
 const RUN = `sheets-e2e-${Date.now().toString(36)}`;
 const { hocuspocus, service } = createCollab();
@@ -387,8 +387,8 @@ try {
     { queued, timing, soon },
   );
   delete (globalThis as { __leafdeskSyncsSoon?: unknown }).__leafdeskSyncsSoon;
-  const ownerSees = await sheetsWriteStatus(ids.owner, databaseId);
-  const memberSees = await sheetsWriteStatus(ids.member, databaseId);
+  const ownerSees = await syncWriteStatus(ids.owner, databaseId);
+  const memberSees = await syncWriteStatus(ids.member, databaseId);
   check(
     ownerSees?.pending === 1 && !ownerSees.failed && ownerSees.canWriteNow && memberSees?.pending === 1 && !memberSees.canWriteNow,
     "the database shows the row waiting, with Write now for those who may run the sync",
@@ -487,7 +487,7 @@ try {
     refused,
   );
   check((await value("GNA 3.000-1 N", "LİSTE FİYATI")) === 710 && cell("GNA 3.000-1 N", 1)?.effectiveValue?.numberValue === 700, "…and the row keeps its change while it waits");
-  check((await sheetsWriteStatus(ids.owner, databaseId))?.failed === true, "…and the database shows it wasn't written");
+  check((await syncWriteStatus(ids.owner, databaseId))?.failed === true, "…and the database shows it wasn't written");
   refuseWrites = false;
   const retried = await runNow();
   check(retried.writeError === null && retried.pendingWrites === 0 && cell("GNA 3.000-1 N", 1)?.effectiveValue?.numberValue === 710, "it is written once the sheet takes it");

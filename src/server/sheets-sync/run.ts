@@ -42,13 +42,13 @@ import { JiraError } from "@/server/jira-sync/client";
 import type { SyncRow } from "@/server/jira-sync/run";
 import { applyRows, type SyncedDatabase } from "@/server/synced-rows";
 import { withUniqueValues } from "@/server/unique-values";
-import { fromSheet } from "./outbox";
+import { fromSync } from "@/server/sync-writes";
 
 /**
  * Reading one sheet of a Google spreadsheet (lib/sheets-sync) through a workspace's Google Sheets
  * connection and writing its rows into the synced database, called by server/jira-sync/run, which
  * holds and records every synced database's runs; for a sync that writes back, writing the changes
- * waiting in `sheets_write` (./outbox) to the sheet first. Each run checks again that the person it
+ * waiting in `sheets_write` (server/sync-writes) to the sheet first. Each run checks again that the person it
  * runs as may read (and write) through the connection (lib/sheets-sync sheetsAccess,
  * sheetsWriteAccess), and each call to it is recorded in the audit log, as the AI chat's and
  * imports' calls are. An error is a JiraError (the runs record every source alike).
@@ -201,8 +201,8 @@ export async function applySheetRows(
     const holds = (field: string) => fields === "all" || fields.has(field);
     return { ...item, values: Object.fromEntries(Object.entries(item.values).filter(([id]) => !holds(id))), keepTitle: holds(TITLE_FIELD) };
   });
-  // The run's own writes are no changes to write back (./outbox).
-  const written = await fromSheet(() => applyRows(database, runAs, live.key, kept, props, []));
+  // The run's own writes are no changes to write back (server/sync-writes).
+  const written = await fromSync(() => applyRows(database, runAs, live.key, kept, props, []));
   return { count: items.length, ...written };
 }
 

@@ -18,6 +18,7 @@
     "ical": "Lịch",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Trang web"
   },
@@ -475,6 +476,35 @@
       "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
       "invalidSite": "Leafdesk không thể kết nối tới kết nối đó.",
       "invalidInput": "Hãy kiểm tra liên kết, hàng tiêu đề và tên cột: chúng phải khớp với văn bản của hàng tiêu đề.",
+      "alreadyRunning": "Đang đồng bộ. Hãy thử lại sau giây lát."
+    }
+  },
+  "gcal": {
+    "help": "Tạo một cơ sở dữ liệu các sự kiện của lịch Google luôn được đồng bộ: mỗi sự kiện là một hàng có thời gian, địa điểm, ghi chú, trạng thái, người tổ chức và liên kết, và mỗi lần lặp của sự kiện định kỳ là một hàng riêng. Lấy các sự kiện từ {before} ngày trước đến {after} ngày tới. Thay đổi đến từ lịch, và cũng được ghi lại vào lịch nếu bạn chọn “Cả hai chiều”.",
+    "loading": "Đang tìm kết nối Google Calendar…",
+    "noConnection": "Không có kết nối Google Calendar nào bạn có thể dùng để đồng bộ. Chủ sở hữu thêm Google Calendar trong Cài đặt → Kết nối; thành viên dùng được khi chủ sở hữu đánh dấu “Trong trò chuyện” cho công cụ list_events.",
+    "connection": "Kết nối Google Calendar",
+    "calendar": "Lịch",
+    "primary": "Lịch chính",
+    "direction": "Chiều",
+    "directionRead": "Chỉ từ lịch",
+    "directionBoth": "Hai chiều",
+    "directionBothHelp": "Thay đổi về tiêu đề, Thời gian, Địa điểm và Mô tả của một hàng được ghi vào lịch ở lần đồng bộ tiếp theo, trong khoảng một phút, mà không gửi email cho khách. Nếu sự kiện cũng đã thay đổi trong lịch, giá trị của lịch được giữ. Hàng mới trở thành sự kiện khi có Thời gian; xóa một hàng không xóa gì trong lịch, và các sự kiện do người khác tổ chức giữ nguyên như trong lịch.",
+    "directionNoWrite": "Để ghi ngược lại, kết nối cần công cụ create_event và update_event: chủ sở hữu dùng được, thành viên dùng được khi chủ sở hữu đánh dấu “Trong trò chuyện” cho cả hai.",
+    "bothNeedsSchedule": "Ghi ngược lại cần đồng bộ theo lịch.",
+    "errors": {
+      "unauthorized": "Kết nối Google Calendar cần đăng nhập lại Google: chủ sở hữu thực hiện việc này trong Cài đặt → Kết nối.",
+      "forbidden": "Không thể dùng kết nối cho việc này: tài khoản Google của nó không được mở hoặc thay đổi lịch, nó thuộc không gian làm việc khác, hoặc bạn không được dùng nó.",
+      "notFound": "Không có lịch này, hoặc kết nối đã bị xóa.",
+      "badQuery": "Google đã từ chối:",
+      "tooManyIssues": "Lịch có quá nhiều sự kiện hoặc quá lớn để đồng bộ.",
+      "unreachable": "Không kết nối được hoặc Google phản hồi quá lâu. Lần sau sẽ thử lại.",
+      "runAsGone": "Người thiết lập đồng bộ không còn tài khoản.",
+      "accessLost": "Người mà đồng bộ chạy dưới tên không còn chỉnh sửa được cơ sở dữ liệu này hoặc đã rời không gian làm việc.",
+      "keyGone": "Thuộc tính Mã sự kiện đã bị xóa hoặc đổi loại nên không thể ghép sự kiện với hàng.",
+      "failed": "Đồng bộ thất bại. Lần sau sẽ thử lại.",
+      "invalidSite": "Leafdesk không thể kết nối tới kết nối đó.",
+      "invalidInput": "Hãy chọn một kết nối và một lịch.",
       "alreadyRunning": "Đang đồng bộ. Hãy thử lại sau giây lát."
     }
   }

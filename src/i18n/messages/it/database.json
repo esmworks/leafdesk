@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Scrittura nel foglio non riuscita: le modifiche restano in attesa. Apri la sincronizzazione per vedere perché.",
     "stopConfirm": "Interrompere la sincronizzazione di questo database? Le righe restano."
   },
+  "gcalSync": {
+    "button": "Sincronizzato da Google Calendar",
+    "buttonPaused": "Sincronizzazione di Google Calendar in pausa",
+    "title": "Sincronizzazione di Google Calendar",
+    "connectionGone": "Connessione rimossa",
+    "lastRun": "Ultima sincronizzazione {when}, {count, plural, one {# evento} other {# eventi}}",
+    "overwrite": "Il calendario è la fonte: le proprietà sincronizzate e i titoli delle righe vengono sovrascritti a ogni sincronizzazione, quindi modifica gli eventi nel calendario. Le proprietà che aggiungi tu restano, e le righe degli eventi che escono dal calendario non vengono toccate.",
+    "pending": "Righe in attesa di essere scritte nel calendario: {count, number}",
+    "writeFailed": "Impossibile scrivere nel calendario:",
+    "writeForbidden": "L'account Google della connessione non può modificare gli eventi di questo calendario, oppure la persona per cui gira la sincronizzazione non può scrivere tramite la connessione. Le modifiche fatte qui aspettano finché sarà possibile.",
+    "waiting": "{count, plural, one {# riga attende} other {# righe attendono}} il calendario",
+    "waitingHelp": "Le modifiche fatte qui arrivano al calendario in pochi secondi. Una nuova riga aspetta finché non ha un Quando.",
+    "writeNow": "Scrivi ora",
+    "writingNow": "Scrittura…",
+    "writeStuck": "Non scritto nel calendario",
+    "writeStuckHelp": "La scrittura nel calendario non è riuscita: le modifiche aspettano. Apri la sincronizzazione per vedere perché.",
+    "stopConfirm": "Interrompere la sincronizzazione di questo database? Le righe restano."
+  },
   "history": {
     "title": "Cronologia del database",
     "empty": "Ancora nessuna modifica. Le modifiche a proprietà, viste e righe di questo database compaiono qui.",

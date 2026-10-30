@@ -1,5 +1,4 @@
 import type { StatusGroup } from "./property-types";
-import type { SheetsWriteStatus } from "./sheets-sync";
 
 /**
  * Keeping a database in step with a Jira Cloud project or JQL query, one way (server/jira-sync for
@@ -129,14 +128,17 @@ export type JiraSyncView = {
 
 /** What every viewer of a synced database is told (the snapshot's `sync`). */
 export type DatabaseSyncSummary = {
-  source: "jira" | "github" | "ical" | "postgres" | "sheets";
+  source: "jira" | "github" | "ical" | "postgres" | "sheets" | "gcal";
   siteUrl: string;
   lastRunAt: string | null;
   lastError: JiraSyncError | null;
   enabled: boolean;
-  /** A Google Sheets sync that writes back: what waits to be written (server/sheets-sync/status). */
-  writing: SheetsWriteStatus | null;
+  /** A Google Sheets or Google Calendar sync that writes back: what waits to be written (server/sync-write-status). */
+  writing: SyncWriteStatus | null;
 };
+
+/** The changes a sync that writes back still has to write, a failed write, and whether the viewer may write them now. */
+export type SyncWriteStatus = { source: "sheets" | "gcal"; pending: number; failed: boolean; canWriteNow: boolean };
 
 /** A Jira Cloud project, as the project picker lists it. */
 export type JiraProject = { key: string; name: string };

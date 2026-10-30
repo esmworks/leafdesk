@@ -443,8 +443,6 @@ export function sameValue(kind: SheetsKind, a: unknown, b: unknown): boolean {
  * What a database's page shows of a sync that writes back: how many changes wait for the sheet,
  * whether the last write failed, and whether the viewer may write them now (Sync now).
  */
-export type SheetsWriteStatus = { pending: number; failed: boolean; canWriteNow: boolean };
-
 /** A change waiting to be written (a `sheets_write` row). */
 export type PendingWrite = { id: string; rowId: string; created: boolean; before: Record<string, unknown> };
 

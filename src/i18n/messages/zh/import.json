@@ -18,6 +18,7 @@
     "ical": "日历",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google 文档",
     "web": "网页"
   },
@@ -475,6 +476,35 @@
       "failed": "同步失败。下次同步时会重试。",
       "invalidSite": "Leafdesk 无法连接到该连接。",
       "invalidInput": "请检查链接、标题行和列名：它们必须与标题行的文本一致。",
+      "alreadyRunning": "正在同步，请稍后再试。"
+    }
+  },
+  "gcal": {
+    "help": "将 Google 日历中的活动做成保持同步的数据库：每个活动是一行，包含时间、地点、备注、状态、组织者和链接，重复活动的每一次也各成一行。收入从 {before} 天前到 {after} 天后的活动。更改来自日历；选择“双向”时，也会写回日历。",
+    "loading": "正在查找 Google Calendar 连接…",
+    "noConnection": "没有可供你同步的 Google Calendar 连接。所有者在 设置 → 连接 中添加 Google Calendar；所有者为其 list_events 工具勾选“在聊天中”后，成员也可以使用。",
+    "connection": "Google Calendar 连接",
+    "calendar": "日历",
+    "primary": "主日历",
+    "direction": "方向",
+    "directionRead": "仅从日历",
+    "directionBoth": "双向",
+    "directionBothHelp": "行的标题、时间、地点和描述的更改会在下一次同步时（约一分钟内）写入日历，不会给邀请对象发邮件。如果活动在日历中也已更改，则保留日历中的值。新行有了时间后才会成为活动；删除行不会删除日历中的任何内容，他人组织的活动保持日历中的样子。",
+    "directionNoWrite": "写回需要连接的 create_event 和 update_event 工具：所有者可以使用，成员需在所有者为两者都勾选“在聊天中”后才能使用。",
+    "bothNeedsSchedule": "写回需要按计划同步。",
+    "errors": {
+      "unauthorized": "Google Calendar 连接需要重新登录 Google：由所有者在 设置 → 连接 中操作。",
+      "forbidden": "无法将此连接用于此操作：其 Google 账号无法打开或更改该日历，连接属于其他工作区，或你无权使用。",
+      "notFound": "没有此日历，或连接已被移除。",
+      "badQuery": "Google 拒绝了：",
+      "tooManyIssues": "日历事件过多或文件过大，无法同步。",
+      "unreachable": "无法连接，或 Google 响应时间过长。下次同步时会重试。",
+      "runAsGone": "设置同步的人已没有账户。",
+      "accessLost": "同步的运行者已无法编辑此数据库，或已离开工作区。",
+      "keyGone": "“事件 ID”属性已删除或更改了类型，事件无法与行对应。",
+      "failed": "同步失败。下次同步时会重试。",
+      "invalidSite": "Leafdesk 无法连接到该连接。",
+      "invalidInput": "请选择一个连接和一个日历。",
       "alreadyRunning": "正在同步，请稍后再试。"
     }
   }

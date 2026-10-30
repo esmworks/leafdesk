@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { boolean, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { GcalQuery } from "@/lib/gcal-sync";
 import type { GithubPullsMapping, GithubPullsQuery } from "@/lib/github-pulls-sync";
 import type { GithubDeliveryError, GithubDeliveryRow, GithubDeliveryStatus, GithubMapping } from "@/lib/github-sync";
 import type { IcalMapping } from "@/lib/ical-sync";
@@ -14,9 +15,10 @@ import { user } from "./auth";
  * project or JQL query (`source` "jira": lib/jira-sync, server/jira-sync), a GitHub repository's
  * pull requests ("github": lib/github-pulls-sync, server/github-pulls), a calendar's events ("ical":
  * lib/ical-sync, server/ical-sync), a PostgreSQL table's rows ("postgres": lib/postgres-sync,
- * server/postgres-sync) or a Google spreadsheet's sheet, read through a Google Sheets connection
- * ("sheets": lib/sheets-sync, server/sheets-sync; the only one that may also write back). Its
- * sign-in (`secrets`) is sealed (server/secret-box) and never leaves the server.
+ * server/postgres-sync), a Google spreadsheet's sheet, read through a Google Sheets connection
+ * ("sheets": lib/sheets-sync, server/sheets-sync) or a Google calendar, read through a Google
+ * Calendar connection ("gcal": lib/gcal-sync, server/gcal-sync); the last two may also write back.
+ * Its sign-in (`secrets`) is sealed (server/secret-box) and never leaves the server.
  */
 export const databaseSync = pgTable(
   "database_sync",
@@ -30,7 +32,7 @@ export const databaseSync = pgTable(
     databaseId: text("database_id")
       .notNull()
       .references(() => page.id, { onDelete: "cascade" }),
-    source: text("source").$type<"jira" | "github" | "ical" | "postgres" | "sheets">().notNull(),
+    source: text("source").$type<"jira" | "github" | "ical" | "postgres" | "sheets" | "gcal">().notNull(),
     /**
      * The Jira site's origin, "https://acme.atlassian.net"; for GitHub its API's address; for a
      * calendar its address's origin (the rest can be its key); for PostgreSQL where it reads,
@@ -38,7 +40,7 @@ export const databaseSync = pgTable(
      */
     siteUrl: text("site_url").notNull(),
     /** What it reads; a calendar's is `{}` (its address is in `secrets`). */
-    query: jsonb("query").$type<JiraQuery | GithubPullsQuery | PostgresQuery | SheetsQuery | Record<string, never>>().notNull(),
+    query: jsonb("query").$type<JiraQuery | GithubPullsQuery | PostgresQuery | SheetsQuery | GcalQuery | Record<string, never>>().notNull(),
     /** The properties it writes, by what each holds. */
     mapping: jsonb("mapping").$type<JiraMapping | GithubPullsMapping | IcalMapping | PostgresMapping | SheetsMapping>().notNull(),
     /**
@@ -77,12 +79,12 @@ export const databaseSync = pgTable(
 );
 
 /**
- * Changes made in Leafdesk to the rows of a Google Sheets sync that writes back (lib/sheets-sync
- * `direction` "both"), waiting for the sync's next run to write them to the sheet
- * (server/sheets-sync/outbox, ./write). One per row: `before` holds each changed field's value from
- * before its first change since the last write (property ids, "title" for the title), which the
- * sheet's cell must still have for the change to be written; `created` for rows made in Leafdesk,
- * which are added to the sheet.
+ * Changes made in Leafdesk to the rows of a sync that writes back (a Google Sheets or Google
+ * Calendar sync with `direction` "both"), waiting for the sync's next run to write them
+ * (server/sync-writes; written by sheets-sync/run and gcal-sync/run). One per row: `before` holds
+ * each changed field's value from before its first change since the last write (property ids,
+ * "title" for the title), which the sheet's cell or the event must still have for the change to be
+ * written; `created` for rows made in Leafdesk, which are added to the sheet or the calendar.
  */
 export const sheetsWrite = pgTable(
   "sheets_write",

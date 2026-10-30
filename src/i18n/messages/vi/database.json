@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Ghi vào trang tính thất bại: các thay đổi đang chờ. Mở đồng bộ để xem lý do.",
     "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng giữ nguyên."
   },
+  "gcalSync": {
+    "button": "Đồng bộ từ Google Calendar",
+    "buttonPaused": "Đồng bộ Google Calendar đã tạm dừng",
+    "title": "Đồng bộ Google Calendar",
+    "connectionGone": "Kết nối đã xóa",
+    "lastRun": "Đồng bộ lần cuối {when}, {count, plural, other {# sự kiện}}",
+    "overwrite": "Lịch là nguồn: các thuộc tính đồng bộ và tiêu đề hàng bị ghi đè mỗi lần đồng bộ, nên hãy sửa sự kiện trong lịch. Thuộc tính bạn tự thêm vẫn giữ nguyên, và hàng của sự kiện đã rời khỏi lịch không bị động tới.",
+    "pending": "Số hàng đang chờ ghi vào lịch: {count, number}",
+    "writeFailed": "Không thể ghi vào lịch:",
+    "writeForbidden": "Tài khoản Google của kết nối không được thay đổi sự kiện của lịch này, hoặc người mà đồng bộ chạy dưới danh nghĩa không được ghi qua kết nối. Các thay đổi ở đây sẽ chờ đến khi có thể.",
+    "waiting": "{count, plural, other {# hàng}} đang chờ ghi vào lịch",
+    "waitingHelp": "Thay đổi ở đây đến lịch trong vài giây. Hàng mới sẽ chờ đến khi có Thời gian.",
+    "writeNow": "Ghi ngay",
+    "writingNow": "Đang ghi…",
+    "writeStuck": "Chưa ghi vào lịch",
+    "writeStuckHelp": "Ghi vào lịch thất bại: các thay đổi đang chờ. Mở đồng bộ để xem lý do.",
+    "stopConfirm": "Dừng đồng bộ cơ sở dữ liệu này? Các hàng giữ nguyên."
+  },
   "history": {
     "title": "Lịch sử cơ sở dữ liệu",
     "empty": "Chưa có thay đổi nào. Các thay đổi đối với thuộc tính, chế độ xem và hàng của cơ sở dữ liệu này hiển thị tại đây.",

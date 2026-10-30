@@ -12,17 +12,18 @@ const GithubPullsSyncDialog = dynamic(() => import("./github-pulls-sync-dialog")
 const IcalSyncDialog = dynamic(() => import("./ical-sync-dialog"));
 const PostgresSyncDialog = dynamic(() => import("./postgres-sync-dialog"));
 const SheetsSyncDialog = dynamic(() => import("./sheets-sync-dialog"));
-const SheetsWriteStatus = dynamic(() => import("./sheets-write-status"));
+const GcalSyncDialog = dynamic(() => import("./gcal-sync-dialog"));
+const SyncWriteStatus = dynamic(() => import("./sync-write-status"));
 
-const DIALOGS = { jira: JiraSyncDialog, github: GithubPullsSyncDialog, ical: IcalSyncDialog, postgres: PostgresSyncDialog, sheets: SheetsSyncDialog };
+const DIALOGS = { jira: JiraSyncDialog, github: GithubPullsSyncDialog, ical: IcalSyncDialog, postgres: PostgresSyncDialog, sheets: SheetsSyncDialog, gcal: GcalSyncDialog };
 /** The texts of each source's button, under `database`. */
-const SOURCE_TEXTS = { jira: "jiraSync", github: "githubPulls", ical: "icalSync", postgres: "postgresSync", sheets: "sheetsSync" } as const;
+const SOURCE_TEXTS = { jira: "jiraSync", github: "githubPulls", ical: "icalSync", postgres: "postgresSync", sheets: "sheetsSync", gcal: "gcalSync" } as const;
 
 /**
- * Shows that a database is synced from Jira, GitHub, a calendar, PostgreSQL or Google Sheets (with a mark when the
- * sync is paused or its last run failed), and opens the sync's dialog. A Google Sheets sync that
- * writes back also shows the rows waiting for the sheet, with Write now for those who may run it,
- * or that writing failed.
+ * Shows that a database is synced from Jira, GitHub, a calendar, PostgreSQL, Google Sheets or
+ * Google Calendar (with a mark when the sync is paused or its last run failed), and opens the
+ * sync's dialog. A Google Sheets or Google Calendar sync that writes back also shows the rows
+ * waiting to be written, with Write now for those who may run it, or that writing failed.
  */
 export function JiraSyncButton({ databaseId, sync, onChanged }: { databaseId: string; sync: DatabaseSyncSummary; onChanged: () => void }) {
   const t = useTranslations("database");
@@ -34,7 +35,7 @@ export function JiraSyncButton({ databaseId, sync, onChanged }: { databaseId: st
   return (
     <>
       {writing && writing.pending > 0 && (
-        <SheetsWriteStatus databaseId={databaseId} status={writing} onOpenDialog={() => setOpen(true)} onChanged={onChanged} />
+        <SyncWriteStatus databaseId={databaseId} status={writing} onOpenDialog={() => setOpen(true)} onChanged={onChanged} />
       )}
       <button
         type="button"

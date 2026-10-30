@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Schrijven naar het blad mislukt: de wijzigingen wachten. Open de synchronisatie om te zien waarom.",
     "stopConfirm": "Stoppen met synchroniseren van deze database? De rijen blijven staan."
   },
+  "gcalSync": {
+    "button": "Gesynchroniseerd vanuit Google Calendar",
+    "buttonPaused": "Google Calendar-synchronisatie gepauzeerd",
+    "title": "Google Calendar-synchronisatie",
+    "connectionGone": "Verwijderde koppeling",
+    "lastRun": "Laatst gesynchroniseerd {when}, {count, plural, one {# afspraak} other {# afspraken}}",
+    "overwrite": "De agenda is de bron: de gesynchroniseerde eigenschappen en rijtitels worden bij elke synchronisatie overschreven, dus wijzig afspraken in de agenda. Eigenschappen die je zelf toevoegt blijven staan, en rijen van afspraken die uit de agenda verdwijnen, blijven ongemoeid.",
+    "pending": "Rijen die nog naar de agenda geschreven moeten worden: {count, number}",
+    "writeFailed": "Kon niet naar de agenda schrijven:",
+    "writeForbidden": "Het Google-account van de verbinding mag de afspraken van deze agenda niet wijzigen, of de persoon als wie de synchronisatie draait mag niet via de verbinding schrijven. Wijzigingen die hier zijn gemaakt wachten tot het kan.",
+    "waiting": "{count, plural, one {# rij wacht} other {# rijen wachten}} op de agenda",
+    "waitingHelp": "Wijzigingen die hier worden gemaakt gaan binnen enkele seconden naar de agenda. Een nieuwe rij wacht tot ze een Wanneer heeft.",
+    "writeNow": "Nu schrijven",
+    "writingNow": "Bezig met schrijven…",
+    "writeStuck": "Niet naar de agenda geschreven",
+    "writeStuckHelp": "Schrijven naar de agenda is mislukt: de wijzigingen wachten. Open de synchronisatie om te zien waarom.",
+    "stopConfirm": "Stoppen met synchroniseren van deze database? De rijen blijven staan."
+  },
   "history": {
     "title": "Databasegeschiedenis",
     "empty": "Nog geen wijzigingen. Wijzigingen in de eigenschappen, weergaven en rijen van deze database verschijnen hier.",

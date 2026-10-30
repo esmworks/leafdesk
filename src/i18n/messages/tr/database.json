@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Sayfaya yazma başarısız oldu: değişiklikler bekliyor. Nedenini görmek için eşitlemeyi açın.",
     "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırlar olduğu gibi kalır."
   },
+  "gcalSync": {
+    "button": "Google Calendar'dan eşitleniyor",
+    "buttonPaused": "Google Calendar eşitlemesi duraklatıldı",
+    "title": "Google Calendar eşitlemesi",
+    "connectionGone": "Kaldırılmış bağlantı",
+    "lastRun": "Son eşitleme {when}, {count, plural, one {# etkinlik} other {# etkinlik}}",
+    "overwrite": "Kaynak takvimdir: eşitlenen özellikler ve satır başlıkları her eşitlemede yeniden yazılır; bu yüzden etkinlikleri takvimde değiştirin. Kendi eklediğiniz özellikler olduğu gibi kalır, takvimden çıkan etkinliklerin satırlarına dokunulmaz.",
+    "pending": "Takvime yazılmayı bekleyen satırlar: {count, number}",
+    "writeFailed": "Takvime yazılamadı:",
+    "writeForbidden": "Bağlantının Google hesabı bu takvimin etkinliklerini değiştiremiyor ya da eşitlemenin adına çalıştığı kişi bağlantı üzerinden yazamıyor. Burada yapılan değişiklikler bu mümkün olana kadar bekler.",
+    "waiting": "{count, plural, one {# satır} other {# satır}} takvime yazılmayı bekliyor",
+    "waitingHelp": "Burada yapılan değişiklikler saniyeler içinde takvime gider. Yeni bir satır bir Zaman'ı olana kadar bekler.",
+    "writeNow": "Şimdi yaz",
+    "writingNow": "Yazılıyor…",
+    "writeStuck": "Takvime yazılmadı",
+    "writeStuckHelp": "Takvime yazma başarısız oldu: değişiklikler bekliyor. Nedenini görmek için eşitlemeyi açın.",
+    "stopConfirm": "Bu veritabanının eşitlemesi durdurulsun mu? Satırlar olduğu gibi kalır."
+  },
   "history": {
     "title": "Veritabanı geçmişi",
     "empty": "Henüz değişiklik yok. Bu veritabanının özelliklerinde, görünümlerinde ve satırlarında yapılan değişiklikler burada görünür.",

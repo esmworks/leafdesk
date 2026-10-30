@@ -18,6 +18,7 @@
     "ical": "Calendário",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Página web"
   },
@@ -475,6 +476,35 @@
       "failed": "A sincronização falhou. Ela tenta de novo na próxima vez.",
       "invalidSite": "O Leafdesk não consegue acessar essa conexão.",
       "invalidInput": "Confira o link, a linha de cabeçalho e os nomes das colunas: eles precisam corresponder ao texto da linha de cabeçalho.",
+      "alreadyRunning": "Uma sincronização está em andamento. Tente de novo em instantes."
+    }
+  },
+  "gcal": {
+    "help": "Tenha um banco de dados dos eventos de uma agenda do Google que se mantém em dia: cada evento é uma linha com quando é, onde, suas notas, status, organizador e link, e cada ocorrência de um evento recorrente é uma linha própria. Entram eventos de {before} dias atrás até {after} dias à frente. As alterações vêm da agenda, e voltam para ela também se você escolher “Nos dois sentidos”.",
+    "loading": "Procurando conexões do Google Calendar…",
+    "noConnection": "Não há nenhuma conexão do Google Calendar pela qual você possa sincronizar. Um proprietário adiciona o Google Calendar em Configurações → Conexões; os membros podem usá-la quando um proprietário marca “No chat” para a ferramenta list_events.",
+    "connection": "Conexão do Google Calendar",
+    "calendar": "Calendário",
+    "primary": "Agenda principal",
+    "direction": "Direção",
+    "directionRead": "Só da agenda",
+    "directionBoth": "Nos dois sentidos",
+    "directionBothHelp": "Alterações no título, Quando, Local e Descrição de uma linha são escritas na agenda na próxima sincronização, em cerca de um minuto, sem enviar e-mail aos convidados. Se um evento também mudou na agenda, fica o valor da agenda. Linhas novas viram eventos quando têm um Quando; excluir uma linha não exclui nada na agenda, e eventos que outra pessoa organiza ficam como estão na agenda.",
+    "directionNoWrite": "Para escrever de volta, a conexão precisa das ferramentas create_event e update_event: proprietários podem usá-las, e membros quando um proprietário marca “No chat” para as duas.",
+    "bothNeedsSchedule": "Para escrever de volta, a sincronização precisa de uma frequência.",
+    "errors": {
+      "unauthorized": "A conexão do Google Calendar precisa entrar no Google de novo: um proprietário faz isso em Configurações → Conexões.",
+      "forbidden": "A conexão não pode ser usada para isso: a conta Google dela não pode abrir nem alterar a agenda, ela está em outro espaço de trabalho, ou você não pode usá-la.",
+      "notFound": "Essa agenda não existe, ou a conexão foi removida.",
+      "badQuery": "O Google recusou:",
+      "tooManyIssues": "O calendário tem demasiados eventos, ou é demasiado grande, para sincronizar.",
+      "unreachable": "Não foi possível acessar a conexão ou o Google demorou demais. A sincronização tenta de novo na próxima vez.",
+      "runAsGone": "A pessoa que configurou a sincronização não tem mais conta.",
+      "accessLost": "A pessoa em nome de quem a sincronização roda não pode mais editar este banco de dados ou saiu do espaço de trabalho.",
+      "keyGone": "A propriedade ID do evento foi eliminada ou mudou de tipo, por isso os eventos não podem ser associados às linhas.",
+      "failed": "A sincronização falhou. Ela tenta de novo na próxima vez.",
+      "invalidSite": "O Leafdesk não consegue acessar essa conexão.",
+      "invalidInput": "Escolha uma conexão e uma agenda.",
       "alreadyRunning": "Uma sincronização está em andamento. Tente de novo em instantes."
     }
   }

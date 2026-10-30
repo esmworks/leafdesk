@@ -18,6 +18,7 @@
     "ical": "캘린더",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google 문서",
     "web": "웹페이지"
   },
@@ -475,6 +476,35 @@
       "failed": "동기화에 실패했습니다. 다음에 다시 시도합니다.",
       "invalidSite": "Leafdesk가 해당 연결에 접속할 수 없습니다.",
       "invalidInput": "링크, 헤더 행, 열 이름을 확인하세요. 헤더 행의 텍스트와 일치해야 합니다.",
+      "alreadyRunning": "동기화가 실행 중입니다. 잠시 후 다시 시도하세요."
+    }
+  },
+  "gcal": {
+    "help": "Google 캘린더의 일정을 계속 동기화되는 데이터베이스로 만듭니다. 각 일정은 일시, 장소, 메모, 상태, 주최자, 링크가 있는 행이 되고, 반복 일정의 각 회차도 각각 하나의 행이 됩니다. {before}일 전부터 {after}일 후까지의 일정이 들어옵니다. 변경 사항은 캘린더에서 오며, '양방향'을 선택하면 캘린더로도 돌아갑니다.",
+    "loading": "Google Calendar 연결을 찾는 중…",
+    "noConnection": "동기화에 쓸 수 있는 Google Calendar 연결이 없습니다. 소유자가 설정 → 연결에서 Google Calendar를 추가하고, list_events 도구에 “채팅에서 사용”을 체크하면 멤버도 쓸 수 있습니다.",
+    "connection": "Google Calendar 연결",
+    "calendar": "캘린더",
+    "primary": "기본 캘린더",
+    "direction": "방향",
+    "directionRead": "캘린더에서만",
+    "directionBoth": "양방향",
+    "directionBothHelp": "행의 제목, 일시, 장소, 설명 변경은 다음 동기화 때(1분 정도 안에) 캘린더에 기록되며, 참석자에게 이메일을 보내지 않습니다. 일정이 캘린더에서도 바뀌었다면 캘린더의 값이 유지됩니다. 새 행은 일시가 생기면 일정이 됩니다. 행을 삭제해도 캘린더에서는 아무것도 삭제되지 않으며, 다른 사람이 주최하는 일정은 캘린더의 내용 그대로 유지됩니다.",
+    "directionNoWrite": "다시 쓰려면 연결의 create_event와 update_event 도구가 필요합니다. 소유자는 쓸 수 있고, 멤버는 소유자가 두 도구 모두에 “채팅에서 사용”을 체크하면 쓸 수 있습니다.",
+    "bothNeedsSchedule": "다시 쓰려면 일정에 따라 동기화해야 합니다.",
+    "errors": {
+      "unauthorized": "Google Calendar 연결은 Google에 다시 로그인해야 합니다. 소유자가 설정 → 연결에서 할 수 있습니다.",
+      "forbidden": "이 연결은 여기에 사용할 수 없습니다. 연결의 Google 계정이 캘린더를 열거나 변경할 수 없거나, 다른 워크스페이스의 연결이거나, 사용할 권한이 없습니다.",
+      "notFound": "해당 캘린더가 없거나 연결이 삭제되었습니다.",
+      "badQuery": "Google이 거부했습니다:",
+      "tooManyIssues": "캘린더의 일정이 너무 많거나 너무 커서 동기화할 수 없습니다.",
+      "unreachable": "연결에 접속할 수 없거나 Google 응답이 너무 오래 걸렸습니다. 다음에 다시 시도합니다.",
+      "runAsGone": "동기화를 설정한 사람의 계정이 더 이상 없습니다.",
+      "accessLost": "동기화를 실행하는 사람이 더 이상 이 데이터베이스를 편집할 수 없거나 워크스페이스를 떠났습니다.",
+      "keyGone": "일정 ID 속성이 삭제되었거나 유형이 바뀌어 일정을 행과 맞출 수 없습니다.",
+      "failed": "동기화에 실패했습니다. 다음에 다시 시도합니다.",
+      "invalidSite": "Leafdesk가 해당 연결에 접속할 수 없습니다.",
+      "invalidInput": "연결과 캘린더를 선택하세요.",
       "alreadyRunning": "동기화가 실행 중입니다. 잠시 후 다시 시도하세요."
     }
   }

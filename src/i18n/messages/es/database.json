@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "No se pudo escribir en la hoja: los cambios esperan. Abre la sincronización para ver por qué.",
     "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están."
   },
+  "gcalSync": {
+    "button": "Sincronizada desde Google Calendar",
+    "buttonPaused": "Sincronización de Google Calendar en pausa",
+    "title": "Sincronización de Google Calendar",
+    "connectionGone": "Conexión eliminada",
+    "lastRun": "Última sincronización {when}, {count, plural, one {# evento} other {# eventos}}",
+    "overwrite": "El calendario es la fuente: las propiedades sincronizadas y los títulos de las filas se sobrescriben en cada sincronización, así que cambia los eventos en el calendario. Las propiedades que añadas tú se mantienen, y las filas de eventos que salen del calendario se dejan como están.",
+    "pending": "Filas pendientes de escribir en el calendario: {count, number}",
+    "writeFailed": "No se pudo escribir en el calendario:",
+    "writeForbidden": "La cuenta de Google de la conexión no puede cambiar los eventos de este calendario, o la persona con la que se ejecuta la sincronización no puede escribir a través de la conexión. Los cambios hechos aquí esperan hasta que pueda.",
+    "waiting": "{count, plural, one {# fila espera} other {# filas esperan}} al calendario",
+    "waitingHelp": "Los cambios hechos aquí llegan al calendario en segundos. Una fila nueva espera hasta tener un Cuándo.",
+    "writeNow": "Escribir ahora",
+    "writingNow": "Escribiendo…",
+    "writeStuck": "No escrito en el calendario",
+    "writeStuckHelp": "Falló la escritura en el calendario: los cambios esperan. Abre la sincronización para ver por qué.",
+    "stopConfirm": "¿Dejar de sincronizar esta base de datos? Sus filas se quedan como están."
+  },
   "history": {
     "title": "Historial de la base de datos",
     "empty": "Aún no hay cambios. Los cambios en las propiedades, vistas y filas de esta base de datos aparecen aquí.",

@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Schreiben ins Tabellenblatt fehlgeschlagen: Die Änderungen warten. Öffne die Synchronisierung, um den Grund zu sehen.",
     "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben."
   },
+  "gcalSync": {
+    "button": "Aus Google Calendar synchronisiert",
+    "buttonPaused": "Google-Sheets-Synchronisierung pausiert",
+    "title": "Google-Sheets-Synchronisierung",
+    "connectionGone": "Entfernte Verbindung",
+    "lastRun": "Zuletzt synchronisiert {when}, {count, plural, one {# Termin} other {# Termine}}",
+    "overwrite": "Der Kalender ist die Quelle: Die synchronisierten Eigenschaften und Zeilentitel werden bei jeder Synchronisierung überschrieben, ändere Termine also im Kalender. Eigenschaften, die du selbst hinzufügst, bleiben, und Zeilen von Terminen, die den Kalender verlassen, bleiben unberührt.",
+    "pending": "Zeilen, die in den Kalender geschrieben werden sollen: {count, number}",
+    "writeFailed": "Konnte nicht in den Kalender schreiben:",
+    "writeForbidden": "Das Google-Konto der Verbindung darf die Termine dieses Kalenders nicht ändern, oder die Person, als die die Synchronisierung läuft, darf nicht über die Verbindung schreiben. Hier gemachte Änderungen warten, bis es geht.",
+    "waiting": "{count, plural, one {# Zeile wartet} other {# Zeilen warten}} auf den Kalender",
+    "waitingHelp": "Hier gemachte Änderungen gehen innerhalb von Sekunden an den Kalender. Eine neue Zeile wartet, bis sie ein Wann hat.",
+    "writeNow": "Jetzt schreiben",
+    "writingNow": "Wird geschrieben…",
+    "writeStuck": "Nicht in den Kalender geschrieben",
+    "writeStuckHelp": "Das Schreiben in den Kalender ist fehlgeschlagen: Die Änderungen warten. Öffne die Synchronisierung, um den Grund zu sehen.",
+    "stopConfirm": "Synchronisierung dieser Datenbank beenden? Ihre Zeilen bleiben."
+  },
   "history": {
     "title": "Datenbankverlauf",
     "empty": "Noch keine Änderungen. Änderungen an den Eigenschaften, Ansichten und Zeilen dieser Datenbank erscheinen hier.",

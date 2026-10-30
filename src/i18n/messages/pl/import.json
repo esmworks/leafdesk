@@ -18,6 +18,7 @@
     "ical": "Kalendarz",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Strona WWW"
   },
@@ -475,6 +476,35 @@
       "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
       "invalidSite": "Leafdesk nie może połączyć się z tym połączeniem.",
       "invalidInput": "Sprawdź link, wiersz nagłówka i nazwy kolumn: muszą zgadzać się z tekstem wiersza nagłówka.",
+      "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
+    }
+  },
+  "gcal": {
+    "help": "Uzyskaj bazę danych wydarzeń z kalendarza Google, która pozostaje zsynchronizowana: każde wydarzenie to wiersz z terminem, miejscem, notatkami, statusem, organizatorem i linkiem, a każde wystąpienie wydarzenia cyklicznego to osobny wiersz. Trafiają tu wydarzenia od {before} dni wstecz do {after} dni naprzód. Zmiany przychodzą z kalendarza i wracają do niego także, jeśli wybierzesz „W obie strony”.",
+    "loading": "Szukanie połączeń Google Calendar…",
+    "noConnection": "Nie ma połączenia Google Calendar, przez które możesz synchronizować. Właściciel dodaje Google Calendar w Ustawienia → Połączenia; członkowie mogą z niego korzystać, gdy właściciel zaznaczy „W czacie” dla narzędzia list_events.",
+    "connection": "Połączenie Google Calendar",
+    "calendar": "Kalendarz",
+    "primary": "Kalendarz główny",
+    "direction": "Kierunek",
+    "directionRead": "Tylko z kalendarza",
+    "directionBoth": "W obie strony",
+    "directionBothHelp": "Zmiany tytułu, terminu (Kiedy), Miejsca i Opisu wiersza są zapisywane w kalendarzu przy następnej synchronizacji, w ciągu mniej więcej minuty, bez wysyłania e-maili do gości. Jeśli wydarzenie zmieniło się także w kalendarzu, zostaje wartość z kalendarza. Nowe wiersze stają się wydarzeniami, gdy mają termin; usunięcie wiersza niczego nie usuwa z kalendarza, a wydarzenia organizowane przez kogoś innego pozostają takie, jak w kalendarzu.",
+    "directionNoWrite": "Do zapisu zwrotnego połączenie potrzebuje narzędzi create_event i update_event: właściciele mogą z nich korzystać, członkowie, gdy właściciel zaznaczy „W czacie” dla obu.",
+    "bothNeedsSchedule": "Zapis zwrotny wymaga synchronizacji według harmonogramu.",
+    "errors": {
+      "unauthorized": "Połączenie Google Calendar wymaga ponownego zalogowania do Google: robi to właściciel w Ustawienia → Połączenia.",
+      "forbidden": "Tego połączenia nie można do tego użyć: jego konto Google nie może otworzyć ani zmienić kalendarza, jest w innym obszarze roboczym albo nie możesz go używać.",
+      "notFound": "Nie ma takiego kalendarza albo połączenie zostało usunięte.",
+      "badQuery": "Google odmówił:",
+      "tooManyIssues": "Kalendarz ma zbyt wiele wydarzeń lub jest zbyt duży, by go synchronizować.",
+      "unreachable": "Nie udało się połączyć lub Google odpowiadało zbyt długo. Synchronizacja spróbuje ponownie następnym razem.",
+      "runAsGone": "Osoba, która skonfigurowała synchronizację, nie ma już konta.",
+      "accessLost": "Osoba, jako która działa synchronizacja, nie może już edytować tej bazy lub opuściła przestrzeń roboczą.",
+      "keyGone": "Właściwość ID wydarzenia została usunięta lub zmieniła typ, więc wydarzeń nie da się dopasować do wierszy.",
+      "failed": "Synchronizacja nie powiodła się. Spróbuje ponownie następnym razem.",
+      "invalidSite": "Leafdesk nie może połączyć się z tym połączeniem.",
+      "invalidInput": "Wybierz połączenie i kalendarz.",
       "alreadyRunning": "Trwa synchronizacja. Spróbuj ponownie za chwilę."
     }
   }

@@ -18,6 +18,7 @@
     "ical": "Calendario",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Pagina web"
   },
@@ -475,6 +476,35 @@
       "failed": "La sincronizzazione non è riuscita. Riproverà la prossima volta.",
       "invalidSite": "Leafdesk non riesce a raggiungere quella connessione.",
       "invalidInput": "Controlla il link, la riga di intestazione e i nomi delle colonne: devono corrispondere al testo della riga di intestazione.",
+      "alreadyRunning": "Una sincronizzazione è in corso. Riprova tra poco."
+    }
+  },
+  "gcal": {
+    "help": "Ottieni un database degli eventi di un calendario Google che resta allineato: ogni evento è una riga con quando, dove, note, stato, organizzatore e link, e ogni occorrenza di un evento ricorrente è una riga a sé. Entrano gli eventi da {before} giorni fa a {after} giorni avanti. Le modifiche arrivano dal calendario, e vi tornano anche se scegli “In entrambe le direzioni”.",
+    "loading": "Ricerca delle connessioni Google Calendar…",
+    "noConnection": "Non c'è nessuna connessione Google Calendar tramite cui puoi sincronizzare. Un proprietario aggiunge Google Calendar in Impostazioni → Connessioni; i membri possono usarla quando un proprietario spunta «Nella chat» per il suo strumento list_events.",
+    "connection": "Connessione Google Calendar",
+    "calendar": "Calendario",
+    "primary": "Calendario principale",
+    "direction": "Direzione",
+    "directionRead": "Solo dal calendario",
+    "directionBoth": "In entrambe le direzioni",
+    "directionBothHelp": "Le modifiche a titolo, Quando, Luogo e Descrizione di una riga vengono scritte nel calendario alla sincronizzazione successiva, entro un minuto circa, senza inviare email agli invitati. Se un evento è cambiato anche nel calendario, resta il valore del calendario. Le nuove righe diventano eventi quando hanno un Quando; eliminare una riga non elimina nulla nel calendario, e gli eventi organizzati da altri restano come li ha il calendario.",
+    "directionNoWrite": "Per riscrivere, la connessione ha bisogno degli strumenti create_event e update_event: i proprietari possono usarli, i membri quando un proprietario spunta «Nella chat» per entrambi.",
+    "bothNeedsSchedule": "Per riscrivere, la sincronizzazione deve avere una frequenza.",
+    "errors": {
+      "unauthorized": "La connessione Google Calendar deve accedere di nuovo a Google: lo fa un proprietario in Impostazioni → Connessioni.",
+      "forbidden": "La connessione non può essere usata per questo: il suo account Google non può aprire o modificare il calendario, è in un'altra area di lavoro, oppure non puoi usarla.",
+      "notFound": "Questo calendario non esiste, oppure la connessione è stata rimossa.",
+      "badQuery": "Google ha rifiutato:",
+      "tooManyIssues": "Il calendario ha troppi eventi, o è troppo grande, per essere sincronizzato.",
+      "unreachable": "La connessione non è raggiungibile o Google ha impiegato troppo. La sincronizzazione riproverà la prossima volta.",
+      "runAsGone": "La persona che ha impostato la sincronizzazione non ha più un account.",
+      "accessLost": "La persona per cui gira la sincronizzazione non può più modificare questo database o ha lasciato lo spazio di lavoro.",
+      "keyGone": "La proprietà ID evento è stata eliminata o ha cambiato tipo, quindi gli eventi non si possono abbinare alle righe.",
+      "failed": "La sincronizzazione non è riuscita. Riproverà la prossima volta.",
+      "invalidSite": "Leafdesk non riesce a raggiungere quella connessione.",
+      "invalidInput": "Scegli una connessione e un calendario.",
       "alreadyRunning": "Una sincronizzazione è in corso. Riprova tra poco."
     }
   }

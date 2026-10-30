@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "Gagal menulis ke sheet: perubahan menunggu. Buka sinkronisasi untuk melihat alasannya.",
     "stopConfirm": "Hentikan sinkronisasi database ini? Barisnya tetap."
   },
+  "gcalSync": {
+    "button": "Disinkronkan dari Google Calendar",
+    "buttonPaused": "Sinkronisasi Google Calendar dijeda",
+    "title": "Sinkronisasi Google Calendar",
+    "connectionGone": "Koneksi dihapus",
+    "lastRun": "Terakhir disinkronkan {when}, {count, plural, other {# acara}}",
+    "overwrite": "Kalender adalah sumbernya: properti yang disinkronkan dan judul baris ditimpa setiap sinkronisasi, jadi ubah acara di kalender. Properti yang Anda tambahkan sendiri tetap, dan baris acara yang keluar dari kalender dibiarkan.",
+    "pending": "Baris yang menunggu ditulis ke kalender: {count, number}",
+    "writeFailed": "Tidak dapat menulis ke kalender:",
+    "writeForbidden": "Akun Google koneksi tidak boleh mengubah acara kalender ini, atau orang yang menjalankan sinkronisasi tidak boleh menulis melalui koneksi. Perubahan di sini menunggu sampai bisa.",
+    "waiting": "{count, plural, other {# baris}} menunggu ditulis ke kalender",
+    "waitingHelp": "Perubahan di sini sampai ke kalender dalam hitungan detik. Baris baru menunggu sampai memiliki Waktu.",
+    "writeNow": "Tulis sekarang",
+    "writingNow": "Menulis…",
+    "writeStuck": "Tidak ditulis ke kalender",
+    "writeStuckHelp": "Gagal menulis ke kalender: perubahan menunggu. Buka sinkronisasi untuk melihat alasannya.",
+    "stopConfirm": "Hentikan sinkronisasi database ini? Barisnya tetap."
+  },
   "history": {
     "title": "Riwayat basis data",
     "empty": "Belum ada perubahan. Perubahan pada properti, tampilan, dan baris basis data ini muncul di sini.",

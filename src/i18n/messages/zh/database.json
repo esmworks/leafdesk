@@ -2261,6 +2261,24 @@
     "writeStuckHelp": "写入表格失败：更改仍在等待。打开同步查看原因。",
     "stopConfirm": "停止同步此数据库？行保持不变。"
   },
+  "gcalSync": {
+    "button": "已从 Google Calendar 同步",
+    "buttonPaused": "Google Calendar 同步已暂停",
+    "title": "Google Calendar 同步",
+    "connectionGone": "已删除的连接",
+    "lastRun": "上次同步 {when}，{count, plural, other {# 个事件}}",
+    "overwrite": "日历是数据源：同步的属性和行标题每次同步都会被覆盖，请在日历中修改事件。你自己添加的属性保持不变，已从日历移除的事件对应的行也保持不动。",
+    "pending": "等待写入日历的行：{count, number}",
+    "writeFailed": "无法写入日历：",
+    "writeForbidden": "连接的 Google 账号无法更改此日历的活动，或同步所代表的人无法通过该连接写入。在此所做的更改会等到可以写入时。",
+    "waiting": "{count, plural, other {# 行}}等待写入日历",
+    "waitingHelp": "在此所做的更改会在几秒内写入日历。新行要等有了时间才会写入。",
+    "writeNow": "立即写入",
+    "writingNow": "正在写入…",
+    "writeStuck": "未写入日历",
+    "writeStuckHelp": "写入日历失败：更改正在等待。打开同步查看原因。",
+    "stopConfirm": "停止同步此数据库？行保持不变。"
+  },
   "history": {
     "title": "数据库历史",
     "empty": "暂无更改。此数据库的属性、视图和行的更改会显示在这里。",

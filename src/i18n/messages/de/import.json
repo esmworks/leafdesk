@@ -18,6 +18,7 @@
     "ical": "Kalender",
     "postgres": "PostgreSQL",
     "sheets": "Google Sheets",
+    "gcal": "Google Calendar",
     "googleDocs": "Google Docs",
     "web": "Webseite"
   },
@@ -475,6 +476,35 @@
       "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
       "invalidSite": "Leafdesk kann diese Verbindung nicht erreichen.",
       "invalidInput": "Prüfe den Link, die Kopfzeile und die Spaltennamen: Sie müssen mit dem Text der Kopfzeile übereinstimmen.",
+      "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
+    }
+  },
+  "gcal": {
+    "help": "Erhalte eine Datenbank der Termine eines Google-Kalenders, die auf dem Laufenden bleibt: Jeder Termin ist eine Zeile mit Zeit, Ort, Notizen, Status, Organisator und Link, und jedes Vorkommen eines wiederkehrenden Termins ist eine eigene Zeile. Termine von {before} Tagen zurück bis {after} Tage voraus kommen herein. Änderungen kommen aus dem Kalender und gehen auch dorthin zurück, wenn du „In beide Richtungen“ wählst.",
+    "loading": "Google-Sheets-Verbindungen werden gesucht…",
+    "noConnection": "Es gibt keine Google-Sheets-Verbindung, über die du synchronisieren kannst. Ein Inhaber fügt Google Calendar unter Einstellungen → Verbindungen hinzu; Mitglieder können sie nutzen, sobald ein Inhaber „Im Chat“ für das Werkzeug list_events ankreuzt.",
+    "connection": "Google-Sheets-Verbindung",
+    "calendar": "Kalender",
+    "primary": "Hauptkalender",
+    "direction": "Richtung",
+    "directionRead": "Nur vom Kalender",
+    "directionBoth": "In beide Richtungen",
+    "directionBothHelp": "Änderungen an Titel, Wann, Ort und Beschreibung einer Zeile werden bei der nächsten Synchronisierung, nach etwa einer Minute, in den Kalender geschrieben, ohne Gäste per E-Mail zu benachrichtigen. Hat sich ein Termin auch im Kalender geändert, bleibt der Wert des Kalenders. Neue Zeilen werden zu Terminen, sobald sie ein Wann haben; das Löschen einer Zeile löscht nichts im Kalender, und Termine, die jemand anderes organisiert, bleiben, wie der Kalender sie hat.",
+    "directionNoWrite": "Zum Zurückschreiben braucht die Verbindung die Werkzeuge create_event und update_event: Inhaber können sie nutzen, Mitglieder, sobald ein Inhaber für beide „Im Chat“ ankreuzt.",
+    "bothNeedsSchedule": "Zum Zurückschreiben muss die Synchronisierung nach Zeitplan laufen.",
+    "errors": {
+      "unauthorized": "Die Google-Sheets-Verbindung muss erneut bei Google angemeldet werden: Ein Inhaber erledigt das unter Einstellungen → Verbindungen.",
+      "forbidden": "Die Verbindung kann dafür nicht verwendet werden: Ihr Google-Konto darf den Kalender nicht öffnen oder ändern, sie gehört zu einem anderen Arbeitsbereich, oder du darfst sie nicht verwenden.",
+      "notFound": "Diesen Kalender gibt es nicht, oder die Verbindung wurde entfernt.",
+      "badQuery": "Google hat abgelehnt:",
+      "tooManyIssues": "Der Kalender hat zu viele Termine oder ist zu groß zum Synchronisieren.",
+      "unreachable": "Die Verbindung war nicht erreichbar oder Google brauchte zu lange. Die Synchronisierung versucht es beim nächsten Mal erneut.",
+      "runAsGone": "Die Person, die die Synchronisierung eingerichtet hat, hat kein Konto mehr.",
+      "accessLost": "Die Person, als die die Synchronisierung läuft, kann diese Datenbank nicht mehr bearbeiten oder hat den Arbeitsbereich verlassen.",
+      "keyGone": "Die Eigenschaft Termin-ID wurde gelöscht oder ihr Typ geändert, daher können Termine keinen Zeilen zugeordnet werden.",
+      "failed": "Die Synchronisierung ist fehlgeschlagen. Sie versucht es beim nächsten Mal erneut.",
+      "invalidSite": "Leafdesk kann diese Verbindung nicht erreichen.",
+      "invalidInput": "Wähle eine Verbindung und einen Kalender.",
       "alreadyRunning": "Eine Synchronisierung läuft. Versuche es gleich noch einmal."
     }
   }
