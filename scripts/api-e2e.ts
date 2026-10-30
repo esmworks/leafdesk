@@ -356,6 +356,7 @@ try {
   await db.insert(mailbox).values({
     workspaceId: wsA,
     userId: ids.alice,
+    isDefault: true,
     address: `alice.${RUN}@example.test`,
     imapHost: "127.0.0.1",
     imapPort: 1,

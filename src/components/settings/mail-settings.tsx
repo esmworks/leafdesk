@@ -4,10 +4,10 @@ import { ArrowDown, ArrowUp, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { lazyPart } from "@/components/lazy-part";
 import { useEffect, useState } from "react";
-import { disconnectMailboxAction, setMailDatabasesAction } from "@/app/actions/row-mail";
+import { disconnectMailboxAction, setDefaultMailboxAction, setMailDatabasesAction } from "@/app/actions/row-mail";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
 import { Button, cn, IconButton, PageIcon, pageLabel, selectClass, Switch } from "@/components/ui";
-import type { MailboxView, MailSettingsView, OwnMailbox } from "@/lib/mail";
+import { MAX_MAILBOXES, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { relativeTime } from "@/lib/relative-time";
 import { MailboxSending, SequencesGroups } from "./follow-up-settings";
 import { SettingsGroup, SettingsRow } from "./section";
@@ -174,10 +174,10 @@ const NOTICE_ERRORS = ["googleFailed", "googleScope", "consent", "disabled", "in
 
 
 /**
- * Account > Email and calendar: the person's mailbox in each workspace where email on rows is on
- * (server/row-mail/settings.ts listOwnMailboxes), each connected, changed or disconnected there.
- * A mailbox connected by signing in with Google comes back here with a `notice` of how it went
- * ("connected", or what went wrong).
+ * Account > Email and calendar: the person's mailboxes in each workspace where email on rows is on
+ * (server/row-mail/settings.ts listOwnMailboxes), each connected, changed or disconnected there and
+ * one of them the default. A mailbox connected by signing in with Google comes back here with a
+ * `notice` of how it went ("connected", or what went wrong).
  */
 export function OwnMailboxes({ initial, notice }: { initial: OwnMailbox[]; notice?: string }) {
   const t = useTranslations("account.mail");
@@ -214,14 +214,14 @@ export function OwnMailboxes({ initial, notice }: { initial: OwnMailbox[]; notic
       {list.map((entry) => (
         <MailboxGroup
           key={entry.workspaceId}
-      // With one workspace there is nothing to tell apart.
+          // With one workspace there is nothing to tell apart.
           title={list.length > 1 ? t("mailboxIn", { workspace: entry.workspaceName }) : t("mailboxHeading")}
           workspaceId={entry.workspaceId}
           enabled={entry.enabled}
           google={entry.google}
-          mailbox={entry.mailbox}
-          onChange={(mailbox) =>
-            setList((all) => all.flatMap((e) => (e.workspaceId !== entry.workspaceId ? [e] : e.enabled || mailbox ? [{ ...e, mailbox }] : [])))
+          mailboxes={entry.mailboxes}
+          onChange={(mailboxes) =>
+            setList((all) => all.flatMap((e) => (e.workspaceId !== entry.workspaceId ? [e] : e.enabled || mailboxes.length ? [{ ...e, mailboxes }] : [])))
           }
         />
       ))}
@@ -229,77 +229,63 @@ export function OwnMailboxes({ initial, notice }: { initial: OwnMailbox[]; notic
   );
 }
 
-/** The member's own mailbox in a workspace: how it is doing, or the form that connects it (and changes it). */
+/** The default first, then in the order they came. */
+const defaultFirst = (mailboxes: MailboxView[]) => [...mailboxes.filter((m) => m.isDefault), ...mailboxes.filter((m) => !m.isDefault)];
+
+/**
+ * The member's own mailboxes in a workspace: how each is doing, which is the default (with how
+ * follow-ups send from it), and the form that connects another or changes one.
+ */
 function MailboxGroup({
   title,
   workspaceId,
   enabled,
   google,
-  mailbox,
+  mailboxes,
   onChange,
 }: {
   title: string;
   workspaceId: string;
-  /** Off: the workspace turned email on rows off; a mailbox still connected can only be disconnected. */
+  /** Off: the workspace turned email on rows off; mailboxes still connected can only be disconnected. */
   enabled: boolean;
   /** Whether a mailbox can be connected by signing in with Google. */
   google: boolean;
-  mailbox: MailboxView | null;
-  onChange: (mailbox: MailboxView | null) => void;
+  mailboxes: MailboxView[];
+  onChange: (mailboxes: MailboxView[]) => void;
 }) {
   const t = useTranslations("settings.email");
   const ta = useTranslations("account.mail");
   const locale = useLocale();
-  const [editing, setEditing] = useState(false);
+  // The mailbox whose form is open, or "new" for another one.
+  const [editing, setEditing] = useState<string | null>(null);
   const { pending, error, run } = useAction();
+  const description = !enabled ? ta("mailboxOff") : mailboxes.length > 1 ? `${t("mailboxDescription")} ${ta("defaultNote")}` : t("mailboxDescription");
 
-  if (mailbox && (!editing || !enabled)) {
-    const status =
-      mailbox.status === "error" ? t(`status.error.${statusError(mailbox)}`) : mailbox.status === "ok" ? t("status.ok") : t("status.connecting");
+  if (editing && enabled) {
+    const mailbox = mailboxes.find((m) => m.id === editing) ?? null;
     return (
-      <SettingsGroup title={title} description={enabled ? t("mailboxDescription") : ta("mailboxOff")}>
-        <SettingsRow
-          title={mailbox.displayName ? `${mailbox.displayName} <${mailbox.address}>` : mailbox.address}
-          description={
-            <>
-              <span className={cn(mailbox.status === "error" && "text-danger")}>{status}</span>
-              {mailbox.auth === "google" && <> · {t("googleSignedIn")}</>}
-              {mailbox.syncedAt && <> · {t("syncedAt", { time: relativeTime(mailbox.syncedAt, locale) })}</>}
-              {mailbox.folders.inbox && (
-                <span className="mt-1 block">
-                  {mailbox.folders.sent
-                    ? t("folders", { inbox: mailbox.folders.inbox, sent: mailbox.folders.sent })
-                    : t("noSentFolder", { inbox: mailbox.folders.inbox })}
-                </span>
-              )}
-              {error && <span className="block text-danger">{error}</span>}
-            </>
-          }
-          control={
-            <div className="flex gap-2">
-              {enabled && (
-                <Button size="sm" onClick={() => setEditing(true)}>
-                  {t("change")}
-                </Button>
-              )}
-              <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => disconnectMailboxAction(workspaceId), () => onChange(null))}>
-                {t("disconnect")}
-              </Button>
-            </div>
-          }
+      <SettingsGroup title={title} description={description}>
+        <MailboxConnect
+          workspaceId={workspaceId}
+          google={google}
+          mailbox={mailbox}
+          onCancel={() => setEditing(null)}
+          onSaved={(saved) => {
+            onChange(defaultFirst(mailboxes.some((m) => m.id === saved.id) ? mailboxes.map((m) => (m.id === saved.id ? saved : m)) : [...mailboxes, saved]));
+            setEditing(null);
+          }}
         />
-        {enabled && <MailboxSending workspaceId={workspaceId} mailbox={mailbox} onChange={onChange} />}
       </SettingsGroup>
     );
   }
-  if (!editing) {
+  if (!mailboxes.length) {
     // The form opens on request: someone in several workspaces would otherwise get one form each.
     return (
-      <SettingsGroup title={title} description={t("mailboxDescription")}>
+      <SettingsGroup title={title} description={description}>
         <SettingsRow
           title={ta("notConnected")}
           control={
-            <Button size="sm" onClick={() => setEditing(true)}>
+            <Button size="sm" onClick={() => setEditing("new")}>
               {ta("connect")}
             </Button>
           }
@@ -307,18 +293,68 @@ function MailboxGroup({
       </SettingsGroup>
     );
   }
+  const main = mailboxes.find((m) => m.isDefault);
   return (
-    <SettingsGroup title={title} description={t("mailboxDescription")}>
-      <MailboxConnect
-        workspaceId={workspaceId}
-        google={google}
-        mailbox={mailbox}
-        onCancel={() => setEditing(false)}
-        onSaved={(saved) => {
-          onChange(saved);
-          setEditing(false);
-        }}
-      />
+    <SettingsGroup title={title} description={description}>
+      {mailboxes.map((mailbox) => {
+        const status =
+          mailbox.status === "error" ? t(`status.error.${statusError(mailbox)}`) : mailbox.status === "ok" ? t("status.ok") : t("status.connecting");
+        return (
+          <SettingsRow
+            key={mailbox.id}
+            title={
+              <>
+                {mailbox.displayName ? `${mailbox.displayName} <${mailbox.address}>` : mailbox.address}
+                {mailbox.isDefault && mailboxes.length > 1 && <span className="ms-2 text-xs font-normal text-fg-muted">{ta("default")}</span>}
+              </>
+            }
+            description={
+              <>
+                <span className={cn(mailbox.status === "error" && "text-danger")}>{status}</span>
+                {mailbox.auth === "google" && <> · {t("googleSignedIn")}</>}
+                {mailbox.syncedAt && <> · {t("syncedAt", { time: relativeTime(mailbox.syncedAt, locale) })}</>}
+                {mailbox.folders.inbox && (
+                  <span className="mt-1 block">
+                    {mailbox.folders.sent
+                      ? t("folders", { inbox: mailbox.folders.inbox, sent: mailbox.folders.sent })
+                      : t("noSentFolder", { inbox: mailbox.folders.inbox })}
+                  </span>
+                )}
+              </>
+            }
+            control={
+              <div className="flex flex-wrap justify-end gap-2">
+                {enabled && !mailbox.isDefault && (
+                  <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => setDefaultMailboxAction(mailbox.id), onChange)}>
+                    {ta("makeDefault")}
+                  </Button>
+                )}
+                {enabled && (
+                  <Button size="sm" onClick={() => setEditing(mailbox.id)}>
+                    {t("change")}
+                  </Button>
+                )}
+                <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => disconnectMailboxAction(mailbox.id), onChange)}>
+                  {t("disconnect")}
+                </Button>
+              </div>
+            }
+          />
+        );
+      })}
+      {error && <p className="px-5 py-2 text-sm text-danger">{error}</p>}
+      {enabled && main && <MailboxSending key={main.id} mailbox={main} onChange={(saved) => onChange(mailboxes.map((m) => (m.id === saved.id ? saved : m)))} />}
+      {enabled && (
+        <SettingsRow
+          title={ta("another")}
+          description={mailboxes.length >= MAX_MAILBOXES ? ta("limitReached", { max: MAX_MAILBOXES }) : ta("anotherHelp")}
+          control={
+            <Button size="sm" disabled={mailboxes.length >= MAX_MAILBOXES} onClick={() => setEditing("new")}>
+              {ta("addMailbox")}
+            </Button>
+          }
+        />
+      )}
     </SettingsGroup>
   );
 }
@@ -330,7 +366,7 @@ function MembersGroup({ members }: { members: MailSettingsView["members"] }) {
     <SettingsGroup title={t("membersHeading")} description={t("membersDescription")}>
       {members.map((m) => (
         <SettingsRow
-          key={m.userId}
+          key={m.mailboxId}
           title={m.name}
           description={m.address}
           control={<span className={cn("text-sm", m.status === "error" ? "text-danger" : "text-fg-muted")}>{t(`memberStatus.${m.status}`)}</span>}

@@ -262,6 +262,7 @@ try {
   await db.insert(mailbox).values({
     workspaceId,
     userId: ids.editor,
+    isDefault: true,
     address: "ece@example.test",
     imapHost: "imap.example.test",
     imapPort: 993,

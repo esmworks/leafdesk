@@ -42,7 +42,7 @@ export async function draftSender(member: string | null, workspaceId: string, da
       .select({ address: mailbox.address, displayName: mailbox.displayName, name: user.name })
       .from(mailbox)
       .innerJoin(user, eq(user.id, mailbox.userId))
-      .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, member))),
+      .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, member), eq(mailbox.isDefault, true))),
   ]);
   if (!settings.email || !matched || !box) return null;
   return { userId: member, name: box.displayName || box.name, address: box.address };

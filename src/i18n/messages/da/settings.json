@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Databaser med en e-mailegenskab.",
     "chooseDatabase": "Vælg en database",
     "mailboxHeading": "Din postkasse",
-    "mailboxDescription": "Den postkasse, du bruger i dette arbejdsområde. Den læses for e-mail med personerne i arbejdsområdets e-maildatabaser, og det, du skriver på rækker, sendes fra den. Dine andre arbejdsområder ser den ikke.",
+    "mailboxDescription": "De postkasser, du bruger i dette arbejdsområde. Hver læses for e-mail med personerne i arbejdsområdets e-maildatabaser, og det, du skriver på rækker, sendes fra en af dem. Dine andre arbejdsområder ser dem ikke.",
     "syncedAt": "læst {time}",
     "folders": "Læser indgående e-mail fra {inbox} og sendt e-mail fra {sent}.",
     "noSentFolder": "Læser indgående e-mail fra {inbox}. Der blev ikke fundet nogen mappe til sendt post, så e-mail, du sender fra dit eget e-mailprogram, vises ikke på rækker, og e-mail sendt fra rækker gemmes ikke i din postkasse.",
@@ -2546,7 +2546,9 @@
       "gone": "Den besked er ikke længere på denne række.",
       "signIn": "Google-logonnet virker ikke længere. Log ind med Google igen.",
       "googleFailed": "Log ind med Google forbandt ikke postkassen. Prøv igen.",
-      "googleScope": "Google fik ikke lov til at give Leafdesk adgang til din mail. Log ind igen, og tillad det."
+      "googleScope": "Google fik ikke lov til at give Leafdesk adgang til din mail. Log ind igen, og tillad det.",
+      "tooMany": "Du har forbundet så mange postkasser i dette arbejdsområde, som du kan. Afbryd en først.",
+      "alreadyConnected": "Den adresse er allerede forbundet her. Skift den postkasse i stedet."
     },
     "methods": {
       "google": "Google-konto (Gmail eller Google Workspace)",

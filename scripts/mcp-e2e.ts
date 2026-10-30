@@ -695,6 +695,7 @@ async function main() {
     await db.insert(mailbox).values({
       workspaceId: ws,
       userId: userIds[0],
+      isDefault: true,
       address: `mcp.${RUN}@example.test`,
       imapHost: "127.0.0.1",
       imapPort: 1,

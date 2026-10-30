@@ -8,8 +8,9 @@ import { browserTimeZone } from "@/lib/time-zone";
 import { useAction } from "./workspace-settings";
 
 /**
- * The forms that connect a member's mailbox (mail-settings.tsx MailboxGroup), loaded when one is
- * opened: with a password over IMAP and SMTP, or by signing in with Google.
+ * The forms that connect one of a member's mailboxes or change it (`mailbox`; mail-settings.tsx
+ * MailboxGroup), loaded when one is opened: with a password over IMAP and SMTP, or by signing in
+ * with Google.
  */
 
 const DEFAULT_SERVERS: MailboxServers = { imapHost: "", imapPort: 993, imapSecure: true, smtpHost: "", smtpPort: 465, smtpSecure: true };
@@ -66,7 +67,8 @@ function GoogleMailboxForm({ workspaceId, mailbox, onCancel }: { workspaceId: st
       onSubmit={(e) => {
         e.preventDefault();
         run(
-          () => beginGoogleMailboxAction(workspaceId, { consent, displayName, timeZone: browserTimeZone(), address: mailbox?.address ?? null }),
+          () =>
+            beginGoogleMailboxAction(workspaceId, { consent, displayName, timeZone: browserTimeZone(), address: mailbox?.address ?? null, mailboxId: mailbox?.id ?? null }),
           ({ url }) => {
             setLeaving(true);
             window.location.assign(url);
@@ -137,6 +139,7 @@ function MailboxForm({
         run(
           () =>
             connectMailboxAction(workspaceId, {
+              mailboxId: mailbox?.id ?? null,
               address,
               displayName,
               servers: effective,

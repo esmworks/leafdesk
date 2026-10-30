@@ -27,9 +27,11 @@ export const mailDatabase = pgTable(
 );
 
 /**
- * A member's own mailbox in a workspace, read over IMAP and sent from over SMTP. Only mail that
- * matches a row is ever fetched whole; the rest is passed over on its headers. The password, or the
- * Google sign-in, is sealed (server/secret-box) and never leaves the server.
+ * One of a member's own mailboxes in a workspace, read over IMAP and sent from over SMTP. Only mail
+ * that matches a row is ever fetched whole; the rest is passed over on its headers. The password, or
+ * the Google sign-in, is sealed (server/secret-box) and never leaves the server. A member may connect
+ * a few (MAX_MAILBOXES), one address each; exactly one of them is their default, which follow-ups,
+ * agents and email drafts send from.
  */
 export const mailbox = pgTable(
   "mailbox",
@@ -45,6 +47,8 @@ export const mailbox = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     address: text("address").notNull(),
     displayName: text("display_name"),
+    /** The one of the member's mailboxes in the workspace that mail goes out from unless they pick another. */
+    isDefault: boolean("is_default").notNull().default(false),
     imapHost: text("imap_host").notNull(),
     imapPort: integer("imap_port").notNull(),
     imapSecure: boolean("imap_secure").notNull(),
@@ -76,7 +80,8 @@ export const mailbox = pgTable(
       .$onUpdate(() => new Date()),
   },
   (t) => [
-    uniqueIndex("mailbox_member_idx").on(t.workspaceId, t.userId),
+    uniqueIndex("mailbox_address_idx").on(t.workspaceId, t.userId, t.address),
+    uniqueIndex("mailbox_default_idx").on(t.workspaceId, t.userId).where(sql`${t.isDefault}`),
     check("mailbox_status_check", sql`${t.status} in ('connecting', 'ok', 'error')`),
     check("mailbox_auth_check", sql`${t.auth} in ('password', 'google')`),
   ],

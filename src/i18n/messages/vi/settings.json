@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Các cơ sở dữ liệu có thuộc tính email.",
     "chooseDatabase": "Chọn một cơ sở dữ liệu",
     "mailboxHeading": "Hộp thư của bạn",
-    "mailboxDescription": "Hộp thư bạn dùng trong không gian làm việc này. Nó được đọc để tìm thư với những người trong các cơ sở dữ liệu thư của không gian làm việc, và những gì bạn viết trên các hàng được gửi từ đó. Các không gian làm việc khác của bạn không thấy nó.",
+    "mailboxDescription": "Các hộp thư bạn dùng trong không gian làm việc này. Mỗi hộp được đọc để tìm thư với những người trong các cơ sở dữ liệu thư của không gian làm việc, và những gì bạn viết trên các hàng được gửi từ một trong số đó. Các không gian làm việc khác của bạn không thấy chúng.",
     "syncedAt": "đã đọc {time}",
     "folders": "Đọc thư đến từ {inbox} và thư đã gửi từ {sent}.",
     "noSentFolder": "Đọc thư đến từ {inbox}. Không tìm thấy thư mục thư đã gửi, nên thư bạn gửi từ chương trình thư của riêng bạn sẽ không hiện trên các hàng, và thư gửi từ các hàng sẽ không được lưu trong hộp thư của bạn.",
@@ -2546,7 +2546,9 @@
       "gone": "Tin nhắn đó không còn trên hàng này nữa.",
       "signIn": "Đăng nhập Google không còn hoạt động. Hãy đăng nhập lại bằng Google.",
       "googleFailed": "Đăng nhập bằng Google không kết nối được hộp thư. Hãy thử lại.",
-      "googleScope": "Google không được phép cấp cho Leafdesk quyền truy cập thư của bạn. Hãy đăng nhập lại và cho phép."
+      "googleScope": "Google không được phép cấp cho Leafdesk quyền truy cập thư của bạn. Hãy đăng nhập lại và cho phép.",
+      "tooMany": "Bạn đã kết nối số hộp thư tối đa trong không gian làm việc này. Hãy ngắt kết nối một hộp trước.",
+      "alreadyConnected": "Địa chỉ này đã được kết nối ở đây. Hãy thay đổi hộp thư đó."
     },
     "methods": {
       "google": "Tài khoản Google (Gmail hoặc Google Workspace)",

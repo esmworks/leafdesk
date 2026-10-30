@@ -1,11 +1,11 @@
 import { randomBytes } from "node:crypto";
-import { and, asc, eq, inArray, isNull, lt, notInArray } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNull, lt, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, mailbox, mailboxOauth, mailDatabase, page, user } from "@/db/schema";
 import { env } from "@/lib/env";
 import { MAX_DAILY_LIMIT } from "@/lib/sequences";
 import { isTimeZone } from "@/lib/time-zone";
-import { normalizeAddress, type MailboxAuth, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
+import { MAX_MAILBOXES, normalizeAddress, type MailboxAuth, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { isGuest, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { open, openJson, seal, sealJson } from "@/server/secret-box";
@@ -15,9 +15,11 @@ import { exchangeGoogleCode, GOOGLE_MAIL, googleAuthorizationUrl, GoogleSignInEr
 
 /**
  * Settings > General > Email: owners choose the databases mail lands on, in order, and which of their email
- * properties hold the other party's address; every member (not guests) connects their own mailbox
- * in the workspace from their account (Account > Email and calendar), which is tried before it is kept:
+ * properties hold the other party's address; every member (not guests) connects their own mailboxes
+ * in the workspace from their account (Account > Email and calendar), each tried before it is kept:
  * with a password, or by signing in with Google (beginGoogleMailbox, then completeGoogleMailbox).
+ * One address is one mailbox (connecting it again changes it), and one of a member's mailboxes is
+ * their default: the first one connected, then whichever they pick, then the oldest left.
  */
 
 export type RowMailErrorCode =
@@ -29,6 +31,8 @@ export type RowMailErrorCode =
   | "gone"
   | "googleFailed"
   | "googleScope"
+  | "tooMany"
+  | "alreadyConnected"
   | MailConnectError["code"];
 
 export class RowMailError extends Error {
@@ -45,6 +49,7 @@ function mailboxView(m: typeof mailbox.$inferSelect): MailboxView {
     id: m.id,
     address: m.address,
     displayName: m.displayName,
+    isDefault: m.isDefault,
     servers: {
       imapHost: m.imapHost,
       imapPort: m.imapPort,
@@ -103,11 +108,11 @@ export async function getMailSettings(userId: string, workspaceId: string): Prom
       .orderBy(asc(mailDatabase.position), asc(mailDatabase.createdAt)),
     emailDatabases(workspaceId),
     db
-      .select({ userId: mailbox.userId, name: user.name, address: mailbox.address, status: mailbox.status })
+      .select({ mailboxId: mailbox.id, userId: mailbox.userId, name: user.name, address: mailbox.address, status: mailbox.status })
       .from(mailbox)
       .innerJoin(user, eq(user.id, mailbox.userId))
       .where(eq(mailbox.workspaceId, workspaceId))
-      .orderBy(asc(user.name)),
+      .orderBy(asc(user.name), desc(mailbox.isDefault), asc(mailbox.createdAt)),
   ]);
   for (const c of chosen) {
     const database = available.get(c.databaseId);
@@ -127,20 +132,20 @@ export async function getMailSettings(userId: string, workspaceId: string): Prom
 }
 
 /**
- * The person's own mailboxes (Account > Email and calendar), one per workspace they are a member
- * of (not a guest) where email on rows is on or a mailbox of theirs is still connected.
+ * The person's own mailboxes (Account > Email and calendar), by workspace they are a member of (not
+ * a guest) where email on rows is on or a mailbox of theirs is still connected.
  */
 export async function listOwnMailboxes(userId: string): Promise<OwnMailbox[]> {
   const [workspaces, boxes] = await Promise.all([
     listWorkspaces(userId),
-    db.select().from(mailbox).where(eq(mailbox.userId, userId)),
+    db.select().from(mailbox).where(eq(mailbox.userId, userId)).orderBy(desc(mailbox.isDefault), asc(mailbox.createdAt)),
   ]);
   const members = workspaces.filter((w) => !isGuest(w.role));
   const settings = await Promise.all(members.map((w) => workspaceSettings(w.id)));
   return members.flatMap((w, i) => {
-    const own = boxes.find((b) => b.workspaceId === w.id);
+    const own = boxes.filter((b) => b.workspaceId === w.id);
     const enabled = settings[i].email;
-    return enabled || own ? [{ workspaceId: w.id, workspaceName: w.name, enabled, google: !!env.mailGoogleApp, mailbox: own ? mailboxView(own) : null }] : [];
+    return enabled || own.length ? [{ workspaceId: w.id, workspaceName: w.name, enabled, google: !!env.mailGoogleApp, mailboxes: own.map(mailboxView) }] : [];
   });
 }
 
@@ -194,6 +199,8 @@ export async function setMailDatabases(userId: string, workspaceId: string, entr
 }
 
 export type MailboxInput = {
+  /** The mailbox being changed; none to connect another (or to change the one with this address). */
+  mailboxId?: string | null;
   address: string;
   displayName?: string | null;
   servers: MailboxServers;
@@ -224,8 +231,9 @@ function cleanServers(servers: MailboxServers): MailboxServers {
 }
 
 /**
- * Connects (or changes) the member's mailbox in the workspace: signs in to both servers first and
- * keeps it only when that works. Reading starts from now; on the same account, from where it was.
+ * Connects one of the member's mailboxes in the workspace, or changes it: signs in to both servers
+ * first and keeps it only when that works. Reading starts from now; on the same account, from where
+ * it was.
  */
 export async function connectMailbox(userId: string, workspaceId: string, input: MailboxInput): Promise<MailboxView> {
   await requireMailboxPlace(userId, workspaceId);
@@ -236,10 +244,7 @@ export async function connectMailbox(userId: string, workspaceId: string, input:
   const displayName = typeof input.displayName === "string" ? input.displayName.trim().slice(0, 200) || null : null;
   if (!address || !username || username.length > 320 || password.length > 1024) throw new RowMailError("invalid");
   const servers = cleanServers(input.servers);
-  const [existing] = await db
-    .select()
-    .from(mailbox)
-    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)));
+  const existing = await mailboxToSave(userId, workspaceId, address, input.mailboxId);
   // A Google mailbox changed to a password gives one; its sealed tokens are no password.
   const secret = password ? password : existing?.auth === "password" ? open(existing.secret) : "";
   if (!secret) throw new RowMailError("invalid");
@@ -255,6 +260,28 @@ export async function connectMailbox(userId: string, workspaceId: string, input:
   });
 }
 
+/**
+ * Which of the member's mailboxes in the workspace a connection to `address` changes: the one with
+ * that address, or `mailboxId` (whose address it then changes); none when it is another one, which
+ * the member may connect while they have fewer than MAX_MAILBOXES.
+ */
+async function mailboxToSave(userId: string, workspaceId: string, address: string, mailboxId: string | null | undefined) {
+  const own = await db
+    .select()
+    .from(mailbox)
+    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)));
+  const same = own.find((m) => m.address === address);
+  if (typeof mailboxId === "string") {
+    const changed = own.find((m) => m.id === mailboxId);
+    if (!changed) throw new RowMailError("gone");
+    if (same && same.id !== changed.id) throw new RowMailError("alreadyConnected");
+    return changed;
+  }
+  if (same) return same;
+  if (own.length >= MAX_MAILBOXES) throw new RowMailError("tooMany");
+  return undefined;
+}
+
 /** Members (not guests) of a workspace with email on rows on may connect a mailbox there. */
 async function requireMailboxPlace(userId: string, workspaceId: string) {
   const membership = await requireMembership(userId, workspaceId);
@@ -263,8 +290,9 @@ async function requireMailboxPlace(userId: string, workspaceId: string) {
 }
 
 /**
- * Tries a mailbox and keeps it, in place of the member's mailbox in the workspace (`existing`).
- * Reading starts from now; on the same account, from where it was.
+ * Tries a mailbox and keeps it, in place of `existing` (one of the member's mailboxes in the
+ * workspace) or as another; the first one is their default. Reading starts from now; on the same
+ * account, from where it was.
  */
 async function saveMailbox(
   existing: typeof mailbox.$inferSelect | undefined,
@@ -311,11 +339,21 @@ async function saveMailbox(
     consentedAt: new Date(),
     ...(isTimeZone(input.timeZone) ? { timeZone: input.timeZone } : {}),
   };
-  const [saved] = await db
-    .insert(mailbox)
-    .values(values)
-    .onConflictDoUpdate({ target: [mailbox.workspaceId, mailbox.userId], set: { ...values, syncedAt: null } })
-    .returning();
+  const [saved] = existing
+    ? await db
+        .update(mailbox)
+        .set({ ...values, syncedAt: null })
+        .where(eq(mailbox.id, existing.id))
+        .returning()
+    : await db
+        .insert(mailbox)
+        .values({
+          ...values,
+          isDefault: sql`not exists (select 1 from ${mailbox} where ${mailbox.workspaceId} = ${workspaceId} and ${mailbox.userId} = ${userId} and ${mailbox.isDefault})`,
+        })
+        .onConflictDoUpdate({ target: [mailbox.workspaceId, mailbox.userId, mailbox.address], set: { ...values, syncedAt: null } })
+        .returning();
+  if (!saved) throw new RowMailError("gone");
   await recordAudit({
     workspaceId,
     actorId: userId,
@@ -332,14 +370,15 @@ const GOOGLE_STATE_MS = 15 * 60_000;
 export const mailOAuthRedirectUrl = () => `${env.appUrl}/api/mail/oauth/callback`;
 
 /**
- * Begins connecting the member's mailbox in the workspace by signing in with Google: returns the
- * address to send the browser to. The consent, time zone and name on outgoing mail are kept with
- * the sign-in until it comes back; `address`, when typed, picks the Google account.
+ * Begins connecting one of the member's mailboxes in the workspace by signing in with Google
+ * (`mailboxId`: the one it changes): returns the address to send the browser to. The consent, time
+ * zone, name on outgoing mail and mailbox are kept with the sign-in until it comes back; `address`,
+ * when typed, picks the Google account.
  */
 export async function beginGoogleMailbox(
   userId: string,
   workspaceId: string,
-  input: { consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null },
+  input: { consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null; mailboxId?: string | null },
 ): Promise<{ url: string }> {
   await requireMailboxPlace(userId, workspaceId);
   if (input?.consent !== true) throw new RowMailError("consent");
@@ -350,7 +389,8 @@ export async function beginGoogleMailbox(
   const timeZone = isTimeZone(input.timeZone) ? input.timeZone : null;
   const displayName = typeof input.displayName === "string" ? input.displayName.trim().slice(0, 200) || null : null;
   await db.delete(mailboxOauth).where(lt(mailboxOauth.createdAt, new Date(Date.now() - GOOGLE_STATE_MS)));
-  await db.insert(mailboxOauth).values({ state, userId, workspaceId, data: sealJson({ verifier, consent: true, timeZone, displayName }) });
+  const mailboxId = typeof input.mailboxId === "string" ? input.mailboxId : null;
+  await db.insert(mailboxOauth).values({ state, userId, workspaceId, data: sealJson({ verifier, consent: true, timeZone, displayName, mailboxId }) });
   return { url: googleAuthorizationUrl(app, { state, challenge, redirectUri: mailOAuthRedirectUrl(), loginHint: normalizeAddress(input.address) }) };
 }
 
@@ -365,8 +405,9 @@ export async function googleMailReturnOf(state: string, userId?: string): Promis
 
 /**
  * The browser came back from Google: finishes the sign-in begun with `state` by the same person,
- * tries the mailbox with it (Gmail's servers, XOAUTH2) and keeps it in place of their mailbox in
- * that workspace. The sign-in is used up whether or not this works.
+ * tries the mailbox with it (Gmail's servers, XOAUTH2) and keeps it, in place of the one it was
+ * begun for or the one with that address, or as another. The sign-in is used up whether or not
+ * this works.
  */
 export async function completeGoogleMailbox(userId: string, input: { state: string; code: string }): Promise<{ workspaceId: string; mailbox: MailboxView }> {
   const [pending] = await db
@@ -374,9 +415,13 @@ export async function completeGoogleMailbox(userId: string, input: { state: stri
     .where(and(eq(mailboxOauth.state, input.state), eq(mailboxOauth.userId, userId)))
     .returning();
   if (!pending || pending.createdAt.getTime() < Date.now() - GOOGLE_STATE_MS) throw new RowMailError("googleFailed");
-  const { verifier, consent, timeZone, displayName } = openJson<{ verifier: string; consent?: boolean; timeZone?: string | null; displayName?: string | null }>(
-    pending.data,
-  );
+  const { verifier, consent, timeZone, displayName, mailboxId } = openJson<{
+    verifier: string;
+    consent?: boolean;
+    timeZone?: string | null;
+    displayName?: string | null;
+    mailboxId?: string | null;
+  }>(pending.data);
   if (consent !== true) throw new RowMailError("consent");
   const { workspaceId } = pending;
   await requireMailboxPlace(userId, workspaceId);
@@ -394,10 +439,7 @@ export async function completeGoogleMailbox(userId: string, input: { state: stri
   }
   const address = normalizeAddress(signedIn.email);
   if (!address) throw new RowMailError("googleFailed");
-  const [existing] = await db
-    .select()
-    .from(mailbox)
-    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)));
+  const existing = await mailboxToSave(userId, workspaceId, address, mailboxId);
   const saved = await saveMailbox(existing, {
     workspaceId,
     userId,
@@ -411,37 +453,81 @@ export async function completeGoogleMailbox(userId: string, input: { state: stri
   return { workspaceId, mailbox: saved };
 }
 
+/** One of the person's own mailboxes, in a workspace they are still a member of. */
+async function requireOwnMailbox(userId: string, mailboxId: string) {
+  const [box] = typeof mailboxId === "string" ? await db.select().from(mailbox).where(and(eq(mailbox.id, mailboxId), eq(mailbox.userId, userId))) : [];
+  if (!box) throw new RowMailError("noMailbox");
+  await requireMembership(userId, box.workspaceId);
+  return box;
+}
+
 /**
- * How follow-ups send from the member's mailbox in the workspace: at most `dailyLimit` emails a
- * day, all sequences together, in send windows read in `timeZone`.
+ * How follow-ups send from one of the member's mailboxes: at most `dailyLimit` emails a day, all
+ * sequences together, in send windows read in `timeZone`.
  */
-export async function setMailboxSending(userId: string, workspaceId: string, input: { dailyLimit: number; timeZone: string }): Promise<MailboxView> {
-  await requireMembership(userId, workspaceId);
+export async function setMailboxSending(userId: string, mailboxId: string, input: { dailyLimit: number; timeZone: string }): Promise<MailboxView> {
+  await requireOwnMailbox(userId, mailboxId);
   const limit = input?.dailyLimit;
   if (!Number.isInteger(limit) || limit < 1 || limit > MAX_DAILY_LIMIT || !isTimeZone(input.timeZone)) throw new RowMailError("invalid");
   const [saved] = await db
     .update(mailbox)
     .set({ followUpDailyLimit: limit, timeZone: input.timeZone })
-    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)))
+    .where(and(eq(mailbox.id, mailboxId), eq(mailbox.userId, userId)))
     .returning();
   if (!saved) throw new RowMailError("noMailbox");
   return mailboxView(saved);
 }
 
-/** Disconnects the member's mailbox; the messages it brought stay on their rows. */
-export async function disconnectMailbox(userId: string, workspaceId: string) {
-  await requireMembership(userId, workspaceId);
-  const [removed] = await db
-    .delete(mailbox)
+/** Makes one of the member's mailboxes the one mail goes out from unless they pick another; returns all of theirs in the workspace. */
+export async function setDefaultMailbox(userId: string, mailboxId: string): Promise<MailboxView[]> {
+  const box = await requireOwnMailbox(userId, mailboxId);
+  const mine = and(eq(mailbox.workspaceId, box.workspaceId), eq(mailbox.userId, userId));
+  await db.transaction(async (tx) => {
+    await tx.update(mailbox).set({ isDefault: false }).where(and(mine, eq(mailbox.isDefault, true)));
+    await tx.update(mailbox).set({ isDefault: true }).where(eq(mailbox.id, box.id));
+  });
+  return ownIn(userId, box.workspaceId);
+}
+
+/** The member's mailboxes in the workspace, the default first. */
+async function ownIn(userId: string, workspaceId: string) {
+  const boxes = await db
+    .select()
+    .from(mailbox)
     .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)))
-    .returning({ id: mailbox.id, address: mailbox.address });
-  if (!removed) return;
+    .orderBy(desc(mailbox.isDefault), asc(mailbox.createdAt));
+  return boxes.map(mailboxView);
+}
+
+/**
+ * Disconnects one of the member's mailboxes; the messages it brought stay on their rows. When it
+ * was their default, the oldest one left becomes it. Returns the ones left in the workspace.
+ */
+export async function disconnectMailbox(userId: string, mailboxId: string): Promise<MailboxView[]> {
+  const box = await requireOwnMailbox(userId, mailboxId);
+  await db.transaction(async (tx) => {
+    await tx.delete(mailbox).where(eq(mailbox.id, box.id));
+    if (!box.isDefault) return;
+    const [{ n }] = await tx
+      .select({ n: count() })
+      .from(mailbox)
+      .where(and(eq(mailbox.workspaceId, box.workspaceId), eq(mailbox.userId, userId), eq(mailbox.isDefault, true)));
+    if (n) return;
+    const [oldest] = await tx
+      .select({ id: mailbox.id })
+      .from(mailbox)
+      .where(and(eq(mailbox.workspaceId, box.workspaceId), eq(mailbox.userId, userId)))
+      .orderBy(asc(mailbox.createdAt))
+      .limit(1);
+    if (oldest) await tx.update(mailbox).set({ isDefault: true }).where(eq(mailbox.id, oldest.id));
+  });
   await recordAudit({
-    workspaceId,
+    workspaceId: box.workspaceId,
     actorId: userId,
     action: "mail.mailbox_disconnected",
-    target: { type: "mailbox", id: removed.id, label: removed.address },
+    target: { type: "mailbox", id: box.id, label: box.address },
   });
+  return ownIn(userId, box.workspaceId);
 }
 
 /** Drops the mailboxes of people who left these workspaces (their passwords leave with them). */

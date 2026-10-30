@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Bases de datos con una propiedad de correo.",
     "chooseDatabase": "Elige una base de datos",
     "mailboxHeading": "Tu buzón",
-    "mailboxDescription": "El buzón que usas en este espacio de trabajo. Se lee en busca de correos con las personas de las bases de datos de correo del espacio, y lo que escribes en las filas se envía desde él. Tus otros espacios de trabajo no lo ven.",
+    "mailboxDescription": "Los buzones que usas en este espacio de trabajo. Cada uno se lee en busca de correos con las personas de las bases de datos de correo del espacio, y lo que escribes en las filas se envía desde uno de ellos. Tus otros espacios de trabajo no los ven.",
     "syncedAt": "leído {time}",
     "folders": "Lee el correo entrante de {inbox} y el enviado de {sent}.",
     "noSentFolder": "Lee el correo entrante de {inbox}. No se encontró una carpeta de enviados: lo que envíes desde tu propio programa de correo no aparecerá en las filas, y el correo enviado desde las filas no se guardará en tu buzón.",
@@ -2546,7 +2546,9 @@
       "gone": "Ese mensaje ya no está en esta fila.",
       "signIn": "El inicio de sesión de Google ya no funciona. Vuelve a iniciar sesión con Google.",
       "googleFailed": "Iniciar sesión con Google no conectó el buzón. Inténtalo de nuevo.",
-      "googleScope": "No se permitió que Google diera a Leafdesk acceso a tu correo. Vuelve a iniciar sesión y permítelo."
+      "googleScope": "No se permitió que Google diera a Leafdesk acceso a tu correo. Vuelve a iniciar sesión y permítelo.",
+      "tooMany": "Ya conectaste todos los buzones que puedes en este espacio de trabajo. Desconecta uno primero.",
+      "alreadyConnected": "Ya conectaste esa dirección aquí. Cambia ese buzón en su lugar."
     },
     "methods": {
       "google": "Cuenta de Google (Gmail o Google Workspace)",

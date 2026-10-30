@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Bazy danych z właściwością e-mail.",
     "chooseDatabase": "Wybierz bazę danych",
     "mailboxHeading": "Twoja skrzynka pocztowa",
-    "mailboxDescription": "Skrzynka pocztowa, której używasz w tym obszarze roboczym. Są z niej czytane e-maile z osobami z pocztowych baz danych obszaru, a to, co piszesz w wierszach, jest z niej wysyłane. Twoje inne obszary robocze jej nie widzą.",
+    "mailboxDescription": "Skrzynki pocztowe, których używasz w tym obszarze roboczym. Z każdej są czytane e-maile z osobami z pocztowych baz danych obszaru, a to, co piszesz w wierszach, jest wysyłane z jednej z nich. Twoje inne obszary robocze ich nie widzą.",
     "syncedAt": "odczytano {time}",
     "folders": "Czyta pocztę przychodzącą z {inbox} i wysłaną z {sent}.",
     "noSentFolder": "Czyta pocztę przychodzącą z {inbox}. Nie znaleziono folderu wysłanych: wiadomości wysłane z Twojego programu pocztowego nie pojawią się w wierszach, a wysłane z wierszy nie zostaną zapisane w Twojej skrzynce.",
@@ -2546,7 +2546,9 @@
       "gone": "Tej wiadomości nie ma już w tym wierszu.",
       "signIn": "Logowanie przez Google już nie działa. Zaloguj się ponownie przez Google.",
       "googleFailed": "Logowanie przez Google nie podłączyło skrzynki. Spróbuj ponownie.",
-      "googleScope": "Google nie mógł dać Leafdesk dostępu do Twojej poczty. Zaloguj się ponownie i zezwól na to."
+      "googleScope": "Google nie mógł dać Leafdesk dostępu do Twojej poczty. Zaloguj się ponownie i zezwól na to.",
+      "tooMany": "Masz już podłączonych tyle skrzynek pocztowych w tym obszarze roboczym, ile można. Najpierw odłącz jedną.",
+      "alreadyConnected": "Ten adres jest już tu podłączony. Zmień zamiast tego tę skrzynkę."
     },
     "methods": {
       "google": "Konto Google (Gmail lub Google Workspace)",

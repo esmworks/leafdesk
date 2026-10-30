@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "E-posta özelliği olan veritabanları.",
     "chooseDatabase": "Bir veritabanı seçin",
     "mailboxHeading": "Posta kutunuz",
-    "mailboxDescription": "Bu çalışma alanında kullandığınız posta kutusu. Çalışma alanının posta veritabanlarındaki kişilerle yazışmalar için okunur, satırlarda yazdıklarınız da buradan gönderilir. Diğer çalışma alanlarınız onu görmez.",
+    "mailboxDescription": "Bu çalışma alanında kullandığınız posta kutuları. Her biri çalışma alanının posta veritabanlarındaki kişilerle yazışmalar için okunur, satırlarda yazdıklarınız da bunlardan birinden gönderilir. Diğer çalışma alanlarınız onları görmez.",
     "syncedAt": "{time} okundu",
     "folders": "Gelen postayı {inbox} klasöründen, gönderilen postayı {sent} klasöründen okur.",
     "noSentFolder": "Gelen postayı {inbox} klasöründen okur. Gönderilen posta klasörü bulunamadı: kendi posta programınızdan gönderdikleriniz satırlarda görünmez, satırlardan gönderilenler de posta kutunuza kaydedilmez.",
@@ -2546,7 +2546,9 @@
       "accessDenied": "Bunu yapmaya yetkiniz yok.",
       "signIn": "Google girişi artık geçerli değil. Google ile yeniden giriş yapın.",
       "googleFailed": "Google ile giriş posta kutusunu bağlamadı. Yeniden deneyin.",
-      "googleScope": "Google'da Leafdesk'in postalarınıza erişmesine izin verilmedi. Yeniden giriş yapıp izin verin."
+      "googleScope": "Google'da Leafdesk'in postalarınıza erişmesine izin verilmedi. Yeniden giriş yapıp izin verin.",
+      "tooMany": "Bu çalışma alanında bağlayabileceğiniz kadar posta kutusu bağladınız. Önce birinin bağlantısını kesin.",
+      "alreadyConnected": "Bu adresi burada zaten bağladınız. Onun yerine o posta kutusunu değiştirin."
     },
     "methods": {
       "google": "Google hesabı (Gmail veya Google Workspace)",

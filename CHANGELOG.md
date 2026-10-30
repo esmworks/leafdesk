@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Several mailboxes per member.** A member connects up to five mailboxes in a workspace (a shared
+  sales or support address beside their own, say) under My account → Email and calendar, and makes
+  one their default. Mail written on a row goes out from the default unless another is picked under
+  *From*; a reply goes out from the mailbox the message came through. Follow-ups, agents' email and
+  email drafts send from the default, and disconnecting it makes the oldest mailbox left the
+  default. Connecting an address again changes its mailbox. Owners see each mailbox in Settings →
+  General → Email. Migration 0161.
+
 - **Views group by text, numbers, formulas and rollups.** Tables, lists, galleries, boards (and
   their sub-groups), charts and pivots (lines and columns) group by a text, URL, email or phone
   property, one group per value or per first letter, and by a number in ranges of a width the view

@@ -125,7 +125,7 @@ const webAccessInput = z
 const mailRecipientsInput = z
   .array(z.string().email().max(320))
   .max(MAX_AGENT_MAIL_RECIPIENTS)
-  .describe("Addresses its runs may email (send_email), the whole list; [] clears it. Mail goes from the mailbox of the person a run works for. Only addresses the user named.");
+  .describe("Addresses its runs may email (send_email), the whole list; [] clears it. Mail goes from the default mailbox of the person a run works for. Only addresses the user named.");
 
 const rowChangesInput = z
   .enum(AGENT_ROW_CHANGES)

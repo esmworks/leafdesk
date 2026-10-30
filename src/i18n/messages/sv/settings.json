@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Databaser med en e-postegenskap.",
     "chooseDatabase": "Välj en databas",
     "mailboxHeading": "Din brevlåda",
-    "mailboxDescription": "Brevlådan du använder i den här arbetsytan. Den läses för e-post med personerna i arbetsytans e-postdatabaser, och det du skriver på rader skickas från den. Dina andra arbetsytor ser den inte.",
+    "mailboxDescription": "Brevlådorna du använder i den här arbetsytan. Var och en läses för e-post med personerna i arbetsytans e-postdatabaser, och det du skriver på rader skickas från en av dem. Dina andra arbetsytor ser dem inte.",
     "syncedAt": "läst {time}",
     "folders": "Läser inkommande e-post från {inbox} och skickad e-post från {sent}.",
     "noSentFolder": "Läser inkommande e-post från {inbox}. Ingen mapp för skickat hittades, så e-post som du skickar från ditt eget e-postprogram visas inte på rader, och e-post som skickas från rader sparas inte i din brevlåda.",
@@ -2546,7 +2546,9 @@
       "gone": "Det meddelandet finns inte längre på den här raden.",
       "signIn": "Google-inloggningen fungerar inte längre. Logga in med Google igen.",
       "googleFailed": "Inloggningen med Google anslöt inte brevlådan. Försök igen.",
-      "googleScope": "Google fick inte ge Leafdesk åtkomst till din e-post. Logga in igen och tillåt det."
+      "googleScope": "Google fick inte ge Leafdesk åtkomst till din e-post. Logga in igen och tillåt det.",
+      "tooMany": "Du har anslutit så många brevlådor i den här arbetsytan som du kan. Koppla från en först.",
+      "alreadyConnected": "Den adressen är redan ansluten här. Ändra den brevlådan i stället."
     },
     "methods": {
       "google": "Google-konto (Gmail eller Google Workspace)",

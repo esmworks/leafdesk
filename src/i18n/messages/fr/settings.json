@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Bases de données avec une propriété e-mail.",
     "chooseDatabase": "Choisir une base de données",
     "mailboxHeading": "Votre boîte mail",
-    "mailboxDescription": "La boîte mail que vous utilisez dans cet espace de travail. Elle est lue pour les e-mails échangés avec les personnes des bases de données de messagerie de l’espace, et ce que vous écrivez sur les lignes est envoyé depuis elle. Vos autres espaces de travail ne la voient pas.",
+    "mailboxDescription": "Les boîtes mail que vous utilisez dans cet espace de travail. Chacune est lue pour les e-mails échangés avec les personnes des bases de données de messagerie de l’espace, et ce que vous écrivez sur les lignes est envoyé depuis l’une d’elles. Vos autres espaces de travail ne les voient pas.",
     "syncedAt": "lue {time}",
     "folders": "Lit le courrier reçu dans {inbox} et le courrier envoyé dans {sent}.",
     "noSentFolder": "Lit le courrier reçu dans {inbox}. Aucun dossier d'envoi n'a été trouvé : ce que vous envoyez depuis votre propre logiciel de messagerie n'apparaîtra pas sur les lignes, et le courrier envoyé depuis les lignes ne sera pas enregistré dans votre boîte.",
@@ -2546,7 +2546,9 @@
       "gone": "Ce message n’est plus sur cette ligne.",
       "signIn": "La connexion Google ne fonctionne plus. Reconnectez-vous avec Google.",
       "googleFailed": "La connexion avec Google n’a pas relié la boîte aux lettres. Réessayez.",
-      "googleScope": "Google n’a pas été autorisé à donner à Leafdesk l’accès à vos e-mails. Reconnectez-vous et autorisez-le."
+      "googleScope": "Google n’a pas été autorisé à donner à Leafdesk l’accès à vos e-mails. Reconnectez-vous et autorisez-le.",
+      "tooMany": "Vous avez connecté autant de boîtes mail que possible dans cet espace de travail. Déconnectez-en une d’abord.",
+      "alreadyConnected": "Cette adresse est déjà connectée ici. Modifiez plutôt cette boîte mail."
     },
     "methods": {
       "google": "Compte Google (Gmail ou Google Workspace)",

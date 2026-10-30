@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Tietokannat, joissa on sähköpostiominaisuus.",
     "chooseDatabase": "Valitse tietokanta",
     "mailboxHeading": "Postilaatikkosi",
-    "mailboxDescription": "Postilaatikko, jota käytät tässä työtilassa. Siitä luetaan posti, joka on käyty työtilan postitietokantojen henkilöiden kanssa, ja riveillä kirjoittamasi viestit lähetetään siitä. Muut työtilasi eivät näe sitä.",
+    "mailboxDescription": "Postilaatikot, joita käytät tässä työtilassa. Jokaisesta luetaan posti, joka on käyty työtilan postitietokantojen henkilöiden kanssa, ja riveillä kirjoittamasi viestit lähetetään jostakin niistä. Muut työtilasi eivät näe niitä.",
     "syncedAt": "luettu {time}",
     "folders": "Lukee saapuvan postin kansiosta {inbox} ja lähetetyn postin kansiosta {sent}.",
     "noSentFolder": "Lukee saapuvan postin kansiosta {inbox}. Lähetettyjen kansiota ei löytynyt, joten omasta sähköpostiohjelmastasi lähettämäsi posti ei näy riveillä eikä riveiltä lähetettyä postia tallenneta postilaatikkoosi.",
@@ -2546,7 +2546,9 @@
       "gone": "Viesti ei ole enää tällä rivillä.",
       "signIn": "Google-kirjautuminen ei enää toimi. Kirjaudu uudelleen Googlella.",
       "googleFailed": "Googlella kirjautuminen ei yhdistänyt postilaatikkoa. Yritä uudelleen.",
-      "googleScope": "Google ei saanut antaa Leafdeskille pääsyä sähköpostiisi. Kirjaudu uudelleen ja salli se."
+      "googleScope": "Google ei saanut antaa Leafdeskille pääsyä sähköpostiisi. Kirjaudu uudelleen ja salli se.",
+      "tooMany": "Olet yhdistänyt tähän työtilaan niin monta postilaatikkoa kuin voit. Katkaise ensin yhden yhteys.",
+      "alreadyConnected": "Olet jo yhdistänyt tämän osoitteen tänne. Muuta sen sijaan sitä postilaatikkoa."
     },
     "methods": {
       "google": "Google-tili (Gmail tai Google Workspace)",

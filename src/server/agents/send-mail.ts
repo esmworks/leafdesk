@@ -35,7 +35,7 @@ export async function mailSender(member: string | null, workspaceId: string, rec
       .select({ box: mailbox, name: user.name })
       .from(mailbox)
       .innerJoin(user, eq(user.id, mailbox.userId))
-      .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, member))),
+      .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, member), eq(mailbox.isDefault, true))),
   ]);
   if (!settings.email || !found) return null;
   return { userId: member, name: found.box.displayName || found.name, box: found.box };

@@ -422,10 +422,10 @@ function SequenceDialog({
 }
 
 /**
- * On a connected mailbox: how many follow-up emails it sends a day at most, every follow-up
- * together, and the time zone their send windows read in.
+ * On the default mailbox, which follow-ups send from: how many follow-up emails it sends a day at
+ * most, every follow-up together, and the time zone their send windows read in.
  */
-export function MailboxSending({ workspaceId, mailbox, onChange }: { workspaceId: string; mailbox: MailboxView; onChange: (mailbox: MailboxView) => void }) {
+export function MailboxSending({ mailbox, onChange }: { mailbox: MailboxView; onChange: (mailbox: MailboxView) => void }) {
   const t = useTranslations("settings.followUps");
   const tc = useTranslations("common");
   const [limit, setLimit] = useState(String(mailbox.followUpDailyLimit));
@@ -439,7 +439,7 @@ export function MailboxSending({ workspaceId, mailbox, onChange }: { workspaceId
   return (
     <SettingsRow
       title={t("dailyLimit")}
-      htmlFor={`follow-up-limit-${workspaceId}`}
+      htmlFor={`follow-up-limit-${mailbox.id}`}
       description={
         <>
           {t("dailyLimitHelp", { max: MAX_DAILY_LIMIT })}
@@ -458,7 +458,7 @@ export function MailboxSending({ workspaceId, mailbox, onChange }: { workspaceId
         <div className="flex flex-wrap items-center gap-2">
           <span className="w-20 shrink-0">
             <Input
-              id={`follow-up-limit-${workspaceId}`}
+              id={`follow-up-limit-${mailbox.id}`}
               type="number"
               min={1}
               max={MAX_DAILY_LIMIT}
@@ -475,7 +475,7 @@ export function MailboxSending({ workspaceId, mailbox, onChange }: { workspaceId
             ))}
           </select>
           {dirty && (
-            <Button size="sm" variant="primary" disabled={!valid || pending} onClick={() => run(() => setMailboxSendingAction(workspaceId, { dailyLimit: value, timeZone: zone }), onChange)}>
+            <Button size="sm" variant="primary" disabled={!valid || pending} onClick={() => run(() => setMailboxSendingAction(mailbox.id, { dailyLimit: value, timeZone: zone }), onChange)}>
               {pending ? tc("saving") : tc("save")}
             </Button>
           )}

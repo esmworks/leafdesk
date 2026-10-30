@@ -114,7 +114,7 @@ off for agents that only work with the workspace.
 **Email recipients.** An agent emails no one unless someone who can edit it lists addresses under
 *Email recipients* in its settings (up to 10; over MCP `update_agent` and the REST API,
 `mail_recipients`). Its runs then get `send_email`, which takes only a subject and a message: it
-goes out at once, without review, to every listed address and to no other, from the mailbox of the
+goes out at once, without review, to every listed address and to no other, from the default mailbox of the
 person the run works for (who set its schedule, asked for the run, chats with it or made the
 change that started it), connected under Account → Email and calendar while
 [email on rows](email-on-rows.md#email-on-rows) is on. A run for no one, or for someone without a

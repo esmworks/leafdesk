@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "带邮箱属性的数据库。",
     "chooseDatabase": "选择数据库",
     "mailboxHeading": "你的邮箱",
-    "mailboxDescription": "你在此工作区使用的邮箱。系统会从中读取与工作区邮件数据库中人员的往来邮件，你在行中撰写的邮件也从这里发送。你的其他工作区看不到它。",
+    "mailboxDescription": "你在此工作区使用的邮箱。系统会从每个邮箱读取与工作区邮件数据库中人员的往来邮件，你在行中撰写的邮件则从其中一个发送。你的其他工作区看不到它们。",
     "syncedAt": "读取于 {time}",
     "folders": "从 {inbox} 读取收到的邮件，从 {sent} 读取已发送的邮件。",
     "noSentFolder": "从 {inbox} 读取收到的邮件。未找到已发送文件夹：你从自己的邮件程序发送的邮件不会显示在行上，从行发送的邮件也不会保存到你的邮箱中。",
@@ -2546,7 +2546,9 @@
       "gone": "该邮件已不在这一行中。",
       "signIn": "Google 登录已失效。请重新使用 Google 登录。",
       "googleFailed": "使用 Google 登录未能连接邮箱。请重试。",
-      "googleScope": "Google 未获准让 Leafdesk 访问你的邮件。请重新登录并允许。"
+      "googleScope": "Google 未获准让 Leafdesk 访问你的邮件。请重新登录并允许。",
+      "tooMany": "你在此工作区连接的邮箱已达上限。请先断开一个。",
+      "alreadyConnected": "你已在此连接了这个地址。请改为修改那个邮箱。"
     },
     "methods": {
       "google": "Google 账号（Gmail 或 Google Workspace）",

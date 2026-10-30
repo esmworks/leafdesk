@@ -12,7 +12,8 @@ import { withMailCredentials } from "./credentials";
 import { RowMailError } from "./settings";
 
 /**
- * Mail written on a row goes out from the writer's own mailbox: queued here, then sent by the
+ * Mail written on a row goes out from one of the writer's own mailboxes (the one they pick, or their
+ * default): queued here, then sent by the
  * sweep below (one sweep takes a message at a time, so two servers never send it twice), retried
  * after 1, 5 and 30 minutes, and put in the mailbox's sent folder so it shows in the member's
  * mail program too.
@@ -34,6 +35,8 @@ export type RowEmailDraft = {
   text: string;
   /** The message on the row this answers. */
   replyTo?: string | null;
+  /** Which of the writer's mailboxes it goes out from; their default when not given. */
+  mailboxId?: string | null;
 };
 
 function addresses(values: unknown): string[] {
@@ -46,7 +49,7 @@ function addresses(values: unknown): string[] {
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 /**
- * Queues a message from the user's mailbox on row `rowId` (edit access); returns its id. `within`
+ * Queues a message from one of the user's mailboxes on row `rowId` (edit access); returns its id. `within`
  * runs in the same transaction once the message is in (a follow-up recording the step it sent):
  * when it throws, the message isn't queued.
  */
@@ -58,7 +61,13 @@ export async function queueRowEmail(userId: string, rowId: string, draft: RowEma
     .select({ id: mailbox.id, address: mailbox.address, displayName: mailbox.displayName, name: user.name })
     .from(mailbox)
     .innerJoin(user, eq(user.id, mailbox.userId))
-    .where(and(eq(mailbox.workspaceId, access.workspaceId), eq(mailbox.userId, userId)));
+    .where(
+      and(
+        eq(mailbox.workspaceId, access.workspaceId),
+        eq(mailbox.userId, userId),
+        typeof draft?.mailboxId === "string" ? eq(mailbox.id, draft.mailboxId) : eq(mailbox.isDefault, true),
+      ),
+    );
   if (!box) throw new RowMailError("noMailbox");
   const to = addresses(draft?.to);
   const cc = addresses(draft?.cc ?? []).filter((a) => !to.includes(a));

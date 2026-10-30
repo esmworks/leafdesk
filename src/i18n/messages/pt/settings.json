@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Bancos de dados com uma propriedade de e-mail.",
     "chooseDatabase": "Escolha um banco de dados",
     "mailboxHeading": "Sua caixa de e-mail",
-    "mailboxDescription": "A caixa de e-mail que você usa neste espaço de trabalho. Ela é lida em busca de e-mails com as pessoas dos bancos de dados de e-mail do espaço, e o que você escreve nas linhas é enviado por ela. Seus outros espaços de trabalho não a veem.",
+    "mailboxDescription": "As caixas de e-mail que você usa neste espaço de trabalho. Cada uma é lida em busca de e-mails com as pessoas dos bancos de dados de e-mail do espaço, e o que você escreve nas linhas é enviado por uma delas. Seus outros espaços de trabalho não as veem.",
     "syncedAt": "lida {time}",
     "folders": "Lê o correio recebido em {inbox} e o enviado em {sent}.",
     "noSentFolder": "Lê o correio recebido em {inbox}. Não foi encontrada uma pasta de enviados: o que enviar do seu próprio programa de email não aparecerá nas linhas, e o email enviado das linhas não será guardado na sua caixa.",
@@ -2546,7 +2546,9 @@
       "gone": "Essa mensagem não está mais nesta linha.",
       "signIn": "O login do Google não funciona mais. Entre com o Google de novo.",
       "googleFailed": "Entrar com o Google não conectou a caixa de correio. Tente de novo.",
-      "googleScope": "O Google não teve permissão para dar ao Leafdesk acesso ao seu e-mail. Entre de novo e permita."
+      "googleScope": "O Google não teve permissão para dar ao Leafdesk acesso ao seu e-mail. Entre de novo e permita.",
+      "tooMany": "Você já conectou todas as caixas de e-mail possíveis neste espaço de trabalho. Desconecte uma primeiro.",
+      "alreadyConnected": "Você já conectou esse endereço aqui. Altere essa caixa em vez disso."
     },
     "methods": {
       "google": "Conta do Google (Gmail ou Google Workspace)",

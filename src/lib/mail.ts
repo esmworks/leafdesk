@@ -1,7 +1,7 @@
 /**
- * Email on database rows: members connect their own mailbox in a workspace, mail whose other party
- * is a row's email address lands on that row, and replies go out from the member's mailbox (see
- * server/row-mail). Shared by the client and the server.
+ * Email on database rows: members connect their own mailboxes in a workspace, mail whose other party
+ * is a row's email address lands on that row, and replies go out from one of the member's mailboxes
+ * (see server/row-mail). Shared by the client and the server.
  */
 
 export type MailboxStatus = "connecting" | "ok" | "error";
@@ -46,6 +46,8 @@ export const MAIL_PROVIDERS: { id: string; name: string; domains: string[]; serv
   },
 ];
 
+/** Mailboxes a member may connect in a workspace. */
+export const MAX_MAILBOXES = 5;
 /** The largest message taken onto a row, attachments included. */
 export const MAX_MAIL_BYTES = 25 * 1024 * 1024;
 /** Messages a mailbox may send in an hour. */
@@ -127,6 +129,8 @@ export type RowEmailView = {
   attachments: { fileId: string; name: string; url: string; contentId: string | null }[];
   /** Whether the viewer may hide it from the row (the mailbox's owner, or full access to the database). */
   canHide: boolean;
+  /** The viewer's own mailbox it came through or went out of, which a reply goes out from. */
+  ownMailboxId: string | null;
 };
 
 /** A member's mailbox as its owner sees it in settings (never the password). */
@@ -134,6 +138,8 @@ export type MailboxView = {
   id: string;
   address: string;
   displayName: string | null;
+  /** The one mail goes out from unless another is picked: follow-ups, agents and email drafts always do. */
+  isDefault: boolean;
   servers: MailboxServers;
   username: string;
   auth: MailboxAuth;
@@ -154,13 +160,13 @@ export type MailSettingsView = {
   databases: { databaseId: string; title: string; icon: string | null; propertyIds: string[]; emailProperties: { id: string; name: string }[] }[];
   /** Databases with an email property that aren't matched yet, for owners to add. */
   candidates: { databaseId: string; title: string; icon: string | null }[];
-  /** Members with a mailbox connected, for owners: who and how it is doing, nothing more. */
-  members: { userId: string; name: string; address: string; status: MailboxStatus }[];
+  /** The mailboxes members connected, for owners: whose and how each is doing, nothing more. */
+  members: { mailboxId: string; userId: string; name: string; address: string; status: MailboxStatus }[];
 };
 
 /**
- * The person's mailbox in one of their workspaces, as their account lists it: where email on rows
- * is on, or where one is still connected after it was turned off (to disconnect it).
+ * The person's mailboxes in one of their workspaces, as their account lists them: where email on
+ * rows is on, or where some are still connected after it was turned off (to disconnect them).
  */
 export type OwnMailbox = {
   workspaceId: string;
@@ -169,7 +175,8 @@ export type OwnMailbox = {
   enabled: boolean;
   /** Whether the server can connect a Gmail or Google Workspace mailbox by signing in with Google. */
   google: boolean;
-  mailbox: MailboxView | null;
+  /** The default first, then in the order they were connected. */
+  mailboxes: MailboxView[];
 };
 
 /** The link fragment that opens a message in its row's email section. */

@@ -104,7 +104,7 @@ async function settleReviews(now: number) {
       const [box] = await db
         .select({ id: mailbox.id })
         .from(mailbox)
-        .where(and(eq(mailbox.workspaceId, w.e.workspaceId), eq(mailbox.userId, w.e.senderId)));
+        .where(and(eq(mailbox.workspaceId, w.e.workspaceId), eq(mailbox.userId, w.e.senderId), eq(mailbox.isDefault, true)));
       const moved = await db.transaction(async (tx) => {
         await tx.insert(sequenceSend).values({ enrollmentId: w.e.id, step: w.e.step, rowEmailId: emailId, mailboxId: box?.id ?? null, sentAt: new Date(now) }).onConflictDoNothing();
         return tx
@@ -230,7 +230,7 @@ async function processEnrollment(e: Enrollment, now = Date.now()) {
     .select({ box: mailbox, name: user.name })
     .from(mailbox)
     .innerJoin(user, eq(user.id, mailbox.userId))
-    .where(and(eq(mailbox.workspaceId, e.workspaceId), eq(mailbox.userId, e.senderId)));
+    .where(and(eq(mailbox.workspaceId, e.workspaceId), eq(mailbox.userId, e.senderId), eq(mailbox.isDefault, true)));
   if (!box) return void (await endEnrollments(one, "mailboxDisconnected", null));
   if (!(await workspaceSettings(e.workspaceId)).email) return void (await endEnrollments(one, "emailOff", null));
   const access = await rowMailAccess(e.senderId, e.rowId);

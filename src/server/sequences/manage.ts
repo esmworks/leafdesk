@@ -310,7 +310,7 @@ export async function enrollRows(userId: string, sequenceId: string, rowIds: str
   const [box] = await db
     .select({ id: mailbox.id })
     .from(mailbox)
-    .where(and(eq(mailbox.workspaceId, sequence.workspaceId), eq(mailbox.userId, userId)));
+    .where(and(eq(mailbox.workspaceId, sequence.workspaceId), eq(mailbox.userId, userId), eq(mailbox.isDefault, true)));
   if (!box) throw new SequenceError("noMailbox");
   const out: EnrollOutcome[] = [];
   const audits: Parameters<typeof recordAudit>[0] = [];

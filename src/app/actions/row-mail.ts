@@ -13,6 +13,7 @@ import {
   disconnectMailbox,
   getMailSettings,
   RowMailError,
+  setDefaultMailbox,
   setMailboxSending,
   setMailDatabases,
   type MailboxInput,
@@ -20,7 +21,7 @@ import {
 import { requireUserId } from "@/server/session";
 
 // Email on rows (see server/row-mail): owners pick the databases mail lands on, members connect
-// their own mailbox, and people who may edit a row write from it. Expected failures come back
+// their own mailboxes, and people who may edit a row write from one. Expected failures come back
 // translated: Next.js hides thrown messages in production.
 
 async function run<T>(fn: (userId: string) => Promise<T>, refresh?: string): Promise<ActionResult<T>> {
@@ -60,21 +61,24 @@ export async function connectMailboxAction(workspaceId: string, input: MailboxIn
 /** Begins connecting the member's mailbox by signing in with Google: the address to send the browser to. */
 export async function beginGoogleMailboxAction(
   workspaceId: string,
-  input: { consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null },
+  input: { consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null; mailboxId?: string | null },
 ): Promise<ActionResult<{ url: string }>> {
   return run((userId) => beginGoogleMailbox(userId, workspaceId, input));
 }
 
 /** How follow-ups send from the member's mailbox: a daily limit and the time zone of their send windows. */
-export async function setMailboxSendingAction(workspaceId: string, input: { dailyLimit: number; timeZone: string }): Promise<ActionResult<MailboxView>> {
-  return run((userId) => setMailboxSending(userId, workspaceId, input));
+export async function setMailboxSendingAction(mailboxId: string, input: { dailyLimit: number; timeZone: string }): Promise<ActionResult<MailboxView>> {
+  return run((userId) => setMailboxSending(userId, mailboxId, input));
 }
 
-export async function disconnectMailboxAction(workspaceId: string): Promise<ActionResult<undefined>> {
-  return run(async (userId) => {
-    await disconnectMailbox(userId, workspaceId);
-    return undefined;
-  });
+/** Makes one of the viewer's mailboxes their default; returns theirs in its workspace. */
+export async function setDefaultMailboxAction(mailboxId: string): Promise<ActionResult<MailboxView[]>> {
+  return run((userId) => setDefaultMailbox(userId, mailboxId));
+}
+
+/** Disconnects one of the viewer's mailboxes; returns the ones left in its workspace. */
+export async function disconnectMailboxAction(mailboxId: string): Promise<ActionResult<MailboxView[]>> {
+  return run((userId) => disconnectMailbox(userId, mailboxId));
 }
 
 /** A row's messages, newest first (`before`: older than that time); null when the viewer may not read them. */
@@ -82,7 +86,7 @@ export async function listRowEmailsAction(rowId: string, before?: string | null)
   return run((userId) => listRowEmails(userId, rowId, before));
 }
 
-/** Queues a message from the viewer's mailbox on the row and sends it right away. */
+/** Queues a message from one of the viewer's mailboxes (their default unless picked) on the row and sends it right away. */
 export async function sendRowEmailAction(rowId: string, draft: RowEmailDraft): Promise<ActionResult<string>> {
   return run(async (userId) => {
     const id = await queueRowEmail(userId, rowId, {
@@ -91,6 +95,7 @@ export async function sendRowEmailAction(rowId: string, draft: RowEmailDraft): P
       subject: draft?.subject,
       text: draft?.text,
       replyTo: draft?.replyTo ?? null,
+      mailboxId: draft?.mailboxId ?? null,
     });
     sendSoon();
     return id;

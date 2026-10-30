@@ -4,7 +4,7 @@ import { AlertTriangle, ArrowDownLeft, ArrowUpRight, ChevronDown, ChevronRight, 
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { hideRowEmailAction, listRowEmailsAction, sendRowEmailAction } from "@/app/actions/row-mail";
-import { Button, cn, Input, textareaClass } from "@/components/ui";
+import { Button, cn, Input, selectClass, textareaClass } from "@/components/ui";
 import { quoteText, replySubject, rowEmailFromHash, type RowEmailView } from "@/lib/mail";
 import { relativeTime } from "@/lib/relative-time";
 import type { RowEmailList } from "@/server/row-mail/list";
@@ -13,7 +13,8 @@ import { FollowUpList, StartFollowUp, useRowFollowUps } from "./follow-ups";
 /** How long after sending the section looks again, to show a message going from queued to sent. */
 const RECHECK_MS = [3_000, 15_000];
 
-type Draft = { to: string; cc: string; subject: string; text: string; replyTo: string | null };
+/** `mailboxId`: which of the writer's mailboxes it goes out from. */
+type Draft = { to: string; cc: string; subject: string; text: string; replyTo: string | null; mailboxId: string | null };
 
 const splitAddresses = (value: string) =>
   value
@@ -24,7 +25,7 @@ const splitAddresses = (value: string) =>
 /**
  * A row's email under its properties: the messages its people sent and were sent through members'
  * mailboxes, newest first, and, for whoever may edit the row and has a mailbox in the workspace, a
- * new message or a reply from it (plain text). Shows nothing to people who may not read the row's
+ * new message or a reply from one of theirs (plain text; a reply from the one the message came through). Shows nothing to people who may not read the row's
  * mail, or where there is none and they can't write any.
  */
 export function RowEmails({ rowId }: { rowId: string }) {
@@ -86,7 +87,14 @@ export function RowEmails({ rowId }: { rowId: string }) {
   const reply = (email: RowEmailView) => {
     const to = email.direction === "in" ? [email.from.address] : email.to;
     const header = t("quoteHeader", { name: email.from.name || email.from.address, date: new Date(email.sentAt).toLocaleString() });
-    setDraft({ to: to.join(", "), cc: "", subject: replySubject(email.subject), text: `\n\n${quoteText(email.text, header)}`, replyTo: email.id });
+    setDraft({
+      to: to.join(", "),
+      cc: "",
+      subject: replySubject(email.subject),
+      text: `\n\n${quoteText(email.text, header)}`,
+      replyTo: email.id,
+      mailboxId: email.ownMailboxId ?? list.senders[0]?.id ?? null,
+    });
   };
 
   return (
@@ -106,7 +114,7 @@ export function RowEmails({ rowId }: { rowId: string }) {
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => setDraft({ to: list.addresses.join(", "), cc: "", subject: "", text: "", replyTo: null })}
+            onClick={() => setDraft({ to: list.addresses.join(", "), cc: "", subject: "", text: "", replyTo: null, mailboxId: list.senders[0]?.id ?? null })}
           >
             {t("new")}
           </Button>
@@ -115,10 +123,10 @@ export function RowEmails({ rowId }: { rowId: string }) {
       </div>
       {open && (
         <div className="mt-1 space-y-1 px-1">
-          {draft && list.from && (
+          {draft && list.senders.length > 0 && (
             <Compose
               rowId={rowId}
-              from={list.from}
+              senders={list.senders}
               draft={draft}
               onChange={setDraft}
               onClose={() => setDraft(null)}
@@ -278,14 +286,14 @@ function Message({
 
 function Compose({
   rowId,
-  from,
+  senders,
   draft,
   onChange,
   onClose,
   onSent,
 }: {
   rowId: string;
-  from: string;
+  senders: RowEmailList["senders"];
   draft: Draft;
   onChange: (draft: Draft) => void;
   onClose: () => void;
@@ -311,6 +319,7 @@ function Compose({
             subject: draft.subject,
             text: draft.text,
             replyTo: draft.replyTo,
+            mailboxId: draft.mailboxId,
           });
           if (result.ok) onSent();
           else setError(result.error);
@@ -321,7 +330,20 @@ function Compose({
         }
       }}
     >
-      <p className="text-xs text-fg-muted">{t("fromLine", { address: from })}</p>
+      {senders.length > 1 ? (
+        <label className="flex items-center gap-2">
+          <span className="w-12 shrink-0 text-xs text-fg-muted">{t("from")}</span>
+          <select className={cn(selectClass, "w-full")} value={draft.mailboxId ?? senders[0].id} onChange={(e) => set({ mailboxId: e.target.value })}>
+            {senders.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.displayName ? `${s.displayName} <${s.address}>` : s.address}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <p className="text-xs text-fg-muted">{t("fromLine", { address: senders[0].address })}</p>
+      )}
       <label className="flex items-center gap-2">
         <span className="w-12 shrink-0 text-xs text-fg-muted">{t("to")}</span>
         <Input value={draft.to} required onChange={(e) => set({ to: e.target.value })} />

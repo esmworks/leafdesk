@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Datenbanken mit einer E-Mail-Eigenschaft.",
     "chooseDatabase": "Datenbank auswählen",
     "mailboxHeading": "Dein Postfach",
-    "mailboxDescription": "Das Postfach, das du in diesem Workspace nutzt. Daraus werden E-Mails mit den Personen in den Mail-Datenbanken des Workspaces gelesen, und was du in Zeilen schreibst, wird von dort gesendet. Deine anderen Workspaces sehen es nicht.",
+    "mailboxDescription": "Die Postfächer, die du in diesem Workspace nutzt. Aus jedem werden E-Mails mit den Personen in den Mail-Datenbanken des Workspaces gelesen, und was du in Zeilen schreibst, wird von einem davon gesendet. Deine anderen Workspaces sehen sie nicht.",
     "syncedAt": "gelesen {time}",
     "folders": "Liest eingehende Mails aus {inbox} und gesendete aus {sent}.",
     "noSentFolder": "Liest eingehende Mails aus {inbox}. Es wurde kein Ordner für gesendete Mails gefunden: Was Sie aus Ihrem eigenen Mailprogramm senden, erscheint nicht in den Zeilen, und aus Zeilen gesendete Mails werden nicht in Ihrem Postfach gespeichert.",
@@ -2546,7 +2546,9 @@
       "gone": "Diese Nachricht ist nicht mehr in dieser Zeile.",
       "signIn": "Die Google-Anmeldung funktioniert nicht mehr. Melden Sie sich erneut mit Google an.",
       "googleFailed": "Die Anmeldung mit Google hat das Postfach nicht verbunden. Versuchen Sie es erneut.",
-      "googleScope": "Google durfte Leafdesk keinen Zugriff auf Ihre E-Mails geben. Melden Sie sich erneut an und erlauben Sie es."
+      "googleScope": "Google durfte Leafdesk keinen Zugriff auf Ihre E-Mails geben. Melden Sie sich erneut an und erlauben Sie es.",
+      "tooMany": "Du hast in diesem Workspace so viele Postfächer verbunden wie möglich. Trenne zuerst eines.",
+      "alreadyConnected": "Diese Adresse ist hier schon verbunden. Ändere stattdessen dieses Postfach."
     },
     "methods": {
       "google": "Google-Konto (Gmail oder Google Workspace)",

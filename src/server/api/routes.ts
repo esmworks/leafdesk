@@ -1190,7 +1190,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Review",
     summary: "Approve a change",
     description:
-      "Makes a change an agent proposed, as the token's user: the row is added or changed with their access (its activity says the agent proposed it), or the email draft is sent from their mailbox; an automation's approval lets its run go on with the next step. Pass `title`, `properties`, `markdown`, `subject` or `text` to approve an edited version. Answers 409 `change_conflict` when the row changed since in a value it sets, unless `force` is true, and `change_decided` when it was already answered. A change that can't be made is kept with `status: failed` and its `error`.",
+      "Makes a change an agent proposed, as the token's user: the row is added or changed with their access (its activity says the agent proposed it), or the email draft is sent from their default mailbox; an automation's approval lets its run go on with the next step. Pass `title`, `properties`, `markdown`, `subject` or `text` to approve an edited version. Answers 409 `change_conflict` when the row changed since in a value it sets, unless `force` is true, and `change_decided` when it was already answered. A change that can't be made is kept with `status: failed` and its `error`.",
     scope: "rows:write",
     body: reviewInputs.approve.omit({ change_id: true }),
     conflict: true,
@@ -1240,7 +1240,7 @@ export const API_ROUTES: ApiRoute[] = [
     tag: "Follow-ups",
     summary: "Start a sequence on rows",
     description:
-      "Starts a follow-up sequence on rows of its database, sending from the token's user's own mailbox in the workspace, within their send window and daily limit. It stops by itself when the contact replies, the row goes to the trash or the mailbox is disconnected; an out-of-office reply pauses it until the return date. Rows the user may not write email on, without an address, or in the sequence already come back `skipped` with the reason.",
+      "Starts a follow-up sequence on rows of its database, sending from the token's user's default mailbox in the workspace, within their send window and daily limit. It stops by itself when the contact replies, the row goes to the trash or the mailbox is disconnected; an out-of-office reply pauses it until the return date. Rows the user may not write email on, without an address, or in the sequence already come back `skipped` with the reason.",
     scope: "rows:write",
     body: sequenceInputs.enroll.omit({ sequence_id: true }),
     response: "EnrollmentOutcomes",

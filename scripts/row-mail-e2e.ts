@@ -12,7 +12,10 @@
  * signing in with Google (a stand-in token endpoint, XOAUTH2 at the test server) is begun only with
  * consent, finished once and only by whoever began it, reads and sends with its access token,
  * renews it when it runs out and says so when the sign-in is taken back, and changes back to a
- * password; a member who leaves loses their mailbox.
+ * password; a member connects several mailboxes, one address each and at most MAX_MAILBOXES, picks
+ * which a message on a row goes out from (their default otherwise, the one a message came through
+ * for a reply), changes their default and gets the oldest one left as it when they disconnect it;
+ * a member who leaves loses their mailboxes.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   docker run -d --name leafdesk-greenmail -p 3025:3025 -p 3143:3143 \
@@ -39,7 +42,7 @@ process.env.MAIL_GOOGLE_CLIENT_ID = "e2e-client";
 process.env.MAIL_GOOGLE_CLIENT_SECRET = "e2e-secret";
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, count, eq, inArray } = await import("drizzle-orm");
 const nodemailer = (await import("nodemailer")).default;
 const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
@@ -51,9 +54,18 @@ const { setPropertyAccess } = await import("@/server/property-access");
 const { listInbox } = await import("@/server/notifications");
 const { setFollowing } = await import("@/server/row-follow");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
-const { beginGoogleMailbox, completeGoogleMailbox, connectMailbox, getMailSettings, listOwnMailboxes, RowMailError, setMailDatabases } = await import(
-  "@/server/row-mail/settings"
-);
+const {
+  beginGoogleMailbox,
+  completeGoogleMailbox,
+  connectMailbox,
+  disconnectMailbox,
+  getMailSettings,
+  listOwnMailboxes,
+  RowMailError,
+  setDefaultMailbox,
+  setMailDatabases,
+} = await import("@/server/row-mail/settings");
+const { MAX_MAILBOXES } = await import("@/lib/mail");
 const { GOOGLE_MAIL, GOOGLE_MAIL_SCOPE } = await import("@/server/row-mail/google");
 const { openJson, sealJson } = await import("@/server/secret-box");
 const { createHash } = await import("node:crypto");
@@ -132,10 +144,10 @@ async function inboxOf(address: string, folder = "INBOX") {
   const client = new ImapFlow({ host: HOST, port: IMAP_PORT, secure: false, auth: { user: address, pass: "x" }, logger: false });
   await client.connect();
   const lock = await client.getMailboxLock(folder);
-  const out: { subject: string; messageId: string; inReplyTo: string; headers: string }[] = [];
+  const out: { subject: string; from: string; messageId: string; inReplyTo: string; headers: string }[] = [];
   try {
     for await (const m of client.fetch("1:*", { envelope: true, headers: ["references", "in-reply-to"] })) {
-      out.push({ subject: m.envelope?.subject ?? "", messageId: m.envelope?.messageId ?? "", inReplyTo: m.envelope?.inReplyTo ?? "", headers: m.headers?.toString() ?? "" });
+      out.push({ subject: m.envelope?.subject ?? "", from: m.envelope?.from?.[0]?.address ?? "", messageId: m.envelope?.messageId ?? "", inReplyTo: m.envelope?.inReplyTo ?? "", headers: m.headers?.toString() ?? "" });
     }
   } catch {
     // An empty mailbox has no 1:*.
@@ -246,7 +258,13 @@ try {
   check(attachments.length === 1 && kept?.pageId === acme.id && kept.referencedAt !== null, "its attachment is kept as a file of the row", attachments);
 
   const memberView = await listRowEmails(ids.member, acme.id);
-  check(memberView?.emails.length === 1 && memberView.canSend && memberView.from === ada, "the row shows it, and its mailbox's owner may answer", memberView);
+  check(
+    memberView?.emails.length === 1 && memberView.canSend && memberView.senders.map((s) => s.address).join() === ada,
+    "the row shows it, and its mailbox's owner may answer",
+    memberView,
+  );
+  check(memberView.emails[0].ownMailboxId === box.id, "from the mailbox it came through");
+  check(box.isDefault, "a member's first mailbox is their default");
   check(memberView.addresses.join() === customer, "a new message starts addressed to the row");
   const ownerView = await listRowEmails(ids.owner, acme.id);
   check(ownerView?.emails.length === 1 && !ownerView.canSend, "the owner reads it too, but has no mailbox to answer from");
@@ -330,7 +348,7 @@ try {
   const turkish = await connect(ids.hidden, ece);
   check(turkish.folders.inbox === "INBOX" && turkish.folders.sent === "Gönderilenler", "a sent folder the server doesn't mark is found by its name", turkish.folders);
   check(
-    (await listOwnMailboxes(ids.hidden)).find((m) => m.workspaceId === workspaceId)?.mailbox?.folders.sent === "Gönderilenler",
+    (await listOwnMailboxes(ids.hidden)).find((m) => m.workspaceId === workspaceId)?.mailboxes[0]?.folders.sent === "Gönderilenler",
     "and its owner sees which folders are read, under their account",
   );
   const noSent = await connect(ids.follower, can);
@@ -415,9 +433,63 @@ try {
     "reading the same account carries on from where it stopped",
   );
 
+  // Several mailboxes
+  const sales = `sales.${RUN}@leafdesk.test`;
+  await prepare(sales);
+  const salesBox = await connect(ids.member, sales, { displayName: "Ada at Sales" });
+  check(!salesBox.isDefault, "a member connects another mailbox, which isn't their default", salesBox);
+  const adaOwn = async () => (await listOwnMailboxes(ids.member)).find((m) => m.workspaceId === workspaceId)!.mailboxes;
+  check((await adaOwn()).map((m) => m.address).join() === `${ada},${sales}`, "their account lists both, the default first");
+  const salesAgain = await connect(ids.member, sales, { displayName: "Sales" });
+  check(salesAgain.id === salesBox.id && salesAgain.displayName === "Sales" && (await adaOwn()).length === 2, "connecting an address again changes its mailbox");
+  check(await failsWith("alreadyConnected", () => connect(ids.member, ada, { mailboxId: salesBox.id })), "a mailbox can't take an address another of theirs has");
+  check(await failsWith("gone", () => connect(ids.member, ada, { mailboxId: googleKept.id })), "nor can one change someone else's");
+  const choices = await listRowEmails(ids.member, acme.id);
+  check(choices?.senders.map((s) => s.id).join() === `${box.id},${salesBox.id}`, "the row offers both to write from, the default first", choices?.senders);
+  const fromSales = await queueRowEmail(ids.member, acme.id, { to: [customer], subject: "From sales", text: "Hi", mailboxId: salesBox.id });
+  const fromDefault = await queueRowEmail(ids.member, acme.id, { to: [customer], subject: "From the default", text: "Hi" });
+  const [salesMail, defaultMail] = await Promise.all([fromSales, fromDefault].map(async (id) => (await db.select().from(rowEmail).where(eq(rowEmail.id, id)))[0]));
+  check(salesMail.mailboxId === salesBox.id && salesMail.fromAddress === sales && salesMail.fromName === "Sales", "a message goes out from the mailbox picked", salesMail);
+  check(defaultMail.mailboxId === box.id && defaultMail.fromAddress === ada, "and from the default when none is", defaultMail);
+  check(
+    await failsWith("noMailbox", () => queueRowEmail(ids.member, acme.id, { to: [customer], subject: "Hi", text: "Hi", mailboxId: googleKept.id })),
+    "nobody writes from someone else's mailbox",
+  );
+  await sendDue();
+  await settle();
+  check((await inboxOf(customer)).some((m) => m.subject === "From sales" && m.from === sales), "the customer gets it from that address");
+  check(await failsWith("noMailbox", () => setDefaultMailbox(ids.owner, salesBox.id)), "only its owner makes a mailbox their default");
+  const switched = await setDefaultMailbox(ids.member, salesBox.id);
+  check(switched.map((m) => `${m.address}:${m.isDefault}`).join() === `${sales}:true,${ada}:false`, "a member picks another default, and has only one", switched);
+  const [{ n: defaults }] = await db
+    .select({ n: count() })
+    .from(mailbox)
+    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, ids.member), eq(mailbox.isDefault, true)));
+  check(defaults === 1, "the database keeps one default");
+  const extra: string[] = [];
+  for (let i = (await adaOwn()).length; i < MAX_MAILBOXES; i++) {
+    const address = `extra${i}.${RUN}@leafdesk.test`;
+    await prepare(address);
+    extra.push((await connect(ids.member, address)).id);
+  }
+  const tooMany = `toomany.${RUN}@leafdesk.test`;
+  await prepare(tooMany);
+  check(await failsWith("tooMany", () => connect(ids.member, tooMany)), `a member connects at most ${MAX_MAILBOXES} mailboxes in a workspace`);
+  check(
+    (await getMailSettings(ids.owner, workspaceId)).members.filter((m) => m.userId === ids.member).length === MAX_MAILBOXES,
+    "owners see each of a member's mailboxes",
+  );
+  for (const id of extra) await disconnectMailbox(ids.member, id);
+  const left = await disconnectMailbox(ids.member, salesBox.id);
+  check(left.length === 1 && left[0].id === box.id && left[0].isDefault, "disconnecting the default makes the oldest one left the default", left);
+
   // Leaving
+  await connect(ids.member, sales);
   await removeMember(ids.owner, workspaceId, ids.member);
-  check((await db.select().from(mailbox).where(eq(mailbox.id, box.id))).length === 0, "a member who leaves takes their mailbox with them");
+  check(
+    (await db.select().from(mailbox).where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, ids.member)))).length === 0,
+    "a member who leaves takes their mailboxes with them",
+  );
   check((await listRowEmails(ids.owner, acme.id))!.emails.length >= 2, "the mail it brought stays on the row");
 
   console.log(`\n${passed} checks passed`);

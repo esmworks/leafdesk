@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Basis data dengan properti email.",
     "chooseDatabase": "Pilih basis data",
     "mailboxHeading": "Kotak surat Anda",
-    "mailboxDescription": "Kotak surat yang Anda pakai di ruang kerja ini. Kotak surat dibaca untuk email dengan orang-orang di basis data email ruang kerja, dan apa yang Anda tulis pada baris dikirim darinya. Ruang kerja Anda yang lain tidak melihatnya.",
+    "mailboxDescription": "Kotak surat yang Anda pakai di ruang kerja ini. Masing-masing dibaca untuk email dengan orang-orang di basis data email ruang kerja, dan apa yang Anda tulis pada baris dikirim dari salah satunya. Ruang kerja Anda yang lain tidak melihatnya.",
     "syncedAt": "dibaca {time}",
     "folders": "Membaca email masuk dari {inbox} dan email terkirim dari {sent}.",
     "noSentFolder": "Membaca email masuk dari {inbox}. Tidak ada folder terkirim yang ditemukan, sehingga email yang Anda kirim dari program email sendiri tidak tampil pada baris, dan email yang dikirim dari baris tidak disimpan di kotak surat Anda.",
@@ -2546,7 +2546,9 @@
       "gone": "Pesan itu tidak lagi ada pada baris ini.",
       "signIn": "Login Google tidak lagi berfungsi. Login dengan Google lagi.",
       "googleFailed": "Login dengan Google tidak menghubungkan kotak surat. Coba lagi.",
-      "googleScope": "Google tidak diizinkan memberi Leafdesk akses ke email Anda. Login lagi dan izinkan."
+      "googleScope": "Google tidak diizinkan memberi Leafdesk akses ke email Anda. Login lagi dan izinkan.",
+      "tooMany": "Anda sudah menghubungkan kotak surat sebanyak yang diizinkan di ruang kerja ini. Putuskan salah satunya dulu.",
+      "alreadyConnected": "Alamat itu sudah terhubung di sini. Ubah kotak surat itu saja."
     },
     "methods": {
       "google": "Akun Google (Gmail atau Google Workspace)",

@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Databases with an email property.",
     "chooseDatabase": "Choose a database",
     "mailboxHeading": "Your mailbox",
-    "mailboxDescription": "The mailbox you use in this workspace. It is read for mail with the people in the workspace's mail databases, and what you write on rows is sent from it. Your other workspaces don't see it.",
+    "mailboxDescription": "Mailboxes you use in this workspace. Each is read for mail with the people in the workspace's mail databases, and what you write on rows is sent from one of them. Your other workspaces don't see them.",
     "syncedAt": "read {time}",
     "folders": "Reads incoming mail from {inbox} and sent mail from {sent}.",
     "noSentFolder": "Reads incoming mail from {inbox}. No sent folder was found, so mail you send from your own mail program won't show on rows, and mail sent from rows won't be saved in your mailbox.",
@@ -2546,7 +2546,9 @@
       "gone": "That message isn't on this row any more.",
       "signIn": "The Google sign-in no longer works. Sign in with Google again.",
       "googleFailed": "Signing in with Google didn't connect the mailbox. Try again.",
-      "googleScope": "Google wasn't allowed to give Leafdesk access to your mail. Sign in again and allow it."
+      "googleScope": "Google wasn't allowed to give Leafdesk access to your mail. Sign in again and allow it.",
+      "tooMany": "You've connected as many mailboxes in this workspace as you can. Disconnect one first.",
+      "alreadyConnected": "You've already connected that address here. Change that mailbox instead."
     },
     "methods": {
       "google": "Google account (Gmail or Google Workspace)",

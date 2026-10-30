@@ -231,7 +231,7 @@ try {
   const connect = (userId: string, address: string) =>
     connectMailbox(userId, workspaceId, { address, servers, username: address, password: "app-password", consent: true, displayName: userId === ids.ada ? "Ada" : "Owner", timeZone: TIME_ZONE });
   const adaBox = await connect(ids.ada, adaAddress);
-  await connect(ids.owner, ownerAddress);
+  const ownerBox = await connect(ids.owner, ownerAddress);
   check(adaBox.timeZone === TIME_ZONE && adaBox.followUpDailyLimit === 50, "a mailbox keeps its owner's time zone, and sends 50 follow-ups a day unless told otherwise", adaBox);
   await setMailDatabases(ids.owner, workspaceId, [{ databaseId: leads.id, propertyIds: [email.id] }]);
 
@@ -370,8 +370,9 @@ try {
   await runSequences(T0 + 50 * 60_000);
   check((await enrollmentOf(trashId)).reason === "rowTrashed", "a row in the trash stops its enrollment");
   // Daily limit
-  await setMailboxSending(ids.owner, workspaceId, { dailyLimit: 1, timeZone: TIME_ZONE });
-  check((await errorCode(() => setMailboxSending(ids.owner, workspaceId, { dailyLimit: 0, timeZone: TIME_ZONE }))) !== null, "a daily limit is at least 1");
+  await setMailboxSending(ids.owner, ownerBox.id, { dailyLimit: 1, timeZone: TIME_ZONE });
+  check((await errorCode(() => setMailboxSending(ids.owner, ownerBox.id, { dailyLimit: 0, timeZone: TIME_ZONE }))) !== null, "a daily limit is at least 1");
+  check((await errorCode(() => setMailboxSending(ids.ada, ownerBox.id, { dailyLimit: 5, timeZone: TIME_ZONE }))) !== null, "only its owner sets it");
   const limitA = await enroll(ids.owner, auto.id, await row("Limit A", contact("limita"), "Limit A"));
   const limitB = await enroll(ids.owner, auto.id, await row("Limit B", contact("limitb"), "Limit B"));
   const thursday = T0 + DAY;
@@ -435,7 +436,7 @@ try {
   // Disconnecting, retention
   const lastRow = await row("Last deal", contact("last"), "Last");
   const lastId = await enroll(ids.ada, auto.id, lastRow);
-  await disconnectMailbox(ids.ada, workspaceId);
+  await disconnectMailbox(ids.ada, adaBox.id);
   await runSequences(T0 + 60 * 60_000);
   check((await enrollmentOf(lastId)).reason === "mailboxDisconnected", "disconnecting the sender's mailbox stops theirs");
   const open = await db.select({ id: sequenceEnrollment.id }).from(sequenceEnrollment).where(and(eq(sequenceEnrollment.workspaceId, workspaceId), inArray(sequenceEnrollment.status, ["active", "waiting", "paused"])));

@@ -31,7 +31,7 @@ export async function noticeIncoming(
       const going = await db
         .select({ id: sequenceEnrollment.id, timeZone: mailbox.timeZone })
         .from(sequenceEnrollment)
-        .leftJoin(mailbox, and(eq(mailbox.workspaceId, sequenceEnrollment.workspaceId), eq(mailbox.userId, sequenceEnrollment.senderId)))
+        .leftJoin(mailbox, and(eq(mailbox.workspaceId, sequenceEnrollment.workspaceId), eq(mailbox.userId, sequenceEnrollment.senderId), eq(mailbox.isDefault, true)))
         .where(and(open, pausable()));
       for (const e of going) {
         const timeZone = e.timeZone ?? "UTC";

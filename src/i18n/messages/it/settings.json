@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Database con una proprietà email.",
     "chooseDatabase": "Scegli un database",
     "mailboxHeading": "La tua casella di posta",
-    "mailboxDescription": "La casella di posta che usi in questo spazio di lavoro. Viene letta per le email con le persone dei database di posta dello spazio, e ciò che scrivi sulle righe viene inviato da lì. Gli altri tuoi spazi di lavoro non la vedono.",
+    "mailboxDescription": "Le caselle di posta che usi in questo spazio di lavoro. Ognuna viene letta per le email con le persone dei database di posta dello spazio, e ciò che scrivi sulle righe viene inviato da una di esse. Gli altri tuoi spazi di lavoro non le vedono.",
     "syncedAt": "letta {time}",
     "folders": "Legge la posta in arrivo da {inbox} e quella inviata da {sent}.",
     "noSentFolder": "Legge la posta in arrivo da {inbox}. Non è stata trovata una cartella della posta inviata: ciò che invii dal tuo programma di posta non comparirà sulle righe e la posta inviata dalle righe non verrà salvata nella tua casella.",
@@ -2546,7 +2546,9 @@
       "gone": "Quel messaggio non è più su questa riga.",
       "signIn": "L’accesso con Google non funziona più. Accedi di nuovo con Google.",
       "googleFailed": "L’accesso con Google non ha collegato la casella. Riprova.",
-      "googleScope": "Google non è stato autorizzato a dare a Leafdesk l’accesso alla tua posta. Accedi di nuovo e consentilo."
+      "googleScope": "Google non è stato autorizzato a dare a Leafdesk l’accesso alla tua posta. Accedi di nuovo e consentilo.",
+      "tooMany": "Hai collegato tutte le caselle di posta possibili in questo spazio di lavoro. Scollegane prima una.",
+      "alreadyConnected": "Hai già collegato questo indirizzo qui. Cambia invece quella casella."
     },
     "methods": {
       "google": "Account Google (Gmail o Google Workspace)",

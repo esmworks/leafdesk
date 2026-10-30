@@ -2478,7 +2478,7 @@
     "addDatabaseHint": "Databases met een e-maileigenschap.",
     "chooseDatabase": "Kies een database",
     "mailboxHeading": "Je mailbox",
-    "mailboxDescription": "De mailbox die je in deze werkruimte gebruikt. Hij wordt gelezen voor mail met de mensen in de maildatabases van de werkruimte, en wat je op rijen schrijft, wordt ermee verstuurd. Je andere werkruimtes zien hem niet.",
+    "mailboxDescription": "De mailboxen die je in deze werkruimte gebruikt. Elk wordt gelezen voor mail met de mensen in de maildatabases van de werkruimte, en wat je op rijen schrijft, wordt met een ervan verstuurd. Je andere werkruimtes zien ze niet.",
     "syncedAt": "gelezen {time}",
     "folders": "Leest inkomende mail uit {inbox} en verzonden mail uit {sent}.",
     "noSentFolder": "Leest inkomende mail uit {inbox}. Er is geen map met verzonden items gevonden, dus mail die je vanuit je eigen mailprogramma verstuurt, verschijnt niet op rijen, en mail die vanaf rijen wordt verstuurd, wordt niet in je mailbox bewaard.",
@@ -2546,7 +2546,9 @@
       "gone": "Dat bericht staat niet meer op deze rij.",
       "signIn": "De Google-aanmelding werkt niet meer. Meld je opnieuw aan met Google.",
       "googleFailed": "Aanmelden met Google heeft de mailbox niet gekoppeld. Probeer het opnieuw.",
-      "googleScope": "Google mocht Leafdesk geen toegang tot je mail geven. Meld je opnieuw aan en sta het toe."
+      "googleScope": "Google mocht Leafdesk geen toegang tot je mail geven. Meld je opnieuw aan en sta het toe.",
+      "tooMany": "Je hebt in deze werkruimte zoveel mailboxen gekoppeld als mogelijk is. Ontkoppel er eerst een.",
+      "alreadyConnected": "Dat adres is hier al gekoppeld. Wijzig die mailbox in plaats daarvan."
     },
     "methods": {
       "google": "Google-account (Gmail of Google Workspace)",

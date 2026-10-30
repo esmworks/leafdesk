@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, lt, ne } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, lt, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { mailbox, mailDatabase, page, rowEmail, rowEmailAttachment, user } from "@/db/schema";
 import { fileUrl } from "@/lib/files";
@@ -19,8 +19,8 @@ export type RowEmailList = {
   more: boolean;
   /** Email on rows is on in the workspace and the viewer has a mailbox there: they may write. */
   canSend: boolean;
-  /** The viewer's mailbox's address, which replies go out from. */
-  from: string | null;
+  /** The viewer's mailboxes in the workspace, which mail may go out from: the default first. */
+  senders: { id: string; address: string; displayName: string | null }[];
   /** The row's own addresses (its matched email properties), for a new message's To. */
   addresses: string[];
 };
@@ -30,7 +30,7 @@ export async function listRowEmails(userId: string, rowId: string, before?: stri
   if (!access) return null;
   const cursor = before ? new Date(before) : null;
   const rows = await db
-    .select({ email: rowEmail, owner: mailbox.userId, sender: { id: user.id, name: user.name, image: user.image } })
+    .select({ email: rowEmail, owner: mailbox.userId, mailboxId: mailbox.id, sender: { id: user.id, name: user.name, image: user.image } })
     .from(rowEmail)
     .leftJoin(mailbox, eq(mailbox.id, rowEmail.mailboxId))
     .leftJoin(user, eq(user.id, rowEmail.sentBy))
@@ -55,19 +55,20 @@ export async function listRowEmails(userId: string, rowId: string, before?: stri
           ),
         )
     : [];
-  const [settings, [own], [row], [matched]] = await Promise.all([
+  const [settings, own, [row], [matched]] = await Promise.all([
     workspaceSettings(access.workspaceId),
     db
-      .select({ address: mailbox.address })
+      .select({ id: mailbox.id, address: mailbox.address, displayName: mailbox.displayName })
       .from(mailbox)
-      .where(and(eq(mailbox.workspaceId, access.workspaceId), eq(mailbox.userId, userId))),
+      .where(and(eq(mailbox.workspaceId, access.workspaceId), eq(mailbox.userId, userId)))
+      .orderBy(desc(mailbox.isDefault), asc(mailbox.createdAt)),
     db.select({ properties: page.properties }).from(page).where(eq(page.id, rowId)),
     db.select({ propertyIds: mailDatabase.propertyIds }).from(mailDatabase).where(eq(mailDatabase.databaseId, access.databaseId)),
   ]);
   const values = (row?.properties ?? {}) as Record<string, unknown>;
   const addresses = [...new Set((matched?.propertyIds ?? []).map((id) => normalizeAddress(values[id])).filter((a): a is string => !!a))];
   return {
-    emails: shown.map(({ email, owner, sender }) => ({
+    emails: shown.map(({ email, owner, mailboxId, sender }) => ({
       id: email.id,
       direction: email.direction,
       status: email.status,
@@ -85,10 +86,11 @@ export async function listRowEmails(userId: string, rowId: string, before?: stri
         .filter((a) => a.rowEmailId === email.id)
         .map((a) => ({ fileId: a.fileId, name: a.name, url: fileUrl(a.fileId), contentId: a.contentId })),
       canHide: access.databaseFull || owner === userId || email.sentBy === userId,
+      ownMailboxId: owner === userId ? mailboxId : null,
     })),
     more: rows.length > ROW_EMAIL_PAGE,
-    canSend: settings.email && !!own && atLeastEdit(access.level),
-    from: own?.address ?? null,
+    canSend: settings.email && own.length > 0 && atLeastEdit(access.level),
+    senders: own,
     addresses,
   };
 }

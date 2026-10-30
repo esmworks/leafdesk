@@ -1128,6 +1128,13 @@
       "when": 1793304402397,
       "tag": "0160_more_ai_providers",
       "breakpoints": true
+    },
+    {
+      "idx": 161,
+      "version": "7",
+      "when": 1793342579863,
+      "tag": "0161_multi_mailbox",
+      "breakpoints": true
     }
   ]
 }

@@ -3201,7 +3201,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "Approve or dismiss a change waiting for review",
       description:
-        "Answer a change from list_pending_changes. approve makes it as the user: the row is added or changed with the user's access, and its activity says the agent proposed it; an email draft is sent from the user's mailbox; an automation's approval lets its run go on with the next step. Pass title, properties, markdown, subject or text to approve an edited version instead. A row that changed since in a value it sets (conflict: true) is refused unless force is true. Confirm with the user first: approving is what makes the change. dismiss doesn't make it: an email draft is discarded, and an automation's run stops, recorded as rejected by the user.",
+        "Answer a change from list_pending_changes. approve makes it as the user: the row is added or changed with the user's access, and its activity says the agent proposed it; an email draft is sent from the user's default mailbox; an automation's approval lets its run go on with the next step. Pass title, properties, markdown, subject or text to approve an edited version instead. A row that changed since in a value it sets (conflict: true) is refused unless force is true. Confirm with the user first: approving is what makes the change. dismiss doesn't make it: an email draft is discarded, and an automation's run stops, recorded as rejected by the user.",
       inputSchema: answerInput,
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -3235,7 +3235,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "Start a follow-up sequence on rows",
       description:
-        "Start a follow-up sequence (list_sequences) on rows of its database, sending from the user's own mailbox in the workspace: its emails go out in the sender's send window and within their mailbox's daily limit, and it stops by itself when the contact replies, the row goes to the trash or the mailbox is disconnected; an out-of-office reply pauses it until the return date. Rows the user may not write email on, without an address, or in the sequence already are skipped with why. Confirm with the user first: it sends email in their name.",
+        "Start a follow-up sequence (list_sequences) on rows of its database, sending from the user's default mailbox in the workspace: its emails go out in the sender's send window and within their mailbox's daily limit, and it stops by itself when the contact replies, the row goes to the trash or the mailbox is disconnected; an out-of-office reply pauses it until the return date. Rows the user may not write email on, without an address, or in the sequence already are skipped with why. Confirm with the user first: it sends email in their name.",
       inputSchema: sequenceInputs.enroll,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
       scopeChallenge: requireWrite,

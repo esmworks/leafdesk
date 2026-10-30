@@ -9,6 +9,13 @@ account, in Settings → Email and calendar, for that workspace only: the addres
 IMAP and SMTP server) and an app password made for Leafdesk. The mailbox is tried before it is
 kept, and its password is sealed like a connection's secrets (`LEAFDESK_ENCRYPTION_KEY`).
 
+A member may connect up to five mailboxes in a workspace, a shared sales or support address beside
+their own, say; connecting an address again changes its mailbox. One of them is their default: the
+first one connected, or whichever they make it with *Make default*. When the default is
+disconnected, the oldest one left takes its place. Follow-ups, agents' email and email drafts always
+go out from the default, and its daily limit and time zone are the ones settings show. Workspace
+owners see each member's mailboxes, and how each is doing, in Settings → General → Email.
+
 A Gmail or Google Workspace mailbox can be connected by signing in with Google instead, once the
 server has a Google OAuth client for it (below): *Google account* in the form sends the browser to
 Google, where the member allows Leafdesk to read and send their mail, and back to the settings,
@@ -43,7 +50,8 @@ doesn't reach rows, and mail written on rows isn't saved in the mailbox.
 
 Under a row's properties, the Email section lists its messages for everyone who can see the row
 and its address. Whoever may edit the row and has a mailbox writes a new message or a reply there,
-in plain text; it goes out from their own mailbox (at most 100 an hour), is tried again after 1, 5
+in plain text; it goes out from their default mailbox, or another of theirs picked under *From* (a
+reply from the one the message came through), at most 100 an hour from each, is tried again after 1, 5
 and 30 minutes when the server can't be reached, and is put in the mailbox's sent folder. Mail that
 comes in tells the mailbox's owner and the row's followers who may read it (the inbox's Email tab,
 and push); it never comes as a notification email.
@@ -75,12 +83,12 @@ written.
 Whoever may edit a row and has a mailbox starts a sequence on it from the row's Email section, on
 selected rows from a table's bulk actions, with an automation's *Start a follow-up* step (as the
 person the automation runs as), over MCP or with the REST API. A row is in a sequence once at a
-time. Emails go out from the sender's own mailbox within the sequence's send window (weekdays
-09:00–17:00 by default) in the time zone of their mailbox, at most its daily limit (50 by default;
+time. Emails go out from the sender's default mailbox within the sequence's send window (weekdays
+09:00–17:00 by default) in the time zone of that mailbox, at most its daily limit (50 by default;
 both under My account → Email and calendar), a few minutes apart. Each email is checked as agents'
 drafts are (no placeholders, Markdown, HTML or internal links): one that doesn't pass isn't sent,
 and the follow-up pauses and tells its sender, who can fix the row and resume it. A follow-up stops
-when the contact's answer lands on the row, the row goes to the trash, the mailbox is disconnected
+when the contact's answer lands on the row, the row goes to the trash, the sender's last mailbox is disconnected
 or someone stops it; an out-of-office reply pauses it until the day it names (a week when it names
 none), while other automated mail leaves it be. Every step is recorded as sent in the same
 transaction that queues its email, so a crash or a second server never sends it twice. Ended
