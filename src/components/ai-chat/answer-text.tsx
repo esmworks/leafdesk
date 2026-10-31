@@ -13,6 +13,7 @@ export const AnswerText = lazyPart<{
   text: string;
   sources: Map<number, ChatSourceView>;
   onSource: (source: ChatSourceView) => void;
+  writing?: boolean;
 }>(
   () => import("./answer-markdown").then((m) => m.default),
   ({ text }) => <p data-show-late className="break-words whitespace-pre-wrap">{text}</p>,

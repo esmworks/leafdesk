@@ -1,12 +1,13 @@
 import * as z from "zod";
 import { auth } from "@/lib/auth";
-import { CHAT_MODES, CHAT_THINKING, type ChatEvent } from "@/lib/ai-chat";
+import { CHAT_MODES, CHAT_THINKING } from "@/lib/ai-chat";
 import { CHAT_FILE_LIMITS } from "@/lib/chat-attachments";
 import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError } from "@/server/ai";
 import { startChat } from "@/server/ai-chat";
 import { conversationBusy, dropRun, followRun, isRunId, openRun, runEvents } from "@/server/ai-chat-runs";
 import { isCrossSite } from "@/server/cross-site";
+import { ndjsonResponse } from "@/server/ndjson-response";
 
 export const dynamic = "force-dynamic";
 
@@ -83,7 +84,7 @@ export async function POST(request: Request) {
   }
   // Runs to its end whether or not anyone follows it.
   void runEvents(run, events);
-  return stream(request, (signal) => followRun(userId, runId, signal)!);
+  return ndjsonResponse(request, (signal) => followRun(userId, runId, signal)!, "ai chat");
 }
 
 /**
@@ -98,36 +99,7 @@ export async function GET(request: Request) {
   const runId = new URL(request.url).searchParams.get("run");
   const userId = session.user.id;
   if (!isRunId(runId) || !followRun(userId, runId)) return fail("noAccess", "Not found", 404);
-  return stream(request, (signal) => followRun(userId, runId, signal) ?? (async function* () {})());
-}
-
-/** The events as newline-delimited JSON; closing the response stops following, not the answer. */
-function stream(request: Request, follow: (signal: AbortSignal) => AsyncGenerator<ChatEvent>) {
-  const encoder = new TextEncoder();
-  const gone = new AbortController();
-  const events = follow(AbortSignal.any([request.signal, gone.signal]));
-  const body = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const event of events) {
-          if (gone.signal.aborted) break;
-          controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
-        }
-      } catch (error) {
-        if (!gone.signal.aborted) console.error("[ai] chat stream failed", error);
-      } finally {
-        try {
-          controller.close();
-        } catch {}
-      }
-    },
-    cancel() {
-      gone.abort();
-    },
-  });
-  return new Response(body, {
-    headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store", "X-Accel-Buffering": "no" },
-  });
+  return ndjsonResponse(request, (signal) => followRun(userId, runId, signal) ?? (async function* () {})(), "ai chat");
 }
 
 function fail(code: string, message: string, status: number, headers?: Record<string, string>) {

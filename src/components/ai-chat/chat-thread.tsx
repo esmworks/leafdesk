@@ -40,7 +40,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { Fragment, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { lazyPart } from "@/components/lazy-part";
 import { BlockChanges } from "@/components/page/history-diff";
@@ -107,6 +107,26 @@ export function ChatThread({
   const [dropping, setDropping] = useState(false);
   const carriesFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types).includes("Files");
   const { messages, status, error, input, setInput, running, inputRef } = chat;
+  // The messages' handlers stay the same from one render to the next, reading what is current
+  // when called: each piece of an answer then draws only that answer again, not the conversation.
+  const latest = useRef({ chat, onSend, onSource });
+  latest.current = { chat, onSend, onSource };
+  const handlers = useMemo(
+    () => ({
+      source: (source: ChatSourceView) => latest.current.onSource(source),
+      memory: () => setMemoryOpen(true),
+      /** Asks the question before the answer at `index` again. */
+      retry: (index: number) => {
+        const asked = latest.current.chat.messages[index - 1];
+        if (asked) latest.current.onSend({ question: asked.content, skill: asked.skill });
+      },
+      /** Asks the question at `index` again, edited. */
+      edit: (index: number, question: string) => latest.current.onSend({ question, skill: latest.current.chat.messages[index]?.skill }),
+      saveReport: (index: number) => latest.current.chat.saveReport(index),
+    }),
+    [],
+  );
+  const labels = useMemo(() => ({ stopped: t("stopped"), cutOff: t("cutOff"), thinking: t("thinking") }), [t]);
   const listRef = useRef<HTMLDivElement>(null);
   // The list as state too, for the lines and the button that follow its scrolling.
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
@@ -178,9 +198,11 @@ export function ChatThread({
   useEffect(() => {
     inputRef.current?.focus();
   }, [inputRef]);
-  // The answers' renderer, while the conversation's messages load.
+  // The answers' renderer, while the conversation's messages load, and what reads an answer as it
+  // comes: loaded with the first answer, it would hold back that answer's first pieces meanwhile.
   useEffect(() => {
     void AnswerText.preload();
+    void import("./chat-answer");
   }, []);
   // Follow the answer as it streams, unless the person scrolled up to read; an opened conversation
   // starts at its end, and so does a question just asked.
@@ -194,6 +216,29 @@ export function ChatThread({
     shownCount.current = messages.length;
     if (el && (opened || asked || el.scrollHeight - el.scrollTop - el.clientHeight < 120)) el.scrollTop = el.scrollHeight;
   }, [messages, status, chat.conversationId]);
+  // An answer's text flows in a few letters a frame (smooth-text.ts), between the renders above, and
+  // goes on a moment after its last one: while it is written, the list stays at its end as it grows,
+  // if it was there (not as a step folded open grows it).
+  const writingUntil = useRef(0);
+  useEffect(() => {
+    writingUntil.current = running ? Infinity : performance.now() + 1_000;
+  }, [running]);
+  useEffect(() => {
+    const el = listRef.current;
+    const content = el?.firstElementChild;
+    if (!el || !content) return;
+    let atEnd = true;
+    const onScroll = () => (atEnd = el.scrollHeight - el.scrollTop - el.clientHeight < 120);
+    const observer = new ResizeObserver(() => {
+      if (atEnd && performance.now() < writingUntil.current) el.scrollTop = el.scrollHeight;
+    });
+    el.addEventListener("scroll", onScroll, { passive: true });
+    observer.observe(content);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      observer.disconnect();
+    };
+  }, []);
 
   const hasFiles = chat.files.length > 0;
   // A question waits for its files to be uploaded.
@@ -252,26 +297,21 @@ export function ChatThread({
                   {messages.map((m, i) => (
                     <li key={m.key} data-turn={m.role === "user" ? m.key : undefined}>
                       {m.role === "user" ? (
-                        <Question
-                          message={m}
-                          page={page}
-                          onEdit={askAgain && i === messages.length - 2 ? (question) => onSend({ question, skill: m.skill }) : undefined}
-                        />
+                        <Question message={m} index={i} page={page} onEdit={askAgain && i === messages.length - 2 ? handlers.edit : undefined} />
                       ) : (
                         <Answer
                           message={m}
+                          index={i}
                           status={i === messages.length - 1 ? status : null}
                           waiting={i === messages.length - 1 && chat.pending !== null}
                           reasoning={chat.reasoning}
                           last={i === messages.length - 1}
-                          onRetry={
-                            askAgain && i === messages.length - 1 ? () => onSend({ question: messages[i - 1].content, skill: messages[i - 1].skill }) : undefined
-                          }
-                          onSource={onSource}
-                          onMemory={() => setMemoryOpen(true)}
-                          onSaveReport={m.research && chat.conversationId ? () => chat.saveReport(i) : undefined}
+                          onRetry={askAgain && i === messages.length - 1 ? handlers.retry : undefined}
+                          onSource={handlers.source}
+                          onMemory={handlers.memory}
+                          onSaveReport={m.research && chat.conversationId ? handlers.saveReport : undefined}
                           workspaceId={chat.workspaceId}
-                          labels={{ stopped: t("stopped"), cutOff: t("cutOff"), thinking: t("thinking") }}
+                          labels={labels}
                         />
                       )}
                     </li>
@@ -574,8 +614,10 @@ function PasteChips({ text, pastes, boxRef, className }: { text: string; pastes:
 
 type Labels = { stopped: string; cutOff: string; thinking: string };
 
-function Answer({
+/** Memoized, as Question is: while an answer is written, only it draws again. */
+const Answer = memo(function Answer({
   message,
+  index,
   status,
   waiting,
   reasoning,
@@ -588,6 +630,8 @@ function Answer({
   labels,
 }: {
   message: ChatMessage;
+  /** Where it is in the conversation, for the handlers below. */
+  index: number;
   status: ChatStatus | null;
   /** A change it wants to make waits for the person. */
   waiting: boolean;
@@ -595,12 +639,12 @@ function Answer({
   /** The conversation's latest answer: its actions show without hovering. */
   last: boolean;
   /** Answers its question again, when it may be. */
-  onRetry?: () => void;
+  onRetry?: (index: number) => void;
   onSource: (source: ChatSourceView) => void;
   /** Opens the Memory dialog (from the line saying the answer kept or dropped a note). */
   onMemory: () => void;
   /** A research report: saves it as a page, giving its id (null when it couldn't). */
-  onSaveReport?: () => Promise<string | null>;
+  onSaveReport?: (index: number) => Promise<string | null>;
   workspaceId: string;
   labels: Labels;
 }) {
@@ -626,7 +670,7 @@ function Answer({
           </p>
         )
       )}
-      {message.content && <AnswerText text={message.content} sources={byNumber} onSource={onSource} />}
+      {message.content && <AnswerText text={message.content} sources={byNumber} onSource={onSource} writing={status !== null} />}
       {message.note && <p className="mt-1 text-xs text-fg-muted">{message.note === "stopped" ? labels.stopped : labels.cutOff}</p>}
       {/* Notes kept or dropped show even with the steps folded: the person should know. */}
       {done && message.steps?.some(changedMemory) && (
@@ -650,7 +694,7 @@ function Answer({
                 disabled={saving}
                 onClick={async () => {
                   setSaving(true);
-                  setSavedPage(await onSaveReport());
+                  setSavedPage(await onSaveReport(index));
                   setSaving(false);
                 }}
                 className="flex h-7 items-center gap-1 rounded px-1.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-60"
@@ -661,7 +705,7 @@ function Answer({
             )
           )}
           {onRetry && (
-            <IconButton label={t("retry")} className="h-7 w-7" onClick={onRetry}>
+            <IconButton label={t("retry")} className="h-7 w-7" onClick={() => onRetry(index)}>
               <RotateCcw className="h-3.5 w-3.5" />
             </IconButton>
           )}
@@ -670,10 +714,20 @@ function Answer({
       )}
     </div>
   );
-}
+});
 
 /** A question: its text, and on hover when it was asked, editing (the last one) and copying. */
-function Question({ message, page, onEdit }: { message: ChatMessage; page: boolean; onEdit?: (question: string) => void }) {
+const Question = memo(function Question({
+  message,
+  index,
+  page,
+  onEdit,
+}: {
+  message: ChatMessage;
+  index: number;
+  page: boolean;
+  onEdit?: (index: number, question: string) => void;
+}) {
   const t = useTranslations("ai.chat");
   const tSkills = useTranslations("skills.chat");
   const tc = useTranslations("common");
@@ -683,7 +737,7 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
     const submit = () => {
       if (!draft.trim()) return;
       setDraft(null);
-      onEdit(draft.trim());
+      onEdit(index, draft.trim());
     };
     return (
       <div className={cn("rounded-lg border border-accent bg-bg px-3 py-2", page ? "ms-auto w-full max-w-[80%]" : "ms-8")}>
@@ -760,7 +814,7 @@ function Question({ message, page, onEdit }: { message: ChatMessage; page: boole
       </div>
     </div>
   );
-}
+});
 
 /** The steps an answer took, and while it's written, what it waits on or its thinking. */
 function Steps({
