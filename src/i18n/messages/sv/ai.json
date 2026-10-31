@@ -317,6 +317,17 @@
         "done": "Använde {tool}",
         "failed": "{tool} misslyckades",
         "declined": "Avböjt: {tool}"
+      },
+      "mail": {
+        "searched": "Sökte i mejlen efter ”{query}” · {count, plural, =0 {inget hittades} one {# konversation} other {# konversationer}}",
+        "read": "Läste mejlet",
+        "noSubject": "(inget ämne)",
+        "to": "till {to}",
+        "draft": {
+          "done": "Utkast sparat:",
+          "declined": "Utkast avböjt:",
+          "failed": "Kunde inte spara utkastet:"
+        }
       }
     },
     "stopped": "Stoppat.",
@@ -348,7 +359,8 @@
         "searchWeb": "Söka efter det här på webben?",
         "addComment": "Lägga till den här kommentaren?",
         "createDatabase": "Lägga till den här databasen?",
-        "createForm": "Lägga till det här formuläret?"
+        "createForm": "Lägga till det här formuläret?",
+        "draftMail": "Spara det här mejlet som utkast?"
       },
       "in": "I",
       "row": "Rad",
@@ -372,7 +384,11 @@
         "anonymous": "Offentlig länk: alla som har länken kan svara, utan att logga in"
       },
       "letterhead": "Brevhuvud: {name}",
-      "fileSource": "Rader från: {name}"
+      "fileSource": "Rader från: {name}",
+      "draftMailHint": "Det hamnar i mappen Utkast: inget skickas förrän du skickar det från Mail",
+      "mailFrom": "Från",
+      "mailTo": "Till",
+      "mailCc": "Kopia"
     },
     "mode": {
       "label": "Ändringar",

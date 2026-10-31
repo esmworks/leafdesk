@@ -317,6 +317,17 @@
         "done": "Used {tool}",
         "failed": "{tool} failed",
         "declined": "Declined: {tool}"
+      },
+      "mail": {
+        "searched": "Searched mail for “{query}” · {count, plural, =0 {nothing found} one {# thread} other {# threads}}",
+        "read": "Read the email",
+        "noSubject": "(no subject)",
+        "to": "to {to}",
+        "draft": {
+          "done": "Draft saved:",
+          "declined": "Declined the draft:",
+          "failed": "Couldn't save the draft:"
+        }
       }
     },
     "stopped": "Stopped.",
@@ -348,7 +359,8 @@
         "searchWeb": "Search the web for this?",
         "addComment": "Add this comment?",
         "createDatabase": "Add this database?",
-        "createForm": "Add this form?"
+        "createForm": "Add this form?",
+        "draftMail": "Save this email as a draft?"
       },
       "in": "In",
       "row": "Row",
@@ -372,7 +384,11 @@
         "anonymous": "Public link: anyone with the link can answer, without signing in"
       },
       "letterhead": "Letterhead: {name}",
-      "fileSource": "Rows of: {name}"
+      "fileSource": "Rows of: {name}",
+      "draftMailHint": "It goes to your Drafts folder: nothing is sent until you send it from Mail",
+      "mailFrom": "From",
+      "mailTo": "To",
+      "mailCc": "Cc"
     },
     "mode": {
       "label": "Changes",

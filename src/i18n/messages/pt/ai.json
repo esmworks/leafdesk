@@ -317,6 +317,17 @@
         "done": "Usou {tool}",
         "failed": "{tool} falhou",
         "declined": "Recusado: {tool}"
+      },
+      "mail": {
+        "searched": "Pesquisou no e-mail “{query}” · {count, plural, =0 {nada encontrado} one {# conversa} other {# conversas}}",
+        "read": "Leu o e-mail",
+        "noSubject": "(sem assunto)",
+        "to": "para {to}",
+        "draft": {
+          "done": "Rascunho salvo:",
+          "declined": "Rascunho recusado:",
+          "failed": "Não foi possível salvar o rascunho:"
+        }
       }
     },
     "stopped": "Parado.",
@@ -348,7 +359,8 @@
         "searchWeb": "Pesquisar isto na web?",
         "addComment": "Adicionar este comentário?",
         "createDatabase": "Adicionar este banco de dados?",
-        "createForm": "Adicionar este formulário?"
+        "createForm": "Adicionar este formulário?",
+        "draftMail": "Salvar este e-mail como rascunho?"
       },
       "in": "Em",
       "row": "Linha",
@@ -372,7 +384,11 @@
         "anonymous": "Link público: qualquer pessoa com o link pode responder sem entrar"
       },
       "letterhead": "Papel timbrado: {name}",
-      "fileSource": "Linhas de: {name}"
+      "fileSource": "Linhas de: {name}",
+      "draftMailHint": "Ele vai para sua pasta Rascunhos: nada é enviado até você enviá-lo pelo E-mail",
+      "mailFrom": "De",
+      "mailTo": "Para",
+      "mailCc": "Cc"
     },
     "mode": {
       "label": "Alterações",

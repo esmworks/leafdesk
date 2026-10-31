@@ -124,8 +124,11 @@ import { gzipSync } from "node:zlib";
  * The Mail tab's AI (a thread's summary in the open thread, the composer's writer loaded when
  * opened) adds about 3 kB to all first loads together and under 1 kB to any page's: the thread's
  * new code moves shared modules between chunks, copying a few server-action stubs into more of them.
+ *
+ * The AI chat on the person's mail (the steps of a search, read or draft, and a draft's approval
+ * card with its sender and recipients, in ChatThread) adds under 0.5 kB to all first loads together.
  */
-const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1220, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1221, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

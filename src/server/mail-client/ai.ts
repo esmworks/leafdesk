@@ -79,7 +79,7 @@ export async function startMailAi(userId: string, input: MailAiInput, signal?: A
   const box = await requireOwnMailbox(userId, input.mailboxId);
   if (!(await aiAvailable(box.workspaceId))) throw new AiError("disabled", "AI is off for this workspace");
   if (input.kind === "write") return write(userId, box.workspaceId, input, signal);
-  const read = await conversation(userId, input);
+  const read = await threadForAi(userId, input);
   const language = isAiLanguage(input.language) ? input.language : undefined;
   if (input.kind === "tasks") {
     const prompt = tasksPrompt({ subject: read.subject, messages: read.messages, today: input.today, language }, roomFor());
@@ -90,8 +90,11 @@ export async function startMailAi(userId: string, input: MailAiInput, signal?: A
   return { answer, finished: (text) => saveSummary(read.newestId, text) };
 }
 
-/** A thread's last messages as the model reads them, oldest first, and its newest one's id. */
-async function conversation(userId: string, input: { mailboxId: string; folderId: string; threadId: string }) {
+/**
+ * A thread's last messages as the model reads them, oldest first (never marked seen), its newest
+ * one's id and the row its other party is. Also the AI chat's read_mail (ai-chat-mail.ts).
+ */
+export async function threadForAi(userId: string, input: { mailboxId: string; folderId: string; threadId: string }) {
   const thread = await getThread(userId, { mailboxId: input.mailboxId, threadId: input.threadId, folderId: input.folderId });
   // The person's drafts in the thread are not part of the conversation yet.
   const sent = thread.messages.filter((m) => !m.draft);
@@ -102,7 +105,7 @@ async function conversation(userId: string, input: { mailboxId: string; folderId
     const found = await messageForAi(userId, m.id).catch(() => null);
     messages.push(found ? asAiMessage(found) : { from: m.from, sentAt: new Date(m.sentAt), text: m.preview, mine: false });
   }
-  return { subject: thread.subject, messages, newestId: sent[sent.length - 1].id };
+  return { subject: thread.subject, messages, newestId: sent[sent.length - 1].id, row: thread.row };
 }
 
 /** Keeps the summary on the thread's newest message, and drops the thread's older ones. */

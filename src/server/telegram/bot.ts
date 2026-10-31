@@ -369,6 +369,9 @@ export function approvalText(t: Translator, action: ChatActionView): string {
   } else if (action.action === "readWeb" || action.action === "searchWeb") {
     // The address or the words, whole, as they would leave the workspace.
     lines.push(escapeHtml(t(`approval.${action.action}`)), `<pre>${escapeHtml(action.title ?? "")}</pre>`);
+  } else if (action.action === "draftMail") {
+    // Not offered here: the mail tools stay in the app (server/ai-chat-mail.ts). The subject, should one come.
+    lines.push(`<pre>${escapeHtml(action.title ?? "")}</pre>`);
   } else if (action.action === "createPage" && !action.target) {
     lines.push(html(t, "approval.createPageTop", { title: name(action.title) }));
   } else if (action.action === "createDatabase" && !action.target) {

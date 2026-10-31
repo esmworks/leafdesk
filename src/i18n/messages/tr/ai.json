@@ -317,6 +317,17 @@
         "done": "{tool} kullanıldı",
         "failed": "{tool} başarısız oldu",
         "declined": "Reddedildi: {tool}"
+      },
+      "mail": {
+        "searched": "Postada “{query}” arandı · {count, plural, =0 {bir şey bulunamadı} one {# konuşma} other {# konuşma}}",
+        "read": "E-posta okundu",
+        "noSubject": "(konu yok)",
+        "to": "alıcı: {to}",
+        "draft": {
+          "done": "Taslak kaydedildi:",
+          "declined": "Taslak reddedildi:",
+          "failed": "Taslak kaydedilemedi:"
+        }
       }
     },
     "stopped": "Durduruldu.",
@@ -348,7 +359,8 @@
         "searchWeb": "Bu, web'de aransın mı?",
         "addComment": "Bu yorum eklensin mi?",
         "createDatabase": "Bu veritabanı eklensin mi?",
-        "createForm": "Bu form eklensin mi?"
+        "createForm": "Bu form eklensin mi?",
+        "draftMail": "Bu e-posta taslak olarak kaydedilsin mi?"
       },
       "in": "Yer:",
       "row": "Satır:",
@@ -372,7 +384,11 @@
         "anonymous": "Herkese açık bağlantı: bağlantıya sahip herkes giriş yapmadan yanıtlayabilir"
       },
       "letterhead": "Antet: {name}",
-      "fileSource": "Satırlar: {name}"
+      "fileSource": "Satırlar: {name}",
+      "draftMailHint": "Taslaklar klasörünüze gider: Posta'dan siz gönderene kadar hiçbir şey gönderilmez",
+      "mailFrom": "Kimden",
+      "mailTo": "Kime",
+      "mailCc": "Bilgi"
     },
     "mode": {
       "label": "Değişiklikler",

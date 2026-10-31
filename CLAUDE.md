@@ -298,6 +298,9 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   the writer reads the answered mail's row (`rowOfMessage`, the composer's `MailMessageView.row`, then `operations.ts` `visibleRow` as the person) and the person's
   `ai-memory.ts` notes; a thread's tasks are parsed in the browser (`lib/mail-tasks.ts`) and added by
   `mail-client/tasks.ts` as to-dos mentioning the person (row page, else daily note), checked again there;
+  the AI chat's `search_mail`, `read_mail` and `draft_mail` are `server/ai-chat-mail.ts` (only the person's
+  own chat in the app: never research, connected apps such as the Telegram bot, agents or MCP; reads make
+  the rest of the answer ask, drafts ask in every mode and never send);
   the composer's writer `composer-ai.tsx` replaces only `writing-range.ts`'s part, above the
   signature, keeping its pictures), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs

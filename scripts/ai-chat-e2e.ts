@@ -144,7 +144,9 @@ const stepLabel = (step: ChatStepView) =>
                   ? step.action === "search"
                     ? `web-search:${step.query}:${step.results}`
                     : `web-read:${step.url}:${step.outcome}`
-                  : `thought:${step.text}`;
+                  : step.kind === "mail"
+                    ? `mail:${step.action}`
+                    : `thought:${step.text}`;
 
 /** Runs a question to the end; returns its events and what they add up to. */
 async function ask(userId: string, input: ChatInput, options: { signal?: AbortSignal; onEvent?: (e: ChatEvent) => void | Promise<void> } = {}) {

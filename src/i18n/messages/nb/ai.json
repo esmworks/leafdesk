@@ -317,6 +317,17 @@
         "done": "Brukte {tool}",
         "failed": "{tool} mislyktes",
         "declined": "Avslått: {tool}"
+      },
+      "mail": {
+        "searched": "Søkte i e-post etter «{query}» · {count, plural, =0 {ingenting funnet} one {# tråd} other {# tråder}}",
+        "read": "Leste e-posten",
+        "noSubject": "(uten emne)",
+        "to": "til {to}",
+        "draft": {
+          "done": "Utkast lagret:",
+          "declined": "Utkast avslått:",
+          "failed": "Kunne ikke lagre utkastet:"
+        }
       }
     },
     "stopped": "Stoppet.",
@@ -348,7 +359,8 @@
         "searchWeb": "Vil du søke på nettet etter dette?",
         "addComment": "Vil du legge til denne kommentaren?",
         "createDatabase": "Vil du legge til denne databasen?",
-        "createForm": "Vil du legge til dette skjemaet?"
+        "createForm": "Vil du legge til dette skjemaet?",
+        "draftMail": "Lagre denne e-posten som utkast?"
       },
       "in": "I",
       "row": "Rad",
@@ -372,7 +384,11 @@
         "anonymous": "Offentlig lenke: alle med lenken kan svare, uten å logge på"
       },
       "letterhead": "Brevhode: {name}",
-      "fileSource": "Rader fra: {name}"
+      "fileSource": "Rader fra: {name}",
+      "draftMailHint": "Den havner i mappen Utkast: ingenting sendes før du sender den fra E-post",
+      "mailFrom": "Fra",
+      "mailTo": "Til",
+      "mailCc": "Kopi"
     },
     "mode": {
       "label": "Endringer",

@@ -669,9 +669,11 @@ const READ_ARGUMENTS = new Map(
   [...CHAT_TOOLS, ...ATTACHMENT_TOOLS].map((t) => [t.name, Object.keys((t.parameters as { properties?: object }).properties ?? {})]),
 );
 
-/** An error naming the arguments a reading tool doesn't take, and the ones it does; null when there are none. */
-export function unknownArguments(name: string, args: Record<string, unknown>): ToolOutcome | null {
-  const known = READ_ARGUMENTS.get(name);
+/**
+ * An error naming the arguments a reading tool doesn't take, and the ones it does (`known`, else
+ * READ_ARGUMENTS'); null when there are none.
+ */
+export function unknownArguments(name: string, args: Record<string, unknown>, known = READ_ARGUMENTS.get(name)): ToolOutcome | null {
   const unknown = known ? Object.keys(args).filter((key) => !known.includes(key)) : [];
   if (!known || !unknown.length) return null;
   const names = unknown.map((key) => `"${key}"`).join(", ");

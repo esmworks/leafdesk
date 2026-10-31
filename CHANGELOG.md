@@ -71,6 +71,13 @@
   the ones ticked become their to-dos, linked back to the mail, on the row's page or else in
   today's daily note, and so show in My tasks. Reading mail for the AI doesn't mark it as read,
   and it follows the workspace's AI setting. Migration 0167.
+- **The AI chat reads your mail and drafts answers.** Where someone may use the Mail tab, their
+  AI chat searches their mailboxes (all folders but the trash and junk), reads a thread as a
+  source it cites, linked to the thread, and names the database row its other party is. Asked to
+  write or answer an email, it saves a draft in the Drafts folder once they approve it: the card
+  shows the sender, every recipient, the subject and the whole text, asks every time (also in
+  *Auto*) and the draft is never sent. Once an answer read mail, every change and note it wants is
+  asked about, also in *Auto*. Not offered in research, the Telegram bot, agents or MCP. No migration.
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
   and calendar with a message's formatting (bold, italic, lists, links), or pasted from another
   mail program, which keeps it as it came: its images, table layout, sizes and colors, sent as

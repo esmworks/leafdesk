@@ -107,6 +107,7 @@ import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
 import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt } from "@/server/ai/prompts";
 import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
 import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
+import { chatMailToolset, isChatMailTool, MAIL_TOOL_NAMES, prepareMailDraft, runChatMailTool, saveMailDraft } from "@/server/ai-chat-mail";
 import { chatWebOn, chatWebToolset, isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
 import { chatWebCallAsks, webCallAction } from "@/lib/web-calls";
 import type { FileRow } from "@/server/files";
@@ -471,14 +472,16 @@ async function* runChat(
   const fileTools = read.contents.length ? [...ATTACHMENT_TOOLS, ...(mode === "read" || research || !read.contents.some((c) => c.kind === "csv") ? [] : ATTACHMENT_WRITE_TOOLS)] : [];
   const writeTools = new Set([...WRITE_TOOL_NAMES, ...ATTACHMENT_WRITE_TOOL_NAMES]);
   const webTools = web ? chatWebToolset() : [];
+  // The person's own mail, where they may use the Mail tab; research only reads the workspace.
+  const mailTools = research ? [] : await chatMailToolset(userId, workspaceId, { writes: mode !== "read" });
   const tools = research
     ? [PLAN_TOOL, ...CHAT_TOOLS, ...fileTools, ...webTools]
-    : [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), FIND_TOOLS, USE_TOOL, ...fileTools, ...(remembers ? MEMORY_TOOLS : []), ...webTools, ...(external?.tools ?? [])];
+    : [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), FIND_TOOLS, USE_TOOL, ...fileTools, ...(remembers ? MEMORY_TOOLS : []), ...webTools, ...mailTools, ...(external?.tools ?? [])];
   const promptScope = scope ? { kind: scope.kind, title: scope.kind === "page" ? pageLabel(scope.title) : scope.title } : null;
   const skillTitle = skill ? pageLabel(skill.title) : null;
   const system = research
     ? researchSystemPrompt(promptScope, webTools.length > 0, skillTitle, hasFiles)
-    : chatSystemPrompt(promptScope, mode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles);
+    : chatSystemPrompt(promptScope, mode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles, mailTools.length > 0);
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   const feature = research ? "chat.research" : "chat";
   // What the model takes, less what every turn sends: the history, the map, memory and tool results
@@ -774,6 +777,22 @@ async function* runChat(
             // Web text could pass itself off as the person's wish: what follows is asked about.
             untrusted = true;
             if (mode === "auto") mode = "ask";
+          }
+        }
+        else if (mailTools.some((t) => t.name === call.name) && isChatMailTool(call.name)) {
+          if (call.name === MAIL_TOOL_NAMES.draft) {
+            // A draft could carry what the model read to an address an email named: each is asked
+            // about, in every mode, and "don't ask again" doesn't cover the next.
+            const prepared = await prepareMailDraft(userId, workspaceId, call.arguments, timeZone);
+            const decision = "action" in prepared ? yield* decide(prepared.action) : "approve";
+            out = "action" in prepared ? await saveMailDraft(userId, prepared, decision) : prepared;
+          } else {
+            out = await runChatMailTool(userId, workspaceId, call, registry, left);
+            // Mail is anyone's words, and could pass itself off as the person's wish: what follows is asked about.
+            if (!out.isError) {
+              untrusted = true;
+              if (mode === "auto") mode = "ask";
+            }
           }
         }
         // With the memory off, remember and forget aren't offered: called anyway, they're unknown.

@@ -317,6 +317,17 @@
         "done": "Menggunakan {tool}",
         "failed": "{tool} gagal",
         "declined": "Ditolak: {tool}"
+      },
+      "mail": {
+        "searched": "Mencari email untuk “{query}” · {count, plural, =0 {tidak ada yang ditemukan} other {# utas}}",
+        "read": "Membaca email",
+        "noSubject": "(tanpa subjek)",
+        "to": "kepada {to}",
+        "draft": {
+          "done": "Draf disimpan:",
+          "declined": "Draf ditolak:",
+          "failed": "Tidak dapat menyimpan draf:"
+        }
       }
     },
     "stopped": "Dihentikan.",
@@ -348,7 +359,8 @@
         "searchWeb": "Cari ini di web?",
         "addComment": "Tambahkan komentar ini?",
         "createDatabase": "Tambahkan basis data ini?",
-        "createForm": "Tambahkan formulir ini?"
+        "createForm": "Tambahkan formulir ini?",
+        "draftMail": "Simpan email ini sebagai draf?"
       },
       "in": "Di",
       "row": "Baris",
@@ -372,7 +384,11 @@
         "anonymous": "Tautan publik: siapa saja yang memiliki tautan dapat menjawab, tanpa masuk"
       },
       "letterhead": "Kop surat: {name}",
-      "fileSource": "Baris dari: {name}"
+      "fileSource": "Baris dari: {name}",
+      "draftMailHint": "Email masuk ke folder Draf: tidak ada yang dikirim sampai Anda mengirimnya dari Mail",
+      "mailFrom": "Dari",
+      "mailTo": "Kepada",
+      "mailCc": "Cc"
     },
     "mode": {
       "label": "Perubahan",

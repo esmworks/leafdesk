@@ -317,6 +317,17 @@
         "done": "Đã dùng {tool}",
         "failed": "{tool} thất bại",
         "declined": "Đã từ chối: {tool}"
+      },
+      "mail": {
+        "searched": "Đã tìm trong thư “{query}” · {count, plural, =0 {không tìm thấy gì} other {# chuỗi thư}}",
+        "read": "Đã đọc email",
+        "noSubject": "(không có tiêu đề)",
+        "to": "đến {to}",
+        "draft": {
+          "done": "Đã lưu bản nháp:",
+          "declined": "Đã từ chối bản nháp:",
+          "failed": "Không lưu được bản nháp:"
+        }
       }
     },
     "stopped": "Đã dừng.",
@@ -348,7 +359,8 @@
         "searchWeb": "Tìm nội dung này trên web?",
         "addComment": "Thêm bình luận này?",
         "createDatabase": "Thêm cơ sở dữ liệu này?",
-        "createForm": "Thêm biểu mẫu này?"
+        "createForm": "Thêm biểu mẫu này?",
+        "draftMail": "Lưu email này thành bản nháp?"
       },
       "in": "Trong",
       "row": "Hàng",
@@ -372,7 +384,11 @@
         "anonymous": "Liên kết công khai: bất kỳ ai có liên kết đều có thể trả lời, không cần đăng nhập"
       },
       "letterhead": "Tiêu đề thư: {name}",
-      "fileSource": "Các hàng của: {name}"
+      "fileSource": "Các hàng của: {name}",
+      "draftMailHint": "Email được lưu vào thư mục Nháp: không gì được gửi cho đến khi bạn gửi từ Thư",
+      "mailFrom": "Từ",
+      "mailTo": "Đến",
+      "mailCc": "Cc"
     },
     "mode": {
       "label": "Thay đổi",

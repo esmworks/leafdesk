@@ -317,6 +317,17 @@
         "done": "Użyto {tool}",
         "failed": "{tool} nie powiodło się",
         "declined": "Odrzucono: {tool}"
+      },
+      "mail": {
+        "searched": "Przeszukano pocztę pod kątem „{query}” · {count, plural, =0 {nic nie znaleziono} one {# wątek} few {# wątki} many {# wątków} other {# wątku}}",
+        "read": "Przeczytano wiadomość",
+        "noSubject": "(bez tematu)",
+        "to": "do {to}",
+        "draft": {
+          "done": "Zapisano wersję roboczą:",
+          "declined": "Odrzucono wersję roboczą:",
+          "failed": "Nie udało się zapisać wersji roboczej:"
+        }
       }
     },
     "stopped": "Zatrzymano.",
@@ -348,7 +359,8 @@
         "searchWeb": "Wyszukać to w internecie?",
         "addComment": "Dodać ten komentarz?",
         "createDatabase": "Dodać tę bazę danych?",
-        "createForm": "Dodać ten formularz?"
+        "createForm": "Dodać ten formularz?",
+        "draftMail": "Zapisać tę wiadomość jako wersję roboczą?"
       },
       "in": "W",
       "row": "Wiersz",
@@ -372,7 +384,11 @@
         "anonymous": "Link publiczny: każdy, kto ma link, może odpowiedzieć bez logowania"
       },
       "letterhead": "Papier firmowy: {name}",
-      "fileSource": "Wiersze z: {name}"
+      "fileSource": "Wiersze z: {name}",
+      "draftMailHint": "Trafi do folderu Wersje robocze: nic nie zostanie wysłane, dopóki nie wyślesz jej z Poczty",
+      "mailFrom": "Od",
+      "mailTo": "Do",
+      "mailCc": "DW"
     },
     "mode": {
       "label": "Zmiany",
