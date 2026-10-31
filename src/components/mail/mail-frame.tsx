@@ -13,7 +13,7 @@ export function MailFrame({ html, images, title }: { html: string; images: boole
   const [height, setHeight] = useState(120);
   const policy = `default-src 'none'; img-src data:${images ? " https: http:" : ""}; style-src 'unsafe-inline'; font-src data:`;
   const doc = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${policy}"><base target="_blank"><style>
-    html{color-scheme:light}body{margin:0;padding:16px;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#1f2328;background:#fff;overflow-wrap:anywhere}
+    html{color-scheme:light}body{display:flow-root;margin:0;padding:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#1f2328;background:#fff;overflow-wrap:anywhere}
     img{max-width:100%;height:auto}img[data-blocked]{display:none}table{max-width:100%}pre{white-space:pre-wrap}blockquote{margin:0 0 0 .8em;padding-left:.8em;border-left:2px solid #d0d7de;color:#57606a}
   </style></head><body>${html.replace(/^[\s\S]*?<body[^>]*>/i, "").replace(/<\/body>[\s\S]*$/i, "")}</body></html>`;
   const styles = /<head[^>]*>([\s\S]*?)<\/head>/i.exec(html)?.[1] ?? "";
@@ -40,15 +40,20 @@ export function MailFrame({ html, images, title }: { html: string; images: boole
     };
   }, [srcDoc]);
 
+  // On the white page the message reads as part of it, with no box. In the dark theme it keeps its
+  // white page as a card: mail is written for white. Nothing in the frame's own box (no border, no
+  // padding), or it would come out of the measured height and the message would scroll inside it.
   return (
-    <iframe
-      ref={ref}
-      title={title}
-      srcDoc={srcDoc}
-      sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-      referrerPolicy="no-referrer"
-      className="block w-full rounded-md border border-border bg-white"
-      style={{ height }}
-    />
+    <div className="overflow-hidden bg-white dark:rounded-md dark:p-4">
+      <iframe
+        ref={ref}
+        title={title}
+        srcDoc={srcDoc}
+        sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        referrerPolicy="no-referrer"
+        className="block w-full"
+        style={{ height }}
+      />
+    </div>
   );
 }
