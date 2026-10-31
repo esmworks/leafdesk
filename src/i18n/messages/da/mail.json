@@ -59,14 +59,20 @@
     "unread": "Marker som ulæst",
     "reply": "Svar",
     "replyAll": "Svar til alle",
-    "forward": "Videresend"
+    "forward": "Videresend",
+    "move": "Flyt til",
+    "fromSender": "Find mails fra {name}",
+    "openInNewTab": "Åbn i ny fane",
+    "copyLink": "Kopiér link",
+    "linkCopied": "Link kopieret"
   },
   "done": {
     "archive": "Samtalen er arkiveret",
     "trash": "Samtalen er flyttet til papirkurven",
     "junk": "Samtalen er markeret som spam",
     "inbox": "Samtalen er flyttet til indbakken",
-    "delete": "Samtalen er slettet permanent"
+    "delete": "Samtalen er slettet permanent",
+    "move": "Samtalen er flyttet til {folder}"
   },
   "composer": {
     "newTitle": "Ny besked",

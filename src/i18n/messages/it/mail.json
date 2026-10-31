@@ -59,14 +59,20 @@
     "unread": "Segna come da leggere",
     "reply": "Rispondi",
     "replyAll": "Rispondi a tutti",
-    "forward": "Inoltra"
+    "forward": "Inoltra",
+    "move": "Sposta in",
+    "fromSender": "Trova la posta di {name}",
+    "openInNewTab": "Apri in una nuova scheda",
+    "copyLink": "Copia link",
+    "linkCopied": "Link copiato"
   },
   "done": {
     "archive": "Conversazione archiviata",
     "trash": "Conversazione spostata nel cestino",
     "junk": "Conversazione segnata come spam",
     "inbox": "Conversazione spostata in Posta in arrivo",
-    "delete": "Conversazione eliminata definitivamente"
+    "delete": "Conversazione eliminata definitivamente",
+    "move": "Conversazione spostata in {folder}"
   },
   "composer": {
     "newTitle": "Nuovo messaggio",

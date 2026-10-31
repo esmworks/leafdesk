@@ -6,7 +6,7 @@
  * copies in the sent folder and replies without references by subject; a thread names the row its
  * other party is; a message's body comes from the server, its HTML without scripts and remote
  * images until asked for (remembered then, or always for a trusted sender or the mailbox's own
- * domain), with the images it carries inline, and it is marked read (not when loaded ahead); a file downloads as it was sent; archiving, starring, reading, the trash and
+ * domain), with the images it carries inline, and it is marked read (not when loaded ahead); a file downloads as it was sent; archiving, moving to a folder picked, starring, reading, the trash and
  * deleting for good reach the server and the index at once; an answer goes out in the same thread and lands in the sent
  * folder; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
  * recipient fields suggest the people written with; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
@@ -332,6 +332,15 @@ try {
   const archived = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: folder("archive").id });
   check(archived.items[0]?.threadId === teklif!.threadId && archived.items[0].starred, "archiving moves the thread's inbox messages to the archive, flags and all", archived.items);
   check((await uidsIn("Archive")).length === 2 && (await uidsIn("INBOX")).length === 3, "on the server too");
+  const projeler = opened.folders!.find((f) => f.name === "Projeler")!;
+  await mailAction(ids.ada, { mailboxId: boxId, folderId: folder("archive").id, threadIds: [teklif!.threadId], action: "move", to: projeler.id });
+  const inProjeler = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: projeler.id });
+  check(inProjeler.items[0]?.threadId === teklif!.threadId && (await uidsIn("Projeler")).length === 2 && (await uidsIn("Archive")).length === 0, "a thread moves to a folder picked by name", inProjeler.items);
+  check(
+    (await errorCode(() => mailAction(ids.ada, { mailboxId: boxId, folderId: projeler.id, threadIds: [teklif!.threadId], action: "move", to: folder("sent").id }))) === "invalid" &&
+      (await errorCode(() => mailAction(ids.ada, { mailboxId: boxId, folderId: projeler.id, threadIds: [teklif!.threadId], action: "move" }))) === "invalid",
+    "but not to the sent folder, nor without one",
+  );
   await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: [bulten.threadId], action: "trash" });
   const trash = folder("trash");
   const trashed = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: trash.id });

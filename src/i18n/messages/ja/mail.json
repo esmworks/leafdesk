@@ -59,14 +59,20 @@
     "unread": "未読にする",
     "reply": "返信",
     "replyAll": "全員に返信",
-    "forward": "転送"
+    "forward": "転送",
+    "move": "移動",
+    "fromSender": "{name} からのメールを検索",
+    "openInNewTab": "新しいタブで開く",
+    "copyLink": "リンクをコピー",
+    "linkCopied": "リンクをコピーしました"
   },
   "done": {
     "archive": "会話をアーカイブしました",
     "trash": "会話をゴミ箱に移動しました",
     "junk": "会話を迷惑メールにしました",
     "inbox": "会話を受信トレイに移動しました",
-    "delete": "会話を完全に削除しました"
+    "delete": "会話を完全に削除しました",
+    "move": "スレッドを {folder} に移動しました"
   },
   "composer": {
     "newTitle": "新規メッセージ",

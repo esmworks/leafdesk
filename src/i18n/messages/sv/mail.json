@@ -59,14 +59,20 @@
     "unread": "Markera som oläst",
     "reply": "Svara",
     "replyAll": "Svara alla",
-    "forward": "Vidarebefordra"
+    "forward": "Vidarebefordra",
+    "move": "Flytta till",
+    "fromSender": "Hitta e-post från {name}",
+    "openInNewTab": "Öppna i ny flik",
+    "copyLink": "Kopiera länk",
+    "linkCopied": "Länken har kopierats"
   },
   "done": {
     "archive": "Konversationen arkiverades",
     "trash": "Konversationen flyttades till papperskorgen",
     "junk": "Konversationen markerades som skräppost",
     "inbox": "Konversationen flyttades till inkorgen",
-    "delete": "Konversationen togs bort permanent"
+    "delete": "Konversationen togs bort permanent",
+    "move": "Konversationen flyttades till {folder}"
   },
   "composer": {
     "newTitle": "Nytt meddelande",

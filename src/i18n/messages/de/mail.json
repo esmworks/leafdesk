@@ -59,14 +59,20 @@
     "unread": "Als ungelesen markieren",
     "reply": "Antworten",
     "replyAll": "Allen antworten",
-    "forward": "Weiterleiten"
+    "forward": "Weiterleiten",
+    "move": "Verschieben nach",
+    "fromSender": "E-Mails von {name} suchen",
+    "openInNewTab": "In neuem Tab öffnen",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Link kopiert"
   },
   "done": {
     "archive": "Unterhaltung archiviert",
     "trash": "Unterhaltung in den Papierkorb verschoben",
     "junk": "Unterhaltung als Spam markiert",
     "inbox": "Unterhaltung in den Posteingang verschoben",
-    "delete": "Unterhaltung endgültig gelöscht"
+    "delete": "Unterhaltung endgültig gelöscht",
+    "move": "Konversation nach {folder} verschoben"
   },
   "composer": {
     "newTitle": "Neue Nachricht",

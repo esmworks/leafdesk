@@ -59,14 +59,20 @@
     "unread": "标记为未读",
     "reply": "回复",
     "replyAll": "全部回复",
-    "forward": "转发"
+    "forward": "转发",
+    "move": "移至",
+    "fromSender": "查找来自 {name} 的邮件",
+    "openInNewTab": "在新标签页中打开",
+    "copyLink": "复制链接",
+    "linkCopied": "链接已复制"
   },
   "done": {
     "archive": "会话已归档",
     "trash": "会话已移到废纸篓",
     "junk": "会话已标记为垃圾邮件",
     "inbox": "会话已移到收件箱",
-    "delete": "会话已永久删除"
+    "delete": "会话已永久删除",
+    "move": "会话已移至 {folder}"
   },
   "composer": {
     "newTitle": "写邮件",

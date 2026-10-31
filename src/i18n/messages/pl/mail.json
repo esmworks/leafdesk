@@ -59,14 +59,20 @@
     "unread": "Oznacz jako nieprzeczytane",
     "reply": "Odpowiedz",
     "replyAll": "Odpowiedz wszystkim",
-    "forward": "Przekaż dalej"
+    "forward": "Przekaż dalej",
+    "move": "Przenieś do",
+    "fromSender": "Znajdź wiadomości od {name}",
+    "openInNewTab": "Otwórz w nowej karcie",
+    "copyLink": "Kopiuj link",
+    "linkCopied": "Skopiowano link"
   },
   "done": {
     "archive": "Konwersacja zarchiwizowana",
     "trash": "Konwersacja przeniesiona do kosza",
     "junk": "Konwersacja oznaczona jako spam",
     "inbox": "Konwersacja przeniesiona do odebranych",
-    "delete": "Konwersacja usunięta na zawsze"
+    "delete": "Konwersacja usunięta na zawsze",
+    "move": "Wątek przeniesiono do: {folder}"
   },
   "composer": {
     "newTitle": "Nowa wiadomość",

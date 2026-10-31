@@ -79,7 +79,7 @@ export async function refreshMailboxAction(mailboxId: string): Promise<ActionRes
   return run((userId) => refreshMailbox(userId, mailboxId));
 }
 
-export async function mailActionAction(input: { mailboxId: string; folderId: string; threadIds: string[]; action: MailAction }): Promise<ActionResult<null>> {
+export async function mailActionAction(input: { mailboxId: string; folderId: string; threadIds: string[]; action: MailAction; to?: string }): Promise<ActionResult<null>> {
   return run(async (userId) => {
     await mailAction(userId, input);
     return null;

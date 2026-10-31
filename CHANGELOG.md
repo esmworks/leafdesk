@@ -21,8 +21,9 @@
   reply all, forward and new messages, written in the page's pane with bold, italic, underline,
   lists, quotes and links, sent as HTML with a plain-text part, from any of the member's mailboxes,
   with addresses suggested from the mail they sent and received and the draft kept while they look
-  at other mail; archive, junk, trash and star with a 5-second undo,
-  search with `from:`, `is:unread`, `has:attachment` and the like, and keyboard shortcuts. Only
+  at other mail; archive, junk, trash, star and move to any folder with a 5-second undo, a menu
+  on a thread's right click (answers, moves, read and star, the sender's other mail, open in a
+  new tab, copy link), search with `from:`, `is:unread`, `has:attachment` and the like, and keyboard shortcuts. Only
   headers and first lines are kept, 90 days back; messages are read from the mail server when
   opened, or ahead for the first threads and those beside the open one, and held in memory a few
   minutes, so most open at once. Images a person showed in a message show again when it opens,

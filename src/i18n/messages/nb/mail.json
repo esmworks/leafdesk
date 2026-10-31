@@ -59,14 +59,20 @@
     "unread": "Merk som ulest",
     "reply": "Svar",
     "replyAll": "Svar til alle",
-    "forward": "Videresend"
+    "forward": "Videresend",
+    "move": "Flytt til",
+    "fromSender": "Finn e-post fra {name}",
+    "openInNewTab": "Åpne i ny fane",
+    "copyLink": "Kopier lenke",
+    "linkCopied": "Lenken er kopiert"
   },
   "done": {
     "archive": "Samtalen er arkivert",
     "trash": "Samtalen er flyttet til papirkurven",
     "junk": "Samtalen er merket som søppelpost",
     "inbox": "Samtalen er flyttet til innboksen",
-    "delete": "Samtalen er slettet for godt"
+    "delete": "Samtalen er slettet for godt",
+    "move": "Samtalen er flyttet til {folder}"
   },
   "composer": {
     "newTitle": "Ny melding",

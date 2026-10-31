@@ -59,14 +59,20 @@
     "unread": "Mark as unread",
     "reply": "Reply",
     "replyAll": "Reply all",
-    "forward": "Forward"
+    "forward": "Forward",
+    "move": "Move to",
+    "fromSender": "Find mail from {name}",
+    "openInNewTab": "Open in new tab",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied"
   },
   "done": {
     "archive": "Conversation archived",
     "trash": "Conversation moved to the trash",
     "junk": "Conversation marked as junk",
     "inbox": "Conversation moved to the inbox",
-    "delete": "Conversation deleted forever"
+    "delete": "Conversation deleted forever",
+    "move": "Conversation moved to {folder}"
   },
   "composer": {
     "newTitle": "New message",

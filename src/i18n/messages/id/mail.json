@@ -59,14 +59,20 @@
     "unread": "Tandai belum dibaca",
     "reply": "Balas",
     "replyAll": "Balas semua",
-    "forward": "Teruskan"
+    "forward": "Teruskan",
+    "move": "Pindahkan ke",
+    "fromSender": "Cari email dari {name}",
+    "openInNewTab": "Buka di tab baru",
+    "copyLink": "Salin tautan",
+    "linkCopied": "Tautan disalin"
   },
   "done": {
     "archive": "Percakapan diarsipkan",
     "trash": "Percakapan dipindahkan ke sampah",
     "junk": "Percakapan ditandai sebagai spam",
     "inbox": "Percakapan dipindahkan ke kotak masuk",
-    "delete": "Percakapan dihapus permanen"
+    "delete": "Percakapan dihapus permanen",
+    "move": "Percakapan dipindahkan ke {folder}"
   },
   "composer": {
     "newTitle": "Pesan baru",

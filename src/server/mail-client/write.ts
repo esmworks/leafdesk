@@ -4,7 +4,7 @@ import MailComposer from "nodemailer/lib/mail-composer";
 import { db } from "@/db";
 import { mailFolder, mailMessage, user, type mailbox } from "@/db/schema";
 import { MAX_MAIL_TEXT, MAX_SENDS_PER_HOUR, normalizeAddress } from "@/lib/mail";
-import { MAX_COMPOSE_BYTES, MAX_MAIL_HTML, MAX_MAIL_RECIPIENTS, type MailAction, type MailDraftInput } from "@/lib/mail-client";
+import { MAX_COMPOSE_BYTES, MAX_MAIL_HTML, MAX_MAIL_RECIPIENTS, movableTo, type MailAction, type MailDraftInput } from "@/lib/mail-client";
 import { RowMailError } from "@/server/row-mail/settings";
 import { connectError } from "@/server/row-mail/connect";
 import { keepSent, SAVES_SENT, sendRaw } from "@/server/row-mail/send";
@@ -58,17 +58,19 @@ async function recount(client: ImapFlow, folder: FolderRow) {
 }
 
 /**
- * Does `action` to threads of a folder. Moves (archive, trash, junk, back to the inbox) and
- * "delete" (for good, from the trash or junk only) take the thread's messages in this folder;
- * read and unread all of the thread's messages; star its newest message here, unstar all.
+ * Does `action` to threads of a folder. Moves (archive, trash, junk, back to the inbox, or to the
+ * folder `to` names) and "delete" (for good, from the trash or junk only) take the thread's
+ * messages in this folder; read and unread all of the thread's messages; star its newest message
+ * here, unstar all.
  */
-export async function mailAction(userId: string, input: { mailboxId: string; folderId: string; threadIds: string[]; action: MailAction }) {
+export async function mailAction(userId: string, input: { mailboxId: string; folderId: string; threadIds: string[]; action: MailAction; to?: string }) {
   const box = await requireOwnMailbox(userId, input.mailboxId);
   const all = await folders(box);
   const folder = all.find((f) => f.id === input.folderId);
   const threadIds = Array.isArray(input.threadIds) ? [...new Set(input.threadIds.filter((t) => typeof t === "string" && t))].slice(0, MAX_THREADS) : [];
   const action = input.action;
-  if (!folder || !threadIds.length || !(action in MOVES || action in FLAGS || action === "delete")) throw new RowMailError("invalid");
+  const to = action === "move" ? all.find((f) => f.id === input.to && f.id !== folder?.id && movableTo(f)) : undefined;
+  if (!folder || !threadIds.length || !(action in MOVES || action in FLAGS || action === "delete" || to)) throw new RowMailError("invalid");
   if (action === "delete" && folder.role !== "trash" && folder.role !== "junk") throw new RowMailError("invalid");
 
   const flag = FLAGS[action];
@@ -94,7 +96,7 @@ export async function mailAction(userId: string, input: { mailboxId: string; fol
   await withImap(box, async (client) => {
     const byFolder = new Map<string, MessageRow[]>();
     for (const m of messages) byFolder.set(m.folderId, [...(byFolder.get(m.folderId) ?? []), m]);
-    const target = MOVES[action] ? await destination(client, box, all, MOVES[action]!) : null;
+    const target = to ?? (MOVES[action] ? await destination(client, box, all, MOVES[action]!) : null);
     if (MOVES[action] && !target && !(action === "archive" && ARCHIVES_BY_REMOVING.includes(box.imapHost))) throw new RowMailError("gone");
     for (const [folderId, list] of byFolder) {
       const source = all.find((f) => f.id === folderId);

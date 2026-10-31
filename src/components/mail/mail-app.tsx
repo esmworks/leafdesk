@@ -10,7 +10,7 @@ import { read } from "@/components/read";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { showToast } from "@/components/toast";
 import { cn, IconButton } from "@/components/ui";
-import { MAIL_UNDO_SECONDS, type MailAction, type MailThreadItem } from "@/lib/mail-client";
+import { MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem } from "@/lib/mail-client";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen } from "./mail-store";
@@ -19,10 +19,11 @@ import { useFolderName } from "./mail-sidebar";
 // The open thread and a new message load the first time they show.
 const ThreadView = lazyPart(() => import("./thread-view").then((m) => m.ThreadView), <div className="min-w-0 flex-1" />);
 const Composer = lazyPart(() => import("./composer").then((m) => m.Composer), <div className="min-w-0 flex-1" />);
+const ThreadMenu = lazyPart(() => import("./thread-menu").then((m) => m.ThreadMenu));
 
 /** How often the open folder asks the mail server for new mail while the page is in front. */
 const REFRESH_MS = 60_000;
-const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "delete"];
+const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "move", "delete"];
 /** Messages shown in the list are loaded ahead from the top, at most this many. */
 const AHEAD_TOP = 8;
 const aheadOf = (item: MailThreadItem) => loadAhead([item.messageId]);
@@ -33,16 +34,21 @@ const ThreadRow = memo(function ThreadRow({
   item,
   href,
   selected,
+  menuOpen,
   me,
   onOpen,
   onHover,
+  onMenu,
 }: {
   item: MailThreadItem;
   href: string;
   selected: boolean;
+  /** Its right-click menu is open: it stays marked meanwhile. */
+  menuOpen: boolean;
   me: string;
   onOpen: (item: MailThreadItem) => void;
   onHover: (item: MailThreadItem) => void;
+  onMenu: (item: MailThreadItem, at: { x: number; y: number }) => void;
 }) {
   const t = useTranslations("mail");
   const when = useWhen();
@@ -58,7 +64,11 @@ const ThreadRow = memo(function ThreadRow({
         e.preventDefault();
         onOpen(item);
       }}
-      className={cn("relative flex gap-3 border-b border-border px-4 py-2.5 outline-none focus-visible:bg-bg-hover", selected ? "bg-bg-active" : "hover:bg-bg-hover")}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onMenu(item, { x: e.clientX, y: e.clientY });
+      }}
+      className={cn("relative flex gap-3 border-b border-border px-4 py-2.5 outline-none focus-visible:bg-bg-hover", selected ? "bg-bg-active" : menuOpen ? "bg-bg-hover" : "hover:bg-bg-hover")}
     >
       <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", item.unread ? "bg-accent" : "bg-transparent")} aria-hidden />
       <div className="min-w-0 flex-1">
@@ -102,8 +112,11 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const search = useSearchParams();
   const { boxes, error: boxesError } = useMailboxes(workspaceId);
   const { box, folder } = pickOpen(boxes, search.get("box"), search.get("f"));
-  // A thread is opened soon after the list shows: its code starts loading now.
-  useEffect(() => void ThreadView.preload(), []);
+  // A thread is opened soon after the list shows, and a right click opens its menu at once: their code starts loading now.
+  useEffect(() => {
+    void ThreadView.preload();
+    void ThreadMenu.preload();
+  }, []);
   const threadId = search.get("t");
   // A new message is written in the pane where a thread shows (?c=new), so Back closes it.
   const composing = search.get("c") === "new";
@@ -111,6 +124,8 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const [typed, setTyped] = useState(query);
   const [list, setList] = useState<List>({ items: [], next: null, loading: true, error: null });
   const [compose, setCompose] = useState<ComposeMode | null>(null);
+  const [menu, setMenu] = useState<{ item: MailThreadItem; at: { x: number; y: number } } | null>(null);
+  const openMenu = useCallback((item: MailThreadItem, at: { x: number; y: number }) => setMenu({ item, at }), []);
   const [refreshing, setRefreshing] = useState(false);
   const searchBox = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -238,12 +253,12 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   }, [items, threadId]);
 
   const act = useCallback(
-    (item: MailThreadItem, action: MailAction) => {
+    (item: MailThreadItem, action: MailAction, to?: MailFolderView) => {
       if (!box || !folder) return;
       const mailboxId = box.id;
       const folderId = folder.id;
       const send = () =>
-        void mailActionAction({ mailboxId, folderId, threadIds: [item.threadId], action }).then((result) => {
+        void mailActionAction({ mailboxId, folderId, threadIds: [item.threadId], action, to: to?.id }).then((result) => {
           if (!result.ok) {
             showToast({ message: result.error });
             void loadPage(null);
@@ -274,7 +289,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
       }, MAIL_UNDO_SECONDS * 1000);
       pending.current.set(item.threadId, { run: send, timer });
       showToast({
-        message: t(`done.${action as "archive"}`),
+        message: to ? t("done.move", { folder: folderName(to) }) : t(`done.${action as "archive"}`),
         undo: () => {
           const waiting = pending.current.get(item.threadId);
           if (!waiting) return;
@@ -285,7 +300,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
         },
       });
     },
-    [box, folder, items, threadId, query, go, loadPage, t, workspaceId],
+    [box, folder, items, threadId, query, go, loadPage, t, workspaceId, folderName],
   );
 
   const openThread = useCallback(
@@ -318,7 +333,8 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   // u unread, r/a/f reply/all/forward, Esc back to the list.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (!forPage(e) || composing) return;
+      // With a conversation's menu open, keys are the menu's (Escape closes it).
+      if (!forPage(e) || composing || menu) return;
       const at = items.findIndex((i) => i.threadId === threadId);
       const current = at >= 0 ? items[at] : null;
       const move = (to: number) => {
@@ -360,7 +376,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [items, threadId, folder?.role, act, openThread, go, composing]);
+  }, [items, threadId, folder?.role, act, openThread, go, composing, menu]);
 
   // Search as typed, a moment after the last key.
   useEffect(() => {
@@ -463,15 +479,37 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
                   item={item}
                   href={mailHref(workspaceId, { box: box.id, f: folder.id, t: item.threadId, q: query || null })}
                   selected={item.threadId === threadId}
+                  menuOpen={menu?.item.threadId === item.threadId}
                   me={box.address}
                   onOpen={openThread}
                   onHover={aheadOf}
+                  onMenu={openMenu}
                 />
               ))}
               {list.loading && <div className="py-3 text-center text-xs text-fg-faint">{t("loading")}</div>}
             </>
           )}
         </div>
+        {menu && (
+          <ThreadMenu
+            key={`${menu.item.threadId}-${menu.at.x}-${menu.at.y}`}
+            at={menu.at}
+            item={menu.item}
+            box={box}
+            folder={folder}
+            href={mailHref(workspaceId, { box: box.id, f: folder.id, t: menu.item.threadId, q: query || null })}
+            onClose={() => setMenu(null)}
+            onAction={(action, to) => act(menu.item, action, to)}
+            onCompose={(mode) => {
+              openThread(menu.item);
+              setCompose(mode);
+            }}
+            onFind={(found) => {
+              setTyped(found);
+              go({ q: found, t: null });
+            }}
+          />
+        )}
       </section>
       {composing ? (
         <Composer

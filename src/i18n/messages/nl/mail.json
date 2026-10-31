@@ -59,14 +59,20 @@
     "unread": "Markeren als ongelezen",
     "reply": "Beantwoorden",
     "replyAll": "Allen beantwoorden",
-    "forward": "Doorsturen"
+    "forward": "Doorsturen",
+    "move": "Verplaatsen naar",
+    "fromSender": "Mail van {name} zoeken",
+    "openInNewTab": "Openen in nieuw tabblad",
+    "copyLink": "Link kopiëren",
+    "linkCopied": "Link gekopieerd"
   },
   "done": {
     "archive": "Gesprek gearchiveerd",
     "trash": "Gesprek naar de prullenbak verplaatst",
     "junk": "Gesprek als spam gemarkeerd",
     "inbox": "Gesprek naar Postvak IN verplaatst",
-    "delete": "Gesprek definitief verwijderd"
+    "delete": "Gesprek definitief verwijderd",
+    "move": "Gesprek verplaatst naar {folder}"
   },
   "composer": {
     "newTitle": "Nieuw bericht",

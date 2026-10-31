@@ -59,14 +59,20 @@
     "unread": "Marquer comme non lu",
     "reply": "Répondre",
     "replyAll": "Répondre à tous",
-    "forward": "Transférer"
+    "forward": "Transférer",
+    "move": "Déplacer vers",
+    "fromSender": "Rechercher les e-mails de {name}",
+    "openInNewTab": "Ouvrir dans un nouvel onglet",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié"
   },
   "done": {
     "archive": "Conversation archivée",
     "trash": "Conversation déplacée vers la corbeille",
     "junk": "Conversation marquée comme indésirable",
     "inbox": "Conversation déplacée vers la boîte de réception",
-    "delete": "Conversation supprimée définitivement"
+    "delete": "Conversation supprimée définitivement",
+    "move": "Conversation déplacée vers {folder}"
   },
   "composer": {
     "newTitle": "Nouveau message",

@@ -59,14 +59,20 @@
     "unread": "Merkitse lukemattomaksi",
     "reply": "Vastaa",
     "replyAll": "Vastaa kaikille",
-    "forward": "Välitä"
+    "forward": "Välitä",
+    "move": "Siirrä kansioon",
+    "fromSender": "Etsi viestit lähettäjältä {name}",
+    "openInNewTab": "Avaa uudessa välilehdessä",
+    "copyLink": "Kopioi linkki",
+    "linkCopied": "Linkki kopioitu"
   },
   "done": {
     "archive": "Keskustelu arkistoitu",
     "trash": "Keskustelu siirretty roskakoriin",
     "junk": "Keskustelu merkitty roskapostiksi",
     "inbox": "Keskustelu siirretty saapuneisiin",
-    "delete": "Keskustelu poistettu pysyvästi"
+    "delete": "Keskustelu poistettu pysyvästi",
+    "move": "Keskustelu siirretty kansioon {folder}"
   },
   "composer": {
     "newTitle": "Uusi viesti",

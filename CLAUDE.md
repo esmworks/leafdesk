@@ -256,7 +256,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `updatedAt`, which the sweep changes; bodies held a few minutes in memory, `body-cache.ts`, and in
   the tab, `components/mail/mail-cache.ts`; HTML cleaned by `html.ts` into a sandboxed frame; the page is
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
-  round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them; why a message's
+  round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
+  into `MOVES` in `mail-app.tsx`; action `move` takes the folder's id in `to`, checked by
+  `movableTo`; a row's right-click menu is `thread-menu.tsx`, a `lazyPart`); why a message's
   images from other sites load is `lib/mail-images.ts`, decided after the fetch for DMARC, from what
   `images.ts` remembers: messages shown before and trusted senders; `body-cache.ts` keys bodies by
   that reason, so `readBody` and `prefetchBodies` work it out alike or a click reads it again;

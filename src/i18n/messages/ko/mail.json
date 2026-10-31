@@ -59,14 +59,20 @@
     "unread": "읽지 않음으로 표시",
     "reply": "답장",
     "replyAll": "전체 답장",
-    "forward": "전달"
+    "forward": "전달",
+    "move": "이동",
+    "fromSender": "{name}의 메일 찾기",
+    "openInNewTab": "새 탭에서 열기",
+    "copyLink": "링크 복사",
+    "linkCopied": "링크를 복사했습니다"
   },
   "done": {
     "archive": "대화를 보관했습니다",
     "trash": "대화를 휴지통으로 이동했습니다",
     "junk": "대화를 스팸으로 표시했습니다",
     "inbox": "대화를 받은편지함으로 이동했습니다",
-    "delete": "대화를 영구 삭제했습니다"
+    "delete": "대화를 영구 삭제했습니다",
+    "move": "대화를 {folder}(으)로 이동했습니다"
   },
   "composer": {
     "newTitle": "새 메시지",

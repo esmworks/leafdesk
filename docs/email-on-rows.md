@@ -95,7 +95,9 @@ server's thread ids, their references and, within 30 days, a reply's subject.
 
 From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
-trash is for good. *New message* opens beside the list, where the open thread would be, and Back
+trash is for good. A right click on a thread in the list opens the same answers and moves without
+opening it, plus *Move to* any of the mailbox's folders (not Sent or Drafts), the sender's other
+mail (a `from:` search), *Open in new tab* and *Copy link*. *New message* opens beside the list, where the open thread would be, and Back
 closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
 through, with bulleted and numbered lists, quotes and links (⌘/Ctrl+K), and goes out as HTML with
 a plain-text part beside it; other formatting pasted in falls away. *From* picks any of the

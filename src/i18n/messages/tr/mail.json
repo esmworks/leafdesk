@@ -59,14 +59,20 @@
     "unread": "Okunmadı olarak işaretle",
     "reply": "Yanıtla",
     "replyAll": "Tümünü yanıtla",
-    "forward": "İlet"
+    "forward": "İlet",
+    "move": "Taşı",
+    "fromSender": "{name} kişisinden gelenler",
+    "openInNewTab": "Yeni sekmede aç",
+    "copyLink": "Bağlantıyı kopyala",
+    "linkCopied": "Bağlantı kopyalandı"
   },
   "done": {
     "archive": "Yazışma arşivlendi",
     "trash": "Yazışma çöp kutusuna taşındı",
     "junk": "Yazışma gereksiz olarak işaretlendi",
     "inbox": "Yazışma gelen kutusuna taşındı",
-    "delete": "Yazışma kalıcı olarak silindi"
+    "delete": "Yazışma kalıcı olarak silindi",
+    "move": "Yazışma {folder} klasörüne taşındı"
   },
   "composer": {
     "newTitle": "Yeni ileti",

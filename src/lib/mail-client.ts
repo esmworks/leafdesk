@@ -280,4 +280,7 @@ export type MailDraftInput = {
 };
 
 /** Actions on threads from the list or an opened thread. */
-export type MailAction = "archive" | "trash" | "junk" | "inbox" | "read" | "unread" | "star" | "unstar" | "delete";
+/** `move` goes to the folder the request names in `to`; the others are by folder role or flag. */
+export type MailAction = "archive" | "trash" | "junk" | "inbox" | "move" | "read" | "unread" | "star" | "unstar" | "delete";
+/** Folders a conversation can be moved to by name: not where mail is written or sent from. */
+export const movableTo = (folder: { role: MailFolderRole | null }) => folder.role !== "sent" && folder.role !== "drafts";

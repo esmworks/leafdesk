@@ -59,14 +59,20 @@
     "unread": "Marcar como não lida",
     "reply": "Responder",
     "replyAll": "Responder a todos",
-    "forward": "Encaminhar"
+    "forward": "Encaminhar",
+    "move": "Mover para",
+    "fromSender": "Encontrar e-mails de {name}",
+    "openInNewTab": "Abrir em nova aba",
+    "copyLink": "Copiar link",
+    "linkCopied": "Link copiado"
   },
   "done": {
     "archive": "Conversa arquivada",
     "trash": "Conversa movida para a lixeira",
     "junk": "Conversa marcada como spam",
     "inbox": "Conversa movida para a caixa de entrada",
-    "delete": "Conversa excluída permanentemente"
+    "delete": "Conversa excluída permanentemente",
+    "move": "Conversa movida para {folder}"
   },
   "composer": {
     "newTitle": "Nova mensagem",

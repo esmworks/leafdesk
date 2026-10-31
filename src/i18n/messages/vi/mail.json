@@ -59,14 +59,20 @@
     "unread": "Đánh dấu chưa đọc",
     "reply": "Trả lời",
     "replyAll": "Trả lời tất cả",
-    "forward": "Chuyển tiếp"
+    "forward": "Chuyển tiếp",
+    "move": "Chuyển đến",
+    "fromSender": "Tìm thư từ {name}",
+    "openInNewTab": "Mở trong thẻ mới",
+    "copyLink": "Sao chép liên kết",
+    "linkCopied": "Đã sao chép liên kết"
   },
   "done": {
     "archive": "Đã lưu trữ cuộc trò chuyện",
     "trash": "Đã chuyển cuộc trò chuyện vào thùng rác",
     "junk": "Đã đánh dấu cuộc trò chuyện là thư rác",
     "inbox": "Đã chuyển cuộc trò chuyện vào hộp thư đến",
-    "delete": "Đã xóa vĩnh viễn cuộc trò chuyện"
+    "delete": "Đã xóa vĩnh viễn cuộc trò chuyện",
+    "move": "Đã chuyển cuộc trò chuyện đến {folder}"
   },
   "composer": {
     "newTitle": "Thư mới",

@@ -4,6 +4,7 @@ import { AlertOctagon, Archive, Folder, Inbox, Send, SquarePen, FileText, Trash2
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useCallback } from "react";
 import { cn } from "@/components/ui";
 import type { MailboxTabView, MailFolderRole, MailFolderView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
@@ -18,10 +19,10 @@ export const FOLDER_ICONS: Record<MailFolderRole, LucideIcon> = {
   trash: Trash2,
 };
 
-/** A folder's name: what it is for in the person's language, else its own name. */
+/** A folder's name: what it is for in the person's language, else its own name. The same function across renders. */
 export function useFolderName() {
   const t = useTranslations("mail.folders");
-  return (folder: Pick<MailFolderView, "role" | "name">) => (folder.role ? t(folder.role) : folder.name);
+  return useCallback((folder: Pick<MailFolderView, "role" | "name">) => (folder.role ? t(folder.role) : folder.name), [t]);
 }
 
 const rowClass = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start hover:bg-bg-hover";
