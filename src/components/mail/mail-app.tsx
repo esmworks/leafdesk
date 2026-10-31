@@ -24,8 +24,9 @@ const PaneComposer = lazyPart(() => import("./composer").then((m) => m.PaneCompo
 const ThreadMenu = lazyPart(() => import("./thread-menu").then((m) => m.ThreadMenu));
 const SelectionBar = lazyPart(() => import("./selection-bar").then((m) => m.SelectionBar), <div className="h-8" />);
 
-/** How often the open folder asks the mail server for new mail while the page is in front. */
+/** How often the open folder asks the mail server for new mail while the page is in front; less often while the server tells it (mail-live.ts). */
 const REFRESH_MS = 60_000;
+const LIVE_REFRESH_MS = 5 * 60_000;
 const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "move", "delete"];
 /** g then one of these opens the mailbox's folder of that role, within GO_MS of the g. */
 const GO_KEYS: Record<string, MailFolderView["role"]> = { i: "inbox", s: "sent", d: "drafts", a: "archive", t: "trash" };
@@ -222,6 +223,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   const [menu, setMenu] = useState<{ item: MailThreadItem; at: { x: number; y: number } } | null>(null);
   const openMenu = useCallback((item: MailThreadItem, at: { x: number; y: number }) => setMenu({ item, at }), []);
   const [refreshing, setRefreshing] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [emptying, setEmptying] = useState<"ask" | "working" | null>(null);
   const searchBox = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -303,14 +305,15 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     loadLatest.current = loadPage;
   }, [loadPage]);
 
-  // New mail: as the folder opens, then every REFRESH_MS while the page is in front.
+  // New mail: as the folder opens, as the server tells of it, and every REFRESH_MS while the page is in front.
+  const changed = useRef<(mailboxId: string, folderId: string) => void>(() => {});
   useEffect(() => {
     if (!box?.folders || !folder) return;
     const checked = all ? inboxes : [{ mailboxId: box.id, folderId: folder.id }];
-    const check = () => {
+    const check = (only?: { mailboxId: string; folderId: string }) => {
       if (document.visibilityState !== "visible") return;
       void Promise.all(
-        checked.map(({ mailboxId, folderId }) =>
+        (only ? [only] : checked).map(({ mailboxId, folderId }) =>
           read("mailRefreshFolder", mailboxId, folderId)
             .then((result) => {
               if (!result.ok) return false;
@@ -320,16 +323,31 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
             // Offline: the next check tries again.
             .catch(() => false),
         ),
-      ).then((done) => done.some(Boolean) && void loadLatest.current(null));
+      ).then((done) => done.some(Boolean) && (!only || checked.some((c) => c.folderId === only.folderId)) && void loadLatest.current(null));
     };
-    check();
-    const timer = setInterval(check, REFRESH_MS);
-    document.addEventListener("visibilitychange", check);
+    changed.current = (mailboxId, folderId) => check({ mailboxId, folderId });
+    const again = () => check();
+    again();
+    const timer = setInterval(again, streaming ? LIVE_REFRESH_MS : REFRESH_MS);
+    document.addEventListener("visibilitychange", again);
     return () => {
       clearInterval(timer);
-      document.removeEventListener("visibilitychange", check);
+      document.removeEventListener("visibilitychange", again);
     };
-  }, [listKey, !!box?.folders, inboxesKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [listKey, !!box?.folders, inboxesKey, streaming]); // eslint-disable-line react-hooks/exhaustive-deps
+  const followed = (boxes ?? []).flatMap((b) => (b.folders ? [b.id] : [])).join();
+  useEffect(() => {
+    if (!followed) return;
+    let stop: (() => void) | undefined;
+    let gone = false;
+    void import("./mail-live").then((m) => {
+      if (!gone) stop = m.followMail(followed.split(","), (c) => changed.current(c.mailboxId, c.folderId), setStreaming);
+    });
+    return () => {
+      gone = true;
+      stop?.();
+    };
+  }, [followed]);
 
   // What waits for Undo goes now when the page is left.
   useEffect(() => {

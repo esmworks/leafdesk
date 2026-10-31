@@ -135,6 +135,9 @@ export async function openMailbox(userId: string, mailboxId: string): Promise<Ma
 
 const refreshed = ((globalThis as typeof globalThis & { __leafdeskMailRefreshed?: Map<string, number> }).__leafdeskMailRefreshed ??= new Map());
 
+/** The folder was just read from the server (watch.ts, as its inbox changed): a tab asking now isn't asked to wait for it again. */
+export const folderRefreshed = (folderId: string) => refreshed.set(folderId, Date.now());
+
 /** Asks the mail server what is new in a folder, as the person looks at it (not more often than REFRESH_EVERY_MS). */
 export async function refreshFolder(userId: string, mailboxId: string, folderId: string): Promise<MailFolderView[]> {
   const box = await requireOwnMailbox(userId, mailboxId);

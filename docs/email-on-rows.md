@@ -80,7 +80,9 @@ MCP clients, the REST API and automations don't.
 
 Leafdesk keeps each folder's headers and first lines, read 90 days back once the owner first
 opens Mail (every mailbox of theirs at once, in the background, so the others show their unread
-counts too) and kept up to date by the minute's read; the messages themselves, their HTML and their
+counts too) and kept up to date by the minute's read. While Mail is open in front, the server
+also keeps one more connection to each of the person's mailboxes waiting on the inbox (IMAP IDLE):
+new mail shows in the list within seconds, without asking; the messages themselves, their HTML and their
 files are read from the mail server when a thread is opened, and aren't stored: a message read is
 held in the server's memory for up to 10 minutes, never written, and the first threads of the list
 and those beside the open one are read ahead, so they open at once (reading ahead leaves them

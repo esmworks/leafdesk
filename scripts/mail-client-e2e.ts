@@ -85,6 +85,7 @@ const { emptyFolder, holdMail, mailAction, sendHeld, sendMail, sendStatus, undoS
 const drafts = await import("@/server/mail-client/drafts");
 const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
+const { stopWatching, watchMailbox } = await import("@/server/mail-client/watch");
 const images = await import("@/server/mail-client/images");
 const { unsubscribe } = await import("@/server/mail-client/unsubscribe");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -758,6 +759,24 @@ try {
   check(/^Subject: Abonelik iptal$/m.test(await lastMessageTo(robot)), "the mail goes from the mailbox to the list's address, with the subject the list asks for");
   check((await errorCode(() => unsubscribe(ids.ada, { id: listMessage("Sahte liste") }, listAnswers(200)))) === "invalid" && posted.length === 2, "nothing goes to a sender that failed the check");
 
+  // Live: a watched inbox (IDLE) tells of new mail as it comes, already read into the index.
+  check(await asAda(async (client) => client.capabilities.has("IDLE")), "the test server takes IDLE");
+  const heard: { mailboxId: string; folderId: string }[] = [];
+  const unwatch = watchMailbox(boxId, (change) => heard.push(change));
+  try {
+    // The watch signs in and selects the inbox first.
+    await settle();
+    await settle();
+    await outside.sendMail({ ...base, subject: `Canlı ${RUN}`, text: "Şimdi geldi." });
+    for (let i = 0; i < 25 && !heard.length; i++) await settle();
+    check(heard[0]?.mailboxId === boxId && heard[0]?.folderId === inbox.id, "new mail in a watched inbox is told at once", heard);
+    const [live] = await db.select({ id: mailMessage.id }).from(mailMessage).where(and(eq(mailMessage.folderId, inbox.id), eq(mailMessage.subject, `Canlı ${RUN}`)));
+    check(live, "and is in the index by then");
+  } finally {
+    unwatch();
+    stopWatching(boxId);
+  }
+
   // Paging
   const firstPage = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: folder("sent").id });
   check(firstPage.next === null, "a short list has no next page");
@@ -769,6 +788,7 @@ try {
   outside.close();
   if (boxId) closeImap(boxId);
   if (salesBoxId) closeImap(salesBoxId);
+  if (boxId) stopWatching(boxId);
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
   await db.delete(user).where(inArray(user.id, Object.values(ids)));
   hocuspocus.closeConnections();

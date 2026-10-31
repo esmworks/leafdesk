@@ -4,6 +4,11 @@
 
 ### Added
 
+- **New mail shows at once in the Mail tab.** While the tab is open in front, the server waits
+  on each of the person's inboxes with IMAP IDLE (one more connection per mailbox, closed soon
+  after the tab goes) and tells the tab as mail comes, goes or is marked elsewhere; the list and
+  counts follow within seconds instead of the minute's check. No migration.
+
 - **All inboxes in the Mail tab.** With several mailboxes, *All inboxes* in the sidebar lists their
   inboxes as one list, newest first, with each thread's mailbox marked; search, the keys, the
   selection bar and Undo work across them, and each thread is read, answered and moved in its own
