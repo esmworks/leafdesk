@@ -1,12 +1,14 @@
 {
   "title": "Pikanäppäimet",
   "or": "tai",
+  "then": "sitten",
   "groups": {
     "general": "Yleiset",
     "navigation": "Siirtyminen",
     "text": "Tekstin muotoilu",
     "blocks": "Lohkot",
-    "databases": "Tietokannat"
+    "databases": "Tietokannat",
+    "mail": "Sähköposti"
   },
   "items": {
     "shortcuts": "Näytä pikanäppäimet",
@@ -61,6 +63,30 @@
     "rowComment": "Kommentoi riviä (sen valikko auki)",
     "rowTrash": "Siirrä rivi roskakoriin (sen valikko auki)",
     "link": "Linkitä valittu teksti",
-    "newSubPage": "Luo sivu tämän sisään, linkitettynä tekstissä (välilyönnin jälkeen)"
+    "newSubPage": "Luo sivu tämän sisään, linkitettynä tekstissä (välilyönnin jälkeen)",
+    "mailCompose": "Kirjoita uusi viesti",
+    "mailSearch": "Hae sähköposteista",
+    "mailNext": "Avaa seuraava keskustelu",
+    "mailPrevious": "Avaa edellinen keskustelu",
+    "mailOpen": "Avaa ensimmäinen keskustelu",
+    "mailBack": "Takaisin luetteloon tai tyhjennä valinta",
+    "mailSelect": "Valitse avoinna oleva keskustelu",
+    "mailSelectAll": "Valitse kaikki luettelon keskustelut",
+    "mailArchive": "Arkistoi tai siirrä takaisin saapuneisiin",
+    "mailTrash": "Siirrä roskakoriin (roskakorissa poista pysyvästi)",
+    "mailJunk": "Merkitse roskapostiksi",
+    "mailStar": "Lisää tai poista tähti",
+    "mailUnread": "Merkitse lukemattomaksi",
+    "mailRead": "Merkitse luetuksi",
+    "mailUndo": "Kumoa viimeisin siirto",
+    "mailReply": "Vastaa",
+    "mailReplyAll": "Vastaa kaikille",
+    "mailForward": "Välitä",
+    "mailSend": "Lähetä kirjoitettava viesti",
+    "mailGoInbox": "Siirry saapuneisiin",
+    "mailGoSent": "Siirry lähetettyihin",
+    "mailGoDrafts": "Siirry luonnoksiin",
+    "mailGoArchive": "Siirry arkistoon",
+    "mailGoTrash": "Siirry roskakoriin"
   }
 }

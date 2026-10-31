@@ -110,7 +110,11 @@ mail (a `from:` search), *Open in new tab* and *Copy link*. Several threads are 
 their boxes (shown on hover), ⌘/Ctrl-click, Shift-click for a range, `x` for the open one or
 ⌘/Ctrl+A for all the list has loaded; a bar in place of the list's title then archives, trashes,
 marks, stars or moves all of them at once (the keys and a right click on one of them do too), and
-Esc leaves the selection. *New message* opens beside the list, where the open thread would be, and Back
+Esc leaves the selection. The Mail tab works from the keyboard too: `j`/`k` next and previous,
+`e` archive, `#` trash, `!` junk, `s` star, `u` unread, Shift+I read, `r`/`a`/`f` reply, reply all
+and forward, `c` a new message, `/` search, ⌘/Ctrl+Z undoes the last move, and `g` then `i`, `s`,
+`d`, `a` or `t` opens the inbox, sent mail, drafts, archive or trash; `?` lists them all, and the
+search box (⌘/Ctrl+K) has *Mail* and *New message* after `>`. *New message* opens beside the list, where the open thread would be, and Back
 closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
 through, with bulleted and numbered lists, quotes and links (⌘/Ctrl+K), and goes out as HTML with
 a plain-text part beside it; other formatting pasted in falls away. A picture pasted in, or dropped

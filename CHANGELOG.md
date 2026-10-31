@@ -4,6 +4,11 @@
 
 ### Added
 
+- **More keys in the Mail tab.** `g` then `i`, `s`, `d`, `a` or `t` opens the inbox, sent mail,
+  drafts, archive or trash; ⌘/Ctrl+Z undoes the last archive, move or deletion while its Undo
+  lasts; Shift+I marks read. The keyboard shortcuts dialog (`?`) lists the Mail tab's keys, and the
+  search box's commands (`>`) open Mail and a new message. No migration.
+
 - **Unsubscribing from mailing lists in the Mail tab.** Mail from a list shows *Unsubscribe*
   beside its answers: after a confirmation the server uses the list's one-click address
   (List-Unsubscribe-Post), else mails the list's unsubscribe address from the mailbox; a list with

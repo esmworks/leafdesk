@@ -1,12 +1,14 @@
 {
   "title": "키보드 단축키",
   "or": "또는",
+  "then": "다음",
   "groups": {
     "general": "일반",
     "navigation": "탐색",
     "text": "텍스트 서식",
     "blocks": "블록",
-    "databases": "데이터베이스"
+    "databases": "데이터베이스",
+    "mail": "메일"
   },
   "items": {
     "shortcuts": "키보드 단축키 보기",
@@ -61,6 +63,30 @@
     "rowComment": "행에 댓글(메뉴가 열려 있을 때)",
     "rowTrash": "행을 휴지통으로 이동(메뉴가 열려 있을 때)",
     "link": "선택한 텍스트에 링크 걸기",
-    "newSubPage": "이 페이지 안에 페이지를 만들고 본문에 링크(공백 뒤)"
+    "newSubPage": "이 페이지 안에 페이지를 만들고 본문에 링크(공백 뒤)",
+    "mailCompose": "새 메시지 작성",
+    "mailSearch": "메일 검색",
+    "mailNext": "다음 대화 열기",
+    "mailPrevious": "이전 대화 열기",
+    "mailOpen": "첫 번째 대화 열기",
+    "mailBack": "목록으로 돌아가기 또는 선택 해제",
+    "mailSelect": "열린 대화 선택",
+    "mailSelectAll": "목록의 모든 대화 선택",
+    "mailArchive": "보관 또는 받은편지함으로 되돌리기",
+    "mailTrash": "휴지통으로 이동(휴지통에서는 영구 삭제)",
+    "mailJunk": "스팸으로 표시",
+    "mailStar": "별표 표시 또는 해제",
+    "mailUnread": "읽지 않음으로 표시",
+    "mailRead": "읽음으로 표시",
+    "mailUndo": "마지막 이동 실행 취소",
+    "mailReply": "답장",
+    "mailReplyAll": "전체 답장",
+    "mailForward": "전달",
+    "mailSend": "작성 중인 메시지 보내기",
+    "mailGoInbox": "받은편지함으로 이동",
+    "mailGoSent": "보낸편지함으로 이동",
+    "mailGoDrafts": "임시 보관함으로 이동",
+    "mailGoArchive": "보관함으로 이동",
+    "mailGoTrash": "휴지통으로 이동"
   }
 }

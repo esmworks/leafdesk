@@ -9,7 +9,7 @@ import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
 import { SelectBox, useSelection } from "@/components/selection";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
-import { showToast } from "@/components/toast";
+import { currentToast, dismissToast, showToast } from "@/components/toast";
 import { cn, IconButton } from "@/components/ui";
 import { MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
 import type { ComposeMode } from "./compose-start";
@@ -26,6 +26,9 @@ const SelectionBar = lazyPart(() => import("./selection-bar").then((m) => m.Sele
 /** How often the open folder asks the mail server for new mail while the page is in front. */
 const REFRESH_MS = 60_000;
 const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "move", "delete"];
+/** g then one of these opens the mailbox's folder of that role, within GO_MS of the g. */
+const GO_KEYS: Record<string, MailFolderView["role"]> = { i: "inbox", s: "sent", d: "drafts", a: "archive", t: "trash" };
+const GO_MS = 1500;
 /** Messages shown in the list are loaded ahead from the top, at most this many. */
 const AHEAD_TOP = 8;
 const aheadOf = (item: MailThreadItem) => loadAhead([item.messageId]);
@@ -181,6 +184,10 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const listRef = useRef<HTMLDivElement>(null);
   // Moves wait MAIL_UNDO_SECONDS for Undo before the mail server hears of them.
   const pending = useRef(new Map<string, { threadIds: string[]; run: () => void; timer: ReturnType<typeof setTimeout> }>());
+  // The last move while its Undo still can take it back, for ⌘/Ctrl+Z, and the note offering it.
+  const lastUndo = useRef<{ undo: () => void; toast: number | undefined } | null>(null);
+  // When g was pressed, for g i, g s, g d, g a and g t.
+  const goPressed = useRef(0);
   // What the list shows: an answer or an Undo for another mailbox, folder or search is dropped.
   const shownKey = box && folder ? `${box.id}|${folder.id}|${query}` : null;
   const shown = useRef(shownKey);
@@ -375,11 +382,21 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
       const key = crypto.randomUUID();
       const timer = setTimeout(() => {
         pending.current.delete(key);
+        if (lastUndo.current?.undo === undo) lastUndo.current = null;
         send();
       }, MAIL_UNDO_SECONDS * 1000);
       pending.current.set(key, { threadIds: ids, run: send, timer });
       const count = targets.length;
       const done = action as "archive";
+      const undo = () => {
+        const waiting = pending.current.get(key);
+        if (lastUndo.current?.undo === undo) lastUndo.current = null;
+        if (!waiting) return;
+        clearTimeout(waiting.timer);
+        pending.current.delete(key);
+        if (!query) countUnread(mailboxId, folderId, unseen);
+        if (shown.current === from) setList((l) => ({ ...l, items: [...l.items, ...targets].sort((a, b) => b.sentAt.localeCompare(a.sentAt)) }));
+      };
       showToast({
         message:
           count > 1
@@ -389,15 +406,9 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
             : to
               ? t("done.move", { folder: folderName(to) })
               : t(`done.${done}`),
-        undo: () => {
-          const waiting = pending.current.get(key);
-          if (!waiting) return;
-          clearTimeout(waiting.timer);
-          pending.current.delete(key);
-          if (!query) countUnread(mailboxId, folderId, unseen);
-          if (shown.current === from) setList((l) => ({ ...l, items: [...l.items, ...targets].sort((a, b) => b.sentAt.localeCompare(a.sentAt)) }));
-        },
+        undo,
       });
+      lastUndo.current = { undo, toast: currentToast()?.id };
     },
     [box, folder, items, threadId, query, go, loadPage, t, workspaceId, folderName],
   );
@@ -442,19 +453,42 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     setList((l) => ({ ...l, items: l.items.map((i) => (i.threadId === threadId ? { ...i, unread: false, unseen: 0 } : i)) }));
   }, [box, folder, threadId, query]);
 
-  // Keyboard: c new, / search, j/k next/previous, Enter/o open, x select, ⌘A select all, e archive,
-  // # trash, ! junk, s star, u unread, Shift+I read (the selection's, or the open thread's), r/a/f
-  // reply/all/forward, Esc back to the list (or out of the selection first).
+  // Keyboard (listed in lib/shortcuts.ts): c new, / search, j/k next/previous, Enter/o open, x
+  // select, ⌘A select all, e archive, # trash, ! junk, s star, u unread, Shift+I read (the
+  // selection's, or the open thread's), r/a/f reply/all/forward, Esc back to the list (or out of the
+  // selection first), ⌘Z undo the last move, g then i/s/d/a/t a folder.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (composing || menu) return;
-      if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key === "a" && items.length && !inField(e)) {
+      const mod = (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey;
+      if (mod && e.key.toLowerCase() === "a" && items.length && !inField(e)) {
         e.preventDefault();
         if (!selectionRef.current.all) selectionRef.current.toggleAll();
         return;
       }
+      if (mod && e.key.toLowerCase() === "z" && lastUndo.current && !inField(e)) {
+        e.preventDefault();
+        const { undo, toast } = lastUndo.current;
+        undo();
+        dismissToast(toast);
+        return;
+      }
       // With a conversation's menu open, keys are the menu's (Escape closes it).
       if (!forPage(e)) return;
+      if (Date.now() - goPressed.current < GO_MS) {
+        goPressed.current = 0;
+        const to = GO_KEYS[e.key] && box?.folders?.find((f) => f.role === GO_KEYS[e.key]);
+        if (!to) return;
+        e.preventDefault();
+        setCompose(null);
+        go({ f: to.id, t: null, q: null, c: null });
+        return;
+      }
+      if (e.key === "g") {
+        goPressed.current = Date.now();
+        e.preventDefault();
+        return;
+      }
       const at = items.findIndex((i) => i.threadId === threadId || (!!draftId && i.messageId === draftId));
       const current = at >= 0 && threadId ? items[at] : null;
       // The moves and flags are the selection's while there is one.
@@ -505,7 +539,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [items, picked, threadId, draftId, folder?.role, act, openThread, onSelect, go, composing, menu]);
+  }, [items, picked, threadId, draftId, box?.folders, folder?.role, act, openThread, onSelect, go, composing, menu]);
 
   // Search as typed, a moment after the last key.
   useEffect(() => {

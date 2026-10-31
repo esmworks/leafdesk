@@ -1,12 +1,14 @@
 {
   "title": "Kortkommandon",
   "or": "eller",
+  "then": "sedan",
   "groups": {
     "general": "Allmänt",
     "navigation": "Navigering",
     "text": "Textformatering",
     "blocks": "Block",
-    "databases": "Databaser"
+    "databases": "Databaser",
+    "mail": "E-post"
   },
   "items": {
     "shortcuts": "Visa kortkommandona",
@@ -61,6 +63,30 @@
     "rowComment": "Kommentera raden (med dess meny öppen)",
     "rowTrash": "Flytta raden till papperskorgen (med dess meny öppen)",
     "link": "Länka den markerade texten",
-    "newSubPage": "Skapa en sida i den här, länkad i texten (efter ett mellanslag)"
+    "newSubPage": "Skapa en sida i den här, länkad i texten (efter ett mellanslag)",
+    "mailCompose": "Skriv ett nytt meddelande",
+    "mailSearch": "Sök i e-post",
+    "mailNext": "Öppna nästa konversation",
+    "mailPrevious": "Öppna föregående konversation",
+    "mailOpen": "Öppna den första konversationen",
+    "mailBack": "Tillbaka till listan, eller rensa markeringen",
+    "mailSelect": "Markera den öppna konversationen",
+    "mailSelectAll": "Markera alla konversationer i listan",
+    "mailArchive": "Arkivera, eller flytta tillbaka till inkorgen",
+    "mailTrash": "Flytta till papperskorgen (ta bort permanent när den ligger där)",
+    "mailJunk": "Markera som skräppost",
+    "mailStar": "Stjärnmärk eller ta bort stjärnan",
+    "mailUnread": "Markera som oläst",
+    "mailRead": "Markera som läst",
+    "mailUndo": "Ångra den senaste flytten",
+    "mailReply": "Svara",
+    "mailReplyAll": "Svara alla",
+    "mailForward": "Vidarebefordra",
+    "mailSend": "Skicka meddelandet du skriver",
+    "mailGoInbox": "Gå till inkorgen",
+    "mailGoSent": "Gå till skickad e-post",
+    "mailGoDrafts": "Gå till utkast",
+    "mailGoArchive": "Gå till arkivet",
+    "mailGoTrash": "Gå till papperskorgen"
   }
 }

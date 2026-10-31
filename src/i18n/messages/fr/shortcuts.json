@@ -1,12 +1,14 @@
 {
   "title": "Raccourcis clavier",
   "or": "ou",
+  "then": "puis",
   "groups": {
     "general": "Général",
     "navigation": "Navigation",
     "text": "Mise en forme du texte",
     "blocks": "Blocs",
-    "databases": "Bases de données"
+    "databases": "Bases de données",
+    "mail": "E-mail"
   },
   "items": {
     "shortcuts": "Afficher les raccourcis clavier",
@@ -61,6 +63,30 @@
     "rowComment": "Commenter la ligne (son menu ouvert)",
     "rowTrash": "Mettre la ligne à la corbeille (son menu ouvert)",
     "link": "Lier le texte sélectionné",
-    "newSubPage": "Créer une page dans celle-ci, liée dans le texte (après une espace)"
+    "newSubPage": "Créer une page dans celle-ci, liée dans le texte (après une espace)",
+    "mailCompose": "Écrire un nouveau message",
+    "mailSearch": "Rechercher dans le courriel",
+    "mailNext": "Ouvrir la conversation suivante",
+    "mailPrevious": "Ouvrir la conversation précédente",
+    "mailOpen": "Ouvrir la première conversation",
+    "mailBack": "Revenir à la liste ou effacer la sélection",
+    "mailSelect": "Sélectionner la conversation ouverte",
+    "mailSelectAll": "Sélectionner toutes les conversations de la liste",
+    "mailArchive": "Archiver ou remettre dans la boîte de réception",
+    "mailTrash": "Déplacer vers la corbeille (dans la corbeille : supprimer définitivement)",
+    "mailJunk": "Marquer comme indésirable",
+    "mailStar": "Ajouter aux favoris ou retirer des favoris",
+    "mailUnread": "Marquer comme non lu",
+    "mailRead": "Marquer comme lu",
+    "mailUndo": "Annuler le dernier déplacement",
+    "mailReply": "Répondre",
+    "mailReplyAll": "Répondre à tous",
+    "mailForward": "Transférer",
+    "mailSend": "Envoyer le message en cours de rédaction",
+    "mailGoInbox": "Aller à la boîte de réception",
+    "mailGoSent": "Aller aux messages envoyés",
+    "mailGoDrafts": "Aller aux brouillons",
+    "mailGoArchive": "Aller aux archives",
+    "mailGoTrash": "Aller à la corbeille"
   }
 }
