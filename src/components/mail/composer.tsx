@@ -299,7 +299,8 @@ export function Composer({
       )}
       {pane ? (
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto flex min-h-full max-w-3xl flex-col px-6">
+          {/* As wide as the pane, lined up with its header and the bar under it. */}
+          <div className="flex min-h-full flex-col px-4">
             {fields}
             <div className="flex flex-1 cursor-text flex-col py-4" onMouseDown={(e) => e.target === e.currentTarget && (e.preventDefault(), editor?.commands.focus("end"))}>
               <MailEditorContent editor={editor} className="flex flex-1 flex-col [&_.ProseMirror]:flex-1" />
@@ -316,7 +317,7 @@ export function Composer({
           {attached}
         </>
       )}
-      {error && <p className={cn("pb-2 text-sm text-danger", pane ? "mx-auto w-full max-w-3xl px-6" : "px-3")}>{error}</p>}
+      {error && <p className={cn("pb-2 text-sm text-danger", pane ? "px-4" : "px-3")}>{error}</p>}
       {footer}
       {dropping && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] border-2 border-dashed border-accent bg-bg/80 text-sm font-medium text-accent">
