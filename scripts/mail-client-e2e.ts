@@ -4,9 +4,9 @@
  * reads its folders, with what each is for, and the newest of the inbox; threads join answers,
  * copies in the sent folder and replies without references by subject; a thread names the row its
  * other party is; a message's body comes from the server, its HTML without scripts and remote
- * images until asked for, with the images it carries inline, and it is marked read; a file
- * downloads as it was sent; archiving, starring, reading, the trash and deleting for good reach
- * the server and the index at once; an answer goes out in the same thread and lands in the sent
+ * images until asked for, with the images it carries inline, and it is marked read (not when
+ * loaded ahead); a file downloads as it was sent; archiving, starring, reading, the trash and
+ * deleting for good reach the server and the index at once; an answer goes out in the same thread and lands in the sent
  * folder; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
  * elsewhere; search finds by sender and subject; no one but the mailbox's owner reads it.
  * Creates its own users and workspace and deletes them afterwards.
@@ -248,6 +248,9 @@ try {
 
   // Bodies
   const bulten = bySubject("Ekim bülteni")!;
+  await read.prefetchBodies(ids.ada, { ids: [bulten.messageId] });
+  const [ahead] = await db.select().from(mailMessage).where(eq(mailMessage.id, bulten.messageId));
+  check(!ahead.seen && !(await uidsIn("INBOX", { seen: true })).includes(ahead.uid), "loading a message ahead leaves it unread, in the index and on the server");
   const body = await read.readBody(ids.ada, { id: bulten.messageId });
   check(body.html && !/<script|onclick|<form|<input/i.test(body.html), "the HTML comes without scripts, handlers or forms", body.html);
   check(body.blockedImages === 1 && !body.html!.includes("tracker.example"), "a remote image is left out until asked for", body);
@@ -265,7 +268,7 @@ try {
 
   // Who reads it
   check((await errorCode(() => read.listThreads(ids.bob, { mailboxId: boxId, folderId: inbox.id }))) === "noMailbox", "another member can't list it");
-  check((await errorCode(() => read.readBody(ids.bob, { id: bulten.messageId }))) === "noMailbox", "nor read its messages");
+  check((await errorCode(() => read.readBody(ids.bob, { id: bulten.messageId }))) === "noMailbox", "nor read its messages, held in memory or not");
   check((await errorCode(() => mailAction(ids.bob, { mailboxId: boxId, folderId: inbox.id, threadIds: [bulten.threadId], action: "trash" }))) === "noMailbox", "nor change them");
 
   // Actions
