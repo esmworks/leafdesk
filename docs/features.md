@@ -1246,8 +1246,11 @@
   owner ticks *In chat* for its `get_spreadsheet` tool), so the spreadsheet needs no public link.
   Paste the sheet's address (its `gid` picks the sheet, the first one without); the header row is
   the sheet's last frozen row unless you name another, and the rows above it (totals, rates) are
-  left out. The column that finds each row again is the first named column unless you name
-  another, the one that names it the key column unless you name another; every other column with
+  left out. Name a key column, one with a different value in every row, and each row is found
+  again by it (a key column repeating a value is refused, and a run that finds repeats later
+  takes the first row of each and counts the others in the sync dialog); leave it empty, as for a
+  ledger of dates and names, and rows are found by their place in the sheet. The column that names
+  rows is the key column, else the first, unless you name another; every other column with
   a header becomes a property by what its cells hold, read typed rather than as the spreadsheet's
   language writes them: numbers, dates, dates with times (in the spreadsheet's time zone),
   checkboxes, and text for anything mixed (as the sheet shows it). Columns are matched by their
@@ -1256,7 +1259,14 @@
   sheet's values over and add new rows; rows that leave the sheet stay. A connection signed out of
   Google, one the sync's person may no longer read through, a missing spreadsheet or sheet, or a
   renamed key column pauses it; the sync dialog can switch it to another connection. Each read is
-  in the audit log as a call of the connection. **Direction** (in the Import tab and the sync
+  in the audit log as a call of the connection. A sync by place keeps each row's sheet row number
+  in a hidden *Row* property and makes a property of every named column, the one naming rows too.
+  Each row with anything in it is a row, the same values twice included; inserting, deleting or
+  sorting rows in the sheet moves values between rows here, and a row whose place empties goes to
+  the trash (without its number, so a later row there comes in anew). It only reads. A keyed sync
+  whose key column repeats a value or was taken away (its property deleted or retyped) offers
+  *Find rows by place* in its dialog: its rows go to the trash and come back from the sheet, the
+  properties of the same names kept (one retyped since, say text to date, keeps its type). **Direction** (in the Import tab and the sync
   dialog, for people with full access to the database) is *From the sheet only* or *Both ways*.
   Both ways needs the connection's `update_values` and `insert_dimension` tools (owners; members once
   an owner ticks *In chat* for both) and a sync on a schedule: a change made to a synced property

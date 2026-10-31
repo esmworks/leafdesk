@@ -199,6 +199,13 @@
 
 ### Fixed
 
+- **Google Sheets syncs no longer need a column with a different value in every row.** A sync set
+  up with the key column left empty finds rows by their place in the sheet, so ledgers of dates,
+  names and amounts come in whole, rows that repeat each other included. Before, an empty key
+  column meant the first column, and a key repeating a value silently kept only the first row
+  with it. Now a named key column that repeats a value is refused, a run that finds repeats later
+  counts the rows it left out in the sync dialog, and a sync whose key repeats or was taken away
+  can switch to finding rows by place there. Syncs by place only read. No migration.
 - **The settings' navigation keeps its top in place.** Only its list of settings scrolls now; the
   way back and the search stay put, so in the desktop app they no longer slide under the window's
   buttons.

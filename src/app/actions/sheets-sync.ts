@@ -9,7 +9,17 @@ import type { SheetsSource, SheetsSyncView } from "@/lib/sheets-sync";
 import { AccessError } from "@/server/access";
 import { JiraError } from "@/server/jira-sync/client";
 import type { SyncOutcome } from "@/server/jira-sync/run";
-import { createSheetsSync, getSheetsSync, sheetsSources, stopSheetsSync, syncSheetsNow, updateSheetsSync, type SheetsSyncPatch } from "@/server/sheets-sync/manage";
+import {
+  createSheetsSync,
+  getSheetsSync,
+  SheetsSetupError,
+  sheetsSources,
+  stopSheetsSync,
+  syncSheetsByPlace,
+  syncSheetsNow,
+  updateSheetsSync,
+  type SheetsSyncPatch,
+} from "@/server/sheets-sync/manage";
 import { requireUserId } from "@/server/session";
 import { SyncSetupLimited } from "@/server/sync-setup";
 import { TeamspaceError } from "@/server/teamspaces";
@@ -28,6 +38,10 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
       const message = t(error.code);
       return { ok: false, error: error.code === "badQuery" && error.detail ? `${message} ${error.detail}` : message, code: error.code };
     }
+    if (error instanceof SheetsSetupError) {
+      const t = await getTranslations("import.sheets.errors");
+      return { ok: false, error: t(error.code) };
+    }
     if (error instanceof SyncSetupLimited) {
       const t = await getTranslations("import.errors");
       return { ok: false, error: t("rateLimited") };
@@ -41,6 +55,9 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
     return { ok: false, error: t("genericError") };
   }
 }
+
+/** The name of a sync by place's row number property, in the person's language. */
+const rowName = async () => (await getTranslations("database.sheetsSync"))("rowProperty");
 
 /** The Google Sheets connections the person may sync through. */
 export async function sheetsSourcesAction(workspaceId: string): Promise<ActionResult<SheetsSource[]>> {
@@ -80,6 +97,7 @@ export async function createSheetsSyncAction(value: SheetsSyncSetup): Promise<Ac
         titleColumn: typeof value?.titleColumn === "string" ? value.titleColumn : undefined,
         intervalMinutes: value?.intervalMinutes,
         direction: value?.direction,
+        rowName: await rowName(),
         seedNames: await databaseSeedNames().catch(() => undefined),
       },
     );
@@ -100,6 +118,11 @@ export async function updateSheetsSyncAction(databaseId: string, patch: SheetsSy
   return run((userId) =>
     updateSheetsSync(userId, String(databaseId), { intervalMinutes: patch?.intervalMinutes, connectionId: patch?.connectionId, direction: patch?.direction }),
   );
+}
+
+/** Finds the sync's rows by their place in the sheet from now on: its rows come back from the sheet. */
+export async function syncSheetsByPlaceAction(databaseId: string): Promise<ActionResult<SheetsSyncView & { outcome: SyncOutcome }>> {
+  return run(async (userId) => syncSheetsByPlace(userId, String(databaseId), await rowName()));
 }
 
 export async function stopSheetsSyncAction(databaseId: string): Promise<ActionResult> {

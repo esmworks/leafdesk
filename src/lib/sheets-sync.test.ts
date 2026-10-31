@@ -15,6 +15,7 @@ import {
   serialTime,
   sheetHeaders,
   sheetItems,
+  repeatedKeys,
   sameValue,
   sheetInput,
   sheetRange,
@@ -173,7 +174,7 @@ describe("sheetItems", () => {
   };
 
   it("makes a row of each line with a key, named by the title column or else its key", () => {
-    expect(sheetItems(grid, { keyColumn: "ÜRÜN", titleColumn: "Ad" }, mapping, "UTC")).toEqual([
+    expect(sheetItems(grid, { keyColumn: "ÜRÜN", titleColumn: "Ad", headerRow: 1 }, mapping, "UTC")).toEqual([
       { key: "GNA 1.500-1 N", title: "Birinci", values: { p_key: "GNA 1.500-1 N", p_price: 432, p_state: "-1" } },
       { key: "GNA 2.000-1 N", title: "GNA 2.000-1 N", values: { p_key: "GNA 2.000-1 N", p_price: 542, p_state: "EKSİK YOK" } },
       { key: "GNA 2.500-1 N", title: "GNA 2.500-1 N", values: { p_key: "GNA 2.500-1 N", p_price: null, p_state: "-11" } },
@@ -181,7 +182,43 @@ describe("sheetItems", () => {
   });
 
   it("has nothing to go on when the key column's header is gone", () => {
-    expect(sheetItems(grid, { keyColumn: "SKU", titleColumn: "Ad" }, mapping, "UTC")).toBeNull();
+    expect(sheetItems(grid, { keyColumn: "SKU", titleColumn: "Ad", headerRow: 1 }, mapping, "UTC")).toBeNull();
+  });
+});
+
+describe("sheetItems by place", () => {
+  // Payments: the same day, firm and amount more than once, and no column of ids.
+  const grid = [
+    [text("Tarih"), text("Firma"), text("Tutar"), text(""), text("Not")],
+    [num(46330, "04.11.2026", "DATE"), text("Frigoduman"), num(2390)],
+    [num(46330, "04.11.2026", "DATE"), text("Frigoduman"), num(2390)],
+    [],
+    [text(" "), {}, {}, text("ignored: no header")],
+    [{}, {}, {}, {}, text("only a note")],
+  ];
+  const mapping = {
+    key: "p_row",
+    columns: [
+      { column: "Tarih", property: "p_day", kind: "date" as const },
+      { column: "Firma", property: "p_firm", kind: "text" as const },
+      { column: "Tutar", property: "p_amount", kind: "number" as const },
+      { column: "Not", property: "p_note", kind: "text" as const },
+    ],
+  };
+
+  it("makes a row of each line with anything in a named column, keyed by its sheet row, repeats and all", () => {
+    expect(sheetItems(grid, { keyColumn: "", titleColumn: "Firma", headerRow: 3 }, mapping, "UTC")).toEqual([
+      { key: "4", title: "Frigoduman", values: { p_row: 4, p_day: "2026-11-04", p_firm: "Frigoduman", p_amount: 2390, p_note: null } },
+      { key: "5", title: "Frigoduman", values: { p_row: 5, p_day: "2026-11-04", p_firm: "Frigoduman", p_amount: 2390, p_note: null } },
+      { key: "8", title: "", values: { p_row: 8, p_day: null, p_firm: null, p_amount: null, p_note: "only a note" } },
+    ]);
+  });
+
+  it("counts the rows a keyed run leaves out for repeating a key", () => {
+    const keyed = sheetItems(grid, { keyColumn: "Tarih", titleColumn: "Firma", headerRow: 3 }, mapping, "UTC")!;
+    expect(keyed.map((item) => item.key)).toEqual(["04.11.2026", "04.11.2026"]);
+    expect(repeatedKeys(keyed)).toBe(1);
+    expect(repeatedKeys([])).toBe(0);
   });
 });
 

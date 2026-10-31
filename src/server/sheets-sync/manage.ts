@@ -1,19 +1,23 @@
-import { count, eq } from "drizzle-orm";
+import { and, count, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { connection, databaseSync, databaseView, sheetsWrite } from "@/db/schema";
+import { connection, databaseSync, databaseView, page, sheetsWrite } from "@/db/schema";
 import type { ImportResult } from "@/lib/import/result";
 import { DEFAULT_JIRA_INTERVAL, isJiraInterval } from "@/lib/jira-sync";
 import {
+  byPlace,
   KIND_TYPES,
   kindOf,
   MAX_HEADER_ROW,
   MAX_SHEET_COLUMNS,
   parseSheetLink,
+  repeatedKeys,
   sheetHeaders,
+  sheetItems,
   sheetLink,
   sheetsAccess,
   sheetsWriteAccess,
   SHEETS_DIRECTIONS,
+  SHEETS_KINDS,
   type SheetsDirection,
   type SheetsMapping,
   type SheetsQuery,
@@ -22,15 +26,15 @@ import {
 } from "@/lib/sheets-sync";
 import { AccessError, requireMembership, requirePageAccess } from "@/server/access";
 import type { WriteActor } from "@/server/collab/bridge";
-import { addProperty, requireDatabase, updateView } from "@/server/databases";
+import { addProperty, getProperties, MAX_BULK_ROWS, requireDatabase, updateView } from "@/server/databases";
 import { discardDatabase, recordImport } from "@/server/import/csv";
 import { JiraError } from "@/server/jira-sync/client";
 import { claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "@/server/jira-sync/run";
-import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
+import { archiveRows, createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
 import { sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
 import { dropSyncWrites, forgetTwoWaySyncs } from "@/server/sync-writes";
-import { applySheetRows, readSheet, sheetsConnection, type SheetsConnection } from "./run";
+import { applySheetRows, readSheet, sheetsConnection, type ReadSheet, type SheetsConnection } from "./run";
 import { asSetup } from "@/server/database-changes";
 
 /**
@@ -38,7 +42,9 @@ import { asSetup } from "@/server/database-changes";
  * recorded by server/jira-sync/run). Setting one up reads the sheet through a Google Sheets
  * connection of the database's workspace and makes a database like an import: the key column as
  * text, a property for each other named column (numbers, checkboxes, dates, times, text, by the
- * cells below the header), the title column as the rows' titles. Changing, syncing and stopping
+ * cells below the header), the title column as the rows' titles. Without a key column it syncs by
+ * place (lib/sheets-sync): every named column a property, the sheet row number a hidden one; a key
+ * column must hold a different value in every row, and writing back needs one. Changing, syncing and stopping
  * need full access to the database; whoever changes a sync or syncs it by hand is who it runs as
  * from then on, and they must be allowed to read through the connection. Nothing secret is kept:
  * the connection holds the Google sign-in.
@@ -65,11 +71,35 @@ function requireSchedule(direction: SheetsDirection, intervalMinutes: number) {
   if (direction === "both" && intervalMinutes <= 0) throw new JiraError("invalidInput", "Writing back needs the sync to run on a schedule");
 }
 
+/** Why a setup or change is refused besides a run's errors: a key column repeating a value, writing back without one. */
+export class SheetsSetupError extends Error {
+  constructor(readonly code: "repeatedKey" | "bothNeedsKey") {
+    super(code);
+  }
+}
+
 /** Whether `userId` may write spreadsheets through the connection. */
 
 const mayWrite = (row: SheetsConnection) => sheetsWriteAccess(row, row.role);
 
 const header = (value: unknown) => (typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "");
+
+/** The sheet's named columns that become properties, with the kind their cells make: a keyed sync's key and title columns aren't. */
+function sheetColumns(read: ReadSheet, query: Pick<SheetsQuery, "keyColumn" | "titleColumn">) {
+  const below = read.grid.slice(1);
+  return sheetHeaders(read.grid[0] ?? [])
+    .filter((h) => byPlace(query) || (h.name !== query.keyColumn && h.name !== query.titleColumn))
+    .slice(0, MAX_SHEET_COLUMNS)
+    .map((h) => ({ name: h.name, kind: kindOf(below.map((cells) => cells[h.index])) }));
+}
+
+/** Leaves properties out of every view of a database. */
+async function hideEverywhere(userId: string, databaseId: string, ids: string[]) {
+  for (const shown of await db.select({ id: databaseView.id, config: databaseView.config }).from(databaseView).where(eq(databaseView.databaseId, databaseId))) {
+    const hidden = shown.config.hidden ?? [];
+    await updateView(userId, shown.id, { config: { ...shown.config, hidden: [...hidden, ...ids.filter((id) => !hidden.includes(id))] } });
+  }
+}
 
 /** The connections the person may sync spreadsheets through, in the order they were added. */
 export async function sheetsSources(userId: string, workspaceId: string): Promise<SheetsSource[]> {
@@ -99,10 +129,12 @@ export type SheetsSyncInput = {
   link: unknown;
   /** The row of column names, from 1; the sheet's last frozen row (else the first) when left out. */
   headerRow?: unknown;
-  /** The column that finds each row again; the first named column when left out. */
+  /** The column that finds each row again, with a different value in each; rows are found by their place when left out. */
   keyColumn?: unknown;
-  /** The column that names each row; the key column when left out. */
+  /** The column that names each row; the key column, else the first named column, when left out. */
   titleColumn?: unknown;
+  /** The name of a sync by place's row number property; "Row" when left out. */
+  rowName?: string;
   intervalMinutes?: unknown;
   /** "both" to write changes made in Leafdesk back to the sheet; "read" when left out. */
   direction?: unknown;
@@ -123,6 +155,7 @@ async function untrackedCreateSheetsSync(actor: WriteActor, input: SheetsSyncInp
   const headerRow = input.headerRow === undefined || input.headerRow === null || input.headerRow === "" ? null : Number(input.headerRow);
   if (headerRow !== null && (!Number.isInteger(headerRow) || headerRow < 1 || headerRow > MAX_HEADER_ROW)) throw new JiraError("invalidInput", "Not a header row");
   const asked = { key: header(input.keyColumn), title: header(input.titleColumn) };
+  if (!asked.key && way === "both") throw new SheetsSetupError("bothNeedsKey");
 
   await requireDatabasePlace(userId, input);
   const workspaceId = input.parentId ? (await requirePageAccess(userId, input.parentId, "edit")).workspaceId : input.workspaceId;
@@ -132,10 +165,10 @@ async function untrackedCreateSheetsSync(actor: WriteActor, input: SheetsSyncInp
   const read = await readSheet(userId, row, target.spreadsheetId, target.sheetId, headerRow);
   const headers = sheetHeaders(read.grid[0] ?? []);
   const has = (name: string) => headers.some((h) => h.name === name);
-  const keyColumn = asked.key || headers[0]?.name;
-  if (!keyColumn || !has(keyColumn)) throw new JiraError("invalidInput", "No such key column (check the header row)");
-  const titleColumn = asked.title || keyColumn;
-  if (!has(titleColumn)) throw new JiraError("invalidInput", "No such title column");
+  const keyColumn = asked.key;
+  if (keyColumn && !has(keyColumn)) throw new JiraError("invalidInput", "No such key column (check the header row)");
+  const titleColumn = asked.title || keyColumn || headers[0]?.name;
+  if (!titleColumn || !has(titleColumn)) throw new JiraError("invalidInput", "No such title column");
   const query: SheetsQuery = {
     connectionId: row.id,
     spreadsheetId: target.spreadsheetId,
@@ -146,11 +179,9 @@ async function untrackedCreateSheetsSync(actor: WriteActor, input: SheetsSyncInp
     titleColumn,
     direction: way,
   };
-  const below = read.grid.slice(1);
-  const columns = headers
-    .filter((h) => h.name !== keyColumn && h.name !== titleColumn)
-    .slice(0, MAX_SHEET_COLUMNS)
-    .map((h) => ({ name: h.name, kind: kindOf(below.map((cells) => cells[h.index])) }));
+  // Rows sharing a key would be one row: the first, the others left out.
+  if (keyColumn && repeatedKeys(sheetItems(read.grid, query, {}, read.meta.timeZone) ?? [])) throw new SheetsSetupError("repeatedKey");
+  const columns = sheetColumns(read, query);
 
   const database = await createPage(
     actor,
@@ -166,18 +197,17 @@ async function untrackedCreateSheetsSync(actor: WriteActor, input: SheetsSyncInp
     { audit: false },
   );
   try {
-    const key = (await addProperty(userId, database.id, { name: keyColumn, type: "text" })).id;
+    const key = keyColumn
+      ? (await addProperty(userId, database.id, { name: keyColumn, type: "text" })).id
+      : (await addProperty(userId, database.id, { name: input.rowName?.trim() || "Row", type: "number" })).id;
     const mapping: SheetsMapping = { key, columns: [] };
     for (const column of columns) {
       const prop = await addProperty(userId, database.id, { name: column.name, type: KIND_TYPES[column.kind] });
       mapping.columns.push({ column: column.name, property: prop.id, kind: column.kind });
     }
-    // A key that also names the rows would show twice: the table shows it as the title only.
-    if (titleColumn === keyColumn) {
-      for (const shown of await db.select({ id: databaseView.id, config: databaseView.config }).from(databaseView).where(eq(databaseView.databaseId, database.id))) {
-        await updateView(userId, shown.id, { config: { ...shown.config, hidden: [...(shown.config.hidden ?? []), key] } });
-      }
-    }
+    // A column that also names the rows would show twice: the table shows it as the title only. A row number is the sync's own.
+    const named = keyColumn ? [] : mapping.columns.filter((c) => c.column === titleColumn).map((c) => c.property);
+    if (!keyColumn || titleColumn === keyColumn) await hideEverywhere(userId, database.id, [key, ...named]);
     const written = await applySheetRows(database, userId, query, mapping, read);
     const now = new Date();
     await db.insert(databaseSync).values({
@@ -260,6 +290,7 @@ async function view(row: SheetsSyncRow, viewer: string | null, now = new Date())
     writeErrorDetail: manage ? (row.query.writeErrorDetail ?? null) : null,
     formulaColumns: row.query.formulaColumns ?? [],
     pendingWrites: waiting?.n ?? 0,
+    repeatedKeys: row.query.repeatedKeys ?? 0,
   };
 }
 
@@ -311,6 +342,7 @@ export async function updateSheetsSync(userId: string, databaseId: string, patch
   }
   const way = patch.direction === undefined ? (row.query.direction ?? "read") : direction(patch.direction);
   requireSchedule(way, changes.intervalMinutes ?? row.intervalMinutes);
+  if (way === "both" && byPlace(row.query)) throw new SheetsSetupError("bothNeedsKey");
   let through = null;
   if (patch.connectionId !== undefined && patch.connectionId !== row.query.connectionId) {
     takeSyncSetup(userId);
@@ -332,6 +364,47 @@ export async function updateSheetsSync(userId: string, databaseId: string, patch
   if (way === "read") await dropSyncWrites(row.id);
   if (through && through.id !== row.query.connectionId) return syncSheetsNow(userId, databaseId);
   return { ...(await view((await syncOf(databaseId))!, userId)), outcome: null };
+}
+
+/**
+ * Turns a keyed sync into one by place (lib/sheets-sync), for a sheet without a column of
+ * different values: its rows go to the trash and come back from the sheet, one per sheet row. Every
+ * named column gets a property, the one of its name it had (a key column becomes an ordinary one;
+ * one retyped keeps its type), and the row number a new hidden one named `rowName`. Only for a sync
+ * that reads; it runs at once, as the person asking.
+ */
+export async function syncSheetsByPlace(userId: string, databaseId: string, rowName: string) {
+  const row = await requireSync(userId, databaseId);
+  if (byPlace(row.query)) return syncSheetsNow(userId, databaseId);
+  if ((row.query.direction ?? "read") === "both") throw new SheetsSetupError("bothNeedsKey");
+  if (row.runningUntil && row.runningUntil > new Date()) throw new JiraError("alreadyRunning", "The sync is running");
+  takeSyncSetup(userId);
+  const read = await readSheet(userId, await sheetsConnection(userId, row.query.connectionId), row.query.spreadsheetId, row.query.sheetId, row.query.headerRow);
+  const headers = sheetHeaders(read.grid[0] ?? []);
+  const titleColumn = headers.some((h) => h.name === row.query.titleColumn) ? row.query.titleColumn : headers[0]?.name;
+  if (!titleColumn) throw new JiraError("invalidInput", "The header row names no columns");
+  const query: SheetsQuery = { ...row.query, keyColumn: "", titleColumn, repeatedKeys: 0, writeError: null, writeErrorDetail: null };
+
+  const props = await getProperties(databaseId);
+  const mapping: SheetsMapping = { key: (await addProperty(userId, databaseId, { name: rowName.trim() || "Row", type: "number" })).id, columns: [] };
+  for (const column of sheetColumns(read, query)) {
+    // One retyped since keeps its type: its column is read as that kind (cells that aren't come in empty).
+    const same = props.find((p) => p.name === column.name && p.type === KIND_TYPES[column.kind]);
+    const retyped = same ? null : props.find((p) => p.name === column.name && SHEETS_KINDS.some((kind) => kind !== "time" && KIND_TYPES[kind] === p.type));
+    const kind = retyped ? SHEETS_KINDS.find((k) => k !== "time" && KIND_TYPES[k] === retyped.type)! : column.kind;
+    const property = (same ?? retyped)?.id ?? (await addProperty(userId, databaseId, { name: column.name, type: KIND_TYPES[kind] })).id;
+    mapping.columns.push({ column: column.name, property, kind });
+  }
+  await hideEverywhere(userId, databaseId, [mapping.key]);
+  await db.update(databaseSync).set({ query, mapping, lastError: null, lastErrorDetail: null }).where(eq(databaseSync.id, row.id));
+  const rows = (
+    await db
+      .select({ id: page.id })
+      .from(page)
+      .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), isNull(page.archivedAt)))
+  ).map((r) => r.id);
+  for (let i = 0; i < rows.length; i += MAX_BULK_ROWS) await archiveRows(userId, databaseId, rows.slice(i, i + MAX_BULK_ROWS));
+  return syncSheetsNow(userId, databaseId);
 }
 
 /** Stops syncing: the database and its rows stay as they are. */

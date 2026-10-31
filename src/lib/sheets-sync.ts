@@ -16,7 +16,15 @@ import { contentRole } from "./workspace-roles";
  * The header row names the columns: each row below it with a key becomes a row, found again by
  * its key column's text, named by its title column, with a property for each other named column
  * (SheetsMapping, by header). Rows above the header are left out, as are columns without a
- * header. Rows that leave the sheet stay as they are.
+ * header. Rows that leave the sheet stay as they are; a row repeating an earlier row's key is
+ * left out (`repeatedKeys`).
+ *
+ * A sheet without a column whose values differ in every row is synced by place (`keyColumn` ""):
+ * each row below the header with anything in it is found again by its sheet row number, kept in a
+ * hidden number property (the mapping's key), the title column is a property too, and a row whose
+ * place has nothing in it any more goes to the trash, its number taken off first so it never
+ * stands for a later row there. Inserting, deleting or sorting rows in the sheet moves values
+ * between rows. Such a sync only reads.
  *
  * A sync reads only, or writes back too (`direction` "both"): then changes made to its rows in
  * Leafdesk wait in `sheets_write` and the next run writes them to the sheet with the connection's
@@ -59,10 +67,13 @@ export type SheetsQuery = {
   sheetTitle: string;
   /** The row of column names, counted from 1. */
   headerRow: number;
+  /** "" for a sync by place (see above). */
   keyColumn: string;
   titleColumn: string;
   /** "read" when left out. */
   direction?: SheetsDirection;
+  /** Rows the last run left out for repeating an earlier row's key. */
+  repeatedKeys?: number;
   /** Why the last run couldn't write to the sheet (its reading went on), with Google's words. */
   writeError?: SheetsSyncError | null;
   writeErrorDetail?: string | null;
@@ -73,6 +84,12 @@ export type SheetsQuery = {
 /** How a column's values are written: the kind of property it became. */
 export const SHEETS_KINDS = ["text", "number", "checkbox", "date", "time"] as const;
 export type SheetsKind = (typeof SHEETS_KINDS)[number];
+
+/** Whether a sync finds rows by their place in the sheet, having no key column. */
+export const byPlace = (query: Pick<SheetsQuery, "keyColumn">) => !query.keyColumn;
+
+/** The type of a sync's key property: the key column's text, or the sheet row number of a sync by place. */
+export const keyType = (query: Pick<SheetsQuery, "keyColumn">): PropertyType => (byPlace(query) ? "number" : "text");
 
 /** The properties a sync writes: the key, and one per column, by its header (their ids in the database). */
 export type SheetsMapping = {
@@ -111,6 +128,7 @@ export type SheetsSyncView = {
   /** With full access: the connections the viewer may read through, to switch to. */
   choices: SheetsSource[];
   headerRow: number;
+  /** "" for a sync by place. */
   keyColumn: string;
   titleColumn: string;
   intervalMinutes: number;
@@ -129,6 +147,8 @@ export type SheetsSyncView = {
   formulaColumns: string[];
   /** Rows whose changes wait to be written. */
   pendingWrites: number;
+  /** Rows the last run left out for repeating an earlier row's key. */
+  repeatedKeys: number;
 };
 
 /** A connection the person may sync through, as the import dialog shows it (never its secrets). */
@@ -356,17 +376,37 @@ export function cellValue(kind: SheetsKind, cell: SheetCell | undefined, timeZon
   }
 }
 
-/** The sheet's rows below the header as synced items: those with a key, in the sheet's order. */
-export function sheetItems(grid: SheetCell[][], query: Pick<SheetsQuery, "keyColumn" | "titleColumn">, mapping: Partial<SheetsMapping>, timeZone: string) {
+/**
+ * The sheet's rows below the header as synced items, in the sheet's order: those with a key, or for
+ * a sync by place those with anything in a named column, keyed by their sheet row number. Null
+ * when the key column is gone.
+ */
+export function sheetItems(
+  grid: SheetCell[][],
+  query: Pick<SheetsQuery, "keyColumn" | "titleColumn" | "headerRow">,
+  mapping: Partial<SheetsMapping>,
+  timeZone: string,
+) {
   const headers = sheetHeaders(grid[0] ?? []);
   const at = (name: string) => headers.find((h) => h.name === name)?.index;
-  const key = at(query.keyColumn);
-  if (key === undefined) return null;
-  const title = at(query.titleColumn) ?? key;
   const columns = (mapping.columns ?? []).flatMap((c) => {
     const index = at(c.column);
     return index === undefined ? [] : [{ ...c, index }];
   });
+  if (byPlace(query)) {
+    const title = at(query.titleColumn);
+    return grid.slice(1).flatMap((row, i) => {
+      if (!headers.some((h) => cellText(row[h.index]).trim())) return [];
+      const place = query.headerRow + i + 1;
+      const values: Record<string, unknown> = {};
+      if (mapping.key) values[mapping.key] = place;
+      for (const c of columns) values[c.property] = cellValue(c.kind, row[c.index], timeZone);
+      return [{ key: String(place), title: title === undefined ? "" : cellText(row[title]).trim().slice(0, 2000), values }];
+    });
+  }
+  const key = at(query.keyColumn);
+  if (key === undefined) return null;
+  const title = at(query.titleColumn) ?? key;
   return grid.slice(1).flatMap((row) => {
     const keyText = cellText(row[key]).trim().slice(0, 2000);
     if (!keyText) return [];
@@ -376,6 +416,9 @@ export function sheetItems(grid: SheetCell[][], query: Pick<SheetsQuery, "keyCol
     return [{ key: keyText, title: cellText(row[title]).trim().slice(0, 2000) || keyText, values }];
   });
 }
+
+/** How many items repeat an earlier item's key (a run keeps the first). */
+export const repeatedKeys = (items: { key: string }[]) => items.length - new Set(items.map((item) => item.key)).size;
 
 /** Whether a cell holds a formula. */
 const isFormula = (cell: SheetCell | undefined) => typeof cell?.userEnteredValue?.formulaValue === "string";

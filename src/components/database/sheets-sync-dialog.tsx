@@ -3,7 +3,7 @@
 import { ExternalLink, RefreshCw } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { getSheetsSyncAction, stopSheetsSyncAction, syncSheetsNowAction, updateSheetsSyncAction } from "@/app/actions/sheets-sync";
+import { getSheetsSyncAction, stopSheetsSyncAction, syncSheetsByPlaceAction, syncSheetsNowAction, updateSheetsSyncAction } from "@/app/actions/sheets-sync";
 import { Button, Dialog, DialogBody, DialogHeader, selectClass } from "@/components/ui";
 import { JIRA_INTERVALS, jiraIntervalKey } from "@/lib/jira-sync";
 import { sheetLink, type SheetsDirection, type SheetsSyncView } from "@/lib/sheets-sync";
@@ -11,7 +11,8 @@ import { sheetLink, type SheetsDirection, type SheetsSyncView } from "@/lib/shee
 /**
  * A synced database's Google Sheets sync: the sheet it reads (with a link to open it), the
  * connection it reads through, the header row, key and title columns, when it last synced and what
- * went wrong (with Google's words for a refused read, for those who may change it), whether it
+ * went wrong (with Google's words for a refused read, for those who may change it), rows left out
+ * for repeating a key (with finding rows by place instead, when its key is no use), whether it
  * writes back (with the columns it doesn't write, the changes waiting and why writing failed), and,
  * for people with full access to the database, how often, the direction (both ways when they may
  * write through the connection, and only on a schedule), syncing now, another connection, and
@@ -105,7 +106,7 @@ export default function SheetsSyncDialog({ databaseId, onClose, onChanged }: { d
               <dt className="text-fg-muted">{ti("sheets.headerRow")}</dt>
               <dd>{sync.headerRow}</dd>
               <dt className="text-fg-muted">{ti("postgres.key")}</dt>
-              <dd className="min-w-0 truncate">{sync.keyColumn}</dd>
+              <dd className="min-w-0 truncate">{sync.keyColumn || t("byPlace")}</dd>
               <dt className="text-fg-muted">{ti("postgres.titleColumn")}</dt>
               <dd className="min-w-0 truncate">{sync.titleColumn}</dd>
               <dt className="text-fg-muted">{ti("jira.every")}</dt>
@@ -139,7 +140,7 @@ export default function SheetsSyncDialog({ databaseId, onClose, onChanged }: { d
                     onChange={(e) => void act(() => updateSheetsSyncAction(databaseId, { direction: e.target.value as SheetsDirection }), setSync)}
                   >
                     <option value="read">{ti("sheets.directionRead")}</option>
-                    <option value="both" disabled={!sync.canWrite || sync.intervalMinutes === 0}>
+                    <option value="both" disabled={!sync.canWrite || sync.intervalMinutes === 0 || !sync.keyColumn}>
                       {ti("sheets.directionBoth")}
                     </option>
                   </select>
@@ -170,16 +171,36 @@ export default function SheetsSyncDialog({ databaseId, onClose, onChanged }: { d
                 {sync.lastErrorDetail && <span className="mt-1 block text-xs break-words text-fg-muted">{sync.lastErrorDetail}</span>}
               </p>
             )}
+            {sync.keyColumn && (sync.repeatedKeys > 0 || sync.lastError === "keyGone") && (
+              <div className="space-y-2 rounded-md border border-border px-3 py-2 text-sm">
+                {sync.repeatedKeys > 0 && <p>{t("repeated", { count: sync.repeatedKeys })}</p>}
+                {sync.canManage && sync.direction === "read" && (
+                  <>
+                    <p className="text-xs text-fg-muted">{t("byPlaceHelp")}</p>
+                    <Button
+                      variant="secondary"
+                      disabled={busy || sync.running}
+                      onClick={() => {
+                        if (!confirm(t("byPlaceConfirm"))) return;
+                        void act(() => syncSheetsByPlaceAction(databaseId), setSync);
+                      }}
+                    >
+                      {t("byPlaceButton")}
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
             {sync.direction === "both" ? (
               <div className="space-y-1 text-xs text-fg-muted">
                 <p>{ti("sheets.directionBothHelp")}</p>
                 {sync.formulaColumns.length > 0 && <p>{t("formulaColumns", { columns: sync.formulaColumns.join(", ") })}</p>}
               </div>
             ) : (
-              <p className="text-xs text-fg-muted">{t("overwrite")}</p>
+              <p className="text-xs text-fg-muted">{t(sync.keyColumn ? "overwrite" : "overwritePlace")}</p>
             )}
-            {sync.canManage && sync.direction === "read" && !sync.canWrite && <p className="text-xs text-fg-muted">{ti("sheets.directionNoWrite")}</p>}
-            {sync.canManage && sync.direction === "read" && sync.canWrite && sync.intervalMinutes === 0 && (
+            {sync.canManage && sync.direction === "read" && !sync.canWrite && sync.keyColumn && <p className="text-xs text-fg-muted">{ti("sheets.directionNoWrite")}</p>}
+            {sync.canManage && sync.direction === "read" && sync.canWrite && sync.keyColumn && sync.intervalMinutes === 0 && (
               <p className="text-xs text-fg-muted">{ti("sheets.bothNeedsSchedule")}</p>
             )}
 

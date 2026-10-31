@@ -5,6 +5,7 @@ import { answerJson, answerText, type ToolAnswer } from "@/lib/import/google-doc
 import { PropertyValueError } from "@/lib/properties";
 import { redactError, redactText } from "@/lib/redact";
 import {
+  byPlace,
   cellRange,
   defaultHeaderRow,
   GRID_FIELDS,
@@ -13,7 +14,9 @@ import {
   MAX_SHEET_CELLS,
   MAX_SHEET_WRITES,
   META_FIELDS,
+  keyType,
   planWrites,
+  repeatedKeys,
   readGrid,
   readMeta,
   sheetCells,
@@ -37,9 +40,10 @@ import { AccessError, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { callConnectionTool, classify, type ConnectionRow } from "@/server/connections/client";
 import { inputSummary } from "@/server/connections/tools";
-import { getProperties } from "@/server/databases";
+import { getProperties, MAX_BULK_ROWS } from "@/server/databases";
 import { JiraError } from "@/server/jira-sync/client";
 import type { SyncRow } from "@/server/jira-sync/run";
+import { archiveRows } from "@/server/pages";
 import { applyRows, type SyncedDatabase } from "@/server/synced-rows";
 import { withUniqueValues } from "@/server/unique-values";
 import { fromSync } from "@/server/sync-writes";
@@ -155,9 +159,9 @@ export async function readSheet(userId: string, row: ConnectionRow, spreadsheetI
 type LiveMapping = { live: SheetsMapping; props: Awaited<ReturnType<typeof getProperties>> };
 
 /** The mapping as the database has it now; a run without its key property can't go on ("keyGone"). */
-async function liveMapping(databaseId: string, mapping: SheetsMapping): Promise<LiveMapping> {
+async function liveMapping(databaseId: string, query: SheetsQuery, mapping: SheetsMapping): Promise<LiveMapping> {
   const props = await getProperties(databaseId);
-  if (!props.some((p) => p.id === mapping.key && p.type === "text")) throw new JiraError("keyGone", "The key property is gone");
+  if (!props.some((p) => p.id === mapping.key && p.type === keyType(query))) throw new JiraError("keyGone", "The key property is gone");
   return { live: { key: mapping.key, columns: mapping.columns.filter((c) => props.some((p) => p.id === c.property && p.type === KIND_TYPES[c.kind])) }, props };
 }
 
@@ -180,8 +184,27 @@ async function heldFields(syncId: string, keyId: string): Promise<HeldFields> {
 }
 
 /**
+ * For a sync by place: the rows whose place has nothing in it any more (`places` are the ones that
+ * have) lose their number, so it never stands for a later row there, and go to the trash as
+ * `runAs`; rows already in the trash only lose the number.
+ */
+async function leaveEmptyPlaces(databaseId: string, runAs: string, keyId: string, places: Set<string>) {
+  const gone = (
+    await db
+      .select({ id: page.id, properties: page.properties, archivedAt: page.archivedAt })
+      .from(page)
+      .where(and(eq(page.parentId, databaseId), eq(page.isTemplate, false), sql`${page.properties} ->> ${keyId} is not null`))
+  ).filter((row) => !places.has(String(row.properties[keyId])));
+  if (!gone.length) return;
+  await db.update(page).set({ properties: sql`${page.properties} - ${keyId}` }).where(inArray(page.id, gone.map((row) => row.id)));
+  const live = gone.filter((row) => !row.archivedAt).map((row) => row.id);
+  for (let i = 0; i < live.length; i += MAX_BULK_ROWS) await archiveRows(runAs, databaseId, live.slice(i, i + MAX_BULK_ROWS));
+}
+
+/**
  * Writes a sheet's rows into the database as `runAs` (who must be able to edit it), leaving the
- * `held` fields as they are. Returns how many rows it added and changed.
+ * `held` fields as they are; for a sync by place, rows whose place emptied go to the trash first.
+ * Returns how many rows it added and changed, and how many it left out for repeating a key.
  */
 export async function applySheetRows(
   database: SyncedDatabase,
@@ -192,9 +215,10 @@ export async function applySheetRows(
   held: HeldFields = new Map(),
   current?: LiveMapping,
 ) {
-  const { live, props } = current ?? (await liveMapping(database.id, mapping));
+  const { live, props } = current ?? (await liveMapping(database.id, query, mapping));
   const items = sheetItems(read.grid, query, live, read.meta.timeZone);
   if (!items) throw new JiraError("keyGone", `The sheet has no “${query.keyColumn}” column`);
+  if (byPlace(query)) await leaveEmptyPlaces(database.id, runAs, live.key, new Set(items.map((item) => item.key)));
   const kept = items.map((item) => {
     const fields = held.get(item.key);
     if (!fields) return item;
@@ -203,7 +227,7 @@ export async function applySheetRows(
   });
   // The run's own writes are no changes to write back (server/sync-writes).
   const written = await fromSync(() => applyRows(database, runAs, live.key, kept, props, []));
-  return { count: items.length, ...written };
+  return { count: items.length, repeated: repeatedKeys(items), ...written };
 }
 
 /** Why writing to the sheet failed, as the sync's dialog shows it; null once it went through. */
@@ -333,9 +357,10 @@ export async function runSheets(sync: SyncRow, database: SyncedDatabase, runAs: 
   const mapping = sync.mapping as SheetsMapping;
   const row = await sheetsConnection(runAs, query.connectionId);
   let read = await readSheet(runAs, row, query.spreadsheetId, query.sheetId, query.headerRow);
-  const current = await liveMapping(database.id, mapping);
+  const current = await liveMapping(database.id, query, mapping);
   let failure: WriteFailure = null;
-  if (query.direction === "both") {
+  // A sync by place only reads: a row's place may have moved since (lib/sheets-sync).
+  if (query.direction === "both" && !byPlace(query)) {
     const back = await writeBack(sync.id, database.id, runAs, row, query, current.live, read);
     failure = back.failure;
     // What was written, and what its formulas make of it, comes back with the next read.
@@ -344,7 +369,7 @@ export async function runSheets(sync: SyncRow, database: SyncedDatabase, runAs: 
     if (back.more && !failure) await db.update(databaseSync).set({ nextRunAt: sql`now() + interval '20 seconds'` }).where(eq(databaseSync.id, sync.id));
   }
   const held = query.direction === "both" ? await heldFields(sync.id, mapping.key) : new Map();
-  const written = await applySheetRows(database, runAs, query, mapping, read, held, current);
+  const { repeated, ...written } = await applySheetRows(database, runAs, query, mapping, read, held, current);
   const headers = sheetHeaders(read.grid[0] ?? []);
   const formulas = [...formulaColumns(read.grid)].flatMap((index) => headers.filter((h) => h.index === index).map((h) => h.name));
   // The dialog shows the sheet's name (a renamed sheet is found by its id), its formula columns and why writing failed.
@@ -354,13 +379,22 @@ export async function runSheets(sync: SyncRow, database: SyncedDatabase, runAs: 
     formulaColumns: formulas,
     writeError: failure?.code ?? null,
     writeErrorDetail: failure?.detail ?? null,
+    repeatedKeys: repeated,
   };
-  const was = { ...query, formulaColumns: query.formulaColumns ?? [], writeError: query.writeError ?? null, writeErrorDetail: query.writeErrorDetail ?? null };
+  const was = {
+    ...query,
+    formulaColumns: query.formulaColumns ?? [],
+    writeError: query.writeError ?? null,
+    writeErrorDetail: query.writeErrorDetail ?? null,
+    repeatedKeys: query.repeatedKeys ?? 0,
+  };
   if (JSON.stringify(next) !== JSON.stringify(was)) {
     // Only these keys: a change of the sync made meanwhile (its direction, connection) stays.
     await db
       .update(databaseSync)
-      .set({ query: sql`${databaseSync.query} || ${JSON.stringify({ sheetTitle: next.sheetTitle, formulaColumns: formulas, writeError: next.writeError, writeErrorDetail: next.writeErrorDetail })}::jsonb` })
+      .set({
+        query: sql`${databaseSync.query} || ${JSON.stringify({ sheetTitle: next.sheetTitle, formulaColumns: formulas, writeError: next.writeError, writeErrorDetail: next.writeErrorDetail, repeatedKeys: repeated })}::jsonb`,
+      })
       .where(eq(databaseSync.id, sync.id));
   }
   return written;

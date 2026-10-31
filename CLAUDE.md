@@ -235,7 +235,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   PostgreSQL tables in `postgres-sync/` (`client.ts` checks the host like `connections/fetch.ts`
   and reads in a read-only transaction) and `src/lib/postgres-sync.ts`; Google Sheets in
   `sheets-sync/` and `src/lib/sheets-sync.ts`, read typed through a workspace's Sheets connection
-  (`get_spreadsheet`) as the person the sync runs as, checked by `sheetsAccess` on every run;
+  (`get_spreadsheet`) as the person the sync runs as, checked by `sheetsAccess` on every run; a
+  sheet sync without a key column (`keyColumn` "") finds rows by sheet row number, kept in a hidden
+  number key property, and only reads;
   Google Calendar in `gcal-sync/` and `src/lib/gcal-sync.ts` the same way (`list_events`,
   writing with `notificationLevel: "NONE"`, times as the calendar's wall-clock time);
   both write back through `sheets_write` (`server/sync-writes.ts`, fed by `afterRowWrites` and

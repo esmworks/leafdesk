@@ -11,7 +11,11 @@
  * writing back (`update_values` and `insert_dimension` writing into the fake sheet): who may turn it
  * on, a change written to its cell, a cell changed in the sheet too keeping the sheet's value, a
  * formula column never written, a new row added below the last with its key, a change made while
- * a run writes kept for the next run, and a refused write leaving the change waiting.
+ * a run writes kept for the next run, and a refused write leaving the change waiting. Then sheets
+ * without a column of different values: a key column repeating a value refused, a sync by place
+ * (rows by their sheet row number, repeats and all, a row whose place empties going to the trash
+ * and a row at that place later coming in anew, writing back refused), and a keyed sync whose key
+ * started repeating turned into one by place.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/sheets-sync-e2e.ts
@@ -40,11 +44,13 @@ const { MAX_SHEET_CELLS } = await import("@/lib/sheets-sync");
 type SheetCell = import("@/lib/sheets-sync").SheetCell;
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
-const { getProperties, updateRowProperties } = await import("@/server/databases");
+const { changePropertyType, getProperties, updateRowProperties } = await import("@/server/databases");
 const { archivePage, createPage } = await import("@/server/pages");
 const { dropClient } = await import("@/server/connections/client");
 const { JiraError } = await import("@/server/jira-sync/client");
-const { createSheetsSync, getSheetsSync, sheetsSources, stopSheetsSync, syncSheetsNow, updateSheetsSync } = await import("@/server/sheets-sync/manage");
+const { createSheetsSync, getSheetsSync, SheetsSetupError, sheetsSources, stopSheetsSync, syncSheetsByPlace, syncSheetsNow, updateSheetsSync } = await import(
+  "@/server/sheets-sync/manage"
+);
 const { syncWriteStatus } = await import("@/server/sync-write-status");
 
 const RUN = `sheets-e2e-${Date.now().toString(36)}`;
@@ -67,7 +73,7 @@ async function failure(fn: () => Promise<unknown>): Promise<string | null> {
     await fn();
     return null;
   } catch (error) {
-    if (error instanceof JiraError) return error.code;
+    if (error instanceof JiraError || error instanceof SheetsSetupError) return error.code;
     if (error instanceof Error && error.constructor.name === "AccessError") return "access";
     throw error;
   }
@@ -215,7 +221,8 @@ const http = createServer(async (req, res) => {
 });
 await new Promise<void>((resolve) => http.listen(FAKE_PORT, "::", resolve));
 
-const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, guest: `${RUN}-guest` };
+// owner2 sets up the syncs by place: each person may set up only so many syncs a minute.
+const ids = { owner: `${RUN}-owner`, member: `${RUN}-member`, guest: `${RUN}-guest`, owner2: `${RUN}-owner2` };
 const userIds = Object.values(ids);
 const workspaceId = `${RUN}-ws`;
 const otherWorkspace = `${RUN}-ws2`;
@@ -243,6 +250,7 @@ try {
     { workspaceId, userId: ids.owner, role: "owner" },
     { workspaceId, userId: ids.member, role: "member" },
     { workspaceId, userId: ids.guest, role: "guest" },
+    { workspaceId, userId: ids.owner2, role: "owner" },
     { workspaceId: otherWorkspace, userId: ids.owner, role: "owner" },
   ]);
   const sheetsConn = `${RUN}-sheets`;
@@ -264,12 +272,17 @@ try {
   check((await sheetsSources(ids.guest, workspaceId)).length === 0, "guests never may");
 
   // Refusals before anything is made
-  const setup = { workspaceId, parentId: home.id, connectionId: sheetsConn, link, intervalMinutes: 0 };
+  const setup = { workspaceId, parentId: home.id, connectionId: sheetsConn, link, intervalMinutes: 0, keyColumn: "ÜRÜN" };
   check((await failure(() => createSheetsSync(owner, { ...setup, link: "https://example.test/sheet" }))) === "invalidInput", "a link that isn't a spreadsheet's is refused");
   check((await failure(() => createSheetsSync(owner, { ...setup, connectionId: elsewhere }))) === "forbidden", "another workspace's connection can't be used");
   check((await failure(() => createSheetsSync({ userId: ids.guest }, { ...setup, parentId: null }))) !== null, "a guest can't set one up");
   check((await failure(() => createSheetsSync(owner, { ...setup, link: link.replaceAll(String(STOCK_ID), "42") }))) === "notFound", "a sheet the spreadsheet doesn't have is refused");
   check((await failure(() => createSheetsSync(owner, { ...setup, keyColumn: "SKU" }))) === "invalidInput", "…so is a key column the header doesn't have");
+  check((await failure(() => createSheetsSync(owner, { ...setup, keyColumn: "GELDİ" }))) === "repeatedKey", "…and one repeating a value, whose rows couldn't be told apart");
+  check(
+    (await failure(() => createSheetsSync(owner, { ...setup, keyColumn: "", direction: "both", intervalMinutes: 15 }))) === "bothNeedsKey",
+    "…and writing back without a key column",
+  );
 
   // Setting one up
   const result = await createSheetsSync(owner, { ...setup, title: "Stok" });
@@ -504,6 +517,125 @@ try {
   const kept = (await rows()).length;
   await stopSheetsSync(ids.owner, databaseId);
   check((await getSheetsSync(ids.owner, databaseId)) === null && (await rows()).length === kept, "stopping keeps the rows");
+
+  // A sheet without a column of different values: synced by place
+  const day = (serial: number) => num(serial, "", "DATE");
+  const PAY_ID = 4242;
+  const pay: FakeSheet = {
+    sheetId: PAY_ID,
+    title: "ÖDEME",
+    frozen: 1,
+    rows: [
+      [text("Tarih"), text("Firma"), text("Tutar"), text("Durum")],
+      [day(46330), text("Frigoduman"), num(2390), text("Bekliyor")],
+      [day(46330), text("Frigoduman"), num(2390), text("Bekliyor")],
+      [day(46331), text("Maaş"), num(41667), text("Ödendi")],
+      [],
+      [day(46332), text("Kira"), num(61500), text("Bekliyor")],
+    ],
+  };
+  sheets.push(pay);
+  const owner2 = { userId: ids.owner2 };
+  const linkTo = (gid: number) => `https://docs.google.com/spreadsheets/d/${SPREADSHEET}/edit#gid=${gid}`;
+  const placed = await createSheetsSync(owner2, { workspaceId, parentId: home.id, connectionId: sheetsConn, link: linkTo(PAY_ID), intervalMinutes: 0, rowName: "Satır" });
+  const payId = placed.pages[0].id;
+  const payProps = await getProperties(payId);
+  const payProp = (name: string) => payProps.find((p) => p.name === name)!.id;
+  check(
+    payProps.map((p) => `${p.name}:${p.type}`).join("|") === "Satır:number|Tarih:date|Firma:text|Tutar:number|Durum:text",
+    "without a key column every named column is a property, and the sheet row number one of its own",
+    payProps.map((p) => `${p.name}:${p.type}`),
+  );
+  const payRows = async () =>
+    (await db.select({ title: page.title, properties: page.properties, archivedAt: page.archivedAt }).from(page).where(eq(page.parentId, payId))).sort(
+      (a, b) => Number(a.properties[payProp("Satır")] ?? 0) - Number(b.properties[payProp("Satır")] ?? 0),
+    );
+  const live = async () => (await payRows()).filter((r) => !r.archivedAt);
+  const placedRows = await live();
+  check(
+    placed.created.rows === 4 &&
+      placedRows.map((r) => `${r.properties[payProp("Satır")]}:${r.properties[payProp("Firma")]}`).join("|") === "2:Frigoduman|3:Frigoduman|4:Maaş|6:Kira" &&
+      placedRows[0].properties[payProp("Tarih")] === "2026-11-04",
+    "each row with anything in it comes in, the same values twice included, by its sheet row",
+    placedRows,
+  );
+  const payViews = await db.select({ config: databaseView.config }).from(databaseView).where(eq(databaseView.databaseId, payId));
+  check(
+    payViews.length > 0 && payViews.every((v) => v.config.hidden?.includes(payProp("Satır")) && v.config.hidden?.includes(payProp("Tarih"))),
+    "the row number and the column naming rows are hidden",
+    payViews,
+  );
+  check((await getSheetsSync(ids.owner2, payId))?.keyColumn === "", "its dialog knows it finds rows by place");
+  check((await failure(() => updateSheetsSync(ids.owner2, payId, { direction: "both", intervalMinutes: 15 }))) === "bothNeedsKey", "a sync by place doesn't write back");
+
+  pay.rows[2][3] = text("Ödendi");
+  pay.rows.splice(3, 1);
+  const shrunk = await syncSheetsNow(ids.owner2, payId);
+  const afterShrink = await payRows();
+  check(
+    shrunk.outcome.error === null &&
+      afterShrink
+        .filter((r) => !r.archivedAt)
+        .map((r) => `${r.properties[payProp("Satır")]}:${r.properties[payProp("Firma")]}:${r.properties[payProp("Durum")]}`)
+        .join("|") === "2:Frigoduman:Bekliyor|3:Frigoduman:Ödendi|5:Kira:Bekliyor",
+    "a run follows the sheet by place: a changed value, a row moved up",
+    afterShrink,
+  );
+  check(
+    afterShrink.filter((r) => r.archivedAt).length === 2 && afterShrink.filter((r) => r.archivedAt).every((r) => r.properties[payProp("Satır")] === undefined),
+    "…and the rows whose place emptied go to the trash without their number",
+    afterShrink,
+  );
+  pay.rows.push([day(46333), text("Aidat"), num(3300), text("Bekliyor")]);
+  await syncSheetsNow(ids.owner2, payId);
+  check(
+    (await live()).map((r) => `${r.properties[payProp("Satır")]}:${r.properties[payProp("Firma")]}`).join("|") === "2:Frigoduman|3:Frigoduman|5:Kira|6:Aidat",
+    "a row coming to an emptied place comes in, never held back by the one in the trash",
+    await payRows(),
+  );
+
+  // A keyed sync whose key started repeating and was retyped, turned into one by place
+  const CASH_ID = 4343;
+  const cash: FakeSheet = {
+    sheetId: CASH_ID,
+    title: "KASA",
+    frozen: 1,
+    rows: [
+      [text("Tarih"), text("Firma"), text("Tutar")],
+      [num(46327, "01.11.2026", "DATE"), text("A"), num(10)],
+      [num(46328, "02.11.2026", "DATE"), text("B"), num(20)],
+    ],
+  };
+  sheets.push(cash);
+  const keyed = await createSheetsSync(owner2, { workspaceId, parentId: home.id, connectionId: sheetsConn, link: linkTo(CASH_ID), intervalMinutes: 0, keyColumn: "Tarih" });
+  const cashId = keyed.pages[0].id;
+  const keyProp = (await getProperties(cashId)).find((p) => p.name === "Tarih")!.id;
+  cash.rows.push([num(46328, "02.11.2026", "DATE"), text("C"), num(30)]);
+  const repeating = await syncSheetsNow(ids.owner2, cashId);
+  check(repeating.outcome.error === null && repeating.repeatedKeys === 1, "a run counts the rows it leaves out for repeating a key", repeating);
+  // As people do to sort by it: the key property made a date, which pauses the sync.
+  await changePropertyType(ids.owner2, keyProp, { type: "date", yes: "Yes" });
+  const retyped = await syncSheetsNow(ids.owner2, cashId);
+  check(retyped.outcome.error === "keyGone" && !retyped.enabled, "a key property made a date pauses the sync", retyped.outcome);
+  check((await failure(() => syncSheetsByPlace(ids.guest, cashId, "Satır"))) === "access", "only people with full access change how rows are found");
+  const turned = await syncSheetsByPlace(ids.owner2, cashId, "Satır");
+  const cashProps = await getProperties(cashId);
+  const cashProp = (name: string) => cashProps.find((p) => p.name === name)!.id;
+  const cashRows = await db.select({ properties: page.properties, archivedAt: page.archivedAt }).from(page).where(eq(page.parentId, cashId));
+  check(
+    turned.keyColumn === "" && turned.outcome.error === null && turned.enabled && turned.repeatedKeys === 0 && cashRows.filter((r) => r.archivedAt).length === 2,
+    "turning to place puts the rows in the trash and reads them again",
+    turned,
+  );
+  check(
+    cashRows
+      .filter((r) => !r.archivedAt)
+      .map((r) => `${r.properties[cashProp("Satır")]}:${r.properties[keyProp]}:${r.properties[cashProp("Firma")]}`)
+      .sort()
+      .join("|") === "2:2026-11-01:A|3:2026-11-02:B|4:2026-11-02:C" && cashProps.filter((p) => p.name === "Tarih").length === 1,
+    "…every row of the sheet, the old key property kept as the date it was made",
+    cashRows,
+  );
 
   console.log(`\n${passed} checks passed`);
 } finally {
