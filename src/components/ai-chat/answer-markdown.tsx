@@ -7,7 +7,8 @@
  * for the `<sup>` and `<sub>` page bodies write superscript and subscript in, see
  * lib/remark-text-scripts) and images are not loaded: an answer can repeat what a page says, and an
  * image URL written there would otherwise be fetched by the reader's browser (a way to send data
- * out). Links open in a new tab.
+ * out). Links open in a new tab. An answer being written flows in a few letters a frame
+ * (smooth-text.ts).
  */
 import { BadgeCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -17,6 +18,7 @@ import remarkGfm from "remark-gfm";
 import { cn, pageLabel } from "@/components/ui";
 import { CITE_HREF, citationLinks, sourceHref, type ChatSourceView } from "@/lib/ai-chat";
 import { remarkTextScripts } from "@/lib/remark-text-scripts";
+import { useSmoothText } from "./smooth-text";
 
 const REMARK_PLUGINS = [remarkGfm, remarkTextScripts];
 
@@ -24,11 +26,15 @@ export default function AnswerMarkdown({
   text,
   sources,
   onSource,
+  writing = false,
 }: {
   text: string;
   sources: Map<number, ChatSourceView>;
   onSource: (source: ChatSourceView) => void;
+  /** Still being written (or just come whole): shown as it flows in. */
+  writing?: boolean;
 }) {
+  const shown = useSmoothText(text, writing);
   const verifiedLabel = useTranslations("page.verification")("searchBadge");
   const components = useMemo<Components>(
     () => ({
@@ -102,7 +108,7 @@ export default function AnswerMarkdown({
   return (
     <div className="break-words [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
       <Markdown remarkPlugins={REMARK_PLUGINS} components={components}>
-        {citationLinks(text)}
+        {citationLinks(shown)}
       </Markdown>
     </div>
   );

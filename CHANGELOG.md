@@ -287,6 +287,14 @@
 
 ### Changed
 
+- **AI chat answers flow in as they are written.** The answer's text now comes in a few letters at
+  a time, at an even pace, instead of jumping a whole piece at once whenever the network delivers
+  one; what is left when it ends is shown over a few frames rather than in one. Only the answer
+  being written is drawn again as it grows (earlier answers in the conversation no longer redraw
+  with every piece), the chat stays at the end of a growing answer if you were there, and the first
+  words of the first answer no longer wait for the code that reads the answer to load. An agent's
+  answer that comes while its chat is open flows in the same way.
+
 - **Plain mail reads in the dark theme.** A message in the mail program's default colors (text,
   links, quotes and tables, as most people's mail is) now shows in the page's own colors in the Mail
   tab, so on the dark theme it no longer sits on a white card. Newsletters and other mail with its

@@ -76,6 +76,8 @@ export function AgentChat({
   const [runs, setRuns] = useState<AgentChatRunView[]>([]);
   // The run answering the last message, and how it stands, while it is under way.
   const [running, setRunning] = useState<string | null>(null);
+  // The run whose answer came here while the chat was open: it flows in rather than showing at once.
+  const [arrived, setArrived] = useState<string | null>(null);
   const [turn, setTurn] = useState<AgentChatTurn | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -185,6 +187,7 @@ export function AgentChat({
             ...list,
             { role: "assistant", content: ended.answer, runId: ended.runId, code: ended.status === "failed" ? (ended.code ?? "error") : null, steps: ended.steps, at: new Date().toISOString() },
           ]);
+          setArrived(ended.runId);
           setTurn(null);
           setRunning(null);
           return;
@@ -251,6 +254,19 @@ export function AgentChat({
     if (variant === "page") el.scrollIntoView({ block: "end" });
     else el.scrollTop = el.scrollHeight;
   }, [messages, runs.length, turn?.steps.length, running, variant]);
+  // An answer that came flows in after that (smooth-text.ts): the conversation follows it to its end.
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el || !arrived) return;
+    const until = performance.now() + 3_000;
+    const observer = new ResizeObserver(() => {
+      if (performance.now() > until) observer.disconnect();
+      else if (variant === "page") el.scrollIntoView({ block: "end" });
+      else el.scrollTop = el.scrollHeight;
+    });
+    observer.observe(el.firstElementChild ?? el);
+    return () => observer.disconnect();
+  }, [arrived, variant]);
 
   const state = info?.state;
   const canChat = state === "full" || state === "readOnly";
@@ -419,6 +435,7 @@ export function AgentChat({
                       message={item.message}
                       ms={tookMs(item.message, askedAt)}
                       last={!running && i === items.length - 1}
+                      arrived={item.message.runId === arrived}
                       connections={connections}
                       onOpen={openPage}
                     />
@@ -593,12 +610,15 @@ function Answer({
   message,
   ms,
   last,
+  arrived = false,
   connections,
   onOpen,
 }: {
   message: AgentChatMessageView;
   ms: number | undefined;
   last: boolean;
+  /** Came while the chat was open: its text flows in. */
+  arrived?: boolean;
   connections: Record<string, string>;
   onOpen: (pageId: string) => void;
 }) {
@@ -613,7 +633,7 @@ function Answer({
       )}
       {text && (
         <div className="break-words">
-          <AnswerText text={message.content} sources={NO_SOURCES} onSource={noop} />
+          <AnswerText text={message.content} sources={NO_SOURCES} onSource={noop} writing={arrived} />
         </div>
       )}
       {message.code && <p className="mt-1 text-xs text-danger">{t(`failed.${chatFailure(message.code)}`)}</p>}

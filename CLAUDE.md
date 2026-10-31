@@ -151,7 +151,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
   `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats
   (`components/agent-chat/agent-chat.tsx`) draw questions, steps and message actions with
-  `components/ai-chat/message-parts.tsx`, so they stay alike. The panel and the full-page chat
+  `components/ai-chat/message-parts.tsx`, so they stay alike. An answer's text flows in a few
+  letters a frame (`ai-chat/smooth-text.ts`, called by the lazy markdown renderer when `writing`);
+  `chat-thread.tsx` memoizes `Answer` and `Question`, so their props stay stable (`handlers`, read
+  through a ref) or every piece redraws the whole conversation. The panel and the full-page chat
   show one `useChat` held in `AiChatProvider` (`useSharedChat`). An answer runs apart from its
   request (`ai-chat-runs.ts`, keyed by a run id the browser picks): closing the request only stops
   following it, Stop is `stopChatAction`, and `getConversation`'s `run` is followed again through
