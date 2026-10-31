@@ -59,10 +59,12 @@ export function microsoftIdentity(idToken: string | undefined): { email: string;
   return email ? { email, personal: claims?.tid === CONSUMER_TENANT } : null;
 }
 
-const grantsMail = (scope: string | undefined) => {
-  // Microsoft names the scopes it granted with or without their resource.
-  const granted = (scope ?? "").split(" ").map((s) => s.replace(/^https:\/\/outlook\.office\.com\//i, "").toLowerCase());
-  return MICROSOFT_MAIL_SCOPES.every((wanted) => granted.includes(wanted.replace(/^https:\/\/outlook\.office\.com\//i, "").toLowerCase()));
+/** Whether the scopes a token was granted take in reading and sending mail. */
+export const grantsMail = (scope: string | undefined) => {
+  // Microsoft names the scopes it granted with their resource, which may be written several ways, or without it.
+  const name = (s: string) => s.slice(s.lastIndexOf("/") + 1).toLowerCase();
+  const granted = (scope ?? "").split(" ").map(name);
+  return MICROSOFT_MAIL_SCOPES.every((wanted) => granted.includes(name(wanted)));
 };
 
 /** Trades the code the browser came back with for tokens (with the PKCE verifier), the address they are for and its servers. */

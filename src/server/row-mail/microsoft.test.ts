@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { microsoftAuthorizationUrl, microsoftIdentity } from "./microsoft";
+import { grantsMail, microsoftAuthorizationUrl, microsoftIdentity } from "./microsoft";
 
 const idToken = (claims: Record<string, unknown>) => `e30.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.sig`;
 const app = { clientId: "client", clientSecret: "secret", tenant: "organizations" };
@@ -30,5 +30,14 @@ describe("microsoftIdentity", () => {
     expect(microsoftIdentity(idToken({ preferred_username: "+90 555 000 00 00" }))).toBeNull();
     expect(microsoftIdentity("not a token")).toBeNull();
     expect(microsoftIdentity(undefined)).toBeNull();
+  });
+});
+
+describe("grantsMail", () => {
+  it("finds IMAP and SMTP however Microsoft writes their resource", () => {
+    expect(grantsMail("https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/SMTP.Send")).toBe(true);
+    expect(grantsMail("https://outlook.office365.com/imap.accessasuser.all https://outlook.office365.com/smtp.send openid")).toBe(true);
+    expect(grantsMail("IMAP.AccessAsUser.All SMTP.Send")).toBe(true);
+    expect(grantsMail("https://outlook.office.com/IMAP.AccessAsUser.All")).toBe(false);
   });
 });
