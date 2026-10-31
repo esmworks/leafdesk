@@ -516,6 +516,13 @@ export async function messageForAi(userId: string, id: string) {
   return { box, message, text };
 }
 
+/** The database row the other party of a message is, as its thread's chip finds it (the writer's context, mail-client/ai.ts), or null. */
+export async function rowOfMessage(userId: string, id: string): Promise<RowChip | null> {
+  const { box, message } = await ownMessage(userId, id);
+  const other = otherParty(box, message);
+  return other ? ((await rowsForAddresses(box.workspaceId, userId, [other])).get(other) ?? null) : null;
+}
+
 /** At most this many messages are loaded ahead at once. */
 const AHEAD = 8;
 

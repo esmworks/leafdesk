@@ -7,7 +7,7 @@ import { mailAiInput, startMailAi } from "@/server/mail-client/ai";
 import { RowMailError } from "@/server/row-mail/settings";
 
 /**
- * The Mail tab's AI: `POST /api/ai/mail` with `{"kind":"summary",…}` or `{"kind":"write",…}`
+ * The Mail tab's AI: `POST /api/ai/mail` with `{"kind":"summary",…}`, `{"kind":"tasks",…}` or `{"kind":"write",…}`
  * (server/mail-client/ai.ts) as JSON. Answers as `/api/ai/write` does (server/ai-answer-stream.ts);
  * mail that can't be read answers 502 with the code "mail". Signed-in browsers only, the mailbox's
  * owner alone; a foreign Origin is refused.
