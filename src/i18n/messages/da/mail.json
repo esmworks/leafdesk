@@ -22,6 +22,15 @@
   "firstReadHint": "Din seneste mail vises om et øjeblik. Ældre mail, op til tre måneder tilbage, kommer ind i løbet af de næste minutter.",
   "empty": "Ingen mail her.",
   "emptySearch": "Ingen mail matcher.",
+  "emptyFolder": {
+    "trash": "Tøm papirkurv",
+    "junk": "Tøm uønsket",
+    "trashTitle": "Tøm papirkurven?",
+    "junkTitle": "Tøm uønsket?",
+    "body": "Alle beskeder i {folder} slettes for altid, også på mailserveren. Det kan ikke fortrydes.",
+    "trashDone": "Papirkurven er tømt",
+    "junkDone": "Uønsket er tømt"
+  },
   "noneOpen": "Vælg en samtale for at læse den.",
   "loading": "Indlæser…",
   "loadFailed": "Mail kunne ikke indlæses. Prøv igen om lidt.",
@@ -156,5 +165,26 @@
   "printMessage": "Udskriv",
   "showSource": "Vis original",
   "downloadSource": "Hent besked (.eml)",
-  "allInboxes": "Alle indbakker"
+  "allInboxes": "Alle indbakker",
+  "ai": {
+    "summarize": "Opsummer",
+    "summarizeHint": "Opsummer denne samtale med AI",
+    "summary": "Opsummering",
+    "summarizing": "Opsummerer…",
+    "resummarize": "Opsummer igen",
+    "newer": "{count, plural, one {# besked kom efter denne opsummering.} other {# beskeder kom efter denne opsummering.}}",
+    "replyWithAi": "Svar med AI",
+    "write": "Skriv med AI",
+    "closeWriter": "Luk AI-skriveren",
+    "instruction": "Hvad AI skal skrive",
+    "placeholder": "Fortæl AI, hvad den skal skrive…",
+    "placeholderReply": "Hvad skal svaret sige? Eller vælg Skriv svar…",
+    "placeholderDraft": "Fortæl AI, hvad den skal ændre…",
+    "reply": "Skriv svar",
+    "formal": "Mere formel",
+    "friendly": "Venligere",
+    "use": "Brug denne",
+    "useNote": "Erstatter det, du har skrevet over din signatur. Fortryd bringer det tilbage.",
+    "mailFailed": "Beskeden kunne ikke læses fra mailserveren. Prøv igen om lidt."
+  }
 }

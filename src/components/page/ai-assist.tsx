@@ -34,6 +34,7 @@ import { createPortal } from "react-dom";
 import { absolutePositionToRelativePosition, relativePositionToAbsolutePosition, ySyncPluginKey } from "y-prosemirror";
 import type { RelativePosition } from "yjs";
 import { snapshotBeforeAiEditAction } from "@/app/actions/ai";
+import { streamAi } from "@/components/ai-stream";
 import { cn } from "@/components/ui";
 import { AI_LANGUAGES, isAiErrorCode, type EditorAction } from "@/lib/ai";
 import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
@@ -146,48 +147,22 @@ export function useAiAssist(editor: PageEditor, pageId: string, workspaceId: str
         setPhase({ step: "error", action: request.action, request, message: t(`errors.${isAiErrorCode(code) ? code : "provider"}`) });
       let text = "";
       try {
-        const response = await fetch("/api/ai/write", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+        const ended = await streamAi("/api/ai/write", body, {
           signal: controller.signal,
+          onText: (piece) => {
+            text += piece;
+            setResult(text);
+          },
         });
-        if (!response.ok || !response.body) {
-          const error = (await response.json().catch(() => null)) as { error?: { code?: string } } | null;
-          failed(error?.error?.code);
-          return;
-        }
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffered = "";
-        let stopReason: string | null = null;
-        for (;;) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffered += decoder.decode(value, { stream: true });
-          const lines = buffered.split("\n");
-          buffered = lines.pop() ?? "";
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            const event = JSON.parse(line) as { type: string; text?: string; code?: string; stopReason?: string };
-            if (event.type === "text" && event.text) {
-              text += event.text;
-              setResult(text);
-            } else if (event.type === "error") {
-              failed(event.code);
-              return;
-            } else if (event.type === "done") stopReason = event.stopReason ?? "stop";
-          }
-        }
-        if (!stopReason) {
-          failed("provider");
+        if (!ended.ok) {
+          failed(ended.code);
           return;
         }
         if (!text.trim()) {
           failed("empty");
           return;
         }
-        setPhase({ step: "done", action: request.action, request, note: stopReason === "length" ? "cutOff" : null });
+        setPhase({ step: "done", action: request.action, request, note: ended.stopReason === "length" ? "cutOff" : null });
       } catch {
         if (controller.signal.aborted) {
           // Stopped: what was written so far can still be kept.

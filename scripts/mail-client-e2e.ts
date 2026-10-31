@@ -7,7 +7,7 @@
  * other party is; a message's body comes from the server, its HTML without scripts and remote
  * images until asked for (remembered then, or always for a trusted sender or the mailbox's own
  * domain), with the images it carries inline, and it is marked read (not when loaded ahead); a file downloads as it was sent; archiving, moving to a folder picked, starring, reading, the trash and
- * deleting for good reach the server and the index at once; an answer goes out in the same thread and lands in the sent
+ * deleting for good and emptying the trash reach the server and the index at once; an answer goes out in the same thread and lands in the sent
  * folder; a draft is kept in the drafts folder (made where there is none), each save replacing the last under one
  * Message-ID with the files it kept, opens again with its Bcc and signature, marks the thread it answers, and goes
  * once sent or thrown away; a message sent waits for Undo, which makes it a draft again, and goes when its seconds are up; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
@@ -81,7 +81,7 @@ const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { connectMailbox, setMailDatabases, RowMailError } = await import("@/server/row-mail/settings");
 const { syncDue } = await import("@/server/row-mail/sync");
 const read = await import("@/server/mail-client/read");
-const { holdMail, mailAction, sendHeld, sendMail, sendStatus, undoSend } = await import("@/server/mail-client/write");
+const { emptyFolder, holdMail, mailAction, sendHeld, sendMail, sendStatus, undoSend } = await import("@/server/mail-client/write");
 const drafts = await import("@/server/mail-client/drafts");
 const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
@@ -387,6 +387,24 @@ try {
   check((await errorCode(() => mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: [bySubject("Ynt: Bütçe")!.threadId], action: "delete" }))) === "invalid", "deleting for good is only from the trash");
   await mailAction(ids.ada, { mailboxId: boxId, folderId: trash.id, threadIds: [bulten.threadId], action: "delete" });
   check((await uidsIn("Trash")).length === 0 && !(await read.listThreads(ids.ada, { mailboxId: boxId, folderId: trash.id })).items.length, "and deletes it there");
+  // Emptying the trash: one message the index has read, one it hasn't yet.
+  const thrownAway = (n: number) =>
+    asAda((client) =>
+      client.append("Trash", Buffer.from(`From: ${customer}\r\nTo: ${ada}\r\nSubject: Eski ${n}\r\nMessage-ID: <eski${n}.${RUN}@acme.test>\r\nDate: ${new Date().toUTCString()}\r\n\r\nEski.\r\n`)),
+    );
+  await thrownAway(1);
+  await read.refreshFolder(ids.ada, boxId, trash.id);
+  await thrownAway(2);
+  check((await read.listThreads(ids.ada, { mailboxId: boxId, folderId: trash.id })).items.length === 1 && (await uidsIn("Trash")).length === 2, "the trash holds a message listed and one not yet read");
+  check(
+    (await errorCode(() => emptyFolder(ids.bob, { mailboxId: boxId, folderId: trash.id }))) === "noMailbox" && (await errorCode(() => emptyFolder(ids.ada, { mailboxId: boxId, folderId: inbox.id }))) === "invalid",
+    "only the owner empties it, and only the trash or junk",
+  );
+  await emptyFolder(ids.ada, { mailboxId: boxId, folderId: trash.id });
+  const [trashAfter] = await db.select().from(mailFolder).where(eq(mailFolder.id, trash.id));
+  check((await uidsIn("Trash")).length === 0 && !(await read.listThreads(ids.ada, { mailboxId: boxId, folderId: trash.id })).items.length && trashAfter.total === 0, "emptying the trash deletes all of it, on the server and in the index", { server: await uidsIn("Trash"), total: trashAfter.total });
+  await emptyFolder(ids.ada, { mailboxId: boxId, folderId: trash.id });
+  check((await uidsIn("INBOX")).length > 0, "an empty trash empties again without trouble, and the inbox is left alone");
 
   // Answering
   const butce = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items[0];

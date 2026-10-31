@@ -30,6 +30,7 @@ export function aiUsageGroup(feature: string): AiUsageGroup {
     case "chat":
       return "chat";
     case "editor":
+    case "mail":
       return "writing";
     case "property":
       return "properties";

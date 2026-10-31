@@ -187,7 +187,7 @@ export const LEFT_OUT: Record<string, string> = {
   storage_oauth: "storage sign-ins in progress",
   mailbox_oauth: "mailbox sign-ins with Google in progress",
   mail_folder: "the Mail tab's folders of members' mailboxes, read again once a mailbox is connected on the new server",
-  mail_message: "the headers of members' own mail, kept for the Mail tab and read again from the mail server",
+  mail_message: "the headers of members' own mail and AI summaries of their threads, kept for the Mail tab and read again from the mail server",
   mail_image_sender: "senders whose images a member's mailbox always shows, which goes with the mailboxes left out",
   storage_move: "moves of files between storages on the old server",
   ai_conversation: "people's AI chats, which only each of them may read",

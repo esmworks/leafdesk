@@ -22,6 +22,15 @@
   "firstReadHint": "최근 메일은 잠시 후 표시됩니다. 최대 3개월 전까지의 이전 메일은 몇 분에 걸쳐 가져옵니다.",
   "empty": "메일이 없습니다.",
   "emptySearch": "일치하는 메일이 없습니다.",
+  "emptyFolder": {
+    "trash": "휴지통 비우기",
+    "junk": "스팸 비우기",
+    "trashTitle": "휴지통을 비울까요?",
+    "junkTitle": "스팸을 비울까요?",
+    "body": "{folder}의 모든 메일이 메일 서버에서도 영구적으로 삭제됩니다. 되돌릴 수 없습니다.",
+    "trashDone": "휴지통을 비웠습니다",
+    "junkDone": "스팸을 비웠습니다"
+  },
   "noneOpen": "대화를 선택하면 읽을 수 있습니다.",
   "loading": "불러오는 중…",
   "loadFailed": "메일을 불러오지 못했습니다. 잠시 후 다시 시도하세요.",
@@ -156,5 +165,26 @@
   "printMessage": "인쇄",
   "showSource": "원본 보기",
   "downloadSource": "메시지 다운로드 (.eml)",
-  "allInboxes": "모든 받은편지함"
+  "allInboxes": "모든 받은편지함",
+  "ai": {
+    "summarize": "요약",
+    "summarizeHint": "이 대화를 AI로 요약",
+    "summary": "요약",
+    "summarizing": "요약하는 중…",
+    "resummarize": "다시 요약",
+    "newer": "{count, plural, other {이 요약 후에 메시지 #개가 도착했습니다.}}",
+    "replyWithAi": "AI로 답장",
+    "write": "AI로 쓰기",
+    "closeWriter": "AI 작성 도우미 닫기",
+    "instruction": "AI가 쓸 내용",
+    "placeholder": "AI에게 쓸 내용을 알려 주세요…",
+    "placeholderReply": "답장에 어떤 내용을 담을까요? 또는 답장 쓰기를 선택하세요…",
+    "placeholderDraft": "AI에게 바꿀 내용을 알려 주세요…",
+    "reply": "답장 쓰기",
+    "formal": "더 격식 있게",
+    "friendly": "더 친근하게",
+    "use": "이것 사용",
+    "useNote": "서명 위에 쓴 내용을 대체합니다. 실행 취소로 되돌릴 수 있습니다.",
+    "mailFailed": "메일 서버에서 메시지를 읽지 못했습니다. 잠시 후 다시 시도하세요."
+  }
 }

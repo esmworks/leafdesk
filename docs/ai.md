@@ -6,8 +6,8 @@ Contents: [AI features](#ai-features), [Skills](#skills), [Snippets](#snippets).
 
 ## AI features
 
-Leafdesk can use a language model for a writing assistant in pages, database properties that AI
-fills in, and a chat that answers questions from your pages; and an embeddings model for
+Leafdesk can use a language model for a writing assistant in pages and in the Mail tab, database
+properties that AI fills in, and a chat that answers questions from your pages; and an embeddings model for
 semantic search. All are **off** until the server has a provider: set `AI_PROVIDER` and
 `AI_MODEL` (plus a key for hosted providers) in `.env` and restart, and `AI_EMBEDDINGS_MODEL` for
 semantic search (it works without a chat model too). Nothing is sent anywhere while they are
@@ -87,6 +87,8 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Meeting notes: summary, decisions and action items | `AI_MODEL` | low |
 | Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
+| Mail: a thread's summary | `AI_FAST_MODEL` | low |
+| Mail: the composer's writer | `AI_MODEL` | low |
 | Chat | `AI_MODEL` (or the model picked, see `AI_CHAT_MODELS`) | medium, or as picked (see *Picking how much it thinks*) |
 | Chat in research mode | `AI_MODEL` (or the model picked) | the model's default |
 | Writing a formula from a description (*Describe it*) | `AI_MODEL` | low |
@@ -111,6 +113,25 @@ page, *Try again* asks again and *Discard* (or Escape) drops it. *Stop* cancels 
 a suggestion is added, the page's current version is saved in its history ("Before AI assistant
 edit"), and the change is an ordinary edit everyone sees live, which Undo takes back. Only people
 who may edit a page can use it there.
+
+**AI in the Mail tab.** With AI on, an open thread has *Summarize* at the top: the AI reads its
+newest eight messages (without the earlier mail each one quotes) and writes a few lines on what is
+asked or reported, with dates, amounts and what is expected of you, in the language you use
+Leafdesk in. The summary is kept with the thread's newest message, so it shows again the next time
+the thread opens, and says when newer messages came after it; *Summarize again* writes a new one.
+It is the one thing the Mail tab keeps that is written from messages' bodies, and it goes with the
+message (moved to another folder or gone from the server). In the composer, the sparkles button
+beside the formatting opens the writer: *Write reply* (in a reply) answers the message, from notes
+you jotted down if there are any; *Improve writing*, *Make shorter*, *Fix spelling and grammar*,
+*More formal*, *Friendlier* and *Translate* rework what you wrote; or type an instruction ("thank
+her and say Friday works"), save it with the bookmark, or pick one of your saved prompts. *Reply
+with AI* under the thread opens a reply and writes it at once. The answer shows in the panel first;
+*Use this* puts it in place of what you wrote above your signature and the quoted message, which
+stay as they are, and Undo brings your text back. The writer never sends anything: you read it and
+press Send. The messages are read from the mail server without marking them read, only when you
+ask, and go to the workspace's AI provider framed as data, never as instructions; nothing reads
+mail for the AI in the background. Only the mailbox's owner can use it, and it counts as *Writing
+assistant* in Settings > AI usage.
 
 **Building databases with AI.** *Build with AI* in the sidebar's *+* menus, on the home page, in
 Cmd+K (`>`) and as `/` *Build databases with AI* in a page opens a box to describe what you want

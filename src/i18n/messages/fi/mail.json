@@ -22,6 +22,15 @@
   "firstReadHint": "Uusimmat viestisi näkyvät hetken kuluttua. Vanhemmat viestit, enintään kolmen kuukauden ajalta, tulevat seuraavien minuuttien aikana.",
   "empty": "Ei viestejä.",
   "emptySearch": "Ei hakua vastaavia viestejä.",
+  "emptyFolder": {
+    "trash": "Tyhjennä roskakori",
+    "junk": "Tyhjennä roskaposti",
+    "trashTitle": "Tyhjennetäänkö roskakori?",
+    "junkTitle": "Tyhjennetäänkö roskaposti?",
+    "body": "Kaikki kansion {folder} viestit poistetaan pysyvästi, myös sähköpostipalvelimelta. Tätä ei voi kumota.",
+    "trashDone": "Roskakori tyhjennetty",
+    "junkDone": "Roskaposti tyhjennetty"
+  },
   "noneOpen": "Valitse keskustelu luettavaksi.",
   "loading": "Ladataan…",
   "loadFailed": "Viestejä ei voitu ladata. Yritä hetken kuluttua uudelleen.",
@@ -156,5 +165,26 @@
   "printMessage": "Tulosta",
   "showSource": "Näytä alkuperäinen",
   "downloadSource": "Lataa viesti (.eml)",
-  "allInboxes": "Kaikki saapuneet"
+  "allInboxes": "Kaikki saapuneet",
+  "ai": {
+    "summarize": "Tiivistä",
+    "summarizeHint": "Tiivistä tämä keskustelu tekoälyllä",
+    "summary": "Tiivistelmä",
+    "summarizing": "Tiivistetään…",
+    "resummarize": "Tiivistä uudelleen",
+    "newer": "{count, plural, one {Tämän tiivistelmän jälkeen tuli # viesti.} other {Tämän tiivistelmän jälkeen tuli # viestiä.}}",
+    "replyWithAi": "Vastaa tekoälyllä",
+    "write": "Kirjoita tekoälyllä",
+    "closeWriter": "Sulje tekoälykirjoittaja",
+    "instruction": "Mitä tekoälyn pitää kirjoittaa",
+    "placeholder": "Kerro tekoälylle, mitä kirjoittaa…",
+    "placeholderReply": "Mitä vastauksen pitää sanoa? Tai valitse Kirjoita vastaus…",
+    "placeholderDraft": "Kerro tekoälylle, mitä muuttaa…",
+    "reply": "Kirjoita vastaus",
+    "formal": "Muodollisempi",
+    "friendly": "Ystävällisempi",
+    "use": "Käytä tätä",
+    "useNote": "Korvaa sen, mitä kirjoitit allekirjoituksesi yläpuolelle. Kumoa palauttaa sen.",
+    "mailFailed": "Viestiä ei voitu lukea sähköpostipalvelimelta. Yritä hetken päästä uudelleen."
+  }
 }

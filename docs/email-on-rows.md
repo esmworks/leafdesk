@@ -117,7 +117,8 @@ From the open thread: reply, reply all and forward (with its files), archive, ju
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
 trash is for good. A right click on a thread in the list opens the same answers and moves without
 opening it, plus *Move to* any of the mailbox's folders (not Sent or Drafts), the sender's other
-mail (a `from:` search), *Open in new tab* and *Copy link*. Several threads are selected with
+mail (a `from:` search), *Open in new tab* and *Copy link*. *Empty trash* (and *Empty junk*)
+over the folder's list deletes all of it for good after asking, on the mail server too. Several threads are selected with
 their boxes (shown on hover), ⌘/Ctrl-click, Shift-click for a range, `x` for the open one or
 ⌘/Ctrl+A for all the list has loaded; a bar in place of the list's title then archives, trashes,
 marks, stars or moves all of them at once (the keys and a right click on one of them do too), and
@@ -153,6 +154,9 @@ lines, and takes `from:`, `to:`, `subject:`, `is:unread`, `is:read`, `is:starred
 search, `j` and `k` next and previous thread, `o` or Enter open the first; in a thread `e` archive,
 `#` trash, `!` junk, `s` star, `u` unread, `r` reply, `a` reply all, `f` forward, Escape back to
 the list. Backups leave the Mail tab's index out: it is read again once the mailbox is connected.
+
+With AI on in the workspace, a thread can be summarized and the composer has an AI writer (see
+[AI in the Mail tab](ai.md#ai-features)).
 
 Each mailbox can have a signature, written under Account › Email and calendar with the same
 formatting a message has, or pasted there from another mail program. A pasted signature with

@@ -477,11 +477,14 @@ export async function getThread(userId: string, input: { mailboxId: string; thre
   const named = [...messages].reverse().find((m) => !(m.draft && byId.get(m.folderId)?.role === "drafts")) ?? messages[messages.length - 1];
   const other = [...messages].reverse().map((m) => otherParty(box, m)).find((a) => !!a);
   const chips = other ? await rowsForAddresses(box.workspaceId, userId, [other]) : new Map();
+  // The newest summary made, on whichever copy of its message it was saved, shown on the copy here.
+  const summarized = [...rows].reverse().find((m) => m.summary);
   return {
     threadId: input.threadId,
     subject: named.subject || messages[0].subject,
     messages: messages.map((m) => messageView(m, byId)),
     row: other ? (chips.get(other) ?? null) : null,
+    summary: summarized?.summary ? { text: summarized.summary, messageId: kept.get(summarized.messageId ?? summarized.id)?.id ?? summarized.id } : null,
   };
 }
 
@@ -517,21 +520,7 @@ const listAddresses = (value: string | undefined): MailAddress[] =>
  */
 export async function readBody(userId: string, input: { id: string; images?: boolean }): Promise<MailBody> {
   const { box, message, folder } = await ownMessage(userId, input.id);
-  const started = performance.now();
-  const images = await imagesFor(box, message, input.images === true);
-  const fromServer = () => heldBody(message.id, images, (started) => loadBody(box, message, folder, images, "open", started), { queued: false });
-  let held = fromServer();
-  let body: MailBody;
-  try {
-    body = await held.body;
-  } catch (error) {
-    // The connection (this one's, or the one loading it ahead) dropped or stopped answering, and
-    // was closed: a new one is opened for one more try.
-    if (!(error instanceof ConnectionLost)) throw error;
-    held = fromServer();
-    body = await held.body;
-  }
-  if (held.from !== "server") console.info(`[mail-client] body ${Math.round(performance.now() - started)} ms from ${held.from}`);
+  const body = await openBody(box, message, folder, input.images === true);
   if (!message.seen) {
     await db.update(mailMessage).set({ seen: true }).where(eq(mailMessage.id, message.id));
     await db
@@ -549,6 +538,40 @@ export async function readBody(userId: string, input: { id: string; images?: boo
     }, "open", { within: SHORT_MS }).catch(() => {});
   }
   return body;
+}
+
+/**
+ * A message's body for someone waiting on it: from memory when it was read lately or loaded ahead
+ * (`images` as opening it asks, so both find the same copy), else from the mail server on the
+ * mailbox's `open` connection.
+ */
+async function openBody(box: Box, message: MessageRow, folder: FolderRow, imagesAsked: boolean): Promise<MailBody> {
+  const started = performance.now();
+  const images = await imagesFor(box, message, imagesAsked);
+  const fromServer = () => heldBody(message.id, images, (started) => loadBody(box, message, folder, images, "open", started), { queued: false });
+  let held = fromServer();
+  let body: MailBody;
+  try {
+    body = await held.body;
+  } catch (error) {
+    // The connection (this one's, or the one loading it ahead) dropped or stopped answering, and
+    // was closed: a new one is opened for one more try.
+    if (!(error instanceof ConnectionLost)) throw error;
+    held = fromServer();
+    body = await held.body;
+  }
+  if (held.from !== "server") console.info(`[mail-client] body ${Math.round(performance.now() - started)} ms from ${held.from}`);
+  return body;
+}
+
+/**
+ * A message and its text for the AI (mail-client/ai.ts), read as opening it would but left unread:
+ * a summary or an answer written from it is not the person reading it.
+ */
+export async function messageForAi(userId: string, id: string) {
+  const { box, message, folder } = await ownMessage(userId, id);
+  const text = (await openBody(box, message, folder, false)).text;
+  return { box, message, text };
 }
 
 /** At most this many messages are loaded ahead at once. */

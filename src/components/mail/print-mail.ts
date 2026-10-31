@@ -1,4 +1,5 @@
-import { textQuoteStart, type MailBody } from "@/lib/mail-client";
+import type { MailBody } from "@/lib/mail-client";
+import { quoteStart } from "@/lib/mail-quote";
 
 /** A message as printed: its lines over the body, already worded, and the body as the tab read it. */
 export type PrintedMessage = { lines: string[]; body: MailBody; files: string[] };
@@ -27,7 +28,7 @@ export function printMail({ subject, messages, quoted }: { subject: string; mess
       content = html.body.innerHTML + (quoted && body.quotedHtml ? parser.parseFromString(body.quotedHtml, "text/html").body.innerHTML : "");
     } else {
       const all = body.text.replace(/\r\n/g, "\n").split("\n");
-      const cut = quoted ? -1 : textQuoteStart(all);
+      const cut = quoted ? -1 : quoteStart(all);
       content = `<div class="text">${escape((cut >= 0 ? all.slice(0, cut) : all).join("\n").trimEnd())}</div>`;
     }
     return `<section id="m${i}"><header>${lines.map((line, n) => `<div${n === 0 ? ' class="from"' : ""}>${escape(line)}</div>`).join("")}</header><div class="body">${content}</div>${

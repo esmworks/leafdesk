@@ -22,6 +22,15 @@
   "firstReadHint": "Tu correo más reciente aparecerá en un momento. El correo anterior, de hasta tres meses atrás, llegará en los próximos minutos.",
   "empty": "No hay correo aquí.",
   "emptySearch": "Ningún correo coincide.",
+  "emptyFolder": {
+    "trash": "Vaciar papelera",
+    "junk": "Vaciar spam",
+    "trashTitle": "¿Vaciar la papelera?",
+    "junkTitle": "¿Vaciar spam?",
+    "body": "Todos los mensajes de {folder} se eliminan para siempre, también en el servidor de correo. No se puede deshacer.",
+    "trashDone": "Papelera vaciada",
+    "junkDone": "Spam vaciado"
+  },
   "noneOpen": "Elige una conversación para leerla.",
   "loading": "Cargando…",
   "loadFailed": "No se pudo cargar el correo. Inténtalo de nuevo en un momento.",
@@ -156,5 +165,26 @@
   "printMessage": "Imprimir",
   "showSource": "Mostrar original",
   "downloadSource": "Descargar mensaje (.eml)",
-  "allInboxes": "Todos los recibidos"
+  "allInboxes": "Todos los recibidos",
+  "ai": {
+    "summarize": "Resumir",
+    "summarizeHint": "Resumir esta conversación con IA",
+    "summary": "Resumen",
+    "summarizing": "Resumiendo…",
+    "resummarize": "Resumir de nuevo",
+    "newer": "{count, plural, one {Llegó # mensaje después de este resumen.} other {Llegaron # mensajes después de este resumen.}}",
+    "replyWithAi": "Responder con IA",
+    "write": "Escribir con IA",
+    "closeWriter": "Cerrar el redactor de IA",
+    "instruction": "Qué debe escribir la IA",
+    "placeholder": "Dile a la IA qué escribir…",
+    "placeholderReply": "¿Qué debe decir la respuesta? O elige Escribir respuesta…",
+    "placeholderDraft": "Dile a la IA qué cambiar…",
+    "reply": "Escribir respuesta",
+    "formal": "Más formal",
+    "friendly": "Más cercano",
+    "use": "Usar esto",
+    "useNote": "Sustituye lo que escribiste encima de tu firma. Deshacer lo recupera.",
+    "mailFailed": "No se pudo leer el mensaje del servidor de correo. Inténtalo de nuevo en un momento."
+  }
 }

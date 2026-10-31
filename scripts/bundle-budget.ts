@@ -120,9 +120,12 @@ import { gzipSync } from "node:zlib";
  * React without TipTap's React package, which would add about 2 kB more.
  *
  * The Mail tab's page itself (its list, and opening a draft or a sent message taken back in the
- * pane) adds about 0.5 kB to all first loads together; the composer and drafts load when shown.
+ * pane) adds about 0.5 kB to all first loads together; the composer and drafts load when shown. *
+ * The Mail tab's AI (a thread's summary in the open thread, the composer's writer loaded when
+ * opened) adds about 3 kB to all first loads together and under 1 kB to any page's: the thread's
+ * new code moves shared modules between chunks, copying a few server-action stubs into more of them.
  */
-const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1217, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1219, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

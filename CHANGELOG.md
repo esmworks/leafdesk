@@ -34,6 +34,10 @@
   one Undo. The keys and a right click on a selected thread act on the whole selection. ⌘/Ctrl-click
   on a thread no longer opens it in a new tab (its menu still does). No migration.
 
+- **Empty trash in the Mail tab.** The trash and junk folders get *Empty trash* and *Empty junk*
+  over their list: after asking, every message in the folder is deleted for good, on the mail
+  server too, including any not listed yet. No migration.
+
 - **Pictures in Mail tab messages.** A picture pasted into a message, or dropped on its text,
   goes where it is put and is sent as part of the message (PNG, JPEG, GIF or WebP, within the
   files' limit), not as an attachment; other files dropped are still attached. Drafts keep their
@@ -50,6 +54,14 @@
   Drafts folder to be finished or sent; a reply in a draft marks its thread *Draft* in the list and
   waits under the thread's messages. No migration.
 
+- **AI in the Mail tab.** A thread's *Summarize* button writes a short summary of the
+  conversation under its subject, kept for the next visit and marked when newer messages came
+  after it. *Reply with AI* under a message drafts an answer, and the sparkles button in the
+  composer opens a writer that drafts a reply from a few words, improves, shortens, corrects,
+  translates or changes the tone of what is written, or follows a saved prompt; its result is
+  shown first and replaces only the text above the signature and the quoted mail, in one step
+  that can be undone. Reading mail for the AI doesn't mark it as read, and it follows the
+  workspace's AI setting. Migration 0167.
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
   and calendar with a message's formatting (bold, italic, lists, links), or pasted from another
   mail program, which keeps it as it came: its images, table layout, sizes and colors, sent as

@@ -32,6 +32,10 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   // a selection need little thinking; an instruction of the person's own may need more.
   ["editor.custom", { thinking: "medium" }],
   ["editor.", { thinking: "low" }],
+  // A mail thread summed up in a few lines while its reader waits: the words are all there.
+  ["mail.summary", { fast: true, thinking: "low" }],
+  // The Mail tab's writer, like the editor's: what it writes goes to someone outside.
+  ["mail.write", { thinking: "low" }],
   // A formula from a description, checked before it is offered: the main model (the language is
   // its own and the check sends failures back), with a little thinking while the person waits.
   ["formula.", { thinking: "low" }],

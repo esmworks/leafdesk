@@ -1170,6 +1170,13 @@
       "when": 1793443639078,
       "tag": "0166_mailbox_signature",
       "breakpoints": true
+    },
+    {
+      "idx": 167,
+      "version": "7",
+      "when": 1793453550109,
+      "tag": "0167_mail_summary",
+      "breakpoints": true
     }
   ]
 }

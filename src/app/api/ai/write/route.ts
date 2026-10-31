@@ -1,15 +1,15 @@
 import { auth } from "@/lib/auth";
 import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError } from "@/server/ai";
+import { answerStream, refuse as fail } from "@/server/ai-answer-stream";
 import { editorActionInput, startEditorAction } from "@/server/ai-writing";
 import { isCrossSite } from "@/server/cross-site";
 
 /**
  * The editor's AI writing assistant: `POST /api/ai/write` with an action (see ai-writing.ts) as
- * JSON. Answers with newline-delimited JSON as the model writes: `{"type":"text","text":"…"}` lines,
- * then `{"type":"done","stopReason":"stop"|"length"}` or `{"type":"error","code":"…"}`. Checks that
- * fail before anything is sent answer with a status and `{"error":{"code","message"}}`. Closing the
- * request cancels the model's work.
+ * JSON. Answers with newline-delimited JSON as the model writes (server/ai-answer-stream.ts). Checks
+ * that fail before anything is sent answer with a status and `{"error":{"code","message"}}`. Closing
+ * the request cancels the model's work.
  *
  * Signed-in browsers only (the session cookie); a foreign Origin is refused, and the JSON body
  * needs a CORS preflight this route doesn't answer, which keeps cross-site pages out.
@@ -36,32 +36,5 @@ export async function POST(request: Request) {
     if (error instanceof AccessError) return fail("noAccess", "Page not found", 404);
     throw error;
   }
-
-  const encoder = new TextEncoder();
-  const line = (value: unknown) => encoder.encode(`${JSON.stringify(value)}\n`);
-  const body = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const event of answer) if (event.type === "text") controller.enqueue(line({ type: "text", text: event.delta }));
-        const result = await answer.result();
-        controller.enqueue(line({ type: "done", stopReason: result.stopReason }));
-      } catch (error) {
-        controller.enqueue(line({ type: "error", code: isAiError(error) ? error.code : "provider" }));
-      } finally {
-        try {
-          controller.close();
-        } catch {}
-      }
-    },
-    cancel() {
-      cancel.abort();
-    },
-  });
-  return new Response(body, {
-    headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store", "X-Accel-Buffering": "no" },
-  });
-}
-
-function fail(code: string, message: string, status: number, headers?: Record<string, string>) {
-  return Response.json({ error: { code, message } }, { status, headers });
+  return answerStream(answer, cancel);
 }

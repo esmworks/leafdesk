@@ -22,6 +22,15 @@
   "firstReadHint": "Vos courriels les plus récents s’afficheront dans un instant. Les plus anciens, jusqu’à trois mois en arrière, arriveront dans les prochaines minutes.",
   "empty": "Aucun courriel ici.",
   "emptySearch": "Aucun courriel ne correspond.",
+  "emptyFolder": {
+    "trash": "Vider la corbeille",
+    "junk": "Vider les indésirables",
+    "trashTitle": "Vider la corbeille ?",
+    "junkTitle": "Vider les indésirables ?",
+    "body": "Tous les messages de {folder} sont supprimés définitivement, sur le serveur de messagerie aussi. Cette action est irréversible.",
+    "trashDone": "Corbeille vidée",
+    "junkDone": "Indésirables vidés"
+  },
   "noneOpen": "Choisissez une conversation pour la lire.",
   "loading": "Chargement…",
   "loadFailed": "Impossible de charger le courriel. Réessayez dans un instant.",
@@ -156,5 +165,26 @@
   "printMessage": "Imprimer",
   "showSource": "Afficher l’original",
   "downloadSource": "Télécharger le message (.eml)",
-  "allInboxes": "Toutes les boîtes de réception"
+  "allInboxes": "Toutes les boîtes de réception",
+  "ai": {
+    "summarize": "Résumer",
+    "summarizeHint": "Résumer cette conversation avec l'IA",
+    "summary": "Résumé",
+    "summarizing": "Résumé en cours…",
+    "resummarize": "Résumer à nouveau",
+    "newer": "{count, plural, one {# message est arrivé après ce résumé.} other {# messages sont arrivés après ce résumé.}}",
+    "replyWithAi": "Répondre avec l'IA",
+    "write": "Écrire avec l'IA",
+    "closeWriter": "Fermer l'assistant d'écriture IA",
+    "instruction": "Ce que l'IA doit écrire",
+    "placeholder": "Dites à l'IA quoi écrire…",
+    "placeholderReply": "Que doit dire la réponse ? Ou choisissez Rédiger la réponse…",
+    "placeholderDraft": "Dites à l'IA quoi changer…",
+    "reply": "Rédiger la réponse",
+    "formal": "Plus formel",
+    "friendly": "Plus chaleureux",
+    "use": "Utiliser",
+    "useNote": "Remplace ce que vous avez écrit au-dessus de votre signature. Annuler le rétablit.",
+    "mailFailed": "Le message n'a pas pu être lu sur le serveur de messagerie. Réessayez dans un instant."
+  }
 }

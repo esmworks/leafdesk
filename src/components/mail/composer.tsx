@@ -1,10 +1,11 @@
 "use client";
 
 import type { Editor } from "@tiptap/core";
-import { Check, ChevronDown, ChevronLeft, Paperclip, Send, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, Paperclip, Send, Sparkles, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { discardDraftAction, saveDraftAction, sendMailAction, undoSendAction } from "@/app/actions/mail";
+import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
 import { showToast } from "@/components/toast";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
@@ -22,11 +23,15 @@ import {
   type MailSendStatus,
   type MailUndoneSend,
 } from "@/lib/mail-client";
+import type { MailWriteAction } from "@/lib/mail-ai";
 import { parseRecipient, showAddress, splitAddresses, startFrom, type ComposeMode, type ComposeSource, type Recipient } from "./compose-start";
 import { FormatBar, MailEditorContent, pictureFiles, putPictures, putSignature, useMailEditor, writeBelow } from "./mail-editor";
 import { MailFrame } from "./mail-frame";
 import { MailboxMark } from "./mail-sidebar";
 import { RecipientField } from "./recipient-field";
+
+// The AI writer loads the first time it is opened.
+const ComposerAi = lazyPart(() => import("./composer-ai").then((m) => m.ComposerAi));
 
 /** A file of the message: one added here, or one its saved draft holds on the mail server (by its part there). */
 type Attached = { file: File } | { stored: MailAttachmentView };
@@ -74,9 +79,13 @@ function followSend(sendId: string, then: (status: MailSendStatus) => void, trie
  * Formatting is the editor's (mail-editor.tsx); sends with ⌘/Ctrl+Enter; files come from the
  * button or dropped on it. A message sent waits MAIL_UNDO_SECONDS on the server for Undo, which
  * makes it a draft again for `onUndone` to open; `onDelivered` follows once it went (or failed and
- * was kept as a draft).
+ * was kept as a draft). With `ai`, the AI writer (composer-ai.tsx) opens from beside the
+ * formatting, or at once running `aiStart`.
  */
 export function Composer({
+  workspaceId,
+  ai,
+  aiStart = null,
   box,
   boxes = [box],
   mode,
@@ -89,6 +98,9 @@ export function Composer({
   onUndone,
   onDelivered,
 }: {
+  workspaceId: string;
+  ai: boolean;
+  aiStart?: MailWriteAction | null;
   box: MailboxTabView;
   boxes?: MailboxTabView[];
   mode: ComposeMode;
@@ -104,6 +116,7 @@ export function Composer({
   onDelivered?: () => void;
 }) {
   const t = useTranslations("mail.composer");
+  const tai = useTranslations("mail.ai");
   const locale = useLocale();
   const when = (iso: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
   const [initial] = useState(() => {
@@ -150,6 +163,7 @@ export function Composer({
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [dropping, setDropping] = useState(false);
+  const [writer, setWriter] = useState<{ start: MailWriteAction | null } | null>(ai && aiStart ? { start: aiStart } : null);
   const typed = useRef({ to: "", cc: "", bcc: "" });
   const html = useRef(initial.html);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -470,6 +484,11 @@ export function Composer({
           <FormatBar editor={editor} linking={linking} setLinking={setLinking} />
         </div>
       )}
+      {ai && editor && (
+        <IconButton label={tai("write")} aria-pressed={!!writer} className={cn("h-8 w-8 text-fg-icon", writer && "bg-bg-active text-fg")} onClick={() => setWriter(writer ? null : { start: null })}>
+          <Sparkles className="h-4 w-4" />
+        </IconButton>
+      )}
       <span className="flex-1" />
       {saveState !== "idle" && (
         <span className={cn("text-xs", saveState === "failed" ? "text-danger" : "text-fg-faint")} role="status">
@@ -567,6 +586,21 @@ export function Composer({
         </>
       )}
       {error && <p className={cn("pb-2 text-sm text-danger", pane ? "px-4" : "px-3")}>{error}</p>}
+      {writer && editor && (
+        <ComposerAi
+          editor={editor}
+          workspaceId={workspaceId}
+          mailboxId={from.id}
+          answering={source && mode !== "new" ? { id: source.message.id, reply: answering } : null}
+          subject={subject}
+          to={to.map((r) => r.name || r.address)}
+          start={writer.start}
+          onClose={() => {
+            setWriter(null);
+            editor.commands.focus();
+          }}
+        />
+      )}
       {footer}
       {dropping && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] border-2 border-dashed border-accent bg-bg/80 text-sm font-medium text-accent">

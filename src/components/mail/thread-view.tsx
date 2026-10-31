@@ -18,17 +18,23 @@ import {
   Reply,
   Printer,
   ReplyAll,
+  RotateCcw,
+  Sparkles,
   Star,
   Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { streamAi } from "@/components/ai-stream";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { read } from "@/components/read";
 import { Button, cn, IconButton, MenuItem, PageIcon, Popover } from "@/components/ui";
+import { quoteStart } from "@/lib/mail-quote";
+import { isAiErrorCode } from "@/lib/ai";
+import type { MailWriteAction } from "@/lib/mail-ai";
 import { pagePath } from "@/lib/mentions";
-import { textQuoteStart, type MailAction, type MailAddress, type MailBody, type MailboxTabView, type MailDraftView, type MailFolderView, type MailMessageView, type MailThreadView, type MailUndoneSend, type MailUnsubscribe } from "@/lib/mail-client";
+import { type MailAction, type MailAddress, type MailBody, type MailboxTabView, type MailDraftView, type MailFolderView, type MailMessageView, type MailThreadView, type MailUndoneSend, type MailUnsubscribe } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { lazyPart } from "@/components/lazy-part";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
@@ -58,7 +64,7 @@ function TextBody({ text }: { text: string }) {
   const t = useTranslations("mail");
   const [quoted, setQuoted] = useState(false);
   const lines = text.replace(/\r\n/g, "\n").split("\n");
-  const cut = textQuoteStart(lines);
+  const cut = quoteStart(lines);
   const shown = cut >= 0 && !quoted ? lines.slice(0, cut) : lines;
   const linked = (line: string) => {
     const out: ReactNode[] = [];
@@ -255,6 +261,7 @@ function Message({
   onImages,
   onTrust,
   last,
+  ai,
   onCompose,
   onPrint,
 }: {
@@ -267,7 +274,9 @@ function Message({
   /** Always shows images from the sender, or stops. */
   onTrust: (trust: boolean) => void;
   last: boolean;
-  onCompose: (mode: ComposeMode) => void;
+  ai: boolean;
+  /** Opens the composer; with `start`, its AI writer too, doing that at once. */
+  onCompose: (mode: ComposeMode, start?: MailWriteAction) => void;
   onPrint: () => void;
 }) {
   const t = useTranslations("mail");
@@ -410,6 +419,12 @@ function Message({
             <Forward className="h-4 w-4 text-fg-icon" />
             {t("actions.forward")}
           </Button>
+          {ai && (
+            <Button onClick={() => onCompose("reply", "reply")}>
+              <Sparkles className="h-4 w-4 text-fg-icon" />
+              {t("ai.replyWithAi")}
+            </Button>
+          )}
         </div>
       )}
     </article>
@@ -422,9 +437,114 @@ function formatSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
+type Summary = { text: string; messageId: string; running: boolean; error: string | null };
+
+/**
+ * The thread's AI summary: the one saved with it, or one asked for now, streamed in as it is written
+ * (server/mail-client/ai.ts) and kept with the thread once done.
+ */
+function useSummary(mailboxId: string, folderId: string, threadId: string, thread: MailThreadView | null, setThread: (thread: MailThreadView) => void) {
+  const t = useTranslations("mail");
+  const ta = useTranslations("ai");
+  const locale = useLocale();
+  const [asked, setAsked] = useState<Summary | null>(null);
+  const abort = useRef<AbortController | null>(null);
+  useEffect(() => () => abort.current?.abort(), []);
+  const latest = useRef(thread);
+  latest.current = thread;
+
+  const run = useCallback(async () => {
+    const newest = latest.current?.messages.filter((m) => !m.draft).at(-1);
+    if (!newest) return;
+    abort.current?.abort();
+    const controller = new AbortController();
+    abort.current = controller;
+    let text = "";
+    const show = (next: Partial<Summary>) => setAsked({ text, messageId: newest.id, running: true, error: null, ...next });
+    show({});
+    try {
+      const ended = await streamAi(
+        "/api/ai/mail",
+        { kind: "summary", mailboxId, folderId, threadId, language: locale },
+        {
+          signal: controller.signal,
+          onText: (piece) => {
+            text += piece;
+            show({});
+          },
+        },
+      );
+      if (!ended.ok) return show({ running: false, error: ended.code === "mail" ? t("ai.mailFailed") : ta(`errors.${isAiErrorCode(ended.code) ? ended.code : "provider"}`) });
+      if (!text.trim()) return show({ running: false, error: ta("errors.empty") });
+      show({ running: false });
+      // Kept with the thread, as the next read of it brings it.
+      const now = latest.current;
+      if (now && ended.stopReason === "stop") {
+        const next = { ...now, summary: { text: text.trim(), messageId: newest.id } };
+        keepThread(mailboxId, folderId, next);
+        setThread(next);
+      }
+    } catch {
+      if (!controller.signal.aborted) show({ running: false, error: ta("errors.provider") });
+    } finally {
+      if (abort.current === controller) abort.current = null;
+    }
+  }, [mailboxId, folderId, threadId, locale, setThread, t, ta]);
+
+  const state: Summary | null = asked ?? (thread?.summary ? { ...thread.summary, running: false, error: null } : null);
+  return { state, run: () => void run() };
+}
+
+function SummaryCard({ state, thread, onAgain }: { state: Summary; thread: MailThreadView; onAgain: () => void }) {
+  const t = useTranslations("mail");
+  // Drafts are not part of the conversation yet: they neither make it nor make it old.
+  const sent = thread.messages.filter((m) => !m.draft);
+  const at = sent.findIndex((m) => m.id === state.messageId);
+  const newer = at >= 0 ? sent.length - 1 - at : 0;
+  return (
+    <section aria-label={t("ai.summary")} className="mx-6 mt-4 rounded-md border border-border px-3 py-2.5 text-sm">
+      <div className="flex items-center gap-2 text-xs font-medium text-fg-muted">
+        <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        <span className="flex-1">{t("ai.summary")}</span>
+        {state.running ? (
+          <span aria-live="polite">{t("ai.summarizing")}</span>
+        ) : (
+          <IconButton label={t("ai.resummarize")} className="-my-1 h-7 w-7 text-fg-icon" onClick={onAgain}>
+            <RotateCcw className="h-3.5 w-3.5" />
+          </IconButton>
+        )}
+      </div>
+      {state.error ? (
+        <p role="alert" className="mt-1.5 text-danger">
+          {state.error}
+        </p>
+      ) : state.text ? (
+        <p className="mt-1.5 leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]" aria-busy={state.running}>
+          {state.text.trim()}
+        </p>
+      ) : (
+        <div className="mt-2 space-y-2" aria-busy>
+          {[85, 60].map((w) => (
+            <div key={w} className="h-3 animate-pulse rounded bg-bg-hover" style={{ width: `${w}%` }} />
+          ))}
+        </div>
+      )}
+      {!state.running && newer > 0 && (
+        <p className="mt-1.5 text-xs text-fg-muted">
+          {t("ai.newer", { count: newer })}{" "}
+          <button type="button" className="font-medium text-accent hover:underline" onClick={onAgain}>
+            {t("ai.resummarize")}
+          </button>
+        </p>
+      )}
+    </section>
+  );
+}
+
 /** The thread open beside the list: its messages, the row its other party is, and answering. */
 export function ThreadView({
   workspaceId,
+  ai,
   box,
   folder,
   threadId,
@@ -439,6 +559,8 @@ export function ThreadView({
   onDelivered,
 }: {
   workspaceId: string;
+  /** The workspace has AI on: a summary and the composer's writer are offered. */
+  ai: boolean;
   box: MailboxTabView;
   folder: MailFolderView;
   threadId: string;
@@ -473,6 +595,7 @@ export function ThreadView({
   });
   const [version, setVersion] = useState(0);
   const [answering, setAnswering] = useState<string | null>(null);
+  const [aiStart, setAiStart] = useState<MailWriteAction | null>(null);
   // A draft of the thread opened to write on, under the message it answers.
   const [editing, setEditing] = useState<MailDraftView | null>(null);
   const [opening, setOpening] = useState<string | null>(null);
@@ -483,6 +606,7 @@ export function ThreadView({
   // Closing the composer forgets which message it answered, so R, A and F answer the newest again.
   if (!compose && answering) setAnswering(null);
   if (!compose && editing) setEditing(null);
+  if (!compose && aiStart) setAiStart(null);
   if (!compose && written.size) setWritten(new Set());
   const live = useRef(true);
   useEffect(() => {
@@ -491,6 +615,7 @@ export function ThreadView({
       live.current = false;
     };
   }, []);
+  const summary = useSummary(box.id, folder.id, threadId, thread, setThread);
   // Messages asked for already: the list's message is asked for before the thread comes.
   const asked = useRef(new Set<string>());
 
@@ -651,7 +776,14 @@ export function ThreadView({
           <MailOpen className="h-4 w-4" />
         </IconButton>
         {/* Up here rather than under the subject, where a line of its own pushes the mail down. */}
-        {thread && <span className="ms-auto shrink-0 pe-1 text-sm text-fg-muted">{t("messages", { count: thread.messages.length })}</span>}
+        {thread && <span className="ms-auto shrink-0 pe-2 text-sm text-fg-muted">{t("messages", { count: thread.messages.length })}</span>}
+        {/* A summary shown has its own button to write it again. */}
+        {ai && thread && !summary.state && (
+          <Button onClick={summary.run} title={t("ai.summarizeHint")} className="h-8 shrink-0">
+            <Sparkles className="h-4 w-4 text-fg-icon" />
+            {t("ai.summarize")}
+          </Button>
+        )}
         {thread && sent.length > 0 && (
           <IconButton label={t("printThread")} className="h-8 w-8 text-fg-icon" disabled={printing} onClick={() => void print(sent, false)}>
             <Printer className="h-4 w-4" />
@@ -670,6 +802,7 @@ export function ThreadView({
             <div className="px-6 pt-5">
               <h2 className="text-xl leading-snug font-semibold [overflow-wrap:anywhere]">{thread.subject || t("noSubject")}</h2>
             </div>
+            {summary.state && <SummaryCard state={summary.state} thread={thread} onAgain={summary.run} />}
             {thread.row && (
               <div className="mx-6 mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
                 <Database className="h-4 w-4 shrink-0 text-fg-icon" />
@@ -706,8 +839,10 @@ export function ThreadView({
                   onImages={() => loadBody(m.id, true, true)}
                   onTrust={(trust) => trustSender(m.from.address, trust)}
                   last={m.id === last?.id}
-                  onCompose={(mode) => {
+                  ai={ai}
+                  onCompose={(mode, start) => {
                     setAnswering(m.id);
+                    setAiStart(start ?? null);
                     onComposeChange(mode);
                   }}
                   onPrint={() => void print([m], true)}
@@ -718,7 +853,10 @@ export function ThreadView({
             {compose && source && (
               <div className="px-6 pt-2">
                 <Composer
-                  key={`${compose}-${source.id}-${editing?.id ?? ""}`}
+                  key={`${compose}-${source.id}-${editing?.id ?? ""}-${aiStart ?? ""}`}
+                  workspaceId={workspaceId}
+                  ai={ai}
+                  aiStart={aiStart}
                   box={box}
                   mode={compose}
                   layout="inline"

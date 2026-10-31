@@ -22,6 +22,15 @@
   "firstReadHint": "Deine neuesten Mails erscheinen gleich. Ältere Mails, bis zu drei Monate zurück, folgen in den nächsten Minuten.",
   "empty": "Hier sind keine Mails.",
   "emptySearch": "Keine passenden Mails.",
+  "emptyFolder": {
+    "trash": "Papierkorb leeren",
+    "junk": "Spam leeren",
+    "trashTitle": "Papierkorb leeren?",
+    "junkTitle": "Spam leeren?",
+    "body": "Alle Nachrichten in {folder} werden endgültig gelöscht, auch auf dem Mailserver. Das lässt sich nicht rückgängig machen.",
+    "trashDone": "Papierkorb geleert",
+    "junkDone": "Spam geleert"
+  },
   "noneOpen": "Wähle eine Unterhaltung zum Lesen.",
   "loading": "Wird geladen…",
   "loadFailed": "Die Mails konnten nicht geladen werden. Versuche es gleich noch einmal.",
@@ -156,5 +165,26 @@
   "printMessage": "Drucken",
   "showSource": "Original anzeigen",
   "downloadSource": "Nachricht herunterladen (.eml)",
-  "allInboxes": "Alle Posteingänge"
+  "allInboxes": "Alle Posteingänge",
+  "ai": {
+    "summarize": "Zusammenfassen",
+    "summarizeHint": "Diese Unterhaltung mit KI zusammenfassen",
+    "summary": "Zusammenfassung",
+    "summarizing": "Wird zusammengefasst…",
+    "resummarize": "Erneut zusammenfassen",
+    "newer": "{count, plural, one {Nach dieser Zusammenfassung kam # Nachricht.} other {Nach dieser Zusammenfassung kamen # Nachrichten.}}",
+    "replyWithAi": "Mit KI antworten",
+    "write": "Mit KI schreiben",
+    "closeWriter": "KI-Schreibhilfe schließen",
+    "instruction": "Was die KI schreiben soll",
+    "placeholder": "Sag der KI, was sie schreiben soll…",
+    "placeholderReply": "Was soll die Antwort sagen? Oder wähle Antwort schreiben…",
+    "placeholderDraft": "Sag der KI, was sie ändern soll…",
+    "reply": "Antwort schreiben",
+    "formal": "Förmlicher",
+    "friendly": "Freundlicher",
+    "use": "Übernehmen",
+    "useNote": "Ersetzt, was du über deiner Signatur geschrieben hast. Rückgängig holt es zurück.",
+    "mailFailed": "Die Nachricht konnte nicht vom Mailserver gelesen werden. Versuche es gleich noch einmal."
+  }
 }

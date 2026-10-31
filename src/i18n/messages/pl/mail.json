@@ -22,6 +22,15 @@
   "firstReadHint": "Najnowsza poczta pojawi się za chwilę. Starsza, sprzed maksymalnie trzech miesięcy, będzie się wczytywać przez kilka następnych minut.",
   "empty": "Brak poczty.",
   "emptySearch": "Brak pasującej poczty.",
+  "emptyFolder": {
+    "trash": "Opróżnij kosz",
+    "junk": "Opróżnij spam",
+    "trashTitle": "Opróżnić kosz?",
+    "junkTitle": "Opróżnić spam?",
+    "body": "Wszystkie wiadomości w folderze {folder} zostaną trwale usunięte, także z serwera poczty. Tego nie można cofnąć.",
+    "trashDone": "Kosz opróżniony",
+    "junkDone": "Spam opróżniony"
+  },
   "noneOpen": "Wybierz konwersację, aby ją przeczytać.",
   "loading": "Wczytywanie…",
   "loadFailed": "Nie udało się wczytać poczty. Spróbuj ponownie za chwilę.",
@@ -156,5 +165,26 @@
   "printMessage": "Drukuj",
   "showSource": "Pokaż oryginał",
   "downloadSource": "Pobierz wiadomość (.eml)",
-  "allInboxes": "Wszystkie odebrane"
+  "allInboxes": "Wszystkie odebrane",
+  "ai": {
+    "summarize": "Podsumuj",
+    "summarizeHint": "Podsumuj tę rozmowę za pomocą AI",
+    "summary": "Podsumowanie",
+    "summarizing": "Podsumowywanie…",
+    "resummarize": "Podsumuj ponownie",
+    "newer": "{count, plural, one {Po tym podsumowaniu przyszła # wiadomość.} few {Po tym podsumowaniu przyszły # wiadomości.} many {Po tym podsumowaniu przyszło # wiadomości.} other {Po tym podsumowaniu przyszło # wiadomości.}}",
+    "replyWithAi": "Odpowiedz z AI",
+    "write": "Pisz z AI",
+    "closeWriter": "Zamknij asystenta pisania AI",
+    "instruction": "Co ma napisać AI",
+    "placeholder": "Powiedz AI, co napisać…",
+    "placeholderReply": "Co ma zawierać odpowiedź? Albo wybierz Napisz odpowiedź…",
+    "placeholderDraft": "Powiedz AI, co zmienić…",
+    "reply": "Napisz odpowiedź",
+    "formal": "Bardziej formalnie",
+    "friendly": "Bardziej przyjaźnie",
+    "use": "Użyj tego",
+    "useNote": "Zastępuje to, co napisano nad podpisem. Cofnij przywraca poprzednią treść.",
+    "mailFailed": "Nie udało się odczytać wiadomości z serwera poczty. Spróbuj ponownie za chwilę."
+  }
 }

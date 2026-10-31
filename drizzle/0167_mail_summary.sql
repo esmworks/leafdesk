@@ -1,0 +1,1 @@
+ALTER TABLE "mail_message" ADD COLUMN "summary" text;

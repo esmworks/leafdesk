@@ -22,6 +22,15 @@
   "firstReadHint": "Your latest mail shows in a moment. Older mail, up to three months back, comes in over the next minutes.",
   "empty": "No mail here.",
   "emptySearch": "No mail matches.",
+  "emptyFolder": {
+    "trash": "Empty trash",
+    "junk": "Empty junk",
+    "trashTitle": "Empty the trash?",
+    "junkTitle": "Empty junk?",
+    "body": "Every message in {folder} is deleted forever, on the mail server too. This can’t be undone.",
+    "trashDone": "Trash emptied",
+    "junkDone": "Junk emptied"
+  },
   "noneOpen": "Choose a conversation to read it.",
   "loading": "Loading…",
   "loadFailed": "Mail couldn’t be loaded. Try again in a moment.",
@@ -156,5 +165,26 @@
   "printMessage": "Print",
   "showSource": "Show original",
   "downloadSource": "Download message (.eml)",
-  "allInboxes": "All inboxes"
+  "allInboxes": "All inboxes",
+  "ai": {
+    "summarize": "Summarize",
+    "summarizeHint": "Summarize this conversation with AI",
+    "summary": "Summary",
+    "summarizing": "Summarizing…",
+    "resummarize": "Summarize again",
+    "newer": "{count, plural, one {# message came} other {# messages came}} after this summary.",
+    "replyWithAi": "Reply with AI",
+    "write": "Write with AI",
+    "closeWriter": "Close the AI writer",
+    "instruction": "What AI should write",
+    "placeholder": "Tell AI what to write…",
+    "placeholderReply": "What should the reply say? Or pick Write reply…",
+    "placeholderDraft": "Tell AI what to change…",
+    "reply": "Write reply",
+    "formal": "More formal",
+    "friendly": "Friendlier",
+    "use": "Use this",
+    "useNote": "It takes the place of what you wrote above your signature. Undo brings it back.",
+    "mailFailed": "The mail couldn't be read from the mail server. Try again in a moment."
+  }
 }

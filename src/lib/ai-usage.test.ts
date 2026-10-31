@@ -42,6 +42,7 @@ describe("the usage view", () => {
     expect(aiUsageGroup("chat")).toBe("chat");
     expect(aiUsageGroup("chat.research")).toBe("chat");
     expect(aiUsageGroup("editor.improve")).toBe("writing");
+    expect(aiUsageGroup("mail.summary")).toBe("writing");
     expect(aiUsageGroup("property.summary")).toBe("properties");
     expect(aiUsageGroup("agent")).toBe("agents");
     expect(aiUsageGroup("search.index")).toBe("search");

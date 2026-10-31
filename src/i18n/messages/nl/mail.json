@@ -22,6 +22,15 @@
   "firstReadHint": "Je nieuwste mail verschijnt zo. Oudere mail, tot drie maanden terug, komt de komende minuten binnen.",
   "empty": "Hier is geen mail.",
   "emptySearch": "Geen mail gevonden.",
+  "emptyFolder": {
+    "trash": "Prullenbak legen",
+    "junk": "Ongewenst legen",
+    "trashTitle": "Prullenbak legen?",
+    "junkTitle": "Ongewenst legen?",
+    "body": "Alle berichten in {folder} worden definitief verwijderd, ook op de mailserver. Dit kan niet ongedaan worden gemaakt.",
+    "trashDone": "Prullenbak geleegd",
+    "junkDone": "Ongewenst geleegd"
+  },
   "noneOpen": "Kies een gesprek om het te lezen.",
   "loading": "Laden…",
   "loadFailed": "Mail kon niet worden geladen. Probeer het zo opnieuw.",
@@ -156,5 +165,26 @@
   "printMessage": "Afdrukken",
   "showSource": "Origineel weergeven",
   "downloadSource": "Bericht downloaden (.eml)",
-  "allInboxes": "Alle postvakken IN"
+  "allInboxes": "Alle postvakken IN",
+  "ai": {
+    "summarize": "Samenvatten",
+    "summarizeHint": "Dit gesprek samenvatten met AI",
+    "summary": "Samenvatting",
+    "summarizing": "Bezig met samenvatten…",
+    "resummarize": "Opnieuw samenvatten",
+    "newer": "{count, plural, one {Na deze samenvatting kwam # bericht binnen.} other {Na deze samenvatting kwamen # berichten binnen.}}",
+    "replyWithAi": "Beantwoorden met AI",
+    "write": "Schrijven met AI",
+    "closeWriter": "AI-schrijfhulp sluiten",
+    "instruction": "Wat de AI moet schrijven",
+    "placeholder": "Vertel de AI wat er moet komen te staan…",
+    "placeholderReply": "Wat moet het antwoord zeggen? Of kies Antwoord schrijven…",
+    "placeholderDraft": "Vertel de AI wat er moet veranderen…",
+    "reply": "Antwoord schrijven",
+    "formal": "Formeler",
+    "friendly": "Vriendelijker",
+    "use": "Gebruiken",
+    "useNote": "Vervangt wat je boven je handtekening hebt geschreven. Ongedaan maken zet het terug.",
+    "mailFailed": "Het bericht kon niet van de mailserver worden gelezen. Probeer het zo opnieuw."
+  }
 }

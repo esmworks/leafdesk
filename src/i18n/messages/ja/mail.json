@@ -22,6 +22,15 @@
   "firstReadHint": "最新のメールはまもなく表示されます。3 か月前までの古いメールは、今後数分で取り込まれます。",
   "empty": "メールはありません。",
   "emptySearch": "一致するメールはありません。",
+  "emptyFolder": {
+    "trash": "ゴミ箱を空にする",
+    "junk": "迷惑メールを空にする",
+    "trashTitle": "ゴミ箱を空にしますか？",
+    "junkTitle": "迷惑メールを空にしますか？",
+    "body": "{folder} のメッセージはすべて、メールサーバー上でも完全に削除されます。元に戻せません。",
+    "trashDone": "ゴミ箱を空にしました",
+    "junkDone": "迷惑メールを空にしました"
+  },
   "noneOpen": "会話を選択すると読めます。",
   "loading": "読み込み中…",
   "loadFailed": "メールを読み込めませんでした。しばらくしてからもう一度お試しください。",
@@ -156,5 +165,26 @@
   "printMessage": "印刷",
   "showSource": "メッセージのソースを表示",
   "downloadSource": "メッセージをダウンロード (.eml)",
-  "allInboxes": "すべての受信トレイ"
+  "allInboxes": "すべての受信トレイ",
+  "ai": {
+    "summarize": "要約",
+    "summarizeHint": "この会話を AI で要約",
+    "summary": "要約",
+    "summarizing": "要約しています…",
+    "resummarize": "もう一度要約",
+    "newer": "{count, plural, other {この要約の後に # 件のメッセージが届きました。}}",
+    "replyWithAi": "AI で返信",
+    "write": "AI で書く",
+    "closeWriter": "AI ライターを閉じる",
+    "instruction": "AI に書いてほしい内容",
+    "placeholder": "AI に書く内容を伝える…",
+    "placeholderReply": "返信で伝えることは？ または「返信を書く」を選択…",
+    "placeholderDraft": "AI に変更内容を伝える…",
+    "reply": "返信を書く",
+    "formal": "よりフォーマルに",
+    "friendly": "より親しみやすく",
+    "use": "これを使う",
+    "useNote": "署名の上に書いた内容と置き換わります。元に戻すで戻せます。",
+    "mailFailed": "メールサーバーからメッセージを読み込めませんでした。しばらくしてからもう一度お試しください。"
+  }
 }

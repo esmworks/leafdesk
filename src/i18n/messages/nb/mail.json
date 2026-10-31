@@ -22,6 +22,15 @@
   "firstReadHint": "Den nyeste e-posten din vises om et øyeblikk. Eldre e-post, opptil tre måneder tilbake, kommer inn i løpet av de neste minuttene.",
   "empty": "Ingen e-post her.",
   "emptySearch": "Ingen e-post samsvarer.",
+  "emptyFolder": {
+    "trash": "Tøm papirkurven",
+    "junk": "Tøm søppelpost",
+    "trashTitle": "Tømme papirkurven?",
+    "junkTitle": "Tømme søppelpost?",
+    "body": "Alle meldinger i {folder} slettes for godt, også på e-postserveren. Dette kan ikke angres.",
+    "trashDone": "Papirkurven er tømt",
+    "junkDone": "Søppelpost er tømt"
+  },
   "noneOpen": "Velg en samtale for å lese den.",
   "loading": "Laster …",
   "loadFailed": "E-posten kunne ikke lastes. Prøv igjen om litt.",
@@ -156,5 +165,26 @@
   "printMessage": "Skriv ut",
   "showSource": "Vis original",
   "downloadSource": "Last ned melding (.eml)",
-  "allInboxes": "Alle innbokser"
+  "allInboxes": "Alle innbokser",
+  "ai": {
+    "summarize": "Oppsummer",
+    "summarizeHint": "Oppsummer denne samtalen med KI",
+    "summary": "Oppsummering",
+    "summarizing": "Oppsummerer…",
+    "resummarize": "Oppsummer på nytt",
+    "newer": "{count, plural, one {# melding kom etter denne oppsummeringen.} other {# meldinger kom etter denne oppsummeringen.}}",
+    "replyWithAi": "Svar med KI",
+    "write": "Skriv med KI",
+    "closeWriter": "Lukk KI-skriveren",
+    "instruction": "Hva KI skal skrive",
+    "placeholder": "Fortell KI hva den skal skrive…",
+    "placeholderReply": "Hva skal svaret si? Eller velg Skriv svar…",
+    "placeholderDraft": "Fortell KI hva den skal endre…",
+    "reply": "Skriv svar",
+    "formal": "Mer formell",
+    "friendly": "Vennligere",
+    "use": "Bruk denne",
+    "useNote": "Erstatter det du har skrevet over signaturen din. Angre henter det tilbake.",
+    "mailFailed": "Meldingen kunne ikke leses fra e-postserveren. Prøv igjen om litt."
+  }
 }

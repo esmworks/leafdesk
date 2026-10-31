@@ -22,6 +22,15 @@
   "firstReadHint": "最新邮件稍后显示。最多三个月前的旧邮件会在接下来几分钟内陆续载入。",
   "empty": "这里没有邮件。",
   "emptySearch": "没有匹配的邮件。",
+  "emptyFolder": {
+    "trash": "清空废纸篓",
+    "junk": "清空垃圾邮件",
+    "trashTitle": "清空废纸篓？",
+    "junkTitle": "清空垃圾邮件？",
+    "body": "{folder} 中的所有邮件都会被永久删除，邮件服务器上也是。此操作无法撤销。",
+    "trashDone": "废纸篓已清空",
+    "junkDone": "垃圾邮件已清空"
+  },
   "noneOpen": "选择一个会话即可阅读。",
   "loading": "加载中…",
   "loadFailed": "无法加载邮件。请稍后重试。",
@@ -156,5 +165,26 @@
   "printMessage": "打印",
   "showSource": "显示原始邮件",
   "downloadSource": "下载邮件 (.eml)",
-  "allInboxes": "所有收件箱"
+  "allInboxes": "所有收件箱",
+  "ai": {
+    "summarize": "总结",
+    "summarizeHint": "用 AI 总结此对话",
+    "summary": "总结",
+    "summarizing": "正在总结…",
+    "resummarize": "重新总结",
+    "newer": "{count, plural, other {此总结之后又收到 # 封邮件。}}",
+    "replyWithAi": "用 AI 回复",
+    "write": "用 AI 写",
+    "closeWriter": "关闭 AI 写作助手",
+    "instruction": "AI 要写的内容",
+    "placeholder": "告诉 AI 要写什么…",
+    "placeholderReply": "回复要说什么？或选择“写回复”…",
+    "placeholderDraft": "告诉 AI 要改什么…",
+    "reply": "写回复",
+    "formal": "更正式",
+    "friendly": "更友好",
+    "use": "使用",
+    "useNote": "替换你在签名上方写的内容。撤销可恢复。",
+    "mailFailed": "无法从邮件服务器读取邮件。请稍后再试。"
+  }
 }

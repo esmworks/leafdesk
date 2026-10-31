@@ -258,6 +258,12 @@ export const mailMessage = pgTable(
     size: integer("size").notNull().default(0),
     /** Its owner asked for its images from other sites: they load whenever it is opened again. */
     imagesShown: boolean("images_shown").notNull().default(false),
+    /**
+     * The AI's summary of its thread up to this message, made when its owner asked for one
+     * (mail-client/ai.ts): the one thing here written from bodies. It goes with the row (a move to
+     * another folder, the message gone from the server) and is made again on the next ask.
+     */
+    summary: text("summary"),
   },
   (t) => [
     uniqueIndex("mail_message_uid_idx").on(t.folderId, t.uid),

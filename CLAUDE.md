@@ -173,7 +173,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   carry data out too: a write of the model's (agent runs, the chat, approved proposals) sets
   `WriteActor.model`, and `writeBlocks` turns its media that would load another site into links
   (`lib/model-media.ts`); a new place a model writes a page sets it. Outside text goes to the model
-  through `connections/tools.ts` `externalData`/`frameData` (a frame with a new id each time);
+  through `ai/frame.ts` `externalData`/`frameData` (a frame with a new id each time);
   `ai/index.ts` strips invisible characters from all of it (`lib/invisible-text.ts`).
 - **Search.** `src/server/pages.ts` `searchPages` merges `fullTextSearch` with semantic search;
   `semantic-search.ts` `searchScope` is the one place a search's scope and filters become SQL, used
@@ -289,7 +289,11 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   draft before after that); pictures in the text are the editor's `Picture` node, sent as `cid:`
   parts (`compose.ts` `inlineFiles`, form field `inline`), each uploaded once and carried over from
   the draft saved last by Content-ID, opened again as data URLs marked `data-cid`; a send waits
-  `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, which scripts skip with `sendHeld`), follow-up
+  `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, which scripts skip with `sendHeld`;
+  AI: `mail-client/ai.ts` behind `/api/ai/mail` (prompts pure in `ai-prompts.ts`), reading bodies
+  with `read.ts` `messageForAi`, which never marks them seen; a thread's summary is `mail_message.summary` on its newest message;
+  the composer's writer `composer-ai.tsx` replaces only `writing-range.ts`'s part, above the
+  signature, keeping its pictures), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
   `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner

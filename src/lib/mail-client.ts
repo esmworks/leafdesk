@@ -134,15 +134,6 @@ export function forwardSubject(subject: string) {
   return /^\s*(fwd?|wg|tr|[iİı]lt|enc)\s*:/iu.test(subject) ? subject : `Fwd: ${subject}`;
 }
 
-/**
- * Where a plain-text message's quoted earlier mail starts: the "On … wrote:" line before its first
- * run of ">" lines, or the first of them; -1 when it quotes nothing.
- */
-export function textQuoteStart(lines: string[]) {
-  const cut = lines.findIndex((line) => /^\s*>/.test(line));
-  return cut > 0 && /:\s*$/.test(lines[cut - 1] ?? "") ? cut - 1 : cut;
-}
-
 /** The text a list shows of a message: one line, without quoted earlier mail, cut to MAIL_PREVIEW_CHARS. */
 export function previewText(text: string) {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
@@ -303,6 +294,8 @@ export type MailThreadView = {
   subject: string;
   messages: MailMessageView[];
   row: MailThreadItem["row"];
+  /** The AI's summary asked for last, and the message it reaches up to (newer ones came after it when that isn't the last). */
+  summary: { text: string; messageId: string } | null;
 };
 
 /** A message written in the Mail tab. */

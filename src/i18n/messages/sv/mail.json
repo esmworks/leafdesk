@@ -22,6 +22,15 @@
   "firstReadHint": "Din senaste e-post visas om en stund. Äldre e-post, upp till tre månader tillbaka, kommer in de närmaste minuterna.",
   "empty": "Ingen e-post här.",
   "emptySearch": "Ingen e-post matchar.",
+  "emptyFolder": {
+    "trash": "Töm papperskorgen",
+    "junk": "Töm skräppost",
+    "trashTitle": "Tömma papperskorgen?",
+    "junkTitle": "Tömma skräpposten?",
+    "body": "Alla meddelanden i {folder} raderas för alltid, även på e-postservern. Det går inte att ångra.",
+    "trashDone": "Papperskorgen tömd",
+    "junkDone": "Skräpposten tömd"
+  },
   "noneOpen": "Välj en konversation för att läsa den.",
   "loading": "Läser in …",
   "loadFailed": "E-posten kunde inte läsas in. Försök igen om en stund.",
@@ -156,5 +165,26 @@
   "printMessage": "Skriv ut",
   "showSource": "Visa original",
   "downloadSource": "Ladda ned meddelande (.eml)",
-  "allInboxes": "Alla inkorgar"
+  "allInboxes": "Alla inkorgar",
+  "ai": {
+    "summarize": "Sammanfatta",
+    "summarizeHint": "Sammanfatta den här konversationen med AI",
+    "summary": "Sammanfattning",
+    "summarizing": "Sammanfattar…",
+    "resummarize": "Sammanfatta igen",
+    "newer": "{count, plural, one {# meddelande kom efter den här sammanfattningen.} other {# meddelanden kom efter den här sammanfattningen.}}",
+    "replyWithAi": "Svara med AI",
+    "write": "Skriv med AI",
+    "closeWriter": "Stäng AI-skrivaren",
+    "instruction": "Vad AI ska skriva",
+    "placeholder": "Berätta för AI vad den ska skriva…",
+    "placeholderReply": "Vad ska svaret säga? Eller välj Skriv svar…",
+    "placeholderDraft": "Berätta för AI vad den ska ändra…",
+    "reply": "Skriv svar",
+    "formal": "Mer formell",
+    "friendly": "Vänligare",
+    "use": "Använd detta",
+    "useNote": "Ersätter det du skrivit ovanför din signatur. Ångra tar tillbaka det.",
+    "mailFailed": "Meddelandet kunde inte läsas från e-postservern. Försök igen om en stund."
+  }
 }
