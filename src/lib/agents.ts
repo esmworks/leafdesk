@@ -70,6 +70,16 @@ export const MAX_AGENT_PROPOSALS = 10;
 export const MAX_PROPOSALS_PER_RUN = 2;
 /** The longest note a schedule's run leaves for its next run (where it left off). */
 export const MAX_HANDOFF_CHARS = 2_000;
+/**
+ * Runs new email may start for one agent in one mailbox (agents/mail-trigger.ts), in the last hour
+ * and in the last day: mail sent in bulk, or a loop of replies, can't spend the month in an hour.
+ */
+export const MAX_MAIL_RUNS_PER_HOUR = 20;
+export const MAX_MAIL_RUNS_PER_DAY = 100;
+/** The task new email gives the agent, and the senders and subject words a trigger's filters name. */
+export const MAX_MAIL_TASK = MAX_AGENT_PROMPT;
+export const MAX_MAIL_SENDERS = 50;
+export const MAX_MAIL_SUBJECT = 200;
 
 /** Where an agent's memory opens in Settings (its Memory tab), for its owners. */
 export const agentMemoryPath = (workspaceId: string, agentId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}&agentTab=memory`;
@@ -189,6 +199,16 @@ export type AgentRunSource =
       conversationId: string;
       /** Sent from a connected app (MCP, the REST API, the Telegram bot), which reads the answer. */
       fromApp?: boolean;
+    }
+  | {
+      kind: "mail";
+      /** The mailbox the email came to, which its owner (`userId`) opened to the agent (agent_mailbox). */
+      mailboxId: string;
+      /** The mailbox's owner; the run is held to their access as well, and is theirs alone. */
+      userId: string;
+      /** The thread of the Mail tab's index the email is in, and the email (`mail_message` ids). */
+      threadId: string;
+      messageId: string;
     };
 
 /** What happened that the run responds to, for its prompt and its history. */
@@ -217,7 +237,8 @@ export type AgentRunContext =
   | {
       /**
        * The owner who asked for the run (as `source.requestedBy`), set its schedule
-       * (`source.scheduledBy`), or the member who mentioned the agent (`source.mentionedBy`).
+       * (`source.scheduledBy`), the member who mentioned the agent (`source.mentionedBy`), or whose
+       * email started it (`source.userId`).
        */
       actorId: string;
       /** A schedule's run: when it was due (ISO). */
@@ -362,7 +383,8 @@ export type ApprovalDecision = "approve" | "decline" | "redo";
 
 /**
  * Why a run ended without doing its work: the workspace turned AI off, the agent was paused or
- * archived, it can't open the row, the comment that mentioned it is gone, the model failed, the
+ * archived, it can't open the row, the comment that mentioned it is gone, the email that started
+ * it is gone (or its mailbox no longer opened to the agent), the model failed, the
  * run took too long, no one answered a call that waited for approval, the agent used its tokens
  * for the month, or the workspace's AI reached its monthly cost limit.
  */
@@ -378,6 +400,7 @@ export const AGENT_RUN_CODES = [
   "tooManyAttempts",
   "approvalTimeout",
   "connectionGone",
+  "mailGone",
   "limitReached",
   "costLimit",
   "error",
@@ -532,6 +555,8 @@ export type AgentRunView = {
   request: { by: string; byName: string; via: AgentRunVia; task: string } | null;
   /** For a chat's run: who wrote, and their message (empty for anyone else: a conversation is its person's). */
   chat: { by: string; byName: string; message: string } | null;
+  /** For a run new email started: whose email, and its subject (empty for anyone else: it is their mail). */
+  mail: { by: string; byName: string; subject: string } | null;
   /**
    * For a run a schedule started: the schedule, who set it, the task and the database it looks
    * after (`databaseTitle` and `task` empty where the viewer can't open the database).
@@ -568,6 +593,9 @@ export const isEventRun = (source: AgentRunSource): source is Extract<AgentRunSo
 /** Whether a comment that mentioned the agent started a run. */
 export const isMentionRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "mention" }> => source.kind === "mention";
 
+/** Whether new email started a run (agents/mail-trigger.ts). */
+export const isMailRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "mail" }> => source.kind === "mail";
+
 /** What decides who sees a run's work: its own source, or for a run another agent asked for, that agent's run's. */
 export const accessSource = (source: AgentRunSource): Exclude<AgentRunSource, { kind: "handoff" }> => (source.kind === "handoff" ? source.parent : source);
 
@@ -580,14 +608,21 @@ export const runPageOf = (given: AgentRunSource): string | null => {
 /**
  * Whether a run may read the email its person opened to the agent (server/agents/mail.ts): only one
  * whose steps and answer show to that person alone (ownerSeesRun) and stay in the app: their chat
- * with the agent there, or a schedule they set that looks after no database. Never a run another
+ * with the agent there, a schedule they set that looks after no database, or one their new email
+ * started (it starts as one that read email: agents/run.ts). Never a run another
  * agent asked for, a request (from MCP or the REST API) or a chat sent from a connected app; and
  * what one that read email answered stays out of those too (readEmail).
  */
-export const mailRun = (source: AgentRunSource): boolean => (source.kind === "chat" && !source.fromApp) || (isScheduleRun(source) && !source.databaseId);
+export const mailRun = (source: AgentRunSource): boolean => (source.kind === "chat" && !source.fromApp) || (isScheduleRun(source) && !source.databaseId) || isMailRun(source);
 
-/** The mail tools of an agent's run (server/ai-chat-mail.ts MAIL_TOOL_NAMES). */
-export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "read_mail_attachment", "draft_mail"]);
+/**
+ * The mail tools of an agent's run (server/ai-chat-mail.ts MAIL_TOOL_NAMES and AGENT_MAIL_ACTIONS):
+ * reading (an email's files too) and drafting as the AI chat does, and sorting what came (marking
+ * it read or starred, archiving it, moving it to one of the mailbox's folders) and keeping a
+ * thread's summary, which the Mail tab can undo or the person write again. Never sending, deleting
+ * or the trash.
+ */
+export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "read_mail_attachment", "draft_mail", "sort_mail", "summarize_mail"]);
 
 /**
  * What a run that read email may still call besides the mail tools: reading pages, finding tools,
@@ -602,12 +637,16 @@ export const READS_AFTER_MAIL: ReadonlySet<string> = new Set(["search_pages", "r
  */
 export const mayCallAfterMail = (name: string, connectionTool: boolean): boolean => !connectionTool && (READS_AFTER_MAIL.has(name) || AGENT_MAIL_TOOLS.has(name));
 
+/** The mail steps that read email (ChatMailRecord): drafting, sorting and summarizing don't on their own. */
+const READ_MAIL_ACTIONS: ReadonlySet<string> = new Set(["search", "read", "attachment", "earlier"]);
+
 /**
  * Whether a run's steps show it read email, or went on from a conversation that had: its answer
  * may then quote mail, so connected apps (MCP, the REST API) get neither its answer nor its steps,
  * and the chat's next runs only read pages and draft email.
  */
-export const readEmail = (steps: readonly { kind: string; action?: unknown }[] | undefined): boolean => (steps ?? []).some((s) => s.kind === "mail" && s.action !== "draft");
+export const readEmail = (steps: readonly { kind: string; action?: unknown }[] | undefined): boolean =>
+  (steps ?? []).some((s) => s.kind === "mail" && typeof s.action === "string" && READ_MAIL_ACTIONS.has(s.action));
 
 /**
  * Whether an owner sees what a run read, thought and answered, and the call it waits on, and so
@@ -617,13 +656,13 @@ export const readEmail = (steps: readonly { kind: string; action?: unknown }[] |
  * the database. A mention's run answers in the page's comments: it is for those who can open the
  * page, as a row's run is. A run an owner asked for, or one of a schedule without a database, read
  * with that owner's access: it is theirs alone, as a chat's run is its person's (an owner's or
- * not). A connection's event is the owners' (they set up the connection), as is the run it started.
+ * not), and one their email started. A connection's event is the owners' (they set up the connection), as is the run it started.
  */
 export function ownerSeesRun(given: AgentRunSource, userId: string, opensPage: boolean): boolean {
   // A helper's run read for the run that asked it: it shows to whoever that run shows to.
   const source = accessSource(given);
   if (source.kind === "request") return source.requestedBy === userId && (!isRowRun(source) || opensPage);
-  if (source.kind === "chat") return source.userId === userId;
+  if (source.kind === "chat" || source.kind === "mail") return source.userId === userId;
   if (isRowRun(source) || isMentionRun(source)) return opensPage;
   if (isScheduleRun(source)) return source.databaseId ? opensPage : source.scheduledBy === userId;
   return true;

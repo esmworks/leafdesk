@@ -627,7 +627,8 @@
         "approvalTimeout": "Nikt nie odpowiedział na jego wywołanie w ciągu doby, więc nic nie zostało wysłane.",
         "connectionGone": "Połączenie, które je rozpoczęło, zostało usunięte.",
         "limitReached": "Wyczerpał miesięczny limit tokenów agenta.",
-        "costLimit": "Przestrzeń robocza osiągnęła wcześniej miesięczny limit kosztów AI."
+        "costLimit": "Przestrzeń robocza osiągnęła wcześniej miesięczny limit kosztów AI.",
+        "mailGone": "Wiadomości nie ma już w skrzynce albo skrzynka nie jest już otwarta dla agenta."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "usunięte połączenie",
@@ -683,7 +684,8 @@
       "emailFailed": "Nie udało się przygotować szkicu e-maila:",
       "emailHidden": "Przygotował szkic e-maila w wierszu, którego nie możesz otworzyć",
       "emailSent": "Wysłał e-mail do {to}:",
-      "emailSendFailed": "Nie udało się wysłać e-maila do {to}:"
+      "emailSendFailed": "Nie udało się wysłać e-maila do {to}:",
+      "fromMail": "E-mail do {name}"
     },
     "usage": {
       "thisMonth": "W tym miesiącu: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Zacznij od szablonu",
-      "description": "Gotowi agenci dla bazy danych. Większość działa na każdym nowym wierszu, rejestrator sukcesów na zdarzeniach z połączenia; wybierasz bazę danych i to, czego używa."
+      "description": "Gotowi agenci dla bazy danych. Większość działa na każdym nowym wierszu, rejestrator sukcesów na zdarzeniach z połączenia, a asystent poczty na nowej poczcie w Twojej skrzynce; wybierasz bazę danych i to, czego używa."
     },
     "wizard": {
       "title": "Skonfiguruj: {name}",
@@ -703,7 +705,8 @@
         "database": "Wybierz bazę danych",
         "properties": "Wybierz jej właściwości",
         "pages": "Wybierz strony, które czyta",
-        "connection": "Wybierz źródło zdarzeń"
+        "connection": "Wybierz źródło zdarzeń",
+        "mailbox": "Wybierz skrzynkę"
       },
       "chooseDatabase": "Na jakiej bazie danych ma pracować? Musisz mieć do niej pełny dostęp.",
       "searchDatabases": "Szukaj baz danych",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Ta baza danych nie ma właściwości, którą mógłby wypełnić: tekst, link, e-mail, telefon, liczba lub wybór z opcjami. Dodaj jedną, a potem skonfiguruj agenta.",
       "companyAutofilled": "Pominięte, bo wypełnia je autouzupełnianie AI: {properties}.",
       "summaryWeb": "Otrzymuje dostęp do internetu, aby wyszukiwać firmy.",
+      "chooseCustomers": "Którą bazę danych klientów lub kontaktów ma aktualizować? Potrzebujesz do niej pełnego dostępu.",
+      "mailbox": "Skrzynka pocztowa",
+      "mailboxHelp": "Nowa poczta w tej skrzynce uruchamia agenta. Tylko Ty widzisz, co czyta, pisze i proponuje.",
+      "noMailbox": "Nie masz jeszcze skrzynki w tym obszarze roboczym. <link>Dodaj ją w Poczcie</link>, a potem skonfiguruj agenta.",
+      "summaryMail": "Utworzenie dodaje agenta, otwiera mu skrzynkę {mailbox} i sprawia, że nowa poczta tam go uruchamia. Agent dostaje dostęp do edycji {database}; każdy proponowany przez niego wiersz lub zmiana czeka na Twoją akceptację w sekcji Do przejrzenia.",
       "back": "Wstecz",
       "next": "Dalej",
       "create": "Utwórz agenta",
@@ -757,7 +765,8 @@
         "sameOptions": "Wybierz dwie różne opcje.",
         "needPages": "Wybierz co najmniej jedną stronę.",
         "needName": "Nadaj agentowi nazwę.",
-        "needConnection": "Wybierz połączenie."
+        "needConnection": "Wybierz połączenie.",
+        "needMailbox": "Wybierz skrzynkę pocztową."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Wpisz do 10 adresów e-mail.",
         "requestTokens": "Podaj całkowitą liczbę tokenów wyższą niż obecny limit, do 1 000 000 000.",
         "requestNote": "Wyjaśnij powód w maksymalnie 500 znakach.",
-        "noLimit": "Ten agent nie ma limitu, który można podnieść."
+        "noLimit": "Ten agent nie ma limitu, który można podnieść.",
+        "mailbox": "Wybierz jedną ze swoich skrzynek w tym obszarze roboczym."
       },
       "noteEmpty": "Napisz, co agent ma zapamiętać.",
       "noteTooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Twoja poczta",
-      "description": "Otwórz skrzynkę, aby ten agent mógł w niej wyszukiwać, czytać pocztę i zapisywać wersje robocze: w Twoich czatach z nim tutaj i w harmonogramach, które ustawisz bez bazy danych do pilnowania.",
+      "description": "Otwórz skrzynkę, aby ten agent mógł w niej wyszukiwać, czytać i porządkować pocztę oraz zapisywać wersje robocze: w Twoich czatach z nim tutaj, w ustawionych przez Ciebie harmonogramach, które nie dotyczą bazy danych, oraz po nadejściu nowej poczty, jeśli to włączysz.",
       "open": "Otwórz {address} dla tego agenta",
-      "note": "Nigdy nie wysyła e-maili: jego wersje robocze wysyłasz sam z karty Poczta. Gdy uruchomienie przeczyta pocztę, tylko czyta strony i pisze wersje robocze. Inne osoby, które używają lub edytują tego agenta, nigdy nie widzą Twojej poczty."
+      "note": "Nigdy nie wysyła e-maili: jego wersje robocze wysyłasz Ty z karty Poczta. Gdy uruchomienie przeczyta pocztę, już tylko czyta strony i pracuje na Twojej poczcie. Inne osoby, które używają tego agenta lub go edytują, nigdy nie widzą Twojej poczty.",
+      "trigger": {
+        "label": "Uruchamiaj przy nowej poczcie",
+        "edit": "Zmień",
+        "task": "Co zrobić z każdym nowym e-mailem",
+        "taskPlaceholder": "Podsumuj go, przygotuj odpowiedź, gdy ktoś o nią prosi, i archiwizuj newslettery.",
+        "senders": "Tylko od (opcjonalnie)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Wpisz adresy e-mail lub domeny oddzielone przecinkami.",
+        "subject": "Tylko z tymi słowami w temacie (opcjonalnie)",
+        "subjectPlaceholder": "oferta",
+        "knownOnly": "Tylko od osób, które są wierszami Twoich baz danych",
+        "skipped": "Poczta, którą wysyłasz, wersje robocze, autoodpowiedzi, listy mailingowe i masowe wysyłki nigdy go nie uruchamiają. Najwyżej {hour} uruchomień na godzinę i {day} na dzień z tej skrzynki.",
+        "limited": "Ostatnio pominięto część poczty: osiągnięto limit godzinowy lub dzienny."
+      }
     }
   },
   "analytics": {

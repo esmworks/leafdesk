@@ -329,6 +329,15 @@
           "done": "已保存草稿:",
           "declined": "已拒绝草稿:",
           "failed": "无法保存草稿:"
+        },
+        "summarized": "已总结:",
+        "moved": "已移至 {folder}:",
+        "sorted": {
+          "read": "已标为已读:",
+          "unread": "已标为未读:",
+          "star": "已加星标:",
+          "unstar": "已取消星标:",
+          "archive": "已归档:"
         }
       }
     },

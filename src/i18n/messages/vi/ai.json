@@ -329,6 +329,15 @@
           "done": "Đã lưu bản nháp:",
           "declined": "Đã từ chối bản nháp:",
           "failed": "Không lưu được bản nháp:"
+        },
+        "summarized": "Đã tóm tắt:",
+        "moved": "Đã chuyển vào {folder}:",
+        "sorted": {
+          "read": "Đã đánh dấu đã đọc:",
+          "unread": "Đã đánh dấu chưa đọc:",
+          "star": "Đã gắn sao:",
+          "unstar": "Đã bỏ sao:",
+          "archive": "Đã lưu trữ:"
         }
       }
     },

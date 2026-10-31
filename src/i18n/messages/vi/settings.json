@@ -632,7 +632,8 @@
         "approvalTimeout": "Không ai trả lời lệnh gọi của nó trong vòng một ngày, nên không có gì được gửi đi.",
         "connectionGone": "Kết nối đã khởi động nó đã bị xóa.",
         "limitReached": "Nó đã dùng hết giới hạn token hằng tháng của tác tử.",
-        "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng."
+        "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
+        "mailGone": "Email không còn trong hộp thư, hoặc hộp thư không còn mở cho tác tử."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Một kết nối đã bị xóa",
@@ -683,7 +684,8 @@
       "fromChat": "Một tin nhắn trò chuyện từ {name}",
       "chattedBy": "trò chuyện bởi {name}",
       "yoursOnly": "Bạn thấy các lần chạy do bạn khởi động.",
-      "waitingForOwner": "Một chủ sở hữu không gian làm việc trả lời lệnh gọi này."
+      "waitingForOwner": "Một chủ sở hữu không gian làm việc trả lời lệnh gọi này.",
+      "fromMail": "Email gửi {name}"
     },
     "usage": {
       "thisMonth": "Tháng này: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Bắt đầu từ một mẫu",
-      "description": "Các tác tử làm sẵn cho một cơ sở dữ liệu. Hầu hết chạy trên mỗi hàng mới, bộ ghi thành tựu chạy trên các sự kiện của một kết nối; bạn chọn cơ sở dữ liệu và những gì nó dùng."
+      "description": "Các tác tử làm sẵn cho một cơ sở dữ liệu. Hầu hết chạy trên mỗi hàng mới, bộ ghi thành tựu chạy trên các sự kiện của một kết nối, còn trợ lý thư chạy khi có thư mới trong hộp thư của bạn; bạn chọn cơ sở dữ liệu và những gì nó dùng."
     },
     "wizard": {
       "title": "Thiết lập {name}",
@@ -703,7 +705,8 @@
         "database": "Chọn một cơ sở dữ liệu",
         "properties": "Chọn các thuộc tính của nó",
         "pages": "Chọn các trang nó đọc",
-        "connection": "Chọn nơi các sự kiện của nó đến từ"
+        "connection": "Chọn nơi các sự kiện của nó đến từ",
+        "mailbox": "Chọn hộp thư"
       },
       "chooseDatabase": "Nó nên làm việc trên cơ sở dữ liệu nào? Bạn cần có toàn quyền với cơ sở dữ liệu đó.",
       "searchDatabases": "Tìm cơ sở dữ liệu",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Cơ sở dữ liệu này không có thuộc tính nào nó có thể điền: văn bản, liên kết, email, số điện thoại, con số, hoặc một lựa chọn có tùy chọn. Hãy thêm một thuộc tính, rồi thiết lập tác tử.",
       "companyAutofilled": "Bị bỏ qua, vì tự động điền AI đã điền chúng: {properties}.",
       "summaryWeb": "Nó được cấp quyền truy cập web để tra cứu các công ty.",
+      "chooseCustomers": "Nó cần cập nhật cơ sở dữ liệu khách hàng hoặc liên hệ nào? Bạn cần toàn quyền truy cập vào đó.",
+      "mailbox": "Hộp thư",
+      "mailboxHelp": "Thư mới trong hộp thư này sẽ khởi động tác tử. Chỉ bạn thấy những gì nó đọc, soạn và đề xuất.",
+      "noMailbox": "Bạn chưa có hộp thư trong không gian làm việc này. <link>Thêm một hộp thư trong Thư</link>, rồi thiết lập tác tử.",
+      "summaryMail": "Tạo nó sẽ thêm tác tử, mở {mailbox} cho nó và để thư mới ở đó khởi động nó. Tác tử được quyền chỉnh sửa {database}; mỗi hàng hoặc thay đổi nó đề xuất sẽ chờ bạn duyệt trong Chờ xem xét.",
       "back": "Quay lại",
       "next": "Tiếp theo",
       "create": "Tạo tác tử",
@@ -757,7 +765,8 @@
         "sameOptions": "Hãy chọn hai tùy chọn khác nhau.",
         "needPages": "Hãy chọn ít nhất một trang.",
         "needName": "Hãy đặt tên cho tác tử.",
-        "needConnection": "Hãy chọn một kết nối."
+        "needConnection": "Hãy chọn một kết nối.",
+        "needMailbox": "Chọn một hộp thư."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Nhập tối đa 10 địa chỉ email.",
         "requestTokens": "Hãy yêu cầu một số token nguyên lớn hơn giới hạn hiện tại, tối đa 1.000.000.000.",
         "requestNote": "Nêu lý do trong tối đa 500 ký tự.",
-        "noLimit": "Tác tử này không có giới hạn để nâng."
+        "noLimit": "Tác tử này không có giới hạn để nâng.",
+        "mailbox": "Chọn một trong các hộp thư của bạn trong không gian làm việc này."
       },
       "noteEmpty": "Hãy viết điều tác tử nên ghi nhớ.",
       "noteTooLong": "Một ghi chú có tối đa {max} ký tự.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Email của bạn",
-      "description": "Mở một hộp thư để tác nhân này có thể tìm, đọc thư và lưu bản nháp trong đó: trong các cuộc trò chuyện của bạn với nó ở đây và trong lịch bạn đặt không gắn với cơ sở dữ liệu nào.",
+      "description": "Mở một hộp thư để tác tử này có thể tìm kiếm, đọc và sắp xếp thư trong đó và lưu bản nháp: trong các cuộc trò chuyện của bạn với nó ở đây, trong các lịch bạn đặt mà không phụ trách cơ sở dữ liệu nào, và khi có thư mới nếu bạn bật tính năng này.",
       "open": "Mở {address} cho tác nhân này",
-      "note": "Nó không bao giờ gửi email: bạn tự gửi bản nháp của nó từ thẻ Thư. Khi một lần chạy đã đọc email, nó chỉ đọc trang và viết bản nháp. Những người khác dùng hoặc sửa tác nhân này không bao giờ thấy thư của bạn."
+      "note": "Nó không bao giờ gửi email: bạn gửi bản nháp của nó từ thẻ Thư. Khi một lượt chạy đã đọc email, nó chỉ đọc trang và xử lý thư của bạn. Những người khác dùng hoặc chỉnh sửa tác tử này không bao giờ thấy thư của bạn.",
+      "trigger": {
+        "label": "Chạy khi có email mới",
+        "edit": "Thay đổi",
+        "task": "Làm gì với mỗi email mới",
+        "taskPlaceholder": "Tóm tắt, soạn bản nháp trả lời khi được yêu cầu và lưu trữ bản tin.",
+        "senders": "Chỉ từ (không bắt buộc)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Nhập địa chỉ email hoặc tên miền, cách nhau bằng dấu phẩy.",
+        "subject": "Chỉ khi tiêu đề có các từ này (không bắt buộc)",
+        "subjectPlaceholder": "báo giá",
+        "knownOnly": "Chỉ từ những người là hàng trong cơ sở dữ liệu của bạn",
+        "skipped": "Email bạn gửi, bản nháp, thư trả lời tự động, danh sách thư và thư hàng loạt không bao giờ kích hoạt nó. Tối đa {hour} lượt mỗi giờ và {day} lượt mỗi ngày từ hộp thư này.",
+        "limited": "Gần đây một số email đã bị bỏ qua: đã đạt giới hạn theo giờ hoặc theo ngày."
+      }
     }
   },
   "analytics": {

@@ -1372,7 +1372,9 @@
       "request": "مهمة طلبتها",
       "requestOn": "مهمة طلبتها · {place}",
       "mention": "ذكرته في تعليق",
-      "mentionOn": "ذكرته في {place}"
+      "mentionOn": "ذكرته في {place}",
+      "mail": "بريد جديد",
+      "mailOn": "بريد جديد · {place}"
     },
     "doneQuietly": "تم.",
     "side": {

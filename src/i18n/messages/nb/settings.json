@@ -632,7 +632,8 @@
         "approvalTimeout": "Ingen svarte på kallet innen et døgn, så ingenting ble sendt.",
         "connectionGone": "Tilkoblingen som startet den, ble fjernet.",
         "limitReached": "Den hadde brukt opp agentens månedlige tokengrense.",
-        "costLimit": "Arbeidsområdet hadde nådd den månedlige kostnadsgrensen for KI."
+        "costLimit": "Arbeidsområdet hadde nådd den månedlige kostnadsgrensen for KI.",
+        "mailGone": "E-posten er ikke lenger i postkassen, eller postkassen er ikke lenger åpen for agenten."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "En fjernet tilkobling",
@@ -683,7 +684,8 @@
       "fromChat": "En chatmelding fra {name}",
       "chattedBy": "chat av {name}",
       "yoursOnly": "Du ser kjøringene du har startet.",
-      "waitingForOwner": "En eier av arbeidsområdet svarer på dette kallet."
+      "waitingForOwner": "En eier av arbeidsområdet svarer på dette kallet.",
+      "fromMail": "E-post til {name}"
     },
     "usage": {
       "thisMonth": "Denne måneden: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Start fra en mal",
-      "description": "Ferdige agenter for en database. De fleste kjører på hver nye rad, suksessloggeren på hendelsene fra en tilkobling; du velger databasen og hva den bruker."
+      "description": "Ferdige agenter for en database. De fleste kjører på hver nye rad, suksessloggeren på hendelsene fra en tilkobling og e-postassistenten på ny e-post i postkassen din; du velger databasen og hva den bruker."
     },
     "wizard": {
       "title": "Sett opp {name}",
@@ -703,7 +705,8 @@
         "database": "Velg en database",
         "properties": "Velg egenskapene",
         "pages": "Velg sidene den leser",
-        "connection": "Velg hvor hendelsene kommer fra"
+        "connection": "Velg hvor hendelsene kommer fra",
+        "mailbox": "Velg postkassen"
       },
       "chooseDatabase": "Hvilken database skal den jobbe med? Du må ha full tilgang til den.",
       "searchDatabases": "Søk i databaser",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Denne databasen har ingen egenskap den kan fylle ut: tekst, en lenke, en e-postadresse, et telefonnummer, et tall eller et valg med alternativer. Legg til en, og sett deretter opp agenten.",
       "companyAutofilled": "Utelatt, siden KI-autoutfylling fyller dem ut: {properties}.",
       "summaryWeb": "Den får nettilgang for å slå opp firmaene.",
+      "chooseCustomers": "Hvilken database med kunder eller kontakter skal den holde oppdatert? Du trenger full tilgang til den.",
+      "mailbox": "Postkasse",
+      "mailboxHelp": "Ny e-post i denne postkassen starter agenten. Bare du ser hva den leser, skriver og foreslår.",
+      "noMailbox": "Du har ingen postkasse i dette arbeidsområdet ennå. <link>Legg til en under E-post</link>, og sett så opp agenten.",
+      "summaryMail": "Når du oppretter den, legges agenten til, {mailbox} åpnes for den, og ny e-post der starter den. Agenten får redigeringstilgang til {database}; hver rad eller endring den foreslår, venter på godkjenningen din under Til gjennomgang.",
       "back": "Tilbake",
       "next": "Neste",
       "create": "Opprett agent",
@@ -757,7 +765,8 @@
         "sameOptions": "Velg to forskjellige alternativer.",
         "needPages": "Velg minst én side.",
         "needName": "Gi agenten et navn.",
-        "needConnection": "Velg en tilkobling."
+        "needConnection": "Velg en tilkobling.",
+        "needMailbox": "Velg en postkasse."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Skriv inn opptil 10 e-postadresser.",
         "requestTokens": "Be om et helt antall tokener over den nåværende grensen, opptil 1 000 000 000.",
         "requestNote": "Forklar hvorfor på maks. 500 tegn.",
-        "noLimit": "Denne agenten har ingen grense som kan økes."
+        "noLimit": "Denne agenten har ingen grense som kan økes.",
+        "mailbox": "Velg en av postkassene dine i dette arbeidsområdet."
       },
       "noteEmpty": "Skriv hva agenten skal huske.",
       "noteTooLong": "Et notat kan ha høyst {max} tegn.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "E-posten din",
-      "description": "Åpne en postkasse slik at denne agenten kan søke i og lese e-posten din og lagre utkast der: i samtalene dine med den her og i tidsplaner du setter opp uten en database å passe på.",
+      "description": "Åpne en postkasse slik at denne agenten kan søke, lese og sortere e-posten og lagre utkast der: i chattene dine med den her, i tidsplaner du setter opp uten en database å passe på, og ved ny e-post når du slår det på.",
       "open": "Åpne {address} for denne agenten",
-      "note": "Den sender aldri e-post: du sender utkastene dens fra fanen E-post. Når en kjøring har lest e-post, leser den bare sider og skriver utkast. Andre som bruker eller redigerer denne agenten, ser aldri e-posten din."
+      "note": "Den sender aldri e-post: Du sender utkastene fra fanen E-post. Når en kjøring har lest e-post, leser den bare sider og jobber med e-posten din. Andre som bruker eller redigerer denne agenten, ser aldri e-posten din.",
+      "trigger": {
+        "label": "Kjør ved ny e-post",
+        "edit": "Endre",
+        "task": "Hva som skal gjøres med hver ny e-post",
+        "taskPlaceholder": "Oppsummer den, skriv et svarutkast når det blir bedt om ett, og arkiver nyhetsbrev.",
+        "senders": "Bare fra (valgfritt)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Skriv e-postadresser eller domener atskilt med komma.",
+        "subject": "Bare med disse ordene i emnet (valgfritt)",
+        "subjectPlaceholder": "tilbud",
+        "knownOnly": "Bare fra personer som er rader i databasene dine",
+        "skipped": "E-post du sender, utkast, autosvar, e-postlister og masseutsendelser starter den aldri. Høyst {hour} kjøringer i timen og {day} om dagen fra denne postkassen.",
+        "limited": "Noe e-post ble hoppet over nylig: grensen per time eller per dag var nådd."
+      }
     }
   },
   "analytics": {

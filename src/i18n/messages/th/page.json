@@ -1372,7 +1372,9 @@
       "request": "งานที่คุณขอ",
       "requestOn": "งานที่คุณขอ · {place}",
       "mention": "คุณกล่าวถึงในความคิดเห็น",
-      "mentionOn": "คุณกล่าวถึงใน {place}"
+      "mentionOn": "คุณกล่าวถึงใน {place}",
+      "mail": "อีเมลใหม่",
+      "mailOn": "อีเมลใหม่ · {place}"
     },
     "doneQuietly": "เสร็จแล้ว",
     "side": {

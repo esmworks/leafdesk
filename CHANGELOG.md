@@ -4,13 +4,33 @@
 
 ### Added
 
+- **A mail assistant keeps your customers up to date from your email.** A new template under
+  *Start from a template* sets up an agent on one of your mailboxes and a database of customers:
+  for each new email (by default only from people who are rows) it finds the sender's row and
+  proposes a new row or a change to it, summarizes long threads, drafts an answer when your pages
+  answer the question and stars what waits for you. Runs that new email starts can now propose rows
+  and row changes in databases you may edit; since they come from your mail, only you see and
+  answer them under *For review*, and MCP and the REST API don't list them. Migration 0175.
+
+- **New email can start an agent.** Under *Your email* on an agent's Access tab, a mailbox you
+  opened to it can now *Run on new email*, with a task of yours (what to do with each email) and,
+  if you like, only for some senders (addresses or domains), words in the subject, or people who
+  are rows of your databases. Each new thread in the inbox gets one run, which reads it first and so
+  only reads pages and works on that mail: it can keep a summary of the thread, mark it read or
+  unread, star it, archive it or move it to a folder (never the trash or junk, never deleting), and
+  save an answer in Drafts. Mail you send, drafts, auto-replies, mailing lists and bulk mail start
+  nothing; a mailbox starts at most 20 runs an hour and 100 a day. The run shows in your chat with
+  the agent, the thread carries the agent's mark in the Mail tab's list, and you get an inbox report
+  when it left a draft or failed. The tools `sort_mail` and `summarize_mail` work in your chats with
+  the agent too. Migration 0174.
+
 - **The AI chat and agents read the files of your email.** `read_mail` now lists a thread's files,
   and `read_mail_attachment` reads one as a source the answer cites: PDF, Word, Excel and
   PowerPoint documents, CSV, text, calendar invitations, contact cards, XML such as e-invoices,
   JSON, HTML and forwarded emails, as their text. An image is looked at by a separate model that
   takes images and has no tools, which writes out its text and says what it shows; only that text
   reaches the chat or the agent. A file is read like the mail it came with: as outside data, after
-  which the chat asks before every change and an agent's run only reads pages and drafts. Agents
+  which the chat asks before every change and an agent's run only reads pages and works on that mail. Agents
   read only the files of mailboxes opened to them. Nothing is marked as read.
 
 - **Agents can read your email and draft answers, in the mailboxes you open to them.** On an
@@ -19,7 +39,7 @@
   after no database) can search and read that mail and save drafts in its Drafts folder. It never
   sends: you send its drafts from the Mail tab. An answer goes only to the people of its thread, a
   new email only to addresses you wrote; once a run, or an earlier answer of the same chat, has
-  read email it only reads pages and drafts. Other people who use or edit the agent never see your
+  read email it only reads pages and works on your mail. Other people who use or edit the agent never see your
   mail, and connected apps (MCP, the REST API) get nothing such runs did or answered. Migration 0173.
 
 - **Agents give each other tasks.** An agent that may ask other agents can now also give one a

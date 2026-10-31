@@ -223,5 +223,14 @@
       "addedNote": "Ditambahkan ke catatan harian hari ini.",
       "open": "Buka"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "membaca",
+      "drafted": "membuat draf balasan",
+      "sorted": "merapikan",
+      "summarized": "meringkas"
+    }
   }
 }

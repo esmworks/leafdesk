@@ -632,7 +632,8 @@
         "approvalTimeout": "Niemand beantwoordde zijn aanroep binnen een dag, dus er is niets verstuurd.",
         "connectionGone": "De koppeling die hem startte, is verwijderd.",
         "limitReached": "Hij had de maandelijkse tokenlimiet van de agent opgebruikt.",
-        "costLimit": "De werkruimte had haar maandelijkse limiet voor AI-kosten bereikt."
+        "costLimit": "De werkruimte had haar maandelijkse limiet voor AI-kosten bereikt.",
+        "mailGone": "De e-mail staat niet meer in de mailbox, of de mailbox is niet meer open voor de agent."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Een verwijderde koppeling",
@@ -683,7 +684,8 @@
       "fromChat": "Een chatbericht van {name}",
       "chattedBy": "chat door {name}",
       "yoursOnly": "Je ziet de uitvoeringen die jij hebt gestart.",
-      "waitingForOwner": "Een eigenaar van de werkruimte beantwoordt deze aanroep."
+      "waitingForOwner": "Een eigenaar van de werkruimte beantwoordt deze aanroep.",
+      "fromMail": "E-mail aan {name}"
     },
     "usage": {
       "thisMonth": "Deze maand: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Beginnen met een sjabloon",
-      "description": "Kant-en-klare agents voor een database. De meeste draaien op elke nieuwe rij, de successenlogger op de gebeurtenissen van een koppeling; jij kiest de database en wat hij gebruikt."
+      "description": "Kant-en-klare agents voor een database. De meeste draaien op elke nieuwe rij, de successenlogger op de gebeurtenissen van een koppeling en de mailassistent op nieuwe e-mail in je mailbox; jij kiest de database en wat hij gebruikt."
     },
     "wizard": {
       "title": "{name} instellen",
@@ -703,7 +705,8 @@
         "database": "Kies een database",
         "properties": "Kies de eigenschappen",
         "pages": "Kies de pagina’s die hij leest",
-        "connection": "Kies waar de gebeurtenissen vandaan komen"
+        "connection": "Kies waar de gebeurtenissen vandaan komen",
+        "mailbox": "Kies de mailbox"
       },
       "chooseDatabase": "Op welke database moet hij werken? Je hebt er volledige toegang toe nodig.",
       "searchDatabases": "Databases zoeken",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Deze database heeft geen eigenschap die hij kan invullen: tekst, een link, een e-mailadres, een telefoonnummer, een getal of een selectie met opties. Voeg er een toe en stel de agent dan in.",
       "companyAutofilled": "Weggelaten, omdat automatisch invullen met AI ze vult: {properties}.",
       "summaryWeb": "Hij krijgt toegang tot het web om de bedrijven op te zoeken.",
+      "chooseCustomers": "Welke database met klanten of contacten moet hij bijhouden? Je hebt er volledige toegang toe nodig.",
+      "mailbox": "Mailbox",
+      "mailboxHelp": "Nieuwe e-mail in deze mailbox start de agent. Alleen jij ziet wat hij leest, opstelt en voorstelt.",
+      "noMailbox": "Je hebt nog geen mailbox in deze werkruimte. <link>Voeg er een toe bij Mail</link> en stel de agent daarna in.",
+      "summaryMail": "Aanmaken voegt de agent toe, opent {mailbox} voor hem en laat nieuwe e-mail daar hem starten. De agent krijgt bewerktoegang tot {database}; elke rij of wijziging die hij voorstelt wacht op jouw goedkeuring bij Ter beoordeling.",
       "back": "Terug",
       "next": "Volgende",
       "create": "Agent maken",
@@ -757,7 +765,8 @@
         "sameOptions": "Kies twee verschillende opties.",
         "needPages": "Kies minstens één pagina.",
         "needName": "Geef de agent een naam.",
-        "needConnection": "Kies een koppeling."
+        "needConnection": "Kies een koppeling.",
+        "needMailbox": "Kies een mailbox."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Vul maximaal 10 e-mailadressen in.",
         "requestTokens": "Vraag een geheel aantal tokens boven de huidige limiet, tot 1.000.000.000.",
         "requestNote": "Geef de reden in maximaal 500 tekens.",
-        "noLimit": "Deze agent heeft geen limiet om te verhogen."
+        "noLimit": "Deze agent heeft geen limiet om te verhogen.",
+        "mailbox": "Kies een van je mailboxen in deze werkruimte."
       },
       "noteEmpty": "Schrijf wat de agent moet onthouden.",
       "noteTooLong": "Een notitie mag maximaal {max} tekens hebben.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Je e-mail",
-      "description": "Open een mailbox zodat deze agent erin kan zoeken, je mail kan lezen en er concepten in kan opslaan: in je chats met hem hier en in schema's die je instelt zonder database om bij te houden.",
+      "description": "Open een mailbox zodat deze agent erin kan zoeken, je e-mail kan lezen en ordenen en er concepten in kan bewaren: in je chats met hem hier, in planningen die je instelt zonder database om bij te houden, en bij nieuwe e-mail als je dat aanzet.",
       "open": "{address} openen voor deze agent",
-      "note": "Hij verstuurt nooit e-mail: zijn concepten verstuur je zelf vanaf het tabblad Mail. Zodra een run e-mail heeft gelezen, leest hij alleen nog pagina's en schrijft hij concepten. Anderen die deze agent gebruiken of bewerken, zien je mail nooit."
+      "note": "Hij verstuurt nooit e-mail: zijn concepten verstuur jij vanuit het tabblad Mail. Zodra een run e-mail heeft gelezen, leest hij alleen nog pagina's en werkt hij aan je e-mail. Anderen die deze agent gebruiken of bewerken, zien je e-mail nooit.",
+      "trigger": {
+        "label": "Uitvoeren bij nieuwe e-mail",
+        "edit": "Wijzigen",
+        "task": "Wat te doen met elke nieuwe e-mail",
+        "taskPlaceholder": "Vat hem samen, schrijf een conceptantwoord als erom gevraagd wordt en archiveer nieuwsbrieven.",
+        "senders": "Alleen van (optioneel)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Schrijf e-mailadressen of domeinen, gescheiden door komma's.",
+        "subject": "Alleen met deze woorden in het onderwerp (optioneel)",
+        "subjectPlaceholder": "offerte",
+        "knownOnly": "Alleen van mensen die rijen in je databases zijn",
+        "skipped": "E-mail die je verstuurt, concepten, automatische antwoorden, mailinglijsten en bulkmail starten hem nooit. Hoogstens {hour} runs per uur en {day} per dag uit deze mailbox.",
+        "limited": "Er is onlangs e-mail overgeslagen: de limiet per uur of per dag was bereikt."
+      }
     }
   },
   "analytics": {

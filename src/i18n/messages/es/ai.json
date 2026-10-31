@@ -329,6 +329,15 @@
           "done": "Borrador guardado:",
           "declined": "Borrador rechazado:",
           "failed": "No se pudo guardar el borrador:"
+        },
+        "summarized": "Resumido:",
+        "moved": "Movido a {folder}:",
+        "sorted": {
+          "read": "Marcado como leído:",
+          "unread": "Marcado como no leído:",
+          "star": "Destacado:",
+          "unstar": "Ya no destacado:",
+          "archive": "Archivado:"
         }
       }
     },

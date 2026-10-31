@@ -1372,7 +1372,9 @@
       "request": "İstediğin bir iş",
       "requestOn": "İstediğin bir iş · {place}",
       "mention": "Bir yorumda bahsettin",
-      "mentionOn": "{place} sayfasında bahsettin"
+      "mentionOn": "{place} sayfasında bahsettin",
+      "mail": "Yeni e-posta",
+      "mailOn": "Yeni e-posta · {place}"
     },
     "doneQuietly": "Bitti.",
     "side": {

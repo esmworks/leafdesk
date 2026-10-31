@@ -329,6 +329,15 @@
           "done": "Brouillon enregistré :",
           "declined": "Brouillon refusé :",
           "failed": "Impossible d'enregistrer le brouillon :"
+        },
+        "summarized": "Résumé :",
+        "moved": "Déplacé vers {folder} :",
+        "sorted": {
+          "read": "Marqué comme lu :",
+          "unread": "Marqué comme non lu :",
+          "star": "Suivi :",
+          "unstar": "Plus suivi :",
+          "archive": "Archivé :"
         }
       }
     },

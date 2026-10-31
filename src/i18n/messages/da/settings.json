@@ -632,7 +632,8 @@
         "approvalTimeout": "Ingen svarede på dens kald inden for et døgn, så intet blev sendt.",
         "connectionGone": "Den forbindelse, der startede den, blev fjernet.",
         "limitReached": "Den havde brugt agentens månedlige tokengrænse.",
-        "costLimit": "Arbejdsområdet havde nået sin månedlige grænse for AI-omkostninger."
+        "costLimit": "Arbejdsområdet havde nået sin månedlige grænse for AI-omkostninger.",
+        "mailGone": "E-mailen er ikke længere i postkassen, eller postkassen er ikke længere åben for agenten."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "En fjernet forbindelse",
@@ -683,7 +684,8 @@
       "fromChat": "En chatbesked fra {name}",
       "chattedBy": "chat af {name}",
       "yoursOnly": "Du ser de kørsler, du har startet.",
-      "waitingForOwner": "En ejer af arbejdsområdet svarer på dette kald."
+      "waitingForOwner": "En ejer af arbejdsområdet svarer på dette kald.",
+      "fromMail": "E-mail til {name}"
     },
     "usage": {
       "thisMonth": "Denne måned: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Start fra en skabelon",
-      "description": "Færdige agenter til en database. De fleste kører på hver ny række, sejrsloggeren på en forbindelses hændelser; du vælger databasen, og hvad den bruger."
+      "description": "Færdige agenter til en database. De fleste kører på hver ny række, sejrsloggeren på en forbindelses hændelser og mailassistenten på ny mail i din postkasse; du vælger databasen, og hvad den bruger."
     },
     "wizard": {
       "title": "Sæt {name} op",
@@ -703,7 +705,8 @@
         "database": "Vælg en database",
         "properties": "Vælg dens egenskaber",
         "pages": "Vælg de sider, den læser",
-        "connection": "Vælg, hvor dens hændelser kommer fra"
+        "connection": "Vælg, hvor dens hændelser kommer fra",
+        "mailbox": "Vælg dens postkasse"
       },
       "chooseDatabase": "Hvilken database skal den arbejde på? Du skal have fuld adgang til den.",
       "searchDatabases": "Søg i databaser",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Denne database har ingen egenskab, den kan udfylde: tekst, et link, en e-mail, et telefonnummer, et tal eller et valg med muligheder. Tilføj en, og sæt så agenten op.",
       "companyAutofilled": "Udeladt, da AI-autoudfyldning udfylder dem: {properties}.",
       "summaryWeb": "Den får webadgang for at slå virksomhederne op.",
+      "chooseCustomers": "Hvilken database med kunder eller kontakter skal den holde opdateret? Du skal have fuld adgang til den.",
+      "mailbox": "Postkasse",
+      "mailboxHelp": "Ny mail i denne postkasse starter agenten. Kun du ser, hvad den læser, skriver og foreslår.",
+      "noMailbox": "Du har endnu ingen postkasse i dette arbejdsområde. <link>Tilføj en under Mail</link>, og sæt så agenten op.",
+      "summaryMail": "Når du opretter den, tilføjes agenten, {mailbox} åbnes for den, og ny mail dér starter den. Agenten får redigeringsadgang til {database}; hver række eller ændring, den foreslår, venter på din godkendelse under Til gennemgang.",
       "back": "Tilbage",
       "next": "Næste",
       "create": "Opret agent",
@@ -757,7 +765,8 @@
         "sameOptions": "Vælg to forskellige muligheder.",
         "needPages": "Vælg mindst én side.",
         "needName": "Giv agenten et navn.",
-        "needConnection": "Vælg en forbindelse."
+        "needConnection": "Vælg en forbindelse.",
+        "needMailbox": "Vælg en postkasse."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Angiv op til 10 e-mailadresser.",
         "requestTokens": "Bed om et helt antal tokens over den nuværende grænse, op til 1.000.000.000.",
         "requestNote": "Skriv hvorfor på højst 500 tegn.",
-        "noLimit": "Denne agent har ingen grænse, der kan hæves."
+        "noLimit": "Denne agent har ingen grænse, der kan hæves.",
+        "mailbox": "Vælg en af dine postkasser i dette arbejdsområde."
       },
       "noteEmpty": "Skriv, hvad agenten skal huske.",
       "noteTooLong": "En note må højst have {max} tegn.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Din e-mail",
-      "description": "Åbn en postkasse, så denne agent kan søge i og læse din mail og gemme kladder i den: i dine chats med den her og i tidsplaner, du sætter op uden en database at passe.",
+      "description": "Åbn en postkasse, så denne agent kan søge, læse og sortere dens mail og gemme kladder i den: i dine chats med den her, i tidsplaner, du sætter op uden en database at passe, og ved ny e-mail, når du slår det til.",
       "open": "Åbn {address} for denne agent",
-      "note": "Den sender aldrig e-mail: du sender dens kladder fra fanen Mail. Når en kørsel har læst e-mail, læser den kun sider og skriver kladder. Andre, der bruger eller redigerer denne agent, ser aldrig din mail."
+      "note": "Den sender aldrig e-mail: Du sender dens kladder fra fanen Mail. Når en kørsel har læst e-mail, læser den kun sider og arbejder med din mail. Andre, der bruger eller redigerer denne agent, ser aldrig din mail.",
+      "trigger": {
+        "label": "Kør ved ny e-mail",
+        "edit": "Skift",
+        "task": "Hvad der skal ske med hver ny e-mail",
+        "taskPlaceholder": "Opsummer den, skriv et svarudkast, når der bliver bedt om et, og arkivér nyhedsbreve.",
+        "senders": "Kun fra (valgfrit)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Skriv e-mailadresser eller domæner adskilt af kommaer.",
+        "subject": "Kun med disse ord i emnet (valgfrit)",
+        "subjectPlaceholder": "tilbud",
+        "knownOnly": "Kun fra personer, der er rækker i dine databaser",
+        "skipped": "E-mail, du sender, kladder, autosvar, mailinglister og massemails starter den aldrig. Højst {hour} kørsler i timen og {day} om dagen fra denne postkasse.",
+        "limited": "Noget e-mail blev sprunget over for nylig: grænsen pr. time eller pr. dag var nået."
+      }
     }
   },
   "analytics": {

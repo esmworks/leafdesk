@@ -627,7 +627,8 @@
         "approvalTimeout": "Nessuno ha risposto alla sua chiamata entro un giorno, quindi non è stato inviato nulla.",
         "connectionGone": "La connessione che l’ha avviata è stata rimossa.",
         "limitReached": "Aveva esaurito il limite mensile di token dell’agente.",
-        "costLimit": "Lo spazio di lavoro aveva raggiunto il limite mensile di costo dell'IA."
+        "costLimit": "Lo spazio di lavoro aveva raggiunto il limite mensile di costo dell'IA.",
+        "mailGone": "L'email non è più nella casella, oppure la casella non è più aperta all'agente."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Una connessione rimossa",
@@ -683,7 +684,8 @@
       "emailFailed": "Non è riuscito a scrivere una bozza di email:",
       "emailHidden": "Ha scritto una bozza di email su una riga che non puoi aprire",
       "emailSent": "Ha inviato un’email a {to}:",
-      "emailSendFailed": "Non è riuscito a inviare un’email a {to}:"
+      "emailSendFailed": "Non è riuscito a inviare un’email a {to}:",
+      "fromMail": "Email per {name}"
     },
     "usage": {
       "thisMonth": "Questo mese: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Parti da un modello",
-      "description": "Agenti pronti per un database. La maggior parte viene eseguita a ogni nuova riga, il registro dei successi sugli eventi di una connessione; scegli tu il database e cosa usa."
+      "description": "Agenti pronti per un database. La maggior parte viene eseguita a ogni nuova riga, il registro dei successi sugli eventi di una connessione e l’assistente email sulle nuove email della tua casella; scegli tu il database e cosa usa."
     },
     "wizard": {
       "title": "Configura {name}",
@@ -703,7 +705,8 @@
         "database": "Scegli un database",
         "properties": "Scegli le proprietà",
         "pages": "Scegli le pagine che legge",
-        "connection": "Scegli da dove arrivano gli eventi"
+        "connection": "Scegli da dove arrivano gli eventi",
+        "mailbox": "Scegli la casella"
       },
       "chooseDatabase": "Su quale database deve lavorare? Ti serve accesso completo.",
       "searchDatabases": "Cerca database",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Questo database non ha proprietà che possa compilare: testo, link, email, telefono, numero o una selezione con opzioni. Aggiungine una, poi configura l’agente.",
       "companyAutofilled": "Escluse, perché le compila la compilazione automatica IA: {properties}.",
       "summaryWeb": "Riceve l’accesso al web, per cercare le aziende.",
+      "chooseCustomers": "Quale database di clienti o contatti deve tenere aggiornato? Ti serve l’accesso completo.",
+      "mailbox": "Casella di posta",
+      "mailboxHelp": "Le nuove email di questa casella avviano l’agente. Solo tu vedi cosa legge, scrive e propone.",
+      "noMailbox": "Non hai ancora una casella di posta in questo spazio di lavoro. <link>Aggiungine una in Posta</link>, poi configura l’agente.",
+      "summaryMail": "Crearlo aggiunge l’agente, gli apre {mailbox} e fa sì che le nuove email lì lo avviino. L’agente ottiene l’accesso in modifica a {database}; ogni riga o modifica che propone attende la tua approvazione in Da rivedere.",
       "back": "Indietro",
       "next": "Avanti",
       "create": "Crea agente",
@@ -757,7 +765,8 @@
         "sameOptions": "Scegli due opzioni diverse.",
         "needPages": "Scegli almeno una pagina.",
         "needName": "Dai un nome all’agente.",
-        "needConnection": "Scegli una connessione."
+        "needConnection": "Scegli una connessione.",
+        "needMailbox": "Scegli una casella di posta."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Inserisci fino a 10 indirizzi email.",
         "requestTokens": "Chiedi un numero intero di token superiore al limite attuale, fino a 1.000.000.000.",
         "requestNote": "Spiega il motivo in al massimo 500 caratteri.",
-        "noLimit": "Questo agente non ha un limite da aumentare."
+        "noLimit": "Questo agente non ha un limite da aumentare.",
+        "mailbox": "Scegli una delle tue caselle di posta in questo spazio di lavoro."
       },
       "noteEmpty": "Scrivi cosa deve ricordare l’agente.",
       "noteTooLong": "Una nota può avere al massimo {max} caratteri.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "La tua posta",
-      "description": "Apri una casella per permettere a questo agente di cercare e leggere la posta e salvarvi bozze: nelle tue chat con lui qui e nelle pianificazioni che imposti senza un database da seguire.",
+      "description": "Apri una casella per permettere a questo agente di cercare, leggere e ordinare la posta e di salvarvi bozze: nelle tue chat con lui qui, nelle pianificazioni che imposti senza un database da seguire e, se lo attivi, all'arrivo di nuove email.",
       "open": "Apri {address} a questo agente",
-      "note": "Non invia mai email: le sue bozze le invii tu dalla scheda Posta. Dopo aver letto delle email, un'esecuzione legge solo pagine e scrive bozze. Gli altri che usano o modificano questo agente non vedono mai la tua posta."
+      "note": "Non invia mai email: le sue bozze le invii tu dalla scheda Posta. Una volta che un'esecuzione ha letto email, legge solo pagine e lavora sulla tua posta. Le altre persone che usano o modificano questo agente non vedono mai la tua posta.",
+      "trigger": {
+        "label": "Esegui all'arrivo di nuove email",
+        "edit": "Modifica",
+        "task": "Cosa fare con ogni nuova email",
+        "taskPlaceholder": "Riassumila, prepara una risposta quando ne viene chiesta una e archivia le newsletter.",
+        "senders": "Solo da (facoltativo)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Scrivi indirizzi email o domini separati da virgole.",
+        "subject": "Solo con queste parole nell'oggetto (facoltativo)",
+        "subjectPlaceholder": "offerta",
+        "knownOnly": "Solo da persone che sono righe dei tuoi database",
+        "skipped": "Le email che invii, le bozze, le risposte automatiche, le mailing list e gli invii di massa non lo avviano mai. Al massimo {hour} esecuzioni all'ora e {day} al giorno da questa casella.",
+        "limited": "Di recente alcune email sono state saltate: è stato raggiunto il limite orario o giornaliero."
+      }
     }
   },
   "analytics": {

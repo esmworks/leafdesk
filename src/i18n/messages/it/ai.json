@@ -329,6 +329,15 @@
           "done": "Bozza salvata:",
           "declined": "Bozza rifiutata:",
           "failed": "Impossibile salvare la bozza:"
+        },
+        "summarized": "Riassunto:",
+        "moved": "Spostato in {folder}:",
+        "sorted": {
+          "read": "Segnato come letto:",
+          "unread": "Segnato come da leggere:",
+          "star": "Aggiunto a Speciali:",
+          "unstar": "Tolto da Speciali:",
+          "archive": "Archiviato:"
         }
       }
     },

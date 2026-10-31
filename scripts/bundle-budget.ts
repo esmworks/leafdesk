@@ -134,8 +134,10 @@ import { gzipSync } from "node:zlib";
  * its own copy (about 2 kB).
  * Agents' access to your email adds a quarter of a kB to a page's route: the agent settings' mail
  * section loads when shown, leaving its loader and the rule of which runs read mail.
+ * Agents run by new email (the steps of sorting and summarizing a thread in ChatThread, the
+ * agents' marks in the Mail tab's list) add under 0.5 kB to all first loads together.
  */
-const BUDGET = { routeFirstLoad: 793, firstLoadShared: 1227, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 793, firstLoadShared: 1228, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

@@ -627,7 +627,8 @@
         "approvalTimeout": "Personne n’a répondu à son appel dans la journée : rien n’a été envoyé.",
         "connectionGone": "La connexion qui l’a lancée a été supprimée.",
         "limitReached": "La limite mensuelle de tokens de l’agent était atteinte.",
-        "costLimit": "L'espace de travail avait atteint sa limite mensuelle de coût d'IA."
+        "costLimit": "L'espace de travail avait atteint sa limite mensuelle de coût d'IA.",
+        "mailGone": "L'e-mail n'est plus dans la boîte, ou la boîte n'est plus ouverte à l'agent."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Une connexion supprimée",
@@ -683,7 +684,8 @@
       "emailFailed": "N’a pas pu rédiger d’e-mail :",
       "emailHidden": "A rédigé un e-mail sur une ligne que vous ne pouvez pas ouvrir",
       "emailSent": "E-mail envoyé à {to} :",
-      "emailSendFailed": "Impossible d’envoyer un e-mail à {to} :"
+      "emailSendFailed": "Impossible d’envoyer un e-mail à {to} :",
+      "fromMail": "E-mail reçu par {name}"
     },
     "usage": {
       "thisMonth": "Ce mois-ci : {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Partir d’un modèle",
-      "description": "Des agents prêts à l’emploi pour une base de données. La plupart se lancent à chaque nouvelle ligne, le consignateur de réussites aux événements d’une connexion ; vous choisissez la base de données et ce qu’il utilise."
+      "description": "Des agents prêts à l’emploi pour une base de données. La plupart se lancent à chaque nouvelle ligne, le consignateur de réussites aux événements d’une connexion et l’assistant mail aux nouveaux e-mails de votre boîte ; vous choisissez la base de données et ce qu’il utilise."
     },
     "wizard": {
       "title": "Configurer {name}",
@@ -703,7 +705,8 @@
         "database": "Choisir une base de données",
         "properties": "Choisir ses propriétés",
         "pages": "Choisir les pages qu’il lit",
-        "connection": "Choisir d’où viennent ses événements"
+        "connection": "Choisir d’où viennent ses événements",
+        "mailbox": "Choisir sa boîte mail"
       },
       "chooseDatabase": "Sur quelle base de données doit-il travailler ? Il vous faut un accès complet à celle-ci.",
       "searchDatabases": "Rechercher des bases de données",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Cette base de données n’a aucune propriété qu’il puisse remplir : texte, lien, e-mail, téléphone, nombre ou sélection avec des options. Ajoutez-en une, puis configurez l’agent.",
       "companyAutofilled": "Laissées de côté, car le remplissage par IA les remplit : {properties}.",
       "summaryWeb": "Il obtient l’accès au web, pour rechercher les entreprises.",
+      "chooseCustomers": "Quelle base de données de clients ou de contacts doit-il tenir à jour ? Vous devez y avoir un accès complet.",
+      "mailbox": "Boîte mail",
+      "mailboxHelp": "Les nouveaux e-mails de cette boîte démarrent l’agent. Vous seul voyez ce qu’il lit, rédige et propose.",
+      "noMailbox": "Vous n’avez pas encore de boîte mail dans cet espace de travail. <link>Ajoutez-en une dans E-mail</link>, puis configurez l’agent.",
+      "summaryMail": "La création ajoute l’agent, lui ouvre {mailbox} et fait démarrer l’agent à chaque nouvel e-mail. L’agent reçoit l’accès en modification à {database} ; chaque ligne ou changement qu’il propose attend votre approbation dans À vérifier.",
       "back": "Retour",
       "next": "Suivant",
       "create": "Créer l’agent",
@@ -757,7 +765,8 @@
         "sameOptions": "Choisissez deux options différentes.",
         "needPages": "Choisissez au moins une page.",
         "needName": "Donnez un nom à l’agent.",
-        "needConnection": "Choisissez une connexion."
+        "needConnection": "Choisissez une connexion.",
+        "needMailbox": "Choisissez une boîte mail."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Saisissez jusqu’à 10 adresses e-mail.",
         "requestTokens": "Demandez un nombre entier de tokens supérieur à la limite actuelle, jusqu’à 1 000 000 000.",
         "requestNote": "Expliquez pourquoi en 500 caractères au plus.",
-        "noLimit": "Cet agent n’a pas de limite à relever."
+        "noLimit": "Cet agent n’a pas de limite à relever.",
+        "mailbox": "Choisissez l’une de vos boîtes mail de cet espace de travail."
       },
       "noteEmpty": "Écrivez ce que l’agent doit retenir.",
       "noteTooLong": "Une note peut contenir au plus {max} caractères.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Vos e-mails",
-      "description": "Ouvrez une boîte pour que cet agent puisse y chercher, lire vos e-mails et y enregistrer des brouillons : dans vos discussions avec lui ici, et dans les plannings que vous définissez sans base de données à suivre.",
+      "description": "Ouvrez une boîte pour que cet agent puisse y chercher, lire et trier vos e-mails et y enregistrer des brouillons : dans vos discussions avec lui ici, dans les plannings que vous définissez sans base de données à suivre, et à l'arrivée de nouveaux e-mails si vous l'activez.",
       "open": "Ouvrir {address} à cet agent",
-      "note": "Il n'envoie jamais d'e-mail : vous envoyez ses brouillons depuis l'onglet Mail. Une fois qu'une exécution a lu des e-mails, elle se contente de lire des pages et d'écrire des brouillons. Les autres personnes qui utilisent ou modifient cet agent ne voient jamais vos e-mails."
+      "note": "Il n'envoie jamais d'e-mail : vous envoyez ses brouillons depuis l'onglet Mail. Une fois qu'une exécution a lu des e-mails, elle se contente de lire des pages et de travailler sur vos e-mails. Les autres personnes qui utilisent ou modifient cet agent ne voient jamais vos e-mails.",
+      "trigger": {
+        "label": "Lancer à l'arrivée d'un e-mail",
+        "edit": "Modifier",
+        "task": "Que faire de chaque nouvel e-mail",
+        "taskPlaceholder": "Résume-le, rédige une réponse quand on en demande une, et archive les newsletters.",
+        "senders": "Seulement de (facultatif)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Saisissez des adresses e-mail ou des domaines, séparés par des virgules.",
+        "subject": "Seulement avec ces mots dans l'objet (facultatif)",
+        "subjectPlaceholder": "devis",
+        "knownOnly": "Seulement des personnes qui sont des lignes de vos bases de données",
+        "skipped": "Les e-mails que vous envoyez, les brouillons, les réponses automatiques, les listes de diffusion et les envois en masse ne le lancent jamais. Au plus {hour} exécutions par heure et {day} par jour depuis cette boîte.",
+        "limited": "Certains e-mails ont été ignorés récemment : la limite horaire ou quotidienne était atteinte."
+      }
     }
   },
   "analytics": {

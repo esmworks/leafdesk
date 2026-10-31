@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { LOCALES } from "@/i18n/config";
 import { loadLocaleFile, withFallback } from "@/i18n/messages";
 import en from "@/i18n/messages/en/agentTemplates.json";
-import { MAX_AGENT_INSTRUCTIONS, MAX_AGENT_PROMPT } from "./agents";
+import { MAX_AGENT_INSTRUCTIONS, MAX_AGENT_PROMPT, MAX_MAIL_TASK } from "./agents";
 import {
   BUILTIN_AGENT_KEYS,
   bringsOwnProperty,
@@ -60,6 +60,7 @@ const examples: BuiltinAgentNames[] = [
       { name: "Staff", type: "number", options: [], description: null },
     ],
   },
+  { key: "mail-assistant", database: "Customers", databaseId: "db-customers" },
 ];
 
 describe("fill", () => {
@@ -78,7 +79,8 @@ describe("built-in agents", () => {
       expect(agent.name.trim(), `${locale} ${names.key}`).not.toBe("");
       expect(agent.description.trim()).not.toBe("");
       expect(agent.task.length).toBeLessThanOrEqual(MAX_AGENT_PROMPT);
-      if (isEventAgentKey(names.key)) expect(agent.automation).toBeNull();
+      // New email starts the mail assistant, through its mailbox's trigger, with the task as it is.
+      if (isEventAgentKey(names.key) || names.key === "mail-assistant") expect(agent.automation).toBeNull();
       else expect(agent.automation!("Bot")).toContain("Bot");
       expect(agent.webAccess).toBe(names.key === "company-details");
       // Only the rules the owner wrote may still have braces.
@@ -114,6 +116,10 @@ describe("built-in agents", () => {
         expect(agent.instructions).toContain(line("Phone", t.values.phone) + "\n");
         expect(agent.instructions).toContain(line("Staff", t.values.number) + "\n");
         for (const tool of ["update_row", "add_comment", "https://"]) expect(agent.instructions, `${locale} ${tool}`).toContain(tool);
+      } else if (names.key === "mail-assistant") {
+        expect(agent.task.length).toBeLessThanOrEqual(MAX_MAIL_TASK);
+        expect(agent.instructions).toContain("db-customers");
+        for (const tool of ["update_row", "create_row", "summarize_mail", "draft_mail", "sort_mail"]) expect(agent.instructions, `${locale} ${tool}`).toContain(tool);
       } else {
         expect(agent.instructions).toContain(quote(names.property));
       }

@@ -223,5 +223,14 @@
       "addedNote": "أُضيفت إلى الملاحظة اليومية لليوم.",
       "open": "فتح"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "قرأها",
+      "drafted": "كتب مسودة رد",
+      "sorted": "رتّبها",
+      "summarized": "لخّصها"
+    }
   }
 }

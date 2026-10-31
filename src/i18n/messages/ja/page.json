@@ -1372,7 +1372,9 @@
       "request": "依頼したタスク",
       "requestOn": "依頼したタスク · {place}",
       "mention": "コメントでメンションしました",
-      "mentionOn": "{place} でメンションしました"
+      "mentionOn": "{place} でメンションしました",
+      "mail": "新着メール",
+      "mailOn": "新着メール · {place}"
     },
     "doneQuietly": "完了しました。",
     "side": {

@@ -1372,7 +1372,9 @@
       "request": "Pyytämäsi tehtävä",
       "requestOn": "Pyytämäsi tehtävä · {place}",
       "mention": "Mainitsit sen kommentissa",
-      "mentionOn": "Mainitsit sen sivulla {place}"
+      "mentionOn": "Mainitsit sen sivulla {place}",
+      "mail": "Uusi sähköposti",
+      "mailOn": "Uusi sähköposti · {place}"
     },
     "doneQuietly": "Valmis.",
     "side": {

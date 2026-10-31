@@ -194,12 +194,20 @@ describe("who a run is for (sees its work and answers its call)", () => {
     expect(ownerSeesRun(chat, "o1", false)).toBe(true);
     expect(ownerSeesRun(chat, "o2", true)).toBe(false);
   });
+
+  it("is a run on new email its mailbox owner's alone", () => {
+    const mail: AgentRunSource = { kind: "mail", mailboxId: "b1", userId: "o1", threadId: "t1", messageId: "m1" };
+    expect(runPageOf(mail)).toBeNull();
+    expect(ownerSeesRun(mail, "o1", false)).toBe(true);
+    expect(ownerSeesRun(mail, "o2", true)).toBe(false);
+  });
 });
 
 describe("mailRun", () => {
   it("lets only runs that show to their person alone and stay in the app read their email", () => {
     expect(mailRun({ kind: "chat", userId: "u1", conversationId: "c1" })).toBe(true);
     expect(mailRun({ kind: "schedule", scheduleId: "s1", scheduledBy: "u1" })).toBe(true);
+    expect(mailRun({ kind: "mail", mailboxId: "b1", userId: "u1", threadId: "t1", messageId: "m1" })).toBe(true);
     expect(mailRun({ kind: "chat", userId: "u1", conversationId: "c1", fromApp: true })).toBe(false);
     expect(mailRun({ kind: "schedule", scheduleId: "s1", scheduledBy: "u1", databaseId: "db1" })).toBe(false);
     expect(mailRun({ kind: "request", requestedBy: "u1", via: "mcp" })).toBe(false);
@@ -218,6 +226,9 @@ describe("after reading email", () => {
     expect(readEmail(steps([{ kind: "mail", action: "attachment", name: "a.pdf", subject: "x", url: "/m" }]))).toBe(true);
     expect(readEmail(steps([{ kind: "mail", action: "earlier" }]))).toBe(true);
     expect(readEmail(steps([{ kind: "mail", action: "draft", subject: "x", to: [], url: null, outcome: "done" }]))).toBe(false);
+    // Sorting and summarizing come after reading: on their own they read nothing.
+    expect(readEmail(steps([{ kind: "mail", action: "sort", subject: "x", did: "archive", folder: null, url: "/m" }]))).toBe(false);
+    expect(readEmail(steps([{ kind: "mail", action: "summary", subject: "x", url: "/m" }]))).toBe(false);
     expect(readEmail(steps([{ kind: "memory", action: "remember", text: "x" }]))).toBe(false);
     expect(readEmail(undefined)).toBe(false);
   });

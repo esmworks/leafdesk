@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, inArray, isNull, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { mailbox, mailFolder, mailMessage, mailSnooze, page } from "@/db/schema";
+import { mailbox, mailFolder, mailMessage, mailSnooze, page, workspaceAgent } from "@/db/schema";
 import { dmarcFailed, normalizeAddress, parseHeaderBlock } from "@/lib/mail";
 import { imagesShown, type MailImagesFrom } from "@/lib/mail-images";
 import { unsubscribeOffer, unsubscribeTargets } from "@/lib/mail-unsubscribe";
@@ -9,11 +9,13 @@ import {
   MAIL_PAGE,
   parseMailQuery,
   type MailAddress,
+  type MailAgentMark,
   type MailAttachmentView,
   type MailBody,
   type MailboxTabView,
   type MailFolderView,
   type MailMessageView,
+  type MailThreadAgent,
   type MailThreadItem,
   type MailThreadPage,
   type MailThreadView,
@@ -377,6 +379,27 @@ export async function listThreads(
 }
 
 /** The threads of these folders (each of its own mailbox), in one list by their newest message. */
+/** The agents that marked messages (`agent_marks`), by id: their names and icons. */
+async function agentsOf(ids: string[]) {
+  const unique = [...new Set(ids)];
+  if (!unique.length) return new Map<string, { name: string; icon: string | null }>();
+  const rows = await db.select({ id: workspaceAgent.id, name: workspaceAgent.name, icon: workspaceAgent.icon }).from(workspaceAgent).where(inArray(workspaceAgent.id, unique));
+  return new Map(rows.map((a) => [a.id, { name: a.name, icon: a.icon }]));
+}
+
+/** What agents did with a thread's messages, each agent once, with all it did; agents since deleted are left out. */
+function threadAgents(messages: { agentMarks: MailAgentMark[] | null }[], agents: Map<string, { name: string; icon: string | null }>): MailThreadAgent[] {
+  const out = new Map<string, MailThreadAgent>();
+  for (const mark of messages.flatMap((m) => m.agentMarks ?? [])) {
+    const agent = agents.get(mark.agentId);
+    if (!agent) continue;
+    const seen = out.get(mark.agentId) ?? { agentId: mark.agentId, name: agent.name, icon: agent.icon, did: [] };
+    for (const deed of mark.did) if (!seen.did.includes(deed)) seen.did.push(deed);
+    out.set(mark.agentId, seen);
+  }
+  return [...out.values()];
+}
+
 async function threadPage(userId: string, workspaceId: string, listed: { box: Box; folder: FolderRow }[], search: string, cursor: string | null): Promise<MailThreadPage> {
   // Per mailbox: the folders listed (all but the trash and junk for a search) and those whose messages count in a thread.
   const each = await Promise.all(
@@ -451,6 +474,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
         fromAddress: mailMessage.fromAddress,
         fromName: mailMessage.fromName,
         sentAt: mailMessage.sentAt,
+        agentMarks: mailMessage.agentMarks,
       })
       .from(mailMessage)
       .where(
@@ -473,6 +497,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
     userId,
     newest.map(party).filter((a): a is string => !!a),
   );
+  const agents = await agentsOf(members.flatMap((m) => (m.agentMarks ?? []).map((mark) => mark.agentId)));
 
   const items = shown.flatMap((g): MailThreadItem[] => {
     const message = newestById.get(g.newest);
@@ -504,6 +529,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
         hasDraft: g.drafts || inThread.some((m) => drafts.has(m.folderId)),
         snoozedUntil: g.until ? new Date(g.until).toISOString() : null,
         row: other ? (rows.get(other) ?? null) : null,
+        agents: threadAgents(inThread, agents),
       },
     ];
   });

@@ -627,7 +627,8 @@
         "approvalTimeout": "Nadie respondió a su llamada en un día, así que no se envió nada.",
         "connectionGone": "Se eliminó la conexión que la inició.",
         "limitReached": "El agente había agotado su límite mensual de tokens.",
-        "costLimit": "El espacio de trabajo había alcanzado su límite mensual de coste de IA."
+        "costLimit": "El espacio de trabajo había alcanzado su límite mensual de coste de IA.",
+        "mailGone": "El correo ya no está en el buzón, o el buzón ya no está abierto al agente."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Una conexión eliminada",
@@ -683,7 +684,8 @@
       "emailFailed": "No pudo redactar un correo:",
       "emailHidden": "Redactó un correo en una fila que no puedes abrir",
       "emailSent": "Envió un correo a {to}:",
-      "emailSendFailed": "No pudo enviar un correo a {to}:"
+      "emailSendFailed": "No pudo enviar un correo a {to}:",
+      "fromMail": "Correo para {name}"
     },
     "usage": {
       "thisMonth": "Este mes: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Empezar con una plantilla",
-      "description": "Agentes listos para una base de datos. La mayoría se ejecuta con cada fila nueva; el registrador de logros, con los eventos de una conexión. Tú eliges la base de datos y lo que usa."
+      "description": "Agentes listos para una base de datos. La mayoría se ejecuta con cada fila nueva; el registrador de logros, con los eventos de una conexión, y el asistente de correo, con el correo nuevo de tu buzón. Tú eliges la base de datos y lo que usa."
     },
     "wizard": {
       "title": "Configurar {name}",
@@ -703,7 +705,8 @@
         "database": "Elige una base de datos",
         "properties": "Elige sus propiedades",
         "pages": "Elige las páginas que lee",
-        "connection": "Elige de dónde vienen sus eventos"
+        "connection": "Elige de dónde vienen sus eventos",
+        "mailbox": "Elige su buzón"
       },
       "chooseDatabase": "¿En qué base de datos debe trabajar? Necesitas acceso completo a ella.",
       "searchDatabases": "Buscar bases de datos",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Esta base de datos no tiene ninguna propiedad que pueda rellenar: texto, enlace, correo, teléfono, número o una selección con opciones. Añade una y luego configura el agente.",
       "companyAutofilled": "Quedan fuera, porque las rellena el autorrelleno con IA: {properties}.",
       "summaryWeb": "Obtiene acceso a la web para buscar las empresas.",
+      "chooseCustomers": "¿Qué base de datos de clientes o contactos debe mantener al día? Necesitas acceso completo a ella.",
+      "mailbox": "Buzón",
+      "mailboxHelp": "El correo nuevo de este buzón inicia el agente. Solo tú ves lo que lee, redacta y propone.",
+      "noMailbox": "Aún no tienes un buzón en este espacio de trabajo. <link>Añade uno en Correo</link> y luego configura el agente.",
+      "summaryMail": "Al crearlo se añade el agente, se le abre {mailbox} y el correo nuevo de ahí lo inicia. El agente obtiene acceso de edición a {database}; cada fila o cambio que propone espera tu aprobación en Por revisar.",
       "back": "Atrás",
       "next": "Siguiente",
       "create": "Crear agente",
@@ -757,7 +765,8 @@
         "sameOptions": "Elige dos opciones distintas.",
         "needPages": "Elige al menos una página.",
         "needName": "Ponle un nombre al agente.",
-        "needConnection": "Elige una conexión."
+        "needConnection": "Elige una conexión.",
+        "needMailbox": "Elige un buzón."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Escribe hasta 10 direcciones de correo.",
         "requestTokens": "Pide un número entero de tokens por encima del límite actual, hasta 1.000.000.000.",
         "requestNote": "Explica el motivo en 500 caracteres como máximo.",
-        "noLimit": "Este agente no tiene un límite que subir."
+        "noLimit": "Este agente no tiene un límite que subir.",
+        "mailbox": "Elige uno de tus buzones de este espacio de trabajo."
       },
       "noteEmpty": "Escribe qué debe recordar el agente.",
       "noteTooLong": "Una nota puede tener como máximo {max} caracteres.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Tu correo",
-      "description": "Abre un buzón para que este agente pueda buscar y leer su correo y guardar borradores en él: en tus chats con él aquí y en las programaciones que configures sin una base de datos a su cargo.",
+      "description": "Abre un buzón para que este agente pueda buscar, leer y ordenar su correo y guardar borradores en él: en tus chats con él aquí, en las programaciones que configures que no se ocupan de una base de datos y, si lo activas, cuando llegue correo nuevo.",
       "open": "Abrir {address} a este agente",
-      "note": "Nunca envía correos: tú envías sus borradores desde la pestaña Correo. Cuando una ejecución ha leído correo, solo lee páginas y escribe borradores. Las demás personas que usan o editan este agente nunca ven tu correo."
+      "note": "Nunca envía correo: tú envías sus borradores desde la pestaña Correo. Una vez que una ejecución ha leído correo, solo lee páginas y trabaja con tu correo. Las demás personas que usan o editan este agente nunca ven tu correo.",
+      "trigger": {
+        "label": "Ejecutar con correo nuevo",
+        "edit": "Cambiar",
+        "task": "Qué hacer con cada correo nuevo",
+        "taskPlaceholder": "Resúmelo, redacta una respuesta cuando se pida una y archiva los boletines.",
+        "senders": "Solo de (opcional)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Escribe direcciones de correo o dominios separados por comas.",
+        "subject": "Solo con estas palabras en el asunto (opcional)",
+        "subjectPlaceholder": "oferta",
+        "knownOnly": "Solo de personas que son filas de tus bases de datos",
+        "skipped": "El correo que envías, los borradores, las respuestas automáticas, las listas de correo y los envíos masivos nunca lo inician. Como máximo {hour} ejecuciones por hora y {day} por día desde este buzón.",
+        "limited": "Últimamente se omitió algún correo: se alcanzó el límite por hora o por día."
+      }
     }
   },
   "analytics": {

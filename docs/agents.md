@@ -137,12 +137,35 @@ API, a chat sent from a connected app, a row's or a mention's run. Reading marks
 person reads it and sends it from the Mail tab. So that what an email says can't steer a draft to
 someone else, an answer goes only to the people of its thread and a new email only to addresses
 the person wrote in their messages or the schedule's task (or the mailbox's own). Once a run has
-read email or a file of one it only reads pages and drafts: any other change, a connected service's tool, the web,
+read email or a file of one it only reads pages and works on that mail (drafts, `sort_mail`, `summarize_mail`): any other change, a connected service's tool, the web,
 `send_email`, a note, a handoff note or another agent is refused, and the agent says what it would
 do instead. Its answer may quote that mail, so the chat's later runs that have it in their history
 (and the agent's own chat after a schedule that read email) are held the same way; a new
 conversation starts free. MCP and the REST API show neither the steps nor the answer of such runs,
 and `list_notifications` leaves out such a schedule's report: they show only in the app.
+
+**Running on new email.** For a mailbox you opened to an agent, *Run on new email* starts one of
+its runs for each new thread in the inbox, with the task you write there (up to the length of an
+agent's instructions). You may narrow it to some senders (addresses, or domains as `@example.com`,
+their subdomains too), to words that must all be in the subject, and to people who are rows of the
+databases the Mail tab finds people in. Mail you send from any of your mailboxes, drafts, and mail
+a machine wrote (auto-replies, mailing lists, bulk mail, by their `Auto-Submitted`, `Precedence`,
+`List-Id` and `List-Unsubscribe` headers) start nothing, nor does mail sent more than two days
+before it arrived or what was in the inbox when the mailbox was first read. A thread whose run is
+still waiting gets no second one: the run reads the thread as it is when it starts. A mailbox starts
+at most 20 runs an hour and 100 a day per agent; mail beyond that is left out, and the switch says
+so. The run works for you, so it is held like the runs above, and since it begins by reading the
+email it only reads pages and works on that mail from the start: `summarize_mail` keeps the
+thread's summary (the one the Mail tab shows above it), `sort_mail` marks it read or unread, stars
+or unstars it, archives it or moves it to a folder by name (never the trash or junk, never
+deleting), and `draft_mail` saves an answer. It may also propose rows and changes to rows
+(`create_row`, `update_row`, each with its reason) in databases it may edit and you may edit too:
+nothing changes until you approve. Since a proposal's values and reason come from your mail, only
+you see, count and answer it under *For review*, and only you are notified; other owners of the
+database or the agent don't see it, nor do MCP or the REST API. Its last message, a sentence or two on what it did,
+shows in your chat with the agent; the inbox tells you only when it saved a draft or failed. The
+thread carries the agent's mark in the Mail tab's list, naming what it did. A paused or archived
+agent starts nothing, and closing the mailbox to the agent turns this off.
 
 What reaches the model from outside (web pages, search results, connections' and other agents'
 answers) comes inside a frame whose end line carries an id new each time, so the text can't end
@@ -451,7 +474,8 @@ agent is archived). Only those who may create agents can draft, the request coun
 **Built-in agents.** Settings → *Agents* → *Start from a template* sets one up on a database in one
 step: it creates the agent with instructions in your language that name the properties you pick
 (creating a property or option when you ask), shares the pages it reads at view, and adds the
-automation that runs it on every new row (the wins logger, a trigger on a connection instead).
+automation that runs it on every new row (the wins logger, a trigger on a connection instead; the
+mail assistant, your mailbox's new email).
 
 - **Ticket router** sets the select, status or person properties you pick by rules you write, and
   says why in a comment.
@@ -471,3 +495,11 @@ automation that runs it on every new row (the wins logger, a trigger on a connec
   far as the event tells. Its setup picks the log, the connection and the event type, and lists
   which of the log's properties it fills; each row waits for an owner's approval. A workspace
   without a connection has to add one first.
+- **Mail assistant** looks after new email in one of your mailboxes: it finds the sender in a
+  database of customers you pick and proposes a new row or a change to theirs (a new phone number,
+  a decision, a next step), summarizes long threads, drafts an answer when the pages it can read
+  answer the question (never making up prices or dates), and stars what waits for you. Its setup
+  picks the database, the mailbox and whether only mail from people who are rows starts it (on by
+  default); it opens the mailbox to the agent, turns *Run on new email* on with the template's task
+  and shares the database with it (edit). Every row and change waits for you alone under *For
+  review*.

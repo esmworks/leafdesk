@@ -7,9 +7,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { builtinAgentPropertiesAction, installBuiltinAgentAction } from "@/app/actions/agents";
 import { listConnectionsAction } from "@/app/actions/connections";
 import { PropertyTypeIcon, usePropertyTypeLabel } from "@/components/database/property-icons";
+import { read } from "@/components/read";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton, Input, PageIcon, pageLabel, textareaClass } from "@/components/ui";
-import { MAX_AGENT_NAME, type AgentView } from "@/lib/agents";
+import { MAX_AGENT_NAME, MAX_MAIL_RUNS_PER_DAY, MAX_MAIL_RUNS_PER_HOUR, type AgentView } from "@/lib/agents";
 import {
   ANSWER_PROPERTY_TYPES,
   COMPANY_PROPERTY_TYPES,
@@ -45,12 +46,14 @@ type WizardProps = {
 };
 
 /**
- * Sets up a built-in agent: one an automation runs on new rows, one a connection's events run, or
- * the company researcher, which fills a database's own properties from the web.
+ * Sets up a built-in agent: one an automation runs on new rows, one a connection's events run, the
+ * company researcher, which fills a database's own properties from the web, or the mail assistant,
+ * which new email in one of the person's mailboxes runs.
  */
 export function TemplateWizard(props: WizardProps) {
   const { template } = props;
   if (template.key === "company-details") return <CompanyDetailsWizard {...props} />;
+  if (template.key === "mail-assistant") return <MailAgentWizard {...props} />;
   if (!template.newProperty) return <EventAgentWizard {...props} />;
   return <RowAgentWizard {...props} template={{ ...template, newProperty: template.newProperty }} />;
 }
@@ -684,6 +687,147 @@ function CompanyDetailsWizard({ workspaceId, template, onClose, onCreated }: Wiz
         <p role="alert" className="border-t border-border px-5 py-3 text-xs text-danger">
           {error}
         </p>
+      )}
+    </Dialog>
+  );
+}
+
+/**
+ * The mail assistant's setup: the database of customers it keeps up to date, which of the person's
+ * own mailboxes starts it, whether only mail from people who have a row does, and its name.
+ * Creating it adds the agent, opens the mailbox to it and turns that mailbox's trigger on.
+ */
+function MailAgentWizard({ workspaceId, template, onClose, onCreated }: WizardProps) {
+  const t = useTranslations("settings.agents.wizard");
+  const tt = useTranslations("settings.agents.mail.trigger");
+  const tc = useTranslations("common");
+  const pages = useShareablePages(workspaceId);
+  const [step, setStep] = useState<"database" | "mailbox">("database");
+  const [database, setDatabase] = useState<PickablePage | null>(null);
+  const [boxes, setBoxes] = useState<{ id: string; address: string }[] | null>(null);
+  const [mailboxId, setMailboxId] = useState("");
+  const [knownOnly, setKnownOnly] = useState(true);
+  const [name, setName] = useState(template.name);
+  const [tried, setTried] = useState(false);
+  const { pending, error, run } = useAction();
+
+  useEffect(() => {
+    let live = true;
+    // Email turned off in the workspace answers with an error: then there is no mailbox to choose.
+    read("mailboxes", workspaceId)
+      .then((res) => {
+        if (!live) return;
+        const own = res.ok ? res.data.map((b) => ({ id: b.id, address: b.address })) : [];
+        setBoxes(own);
+        if (own[0]) setMailboxId(own[0].id);
+      })
+      .catch(() => live && setBoxes([]));
+    return () => {
+      live = false;
+    };
+  }, [workspaceId]);
+
+  const box = boxes?.find((b) => b.id === mailboxId);
+  const missing = (): "needMailbox" | "needName" | null => (!box ? "needMailbox" : !name.trim() ? "needName" : null);
+  const gap = tried ? missing() : null;
+
+  const create = () => {
+    setTried(true);
+    if (missing() || !database || !box) return;
+    const setup: BuiltinAgentSetup = { key: "mail-assistant", databaseId: database.id, name: name.trim(), mailboxId: box.id, knownOnly };
+    run(() => installBuiltinAgentAction(workspaceId, setup), (result) => onCreated(result.agent));
+  };
+
+  const databases = pages && pages.filter((p) => p.kind === "database");
+  const databaseTitle = pageLabel(database?.title ?? "", tc("untitled"));
+
+  return (
+    <Dialog open onClose={onClose} className="max-w-xl">
+      <WizardHeader
+        template={template}
+        step={
+          <>
+            {t(`steps.${step}`)}
+            {database && step !== "database" && ` · ${databaseTitle}`}
+          </>
+        }
+        onBack={step !== "database" ? () => setStep("database") : undefined}
+        onClose={onClose}
+      />
+
+      <DialogBody className={cn("max-h-[65vh] overflow-y-auto", pending && "pointer-events-none opacity-70")}>
+        {step === "database" && (
+          <>
+            <p className="text-sm text-fg-muted">{t("chooseCustomers")}</p>
+            <PagePicker
+              autoFocus
+              pages={databases}
+              label={t("searchDatabases")}
+              empty={t("noDatabases")}
+              onPick={(page) => {
+                setDatabase(page);
+                setTried(false);
+                setStep("mailbox");
+              }}
+            />
+          </>
+        )}
+
+        {step === "mailbox" &&
+          (!boxes ? (
+            <p className="text-sm text-fg-muted">{tc("loading")}</p>
+          ) : !boxes.length ? (
+            <p className="text-sm text-fg-muted">
+              {t.rich("noMailbox", {
+                link: (chunks) => (
+                  <Link href={`/w/${workspaceId}/mail`} className="text-fg underline underline-offset-2 hover:text-accent">
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </p>
+          ) : (
+            <>
+              <Field label={t("mailbox")} help={t("mailboxHelp")}>
+                <select value={mailboxId} aria-label={t("mailbox")} onChange={(e) => setMailboxId(e.target.value)} className={selectClass}>
+                  {boxes.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.address}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <div className="space-y-1">
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={knownOnly} onChange={(e) => setKnownOnly(e.target.checked)} className="accent-accent" />
+                  {tt("knownOnly")}
+                </label>
+                <p className="text-xs text-fg-muted">{tt("skipped", { hour: MAX_MAIL_RUNS_PER_HOUR, day: MAX_MAIL_RUNS_PER_DAY })}</p>
+              </div>
+              <div className="space-y-3 border-t border-border pt-4">
+                <Field label={t("name")}>
+                  <Input value={name} maxLength={MAX_AGENT_NAME} onChange={(e) => setName(e.target.value)} />
+                </Field>
+                <p className="text-xs text-fg-muted">{t("summaryMail", { database: databaseTitle, mailbox: box?.address ?? "" })}</p>
+              </div>
+            </>
+          ))}
+      </DialogBody>
+
+      {step === "mailbox" && (
+        <DialogFooter>
+          {(gap || error) && (
+            <p role="alert" className="me-auto text-xs text-danger">
+              {gap ? t(`errors.${gap}`) : error}
+            </p>
+          )}
+          <Button variant="secondary" onClick={() => setStep("database")}>
+            {t("back")}
+          </Button>
+          <Button variant="primary" disabled={pending || !box} onClick={create}>
+            {pending ? t("creating") : t("create")}
+          </Button>
+        </DialogFooter>
       )}
     </Dialog>
   );

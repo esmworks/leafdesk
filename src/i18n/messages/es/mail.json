@@ -223,5 +223,14 @@
       "addedNote": "Añadidas a la nota diaria de hoy.",
       "open": "Abrir"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "lo leyó",
+      "drafted": "redactó una respuesta",
+      "sorted": "lo ordenó",
+      "summarized": "lo resumió"
+    }
   }
 }

@@ -34,7 +34,7 @@ import {
   type AgentInput,
 } from "@/server/agents/manage";
 import { helperChoices } from "@/server/agents/helpers";
-import { agentMailboxesOf, setAgentMailbox } from "@/server/agents/mail";
+import { agentMailboxesOf, setAgentMailbox, setAgentMailTrigger } from "@/server/agents/mail";
 import { addAgentCreator, agentCreators, agentSharing, parseShareTarget, removeAgentCreator, removeAgentShare, setAgentShare } from "@/server/agents/sharing";
 import { agentGrantSummary } from "@/server/connections/manage";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
@@ -54,7 +54,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit", "mailbox"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -216,6 +216,14 @@ export async function agentMailboxesAction(workspaceId: string, agentId: string)
 export async function setAgentMailboxAction(workspaceId: string, agentId: string, mailboxId: string, open: boolean) {
   return run(workspaceId, async (userId) => {
     await setAgentMailbox(userId, String(agentId), String(mailboxId), open === true);
+    return agentMailboxesOf(userId, String(agentId));
+  });
+}
+
+/** Sets whether new email in one of the person's mailboxes opened to the agent starts its runs (agents/mail-trigger.ts). */
+export async function setAgentMailTriggerAction(workspaceId: string, agentId: string, mailboxId: string, trigger: unknown) {
+  return run(workspaceId, async (userId) => {
+    await setAgentMailTrigger(userId, String(agentId), String(mailboxId), trigger);
     return agentMailboxesOf(userId, String(agentId));
   });
 }

@@ -329,6 +329,15 @@
           "done": "Kladde gemt:",
           "declined": "Kladde afvist:",
           "failed": "Kunne ikke gemme kladden:"
+        },
+        "summarized": "Opsummeret:",
+        "moved": "Flyttet til {folder}:",
+        "sorted": {
+          "read": "Markeret som læst:",
+          "unread": "Markeret som ulæst:",
+          "star": "Stjernemarkeret:",
+          "unstar": "Stjerne fjernet:",
+          "archive": "Arkiveret:"
         }
       }
     },

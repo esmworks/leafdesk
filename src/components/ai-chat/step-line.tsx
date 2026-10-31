@@ -168,7 +168,16 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
         </>
       );
     }
-    const label = step.action === "read" ? t("steps.mail.read") : t(`steps.mail.draft.${step.outcome}`);
+    const label =
+      step.action === "read"
+        ? t("steps.mail.read")
+        : step.action === "summary"
+          ? t("steps.mail.summarized")
+          : step.action === "sort"
+            ? step.did === "move"
+              ? t("steps.mail.moved", { folder: step.folder ?? "" })
+              : t(`steps.mail.sorted.${step.did}`)
+            : t(`steps.mail.draft.${step.outcome}`);
     return (
       <>
         {step.action === "draft" && step.outcome === "failed" ? (

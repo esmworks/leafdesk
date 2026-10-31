@@ -50,6 +50,11 @@ export const pendingChange = pgTable(
     proposedBy: text("proposed_by").references(() => user.id, { onDelete: "set null" }),
     /** Email drafts: whose mailbox it goes out from; only they may send it. */
     senderId: text("sender_id").references(() => user.id, { onDelete: "cascade" }),
+    /**
+     * A change an agent proposed from someone's email (a run new email started): only they see and
+     * answer it, since its values and reason may come from their mail.
+     */
+    privateTo: text("private_to").references(() => user.id, { onDelete: "cascade" }),
     status: text("status").$type<PendingChangeStatus>().notNull().default("pending"),
     error: text("error"),
     decidedBy: text("decided_by").references(() => user.id, { onDelete: "set null" }),

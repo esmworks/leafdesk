@@ -14,6 +14,8 @@ const mocks = vi.hoisted(() => ({
   threadForAi: vi.fn(),
   mailFileForAi: vi.fn(),
   saveDraft: vi.fn(async () => ({ id: "d-1", messageId: "<d@x>", attachments: [] })),
+  saveSummary: vi.fn(async () => {}),
+  mailAction: vi.fn(async () => {}),
   boxes: [] as object[],
   /** What a query awaited without .limit() gives: the Drafts folder, or a thread's messages. */
   awaited: [] as object[],
@@ -25,13 +27,14 @@ vi.mock("@/db", () => {
 });
 vi.mock("@/server/connected-app", async (original) => ({ ...(await original<typeof import("@/server/connected-app")>()), connectedAppCall: mocks.connectedAppCall }));
 vi.mock("@/server/mail-client/read", () => ({ listMailboxes: mocks.listMailboxes, listThreads: mocks.listThreads, mailTabShown: mocks.mailTabShown, openMailbox: mocks.openMailbox, ownMessage: mocks.ownMessage }));
-vi.mock("@/server/mail-client/ai", () => ({ threadForAi: mocks.threadForAi }));
+vi.mock("@/server/mail-client/ai", () => ({ threadForAi: mocks.threadForAi, saveSummary: mocks.saveSummary }));
+vi.mock("@/server/mail-client/write", () => ({ mailAction: mocks.mailAction }));
 vi.mock("@/server/mail-client/ai-files", () => ({ mailFileForAi: mocks.mailFileForAi }));
 vi.mock("@/server/mail-client/drafts", () => ({ saveDraft: mocks.saveDraft }));
 vi.mock("@/server/mail/locale", () => ({ recipientLocale: async () => "en" }));
 vi.mock("next-intl", async (original) => ({ ...(await original<object>()), createTranslator: () => (key: string, values: Record<string, string>) => `${key}: ${values.name} ${values.date}` }));
 
-const { agentMailToolset, chatMailToolset, MAIL_TOOL_NAMES, prepareMailDraft, runChatMailTool, saveMailDraft } = await import("./ai-chat-mail");
+const { AGENT_MAIL_ACTION_NAMES, agentMailToolset, chatMailToolset, MAIL_TOOL_NAMES, prepareMailDraft, runAgentMailAction, runChatMailTool, saveMailDraft } = await import("./ai-chat-mail");
 const { RowMailError } = await import("@/server/row-mail/settings");
 const { MailConnectError } = await import("@/server/row-mail/connect");
 
@@ -272,7 +275,7 @@ describe("an agent's run", () => {
   it("gets the tools only for mailboxes opened to it, its draft_mail saying whom it may write to", () => {
     expect(agentMailToolset([])).toEqual([]);
     const tools = agentMailToolset(["box-1"]);
-    expect(tools.map((t) => t.name)).toEqual(["search_mail", "read_mail", "read_mail_attachment", "draft_mail"]);
+    expect(tools.map((t) => t.name)).toEqual(["search_mail", "read_mail", "read_mail_attachment", "draft_mail", "sort_mail", "summarize_mail"]);
     expect(tools[3].description).toMatch(/only to people of that thread/);
   });
 
@@ -305,7 +308,7 @@ describe("an agent's run", () => {
 
   it("names the same mail tools as lib/agents.ts, which holds a run that read email to them", async () => {
     const { AGENT_MAIL_TOOLS } = await import("@/lib/agents");
-    expect([...AGENT_MAIL_TOOLS].sort()).toEqual(Object.values(MAIL_TOOL_NAMES).sort());
+    expect([...AGENT_MAIL_TOOLS].sort()).toEqual([...Object.values(MAIL_TOOL_NAMES), ...Object.values(AGENT_MAIL_ACTION_NAMES)].sort());
   });
 
   it("answers only the people of the thread, in a mailbox opened to it", async () => {
@@ -315,5 +318,60 @@ describe("an agent's run", () => {
     expect(await reply(["ayse@acme.test", "ali@acme.test"])).toHaveProperty("action");
     expect(await reply(["evil@x.test"])).toMatchObject({ isError: true, content: expect.stringMatching(/isn't among the people of the thread/) });
     expect(await reply(["ayse@acme.test"], ["box-2"])).toMatchObject({ isError: true, content: expect.stringMatching(/No email with that reply_to/) });
+  });
+});
+
+describe("an agent sorting and summarizing mail", () => {
+  const scope = { boxes: ["box-1"], agentId: "agent-1" };
+  const message = { id: "m-1", folderId: "f-1", threadId: "t-1", subject: "Teklif" };
+  const sort = (args: Record<string, unknown>, boxes = scope.boxes) => runAgentMailAction("u1", "ws-1", { name: "sort_mail", arguments: { message_id: "m-1", ...args } }, { ...scope, boxes });
+  const folders = [
+    { id: "f-1", name: "Inbox", path: "INBOX", role: "inbox", selectable: true },
+    { id: "f-2", name: "Clients", path: "Clients", role: null, selectable: true },
+    { id: "f-3", name: "Trash", path: "Trash", role: "trash", selectable: true },
+    { id: "f-4", name: "Junk", path: "Junk", role: "junk", selectable: true },
+  ];
+
+  beforeEach(() => {
+    mocks.ownMessage.mockResolvedValue({ box, message });
+    mocks.awaited = folders;
+  });
+
+  it("archives and marks a thread of a mailbox opened to it", async () => {
+    const out = await sort({ action: "archive" });
+    expect(out.isError).toBeUndefined();
+    expect(mocks.mailAction).toHaveBeenCalledWith("u1", { mailboxId: "box-1", folderId: "f-1", threadIds: ["t-1"], action: "archive" });
+    expect(out.step).toMatchObject({ kind: "mail", action: "sort", did: "archive", folder: null, subject: "Teklif" });
+  });
+
+  it("moves to a folder by its name, never to the trash or junk", async () => {
+    expect((await sort({ action: "move", folder: "clients" })).step).toMatchObject({ did: "move", folder: "Clients" });
+    expect(mocks.mailAction).toHaveBeenLastCalledWith("u1", expect.objectContaining({ action: "move", to: "f-2" }));
+    mocks.mailAction.mockClear();
+    for (const folder of ["Trash", "junk", "Inbox", "Nowhere"]) {
+      const out = await sort({ action: "move", folder });
+      expect(out).toMatchObject({ isError: true, content: expect.stringMatching(/There is no folder/) });
+      expect(out.content).not.toMatch(/Trash|Junk/);
+    }
+    expect(mocks.mailAction).not.toHaveBeenCalled();
+  });
+
+  it("refuses what it can't do: deleting, a folder without a move, another mailbox", async () => {
+    expect(await sort({ action: "delete" })).toMatchObject({ isError: true });
+    expect(await sort({ action: "trash" })).toMatchObject({ isError: true });
+    expect(await sort({ action: "read", folder: "Clients" })).toMatchObject({ isError: true, content: expect.stringMatching(/only with action move/) });
+    expect(await sort({ action: "read" }, ["box-2"])).toMatchObject({ isError: true, content: expect.stringMatching(/No email with that message_id/) });
+    expect(await sort({ action: "read", to: "x" })).toMatchObject({ isError: true });
+    expect(mocks.mailAction).not.toHaveBeenCalled();
+  });
+
+  it("keeps a summary on the thread's newest message, within its length", async () => {
+    mocks.boxes = [{ id: "m-9" }];
+    const summary = (text: string) => runAgentMailAction("u1", "ws-1", { name: "summarize_mail", arguments: { message_id: "m-1", summary: text } }, scope);
+    expect((await summary("Ayşe wants a price by Friday.")).step).toMatchObject({ kind: "mail", action: "summary", subject: "Teklif" });
+    expect(mocks.saveSummary).toHaveBeenCalledWith("m-9", "Ayşe wants a price by Friday.");
+    expect(await summary("x".repeat(1_501))).toMatchObject({ isError: true });
+    expect(await summary("  ")).toMatchObject({ isError: true });
+    expect(mocks.saveSummary).toHaveBeenCalledTimes(1);
   });
 });

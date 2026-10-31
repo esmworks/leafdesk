@@ -329,6 +329,15 @@
           "done": "Utkast lagret:",
           "declined": "Utkast avslått:",
           "failed": "Kunne ikke lagre utkastet:"
+        },
+        "summarized": "Oppsummert:",
+        "moved": "Flyttet til {folder}:",
+        "sorted": {
+          "read": "Merket som lest:",
+          "unread": "Merket som ulest:",
+          "star": "Stjernemerket:",
+          "unstar": "Stjerne fjernet:",
+          "archive": "Arkivert:"
         }
       }
     },

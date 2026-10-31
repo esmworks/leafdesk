@@ -627,7 +627,8 @@
         "approvalTimeout": "Niemand hat seinen Aufruf innerhalb eines Tages beantwortet, daher wurde nichts gesendet.",
         "connectionGone": "Die Verbindung, die ihn gestartet hat, wurde entfernt.",
         "limitReached": "Das monatliche Token-Limit des Agenten war aufgebraucht.",
-        "costLimit": "Der Workspace hatte sein monatliches KI-Kostenlimit erreicht."
+        "costLimit": "Der Workspace hatte sein monatliches KI-Kostenlimit erreicht.",
+        "mailGone": "Die E-Mail ist nicht mehr im Postfach, oder das Postfach ist für den Agenten nicht mehr geöffnet."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Eine entfernte Verbindung",
@@ -683,7 +684,8 @@
       "emailFailed": "Konnte keine E-Mail entwerfen:",
       "emailHidden": "Hat eine E-Mail zu einer Zeile entworfen, die du nicht öffnen kannst",
       "emailSent": "E-Mail an {to} gesendet:",
-      "emailSendFailed": "E-Mail an {to} konnte nicht gesendet werden:"
+      "emailSendFailed": "E-Mail an {to} konnte nicht gesendet werden:",
+      "fromMail": "E-Mail an {name}"
     },
     "usage": {
       "thisMonth": "Diesen Monat: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Mit einer Vorlage beginnen",
-      "description": "Fertige Agenten für eine Datenbank. Die meisten laufen bei jeder neuen Zeile, der Erfolgsprotokollierer bei den Ereignissen einer Verbindung; du wählst die Datenbank und was er nutzt."
+      "description": "Fertige Agenten für eine Datenbank. Die meisten laufen bei jeder neuen Zeile, der Erfolgsprotokollierer bei den Ereignissen einer Verbindung und der Mail-Assistent bei neuen E-Mails in deinem Postfach; du wählst die Datenbank und was er nutzt."
     },
     "wizard": {
       "title": "{name} einrichten",
@@ -703,7 +705,8 @@
         "database": "Datenbank wählen",
         "properties": "Eigenschaften wählen",
         "pages": "Seiten wählen, die er liest",
-        "connection": "Wählen, woher seine Ereignisse kommen"
+        "connection": "Wählen, woher seine Ereignisse kommen",
+        "mailbox": "Postfach wählen"
       },
       "chooseDatabase": "In welcher Datenbank soll er arbeiten? Du brauchst Vollzugriff darauf.",
       "searchDatabases": "Datenbanken suchen",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Diese Datenbank hat keine Eigenschaft, die er ausfüllen kann: Text, Link, E-Mail, Telefon, Zahl oder eine Auswahl mit Optionen. Füge eine hinzu und richte den Agenten dann ein.",
       "companyAutofilled": "Ausgelassen, weil KI-Autofill sie ausfüllt: {properties}.",
       "summaryWeb": "Er bekommt Webzugriff, um die Firmen nachzuschlagen.",
+      "chooseCustomers": "Welche Datenbank mit Kunden oder Kontakten soll er aktuell halten? Du brauchst vollen Zugriff darauf.",
+      "mailbox": "Postfach",
+      "mailboxHelp": "Neue E-Mails in diesem Postfach starten den Agenten. Nur du siehst, was er liest, entwirft und vorschlägt.",
+      "noMailbox": "Du hast in diesem Arbeitsbereich noch kein Postfach. <link>Füge eins unter Mail hinzu</link> und richte den Agenten dann ein.",
+      "summaryMail": "Beim Erstellen wird der Agent angelegt, {mailbox} für ihn geöffnet und er startet bei neuen E-Mails dort. Der Agent bekommt Bearbeitungszugriff auf {database}; jede Zeile oder Änderung, die er vorschlägt, wartet unter Zu prüfen auf deine Freigabe.",
       "back": "Zurück",
       "next": "Weiter",
       "create": "Agent erstellen",
@@ -757,7 +765,8 @@
         "sameOptions": "Wähle zwei verschiedene Optionen.",
         "needPages": "Wähle mindestens eine Seite.",
         "needName": "Gib dem Agenten einen Namen.",
-        "needConnection": "Wähle eine Verbindung."
+        "needConnection": "Wähle eine Verbindung.",
+        "needMailbox": "Wähle ein Postfach."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Gib bis zu 10 E-Mail-Adressen ein.",
         "requestTokens": "Fordere eine ganze Zahl von Tokens über dem aktuellen Limit an, höchstens 1.000.000.000.",
         "requestNote": "Begründe es in höchstens 500 Zeichen.",
-        "noLimit": "Dieser Agent hat kein Limit, das erhöht werden könnte."
+        "noLimit": "Dieser Agent hat kein Limit, das erhöht werden könnte.",
+        "mailbox": "Wähle eines deiner Postfächer in diesem Arbeitsbereich."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Deine E-Mail",
-      "description": "Öffne ein Postfach, damit dieser Agent darin suchen, E-Mails lesen und Entwürfe speichern kann: in deinen Chats mit ihm hier und in Zeitplänen, die du festlegst und die keine Datenbank betreuen.",
+      "description": "Öffne ein Postfach, damit dieser Agent darin suchen, E-Mails lesen und ordnen und Entwürfe speichern kann: in deinen Chats mit ihm hier, in Zeitplänen, die du festlegst und die keine Datenbank betreuen, und bei neuen E-Mails, wenn du das einschaltest.",
       "open": "{address} für diesen Agenten öffnen",
-      "note": "Er sendet nie E-Mails: Seine Entwürfe sendest du im Tab „Mail“. Hat ein Lauf E-Mails gelesen, liest er nur noch Seiten und schreibt Entwürfe. Andere, die diesen Agenten nutzen oder bearbeiten, sehen deine E-Mails nie."
+      "note": "Er sendet nie E-Mails: Seine Entwürfe sendest du im Tab „Mail“. Hat ein Lauf E-Mails gelesen, liest er nur noch Seiten und arbeitet an deinen E-Mails. Andere, die diesen Agenten nutzen oder bearbeiten, sehen deine E-Mails nie.",
+      "trigger": {
+        "label": "Bei neuen E-Mails ausführen",
+        "edit": "Ändern",
+        "task": "Was mit jeder neuen E-Mail geschehen soll",
+        "taskPlaceholder": "Fasse sie zusammen, entwirf eine Antwort, wenn eine erbeten wird, und archiviere Newsletter.",
+        "senders": "Nur von (optional)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Gib E-Mail-Adressen oder Domains ein, durch Kommas getrennt.",
+        "subject": "Nur mit diesen Wörtern im Betreff (optional)",
+        "subjectPlaceholder": "Angebot",
+        "knownOnly": "Nur von Personen, die Zeilen in deinen Datenbanken sind",
+        "skipped": "E-Mails, die du sendest, Entwürfe, automatische Antworten, Mailinglisten und Massen-E-Mails starten ihn nie. Höchstens {hour} Läufe pro Stunde und {day} pro Tag aus diesem Postfach.",
+        "limited": "Zuletzt wurden einige E-Mails ausgelassen: Das stündliche oder tägliche Limit war erreicht."
+      }
     }
   },
   "analytics": {

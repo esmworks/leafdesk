@@ -56,6 +56,8 @@ import {
   AGENT_RUN_HISTORY_DAYS,
   isEventRun,
   isMentionRun,
+  isMailRun,
+  READS_AFTER_MAIL,
   isRowRun,
   isScheduleRun,
   mailRun,
@@ -84,7 +86,7 @@ import { agentWebCallAsks, scheduledWebCallGoes } from "@/lib/web-calls";
 import { AccessError, findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, complete, isAiError, promptRoomFor, stream, takeWorkspaceCapacity, type AiMessage, type AiRequest, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
-import { agentChatPrompt, agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
+import { agentChatPrompt, agentEventPrompt, agentMailPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
 import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, pickMoreTool, readDocsTopic, USE_TOOL } from "@/server/ai-more-tools";
@@ -97,7 +99,7 @@ import { asAutomation } from "@/server/automations/queue";
 import { threadsVisibleTo } from "@/server/property-comments";
 import { changeComments } from "@/server/comments";
 import { notifyApprovers, withdrawApproval } from "@/server/connections/approvals";
-import { agentMailToolset, MAIL_TOOL_NAMES, prepareMailDraft, runChatMailTool, saveMailDraft } from "@/server/ai-chat-mail";
+import { AGENT_MAIL_ACTIONS, agentMailToolset, markMail, MAIL_TOOL_NAMES, prepareMailDraft, runAgentMailAction, runChatMailTool, saveMailDraft } from "@/server/ai-chat-mail";
 import { agentToolset, inputSummary, runConnectionTool, type ConnectionToolset } from "@/server/connections/tools";
 import { getProperties } from "@/server/databases";
 import { recipientLocale } from "@/server/mail/locale";
@@ -244,7 +246,8 @@ const state = agentsWorker;
 
 /**
  * What makes two queued runs the same run: the automation's run, the event and trigger, the
- * schedule and the time it was due, or the comment that mentioned the agent. Each run an owner
+ * schedule and the time it was due, the comment that mentioned the agent, or the email that came.
+ * Each run an owner
  * asks for is its own.
  */
 function sameSource(source: AgentRunSource, context: AgentRunContext) {
@@ -252,6 +255,7 @@ function sameSource(source: AgentRunSource, context: AgentRunContext) {
   if (source.kind === "automation") return sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId} and ${agentRun.source}->>'rowId' = ${source.rowId}`;
   if (source.kind === "connection") return sql`${agentRun.source}->>'eventId' = ${source.eventId} and ${agentRun.source}->>'triggerId' = ${source.triggerId}`;
   if (source.kind === "mention") return sql`${agentRun.source}->>'commentId' = ${source.commentId}`;
+  if (source.kind === "mail") return sql`${agentRun.source}->>'kind' = 'mail' and ${agentRun.source}->>'messageId' = ${source.messageId}`;
   if (source.kind === "schedule" && "scheduledFor" in context && context.scheduledFor) {
     return sql`${agentRun.source}->>'scheduleId' = ${source.scheduleId} and ${agentRun.context}->>'scheduledFor' = ${context.scheduledFor}`;
   }
@@ -324,7 +328,7 @@ async function finish(run: Run, values: Ending) {
     .where(eq(agentRun.id, run.id))
     // As it is now: a helper asked with ask_agent that wasn't done in time became a task meanwhile (handoff.ts).
     .returning({ source: agentRun.source });
-  await reportRun({ ...run, source: ended?.source ?? run.source });
+  await reportRun({ ...run, source: ended?.source ?? run.source }, values);
   await replyToMention(run, values);
   await closeChatTurn(run, values);
 }
@@ -333,11 +337,15 @@ async function finish(run: Run, values: Ending) {
  * Tells the owner who set a schedule that its run ended (done or failed), and the person behind
  * the run that gave a task to another agent (handoff.ts `assign_agent`) that the task's run did
  * (an `agent_task`, which they may turn off): the report is the run itself, which their inbox
- * shows. Never throws; the run's ending is saved either way.
+ * shows. A run their email started tells them only when it left them something to do (a draft to
+ * send) or failed for a reason they can change: every email ringing would bury the inbox. Never
+ * throws; the run's ending is saved either way.
  */
-async function reportRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "source">) {
+async function reportRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "source">, ending?: Pick<Ending, "status" | "code" | "steps">) {
   const task = run.source.kind === "handoff" && run.source.queued ? run.source : null;
-  const to = isScheduleRun(run.source) ? run.source.scheduledBy : task ? remindedPerson(task.parent) : null;
+  const mail = isMailRun(run.source) ? run.source : null;
+  const mailReport = mail && ending ? mailNeedsPerson(ending) : false;
+  const to = isScheduleRun(run.source) ? run.source.scheduledBy : task ? remindedPerson(task.parent) : mailReport && mail ? mail.userId : null;
   if (!to) return;
   try {
     // From the agent's user, looked up in the same statement.
@@ -351,6 +359,12 @@ async function reportRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "sour
   } catch (error) {
     console.error("[agents] could not report a run", redactError(error));
   }
+}
+
+/** Whether a run new email started leaves its person something: a draft saved, or a failure other than the email being gone. */
+function mailNeedsPerson(ending: Pick<Ending, "status" | "code" | "steps">) {
+  if (ending.status === "failed") return ending.code !== "mailGone" && ending.code !== "agentDisabled";
+  return (ending.steps ?? []).some((s) => s.kind === "mail" && s.action === "draft" && s.outcome === "done");
 }
 
 /** What an agent mentioned in a comment says in the thread when its run ends without an answer, by the run's code (lib/agents). */
@@ -471,6 +485,14 @@ export async function processRun(run: Run): Promise<void> {
     member = bound = run.source.userId;
     trusted = true;
     chatWrites = hasAgentLevel(level, "edit");
+  }
+  // New email of a person who opened their mailbox to the agent: held to them, while the agent is
+  // still shared with them (they set the task; the email is anyone's words, see converse).
+  if (run.source.kind === "mail") {
+    const owner = await findMembership(run.source.userId, run.workspaceId);
+    if (!owner || (await agentLevel(run.source.userId, agent, owner.role)) === "none") return finish(run, { status: "failed", code: "noAccess" });
+    member = bound = run.source.userId;
+    trusted = true;
   }
   const databaseId = scheduledDatabase(run.source);
   if (databaseId) {
@@ -612,6 +634,9 @@ async function converse(
   const maxWrites = databaseId ? MAX_SCHEDULED_WRITES : MAX_AGENT_WRITES;
   const eventRun = isEventRun(run.source);
   const mention = isMentionRun(run.source) ? run.source : null;
+  // New email started it: it reads that email from the start, as anyone's words (see answer), and
+  // has only what a run that read email may use.
+  const arrival = isMailRun(run.source) ? run.source : null;
   // A mention's run may change the page its comment is on where the agent (and the member) may
   // edit it, and its values when it is a database row.
   const mentionEdits = mention ? await mentionEditing(agent, mention.pageId) : null;
@@ -621,7 +646,7 @@ async function converse(
   // An agent with web access reads pages (and searches) as it reads from a connection: on such a
   // run each call waits for an owner too, or the run could be steered to send what it read to any
   // address.
-  const webTools = webToolsFor(agent);
+  const webTools = arrival ? [] : webToolsFor(agent);
   const webNames = new Set(webTools.map((t) => t.name));
   // A run a person asked for in words (a chat message, a mention, a request, or a helper's run for
   // one) reads what they may open, some of it written by others, who could steer it into sending
@@ -638,7 +663,8 @@ async function converse(
   const chat = run.source.kind === "chat";
   // Its owners chose that its changes to rows wait for review: create_row and update_row propose
   // them (pending-changes.ts). A chat's changes are still made at once: the person is there, and asked.
-  const proposes = agent.rowChanges === "review" && !chat;
+  // A run new email started only ever proposes, to the mailbox's owner alone (see propose).
+  const proposes = (agent.rowChanges === "review" && !chat) || Boolean(arrival);
   // Leafdesk's own tools this run makes only once an owner approves (none on a row's run). A row an
   // event's run proposes waits for review instead: nothing to approve before then.
   const ownApproved: ReadonlySet<string> = new Set([...(eventRun && !proposes ? EVENT_APPROVED_TOOLS : []), ...(askEveryTool || askedInWords ? webNames : [])]);
@@ -648,7 +674,7 @@ async function converse(
   // someone no owner answers for (one someone who isn't an owner asked for, set or chats in,
   // approvers.ts): each such call waits for an owner, and would only run out of time.
   const heldTo = accessSource(run.source);
-  const heldToPerson = heldTo.kind === "chat" || heldTo.kind === "request" || (isScheduleRun(heldTo) && !heldTo.databaseId);
+  const heldToPerson = heldTo.kind === "chat" || heldTo.kind === "request" || heldTo.kind === "mail" || (isScheduleRun(heldTo) && !heldTo.databaseId);
   const unanswered = heldToPerson && (await approversOf(run)).length === 0;
   const toolset = await agentToolset(agent.id, { writes: (!chat || chatWrites) && !unanswered });
   const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
@@ -659,17 +685,27 @@ async function converse(
   // someone who isn't an owner shouldn't fill the owners' review from a read-only chat: these read
   // the notes owners kept, but propose none.
   const handedOff = run.source.kind === "handoff";
-  const remembers = memoryOn && !askEveryTool && !mention && !handedOff && (!chat || chatWrites);
+  const remembers = memoryOn && !askEveryTool && !mention && !handedOff && !arrival && (!chat || chatWrites);
   // Where it left off goes only to the same schedule's next run, which reads the same: no one approves it.
   const leavesNote = memoryOn && scheduled;
   const mentionTools = mentionEdits?.edits ? [EDIT_PAGE, ...(mentionEdits.row ? [UPDATE_ROW] : [])] : [];
-  // Other agents it may ask; none on a helper's run.
-  const handoff = await handoffFor(agent, run, { bound, trusted: !askEveryTool, clock, runHelper: runInSlot });
+  // Other agents it may ask; none on a helper's run, nor on one that reads email from the start.
+  const handoff = arrival ? null : await handoffFor(agent, run, { bound, trusted: !askEveryTool, clock, runHelper: runInSlot });
   // The person it works for, whom it may remind of something (ai-reminders.ts): not on a helper's
   // run, whose task another agent wrote, nor on one reading what no member stands behind.
-  const reminded = handedOff || askEveryTool ? null : remindedPerson(run.source);
+  const reminded = handedOff || askEveryTool || arrival ? null : remindedPerson(run.source);
   const reminder = reminded ? reminderFor(run) : null;
-  const ownTools = rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : chatWrites ? [...CHAT_TOOLS, ...WRITE_TOOLS] : [...CHAT_TOOLS, ...mentionTools];
+  const ownTools = rowRun
+    ? AGENT_TOOLS
+    : databaseId
+      ? SCHEDULED_DATABASE_TOOLS
+      : eventRun
+        ? EVENT_TOOLS
+        : arrival
+          ? [...CHAT_TOOLS.filter((t) => READS_AFTER_MAIL.has(t.name)), CREATE_ROW, UPDATE_ROW]
+          : chatWrites
+            ? [...CHAT_TOOLS, ...WRITE_TOOLS]
+            : [...CHAT_TOOLS, ...mentionTools];
   const reviews = proposes && ownTools.some((t) => PROPOSE_TOOLS.has(t.name));
   // A run on a row, or a schedule's on a database, that works for someone with a mailbox where mail
   // is matched to the rows drafts email from it; each draft waits for them (email-drafts.ts).
@@ -680,12 +716,14 @@ async function converse(
   // The email of the person the run works for, in the mailboxes they opened to the agent (mail.ts):
   // only on a run that shows what it did to them alone and stays in the app (lib/agents.ts mailRun).
   const mailBoxes = mailRun(run.source) ? await runMailboxes(agent, member) : [];
+  // Its person closed the mailbox to the agent (or lost it) since the email came.
+  if (arrival && !mailBoxes.includes(arrival.mailboxId)) return { status: "failed", code: "mailGone", steps: [...run.steps], usage: run.usage ?? { inputTokens: 0, outputTokens: 0, costUsd: 0, rounds: 0 } };
   const mailTools = agentMailToolset(mailBoxes);
   // A schedule's run on a database merges duplicates there only where the agent may edit it, and
   // not when its changes wait for review: a merge can't be proposed.
   const merges = !rowRun && !proposes && databaseId !== null && hasLevel((await pageAccessOf(agent.userId, databaseId)).level, "edit");
-  // Leafdesk's further tools, on a run someone stands behind.
-  const moreTools = askEveryTool ? null : allMoreTools;
+  // Leafdesk's further tools, on a run someone stands behind (and that doesn't read email from the start).
+  const moreTools = askEveryTool || arrival ? null : allMoreTools;
   const tools = [
     ...forReview(ownTools, proposes),
     ...(merges ? [MERGE_ROWS] : []),
@@ -697,7 +735,7 @@ async function converse(
     ...webTools,
     ...(handoff ? handoff.tools : []),
     ...(reminder ? [reminder.tool] : []),
-    ...toolset.tools,
+    ...(arrival ? [] : toolset.tools),
     ...(moreTools ? [FIND_TOOLS, USE_TOOL] : []),
   ];
   // Checked when the run starts and again when it goes on after waiting for approval, so a skill
@@ -712,7 +750,7 @@ async function converse(
     chat: chat ? { writes: chatWrites } : undefined,
     addsRows: eventRun,
     mentioned: mentionEdits ?? undefined,
-    connections,
+    connections: arrival ? [] : connections,
     askEveryTool,
     web: webTools.length
       ? {
@@ -727,6 +765,7 @@ async function converse(
     reviews,
     drafts: Boolean(sender),
     mail: mailTools.length > 0,
+    mailArrived: Boolean(arrival),
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   // The model its owners chose: every turn of every run of the agent's goes to it (features.ts).
@@ -806,6 +845,16 @@ async function converse(
     messages = [
       { role: "user", content: agentMentionPrompt({ comment: run.prompt, event: await eventText(run), page: read.content, thread: before, map, memory: memory.text }) },
     ];
+  } else if (arrival && member) {
+    // The email's thread, read as read_mail reads it (never marking it seen), as source 1.
+    const read = await runChatMailTool(member, run.workspaceId, { name: MAIL_TOOL_NAMES.read, arguments: { message_id: arrival.messageId } }, registry, Math.min(16_000, room([])), mailBoxes);
+    if (read.isError) return { status: "failed", code: "mailGone", steps, usage };
+    mailRead = true;
+    if (read.step) steps.push(read.step as AgentStepRecord);
+    await markMail(arrival.messageId, agent.id, "read");
+    const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
+    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
+    messages = [{ role: "user", content: agentMailPrompt({ task: run.prompt, event: await eventText(run), thread: read.content, map, memory: memory.text }) }];
   } else if (chat) {
     // The conversation so far, then the message, with the workspace as the agent sees it (with the person).
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
@@ -832,13 +881,18 @@ async function converse(
 
   /**
    * Keeps a checked create_row or update_row for review rather than making it (pending-changes.ts):
-   * the person the run works for hears about it, else whoever made the agent, else the owners.
+   * the person the run works for hears about it, else whoever made the agent, else the owners. One
+   * a run new email started proposes is the mailbox owner's alone (its values come from their
+   * mail): only they see it, so it needs a row they may edit themselves.
    */
   const propose = async (prepared: PreparedWrite, call: { arguments: Record<string, unknown> }): Promise<CallResult> => {
     const row = prepared.row;
     if (!row) return { content: "This change can't be proposed.", isError: true };
     const reason = typeof call.arguments.reason === "string" ? call.arguments.reason.trim() : "";
     if (!reason) return { content: "Give a reason: why you propose this change, for the person reviewing it. Nothing was proposed.", isError: true };
+    if (arrival && !hasLevel((await pageAccessOf(arrival.userId, row.rowId ?? row.databaseId)).level, "content")) {
+      return { content: "The person whose email this is can't edit that row or database, so they couldn't approve it. Nothing was proposed.", isError: true };
+    }
     const { replaced } = await proposeChange({
       workspaceId: run.workspaceId,
       kind: row.kind,
@@ -850,7 +904,8 @@ async function converse(
       source: { kind: "agent_run", runId: run.id, automationRunId: run.source.kind === "automation" ? run.source.automationRunId : null },
       agent: { id: agent.id, userId: agent.userId },
       runId: run.id,
-      for: [member, agent.createdBy],
+      for: arrival ? [arrival.userId] : [member, agent.createdBy],
+      privateTo: arrival?.userId ?? null,
     });
     return {
       content: `${replaced ? "Proposed again, in place of your earlier proposal for this row" : "Proposed"}: it waits for a person to approve it under For review and isn't made yet. Don't propose it again.`,
@@ -864,9 +919,18 @@ async function converse(
     // Email is anyone's words, and could steer the run into sending on what it read: once it read
     // some, it only reads pages and drafts email (whose recipients ai-chat-mail.ts checks). Nothing
     // waits for approval either: an owner who isn't the mailbox's would see what it would send.
+    // A run new email started proposes rows to its person alone, who approves each (see propose).
+    if (arrival && reviews && PROPOSE_TOOLS.has(call.name)) {
+      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
+      if (!("action" in prepared)) return prepared;
+      const out = await propose(prepared, call);
+      if (!out.isError) writes += 1;
+      return out;
+    }
     if (mailRead && !mayCallAfterMail(call.name, Boolean(external))) {
       return {
-        content: "You have read email in this run, and email is anyone's words: from here on this run only reads pages and drafts email. Nothing was done; say what you would do instead, and the person can ask for it.",
+        content: "You have read email in this run, and email is anyone's words: from here on this run only reads pages and works on email. Nothing was done; say what you would do instead, and the person can ask for it.",
         isError: true,
         step: { kind: "tool", connectionId: external?.connection.id ?? null, tool: external?.tool.name ?? call.name, input: inputSummary(call.arguments), outcome: "afterMail" },
       };
@@ -878,6 +942,15 @@ async function converse(
         const prepared = await prepareMailDraft(member, run.workspaceId, call.arguments, undefined, { boxes: mailBoxes, typed: [run.prompt, ...(await chatRunTyped(run))] });
         if (!("action" in prepared)) return prepared;
         const out = await saveMailDraft(member, prepared, "approve");
+        if (!out.isError) {
+          writes += 1;
+          if (prepared.input.replyTo) await markMail(prepared.input.replyTo, agent.id, "drafted");
+        }
+        return out;
+      }
+      if (AGENT_MAIL_ACTIONS.has(call.name)) {
+        if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+        const out = await runAgentMailAction(member, run.workspaceId, call, { boxes: mailBoxes, agentId: agent.id });
         if (!out.isError) writes += 1;
         return out;
       }
@@ -1369,6 +1442,10 @@ async function eventText(run: Run) {
     const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.requestedBy));
     const via = run.source.via === "api" ? "the REST API" : "an AI assistant (MCP)";
     return `${owner?.name ?? "An owner"} asked for this run over ${via}${isRowRun(run.source) ? ", on the row below" : ""}.`;
+  }
+  if (isMailRun(run.source)) {
+    const [owner] = await db.select({ name: user.name }).from(user).where(eq(user.id, run.source.userId));
+    return `New email came to a mailbox of ${owner?.name ?? "the person you work for"}, who opened it to you. The newest message's message_id is ${run.source.messageId}.`;
   }
   if (isEventRun(run.source)) {
     // The type is the sender's word (often an unsigned header): it goes with the event's data, not here.

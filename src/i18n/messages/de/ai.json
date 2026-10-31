@@ -329,6 +329,15 @@
           "done": "Entwurf gespeichert:",
           "declined": "Entwurf abgelehnt:",
           "failed": "Entwurf konnte nicht gespeichert werden:"
+        },
+        "summarized": "Zusammengefasst:",
+        "moved": "Verschoben nach {folder}:",
+        "sorted": {
+          "read": "Als gelesen markiert:",
+          "unread": "Als ungelesen markiert:",
+          "star": "Markiert:",
+          "unstar": "Markierung entfernt:",
+          "archive": "Archiviert:"
         }
       }
     },

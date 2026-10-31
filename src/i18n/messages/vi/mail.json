@@ -223,5 +223,14 @@
       "addedNote": "Đã thêm vào ghi chú hằng ngày hôm nay.",
       "open": "Mở"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "đã đọc",
+      "drafted": "đã soạn bản nháp trả lời",
+      "sorted": "đã sắp xếp",
+      "summarized": "đã tóm tắt"
+    }
   }
 }

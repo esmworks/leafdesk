@@ -329,6 +329,15 @@
           "done": "Draf disimpan:",
           "declined": "Draf ditolak:",
           "failed": "Tidak dapat menyimpan draf:"
+        },
+        "summarized": "Diringkas:",
+        "moved": "Dipindahkan ke {folder}:",
+        "sorted": {
+          "read": "Ditandai dibaca:",
+          "unread": "Ditandai belum dibaca:",
+          "star": "Diberi bintang:",
+          "unstar": "Bintang dihapus:",
+          "archive": "Diarsipkan:"
         }
       }
     },

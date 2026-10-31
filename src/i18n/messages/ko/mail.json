@@ -223,5 +223,14 @@
       "addedNote": "오늘의 데일리 노트에 추가했습니다.",
       "open": "열기"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "읽음",
+      "drafted": "답장 임시 저장",
+      "sorted": "정리함",
+      "summarized": "요약함"
+    }
   }
 }

@@ -1372,7 +1372,9 @@
       "request": "Zadanie, o które prosiłeś",
       "requestOn": "Zadanie, o które prosiłeś · {place}",
       "mention": "Wspomniałeś o nim w komentarzu",
-      "mentionOn": "Wspomniałeś o nim na {place}"
+      "mentionOn": "Wspomniałeś o nim na {place}",
+      "mail": "Nowy e-mail",
+      "mailOn": "Nowy e-mail · {place}"
     },
     "doneQuietly": "Gotowe.",
     "side": {

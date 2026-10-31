@@ -117,8 +117,8 @@ export async function threadForAi(userId: string, input: { mailboxId: string; fo
   return { subject: thread.subject, messages, newestId: sent[sent.length - 1].id, row: thread.row, files };
 }
 
-/** Keeps the summary on the thread's newest message, and drops the thread's older ones. */
-async function saveSummary(messageId: string, text: string) {
+/** Keeps the summary on the thread's newest message, and drops the thread's older ones (an agent's too, ai-chat-mail.ts). */
+export async function saveSummary(messageId: string, text: string) {
   const summary = text.trim();
   if (!summary) return;
   const [row] = await db.update(mailMessage).set({ summary }).where(eq(mailMessage.id, messageId)).returning({ mailboxId: mailMessage.mailboxId, threadId: mailMessage.threadId });

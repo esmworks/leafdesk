@@ -1372,7 +1372,9 @@
       "request": "En oppgave du ba om",
       "requestOn": "En oppgave du ba om · {place}",
       "mention": "Du nevnte den i en kommentar",
-      "mentionOn": "Du nevnte den på {place}"
+      "mentionOn": "Du nevnte den på {place}",
+      "mail": "Ny e-post",
+      "mailOn": "Ny e-post · {place}"
     },
     "doneQuietly": "Ferdig.",
     "side": {

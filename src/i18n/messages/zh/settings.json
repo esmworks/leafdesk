@@ -627,7 +627,8 @@
         "approvalTimeout": "一天内没有人答复它的调用请求，因此没有发送任何内容。",
         "connectionGone": "触发它的连接已被移除。",
         "limitReached": "它已用完该智能体的每月令牌上限。",
-        "costLimit": "工作区此前已达到每月 AI 费用上限。"
+        "costLimit": "工作区此前已达到每月 AI 费用上限。",
+        "mailGone": "邮件已不在邮箱中,或该邮箱已不再向此智能体开放。"
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "一个已移除的连接",
@@ -683,7 +684,8 @@
       "emailFailed": "无法起草邮件：",
       "emailHidden": "在你无法打开的行上起草了一封邮件",
       "emailSent": "已向 {to} 发送邮件：",
-      "emailSendFailed": "无法向 {to} 发送邮件："
+      "emailSendFailed": "无法向 {to} 发送邮件：",
+      "fromMail": "发给 {name} 的邮件"
     },
     "usage": {
       "thisMonth": "本月：{usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "从模板开始",
-      "description": "适用于数据库的现成智能体。大多数会在每一条新行上运行，成果记录员则在连接的事件上运行；由你选择数据库及其使用的内容。"
+      "description": "适用于数据库的现成智能体。大多数会在每一条新行上运行，成果记录员在连接的事件上运行，邮件助理则在你邮箱收到新邮件时运行；由你选择数据库及其使用的内容。"
     },
     "wizard": {
       "title": "设置 {name}",
@@ -703,7 +705,8 @@
         "database": "选择数据库",
         "properties": "选择其属性",
         "pages": "选择它要阅读的页面",
-        "connection": "选择其事件来源"
+        "connection": "选择其事件来源",
+        "mailbox": "选择邮箱"
       },
       "chooseDatabase": "它应该在哪个数据库上工作？你需要对该数据库拥有完全访问权限。",
       "searchDatabases": "搜索数据库",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "此数据库没有它能填写的属性：文本、链接、电子邮件、电话、数字或带选项的单选。请先添加一个，再设置该智能体。",
       "companyAutofilled": "因由 AI 自动填充而未包含：{properties}。",
       "summaryWeb": "它将获得网络访问权限，用于查找公司。",
+      "chooseCustomers": "要让它保持更新哪个客户或联系人数据库？你需要对它有完全访问权限。",
+      "mailbox": "邮箱",
+      "mailboxHelp": "此邮箱中的新邮件会启动智能体。只有你能看到它读取、起草和提议的内容。",
+      "noMailbox": "你在此工作区还没有邮箱。<link>在邮件中添加一个</link>，然后再设置智能体。",
+      "summaryMail": "创建后会添加智能体，向它开放 {mailbox}，并由那里的新邮件启动它。智能体获得 {database} 的编辑权限；它提议的每一行或更改都会在待审阅中等待你的批准。",
       "back": "返回",
       "next": "下一步",
       "create": "创建智能体",
@@ -757,7 +765,8 @@
         "sameOptions": "请选择两个不同的选项。",
         "needPages": "请至少选择一个页面。",
         "needName": "请为智能体命名。",
-        "needConnection": "请选择一个连接。"
+        "needConnection": "请选择一个连接。",
+        "needMailbox": "请选择一个邮箱。"
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "最多输入 10 个邮箱地址。",
         "requestTokens": "请求高于当前上限的整数令牌数，最多 1,000,000,000。",
         "requestNote": "请用不超过 500 个字符说明原因。",
-        "noLimit": "此智能体没有可提高的上限。"
+        "noLimit": "此智能体没有可提高的上限。",
+        "mailbox": "请选择你在此工作区中的一个邮箱。"
       },
       "noteEmpty": "请写下智能体应记住的内容。",
       "noteTooLong": "每条笔记最多 {max} 个字符。",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "你的邮件",
-      "description": "打开一个邮箱,让此代理可以在其中搜索、阅读邮件并保存草稿:用于你在这里与它的聊天,以及你设置的、不负责数据库的计划任务。",
+      "description": "开放一个邮箱,让此智能体可以在其中搜索、阅读和整理邮件并保存草稿:用于你在这里与它的聊天、你设置的不负责数据库的定时任务,以及在你开启后有新邮件到来时。",
       "open": "向此代理打开 {address}",
-      "note": "它从不发送邮件:它的草稿由你在邮件标签页中发送。某次运行读过邮件后,只会阅读页面和撰写草稿。使用或编辑此代理的其他人永远看不到你的邮件。"
+      "note": "它从不发送邮件:草稿由你在“邮件”标签页中发送。一次运行读过邮件后,就只会阅读页面和处理你的邮件。使用或编辑此智能体的其他人永远看不到你的邮件。",
+      "trigger": {
+        "label": "收到新邮件时运行",
+        "edit": "更改",
+        "task": "对每封新邮件做什么",
+        "taskPlaceholder": "总结邮件,对方要求回复时起草回复,并归档新闻通讯。",
+        "senders": "仅限发件人(可选)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "请输入邮箱地址或域名,用逗号分隔。",
+        "subject": "仅限主题含这些词的邮件(可选)",
+        "subjectPlaceholder": "报价",
+        "knownOnly": "仅限数据库中有对应行的人发来的邮件",
+        "skipped": "你发出的邮件、草稿、自动回复、邮件列表和群发邮件都不会触发它。此邮箱每小时最多运行 {hour} 次,每天最多 {day} 次。",
+        "limited": "最近有部分邮件被跳过:已达到每小时或每天的上限。"
+      }
     }
   },
   "analytics": {

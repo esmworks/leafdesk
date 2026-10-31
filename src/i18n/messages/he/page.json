@@ -1372,7 +1372,9 @@
       "request": "משימה שביקשתם",
       "requestOn": "משימה שביקשתם · {place}",
       "mention": "הזכרתם אותו בתגובה",
-      "mentionOn": "הזכרתם אותו ב{place}"
+      "mentionOn": "הזכרתם אותו ב{place}",
+      "mail": "דואר חדש",
+      "mailOn": "דואר חדש · {place}"
     },
     "doneQuietly": "בוצע.",
     "side": {

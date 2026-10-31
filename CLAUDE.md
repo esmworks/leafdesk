@@ -326,8 +326,16 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   mailboxes their owner opened to it (`agents/mail.ts`, table `agent_mailbox`) on runs `lib/agents.ts`
   `mailRun` allows (shown to that person alone, in the app); its drafts are saved unasked, so
   `prepareMailDraft` checks recipients, and once a run read mail `run.ts` refuses all but page reads
-  and drafts (`state.mailRead`), as in the chat's later runs (`lib/agents.ts` `readEmail` on their
+  and the mail tools (`state.mailRead`), as in the chat's later runs (`lib/agents.ts` `readEmail` on their
   history, `chat-store.ts`); MCP and the REST API leave out what such runs did and answered;
+  new inbox mail starts runs (source `mail`) through `indexer.ts` `arrived` → `agents/mail-trigger.ts`
+  (filters pure in `lib/agent-mail-trigger.ts`; `store` returns only rows it inserted, so the sweep
+  and the IDLE watch never both start one); such a run reads the thread first and starts tainted;
+  `sort_mail`/`summarize_mail` and the Mail list's agent marks (`mail_message.agent_marks`) are
+  `ai-chat-mail.ts` `runAgentMailAction`/`markMail`; it may also propose rows (`run.ts` `propose`),
+  stored with `pending_change.private_to` set to the mailbox's owner, which `pending-changes.ts`
+  shows, counts and lets answer only to them (`ownProposal`; never to connected apps); a new read
+  of pending changes adds it; the built-in `mail-assistant` template sets this up;
   the composer's writer `composer-ai.tsx` replaces only `writing-range.ts`'s part, above the
   signature, keeping its pictures), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs

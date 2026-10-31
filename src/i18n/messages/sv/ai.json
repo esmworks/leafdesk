@@ -329,6 +329,15 @@
           "done": "Utkast sparat:",
           "declined": "Utkast avböjt:",
           "failed": "Kunde inte spara utkastet:"
+        },
+        "summarized": "Sammanfattat:",
+        "moved": "Flyttat till {folder}:",
+        "sorted": {
+          "read": "Markerat som läst:",
+          "unread": "Markerat som oläst:",
+          "star": "Stjärnmärkt:",
+          "unstar": "Stjärna borttagen:",
+          "archive": "Arkiverat:"
         }
       }
     },

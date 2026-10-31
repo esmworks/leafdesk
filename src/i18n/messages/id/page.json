@@ -1372,7 +1372,9 @@
       "request": "Tugas yang Anda minta",
       "requestOn": "Tugas yang Anda minta · {place}",
       "mention": "Anda menyebutnya dalam komentar",
-      "mentionOn": "Anda menyebutnya di {place}"
+      "mentionOn": "Anda menyebutnya di {place}",
+      "mail": "Email baru",
+      "mailOn": "Email baru · {place}"
     },
     "doneQuietly": "Selesai.",
     "side": {

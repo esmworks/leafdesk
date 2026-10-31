@@ -781,6 +781,11 @@ function RunItem({
                 <MessagesSquare aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                 <span className={cn("truncate", !run.chat?.message && "text-fg-muted")}>{run.chat?.message || t("fromChat", { name: run.chat?.byName ?? "" })}</span>
               </span>
+            ) : run.source.kind === "mail" ? (
+              <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+                <Mail aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                <span className={cn("truncate", !run.mail?.subject && "text-fg-muted")}>{run.mail?.subject || t("fromMail", { name: run.mail?.byName ?? "" })}</span>
+              </span>
             ) : run.source.kind === "request" && !run.source.rowId ? (
               <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
                 <Play aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
