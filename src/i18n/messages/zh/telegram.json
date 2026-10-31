@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "已以 {name} 的身份关联到 Leafdesk。你还没有加入可供我回答的工作区：加入一个后，用 /workspace 选择它。",
   "notLinked": "此聊天未关联 Leafdesk 账户。在 Leafdesk 中打开 设置 → 已连接的应用 → Telegram，然后选择“关联 Telegram”。",
   "badCode": "此链接已过期或已被使用。请在 Leafdesk 中新建一个：设置 → 已连接的应用 → Telegram。",
-  "help": "提出问题或发送语音消息，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/workspace：选择我回答所用的工作区\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/notifications：开启或关闭此聊天中的通知\n/unlink：取消关联此 Telegram 账户",
+  "help": "提出问题或发送语音消息，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/workspace：选择我回答所用的工作区\n/agent：与你的某个智能体聊天\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/notifications：开启或关闭此聊天中的通知\n/unlink：取消关联此 Telegram 账户",
   "commands": {
     "new": "开始新对话",
     "workspace": "选择我回答所用的工作区",
+    "agent": "与你的某个智能体聊天",
     "mode": "选择我可以更改什么",
     "stop": "停止正在撰写的回答",
     "unlink": "取消关联此 Telegram 账户",
@@ -123,5 +124,46 @@
     "invalid": "请先发送一个问题。",
     "interrupted": "回答期间服务器重启了。请再问一次。",
     "limitReached": "此工作区已达到每月 AI 费用上限，下个月之前将拒绝提问。"
+  },
+  "agent": {
+    "general": "通用 AI 聊天",
+    "none": "{workspace} 中没有与你共享的智能体。",
+    "pick": "你的消息发送给 {agent}。选择另一个智能体，或通用 AI 聊天：",
+    "pickNone": "你的消息发送到 {workspace} 的通用 AI 聊天。选择一个智能体来聊天：",
+    "set": "你的消息现在发送给 {agent}。对话在它页面上的聊天中继续；/agent 可切换回来。",
+    "setReadOnly": "你的消息现在发送给 {agent}。你只能使用它：它根据你们都能看到的页面回答，不做任何更改。",
+    "generalSet": "已回到 {workspace} 的通用 AI 聊天。",
+    "newConversation": "与智能体开始新对话。",
+    "stopped": "我已停止跟进。{agent} 会写完回答，你可以在它的页面上看到。",
+    "modeNote": "模式属于通用 AI 聊天：智能体遵循自己的设置。",
+    "waiting": "{agent} 正在等待你批准使用 {connection}。请在带按钮的消息中回复。",
+    "waitingOwner": "{agent} 正在等待工作区所有者批准一次调用。批准后回答会发到这里。",
+    "readOnlyWorkspace": "{workspace} 只允许已连接的应用读取，因此其智能体不接收来自这里的消息。/agent 可回到通用 AI 聊天。",
+    "states": {
+      "gone": "该智能体已不可用。你的消息重新发送到通用 AI 聊天。",
+      "noAccess": "该智能体已不再与你共享。你的消息重新发送到通用 AI 聊天。",
+      "guest": "访客不能与智能体聊天。你的消息重新发送到通用 AI 聊天。",
+      "paused": "该智能体已暂停。请它的所有者开启它，或用 /agent 选择另一个。",
+      "aiOff": "此工作区已关闭 AI。",
+      "limitReached": "该智能体本月的令牌已用完。请用 /agent 选择另一个。"
+    },
+    "refused": {
+      "tooLong": "发给智能体的消息最多 {max} 个字符。",
+      "busy": "智能体仍在回答你的上一条消息。",
+      "rateLimited": "同时发送的消息太多。请稍后再试。",
+      "invalid": "请先发送一条消息。"
+    },
+    "failed": {
+      "aiOff": "此工作区已关闭 AI。",
+      "agentDisabled": "智能体在回答前被暂停。",
+      "noAccess": "智能体已无法打开所需内容。",
+      "provider": "AI 提供商无法回答。请稍后再试。",
+      "timeout": "智能体回答耗时过长。请再试一次。",
+      "tooManyAttempts": "智能体多次尝试后仍无法回答。",
+      "approvalTimeout": "一天内无人回复批准请求，因此未发送任何内容。",
+      "limitReached": "智能体本月的令牌已用完。",
+      "costLimit": "回答已达到费用上限。",
+      "error": "智能体回答时出了问题。"
+    }
   }
 }

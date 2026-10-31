@@ -133,10 +133,10 @@ export async function linkOf(telegramUserId: number, chatId: number): Promise<Te
   return found ?? null;
 }
 
-/** Changes where the link's next question goes, or what the chat may change. */
+/** Changes where the link's next question goes (the AI chat, or an agent), or what the chat may change. */
 export async function updateLink(
   linkId: string,
-  set: Partial<{ workspaceId: string | null; conversationId: string | null; mode: ChatMode }>,
+  set: Partial<{ workspaceId: string | null; conversationId: string | null; mode: ChatMode; agentId: string | null; agentConversationId: string | null }>,
 ) {
   await db.update(telegramLink).set(set).where(eq(telegramLink.id, linkId));
 }

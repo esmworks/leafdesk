@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Linked to Leafdesk as {name}. You aren't in a workspace I can answer from yet: join one, then pick it with /workspace.",
   "notLinked": "This chat isn't linked to a Leafdesk account. In Leafdesk, open Settings → Connected apps → Telegram and choose Link Telegram.",
   "badCode": "That link has run out or was used already. Make a new one in Leafdesk: Settings → Connected apps → Telegram.",
-  "help": "Ask a question, or send a voice message, and I answer from your Leafdesk pages, citing them.\n\n/new: start a new conversation\n/workspace: choose the workspace I answer from\n/mode: choose what I may change\n/stop: stop the answer being written\n/notifications: turn your notifications in this chat on or off\n/unlink: unlink this Telegram account",
+  "help": "Ask a question, or send a voice message, and I answer from your Leafdesk pages, citing them.\n\n/new: start a new conversation\n/workspace: choose the workspace I answer from\n/agent: chat with one of your agents\n/mode: choose what I may change\n/stop: stop the answer being written\n/notifications: turn your notifications in this chat on or off\n/unlink: unlink this Telegram account",
   "commands": {
     "new": "Start a new conversation",
     "workspace": "Choose the workspace I answer from",
+    "agent": "Chat with one of your agents",
     "mode": "Choose what I may change",
     "stop": "Stop the answer being written",
     "unlink": "Unlink this Telegram account",
@@ -123,5 +124,46 @@
     "invalid": "Send a question first.",
     "interrupted": "The server restarted while answering. Ask again.",
     "limitReached": "This workspace reached its monthly AI cost limit, so questions are refused until next month."
+  },
+  "agent": {
+    "general": "General AI chat",
+    "none": "No agents in {workspace} are shared with you.",
+    "pick": "Your messages go to {agent}. Choose another agent, or the general AI chat:",
+    "pickNone": "Your messages go to the general AI chat of {workspace}. Choose an agent to chat with:",
+    "set": "Your messages now go to {agent}. The conversation goes on in your chat on its page; /agent switches back.",
+    "setReadOnly": "Your messages now go to {agent}. You can only use it: it answers from pages you both can see and changes nothing.",
+    "generalSet": "Back to the general AI chat of {workspace}.",
+    "newConversation": "New conversation with the agent.",
+    "stopped": "I stopped following. {agent} finishes its answer, which you'll find on its page.",
+    "modeNote": "The mode is the general AI chat's: an agent follows its own settings.",
+    "waiting": "{agent} waits for your approval to use {connection}. Answer it in the message with its buttons.",
+    "waitingOwner": "{agent} waits for a workspace owner to approve a call. Its answer comes here once they do.",
+    "readOnlyWorkspace": "{workspace} lets connected apps only read, so its agents take no messages from here. /agent goes back to the general AI chat.",
+    "states": {
+      "gone": "That agent isn't available anymore. Your messages go to the general AI chat again.",
+      "noAccess": "That agent isn't shared with you anymore. Your messages go to the general AI chat again.",
+      "guest": "Guests don't chat with agents. Your messages go to the general AI chat again.",
+      "paused": "This agent is paused. Ask one of its owners to turn it on, or choose another with /agent.",
+      "aiOff": "AI is turned off in this workspace.",
+      "limitReached": "This agent used its tokens for the month. Choose another with /agent."
+    },
+    "refused": {
+      "tooLong": "A message to an agent has at most {max} characters.",
+      "busy": "The agent is still answering your last message.",
+      "rateLimited": "Too many messages at once. Try again in a moment.",
+      "invalid": "Send a message first."
+    },
+    "failed": {
+      "aiOff": "AI is turned off in this workspace.",
+      "agentDisabled": "The agent was paused before it answered.",
+      "noAccess": "The agent can't open what it needed anymore.",
+      "provider": "The AI provider couldn't answer. Try again later.",
+      "timeout": "The agent took too long to answer. Try again.",
+      "tooManyAttempts": "The agent couldn't answer after several tries.",
+      "approvalTimeout": "No one answered the approval within a day, so nothing was sent.",
+      "limitReached": "The agent used its tokens for the month.",
+      "costLimit": "The answer reached its cost limit.",
+      "error": "Something went wrong while the agent answered."
+    }
   }
 }

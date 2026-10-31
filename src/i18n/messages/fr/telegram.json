@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Connecté à Leafdesk en tant que {name}. Vous n’êtes encore dans aucun espace de travail depuis lequel je peux répondre : rejoignez-en un, puis choisissez-le avec /workspace.",
   "notLinked": "Cette conversation n’est liée à aucun compte Leafdesk. Dans Leafdesk, ouvrez Paramètres → Applications connectées → Telegram et choisissez Lier Telegram.",
   "badCode": "Ce lien a expiré ou a déjà été utilisé. Créez-en un nouveau dans Leafdesk : Paramètres → Applications connectées → Telegram.",
-  "help": "Posez une question ou envoyez un message vocal, et je réponds à partir de vos pages Leafdesk, en les citant.\n\n/new : commencer une nouvelle conversation\n/workspace : choisir l’espace de travail depuis lequel je réponds\n/mode : choisir ce que je peux modifier\n/stop : arrêter la réponse en cours d’écriture\n/notifications : activer ou désactiver vos notifications dans cette conversation\n/unlink : délier ce compte Telegram",
+  "help": "Posez une question ou envoyez un message vocal, et je réponds à partir de vos pages Leafdesk, en les citant.\n\n/new : commencer une nouvelle conversation\n/workspace : choisir l’espace de travail depuis lequel je réponds\n/agent : discuter avec l’un de vos agents\n/mode : choisir ce que je peux modifier\n/stop : arrêter la réponse en cours d’écriture\n/notifications : activer ou désactiver vos notifications dans cette conversation\n/unlink : délier ce compte Telegram",
   "commands": {
     "new": "Commencer une nouvelle conversation",
     "workspace": "Choisir l’espace de travail depuis lequel je réponds",
+    "agent": "Discuter avec l’un de vos agents",
     "mode": "Choisir ce que je peux modifier",
     "stop": "Arrêter la réponse en cours",
     "unlink": "Délier ce compte Telegram",
@@ -123,5 +124,46 @@
     "invalid": "Envoyez d’abord une question.",
     "interrupted": "Le serveur a redémarré pendant la réponse. Reposez la question.",
     "limitReached": "Cet espace de travail a atteint sa limite mensuelle de coût d’IA : les questions sont refusées jusqu’au mois prochain."
+  },
+  "agent": {
+    "general": "Chat IA général",
+    "none": "Aucun agent de {workspace} n’est partagé avec vous.",
+    "pick": "Vos messages vont à {agent}. Choisissez un autre agent, ou le chat IA général :",
+    "pickNone": "Vos messages vont au chat IA général de {workspace}. Choisissez un agent avec qui discuter :",
+    "set": "Vos messages vont maintenant à {agent}. La conversation continue dans votre chat sur sa page ; /agent permet de revenir.",
+    "setReadOnly": "Vos messages vont maintenant à {agent}. Vous pouvez seulement l’utiliser : il répond à partir des pages que vous voyez tous les deux et ne change rien.",
+    "generalSet": "Retour au chat IA général de {workspace}.",
+    "newConversation": "Nouvelle conversation avec l’agent.",
+    "stopped": "J’ai arrêté de suivre. {agent} termine sa réponse, que vous trouverez sur sa page.",
+    "modeNote": "Le mode concerne le chat IA général : un agent suit ses propres réglages.",
+    "waiting": "{agent} attend votre approbation pour utiliser {connection}. Répondez dans le message avec ses boutons.",
+    "waitingOwner": "{agent} attend qu’un propriétaire de l’espace de travail approuve un appel. Sa réponse arrivera ici ensuite.",
+    "readOnlyWorkspace": "{workspace} n’autorise les applications connectées qu’à lire : ses agents ne reçoivent donc pas de messages d’ici. /agent ramène au chat IA général.",
+    "states": {
+      "gone": "Cet agent n’est plus disponible. Vos messages vont de nouveau au chat IA général.",
+      "noAccess": "Cet agent n’est plus partagé avec vous. Vos messages vont de nouveau au chat IA général.",
+      "guest": "Les invités ne discutent pas avec les agents. Vos messages vont de nouveau au chat IA général.",
+      "paused": "Cet agent est en pause. Demandez à l’un de ses propriétaires de le réactiver, ou choisissez-en un autre avec /agent.",
+      "aiOff": "L’IA est désactivée dans cet espace de travail.",
+      "limitReached": "Cet agent a utilisé ses jetons du mois. Choisissez-en un autre avec /agent."
+    },
+    "refused": {
+      "tooLong": "Un message à un agent compte au plus {max} caractères.",
+      "busy": "L’agent répond encore à votre dernier message.",
+      "rateLimited": "Trop de messages à la fois. Réessayez dans un instant.",
+      "invalid": "Envoyez d’abord un message."
+    },
+    "failed": {
+      "aiOff": "L’IA est désactivée dans cet espace de travail.",
+      "agentDisabled": "L’agent a été mis en pause avant de répondre.",
+      "noAccess": "L’agent ne peut plus ouvrir ce dont il avait besoin.",
+      "provider": "Le fournisseur d’IA n’a pas pu répondre. Réessayez plus tard.",
+      "timeout": "L’agent a mis trop de temps à répondre. Réessayez.",
+      "tooManyAttempts": "L’agent n’a pas pu répondre après plusieurs essais.",
+      "approvalTimeout": "Personne n’a répondu à l’approbation en un jour : rien n’a été envoyé.",
+      "limitReached": "L’agent a utilisé ses jetons du mois.",
+      "costLimit": "La réponse a atteint sa limite de coût.",
+      "error": "Un problème est survenu pendant la réponse de l’agent."
+    }
   }
 }

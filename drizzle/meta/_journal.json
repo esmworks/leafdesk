@@ -1233,6 +1233,13 @@
       "when": 1793480398683,
       "tag": "0175_pending_change_private",
       "breakpoints": true
+    },
+    {
+      "idx": 176,
+      "version": "7",
+      "when": 1793487038972,
+      "tag": "0176_telegram_agent_chat",
+      "breakpoints": true
     }
   ]
 }

@@ -62,7 +62,7 @@ process.env.TELEGRAM_API_URL = `http://127.0.0.1:${(telegram.address() as Addres
 process.env.APP_URL = "https://leaf.test";
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { aiConversation, page, telegramLink, telegramLinkCode, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -72,8 +72,9 @@ const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { recordShare } = await import("@/server/notifications");
 const { flushPush } = await import("@/server/push");
 const { getNotificationPreferences, setNotificationPreference } = await import("@/server/notification-preferences");
-const { agentRun, auditEvent, notification, workspaceAgent } = await import("@/db/schema");
+const { agentConversation, agentRun, auditEvent, notification, workspaceAgent } = await import("@/db/schema");
 const { createAgent } = await import("@/server/agents/manage");
+const { flushAgentRuns } = await import("@/server/agents/run");
 const { notifyApprovers } = await import("@/server/connections/approvals");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
@@ -507,6 +508,177 @@ try {
   await handleUpdate(press(ALICE, dataOf(readOnly.message, "aa:"), readOnly.message!.id!));
   check((await runNow(readOnly.run.id)).status === "awaiting_approval" && repliedSince(mark).includes("answer the call in Leafdesk"), "where apps may only read, calls are answered in the app");
   await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "full" });
+
+  // ── Chatting with an agent ────────────────────────────────────────────────────────────────────
+  const linkNow = async () => (await db.select().from(telegramLink).where(eq(telegramLink.userId, ids.alice)))[0];
+  const seen = new Set<string>();
+  /** The agent's next chat run (one not seen before), once the bot has queued it. */
+  const chatRun = async () => {
+    for (const end = Date.now() + 10_000; Date.now() < end; await sleep(20)) {
+      const rows = await db.select().from(agentRun).where(and(eq(agentRun.agentId, agent.id), sql`${agentRun.source}->>'kind' = 'chat'`));
+      const found = rows.find((r) => !seen.has(r.id));
+      if (found) {
+        seen.add(found.id);
+        return found;
+      }
+    }
+    throw new Error("Timed out waiting for the chat's run");
+  };
+  /** Sends an update that writes to the agent; the agents' worker (none runs in this script) answers it while the bot follows. */
+  const toAgent = async (update: TelegramUpdate) => {
+    const handled = handleUpdate(update);
+    const run = await chatRun();
+    await flushAgentRuns();
+    await handled;
+    return run;
+  };
+  /** What Alice's chat got since `from`, sent or edited, in order. */
+  const shownTo = (from: number) =>
+    sent.slice(from).filter((s) => (s.method === "sendMessage" || s.method === "editMessageText") && Number(s.params.chat_id) === ALICE.id).map((s) => String(s.params.text));
+
+  // The runs made by hand above aren't the worker's to finish.
+  await db.update(agentRun).set({ status: "failed", finishedAt: new Date() }).where(eq(agentRun.agentId, agent.id));
+  await handleUpdate(press(ALICE, `ws:${ws}`, 3000));
+  mark = sent.length;
+  await handleUpdate(text(ALICE, "/help"));
+  check(said(ALICE.id, mark).includes("/agent: chat with one of your agents"), "/help names /agent");
+  mark = sent.length;
+  await handleUpdate(text(ALICE, "/agent"));
+  const agentMenu = sent.slice(mark).find((s) => s.method === "sendMessage");
+  const agentButtons = JSON.stringify(agentMenu?.params.reply_markup);
+  check(agentButtons.includes(`ag:${agent.id}`) && agentButtons.includes("✓ General AI chat") && agentButtons.includes("Filer"), "/agent offers the agents shared with the person, the AI chat ticked", agentMenu?.params);
+  mark = sent.length;
+  await handleUpdate(press(ALICE, `ag:${agent.id}`, 3001));
+  check((await linkNow()).agentId === agent.id && shownTo(mark).some((s) => s.includes("Your messages now go to <b>") && s.includes("Filer</b>")), "choosing one sends messages to it", shownTo(mark));
+  mark = sent.length;
+  await handleUpdate(press(ALICE, `ag:${RUN}-not-theirs`, 3001));
+  check((await linkNow()).agentId === null && shownTo(mark).some((s) => s.includes("isn't available anymore")), "an agent that isn't theirs can't be chosen: messages go to the AI chat again", shownTo(mark));
+  await handleUpdate(press(ALICE, `ag:${agent.id}`, 3001));
+
+  fake.setChat(() => ({ text: "Filed **the note** under Q3." }));
+  mark = sent.length;
+  const firstChat = await toAgent(text(ALICE, "File my Q3 note"));
+  check(shownTo(mark).at(-1) === "Filed <b>the note</b> under Q3.", "a message goes to the agent and its answer comes formatted", shownTo(mark));
+  check(
+    firstChat.prompt === "File my Q3 note" && firstChat.source.kind === "chat" && firstChat.source.userId === ids.alice && firstChat.source.fromApp === true,
+    "…as a run of the agent's chat, sent as a connected app's",
+    firstChat.source,
+  );
+  const threadId = (await linkNow()).agentConversationId;
+  const [thread] = threadId ? await db.select().from(agentConversation).where(eq(agentConversation.id, threadId)) : [];
+  check(thread?.chatId === null && thread.userId === ids.alice && thread.messages.length === 2, "…in the agent's own chat with the person, the one its page shows", thread);
+  fake.setChat(() => ({ text: "Q4 too." }));
+  await toAgent(text(ALICE, "And Q4?"));
+  const [threadAfter] = await db.select().from(agentConversation).where(eq(agentConversation.id, threadId!));
+  check((await linkNow()).agentConversationId === threadId && threadAfter.messages.length === 4, "a second message goes on in the same conversation", threadAfter.messages.length);
+
+  const words = Array.from({ length: 30 }, (_, i) => `word${i}`).join(" ");
+  fake.setChat(() => ({ text: words }));
+  fake.delayMs = 150;
+  mark = sent.length;
+  await toAgent(text(ALICE, "Write slowly"));
+  fake.delayMs = 0;
+  const preview = sent.slice(mark).find((s) => s.method === "sendMessage" && Number(s.params.chat_id) === ALICE.id && String(s.params.text).endsWith("✍️"));
+  const previewEdits = sent.slice(mark).filter((s) => s.method === "editMessageText" && s.params.message_id === preview?.id).map((s) => String(s.params.text));
+  check(preview && String(preview.params.text).startsWith("word0") && previewEdits.at(-1) === words, "a slow answer shows as it is written, in one message edited into the answer", { preview: preview?.params.text, previewEdits });
+
+  fake.setTranscript(() => "What did you file?");
+  fake.setChat(() => ({ text: "The Q3 note." }));
+  mark = sent.length;
+  const spoken = await toAgent(voice(ALICE));
+  check(spoken.prompt === "What did you file?" && shownTo(mark).at(-1) === "The Q3 note.", "a voice message is written down and goes to the agent", shownTo(mark));
+
+  fake.setChat(() => ({ text: "Done." }));
+  mark = sent.length;
+  const answering = handleUpdate(text(ALICE, "One"));
+  await chatRun();
+  await handleUpdate(text(ALICE, "Two"));
+  check(said(ALICE.id, mark).includes("still answering"), "a second message waits for the answer being followed", said(ALICE.id, mark));
+  await handleUpdate(text(ALICE, "/stop"));
+  await answering;
+  check(said(ALICE.id, mark).includes("I stopped following.") && said(ALICE.id, mark).includes("finishes its answer"), "/stop stops following: the agent finishes on its page", said(ALICE.id, mark));
+  await flushAgentRuns();
+
+  /** Sends a message whose run then waits on a call, as an approval would park it; the run, and the bot's handling still going. */
+  const parkedChat = async (body: string, callId: string) => {
+    const handled = handleUpdate(text(ALICE, body));
+    const run = await chatRun();
+    const args = { title: body };
+    const [parked] = await db
+      .update(agentRun)
+      .set({
+        status: "awaiting_approval",
+        pending: { callId, connectionId: null, tool: "create_row", arguments: args, askedAt: new Date().toISOString() },
+        state: { queue: [{ id: callId, name: "create_row", arguments: args }] } as never,
+        nextAt: new Date(Date.now() + 86_400_000),
+      })
+      .where(eq(agentRun.id, run.id))
+      .returning();
+    await notifyApprovers(parked, bot.userId);
+    await flushPush();
+    return { run, handled };
+  };
+  /** Ends a parked run with an answer, as the worker would once it goes on. */
+  const answerParked = async (runId: string, answer: string) => {
+    await db.delete(notification).where(eq(notification.agentRunId, runId));
+    await db.update(agentRun).set({ status: "done", answer, pending: null, finishedAt: new Date() }).where(eq(agentRun.id, runId));
+  };
+
+  await handleUpdate(press(ALICE, "nt:off", 3002));
+  mark = sent.length;
+  const quiet = await parkedChat("Send it to the CRM", "chat-call-1");
+  const card = await until(() => sent.slice(mark).find((s) => s.method === "sendMessage" && Number(s.params.chat_id) === ALICE.id && JSON.stringify(s.params.reply_markup).includes('"aa:')), "the call's approval message", 15_000);
+  check(String(card.params.text).includes("Filer asks to go ahead") && String(card.params.text).includes("Send it to the CRM"), "a call the agent waits on comes as its approval message, with notifications off too", card.params);
+  await answerParked(quiet.run.id, "Sent to the CRM.");
+  await quiet.handled;
+  check(shownTo(mark).at(-1) === "Sent to the CRM.", "…and the answer comes once the run goes on", shownTo(mark));
+  await handleUpdate(press(ALICE, "nt:on", 3003));
+  mark = sent.length;
+  const loud = await parkedChat("And to the ledger", "chat-call-2");
+  await until(() => said(ALICE.id, mark).includes("waits for your approval to use"), "the note that the agent waits", 15_000);
+  const cards = messagesTo(ALICE.id, mark).filter((m) => m.includes("Filer asks to go ahead"));
+  check(cards.length === 1, "with notifications on, the inbox's message comes once, with a note that the agent waits", messagesTo(ALICE.id, mark));
+  await answerParked(loud.run.id, "Logged.");
+  await loud.handled;
+
+  mark = sent.length;
+  await handleUpdate(text(ALICE, "/new"));
+  check((await linkNow()).agentConversationId === null && said(ALICE.id, mark).includes("New conversation with the agent."), "/new starts a new conversation with the agent");
+  fake.setChat(() => ({ text: "Fresh." }));
+  await toAgent(text(ALICE, "Fresh start"));
+  const freshId = (await linkNow()).agentConversationId;
+  check(freshId && freshId !== threadId, "…which the next message opens", freshId);
+
+  mark = sent.length;
+  await handleUpdate(text(ALICE, "/mode"));
+  check(said(ALICE.id, mark).includes("an agent follows its own settings"), "/mode says an agent follows its own settings");
+
+  await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "read" });
+  mark = sent.length;
+  const runsBefore = (await db.select({ id: agentRun.id }).from(agentRun).where(eq(agentRun.agentId, agent.id))).length;
+  await handleUpdate(text(ALICE, "Change something"));
+  const runsAfter = (await db.select({ id: agentRun.id }).from(agentRun).where(eq(agentRun.agentId, agent.id))).length;
+  check(said(ALICE.id, mark).includes("lets connected apps only read") && runsAfter === runsBefore, "where apps may only read, the agent takes no messages from here", said(ALICE.id, mark));
+  check((await linkNow()).agentId === agent.id, "…and stays picked, for when apps may write again");
+  mark = sent.length;
+  await handleUpdate(text(ALICE, "/agent"));
+  check(JSON.stringify(sent.slice(mark).find((s) => s.method === "sendMessage")?.params.reply_markup ?? null).includes(`✓ Filer`), "/agent still lists the agents there");
+  await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "full" });
+
+  await handleUpdate(press(ALICE, `ws:${ws2}`, 3004));
+  check((await linkNow()).agentId === null, "choosing another workspace leaves the agent");
+  await handleUpdate(press(ALICE, `ws:${ws}`, 3004));
+  await handleUpdate(press(ALICE, `ag:${agent.id}`, 3005));
+  mark = sent.length;
+  await handleUpdate(press(ALICE, "ag:-", 3005));
+  check((await linkNow()).agentId === null && shownTo(mark).some((s) => s.includes("Back to the general AI chat")), "the AI chat can be chosen again");
+
+  await handleUpdate(press(ALICE, `ag:${agent.id}`, 3006));
+  await db.update(workspaceAgent).set({ archivedAt: new Date() }).where(eq(workspaceAgent.id, agent.id));
+  mark = sent.length;
+  await handleUpdate(text(ALICE, "Still there?"));
+  check(said(ALICE.id, mark).includes("isn't available anymore") && (await linkNow()).agentId === null, "an archived agent takes no more messages: they go to the AI chat again", said(ALICE.id, mark));
+  await db.update(workspaceAgent).set({ archivedAt: null }).where(eq(workspaceAgent.id, agent.id));
 
   // ── Groups ────────────────────────────────────────────────────────────────────────────────────
   mark = sent.length;

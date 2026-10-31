@@ -240,7 +240,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `page_task_backfill`, which a restore of an older backup fills too), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
-  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/`, synced databases (own
+  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/` (`/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followLiveText` show it), synced databases (own
   `database_sync` table, `source` jira, github, ical, gcal, postgres or sheets; the runs and the one-minute sweep
   are `jira-sync/run.ts` for all, rows written by `synced-rows.ts`, errors are `JiraError` codes;
   Jira in `jira-sync/` and `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and

@@ -1,5 +1,6 @@
 import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { aiConversation } from "./ai";
+import { agentConversation, workspaceAgent } from "./agents";
 import { workspace } from "./app";
 import { user } from "./auth";
 
@@ -8,7 +9,10 @@ import { user } from "./auth";
  * Telegram and get their notifications there (see server/telegram). One per user and one per Telegram account; it stands for its
  * user like an API token, as a connected app (connected-app.ts). Only private chats with the bot
  * count, so `chatId` is the person's own chat with it. `workspaceId` and `conversationId` are where
- * the next question goes; `mode` what the chat may change there (an AI chat mode).
+ * the next question goes; `mode` what the chat may change there (an AI chat mode). With `agentId`,
+ * messages go to that agent of the workspace instead (its own chat with the person, joining
+ * `agentConversationId`, a new conversation when null), and `conversationId` waits for the
+ * person's return to the AI chat.
  */
 export const telegramLink = pgTable(
   "telegram_link",
@@ -29,13 +33,20 @@ export const telegramLink = pgTable(
     workspaceId: text("workspace_id").references(() => workspace.id, { onDelete: "set null" }),
     conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "set null" }),
     mode: text("mode").notNull().default("ask"),
+    agentId: text("agent_id").references(() => workspaceAgent.id, { onDelete: "set null" }),
+    agentConversationId: text("agent_conversation_id").references(() => agentConversation.id, { onDelete: "set null" }),
     /** Inbox notifications go to the chat too (which kinds: user_preference's `…Telegram` columns). */
     notifications: boolean("notifications").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     /** Updated at most once an hour. */
     lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
   },
-  (t) => [index("telegram_link_workspace_idx").on(t.workspaceId), index("telegram_link_conversation_idx").on(t.conversationId)],
+  (t) => [
+    index("telegram_link_workspace_idx").on(t.workspaceId),
+    index("telegram_link_conversation_idx").on(t.conversationId),
+    index("telegram_link_agent_idx").on(t.agentId),
+    index("telegram_link_agent_conversation_idx").on(t.agentConversationId),
+  ],
 );
 
 /**

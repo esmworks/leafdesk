@@ -230,7 +230,8 @@ while one goes on. Those finished since the conversation's earliest message that
 has at most 4000 characters; the agent answers one at a time per conversation, within the
 workspace's AI allowance. A paused or archived agent, AI turned off, or an agent past its monthly
 limit leaves the chat saying so. Exported Markdown and HTML show the block as a line naming the
-agent, never what was said.
+agent, never what was said. The same chat goes on from Telegram after `/agent` (see
+[AI chat from Telegram](ai.md#ai-chat-from-telegram)).
 
 **Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
 for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the

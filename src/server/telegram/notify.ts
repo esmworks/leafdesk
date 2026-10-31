@@ -3,6 +3,7 @@ import { createTranslator } from "next-intl";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { notification, telegramLink } from "@/db/schema";
+import type { Locale } from "@/i18n/config";
 import { telegramMessages } from "@/i18n/messages/telegram";
 import { env } from "@/lib/env";
 import { formatIsoDate } from "@/lib/mentions";
@@ -15,7 +16,7 @@ import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { getNotificationPreferences, telegramWanted } from "@/server/notification-preferences";
 import { listNotifications, markRead, snoozeNotification, type InboxApproval, type InboxItem } from "@/server/notifications";
-import { sendMessage, TelegramApiError } from "./api";
+import { sendMessage, TelegramApiError, type InlineKeyboard } from "./api";
 import { setTelegramNotifications } from "./links";
 
 /**
@@ -64,32 +65,11 @@ export async function deliverTelegram(ids: string[]): Promise<void> {
       });
       if (!items.length) return;
       const locale = await recipientLocale(link.userId, theirs.find((r) => r.locale)?.locale);
-      const te = emailTranslator(locale);
-      const texts = (key: string, values?: Record<string, string | number>) => te(`push.${key}` as Parameters<typeof te>[0], values);
-      const t = createTranslator({ locale, messages: { telegram: telegramMessages[locale] }, namespace: "telegram.notify" });
       for (const item of items) {
-        const payload = pushPayload(item, texts, (date, timeZone) => formatIsoDate(date, locale, "medium", timeZone));
-        if (!payload) continue;
-        const message = item.approval ? approvalMessage(item, item.approval, payload, t) : null;
-        const text = message?.text ?? [
-          `<b>${escapeHtml(payload.title)}</b>`,
-          escapeHtml(payload.body),
-          `<i>${escapeHtml(item.workspaceName)}</i> · <a href="${escapeHtml(`${env.appUrl}${payload.url}`)}">${escapeHtml(t("open"))}</a>`,
-        ].join("\n");
-        const keyboard = message?.keyboard ?? {
-          inline_keyboard: [
-            [
-              { text: t("markRead"), callback_data: `nr:${item.id}` },
-              ...(payload.snooze ? [{ text: payload.snooze, callback_data: `nz:${item.id}` }] : []),
-            ],
-          ],
-        };
+        const message = itemMessage(item, locale);
+        if (!message) continue;
         try {
-          await sendMessage(link.chatId, text, { keyboard }).catch((error: unknown) => {
-            // Markup Telegram can't parse goes again as plain text.
-            if (error instanceof TelegramApiError && error.code === 400) return sendMessage(link.chatId, htmlToText(text), { keyboard, plain: true });
-            throw error;
-          });
+          await sendItem(link.chatId, message);
         } catch (error) {
           // 403: the person blocked the bot or deleted the chat; stop until they turn it on again.
           if (error instanceof TelegramApiError && error.code === 403) {
@@ -101,6 +81,59 @@ export async function deliverTelegram(ids: string[]): Promise<void> {
       }
     }),
   );
+}
+
+/** A notification as a Telegram message: what its push notification says, with its buttons; null for one that has none. */
+function itemMessage(item: InboxItem, locale: Locale): { text: string; keyboard: InlineKeyboard } | null {
+  const te = emailTranslator(locale);
+  const texts = (key: string, values?: Record<string, string | number>) => te(`push.${key}` as Parameters<typeof te>[0], values);
+  const t = createTranslator({ locale, messages: { telegram: telegramMessages[locale] }, namespace: "telegram.notify" });
+  const payload = pushPayload(item, texts, (date, timeZone) => formatIsoDate(date, locale, "medium", timeZone));
+  if (!payload) return null;
+  if (item.approval) return approvalMessage(item, item.approval, payload, t);
+  const text = [
+    `<b>${escapeHtml(payload.title)}</b>`,
+    escapeHtml(payload.body),
+    `<i>${escapeHtml(item.workspaceName)}</i> · <a href="${escapeHtml(`${env.appUrl}${payload.url}`)}">${escapeHtml(t("open"))}</a>`,
+  ].join("\n");
+  const keyboard = {
+    inline_keyboard: [
+      [
+        { text: t("markRead"), callback_data: `nr:${item.id}` },
+        ...(payload.snooze ? [{ text: payload.snooze, callback_data: `nz:${item.id}` }] : []),
+      ],
+    ],
+  };
+  return { text, keyboard };
+}
+
+/** Sends a notification's message; markup Telegram can't parse goes again as plain text. */
+async function sendItem(chatId: string, message: { text: string; keyboard: InlineKeyboard }) {
+  const { text, keyboard } = message;
+  await sendMessage(chatId, text, { keyboard }).catch((error: unknown) => {
+    if (error instanceof TelegramApiError && error.code === 400) return sendMessage(chatId, htmlToText(text), { keyboard, plain: true });
+    throw error;
+  });
+}
+
+/**
+ * Sends the person the approval message of the call a run waits on for them, as deliverTelegram
+ * would (for a chat with an agent from Telegram whose person doesn't get their notifications
+ * there). False when they have no such notification: the run waits on someone else, or was answered.
+ * Runs inside the person's connected-app call.
+ */
+export async function sendApprovalHere(userId: string, chatId: string, runId: string): Promise<boolean> {
+  const [found] = await db
+    .select({ id: notification.id, locale: notification.emailLocale })
+    .from(notification)
+    .where(and(eq(notification.userId, userId), eq(notification.agentRunId, runId), eq(notification.kind, "agent_approval")))
+    .limit(1);
+  if (!found) return false;
+  const [item] = await listNotifications(userId, { ids: [found.id] });
+  const message = item?.approval ? itemMessage(item, await recipientLocale(userId, found.locale)) : null;
+  if (!message) return false;
+  await sendItem(chatId, message);
+  return true;
 }
 
 /** How long the Snooze button puts a notification away for, as in the inbox's quickest choice. */

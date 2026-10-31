@@ -36,7 +36,7 @@ import { callConnectionName, callToSend, type AgentStepRecord } from "@/lib/agen
 import { conversationTitle } from "@/lib/ai-chat";
 import { isTimeZone } from "@/lib/time-zone";
 import { hasAgentLevel, type AgentLevel } from "@/lib/agent-sharing";
-import { AccessError, isGuest, pageVisibleTo, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
+import { AccessError, ConnectedAppReadOnlyError, isGuest, pageVisibleTo, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
 import { isAiError, takeRateLimit } from "@/server/ai";
 import { viewStep } from "@/server/ai-chat";
 import { aiAvailable } from "@/server/ai-writing";
@@ -75,7 +75,7 @@ export type { ChatPlace };
  */
 async function standing(userId: string, workspaceId: string, agentId: string) {
   const membership = await requireMembership(userId, workspaceId).catch((error) => {
-    if (error instanceof AccessError && !(error instanceof WorkspacePolicyError)) refuse("noAccess", "Workspace not found");
+    if (error instanceof AccessError && !(error instanceof WorkspacePolicyError) && !(error instanceof ConnectedAppReadOnlyError)) refuse("noAccess", "Workspace not found");
     throw error;
   });
   const [agent] = await db
@@ -308,6 +308,17 @@ export async function agentThread(userId: string, workspaceId: string, agentId: 
     runs,
     connections: { ...(await connectionNames(records.flatMap((m) => m.steps ?? []))), ...connections },
   };
+}
+
+/** The conversation a new message in the agent's own chat with the person joins (the latest there), if any. */
+export async function latestThreadConversation(userId: string, agentId: string): Promise<string | null> {
+  const [latest] = await db
+    .select({ id: agentConversation.id })
+    .from(agentConversation)
+    .where(and(eq(agentConversation.userId, userId), eq(agentConversation.agentId, agentId), placeIs(null)))
+    .orderBy(desc(agentConversation.updatedAt))
+    .limit(1);
+  return latest?.id ?? null;
 }
 
 /**

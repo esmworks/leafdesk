@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Yhdistetty Leafdeskiin käyttäjänä {name}. Et ole vielä työtilassa, josta voin vastata: liity johonkin ja valitse se komennolla /workspace.",
   "notLinked": "Tätä keskustelua ei ole yhdistetty Leafdesk-tiliin. Avaa Leafdeskissä Asetukset → Yhdistetyt sovellukset → Telegram ja valitse Yhdistä Telegram.",
   "badCode": "Linkki on vanhentunut tai jo käytetty. Luo uusi Leafdeskissä: Asetukset → Yhdistetyt sovellukset → Telegram.",
-  "help": "Esitä kysymys tai lähetä ääniviesti, niin vastaan Leafdesk-sivujesi pohjalta ja viittaan niihin.\n\n/new: aloita uusi keskustelu\n/workspace: valitse työtila, josta vastaan\n/mode: valitse, mitä saan muuttaa\n/stop: keskeytä kirjoitettava vastaus\n/notifications: ota ilmoitukset käyttöön tai pois tässä keskustelussa\n/unlink: poista tämän Telegram-tilin yhteys",
+  "help": "Esitä kysymys tai lähetä ääniviesti, niin vastaan Leafdesk-sivujesi pohjalta ja viittaan niihin.\n\n/new: aloita uusi keskustelu\n/workspace: valitse työtila, josta vastaan\n/agent: keskustele jonkin agenttisi kanssa\n/mode: valitse, mitä saan muuttaa\n/stop: keskeytä kirjoitettava vastaus\n/notifications: ota ilmoitukset käyttöön tai pois tässä keskustelussa\n/unlink: poista tämän Telegram-tilin yhteys",
   "commands": {
     "new": "Aloita uusi keskustelu",
     "workspace": "Valitse työtila, josta vastaan",
+    "agent": "Keskustele jonkin agenttisi kanssa",
     "mode": "Valitse, mitä saan muuttaa",
     "stop": "Keskeytä kirjoitettava vastaus",
     "unlink": "Poista tämän Telegram-tilin yhteys",
@@ -123,5 +124,46 @@
     "invalid": "Lähetä ensin kysymys.",
     "interrupted": "Palvelin käynnistyi uudelleen kesken vastauksen. Kysy uudelleen.",
     "limitReached": "Tämä työtila on saavuttanut kuukausittaisen tekoälykustannusrajansa, joten kysymyksiä ei käsitellä ennen ensi kuuta."
+  },
+  "agent": {
+    "general": "Yleinen tekoälychat",
+    "none": "Työtilassa {workspace} ei ole kanssasi jaettuja agentteja.",
+    "pick": "Viestisi menevät agentille {agent}. Valitse toinen agentti tai yleinen tekoälychat:",
+    "pickNone": "Viestisi menevät työtilan {workspace} yleiseen tekoälychattiin. Valitse agentti, jonka kanssa keskustelet:",
+    "set": "Viestisi menevät nyt agentille {agent}. Keskustelu jatkuu chatissasi sen sivulla; /agent vaihtaa takaisin.",
+    "setReadOnly": "Viestisi menevät nyt agentille {agent}. Voit vain käyttää sitä: se vastaa sivuista, jotka te molemmat näette, eikä muuta mitään.",
+    "generalSet": "Takaisin työtilan {workspace} yleiseen tekoälychattiin.",
+    "newConversation": "Uusi keskustelu agentin kanssa.",
+    "stopped": "Lopetin seuraamisen. {agent} vastaa loppuun, ja löydät vastauksen sen sivulta.",
+    "modeNote": "Tila koskee yleistä tekoälychattia: agentti noudattaa omia asetuksiaan.",
+    "waiting": "{agent} odottaa hyväksyntääsi käyttää palvelua {connection}. Vastaa painikkeelliseen viestiin.",
+    "waitingOwner": "{agent} odottaa, että työtilan omistaja hyväksyy kutsun. Vastaus tulee tänne, kun se tapahtuu.",
+    "readOnlyWorkspace": "{workspace} sallii yhdistetyille sovelluksille vain lukemisen, joten sen agentit eivät ota viestejä vastaan täältä. /agent palaa yleiseen tekoälychattiin.",
+    "states": {
+      "gone": "Agentti ei ole enää käytettävissä. Viestisi menevät taas yleiseen tekoälychattiin.",
+      "noAccess": "Agenttia ei enää jaeta kanssasi. Viestisi menevät taas yleiseen tekoälychattiin.",
+      "guest": "Vieraat eivät keskustele agenttien kanssa. Viestisi menevät taas yleiseen tekoälychattiin.",
+      "paused": "Tämä agentti on keskeytetty. Pyydä jotakin sen omistajista ottamaan se käyttöön tai valitse toinen komennolla /agent.",
+      "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa.",
+      "limitReached": "Tämä agentti on käyttänyt kuukauden tokeninsa. Valitse toinen komennolla /agent."
+    },
+    "refused": {
+      "tooLong": "Viestissä agentille voi olla enintään {max} merkkiä.",
+      "busy": "Agentti vastaa vielä edelliseen viestiisi.",
+      "rateLimited": "Liian monta viestiä kerralla. Yritä hetken päästä uudelleen.",
+      "invalid": "Lähetä ensin viesti."
+    },
+    "failed": {
+      "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa.",
+      "agentDisabled": "Agentti keskeytettiin ennen kuin se vastasi.",
+      "noAccess": "Agentti ei voi enää avata sitä, mitä se tarvitsi.",
+      "provider": "Tekoälypalvelu ei pystynyt vastaamaan. Yritä myöhemmin uudelleen.",
+      "timeout": "Agentin vastaus kesti liian kauan. Yritä uudelleen.",
+      "tooManyAttempts": "Agentti ei pystynyt vastaamaan useista yrityksistä huolimatta.",
+      "approvalTimeout": "Kukaan ei vastannut hyväksyntään vuorokauden kuluessa, joten mitään ei lähetetty.",
+      "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
+      "costLimit": "Vastaus saavutti kustannusrajansa.",
+      "error": "Jokin meni vikaan agentin vastatessa."
+    }
   }
 }

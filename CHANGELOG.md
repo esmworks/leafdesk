@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Chat with your agents from Telegram.** `/agent` in the Telegram bot lists the workspace's
+  agents shared with you; once you pick one, your messages and voice messages go to it instead of
+  the AI chat, in the same chat its page shows, so the conversation goes on in the app (`/new`
+  starts a new one). Its answer shows as it is written, then formatted with the pages it changed; a
+  call it waits on comes as an approval message with its buttons, and the answer follows once it is
+  answered. Messages from Telegram count as a connected app's writes, so a workspace that lets apps
+  only read takes none. Migration 0176.
+
 - **A mail assistant keeps your customers up to date from your email.** A new template under
   *Start from a template* sets up an agent on one of your mailboxes and a database of customers:
   for each new email (by default only from people who are rows) it finds the sender's row and

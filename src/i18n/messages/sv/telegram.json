@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Kopplad till Leafdesk som {name}. Du ingår inte i någon arbetsyta som jag kan svara utifrån än: gå med i en och välj den sedan med /workspace.",
   "notLinked": "Den här chatten är inte kopplad till något Leafdesk-konto. Öppna Inställningar → Anslutna appar → Telegram i Leafdesk och välj Koppla Telegram.",
   "badCode": "Den länken har gått ut eller har redan använts. Skapa en ny i Leafdesk: Inställningar → Anslutna appar → Telegram.",
-  "help": "Ställ en fråga eller skicka ett röstmeddelande, så svarar jag utifrån dina Leafdesk-sidor och anger dem som källor.\n\n/new: starta en ny konversation\n/workspace: välj arbetsytan jag svarar utifrån\n/mode: välj vad jag får ändra\n/stop: stoppa svaret som skrivs\n/notifications: slå på eller av dina aviseringar i den här chatten\n/unlink: koppla bort det här Telegram-kontot",
+  "help": "Ställ en fråga eller skicka ett röstmeddelande, så svarar jag utifrån dina Leafdesk-sidor och anger dem som källor.\n\n/new: starta en ny konversation\n/workspace: välj arbetsytan jag svarar utifrån\n/agent: chatta med en av dina agenter\n/mode: välj vad jag får ändra\n/stop: stoppa svaret som skrivs\n/notifications: slå på eller av dina aviseringar i den här chatten\n/unlink: koppla bort det här Telegram-kontot",
   "commands": {
     "new": "Starta en ny konversation",
     "workspace": "Välj arbetsytan jag svarar utifrån",
+    "agent": "Chatta med en av dina agenter",
     "mode": "Välj vad jag får ändra",
     "stop": "Stoppa svaret som skrivs",
     "unlink": "Koppla bort det här Telegram-kontot",
@@ -123,5 +124,46 @@
     "invalid": "Skicka en fråga först.",
     "interrupted": "Servern startades om medan den svarade. Fråga igen.",
     "limitReached": "Den här arbetsytan har nått sin månatliga kostnadsgräns för AI, så frågor avvisas till nästa månad."
+  },
+  "agent": {
+    "general": "Allmän AI-chatt",
+    "none": "Inga agenter i {workspace} är delade med dig.",
+    "pick": "Dina meddelanden går till {agent}. Välj en annan agent eller den allmänna AI-chatten:",
+    "pickNone": "Dina meddelanden går till den allmänna AI-chatten i {workspace}. Välj en agent att chatta med:",
+    "set": "Dina meddelanden går nu till {agent}. Samtalet fortsätter i din chatt på dess sida; /agent byter tillbaka.",
+    "setReadOnly": "Dina meddelanden går nu till {agent}. Du kan bara använda den: den svarar utifrån sidor ni båda kan se och ändrar ingenting.",
+    "generalSet": "Tillbaka till den allmänna AI-chatten i {workspace}.",
+    "newConversation": "Nytt samtal med agenten.",
+    "stopped": "Jag slutade följa svaret. {agent} gör klart det, och du hittar det på dess sida.",
+    "modeNote": "Läget gäller den allmänna AI-chatten: en agent följer sina egna inställningar.",
+    "waiting": "{agent} väntar på ditt godkännande för att använda {connection}. Svara i meddelandet med knapparna.",
+    "waitingOwner": "{agent} väntar på att en ägare av arbetsytan godkänner ett anrop. Svaret kommer hit när det sker.",
+    "readOnlyWorkspace": "{workspace} låter anslutna appar bara läsa, så dess agenter tar inte emot meddelanden härifrån. /agent går tillbaka till den allmänna AI-chatten.",
+    "states": {
+      "gone": "Den agenten är inte längre tillgänglig. Dina meddelanden går till den allmänna AI-chatten igen.",
+      "noAccess": "Den agenten delas inte längre med dig. Dina meddelanden går till den allmänna AI-chatten igen.",
+      "guest": "Gäster chattar inte med agenter. Dina meddelanden går till den allmänna AI-chatten igen.",
+      "paused": "Den här agenten är pausad. Be en av dess ägare att slå på den, eller välj en annan med /agent.",
+      "aiOff": "AI är avstängt i den här arbetsytan.",
+      "limitReached": "Den här agenten har använt sina tokens för månaden. Välj en annan med /agent."
+    },
+    "refused": {
+      "tooLong": "Ett meddelande till en agent har högst {max} tecken.",
+      "busy": "Agenten svarar fortfarande på ditt förra meddelande.",
+      "rateLimited": "För många meddelanden på en gång. Försök igen om en stund.",
+      "invalid": "Skicka ett meddelande först."
+    },
+    "failed": {
+      "aiOff": "AI är avstängt i den här arbetsytan.",
+      "agentDisabled": "Agenten pausades innan den svarade.",
+      "noAccess": "Agenten kan inte längre öppna det den behövde.",
+      "provider": "AI-leverantören kunde inte svara. Försök igen senare.",
+      "timeout": "Agenten tog för lång tid på sig att svara. Försök igen.",
+      "tooManyAttempts": "Agenten kunde inte svara efter flera försök.",
+      "approvalTimeout": "Ingen svarade på godkännandet inom ett dygn, så inget skickades.",
+      "limitReached": "Agenten har använt sina tokens för månaden.",
+      "costLimit": "Svaret nådde sin kostnadsgräns.",
+      "error": "Något gick fel medan agenten svarade."
+    }
   }
 }

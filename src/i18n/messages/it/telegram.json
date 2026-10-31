@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Collegato a Leafdesk come {name}. Non sei ancora in uno spazio di lavoro da cui posso rispondere: entrane in uno, poi sceglilo con /workspace.",
   "notLinked": "Questa chat non è collegata a un account Leafdesk. In Leafdesk apri Impostazioni → App connesse → Telegram e scegli Collega Telegram.",
   "badCode": "Questo link è scaduto o è già stato usato. Creane uno nuovo in Leafdesk: Impostazioni → App connesse → Telegram.",
-  "help": "Fai una domanda o invia un messaggio vocale e rispondo dalle tue pagine Leafdesk, citandole.\n\n/new: inizia una nuova conversazione\n/workspace: scegli lo spazio di lavoro da cui rispondo\n/mode: scegli cosa posso modificare\n/stop: ferma la risposta in corso\n/notifications: attiva o disattiva le tue notifiche in questa chat\n/unlink: scollega questo account Telegram",
+  "help": "Fai una domanda o invia un messaggio vocale e rispondo dalle tue pagine Leafdesk, citandole.\n\n/new: inizia una nuova conversazione\n/workspace: scegli lo spazio di lavoro da cui rispondo\n/agent: chatta con uno dei tuoi agenti\n/mode: scegli cosa posso modificare\n/stop: ferma la risposta in corso\n/notifications: attiva o disattiva le tue notifiche in questa chat\n/unlink: scollega questo account Telegram",
   "commands": {
     "new": "Inizia una nuova conversazione",
     "workspace": "Scegli lo spazio di lavoro da cui rispondo",
+    "agent": "Chatta con uno dei tuoi agenti",
     "mode": "Scegli cosa posso modificare",
     "stop": "Ferma la risposta in corso",
     "unlink": "Scollega questo account Telegram",
@@ -123,5 +124,46 @@
     "invalid": "Prima invia una domanda.",
     "interrupted": "Il server si è riavviato durante la risposta. Chiedi di nuovo.",
     "limitReached": "Questo spazio di lavoro ha raggiunto il limite mensile di costo dell’IA, quindi le domande sono rifiutate fino al mese prossimo."
+  },
+  "agent": {
+    "general": "Chat IA generale",
+    "none": "Nessun agente di {workspace} è condiviso con te.",
+    "pick": "I tuoi messaggi vanno a {agent}. Scegli un altro agente o la chat IA generale:",
+    "pickNone": "I tuoi messaggi vanno alla chat IA generale di {workspace}. Scegli un agente con cui chattare:",
+    "set": "Ora i tuoi messaggi vanno a {agent}. La conversazione continua nella tua chat sulla sua pagina; con /agent torni indietro.",
+    "setReadOnly": "Ora i tuoi messaggi vanno a {agent}. Puoi solo usarlo: risponde dalle pagine che entrambi potete vedere e non cambia nulla.",
+    "generalSet": "Di nuovo nella chat IA generale di {workspace}.",
+    "newConversation": "Nuova conversazione con l’agente.",
+    "stopped": "Ho smesso di seguire. {agent} finisce la risposta, che troverai sulla sua pagina.",
+    "modeNote": "La modalità riguarda la chat IA generale: un agente segue le proprie impostazioni.",
+    "waiting": "{agent} attende la tua approvazione per usare {connection}. Rispondi nel messaggio con i pulsanti.",
+    "waitingOwner": "{agent} attende che un proprietario dello spazio di lavoro approvi una chiamata. La risposta arriverà qui quando lo farà.",
+    "readOnlyWorkspace": "{workspace} consente alle app collegate solo la lettura, quindi i suoi agenti non ricevono messaggi da qui. /agent torna alla chat IA generale.",
+    "states": {
+      "gone": "Quell’agente non è più disponibile. I tuoi messaggi vanno di nuovo alla chat IA generale.",
+      "noAccess": "Quell’agente non è più condiviso con te. I tuoi messaggi vanno di nuovo alla chat IA generale.",
+      "guest": "Gli ospiti non chattano con gli agenti. I tuoi messaggi vanno di nuovo alla chat IA generale.",
+      "paused": "Questo agente è in pausa. Chiedi a uno dei suoi proprietari di attivarlo, o scegline un altro con /agent.",
+      "aiOff": "L’IA è disattivata in questo spazio di lavoro.",
+      "limitReached": "Questo agente ha usato i suoi token del mese. Scegline un altro con /agent."
+    },
+    "refused": {
+      "tooLong": "Un messaggio a un agente ha al massimo {max} caratteri.",
+      "busy": "L’agente sta ancora rispondendo al tuo ultimo messaggio.",
+      "rateLimited": "Troppi messaggi insieme. Riprova tra un momento.",
+      "invalid": "Invia prima un messaggio."
+    },
+    "failed": {
+      "aiOff": "L’IA è disattivata in questo spazio di lavoro.",
+      "agentDisabled": "L’agente è stato messo in pausa prima di rispondere.",
+      "noAccess": "L’agente non può più aprire ciò che gli serviva.",
+      "provider": "Il fornitore IA non ha potuto rispondere. Riprova più tardi.",
+      "timeout": "L’agente ha impiegato troppo a rispondere. Riprova.",
+      "tooManyAttempts": "L’agente non è riuscito a rispondere dopo vari tentativi.",
+      "approvalTimeout": "Nessuno ha risposto all’approvazione entro un giorno, quindi non è stato inviato nulla.",
+      "limitReached": "L’agente ha usato i suoi token del mese.",
+      "costLimit": "La risposta ha raggiunto il limite di costo.",
+      "error": "Qualcosa è andato storto mentre l’agente rispondeva."
+    }
   }
 }
