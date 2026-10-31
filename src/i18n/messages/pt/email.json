@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} quer se lembrar",
     "memory": "{count, plural, one {Propõe uma nota para a memória} other {Propõe # notas para a memória}}",
     "reportTitle": "Relatório de {agent}",
+    "aiReminderTitle": "Lembrete de {agent}",
+    "aiReminder": "Abra para ler",
     "reportDone": "A execução agendada terminou",
     "reportFailed": "A execução agendada falhou",
     "untitled": "Sem título",

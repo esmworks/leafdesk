@@ -197,7 +197,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   kind near and at a limit, one row per person and month by a unique index; a new agent spending
   fast is turned off mid-run from `run.ts`), `agents/limits.ts` (requests for a higher limit,
   answered from owners' inboxes), pure part `lib/agent-guardrails.ts`; who creates agents is
-  `sharing.ts` `mayCreate` (`agent_creator` when the setting is `chosen`).
+  `sharing.ts` `mayCreate` (`agent_creator` when the setting is `chosen`). Reminders to the person
+  a run works for (`remind_person`, no recipient argument): `server/ai-reminders.ts`, a notification
+  of kind `ai_reminder` waiting snoozed until its time (`deliverSnoozed` wakes it), shown over the
+  page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`.
 - **Connections** (outbound MCP): `src/server/connections/` (`manage.ts`, `client.ts`, `fetch.ts`
   for the address checks, `events.ts` for inbound events, `approvals.ts`). A fetch of an address a
   member or visitor gives passes `{ untrusted: true }`: only `WEB_FETCH_ALLOWED_HOSTS` applies to
@@ -513,7 +516,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-guardrails, agent-skills, automation, button, row-buttons, timed-automation, schedule,
-  row-activity, row-follow, row-mail, web-links, discussions, follow-ups (starts its own GreenMail container
+  row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;

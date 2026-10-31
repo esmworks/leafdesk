@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "{agent} からのリマインダー",
+    "open": "開く",
+    "later": "1 時間後に再通知",
+    "done": "完了"
+  },
   "inbox": {
     "title": "受信トレイ",
     "empty": "通知はまだありません",
@@ -236,6 +242,7 @@
     "memoryHidden": "あなたが開けない行での実行からのメモ{count}件",
     "memoryAnswered": "確認済み",
     "reportTitle": "{agent}からのレポート",
+    "aiReminderTitle": "{agent} からのリマインダー",
     "reportDone": "スケジュールされた実行が完了しました。",
     "reportFailed": "スケジュールされた実行が失敗しました。開いて理由を確認してください。",
     "reportHidden": "スケジュールされた実行が、あなたが開けないデータベースで完了しました。",

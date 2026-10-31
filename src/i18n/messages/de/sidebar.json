@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Erinnerung von {agent}",
+    "open": "Öffnen",
+    "later": "In 1 Stunde erinnern",
+    "done": "Erledigt"
+  },
   "inbox": {
     "title": "Posteingang",
     "empty": "Noch keine Benachrichtigungen",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {Eine Notiz} other {# Notizen}} aus einem Lauf auf einer Zeile, die du nicht öffnen kannst",
     "memoryAnswered": "Bereits geprüft",
     "reportTitle": "Bericht von {agent}",
+    "aiReminderTitle": "Erinnerung von {agent}",
     "reportDone": "Sein geplanter Lauf ist fertig.",
     "reportFailed": "Sein geplanter Lauf ist fehlgeschlagen. Öffne ihn, um zu sehen, warum.",
     "reportHidden": "Sein geplanter Lauf ist fertig, in einer Datenbank, die du nicht öffnen kannst.",

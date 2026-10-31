@@ -4,6 +4,7 @@
  */
 
 import { aiLimitLine, aiLimitPath, type AiLimitNotice } from "./agent-guardrails";
+import { agentPagePath } from "./agent-page";
 import { agentMemoryPath, agentReportPath } from "./agents";
 import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
@@ -145,6 +146,8 @@ export type PushItem = {
   limitRequest?: { agentId: string; agentName: string; tokens: number } | null;
   /** When it was recorded: a verification reminder recorded at or after its date says the verification ended. */
   createdAt?: Date | string;
+  /** Reminders an agent set: what they say, and which agent. */
+  aiReminder?: { text: string; agentId: string | null; agentName: string | null } | null;
 };
 
 /** The line of a comment notification about a suggested edit, in the inbox and in push messages. */
@@ -174,6 +177,8 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "sensitive_content") return `/w/${item.workspaceId}/settings?tab=security#setting-sensitiveFindings`;
   // Reports are dismissed, or the page taken off the web, in Settings > Security.
   if (item.kind === "page_reported") return `/w/${item.workspaceId}/settings?tab=security#setting-pageReports`;
+  // A reminder opens the page it is about, else the chat with the agent that set it.
+  if (item.kind === "ai_reminder" && item.pageId === null) return item.aiReminder?.agentId ? agentPagePath(item.workspaceId, item.aiReminder.agentId) : `/w/${item.workspaceId}`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
   if (item.kind === "row_email" && item.rowEmail) return `/w/${item.workspaceId}/p/${item.pageId}${rowEmailHash(item.rowEmail.id)}`;
   return `/w/${item.workspaceId}/p/${item.pageId}${(item.kind === "comment" || item.kind === "reaction") && item.threadId ? commentHash(item.threadId) : ""}`;
@@ -233,6 +238,11 @@ export function pushPayload(
   } else if (item.kind === "page_reported") {
     title = item.pageTitle?.trim() || t("untitled");
     line = t("pageReported", { reason: item.automationMessage ?? "" });
+  } else if (item.kind === "ai_reminder") {
+    // Not what it says: the model wrote it, maybe from what the run read, and a lock screen shows
+    // it to whoever holds the device. The page it is about, as for other kinds.
+    title = t("aiReminderTitle", { agent: item.aiReminder?.agentName || actor });
+    line = item.pageId ? item.pageTitle?.trim() || t("untitled") : t("aiReminder");
   } else if (item.kind === "join_request") {
     title = t("joinRequestTitle");
     line = item.requestKind === "invite" ? t("inviteRequest", { actor, email: item.requestEmail ?? "" }) : t("joinRequest", { actor });

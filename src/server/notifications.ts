@@ -3,6 +3,8 @@ import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import type { RequestedLevel } from "@/lib/access-requests";
 import { UNSNOOZABLE_KINDS } from "@/lib/snooze";
+import { REMINDER_PROMPT_MS } from "@/lib/ai-reminders";
+import { REMINDER_EVENT } from "@/lib/reminder-event";
 import {
   accessRequest,
   agentLimitRequest,
@@ -795,7 +797,11 @@ export type InboxItem = {
   aiLimit: InboxAiLimit | null;
   /** Requests for a higher agent limit: what was asked, while it waits for an answer. */
   limitRequest: InboxLimitRequest | null;
+  /** Reminders an agent set: what to remind the user of, and which agent (null once it is gone). */
+  aiReminder: InboxAiReminder | null;
 };
+
+export type InboxAiReminder = { text: string; agentId: string | null; agentName: string | null };
 
 export type InboxAiLimit = {
   notice: AiLimitNotice;
@@ -936,6 +942,8 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
       and(eq(notification.kind, "ai_limit"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // Changes waiting for review have no page: they show while the user is in the workspace.
       and(eq(notification.kind, "review"), inWorkspace(sql`${userId}`, notification.workspaceId)),
+      // So do an agent's reminders about no page; one about a page follows the page, as above.
+      and(eq(notification.kind, "ai_reminder"), isNull(notification.pageId), inWorkspace(sql`${userId}`, notification.workspaceId)),
     ),
   )!;
 }
@@ -1048,7 +1056,7 @@ export async function listNotifications(
     rowEmailsOf(userId, rows.filter((r) => r.kind === "row_email")),
     Promise.all(reviewWorkspaces.map(async (id) => [id, await countPendingFor(userId, id)] as const)).then((counts) => new Map(counts)),
     reactionsOf(rows.filter((r) => r.kind === "reaction")),
-    aiLimitAgentsOf(rows.flatMap((r) => (r.kind === "ai_limit" && r.actorId ? [r.actorId] : []))),
+    aiLimitAgentsOf(rows.flatMap((r) => ((r.kind === "ai_limit" || r.kind === "ai_reminder") && r.actorId ? [r.actorId] : []))),
     limitRequestsOf(rows.flatMap((r) => (r.kind === "agent_limit_request" && r.agentLimitRequestId ? [r.agentLimitRequestId] : []))),
   ]);
   // A row update with nothing left the user may see (a property's access changed since) isn't shown,
@@ -1070,8 +1078,15 @@ export async function listNotifications(
       ...row,
       actorImage: avatarSrc(actorImage),
       // A reaction's message is the comment it quotes (see reaction below), a comment's what became of its suggestion,
-      // an AI limit's which notice it is (aiLimit below).
-      automationMessage: row.kind === "reaction" || row.kind === "comment" || row.kind === "ai_limit" ? null : automationMessage,
+      // an AI limit's which notice it is (aiLimit below), a reminder's what it says (aiReminder below).
+      automationMessage: row.kind === "reaction" || row.kind === "comment" || row.kind === "ai_limit" || row.kind === "ai_reminder" ? null : automationMessage,
+      aiReminder:
+        row.kind === "ai_reminder"
+          ? (() => {
+              const agent = (row.actorId && limits.get(row.actorId)) || null;
+              return { text: automationMessage ?? "", agentId: agent?.id ?? null, agentName: agent?.name ?? row.actorName };
+            })()
+          : null,
       aiLimit:
         row.kind === "ai_limit" && isAiLimitNotice(automationMessage)
           ? { notice: automationMessage, agent: (row.actorId && limits.get(row.actorId)) || null }
@@ -1364,6 +1379,16 @@ export async function listInbox(userId: string, workspaceId: string, kinds?: Not
 }
 
 /**
+ * The agents' reminders that came for the user in the workspace and wait to be seen, oldest first:
+ * unread, as the inbox shows them, and come within REMINDER_PROMPT_MS (an older one waits in the
+ * inbox). The window over the page shows these (components/sidebar/reminder-prompt.tsx).
+ */
+export async function dueReminders(userId: string, workspaceId: string, now = new Date()): Promise<InboxItem[]> {
+  const items = await listNotifications(userId, { workspaceId, kinds: ["ai_reminder"], unreadOnly: true, limit: 10 });
+  return items.filter((item) => now.getTime() - item.createdAt.getTime() <= REMINDER_PROMPT_MS).reverse();
+}
+
+/**
  * Archives the given notifications, or (`"read"`) every read one in the inbox: they leave the
  * inbox for the archive, read (an email still to come about one doesn't go).
  */
@@ -1437,8 +1462,14 @@ export async function deliverSnoozed(now = new Date()) {
     .update(notification)
     .set({ snoozedUntil: null, readAt: null, createdAt: sql`${notification.snoozedUntil}` })
     .where(lte(notification.snoozedUntil, now))
-    .returning({ id: notification.id, workspaceId: notification.workspaceId });
+    .returning({ id: notification.id, workspaceId: notification.workspaceId, userId: notification.userId, kind: notification.kind });
   for (const workspaceId of new Set(woken.map((n) => n.workspaceId))) signal(workspaceId);
+  // An agent's reminder opens over the page: its person's windows are told so, whatever the count does.
+  const reminded = new Set(woken.filter((n) => n.kind === "ai_reminder").map((n) => `${n.workspaceId} ${n.userId}`));
+  for (const key of reminded) {
+    const [workspaceId, userId] = key.split(" ");
+    getCollab().sendTo(`ws:${workspaceId}`, userId, REMINDER_EVENT);
+  }
   if (woken.length) pushNotifications(woken.map((n) => n.id));
   return woken.length;
 }

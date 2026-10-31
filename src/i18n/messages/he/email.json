@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} מבקש לזכור",
     "memory": "{count, plural, one {מציע הערה לזיכרון שלו} two {מציע שתי הערות לזיכרון שלו} other {מציע # הערות לזיכרון שלו}}",
     "reportTitle": "דוח מ־{agent}",
+    "aiReminderTitle": "תזכורת מ-{agent}",
+    "aiReminder": "פתחו כדי לקרוא",
     "reportDone": "ההרצה המתוזמנת שלו הסתיימה",
     "reportFailed": "ההרצה המתוזמנת שלו נכשלה",
     "untitled": "ללא כותרת",

@@ -264,7 +264,7 @@ registerScheduleHandler("agent", async ({ schedule: row, runAs, at }) => {
     agentId: agent.id,
     workspaceId: row.workspaceId,
     source: { kind: "schedule", scheduleId: row.id, scheduledBy: runAs, ...(row.databaseId ? { databaseId: row.databaseId } : {}) },
-    context: { actorId: runAs, scheduledFor: at.toISOString() },
+    context: { actorId: runAs, scheduledFor: at.toISOString(), timeZone: row.timeZone },
     prompt: row.settings.task ?? "",
   });
   return true;

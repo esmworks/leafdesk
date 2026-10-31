@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} vill komma ihåg",
     "memory": "{count, plural, one {Föreslår en anteckning till sitt minne} other {Föreslår # anteckningar till sitt minne}}",
     "reportTitle": "Rapport från {agent}",
+    "aiReminderTitle": "Påminnelse från {agent}",
+    "aiReminder": "Öppna den för att läsa den",
     "reportDone": "Dess schemalagda körning är klar",
     "reportFailed": "Dess schemalagda körning misslyckades",
     "untitled": "Namnlös",

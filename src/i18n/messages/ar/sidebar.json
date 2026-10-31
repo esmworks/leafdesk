@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "تذكير من {agent}",
+    "open": "فتح",
+    "later": "ذكّرني بعد ساعة",
+    "done": "تم"
+  },
   "inbox": {
     "title": "صندوق الوارد",
     "empty": "لا إشعارات بعد",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {ملاحظة} two {ملاحظتان} few {# ملاحظات} many {# ملاحظة} other {# ملاحظة}} من تشغيل على صف لا يمكنك فتحه",
     "memoryAnswered": "تمت مراجعتها بالفعل",
     "reportTitle": "تقرير من {agent}",
+    "aiReminderTitle": "تذكير من {agent}",
     "reportDone": "انتهى تشغيله المجدول.",
     "reportFailed": "فشل تشغيله المجدول. افتحه لمعرفة السبب.",
     "reportHidden": "انتهى تشغيله المجدول، على قاعدة بيانات لا يمكنك فتحها.",

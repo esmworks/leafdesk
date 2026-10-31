@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Påmindelse fra {agent}",
+    "open": "Åbn",
+    "later": "Mind mig om 1 time",
+    "done": "Færdig"
+  },
   "inbox": {
     "title": "Indbakke",
     "empty": "Ingen notifikationer endnu",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {En note} other {# noter}} fra en kørsel på en række, du ikke kan åbne",
     "memoryAnswered": "Allerede gennemgået",
     "reportTitle": "Rapport fra {agent}",
+    "aiReminderTitle": "Påmindelse fra {agent}",
     "reportDone": "Dens planlagte kørsel er færdig.",
     "reportFailed": "Dens planlagte kørsel mislykkedes. Åbn den for at se hvorfor.",
     "reportHidden": "Dens planlagte kørsel er færdig, på en database du ikke kan åbne.",

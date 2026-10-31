@@ -300,6 +300,21 @@ answers the main one, and helpers that do narrow, well-described parts (look som
 a database) the fast one. Over MCP, `create_agent` and `update_agent` take `helper_agent_ids`, and
 `get_agent` and `list_agents` return it; the REST API's agent endpoints do too.
 
+**Reminders.** A run someone stands behind (their chat message, the run they asked for, the
+schedule they set, their comment that mentioned the agent) gets a `remind_person` tool: it reminds
+that person, and only them, of something at a time up to 30 days ahead, about a page both they and
+the agent can open if it names one ("Remind me tomorrow at 9 to call Ayşe"). The tool takes no
+recipient, so nothing the run reads can point it at someone else; a helper's run, and one reading
+what no member stands behind, doesn't get it. The agent gives the time on the person's clock: the
+writer's (the browser's time zone) for a chat message, the schedule's for a schedule's run, UTC for
+others, so a reminder set across a change of clocks still comes at the hour named. When the time
+comes the reminder opens over the page in every tab the person has open in the workspace (*Done*,
+*Remind me in 1 hour*, *Open*; closing it leaves it unread), comes to their inbox and as a push or
+Telegram message naming the agent and the page, not what it says (a lock screen shows it to whoever
+holds the device), but never by email; one missed for more than 12 hours waits in the inbox. A run sets at most 3, and an
+agent has at most 20 waiting for one person; each is a step of the run. People turn them off under
+*Agent reminders* in Settings → Preferences.
+
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see
 [AI features](ai.md#ai-features)) and the workspace must have AI on. Otherwise runs end as `aiOff`.
 

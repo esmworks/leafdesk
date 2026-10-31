@@ -2,6 +2,7 @@
 
 import {
   archiveNotifications,
+  dueReminders,
   listInbox,
   markRead,
   markUnread,
@@ -45,6 +46,12 @@ export async function archiveReadAction(workspaceId: string) {
 export async function unarchiveAction(workspaceId: string, notificationIds: string[]) {
   const userId = await requireUserId();
   await unarchiveNotifications(userId, String(workspaceId), ids(notificationIds));
+}
+
+/** The agents' reminders that came and wait to be seen, for the window over the page. */
+export async function dueRemindersAction(workspaceId: string) {
+  const userId = await requireUserId();
+  return dueReminders(userId, String(workspaceId));
 }
 
 export async function unreadCountAction(workspaceId: string) {

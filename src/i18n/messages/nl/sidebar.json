@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Herinnering van {agent}",
+    "open": "Openen",
+    "later": "Over 1 uur herinneren",
+    "done": "Klaar"
+  },
   "inbox": {
     "title": "Inbox",
     "empty": "Nog geen meldingen",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {Een notitie} other {# notities}} van een run op een rij die je niet kunt openen",
     "memoryAnswered": "Al bekeken",
     "reportTitle": "Rapport van {agent}",
+    "aiReminderTitle": "Herinnering van {agent}",
     "reportDone": "De geplande run is klaar.",
     "reportFailed": "De geplande run is mislukt. Open hem om te zien waarom.",
     "reportHidden": "De geplande run is klaar, op een database die je niet kunt openen.",

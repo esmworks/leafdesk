@@ -215,6 +215,8 @@ export type AgentRunContext =
       scheduledFor?: string;
       /** A mention's run: the language the comment was written in, for what the agent says when it can't answer. */
       locale?: string;
+      /** The zone the run's times read in: the browser's of whoever wrote a chat message, a schedule's own. */
+      timeZone?: string;
     };
 
 /** `awaiting_approval`: a tool that may change something outside waits for an owner's answer. */

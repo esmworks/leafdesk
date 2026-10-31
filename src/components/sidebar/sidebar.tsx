@@ -84,6 +84,7 @@ import { reconcileFavorites, wantedPages } from "@/lib/offline";
 import { InstallAppMenuItem } from "@/components/offline/install-app";
 import { dropPushSubscription } from "@/components/settings/push-device";
 import { CELEBRATE_EVENT } from "@/lib/celebrate-event";
+import { REMINDER_EVENT } from "@/lib/reminder-event";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
 import { OPEN_SEARCH_EVENT } from "@/lib/search-open";
@@ -110,10 +111,12 @@ import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
 import { lazyPart } from "@/components/lazy-part";
+import { useDueReminders } from "./use-due-reminders";
 import { read } from "@/components/read";
 
 // Loaded the first time the inbox opens: it is not needed to show a page.
 const InboxDialog = lazyPart(() => import("./inbox-dialog").then((m) => m.InboxDialog));
+const ReminderPrompt = lazyPart(() => import("./reminder-prompt").then((m) => m.ReminderPrompt));
 // Loaded the first time the Mail tab opens: most people open it now and then.
 const MailSidebar = lazyPart(() => import("@/components/mail/mail-sidebar").then((m) => m.MailSidebar));
 // Loaded the first time the import dialog opens, with the readers of every format it takes.
@@ -254,6 +257,10 @@ export function Sidebar({
   const [inboxMounted, setInboxMounted] = useState(false);
   if (inboxOpen && !inboxMounted) setInboxMounted(true);
   const [unread, setUnread] = useState(0);
+  // Agents' reminders whose time came, shown over the page one at a time; `reminderWake` is
+  // bumped when the server says one came.
+  const [reminderWake, setReminderWake] = useState(0);
+  const [reminders, reminderSettled] = useDueReminders(workspaceId, unread, reminderWake);
   // Changes agents proposed that wait for the person (the "For review" page), counted with the inbox.
   const [reviewCount, setReviewCount] = useState(0);
   // Bumped on every inbox signal so an open inbox reloads.
@@ -394,6 +401,8 @@ export function Sidebar({
     if (event === "inbox") {
       refreshInbox();
       setInboxVersion((v) => v + 1);
+    } else if (event === REMINDER_EVENT) {
+      setReminderWake((v) => v + 1);
     } else if (event === CELEBRATE_EVENT) {
       // Sent to this person's windows only, by an automation their change started.
       void import("@/components/celebrate").then((m) => m.celebrate(tc("celebrate")));
@@ -1704,6 +1713,16 @@ export function Sidebar({
           onClose={() => setInboxOpen(false)}
           version={inboxVersion}
           onRead={refreshInbox}
+        />
+      )}
+      {reminders.length > 0 && (
+        <ReminderPrompt
+          workspaceId={workspaceId}
+          reminders={reminders}
+          onSeen={(item) => {
+            reminderSettled(item);
+            refreshInbox();
+          }}
         />
       )}
       {canCreateWorkspace && <NewWorkspaceDialog open={newWorkspaceOpen} onClose={() => setNewWorkspaceOpen(false)} />}

@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} vil huske noe",
     "memory": "{count, plural, one {Foreslår et notat til minnet sitt} other {Foreslår # notater til minnet sitt}}",
     "reportTitle": "Rapport fra {agent}",
+    "aiReminderTitle": "Påminnelse fra {agent}",
+    "aiReminder": "Åpne den for å lese den",
     "reportDone": "Den planlagte kjøringen er fullført",
     "reportFailed": "Den planlagte kjøringen mislyktes",
     "untitled": "Uten tittel",

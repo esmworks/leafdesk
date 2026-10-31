@@ -85,6 +85,13 @@ export const userPreference = pgTable("user_preference", {
   /** Email me those reminders. */
   verificationEmails: boolean("verification_emails").notNull().default(true),
   /**
+   * Reminders an agent set for me (server/ai-reminders.ts): show them in my inbox, and over the
+   * page when their time comes. No email goes out about them (`aiReminderEmails` is kept for the
+   * shape every kind has, and unused).
+   */
+  aiReminderInbox: boolean("ai_reminder_inbox").notNull().default(true),
+  aiReminderEmails: boolean("ai_reminder_emails").notNull().default(false),
+  /**
    * Reactions to my comments: show them in my inbox. No email goes out about them (`reactionEmails`
    * is kept for the shape every kind has, and unused); push and Telegram are off until turned on.
    */
@@ -110,6 +117,7 @@ export const userPreference = pgTable("user_preference", {
   followUpPush: boolean("follow_up_push").notNull().default(true),
   reactionPush: boolean("reaction_push").notNull().default(false),
   verificationPush: boolean("verification_push").notNull().default(true),
+  aiReminderPush: boolean("ai_reminder_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -129,6 +137,7 @@ export const userPreference = pgTable("user_preference", {
   followUpTelegram: boolean("follow_up_telegram").notNull().default(true),
   reactionTelegram: boolean("reaction_telegram").notNull().default(false),
   verificationTelegram: boolean("verification_telegram").notNull().default(true),
+  aiReminderTelegram: boolean("ai_reminder_telegram").notNull().default(true),
   /**
    * Leafdesk's links opened in a browser go on to the desktop app (lib/desktop-links.ts): "off",
    * "ask" (the page offers to) or "always" (it tries at once, and stays in the browser if no app
@@ -385,8 +394,25 @@ export const NOTIFICATION_KINDS = [
   "page_reported",
   "ai_limit",
   "agent_limit_request",
+  "ai_reminder",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
+/**
+ * The only kinds that may be about no page (access requests are about the page asked for): join
+ * requests, changes waiting for review, agents' approvals, notes, reports and reminders, a detached
+ * AI account and AI limits. Readers of the inbox show these by their kind, never by a missing page.
+ */
+export const PAGELESS_KINDS = [
+  "join_request",
+  "review",
+  "agent_approval",
+  "agent_memory",
+  "agent_report",
+  "ai_account_detached",
+  "ai_limit",
+  "agent_limit_request",
+  "ai_reminder",
+] as const satisfies readonly NotificationKind[];
 /**
  * Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, a
  * scheduled run's report, the AI account the workspace ran on gone, sensitive content found, a
@@ -451,6 +477,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * whole workspace's cost limit when null; `date` is the month (YYYY-MM) of "near" and "reached",
  * which tell each person once a month. "agent_limit_request": `actorId` asked for a higher monthly
  * token limit, request `agentLimitRequestId`; answered by an owner, it goes away. Neither has a page.
+ * "ai_reminder": agent `actorId`'s run `agentRunId` set a reminder for the user, who asked for it
+ * there (server/ai-reminders.ts); `message` is what to remind them of, `pageId` the page it is
+ * about, if any. It waits snoozed until its time (`snoozedUntil`), then shows and opens over the page.
  * Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
@@ -491,7 +520,10 @@ export const notification = pgTable(
      * "reaction": the start of the comment reacted to, as it read then.
      */
     message: text("message"),
-    /** Agent approval, memory and report notifications: the run whose call or notes wait, or that finished. */
+    /**
+     * Agent approval, memory and report notifications: the run whose call or notes wait, or that
+     * finished. Not an agent's reminder: runs are deleted after a while, and it may wait longer.
+     */
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     readAt: timestamp("read_at", { withTimezone: true }),
@@ -543,11 +575,8 @@ export const notification = pgTable(
       .on(t.userId, t.workspaceId, sql`coalesce(${t.actorId}, '')`, t.date, t.message)
       .where(sql`${t.kind} = 'ai_limit' and ${t.date} is not null`),
     index("notification_agent_limit_request_idx").on(t.agentLimitRequestId).where(sql`${t.agentLimitRequestId} is not null`),
-    // Only join requests, changes waiting for review, agents' approvals, notes and reports, a detached AI account and AI limits are about no page (access requests are about the page asked for).
-    check(
-      "notification_subject_check",
-      sql`${t.kind} in ('join_request', 'review', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached', 'ai_limit', 'agent_limit_request') or ${t.pageId} is not null`,
-    ),
+    // Only PAGELESS_KINDS are about no page.
+    check("notification_subject_check", sql`${t.kind} in (${sql.raw(PAGELESS_KINDS.map((k) => `'${k}'`).join(", "))}) or ${t.pageId} is not null`),
   ],
 );
 

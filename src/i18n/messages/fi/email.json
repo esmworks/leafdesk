@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} haluaa muistaa",
     "memory": "{count, plural, one {Ehdottaa muistiinsa merkintää} other {Ehdottaa muistiinsa # merkintää}}",
     "reportTitle": "Raportti agentilta {agent}",
+    "aiReminderTitle": "Muistutus: {agent}",
+    "aiReminder": "Avaa se lukeaksesi",
     "reportDone": "Ajastettu ajo valmistui",
     "reportFailed": "Ajastettu ajo epäonnistui",
     "untitled": "Nimetön",

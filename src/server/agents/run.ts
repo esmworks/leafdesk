@@ -110,6 +110,9 @@ import { chatRunHistory, closeChatTurn } from "./chat-store";
 import { approversOf } from "./approvers";
 import { agentsWorker } from "./kick";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, HANDOFF_TOOL, lastHandoff, proposalsForPrompt, runAgentMemoryTool, runHandoffTool } from "./memory";
+import { REMIND_TOOL_NAME, remindedPerson, remindersSet, remindTool, setReminder } from "@/server/ai-reminders";
+import { MAX_REMINDERS_PER_RUN } from "@/lib/ai-reminders";
+import { isTimeZone } from "@/lib/time-zone";
 import { agentSkillRoom, runSkills } from "./skills";
 import { runWebTool, webToolsFor } from "./web";
 import { agentLevel } from "./sharing";
@@ -646,6 +649,10 @@ async function converse(
   const mentionTools = mentionEdits?.edits ? [EDIT_PAGE, ...(mentionEdits.row ? [UPDATE_ROW] : [])] : [];
   // Other agents it may ask; none on a helper's run.
   const handoff = await handoffFor(agent, run, { bound, trusted: !askEveryTool, clock, runHelper: runInSlot });
+  // The person it works for, whom it may remind of something (ai-reminders.ts): not on a helper's
+  // run, whose task another agent wrote, nor on one reading what no member stands behind.
+  const reminded = handedOff || askEveryTool ? null : remindedPerson(run.source);
+  const reminder = reminded ? reminderFor(run) : null;
   const ownTools = rowRun ? AGENT_TOOLS : databaseId ? SCHEDULED_DATABASE_TOOLS : eventRun ? EVENT_TOOLS : chatWrites ? [...CHAT_TOOLS, ...WRITE_TOOLS] : [...CHAT_TOOLS, ...mentionTools];
   const reviews = proposes && ownTools.some((t) => PROPOSE_TOOLS.has(t.name));
   // A run on a row, or a schedule's on a database, that works for someone with a mailbox where mail
@@ -668,6 +675,7 @@ async function converse(
     ...(leavesNote ? [HANDOFF_TOOL] : []),
     ...webTools,
     ...(handoff ? [handoff.tool] : []),
+    ...(reminder ? [reminder.tool] : []),
     ...toolset.tools,
     ...(moreTools ? [FIND_TOOLS, USE_TOOL] : []),
   ];
@@ -711,6 +719,7 @@ async function converse(
   let messages: AiMessage[];
   let writes = 0;
   let externalChars = 0;
+  let reminders = remindersSet(steps);
   // The addresses this run's searches returned: a schedule's run may read them.
   let webFound: string[] = [];
   let firstRound = 0;
@@ -839,6 +848,14 @@ async function converse(
     if (call.name === HANDOFF_TOOL.name) {
       if (!leavesNote) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
       return runHandoffTool(run.id, call);
+    }
+    // A reminder is for the person the run works for, and changes nothing in the workspace.
+    if (call.name === REMIND_TOOL_NAME) {
+      if (!reminder || !reminded) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
+      if (reminders >= MAX_REMINDERS_PER_RUN) return { content: `You have set ${MAX_REMINDERS_PER_RUN} reminders, the most one run may set.`, isError: true };
+      const out = await setReminder({ workspaceId: run.workspaceId, agentUserId: agent.userId, personId: reminded, timeZone: reminder.timeZone }, call);
+      if (!out.isError) reminders += 1;
+      return out;
     }
     // Reading the web changes nothing: it counts as reading from outside, not as a change.
     if (webNames.has(call.name)) {
@@ -1239,6 +1256,16 @@ async function threadNames(userIds: string[]): Promise<Map<string, string>> {
   ]);
   const isAgent = new Set(agents.map((a) => a.userId));
   return new Map(rows.map((r) => [r.id, isAgent.has(r.id) ? `${r.name} (agent)` : r.name]));
+}
+
+/**
+ * The reminder tool of a run, on the clock of the zone the run came with
+ * (their browser's for a chat message, the schedule's for a schedule's run), else UTC.
+ */
+function reminderFor(run: Run) {
+  const zone = "timeZone" in run.context ? run.context.timeZone : undefined;
+  const timeZone = isTimeZone(zone) ? zone : "UTC";
+  return { tool: remindTool(new Date(), timeZone), timeZone };
 }
 
 /** What happened, in words: the row added or the properties changed, and by whom; the event received; who asked, or set the schedule; or who mentioned the agent. */

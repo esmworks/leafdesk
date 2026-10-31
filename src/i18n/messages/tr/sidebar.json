@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "{agent} hatırlatıyor",
+    "open": "Aç",
+    "later": "1 saat sonra hatırlat",
+    "done": "Tamam"
+  },
   "inbox": {
     "title": "Gelen kutusu",
     "empty": "Henüz bildirim yok",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {Açamadığınız bir satırdaki çalışmadan bir not} other {Açamadığınız bir satırdaki çalışmadan # not}}",
     "memoryAnswered": "Zaten incelendi",
     "reportTitle": "{agent} raporu",
+    "aiReminderTitle": "{agent} hatırlatıyor",
     "reportDone": "Zamanlanmış çalışması bitti.",
     "reportFailed": "Zamanlanmış çalışması başarısız oldu. Nedenini görmek için aç.",
     "reportHidden": "Zamanlanmış çalışması, açamadığın bir veritabanında bitti.",

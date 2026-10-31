@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} ต้องการจดจำ",
     "memory": "{count, plural, other {เสนอ # บันทึกให้หน่วยความจำของตน}}",
     "reportTitle": "รายงานจาก {agent}",
+    "aiReminderTitle": "การเตือนจาก {agent}",
+    "aiReminder": "เปิดเพื่ออ่าน",
     "reportDone": "การทำงานตามกำหนดเวลาเสร็จสิ้นแล้ว",
     "reportFailed": "การทำงานตามกำหนดเวลาล้มเหลว",
     "untitled": "ไม่มีชื่อ",

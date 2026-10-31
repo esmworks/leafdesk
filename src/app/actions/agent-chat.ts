@@ -1,6 +1,8 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { TIME_ZONE_COOKIE } from "@/i18n/config";
 import type { ActionResult } from "@/app/actions/workspaces";
 import { MAX_AGENT_CHAT_MESSAGE } from "@/lib/agent-chat";
 import { AccessError } from "@/server/access";
@@ -46,13 +48,15 @@ export async function agentChatInfoAction(workspaceId: string, agentId: string, 
 }
 
 export async function sendAgentChatAction(input: { workspaceId: string; agentId: string; place: ChatPlace; conversationId: string | null; message: string }) {
-  return run((userId) =>
+  return run(async (userId) =>
     sendAgentChat(userId, {
       workspaceId: String(input.workspaceId),
       agentId: String(input.agentId),
       place: placeOf(input.place),
       conversationId: typeof input.conversationId === "string" ? input.conversationId : null,
       message: String(input.message ?? ""),
+      // The times the agent sets (reminders) read on the writer's clock.
+      timeZone: (await cookies()).get(TIME_ZONE_COOKIE)?.value,
     }),
   );
 }

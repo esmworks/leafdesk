@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Lời nhắc từ {agent}",
+    "open": "Mở",
+    "later": "Nhắc lại sau 1 giờ",
+    "done": "Xong"
+  },
   "inbox": {
     "title": "Hộp thư đến",
     "empty": "Chưa có thông báo nào",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, other {# ghi chú}} từ một lần chạy trên hàng bạn không thể mở",
     "memoryAnswered": "Đã xem xét",
     "reportTitle": "Báo cáo từ {agent}",
+    "aiReminderTitle": "Lời nhắc từ {agent}",
     "reportDone": "Lần chạy theo lịch của tác tử đã hoàn tất.",
     "reportFailed": "Lần chạy theo lịch của tác tử đã thất bại. Hãy mở để xem lý do.",
     "reportHidden": "Lần chạy theo lịch của tác tử đã hoàn tất, trên một cơ sở dữ liệu bạn không thể mở.",

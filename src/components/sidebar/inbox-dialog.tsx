@@ -215,6 +215,11 @@ export function InboxDialog({
                     <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                     <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
                   </>
+                ) : item.kind === "ai_reminder" ? (
+                  <>
+                    <AlarmClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("aiReminderTitle", { agent: item.aiReminder?.agentName ?? item.actorName ?? t("someone") })}</span>
+                  </>
                 ) : item.kind === "review" ? (
                   <>
                     <ClipboardCheck aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -271,6 +276,8 @@ export function InboxDialog({
                   : item.memory.text === null
                     ? t("memoryHidden", { count: item.memory.count })
                     : t("memory", { text: item.memory.text, more: item.memory.count - 1 })
+                : item.kind === "ai_reminder"
+                ? (item.aiReminder?.text ?? "")
                 : item.kind === "agent_report"
                 ? !item.report
                   ? t("reportGone")

@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Lembrete de {agent}",
+    "open": "Abrir",
+    "later": "Lembrar em 1 hora",
+    "done": "Concluído"
+  },
   "inbox": {
     "title": "Caixa de entrada",
     "empty": "Nenhuma notificação ainda",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {Uma nota} other {# notas}} de uma execução em uma linha que você não pode abrir",
     "memoryAnswered": "Já revisado",
     "reportTitle": "Relatório de {agent}",
+    "aiReminderTitle": "Lembrete de {agent}",
     "reportDone": "A execução agendada terminou.",
     "reportFailed": "A execução agendada falhou. Abra para ver o motivo.",
     "reportHidden": "A execução agendada terminou, em um banco de dados que você não pode abrir.",

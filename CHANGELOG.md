@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Agents remind you.** Ask an agent in its chat, a request, a schedule or a mention to remind you
+  of something, and at that time the reminder opens over the page you have open (*Done*, *Remind
+  me in 1 hour*, *Open*), comes to your inbox and to your phone. Connected apps see them in
+  `list_notifications`. An agent reminds only the person
+  its run works for, at most 30 days ahead, about a page both can open; a run sets at most 3 and an
+  agent has at most 20 waiting for one person. Turned off under *Agent reminders* in Settings →
+  Preferences. Migration 0168.
+
 - **Empty trash in the Mail tab.** The trash and junk folders get *Empty trash* and *Empty junk*
   over their list: after asking, every message in the folder is deleted for good, on the mail
   server too, including any not listed yet. No migration.
