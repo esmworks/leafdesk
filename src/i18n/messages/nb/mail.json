@@ -159,6 +159,24 @@
     "friendly": "Vennligere",
     "use": "Bruk denne",
     "useNote": "Erstatter det du har skrevet over signaturen din. Angre henter det tilbake.",
-    "mailFailed": "Meldingen kunne ikke leses fra e-postserveren. Prøv igjen om litt."
+    "mailFailed": "Meldingen kunne ikke leses fra e-postserveren. Prøv igjen om litt.",
+    "rowContext": "Leser også feltene i {row}, slik du ser dem.",
+    "tasks": {
+      "find": "Finn oppgaver",
+      "findHint": "Finn med KI hva denne samtalen ber deg om",
+      "title": "Oppgaver fra denne samtalen",
+      "finding": "Finner oppgaver…",
+      "again": "Finn på nytt",
+      "close": "Lukk",
+      "unreadable": "Svaret fra KI kunne ikke leses. Prøv igjen.",
+      "none": "KI fant ingenting denne samtalen ber deg om.",
+      "text": "Oppgave",
+      "toRow": "De legges i {row} som dine gjøremål.",
+      "toNote": "De legges i dagens dagsnotat som dine gjøremål.",
+      "add": "Legg til i oppgavene mine",
+      "addedRow": "Lagt til i {row}.",
+      "addedNote": "Lagt til i dagens dagsnotat.",
+      "open": "Åpne"
+    }
   }
 }

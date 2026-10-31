@@ -159,6 +159,24 @@
     "friendly": "Più cordiale",
     "use": "Usa questo",
     "useNote": "Sostituisce ciò che hai scritto sopra la firma. Annulla lo ripristina.",
-    "mailFailed": "Non è stato possibile leggere il messaggio dal server di posta. Riprova tra poco."
+    "mailFailed": "Non è stato possibile leggere il messaggio dal server di posta. Riprova tra poco.",
+    "rowContext": "Legge anche i campi di {row}, come li vedi tu.",
+    "tasks": {
+      "find": "Trova le attività",
+      "findHint": "Trova con l'IA cosa ti chiede questa conversazione",
+      "title": "Attività da questa conversazione",
+      "finding": "Ricerca delle attività…",
+      "again": "Cerca di nuovo",
+      "close": "Chiudi",
+      "unreadable": "Non è stato possibile leggere la risposta dell'IA. Riprova.",
+      "none": "L'IA non ha trovato nulla che questa conversazione ti chieda.",
+      "text": "Attività",
+      "toRow": "Vengono aggiunte a {row} come tue cose da fare.",
+      "toNote": "Vengono aggiunte alla nota giornaliera di oggi come tue cose da fare.",
+      "add": "Aggiungi alle mie attività",
+      "addedRow": "Aggiunte a {row}.",
+      "addedNote": "Aggiunte alla nota giornaliera di oggi.",
+      "open": "Apri"
+    }
   }
 }

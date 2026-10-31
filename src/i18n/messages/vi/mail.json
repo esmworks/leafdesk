@@ -159,6 +159,24 @@
     "friendly": "Thân thiện hơn",
     "use": "Dùng nội dung này",
     "useNote": "Thay cho phần bạn đã viết phía trên chữ ký. Hoàn tác sẽ khôi phục lại.",
-    "mailFailed": "Không đọc được thư từ máy chủ thư. Hãy thử lại sau giây lát."
+    "mailFailed": "Không đọc được thư từ máy chủ thư. Hãy thử lại sau giây lát.",
+    "rowContext": "Cũng đọc các trường của {row}, như bạn thấy chúng.",
+    "tasks": {
+      "find": "Tìm việc cần làm",
+      "findHint": "Dùng AI tìm những gì cuộc trò chuyện này yêu cầu bạn",
+      "title": "Việc cần làm từ cuộc trò chuyện này",
+      "finding": "Đang tìm việc cần làm…",
+      "again": "Tìm lại",
+      "close": "Đóng",
+      "unreadable": "Không đọc được câu trả lời của AI. Hãy thử lại.",
+      "none": "AI không tìm thấy điều gì cuộc trò chuyện này yêu cầu bạn.",
+      "text": "Việc",
+      "toRow": "Chúng được thêm vào {row} như việc cần làm của bạn.",
+      "toNote": "Chúng được thêm vào ghi chú hằng ngày hôm nay như việc cần làm của bạn.",
+      "add": "Thêm vào việc của tôi",
+      "addedRow": "Đã thêm vào {row}.",
+      "addedNote": "Đã thêm vào ghi chú hằng ngày hôm nay.",
+      "open": "Mở"
+    }
   }
 }

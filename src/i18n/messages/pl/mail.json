@@ -159,6 +159,24 @@
     "friendly": "Bardziej przyjaźnie",
     "use": "Użyj tego",
     "useNote": "Zastępuje to, co napisano nad podpisem. Cofnij przywraca poprzednią treść.",
-    "mailFailed": "Nie udało się odczytać wiadomości z serwera poczty. Spróbuj ponownie za chwilę."
+    "mailFailed": "Nie udało się odczytać wiadomości z serwera poczty. Spróbuj ponownie za chwilę.",
+    "rowContext": "Odczytuje też pola rekordu {row}, tak jak je widzisz.",
+    "tasks": {
+      "find": "Znajdź zadania",
+      "findHint": "Znajdź z AI, o co prosi cię ta rozmowa",
+      "title": "Zadania z tej rozmowy",
+      "finding": "Szukanie zadań…",
+      "again": "Szukaj ponownie",
+      "close": "Zamknij",
+      "unreadable": "Nie udało się odczytać odpowiedzi AI. Spróbuj ponownie.",
+      "none": "AI nie znalazła niczego, o co prosi cię ta rozmowa.",
+      "text": "Zadanie",
+      "toRow": "Trafią do {row} jako twoje zadania do zrobienia.",
+      "toNote": "Trafią do dzisiejszej notatki dziennej jako twoje zadania do zrobienia.",
+      "add": "Dodaj do moich zadań",
+      "addedRow": "Dodano do {row}.",
+      "addedNote": "Dodano do dzisiejszej notatki dziennej.",
+      "open": "Otwórz"
+    }
   }
 }

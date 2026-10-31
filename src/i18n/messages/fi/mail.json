@@ -159,6 +159,24 @@
     "friendly": "Ystävällisempi",
     "use": "Käytä tätä",
     "useNote": "Korvaa sen, mitä kirjoitit allekirjoituksesi yläpuolelle. Kumoa palauttaa sen.",
-    "mailFailed": "Viestiä ei voitu lukea sähköpostipalvelimelta. Yritä hetken päästä uudelleen."
+    "mailFailed": "Viestiä ei voitu lukea sähköpostipalvelimelta. Yritä hetken päästä uudelleen.",
+    "rowContext": "Lukee myös kohteen {row} kentät sellaisina kuin näet ne.",
+    "tasks": {
+      "find": "Etsi tehtävät",
+      "findHint": "Etsi tekoälyllä, mitä tämä keskustelu pyytää sinulta",
+      "title": "Tehtävät tästä keskustelusta",
+      "finding": "Etsitään tehtäviä…",
+      "again": "Etsi uudelleen",
+      "close": "Sulje",
+      "unreadable": "Tekoälyn vastausta ei voitu lukea. Yritä uudelleen.",
+      "none": "Tekoäly ei löytänyt mitään, mitä tämä keskustelu pyytää sinulta.",
+      "text": "Tehtävä",
+      "toRow": "Ne lisätään kohteeseen {row} tehtävälistaasi.",
+      "toNote": "Ne lisätään tämän päivän muistiinpanoon tehtävälistaasi.",
+      "add": "Lisää tehtäviini",
+      "addedRow": "Lisätty kohteeseen {row}.",
+      "addedNote": "Lisätty tämän päivän muistiinpanoon.",
+      "open": "Avaa"
+    }
   }
 }

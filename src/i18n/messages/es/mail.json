@@ -159,6 +159,24 @@
     "friendly": "Más cercano",
     "use": "Usar esto",
     "useNote": "Sustituye lo que escribiste encima de tu firma. Deshacer lo recupera.",
-    "mailFailed": "No se pudo leer el mensaje del servidor de correo. Inténtalo de nuevo en un momento."
+    "mailFailed": "No se pudo leer el mensaje del servidor de correo. Inténtalo de nuevo en un momento.",
+    "rowContext": "También lee los campos de {row}, tal como los ves.",
+    "tasks": {
+      "find": "Buscar tareas",
+      "findHint": "Busca con IA lo que esta conversación te pide",
+      "title": "Tareas de esta conversación",
+      "finding": "Buscando tareas…",
+      "again": "Buscar de nuevo",
+      "close": "Cerrar",
+      "unreadable": "No se pudo leer la respuesta de la IA. Inténtalo de nuevo.",
+      "none": "La IA no encontró nada que esta conversación te pida.",
+      "text": "Tarea",
+      "toRow": "Se añaden a {row} como tus tareas pendientes.",
+      "toNote": "Se añaden a la nota diaria de hoy como tus tareas pendientes.",
+      "add": "Añadir a mis tareas",
+      "addedRow": "Añadidas a {row}.",
+      "addedNote": "Añadidas a la nota diaria de hoy.",
+      "open": "Abrir"
+    }
   }
 }

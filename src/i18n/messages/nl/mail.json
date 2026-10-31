@@ -159,6 +159,24 @@
     "friendly": "Vriendelijker",
     "use": "Gebruiken",
     "useNote": "Vervangt wat je boven je handtekening hebt geschreven. Ongedaan maken zet het terug.",
-    "mailFailed": "Het bericht kon niet van de mailserver worden gelezen. Probeer het zo opnieuw."
+    "mailFailed": "Het bericht kon niet van de mailserver worden gelezen. Probeer het zo opnieuw.",
+    "rowContext": "Leest ook de velden van {row}, zoals jij ze ziet.",
+    "tasks": {
+      "find": "Taken vinden",
+      "findHint": "Vind met AI wat dit gesprek van je vraagt",
+      "title": "Taken uit dit gesprek",
+      "finding": "Taken zoeken…",
+      "again": "Opnieuw zoeken",
+      "close": "Sluiten",
+      "unreadable": "Het antwoord van de AI kon niet worden gelezen. Probeer het opnieuw.",
+      "none": "De AI vond niets wat dit gesprek van je vraagt.",
+      "text": "Taak",
+      "toRow": "Ze komen als jouw to-do's in {row}.",
+      "toNote": "Ze komen als jouw to-do's in de dagnotitie van vandaag.",
+      "add": "Toevoegen aan mijn taken",
+      "addedRow": "Toegevoegd aan {row}.",
+      "addedNote": "Toegevoegd aan de dagnotitie van vandaag.",
+      "open": "Openen"
+    }
   }
 }

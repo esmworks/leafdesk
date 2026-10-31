@@ -30,8 +30,12 @@
   composer opens a writer that drafts a reply from a few words, improves, shortens, corrects,
   translates or changes the tone of what is written, or follows a saved prompt; its result is
   shown first and replaces only the text above the signature and the quoted mail, in one step
-  that can be undone. Reading mail for the AI doesn't mark it as read, and it follows the
-  workspace's AI setting. Migration 0167.
+  that can be undone. Answering someone who is a database row, the writer also reads that row's
+  fields as the person may see them (the panel names the row), and the person's AI memory notes
+  while memory is on. *Find tasks* lists what a conversation asks of the person, with due days;
+  the ones ticked become their to-dos, linked back to the mail, on the row's page or else in
+  today's daily note, and so show in My tasks. Reading mail for the AI doesn't mark it as read,
+  and it follows the workspace's AI setting. Migration 0167.
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
   and calendar with a message's formatting (bold, italic, lists, links), or pasted from another
   mail program, which keeps it as it came: its images, table layout, sizes and colors, sent as

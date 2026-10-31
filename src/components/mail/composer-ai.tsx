@@ -1,7 +1,7 @@
 "use client";
 
 import type { Editor } from "@tiptap/core";
-import { ArrowLeft, Bookmark, Briefcase, CheckCheck, Languages, Minimize2, PenLine, Reply, RotateCcw, SendHorizontal, Smile, Sparkles, Square, X } from "lucide-react";
+import { ArrowLeft, Bookmark, Briefcase, CheckCheck, Database, Languages, Minimize2, PenLine, Reply, RotateCcw, SendHorizontal, Smile, Sparkles, Square, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { streamAi } from "@/components/ai-stream";
@@ -32,6 +32,7 @@ export function ComposerAi({
   answering,
   subject,
   to,
+  row,
   start,
   onClose,
 }: {
@@ -42,11 +43,14 @@ export function ComposerAi({
   answering: { id: string; reply: boolean } | null;
   subject: string;
   to: string[];
+  /** The row the answered mail's other party is: the server reads its fields with the mail. */
+  row: { title: string } | null;
   /** Runs at once when the panel opens ("Reply with AI"). */
   start: MailWriteAction | null;
   onClose: () => void;
 }) {
   const t = useTranslations("mail.ai");
+  const tm = useTranslations("mail");
   const ta = useTranslations("ai");
   const locale = useLocale();
   const [phase, setPhase] = useState<Phase>({ step: "menu" });
@@ -275,8 +279,16 @@ export function ComposerAi({
               {phase.message}
             </p>
           ) : (
-            <div className="max-h-64 overflow-y-auto px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]" aria-live="polite" aria-busy={phase.step === "running"}>
-              {result || <span className="text-fg-faint">{ta("assistant.writing")}</span>}
+            <div className="max-h-64 overflow-y-auto px-3 py-2 text-sm leading-relaxed [overflow-wrap:anywhere]" aria-live="polite" aria-busy={phase.step === "running"}>
+              {result ? (
+                // As it will go in (draftHtml escapes the model's text): lists and bold, not their marks.
+                <div
+                  className="[&_ol]:list-decimal [&_ol]:ps-5 [&_p:empty]:h-[1lh] [&_ul]:list-disc [&_ul]:ps-5"
+                  dangerouslySetInnerHTML={{ __html: draftHtml(result) }}
+                />
+              ) : (
+                <span className="text-fg-faint">{ta("assistant.writing")}</span>
+              )}
             </div>
           )}
           {phase.step === "done" && (
@@ -310,6 +322,13 @@ export function ComposerAi({
             )}
           </div>
         </div>
+      )}
+      {/* Shown with the answer too: "Reply with AI" goes straight to it. */}
+      {row && (
+        <p className="flex items-center gap-1.5 px-3 pb-2 text-xs text-fg-muted">
+          <Database className="h-3.5 w-3.5 shrink-0 text-fg-icon" aria-hidden />
+          <span className="min-w-0 truncate">{t("rowContext", { row: row.title || tm("untitledRow") })}</span>
+        </p>
       )}
     </div>
   );

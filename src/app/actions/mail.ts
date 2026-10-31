@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailDraftRef, MailDraftView, MailFolderView, MailHeldSend, MailSavedDraft, MailSendStatus, MailThreadPage, MailThreadView, MailUndoneSend } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
@@ -69,10 +69,10 @@ export async function suggestAddressesAction(input: { mailboxId: string; query: 
 
 /** Adds the tasks the AI found in a thread, as the person ticked them, as their to-dos (server/mail-client/tasks.ts). */
 export async function addMailTasksAction(input: MailTasksInput): Promise<ActionResult<AddedMailTasks>> {
-  return run((userId) => {
-    // The ids are checked where they are looked up; the tasks, day and link text are cleaned there.
+  return run(async (userId) => {
+    // The ids are checked where they are looked up; the tasks and day are cleaned there.
     if (!input || typeof input.mailboxId !== "string" || typeof input.folderId !== "string" || typeof input.threadId !== "string") throw new RowMailError("invalid");
-    return addMailTasks(userId, input);
+    return addMailTasks(userId, input, { locale: await getLocale() });
   });
 }
 

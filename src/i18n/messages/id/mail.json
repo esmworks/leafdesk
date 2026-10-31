@@ -159,6 +159,24 @@
     "friendly": "Lebih ramah",
     "use": "Gunakan ini",
     "useNote": "Menggantikan yang Anda tulis di atas tanda tangan. Urungkan akan mengembalikannya.",
-    "mailFailed": "Pesan tidak dapat dibaca dari server email. Coba lagi sebentar lagi."
+    "mailFailed": "Pesan tidak dapat dibaca dari server email. Coba lagi sebentar lagi.",
+    "rowContext": "Juga membaca kolom {row}, sebagaimana Anda melihatnya.",
+    "tasks": {
+      "find": "Cari tugas",
+      "findHint": "Cari dengan AI apa yang diminta percakapan ini dari Anda",
+      "title": "Tugas dari percakapan ini",
+      "finding": "Mencari tugas…",
+      "again": "Cari lagi",
+      "close": "Tutup",
+      "unreadable": "Jawaban AI tidak bisa dibaca. Coba lagi.",
+      "none": "AI tidak menemukan apa pun yang diminta percakapan ini dari Anda.",
+      "text": "Tugas",
+      "toRow": "Ditambahkan ke {row} sebagai tugas Anda.",
+      "toNote": "Ditambahkan ke catatan harian hari ini sebagai tugas Anda.",
+      "add": "Tambahkan ke tugas saya",
+      "addedRow": "Ditambahkan ke {row}.",
+      "addedNote": "Ditambahkan ke catatan harian hari ini.",
+      "open": "Buka"
+    }
   }
 }

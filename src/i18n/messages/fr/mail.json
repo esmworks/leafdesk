@@ -159,6 +159,24 @@
     "friendly": "Plus chaleureux",
     "use": "Utiliser",
     "useNote": "Remplace ce que vous avez écrit au-dessus de votre signature. Annuler le rétablit.",
-    "mailFailed": "Le message n'a pas pu être lu sur le serveur de messagerie. Réessayez dans un instant."
+    "mailFailed": "Le message n'a pas pu être lu sur le serveur de messagerie. Réessayez dans un instant.",
+    "rowContext": "Lit aussi les champs de {row}, tels que vous les voyez.",
+    "tasks": {
+      "find": "Trouver les tâches",
+      "findHint": "Trouver avec l'IA ce que cette conversation vous demande",
+      "title": "Tâches de cette conversation",
+      "finding": "Recherche des tâches…",
+      "again": "Chercher à nouveau",
+      "close": "Fermer",
+      "unreadable": "La réponse de l'IA n'a pas pu être lue. Réessayez.",
+      "none": "L'IA n'a rien trouvé que cette conversation vous demande.",
+      "text": "Tâche",
+      "toRow": "Elles sont ajoutées à {row} comme vos tâches à faire.",
+      "toNote": "Elles sont ajoutées à la note quotidienne du jour comme vos tâches à faire.",
+      "add": "Ajouter à mes tâches",
+      "addedRow": "Ajoutées à {row}.",
+      "addedNote": "Ajoutées à la note quotidienne du jour.",
+      "open": "Ouvrir"
+    }
   }
 }

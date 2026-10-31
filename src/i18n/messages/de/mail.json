@@ -159,6 +159,24 @@
     "friendly": "Freundlicher",
     "use": "Übernehmen",
     "useNote": "Ersetzt, was du über deiner Signatur geschrieben hast. Rückgängig holt es zurück.",
-    "mailFailed": "Die Nachricht konnte nicht vom Mailserver gelesen werden. Versuche es gleich noch einmal."
+    "mailFailed": "Die Nachricht konnte nicht vom Mailserver gelesen werden. Versuche es gleich noch einmal.",
+    "rowContext": "Liest auch die Felder von {row}, so wie du sie siehst.",
+    "tasks": {
+      "find": "Aufgaben finden",
+      "findHint": "Mit KI finden, worum dich diese Unterhaltung bittet",
+      "title": "Aufgaben aus dieser Unterhaltung",
+      "finding": "Aufgaben werden gesucht…",
+      "again": "Erneut suchen",
+      "close": "Schließen",
+      "unreadable": "Die Antwort der KI konnte nicht gelesen werden. Versuch es noch einmal.",
+      "none": "Die KI hat nichts gefunden, worum dich diese Unterhaltung bittet.",
+      "text": "Aufgabe",
+      "toRow": "Sie kommen als deine To-dos in {row}.",
+      "toNote": "Sie kommen als deine To-dos in die heutige Tagesnotiz.",
+      "add": "Zu meinen Aufgaben hinzufügen",
+      "addedRow": "Zu {row} hinzugefügt.",
+      "addedNote": "Zur heutigen Tagesnotiz hinzugefügt.",
+      "open": "Öffnen"
+    }
   }
 }
