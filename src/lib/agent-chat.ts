@@ -186,6 +186,14 @@ export type AgentChatTurn = {
 };
 
 /**
+ * A change to what a turn under way has written so far, as `/api/agents/chat/live` sends it
+ * (server/agents/live-text.ts): keep the first `at` letters, then add `add`.
+ */
+export type LiveTextEdit = { at: number; add: string };
+
+export const applyLiveEdit = (text: string, edit: LiveTextEdit) => text.slice(0, edit.at) + edit.add;
+
+/**
  * Where a person stands with an agent's chat: they may chat (`full` when they can edit the agent,
  * see lib/agent-sharing, else read-only), or not: a guest, the agent is gone (archived, or not of
  * the workspace), not shared with them, paused, the workspace's AI is off, or the agent used its

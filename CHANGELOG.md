@@ -295,6 +295,13 @@
   words of the first answer no longer wait for the code that reads the answer to load. An agent's
   answer that comes while its chat is open flows in the same way.
 
+- **An agent's chat answer shows as the agent writes it.** In an agent's chat (its page, its *Chat*
+  tab and the *Agent chat* block) the answer now grows word by word while the agent writes it,
+  under its steps, instead of appearing only when the run ends; it then stays in place and goes on
+  from where it was. What the agent wrote before calling a tool gives way to the tool's step, as in
+  the AI chat. Only the person chatting sees it, with credentials masked as in the kept answer; a
+  run taken by another server process still shows its answer whole at the end.
+
 - **Plain mail reads in the dark theme.** A message in the mail program's default colors (text,
   links, quotes and tables, as most people's mail is) now shows in the page's own colors in the Mail
   tab, so on the dark theme it no longer sits on a white card. Newsletters and other mail with its

@@ -189,7 +189,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
   `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
-  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user. Memory
+  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. A chat run streams its turns: the text so far
+  goes to an in-process store (`agents/live-text.ts`, masked as the kept answer) that
+  `/api/agents/chat/live` sends the person chatting as edits; the answer itself is still
+  `agent_run.answer`, and `agent-chat.tsx` keeps the turn under way in the same list item (and key)
+  as its answer, or the answer's text would flow in a second time. Each agent is its own user. Memory
   (`memory.ts`): runs only propose notes, a proposal with `replacesId` changes that kept note in
   place; a schedule's run reads and leaves `agent_run.handoff`, kept to the same schedule, setter,
   database and task (`sameSchedule`); `agent_memory` inbox items are one per agent and owner,

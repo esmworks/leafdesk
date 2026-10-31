@@ -175,7 +175,8 @@ in a page's **Agent chat** block (the slash menu's
 *Agent chat*, or paste a link to the agent's settings, as the *Chat* tab copies it, alone on an
 empty line). Each message the agent answers is one of its runs (shown in its *Runs* tab as a chat
 message, counted in its usage and held to its monthly limit), with the agent's instructions, skills
-and kept notes, and the conversation's 20 earlier messages. The agent doesn't read the page the
+and kept notes, and the conversation's 20 earlier messages. Its steps show as it takes them and its answer as it
+writes it. The agent doesn't read the page the
 block is on unless asked to. What it may do depends on who writes:
 
 - **Someone who can edit it** (owners included) gets what a run they ask for gets, held to their

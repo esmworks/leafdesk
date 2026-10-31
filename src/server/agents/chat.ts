@@ -404,6 +404,23 @@ export async function chatTurn(userId: string, workspaceId: string, runId: strin
   };
 }
 
+/**
+ * Whether the person may follow what a chat run is writing (live-text.ts): their own chat's run,
+ * in a workspace they may enter, as chatTurn shows it to them.
+ */
+export async function mayFollowChatTurn(userId: string, workspaceId: string, runId: string): Promise<boolean> {
+  try {
+    await requireMembership(userId, workspaceId);
+  } catch {
+    return false;
+  }
+  const [run] = await db
+    .select({ id: agentRun.id })
+    .from(agentRun)
+    .where(and(eq(agentRun.id, runId), eq(agentRun.workspaceId, workspaceId), sql`${agentRun.source}->>'kind' = 'chat'`, sql`${agentRun.source}->>'userId' = ${userId}`));
+  return Boolean(run);
+}
+
 /** The workspace's agents shared with the person, for a block (not a guest's) to show: names, nothing of their settings. */
 export async function chatAgents(userId: string, workspaceId: string) {
   const { role } = await standing(userId, workspaceId, "");

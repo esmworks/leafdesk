@@ -78,11 +78,12 @@ import { hasAgentLevel } from "@/lib/agent-sharing";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
 import { redactError, redactText, redactValue } from "@/lib/redact";
+import { ANSWER_CHARS, startLiveText, type LiveTextWriter } from "./live-text";
 import { threadBefore } from "@/lib/comments";
 import { agentWebCallAsks, scheduledWebCallGoes } from "@/lib/web-calls";
 import { AccessError, findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
-import { aiConfig, AiError, complete, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
+import { aiConfig, AiError, complete, isAiError, promptRoomFor, stream, takeWorkspaceCapacity, type AiMessage, type AiRequest, type AiResult, type AiTool, type AiToolCall } from "@/server/ai";
 import { agentChatPrompt, agentEventPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryAvailable, memoryForPrompt } from "@/server/ai-memory";
@@ -314,7 +315,7 @@ async function finish(run: Run, values: Ending) {
       code: values.code ?? null,
       error: values.error ? redactText(values.error).slice(0, 500) : null,
       ...(values.steps ? { steps: redactValue(values.steps) } : {}),
-      ...(values.answer !== undefined ? { answer: redactText(values.answer).slice(0, 8_000) } : {}),
+      ...(values.answer !== undefined ? { answer: redactText(values.answer).slice(0, ANSWER_CHARS) } : {}),
       ...(values.usage !== undefined ? { usage: values.usage } : {}),
       state: null,
       pending: null,
@@ -523,10 +524,13 @@ export async function processRun(run: Run): Promise<void> {
   // the agent, made at once like its other changes there; none a person is asked about each time.
   // Opened once the agent looks for one.
   const moreTools = lazyMoreTools(agent.userId, { writes: chatWrites, eachTime: false });
-  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites, moreTools }))
+  // A chat's answer is shown to the person as it is written (live-text.ts).
+  const live = run.source.kind === "chat" ? startLiveText(run.id) : null;
+  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites, moreTools, live }))
     .catch((error: unknown) => ({ error }))
     .finally(() => {
       clearInterval(heartbeat);
+      live?.end();
       void moreTools.close();
     });
   if ("error" in outcome) {
@@ -597,7 +601,8 @@ async function converse(
     trusted,
     chatWrites,
     moreTools: allMoreTools,
-  }: { member: string | null; bound: string | null; trusted: boolean; chatWrites: boolean; moreTools: ReturnType<typeof lazyMoreTools> },
+    live,
+  }: { member: string | null; bound: string | null; trusted: boolean; chatWrites: boolean; moreTools: ReturnType<typeof lazyMoreTools>; live: LiveTextWriter | null },
 ): Promise<Ending | Paused> {
   const ctx: ops.OperationContext = { userId: agent.userId, actor: { userId: agent.userId, model: true } };
   const rowRun = isRowRun(run.source);
@@ -1092,16 +1097,19 @@ async function converse(
     const last = isLastTurn(round, usage.costUsd, limitUsd);
     let result: AiResult;
     try {
-      result = await complete({
-        feature,
-        userId: agent.userId,
-        workspaceId: run.workspaceId,
-        skipRateLimit: true,
-        system,
-        messages,
-        tools,
-        sessionId: run.id,
-      });
+      const request: AiRequest = { feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, messages, tools, sessionId: run.id };
+      if (live) {
+        // A chat's turn is streamed: its text so far goes to the person as it comes.
+        live.clear();
+        const turn = stream(request);
+        let text = "";
+        for await (const event of turn) {
+          if (event.type !== "text") continue;
+          text += event.delta;
+          live.write(text);
+        }
+        result = await turn.result();
+      } else result = await complete(request);
     } catch (error) {
       // Too long for the model: old tool results make room (the agent can call the tool again),
       // and the same turn is asked again.
@@ -1134,8 +1142,11 @@ async function converse(
     }
     if (!result.toolCalls.length || last) {
       finalAnswer = result.text;
+      live?.write(finalAnswer, true);
       break;
     }
+    // What it wrote before calling tools becomes a thought step: the person's answer starts over.
+    live?.clear();
     const thought = redactText(result.text.replace(/\s+/g, " ").trim());
     if (thought) steps.push({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
     messages.push(result.message);
