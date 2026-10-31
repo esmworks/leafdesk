@@ -278,6 +278,9 @@ export type MailBody = {
   quotedHtml: string | null;
   /** Remote images the HTML would load, left out. */
   blockedImages: number;
+  /** The HTML, and the quote taken out of it, are in default colors (server/mail-client/plain-html.ts): shown in the page's own. */
+  plain: boolean;
+  quotedPlain: boolean;
   /** Why remote images load in the HTML (lib/mail-images.ts); null while they are left out. */
   images: MailImagesFrom | null;
   attachments: MailAttachmentView[];

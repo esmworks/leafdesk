@@ -1,4 +1,5 @@
 import type { Config } from "dompurify";
+import { isPlainHtml } from "./plain-html";
 
 /**
  * A message's HTML made safe to show: no scripts, handlers, forms, frames or other documents, and
@@ -25,9 +26,10 @@ const CSS_REMOTE_URL = /url\(\s*(['"]?)\s*(https?:)?\/\/[^)]*\)/gi;
 
 /**
  * `quotedHtml`: the earlier mail an answer quotes at its end, taken out of `html` to be shown when
- * asked for (null when there is none, or nothing comes before it).
+ * asked for (null when there is none, or nothing comes before it). `plain` and `quotedPlain`: each
+ * part is in the mail program's default colors (plain-html.ts), drawn in the page's own.
  */
-export type CleanHtml = { html: string; quotedHtml: string | null; blockedImages: number };
+export type CleanHtml = { html: string; quotedHtml: string | null; blockedImages: number; plain: boolean; quotedPlain: boolean };
 
 export async function cleanMailHtml(raw: string, options: { images: boolean; inline: Map<string, string> }): Promise<CleanHtml> {
   const [{ JSDOM, VirtualConsole }, { default: createDOMPurify }] = await Promise.all([import("jsdom"), import("dompurify")]);
@@ -79,7 +81,8 @@ export async function cleanMailHtml(raw: string, options: { images: boolean; inl
   const document = new window.DOMParser().parseFromString(html, "text/html");
   for (const img of document.querySelectorAll("img[data-blocked]")) hideHolder(img);
   const quoted = takeQuote(document);
-  return { html: document.documentElement.outerHTML, quotedHtml: quoted, blockedImages: blocked };
+  const quotedPlain = quoted !== null && isPlainHtml(new window.DOMParser().parseFromString(quoted, "text/html"));
+  return { html: document.documentElement.outerHTML, quotedHtml: quoted, blockedImages: blocked, plain: isPlainHtml(document), quotedPlain };
 }
 
 /**

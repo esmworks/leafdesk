@@ -271,6 +271,11 @@
 
 ### Changed
 
+- **Plain mail reads in the dark theme.** A message in the mail program's default colors (text,
+  links, quotes and tables, as most people's mail is) now shows in the page's own colors in the Mail
+  tab, so on the dark theme it no longer sits on a white card. Newsletters and other mail with its
+  own colors, backgrounds or pictures keep their white page, which they were made for.
+
 - **One hourly sending limit per mailbox.** The 100 messages an hour a mailbox may send now count
   the Mail tab's messages and emails written on rows together, kept in the database, so a restart
   no longer starts the count over. Migration 0169 (`mail_send`).
