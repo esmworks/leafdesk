@@ -30,7 +30,7 @@ export type MailTasksInput = {
 };
 
 /** Where the tasks went: the page, and whether it is the row's (else the daily note). */
-export type AddedMailTasks = { pageId: string; workspaceId: string; row: boolean; count: number };
+export type AddedMailTasks = { pageId: string; workspaceId: string; row: boolean };
 
 /** `locale`: the person's, for a daily note made now (its title). */
 export async function addMailTasks(userId: string, input: MailTasksInput, { locale }: { locale?: string } = {}): Promise<AddedMailTasks> {
@@ -67,5 +67,5 @@ export async function addMailTasks(userId: string, input: MailTasksInput, { loca
     ],
   }));
   await getCollab().appendBlocks(target.pageId, blocks, actor, true);
-  return { ...target, workspaceId: box.workspaceId, count: blocks.length };
+  return { ...target, workspaceId: box.workspaceId };
 }
