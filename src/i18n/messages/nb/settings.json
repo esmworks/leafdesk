@@ -652,6 +652,7 @@
         "redo": "Kallet til «{tool}» på {connection} ble sendt tilbake; ingenting ble sendt",
         "expired": "Kallet til «{tool}» på {connection} fikk tidsavbrudd; ingenting ble sendt",
         "refused": "Kallet til «{tool}» på {connection} ble avvist, siden ingen kunne godkjenne det; ingenting ble sendt",
+        "afterMail": "Kallet av «{tool}» på {connection} ble holdt tilbake: etter å ha lest e-post leser en kjøring bare sider og skriver utkast; ingenting ble sendt",
         "approved": "godkjent",
         "answered": "besvart av en eier",
         "note": "Merknad: {note}"
@@ -993,6 +994,12 @@
       "send": "Send forespørsel",
       "update": "Oppdater forespørsel",
       "waiting": "Du ba om {tokens} tokener i måneden den {date}. Venter på en eier."
+    },
+    "mail": {
+      "title": "E-posten din",
+      "description": "Åpne en postkasse slik at denne agenten kan søke i og lese e-posten din og lagre utkast der: i samtalene dine med den her og i tidsplaner du setter opp uten en database å passe på.",
+      "open": "Åpne {address} for denne agenten",
+      "note": "Den sender aldri e-post: du sender utkastene dens fra fanen E-post. Når en kjøring har lest e-post, leser den bare sider og skriver utkast. Andre som bruker eller redigerer denne agenten, ser aldri e-posten din."
     }
   },
   "analytics": {

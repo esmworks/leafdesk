@@ -1,7 +1,7 @@
 // Client-safe: shared by the AI chat's server side (src/server/ai-chat.ts, /api/ai/chat) and its
 // panel (src/components/ai-chat).
 
-import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMemoryRecord, ChatStepRecord, ChatToolRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
+import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMailRecord, ChatMemoryRecord, ChatStepRecord, ChatToolRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
@@ -104,7 +104,8 @@ export type ChatStepView =
   | ChatToolRecord
   | { kind: "thought"; text: string }
   | { kind: "plan"; questions: string[] }
-  | ChatWebRecord;
+  | ChatWebRecord
+  | ChatMailRecord;
 
 /**
  * A change the chat made, the person declined or that failed: `target` is the database a row went
@@ -128,13 +129,16 @@ export type ChatWriteView = {
  * writes, if any. A call to a connection's tool that changes something (asked in every mode):
  * the connection, the tool as title and what it sends as content. A call to one of Leafdesk's
  * further tools that changes something (`tool`): its title, and what it is given as content. A web page to read or a web
- * search (asked in every mode, see lib/web-calls.ts): the address or the words as title.
+ * search (asked in every mode, see lib/web-calls.ts): the address or the words as title. A mail
+ * draft (`draftMail`, asked in every mode): its subject as title, its text as content and `mail`.
  */
 export type ChatActionView = {
   /** A change to the workspace, a note about the person to keep or drop (title: its text), a call to a connection's tool, or a web call. */
-  action: ChatWriteAction | "remember" | "forget" | "connection" | "tool" | "readWeb" | "searchWeb";
+  action: ChatWriteAction | "remember" | "forget" | "connection" | "tool" | "readWeb" | "searchWeb" | "draftMail";
   /** A call to a connection's tool: the connection. */
   connection?: { name: string; icon: string | null };
+  /** A draft of the person's mail (server/ai-chat-mail.ts, asked in every mode): who it is from and to; `title` its subject, `content` its text. */
+  mail?: { from: string; to: string[]; cc: string[] };
   /** Asked about every time: "don't ask again" isn't offered (server/ai-more-tools.ts ASKED_EACH_TIME). */
   eachTime?: boolean;
   target: ChatPageView;

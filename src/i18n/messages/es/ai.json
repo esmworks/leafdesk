@@ -317,6 +317,18 @@
         "done": "Usó {tool}",
         "failed": "{tool} falló",
         "declined": "Rechazado: {tool}"
+      },
+      "mail": {
+        "searched": "Se buscó en el correo «{query}» · {count, plural, =0 {sin resultados} one {# conversación} other {# conversaciones}}",
+        "read": "Correo leído",
+        "noSubject": "(sin asunto)",
+        "earlier": "En esta conversación ya se leyó correo, así que esta respuesta solo lee páginas y redacta borradores",
+        "to": "para {to}",
+        "draft": {
+          "done": "Borrador guardado:",
+          "declined": "Borrador rechazado:",
+          "failed": "No se pudo guardar el borrador:"
+        }
       }
     },
     "stopped": "Detenido.",
@@ -348,7 +360,8 @@
         "searchWeb": "¿Buscar esto en la web?",
         "addComment": "¿Añadir este comentario?",
         "createDatabase": "¿Añadir esta base de datos?",
-        "createForm": "¿Añadir este formulario?"
+        "createForm": "¿Añadir este formulario?",
+        "draftMail": "¿Guardar este correo como borrador?"
       },
       "in": "En",
       "row": "Fila",
@@ -372,7 +385,11 @@
         "anonymous": "Enlace público: cualquiera con el enlace puede responder sin iniciar sesión"
       },
       "letterhead": "Membrete: {name}",
-      "fileSource": "Filas de: {name}"
+      "fileSource": "Filas de: {name}",
+      "draftMailHint": "Va a tu carpeta Borradores: no se envía nada hasta que lo envíes desde Correo",
+      "mailFrom": "De",
+      "mailTo": "Para",
+      "mailCc": "CC"
     },
     "mode": {
       "label": "Cambios",

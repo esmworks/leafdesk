@@ -647,6 +647,7 @@
         "redo": "A chamada de “{tool}” em {connection} foi devolvida; nada foi enviado",
         "expired": "A chamada de “{tool}” em {connection} esgotou o tempo; nada foi enviado",
         "refused": "A chamada de “{tool}” em {connection} foi recusada, pois ninguém podia aprová-la; nada foi enviado",
+        "afterMail": "A chamada de “{tool}” em {connection} foi retida: depois de ler e-mails, uma execução só lê páginas e escreve rascunhos; nada foi enviado",
         "approved": "aprovada",
         "answered": "respondida por um proprietário",
         "note": "Nota: {note}"
@@ -993,6 +994,12 @@
       "send": "Enviar pedido",
       "update": "Atualizar pedido",
       "waiting": "Você pediu {tokens} tokens por mês em {date}. Aguardando um proprietário."
+    },
+    "mail": {
+      "title": "Seu e-mail",
+      "description": "Abra uma caixa para que este agente possa pesquisar e ler seus e-mails e salvar rascunhos nela: nas suas conversas com ele aqui e nos agendamentos que você define sem um banco de dados a cuidar.",
+      "open": "Abrir {address} para este agente",
+      "note": "Ele nunca envia e-mails: você envia os rascunhos dele pela aba E-mail. Depois que uma execução lê e-mails, ela só lê páginas e escreve rascunhos. Outras pessoas que usam ou editam este agente nunca veem seus e-mails."
     }
   },
   "analytics": {

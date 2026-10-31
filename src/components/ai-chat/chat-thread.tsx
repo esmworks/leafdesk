@@ -1203,6 +1203,8 @@ function ChangePrompt({
   const call = action.action === "connection" || action.action === "tool";
   // A web call: the address or the words, exactly as they would leave the workspace.
   const web = action.action === "readWeb" || action.action === "searchWeb";
+  // A mail draft: shown whole, every recipient and all of its text, as it would be saved.
+  const draft = action.action === "draftMail";
   const decisions = memory || action.action === "connection" || action.eachTime || web ? EACH_TIME_DECISIONS : DECISIONS;
   const question = action.action === "connection" ? t("question.connection", { connection: action.connection?.name ?? "" }) : t(`question.${action.action}`);
   useEffect(() => {
@@ -1249,6 +1251,8 @@ function ChangePrompt({
             action.action === "tool" ? t("toolHint") : t("connectionHint", { connection: action.connection?.name ?? "" })
           ) : web ? (
             t(action.action === "readWeb" ? "readWebHint" : "searchWebHint")
+          ) : draft ? (
+            t("draftMailHint")
           ) : action.target ? (
             <>
               {t(action.action === "updateRow" ? "row" : action.action === "editPage" || makesFile(action.action) || comment ? "page" : "in")}
@@ -1258,6 +1262,24 @@ function ChangePrompt({
             t("topLevel")
           )}
         </p>
+        {action.mail && (
+          <dl className="grid grid-cols-[auto_1fr] gap-x-2 text-xs">
+            {(
+              [
+                ["mailFrom", [action.mail.from]],
+                ["mailTo", action.mail.to],
+                ["mailCc", action.mail.cc],
+              ] as const
+            ).map(([label, addresses]) =>
+              addresses.length ? (
+                <Fragment key={label}>
+                  <dt className="text-fg-muted">{t(label)}</dt>
+                  <dd className="min-w-0 break-all">{addresses.join(", ")}</dd>
+                </Fragment>
+              ) : null,
+            )}
+          </dl>
+        )}
         {action.source && <p className="text-xs break-words text-fg-muted">{t("fileSource", { name: action.source })}</p>}
         {action.letterhead && <p className="text-xs break-words text-fg-muted">{t("letterhead", { name: action.letterhead })}</p>}
         {action.fromFile && <p className="text-xs text-fg-muted">{t("fromFile", { rows: action.fromFile.rows, name: action.fromFile.name })}</p>}
@@ -1290,6 +1312,8 @@ function ChangePrompt({
         {action.content &&
           (call ? (
             <pre className="max-h-40 overflow-auto rounded bg-bg-subtle px-2 py-1 text-xs break-all whitespace-pre-wrap text-fg-muted">{action.content}</pre>
+          ) : draft ? (
+            <p className="max-h-60 overflow-y-auto rounded bg-bg-subtle px-2 py-1 text-xs break-words whitespace-pre-wrap text-fg">{action.content}</p>
           ) : (
             <p className="line-clamp-4 rounded bg-bg-subtle px-2 py-1 text-xs whitespace-pre-wrap text-fg-muted">{action.content}</p>
           ))}

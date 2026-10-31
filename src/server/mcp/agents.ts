@@ -30,6 +30,7 @@ import {
   type AgentStepRecord,
   type AgentUsageMonth,
   type AgentView,
+  readEmail,
 } from "@/lib/agents";
 import { MAX_AGENT_MAIL_RECIPIENTS } from "@/lib/agent-mail";
 import { MAX_AGENT_REQUEST, type AgentDraft, type DraftTrigger } from "@/lib/agent-draft";
@@ -737,6 +738,13 @@ export function describeAgentStep(step: AgentStepRecord) {
       };
     case "thought":
       return { kind: "thought", summary: step.text };
+    // Never what the mail said: describeAgentRun leaves a run that read email out anyway.
+    case "mail":
+      return {
+        kind: "mail",
+        action: step.action,
+        summary: { search: "Searched the user's email", read: "Read an email", draft: "Saved an email draft", earlier: "Went on from a chat that read email" }[step.action],
+      };
     case "memory": {
       const how = { remember: "Remembered", propose: "Proposed a note for an owner to keep", forget: "Dropped a note", handoff: "Left a note for the schedule's next run" }[step.action];
       return { kind: "memory", action: step.action, summary: `${how}: ${quote(short(step.text))}` };
@@ -778,6 +786,7 @@ export function describeAgentStep(step: AgentStepRecord) {
         redo: "Sent back to redo (not sent):",
         expired: "No one answered (not sent):",
         refused: "Refused, its address being in neither the schedule's task nor the run's searches (not sent):",
+        afterMail: "Held back after reading email (not sent):",
       }[step.outcome];
       return {
         kind: "tool",
@@ -858,6 +867,8 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
 
 /** A run as list_agent_runs returns it. */
 export function describeAgentRun(workspaceId: string, run: AgentRunView) {
+  // What a run that read email did and said shows only in the app (lib/agents.ts readEmail).
+  const mailed = readEmail(run.steps);
   return {
     id: run.id,
     status: run.status,
@@ -876,8 +887,9 @@ export function describeAgentRun(workspaceId: string, run: AgentRunView) {
           },
         }
       : {}),
-    steps: run.steps.map(describeAgentStep),
-    answer: run.answer,
+    steps: mailed ? [] : run.steps.map(describeAgentStep),
+    answer: mailed ? "" : run.answer,
+    ...(mailed ? { email: "This run read the user's email, or went on from a chat that had: its steps and answer show only in Leafdesk's app." } : {}),
     ...(run.usage
       ? {
           usage: {

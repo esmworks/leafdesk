@@ -1212,6 +1212,13 @@
       "when": 1793474697447,
       "tag": "0172_agent_tasks",
       "breakpoints": true
+    },
+    {
+      "idx": 173,
+      "version": "7",
+      "when": 1793477158898,
+      "tag": "0173_agent_mailbox",
+      "breakpoints": true
     }
   ]
 }

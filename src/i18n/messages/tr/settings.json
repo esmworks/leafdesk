@@ -647,6 +647,7 @@
         "redo": "{connection} üzerindeki “{tool}” çağrısı geri gönderildi; hiçbir şey gönderilmedi",
         "expired": "{connection} üzerindeki “{tool}” çağrısının süresi doldu; hiçbir şey gönderilmedi",
         "refused": "{connection} üzerindeki “{tool}” çağrısı, onaylayacak kimse olmadığından reddedildi; hiçbir şey gönderilmedi",
+        "afterMail": "{connection} üzerindeki “{tool}” çağrısı durduruldu: e-posta okuyan bir çalışma bundan sonra yalnızca sayfa okur ve taslak yazar; hiçbir şey gönderilmedi",
         "approved": "onaylandı",
         "answered": "bir sahip yanıtladı",
         "note": "Not: {note}"
@@ -993,6 +994,12 @@
       "send": "İsteği gönder",
       "update": "İsteği güncelle",
       "waiting": "{date} tarihinde ayda {tokens} token istediniz. Bir sahibin yanıtı bekleniyor."
+    },
+    "mail": {
+      "title": "E-postan",
+      "description": "Bu ajanın bir posta kutusunda arama yapıp e-postaları okuyabilmesi ve oraya taslak kaydedebilmesi için kutuyu aç: burada onunla yaptığın sohbetlerde ve kurduğun, bir veritabanına bağlı olmayan zamanlamalarda.",
+      "open": "{address} kutusunu bu ajana aç",
+      "note": "Asla e-posta göndermez: taslaklarını Posta sekmesinden sen gönderirsin. Bir çalışma e-posta okuduktan sonra yalnızca sayfaları okur ve taslak yazar. Bu ajanı kullanan veya düzenleyen diğer kişiler postanı hiç görmez."
     }
   },
   "analytics": {

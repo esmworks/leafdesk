@@ -652,6 +652,7 @@
         "redo": "Its call of “{tool}” on {connection} was sent back; nothing was sent",
         "expired": "Its call of “{tool}” on {connection} ran out of time; nothing was sent",
         "refused": "Its call of “{tool}” on {connection} was refused, as no one could approve it; nothing was sent",
+        "afterMail": "Its call of “{tool}” on {connection} was held back: after reading email, a run only reads pages and drafts email; nothing was sent",
         "approved": "approved",
         "answered": "answered by an owner",
         "note": "Note: {note}"
@@ -993,6 +994,12 @@
       "send": "Send request",
       "update": "Update request",
       "waiting": "You asked for {tokens} tokens a month on {date}. Waiting for an owner."
+    },
+    "mail": {
+      "title": "Your email",
+      "description": "Open a mailbox to let this agent search and read its mail and save drafts in it: in your chats with it here, and in schedules you set that look after no database.",
+      "open": "Open {address} to this agent",
+      "note": "It never sends email: you send its drafts from the Mail tab. Once a run has read email, it only reads pages and drafts. Others who use or edit this agent never see your mail."
     }
   },
   "analytics": {

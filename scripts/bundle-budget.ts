@@ -125,13 +125,17 @@ import { gzipSync } from "node:zlib";
  * opened) adds about 3 kB to all first loads together and under 1 kB to any page's: the thread's
  * new code moves shared modules between chunks, copying a few server-action stubs into more of them.
  *
+ * The AI chat on the person's mail (the steps of a search, read or draft, and a draft's approval
+ * card with its sender and recipients, in ChatThread) adds under 0.5 kB to all first loads together.
  * Snoozing in the Mail tab (the list's snooze times, its key and buttons; the picker loads when
  * opened) and the composer's snippets menu (loaded with the composer) add about 1 kB to the Mail
  * tab's route and under 1 kB to a page's, and about 5 kB to all first loads together: the changed
  * graph takes My tasks' list out of a chunk the home and tasks routes shared, so each now carries
  * its own copy (about 2 kB).
+ * Agents' access to your email adds a quarter of a kB to a page's route: the agent settings' mail
+ * section loads when shown, leaving its loader and the rule of which runs read mail.
  */
-const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1226, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 793, firstLoadShared: 1227, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

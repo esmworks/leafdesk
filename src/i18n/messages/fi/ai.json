@@ -317,6 +317,18 @@
         "done": "Käytti työkalua {tool}",
         "failed": "{tool} epäonnistui",
         "declined": "Hylätty: {tool}"
+      },
+      "mail": {
+        "searched": "Haettiin postista ”{query}” · {count, plural, =0 {ei tuloksia} one {# keskustelu} other {# keskustelua}}",
+        "read": "Luettiin sähköposti",
+        "noSubject": "(ei aihetta)",
+        "earlier": "Tässä keskustelussa on jo luettu sähköpostia, joten tämä vastaus vain lukee sivuja ja kirjoittaa luonnoksia",
+        "to": "vastaanottaja {to}",
+        "draft": {
+          "done": "Luonnos tallennettu:",
+          "declined": "Luonnos hylätty:",
+          "failed": "Luonnosta ei voitu tallentaa:"
+        }
       }
     },
     "stopped": "Pysäytetty.",
@@ -348,7 +360,8 @@
         "searchWeb": "Haetaanko tätä verkosta?",
         "addComment": "Lisätäänkö tämä kommentti?",
         "createDatabase": "Lisätäänkö tämä tietokanta?",
-        "createForm": "Lisätäänkö tämä lomake?"
+        "createForm": "Lisätäänkö tämä lomake?",
+        "draftMail": "Tallennetaanko tämä sähköposti luonnokseksi?"
       },
       "in": "Sijainti",
       "row": "Rivi",
@@ -372,7 +385,11 @@
         "anonymous": "Julkinen linkki: kuka tahansa linkin saanut voi vastata kirjautumatta sisään"
       },
       "letterhead": "Kirjelomake: {name}",
-      "fileSource": "Rivit: {name}"
+      "fileSource": "Rivit: {name}",
+      "draftMailHint": "Se menee Luonnokset-kansioon: mitään ei lähetetä ennen kuin lähetät sen Postista",
+      "mailFrom": "Lähettäjä",
+      "mailTo": "Vastaanottaja",
+      "mailCc": "Kopio"
     },
     "mode": {
       "label": "Muutokset",

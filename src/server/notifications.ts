@@ -30,7 +30,7 @@ import {
 import { addReactor, parseReactors, reactionSummary, removeReactor, type Reactor } from "@/lib/comment-reactions";
 import { avatarSrc } from "@/lib/avatar";
 import { isAiLimitNotice, type AiLimitNotice } from "@/lib/agent-guardrails";
-import { callConnectionName, callToSend, inboxCallInput, runPageOf, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
+import { callConnectionName, callToSend, inboxCallInput, readEmail, runPageOf, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
 import { readableProperties, referencedIds, resolveValue, type ActivityValue } from "@/lib/row-activity";
@@ -850,6 +850,8 @@ export type InboxAgentReport = {
   code: AgentRunCode | null;
   /** The start of the agent's answer; null when the run's row, database or page is one the user can no longer open. */
   text: string | null;
+  /** It read the user's email (lib/agents.ts readEmail): the app shows its report, connected apps don't. */
+  email: boolean;
   /**
    * A task's report (agents/handoff.ts `assign_agent`): the agent that gave the task, where the
    * report opens (its chat, which the person had the run with), null once it is gone.
@@ -1309,6 +1311,7 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
       status: agentRun.status,
       code: agentRun.code,
       answer: agentRun.answer,
+      steps: agentRun.steps,
       source: agentRun.source,
       agentId: agentRun.agentId,
       agentName: workspaceAgent.name,
@@ -1333,6 +1336,7 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
       status: r.status,
       code: r.code ?? null,
       text: about && !open.has(about) ? null : snippetOf(markdownPlain(r.answer), REPORT_CHARS),
+      email: readEmail(r.steps),
       ...(r.source.kind === "handoff" ? { from: r.giverId ? { agentId: r.giverId, agentName: r.giverName ?? "" } : null } : {}),
     });
   }

@@ -652,6 +652,7 @@
         "redo": "Dess anrop av ”{tool}” på {connection} skickades tillbaka; inget skickades",
         "expired": "Dess anrop av ”{tool}” på {connection} hann inte besvaras; inget skickades",
         "refused": "Dess anrop av ”{tool}” på {connection} avvisades, eftersom ingen kunde godkänna det; inget skickades",
+        "afterMail": "Anropet av ”{tool}” på {connection} hölls tillbaka: efter att ha läst e-post läser en körning bara sidor och skriver utkast; inget skickades",
         "approved": "godkänt",
         "answered": "besvarat av en ägare",
         "note": "Anteckning: {note}"
@@ -993,6 +994,12 @@
       "send": "Skicka begäran",
       "update": "Uppdatera begäran",
       "waiting": "Du bad om {tokens} tokens i månaden den {date}. Väntar på en ägare."
+    },
+    "mail": {
+      "title": "Din e-post",
+      "description": "Öppna en brevlåda så att den här agenten kan söka i och läsa din e-post och spara utkast där: i dina chattar med den här och i scheman du ställer in som inte sköter någon databas.",
+      "open": "Öppna {address} för den här agenten",
+      "note": "Den skickar aldrig e-post: du skickar dess utkast från fliken Mail. När en körning har läst e-post läser den bara sidor och skriver utkast. Andra som använder eller redigerar agenten ser aldrig din e-post."
     }
   },
   "analytics": {

@@ -311,6 +311,14 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   the writer reads the answered mail's row (`rowOfMessage`, the composer's `MailMessageView.row`, then `operations.ts` `visibleRow` as the person) and the person's
   `ai-memory.ts` notes; a thread's tasks are parsed in the browser (`lib/mail-tasks.ts`) and added by
   `mail-client/tasks.ts` as to-dos mentioning the person (row page, else daily note), checked again there;
+  the AI chat's `search_mail`, `read_mail` and `draft_mail` are `server/ai-chat-mail.ts` (only the person's
+  own chat in the app: never research, connected apps such as the Telegram bot or MCP; reads make
+  the rest of the answer ask, drafts ask in every mode and never send); an agent gets them only for
+  mailboxes their owner opened to it (`agents/mail.ts`, table `agent_mailbox`) on runs `lib/agents.ts`
+  `mailRun` allows (shown to that person alone, in the app); its drafts are saved unasked, so
+  `prepareMailDraft` checks recipients, and once a run read mail `run.ts` refuses all but page reads
+  and drafts (`state.mailRead`), as in the chat's later runs (`lib/agents.ts` `readEmail` on their
+  history, `chat-store.ts`); MCP and the REST API leave out what such runs did and answered;
   the composer's writer `composer-ai.tsx` replaces only `writing-range.ts`'s part, above the
   signature, keeping its pictures), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
@@ -451,7 +459,9 @@ because they are separate module graphs.
 - **Texts.** No user-facing string in code. Add the key to `src/i18n/messages/en/<ns>.json` and to
   every other locale (CONTRIBUTING *When English changes*); a new namespace file also needs a line
   in `src/i18n/messages/en.ts`. ICU MessageFormat; keys are type-checked. Client components use
-  `useTranslations`, server code `getTranslations` from `next-intl/server`.
+  `useTranslations`, server code `getTranslations` from `next-intl/server`; code that also runs
+  outside a request (agents' runs, background jobs) uses `createTranslator` with `loadMessages`
+  (`web-clip.ts`), since `getTranslations` throws there.
 - **Schema and migrations.** Change `src/db/schema/*`, then `pnpm db:generate`. Hand-written SQL
   (functions, triggers) goes after the generated statements behind `--> statement-breakpoint`, or
   in `drizzle-kit generate --custom --name <name>`. The server never migrates on start: run

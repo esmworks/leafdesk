@@ -40,6 +40,7 @@ import { AccessError, isGuest, pageVisibleTo, requireMembership, requirePageAcce
 import { isAiError, takeRateLimit } from "@/server/ai";
 import { viewStep } from "@/server/ai-chat";
 import { aiAvailable } from "@/server/ai-writing";
+import { connectedAppCall } from "@/server/connected-app";
 import { approversOf } from "./approvers";
 import { AgentError } from "./errors";
 import { kickAgents } from "./kick";
@@ -198,7 +199,7 @@ export async function sendAgentChat(
       .values({
         agentId: agent!.id,
         workspaceId: input.workspaceId,
-        source: { kind: "chat", userId, conversationId: conversation.id },
+        source: { kind: "chat", userId, conversationId: conversation.id, ...(connectedAppCall(userId) ? { fromApp: true } : {}) },
         context: { actorId: userId, ...(isTimeZone(input.timeZone) ? { timeZone: input.timeZone } : {}) },
         prompt: message,
       })

@@ -647,6 +647,7 @@
         "redo": "Su llamada a «{tool}» en {connection} se devolvió; no se envió nada",
         "expired": "Su llamada a «{tool}» en {connection} caducó; no se envió nada",
         "refused": "Su llamada a «{tool}» en {connection} se rechazó porque nadie podía aprobarla; no se envió nada",
+        "afterMail": "Su llamada a «{tool}» en {connection} se retuvo: tras leer correo, una ejecución solo lee páginas y redacta borradores; no se envió nada",
         "approved": "aprobada",
         "answered": "respondida por un propietario",
         "note": "Nota: {note}"
@@ -993,6 +994,12 @@
       "send": "Enviar solicitud",
       "update": "Actualizar solicitud",
       "waiting": "Pediste {tokens} tokens al mes el {date}. A la espera de un propietario."
+    },
+    "mail": {
+      "title": "Tu correo",
+      "description": "Abre un buzón para que este agente pueda buscar y leer su correo y guardar borradores en él: en tus chats con él aquí y en las programaciones que configures sin una base de datos a su cargo.",
+      "open": "Abrir {address} a este agente",
+      "note": "Nunca envía correos: tú envías sus borradores desde la pestaña Correo. Cuando una ejecución ha leído correo, solo lee páginas y escribe borradores. Las demás personas que usan o editan este agente nunca ven tu correo."
     }
   },
   "analytics": {

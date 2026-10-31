@@ -317,6 +317,18 @@
         "done": "Ha usato {tool}",
         "failed": "{tool} non riuscito",
         "declined": "Rifiutato: {tool}"
+      },
+      "mail": {
+        "searched": "Cercato nella posta «{query}» · {count, plural, =0 {nessun risultato} one {# conversazione} other {# conversazioni}}",
+        "read": "Email letta",
+        "noSubject": "(nessun oggetto)",
+        "earlier": "In questa conversazione sono già state lette email, quindi questa risposta legge solo pagine e scrive bozze",
+        "to": "a {to}",
+        "draft": {
+          "done": "Bozza salvata:",
+          "declined": "Bozza rifiutata:",
+          "failed": "Impossibile salvare la bozza:"
+        }
       }
     },
     "stopped": "Interrotto.",
@@ -348,7 +360,8 @@
         "searchWeb": "Cercare questo sul web?",
         "addComment": "Aggiungere questo commento?",
         "createDatabase": "Aggiungere questo database?",
-        "createForm": "Aggiungere questo modulo?"
+        "createForm": "Aggiungere questo modulo?",
+        "draftMail": "Salvare questa email come bozza?"
       },
       "in": "In",
       "row": "Riga",
@@ -372,7 +385,11 @@
         "anonymous": "Link pubblico: chiunque abbia il link può rispondere senza accedere"
       },
       "letterhead": "Carta intestata: {name}",
-      "fileSource": "Righe di: {name}"
+      "fileSource": "Righe di: {name}",
+      "draftMailHint": "Va nella cartella Bozze: non viene inviato nulla finché non la invii da Posta",
+      "mailFrom": "Da",
+      "mailTo": "A",
+      "mailCc": "Cc"
     },
     "mode": {
       "label": "Modifiche",

@@ -284,6 +284,21 @@ rules, automations, agents, follow-up sequences) are asked about every time, als
 only* finds only the tools that read. Each call shows as a step. `read_page` also reads the
 `leafdesk://docs/<topic>` pages the tools' inputs point at.
 
+**Your mail in the chat.** Where you may use the Mail tab (email is on in the workspace and you
+have a mailbox there), the chat can search your mail (`search_mail`: all your mailboxes, every
+folder but the trash and junk, with the Mail tab's search words such as `from:`, `subject:` and
+`after:`) and read a thread (`read_mail`: its last eight messages, without marking them read). A
+thread read is a numbered source the answer cites, which opens it in the Mail tab, and the chat
+learns which database row its other party is, to read that row too. Asked to write or answer an
+email, it saves a draft in your Drafts folder (`draft_mail`, not in *Read only*): the card shows
+the mailbox it is from, every recipient, the subject and the whole text, and is asked every time,
+also in *Auto*. Nothing is sent: you open the draft in the Mail tab and send it there. Mail
+reaches the model as outside data, and once an answer read mail every change and note it wants is
+asked about, also in *Auto*, so text in an email can't make it act on its own. The threads read
+are kept in the conversation like any source, which only you see. Only your own chat in the app
+has these tools: not research, the Telegram bot or MCP clients. Agents read only the mailboxes
+you open to them, under rules of their own ([Agents](agents.md)).
+
 **Connections' tools.** Tools of a [connection](connections.md#connections) an owner ticked *In chat* are
 offered to members' chats (never guests'). Reading tools run at once and show as a step; a tool
 that changes something at the service asks before every call, in *Auto* too, and isn't offered in

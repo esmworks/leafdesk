@@ -317,6 +317,18 @@
         "done": "{tool} を使用しました",
         "failed": "{tool} に失敗しました",
         "declined": "拒否しました: {tool}"
+      },
+      "mail": {
+        "searched": "メールで「{query}」を検索 · {count, plural, =0 {見つかりませんでした} other {# 件のスレッド}}",
+        "read": "メールを読みました",
+        "noSubject": "(件名なし)",
+        "earlier": "この会話ではすでにメールが読まれたため、この回答はページを読み下書きを書くだけです",
+        "to": "宛先: {to}",
+        "draft": {
+          "done": "下書きを保存しました:",
+          "declined": "下書きを却下しました:",
+          "failed": "下書きを保存できませんでした:"
+        }
       }
     },
     "stopped": "停止しました。",
@@ -348,7 +360,8 @@
         "searchWeb": "これをウェブで検索しますか？",
         "addComment": "このコメントを追加しますか？",
         "createDatabase": "このデータベースを追加しますか？",
-        "createForm": "このフォームを追加しますか？"
+        "createForm": "このフォームを追加しますか？",
+        "draftMail": "このメールを下書きとして保存しますか?"
       },
       "in": "場所",
       "row": "行",
@@ -372,7 +385,11 @@
         "anonymous": "公開リンク: リンクを知っている人はサインインせずに回答できます"
       },
       "letterhead": "レターヘッド: {name}",
-      "fileSource": "行の出典：{name}"
+      "fileSource": "行の出典：{name}",
+      "draftMailHint": "下書きフォルダーに保存されます。メールから送信するまで何も送られません",
+      "mailFrom": "差出人",
+      "mailTo": "宛先",
+      "mailCc": "CC"
     },
     "mode": {
       "label": "変更",

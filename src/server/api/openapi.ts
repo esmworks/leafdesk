@@ -805,7 +805,8 @@ const SCHEMAS: Record<string, JsonSchema> = {
       ),
       row: loose({ id, title: { type: ["string", "null"], description: "null where the user can't open the row." }, url }),
       steps: { type: "array", items: loose({ kind: { type: "string" }, summary: { type: "string" } }) },
-      answer: { type: "string", description: "What the agent said at the end." },
+      answer: { type: "string", description: "What the agent said at the end; empty, with no steps, for a run that read the user's email (see email)." },
+      email: { type: "string", description: "Present when the run read the user's email, or went on from a chat that had: its steps and answer show only in the app." },
       usage: loose({
         rounds: { type: "integer" },
         input_tokens: { type: "integer" },

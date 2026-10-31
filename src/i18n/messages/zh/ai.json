@@ -317,6 +317,18 @@
         "done": "已使用 {tool}",
         "failed": "{tool} 失败",
         "declined": "已拒绝：{tool}"
+      },
+      "mail": {
+        "searched": "在邮件中搜索了“{query}” · {count, plural, =0 {未找到} other {# 个会话}}",
+        "read": "读取了邮件",
+        "noSubject": "(无主题)",
+        "earlier": "此对话中已读过邮件，因此本次回答只读取页面并起草邮件",
+        "to": "发给 {to}",
+        "draft": {
+          "done": "已保存草稿:",
+          "declined": "已拒绝草稿:",
+          "failed": "无法保存草稿:"
+        }
       }
     },
     "stopped": "已停止。",
@@ -348,7 +360,8 @@
         "searchWeb": "要在网上搜索这个吗？",
         "addComment": "添加这条评论？",
         "createDatabase": "添加这个数据库？",
-        "createForm": "添加这个表单？"
+        "createForm": "添加这个表单？",
+        "draftMail": "将这封邮件保存为草稿?"
       },
       "in": "位于",
       "row": "行",
@@ -372,7 +385,11 @@
         "anonymous": "公开链接：任何拥有链接的人无需登录即可回答"
       },
       "letterhead": "信笺：{name}",
-      "fileSource": "行来自：{name}"
+      "fileSource": "行来自：{name}",
+      "draftMailHint": "它会保存在你的草稿文件夹中:在你从邮件中发送之前,不会发送任何内容",
+      "mailFrom": "发件人",
+      "mailTo": "收件人",
+      "mailCc": "抄送"
     },
     "mode": {
       "label": "更改",

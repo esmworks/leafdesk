@@ -187,6 +187,8 @@ export type AgentRunSource =
       userId: string;
       /** Their conversation (`agent_conversation`) the answer goes to. */
       conversationId: string;
+      /** Sent from a connected app (MCP, the REST API, the Telegram bot), which reads the answer. */
+      fromApp?: boolean;
     };
 
 /** What happened that the run responds to, for its prompt and its history. */
@@ -251,8 +253,11 @@ export type AgentToolRecord = {
   tool: string;
   /** The input, as sent (or as it would have been), cut to fit. */
   input: string;
-  /** `refused`: a page a schedule's run may not read with no one to ask (lib/web-calls.ts); nothing was sent. */
-  outcome: "done" | "failed" | "declined" | "redo" | "expired" | "refused";
+  /**
+   * `refused`: a page a schedule's run may not read with no one to ask (lib/web-calls.ts); `afterMail`:
+   * a call besides reading pages and drafting after the run read email (agents/mail.ts). Nothing was sent.
+   */
+  outcome: "done" | "failed" | "declined" | "redo" | "expired" | "refused" | "afterMail";
   /** Who approved, declined or sent it back. */
   decidedBy?: string | null;
   note?: string;
@@ -571,6 +576,38 @@ export const runPageOf = (given: AgentRunSource): string | null => {
   const source = accessSource(given);
   return isRowRun(source) ? source.rowId : isScheduleRun(source) ? (source.databaseId ?? null) : isMentionRun(source) ? source.pageId : null;
 };
+
+/**
+ * Whether a run may read the email its person opened to the agent (server/agents/mail.ts): only one
+ * whose steps and answer show to that person alone (ownerSeesRun) and stay in the app: their chat
+ * with the agent there, or a schedule they set that looks after no database. Never a run another
+ * agent asked for, a request (from MCP or the REST API) or a chat sent from a connected app; and
+ * what one that read email answered stays out of those too (readEmail).
+ */
+export const mailRun = (source: AgentRunSource): boolean => (source.kind === "chat" && !source.fromApp) || (isScheduleRun(source) && !source.databaseId);
+
+/** The mail tools of an agent's run (server/ai-chat-mail.ts MAIL_TOOL_NAMES). */
+export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "draft_mail"]);
+
+/**
+ * What a run that read email may still call besides the mail tools: reading pages, finding tools,
+ * and use_tool, whose writes run.ts refuses on their own.
+ */
+export const READS_AFTER_MAIL: ReadonlySet<string> = new Set(["search_pages", "read_page", "query_database", "list_comments", "page_history", "page_version", "read_attachment", "find_tools", "use_tool"]);
+
+/**
+ * Whether a run that read email may make this call: email is anyone's words and could steer it into
+ * carrying what it read away, so only reads and drafts (whose recipients ai-chat-mail.ts checks),
+ * never a connected service's tool.
+ */
+export const mayCallAfterMail = (name: string, connectionTool: boolean): boolean => !connectionTool && (READS_AFTER_MAIL.has(name) || AGENT_MAIL_TOOLS.has(name));
+
+/**
+ * Whether a run's steps show it read email, or went on from a conversation that had: its answer
+ * may then quote mail, so connected apps (MCP, the REST API) get neither its answer nor its steps,
+ * and the chat's next runs only read pages and draft email.
+ */
+export const readEmail = (steps: readonly { kind: string; action?: unknown }[] | undefined): boolean => (steps ?? []).some((s) => s.kind === "mail" && s.action !== "draft");
 
 /**
  * Whether an owner sees what a run read, thought and answered, and the call it waits on, and so

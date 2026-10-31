@@ -652,6 +652,7 @@
         "redo": "Lệnh gọi “{tool}” trên {connection} của nó đã bị trả lại; không có gì được gửi đi",
         "expired": "Lệnh gọi “{tool}” trên {connection} của nó đã hết thời gian; không có gì được gửi đi",
         "refused": "Lệnh gọi “{tool}” trên {connection} của nó bị từ chối vì không ai có thể phê duyệt; không có gì được gửi đi",
+        "afterMail": "Lệnh gọi “{tool}” trên {connection} đã bị giữ lại: sau khi đọc email, lượt chạy chỉ đọc trang và viết bản nháp; không có gì được gửi",
         "approved": "đã chấp thuận",
         "answered": "được một chủ sở hữu trả lời",
         "note": "Ghi chú: {note}"
@@ -993,6 +994,12 @@
       "send": "Gửi yêu cầu",
       "update": "Cập nhật yêu cầu",
       "waiting": "Bạn đã yêu cầu {tokens} token mỗi tháng vào {date}. Đang chờ chủ sở hữu."
+    },
+    "mail": {
+      "title": "Email của bạn",
+      "description": "Mở một hộp thư để tác nhân này có thể tìm, đọc thư và lưu bản nháp trong đó: trong các cuộc trò chuyện của bạn với nó ở đây và trong lịch bạn đặt không gắn với cơ sở dữ liệu nào.",
+      "open": "Mở {address} cho tác nhân này",
+      "note": "Nó không bao giờ gửi email: bạn tự gửi bản nháp của nó từ thẻ Thư. Khi một lần chạy đã đọc email, nó chỉ đọc trang và viết bản nháp. Những người khác dùng hoặc sửa tác nhân này không bao giờ thấy thư của bạn."
     }
   },
   "analytics": {

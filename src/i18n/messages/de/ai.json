@@ -317,6 +317,18 @@
         "done": "{tool} verwendet",
         "failed": "{tool} fehlgeschlagen",
         "declined": "Abgelehnt: {tool}"
+      },
+      "mail": {
+        "searched": "E-Mails nach „{query}“ durchsucht · {count, plural, =0 {nichts gefunden} one {# Unterhaltung} other {# Unterhaltungen}}",
+        "read": "E-Mail gelesen",
+        "noSubject": "(kein Betreff)",
+        "earlier": "In diesem Gespräch wurden bereits E-Mails gelesen, daher liest diese Antwort nur Seiten und schreibt Entwürfe",
+        "to": "an {to}",
+        "draft": {
+          "done": "Entwurf gespeichert:",
+          "declined": "Entwurf abgelehnt:",
+          "failed": "Entwurf konnte nicht gespeichert werden:"
+        }
       }
     },
     "stopped": "Gestoppt.",
@@ -348,7 +360,8 @@
         "searchWeb": "Im Web danach suchen?",
         "addComment": "Diesen Kommentar hinzufügen?",
         "createDatabase": "Diese Datenbank hinzufügen?",
-        "createForm": "Dieses Formular hinzufügen?"
+        "createForm": "Dieses Formular hinzufügen?",
+        "draftMail": "Diese E-Mail als Entwurf speichern?"
       },
       "in": "In",
       "row": "Zeile",
@@ -372,7 +385,11 @@
         "anonymous": "Öffentlicher Link: Alle mit dem Link können ohne Anmeldung antworten"
       },
       "letterhead": "Briefkopf: {name}",
-      "fileSource": "Zeilen aus: {name}"
+      "fileSource": "Zeilen aus: {name}",
+      "draftMailHint": "Sie landet in Ihrem Entwürfe-Ordner: Nichts wird gesendet, bis Sie sie in Mail senden",
+      "mailFrom": "Von",
+      "mailTo": "An",
+      "mailCc": "Cc"
     },
     "mode": {
       "label": "Änderungen",

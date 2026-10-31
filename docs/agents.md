@@ -125,6 +125,24 @@ names no address, what it reads (a form answer, a synced row) can't send mail an
 how a daily report reaches a fixed address; an email to a row's own contact is a draft instead
 (above).
 
+**Your email.** An agent reads no one's mail on its own. On its Access tab, under *Your email*,
+anyone who may use the agent and the Mail tab opens their own mailboxes to it, one by one; no one
+else can, and other people who use or edit the agent never see that mail. Only the runs that work
+for that person and show what they did to them alone get `search_mail`, `read_mail` and
+`draft_mail` on those mailboxes: their chat with the agent in the app, and the schedules they set
+that look after no database. Never a run another agent asked for, a request over MCP or the REST
+API, a chat sent from a connected app, a row's or a mention's run. Reading marks nothing as read.
+`draft_mail` saves a draft in the mailbox's Drafts folder without asking, and never sends: the
+person reads it and sends it from the Mail tab. So that what an email says can't steer a draft to
+someone else, an answer goes only to the people of its thread and a new email only to addresses
+the person wrote in their messages or the schedule's task (or the mailbox's own). Once a run has
+read email it only reads pages and drafts: any other change, a connected service's tool, the web,
+`send_email`, a note, a handoff note or another agent is refused, and the agent says what it would
+do instead. Its answer may quote that mail, so the chat's later runs that have it in their history
+(and the agent's own chat after a schedule that read email) are held the same way; a new
+conversation starts free. MCP and the REST API show neither the steps nor the answer of such runs,
+and `list_notifications` leaves out such a schedule's report: they show only in the app.
+
 What reaches the model from outside (web pages, search results, connections' and other agents'
 answers) comes inside a frame whose end line carries an id new each time, so the text can't end
 the frame early, and characters that show nothing on screen are taken out of all it reads. Pages

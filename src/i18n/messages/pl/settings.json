@@ -647,6 +647,7 @@
         "redo": "Wywołanie „{tool}” w połączeniu {connection} zostało odesłane do poprawy; nic nie wysłano",
         "expired": "Czas na wywołanie „{tool}” w połączeniu {connection} upłynął; nic nie wysłano",
         "refused": "Wywołanie „{tool}” w połączeniu {connection} odrzucono, bo nikt nie mógł go zatwierdzić; nic nie wysłano",
+        "afterMail": "Wywołanie „{tool}” w {connection} zostało wstrzymane: po przeczytaniu poczty uruchomienie tylko czyta strony i pisze wersje robocze; nic nie wysłano",
         "approved": "zatwierdzone",
         "answered": "odpowiedź właściciela",
         "note": "Uwaga: {note}"
@@ -993,6 +994,12 @@
       "send": "Wyślij prośbę",
       "update": "Zaktualizuj prośbę",
       "waiting": "Prośba z {date}: {tokens} tokenów miesięcznie. Czeka na odpowiedź właściciela."
+    },
+    "mail": {
+      "title": "Twoja poczta",
+      "description": "Otwórz skrzynkę, aby ten agent mógł w niej wyszukiwać, czytać pocztę i zapisywać wersje robocze: w Twoich czatach z nim tutaj i w harmonogramach, które ustawisz bez bazy danych do pilnowania.",
+      "open": "Otwórz {address} dla tego agenta",
+      "note": "Nigdy nie wysyła e-maili: jego wersje robocze wysyłasz sam z karty Poczta. Gdy uruchomienie przeczyta pocztę, tylko czyta strony i pisze wersje robocze. Inne osoby, które używają lub edytują tego agenta, nigdy nie widzą Twojej poczty."
     }
   },
   "analytics": {

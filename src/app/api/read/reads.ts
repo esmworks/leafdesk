@@ -1,5 +1,5 @@
 import { agentChatInfoAction, agentChatTurnAction, agentThreadAction, agentThreadRunsAction, getAgentConversationAction } from "@/app/actions/agent-chat";
-import { pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
+import { agentMailboxesAction, pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftAction, openMailboxAction, prefetchBodiesAction, readBodyAction, refreshFolderAction, sendStatusAction, suggestAddressesAction } from "@/app/actions/mail";
@@ -34,6 +34,7 @@ export const READS = {
   pendingCount: pendingCountAction,
   sidebarAgents: sidebarAgentsAction,
   agentLimitRequest: pendingAgentLimitRequestAction,
+  agentMailboxes: agentMailboxesAction,
   recentSearch: recentSearchAction,
   searchFilterOptions: searchFilterOptionsAction,
   search: searchAction,

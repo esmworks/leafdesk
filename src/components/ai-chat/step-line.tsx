@@ -6,7 +6,7 @@
  * plan, a web search or a web page read, a thought), as a line: an icon and what happened, the
  * pages it names as links (web pages open in a new tab).
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Merge, MessageSquarePlus, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
+import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
@@ -133,6 +133,48 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
           <a href={step.url} target="_blank" rel="noopener noreferrer nofollow" className="min-w-0 truncate text-fg hover:underline" title={step.url}>
             {step.title || step.url}
           </a>
+        </span>
+      </>
+    );
+  }
+  if (step.kind === "mail") {
+    if (step.action === "search") {
+      return (
+        <>
+          <Mail className={icon} />
+          <span className="min-w-0 break-words">{t("steps.mail.searched", { query: step.query, count: step.results })}</span>
+        </>
+      );
+    }
+    if (step.action === "earlier") {
+      return (
+        <>
+          <Mail className={icon} />
+          <span className="min-w-0 break-words">{t("steps.mail.earlier")}</span>
+        </>
+      );
+    }
+    const subject = step.subject || t("steps.mail.noSubject");
+    const label = step.action === "read" ? t("steps.mail.read") : t(`steps.mail.draft.${step.outcome}`);
+    return (
+      <>
+        {step.action === "draft" && step.outcome === "failed" ? (
+          <CircleAlert className={cn(icon, "text-danger")} />
+        ) : step.action === "draft" && step.outcome === "declined" ? (
+          <Ban className={icon} />
+        ) : (
+          <Mail className={icon} />
+        )}
+        <span className="flex min-w-0 items-center gap-1">
+          <span className="shrink-0">{label}</span>
+          {step.url ? (
+            <a href={step.url} className="min-w-0 truncate text-fg hover:underline">
+              {subject}
+            </a>
+          ) : (
+            <span className="min-w-0 truncate text-fg">{subject}</span>
+          )}
+          {step.action === "draft" && step.to.length > 0 && <span className="min-w-0 shrink truncate">{t("steps.mail.to", { to: step.to.join(", ") })}</span>}
         </span>
       </>
     );

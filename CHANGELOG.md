@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Agents can read your email and draft answers, in the mailboxes you open to them.** On an
+  agent's Access tab, *Your email* lists your own mailboxes; open one and the agent's runs that
+  work for you and show only to you (your chat with it in the app, and schedules you set that look
+  after no database) can search and read that mail and save drafts in its Drafts folder. It never
+  sends: you send its drafts from the Mail tab. An answer goes only to the people of its thread, a
+  new email only to addresses you wrote; once a run, or an earlier answer of the same chat, has
+  read email it only reads pages and drafts. Other people who use or edit the agent never see your
+  mail, and connected apps (MCP, the REST API) get nothing such runs did or answered. Migration 0173.
+
 - **Agents give each other tasks.** An agent that may ask other agents can now also give one a
   task to do in its own time (`assign_agent`) and go on without waiting. When the task is done, the
   person the run worked for gets its report in the inbox and on their phone (it opens the chat with
@@ -111,6 +120,13 @@
   the ones ticked become their to-dos, linked back to the mail, on the row's page or else in
   today's daily note, and so show in My tasks. Reading mail for the AI doesn't mark it as read,
   and it follows the workspace's AI setting. Migration 0167.
+- **The AI chat reads your mail and drafts answers.** Where someone may use the Mail tab, their
+  AI chat searches their mailboxes (all folders but the trash and junk), reads a thread as a
+  source it cites, linked to the thread, and names the database row its other party is. Asked to
+  write or answer an email, it saves a draft in the Drafts folder once they approve it: the card
+  shows the sender, every recipient, the subject and the whole text, asks every time (also in
+  *Auto*) and the draft is never sent. Once an answer read mail, every change and note it wants is
+  asked about, also in *Auto*. Not offered in research, the Telegram bot or MCP. No migration.
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
   and calendar with a message's formatting (bold, italic, lists, links), or pasted from another
   mail program, which keeps it as it came: its images, table layout, sizes and colors, sent as

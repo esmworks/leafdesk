@@ -317,6 +317,18 @@
         "done": "Brugte {tool}",
         "failed": "{tool} mislykkedes",
         "declined": "Afvist: {tool}"
+      },
+      "mail": {
+        "searched": "Søgte i mail efter “{query}” · {count, plural, =0 {intet fundet} one {# tråd} other {# tråde}}",
+        "read": "Læste e-mailen",
+        "noSubject": "(intet emne)",
+        "earlier": "Der er allerede læst e-mail i denne samtale, så dette svar læser kun sider og skriver kladder",
+        "to": "til {to}",
+        "draft": {
+          "done": "Kladde gemt:",
+          "declined": "Kladde afvist:",
+          "failed": "Kunne ikke gemme kladden:"
+        }
       }
     },
     "stopped": "Stoppet.",
@@ -348,7 +360,8 @@
         "searchWeb": "Vil du søge på nettet efter dette?",
         "addComment": "Vil du tilføje denne kommentar?",
         "createDatabase": "Vil du tilføje denne database?",
-        "createForm": "Vil du tilføje denne formular?"
+        "createForm": "Vil du tilføje denne formular?",
+        "draftMail": "Gem denne e-mail som kladde?"
       },
       "in": "I",
       "row": "Række",
@@ -372,7 +385,11 @@
         "anonymous": "Offentligt link: alle med linket kan svare uden at logge ind"
       },
       "letterhead": "Brevpapir: {name}",
-      "fileSource": "Rækker fra: {name}"
+      "fileSource": "Rækker fra: {name}",
+      "draftMailHint": "Den lægges i din mappe Kladder: intet sendes, før du sender den fra Mail",
+      "mailFrom": "Fra",
+      "mailTo": "Til",
+      "mailCc": "Cc"
     },
     "mode": {
       "label": "Ændringer",

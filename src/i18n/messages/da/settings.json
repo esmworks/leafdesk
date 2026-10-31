@@ -652,6 +652,7 @@
         "redo": "Dens kald af “{tool}” på {connection} blev sendt tilbage; intet blev sendt",
         "expired": "Dens kald af “{tool}” på {connection} løb tør for tid; intet blev sendt",
         "refused": "Dens kald af “{tool}” på {connection} blev afvist, da ingen kunne godkende det; intet blev sendt",
+        "afterMail": "Kaldet af “{tool}” på {connection} blev holdt tilbage: efter at have læst e-mail læser en kørsel kun sider og skriver kladder; intet blev sendt",
         "approved": "godkendt",
         "answered": "besvaret af en ejer",
         "note": "Note: {note}"
@@ -993,6 +994,12 @@
       "send": "Send anmodning",
       "update": "Opdater anmodning",
       "waiting": "Du bad om {tokens} tokens om måneden den {date}. Venter på en ejer."
+    },
+    "mail": {
+      "title": "Din e-mail",
+      "description": "Åbn en postkasse, så denne agent kan søge i og læse din mail og gemme kladder i den: i dine chats med den her og i tidsplaner, du sætter op uden en database at passe.",
+      "open": "Åbn {address} for denne agent",
+      "note": "Den sender aldrig e-mail: du sender dens kladder fra fanen Mail. Når en kørsel har læst e-mail, læser den kun sider og skriver kladder. Andre, der bruger eller redigerer denne agent, ser aldrig din mail."
     }
   },
   "analytics": {

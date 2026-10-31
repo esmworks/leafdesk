@@ -652,6 +652,7 @@
         "redo": "Panggilannya ke “{tool}” di {connection} dikembalikan; tidak ada yang dikirim",
         "expired": "Panggilannya ke “{tool}” di {connection} kehabisan waktu; tidak ada yang dikirim",
         "refused": "Panggilannya ke “{tool}” di {connection} ditolak karena tidak ada yang bisa menyetujuinya; tidak ada yang dikirim",
+        "afterMail": "Panggilan “{tool}” di {connection} ditahan: setelah membaca email, sebuah run hanya membaca halaman dan menulis draf; tidak ada yang dikirim",
         "approved": "disetujui",
         "answered": "dijawab oleh pemilik",
         "note": "Catatan: {note}"
@@ -993,6 +994,12 @@
       "send": "Kirim permintaan",
       "update": "Perbarui permintaan",
       "waiting": "Anda meminta {tokens} token sebulan pada {date}. Menunggu pemilik."
+    },
+    "mail": {
+      "title": "Email Anda",
+      "description": "Buka kotak surat agar agen ini dapat mencari dan membaca email di dalamnya serta menyimpan draf di sana: di obrolan Anda dengannya di sini, dan di jadwal yang Anda atur tanpa basis data untuk diurus.",
+      "open": "Buka {address} untuk agen ini",
+      "note": "Agen ini tidak pernah mengirim email: Anda yang mengirim drafnya dari tab Mail. Setelah membaca email, suatu jalannya hanya membaca halaman dan menulis draf. Orang lain yang memakai atau mengedit agen ini tidak pernah melihat email Anda."
     }
   },
   "analytics": {
