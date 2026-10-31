@@ -43,4 +43,42 @@ describe("cleanMailHtml", () => {
     expect(await clean('<span style="width:38px"><img src="https://example.com/i.png"></span>', true)).not.toContain("data-blocked");
     expect(await clean('<img src="cid:missing@x" width="420" height="111">', true)).toContain("data-blocked");
   });
+
+  describe("the quoted end of an answer", () => {
+    const split = async (raw: string) => {
+      const out = await cleanMailHtml(raw, { images: true, inline: new Map() });
+      const body = (html: string | null) => html?.replace(/^[\s\S]*<body>|<\/body>[\s\S]*$/g, "") ?? null;
+      return { html: body(out.html), quoted: body(out.quotedHtml), head: out.quotedHtml };
+    };
+
+    it("is taken out where Gmail marks it, styles kept with it", async () => {
+      const { html, quoted, head } = await split('<html><head><style>p{color:red}</style></head><body><div>Tamam, yarın.</div><div class="gmail_quote"><div class="gmail_attr">On Mon, Ada wrote:</div><blockquote>Gelir misiniz?</blockquote></div></body></html>');
+      expect(html).toContain("Tamam, yarın.");
+      expect(html).not.toContain("Gelir misiniz?");
+      expect(quoted).toContain("Gelir misiniz?");
+      expect(quoted).toContain("gmail_attr");
+      expect(head).toContain("p{color:red}");
+    });
+
+    it("takes Outlook's line and everything after its reply header", async () => {
+      const { html, quoted } = await split('<p>Ekte.</p><div id="appendonsend"></div><hr><div id="divRplyFwdMsg">From: Ada</div><div>Fiyat?</div>');
+      expect(html).toContain("Ekte.");
+      expect(html).not.toContain("<hr>");
+      expect(quoted).toContain("From: Ada");
+      expect(quoted).toContain("Fiyat?");
+    });
+
+    it("takes Apple Mail's quote with the line before it, and keeps what wraps both", async () => {
+      const { html, quoted } = await split('<div><p>Olur.</p><div>On 2 Kas, Ada wrote:</div><blockquote type="cite"><p>Saat 3?</p></blockquote></div>');
+      expect(html).toContain("Olur.");
+      expect(html).not.toContain("wrote:");
+      expect(quoted).toContain("On 2 Kas, Ada wrote:");
+      expect(quoted).toContain("Saat 3?");
+    });
+
+    it("isn't taken when nothing comes before it, nor where there is none", async () => {
+      expect((await split('<div class="gmail_quote">---------- Forwarded message ---------<p>Rapor</p></div>')).quoted).toBeNull();
+      expect((await split("<p>Merhaba</p><blockquote>alıntı ama işaretsiz</blockquote>")).quoted).toBeNull();
+    });
+  });
 });

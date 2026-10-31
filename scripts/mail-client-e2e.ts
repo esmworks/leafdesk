@@ -11,7 +11,7 @@
  * folder; a draft is kept in the drafts folder (made where there is none), each save replacing the last under one
  * Message-ID with the files it kept, opens again with its Bcc and signature, marks the thread it answers, and goes
  * once sent or thrown away; a message sent waits for Undo, which makes it a draft again, and goes when its seconds are up; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
- * recipient fields suggest the people written with; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
+ * recipient fields suggest the people written with; an answer's HTML shows without the earlier mail it quotes, which comes apart; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
  * elsewhere; search finds by sender and subject; no one but the mailbox's owner reads it.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -489,6 +489,18 @@ try {
   await sweep();
   const after = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id });
   check(after.items.some((t) => t.subject === "Yeni sipariş" && t.unread), "the sweep reads new mail", after.items.map((t) => t.subject));
+
+  // An answer quoting the mail before it
+  await outside.sendMail({
+    ...base,
+    subject: "Re: Yeni sipariş",
+    text: "Onaylıyoruz.",
+    html: `<div>Onaylıyoruz.</div><div class="gmail_quote"><div class="gmail_attr">On Mon, Ada wrote:</div><blockquote class="gmail_quote"><table><tr><td>Sipariş formu</td></tr></table></blockquote></div>`,
+  });
+  await sweep();
+  const quoting = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.find((t) => t.subject === "Re: Yeni sipariş");
+  const answerBody = quoting ? await read.readBody(ids.ada, { id: quoting.messageId }) : null;
+  check(!!answerBody?.html?.includes("Onaylıyoruz.") && !answerBody.html.includes("Sipariş formu") && !!answerBody.quotedHtml?.includes("<table>"), "an answer's HTML comes without the mail it quotes, which comes apart", answerBody?.quotedHtml);
   const inInbox = await db.select().from(mailMessage).where(eq(mailMessage.folderId, inbox.id));
   check(inInbox.filter((m) => m.subjectKey === "bütçe").length === 1, "and leaves out what was deleted elsewhere", inInbox.map((m) => m.subject));
   check(inInbox.find((m) => m.subjectKey === "bütçe")?.flagged, "and takes flags changed elsewhere");

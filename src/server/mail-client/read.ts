@@ -572,6 +572,7 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
   return {
     text,
     html: cleaned?.html ?? null,
+    quotedHtml: cleaned?.quotedHtml ?? null,
     blockedImages: cleaned?.blockedImages ?? 0,
     images: shown,
     attachments,

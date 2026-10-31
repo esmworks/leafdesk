@@ -92,6 +92,26 @@ function TextBody({ text }: { text: string }) {
 }
 
 
+/**
+ * A message's HTML; the earlier mail it quotes at its end (server/mail-client/html.ts) shown when
+ * asked for, back in its place in the same frame.
+ */
+function HtmlBody({ html, quoted, images, title }: { html: string; quoted: string | null; images: boolean; title: string }) {
+  const t = useTranslations("mail");
+  const [open, setOpen] = useState(false);
+  const whole = open && quoted ? html.replace(/<\/body>/i, () => `${/<body[^>]*>([\s\S]*)<\/body>/i.exec(quoted)?.[1] ?? ""}</body>`) : html;
+  return (
+    <>
+      <MailFrame html={whole} images={images} title={title} />
+      {quoted && !open && (
+        <button type="button" className="mt-2 rounded border border-border px-1.5 text-xs text-fg-muted hover:bg-bg-hover" onClick={() => setOpen(true)} aria-label={t("quoted")} title={t("quoted")}>
+          •••
+        </button>
+      )}
+    </>
+  );
+}
+
 /** A draft of the thread, kept in the drafts folder: shown as a card to write on, not read. */
 const isDraft = (m: MailMessageView) => m.draft && m.folderRole === "drafts";
 
@@ -246,7 +266,11 @@ function Message({
                 </button>
               </div>
             )}
-            {body.html ? <MailFrame html={body.html} images={!!body.images} title={message.subject} /> : <TextBody text={body.text} />}
+            {body.html ? (
+              <HtmlBody html={body.html} quoted={body.quotedHtml} images={!!body.images} title={message.subject} />
+            ) : (
+              <TextBody text={body.text} />
+            )}
             {body.attachments.length > 0 && (
               <ul className="mt-4 flex flex-wrap gap-2" aria-label={t("attachments", { count: body.attachments.length })}>
                 {body.attachments.map((file) => (

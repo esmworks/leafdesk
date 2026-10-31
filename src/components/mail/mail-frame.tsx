@@ -23,10 +23,11 @@ export function MailFrame({ html, images, title }: { html: string; images: boole
     const frame = ref.current;
     if (!frame) return;
     const measure = () => {
-      const page = frame.contentDocument?.documentElement;
-      // Rounded up: scrollHeight rounds a height like 734.4 down, and Chromium scrolls the frame
-      // for the fraction left over.
-      if (page) setHeight(Math.min(20000, Math.max(60, page.scrollHeight, Math.ceil(page.getBoundingClientRect().height))));
+      // The body, not the page: the page is never shorter than the frame, so a short message would
+      // keep the frame's first height. Rounded up: scrollHeight rounds a height like 734.4 down, and
+      // Chromium scrolls the frame for the fraction left over.
+      const body = frame.contentDocument?.body;
+      if (body) setHeight(Math.min(20000, Math.max(24, body.scrollHeight, Math.ceil(body.getBoundingClientRect().height))));
     };
     const resize = new ResizeObserver(measure);
     resize.observe(frame);

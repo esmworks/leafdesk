@@ -91,8 +91,9 @@ again the next time it opens. *Always show from this sender* loads them at once 
 mail to the mailbox, and mail from the mailbox's own domain shows them too (not for public mail
 services such as gmail.com), as long as the provider's check doesn't say the mail came from
 someone else (DMARC failed). The senders on that list are under Account › Email and calendar,
-where one is removed; *Stop* on a message does the same. Messages are grouped into threads by the
-server's thread ids, their references and, within 30 days, a reply's subject.
+where one is removed; *Stop* on a message does the same. The earlier mail an answer quotes at its
+end folds under *•••*, which opens it in place. Messages are grouped into threads by the server's
+thread ids, their references and, within 30 days, a reply's subject.
 
 From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the

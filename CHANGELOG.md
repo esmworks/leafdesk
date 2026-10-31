@@ -173,6 +173,10 @@
 
 ### Changed
 
+- **Answers in the Mail tab show without the mail they quote.** The earlier mail an HTML answer
+  quotes at its end, as Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark
+  it, folds under *•••* and opens in place; plain-text answers already did.
+
 - **A database's tabs and toolbar scroll away with the page.** On a full database page they no
   longer stay at the top as you scroll down; only a table's column names do, right under the
   page's top bar, so more rows fit on the screen.
@@ -209,6 +213,9 @@
   only while an answer is being written.
 
 ### Fixed
+
+- **Short HTML mail in the Mail tab no longer leaves a gap under it.** Its frame took the height
+  it started with when the message was shorter.
 
 - **The boxes beside a chat no longer cut a line in half.** A long list of sources, changed pages,
   runs or schedules beside the AI chat and an agent's page fades out at its edges and leaves room

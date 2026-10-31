@@ -247,6 +247,8 @@ export type MailBody = {
   text: string;
   /** Cleaned HTML (server/mail-client/html.ts), with remote images left out unless asked for. */
   html: string | null;
+  /** The earlier mail the HTML quotes at its end, taken out of it to show when asked for. */
+  quotedHtml: string | null;
   /** Remote images the HTML would load, left out. */
   blockedImages: number;
   /** Why remote images load in the HTML (lib/mail-images.ts); null while they are left out. */
