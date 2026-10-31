@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {# Unterhaltung endgültig gelöscht} other {# Unterhaltungen endgültig gelöscht}}",
       "move": "{count, plural, one {# Unterhaltung nach {folder} verschoben} other {# Unterhaltungen nach {folder} verschoben}}"
     }
-  }
+  },
+  "printThread": "Unterhaltung drucken",
+  "messageMenu": "Mehr",
+  "printMessage": "Drucken",
+  "showSource": "Original anzeigen",
+  "downloadSource": "Nachricht herunterladen (.eml)"
 }

@@ -615,6 +615,29 @@ export async function readAttachment(userId: string, input: { id: string; part: 
   return file;
 }
 
+/**
+ * A message as the mail server keeps it, headers and all (MAX_ATTACHMENT_BYTES of base64 at most),
+ * for its owner to read or save as an .eml file; its subject names the file.
+ */
+export async function readSource(userId: string, input: { id: string }) {
+  const { box, message, folder } = await ownMessage(userId, input?.id);
+  const limit = travelling(MAX_ATTACHMENT_BYTES);
+  const source = await withImap(box, async (client) => {
+    const lock = await client.getMailboxLock(folder.path, { readOnly: true });
+    try {
+      const sized = await client.fetchOne(String(message.uid), { uid: true, size: true }, { uid: true });
+      if (!sized) return null;
+      if ((sized.size ?? 0) > limit) throw new RowMailError("tooMany");
+      const fetched = await client.fetchOne(String(message.uid), { uid: true, source: { maxLength: limit } }, { uid: true });
+      return fetched ? (fetched.source ?? null) : null;
+    } finally {
+      lock.release();
+    }
+  });
+  if (!source) throw new RowMailError("gone");
+  return { subject: message.subject, data: source };
+}
+
 /** Whether the sidebar offers the Mail tab: email is on in the workspace and the person has a mailbox there. Never throws. */
 export async function mailTabShown(userId: string, workspaceId: string): Promise<boolean> {
   const [one] = await db

@@ -150,5 +150,10 @@
       "delete": "{count, plural, zero {لم تُحذف أي محادثة} one {حُذفت محادثة واحدة نهائيًا} two {حُذفت محادثتان نهائيًا} few {حُذفت # محادثات نهائيًا} many {حُذفت # محادثة نهائيًا} other {حُذفت # محادثة نهائيًا}}",
       "move": "{count, plural, zero {لم تُنقل أي محادثة إلى {folder}} one {نُقلت محادثة واحدة إلى {folder}} two {نُقلت محادثتان إلى {folder}} few {نُقلت # محادثات إلى {folder}} many {نُقلت # محادثة إلى {folder}} other {نُقلت # محادثة إلى {folder}}}"
     }
-  }
+  },
+  "printThread": "طباعة المحادثة",
+  "messageMenu": "المزيد",
+  "printMessage": "طباعة",
+  "showSource": "عرض الرسالة الأصلية",
+  "downloadSource": "تنزيل الرسالة (.eml)"
 }

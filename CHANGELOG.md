@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Printing and the original message in the Mail tab.** A button over a thread prints all its
+  messages, with their senders, recipients and dates and nothing else of the page; a message's menu
+  prints it alone, shows its original source (headers and all) or downloads it as an .eml file.
+  No migration.
+
 - **More keys in the Mail tab.** `g` then `i`, `s`, `d`, `a` or `t` opens the inbox, sent mail,
   drafts, archive or trash; ⌘/Ctrl+Z undoes the last archive, move or deletion while its Undo
   lasts; Shift+I marks read. The keyboard shortcuts dialog (`?`) lists the Mail tab's keys, and the

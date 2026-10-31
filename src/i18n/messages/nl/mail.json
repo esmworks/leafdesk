@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {# gesprek definitief verwijderd} other {# gesprekken definitief verwijderd}}",
       "move": "{count, plural, one {# gesprek verplaatst naar {folder}} other {# gesprekken verplaatst naar {folder}}}"
     }
-  }
+  },
+  "printThread": "Gesprek afdrukken",
+  "messageMenu": "Meer",
+  "printMessage": "Afdrukken",
+  "showSource": "Origineel weergeven",
+  "downloadSource": "Bericht downloaden (.eml)"
 }

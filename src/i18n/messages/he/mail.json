@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {שיחה אחת נמחקה לצמיתות} two {שתי שיחות נמחקו לצמיתות} other {# שיחות נמחקו לצמיתות}}",
       "move": "{count, plural, one {שיחה אחת הועברה אל {folder}} two {שתי שיחות הועברו אל {folder}} other {# שיחות הועברו אל {folder}}}"
     }
-  }
+  },
+  "printThread": "הדפס את השיחה",
+  "messageMenu": "עוד",
+  "printMessage": "הדפס",
+  "showSource": "הצג מקור",
+  "downloadSource": "הורד את ההודעה (.eml)"
 }

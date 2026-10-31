@@ -150,5 +150,10 @@
       "delete": "{count, plural, other {# گفتگو برای همیشه حذف شد}}",
       "move": "{count, plural, other {# گفتگو به {folder} منتقل شد}}"
     }
-  }
+  },
+  "printThread": "چاپ گفتگو",
+  "messageMenu": "بیشتر",
+  "printMessage": "چاپ",
+  "showSource": "نمایش پیام اصلی",
+  "downloadSource": "دانلود پیام (.eml)"
 }

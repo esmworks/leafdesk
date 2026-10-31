@@ -150,5 +150,10 @@
       "delete": "{count, plural, other {ลบการสนทนา # รายการถาวรแล้ว}}",
       "move": "{count, plural, other {ย้ายการสนทนา # รายการไปที่ {folder} แล้ว}}"
     }
-  }
+  },
+  "printThread": "พิมพ์การสนทนา",
+  "messageMenu": "เพิ่มเติม",
+  "printMessage": "พิมพ์",
+  "showSource": "แสดงต้นฉบับ",
+  "downloadSource": "ดาวน์โหลดข้อความ (.eml)"
 }

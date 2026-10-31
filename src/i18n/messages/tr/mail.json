@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {# yazışma kalıcı olarak silindi} other {# yazışma kalıcı olarak silindi}}",
       "move": "{count, plural, one {# yazışma {folder} klasörüne taşındı} other {# yazışma {folder} klasörüne taşındı}}"
     }
-  }
+  },
+  "printThread": "Yazışmayı yazdır",
+  "messageMenu": "Diğer işlemler",
+  "printMessage": "Yazdır",
+  "showSource": "Orijinali göster",
+  "downloadSource": "İletiyi indir (.eml)"
 }

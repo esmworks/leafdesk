@@ -150,5 +150,10 @@
       "delete": "{count, plural, other {已永久删除 # 个会话}}",
       "move": "{count, plural, other {已将 # 个会话移至 {folder}}}"
     }
-  }
+  },
+  "printThread": "打印会话",
+  "messageMenu": "更多",
+  "printMessage": "打印",
+  "showSource": "显示原始邮件",
+  "downloadSource": "下载邮件 (.eml)"
 }

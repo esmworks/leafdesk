@@ -102,6 +102,11 @@ for a sender the provider's check vouched for. A list with only a web page, or a
 the check, opens that page instead. The server reaches only public https addresses for it (and
 those in `WEB_FETCH_ALLOWED_HOSTS`).
 
+The printer button over a thread prints all its messages, each under its sender, recipients and
+date, and nothing else of the page. A message's *…* menu prints that message alone (with the mail
+it quotes), shows its original (the message as the mail server keeps it, headers and all, as plain
+text) or downloads it as an .eml file.
+
 From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
 trash is for good. A right click on a thread in the list opens the same answers and moves without
@@ -114,8 +119,8 @@ Esc leaves the selection. The Mail tab works from the keyboard too: `j`/`k` next
 `e` archive, `#` trash, `!` junk, `s` star, `u` unread, Shift+I read, `r`/`a`/`f` reply, reply all
 and forward, `c` a new message, `/` search, ⌘/Ctrl+Z undoes the last move, and `g` then `i`, `s`,
 `d`, `a` or `t` opens the inbox, sent mail, drafts, archive or trash; `?` lists them all, and the
-search box (⌘/Ctrl+K) has *Mail* and *New message* after `>`. *New message* opens beside the list, where the open thread would be, and Back
-closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
+search box (⌘/Ctrl+K) has *Mail* and *New message* after `>`. *New message* opens beside the list,
+where the open thread would be, and Back closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
 through, with bulleted and numbered lists, quotes and links (⌘/Ctrl+K), and goes out as HTML with
 a plain-text part beside it; other formatting pasted in falls away. A picture pasted in, or dropped
 on the text, goes where it is put and is sent as part of the message (PNG, JPEG, GIF or WebP, within

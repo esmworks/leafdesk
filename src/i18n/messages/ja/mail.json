@@ -150,5 +150,10 @@
       "delete": "{count, plural, other {# 件の会話を完全に削除しました}}",
       "move": "{count, plural, other {# 件の会話を {folder} に移動しました}}"
     }
-  }
+  },
+  "printThread": "会話を印刷",
+  "messageMenu": "その他",
+  "printMessage": "印刷",
+  "showSource": "メッセージのソースを表示",
+  "downloadSource": "メッセージをダウンロード (.eml)"
 }

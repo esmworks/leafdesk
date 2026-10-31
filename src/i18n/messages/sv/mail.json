@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {# konversation togs bort permanent} other {# konversationer togs bort permanent}}",
       "move": "{count, plural, one {# konversation flyttades till {folder}} other {# konversationer flyttades till {folder}}}"
     }
-  }
+  },
+  "printThread": "Skriv ut konversation",
+  "messageMenu": "Mer",
+  "printMessage": "Skriv ut",
+  "showSource": "Visa original",
+  "downloadSource": "Ladda ned meddelande (.eml)"
 }

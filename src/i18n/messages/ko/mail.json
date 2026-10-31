@@ -150,5 +150,10 @@
       "delete": "{count, plural, other {대화 #개를 영구 삭제했습니다}}",
       "move": "{count, plural, other {대화 #개를 {folder}(으)로 이동했습니다}}"
     }
-  }
+  },
+  "printThread": "대화 인쇄",
+  "messageMenu": "더 보기",
+  "printMessage": "인쇄",
+  "showSource": "원본 보기",
+  "downloadSource": "메시지 다운로드 (.eml)"
 }

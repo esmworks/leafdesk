@@ -321,10 +321,14 @@ try {
   const file = await read.readAttachment(ids.ada, { id: bulten.messageId, part: body.attachments[0].part });
   check(file.data.equals(PDF) && file.contentType === "application/pdf", "a file downloads as it was sent");
   check((await errorCode(() => read.readAttachment(ids.ada, { id: bulten.messageId, part: "9" }))) === "gone", "a part the message doesn't have isn't served");
+  const source = await read.readSource(ids.ada, { id: bulten.messageId });
+  const sourceText = source.data.toString("utf8");
+  check(source.subject === bulten.subject && /^List-Unsubscribe: /im.test(sourceText) && /^Content-Type: application\/pdf/im.test(sourceText), "the original comes whole, headers and files", sourceText.slice(0, 300));
 
   // Who reads it
   check((await errorCode(() => read.listThreads(ids.bob, { mailboxId: boxId, folderId: inbox.id }))) === "noMailbox", "another member can't list it");
   check((await errorCode(() => read.readBody(ids.bob, { id: bulten.messageId }))) === "noMailbox", "nor read its messages, held in memory or not");
+  check((await errorCode(() => read.readSource(ids.bob, { id: bulten.messageId }))) === "noMailbox", "nor their originals");
   check((await errorCode(() => mailAction(ids.bob, { mailboxId: boxId, folderId: inbox.id, threadIds: [bulten.threadId], action: "trash" }))) === "noMailbox", "nor change them");
 
   // Actions

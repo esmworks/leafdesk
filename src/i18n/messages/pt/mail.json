@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {# conversa excluída permanentemente} other {# conversas excluídas permanentemente}}",
       "move": "{count, plural, one {# conversa movida para {folder}} other {# conversas movidas para {folder}}}"
     }
-  }
+  },
+  "printThread": "Imprimir conversa",
+  "messageMenu": "Mais",
+  "printMessage": "Imprimir",
+  "showSource": "Mostrar original",
+  "downloadSource": "Baixar mensagem (.eml)"
 }

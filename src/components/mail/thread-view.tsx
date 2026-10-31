@@ -6,13 +6,17 @@ import {
   Archive,
   ChevronLeft,
   Database,
+  Download,
+  FileCode,
   Forward,
   Image as ImageIcon,
   Inbox,
   MailOpen,
+  MoreHorizontal,
   Paperclip,
   Pencil,
   Reply,
+  Printer,
   ReplyAll,
   Star,
   Trash2,
@@ -22,9 +26,9 @@ import { useTranslations } from "next-intl";
 import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { read } from "@/components/read";
-import { Button, cn, IconButton, PageIcon } from "@/components/ui";
+import { Button, cn, IconButton, MenuItem, PageIcon, Popover } from "@/components/ui";
 import { pagePath } from "@/lib/mentions";
-import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftView, MailFolderView, MailMessageView, MailThreadView, MailUndoneSend, MailUnsubscribe } from "@/lib/mail-client";
+import { textQuoteStart, type MailAction, type MailAddress, type MailBody, type MailboxTabView, type MailDraftView, type MailFolderView, type MailMessageView, type MailThreadView, type MailUndoneSend, type MailUnsubscribe } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { lazyPart } from "@/components/lazy-part";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
@@ -54,9 +58,7 @@ function TextBody({ text }: { text: string }) {
   const t = useTranslations("mail");
   const [quoted, setQuoted] = useState(false);
   const lines = text.replace(/\r\n/g, "\n").split("\n");
-  // Where the quoted part starts: the "On … wrote:" line before the first run of ">" lines, or the first of them.
-  let cut = lines.findIndex((line) => /^\s*>/.test(line));
-  if (cut > 0 && /:\s*$/.test(lines[cut - 1] ?? "")) cut -= 1;
+  const cut = textQuoteStart(lines);
   const shown = cut >= 0 && !quoted ? lines.slice(0, cut) : lines;
   const linked = (line: string) => {
     const out: ReactNode[] = [];
@@ -192,6 +194,58 @@ function Unsubscribe({ offer, messageId, sender }: { offer: MailUnsubscribe; mes
   );
 }
 
+/** A message's own menu: printing it, and the message as the mail server keeps it. */
+function MessageMenu({ messageId, onPrint }: { messageId: string; onPrint: () => void }) {
+  const t = useTranslations("mail");
+  const source = `/api/mail/source?m=${encodeURIComponent(messageId)}`;
+  return (
+    <Popover
+      align="end"
+      className="w-56"
+      trigger={({ open, toggle }) => (
+        <IconButton label={t("messageMenu")} aria-expanded={open} className="h-8 w-8 text-fg-icon" onClick={toggle}>
+          <MoreHorizontal className="h-4 w-4" />
+        </IconButton>
+      )}
+    >
+      {(close) => (
+        <>
+          <MenuItem
+            icon={<Printer className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              onPrint();
+            }}
+          >
+            {t("printMessage")}
+          </MenuItem>
+          <MenuItem
+            icon={<FileCode className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              window.open(source, "_blank", "noopener");
+            }}
+          >
+            {t("showSource")}
+          </MenuItem>
+          <MenuItem
+            icon={<Download className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              const link = document.createElement("a");
+              link.href = `${source}&download=1`;
+              link.download = "";
+              link.click();
+            }}
+          >
+            {t("downloadSource")}
+          </MenuItem>
+        </>
+      )}
+    </Popover>
+  );
+}
+
 function Message({
   message,
   box,
@@ -202,6 +256,7 @@ function Message({
   onTrust,
   last,
   onCompose,
+  onPrint,
 }: {
   message: MailMessageView;
   box: MailboxTabView;
@@ -213,6 +268,7 @@ function Message({
   onTrust: (trust: boolean) => void;
   last: boolean;
   onCompose: (mode: ComposeMode) => void;
+  onPrint: () => void;
 }) {
   const t = useTranslations("mail");
   const when = useWhen();
@@ -264,6 +320,7 @@ function Message({
           <IconButton label={t("actions.forward")} className="h-8 w-8 text-fg-icon" onClick={() => onCompose("forward")}>
             <Forward className="h-4 w-4" />
           </IconButton>
+          <MessageMenu messageId={message.id} onPrint={onPrint} />
         </div>
       </div>
       {body?.unverifiedSender && (
@@ -503,6 +560,41 @@ export function ThreadView({
     setOpen(next);
   };
 
+  const when = useWhen();
+  const [printing, setPrinting] = useState(false);
+  /** Prints messages of the thread (all those sent, or one with what it quotes), reading the bodies not read yet. */
+  const print = async (messages: MailMessageView[], quoted: boolean) => {
+    if (!thread || printing) return;
+    setPrinting(true);
+    try {
+      const loaded = await Promise.all(
+        messages.map(async (m) => {
+          const held = bodies[m.id]?.body ?? cachedBody(m.id, false);
+          if (held) return held;
+          const result = await read("mailBody", { id: m.id });
+          if (!result.ok) return null;
+          keepBody(m.id, result.data);
+          if (!m.seen) onRead();
+          return result.data;
+        }),
+      ).catch(() => null);
+      if (!loaded || loaded.some((body) => !body)) return showToast({ message: t("loadFailed") });
+      const name = (a: MailAddress) => (a.name ? `${a.name} <${a.address}>` : a.address);
+      const { printMail } = await import("./print-mail");
+      printMail({
+        subject: thread.subject || t("noSubject"),
+        quoted,
+        messages: messages.map((m, i) => ({
+          lines: [name(m.from), t("toLine", { names: m.to.map(name).join(", ") || "—" }), ...(m.cc.length ? [t("ccLine", { names: m.cc.map(name).join(", ") })] : []), when(m.sentAt, true)],
+          body: loaded[i]!,
+          files: loaded[i]!.attachments.map((file) => file.name),
+        })),
+      });
+    } finally {
+      setPrinting(false);
+    }
+  };
+
   const sent = thread?.messages.filter((m) => !isDraft(m)) ?? [];
   const last = sent[sent.length - 1] ?? null;
   // The message a reply or forward answers: the one whose button was pressed, or its draft's, else (keys) the newest.
@@ -559,7 +651,12 @@ export function ThreadView({
           <MailOpen className="h-4 w-4" />
         </IconButton>
         {/* Up here rather than under the subject, where a line of its own pushes the mail down. */}
-        {thread && <span className="ms-auto shrink-0 pe-3 text-sm text-fg-muted">{t("messages", { count: thread.messages.length })}</span>}
+        {thread && <span className="ms-auto shrink-0 pe-1 text-sm text-fg-muted">{t("messages", { count: thread.messages.length })}</span>}
+        {thread && sent.length > 0 && (
+          <IconButton label={t("printThread")} className="h-8 w-8 text-fg-icon" disabled={printing} onClick={() => void print(sent, false)}>
+            <Printer className="h-4 w-4" />
+          </IconButton>
+        )}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto pb-10">
         {error ? (
@@ -613,6 +710,7 @@ export function ThreadView({
                     setAnswering(m.id);
                     onComposeChange(mode);
                   }}
+                  onPrint={() => void print([m], true)}
                 />
                 ),
               )}

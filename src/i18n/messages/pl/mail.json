@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {Usunięto na zawsze # konwersację} few {Usunięto na zawsze # konwersacje} many {Usunięto na zawsze # konwersacji} other {Usunięto na zawsze # konwersacji}}",
       "move": "{count, plural, one {Przeniesiono # konwersację do: {folder}} few {Przeniesiono # konwersacje do: {folder}} many {Przeniesiono # konwersacji do: {folder}} other {Przeniesiono # konwersacji do: {folder}}}"
     }
-  }
+  },
+  "printThread": "Drukuj konwersację",
+  "messageMenu": "Więcej",
+  "printMessage": "Drukuj",
+  "showSource": "Pokaż oryginał",
+  "downloadSource": "Pobierz wiadomość (.eml)"
 }

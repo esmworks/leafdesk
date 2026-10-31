@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {# samtale er slettet for godt} other {# samtaler er slettet for godt}}",
       "move": "{count, plural, one {# samtale er flyttet til {folder}} other {# samtaler er flyttet til {folder}}}"
     }
-  }
+  },
+  "printThread": "Skriv ut samtale",
+  "messageMenu": "Mer",
+  "printMessage": "Skriv ut",
+  "showSource": "Vis original",
+  "downloadSource": "Last ned melding (.eml)"
 }

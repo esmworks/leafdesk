@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {# keskustelu poistettu pysyvästi} other {# keskustelua poistettu pysyvästi}}",
       "move": "{count, plural, one {# keskustelu siirretty kansioon {folder}} other {# keskustelua siirretty kansioon {folder}}}"
     }
-  }
+  },
+  "printThread": "Tulosta keskustelu",
+  "messageMenu": "Lisää",
+  "printMessage": "Tulosta",
+  "showSource": "Näytä alkuperäinen",
+  "downloadSource": "Lataa viesti (.eml)"
 }

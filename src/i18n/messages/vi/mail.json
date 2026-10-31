@@ -150,5 +150,10 @@
       "delete": "{count, plural, other {Đã xóa vĩnh viễn # cuộc trò chuyện}}",
       "move": "{count, plural, other {Đã chuyển # cuộc trò chuyện đến {folder}}}"
     }
-  }
+  },
+  "printThread": "In cuộc trò chuyện",
+  "messageMenu": "Thêm",
+  "printMessage": "In",
+  "showSource": "Hiển thị bản gốc",
+  "downloadSource": "Tải xuống thư (.eml)"
 }

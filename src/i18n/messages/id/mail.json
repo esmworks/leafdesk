@@ -150,5 +150,10 @@
       "delete": "{count, plural, other {# percakapan dihapus permanen}}",
       "move": "{count, plural, other {# percakapan dipindahkan ke {folder}}}"
     }
-  }
+  },
+  "printThread": "Cetak percakapan",
+  "messageMenu": "Lainnya",
+  "printMessage": "Cetak",
+  "showSource": "Tampilkan asli",
+  "downloadSource": "Unduh pesan (.eml)"
 }

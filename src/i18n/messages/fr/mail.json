@@ -150,5 +150,10 @@
       "delete": "{count, plural, one {# conversation supprimée définitivement} other {# conversations supprimées définitivement}}",
       "move": "{count, plural, one {# conversation déplacée vers {folder}} other {# conversations déplacées vers {folder}}}"
     }
-  }
+  },
+  "printThread": "Imprimer la conversation",
+  "messageMenu": "Plus",
+  "printMessage": "Imprimer",
+  "showSource": "Afficher l’original",
+  "downloadSource": "Télécharger le message (.eml)"
 }
