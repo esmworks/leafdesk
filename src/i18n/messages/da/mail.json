@@ -123,6 +123,9 @@
     "draftSavedShort": "Gemt",
     "draftSaved": "Kladde gemt",
     "draftFailed": "Kladden blev ikke gemt",
-    "draftDiscarded": "Kladde kasseret"
+    "draftDiscarded": "Kladde kasseret",
+    "alreadySent": "Allerede sendt, kan ikke fortrydes",
+    "sendUndone": "Afsendelse fortrudt: beskeden er en kladde igen",
+    "notSent": "Ikke sendt: {reason} Den er gemt i Kladder."
   }
 }

@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Undo send in the Mail tab.** A message sent waits 5 seconds on the server, with *Undo* in the
+  note that it was sent: taken back, it is a draft again and opens where it was written. It still
+  goes if the tab is closed meanwhile; one the mail server refuses then is kept as a draft and the
+  reason shown. No migration.
+
 - **Drafts in the Mail tab.** A message being written is saved to the mailbox's Drafts folder on
   the mail server a few seconds after each change and when it is closed, with its files, Bcc and
   signature, so it survives a closed tab and shows in other mail programs. Drafts open from the

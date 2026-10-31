@@ -4,7 +4,7 @@ import type { Editor } from "@tiptap/core";
 import { Check, ChevronDown, ChevronLeft, Paperclip, Send, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { discardDraftAction, saveDraftAction, sendMailAction } from "@/app/actions/mail";
+import { discardDraftAction, saveDraftAction, sendMailAction, undoSendAction } from "@/app/actions/mail";
 import { read } from "@/components/read";
 import { showToast } from "@/components/toast";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
@@ -12,12 +12,15 @@ import {
   MAIL_DRAFT_HEAVY,
   MAIL_DRAFT_SAVE_MS,
   MAIL_DRAFT_SLOW_MS,
+  MAIL_UNDO_SECONDS,
   MAX_COMPOSE_BYTES,
   type MailAttachmentView,
   type MailboxTabView,
   type MailDraftRef,
   type MailDraftView,
   type MailMessageView,
+  type MailSendStatus,
+  type MailUndoneSend,
 } from "@/lib/mail-client";
 import { parseRecipient, showAddress, splitAddresses, startFrom, type ComposeMode, type ComposeSource, type Recipient } from "./compose-start";
 import { FormatBar, MailEditorContent, putSignature, useMailEditor, writeBelow } from "./mail-editor";
@@ -30,13 +33,30 @@ type Attached = { file: File } | { stored: MailAttachmentView };
 const sizeOf = (a: Attached) => ("file" in a ? a.file.size : Math.round(a.stored.size / 1.37));
 const nameOf = (a: Attached) => ("file" in a ? a.file.name : a.stored.name);
 
+/** Asks how a message sent went once its Undo seconds are up, again while it is still going. */
+function followSend(sendId: string, then: (status: MailSendStatus) => void, tries = 0) {
+  setTimeout(
+    () =>
+      void read("mailSend", sendId)
+        .then((result) => {
+          if (!result.ok) return;
+          if ((result.data.state === "held" || result.data.state === "sending") && tries < 30) return followSend(sendId, then, tries + 1);
+          then(result.data);
+        })
+        .catch(() => {}),
+    tries ? 2000 : MAIL_UNDO_SECONDS * 1000 + 1000,
+  );
+}
+
 /**
  * Writes a message: a new one in the page's pane (`layout` "pane", from any of the person's
  * mailboxes), or an answer or forward of `source` under its thread (the server adds the thread's
  * references, and a forward's files). What is written is kept as a draft in the mailbox's drafts
  * folder a moment after each change and as the composer closes; `draft` opens one again.
  * Formatting is the editor's (mail-editor.tsx); sends with ⌘/Ctrl+Enter; files come from the
- * button or dropped on it.
+ * button or dropped on it. A message sent waits MAIL_UNDO_SECONDS on the server for Undo, which
+ * makes it a draft again for `onUndone` to open; `onDelivered` follows once it went (or failed and
+ * was kept as a draft).
  */
 export function Composer({
   box,
@@ -48,6 +68,8 @@ export function Composer({
   onSent,
   onClose,
   onSaved,
+  onUndone,
+  onDelivered,
 }: {
   box: MailboxTabView;
   boxes?: MailboxTabView[];
@@ -60,6 +82,8 @@ export function Composer({
   onClose: () => void;
   /** Its draft was saved (its id in the index now: each save is a new message there) or thrown away (null); `open` while it still shows. */
   onSaved?: (id: string | null, open: boolean) => void;
+  onUndone?: (draft: MailUndoneSend) => void;
+  onDelivered?: () => void;
 }) {
   const t = useTranslations("mail.composer");
   const locale = useLocale();
@@ -275,7 +299,21 @@ export function Composer({
     setSending(false);
     sendingNow.current = false;
     if (!result?.ok) return setError(result?.error ?? t("failed"));
-    showToast({ message: t("sent") });
+    const { sendId } = result.data;
+    showToast({
+      message: t("sent"),
+      undo: async () => {
+        const undone = await undoSendAction(sendId).catch(() => null);
+        if (!undone?.ok) return showToast({ message: undone?.error ?? t("failed") });
+        if (!undone.data) return showToast({ message: t("alreadySent") });
+        showToast({ message: t("sendUndone") });
+        onUndone?.(undone.data);
+      },
+    });
+    followSend(sendId, (status) => {
+      if (status.state === "failed") showToast({ message: t("notSent", { reason: status.error ?? "" }) });
+      if (status.state === "sent" || status.state === "failed") onDelivered?.();
+    });
     finish(onSent);
   }
 

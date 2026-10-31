@@ -109,7 +109,10 @@ change, and when it is closed or the page is left, so other mail programs see it
 survives a closed tab; each save replaces the one before. Drafts open from the Drafts folder
 beside the list, and a thread with an answer in a draft is marked *Draft* in the list and shows it
 under its messages, to edit or discard; a draft sent goes out as a new message and leaves the
-folder. Files of up to 20 MB in all, dropped on the message or
+folder. A message sent waits 5 seconds on the server before it goes, so *Undo* can take it back:
+it goes back to the drafts, and opens again where it was written. It still goes when the page is
+closed meanwhile; if the server restarts in those seconds it doesn't, and the draft last saved stays.
+A message that can't be sent then is kept as a draft and says why. Files of up to 20 MB in all, dropped on the message or
 attached, at most 100 recipients and 100 messages an hour from each mailbox; the sent folder keeps
 a copy. The search
 box looks through every folder but the trash and junk, in senders, recipients, subjects and first

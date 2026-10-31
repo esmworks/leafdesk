@@ -24,7 +24,7 @@ import { useRowPanel } from "@/components/database/row-panel-context";
 import { read } from "@/components/read";
 import { Button, cn, IconButton, PageIcon } from "@/components/ui";
 import { pagePath } from "@/lib/mentions";
-import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftView, MailFolderView, MailMessageView, MailThreadView } from "@/lib/mail-client";
+import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftView, MailFolderView, MailMessageView, MailThreadView, MailUndoneSend } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { lazyPart } from "@/components/lazy-part";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
@@ -314,7 +314,8 @@ export function ThreadView({
   onRead,
   compose,
   onComposeChange,
-  onSent,
+  onUndone,
+  onDelivered,
 }: {
   workspaceId: string;
   box: MailboxTabView;
@@ -329,7 +330,10 @@ export function ThreadView({
   onRead: () => void;
   compose: ComposeMode | null;
   onComposeChange: (mode: ComposeMode | null) => void;
-  onSent: () => void;
+  /** A message sent from here was taken back: its draft, to open where the thread isn't open any more. */
+  onUndone: (draft: MailUndoneSend) => void;
+  /** A message sent from here went (or failed and was kept as a draft). */
+  onDelivered: () => void;
 }) {
   const t = useTranslations("mail");
   const router = useRouter();
@@ -353,10 +357,19 @@ export function ThreadView({
   const [opening, setOpening] = useState<string | null>(null);
   // Drafts the open composer saved (or was opened from): it stands for them while it is open.
   const [written, setWritten] = useState<Set<string>>(() => new Set());
+  // Drafts of a message sent, until it goes: they leave the drafts folder then.
+  const [going, setGoing] = useState<Set<string>>(() => new Set());
   // Closing the composer forgets which message it answered, so R, A and F answer the newest again.
   if (!compose && answering) setAnswering(null);
   if (!compose && editing) setEditing(null);
   if (!compose && written.size) setWritten(new Set());
+  const live = useRef(true);
+  useEffect(() => {
+    live.current = true;
+    return () => {
+      live.current = false;
+    };
+  }, []);
   // Messages asked for already: the list's message is asked for before the thread comes.
   const asked = useRef(new Set<string>());
 
@@ -432,12 +445,12 @@ export function ThreadView({
   const source = thread?.messages.find((m) => m.id === (editing ? editing.replyTo : answering)) ?? last;
 
   /** Opens a draft of the thread in the composer. */
-  const editDraft = (m: MailMessageView) => {
-    setOpening(m.id);
-    void read("mailDraft", m.id)
+  const editDraft = (id: string) => {
+    setOpening(id);
+    void read("mailDraft", id)
       .then((result) => {
         if (!result.ok) return setError(result.error);
-        setWritten(new Set([m.id]));
+        setWritten(new Set([id]));
         setEditing(result.data);
         onComposeChange(result.data.replyTo ? "reply" : "forward");
       })
@@ -518,8 +531,8 @@ export function ThreadView({
             <div className="mt-4 border-t border-border">
               {thread.messages.map((m) =>
                 isDraft(m) ? (
-                  compose && written.has(m.id) ? null : (
-                    <DraftCard key={m.id} message={m} busy={opening === m.id} onEdit={() => editDraft(m)} onDiscard={() => discardDraft(m)} />
+                  (compose && written.has(m.id)) || going.has(m.id) ? null : (
+                    <DraftCard key={m.id} message={m} busy={opening === m.id} onEdit={() => editDraft(m.id)} onDiscard={() => discardDraft(m)} />
                   )
                 ) : (
                 <Message
@@ -556,10 +569,16 @@ export function ThreadView({
                     if (!open) setVersion((v) => v + 1);
                   }}
                   onSent={() => {
+                    setGoing(written);
                     onComposeChange(null);
-                    onSent();
+                  }}
+                  // Taken back: written on again here while the thread is open, else in the pane.
+                  onUndone={(draft) => (live.current && draft.id ? editDraft(draft.id) : onUndone(draft))}
+                  onDelivered={() => {
+                    onDelivered();
+                    setVersion((v) => v + 1);
                     // The sent copy reaches the thread with the next read of the sent folder.
-                    setTimeout(() => setVersion((v) => v + 1), 4000);
+                    setTimeout(() => setVersion((v) => v + 1), 3000);
                   }}
                 />
               </div>

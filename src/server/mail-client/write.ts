@@ -3,13 +3,13 @@ import type { ImapFlow } from "imapflow";
 import { db } from "@/db";
 import { mailFolder, mailMessage, type mailbox } from "@/db/schema";
 import { MAX_SENDS_PER_HOUR } from "@/lib/mail";
-import { movableTo, type MailAction, type MailDraftInput } from "@/lib/mail-client";
-import { RowMailError } from "@/server/row-mail/settings";
+import { MAIL_UNDO_SECONDS, movableTo, type MailAction, type MailDraftInput, type MailHeldSend, type MailUndoneSend } from "@/lib/mail-client";
+import { RowMailError, type RowMailErrorCode } from "@/server/row-mail/settings";
 import { connectError } from "@/server/row-mail/connect";
 import { keepSent, SAVES_SENT, sendRaw } from "@/server/row-mail/send";
 import { requireOwnMailbox } from "./access";
-import { buildMessage, newMessageId, written } from "./compose";
-import { draftForSend, sentDraft } from "./drafts";
+import { buildMessage, newMessageId, written, type Attachment, type Written } from "./compose";
+import { draftForSend, keepAsDraft, sentDraft } from "./drafts";
 import { makeFolder, recount } from "./folders";
 import { withImap } from "./pool";
 
@@ -139,29 +139,36 @@ export async function mailAction(userId: string, input: { mailboxId: string; fol
 /** Sends from the Mail tab, per mailbox an hour, in this process (row-mail's sending counts its own). */
 const sends = ((globalThis as typeof globalThis & { __leafdeskMailSends?: Map<string, number[]> }).__leafdeskMailSends ??= new Map<string, number[]>());
 
+type Prepared = { userId: string; box: Box; draft: MailDraftInput; w: Written; attachments: Attachment[]; raw: Buffer };
+
+const recentSends = (box: Box) => (sends.get(box.id) ?? []).filter((at) => at > Date.now() - 3_600_000);
+
 /**
- * Sends a message from one of the person's mailboxes: an answer (In-Reply-To and References of
- * the message it answers, which is marked answered), a forward (with the files of the message
- * it forwards) or a new one, with `files`. A message saved as a draft brings the files it kept
- * there, and its draft goes once it is sent. The sent folder keeps a copy where the server doesn't
- * itself; the next read puts it in the index.
+ * A message ready to go out, checked: who it goes to and what it says, within the hour's sends,
+ * with its files gathered (those it kept in its draft, those it forwards, `files`) and its MIME
+ * message built, so what can be wrong with it shows before it waits.
  */
-export async function sendMail(userId: string, draft: MailDraftInput, files: File[] = []): Promise<{ messageId: string }> {
+async function prepare(userId: string, draft: MailDraftInput, files: File[]): Promise<Prepared> {
   const box = await requireOwnMailbox(userId, draft?.mailboxId);
   const w = await written(box, draft, { toSend: true });
-  const recent = (sends.get(box.id) ?? []).filter((at) => at > Date.now() - 3_600_000);
-  if (recent.length >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
+  if (recentSends(box).length >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
   const attachments = await draftForSend(userId, box, draft, files);
-  const messageId = newMessageId(box);
-  const raw = await buildMessage(userId, box, w, attachments, { messageId, draft: false });
+  const raw = await buildMessage(userId, box, w, attachments, { messageId: newMessageId(box), draft: false });
+  return { userId, box, draft, w, attachments, raw };
+}
 
+/**
+ * Sends a prepared message: an answer is marked answered, the draft it was saved as goes, and the
+ * sent folder keeps a copy where the server doesn't itself (the next read puts it in the index).
+ */
+async function deliver({ userId, box, draft, w, raw }: Prepared) {
   try {
     await sendRaw(box, raw, [...w.to, ...w.cc, ...w.bcc]);
   } catch (error) {
     const failed = connectError(error);
     throw new RowMailError(failed.code === "auth" || failed.code === "signIn" ? failed.code : "unreachable");
   }
-  sends.set(box.id, [...recent, Date.now()]);
+  sends.set(box.id, [...recentSends(box), Date.now()]);
 
   await sentDraft(userId, box, draft.draft);
   const sent = (await folders(box)).find((f) => f.role === "sent");
@@ -178,5 +185,76 @@ export async function sendMail(userId: string, draft: MailDraftInput, files: Fil
     }).catch(() => {});
     await db.update(mailMessage).set({ answered: true }).where(eq(mailMessage.id, answers.id));
   }
-  return { messageId };
+}
+
+/**
+ * Sends a message from one of the person's mailboxes at once: an answer (In-Reply-To and
+ * References of the message it answers), a forward (with the files of the message it forwards)
+ * or a new one, with `files`. A message saved as a draft brings the files it kept there.
+ */
+export async function sendMail(userId: string, draft: MailDraftInput, files: File[] = []): Promise<void> {
+  await deliver(await prepare(userId, draft, files));
+}
+
+/**
+ * Messages sent from the Mail tab wait MAIL_UNDO_SECONDS here, in this process, for Undo. Waiting
+ * on the server, not in the browser, a message still goes when its tab is closed meanwhile; a
+ * restart in those seconds loses it, but for the draft it was last saved as.
+ */
+type Held = Prepared & { timer: ReturnType<typeof setTimeout> | null; state: "held" | "sending" | "sent" | "undone" | "failed"; error: RowMailErrorCode | null };
+const held = ((globalThis as typeof globalThis & { __leafdeskMailHeld?: Map<string, Held> }).__leafdeskMailHeld ??= new Map<string, Held>());
+/** How long the outcome of a send stays to be asked for. */
+const KEPT_MS = 10 * 60_000;
+
+const settled = (id: string) => setTimeout(() => held.delete(id), KEPT_MS).unref?.();
+
+/**
+ * Sends a message (as sendMail) after MAIL_UNDO_SECONDS, unless undone. Returns the id to undo it
+ * by and to ask how it went: a send that fails then keeps the message as a draft.
+ */
+export async function holdMail(userId: string, draft: MailDraftInput, files: File[] = []): Promise<MailHeldSend> {
+  const prepared = await prepare(userId, draft, files);
+  const id = crypto.randomUUID();
+  held.set(id, { ...prepared, timer: setTimeout(() => void sendHeld(id), MAIL_UNDO_SECONDS * 1000), state: "held", error: null });
+  return { sendId: id };
+}
+
+/** Sends a held message now (when its seconds are up; the e2e check calls it). */
+export async function sendHeld(id: string) {
+  const entry = held.get(id);
+  if (!entry || entry.state !== "held") return;
+  if (entry.timer) clearTimeout(entry.timer);
+  entry.state = "sending";
+  try {
+    await deliver(entry);
+    entry.state = "sent";
+  } catch (error) {
+    entry.error = error instanceof RowMailError ? error.code : "unreachable";
+    entry.state = "failed";
+    if (!(error instanceof RowMailError)) console.error("[mail-client] a held message could not be sent", error);
+    await keepAsDraft(entry.userId, entry.draft, entry.attachments).catch((e) => console.error("[mail-client] a message not sent could not be kept as a draft", e));
+  }
+  settled(id);
+}
+
+/**
+ * Takes back a message still waiting: it goes back to the drafts folder (in place of the draft it
+ * was saved as), and its draft's id comes back to open it again. Null when it went already.
+ */
+export async function undoSend(userId: string, id: string): Promise<MailUndoneSend | null> {
+  const entry = typeof id === "string" ? held.get(id) : undefined;
+  if (!entry || entry.userId !== userId) throw new RowMailError("gone");
+  if (entry.state !== "held") return null;
+  if (entry.timer) clearTimeout(entry.timer);
+  entry.state = "undone";
+  settled(id);
+  const saved = await keepAsDraft(userId, entry.draft, entry.attachments);
+  return { id: saved.id, replyTo: entry.w.answers?.id ?? null };
+}
+
+/** How a held message went, for its sender. */
+export function sendStatus(userId: string, id: string): { state: Held["state"] | "gone"; error: RowMailErrorCode | null } {
+  const entry = typeof id === "string" ? held.get(id) : undefined;
+  if (!entry || entry.userId !== userId) return { state: "gone", error: null };
+  return { state: entry.state, error: entry.error };
 }

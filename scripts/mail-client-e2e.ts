@@ -10,7 +10,7 @@
  * deleting for good reach the server and the index at once; an answer goes out in the same thread and lands in the sent
  * folder; a draft is kept in the drafts folder (made where there is none), each save replacing the last under one
  * Message-ID with the files it kept, opens again with its Bcc and signature, marks the thread it answers, and goes
- * once sent or thrown away; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
+ * once sent or thrown away; a message sent waits for Undo, which makes it a draft again, and goes when its seconds are up; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
  * recipient fields suggest the people written with; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
  * elsewhere; search finds by sender and subject; no one but the mailbox's owner reads it.
  * Creates its own users and workspace and deletes them afterwards.
@@ -80,7 +80,7 @@ const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { connectMailbox, setMailDatabases, RowMailError } = await import("@/server/row-mail/settings");
 const { syncDue } = await import("@/server/row-mail/sync");
 const read = await import("@/server/mail-client/read");
-const { mailAction, sendMail } = await import("@/server/mail-client/write");
+const { holdMail, mailAction, sendHeld, sendMail, sendStatus, undoSend } = await import("@/server/mail-client/write");
 const drafts = await import("@/server/mail-client/drafts");
 const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
@@ -417,6 +417,39 @@ try {
   await drafts.discardDraft(ids.ada, { id: replyDraft.id, messageId: replyDraft.messageId, keep: [] });
   check((await uidsIn("Drafts")).length === 0 && !(await db.select().from(mailMessage).where(eq(mailMessage.folderId, draftFolder.id))).length, "a draft thrown away goes from the server and the index");
   check(!(await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.find((t) => t.threadId === butce.threadId)?.hasDraft, "and its thread says no more that it has one");
+
+  // Undoing a send
+  const toUndo = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Geri alınacak", html: "<p>Ilk yazilan</p>" });
+  const hold = await holdMail(ids.ada, {
+    mailboxId: boxId,
+    to: [customer],
+    cc: [],
+    bcc: [],
+    subject: "Geri alınacak",
+    html: "<p>Bekleyen son hali</p>",
+    draft: { id: toUndo.id, messageId: toUndo.messageId, keep: [] },
+  });
+  check(sendStatus(ids.ada, hold.sendId).state === "held" && sendStatus(ids.bob, hold.sendId).state === "gone", "a message sent waits for Undo, known to its sender alone");
+  check((await errorCode(() => undoSend(ids.bob, hold.sendId))) === "gone", "only its sender takes it back");
+  const undone = await undoSend(ids.ada, hold.sendId);
+  const back = undone?.id ? await drafts.openDraft(ids.ada, undone.id) : null;
+  check(!!back?.html.includes("Bekleyen son hali") && back.messageId === toUndo.messageId && (await uidsIn("Drafts")).length === 1, "taken back, it is a draft again as it was sent, in place of its draft", back);
+  await sendHeld(hold.sendId);
+  await settle();
+  check(sendStatus(ids.ada, hold.sendId).state === "undone" && !(await lastMessageTo(customer)).includes("Bekleyen son hali"), "and doesn't go when its seconds are up");
+  const goes = await holdMail(ids.ada, {
+    mailboxId: boxId,
+    to: [customer],
+    cc: [],
+    bcc: [],
+    subject: "Geri alınacak",
+    html: "<p>Simdi gidiyor</p>",
+    draft: { id: undone!.id, messageId: back!.messageId, keep: [] },
+  });
+  await sendHeld(goes.sendId);
+  await settle();
+  check(sendStatus(ids.ada, goes.sendId).state === "sent" && (await lastMessageTo(customer)).includes("Simdi gidiyor") && (await uidsIn("Drafts")).length === 0, "a message not taken back goes, and its draft with it");
+  check((await undoSend(ids.ada, goes.sendId)) === null, "and can't be taken back once gone");
 
   // Writing with formatting, from the other mailbox
   await sendMail(ids.ada, {

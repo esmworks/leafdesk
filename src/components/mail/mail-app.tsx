@@ -10,7 +10,7 @@ import { read } from "@/components/read";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { showToast } from "@/components/toast";
 import { cn, IconButton } from "@/components/ui";
-import { MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem } from "@/lib/mail-client";
+import { MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen } from "./mail-store";
@@ -248,6 +248,23 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     goRef.current = go;
   }, [go]);
   useEffect(() => onCompose(() => goRef.current({ c: "new" })), []);
+
+  // A send undone opens its draft again in the pane, while Mail is still open; once a message went,
+  // the list is read again (the folder open then: the sent folder or the drafts show the change).
+  const live = useRef(true);
+  useEffect(() => {
+    live.current = true;
+    return () => {
+      live.current = false;
+    };
+  }, []);
+  const sendUndone = useCallback((draft: MailUndoneSend) => {
+    if (live.current && draft.id) goRef.current({ c: `d:${draft.id}`, t: null });
+  }, []);
+  const afterSend = useRef<(thread: boolean) => void>(() => {});
+  afterSend.current = (thread) => {
+    if (thread || folder?.role === "sent" || folder?.role === "drafts") void loadPage(null);
+  };
   useEffect(() => setTyped(query), [query]);
 
   const items = list.items;
@@ -542,10 +559,9 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
           layout="pane"
           onClose={() => go({ c: null })}
           onSaved={paneSaved}
-          onSent={() => {
-            go({ c: null });
-            if (folder.role === "sent" || folder.role === "drafts") void loadPage(null);
-          }}
+          onSent={() => go({ c: null })}
+          onUndone={sendUndone}
+          onDelivered={() => afterSend.current(false)}
         />
       ) : threadId ? (
         <ThreadView
@@ -564,7 +580,8 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
           onRead={onRead}
           compose={compose}
           onComposeChange={setCompose}
-          onSent={() => void loadPage(null)}
+          onUndone={sendUndone}
+          onDelivered={() => afterSend.current(true)}
         />
       ) : (
         <div className="hidden min-w-0 flex-1 items-center justify-center text-sm text-fg-faint md:flex">{t("noneOpen")}</div>

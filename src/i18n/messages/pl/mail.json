@@ -123,6 +123,9 @@
     "draftSavedShort": "Zapisano",
     "draftSaved": "Wersja robocza zapisana",
     "draftFailed": "Nie zapisano wersji roboczej",
-    "draftDiscarded": "Wersja robocza odrzucona"
+    "draftDiscarded": "Wersja robocza odrzucona",
+    "alreadySent": "Już wysłano, nie można cofnąć",
+    "sendUndone": "Wysyłanie cofnięte: wiadomość znów jest wersją roboczą",
+    "notSent": "Nie wysłano: {reason} Jest zachowana w wersjach roboczych."
   }
 }

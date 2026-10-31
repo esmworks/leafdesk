@@ -123,6 +123,9 @@
     "draftSavedShort": "Lagret",
     "draftSaved": "Utkast lagret",
     "draftFailed": "Utkastet ble ikke lagret",
-    "draftDiscarded": "Utkast forkastet"
+    "draftDiscarded": "Utkast forkastet",
+    "alreadySent": "Allerede sendt, kan ikke angres",
+    "sendUndone": "Sending angret: meldingen er et utkast igjen",
+    "notSent": "Ikke sendt: {reason} Den er lagret i Utkast."
   }
 }

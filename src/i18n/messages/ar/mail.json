@@ -123,6 +123,9 @@
     "draftSavedShort": "تم الحفظ",
     "draftSaved": "تم حفظ المسودة",
     "draftFailed": "لم تُحفظ المسودة",
-    "draftDiscarded": "تم تجاهل المسودة"
+    "draftDiscarded": "تم تجاهل المسودة",
+    "alreadySent": "أُرسلت بالفعل ولا يمكن التراجع",
+    "sendUndone": "تم التراجع عن الإرسال: الرسالة مسودة من جديد",
+    "notSent": "لم تُرسل: {reason} محفوظة في المسودات."
   }
 }

@@ -123,6 +123,9 @@
     "draftSavedShort": "已保存",
     "draftSaved": "草稿已保存",
     "draftFailed": "草稿未保存",
-    "draftDiscarded": "草稿已舍弃"
+    "draftDiscarded": "草稿已舍弃",
+    "alreadySent": "已发送，无法撤回",
+    "sendUndone": "已撤销发送：邮件已回到草稿",
+    "notSent": "未发送：{reason} 已保存在草稿中。"
   }
 }

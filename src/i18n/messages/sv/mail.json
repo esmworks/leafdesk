@@ -123,6 +123,9 @@
     "draftSavedShort": "Sparat",
     "draftSaved": "Utkast sparat",
     "draftFailed": "Utkastet sparades inte",
-    "draftDiscarded": "Utkast slängt"
+    "draftDiscarded": "Utkast slängt",
+    "alreadySent": "Redan skickat, kan inte ångras",
+    "sendUndone": "Sändningen ångrad: meddelandet är ett utkast igen",
+    "notSent": "Inte skickat: {reason} Det sparas i Utkast."
   }
 }

@@ -123,6 +123,9 @@
     "draftSavedShort": "Enregistré",
     "draftSaved": "Brouillon enregistré",
     "draftFailed": "Brouillon non enregistré",
-    "draftDiscarded": "Brouillon supprimé"
+    "draftDiscarded": "Brouillon supprimé",
+    "alreadySent": "Déjà envoyé, impossible de l'annuler",
+    "sendUndone": "Envoi annulé : le message est de nouveau un brouillon",
+    "notSent": "Non envoyé : {reason} Il est conservé dans les brouillons."
   }
 }

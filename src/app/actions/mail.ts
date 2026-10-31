@@ -2,13 +2,13 @@
 
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailDraftRef, MailDraftView, MailFolderView, MailSavedDraft, MailThreadPage, MailThreadView } from "@/lib/mail-client";
+import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailDraftRef, MailDraftView, MailFolderView, MailHeldSend, MailSavedDraft, MailSendStatus, MailThreadPage, MailThreadView, MailUndoneSend } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
 import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, readBody, refreshFolder, refreshMailbox } from "@/server/mail-client/read";
 import { suggestAddresses } from "@/server/mail-client/contacts";
 import { discardDraft, openDraft, saveDraft } from "@/server/mail-client/drafts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
-import { mailAction, sendMail } from "@/server/mail-client/write";
+import { holdMail, mailAction, sendStatus, undoSend } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
 import { requireUserId } from "@/server/session";
@@ -100,10 +100,25 @@ function composed(form: FormData) {
 }
 
 /** Sends a message (see `composed`); the draft it was saved as goes. */
-export async function sendMailAction(form: FormData): Promise<ActionResult<{ messageId: string }>> {
+/** Sends what the composer holds after the seconds Undo has (see `composed`). */
+export async function sendMailAction(form: FormData): Promise<ActionResult<MailHeldSend>> {
   return run(async (userId) => {
     const { draft, files } = composed(form);
-    return sendMail(userId, draft, files);
+    return holdMail(userId, draft, files);
+  });
+}
+
+/** Takes back a message still waiting to go: it is a draft again. Null when it went already. */
+export async function undoSendAction(sendId: string): Promise<ActionResult<MailUndoneSend | null>> {
+  return run((userId) => undoSend(userId, sendId));
+}
+
+/** How a message sent from the composer went, with the reason said when it failed. */
+export async function sendStatusAction(sendId: string): Promise<ActionResult<MailSendStatus>> {
+  return run(async (userId) => {
+    const status = sendStatus(userId, sendId);
+    const t = await getTranslations("settings.email.errors");
+    return { state: status.state, error: status.error ? t(status.error) : null };
   });
 }
 

@@ -123,6 +123,9 @@
     "draftSavedShort": "Opgeslagen",
     "draftSaved": "Concept opgeslagen",
     "draftFailed": "Concept niet opgeslagen",
-    "draftDiscarded": "Concept verwijderd"
+    "draftDiscarded": "Concept verwijderd",
+    "alreadySent": "Al verzonden, kan niet worden teruggenomen",
+    "sendUndone": "Verzenden ongedaan gemaakt: het bericht is weer een concept",
+    "notSent": "Niet verzonden: {reason} Het staat bij Concepten."
   }
 }

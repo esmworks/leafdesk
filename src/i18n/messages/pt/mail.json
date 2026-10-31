@@ -123,6 +123,9 @@
     "draftSavedShort": "Salvo",
     "draftSaved": "Rascunho salvo",
     "draftFailed": "Rascunho não salvo",
-    "draftDiscarded": "Rascunho descartado"
+    "draftDiscarded": "Rascunho descartado",
+    "alreadySent": "Já enviado, não foi possível desfazer",
+    "sendUndone": "Envio desfeito: a mensagem voltou a ser um rascunho",
+    "notSent": "Não enviado: {reason} Ficou guardado nos rascunhos."
   }
 }

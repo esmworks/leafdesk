@@ -123,6 +123,9 @@
     "draftSavedShort": "保存済み",
     "draftSaved": "下書きを保存しました",
     "draftFailed": "下書きを保存できませんでした",
-    "draftDiscarded": "下書きを破棄しました"
+    "draftDiscarded": "下書きを破棄しました",
+    "alreadySent": "すでに送信済みのため取り消せません",
+    "sendUndone": "送信を取り消しました。メッセージは下書きに戻りました",
+    "notSent": "送信できませんでした: {reason} 下書きに保存されています。"
   }
 }

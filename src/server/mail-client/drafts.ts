@@ -6,7 +6,7 @@ import { normalizeAddress } from "@/lib/mail";
 import { MAX_COMPOSE_BYTES, type MailAddress, type MailDraftInput, type MailDraftRef, type MailDraftView, type MailSavedDraft } from "@/lib/mail-client";
 import { RowMailError } from "@/server/row-mail/settings";
 import { requireOwnMailbox } from "./access";
-import { addedFiles, attachedBytes, buildMessage, filesOf, newMessageId, storedMessage, written, type Attachment, type StoredMessage } from "./compose";
+import { addedFiles, attachedBytes, buildMessage, filesOf, newMessageId, storedMessage, written, type Attachment, type StoredMessage, type Written } from "./compose";
 import { makeFolder, recount, type FolderRow } from "./folders";
 import { indexFolder, indexUids } from "./indexer";
 import { editableBody } from "./outgoing";
@@ -125,7 +125,20 @@ export async function saveDraft(userId: string, input: MailDraftInput, files: Fi
   const box = await requireOwnMailbox(userId, input?.mailboxId);
   const w = await written(box, input, { toSend: false });
   const earlier = await earlierDraft(userId, box, input.draft);
-  const attachments = await draftFiles(box, input, files, earlier);
+  return storeDraft(userId, box, w, await draftFiles(box, input, files, earlier), earlier);
+}
+
+/**
+ * Keeps a message that was to be sent as a draft again, with the files it was going with: sending
+ * it was undone, or failed.
+ */
+export async function keepAsDraft(userId: string, input: MailDraftInput, attachments: Attachment[]): Promise<MailSavedDraft> {
+  const box = await requireOwnMailbox(userId, input?.mailboxId);
+  const w = await written(box, input, { toSend: false });
+  return storeDraft(userId, box, w, attachments, await earlierDraft(userId, box, input.draft));
+}
+
+async function storeDraft(userId: string, box: Box, w: Written, attachments: Attachment[], earlier: Earlier | null): Promise<MailSavedDraft> {
   // The same Message-ID from the first save on (the draft is found by it); a new one for a draft
   // moved to another mailbox, which must not be taken for its copy there.
   const messageId = earlier?.messageId && earlier.box.id === box.id ? earlier.messageId : newMessageId(box);

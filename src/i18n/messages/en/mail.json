@@ -123,6 +123,9 @@
     "draftSavedShort": "Saved",
     "draftSaved": "Draft saved",
     "draftFailed": "Draft not saved",
-    "draftDiscarded": "Draft discarded"
+    "draftDiscarded": "Draft discarded",
+    "alreadySent": "Already sent: it couldn't be taken back",
+    "sendUndone": "Sending undone: the message is a draft again",
+    "notSent": "Not sent: {reason} It is kept in Drafts."
   }
 }

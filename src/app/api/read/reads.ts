@@ -2,7 +2,7 @@ import { agentChatInfoAction, agentChatTurnAction, agentThreadAction, agentThrea
 import { pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
-import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftAction, openMailboxAction, prefetchBodiesAction, readBodyAction, refreshFolderAction, suggestAddressesAction } from "@/app/actions/mail";
+import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftAction, openMailboxAction, prefetchBodiesAction, readBodyAction, refreshFolderAction, sendStatusAction, suggestAddressesAction } from "@/app/actions/mail";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { listInboxAction, unreadCountAction } from "@/app/actions/notifications";
 import { recordPageViewAction } from "@/app/actions/page-views";
@@ -59,6 +59,7 @@ export const READS = {
   mailAhead: prefetchBodiesAction,
   mailAddresses: suggestAddressesAction,
   mailDraft: openDraftAction,
+  mailSend: sendStatusAction,
 };
 
 export type Reads = typeof READS;

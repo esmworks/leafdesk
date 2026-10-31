@@ -123,6 +123,9 @@
     "draftSavedShort": "נשמר",
     "draftSaved": "הטיוטה נשמרה",
     "draftFailed": "הטיוטה לא נשמרה",
-    "draftDiscarded": "הטיוטה נמחקה"
+    "draftDiscarded": "הטיוטה נמחקה",
+    "alreadySent": "כבר נשלח, אי אפשר לבטל",
+    "sendUndone": "השליחה בוטלה: ההודעה שוב טיוטה",
+    "notSent": "לא נשלח: {reason} ההודעה נשמרה בטיוטות."
   }
 }

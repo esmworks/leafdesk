@@ -123,6 +123,9 @@
     "draftSavedShort": "Guardado",
     "draftSaved": "Borrador guardado",
     "draftFailed": "No se guardó el borrador",
-    "draftDiscarded": "Borrador descartado"
+    "draftDiscarded": "Borrador descartado",
+    "alreadySent": "Ya se envió, no se puede deshacer",
+    "sendUndone": "Envío deshecho: el mensaje vuelve a ser un borrador",
+    "notSent": "No se envió: {reason} Se guarda en Borradores."
   }
 }

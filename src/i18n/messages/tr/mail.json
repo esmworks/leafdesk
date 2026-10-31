@@ -123,6 +123,9 @@
     "draftSavedShort": "Kaydedildi",
     "draftSaved": "Taslak kaydedildi",
     "draftFailed": "Taslak kaydedilemedi",
-    "draftDiscarded": "Taslak silindi"
+    "draftDiscarded": "Taslak silindi",
+    "alreadySent": "Zaten gönderildi, geri alınamadı",
+    "sendUndone": "Gönderim geri alındı: ileti yeniden taslak",
+    "notSent": "Gönderilemedi: {reason} Taslaklarda saklandı."
   }
 }

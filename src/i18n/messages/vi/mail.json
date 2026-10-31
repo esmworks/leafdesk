@@ -123,6 +123,9 @@
     "draftSavedShort": "Đã lưu",
     "draftSaved": "Đã lưu thư nháp",
     "draftFailed": "Chưa lưu được thư nháp",
-    "draftDiscarded": "Đã hủy thư nháp"
+    "draftDiscarded": "Đã hủy thư nháp",
+    "alreadySent": "Đã gửi, không thể hoàn tác",
+    "sendUndone": "Đã hoàn tác gửi: thư lại là bản nháp",
+    "notSent": "Chưa gửi được: {reason} Thư được giữ trong Bản nháp."
   }
 }

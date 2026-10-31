@@ -123,6 +123,9 @@
     "draftSavedShort": "저장됨",
     "draftSaved": "임시 보관됨",
     "draftFailed": "임시 보관하지 못했습니다",
-    "draftDiscarded": "임시 보관 메일을 삭제했습니다"
+    "draftDiscarded": "임시 보관 메일을 삭제했습니다",
+    "alreadySent": "이미 보내져 취소할 수 없습니다",
+    "sendUndone": "보내기를 취소했습니다. 메시지가 다시 임시 보관함에 있습니다",
+    "notSent": "보내지 못했습니다: {reason} 임시 보관함에 저장했습니다."
   }
 }

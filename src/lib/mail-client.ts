@@ -289,6 +289,13 @@ export type MailDraftInput = {
  */
 export type MailDraftRef = { id: string | null; messageId: string | null; keep: string[]; mailboxId?: string };
 
+/** A message sent from the Mail tab, waiting MAIL_UNDO_SECONDS on the server for Undo. */
+export type MailHeldSend = { sendId: string };
+/** A send undone: the draft it went back to (its id in the index, when known) and the message it answers. */
+export type MailUndoneSend = { id: string | null; replyTo: string | null };
+/** How a held send went; `error` is said for its sender when it failed (it is kept as a draft then). */
+export type MailSendStatus = { state: "held" | "sending" | "sent" | "undone" | "failed" | "gone"; error: string | null };
+
 /** A draft just saved in the mailbox's drafts folder. */
 export type MailSavedDraft = { id: string | null; messageId: string; attachments: MailAttachmentView[] };
 

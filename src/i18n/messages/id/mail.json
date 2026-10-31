@@ -123,6 +123,9 @@
     "draftSavedShort": "Tersimpan",
     "draftSaved": "Draf disimpan",
     "draftFailed": "Draf tidak tersimpan",
-    "draftDiscarded": "Draf dibuang"
+    "draftDiscarded": "Draf dibuang",
+    "alreadySent": "Sudah terkirim, tidak dapat dibatalkan",
+    "sendUndone": "Pengiriman dibatalkan: pesan kembali menjadi draf",
+    "notSent": "Tidak terkirim: {reason} Disimpan di Draf."
   }
 }

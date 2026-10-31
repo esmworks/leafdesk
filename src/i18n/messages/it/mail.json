@@ -123,6 +123,9 @@
     "draftSavedShort": "Salvata",
     "draftSaved": "Bozza salvata",
     "draftFailed": "Bozza non salvata",
-    "draftDiscarded": "Bozza eliminata"
+    "draftDiscarded": "Bozza eliminata",
+    "alreadySent": "Già inviato, non si può annullare",
+    "sendUndone": "Invio annullato: il messaggio è di nuovo una bozza",
+    "notSent": "Non inviato: {reason} È conservato nelle bozze."
   }
 }
