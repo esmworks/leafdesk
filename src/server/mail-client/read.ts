@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { mailbox, mailFolder, mailMessage, page } from "@/db/schema";
 import { dmarcFailed, normalizeAddress, parseHeaderBlock } from "@/lib/mail";
 import { imagesShown, type MailImagesFrom } from "@/lib/mail-images";
+import { unsubscribeOffer, unsubscribeTargets } from "@/lib/mail-unsubscribe";
 import {
   MAIL_PAGE,
   parseMailQuery,
@@ -425,7 +426,7 @@ export async function getThread(userId: string, input: { mailboxId: string; thre
 const travelling = (bytes: number) => Math.ceil(bytes * 1.4) + 1024;
 
 /** The message row and its folder, for its owner. */
-async function ownMessage(userId: string, id: string) {
+export async function ownMessage(userId: string, id: string) {
   const [found] =
     typeof id === "string" && id
       ? await db.select({ message: mailMessage, folder: mailFolder }).from(mailMessage).innerJoin(mailFolder, eq(mailFolder.id, mailMessage.folderId)).where(eq(mailMessage.id, id))
@@ -444,12 +445,6 @@ const listAddresses = (value: string | undefined): MailAddress[] =>
       return address ? { address, name: match?.[1]?.trim() || null } : null;
     })
     .filter((a): a is MailAddress => !!a);
-
-/** The web address of a List-Unsubscribe header, when it has one. */
-function unsubscribeLink(value: string | undefined) {
-  const link = /<(https:\/\/[^>]+)>/i.exec(value ?? "")?.[1];
-  return link && link.length <= 2000 ? link : null;
-}
 
 /**
  * Reads a message's text, cleaned HTML and list of files from the mail server (or memory, when it
@@ -535,7 +530,7 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
       const lock = await client.getMailboxLock(folder.path);
       step("select");
       try {
-        const fetched = await client.fetchOne(String(message.uid), { uid: true, bodyStructure: true, headers: ["reply-to", "authentication-results", "list-unsubscribe"] }, { uid: true });
+        const fetched = await client.fetchOne(String(message.uid), { uid: true, bodyStructure: true, headers: ["reply-to", "authentication-results", "list-unsubscribe", "list-unsubscribe-post"] }, { uid: true });
         step("structure");
         if (!fetched || !fetched.bodyStructure) return null;
         const parts = messageParts(fetched.bodyStructure);
@@ -594,7 +589,7 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
     attachments,
     replyTo: listAddresses(result.fields.get("reply-to")?.[0]),
     unverifiedSender,
-    unsubscribe: unsubscribeLink(result.fields.get("list-unsubscribe")?.[0]),
+    unsubscribe: unsubscribeOffer(unsubscribeTargets(result.fields.get("list-unsubscribe")?.[0], result.fields.get("list-unsubscribe-post")?.[0]), unverifiedSender),
   };
 }
 

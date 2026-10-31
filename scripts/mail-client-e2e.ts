@@ -86,6 +86,7 @@ const drafts = await import("@/server/mail-client/drafts");
 const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
 const images = await import("@/server/mail-client/images");
+const { unsubscribe } = await import("@/server/mail-client/unsubscribe");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 
@@ -297,7 +298,7 @@ try {
   check(body.html!.includes("data:image/png;base64,"), "an image the message carries is shown inline");
   check(/target="_blank"/.test(body.html!) && /rel="noopener noreferrer"/.test(body.html!), "links open in a new tab");
   check(body.attachments.length === 1 && body.attachments[0].name === "fiyat.pdf", "the files list leaves out the image already shown", body.attachments);
-  check(body.unsubscribe === "https://lists.test/unsub?u=1" && body.text.includes("Bülten metni"), "the text and the web unsubscribe address come along", body);
+  check(body.unsubscribe?.how === "mail" && body.unsubscribe.address === "unsub@lists.test" && body.text.includes("Bülten metni"), "the text and the list's way out come along: a mail before a web page", body);
   const withImages = await read.readBody(ids.ada, { id: bulten.messageId, images: true });
   check(withImages.html!.includes("https://tracker.example/pixel.gif") && withImages.blockedImages === 0, "asked for, remote images stay in");
   check(withImages.images === "asked" && body.images === null, "the body says why its images load", [withImages.images, body.images]);
@@ -675,6 +676,40 @@ try {
   const found = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id, search: `from:ayse konu:teklif` });
   check(found.items.length === 1 && found.items[0].threadId === teklif!.threadId, "search finds by sender and subject in every folder but the trash", found.items.map((t) => t.subject));
   check((await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id, search: "sipariş formu" })).items.length === 1, "and words of the first line");
+
+  // Leaving mailing lists
+  const robot = `robot.${RUN}@lists.test`;
+  const list = { from: `Liste <${stranger}>`, to: ada, text: "Liste" };
+  const oneClickHeaders = { "List-Unsubscribe": "<https://lists.test/u?x=1>, <mailto:unsub@lists.test>", "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" };
+  await outside.sendMail({ ...list, subject: "Tek tık liste", headers: oneClickHeaders });
+  await outside.sendMail({ ...list, subject: "Posta liste", headers: { "List-Unsubscribe": `<mailto:${robot}?subject=Abonelik%20iptal>` } });
+  await outside.sendMail({ ...list, subject: "Sahte liste", headers: { ...oneClickHeaders, "Authentication-Results": "mx.lists.test; dmarc=fail header.from=lists.test" } });
+  await settle();
+  await sweep();
+  const lists = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items;
+  const listMessage = (subject: string) => lists.find((t) => t.subject === subject)!.messageId;
+  const offers = await Promise.all(["Tek tık liste", "Posta liste", "Sahte liste"].map(async (s) => (await read.readBody(ids.ada, { id: listMessage(s) })).unsubscribe));
+  check(
+    offers[0]?.how === "oneClick" && offers[1]?.how === "mail" && offers[1].address === robot && offers[2]?.how === "web" && offers[2].url === "https://lists.test/u?x=1",
+    "a list offers its one-click address, else a mail to it; a sender failing the check, only its web page",
+    offers,
+  );
+  const posted: { url: string; method: string; body: string; reach: unknown }[] = [];
+  const listAnswers = (status: number) => async (url: string | URL | Request, init: RequestInit = {}, reach: unknown = {}) => {
+    posted.push({ url: String(url), method: init.method ?? "GET", body: String(init.body), reach });
+    return new Response(null, { status });
+  };
+  check((await unsubscribe(ids.ada, { id: listMessage("Tek tık liste") }, listAnswers(200))) === "oneClick", "one click unsubscribes");
+  check(
+    posted[0]?.url === "https://lists.test/u?x=1" && posted[0].method === "POST" && posted[0].body === "List-Unsubscribe=One-Click" && (posted[0].reach as { untrusted?: boolean }).untrusted === true,
+    "by posting List-Unsubscribe=One-Click to the list's address, as an untrusted address",
+    posted,
+  );
+  check((await errorCode(() => unsubscribe(ids.ada, { id: listMessage("Tek tık liste") }, listAnswers(500)))) === "unsubscribeFailed", "a list that refuses it says so");
+  check((await errorCode(() => unsubscribe(ids.bob, { id: listMessage("Tek tık liste") }, listAnswers(200)))) === "noMailbox" && posted.length === 2, "another member can't unsubscribe the mailbox");
+  check((await unsubscribe(ids.ada, { id: listMessage("Posta liste") })) === "mail", "a list with only an address to mail unsubscribes by mail");
+  check(/^Subject: Abonelik iptal$/m.test(await lastMessageTo(robot)), "the mail goes from the mailbox to the list's address, with the subject the list asks for");
+  check((await errorCode(() => unsubscribe(ids.ada, { id: listMessage("Sahte liste") }, listAnswers(200)))) === "invalid" && posted.length === 2, "nothing goes to a sender that failed the check");
 
   // Paging
   const firstPage = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: folder("sent").id });

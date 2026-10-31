@@ -2579,7 +2579,8 @@
       "googleFailed": "La connexion avec Google n’a pas relié la boîte aux lettres. Réessayez.",
       "googleScope": "Google n’a pas été autorisé à donner à Leafdesk l’accès à vos e-mails. Reconnectez-vous et autorisez-le.",
       "tooMany": "Vous avez connecté autant de boîtes mail que possible dans cet espace de travail. Déconnectez-en une d’abord.",
-      "alreadyConnected": "Cette adresse est déjà connectée ici. Modifiez plutôt cette boîte mail."
+      "alreadyConnected": "Cette adresse est déjà connectée ici. Modifiez plutôt cette boîte mail.",
+      "unsubscribeFailed": "La liste de diffusion n’a pas accepté la demande de désabonnement. Essayez plutôt son lien."
     },
     "methods": {
       "google": "Compte Google (Gmail ou Google Workspace)",

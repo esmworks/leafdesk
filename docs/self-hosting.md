@@ -294,7 +294,7 @@ WEB_LINK_CHECKS=off
 
 The same rule holds for every address someone in a workspace gives the server to fetch: saving a
 web page, downloading a file a page shows from another site (anyone who may view the page, guests
-too) and these link checks reach public addresses only, never the hosts in
+too), a mailing list's one-click unsubscribe address and these link checks reach public addresses only, never the hosts in
 `CONNECTOR_ALLOWED_HOSTS` (which are for connections and syncs an owner sets up). To let them
 reach a host on your own network, an intranet wiki say, list it in `WEB_FETCH_ALLOWED_HOSTS`
 (comma-separated, a host name or `host:port`; a bare name on ports 80, 443, 8080 and 8443 only).

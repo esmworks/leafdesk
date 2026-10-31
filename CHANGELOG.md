@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Unsubscribing from mailing lists in the Mail tab.** Mail from a list shows *Unsubscribe*
+  beside its answers: after a confirmation the server uses the list's one-click address
+  (List-Unsubscribe-Post), else mails the list's unsubscribe address from the mailbox; a list with
+  only a web page opens it. Nothing goes on its own to a sender that failed the provider's DMARC
+  check. No migration.
+
 - **Selecting several threads in the Mail tab.** Threads are selected with the box that shows on
   hover, ⌘/Ctrl-click, Shift-click for a range, `x` for the open one or ⌘/Ctrl+A; a bar over the
   list then archives, trashes, marks as junk, read or unread, stars or moves them all at once, with

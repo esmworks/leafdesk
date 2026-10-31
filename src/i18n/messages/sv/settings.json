@@ -2579,7 +2579,8 @@
       "googleFailed": "Inloggningen med Google anslöt inte brevlådan. Försök igen.",
       "googleScope": "Google fick inte ge Leafdesk åtkomst till din e-post. Logga in igen och tillåt det.",
       "tooMany": "Du har anslutit så många brevlådor i den här arbetsytan som du kan. Koppla från en först.",
-      "alreadyConnected": "Den adressen är redan ansluten här. Ändra den brevlådan i stället."
+      "alreadyConnected": "Den adressen är redan ansluten här. Ändra den brevlådan i stället.",
+      "unsubscribeFailed": "E-postlistan tog inte emot begäran om att avsluta prenumerationen. Prova listans länk i stället."
     },
     "methods": {
       "google": "Google-konto (Gmail eller Google Workspace)",

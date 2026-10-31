@@ -2579,7 +2579,8 @@
       "googleFailed": "Googlella kirjautuminen ei yhdistänyt postilaatikkoa. Yritä uudelleen.",
       "googleScope": "Google ei saanut antaa Leafdeskille pääsyä sähköpostiisi. Kirjaudu uudelleen ja salli se.",
       "tooMany": "Olet yhdistänyt tähän työtilaan niin monta postilaatikkoa kuin voit. Katkaise ensin yhden yhteys.",
-      "alreadyConnected": "Olet jo yhdistänyt tämän osoitteen tänne. Muuta sen sijaan sitä postilaatikkoa."
+      "alreadyConnected": "Olet jo yhdistänyt tämän osoitteen tänne. Muuta sen sijaan sitä postilaatikkoa.",
+      "unsubscribeFailed": "Postituslista ei hyväksynyt tilauksen peruutuspyyntöä. Kokeile sen sijaan listan omaa linkkiä."
     },
     "methods": {
       "google": "Google-tili (Gmail tai Google Workspace)",

@@ -265,9 +265,15 @@ export type MailBody = {
   replyTo: MailAddress[];
   /** The provider's check said the sender's domain did not vouch for it (DMARC failed). */
   unverifiedSender: boolean;
-  /** The List-Unsubscribe address, when the message offers one over the web. */
-  unsubscribe: string | null;
+  /** How the mailing list it came from is left, when it says (lib/mail-unsubscribe.ts). */
+  unsubscribe: MailUnsubscribe | null;
 };
+
+/**
+ * Leaving a mailing list from the Mail tab: on the spot, by the list's one-click POST or a mail to
+ * its address from the mailbox, or by visiting its web address.
+ */
+export type MailUnsubscribe = { how: "oneClick" } | { how: "mail"; address: string } | { how: "web"; url: string };
 
 export type MailThreadView = {
   threadId: string;

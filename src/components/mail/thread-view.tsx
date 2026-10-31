@@ -24,11 +24,12 @@ import { useRowPanel } from "@/components/database/row-panel-context";
 import { read } from "@/components/read";
 import { Button, cn, IconButton, PageIcon } from "@/components/ui";
 import { pagePath } from "@/lib/mentions";
-import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftView, MailFolderView, MailMessageView, MailThreadView, MailUndoneSend } from "@/lib/mail-client";
+import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftView, MailFolderView, MailMessageView, MailThreadView, MailUndoneSend, MailUnsubscribe } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { lazyPart } from "@/components/lazy-part";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
-import { discardDraftAction, forgetImageSenderAction, trustImageSenderAction } from "@/app/actions/mail";
+import { discardDraftAction, forgetImageSenderAction, trustImageSenderAction, unsubscribeAction } from "@/app/actions/mail";
+import { showToast } from "@/components/toast";
 import { cachedBody, cachedThread, forgetBodies, keepBody, keepThread } from "./mail-cache";
 import { MailFrame } from "./mail-frame";
 import { useWhen } from "./mail-store";
@@ -148,6 +149,49 @@ function DraftCard({ message, onEdit, onDiscard, busy }: { message: MailMessageV
 
 type Loaded = { body: MailBody | null; error: string | null; loading: boolean };
 
+/** Messages whose list was left while the tab is open: their bodies, kept, still offer it. */
+const unsubscribed = new Set<string>();
+
+/**
+ * A mailing list's way out beside its message's answers: done on the spot after asking (the list's
+ * one-click address, or a mail from the mailbox to the list), or its web page to visit.
+ */
+function Unsubscribe({ offer, messageId, sender }: { offer: MailUnsubscribe; messageId: string; sender: string }) {
+  const t = useTranslations("mail");
+  const [state, setState] = useState<"idle" | "busy" | "done">(unsubscribed.has(messageId) ? "done" : "idle");
+  const style = "inline-flex h-8 shrink-0 items-center rounded px-2 text-xs text-fg-muted";
+  const pressable = "hover:bg-bg-active hover:text-fg disabled:opacity-60 disabled:hover:bg-transparent";
+  if (offer.how === "web") {
+    return (
+      <a href={offer.url} target="_blank" rel="noopener noreferrer" className={cn(style, pressable)}>
+        {t("unsubscribe")}
+      </a>
+    );
+  }
+  if (state === "done") return <span className={style}>{t("unsubscribed")}</span>;
+  return (
+    <button
+      type="button"
+      disabled={state === "busy"}
+      className={cn(style, pressable)}
+      onClick={async () => {
+        if (!confirm(t("unsubscribeConfirm", { sender, how: offer.how, address: offer.how === "mail" ? offer.address : "" }))) return;
+        setState("busy");
+        const result = await unsubscribeAction({ id: messageId }).catch(() => null);
+        if (result?.ok) {
+          unsubscribed.add(messageId);
+          showToast({ message: t("unsubscribedNote", { sender }) });
+          return setState("done");
+        }
+        setState("idle");
+        showToast({ message: result?.error ?? t("loadFailed") });
+      }}
+    >
+      {state === "busy" ? t("unsubscribing") : t("unsubscribe")}
+    </button>
+  );
+}
+
 function Message({
   message,
   box,
@@ -206,8 +250,9 @@ function Message({
             </div>
           </div>
         </button>
-        {/* Answers to this message, at hand without scrolling past it. */}
+        {/* Answers to this message, at hand without scrolling past it, and leaving its list. */}
         <div className="-me-1.5 -mt-1 ms-2 flex shrink-0 items-center">
+          {body?.unsubscribe && <Unsubscribe offer={body.unsubscribe} messageId={message.id} sender={message.from.name || message.from.address} />}
           <IconButton label={t("actions.reply")} className="h-8 w-8 text-fg-icon" onClick={() => onCompose("reply")}>
             <Reply className="h-4 w-4" />
           </IconButton>
@@ -288,11 +333,6 @@ function Message({
                   </li>
                 ))}
               </ul>
-            )}
-            {body.unsubscribe && (
-              <a href={body.unsubscribe} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-xs text-fg-muted hover:underline">
-                {t("unsubscribe")}
-              </a>
             )}
           </>
         ) : null}

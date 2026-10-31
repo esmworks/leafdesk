@@ -8,6 +8,7 @@ import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, rea
 import { suggestAddresses } from "@/server/mail-client/contacts";
 import { discardDraft, openDraft, saveDraft } from "@/server/mail-client/drafts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
+import { unsubscribe } from "@/server/mail-client/unsubscribe";
 import { holdMail, mailAction, sendStatus, undoSend } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
@@ -74,6 +75,14 @@ export async function trustImageSenderAction(input: { mailboxId: string; address
 /** Stops loading images from this sender unless asked (from a message or from Settings). */
 export async function forgetImageSenderAction(input: { mailboxId: string; address: string }): Promise<ActionResult<null>> {
   return run((userId) => forgetImageSender(userId, input));
+}
+
+/** Leaves the mailing list a message came from, by its one-click POST or a mail to the list. */
+export async function unsubscribeAction(input: { id: string }): Promise<ActionResult<null>> {
+  return run(async (userId) => {
+    await unsubscribe(userId, input);
+    return null;
+  });
 }
 
 export async function refreshMailboxAction(mailboxId: string): Promise<ActionResult<MailboxTabView>> {

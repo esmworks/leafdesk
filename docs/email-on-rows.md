@@ -95,6 +95,13 @@ where one is removed; *Stop* on a message does the same. The earlier mail an ans
 end folds under *•••*, which opens it in place. Messages are grouped into threads by the server's
 thread ids, their references and, within 30 days, a reply's subject.
 
+Mail from a mailing list shows *Unsubscribe* beside its answers. When the list offers a
+one-click address (List-Unsubscribe-Post) the server posts to it, else a mail asking for it goes to
+the list's address from the mailbox (kept in Sent); either happens after a confirmation, and only
+for a sender the provider's check vouched for. A list with only a web page, or a sender that failed
+the check, opens that page instead. The server reaches only public https addresses for it (and
+those in `WEB_FETCH_ALLOWED_HOSTS`).
+
 From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
 trash is for good. A right click on a thread in the list opens the same answers and moves without
