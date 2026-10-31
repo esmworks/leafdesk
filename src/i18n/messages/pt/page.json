@@ -66,6 +66,7 @@
     "exportZip": "Exportar com subpáginas",
     "exportZipDatabase": "Exportar com as páginas das linhas",
     "exportPdf": "Exportar como PDF",
+    "exportDocx": "Exportar como Word (.docx)",
     "exportComments": "Incluir comentários",
     "exportCommentsHint": "Adiciona as conversas de comentários que você pode ver às exportações em Markdown, ZIP e PDF, depois de cada página",
     "printView": "Imprimir",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Exportar como PDF",
+    "titleDocx": "Exportar como Word",
     "letterhead": "Papel timbrado",
     "none": "Nenhum",
     "defaultMark": "{name} (padrão)",
@@ -875,6 +877,7 @@
     "properties": "Incluir os valores da linha",
     "comments": "Incluir comentários",
     "hint": "Diagramas e equações são impressos como texto; use Imprimir para ter a página exatamente como ela aparece.",
+    "hintDocx": "Um arquivo para continuar editando no Word: o logotipo e as linhas do papel timbrado vão no cabeçalho e no rodapé, mas não o tema do PDF.",
     "download": "Baixar",
     "preparing": "Preparando…",
     "textSize": "Tamanho do texto"

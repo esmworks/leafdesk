@@ -23,10 +23,14 @@ const MAX_CELL_CHARS = 32767;
 /** Characters XML 1.0 doesn't allow (control characters, U+FFFE/U+FFFF, unpaired surrogates). */
 const INVALID_XML = /[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 
+/** Text without the characters XML doesn't allow, for a library that escapes markup itself (server/docx-document). */
+export function xmlSafe(text: string): string {
+  return text.replace(INVALID_XML, "");
+}
+
 /** Text as XML character data or an attribute value: invalid characters dropped, markup escaped. */
 export function xmlText(text: string): string {
-  return text
-    .replace(INVALID_XML, "")
+  return xmlSafe(text)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")

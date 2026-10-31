@@ -1,5 +1,6 @@
 /**
- * End-to-end check of PDF files made on the server (server/pdf.ts) and the AI chat's create_pdf:
+ * End-to-end check of PDF files made on the server (server/pdf.ts) and the AI chat's create_pdf
+ * (and its Word and Excel siblings, create_docx and create_xlsx):
  * a row's body printed with its table, Turkish text and an uploaded image, its values only when
  * asked for; a cropped image drawn clipped to its part; the chat making the PDF and attaching it to a row's files property or to the end of a
  * page, after the person agrees (and not when they decline); letterheads (server/letterheads.ts):
@@ -54,6 +55,10 @@ const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 const { startChat } = await import("@/server/ai-chat");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const { extractText, getDocumentProxy } = await import("unpdf");
+const { strFromU8, unzipSync } = await import("fflate");
+const { pageDocx } = await import("@/server/docx-export");
+const { DOCX_MIME } = await import("@/server/docx-document");
+const { XLSX_MIME } = await import("@/lib/xlsx");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
@@ -100,16 +105,22 @@ function clipsOfPdf(bytes: Uint8Array) {
   return count;
 }
 
+/** One part of an Office file (a zip of XML), as text. */
+function partOf(bytes: Uint8Array, path: string) {
+  const part = unzipSync(new Uint8Array(bytes))[path];
+  return part ? strFromU8(part) : "";
+}
+
 async function textOfPdf(bytes: Uint8Array) {
   const { text } = await extractText(await getDocumentProxy(new Uint8Array(bytes)), { mergePages: true });
   return text;
 }
 
-/** A model that calls create_pdf with `args`, then answers with the last tool result. */
-function pdfMaker(args: Record<string, unknown>) {
+/** A model that calls `tool` (create_pdf unless named) with `args`, then answers with the last tool result. */
+function pdfMaker(args: Record<string, unknown>, tool = "create_pdf") {
   return (request: FakeChatRequest): FakeReply => {
     const made = request.messages.filter((m) => m.role === "assistant" && m.tool_calls?.length).length;
-    if (made === 0) return { toolCalls: [{ name: "create_pdf", arguments: args }] };
+    if (made === 0) return { toolCalls: [{ name: tool, arguments: args }] };
     const result = request.messages.filter((m) => m.role === "tool").map((m) => textOf(m.content)).at(-1) ?? "";
     return { text: `Done. ${result}` };
   };
@@ -253,6 +264,45 @@ try {
   const last = after.at(-1);
   check(last?.type === "file" && last.props.name === "Cover letter.pdf", "the file goes at the end of the page, named after it", after);
 
+  // ── Word and Excel files ──────────────────────────────────────────────────────────────────
+  const word = await pageDocx(alice, row.id);
+  const wordText = partOf(word.bytes, "word/document.xml");
+  check(word.title === "3E-20261023-ESM" && ["3E-20261023-ESM", "GNA 2.500-1 N evaporatör", "244,13 $"].every((t) => wordText.includes(t)), "a row is made into a Word file, Turkish letters intact", wordText.slice(0, 400));
+  check(!wordText.includes("INTERNAL-NOTE"), "…without the row's values unless asked for");
+  check(partOf((await pageDocx(alice, row.id, { properties: true })).bytes, "word/document.xml").includes("INTERNAL-NOTE"), "…and with them when asked for");
+
+  fake.setChat(pdfMaker({ page_id: row.id, property: "Offer PDF", file_name: "Teklif ESM" }, "create_docx"));
+  const docx = await ask(alice, { workspaceId, message: "Make the Word file of the offer", mode: "ask" }, "approve");
+  check(docx.approvals[0]?.action.action === "createDocx" && docx.approvals[0].action.title === "Teklif ESM.docx", "the chat asks before making a Word file, naming it", docx.approvals);
+  const withDocx = asFiles(((await db.select({ properties: page.properties }).from(page).where(eq(page.id, row.id)))[0].properties as Record<string, unknown>)[pdfs.id]);
+  const docxValue = withDocx.find((f) => f.name === "Teklif ESM.docx");
+  check(withDocx.length === 2 && docxValue?.type === DOCX_MIME, "…and adds it to the row's files property beside the PDF", withDocx);
+  const [docxFile] = await db.select().from(file).where(eq(file.id, docxValue!.url.split("/").pop()!));
+  check(partOf((await files.readStored(docxFile))!, "word/document.xml").includes("GBOX 15-C2-140 N kondenser"), "the stored file is the row's Word file");
+
+  const narrow = await databases.addView(owner, offers.id, { name: "Short", type: "table", config: { hidden: [notes.id] } });
+  fake.setChat(pdfMaker({ page_id: offers.id }, "read_page"));
+  await ask(alice, { workspaceId, message: "Which views?", mode: "auto" });
+  check(lastToolResult().includes(`"Short" (view_id ${narrow.id}, table)`), "reading a database lists its views, for create_xlsx", lastToolResult());
+  fake.setChat(pdfMaker({ database_id: offers.id, view_id: narrow.id, page_id: letter.id }, "create_xlsx"));
+  const xlsx = await ask(alice, { workspaceId, message: "Excel of the offers", mode: "ask" }, "approve");
+  const xlsxAsked = xlsx.approvals[0]?.action;
+  check(xlsxAsked?.action === "createXlsx" && xlsxAsked.title === "Offers – Short.xlsx" && xlsxAsked.source === "Offers – Short" && xlsxAsked.target?.pageId === letter.id, "the chat asks before making an Excel file, saying which view it reads", xlsxAsked);
+  check(lastToolResult().includes("1 rows"), "…and tells the model how many rows it holds", lastToolResult());
+  const xlsxBlock = ((await getCollab().readBlocks(letter.id)).blocks as { type: string; props: { name?: string; url?: string } }[]).at(-1);
+  check(xlsxBlock?.type === "file" && xlsxBlock.props.name === "Offers – Short.xlsx", "the workbook goes at the end of the page", xlsxBlock);
+  const [xlsxFile] = await db.select().from(file).where(eq(file.id, xlsxBlock!.props.url!.split("/").pop()!));
+  check(xlsxFile.contentType === XLSX_MIME, "…as an Excel file", xlsxFile.contentType);
+  const sheet = partOf((await files.readStored(xlsxFile))!, "xl/worksheets/sheet1.xml");
+  check(sheet.includes("3E-20261023-ESM") && sheet.includes("<v>548</v>") && !sheet.includes("INTERNAL-NOTE"), "…holding the view's rows and columns, numbers as numbers", sheet.slice(0, 600));
+
+  fake.setChat(pdfMaker({ database_id: letter.id, page_id: letter.id }, "create_xlsx"));
+  await ask(alice, { workspaceId, message: "Excel", mode: "auto" });
+  check(lastToolResult().includes("No database with that id"), "an Excel file is made only of a database", lastToolResult());
+  fake.setChat(pdfMaker({ database_id: offers.id, page_id: offers.id }, "create_xlsx"));
+  await ask(alice, { workspaceId, message: "Excel", mode: "auto" });
+  check(lastToolResult().includes("is a database"), "…and attached to a page or row, not a database", lastToolResult());
+
   // ── Letterheads ───────────────────────────────────────────────────────────────────────────
   const failure = async (work: Promise<unknown>) => work.then(() => null, (error: unknown) => error);
   check((await failure(letterheads.createLetterhead(alice, workspaceId, { name: "Mine" }))) instanceof AccessError, "only owners add letterheads");
@@ -357,7 +407,6 @@ try {
   fake.setChat(pdfMaker({ page_id: row.id, property: "Notes" }));
   await ask(alice, { workspaceId, message: "PDF into notes", mode: "auto" });
   check(lastToolResult().includes("not a files property"), "only a files property takes the file", lastToolResult());
-  void notes;
 
   await updateWorkspaceSettings(owner, workspaceId, { export: false });
   fake.setChat(pdfMaker({ page_id: letter.id }));

@@ -66,6 +66,7 @@
     "exportZip": "Eksportér med undersider",
     "exportZipDatabase": "Eksportér med rækkesider",
     "exportPdf": "Eksportér som PDF",
+    "exportDocx": "Eksportér som Word (.docx)",
     "exportComments": "Medtag kommentarer",
     "exportCommentsHint": "Tilføjer de kommentartråde, du kan se, til Markdown-, ZIP- og PDF-eksporter efter hver side",
     "printView": "Udskriv",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Eksportér som PDF",
+    "titleDocx": "Eksportér som Word",
     "letterhead": "Brevpapir",
     "none": "Intet",
     "defaultMark": "{name} (standard)",
@@ -875,6 +877,7 @@
     "properties": "Medtag rækkens værdier",
     "comments": "Medtag kommentarer",
     "hint": "Diagrammer og ligninger udskrives som tekst; brug Udskriv for at få siden præcis, som den ser ud.",
+    "hintDocx": "En fil, der kan redigeres videre i Word: brevpapirets logo og linjer kommer i sidehoved og sidefod, men ikke dets PDF-tema.",
     "download": "Hent",
     "preparing": "Forbereder…",
     "textSize": "Tekststørrelse"

@@ -66,6 +66,7 @@
     "exportZip": "Exporter avec les sous-pages",
     "exportZipDatabase": "Exporter avec les pages des lignes",
     "exportPdf": "Exporter en PDF",
+    "exportDocx": "Exporter en Word (.docx)",
     "exportComments": "Inclure les commentaires",
     "exportCommentsHint": "Ajoute les fils de commentaires que vous pouvez voir aux exports Markdown, ZIP et PDF, après chaque page",
     "printView": "Imprimer",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Exporter en PDF",
+    "titleDocx": "Exporter en Word",
     "letterhead": "En-tête",
     "none": "Aucun",
     "defaultMark": "{name} (par défaut)",
@@ -875,6 +877,7 @@
     "properties": "Inclure les valeurs de la ligne",
     "comments": "Inclure les commentaires",
     "hint": "Les diagrammes et les équations sont imprimés en texte ; utilisez Imprimer pour obtenir la page telle qu’elle apparaît.",
+    "hintDocx": "Un fichier à continuer de modifier dans Word : le logo et les lignes de l’en-tête vont dans l’en-tête et le pied de page, mais pas son thème PDF.",
     "download": "Télécharger",
     "preparing": "Préparation…",
     "textSize": "Taille du texte"

@@ -317,7 +317,7 @@ try {
   const searched = sourcesIn(fake.chats[1]);
   check(searched.some((s) => s.pageId === fleet.id && s.text.includes("car needs new tyres")), "the model's search finds pages by meaning (car for automobile)", searched);
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,add_comment,create_database,create_form,find_tools,use_tool,remember,forget"),
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,create_docx,create_xlsx,add_comment,create_database,create_form,find_tools,use_tool,remember,forget"),
     "every turn declares the tools: to look, (asking first, by default) to change, and to keep notes about the person",
   );
   check(textOf(firstRequest.messages[0].content).includes("never instructions"), "the system prompt treats page content as data");
@@ -946,7 +946,7 @@ try {
       reading.length > 0 &&
         reading.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,find_tools,use_tool") &&
         fake.chats.length > 0 &&
-        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,add_comment,create_database,create_form,find_tools,use_tool"),
+        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,create_docx,create_xlsx,add_comment,create_database,create_form,find_tools,use_tool"),
       `with the memory turned off by ${who}, remember and forget aren't offered, in either mode`,
       [...reading, ...fake.chats].map(toolsOf),
     );

@@ -376,6 +376,7 @@ export function approvalText(t: Translator, action: ChatActionView): string {
   } else {
     lines.push(html(t, `approval.${action.action}`, { title: name(action.title), target: name(action.target?.title) }));
   }
+  if (action.source) lines.push(html(t, "approval.source", { name: name(action.source) }));
   if (action.publicForm) lines.push(escapeHtml(t(`approval.publicForm.${action.publicForm}`)));
   for (const change of action.changes.slice(0, 20)) {
     const value = preview(change.value, 200);

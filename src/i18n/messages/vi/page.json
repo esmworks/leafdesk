@@ -66,6 +66,7 @@
     "exportZip": "Xuất kèm các trang con",
     "exportZipDatabase": "Xuất kèm các trang hàng",
     "exportPdf": "Xuất dưới dạng PDF",
+    "exportDocx": "Xuất dưới dạng Word (.docx)",
     "exportComments": "Kèm bình luận",
     "exportCommentsHint": "Thêm các chuỗi bình luận bạn xem được vào bản xuất Markdown, ZIP và PDF, sau mỗi trang",
     "printView": "In",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Xuất dưới dạng PDF",
+    "titleDocx": "Xuất dưới dạng Word",
     "letterhead": "Tiêu đề thư",
     "none": "Không có",
     "defaultMark": "{name} (mặc định)",
@@ -875,6 +877,7 @@
     "properties": "Bao gồm các giá trị của hàng",
     "comments": "Kèm bình luận",
     "hint": "Sơ đồ và phương trình được in dưới dạng văn bản; hãy dùng In để có trang đúng như hiển thị.",
+    "hintDocx": "Tệp để tiếp tục chỉnh sửa trong Word: logo và các dòng của tiêu đề thư nằm ở đầu trang và chân trang, nhưng không có chủ đề PDF.",
     "download": "Tải xuống",
     "preparing": "Đang chuẩn bị…",
     "textSize": "Cỡ chữ"

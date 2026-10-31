@@ -66,6 +66,7 @@
     "exportZip": "Exportera med undersidor",
     "exportZipDatabase": "Exportera med radsidor",
     "exportPdf": "Exportera som PDF",
+    "exportDocx": "Exportera som Word (.docx)",
     "exportComments": "Ta med kommentarer",
     "exportCommentsHint": "Lägger till de kommentarstrådar du kan se i Markdown-, ZIP- och PDF-exporter, efter varje sida",
     "printView": "Skriv ut",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Exportera som PDF",
+    "titleDocx": "Exportera som Word",
     "letterhead": "Brevhuvud",
     "none": "Inget",
     "defaultMark": "{name} (standard)",
@@ -875,6 +877,7 @@
     "properties": "Ta med radens värden",
     "comments": "Ta med kommentarer",
     "hint": "Diagram och ekvationer skrivs ut som text; använd Skriv ut för att få sidan exakt som den ser ut.",
+    "hintDocx": "En fil att fortsätta redigera i Word: brevhuvudets logotyp och rader hamnar i sidhuvud och sidfot, men inte dess PDF-tema.",
     "download": "Ladda ned",
     "preparing": "Förbereder…",
     "textSize": "Textstorlek"

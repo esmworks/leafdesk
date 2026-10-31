@@ -66,6 +66,7 @@
     "exportZip": "Mit Unterseiten exportieren",
     "exportZipDatabase": "Mit Zeilenseiten exportieren",
     "exportPdf": "Als PDF exportieren",
+    "exportDocx": "Als Word exportieren (.docx)",
     "exportComments": "Kommentare einschließen",
     "exportCommentsHint": "Fügt die Kommentar-Threads, die du sehen kannst, nach jeder Seite in Markdown-, ZIP- und PDF-Exporte ein",
     "printView": "Drucken",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Als PDF exportieren",
+    "titleDocx": "Als Word exportieren",
     "letterhead": "Briefkopf",
     "none": "Ohne",
     "defaultMark": "{name} (Standard)",
@@ -875,6 +877,7 @@
     "properties": "Werte der Zeile einschließen",
     "comments": "Kommentare einschließen",
     "hint": "Diagramme und Formeln werden als Text gedruckt; mit Drucken erhalten Sie die Seite genau so, wie sie aussieht.",
+    "hintDocx": "Eine Datei zum Weiterbearbeiten in Word: Logo und Zeilen des Briefkopfs kommen in Kopf- und Fußzeile, sein PDF-Design nicht.",
     "download": "Herunterladen",
     "preparing": "Wird vorbereitet…",
     "textSize": "Textgröße"
