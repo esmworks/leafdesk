@@ -26,4 +26,21 @@ describe("cleanMailHtml", () => {
     expect(blocked.html).not.toContain("example.com");
     expect(blocked.blockedImages).toBe(1);
   });
+
+  it("hides the boxes, links and paragraphs a left-out image leaves empty, but not text or table cells", async () => {
+    const box = '<span style="display:inline-block;overflow:hidden;width:38px;height:38px"><img src="https://example.com/i.png" width="38" height="38"></span>';
+    const html = await clean(`<p>İyi çalışmalar,</p><p id="icons"><a href="https://example.com/a">${box}</a><a href="https://example.com/b">${box}</a></p><p id="mixed">Ara ${box}</p><table><tr><td id="cell">${box}</td><td>x</td></tr></table>`, false);
+    const document = new (await import("jsdom")).JSDOM(html).window.document;
+    expect(document.querySelector("#icons")?.hasAttribute("data-blocked")).toBe(true);
+    expect(document.querySelector("#mixed")?.hasAttribute("data-blocked")).toBe(false);
+    expect(document.querySelector("#mixed span")?.hasAttribute("data-blocked")).toBe(true);
+    expect(document.querySelector("#cell")?.hasAttribute("data-blocked")).toBe(false);
+    expect(document.querySelector("#cell span")?.hasAttribute("data-blocked")).toBe(true);
+    expect(document.body.textContent).toContain("İyi çalışmalar,");
+  });
+
+  it("leaves images and their boxes alone once images are asked for, and hides parts the message doesn't carry", async () => {
+    expect(await clean('<span style="width:38px"><img src="https://example.com/i.png"></span>', true)).not.toContain("data-blocked");
+    expect(await clean('<img src="cid:missing@x" width="420" height="111">', true)).toContain("data-blocked");
+  });
 });

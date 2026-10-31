@@ -42,7 +42,11 @@ export async function cleanMailHtml(raw: string, options: { images: boolean; inl
       if (/^cid:/i.test(src)) {
         const data = options.inline.get(src.slice(4).replace(/^<|>$/g, "").trim());
         if (data) el.setAttribute("src", data);
-        else el.removeAttribute("src");
+        else {
+          // A part the message doesn't carry: hidden like a left-out image, not an empty box of its size.
+          el.removeAttribute("src");
+          el.setAttribute("data-blocked", "");
+        }
       } else if (REMOTE.test(src) && !options.images) {
         el.removeAttribute("src");
         el.setAttribute("data-blocked", "");
@@ -68,7 +72,27 @@ export async function cleanMailHtml(raw: string, options: { images: boolean; inl
   });
 
   const html = purify.sanitize(raw, CONFIG) as string;
-  return { html, blockedImages: blocked };
+  if (!html.includes("data-blocked")) return { html, blockedImages: blocked };
+  const document = new window.DOMParser().parseFromString(html, "text/html");
+  for (const img of document.querySelectorAll("img[data-blocked]")) hideHolder(img);
+  return { html: document.documentElement.outerHTML, blockedImages: blocked };
+}
+
+/** Table parts keep their place even when empty: hiding one shifts the cells beside it. */
+const TABLE_PARTS = new Set(["TD", "TH", "TR", "THEAD", "TBODY", "TFOOT", "TABLE", "CAPTION", "COLGROUP", "COL"]);
+
+/**
+ * Hides what a left-out image leaves empty: signatures set icons and banners in boxes of a fixed
+ * size, links and paragraphs of their own, which would stand blank where the images were. The
+ * frame hides whatever carries `data-blocked`; the images come back with their boxes once asked for.
+ */
+function hideHolder(img: Element) {
+  let holder = img;
+  for (let up = img.parentElement; up && up.tagName !== "BODY" && !TABLE_PARTS.has(up.tagName); up = up.parentElement) {
+    if ((up.textContent ?? "").trim() || up.querySelector("img:not([data-blocked]), video, iframe, hr, input, table")) break;
+    holder = up;
+  }
+  holder.setAttribute("data-blocked", "");
 }
 
 /** A message's text from its HTML, for mail that comes without a plain-text part. */
