@@ -40,7 +40,6 @@ import { useIsOffline } from "@/components/offline/offline-context";
 import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest, type ViewExportFormat } from "./view-bar";
 import { saveDownload } from "./download";
 import { timelineDates, ViewLayoutMenu } from "./view-settings";
-import type { AgendaChoice } from "./agenda-setup-dialog";
 import { lazyPart } from "@/components/lazy-part";
 
 /** The rules a viewer who may not change a view sets for themselves, or a draft of its rules (see `ownRules`). */
@@ -540,32 +539,6 @@ export function DatabasePage({
     if (created) selectView(created.id);
   };
 
-  /** Adds the agenda picked in its setup, making the date and done properties asked for first. */
-  const createAgenda = async (choice: AgendaChoice, personal: boolean) => {
-    setAgendaSetup(null);
-    const lower = (s: string) => s.toLocaleLowerCase(locale);
-    const names = new Set(snapshot.properties.map((p) => lower(p.name)));
-    const unique = (base: string) => {
-      let name = base;
-      for (let i = 2; names.has(lower(name)); i++) name = `${base} ${i}`;
-      names.add(lower(name));
-      return name;
-    };
-    const made = async (picked: string, base: string, type: "date" | "checkbox") => {
-      // The dialog's NEW_PROPERTY, written out: importing it would bring the dialog into the first load.
-      if (picked !== "new") return picked || undefined;
-      return (await api.addProperty(unique(base), type))?.id;
-    };
-    const dateBy = await made(choice.dateBy, t("calendar.defaultDateProperty"), "date");
-    const statusBy = await made(choice.statusBy, t("agenda.defaultDoneProperty"), "checkbox");
-    const config: ViewConfig = {
-      ...(dateBy ? { dateBy } : {}),
-      ...(statusBy ? { statusBy } : {}),
-      ...(choice.priorityBy ? { priorityBy: choice.priorityBy } : {}),
-    };
-    await addView("agenda", personal, config);
-  };
-
   const duplicateView = async (v: View) => {
     const taken = new Set(views.map((other) => other.name));
     let name = t("viewTabs.copyName", { name: v.name });
@@ -946,8 +919,12 @@ export function DatabasePage({
                   <AgendaSetupDialog
                     properties={snapshot.properties}
                     canCreate={!structureReadOnly && !locked}
+                    addProperty={api.addProperty}
                     onCancel={() => setAgendaSetup(null)}
-                    onCreate={(choice) => void createAgenda(choice, agendaSetup.personal)}
+                    onCreate={(config) => {
+                      setAgendaSetup(null);
+                      void addView("agenda", agendaSetup.personal, config);
+                    }}
                   />
                 )}
                 {sprintsOpen && (

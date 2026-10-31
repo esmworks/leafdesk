@@ -107,8 +107,12 @@ import { gzipSync } from "node:zlib";
  *
  * A row's page telling the server it was closed, so automations waiting for a new row to be filled
  * in go on, adds about 0.1 kB to all first loads together.
+ *
+ * Agenda views (their icon and name in the view menus, their settings' checks and what loads the
+ * view and its setup dialog when shown) add about 0.4 kB to a page's first load and about 1 kB to
+ * all first loads together; the view, its setup dialog and settings load when shown.
  */
-const BUDGET = { routeFirstLoad: 788, firstLoadShared: 1207, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 789, firstLoadShared: 1209, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

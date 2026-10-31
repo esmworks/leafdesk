@@ -1,15 +1,17 @@
 "use client";
 
 import { CalendarCheck } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, selectClass } from "@/components/ui";
 import { AGENDA_PRIORITY_TYPES, AGENDA_STATUS_TYPES, agendaStatusProperty } from "@/lib/agenda";
+import type { ViewConfig } from "@/db/schema/app";
 import type { Property } from "./types";
+import type { DatabaseApi } from "./use-database";
 
 /** "new": a property made for the agenda as it is created; "": none. */
-export type AgendaChoice = { dateBy: string; statusBy: string; priorityBy: string };
-export const NEW_PROPERTY = "new";
+type AgendaChoice = { dateBy: string; statusBy: string; priorityBy: string };
+const NEW_PROPERTY = "new";
 
 /**
  * Picks what a new agenda view goes by: its date, what marks a row done (a status or a checkbox)
@@ -19,17 +21,23 @@ export const NEW_PROPERTY = "new";
 export function AgendaSetupDialog({
   properties,
   canCreate,
+  addProperty,
   onCancel,
   onCreate,
 }: {
   properties: Property[];
   /** New properties may be made (the database isn't locked to the viewer). */
   canCreate: boolean;
+  addProperty: DatabaseApi["addProperty"];
   onCancel: () => void;
-  onCreate: (choice: AgendaChoice) => void;
+  /** The new view's settings, once the properties asked for are made. */
+  onCreate: (config: ViewConfig) => void;
 }) {
   const t = useTranslations("database.agenda");
+  const td = useTranslations("database.calendar");
   const tc = useTranslations("common");
+  const locale = useLocale();
+  const [busy, setBusy] = useState(false);
   const id = useId();
   const dates = properties.filter((p) => p.type === "date");
   const statuses = properties.filter((p) => (AGENDA_STATUS_TYPES as readonly string[]).includes(p.type));
@@ -43,6 +51,27 @@ export function AgendaSetupDialog({
     };
   });
   const set = (patch: Partial<AgendaChoice>) => setChoice((c) => ({ ...c, ...patch }));
+
+  /** Makes the date and done properties asked for, under names no other property has, then hands the settings on. */
+  const create = async () => {
+    setBusy(true);
+    const lower = (s: string) => s.toLocaleLowerCase(locale);
+    const names = new Set(properties.map((p) => lower(p.name)));
+    const made = async (picked: string, base: string, type: "date" | "checkbox") => {
+      if (picked !== NEW_PROPERTY) return picked || undefined;
+      let name = base;
+      for (let i = 2; names.has(lower(name)); i++) name = `${base} ${i}`;
+      names.add(lower(name));
+      return (await addProperty(name, type))?.id;
+    };
+    try {
+      const dateBy = await made(choice.dateBy, td("defaultDateProperty"), "date");
+      const statusBy = await made(choice.statusBy, t("defaultDoneProperty"), "checkbox");
+      onCreate({ ...(dateBy ? { dateBy } : {}), ...(statusBy ? { statusBy } : {}), ...(choice.priorityBy ? { priorityBy: choice.priorityBy } : {}) });
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const field = (key: keyof AgendaChoice, label: string, hint: string, options: { value: string; label: string }[]) => (
     <div>
@@ -85,7 +114,7 @@ export function AgendaSetupDialog({
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          onCreate(choice);
+          if (!busy) void create();
         }}
       >
         <DialogHeader title={t("setupTitle")} description={t("setupHint")} icon={<CalendarCheck className="h-4 w-4" />} onClose={onCancel} closeLabel={tc("close")} />
@@ -98,7 +127,7 @@ export function AgendaSetupDialog({
           <Button variant="secondary" onClick={onCancel}>
             {tc("cancel")}
           </Button>
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="primary" disabled={busy}>
             {t("create")}
           </Button>
         </DialogFooter>
