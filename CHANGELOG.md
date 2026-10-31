@@ -163,6 +163,9 @@
 
 ### Fixed
 
+- **The boxes beside a chat no longer cut a line in half.** A long list of sources, changed pages,
+  runs or schedules beside the AI chat and an agent's page fades out at its edges and leaves room
+  under its last line, instead of ending on a line sliced by the box's border.
 - **Closing a source beside the AI chat keeps the conversation where it was.** A page opened from
   an answer's citation, or from the sources beside the conversation, gave focus back on closing to
   the first place that page was cited, so a page an earlier answer also cited took the conversation
