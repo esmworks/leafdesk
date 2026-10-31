@@ -199,6 +199,9 @@
 
 ### Fixed
 
+- **The settings' navigation keeps its top in place.** Only its list of settings scrolls now; the
+  way back and the search stay put, so in the desktop app they no longer slide under the window's
+  buttons.
 - **The boxes beside a chat no longer cut a line in half.** A long list of sources, changed pages,
   runs or schedules beside the AI chat and an agent's page fades out at its edges and leaves room
   under its last line, instead of ending on a line sliced by the box's border.
