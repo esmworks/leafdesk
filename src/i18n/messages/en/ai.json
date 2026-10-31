@@ -322,6 +322,7 @@
         "searched": "Searched mail for “{query}” · {count, plural, =0 {nothing found} one {# thread} other {# threads}}",
         "read": "Read the email",
         "noSubject": "(no subject)",
+        "earlier": "Email was read earlier in this conversation, so this answer only reads pages and drafts email",
         "to": "to {to}",
         "draft": {
           "done": "Draft saved:",

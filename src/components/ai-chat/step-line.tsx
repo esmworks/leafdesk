@@ -146,6 +146,14 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
         </>
       );
     }
+    if (step.action === "earlier") {
+      return (
+        <>
+          <Mail className={icon} />
+          <span className="min-w-0 break-words">{t("steps.mail.earlier")}</span>
+        </>
+      );
+    }
     const subject = step.subject || t("steps.mail.noSubject");
     const label = step.action === "read" ? t("steps.mail.read") : t(`steps.mail.draft.${step.outcome}`);
     return (

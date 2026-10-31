@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // The AI chat's tools on the person's own mail (server/ai-chat-mail.ts): who gets them, what a
-// search and a read give the model, and what a draft is before and after the person decides.
+// search and a read give the model, and what a draft is before and after the person decides; and
+// the same tools on an agent's run, held to the mailboxes opened to it and to whom it may write.
 
 const mocks = vi.hoisted(() => ({
   connectedAppCall: vi.fn((): object | null => null),
@@ -13,10 +14,12 @@ const mocks = vi.hoisted(() => ({
   threadForAi: vi.fn(),
   saveDraft: vi.fn(async () => ({ id: "d-1", messageId: "<d@x>", attachments: [] })),
   boxes: [] as object[],
+  /** What a query awaited without .limit() gives: the Drafts folder, or a thread's messages. */
+  awaited: [] as object[],
 }));
 vi.mock("@/db", () => {
   const rows = () => mocks.boxes;
-  const chain = { from: () => chain, where: () => chain, orderBy: () => chain, limit: async () => rows(), then: (ok: (v: object[]) => unknown) => Promise.resolve([{ id: "folder-drafts" }]).then(ok) };
+  const chain = { from: () => chain, where: () => chain, orderBy: () => chain, limit: async () => rows(), then: (ok: (v: object[]) => unknown) => Promise.resolve(mocks.awaited).then(ok) };
   return { db: { select: () => chain } };
 });
 vi.mock("@/server/connected-app", async (original) => ({ ...(await original<typeof import("@/server/connected-app")>()), connectedAppCall: mocks.connectedAppCall }));
@@ -24,9 +27,9 @@ vi.mock("@/server/mail-client/read", () => ({ listMailboxes: mocks.listMailboxes
 vi.mock("@/server/mail-client/ai", () => ({ threadForAi: mocks.threadForAi }));
 vi.mock("@/server/mail-client/drafts", () => ({ saveDraft: mocks.saveDraft }));
 vi.mock("@/server/mail/locale", () => ({ recipientLocale: async () => "en" }));
-vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string, values: Record<string, string>) => `${key}: ${values.name} ${values.date}` }));
+vi.mock("next-intl", async (original) => ({ ...(await original<object>()), createTranslator: () => (key: string, values: Record<string, string>) => `${key}: ${values.name} ${values.date}` }));
 
-const { chatMailToolset, prepareMailDraft, runChatMailTool, saveMailDraft } = await import("./ai-chat-mail");
+const { agentMailToolset, chatMailToolset, MAIL_TOOL_NAMES, prepareMailDraft, runChatMailTool, saveMailDraft } = await import("./ai-chat-mail");
 const { RowMailError } = await import("@/server/row-mail/settings");
 
 const box = { id: "box-1", workspaceId: "ws-1", address: "me@example.test", signature: "<p>Ada</p>" };
@@ -53,6 +56,7 @@ beforeEach(() => {
   mocks.connectedAppCall.mockReturnValue(null);
   mocks.mailTabShown.mockResolvedValue(true);
   mocks.boxes = [box];
+  mocks.awaited = [{ id: "folder-drafts" }];
 });
 
 describe("chatMailToolset", () => {
@@ -172,5 +176,57 @@ describe("draft_mail", () => {
 
     mocks.saveDraft.mockRejectedValueOnce(new RowMailError("unreachable"));
     expect((await saveMailDraft("u1", prepared, "approve")).step).toMatchObject({ outcome: "failed" });
+  });
+});
+
+describe("an agent's run", () => {
+  const scope = (typed: string, boxes = ["box-1"]) => ({ boxes, typed: [typed] });
+
+  it("gets the tools only for mailboxes opened to it, its draft_mail saying whom it may write to", () => {
+    expect(agentMailToolset([])).toEqual([]);
+    const tools = agentMailToolset(["box-1"]);
+    expect(tools.map((t) => t.name)).toEqual(["search_mail", "read_mail", "draft_mail"]);
+    expect(tools[2].description).toMatch(/only to people of that thread/);
+  });
+
+  it("searches and first reads only those mailboxes", async () => {
+    mocks.listThreads.mockResolvedValue({ items: [], next: null });
+    mocks.listMailboxes.mockResolvedValueOnce([{ id: "box-1", folders: null, status: "ok" }, { id: "box-2", folders: null, status: "ok" }]);
+    await runChatMailTool("u1", "ws-1", { name: "search_mail", arguments: { query: "x" } }, registry(), 10_000, ["box-2"]);
+    expect(mocks.openMailbox).toHaveBeenCalledTimes(1);
+    expect(mocks.openMailbox).toHaveBeenCalledWith("u1", "box-2");
+    expect(mocks.listThreads).toHaveBeenCalledWith("u1", expect.objectContaining({ mailboxId: "all", mailboxIds: ["box-2"] }));
+  });
+
+  it("can't read a message of a mailbox not opened to it", async () => {
+    mocks.ownMessage.mockResolvedValueOnce({ box, message: { id: "m-1", folderId: "f-1", threadId: "t-1" } });
+    expect(await runChatMailTool("u1", "ws-1", { name: "read_mail", arguments: { message_id: "m-1" } }, registry(), 10_000, ["box-2"])).toMatchObject({ isError: true });
+    expect(mocks.threadForAi).not.toHaveBeenCalled();
+  });
+
+  it("writes a new email only to addresses the person wrote whole, or the mailbox's own", async () => {
+    const draft = (to: string[], typed: string) => prepareMailDraft("u1", "ws-1", { to, subject: "x", body: "y" }, undefined, scope(typed));
+    expect(await draft(["ayse@acme.test"], "Ayşe'ye yaz")).toMatchObject({ isError: true, content: expect.stringMatching(/^ayse@acme.test isn't an address the person wrote/) });
+    expect(await draft(["ayse@acme.test", "me@example.test"], "Write to Ayse@Acme.test.")).toHaveProperty("action");
+    expect(await draft(["a@b.co"], "Send it to a@b.com")).toMatchObject({ isError: true });
+    // A suffix after a typographic apostrophe, as phones and macOS type it.
+    expect(await draft(["ayse@acme.test"], "ayse@acme.test’ye yeni bir taslak yaz")).toHaveProperty("action");
+    // Or in an earlier message of the conversation (run.ts passes them all).
+    const earlier = await prepareMailDraft("u1", "ws-1", { to: ["ali@firma.test"], subject: "x", body: "y" }, undefined, { boxes: ["box-1"], typed: ["tamam, taslağı yaz", "ali@firma.test için teklif hazırlayacağız"] });
+    expect(earlier).toHaveProperty("action");
+  });
+
+  it("names the same mail tools as lib/agents.ts, which holds a run that read email to them", async () => {
+    const { AGENT_MAIL_TOOLS } = await import("@/lib/agents");
+    expect([...AGENT_MAIL_TOOLS].sort()).toEqual(Object.values(MAIL_TOOL_NAMES).sort());
+  });
+
+  it("answers only the people of the thread, in a mailbox opened to it", async () => {
+    mocks.ownMessage.mockResolvedValue({ box, message: { id: "m-1", threadId: "t-1", fromName: "Ayşe", fromAddress: "ayse@acme.test", sentAt: new Date("2026-10-30T09:15:00Z") } });
+    mocks.awaited = [{ from: "ayse@acme.test", to: [{ address: "me@example.test", name: null }], cc: [{ address: "Ali@acme.test", name: null }] }];
+    const reply = (to: string[], boxes?: string[]) => prepareMailDraft("u1", "ws-1", { to, subject: "Re: x", body: "y", reply_to: "m-1" }, undefined, scope("answer evil@x.test", boxes));
+    expect(await reply(["ayse@acme.test", "ali@acme.test"])).toHaveProperty("action");
+    expect(await reply(["evil@x.test"])).toMatchObject({ isError: true, content: expect.stringMatching(/isn't among the people of the thread/) });
+    expect(await reply(["ayse@acme.test"], ["box-2"])).toMatchObject({ isError: true, content: expect.stringMatching(/No email with that reply_to/) });
   });
 });

@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Agents can read your email and draft answers, in the mailboxes you open to them.** On an
+  agent's Access tab, *Your email* lists your own mailboxes; open one and the agent's runs that
+  work for you and show only to you (your chat with it in the app, and schedules you set that look
+  after no database) can search and read that mail and save drafts in its Drafts folder. It never
+  sends: you send its drafts from the Mail tab. An answer goes only to the people of its thread, a
+  new email only to addresses you wrote; once a run, or an earlier answer of the same chat, has
+  read email it only reads pages and drafts. Other people who use or edit the agent never see your
+  mail, and connected apps (MCP, the REST API) get nothing such runs did or answered. Migration 0171.
+
 - **Agents remind you.** Ask an agent in its chat, a request, a schedule or a mention to remind you
   of something, and at that time the reminder opens over the page you have open (*Done*, *Remind
   me in 1 hour*, *Open*), comes to your inbox and to your phone. Connected apps see them in
@@ -98,7 +107,7 @@
   write or answer an email, it saves a draft in the Drafts folder once they approve it: the card
   shows the sender, every recipient, the subject and the whole text, asks every time (also in
   *Auto*) and the draft is never sent. Once an answer read mail, every change and note it wants is
-  asked about, also in *Auto*. Not offered in research, the Telegram bot, agents or MCP. No migration.
+  asked about, also in *Auto*. Not offered in research, the Telegram bot or MCP. No migration.
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
   and calendar with a message's formatting (bold, italic, lists, links), or pasted from another
   mail program, which keeps it as it came: its images, table layout, sizes and colors, sent as

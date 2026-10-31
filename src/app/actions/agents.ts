@@ -34,6 +34,7 @@ import {
   type AgentInput,
 } from "@/server/agents/manage";
 import { helperChoices } from "@/server/agents/helpers";
+import { agentMailboxesOf, setAgentMailbox } from "@/server/agents/mail";
 import { addAgentCreator, agentCreators, agentSharing, parseShareTarget, removeAgentCreator, removeAgentShare, setAgentShare } from "@/server/agents/sharing";
 import { agentGrantSummary } from "@/server/connections/manage";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
@@ -204,6 +205,19 @@ export async function agentGrantSummaryAction(workspaceId: string, agentId: stri
 
 export async function listAgentAccessAction(workspaceId: string, agentId: string) {
   return run(workspaceId, (userId) => listAgentAccess(userId, agentId));
+}
+
+/** The person's own mailboxes, each with whether the agent reads it (agents/mail.ts). */
+export async function agentMailboxesAction(workspaceId: string, agentId: string) {
+  return run(workspaceId, (userId) => agentMailboxesOf(userId, String(agentId)));
+}
+
+/** Opens one of the person's mailboxes to the agent, or closes it again. */
+export async function setAgentMailboxAction(workspaceId: string, agentId: string, mailboxId: string, open: boolean) {
+  return run(workspaceId, async (userId) => {
+    await setAgentMailbox(userId, String(agentId), String(mailboxId), open === true);
+    return agentMailboxesOf(userId, String(agentId));
+  });
 }
 
 export async function setAgentAccessAction(workspaceId: string, agentId: string, pageId: string, level: AgentAccessLevel) {

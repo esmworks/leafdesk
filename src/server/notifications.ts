@@ -30,7 +30,7 @@ import {
 import { addReactor, parseReactors, reactionSummary, removeReactor, type Reactor } from "@/lib/comment-reactions";
 import { avatarSrc } from "@/lib/avatar";
 import { isAiLimitNotice, type AiLimitNotice } from "@/lib/agent-guardrails";
-import { callConnectionName, callToSend, inboxCallInput, isScheduleRun, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
+import { callConnectionName, callToSend, inboxCallInput, isScheduleRun, readEmail, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
 import { readableProperties, referencedIds, resolveValue, type ActivityValue } from "@/lib/row-activity";
@@ -850,6 +850,8 @@ export type InboxAgentReport = {
   code: AgentRunCode | null;
   /** The start of the agent's answer; null when the run looked after a database the user can no longer open. */
   text: string | null;
+  /** It read the user's email (lib/agents.ts readEmail): the app shows its report, connected apps don't. */
+  email: boolean;
 };
 
 /** The most of a report the inbox shows; the whole of it is in the run. */
@@ -1300,6 +1302,7 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
       status: agentRun.status,
       code: agentRun.code,
       answer: agentRun.answer,
+      steps: agentRun.steps,
       source: agentRun.source,
       agentId: agentRun.agentId,
       agentName: workspaceAgent.name,
@@ -1322,6 +1325,7 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
       status: r.status,
       code: r.code ?? null,
       text: hidden ? null : snippetOf(markdownPlain(r.answer), REPORT_CHARS),
+      email: readEmail(r.steps),
     });
   }
   return out;

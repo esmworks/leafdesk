@@ -647,6 +647,7 @@
         "redo": "La sua chiamata a “{tool}” su {connection} è stata rimandata indietro; non è stato inviato nulla",
         "expired": "La sua chiamata a “{tool}” su {connection} è scaduta; non è stato inviato nulla",
         "refused": "La sua chiamata a “{tool}” su {connection} è stata rifiutata, non potendola approvare nessuno; non è stato inviato nulla",
+        "afterMail": "La sua chiamata a «{tool}» su {connection} è stata trattenuta: dopo aver letto email, un’esecuzione legge solo pagine e scrive bozze; non è stato inviato nulla",
         "approved": "approvata",
         "answered": "risposta da un proprietario",
         "note": "Nota: {note}"
@@ -991,6 +992,12 @@
       "send": "Invia richiesta",
       "update": "Aggiorna richiesta",
       "waiting": "Hai chiesto {tokens} token al mese il {date}. In attesa di un proprietario."
+    },
+    "mail": {
+      "title": "La tua posta",
+      "description": "Apri una casella per permettere a questo agente di cercare e leggere la posta e salvarvi bozze: nelle tue chat con lui qui e nelle pianificazioni che imposti senza un database da seguire.",
+      "open": "Apri {address} a questo agente",
+      "note": "Non invia mai email: le sue bozze le invii tu dalla scheda Posta. Dopo aver letto delle email, un'esecuzione legge solo pagine e scrive bozze. Gli altri che usano o modificano questo agente non vedono mai la tua posta."
     }
   },
   "analytics": {

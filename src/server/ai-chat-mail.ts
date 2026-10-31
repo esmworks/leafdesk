@@ -9,12 +9,17 @@
  * even in Auto. A draft could carry what the model read to an address an email named: each is
  * asked about in every mode, showing its sender, every recipient, the subject and the text, and
  * "don't ask again" isn't offered. Only the person's own chat in the app has these tools: not
- * research, the Telegram bot (a connected app), agents, MCP or use_tool (mail-client/access.ts).
+ * research, the Telegram bot (a connected app), MCP or use_tool (mail-client/access.ts).
+ *
+ * An agent's run gets them only for the mailboxes its person opened to it (agents/mail.ts), held to
+ * those (`boxes`). No one is asked about its drafts, so who they go to is checked here instead: a
+ * reply only to the people of its thread, a new email only to addresses the person wrote in their
+ * message or task (`typed`) or the mailbox's own.
  */
-import { and, asc, desc, eq } from "drizzle-orm";
-import { getTranslations } from "next-intl/server";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { createTranslator } from "next-intl";
 import { db } from "@/db";
-import { mailbox, mailFolder } from "@/db/schema";
+import { mailbox, mailFolder, mailMessage } from "@/db/schema";
 import type { ChatActionView } from "@/lib/ai-chat";
 import { env } from "@/lib/env";
 import { normalizeAddress } from "@/lib/mail";
@@ -26,6 +31,7 @@ import { externalData } from "@/server/ai/frame";
 import { formatSources } from "@/server/ai/prompts";
 import { registerWeb, unknownArguments, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { connectedAppCall } from "@/server/connected-app";
+import { loadMessages } from "@/i18n/messages";
 import { recipientLocale } from "@/server/mail/locale";
 import { RowMailError } from "@/server/row-mail/settings";
 import { threadForAi } from "@/server/mail-client/ai";
@@ -93,6 +99,16 @@ const DRAFT_TOOL: AiTool = {
   },
 };
 
+/** draft_mail as an agent's run has it: saved without asking, so its recipients are checked (prepareMailDraft). */
+const AGENT_DRAFT_TOOL: AiTool = {
+  ...DRAFT_TOOL,
+  description:
+    "Saves an email as a draft in the person's Drafts folder; it is never sent: they read it and send it from the Mail tab. With reply_to it answers that message in its thread, the earlier mail under it, and goes only to people of that thread; a new email goes only to addresses the person wrote in their message or task.",
+};
+
+/** The mail tools of an agent's run held to these mailboxes (agents/mail.ts runMailboxes): none without one. */
+export const agentMailToolset = (boxes: readonly string[]): AiTool[] => (boxes.length ? [...READ_TOOLS, AGENT_DRAFT_TOOL] : []);
+
 /**
  * The mail tools to offer in this chat: none outside the app (the Telegram bot runs as a connected
  * app), where the person can't use the Mail tab, or in research; only the reading ones where
@@ -123,6 +139,7 @@ export async function runChatMailTool(
   call: { name: string; arguments: Record<string, unknown> },
   registry: Registry,
   room: number,
+  boxes?: readonly string[],
 ): Promise<ToolOutcome> {
   if (room < 1_000) return { content: "There is no room left in this request to read more mail. Answer with what you have.", isError: true };
   const tool = READ_TOOLS.find((t) => t.name === call.name);
@@ -130,7 +147,7 @@ export async function runChatMailTool(
   const refused = unknownArguments(call.name, call.arguments, argumentNames(tool));
   if (refused) return refused;
   try {
-    return call.name === MAIL_TOOL_NAMES.search ? await searchMail(userId, workspaceId, text(call.arguments.query, 500), room) : await readMail(userId, workspaceId, text(call.arguments.message_id, 100), registry, room);
+    return call.name === MAIL_TOOL_NAMES.search ? await searchMail(userId, workspaceId, text(call.arguments.query, 500), room, boxes) : await readMail(userId, workspaceId, text(call.arguments.message_id, 100), registry, room, boxes);
   } catch (error) {
     if (error instanceof RowMailError || error instanceof AccessError) {
       return { content: call.name === MAIL_TOOL_NAMES.search ? "The mail can't be searched now. Answer with what you have." : "No email with that message_id can be read. Use a message_id from search_mail.", isError: true };
@@ -139,10 +156,10 @@ export async function runChatMailTool(
   }
 }
 
-async function searchMail(userId: string, workspaceId: string, query: string, room: number): Promise<ToolOutcome> {
+async function searchMail(userId: string, workspaceId: string, query: string, room: number, boxes?: readonly string[]): Promise<ToolOutcome> {
   if (!query) return { content: `${MAIL_TOOL_NAMES.search} needs a query.`, isError: true };
-  const reading = await readFirst(userId, workspaceId);
-  const page = await listThreads(userId, { mailboxId: ALL_INBOXES, folderId: "", workspaceId, search: query });
+  const reading = await readFirst(userId, workspaceId, boxes);
+  const page = await listThreads(userId, { mailboxId: ALL_INBOXES, folderId: "", workspaceId, search: query, ...(boxes ? { mailboxIds: [...boxes] } : {}) });
   const items = page.items.slice(0, SEARCH_THREADS);
   const step = { kind: "mail" as const, action: "search" as const, query, results: items.length };
   const still = reading ? " Some of the person's mail is still being read for the first time, so this search doesn't cover it yet: say so, and that asking again in a minute will." : "";
@@ -158,8 +175,8 @@ async function searchMail(userId: string, workspaceId: string, query: string, ro
  * does), waiting at most FIRST_READ_MS: without it, mail of someone who never opened the tab isn't
  * in the index the search reads. Whether one is still being read.
  */
-async function readFirst(userId: string, workspaceId: string): Promise<boolean> {
-  const unread = (await listMailboxes(userId, workspaceId)).filter((box) => box.folders === null && box.status !== "error");
+async function readFirst(userId: string, workspaceId: string, boxes?: readonly string[]): Promise<boolean> {
+  const unread = (await listMailboxes(userId, workspaceId)).filter((box) => box.folders === null && box.status !== "error" && (!boxes || boxes.includes(box.id)));
   if (!unread.length) return false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   const read = Promise.allSettled(unread.map((box) => openMailbox(userId, box.id))).then(() => true);
@@ -180,10 +197,10 @@ function threadLine(item: MailThreadItem): string {
   ].join("\n");
 }
 
-async function readMail(userId: string, workspaceId: string, messageId: string, registry: Registry, room: number): Promise<ToolOutcome> {
+async function readMail(userId: string, workspaceId: string, messageId: string, registry: Registry, room: number, boxes?: readonly string[]): Promise<ToolOutcome> {
   if (!messageId) return { content: `${MAIL_TOOL_NAMES.read} needs a message_id.`, isError: true };
   const { box, message } = await ownMessage(userId, messageId);
-  if (box.workspaceId !== workspaceId) throw new AccessError();
+  if (box.workspaceId !== workspaceId || (boxes && !boxes.includes(box.id))) throw new AccessError();
   const at = { mailboxId: box.id, folderId: message.folderId, threadId: message.threadId };
   const thread = await threadForAi(userId, at).catch((error) => {
     if (error instanceof AiError) throw new RowMailError("gone");
@@ -210,8 +227,20 @@ export type PreparedDraft = {
   input: { to: string[]; cc: string[]; subject: string; html: string; replyTo: string | null; quote: { header: string[] } | null };
 };
 
-/** Checks a draft_mail call and works out the draft: its mailbox (the answered message's, else the default one) and its text. */
-export async function prepareMailDraft(userId: string, workspaceId: string, args: Record<string, unknown>, timeZone?: string): Promise<PreparedDraft | ToolOutcome> {
+/** An agent's run: the mailboxes opened to it, and what the person wrote it (their message or task). */
+export type AgentDraftScope = { boxes: readonly string[]; typed: readonly string[] };
+
+/**
+ * Checks a draft_mail call and works out the draft: its mailbox (the answered message's, else the
+ * default one, or for an agent's run the first opened to it) and its text.
+ */
+export async function prepareMailDraft(
+  userId: string,
+  workspaceId: string,
+  args: Record<string, unknown>,
+  timeZone?: string,
+  agent?: AgentDraftScope,
+): Promise<PreparedDraft | ToolOutcome> {
   const refused = unknownArguments(DRAFT_TOOL.name, args, argumentNames(DRAFT_TOOL));
   if (refused) return refused;
   const list = (value: unknown) => (Array.isArray(value) ? value : value === undefined ? [] : [value]).map((v) => (typeof v === "string" ? normalizeAddress(v) : null));
@@ -228,17 +257,31 @@ export async function prepareMailDraft(userId: string, workspaceId: string, args
   let answered: Awaited<ReturnType<typeof ownMessage>> | null = null;
   if (replyId) {
     answered = await ownMessage(userId, replyId).catch(() => null);
-    if (!answered || answered.box.workspaceId !== workspaceId) return { content: "No email with that reply_to can be answered. Use a message_id from search_mail.", isError: true };
+    if (!answered || answered.box.workspaceId !== workspaceId || (agent && !agent.boxes.includes(answered.box.id))) {
+      return { content: "No email with that reply_to can be answered. Use a message_id from search_mail.", isError: true };
+    }
   }
-  const box = answered?.box ?? (await defaultMailbox(userId, workspaceId));
+  const box = answered?.box ?? (await defaultMailbox(userId, workspaceId, agent?.boxes));
   if (!box) return { content: "The person has no mailbox here.", isError: true };
+  if (agent) {
+    const stranger = await strangerIn([...to, ...cc] as string[], box.address, answered ? { mailboxId: answered.box.id, threadId: answered.message.threadId } : null, agent.typed);
+    if (stranger) {
+      return {
+        content: answered
+          ? `${stranger} isn't among the people of the thread it answers: an answer goes only to them. Nothing was saved; leave them out, or give the text in your answer instead.`
+          : `${stranger} isn't an address the person wrote in their message or task: a new email goes only to those. Nothing was saved; give the text in your answer instead.`,
+        isError: true,
+      };
+    }
+  }
   // The editor's Signature node (components/mail/compose-start.ts signatureBlock): sent under "-- ".
   const html = `${draftHtml(body)}${box.signature ? `<p></p><div data-signature="">${box.signature}</div>` : ""}`;
   let quote: PreparedDraft["input"]["quote"] = null;
   if (answered) {
-    // The line over the earlier mail, as the composer writes it in the person's language.
+    // The line over the earlier mail, as the composer writes it in the person's language (an
+    // agent's run has no request, so no getTranslations).
     const locale = await recipientLocale(userId, "en");
-    const t = await getTranslations({ locale, namespace: "mail.composer" });
+    const t = createTranslator({ locale, messages: { composer: (await loadMessages(locale)).mail.composer }, namespace: "composer" });
     const date = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", ...(timeZone ? { timeZone } : {}) }).format(answered.message.sentAt);
     quote = { header: [t("replyHeader", { date, name: answered.message.fromName || answered.message.fromAddress })] };
   }
@@ -254,11 +297,34 @@ export async function prepareMailDraft(userId: string, workspaceId: string, args
   };
 }
 
-async function defaultMailbox(userId: string, workspaceId: string) {
+/**
+ * The first of an agent draft's recipients it may not write to, or null: for an answer, anyone but
+ * the people of the thread; for a new email, anyone the person didn't write. The mailbox's own
+ * address always may.
+ */
+async function strangerIn(recipients: string[], own: string, thread: { mailboxId: string; threadId: string } | null, typed: readonly string[]): Promise<string | null> {
+  let known: Set<string>;
+  if (thread) {
+    const messages = await db
+      .select({ from: mailMessage.fromAddress, to: mailMessage.to, cc: mailMessage.cc })
+      .from(mailMessage)
+      .where(and(eq(mailMessage.mailboxId, thread.mailboxId), eq(mailMessage.threadId, thread.threadId)));
+    known = new Set(messages.flatMap((m) => [m.from, ...m.to.map((a) => a.address), ...m.cc.map((a) => a.address)]).map((a) => a.toLowerCase()));
+  } else {
+    // Each address written whole, without the sentence's last full stop or a suffix after an
+    // apostrophe, straight or typographic ("ayse@acme.test’ye").
+    const written = typed.join("\n").match(/[^\s@<>()",;:'’‘“”«»[\]]+@[^\s@<>()",;:'’‘“”«»[\]]+/g) ?? [];
+    known = new Set(written.map((a) => normalizeAddress(a.replace(/\.+$/, ""))).filter((a): a is string => a !== null));
+  }
+  known.add(own.toLowerCase());
+  return recipients.find((a) => !known.has(a.toLowerCase())) ?? null;
+}
+
+async function defaultMailbox(userId: string, workspaceId: string, boxes?: readonly string[]) {
   const [box] = await db
     .select()
     .from(mailbox)
-    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)))
+    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId), boxes ? inArray(mailbox.id, [...boxes]) : undefined))
     .orderBy(desc(mailbox.isDefault), asc(mailbox.createdAt))
     .limit(1);
   return box ?? null;

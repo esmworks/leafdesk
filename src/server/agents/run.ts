@@ -58,6 +58,8 @@ import {
   isMentionRun,
   isRowRun,
   isScheduleRun,
+  mailRun,
+  mayCallAfterMail,
   MAX_AGENT_PROMPT,
   MAX_AGENT_WRITES,
   MAX_SCHEDULED_WRITES,
@@ -88,11 +90,13 @@ import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, workspaceMap, WRITE_TOOL_NAMES, WRITE_TOOLS, type PreparedWrite, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { proposeChange } from "@/server/pending-changes";
 import { databaseOfRow, DRAFT_EMAIL, draftEmailTool, draftRowEmail, draftSender } from "./email-drafts";
+import { runMailboxes } from "./mail";
 import { mailSender, SEND_EMAIL, sendAgentEmail, sendEmailTool } from "./send-mail";
 import { asAutomation } from "@/server/automations/queue";
 import { threadsVisibleTo } from "@/server/property-comments";
 import { changeComments } from "@/server/comments";
 import { notifyApprovers, withdrawApproval } from "@/server/connections/approvals";
+import { agentMailToolset, MAIL_TOOL_NAMES, prepareMailDraft, runChatMailTool, saveMailDraft } from "@/server/ai-chat-mail";
 import { agentToolset, inputSummary, runConnectionTool, type ConnectionToolset } from "@/server/connections/tools";
 import { getProperties } from "@/server/databases";
 import { recipientLocale } from "@/server/mail/locale";
@@ -106,7 +110,7 @@ import { PropertyValueError } from "@/lib/properties";
 import type { ChatWriteRecord } from "@/db/schema/ai";
 import { runClock } from "./clock";
 import { ASK_AGENT, handoffEventText, handoffFor, handoffHold } from "./handoff";
-import { chatRunHistory, closeChatTurn } from "./chat-store";
+import { chatRunHistory, chatRunTyped, closeChatTurn } from "./chat-store";
 import { approversOf } from "./approvers";
 import { agentsWorker } from "./kick";
 import { AGENT_MEMORY_TOOL_NAMES, AGENT_MEMORY_TOOLS, HANDOFF_TOOL, lastHandoff, proposalsForPrompt, runAgentMemoryTool, runHandoffTool } from "./memory";
@@ -221,6 +225,7 @@ const forReview = (tools: AiTool[], reviews: boolean) => (reviews ? tools.map((t
 const EDIT_PAGE = WRITE_TOOLS.find((t) => t.name === "edit_page")!;
 /** Leafdesk's tools on a row's run: update_row and edit_page on that row. Any run may also keep notes (memory.ts). */
 export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, EDIT_PAGE, ADD_COMMENT];
+
 /** Leafdesk's tools on a schedule's run on a database: update_row, edit_page and add_comment on any of its rows. */
 export const SCHEDULED_DATABASE_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, EDIT_PAGE, ADD_ROW_COMMENT];
 
@@ -661,6 +666,10 @@ async function converse(
   const sender = await draftSender(member, run.workspaceId, draftDatabase);
   // Email to the agent's own recipients, from the mailbox of the member the run works for (send-mail.ts).
   const mailer = await mailSender(member, run.workspaceId, agent.mailRecipients);
+  // The email of the person the run works for, in the mailboxes they opened to the agent (mail.ts):
+  // only on a run that shows what it did to them alone and stays in the app (lib/agents.ts mailRun).
+  const mailBoxes = mailRun(run.source) ? await runMailboxes(agent, member) : [];
+  const mailTools = agentMailToolset(mailBoxes);
   // A schedule's run on a database merges duplicates there only where the agent may edit it, and
   // not when its changes wait for review: a merge can't be proposed.
   const merges = !rowRun && !proposes && databaseId !== null && hasLevel((await pageAccessOf(agent.userId, databaseId)).level, "edit");
@@ -671,6 +680,7 @@ async function converse(
     ...(merges ? [MERGE_ROWS] : []),
     ...(sender ? [draftEmailTool(sender, { anyRow: Boolean(databaseId) })] : []),
     ...(mailer ? [sendEmailTool(mailer, agent.mailRecipients)] : []),
+    ...mailTools,
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...(leavesNote ? [HANDOFF_TOOL] : []),
     ...webTools,
@@ -705,6 +715,7 @@ async function converse(
     leavesNote,
     reviews,
     drafts: Boolean(sender),
+    mail: mailTools.length > 0,
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   // The model its owners chose: every turn of every run of the agent's goes to it (features.ts).
@@ -722,6 +733,8 @@ async function converse(
   let reminders = remindersSet(steps);
   // The addresses this run's searches returned: a schedule's run may read them.
   let webFound: string[] = [];
+  // Whether it read email: from then on it only reads pages and drafts email (see answer).
+  let mailRead = false;
   let firstRound = 0;
   let queue: AiToolCall[] = [];
 
@@ -731,6 +744,7 @@ async function converse(
     writes = saved.writes;
     externalChars = saved.externalChars;
     webFound = saved.webFound ?? [];
+    mailRead = saved.mailRead ?? false;
     firstRound = saved.rounds;
     queue = saved.queue;
   } else if (isRowRun(run.source)) {
@@ -784,7 +798,13 @@ async function converse(
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     const history = await chatRunHistory(run, Math.floor(room([]) * CHAT_HISTORY_SHARE));
-    messages = [...history, { role: "user", content: agentChatPrompt({ message: run.prompt, event: await eventText(run), map, memory: memory.text }) }];
+    // Answers that quote email are anyone's words too: the run goes on as one that read it (see answer).
+    if (history.mailRead) {
+      mailRead = true;
+      steps.push({ kind: "mail", action: "earlier" });
+    }
+    const held = history.mailRead ? "\n\n(Email was read earlier in this conversation: this run only reads pages and drafts email.)" : "";
+    messages = [...history.messages, { role: "user", content: agentChatPrompt({ message: run.prompt, event: await eventText(run), map, memory: memory.text }) + held }];
   } else if (requested) {
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
     const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
@@ -828,6 +848,29 @@ async function converse(
   /** Answers one tool call; null when it must wait for approval. */
   const answer = async (call: AiToolCall, approved: { userId: string } | null): Promise<CallResult | null> => {
     const external = toolset.byName.get(call.name);
+    // Email is anyone's words, and could steer the run into sending on what it read: once it read
+    // some, it only reads pages and drafts email (whose recipients ai-chat-mail.ts checks). Nothing
+    // waits for approval either: an owner who isn't the mailbox's would see what it would send.
+    if (mailRead && !mayCallAfterMail(call.name, Boolean(external))) {
+      return {
+        content: "You have read email in this run, and email is anyone's words: from here on this run only reads pages and drafts email. Nothing was done; say what you would do instead, and the person can ask for it.",
+        isError: true,
+        step: { kind: "tool", connectionId: external?.connection.id ?? null, tool: external?.tool.name ?? call.name, input: inputSummary(call.arguments), outcome: "afterMail" },
+      };
+    }
+    if (member && mailTools.some((t) => t.name === call.name)) {
+      if (call.name === MAIL_TOOL_NAMES.draft) {
+        if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+        const prepared = await prepareMailDraft(member, run.workspaceId, call.arguments, undefined, { boxes: mailBoxes, typed: [run.prompt, ...(await chatRunTyped(run))] });
+        if (!("action" in prepared)) return prepared;
+        const out = await saveMailDraft(member, prepared, "approve");
+        if (!out.isError) writes += 1;
+        return out;
+      }
+      const out = await runChatMailTool(member, run.workspaceId, call, registry, room(messages), mailBoxes);
+      if (!out.isError) mailRead = true;
+      return out;
+    }
     if (external) {
       if (external.tool.kind === "write" && writes >= maxWrites) {
         return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
@@ -956,6 +999,9 @@ async function converse(
       if (call.name === FIND_TOOLS.name) return { content: findTools(more, typeof call.arguments.query === "string" ? call.arguments.query.slice(0, 200) : "", room(messages)) };
       const picked = pickMoreTool(more, call);
       if (!("tool" in picked)) return picked;
+      if (mailRead && picked.tool.writes) {
+        return { content: "Email was read in this conversation: this run only reads pages and drafts email. Nothing was done; say what you would do instead, so the person can do it.", isError: true };
+      }
       if (picked.tool.writes && writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one message may make. Finish now.`, isError: true };
       const out = await (picked.tool.writes ? asAutomation(() => callMoreTool(more, picked, room(messages))) : callMoreTool(more, picked, room(messages)));
       if (picked.tool.writes && !out.isError) writes += 1;
@@ -978,7 +1024,7 @@ async function converse(
   const checkpoint = () =>
     db
       .update(agentRun)
-      .set({ state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound }, steps: redactValue(steps), usage })
+      .set({ state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound, mailRead }, steps: redactValue(steps), usage })
       .where(eq(agentRun.id, run.id));
 
   /** Answers the calls waiting in `queue`, in order; the run pauses at the first that needs approval. */
@@ -998,7 +1044,7 @@ async function converse(
         const external = toolset.byName.get(call.name);
         return {
           status: "awaiting",
-          state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound },
+          state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound, mailRead },
           pending: {
             callId: call.id,
             connectionId: external?.connection.id ?? null,

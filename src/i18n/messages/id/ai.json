@@ -322,6 +322,7 @@
         "searched": "Mencari email untuk “{query}” · {count, plural, =0 {tidak ada yang ditemukan} other {# utas}}",
         "read": "Membaca email",
         "noSubject": "(tanpa subjek)",
+        "earlier": "Email sudah dibaca sebelumnya dalam percakapan ini, jadi jawaban ini hanya membaca halaman dan menulis draf",
         "to": "kepada {to}",
         "draft": {
           "done": "Draf disimpan:",

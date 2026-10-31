@@ -322,6 +322,7 @@
         "searched": "Se buscó en el correo «{query}» · {count, plural, =0 {sin resultados} one {# conversación} other {# conversaciones}}",
         "read": "Correo leído",
         "noSubject": "(sin asunto)",
+        "earlier": "En esta conversación ya se leyó correo, así que esta respuesta solo lee páginas y redacta borradores",
         "to": "para {to}",
         "draft": {
           "done": "Borrador guardado:",

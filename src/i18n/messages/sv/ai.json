@@ -322,6 +322,7 @@
         "searched": "Sökte i mejlen efter ”{query}” · {count, plural, =0 {inget hittades} one {# konversation} other {# konversationer}}",
         "read": "Läste mejlet",
         "noSubject": "(inget ämne)",
+        "earlier": "E-post har redan lästs i den här konversationen, så det här svaret läser bara sidor och skriver utkast",
         "to": "till {to}",
         "draft": {
           "done": "Utkast sparat:",

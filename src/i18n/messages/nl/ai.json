@@ -322,6 +322,7 @@
         "searched": "E-mail doorzocht op ‘{query}’ · {count, plural, =0 {niets gevonden} one {# gesprek} other {# gesprekken}}",
         "read": "E-mail gelezen",
         "noSubject": "(geen onderwerp)",
+        "earlier": "In dit gesprek is al e-mail gelezen, dus dit antwoord leest alleen pagina’s en schrijft concepten",
         "to": "aan {to}",
         "draft": {
           "done": "Concept opgeslagen:",

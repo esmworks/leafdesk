@@ -172,6 +172,7 @@ import {
   MAX_AGENT_WRITES,
   MAX_REQUESTED_RUNS,
   MAX_SCHEDULED_WRITES,
+  readEmail,
 } from "@/lib/agents";
 import { AGENT_VERSION_MERGE_MS, MAX_AGENT_VERSIONS } from "@/lib/agent-versions";
 import {
@@ -1553,7 +1554,9 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                   ? "A scheduled run of an agent finished; the run is no longer kept"
                   : r.status === "failed"
                     ? `A scheduled run of the agent "${r.agentName}" failed (${r.code ?? "error"}); list_agent_runs shows why`
-                    : r.text === null
+                    : r.email
+                      ? `A scheduled run of the agent "${r.agentName}" finished after reading the user's email: its report shows only in Leafdesk's app`
+                      : r.text === null
                       ? `A scheduled run of the agent "${r.agentName}" finished, on a database the user can no longer open: its report is hidden`
                       : `A scheduled run of the agent "${r.agentName}" finished${r.text ? `, reporting: "${r.text}"` : ""} (list_agent_runs has the whole run)`,
                 ...(r ? { agent_id: r.agentId, run_id: r.runId } : {}),
@@ -3509,7 +3512,14 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
               conversation_id: found.id,
               title: found.title,
               answering: found.running !== null,
-              messages: found.messages.map((m) => ({ role: m.role, text: m.content, at: m.at, ...(m.code ? { failed: chatFailure(m.code) } : {}) })),
+              // An answer that read email, or went on from one that had, shows only in the app (lib/agents.ts readEmail).
+              messages: found.messages.map((m) => ({
+                role: m.role,
+                text: readEmail(m.steps) ? "" : m.content,
+                at: m.at,
+                ...(readEmail(m.steps) ? { email: "This answer read the user's email: it shows only in Leafdesk's app." } : {}),
+                ...(m.code ? { failed: chatFailure(m.code) } : {}),
+              })),
             };
           }),
         ),

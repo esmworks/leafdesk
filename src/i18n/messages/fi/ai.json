@@ -322,6 +322,7 @@
         "searched": "Haettiin postista ”{query}” · {count, plural, =0 {ei tuloksia} one {# keskustelu} other {# keskustelua}}",
         "read": "Luettiin sähköposti",
         "noSubject": "(ei aihetta)",
+        "earlier": "Tässä keskustelussa on jo luettu sähköpostia, joten tämä vastaus vain lukee sivuja ja kirjoittaa luonnoksia",
         "to": "vastaanottaja {to}",
         "draft": {
           "done": "Luonnos tallennettu:",

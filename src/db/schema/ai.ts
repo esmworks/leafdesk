@@ -167,10 +167,13 @@ export type ChatWebRecord =
 /**
  * The AI chat on the person's own mail (server/ai-chat-mail.ts): a search (`query`, how many
  * threads), a thread read (its subject), or a draft saved (`done`, with where it is), declined by
- * the person or `failed`. `url` is the Mail tab's address of the thread or the drafts.
+ * the person or `failed`. `url` is the Mail tab's address of the thread or the drafts. `earlier`:
+ * an agent's chat run whose conversation read email before (agents/run.ts), held to what one that
+ * read it may do.
  */
 export type ChatMailRecord =
   | { kind: "mail"; action: "search"; query: string; results: number }
+  | { kind: "mail"; action: "earlier" }
   | { kind: "mail"; action: "read"; subject: string; url: string }
   | { kind: "mail"; action: "draft"; subject: string; to: string[]; url: string | null; outcome: "done" | "failed" | "declined" };
 

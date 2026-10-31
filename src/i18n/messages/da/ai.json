@@ -322,6 +322,7 @@
         "searched": "Søgte i mail efter “{query}” · {count, plural, =0 {intet fundet} one {# tråd} other {# tråde}}",
         "read": "Læste e-mailen",
         "noSubject": "(intet emne)",
+        "earlier": "Der er allerede læst e-mail i denne samtale, så dette svar læser kun sider og skriver kladder",
         "to": "til {to}",
         "draft": {
           "done": "Kladde gemt:",

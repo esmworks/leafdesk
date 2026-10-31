@@ -67,6 +67,8 @@ export const AGENT_TABS: readonly Exclude<AgentTab, "share">[] = ["settings", "a
 // Sharing comes with its section, not with the dialog.
 // Only for those with full access who aren't owners, on an agent with a limit.
 const AgentLimitRequest = lazyPart(() => import("./agent-limit-request").then((m) => m.AgentLimitRequest));
+/** The person's own mailboxes on the Access tab: agent chats in pages bring this module along. */
+const AgentMailboxes = lazyPart(() => import("./agent-mailboxes").then((m) => m.AgentMailboxes));
 const AgentShareTab = lazyPart(() => import("./agent-share-tab").then((m) => m.AgentShareTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 /** An agent's emoji, or a robot when it has none. */
@@ -547,6 +549,7 @@ function AccessTab({ workspaceId, agent }: { workspaceId: string; agent: AgentVi
             ))}
         </>
       )}
+      <AgentMailboxes workspaceId={workspaceId} agent={agent} />
     </div>
   );
 }

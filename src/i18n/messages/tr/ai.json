@@ -322,6 +322,7 @@
         "searched": "Postada “{query}” arandı · {count, plural, =0 {bir şey bulunamadı} one {# konuşma} other {# konuşma}}",
         "read": "E-posta okundu",
         "noSubject": "(konu yok)",
+        "earlier": "Bu sohbette daha önce e-posta okundu; bu cevap yalnızca sayfa okur ve taslak yazar",
         "to": "alıcı: {to}",
         "draft": {
           "done": "Taslak kaydedildi:",

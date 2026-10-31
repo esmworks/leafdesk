@@ -322,6 +322,7 @@
         "searched": "Pesquisou no e-mail “{query}” · {count, plural, =0 {nada encontrado} one {# conversa} other {# conversas}}",
         "read": "Leu o e-mail",
         "noSubject": "(sem assunto)",
+        "earlier": "Já foram lidos e-mails nesta conversa, por isso esta resposta só lê páginas e escreve rascunhos",
         "to": "para {to}",
         "draft": {
           "done": "Rascunho salvo:",

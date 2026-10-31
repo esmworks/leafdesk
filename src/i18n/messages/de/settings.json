@@ -647,6 +647,7 @@
         "redo": "Sein Aufruf von „{tool}“ bei {connection} wurde zurückgeschickt; nichts wurde gesendet",
         "expired": "Sein Aufruf von „{tool}“ bei {connection} ist abgelaufen; nichts wurde gesendet",
         "refused": "Sein Aufruf von „{tool}“ bei {connection} wurde abgelehnt, da niemand ihn genehmigen konnte; nichts wurde gesendet",
+        "afterMail": "Der Aufruf von „{tool}“ bei {connection} wurde zurückgehalten: Nach dem Lesen von E-Mails liest ein Lauf nur noch Seiten und schreibt Entwürfe; nichts wurde gesendet",
         "approved": "freigegeben",
         "answered": "von einem Inhaber beantwortet",
         "note": "Notiz: {note}"
@@ -991,6 +992,12 @@
       "send": "Anfrage senden",
       "update": "Anfrage aktualisieren",
       "waiting": "Du hast am {date} {tokens} Tokens im Monat angefragt. Wartet auf einen Inhaber."
+    },
+    "mail": {
+      "title": "Deine E-Mail",
+      "description": "Öffne ein Postfach, damit dieser Agent darin suchen, E-Mails lesen und Entwürfe speichern kann: in deinen Chats mit ihm hier und in Zeitplänen, die du festlegst und die keine Datenbank betreuen.",
+      "open": "{address} für diesen Agenten öffnen",
+      "note": "Er sendet nie E-Mails: Seine Entwürfe sendest du im Tab „Mail“. Hat ein Lauf E-Mails gelesen, liest er nur noch Seiten und schreibt Entwürfe. Andere, die diesen Agenten nutzen oder bearbeiten, sehen deine E-Mails nie."
     }
   },
   "analytics": {

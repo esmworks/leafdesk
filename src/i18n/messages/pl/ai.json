@@ -322,6 +322,7 @@
         "searched": "Przeszukano pocztę pod kątem „{query}” · {count, plural, =0 {nic nie znaleziono} one {# wątek} few {# wątki} many {# wątków} other {# wątku}}",
         "read": "Przeczytano wiadomość",
         "noSubject": "(bez tematu)",
+        "earlier": "W tej rozmowie przeczytano już pocztę, więc ta odpowiedź tylko czyta strony i pisze wersje robocze",
         "to": "do {to}",
         "draft": {
           "done": "Zapisano wersję roboczą:",

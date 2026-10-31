@@ -296,7 +296,8 @@ also in *Auto*. Nothing is sent: you open the draft in the Mail tab and send it 
 reaches the model as outside data, and once an answer read mail every change and note it wants is
 asked about, also in *Auto*, so text in an email can't make it act on its own. The threads read
 are kept in the conversation like any source, which only you see. Only your own chat in the app
-has these tools: not research, the Telegram bot, agents or MCP clients.
+has these tools: not research, the Telegram bot or MCP clients. Agents read only the mailboxes
+you open to them, under rules of their own ([Agents](agents.md)).
 
 **Connections' tools.** Tools of a [connection](connections.md#connections) an owner ticked *In chat* are
 offered to members' chats (never guests'). Reading tools run at once and show as a step; a tool

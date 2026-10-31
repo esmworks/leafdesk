@@ -18,6 +18,7 @@ import type { AgentShareLevel } from "@/lib/agent-sharing";
 import { page, workspace, workspaceMember } from "./app";
 import { user } from "./auth";
 import { memberGroup } from "./groups";
+import { mailbox } from "./mail";
 
 /**
  * A paused run's conversation and counters. `messages` are the model's conversation as sent
@@ -32,6 +33,8 @@ export type AgentRunState = {
   writes: number;
   externalChars: number;
   webFound?: string[];
+  /** It read email (agents/mail.ts): from then on it only reads pages and drafts email. */
+  mailRead?: boolean;
   decision?: { decision: ApprovalDecision; userId: string; note?: string };
 };
 
@@ -362,4 +365,23 @@ export const agentLimitRequest = pgTable(
     uniqueIndex("agent_limit_request_pending_idx").on(t.agentId, t.requestedBy).where(sql`${t.status} = 'pending'`),
     check("agent_limit_request_status_check", sql`${t.status} in ('pending', 'approved', 'declined')`),
   ],
+);
+
+/**
+ * A mailbox its owner opened to an agent (server/agents/mail.ts): the agent's runs that work for
+ * them and show what they did to them alone read its mail and save drafts in it. Only the
+ * mailbox's owner adds or removes one; the mailbox going takes it away.
+ */
+export const agentMailbox = pgTable(
+  "agent_mailbox",
+  {
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    mailboxId: text("mailbox_id")
+      .notNull()
+      .references(() => mailbox.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.agentId, t.mailboxId] }), index("agent_mailbox_mailbox_idx").on(t.mailboxId)],
 );

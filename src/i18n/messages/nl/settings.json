@@ -652,6 +652,7 @@
         "redo": "Zijn aanroep van “{tool}” op {connection} is teruggestuurd; er is niets verstuurd",
         "expired": "De tijd voor zijn aanroep van “{tool}” op {connection} is verstreken; er is niets verstuurd",
         "refused": "Zijn aanroep van “{tool}” op {connection} is geweigerd, omdat niemand die kon goedkeuren; er is niets verstuurd",
+        "afterMail": "De aanroep van ‘{tool}’ op {connection} werd tegengehouden: na het lezen van e-mail leest een run alleen nog pagina’s en schrijft concepten; er is niets verzonden",
         "approved": "goedgekeurd",
         "answered": "beantwoord door een eigenaar",
         "note": "Notitie: {note}"
@@ -991,6 +992,12 @@
       "send": "Verzoek versturen",
       "update": "Verzoek bijwerken",
       "waiting": "Je vroeg op {date} om {tokens} tokens per maand. Wachten op een eigenaar."
+    },
+    "mail": {
+      "title": "Je e-mail",
+      "description": "Open een mailbox zodat deze agent erin kan zoeken, je mail kan lezen en er concepten in kan opslaan: in je chats met hem hier en in schema's die je instelt zonder database om bij te houden.",
+      "open": "{address} openen voor deze agent",
+      "note": "Hij verstuurt nooit e-mail: zijn concepten verstuur je zelf vanaf het tabblad Mail. Zodra een run e-mail heeft gelezen, leest hij alleen nog pagina's en schrijft hij concepten. Anderen die deze agent gebruiken of bewerken, zien je mail nooit."
     }
   },
   "analytics": {

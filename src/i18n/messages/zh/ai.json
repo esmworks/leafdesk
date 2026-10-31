@@ -322,6 +322,7 @@
         "searched": "在邮件中搜索了“{query}” · {count, plural, =0 {未找到} other {# 个会话}}",
         "read": "读取了邮件",
         "noSubject": "(无主题)",
+        "earlier": "此对话中已读过邮件，因此本次回答只读取页面并起草邮件",
         "to": "发给 {to}",
         "draft": {
           "done": "已保存草稿:",

@@ -10,13 +10,17 @@ import {
   isAgentEmail,
   isMentionRun,
   isScheduleRun,
+  mailRun,
+  mayCallAfterMail,
   MAX_AGENT_WRITES,
   MAX_SCHEDULED_WRITES,
   ownerSeesRun,
+  readEmail,
   runPageOf,
   skillStepsToAdd,
   type AgentRunSource,
   type AgentSkillRecord,
+  type AgentStepRecord,
 } from "./agents";
 import { redactValue } from "./redact";
 
@@ -189,5 +193,38 @@ describe("who a run is for (sees its work and answers its call)", () => {
     expect(runPageOf(chat)).toBeNull();
     expect(ownerSeesRun(chat, "o1", false)).toBe(true);
     expect(ownerSeesRun(chat, "o2", true)).toBe(false);
+  });
+});
+
+describe("mailRun", () => {
+  it("lets only runs that show to their person alone and stay in the app read their email", () => {
+    expect(mailRun({ kind: "chat", userId: "u1", conversationId: "c1" })).toBe(true);
+    expect(mailRun({ kind: "schedule", scheduleId: "s1", scheduledBy: "u1" })).toBe(true);
+    expect(mailRun({ kind: "chat", userId: "u1", conversationId: "c1", fromApp: true })).toBe(false);
+    expect(mailRun({ kind: "schedule", scheduleId: "s1", scheduledBy: "u1", databaseId: "db1" })).toBe(false);
+    expect(mailRun({ kind: "request", requestedBy: "u1", via: "mcp" })).toBe(false);
+    expect(mailRun({ kind: "mention", pageId: "p1", threadId: "t1", commentId: "c1", mentionedBy: "u1" })).toBe(false);
+    expect(mailRun({ kind: "automation", automationId: "a1", automationRunId: "r1", databaseId: "db1", rowId: "row1" })).toBe(false);
+    const parent = { kind: "chat" as const, userId: "u1", conversationId: "c1" };
+    expect(mailRun({ kind: "handoff", parentRunId: "r1", fromAgentId: "a1", callId: "k1", boundTo: "u1", trusted: true, parent })).toBe(false);
+  });
+});
+
+describe("after reading email", () => {
+  it("knows a run that read email, or went on from a chat that had, but not one that only drafted", () => {
+    const steps = (s: AgentStepRecord[]) => s;
+    expect(readEmail(steps([{ kind: "mail", action: "search", query: "x", results: 1 }]))).toBe(true);
+    expect(readEmail(steps([{ kind: "mail", action: "read", subject: "x", url: "/m" }]))).toBe(true);
+    expect(readEmail(steps([{ kind: "mail", action: "earlier" }]))).toBe(true);
+    expect(readEmail(steps([{ kind: "mail", action: "draft", subject: "x", to: [], url: null, outcome: "done" }]))).toBe(false);
+    expect(readEmail(steps([{ kind: "memory", action: "remember", text: "x" }]))).toBe(false);
+    expect(readEmail(undefined)).toBe(false);
+  });
+
+  it("lets such a run only read pages, find and use tools, and use the mail tools", () => {
+    for (const name of ["read_page", "search_pages", "query_database", "find_tools", "use_tool", "search_mail", "read_mail", "draft_mail"]) expect(mayCallAfterMail(name, false)).toBe(true);
+    for (const name of ["edit_page", "create_page", "update_row", "add_comment", "send_email", "remember", "ask_agent", "read_web_page", "search_web", "leave_note"]) expect(mayCallAfterMail(name, false)).toBe(false);
+    // A connected service's tool, even one that only reads and shares a page tool's name.
+    expect(mayCallAfterMail("read_page", true)).toBe(false);
   });
 });

@@ -342,7 +342,7 @@ async function threadFolders(box: Box, from: FolderRow | null) {
  */
 export async function listThreads(
   userId: string,
-  input: { mailboxId: string; folderId: string; workspaceId?: string; search?: string; cursor?: string | null },
+  input: { mailboxId: string; folderId: string; workspaceId?: string; search?: string; cursor?: string | null; mailboxIds?: string[] },
 ): Promise<MailThreadPage> {
   const search = typeof input.search === "string" ? input.search.trim().slice(0, 500) : "";
   const cursor = typeof input.cursor === "string" ? input.cursor : null;
@@ -352,7 +352,8 @@ export async function listThreads(
     const boxes = await db
       .select()
       .from(mailbox)
-      .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)));
+      // An agent's run reads only the mailboxes opened to it (agents/mail.ts).
+      .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId), input.mailboxIds ? inArray(mailbox.id, input.mailboxIds) : undefined));
     const inboxes = boxes.length
       ? await db
           .select()
