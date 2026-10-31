@@ -10,7 +10,7 @@ import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, F
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
-import type { ChatChange, ChatPageView, ChatQueryCondition, ChatSourceView, ChatStepView, ChatWriteView } from "@/lib/ai-chat";
+import { makesFile, type ChatChange, type ChatPageView, type ChatQueryCondition, type ChatSourceView, type ChatStepView, type ChatWriteView } from "@/lib/ai-chat";
 
 export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (source: ChatSourceView) => void }) {
   const t = useTranslations("ai.chat");
@@ -150,7 +150,10 @@ const WRITE_ICONS = {
   updateRow: PencilLine,
   createPage: FilePlus,
   editPage: FilePen,
+  // One icon for every file the chat makes: each icon here is in every workspace page's first load.
   createPdf: FileDown,
+  createDocx: FileDown,
+  createXlsx: FileDown,
   mergeRows: Merge,
   addComment: MessageSquarePlus,
   createDatabase: Table2,
@@ -165,10 +168,10 @@ function WriteLine({ step, onSource }: { step: ChatWriteView; onSource: (source:
   const t = useTranslations("ai.chat.steps.write");
   const Icon = step.outcome === "declined" ? Ban : step.outcome === "failed" ? CircleAlert : WRITE_ICONS[step.action];
   // A row or page changed is the change's subject; a row or page added goes into its target, and
-  // so does a PDF made of a page (the file is its subject, by name).
+  // so does a file made of a page or a database (the file is its subject, by name).
   const changedInPlace = step.action === "updateRow" || step.action === "editPage" || step.action === "mergeRows" || step.action === "addComment";
   // A form is named by its title, in the database it was added to.
-  const pdf = step.action === "createPdf" || step.action === "createForm";
+  const pdf = makesFile(step.action) || step.action === "createForm";
   const where = changedInPlace ? null : pdf ? (step.page ?? step.target) : step.target;
   const subject = pdf ? null : (step.page ?? (changedInPlace ? step.target : null));
   return (

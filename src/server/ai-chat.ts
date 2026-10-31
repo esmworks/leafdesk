@@ -11,8 +11,8 @@
  *    through operations.ts with their access checked on every call: a page they lost access to
  *    since can't be read, whatever the conversation said before;
  * 4. unless the chat's mode is `read`, may make it change things as the person (`create_row`,
- *    `update_row`, `create_page`, `edit_page`, `create_pdf`, `add_comment`, `create_database`,
- *    `create_form`, with their access checked): in mode `ask` the answer waits
+ *    `update_row`, `create_page`, `edit_page`, `create_pdf`, `create_docx`, `create_xlsx`,
+ *    `add_comment`, `create_database`, `create_form`, with their access checked): in mode `ask` the answer waits
  *    for the person to approve each change (ai-chat-approvals.ts), in `auto` it doesn't; asked
  *    through a connected app (the Telegram bot, server/telegram) in a workspace that lets apps only
  *    read, the mode is `read` and no notes are kept or dropped;

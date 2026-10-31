@@ -275,7 +275,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   and `pdf-document.ts` (pure pdfmake layout; pdfmake must stay in `serverExternalPackages` in
   `next.config.ts`, bundled it loses its font files, and its fonts in the standalone build's
   `outputFileTracingIncludes`; CJK text goes to the system's Noto Sans CJK, found in `pdf.ts` and
-  installed by the Dockerfile, through `withCjkFont`), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
+  installed by the Dockerfile, through `withCjkFont`), Word files `docx-export.ts` (reads the page through
+  `pdf.ts` `pageDocument`, the PDF's input) and `docx-document.ts` (pure layout with the `docx` library), PDF letterheads `letterheads.ts` (pure part in `src/lib/letterheads.ts`;
   the logo is document content kept in `pdf_letterhead`, not page decoration; a letterhead's
   `theme` is JSON checked by `lib/pdf-themes.ts`, drawn by `pdf-theme-layout.ts`, described for
   models by `pdf-theme-docs.ts`, changed by the AI in `pdf-theme-ai.ts`), backup `backup/`, SSO `sso.ts`, SCIM

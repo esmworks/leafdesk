@@ -66,6 +66,7 @@
     "exportZip": "하위 페이지와 함께 내보내기",
     "exportZipDatabase": "행 페이지와 함께 내보내기",
     "exportPdf": "PDF로 내보내기",
+    "exportDocx": "Word(.docx)로 내보내기",
     "exportComments": "댓글 포함",
     "exportCommentsHint": "볼 수 있는 댓글 스레드를 Markdown, ZIP, PDF 내보내기의 각 페이지 뒤에 추가합니다",
     "printView": "인쇄",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "PDF로 내보내기",
+    "titleDocx": "Word로 내보내기",
     "letterhead": "레터헤드",
     "none": "없음",
     "defaultMark": "{name} (기본값)",
@@ -875,6 +877,7 @@
     "properties": "행의 값 포함",
     "comments": "댓글 포함",
     "hint": "다이어그램과 수식은 텍스트로 인쇄됩니다. 보이는 그대로의 페이지가 필요하면 인쇄를 쓰세요.",
+    "hintDocx": "Word에서 계속 편집할 파일입니다. 레터헤드의 로고와 줄은 머리글과 바닥글에 들어가지만 PDF 테마는 들어가지 않습니다.",
     "download": "다운로드",
     "preparing": "준비 중…",
     "textSize": "글자 크기"

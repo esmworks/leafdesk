@@ -20,10 +20,11 @@ function fileNameOf(disposition: string | null, fallback: string): string {
 }
 
 /**
- * The page menu's "Export as PDF": the page as a PDF file made on the server (the export route's
- * `format=pdf`), in one of the workspace's letterheads (its default picked first) and, for a row,
- * with its values and with the comments if asked (the page menu's "Include comments" picks the
- * latter first), in a text size from 75 to 150 percent. The file is fetched rather than linked, so a refusal (another export
+ * The page menu's "Export as PDF" and "Export as Word": the page as a PDF file or Word document
+ * made on the server (the export route's `format=pdf` or `docx`), in one of the workspace's
+ * letterheads (its default picked first) and, for a row, with its values and with the comments if
+ * asked (the page menu's "Include comments" picks the latter first); a PDF in a text size from 75
+ * to 150 percent. The file is fetched rather than linked, so a refusal (another export
  * running, export turned off) shows here instead of downloading as a file. Loaded with the menu's
  * first use, not with every page.
  */
@@ -32,12 +33,14 @@ export default function PdfExportDialog({
   pageId,
   isRow,
   comments: commentsFirst = false,
+  format: kind = "pdf",
   onClose,
 }: {
   workspaceId: string;
   pageId: string;
   isRow: boolean;
   comments?: boolean;
+  format?: "pdf" | "docx";
   onClose: () => void;
 }) {
   const t = useTranslations("page.pdfExport");
@@ -74,11 +77,11 @@ export default function PdfExportDialog({
     setError(null);
     try {
       const query = new URLSearchParams({
-        format: "pdf",
+        format: kind,
         letterhead: choice,
         ...(isRow && properties ? { properties: "1" } : {}),
         ...(comments ? { comments: "1" } : {}),
-        ...(scale !== 100 ? { scale: String(scale) } : {}),
+        ...(kind === "pdf" && scale !== 100 ? { scale: String(scale) } : {}),
       });
       const res = await fetch(`/w/${workspaceId}/p/${pageId}/export?${query}`, { cache: "no-store" });
       if (!res.ok) {
@@ -89,7 +92,7 @@ export default function PdfExportDialog({
       const url = URL.createObjectURL(await res.blob());
       const link = document.createElement("a");
       link.href = url;
-      link.download = fileNameOf(res.headers.get("content-disposition"), "page.pdf");
+      link.download = fileNameOf(res.headers.get("content-disposition"), `page.${kind}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -105,7 +108,7 @@ export default function PdfExportDialog({
   return (
     <Dialog open onClose={onClose} className="max-w-md">
       <DialogBody className="pt-5">
-        <DialogTitle>{t("title")}</DialogTitle>
+        <DialogTitle>{t(kind === "pdf" ? "title" : "titleDocx")}</DialogTitle>
         <div className="space-y-1.5">
           <label htmlFor={`${id}-letterhead`} className="block text-sm font-medium">
             {t("letterhead")}
@@ -126,6 +129,7 @@ export default function PdfExportDialog({
           </select>
           {letterheads?.length === 0 && <p className="text-xs text-fg-muted">{t("noLetterheads")}</p>}
         </div>
+        {kind === "pdf" && (
         <div className="flex items-center justify-between gap-3 text-sm">
           <label htmlFor={`${id}-scale`}>{t("textSize")}</label>
           <select
@@ -142,6 +146,7 @@ export default function PdfExportDialog({
             ))}
           </select>
         </div>
+        )}
         {isRow && (
           <div className="flex items-center justify-between gap-3 text-sm">
             <span id={`${id}-properties`}>{t("properties")}</span>
@@ -152,7 +157,7 @@ export default function PdfExportDialog({
           <span>{t("comments")}</span>
           <Switch checked={comments} onChange={setComments} label={t("comments")} disabled={pending} />
         </div>
-        <p className="text-xs text-fg-muted">{t("hint")}</p>
+        <p className="text-xs text-fg-muted">{t(kind === "pdf" ? "hint" : "hintDocx")}</p>
       </DialogBody>
       <DialogFooter>
         {error && <span className="flex-1 text-sm text-danger">{error}</span>}

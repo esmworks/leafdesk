@@ -66,6 +66,7 @@
     "exportZip": "Ekspor beserta subhalaman",
     "exportZipDatabase": "Ekspor beserta halaman baris",
     "exportPdf": "Ekspor sebagai PDF",
+    "exportDocx": "Ekspor sebagai Word (.docx)",
     "exportComments": "Sertakan komentar",
     "exportCommentsHint": "Menambahkan utas komentar yang bisa Anda lihat ke ekspor Markdown, ZIP, dan PDF, setelah setiap halaman",
     "printView": "Cetak",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Ekspor sebagai PDF",
+    "titleDocx": "Ekspor sebagai Word",
     "letterhead": "Kop surat",
     "none": "Tidak ada",
     "defaultMark": "{name} (bawaan)",
@@ -875,6 +877,7 @@
     "properties": "Sertakan nilai baris",
     "comments": "Sertakan komentar",
     "hint": "Diagram dan persamaan dicetak sebagai teks; gunakan Cetak untuk halaman persis seperti tampilannya.",
+    "hintDocx": "File untuk terus diedit di Word: logo dan baris kop surat masuk ke header dan footer, tetapi tema PDF-nya tidak.",
     "download": "Unduh",
     "preparing": "Menyiapkan…",
     "textSize": "Ukuran teks"

@@ -66,6 +66,7 @@
     "exportZip": "Exporteren met subpagina’s",
     "exportZipDatabase": "Exporteren met rijpagina’s",
     "exportPdf": "Exporteren als PDF",
+    "exportDocx": "Exporteren als Word (.docx)",
     "exportComments": "Opmerkingen meenemen",
     "exportCommentsHint": "Voegt de discussies die je kunt zien toe aan Markdown-, ZIP- en PDF-exports, na elke pagina",
     "printView": "Afdrukken",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Exporteren als PDF",
+    "titleDocx": "Exporteren als Word",
     "letterhead": "Briefpapier",
     "none": "Geen",
     "defaultMark": "{name} (standaard)",
@@ -875,6 +877,7 @@
     "properties": "De waarden van de rij meenemen",
     "comments": "Opmerkingen meenemen",
     "hint": "Diagrammen en vergelijkingen worden als tekst afgedrukt; gebruik Afdrukken voor de pagina precies zoals die eruitziet.",
+    "hintDocx": "Een bestand om in Word verder te bewerken: logo en regels van het briefpapier komen in de kop- en voettekst, het pdf-thema niet.",
     "download": "Downloaden",
     "preparing": "Voorbereiden…",
     "textSize": "Tekstgrootte"

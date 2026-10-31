@@ -27,8 +27,13 @@ export function SideBox({ title, count, children }: { title: string; count?: num
           <ChevronDown className={cn("h-4 w-4 shrink-0 text-fg-muted transition-transform", !open && "-rotate-90 rtl:rotate-90")} aria-hidden />
         </button>
       </h2>
+      {/* The list fades out at its edges instead of cutting a line in half; the padding is as deep
+          as the fade, so at either end only the empty padding fades. */}
       {open && (
-        <ul id={id} className="max-h-80 min-h-0 overflow-y-auto overscroll-contain border-t border-border py-1">
+        <ul
+          id={id}
+          className="max-h-80 min-h-0 overflow-y-auto overscroll-contain border-t border-border pt-2 pb-5 [mask-image:linear-gradient(to_bottom,transparent,black_0.5rem,black_calc(100%-1.25rem),transparent)]"
+        >
           {children}
         </ul>
       )}

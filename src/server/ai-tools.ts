@@ -18,6 +18,7 @@ import { env } from "@/lib/env";
 import { attachmentCsv } from "@/lib/chat-attachment-table";
 import type { ChatFileContent } from "@/server/ai-chat-files";
 import { cleanFileName, formatBytes } from "@/lib/files";
+import { XLSX_MIME } from "@/lib/xlsx";
 import { CSV_COLUMN_TYPES, guessColumn, guessTitleColumn, type CsvColumnType } from "@/lib/import/csv";
 import { validateDatabasePlan } from "@/lib/database-plan";
 import { MAX_CONDITION_VALUES, MAX_CONFIRMATION, MAX_FORM_DESCRIPTION, MAX_FORM_TITLE, MAX_QUESTION_DESCRIPTION, MAX_QUESTION_LABEL } from "@/lib/forms";
@@ -37,7 +38,7 @@ import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { getCollab } from "@/server/collab/bridge";
 import { addView, getDatabase, getLookups, normalizeRowProperties, updateView } from "@/server/databases";
 import { createFromPlan } from "@/server/database-plan";
-import { assertExportAllowed, ExportError } from "@/server/export";
+import { assertExportAllowed, databaseXlsx, ExportError, viewXlsx } from "@/server/export";
 import { uploadFile } from "@/server/files";
 import { applyFormLink, formConfigPatch, type FormInput } from "@/server/mcp/form-settings";
 import { ToolInputError } from "@/server/mcp/format";
@@ -45,6 +46,8 @@ import { describeProperty } from "@/server/mcp/query";
 import * as ops from "@/server/operations";
 import { getTree, savedSeedNames } from "@/server/pages";
 import { listLetterheads } from "@/server/letterheads";
+import { DOCX_MIME } from "@/server/docx-document";
+import { pageDocx } from "@/server/docx-export";
 import { pagePdf } from "@/server/pdf";
 import { outdatedState } from "@/server/page-outdated";
 import { chunksOfPages, inScope, type ChatScopeRef } from "@/server/semantic-search";
@@ -334,6 +337,47 @@ export const WRITE_TOOLS: AiTool[] = [
         },
       },
       required: ["page_id"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "create_docx",
+    description: [
+      "Makes a Word document (.docx) of a page or database row, as the person, for someone who will go on editing it: its title, text, tables and images, in a letterhead's logo and lines, and attaches it to that page like create_pdf.",
+      "Make a PDF (create_pdf) unless the person asks for Word or a file to edit. Returns the file's link: give it to the person.",
+    ].join(" "),
+    parameters: {
+      type: "object",
+      properties: {
+        page_id: { type: "string", description: "The page or row to make the document of (from a source, or the one just made)." },
+        file_name: { type: "string", description: "The file's name, without .docx (the page's title when left out)." },
+        property: { type: "string", description: "A files property of the row: the file goes into it instead of the text." },
+        with_properties: { type: "boolean", description: "List the row's values under its title (default false)." },
+        letterhead: {
+          type: "string",
+          description: 'The name of one of the workspace\'s letterheads (logo, company lines) to put at the top and foot of its pages, or "none"; leave out for the default one.',
+        },
+      },
+      required: ["page_id"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "create_xlsx",
+    description: [
+      "Makes an Excel workbook (.xlsx) of a database's rows, as the person: what one of its views shows (its filters, sorts and shown properties, in its order; a pivot view's table), or with no view_id every row and property. Numbers, dates and checkboxes stay typed.",
+      "The file is attached to a page or row the person can change (page_id): the page they are working on, the row it is about, or a page made for it first (create_page). Returns the file's link: give it to the person.",
+    ].join(" "),
+    parameters: {
+      type: "object",
+      properties: {
+        database_id: { type: "string", description: "The database whose rows go into the workbook." },
+        view_id: { type: "string", description: "One of its views (read_page on the database lists them): the workbook holds what that view shows. Not a chart, dashboard or form view." },
+        page_id: { type: "string", description: "The page or row to attach the file to; not a database." },
+        file_name: { type: "string", description: "The file's name, without .xlsx (the database's and view's names when left out)." },
+        property: { type: "string", description: "A files property of the row page_id names: the file goes into it instead of the text." },
+      },
+      required: ["database_id", "page_id"],
       additionalProperties: false,
     },
   },
@@ -1001,7 +1045,9 @@ export async function prepareWrite(
         },
       };
     }
-    if (call.name === "create_pdf") return await preparePdf(ctx, workspaceId, scope, args);
+    if (call.name === "create_pdf") return await preparePageFile(ctx, workspaceId, scope, args, "pdf");
+    if (call.name === "create_docx") return await preparePageFile(ctx, workspaceId, scope, args, "docx");
+    if (call.name === "create_xlsx") return await prepareXlsx(ctx, workspaceId, scope, args, extra);
     if (call.name === "add_comment") return await prepareComment(ctx, workspaceId, scope, args);
     if (call.name === "create_database") return await prepareDatabase(ctx, workspaceId, scope, args);
     if (call.name === "create_database_from_csv") return await prepareCsvDatabase(ctx, workspaceId, scope, args, extra);
@@ -1042,43 +1088,68 @@ export async function prepareWrite(
 const readOnly: ToolOutcome = { content: "The person may only read this, not change it. Tell them so.", isError: true };
 const canEdit = (level: string) => level === "edit" || level === "full";
 
+/** Where a file the chat makes goes: a page or row the person may change, at the end of its text or in a files property of the row. */
+type FilePlace = { target: NonNullable<Awaited<ReturnType<typeof writeTarget>>>; filesProperty: { id: string; name: string } | null };
+
 /**
- * create_pdf: the page to make a PDF of and attach it to (in the workspace and scope, the person
- * able to change it, export allowed), and the files property it goes into if one is named. The PDF
- * is made once the person agrees, from the page as it is then.
+ * The page `page_id` names as the place for a file the chat makes (in the workspace and scope, the
+ * person able to change it, export allowed), and the files property `property` names if any: a
+ * ToolOutcome saying why not otherwise. `kind` names the file in the messages ("PDF").
  */
-async function preparePdf(
-  ctx: ops.OperationContext,
-  workspaceId: string,
-  scope: ChatScopeRef | null | undefined,
-  args: Record<string, unknown>,
-): Promise<PreparedWrite | ToolOutcome> {
-  const { userId } = ctx;
-  const pageId = text(args.page_id) ?? "";
-  const target = await writeTarget(userId, workspaceId, scope, pageId);
+async function filePlace(userId: string, workspaceId: string, scope: ChatScopeRef | null | undefined, args: Record<string, unknown>, kind: string): Promise<FilePlace | ToolOutcome> {
+  const target = await writeTarget(userId, workspaceId, scope, text(args.page_id) ?? "");
   if (!target) return { content: "No page with that id can be changed. Use a page_id from the map or a source.", isError: true };
-  if (target.page.kind === "database") return invalidChange("page_id is a database: make the PDF of one of its rows or of a page.");
+  if (target.page.kind === "database") return invalidChange(`page_id is a database, which holds no files: give one of its rows or a page for the ${kind}.`);
   if (!canEdit(target.level)) return readOnly;
   try {
     await assertExportAllowed(workspaceId);
   } catch (error) {
-    if (error instanceof ExportError) return { content: "The workspace's owners turned export off, so no PDF can be made. Tell the person so.", isError: true };
+    if (error instanceof ExportError) return { content: `The workspace's owners turned export off, so no ${kind} can be made. Tell the person so.`, isError: true };
     throw error;
   }
   const propertyName = text(args.property);
-  let filesProperty: { id: string; name: string } | null = null;
-  if (propertyName) {
-    const parent = target.page.parentId ? await writeTarget(userId, workspaceId, null, target.page.parentId) : null;
-    if (parent?.page.kind !== "database") return invalidChange("property only applies to a database row; this page is not one.");
-    const { properties, access } = await getDatabase(userId, parent.page.id);
-    const found = properties.find((p) => p.id === propertyName) ?? properties.find((p) => p.name.toLowerCase() === propertyName.toLowerCase());
-    if (!found) return invalidChange(`the row's database has no property "${propertyName}".`);
-    if (found.type !== "files") return invalidChange(`"${found.name}" is a ${found.type} property, not a files property.`);
-    access.requireValues(target.page, [found.id]);
-    filesProperty = { id: found.id, name: found.name };
-  } else if (isPageLocked(target.page)) {
-    return { content: PAGE_LOCKED_MESSAGE, isError: true };
-  }
+  if (!propertyName) return isPageLocked(target.page) ? { content: PAGE_LOCKED_MESSAGE, isError: true } : { target, filesProperty: null };
+  const parent = target.page.parentId ? await writeTarget(userId, workspaceId, null, target.page.parentId) : null;
+  if (parent?.page.kind !== "database") return invalidChange("property only applies to a database row; this page is not one.");
+  const { properties, access } = await getDatabase(userId, parent.page.id);
+  const found = properties.find((p) => p.id === propertyName) ?? properties.find((p) => p.name.toLowerCase() === propertyName.toLowerCase());
+  if (!found) return invalidChange(`the row's database has no property "${propertyName}".`);
+  if (found.type !== "files") return invalidChange(`"${found.name}" is a ${found.type} property, not a files property.`);
+  access.requireValues(target.page, [found.id]);
+  return { target, filesProperty: { id: found.id, name: found.name } };
+}
+
+/** Stores a file the chat made and puts it in its place; what the model is told about it (`note` after where it went). */
+async function attachMade(ctx: ops.OperationContext, { target, filesProperty }: FilePlace, file: { name: string; contentType: string; bytes: Uint8Array; kind: string }, note = "") {
+  const pageId = target.page.id;
+  const stored = await uploadFile(ctx.userId, pageId, {
+    name: file.name,
+    contentType: file.contentType,
+    body: Readable.from([file.bytes]),
+    declaredSize: file.bytes.length,
+  });
+  await ops.placeFile(ctx, pageId, stored, filesProperty ? { filesPropertyId: filesProperty.id } : {});
+  const where = filesProperty ? `in its "${filesProperty.name}" property` : "at the end of its text";
+  return `The ${file.kind} file "${stored.name}" (${formatBytes(stored.size)}) is attached to the page ${where}.${note} Link: ${env.appUrl}${stored.url}`;
+}
+
+/**
+ * create_pdf and create_docx: the page to make the file of and attach it to (see filePlace), and
+ * the letterhead it goes in. The file is made once the person agrees, from the page as it is then.
+ */
+async function preparePageFile(
+  ctx: ops.OperationContext,
+  workspaceId: string,
+  scope: ChatScopeRef | null | undefined,
+  args: Record<string, unknown>,
+  format: "pdf" | "docx",
+): Promise<PreparedWrite | ToolOutcome> {
+  const { userId } = ctx;
+  const kind = format === "pdf" ? "PDF" : "Word";
+  const place = await filePlace(userId, workspaceId, scope, args, kind);
+  if (!("target" in place)) return place;
+  const { target, filesProperty } = place;
+  const pageId = target.page.id;
   const withProperties = args.with_properties === true;
   // The letterhead by name ("none" for none); left out, the workspace's default, if it has one.
   const letterheads = await listLetterheads(userId, workspaceId);
@@ -1088,27 +1159,65 @@ async function preparePdf(
     const names = letterheads.map((l) => `"${l.name}"`).join(", ");
     return invalidChange(`the workspace has no letterhead named "${asked}"; ${names ? `it has ${names}` : "it has none"}.`);
   }
-  const named = cleanFileName(`${(text(args.file_name) || pageLabel(target.page.title)).replace(/\.pdf$/i, "")}.pdf`);
+  const named = cleanFileName(`${(text(args.file_name) || pageLabel(target.page.title)).replace(new RegExp(`\\.${format}$`, "i"), "")}.${format}`);
+  const changes: ChatChange[] = filesProperty ? [{ property: filesProperty.name, value: named }] : [];
+  const action = format === "pdf" ? "createPdf" : "createDocx";
+  return {
+    action: { action, target: await pageView(userId, pageId), title: named, changes, content: null, ...(letterhead ? { letterhead: letterhead.name } : {}) },
+    record: { kind: "write", action, targetId: pageId, title: named, changes },
+    execute: async () => {
+      const options = { properties: withProperties, letterhead: letterhead?.id ?? "none" };
+      const made = format === "pdf" ? await pagePdf(userId, pageId, options) : await pageDocx(userId, pageId, options);
+      const paper = letterhead ? ` It is ${format === "pdf" ? "printed" : "set"} in the letterhead "${letterhead.name}".` : "";
+      const said = await attachMade(ctx, place, { name: named, contentType: format === "pdf" ? "application/pdf" : DOCX_MIME, bytes: made.bytes, kind }, paper);
+      return { id: pageId, title: made.title, text: said };
+    },
+  };
+}
+
+/**
+ * create_xlsx: the database whose rows go in (one the person can see, in the workspace and scope),
+ * the view they come from (not one that shows no rows: a chart, dashboard or form) and the page
+ * the workbook goes to (see filePlace). It is made once the person agrees, from the rows as they
+ * are then.
+ */
+async function prepareXlsx(
+  ctx: ops.OperationContext,
+  workspaceId: string,
+  scope: ChatScopeRef | null | undefined,
+  args: Record<string, unknown>,
+  extra: ToolExtra,
+): Promise<PreparedWrite | ToolOutcome> {
+  const { userId } = ctx;
+  const databaseId = text(args.database_id) ?? "";
+  const source = await writeTarget(userId, workspaceId, scope, databaseId);
+  if (source?.page.kind !== "database") return { content: "No database with that id can be read. Use the database_id of a source.", isError: true };
+  const viewId = text(args.view_id);
+  const { views } = await getDatabase(userId, databaseId);
+  const view = viewId ? views.find((v) => v.id === viewId) : null;
+  if (view === undefined) {
+    const listed = views.map((v) => `"${v.name}" (${v.id})`).join(", ");
+    return invalidChange(`the database has no view with id "${viewId}"; its views are ${listed || "none"}.`);
+  }
+  if (view && (view.type === "chart" || view.type === "dashboard" || view.type === "form")) {
+    return invalidChange(`"${view.name}" is a ${view.type} view, which shows no rows: give a table, list, board or pivot view, or leave view_id out.`);
+  }
+  const place = await filePlace(userId, workspaceId, scope, args, "Excel");
+  if (!("target" in place)) return place;
+  const { target, filesProperty } = place;
+  const databaseTitle = pageLabel(source.page.title);
+  const sourceName = view ? `${databaseTitle} – ${view.name}` : databaseTitle;
+  const named = cleanFileName(`${(text(args.file_name) || sourceName).replace(/\.xlsx$/i, "")}.xlsx`);
   const changes: ChatChange[] = filesProperty ? [{ property: filesProperty.name, value: named }] : [];
   return {
-    action: { action: "createPdf", target: await pageView(userId, pageId), title: named, changes, content: null, ...(letterhead ? { letterhead: letterhead.name } : {}) },
-    record: { kind: "write", action: "createPdf", targetId: pageId, title: named, changes },
+    action: { action: "createXlsx", target: await pageView(userId, target.page.id), title: named, changes, content: null, source: sourceName },
+    record: { kind: "write", action: "createXlsx", targetId: target.page.id, title: named, changes },
     execute: async () => {
-      const pdf = await pagePdf(userId, pageId, { properties: withProperties, letterhead: letterhead?.id ?? "none" });
-      const stored = await uploadFile(userId, pageId, {
-        name: named,
-        contentType: "application/pdf",
-        body: Readable.from([pdf.bytes]),
-        declaredSize: pdf.bytes.length,
-      });
-      await ops.placeFile(ctx, pageId, stored, filesProperty ? { filesPropertyId: filesProperty.id } : {});
-      const where = filesProperty ? `in its "${filesProperty.name}" property` : "at the end of its text";
-      const paper = letterhead ? ` It is printed in the letterhead "${letterhead.name}".` : "";
-      return {
-        id: pageId,
-        title: pdf.title,
-        text: `The PDF file "${stored.name}" (${formatBytes(stored.size)}) is attached to the page ${where}.${paper} Link: ${env.appUrl}${stored.url}`,
-      };
+      const made = view ? await viewXlsx(userId, databaseId, view.id, extra.timeZone) : await databaseXlsx(userId, databaseId);
+      if (!made) throw new ToolInputError(`the view "${view?.name}" is no longer there.`);
+      const rows = "rows" in made ? ` It holds ${made.rows} rows.` : "";
+      const said = await attachMade(ctx, place, { name: named, contentType: XLSX_MIME, bytes: made.xlsx, kind: "Excel" }, rows);
+      return { id: target.page.id, title: pageLabel(target.page.title), text: said };
     },
   };
 }
@@ -1515,6 +1624,10 @@ export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision
             ? "Changed the page's text"
             : record.action === "createPdf"
               ? "Made the PDF and attached it to the page"
+              : record.action === "createDocx"
+                ? "Made the Word document and attached it to the page"
+                : record.action === "createXlsx"
+                  ? "Made the Excel workbook and attached it to the page"
               : record.action === "addComment"
                 ? "Added the comment"
                 : record.action === "createDatabase"
@@ -1552,7 +1665,7 @@ async function readPage(ctx: ops.OperationContext, workspaceId: string, scope: C
     if (!inside) return null;
   }
   const textChars = Math.max(1_000, maxChars - PAGE_HEAD_CHARS);
-  const out = (await ops.getPage(ctx, { page_id: pageId, offset, with_block_ids: withBlockIds }, { maxMarkdownChars: textChars })) as Record<string, unknown>;
+  const out = (await ops.getPage(ctx, { page_id: pageId, offset, with_block_ids: withBlockIds }, { maxMarkdownChars: textChars, views: true })) as Record<string, unknown>;
   if (out.workspace_id !== workspaceId || out.in_trash || out.template) return null;
   const parts: string[] = [];
   if (typeof out.path === "string") parts.push(`Path: ${out.path}`);
@@ -1562,6 +1675,8 @@ async function readPage(ctx: ops.OperationContext, workspaceId: string, scope: C
   }
   if (Array.isArray(out.database_properties)) {
     parts.push(`A database (database_id ${pageId}; query_database lists the rows that match filters). Its properties:\n${(out.database_properties as DescribedProperty[]).map(propertyLine).join("\n")}`);
+    const views = (out.database_views ?? []) as { id: string; name: string; type: string }[];
+    if (views.length) parts.push(`Its views: ${views.map((v) => `"${v.name}" (view_id ${v.id}, ${v.type})`).join(", ")}`);
     parts.push(await databaseRows(ctx, pageId));
   } else if (typeof out.database_id === "string") {
     // A row: what its database's properties hold and how to fill them, for writing its values.

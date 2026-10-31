@@ -12,6 +12,16 @@
   headers and first lines are kept, 90 days back; messages are read from the mail server when
   opened. Only the mailbox's owner sees it. Migration 0164.
 
+- **Word export, and Word and Excel files from the AI chat.** "Export as Word" in the page menu
+  downloads a page or row as a .docx file meant for further editing, with the PDF export's choices
+  (letterhead, a row's values, comments): Word's heading styles, numbering and footnotes, tables
+  with merged cells and repeated header rows, embedded images, the letterhead in the document's
+  header and footer. The AI chat makes the same file with `create_docx`, and an Excel workbook of a
+  database or one of its views with `create_xlsx` (the view's filters, sorts and columns, numbers
+  and dates as Excel values), attached to a page or a row's files property like `create_pdf`'s
+  PDFs, after the person agrees in *Ask* mode. The chat's `read_page` of a database lists its views.
+  New dependency `docx`; no migration.
+
 - **Guardrails for agents' spending.** *Who can create agents* has a third choice: owners and
   the members and groups they pick. Owners, and an agent's creator, get an inbox item and an email
   when an agent passes 80% of its monthly token limit and when it reaches it, and owners when the
@@ -161,6 +171,15 @@
 
 ### Fixed
 
+- **The boxes beside a chat no longer cut a line in half.** A long list of sources, changed pages,
+  runs or schedules beside the AI chat and an agent's page fades out at its edges and leaves room
+  under its last line, instead of ending on a line sliced by the box's border.
+- **Closing a source beside the AI chat keeps the conversation where it was.** A page opened from
+  an answer's citation, or from the sources beside the conversation, gave focus back on closing to
+  the first place that page was cited, so a page an earlier answer also cited took the conversation
+  back to its start. Focus now goes back to what was clicked.
+- **Excel exports of a database with a button property** gave the columns after the button the
+  wrong kind: numbers and dates in them came out as text, or text as numbers.
 - **Frozen columns no longer let text show beside them.** Scrolled sideways, a table's frozen
   columns stopped at the page's margin, and the columns scrolling past showed through in the strip
   between them and the edge. They now move along across the margin and hold at the edge.

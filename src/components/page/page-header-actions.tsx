@@ -24,6 +24,7 @@ import {
   FileCode,
   FileSpreadsheet,
   FileText,
+  FileType,
   Hash,
   History,
   LayoutTemplate,
@@ -559,7 +560,7 @@ function PageMenu({
   const router = useRouter();
   const [moveOpen, setMoveOpen] = useState(false);
   const [teamspaceOpen, setTeamspaceOpen] = useState(false);
-  const [pdfOpen, setPdfOpen] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState<"pdf" | "docx" | null>(null);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   // Whether the exports below (Markdown, ZIP, the PDF dialog's first choice) carry the comments.
   const [exportComments, setExportComments] = useState(false);
@@ -792,16 +793,27 @@ function PageMenu({
               >
                 {zipExport.pending ? t("exportPreparing") : isDatabase ? t("exportZipDatabase") : t("exportZip")}
               </MenuItem>
-              {/* A PDF made on the server, in a letterhead (pdf-export-dialog.tsx). */}
+              {/* A PDF or Word document made on the server, in a letterhead (pdf-export-dialog.tsx). */}
               <MenuItem
                 icon={<FileDown className="h-4 w-4" />}
                 onClick={() => {
                   close();
-                  setPdfOpen(true);
+                  setPdfOpen("pdf");
                 }}
               >
                 {t("exportPdf")}
               </MenuItem>
+              {!isDatabase && (
+                <MenuItem
+                  icon={<FileType className="h-4 w-4" />}
+                  onClick={() => {
+                    close();
+                    setPdfOpen("docx");
+                  }}
+                >
+                  {t("exportDocx")}
+                </MenuItem>
+              )}
               {/* The print view in a new tab; it opens the browser's print dialog once loaded. */}
               <a
                 href={printPath(page.id, { auto: true })}
@@ -1219,7 +1231,8 @@ function PageMenu({
             pageId={page.id}
             isRow={!!page.isRow}
             comments={exportComments}
-            onClose={() => setPdfOpen(false)}
+            format={pdfOpen}
+            onClose={() => setPdfOpen(null)}
           />,
           document.body,
         )}

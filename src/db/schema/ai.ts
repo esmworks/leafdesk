@@ -210,7 +210,7 @@ export type MemoryStatus = "kept" | "proposed";
  * make a PDF file of a page and attach it to the page, comment on a page, add a database (empty
  * or from a CSV file attached to the conversation) or add a form view to a database.
  */
-export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage" | "createPdf" | "addComment" | "createDatabase" | "createForm";
+export type ChatWriteAction = "createRow" | "updateRow" | "createPage" | "editPage" | "createPdf" | "createDocx" | "createXlsx" | "addComment" | "createDatabase" | "createForm";
 
 /** A change made, as a step records it: one the chat may make, or duplicate rows an agent's run merged. */
 export type ChatWriteStepAction = ChatWriteAction | "mergeRows";

@@ -66,6 +66,7 @@
     "exportZip": "Export with subpages",
     "exportZipDatabase": "Export with row pages",
     "exportPdf": "Export as PDF",
+    "exportDocx": "Export as Word (.docx)",
     "exportComments": "Include comments",
     "exportCommentsHint": "Adds the comment threads you can see to Markdown, ZIP and PDF exports, after each page",
     "printView": "Print",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Export as PDF",
+    "titleDocx": "Export as Word",
     "letterhead": "Letterhead",
     "none": "None",
     "defaultMark": "{name} (default)",
@@ -875,6 +877,7 @@
     "properties": "Include the row's values",
     "comments": "Include comments",
     "hint": "Diagrams and equations print as text; use Print for the page exactly as it looks.",
+    "hintDocx": "A file to go on editing in Word: a letterhead's logo and lines go in its header and footer, but not its PDF theme.",
     "download": "Download",
     "preparing": "Preparing…",
     "textSize": "Text size"

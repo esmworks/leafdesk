@@ -66,6 +66,7 @@
     "exportZip": "Esporta con le sottopagine",
     "exportZipDatabase": "Esporta con le pagine delle righe",
     "exportPdf": "Esporta come PDF",
+    "exportDocx": "Esporta come Word (.docx)",
     "exportComments": "Includi i commenti",
     "exportCommentsHint": "Aggiunge i thread di commenti che puoi vedere alle esportazioni Markdown, ZIP e PDF, dopo ogni pagina",
     "printView": "Stampa",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Esporta come PDF",
+    "titleDocx": "Esporta come Word",
     "letterhead": "Carta intestata",
     "none": "Nessuna",
     "defaultMark": "{name} (predefinita)",
@@ -875,6 +877,7 @@
     "properties": "Includi i valori della riga",
     "comments": "Includi i commenti",
     "hint": "Diagrammi ed equazioni vengono stampati come testo; usa Stampa per avere la pagina esattamente com’è.",
+    "hintDocx": "Un file da continuare a modificare in Word: logo e righe della carta intestata vanno in intestazione e piè di pagina, ma non il suo tema PDF.",
     "download": "Scarica",
     "preparing": "Preparazione…",
     "textSize": "Dimensione del testo"

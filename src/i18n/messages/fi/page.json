@@ -66,6 +66,7 @@
     "exportZip": "Vie alasivuineen",
     "exportZipDatabase": "Vie rivisivuineen",
     "exportPdf": "Vie PDF-tiedostona",
+    "exportDocx": "Vie Word-tiedostona (.docx)",
     "exportComments": "Sisällytä kommentit",
     "exportCommentsHint": "Lisää näkemäsi kommenttiketjut Markdown-, ZIP- ja PDF-vienteihin kunkin sivun perään",
     "printView": "Tulosta",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "Vie PDF-tiedostona",
+    "titleDocx": "Vie Word-tiedostona",
     "letterhead": "Kirjelomake",
     "none": "Ei mitään",
     "defaultMark": "{name} (oletus)",
@@ -875,6 +877,7 @@
     "properties": "Sisällytä rivin arvot",
     "comments": "Sisällytä kommentit",
     "hint": "Kaaviot ja yhtälöt tulostuvat tekstinä; käytä Tulosta-toimintoa, jos haluat sivun täsmälleen sellaisena kuin se näkyy.",
+    "hintDocx": "Tiedosto, jota voi muokata Wordissa: kirjelomakkeen logo ja rivit tulevat ylä- ja alatunnisteeseen, sen PDF-teema ei.",
     "download": "Lataa",
     "preparing": "Valmistellaan…",
     "textSize": "Tekstin koko"

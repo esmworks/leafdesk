@@ -462,7 +462,7 @@ function boxed(stack: Content[], { fill, edge, frame }: { fill?: string; edge?: 
 }
 
 /** Text that reads as a number or an amount: digits with separators, signs, percent or a currency. */
-const AMOUNT = /^[-+(]?\s*(?:[^\d\s]{1,3}\s?)?\d[\d.,\s\u00a0\u202f']*(?:\s?(?:%|[^\d\s]{1,3}))?\)?$/u;
+export const AMOUNT = /^[-+(]?\s*(?:[^\d\s]{1,3}\s?)?\d[\d.,\s\u00a0\u202f']*(?:\s?(?:%|[^\d\s]{1,3}))?\)?$/u;
 
 type Cell = { content: unknown; colspan: number; rowspan: number; props: Record<string, unknown> };
 

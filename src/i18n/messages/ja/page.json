@@ -66,6 +66,7 @@
     "exportZip": "サブページを含めてエクスポート",
     "exportZipDatabase": "行のページを含めてエクスポート",
     "exportPdf": "PDFとしてエクスポート",
+    "exportDocx": "Word（.docx）としてエクスポート",
     "exportComments": "コメントを含める",
     "exportCommentsHint": "表示できるコメントスレッドを、Markdown・ZIP・PDF のエクスポートで各ページの後に追加します",
     "printView": "印刷",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "PDF として書き出す",
+    "titleDocx": "Word としてエクスポート",
     "letterhead": "レターヘッド",
     "none": "なし",
     "defaultMark": "{name}（既定）",
@@ -875,6 +877,7 @@
     "properties": "行の値を含める",
     "comments": "コメントを含める",
     "hint": "図や数式はテキストとして印刷されます。見たままのページが必要なら「印刷」を使ってください。",
+    "hintDocx": "Word で編集を続けるためのファイルです。レターヘッドのロゴと行はヘッダーとフッターに入りますが、PDF テーマは入りません。",
     "download": "ダウンロード",
     "preparing": "準備中…",
     "textSize": "文字サイズ"

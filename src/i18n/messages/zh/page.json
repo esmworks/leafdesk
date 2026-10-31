@@ -66,6 +66,7 @@
     "exportZip": "连同子页面导出",
     "exportZipDatabase": "连同行页面导出",
     "exportPdf": "导出为 PDF",
+    "exportDocx": "导出为 Word（.docx）",
     "exportComments": "包含评论",
     "exportCommentsHint": "将你能看到的评论串添加到 Markdown、ZIP 和 PDF 导出中，放在每个页面之后",
     "printView": "打印",
@@ -868,6 +869,7 @@
   },
   "pdfExport": {
     "title": "导出为 PDF",
+    "titleDocx": "导出为 Word",
     "letterhead": "信笺",
     "none": "无",
     "defaultMark": "{name}（默认）",
@@ -875,6 +877,7 @@
     "properties": "包含该行的值",
     "comments": "包含评论",
     "hint": "图表和公式会以文字形式打印；如需与页面完全一致，请使用“打印”。",
+    "hintDocx": "用于在 Word 中继续编辑的文件：信笺的标志和文字会放在页眉和页脚中，但不包括其 PDF 主题。",
     "download": "下载",
     "preparing": "正在准备…",
     "textSize": "文字大小"
