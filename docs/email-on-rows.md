@@ -84,7 +84,12 @@ held in the server's memory for up to 10 minutes, never written, and the first t
 and those beside the open one are read ahead, so they open at once (reading ahead leaves them
 unread). HTML mail is shown
 cleaned, in a frame of its own, and images from other sites stay out until *Show images* (they tell
-the sender the mail was opened, and from where). Messages are grouped into threads by the
+the sender the mail was opened, and from where); a message whose images were shown shows them
+again the next time it opens. *Always show from this sender* loads them at once in that sender's
+mail to the mailbox, and mail from the mailbox's own domain shows them too (not for public mail
+services such as gmail.com), as long as the provider's check doesn't say the mail came from
+someone else (DMARC failed). The senders on that list are under Account › Email and calendar,
+where one is removed; *Stop* on a message does the same. Messages are grouped into threads by the
 server's thread ids, their references and, within 30 days, a reply's subject.
 
 From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and

@@ -47,6 +47,7 @@
       "offlineDevice": "offline downloaden cache ruimte",
       "offlinePages": "offline downloaden zonder internet",
       "mailboxes": "e-mail inbox imap smtp mailbox",
+      "imageSenders": "afbeeldingen plaatjes vertrouwde afzenders mail",
       "calendars": "ical feed abonneren kalender agenda",
       "storageAccounts": "drive s3 bestanden cloud opslag",
       "connectedApps": "oauth clients toegang intrekken apps",

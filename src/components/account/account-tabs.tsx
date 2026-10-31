@@ -11,6 +11,7 @@ import { SessionList } from "@/components/account/session-list";
 import { PasskeySettings } from "@/components/security/passkeys";
 import { TwoFactorSettings } from "@/components/security/two-factor";
 import { CalendarFeeds } from "@/components/account/calendar-feeds";
+import { ImageSenders } from "@/components/account/image-senders";
 import { TelegramGroup } from "@/components/account/telegram-group";
 import { ApiTokens } from "@/components/settings/api-tokens";
 import { ConnectedApps } from "@/components/settings/connected-apps";
@@ -104,8 +105,8 @@ async function OfflineTab({ userId }: { userId: string }) {
 }
 
 /**
- * The person's mailboxes, one per workspace (server/row-mail), and their calendar addresses
- * (server/calendar-feeds); `mailConnected` or `mailError` say how a sign-in with Google went.
+ * The person's mailboxes, one per workspace (server/row-mail), the senders whose images they always
+ * show (server/mail-client/images.ts), and their calendar addresses (server/calendar-feeds); `mailConnected` or `mailError` say how a sign-in with Google went.
  */
 async function MailTab({ userId, query }: { userId: string; query: Record<string, string | string[] | undefined> }) {
   const [mailboxes, t] = await Promise.all([listOwnMailboxes(userId), getTranslations("account")]);
@@ -117,6 +118,7 @@ async function MailTab({ userId, query }: { userId: string; query: Record<string
         <div id={settingAnchor("mailboxes")} className="space-y-10">
           <OwnMailboxes initial={mailboxes} notice={notice} />
         </div>
+        {mailboxes.length > 0 && <ImageSenders userId={userId} />}
         <CalendarFeeds userId={userId} />
       </div>
     </>

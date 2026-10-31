@@ -56,6 +56,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "offlineDevice", tab: "offline", label: "offline:settings.deviceHeading", keywords: true },
   { id: "offlinePages", tab: "offline", label: "offline:settings.pagesHeading", keywords: true },
   { id: "mailboxes", tab: "mail", label: "account:mail.mailboxHeading", keywords: true },
+  { id: "imageSenders", tab: "mail", label: "account:mail.imageSendersHeading", keywords: true },
   { id: "calendars", tab: "mail", label: "account:mail.calendarsHeading", keywords: true },
   { id: "storageAccounts", tab: "apps", label: "settings:storage.accounts.heading", keywords: true },
   { id: "connectedApps", tab: "apps", label: "settings:connectedApps.listHeading", keywords: true },

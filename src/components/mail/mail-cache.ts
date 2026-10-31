@@ -21,16 +21,21 @@ function keep<T>(map: Map<string, T>, key: string, value: T) {
 }
 
 const threadKey = (mailboxId: string, folderId: string, threadId: string) => `${mailboxId}|${folderId}|${threadId}`;
-const bodyKey = (messageId: string, images: boolean) => `${messageId}:${images ? 1 : 0}`;
 
 export const cachedThread = (mailboxId: string, folderId: string, threadId: string) => threads.get(threadKey(mailboxId, folderId, threadId)) ?? null;
 export const keepThread = (mailboxId: string, folderId: string, thread: MailThreadView) => keep(threads, threadKey(mailboxId, folderId, thread.threadId), thread);
-export const cachedBody = (messageId: string, images: boolean) => bodies.get(bodyKey(messageId, images)) ?? null;
-export const keepBody = (messageId: string, images: boolean, body: MailBody) => keep(bodies, bodyKey(messageId, images), body);
+/** A message read before, if it will do: one wanted with images must have them. */
+export function cachedBody(messageId: string, images: boolean) {
+  const body = bodies.get(messageId);
+  return body && (!images || body.images) ? body : null;
+}
+export const keepBody = (messageId: string, body: MailBody) => keep(bodies, messageId, body);
+/** Whose images load changed: messages read before may show them, or not, the other way now. */
+export const forgetBodies = () => bodies.clear();
 
 /** Asks the server to load these messages into its memory ahead of a click, each once per tab. */
 export function loadAhead(messageIds: (string | null | undefined)[]) {
-  const fresh = messageIds.filter((id): id is string => !!id && !asked.has(id) && !bodies.has(bodyKey(id, false)));
+  const fresh = messageIds.filter((id): id is string => !!id && !asked.has(id) && !bodies.has(id));
   if (!fresh.length) return;
   for (const id of fresh) asked.add(id);
   void read("mailAhead", { ids: fresh }).catch(() => fresh.forEach((id) => asked.delete(id)));

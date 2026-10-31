@@ -47,6 +47,7 @@
       "offlineDevice": "ออฟไลน์ ดาวน์โหลด แคช พื้นที่",
       "offlinePages": "ออฟไลน์ ดาวน์โหลด ไม่มีอินเทอร์เน็ต",
       "mailboxes": "อีเมล กล่องจดหมายเข้า imap smtp",
+      "imageSenders": "รูปภาพ ผู้ส่งที่เชื่อถือได้ อีเมล",
       "calendars": "ical ฟีด สมัครรับ ปฏิทิน",
       "storageAccounts": "drive s3 ไฟล์ คลาวด์",
       "connectedApps": "oauth ไคลเอนต์ สิทธิ์ เพิกถอน",

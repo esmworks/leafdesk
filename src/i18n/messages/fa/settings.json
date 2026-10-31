@@ -47,6 +47,7 @@
       "offlineDevice": "آفلاین دانلود حافظه نهان فضا",
       "offlinePages": "آفلاین دانلود بدون اینترنت",
       "mailboxes": "ایمیل صندوق ورودی imap smtp",
+      "imageSenders": "تصاویر عکس فرستندگان مورد اعتماد ایمیل",
       "calendars": "ical خوراک اشتراک تقویم",
       "storageAccounts": "drive s3 فایل‌ها ابر",
       "connectedApps": "oauth کلاینت‌ها دسترسی لغو",

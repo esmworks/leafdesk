@@ -26,7 +26,8 @@ import { pagePath } from "@/lib/mentions";
 import type { MailAction, MailAddress, MailBody, MailboxTabView, MailFolderView, MailMessageView, MailThreadView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { Composer, type ComposeMode, replyAllAdds } from "./composer";
-import { cachedBody, cachedThread, keepBody, keepThread } from "./mail-cache";
+import { forgetImageSenderAction, trustImageSenderAction } from "@/app/actions/mail";
+import { cachedBody, cachedThread, forgetBodies, keepBody, keepThread } from "./mail-cache";
 import { MailFrame } from "./mail-frame";
 import { useWhen } from "./mail-store";
 
@@ -92,7 +93,7 @@ function opensFirst(thread: MailThreadView) {
   return new Set(messages.filter((m, i) => i === messages.length - 1 || !m.seen).map((m) => m.id));
 }
 
-type Loaded = { body: MailBody | null; images: boolean; error: string | null; loading: boolean };
+type Loaded = { body: MailBody | null; error: string | null; loading: boolean };
 
 function Message({
   message,
@@ -101,6 +102,7 @@ function Message({
   loaded,
   onToggle,
   onImages,
+  onTrust,
   last,
   onCompose,
 }: {
@@ -110,6 +112,8 @@ function Message({
   loaded: Loaded | undefined;
   onToggle: () => void;
   onImages: () => void;
+  /** Always shows images from the sender, or stops. */
+  onTrust: (trust: boolean) => void;
   last: boolean;
   onCompose: (mode: ComposeMode) => void;
 }) {
@@ -181,16 +185,35 @@ function Message({
           <p className="text-sm text-fg-muted">{loaded.error}</p>
         ) : body ? (
           <>
-            {body.blockedImages > 0 && !loaded?.images && (
+            {body.blockedImages > 0 && !body.images && (
+              <div className="mb-3 flex items-start gap-2 text-sm text-fg-muted">
+                <ImageIcon className="mt-0.5 h-4 w-4 shrink-0 text-fg-icon" />
+                <div className="min-w-0 flex-1">
+                  <p>{t("imagesBlocked", { count: body.blockedImages })}</p>
+                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                    <button type="button" className="font-medium text-accent hover:underline" onClick={onImages}>
+                      {t("showImages")}
+                    </button>
+                    {/* Trust needs the provider to vouch for the sender: a forged one would ride on it. */}
+                    {!me && !body.unverifiedSender && (
+                      <button type="button" className="font-medium text-accent hover:underline" onClick={() => onTrust(true)}>
+                        {t("alwaysShowImages")}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+            {body.images === "sender" && (
               <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-fg-muted">
-                <ImageIcon className="h-4 w-4 text-fg-icon" />
-                <span>{t("imagesBlocked", { count: body.blockedImages })}</span>
-                <button type="button" className="font-medium text-accent hover:underline" onClick={onImages}>
-                  {t("showImages")}
+                <ImageIcon className="h-4 w-4 shrink-0 text-fg-icon" />
+                <span>{t("imagesTrusted")}</span>
+                <button type="button" className="font-medium text-accent hover:underline" onClick={() => onTrust(false)}>
+                  {t("stopImages")}
                 </button>
               </div>
             )}
-            {body.html ? <MailFrame html={body.html} images={!!loaded?.images} title={message.subject} /> : <TextBody text={body.text} />}
+            {body.html ? <MailFrame html={body.html} images={!!body.images} title={message.subject} /> : <TextBody text={body.text} />}
             {body.attachments.length > 0 && (
               <ul className="mt-4 flex flex-wrap gap-2" aria-label={t("attachments", { count: body.attachments.length })}>
                 {body.attachments.map((file) => (
@@ -286,7 +309,7 @@ export function ThreadView({
     const shown: Record<string, Loaded> = {};
     for (const id of thread ? opensFirst(thread) : first ? [first.id] : []) {
       const body = cachedBody(id, false);
-      if (body) shown[id] = { body, images: false, error: null, loading: false };
+      if (body) shown[id] = { body, error: null, loading: false };
     }
     return shown;
   });
@@ -297,27 +320,39 @@ export function ThreadView({
   // Messages asked for already: the list's message is asked for before the thread comes.
   const asked = useRef(new Set<string>());
 
+  /** Reads a message's body; with `images`, its images from other sites, remembered for the next time. */
   const loadBody = useCallback(
     (id: string, seen: boolean, images = false) => {
       asked.current.add(id);
       const held = cachedBody(id, images);
       // Shown from this tab's memory; asked again only to mark it read.
       if (held) {
-        setBodies((b) => ({ ...b, [id]: { body: held, images, error: null, loading: false } }));
+        setBodies((b) => ({ ...b, [id]: { body: held, error: null, loading: false } }));
         if (!seen) void read("mailBody", { id, images }).then((result) => result.ok && onRead()).catch(() => {});
         return;
       }
-      setBodies((b) => ({ ...b, [id]: { body: b[id]?.body ?? null, images, error: null, loading: true } }));
+      setBodies((b) => ({ ...b, [id]: { body: b[id]?.body ?? null, error: null, loading: true } }));
       void read("mailBody", { id, images })
         .then((result) => {
-          if (result.ok) keepBody(id, images, result.data);
-          setBodies((b) => ({ ...b, [id]: result.ok ? { body: result.data, images, error: null, loading: false } : { body: null, images, error: result.error, loading: false } }));
+          if (result.ok) keepBody(id, result.data);
+          setBodies((b) => ({ ...b, [id]: result.ok ? { body: result.data, error: null, loading: false } : { body: null, error: result.error, loading: false } }));
           if (result.ok && !seen) onRead();
         })
-        .catch(() => setBodies((b) => ({ ...b, [id]: { body: null, images, error: t("loadFailed"), loading: false } })));
+        .catch(() => setBodies((b) => ({ ...b, [id]: { body: null, error: t("loadFailed"), loading: false } })));
     },
     [onRead, t],
   );
+
+  /** Always shows images from a sender, or stops, and reads again the sender's messages on screen. */
+  const trustSender = (address: string, trust: boolean) => {
+    void (trust ? trustImageSenderAction : forgetImageSenderAction)({ mailboxId: box.id, address })
+      .then((result) => {
+        if (!result.ok) return;
+        forgetBodies();
+        for (const m of thread?.messages ?? []) if (m.from.address === address && bodies[m.id]?.body) loadBody(m.id, true);
+      })
+      .catch(() => {});
+  };
 
   useEffect(() => {
     let live = true;
@@ -383,20 +418,20 @@ export function ThreadView({
         <IconButton label={t("actions.unread")} className="h-8 w-8 text-fg-icon" onClick={() => onAction("unread")}>
           <MailOpen className="h-4 w-4" />
         </IconButton>
+        {/* Up here rather than under the subject, where a line of its own pushes the mail down. */}
+        {thread && <span className="ms-auto shrink-0 pe-3 text-sm text-fg-muted">{t("messages", { count: thread.messages.length })}</span>}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto pb-10">
         {error ? (
           <p className="px-6 pt-6 text-sm text-fg-muted">{error}</p>
         ) : !thread ? (
-          <div className="space-y-3 px-6 pt-6" aria-busy>
-            <div className="h-6 w-2/3 animate-pulse rounded bg-bg-hover" />
-            <div className="h-4 w-1/3 animate-pulse rounded bg-bg-hover" />
+          <div className="px-6 pt-5" aria-busy>
+            <div className="h-7 w-2/3 animate-pulse rounded bg-bg-hover" />
           </div>
         ) : (
           <>
             <div className="px-6 pt-5">
               <h2 className="text-xl leading-snug font-semibold [overflow-wrap:anywhere]">{thread.subject || t("noSubject")}</h2>
-              <div className="mt-1 text-sm text-fg-muted">{t("messages", { count: thread.messages.length })}</div>
             </div>
             {thread.row && (
               <div className="mx-6 mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
@@ -427,6 +462,7 @@ export function ThreadView({
                   loaded={bodies[m.id]}
                   onToggle={() => toggle(m)}
                   onImages={() => loadBody(m.id, true, true)}
+                  onTrust={(trust) => trustSender(m.from.address, trust)}
                   last={m.id === last?.id}
                   onCompose={(mode) => {
                     setAnswering(m.id);

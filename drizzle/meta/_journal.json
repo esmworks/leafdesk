@@ -1156,6 +1156,13 @@
       "when": 1793396417319,
       "tag": "0164_mail_client",
       "breakpoints": true
+    },
+    {
+      "idx": 165,
+      "version": "7",
+      "when": 1793434726582,
+      "tag": "0165_mail_images",
+      "breakpoints": true
     }
   ]
 }

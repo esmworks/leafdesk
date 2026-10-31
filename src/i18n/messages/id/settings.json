@@ -47,6 +47,7 @@
       "offlineDevice": "luring unduh cache ruang",
       "offlinePages": "luring unduh tanpa internet",
       "mailboxes": "email kotak masuk imap smtp",
+      "imageSenders": "gambar foto pengirim tepercaya email",
       "calendars": "ical umpan berlangganan kalender",
       "storageAccounts": "drive s3 file cloud",
       "connectedApps": "oauth klien akses cabut",

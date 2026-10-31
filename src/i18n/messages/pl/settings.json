@@ -47,6 +47,7 @@
       "offlineDevice": "offline pobierz pamięć podręczna miejsce",
       "offlinePages": "offline pobierz bez internetu",
       "mailboxes": "e-mail skrzynka odbiorcza imap smtp",
+      "imageSenders": "obrazy zdjęcia zaufani nadawcy poczta",
       "calendars": "ical kanał subskrybuj kalendarz",
       "storageAccounts": "drive s3 pliki chmura",
       "connectedApps": "oauth klienci dostęp odwołaj",

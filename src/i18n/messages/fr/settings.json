@@ -47,6 +47,7 @@
       "offlineDevice": "hors ligne télécharger cache espace",
       "offlinePages": "hors ligne télécharger sans internet",
       "mailboxes": "e-mail boîte de réception imap smtp",
+      "imageSenders": "images photos expéditeurs de confiance e-mail",
       "calendars": "ical flux s'abonner calendrier",
       "storageAccounts": "drive s3 fichiers cloud",
       "connectedApps": "oauth clients accès révoquer",

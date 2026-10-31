@@ -47,6 +47,7 @@
       "offlineDevice": "офлайн завантажити кеш місце",
       "offlinePages": "офлайн завантажити без інтернету",
       "mailboxes": "пошта вхідні imap smtp",
+      "imageSenders": "зображення картинки довірені відправники пошта",
       "calendars": "ical стрічка підписатися календар",
       "storageAccounts": "drive s3 файли хмара",
       "connectedApps": "oauth клієнти доступ відкликати",

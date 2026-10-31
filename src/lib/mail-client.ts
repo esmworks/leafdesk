@@ -4,6 +4,8 @@
  * are read from the mail server when a message is opened. Shared by the client and the server.
  */
 
+import type { MailImagesFrom } from "./mail-images";
+
 /** What a folder is for. Folders without one are the owner's own. */
 export type MailFolderRole = "inbox" | "sent" | "drafts" | "archive" | "junk" | "trash";
 
@@ -243,6 +245,8 @@ export type MailBody = {
   html: string | null;
   /** Remote images the HTML would load, left out. */
   blockedImages: number;
+  /** Why remote images load in the HTML (lib/mail-images.ts); null while they are left out. */
+  images: MailImagesFrom | null;
   attachments: MailAttachmentView[];
   replyTo: MailAddress[];
   /** The provider's check said the sender's domain did not vouch for it (DMARC failed). */

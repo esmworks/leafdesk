@@ -4,8 +4,8 @@
  * reads its folders, with what each is for, and the newest of the inbox; threads join answers,
  * copies in the sent folder and replies without references by subject; a thread names the row its
  * other party is; a message's body comes from the server, its HTML without scripts and remote
- * images until asked for, with the images it carries inline, and it is marked read (not when
- * loaded ahead); a file downloads as it was sent; archiving, starring, reading, the trash and
+ * images until asked for (remembered then, or always for a trusted sender or the mailbox's own
+ * domain), with the images it carries inline, and it is marked read (not when loaded ahead); a file downloads as it was sent; archiving, starring, reading, the trash and
  * deleting for good reach the server and the index at once; an answer goes out in the same thread and lands in the sent
  * folder; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
  * elsewhere; search finds by sender and subject; no one but the mailbox's owner reads it.
@@ -78,6 +78,7 @@ const { syncDue } = await import("@/server/row-mail/sync");
 const read = await import("@/server/mail-client/read");
 const { mailAction, sendMail } = await import("@/server/mail-client/write");
 const { closeImap } = await import("@/server/mail-client/pool");
+const images = await import("@/server/mail-client/images");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 
@@ -260,6 +261,21 @@ try {
   check(body.unsubscribe === "https://lists.test/unsub?u=1" && body.text.includes("Bülten metni"), "the text and the web unsubscribe address come along", body);
   const withImages = await read.readBody(ids.ada, { id: bulten.messageId, images: true });
   check(withImages.html!.includes("https://tracker.example/pixel.gif") && withImages.blockedImages === 0, "asked for, remote images stay in");
+  check(withImages.images === "asked" && body.images === null, "the body says why its images load", [withImages.images, body.images]);
+  const again = await read.readBody(ids.ada, { id: bulten.messageId });
+  check(again.images === "asked" && again.html!.includes("tracker.example"), "images asked for load again the next time the message opens", again.images);
+  await db.update(mailMessage).set({ imagesShown: false }).where(eq(mailMessage.id, bulten.messageId));
+  check((await errorCode(() => images.trustImageSender(ids.bob, { mailboxId: boxId, address: stranger }))) === "noMailbox", "another member can't trust senders for the mailbox");
+  await images.trustImageSender(ids.ada, { mailboxId: boxId, address: stranger.toUpperCase() });
+  const trusted = await read.readBody(ids.ada, { id: bulten.messageId });
+  check(trusted.images === "sender" && trusted.html!.includes("tracker.example"), "a trusted sender's images load without asking", trusted.images);
+  const listed = await images.listImageSenders(ids.ada);
+  check(listed.length === 1 && listed[0].address === stranger && listed[0].mailbox === ada && !(await images.listImageSenders(ids.bob)).length, "Settings lists the sender for the mailbox's owner alone", listed);
+  await images.forgetImageSender(ids.ada, { mailboxId: boxId, address: stranger });
+  const forgotten = await read.readBody(ids.ada, { id: bulten.messageId });
+  check(forgotten.images === null && forgotten.blockedImages === 1, "taken off the list, its images wait to be asked for again", forgotten.images);
+  const own = await read.readBody(ids.ada, { id: thread.messages[2].id });
+  check(own.images === "domain", "mail from the mailbox's own domain shows its images", own.images);
   const [bultenRow] = await db.select().from(mailMessage).where(eq(mailMessage.id, bulten.messageId));
   check(bultenRow.seen && (await uidsIn("INBOX", { seen: true })).includes(bultenRow.uid), "opening a message marks it read in the index and on the server");
   const file = await read.readAttachment(ids.ada, { id: bulten.messageId, part: body.attachments[0].part });

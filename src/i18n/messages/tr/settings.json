@@ -47,6 +47,7 @@
       "offlineDevice": "çevrimdışı indir önbellek alan",
       "offlinePages": "çevrimdışı indir internetsiz",
       "mailboxes": "e-posta gelen kutusu imap smtp",
+      "imageSenders": "görseller resimler güvenilen gönderenler posta",
       "calendars": "ical akış abone takvim",
       "storageAccounts": "drive s3 dosyalar bulut",
       "connectedApps": "oauth istemciler erişim iptal",

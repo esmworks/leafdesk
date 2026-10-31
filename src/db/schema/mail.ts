@@ -250,6 +250,8 @@ export const mailMessage = pgTable(
     draft: boolean("draft").notNull().default(false),
     hasAttachments: boolean("has_attachments").notNull().default(false),
     size: integer("size").notNull().default(0),
+    /** Its owner asked for its images from other sites: they load whenever it is opened again. */
+    imagesShown: boolean("images_shown").notNull().default(false),
   },
   (t) => [
     uniqueIndex("mail_message_uid_idx").on(t.folderId, t.uid),
@@ -261,4 +263,20 @@ export const mailMessage = pgTable(
     index("mail_message_reply_idx").on(t.mailboxId, t.inReplyTo),
     index("mail_message_references_idx").using("gin", t.references),
   ],
+);
+
+/**
+ * Senders whose images from other sites a mailbox's owner always loads (server/mail-client/images.ts),
+ * unless the provider's check says the mail didn't come from them.
+ */
+export const mailImageSender = pgTable(
+  "mail_image_sender",
+  {
+    mailboxId: text("mailbox_id")
+      .notNull()
+      .references(() => mailbox.id, { onDelete: "cascade" }),
+    address: text("address").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.mailboxId, t.address] })],
 );

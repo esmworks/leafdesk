@@ -47,6 +47,7 @@
       "offlineDevice": "オフライン ダウンロード キャッシュ 容量",
       "offlinePages": "オフライン ダウンロード インターネットなし",
       "mailboxes": "メール 受信箱 imap smtp",
+      "imageSenders": "画像 写真 信頼する差出人 メール",
       "calendars": "ical フィード 購読 カレンダー",
       "storageAccounts": "drive s3 ファイル クラウド",
       "connectedApps": "oauth クライアント アクセス 取り消し",

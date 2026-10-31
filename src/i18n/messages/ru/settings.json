@@ -47,6 +47,7 @@
       "offlineDevice": "офлайн скачать кэш место",
       "offlinePages": "офлайн скачать без интернета",
       "mailboxes": "почта входящие imap smtp",
+      "imageSenders": "изображения картинки доверенные отправители почта",
       "calendars": "ical лента подписаться календарь",
       "storageAccounts": "drive s3 файлы облако",
       "connectedApps": "oauth клиенты доступ отозвать",

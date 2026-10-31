@@ -159,9 +159,10 @@ export function ssoEndpoints(appUrl: string, workspaceId: string) {
 
 /**
  * Consumer mail services nobody can prove ownership of for a whole organization; claiming one
- * would route everyone on it to one workspace's identity provider.
+ * would route everyone on it to one workspace's identity provider. The Mail tab doesn't take one
+ * for a mailbox's own organization either (lib/mail-images.ts).
  */
-const PUBLIC_EMAIL_DOMAINS = new Set([
+export const PUBLIC_EMAIL_DOMAINS = new Set([
   "gmail.com",
   "googlemail.com",
   "outlook.com",

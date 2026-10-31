@@ -11,7 +11,10 @@
   search with `from:`, `is:unread`, `has:attachment` and the like, and keyboard shortcuts. Only
   headers and first lines are kept, 90 days back; messages are read from the mail server when
   opened, or ahead for the first threads and those beside the open one, and held in memory a few
-  minutes, so most open at once. Only the mailbox's owner sees it. Migration 0164.
+  minutes, so most open at once. Images a person showed in a message show again when it opens,
+  and always for senders they pick (*Always show from this sender*, listed under Account › Email
+  and calendar) and for mail from their mailbox's own domain, unless the sender failed DMARC. Only
+  the mailbox's owner sees it. Migrations 0164 and 0165.
 
 - **Word export, and Word and Excel files from the AI chat.** "Export as Word" in the page menu
   downloads a page or row as a .docx file meant for further editing, with the PDF export's choices

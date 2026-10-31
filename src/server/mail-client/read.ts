@@ -2,6 +2,7 @@ import { and, asc, desc, eq, inArray, isNull, sql, type SQL } from "drizzle-orm"
 import { db } from "@/db";
 import { mailbox, mailFolder, mailMessage, page } from "@/db/schema";
 import { dmarcFailed, normalizeAddress, parseHeaderBlock } from "@/lib/mail";
+import { imagesShown, type MailImagesFrom } from "@/lib/mail-images";
 import {
   MAIL_PAGE,
   parseMailQuery,
@@ -22,6 +23,7 @@ import { discoverFolders, orderFolders } from "./folders";
 import { cleanMailHtml, htmlText } from "./html";
 import { indexFolder, indexMailbox, isIndexed } from "./indexer";
 import { bodyHeld, heldBody } from "./body-cache";
+import { imagesFor } from "./images";
 import { warmImap, withImap, type ImapLane } from "./pool";
 import { decodeText, decodeTransfer, fileView, messageParts, readPart, readParts, type PartRef } from "./structure";
 
@@ -421,13 +423,15 @@ function unsubscribeLink(value: string | undefined) {
 
 /**
  * Reads a message's text, cleaned HTML and list of files from the mail server (or memory, when it
- * was read lately or loaded ahead), and marks it read. With `images`, its HTML loads images from
- * other sites too. A message no longer on the server throws `gone`.
+ * was read lately or loaded ahead), and marks it read. Its HTML loads images from other sites when
+ * `images` asks for them (remembered for the next time), or as lib/mail-images.ts allows. A message
+ * no longer on the server throws `gone`.
  */
 export async function readBody(userId: string, input: { id: string; images?: boolean }): Promise<MailBody> {
   const { box, message, folder } = await ownMessage(userId, input.id);
   const started = performance.now();
-  const held = heldBody(message.id, !!input.images, (started) => loadBody(box, message, folder, !!input.images, "open", started), { queued: false });
+  const images = await imagesFor(box, message, input.images === true);
+  const held = heldBody(message.id, images, (started) => loadBody(box, message, folder, images, "open", started), { queued: false });
   const body = await held.body;
   if (held.from !== "server") console.info(`[mail-client] body ${Math.round(performance.now() - started)} ms from ${held.from}`);
   if (!message.seen) {
@@ -460,19 +464,22 @@ const AHEAD = 8;
 export async function prefetchBodies(userId: string, input: { ids: string[] }): Promise<null> {
   const ids = Array.isArray(input?.ids) ? input.ids.filter((id): id is string => typeof id === "string" && !!id).slice(0, AHEAD) : [];
   for (const id of ids) {
-    if (bodyHeld(id, false)) continue;
     const found = await ownMessage(userId, id).catch(() => null);
     if (!found) continue;
-    await heldBody(id, false, (started) => loadBody(found.box, found.message, found.folder, false, "background", started)).body.catch(() => null);
+    // Loaded the way opening it would load it, or the click would read it again.
+    const images = await imagesFor(found.box, found.message, false);
+    if (bodyHeld(id, images)) continue;
+    await heldBody(id, images, (started) => loadBody(found.box, found.message, found.folder, images, "background", started)).body.catch(() => null);
   }
   return null;
 }
 
 /**
  * A message's body from the mail server, unchanged there: its structure, then the text, HTML and
- * images it carries in one more command. Logs how long each step took.
+ * images it carries in one more command. Images from other sites load for the reason `images`
+ * gives, if its sender passes the provider's check (lib/mail-images.ts). Logs how long each step took.
  */
-async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images: boolean, lane: ImapLane, started: () => void): Promise<MailBody> {
+async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images: MailImagesFrom | null, lane: ImapLane, started: () => void): Promise<MailBody> {
   const time = { wait: 0, select: 0, structure: 0, parts: 0, clean: 0 };
   let mark = performance.now();
   const step = (name: keyof typeof time) => {
@@ -528,7 +535,9 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
   );
   // Gone from the server, or not found this once: the next pass's check takes it out of the index if it is gone.
   if (!result) throw new RowMailError("gone");
-  const cleaned = result.rawHtml ? await cleanMailHtml(result.rawHtml, { images, inline: result.inline }) : null;
+  const unverifiedSender = folder.role !== "sent" && dmarcFailed(result.fields.get("authentication-results"));
+  const shown = imagesShown(images, unverifiedSender);
+  const cleaned = result.rawHtml ? await cleanMailHtml(result.rawHtml, { images: !!shown, inline: result.inline }) : null;
   const text = result.text ?? (result.rawHtml ? await htmlText(result.rawHtml) : "");
   step("clean");
   const total = Object.values(time).reduce((a, b) => a + b, 0);
@@ -539,9 +548,10 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
     text,
     html: cleaned?.html ?? null,
     blockedImages: cleaned?.blockedImages ?? 0,
+    images: shown,
     attachments,
     replyTo: listAddresses(result.fields.get("reply-to")?.[0]),
-    unverifiedSender: folder.role !== "sent" && dmarcFailed(result.fields.get("authentication-results")),
+    unverifiedSender,
     unsubscribe: unsubscribeLink(result.fields.get("list-unsubscribe")?.[0]),
   };
 }

@@ -47,6 +47,7 @@
       "offlineDevice": "offline download cache plads",
       "offlinePages": "offline download uden internet",
       "mailboxes": "e-mail indbakke IMAP SMTP postkasse",
+      "imageSenders": "billeder grafik betroede afsendere mail",
       "calendars": "iCal feed abonnér kalender",
       "storageAccounts": "drev S3 filer sky",
       "connectedApps": "OAuth klienter adgang tilbagekald",

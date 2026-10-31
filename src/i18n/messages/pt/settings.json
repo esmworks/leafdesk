@@ -47,6 +47,7 @@
       "offlineDevice": "offline baixar cache espaço",
       "offlinePages": "offline baixar sem internet",
       "mailboxes": "e-mail caixa de entrada imap smtp",
+      "imageSenders": "imagens fotos remetentes confiáveis e-mail",
       "calendars": "ical feed assinar calendário",
       "storageAccounts": "drive s3 arquivos nuvem",
       "connectedApps": "oauth clientes acesso revogar",

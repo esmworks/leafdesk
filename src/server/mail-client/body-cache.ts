@@ -1,10 +1,12 @@
 import type { MailBody } from "@/lib/mail-client";
+import type { MailImagesFrom } from "@/lib/mail-images";
 
 /**
  * Messages read from the mail server lately, held in this process's memory for a few minutes so
  * that opening one again, or one loaded ahead, doesn't wait for the server. Never written
- * anywhere. Keyed by the message's row in the index (one folder's copy) and whether its HTML loads
- * images from other sites; who may read it is checked before anything is served from here.
+ * anywhere. Keyed by the message's row in the index (one folder's copy) and why its HTML may load
+ * images from other sites (lib/mail-images.ts); who may read it is checked before anything is served
+ * from here.
  */
 
 const TTL_MS = 10 * 60_000;
@@ -16,7 +18,7 @@ type Cache = { held: Map<string, Held>; bytes: number; loading: Map<string, Load
 const g = globalThis as typeof globalThis & { __leafdeskMailBodies?: Cache };
 const cache = (g.__leafdeskMailBodies ??= { held: new Map(), bytes: 0, loading: new Map() });
 
-const keyOf = (messageId: string, images: boolean) => `${messageId}:${images ? 1 : 0}`;
+const keyOf = (messageId: string, images: MailImagesFrom | null) => `${messageId}:${images ?? "none"}`;
 const sizeOf = (body: MailBody) => (body.text.length + (body.html?.length ?? 0)) * 2 + 1024;
 
 function drop(key: string) {
@@ -46,7 +48,7 @@ function hold(key: string, body: MailBody) {
  */
 export function heldBody(
   messageId: string,
-  images: boolean,
+  images: MailImagesFrom | null,
   load: (started: () => void) => Promise<MailBody>,
   { queued = true }: { queued?: boolean } = {},
 ): { body: Promise<MailBody>; from: "memory" | "loading" | "server" } {
@@ -73,7 +75,7 @@ export function heldBody(
 }
 
 /** Whether the message's body is in memory or on its way there. */
-export const bodyHeld = (messageId: string, images: boolean) => {
+export const bodyHeld = (messageId: string, images: MailImagesFrom | null) => {
   const key = keyOf(messageId, images);
   return (cache.held.get(key)?.until ?? 0) > Date.now() || cache.loading.has(key);
 };

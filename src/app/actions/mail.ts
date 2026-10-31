@@ -5,6 +5,7 @@ import type { ActionResult } from "@/app/actions/workspaces";
 import type { MailAction, MailBody, MailboxTabView, MailDraftInput, MailFolderView, MailThreadPage, MailThreadView } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
 import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, readBody, refreshFolder, refreshMailbox } from "@/server/mail-client/read";
+import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
 import { mailAction, sendMail } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
@@ -56,6 +57,16 @@ export async function readBodyAction(input: { id: string; images?: boolean }): P
 
 export async function prefetchBodiesAction(input: { ids: string[] }): Promise<ActionResult<null>> {
   return run((userId) => prefetchBodies(userId, input));
+}
+
+/** Always loads images in mail from this sender to the mailbox. */
+export async function trustImageSenderAction(input: { mailboxId: string; address: string }): Promise<ActionResult<null>> {
+  return run((userId) => trustImageSender(userId, input));
+}
+
+/** Stops loading images from this sender unless asked (from a message or from Settings). */
+export async function forgetImageSenderAction(input: { mailboxId: string; address: string }): Promise<ActionResult<null>> {
+  return run((userId) => forgetImageSender(userId, input));
 }
 
 export async function refreshMailboxAction(mailboxId: string): Promise<ActionResult<MailboxTabView>> {
