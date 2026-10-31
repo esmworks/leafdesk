@@ -1,10 +1,10 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { beginGoogleMailboxAction, connectMailboxAction } from "@/app/actions/row-mail";
+import { beginMailSignInAction, connectMailboxAction } from "@/app/actions/row-mail";
 import { readWith } from "@/components/read";
 import { Button, cn, Input, selectClass } from "@/components/ui";
-import { MAIL_PROVIDERS, normalizeAddress, providerFor, type MailboxAuth, type MailboxServers, type MailboxView } from "@/lib/mail";
+import { MAIL_PROVIDERS, normalizeAddress, providerFor, type MailboxAuth, type MailboxServers, type MailboxView, type MailSignInProvider } from "@/lib/mail";
 import type { DiscoveredMailServers } from "@/lib/mail-discover";
 import { browserTimeZone } from "@/lib/time-zone";
 import { useAction } from "./workspace-settings";
@@ -12,33 +12,40 @@ import { useAction } from "./workspace-settings";
 /**
  * The forms that connect one of a member's mailboxes or change it (`mailbox`; mail-settings.tsx
  * MailboxGroup), loaded when one is opened: with a password over IMAP and SMTP, or by signing in
- * with Google.
+ * with Google or Microsoft.
  */
 
 const DEFAULT_SERVERS: MailboxServers = { imapHost: "", imapPort: 993, imapSecure: true, smtpHost: "", smtpPort: 465, smtpSecure: true };
 
-/** Connecting a mailbox: by signing in with Google, when the server can, or with a password. */
+/** Connecting a mailbox: by signing in with Google or Microsoft, when the server can, or with a password. */
 export function MailboxConnect({
   workspaceId,
   google,
+  microsoft,
   mailbox,
   onCancel,
   onSaved,
 }: {
   workspaceId: string;
   google: boolean;
+  microsoft: boolean;
   mailbox: MailboxView | null;
   onCancel?: () => void;
   onSaved: (mailbox: MailboxView) => void;
 }) {
   const t = useTranslations("settings.email");
-  const [method, setMethod] = useState<MailboxAuth>(google && (!mailbox || mailbox.auth === "google") ? "google" : "password");
+  const offered: MailboxAuth[] = [...(google ? (["google"] as const) : []), ...(microsoft ? (["microsoft"] as const) : []), "password"];
+  // A new mailbox starts at Google's sign-in when there is one (Gmail is the usual case); Microsoft's
+  // is picked by hand or when the address typed turns out to be at Microsoft.
+  const [method, setMethod] = useState<MailboxAuth>(() => (mailbox ? (offered.includes(mailbox.auth) ? mailbox.auth : "password") : google ? "google" : "password"));
+  // The address typed before the form turned to a sign-in, to pick the account there.
+  const [typed, setTyped] = useState<string | null>(null);
   return (
     <div className="space-y-4 px-5 py-4">
-      {google && (
+      {offered.length > 1 && (
         <fieldset className="space-y-1">
           <legend className="text-sm font-medium">{t("fields.method")}</legend>
-          {(["google", "password"] as const).map((m) => (
+          {offered.map((m) => (
             <label key={m} className="flex items-center gap-2 text-sm">
               <input type="radio" name={`mail-method-${workspaceId}`} checked={method === m} onChange={() => setMethod(m)} />
               {t(`methods.${m}`)}
@@ -46,31 +53,57 @@ export function MailboxConnect({
           ))}
         </fieldset>
       )}
-      {method === "google" ? (
-        <GoogleMailboxForm workspaceId={workspaceId} mailbox={mailbox} onCancel={onCancel} />
+      {method === "password" ? (
+        <MailboxForm
+          workspaceId={workspaceId}
+          mailbox={mailbox}
+          onCancel={onCancel}
+          onSaved={onSaved}
+          // Microsoft's servers take no password: an address found there goes to its sign-in.
+          onMicrosoft={
+            microsoft
+              ? (address) => {
+                  setTyped(address);
+                  setMethod("microsoft");
+                }
+              : undefined
+          }
+        />
       ) : (
-        <MailboxForm workspaceId={workspaceId} mailbox={mailbox} onCancel={onCancel} onSaved={onSaved} />
+        <SignInMailboxForm key={method} provider={method} workspaceId={workspaceId} mailbox={mailbox} address={mailbox?.address ?? typed} onCancel={onCancel} />
       )}
     </div>
   );
 }
 
-/** Sends the browser to Google to sign in; it comes back to this page, the mailbox connected or not. */
-function GoogleMailboxForm({ workspaceId, mailbox, onCancel }: { workspaceId: string; mailbox: MailboxView | null; onCancel?: () => void }) {
+/** Sends the browser to Google or Microsoft to sign in; it comes back to this page, the mailbox connected or not. */
+function SignInMailboxForm({
+  provider,
+  workspaceId,
+  mailbox,
+  address,
+  onCancel,
+}: {
+  provider: MailSignInProvider;
+  workspaceId: string;
+  mailbox: MailboxView | null;
+  address: string | null;
+  onCancel?: () => void;
+}) {
   const t = useTranslations("settings.email");
   const tc = useTranslations("common");
   const [displayName, setDisplayName] = useState(mailbox?.displayName ?? "");
   const [consent, setConsent] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const { pending, error, run } = useAction();
+  const microsoft = provider === "microsoft";
   return (
     <form
       className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
         run(
-          () =>
-            beginGoogleMailboxAction(workspaceId, { consent, displayName, timeZone: browserTimeZone(), address: mailbox?.address ?? null, mailboxId: mailbox?.id ?? null }),
+          () => beginMailSignInAction(workspaceId, { provider, consent, displayName, timeZone: browserTimeZone(), address, mailboxId: mailbox?.id ?? null }),
           ({ url }) => {
             setLeaving(true);
             window.location.assign(url);
@@ -78,7 +111,7 @@ function GoogleMailboxForm({ workspaceId, mailbox, onCancel }: { workspaceId: st
         );
       }}
     >
-      <p className="text-sm text-fg-muted">{t("googleHint")}</p>
+      <p className="text-sm text-fg-muted">{microsoft ? t("microsoftHint") : t("googleHint")}</p>
       <label className="block space-y-1 sm:w-1/2">
         <span className="text-sm font-medium">{t("fields.displayName")}</span>
         <Input value={displayName} maxLength={200} onChange={(e) => setDisplayName(e.target.value)} />
@@ -99,7 +132,7 @@ function GoogleMailboxForm({ workspaceId, mailbox, onCancel }: { workspaceId: st
           </Button>
         )}
         <Button type="submit" variant="primary" disabled={pending || leaving || !consent}>
-          {pending || leaving ? t("googleLeaving") : t("googleConnect")}
+          {pending || leaving ? (microsoft ? t("microsoftLeaving") : t("googleLeaving")) : microsoft ? t("microsoftConnect") : t("googleConnect")}
         </Button>
       </div>
     </form>
@@ -111,11 +144,13 @@ function MailboxForm({
   mailbox,
   onCancel,
   onSaved,
+  onMicrosoft,
 }: {
   workspaceId: string;
   mailbox: MailboxView | null;
   onCancel?: () => void;
   onSaved: (mailbox: MailboxView) => void;
+  onMicrosoft?: (address: string) => void;
 }) {
   const t = useTranslations("settings.email");
   const tc = useTranslations("common");
@@ -138,6 +173,7 @@ function MailboxForm({
     setServers((s) => ({ ...s, ...patch }));
   };
   const found = useDiscovery(mailbox ? "" : address, (result) => {
+    if (result?.signIn === "microsoft" && onMicrosoft) return onMicrosoft(address.trim());
     if (typed.current) return;
     if (result?.signIn === "google") return setProvider("google");
     setProvider("other");

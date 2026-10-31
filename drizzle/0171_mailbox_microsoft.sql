@@ -1,0 +1,2 @@
+ALTER TABLE "mailbox" DROP CONSTRAINT "mailbox_auth_check";--> statement-breakpoint
+ALTER TABLE "mailbox" ADD CONSTRAINT "mailbox_auth_check" CHECK ("mailbox"."auth" in ('password', 'google', 'microsoft'));

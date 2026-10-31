@@ -40,6 +40,8 @@ const IMAP_PORT = Number(process.env.GREENMAIL_IMAP_PORT ?? 3143);
 process.env.MAIL_ALLOWED_HOSTS ||= HOST;
 process.env.MAIL_GOOGLE_CLIENT_ID = "e2e-client";
 process.env.MAIL_GOOGLE_CLIENT_SECRET = "e2e-secret";
+process.env.MAIL_MICROSOFT_CLIENT_ID = "e2e-ms-client";
+process.env.MAIL_MICROSOFT_CLIENT_SECRET = "e2e-ms-secret";
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, count, eq, inArray } = await import("drizzle-orm");
@@ -55,8 +57,8 @@ const { listInbox } = await import("@/server/notifications");
 const { setFollowing } = await import("@/server/row-follow");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
 const {
-  beginGoogleMailbox,
-  completeGoogleMailbox,
+  beginMailSignIn,
+  completeMailSignIn,
   connectMailbox,
   disconnectMailbox,
   getMailSettings,
@@ -67,6 +69,7 @@ const {
 } = await import("@/server/row-mail/settings");
 const { MAX_MAILBOXES } = await import("@/lib/mail");
 const { GOOGLE_MAIL, GOOGLE_MAIL_SCOPE } = await import("@/server/row-mail/google");
+const { MICROSOFT_MAIL, MICROSOFT_MAIL_SCOPES } = await import("@/server/row-mail/microsoft");
 const { openJson, sealJson } = await import("@/server/secret-box");
 const { createHash } = await import("node:crypto");
 const { createServer } = await import("node:http");
@@ -131,6 +134,10 @@ await new Promise<void>((resolve) => tokenServer.listen(0, "127.0.0.1", resolve)
 GOOGLE_MAIL.tokenUrl = `http://127.0.0.1:${(tokenServer.address() as { port: number }).port}/token`;
 // Gmail's servers are the test server here.
 GOOGLE_MAIL.servers = { imapHost: HOST, imapPort: IMAP_PORT, imapSecure: false, smtpHost: HOST, smtpPort: SMTP_PORT, smtpSecure: false };
+// Microsoft's sign-in answers from the same stand-in, and its servers are the test server too.
+MICROSOFT_MAIL.login = `http://127.0.0.1:${(tokenServer.address() as { port: number }).port}`;
+MICROSOFT_MAIL.servers = GOOGLE_MAIL.servers;
+MICROSOFT_MAIL.personalServers = GOOGLE_MAIL.servers;
 const idToken = (claims: Record<string, unknown>) => `e30.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.sig`;
 
 /** Sends a message to the test server as someone outside the workspace. */
@@ -356,8 +363,8 @@ try {
 
   // Signing in with Google
   const gul = `gul.${RUN}@leafdesk.test`;
-  check(await failsWith("consent", () => beginGoogleMailbox(ids.owner, workspaceId, { consent: false })), "a sign-in with Google begins only with consent");
-  const begun = new URL((await beginGoogleMailbox(ids.owner, workspaceId, { consent: true, displayName: "Gül", timeZone: "Europe/Istanbul", address: gul })).url);
+  check(await failsWith("consent", () => beginMailSignIn(ids.owner, workspaceId, { consent: false })), "a sign-in with Google begins only with consent");
+  const begun = new URL((await beginMailSignIn(ids.owner, workspaceId, { consent: true, displayName: "Gül", timeZone: "Europe/Istanbul", address: gul })).url);
   const state = begun.searchParams.get("state")!;
   check(
     begun.searchParams.get("login_hint") === gul && begun.searchParams.get("scope")!.split(" ").includes(GOOGLE_MAIL_SCOPE) && begun.searchParams.has("code_challenge"),
@@ -368,8 +375,8 @@ try {
     status: 200,
     body: { access_token: "g-access-1", refresh_token: "g-refresh-1", expires_in: 3599, scope: `openid ${GOOGLE_MAIL_SCOPE}`, id_token: idToken({ email: gul, email_verified: true }) },
   });
-  check(await failsWith("googleFailed", () => completeGoogleMailbox(ids.follower, { state, code: "code-1" })), "it finishes only for whoever began it");
-  const signedIn = await completeGoogleMailbox(ids.owner, { state, code: "code-1" });
+  check(await failsWith("googleFailed", () => completeMailSignIn(ids.follower, { state, code: "code-1" })), "it finishes only for whoever began it");
+  const signedIn = await completeMailSignIn(ids.owner, { state, code: "code-1" });
   const exchange = tokenForms.at(-1)!;
   check(
     exchange.get("grant_type") === "authorization_code" &&
@@ -382,7 +389,7 @@ try {
     signedIn,
   );
   check(signedIn.mailbox.displayName === "Gül" && signedIn.mailbox.timeZone === "Europe/Istanbul", "with the name and time zone given when it began");
-  check(await failsWith("googleFailed", () => completeGoogleMailbox(ids.owner, { state, code: "code-1" })), "a sign-in finishes once");
+  check(await failsWith("googleFailed", () => completeMailSignIn(ids.owner, { state, code: "code-1" })), "a sign-in finishes once");
   const googleBox = async () => (await db.select().from(mailbox).where(eq(mailbox.id, signedIn.mailbox.id)))[0];
   const googleKept = await googleBox();
   check(!googleKept.secret.includes("g-refresh-1") && openJson<{ refreshToken: string }>(googleKept.secret).refreshToken === "g-refresh-1", "its tokens are kept sealed");
@@ -432,6 +439,67 @@ try {
     (await googleBox()).folders.inbox?.lastUid === revoked.folders.inbox?.lastUid,
     "reading the same account carries on from where it stopped",
   );
+
+  // Signing in with Microsoft
+  const may = `may.${RUN}@leafdesk.test`;
+  const msBegun = new URL((await beginMailSignIn(ids.owner, workspaceId, { provider: "microsoft", consent: true, address: may })).url);
+  const msScope = msBegun.searchParams.get("scope")!.split(" ");
+  check(
+    msBegun.pathname === "/common/oauth2/v2.0/authorize" &&
+      MICROSOFT_MAIL_SCOPES.every((scope) => msScope.includes(scope)) &&
+      msScope.includes("offline_access") &&
+      msBegun.searchParams.get("login_hint") === may &&
+      msBegun.searchParams.has("code_challenge"),
+    "a sign-in with Microsoft asks for IMAP, SMTP and a refresh token, for the account typed, with PKCE",
+    Object.fromEntries(msBegun.searchParams),
+  );
+  const grantedMail = MICROSOFT_MAIL_SCOPES.join(" ");
+  tokenAnswer = () => ({
+    status: 200,
+    body: { access_token: "m-access-1", refresh_token: "m-refresh-1", expires_in: 3599, scope: grantedMail, id_token: idToken({ preferred_username: may, tid: "contoso-tenant" }) },
+  });
+  const msSignedIn = await completeMailSignIn(ids.owner, { state: msBegun.searchParams.get("state")!, code: "ms-code-1" });
+  const msExchange = tokenForms.at(-1)!;
+  check(
+    msExchange.get("client_id") === "e2e-ms-client" &&
+      createHash("sha256").update(msExchange.get("code_verifier")!).digest("base64url") === msBegun.searchParams.get("code_challenge"),
+    "the code is traded with Microsoft's client and its PKCE verifier",
+  );
+  check(
+    msSignedIn.mailbox.auth === "microsoft" && msSignedIn.mailbox.address === may && msSignedIn.mailbox.status === "ok",
+    "the mailbox the token names is tried with it (XOAUTH2) and kept",
+    msSignedIn.mailbox,
+  );
+  check((await listOwnMailboxes(ids.owner)).find((m) => m.workspaceId === workspaceId)?.microsoft === true, "the account offers signing in with Microsoft");
+  const noSmtp = new URL((await beginMailSignIn(ids.owner, workspaceId, { provider: "microsoft", consent: true })).url).searchParams.get("state")!;
+  tokenAnswer = () => ({
+    status: 200,
+    body: { access_token: "m-access-x", refresh_token: "m-refresh-x", scope: MICROSOFT_MAIL_SCOPES[0], id_token: idToken({ preferred_username: may }) },
+  });
+  check(await failsWith("microsoftScope", () => completeMailSignIn(ids.owner, { state: noSmtp, code: "ms-code-2" })), "a sign-in that didn't allow sending connects nothing");
+
+  const msBox = async () => (await db.select().from(mailbox).where(eq(mailbox.id, msSignedIn.mailbox.id)))[0];
+  await db
+    .update(mailbox)
+    .set({ secret: sealJson({ ...openJson<object>((await msBox()).secret), expiresAt: 0 }) })
+    .where(eq(mailbox.id, msSignedIn.mailbox.id));
+  tokenAnswer = (form) =>
+    form.get("grant_type") === "refresh_token" ? { status: 200, body: { access_token: "m-access-2", refresh_token: "m-refresh-2", expires_in: 3599, scope: grantedMail } } : { status: 400, body: {} };
+  await readMailboxes();
+  const msRenewed = await msBox();
+  check(
+    tokenForms.at(-1)!.get("refresh_token") === "m-refresh-1" && openJson<{ refreshToken: string }>(msRenewed.secret).refreshToken === "m-refresh-2" && msRenewed.status === "ok",
+    "a run-out access token is renewed, and the refresh token Microsoft hands back kept in place of the old one",
+    msRenewed.status,
+  );
+  await db
+    .update(mailbox)
+    .set({ secret: sealJson({ ...openJson<object>(msRenewed.secret), expiresAt: 0 }) })
+    .where(eq(mailbox.id, msSignedIn.mailbox.id));
+  tokenAnswer = () => ({ status: 400, body: { error: "interaction_required", error_description: "AADSTS50076: multi-factor authentication is required." } });
+  await readMailboxes();
+  check((await msBox()).statusError === "signIn", "a sign-in Microsoft wants done again says to sign in again", (await msBox()).statusError);
+  await disconnectMailbox(ids.owner, msSignedIn.mailbox.id);
 
   // Several mailboxes
   const sales = `sales.${RUN}@leafdesk.test`;

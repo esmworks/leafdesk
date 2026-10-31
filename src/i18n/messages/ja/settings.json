@@ -2531,7 +2531,7 @@
         "tls": "メールサーバーとの安全な接続を確立できませんでした。",
         "unreachable": "現在メールサーバーにアクセスできません。",
         "noInbox": "メールサーバーに受信トレイが表示されません。",
-        "signIn": "Google のサインインが使えなくなりました。もう一度 Google でサインインしてください。"
+        "signIn": "このメールボックスのサインインは使えなくなりました。接続するにはもう一度サインインしてください。"
       }
     },
     "fields": {
@@ -2585,21 +2585,28 @@
       "noInbox": "メールサーバーに受信トレイが表示されません。",
       "accessDenied": "この操作を行うアクセス権がありません。",
       "gone": "このメッセージはもうこの行にありません。",
-      "signIn": "Google のサインインが使えなくなりました。もう一度 Google でサインインしてください。",
+      "signIn": "このメールボックスのサインインは使えなくなりました。接続するにはもう一度サインインしてください。",
       "googleFailed": "Google でのサインインでメールボックスを接続できませんでした。もう一度お試しください。",
       "googleScope": "Leafdesk にメールへのアクセスを与えることが Google で許可されませんでした。もう一度サインインして許可してください。",
+      "microsoftFailed": "Microsoft でのサインインではメールボックスを接続できませんでした。もう一度お試しください。",
+      "microsoftScope": "Microsoft が Leafdesk にメールへのアクセスを与えることを許可されませんでした。もう一度サインインして許可するか、組織の管理者に Leafdesk の許可を依頼してください。",
       "tooMany": "このワークスペースで接続できるメールボックスの上限に達しています。先にどれかの接続を解除してください。",
       "alreadyConnected": "そのアドレスはここで接続済みです。代わりにそのメールボックスを変更してください。",
       "unsubscribeFailed": "メーリングリストが配信停止のリクエストを受け付けませんでした。代わりにリストのリンクをお試しください。"
     },
     "methods": {
       "google": "Google アカウント（Gmail または Google Workspace）",
+      "microsoft": "Microsoft アカウント（Outlook.com または Microsoft 365）",
       "password": "アプリパスワード（任意のプロバイダー、IMAP と SMTP）"
     },
     "googleHint": "Google でサインインし、Leafdesk がメールを読んで送ることを許可します。アプリパスワードは不要で、アクセスはいつでも Google アカウントで取り消せます。",
     "googleConnect": "Google でサインイン",
     "googleLeaving": "Google を開いています…",
     "googleSignedIn": "Google でサインイン済み",
+    "microsoftHint": "Microsoft にサインインし、Leafdesk にメールの読み取りと送信を許可します。Microsoft のサーバーはアプリパスワードを受け付けないため、Outlook.com や Microsoft 365 のメールボックスはこの方法で接続します。アクセスは Microsoft アカウントからいつでも取り消せます。",
+    "microsoftConnect": "Microsoft でサインイン",
+    "microsoftLeaving": "Microsoft を開いています…",
+    "microsoftSignedIn": "Microsoft でサインイン済み",
     "googleConnected": "メールボックスを接続しました。",
     "dismiss": "閉じる"
   },

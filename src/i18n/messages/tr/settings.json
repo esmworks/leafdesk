@@ -2531,7 +2531,7 @@
         "tls": "Posta sunucusuyla güvenli bağlantı kurulamadı.",
         "unreachable": "Posta sunucusuna şu an ulaşılamıyor.",
         "noInbox": "Posta sunucusu bir gelen kutusu göstermiyor.",
-        "signIn": "Google girişi artık geçerli değil. Google ile yeniden giriş yapın."
+        "signIn": "Bu posta kutusunun girişi artık çalışmıyor. Bağlamak için yeniden giriş yapın."
       }
     },
     "fields": {
@@ -2585,21 +2585,28 @@
       "unreachable": "Posta sunucusuna ulaşılamadı. Sunucu adlarını ve portları kontrol edin.",
       "noInbox": "Posta sunucusu bir gelen kutusu göstermiyor.",
       "accessDenied": "Bunu yapmaya yetkiniz yok.",
-      "signIn": "Google girişi artık geçerli değil. Google ile yeniden giriş yapın.",
+      "signIn": "Bu posta kutusunun girişi artık çalışmıyor. Bağlamak için yeniden giriş yapın.",
       "googleFailed": "Google ile giriş posta kutusunu bağlamadı. Yeniden deneyin.",
       "googleScope": "Google'da Leafdesk'in postalarınıza erişmesine izin verilmedi. Yeniden giriş yapıp izin verin.",
+      "microsoftFailed": "Microsoft ile giriş posta kutusunu bağlamadı. Yeniden deneyin.",
+      "microsoftScope": "Microsoft'un Leafdesk'e postalarınıza erişim vermesine izin verilmedi. Yeniden giriş yapıp izin verin ya da kuruluşunuzun yöneticisinden Leafdesk'e izin vermesini isteyin.",
       "tooMany": "Bu çalışma alanında bağlayabileceğiniz kadar posta kutusu bağladınız. Önce birinin bağlantısını kesin.",
       "alreadyConnected": "Bu adresi burada zaten bağladınız. Onun yerine o posta kutusunu değiştirin.",
       "unsubscribeFailed": "E-posta listesi abonelikten çıkma isteğini kabul etmedi. Onun yerine listenin bağlantısını deneyin."
     },
     "methods": {
       "google": "Google hesabı (Gmail veya Google Workspace)",
+      "microsoft": "Microsoft hesabı (Outlook.com veya Microsoft 365)",
       "password": "Uygulama şifresi (her sağlayıcı, IMAP ve SMTP ile)"
     },
     "googleHint": "Google'da giriş yapıp Leafdesk'in postalarınızı okumasına ve göndermesine izin verirsiniz. Uygulama şifresi gerekmez; erişimi istediğiniz zaman Google hesabınızdan geri alabilirsiniz.",
     "googleConnect": "Google ile bağlan",
     "googleLeaving": "Google açılıyor…",
     "googleSignedIn": "Google ile giriş yapıldı",
+    "microsoftHint": "Microsoft'ta giriş yapıp Leafdesk'in postalarınızı okumasına ve göndermesine izin verirsiniz. Microsoft'un sunucuları uygulama şifresi kabul etmediği için Outlook.com ve Microsoft 365 posta kutuları bu yolla bağlanır. Erişimi istediğiniz zaman Microsoft hesabınızdan geri alabilirsiniz.",
+    "microsoftConnect": "Microsoft ile giriş yap",
+    "microsoftLeaving": "Microsoft açılıyor…",
+    "microsoftSignedIn": "Microsoft ile giriş yapıldı",
     "googleConnected": "Posta kutunuz bağlandı.",
     "dismiss": "Kapat"
   },

@@ -2531,7 +2531,7 @@
         "tls": "Nie udało się nawiązać bezpiecznego połączenia z serwerem poczty.",
         "unreachable": "Serwer poczty jest teraz nieosiągalny.",
         "noInbox": "Serwer poczty nie pokazuje żadnej skrzynki odbiorczej.",
-        "signIn": "Logowanie przez Google już nie działa. Zaloguj się ponownie przez Google."
+        "signIn": "Logowanie do tej skrzynki już nie działa. Zaloguj się ponownie, aby ją połączyć."
       }
     },
     "fields": {
@@ -2585,21 +2585,28 @@
       "noInbox": "Serwer poczty nie pokazuje żadnej skrzynki odbiorczej.",
       "accessDenied": "Nie masz dostępu, aby to zrobić.",
       "gone": "Tej wiadomości nie ma już w tym wierszu.",
-      "signIn": "Logowanie przez Google już nie działa. Zaloguj się ponownie przez Google.",
+      "signIn": "Logowanie do tej skrzynki już nie działa. Zaloguj się ponownie, aby ją połączyć.",
       "googleFailed": "Logowanie przez Google nie podłączyło skrzynki. Spróbuj ponownie.",
       "googleScope": "Google nie mógł dać Leafdesk dostępu do Twojej poczty. Zaloguj się ponownie i zezwól na to.",
+      "microsoftFailed": "Logowanie przez Microsoft nie połączyło skrzynki. Spróbuj ponownie.",
+      "microsoftScope": "Microsoft nie mógł dać Leafdesk dostępu do twojej poczty. Zaloguj się ponownie i zezwól na to albo poproś administratora organizacji o dopuszczenie Leafdesk.",
       "tooMany": "Masz już podłączonych tyle skrzynek pocztowych w tym obszarze roboczym, ile można. Najpierw odłącz jedną.",
       "alreadyConnected": "Ten adres jest już tu podłączony. Zmień zamiast tego tę skrzynkę.",
       "unsubscribeFailed": "Lista mailingowa nie przyjęła prośby o wypisanie. Spróbuj zamiast tego jej linku."
     },
     "methods": {
       "google": "Konto Google (Gmail lub Google Workspace)",
+      "microsoft": "Konto Microsoft (Outlook.com lub Microsoft 365)",
       "password": "Hasło aplikacji (dowolny dostawca, przez IMAP i SMTP)"
     },
     "googleHint": "Logujesz się w Google i pozwalasz Leafdesk czytać i wysyłać Twoją pocztę. Hasło aplikacji nie jest potrzebne, a dostęp możesz w każdej chwili cofnąć na swoim koncie Google.",
     "googleConnect": "Zaloguj się przez Google",
     "googleLeaving": "Otwieranie Google…",
     "googleSignedIn": "zalogowano przez Google",
+    "microsoftHint": "Logujesz się w Microsoft i pozwalasz Leafdesk czytać i wysyłać twoją pocztę. Serwery Microsoft nie przyjmują haseł aplikacji, więc tak łączy się skrzynkę Outlook.com lub Microsoft 365. Dostęp możesz w każdej chwili cofnąć na koncie Microsoft.",
+    "microsoftConnect": "Zaloguj się przez Microsoft",
+    "microsoftLeaving": "Otwieranie Microsoft…",
+    "microsoftSignedIn": "zalogowano przez Microsoft",
     "googleConnected": "Twoja skrzynka jest podłączona.",
     "dismiss": "Zamknij"
   },

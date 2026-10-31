@@ -11,6 +11,12 @@
   about a page both can open; a run sets at most 3 and an agent has at most 20 waiting for one
   person. Turned off under *Agent reminders* in Settings → Preferences. Migration 0168.
 
+- **Outlook.com and Microsoft 365 mailboxes connect by signing in with Microsoft.** Their servers
+  take no app passwords any more; *Microsoft account* in the connect form signs in at Microsoft,
+  and the form turns to it by itself for an address at Microsoft. Offered once the server sets the
+  new `MAIL_MICROSOFT_CLIENT_ID` and `MAIL_MICROSOFT_CLIENT_SECRET` (and, to limit who may sign in,
+  `MAIL_MICROSOFT_TENANT`). Migration 0171 (`mailbox.auth` may be `microsoft`).
+
 - **Mail servers found from the address.** Connecting a mailbox at a provider the form doesn't
   list fills in its IMAP and SMTP servers from the domain's autoconfig file, the public provider
   database, its MX records or its DNS service records, and says where they came from. No migration.

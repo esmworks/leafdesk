@@ -2531,7 +2531,7 @@
         "tls": "Der kunne ikke oprettes en sikker forbindelse til e-mailserveren.",
         "unreachable": "E-mailserveren kan ikke nås lige nu.",
         "noInbox": "E-mailserveren viser ingen indbakke.",
-        "signIn": "Google-logonnet virker ikke længere. Log ind med Google igen."
+        "signIn": "Login til denne postkasse virker ikke længere. Log ind igen for at forbinde den."
       }
     },
     "fields": {
@@ -2585,21 +2585,28 @@
       "noInbox": "E-mailserveren viser ingen indbakke.",
       "accessDenied": "Du har ikke adgang til at gøre dette.",
       "gone": "Den besked er ikke længere på denne række.",
-      "signIn": "Google-logonnet virker ikke længere. Log ind med Google igen.",
+      "signIn": "Login til denne postkasse virker ikke længere. Log ind igen for at forbinde den.",
       "googleFailed": "Log ind med Google forbandt ikke postkassen. Prøv igen.",
       "googleScope": "Google fik ikke lov til at give Leafdesk adgang til din mail. Log ind igen, og tillad det.",
+      "microsoftFailed": "Login med Microsoft forbandt ikke postkassen. Prøv igen.",
+      "microsoftScope": "Microsoft fik ikke lov til at give Leafdesk adgang til din mail. Log ind igen og tillad det, eller bed din organisations administrator om at tillade Leafdesk.",
       "tooMany": "Du har forbundet så mange postkasser i dette arbejdsområde, som du kan. Afbryd en først.",
       "alreadyConnected": "Den adresse er allerede forbundet her. Skift den postkasse i stedet.",
       "unsubscribeFailed": "Mailinglisten tog ikke imod anmodningen om afmelding. Prøv dens link i stedet."
     },
     "methods": {
       "google": "Google-konto (Gmail eller Google Workspace)",
+      "microsoft": "Microsoft-konto (Outlook.com eller Microsoft 365)",
       "password": "App-adgangskode (enhver udbyder, via IMAP og SMTP)"
     },
     "googleHint": "Du logger ind hos Google og giver Leafdesk lov til at læse og sende din mail. Der kræves ingen app-adgangskode, og du kan trække adgangen tilbage i din Google-konto når som helst.",
     "googleConnect": "Log ind med Google",
     "googleLeaving": "Åbner Google…",
     "googleSignedIn": "logget ind med Google",
+    "microsoftHint": "Du logger ind hos Microsoft og giver Leafdesk lov til at læse og sende din mail. Microsofts servere tager ikke imod app-adgangskoder, så sådan forbindes en Outlook.com- eller Microsoft 365-postkasse. Du kan til enhver tid tilbagekalde adgangen i din Microsoft-konto.",
+    "microsoftConnect": "Log ind med Microsoft",
+    "microsoftLeaving": "Åbner Microsoft…",
+    "microsoftSignedIn": "logget ind med Microsoft",
     "googleConnected": "Din postkasse er forbundet.",
     "dismiss": "Luk"
   },

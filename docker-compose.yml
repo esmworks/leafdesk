@@ -158,6 +158,9 @@ services:
       # Email on rows: the Google OAuth client mailboxes sign in with instead of an app password.
       MAIL_GOOGLE_CLIENT_ID: ${MAIL_GOOGLE_CLIENT_ID:-}
       MAIL_GOOGLE_CLIENT_SECRET: ${MAIL_GOOGLE_CLIENT_SECRET:-}
+      MAIL_MICROSOFT_CLIENT_ID: ${MAIL_MICROSOFT_CLIENT_ID:-}
+      MAIL_MICROSOFT_CLIENT_SECRET: ${MAIL_MICROSOFT_CLIENT_SECRET:-}
+      MAIL_MICROSOFT_TENANT: ${MAIL_MICROSOFT_TENANT:-}
       LEAFDESK_ENCRYPTION_KEY: ${LEAFDESK_ENCRYPTION_KEY:-}
       LEAFDESK_ENCRYPTION_OLD_KEYS: ${LEAFDESK_ENCRYPTION_OLD_KEYS:-}
       # The instance's own OAuth apps for services that sign in only registered apps (see .env.example).

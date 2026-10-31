@@ -2531,7 +2531,7 @@
         "tls": "Không thể tạo kết nối an toàn đến máy chủ thư.",
         "unreachable": "Hiện không thể kết nối đến máy chủ thư.",
         "noInbox": "Máy chủ thư không có hộp thư đến.",
-        "signIn": "Đăng nhập Google không còn hoạt động. Hãy đăng nhập lại bằng Google."
+        "signIn": "Đăng nhập cho hộp thư này không còn hoạt động. Hãy đăng nhập lại để kết nối."
       }
     },
     "fields": {
@@ -2585,21 +2585,28 @@
       "noInbox": "Máy chủ thư không có hộp thư đến.",
       "accessDenied": "Bạn không có quyền thực hiện việc này.",
       "gone": "Tin nhắn đó không còn trên hàng này nữa.",
-      "signIn": "Đăng nhập Google không còn hoạt động. Hãy đăng nhập lại bằng Google.",
+      "signIn": "Đăng nhập cho hộp thư này không còn hoạt động. Hãy đăng nhập lại để kết nối.",
       "googleFailed": "Đăng nhập bằng Google không kết nối được hộp thư. Hãy thử lại.",
       "googleScope": "Google không được phép cấp cho Leafdesk quyền truy cập thư của bạn. Hãy đăng nhập lại và cho phép.",
+      "microsoftFailed": "Đăng nhập bằng Microsoft không kết nối được hộp thư. Hãy thử lại.",
+      "microsoftScope": "Microsoft không được phép cấp cho Leafdesk quyền truy cập thư của bạn. Hãy đăng nhập lại và cho phép, hoặc nhờ quản trị viên tổ chức cho phép Leafdesk.",
       "tooMany": "Bạn đã kết nối số hộp thư tối đa trong không gian làm việc này. Hãy ngắt kết nối một hộp trước.",
       "alreadyConnected": "Địa chỉ này đã được kết nối ở đây. Hãy thay đổi hộp thư đó.",
       "unsubscribeFailed": "Danh sách thư không chấp nhận yêu cầu hủy đăng ký. Hãy thử liên kết của danh sách."
     },
     "methods": {
       "google": "Tài khoản Google (Gmail hoặc Google Workspace)",
+      "microsoft": "Tài khoản Microsoft (Outlook.com hoặc Microsoft 365)",
       "password": "Mật khẩu ứng dụng (mọi nhà cung cấp, qua IMAP và SMTP)"
     },
     "googleHint": "Bạn đăng nhập ở Google và cho phép Leafdesk đọc và gửi thư của bạn. Không cần mật khẩu ứng dụng, và bạn có thể thu hồi quyền truy cập trong tài khoản Google bất cứ lúc nào.",
     "googleConnect": "Đăng nhập bằng Google",
     "googleLeaving": "Đang mở Google…",
     "googleSignedIn": "đã đăng nhập bằng Google",
+    "microsoftHint": "Bạn đăng nhập ở Microsoft và cho phép Leafdesk đọc và gửi thư của bạn. Máy chủ của Microsoft không nhận mật khẩu ứng dụng, nên hộp thư Outlook.com hoặc Microsoft 365 được kết nối theo cách này. Bạn có thể thu hồi quyền truy cập trong tài khoản Microsoft bất cứ lúc nào.",
+    "microsoftConnect": "Đăng nhập bằng Microsoft",
+    "microsoftLeaving": "Đang mở Microsoft…",
+    "microsoftSignedIn": "đã đăng nhập bằng Microsoft",
     "googleConnected": "Hộp thư của bạn đã được kết nối.",
     "dismiss": "Đóng"
   },

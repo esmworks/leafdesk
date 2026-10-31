@@ -126,6 +126,19 @@ export const env = {
     return clientId && clientSecret ? { clientId, clientSecret } : null;
   },
   /**
+   * MAIL_MICROSOFT_CLIENT_ID/SECRET: the app the instance registered with Microsoft (Entra ID),
+   * which members sign in to when they connect an Outlook.com or Microsoft 365 mailbox
+   * (server/row-mail/microsoft.ts). MAIL_MICROSOFT_TENANT limits who may: `common` (the default,
+   * work, school and personal accounts), `organizations`, `consumers`, or one organization's
+   * tenant id or domain. Null unless the id and secret are set (and the tenant is one).
+   */
+  get mailMicrosoftApp(): { clientId: string; clientSecret: string; tenant: string } | null {
+    const clientId = process.env.MAIL_MICROSOFT_CLIENT_ID?.trim();
+    const clientSecret = process.env.MAIL_MICROSOFT_CLIENT_SECRET?.trim();
+    const tenant = process.env.MAIL_MICROSOFT_TENANT?.trim() || "common";
+    return clientId && clientSecret && /^[a-z0-9][a-z0-9.-]{0,99}$/i.test(tenant) ? { clientId, clientSecret, tenant } : null;
+  },
+  /**
    * OWN_STORAGE_ENABLED=true lets people connect storage of their own (an S3-compatible bucket,
    * Google Drive, Dropbox) and keep workspaces' uploads there instead of the server's storage. Off
    * by default: every upload goes to the server's storage (S3_* or UPLOAD_DIR). Turned off later,

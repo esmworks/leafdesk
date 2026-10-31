@@ -251,7 +251,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
   check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`
-  (a mailbox signs in with a password or a Google sign-in, `google.ts`; open it through
+  (a mailbox signs in with a password or a Google or Microsoft sign-in, `google.ts`, `microsoft.ts`,
+  shared `oauth.ts`; its servers found from the address by `discover.ts`; open it through
   `credentials.ts` `withMailCredentials`, which renews the token; a member has up to
   `MAX_MAILBOXES` in a workspace, so a lookup of "their mailbox" adds `mailbox.isDefault`, as
   follow-ups, agents and drafts do), the Mail tab `mail-client/` (the owner's own mail alone,
