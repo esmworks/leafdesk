@@ -30,6 +30,7 @@
   "me": "minä",
   "hasFiles": "Sisältää tiedostoja",
   "starred": "Tähdellä merkityt",
+  "draft": "Luonnos",
   "messages": "{count, plural, one {# viesti} other {# viestiä}}",
   "toLine": "Vastaanottajat: {names}",
   "ccLine": "Kopio: {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Etsi viestit lähettäjältä {name}",
     "openInNewTab": "Avaa uudessa välilehdessä",
     "copyLink": "Kopioi linkki",
-    "linkCopied": "Linkki kopioitu"
+    "linkCopied": "Linkki kopioitu",
+    "editDraft": "Muokkaa",
+    "discardDraft": "Hylkää luonnos"
   },
   "done": {
     "archive": "Keskustelu arkistoitu",
@@ -115,6 +118,11 @@
     "notAnAddress": "Ei sähköpostiosoite",
     "removeRecipient": "Poista {address}",
     "recipientPlaceholder": "Nimi tai osoite",
-    "suggestions": "Ehdotetut osoitteet"
+    "suggestions": "Ehdotetut osoitteet",
+    "draftSaving": "Tallennetaan…",
+    "draftSavedShort": "Tallennettu",
+    "draftSaved": "Luonnos tallennettu",
+    "draftFailed": "Luonnosta ei tallennettu",
+    "draftDiscarded": "Luonnos hylätty"
   }
 }

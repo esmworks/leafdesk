@@ -30,6 +30,7 @@
   "me": "meg",
   "hasFiles": "Har filer",
   "starred": "Stjernemerket",
+  "draft": "Utkast",
   "messages": "{count, plural, one {# melding} other {# meldinger}}",
   "toLine": "Til {names}",
   "ccLine": "Kopi til {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Finn e-post fra {name}",
     "openInNewTab": "Åpne i ny fane",
     "copyLink": "Kopier lenke",
-    "linkCopied": "Lenken er kopiert"
+    "linkCopied": "Lenken er kopiert",
+    "editDraft": "Rediger",
+    "discardDraft": "Forkast utkast"
   },
   "done": {
     "archive": "Samtalen er arkivert",
@@ -115,6 +118,11 @@
     "notAnAddress": "Ikke en e-postadresse",
     "removeRecipient": "Fjern {address}",
     "recipientPlaceholder": "Navn eller adresse",
-    "suggestions": "Foreslåtte adresser"
+    "suggestions": "Foreslåtte adresser",
+    "draftSaving": "Lagrer…",
+    "draftSavedShort": "Lagret",
+    "draftSaved": "Utkast lagret",
+    "draftFailed": "Utkastet ble ikke lagret",
+    "draftDiscarded": "Utkast forkastet"
   }
 }

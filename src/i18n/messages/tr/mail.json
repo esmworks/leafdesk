@@ -30,6 +30,7 @@
   "me": "ben",
   "hasFiles": "Dosya var",
   "starred": "Yıldızlı",
+  "draft": "Taslak",
   "messages": "{count, plural, one {# ileti} other {# ileti}}",
   "toLine": "Alıcı: {names}",
   "ccLine": "Bilgi: {names}",
@@ -64,7 +65,9 @@
     "fromSender": "{name} kişisinden gelenler",
     "openInNewTab": "Yeni sekmede aç",
     "copyLink": "Bağlantıyı kopyala",
-    "linkCopied": "Bağlantı kopyalandı"
+    "linkCopied": "Bağlantı kopyalandı",
+    "editDraft": "Düzenle",
+    "discardDraft": "Taslağı sil"
   },
   "done": {
     "archive": "Yazışma arşivlendi",
@@ -115,6 +118,11 @@
     "notAnAddress": "E-posta adresi değil",
     "removeRecipient": "{address} adresini kaldır",
     "recipientPlaceholder": "Ad veya adres",
-    "suggestions": "Önerilen adresler"
+    "suggestions": "Önerilen adresler",
+    "draftSaving": "Kaydediliyor…",
+    "draftSavedShort": "Kaydedildi",
+    "draftSaved": "Taslak kaydedildi",
+    "draftFailed": "Taslak kaydedilemedi",
+    "draftDiscarded": "Taslak silindi"
   }
 }

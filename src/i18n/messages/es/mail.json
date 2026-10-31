@@ -30,6 +30,7 @@
   "me": "yo",
   "hasFiles": "Con archivos",
   "starred": "Destacados",
+  "draft": "Borrador",
   "messages": "{count, plural, one {# mensaje} other {# mensajes}}",
   "toLine": "Para {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Buscar correos de {name}",
     "openInNewTab": "Abrir en una pestaña nueva",
     "copyLink": "Copiar enlace",
-    "linkCopied": "Enlace copiado"
+    "linkCopied": "Enlace copiado",
+    "editDraft": "Editar",
+    "discardDraft": "Descartar borrador"
   },
   "done": {
     "archive": "Conversación archivada",
@@ -115,6 +118,11 @@
     "notAnAddress": "No es una dirección de correo",
     "removeRecipient": "Quitar {address}",
     "recipientPlaceholder": "Nombre o dirección",
-    "suggestions": "Direcciones sugeridas"
+    "suggestions": "Direcciones sugeridas",
+    "draftSaving": "Guardando…",
+    "draftSavedShort": "Guardado",
+    "draftSaved": "Borrador guardado",
+    "draftFailed": "No se guardó el borrador",
+    "draftDiscarded": "Borrador descartado"
   }
 }

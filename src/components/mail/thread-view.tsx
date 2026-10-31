@@ -11,6 +11,7 @@ import {
   Inbox,
   MailOpen,
   Paperclip,
+  Pencil,
   Reply,
   ReplyAll,
   Star,
@@ -23,11 +24,11 @@ import { useRowPanel } from "@/components/database/row-panel-context";
 import { read } from "@/components/read";
 import { Button, cn, IconButton, PageIcon } from "@/components/ui";
 import { pagePath } from "@/lib/mentions";
-import type { MailAction, MailAddress, MailBody, MailboxTabView, MailFolderView, MailMessageView, MailThreadView } from "@/lib/mail-client";
+import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftView, MailFolderView, MailMessageView, MailThreadView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { lazyPart } from "@/components/lazy-part";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
-import { forgetImageSenderAction, trustImageSenderAction } from "@/app/actions/mail";
+import { discardDraftAction, forgetImageSenderAction, trustImageSenderAction } from "@/app/actions/mail";
 import { cachedBody, cachedThread, forgetBodies, keepBody, keepThread } from "./mail-cache";
 import { MailFrame } from "./mail-frame";
 import { useWhen } from "./mail-store";
@@ -91,10 +92,38 @@ function TextBody({ text }: { text: string }) {
 }
 
 
-/** What opening a thread opens: its newest message, and the ones not read yet. */
+/** A draft of the thread, kept in the drafts folder: shown as a card to write on, not read. */
+const isDraft = (m: MailMessageView) => m.draft && m.folderRole === "drafts";
+
+/** What opening a thread opens: its newest message (not a draft), and the ones not read yet. */
 function opensFirst(thread: MailThreadView) {
-  const messages = thread.messages;
+  const messages = thread.messages.filter((m) => !isDraft(m));
   return new Set(messages.filter((m, i) => i === messages.length - 1 || !m.seen).map((m) => m.id));
+}
+
+/** A draft in the thread: what it starts with, to write on again or throw away. */
+function DraftCard({ message, onEdit, onDiscard, busy }: { message: MailMessageView; onEdit: () => void; onDiscard: () => void; busy: boolean }) {
+  const t = useTranslations("mail");
+  const when = useWhen();
+  return (
+    <div className="flex items-center gap-3 border-b border-border px-6 py-3">
+      <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-fg-icon">
+        <Pencil className="h-3.5 w-3.5" />
+      </span>
+      <button type="button" onClick={onEdit} disabled={busy} className="flex min-w-0 flex-1 items-baseline gap-3 text-start">
+        <span className="shrink-0 text-sm font-medium text-danger">{t("draft")}</span>
+        <span className="min-w-0 flex-1 truncate text-sm text-fg-muted">{message.preview || t("noSubject")}</span>
+        <span className="shrink-0 text-xs text-fg-faint">{when(message.sentAt)}</span>
+      </button>
+      <Button onClick={onEdit} disabled={busy}>
+        <Pencil className="h-4 w-4 text-fg-icon" />
+        {t("actions.editDraft")}
+      </Button>
+      <IconButton label={t("actions.discardDraft")} className="h-8 w-8 text-fg-icon" onClick={onDiscard} disabled={busy}>
+        <Trash2 className="h-4 w-4" />
+      </IconButton>
+    </div>
+  );
 }
 
 type Loaded = { body: MailBody | null; error: string | null; loading: boolean };
@@ -319,8 +348,15 @@ export function ThreadView({
   });
   const [version, setVersion] = useState(0);
   const [answering, setAnswering] = useState<string | null>(null);
+  // A draft of the thread opened to write on, under the message it answers.
+  const [editing, setEditing] = useState<MailDraftView | null>(null);
+  const [opening, setOpening] = useState<string | null>(null);
+  // Drafts the open composer saved (or was opened from): it stands for them while it is open.
+  const [written, setWritten] = useState<Set<string>>(() => new Set());
   // Closing the composer forgets which message it answered, so R, A and F answer the newest again.
   if (!compose && answering) setAnswering(null);
+  if (!compose && editing) setEditing(null);
+  if (!compose && written.size) setWritten(new Set());
   // Messages asked for already: the list's message is asked for before the thread comes.
   const asked = useRef(new Set<string>());
 
@@ -390,9 +426,32 @@ export function ThreadView({
     setOpen(next);
   };
 
-  const last = thread?.messages[thread.messages.length - 1] ?? null;
-  // The message a reply or forward answers: the one whose button was pressed, else (keys) the newest.
-  const source = thread?.messages.find((m) => m.id === answering) ?? last;
+  const sent = thread?.messages.filter((m) => !isDraft(m)) ?? [];
+  const last = sent[sent.length - 1] ?? null;
+  // The message a reply or forward answers: the one whose button was pressed, or its draft's, else (keys) the newest.
+  const source = thread?.messages.find((m) => m.id === (editing ? editing.replyTo : answering)) ?? last;
+
+  /** Opens a draft of the thread in the composer. */
+  const editDraft = (m: MailMessageView) => {
+    setOpening(m.id);
+    void read("mailDraft", m.id)
+      .then((result) => {
+        if (!result.ok) return setError(result.error);
+        setWritten(new Set([m.id]));
+        setEditing(result.data);
+        onComposeChange(result.data.replyTo ? "reply" : "forward");
+      })
+      .catch(() => setError(t("loadFailed")))
+      .finally(() => setOpening(null));
+  };
+
+  /** Throws a draft of the thread away, and reads the thread again. */
+  const discardDraft = (m: MailMessageView) => {
+    setOpening(m.id);
+    void discardDraftAction({ id: m.id, messageId: m.messageId, keep: [] })
+      .then(() => setVersion((v) => v + 1))
+      .finally(() => setOpening(null));
+  };
   const moves: { action: MailAction; icon: ReactNode }[] =
     folder.role === "trash" || folder.role === "junk"
       ? [
@@ -457,7 +516,12 @@ export function ThreadView({
               </div>
             )}
             <div className="mt-4 border-t border-border">
-              {thread.messages.map((m) => (
+              {thread.messages.map((m) =>
+                isDraft(m) ? (
+                  compose && written.has(m.id) ? null : (
+                    <DraftCard key={m.id} message={m} busy={opening === m.id} onEdit={() => editDraft(m)} onDiscard={() => discardDraft(m)} />
+                  )
+                ) : (
                 <Message
                   key={m.id}
                   message={m}
@@ -473,17 +537,24 @@ export function ThreadView({
                     onComposeChange(mode);
                   }}
                 />
-              ))}
+                ),
+              )}
             </div>
             {compose && source && (
               <div className="px-6 pt-2">
                 <Composer
-                  key={`${compose}-${source.id}`}
+                  key={`${compose}-${source.id}-${editing?.id ?? ""}`}
                   box={box}
                   mode={compose}
                   layout="inline"
                   source={{ message: source, body: bodies[source.id]?.body ?? null }}
+                  draft={editing}
                   onClose={() => onComposeChange(null)}
+                  onSaved={(id, open) => {
+                    if (id) setWritten((was) => new Set([...was, id]));
+                    // Closed: the thread is read again, with the draft it left.
+                    if (!open) setVersion((v) => v + 1);
+                  }}
                   onSent={() => {
                     onComposeChange(null);
                     onSent();

@@ -30,6 +30,7 @@
   "me": "אני",
   "hasFiles": "עם קבצים",
   "starred": "מסומנות בכוכב",
+  "draft": "טיוטה",
   "messages": "{count, plural, one {הודעה #} two {# הודעות} other {# הודעות}}",
   "toLine": "אל {names}",
   "ccLine": "עותק אל {names}",
@@ -64,7 +65,9 @@
     "fromSender": "חפש דואר מ־{name}",
     "openInNewTab": "פתח בכרטיסייה חדשה",
     "copyLink": "העתק קישור",
-    "linkCopied": "הקישור הועתק"
+    "linkCopied": "הקישור הועתק",
+    "editDraft": "עריכה",
+    "discardDraft": "מחיקת הטיוטה"
   },
   "done": {
     "archive": "השיחה הועברה לארכיון",
@@ -115,6 +118,11 @@
     "notAnAddress": "זו אינה כתובת דוא״ל",
     "removeRecipient": "הסרת {address}",
     "recipientPlaceholder": "שם או כתובת",
-    "suggestions": "כתובות מוצעות"
+    "suggestions": "כתובות מוצעות",
+    "draftSaving": "שומר…",
+    "draftSavedShort": "נשמר",
+    "draftSaved": "הטיוטה נשמרה",
+    "draftFailed": "הטיוטה לא נשמרה",
+    "draftDiscarded": "הטיוטה נמחקה"
   }
 }

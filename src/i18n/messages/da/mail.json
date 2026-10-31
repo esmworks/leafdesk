@@ -30,6 +30,7 @@
   "me": "mig",
   "hasFiles": "Har filer",
   "starred": "Stjernemarkeret",
+  "draft": "Kladde",
   "messages": "{count, plural, one {# besked} other {# beskeder}}",
   "toLine": "Til {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Find mails fra {name}",
     "openInNewTab": "Åbn i ny fane",
     "copyLink": "Kopiér link",
-    "linkCopied": "Link kopieret"
+    "linkCopied": "Link kopieret",
+    "editDraft": "Rediger",
+    "discardDraft": "Kassér kladde"
   },
   "done": {
     "archive": "Samtalen er arkiveret",
@@ -115,6 +118,11 @@
     "notAnAddress": "Ikke en e-mailadresse",
     "removeRecipient": "Fjern {address}",
     "recipientPlaceholder": "Navn eller adresse",
-    "suggestions": "Foreslåede adresser"
+    "suggestions": "Foreslåede adresser",
+    "draftSaving": "Gemmer…",
+    "draftSavedShort": "Gemt",
+    "draftSaved": "Kladde gemt",
+    "draftFailed": "Kladden blev ikke gemt",
+    "draftDiscarded": "Kladde kasseret"
   }
 }

@@ -30,6 +30,7 @@
   "me": "я",
   "hasFiles": "Есть файлы",
   "starred": "С пометкой",
+  "draft": "Черновик",
   "messages": "{count, plural, one {# сообщение} few {# сообщения} many {# сообщений} other {# сообщения}}",
   "toLine": "Кому: {names}",
   "ccLine": "Копия: {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Найти письма от {name}",
     "openInNewTab": "Открыть в новой вкладке",
     "copyLink": "Копировать ссылку",
-    "linkCopied": "Ссылка скопирована"
+    "linkCopied": "Ссылка скопирована",
+    "editDraft": "Изменить",
+    "discardDraft": "Удалить черновик"
   },
   "done": {
     "archive": "Переписка перемещена в архив",
@@ -115,6 +118,11 @@
     "notAnAddress": "Это не адрес электронной почты",
     "removeRecipient": "Удалить {address}",
     "recipientPlaceholder": "Имя или адрес",
-    "suggestions": "Предлагаемые адреса"
+    "suggestions": "Предлагаемые адреса",
+    "draftSaving": "Сохранение…",
+    "draftSavedShort": "Сохранено",
+    "draftSaved": "Черновик сохранён",
+    "draftFailed": "Черновик не сохранён",
+    "draftDiscarded": "Черновик удалён"
   }
 }

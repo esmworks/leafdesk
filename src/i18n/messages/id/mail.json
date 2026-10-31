@@ -30,6 +30,7 @@
   "me": "saya",
   "hasFiles": "Memiliki file",
   "starred": "Berbintang",
+  "draft": "Draf",
   "messages": "{count, plural, other {# pesan}}",
   "toLine": "Kepada {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Cari email dari {name}",
     "openInNewTab": "Buka di tab baru",
     "copyLink": "Salin tautan",
-    "linkCopied": "Tautan disalin"
+    "linkCopied": "Tautan disalin",
+    "editDraft": "Edit",
+    "discardDraft": "Buang draf"
   },
   "done": {
     "archive": "Percakapan diarsipkan",
@@ -115,6 +118,11 @@
     "notAnAddress": "Bukan alamat email",
     "removeRecipient": "Hapus {address}",
     "recipientPlaceholder": "Nama atau alamat",
-    "suggestions": "Alamat yang disarankan"
+    "suggestions": "Alamat yang disarankan",
+    "draftSaving": "Menyimpan…",
+    "draftSavedShort": "Tersimpan",
+    "draftSaved": "Draf disimpan",
+    "draftFailed": "Draf tidak tersimpan",
+    "draftDiscarded": "Draf dibuang"
   }
 }

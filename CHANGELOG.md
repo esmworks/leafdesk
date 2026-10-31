@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Drafts in the Mail tab.** A message being written is saved to the mailbox's Drafts folder on
+  the mail server a few seconds after each change and when it is closed, with its files, Bcc and
+  signature, so it survives a closed tab and shows in other mail programs. Drafts open from the
+  Drafts folder to be finished or sent; a reply in a draft marks its thread *Draft* in the list and
+  waits under the thread's messages. No migration.
+
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
   and calendar with a message's formatting (bold, italic, lists, links; no images). The Mail tab's
   new messages, replies and forwards start with it above the quoted message, where it can be

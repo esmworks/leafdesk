@@ -30,6 +30,7 @@
   "me": "ik",
   "hasFiles": "Heeft bestanden",
   "starred": "Met ster",
+  "draft": "Concept",
   "messages": "{count, plural, one {# bericht} other {# berichten}}",
   "toLine": "Aan {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Mail van {name} zoeken",
     "openInNewTab": "Openen in nieuw tabblad",
     "copyLink": "Link kopiëren",
-    "linkCopied": "Link gekopieerd"
+    "linkCopied": "Link gekopieerd",
+    "editDraft": "Bewerken",
+    "discardDraft": "Concept verwijderen"
   },
   "done": {
     "archive": "Gesprek gearchiveerd",
@@ -115,6 +118,11 @@
     "notAnAddress": "Geen e-mailadres",
     "removeRecipient": "{address} verwijderen",
     "recipientPlaceholder": "Naam of adres",
-    "suggestions": "Voorgestelde adressen"
+    "suggestions": "Voorgestelde adressen",
+    "draftSaving": "Opslaan…",
+    "draftSavedShort": "Opgeslagen",
+    "draftSaved": "Concept opgeslagen",
+    "draftFailed": "Concept niet opgeslagen",
+    "draftDiscarded": "Concept verwijderd"
   }
 }

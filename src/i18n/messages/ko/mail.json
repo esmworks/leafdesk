@@ -30,6 +30,7 @@
   "me": "나",
   "hasFiles": "파일 있음",
   "starred": "별표",
+  "draft": "임시 보관",
   "messages": "{count, plural, other {메시지 #개}}",
   "toLine": "받는 사람 {names}",
   "ccLine": "참조 {names}",
@@ -64,7 +65,9 @@
     "fromSender": "{name}의 메일 찾기",
     "openInNewTab": "새 탭에서 열기",
     "copyLink": "링크 복사",
-    "linkCopied": "링크를 복사했습니다"
+    "linkCopied": "링크를 복사했습니다",
+    "editDraft": "수정",
+    "discardDraft": "임시 보관 메일 삭제"
   },
   "done": {
     "archive": "대화를 보관했습니다",
@@ -115,6 +118,11 @@
     "notAnAddress": "이메일 주소가 아닙니다",
     "removeRecipient": "{address} 삭제",
     "recipientPlaceholder": "이름 또는 주소",
-    "suggestions": "추천 주소"
+    "suggestions": "추천 주소",
+    "draftSaving": "저장 중…",
+    "draftSavedShort": "저장됨",
+    "draftSaved": "임시 보관됨",
+    "draftFailed": "임시 보관하지 못했습니다",
+    "draftDiscarded": "임시 보관 메일을 삭제했습니다"
   }
 }

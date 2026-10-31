@@ -103,8 +103,13 @@ closes it; a reply is written under the thread. Text can be bold, italic, underl
 through, with bulleted and numbered lists, quotes and links (⌘/Ctrl+K), and goes out as HTML with
 a plain-text part beside it; other formatting pasted in falls away. *From* picks any of the
 member's mailboxes; recipients are suggested as they are typed, from the people that mailbox wrote
-to (first) and heard from, and ⌘/Ctrl+Enter sends. A message being written stays while other mail
-is read, until it is sent or discarded. Files of up to 20 MB in all, dropped on the message or
+to (first) and heard from, and ⌘/Ctrl+Enter sends. A message being written is kept as a draft in
+the mailbox's Drafts folder on the mail server (made if it has none) a few seconds after each
+change, and when it is closed or the page is left, so other mail programs see it too and it
+survives a closed tab; each save replaces the one before. Drafts open from the Drafts folder
+beside the list, and a thread with an answer in a draft is marked *Draft* in the list and shows it
+under its messages, to edit or discard; a draft sent goes out as a new message and leaves the
+folder. Files of up to 20 MB in all, dropped on the message or
 attached, at most 100 recipients and 100 messages an hour from each mailbox; the sent folder keeps
 a copy. The search
 box looks through every folder but the trash and junk, in senders, recipients, subjects and first

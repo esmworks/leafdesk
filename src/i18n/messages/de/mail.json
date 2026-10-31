@@ -30,6 +30,7 @@
   "me": "ich",
   "hasFiles": "Mit Dateien",
   "starred": "Mit Stern",
+  "draft": "Entwurf",
   "messages": "{count, plural, one {# Nachricht} other {# Nachrichten}}",
   "toLine": "An {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +65,9 @@
     "fromSender": "E-Mails von {name} suchen",
     "openInNewTab": "In neuem Tab öffnen",
     "copyLink": "Link kopieren",
-    "linkCopied": "Link kopiert"
+    "linkCopied": "Link kopiert",
+    "editDraft": "Bearbeiten",
+    "discardDraft": "Entwurf verwerfen"
   },
   "done": {
     "archive": "Unterhaltung archiviert",
@@ -115,6 +118,11 @@
     "notAnAddress": "Keine E-Mail-Adresse",
     "removeRecipient": "{address} entfernen",
     "recipientPlaceholder": "Name oder Adresse",
-    "suggestions": "Vorgeschlagene Adressen"
+    "suggestions": "Vorgeschlagene Adressen",
+    "draftSaving": "Wird gespeichert…",
+    "draftSavedShort": "Gespeichert",
+    "draftSaved": "Entwurf gespeichert",
+    "draftFailed": "Entwurf nicht gespeichert",
+    "draftDiscarded": "Entwurf verworfen"
   }
 }

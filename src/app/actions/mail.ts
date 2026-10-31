@@ -2,10 +2,11 @@
 
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailFolderView, MailThreadPage, MailThreadView } from "@/lib/mail-client";
+import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailDraftRef, MailDraftView, MailFolderView, MailSavedDraft, MailThreadPage, MailThreadView } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
 import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, readBody, refreshFolder, refreshMailbox } from "@/server/mail-client/read";
 import { suggestAddresses } from "@/server/mail-client/contacts";
+import { discardDraft, openDraft, saveDraft } from "@/server/mail-client/drafts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
 import { mailAction, sendMail } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
@@ -86,16 +87,40 @@ export async function mailActionAction(input: { mailboxId: string; folderId: str
   });
 }
 
-/** Sends a message: `draft` as JSON under "draft", the files under "file". */
+/** A message the composer sent: `draft` as JSON under "draft", the files added since its last save under "file". */
+function composed(form: FormData) {
+  let draft: MailDraftInput;
+  try {
+    draft = JSON.parse(String(form.get("draft") ?? ""));
+  } catch {
+    throw new RowMailError("invalid");
+  }
+  if (!draft || typeof draft !== "object") throw new RowMailError("invalid");
+  return { draft, files: form.getAll("file").filter((f): f is File => f instanceof File) };
+}
+
+/** Sends a message (see `composed`); the draft it was saved as goes. */
 export async function sendMailAction(form: FormData): Promise<ActionResult<{ messageId: string }>> {
   return run(async (userId) => {
-    let draft: MailDraftInput;
-    try {
-      draft = JSON.parse(String(form.get("draft") ?? ""));
-    } catch {
-      throw new RowMailError("invalid");
-    }
-    const files = form.getAll("file").filter((f): f is File => f instanceof File);
+    const { draft, files } = composed(form);
     return sendMail(userId, draft, files);
   });
+}
+
+/** Saves what the composer holds as a draft in the mailbox's drafts folder, in place of its last save (see `composed`). */
+export async function saveDraftAction(form: FormData): Promise<ActionResult<MailSavedDraft>> {
+  return run(async (userId) => {
+    const { draft, files } = composed(form);
+    return saveDraft(userId, draft, files);
+  });
+}
+
+/** Throws a draft away. */
+export async function discardDraftAction(ref: MailDraftRef): Promise<ActionResult<null>> {
+  return run((userId) => discardDraft(userId, ref));
+}
+
+/** A draft opened to write on again. */
+export async function openDraftAction(id: string): Promise<ActionResult<MailDraftView>> {
+  return run((userId) => openDraft(userId, id));
 }

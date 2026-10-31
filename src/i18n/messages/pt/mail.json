@@ -30,6 +30,7 @@
   "me": "eu",
   "hasFiles": "Tem arquivos",
   "starred": "Com estrela",
+  "draft": "Rascunho",
   "messages": "{count, plural, one {# mensagem} other {# mensagens}}",
   "toLine": "Para {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Encontrar e-mails de {name}",
     "openInNewTab": "Abrir em nova aba",
     "copyLink": "Copiar link",
-    "linkCopied": "Link copiado"
+    "linkCopied": "Link copiado",
+    "editDraft": "Editar",
+    "discardDraft": "Descartar rascunho"
   },
   "done": {
     "archive": "Conversa arquivada",
@@ -115,6 +118,11 @@
     "notAnAddress": "Não é um endereço de e-mail",
     "removeRecipient": "Remover {address}",
     "recipientPlaceholder": "Nome ou endereço",
-    "suggestions": "Endereços sugeridos"
+    "suggestions": "Endereços sugeridos",
+    "draftSaving": "Salvando…",
+    "draftSavedShort": "Salvo",
+    "draftSaved": "Rascunho salvo",
+    "draftFailed": "Rascunho não salvo",
+    "draftDiscarded": "Rascunho descartado"
   }
 }

@@ -30,6 +30,7 @@
   "me": "自分",
   "hasFiles": "ファイルあり",
   "starred": "スター付き",
+  "draft": "下書き",
   "messages": "{count, plural, other {# 件のメッセージ}}",
   "toLine": "宛先: {names}",
   "ccLine": "Cc: {names}",
@@ -64,7 +65,9 @@
     "fromSender": "{name} からのメールを検索",
     "openInNewTab": "新しいタブで開く",
     "copyLink": "リンクをコピー",
-    "linkCopied": "リンクをコピーしました"
+    "linkCopied": "リンクをコピーしました",
+    "editDraft": "編集",
+    "discardDraft": "下書きを破棄"
   },
   "done": {
     "archive": "会話をアーカイブしました",
@@ -115,6 +118,11 @@
     "notAnAddress": "メールアドレスではありません",
     "removeRecipient": "{address} を削除",
     "recipientPlaceholder": "名前またはアドレス",
-    "suggestions": "候補のアドレス"
+    "suggestions": "候補のアドレス",
+    "draftSaving": "保存中…",
+    "draftSavedShort": "保存済み",
+    "draftSaved": "下書きを保存しました",
+    "draftFailed": "下書きを保存できませんでした",
+    "draftDiscarded": "下書きを破棄しました"
   }
 }

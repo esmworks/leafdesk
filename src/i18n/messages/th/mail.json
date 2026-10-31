@@ -30,6 +30,7 @@
   "me": "ฉัน",
   "hasFiles": "มีไฟล์",
   "starred": "ติดดาว",
+  "draft": "ฉบับร่าง",
   "messages": "{count, plural, other {# ข้อความ}}",
   "toLine": "ถึง {names}",
   "ccLine": "สำเนาถึง {names}",
@@ -64,7 +65,9 @@
     "fromSender": "ค้นหาอีเมลจาก {name}",
     "openInNewTab": "เปิดในแท็บใหม่",
     "copyLink": "คัดลอกลิงก์",
-    "linkCopied": "คัดลอกลิงก์แล้ว"
+    "linkCopied": "คัดลอกลิงก์แล้ว",
+    "editDraft": "แก้ไข",
+    "discardDraft": "ทิ้งฉบับร่าง"
   },
   "done": {
     "archive": "เก็บการสนทนาถาวรแล้ว",
@@ -115,6 +118,11 @@
     "notAnAddress": "ไม่ใช่ที่อยู่อีเมล",
     "removeRecipient": "ลบ {address}",
     "recipientPlaceholder": "ชื่อหรือที่อยู่",
-    "suggestions": "ที่อยู่ที่แนะนำ"
+    "suggestions": "ที่อยู่ที่แนะนำ",
+    "draftSaving": "กำลังบันทึก…",
+    "draftSavedShort": "บันทึกแล้ว",
+    "draftSaved": "บันทึกฉบับร่างแล้ว",
+    "draftFailed": "บันทึกฉบับร่างไม่สำเร็จ",
+    "draftDiscarded": "ทิ้งฉบับร่างแล้ว"
   }
 }

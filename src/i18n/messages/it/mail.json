@@ -30,6 +30,7 @@
   "me": "io",
   "hasFiles": "Con file",
   "starred": "Speciali",
+  "draft": "Bozza",
   "messages": "{count, plural, one {# messaggio} other {# messaggi}}",
   "toLine": "A {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Trova la posta di {name}",
     "openInNewTab": "Apri in una nuova scheda",
     "copyLink": "Copia link",
-    "linkCopied": "Link copiato"
+    "linkCopied": "Link copiato",
+    "editDraft": "Modifica",
+    "discardDraft": "Elimina bozza"
   },
   "done": {
     "archive": "Conversazione archiviata",
@@ -115,6 +118,11 @@
     "notAnAddress": "Non è un indirizzo email",
     "removeRecipient": "Rimuovi {address}",
     "recipientPlaceholder": "Nome o indirizzo",
-    "suggestions": "Indirizzi suggeriti"
+    "suggestions": "Indirizzi suggeriti",
+    "draftSaving": "Salvataggio…",
+    "draftSavedShort": "Salvata",
+    "draftSaved": "Bozza salvata",
+    "draftFailed": "Bozza non salvata",
+    "draftDiscarded": "Bozza eliminata"
   }
 }

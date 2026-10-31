@@ -30,6 +30,7 @@
   "me": "moi",
   "hasFiles": "Avec fichiers",
   "starred": "Favoris",
+  "draft": "Brouillon",
   "messages": "{count, plural, one {# message} other {# messages}}",
   "toLine": "À {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Rechercher les e-mails de {name}",
     "openInNewTab": "Ouvrir dans un nouvel onglet",
     "copyLink": "Copier le lien",
-    "linkCopied": "Lien copié"
+    "linkCopied": "Lien copié",
+    "editDraft": "Modifier",
+    "discardDraft": "Supprimer le brouillon"
   },
   "done": {
     "archive": "Conversation archivée",
@@ -115,6 +118,11 @@
     "notAnAddress": "Ce n’est pas une adresse e-mail",
     "removeRecipient": "Retirer {address}",
     "recipientPlaceholder": "Nom ou adresse",
-    "suggestions": "Adresses suggérées"
+    "suggestions": "Adresses suggérées",
+    "draftSaving": "Enregistrement…",
+    "draftSavedShort": "Enregistré",
+    "draftSaved": "Brouillon enregistré",
+    "draftFailed": "Brouillon non enregistré",
+    "draftDiscarded": "Brouillon supprimé"
   }
 }

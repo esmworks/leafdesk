@@ -30,6 +30,7 @@
   "me": "من",
   "hasFiles": "دارای فایل",
   "starred": "ستاره‌دار",
+  "draft": "پیش‌نویس",
   "messages": "{count, plural, one {# پیام} other {# پیام}}",
   "toLine": "به {names}",
   "ccLine": "رونوشت به {names}",
@@ -64,7 +65,9 @@
     "fromSender": "یافتن نامه‌های {name}",
     "openInNewTab": "باز کردن در زبانه جدید",
     "copyLink": "رونوشت پیوند",
-    "linkCopied": "پیوند رونوشت شد"
+    "linkCopied": "پیوند رونوشت شد",
+    "editDraft": "ویرایش",
+    "discardDraft": "دور انداختن پیش‌نویس"
   },
   "done": {
     "archive": "گفتگو بایگانی شد",
@@ -115,6 +118,11 @@
     "notAnAddress": "نشانی ایمیل نیست",
     "removeRecipient": "حذف {address}",
     "recipientPlaceholder": "نام یا نشانی",
-    "suggestions": "نشانی‌های پیشنهادی"
+    "suggestions": "نشانی‌های پیشنهادی",
+    "draftSaving": "در حال ذخیره…",
+    "draftSavedShort": "ذخیره شد",
+    "draftSaved": "پیش‌نویس ذخیره شد",
+    "draftFailed": "پیش‌نویس ذخیره نشد",
+    "draftDiscarded": "پیش‌نویس دور انداخته شد"
   }
 }

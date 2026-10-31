@@ -30,6 +30,7 @@
   "me": "أنا",
   "hasFiles": "به ملفات",
   "starred": "المميّزة بنجمة",
+  "draft": "مسودة",
   "messages": "{count, plural, zero {لا رسائل} one {رسالة واحدة} two {رسالتان} few {# رسائل} many {# رسالة} other {# رسالة}}",
   "toLine": "إلى {names}",
   "ccLine": "نسخة إلى {names}",
@@ -64,7 +65,9 @@
     "fromSender": "البحث عن رسائل {name}",
     "openInNewTab": "فتح في علامة تبويب جديدة",
     "copyLink": "نسخ الرابط",
-    "linkCopied": "تم نسخ الرابط"
+    "linkCopied": "تم نسخ الرابط",
+    "editDraft": "تعديل",
+    "discardDraft": "تجاهل المسودة"
   },
   "done": {
     "archive": "تمت أرشفة المحادثة",
@@ -115,6 +118,11 @@
     "notAnAddress": "ليس عنوان بريد إلكتروني",
     "removeRecipient": "إزالة {address}",
     "recipientPlaceholder": "الاسم أو العنوان",
-    "suggestions": "العناوين المقترحة"
+    "suggestions": "العناوين المقترحة",
+    "draftSaving": "جارٍ الحفظ…",
+    "draftSavedShort": "تم الحفظ",
+    "draftSaved": "تم حفظ المسودة",
+    "draftFailed": "لم تُحفظ المسودة",
+    "draftDiscarded": "تم تجاهل المسودة"
   }
 }

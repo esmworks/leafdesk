@@ -30,6 +30,7 @@
   "me": "jag",
   "hasFiles": "Har filer",
   "starred": "Stjärnmärkt",
+  "draft": "Utkast",
   "messages": "{count, plural, one {# meddelande} other {# meddelanden}}",
   "toLine": "Till {names}",
   "ccLine": "Kopia till {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Hitta e-post från {name}",
     "openInNewTab": "Öppna i ny flik",
     "copyLink": "Kopiera länk",
-    "linkCopied": "Länken har kopierats"
+    "linkCopied": "Länken har kopierats",
+    "editDraft": "Redigera",
+    "discardDraft": "Släng utkast"
   },
   "done": {
     "archive": "Konversationen arkiverades",
@@ -115,6 +118,11 @@
     "notAnAddress": "Inte en e-postadress",
     "removeRecipient": "Ta bort {address}",
     "recipientPlaceholder": "Namn eller adress",
-    "suggestions": "Föreslagna adresser"
+    "suggestions": "Föreslagna adresser",
+    "draftSaving": "Sparar…",
+    "draftSavedShort": "Sparat",
+    "draftSaved": "Utkast sparat",
+    "draftFailed": "Utkastet sparades inte",
+    "draftDiscarded": "Utkast slängt"
   }
 }

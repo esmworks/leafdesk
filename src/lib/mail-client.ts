@@ -279,7 +279,39 @@ export type MailDraftInput = {
   /** The opened message this answers or forwards, by its id in the index. */
   replyTo?: string | null;
   forward?: string | null;
+  /** The draft it was saved as last (or opened from), which saving again or sending replaces. */
+  draft?: MailDraftRef | null;
 };
+
+/**
+ * A draft the composer saved or opened: its id in the index (null when the index hasn't read it),
+ * its Message-ID, which finds its copies on the mail server, and the parts of its files kept.
+ */
+export type MailDraftRef = { id: string | null; messageId: string | null; keep: string[]; mailboxId?: string };
+
+/** A draft just saved in the mailbox's drafts folder. */
+export type MailSavedDraft = { id: string | null; messageId: string; attachments: MailAttachmentView[] };
+
+/** A draft opened to write on again. */
+export type MailDraftView = {
+  id: string;
+  mailboxId: string;
+  messageId: string | null;
+  to: MailAddress[];
+  cc: MailAddress[];
+  bcc: MailAddress[];
+  subject: string;
+  /** What it says, as the editor reads it. */
+  html: string;
+  /** The message it answers, by its id in the index, when the index has it. */
+  replyTo: string | null;
+  attachments: MailAttachmentView[];
+};
+
+/** A draft is saved this long after the last change, or, with files of more than MAIL_DRAFT_HEAVY bytes, MAIL_DRAFT_SLOW_MS. */
+export const MAIL_DRAFT_SAVE_MS = 3000;
+export const MAIL_DRAFT_SLOW_MS = 15_000;
+export const MAIL_DRAFT_HEAVY = 2 * 1024 * 1024;
 
 /** Actions on threads from the list or an opened thread. */
 /** `move` goes to the folder the request names in `to`; the others are by folder role or flag. */

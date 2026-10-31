@@ -30,6 +30,7 @@
   "me": "tôi",
   "hasFiles": "Có tệp",
   "starred": "Đã gắn sao",
+  "draft": "Thư nháp",
   "messages": "{count, plural, other {# thư}}",
   "toLine": "Đến {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Tìm thư từ {name}",
     "openInNewTab": "Mở trong thẻ mới",
     "copyLink": "Sao chép liên kết",
-    "linkCopied": "Đã sao chép liên kết"
+    "linkCopied": "Đã sao chép liên kết",
+    "editDraft": "Chỉnh sửa",
+    "discardDraft": "Hủy thư nháp"
   },
   "done": {
     "archive": "Đã lưu trữ cuộc trò chuyện",
@@ -115,6 +118,11 @@
     "notAnAddress": "Không phải địa chỉ email",
     "removeRecipient": "Xóa {address}",
     "recipientPlaceholder": "Tên hoặc địa chỉ",
-    "suggestions": "Địa chỉ gợi ý"
+    "suggestions": "Địa chỉ gợi ý",
+    "draftSaving": "Đang lưu…",
+    "draftSavedShort": "Đã lưu",
+    "draftSaved": "Đã lưu thư nháp",
+    "draftFailed": "Chưa lưu được thư nháp",
+    "draftDiscarded": "Đã hủy thư nháp"
   }
 }

@@ -30,6 +30,7 @@
   "me": "我",
   "hasFiles": "有文件",
   "starred": "已加星标",
+  "draft": "草稿",
   "messages": "{count, plural, other {# 封邮件}}",
   "toLine": "收件人：{names}",
   "ccLine": "抄送：{names}",
@@ -64,7 +65,9 @@
     "fromSender": "查找来自 {name} 的邮件",
     "openInNewTab": "在新标签页中打开",
     "copyLink": "复制链接",
-    "linkCopied": "链接已复制"
+    "linkCopied": "链接已复制",
+    "editDraft": "编辑",
+    "discardDraft": "舍弃草稿"
   },
   "done": {
     "archive": "会话已归档",
@@ -115,6 +118,11 @@
     "notAnAddress": "不是电子邮件地址",
     "removeRecipient": "移除 {address}",
     "recipientPlaceholder": "姓名或地址",
-    "suggestions": "建议的地址"
+    "suggestions": "建议的地址",
+    "draftSaving": "正在保存…",
+    "draftSavedShort": "已保存",
+    "draftSaved": "草稿已保存",
+    "draftFailed": "草稿未保存",
+    "draftDiscarded": "草稿已舍弃"
   }
 }

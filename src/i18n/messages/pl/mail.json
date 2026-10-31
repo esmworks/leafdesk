@@ -30,6 +30,7 @@
   "me": "ja",
   "hasFiles": "Ma pliki",
   "starred": "Oznaczone gwiazdką",
+  "draft": "Wersja robocza",
   "messages": "{count, plural, one {# wiadomość} few {# wiadomości} many {# wiadomości} other {# wiadomości}}",
   "toLine": "Do: {names}",
   "ccLine": "DW: {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Znajdź wiadomości od {name}",
     "openInNewTab": "Otwórz w nowej karcie",
     "copyLink": "Kopiuj link",
-    "linkCopied": "Skopiowano link"
+    "linkCopied": "Skopiowano link",
+    "editDraft": "Edytuj",
+    "discardDraft": "Odrzuć wersję roboczą"
   },
   "done": {
     "archive": "Konwersacja zarchiwizowana",
@@ -115,6 +118,11 @@
     "notAnAddress": "To nie jest adres e-mail",
     "removeRecipient": "Usuń {address}",
     "recipientPlaceholder": "Imię i nazwisko lub adres",
-    "suggestions": "Sugerowane adresy"
+    "suggestions": "Sugerowane adresy",
+    "draftSaving": "Zapisywanie…",
+    "draftSavedShort": "Zapisano",
+    "draftSaved": "Wersja robocza zapisana",
+    "draftFailed": "Nie zapisano wersji roboczej",
+    "draftDiscarded": "Wersja robocza odrzucona"
   }
 }

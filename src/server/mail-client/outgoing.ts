@@ -45,7 +45,11 @@ const textOf = (body: Element) =>
     .join("\n")
     .replace(/\n+$/, "");
 
-export async function outgoingBody(raw: string): Promise<OutgoingBody> {
+/**
+ * The editor's HTML made fit to send, with its text part. A draft (`keepSignature`) keeps its
+ * signature marked, so the editor finds it again when the draft is opened (editableBody).
+ */
+export async function outgoingBody(raw: string, options: { keepSignature?: boolean } = {}): Promise<OutgoingBody> {
   const { window, body } = await clean(raw, CONFIG);
   // A signature whose words were all taken out goes, with no separator left behind.
   for (const signature of Array.from(body.querySelectorAll("div[data-signature]"))) if (!signature.textContent?.trim()) signature.remove();
@@ -56,7 +60,7 @@ export async function outgoingBody(raw: string): Promise<OutgoingBody> {
     if (el.tagName === "P" && !el.childNodes.length) el.appendChild(window.document.createElement("br"));
   }
   const text = textOf(body);
-  for (const signature of Array.from(body.querySelectorAll("div[data-signature]"))) signature.removeAttribute("data-signature");
+  if (!options.keepSignature) for (const signature of Array.from(body.querySelectorAll("div[data-signature]"))) signature.removeAttribute("data-signature");
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head><body><div style="${FONT}">${body.innerHTML}</div></body></html>`;
   return { html, text };
 }
@@ -73,6 +77,29 @@ export async function cleanSignature(raw: string): Promise<OutgoingBody | null> 
   if (!text.trim()) return null;
   return { html: body.innerHTML, text };
 }
+
+/** A draft's HTML read at most. */
+const MAX_EDITABLE = 2_000_000;
+
+/**
+ * A draft's HTML as the editor opens it again: what the editor offers (the same tags as a message
+ * sent), without the styles and the wrapping a message carries; a plain-text draft as paragraphs.
+ */
+export async function editableBody(html: string | null, text: string): Promise<string> {
+  if (!html) {
+    const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return text
+      .replace(/\r\n/g, "\n")
+      .split("\n")
+      .map((line) => `<p>${escape(line)}</p>`)
+      .join("");
+  }
+  const { body } = await clean(html.slice(0, MAX_EDITABLE), CONFIG);
+  // Wrappers (the font of a message sent from here) go; their content stays where they were.
+  for (const div of Array.from(body.querySelectorAll("div:not([data-signature])"))) div.replaceWith(...Array.from(div.childNodes));
+  return body.innerHTML;
+}
+
 
 /** A paragraph's text: line breaks kept, a link's address after its words when they differ. */
 function inline(node: Node): string {

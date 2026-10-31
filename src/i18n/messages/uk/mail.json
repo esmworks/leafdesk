@@ -30,6 +30,7 @@
   "me": "я",
   "hasFiles": "Є файли",
   "starred": "Із зірочкою",
+  "draft": "Чернетка",
   "messages": "{count, plural, one {# повідомлення} few {# повідомлення} many {# повідомлень} other {# повідомлення}}",
   "toLine": "Кому: {names}",
   "ccLine": "Копія: {names}",
@@ -64,7 +65,9 @@
     "fromSender": "Знайти листи від {name}",
     "openInNewTab": "Відкрити в новій вкладці",
     "copyLink": "Копіювати посилання",
-    "linkCopied": "Посилання скопійовано"
+    "linkCopied": "Посилання скопійовано",
+    "editDraft": "Редагувати",
+    "discardDraft": "Видалити чернетку"
   },
   "done": {
     "archive": "Розмову архівовано",
@@ -115,6 +118,11 @@
     "notAnAddress": "Це не адреса електронної пошти",
     "removeRecipient": "Видалити {address}",
     "recipientPlaceholder": "Ім’я або адреса",
-    "suggestions": "Запропоновані адреси"
+    "suggestions": "Запропоновані адреси",
+    "draftSaving": "Збереження…",
+    "draftSavedShort": "Збережено",
+    "draftSaved": "Чернетку збережено",
+    "draftFailed": "Чернетку не збережено",
+    "draftDiscarded": "Чернетку видалено"
   }
 }

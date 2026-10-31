@@ -124,6 +124,11 @@ async function fetchUids(client: ImapFlow, uids: number[]) {
   return out;
 }
 
+/** Reads messages just put in a folder (a saved draft) into the index; the caller holds the folder open. */
+export async function indexUids(client: ImapFlow, box: Box, folder: FolderRow, uids: number[]) {
+  await store(box, folder, await fetchUids(client, uids));
+}
+
 type FlagState = { uid: number; flags: Set<string> };
 
 async function applyFlags(folder: FolderRow, changed: FlagState[]) {

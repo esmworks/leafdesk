@@ -18,7 +18,7 @@ import { useFolderName } from "./mail-sidebar";
 
 // The open thread and a new message load the first time they show.
 const ThreadView = lazyPart(() => import("./thread-view").then((m) => m.ThreadView), <div className="min-w-0 flex-1" />);
-const Composer = lazyPart(() => import("./composer").then((m) => m.Composer), <div className="min-w-0 flex-1" />);
+const PaneComposer = lazyPart(() => import("./composer").then((m) => m.PaneComposer), <div className="min-w-0 flex-1" />);
 const ThreadMenu = lazyPart(() => import("./thread-menu").then((m) => m.ThreadMenu));
 
 /** How often the open folder asks the mail server for new mail while the page is in front. */
@@ -74,6 +74,7 @@ const ThreadRow = memo(function ThreadRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
           <span className={cn("truncate text-sm", item.unread && "font-semibold")}>{senders}</span>
+          {item.hasDraft && <span className="shrink-0 text-xs font-medium text-danger">{t("draft")}</span>}
           {item.count > 1 && <span className="text-xs text-fg-muted tabular-nums">{item.count}</span>}
           <span className="flex-1" />
           {item.hasAttachments && <Paperclip className="h-3.5 w-3.5 shrink-0 text-fg-icon" aria-label={t("hasFiles")} />}
@@ -118,8 +119,15 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     void ThreadMenu.preload();
   }, []);
   const threadId = search.get("t");
-  // A new message is written in the pane where a thread shows (?c=new), so Back closes it.
-  const composing = search.get("c") === "new";
+  // A new message is written in the pane where a thread shows (?c=new), so Back closes it; a saved
+  // draft is opened there too (?c=d:<id>), and each save moves the address to its new id.
+  const composeParam = search.get("c");
+  const draftId = composeParam?.startsWith("d:") ? composeParam.slice(2) : null;
+  const composing = composeParam === "new" || !!draftId;
+  // The pane is written on until it is closed or another one opened: not anew when a save moves the address.
+  const [savedTo, setSavedTo] = useState<string | null>(null);
+  const [pane, setPane] = useState({ c: composeParam, n: 0, draft: draftId });
+  if (pane.c !== composeParam) setPane(composeParam && composeParam === savedTo ? { ...pane, c: composeParam } : { c: composeParam, n: pane.n + 1, draft: draftId });
   const query = search.get("q") ?? "";
   const [typed, setTyped] = useState(query);
   const [list, setList] = useState<List>({ items: [], next: null, loading: true, error: null });
@@ -306,9 +314,23 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const openThread = useCallback(
     (item: MailThreadItem) => {
       setCompose(null);
-      go({ t: item.threadId });
+      // A draft is written on, not read.
+      if (folder?.role === "drafts") go({ c: `d:${item.messageId}`, t: null });
+      else go({ t: item.threadId, c: null });
     },
-    [go],
+    [go, folder?.role],
+  );
+
+  /** The pane's draft was saved or thrown away: the address follows it, and the drafts list. */
+  const paneSaved = useCallback(
+    (id: string | null, open: boolean) => {
+      if (id && open) {
+        setSavedTo(`d:${id}`);
+        go({ c: `d:${id}` }, true);
+      }
+      if (folder?.role === "drafts") void loadPage(null);
+    },
+    [go, folder?.role, loadPage],
   );
 
   // Each unread message of the open thread calls onRead as its body comes, often with the callback
@@ -335,8 +357,8 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     const onKey = (e: KeyboardEvent) => {
       // With a conversation's menu open, keys are the menu's (Escape closes it).
       if (!forPage(e) || composing || menu) return;
-      const at = items.findIndex((i) => i.threadId === threadId);
-      const current = at >= 0 ? items[at] : null;
+      const at = items.findIndex((i) => i.threadId === threadId || (!!draftId && i.messageId === draftId));
+      const current = at >= 0 && threadId ? items[at] : null;
       const move = (to: number) => {
         const target = items[Math.max(0, Math.min(items.length - 1, to))];
         if (!target) return;
@@ -376,7 +398,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [items, threadId, folder?.role, act, openThread, go, composing, menu]);
+  }, [items, threadId, draftId, folder?.role, act, openThread, go, composing, menu]);
 
   // Search as typed, a moment after the last key.
   useEffect(() => {
@@ -478,7 +500,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
                   key={item.threadId}
                   item={item}
                   href={mailHref(workspaceId, { box: box.id, f: folder.id, t: item.threadId, q: query || null })}
-                  selected={item.threadId === threadId}
+                  selected={item.threadId === threadId || (!!draftId && item.messageId === draftId)}
                   menuOpen={menu?.item.threadId === item.threadId}
                   me={box.address}
                   onOpen={openThread}
@@ -512,16 +534,17 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
         )}
       </section>
       {composing ? (
-        <Composer
+        <PaneComposer
+          key={pane.n}
+          id={pane.draft}
           box={box}
           boxes={boxes}
-          mode="new"
-          source={null}
           layout="pane"
           onClose={() => go({ c: null })}
+          onSaved={paneSaved}
           onSent={() => {
             go({ c: null });
-            if (folder.role === "sent") void loadPage(null);
+            if (folder.role === "sent" || folder.role === "drafts") void loadPage(null);
           }}
         />
       ) : threadId ? (

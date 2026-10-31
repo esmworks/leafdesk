@@ -8,7 +8,9 @@
  * images until asked for (remembered then, or always for a trusted sender or the mailbox's own
  * domain), with the images it carries inline, and it is marked read (not when loaded ahead); a file downloads as it was sent; archiving, moving to a folder picked, starring, reading, the trash and
  * deleting for good reach the server and the index at once; an answer goes out in the same thread and lands in the sent
- * folder; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
+ * folder; a draft is kept in the drafts folder (made where there is none), each save replacing the last under one
+ * Message-ID with the files it kept, opens again with its Bcc and signature, marks the thread it answers, and goes
+ * once sent or thrown away; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
  * recipient fields suggest the people written with; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
  * elsewhere; search finds by sender and subject; no one but the mailbox's owner reads it.
  * Creates its own users and workspace and deletes them afterwards.
@@ -67,7 +69,7 @@ if (!given) {
   );
 }
 
-const { eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray } = await import("drizzle-orm");
 const nodemailer = (await import("nodemailer")).default;
 const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
@@ -79,6 +81,7 @@ const { connectMailbox, setMailDatabases, RowMailError } = await import("@/serve
 const { syncDue } = await import("@/server/row-mail/sync");
 const read = await import("@/server/mail-client/read");
 const { mailAction, sendMail } = await import("@/server/mail-client/write");
+const drafts = await import("@/server/mail-client/drafts");
 const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
 const images = await import("@/server/mail-client/images");
@@ -362,6 +365,59 @@ try {
   const answer = sentList.items.find((t) => t.threadId === butce.threadId);
   check(answer && answer.count === 3, "the sent folder keeps a copy, read into the same thread", sentList.items);
 
+  // Drafts
+  const hidden = `gizli.${RUN}@leafdesk.test`;
+  const note = new File([PDF], "not.pdf", { type: "application/pdf" });
+  const firstSave = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [hidden], subject: "Taslak konu", html: `<p>İlk hali</p><div data-signature=""><p>Ada</p></div>` }, [note]);
+  const [draftFolder] = await db
+    .select()
+    .from(mailFolder)
+    .where(and(eq(mailFolder.mailboxId, boxId), eq(mailFolder.role, "drafts")));
+  check(draftFolder?.path === "Drafts", "a mailbox without a drafts folder gets one for drafts", draftFolder);
+  check((await uidsIn("Drafts")).length === 1 && !!firstSave.id && firstSave.attachments.length === 1, "a draft is kept in the drafts folder with its file, and in the index", firstSave);
+  const secondSave = await drafts.saveDraft(ids.ada, {
+    mailboxId: boxId,
+    to: [customer],
+    cc: [],
+    bcc: [hidden],
+    subject: "Taslak konu",
+    html: `<p>İkinci hali</p><div data-signature=""><p>Ada</p></div>`,
+    draft: { id: firstSave.id, messageId: firstSave.messageId, keep: firstSave.attachments.map((a) => a.part) },
+  });
+  const draftRows = await db.select().from(mailMessage).where(eq(mailMessage.folderId, draftFolder.id));
+  check((await uidsIn("Drafts")).length === 1 && draftRows.length === 1 && draftRows[0].id === secondSave.id && draftRows[0].draft, "saving again replaces the draft, on the server and in the index", draftRows);
+  check(secondSave.messageId === firstSave.messageId && secondSave.attachments[0]?.name === "not.pdf", "under the same Message-ID, keeping the file read back from the server", secondSave);
+  const reopened = await drafts.openDraft(ids.ada, secondSave.id!);
+  check(
+    reopened.bcc[0]?.address === hidden && reopened.to[0]?.address === customer && reopened.subject === "Taslak konu" && reopened.html.includes("İkinci hali") && reopened.html.includes("data-signature") && !reopened.html.includes("style="),
+    "a draft opens again with its Bcc, its words and its signature, as the editor writes them",
+    reopened,
+  );
+  check(reopened.attachments.length === 1 && reopened.replyTo === null, "and its file", reopened.attachments);
+  check((await errorCode(() => drafts.openDraft(ids.bob, secondSave.id!))) === "noMailbox", "only to its owner");
+  check((await errorCode(() => drafts.openDraft(ids.ada, butce.messageId))) === "invalid", "a message that isn't a draft doesn't open as one");
+  const replyDraft = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Re: Bütçe", html: "<p>Cevap taslağı</p>", replyTo: butce.messageId });
+  const withDraft = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.find((t) => t.threadId === butce.threadId);
+  check(withDraft?.hasDraft, "a thread answered in a draft says so in the inbox", withDraft);
+  check((await drafts.openDraft(ids.ada, replyDraft.id!)).replyTo === butce.messageId, "a reply's draft knows the message it answers");
+  await sendMail(ids.ada, {
+    mailboxId: boxId,
+    to: [customer],
+    cc: [],
+    bcc: [],
+    subject: "Taslak konu",
+    html: `<p>Son hali</p><div data-signature=""><p>Ada</p></div>`,
+    draft: { id: secondSave.id, messageId: secondSave.messageId, keep: secondSave.attachments.map((a) => a.part) },
+  });
+  await settle();
+  const fromDraft = await lastMessageTo(customer);
+  check(fromDraft.includes("Son hali") && fromDraft.includes("not.pdf") && !fromDraft.includes("data-signature"), "a draft sent goes with the file it kept, its signature unmarked", [fromDraft.includes("Son hali"), fromDraft.includes("not.pdf"), fromDraft.includes("data-signature")]);
+  const draftsLeft = await db.select().from(mailMessage).where(eq(mailMessage.folderId, draftFolder.id));
+  check((await uidsIn("Drafts")).length === 1 && draftsLeft.length === 1 && draftsLeft[0].id === replyDraft.id, "and leaves the drafts folder once sent", draftsLeft);
+  await drafts.discardDraft(ids.ada, { id: replyDraft.id, messageId: replyDraft.messageId, keep: [] });
+  check((await uidsIn("Drafts")).length === 0 && !(await db.select().from(mailMessage).where(eq(mailMessage.folderId, draftFolder.id))).length, "a draft thrown away goes from the server and the index");
+  check(!(await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.find((t) => t.threadId === butce.threadId)?.hasDraft, "and its thread says no more that it has one");
+
   // Writing with formatting, from the other mailbox
   await sendMail(ids.ada, {
     mailboxId: salesBoxId,
@@ -414,7 +470,7 @@ try {
   check(firstPage.next === null, "a short list has no next page");
 
   const kept = await db.select({ n: mailFolder.id }).from(mailFolder).where(eq(mailFolder.mailboxId, boxId));
-  check(kept.length === 6, "six folders are kept");
+  check(kept.length === 7, "seven folders are kept: six, and the drafts folder made for drafts");
   console.log(`\n${passed} checks passed`);
 } finally {
   outside.close();
