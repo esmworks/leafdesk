@@ -25,11 +25,15 @@ import { Button, cn, IconButton, PageIcon } from "@/components/ui";
 import { pagePath } from "@/lib/mentions";
 import type { MailAction, MailAddress, MailBody, MailboxTabView, MailFolderView, MailMessageView, MailThreadView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
-import { Composer, type ComposeMode, replyAllAdds } from "./composer";
+import { lazyPart } from "@/components/lazy-part";
+import { type ComposeMode, replyAllAdds } from "./compose-start";
 import { forgetImageSenderAction, trustImageSenderAction } from "@/app/actions/mail";
 import { cachedBody, cachedThread, forgetBodies, keepBody, keepThread } from "./mail-cache";
 import { MailFrame } from "./mail-frame";
 import { useWhen } from "./mail-store";
+
+// The editor loads the first time an answer is written.
+const Composer = lazyPart(() => import("./composer").then((m) => m.Composer));
 
 /** A sender's letter, in the color an address always gets (as people's avatars elsewhere). */
 function Avatar({ who }: { who: MailAddress }) {
@@ -477,8 +481,9 @@ export function ThreadView({
                   key={`${compose}-${source.id}`}
                   box={box}
                   mode={compose}
+                  layout="inline"
                   source={{ message: source, body: bodies[source.id]?.body ?? null }}
-                  onCancel={() => onComposeChange(null)}
+                  onClose={() => onComposeChange(null)}
                   onSent={() => {
                     onComposeChange(null);
                     onSent();

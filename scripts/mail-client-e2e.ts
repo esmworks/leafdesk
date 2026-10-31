@@ -1,13 +1,15 @@
 /**
  * End-to-end check of the Mail tab against the database and a real IMAP/SMTP server (GreenMail,
  * started here in a container of its own on free ports and removed at the end): opening a mailbox
- * reads its folders, with what each is for, and the newest of the inbox; threads join answers,
+ * reads its folders, with what each is for, and the newest of the inbox, and listing mailboxes
+ * reads the others not read yet in the background; threads join answers,
  * copies in the sent folder and replies without references by subject; a thread names the row its
  * other party is; a message's body comes from the server, its HTML without scripts and remote
  * images until asked for (remembered then, or always for a trusted sender or the mailbox's own
  * domain), with the images it carries inline, and it is marked read (not when loaded ahead); a file downloads as it was sent; archiving, starring, reading, the trash and
  * deleting for good reach the server and the index at once; an answer goes out in the same thread and lands in the sent
- * folder; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
+ * folder; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
+ * recipient fields suggest the people written with; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
  * elsewhere; search finds by sender and subject; no one but the mailbox's owner reads it.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -77,6 +79,7 @@ const { connectMailbox, setMailDatabases, RowMailError } = await import("@/serve
 const { syncDue } = await import("@/server/row-mail/sync");
 const read = await import("@/server/mail-client/read");
 const { mailAction, sendMail } = await import("@/server/mail-client/write");
+const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
 const images = await import("@/server/mail-client/images");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -110,6 +113,7 @@ const ids = { ada: `${RUN}-ada`, bob: `${RUN}-bob` };
 const workspaceId = `${RUN}-ws`;
 const ada = `ada.${RUN}@leafdesk.test`;
 const customer = `ayse.${RUN}@acme.test`;
+const sales = `satis.${RUN}@leafdesk.test`;
 const stranger = `news.${RUN}@lists.test`;
 const servers = { imapHost: HOST, imapPort: IMAP_PORT, imapSecure: false, smtpHost: HOST, smtpPort: SMTP_PORT, smtpSecure: false };
 const outside = nodemailer.createTransport({ host: HOST, port: SMTP_PORT, secure: false, ignoreTLS: true });
@@ -152,6 +156,24 @@ async function uidsIn(path: string, query: Record<string, unknown> = { all: true
   });
 }
 
+/** The newest message in someone's inbox on the server, as it arrived. */
+async function lastMessageTo(address: string) {
+  const client = new ImapFlow({ host: HOST, port: IMAP_PORT, secure: false, auth: { user: address, pass: "x" }, logger: false });
+  await client.connect();
+  try {
+    const lock = await client.getMailboxLock("INBOX");
+    let raw = "";
+    try {
+      for await (const m of client.fetch("1:*", { source: true })) raw = m.source?.toString() ?? raw;
+    } finally {
+      lock.release();
+    }
+    return raw;
+  } finally {
+    await client.logout();
+  }
+}
+
 /** The minute's sweep, now. */
 async function sweep() {
   await settle();
@@ -164,6 +186,7 @@ const PDF = Buffer.from("%PDF-1.4\n% leafdesk e2e\n1 0 obj<<>>endobj\ntrailer<<>
 
 let containerUp = !given;
 let boxId = "";
+let salesBoxId = "";
 try {
   await serverUp();
   await db.insert(user).values([
@@ -217,14 +240,26 @@ try {
 
   const box = await connectMailbox(ids.ada, workspaceId, { address: ada, servers, username: ada, password: "x", consent: true, displayName: "Ada", timeZone: "Europe/Istanbul" });
   boxId = box.id;
+  // A second mailbox of Ada's, a shared address with a question waiting in it.
+  await outside.sendMail({ from: customer, to: sales, subject: "Fiyat sorusu", text: "Fiyat listesi var mı?" });
+  const salesBox = await connectMailbox(ids.ada, workspaceId, { address: sales, servers, username: sales, password: "x", consent: true, displayName: "Satış", timeZone: "Europe/Istanbul" });
+  salesBoxId = salesBox.id;
 
   // Opening
-  check((await read.listMailboxes(ids.ada, workspaceId))[0]?.folders === null, "a mailbox has no index before its owner opens Mail");
+  const boxesListed = await read.listMailboxes(ids.ada, workspaceId);
+  check(boxesListed.length === 2 && boxesListed[0].id === boxId && boxesListed.every((b) => b.folders === null), "mailboxes have no index before their owner opens Mail, the default first");
   const opened = await read.openMailbox(ids.ada, boxId);
   const roles = Object.fromEntries((opened.folders ?? []).map((f) => [f.name, f.role]));
   check(roles.INBOX === "inbox" && roles.Sent === "sent" && roles.Trash === "trash" && roles.Archive === "archive" && roles.Junk === "junk" && roles.Projeler === null, "opening reads the folders and what each is for", roles);
   check(opened.folders?.[0]?.role === "inbox", "the inbox comes first");
   const folder = (role: string) => opened.folders!.find((f) => f.role === role)!;
+  // Listing them began reading the other one in the background, so its unread mail shows.
+  let salesListed: (typeof boxesListed)[number] | undefined;
+  for (let i = 0; i < 40 && !salesListed?.folders; i++) {
+    await settle();
+    salesListed = (await read.listMailboxes(ids.ada, workspaceId)).find((b) => b.id === salesBoxId);
+  }
+  check(salesListed?.folders?.find((f) => f.role === "inbox")?.unseen === 1, "listing the mailboxes reads the others in the background", salesListed);
   const inbox = folder("inbox");
   // The sweep reads the other folders (the sent copy) too.
   await sweep();
@@ -310,26 +345,36 @@ try {
   const pdf = new File([PDF], "teklif.pdf", { type: "application/pdf" });
   await sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [`gizli.${RUN}@leafdesk.test`], subject: "Re: Bütçe", text: "Aldık, teşekkürler.", replyTo: butce.messageId }, [pdf]);
   await settle();
-  const delivered = await new Promise<string>((resolve, reject) => {
-    const client = new ImapFlow({ host: HOST, port: IMAP_PORT, secure: false, auth: { user: customer, pass: "x" }, logger: false });
-    client
-      .connect()
-      .then(async () => {
-        const lock = await client.getMailboxLock("INBOX");
-        let raw = "";
-        for await (const m of client.fetch("1:*", { source: true })) raw = m.source?.toString() ?? raw;
-        lock.release();
-        await client.logout();
-        resolve(raw);
-      })
-      .catch(reject);
-  });
+  const delivered = await lastMessageTo(customer);
   check(delivered.includes(`In-Reply-To: <butce2.${RUN}@acme.test>`) && delivered.includes("teklif.pdf") && !/^bcc:/im.test(delivered), "an answer goes out in the thread, with its file, without the Bcc line");
   check((await uidsIn("INBOX", { answered: true })).length === 1, "the message answered is marked so");
   await sweep();
   const sentList = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: folder("sent").id });
   const answer = sentList.items.find((t) => t.threadId === butce.threadId);
   check(answer && answer.count === 3, "the sent folder keeps a copy, read into the same thread", sentList.items);
+
+  // Writing with formatting, from the other mailbox
+  await sendMail(ids.ada, {
+    mailboxId: salesBoxId,
+    to: [customer],
+    cc: [],
+    bcc: [],
+    subject: "Fiyat listesi",
+    html: `<p>Merhaba <strong>Ayse</strong>,</p><ul><li><p>liste ekte</p></li></ul><p><a href="javascript:x()">tikla</a></p><script>x()</script>`,
+  });
+  await settle();
+  const formatted = await lastMessageTo(customer);
+  check(new RegExp(`^From: .*<${sales.replace(/\./g, "\\.")}>`, "m").test(formatted.replace(/\r\n[ \t]+/g, " ")), "a new message goes out from the mailbox picked", formatted.slice(0, 400));
+  check(/multipart\/alternative/i.test(formatted) && formatted.includes("<strong>Ayse</strong>") && formatted.includes("- liste ekte"), "with its formatting and a plain-text part written from it");
+  check(!/<script|javascript:/i.test(formatted), "and nothing the editor doesn't write");
+  check((await errorCode(() => sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "", html: "<p></p>" }))) === "invalid", "a message with no subject and nothing written isn't sent");
+
+  // Suggesting addresses
+  const suggested = await suggestAddresses(ids.ada, { mailboxId: boxId, query: "ayse" });
+  check(suggested[0]?.address === customer, "a recipient field suggests the people written with", suggested);
+  check((await suggestAddresses(ids.ada, { mailboxId: boxId, query: "kaya" }))[0]?.address === customer, "by a word of their name too");
+  check(!(await suggestAddresses(ids.ada, { mailboxId: boxId, query: "ada." })).some((a) => a.address === ada), "never the mailbox itself");
+  check((await errorCode(() => suggestAddresses(ids.bob, { mailboxId: boxId, query: "ayse" }))) !== null, "and only to the mailbox's owner");
 
   // The sweep
   await outside.sendMail({ ...base, subject: "Yeni sipariş", text: "Sipariş formu." });
@@ -365,6 +410,7 @@ try {
 } finally {
   outside.close();
   if (boxId) closeImap(boxId);
+  if (salesBoxId) closeImap(salesBoxId);
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
   await db.delete(user).where(inArray(user.id, Object.values(ids)));
   hocuspocus.closeConnections();

@@ -259,7 +259,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them; why a message's
   images from other sites load is `lib/mail-images.ts`, decided after the fetch for DMARC, from what
   `images.ts` remembers: messages shown before and trusted senders; `body-cache.ts` keys bodies by
-  that reason, so `readBody` and `prefetchBodies` work it out alike or a click reads it again), follow-up
+  that reason, so `readBody` and `prefetchBodies` work it out alike or a click reads it again;
+  `listMailboxes` starts a mailbox's first read in the background (`firstRead`, one at a time per
+  box), and the tab asks again while a box's folders are null; writing: the composer is the
+  `?c=new` pane or under a thread, `composer.tsx` with the TipTap editor `mail-editor.tsx` (lazy:
+  ProseMirror stays out of the thread's chunk), what a reply starts from `compose-start.ts`, the
+  HTML sent cleaned again and turned into its text part by `outgoing.ts`, addresses suggested by
+  `contacts.ts`), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
   `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner

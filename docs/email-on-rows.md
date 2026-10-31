@@ -78,7 +78,8 @@ beside the open one. Only the mailbox's owner reads it; guests, other members, o
 MCP clients, the REST API and automations don't.
 
 Leafdesk keeps each folder's headers and first lines, read 90 days back once the owner first
-opens Mail and kept up to date by the minute's read; the messages themselves, their HTML and their
+opens Mail (every mailbox of theirs at once, in the background, so the others show their unread
+counts too) and kept up to date by the minute's read; the messages themselves, their HTML and their
 files are read from the mail server when a thread is opened, and aren't stored: a message read is
 held in the server's memory for up to 10 minutes, never written, and the first threads of the list
 and those beside the open one are read ahead, so they open at once (reading ahead leaves them
@@ -94,8 +95,15 @@ server's thread ids, their references and, within 30 days, a reply's subject.
 
 From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
-trash is for good. *New message* writes one in plain text with files of up to 20 MB in all, at most
-100 recipients and 100 messages an hour from each mailbox; the sent folder keeps a copy. The search
+trash is for good. *New message* opens beside the list, where the open thread would be, and Back
+closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
+through, with bulleted and numbered lists, quotes and links (⌘/Ctrl+K), and goes out as HTML with
+a plain-text part beside it; other formatting pasted in falls away. *From* picks any of the
+member's mailboxes; recipients are suggested as they are typed, from the people that mailbox wrote
+to (first) and heard from, and ⌘/Ctrl+Enter sends. A message being written stays while other mail
+is read, until it is sent or discarded. Files of up to 20 MB in all, dropped on the message or
+attached, at most 100 recipients and 100 messages an hour from each mailbox; the sent folder keeps
+a copy. The search
 box looks through every folder but the trash and junk, in senders, recipients, subjects and first
 lines, and takes `from:`, `to:`, `subject:`, `is:unread`, `is:read`, `is:starred`,
 `has:attachment`, `after:2026-01-31` and `before:`. Keys: `c` new message, `/`

@@ -1,144 +1,124 @@
 "use client";
 
-import { Paperclip, Send, X } from "lucide-react";
+import type { Editor } from "@tiptap/core";
+import { Check, ChevronDown, ChevronLeft, Paperclip, Send, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { sendMailAction } from "@/app/actions/mail";
 import { showToast } from "@/components/toast";
-import { Button, cn, IconButton, textareaClass } from "@/components/ui";
-import { normalizeAddress, quoteText, replySubject } from "@/lib/mail";
-import { forwardSubject, MAX_COMPOSE_BYTES, type MailAddress, type MailBody, type MailboxTabView, type MailMessageView } from "@/lib/mail-client";
+import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
+import { MAX_COMPOSE_BYTES, type MailboxTabView, type MailMessageView } from "@/lib/mail-client";
+import { parseRecipient, showAddress, splitAddresses, startFrom, type ComposeMode, type ComposeSource, type Recipient } from "./compose-start";
+import { FormatBar, MailEditorContent, useMailEditor } from "./mail-editor";
+import { MailboxMark } from "./mail-sidebar";
+import { RecipientField } from "./recipient-field";
 
-export type ComposeMode = "new" | "reply" | "replyAll" | "forward";
-export type ComposeSource = { message: MailMessageView; body: MailBody | null };
-
-/** A recipient as a field shows it: a name with a comma or quote in it is quoted, so parseAddresses reads it back whole. */
-const show = (a: MailAddress) => (!a.name ? a.address : /[,;"<>]/.test(a.name) ? `"${a.name.replace(/["\\]/g, "")}" <${a.address}>` : `${a.name} <${a.address}>`);
-
-/** A field's text cut at commas, semicolons and new lines, but not inside quotes or angle brackets. */
-function splitAddresses(value: string) {
-  const parts: string[] = [];
-  let part = "";
-  let quoted = false;
-  let angled = false;
-  for (const ch of value) {
-    if (ch === '"' && !angled) quoted = !quoted;
-    else if (ch === "<" && !quoted) angled = true;
-    else if (ch === ">" && !quoted) angled = false;
-    if (!quoted && !angled && (ch === "," || ch === ";" || ch === "\n")) {
-      parts.push(part);
-      part = "";
-    } else part += ch;
-  }
-  parts.push(part);
-  return parts.map((p) => p.trim()).filter(Boolean);
-}
-
-/** The addresses of a field's text: commas, semicolons or new lines between them, "Name <address>" or the bare address. */
-function parseAddresses(value: string) {
-  const parts = splitAddresses(value);
-  const good: string[] = [];
-  const bad: string[] = [];
-  for (const part of parts) {
-    const inside = /<([^>]+)>\s*$/.exec(part)?.[1] ?? part;
-    const address = normalizeAddress(inside);
-    if (address) good.push(address);
-    else bad.push(part);
-  }
-  return { good, bad };
-}
-
-/** What a reply, reply-all or forward starts with. */
-function startFrom(mode: ComposeMode, box: MailboxTabView, source: ComposeSource | null, header: (m: MailMessageView) => string, forwarded: (m: MailMessageView) => string) {
-  if (!source || mode === "new") return { to: "", cc: "", subject: "", text: "" };
-  const { message, body } = source;
-  const text = body?.text ?? message.preview;
-  if (mode === "forward") return { to: "", cc: "", subject: forwardSubject(message.subject), text: `\n\n${forwarded(message)}\n${text}` };
-  const { to, cc } = answerAddresses(mode === "replyAll", box, message, body?.replyTo.length ? body.replyTo : null);
-  return { to: to.map(show).join(", "), cc: cc.map(show).join(", "), subject: replySubject(message.subject), text: `\n\n${quoteText(text, header(message))}` };
-}
-
-/** Who an answer goes to: the sender (or their Reply-To), or one's own recipients; reply-all copies the others. */
-function answerAddresses(all: boolean, box: MailboxTabView, message: MailMessageView, replyTo: MailAddress[] | null) {
-  const mine = message.from.address === box.address;
-  const to = mine ? message.to : (replyTo ?? [message.from]);
-  const taken = new Set([box.address, ...to.map((a) => a.address)]);
-  const cc = all ? [...message.to, ...message.cc].filter((a) => !taken.has(a.address) && (taken.add(a.address), true)) : [];
-  return { to, cc };
-}
-
-/** Whether reply-all would write to anyone a reply doesn't: only then is it offered. */
-export const replyAllAdds = (box: MailboxTabView, message: MailMessageView) => answerAddresses(true, box, message, null).cc.length > 0;
+/** A new message left unsent (the pane closed, another thread opened): it comes back as it was, until sent or discarded. */
+type Kept = { fromId: string; to: Recipient[]; cc: Recipient[]; bcc: Recipient[]; subject: string; html: string; files: File[] };
+let kept: Kept | null = null;
 
 /**
- * Writes a message from the open mailbox: a new one, or an answer or forward of `source` (the
- * server adds the thread's references, and a forward's files). Sends with ⌘/Ctrl+Enter.
+ * Writes a message: a new one in the page's pane (`layout` "pane", from any of the person's
+ * mailboxes), or an answer or forward of `source` under its thread (the server adds the thread's
+ * references, and a forward's files). Formatting is the editor's (mail-editor.tsx); sends with
+ * ⌘/Ctrl+Enter; files come from the button or dropped on it.
  */
 export function Composer({
   box,
+  boxes = [box],
   mode,
   source,
+  layout,
   onSent,
-  onCancel,
-  autoFocus = true,
-  className,
+  onClose,
 }: {
   box: MailboxTabView;
+  boxes?: MailboxTabView[];
   mode: ComposeMode;
   source: ComposeSource | null;
+  layout: "pane" | "inline";
   onSent: () => void;
-  onCancel: () => void;
-  autoFocus?: boolean;
-  className?: string;
+  onClose: () => void;
 }) {
   const t = useTranslations("mail.composer");
   const locale = useLocale();
   const when = (iso: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
-  const [initial] = useState(() =>
-    startFrom(
+  const keeps = mode === "new";
+  const [initial] = useState(() => {
+    if (keeps && kept) return { ...kept, from: boxes.find((b) => b.id === kept!.fromId) ?? box, restored: true };
+    const start = startFrom(
       mode,
       box,
       source,
       (m) => t("replyHeader", { date: when(m.sentAt), name: m.from.name || m.from.address }),
-      (m) =>
-        [
-          t("forwardedHeader"),
-          `${t("from")}: ${show(m.from)}`,
-          `${t("date")}: ${when(m.sentAt)}`,
-          `${t("subject")}: ${m.subject}`,
-          `${t("to")}: ${m.to.map(show).join(", ")}`,
-          "",
-        ].join("\n"),
-    ),
-  );
+      (m: MailMessageView) => [
+        t("forwardedHeader"),
+        `${t("from")}: ${showAddress(m.from)}`,
+        `${t("date")}: ${when(m.sentAt)}`,
+        `${t("subject")}: ${m.subject}`,
+        `${t("to")}: ${m.to.map(showAddress).join(", ")}`,
+      ],
+    );
+    return { ...start, from: box, bcc: [] as Recipient[], files: [] as File[], restored: false };
+  });
+  const [from, setFrom] = useState(initial.from);
   const [to, setTo] = useState(initial.to);
   const [cc, setCc] = useState(initial.cc);
-  const [bcc, setBcc] = useState("");
-  const [showCc, setShowCc] = useState(!!initial.cc);
-  const [showBcc, setShowBcc] = useState(false);
+  const [bcc, setBcc] = useState(initial.bcc);
+  const [showCc, setShowCc] = useState(initial.cc.length > 0);
+  const [showBcc, setShowBcc] = useState(initial.bcc.length > 0);
   const [subject, setSubject] = useState(initial.subject);
-  const [text, setText] = useState(initial.text);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState(initial.files);
+  const [written, setWritten] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [dropping, setDropping] = useState(false);
+  const typed = useRef({ to: "", cc: "", bcc: "" });
+  const html = useRef(initial.html);
   const fileInput = useRef<HTMLInputElement>(null);
-  const body = useRef<HTMLTextAreaElement>(null);
   const toInput = useRef<HTMLInputElement>(null);
+  const answering = mode === "reply" || mode === "replyAll";
+  const { editor, linking, setLinking } = useMailEditor({
+    html: initial.html,
+    placeholder: t("placeholder"),
+    label: t("body"),
+    autofocus: answering ? "start" : false,
+    onChange: (e: Editor) => {
+      html.current = e.getHTML();
+      setWritten(true);
+    },
+  });
 
   useEffect(() => {
-    if (!autoFocus) return;
-    if (mode === "reply" || mode === "replyAll") {
-      body.current?.focus();
-      body.current?.setSelectionRange(0, 0);
-    } else toInput.current?.focus();
-  }, [autoFocus, mode]);
+    if (!answering) toInput.current?.focus();
+  }, [answering]);
+
+  // What is written is kept as it changes, and dropped once sent or discarded.
+  const done = useRef(false);
+  const snapshot = useRef<Kept | null>(null);
+  const touched = written || to !== initial.to || cc !== initial.cc || bcc !== initial.bcc || subject !== initial.subject || files !== initial.files || from !== initial.from;
+  snapshot.current = keeps && (touched || initial.restored) ? { fromId: from.id, to, cc, bcc, subject, html: html.current, files } : null;
+  useEffect(
+    () => () => {
+      if (keeps) kept = done.current ? null : snapshot.current;
+    },
+    [keeps],
+  );
+  const finish = (then: () => void) => {
+    done.current = true;
+    if (keeps) kept = null;
+    then();
+  };
 
   async function send() {
     if (sending) return;
-    const fields = [parseAddresses(to), parseAddresses(cc), parseAddresses(bcc)];
-    const bad = fields.flatMap((f) => f.bad);
-    if (bad.length) return setError(t("badAddress", { addresses: bad.join(", ") }));
-    if (!fields.some((f) => f.good.length)) return setError(t("needRecipient"));
+    const fields = [to, cc, bcc].map((list, i) => {
+      const text = typed.current[(["to", "cc", "bcc"] as const)[i]];
+      return [...list, ...splitAddresses(text).map(parseRecipient)];
+    });
+    const bad = fields.flat().filter((r) => r.bad);
+    if (bad.length) return setError(t("badAddress", { addresses: bad.map((r) => r.address).join(", ") }));
+    if (!fields.some((f) => f.length)) return setError(t("needRecipient"));
     if (files.reduce((n, f) => n + f.size, 0) > MAX_COMPOSE_BYTES) return setError(t("tooLarge", { size: `${MAX_COMPOSE_BYTES / 1024 / 1024} MB` }));
     setError(null);
     setSending(true);
@@ -146,13 +126,13 @@ export function Composer({
     form.set(
       "draft",
       JSON.stringify({
-        mailboxId: box.id,
-        to: fields[0].good,
-        cc: fields[1].good,
-        bcc: fields[2].good,
+        mailboxId: from.id,
+        to: fields[0].map((r) => r.address),
+        cc: fields[1].map((r) => r.address),
+        bcc: fields[2].map((r) => r.address),
         subject,
-        text,
-        replyTo: mode === "reply" || mode === "replyAll" ? source?.message.id : null,
+        html: editor?.isEmpty ? "" : (editor?.getHTML() ?? html.current),
+        replyTo: answering ? source?.message.id : null,
         forward: mode === "forward" ? source?.message.id : null,
       }),
     );
@@ -161,102 +141,188 @@ export function Composer({
     setSending(false);
     if (!result?.ok) return setError(result?.error ?? t("failed"));
     showToast({ message: t("sent") });
-    onSent();
+    finish(onSent);
   }
 
-  const touched = to !== initial.to || cc !== initial.cc || !!bcc || subject !== initial.subject || text !== initial.text || files.length > 0;
-  const field = "min-w-0 flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-fg-faint";
+  const pane = layout === "pane";
+  const addFiles = (list: FileList | null | undefined) => setFiles((now) => [...now, ...Array.from(list ?? [])]);
+  const ccToggles = (
+    <span className="flex shrink-0 gap-1 pt-1">
+      {!showCc && (
+        <button type="button" className="rounded px-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg" onClick={() => setShowCc(true)}>
+          {t("cc")}
+        </button>
+      )}
+      {!showBcc && (
+        <button type="button" className="rounded px-1 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg" onClick={() => setShowBcc(true)}>
+          {t("bcc")}
+        </button>
+      )}
+    </span>
+  );
+
+  const fields = (
+    <div className={cn("divide-y divide-border border-b border-border", !pane && "px-3")}>
+      {pane && boxes.length > 1 && (
+        <div className="flex min-h-10 items-center gap-2 py-1.5">
+          <span className="w-16 shrink-0 text-sm text-fg-muted">{t("from")}</span>
+          <Popover
+            wrapperClassName="min-w-0"
+            trigger={({ toggle }) => (
+              <button type="button" onClick={toggle} className="inline-flex h-7 max-w-full min-w-0 items-center gap-2 rounded-md px-1.5 text-sm hover:bg-bg-hover">
+                <MailboxMark address={from.address} className="h-4 w-4 text-[10px]" />
+                <span className="truncate">{from.displayName ? `${from.displayName} <${from.address}>` : from.address}</span>
+                <ChevronDown className="h-3.5 w-3.5 shrink-0 text-fg-icon" />
+              </button>
+            )}
+          >
+            {(close) =>
+              boxes.map((b) => (
+                <MenuItem
+                  key={b.id}
+                  icon={<MailboxMark address={b.address} className="h-4 w-4 text-[10px]" />}
+                  trailing={b.id === from.id ? <Check className="h-3.5 w-3.5" /> : undefined}
+                  onClick={() => {
+                    setFrom(b);
+                    close();
+                  }}
+                >
+                  {b.address}
+                </MenuItem>
+              ))
+            }
+          </Popover>
+        </div>
+      )}
+      <RecipientField label={t("to")} values={to} onChange={setTo} onTyped={(v) => (typed.current.to = v)} mailboxId={from.id} inputRef={toInput} trailing={ccToggles} />
+      {showCc && <RecipientField label={t("cc")} values={cc} onChange={setCc} onTyped={(v) => (typed.current.cc = v)} mailboxId={from.id} />}
+      {showBcc && <RecipientField label={t("bcc")} values={bcc} onChange={setBcc} onTyped={(v) => (typed.current.bcc = v)} mailboxId={from.id} />}
+      {(pane || mode === "forward") && (
+        <label className="flex min-h-10 items-center gap-2">
+          <span className="w-16 shrink-0 text-sm text-fg-muted">{t("subject")}</span>
+          <input value={subject} onChange={(e) => setSubject(e.target.value)} className="h-9 min-w-0 flex-1 bg-transparent text-sm font-medium outline-none" />
+        </label>
+      )}
+    </div>
+  );
+
+  const attached = files.length > 0 && (
+    <ul className={cn("flex flex-wrap gap-2 pb-3", !pane && "px-3")}>
+      {files.map((file, i) => (
+        <li key={`${file.name}-${i}`} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-bg-subtle ps-2 pe-1 text-sm">
+          <Paperclip className="h-3.5 w-3.5 text-fg-icon" />
+          <span className="max-w-48 truncate">{file.name}</span>
+          <span className="text-xs text-fg-faint">{Math.max(1, Math.round(file.size / 1024))} KB</span>
+          <IconButton label={t("removeFile", { name: file.name })} onClick={() => setFiles(files.filter((_, j) => j !== i))}>
+            <X className="h-3.5 w-3.5" />
+          </IconButton>
+        </li>
+      ))}
+    </ul>
+  );
+
+  const footer = (
+    <div className={cn("flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-border py-2", pane ? "px-4" : "px-3")}>
+      <Button variant="primary" onClick={() => void send()} disabled={sending} title={t("sendHint")}>
+        <Send className="h-4 w-4" />
+        {sending ? t("sending") : t("send")}
+      </Button>
+      {/* On a phone the formatting takes a line of its own under Send. */}
+      {editor && (
+        <div className="max-sm:order-last max-sm:w-full">
+          <FormatBar editor={editor} linking={linking} setLinking={setLinking} />
+        </div>
+      )}
+      <span className="flex-1" />
+      <IconButton label={t("attach")} className="h-8 w-8 text-fg-icon" onClick={() => fileInput.current?.click()}>
+        <Paperclip className="h-4 w-4" />
+      </IconButton>
+      <IconButton label={t("discard")} className="h-8 w-8 text-fg-icon" onClick={() => finish(onClose)} disabled={sending}>
+        <Trash2 className="h-4 w-4" />
+      </IconButton>
+      <input
+        ref={fileInput}
+        type="file"
+        multiple
+        hidden
+        onChange={(e) => {
+          addFiles(e.target.files);
+          e.target.value = "";
+        }}
+      />
+    </div>
+  );
+
   return (
     <div
-      className={cn("flex flex-col rounded-lg border border-border bg-bg", className)}
+      className={cn(
+        "relative flex flex-col bg-bg",
+        pane ? "min-h-0 min-w-0 flex-1" : "rounded-lg border border-border shadow-[0_1px_2px_rgb(0_0_0/0.05)]",
+      )}
       onKeyDown={(e) => {
         if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
           e.preventDefault();
           void send();
         }
-        // Escape closes only what has nothing written in it yet; Discard throws away the rest.
-        if (e.key === "Escape") {
+        // Escape closes only what has nothing written in it yet; the bin throws away the rest.
+        if (e.key === "Escape" && !e.defaultPrevented) {
           e.stopPropagation();
-          if (!sending && !touched) onCancel();
+          if (!sending && !touched) onClose();
         }
       }}
+      onDragOverCapture={(e) => {
+        if (!e.dataTransfer.types.includes("Files")) return;
+        e.preventDefault();
+        setDropping(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropping(false);
+      }}
+      onDropCapture={(e) => {
+        if (!e.dataTransfer.files.length) return;
+        e.preventDefault();
+        e.stopPropagation();
+        setDropping(false);
+        addFiles(e.dataTransfer.files);
+      }}
     >
-      <div className="divide-y divide-border border-b border-border px-3">
-        <label className="flex items-center gap-2">
-          <span className="w-12 shrink-0 text-sm text-fg-muted">{t("to")}</span>
-          <input ref={toInput} value={to} onChange={(e) => setTo(e.target.value)} className={field} placeholder={t("toPlaceholder")} autoComplete="email" />
-          {!showCc && (
-            <button type="button" className="text-xs text-fg-muted hover:text-fg" onClick={() => setShowCc(true)}>
-              {t("cc")}
-            </button>
-          )}
-          {!showBcc && (
-            <button type="button" className="text-xs text-fg-muted hover:text-fg" onClick={() => setShowBcc(true)}>
-              {t("bcc")}
-            </button>
-          )}
-        </label>
-        {showCc && (
-          <label className="flex items-center gap-2">
-            <span className="w-12 shrink-0 text-sm text-fg-muted">{t("cc")}</span>
-            <input value={cc} onChange={(e) => setCc(e.target.value)} className={field} />
-          </label>
-        )}
-        {showBcc && (
-          <label className="flex items-center gap-2">
-            <span className="w-12 shrink-0 text-sm text-fg-muted">{t("bcc")}</span>
-            <input value={bcc} onChange={(e) => setBcc(e.target.value)} className={field} />
-          </label>
-        )}
-        <label className="flex items-center gap-2">
-          <span className="w-12 shrink-0 text-sm text-fg-muted">{t("subject")}</span>
-          <input value={subject} onChange={(e) => setSubject(e.target.value)} className={field} />
-        </label>
-      </div>
-      <textarea
-        ref={body}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        aria-label={t("body")}
-        className={cn(textareaClass, "min-h-48 resize-y rounded-none border-0 px-3 py-2.5 text-sm leading-relaxed focus:border-0")}
-      />
-      {files.length > 0 && (
-        <ul className="flex flex-wrap gap-2 px-3 pb-2">
-          {files.map((file, i) => (
-            <li key={`${file.name}-${i}`} className="inline-flex items-center gap-1.5 rounded-md border border-border py-1 ps-2 pe-1 text-sm">
-              <Paperclip className="h-3.5 w-3.5 text-fg-icon" />
-              <span className="max-w-48 truncate">{file.name}</span>
-              <IconButton label={t("removeFile", { name: file.name })} onClick={() => setFiles(files.filter((_, j) => j !== i))}>
-                <X className="h-3.5 w-3.5" />
-              </IconButton>
-            </li>
-          ))}
-        </ul>
+      {pane && (
+        <div className="flex h-12 shrink-0 items-center gap-1 border-b border-border px-3">
+          <IconButton label={t("close")} className="h-8 w-8 md:hidden" onClick={onClose}>
+            <ChevronLeft className="h-4 w-4" />
+          </IconButton>
+          <h1 className="min-w-0 flex-1 truncate ps-1 text-sm font-medium">{subject.trim() || t("newTitle")}</h1>
+          <IconButton label={t("close")} className="h-8 w-8 text-fg-icon max-md:hidden" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </IconButton>
+        </div>
       )}
-      {error && <p className="px-3 pb-2 text-sm text-danger">{error}</p>}
-      <div className="flex items-center gap-2 border-t border-border px-3 py-2">
-        <Button variant="primary" onClick={() => void send()} disabled={sending}>
-          <Send className="h-4 w-4" />
-          {sending ? t("sending") : t("send")}
-        </Button>
-        <IconButton label={t("attach")} className="h-8 w-8" onClick={() => fileInput.current?.click()}>
-          <Paperclip className="h-4 w-4" />
-        </IconButton>
-        <input
-          ref={fileInput}
-          type="file"
-          multiple
-          hidden
-          onChange={(e) => {
-            setFiles([...files, ...Array.from(e.target.files ?? [])]);
-            e.target.value = "";
-          }}
-        />
-        <span className="flex-1 text-xs text-fg-faint">{t("sendHint")}</span>
-        <Button onClick={onCancel} disabled={sending}>
-          {t("discard")}
-        </Button>
-      </div>
+      {pane ? (
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto flex min-h-full max-w-3xl flex-col px-6">
+            {fields}
+            <div className="flex flex-1 cursor-text flex-col py-4" onMouseDown={(e) => e.target === e.currentTarget && (e.preventDefault(), editor?.commands.focus("end"))}>
+              <MailEditorContent editor={editor} className="flex flex-1 flex-col [&_.ProseMirror]:flex-1" />
+            </div>
+            {attached}
+          </div>
+        </div>
+      ) : (
+        <>
+          {fields}
+          <div className="px-3 py-3">
+            <MailEditorContent editor={editor} className="[&_.ProseMirror]:min-h-32" />
+          </div>
+          {attached}
+        </>
+      )}
+      {error && <p className={cn("pb-2 text-sm text-danger", pane ? "mx-auto w-full max-w-3xl px-6" : "px-3")}>{error}</p>}
+      {footer}
+      {dropping && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] border-2 border-dashed border-accent bg-bg/80 text-sm font-medium text-accent">
+          {t("dropFiles")}
+        </div>
+      )}
     </div>
   );
 }

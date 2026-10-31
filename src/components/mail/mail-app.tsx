@@ -9,21 +9,20 @@ import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { showToast } from "@/components/toast";
-import { cn, Dialog, DialogHeader, IconButton } from "@/components/ui";
+import { cn, IconButton } from "@/components/ui";
 import { MAIL_UNDO_SECONDS, type MailAction, type MailThreadItem } from "@/lib/mail-client";
-import type { ComposeMode } from "./composer";
+import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen } from "./mail-store";
 import { useFolderName } from "./mail-sidebar";
 
 // The open thread and a new message load the first time they show.
 const ThreadView = lazyPart(() => import("./thread-view").then((m) => m.ThreadView), <div className="min-w-0 flex-1" />);
-const Composer = lazyPart(() => import("./composer").then((m) => m.Composer));
+const Composer = lazyPart(() => import("./composer").then((m) => m.Composer), <div className="min-w-0 flex-1" />);
 
 /** How often the open folder asks the mail server for new mail while the page is in front. */
 const REFRESH_MS = 60_000;
 const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "delete"];
-const keepOpen = () => {};
 /** Messages shown in the list are loaded ahead from the top, at most this many. */
 const AHEAD_TOP = 8;
 const aheadOf = (item: MailThreadItem) => loadAhead([item.messageId]);
@@ -106,11 +105,12 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   // A thread is opened soon after the list shows: its code starts loading now.
   useEffect(() => void ThreadView.preload(), []);
   const threadId = search.get("t");
+  // A new message is written in the pane where a thread shows (?c=new), so Back closes it.
+  const composing = search.get("c") === "new";
   const query = search.get("q") ?? "";
   const [typed, setTyped] = useState(query);
   const [list, setList] = useState<List>({ items: [], next: null, loading: true, error: null });
   const [compose, setCompose] = useState<ComposeMode | null>(null);
-  const [composeNew, setComposeNew] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const searchBox = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -124,7 +124,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   }, [shownKey]);
 
   const go = useCallback(
-    (open: { box?: string | null; f?: string | null; t?: string | null; q?: string | null }, replace = false) => {
+    (open: { box?: string | null; f?: string | null; t?: string | null; q?: string | null; c?: string | null }, replace = false) => {
       const href = mailHref(workspaceId, { box: box?.id, f: folder?.id, t: threadId, q: query || null, ...open });
       // Only the address changes: the page is the same, so the server isn't asked for it again.
       if (replace) window.history.replaceState(null, "", href);
@@ -220,7 +220,11 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     };
   }, []);
 
-  useEffect(() => onCompose(() => setComposeNew(true)), []);
+  const goRef = useRef(go);
+  useEffect(() => {
+    goRef.current = go;
+  }, [go]);
+  useEffect(() => onCompose(() => goRef.current({ c: "new" })), []);
   useEffect(() => setTyped(query), [query]);
 
   const items = list.items;
@@ -314,7 +318,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   // u unread, r/a/f reply/all/forward, Esc back to the list.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (!forPage(e) || composeNew) return;
+      if (!forPage(e) || composing) return;
       const at = items.findIndex((i) => i.threadId === threadId);
       const current = at >= 0 ? items[at] : null;
       const move = (to: number) => {
@@ -325,7 +329,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
       };
       // Only keys that do something here are taken from the browser: Enter on a focused button stays its own.
       const keys: Record<string, () => void> = {
-        c: () => setComposeNew(true),
+        c: () => go({ c: "new" }),
         "/": () => searchBox.current?.focus(),
         j: () => move(at + 1),
         k: () => move(at < 0 ? 0 : at - 1),
@@ -356,7 +360,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [items, threadId, folder?.role, act, openThread, go, composeNew]);
+  }, [items, threadId, folder?.role, act, openThread, go, composing]);
 
   // Search as typed, a moment after the last key.
   useEffect(() => {
@@ -393,7 +397,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const name = folderName(folder);
   return (
     <div className="flex h-full min-h-0">
-      <section className={cn("flex w-full min-w-0 shrink-0 flex-col border-e border-border md:w-[400px]", threadId && "hidden md:flex")} aria-label={name}>
+      <section className={cn("flex w-full min-w-0 shrink-0 flex-col border-e border-border md:w-[400px]", (threadId || composing) && "hidden md:flex")} aria-label={name}>
         <div className="shrink-0 space-y-2 border-b border-border px-4 pt-3 pb-3">
           <div className="flex items-center gap-2">
             <SidebarOpenButton className="-ms-1.5 max-md:-ms-2" />
@@ -469,7 +473,20 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
           )}
         </div>
       </section>
-      {threadId ? (
+      {composing ? (
+        <Composer
+          box={box}
+          boxes={boxes}
+          mode="new"
+          source={null}
+          layout="pane"
+          onClose={() => go({ c: null })}
+          onSent={() => {
+            go({ c: null });
+            if (folder.role === "sent") void loadPage(null);
+          }}
+        />
+      ) : threadId ? (
         <ThreadView
           key={threadId}
           workspaceId={workspaceId}
@@ -491,11 +508,6 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
       ) : (
         <div className="hidden min-w-0 flex-1 items-center justify-center text-sm text-fg-faint md:flex">{t("noneOpen")}</div>
       )}
-      {/* A click beside it or Escape doesn't throw a written message away: Discard and the close button do (Escape closes an empty one, Composer). */}
-      <Dialog open={composeNew} onClose={keepOpen} className="max-w-2xl">
-        <DialogHeader title={t("composer.newTitle")} onClose={() => setComposeNew(false)} closeLabel={t("composer.discard")} />
-        <Composer box={box} mode="new" source={null} className="rounded-none border-0" onCancel={() => setComposeNew(false)} onSent={() => setComposeNew(false)} />
-      </Dialog>
     </div>
   );
 }

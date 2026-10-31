@@ -2,9 +2,10 @@
 
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import type { MailAction, MailBody, MailboxTabView, MailDraftInput, MailFolderView, MailThreadPage, MailThreadView } from "@/lib/mail-client";
+import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailFolderView, MailThreadPage, MailThreadView } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
 import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, readBody, refreshFolder, refreshMailbox } from "@/server/mail-client/read";
+import { suggestAddresses } from "@/server/mail-client/contacts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
 import { mailAction, sendMail } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
@@ -57,6 +58,11 @@ export async function readBodyAction(input: { id: string; images?: boolean }): P
 
 export async function prefetchBodiesAction(input: { ids: string[] }): Promise<ActionResult<null>> {
   return run((userId) => prefetchBodies(userId, input));
+}
+
+/** The addresses a recipient field suggests for what is typed in it. */
+export async function suggestAddressesAction(input: { mailboxId: string; query: string }): Promise<ActionResult<MailAddress[]>> {
+  return run((userId) => suggestAddresses(userId, input));
 }
 
 /** Always loads images in mail from this sender to the mailbox. */

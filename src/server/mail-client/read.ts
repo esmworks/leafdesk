@@ -64,6 +64,8 @@ function tabView(box: Box, folders: FolderRow[] | null): MailboxTabView {
   };
 }
 
+const firstReads = ((globalThis as typeof globalThis & { __leafdeskMailFirstReads?: Map<string, Promise<void>> }).__leafdeskMailFirstReads ??= new Map<string, Promise<void>>());
+
 /** The person's mailboxes in the workspace, their default first, with their folders once read. */
 export async function listMailboxes(userId: string, workspaceId: string): Promise<MailboxTabView[]> {
   await requireMailIn(userId, workspaceId);
@@ -84,23 +86,41 @@ export async function listMailboxes(userId: string, workspaceId: string): Promis
     );
   return boxes.map((box) => {
     const own = folders.filter((f) => f.mailboxId === box.id);
-    return tabView(box, own.length ? own : null);
+    // A mailbox not read yet is read now, in the background: the sidebar then shows its unread
+    // mail and opening it is quick. A failing one waits for the minute's read to reach it again.
+    if (!own.length && box.status !== "error") void firstRead(box, "background").catch((error) => console.warn(`[mail-client] could not read mailbox ${box.id}: ${(error as Error)?.message}`));
+    // Until that read ends its folders are there but its inbox isn't yet: it shows as not read.
+    return tabView(box, own.length && !firstReads.has(box.id) ? own : null);
   });
 }
 
 /**
- * Opens a mailbox in the Mail tab: the first time, reads its folders and the newest of its inbox,
- * after which the minute sweep (row-mail/sync.ts) keeps it and reads further back.
+ * Reads a mailbox's folders and the newest of its inbox, once: after it the minute sweep
+ * (row-mail/sync.ts) keeps it and reads further back. A read already under way is waited for.
  */
+function firstRead(box: Box, lane: ImapLane) {
+  const running = firstReads.get(box.id);
+  if (running) return running;
+  const done = (async () => {
+    if (await isIndexed(box.id)) return;
+    await withImap(
+      box,
+      async (client) => {
+        const folders = await discoverFolders(client, box);
+        const inbox = folders.find((f) => f.role === "inbox");
+        if (inbox) await indexFolder(client, box, inbox, MAIL_PAGE);
+      },
+      lane,
+    );
+  })().finally(() => firstReads.delete(box.id));
+  firstReads.set(box.id, done);
+  return done;
+}
+
+/** Opens a mailbox in the Mail tab: the first time, after its first read (firstRead). */
 export async function openMailbox(userId: string, mailboxId: string): Promise<MailboxTabView> {
   const box = await requireOwnMailbox(userId, mailboxId);
-  if (!(await isIndexed(box.id))) {
-    await withImap(box, async (client) => {
-      const folders = await discoverFolders(client, box);
-      const inbox = folders.find((f) => f.role === "inbox");
-      if (inbox) await indexFolder(client, box, inbox, MAIL_PAGE);
-    });
-  }
+  await firstRead(box, "open");
   const folders = await db.select().from(mailFolder).where(eq(mailFolder.mailboxId, box.id));
   return tabView(box, folders);
 }

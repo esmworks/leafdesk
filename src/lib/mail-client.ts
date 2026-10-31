@@ -30,6 +30,8 @@ export const MAIL_UNDO_SECONDS = 5;
 export const MAX_MAIL_RECIPIENTS = 100;
 /** Attachments a message from the Mail tab may bring, together. */
 export const MAX_COMPOSE_BYTES = 20 * 1024 * 1024;
+/** The HTML a message from the Mail tab may have, before it is cleaned. */
+export const MAX_MAIL_HTML = 1_000_000;
 
 /** A folder as the server lists it (imapflow's ListResponse, the parts that count here). */
 export type ListedMailFolder = { path: string; name: string; delimiter?: string | null; parent: string[]; flags: Set<string>; specialUse?: string | null };
@@ -269,7 +271,9 @@ export type MailDraftInput = {
   cc: string[];
   bcc: string[];
   subject: string;
-  text: string;
+  /** What the editor wrote (server/mail-client/outgoing.ts keeps its formatting); `text` without it. */
+  html?: string;
+  text?: string;
   /** The opened message this answers or forwards, by its id in the index. */
   replyTo?: string | null;
   forward?: string | null;

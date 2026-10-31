@@ -113,8 +113,13 @@ import { gzipSync } from "node:zlib";
  * Agenda views (their icon and name in the view menus, their settings' checks and what loads the
  * view and its setup dialog when shown) add about 0.4 kB to a page's first load and about 1 kB to
  * all first loads together; the view, its setup dialog and settings load when shown.
+ *
+ * The Mail tab's editor loads with the composer, but it is built on the same TipTap modules as the
+ * page editor, and what it uses of them that the page editor doesn't (the shared module carries
+ * both) adds about 3 kB to a page's first load and to all first loads together. It is bound to
+ * React without TipTap's React package, which would add about 2 kB more.
  */
-const BUDGET = { routeFirstLoad: 789, firstLoadShared: 1209, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1213, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

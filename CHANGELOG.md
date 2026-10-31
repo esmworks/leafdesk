@@ -15,16 +15,21 @@
   MCP tool list's budget goes from 168.5 to 168.7 KB for them. No migration.
 
 - **A Mail tab for members' own mail.** A member with a mailbox in the workspace gets a Mail tab
-  in the sidebar's tab strip: their mailboxes and folders with unread counts, a folder's threads
-  beside the open one, HTML mail shown cleaned with images from other sites held back, files,
-  reply, reply all, forward and new messages, archive, junk, trash and star with a 5-second undo,
+  in the sidebar's tab strip: their mailboxes and folders with unread counts (every mailbox is
+  read in the background once Mail lists it, so the others count too), a folder's threads beside
+  the open one, HTML mail shown cleaned with images from other sites held back, files, reply,
+  reply all, forward and new messages, written in the page's pane with bold, italic, underline,
+  lists, quotes and links, sent as HTML with a plain-text part, from any of the member's mailboxes,
+  with addresses suggested from the mail they sent and received and the draft kept while they look
+  at other mail; archive, junk, trash and star with a 5-second undo,
   search with `from:`, `is:unread`, `has:attachment` and the like, and keyboard shortcuts. Only
   headers and first lines are kept, 90 days back; messages are read from the mail server when
   opened, or ahead for the first threads and those beside the open one, and held in memory a few
   minutes, so most open at once. Images a person showed in a message show again when it opens,
   and always for senders they pick (*Always show from this sender*, listed under Account › Email
   and calendar) and for mail from their mailbox's own domain, unless the sender failed DMARC. Only
-  the mailbox's owner sees it. Migrations 0164 and 0165.
+  the mailbox's owner sees it. Migrations 0164 and 0165; new dependencies `@tiptap/starter-kit`
+  and `@tiptap/extensions`.
 
 - **Word export, and Word and Excel files from the AI chat.** "Export as Word" in the page menu
   downloads a page or row as a .docx file meant for further editing, with the PDF export's choices

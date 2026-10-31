@@ -4,11 +4,12 @@ import MailComposer from "nodemailer/lib/mail-composer";
 import { db } from "@/db";
 import { mailFolder, mailMessage, user, type mailbox } from "@/db/schema";
 import { MAX_MAIL_TEXT, MAX_SENDS_PER_HOUR, normalizeAddress } from "@/lib/mail";
-import { MAX_COMPOSE_BYTES, MAX_MAIL_RECIPIENTS, type MailAction, type MailDraftInput } from "@/lib/mail-client";
+import { MAX_COMPOSE_BYTES, MAX_MAIL_HTML, MAX_MAIL_RECIPIENTS, type MailAction, type MailDraftInput } from "@/lib/mail-client";
 import { RowMailError } from "@/server/row-mail/settings";
 import { connectError } from "@/server/row-mail/connect";
 import { keepSent, SAVES_SENT, sendRaw } from "@/server/row-mail/send";
 import { requireOwnMailbox } from "./access";
+import { outgoingBody } from "./outgoing";
 import { withImap } from "./pool";
 import { decodeTransfer, messageParts, readPart } from "./structure";
 
@@ -168,7 +169,10 @@ export async function sendMail(userId: string, draft: MailDraftInput, files: Fil
   const cc = addresses(draft.cc ?? []).filter((a) => !to.includes(a));
   const bcc = addresses(draft.bcc ?? []).filter((a) => !to.includes(a) && !cc.includes(a));
   const subject = typeof draft.subject === "string" ? draft.subject.replace(/[\r\n]+/g, " ").trim().slice(0, 900) : "";
-  const text = typeof draft.text === "string" ? draft.text.replace(/\r\n/g, "\n") : "";
+  // What the editor wrote, as HTML, with its plain-text part written from it; else plain text alone.
+  const written = typeof draft.html === "string" && draft.html.length <= MAX_MAIL_HTML ? await outgoingBody(draft.html) : null;
+  if (typeof draft.html === "string" && !written) throw new RowMailError("invalid");
+  const text = written ? written.text : typeof draft.text === "string" ? draft.text.replace(/\r\n/g, "\n") : "";
   const recipients = [...to, ...cc, ...bcc];
   if (!recipients.length || recipients.length > MAX_MAIL_RECIPIENTS || text.length > MAX_MAIL_TEXT || (!subject && !text.trim())) throw new RowMailError("invalid");
   if (!Array.isArray(files) || files.length > 20 || files.some((f) => !(f instanceof File))) throw new RowMailError("invalid");
@@ -229,6 +233,7 @@ export async function sendMail(userId: string, draft: MailDraftInput, files: Fil
     bcc: bcc.length ? bcc : undefined,
     subject,
     text,
+    html: written?.html,
     messageId: `<${messageId}>`,
     inReplyTo: answers ? `<${answers.messageId}>` : undefined,
     references: references.length ? references.map((id) => `<${id}>`) : undefined,

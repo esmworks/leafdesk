@@ -8,7 +8,7 @@ import type { MailboxTabView, MailFolderView } from "@/lib/mail-client";
 /**
  * The person's mailboxes and folders in the workspace, shared by the sidebar's Mail tab and the
  * Mail page: one read, and the unread counts both show change together as mail is read.
- * What is open (mailbox, folder, thread) is in the address: `?box=&f=&t=` (mailHref).
+ * What is open (mailbox, folder, thread, a new message) is in the address: `?box=&f=&t=&c=` (mailHref).
  */
 
 type State = { workspaceId: string | null; boxes: MailboxTabView[] | null; error: string | null };
@@ -39,6 +39,7 @@ export function loadMailboxes(workspaceId: string) {
     .then((result) => {
       if (state.workspaceId !== workspaceId) return;
       set(result.ok ? { boxes: result.data, error: null } : { error: result.error });
+      if (result.ok) askAgainWhileReading(workspaceId, result.data);
     })
     .catch(() => {
       if (state.workspaceId === workspaceId) set({ error: OFFLINE });
@@ -48,6 +49,21 @@ export function loadMailboxes(workspaceId: string) {
     });
   loading = { workspaceId, done };
   return done;
+}
+
+// Mailboxes not read yet are read on the server as they are listed (read.ts listMailboxes): the
+// list is asked for again until their folders are there, for a minute or so at most.
+const READ_AGAIN_MS = 4000;
+let readTries = 0;
+function askAgainWhileReading(workspaceId: string, boxes: MailboxTabView[]) {
+  if (!boxes.some((b) => !b.folders && b.status !== "error") || readTries >= 15) {
+    readTries = 0;
+    return;
+  }
+  readTries++;
+  setTimeout(() => {
+    if (state.workspaceId === workspaceId) void loadMailboxes(workspaceId);
+  }, READ_AGAIN_MS);
 }
 
 export function useMailboxes(workspaceId: string) {
@@ -104,12 +120,13 @@ export function stayInMail(e: { metaKey: boolean; ctrlKey: boolean; shiftKey: bo
   window.history.pushState(null, "", href);
 }
 
-export function mailHref(workspaceId: string, open: { box?: string | null; f?: string | null; t?: string | null; q?: string | null } = {}) {
+export function mailHref(workspaceId: string, open: { box?: string | null; f?: string | null; t?: string | null; q?: string | null; c?: string | null } = {}) {
   const params = new URLSearchParams();
   if (open.box) params.set("box", open.box);
   if (open.f) params.set("f", open.f);
   if (open.t) params.set("t", open.t);
   if (open.q) params.set("q", open.q);
+  if (open.c) params.set("c", open.c);
   const query = params.toString();
   return `/w/${workspaceId}/mail${query ? `?${query}` : ""}`;
 }
