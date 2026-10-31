@@ -46,7 +46,7 @@
       "watchedPages": "关注 订阅 关注页面",
       "offlineDevice": "离线 下载 缓存 空间",
       "offlinePages": "离线 下载 无网络",
-      "mailboxes": "邮件 收件箱 imap smtp",
+      "mailboxes": "邮件 收件箱 imap smtp 签名",
       "imageSenders": "图片 照片 受信任的发件人 邮件",
       "calendars": "ical 订阅源 订阅 日历",
       "storageAccounts": "drive s3 文件 云",

@@ -61,6 +61,7 @@ function tabView(box: Box, folders: FolderRow[] | null): MailboxTabView {
     statusError: box.statusError,
     folders: folders ? orderFolders(folders).map(folderView) : null,
     syncedAt: box.syncedAt?.toISOString() ?? null,
+    signature: box.signature,
   };
 }
 

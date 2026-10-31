@@ -46,7 +46,7 @@
       "watchedPages": "стежити підписатися відстежувати",
       "offlineDevice": "офлайн завантажити кеш місце",
       "offlinePages": "офлайн завантажити без інтернету",
-      "mailboxes": "пошта вхідні imap smtp",
+      "mailboxes": "пошта вхідні imap smtp підпис",
       "imageSenders": "зображення картинки довірені відправники пошта",
       "calendars": "ical стрічка підписатися календар",
       "storageAccounts": "drive s3 файли хмара",

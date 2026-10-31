@@ -60,15 +60,20 @@ const paragraphs = (lines: string[]) => lines.map((line) => `<p>${escape(line)}<
 
 export type ComposeStart = { to: Recipient[]; cc: Recipient[]; subject: string; html: string };
 
+/** A signature's HTML as the editor reads it into a message (mail-editor.tsx `Signature`). */
+export const signatureBlock = (html: string) => `<div data-signature="">${html}</div>`;
+
 /**
- * What a reply, reply-all or forward starts with: an empty line to write on, then the earlier
- * message, quoted under who wrote it when, or under a forward's header.
+ * What a message starts with: a line to write on, an empty one and the mailbox's signature, then for a
+ * reply, reply-all or forward the earlier message, quoted under who wrote it when, or under a
+ * forward's header.
  */
 export function startFrom(mode: ComposeMode, box: MailboxTabView, source: ComposeSource | null, header: (m: MailMessageView) => string, forwarded: (m: MailMessageView) => string[]): ComposeStart {
-  if (!source || mode === "new") return { to: [], cc: [], subject: "", html: "" };
+  const signature = box.signature ? `<p></p>${signatureBlock(box.signature)}` : "";
+  if (!source || mode === "new") return { to: [], cc: [], subject: "", html: signature && `<p></p>${signature}` };
   const { message, body } = source;
   const lines = (body?.text ?? message.preview).replace(/\r\n/g, "\n").trimEnd().split("\n");
-  if (mode === "forward") return { to: [], cc: [], subject: forwardSubject(message.subject), html: `<p></p>${paragraphs(forwarded(message))}<p></p>${paragraphs(lines)}` };
+  if (mode === "forward") return { to: [], cc: [], subject: forwardSubject(message.subject), html: `<p></p>${signature}${signature && "<p></p>"}${paragraphs(forwarded(message))}<p></p>${paragraphs(lines)}` };
   const { to, cc } = answerAddresses(mode === "replyAll", box, message, body?.replyTo.length ? body.replyTo : null);
-  return { to, cc, subject: replySubject(message.subject), html: `<p></p><p></p><p>${escape(header(message))}</p><blockquote>${paragraphs(lines)}</blockquote>` };
+  return { to, cc, subject: replySubject(message.subject), html: `<p></p>${signature}<p></p><p>${escape(header(message))}</p><blockquote>${paragraphs(lines)}</blockquote>` };
 }

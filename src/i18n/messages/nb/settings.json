@@ -46,7 +46,7 @@
       "watchedPages": "følg abonner overvåk",
       "offlineDevice": "frakoblet nedlasting hurtigbuffer plass offline",
       "offlinePages": "frakoblet nedlasting uten internett offline",
-      "mailboxes": "e-post innboks imap smtp postkasse",
+      "mailboxes": "e-post innboks imap smtp postkasse signatur",
       "imageSenders": "bilder grafikk klarerte avsendere e-post",
       "calendars": "ical feed abonner kalender",
       "storageAccounts": "disk s3 filer sky lagring",

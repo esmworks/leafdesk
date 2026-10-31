@@ -46,7 +46,7 @@
       "watchedPages": "follow subscribe watch",
       "offlineDevice": "offline download cache space",
       "offlinePages": "offline download without internet",
-      "mailboxes": "email inbox imap smtp",
+      "mailboxes": "email inbox imap smtp signature",
       "imageSenders": "images pictures trusted senders mail remote",
       "calendars": "ical feed subscribe calendar",
       "storageAccounts": "drive s3 files cloud",

@@ -163,6 +163,48 @@ function DatabasesGroup({ workspaceId, view, onChange }: { workspaceId: string; 
 // The forms come with opening one, not with the settings page.
 const MailboxConnect = lazyPart(() => import("./mail-connect").then((m) => m.MailboxConnect), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
+// The editor comes with opening it too.
+const SignatureEditor = lazyPart(() => import("./mail-signature").then((m) => m.SignatureEditor), <div aria-busy="true" className="h-32 animate-pulse rounded-md bg-bg-subtle" />);
+
+/** What a mailbox signs mail with, shown as text and changed in the editor in its place. */
+function SignatureRow({ mailbox, title, onSaved }: { mailbox: MailboxView; title: string; onSaved: (mailbox: MailboxView) => void }) {
+  const t = useTranslations("account.mail");
+  const [editing, setEditing] = useState(false);
+  if (editing) {
+    return (
+      <div className="px-5 py-4">
+        <p className="mb-2 text-sm font-medium">{title}</p>
+        <SignatureEditor
+          mailbox={mailbox}
+          onCancel={() => setEditing(false)}
+          onSaved={(saved) => {
+            onSaved(saved);
+            setEditing(false);
+          }}
+        />
+      </div>
+    );
+  }
+  return (
+    <SettingsRow
+      title={title}
+      description={
+        mailbox.signature ? (
+          // As messages show it: the HTML the server kept of it (server/mail-client/outgoing.ts cleanSignature).
+          <div className="mail-editor pointer-events-none line-clamp-4" dir="auto" dangerouslySetInnerHTML={{ __html: mailbox.signature }} />
+        ) : (
+          t("signatureNone")
+        )
+      }
+      control={
+        <Button size="sm" onPointerEnter={() => void SignatureEditor.preload()} onClick={() => setEditing(true)}>
+          {mailbox.signature ? t("signatureEdit") : t("signatureAdd")}
+        </Button>
+      }
+    />
+  );
+}
+
 const STATUS_ERRORS = ["blocked", "notFound", "auth", "signIn", "tls", "unreachable", "noInbox"] as const;
 /** What went wrong reading a mailbox; for a Google one, a refused sign-in always means signing in again. */
 const statusError = (mailbox: MailboxView) => {
@@ -343,6 +385,15 @@ function MailboxGroup({
         );
       })}
       {error && <p className="px-5 py-2 text-sm text-danger">{error}</p>}
+      {enabled &&
+        mailboxes.map((mailbox) => (
+          <SignatureRow
+            key={`signature-${mailbox.id}`}
+            mailbox={mailbox}
+            title={mailboxes.length > 1 ? ta("signatureFor", { address: mailbox.address }) : ta("signature")}
+            onSaved={(saved) => onChange(mailboxes.map((m) => (m.id === saved.id ? saved : m)))}
+          />
+        ))}
       {enabled && main && <MailboxSending key={main.id} mailbox={main} onChange={(saved) => onChange(mailboxes.map((m) => (m.id === saved.id ? saved : m)))} />}
       {enabled && (
         <SettingsRow

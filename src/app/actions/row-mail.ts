@@ -15,6 +15,7 @@ import {
   RowMailError,
   setDefaultMailbox,
   setMailboxSending,
+  setMailboxSignature,
   setMailDatabases,
   type MailboxInput,
 } from "@/server/row-mail/settings";
@@ -69,6 +70,11 @@ export async function beginGoogleMailboxAction(
 /** How follow-ups send from the member's mailbox: a daily limit and the time zone of their send windows. */
 export async function setMailboxSendingAction(mailboxId: string, input: { dailyLimit: number; timeZone: string }): Promise<ActionResult<MailboxView>> {
   return run((userId) => setMailboxSending(userId, mailboxId, input));
+}
+
+/** What the viewer signs mail from one of their mailboxes with (the editor's HTML; empty for none). */
+export async function setMailboxSignatureAction(mailboxId: string, html: string): Promise<ActionResult<MailboxView>> {
+  return run((userId) => setMailboxSignature(userId, mailboxId, html));
 }
 
 /** Makes one of the viewer's mailboxes their default; returns theirs in its workspace. */

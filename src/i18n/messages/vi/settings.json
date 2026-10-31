@@ -46,7 +46,7 @@
       "watchedPages": "theo dõi đăng ký quan sát",
       "offlineDevice": "ngoại tuyến tải xuống bộ nhớ đệm dung lượng",
       "offlinePages": "ngoại tuyến tải xuống không có internet",
-      "mailboxes": "email hộp thư đến imap smtp",
+      "mailboxes": "email hộp thư đến imap smtp chữ ký",
       "imageSenders": "hình ảnh người gửi tin cậy thư",
       "calendars": "ical nguồn cấp đăng ký lịch",
       "storageAccounts": "drive s3 tệp đám mây",

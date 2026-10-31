@@ -46,7 +46,7 @@
       "watchedPages": "takip abone izle",
       "offlineDevice": "çevrimdışı indir önbellek alan",
       "offlinePages": "çevrimdışı indir internetsiz",
-      "mailboxes": "e-posta gelen kutusu imap smtp",
+      "mailboxes": "e-posta gelen kutusu imap smtp imza",
       "imageSenders": "görseller resimler güvenilen gönderenler posta",
       "calendars": "ical akış abone takvim",
       "storageAccounts": "drive s3 dosyalar bulut",

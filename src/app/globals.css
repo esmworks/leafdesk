@@ -383,7 +383,8 @@
 .mail-editor ol { list-style: decimal; padding-inline-start: 1.5em; }
 .mail-editor blockquote { margin-inline-start: 0.8ex; border-inline-start: 2px solid var(--border); padding-inline-start: 1ex; color: var(--fg-muted); }
 .mail-editor a { color: var(--accent); text-decoration: underline; }
-.mail-editor p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: inline-start; height: 0; color: var(--fg-faint); pointer-events: none; }
+/* The first line, while the caret is on it and it is empty, says what goes there: above a signature or a quote too. */
+.mail-editor > p.is-empty:first-child::before { content: attr(data-placeholder); float: inline-start; height: 0; color: var(--fg-faint); pointer-events: none; }
 
 /* A built-in icon's box, in the base layer so a `hidden` (or other display) utility given to it wins. */
 @layer base {

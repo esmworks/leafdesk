@@ -1,17 +1,19 @@
 "use client";
 
-import { Editor, Extension } from "@tiptap/core";
+import { Editor, Extension, Node } from "@tiptap/core";
 import { Placeholder } from "@tiptap/extensions/placeholder";
 import { StarterKit } from "@tiptap/starter-kit";
 import { Bold, Italic, Link2, List, ListOrdered, RemoveFormatting, Strikethrough, TextQuote, Underline } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { cn, IconButton, Popover } from "@/components/ui";
 import { normalizeAddress } from "@/lib/mail";
+import { signatureBlock } from "./compose-start";
 
 /**
  * The Mail tab's editor: paragraphs, bold, italic, underline, strike, links, lists and quotes,
- * which is what server/mail-client/outgoing.ts lets through when it is sent. Other formatting
+ * and the sender's signature (`Signature`, around paragraphs of its own), which is what
+ * server/mail-client/outgoing.ts lets through when it is sent. Other formatting
  * pasted in falls away as it comes. It is bound to React here rather than through TipTap's React
  * package: that package's module is shared with the page editor's first load, and what the
  * composer used of it would load there too.
@@ -33,6 +35,65 @@ const Keys = Extension.create<{ onLink: () => void }>({
   },
 });
 
+/**
+ * The signature of the mailbox a message goes out from, written into the message where it starts
+ * (compose-start.ts) and changed with the mailbox (`putSignature`). Its words are the message's to
+ * change; the sent message's text part puts it under a "-- " line.
+ */
+const Signature = Node.create({
+  name: "signature",
+  group: "block",
+  content: "block+",
+  defining: true,
+  parseHTML: () => [{ tag: "div[data-signature]" }],
+  renderHTML: () => ["div", { "data-signature": "" }, 0],
+});
+
+/**
+ * Changes the message's signature to `html` when the mailbox it goes out from changes: in its
+ * place, or gone when the new one has none. A message that has none gets one at its end only when
+ * `add` (the earlier mailbox had none either, so it wasn't taken out by hand).
+ */
+export function putSignature(editor: Editor, html: string | null, add: boolean) {
+  const at = signatureAt(editor);
+  if (at) {
+    if (html) editor.commands.insertContentAt(at, signatureBlock(html));
+    else editor.commands.deleteRange(at);
+  } else if (html && add) editor.commands.insertContentAt(editor.state.doc.content.size, `<p></p>${signatureBlock(html)}`);
+}
+
+function signatureAt(editor: Editor) {
+  let at = null as { from: number; to: number } | null;
+  editor.state.doc.forEach((node, offset) => {
+    if (!at && node.type.name === "signature") at = { from: offset, to: offset + node.nodeSize };
+  });
+  return at;
+}
+
+/**
+ * Takes a press below the message's last line (`e` on the space around the editor, or on its own
+ * blank end) to the end of what is written: never into the signature, as the editor would.
+ */
+export function writeBelow(editor: Editor | null, e: MouseEvent<HTMLElement>) {
+  if (!editor || e.button !== 0) return;
+  const dom = editor.view.dom;
+  const blank = e.target === e.currentTarget || (e.target === dom && e.clientY > (dom.lastElementChild?.getBoundingClientRect().bottom ?? 0));
+  if (!blank) return;
+  e.preventDefault();
+  editor.commands.focus(writingEnd(editor));
+}
+
+/** Where writing goes on from a click below the text: the end of what is above the signature and the empty line over it. */
+const writingEnd = (editor: Editor) => {
+  const at = signatureAt(editor);
+  if (!at || at.from === 0) return "end";
+  const doc = editor.state.doc;
+  const $at = doc.resolve(at.from);
+  const above = $at.nodeBefore;
+  const spacer = above && above.type.name === "paragraph" && !above.content.size && at.from - above.nodeSize > 0;
+  return (spacer ? at.from - above.nodeSize : at.from) - 1;
+};
+
 /** The editor, made once in the browser from the first values given; `MailEditorContent` shows it. */
 export function useMailEditor({ html, placeholder, label, onChange, autofocus }: { html: string; placeholder: string; label: string; onChange: (editor: Editor) => void; autofocus: "start" | "end" | false }) {
   const changed = useRef(onChange);
@@ -53,7 +114,10 @@ export function useMailEditor({ html, placeholder, label, onChange, autofocus }:
           codeBlock: false,
           horizontalRule: false,
           link: { openOnClick: false, autolink: true, defaultProtocol: "https", protocols: ["mailto"] },
+          // A message may end with its signature: no empty line after it to write on below it by mistake.
+          trailingNode: { notAfter: ["paragraph", "signature"] },
         }),
+        Signature,
         Placeholder.configure({ placeholder }),
         Keys.configure({ onLink: () => setLinking(true) }),
       ],

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { outgoingBody } from "./outgoing";
+import { cleanSignature, outgoingBody } from "./outgoing";
 
 describe("outgoingBody", () => {
   it("keeps the editor's formatting and drops everything else", async () => {
@@ -28,5 +28,29 @@ describe("outgoingBody", () => {
     expect(text).toBe("Merhaba,\n\n- bir\n- iki\n  devam\n1. ilk\n2. son\nsite <https://leafdesk.app>\n> Önceki\n>\n> ileti");
     expect(html).toContain(`<p style="margin:0"><br></p>`);
     expect(html).toContain("<blockquote style=");
+  });
+
+  it("writes a signature under a separator line and sends it as plain paragraphs", async () => {
+    const { text, html } = await outgoingBody(`<p>Merhaba,</p><p></p><div data-signature=""><p><strong>Ayşe Yılmaz</strong></p><p><a href="https://leafdesk.app">leafdesk.app</a></p></div>`);
+    expect(text).toBe("Merhaba,\n\n-- \nAyşe Yılmaz\nleafdesk.app <https://leafdesk.app>");
+    expect(html).toContain(`<div style="margin:0"><p style="margin:0"><strong>Ayşe Yılmaz</strong></p>`);
+    expect(html).not.toContain("data-signature");
+  });
+
+  it("drops a signature whose words were taken out", async () => {
+    const { text, html } = await outgoingBody(`<p>Merhaba</p><div data-signature=""><p></p></div>`);
+    expect(text).toBe("Merhaba");
+    expect(html).not.toContain("<div style=\"margin:0\">");
+  });
+});
+
+describe("cleanSignature", () => {
+  it("keeps the formatting a message may have and no signature inside it", async () => {
+    const signed = await cleanSignature(`<p><em>Ayşe</em> <img src="https://x.example/logo.png"></p><div data-signature=""><p>iç</p></div><p></p><p></p>`);
+    expect(signed).toEqual({ html: "<p><em>Ayşe</em> </p><p>iç</p>", text: "Ayşe\niç" });
+  });
+
+  it("is nothing when nothing is written", async () => {
+    expect(await cleanSignature("<p></p><p> </p>")).toBeNull();
   });
 });

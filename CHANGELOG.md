@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
+  and calendar with a message's formatting (bold, italic, lists, links; no images). The Mail tab's
+  new messages, replies and forwards start with it above the quoted message, where it can be
+  changed for one message, and picking another mailbox under *From* swaps it; the plain-text part
+  puts it under a `-- ` line. Messages written on a row start with it as plain text too.
+  Follow-ups, email drafts and agents' reports are sent without it. Migration 0166.
+
 - **Agenda views.** A new kind of database view lists one day's rows, picked on a strip of days:
   overdue rows that aren't done on top (on today), then the day's rows by time, then rows without
   a date (which the view can hide). Adding one asks for its date, what marks a row done (a status

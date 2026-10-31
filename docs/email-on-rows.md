@@ -52,7 +52,8 @@ Under a row's properties, the Email section lists its messages for everyone who 
 and its address. Whoever may edit the row and has a mailbox writes a new message or a reply there,
 in plain text; it goes out from their default mailbox, or another of theirs picked under *From* (a
 reply from the one the message came through), at most 100 an hour from each, is tried again after 1, 5
-and 30 minutes when the server can't be reached, and is put in the mailbox's sent folder. Mail that
+and 30 minutes when the server can't be reached, and is put in the mailbox's sent folder. It starts
+with the mailbox's signature under a `-- ` line, which picking another mailbox swaps. Mail that
 comes in tells the mailbox's owner and the row's followers who may read it (the inbox's Email tab,
 and push); it never comes as a notification email.
 
@@ -112,6 +113,13 @@ lines, and takes `from:`, `to:`, `subject:`, `is:unread`, `is:read`, `is:starred
 search, `j` and `k` next and previous thread, `o` or Enter open the first; in a thread `e` archive,
 `#` trash, `!` junk, `s` star, `u` unread, `r` reply, `a` reply all, `f` forward, Escape back to
 the list. Backups leave the Mail tab's index out: it is read again once the mailbox is connected.
+
+Each mailbox can have a signature, written under Account › Email and calendar with the same
+formatting a message has (no images). New messages, replies and forwards start with it under the
+line to write on, above the quoted message; it can be changed or taken out for one message, and
+picking another mailbox under *From* swaps it for that mailbox's (or adds it, unless it was taken
+out). The plain-text part, and messages written on rows, put it under a `-- ` line. Follow-ups,
+email drafts and agents' reports go out as written, without it.
 
 ### Follow-ups
 

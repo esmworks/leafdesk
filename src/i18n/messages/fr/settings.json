@@ -46,7 +46,7 @@
       "watchedPages": "suivre s'abonner surveiller",
       "offlineDevice": "hors ligne télécharger cache espace",
       "offlinePages": "hors ligne télécharger sans internet",
-      "mailboxes": "e-mail boîte de réception imap smtp",
+      "mailboxes": "e-mail boîte de réception imap smtp signature",
       "imageSenders": "images photos expéditeurs de confiance e-mail",
       "calendars": "ical flux s'abonner calendrier",
       "storageAccounts": "drive s3 fichiers cloud",

@@ -9,7 +9,7 @@ import { showToast } from "@/components/toast";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { MAX_COMPOSE_BYTES, type MailboxTabView, type MailMessageView } from "@/lib/mail-client";
 import { parseRecipient, showAddress, splitAddresses, startFrom, type ComposeMode, type ComposeSource, type Recipient } from "./compose-start";
-import { FormatBar, MailEditorContent, useMailEditor } from "./mail-editor";
+import { FormatBar, MailEditorContent, putSignature, useMailEditor, writeBelow } from "./mail-editor";
 import { MailboxMark } from "./mail-sidebar";
 import { RecipientField } from "./recipient-field";
 
@@ -183,6 +183,7 @@ export function Composer({
                   icon={<MailboxMark address={b.address} className="h-4 w-4 text-[10px]" />}
                   trailing={b.id === from.id ? <Check className="h-3.5 w-3.5" /> : undefined}
                   onClick={() => {
+                    if (editor && b.id !== from.id) putSignature(editor, b.signature, !from.signature);
                     setFrom(b);
                     close();
                   }}
@@ -302,7 +303,7 @@ export function Composer({
           {/* As wide as the pane, lined up with its header and the bar under it. */}
           <div className="flex min-h-full flex-col px-4">
             {fields}
-            <div className="flex flex-1 cursor-text flex-col py-4" onMouseDown={(e) => e.target === e.currentTarget && (e.preventDefault(), editor?.commands.focus("end"))}>
+            <div className="flex flex-1 cursor-text flex-col py-4" onMouseDown={(e) => writeBelow(editor, e)}>
               <MailEditorContent editor={editor} className="flex flex-1 flex-col [&_.ProseMirror]:flex-1" />
             </div>
             {attached}

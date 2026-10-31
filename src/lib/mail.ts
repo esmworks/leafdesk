@@ -56,6 +56,8 @@ export const MAX_SENDS_PER_HOUR = 100;
 export const SEND_RETRY_MINUTES = [1, 5, 30];
 /** Characters of a message's text kept on the row. */
 export const MAX_MAIL_TEXT = 200_000;
+/** The most a mailbox's signature may hold, as the editor writes it. */
+export const MAX_SIGNATURE_HTML = 20_000;
 /** Messages a row's email section loads at a time. */
 export const ROW_EMAIL_PAGE = 20;
 
@@ -96,6 +98,22 @@ export function replySubject(subject: string) {
 export function quoteText(text: string, header: string) {
   const lines = text.replace(/\r\n/g, "\n").trimEnd().split("\n");
   return `${header}\n${lines.map((line) => (line.startsWith(">") ? `>${line}` : `> ${line}`)).join("\n")}`;
+}
+
+/** A plain-text signature as it follows what is written: under the usual "-- " line. */
+export const textSignature = (signature: string | null) => (signature ? `\n\n-- \n${signature}` : "");
+
+/**
+ * A plain-text message's signature changed from mailbox `was`'s to `now`'s: in its place, or gone.
+ * One that has none gets one only when `was` had none either (so it wasn't taken out by hand):
+ * above the quoted message it answers, or at its end.
+ */
+export function swapTextSignature(text: string, was: string | null, now: string | null) {
+  const old = textSignature(was);
+  if (old) return text.includes(old) ? text.replace(old, () => textSignature(now)) : text;
+  if (!now) return text;
+  const quote = text.search(/\n\n[^\n]*\n>/);
+  return quote < 0 ? text.trimEnd() + textSignature(now) : text.slice(0, quote) + textSignature(now) + text.slice(quote);
 }
 
 /** Whether a message was written by a machine: auto-replies and bulk mail start no automations. */
@@ -151,6 +169,9 @@ export type MailboxView = {
   /** Follow-ups (lib/sequences.ts): the most they send from it in a day, and the time zone their send window reads in. */
   followUpDailyLimit: number;
   timeZone: string;
+  /** What its owner signs with, as HTML and as plain text; null for none. */
+  signature: string | null;
+  signatureText: string | null;
 };
 
 /** The workspace's email settings as the settings section shows them. */

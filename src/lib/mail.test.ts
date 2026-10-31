@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  swapTextSignature,
+  textSignature,
   bareMessageId,
   dmarcFailed,
   isAutomated,
@@ -87,5 +89,21 @@ describe("rowEmailHash", () => {
     expect(rowEmailFromHash(rowEmailHash("0f6c-11"))).toBe("0f6c-11");
     expect(rowEmailFromHash("#comment-1")).toBeNull();
     expect(rowEmailFromHash("#email-<x>")).toBeNull();
+  });
+});
+
+describe("swapTextSignature", () => {
+  const reply = `Teşekkürler${textSignature("Ayşe")}\n\nAli yazdı:\n> Merhaba`;
+
+  it("changes a signature in its place, or takes it out", () => {
+    expect(swapTextSignature(reply, "Ayşe", "Ayşe Yılmaz\nSatış")).toBe("Teşekkürler\n\n-- \nAyşe Yılmaz\nSatış\n\nAli yazdı:\n> Merhaba");
+    expect(swapTextSignature(reply, "Ayşe", null)).toBe("Teşekkürler\n\nAli yazdı:\n> Merhaba");
+    expect(swapTextSignature("Fiyat $& ekte\n\n-- \nA", "A", "$1 B")).toBe("Fiyat $& ekte\n\n-- \n$1 B");
+  });
+
+  it("adds one above the quote or at the end only where none was taken out", () => {
+    expect(swapTextSignature("Teşekkürler\n\nAli yazdı:\n> Merhaba", null, "Ayşe")).toBe(reply);
+    expect(swapTextSignature("Merhaba\n", null, "Ayşe")).toBe("Merhaba\n\n-- \nAyşe");
+    expect(swapTextSignature("İmzasız", "Ayşe", "Ali")).toBe("İmzasız");
   });
 });

@@ -5,7 +5,7 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { hideRowEmailAction, listRowEmailsAction, sendRowEmailAction } from "@/app/actions/row-mail";
 import { Button, cn, Input, selectClass, textareaClass } from "@/components/ui";
-import { quoteText, replySubject, rowEmailFromHash, type RowEmailView } from "@/lib/mail";
+import { quoteText, replySubject, rowEmailFromHash, swapTextSignature, textSignature, type RowEmailView } from "@/lib/mail";
 import { relativeTime } from "@/lib/relative-time";
 import type { RowEmailList } from "@/server/row-mail/list";
 import { FollowUpList, StartFollowUp, useRowFollowUps } from "./follow-ups";
@@ -84,16 +84,19 @@ export function RowEmails({ rowId }: { rowId: string }) {
 
   if (!list || (!list.emails.length && !list.canSend)) return null;
 
+  // What is written starts with the sending mailbox's signature, under an empty line to write on.
+  const signatureOf = (mailboxId: string | null) => textSignature(list.senders.find((s) => s.id === mailboxId)?.signatureText ?? null);
   const reply = (email: RowEmailView) => {
     const to = email.direction === "in" ? [email.from.address] : email.to;
     const header = t("quoteHeader", { name: email.from.name || email.from.address, date: new Date(email.sentAt).toLocaleString() });
+    const mailboxId = email.ownMailboxId ?? list.senders[0]?.id ?? null;
     setDraft({
       to: to.join(", "),
       cc: "",
       subject: replySubject(email.subject),
-      text: `\n\n${quoteText(email.text, header)}`,
+      text: `${signatureOf(mailboxId)}\n\n${quoteText(email.text, header)}`,
       replyTo: email.id,
-      mailboxId: email.ownMailboxId ?? list.senders[0]?.id ?? null,
+      mailboxId,
     });
   };
 
@@ -114,7 +117,7 @@ export function RowEmails({ rowId }: { rowId: string }) {
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => setDraft({ to: list.addresses.join(", "), cc: "", subject: "", text: "", replyTo: null, mailboxId: list.senders[0]?.id ?? null })}
+            onClick={() => setDraft({ to: list.addresses.join(", "), cc: "", subject: "", text: signatureOf(list.senders[0]?.id ?? null), replyTo: null, mailboxId: list.senders[0]?.id ?? null })}
           >
             {t("new")}
           </Button>
@@ -333,7 +336,14 @@ function Compose({
       {senders.length > 1 ? (
         <label className="flex items-center gap-2">
           <span className="w-12 shrink-0 text-xs text-fg-muted">{t("from")}</span>
-          <select className={cn(selectClass, "w-full")} value={draft.mailboxId ?? senders[0].id} onChange={(e) => set({ mailboxId: e.target.value })}>
+          <select
+            className={cn(selectClass, "w-full")}
+            value={draft.mailboxId ?? senders[0].id}
+            onChange={(e) => {
+              const signature = (id: string) => senders.find((s) => s.id === id)?.signatureText ?? null;
+              set({ mailboxId: e.target.value, text: swapTextSignature(draft.text, signature(draft.mailboxId ?? senders[0].id), signature(e.target.value)) });
+            }}
+          >
             {senders.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.displayName ? `${s.displayName} <${s.address}>` : s.address}

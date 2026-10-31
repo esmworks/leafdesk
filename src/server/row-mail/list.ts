@@ -19,8 +19,8 @@ export type RowEmailList = {
   more: boolean;
   /** Email on rows is on in the workspace and the viewer has a mailbox there: they may write. */
   canSend: boolean;
-  /** The viewer's mailboxes in the workspace, which mail may go out from: the default first. */
-  senders: { id: string; address: string; displayName: string | null }[];
+  /** The viewer's mailboxes in the workspace, which mail may go out from: the default first, each with its signature as plain text. */
+  senders: { id: string; address: string; displayName: string | null; signatureText: string | null }[];
   /** The row's own addresses (its matched email properties), for a new message's To. */
   addresses: string[];
 };
@@ -58,7 +58,7 @@ export async function listRowEmails(userId: string, rowId: string, before?: stri
   const [settings, own, [row], [matched]] = await Promise.all([
     workspaceSettings(access.workspaceId),
     db
-      .select({ id: mailbox.id, address: mailbox.address, displayName: mailbox.displayName })
+      .select({ id: mailbox.id, address: mailbox.address, displayName: mailbox.displayName, signatureText: mailbox.signatureText })
       .from(mailbox)
       .where(and(eq(mailbox.workspaceId, access.workspaceId), eq(mailbox.userId, userId)))
       .orderBy(desc(mailbox.isDefault), asc(mailbox.createdAt)),

@@ -46,7 +46,7 @@
       "watchedPages": "seguir assinar acompanhar",
       "offlineDevice": "offline baixar cache espaço",
       "offlinePages": "offline baixar sem internet",
-      "mailboxes": "e-mail caixa de entrada imap smtp",
+      "mailboxes": "e-mail caixa de entrada imap smtp assinatura",
       "imageSenders": "imagens fotos remetentes confiáveis e-mail",
       "calendars": "ical feed assinar calendário",
       "storageAccounts": "drive s3 arquivos nuvem",

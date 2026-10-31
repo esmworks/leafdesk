@@ -192,6 +192,8 @@ export type MailboxTabView = {
   /** Null until its folders were first read. */
   folders: MailFolderView[] | null;
   syncedAt: string | null;
+  /** What the person signs with from it, as the editor's HTML; null for none. */
+  signature: string | null;
 };
 
 /** A thread in a folder's list. */

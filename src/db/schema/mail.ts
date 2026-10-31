@@ -72,6 +72,12 @@ export const mailbox = pgTable(
     timeZone: text("time_zone").notNull().default("UTC"),
     /** The next sequence email waits until then, so a batch of them is spread out. */
     followUpAfter: timestamp("follow_up_after", { withTimezone: true }),
+    /**
+     * What its owner signs what they write with, as the Mail tab's editor writes HTML (cleaned by
+     * server/mail-client/outgoing.ts `cleanSignature`), and the same as plain text for row emails.
+     */
+    signature: text("signature"),
+    signatureText: text("signature_text"),
     /** When its owner agreed that mail matched to rows shows to everyone who sees those rows. */
     consentedAt: timestamp("consented_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -5,8 +5,9 @@ import { databaseProperty, mailbox, mailboxOauth, mailDatabase, page, user } fro
 import { env } from "@/lib/env";
 import { MAX_DAILY_LIMIT } from "@/lib/sequences";
 import { isTimeZone } from "@/lib/time-zone";
-import { MAX_MAILBOXES, normalizeAddress, type MailboxAuth, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
+import { MAX_MAILBOXES, MAX_SIGNATURE_HTML, normalizeAddress, type MailboxAuth, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { isGuest, requireMembership } from "@/server/access";
+import { cleanSignature } from "@/server/mail-client/outgoing";
 import { recordAudit } from "@/server/audit";
 import { open, openJson, seal, sealJson } from "@/server/secret-box";
 import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
@@ -66,6 +67,8 @@ function mailboxView(m: typeof mailbox.$inferSelect): MailboxView {
     syncedAt: m.syncedAt?.toISOString() ?? null,
     followUpDailyLimit: m.followUpDailyLimit,
     timeZone: m.timeZone,
+    signature: m.signature,
+    signatureText: m.signatureText,
   };
 }
 
@@ -472,6 +475,23 @@ export async function setMailboxSending(userId: string, mailboxId: string, input
   const [saved] = await db
     .update(mailbox)
     .set({ followUpDailyLimit: limit, timeZone: input.timeZone })
+    .where(and(eq(mailbox.id, mailboxId), eq(mailbox.userId, userId)))
+    .returning();
+  if (!saved) throw new RowMailError("noMailbox");
+  return mailboxView(saved);
+}
+
+/**
+ * What the member signs mail from one of their mailboxes with: the editor's HTML, cleaned to what
+ * a message may hold; empty takes it away. Composers put it under what is written.
+ */
+export async function setMailboxSignature(userId: string, mailboxId: string, html: string): Promise<MailboxView> {
+  await requireOwnMailbox(userId, mailboxId);
+  if (typeof html !== "string" || html.length > MAX_SIGNATURE_HTML) throw new RowMailError("invalid");
+  const signed = await cleanSignature(html);
+  const [saved] = await db
+    .update(mailbox)
+    .set({ signature: signed?.html ?? null, signatureText: signed?.text ?? null })
     .where(and(eq(mailbox.id, mailboxId), eq(mailbox.userId, userId)))
     .returning();
   if (!saved) throw new RowMailError("noMailbox");

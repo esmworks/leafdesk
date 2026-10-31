@@ -46,7 +46,7 @@
       "watchedPages": "seuraa tilaa seuratut sivut",
       "offlineDevice": "offline lataa välimuisti tila",
       "offlinePages": "offline lataa ilman internetiä",
-      "mailboxes": "sähköposti postilaatikko imap smtp",
+      "mailboxes": "sähköposti postilaatikko imap smtp allekirjoitus",
       "imageSenders": "kuvat luotetut lähettäjät sähköposti",
       "calendars": "ical syöte tilaa kalenteri",
       "storageAccounts": "drive s3 tiedostot pilvi",
