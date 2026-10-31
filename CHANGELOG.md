@@ -196,7 +196,9 @@
   wrong kind: numbers and dates in them came out as text, or text as numbers.
 - **Frozen columns no longer let text show beside them.** Scrolled sideways, a table's frozen
   columns stopped at the page's margin, and the columns scrolling past showed through in the strip
-  between them and the edge. They now move along across the margin and hold at the edge.
+  between them and the edge. They now move along across the margin and hold just short of the
+  edge, with only the row's select box beside them. Tables also no longer shake as they scroll
+  sideways.
 
 - **Resolved comments no longer break the page.** Resolving a thread, or opening *Resolved* or
   *All* in the comments panel, showed "Something went wrong" when the thread was resolved by

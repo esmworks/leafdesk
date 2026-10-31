@@ -70,6 +70,8 @@ const WIDTHS: Partial<Record<Property["type"], number>> = { checkbox: 110, numbe
 const defaultWidth = (p: Property) => WIDTHS[p.type] ?? 200;
 /** Room frozen columns leave for the others to scroll by; below it they don't freeze. */
 const MIN_SCROLL_ROOM = 160;
+/** The row controls' select box (selection.tsx), the part of them frozen columns leave in sight. */
+const SELECT_BOX_WIDTH = 24;
 /** Types whose pasted values are stored as the paste reads them, so they show before the server answers. */
 const SHOWN_AS_PASTED = new Set<string>(["text", "number", "date", "checkbox", "url", "email", "phone"]);
 
@@ -238,8 +240,15 @@ export function TableView({
     const rows = box.current;
     const head = headBox.current;
     if (!rows || !head) return;
+    // A scroll one side made the other take is not followed back: its event comes a frame later,
+    // when the side being scrolled has moved on, and would pull it back, so the table shakes.
+    const echoes = new Map<HTMLElement, number>();
     const follow = (from: HTMLElement, to: HTMLElement) => () => {
-      if (to.scrollLeft !== from.scrollLeft) to.scrollLeft = from.scrollLeft;
+      const echo = echoes.get(from) === from.scrollLeft;
+      echoes.delete(from);
+      if (echo || to.scrollLeft === from.scrollLeft) return;
+      to.scrollLeft = from.scrollLeft;
+      echoes.set(to, to.scrollLeft);
     };
     const fromRows = follow(rows, head);
     const fromHead = follow(head, rows);
@@ -262,14 +271,16 @@ export function TableView({
     frozenIndex >= 0 && !phone && (!boxWidth || leftOf(frozenIndex + 1) <= boxWidth - MIN_SCROLL_ROOM) ? frozenIndex + 1 : 0;
   /**
    * Position and look of column `i` (-1: the row controls) when it is frozen. Sticky holds to the
-   * box's padding edge, so frozen columns move with the table across the gutter and stop at the box's
-   * edge, leaving nothing to scroll past on their side. A row's own background (--row-bg: striped,
-   * hovered) shows on its frozen cells but not on the row controls in the gutter.
+   * box's padding edge, so frozen columns move with the table across the gutter and stop near the
+   * box's edge, leaving nothing to scroll past on their side; of the row controls only the select box
+   * stays in sight there. A row's own background (--row-bg: striped, hovered) shows on its frozen
+   * cells but not on the row controls in the gutter.
    */
+  const tucked = gutter + handles - SELECT_BOX_WIDTH;
   const frozen = (i: number, selected = false) =>
     frozenCount > 0 && i < frozenCount
       ? {
-          style: { insetInlineStart: (i < 0 ? 0 : leftOf(i)) - gutter },
+          style: { insetInlineStart: (i < 0 ? 0 : leftOf(i)) - tucked },
           className: cn(
             "sticky z-30",
             selected ? "bg-[color-mix(in_srgb,var(--accent)_5%,var(--bg))]" : i < 0 ? "bg-bg" : "bg-[var(--row-bg,var(--bg))]",
