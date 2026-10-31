@@ -75,6 +75,7 @@
     "mailArchive": "Arkivera, eller flytta tillbaka till inkorgen",
     "mailTrash": "Flytta till papperskorgen (ta bort permanent när den ligger där)",
     "mailJunk": "Markera som skräppost",
+    "mailSnooze": "Snooza till en vald tidpunkt",
     "mailStar": "Stjärnmärk eller ta bort stjärnan",
     "mailUnread": "Markera som oläst",
     "mailRead": "Markera som läst",

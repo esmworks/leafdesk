@@ -75,6 +75,7 @@
     "mailArchive": "Archivar o devolver a recibidos",
     "mailTrash": "Mover a la papelera (allí, eliminar definitivamente)",
     "mailJunk": "Marcar como spam",
+    "mailSnooze": "Posponer hasta el momento que elijas",
     "mailStar": "Destacar o quitar la estrella",
     "mailUnread": "Marcar como no leído",
     "mailRead": "Marcar como leído",

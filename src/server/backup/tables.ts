@@ -190,6 +190,7 @@ export const LEFT_OUT: Record<string, string> = {
   mail_message: "the headers of members' own mail and AI summaries of their threads, kept for the Mail tab and read again from the mail server",
   mail_image_sender: "senders whose images a member's mailbox always shows, which goes with the mailboxes left out",
   mail_send: "when a member's mailbox last sent mail from the Mail tab, an hour's count that goes with the mailboxes left out",
+  mail_snooze: "conversations a member snoozed in the Mail tab, which go with the mailboxes left out",
   storage_move: "moves of files between storages on the old server",
   ai_conversation: "people's AI chats, which only each of them may read",
   ai_saved_prompt: "the prompts each person saved for the AI assistant, theirs alone like their chats",

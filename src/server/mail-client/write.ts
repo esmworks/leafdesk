@@ -1,9 +1,10 @@
 import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import type { ImapFlow } from "imapflow";
 import { db } from "@/db";
-import { mailFolder, mailMessage, mailSend, rowEmail, type mailbox } from "@/db/schema";
+import { mailFolder, mailMessage, mailSend, mailSnooze, rowEmail, type mailbox } from "@/db/schema";
 import { MAX_SENDS_PER_HOUR } from "@/lib/mail";
-import { MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, movableTo, type MailAction, type MailDraftInput, type MailHeldSend, type MailUndoneSend } from "@/lib/mail-client";
+import { MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, movableTo, snoozableFrom, type MailAction, type MailDraftInput, type MailHeldSend, type MailUndoneSend } from "@/lib/mail-client";
+import { snoozeAllowed } from "@/lib/mail-snooze";
 import { RowMailError, type RowMailErrorCode } from "@/server/row-mail/settings";
 import { connectError } from "@/server/row-mail/connect";
 import { keepSent, SAVES_SENT, sendRaw } from "@/server/row-mail/send";
@@ -24,7 +25,8 @@ type Box = typeof mailbox.$inferSelect;
 type FolderRow = typeof mailFolder.$inferSelect;
 type MessageRow = typeof mailMessage.$inferSelect;
 
-const MOVES: Partial<Record<MailAction, "archive" | "trash" | "junk" | "inbox">> = { archive: "archive", trash: "trash", junk: "junk", inbox: "inbox" };
+type MoveRole = "archive" | "trash" | "junk" | "inbox" | "snoozed";
+const MOVES: Partial<Record<MailAction, MoveRole>> = { archive: "archive", trash: "trash", junk: "junk", inbox: "inbox", snooze: "snoozed" };
 const FLAGS: Partial<Record<MailAction, { flag: string; on: boolean; column: "seen" | "flagged" }>> = {
   read: { flag: "\\Seen", on: true, column: "seen" },
   unread: { flag: "\\Seen", on: false, column: "seen" },
@@ -38,10 +40,11 @@ async function folders(box: Box) {
   return db.select().from(mailFolder).where(eq(mailFolder.mailboxId, box.id));
 }
 
-/** The folder a move goes to; an archive folder is made where the server has none (not Gmail). */
-async function destination(client: ImapFlow, box: Box, all: FolderRow[], role: "archive" | "trash" | "junk" | "inbox") {
+/** The folder a move goes to; an archive (not on Gmail) or snoozed folder is made where the server has none. */
+export async function destination(client: ImapFlow, box: Box, all: FolderRow[], role: MoveRole) {
   const found = all.find((f) => f.role === role);
   if (found) return found;
+  if (role === "snoozed") return makeFolder(client, box, "Snoozed", "snoozed");
   if (role !== "archive" || ARCHIVES_BY_REMOVING.includes(box.imapHost)) return null;
   return makeFolder(client, box, "Archive", "archive");
 }
@@ -50,9 +53,10 @@ async function destination(client: ImapFlow, box: Box, all: FolderRow[], role: "
  * Does `action` to threads of a folder. Moves (archive, trash, junk, back to the inbox, or to the
  * folder `to` names) and "delete" (for good, from the trash or junk only) take the thread's
  * messages in this folder; read and unread all of the thread's messages; star its newest message
- * here, unstar all.
+ * here, unstar all. "snooze" moves them to the snoozed folder until `until` (snooze.ts brings them
+ * back); any other move takes a thread's snooze off.
  */
-export async function mailAction(userId: string, input: { mailboxId: string; folderId: string; threadIds: string[]; action: MailAction; to?: string }) {
+export async function mailAction(userId: string, input: { mailboxId: string; folderId: string; threadIds: string[]; action: MailAction; to?: string; until?: string }) {
   const box = await requireOwnMailbox(userId, input.mailboxId);
   const all = await folders(box);
   const folder = all.find((f) => f.id === input.folderId);
@@ -61,6 +65,8 @@ export async function mailAction(userId: string, input: { mailboxId: string; fol
   const to = action === "move" ? all.find((f) => f.id === input.to && f.id !== folder?.id && movableTo(f)) : undefined;
   if (!folder || !threadIds.length || !(action in MOVES || action in FLAGS || action === "delete" || to)) throw new RowMailError("invalid");
   if (action === "delete" && folder.role !== "trash" && folder.role !== "junk") throw new RowMailError("invalid");
+  const until = action === "snooze" && typeof input.until === "string" ? new Date(input.until) : null;
+  if (action === "snooze" && !(until && snoozeAllowed(until.getTime(), Date.now()) && snoozableFrom(folder))) throw new RowMailError("invalid");
 
   const flag = FLAGS[action];
   const hidden = folder.role === "trash" || folder.role === "junk" ? [] : all.filter((f) => f.role === "trash" || f.role === "junk").map((f) => f.id);
@@ -134,6 +140,9 @@ export async function mailAction(userId: string, input: { mailboxId: string; fol
     }
     if (target) await recount(client, target);
   });
+  if (flag) return;
+  await db.delete(mailSnooze).where(and(eq(mailSnooze.mailboxId, box.id), inArray(mailSnooze.threadId, threadIds)));
+  if (until) await db.insert(mailSnooze).values([...new Set(messages.map((m) => m.threadId))].map((threadId) => ({ mailboxId: box.id, threadId, until })));
 }
 
 /**

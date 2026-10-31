@@ -77,6 +77,7 @@ const { retentionJobEnabled } = await import("./src/lib/retention");
 const { startLocalBackups } = await import("./src/server/local-backups");
 const { startRowMailSync } = await import("./src/server/row-mail/sync");
 const { startRowMailSender } = await import("./src/server/row-mail/send");
+const { startMailSnoozes } = await import("./src/server/mail-client/snooze");
 const { startSequences } = await import("./src/server/sequences/run");
 const { startDatabaseSyncs } = await import("./src/server/jira-sync/run");
 const { startTelegram } = await import("./src/server/telegram");
@@ -248,6 +249,8 @@ server.listen(port, hostname, () => {
   // Reads members' mailboxes for mail that belongs on rows, and sends what was written on rows.
   startRowMailSync();
   startRowMailSender();
+  // Brings conversations snoozed in the Mail tab back to the inbox when their time comes.
+  startMailSnoozes();
   startSequences();
   // Keeps databases synced from Jira and GitHub in step, each as often as it was set to.
   startDatabaseSyncs();

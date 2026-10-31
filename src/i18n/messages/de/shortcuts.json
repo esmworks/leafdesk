@@ -75,6 +75,7 @@
     "mailArchive": "Archivieren oder zurück in den Posteingang verschieben",
     "mailTrash": "In den Papierkorb verschieben (dort endgültig löschen)",
     "mailJunk": "Als Spam markieren",
+    "mailSnooze": "Bis zu einem gewählten Zeitpunkt zurückstellen",
     "mailStar": "Mit Stern markieren oder Stern entfernen",
     "mailUnread": "Als ungelesen markieren",
     "mailRead": "Als gelesen markieren",

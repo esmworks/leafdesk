@@ -269,7 +269,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
   into `MOVES` in `mail-app.tsx`; action `move` takes the folder's id in `to`, checked by
-  `movableTo`; a row's right-click menu is `thread-menu.tsx`, a `lazyPart`, as is the selection's bar
+  `movableTo`; `snooze` takes `until` and moves to the `snoozed` role's folder, a mail_snooze row
+  that `snooze.ts` `runMailSnoozes(now)` brings back and `threadPage` lists by its `woke_at`; every
+  other move drops the row; a row's right-click menu is `thread-menu.tsx`, a `lazyPart`, as is the selection's bar
   `selection-bar.tsx`; `act` takes a list of threads, sent in `MAIL_MAX_THREADS` pieces, each to the mailbox and folder
 the item names: all inboxes, `box=all` (`ALL_INBOXES`, one query in `read.ts` `threadPage`), list
 several mailboxes, whose thread ids can repeat, so the list keys threads by `itemKey`; a new key

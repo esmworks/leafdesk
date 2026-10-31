@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Postvak IN",
     "drafts": "Concepten",
+    "snoozed": "Gesluimerd",
     "sent": "Verzonden",
     "archive": "Archief",
     "junk": "Spam",
@@ -65,6 +66,7 @@
     "archive": "Archiveren",
     "trash": "Naar de prullenbak",
     "junk": "Markeren als spam",
+    "snooze": "Sluimeren",
     "inbox": "Naar Postvak IN",
     "delete": "Definitief verwijderen",
     "star": "Ster toevoegen",
@@ -86,9 +88,21 @@
     "archive": "Gesprek gearchiveerd",
     "trash": "Gesprek naar de prullenbak verplaatst",
     "junk": "Gesprek als spam gemarkeerd",
+    "snooze": "Gesluimerd tot {time}",
     "inbox": "Gesprek naar Postvak IN verplaatst",
     "delete": "Gesprek definitief verwijderd",
     "move": "Gesprek verplaatst naar {folder}"
+  },
+  "snooze": {
+    "title": "Sluimeren tot",
+    "laterToday": "Later vandaag",
+    "tomorrow": "Morgen",
+    "weekend": "Dit weekend",
+    "nextWeek": "Volgende week",
+    "pick": "Datum en tijd",
+    "placeholder": "vr 9:00, 12 nov, over 3 dagen",
+    "notAhead": "Kies een moment tussen een minuut en een jaar vanaf nu.",
+    "until": "Gesluimerd tot {time}"
   },
   "composer": {
     "newTitle": "Nieuw bericht",
@@ -155,6 +169,7 @@
       "archive": "{count, plural, one {# gesprek gearchiveerd} other {# gesprekken gearchiveerd}}",
       "trash": "{count, plural, one {# gesprek naar de prullenbak verplaatst} other {# gesprekken naar de prullenbak verplaatst}}",
       "junk": "{count, plural, one {# gesprek als spam gemarkeerd} other {# gesprekken als spam gemarkeerd}}",
+      "snooze": "{count, plural, one {# gesprek gesluimerd tot {time}} other {# gesprekken gesluimerd tot {time}}}",
       "inbox": "{count, plural, one {# gesprek naar Postvak IN verplaatst} other {# gesprekken naar Postvak IN verplaatst}}",
       "delete": "{count, plural, one {# gesprek definitief verwijderd} other {# gesprekken definitief verwijderd}}",
       "move": "{count, plural, one {# gesprek verplaatst naar {folder}} other {# gesprekken verplaatst naar {folder}}}"

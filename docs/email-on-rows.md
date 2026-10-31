@@ -110,12 +110,22 @@ for a sender the provider's check vouched for. A list with only a web page, or a
 the check, opens that page instead. The server reaches only public https addresses for it (and
 those in `WEB_FETCH_ALLOWED_HOSTS`).
 
+*Snooze* (the clock over a thread, in the selection's bar and on a right click, or `b`) puts
+conversations away until a moment picked: later today, tomorrow morning, the weekend, next week,
+or a date typed in words (`fri 9am`, `nov 12`, `in 3 days`; a day alone means 8:00 that morning),
+from a minute to a year ahead. Their messages wait in a *Snoozed* folder on the mail server (made
+the first time; other mail programs see it as an ordinary folder) and the list there shows when
+each comes back. When the moment comes, within a minute, they return to the inbox with the newest
+message unread and the thread listed at the top as of that moment. Moving one out of the folder
+by hand takes its snooze off; new mail in a snoozed conversation lands in the inbox as usual and
+doesn't bring the rest back early. Mail can't be moved to the snoozed folder by name.
+
 The printer button over a thread prints all its messages, each under its sender, recipients and
 date, and nothing else of the page. A message's *…* menu prints that message alone (with the mail
 it quotes), shows its original (the message as the mail server keeps it, headers and all, as plain
 text) or downloads it as an .eml file.
 
-From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
+From the open thread: reply, reply all and forward (with its files), archive, snooze, junk, trash, star and
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
 trash is for good. A right click on a thread in the list opens the same answers and moves without
 opening it, plus *Move to* any of the mailbox's folders (not Sent or Drafts), the sender's other
@@ -125,7 +135,7 @@ their boxes (shown on hover), ⌘/Ctrl-click, Shift-click for a range, `x` for t
 ⌘/Ctrl+A for all the list has loaded; a bar in place of the list's title then archives, trashes,
 marks, stars or moves all of them at once (the keys and a right click on one of them do too), and
 Esc leaves the selection. The Mail tab works from the keyboard too: `j`/`k` next and previous,
-`e` archive, `#` trash, `!` junk, `s` star, `u` unread, Shift+I read, `r`/`a`/`f` reply, reply all
+`e` archive, `b` snooze, `#` trash, `!` junk, `s` star, `u` unread, Shift+I read, `r`/`a`/`f` reply, reply all
 and forward, `c` a new message, `/` search, ⌘/Ctrl+Z undoes the last move, and `g` then `i`, `s`,
 `d`, `a` or `t` opens the inbox, sent mail, drafts, archive or trash; `?` lists them all, and the
 search box (⌘/Ctrl+K) has *Mail* and *New message* after `>`. *New message* opens beside the list,

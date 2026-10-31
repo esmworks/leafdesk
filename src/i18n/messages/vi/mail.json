@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Hộp thư đến",
     "drafts": "Thư nháp",
+    "snoozed": "Đã tạm ẩn",
     "sent": "Đã gửi",
     "archive": "Lưu trữ",
     "junk": "Thư rác",
@@ -65,6 +66,7 @@
     "archive": "Lưu trữ",
     "trash": "Chuyển vào thùng rác",
     "junk": "Đánh dấu là thư rác",
+    "snooze": "Tạm ẩn",
     "inbox": "Chuyển vào hộp thư đến",
     "delete": "Xóa vĩnh viễn",
     "star": "Gắn sao",
@@ -86,9 +88,21 @@
     "archive": "Đã lưu trữ cuộc trò chuyện",
     "trash": "Đã chuyển cuộc trò chuyện vào thùng rác",
     "junk": "Đã đánh dấu cuộc trò chuyện là thư rác",
+    "snooze": "Đã tạm ẩn đến {time}",
     "inbox": "Đã chuyển cuộc trò chuyện vào hộp thư đến",
     "delete": "Đã xóa vĩnh viễn cuộc trò chuyện",
     "move": "Đã chuyển cuộc trò chuyện đến {folder}"
+  },
+  "snooze": {
+    "title": "Tạm ẩn đến",
+    "laterToday": "Cuối ngày hôm nay",
+    "tomorrow": "Ngày mai",
+    "weekend": "Cuối tuần này",
+    "nextWeek": "Tuần sau",
+    "pick": "Ngày và giờ",
+    "placeholder": "T6 9:00, 12 thg 11, sau 3 ngày",
+    "notAhead": "Chọn một thời điểm từ một phút đến một năm kể từ bây giờ.",
+    "until": "Đã tạm ẩn đến {time}"
   },
   "composer": {
     "newTitle": "Thư mới",
@@ -155,6 +169,7 @@
       "archive": "{count, plural, other {Đã lưu trữ # cuộc trò chuyện}}",
       "trash": "{count, plural, other {Đã chuyển # cuộc trò chuyện vào thùng rác}}",
       "junk": "{count, plural, other {Đã đánh dấu # cuộc trò chuyện là thư rác}}",
+      "snooze": "{count, plural, other {Đã tạm ẩn # cuộc trò chuyện đến {time}}}",
       "inbox": "{count, plural, other {Đã chuyển # cuộc trò chuyện vào hộp thư đến}}",
       "delete": "{count, plural, other {Đã xóa vĩnh viễn # cuộc trò chuyện}}",
       "move": "{count, plural, other {Đã chuyển # cuộc trò chuyện đến {folder}}}"

@@ -75,6 +75,7 @@
     "mailArchive": "Arşivle veya gelen kutusuna geri taşı",
     "mailTrash": "Çöp kutusuna taşı (oradayken kalıcı olarak sil)",
     "mailJunk": "Gereksiz olarak işaretle",
+    "mailSnooze": "Seçtiğiniz zamana kadar ertele",
     "mailStar": "Yıldızla veya yıldızı kaldır",
     "mailUnread": "Okunmadı olarak işaretle",
     "mailRead": "Okundu olarak işaretle",

@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "收件箱",
     "drafts": "草稿",
+    "snoozed": "已延后",
     "sent": "已发送",
     "archive": "归档",
     "junk": "垃圾邮件",
@@ -65,6 +66,7 @@
     "archive": "归档",
     "trash": "移到废纸篓",
     "junk": "标记为垃圾邮件",
+    "snooze": "延后",
     "inbox": "移到收件箱",
     "delete": "永久删除",
     "star": "加星标",
@@ -86,9 +88,21 @@
     "archive": "会话已归档",
     "trash": "会话已移到废纸篓",
     "junk": "会话已标记为垃圾邮件",
+    "snooze": "已延后至 {time}",
     "inbox": "会话已移到收件箱",
     "delete": "会话已永久删除",
     "move": "会话已移至 {folder}"
+  },
+  "snooze": {
+    "title": "延后至",
+    "laterToday": "今天晚些时候",
+    "tomorrow": "明天",
+    "weekend": "本周末",
+    "nextWeek": "下周",
+    "pick": "日期和时间",
+    "placeholder": "周五 9:00、11月12日、3天后",
+    "notAhead": "请选择从现在起一分钟到一年之间的时间。",
+    "until": "已延后至 {time}"
   },
   "composer": {
     "newTitle": "写邮件",
@@ -155,6 +169,7 @@
       "archive": "{count, plural, other {已归档 # 个会话}}",
       "trash": "{count, plural, other {已将 # 个会话移到废纸篓}}",
       "junk": "{count, plural, other {已将 # 个会话标记为垃圾邮件}}",
+      "snooze": "{count, plural, other {已将 # 个会话延后至 {time}}}",
       "inbox": "{count, plural, other {已将 # 个会话移到收件箱}}",
       "delete": "{count, plural, other {已永久删除 # 个会话}}",
       "move": "{count, plural, other {已将 # 个会话移至 {folder}}}"

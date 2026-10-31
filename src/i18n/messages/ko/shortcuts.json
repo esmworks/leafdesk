@@ -75,6 +75,7 @@
     "mailArchive": "보관 또는 받은편지함으로 되돌리기",
     "mailTrash": "휴지통으로 이동(휴지통에서는 영구 삭제)",
     "mailJunk": "스팸으로 표시",
+    "mailSnooze": "선택한 시간까지 다시 알림 설정",
     "mailStar": "별표 표시 또는 해제",
     "mailUnread": "읽지 않음으로 표시",
     "mailRead": "읽음으로 표시",

@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Odebrane",
     "drafts": "Szkice",
+    "snoozed": "Odłożone",
     "sent": "Wysłane",
     "archive": "Archiwum",
     "junk": "Spam",
@@ -65,6 +66,7 @@
     "archive": "Archiwizuj",
     "trash": "Przenieś do kosza",
     "junk": "Oznacz jako spam",
+    "snooze": "Odłóż",
     "inbox": "Przenieś do odebranych",
     "delete": "Usuń na zawsze",
     "star": "Oznacz gwiazdką",
@@ -86,9 +88,21 @@
     "archive": "Konwersacja zarchiwizowana",
     "trash": "Konwersacja przeniesiona do kosza",
     "junk": "Konwersacja oznaczona jako spam",
+    "snooze": "Odłożono do {time}",
     "inbox": "Konwersacja przeniesiona do odebranych",
     "delete": "Konwersacja usunięta na zawsze",
     "move": "Wątek przeniesiono do: {folder}"
+  },
+  "snooze": {
+    "title": "Odłóż do",
+    "laterToday": "Później dzisiaj",
+    "tomorrow": "Jutro",
+    "weekend": "W ten weekend",
+    "nextWeek": "W przyszłym tygodniu",
+    "pick": "Data i godzina",
+    "placeholder": "pt 9:00, 12 lis, za 3 dni",
+    "notAhead": "Wybierz moment od minuty do roku od teraz.",
+    "until": "Odłożono do {time}"
   },
   "composer": {
     "newTitle": "Nowa wiadomość",
@@ -155,6 +169,7 @@
       "archive": "{count, plural, one {Zarchiwizowano # konwersację} few {Zarchiwizowano # konwersacje} many {Zarchiwizowano # konwersacji} other {Zarchiwizowano # konwersacji}}",
       "trash": "{count, plural, one {Przeniesiono # konwersację do kosza} few {Przeniesiono # konwersacje do kosza} many {Przeniesiono # konwersacji do kosza} other {Przeniesiono # konwersacji do kosza}}",
       "junk": "{count, plural, one {Oznaczono # konwersację jako spam} few {Oznaczono # konwersacje jako spam} many {Oznaczono # konwersacji jako spam} other {Oznaczono # konwersacji jako spam}}",
+      "snooze": "{count, plural, one {Odłożono # konwersację do {time}} few {Odłożono # konwersacje do {time}} many {Odłożono # konwersacji do {time}} other {Odłożono # konwersacji do {time}}}",
       "inbox": "{count, plural, one {Przeniesiono # konwersację do odebranych} few {Przeniesiono # konwersacje do odebranych} many {Przeniesiono # konwersacji do odebranych} other {Przeniesiono # konwersacji do odebranych}}",
       "delete": "{count, plural, one {Usunięto na zawsze # konwersację} few {Usunięto na zawsze # konwersacje} many {Usunięto na zawsze # konwersacji} other {Usunięto na zawsze # konwersacji}}",
       "move": "{count, plural, one {Przeniesiono # konwersację do: {folder}} few {Przeniesiono # konwersacje do: {folder}} many {Przeniesiono # konwersacji do: {folder}} other {Przeniesiono # konwersacji do: {folder}}}"

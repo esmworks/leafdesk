@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Inkorg",
     "drafts": "Utkast",
+    "snoozed": "Snoozade",
     "sent": "Skickat",
     "archive": "Arkiv",
     "junk": "Skräppost",
@@ -65,6 +66,7 @@
     "archive": "Arkivera",
     "trash": "Flytta till papperskorgen",
     "junk": "Markera som skräppost",
+    "snooze": "Snooza",
     "inbox": "Flytta till inkorgen",
     "delete": "Ta bort permanent",
     "star": "Stjärnmärk",
@@ -86,9 +88,21 @@
     "archive": "Konversationen arkiverades",
     "trash": "Konversationen flyttades till papperskorgen",
     "junk": "Konversationen markerades som skräppost",
+    "snooze": "Snoozad till {time}",
     "inbox": "Konversationen flyttades till inkorgen",
     "delete": "Konversationen togs bort permanent",
     "move": "Konversationen flyttades till {folder}"
+  },
+  "snooze": {
+    "title": "Snooza till",
+    "laterToday": "Senare i dag",
+    "tomorrow": "I morgon",
+    "weekend": "I helgen",
+    "nextWeek": "Nästa vecka",
+    "pick": "Datum och tid",
+    "placeholder": "fre 9:00, 12 nov, om 3 dagar",
+    "notAhead": "Välj en tidpunkt mellan en minut och ett år från nu.",
+    "until": "Snoozad till {time}"
   },
   "composer": {
     "newTitle": "Nytt meddelande",
@@ -155,6 +169,7 @@
       "archive": "{count, plural, one {# konversation arkiverades} other {# konversationer arkiverades}}",
       "trash": "{count, plural, one {# konversation flyttades till papperskorgen} other {# konversationer flyttades till papperskorgen}}",
       "junk": "{count, plural, one {# konversation markerades som skräppost} other {# konversationer markerades som skräppost}}",
+      "snooze": "{count, plural, one {# konversation snoozades till {time}} other {# konversationer snoozades till {time}}}",
       "inbox": "{count, plural, one {# konversation flyttades till inkorgen} other {# konversationer flyttades till inkorgen}}",
       "delete": "{count, plural, one {# konversation togs bort permanent} other {# konversationer togs bort permanent}}",
       "move": "{count, plural, one {# konversation flyttades till {folder}} other {# konversationer flyttades till {folder}}}"

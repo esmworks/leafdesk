@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertOctagon, Archive, Folder, Inbox, Mails, Send, SquarePen, FileText, Trash2, type LucideIcon } from "lucide-react";
+import { AlertOctagon, Archive, Clock, Folder, Inbox, Mails, Send, SquarePen, FileText, Trash2, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -14,6 +14,7 @@ export const FOLDER_ICONS: Record<MailFolderRole, LucideIcon> = {
   inbox: Inbox,
   drafts: FileText,
   sent: Send,
+  snoozed: Clock,
   archive: Archive,
   junk: AlertOctagon,
   trash: Trash2,

@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Recibidos",
     "drafts": "Borradores",
+    "snoozed": "Pospuestos",
     "sent": "Enviados",
     "archive": "Archivados",
     "junk": "Spam",
@@ -65,6 +66,7 @@
     "archive": "Archivar",
     "trash": "Mover a la papelera",
     "junk": "Marcar como spam",
+    "snooze": "Posponer",
     "inbox": "Mover a recibidos",
     "delete": "Eliminar definitivamente",
     "star": "Destacar",
@@ -86,9 +88,21 @@
     "archive": "Conversación archivada",
     "trash": "Conversación movida a la papelera",
     "junk": "Conversación marcada como spam",
+    "snooze": "Pospuesta hasta {time}",
     "inbox": "Conversación movida a recibidos",
     "delete": "Conversación eliminada definitivamente",
     "move": "Conversación movida a {folder}"
+  },
+  "snooze": {
+    "title": "Posponer hasta",
+    "laterToday": "Más tarde hoy",
+    "tomorrow": "Mañana",
+    "weekend": "Este fin de semana",
+    "nextWeek": "La próxima semana",
+    "pick": "Fecha y hora",
+    "placeholder": "vie 9:00, 12 nov, en 3 días",
+    "notAhead": "Elige un momento entre un minuto y un año a partir de ahora.",
+    "until": "Pospuesta hasta {time}"
   },
   "composer": {
     "newTitle": "Mensaje nuevo",
@@ -155,6 +169,7 @@
       "archive": "{count, plural, one {# conversación archivada} other {# conversaciones archivadas}}",
       "trash": "{count, plural, one {# conversación movida a la papelera} other {# conversaciones movidas a la papelera}}",
       "junk": "{count, plural, one {# conversación marcada como spam} other {# conversaciones marcadas como spam}}",
+      "snooze": "{count, plural, one {# conversación pospuesta hasta {time}} other {# conversaciones pospuestas hasta {time}}}",
       "inbox": "{count, plural, one {# conversación movida a recibidos} other {# conversaciones movidas a recibidos}}",
       "delete": "{count, plural, one {# conversación eliminada definitivamente} other {# conversaciones eliminadas definitivamente}}",
       "move": "{count, plural, one {# conversación movida a {folder}} other {# conversaciones movidas a {folder}}}"

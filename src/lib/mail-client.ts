@@ -7,9 +7,9 @@
 import type { MailImagesFrom } from "./mail-images";
 
 /** What a folder is for. Folders without one are the owner's own. */
-export type MailFolderRole = "inbox" | "sent" | "drafts" | "archive" | "junk" | "trash";
+export type MailFolderRole = "inbox" | "sent" | "drafts" | "snoozed" | "archive" | "junk" | "trash";
 
-export const MAIL_FOLDER_ROLES: MailFolderRole[] = ["inbox", "drafts", "sent", "archive", "junk", "trash"];
+export const MAIL_FOLDER_ROLES: MailFolderRole[] = ["inbox", "drafts", "snoozed", "sent", "archive", "junk", "trash"];
 
 export type MailAddress = { address: string; name: string | null };
 
@@ -61,6 +61,7 @@ const ROLE_NAMES: Record<Exclude<MailFolderRole, "inbox">, string[]> = {
   drafts: ["Drafts", "Draft", "Taslaklar", "Taslak", "Entwürfe", "Borradores", "Brouillons", "Bozze", "Rascunhos", "Wersje robocze", "Черновики", "Чернетки", "المسودات", "پیش‌نویس‌ها", "טיוטות", "下書き", "임시 보관함", "草稿", "草稿箱"],
   archive: ["Archive", "Archives", "Arşiv", "Arşivle", "Archiv", "Archivo", "Archivio", "Arquivo", "Archiwum", "Архив", "Архів", "الأرشيف", "بایگانی", "ארכיון", "アーカイブ", "보관함", "归档", "封存"],
   junk: ["Junk", "Junk E-mail", "Junk Email", "Spam", "Bulk Mail", "Gereksiz", "Gereksiz E-posta", "İstenmeyen", "İstenmeyen E-posta", "Önemsiz E-posta", "Spam-Verdacht", "Junk-E-Mail", "Correo no deseado", "Courrier indésirable", "Indesiderata", "Lixo eletrônico", "Wiadomości-śmieci", "Спам", "البريد العشوائي", "هرزنامه", "דואר זבל", "迷惑メール", "스팸", "垃圾邮件", "垃圾郵件"],
+  snoozed: ["Snoozed", "Ertelenenler", "Ertelenen", "Zurückgestellt", "Pospuestos", "En attente", "Posticipati", "Adiados", "Odłożone", "Отложенные", "スヌーズ中", "다시 알림", "已延后"],
   trash: ["Trash", "Deleted", "Deleted Items", "Deleted Messages", "Bin", "Çöp", "Çöp Kutusu", "Silinmiş Öğeler", "Silinenler", "Papierkorb", "Gelöschte Elemente", "Papelera", "Elementos eliminados", "Corbeille", "Éléments supprimés", "Cestino", "Lixeira", "Itens excluídos", "Kosz", "Корзина", "Удаленные", "Кошик", "المهملات", "سطل زباله", "אשפה", "ゴミ箱", "削除済みアイテム", "휴지통", "已删除", "垃圾桶", "已刪除"],
 };
 
@@ -236,6 +237,8 @@ export type MailThreadItem = {
   starred: boolean;
   hasAttachments: boolean;
   hasDraft: boolean;
+  /** Snoozed until this moment (listed in the snoozed folder), or null. */
+  snoozedUntil: string | null;
   /** The database row the other party is (its title and database), when one is. */
   row: { rowId: string; databaseId: string; title: string; icon: string | null } | null;
 };
@@ -362,7 +365,9 @@ export const MAIL_DRAFT_SLOW_MS = 15_000;
 export const MAIL_DRAFT_HEAVY = 2 * 1024 * 1024;
 
 /** Actions on threads from the list or an opened thread. */
-/** `move` goes to the folder the request names in `to`; the others are by folder role or flag. */
-export type MailAction = "archive" | "trash" | "junk" | "inbox" | "move" | "read" | "unread" | "star" | "unstar" | "delete";
-/** Folders a conversation can be moved to by name: not where mail is written or sent from. */
-export const movableTo = (folder: { role: MailFolderRole | null }) => folder.role !== "sent" && folder.role !== "drafts";
+/** `move` goes to the folder the request names in `to`, `snooze` to the snoozed folder until `until`; the others are by folder role or flag. */
+export type MailAction = "archive" | "trash" | "junk" | "inbox" | "move" | "snooze" | "read" | "unread" | "star" | "unstar" | "delete";
+/** Folders a conversation can be moved to by name: not where mail is written or sent from, nor where it waits for its snooze. */
+export const movableTo = (folder: { role: MailFolderRole | null }) => folder.role !== "sent" && folder.role !== "drafts" && folder.role !== "snoozed";
+/** Folders a conversation may be snoozed from: the snoozed one holds it already, and sent mail, drafts, the trash and junk stay put. */
+export const snoozableFrom = (folder: { role: MailFolderRole | null }) => movableTo(folder) && folder.role !== "trash" && folder.role !== "junk";
