@@ -318,9 +318,11 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   the writer reads the answered mail's row (`rowOfMessage`, the composer's `MailMessageView.row`, then `operations.ts` `visibleRow` as the person) and the person's
   `ai-memory.ts` notes; a thread's tasks are parsed in the browser (`lib/mail-tasks.ts`) and added by
   `mail-client/tasks.ts` as to-dos mentioning the person (row page, else daily note), checked again there;
-  the AI chat's `search_mail`, `read_mail` and `draft_mail` are `server/ai-chat-mail.ts` (only the person's
+  the AI chat's `search_mail`, `read_mail`, `read_mail_attachment` and `draft_mail` are `server/ai-chat-mail.ts` (only the person's
   own chat in the app: never research, connected apps such as the Telegram bot or MCP; reads make
-  the rest of the answer ask, drafts ask in every mode and never send); an agent gets them only for
+  the rest of the answer ask, drafts ask in every mode and never send; a message's files are read
+  by `mail-client/ai-files.ts`, an image only by a model given no tools, whose text goes on framed);
+  an agent gets them only for
   mailboxes their owner opened to it (`agents/mail.ts`, table `agent_mailbox`) on runs `lib/agents.ts`
   `mailRun` allows (shown to that person alone, in the app); its drafts are saved unasked, so
   `prepareMailDraft` checks recipients, and once a run read mail `run.ts` refuses all but page reads

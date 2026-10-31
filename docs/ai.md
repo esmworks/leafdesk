@@ -289,12 +289,20 @@ have a mailbox there), the chat can search your mail (`search_mail`: all your ma
 folder but the trash and junk, with the Mail tab's search words such as `from:`, `subject:` and
 `after:`) and read a thread (`read_mail`: its last eight messages, without marking them read). A
 thread read is a numbered source the answer cites, which opens it in the Mail tab, and the chat
-learns which database row its other party is, to read that row too. Asked to write or answer an
+learns which database row its other party is, to read that row too. `read_mail` also lists the
+files of those messages, and `read_mail_attachment` reads one, as a numbered source that opens the
+file: PDF, Word, Excel and PowerPoint documents (their text, as search reads uploads; a scanned
+PDF has none), CSV, text, calendar invitations, contact cards, XML such as e-invoices, JSON, HTML
+and forwarded emails. An image is shown only to a separate model that takes images and has no
+tools: it writes out the image's text and says what it shows, and the chat reads that text. It
+uses the first model of the workspace's AI that takes images, so it works when the chat's own
+model doesn't, and says so when none does. Asked to write or answer an
 email, it saves a draft in your Drafts folder (`draft_mail`, not in *Read only*): the card shows
 the mailbox it is from, every recipient, the subject and the whole text, and is asked every time,
-also in *Auto*. Nothing is sent: you open the draft in the Mail tab and send it there. Mail
-reaches the model as outside data, and once an answer read mail every change and note it wants is
-asked about, also in *Auto*, so text in an email can't make it act on its own. The threads read
+also in *Auto*. Nothing is sent: you open the draft in the Mail tab and send it there. Mail and
+its files reach the model as outside data, and once an answer read mail or a file of it every
+change and note it wants is asked about, also in *Auto*, so text in an email, a PDF or an image
+can't make it act on its own. The threads read
 are kept in the conversation like any source, which only you see. Only your own chat in the app
 has these tools: not research, the Telegram bot or MCP clients. Agents read only the mailboxes
 you open to them, under rules of their own ([Agents](agents.md)).

@@ -321,6 +321,7 @@
       "mail": {
         "searched": "Recherche dans les e-mails de « {query} » · {count, plural, =0 {aucun résultat} one {# conversation} other {# conversations}}",
         "read": "E-mail lu",
+        "attachment": "« {name} » lu dans",
         "noSubject": "(sans objet)",
         "earlier": "Des e-mails ont déjà été lus dans cette conversation : cette réponse ne fait que lire des pages et rédiger des brouillons",
         "to": "à {to}",

@@ -746,6 +746,7 @@ export function describeAgentStep(step: AgentStepRecord) {
         summary: {
           search: "Searched the user's email",
           read: "Read an email",
+          attachment: "Read a file of an email",
           draft: "Saved an email draft",
           earlier: "Went on from a chat that read email",
           sort: "Sorted an email thread",

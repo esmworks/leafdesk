@@ -6,7 +6,7 @@
  * plan, a web search or a web page read, a thought), as a line: an icon and what happened, the
  * pages it names as links (web pages open in a new tab).
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
+import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, Paperclip, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
@@ -155,6 +155,19 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
       );
     }
     const subject = step.subject || t("steps.mail.noSubject");
+    if (step.action === "attachment") {
+      return (
+        <>
+          <Paperclip className={icon} />
+          <span className="flex min-w-0 items-center gap-1">
+            <span className="min-w-0 truncate">{t("steps.mail.attachment", { name: step.name })}</span>
+            <a href={step.url} className="min-w-0 truncate text-fg hover:underline">
+              {subject}
+            </a>
+          </span>
+        </>
+      );
+    }
     const label =
       step.action === "read"
         ? t("steps.mail.read")

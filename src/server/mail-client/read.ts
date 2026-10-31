@@ -685,13 +685,13 @@ async function openBody(box: Box, message: MessageRow, folder: FolderRow, images
 }
 
 /**
- * A message and its text for the AI (mail-client/ai.ts), read as opening it would but left unread:
- * a summary or an answer written from it is not the person reading it.
+ * A message, its text and its files for the AI (mail-client/ai.ts), read as opening it would but
+ * left unread: a summary or an answer written from it is not the person reading it.
  */
 export async function messageForAi(userId: string, id: string) {
   const { box, message, folder } = await ownMessage(userId, id);
-  const text = (await openBody(box, message, folder, false)).text;
-  return { box, message, text };
+  const { text, attachments } = await openBody(box, message, folder, false);
+  return { box, message, text, attachments };
 }
 
 /** The database row the other party of a message is, as its thread's chip finds it (the writer's context, mail-client/ai.ts), or null. */
@@ -808,8 +808,11 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
   };
 }
 
-/** A file of a message, read from the mail server whole (MAX_ATTACHMENT_BYTES at most). */
-export async function readAttachment(userId: string, input: { id: string; part: string }) {
+/**
+ * A file of a message, read from the mail server whole (`maxBytes` at most, else `tooMany`), never
+ * marking the message read.
+ */
+export async function readAttachment(userId: string, input: { id: string; part: string }, { maxBytes = MAX_ATTACHMENT_BYTES }: { maxBytes?: number } = {}) {
   if (typeof input.part !== "string" || !/^\d+(\.\d+)*$/.test(input.part)) throw new RowMailError("invalid");
   const { box, message, folder } = await ownMessage(userId, input.id);
   const file = await withImap(box, async (client) => {
@@ -818,10 +821,12 @@ export async function readAttachment(userId: string, input: { id: string; part: 
       const fetched = await client.fetchOne(String(message.uid), { uid: true, bodyStructure: true }, { uid: true });
       const listed = fetched && fetched.bodyStructure ? messageParts(fetched.bodyStructure).attachments.find((a) => a.part === input.part) : undefined;
       if (!listed) return null;
-      if (listed.size > travelling(MAX_ATTACHMENT_BYTES)) throw new RowMailError("tooMany");
-      const raw = await readPart(client, message.uid, listed.part, travelling(MAX_ATTACHMENT_BYTES));
+      if (listed.size > travelling(maxBytes)) throw new RowMailError("tooMany");
+      const raw = await readPart(client, message.uid, listed.part, travelling(maxBytes));
       if (!raw) return null;
-      return { name: listed.name, contentType: listed.contentType, data: decodeTransfer(raw, listed.encoding) };
+      const data = decodeTransfer(raw, listed.encoding);
+      if (data.length > maxBytes) throw new RowMailError("tooMany");
+      return { name: listed.name, contentType: listed.contentType, data };
     } finally {
       lock.release();
     }

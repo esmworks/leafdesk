@@ -617,11 +617,12 @@ export const mailRun = (source: AgentRunSource): boolean => (source.kind === "ch
 
 /**
  * The mail tools of an agent's run (server/ai-chat-mail.ts MAIL_TOOL_NAMES and AGENT_MAIL_ACTIONS):
- * reading and drafting as the AI chat does, and sorting what came (marking it read or starred,
- * archiving it, moving it to one of the mailbox's folders) and keeping a thread's summary, which
- * the Mail tab can undo or the person write again. Never sending, deleting or the trash.
+ * reading (an email's files too) and drafting as the AI chat does, and sorting what came (marking
+ * it read or starred, archiving it, moving it to one of the mailbox's folders) and keeping a
+ * thread's summary, which the Mail tab can undo or the person write again. Never sending, deleting
+ * or the trash.
  */
-export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "draft_mail", "sort_mail", "summarize_mail"]);
+export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "read_mail_attachment", "draft_mail", "sort_mail", "summarize_mail"]);
 
 /**
  * What a run that read email may still call besides the mail tools: reading pages, finding tools,
@@ -637,7 +638,7 @@ export const READS_AFTER_MAIL: ReadonlySet<string> = new Set(["search_pages", "r
 export const mayCallAfterMail = (name: string, connectionTool: boolean): boolean => !connectionTool && (READS_AFTER_MAIL.has(name) || AGENT_MAIL_TOOLS.has(name));
 
 /** The mail steps that read email (ChatMailRecord): drafting, sorting and summarizing don't on their own. */
-const READ_MAIL_ACTIONS: ReadonlySet<string> = new Set(["search", "read", "earlier"]);
+const READ_MAIL_ACTIONS: ReadonlySet<string> = new Set(["search", "read", "attachment", "earlier"]);
 
 /**
  * Whether a run's steps show it read email, or went on from a conversation that had: its answer

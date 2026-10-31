@@ -38,6 +38,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   ["mail.tasks", { thinking: "low" }],
   // The Mail tab's writer, like the editor's: what it writes goes to someone outside.
   ["mail.write", { thinking: "low" }],
+  // An image attached to an email written out and described for the chat or an agent, on a model
+  // that takes images (asked for by name): the text is all in the image.
+  ["mail.attachment", { thinking: "low" }],
   // A formula from a description, checked before it is offered: the main model (the language is
   // its own and the check sends failures back), with a little thinking while the person waits.
   ["formula.", { thinking: "low" }],

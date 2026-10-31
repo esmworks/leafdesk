@@ -24,6 +24,15 @@
   when it left a draft or failed. The tools `sort_mail` and `summarize_mail` work in your chats with
   the agent too. Migration 0174.
 
+- **The AI chat and agents read the files of your email.** `read_mail` now lists a thread's files,
+  and `read_mail_attachment` reads one as a source the answer cites: PDF, Word, Excel and
+  PowerPoint documents, CSV, text, calendar invitations, contact cards, XML such as e-invoices,
+  JSON, HTML and forwarded emails, as their text. An image is looked at by a separate model that
+  takes images and has no tools, which writes out its text and says what it shows; only that text
+  reaches the chat or the agent. A file is read like the mail it came with: as outside data, after
+  which the chat asks before every change and an agent's run only reads pages and works on that mail. Agents
+  read only the files of mailboxes opened to them. Nothing is marked as read.
+
 - **Agents can read your email and draft answers, in the mailboxes you open to them.** On an
   agent's Access tab, *Your email* lists your own mailboxes; open one and the agent's runs that
   work for you and show only to you (your chat with it in the app, and schedules you set that look

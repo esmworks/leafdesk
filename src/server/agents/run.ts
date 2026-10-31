@@ -953,6 +953,13 @@ async function converse(
       }
       const out = await runChatMailTool(member, run.workspaceId, call, registry, room(messages), mailBoxes);
       if (!out.isError) mailRead = true;
+      // An image of the mail described by another model: the run's and the agent's month count it too.
+      if (out.usage) {
+        usage.inputTokens += out.usage.inputTokens;
+        usage.outputTokens += out.usage.outputTokens;
+        usage.costUsd += out.usage.costUsd;
+        await addAgentUsage(agent.id, out.usage).catch((error) => console.error("[agents] could not count what a run used", redactError(error)));
+      }
       return out;
     }
     if (external) {

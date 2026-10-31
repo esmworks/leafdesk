@@ -1,10 +1,11 @@
 /**
  * The AI chat on the person's own mail, where they may use the Mail tab in the workspace
- * (mail-client/read.ts mailTabShown): `search_mail` and `read_mail` read it as the tab does (never
- * marking anything seen), `draft_mail` saves a draft in their Drafts folder. Nothing here sends
- * mail: the person sends a draft from the Mail tab.
+ * (mail-client/read.ts mailTabShown): `search_mail`, `read_mail` and `read_mail_attachment` (a
+ * message's file, mail-client/ai-files.ts) read it as the tab does (never marking anything seen),
+ * `draft_mail` saves a draft in their Drafts folder. Nothing here sends mail: the person sends a
+ * draft from the Mail tab.
  *
- * Mail is anyone's words. What the tools read comes back framed as data from outside, and once an
+ * Mail and its files are anyone's words. What the tools read comes back framed as data from outside, and once an
  * answer read mail, ai-chat.ts asks the person before every change and note for the rest of it,
  * even in Auto. A draft could carry what the model read to an address an email named: each is
  * asked about in every mode, showing its sender, every recipient, the subject and the text, and
@@ -23,8 +24,10 @@ import { mailbox, mailFolder, mailMessage } from "@/db/schema";
 import type { MailSortAction } from "@/db/schema/ai";
 import type { ChatActionView } from "@/lib/ai-chat";
 import { env } from "@/lib/env";
+import { formatBytes } from "@/lib/files";
 import { normalizeAddress } from "@/lib/mail";
 import { draftHtml } from "@/lib/mail-ai";
+import { mailFileKind } from "@/lib/mail-ai-files";
 import { ALL_INBOXES, movableTo, type MailAgentDeed, type MailAgentMark, type MailThreadItem } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
 import { AiError, type AiTool } from "@/server/ai";
@@ -35,18 +38,20 @@ import { connectedAppCall } from "@/server/connected-app";
 import { loadMessages } from "@/i18n/messages";
 import { recipientLocale } from "@/server/mail/locale";
 import { RowMailError } from "@/server/row-mail/settings";
-import { saveSummary, threadForAi } from "@/server/mail-client/ai";
+import { saveSummary, threadForAi, type AiMailFiles } from "@/server/mail-client/ai";
+import { mailFileForAi } from "@/server/mail-client/ai-files";
 import { conversationText } from "@/server/mail-client/ai-prompts";
 import { saveDraft } from "@/server/mail-client/drafts";
 import { outgoingBody } from "@/server/mail-client/outgoing";
 import { listMailboxes, listThreads, mailTabShown, openMailbox, ownMessage } from "@/server/mail-client/read";
 import { mailAction } from "@/server/mail-client/write";
 
-export const MAIL_TOOL_NAMES = { search: "search_mail", read: "read_mail", draft: "draft_mail" } as const;
+export const MAIL_TOOL_NAMES = { search: "search_mail", read: "read_mail", attachment: "read_mail_attachment", draft: "draft_mail" } as const;
 
-/** Threads a search lists, a thread's text read, and a draft's recipients and text, at most. */
+/** Threads a search lists, a thread's text read, a file's text read at once, and a draft's recipients and text, at most. */
 const SEARCH_THREADS = 15;
 const THREAD_CHARS = 20_000;
+const FILE_CHARS = 30_000;
 const MAX_DRAFT_RECIPIENTS = 20;
 const DRAFT_CHARS = 20_000;
 const SUBJECT_CHARS = 300;
@@ -73,11 +78,26 @@ const READ_TOOLS: AiTool[] = [
   {
     name: MAIL_TOOL_NAMES.read,
     description:
-      "Reads an email thread by a message_id from search_mail: its last messages, oldest first, as a numbered source to cite, and the database row its other party is, when there is one (read it with read_page). Doesn't mark the mail as read.",
+      "Reads an email thread by a message_id from search_mail: its last messages, oldest first, as a numbered source to cite, the files of those messages (read one with read_mail_attachment), and the database row its other party is, when there is one (read it with read_page). Doesn't mark the mail as read.",
     parameters: {
       type: "object",
       properties: { message_id: { type: "string", description: "A message_id from search_mail." } },
       required: ["message_id"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: MAIL_TOOL_NAMES.attachment,
+    description:
+      "Reads a file of an email that read_mail listed, as a numbered source to cite: PDF, Word, Excel and PowerPoint documents, CSV, text, calendar, contact, XML (e-invoices) and JSON files and forwarded emails as their text; an image as its text written out and a description. A scanned PDF has no text to read. Doesn't mark the mail as read.",
+    parameters: {
+      type: "object",
+      properties: {
+        message_id: { type: "string", description: "The message_id read_mail gave the file under." },
+        file: { type: "string", description: "The file's number from read_mail, as \"2\" or \"1.3\"." },
+        from_char: { type: "number", description: "Where to read on in a long file, from the note of the read before." },
+      },
+      required: ["message_id", "file"],
       additionalProperties: false,
     },
   },
@@ -158,7 +178,7 @@ export async function chatMailToolset(userId: string, workspaceId: string, { wri
   return writes ? [...READ_TOOLS, DRAFT_TOOL] : READ_TOOLS;
 }
 
-export const isChatMailTool = (name: string) => name === MAIL_TOOL_NAMES.search || name === MAIL_TOOL_NAMES.read || name === MAIL_TOOL_NAMES.draft;
+export const isChatMailTool = (name: string) => (Object.values(MAIL_TOOL_NAMES) as string[]).includes(name);
 
 const argumentNames = (tool: AiTool) => Object.keys((tool.parameters as { properties?: object }).properties ?? {});
 const text = (value: unknown, max: number) => (typeof value === "string" ? value.trim().slice(0, max) : "");
@@ -171,7 +191,10 @@ export function mailPath(workspaceId: string, at: { mailboxId: string; folderId:
   return `/w/${workspaceId}/mail?${params}`;
 }
 
-/** Runs search_mail or read_mail as `userId`, with at most `room` characters of what comes back. */
+/**
+ * Runs search_mail, read_mail or read_mail_attachment as `userId`, with at most `room` characters
+ * of what comes back; `boxes` holds an agent's run to the mailboxes opened to it.
+ */
 export async function runChatMailTool(
   userId: string,
   workspaceId: string,
@@ -186,10 +209,18 @@ export async function runChatMailTool(
   const refused = unknownArguments(call.name, call.arguments, argumentNames(tool));
   if (refused) return refused;
   try {
-    return call.name === MAIL_TOOL_NAMES.search ? await searchMail(userId, workspaceId, text(call.arguments.query, 500), room, boxes) : await readMail(userId, workspaceId, text(call.arguments.message_id, 100), registry, room, boxes);
+    if (call.name === MAIL_TOOL_NAMES.search) return await searchMail(userId, workspaceId, text(call.arguments.query, 500), room, boxes);
+    if (call.name === MAIL_TOOL_NAMES.attachment) return await readMailAttachment(userId, workspaceId, call.arguments, registry, room, boxes);
+    return await readMail(userId, workspaceId, text(call.arguments.message_id, 100), registry, room, boxes);
   } catch (error) {
     if (error instanceof RowMailError || error instanceof AccessError) {
-      return { content: call.name === MAIL_TOOL_NAMES.search ? "The mail can't be searched now. Answer with what you have." : "No email with that message_id can be read. Use a message_id from search_mail.", isError: true };
+      const content =
+        call.name === MAIL_TOOL_NAMES.search
+          ? "The mail can't be searched now. Answer with what you have."
+          : call.name === MAIL_TOOL_NAMES.attachment
+            ? "No file with that message_id and number can be read. Use a message_id and file number read_mail listed."
+            : "No email with that message_id can be read. Use a message_id from search_mail.";
+      return { content, isError: true };
     }
     throw error;
   }
@@ -246,15 +277,84 @@ async function readMail(userId: string, workspaceId: string, messageId: string, 
     throw error;
   });
   const row = thread.row ? `\n\nThe other party is the database row "${oneLine(thread.row.title) || "(untitled)"}" (page_id ${thread.row.rowId}).` : "";
+  const files = filesText(thread.files, Math.min(FILES_CHARS, Math.floor(room / 4)));
   const path = mailPath(workspaceId, at);
   const entry = registerWeb(registry, {
     url: `${env.appUrl}${path}`,
     title: oneLine(thread.subject) || "(no subject)",
-    text: `${conversationText(thread.messages, Math.min(THREAD_CHARS, room - 800) - row.length)}${row}`,
+    text: `${conversationText(thread.messages, Math.min(THREAD_CHARS, room - 800) - row.length - files.length)}${files}${row}`,
   });
   return {
     content: externalData(`The email thread "${entry.title.replace(/"/g, "'")}" follows.`, formatSources([entry])),
     step: { kind: "mail", action: "read", subject: entry.title, url: path },
+  };
+}
+
+/** Files listed per message at most, characters of a file's name, and of the whole list. */
+const FILES_PER_MESSAGE = 20;
+const FILE_NAME_CHARS = 150;
+const FILES_CHARS = 5_000;
+
+/** The files of a thread's messages read_mail lists, in about `max` characters, to read with read_mail_attachment; "" without any. */
+function filesText(files: AiMailFiles[], max: number): string {
+  if (!files.length) return "";
+  const lines = files.flatMap((f) => [
+    `From ${f.from} (message_id ${f.messageId}):`,
+    ...f.attachments.slice(0, FILES_PER_MESSAGE).map((a) => {
+      const read = mailFileKind(a.contentType, a.name) ? "" : " · not read";
+      return `- file ${a.part}: ${oneLine(a.name).slice(0, FILE_NAME_CHARS)} (${oneLine(a.contentType).slice(0, 100)}, ${formatBytes(a.size)})${read}`;
+    }),
+    ...(f.attachments.length > FILES_PER_MESSAGE ? [`- and ${f.attachments.length - FILES_PER_MESSAGE} more`] : []),
+  ]);
+  let list = lines.join("\n");
+  if (list.length > max) list = `${list.slice(0, Math.max(0, list.lastIndexOf("\n", max)))}\n- … and more`;
+  return `\n\nFiles of these messages (read one with ${MAIL_TOOL_NAMES.attachment}):\n${list}`;
+}
+
+/** The longest a part number is: IMAP numbers parts with dots, a few levels deep. */
+const PART = /^\d{1,4}(\.\d{1,4}){0,7}$/;
+
+async function readMailAttachment(userId: string, workspaceId: string, args: Record<string, unknown>, registry: Registry, room: number, boxes?: readonly string[]): Promise<ToolOutcome> {
+  const messageId = text(args.message_id, 100);
+  const part = typeof args.file === "number" ? String(args.file) : text(args.file, 40);
+  if (!messageId || !PART.test(part)) return { content: `${MAIL_TOOL_NAMES.attachment} needs a message_id and a file number read_mail listed.`, isError: true };
+  const { box, message } = await ownMessage(userId, messageId);
+  if (box.workspaceId !== workspaceId || (boxes && !boxes.includes(box.id))) throw new AccessError();
+  // An agent's run takes from the workspace's allowance, as its own turns do.
+  const read = await mailFileForAi(userId, workspaceId, { messageId, part }, { background: boxes !== undefined });
+  const subject = oneLine(message.subject) || "(no subject)";
+  const at = { mailboxId: box.id, folderId: message.folderId, threadId: message.threadId };
+  const step = { kind: "mail" as const, action: "attachment" as const, name: oneLine(read.name).slice(0, FILE_NAME_CHARS), subject, url: mailPath(workspaceId, at) };
+  if ("problem" in read) {
+    const why = {
+      kind: "Files of this kind aren't read: answer that you can't open it, and what its name and type say.",
+      tooLarge: "The file is too large to read.",
+      empty: "The file has no text to read: it may be a scan, an image of text in a PDF, or a locked or damaged file. Say so.",
+      noImageModel: "No model here can look at images, so this image can't be read. Say so.",
+      failed: "The image couldn't be read now. Answer with what you have.",
+    }[read.problem];
+    // Without the file's name: it is the sender's words, and this answer isn't framed.
+    return { content: why, isError: true };
+  }
+
+  const length = read.text.length;
+  const start = Math.max(1, Math.floor(Number(args.from_char) || 1));
+  if (start > length) return { content: `The file has ${length} characters.`, isError: true };
+  const shown = read.text.slice(start - 1, start - 1 + Math.max(0, Math.min(FILE_CHARS, room - 1_000)));
+  if (!shown) return { content: "There is no room left in this request to read more of the file. Answer with what you have.", isError: true };
+  const end = start + shown.length - 1;
+  const more = end < length ? `Characters ${start}-${end} of ${length}: read on with from_char ${end + 1}.` : read.partial ? "Only the start of this long file was read." : undefined;
+  const as = read.kind === "image" ? "The image's text and what it shows, as a model that looked at it wrote them." : undefined;
+  const entry = registerWeb(registry, {
+    url: `${env.appUrl}/api/mail/attachment?${new URLSearchParams({ m: messageId, p: part })}`,
+    title: `${step.name} · ${subject}`,
+    text: shown,
+    note: [as, more].filter(Boolean).join(" ") || undefined,
+  });
+  return {
+    content: externalData(`The file "${step.name.replace(/"/g, "'")}" of the email "${subject.replace(/"/g, "'")}" follows.`, formatSources([entry])),
+    step,
+    ...(read.usage ? { usage: read.usage } : {}),
   };
 }
 
