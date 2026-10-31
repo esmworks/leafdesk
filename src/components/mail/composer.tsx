@@ -32,6 +32,7 @@ import { RecipientField } from "./recipient-field";
 
 // The AI writer loads the first time it is opened.
 const ComposerAi = lazyPart(() => import("./composer-ai").then((m) => m.ComposerAi));
+const TemplateMenu = lazyPart(() => import("./template-menu").then((m) => m.TemplateMenu));
 
 /** A file of the message: one added here, or one its saved draft holds on the mail server (by its part there). */
 type Attached = { file: File } | { stored: MailAttachmentView };
@@ -485,6 +486,7 @@ export function Composer({
           <FormatBar editor={editor} linking={linking} setLinking={setLinking} />
         </div>
       )}
+      {editor && <TemplateMenu editor={editor} workspaceId={workspaceId} subject={subject} />}
       {ai && editor && (
         <IconButton label={tai("write")} aria-pressed={!!writer} className={cn("h-8 w-8 text-fg-icon", writer && "bg-bg-active text-fg")} onClick={() => setWriter(writer ? null : { start: null })}>
           <Sparkles className="h-4 w-4" />

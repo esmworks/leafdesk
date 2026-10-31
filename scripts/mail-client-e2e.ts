@@ -74,7 +74,7 @@ const { and, eq, inArray } = await import("drizzle-orm");
 const nodemailer = (await import("nodemailer")).default;
 const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
-const { mailbox, mailFolder, mailMessage, mailSend, user, workspace, workspaceMember } = await import("@/db/schema");
+const { mailbox, mailFolder, mailMessage, mailSend, mailSnooze, user, workspace, workspaceMember } = await import("@/db/schema");
 const { addProperty } = await import("@/server/databases");
 const { createPage } = await import("@/server/pages");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
@@ -86,6 +86,9 @@ const drafts = await import("@/server/mail-client/drafts");
 const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
 const { stopWatching, watchMailbox } = await import("@/server/mail-client/watch");
+const { runMailSnoozes } = await import("@/server/mail-client/snooze");
+const { mailTemplate } = await import("@/server/mail-client/templates");
+const { createSnippet } = await import("@/server/snippets");
 const images = await import("@/server/mail-client/images");
 const { unsubscribe } = await import("@/server/mail-client/unsubscribe");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -381,6 +384,55 @@ try {
   const starredBoth = (await uidsIn("INBOX", { flagged: true })).length;
   await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: selected, action: "unstar" });
   check(selected.length === 2 && starredBoth === 2 && !(await uidsIn("INBOX", { flagged: true })).length, "one action changes every selected thread", [selected, starredBoth]);
+
+  // Snoozing: to a snoozed folder made for it, back to the inbox when its time comes.
+  const napping = bySubject("Ynt: Bütçe")!;
+  const snoozeNapping = (until: Date, userId = ids.ada) => mailAction(userId, { mailboxId: boxId, folderId: inbox.id, threadIds: [napping.threadId], action: "snooze", until: until.toISOString() });
+  const inHour = new Date(Date.now() + 3_600_000);
+  check(
+    (await errorCode(() => snoozeNapping(new Date(Date.now() - 60_000)))) === "invalid" &&
+      (await errorCode(() => snoozeNapping(new Date(Date.now() + 400 * 86_400_000)))) === "invalid" &&
+      (await errorCode(() => snoozeNapping(inHour, ids.bob))) === "noMailbox",
+    "a conversation is snoozed to a moment ahead, within a year, by the mailbox's owner alone",
+  );
+  await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: [napping.threadId], action: "read" });
+  await snoozeNapping(inHour);
+  const snoozedFolder = (await db.select().from(mailFolder).where(and(eq(mailFolder.mailboxId, boxId), eq(mailFolder.role, "snoozed"))))[0];
+  const inboxNow = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id });
+  const snoozedList = snoozedFolder ? await read.listThreads(ids.ada, { mailboxId: boxId, folderId: snoozedFolder.id }) : null;
+  check(
+    !!snoozedFolder && !inboxNow.items.some((i) => i.threadId === napping.threadId) && (await uidsIn("Snoozed")).length === 2,
+    "snoozing moves the conversation out of the inbox to a snoozed folder made for it, on the server too",
+    [snoozedFolder?.path, inboxNow.items.map((i) => i.subject)],
+  );
+  check(snoozedList?.items[0]?.threadId === napping.threadId && snoozedList.items[0].snoozedUntil === inHour.toISOString(), "the snoozed folder lists it with the moment it comes back", snoozedList?.items);
+  check(
+    (await errorCode(() => mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: [bulten.threadId], action: "move", to: snoozedFolder!.id }))) === "invalid",
+    "nothing is moved to the snoozed folder by name",
+  );
+  await runMailSnoozes(new Date());
+  check((await uidsIn("Snoozed")).length === 2, "it stays snoozed until its time");
+  const unseenBefore = (await uidsIn("INBOX", { seen: false })).length;
+  const later = new Date(Date.now() + 2 * 3_600_000);
+  await runMailSnoozes(later);
+  const woken = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id });
+  const [snoozeRow] = await db.select().from(mailSnooze).where(eq(mailSnooze.threadId, napping.threadId));
+  check(
+    woken.items[0]?.threadId === napping.threadId && woken.items[0].unread && woken.items[0].unseen === 1 && woken.items[0].sentAt === later.toISOString(),
+    "when its time comes it is back at the top of the inbox, its newest message unread",
+    woken.items.map((i) => [i.subject, i.unread, i.unseen, i.sentAt]),
+  );
+  check(
+    (await uidsIn("Snoozed")).length === 0 && (await uidsIn("INBOX", { seen: false })).length === unseenBefore + 1 && snoozeRow?.wokeAt?.getTime() === later.getTime(),
+    "on the server too",
+  );
+  await snoozeNapping(inHour);
+  await mailAction(ids.ada, { mailboxId: boxId, folderId: snoozedFolder!.id, threadIds: [napping.threadId], action: "inbox" });
+  check(
+    (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.some((i) => i.threadId === napping.threadId) &&
+      !(await db.select().from(mailSnooze).where(eq(mailSnooze.mailboxId, boxId))).length,
+    "moved back to the inbox by hand, it is no longer snoozed",
+  );
   await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: [bulten.threadId], action: "trash" });
   const trash = folder("trash");
   const trashed = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: trash.id });
@@ -802,11 +854,21 @@ try {
   }
 
   // Paging
+  // A snippet put into a message: placeholders filled in, formatting a message holds kept.
+  const greeting = await createSnippet(ids.ada, { kind: "personal" }, { trigger: `selam${RUN}`.slice(0, 32).toLowerCase().replace(/[^a-z0-9_-]/g, ""), title: "Selam", body: "**Merhaba** {{me}}, konu: {{page}}\n\n## Başlık\n\n- madde {{cursor}}" });
+  const template = await mailTemplate(ids.ada, { id: greeting.id, locale: "tr", timeZone: "Europe/Istanbul", subject: "Teklif *özel*" });
+  check(
+    /<strong>Merhaba<\/strong>/.test(template.html) && template.html.includes("Ada, konu: Teklif *özel*") && /<li>(<p>)?madde/.test(template.html) && template.html.includes("Başlık") && !/ldsnip|<h2/.test(template.html),
+    "a snippet goes into a message with its placeholders filled in, in what a message holds",
+    template.html,
+  );
+  check((await errorCode(() => mailTemplate(ids.bob, { id: greeting.id, locale: "tr", timeZone: "UTC", subject: "" }))) === "SnippetError", "another member can't put in someone's own snippet");
+
   const firstPage = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: folder("sent").id });
   check(firstPage.next === null, "a short list has no next page");
 
   const kept = await db.select({ n: mailFolder.id }).from(mailFolder).where(eq(mailFolder.mailboxId, boxId));
-  check(kept.length === 7, "seven folders are kept: six, and the drafts folder made for drafts");
+  check(kept.length === 8, "eight folders are kept: six, and the drafts and snoozed folders made for them");
   console.log(`\n${passed} checks passed`);
 } finally {
   outside.close();

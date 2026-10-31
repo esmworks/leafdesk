@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Gelen kutusu",
     "drafts": "Taslaklar",
+    "snoozed": "Ertelenenler",
     "sent": "Gönderilenler",
     "archive": "Arşiv",
     "junk": "Gereksiz",
@@ -65,6 +66,7 @@
     "archive": "Arşivle",
     "trash": "Çöp kutusuna taşı",
     "junk": "Gereksiz olarak işaretle",
+    "snooze": "Ertele",
     "inbox": "Gelen kutusuna taşı",
     "delete": "Kalıcı olarak sil",
     "star": "Yıldızla",
@@ -86,9 +88,21 @@
     "archive": "Yazışma arşivlendi",
     "trash": "Yazışma çöp kutusuna taşındı",
     "junk": "Yazışma gereksiz olarak işaretlendi",
+    "snooze": "{time} tarihine kadar ertelendi",
     "inbox": "Yazışma gelen kutusuna taşındı",
     "delete": "Yazışma kalıcı olarak silindi",
     "move": "Yazışma {folder} klasörüne taşındı"
+  },
+  "snooze": {
+    "title": "Şu zamana kadar ertele",
+    "laterToday": "Bugün daha sonra",
+    "tomorrow": "Yarın",
+    "weekend": "Bu hafta sonu",
+    "nextWeek": "Gelecek hafta",
+    "pick": "Tarih ve saat",
+    "placeholder": "Cuma 9:00, 12 Kasım, 3 gün sonra",
+    "notAhead": "Bir dakika ile bir yıl sonrası arasında bir zaman seçin.",
+    "until": "{time} tarihine kadar ertelendi"
   },
   "composer": {
     "newTitle": "Yeni ileti",
@@ -142,7 +156,11 @@
     "notSent": "Gönderilemedi: {reason} Taslaklarda saklandı.",
     "quoteShow": "Alıntılanan iletiyi göster",
     "quoteHide": "Alıntılanan iletiyi gizle",
-    "quoteRemove": "Alıntılanan iletiyi kaldır"
+    "quoteRemove": "Alıntılanan iletiyi kaldır",
+    "templates": "Parçacık ekle",
+    "templatesSearch": "Parçacık bul",
+    "templatesNone": "Eşleşen parçacık yok.",
+    "templatesEmpty": "Henüz parçacık yok. Ayarlar › Parçacıklar altında oluşturun."
   },
   "bulk": {
     "select": "Seç",
@@ -155,6 +173,7 @@
       "archive": "{count, plural, one {# yazışma arşivlendi} other {# yazışma arşivlendi}}",
       "trash": "{count, plural, one {# yazışma çöp kutusuna taşındı} other {# yazışma çöp kutusuna taşındı}}",
       "junk": "{count, plural, one {# yazışma gereksiz olarak işaretlendi} other {# yazışma gereksiz olarak işaretlendi}}",
+      "snooze": "{count, plural, one {# yazışma {time} tarihine kadar ertelendi} other {# yazışma {time} tarihine kadar ertelendi}}",
       "inbox": "{count, plural, one {# yazışma gelen kutusuna taşındı} other {# yazışma gelen kutusuna taşındı}}",
       "delete": "{count, plural, one {# yazışma kalıcı olarak silindi} other {# yazışma kalıcı olarak silindi}}",
       "move": "{count, plural, one {# yazışma {folder} klasörüne taşındı} other {# yazışma {folder} klasörüne taşındı}}"

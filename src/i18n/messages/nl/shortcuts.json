@@ -75,6 +75,7 @@
     "mailArchive": "Archiveren, of terugzetten naar Postvak IN",
     "mailTrash": "Naar de prullenbak verplaatsen (daar definitief verwijderen)",
     "mailJunk": "Markeren als spam",
+    "mailSnooze": "Sluimeren tot een gekozen moment",
     "mailStar": "Een ster toevoegen of verwijderen",
     "mailUnread": "Markeren als ongelezen",
     "mailRead": "Markeren als gelezen",

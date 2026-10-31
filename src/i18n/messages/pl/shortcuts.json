@@ -75,6 +75,7 @@
     "mailArchive": "Archiwizuj lub przenieś z powrotem do odebranych",
     "mailTrash": "Przenieś do kosza (w koszu: usuń na zawsze)",
     "mailJunk": "Oznacz jako spam",
+    "mailSnooze": "Odłóż do wybranego momentu",
     "mailStar": "Oznacz gwiazdką lub usuń gwiazdkę",
     "mailUnread": "Oznacz jako nieprzeczytane",
     "mailRead": "Oznacz jako przeczytane",

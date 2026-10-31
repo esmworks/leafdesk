@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "受信トレイ",
     "drafts": "下書き",
+    "snoozed": "スヌーズ中",
     "sent": "送信済み",
     "archive": "アーカイブ",
     "junk": "迷惑メール",
@@ -65,6 +66,7 @@
     "archive": "アーカイブ",
     "trash": "ゴミ箱に移動",
     "junk": "迷惑メールにする",
+    "snooze": "スヌーズ",
     "inbox": "受信トレイに移動",
     "delete": "完全に削除",
     "star": "スターを付ける",
@@ -86,9 +88,21 @@
     "archive": "会話をアーカイブしました",
     "trash": "会話をゴミ箱に移動しました",
     "junk": "会話を迷惑メールにしました",
+    "snooze": "{time} までスヌーズしました",
     "inbox": "会話を受信トレイに移動しました",
     "delete": "会話を完全に削除しました",
     "move": "スレッドを {folder} に移動しました"
+  },
+  "snooze": {
+    "title": "スヌーズする期間",
+    "laterToday": "今日の後ほど",
+    "tomorrow": "明日",
+    "weekend": "今週末",
+    "nextWeek": "来週",
+    "pick": "日時",
+    "placeholder": "金 9:00、11月12日、3日後",
+    "notAhead": "今から1分後から1年後までの日時を選んでください。",
+    "until": "{time} までスヌーズ中"
   },
   "composer": {
     "newTitle": "新規メッセージ",
@@ -142,7 +156,11 @@
     "notSent": "送信できませんでした: {reason} 下書きに保存されています。",
     "quoteShow": "引用されたメッセージを表示",
     "quoteHide": "引用されたメッセージを隠す",
-    "quoteRemove": "引用されたメッセージを削除"
+    "quoteRemove": "引用されたメッセージを削除",
+    "templates": "スニペットを挿入",
+    "templatesSearch": "スニペットを検索",
+    "templatesNone": "一致するスニペットはありません。",
+    "templatesEmpty": "スニペットはまだありません。設定 › スニペットで作成できます。"
   },
   "bulk": {
     "select": "選択",
@@ -155,6 +173,7 @@
       "archive": "{count, plural, other {# 件の会話をアーカイブしました}}",
       "trash": "{count, plural, other {# 件の会話をゴミ箱に移動しました}}",
       "junk": "{count, plural, other {# 件の会話を迷惑メールにしました}}",
+      "snooze": "{count, plural, other {# 件の会話を {time} までスヌーズしました}}",
       "inbox": "{count, plural, other {# 件の会話を受信トレイに移動しました}}",
       "delete": "{count, plural, other {# 件の会話を完全に削除しました}}",
       "move": "{count, plural, other {# 件の会話を {folder} に移動しました}}"

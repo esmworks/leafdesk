@@ -311,3 +311,26 @@ export const mailSend = pgTable(
   },
   (t) => [index("mail_send_mailbox_idx").on(t.mailboxId, t.sentAt)],
 );
+
+/**
+ * Conversations of the Mail tab snoozed until a moment: their messages wait in the mailbox's
+ * snoozed folder and go back to the inbox, unread, when it comes (server/mail-client/snooze.ts).
+ * Once back (`woke_at`), the row keeps the conversation at the top of the inbox as of that moment,
+ * until it is moved again or a fortnight has passed.
+ */
+export const mailSnooze = pgTable(
+  "mail_snooze",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    mailboxId: text("mailbox_id")
+      .notNull()
+      .references(() => mailbox.id, { onDelete: "cascade" }),
+    threadId: text("thread_id").notNull(),
+    until: timestamp("until", { withTimezone: true }).notNull(),
+    wokeAt: timestamp("woke_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("mail_snooze_thread_idx").on(t.mailboxId, t.threadId), index("mail_snooze_due_idx").on(t.until).where(sql`${t.wokeAt} is null`)],
+);

@@ -161,6 +161,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "mailArchive", combos: [["E"]] },
       { id: "mailTrash", combos: [["#"]] },
       { id: "mailJunk", combos: [["!"]] },
+      { id: "mailSnooze", combos: [["B"]] },
       { id: "mailStar", combos: [["S"]] },
       { id: "mailUnread", combos: [["U"]] },
       { id: "mailRead", combos: [["Shift", "I"]] },

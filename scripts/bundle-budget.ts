@@ -127,8 +127,13 @@ import { gzipSync } from "node:zlib";
  *
  * The AI chat on the person's mail (the steps of a search, read or draft, and a draft's approval
  * card with its sender and recipients, in ChatThread) adds under 0.5 kB to all first loads together.
+ * Snoozing in the Mail tab (the list's snooze times, its key and buttons; the picker loads when
+ * opened) and the composer's snippets menu (loaded with the composer) add about 1 kB to the Mail
+ * tab's route and under 1 kB to a page's, and about 5 kB to all first loads together: the changed
+ * graph takes My tasks' list out of a chunk the home and tasks routes shared, so each now carries
+ * its own copy (about 2 kB).
  */
-const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1221, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1227, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

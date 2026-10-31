@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Kotak masuk",
     "drafts": "Draf",
+    "snoozed": "Ditunda",
     "sent": "Terkirim",
     "archive": "Arsip",
     "junk": "Spam",
@@ -65,6 +66,7 @@
     "archive": "Arsipkan",
     "trash": "Pindahkan ke sampah",
     "junk": "Tandai sebagai spam",
+    "snooze": "Tunda",
     "inbox": "Pindahkan ke kotak masuk",
     "delete": "Hapus permanen",
     "star": "Beri bintang",
@@ -86,9 +88,21 @@
     "archive": "Percakapan diarsipkan",
     "trash": "Percakapan dipindahkan ke sampah",
     "junk": "Percakapan ditandai sebagai spam",
+    "snooze": "Ditunda sampai {time}",
     "inbox": "Percakapan dipindahkan ke kotak masuk",
     "delete": "Percakapan dihapus permanen",
     "move": "Percakapan dipindahkan ke {folder}"
+  },
+  "snooze": {
+    "title": "Tunda sampai",
+    "laterToday": "Nanti hari ini",
+    "tomorrow": "Besok",
+    "weekend": "Akhir pekan ini",
+    "nextWeek": "Minggu depan",
+    "pick": "Tanggal dan waktu",
+    "placeholder": "Jum 09.00, 12 Nov, 3 hari lagi",
+    "notAhead": "Pilih waktu antara satu menit hingga satu tahun dari sekarang.",
+    "until": "Ditunda sampai {time}"
   },
   "composer": {
     "newTitle": "Pesan baru",
@@ -142,7 +156,11 @@
     "notSent": "Tidak terkirim: {reason} Disimpan di Draf.",
     "quoteShow": "Tampilkan pesan yang dikutip",
     "quoteHide": "Sembunyikan pesan yang dikutip",
-    "quoteRemove": "Hapus pesan yang dikutip"
+    "quoteRemove": "Hapus pesan yang dikutip",
+    "templates": "Sisipkan potongan teks",
+    "templatesSearch": "Cari potongan teks",
+    "templatesNone": "Tidak ada potongan teks yang cocok.",
+    "templatesEmpty": "Belum ada potongan teks. Buat di Pengaturan › Potongan teks."
   },
   "bulk": {
     "select": "Pilih",
@@ -155,6 +173,7 @@
       "archive": "{count, plural, other {# percakapan diarsipkan}}",
       "trash": "{count, plural, other {# percakapan dipindahkan ke sampah}}",
       "junk": "{count, plural, other {# percakapan ditandai sebagai spam}}",
+      "snooze": "{count, plural, other {# percakapan ditunda sampai {time}}}",
       "inbox": "{count, plural, other {# percakapan dipindahkan ke kotak masuk}}",
       "delete": "{count, plural, other {# percakapan dihapus permanen}}",
       "move": "{count, plural, other {# percakapan dipindahkan ke {folder}}}"

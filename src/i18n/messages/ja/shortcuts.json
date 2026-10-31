@@ -75,6 +75,7 @@
     "mailArchive": "アーカイブ、または受信トレイに戻す",
     "mailTrash": "ゴミ箱に移動（ゴミ箱内では完全に削除）",
     "mailJunk": "迷惑メールにする",
+    "mailSnooze": "選んだ日時までスヌーズ",
     "mailStar": "スターを付ける/外す",
     "mailUnread": "未読にする",
     "mailRead": "既読にする",

@@ -269,7 +269,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
   into `MOVES` in `mail-app.tsx`; action `move` takes the folder's id in `to`, checked by
-  `movableTo`; a row's right-click menu is `thread-menu.tsx`, a `lazyPart`, as is the selection's bar
+  `movableTo`; `snooze` takes `until` and moves to the `snoozed` role's folder, a mail_snooze row
+  that `snooze.ts` `runMailSnoozes(now)` brings back and `threadPage` lists by its `woke_at`; every
+  other move drops the row; a row's right-click menu is `thread-menu.tsx`, a `lazyPart`, as is the selection's bar
   `selection-bar.tsx`; `act` takes a list of threads, sent in `MAIL_MAX_THREADS` pieces, each to the mailbox and folder
 the item names: all inboxes, `box=all` (`ALL_INBOXES`, one query in `read.ts` `threadPage`), list
 several mailboxes, whose thread ids can repeat, so the list keys threads by `itemKey`; a new key
@@ -283,7 +285,7 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `?c=new` pane or under a thread, `composer.tsx` with the TipTap editor `mail-editor.tsx` (lazy:
   ProseMirror stays out of the thread's chunk), what a reply starts from `compose-start.ts`, the
   HTML sent cleaned again and turned into its text part by `outgoing.ts`, addresses suggested by
-  `contacts.ts`; a mailbox's signature, `mailbox.signature` and `signature_text`, is the editor's
+  `contacts.ts`, snippets put in by `template-menu.tsx` as `templates.ts` turns them into mail; a mailbox's signature, `mailbox.signature` and `signature_text`, is the editor's
   `Signature` node, a `div[data-signature]` that `outgoing.ts` puts under `-- ` in the text part,
   and row emails start with its text; one pasted with images or tables is kept whole inside
   `div[data-pasted]`, `lib/pasted-signature.ts` (its cleaning rules in `-config.ts`), the editor's `PastedSignature` atom, shown in a

@@ -1,29 +1,6 @@
 "use client";
 
-import {
-  AlertOctagon,
-  AlertTriangle,
-  Archive,
-  ChevronLeft,
-  Database,
-  Download,
-  FileCode,
-  Forward,
-  Image as ImageIcon,
-  Inbox,
-  ListTodo,
-  MailOpen,
-  MoreHorizontal,
-  Paperclip,
-  Pencil,
-  Reply,
-  Printer,
-  ReplyAll,
-  RotateCcw,
-  Sparkles,
-  Star,
-  Trash2,
-} from "lucide-react";
+import { AlertOctagon, AlertTriangle, Archive, ChevronLeft, Clock, Database, Download, FileCode, Forward, Image as ImageIcon, Inbox, ListTodo, MailOpen, MoreHorizontal, Paperclip, Pencil, Printer, Reply, ReplyAll, RotateCcw, Sparkles, Star, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
@@ -35,7 +12,7 @@ import { quoteStart } from "@/lib/mail-quote";
 import { isAiErrorCode } from "@/lib/ai";
 import type { MailWriteAction } from "@/lib/mail-ai";
 import { pagePath } from "@/lib/mentions";
-import { type MailAction, type MailAddress, type MailBody, type MailboxTabView, type MailDraftView, type MailFolderView, type MailMessageView, type MailThreadView, type MailUndoneSend, type MailUnsubscribe } from "@/lib/mail-client";
+import { snoozableFrom, type MailAction, type MailAddress, type MailBody, type MailboxTabView, type MailDraftView, type MailFolderView, type MailMessageView, type MailThreadView, type MailUndoneSend, type MailUnsubscribe } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { lazyPart } from "@/components/lazy-part";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
@@ -553,6 +530,7 @@ export function ThreadView({
   first,
   starred,
   onAction,
+  onSnooze,
   onBack,
   onRead,
   compose,
@@ -570,6 +548,8 @@ export function ThreadView({
   first: { id: string; unread: boolean } | null;
   starred: boolean;
   onAction: (action: MailAction) => void;
+  /** Asks until when to snooze the thread, from the button. */
+  onSnooze: (button: HTMLElement) => void;
   onBack: () => void;
   /** A message was opened that wasn't read: the list and the counts follow. */
   onRead: () => void;
@@ -756,7 +736,7 @@ export function ThreadView({
           { action: "delete", icon: <Trash2 className="h-4 w-4" /> },
         ]
       : [
-          ...(folder.role === "archive" ? [{ action: "inbox" as const, icon: <Inbox className="h-4 w-4" /> }] : [{ action: "archive" as const, icon: <Archive className="h-4 w-4" /> }]),
+          ...(folder.role === "archive" || folder.role === "snoozed" ? [{ action: "inbox" as const, icon: <Inbox className="h-4 w-4" /> }] : [{ action: "archive" as const, icon: <Archive className="h-4 w-4" /> }]),
           { action: "trash", icon: <Trash2 className="h-4 w-4" /> },
           { action: "junk", icon: <AlertOctagon className="h-4 w-4" /> },
         ];
@@ -772,6 +752,11 @@ export function ThreadView({
             {icon}
           </IconButton>
         ))}
+        {snoozableFrom(folder) && (
+          <IconButton label={t("actions.snooze")} data-mail-snooze="thread" className="h-8 w-8 text-fg-icon" onClick={(e) => onSnooze(e.currentTarget)}>
+            <Clock className="h-4 w-4" />
+          </IconButton>
+        )}
         <IconButton label={t(starred ? "actions.unstar" : "actions.star")} className="h-8 w-8 text-fg-icon" onClick={() => onAction(starred ? "unstar" : "star")}>
           <Star className={cn("h-4 w-4", starred && "fill-current text-amber-500")} />
         </IconButton>

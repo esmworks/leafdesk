@@ -75,6 +75,7 @@
     "mailArchive": "Arkistoi tai siirrä takaisin saapuneisiin",
     "mailTrash": "Siirrä roskakoriin (roskakorissa poista pysyvästi)",
     "mailJunk": "Merkitse roskapostiksi",
+    "mailSnooze": "Torkuta valittuun hetkeen asti",
     "mailStar": "Lisää tai poista tähti",
     "mailUnread": "Merkitse lukemattomaksi",
     "mailRead": "Merkitse luetuksi",
