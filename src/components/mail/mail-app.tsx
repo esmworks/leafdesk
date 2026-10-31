@@ -5,15 +5,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { mailActionAction, refreshMailboxAction } from "@/app/actions/mail";
+import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { showToast } from "@/components/toast";
 import { cn, Dialog, DialogHeader, IconButton } from "@/components/ui";
 import { MAIL_UNDO_SECONDS, type MailAction, type MailThreadItem } from "@/lib/mail-client";
-import { Composer, type ComposeMode } from "./composer";
-import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes } from "./mail-store";
+import type { ComposeMode } from "./composer";
+import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen } from "./mail-store";
 import { useFolderName } from "./mail-sidebar";
-import { ThreadView, useWhen } from "./thread-view";
+
+// The open thread and a new message load the first time they show.
+const ThreadView = lazyPart(() => import("./thread-view").then((m) => m.ThreadView), <div className="min-w-0 flex-1" />);
+const Composer = lazyPart(() => import("./composer").then((m) => m.Composer));
 
 /** How often the open folder asks the mail server for new mail while the page is in front. */
 const REFRESH_MS = 60_000;
@@ -93,6 +97,8 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const search = useSearchParams();
   const { boxes, error: boxesError } = useMailboxes(workspaceId);
   const { box, folder } = pickOpen(boxes, search.get("box"), search.get("f"));
+  // A thread is opened soon after the list shows: its code starts loading now.
+  useEffect(() => void ThreadView.preload(), []);
   const threadId = search.get("t");
   const query = search.get("q") ?? "";
   const [typed, setTyped] = useState(query);

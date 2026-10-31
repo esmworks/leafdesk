@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useSyncExternalStore } from "react";
 import { read } from "@/components/read";
 import type { MailboxTabView, MailFolderView } from "@/lib/mail-client";
@@ -110,3 +110,16 @@ export const onCompose = (listener: () => void) => {
   return () => void composeListeners.delete(listener);
 };
 export const requestCompose = () => composeListeners.forEach((l) => l());
+
+/** A message's time as lists show it: the hour today, the day this year, else the date. */
+export function useWhen() {
+  const locale = useLocale();
+  return (iso: string, long = false) => {
+    const date = new Date(iso);
+    const now = new Date();
+    if (long) return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(date);
+    if (date.toDateString() === now.toDateString()) return new Intl.DateTimeFormat(locale, { timeStyle: "short" }).format(date);
+    if (date.getFullYear() === now.getFullYear()) return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(date);
+    return new Intl.DateTimeFormat(locale, { dateStyle: "short" }).format(date);
+  };
+}

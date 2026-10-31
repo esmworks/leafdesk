@@ -17,7 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Fragment, useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { read } from "@/components/read";
@@ -27,6 +27,7 @@ import type { MailAction, MailAddress, MailBody, MailboxTabView, MailFolderView,
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { Composer, type ComposeMode } from "./composer";
 import { MailFrame } from "./mail-frame";
+import { useWhen } from "./mail-store";
 
 /** A sender's letter, in the color an address always gets (as people's avatars elsewhere). */
 function Avatar({ who }: { who: MailAddress }) {
@@ -83,18 +84,6 @@ function TextBody({ text }: { text: string }) {
   );
 }
 
-function useWhen() {
-  const locale = useLocale();
-  return (iso: string, long = false) => {
-    const date = new Date(iso);
-    const now = new Date();
-    if (long) return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(date);
-    if (date.toDateString() === now.toDateString()) return new Intl.DateTimeFormat(locale, { timeStyle: "short" }).format(date);
-    if (date.getFullYear() === now.getFullYear()) return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(date);
-    return new Intl.DateTimeFormat(locale, { dateStyle: "short" }).format(date);
-  };
-}
-export { useWhen };
 
 type Loaded = { body: MailBody | null; images: boolean; error: string | null; loading: boolean };
 
