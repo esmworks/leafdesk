@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { cleanSignature, outgoingBody } from "./outgoing";
+import { cleanSignature, editableBody, outgoingBody } from "./outgoing";
+
+/** A signature as another mail program copies it: a table of a logo and lines, icons in links, styles inline. */
+const PASTED = `<meta charset="utf-8"><style>td{color:red}</style><p>-- </p><table style="font-family:Arial" id="sig" class="x"><tbody><tr><td><img src="https://cdn.example/logo.png" width="180" alt="Günay"></td><td style="border-left:1px solid #1a4d8f"><p style="color:#1a4d8f"><b>Erhan ERBAŞ</b><br>Satış Müdürü</p><a href="tel:+902127711771">+90 (212) 771 1 771</a><br><a href="https://www.gunaysogutma.com.tr">www.gunaysogutma.com.tr</a></td></tr></tbody></table><p><a href="https://instagram.com/gunay"><img src="https://cdn.example/ig.png"></a> <img src="file:///C:/sig/x.png" onerror="alert(1)"><script>alert(2)</script></p>`;
 
 describe("outgoingBody", () => {
   it("keeps the editor's formatting and drops everything else", async () => {
@@ -52,6 +55,30 @@ describe("outgoingBody", () => {
     expect(text).toBe("Merhaba");
     expect(html).not.toContain("<div style=\"margin:0\">");
   });
+
+  it("sends a pasted signature as it came, under a separator line", async () => {
+    const signature = (await cleanSignature(`<div data-pasted="">${PASTED}</div>`))!.html;
+    const { text, html } = await outgoingBody(`<p>Merhaba,</p><p></p><div data-signature="">${signature}</div><div data-pasted=""><img src="https://x.example/a.png"></div>`);
+    expect(html).toContain(`<table style="font-family:Arial"><tbody><tr><td><img src="https://cdn.example/logo.png" width="180" alt="Günay"></td><td style="border-left:1px solid #1a4d8f"><p style="color:#1a4d8f">`);
+    expect(html).toContain(`<a href="https://instagram.com/gunay"><img src="https://cdn.example/ig.png"></a>`);
+    expect(html).not.toMatch(/data-pasted|data-signature|x\.example/);
+    expect(text).toBe("Merhaba,\n\n-- \nErhan ERBAŞ\nSatış Müdürü\n+90 (212) 771 1 771\nwww.gunaysogutma.com.tr");
+  });
+
+  it("keeps a pasted signature in a draft, to open again with its pictures beside the message's own", async () => {
+    const signature = (await cleanSignature(`<div data-pasted="">${PASTED}</div>`))!.html;
+    const { html } = await outgoingBody(`<p>Merhaba</p><img src="cid:a1@leafdesk"><div data-signature="">${signature}</div>`, { keepSignature: true });
+    const opened = await editableBody(html, "");
+    expect(opened).toContain(`<img src="cid:a1@leafdesk">`);
+    expect(opened).toMatch(/<div data-signature=""><div data-pasted="">[\s\S]*<img [^>]*src="https:/);
+    expect(opened).not.toContain("-apple-system");
+  });
+
+  it("cleans a pasted signature again as it goes, wherever it came from", async () => {
+    const { html } = await outgoingBody(`<p>Merhaba</p><div data-signature=""><div data-pasted=""><img src="https://cdn.example/logo.png" onerror="alert(1)"><iframe src="https://x.example"></iframe></div></div>`);
+    expect(html).toContain(`<img src="https://cdn.example/logo.png">`);
+    expect(html).not.toMatch(/onerror|iframe/);
+  });
 });
 
 describe("cleanSignature", () => {
@@ -62,6 +89,19 @@ describe("cleanSignature", () => {
   it("keeps the formatting a message may have and no signature inside it", async () => {
     const signed = await cleanSignature(`<p><em>Ayşe</em> <img src="https://x.example/logo.png"></p><div data-signature=""><p>iç</p></div><p></p><p></p>`);
     expect(signed).toEqual({ html: "<p><em>Ayşe</em> </p><p>iç</p>", text: "Ayşe\niç" });
+  });
+
+  it("keeps a pasted signature's images, layout and styles, but nothing that runs or reaches the message", async () => {
+    const signed = await cleanSignature(`<div data-pasted="">${PASTED}</div>`);
+    expect(signed!.html).toMatch(/^<div data-pasted=""><p>-- <\/p><table style="font-family:Arial"><tbody>/);
+    expect(signed!.html).toContain(`<a href="tel:+902127711771">`);
+    expect(signed!.html).not.toMatch(/<style|<meta|<script|onerror|alert|file:|id="sig"|class=/);
+    expect(signed!.text).toBe("Erhan ERBAŞ\nSatış Müdürü\n+90 (212) 771 1 771\nwww.gunaysogutma.com.tr");
+  });
+
+  it("keeps a pasted signature of images alone, and nothing of an empty one", async () => {
+    expect(await cleanSignature(`<div data-pasted=""><img src="https://cdn.example/banner.png"></div>`)).toEqual({ html: `<div data-pasted=""><img src="https://cdn.example/banner.png"></div>`, text: "" });
+    expect(await cleanSignature(`<div data-pasted=""><p> </p><img src="file:///x.png"></div>`)).toBeNull();
   });
 
   it("is nothing when nothing is written", async () => {

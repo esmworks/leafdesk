@@ -25,7 +25,8 @@ export type SheetsSetup = {
 /**
  * The import dialog's Google Sheets tab: the Google Sheets connection to read through (the ones
  * the person may use), a link to the sheet, the header row and the columns that find and name rows
- * (the sheet's own layout and its first column when left empty), how often to sync, whether
+ * (the sheet's own layout, rows found by their place and named by the first column when left
+ * empty), how often to sync, whether
  * changes made in Leafdesk go back to the sheet (when the person may write through the connection,
  * and only on a schedule), and the database's name and place. The sheet is read when the dialog submits. Tells the dialog the setup
  * (or null while it is incomplete) as it changes.
@@ -73,9 +74,9 @@ export function SheetsTab({
   const headerValid = header === null || (Number.isInteger(header) && header >= 1 && header <= MAX_HEADER_ROW);
   const linkValid = parseSheetLink(link) !== null;
   const canWrite = sources?.find((s) => s.id === connectionId)?.canWrite ?? false;
-  // Writing back needs a connection the person may write through, and a schedule.
+  // Writing back needs a connection the person may write through, a schedule and a key column.
   const way: SheetsDirection = canWrite ? direction : "read";
-  const valid = Boolean(connectionId) && linkValid && headerValid && (way === "read" || intervalMinutes > 0);
+  const valid = Boolean(connectionId) && linkValid && headerValid && (way === "read" || (intervalMinutes > 0 && Boolean(keyColumn.trim())));
   useEffect(() => {
     onSetup(
       valid
@@ -185,6 +186,7 @@ export function SheetsTab({
         </label>
         {destinationPicker}
       </div>
+      <p className="text-xs text-fg-muted">{t("sheets.keyHelp")}</p>
       {way === "both" ? (
         <p className="text-xs text-fg-muted">{t("sheets.directionBothHelp")}</p>
       ) : (

@@ -235,7 +235,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   PostgreSQL tables in `postgres-sync/` (`client.ts` checks the host like `connections/fetch.ts`
   and reads in a read-only transaction) and `src/lib/postgres-sync.ts`; Google Sheets in
   `sheets-sync/` and `src/lib/sheets-sync.ts`, read typed through a workspace's Sheets connection
-  (`get_spreadsheet`) as the person the sync runs as, checked by `sheetsAccess` on every run;
+  (`get_spreadsheet`) as the person the sync runs as, checked by `sheetsAccess` on every run; a
+  sheet sync without a key column (`keyColumn` "") finds rows by sheet row number, kept in a hidden
+  number key property, and only reads;
   Google Calendar in `gcal-sync/` and `src/lib/gcal-sync.ts` the same way (`list_events`,
   writing with `notificationLevel: "NONE"`, times as the calendar's wall-clock time);
   both write back through `sheets_write` (`server/sync-writes.ts`, fed by `afterRowWrites` and
@@ -253,7 +255,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `access.ts`; headers indexed by the minute's mailbox sweep, `indexer.ts`, bodies read live through
   `pool.ts` `withImap`, two queued connections per mailbox (lane `open` for clicks, `background`
   for folder reads and loading ahead) kept alive by NOOPs and keyed by its servers and password, never
-  `updatedAt`, which the sweep changes; bodies held a few minutes in memory, `body-cache.ts`, and in
+  `updatedAt`, which the sweep changes; a server can drop one silently, leaving its commands waiting
+  minutes for the socket timeout, so work someone waits on passes `within` (closed then, throwing
+  `ConnectionLost`, which `readBody` tries once more on a new connection); bodies held a few minutes in memory, `body-cache.ts`, and in
   the tab, `components/mail/mail-cache.ts`; HTML cleaned by `html.ts` into a sandboxed frame; the page is
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
@@ -269,7 +273,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   HTML sent cleaned again and turned into its text part by `outgoing.ts`, addresses suggested by
   `contacts.ts`; a mailbox's signature, `mailbox.signature` and `signature_text`, is the editor's
   `Signature` node, a `div[data-signature]` that `outgoing.ts` puts under `-- ` in the text part,
-  and row emails start with its text; the MIME message is `compose.ts`, drafts live in the
+  and row emails start with its text; one pasted with images or tables is kept whole inside
+  `div[data-pasted]`, `lib/pasted-signature.ts` (its cleaning rules in `-config.ts`), the editor's `PastedSignature` atom, shown in a
+  shadow root by `components/mail/pasted-signature.tsx` and cleaned on its own terms when sent;
+  the MIME message is `compose.ts`, drafts live in the
   server's Drafts folder, `drafts.ts`: each save APPENDs anew under the same Message-ID and removes
   the old copy only after, files kept are read back from it by part number; an answer's or forward's
   earlier mail never enters the editor: the server adds it under what is written (`quote.ts`, a

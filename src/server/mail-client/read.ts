@@ -24,7 +24,7 @@ import { cleanMailHtml, htmlText } from "./html";
 import { indexFolder, indexMailbox, isIndexed } from "./indexer";
 import { bodyHeld, heldBody } from "./body-cache";
 import { imagesFor } from "./images";
-import { warmImap, withImap, type ImapLane } from "./pool";
+import { ConnectionLost, SHORT_MS, warmImap, withImap, type ImapLane } from "./pool";
 import { decodeText, decodeTransfer, fileView, messageParts, readPart, readParts, type PartRef } from "./structure";
 
 /**
@@ -41,6 +41,11 @@ const MAX_BODY_BYTES = 2 * 1024 * 1024;
 /** Images a message carries shown inline: each and all together. */
 const MAX_INLINE_IMAGE = 1024 * 1024;
 const MAX_INLINE_TOTAL = 5 * 1024 * 1024;
+/**
+ * Reading a body (sign-in included) takes longer than this only on a connection that stopped
+ * answering: it is closed then and the body read once more on a new one (readBody).
+ */
+const BODY_MS = 30_000;
 /** A file downloaded from a message, at most. */
 export const MAX_ATTACHMENT_BYTES = 30 * 1024 * 1024;
 /** How often opening a folder asks the mail server for what is new, at most. */
@@ -456,8 +461,18 @@ export async function readBody(userId: string, input: { id: string; images?: boo
   const { box, message, folder } = await ownMessage(userId, input.id);
   const started = performance.now();
   const images = await imagesFor(box, message, input.images === true);
-  const held = heldBody(message.id, images, (started) => loadBody(box, message, folder, images, "open", started), { queued: false });
-  const body = await held.body;
+  const fromServer = () => heldBody(message.id, images, (started) => loadBody(box, message, folder, images, "open", started), { queued: false });
+  let held = fromServer();
+  let body: MailBody;
+  try {
+    body = await held.body;
+  } catch (error) {
+    // The connection (this one's, or the one loading it ahead) dropped or stopped answering, and
+    // was closed: a new one is opened for one more try.
+    if (!(error instanceof ConnectionLost)) throw error;
+    held = fromServer();
+    body = await held.body;
+  }
   if (held.from !== "server") console.info(`[mail-client] body ${Math.round(performance.now() - started)} ms from ${held.from}`);
   if (!message.seen) {
     await db.update(mailMessage).set({ seen: true }).where(eq(mailMessage.id, message.id));
@@ -473,7 +488,7 @@ export async function readBody(userId: string, input: { id: string; images?: boo
       } finally {
         lock.release();
       }
-    }).catch(() => {});
+    }, "open", { within: SHORT_MS }).catch(() => {});
   }
   return body;
 }
@@ -557,6 +572,7 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
       }
     },
     lane,
+    { within: BODY_MS },
   );
   // Gone from the server, or not found this once: the next pass's check takes it out of the index if it is gone.
   if (!result) throw new RowMailError("gone");

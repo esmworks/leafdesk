@@ -21,7 +21,9 @@
   waits under the thread's messages. No migration.
 
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
-  and calendar with a message's formatting (bold, italic, lists, links; no images). The Mail tab's
+  and calendar with a message's formatting (bold, italic, lists, links), or pasted from another
+  mail program, which keeps it as it came: its images, table layout, sizes and colors, sent as
+  they are and shown whole in a message, where it can be taken out. The Mail tab's
   new messages, replies and forwards start with it above the quoted message, where it can be
   changed for one message, and picking another mailbox under *From* swaps it; the plain-text part
   puts it under a `-- ` line. Messages written on a row start with it as plain text too.
@@ -232,6 +234,20 @@
 - **Short HTML mail in the Mail tab no longer leaves a gap under it.** Its frame took the height
   it started with when the message was shorter.
 
+- **Google Sheets syncs no longer need a column with a different value in every row.** A sync set
+  up with the key column left empty finds rows by their place in the sheet, so ledgers of dates,
+  names and amounts come in whole, rows that repeat each other included. Before, an empty key
+  column meant the first column, and a key repeating a value silently kept only the first row
+  with it. Now a named key column that repeats a value is refused, a run that finds repeats later
+  counts the rows it left out in the sync dialog, and a sync whose key repeats or was taken away
+  can switch to finding rows by place there. Syncs by place only read. No migration.
+- **The settings' navigation keeps its top in place.** Only its list of settings scrolls now; the
+  way back and the search stay put, so in the desktop app they no longer slide under the window's
+  buttons.
+- **A message in the Mail tab no longer stays loading when the mail server stops answering.** A
+  connection the server dropped without a word kept the message waiting for minutes; now one that
+  doesn't answer a keep-alive in 10 seconds, or a message in 30, is closed and the message read
+  again on a new one.
 - **The boxes beside a chat no longer cut a line in half.** A long list of sources, changed pages,
   runs or schedules beside the AI chat and an agent's page fades out at its edges and leaves room
   under its last line, instead of ending on a line sliced by the box's border.
