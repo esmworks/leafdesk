@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 /** The tallest a message is shown whole; a longer one scrolls in its frame. */
 const MAX_HEIGHT = 20000;
@@ -10,17 +10,49 @@ const MAX_HEIGHT = 20000;
  * styles stay inside, nothing in it runs (the sandbox has no scripts), and its own content policy
  * lets it load only the images it carries, or images from anywhere once the reader asked for them.
  * Same-origin without scripts, so the page can measure it to show it whole; links open in a new tab.
+ * A `plain` message (server/mail-client/plain-html.ts) is drawn in the page's colors instead of on
+ * its white page.
  */
-export function MailFrame({ html, images, title }: { html: string; images: boolean; title: string }) {
+export function MailFrame({ html, images, title, plain = false }: { html: string; images: boolean; title: string; plain?: boolean }) {
   const ref = useRef<HTMLIFrameElement>(null);
+  const box = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(120);
+  const [pageCss, setPageCss] = useState<string | null>(null);
+  // The page's colors, read before the first paint (the frame waits for them) and again when the
+  // theme or contrast changes: <html data-theme>, data-contrast or the system's. The frame's own
+  // scheme matches the page's, or the browser paints it opaque.
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!plain || !el) return;
+    const read = () => {
+      const page = getComputedStyle(el);
+      const token = (name: string) => page.getPropertyValue(name).trim();
+      setPageCss(
+        `html{color-scheme:${page.colorScheme}}body{color:${page.color};background:transparent}` +
+          `body *{color:inherit!important;background-color:transparent!important}` +
+          `body blockquote{color:${token("--fg-muted")}!important;border-left-color:${token("--border")}!important}` +
+          `body a,body a *{color:${token("--accent")}!important}`,
+      );
+    };
+    read();
+    const attributes = new MutationObserver(read);
+    attributes.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-contrast"] });
+    const queries = ["(prefers-color-scheme: dark)", "(prefers-contrast: more)"].map((q) => matchMedia(q));
+    for (const query of queries) query.addEventListener("change", read);
+    return () => {
+      attributes.disconnect();
+      for (const query of queries) query.removeEventListener("change", read);
+    };
+  }, [plain]);
+  const shownCss = plain ? pageCss : null;
   const policy = `default-src 'none'; img-src data:${images ? " https: http:" : ""}; style-src 'unsafe-inline'; font-src data:`;
   const doc = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${policy}"><base target="_blank"><style>
     html{color-scheme:light}body{display:flow-root;margin:0;padding:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#1f2328;background:#fff;overflow-wrap:anywhere}
     img{max-width:100%;height:auto}[data-blocked]{display:none!important}table{max-width:100%}pre{white-space:pre-wrap}blockquote{margin:0 0 0 .8em;padding-left:.8em;border-left:2px solid #d0d7de;color:#57606a}
   </style></head><body>${html.replace(/^[\s\S]*?<body[^>]*>/i, "").replace(/<\/body>[\s\S]*$/i, "")}</body></html>`;
   const styles = /<head[^>]*>([\s\S]*?)<\/head>/i.exec(html)?.[1] ?? "";
-  const srcDoc = styles ? doc.replace("</head>", `${styles}</head>`) : doc;
+  // The page's colors come after the message's own styles, so they win.
+  const srcDoc = doc.replace("</head>", `${styles}${shownCss ? `<style>${shownCss}</style>` : ""}</head>`);
 
   useEffect(() => {
     const frame = ref.current;
@@ -57,20 +89,22 @@ export function MailFrame({ html, images, title }: { html: string; images: boole
     };
   }, [srcDoc]);
 
-  // On the white page the message reads as part of it, with no box. In the dark theme it keeps its
-  // white page as a card: mail is written for white. Nothing in the frame's own box (no border, no
-  // padding), or it would come out of the measured height and the message would scroll inside it.
+  // On the white page the message reads as part of it, with no box. In the dark theme a designed
+  // one keeps its white page as a card: it was written for white. Nothing in the frame's own box (no
+  // border, no padding), or it would come out of the measured height and the message would scroll inside it.
   return (
-    <div className="overflow-hidden bg-white dark:rounded-md dark:p-4">
-      <iframe
-        ref={ref}
-        title={title}
-        srcDoc={srcDoc}
-        sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        referrerPolicy="no-referrer"
-        className="block w-full"
-        style={{ height }}
-      />
+    <div ref={box} className={plain ? "overflow-hidden" : "overflow-hidden bg-white dark:rounded-md dark:p-4"}>
+      {(!plain || shownCss) && (
+        <iframe
+          ref={ref}
+          title={title}
+          srcDoc={srcDoc}
+          sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          referrerPolicy="no-referrer"
+          className="block w-full"
+          style={{ height }}
+        />
+      )}
     </div>
   );
 }

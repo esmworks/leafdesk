@@ -151,7 +151,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
   `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats
   (`components/agent-chat/agent-chat.tsx`) draw questions, steps and message actions with
-  `components/ai-chat/message-parts.tsx`, so they stay alike. The panel and the full-page chat
+  `components/ai-chat/message-parts.tsx`, so they stay alike. An answer's text flows in a few
+  letters a frame (`ai-chat/smooth-text.ts`, called by the lazy markdown renderer when `writing`);
+  `chat-thread.tsx` memoizes `Answer` and `Question`, so their props stay stable (`handlers`, read
+  through a ref) or every piece redraws the whole conversation. The panel and the full-page chat
   show one `useChat` held in `AiChatProvider` (`useSharedChat`). An answer runs apart from its
   request (`ai-chat-runs.ts`, keyed by a run id the browser picks): closing the request only stops
   following it, Stop is `stopChatAction`, and `getConversation`'s `run` is followed again through
@@ -186,7 +189,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
   `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
-  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. Each agent is its own user. Memory
+  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. A chat run streams its turns: the text so far
+  goes to an in-process store (`agents/live-text.ts`, masked as the kept answer) that
+  `/api/agents/chat/live` sends the person chatting as edits; the answer itself is still
+  `agent_run.answer`, and `agent-chat.tsx` keeps the turn under way in the same list item (and key)
+  as its answer, or the answer's text would flow in a second time. Each agent is its own user. Memory
   (`memory.ts`): runs only propose notes, a proposal with `replacesId` changes that kept note in
   place; a schedule's run reads and leaves `agent_run.handoff`, kept to the same schedule, setter,
   database and task (`sameSchedule`); `agent_memory` inbox items are one per agent and owner,
@@ -270,7 +277,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `updatedAt`, which the sweep changes; a server can drop one silently, leaving its commands waiting
   minutes for the socket timeout, so work someone waits on passes `within` (closed then, throwing
   `ConnectionLost`, which `readBody` tries once more on a new connection); bodies held a few minutes in memory, `body-cache.ts`, and in
-  the tab, `components/mail/mail-cache.ts`; HTML cleaned by `html.ts` into a sandboxed frame; the page is
+  the tab, `components/mail/mail-cache.ts`; HTML cleaned by `html.ts` into a sandboxed frame, drawn in the
+  page's colors when `plain-html.ts` finds only default ones, else on white; the page is
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
   into `MOVES` in `mail-app.tsx`; action `move` takes the folder's id in `to`, checked by

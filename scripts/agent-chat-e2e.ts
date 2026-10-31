@@ -35,8 +35,9 @@ type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const agents = await import("@/server/agents/manage");
 const chat = await import("@/server/agents/chat");
 const { flushAgentRuns } = await import("@/server/agents/run");
+const { followLiveText } = await import("@/server/agents/live-text");
 const { pageMarkdown } = await import("@/server/export");
-const { agentChatLine } = await import("@/lib/agent-chat");
+const { agentChatLine, applyLiveEdit } = await import("@/lib/agent-chat");
 
 const RUN = `agent-chat-e2e-${Date.now().toString(36)}`;
 
@@ -159,6 +160,30 @@ try {
   const [usage] = await db.select().from(agentUsage).where(eq(agentUsage.agentId, helper.id));
   check(usage?.runs === 2, "each message counts as one of the agent's runs", usage);
 
+  // ── The answer as it is written ────────────────────────────────────────────────────────────
+  const written = "Orders ship on Tuesdays and Thursdays, from the north depot, before noon.";
+  fake.setChat(() => ({ text: written }));
+  fake.delayMs = 15;
+  const writing = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "When do orders ship?" });
+  check(await chat.mayFollowChatTurn(ids.owner, workspaceId, writing.runId), "the person chatting may follow what the run writes");
+  check(!(await chat.mayFollowChatTurn(ids.member, workspaceId, writing.runId)), "no one else may");
+  const followingWriting = new AbortController();
+  const seen: string[] = [];
+  let liveText = "";
+  const following = (async () => {
+    for await (const edit of followLiveText(writing.runId, followingWriting.signal)) {
+      liveText = applyLiveEdit(liveText, edit);
+      seen.push(liveText);
+    }
+  })();
+  await flushAgentRuns();
+  followingWriting.abort();
+  await following;
+  fake.delayMs = 0;
+  const grown = seen.filter(Boolean);
+  check(grown.length >= 5 && grown.every((t, i) => i === 0 || t.startsWith(grown[i - 1])), "the answer is followed as it grows, word by word", seen);
+  check(liveText === written && (await chat.chatTurn(ids.owner, workspaceId, writing.runId)).answer === written, "and ends as the answer the run keeps", liveText);
+
   // ── Leafdesk's further tools ───────────────────────────────────────────────────────────────
   const orders = await createPage(owner, { workspaceId, teamspaceId: general.id, kind: "database", title: "Orders" });
   await agents.setAgentAccess(ids.owner, helper.id, orders.id, "edit");
@@ -264,7 +289,7 @@ try {
   const thread = await chat.agentThread(ids.owner, workspaceId, helper.id);
   check(
     thread.conversationId === archiving.conversation.id &&
-      thread.messages.length === 6 &&
+      thread.messages.length === 8 &&
       thread.messages[0].content === "What did the board discuss?" &&
       thread.messages.at(-1)?.content === "Added it.",
     "the dialog's conversations read as one, oldest first, a new message joining the latest",

@@ -4,7 +4,8 @@
  * A chat with an agent (see lib/agent-chat.ts), on its own page, in its dialog's Chat tab and in a
  * page's block, with the box to write in. Each message is one of the agent's runs, done by its
  * worker: the chat follows the run (its steps as they come, then its answer) by asking for it again
- * every second, and for the owner whose turn it is, shows the call it waits on to approve. On the
+ * every second, shows its answer as it is written (`/api/agents/chat/live`), and for the owner
+ * whose turn it is, shows the call it waits on to approve. On the
  * agent's page and in its dialog it is one chat that goes on (`AgentChatThread`), where the runs
  * the person started otherwise (schedules, tasks, mentions) come in as the agent speaking up, asked
  * for again as they go on; a block keeps conversations to pick from. Loaded only where a chat is shown.
@@ -25,6 +26,7 @@ import { AgentIcon, AgentStepLine } from "@/components/settings/agent-dialog";
 import { SideBox, SideItem } from "@/components/side-box";
 import { cn, IconButton, selectClass } from "@/components/ui";
 import {
+  applyLiveEdit,
   chatFailure,
   MAX_AGENT_CHAT_MESSAGE,
   type AgentChatInfo,
@@ -33,6 +35,7 @@ import {
   type AgentChatStepView,
   type AgentChatTurn,
   type ChatPlace,
+  type LiveTextEdit,
 } from "@/lib/agent-chat";
 
 const NO_SOURCES = new Map();
@@ -43,6 +46,21 @@ const POLL_MS = 1_000;
 const RUNS_BUSY_MS = 3_000;
 const RUNS_IDLE_MS = 30_000;
 const runGoesOn = (r: AgentChatRunView) => r.status === "pending" || r.status === "running" || r.status === "awaiting_approval";
+
+/** The lines of newline-delimited JSON, each as it comes. */
+async function* jsonLines<T>(body: ReadableStream<Uint8Array>): AsyncGenerator<T> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffered = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) return;
+    buffered += decoder.decode(value, { stream: true });
+    const lines = buffered.split("\n");
+    buffered = lines.pop() ?? "";
+    for (const line of lines) if (line.trim()) yield JSON.parse(line) as T;
+  }
+}
 
 export function AgentChat({
   workspaceId,
@@ -76,7 +94,14 @@ export function AgentChat({
   const [runs, setRuns] = useState<AgentChatRunView[]>([]);
   // The run answering the last message, and how it stands, while it is under way.
   const [running, setRunning] = useState<string | null>(null);
+  // The run whose answer came here while the chat was open: it flows in rather than showing at once.
+  const [arrived, setArrived] = useState<string | null>(null);
   const [turn, setTurn] = useState<AgentChatTurn | null>(null);
+  // What that run has written so far, as it writes it.
+  const [live, setLive] = useState<{ runId: string; text: string } | null>(null);
+  // Whether its writing is followed now, and a count raised to follow it again.
+  const followed = useRef(false);
+  const [followAgain, setFollowAgain] = useState(0);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -181,14 +206,19 @@ export function AgentChat({
         setConnections((c) => ({ ...c, ...res.data.connections }));
         if (res.data.status === "done" || res.data.status === "failed") {
           const ended = res.data;
+          // Under the same key as the answer being written: it goes on flowing from where it was.
           setMessages((list) => [
             ...list,
             { role: "assistant", content: ended.answer, runId: ended.runId, code: ended.status === "failed" ? (ended.code ?? "error") : null, steps: ended.steps, at: new Date().toISOString() },
           ]);
+          setArrived(ended.runId);
           setTurn(null);
+          setLive(null);
           setRunning(null);
           return;
         }
+        // Its writing is followed again when the follow ended while it goes on (it went on after an approval).
+        if ((res.data.status === "running" || res.data.status === "pending") && !followed.current) setFollowAgain((n) => n + 1);
       }
       timer = setTimeout(() => void poll(), POLL_MS);
     };
@@ -198,6 +228,41 @@ export function AgentChat({
       clearTimeout(timer);
     };
   }, [running, workspaceId]);
+
+  // What the turn under way writes, as it writes it (server/agents/live-text.ts): edits to its text.
+  // Only the person's own chat runs in this process are written here; others' answers come whole.
+  useEffect(() => {
+    if (!running) return;
+    const controller = new AbortController();
+    followed.current = true;
+    void (async () => {
+      let again = false;
+      try {
+        const res = await fetch(`/api/agents/chat/live?workspace=${encodeURIComponent(workspaceId)}&run=${encodeURIComponent(running)}`, {
+          headers: { "x-leafdesk-chat": "1" },
+          signal: controller.signal,
+        });
+        // Refused: the answer comes whole when the run ends, as it would without this.
+        if (!res.ok || !res.body) return;
+        again = true;
+        for await (const edit of jsonLines<LiveTextEdit>(res.body)) {
+          setLive((was) => {
+            const before = was?.runId === running ? was.text : "";
+            const text = applyLiveEdit(before, edit);
+            return was && text === before ? was : { runId: running, text };
+          });
+        }
+      } catch {
+        // Cut off: followed again while the run goes on.
+      } finally {
+        if (again && !controller.signal.aborted) followed.current = false;
+      }
+    })();
+    return () => {
+      controller.abort();
+      followed.current = false;
+    };
+  }, [running, workspaceId, followAgain]);
 
   // The agent's own chat asks for its runs again: often while one goes on, now and then for new ones.
   const runsRef = useRef(runs);
@@ -251,6 +316,32 @@ export function AgentChat({
     if (variant === "page") el.scrollIntoView({ block: "end" });
     else el.scrollTop = el.scrollHeight;
   }, [messages, runs.length, turn?.steps.length, running, variant]);
+  // The answer being written, and then one that came, flow in (smooth-text.ts): the conversation
+  // follows it to its end, if it was there (someone who scrolled up to read stays where they are).
+  const flowing = running ?? arrived;
+  const writing = running !== null;
+  useEffect(() => {
+    const el = listRef.current;
+    const box = variant === "page" ? scrollingBox(el) : el;
+    if (!el || !box || !flowing) return;
+    const until = writing ? Infinity : performance.now() + 3_000;
+    let atEnd = true;
+    const onScroll = () => (atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 160);
+    // The window's own scrolling is told to the window.
+    const target = box === document.scrollingElement ? window : box;
+    target.addEventListener("scroll", onScroll, { passive: true });
+    const observer = new ResizeObserver(() => {
+      if (performance.now() > until) observer.disconnect();
+      else if (!atEnd) return;
+      else if (variant === "page") el.scrollIntoView({ block: "end" });
+      else el.scrollTop = el.scrollHeight;
+    });
+    observer.observe(el.firstElementChild ?? el);
+    return () => {
+      target.removeEventListener("scroll", onScroll);
+      observer.disconnect();
+    };
+  }, [flowing, writing, variant]);
 
   const state = info?.state;
   const canChat = state === "full" || state === "readOnly";
@@ -390,7 +481,9 @@ export function AgentChat({
           <p className="text-sm text-fg-muted">{t(`empty.${state === "full" ? (thread ? "thread" : "full") : "readOnly"}`, { name: agent.name })}</p>
         ) : (
           <ol className={page ? "space-y-6" : "space-y-4"}>
-            {items.map((item, i) =>
+            {/* One list with the turn under way: its answer keeps its place (and its key) once it ends. */}
+            {[
+              ...items.map((item, i) =>
               item.day ? (
                 <li key={`day-${item.at}`} className="pt-2 text-center text-xs text-fg-muted">
                   <DayLabel at={item.at} />
@@ -419,28 +512,30 @@ export function AgentChat({
                       message={item.message}
                       ms={tookMs(item.message, askedAt)}
                       last={!running && i === items.length - 1}
+                      arrived={item.message.runId === arrived}
                       connections={connections}
                       onOpen={openPage}
                     />
                   )}
                 </li>
               ),
-            )}
-            {running && (
-              <li>
-                <LiveTurn
-                  workspaceId={workspaceId}
-                  runId={running}
-                  status={turn?.status ?? "pending"}
-                  steps={turn?.steps ?? []}
-                  pending={waiting}
-                  startedAt={askedAt.get(running)}
-                  connections={connections}
-                  onOpen={openPage}
-                  onAnswered={noop}
-                />
-              </li>
-            )}
+            ),
+              ...(running
+                ? [
+                    <li key={`assistant-${running}`}>
+                      <Answer
+                        message={{ role: "assistant", content: live?.runId === running ? live.text : "", runId: running, code: null, steps: turn?.steps ?? [], at: "" }}
+                        ms={undefined}
+                        last={false}
+                        arrived
+                        connections={connections}
+                        onOpen={openPage}
+                        live={{ workspaceId, status: turn?.status ?? "pending", pending: waiting, startedAt: askedAt.get(running) }}
+                      />
+                    </li>,
+                  ]
+                : []),
+            ]}
           </ol>
         )}
       </div>
@@ -587,37 +682,64 @@ function tookMs(answer: AgentChatMessageView, askedAt: Map<string, string>) {
 
 /**
  * An answer: the steps taken to it (folded into how long it took), then what the agent said, or
- * why it couldn't answer, and copying it (on hover, but for the latest).
+ * why it couldn't answer, and copying it (on hover, but for the latest). One under way (`live`)
+ * has its steps open under a running clock, with what it waits on last, then what it has written
+ * so far; for the owner whose turn it is, the call to approve. It stays the same answer once it
+ * ends, so its text goes on flowing from where it was.
  */
 function Answer({
   message,
   ms,
   last,
+  arrived = false,
   connections,
   onOpen,
+  live = null,
 }: {
   message: AgentChatMessageView;
   ms: number | undefined;
   last: boolean;
+  /** Being written, or came while the chat was open: its text flows in. */
+  arrived?: boolean;
   connections: Record<string, string>;
   onOpen: (pageId: string) => void;
+  live?: { workspaceId: string; status: AgentChatRunView["status"]; pending: AgentChatTurn["pending"]; startedAt: string | undefined; onAnswered?: () => void } | null;
 }) {
   const t = useTranslations("page.agentChat");
   const text = message.content.trim();
   return (
     <div className="group/answer text-sm leading-normal">
-      {message.steps.length > 0 && (
-        <StepsFold live={false} ms={ms} label={t("steps", { count: message.steps.length })}>
+      {live ? (
+        <StepsFold live startedAt={live.startedAt ? Date.parse(live.startedAt) : undefined}>
           <StepItems steps={message.steps} connections={connections} onOpen={onOpen} />
+          {!live.pending && (
+            <li className="flex items-center gap-1.5">
+              <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden />
+              {/* A call only an owner answers: the person chatting sees that it waits. */}
+              <span>{live.status === "pending" ? t("waiting") : live.status === "awaiting_approval" ? t("awaitingOwner") : t("working")}</span>
+            </li>
+          )}
         </StepsFold>
+      ) : (
+        message.steps.length > 0 && (
+          <StepsFold live={false} ms={ms} label={t("steps", { count: message.steps.length })}>
+            <StepItems steps={message.steps} connections={connections} onOpen={onOpen} />
+          </StepsFold>
+        )
+      )}
+      {live?.pending && (
+        <div className="mb-2 rounded-lg border border-border p-3">
+          <p className="mb-1.5 text-sm">{t("approval")}</p>
+          <ApprovalActions workspaceId={live.workspaceId} approval={{ runId: message.runId, ...live.pending }} onAnswered={live.onAnswered ?? noop} />
+        </div>
       )}
       {text && (
         <div className="break-words">
-          <AnswerText text={message.content} sources={NO_SOURCES} onSource={noop} />
+          <AnswerText text={message.content} sources={NO_SOURCES} onSource={noop} writing={arrived} />
         </div>
       )}
       {message.code && <p className="mt-1 text-xs text-danger">{t(`failed.${chatFailure(message.code)}`)}</p>}
-      {text && (
+      {text && !live && (
         <div className={cn("mt-1.5 -ms-1 flex items-center gap-0.5", !last && revealed)}>
           <CopyAction text={text} />
         </div>
@@ -632,54 +754,6 @@ function StepItems({ steps, connections, onOpen }: { steps: AgentChatStepView[];
       <AgentStepLine step={step} connections={connections} onOpen={onOpen} />
     </li>
   ));
-}
-
-/**
- * A run under way: its steps open under a running clock, with what it waits on last, and for the
- * owner whose turn it is, the call to approve below.
- */
-function LiveTurn({
-  workspaceId,
-  runId,
-  status,
-  steps,
-  pending,
-  startedAt,
-  connections,
-  onOpen,
-  onAnswered,
-}: {
-  workspaceId: string;
-  runId: string;
-  status: AgentChatRunView["status"];
-  steps: AgentChatStepView[];
-  pending: AgentChatTurn["pending"];
-  startedAt: string | undefined;
-  connections: Record<string, string>;
-  onOpen: (pageId: string) => void;
-  onAnswered: () => void;
-}) {
-  const t = useTranslations("page.agentChat");
-  return (
-    <div className="text-sm leading-normal">
-      <StepsFold live startedAt={startedAt ? Date.parse(startedAt) : undefined}>
-        <StepItems steps={steps} connections={connections} onOpen={onOpen} />
-        {!pending && (
-          <li className="flex items-center gap-1.5">
-            <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden />
-            {/* A call only an owner answers: the person chatting sees that it waits. */}
-            <span>{status === "pending" ? t("waiting") : status === "awaiting_approval" ? t("awaitingOwner") : t("working")}</span>
-          </li>
-        )}
-      </StepsFold>
-      {pending && (
-        <div className="rounded-lg border border-border p-3">
-          <p className="mb-1.5 text-sm">{t("approval")}</p>
-          <ApprovalActions workspaceId={workspaceId} approval={{ runId, ...pending }} onAnswered={onAnswered} />
-        </div>
-      )}
-    </div>
-  );
 }
 
 /**
@@ -758,16 +832,13 @@ function RunMessage({
           onOpen={onOpen}
         />
       ) : (
-        <LiveTurn
-          workspaceId={workspaceId}
-          runId={run.id}
-          status={run.status}
-          steps={run.steps}
-          pending={run.pending}
-          startedAt={run.at}
+        <Answer
+          message={{ role: "assistant", content: "", runId: run.id, code: null, steps: run.steps, at: run.at }}
+          ms={undefined}
+          last={false}
           connections={connections}
           onOpen={onOpen}
-          onAnswered={onAnswered}
+          live={{ workspaceId, status: run.status, pending: run.pending, startedAt: run.at, onAnswered }}
         />
       )}
     </div>

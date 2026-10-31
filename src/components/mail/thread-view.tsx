@@ -84,13 +84,13 @@ function TextBody({ text }: { text: string }) {
  * A message's HTML; the earlier mail it quotes at its end (server/mail-client/html.ts) shown when
  * asked for, back in its place in the same frame.
  */
-function HtmlBody({ html, quoted, images, title }: { html: string; quoted: string | null; images: boolean; title: string }) {
+function HtmlBody({ html, quoted, plain, quotedPlain, images, title }: { html: string; quoted: string | null; plain: boolean; quotedPlain: boolean; images: boolean; title: string }) {
   const t = useTranslations("mail");
   const [open, setOpen] = useState(false);
   const whole = open && quoted ? html.replace(/<\/body>/i, () => `${/<body[^>]*>([\s\S]*)<\/body>/i.exec(quoted)?.[1] ?? ""}</body>`) : html;
   return (
     <>
-      <MailFrame html={whole} images={images} title={title} />
+      <MailFrame html={whole} plain={plain && (whole === html || quotedPlain)} images={images} title={title} />
       {quoted && !open && (
         <button type="button" className="mt-2 rounded border border-border px-1.5 text-xs text-fg-muted hover:bg-bg-hover" onClick={() => setOpen(true)} aria-label={t("quoted")} title={t("quoted")}>
           •••
@@ -357,7 +357,7 @@ function Message({
               </div>
             )}
             {body.html ? (
-              <HtmlBody html={body.html} quoted={body.quotedHtml} images={!!body.images} title={message.subject} />
+              <HtmlBody html={body.html} quoted={body.quotedHtml} plain={!!body.plain} quotedPlain={!!body.quotedPlain} images={!!body.images} title={message.subject} />
             ) : (
               <TextBody text={body.text} />
             )}

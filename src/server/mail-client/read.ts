@@ -798,6 +798,8 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
     html: cleaned?.html ?? null,
     quotedHtml: cleaned?.quotedHtml ?? null,
     blockedImages: cleaned?.blockedImages ?? 0,
+    plain: cleaned?.plain ?? false,
+    quotedPlain: cleaned?.quotedPlain ?? false,
     images: shown,
     attachments,
     replyTo: listAddresses(result.fields.get("reply-to")?.[0]),
