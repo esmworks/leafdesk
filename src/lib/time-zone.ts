@@ -71,6 +71,16 @@ export function timestampDay(value: unknown, timeZone: string): string | null {
   return Number.isNaN(instant) ? null : dayString(localDay(instant, timeZone));
 }
 
+/** `instant` on `timeZone`'s clock: the day number and the minutes past midnight there. */
+export function wallClock(instant: number, timeZone: string): { day: number; minutes: number } {
+  const local = instant + zoneOffset(instant, timeZone);
+  const day = Math.floor(local / DAY_MS);
+  return { day, minutes: Math.floor((local - day * DAY_MS) / 60_000) };
+}
+
+/** Minutes past midnight as "HH:MM". */
+export const clockText = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+
 /** The weekday of a day number: 0 for Sunday … 6 for Saturday (1970-01-01, day 0, was a Thursday). */
 export const weekdayOf = (day: number) => (((day + 4) % 7) + 7) % 7;
 

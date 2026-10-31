@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "来自 {agent} 的提醒",
+    "open": "打开",
+    "later": "1 小时后再提醒",
+    "done": "完成"
+  },
   "inbox": {
     "title": "收件箱",
     "empty": "还没有通知",
@@ -236,6 +242,7 @@
     "memoryHidden": "来自你无法打开的某一行上的运行的 {count} 条笔记",
     "memoryAnswered": "已审阅",
     "reportTitle": "来自 {agent} 的报告",
+    "aiReminderTitle": "来自 {agent} 的提醒",
     "reportDone": "其定时运行已完成。",
     "reportFailed": "其定时运行失败。打开以查看原因。",
     "reportHidden": "其定时运行已完成，运行于一个你无法打开的数据库。",

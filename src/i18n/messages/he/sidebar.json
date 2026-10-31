@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "תזכורת מ-{agent}",
+    "open": "פתיחה",
+    "later": "להזכיר בעוד שעה",
+    "done": "סיום"
+  },
   "inbox": {
     "title": "דואר נכנס",
     "empty": "אין עדיין התראות",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {הערה} two {שתי הערות} other {# הערות}} מהרצה על שורה שאין לך גישה אליה",
     "memoryAnswered": "כבר נבדק",
     "reportTitle": "דוח מ־{agent}",
+    "aiReminderTitle": "תזכורת מ-{agent}",
     "reportDone": "ההרצה המתוזמנת שלו הסתיימה.",
     "reportFailed": "ההרצה המתוזמנת שלו נכשלה. אפשר לפתוח אותה כדי לראות למה.",
     "reportHidden": "ההרצה המתוזמנת שלו הסתיימה, על מסד נתונים שאין לך גישה אליו.",

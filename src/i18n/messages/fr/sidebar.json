@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Rappel de {agent}",
+    "open": "Ouvrir",
+    "later": "Me le rappeler dans 1 heure",
+    "done": "Terminé"
+  },
   "inbox": {
     "title": "Boîte de réception",
     "empty": "Aucune notification pour l’instant",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {Une note} other {# notes}} d’une exécution sur une ligne que vous ne pouvez pas ouvrir",
     "memoryAnswered": "Déjà examiné",
     "reportTitle": "Rapport de {agent}",
+    "aiReminderTitle": "Rappel de {agent}",
     "reportDone": "Son exécution planifiée est terminée.",
     "reportFailed": "Son exécution planifiée a échoué. Ouvrez-la pour voir pourquoi.",
     "reportHidden": "Son exécution planifiée est terminée, sur une base de données que vous ne pouvez pas ouvrir.",

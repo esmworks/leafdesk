@@ -197,7 +197,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   kind near and at a limit, one row per person and month by a unique index; a new agent spending
   fast is turned off mid-run from `run.ts`), `agents/limits.ts` (requests for a higher limit,
   answered from owners' inboxes), pure part `lib/agent-guardrails.ts`; who creates agents is
-  `sharing.ts` `mayCreate` (`agent_creator` when the setting is `chosen`).
+  `sharing.ts` `mayCreate` (`agent_creator` when the setting is `chosen`). Reminders to the person
+  a run works for (`remind_person`, no recipient argument): `server/ai-reminders.ts`, a notification
+  of kind `ai_reminder` waiting snoozed until its time (`deliverSnoozed` wakes it), shown over the
+  page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`.
 - **Connections** (outbound MCP): `src/server/connections/` (`manage.ts`, `client.ts`, `fetch.ts`
   for the address checks, `events.ts` for inbound events, `approvals.ts`). A fetch of an address a
   member or visitor gives passes `{ untrusted: true }`: only `WEB_FETCH_ALLOWED_HOSTS` applies to
@@ -255,7 +258,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `access.ts`; headers indexed by the minute's mailbox sweep, `indexer.ts`, and while a tab listens
   (`api/mail/events`, an event stream that ends every 10 minutes so the browser opens it again and is
   checked again) by `watch.ts`, an IDLE connection on the inbox outside the pool, whose NOOPs would
-  end IDLE; the tab loads its side, `mail-live.ts`, lazily; bodies read live through
+  end IDLE; the tab loads its side, `mail-live.ts`, lazily; a search finding less than a page in the index
+  asks the servers too, `read.ts` `bodyMatches` (SEARCH BODY, kept a few minutes for the next pages); bodies read live through
   `pool.ts` `withImap`, two queued connections per mailbox (lane `open` for clicks, `background`
   for folder reads and loading ahead) kept alive by NOOPs and keyed by its servers and password, never
   `updatedAt`, which the sweep changes; a server can drop one silently, leaving its commands waiting
@@ -292,7 +296,8 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   draft before after that); pictures in the text are the editor's `Picture` node, sent as `cid:`
   parts (`compose.ts` `inlineFiles`, form field `inline`), each uploaded once and carried over from
   the draft saved last by Content-ID, opened again as data URLs marked `data-cid`; a send waits
-  `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, which scripts skip with `sendHeld`;
+  `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, and is counted in `mail_send`, which with
+  `row_email` holds a mailbox to `MAX_SENDS_PER_HOUR` (both `write.ts` and `row-mail/send.ts` read both), which scripts skip with `sendHeld`;
   AI: `mail-client/ai.ts` behind `/api/ai/mail` (prompts pure in `ai-prompts.ts`), reading bodies
   with `read.ts` `messageForAi`, which never marks them seen; a thread's summary is `mail_message.summary` on its newest message;
   the writer reads the answered mail's row (`rowOfMessage`, the composer's `MailMessageView.row`, then `operations.ts` `visibleRow` as the person) and the person's
@@ -527,7 +532,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention,
   agent-schedule, agent-sharing, agent-guardrails, agent-skills, automation, button, row-buttons, timed-automation, schedule,
-  row-activity, row-follow, row-mail, web-links, discussions, follow-ups (starts its own GreenMail container
+  row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;

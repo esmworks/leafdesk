@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Påminnelse från {agent}",
+    "open": "Öppna",
+    "later": "Påminn mig om 1 timme",
+    "done": "Klar"
+  },
   "inbox": {
     "title": "Inkorg",
     "empty": "Inga aviseringar än",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {En anteckning} other {# anteckningar}} från en körning på en rad som du inte kan öppna",
     "memoryAnswered": "Redan granskad",
     "reportTitle": "Rapport från {agent}",
+    "aiReminderTitle": "Påminnelse från {agent}",
     "reportDone": "Dess schemalagda körning är klar.",
     "reportFailed": "Dess schemalagda körning misslyckades. Öppna den för att se varför.",
     "reportHidden": "Dess schemalagda körning är klar, på en databas som du inte kan öppna.",
