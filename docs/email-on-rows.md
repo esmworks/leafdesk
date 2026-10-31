@@ -95,6 +95,12 @@ where one is removed; *Stop* on a message does the same. The earlier mail an ans
 end folds under *•••*, which opens it in place. Messages are grouped into threads by the server's
 thread ids, their references and, within 30 days, a reply's subject.
 
+With several mailboxes, *All inboxes* at the top of the sidebar lists their inboxes as one, newest
+first, each thread marked with its mailbox's letter; its search looks in all of them. A thread
+opened, answered or moved there stays in its own mailbox, and *Move to* offers that mailbox's
+folders (none for a selection across mailboxes). `g` then `s`, `d`, `a` or `t` opens the default
+mailbox's folders.
+
 Mail from a mailing list shows *Unsubscribe* beside its answers. When the list offers a
 one-click address (List-Unsubscribe-Post) the server posts to it, else a mail asking for it goes to
 the list's address from the mailbox (kept in Sent); either happens after a confirmation, and only

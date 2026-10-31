@@ -155,5 +155,6 @@
   "messageMenu": "بیشتر",
   "printMessage": "چاپ",
   "showSource": "نمایش پیام اصلی",
-  "downloadSource": "دانلود پیام (.eml)"
+  "downloadSource": "دانلود پیام (.eml)",
+  "allInboxes": "همه صندوق‌های ورودی"
 }

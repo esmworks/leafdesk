@@ -4,6 +4,11 @@
 
 ### Added
 
+- **All inboxes in the Mail tab.** With several mailboxes, *All inboxes* in the sidebar lists their
+  inboxes as one list, newest first, with each thread's mailbox marked; search, the keys, the
+  selection bar and Undo work across them, and each thread is read, answered and moved in its own
+  mailbox. No migration.
+
 - **Printing and the original message in the Mail tab.** A button over a thread prints all its
   messages, with their senders, recipients and dates and nothing else of the page; a message's menu
   prints it alone, shows its original source (headers and all) or downloads it as an .eml file.

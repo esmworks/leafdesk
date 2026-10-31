@@ -28,6 +28,8 @@ export const SUBJECT_THREAD_DAYS = 30;
 export const MAIL_UNDO_SECONDS = 5;
 /** Conversations one archive, move or flag changes at most: a larger selection goes in several. */
 export const MAIL_MAX_THREADS = 200;
+/** The mailbox id that lists the inboxes of all the person's mailboxes in the workspace as one. */
+export const ALL_INBOXES = "all";
 /** Recipients a message from the Mail tab may have, To, Cc and Bcc together. */
 export const MAX_MAIL_RECIPIENTS = 100;
 /** Attachments a message from the Mail tab may bring, together. */
@@ -216,6 +218,9 @@ export type MailboxTabView = {
 /** A thread in a folder's list. */
 export type MailThreadItem = {
   threadId: string;
+  /** The mailbox and folder it is listed from, which its moves and flags go to (several in ALL_INBOXES). */
+  mailboxId: string;
+  folderId: string;
   /** The newest message of the thread in this folder, which opening the thread starts from. */
   messageId: string;
   /** Senders of the thread's messages, newest first, each once. */

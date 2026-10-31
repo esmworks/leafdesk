@@ -155,5 +155,6 @@
   "messageMenu": "更多",
   "printMessage": "打印",
   "showSource": "显示原始邮件",
-  "downloadSource": "下载邮件 (.eml)"
+  "downloadSource": "下载邮件 (.eml)",
+  "allInboxes": "所有收件箱"
 }

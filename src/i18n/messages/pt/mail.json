@@ -155,5 +155,6 @@
   "messageMenu": "Mais",
   "printMessage": "Imprimir",
   "showSource": "Mostrar original",
-  "downloadSource": "Baixar mensagem (.eml)"
+  "downloadSource": "Baixar mensagem (.eml)",
+  "allInboxes": "Todas as caixas de entrada"
 }

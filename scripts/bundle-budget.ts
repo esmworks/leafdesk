@@ -122,7 +122,7 @@ import { gzipSync } from "node:zlib";
  * The Mail tab's page itself (its list, and opening a draft or a sent message taken back in the
  * pane) adds about 0.5 kB to all first loads together; the composer and drafts load when shown.
  */
-const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1216, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1217, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

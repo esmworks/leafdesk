@@ -155,5 +155,6 @@
   "messageMenu": "Mer",
   "printMessage": "Skriv ut",
   "showSource": "Visa original",
-  "downloadSource": "Ladda ned meddelande (.eml)"
+  "downloadSource": "Ladda ned meddelande (.eml)",
+  "allInboxes": "Alla inkorgar"
 }

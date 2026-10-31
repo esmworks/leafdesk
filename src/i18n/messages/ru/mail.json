@@ -155,5 +155,6 @@
   "messageMenu": "Ещё",
   "printMessage": "Распечатать",
   "showSource": "Показать оригинал",
-  "downloadSource": "Скачать сообщение (.eml)"
+  "downloadSource": "Скачать сообщение (.eml)",
+  "allInboxes": "Все входящие"
 }

@@ -17,6 +17,7 @@ export function SelectionBar({
   all,
   box,
   folder,
+  acrossMailboxes,
   onToggleAll,
   onClear,
   onAction,
@@ -26,6 +27,8 @@ export function SelectionBar({
   all: boolean;
   box: MailboxTabView;
   folder: MailFolderView;
+  /** The conversations are of several mailboxes (all inboxes): no folder of one takes them all. */
+  acrossMailboxes: boolean;
   onToggleAll: () => void;
   onClear: () => void;
   onAction: (action: MailAction, to?: MailFolderView) => void;
@@ -33,7 +36,7 @@ export function SelectionBar({
   const t = useTranslations("mail");
   const folderName = useFolderName();
   const away = folder.role === "trash" || folder.role === "junk";
-  const targets = (box.folders ?? []).filter((f) => f.id !== folder.id && movableTo(f));
+  const targets = acrossMailboxes ? [] : (box.folders ?? []).filter((f) => f.id !== folder.id && movableTo(f));
   const unread = items.some((i) => i.unread);
   const starred = items.every((i) => i.starred);
   const button = "h-8 w-8 text-fg-icon";

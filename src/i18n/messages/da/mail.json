@@ -155,5 +155,6 @@
   "messageMenu": "Mere",
   "printMessage": "Udskriv",
   "showSource": "Vis original",
-  "downloadSource": "Hent besked (.eml)"
+  "downloadSource": "Hent besked (.eml)",
+  "allInboxes": "Alle indbakker"
 }

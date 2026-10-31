@@ -155,5 +155,6 @@
   "messageMenu": "Meer",
   "printMessage": "Afdrukken",
   "showSource": "Origineel weergeven",
-  "downloadSource": "Bericht downloaden (.eml)"
+  "downloadSource": "Bericht downloaden (.eml)",
+  "allInboxes": "Alle postvakken IN"
 }

@@ -155,5 +155,6 @@
   "messageMenu": "เพิ่มเติม",
   "printMessage": "พิมพ์",
   "showSource": "แสดงต้นฉบับ",
-  "downloadSource": "ดาวน์โหลดข้อความ (.eml)"
+  "downloadSource": "ดาวน์โหลดข้อความ (.eml)",
+  "allInboxes": "กล่องขาเข้าทั้งหมด"
 }

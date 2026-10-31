@@ -46,7 +46,7 @@ export async function refreshFolderAction(mailboxId: string, folderId: string): 
   return run((userId) => refreshFolder(userId, mailboxId, folderId));
 }
 
-export async function listThreadsAction(input: { mailboxId: string; folderId: string; search?: string; cursor?: string | null }): Promise<ActionResult<MailThreadPage>> {
+export async function listThreadsAction(input: { mailboxId: string; folderId: string; workspaceId?: string; search?: string; cursor?: string | null }): Promise<ActionResult<MailThreadPage>> {
   return run((userId) => listThreads(userId, input));
 }
 

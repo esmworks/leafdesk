@@ -155,5 +155,6 @@
   "messageMenu": "Lisää",
   "printMessage": "Tulosta",
   "showSource": "Näytä alkuperäinen",
-  "downloadSource": "Lataa viesti (.eml)"
+  "downloadSource": "Lataa viesti (.eml)",
+  "allInboxes": "Kaikki saapuneet"
 }

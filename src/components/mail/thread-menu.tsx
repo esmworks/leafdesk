@@ -24,6 +24,7 @@ export function ThreadMenu({
   many,
   box,
   folder,
+  acrossMailboxes,
   href,
   onClose,
   onAction,
@@ -38,6 +39,8 @@ export function ThreadMenu({
   many: number;
   box: MailboxTabView;
   folder: MailFolderView;
+  /** The selection is of several mailboxes (all inboxes): no folder of one takes them all. */
+  acrossMailboxes: boolean;
   href: string;
   onClose: () => void;
   onAction: (action: MailAction, to?: MailFolderView) => void;
@@ -54,7 +57,7 @@ export function ThreadMenu({
   };
   const away = folder.role === "trash" || folder.role === "junk";
   const sender = item.senders.find((s) => s.address !== box.address);
-  const targets = (box.folders ?? []).filter((f) => f.id !== folder.id && movableTo(f));
+  const targets = acrossMailboxes ? [] : (box.folders ?? []).filter((f) => f.id !== folder.id && movableTo(f));
 
   return (
     <Popover at={at} open onOpenChange={(open) => !open && onClose()} className="w-72" trigger={() => null}>

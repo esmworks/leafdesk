@@ -155,5 +155,6 @@
   "messageMenu": "Mer",
   "printMessage": "Skriv ut",
   "showSource": "Vis original",
-  "downloadSource": "Last ned melding (.eml)"
+  "downloadSource": "Last ned melding (.eml)",
+  "allInboxes": "Alle innbokser"
 }

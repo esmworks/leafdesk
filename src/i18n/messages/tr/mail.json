@@ -155,5 +155,6 @@
   "messageMenu": "Diğer işlemler",
   "printMessage": "Yazdır",
   "showSource": "Orijinali göster",
-  "downloadSource": "İletiyi indir (.eml)"
+  "downloadSource": "İletiyi indir (.eml)",
+  "allInboxes": "Tüm gelen kutuları"
 }

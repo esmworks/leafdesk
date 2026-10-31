@@ -155,5 +155,6 @@
   "messageMenu": "Lainnya",
   "printMessage": "Cetak",
   "showSource": "Tampilkan asli",
-  "downloadSource": "Unduh pesan (.eml)"
+  "downloadSource": "Unduh pesan (.eml)",
+  "allInboxes": "Semua kotak masuk"
 }

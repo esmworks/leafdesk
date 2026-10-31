@@ -280,6 +280,31 @@ try {
   check(bySubject("Ekim bülteni")?.row === null && bySubject("Ekim bülteni")?.hasAttachments, "mail from no row's address names none, and shows it has files");
   check(first.items.every((t) => t.unread), "new mail is unread");
 
+  // All inboxes as one
+  const salesInbox = salesListed!.folders!.find((f) => f.role === "inbox")!;
+  const all = await read.listThreads(ids.ada, { mailboxId: "all", folderId: "", workspaceId });
+  check(
+    all.items.length === 4 &&
+      all.items.every((t, i) => i === 0 || all.items[i - 1].sentAt >= t.sentAt) &&
+      all.items.filter((t) => t.mailboxId === salesBoxId && t.folderId === salesInbox.id).map((t) => t.subject).join() === "Fiyat sorusu" &&
+      all.items.filter((t) => t.mailboxId === boxId).every((t) => t.folderId === inbox.id),
+    "all inboxes list as one, newest first, each thread with its mailbox and inbox",
+    all.items.map((t) => [t.subject, t.mailboxId === salesBoxId]),
+  );
+  check(first.items.every((t) => t.mailboxId === boxId && t.folderId === inbox.id), "a folder's threads name it too");
+  const allFound = await read.listThreads(ids.ada, { mailboxId: "all", folderId: "", workspaceId, search: "fiyat" });
+  check(
+    allFound.items.map((t) => `${t.subject}@${t.mailboxId === salesBoxId ? "sales" : "ada"}`).sort().join() === "Fiyat sorusu@sales,Re: Teklif@ada",
+    "searching all inboxes searches every mailbox",
+    allFound.items.map((t) => t.subject),
+  );
+  check(!(await read.listThreads(ids.bob, { mailboxId: "all", folderId: "", workspaceId })).items.length, "another member's all inboxes hold none of Ada's mail");
+  const fiyat = all.items.find((t) => t.mailboxId === salesBoxId)!;
+  await mailAction(ids.ada, { mailboxId: fiyat.mailboxId, folderId: fiyat.folderId, threadIds: [fiyat.threadId], action: "star" });
+  const [fiyatRow] = await db.select().from(mailMessage).where(eq(mailMessage.id, fiyat.messageId));
+  check(fiyatRow.flagged && fiyatRow.mailboxId === salesBoxId, "a thread of all inboxes is starred in its own mailbox");
+  await mailAction(ids.ada, { mailboxId: fiyat.mailboxId, folderId: fiyat.folderId, threadIds: [fiyat.threadId], action: "unstar" });
+
   const thread = await read.getThread(ids.ada, { mailboxId: boxId, threadId: teklif!.threadId, folderId: inbox.id });
   check(
     thread.messages.map((m) => m.subject).join("|") === "Teklif|Re: Teklif|Re: Teklif" && thread.messages[2].folderRole === "sent",

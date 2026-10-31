@@ -155,5 +155,6 @@
   "messageMenu": "Thêm",
   "printMessage": "In",
   "showSource": "Hiển thị bản gốc",
-  "downloadSource": "Tải xuống thư (.eml)"
+  "downloadSource": "Tải xuống thư (.eml)",
+  "allInboxes": "Tất cả hộp thư đến"
 }

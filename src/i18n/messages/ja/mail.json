@@ -155,5 +155,6 @@
   "messageMenu": "その他",
   "printMessage": "印刷",
   "showSource": "メッセージのソースを表示",
-  "downloadSource": "メッセージをダウンロード (.eml)"
+  "downloadSource": "メッセージをダウンロード (.eml)",
+  "allInboxes": "すべての受信トレイ"
 }

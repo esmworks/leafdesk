@@ -155,5 +155,6 @@
   "messageMenu": "Більше",
   "printMessage": "Надрукувати",
   "showSource": "Показати оригінал",
-  "downloadSource": "Завантажити повідомлення (.eml)"
+  "downloadSource": "Завантажити повідомлення (.eml)",
+  "allInboxes": "Усі вхідні"
 }

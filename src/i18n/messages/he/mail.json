@@ -155,5 +155,6 @@
   "messageMenu": "עוד",
   "printMessage": "הדפס",
   "showSource": "הצג מקור",
-  "downloadSource": "הורד את ההודעה (.eml)"
+  "downloadSource": "הורד את ההודעה (.eml)",
+  "allInboxes": "כל הדואר הנכנס"
 }

@@ -155,5 +155,6 @@
   "messageMenu": "المزيد",
   "printMessage": "طباعة",
   "showSource": "عرض الرسالة الأصلية",
-  "downloadSource": "تنزيل الرسالة (.eml)"
+  "downloadSource": "تنزيل الرسالة (.eml)",
+  "allInboxes": "كل صناديق الوارد"
 }

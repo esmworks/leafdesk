@@ -155,5 +155,6 @@
   "messageMenu": "Altro",
   "printMessage": "Stampa",
   "showSource": "Mostra originale",
-  "downloadSource": "Scarica messaggio (.eml)"
+  "downloadSource": "Scarica messaggio (.eml)",
+  "allInboxes": "Tutta la posta in arrivo"
 }

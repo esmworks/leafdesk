@@ -155,5 +155,6 @@
   "messageMenu": "더 보기",
   "printMessage": "인쇄",
   "showSource": "원본 보기",
-  "downloadSource": "메시지 다운로드 (.eml)"
+  "downloadSource": "메시지 다운로드 (.eml)",
+  "allInboxes": "모든 받은편지함"
 }
