@@ -1,12 +1,14 @@
 {
   "title": "Tastaturgenveje",
   "or": "eller",
+  "then": "derefter",
   "groups": {
     "general": "Generelt",
     "navigation": "Navigation",
     "text": "Tekstformatering",
     "blocks": "Blokke",
-    "databases": "Databaser"
+    "databases": "Databaser",
+    "mail": "Mail"
   },
   "items": {
     "shortcuts": "Vis tastaturgenvejene",
@@ -61,6 +63,30 @@
     "rowComment": "Kommentér rækken (med dens menu åben)",
     "rowTrash": "Flyt rækken til papirkurven (med dens menu åben)",
     "link": "Link den markerede tekst",
-    "newSubPage": "Opret en side i denne, linket i teksten (efter et mellemrum)"
+    "newSubPage": "Opret en side i denne, linket i teksten (efter et mellemrum)",
+    "mailCompose": "Skriv en ny besked",
+    "mailSearch": "Søg i mail",
+    "mailNext": "Åbn den næste samtale",
+    "mailPrevious": "Åbn den forrige samtale",
+    "mailOpen": "Åbn den første samtale",
+    "mailBack": "Tilbage til listen, eller ryd markeringen",
+    "mailSelect": "Vælg den åbne samtale",
+    "mailSelectAll": "Vælg alle samtaler på listen",
+    "mailArchive": "Arkivér, eller flyt tilbage til indbakken",
+    "mailTrash": "Flyt til papirkurven (slet permanent, når den ligger der)",
+    "mailJunk": "Marker som spam",
+    "mailStar": "Stjernemarkér, eller fjern stjernen",
+    "mailUnread": "Marker som ulæst",
+    "mailRead": "Marker som læst",
+    "mailUndo": "Fortryd den seneste flytning",
+    "mailReply": "Svar",
+    "mailReplyAll": "Svar til alle",
+    "mailForward": "Videresend",
+    "mailSend": "Send den besked, du skriver",
+    "mailGoInbox": "Gå til indbakken",
+    "mailGoSent": "Gå til sendte beskeder",
+    "mailGoDrafts": "Gå til kladder",
+    "mailGoArchive": "Gå til arkivet",
+    "mailGoTrash": "Gå til papirkurven"
   }
 }

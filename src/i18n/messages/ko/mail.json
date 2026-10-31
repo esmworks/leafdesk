@@ -51,7 +51,11 @@
   "imagesTrusted": "이 보낸 사람의 이미지는 항상 표시됩니다.",
   "stopImages": "중지",
   "unverified": "보낸 사람의 도메인이 이 메시지가 해당 도메인에서 왔음을 확인해 주지 않았습니다. 링크와 파일에 주의하세요.",
-  "unsubscribe": "이 목록 구독 취소",
+  "unsubscribe": "구독 취소",
+  "unsubscribeConfirm": "{sender}의 메일링 리스트 구독을 취소할까요? {how, select, mail {구독 취소를 요청하는 메시지가 내 메일함에서 {address}(으)로 전송됩니다.} other {리스트에 바로 알립니다.}}",
+  "unsubscribing": "구독 취소 중…",
+  "unsubscribed": "구독 취소됨",
+  "unsubscribedNote": "{sender} 구독을 취소했습니다",
   "attachments": "{count, plural, other {파일 #개}}",
   "noMailboxTitle": "메일을 사용하려면 메일함을 연결하세요",
   "noMailboxText": "메일에는 이 워크스페이스에서 연결한 메일함이 표시됩니다. 계정 설정에서 메일함을 연결하세요. 워크스페이스에서 이메일이 켜져 있어야 합니다.",
@@ -140,6 +144,28 @@
     "quoteHide": "인용된 메시지 숨기기",
     "quoteRemove": "인용된 메시지 삭제"
   },
+  "bulk": {
+    "select": "선택",
+    "selectThread": "대화 선택: {subject}",
+    "selectAll": "모두 선택",
+    "selected": "{count}개 선택됨",
+    "clear": "선택 해제",
+    "toolbar": "선택한 대화",
+    "done": {
+      "archive": "{count, plural, other {대화 #개를 보관했습니다}}",
+      "trash": "{count, plural, other {대화 #개를 휴지통으로 이동했습니다}}",
+      "junk": "{count, plural, other {대화 #개를 스팸으로 표시했습니다}}",
+      "inbox": "{count, plural, other {대화 #개를 받은편지함으로 이동했습니다}}",
+      "delete": "{count, plural, other {대화 #개를 영구 삭제했습니다}}",
+      "move": "{count, plural, other {대화 #개를 {folder}(으)로 이동했습니다}}"
+    }
+  },
+  "printThread": "대화 인쇄",
+  "messageMenu": "더 보기",
+  "printMessage": "인쇄",
+  "showSource": "원본 보기",
+  "downloadSource": "메시지 다운로드 (.eml)",
+  "allInboxes": "모든 받은편지함",
   "ai": {
     "summarize": "요약",
     "summarizeHint": "이 대화를 AI로 요약",

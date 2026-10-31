@@ -2579,7 +2579,8 @@
       "googleFailed": "Google ile giriş posta kutusunu bağlamadı. Yeniden deneyin.",
       "googleScope": "Google'da Leafdesk'in postalarınıza erişmesine izin verilmedi. Yeniden giriş yapıp izin verin.",
       "tooMany": "Bu çalışma alanında bağlayabileceğiniz kadar posta kutusu bağladınız. Önce birinin bağlantısını kesin.",
-      "alreadyConnected": "Bu adresi burada zaten bağladınız. Onun yerine o posta kutusunu değiştirin."
+      "alreadyConnected": "Bu adresi burada zaten bağladınız. Onun yerine o posta kutusunu değiştirin.",
+      "unsubscribeFailed": "E-posta listesi abonelikten çıkma isteğini kabul etmedi. Onun yerine listenin bağlantısını deneyin."
     },
     "methods": {
       "google": "Google hesabı (Gmail veya Google Workspace)",

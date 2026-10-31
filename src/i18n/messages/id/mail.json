@@ -51,7 +51,11 @@
   "imagesTrusted": "Gambar dari pengirim ini selalu ditampilkan.",
   "stopImages": "Hentikan",
   "unverified": "Domain pengirim tidak mengonfirmasi bahwa pesan ini berasal darinya. Hati-hati dengan tautan dan file di dalamnya.",
-  "unsubscribe": "Berhenti berlangganan daftar ini",
+  "unsubscribe": "Berhenti berlangganan",
+  "unsubscribeConfirm": "Berhenti berlangganan milis {sender}? {how, select, mail {Pesan berisi permintaan itu dikirim ke {address} dari kotak surat Anda.} other {Milis itu langsung diberi tahu.}}",
+  "unsubscribing": "Menghentikan langganan…",
+  "unsubscribed": "Langganan dihentikan",
+  "unsubscribedNote": "Berhenti berlangganan dari {sender}",
   "attachments": "{count, plural, other {# file}}",
   "noMailboxTitle": "Hubungkan kotak surat untuk menggunakan Email",
   "noMailboxText": "Email menampilkan kotak surat yang Anda hubungkan di ruang kerja ini. Hubungkan satu di pengaturan akun Anda; email harus aktif di ruang kerja.",
@@ -140,6 +144,28 @@
     "quoteHide": "Sembunyikan pesan yang dikutip",
     "quoteRemove": "Hapus pesan yang dikutip"
   },
+  "bulk": {
+    "select": "Pilih",
+    "selectThread": "Pilih percakapan: {subject}",
+    "selectAll": "Pilih semua",
+    "selected": "{count} dipilih",
+    "clear": "Hapus pilihan",
+    "toolbar": "Percakapan yang dipilih",
+    "done": {
+      "archive": "{count, plural, other {# percakapan diarsipkan}}",
+      "trash": "{count, plural, other {# percakapan dipindahkan ke sampah}}",
+      "junk": "{count, plural, other {# percakapan ditandai sebagai spam}}",
+      "inbox": "{count, plural, other {# percakapan dipindahkan ke kotak masuk}}",
+      "delete": "{count, plural, other {# percakapan dihapus permanen}}",
+      "move": "{count, plural, other {# percakapan dipindahkan ke {folder}}}"
+    }
+  },
+  "printThread": "Cetak percakapan",
+  "messageMenu": "Lainnya",
+  "printMessage": "Cetak",
+  "showSource": "Tampilkan asli",
+  "downloadSource": "Unduh pesan (.eml)",
+  "allInboxes": "Semua kotak masuk",
   "ai": {
     "summarize": "Ringkas",
     "summarizeHint": "Ringkas percakapan ini dengan AI",

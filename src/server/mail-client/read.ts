@@ -3,7 +3,9 @@ import { db } from "@/db";
 import { mailbox, mailFolder, mailMessage, page } from "@/db/schema";
 import { dmarcFailed, normalizeAddress, parseHeaderBlock } from "@/lib/mail";
 import { imagesShown, type MailImagesFrom } from "@/lib/mail-images";
+import { unsubscribeOffer, unsubscribeTargets } from "@/lib/mail-unsubscribe";
 import {
+  ALL_INBOXES,
   MAIL_PAGE,
   parseMailQuery,
   type MailAddress,
@@ -133,6 +135,9 @@ export async function openMailbox(userId: string, mailboxId: string): Promise<Ma
 
 const refreshed = ((globalThis as typeof globalThis & { __leafdeskMailRefreshed?: Map<string, number> }).__leafdeskMailRefreshed ??= new Map());
 
+/** The folder was just read from the server (watch.ts, as its inbox changed): a tab asking now isn't asked to wait for it again. */
+export const folderRefreshed = (folderId: string) => refreshed.set(folderId, Date.now());
+
 /** Asks the mail server what is new in a folder, as the person looks at it (not more often than REFRESH_EVERY_MS). */
 export async function refreshFolder(userId: string, mailboxId: string, folderId: string): Promise<MailFolderView[]> {
   const box = await requireOwnMailbox(userId, mailboxId);
@@ -259,34 +264,75 @@ async function threadFolders(box: Box, from: FolderRow | null) {
 /**
  * A folder's threads, newest first, MAIL_PAGE at a time (`cursor` is the last page's `next`). With a
  * search, all folders but the trash and junk are searched, as kept in the index: senders, recipients,
- * subjects and first lines.
+ * subjects and first lines. The mailbox ALL_INBOXES lists the inboxes of all the person's mailboxes
+ * in `workspaceId` as one (its search, all their folders but the trash and junk).
  */
-export async function listThreads(userId: string, input: { mailboxId: string; folderId: string; search?: string; cursor?: string | null }): Promise<MailThreadPage> {
+export async function listThreads(
+  userId: string,
+  input: { mailboxId: string; folderId: string; workspaceId?: string; search?: string; cursor?: string | null },
+): Promise<MailThreadPage> {
+  const search = typeof input.search === "string" ? input.search.trim().slice(0, 500) : "";
+  const cursor = typeof input.cursor === "string" ? input.cursor : null;
+  if (input.mailboxId === ALL_INBOXES) {
+    const workspaceId = input.workspaceId ?? "";
+    await requireMailIn(userId, workspaceId);
+    const boxes = await db
+      .select()
+      .from(mailbox)
+      .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)));
+    const inboxes = boxes.length
+      ? await db
+          .select()
+          .from(mailFolder)
+          .where(
+            and(
+              inArray(
+                mailFolder.mailboxId,
+                boxes.map((b) => b.id),
+              ),
+              eq(mailFolder.role, "inbox"),
+            ),
+          )
+      : [];
+    const listed = boxes.flatMap((box) => inboxes.filter((f) => f.mailboxId === box.id).map((folder) => ({ box, folder })));
+    return threadPage(userId, workspaceId, listed, search, cursor);
+  }
   const box = await requireOwnMailbox(userId, input.mailboxId);
   const folder = await folderOf(box, input.folderId);
-  const search = typeof input.search === "string" ? input.search.trim().slice(0, 500) : "";
-  const scope = search ? (await threadFolders(box, null)).map((f) => f.id) : [folder.id];
+  return threadPage(userId, box.workspaceId, [{ box, folder }], search, cursor);
+}
+
+/** The threads of these folders (each of its own mailbox), in one list by their newest message. */
+async function threadPage(userId: string, workspaceId: string, listed: { box: Box; folder: FolderRow }[], search: string, cursor: string | null): Promise<MailThreadPage> {
+  // Per mailbox: the folders listed (all but the trash and junk for a search) and those whose messages count in a thread.
+  const each = await Promise.all(
+    listed.map(async ({ box, folder }) => {
+      const visible = await threadFolders(box, folder);
+      return { box, folder, visible, scope: search ? (await threadFolders(box, null)).map((f) => f.id) : [folder.id] };
+    }),
+  );
+  const scope = each.flatMap((e) => e.scope);
   if (!scope.length) return { items: [], next: null };
   const where = and(inArray(mailMessage.folderId, scope), search ? searchCondition(search) : undefined);
 
   let after: SQL | undefined;
-  if (typeof input.cursor === "string" && input.cursor) {
-    const [at, threadId] = [input.cursor.slice(0, input.cursor.indexOf("|")), input.cursor.slice(input.cursor.indexOf("|") + 1)];
-    if (!Number.isNaN(Date.parse(at))) after = sql`(t.last, t.thread_id) < (${at}::timestamptz, ${threadId})`;
-  }
-  const groups = await db.execute<{ thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; files: boolean; drafts: boolean; newest: string }>(sql`
+  // "<date>|<mailbox>|<thread>": a thread's id may hold a "|" of its own.
+  const [at, mailboxId, ...rest] = cursor?.split("|") ?? [];
+  const threadId = rest.join("|");
+  if (at && mailboxId && threadId && !Number.isNaN(Date.parse(at))) after = sql`(t.last, t.mailbox_id, t.thread_id) < (${at}::timestamptz, ${mailboxId}, ${threadId})`;
+  const groups = await db.execute<{ mailbox_id: string; thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; files: boolean; drafts: boolean; newest: string }>(sql`
     select * from (
-      select ${mailMessage.threadId} as thread_id, max(${mailMessage.sentAt}) as last,
+      select ${mailMessage.mailboxId} as mailbox_id, ${mailMessage.threadId} as thread_id, max(${mailMessage.sentAt}) as last,
         bool_or(not ${mailMessage.seen}) as unread, count(*)::int as held,
         (count(*) filter (where not ${mailMessage.seen}))::int as unseen, bool_or(${mailMessage.flagged}) as starred,
         bool_or(${mailMessage.hasAttachments}) as files, bool_or(${mailMessage.draft}) as drafts,
         (array_agg(${mailMessage.id} order by ${mailMessage.sentAt} desc, ${mailMessage.uid} desc))[1] as newest
       from ${mailMessage}
       where ${where}
-      group by ${mailMessage.threadId}
+      group by ${mailMessage.mailboxId}, ${mailMessage.threadId}
     ) t
     ${after ? sql`where ${after}` : sql``}
-    order by t.last desc, t.thread_id desc
+    order by t.last desc, t.mailbox_id desc, t.thread_id desc
     limit ${MAIL_PAGE + 1}
   `);
   const page_ = [...groups];
@@ -294,11 +340,9 @@ export async function listThreads(userId: string, input: { mailboxId: string; fo
   const shown = page_.slice(0, MAIL_PAGE);
   if (!shown.length) return { items: [], next: null };
 
-  const threadIds = shown.map((g) => g.thread_id);
-  const visibleFolders = await threadFolders(box, folder);
-  const visible = visibleFolders.map((f) => f.id);
+  const visible = each.flatMap((e) => e.visible.map((f) => f.id));
   // A thread answered in a draft shows it wherever it is listed.
-  const drafts = new Set(visibleFolders.filter((f) => f.role === "drafts").map((f) => f.id));
+  const drafts = new Set(each.flatMap((e) => e.visible.filter((f) => f.role === "drafts").map((f) => f.id)));
   const [newest, members] = await Promise.all([
     db
       .select()
@@ -310,31 +354,54 @@ export async function listThreads(userId: string, input: { mailboxId: string; fo
         ),
       ),
     db
-      .select({ threadId: mailMessage.threadId, messageId: mailMessage.messageId, id: mailMessage.id, folderId: mailMessage.folderId, fromAddress: mailMessage.fromAddress, fromName: mailMessage.fromName, sentAt: mailMessage.sentAt })
+      .select({
+        mailboxId: mailMessage.mailboxId,
+        threadId: mailMessage.threadId,
+        messageId: mailMessage.messageId,
+        id: mailMessage.id,
+        folderId: mailMessage.folderId,
+        fromAddress: mailMessage.fromAddress,
+        fromName: mailMessage.fromName,
+        sentAt: mailMessage.sentAt,
+      })
       .from(mailMessage)
-      .where(and(eq(mailMessage.mailboxId, box.id), inArray(mailMessage.threadId, threadIds), visible.length ? inArray(mailMessage.folderId, visible) : undefined))
+      .where(
+        and(
+          inArray(mailMessage.mailboxId, [...new Set(shown.map((g) => g.mailbox_id))]),
+          inArray(mailMessage.threadId, [...new Set(shown.map((g) => g.thread_id))]),
+          visible.length ? inArray(mailMessage.folderId, visible) : undefined,
+        ),
+      )
       .orderBy(desc(mailMessage.sentAt)),
   ]);
   const newestById = new Map(newest.map((m) => [m.id, m]));
+  const listedIn = new Map(each.map((e) => [e.box.id, e]));
+  const party = (m: MessageRow) => {
+    const box = listedIn.get(m.mailboxId)?.box;
+    return box ? otherParty(box, m) : null;
+  };
   const rows = await rowsForAddresses(
-    box.workspaceId,
+    workspaceId,
     userId,
-    newest.map((m) => otherParty(box, m)).filter((a): a is string => !!a),
+    newest.map(party).filter((a): a is string => !!a),
   );
 
   const items = shown.flatMap((g): MailThreadItem[] => {
     const message = newestById.get(g.newest);
-    if (!message) return [];
-    const inThread = members.filter((m) => m.threadId === g.thread_id);
+    const from = listedIn.get(g.mailbox_id);
+    if (!message || !from) return [];
+    const inThread = members.filter((m) => m.mailboxId === g.mailbox_id && m.threadId === g.thread_id);
     const distinct = new Set(inThread.map((m) => m.messageId ?? m.id));
     const senders: MailAddress[] = [];
     for (const m of inThread) {
       if (m.fromAddress && !senders.some((s) => s.address === m.fromAddress)) senders.push({ address: m.fromAddress, name: m.fromName });
     }
-    const other = otherParty(box, message);
+    const other = party(message);
     return [
       {
         threadId: g.thread_id,
+        mailboxId: g.mailbox_id,
+        folderId: from.folder.id,
         messageId: message.id,
         senders: senders.length ? senders.slice(0, 4) : [{ address: message.fromAddress, name: message.fromName }],
         subject: message.subject,
@@ -352,7 +419,7 @@ export async function listThreads(userId: string, input: { mailboxId: string; fo
     ];
   });
   const last = shown[shown.length - 1];
-  return { items, next: more ? `${new Date(last.last).toISOString()}|${last.thread_id}` : null };
+  return { items, next: more ? `${new Date(last.last).toISOString()}|${last.mailbox_id}|${last.thread_id}` : null };
 }
 
 function messageView(m: MessageRow, folders: Map<string, FolderRow>): MailMessageView {
@@ -428,7 +495,7 @@ export async function getThread(userId: string, input: { mailboxId: string; thre
 const travelling = (bytes: number) => Math.ceil(bytes * 1.4) + 1024;
 
 /** The message row and its folder, for its owner. */
-async function ownMessage(userId: string, id: string) {
+export async function ownMessage(userId: string, id: string) {
   const [found] =
     typeof id === "string" && id
       ? await db.select({ message: mailMessage, folder: mailFolder }).from(mailMessage).innerJoin(mailFolder, eq(mailFolder.id, mailMessage.folderId)).where(eq(mailMessage.id, id))
@@ -447,12 +514,6 @@ const listAddresses = (value: string | undefined): MailAddress[] =>
       return address ? { address, name: match?.[1]?.trim() || null } : null;
     })
     .filter((a): a is MailAddress => !!a);
-
-/** The web address of a List-Unsubscribe header, when it has one. */
-function unsubscribeLink(value: string | undefined) {
-  const link = /<(https:\/\/[^>]+)>/i.exec(value ?? "")?.[1];
-  return link && link.length <= 2000 ? link : null;
-}
 
 /**
  * Reads a message's text, cleaned HTML and list of files from the mail server (or memory, when it
@@ -565,7 +626,7 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
       const lock = await client.getMailboxLock(folder.path);
       step("select");
       try {
-        const fetched = await client.fetchOne(String(message.uid), { uid: true, bodyStructure: true, headers: ["reply-to", "authentication-results", "list-unsubscribe"] }, { uid: true });
+        const fetched = await client.fetchOne(String(message.uid), { uid: true, bodyStructure: true, headers: ["reply-to", "authentication-results", "list-unsubscribe", "list-unsubscribe-post"] }, { uid: true });
         step("structure");
         if (!fetched || !fetched.bodyStructure) return null;
         const parts = messageParts(fetched.bodyStructure);
@@ -624,7 +685,7 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
     attachments,
     replyTo: listAddresses(result.fields.get("reply-to")?.[0]),
     unverifiedSender,
-    unsubscribe: unsubscribeLink(result.fields.get("list-unsubscribe")?.[0]),
+    unsubscribe: unsubscribeOffer(unsubscribeTargets(result.fields.get("list-unsubscribe")?.[0], result.fields.get("list-unsubscribe-post")?.[0]), unverifiedSender),
   };
 }
 
@@ -648,6 +709,29 @@ export async function readAttachment(userId: string, input: { id: string; part: 
   });
   if (!file) throw new RowMailError("gone");
   return file;
+}
+
+/**
+ * A message as the mail server keeps it, headers and all (MAX_ATTACHMENT_BYTES of base64 at most),
+ * for its owner to read or save as an .eml file; its subject names the file.
+ */
+export async function readSource(userId: string, input: { id: string }) {
+  const { box, message, folder } = await ownMessage(userId, input?.id);
+  const limit = travelling(MAX_ATTACHMENT_BYTES);
+  const source = await withImap(box, async (client) => {
+    const lock = await client.getMailboxLock(folder.path, { readOnly: true });
+    try {
+      const sized = await client.fetchOne(String(message.uid), { uid: true, size: true }, { uid: true });
+      if (!sized) return null;
+      if ((sized.size ?? 0) > limit) throw new RowMailError("tooMany");
+      const fetched = await client.fetchOne(String(message.uid), { uid: true, source: { maxLength: limit } }, { uid: true });
+      return fetched ? (fetched.source ?? null) : null;
+    } finally {
+      lock.release();
+    }
+  });
+  if (!source) throw new RowMailError("gone");
+  return { subject: message.subject, data: source };
 }
 
 /** Whether the sidebar offers the Mail tab: email is on in the workspace and the person has a mailbox there. Never throws. */

@@ -2579,7 +2579,8 @@
       "googleFailed": "L’accesso con Google non ha collegato la casella. Riprova.",
       "googleScope": "Google non è stato autorizzato a dare a Leafdesk l’accesso alla tua posta. Accedi di nuovo e consentilo.",
       "tooMany": "Hai collegato tutte le caselle di posta possibili in questo spazio di lavoro. Scollegane prima una.",
-      "alreadyConnected": "Hai già collegato questo indirizzo qui. Cambia invece quella casella."
+      "alreadyConnected": "Hai già collegato questo indirizzo qui. Cambia invece quella casella.",
+      "unsubscribeFailed": "La mailing list non ha accettato la richiesta di annullare l’iscrizione. Prova invece il suo link."
     },
     "methods": {
       "google": "Account Google (Gmail o Google Workspace)",

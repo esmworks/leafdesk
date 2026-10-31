@@ -51,7 +51,11 @@
   "imagesTrusted": "Hình ảnh từ người gửi này luôn được hiện.",
   "stopImages": "Dừng",
   "unverified": "Tên miền của người gửi không xác nhận thư này đến từ họ. Hãy cẩn thận với các liên kết và tệp trong thư.",
-  "unsubscribe": "Hủy đăng ký danh sách này",
+  "unsubscribe": "Hủy đăng ký",
+  "unsubscribeConfirm": "Hủy đăng ký danh sách thư của {sender}? {how, select, mail {Một thư yêu cầu việc này sẽ được gửi từ hộp thư của bạn đến {address}.} other {Danh sách sẽ được báo ngay.}}",
+  "unsubscribing": "Đang hủy đăng ký…",
+  "unsubscribed": "Đã hủy đăng ký",
+  "unsubscribedNote": "Đã hủy đăng ký {sender}",
   "attachments": "{count, plural, other {# tệp}}",
   "noMailboxTitle": "Kết nối hộp thư để dùng Thư",
   "noMailboxText": "Thư hiển thị các hộp thư bạn đã kết nối trong không gian làm việc này. Hãy kết nối một hộp thư trong cài đặt tài khoản; email phải được bật trong không gian làm việc.",
@@ -140,6 +144,28 @@
     "quoteHide": "Ẩn thư được trích dẫn",
     "quoteRemove": "Bỏ thư được trích dẫn"
   },
+  "bulk": {
+    "select": "Chọn",
+    "selectThread": "Chọn cuộc trò chuyện: {subject}",
+    "selectAll": "Chọn tất cả",
+    "selected": "Đã chọn {count}",
+    "clear": "Bỏ chọn",
+    "toolbar": "Cuộc trò chuyện đã chọn",
+    "done": {
+      "archive": "{count, plural, other {Đã lưu trữ # cuộc trò chuyện}}",
+      "trash": "{count, plural, other {Đã chuyển # cuộc trò chuyện vào thùng rác}}",
+      "junk": "{count, plural, other {Đã đánh dấu # cuộc trò chuyện là thư rác}}",
+      "inbox": "{count, plural, other {Đã chuyển # cuộc trò chuyện vào hộp thư đến}}",
+      "delete": "{count, plural, other {Đã xóa vĩnh viễn # cuộc trò chuyện}}",
+      "move": "{count, plural, other {Đã chuyển # cuộc trò chuyện đến {folder}}}"
+    }
+  },
+  "printThread": "In cuộc trò chuyện",
+  "messageMenu": "Thêm",
+  "printMessage": "In",
+  "showSource": "Hiển thị bản gốc",
+  "downloadSource": "Tải xuống thư (.eml)",
+  "allInboxes": "Tất cả hộp thư đến",
   "ai": {
     "summarize": "Tóm tắt",
     "summarizeHint": "Tóm tắt cuộc trò chuyện này bằng AI",

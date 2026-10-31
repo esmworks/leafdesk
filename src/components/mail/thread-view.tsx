@@ -6,14 +6,18 @@ import {
   Archive,
   ChevronLeft,
   Database,
+  Download,
+  FileCode,
   Forward,
   Image as ImageIcon,
   Inbox,
   ListTodo,
   MailOpen,
+  MoreHorizontal,
   Paperclip,
   Pencil,
   Reply,
+  Printer,
   ReplyAll,
   RotateCcw,
   Sparkles,
@@ -26,16 +30,17 @@ import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } fr
 import { streamAi } from "@/components/ai-stream";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { read } from "@/components/read";
-import { Button, cn, IconButton, PageIcon } from "@/components/ui";
+import { Button, cn, IconButton, MenuItem, PageIcon, Popover } from "@/components/ui";
 import { quoteStart } from "@/lib/mail-quote";
 import { isAiErrorCode } from "@/lib/ai";
 import type { MailWriteAction } from "@/lib/mail-ai";
 import { pagePath } from "@/lib/mentions";
-import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftView, MailFolderView, MailMessageView, MailThreadView, MailUndoneSend } from "@/lib/mail-client";
+import { type MailAction, type MailAddress, type MailBody, type MailboxTabView, type MailDraftView, type MailFolderView, type MailMessageView, type MailThreadView, type MailUndoneSend, type MailUnsubscribe } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { lazyPart } from "@/components/lazy-part";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
-import { discardDraftAction, forgetImageSenderAction, trustImageSenderAction } from "@/app/actions/mail";
+import { discardDraftAction, forgetImageSenderAction, trustImageSenderAction, unsubscribeAction } from "@/app/actions/mail";
+import { showToast } from "@/components/toast";
 import { cachedBody, cachedThread, forgetBodies, keepBody, keepThread } from "./mail-cache";
 import { MailFrame } from "./mail-frame";
 import { useWhen } from "./mail-store";
@@ -154,6 +159,101 @@ function DraftCard({ message, onEdit, onDiscard, busy }: { message: MailMessageV
 
 type Loaded = { body: MailBody | null; error: string | null; loading: boolean };
 
+/** Messages whose list was left while the tab is open: their bodies, kept, still offer it. */
+const unsubscribed = new Set<string>();
+
+/**
+ * A mailing list's way out beside its message's answers: done on the spot after asking (the list's
+ * one-click address, or a mail from the mailbox to the list), or its web page to visit.
+ */
+function Unsubscribe({ offer, messageId, sender }: { offer: MailUnsubscribe; messageId: string; sender: string }) {
+  const t = useTranslations("mail");
+  const [state, setState] = useState<"idle" | "busy" | "done">(unsubscribed.has(messageId) ? "done" : "idle");
+  const style = "inline-flex h-8 shrink-0 items-center rounded px-2 text-xs text-fg-muted";
+  const pressable = "hover:bg-bg-active hover:text-fg disabled:opacity-60 disabled:hover:bg-transparent";
+  if (offer.how === "web") {
+    return (
+      <a href={offer.url} target="_blank" rel="noopener noreferrer" className={cn(style, pressable)}>
+        {t("unsubscribe")}
+      </a>
+    );
+  }
+  if (state === "done") return <span className={style}>{t("unsubscribed")}</span>;
+  return (
+    <button
+      type="button"
+      disabled={state === "busy"}
+      className={cn(style, pressable)}
+      onClick={async () => {
+        if (!confirm(t("unsubscribeConfirm", { sender, how: offer.how, address: offer.how === "mail" ? offer.address : "" }))) return;
+        setState("busy");
+        const result = await unsubscribeAction({ id: messageId }).catch(() => null);
+        if (result?.ok) {
+          unsubscribed.add(messageId);
+          showToast({ message: t("unsubscribedNote", { sender }) });
+          return setState("done");
+        }
+        setState("idle");
+        showToast({ message: result?.error ?? t("loadFailed") });
+      }}
+    >
+      {state === "busy" ? t("unsubscribing") : t("unsubscribe")}
+    </button>
+  );
+}
+
+/** A message's own menu: printing it, and the message as the mail server keeps it. */
+function MessageMenu({ messageId, onPrint }: { messageId: string; onPrint: () => void }) {
+  const t = useTranslations("mail");
+  const source = `/api/mail/source?m=${encodeURIComponent(messageId)}`;
+  return (
+    <Popover
+      align="end"
+      className="w-56"
+      trigger={({ open, toggle }) => (
+        <IconButton label={t("messageMenu")} aria-expanded={open} className="h-8 w-8 text-fg-icon" onClick={toggle}>
+          <MoreHorizontal className="h-4 w-4" />
+        </IconButton>
+      )}
+    >
+      {(close) => (
+        <>
+          <MenuItem
+            icon={<Printer className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              onPrint();
+            }}
+          >
+            {t("printMessage")}
+          </MenuItem>
+          <MenuItem
+            icon={<FileCode className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              window.open(source, "_blank", "noopener");
+            }}
+          >
+            {t("showSource")}
+          </MenuItem>
+          <MenuItem
+            icon={<Download className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              const link = document.createElement("a");
+              link.href = `${source}&download=1`;
+              link.download = "";
+              link.click();
+            }}
+          >
+            {t("downloadSource")}
+          </MenuItem>
+        </>
+      )}
+    </Popover>
+  );
+}
+
 function Message({
   message,
   box,
@@ -165,6 +265,7 @@ function Message({
   last,
   ai,
   onCompose,
+  onPrint,
 }: {
   message: MailMessageView;
   box: MailboxTabView;
@@ -178,6 +279,7 @@ function Message({
   ai: boolean;
   /** Opens the composer; with `start`, its AI writer too, doing that at once. */
   onCompose: (mode: ComposeMode, start?: MailWriteAction) => void;
+  onPrint: () => void;
 }) {
   const t = useTranslations("mail");
   const when = useWhen();
@@ -215,8 +317,9 @@ function Message({
             </div>
           </div>
         </button>
-        {/* Answers to this message, at hand without scrolling past it. */}
+        {/* Answers to this message, at hand without scrolling past it, and leaving its list. */}
         <div className="-me-1.5 -mt-1 ms-2 flex shrink-0 items-center">
+          {body?.unsubscribe && <Unsubscribe offer={body.unsubscribe} messageId={message.id} sender={message.from.name || message.from.address} />}
           <IconButton label={t("actions.reply")} className="h-8 w-8 text-fg-icon" onClick={() => onCompose("reply")}>
             <Reply className="h-4 w-4" />
           </IconButton>
@@ -228,6 +331,7 @@ function Message({
           <IconButton label={t("actions.forward")} className="h-8 w-8 text-fg-icon" onClick={() => onCompose("forward")}>
             <Forward className="h-4 w-4" />
           </IconButton>
+          <MessageMenu messageId={message.id} onPrint={onPrint} />
         </div>
       </div>
       {body?.unverifiedSender && (
@@ -297,11 +401,6 @@ function Message({
                   </li>
                 ))}
               </ul>
-            )}
-            {body.unsubscribe && (
-              <a href={body.unsubscribe} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-xs text-fg-muted hover:underline">
-                {t("unsubscribe")}
-              </a>
             )}
           </>
         ) : null}
@@ -589,6 +688,41 @@ export function ThreadView({
     setOpen(next);
   };
 
+  const when = useWhen();
+  const [printing, setPrinting] = useState(false);
+  /** Prints messages of the thread (all those sent, or one with what it quotes), reading the bodies not read yet. */
+  const print = async (messages: MailMessageView[], quoted: boolean) => {
+    if (!thread || printing) return;
+    setPrinting(true);
+    try {
+      const loaded = await Promise.all(
+        messages.map(async (m) => {
+          const held = bodies[m.id]?.body ?? cachedBody(m.id, false);
+          if (held) return held;
+          const result = await read("mailBody", { id: m.id });
+          if (!result.ok) return null;
+          keepBody(m.id, result.data);
+          if (!m.seen) onRead();
+          return result.data;
+        }),
+      ).catch(() => null);
+      if (!loaded || loaded.some((body) => !body)) return showToast({ message: t("loadFailed") });
+      const name = (a: MailAddress) => (a.name ? `${a.name} <${a.address}>` : a.address);
+      const { printMail } = await import("./print-mail");
+      printMail({
+        subject: thread.subject || t("noSubject"),
+        quoted,
+        messages: messages.map((m, i) => ({
+          lines: [name(m.from), t("toLine", { names: m.to.map(name).join(", ") || "—" }), ...(m.cc.length ? [t("ccLine", { names: m.cc.map(name).join(", ") })] : []), when(m.sentAt, true)],
+          body: loaded[i]!,
+          files: loaded[i]!.attachments.map((file) => file.name),
+        })),
+      });
+    } finally {
+      setPrinting(false);
+    }
+  };
+
   const sent = thread?.messages.filter((m) => !isDraft(m)) ?? [];
   const last = sent[sent.length - 1] ?? null;
   // The message a reply or forward answers: the one whose button was pressed, or its draft's, else (keys) the newest.
@@ -645,7 +779,7 @@ export function ThreadView({
           <MailOpen className="h-4 w-4" />
         </IconButton>
         {/* Up here rather than under the subject, where a line of its own pushes the mail down. */}
-        {thread && <span className="ms-auto shrink-0 pe-3 text-sm text-fg-muted">{t("messages", { count: thread.messages.length })}</span>}
+        {thread && <span className="ms-auto shrink-0 pe-2 text-sm text-fg-muted">{t("messages", { count: thread.messages.length })}</span>}
         {/* A summary shown has its own button to write it again. */}
         {ai && thread && !summary.state && (
           <Button onClick={summary.run} title={t("ai.summarizeHint")} className="h-8 shrink-0">
@@ -656,6 +790,11 @@ export function ThreadView({
         {ai && thread && !tasks && (
           <IconButton label={t("ai.tasks.find")} title={t("ai.tasks.findHint")} className="ms-1 h-8 w-8 shrink-0 text-fg-icon" onClick={() => setTasks(true)}>
             <ListTodo className="h-4 w-4" />
+          </IconButton>
+        )}
+        {thread && sent.length > 0 && (
+          <IconButton label={t("printThread")} className="h-8 w-8 text-fg-icon" disabled={printing} onClick={() => void print(sent, false)}>
+            <Printer className="h-4 w-4" />
           </IconButton>
         )}
       </div>
@@ -715,6 +854,7 @@ export function ThreadView({
                     setAiStart(start ?? null);
                     onComposeChange(mode);
                   }}
+                  onPrint={() => void print([m], true)}
                 />
                 ),
               )}

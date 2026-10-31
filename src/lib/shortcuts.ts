@@ -14,7 +14,8 @@ import { detectPlatform, matchesKeyboardEvent, type HotkeyChord } from "@tanstac
 type Texts = typeof import("@/i18n/messages/en/shortcuts.json");
 
 export type Combo = readonly string[];
-export type Shortcut = { id: keyof Texts["items"]; combos: readonly Combo[] };
+/** `sequence`: its keys are pressed one after the other (g then i), not held together. */
+export type Shortcut = { id: keyof Texts["items"]; combos: readonly Combo[]; sequence?: boolean };
 export type ShortcutGroup = { id: keyof Texts["groups"]; shortcuts: readonly Shortcut[] };
 
 /** What a table row's menu does from the keyboard while it is open (see rowMenuShortcut). */
@@ -143,6 +144,36 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "rowMoveTo", combos: [ROW_MENU_COMBOS.moveTo] },
       { id: "rowComment", combos: [ROW_MENU_COMBOS.comment] },
       { id: "rowTrash", combos: [ROW_MENU_COMBOS.trash] },
+    ],
+  },
+  {
+    id: "mail",
+    shortcuts: [
+      // The Mail tab (components/mail/mail-app.tsx), outside text fields; the composer's Mod+Enter.
+      { id: "mailCompose", combos: [["C"]] },
+      { id: "mailSearch", combos: [["/"]] },
+      { id: "mailNext", combos: [["J"]] },
+      { id: "mailPrevious", combos: [["K"]] },
+      { id: "mailOpen", combos: [["Enter"], ["O"]] },
+      { id: "mailBack", combos: [["Esc"]] },
+      { id: "mailSelect", combos: [["X"]] },
+      { id: "mailSelectAll", combos: [["Mod", "A"]] },
+      { id: "mailArchive", combos: [["E"]] },
+      { id: "mailTrash", combos: [["#"]] },
+      { id: "mailJunk", combos: [["!"]] },
+      { id: "mailStar", combos: [["S"]] },
+      { id: "mailUnread", combos: [["U"]] },
+      { id: "mailRead", combos: [["Shift", "I"]] },
+      { id: "mailUndo", combos: [["Mod", "Z"]] },
+      { id: "mailReply", combos: [["R"]] },
+      { id: "mailReplyAll", combos: [["A"]] },
+      { id: "mailForward", combos: [["F"]] },
+      { id: "mailSend", combos: [["Mod", "Enter"]] },
+      { id: "mailGoInbox", combos: [["G", "I"]], sequence: true },
+      { id: "mailGoSent", combos: [["G", "S"]], sequence: true },
+      { id: "mailGoDrafts", combos: [["G", "D"]], sequence: true },
+      { id: "mailGoArchive", combos: [["G", "A"]], sequence: true },
+      { id: "mailGoTrash", combos: [["G", "T"]], sequence: true },
     ],
   },
 ];

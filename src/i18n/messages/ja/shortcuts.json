@@ -1,12 +1,14 @@
 {
   "title": "キーボードショートカット",
   "or": "または",
+  "then": "に続けて",
   "groups": {
     "general": "全般",
     "navigation": "ナビゲーション",
     "text": "テキストの書式",
     "blocks": "ブロック",
-    "databases": "データベース"
+    "databases": "データベース",
+    "mail": "メール"
   },
   "items": {
     "shortcuts": "キーボードショートカットを表示",
@@ -61,6 +63,30 @@
     "rowComment": "行にコメント（メニューを開いているとき）",
     "rowTrash": "行をゴミ箱へ移動（メニューを開いているとき）",
     "link": "選択したテキストにリンク",
-    "newSubPage": "このページ内にページを作成し、本文からリンク（スペースの後）"
+    "newSubPage": "このページ内にページを作成し、本文からリンク（スペースの後）",
+    "mailCompose": "新しいメッセージを作成",
+    "mailSearch": "メールを検索",
+    "mailNext": "次の会話を開く",
+    "mailPrevious": "前の会話を開く",
+    "mailOpen": "最初の会話を開く",
+    "mailBack": "一覧に戻る、または選択を解除",
+    "mailSelect": "開いている会話を選択",
+    "mailSelectAll": "一覧のすべての会話を選択",
+    "mailArchive": "アーカイブ、または受信トレイに戻す",
+    "mailTrash": "ゴミ箱に移動（ゴミ箱内では完全に削除）",
+    "mailJunk": "迷惑メールにする",
+    "mailStar": "スターを付ける/外す",
+    "mailUnread": "未読にする",
+    "mailRead": "既読にする",
+    "mailUndo": "直前の移動を元に戻す",
+    "mailReply": "返信",
+    "mailReplyAll": "全員に返信",
+    "mailForward": "転送",
+    "mailSend": "作成中のメッセージを送信",
+    "mailGoInbox": "受信トレイを開く",
+    "mailGoSent": "送信済みを開く",
+    "mailGoDrafts": "下書きを開く",
+    "mailGoArchive": "アーカイブを開く",
+    "mailGoTrash": "ゴミ箱を開く"
   }
 }

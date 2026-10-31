@@ -1,12 +1,14 @@
 {
   "title": "Pintasan keyboard",
   "or": "atau",
+  "then": "lalu",
   "groups": {
     "general": "Umum",
     "navigation": "Navigasi",
     "text": "Pemformatan teks",
     "blocks": "Blok",
-    "databases": "Basis data"
+    "databases": "Basis data",
+    "mail": "Email"
   },
   "items": {
     "shortcuts": "Tampilkan pintasan keyboard",
@@ -61,6 +63,30 @@
     "rowComment": "Komentari baris (menunya terbuka)",
     "rowTrash": "Pindahkan baris ke sampah (menunya terbuka)",
     "link": "Tautkan teks yang dipilih",
-    "newSubPage": "Buat halaman di dalam halaman ini, ditautkan di teks (setelah spasi)"
+    "newSubPage": "Buat halaman di dalam halaman ini, ditautkan di teks (setelah spasi)",
+    "mailCompose": "Tulis pesan baru",
+    "mailSearch": "Cari email",
+    "mailNext": "Buka percakapan berikutnya",
+    "mailPrevious": "Buka percakapan sebelumnya",
+    "mailOpen": "Buka percakapan pertama",
+    "mailBack": "Kembali ke daftar, atau hapus pilihan",
+    "mailSelect": "Pilih percakapan yang terbuka",
+    "mailSelectAll": "Pilih semua percakapan dalam daftar",
+    "mailArchive": "Arsipkan, atau kembalikan ke kotak masuk",
+    "mailTrash": "Pindahkan ke sampah (di sampah: hapus permanen)",
+    "mailJunk": "Tandai sebagai spam",
+    "mailStar": "Beri bintang atau hapus bintang",
+    "mailUnread": "Tandai belum dibaca",
+    "mailRead": "Tandai sudah dibaca",
+    "mailUndo": "Urungkan pemindahan terakhir",
+    "mailReply": "Balas",
+    "mailReplyAll": "Balas semua",
+    "mailForward": "Teruskan",
+    "mailSend": "Kirim pesan yang sedang ditulis",
+    "mailGoInbox": "Buka kotak masuk",
+    "mailGoSent": "Buka email terkirim",
+    "mailGoDrafts": "Buka draf",
+    "mailGoArchive": "Buka arsip",
+    "mailGoTrash": "Buka sampah"
   }
 }

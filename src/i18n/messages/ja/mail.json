@@ -51,7 +51,11 @@
   "imagesTrusted": "この差出人の画像は常に表示されます。",
   "stopImages": "停止",
   "unverified": "送信者のドメインがこのメッセージの送信元であることを確認できませんでした。リンクやファイルにご注意ください。",
-  "unsubscribe": "このリストの配信を停止",
+  "unsubscribe": "配信停止",
+  "unsubscribeConfirm": "{sender} のメーリングリストの配信を停止しますか？{how, select, mail {停止を求めるメッセージがあなたのメールボックスから {address} に送信されます。} other {リストにすぐ通知されます。}}",
+  "unsubscribing": "配信を停止しています…",
+  "unsubscribed": "配信停止済み",
+  "unsubscribedNote": "{sender} の配信を停止しました",
   "attachments": "{count, plural, other {# 件のファイル}}",
   "noMailboxTitle": "メールを使うにはメールボックスを接続してください",
   "noMailboxText": "メールには、このワークスペースで接続したメールボックスが表示されます。アカウント設定で接続してください。ワークスペースでメールが有効になっている必要があります。",
@@ -140,6 +144,28 @@
     "quoteHide": "引用されたメッセージを隠す",
     "quoteRemove": "引用されたメッセージを削除"
   },
+  "bulk": {
+    "select": "選択",
+    "selectThread": "会話を選択: {subject}",
+    "selectAll": "すべて選択",
+    "selected": "{count}件を選択中",
+    "clear": "選択を解除",
+    "toolbar": "選択した会話",
+    "done": {
+      "archive": "{count, plural, other {# 件の会話をアーカイブしました}}",
+      "trash": "{count, plural, other {# 件の会話をゴミ箱に移動しました}}",
+      "junk": "{count, plural, other {# 件の会話を迷惑メールにしました}}",
+      "inbox": "{count, plural, other {# 件の会話を受信トレイに移動しました}}",
+      "delete": "{count, plural, other {# 件の会話を完全に削除しました}}",
+      "move": "{count, plural, other {# 件の会話を {folder} に移動しました}}"
+    }
+  },
+  "printThread": "会話を印刷",
+  "messageMenu": "その他",
+  "printMessage": "印刷",
+  "showSource": "メッセージのソースを表示",
+  "downloadSource": "メッセージをダウンロード (.eml)",
+  "allInboxes": "すべての受信トレイ",
   "ai": {
     "summarize": "要約",
     "summarizeHint": "この会話を AI で要約",

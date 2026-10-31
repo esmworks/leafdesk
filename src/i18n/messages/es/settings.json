@@ -2579,7 +2579,8 @@
       "googleFailed": "Iniciar sesión con Google no conectó el buzón. Inténtalo de nuevo.",
       "googleScope": "No se permitió que Google diera a Leafdesk acceso a tu correo. Vuelve a iniciar sesión y permítelo.",
       "tooMany": "Ya conectaste todos los buzones que puedes en este espacio de trabajo. Desconecta uno primero.",
-      "alreadyConnected": "Ya conectaste esa dirección aquí. Cambia ese buzón en su lugar."
+      "alreadyConnected": "Ya conectaste esa dirección aquí. Cambia ese buzón en su lugar.",
+      "unsubscribeFailed": "La lista de correo no aceptó la solicitud de baja. Prueba con su enlace."
     },
     "methods": {
       "google": "Cuenta de Google (Gmail o Google Workspace)",

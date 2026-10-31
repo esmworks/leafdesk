@@ -80,7 +80,9 @@ MCP clients, the REST API and automations don't.
 
 Leafdesk keeps each folder's headers and first lines, read 90 days back once the owner first
 opens Mail (every mailbox of theirs at once, in the background, so the others show their unread
-counts too) and kept up to date by the minute's read; the messages themselves, their HTML and their
+counts too) and kept up to date by the minute's read. While Mail is open in front, the server
+also keeps one more connection to each of the person's mailboxes waiting on the inbox (IMAP IDLE):
+new mail shows in the list within seconds, without asking; the messages themselves, their HTML and their
 files are read from the mail server when a thread is opened, and aren't stored: a message read is
 held in the server's memory for up to 10 minutes, never written, and the first threads of the list
 and those beside the open one are read ahead, so they open at once (reading ahead leaves them
@@ -95,13 +97,39 @@ where one is removed; *Stop* on a message does the same. The earlier mail an ans
 end folds under *•••*, which opens it in place. Messages are grouped into threads by the server's
 thread ids, their references and, within 30 days, a reply's subject.
 
+With several mailboxes, *All inboxes* at the top of the sidebar lists their inboxes as one, newest
+first, each thread marked with its mailbox's letter; its search looks in all of them. A thread
+opened, answered or moved there stays in its own mailbox, and *Move to* offers that mailbox's
+folders (none for a selection across mailboxes). `g` then `s`, `d`, `a` or `t` opens the default
+mailbox's folders.
+
+Mail from a mailing list shows *Unsubscribe* beside its answers. When the list offers a
+one-click address (List-Unsubscribe-Post) the server posts to it, else a mail asking for it goes to
+the list's address from the mailbox (kept in Sent); either happens after a confirmation, and only
+for a sender the provider's check vouched for. A list with only a web page, or a sender that failed
+the check, opens that page instead. The server reaches only public https addresses for it (and
+those in `WEB_FETCH_ALLOWED_HOSTS`).
+
+The printer button over a thread prints all its messages, each under its sender, recipients and
+date, and nothing else of the page. A message's *…* menu prints that message alone (with the mail
+it quotes), shows its original (the message as the mail server keeps it, headers and all, as plain
+text) or downloads it as an .eml file.
+
 From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
 trash is for good. A right click on a thread in the list opens the same answers and moves without
 opening it, plus *Move to* any of the mailbox's folders (not Sent or Drafts), the sender's other
-mail (a `from:` search), *Open in new tab* and *Copy link*. *Empty trash* (and *Empty junk*) over
-the folder's list deletes all of it for good after asking, on the mail server too. *New message* opens beside the list, where the open thread would be, and Back
-closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
+mail (a `from:` search), *Open in new tab* and *Copy link*. *Empty trash* (and *Empty junk*)
+over the folder's list deletes all of it for good after asking, on the mail server too. Several threads are selected with
+their boxes (shown on hover), ⌘/Ctrl-click, Shift-click for a range, `x` for the open one or
+⌘/Ctrl+A for all the list has loaded; a bar in place of the list's title then archives, trashes,
+marks, stars or moves all of them at once (the keys and a right click on one of them do too), and
+Esc leaves the selection. The Mail tab works from the keyboard too: `j`/`k` next and previous,
+`e` archive, `#` trash, `!` junk, `s` star, `u` unread, Shift+I read, `r`/`a`/`f` reply, reply all
+and forward, `c` a new message, `/` search, ⌘/Ctrl+Z undoes the last move, and `g` then `i`, `s`,
+`d`, `a` or `t` opens the inbox, sent mail, drafts, archive or trash; `?` lists them all, and the
+search box (⌘/Ctrl+K) has *Mail* and *New message* after `>`. *New message* opens beside the list,
+where the open thread would be, and Back closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
 through, with bulleted and numbered lists, quotes and links (⌘/Ctrl+K), and goes out as HTML with
 a plain-text part beside it; other formatting pasted in falls away. A picture pasted in, or dropped
 on the text, goes where it is put and is sent as part of the message (PNG, JPEG, GIF or WebP, within
@@ -124,7 +152,7 @@ attached, at most 100 recipients and 100 messages an hour from each mailbox; the
 a copy. The search
 box looks through every folder but the trash and junk, in senders, recipients, subjects and first
 lines, and takes `from:`, `to:`, `subject:`, `is:unread`, `is:read`, `is:starred`,
-`has:attachment`, `after:2026-01-31` and `before:`. Keys: `c` new message, `/`
+`has:attachment`, `after:2026-01-31` and `before:`; the words found are marked in the list. Keys: `c` new message, `/`
 search, `j` and `k` next and previous thread, `o` or Enter open the first; in a thread `e` archive,
 `#` trash, `!` junk, `s` star, `u` unread, `r` reply, `a` reply all, `f` forward, Escape back to
 the list. Backups leave the Mail tab's index out: it is read again once the mailbox is connected.

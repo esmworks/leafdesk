@@ -1,12 +1,14 @@
 {
   "title": "键盘快捷键",
   "or": "或",
+  "then": "然后",
   "groups": {
     "general": "通用",
     "navigation": "导航",
     "text": "文本格式",
     "blocks": "块",
-    "databases": "数据库"
+    "databases": "数据库",
+    "mail": "邮件"
   },
   "items": {
     "shortcuts": "显示键盘快捷键",
@@ -61,6 +63,30 @@
     "rowComment": "评论该行（菜单打开时）",
     "rowTrash": "将行移到回收站（菜单打开时）",
     "link": "为所选文本添加链接",
-    "newSubPage": "在此页面内创建页面并在文本中链接（空格之后）"
+    "newSubPage": "在此页面内创建页面并在文本中链接（空格之后）",
+    "mailCompose": "写新邮件",
+    "mailSearch": "搜索邮件",
+    "mailNext": "打开下一个会话",
+    "mailPrevious": "打开上一个会话",
+    "mailOpen": "打开第一个会话",
+    "mailBack": "返回列表或清除选择",
+    "mailSelect": "选择打开的会话",
+    "mailSelectAll": "选择列表中的所有会话",
+    "mailArchive": "归档，或移回收件箱",
+    "mailTrash": "移到废纸篓（在废纸篓中则永久删除）",
+    "mailJunk": "标记为垃圾邮件",
+    "mailStar": "加星标或取消星标",
+    "mailUnread": "标记为未读",
+    "mailRead": "标记为已读",
+    "mailUndo": "撤销上一次移动",
+    "mailReply": "回复",
+    "mailReplyAll": "全部回复",
+    "mailForward": "转发",
+    "mailSend": "发送正在写的邮件",
+    "mailGoInbox": "前往收件箱",
+    "mailGoSent": "前往已发送",
+    "mailGoDrafts": "前往草稿",
+    "mailGoArchive": "前往归档",
+    "mailGoTrash": "前往废纸篓"
   }
 }

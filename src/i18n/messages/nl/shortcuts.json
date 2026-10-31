@@ -1,12 +1,14 @@
 {
   "title": "Sneltoetsen",
   "or": "of",
+  "then": "dan",
   "groups": {
     "general": "Algemeen",
     "navigation": "Navigatie",
     "text": "Tekstopmaak",
     "blocks": "Blokken",
-    "databases": "Databases"
+    "databases": "Databases",
+    "mail": "Mail"
   },
   "items": {
     "shortcuts": "De sneltoetsen tonen",
@@ -61,6 +63,30 @@
     "rowComment": "Een opmerking bij de rij plaatsen (met het rijmenu open)",
     "rowTrash": "De rij naar de prullenbak verplaatsen (met het rijmenu open)",
     "link": "De geselecteerde tekst koppelen",
-    "newSubPage": "Een pagina in deze maken, gekoppeld in de tekst (na een spatie)"
+    "newSubPage": "Een pagina in deze maken, gekoppeld in de tekst (na een spatie)",
+    "mailCompose": "Een nieuw bericht schrijven",
+    "mailSearch": "Mail zoeken",
+    "mailNext": "Het volgende gesprek openen",
+    "mailPrevious": "Het vorige gesprek openen",
+    "mailOpen": "Het eerste gesprek openen",
+    "mailBack": "Terug naar de lijst, of de selectie wissen",
+    "mailSelect": "Het geopende gesprek selecteren",
+    "mailSelectAll": "Alle gesprekken in de lijst selecteren",
+    "mailArchive": "Archiveren, of terugzetten naar Postvak IN",
+    "mailTrash": "Naar de prullenbak verplaatsen (daar definitief verwijderen)",
+    "mailJunk": "Markeren als spam",
+    "mailStar": "Een ster toevoegen of verwijderen",
+    "mailUnread": "Markeren als ongelezen",
+    "mailRead": "Markeren als gelezen",
+    "mailUndo": "De laatste verplaatsing ongedaan maken",
+    "mailReply": "Beantwoorden",
+    "mailReplyAll": "Allen beantwoorden",
+    "mailForward": "Doorsturen",
+    "mailSend": "Het bericht verzenden dat je schrijft",
+    "mailGoInbox": "Naar Postvak IN gaan",
+    "mailGoSent": "Naar verzonden mail gaan",
+    "mailGoDrafts": "Naar de concepten gaan",
+    "mailGoArchive": "Naar het archief gaan",
+    "mailGoTrash": "Naar de prullenbak gaan"
   }
 }

@@ -26,6 +26,10 @@ export const MAIL_PREVIEW_CHARS = 200;
 export const SUBJECT_THREAD_DAYS = 30;
 /** Seconds an archive or a deletion waits, so Undo can take it back before the mail server hears of it. */
 export const MAIL_UNDO_SECONDS = 5;
+/** Conversations one archive, move or flag changes at most: a larger selection goes in several. */
+export const MAIL_MAX_THREADS = 200;
+/** The mailbox id that lists the inboxes of all the person's mailboxes in the workspace as one. */
+export const ALL_INBOXES = "all";
 /** Recipients a message from the Mail tab may have, To, Cc and Bcc together. */
 export const MAX_MAIL_RECIPIENTS = 100;
 /** Attachments a message from the Mail tab may bring, together. */
@@ -184,6 +188,15 @@ export function parseMailQuery(input: string): MailQuery {
   return query;
 }
 
+/** What a search marks in a list's rows, where it looked for it: its words in all three, `from:` in the senders, `subject:` in the subject. */
+export type MailQueryMarks = { senders: string[]; subject: string[]; preview: string[] };
+
+export function mailQueryMarks(input: string): MailQueryMarks | null {
+  const { words, from, subject } = parseMailQuery(input);
+  if (!words.length && !from && !subject) return null;
+  return { senders: from ? [...words, from] : words, subject: subject ? [...words, subject] : words, preview: words };
+}
+
 /** A folder in the Mail tab's sidebar. */
 export type MailFolderView = { id: string; path: string; name: string; role: MailFolderRole | null; unseen: number; total: number; depth: number };
 
@@ -205,6 +218,9 @@ export type MailboxTabView = {
 /** A thread in a folder's list. */
 export type MailThreadItem = {
   threadId: string;
+  /** The mailbox and folder it is listed from, which its moves and flags go to (several in ALL_INBOXES). */
+  mailboxId: string;
+  folderId: string;
   /** The newest message of the thread in this folder, which opening the thread starts from. */
   messageId: string;
   /** Senders of the thread's messages, newest first, each once. */
@@ -263,9 +279,15 @@ export type MailBody = {
   replyTo: MailAddress[];
   /** The provider's check said the sender's domain did not vouch for it (DMARC failed). */
   unverifiedSender: boolean;
-  /** The List-Unsubscribe address, when the message offers one over the web. */
-  unsubscribe: string | null;
+  /** How the mailing list it came from is left, when it says (lib/mail-unsubscribe.ts). */
+  unsubscribe: MailUnsubscribe | null;
 };
+
+/**
+ * Leaving a mailing list from the Mail tab: on the spot, by the list's one-click POST or a mail to
+ * its address from the mailbox, or by visiting its web address.
+ */
+export type MailUnsubscribe = { how: "oneClick" } | { how: "mail"; address: string } | { how: "web"; url: string };
 
 export type MailThreadView = {
   threadId: string;

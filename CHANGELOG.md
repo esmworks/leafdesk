@@ -4,6 +4,41 @@
 
 ### Added
 
+- **New mail shows at once in the Mail tab.** While the tab is open in front, the server waits
+  on each of the person's inboxes with IMAP IDLE (one more connection per mailbox, closed soon
+  after the tab goes) and tells the tab as mail comes, goes or is marked elsewhere; the list and
+  counts follow within seconds instead of the minute's check. No migration.
+
+- **All inboxes in the Mail tab.** With several mailboxes, *All inboxes* in the sidebar lists their
+  inboxes as one list, newest first, with each thread's mailbox marked; search, the keys, the
+  selection bar and Undo work across them, and each thread is read, answered and moved in its own
+  mailbox. No migration.
+
+- **Search words marked in the Mail tab's list.** A search's words are marked in the senders,
+  subjects and first lines of the threads it lists, where it found them.
+
+- **Printing and the original message in the Mail tab.** A button over a thread prints all its
+  messages, with their senders, recipients and dates and nothing else of the page; a message's menu
+  prints it alone, shows its original source (headers and all) or downloads it as an .eml file.
+  No migration.
+
+- **More keys in the Mail tab.** `g` then `i`, `s`, `d`, `a` or `t` opens the inbox, sent mail,
+  drafts, archive or trash; ⌘/Ctrl+Z undoes the last archive, move or deletion while its Undo
+  lasts; Shift+I marks read. The keyboard shortcuts dialog (`?`) lists the Mail tab's keys, and the
+  search box's commands (`>`) open Mail and a new message. No migration.
+
+- **Unsubscribing from mailing lists in the Mail tab.** Mail from a list shows *Unsubscribe*
+  beside its answers: after a confirmation the server uses the list's one-click address
+  (List-Unsubscribe-Post), else mails the list's unsubscribe address from the mailbox; a list with
+  only a web page opens it. Nothing goes on its own to a sender that failed the provider's DMARC
+  check. No migration.
+
+- **Selecting several threads in the Mail tab.** Threads are selected with the box that shows on
+  hover, ⌘/Ctrl-click, Shift-click for a range, `x` for the open one or ⌘/Ctrl+A; a bar over the
+  list then archives, trashes, marks as junk, read or unread, stars or moves them all at once, with
+  one Undo. The keys and a right click on a selected thread act on the whole selection. ⌘/Ctrl-click
+  on a thread no longer opens it in a new tab (its menu still does). No migration.
+
 - **Empty trash in the Mail tab.** The trash and junk folders get *Empty trash* and *Empty junk*
   over their list: after asking, every message in the folder is deleted for good, on the mail
   server too, including any not listed yet. No migration.

@@ -35,6 +35,7 @@ export type RowMailErrorCode =
   | "googleScope"
   | "tooMany"
   | "alreadyConnected"
+  | "unsubscribeFailed"
   | MailConnectError["code"];
 
 export class RowMailError extends Error {

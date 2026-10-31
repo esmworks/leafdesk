@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { folderRoles, forwardSubject, isReplySubject, listsFolder, parseMailQuery, previewText, subjectKey, type ListedMailFolder } from "./mail-client";
+import { folderRoles, forwardSubject, isReplySubject, listsFolder, mailQueryMarks, parseMailQuery, previewText, subjectKey, type ListedMailFolder } from "./mail-client";
 
 const folder = (path: string, extra: Partial<ListedMailFolder> = {}): ListedMailFolder => {
   const parts = path.split("/");
@@ -70,6 +70,13 @@ describe("previewText", () => {
     expect(previewText("a".repeat(500))).toHaveLength(200);
     expect(previewText("Rica ederiz.\n\n31 Eki 2026 15:54 tarihinde Erkal Acar şunu yazdı:\n> Teşekkürler")).toBe("Rica ederiz.");
     expect(previewText("Teşekkürler.\n\nOn Fri, Erhan wrote:\n\n> Teklif")).toBe("Teşekkürler.");
+  });
+});
+
+describe("mailQueryMarks", () => {
+  it("marks each part where the search looked for it", () => {
+    expect(mailQueryMarks('kimden:selin konu:"soğuk oda" kompresör is:unread')).toEqual({ senders: ["kompresör", "selin"], subject: ["kompresör", "soğuk oda"], preview: ["kompresör"] });
+    expect(mailQueryMarks("is:unread has:attachment")).toBeNull();
   });
 });
 

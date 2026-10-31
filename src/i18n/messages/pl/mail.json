@@ -51,7 +51,11 @@
   "imagesTrusted": "Obrazy od tego nadawcy są zawsze pokazywane.",
   "stopImages": "Przestań",
   "unverified": "Domena nadawcy nie potwierdziła, że ta wiadomość od niej pochodzi. Zachowaj ostrożność wobec zawartych w niej linków i plików.",
-  "unsubscribe": "Wypisz się z tej listy",
+  "unsubscribe": "Wypisz się",
+  "unsubscribeConfirm": "Wypisać się z listy mailingowej nadawcy {sender}? {how, select, mail {Wiadomość z taką prośbą zostanie wysłana z twojej skrzynki na adres {address}.} other {Lista zostanie powiadomiona od razu.}}",
+  "unsubscribing": "Wypisywanie…",
+  "unsubscribed": "Wypisano",
+  "unsubscribedNote": "Wypisano z listy: {sender}",
   "attachments": "{count, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}",
   "noMailboxTitle": "Połącz skrzynkę, aby korzystać z Poczty",
   "noMailboxText": "Poczta pokazuje skrzynki połączone w tym obszarze roboczym. Połącz jedną w ustawieniach konta; e-mail musi być włączony w obszarze roboczym.",
@@ -140,6 +144,28 @@
     "quoteHide": "Ukryj cytowaną wiadomość",
     "quoteRemove": "Usuń cytowaną wiadomość"
   },
+  "bulk": {
+    "select": "Zaznacz",
+    "selectThread": "Zaznacz konwersację: {subject}",
+    "selectAll": "Zaznacz wszystko",
+    "selected": "Zaznaczono: {count}",
+    "clear": "Wyczyść zaznaczenie",
+    "toolbar": "Zaznaczone konwersacje",
+    "done": {
+      "archive": "{count, plural, one {Zarchiwizowano # konwersację} few {Zarchiwizowano # konwersacje} many {Zarchiwizowano # konwersacji} other {Zarchiwizowano # konwersacji}}",
+      "trash": "{count, plural, one {Przeniesiono # konwersację do kosza} few {Przeniesiono # konwersacje do kosza} many {Przeniesiono # konwersacji do kosza} other {Przeniesiono # konwersacji do kosza}}",
+      "junk": "{count, plural, one {Oznaczono # konwersację jako spam} few {Oznaczono # konwersacje jako spam} many {Oznaczono # konwersacji jako spam} other {Oznaczono # konwersacji jako spam}}",
+      "inbox": "{count, plural, one {Przeniesiono # konwersację do odebranych} few {Przeniesiono # konwersacje do odebranych} many {Przeniesiono # konwersacji do odebranych} other {Przeniesiono # konwersacji do odebranych}}",
+      "delete": "{count, plural, one {Usunięto na zawsze # konwersację} few {Usunięto na zawsze # konwersacje} many {Usunięto na zawsze # konwersacji} other {Usunięto na zawsze # konwersacji}}",
+      "move": "{count, plural, one {Przeniesiono # konwersację do: {folder}} few {Przeniesiono # konwersacje do: {folder}} many {Przeniesiono # konwersacji do: {folder}} other {Przeniesiono # konwersacji do: {folder}}}"
+    }
+  },
+  "printThread": "Drukuj konwersację",
+  "messageMenu": "Więcej",
+  "printMessage": "Drukuj",
+  "showSource": "Pokaż oryginał",
+  "downloadSource": "Pobierz wiadomość (.eml)",
+  "allInboxes": "Wszystkie odebrane",
   "ai": {
     "summarize": "Podsumuj",
     "summarizeHint": "Podsumuj tę rozmowę za pomocą AI",

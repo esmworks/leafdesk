@@ -1,12 +1,14 @@
 {
   "title": "Atajos de teclado",
   "or": "o",
+  "then": "luego",
   "groups": {
     "general": "General",
     "navigation": "Navegación",
     "text": "Formato de texto",
     "blocks": "Bloques",
-    "databases": "Bases de datos"
+    "databases": "Bases de datos",
+    "mail": "Correo"
   },
   "items": {
     "shortcuts": "Mostrar los atajos de teclado",
@@ -61,6 +63,30 @@
     "rowComment": "Comentar la fila (con su menú abierto)",
     "rowTrash": "Mover la fila a la papelera (con su menú abierto)",
     "link": "Enlazar el texto seleccionado",
-    "newSubPage": "Crear una página dentro de esta, enlazada en el texto (tras un espacio)"
+    "newSubPage": "Crear una página dentro de esta, enlazada en el texto (tras un espacio)",
+    "mailCompose": "Escribir un mensaje nuevo",
+    "mailSearch": "Buscar en el correo",
+    "mailNext": "Abrir la conversación siguiente",
+    "mailPrevious": "Abrir la conversación anterior",
+    "mailOpen": "Abrir la primera conversación",
+    "mailBack": "Volver a la lista o quitar la selección",
+    "mailSelect": "Seleccionar la conversación abierta",
+    "mailSelectAll": "Seleccionar todas las conversaciones de la lista",
+    "mailArchive": "Archivar o devolver a recibidos",
+    "mailTrash": "Mover a la papelera (allí, eliminar definitivamente)",
+    "mailJunk": "Marcar como spam",
+    "mailStar": "Destacar o quitar la estrella",
+    "mailUnread": "Marcar como no leído",
+    "mailRead": "Marcar como leído",
+    "mailUndo": "Deshacer el último movimiento",
+    "mailReply": "Responder",
+    "mailReplyAll": "Responder a todos",
+    "mailForward": "Reenviar",
+    "mailSend": "Enviar el mensaje que se está escribiendo",
+    "mailGoInbox": "Ir a recibidos",
+    "mailGoSent": "Ir a enviados",
+    "mailGoDrafts": "Ir a borradores",
+    "mailGoArchive": "Ir a archivados",
+    "mailGoTrash": "Ir a la papelera"
   }
 }

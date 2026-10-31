@@ -51,7 +51,11 @@
   "imagesTrusted": "Tämän lähettäjän kuvat näytetään aina.",
   "stopImages": "Lopeta",
   "unverified": "Lähettäjän verkkotunnus ei vahvistanut, että viesti tulee siltä. Ole varovainen viestin linkkien ja tiedostojen kanssa.",
-  "unsubscribe": "Peruuta tämän listan tilaus",
+  "unsubscribe": "Peru tilaus",
+  "unsubscribeConfirm": "Perutaanko lähettäjän {sender} postituslistan tilaus? {how, select, mail {Pyyntöviesti lähtee postilaatikostasi osoitteeseen {address}.} other {Listalle ilmoitetaan heti.}}",
+  "unsubscribing": "Perutaan tilausta…",
+  "unsubscribed": "Tilaus peruttu",
+  "unsubscribedNote": "Tilaus peruttu: {sender}",
   "attachments": "{count, plural, one {# tiedosto} other {# tiedostoa}}",
   "noMailboxTitle": "Yhdistä postilaatikko käyttääksesi sähköpostia",
   "noMailboxText": "Sähköposti näyttää tähän työtilaan yhdistämäsi postilaatikot. Yhdistä sellainen tilisi asetuksissa; sähköpostin täytyy olla käytössä työtilassa.",
@@ -140,6 +144,28 @@
     "quoteHide": "Piilota lainattu viesti",
     "quoteRemove": "Poista lainattu viesti"
   },
+  "bulk": {
+    "select": "Valitse",
+    "selectThread": "Valitse keskustelu: {subject}",
+    "selectAll": "Valitse kaikki",
+    "selected": "{count} valittu",
+    "clear": "Tyhjennä valinta",
+    "toolbar": "Valitut keskustelut",
+    "done": {
+      "archive": "{count, plural, one {# keskustelu arkistoitu} other {# keskustelua arkistoitu}}",
+      "trash": "{count, plural, one {# keskustelu siirretty roskakoriin} other {# keskustelua siirretty roskakoriin}}",
+      "junk": "{count, plural, one {# keskustelu merkitty roskapostiksi} other {# keskustelua merkitty roskapostiksi}}",
+      "inbox": "{count, plural, one {# keskustelu siirretty saapuneisiin} other {# keskustelua siirretty saapuneisiin}}",
+      "delete": "{count, plural, one {# keskustelu poistettu pysyvästi} other {# keskustelua poistettu pysyvästi}}",
+      "move": "{count, plural, one {# keskustelu siirretty kansioon {folder}} other {# keskustelua siirretty kansioon {folder}}}"
+    }
+  },
+  "printThread": "Tulosta keskustelu",
+  "messageMenu": "Lisää",
+  "printMessage": "Tulosta",
+  "showSource": "Näytä alkuperäinen",
+  "downloadSource": "Lataa viesti (.eml)",
+  "allInboxes": "Kaikki saapuneet",
   "ai": {
     "summarize": "Tiivistä",
     "summarizeHint": "Tiivistä tämä keskustelu tekoälyllä",

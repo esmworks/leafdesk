@@ -1,12 +1,14 @@
 {
   "title": "Tastenkombinationen",
   "or": "oder",
+  "then": "dann",
   "groups": {
     "general": "Allgemein",
     "navigation": "Navigation",
     "text": "Textformatierung",
     "blocks": "Blöcke",
-    "databases": "Datenbanken"
+    "databases": "Datenbanken",
+    "mail": "Mail"
   },
   "items": {
     "shortcuts": "Tastenkombinationen anzeigen",
@@ -61,6 +63,30 @@
     "rowComment": "Zeile kommentieren (ihr Menü geöffnet)",
     "rowTrash": "Zeile in den Papierkorb verschieben (ihr Menü geöffnet)",
     "link": "Markierten Text verlinken",
-    "newSubPage": "Eine Seite in dieser anlegen, im Text verlinkt (nach einem Leerzeichen)"
+    "newSubPage": "Eine Seite in dieser anlegen, im Text verlinkt (nach einem Leerzeichen)",
+    "mailCompose": "Neue Nachricht schreiben",
+    "mailSearch": "Mails durchsuchen",
+    "mailNext": "Nächste Unterhaltung öffnen",
+    "mailPrevious": "Vorherige Unterhaltung öffnen",
+    "mailOpen": "Erste Unterhaltung öffnen",
+    "mailBack": "Zurück zur Liste oder Auswahl aufheben",
+    "mailSelect": "Geöffnete Unterhaltung auswählen",
+    "mailSelectAll": "Alle Unterhaltungen der Liste auswählen",
+    "mailArchive": "Archivieren oder zurück in den Posteingang verschieben",
+    "mailTrash": "In den Papierkorb verschieben (dort endgültig löschen)",
+    "mailJunk": "Als Spam markieren",
+    "mailStar": "Mit Stern markieren oder Stern entfernen",
+    "mailUnread": "Als ungelesen markieren",
+    "mailRead": "Als gelesen markieren",
+    "mailUndo": "Letztes Verschieben rückgängig machen",
+    "mailReply": "Antworten",
+    "mailReplyAll": "Allen antworten",
+    "mailForward": "Weiterleiten",
+    "mailSend": "Gerade verfasste Nachricht senden",
+    "mailGoInbox": "Zum Posteingang wechseln",
+    "mailGoSent": "Zu den gesendeten Mails wechseln",
+    "mailGoDrafts": "Zu den Entwürfen wechseln",
+    "mailGoArchive": "Zum Archiv wechseln",
+    "mailGoTrash": "Zum Papierkorb wechseln"
   }
 }

@@ -1,12 +1,14 @@
 {
   "title": "Skróty klawiszowe",
   "or": "lub",
+  "then": "potem",
   "groups": {
     "general": "Ogólne",
     "navigation": "Nawigacja",
     "text": "Formatowanie tekstu",
     "blocks": "Bloki",
-    "databases": "Bazy danych"
+    "databases": "Bazy danych",
+    "mail": "Poczta"
   },
   "items": {
     "shortcuts": "Pokaż skróty klawiszowe",
@@ -61,6 +63,30 @@
     "rowComment": "Skomentuj wiersz (przy otwartym menu)",
     "rowTrash": "Przenieś wiersz do kosza (przy otwartym menu)",
     "link": "Dodaj link do zaznaczonego tekstu",
-    "newSubPage": "Utwórz stronę wewnątrz tej, z linkiem w tekście (po spacji)"
+    "newSubPage": "Utwórz stronę wewnątrz tej, z linkiem w tekście (po spacji)",
+    "mailCompose": "Napisz nową wiadomość",
+    "mailSearch": "Szukaj w poczcie",
+    "mailNext": "Otwórz następną konwersację",
+    "mailPrevious": "Otwórz poprzednią konwersację",
+    "mailOpen": "Otwórz pierwszą konwersację",
+    "mailBack": "Wróć do listy lub wyczyść zaznaczenie",
+    "mailSelect": "Zaznacz otwartą konwersację",
+    "mailSelectAll": "Zaznacz wszystkie konwersacje na liście",
+    "mailArchive": "Archiwizuj lub przenieś z powrotem do odebranych",
+    "mailTrash": "Przenieś do kosza (w koszu: usuń na zawsze)",
+    "mailJunk": "Oznacz jako spam",
+    "mailStar": "Oznacz gwiazdką lub usuń gwiazdkę",
+    "mailUnread": "Oznacz jako nieprzeczytane",
+    "mailRead": "Oznacz jako przeczytane",
+    "mailUndo": "Cofnij ostatnie przeniesienie",
+    "mailReply": "Odpowiedz",
+    "mailReplyAll": "Odpowiedz wszystkim",
+    "mailForward": "Przekaż dalej",
+    "mailSend": "Wyślij pisaną wiadomość",
+    "mailGoInbox": "Przejdź do odebranych",
+    "mailGoSent": "Przejdź do wysłanych",
+    "mailGoDrafts": "Przejdź do szkiców",
+    "mailGoArchive": "Przejdź do archiwum",
+    "mailGoTrash": "Przejdź do kosza"
   }
 }

@@ -51,7 +51,11 @@
   "imagesTrusted": "Billeder fra denne afsender vises altid.",
   "stopImages": "Stop",
   "unverified": "Afsenderens domæne har ikke bekræftet, at denne besked kommer fra det. Vær forsigtig med links og filer i den.",
-  "unsubscribe": "Afmeld denne liste",
+  "unsubscribe": "Afmeld",
+  "unsubscribeConfirm": "Afmeld mailinglisten fra {sender}? {how, select, mail {En besked, der beder om det, sendes til {address} fra din postkasse.} other {Listen får besked med det samme.}}",
+  "unsubscribing": "Afmelder…",
+  "unsubscribed": "Afmeldt",
+  "unsubscribedNote": "Afmeldt fra {sender}",
   "attachments": "{count, plural, one {# fil} other {# filer}}",
   "noMailboxTitle": "Tilslut en postkasse for at bruge Mail",
   "noMailboxText": "Mail viser de postkasser, du har tilsluttet i dette arbejdsområde. Tilslut en i dine kontoindstillinger; e-mail skal være slået til i arbejdsområdet.",
@@ -140,6 +144,28 @@
     "quoteHide": "Skjul den citerede besked",
     "quoteRemove": "Fjern den citerede besked"
   },
+  "bulk": {
+    "select": "Vælg",
+    "selectThread": "Vælg samtale: {subject}",
+    "selectAll": "Vælg alle",
+    "selected": "{count} valgt",
+    "clear": "Ryd markering",
+    "toolbar": "Valgte samtaler",
+    "done": {
+      "archive": "{count, plural, one {# samtale er arkiveret} other {# samtaler er arkiveret}}",
+      "trash": "{count, plural, one {# samtale er flyttet til papirkurven} other {# samtaler er flyttet til papirkurven}}",
+      "junk": "{count, plural, one {# samtale er markeret som spam} other {# samtaler er markeret som spam}}",
+      "inbox": "{count, plural, one {# samtale er flyttet til indbakken} other {# samtaler er flyttet til indbakken}}",
+      "delete": "{count, plural, one {# samtale er slettet permanent} other {# samtaler er slettet permanent}}",
+      "move": "{count, plural, one {# samtale er flyttet til {folder}} other {# samtaler er flyttet til {folder}}}"
+    }
+  },
+  "printThread": "Udskriv samtale",
+  "messageMenu": "Mere",
+  "printMessage": "Udskriv",
+  "showSource": "Vis original",
+  "downloadSource": "Hent besked (.eml)",
+  "allInboxes": "Alle indbakker",
   "ai": {
     "summarize": "Opsummer",
     "summarizeHint": "Opsummer denne samtale med AI",

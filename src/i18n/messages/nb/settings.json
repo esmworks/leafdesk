@@ -2579,7 +2579,8 @@
       "googleFailed": "Pålogging med Google koblet ikke til postkassen. Prøv igjen.",
       "googleScope": "Google fikk ikke lov til å gi Leafdesk tilgang til e-posten din. Logg på igjen og tillat det.",
       "tooMany": "Du har koblet til så mange postkasser i dette arbeidsområdet som du kan. Koble fra en først.",
-      "alreadyConnected": "Den adressen er allerede koblet til her. Endre den postkassen i stedet."
+      "alreadyConnected": "Den adressen er allerede koblet til her. Endre den postkassen i stedet.",
+      "unsubscribeFailed": "E-postlisten tok ikke imot forespørselen om å avslutte abonnementet. Prøv lenken dens i stedet."
     },
     "methods": {
       "google": "Google-konto (Gmail eller Google Workspace)",
