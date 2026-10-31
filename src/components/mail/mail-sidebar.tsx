@@ -51,7 +51,7 @@ function FolderLink({ workspaceId, box, folder, active }: { workspaceId: string;
 export function MailboxMark({ address, className }: { address: string; className?: string }) {
   const color = userColor(address);
   return (
-    <span aria-hidden className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded text-[11px] font-semibold", className)} style={{ background: color, color: textOn(color) }}>
+    <span aria-hidden className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded text-[10px] font-semibold", className)} style={{ background: color, color: textOn(color) }}>
       {initialOf(address)}
     </span>
   );
@@ -80,41 +80,39 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
 
   return (
     <div className="space-y-3">
+      {/* The mailbox, New message and its folders in one column, spaced like the folders. */}
       <div className="space-y-px">
-        <div className="flex h-8 items-center gap-2 px-2" title={box.address}>
+        <div className={cn(rowClass, "hover:bg-transparent")} title={box.address}>
           <MailboxMark address={box.address} />
           <span className="min-w-0 flex-1 truncate font-medium">{box.address}</span>
         </div>
-        <button type="button" className={rowClass} onClick={requestCompose}>
+        <button type="button" className={rowClass} onClick={requestCompose} title={`${t("compose")} (C)`}>
           <SquarePen className="h-4 w-4 shrink-0 text-fg-icon" />
           <span className="flex-1 truncate">{t("compose")}</span>
-          <kbd className="font-sans text-xs text-fg-faint">C</kbd>
         </button>
-      </div>
-      {box.folders === null ? (
-        <div className="space-y-1.5 px-2" aria-busy>
-          {[60, 45, 55, 40].map((w) => (
-            <div key={w} className="h-4 animate-pulse rounded bg-bg-hover" style={{ width: `${w}%` }} />
-          ))}
-        </div>
-      ) : (
-        <>
+        {box.folders === null ? (
+          <div className="space-y-1.5 px-2 pt-2" aria-busy>
+            {[60, 45, 55, 40].map((w) => (
+              <div key={w} className="h-4 animate-pulse rounded bg-bg-hover" style={{ width: `${w}%` }} />
+            ))}
+          </div>
+        ) : (
           <nav className="space-y-px" aria-label={t("foldersLabel")}>
             {roles.map((f) => (
               <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={f.id === folder?.id} />
             ))}
           </nav>
-          {own.length > 0 && (
-            <section>
-              <h2 className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">{t("ownFolders")}</h2>
-              <div className="space-y-px">
-                {own.map((f) => (
-                  <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={f.id === folder?.id} />
-                ))}
-              </div>
-            </section>
-          )}
-        </>
+        )}
+      </div>
+      {own.length > 0 && (
+        <section>
+          <h2 className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">{t("ownFolders")}</h2>
+          <div className="space-y-px">
+            {own.map((f) => (
+              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={f.id === folder?.id} />
+            ))}
+          </div>
+        </section>
       )}
       {others.length > 0 && (
         <section>
@@ -124,7 +122,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
               const unread = other.folders?.find((f) => f.role === "inbox")?.unseen ?? 0;
               return (
                 <Link key={other.id} href={mailHref(workspaceId, { box: other.id })} onClick={(e) => stayInMail(e, mailHref(workspaceId, { box: other.id }))} className={rowClass} title={other.address}>
-                  <MailboxMark address={other.address} className="h-4 w-4 text-[10px]" />
+                  <MailboxMark address={other.address} />
                   <span className="min-w-0 flex-1 truncate">{other.address}</span>
                   {unread > 0 && <span className="text-xs tabular-nums text-fg-muted">{unread}</span>}
                 </Link>
