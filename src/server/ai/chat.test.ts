@@ -280,6 +280,15 @@ describe("agent prompts", () => {
     expect(quiet).not.toMatch(/remember|forget|<proposed>|<handoff>/);
   });
 
+  it("says why a run can't read the mailbox opened to it, instead of asking for it to be opened", () => {
+    const held = agentSystemPrompt({ name: "Mail", instructions: "" }, { row: false, connections: [], mailHeld: true });
+    expect(held).toMatch(/opened their mailbox to you, but this run has no email tools[^\n]*connected app[^\n]*ask you in your chat in Leafdesk; don't say the mailbox should be opened to you/);
+    expect(held).not.toMatch(/search_mail/);
+    const reads = agentSystemPrompt({ name: "Mail", instructions: "" }, { row: false, connections: [], mail: true, mailHeld: true });
+    expect(reads).toMatch(/search_mail, read_mail and read_mail_attachment/);
+    expect(reads).not.toMatch(/has no email tools/);
+  });
+
   it("sends a schedule's run where the previous one left off, and its proposals still waiting", () => {
     const system = agentSystemPrompt({ name: "Router", instructions: "" }, { row: false, scheduled: { database: false, maxWrites: 5 }, connections: [], remembers: true, leavesNote: true });
     expect(system).toMatch(/<thread>, <proposed>, <handoff> and <memory> tags/);

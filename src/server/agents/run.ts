@@ -716,6 +716,8 @@ async function converse(
   // The email of the person the run works for, in the mailboxes they opened to the agent (mail.ts):
   // only on a run that shows what it did to them alone and stays in the app (lib/agents.ts mailRun).
   const mailBoxes = mailRun(run.source) ? await runMailboxes(agent, member) : [];
+  // Opened to it but not read on a run like this one: it says why instead of asking to be given mail.
+  const mailHeld = !mailRun(run.source) && (await runMailboxes(agent, member)).length > 0;
   // Its person closed the mailbox to the agent (or lost it) since the email came.
   if (arrival && !mailBoxes.includes(arrival.mailboxId)) return { status: "failed", code: "mailGone", steps: [...run.steps], usage: run.usage ?? { inputTokens: 0, outputTokens: 0, costUsd: 0, rounds: 0 } };
   const mailTools = agentMailToolset(mailBoxes);
@@ -765,6 +767,7 @@ async function converse(
     reviews,
     drafts: Boolean(sender),
     mail: mailTools.length > 0,
+    mailHeld,
     mailArrived: Boolean(arrival),
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);

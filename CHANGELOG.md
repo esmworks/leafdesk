@@ -388,6 +388,11 @@
 
 ### Fixed
 
+- **An agent with a mailbox opened to it says why a run can't read it.** A run started through a
+  connected app (an AI assistant using the MCP server, the REST API, Telegram), a request, a row or
+  a mention has no email tools, so what it read can't leave Leafdesk; the agent asked for the
+  mailbox to be opened to it instead of saying to ask it in its chat in Leafdesk.
+
 - **Mail with pictures as wide as the reading pane shows no scrollbar beside it.** The Mail tab
   showed one that narrowed the message without anything to scroll.
 
