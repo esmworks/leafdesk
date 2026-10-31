@@ -22,6 +22,15 @@
   "firstReadHint": "最新のメールはまもなく表示されます。3 か月前までの古いメールは、今後数分で取り込まれます。",
   "empty": "メールはありません。",
   "emptySearch": "一致するメールはありません。",
+  "emptyFolder": {
+    "trash": "ゴミ箱を空にする",
+    "junk": "迷惑メールを空にする",
+    "trashTitle": "ゴミ箱を空にしますか？",
+    "junkTitle": "迷惑メールを空にしますか？",
+    "body": "{folder} のメッセージはすべて、メールサーバー上でも完全に削除されます。元に戻せません。",
+    "trashDone": "ゴミ箱を空にしました",
+    "junkDone": "迷惑メールを空にしました"
+  },
   "noneOpen": "会話を選択すると読めます。",
   "loading": "読み込み中…",
   "loadFailed": "メールを読み込めませんでした。しばらくしてからもう一度お試しください。",
@@ -30,6 +39,7 @@
   "me": "自分",
   "hasFiles": "ファイルあり",
   "starred": "スター付き",
+  "draft": "下書き",
   "messages": "{count, plural, other {# 件のメッセージ}}",
   "toLine": "宛先: {names}",
   "ccLine": "Cc: {names}",
@@ -64,7 +74,9 @@
     "fromSender": "{name} からのメールを検索",
     "openInNewTab": "新しいタブで開く",
     "copyLink": "リンクをコピー",
-    "linkCopied": "リンクをコピーしました"
+    "linkCopied": "リンクをコピーしました",
+    "editDraft": "編集",
+    "discardDraft": "下書きを破棄"
   },
   "done": {
     "archive": "会話をアーカイブしました",
@@ -115,7 +127,18 @@
     "notAnAddress": "メールアドレスではありません",
     "removeRecipient": "{address} を削除",
     "recipientPlaceholder": "名前またはアドレス",
-    "suggestions": "候補のアドレス"
+    "suggestions": "候補のアドレス",
+    "draftSaving": "保存中…",
+    "draftSavedShort": "保存済み",
+    "draftSaved": "下書きを保存しました",
+    "draftFailed": "下書きを保存できませんでした",
+    "draftDiscarded": "下書きを破棄しました",
+    "alreadySent": "すでに送信済みのため取り消せません",
+    "sendUndone": "送信を取り消しました。メッセージは下書きに戻りました",
+    "notSent": "送信できませんでした: {reason} 下書きに保存されています。",
+    "quoteShow": "引用されたメッセージを表示",
+    "quoteHide": "引用されたメッセージを隠す",
+    "quoteRemove": "引用されたメッセージを削除"
   },
   "ai": {
     "summarize": "要約",

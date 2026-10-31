@@ -70,7 +70,10 @@ export async function startMailAi(userId: string, input: MailAiInput, signal?: A
 
 async function summarize(userId: string, workspaceId: string, input: Extract<MailAiInput, { kind: "summary" }>, signal?: AbortSignal): Promise<MailAiAnswer> {
   const thread = await getThread(userId, { mailboxId: input.mailboxId, threadId: input.threadId, folderId: input.folderId });
-  const read = thread.messages.slice(-SUMMARY_MESSAGES);
+  // The person's drafts in the thread are not part of the conversation yet.
+  const sent = thread.messages.filter((m) => !m.draft);
+  if (!sent.length) throw new AiError("invalid", "The thread has only drafts");
+  const read = sent.slice(-SUMMARY_MESSAGES);
   // One after another on the mailbox's connection: most were just opened and come from memory.
   const messages: AiMailMessage[] = [];
   for (const m of read) {
@@ -78,7 +81,7 @@ async function summarize(userId: string, workspaceId: string, input: Extract<Mai
     messages.push(found ? asAiMessage(found) : { from: m.from, sentAt: new Date(m.sentAt), text: m.preview, mine: false });
   }
   const prompt = summaryPrompt({ subject: thread.subject, messages, language: isAiLanguage(input.language) ? input.language : undefined }, roomFor());
-  const newest = thread.messages[thread.messages.length - 1];
+  const newest = sent[sent.length - 1];
   const answer = await stream({ feature: "mail.summary", userId, workspaceId, system: prompt.system, messages: [{ role: "user", content: prompt.prompt }], signal });
   return { answer, finished: (text) => saveSummary(newest.id, text) };
 }

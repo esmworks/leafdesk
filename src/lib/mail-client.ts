@@ -136,7 +136,13 @@ export function previewText(text: string) {
   const kept: string[] = [];
   for (const line of lines) {
     // Where the earlier message starts ("On … wrote:", "> …", a forwarded block) the preview ends.
-    if (/^\s*>/.test(line) || /^-{2,}\s*(original message|forwarded message|orijinal ileti|iletilen ileti)/i.test(line)) break;
+    if (/^-{2,}\s*(original message|forwarded message|orijinal ileti|iletilen ileti)/i.test(line)) break;
+    if (/^\s*>/.test(line)) {
+      // The line naming who wrote it goes too, in whatever language: the one ending in a colon above the quote.
+      while (kept.length && !kept[kept.length - 1].trim()) kept.pop();
+      if (kept.length && /:\s*$/.test(kept[kept.length - 1])) kept.pop();
+      break;
+    }
     kept.push(line);
   }
   return kept.join(" ").replace(/\s+/g, " ").trim().slice(0, MAIL_PREVIEW_CHARS);
@@ -247,6 +253,8 @@ export type MailBody = {
   text: string;
   /** Cleaned HTML (server/mail-client/html.ts), with remote images left out unless asked for. */
   html: string | null;
+  /** The earlier mail the HTML quotes at its end, taken out of it to show when asked for. */
+  quotedHtml: string | null;
   /** Remote images the HTML would load, left out. */
   blockedImages: number;
   /** Why remote images load in the HTML (lib/mail-images.ts); null while they are left out. */
@@ -281,7 +289,53 @@ export type MailDraftInput = {
   /** The opened message this answers or forwards, by its id in the index. */
   replyTo?: string | null;
   forward?: string | null;
+  /** The draft it was saved as last (or opened from), which saving again or sending replaces. */
+  draft?: MailDraftRef | null;
+  /**
+   * The earlier mail goes under what was written: the quote of the draft before when it has one,
+   * else the message it answers or forwards under `header` (who wrote it when, a forward's header).
+   */
+  quote?: { header: string[] | null } | null;
 };
+
+/**
+ * A draft the composer saved or opened: its id in the index (null when the index hasn't read it),
+ * its Message-ID, which finds its copies on the mail server, and the parts of its files kept.
+ */
+export type MailDraftRef = { id: string | null; messageId: string | null; keep: string[]; mailboxId?: string };
+
+/** A message sent from the Mail tab, waiting MAIL_UNDO_SECONDS on the server for Undo. */
+export type MailHeldSend = { sendId: string };
+/** A send undone: the draft it went back to (its id in the index, when known) and the message it answers. */
+export type MailUndoneSend = { id: string | null; replyTo: string | null };
+/** How a held send went; `error` is said for its sender when it failed (it is kept as a draft then). */
+export type MailSendStatus = { state: "held" | "sending" | "sent" | "undone" | "failed" | "gone"; error: string | null };
+
+/** A draft just saved in the mailbox's drafts folder. */
+export type MailSavedDraft = { id: string | null; messageId: string; attachments: MailAttachmentView[] };
+
+/** A draft opened to write on again. */
+export type MailDraftView = {
+  id: string;
+  mailboxId: string;
+  messageId: string | null;
+  to: MailAddress[];
+  cc: MailAddress[];
+  bcc: MailAddress[];
+  subject: string;
+  /** What it says, as the editor reads it. */
+  html: string;
+  /** The message it answers, by its id in the index, when the index has it. */
+  replyTo: string | null;
+  attachments: MailAttachmentView[];
+  /** The earlier mail it carries under what is written (server/mail-client/quote.ts), cleaned to show; null without. */
+  quote: string | null;
+};
+
+/** A draft is saved this long after the last change, or, with files of more than MAIL_DRAFT_HEAVY bytes, MAIL_DRAFT_SLOW_MS. */
+export const MAIL_DRAFT_SAVE_MS = 3000;
+export const MAIL_DRAFT_SLOW_MS = 15_000;
+export const MAIL_DRAFT_HEAVY = 2 * 1024 * 1024;
 
 /** Actions on threads from the list or an opened thread. */
 /** `move` goes to the folder the request names in `to`; the others are by folder role or flag. */

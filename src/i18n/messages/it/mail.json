@@ -22,6 +22,15 @@
   "firstReadHint": "La tua posta più recente appare tra un attimo. La posta meno recente, fino a tre mesi fa, arriva nei prossimi minuti.",
   "empty": "Nessun messaggio qui.",
   "emptySearch": "Nessun messaggio corrisponde.",
+  "emptyFolder": {
+    "trash": "Svuota cestino",
+    "junk": "Svuota posta indesiderata",
+    "trashTitle": "Svuotare il cestino?",
+    "junkTitle": "Svuotare la posta indesiderata?",
+    "body": "Tutti i messaggi in {folder} vengono eliminati per sempre, anche sul server di posta. L’operazione non si può annullare.",
+    "trashDone": "Cestino svuotato",
+    "junkDone": "Posta indesiderata svuotata"
+  },
   "noneOpen": "Scegli una conversazione da leggere.",
   "loading": "Caricamento…",
   "loadFailed": "Impossibile caricare la posta. Riprova tra un momento.",
@@ -30,6 +39,7 @@
   "me": "io",
   "hasFiles": "Con file",
   "starred": "Speciali",
+  "draft": "Bozza",
   "messages": "{count, plural, one {# messaggio} other {# messaggi}}",
   "toLine": "A {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +74,9 @@
     "fromSender": "Trova la posta di {name}",
     "openInNewTab": "Apri in una nuova scheda",
     "copyLink": "Copia link",
-    "linkCopied": "Link copiato"
+    "linkCopied": "Link copiato",
+    "editDraft": "Modifica",
+    "discardDraft": "Elimina bozza"
   },
   "done": {
     "archive": "Conversazione archiviata",
@@ -115,7 +127,18 @@
     "notAnAddress": "Non è un indirizzo email",
     "removeRecipient": "Rimuovi {address}",
     "recipientPlaceholder": "Nome o indirizzo",
-    "suggestions": "Indirizzi suggeriti"
+    "suggestions": "Indirizzi suggeriti",
+    "draftSaving": "Salvataggio…",
+    "draftSavedShort": "Salvata",
+    "draftSaved": "Bozza salvata",
+    "draftFailed": "Bozza non salvata",
+    "draftDiscarded": "Bozza eliminata",
+    "alreadySent": "Già inviato, non si può annullare",
+    "sendUndone": "Invio annullato: il messaggio è di nuovo una bozza",
+    "notSent": "Non inviato: {reason} È conservato nelle bozze.",
+    "quoteShow": "Mostra il messaggio citato",
+    "quoteHide": "Nascondi il messaggio citato",
+    "quoteRemove": "Rimuovi il messaggio citato"
   },
   "ai": {
     "summarize": "Riassumi",

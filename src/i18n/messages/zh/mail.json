@@ -22,6 +22,15 @@
   "firstReadHint": "最新邮件稍后显示。最多三个月前的旧邮件会在接下来几分钟内陆续载入。",
   "empty": "这里没有邮件。",
   "emptySearch": "没有匹配的邮件。",
+  "emptyFolder": {
+    "trash": "清空废纸篓",
+    "junk": "清空垃圾邮件",
+    "trashTitle": "清空废纸篓？",
+    "junkTitle": "清空垃圾邮件？",
+    "body": "{folder} 中的所有邮件都会被永久删除，邮件服务器上也是。此操作无法撤销。",
+    "trashDone": "废纸篓已清空",
+    "junkDone": "垃圾邮件已清空"
+  },
   "noneOpen": "选择一个会话即可阅读。",
   "loading": "加载中…",
   "loadFailed": "无法加载邮件。请稍后重试。",
@@ -30,6 +39,7 @@
   "me": "我",
   "hasFiles": "有文件",
   "starred": "已加星标",
+  "draft": "草稿",
   "messages": "{count, plural, other {# 封邮件}}",
   "toLine": "收件人：{names}",
   "ccLine": "抄送：{names}",
@@ -64,7 +74,9 @@
     "fromSender": "查找来自 {name} 的邮件",
     "openInNewTab": "在新标签页中打开",
     "copyLink": "复制链接",
-    "linkCopied": "链接已复制"
+    "linkCopied": "链接已复制",
+    "editDraft": "编辑",
+    "discardDraft": "舍弃草稿"
   },
   "done": {
     "archive": "会话已归档",
@@ -115,7 +127,18 @@
     "notAnAddress": "不是电子邮件地址",
     "removeRecipient": "移除 {address}",
     "recipientPlaceholder": "姓名或地址",
-    "suggestions": "建议的地址"
+    "suggestions": "建议的地址",
+    "draftSaving": "正在保存…",
+    "draftSavedShort": "已保存",
+    "draftSaved": "草稿已保存",
+    "draftFailed": "草稿未保存",
+    "draftDiscarded": "草稿已舍弃",
+    "alreadySent": "已发送，无法撤回",
+    "sendUndone": "已撤销发送：邮件已回到草稿",
+    "notSent": "未发送：{reason} 已保存在草稿中。",
+    "quoteShow": "显示引用的邮件",
+    "quoteHide": "隐藏引用的邮件",
+    "quoteRemove": "移除引用的邮件"
   },
   "ai": {
     "summarize": "总结",

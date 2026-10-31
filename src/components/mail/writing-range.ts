@@ -9,16 +9,16 @@ const SIGNATURES = new Set(["signature", "pastedSignature"]);
 
 /**
  * The part of the message the person wrote: from its start to its last line with something on it,
- * before the signature or the line the quoted mail starts under (`headers`). With nothing written,
+ * before the signature (the mail an answer quotes stays out of the editor, quote.ts). With nothing written,
  * the first empty line, where writing starts.
  */
-export function writingRange(doc: PmNode, headers: string[]): { from: number; to: number } {
+export function writingRange(doc: PmNode): { from: number; to: number } {
   let to = 0;
   let first: PmNode | null = null;
   let stop = false;
   doc.forEach((node, offset) => {
     if (stop) return;
-    if (SIGNATURES.has(node.type.name) || (node.type.name === "paragraph" && headers.includes(node.textContent.trim()))) {
+    if (SIGNATURES.has(node.type.name)) {
       stop = true;
       return;
     }
@@ -50,4 +50,21 @@ export function plainText(doc: PmNode, to: number): string {
     if (offset < to) write(node, "");
   });
   return blocks.join("\n").trim();
+}
+
+const attribute = (value: unknown) => String(value ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+
+/**
+ * The pictures in the range, as the editor reads them back (its `Picture` node): the model reads
+ * only text, so what replaces the range keeps them under it rather than dropping them.
+ */
+export function rangePictures(doc: PmNode, to: number): string {
+  const pictures: string[] = [];
+  doc.nodesBetween(0, to, (node) => {
+    if (node.type.name === "picture" && node.attrs.cid) {
+      const alt = node.attrs.alt ? ` alt="${attribute(node.attrs.alt)}"` : "";
+      pictures.push(`<img src="${attribute(node.attrs.src)}" data-cid="${attribute(node.attrs.cid)}"${alt}>`);
+    }
+  });
+  return pictures.join("");
 }

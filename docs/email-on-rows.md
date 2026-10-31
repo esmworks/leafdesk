@@ -91,20 +91,35 @@ again the next time it opens. *Always show from this sender* loads them at once 
 mail to the mailbox, and mail from the mailbox's own domain shows them too (not for public mail
 services such as gmail.com), as long as the provider's check doesn't say the mail came from
 someone else (DMARC failed). The senders on that list are under Account › Email and calendar,
-where one is removed; *Stop* on a message does the same. Messages are grouped into threads by the
-server's thread ids, their references and, within 30 days, a reply's subject.
+where one is removed; *Stop* on a message does the same. The earlier mail an answer quotes at its
+end folds under *•••*, which opens it in place. Messages are grouped into threads by the server's
+thread ids, their references and, within 30 days, a reply's subject.
 
 From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
 trash is for good. A right click on a thread in the list opens the same answers and moves without
 opening it, plus *Move to* any of the mailbox's folders (not Sent or Drafts), the sender's other
-mail (a `from:` search), *Open in new tab* and *Copy link*. *New message* opens beside the list, where the open thread would be, and Back
+mail (a `from:` search), *Open in new tab* and *Copy link*. *Empty trash* (and *Empty junk*) over
+the folder's list deletes all of it for good after asking, on the mail server too. *New message* opens beside the list, where the open thread would be, and Back
 closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
 through, with bulleted and numbered lists, quotes and links (⌘/Ctrl+K), and goes out as HTML with
-a plain-text part beside it; other formatting pasted in falls away. *From* picks any of the
+a plain-text part beside it; other formatting pasted in falls away. A picture pasted in, or dropped
+on the text, goes where it is put and is sent as part of the message (PNG, JPEG, GIF or WebP, within
+the files' limit); other files dropped on the composer are attached. A reply or forward carries the earlier
+message under what is written, as it looked (tables, colors, the images it carries), folded under
+*•••* in the composer and taken off with *Remove the quoted message*; the plain-text part quotes
+its text with `>`. *From* picks any of the
 member's mailboxes; recipients are suggested as they are typed, from the people that mailbox wrote
-to (first) and heard from, and ⌘/Ctrl+Enter sends. A message being written stays while other mail
-is read, until it is sent or discarded. Files of up to 20 MB in all, dropped on the message or
+to (first) and heard from, and ⌘/Ctrl+Enter sends. A message being written is kept as a draft in
+the mailbox's Drafts folder on the mail server (made if it has none) a few seconds after each
+change, and when it is closed or the page is left, so other mail programs see it too and it
+survives a closed tab; each save replaces the one before. Drafts open from the Drafts folder
+beside the list, and a thread with an answer in a draft is marked *Draft* in the list and shows it
+under its messages, to edit or discard; a draft sent goes out as a new message and leaves the
+folder. A message sent waits 5 seconds on the server before it goes, so *Undo* can take it back:
+it goes back to the drafts, and opens again where it was written. It still goes when the page is
+closed meanwhile; if the server restarts in those seconds it doesn't, and the draft last saved stays.
+A message that can't be sent then is kept as a draft and says why. Files of up to 20 MB in all, dropped on the message or
 attached, at most 100 recipients and 100 messages an hour from each mailbox; the sent folder keeps
 a copy. The search
 box looks through every folder but the trash and junk, in senders, recipients, subjects and first

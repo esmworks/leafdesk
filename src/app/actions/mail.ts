@@ -2,12 +2,13 @@
 
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailFolderView, MailThreadPage, MailThreadView } from "@/lib/mail-client";
+import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailDraftRef, MailDraftView, MailFolderView, MailHeldSend, MailSavedDraft, MailSendStatus, MailThreadPage, MailThreadView, MailUndoneSend } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
 import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, readBody, refreshFolder, refreshMailbox } from "@/server/mail-client/read";
 import { suggestAddresses } from "@/server/mail-client/contacts";
+import { discardDraft, openDraft, saveDraft } from "@/server/mail-client/drafts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
-import { mailAction, sendMail } from "@/server/mail-client/write";
+import { emptyFolder, holdMail, mailAction, sendStatus, undoSend } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
 import { requireUserId } from "@/server/session";
@@ -86,16 +87,70 @@ export async function mailActionAction(input: { mailboxId: string; folderId: str
   });
 }
 
-/** Sends a message: `draft` as JSON under "draft", the files under "file". */
-export async function sendMailAction(form: FormData): Promise<ActionResult<{ messageId: string }>> {
+export async function emptyFolderAction(input: { mailboxId: string; folderId: string }): Promise<ActionResult<null>> {
   return run(async (userId) => {
-    let draft: MailDraftInput;
-    try {
-      draft = JSON.parse(String(form.get("draft") ?? ""));
-    } catch {
-      throw new RowMailError("invalid");
-    }
-    const files = form.getAll("file").filter((f): f is File => f instanceof File);
-    return sendMail(userId, draft, files);
+    await emptyFolder(userId, input);
+    return null;
   });
+}
+
+/**
+ * A message the composer sent: `draft` as JSON under "draft", the files added since its last save
+ * under "file", and the pictures put in its text since then under "inline", each with its
+ * Content-ID under "inlineCid" in the same order.
+ */
+function composed(form: FormData) {
+  let draft: MailDraftInput;
+  try {
+    draft = JSON.parse(String(form.get("draft") ?? ""));
+  } catch {
+    throw new RowMailError("invalid");
+  }
+  if (!draft || typeof draft !== "object") throw new RowMailError("invalid");
+  const pictures = form.getAll("inline");
+  const cids = form.getAll("inlineCid");
+  if (pictures.length !== cids.length) throw new RowMailError("invalid");
+  const inline = pictures.map((file, i) => ({ cid: String(cids[i]), file: file as File }));
+  return { draft, files: form.getAll("file").filter((f): f is File => f instanceof File), inline };
+}
+
+/** Sends a message (see `composed`); the draft it was saved as goes. */
+/** Sends what the composer holds after the seconds Undo has (see `composed`). */
+export async function sendMailAction(form: FormData): Promise<ActionResult<MailHeldSend>> {
+  return run(async (userId) => {
+    const { draft, files, inline } = composed(form);
+    return holdMail(userId, draft, files, inline);
+  });
+}
+
+/** Takes back a message still waiting to go: it is a draft again. Null when it went already. */
+export async function undoSendAction(sendId: string): Promise<ActionResult<MailUndoneSend | null>> {
+  return run((userId) => undoSend(userId, sendId));
+}
+
+/** How a message sent from the composer went, with the reason said when it failed. */
+export async function sendStatusAction(sendId: string): Promise<ActionResult<MailSendStatus>> {
+  return run(async (userId) => {
+    const status = sendStatus(userId, sendId);
+    const t = await getTranslations("settings.email.errors");
+    return { state: status.state, error: status.error ? t(status.error) : null };
+  });
+}
+
+/** Saves what the composer holds as a draft in the mailbox's drafts folder, in place of its last save (see `composed`). */
+export async function saveDraftAction(form: FormData): Promise<ActionResult<MailSavedDraft>> {
+  return run(async (userId) => {
+    const { draft, files, inline } = composed(form);
+    return saveDraft(userId, draft, files, inline);
+  });
+}
+
+/** Throws a draft away. */
+export async function discardDraftAction(ref: MailDraftRef): Promise<ActionResult<null>> {
+  return run((userId) => discardDraft(userId, ref));
+}
+
+/** A draft opened to write on again. */
+export async function openDraftAction(id: string): Promise<ActionResult<MailDraftView>> {
+  return run((userId) => openDraft(userId, id));
 }

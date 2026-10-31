@@ -22,6 +22,15 @@
   "firstReadHint": "Najnowsza poczta pojawi się za chwilę. Starsza, sprzed maksymalnie trzech miesięcy, będzie się wczytywać przez kilka następnych minut.",
   "empty": "Brak poczty.",
   "emptySearch": "Brak pasującej poczty.",
+  "emptyFolder": {
+    "trash": "Opróżnij kosz",
+    "junk": "Opróżnij spam",
+    "trashTitle": "Opróżnić kosz?",
+    "junkTitle": "Opróżnić spam?",
+    "body": "Wszystkie wiadomości w folderze {folder} zostaną trwale usunięte, także z serwera poczty. Tego nie można cofnąć.",
+    "trashDone": "Kosz opróżniony",
+    "junkDone": "Spam opróżniony"
+  },
   "noneOpen": "Wybierz konwersację, aby ją przeczytać.",
   "loading": "Wczytywanie…",
   "loadFailed": "Nie udało się wczytać poczty. Spróbuj ponownie za chwilę.",
@@ -30,6 +39,7 @@
   "me": "ja",
   "hasFiles": "Ma pliki",
   "starred": "Oznaczone gwiazdką",
+  "draft": "Wersja robocza",
   "messages": "{count, plural, one {# wiadomość} few {# wiadomości} many {# wiadomości} other {# wiadomości}}",
   "toLine": "Do: {names}",
   "ccLine": "DW: {names}",
@@ -64,7 +74,9 @@
     "fromSender": "Znajdź wiadomości od {name}",
     "openInNewTab": "Otwórz w nowej karcie",
     "copyLink": "Kopiuj link",
-    "linkCopied": "Skopiowano link"
+    "linkCopied": "Skopiowano link",
+    "editDraft": "Edytuj",
+    "discardDraft": "Odrzuć wersję roboczą"
   },
   "done": {
     "archive": "Konwersacja zarchiwizowana",
@@ -115,7 +127,18 @@
     "notAnAddress": "To nie jest adres e-mail",
     "removeRecipient": "Usuń {address}",
     "recipientPlaceholder": "Imię i nazwisko lub adres",
-    "suggestions": "Sugerowane adresy"
+    "suggestions": "Sugerowane adresy",
+    "draftSaving": "Zapisywanie…",
+    "draftSavedShort": "Zapisano",
+    "draftSaved": "Wersja robocza zapisana",
+    "draftFailed": "Nie zapisano wersji roboczej",
+    "draftDiscarded": "Wersja robocza odrzucona",
+    "alreadySent": "Już wysłano, nie można cofnąć",
+    "sendUndone": "Wysyłanie cofnięte: wiadomość znów jest wersją roboczą",
+    "notSent": "Nie wysłano: {reason} Jest zachowana w wersjach roboczych.",
+    "quoteShow": "Pokaż cytowaną wiadomość",
+    "quoteHide": "Ukryj cytowaną wiadomość",
+    "quoteRemove": "Usuń cytowaną wiadomość"
   },
   "ai": {
     "summarize": "Podsumuj",

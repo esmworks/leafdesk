@@ -22,6 +22,15 @@
   "firstReadHint": "Vos courriels les plus récents s’afficheront dans un instant. Les plus anciens, jusqu’à trois mois en arrière, arriveront dans les prochaines minutes.",
   "empty": "Aucun courriel ici.",
   "emptySearch": "Aucun courriel ne correspond.",
+  "emptyFolder": {
+    "trash": "Vider la corbeille",
+    "junk": "Vider les indésirables",
+    "trashTitle": "Vider la corbeille ?",
+    "junkTitle": "Vider les indésirables ?",
+    "body": "Tous les messages de {folder} sont supprimés définitivement, sur le serveur de messagerie aussi. Cette action est irréversible.",
+    "trashDone": "Corbeille vidée",
+    "junkDone": "Indésirables vidés"
+  },
   "noneOpen": "Choisissez une conversation pour la lire.",
   "loading": "Chargement…",
   "loadFailed": "Impossible de charger le courriel. Réessayez dans un instant.",
@@ -30,6 +39,7 @@
   "me": "moi",
   "hasFiles": "Avec fichiers",
   "starred": "Favoris",
+  "draft": "Brouillon",
   "messages": "{count, plural, one {# message} other {# messages}}",
   "toLine": "À {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +74,9 @@
     "fromSender": "Rechercher les e-mails de {name}",
     "openInNewTab": "Ouvrir dans un nouvel onglet",
     "copyLink": "Copier le lien",
-    "linkCopied": "Lien copié"
+    "linkCopied": "Lien copié",
+    "editDraft": "Modifier",
+    "discardDraft": "Supprimer le brouillon"
   },
   "done": {
     "archive": "Conversation archivée",
@@ -115,7 +127,18 @@
     "notAnAddress": "Ce n’est pas une adresse e-mail",
     "removeRecipient": "Retirer {address}",
     "recipientPlaceholder": "Nom ou adresse",
-    "suggestions": "Adresses suggérées"
+    "suggestions": "Adresses suggérées",
+    "draftSaving": "Enregistrement…",
+    "draftSavedShort": "Enregistré",
+    "draftSaved": "Brouillon enregistré",
+    "draftFailed": "Brouillon non enregistré",
+    "draftDiscarded": "Brouillon supprimé",
+    "alreadySent": "Déjà envoyé, impossible de l'annuler",
+    "sendUndone": "Envoi annulé : le message est de nouveau un brouillon",
+    "notSent": "Non envoyé : {reason} Il est conservé dans les brouillons.",
+    "quoteShow": "Afficher le message cité",
+    "quoteHide": "Masquer le message cité",
+    "quoteRemove": "Retirer le message cité"
   },
   "ai": {
     "summarize": "Résumer",

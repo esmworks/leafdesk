@@ -22,6 +22,15 @@
   "firstReadHint": "Thư mới nhất sẽ hiện ra trong giây lát. Thư cũ hơn, từ ba tháng trở lại, sẽ được tải về trong vài phút tới.",
   "empty": "Không có thư nào ở đây.",
   "emptySearch": "Không có thư nào khớp.",
+  "emptyFolder": {
+    "trash": "Dọn sạch thùng rác",
+    "junk": "Dọn sạch thư rác",
+    "trashTitle": "Dọn sạch thùng rác?",
+    "junkTitle": "Dọn sạch thư rác?",
+    "body": "Mọi thư trong {folder} sẽ bị xóa vĩnh viễn, cả trên máy chủ thư. Không thể hoàn tác.",
+    "trashDone": "Đã dọn sạch thùng rác",
+    "junkDone": "Đã dọn sạch thư rác"
+  },
   "noneOpen": "Chọn một cuộc trò chuyện để đọc.",
   "loading": "Đang tải…",
   "loadFailed": "Không tải được thư. Hãy thử lại sau giây lát.",
@@ -30,6 +39,7 @@
   "me": "tôi",
   "hasFiles": "Có tệp",
   "starred": "Đã gắn sao",
+  "draft": "Thư nháp",
   "messages": "{count, plural, other {# thư}}",
   "toLine": "Đến {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +74,9 @@
     "fromSender": "Tìm thư từ {name}",
     "openInNewTab": "Mở trong thẻ mới",
     "copyLink": "Sao chép liên kết",
-    "linkCopied": "Đã sao chép liên kết"
+    "linkCopied": "Đã sao chép liên kết",
+    "editDraft": "Chỉnh sửa",
+    "discardDraft": "Hủy thư nháp"
   },
   "done": {
     "archive": "Đã lưu trữ cuộc trò chuyện",
@@ -115,7 +127,18 @@
     "notAnAddress": "Không phải địa chỉ email",
     "removeRecipient": "Xóa {address}",
     "recipientPlaceholder": "Tên hoặc địa chỉ",
-    "suggestions": "Địa chỉ gợi ý"
+    "suggestions": "Địa chỉ gợi ý",
+    "draftSaving": "Đang lưu…",
+    "draftSavedShort": "Đã lưu",
+    "draftSaved": "Đã lưu thư nháp",
+    "draftFailed": "Chưa lưu được thư nháp",
+    "draftDiscarded": "Đã hủy thư nháp",
+    "alreadySent": "Đã gửi, không thể hoàn tác",
+    "sendUndone": "Đã hoàn tác gửi: thư lại là bản nháp",
+    "notSent": "Chưa gửi được: {reason} Thư được giữ trong Bản nháp.",
+    "quoteShow": "Hiện thư được trích dẫn",
+    "quoteHide": "Ẩn thư được trích dẫn",
+    "quoteRemove": "Bỏ thư được trích dẫn"
   },
   "ai": {
     "summarize": "Tóm tắt",

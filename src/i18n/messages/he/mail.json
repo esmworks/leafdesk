@@ -22,6 +22,15 @@
   "firstReadHint": "הדואר האחרון שלך יופיע בעוד רגע. דואר ישן יותר, עד שלושה חודשים אחורה, יגיע במהלך הדקות הקרובות.",
   "empty": "אין כאן דואר.",
   "emptySearch": "אין דואר שמתאים לחיפוש.",
+  "emptyFolder": {
+    "trash": "ריקון האשפה",
+    "junk": "ריקון דואר זבל",
+    "trashTitle": "לרוקן את האשפה?",
+    "junkTitle": "לרוקן את דואר הזבל?",
+    "body": "כל ההודעות ב{folder} יימחקו לצמיתות, גם בשרת הדואר. אי אפשר לבטל זאת.",
+    "trashDone": "האשפה רוקנה",
+    "junkDone": "דואר הזבל רוקן"
+  },
   "noneOpen": "בחר שיחה כדי לקרוא אותה.",
   "loading": "טוען…",
   "loadFailed": "לא ניתן היה לטעון את הדואר. נסה שוב בעוד רגע.",
@@ -30,6 +39,7 @@
   "me": "אני",
   "hasFiles": "עם קבצים",
   "starred": "מסומנות בכוכב",
+  "draft": "טיוטה",
   "messages": "{count, plural, one {הודעה #} two {# הודעות} other {# הודעות}}",
   "toLine": "אל {names}",
   "ccLine": "עותק אל {names}",
@@ -64,7 +74,9 @@
     "fromSender": "חפש דואר מ־{name}",
     "openInNewTab": "פתח בכרטיסייה חדשה",
     "copyLink": "העתק קישור",
-    "linkCopied": "הקישור הועתק"
+    "linkCopied": "הקישור הועתק",
+    "editDraft": "עריכה",
+    "discardDraft": "מחיקת הטיוטה"
   },
   "done": {
     "archive": "השיחה הועברה לארכיון",
@@ -115,7 +127,18 @@
     "notAnAddress": "זו אינה כתובת דוא״ל",
     "removeRecipient": "הסרת {address}",
     "recipientPlaceholder": "שם או כתובת",
-    "suggestions": "כתובות מוצעות"
+    "suggestions": "כתובות מוצעות",
+    "draftSaving": "שומר…",
+    "draftSavedShort": "נשמר",
+    "draftSaved": "הטיוטה נשמרה",
+    "draftFailed": "הטיוטה לא נשמרה",
+    "draftDiscarded": "הטיוטה נמחקה",
+    "alreadySent": "כבר נשלח, אי אפשר לבטל",
+    "sendUndone": "השליחה בוטלה: ההודעה שוב טיוטה",
+    "notSent": "לא נשלח: {reason} ההודעה נשמרה בטיוטות.",
+    "quoteShow": "הצגת ההודעה המצוטטת",
+    "quoteHide": "הסתרת ההודעה המצוטטת",
+    "quoteRemove": "הסרת ההודעה המצוטטת"
   },
   "ai": {
     "summarize": "סיכום",

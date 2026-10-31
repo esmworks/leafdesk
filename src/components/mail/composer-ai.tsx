@@ -9,7 +9,7 @@ import { SavedPromptList, SavePromptForm, useSavedPrompts } from "@/components/p
 import { cn, IconButton, Popover } from "@/components/ui";
 import { AI_LANGUAGES, isAiErrorCode } from "@/lib/ai";
 import { draftHtml, MAX_MAIL_INSTRUCTION, type MailWriteAction } from "@/lib/mail-ai";
-import { plainText, writingRange } from "./writing-range";
+import { plainText, rangePictures, writingRange } from "./writing-range";
 
 /**
  * The composer's AI writer (server/mail-client/ai.ts): writes a reply, reworks what is written or
@@ -32,7 +32,6 @@ export function ComposerAi({
   answering,
   subject,
   to,
-  headers,
   start,
   onClose,
 }: {
@@ -43,8 +42,6 @@ export function ComposerAi({
   answering: { id: string; reply: boolean } | null;
   subject: string;
   to: string[];
-  /** The first lines of what the composer quotes under the message (a reply's or forward's header). */
-  headers: string[];
   /** Runs at once when the panel opens ("Reply with AI"). */
   start: MailWriteAction | null;
   onClose: () => void;
@@ -69,7 +66,7 @@ export function ComposerAi({
       abort.current = controller;
       setResult("");
       setPhase({ step: "running", request });
-      const { to: end } = writingRange(editor.state.doc, headers);
+      const { to: end } = writingRange(editor.state.doc);
       const body = {
         kind: "write",
         mailboxId,
@@ -103,7 +100,7 @@ export function ComposerAi({
         if (abort.current === controller) abort.current = null;
       }
     },
-    [editor, headers, mailboxId, answering, t, ta],
+    [editor, mailboxId, answering, t, ta],
   );
 
   const started = useRef(false);
@@ -122,8 +119,8 @@ export function ComposerAi({
 
   /** Puts the answer in place of what is written, as one change. */
   const use = () => {
-    const range = writingRange(editor.state.doc, headers);
-    editor.chain().focus().insertContentAt(range, draftHtml(result)).run();
+    const range = writingRange(editor.state.doc);
+    editor.chain().focus().insertContentAt(range, draftHtml(result) + rangePictures(editor.state.doc, range.to)).run();
     onClose();
   };
 
@@ -144,7 +141,7 @@ export function ComposerAi({
   const actionLabel = (action: MailWriteAction) =>
     action === "reply" || action === "formal" || action === "friendly" ? t(action) : ta(`assistant.actions.${action as "improve" | "shorten" | "fix"}`);
 
-  const written = !!plainText(editor.state.doc, writingRange(editor.state.doc, headers).to);
+  const written = !!plainText(editor.state.doc, writingRange(editor.state.doc).to);
   const action = (key: MailWriteAction, icon: ReactNode) => (
     <ActionButton key={key} onClick={() => void run({ action: key })} icon={icon}>
       {actionLabel(key)}

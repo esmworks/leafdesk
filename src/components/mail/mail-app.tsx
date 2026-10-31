@@ -4,13 +4,13 @@ import { Database, Inbox, Paperclip, RefreshCw, Search, Star } from "lucide-reac
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { mailActionAction, refreshMailboxAction } from "@/app/actions/mail";
+import { emptyFolderAction, mailActionAction, refreshMailboxAction } from "@/app/actions/mail";
 import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { showToast } from "@/components/toast";
-import { cn, IconButton } from "@/components/ui";
-import { MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem } from "@/lib/mail-client";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton } from "@/components/ui";
+import { MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen } from "./mail-store";
@@ -18,7 +18,7 @@ import { useFolderName } from "./mail-sidebar";
 
 // The open thread and a new message load the first time they show.
 const ThreadView = lazyPart(() => import("./thread-view").then((m) => m.ThreadView), <div className="min-w-0 flex-1" />);
-const Composer = lazyPart(() => import("./composer").then((m) => m.Composer), <div className="min-w-0 flex-1" />);
+const PaneComposer = lazyPart(() => import("./composer").then((m) => m.PaneComposer), <div className="min-w-0 flex-1" />);
 const ThreadMenu = lazyPart(() => import("./thread-menu").then((m) => m.ThreadMenu));
 
 /** How often the open folder asks the mail server for new mail while the page is in front. */
@@ -74,6 +74,7 @@ const ThreadRow = memo(function ThreadRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
           <span className={cn("truncate text-sm", item.unread && "font-semibold")}>{senders}</span>
+          {item.hasDraft && <span className="shrink-0 text-xs font-medium text-danger">{t("draft")}</span>}
           {item.count > 1 && <span className="text-xs text-fg-muted tabular-nums">{item.count}</span>}
           <span className="flex-1" />
           {item.hasAttachments && <Paperclip className="h-3.5 w-3.5 shrink-0 text-fg-icon" aria-label={t("hasFiles")} />}
@@ -109,6 +110,7 @@ const forPage = (e: KeyboardEvent) => {
 /** `ai`: the workspace has AI on, so threads offer a summary and the composer its writer (server/mail-client/ai.ts). */
 export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean }) {
   const t = useTranslations("mail");
+  const tc = useTranslations("common");
   const folderName = useFolderName();
   const search = useSearchParams();
   const { boxes, error: boxesError } = useMailboxes(workspaceId);
@@ -119,8 +121,15 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     void ThreadMenu.preload();
   }, []);
   const threadId = search.get("t");
-  // A new message is written in the pane where a thread shows (?c=new), so Back closes it.
-  const composing = search.get("c") === "new";
+  // A new message is written in the pane where a thread shows (?c=new), so Back closes it; a saved
+  // draft is opened there too (?c=d:<id>), and each save moves the address to its new id.
+  const composeParam = search.get("c");
+  const draftId = composeParam?.startsWith("d:") ? composeParam.slice(2) : null;
+  const composing = composeParam === "new" || !!draftId;
+  // The pane is written on until it is closed or another one opened: not anew when a save moves the address.
+  const [savedTo, setSavedTo] = useState<string | null>(null);
+  const [pane, setPane] = useState({ c: composeParam, n: 0, draft: draftId });
+  if (pane.c !== composeParam) setPane(composeParam && composeParam === savedTo ? { ...pane, c: composeParam } : { c: composeParam, n: pane.n + 1, draft: draftId });
   const query = search.get("q") ?? "";
   const [typed, setTyped] = useState(query);
   const [list, setList] = useState<List>({ items: [], next: null, loading: true, error: null });
@@ -128,6 +137,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   const [menu, setMenu] = useState<{ item: MailThreadItem; at: { x: number; y: number } } | null>(null);
   const openMenu = useCallback((item: MailThreadItem, at: { x: number; y: number }) => setMenu({ item, at }), []);
   const [refreshing, setRefreshing] = useState(false);
+  const [emptying, setEmptying] = useState<"ask" | "working" | null>(null);
   const searchBox = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   // Moves wait MAIL_UNDO_SECONDS for Undo before the mail server hears of them.
@@ -241,6 +251,23 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     goRef.current = go;
   }, [go]);
   useEffect(() => onCompose(() => goRef.current({ c: "new" })), []);
+
+  // A send undone opens its draft again in the pane, while Mail is still open; once a message went,
+  // the list is read again (the folder open then: the sent folder or the drafts show the change).
+  const live = useRef(true);
+  useEffect(() => {
+    live.current = true;
+    return () => {
+      live.current = false;
+    };
+  }, []);
+  const sendUndone = useCallback((draft: MailUndoneSend) => {
+    if (live.current && draft.id) goRef.current({ c: `d:${draft.id}`, t: null });
+  }, []);
+  const afterSend = useRef<(thread: boolean) => void>(() => {});
+  afterSend.current = (thread) => {
+    if (thread || folder?.role === "sent" || folder?.role === "drafts") void loadPage(null);
+  };
   useEffect(() => setTyped(query), [query]);
 
   const items = list.items;
@@ -307,9 +334,23 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   const openThread = useCallback(
     (item: MailThreadItem) => {
       setCompose(null);
-      go({ t: item.threadId });
+      // A draft is written on, not read.
+      if (folder?.role === "drafts") go({ c: `d:${item.messageId}`, t: null });
+      else go({ t: item.threadId, c: null });
     },
-    [go],
+    [go, folder?.role],
+  );
+
+  /** The pane's draft was saved or thrown away: the address follows it, and the drafts list. */
+  const paneSaved = useCallback(
+    (id: string | null, open: boolean) => {
+      if (id && open) {
+        setSavedTo(`d:${id}`);
+        go({ c: `d:${id}` }, true);
+      }
+      if (folder?.role === "drafts") void loadPage(null);
+    },
+    [go, folder?.role, loadPage],
   );
 
   // Each unread message of the open thread calls onRead as its body comes, often with the callback
@@ -336,8 +377,8 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     const onKey = (e: KeyboardEvent) => {
       // With a conversation's menu open, keys are the menu's (Escape closes it).
       if (!forPage(e) || composing || menu) return;
-      const at = items.findIndex((i) => i.threadId === threadId);
-      const current = at >= 0 ? items[at] : null;
+      const at = items.findIndex((i) => i.threadId === threadId || (!!draftId && i.messageId === draftId));
+      const current = at >= 0 && threadId ? items[at] : null;
       const move = (to: number) => {
         const target = items[Math.max(0, Math.min(items.length - 1, to))];
         if (!target) return;
@@ -377,7 +418,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [items, threadId, folder?.role, act, openThread, go, composing, menu]);
+  }, [items, threadId, draftId, folder?.role, act, openThread, go, composing, menu]);
 
   // Search as typed, a moment after the last key.
   useEffect(() => {
@@ -395,6 +436,36 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
       putMailbox(result.data);
       void loadPage(null);
     } else if (result) showToast({ message: result.error });
+  }
+
+  // Emptying the trash or junk: what waits for Undo goes first (a thread moved out of it keeps its move).
+  async function emptyOpenFolder() {
+    if (!box || !folder || emptying === "working") return;
+    const mailboxId = box.id;
+    const folderId = folder.id;
+    const role = folder.role === "junk" ? "junk" : "trash";
+    const from = shown.current;
+    setEmptying("working");
+    for (const [id, p] of pending.current) {
+      clearTimeout(p.timer);
+      p.run();
+      pending.current.delete(id);
+    }
+    const result = await emptyFolderAction({ mailboxId, folderId }).catch(() => null);
+    setEmptying(null);
+    if (!result?.ok) {
+      showToast({ message: result?.error ?? tc("genericError") });
+      return;
+    }
+    // Still on the folder emptied: its list and open thread go.
+    if (shown.current === from) {
+      setList({ items: [], next: null, loading: false, error: null });
+      if (threadId) go({ t: null }, true);
+    }
+    showToast({ message: t(`emptyFolder.${role}Done`) });
+    void read("mailRefreshFolder", mailboxId, folderId)
+      .then((r) => r.ok && putFolders(mailboxId, r.data))
+      .catch(() => {});
   }
 
   if (boxesError) return <Notice>{boxesError}</Notice>;
@@ -421,6 +492,11 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
             <h1 className="truncate text-base font-semibold">{query ? t("results") : name}</h1>
             {!query && folder.unseen > 0 && folder.role !== "trash" && folder.role !== "junk" && <span className="shrink-0 text-xs text-fg-faint">{t("unreadCount", { count: folder.unseen })}</span>}
             <span className="flex-1" />
+            {!query && (folder.role === "trash" || folder.role === "junk") && (items.length > 0 || folder.total > 0) && (
+              <Button size="sm" variant="ghost" className="shrink-0" onClick={() => setEmptying("ask")} disabled={emptying === "working"}>
+                {t(`emptyFolder.${folder.role}`)}
+              </Button>
+            )}
             <IconButton label={t("refresh")} className="h-8 w-8 text-fg-icon" onClick={() => void refreshAll()} disabled={refreshing}>
               <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
             </IconButton>
@@ -479,7 +555,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
                   key={item.threadId}
                   item={item}
                   href={mailHref(workspaceId, { box: box.id, f: folder.id, t: item.threadId, q: query || null })}
-                  selected={item.threadId === threadId}
+                  selected={item.threadId === threadId || (!!draftId && item.messageId === draftId)}
                   menuOpen={menu?.item.threadId === item.threadId}
                   me={box.address}
                   onOpen={openThread}
@@ -491,6 +567,25 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
             </>
           )}
         </div>
+        {(folder.role === "trash" || folder.role === "junk") && (
+          <Dialog open={!!emptying} onClose={() => emptying === "ask" && setEmptying(null)} className="max-w-md">
+            <DialogBody className="pt-5">
+              <div className="space-y-1.5">
+                <DialogTitle>{t(`emptyFolder.${folder.role}Title`)}</DialogTitle>
+                <p className="text-sm text-fg-muted">{t("emptyFolder.body", { folder: name })}</p>
+              </div>
+            </DialogBody>
+            <DialogFooter>
+              {/* Focus in the dialog keeps the list's shortcuts off it. */}
+              <Button variant="secondary" onClick={() => setEmptying(null)} disabled={emptying === "working"} autoFocus>
+                {tc("cancel")}
+              </Button>
+              <Button variant="danger" onClick={() => void emptyOpenFolder()} disabled={emptying === "working"}>
+                {t("actions.delete")}
+              </Button>
+            </DialogFooter>
+          </Dialog>
+        )}
         {menu && (
           <ThreadMenu
             key={`${menu.item.threadId}-${menu.at.x}-${menu.at.y}`}
@@ -513,19 +608,19 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
         )}
       </section>
       {composing ? (
-        <Composer
+        <PaneComposer
+          key={pane.n}
+          id={pane.draft}
           workspaceId={workspaceId}
           ai={ai}
           box={box}
           boxes={boxes}
-          mode="new"
-          source={null}
           layout="pane"
           onClose={() => go({ c: null })}
-          onSent={() => {
-            go({ c: null });
-            if (folder.role === "sent") void loadPage(null);
-          }}
+          onSaved={paneSaved}
+          onSent={() => go({ c: null })}
+          onUndone={sendUndone}
+          onDelivered={() => afterSend.current(false)}
         />
       ) : threadId ? (
         <ThreadView
@@ -545,7 +640,8 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
           onRead={onRead}
           compose={compose}
           onComposeChange={setCompose}
-          onSent={() => void loadPage(null)}
+          onUndone={sendUndone}
+          onDelivered={() => afterSend.current(true)}
         />
       ) : (
         <div className="hidden min-w-0 flex-1 items-center justify-center text-sm text-fg-faint md:flex">{t("noneOpen")}</div>

@@ -22,6 +22,15 @@
   "firstReadHint": "Din senaste e-post visas om en stund. Äldre e-post, upp till tre månader tillbaka, kommer in de närmaste minuterna.",
   "empty": "Ingen e-post här.",
   "emptySearch": "Ingen e-post matchar.",
+  "emptyFolder": {
+    "trash": "Töm papperskorgen",
+    "junk": "Töm skräppost",
+    "trashTitle": "Tömma papperskorgen?",
+    "junkTitle": "Tömma skräpposten?",
+    "body": "Alla meddelanden i {folder} raderas för alltid, även på e-postservern. Det går inte att ångra.",
+    "trashDone": "Papperskorgen tömd",
+    "junkDone": "Skräpposten tömd"
+  },
   "noneOpen": "Välj en konversation för att läsa den.",
   "loading": "Läser in …",
   "loadFailed": "E-posten kunde inte läsas in. Försök igen om en stund.",
@@ -30,6 +39,7 @@
   "me": "jag",
   "hasFiles": "Har filer",
   "starred": "Stjärnmärkt",
+  "draft": "Utkast",
   "messages": "{count, plural, one {# meddelande} other {# meddelanden}}",
   "toLine": "Till {names}",
   "ccLine": "Kopia till {names}",
@@ -64,7 +74,9 @@
     "fromSender": "Hitta e-post från {name}",
     "openInNewTab": "Öppna i ny flik",
     "copyLink": "Kopiera länk",
-    "linkCopied": "Länken har kopierats"
+    "linkCopied": "Länken har kopierats",
+    "editDraft": "Redigera",
+    "discardDraft": "Släng utkast"
   },
   "done": {
     "archive": "Konversationen arkiverades",
@@ -115,7 +127,18 @@
     "notAnAddress": "Inte en e-postadress",
     "removeRecipient": "Ta bort {address}",
     "recipientPlaceholder": "Namn eller adress",
-    "suggestions": "Föreslagna adresser"
+    "suggestions": "Föreslagna adresser",
+    "draftSaving": "Sparar…",
+    "draftSavedShort": "Sparat",
+    "draftSaved": "Utkast sparat",
+    "draftFailed": "Utkastet sparades inte",
+    "draftDiscarded": "Utkast slängt",
+    "alreadySent": "Redan skickat, kan inte ångras",
+    "sendUndone": "Sändningen ångrad: meddelandet är ett utkast igen",
+    "notSent": "Inte skickat: {reason} Det sparas i Utkast.",
+    "quoteShow": "Visa det citerade meddelandet",
+    "quoteHide": "Dölj det citerade meddelandet",
+    "quoteRemove": "Ta bort det citerade meddelandet"
   },
   "ai": {
     "summarize": "Sammanfatta",

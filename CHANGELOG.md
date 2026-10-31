@@ -4,6 +4,26 @@
 
 ### Added
 
+- **Empty trash in the Mail tab.** The trash and junk folders get *Empty trash* and *Empty junk*
+  over their list: after asking, every message in the folder is deleted for good, on the mail
+  server too, including any not listed yet. No migration.
+
+- **Pictures in Mail tab messages.** A picture pasted into a message, or dropped on its text,
+  goes where it is put and is sent as part of the message (PNG, JPEG, GIF or WebP, within the
+  files' limit), not as an attachment; other files dropped are still attached. Drafts keep their
+  pictures and send each only once. No migration.
+
+- **Undo send in the Mail tab.** A message sent waits 5 seconds on the server, with *Undo* in the
+  note that it was sent: taken back, it is a draft again and opens where it was written. It still
+  goes if the tab is closed meanwhile; one the mail server refuses then is kept as a draft and the
+  reason shown. No migration.
+
+- **Drafts in the Mail tab.** A message being written is saved to the mailbox's Drafts folder on
+  the mail server a few seconds after each change and when it is closed, with its files, Bcc and
+  signature, so it survives a closed tab and shows in other mail programs. Drafts open from the
+  Drafts folder to be finished or sent; a reply in a draft marks its thread *Draft* in the list and
+  waits under the thread's messages. No migration.
+
 - **AI in the Mail tab.** A thread's *Summarize* button writes a short summary of the
   conversation under its subject, kept for the next visit and marked when newer messages came
   after it. *Reply with AI* under a message drafts an answer, and the sparkles button in the
@@ -172,6 +192,17 @@
 
 ### Changed
 
+- **Answers in the Mail tab show without the mail they quote.** The earlier mail an HTML answer
+  quotes at its end, as Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark
+  it, folds under *•••* and opens in place; plain-text answers already did.
+
+- **Replies and forwards from the Mail tab carry the earlier mail as it looked.** It no longer
+  goes into the editor as plain lines: what is written stays on its own, the original goes under
+  it with its tables, colors and the images it carries, behind *•••* to look at or taken off with
+  *Remove the quoted message*, and the plain-text part quotes the original's own text with `>`.
+  Drafts keep it from one save to the next. Mail lists also leave the "… wrote:" line above a
+  quote out of a message's first line.
+
 - **A database's tabs and toolbar scroll away with the page.** On a full database page they no
   longer stay at the top as you scroll down; only a table's column names do, right under the
   page's top bar, so more rows fit on the screen.
@@ -208,6 +239,12 @@
   only while an answer is being written.
 
 ### Fixed
+
+- **Mail with pictures as wide as the reading pane shows no scrollbar beside it.** The Mail tab
+  showed one that narrowed the message without anything to scroll.
+
+- **Short HTML mail in the Mail tab no longer leaves a gap under it.** Its frame took the height
+  it started with when the message was shorter.
 
 - **Google Sheets syncs no longer need a column with a different value in every row.** A sync set
   up with the key column left empty finds rows by their place in the sheet, so ledgers of dates,

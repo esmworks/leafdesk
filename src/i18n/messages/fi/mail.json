@@ -22,6 +22,15 @@
   "firstReadHint": "Uusimmat viestisi näkyvät hetken kuluttua. Vanhemmat viestit, enintään kolmen kuukauden ajalta, tulevat seuraavien minuuttien aikana.",
   "empty": "Ei viestejä.",
   "emptySearch": "Ei hakua vastaavia viestejä.",
+  "emptyFolder": {
+    "trash": "Tyhjennä roskakori",
+    "junk": "Tyhjennä roskaposti",
+    "trashTitle": "Tyhjennetäänkö roskakori?",
+    "junkTitle": "Tyhjennetäänkö roskaposti?",
+    "body": "Kaikki kansion {folder} viestit poistetaan pysyvästi, myös sähköpostipalvelimelta. Tätä ei voi kumota.",
+    "trashDone": "Roskakori tyhjennetty",
+    "junkDone": "Roskaposti tyhjennetty"
+  },
   "noneOpen": "Valitse keskustelu luettavaksi.",
   "loading": "Ladataan…",
   "loadFailed": "Viestejä ei voitu ladata. Yritä hetken kuluttua uudelleen.",
@@ -30,6 +39,7 @@
   "me": "minä",
   "hasFiles": "Sisältää tiedostoja",
   "starred": "Tähdellä merkityt",
+  "draft": "Luonnos",
   "messages": "{count, plural, one {# viesti} other {# viestiä}}",
   "toLine": "Vastaanottajat: {names}",
   "ccLine": "Kopio: {names}",
@@ -64,7 +74,9 @@
     "fromSender": "Etsi viestit lähettäjältä {name}",
     "openInNewTab": "Avaa uudessa välilehdessä",
     "copyLink": "Kopioi linkki",
-    "linkCopied": "Linkki kopioitu"
+    "linkCopied": "Linkki kopioitu",
+    "editDraft": "Muokkaa",
+    "discardDraft": "Hylkää luonnos"
   },
   "done": {
     "archive": "Keskustelu arkistoitu",
@@ -115,7 +127,18 @@
     "notAnAddress": "Ei sähköpostiosoite",
     "removeRecipient": "Poista {address}",
     "recipientPlaceholder": "Nimi tai osoite",
-    "suggestions": "Ehdotetut osoitteet"
+    "suggestions": "Ehdotetut osoitteet",
+    "draftSaving": "Tallennetaan…",
+    "draftSavedShort": "Tallennettu",
+    "draftSaved": "Luonnos tallennettu",
+    "draftFailed": "Luonnosta ei tallennettu",
+    "draftDiscarded": "Luonnos hylätty",
+    "alreadySent": "Lähetetty jo, ei voi perua",
+    "sendUndone": "Lähetys peruttu: viesti on taas luonnos",
+    "notSent": "Ei lähetetty: {reason} Se on tallessa luonnoksissa.",
+    "quoteShow": "Näytä lainattu viesti",
+    "quoteHide": "Piilota lainattu viesti",
+    "quoteRemove": "Poista lainattu viesti"
   },
   "ai": {
     "summarize": "Tiivistä",

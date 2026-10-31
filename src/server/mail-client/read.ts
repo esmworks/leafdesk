@@ -295,7 +295,10 @@ export async function listThreads(userId: string, input: { mailboxId: string; fo
   if (!shown.length) return { items: [], next: null };
 
   const threadIds = shown.map((g) => g.thread_id);
-  const visible = (await threadFolders(box, folder)).map((f) => f.id);
+  const visibleFolders = await threadFolders(box, folder);
+  const visible = visibleFolders.map((f) => f.id);
+  // A thread answered in a draft shows it wherever it is listed.
+  const drafts = new Set(visibleFolders.filter((f) => f.role === "drafts").map((f) => f.id));
   const [newest, members] = await Promise.all([
     db
       .select()
@@ -307,7 +310,7 @@ export async function listThreads(userId: string, input: { mailboxId: string; fo
         ),
       ),
     db
-      .select({ threadId: mailMessage.threadId, messageId: mailMessage.messageId, id: mailMessage.id, fromAddress: mailMessage.fromAddress, fromName: mailMessage.fromName, sentAt: mailMessage.sentAt })
+      .select({ threadId: mailMessage.threadId, messageId: mailMessage.messageId, id: mailMessage.id, folderId: mailMessage.folderId, fromAddress: mailMessage.fromAddress, fromName: mailMessage.fromName, sentAt: mailMessage.sentAt })
       .from(mailMessage)
       .where(and(eq(mailMessage.mailboxId, box.id), inArray(mailMessage.threadId, threadIds), visible.length ? inArray(mailMessage.folderId, visible) : undefined))
       .orderBy(desc(mailMessage.sentAt)),
@@ -343,7 +346,7 @@ export async function listThreads(userId: string, input: { mailboxId: string; fo
         unseen: Number(g.unseen),
         starred: g.starred,
         hasAttachments: g.files,
-        hasDraft: g.drafts,
+        hasDraft: g.drafts || inThread.some((m) => drafts.has(m.folderId)),
         row: other ? (rows.get(other) ?? null) : null,
       },
     ];
@@ -406,14 +409,15 @@ export async function getThread(userId: string, input: { mailboxId: string; thre
   }
   // Dates have whole seconds: two messages of the same second go in the order their folder got them.
   const messages = [...kept.values()].sort((a, b) => a.sentAt.getTime() - b.sentAt.getTime() || (a.folderId === b.folderId ? a.uid - b.uid : 0));
-  const newest = messages[messages.length - 1];
+  // Its subject is the newest message's, but a draft answering it isn't what the thread is called.
+  const named = [...messages].reverse().find((m) => !(m.draft && byId.get(m.folderId)?.role === "drafts")) ?? messages[messages.length - 1];
   const other = [...messages].reverse().map((m) => otherParty(box, m)).find((a) => !!a);
   const chips = other ? await rowsForAddresses(box.workspaceId, userId, [other]) : new Map();
   // The newest summary made, on whichever copy of its message it was saved, shown on the copy here.
   const summarized = [...rows].reverse().find((m) => m.summary);
   return {
     threadId: input.threadId,
-    subject: newest.subject || messages[0].subject,
+    subject: named.subject || messages[0].subject,
     messages: messages.map((m) => messageView(m, byId)),
     row: other ? (chips.get(other) ?? null) : null,
     summary: summarized?.summary ? { text: summarized.summary, messageId: kept.get(summarized.messageId ?? summarized.id)?.id ?? summarized.id } : null,
@@ -607,6 +611,7 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
   return {
     text,
     html: cleaned?.html ?? null,
+    quotedHtml: cleaned?.quotedHtml ?? null,
     blockedImages: cleaned?.blockedImages ?? 0,
     images: shown,
     attachments,

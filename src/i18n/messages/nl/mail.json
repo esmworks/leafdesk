@@ -22,6 +22,15 @@
   "firstReadHint": "Je nieuwste mail verschijnt zo. Oudere mail, tot drie maanden terug, komt de komende minuten binnen.",
   "empty": "Hier is geen mail.",
   "emptySearch": "Geen mail gevonden.",
+  "emptyFolder": {
+    "trash": "Prullenbak legen",
+    "junk": "Ongewenst legen",
+    "trashTitle": "Prullenbak legen?",
+    "junkTitle": "Ongewenst legen?",
+    "body": "Alle berichten in {folder} worden definitief verwijderd, ook op de mailserver. Dit kan niet ongedaan worden gemaakt.",
+    "trashDone": "Prullenbak geleegd",
+    "junkDone": "Ongewenst geleegd"
+  },
   "noneOpen": "Kies een gesprek om het te lezen.",
   "loading": "Laden…",
   "loadFailed": "Mail kon niet worden geladen. Probeer het zo opnieuw.",
@@ -30,6 +39,7 @@
   "me": "ik",
   "hasFiles": "Heeft bestanden",
   "starred": "Met ster",
+  "draft": "Concept",
   "messages": "{count, plural, one {# bericht} other {# berichten}}",
   "toLine": "Aan {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +74,9 @@
     "fromSender": "Mail van {name} zoeken",
     "openInNewTab": "Openen in nieuw tabblad",
     "copyLink": "Link kopiëren",
-    "linkCopied": "Link gekopieerd"
+    "linkCopied": "Link gekopieerd",
+    "editDraft": "Bewerken",
+    "discardDraft": "Concept verwijderen"
   },
   "done": {
     "archive": "Gesprek gearchiveerd",
@@ -115,7 +127,18 @@
     "notAnAddress": "Geen e-mailadres",
     "removeRecipient": "{address} verwijderen",
     "recipientPlaceholder": "Naam of adres",
-    "suggestions": "Voorgestelde adressen"
+    "suggestions": "Voorgestelde adressen",
+    "draftSaving": "Opslaan…",
+    "draftSavedShort": "Opgeslagen",
+    "draftSaved": "Concept opgeslagen",
+    "draftFailed": "Concept niet opgeslagen",
+    "draftDiscarded": "Concept verwijderd",
+    "alreadySent": "Al verzonden, kan niet worden teruggenomen",
+    "sendUndone": "Verzenden ongedaan gemaakt: het bericht is weer een concept",
+    "notSent": "Niet verzonden: {reason} Het staat bij Concepten.",
+    "quoteShow": "Geciteerd bericht tonen",
+    "quoteHide": "Geciteerd bericht verbergen",
+    "quoteRemove": "Geciteerd bericht verwijderen"
   },
   "ai": {
     "summarize": "Samenvatten",

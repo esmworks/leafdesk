@@ -23,7 +23,11 @@ const CONFIG: Config = {
 const REMOTE = /^\s*(https?:)?\/\//i;
 const CSS_REMOTE_URL = /url\(\s*(['"]?)\s*(https?:)?\/\/[^)]*\)/gi;
 
-export type CleanHtml = { html: string; blockedImages: number };
+/**
+ * `quotedHtml`: the earlier mail an answer quotes at its end, taken out of `html` to be shown when
+ * asked for (null when there is none, or nothing comes before it).
+ */
+export type CleanHtml = { html: string; quotedHtml: string | null; blockedImages: number };
 
 export async function cleanMailHtml(raw: string, options: { images: boolean; inline: Map<string, string> }): Promise<CleanHtml> {
   const [{ JSDOM, VirtualConsole }, { default: createDOMPurify }] = await Promise.all([import("jsdom"), import("dompurify")]);
@@ -72,10 +76,49 @@ export async function cleanMailHtml(raw: string, options: { images: boolean; inl
   });
 
   const html = purify.sanitize(raw, CONFIG) as string;
-  if (!html.includes("data-blocked")) return { html, blockedImages: blocked };
   const document = new window.DOMParser().parseFromString(html, "text/html");
   for (const img of document.querySelectorAll("img[data-blocked]")) hideHolder(img);
-  return { html: document.documentElement.outerHTML, blockedImages: blocked };
+  const quoted = takeQuote(document);
+  return { html: document.documentElement.outerHTML, quotedHtml: quoted, blockedImages: blocked };
+}
+
+/**
+ * Where the earlier mail an answer quotes starts, as mail programs mark it: Gmail, Outlook (on the
+ * desktop and the web), Yahoo, Thunderbird, Apple Mail, and messages sent from here.
+ */
+const QUOTE_STARTS = [".leafdesk_quote", ".gmail_quote_container", ".gmail_quote", "#appendonsend", "#divRplyFwdMsg", ".yahoo_quoted", ".moz-cite-prefix", "blockquote[type=cite]"];
+
+/**
+ * Takes the quoted end of an answer out of `document` (all from where it starts to the end of the
+ * body) and returns it as a document of its own with the same styles. Nothing is taken when nothing
+ * would be left before it to read (a forward, a quote alone).
+ */
+function takeQuote(document: Document): string | null {
+  const body = document.body;
+  if (!body) return null;
+  let start: Element | null = null;
+  for (const selector of QUOTE_STARTS) {
+    start = body.querySelector(selector);
+    if (start) break;
+  }
+  if (!start) return null;
+  // Outlook draws a line over its header, Apple Mail writes "On …, … wrote:" just before the quote.
+  const before = start.previousElementSibling;
+  if (before && (before.tagName === "HR" || (start.tagName === "BLOCKQUOTE" && /:\s*$/.test(before.textContent ?? "")))) start = before;
+  const range = document.createRange();
+  range.setStartBefore(start);
+  range.setEnd(body, body.childNodes.length);
+  const left = range.cloneRange();
+  left.setStart(body, 0);
+  left.setEndBefore(start);
+  const shown = left.cloneContents();
+  const holder = document.createElement("div");
+  holder.append(shown);
+  for (const style of holder.querySelectorAll("style")) style.remove();
+  if (!holder.textContent?.trim() && !holder.querySelector("img:not([data-blocked])")) return null;
+  const quote = document.createElement("div");
+  quote.append(range.extractContents());
+  return `<!doctype html><html><head>${document.head?.innerHTML ?? ""}</head><body>${quote.innerHTML}</body></html>`;
 }
 
 /** Table parts keep their place even when empty: hiding one shifts the cells beside it. */

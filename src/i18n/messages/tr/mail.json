@@ -22,6 +22,15 @@
   "firstReadHint": "Son postalarınız birazdan görünür. Üç aya kadar eski postalar önümüzdeki dakikalarda gelir.",
   "empty": "Burada posta yok.",
   "emptySearch": "Eşleşen posta yok.",
+  "emptyFolder": {
+    "trash": "Çöp kutusunu boşalt",
+    "junk": "Gereksizi boşalt",
+    "trashTitle": "Çöp kutusu boşaltılsın mı?",
+    "junkTitle": "Gereksiz klasörü boşaltılsın mı?",
+    "body": "{folder} klasöründeki tüm iletiler posta sunucusundan da kalıcı olarak silinir. Bu geri alınamaz.",
+    "trashDone": "Çöp kutusu boşaltıldı",
+    "junkDone": "Gereksiz klasörü boşaltıldı"
+  },
   "noneOpen": "Okumak için bir yazışma seçin.",
   "loading": "Yükleniyor…",
   "loadFailed": "Posta yüklenemedi. Biraz sonra yeniden deneyin.",
@@ -30,6 +39,7 @@
   "me": "ben",
   "hasFiles": "Dosya var",
   "starred": "Yıldızlı",
+  "draft": "Taslak",
   "messages": "{count, plural, one {# ileti} other {# ileti}}",
   "toLine": "Alıcı: {names}",
   "ccLine": "Bilgi: {names}",
@@ -64,7 +74,9 @@
     "fromSender": "{name} kişisinden gelenler",
     "openInNewTab": "Yeni sekmede aç",
     "copyLink": "Bağlantıyı kopyala",
-    "linkCopied": "Bağlantı kopyalandı"
+    "linkCopied": "Bağlantı kopyalandı",
+    "editDraft": "Düzenle",
+    "discardDraft": "Taslağı sil"
   },
   "done": {
     "archive": "Yazışma arşivlendi",
@@ -115,7 +127,18 @@
     "notAnAddress": "E-posta adresi değil",
     "removeRecipient": "{address} adresini kaldır",
     "recipientPlaceholder": "Ad veya adres",
-    "suggestions": "Önerilen adresler"
+    "suggestions": "Önerilen adresler",
+    "draftSaving": "Kaydediliyor…",
+    "draftSavedShort": "Kaydedildi",
+    "draftSaved": "Taslak kaydedildi",
+    "draftFailed": "Taslak kaydedilemedi",
+    "draftDiscarded": "Taslak silindi",
+    "alreadySent": "Zaten gönderildi, geri alınamadı",
+    "sendUndone": "Gönderim geri alındı: ileti yeniden taslak",
+    "notSent": "Gönderilemedi: {reason} Taslaklarda saklandı.",
+    "quoteShow": "Alıntılanan iletiyi göster",
+    "quoteHide": "Alıntılanan iletiyi gizle",
+    "quoteRemove": "Alıntılanan iletiyi kaldır"
   },
   "ai": {
     "summarize": "Özetle",

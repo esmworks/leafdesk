@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanSignature, outgoingBody } from "./outgoing";
+import { cleanSignature, editableBody, outgoingBody } from "./outgoing";
 
 /** A signature as another mail program copies it: a table of a logo and lines, icons in links, styles inline. */
 const PASTED = `<meta charset="utf-8"><style>td{color:red}</style><p>-- </p><table style="font-family:Arial" id="sig" class="x"><tbody><tr><td><img src="https://cdn.example/logo.png" width="180" alt="Günay"></td><td style="border-left:1px solid #1a4d8f"><p style="color:#1a4d8f"><b>Erhan ERBAŞ</b><br>Satış Müdürü</p><a href="tel:+902127711771">+90 (212) 771 1 771</a><br><a href="https://www.gunaysogutma.com.tr">www.gunaysogutma.com.tr</a></td></tr></tbody></table><p><a href="https://instagram.com/gunay"><img src="https://cdn.example/ig.png"></a> <img src="file:///C:/sig/x.png" onerror="alert(1)"><script>alert(2)</script></p>`;
@@ -22,6 +22,16 @@ describe("outgoingBody", () => {
     expect(html).toContain(`<a href="mailto:ada@example.test">yaz</a>`);
     expect(html).not.toContain("javascript");
     expect(html).toContain("kötü");
+  });
+
+  it("keeps pictures only from the message's own parts", async () => {
+    const { html, text } = await outgoingBody(
+      `<p>Logo:</p><img src="cid:a1b2.c3@leafdesk" alt="logo"><img src="https://track.example/p.gif"><img src="data:image/png;base64,AAAA"><img src="cid:bad id"><p><a href="cid:a1b2.c3@leafdesk">bağ</a></p>`,
+    );
+    expect(html).toContain(`<img src="cid:a1b2.c3@leafdesk" alt="logo" style="max-width:100%;height:auto">`);
+    expect(html).not.toMatch(/track\.example|data:image|bad id|href="cid/);
+    expect(html).toContain("bağ");
+    expect(text).toBe("Logo:\nbağ");
   });
 
   it("writes lines, lists and quotes as plain text", async () => {
@@ -55,6 +65,15 @@ describe("outgoingBody", () => {
     expect(text).toBe("Merhaba,\n\n-- \nErhan ERBAŞ\nSatış Müdürü\n+90 (212) 771 1 771\nwww.gunaysogutma.com.tr");
   });
 
+  it("keeps a pasted signature in a draft, to open again with its pictures beside the message's own", async () => {
+    const signature = (await cleanSignature(`<div data-pasted="">${PASTED}</div>`))!.html;
+    const { html } = await outgoingBody(`<p>Merhaba</p><img src="cid:a1@leafdesk"><div data-signature="">${signature}</div>`, { keepSignature: true });
+    const opened = await editableBody(html, "");
+    expect(opened).toContain(`<img src="cid:a1@leafdesk">`);
+    expect(opened).toMatch(/<div data-signature=""><div data-pasted="">[\s\S]*<img [^>]*src="https:/);
+    expect(opened).not.toContain("-apple-system");
+  });
+
   it("cleans a pasted signature again as it goes, wherever it came from", async () => {
     const { html } = await outgoingBody(`<p>Merhaba</p><div data-signature=""><div data-pasted=""><img src="https://cdn.example/logo.png" onerror="alert(1)"><iframe src="https://x.example"></iframe></div></div>`);
     expect(html).toContain(`<img src="https://cdn.example/logo.png">`);
@@ -63,6 +82,10 @@ describe("outgoingBody", () => {
 });
 
 describe("cleanSignature", () => {
+  it("takes no pictures", async () => {
+    expect((await cleanSignature(`<p>Ada</p><img src="cid:a@leafdesk">`))?.html).toBe("<p>Ada</p>");
+  });
+
   it("keeps the formatting a message may have and no signature inside it", async () => {
     const signed = await cleanSignature(`<p><em>Ayşe</em> <img src="https://x.example/logo.png"></p><div data-signature=""><p>iç</p></div><p></p><p></p>`);
     expect(signed).toEqual({ html: "<p><em>Ayşe</em> </p><p>iç</p>", text: "Ayşe\niç" });

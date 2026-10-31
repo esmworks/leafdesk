@@ -34,7 +34,7 @@ vi.mock("@/server/ai", async (original) => ({ ...(await original<typeof import("
 
 const { startMailAi } = await import("./ai");
 
-const message = (id: string, from = "ada@example.test") => ({ id, from: { address: from, name: null }, sentAt: "2026-10-01T09:00:00.000Z", preview: `preview ${id}` });
+const message = (id: string, draft = false) => ({ id, from: { address: "ada@example.test", name: null }, sentAt: "2026-10-01T09:00:00.000Z", preview: `preview ${id}`, draft });
 const read = (id: string, from = "ada@example.test") => ({ box, message: { id, fromAddress: from, fromName: null, sentAt: new Date("2026-10-01T09:00:00Z") }, text: `text of ${id}` });
 
 beforeEach(() => {
@@ -76,9 +76,9 @@ describe("startMailAi", () => {
     expect(JSON.stringify(mocks.stream.mock.calls[0])).toContain("text of m-9");
   });
 
-  it("summarizes the newest messages and keeps the summary on the newest", async () => {
+  it("summarizes the newest messages, not drafts, and keeps the summary on the newest", async () => {
     const ids = Array.from({ length: 10 }, (_, i) => `m-${i}`);
-    mocks.getThread.mockResolvedValue({ threadId: "t-1", subject: "Teklif", messages: ids.map((id) => message(id)), row: null, summary: null });
+    mocks.getThread.mockResolvedValue({ threadId: "t-1", subject: "Teklif", messages: [...ids.map((id) => message(id)), message("my-draft", true)], row: null, summary: null });
     mocks.messageForAi.mockImplementation(async (_user: string, id: string) => (id === "m-5" ? Promise.reject(new Error("gone")) : read(id)));
     const { finished } = await startMailAi("u1", { kind: "summary", mailboxId: "box-1", folderId: "f-1", threadId: "t-1", language: "tr" });
     expect(mocks.messageForAi.mock.calls.map((call) => call[1])).toEqual(ids.slice(2));
@@ -88,6 +88,7 @@ describe("startMailAi", () => {
     // A message that can't be read is summed up from its first line.
     expect(prompt).toContain("preview m-5");
     expect(prompt).not.toContain("text of m-1");
+    expect(prompt).not.toContain("my-draft");
     await finished!("  Ada fiyat soruyor.  ");
     expect(updates.map((u) => u.set)).toEqual([{ summary: "Ada fiyat soruyor." }, { summary: null }]);
   });

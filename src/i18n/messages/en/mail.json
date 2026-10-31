@@ -22,6 +22,15 @@
   "firstReadHint": "Your latest mail shows in a moment. Older mail, up to three months back, comes in over the next minutes.",
   "empty": "No mail here.",
   "emptySearch": "No mail matches.",
+  "emptyFolder": {
+    "trash": "Empty trash",
+    "junk": "Empty junk",
+    "trashTitle": "Empty the trash?",
+    "junkTitle": "Empty junk?",
+    "body": "Every message in {folder} is deleted forever, on the mail server too. This can’t be undone.",
+    "trashDone": "Trash emptied",
+    "junkDone": "Junk emptied"
+  },
   "noneOpen": "Choose a conversation to read it.",
   "loading": "Loading…",
   "loadFailed": "Mail couldn’t be loaded. Try again in a moment.",
@@ -30,6 +39,7 @@
   "me": "me",
   "hasFiles": "Has files",
   "starred": "Starred",
+  "draft": "Draft",
   "messages": "{count, plural, one {# message} other {# messages}}",
   "toLine": "To {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +74,9 @@
     "fromSender": "Find mail from {name}",
     "openInNewTab": "Open in new tab",
     "copyLink": "Copy link",
-    "linkCopied": "Link copied"
+    "linkCopied": "Link copied",
+    "editDraft": "Edit",
+    "discardDraft": "Discard draft"
   },
   "done": {
     "archive": "Conversation archived",
@@ -115,7 +127,18 @@
     "notAnAddress": "Not an email address",
     "removeRecipient": "Remove {address}",
     "recipientPlaceholder": "Name or address",
-    "suggestions": "Suggested addresses"
+    "suggestions": "Suggested addresses",
+    "draftSaving": "Saving…",
+    "draftSavedShort": "Saved",
+    "draftSaved": "Draft saved",
+    "draftFailed": "Draft not saved",
+    "draftDiscarded": "Draft discarded",
+    "alreadySent": "Already sent: it couldn't be taken back",
+    "sendUndone": "Sending undone: the message is a draft again",
+    "notSent": "Not sent: {reason} It is kept in Drafts.",
+    "quoteShow": "Show the quoted message",
+    "quoteHide": "Hide the quoted message",
+    "quoteRemove": "Remove the quoted message"
   },
   "ai": {
     "summarize": "Summarize",

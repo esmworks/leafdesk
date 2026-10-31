@@ -48,3 +48,20 @@ export async function discoverFolders(client: ImapFlow, box: Box): Promise<Folde
   await db.delete(mailFolder).where(and(eq(mailFolder.mailboxId, box.id), kept.length ? notInArray(mailFolder.id, kept) : undefined));
   return out;
 }
+
+/** Reads a folder's counts again; the folder must not be the one held open (RFC 3501 says not to STATUS it). */
+export async function recount(client: ImapFlow, folder: FolderRow) {
+  const status = await client.status(folder.path, { unseen: true, messages: true }).catch(() => null);
+  if (status) await db.update(mailFolder).set({ unseen: status.unseen ?? folder.unseen, total: status.messages ?? folder.total }).where(eq(mailFolder.id, folder.id));
+}
+
+/** Makes a folder for a role the server has none for (an archive, drafts), and lists it. */
+export async function makeFolder(client: ImapFlow, box: Box, name: string, role: MailFolderRole): Promise<FolderRow> {
+  const made = await client.mailboxCreate(name);
+  const [row] = await db
+    .insert(mailFolder)
+    .values({ mailboxId: box.id, path: made.path, name, role, position: MAIL_FOLDER_ROLES.indexOf(role) })
+    .onConflictDoUpdate({ target: [mailFolder.mailboxId, mailFolder.path], set: { role } })
+    .returning();
+  return row;
+}

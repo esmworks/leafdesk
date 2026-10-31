@@ -22,6 +22,15 @@
   "firstReadHint": "최근 메일은 잠시 후 표시됩니다. 최대 3개월 전까지의 이전 메일은 몇 분에 걸쳐 가져옵니다.",
   "empty": "메일이 없습니다.",
   "emptySearch": "일치하는 메일이 없습니다.",
+  "emptyFolder": {
+    "trash": "휴지통 비우기",
+    "junk": "스팸 비우기",
+    "trashTitle": "휴지통을 비울까요?",
+    "junkTitle": "스팸을 비울까요?",
+    "body": "{folder}의 모든 메일이 메일 서버에서도 영구적으로 삭제됩니다. 되돌릴 수 없습니다.",
+    "trashDone": "휴지통을 비웠습니다",
+    "junkDone": "스팸을 비웠습니다"
+  },
   "noneOpen": "대화를 선택하면 읽을 수 있습니다.",
   "loading": "불러오는 중…",
   "loadFailed": "메일을 불러오지 못했습니다. 잠시 후 다시 시도하세요.",
@@ -30,6 +39,7 @@
   "me": "나",
   "hasFiles": "파일 있음",
   "starred": "별표",
+  "draft": "임시 보관",
   "messages": "{count, plural, other {메시지 #개}}",
   "toLine": "받는 사람 {names}",
   "ccLine": "참조 {names}",
@@ -64,7 +74,9 @@
     "fromSender": "{name}의 메일 찾기",
     "openInNewTab": "새 탭에서 열기",
     "copyLink": "링크 복사",
-    "linkCopied": "링크를 복사했습니다"
+    "linkCopied": "링크를 복사했습니다",
+    "editDraft": "수정",
+    "discardDraft": "임시 보관 메일 삭제"
   },
   "done": {
     "archive": "대화를 보관했습니다",
@@ -115,7 +127,18 @@
     "notAnAddress": "이메일 주소가 아닙니다",
     "removeRecipient": "{address} 삭제",
     "recipientPlaceholder": "이름 또는 주소",
-    "suggestions": "추천 주소"
+    "suggestions": "추천 주소",
+    "draftSaving": "저장 중…",
+    "draftSavedShort": "저장됨",
+    "draftSaved": "임시 보관됨",
+    "draftFailed": "임시 보관하지 못했습니다",
+    "draftDiscarded": "임시 보관 메일을 삭제했습니다",
+    "alreadySent": "이미 보내져 취소할 수 없습니다",
+    "sendUndone": "보내기를 취소했습니다. 메시지가 다시 임시 보관함에 있습니다",
+    "notSent": "보내지 못했습니다: {reason} 임시 보관함에 저장했습니다.",
+    "quoteShow": "인용된 메시지 보기",
+    "quoteHide": "인용된 메시지 숨기기",
+    "quoteRemove": "인용된 메시지 삭제"
   },
   "ai": {
     "summarize": "요약",

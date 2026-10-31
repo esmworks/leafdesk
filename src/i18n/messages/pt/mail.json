@@ -22,6 +22,15 @@
   "firstReadHint": "Seus e-mails mais recentes aparecem em instantes. Os mais antigos, de até três meses atrás, chegam nos próximos minutos.",
   "empty": "Nenhum e-mail aqui.",
   "emptySearch": "Nenhum e-mail encontrado.",
+  "emptyFolder": {
+    "trash": "Esvaziar lixeira",
+    "junk": "Esvaziar spam",
+    "trashTitle": "Esvaziar a lixeira?",
+    "junkTitle": "Esvaziar o spam?",
+    "body": "Todas as mensagens em {folder} são excluídas para sempre, também no servidor de e-mail. Isso não pode ser desfeito.",
+    "trashDone": "Lixeira esvaziada",
+    "junkDone": "Spam esvaziado"
+  },
   "noneOpen": "Escolha uma conversa para lê-la.",
   "loading": "Carregando…",
   "loadFailed": "Não foi possível carregar os e-mails. Tente novamente em instantes.",
@@ -30,6 +39,7 @@
   "me": "eu",
   "hasFiles": "Tem arquivos",
   "starred": "Com estrela",
+  "draft": "Rascunho",
   "messages": "{count, plural, one {# mensagem} other {# mensagens}}",
   "toLine": "Para {names}",
   "ccLine": "Cc {names}",
@@ -64,7 +74,9 @@
     "fromSender": "Encontrar e-mails de {name}",
     "openInNewTab": "Abrir em nova aba",
     "copyLink": "Copiar link",
-    "linkCopied": "Link copiado"
+    "linkCopied": "Link copiado",
+    "editDraft": "Editar",
+    "discardDraft": "Descartar rascunho"
   },
   "done": {
     "archive": "Conversa arquivada",
@@ -115,7 +127,18 @@
     "notAnAddress": "Não é um endereço de e-mail",
     "removeRecipient": "Remover {address}",
     "recipientPlaceholder": "Nome ou endereço",
-    "suggestions": "Endereços sugeridos"
+    "suggestions": "Endereços sugeridos",
+    "draftSaving": "Salvando…",
+    "draftSavedShort": "Salvo",
+    "draftSaved": "Rascunho salvo",
+    "draftFailed": "Rascunho não salvo",
+    "draftDiscarded": "Rascunho descartado",
+    "alreadySent": "Já enviado, não foi possível desfazer",
+    "sendUndone": "Envio desfeito: a mensagem voltou a ser um rascunho",
+    "notSent": "Não enviado: {reason} Ficou guardado nos rascunhos.",
+    "quoteShow": "Mostrar a mensagem citada",
+    "quoteHide": "Ocultar a mensagem citada",
+    "quoteRemove": "Remover a mensagem citada"
   },
   "ai": {
     "summarize": "Resumir",
