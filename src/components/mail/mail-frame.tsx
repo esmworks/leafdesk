@@ -40,15 +40,19 @@ export function MailFrame({ html, images, title }: { html: string; images: boole
     };
   }, [srcDoc]);
 
+  // The border is the box's, not the frame's: on a border-box frame it would take two pixels from
+  // the measured height, and the message would scroll inside its frame by that much.
   return (
-    <iframe
-      ref={ref}
-      title={title}
-      srcDoc={srcDoc}
-      sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-      referrerPolicy="no-referrer"
-      className="block w-full rounded-md border border-border bg-white"
-      style={{ height }}
-    />
+    <div className="overflow-hidden rounded-md border border-border bg-white">
+      <iframe
+        ref={ref}
+        title={title}
+        srcDoc={srcDoc}
+        sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        referrerPolicy="no-referrer"
+        className="block w-full"
+        style={{ height }}
+      />
+    </div>
   );
 }
