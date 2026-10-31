@@ -75,6 +75,7 @@
     "mailArchive": "归档，或移回收件箱",
     "mailTrash": "移到废纸篓（在废纸篓中则永久删除）",
     "mailJunk": "标记为垃圾邮件",
+    "mailSnooze": "延后至你选择的时间",
     "mailStar": "加星标或取消星标",
     "mailUnread": "标记为未读",
     "mailRead": "标记为已读",

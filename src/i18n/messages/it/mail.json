@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Posta in arrivo",
     "drafts": "Bozze",
+    "snoozed": "Posticipati",
     "sent": "Inviata",
     "archive": "Archivio",
     "junk": "Spam",
@@ -65,6 +66,7 @@
     "archive": "Archivia",
     "trash": "Sposta nel cestino",
     "junk": "Segna come spam",
+    "snooze": "Posticipa",
     "inbox": "Sposta in Posta in arrivo",
     "delete": "Elimina definitivamente",
     "star": "Aggiungi la stella",
@@ -86,9 +88,21 @@
     "archive": "Conversazione archiviata",
     "trash": "Conversazione spostata nel cestino",
     "junk": "Conversazione segnata come spam",
+    "snooze": "Posticipata fino a {time}",
     "inbox": "Conversazione spostata in Posta in arrivo",
     "delete": "Conversazione eliminata definitivamente",
     "move": "Conversazione spostata in {folder}"
+  },
+  "snooze": {
+    "title": "Posticipa fino a",
+    "laterToday": "Più tardi oggi",
+    "tomorrow": "Domani",
+    "weekend": "Questo fine settimana",
+    "nextWeek": "La prossima settimana",
+    "pick": "Data e ora",
+    "placeholder": "ven 9:00, 12 nov, tra 3 giorni",
+    "notAhead": "Scegli un momento tra un minuto e un anno da adesso.",
+    "until": "Posticipata fino a {time}"
   },
   "composer": {
     "newTitle": "Nuovo messaggio",
@@ -142,7 +156,11 @@
     "notSent": "Non inviato: {reason} È conservato nelle bozze.",
     "quoteShow": "Mostra il messaggio citato",
     "quoteHide": "Nascondi il messaggio citato",
-    "quoteRemove": "Rimuovi il messaggio citato"
+    "quoteRemove": "Rimuovi il messaggio citato",
+    "templates": "Inserisci un frammento",
+    "templatesSearch": "Cerca un frammento",
+    "templatesNone": "Nessun frammento corrisponde.",
+    "templatesEmpty": "Ancora nessun frammento. Creali in Impostazioni › Frammenti."
   },
   "bulk": {
     "select": "Seleziona",
@@ -155,6 +173,7 @@
       "archive": "{count, plural, one {# conversazione archiviata} other {# conversazioni archiviate}}",
       "trash": "{count, plural, one {# conversazione spostata nel cestino} other {# conversazioni spostate nel cestino}}",
       "junk": "{count, plural, one {# conversazione segnata come spam} other {# conversazioni segnate come spam}}",
+      "snooze": "{count, plural, one {# conversazione posticipata fino a {time}} other {# conversazioni posticipate fino a {time}}}",
       "inbox": "{count, plural, one {# conversazione spostata in Posta in arrivo} other {# conversazioni spostate in Posta in arrivo}}",
       "delete": "{count, plural, one {# conversazione eliminata definitivamente} other {# conversazioni eliminate definitivamente}}",
       "move": "{count, plural, one {# conversazione spostata in {folder}} other {# conversazioni spostate in {folder}}}"

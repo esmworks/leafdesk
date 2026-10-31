@@ -6,20 +6,22 @@ import { env } from "@/lib/env";
 import { MAX_DAILY_LIMIT } from "@/lib/sequences";
 import { pastedHtml } from "@/lib/pasted-signature";
 import { isTimeZone } from "@/lib/time-zone";
-import { MAX_MAILBOXES, MAX_SIGNATURE_HTML, normalizeAddress, type MailboxAuth, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
+import { MAX_MAILBOXES, MAX_SIGNATURE_HTML, normalizeAddress, type MailboxAuth, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type MailSignInProvider, type OwnMailbox } from "@/lib/mail";
 import { isGuest, requireMembership } from "@/server/access";
 import { cleanSignature } from "@/server/mail-client/outgoing";
 import { recordAudit } from "@/server/audit";
 import { open, openJson, seal, sealJson } from "@/server/secret-box";
 import { listWorkspaces, workspaceSettings } from "@/server/workspaces";
 import { MailConnectError, testMailbox, type MailCredentials } from "./connect";
-import { exchangeGoogleCode, GOOGLE_MAIL, googleAuthorizationUrl, GoogleSignInError, pkce } from "./google";
+import { exchangeGoogleCode, GOOGLE_MAIL, googleAuthorizationUrl } from "./google";
+import { exchangeMicrosoftCode, microsoftAuthorizationUrl } from "./microsoft";
+import { MailSignInError, pkce, type MailOAuthTokens } from "./oauth";
 
 /**
  * Settings > General > Email: owners choose the databases mail lands on, in order, and which of their email
  * properties hold the other party's address; every member (not guests) connects their own mailboxes
  * in the workspace from their account (Account > Email and calendar), each tried before it is kept:
- * with a password, or by signing in with Google (beginGoogleMailbox, then completeGoogleMailbox).
+ * with a password, or by signing in with Google or Microsoft (beginMailSignIn, then completeMailSignIn).
  * One address is one mailbox (connecting it again changes it), and one of a member's mailboxes is
  * their default: the first one connected, then whichever they pick, then the oldest left.
  */
@@ -33,6 +35,8 @@ export type RowMailErrorCode =
   | "gone"
   | "googleFailed"
   | "googleScope"
+  | "microsoftFailed"
+  | "microsoftScope"
   | "tooMany"
   | "alreadyConnected"
   | "unsubscribeFailed"
@@ -151,7 +155,7 @@ export async function listOwnMailboxes(userId: string): Promise<OwnMailbox[]> {
   return members.flatMap((w, i) => {
     const own = boxes.filter((b) => b.workspaceId === w.id);
     const enabled = settings[i].email;
-    return enabled || own.length ? [{ workspaceId: w.id, workspaceName: w.name, enabled, google: !!env.mailGoogleApp, mailboxes: own.map(mailboxView) }] : [];
+    return enabled || own.length ? [{ workspaceId: w.id, workspaceName: w.name, enabled, google: !!env.mailGoogleApp, microsoft: !!env.mailMicrosoftApp, mailboxes: own.map(mailboxView) }] : [];
   });
 }
 
@@ -251,7 +255,7 @@ export async function connectMailbox(userId: string, workspaceId: string, input:
   if (!address || !username || username.length > 320 || password.length > 1024) throw new RowMailError("invalid");
   const servers = cleanServers(input.servers);
   const existing = await mailboxToSave(userId, workspaceId, address, input.mailboxId);
-  // A Google mailbox changed to a password gives one; its sealed tokens are no password.
+  // A mailbox signed in with Google or Microsoft changed to a password gives one; its sealed tokens are no password.
   const secret = password ? password : existing?.auth === "password" ? open(existing.secret) : "";
   if (!secret) throw new RowMailError("invalid");
   return saveMailbox(existing, {
@@ -370,89 +374,104 @@ async function saveMailbox(
   return mailboxView(saved);
 }
 
-/** A Google sign-in begun is void after this long. */
-const GOOGLE_STATE_MS = 15 * 60_000;
+/** A sign-in begun is void after this long. */
+const SIGN_IN_STATE_MS = 15 * 60_000;
 
 export const mailOAuthRedirectUrl = () => `${env.appUrl}/api/mail/oauth/callback`;
 
 /**
- * Begins connecting one of the member's mailboxes in the workspace by signing in with Google
- * (`mailboxId`: the one it changes): returns the address to send the browser to. The consent, time
- * zone, name on outgoing mail and mailbox are kept with the sign-in until it comes back; `address`,
- * when typed, picks the Google account.
+ * Begins connecting one of the member's mailboxes in the workspace by signing in with Google or
+ * Microsoft (`mailboxId`: the one it changes): returns the address to send the browser to. The
+ * consent, time zone, name on outgoing mail and mailbox are kept with the sign-in until it comes
+ * back; `address`, when typed, picks the account.
  */
-export async function beginGoogleMailbox(
+export async function beginMailSignIn(
   userId: string,
   workspaceId: string,
-  input: { consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null; mailboxId?: string | null },
+  input: { provider?: MailSignInProvider; consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null; mailboxId?: string | null },
 ): Promise<{ url: string }> {
   await requireMailboxPlace(userId, workspaceId);
   if (input?.consent !== true) throw new RowMailError("consent");
-  const app = env.mailGoogleApp;
-  if (!app) throw new RowMailError("invalid");
+  const provider: MailSignInProvider = input.provider === "microsoft" ? "microsoft" : "google";
   const state = randomBytes(24).toString("base64url");
   const { verifier, challenge } = pkce();
   const timeZone = isTimeZone(input.timeZone) ? input.timeZone : null;
   const displayName = typeof input.displayName === "string" ? input.displayName.trim().slice(0, 200) || null : null;
-  await db.delete(mailboxOauth).where(lt(mailboxOauth.createdAt, new Date(Date.now() - GOOGLE_STATE_MS)));
+  const begun = { state, challenge, redirectUri: mailOAuthRedirectUrl(), loginHint: normalizeAddress(input.address) };
+  let url: string;
+  if (provider === "microsoft") {
+    const app = env.mailMicrosoftApp;
+    if (!app) throw new RowMailError("invalid");
+    url = microsoftAuthorizationUrl(app, begun);
+  } else {
+    const app = env.mailGoogleApp;
+    if (!app) throw new RowMailError("invalid");
+    url = googleAuthorizationUrl(app, begun);
+  }
+  await db.delete(mailboxOauth).where(lt(mailboxOauth.createdAt, new Date(Date.now() - SIGN_IN_STATE_MS)));
   const mailboxId = typeof input.mailboxId === "string" ? input.mailboxId : null;
-  await db.insert(mailboxOauth).values({ state, userId, workspaceId, data: sealJson({ verifier, consent: true, timeZone, displayName, mailboxId }) });
-  return { url: googleAuthorizationUrl(app, { state, challenge, redirectUri: mailOAuthRedirectUrl(), loginHint: normalizeAddress(input.address) }) };
+  await db.insert(mailboxOauth).values({ state, userId, workspaceId, data: sealJson({ provider, verifier, consent: true, timeZone, displayName, mailboxId }) });
+  return { url };
 }
 
-/** The workspace a Google sign-in begun with `state` (by `userId`, when given) came from, to send the browser back to. */
-export async function googleMailReturnOf(state: string, userId?: string): Promise<{ workspaceId: string } | null> {
+/** The workspace a sign-in begun with `state` (by `userId`, when given) came from, to send the browser back to, and its provider. */
+export async function mailSignInReturnOf(state: string, userId?: string): Promise<{ workspaceId: string; provider: MailSignInProvider } | null> {
   const [pending] = await db
-    .select({ workspaceId: mailboxOauth.workspaceId })
+    .select({ workspaceId: mailboxOauth.workspaceId, data: mailboxOauth.data })
     .from(mailboxOauth)
     .where(and(eq(mailboxOauth.state, state), userId === undefined ? undefined : eq(mailboxOauth.userId, userId)));
-  return pending ?? null;
+  return pending ? { workspaceId: pending.workspaceId, provider: openJson<{ provider?: MailSignInProvider }>(pending.data).provider ?? "google" } : null;
 }
 
 /**
- * The browser came back from Google: finishes the sign-in begun with `state` by the same person,
- * tries the mailbox with it (Gmail's servers, XOAUTH2) and keeps it, in place of the one it was
- * begun for or the one with that address, or as another. The sign-in is used up whether or not
- * this works.
+ * The browser came back from Google or Microsoft: finishes the sign-in begun with `state` by the
+ * same person, tries the mailbox with it (the provider's servers, XOAUTH2) and keeps it, in place
+ * of the one it was begun for or the one with that address, or as another. The sign-in is used up
+ * whether or not this works.
  */
-export async function completeGoogleMailbox(userId: string, input: { state: string; code: string }): Promise<{ workspaceId: string; mailbox: MailboxView }> {
+export async function completeMailSignIn(userId: string, input: { state: string; code: string }): Promise<{ workspaceId: string; mailbox: MailboxView }> {
   const [pending] = await db
     .delete(mailboxOauth)
     .where(and(eq(mailboxOauth.state, input.state), eq(mailboxOauth.userId, userId)))
     .returning();
-  if (!pending || pending.createdAt.getTime() < Date.now() - GOOGLE_STATE_MS) throw new RowMailError("googleFailed");
-  const { verifier, consent, timeZone, displayName, mailboxId } = openJson<{
+  if (!pending) throw new RowMailError("googleFailed");
+  const { provider = "google", verifier, consent, timeZone, displayName, mailboxId } = openJson<{
+    provider?: MailSignInProvider;
     verifier: string;
     consent?: boolean;
     timeZone?: string | null;
     displayName?: string | null;
     mailboxId?: string | null;
   }>(pending.data);
+  const failed = new RowMailError(provider === "microsoft" ? "microsoftFailed" : "googleFailed");
+  if (pending.createdAt.getTime() < Date.now() - SIGN_IN_STATE_MS) throw failed;
   if (consent !== true) throw new RowMailError("consent");
   const { workspaceId } = pending;
   await requireMailboxPlace(userId, workspaceId);
-  const app = env.mailGoogleApp;
-  if (!app) throw new RowMailError("invalid");
-  let signedIn: Awaited<ReturnType<typeof exchangeGoogleCode>>;
+  const microsoftApp = env.mailMicrosoftApp;
+  const googleApp = env.mailGoogleApp;
+  if (provider === "microsoft" ? !microsoftApp : !googleApp) throw new RowMailError("invalid");
+  let signedIn: { tokens: MailOAuthTokens; email: string; servers: MailboxServers };
   try {
-    signedIn = await exchangeGoogleCode(app, { code: input.code, verifier, redirectUri: mailOAuthRedirectUrl() });
+    const exchange = { code: input.code, verifier, redirectUri: mailOAuthRedirectUrl() };
+    signedIn = microsoftApp && provider === "microsoft" ? await exchangeMicrosoftCode(microsoftApp, exchange) : { ...(await exchangeGoogleCode(googleApp!, exchange)), servers: GOOGLE_MAIL.servers };
   } catch (error) {
-    if (error instanceof GoogleSignInError) {
-      console.warn("[row-mail] Google sign-in didn't connect a mailbox:", error.message);
-      throw new RowMailError(error.reason === "scope" ? "googleScope" : "googleFailed");
+    if (error instanceof MailSignInError) {
+      console.warn(`[row-mail] ${provider} sign-in didn't connect a mailbox:`, error.message);
+      throw error.reason === "scope" ? new RowMailError(provider === "microsoft" ? "microsoftScope" : "googleScope") : failed;
     }
     throw error;
   }
   const address = normalizeAddress(signedIn.email);
-  if (!address) throw new RowMailError("googleFailed");
+  if (!address) throw failed;
   const existing = await mailboxToSave(userId, workspaceId, address, mailboxId);
   const saved = await saveMailbox(existing, {
     workspaceId,
     userId,
     address,
     displayName: displayName || (existing?.address === address ? existing.displayName : null),
-    credentials: { servers: GOOGLE_MAIL.servers, username: address, accessToken: signedIn.tokens.accessToken },
-    auth: "google",
+    credentials: { servers: signedIn.servers, username: address, accessToken: signedIn.tokens.accessToken },
+    auth: provider,
     secret: sealJson(signedIn.tokens),
     timeZone,
   });

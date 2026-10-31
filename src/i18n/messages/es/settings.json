@@ -2536,7 +2536,7 @@
         "tls": "No se pudo establecer una conexión segura con el servidor de correo.",
         "unreachable": "No se puede contactar con el servidor de correo en este momento.",
         "noInbox": "El servidor de correo no muestra ninguna bandeja de entrada.",
-        "signIn": "El inicio de sesión de Google ya no funciona. Vuelve a iniciar sesión con Google."
+        "signIn": "El inicio de sesión de este buzón ya no funciona. Vuelve a iniciar sesión para conectarlo."
       }
     },
     "fields": {
@@ -2562,6 +2562,13 @@
       "yandex": "Crea una contraseña de aplicación para el correo en los ajustes de tu Yandex ID.",
       "zoho": "Activa el acceso IMAP en los ajustes de Zoho Mail y crea una contraseña de aplicación."
     },
+    "discover": {
+      "looking": "Buscando los servidores de correo de este dominio…",
+      "found": "Rellenado a partir de {source, select, autoconfig {la configuración de correo del propio dominio} ispdb {la lista pública de proveedores de correo} mx {el proveedor que recibe el correo del dominio} other {los registros de servicio del dominio}}. Revísalos antes de conectar.",
+      "none": "No se encontró configuración de correo para este dominio. Escribe sus servidores abajo.",
+      "google": "El correo de este dominio está en Google.",
+      "microsoft": "Este buzón está en Microsoft, cuyos servidores ya no aceptan contraseñas de aplicación."
+    },
     "membersHeading": "Buzones de los miembros",
     "membersDescription": "Quién ha conectado un buzón en este espacio de trabajo. Nadie salvo su dueño ve lo que contiene.",
     "memberStatus": {
@@ -2583,21 +2590,28 @@
       "noInbox": "El servidor de correo no muestra ninguna bandeja de entrada.",
       "accessDenied": "No tienes acceso para hacer esto.",
       "gone": "Ese mensaje ya no está en esta fila.",
-      "signIn": "El inicio de sesión de Google ya no funciona. Vuelve a iniciar sesión con Google.",
+      "signIn": "El inicio de sesión de este buzón ya no funciona. Vuelve a iniciar sesión para conectarlo.",
       "googleFailed": "Iniciar sesión con Google no conectó el buzón. Inténtalo de nuevo.",
       "googleScope": "No se permitió que Google diera a Leafdesk acceso a tu correo. Vuelve a iniciar sesión y permítelo.",
+      "microsoftFailed": "Iniciar sesión con Microsoft no conectó el buzón. Inténtalo de nuevo.",
+      "microsoftScope": "Microsoft no pudo dar a Leafdesk acceso a tu correo. Inicia sesión de nuevo y permítelo, o pide al administrador de tu organización que permita Leafdesk.",
       "tooMany": "Ya conectaste todos los buzones que puedes en este espacio de trabajo. Desconecta uno primero.",
       "alreadyConnected": "Ya conectaste esa dirección aquí. Cambia ese buzón en su lugar.",
       "unsubscribeFailed": "La lista de correo no aceptó la solicitud de baja. Prueba con su enlace."
     },
     "methods": {
       "google": "Cuenta de Google (Gmail o Google Workspace)",
+      "microsoft": "Cuenta de Microsoft (Outlook.com o Microsoft 365)",
       "password": "Contraseña de aplicación (cualquier proveedor, por IMAP y SMTP)"
     },
     "googleHint": "Inicias sesión en Google y permites que Leafdesk lea y envíe tu correo. No hace falta una contraseña de aplicación, y puedes retirar el acceso en tu cuenta de Google cuando quieras.",
     "googleConnect": "Iniciar sesión con Google",
     "googleLeaving": "Abriendo Google…",
     "googleSignedIn": "con sesión de Google",
+    "microsoftHint": "Inicias sesión en Microsoft y permites que Leafdesk lea y envíe tu correo. Los servidores de Microsoft no aceptan contraseñas de aplicación, así que así se conecta un buzón de Outlook.com o Microsoft 365. Puedes retirar el acceso en tu cuenta de Microsoft cuando quieras.",
+    "microsoftConnect": "Iniciar sesión con Microsoft",
+    "microsoftLeaving": "Abriendo Microsoft…",
+    "microsoftSignedIn": "sesión iniciada con Microsoft",
     "googleConnected": "Tu buzón está conectado.",
     "dismiss": "Cerrar"
   },

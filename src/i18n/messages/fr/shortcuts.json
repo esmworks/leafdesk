@@ -75,6 +75,7 @@
     "mailArchive": "Archiver ou remettre dans la boîte de réception",
     "mailTrash": "Déplacer vers la corbeille (dans la corbeille : supprimer définitivement)",
     "mailJunk": "Marquer comme indésirable",
+    "mailSnooze": "Mettre en attente jusqu’au moment choisi",
     "mailStar": "Ajouter aux favoris ou retirer des favoris",
     "mailUnread": "Marquer comme non lu",
     "mailRead": "Marquer comme lu",

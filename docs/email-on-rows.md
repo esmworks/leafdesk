@@ -9,6 +9,14 @@ account, in Settings → Email and calendar, for that workspace only: the addres
 IMAP and SMTP server) and an app password made for Leafdesk. The mailbox is tried before it is
 kept, and its password is sealed like a connection's secrets (`LEAFDESK_ENCRYPTION_KEY`).
 
+For an address at another provider the form looks the servers up as it is typed and fills them in,
+saying where they came from: the domain's own autoconfig file (`autoconfig.<domain>` or its
+`.well-known` path, https only), the public provider database mail clients share
+(autoconfig.thunderbird.net), the provider that takes the domain's mail (its MX records), or its
+DNS service records (`_imaps._tcp`, `_submission._tcp`). Only the domain is sent anywhere, never the
+address. A domain whose mail is at Google picks Google; one at Microsoft says that Microsoft's
+servers no longer take app passwords. Servers typed by hand are never replaced.
+
 A member may connect up to five mailboxes in a workspace, a shared sales or support address beside
 their own, say; connecting an address again changes its mailbox. One of them is their default: the
 first one connected, or whichever they make it with *Make default*. When the default is
@@ -36,6 +44,24 @@ full mail scope, which Google counts as restricted: a consent screen of type *In
 one Google Workspace organization) needs nothing more, while an *External* one signs in only its
 test users until Google has verified the app. In the desktop app the sign-in happens in the
 system's browser, as for connections and storage.
+
+An Outlook.com or Microsoft 365 mailbox connects by signing in with Microsoft, since Microsoft's
+IMAP and SMTP no longer take app passwords: *Microsoft account* in the form works like Google's,
+and the form turns to it by itself when the address typed is at Microsoft. The address is the one
+Microsoft's sign-in names (its `email`, else its user name), and the mailbox is tried with it
+before it is kept, so the sign-in must be able to open that mailbox. Microsoft hands out a new
+refresh token each time the access token is renewed, and the newest is kept. Personal accounts
+send through `smtp-mail.outlook.com`, work and school accounts through `smtp.office365.com`; both
+read from `outlook.office365.com`.
+
+To offer it, the server's administrator registers an app in Microsoft Entra ID (App
+registrations): a *Web* redirect URI `<APP_URL>/api/mail/oauth/callback`, a client secret, and the
+delegated permissions `IMAP.AccessAsUser.All` and `SMTP.Send` of Office 365 Exchange Online (with
+`offline_access`, `openid`, `email` and `profile`), then sets `MAIL_MICROSOFT_CLIENT_ID` and
+`MAIL_MICROSOFT_CLIENT_SECRET`. Which accounts may sign in follows the app's supported account
+types and `MAIL_MICROSOFT_TENANT`: `common` (the default), `organizations`, `consumers`, or one
+organization's tenant id or domain. An organization may need its administrator to consent to the
+app first, and SMTP AUTH must be allowed for the mailbox in Exchange Online.
 
 Every minute the server reads the inbox and the sent folder of each mailbox, from where it last
 stopped, headers first. A message goes on a row when an earlier message of its thread is on one,
@@ -110,12 +136,22 @@ for a sender the provider's check vouched for. A list with only a web page, or a
 the check, opens that page instead. The server reaches only public https addresses for it (and
 those in `WEB_FETCH_ALLOWED_HOSTS`).
 
+*Snooze* (the clock over a thread, in the selection's bar and on a right click, or `b`) puts
+conversations away until a moment picked: later today, tomorrow morning, the weekend, next week,
+or a date typed in words (`fri 9am`, `nov 12`, `in 3 days`; a day alone means 8:00 that morning),
+from a minute to a year ahead. Their messages wait in a *Snoozed* folder on the mail server (made
+the first time; other mail programs see it as an ordinary folder) and the list there shows when
+each comes back. When the moment comes, within a minute, they return to the inbox with the newest
+message unread and the thread listed at the top as of that moment. Moving one out of the folder
+by hand takes its snooze off; new mail in a snoozed conversation lands in the inbox as usual and
+doesn't bring the rest back early. Mail can't be moved to the snoozed folder by name.
+
 The printer button over a thread prints all its messages, each under its sender, recipients and
 date, and nothing else of the page. A message's *…* menu prints that message alone (with the mail
 it quotes), shows its original (the message as the mail server keeps it, headers and all, as plain
 text) or downloads it as an .eml file.
 
-From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
+From the open thread: reply, reply all and forward (with its files), archive, snooze, junk, trash, star and
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
 trash is for good. A right click on a thread in the list opens the same answers and moves without
 opening it, plus *Move to* any of the mailbox's folders (not Sent or Drafts), the sender's other
@@ -125,7 +161,7 @@ their boxes (shown on hover), ⌘/Ctrl-click, Shift-click for a range, `x` for t
 ⌘/Ctrl+A for all the list has loaded; a bar in place of the list's title then archives, trashes,
 marks, stars or moves all of them at once (the keys and a right click on one of them do too), and
 Esc leaves the selection. The Mail tab works from the keyboard too: `j`/`k` next and previous,
-`e` archive, `#` trash, `!` junk, `s` star, `u` unread, Shift+I read, `r`/`a`/`f` reply, reply all
+`e` archive, `b` snooze, `#` trash, `!` junk, `s` star, `u` unread, Shift+I read, `r`/`a`/`f` reply, reply all
 and forward, `c` a new message, `/` search, ⌘/Ctrl+Z undoes the last move, and `g` then `i`, `s`,
 `d`, `a` or `t` opens the inbox, sent mail, drafts, archive or trash; `?` lists them all, and the
 search box (⌘/Ctrl+K) has *Mail* and *New message* after `>`. *New message* opens beside the list,
@@ -136,7 +172,11 @@ on the text, goes where it is put and is sent as part of the message (PNG, JPEG,
 the files' limit); other files dropped on the composer are attached. A reply or forward carries the earlier
 message under what is written, as it looked (tables, colors, the images it carries), folded under
 *•••* in the composer and taken off with *Remove the quoted message*; the plain-text part quotes
-its text with `>`. *From* picks any of the
+its text with `>`. The composer's snippet button puts in
+one of the person's snippets or the workspace's (written under Settings › Snippets, as for pages),
+found by title or trigger, with `{{date}}`, `{{time}}` and `{{me}}` filled in and `{{page}}` as the
+message's subject; formatting a message can't hold, such as headings and tables, becomes plain
+text. *From* picks any of the
 member's mailboxes; recipients are suggested as they are typed, from the people that mailbox wrote
 to (first) and heard from, and ⌘/Ctrl+Enter sends. A message being written is kept as a draft in
 the mailbox's Drafts folder on the mail server (made if it has none) a few seconds after each
@@ -148,7 +188,8 @@ folder. A message sent waits 5 seconds on the server before it goes, so *Undo* c
 it goes back to the drafts, and opens again where it was written. It still goes when the page is
 closed meanwhile; if the server restarts in those seconds it doesn't, and the draft last saved stays.
 A message that can't be sent then is kept as a draft and says why. Files of up to 20 MB in all, dropped on the message or
-attached, at most 100 recipients and 100 messages an hour from each mailbox; the sent folder keeps
+attached, at most 100 recipients and 100 messages an hour from each mailbox (the Mail tab's and
+emails written on rows counted together, across restarts); the sent folder keeps
 a copy. The search
 box looks through every folder but the trash and junk, in senders, recipients, subjects and first
 lines; when that finds less than a page, the mail server also looks for the words in the messages'

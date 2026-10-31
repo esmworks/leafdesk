@@ -14,10 +14,11 @@ import { pagePath } from "@/lib/mentions";
 type Item = MailTask & { id: number; picked: boolean };
 type State =
   | { step: "finding" }
-  | { step: "error"; message: string }
+  /** `mail`, `unreadable` or an AI error code: worded as it shows, so a new translator never asks again. */
+  | { step: "error"; code: string }
   | { step: "list"; items: Item[] }
   | { step: "adding"; items: Item[] }
-  | { step: "added"; count: number; pageId: string; row: boolean };
+  | { step: "added"; pageId: string; row: boolean };
 
 /** The person's own day, YYYY-MM-DD: what "Friday" in the mail is read from, and the daily note it goes to. */
 const today = () => {
@@ -66,24 +67,25 @@ export function MailTasks({
         { signal: controller.signal, onText: (piece) => (text += piece) },
       );
       if (!ended.ok) {
-        setState({ step: "error", message: ended.code === "mail" ? tm("ai.mailFailed") : ta(`errors.${isAiErrorCode(ended.code) ? ended.code : "provider"}`) });
+        setState({ step: "error", code: ended.code ?? "provider" });
         return;
       }
       const tasks = readMailTasks(text);
-      if (!tasks) setState({ step: "error", message: t("unreadable") });
+      if (!tasks) setState({ step: "error", code: "unreadable" });
       else setState({ step: "list", items: tasks.map((task, id) => ({ ...task, id, picked: true })) });
     } catch {
-      if (!controller.signal.aborted) setState({ step: "error", message: ta("errors.provider") });
+      if (!controller.signal.aborted) setState({ step: "error", code: "provider" });
     } finally {
       if (abort.current === controller) abort.current = null;
     }
-  }, [mailboxId, folderId, threadId, locale, t, tm, ta]);
+  }, [mailboxId, folderId, threadId, locale]);
 
   useEffect(() => {
     void find();
     return () => abort.current?.abort();
   }, [find]);
 
+  const failed = (code: string) => (code === "mail" ? tm("ai.mailFailed") : code === "unreadable" ? t("unreadable") : ta(`errors.${isAiErrorCode(code) ? code : "provider"}`));
   const day = (date: string) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
   const change = (id: number, next: Partial<Item>) =>
     setState((was) => (was.step === "list" ? { ...was, items: was.items.map((item) => (item.id === id ? { ...item, ...next } : item)) } : was));
@@ -94,7 +96,7 @@ export function MailTasks({
     setError(null);
     setState({ step: "adding", items });
     const result = await addMailTasksAction({ mailboxId, folderId, threadId, tasks, today: today() }).catch(() => null);
-    if (result?.ok) setState({ step: "added", count: result.data.count, pageId: result.data.pageId, row: result.data.row });
+    if (result?.ok) setState({ step: "added", pageId: result.data.pageId, row: result.data.row });
     else {
       setState({ step: "list", items });
       setError(result ? result.error : ta("errors.provider"));
@@ -127,7 +129,7 @@ export function MailTasks({
         </div>
       ) : state.step === "error" ? (
         <p role="alert" className="mt-1.5 text-danger">
-          {state.message}
+          {failed(state.code)}
         </p>
       ) : state.step === "added" ? (
         <p className="mt-1.5" aria-live="polite">

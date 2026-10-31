@@ -75,6 +75,7 @@
     "mailArchive": "Archive, or move back to the inbox",
     "mailTrash": "Move to the trash (delete forever there)",
     "mailJunk": "Mark as junk",
+    "mailSnooze": "Snooze until a moment you pick",
     "mailStar": "Star or remove the star",
     "mailUnread": "Mark as unread",
     "mailRead": "Mark as read",

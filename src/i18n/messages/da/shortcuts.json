@@ -75,6 +75,7 @@
     "mailArchive": "Arkivér, eller flyt tilbage til indbakken",
     "mailTrash": "Flyt til papirkurven (slet permanent, når den ligger der)",
     "mailJunk": "Marker som spam",
+    "mailSnooze": "Udsæt til et valgt tidspunkt",
     "mailStar": "Stjernemarkér, eller fjern stjernen",
     "mailUnread": "Marker som ulæst",
     "mailRead": "Marker som læst",

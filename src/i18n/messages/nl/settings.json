@@ -2536,7 +2536,7 @@
         "tls": "Er kon geen beveiligde verbinding met de mailserver worden gemaakt.",
         "unreachable": "De mailserver is nu niet bereikbaar.",
         "noInbox": "De mailserver toont geen inbox.",
-        "signIn": "De Google-aanmelding werkt niet meer. Meld je opnieuw aan met Google."
+        "signIn": "Het inloggen voor deze mailbox werkt niet meer. Log opnieuw in om hem te koppelen."
       }
     },
     "fields": {
@@ -2562,6 +2562,13 @@
       "yandex": "Maak een app-wachtwoord voor mail in de instellingen van je Yandex ID.",
       "zoho": "Zet IMAP-toegang aan in de instellingen van Zoho Mail en maak een app-wachtwoord."
     },
+    "discover": {
+      "looking": "De mailservers van dit domein worden opgezocht…",
+      "found": "Ingevuld vanuit {source, select, autoconfig {de eigen mailinstellingen van het domein} ispdb {de openbare lijst van mailproviders} mx {de provider die de mail van het domein ontvangt} other {de servicerecords van het domein}}. Controleer ze voordat je verbindt.",
+      "none": "Er zijn geen mailinstellingen voor dit domein gevonden. Vul de servers hieronder in.",
+      "google": "De mail van dit domein staat bij Google.",
+      "microsoft": "Deze mailbox staat bij Microsoft, waarvan de servers geen app-wachtwoorden meer accepteren."
+    },
     "membersHeading": "Mailboxen van leden",
     "membersDescription": "Wie in deze werkruimte een mailbox heeft gekoppeld. Niemand behalve de eigenaar ziet wat erin staat.",
     "memberStatus": {
@@ -2583,21 +2590,28 @@
       "noInbox": "De mailserver toont geen inbox.",
       "accessDenied": "Je hebt geen toegang om dit te doen.",
       "gone": "Dat bericht staat niet meer op deze rij.",
-      "signIn": "De Google-aanmelding werkt niet meer. Meld je opnieuw aan met Google.",
+      "signIn": "Het inloggen voor deze mailbox werkt niet meer. Log opnieuw in om hem te koppelen.",
       "googleFailed": "Aanmelden met Google heeft de mailbox niet gekoppeld. Probeer het opnieuw.",
       "googleScope": "Google mocht Leafdesk geen toegang tot je mail geven. Meld je opnieuw aan en sta het toe.",
+      "microsoftFailed": "Inloggen met Microsoft heeft de mailbox niet gekoppeld. Probeer het opnieuw.",
+      "microsoftScope": "Microsoft mocht Leafdesk geen toegang tot je mail geven. Log opnieuw in en sta het toe, of vraag de beheerder van je organisatie Leafdesk toe te staan.",
       "tooMany": "Je hebt in deze werkruimte zoveel mailboxen gekoppeld als mogelijk is. Ontkoppel er eerst een.",
       "alreadyConnected": "Dat adres is hier al gekoppeld. Wijzig die mailbox in plaats daarvan.",
       "unsubscribeFailed": "De mailinglijst heeft het verzoek om uit te schrijven niet aangenomen. Probeer in plaats daarvan de link van de lijst."
     },
     "methods": {
       "google": "Google-account (Gmail of Google Workspace)",
+      "microsoft": "Microsoft-account (Outlook.com of Microsoft 365)",
       "password": "App-wachtwoord (elke provider, via IMAP en SMTP)"
     },
     "googleHint": "Je meldt je aan bij Google en staat Leafdesk toe je mail te lezen en te versturen. Een app-wachtwoord is niet nodig, en je kunt de toegang altijd intrekken in je Google-account.",
     "googleConnect": "Aanmelden met Google",
     "googleLeaving": "Google openen…",
     "googleSignedIn": "aangemeld met Google",
+    "microsoftHint": "Je logt in bij Microsoft en staat Leafdesk toe je mail te lezen en te versturen. De servers van Microsoft accepteren geen app-wachtwoorden, dus zo koppel je een Outlook.com- of Microsoft 365-mailbox. Je kunt de toegang altijd intrekken in je Microsoft-account.",
+    "microsoftConnect": "Inloggen met Microsoft",
+    "microsoftLeaving": "Microsoft wordt geopend…",
+    "microsoftSignedIn": "ingelogd met Microsoft",
     "googleConnected": "Je mailbox is gekoppeld.",
     "dismiss": "Sluiten"
   },

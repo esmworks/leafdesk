@@ -9,11 +9,13 @@ import { suggestAddresses } from "@/server/mail-client/contacts";
 import { discardDraft, openDraft, saveDraft } from "@/server/mail-client/drafts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
 import { addMailTasks, type AddedMailTasks, type MailTasksInput } from "@/server/mail-client/tasks";
+import { mailTemplate } from "@/server/mail-client/templates";
 import { unsubscribe } from "@/server/mail-client/unsubscribe";
 import { emptyFolder, holdMail, mailAction, sendStatus, undoSend } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
 import { requireUserId } from "@/server/session";
+import { SnippetError } from "@/server/snippets";
 
 // The Mail tab (see server/mail-client): a member reads and writes the mail of their own mailboxes.
 // Reads are served through app/api/read; expected failures come back translated, as Next.js hides
@@ -29,6 +31,8 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
     if (error instanceof AccessError) return { ok: false, error: t("accessDenied"), code: "accessDenied" };
     // The mail server refused the connection or dropped it (server/mail-client/pool.ts).
     if (error instanceof MailConnectError) return { ok: false, error: t(error.code), code: error.code };
+    // A snippet put in a message that is gone or no longer shared (templates.ts).
+    if (error instanceof SnippetError) return { ok: false, error: (await getTranslations("snippets.errors"))(error.code, { max: 0 }), code: error.code };
     console.error("[mail action]", error);
     const tc = await getTranslations("common");
     return { ok: false, error: tc("genericError") };
@@ -99,7 +103,7 @@ export async function refreshMailboxAction(mailboxId: string): Promise<ActionRes
   return run((userId) => refreshMailbox(userId, mailboxId));
 }
 
-export async function mailActionAction(input: { mailboxId: string; folderId: string; threadIds: string[]; action: MailAction; to?: string }): Promise<ActionResult<null>> {
+export async function mailActionAction(input: { mailboxId: string; folderId: string; threadIds: string[]; action: MailAction; to?: string; until?: string }): Promise<ActionResult<null>> {
   return run(async (userId) => {
     await mailAction(userId, input);
     return null;
@@ -172,4 +176,11 @@ export async function discardDraftAction(ref: MailDraftRef): Promise<ActionResul
 /** A draft opened to write on again. */
 export async function openDraftAction(id: string): Promise<ActionResult<MailDraftView>> {
   return run((userId) => openDraft(userId, id));
+}
+
+/** A snippet as mail for the composer, its placeholders filled in (templates.ts). */
+export async function mailTemplateAction(input: { id: string; locale: string; timeZone: string; subject: string }): Promise<ActionResult<{ html: string }>> {
+  return run((userId) =>
+    mailTemplate(userId, { id: String(input?.id ?? ""), locale: String(input?.locale ?? ""), timeZone: String(input?.timeZone ?? ""), subject: String(input?.subject ?? "") }),
+  );
 }

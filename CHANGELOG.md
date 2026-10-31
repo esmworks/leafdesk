@@ -11,7 +11,7 @@
   agent's later runs for that person read how their tasks went, and their answers, with
   `agent_tasks`. A task counts toward the helper's runs waiting at once, with the runs owners ask
   for. A helper asked with `ask_agent` that isn't done in time now goes on as such a task instead of
-  its answer being lost. Migration 0169.
+  its answer being lost. Migration 0172.
 
 - **Agents remind you.** Ask an agent in its chat, a request, a schedule or a mention to remind you
   of something, and at that time the reminder opens over the page you have open (*Done*, *Remind
@@ -19,6 +19,26 @@
   `list_notifications`. An agent reminds only the person its run works for, at most 30 days ahead,
   about a page both can open; a run sets at most 3 and an agent has at most 20 waiting for one
   person. Turned off under *Agent reminders* in Settings → Preferences. Migration 0168.
+
+- **Outlook.com and Microsoft 365 mailboxes connect by signing in with Microsoft.** Their servers
+  take no app passwords any more; *Microsoft account* in the connect form signs in at Microsoft,
+  and the form turns to it by itself for an address at Microsoft. Offered once the server sets the
+  new `MAIL_MICROSOFT_CLIENT_ID` and `MAIL_MICROSOFT_CLIENT_SECRET` (and, to limit who may sign in,
+  `MAIL_MICROSOFT_TENANT`). Migration 0171 (`mailbox.auth` may be `microsoft`).
+
+- **Mail servers found from the address.** Connecting a mailbox at a provider the form doesn't
+  list fills in its IMAP and SMTP servers from the domain's autoconfig file, the public provider
+  database, its MX records or its DNS service records, and says where they came from. No migration.
+
+- **Snippets in the Mail tab's composer.** A button beside the formatting puts one of the person's
+  or the workspace's snippets into the message, found by title or trigger, its placeholders filled
+  in (`{{page}}` is the subject). No migration.
+
+- **Snoozing conversations in the Mail tab.** *Snooze* (the clock over a thread, the selection's
+  bar, a right click or `b`) puts conversations away until later today, tomorrow, the weekend,
+  next week or a moment typed in words. They wait in a *Snoozed* folder on the mail server and come
+  back to the inbox within a minute of their time, unread and at the top. Migration 0170
+  (`mail_snooze`).
 
 - **Searching the whole text of mail in the Mail tab.** When the index (senders, subjects and
   first lines) finds less than a page, the mail server looks for the words in the messages' text
@@ -250,6 +270,10 @@
   both.
 
 ### Changed
+
+- **One hourly sending limit per mailbox.** The 100 messages an hour a mailbox may send now count
+  the Mail tab's messages and emails written on rows together, kept in the database, so a restart
+  no longer starts the count over. Migration 0169 (`mail_send`).
 
 - **Answers in the Mail tab show without the mail they quote.** The earlier mail an HTML answer
   quotes at its end, as Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark

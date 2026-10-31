@@ -10,6 +10,7 @@ import { placeAtAction } from "@/app/actions/places";
 import { getPageReviewAction, listTrashAction, recentSearchAction, searchAction, searchFilterOptionsAction } from "@/app/actions/pages";
 import { relatedPagesAction } from "@/app/actions/related-pages";
 import { pendingCountAction } from "@/app/actions/review";
+import { discoverMailServersAction } from "@/app/actions/row-mail";
 import { settingsSearchAction } from "@/app/actions/settings-search";
 import { usableSnippetsAction } from "@/app/actions/snippets";
 import { tagSuggestionsAction } from "@/app/actions/tags";
@@ -58,6 +59,7 @@ export const READS = {
   mailThread: getThreadAction,
   mailBody: readBodyAction,
   mailAhead: prefetchBodiesAction,
+  mailDiscover: discoverMailServersAction,
   mailAddresses: suggestAddressesAction,
   mailDraft: openDraftAction,
   mailSend: sendStatusAction,

@@ -77,6 +77,22 @@ describe("row and memory in writePrompt", () => {
   it("cuts a long row to its room", () => {
     expect(rowText({ title: "Uzun", database: "D", fields: { Not: "x".repeat(5_000) } }, 500).length).toBeLessThanOrEqual(500);
   });
+
+  it("writes places by name or address and checklists with their ticks, leaving formula errors out", () => {
+    const fields = {
+      Adres: { address: "Alsancak, İzmir", lat: 38.43, lng: 27.14 },
+      Depo: { name: "Ana depo", address: "Kemalpaşa", lat: 38.4, lng: 27.4 },
+      Adımlar: [{ text: "Keşif", checked: true }, { text: "Teklif", checked: false }],
+      Hesap: { error: "Division by zero" },
+    };
+    expect(rowText({ title: "Acme", database: "D", fields })).toBe("Acme (a record in D)\nAdres: Alsancak, İzmir\nDepo: Ana depo\nAdımlar: [x] Keşif, [ ] Teklif");
+  });
+
+  it("gives the answered mail all of its room: the row and notes were taken off by the caller", () => {
+    const long = ada("y".repeat(6_000));
+    const prompt = writePrompt({ action: "reply", draft: "", answering: long, row: "r".repeat(3_000), memory: "m".repeat(2_000) }, 7_000);
+    expect(prompt.prompt).toContain("y".repeat(5_900));
+  });
 });
 
 describe("tasksPrompt", () => {

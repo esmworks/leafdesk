@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Caixa de entrada",
     "drafts": "Rascunhos",
+    "snoozed": "Adiados",
     "sent": "Enviados",
     "archive": "Arquivo",
     "junk": "Spam",
@@ -65,6 +66,7 @@
     "archive": "Arquivar",
     "trash": "Mover para a lixeira",
     "junk": "Marcar como spam",
+    "snooze": "Adiar",
     "inbox": "Mover para a caixa de entrada",
     "delete": "Excluir permanentemente",
     "star": "Marcar com estrela",
@@ -86,9 +88,21 @@
     "archive": "Conversa arquivada",
     "trash": "Conversa movida para a lixeira",
     "junk": "Conversa marcada como spam",
+    "snooze": "Adiada até {time}",
     "inbox": "Conversa movida para a caixa de entrada",
     "delete": "Conversa excluída permanentemente",
     "move": "Conversa movida para {folder}"
+  },
+  "snooze": {
+    "title": "Adiar até",
+    "laterToday": "Mais tarde hoje",
+    "tomorrow": "Amanhã",
+    "weekend": "Este fim de semana",
+    "nextWeek": "Próxima semana",
+    "pick": "Data e hora",
+    "placeholder": "sex 9h, 12 nov, em 3 dias",
+    "notAhead": "Escolha um momento entre um minuto e um ano a partir de agora.",
+    "until": "Adiada até {time}"
   },
   "composer": {
     "newTitle": "Nova mensagem",
@@ -142,7 +156,11 @@
     "notSent": "Não enviado: {reason} Ficou guardado nos rascunhos.",
     "quoteShow": "Mostrar a mensagem citada",
     "quoteHide": "Ocultar a mensagem citada",
-    "quoteRemove": "Remover a mensagem citada"
+    "quoteRemove": "Remover a mensagem citada",
+    "templates": "Inserir trecho",
+    "templatesSearch": "Procurar um trecho",
+    "templatesNone": "Nenhum trecho corresponde.",
+    "templatesEmpty": "Ainda não há trechos. Crie-os em Configurações › Trechos."
   },
   "bulk": {
     "select": "Selecionar",
@@ -155,6 +173,7 @@
       "archive": "{count, plural, one {# conversa arquivada} other {# conversas arquivadas}}",
       "trash": "{count, plural, one {# conversa movida para a lixeira} other {# conversas movidas para a lixeira}}",
       "junk": "{count, plural, one {# conversa marcada como spam} other {# conversas marcadas como spam}}",
+      "snooze": "{count, plural, one {# conversa adiada até {time}} other {# conversas adiadas até {time}}}",
       "inbox": "{count, plural, one {# conversa movida para a caixa de entrada} other {# conversas movidas para a caixa de entrada}}",
       "delete": "{count, plural, one {# conversa excluída permanentemente} other {# conversas excluídas permanentemente}}",
       "move": "{count, plural, one {# conversa movida para {folder}} other {# conversas movidas para {folder}}}"

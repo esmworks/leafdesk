@@ -2536,7 +2536,7 @@
         "tls": "Impossibile stabilire una connessione sicura con il server di posta.",
         "unreachable": "Al momento il server di posta non è raggiungibile.",
         "noInbox": "Il server di posta non mostra alcuna posta in arrivo.",
-        "signIn": "L’accesso con Google non funziona più. Accedi di nuovo con Google."
+        "signIn": "L'accesso a questa casella non funziona più. Accedi di nuovo per collegarla."
       }
     },
     "fields": {
@@ -2562,6 +2562,13 @@
       "yandex": "Crea una password per le app per la posta nelle impostazioni del tuo Yandex ID.",
       "zoho": "Attiva l’accesso IMAP nelle impostazioni di Zoho Mail e crea una password per le app."
     },
+    "discover": {
+      "looking": "Ricerca dei server di posta di questo dominio…",
+      "found": "Compilato da {source, select, autoconfig {le impostazioni di posta del dominio} ispdb {l'elenco pubblico dei provider di posta} mx {il provider che riceve la posta del dominio} other {i record di servizio del dominio}}. Controllali prima di collegarti.",
+      "none": "Nessuna impostazione di posta trovata per questo dominio. Inserisci i suoi server qui sotto.",
+      "google": "La posta di questo dominio è su Google.",
+      "microsoft": "Questa casella è su Microsoft, i cui server non accettano più password per le app."
+    },
     "membersHeading": "Caselle di posta dei membri",
     "membersDescription": "Chi ha collegato una casella di posta in questo spazio di lavoro. Nessuno tranne il suo proprietario vede cosa contiene.",
     "memberStatus": {
@@ -2583,21 +2590,28 @@
       "noInbox": "Il server di posta non mostra alcuna posta in arrivo.",
       "accessDenied": "Non hai l’accesso necessario per farlo.",
       "gone": "Quel messaggio non è più su questa riga.",
-      "signIn": "L’accesso con Google non funziona più. Accedi di nuovo con Google.",
+      "signIn": "L'accesso a questa casella non funziona più. Accedi di nuovo per collegarla.",
       "googleFailed": "L’accesso con Google non ha collegato la casella. Riprova.",
       "googleScope": "Google non è stato autorizzato a dare a Leafdesk l’accesso alla tua posta. Accedi di nuovo e consentilo.",
+      "microsoftFailed": "L'accesso con Microsoft non ha collegato la casella. Riprova.",
+      "microsoftScope": "Microsoft non è stato autorizzato a dare a Leafdesk l'accesso alla tua posta. Accedi di nuovo e consentilo, oppure chiedi all'amministratore della tua organizzazione di consentire Leafdesk.",
       "tooMany": "Hai collegato tutte le caselle di posta possibili in questo spazio di lavoro. Scollegane prima una.",
       "alreadyConnected": "Hai già collegato questo indirizzo qui. Cambia invece quella casella.",
       "unsubscribeFailed": "La mailing list non ha accettato la richiesta di annullare l’iscrizione. Prova invece il suo link."
     },
     "methods": {
       "google": "Account Google (Gmail o Google Workspace)",
+      "microsoft": "Account Microsoft (Outlook.com o Microsoft 365)",
       "password": "Password per le app (qualsiasi provider, tramite IMAP e SMTP)"
     },
     "googleHint": "Accedi a Google e consenti a Leafdesk di leggere e inviare la tua posta. Non serve una password per le app, e puoi revocare l’accesso dal tuo account Google in qualsiasi momento.",
     "googleConnect": "Accedi con Google",
     "googleLeaving": "Apertura di Google…",
     "googleSignedIn": "accesso con Google",
+    "microsoftHint": "Accedi su Microsoft e consenti a Leafdesk di leggere e inviare la tua posta. I server di Microsoft non accettano password per le app, quindi è così che si collega una casella Outlook.com o Microsoft 365. Puoi revocare l'accesso dal tuo account Microsoft in qualsiasi momento.",
+    "microsoftConnect": "Accedi con Microsoft",
+    "microsoftLeaving": "Apertura di Microsoft…",
+    "microsoftSignedIn": "accesso con Microsoft",
     "googleConnected": "La tua casella è collegata.",
     "dismiss": "Chiudi"
   },

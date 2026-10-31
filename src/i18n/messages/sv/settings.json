@@ -2536,7 +2536,7 @@
         "tls": "Det gick inte att upprätta en säker anslutning till e-postservern.",
         "unreachable": "E-postservern kan inte nås just nu.",
         "noInbox": "E-postservern visar ingen inkorg.",
-        "signIn": "Google-inloggningen fungerar inte längre. Logga in med Google igen."
+        "signIn": "Inloggningen för den här brevlådan fungerar inte längre. Logga in igen för att ansluta den."
       }
     },
     "fields": {
@@ -2562,6 +2562,13 @@
       "yandex": "Skapa ett applösenord för e-post i inställningarna för ditt Yandex ID.",
       "zoho": "Slå på IMAP-åtkomst i Zoho Mails inställningar och skapa ett applösenord."
     },
+    "discover": {
+      "looking": "Letar upp domänens e-postservrar…",
+      "found": "Ifyllt från {source, select, autoconfig {domänens egna e-postinställningar} ispdb {den offentliga listan över e-postleverantörer} mx {leverantören som tar emot domänens e-post} other {domänens tjänsteposter}}. Kontrollera dem innan du ansluter.",
+      "none": "Inga e-postinställningar hittades för domänen. Skriv in dess servrar nedan.",
+      "google": "Domänens e-post finns hos Google.",
+      "microsoft": "Den här brevlådan finns hos Microsoft, vars servrar inte längre tar emot applösenord."
+    },
     "membersHeading": "Medlemmarnas brevlådor",
     "membersDescription": "Vem som har anslutit en brevlåda i den här arbetsytan. Ingen annan än ägaren ser vad som finns i den.",
     "memberStatus": {
@@ -2583,21 +2590,28 @@
       "noInbox": "E-postservern visar ingen inkorg.",
       "accessDenied": "Du har inte åtkomst att göra detta.",
       "gone": "Det meddelandet finns inte längre på den här raden.",
-      "signIn": "Google-inloggningen fungerar inte längre. Logga in med Google igen.",
+      "signIn": "Inloggningen för den här brevlådan fungerar inte längre. Logga in igen för att ansluta den.",
       "googleFailed": "Inloggningen med Google anslöt inte brevlådan. Försök igen.",
       "googleScope": "Google fick inte ge Leafdesk åtkomst till din e-post. Logga in igen och tillåt det.",
+      "microsoftFailed": "Inloggningen med Microsoft anslöt inte brevlådan. Försök igen.",
+      "microsoftScope": "Microsoft fick inte ge Leafdesk åtkomst till din e-post. Logga in igen och tillåt det, eller be din organisations administratör att tillåta Leafdesk.",
       "tooMany": "Du har anslutit så många brevlådor i den här arbetsytan som du kan. Koppla från en först.",
       "alreadyConnected": "Den adressen är redan ansluten här. Ändra den brevlådan i stället.",
       "unsubscribeFailed": "E-postlistan tog inte emot begäran om att avsluta prenumerationen. Prova listans länk i stället."
     },
     "methods": {
       "google": "Google-konto (Gmail eller Google Workspace)",
+      "microsoft": "Microsoft-konto (Outlook.com eller Microsoft 365)",
       "password": "Applösenord (alla leverantörer, via IMAP och SMTP)"
     },
     "googleHint": "Du loggar in hos Google och låter Leafdesk läsa och skicka din e-post. Inget applösenord behövs, och du kan när som helst ta tillbaka åtkomsten i ditt Google-konto.",
     "googleConnect": "Logga in med Google",
     "googleLeaving": "Öppnar Google…",
     "googleSignedIn": "inloggad med Google",
+    "microsoftHint": "Du loggar in hos Microsoft och låter Leafdesk läsa och skicka din e-post. Microsofts servrar tar inte emot applösenord, så det är så en Outlook.com- eller Microsoft 365-brevlåda ansluts. Du kan när som helst ta tillbaka åtkomsten i ditt Microsoft-konto.",
+    "microsoftConnect": "Logga in med Microsoft",
+    "microsoftLeaving": "Öppnar Microsoft…",
+    "microsoftSignedIn": "inloggad med Microsoft",
     "googleConnected": "Din brevlåda är ansluten.",
     "dismiss": "Stäng"
   },

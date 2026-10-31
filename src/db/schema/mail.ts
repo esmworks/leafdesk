@@ -90,14 +90,15 @@ export const mailbox = pgTable(
     uniqueIndex("mailbox_address_idx").on(t.workspaceId, t.userId, t.address),
     uniqueIndex("mailbox_default_idx").on(t.workspaceId, t.userId).where(sql`${t.isDefault}`),
     check("mailbox_status_check", sql`${t.status} in ('connecting', 'ok', 'error')`),
-    check("mailbox_auth_check", sql`${t.auth} in ('password', 'google')`),
+    check("mailbox_auth_check", sql`${t.auth} in ('password', 'google', 'microsoft')`),
   ],
 );
 
 /**
- * A Google sign-in a member began to connect their mailbox in a workspace, until the browser comes
- * back with its `state` (server/row-mail/google.ts). Used once; ones older than fifteen minutes are
- * void. `data` is sealed: the PKCE verifier, the consent given and the member's time zone.
+ * A sign-in with Google or Microsoft a member began to connect their mailbox in a workspace, until
+ * the browser comes back with its `state` (server/row-mail/google.ts, microsoft.ts). Used once;
+ * ones older than fifteen minutes are void. `data` is sealed: the provider (Google when missing),
+ * the PKCE verifier, the consent given and the member's time zone.
  */
 export const mailboxOauth = pgTable("mailbox_oauth", {
   state: text("state").primaryKey(),
@@ -291,4 +292,46 @@ export const mailImageSender = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.mailboxId, t.address] })],
+);
+
+/**
+ * When each message sent from the Mail tab went out (server/mail-client/write.ts), counted with the
+ * mailbox's row emails against MAX_SENDS_PER_HOUR, so the hour's sends outlive a restart. Rows older
+ * than a day are dropped as new ones come.
+ */
+export const mailSend = pgTable(
+  "mail_send",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    mailboxId: text("mailbox_id")
+      .notNull()
+      .references(() => mailbox.id, { onDelete: "cascade" }),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("mail_send_mailbox_idx").on(t.mailboxId, t.sentAt)],
+);
+
+/**
+ * Conversations of the Mail tab snoozed until a moment: their messages wait in the mailbox's
+ * snoozed folder and go back to the inbox, unread, when it comes (server/mail-client/snooze.ts).
+ * Once back (`woke_at`), the row keeps the conversation at the top of the inbox as of that moment,
+ * until it is moved again or a fortnight has passed.
+ */
+export const mailSnooze = pgTable(
+  "mail_snooze",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    mailboxId: text("mailbox_id")
+      .notNull()
+      .references(() => mailbox.id, { onDelete: "cascade" }),
+    threadId: text("thread_id").notNull(),
+    until: timestamp("until", { withTimezone: true }).notNull(),
+    wokeAt: timestamp("woke_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("mail_snooze_thread_idx").on(t.mailboxId, t.threadId), index("mail_snooze_due_idx").on(t.until).where(sql`${t.wokeAt} is null`)],
 );

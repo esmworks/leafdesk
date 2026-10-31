@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Inbox",
     "drafts": "Drafts",
+    "snoozed": "Snoozed",
     "sent": "Sent",
     "archive": "Archive",
     "junk": "Junk",
@@ -65,6 +66,7 @@
     "archive": "Archive",
     "trash": "Move to trash",
     "junk": "Mark as junk",
+    "snooze": "Snooze",
     "inbox": "Move to inbox",
     "delete": "Delete forever",
     "star": "Star",
@@ -86,9 +88,21 @@
     "archive": "Conversation archived",
     "trash": "Conversation moved to the trash",
     "junk": "Conversation marked as junk",
+    "snooze": "Snoozed until {time}",
     "inbox": "Conversation moved to the inbox",
     "delete": "Conversation deleted forever",
     "move": "Conversation moved to {folder}"
+  },
+  "snooze": {
+    "title": "Snooze until",
+    "laterToday": "Later today",
+    "tomorrow": "Tomorrow",
+    "weekend": "This weekend",
+    "nextWeek": "Next week",
+    "pick": "Date and time",
+    "placeholder": "Fri 9am, Nov 12, in 3 days",
+    "notAhead": "Pick a moment from a minute to a year from now.",
+    "until": "Snoozed until {time}"
   },
   "composer": {
     "newTitle": "New message",
@@ -142,7 +156,11 @@
     "notSent": "Not sent: {reason} It is kept in Drafts.",
     "quoteShow": "Show the quoted message",
     "quoteHide": "Hide the quoted message",
-    "quoteRemove": "Remove the quoted message"
+    "quoteRemove": "Remove the quoted message",
+    "templates": "Insert a snippet",
+    "templatesSearch": "Find a snippet",
+    "templatesNone": "No snippet matches.",
+    "templatesEmpty": "No snippets yet. Make them under Settings › Snippets."
   },
   "bulk": {
     "select": "Select",
@@ -155,6 +173,7 @@
       "archive": "{count, plural, one {# conversation archived} other {# conversations archived}}",
       "trash": "{count, plural, one {# conversation moved to the trash} other {# conversations moved to the trash}}",
       "junk": "{count, plural, one {# conversation marked as junk} other {# conversations marked as junk}}",
+      "snooze": "{count, plural, one {# conversation snoozed until {time}} other {# conversations snoozed until {time}}}",
       "inbox": "{count, plural, one {# conversation moved to the inbox} other {# conversations moved to the inbox}}",
       "delete": "{count, plural, one {# conversation deleted forever} other {# conversations deleted forever}}",
       "move": "{count, plural, one {# conversation moved to {folder}} other {# conversations moved to {folder}}}"

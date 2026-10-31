@@ -213,13 +213,13 @@ function SignatureRow({ mailbox, title, onSaved }: { mailbox: MailboxView; title
 }
 
 const STATUS_ERRORS = ["blocked", "notFound", "auth", "signIn", "tls", "unreachable", "noInbox"] as const;
-/** What went wrong reading a mailbox; for a Google one, a refused sign-in always means signing in again. */
+/** What went wrong reading a mailbox; for one signed in with Google or Microsoft, a refused sign-in means signing in again. */
 const statusError = (mailbox: MailboxView) => {
   const code = STATUS_ERRORS.find((c) => c === mailbox.statusError) ?? "unreachable";
-  return mailbox.auth === "google" && code === "auth" ? "signIn" : code;
+  return mailbox.auth !== "password" && code === "auth" ? "signIn" : code;
 };
-/** What the browser came back from Google with (mailError), as an error text's key. */
-const NOTICE_ERRORS = ["googleFailed", "googleScope", "consent", "disabled", "invalid", "blocked", "notFound", "auth", "signIn", "tls", "unreachable", "noInbox"] as const;
+/** What the browser came back from Google or Microsoft with (mailError), as an error text's key. */
+const NOTICE_ERRORS = ["googleFailed", "googleScope", "microsoftFailed", "microsoftScope", "consent", "disabled", "invalid", "blocked", "notFound", "auth", "signIn", "tls", "unreachable", "noInbox"] as const;
 
 
 /**
@@ -268,6 +268,7 @@ export function OwnMailboxes({ initial, notice }: { initial: OwnMailbox[]; notic
           workspaceId={entry.workspaceId}
           enabled={entry.enabled}
           google={entry.google}
+          microsoft={entry.microsoft}
           mailboxes={entry.mailboxes}
           onChange={(mailboxes) =>
             setList((all) => all.flatMap((e) => (e.workspaceId !== entry.workspaceId ? [e] : e.enabled || mailboxes.length ? [{ ...e, mailboxes }] : [])))
@@ -290,6 +291,7 @@ function MailboxGroup({
   workspaceId,
   enabled,
   google,
+  microsoft,
   mailboxes,
   onChange,
 }: {
@@ -297,8 +299,9 @@ function MailboxGroup({
   workspaceId: string;
   /** Off: the workspace turned email on rows off; mailboxes still connected can only be disconnected. */
   enabled: boolean;
-  /** Whether a mailbox can be connected by signing in with Google. */
+  /** Whether a mailbox can be connected by signing in with Google, or with Microsoft. */
   google: boolean;
+  microsoft: boolean;
   mailboxes: MailboxView[];
   onChange: (mailboxes: MailboxView[]) => void;
 }) {
@@ -317,6 +320,7 @@ function MailboxGroup({
         <MailboxConnect
           workspaceId={workspaceId}
           google={google}
+          microsoft={microsoft}
           mailbox={mailbox}
           onCancel={() => setEditing(null)}
           onSaved={(saved) => {
@@ -360,7 +364,7 @@ function MailboxGroup({
             description={
               <>
                 <span className={cn(mailbox.status === "error" && "text-danger")}>{status}</span>
-                {mailbox.auth === "google" && <> · {t("googleSignedIn")}</>}
+                {mailbox.auth !== "password" && <> · {mailbox.auth === "microsoft" ? t("microsoftSignedIn") : t("googleSignedIn")}</>}
                 {mailbox.syncedAt && <> · {t("syncedAt", { time: relativeTime(mailbox.syncedAt, locale) })}</>}
                 {mailbox.folders.inbox && (
                   <span className="mt-1 block">

@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Boîte de réception",
     "drafts": "Brouillons",
+    "snoozed": "En attente",
     "sent": "Envoyés",
     "archive": "Archives",
     "junk": "Indésirables",
@@ -65,6 +66,7 @@
     "archive": "Archiver",
     "trash": "Déplacer vers la corbeille",
     "junk": "Marquer comme indésirable",
+    "snooze": "Mettre en attente",
     "inbox": "Déplacer vers la boîte de réception",
     "delete": "Supprimer définitivement",
     "star": "Ajouter aux favoris",
@@ -86,9 +88,21 @@
     "archive": "Conversation archivée",
     "trash": "Conversation déplacée vers la corbeille",
     "junk": "Conversation marquée comme indésirable",
+    "snooze": "En attente jusqu’au {time}",
     "inbox": "Conversation déplacée vers la boîte de réception",
     "delete": "Conversation supprimée définitivement",
     "move": "Conversation déplacée vers {folder}"
+  },
+  "snooze": {
+    "title": "Mettre en attente jusqu’au",
+    "laterToday": "Plus tard aujourd’hui",
+    "tomorrow": "Demain",
+    "weekend": "Ce week-end",
+    "nextWeek": "La semaine prochaine",
+    "pick": "Date et heure",
+    "placeholder": "ven. 9 h, 12 nov., dans 3 jours",
+    "notAhead": "Choisissez un moment entre une minute et un an à partir de maintenant.",
+    "until": "En attente jusqu’au {time}"
   },
   "composer": {
     "newTitle": "Nouveau message",
@@ -142,7 +156,11 @@
     "notSent": "Non envoyé : {reason} Il est conservé dans les brouillons.",
     "quoteShow": "Afficher le message cité",
     "quoteHide": "Masquer le message cité",
-    "quoteRemove": "Retirer le message cité"
+    "quoteRemove": "Retirer le message cité",
+    "templates": "Insérer un extrait",
+    "templatesSearch": "Chercher un extrait",
+    "templatesNone": "Aucun extrait ne correspond.",
+    "templatesEmpty": "Pas encore d’extraits. Créez-les dans Paramètres › Extraits."
   },
   "bulk": {
     "select": "Sélectionner",
@@ -155,6 +173,7 @@
       "archive": "{count, plural, one {# conversation archivée} other {# conversations archivées}}",
       "trash": "{count, plural, one {# conversation déplacée vers la corbeille} other {# conversations déplacées vers la corbeille}}",
       "junk": "{count, plural, one {# conversation marquée comme indésirable} other {# conversations marquées comme indésirables}}",
+      "snooze": "{count, plural, one {# conversation en attente jusqu’au {time}} other {# conversations en attente jusqu’au {time}}}",
       "inbox": "{count, plural, one {# conversation déplacée vers la boîte de réception} other {# conversations déplacées vers la boîte de réception}}",
       "delete": "{count, plural, one {# conversation supprimée définitivement} other {# conversations supprimées définitivement}}",
       "move": "{count, plural, one {# conversation déplacée vers {folder}} other {# conversations déplacées vers {folder}}}"

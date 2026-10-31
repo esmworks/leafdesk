@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Indbakke",
     "drafts": "Kladder",
+    "snoozed": "Udsat",
     "sent": "Sendt",
     "archive": "Arkiv",
     "junk": "Spam",
@@ -65,6 +66,7 @@
     "archive": "Arkivér",
     "trash": "Flyt til papirkurven",
     "junk": "Marker som spam",
+    "snooze": "Udsæt",
     "inbox": "Flyt til indbakken",
     "delete": "Slet permanent",
     "star": "Stjernemarkér",
@@ -86,9 +88,21 @@
     "archive": "Samtalen er arkiveret",
     "trash": "Samtalen er flyttet til papirkurven",
     "junk": "Samtalen er markeret som spam",
+    "snooze": "Udsat til {time}",
     "inbox": "Samtalen er flyttet til indbakken",
     "delete": "Samtalen er slettet permanent",
     "move": "Samtalen er flyttet til {folder}"
+  },
+  "snooze": {
+    "title": "Udsæt til",
+    "laterToday": "Senere i dag",
+    "tomorrow": "I morgen",
+    "weekend": "Denne weekend",
+    "nextWeek": "Næste uge",
+    "pick": "Dato og tid",
+    "placeholder": "fre 9:00, 12. nov, om 3 dage",
+    "notAhead": "Vælg et tidspunkt mellem et minut og et år fra nu.",
+    "until": "Udsat til {time}"
   },
   "composer": {
     "newTitle": "Ny besked",
@@ -142,7 +156,11 @@
     "notSent": "Ikke sendt: {reason} Den er gemt i Kladder.",
     "quoteShow": "Vis den citerede besked",
     "quoteHide": "Skjul den citerede besked",
-    "quoteRemove": "Fjern den citerede besked"
+    "quoteRemove": "Fjern den citerede besked",
+    "templates": "Indsæt tekstbid",
+    "templatesSearch": "Find en tekstbid",
+    "templatesNone": "Ingen tekstbid passer.",
+    "templatesEmpty": "Ingen tekstbidder endnu. Opret dem under Indstillinger › Tekstbidder."
   },
   "bulk": {
     "select": "Vælg",
@@ -155,6 +173,7 @@
       "archive": "{count, plural, one {# samtale er arkiveret} other {# samtaler er arkiveret}}",
       "trash": "{count, plural, one {# samtale er flyttet til papirkurven} other {# samtaler er flyttet til papirkurven}}",
       "junk": "{count, plural, one {# samtale er markeret som spam} other {# samtaler er markeret som spam}}",
+      "snooze": "{count, plural, one {# samtale er udsat til {time}} other {# samtaler er udsat til {time}}}",
       "inbox": "{count, plural, one {# samtale er flyttet til indbakken} other {# samtaler er flyttet til indbakken}}",
       "delete": "{count, plural, one {# samtale er slettet permanent} other {# samtaler er slettet permanent}}",
       "move": "{count, plural, one {# samtale er flyttet til {folder}} other {# samtaler er flyttet til {folder}}}"

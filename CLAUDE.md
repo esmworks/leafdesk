@@ -255,7 +255,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
   check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`
-  (a mailbox signs in with a password or a Google sign-in, `google.ts`; open it through
+  (a mailbox signs in with a password or a Google or Microsoft sign-in, `google.ts`, `microsoft.ts`,
+  shared `oauth.ts`; its servers found from the address by `discover.ts`; open it through
   `credentials.ts` `withMailCredentials`, which renews the token; a member has up to
   `MAX_MAILBOXES` in a workspace, so a lookup of "their mailbox" adds `mailbox.isDefault`, as
   follow-ups, agents and drafts do), the Mail tab `mail-client/` (the owner's own mail alone,
@@ -273,7 +274,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
   into `MOVES` in `mail-app.tsx`; action `move` takes the folder's id in `to`, checked by
-  `movableTo`; a row's right-click menu is `thread-menu.tsx`, a `lazyPart`, as is the selection's bar
+  `movableTo`; `snooze` takes `until` and moves to the `snoozed` role's folder, a mail_snooze row
+  that `snooze.ts` `runMailSnoozes(now)` brings back and `threadPage` lists by its `woke_at`; every
+  other move drops the row; a row's right-click menu is `thread-menu.tsx`, a `lazyPart`, as is the selection's bar
   `selection-bar.tsx`; `act` takes a list of threads, sent in `MAIL_MAX_THREADS` pieces, each to the mailbox and folder
 the item names: all inboxes, `box=all` (`ALL_INBOXES`, one query in `read.ts` `threadPage`), list
 several mailboxes, whose thread ids can repeat, so the list keys threads by `itemKey`; a new key
@@ -287,7 +290,7 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `?c=new` pane or under a thread, `composer.tsx` with the TipTap editor `mail-editor.tsx` (lazy:
   ProseMirror stays out of the thread's chunk), what a reply starts from `compose-start.ts`, the
   HTML sent cleaned again and turned into its text part by `outgoing.ts`, addresses suggested by
-  `contacts.ts`; a mailbox's signature, `mailbox.signature` and `signature_text`, is the editor's
+  `contacts.ts`, snippets put in by `template-menu.tsx` as `templates.ts` turns them into mail; a mailbox's signature, `mailbox.signature` and `signature_text`, is the editor's
   `Signature` node, a `div[data-signature]` that `outgoing.ts` puts under `-- ` in the text part,
   and row emails start with its text; one pasted with images or tables is kept whole inside
   `div[data-pasted]`, `lib/pasted-signature.ts` (its cleaning rules in `-config.ts`), the editor's `PastedSignature` atom, shown in a
@@ -300,10 +303,11 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   draft before after that); pictures in the text are the editor's `Picture` node, sent as `cid:`
   parts (`compose.ts` `inlineFiles`, form field `inline`), each uploaded once and carried over from
   the draft saved last by Content-ID, opened again as data URLs marked `data-cid`; a send waits
-  `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, which scripts skip with `sendHeld`;
+  `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, and is counted in `mail_send`, which with
+  `row_email` holds a mailbox to `MAX_SENDS_PER_HOUR` (both `write.ts` and `row-mail/send.ts` read both), which scripts skip with `sendHeld`;
   AI: `mail-client/ai.ts` behind `/api/ai/mail` (prompts pure in `ai-prompts.ts`), reading bodies
   with `read.ts` `messageForAi`, which never marks them seen; a thread's summary is `mail_message.summary` on its newest message;
-  the writer reads the answered mail's row (`rowOfMessage`, then `databases.getRow` as the person) and the person's
+  the writer reads the answered mail's row (`rowOfMessage`, the composer's `MailMessageView.row`, then `operations.ts` `visibleRow` as the person) and the person's
   `ai-memory.ts` notes; a thread's tasks are parsed in the browser (`lib/mail-tasks.ts`) and added by
   `mail-client/tasks.ts` as to-dos mentioning the person (row page, else daily note), checked again there;
   the composer's writer `composer-ai.tsx` replaces only `writing-range.ts`'s part, above the

@@ -21,7 +21,6 @@ import {
   type MailDraftView,
   type MailMessageView,
   type MailSendStatus,
-  type MailThreadView,
   type MailUndoneSend,
 } from "@/lib/mail-client";
 import type { MailWriteAction } from "@/lib/mail-ai";
@@ -33,6 +32,7 @@ import { RecipientField } from "./recipient-field";
 
 // The AI writer loads the first time it is opened.
 const ComposerAi = lazyPart(() => import("./composer-ai").then((m) => m.ComposerAi));
+const TemplateMenu = lazyPart(() => import("./template-menu").then((m) => m.TemplateMenu));
 
 /** A file of the message: one added here, or one its saved draft holds on the mail server (by its part there). */
 type Attached = { file: File } | { stored: MailAttachmentView };
@@ -81,14 +81,13 @@ function followSend(sendId: string, then: (status: MailSendStatus) => void, trie
  * button or dropped on it. A message sent waits MAIL_UNDO_SECONDS on the server for Undo, which
  * makes it a draft again for `onUndone` to open; `onDelivered` follows once it went (or failed and
  * was kept as a draft). With `ai`, the AI writer (composer-ai.tsx) opens from beside the
- * formatting, or at once running `aiStart`; it reads the fields of `row`, the database row the
- * answered mail's other party is, and says so.
+ * formatting, or at once running `aiStart`; it reads the fields of the database row the answered
+ * mail's other party is (MailMessageView.row), and says so.
  */
 export function Composer({
   workspaceId,
   ai,
   aiStart = null,
-  row = null,
   box,
   boxes = [box],
   mode,
@@ -104,8 +103,6 @@ export function Composer({
   workspaceId: string;
   ai: boolean;
   aiStart?: MailWriteAction | null;
-  /** The row the thread's other party is (MailThreadView.row), which the writer reads for an answer. */
-  row?: MailThreadView["row"];
   box: MailboxTabView;
   boxes?: MailboxTabView[];
   mode: ComposeMode;
@@ -489,6 +486,7 @@ export function Composer({
           <FormatBar editor={editor} linking={linking} setLinking={setLinking} />
         </div>
       )}
+      {editor && <TemplateMenu editor={editor} workspaceId={workspaceId} subject={subject} />}
       {ai && editor && (
         <IconButton label={tai("write")} aria-pressed={!!writer} className={cn("h-8 w-8 text-fg-icon", writer && "bg-bg-active text-fg")} onClick={() => setWriter(writer ? null : { start: null })}>
           <Sparkles className="h-4 w-4" />
@@ -599,7 +597,7 @@ export function Composer({
           answering={source && mode !== "new" ? { id: source.message.id, reply: answering } : null}
           subject={subject}
           to={to.map((r) => r.name || r.address)}
-          row={source && mode !== "new" ? row : null}
+          row={source && mode !== "new" ? (source.message.row ?? null) : null}
           start={writer.start}
           onClose={() => {
             setWriter(null);

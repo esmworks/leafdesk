@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, inArray, isNull, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { mailbox, mailFolder, mailMessage, page } from "@/db/schema";
+import { mailbox, mailFolder, mailMessage, mailSnooze, page } from "@/db/schema";
 import { dmarcFailed, normalizeAddress, parseHeaderBlock } from "@/lib/mail";
 import { imagesShown, type MailImagesFrom } from "@/lib/mail-images";
 import { unsubscribeOffer, unsubscribeTargets } from "@/lib/mail-unsubscribe";
@@ -392,14 +392,18 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
   const [at, mailboxId, ...rest] = cursor?.split("|") ?? [];
   const threadId = rest.join("|");
   if (at && mailboxId && threadId && !Number.isNaN(Date.parse(at))) after = sql`(t.last, t.mailbox_id, t.thread_id) < (${at}::timestamptz, ${mailboxId}, ${threadId})`;
-  const groupsOf = (where: SQL | undefined) => db.execute<{ mailbox_id: string; thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; files: boolean; drafts: boolean; newest: string }>(sql`
+  // A thread back from a snooze is listed as of the moment it came back (snooze.ts), if that is later.
+  const groupsOf = (where: SQL | undefined) => db.execute<{ mailbox_id: string; thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; files: boolean; drafts: boolean; newest: string; until: string | null }>(sql`
     select * from (
-      select ${mailMessage.mailboxId} as mailbox_id, ${mailMessage.threadId} as thread_id, max(${mailMessage.sentAt}) as last,
+      select ${mailMessage.mailboxId} as mailbox_id, ${mailMessage.threadId} as thread_id,
+        greatest(max(${mailMessage.sentAt}), max(${mailSnooze.wokeAt})) as last,
+        max(${mailSnooze.until}) filter (where ${mailSnooze.wokeAt} is null) as until,
         bool_or(not ${mailMessage.seen}) as unread, count(*)::int as held,
         (count(*) filter (where not ${mailMessage.seen}))::int as unseen, bool_or(${mailMessage.flagged}) as starred,
         bool_or(${mailMessage.hasAttachments}) as files, bool_or(${mailMessage.draft}) as drafts,
         (array_agg(${mailMessage.id} order by ${mailMessage.sentAt} desc, ${mailMessage.uid} desc))[1] as newest
       from ${mailMessage}
+      left join ${mailSnooze} on ${mailSnooze.mailboxId} = ${mailMessage.mailboxId} and ${mailSnooze.threadId} = ${mailMessage.threadId}
       where ${where}
       group by ${mailMessage.mailboxId}, ${mailMessage.threadId}
     ) t
@@ -497,6 +501,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
         starred: g.starred,
         hasAttachments: g.files,
         hasDraft: g.drafts || inThread.some((m) => drafts.has(m.folderId)),
+        snoozedUntil: g.until ? new Date(g.until).toISOString() : null,
         row: other ? (rows.get(other) ?? null) : null,
       },
     ];
@@ -505,7 +510,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
   return { items, next: more ? `${new Date(last.last).toISOString()}|${last.mailbox_id}|${last.thread_id}` : null };
 }
 
-function messageView(m: MessageRow, folders: Map<string, FolderRow>): MailMessageView {
+function messageView(m: MessageRow, folders: Map<string, FolderRow>, row: RowChip | null): MailMessageView {
   return {
     id: m.id,
     folderId: m.folderId,
@@ -521,6 +526,7 @@ function messageView(m: MessageRow, folders: Map<string, FolderRow>): MailMessag
     flagged: m.flagged,
     draft: m.draft,
     hasAttachments: m.hasAttachments,
+    row,
     body: null,
   };
 }
@@ -561,14 +567,15 @@ export async function getThread(userId: string, input: { mailboxId: string; thre
   const messages = [...kept.values()].sort((a, b) => a.sentAt.getTime() - b.sentAt.getTime() || (a.folderId === b.folderId ? a.uid - b.uid : 0));
   // Its subject is the newest message's, but a draft answering it isn't what the thread is called.
   const named = [...messages].reverse().find((m) => !(m.draft && byId.get(m.folderId)?.role === "drafts")) ?? messages[messages.length - 1];
-  const other = [...messages].reverse().map((m) => otherParty(box, m)).find((a) => !!a);
-  const chips = other ? await rowsForAddresses(box.workspaceId, userId, [other]) : new Map();
+  const parties = messages.map((m) => otherParty(box, m));
+  const other = parties.findLast((a) => !!a);
+  const chips = await rowsForAddresses(box.workspaceId, userId, parties.filter((a): a is string => !!a));
   // The newest summary made, on whichever copy of its message it was saved, shown on the copy here.
   const summarized = [...rows].reverse().find((m) => m.summary);
   return {
     threadId: input.threadId,
     subject: named.subject || messages[0].subject,
-    messages: messages.map((m) => messageView(m, byId)),
+    messages: messages.map((m, i) => messageView(m, byId, chips.get(parties[i] ?? "") ?? null)),
     row: other ? (chips.get(other) ?? null) : null,
     summary: summarized?.summary ? { text: summarized.summary, messageId: kept.get(summarized.messageId ?? summarized.id)?.id ?? summarized.id } : null,
   };

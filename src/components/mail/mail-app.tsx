@@ -1,8 +1,8 @@
 "use client";
 
-import { Database, Inbox, Paperclip, RefreshCw, Search, Star } from "lucide-react";
+import { Clock, Database, Inbox, Paperclip, RefreshCw, Search, Star } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { emptyFolderAction, mailActionAction, refreshMailboxAction } from "@/app/actions/mail";
 import { lazyPart } from "@/components/lazy-part";
@@ -11,7 +11,7 @@ import { SelectBox, useSelection } from "@/components/selection";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { currentToast, dismissToast, showToast } from "@/components/toast";
 import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton } from "@/components/ui";
-import { ALL_INBOXES, MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, mailQueryMarks, type MailAction, type MailFolderView, type MailQueryMarks, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
+import { ALL_INBOXES, MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, mailQueryMarks, snoozableFrom, type MailAction, type MailFolderView, type MailQueryMarks, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
 import { highlightParts } from "@/lib/search-highlight";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
@@ -23,11 +23,12 @@ const ThreadView = lazyPart(() => import("./thread-view").then((m) => m.ThreadVi
 const PaneComposer = lazyPart(() => import("./composer").then((m) => m.PaneComposer), <div className="min-w-0 flex-1" />);
 const ThreadMenu = lazyPart(() => import("./thread-menu").then((m) => m.ThreadMenu));
 const SelectionBar = lazyPart(() => import("./selection-bar").then((m) => m.SelectionBar), <div className="h-8" />);
+const SnoozePicker = lazyPart(() => import("./snooze-picker").then((m) => m.SnoozePicker));
 
 /** How often the open folder asks the mail server for new mail while the page is in front; less often while the server tells it (mail-live.ts). */
 const REFRESH_MS = 60_000;
 const LIVE_REFRESH_MS = 5 * 60_000;
-const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "move", "delete"];
+const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "move", "snooze", "delete"];
 /** g then one of these opens the mailbox's folder of that role, within GO_MS of the g. */
 const GO_KEYS: Record<string, MailFolderView["role"]> = { i: "inbox", s: "sent", d: "drafts", a: "archive", t: "trash" };
 const GO_MS = 1500;
@@ -38,6 +39,9 @@ const aheadOf = (item: MailThreadItem) => loadAhead([item.messageId]);
 const itemKey = (item: Pick<MailThreadItem, "mailboxId" | "threadId">) => `${item.mailboxId}|${item.threadId}`;
 
 type List = { items: MailThreadItem[]; next: string | null; loading: boolean; error: string | null };
+
+/** When a snooze ends, as the list and its toast say it: "Nov 2, 8:00 AM". */
+const untilText = (locale: string, until: Date | string) => new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(until));
 
 /** Text with a search's words marked, inside words too, as the mail search finds them. */
 function Marked({ text, words }: { text: string; words: string[] | undefined }) {
@@ -90,6 +94,7 @@ const ThreadRow = memo(function ThreadRow({
 }) {
   const t = useTranslations("mail");
   const when = useWhen();
+  const locale = useLocale();
   const senders = item.senders.map((s) => (s.address === me ? t("me") : s.name?.split(" ")[0] || s.address)).join(", ");
   return (
     <div className="group relative">
@@ -142,7 +147,14 @@ const ThreadRow = memo(function ThreadRow({
                 <span className="sr-only">{mailbox}</span>
               </span>
             )}
-            <span className={cn("shrink-0 text-xs tabular-nums", item.unread ? "font-semibold text-fg" : "text-fg-muted")}>{when(item.sentAt)}</span>
+            {item.snoozedUntil ? (
+              <span className="inline-flex shrink-0 items-center gap-1 text-xs text-fg-muted tabular-nums" title={t("snooze.until", { time: when(item.snoozedUntil, true) })}>
+                <Clock className="h-3 w-3 text-fg-icon" aria-hidden />
+                {untilText(locale, item.snoozedUntil)}
+              </span>
+            ) : (
+              <span className={cn("shrink-0 text-xs tabular-nums", item.unread ? "font-semibold text-fg" : "text-fg-muted")}>{when(item.sentAt)}</span>
+            )}
           </div>
           <div className={cn("truncate text-sm", item.unread && "font-semibold")}>
             {item.subject ? <Marked text={item.subject} words={marks?.subject} /> : t("noSubject")}
@@ -222,6 +234,9 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   const [compose, setCompose] = useState<ComposeMode | null>(null);
   const [menu, setMenu] = useState<{ item: MailThreadItem; at: { x: number; y: number } } | null>(null);
   const openMenu = useCallback((item: MailThreadItem, at: { x: number; y: number }) => setMenu({ item, at }), []);
+  // Snoozing asks until when first: from its button, the right-click menu's point, or b.
+  const [snoozing, setSnoozing] = useState<{ targets: MailThreadItem[]; at: { x: number; y: number } | Element } | null>(null);
+  const locale = useLocale();
   const [refreshing, setRefreshing] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [emptying, setEmptying] = useState<"ask" | "working" | null>(null);
@@ -416,7 +431,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   }, [items, isOpen]);
 
   const act = useCallback(
-    (targets: MailThreadItem[], action: MailAction, to?: MailFolderView) => {
+    (targets: MailThreadItem[], action: MailAction, to?: MailFolderView, until?: Date) => {
       if (!targets.length) return;
       // Each thread goes to its own mailbox and folder: all inboxes act on several at once.
       const groups = new Map<string, MailThreadItem[]>();
@@ -426,7 +441,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
           const { mailboxId, folderId } = group[0];
           const ids = group.map((i) => i.threadId);
           for (let at = 0; at < ids.length; at += MAIL_MAX_THREADS) {
-            void mailActionAction({ mailboxId, folderId, threadIds: ids.slice(at, at + MAIL_MAX_THREADS), action, to: to?.id }).then((result) => {
+            void mailActionAction({ mailboxId, folderId, threadIds: ids.slice(at, at + MAIL_MAX_THREADS), action, to: to?.id, until: until?.toISOString() }).then((result) => {
               if (!result.ok) {
                 showToast({ message: result.error });
                 void loadPage(null);
@@ -481,9 +496,12 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
         countEach((i) => i.unseen);
         if (shown.current === from) setList((l) => ({ ...l, items: [...l.items, ...targets].sort((a, b) => b.sentAt.localeCompare(a.sentAt)) }));
       };
+      const time = until ? untilText(locale, until) : "";
       showToast({
         message:
-          count > 1
+          action === "snooze"
+            ? t(count > 1 ? "bulk.done.snooze" : "done.snooze", { count, time })
+            : count > 1
             ? to
               ? t("bulk.done.move", { count, folder: folderName(to) })
               : t(`bulk.done.${done}`, { count })
@@ -494,7 +512,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
       });
       lastUndo.current = { undo, toast: currentToast()?.id };
     },
-    [all, items, isOpen, openKey, query, go, loadPage, t, workspaceId, folderName],
+    [all, items, isOpen, openKey, query, go, loadPage, t, workspaceId, folderName, locale],
   );
 
   const openThread = useCallback(
@@ -537,13 +555,14 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     setList((l) => ({ ...l, items: l.items.map((i) => (itemKey(i) === key ? { ...i, unread: false, unseen: 0 } : i)) }));
   }, [isOpen, query]);
 
+  const snoozable = !!folder && snoozableFrom(folder);
   // Keyboard (listed in lib/shortcuts.ts): c new, / search, j/k next/previous, Enter/o open, x
-  // select, ⌘A select all, e archive, # trash, ! junk, s star, u unread, Shift+I read (the
+  // select, ⌘A select all, e archive, # trash, ! junk, b snooze, s star, u unread, Shift+I read (the
   // selection's, or the open thread's), r/a/f reply/all/forward, Esc back to the list (or out of the
   // selection first), ⌘Z undo the last move, g then i/s/d/a/t a folder.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (composing || menu) return;
+      if (composing || menu || snoozing) return;
       const mod = (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey;
       if (mod && e.key.toLowerCase() === "a" && items.length && !inField(e)) {
         e.preventDefault();
@@ -607,6 +626,9 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
           u: () => act(targets, "unread"),
           I: () => act(targets, "read"),
         });
+        // From the selection's or the thread's Snooze button, else under the list's top.
+        const button = document.querySelector(`[data-mail-snooze="${picked.length ? "selection" : "thread"}"]`);
+        if (snoozable) keys.b = () => setSnoozing({ targets, at: button ?? { x: 24, y: listRef.current?.getBoundingClientRect().top ?? 120 } });
       }
       if (current) {
         keys.x = () => onSelect(current, false);
@@ -625,7 +647,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [items, picked, threadId, isOpen, draftId, all, box, folder?.role, act, openThread, onSelect, go, composing, menu]);
+  }, [items, picked, threadId, isOpen, draftId, all, box, folder?.role, snoozable, act, openThread, onSelect, go, composing, menu, snoozing]);
 
   // Search as typed, a moment after the last key.
   useEffect(() => {
@@ -700,6 +722,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   const openFolder = selected ? folderOf(selected) : (openBox.folders?.find((f) => f.role === "inbox") ?? folder);
   // A right click on one of several selected conversations is for all of them.
   const menuMany = menu && picked.length > 1 && selection.isSelected(itemKey(menu.item)) ? picked : null;
+  const openItem = () => selected ?? ({ threadId, mailboxId: openBox.id, folderId: openFolder.id, unread: false, starred: false } as MailThreadItem);
   // Moving to a folder is within one mailbox: a selection across mailboxes moves by role only.
   const pickedBoxes = new Set(picked.map((i) => i.mailboxId));
   return (
@@ -716,6 +739,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
               onToggleAll={selection.toggleAll}
               onClear={selection.clear}
               onAction={(action, to) => act(picked, action, to)}
+              onSnooze={(button) => setSnoozing({ targets: picked, at: button })}
             />
           ) : (
             <div className="flex items-center gap-2">
@@ -834,7 +858,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
             acrossMailboxes={!!menuMany && pickedBoxes.size > 1}
             href={hrefOf(menu.item)}
             onClose={() => setMenu(null)}
-            onAction={(action, to) => act(menuMany ?? [menu.item], action, to)}
+            onAction={(action, to) => (action === "snooze" ? setSnoozing({ targets: menuMany ?? [menu.item], at: menu.at }) : act(menuMany ?? [menu.item], action, to))}
             onSelect={() => onSelect(menu.item, false)}
             onCompose={(mode) => {
               openThread(menu.item);
@@ -846,6 +870,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
             }}
           />
         )}
+        {snoozing && <SnoozePicker at={snoozing.at} onClose={() => setSnoozing(null)} onPick={(until) => act(snoozing.targets, "snooze", undefined, until)} />}
       </section>
       {composing ? (
         <PaneComposer
@@ -872,10 +897,8 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
           threadId={threadId}
           first={selected ? { id: selected.messageId, unread: selected.unread } : null}
           starred={!!selected?.starred}
-          onAction={(action) => {
-            const item = selected ?? ({ threadId, mailboxId: openBox.id, folderId: openFolder.id, unread: false, starred: false } as MailThreadItem);
-            act([item], action);
-          }}
+          onAction={(action) => act([openItem()], action)}
+          onSnooze={(button) => setSnoozing({ targets: [openItem()], at: button })}
           onBack={() => go({ t: null })}
           onRead={onRead}
           compose={compose}

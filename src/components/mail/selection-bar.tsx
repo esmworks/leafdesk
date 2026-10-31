@@ -1,10 +1,10 @@
 "use client";
 
-import { AlertOctagon, Archive, Folder, FolderInput, Inbox, Mail, MailOpen, Star, Trash2, X } from "lucide-react";
+import { AlertOctagon, Archive, Clock, Folder, FolderInput, Inbox, Mail, MailOpen, Star, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { SelectBox } from "@/components/selection";
 import { IconButton, MenuItem, Popover } from "@/components/ui";
-import { movableTo, type MailAction, type MailboxTabView, type MailFolderView, type MailThreadItem } from "@/lib/mail-client";
+import { movableTo, snoozableFrom, type MailAction, type MailboxTabView, type MailFolderView, type MailThreadItem } from "@/lib/mail-client";
 import { useFolderName } from "./mail-sidebar";
 
 /**
@@ -21,6 +21,7 @@ export function SelectionBar({
   onToggleAll,
   onClear,
   onAction,
+  onSnooze,
 }: {
   items: MailThreadItem[];
   /** Every conversation the list has loaded is selected. */
@@ -32,6 +33,8 @@ export function SelectionBar({
   onToggleAll: () => void;
   onClear: () => void;
   onAction: (action: MailAction, to?: MailFolderView) => void;
+  /** Asks until when, from the button. */
+  onSnooze: (button: HTMLElement) => void;
 }) {
   const t = useTranslations("mail");
   const folderName = useFolderName();
@@ -47,13 +50,18 @@ export function SelectionBar({
       <span aria-live="polite" className="min-w-0 flex-1 truncate ps-1 text-sm font-medium tabular-nums">
         {t("bulk.selected", { count: items.length })}
       </span>
-      {away || folder.role === "archive" ? (
+      {away || folder.role === "archive" || folder.role === "snoozed" ? (
         <IconButton label={t("actions.inbox")} className={button} onClick={() => onAction("inbox")}>
           <Inbox className="h-4 w-4" />
         </IconButton>
       ) : (
         <IconButton label={t("actions.archive")} className={button} onClick={() => onAction("archive")}>
           <Archive className="h-4 w-4" />
+        </IconButton>
+      )}
+      {snoozableFrom(folder) && (
+        <IconButton label={t("actions.snooze")} data-mail-snooze="selection" className={button} onClick={(e) => onSnooze(e.currentTarget)}>
+          <Clock className="h-4 w-4" />
         </IconButton>
       )}
       {folder.role === "trash" ? (

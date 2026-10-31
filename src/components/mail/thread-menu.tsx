@@ -1,11 +1,11 @@
 "use client";
 
-import { AlertOctagon, Archive, ChevronLeft, ChevronRight, ExternalLink, Folder, FolderInput, Forward, Inbox, Link2, Mail, MailOpen, Reply, ReplyAll, Search, SquareCheck, Star, Trash2 } from "lucide-react";
+import { AlertOctagon, Archive, ChevronLeft, ChevronRight, Clock, ExternalLink, Folder, FolderInput, Forward, Inbox, Link2, Mail, MailOpen, Reply, ReplyAll, Search, SquareCheck, Star, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { showToast } from "@/components/toast";
 import { MenuItem, MenuSeparator, Popover } from "@/components/ui";
-import { movableTo, type MailAction, type MailboxTabView, type MailFolderView, type MailThreadItem } from "@/lib/mail-client";
+import { movableTo, snoozableFrom, type MailAction, type MailboxTabView, type MailFolderView, type MailThreadItem } from "@/lib/mail-client";
 import type { ComposeMode } from "./compose-start";
 import { useFolderName } from "./mail-sidebar";
 
@@ -93,13 +93,18 @@ export function ThreadMenu({
             </>
           )}
           <MenuSeparator />
-          {away || folder.role === "archive" ? (
+          {away || folder.role === "archive" || folder.role === "snoozed" ? (
             <MenuItem icon={<Inbox className="h-4 w-4" />} trailing={<Key>E</Key>} onClick={run(() => onAction("inbox"))}>
               {t("actions.inbox")}
             </MenuItem>
           ) : (
             <MenuItem icon={<Archive className="h-4 w-4" />} trailing={<Key>E</Key>} onClick={run(() => onAction("archive"))}>
               {t("actions.archive")}
+            </MenuItem>
+          )}
+          {snoozableFrom(folder) && (
+            <MenuItem icon={<Clock className="h-4 w-4" />} trailing={<Key>B</Key>} onClick={run(() => onAction("snooze"))}>
+              {t("actions.snooze")}
             </MenuItem>
           )}
           {folder.role === "trash" ? (

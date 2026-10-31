@@ -2536,7 +2536,7 @@
         "tls": "Es konnte keine sichere Verbindung zum Mailserver hergestellt werden.",
         "unreachable": "Der Mailserver ist gerade nicht erreichbar.",
         "noInbox": "Der Mailserver zeigt keinen Posteingang.",
-        "signIn": "Die Google-Anmeldung funktioniert nicht mehr. Melden Sie sich erneut mit Google an."
+        "signIn": "Die Anmeldung für dieses Postfach funktioniert nicht mehr. Melden Sie sich erneut an, um es zu verbinden."
       }
     },
     "fields": {
@@ -2562,6 +2562,13 @@
       "yandex": "Erstelle in den Einstellungen deiner Yandex ID ein App-Passwort für E-Mail.",
       "zoho": "Aktiviere in den Einstellungen von Zoho Mail den IMAP-Zugriff und erstelle ein App-Passwort."
     },
+    "discover": {
+      "looking": "Die Mailserver dieser Domain werden gesucht…",
+      "found": "Ausgefüllt aus {source, select, autoconfig {den eigenen Mail-Einstellungen der Domain} ispdb {der öffentlichen Liste der Mail-Anbieter} mx {dem Anbieter, der die Mail der Domain annimmt} other {den Diensteinträgen der Domain}}. Prüfen Sie sie vor dem Verbinden.",
+      "none": "Für diese Domain wurden keine Mail-Einstellungen gefunden. Geben Sie ihre Server unten ein.",
+      "google": "Die Mail dieser Domain liegt bei Google.",
+      "microsoft": "Dieses Postfach liegt bei Microsoft, dessen Server keine App-Passwörter mehr annehmen."
+    },
     "membersHeading": "Postfächer der Mitglieder",
     "membersDescription": "Wer in diesem Workspace ein Postfach verbunden hat. Was darin liegt, sieht nur dessen Inhaber.",
     "memberStatus": {
@@ -2583,21 +2590,28 @@
       "noInbox": "Der Mailserver zeigt keinen Posteingang.",
       "accessDenied": "Du hast keinen Zugriff, um das zu tun.",
       "gone": "Diese Nachricht ist nicht mehr in dieser Zeile.",
-      "signIn": "Die Google-Anmeldung funktioniert nicht mehr. Melden Sie sich erneut mit Google an.",
+      "signIn": "Die Anmeldung für dieses Postfach funktioniert nicht mehr. Melden Sie sich erneut an, um es zu verbinden.",
       "googleFailed": "Die Anmeldung mit Google hat das Postfach nicht verbunden. Versuchen Sie es erneut.",
       "googleScope": "Google durfte Leafdesk keinen Zugriff auf Ihre E-Mails geben. Melden Sie sich erneut an und erlauben Sie es.",
+      "microsoftFailed": "Die Anmeldung bei Microsoft hat das Postfach nicht verbunden. Versuchen Sie es erneut.",
+      "microsoftScope": "Microsoft durfte Leafdesk keinen Zugriff auf Ihre Mail geben. Melden Sie sich erneut an und erlauben Sie es, oder bitten Sie die Administration Ihrer Organisation, Leafdesk zuzulassen.",
       "tooMany": "Du hast in diesem Workspace so viele Postfächer verbunden wie möglich. Trenne zuerst eines.",
       "alreadyConnected": "Diese Adresse ist hier schon verbunden. Ändere stattdessen dieses Postfach.",
       "unsubscribeFailed": "Die Mailingliste hat die Abmeldung nicht angenommen. Versuche stattdessen ihren Link."
     },
     "methods": {
       "google": "Google-Konto (Gmail oder Google Workspace)",
+      "microsoft": "Microsoft-Konto (Outlook.com oder Microsoft 365)",
       "password": "App-Passwort (jeder Anbieter, über IMAP und SMTP)"
     },
     "googleHint": "Sie melden sich bei Google an und erlauben Leafdesk, Ihre E-Mails zu lesen und zu senden. Ein App-Passwort ist nicht nötig, und Sie können den Zugriff jederzeit in Ihrem Google-Konto zurücknehmen.",
     "googleConnect": "Mit Google anmelden",
     "googleLeaving": "Google wird geöffnet…",
     "googleSignedIn": "mit Google angemeldet",
+    "microsoftHint": "Sie melden sich bei Microsoft an und erlauben Leafdesk, Ihre Mail zu lesen und zu senden. Die Server von Microsoft nehmen keine App-Passwörter an, so wird ein Postfach bei Outlook.com oder Microsoft 365 verbunden. Den Zugriff können Sie jederzeit in Ihrem Microsoft-Konto widerrufen.",
+    "microsoftConnect": "Mit Microsoft anmelden",
+    "microsoftLeaving": "Microsoft wird geöffnet…",
+    "microsoftSignedIn": "bei Microsoft angemeldet",
     "googleConnected": "Ihr Postfach ist verbunden.",
     "dismiss": "Schließen"
   },

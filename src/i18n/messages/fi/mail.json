@@ -8,6 +8,7 @@
   "folders": {
     "inbox": "Saapuneet",
     "drafts": "Luonnokset",
+    "snoozed": "Torkutetut",
     "sent": "Lähetetyt",
     "archive": "Arkisto",
     "junk": "Roskaposti",
@@ -65,6 +66,7 @@
     "archive": "Arkistoi",
     "trash": "Siirrä roskakoriin",
     "junk": "Merkitse roskapostiksi",
+    "snooze": "Torkuta",
     "inbox": "Siirrä saapuneisiin",
     "delete": "Poista pysyvästi",
     "star": "Lisää tähti",
@@ -86,9 +88,21 @@
     "archive": "Keskustelu arkistoitu",
     "trash": "Keskustelu siirretty roskakoriin",
     "junk": "Keskustelu merkitty roskapostiksi",
+    "snooze": "Torkutettu {time} asti",
     "inbox": "Keskustelu siirretty saapuneisiin",
     "delete": "Keskustelu poistettu pysyvästi",
     "move": "Keskustelu siirretty kansioon {folder}"
+  },
+  "snooze": {
+    "title": "Torkuta asti",
+    "laterToday": "Myöhemmin tänään",
+    "tomorrow": "Huomenna",
+    "weekend": "Tänä viikonloppuna",
+    "nextWeek": "Ensi viikolla",
+    "pick": "Päivä ja aika",
+    "placeholder": "pe 9.00, 12. marrask., 3 päivän päästä",
+    "notAhead": "Valitse hetki minuutin ja vuoden päästä väliltä.",
+    "until": "Torkutettu {time} asti"
   },
   "composer": {
     "newTitle": "Uusi viesti",
@@ -142,7 +156,11 @@
     "notSent": "Ei lähetetty: {reason} Se on tallessa luonnoksissa.",
     "quoteShow": "Näytä lainattu viesti",
     "quoteHide": "Piilota lainattu viesti",
-    "quoteRemove": "Poista lainattu viesti"
+    "quoteRemove": "Poista lainattu viesti",
+    "templates": "Lisää tekstikatkelma",
+    "templatesSearch": "Etsi tekstikatkelma",
+    "templatesNone": "Mikään tekstikatkelma ei vastaa.",
+    "templatesEmpty": "Ei vielä tekstikatkelmia. Luo niitä kohdassa Asetukset › Tekstikatkelmat."
   },
   "bulk": {
     "select": "Valitse",
@@ -155,6 +173,7 @@
       "archive": "{count, plural, one {# keskustelu arkistoitu} other {# keskustelua arkistoitu}}",
       "trash": "{count, plural, one {# keskustelu siirretty roskakoriin} other {# keskustelua siirretty roskakoriin}}",
       "junk": "{count, plural, one {# keskustelu merkitty roskapostiksi} other {# keskustelua merkitty roskapostiksi}}",
+      "snooze": "{count, plural, one {# keskustelu torkutettu {time} asti} other {# keskustelua torkutettu {time} asti}}",
       "inbox": "{count, plural, one {# keskustelu siirretty saapuneisiin} other {# keskustelua siirretty saapuneisiin}}",
       "delete": "{count, plural, one {# keskustelu poistettu pysyvästi} other {# keskustelua poistettu pysyvästi}}",
       "move": "{count, plural, one {# keskustelu siirretty kansioon {folder}} other {# keskustelua siirretty kansioon {folder}}}"
