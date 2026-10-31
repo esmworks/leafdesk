@@ -244,10 +244,11 @@ export async function listThreads(userId: string, input: { mailboxId: string; fo
     const [at, threadId] = [input.cursor.slice(0, input.cursor.indexOf("|")), input.cursor.slice(input.cursor.indexOf("|") + 1)];
     if (!Number.isNaN(Date.parse(at))) after = sql`(t.last, t.thread_id) < (${at}::timestamptz, ${threadId})`;
   }
-  const groups = await db.execute<{ thread_id: string; last: string; unread: boolean; starred: boolean; files: boolean; drafts: boolean; newest: string }>(sql`
+  const groups = await db.execute<{ thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; files: boolean; drafts: boolean; newest: string }>(sql`
     select * from (
       select ${mailMessage.threadId} as thread_id, max(${mailMessage.sentAt}) as last,
-        bool_or(not ${mailMessage.seen}) as unread, bool_or(${mailMessage.flagged}) as starred,
+        bool_or(not ${mailMessage.seen}) as unread, count(*)::int as held,
+        (count(*) filter (where not ${mailMessage.seen}))::int as unseen, bool_or(${mailMessage.flagged}) as starred,
         bool_or(${mailMessage.hasAttachments}) as files, bool_or(${mailMessage.draft}) as drafts,
         (array_agg(${mailMessage.id} order by ${mailMessage.sentAt} desc, ${mailMessage.uid} desc))[1] as newest
       from ${mailMessage}
@@ -308,6 +309,8 @@ export async function listThreads(userId: string, input: { mailboxId: string; fo
         sentAt: new Date(g.last).toISOString(),
         count: Math.max(1, distinct.size),
         unread: g.unread,
+        held: Number(g.held),
+        unseen: Number(g.unseen),
         starred: g.starred,
         hasAttachments: g.files,
         hasDraft: g.drafts,
@@ -499,4 +502,18 @@ export async function readAttachment(userId: string, input: { id: string; part: 
   });
   if (!file) throw new RowMailError("gone");
   return file;
+}
+
+/** Whether the sidebar offers the Mail tab: email is on in the workspace and the person has a mailbox there. Never throws. */
+export async function mailTabShown(userId: string, workspaceId: string): Promise<boolean> {
+  const [one] = await db
+    .select({ id: mailbox.id })
+    .from(mailbox)
+    .where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, userId)))
+    .limit(1);
+  if (!one) return false;
+  return requireMailIn(userId, workspaceId).then(
+    () => true,
+    () => false,
+  );
 }

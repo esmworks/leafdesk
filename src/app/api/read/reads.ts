@@ -2,6 +2,7 @@ import { agentChatInfoAction, agentChatTurnAction, agentThreadAction, agentThrea
 import { pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
+import { getThreadAction, listMailboxesAction, listThreadsAction, openMailboxAction, readBodyAction, refreshFolderAction } from "@/app/actions/mail";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { listInboxAction, unreadCountAction } from "@/app/actions/notifications";
 import { recordPageViewAction } from "@/app/actions/page-views";
@@ -49,6 +50,12 @@ export const READS = {
   chatConversations: listConversationsAction,
   chatConversation: getConversationAction,
   placeAt: placeAtAction,
+  mailboxes: listMailboxesAction,
+  mailOpen: openMailboxAction,
+  mailRefreshFolder: refreshFolderAction,
+  mailThreads: listThreadsAction,
+  mailThread: getThreadAction,
+  mailBody: readBodyAction,
 };
 
 export type Reads = typeof READS;

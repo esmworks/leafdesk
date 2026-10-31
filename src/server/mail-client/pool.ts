@@ -19,15 +19,20 @@ const IDLE_MS = 30_000;
 const g = globalThis as typeof globalThis & { __leafdeskMailPool?: Map<string, Entry> };
 const pool = (g.__leafdeskMailPool ??= new Map<string, Entry>());
 
-/** A new sign-in or new servers open a new connection. */
-const keyOf = (box: Box) => `${box.id}:${box.updatedAt.getTime()}`;
+/**
+ * New servers or a new password open a new connection. Not `updatedAt`: the minute sweep and
+ * Google's token renewals change it, and a connection signed in with a renewed token still works.
+ */
+const keyOf = (box: Box) =>
+  JSON.stringify([box.imapHost, box.imapPort, box.imapSecure, box.username, box.auth, box.auth === "password" ? box.secret : null]);
 
 function close(id: string) {
   const entry = pool.get(id);
   if (!entry) return;
   pool.delete(id);
   if (entry.timer) clearTimeout(entry.timer);
-  entry.client.then((client) => client.logout().catch(() => client.close())).catch(() => {});
+  // What is still queued on it finishes first.
+  void entry.queue.finally(() => entry.client.then((client) => client.logout().catch(() => client.close())).catch(() => {}));
 }
 
 function entryFor(box: Box): Entry {

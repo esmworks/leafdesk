@@ -25,7 +25,8 @@
     "label": "Kenar çubuğu",
     "home": "Ana sayfa",
     "journal": "Günlük",
-    "chat": "Sohbet"
+    "chat": "Sohbet",
+    "mail": "Posta"
   },
   "toggle": {
     "open": "Kenar çubuğunu aç",

@@ -25,7 +25,8 @@
     "label": "Sidebar",
     "home": "Home",
     "journal": "Journal",
-    "chat": "Chat"
+    "chat": "Chat",
+    "mail": "Mail"
   },
   "toggle": {
     "open": "Open sidebar",

@@ -27,6 +27,7 @@ import {
   ListTodo,
   LogOut,
   LogOut as LeaveIcon,
+  Mail as MailIcon,
   MessagesSquare,
   MoreHorizontal,
   Pencil,
@@ -113,6 +114,8 @@ import { read } from "@/components/read";
 
 // Loaded the first time the inbox opens: it is not needed to show a page.
 const InboxDialog = lazyPart(() => import("./inbox-dialog").then((m) => m.InboxDialog));
+// Loaded the first time the Mail tab opens: most people open it now and then.
+const MailSidebar = lazyPart(() => import("@/components/mail/mail-sidebar").then((m) => m.MailSidebar));
 // Loaded the first time the import dialog opens, with the readers of every format it takes.
 const ImportDialog = lazyPart(() => import("@/components/workspace/import-dialog").then((m) => m.ImportDialog));
 
@@ -155,7 +158,7 @@ type Target = string | null | undefined;
  * conversations. Each is a place too: the tab follows the page that is open, and a tab opens where
  * the person last was in it (its start when there is none, or when it is already the open tab).
  */
-type SidebarTab = "home" | "journal" | "chat";
+type SidebarTab = "home" | "journal" | "chat" | "mail";
 
 export function Sidebar({
   workspaceId,
@@ -172,6 +175,7 @@ export function Sidebar({
   initialAgents = [],
   user,
   joinable = [],
+  mail = false,
 }: {
   workspaceId: string;
   workspaces: Workspace[];
@@ -195,6 +199,8 @@ export function Sidebar({
   /** The agents they may talk to: each opens its chat. */
   initialAgents?: SidebarAgent[];
   user: { id: string; name: string; email: string; image: string | null };
+  /** They have a mailbox here and email is on: the Mail tab (server/mail-client). */
+  mail?: boolean;
 }) {
   const router = useRouter();
   const t = useTranslations("sidebar");
@@ -474,8 +480,9 @@ export function Sidebar({
   }
 
   // Daily notes are private top-level pages, so the journal only for those who may add them.
-  const tabs: SidebarTab[] = ["home", ...(topLevel ? (["journal"] as const) : []), ...(aiChat ? (["chat"] as const) : [])];
-  const routeTab: SidebarTab = onChatPage ? "chat" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
+  const onMailPage = pathname.startsWith(`/w/${workspaceId}/mail`);
+  const tabs: SidebarTab[] = ["home", ...(topLevel ? (["journal"] as const) : []), ...(aiChat ? (["chat"] as const) : []), ...(mail ? (["mail"] as const) : [])];
+  const routeTab: SidebarTab = onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
   const [tab, setTab] = useState<SidebarTab>(routeTab);
   // Where the person last was in each tab, in this visit.
   const lastPath = useRef<Partial<Record<SidebarTab, string>>>({});
@@ -490,7 +497,7 @@ export function Sidebar({
     setTab(next);
     if (back) router.push(back);
     else if (next === "journal") openDailyNote();
-    else router.push(next === "chat" ? chatPath(workspaceId) : `/w/${workspaceId}`);
+    else router.push(next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
     // A new chat on the chat page only changes the address's `?c=`, which leaves a phone's drawer open.
     if (next === "chat") sidebar?.close();
   }
@@ -1423,7 +1430,7 @@ export function Sidebar({
             <SidebarTabs
               label={t("tabs.label")}
               tabs={tabs.map((key) => {
-                const Icon = key === "journal" ? BookOpen : key === "chat" ? MessagesSquare : House;
+                const Icon = key === "journal" ? BookOpen : key === "chat" ? MessagesSquare : key === "mail" ? MailIcon : House;
                 const label = t(`tabs.${key}`);
                 // Opening the daily notes or the chat takes the server.
                 const unreachable = offline && key !== "home" && key !== tab;
@@ -1480,9 +1487,11 @@ export function Sidebar({
         )}
         <nav
           className="flex-1 overflow-y-auto px-2 pb-4"
-          aria-label={tab === "chat" ? tAi("history") : tab === "journal" ? t("tabs.journal") : t("pages.heading")}
+          aria-label={tab === "chat" ? tAi("history") : tab === "journal" ? t("tabs.journal") : tab === "mail" ? t("tabs.mail") : t("pages.heading")}
         >
-          {tab === "chat" && aiChat ? (
+          {tab === "mail" ? (
+            <MailSidebar workspaceId={workspaceId} />
+          ) : tab === "chat" && aiChat ? (
             <>
               <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={() => openTab("chat")}>
                 {tAi("newChat")}

@@ -25,7 +25,8 @@
     "label": "Pasek boczny",
     "home": "Strona główna",
     "journal": "Dziennik",
-    "chat": "Czat"
+    "chat": "Czat",
+    "mail": "Poczta"
   },
   "toggle": {
     "open": "Otwórz pasek boczny",

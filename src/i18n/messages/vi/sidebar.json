@@ -25,7 +25,8 @@
     "label": "Thanh bên",
     "home": "Trang chủ",
     "journal": "Nhật ký",
-    "chat": "Trò chuyện"
+    "chat": "Trò chuyện",
+    "mail": "Thư"
   },
   "toggle": {
     "open": "Mở thanh bên",

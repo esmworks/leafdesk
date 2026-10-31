@@ -24,6 +24,7 @@ import { chatOptionsFor } from "@/server/ai-chat";
 import { memoryAvailable } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
 import { calloutStylesOf } from "@/server/callout-styles";
+import { mailTabShown } from "@/server/mail-client/read";
 import { getDesktopLinks } from "@/server/desktop-links";
 import { firstAdminId } from "@/server/first-admin";
 import { joinableWorkspaces } from "@/server/join-requests";
@@ -54,7 +55,7 @@ export default async function WorkspaceLayout({
     }
     notFound();
   }
-  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin, voice, chatOptions, desktopLinks, agents] = await Promise.all([
+  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin, voice, chatOptions, desktopLinks, agents, mail] = await Promise.all([
     listWorkspaces(user.id),
     joinableWorkspaces(user.id),
     getSidebar(user.id, workspaceId),
@@ -72,6 +73,7 @@ export default async function WorkspaceLayout({
     chatOptionsFor(user.id, workspaceId),
     env.localMode ? ("off" as const) : getDesktopLinks(user.id),
     sidebarAgents(user.id, workspaceId),
+    mailTabShown(user.id, workspaceId),
   ]);
 
   const body = (
@@ -96,6 +98,7 @@ export default async function WorkspaceLayout({
             topLevel={topLevel}
             initialLayout={sidebarLayout}
             initialAgents={agents}
+            mail={mail}
             user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
           />
           {/* Room for the AI chat panel while it is open (--chat-width in globals.css). */}

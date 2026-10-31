@@ -25,7 +25,8 @@
     "label": "Sidepanel",
     "home": "Hjem",
     "journal": "Dagbog",
-    "chat": "Chat"
+    "chat": "Chat",
+    "mail": "Mail"
   },
   "toggle": {
     "open": "Åbn sidepanel",

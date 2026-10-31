@@ -25,7 +25,8 @@
     "label": "사이드바",
     "home": "홈",
     "journal": "저널",
-    "chat": "채팅"
+    "chat": "채팅",
+    "mail": "메일"
   },
   "toggle": {
     "open": "사이드바 열기",

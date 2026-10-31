@@ -25,7 +25,8 @@
     "label": "Bilah samping",
     "home": "Beranda",
     "journal": "Jurnal",
-    "chat": "Obrolan"
+    "chat": "Obrolan",
+    "mail": "Email"
   },
   "toggle": {
     "open": "Buka bilah samping",

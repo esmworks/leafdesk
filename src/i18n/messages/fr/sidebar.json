@@ -25,7 +25,8 @@
     "label": "Barre latérale",
     "home": "Accueil",
     "journal": "Journal",
-    "chat": "Discussion"
+    "chat": "Discussion",
+    "mail": "E-mail"
   },
   "toggle": {
     "open": "Ouvrir la barre latérale",

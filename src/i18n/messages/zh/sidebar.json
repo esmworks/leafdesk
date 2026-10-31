@@ -25,7 +25,8 @@
     "label": "侧边栏",
     "home": "主页",
     "journal": "日志",
-    "chat": "聊天"
+    "chat": "聊天",
+    "mail": "邮件"
   },
   "toggle": {
     "open": "打开侧边栏",

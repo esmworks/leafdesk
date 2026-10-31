@@ -202,6 +202,9 @@ export type MailThreadItem = {
   sentAt: string;
   count: number;
   unread: boolean;
+  /** Its messages here, and how many of them are unread: what reading or moving it changes in the folder's count. */
+  held: number;
+  unseen: number;
   starred: boolean;
   hasAttachments: boolean;
   hasDraft: boolean;

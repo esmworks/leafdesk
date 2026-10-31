@@ -25,7 +25,8 @@
     "label": "Zijbalk",
     "home": "Start",
     "journal": "Dagboek",
-    "chat": "Chat"
+    "chat": "Chat",
+    "mail": "Mail"
   },
   "toggle": {
     "open": "Zijbalk openen",

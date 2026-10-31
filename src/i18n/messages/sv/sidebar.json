@@ -25,7 +25,8 @@
     "label": "Sidofält",
     "home": "Start",
     "journal": "Dagbok",
-    "chat": "Chatt"
+    "chat": "Chatt",
+    "mail": "E-post"
   },
   "toggle": {
     "open": "Öppna sidofältet",

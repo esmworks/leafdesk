@@ -25,7 +25,8 @@
     "label": "Barra laterale",
     "home": "Home",
     "journal": "Diario",
-    "chat": "Chat"
+    "chat": "Chat",
+    "mail": "Posta"
   },
   "toggle": {
     "open": "Apri la barra laterale",

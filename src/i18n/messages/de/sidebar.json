@@ -25,7 +25,8 @@
     "label": "Seitenleiste",
     "home": "Startseite",
     "journal": "Journal",
-    "chat": "Chat"
+    "chat": "Chat",
+    "mail": "Mail"
   },
   "toggle": {
     "open": "Seitenleiste öffnen",

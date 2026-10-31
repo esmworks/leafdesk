@@ -25,7 +25,8 @@
     "label": "Sivupalkki",
     "home": "Etusivu",
     "journal": "Päiväkirja",
-    "chat": "Keskustelu"
+    "chat": "Keskustelu",
+    "mail": "Sähköposti"
   },
   "toggle": {
     "open": "Avaa sivupalkki",
