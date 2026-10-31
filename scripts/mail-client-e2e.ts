@@ -759,6 +759,23 @@ try {
   check(/^Subject: Abonelik iptal$/m.test(await lastMessageTo(robot)), "the mail goes from the mailbox to the list's address, with the subject the list asks for");
   check((await errorCode(() => unsubscribe(ids.ada, { id: listMessage("Sahte liste") }, listAnswers(200)))) === "invalid" && posted.length === 2, "nothing goes to a sender that failed the check");
 
+  // Searching the messages' text on the server: the index keeps only their first lines.
+  const filler = "Bu ay yapılan bakımların özeti aşağıdadır. ".repeat(12);
+  await outside.sendMail({ ...base, subject: "Bakım raporu", text: `Merhaba,\n\n${filler}\nKondenserbobini değişti.` });
+  await sweep();
+  // One the index hasn't read yet (put there after the last read).
+  const oldDate = new Date(Date.now() - 200 * 86_400_000);
+  await asAda((client) =>
+    client.append("INBOX", Buffer.from(`From: ${customer}\r\nTo: ${ada}\r\nSubject: Eski sozlesme\r\nMessage-ID: <sozlesme.${RUN}@acme.test>\r\nDate: ${oldDate.toUTCString()}\r\n\r\nYillikmuhafaza maddesi.\r\n`), ["\\Seen"], oldDate),
+  );
+  const inText = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id, search: "kondenserbobini" });
+  check(inText.items.length === 1 && inText.items[0].subject === "Bakım raporu", "a word past the first lines is found in the text on the server", inText.items.map((t) => t.subject));
+  check(inText.items[0]?.preview && !/kondenserbobini/i.test(inText.items[0].preview), "though the index's first lines don't have it");
+  const older = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id, search: "yillikmuhafaza" });
+  check(older.items.length === 1 && older.items[0].subject === "Eski sozlesme", "a message the index hasn't read yet is found and read into it", older.items.map((t) => t.subject));
+  check((await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id, search: "kondenserbobini yokboylesoz" })).items.length === 0, "every word must be in the text");
+  check((await read.listThreads(ids.bob, { mailboxId: boxId, folderId: inbox.id, search: "kondenserbobini" }).catch(() => null)) === null, "nobody else searches the mailbox");
+
   // Live: a watched inbox (IDLE) tells of new mail as it comes, already read into the index.
   check(await asAda(async (client) => client.capabilities.has("IDLE")), "the test server takes IDLE");
   const heard: { mailboxId: string; folderId: string }[] = [];

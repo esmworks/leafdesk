@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNull, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { mailbox, mailFolder, mailMessage, page } from "@/db/schema";
 import { dmarcFailed, normalizeAddress, parseHeaderBlock } from "@/lib/mail";
@@ -23,7 +23,7 @@ import { mailDatabases } from "@/server/row-mail/match";
 import { requireMailIn, requireOwnMailbox } from "./access";
 import { discoverFolders, orderFolders } from "./folders";
 import { cleanMailHtml, htmlText } from "./html";
-import { indexFolder, indexMailbox, isIndexed } from "./indexer";
+import { indexFolder, indexMailbox, indexUids, isIndexed } from "./indexer";
 import { bodyHeld, heldBody } from "./body-cache";
 import { imagesFor } from "./images";
 import { ConnectionLost, SHORT_MS, warmImap, withImap, type ImapLane } from "./pool";
@@ -166,8 +166,8 @@ export async function refreshMailbox(userId: string, mailboxId: string): Promise
 
 const like = (value: string) => `%${value.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 
-/** The SQL a search box's words and filters become, on mail_message. */
-function searchCondition(input: string): SQL | undefined {
+/** The SQL a search box's words and filters become, on mail_message; messages in `found` match the words too (their text did, on the mail server). */
+function searchCondition(input: string, found: string[] = []): SQL | undefined {
   const query = parseMailQuery(input);
   const parts: SQL[] = [];
   if (query.from) parts.push(sql`(${mailMessage.fromAddress} ilike ${like(query.from)} or ${mailMessage.fromName} ilike ${like(query.from)})`);
@@ -178,11 +178,84 @@ function searchCondition(input: string): SQL | undefined {
   if (query.attachment) parts.push(eq(mailMessage.hasAttachments, true));
   if (query.after) parts.push(sql`${mailMessage.sentAt} >= ${query.after}::date`);
   if (query.before) parts.push(sql`${mailMessage.sentAt} < ${query.before}::date`);
-  for (const word of query.words.slice(0, 10)) {
+  const words = query.words.slice(0, 10).map((word) => {
     const w = like(word);
-    parts.push(sql`(${mailMessage.subject} ilike ${w} or ${mailMessage.preview} ilike ${w} or ${mailMessage.fromAddress} ilike ${w} or ${mailMessage.fromName} ilike ${w} or ${mailMessage.to}::text ilike ${w})`);
-  }
+    return sql`(${mailMessage.subject} ilike ${w} or ${mailMessage.preview} ilike ${w} or ${mailMessage.fromAddress} ilike ${w} or ${mailMessage.fromName} ilike ${w} or ${mailMessage.to}::text ilike ${w})`;
+  });
+  if (words.length) parts.push(found.length ? or(and(...words), inArray(mailMessage.id, found))! : and(...words)!);
   return parts.length ? and(...parts) : undefined;
+}
+
+/** Folders searched on the mail server for a search's words, at most, roles first. */
+const BODY_FOLDERS = 6;
+/** Messages found there per folder, the newest, and how many of them not yet in the index are read into it. */
+const BODY_HITS = 100;
+const BODY_READ = 30;
+const BODY_SEARCH_MS = 8_000;
+/** What a search found on the servers is kept this long, so its next pages list the same. */
+const BODY_KEPT_MS = 3 * 60_000;
+const ROLE_RANK = ["inbox", "sent", "archive", "drafts"];
+const bodySearches = ((globalThis as typeof globalThis & { __leafdeskMailBodySearches?: Map<string, { at: number; ids: string[] }> }).__leafdeskMailBodySearches ??= new Map());
+
+/**
+ * The messages whose text has a search's words, as the mail servers find them (SEARCH BODY): the
+ * index keeps only each message's first lines. Messages found that the index doesn't have yet
+ * (older than it reads back) are read into it, a few per folder. A server slow to answer or
+ * refusing leaves the index's own matches; asked again with `cursor`, only what was found is used.
+ */
+async function bodyMatches(key: string, searched: { box: Box; folders: FolderRow[] }[], words: string[], again: boolean): Promise<string[]> {
+  const now = Date.now();
+  for (const [k, kept] of bodySearches) if (now - kept.at >= BODY_KEPT_MS) bodySearches.delete(k);
+  const kept = bodySearches.get(key);
+  if (kept || again) return kept?.ids ?? [];
+  const rank = (f: FolderRow) => (f.role && ROLE_RANK.includes(f.role) ? ROLE_RANK.indexOf(f.role) : ROLE_RANK.length);
+  const ids = await Promise.all(
+    searched.map(({ box, folders }) =>
+      withImap(
+        box,
+        async (client) => {
+          const out: string[] = [];
+          for (const folder of [...folders].sort((a, b) => rank(a) - rank(b)).slice(0, BODY_FOLDERS)) {
+            const lock = await client.getMailboxLock(folder.path, { readOnly: true });
+            try {
+              let uids: number[] = [];
+              for (const [i, word] of words.entries()) {
+                const hits = await client.search({ body: word }, { uid: true });
+                const set = new Set(Array.isArray(hits) ? hits : []);
+                uids = i === 0 ? [...set] : uids.filter((uid) => set.has(uid));
+                if (!uids.length) break;
+              }
+              const newest = uids.sort((a, b) => b - a).slice(0, BODY_HITS);
+              if (!newest.length) continue;
+              const indexed = () =>
+                db
+                  .select({ id: mailMessage.id, uid: mailMessage.uid })
+                  .from(mailMessage)
+                  .where(and(eq(mailMessage.folderId, folder.id), inArray(mailMessage.uid, newest)));
+              let known = await indexed();
+              const missing = newest.filter((uid) => !known.some((m) => m.uid === uid)).slice(0, BODY_READ);
+              if (missing.length) {
+                await indexUids(client, box, folder, missing);
+                known = await indexed();
+              }
+              out.push(...known.map((m) => m.id));
+            } finally {
+              lock.release();
+            }
+          }
+          return out;
+        },
+        "open",
+        { within: BODY_SEARCH_MS },
+      ).catch((error) => {
+        console.warn(`[mail-client] searching mailbox ${box.id} on its server:`, (error as Error)?.message ?? error);
+        return [] as string[];
+      }),
+    ),
+  );
+  const flat = ids.flat();
+  bodySearches.set(key, { at: Date.now(), ids: flat });
+  return flat;
 }
 
 type RowChip = NonNullable<MailThreadItem["row"]>;
@@ -313,14 +386,13 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
   );
   const scope = each.flatMap((e) => e.scope);
   if (!scope.length) return { items: [], next: null };
-  const where = and(inArray(mailMessage.folderId, scope), search ? searchCondition(search) : undefined);
 
   let after: SQL | undefined;
   // "<date>|<mailbox>|<thread>": a thread's id may hold a "|" of its own.
   const [at, mailboxId, ...rest] = cursor?.split("|") ?? [];
   const threadId = rest.join("|");
   if (at && mailboxId && threadId && !Number.isNaN(Date.parse(at))) after = sql`(t.last, t.mailbox_id, t.thread_id) < (${at}::timestamptz, ${mailboxId}, ${threadId})`;
-  const groups = await db.execute<{ mailbox_id: string; thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; files: boolean; drafts: boolean; newest: string }>(sql`
+  const groupsOf = (where: SQL | undefined) => db.execute<{ mailbox_id: string; thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; files: boolean; drafts: boolean; newest: string }>(sql`
     select * from (
       select ${mailMessage.mailboxId} as mailbox_id, ${mailMessage.threadId} as thread_id, max(${mailMessage.sentAt}) as last,
         bool_or(not ${mailMessage.seen}) as unread, count(*)::int as held,
@@ -335,6 +407,17 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
     order by t.last desc, t.mailbox_id desc, t.thread_id desc
     limit ${MAIL_PAGE + 1}
   `);
+  let groups = await groupsOf(and(inArray(mailMessage.folderId, scope), search ? searchCondition(search) : undefined));
+  // Less than a page in the index: the mail servers look in the messages' text too.
+  const words = search ? parseMailQuery(search).words.slice(0, 5) : [];
+  if (words.some((w) => [...w].length >= 3) && (cursor || groups.length <= MAIL_PAGE)) {
+    const searched = each.map(({ box, scope: ids }) => ({ box, folders: [] as FolderRow[], ids }));
+    const folders = await db.select().from(mailFolder).where(inArray(mailFolder.id, scope));
+    for (const s of searched) s.folders = folders.filter((f) => s.ids.includes(f.id));
+    const key = [userId, search, ...each.map((e) => e.box.id).sort()].join("|");
+    const found = await bodyMatches(key, searched, words, !!cursor);
+    if (found.length) groups = await groupsOf(and(inArray(mailMessage.folderId, scope), searchCondition(search, found)));
+  }
   const page_ = [...groups];
   const more = page_.length > MAIL_PAGE;
   const shown = page_.slice(0, MAIL_PAGE);

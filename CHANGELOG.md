@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Searching the whole text of mail in the Mail tab.** When the index (senders, subjects and
+  first lines) finds less than a page, the mail server looks for the words in the messages' text
+  too, in six folders at most; messages found that weren't read in yet are. No migration.
+
 - **New mail shows at once in the Mail tab.** While the tab is open in front, the server waits
   on each of the person's inboxes with IMAP IDLE (one more connection per mailbox, closed soon
   after the tab goes) and tells the tab as mail comes, goes or is marked elsewhere; the list and

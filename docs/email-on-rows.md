@@ -151,7 +151,9 @@ A message that can't be sent then is kept as a draft and says why. Files of up t
 attached, at most 100 recipients and 100 messages an hour from each mailbox; the sent folder keeps
 a copy. The search
 box looks through every folder but the trash and junk, in senders, recipients, subjects and first
-lines, and takes `from:`, `to:`, `subject:`, `is:unread`, `is:read`, `is:starred`,
+lines; when that finds less than a page, the mail server also looks for the words in the messages'
+whole text (in the inbox, sent mail, archive and drafts first, six folders at most), and what it
+finds that Leafdesk hadn't read yet is read in. It takes `from:`, `to:`, `subject:`, `is:unread`, `is:read`, `is:starred`,
 `has:attachment`, `after:2026-01-31` and `before:`; the words found are marked in the list. Keys: `c` new message, `/`
 search, `j` and `k` next and previous thread, `o` or Enter open the first; in a thread `e` archive,
 `#` trash, `!` junk, `s` star, `u` unread, `r` reply, `a` reply all, `f` forward, Escape back to

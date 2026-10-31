@@ -255,7 +255,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `access.ts`; headers indexed by the minute's mailbox sweep, `indexer.ts`, and while a tab listens
   (`api/mail/events`, an event stream that ends every 10 minutes so the browser opens it again and is
   checked again) by `watch.ts`, an IDLE connection on the inbox outside the pool, whose NOOPs would
-  end IDLE; the tab loads its side, `mail-live.ts`, lazily; bodies read live through
+  end IDLE; the tab loads its side, `mail-live.ts`, lazily; a search finding less than a page in the index
+  asks the servers too, `read.ts` `bodyMatches` (SEARCH BODY, kept a few minutes for the next pages); bodies read live through
   `pool.ts` `withImap`, two queued connections per mailbox (lane `open` for clicks, `background`
   for folder reads and loading ahead) kept alive by NOOPs and keyed by its servers and password, never
   `updatedAt`, which the sweep changes; a server can drop one silently, leaving its commands waiting
