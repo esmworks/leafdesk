@@ -21,6 +21,11 @@ describe("mailFileKind", () => {
     expect(mailFileKind("application/octet-stream", "setup.exe")).toBeNull();
   });
 
+  it("reads a CSV file sent as an Excel type, as Windows mail programs send it", () => {
+    expect(mailFileKind("application/vnd.ms-excel", "rapor.CSV")).toEqual({ kind: "text" });
+    expect(mailFileKind("application/vnd.ms-excel", "old.xls")).toBeNull();
+  });
+
   it("doesn't read a type it doesn't know, whatever the name says", () => {
     expect(mailFileKind("application/x-msdownload", "invoice.pdf")).toBeNull();
     expect(mailFileKind("application/msword", "old.doc")).toBeNull();

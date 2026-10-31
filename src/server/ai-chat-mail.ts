@@ -36,6 +36,7 @@ import { registerWeb, unknownArguments, type Registry, type ToolOutcome } from "
 import { connectedAppCall } from "@/server/connected-app";
 import { loadMessages } from "@/i18n/messages";
 import { recipientLocale } from "@/server/mail/locale";
+import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
 import { threadForAi, type AiMailFiles } from "@/server/mail-client/ai";
 import { mailFileForAi } from "@/server/mail-client/ai-files";
@@ -174,6 +175,8 @@ export async function runChatMailTool(
     if (call.name === MAIL_TOOL_NAMES.attachment) return await readMailAttachment(userId, workspaceId, call.arguments, registry, room, boxes);
     return await readMail(userId, workspaceId, text(call.arguments.message_id, 100), registry, room, boxes);
   } catch (error) {
+    // The mail server can't be reached, or stopped answering and was closed (pool.ts ConnectionLost).
+    if (error instanceof MailConnectError) return { content: "The mail server can't be reached now. Answer with what you have.", isError: true };
     if (error instanceof RowMailError || error instanceof AccessError) {
       const content =
         call.name === MAIL_TOOL_NAMES.search
@@ -246,7 +249,8 @@ async function readMail(userId: string, workspaceId: string, messageId: string, 
     text: `${conversationText(thread.messages, Math.min(THREAD_CHARS, room - 800) - row.length - files.length)}${files}${row}`,
   });
   return {
-    content: externalData(`The email thread "${entry.title.replace(/"/g, "'")}" follows.`, formatSources([entry])),
+    // Its subject is the sender's words: it goes inside the frame (formatSources' title), never in the intro.
+    content: externalData("An email thread follows.", formatSources([entry])),
     step: { kind: "mail", action: "read", subject: entry.title, url: path },
   };
 }
@@ -295,7 +299,7 @@ async function readMailAttachment(userId: string, workspaceId: string, args: Rec
       failed: "The image couldn't be read now. Answer with what you have.",
     }[read.problem];
     // Without the file's name: it is the sender's words, and this answer isn't framed.
-    return { content: why, isError: true };
+    return { content: why, isError: true, ...(read.usage ? { usage: read.usage } : {}) };
   }
 
   const length = read.text.length;
@@ -313,7 +317,8 @@ async function readMailAttachment(userId: string, workspaceId: string, args: Rec
     note: [as, more].filter(Boolean).join(" ") || undefined,
   });
   return {
-    content: externalData(`The file "${step.name.replace(/"/g, "'")}" of the email "${subject.replace(/"/g, "'")}" follows.`, formatSources([entry])),
+    // Its name and the email's subject are the sender's words: inside the frame (the title), not in the intro.
+    content: externalData("A file of an email follows.", formatSources([entry])),
     step,
     ...(read.usage ? { usage: read.usage } : {}),
   };

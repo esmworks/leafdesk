@@ -21,9 +21,8 @@ import { decodeText } from "@/lib/import/csv-parse";
 import { imageType, mailFileKind, type MailFileKind } from "@/lib/mail-ai-files";
 import { AiError, chatModelsFor, complete, type AiUsage } from "@/server/ai";
 import { extractText, FILE_TEXT_LIMITS, joinText } from "@/server/file-text";
-import { RowMailError } from "@/server/row-mail/settings";
 import { htmlText } from "./html";
-import { messageForAi, readAttachment } from "./read";
+import { readAttachmentWithin } from "./read";
 
 /** The text of a file the model may read; `partial` when only its start was read. */
 export type MailFileText = { name: string; contentType: string; kind: MailFileKind["kind"]; text: string; partial: boolean; usage?: AiUsage };
@@ -33,10 +32,14 @@ export type MailFileText = { name: string; contentType: string; kind: MailFileKi
  * no text in it (a scan of a PDF, a locked or damaged file), no model here that takes images, or
  * the image's model failing.
  */
-export type MailFileProblem = { name: string; problem: "kind" | "tooLarge" | "empty" | "noImageModel" | "failed" };
+export type MailFileProblem = { name: string; problem: "kind" | "tooLarge" | "empty" | "noImageModel" | "failed"; usage?: AiUsage };
 
-/** The most bytes read of a file of each kind. */
-const MAX_BYTES = { document: FILE_TEXT_LIMITS.bytes, image: CHAT_FILE_LIMITS.imageBytes, text: 5 * 1024 * 1024, html: 5 * 1024 * 1024, message: FILE_TEXT_LIMITS.bytes };
+/**
+ * The most bytes read of a file of each kind. HTML and forwarded emails are parsed whole in memory
+ * (a DOM, a MIME tree), so they are held to what the Mail tab reads of a message's own body.
+ */
+const HTML_BYTES = 2 * 1024 * 1024;
+const MAX_BYTES = { document: FILE_TEXT_LIMITS.bytes, image: CHAT_FILE_LIMITS.imageBytes, text: 5 * 1024 * 1024, html: HTML_BYTES, message: 5 * 1024 * 1024 };
 
 /** An image's text and description, at most this many tokens. */
 const IMAGE_OUTPUT_TOKENS = 4_000;
@@ -64,26 +67,23 @@ function keep(key: string, read: MailFileText) {
  * The text of the file `part` of message `messageId` (the person's own: read.ts ownMessage), read
  * for `workspaceId`'s AI. `background`: an agent's run, which takes from the workspace's allowance
  * as its own turns do. Throws RowMailError when the message or file is gone or the mailbox can't be
- * read, AccessError when it isn't the person's.
+ * read, MailConnectError (ConnectionLost too) when its server can't be reached or stops answering,
+ * AccessError when it isn't the person's.
  */
 export async function mailFileForAi(userId: string, workspaceId: string, input: { messageId: string; part: string }, { background = false } = {}): Promise<MailFileText | MailFileProblem> {
   const key = `${userId}\u0000${input.messageId}\u0000${input.part}`;
   const known = held.get(key);
   if (known && Date.now() - known.at <= HELD_MS) return known.read;
 
-  // The message's files as read_mail listed them: the kind is known before anything is downloaded.
-  const { attachments } = await messageForAi(userId, input.messageId);
-  const listed = attachments.find((a) => a.part === input.part);
-  if (!listed) throw new RowMailError("gone");
-  const kind = mailFileKind(listed.contentType, listed.name);
-  if (!kind) return { name: listed.name, problem: "kind" };
-  const file = await readAttachment(userId, { id: input.messageId, part: input.part }, { maxBytes: MAX_BYTES[kind.kind] }).catch((error) => {
-    if (error instanceof RowMailError && error.code === "tooMany") return null;
-    throw error;
-  });
-  if (!file) return { name: listed.name, problem: "tooLarge" };
+  // The kind is known from the name and type the server lists, before anything is downloaded.
+  const limitFor = (listed: { name: string; contentType: string }) => {
+    const kind = mailFileKind(listed.contentType, listed.name);
+    return kind && MAX_BYTES[kind.kind];
+  };
+  const file = await readAttachmentWithin(userId, { id: input.messageId, part: input.part }, limitFor);
+  if (!file.data) return { name: file.name, problem: file.why === "skipped" ? "kind" : "tooLarge" };
 
-  const read = await readFile(kind, file, { userId, workspaceId, background });
+  const read = await readFile(mailFileKind(file.contentType, file.name)!, { ...file, data: file.data }, { userId, workspaceId, background });
   if ("problem" in read) return read;
   keep(key, read);
   return read;
@@ -120,7 +120,7 @@ async function readFile(
 async function forwardedText(bytes: Buffer): Promise<string> {
   const mail = await simpleParser(bytes, { skipHtmlToText: true, skipTextToHtml: true, skipImageLinks: true });
   const addresses = (value: typeof mail.to) => (Array.isArray(value) ? value.map((v) => v.text).join(", ") : (value?.text ?? ""));
-  const text = mail.text?.trim() || (mail.html ? await htmlText(mail.html) : "");
+  const text = mail.text?.trim() || (mail.html && mail.html.length <= HTML_BYTES ? await htmlText(mail.html) : "");
   const files = mail.attachments.map((a) => a.filename || a.contentType).filter(Boolean);
   return [
     `From: ${mail.from?.text ?? ""}`,
@@ -153,7 +153,8 @@ async function describeImage(file: { name: string; contentType: string; data: Bu
       maxOutputTokens: IMAGE_OUTPUT_TOKENS,
     });
     const joined = joinText([result.text]);
-    if (!joined.text) return { name, problem: "empty" };
+    // Nothing written out was still paid for.
+    if (!joined.text) return { name, problem: "empty", usage: result.usage };
     return { name, contentType, kind: "image", text: joined.text, partial: result.stopReason === "length", usage: result.usage };
   } catch (error) {
     if (error instanceof AiError) return { name, problem: "failed" };

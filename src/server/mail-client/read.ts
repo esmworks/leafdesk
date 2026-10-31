@@ -783,28 +783,70 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
 }
 
 /**
- * A file of a message, read from the mail server whole (`maxBytes` at most, else `tooMany`), never
- * marking the message read.
+ * A file of a message, read from the mail server whole (MAX_ATTACHMENT_BYTES of it in transfer
+ * encoding at most, else `tooMany`), never marking the message read.
  */
-export async function readAttachment(userId: string, input: { id: string; part: string }, { maxBytes = MAX_ATTACHMENT_BYTES }: { maxBytes?: number } = {}) {
+export async function readAttachment(userId: string, input: { id: string; part: string }) {
+  const file = await fetchAttachment(userId, input, () => MAX_ATTACHMENT_BYTES);
+  if (!file.data) throw new RowMailError("tooMany");
+  return { name: file.name, contentType: file.contentType, data: file.data };
+}
+
+/** A file read for someone waiting on it: signing in and reading must be done in this many ms. */
+const FILE_MS = 60_000;
+
+/**
+ * A file of a message as the AI reads it (ai-files.ts): `limitFor` is told the file's name and type
+ * as the server lists them and gives the most bytes read of it, or null to download nothing.
+ * `data` is null with `why` "skipped" then, and "tooLarge" when the file is larger, decoded too.
+ * Work the person waits on: a connection that stops answering is closed and a new one tried once.
+ */
+export async function readAttachmentWithin(
+  userId: string,
+  input: { id: string; part: string },
+  limitFor: (file: { name: string; contentType: string }) => number | null,
+): Promise<{ name: string; contentType: string } & ({ data: Buffer } | { data: null; why: "skipped" | "tooLarge" })> {
+  const read = () => fetchAttachment(userId, input, limitFor, { within: FILE_MS, decoded: true });
+  return read().catch((error) => {
+    if (!(error instanceof ConnectionLost)) throw error;
+    return read();
+  });
+}
+
+async function fetchAttachment(
+  userId: string,
+  input: { id: string; part: string },
+  limitFor: (file: { name: string; contentType: string }) => number | null,
+  { within, decoded = false }: { within?: number; decoded?: boolean } = {},
+): Promise<{ name: string; contentType: string } & ({ data: Buffer } | { data: null; why: "skipped" | "tooLarge" })> {
   if (typeof input.part !== "string" || !/^\d+(\.\d+)*$/.test(input.part)) throw new RowMailError("invalid");
   const { box, message, folder } = await ownMessage(userId, input.id);
-  const file = await withImap(box, async (client) => {
-    const lock = await client.getMailboxLock(folder.path, { readOnly: true });
-    try {
-      const fetched = await client.fetchOne(String(message.uid), { uid: true, bodyStructure: true }, { uid: true });
-      const listed = fetched && fetched.bodyStructure ? messageParts(fetched.bodyStructure).attachments.find((a) => a.part === input.part) : undefined;
-      if (!listed) return null;
-      if (listed.size > travelling(maxBytes)) throw new RowMailError("tooMany");
-      const raw = await readPart(client, message.uid, listed.part, travelling(maxBytes));
-      if (!raw) return null;
-      const data = decodeTransfer(raw, listed.encoding);
-      if (data.length > maxBytes) throw new RowMailError("tooMany");
-      return { name: listed.name, contentType: listed.contentType, data };
-    } finally {
-      lock.release();
-    }
-  });
+  const file = await withImap(
+    box,
+    async (client) => {
+      const lock = await client.getMailboxLock(folder.path, { readOnly: true });
+      try {
+        const fetched = await client.fetchOne(String(message.uid), { uid: true, bodyStructure: true }, { uid: true });
+        const listed = fetched && fetched.bodyStructure ? messageParts(fetched.bodyStructure).attachments.find((a) => a.part === input.part) : undefined;
+        if (!listed) return null;
+        const found = { name: listed.name, contentType: listed.contentType };
+        const maxBytes = limitFor(found);
+        if (maxBytes === null) return { ...found, data: null, why: "skipped" as const };
+        const tooLarge = { ...found, data: null, why: "tooLarge" as const };
+        if (listed.size > travelling(maxBytes)) return tooLarge;
+        const raw = await readPart(client, message.uid, listed.part, travelling(maxBytes));
+        if (!raw) return null;
+        const data = decodeTransfer(raw, listed.encoding);
+        // Its transfer encoding was within the limit: the file itself must be too, where asked.
+        if (decoded && data.length > maxBytes) return tooLarge;
+        return { ...found, data };
+      } finally {
+        lock.release();
+      }
+    },
+    "open",
+    { within },
+  );
   if (!file) throw new RowMailError("gone");
   return file;
 }

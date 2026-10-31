@@ -49,6 +49,8 @@ export function mailFileKind(contentType: string, name: string): MailFileKind | 
   if (type === "text/html") return { kind: "html" };
   if (type === "message/rfc822") return { kind: "message" };
   if (TEXT_TYPES.has(type) || type.endsWith("+xml") || type.endsWith("+json")) return { kind: "text" };
+  // Windows mail programs send a CSV file as an Excel type (chat-attachments.ts reads it so too).
+  if (ext === "csv" && type === "application/vnd.ms-excel") return { kind: "text" };
   if (!VAGUE_TYPES.has(type)) return null;
   if (DOCUMENT_EXTENSIONS.has(ext)) return { kind: "document", document: ext as "pdf" | "docx" | "xlsx" | "pptx" };
   if (IMAGE_EXTENSIONS.has(ext)) return { kind: "image" };

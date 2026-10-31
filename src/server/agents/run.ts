@@ -746,6 +746,8 @@ async function converse(
   let webFound: string[] = [];
   // Whether it read email: from then on it only reads pages and drafts email (see answer).
   let mailRead = false;
+  // Whether something a tool spent paused the agent for spending fast: the run ends at the next turn.
+  let pausedBySpending = false;
   let firstRound = 0;
   let queue: AiToolCall[] = [];
 
@@ -870,6 +872,7 @@ async function converse(
       };
     }
     if (member && mailTools.some((t) => t.name === call.name)) {
+      if (pausedBySpending) return { content: "This agent was turned off for spending fast. Nothing was done; finish now.", isError: true };
       if (call.name === MAIL_TOOL_NAMES.draft) {
         if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
         const prepared = await prepareMailDraft(member, run.workspaceId, call.arguments, undefined, { boxes: mailBoxes, typed: [run.prompt, ...(await chatRunTyped(run))] });
@@ -885,7 +888,12 @@ async function converse(
         usage.inputTokens += out.usage.inputTokens;
         usage.outputTokens += out.usage.outputTokens;
         usage.costUsd += out.usage.costUsd;
-        await addAgentUsage(agent.id, out.usage).catch((error) => console.error("[agents] could not count what a run used", redactError(error)));
+        const monthTokens = await addAgentUsage(agent.id, out.usage).catch((error) => {
+          console.error("[agents] could not count what a run used", redactError(error));
+          return null;
+        });
+        // As a turn's own spending is: its limit nearing is told of, a new agent spending fast paused.
+        if (monthTokens !== null && (await noticeAgentSpending(agent, monthTokens)) === "paused") pausedBySpending = true;
       }
       return out;
     }
@@ -1098,6 +1106,7 @@ async function converse(
       const wait = takeWorkspaceCapacity(run.workspaceId);
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
     }
+    if (pausedBySpending) return { status: "failed", code: "agentDisabled", steps, usage };
     // The month's tokens may have run out since the run started or was taken again (other runs of
     // the agent use them too); a new run's first turn was checked in processRun.
     if ((round > firstRound || saved) && (await overMonthlyLimit(agent))) return { status: "failed", code: "limitReached", steps, usage };
