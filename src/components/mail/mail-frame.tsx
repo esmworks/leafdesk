@@ -23,17 +23,25 @@ export function MailFrame({ html, images, title }: { html: string; images: boole
     const frame = ref.current;
     if (!frame) return;
     const measure = () => {
-      const body = frame.contentDocument?.documentElement;
-      if (body) setHeight(Math.min(20000, Math.max(60, body.scrollHeight)));
+      const page = frame.contentDocument?.documentElement;
+      // Rounded up: scrollHeight rounds a height like 734.4 down, and Chromium scrolls the frame
+      // for the fraction left over.
+      if (page) setHeight(Math.min(20000, Math.max(60, page.scrollHeight, Math.ceil(page.getBoundingClientRect().height))));
     };
-    frame.addEventListener("load", measure);
-    // Images and fonts arrive after load: measure again for a few seconds, and as the width changes.
-    const timer = setInterval(measure, 400);
-    const stop = setTimeout(() => clearInterval(timer), 4000);
     const resize = new ResizeObserver(measure);
     resize.observe(frame);
+    const loaded = () => {
+      measure();
+      // Images without a size that come in late grow the message: followed as it grows.
+      const body = frame.contentDocument?.body;
+      if (body) resize.observe(body);
+    };
+    frame.addEventListener("load", loaded);
+    // Fonts arrive after load too: measure again for a few seconds.
+    const timer = setInterval(measure, 400);
+    const stop = setTimeout(() => clearInterval(timer), 4000);
     return () => {
-      frame.removeEventListener("load", measure);
+      frame.removeEventListener("load", loaded);
       clearInterval(timer);
       clearTimeout(stop);
       resize.disconnect();
