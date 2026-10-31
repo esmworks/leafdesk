@@ -40,6 +40,7 @@ import { useIsOffline } from "@/components/offline/offline-context";
 import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest, type ViewExportFormat } from "./view-bar";
 import { saveDownload } from "./download";
 import { timelineDates, ViewLayoutMenu } from "./view-settings";
+import type { AgendaChoice } from "./agenda-setup-dialog";
 import { lazyPart } from "@/components/lazy-part";
 
 /** The rules a viewer who may not change a view sets for themselves, or a draft of its rules (see `ownRules`). */
@@ -56,6 +57,7 @@ function sameRules(a: PersonalRules, b: PersonalRules): boolean {
 // The table, gallery and list views come with the page; the others load when one is first shown,
 // and in the background once a database that has one has loaded, so opening its tab doesn't wait.
 const VIEW_LOADERS: Partial<Record<ViewType, () => Promise<unknown>>> = {
+  agenda: () => import("./agenda-view"),
   board: () => import("./board-view"),
   calendar: () => import("./calendar-view"),
   chart: () => import("./chart-view"),
@@ -63,6 +65,7 @@ const VIEW_LOADERS: Partial<Record<ViewType, () => Promise<unknown>>> = {
   pivot: () => import("./pivot-view"),
   timeline: () => import("./timeline-view"),
 };
+const AgendaView = dynamic(() => import("./agenda-view").then((module) => module.AgendaView), { loading: () => <ViewSkeleton /> });
 const BoardView = dynamic(() => import("./board-view").then((module) => module.BoardView), { loading: () => <ViewSkeleton /> });
 const CalendarView = dynamic(() => import("./calendar-view").then((module) => module.CalendarView), { loading: () => <ViewSkeleton /> });
 const ChartView = dynamic(() => import("./chart-view").then((module) => module.ChartView), { loading: () => <ViewSkeleton /> });
@@ -70,6 +73,7 @@ const FormView = dynamic(() => import("./form-view").then((module) => module.For
 const FormToolbar = dynamic(() => import("./form-view").then((module) => module.FormToolbar));
 const PivotView = dynamic(() => import("./pivot-view").then((module) => module.PivotView), { loading: () => <ViewSkeleton /> });
 const TimelineView = dynamic(() => import("./timeline-view").then((module) => module.TimelineView), { loading: () => <ViewSkeleton /> });
+const MemoAgendaView = memo(AgendaView);
 const MemoBoardView = memo(BoardView);
 const MemoCalendarView = memo(CalendarView);
 const MemoChartView = memo(ChartView);
@@ -83,6 +87,8 @@ const MemoTimelineView = memo(TimelineView);
 const DashboardView = dynamic(() => import("./dashboard-view"), { loading: () => <DashboardSkeleton /> });
 // Loaded when a map view opens: Leaflet (which needs a browser) comes along only then.
 const MapView = memo(lazyPart(() => import("./map-view").then((m) => m.default), <MapSkeleton />));
+// Opened as an agenda view is added, to pick its date, done and priority properties.
+const AgendaSetupDialog = lazyPart(() => import("./agenda-setup-dialog").then((m) => m.AgendaSetupDialog));
 // Opened now and then, from the layout menu and the current sprint's toolbar.
 const SprintsDialog = dynamic(() => import("./sprints-dialog").then((module) => module.SprintsDialog));
 const CompleteSprintDialog = dynamic(() => import("./sprints-dialog").then((module) => module.CompleteSprintDialog));
@@ -157,6 +163,8 @@ export function DatabasePage({
   const [filterRequest, setFilterRequest] = useState<FilterRequest | null>(null);
   // The search box: this person's, for whichever view is open, never saved (see lib/row-search).
   const [search, setSearch] = useState("");
+  // An agenda being added: its properties are picked first (agenda-setup-dialog).
+  const [agendaSetup, setAgendaSetup] = useState<{ personal: boolean } | null>(null);
   // Sidebar view links change only the query string, so the page stays mounted: follow the URL.
   useEffect(() => {
     if (viewParam) setSelectedViewId(viewParam);
@@ -474,7 +482,7 @@ export function DatabasePage({
     let name = base;
     for (let i = 2; names.has(lower(name)); i++) name = `${base} ${i}`;
     const created = await api.addProperty(name, "date");
-    if (created && view?.type === "calendar") await setConfig(view, { ...view.config, dateBy: created.id });
+    if (created && (view?.type === "calendar" || view?.type === "agenda")) await setConfig(view, { ...view.config, dateBy: created.id });
     if (created && view?.type === "timeline") {
       await setConfig(view, { ...view.config, ...(asEnd ? { endDateBy: created.id } : { dateBy: created.id }) });
     }
@@ -520,14 +528,42 @@ export function DatabasePage({
   // Automations belong to the database, not to a page showing one of its views; full access only.
   const canManageAutomations = Boolean(snapshot.canManageAccess) && !structureReadOnly && !linked;
 
-  const addView = async (type: ViewType, personal = false) => {
+  const addView = async (type: ViewType, personal = false, config?: ViewConfig) => {
+    // An agenda asks for its date, done and priority properties first.
+    if (type === "agenda" && !config) return setAgendaSetup({ personal });
     // Names for new views follow the UI language; existing names are stored data and stay as-is.
     const base = t(`views.${type}`);
     const taken = new Set(views.map((v) => v.name));
     let name = base;
     for (let i = 2; taken.has(name); i++) name = `${base} ${i}`;
-    const created = await api.addView(name, type, personal);
+    const created = await api.addView(name, type, personal, config);
     if (created) selectView(created.id);
+  };
+
+  /** Adds the agenda picked in its setup, making the date and done properties asked for first. */
+  const createAgenda = async (choice: AgendaChoice, personal: boolean) => {
+    setAgendaSetup(null);
+    const lower = (s: string) => s.toLocaleLowerCase(locale);
+    const names = new Set(snapshot.properties.map((p) => lower(p.name)));
+    const unique = (base: string) => {
+      let name = base;
+      for (let i = 2; names.has(lower(name)); i++) name = `${base} ${i}`;
+      names.add(lower(name));
+      return name;
+    };
+    const made = async (picked: string, base: string, type: "date" | "checkbox") => {
+      // The dialog's NEW_PROPERTY, written out: importing it would bring the dialog into the first load.
+      if (picked !== "new") return picked || undefined;
+      return (await api.addProperty(unique(base), type))?.id;
+    };
+    const dateBy = await made(choice.dateBy, t("calendar.defaultDateProperty"), "date");
+    const statusBy = await made(choice.statusBy, t("agenda.defaultDoneProperty"), "checkbox");
+    const config: ViewConfig = {
+      ...(dateBy ? { dateBy } : {}),
+      ...(statusBy ? { statusBy } : {}),
+      ...(choice.priorityBy ? { priorityBy: choice.priorityBy } : {}),
+    };
+    await addView("agenda", personal, config);
   };
 
   const duplicateView = async (v: View) => {
@@ -858,6 +894,18 @@ export function DatabasePage({
                         readOnly={configReadOnly}
                         onConfig={(config) => void setConfig(view, config)}
                       />
+                    ) : view.type === "agenda" ? (
+                      <MemoAgendaView
+                        colors={rowColors}
+                        workspaceId={workspaceId}
+                        view={view}
+                        properties={viewProperties}
+                        rows={visibleRows}
+                        api={viewApi}
+                        readOnly={readOnly}
+                        locked={locked}
+                        onCreateDateProperty={createDateProperty}
+                      />
                     ) : view.type === "calendar" ? (
                       <div className="page-gutter">
                         <MemoCalendarView
@@ -894,6 +942,14 @@ export function DatabasePage({
                     )}
                   </div>
                 </div>
+                {agendaSetup && (
+                  <AgendaSetupDialog
+                    properties={snapshot.properties}
+                    canCreate={!structureReadOnly && !locked}
+                    onCancel={() => setAgendaSetup(null)}
+                    onCreate={(choice) => void createAgenda(choice, agendaSetup.personal)}
+                  />
+                )}
                 {sprintsOpen && (
                   <SprintsDialog
                     workspaceId={workspaceId}

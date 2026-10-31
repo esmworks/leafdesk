@@ -53,7 +53,7 @@ describe("where a view opens its rows", () => {
   });
 
   it("is a setting of every view with rows to open: not forms or charts", () => {
-    expect(VIEW_TYPES.filter(opensRows)).toEqual(["table", "board", "calendar", "gallery", "list", "feed", "timeline", "map"]);
+    expect(VIEW_TYPES.filter(opensRows)).toEqual(["table", "board", "calendar", "agenda", "gallery", "list", "feed", "timeline", "map"]);
   });
 
   it("takes column alignments of center or end only", () => {

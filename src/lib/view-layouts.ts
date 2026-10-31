@@ -1,4 +1,5 @@
 import type { PropertyOptions, PropertyType, ViewConfig, ViewType } from "@/db/schema/app";
+import { agendaDefaults } from "./agenda";
 import { chartGroupProperty } from "./chart";
 import { ROW_VIEW_TYPES } from "./views";
 
@@ -14,14 +15,16 @@ export function canSwitchLayout(from: ViewType, to: ViewType): boolean {
 
 /**
  * What a view of `type` is placed by, from the properties it may use, for the settings `config`
- * doesn't have yet: a board's grouping, a calendar's or timeline's date, a map's place, a chart's
- * groups, a pivot's rows and columns (the first date across, by month). A new view starts with these, and a view switched to another layout gets them, keeping
+ * doesn't have yet: a board's grouping, a calendar's or timeline's date, an agenda's date and
+ * status, a map's place, a chart's groups, a pivot's rows and columns (the first date across, by
+ * month). A new view starts with these, and a view switched to another layout gets them, keeping
  * whatever it already says.
  */
 export function layoutDefaults(type: ViewType, properties: readonly { id: string; type: PropertyType; options: PropertyOptions }[], config: ViewConfig): ViewConfig {
   const first = (...types: PropertyType[]) => properties.find((p) => types.includes(p.type))?.id;
   if (type === "board" && !config.groupBy) return { groupBy: first("select", "status") };
   if ((type === "calendar" || type === "timeline") && !config.dateBy) return { dateBy: first("date") };
+  if (type === "agenda") return agendaDefaults(properties, config);
   if (type === "map" && !config.placeBy) return { placeBy: first("place") };
   if (type === "chart" && !config.groupBy) return { groupBy: chartGroupProperty([...properties], {})?.id };
   if (type === "pivot" && !config.groupBy) {
