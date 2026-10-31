@@ -56,8 +56,8 @@ export const MAX_SENDS_PER_HOUR = 100;
 export const SEND_RETRY_MINUTES = [1, 5, 30];
 /** Characters of a message's text kept on the row. */
 export const MAX_MAIL_TEXT = 200_000;
-/** The most a mailbox's signature may hold, as the editor writes it. */
-export const MAX_SIGNATURE_HTML = 20_000;
+/** The most a mailbox's signature may hold, as the editor writes it or as it was pasted (images carried in it count). */
+export const MAX_SIGNATURE_HTML = 100_000;
 /** Messages a row's email section loads at a time. */
 export const ROW_EMAIL_PAGE = 20;
 
@@ -172,6 +172,8 @@ export type MailboxView = {
   /** What its owner signs with, as HTML and as plain text; null for none. */
   signature: string | null;
   signatureText: string | null;
+  /** Its signature was pasted from another mail program and is kept as it came (lib/pasted-signature.ts). */
+  signaturePasted: boolean;
 };
 
 /** The workspace's email settings as the settings section shows them. */

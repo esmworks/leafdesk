@@ -5,7 +5,9 @@
 ### Added
 
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
-  and calendar with a message's formatting (bold, italic, lists, links; no images). The Mail tab's
+  and calendar with a message's formatting (bold, italic, lists, links), or pasted from another
+  mail program, which keeps it as it came: its images, table layout, sizes and colors, sent as
+  they are and shown whole in a message, where it can be taken out. The Mail tab's
   new messages, replies and forwards start with it above the quoted message, where it can be
   changed for one message, and picking another mailbox under *From* swaps it; the plain-text part
   puts it under a `-- ` line. Messages written on a row start with it as plain text too.

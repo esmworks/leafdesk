@@ -269,7 +269,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   HTML sent cleaned again and turned into its text part by `outgoing.ts`, addresses suggested by
   `contacts.ts`; a mailbox's signature, `mailbox.signature` and `signature_text`, is the editor's
   `Signature` node, a `div[data-signature]` that `outgoing.ts` puts under `-- ` in the text part,
-  and row emails start with its text), follow-up
+  and row emails start with its text; one pasted with images or tables is kept whole inside
+  `div[data-pasted]`, `lib/pasted-signature.ts` (its cleaning rules in `-config.ts`), the editor's `PastedSignature` atom, shown in a
+  shadow root by `components/mail/pasted-signature.tsx` and cleaned on its own terms when sent), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
   `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner

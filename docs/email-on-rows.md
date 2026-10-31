@@ -115,7 +115,10 @@ search, `j` and `k` next and previous thread, `o` or Enter open the first; in a 
 the list. Backups leave the Mail tab's index out: it is read again once the mailbox is connected.
 
 Each mailbox can have a signature, written under Account › Email and calendar with the same
-formatting a message has (no images). New messages, replies and forwards start with it under the
+formatting a message has, or pasted there from another mail program. A pasted signature with
+images or a table layout is kept as it came (images from web addresses or carried in it, sizes,
+colors; no style sheets or scripts) and goes out as it is; it can't be edited in place, so paste
+the changed one again, or write one instead. New messages, replies and forwards start with it under the
 line to write on, above the quoted message; it can be changed or taken out for one message, and
 picking another mailbox under *From* swaps it for that mailbox's (or adds it, unless it was taken
 out). The plain-text part, and messages written on rows, put it under a `-- ` line. Follow-ups,
