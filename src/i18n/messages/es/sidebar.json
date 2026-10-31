@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Recordatorio de {agent}",
+    "open": "Abrir",
+    "later": "Recordármelo en 1 hora",
+    "done": "Hecho"
+  },
   "inbox": {
     "title": "Bandeja de entrada",
     "empty": "Todavía no hay notificaciones",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {Una nota} other {# notas}} de una ejecución en una fila que no puedes abrir",
     "memoryAnswered": "Ya revisado",
     "reportTitle": "Informe de {agent}",
+    "aiReminderTitle": "Recordatorio de {agent}",
     "reportDone": "Su ejecución programada terminó.",
     "reportFailed": "Su ejecución programada falló. Ábrela para ver por qué.",
     "reportHidden": "Su ejecución programada terminó, en una base de datos que no puedes abrir.",

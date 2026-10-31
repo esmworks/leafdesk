@@ -28,13 +28,15 @@ const KIND_KEYS = {
   follow_up: "followUp",
   reaction: "reaction",
   verification: "verification",
+  ai_reminder: "aiReminder",
 } as const satisfies Record<PreferenceKind, string>;
 const LOCAL_MODE_HIDDEN_KINDS: readonly PreferenceKind[] = ["access_request", "join_request"];
 /**
  * Kinds never sent by email: the email itself is already in the member's mailbox; what waits for
- * review, a follow-up that needs a look, and reactions to one's comments are in the app.
+ * review, a follow-up that needs a look, reactions to one's comments and agents' reminders (which
+ * open over the page, and come as push notifications) are in the app.
  */
-const EMAILLESS_KINDS: readonly PreferenceKind[] = ["row_email", "review", "follow_up", "reaction"];
+const EMAILLESS_KINDS: readonly PreferenceKind[] = ["row_email", "review", "follow_up", "reaction", "ai_reminder"];
 /**
  * Settings > Preferences: for each kind of notification, whether it shows in the inbox, comes by
  * email, when the server can send them (`push`) comes as a push notification and, when the person

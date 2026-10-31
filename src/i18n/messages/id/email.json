@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} ingin mengingat",
     "memory": "{count, plural, other {Mengusulkan # catatan untuk memorinya}}",
     "reportTitle": "Laporan dari {agent}",
+    "aiReminderTitle": "Pengingat dari {agent}",
+    "aiReminder": "Buka untuk membacanya",
     "reportDone": "Eksekusi terjadwalnya selesai",
     "reportFailed": "Eksekusi terjadwalnya gagal",
     "untitled": "Tanpa judul",

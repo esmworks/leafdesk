@@ -187,6 +187,7 @@ import {
 } from "./automations";
 import { env } from "@/lib/env";
 import { reviewPath } from "@/lib/pending-changes";
+import { pushLink } from "@/lib/push";
 import * as review from "@/server/pending-changes";
 import { answerInput, describePendingChange, editOf, reviewInputs, withReviewErrors } from "./reviews";
 import { describeEnrollment, describeOutcomes, describeSequence, sequenceInputs, withSequenceErrors } from "./sequences";
@@ -1484,7 +1485,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "List notifications",
       description:
-        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders, notifications from database automations, changes to database rows the user follows (what changed, from what to what), edits to pages the user watches, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval, changes agents proposed for their review, notes agents' runs proposed for their memory, and follow-ups of theirs that paused because an email didn't pass the check, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
+        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders (also ones agents set for the user), notifications from database automations, changes to database rows the user follows (what changed, from what to what), edits to pages the user watches, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval, changes agents proposed for their review, notes agents' runs proposed for their memory, and follow-ups of theirs that paused because an email didn't pass the check, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
       inputSchema: z.object({
         workspace_id: z.string().optional().describe("Only this workspace; all of the user's workspaces when omitted."),
         unread_only: z.boolean().default(false).describe("Only notifications the user hasn't read yet."),
@@ -1656,8 +1657,23 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 url: `${env.appUrl}/w/${n.workspaceId}/settings?tab=security#setting-sensitiveFindings`,
               };
             }
+            // An agent's reminder, about a page or none; the link opens what it is about.
+            if (n.kind === "ai_reminder") {
+              const agent = n.aiReminder?.agentName ?? who;
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: `${agent} reminded the user: ${n.aiReminder?.text ?? ""}${n.pageId ? ` (about "${pageLabel(n.pageTitle)}")` : ""}`,
+                actor: n.actorName,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}${pushLink(n)}`,
+              };
+            }
             // Join requests are about the workspace, not a page; owners decide them in the app.
-            if (n.kind === "join_request" || n.pageId === null) {
+            if (n.kind === "join_request") {
               return {
                 id: n.id,
                 kind: n.kind,
@@ -1738,7 +1754,8 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 : {}),
               workspace_id: n.workspaceId,
               workspace_name: n.workspaceName,
-              url: pageUrl(n.workspaceId, n.pageId),
+              // Every kind about no page has its branch above (PAGELESS_KINDS).
+              url: n.pageId ? pageUrl(n.workspaceId, n.pageId) : `${env.appUrl}${pushLink(n)}`,
             };
           }),
         };

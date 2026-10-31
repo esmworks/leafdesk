@@ -272,6 +272,8 @@
     "memoryTitle": "{agent}에서 기억하려고 합니다",
     "memory": "메모리에 저장할 메모 {count}개를 제안합니다",
     "reportTitle": "{agent}의 보고",
+    "aiReminderTitle": "{agent}의 리마인더",
+    "aiReminder": "열어서 내용을 확인하세요",
     "reportDone": "예약된 실행이 완료되었습니다",
     "reportFailed": "예약된 실행이 실패했습니다",
     "untitled": "제목 없음",

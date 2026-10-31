@@ -9,7 +9,7 @@ import { MAX_AGENT_WRITES, MAX_PROPOSALS_PER_RUN } from "@/lib/agents";
 import { stripCitations } from "@/lib/ai-chat";
 import { quote } from "@/lib/formula/lexer";
 import { parseTakeaway, takeawayLine } from "@/lib/meetings";
-import { dayString, localDay } from "@/lib/time-zone";
+import { clockText, dayString, wallClock, weekdayOf } from "@/lib/time-zone";
 
 export type Prompt = { system: string; prompt: string };
 
@@ -712,11 +712,11 @@ export function attachmentBlock(file: { kind: "csv"; name: string; headers: stri
 
 /** What day and time it is for the person: "It is Friday, 2026-10-23, 22:03 in Europe/Istanbul." */
 export function nowLine(now: Date, timeZone: string): string {
-  const day = dayString(localDay(now.getTime(), timeZone));
-  const parts = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "long", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now);
-  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  return `It is ${part("weekday")}, ${day}, ${part("hour")}:${part("minute")} in ${timeZone}.`;
+  const { day, minutes } = wallClock(now.getTime(), timeZone);
+  return `It is ${WEEKDAYS[weekdayOf(day)]}, ${dayString(day)}, ${clockText(minutes)} in ${timeZone}.`;
 }
+
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 /**
  * Earlier questions and answers of a conversation for the model, newest kept first, whole turns

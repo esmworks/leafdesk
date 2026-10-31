@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} wil iets onthouden",
     "memory": "{count, plural, one {Stelt een notitie voor het geheugen voor} other {Stelt # notities voor het geheugen voor}}",
     "reportTitle": "Rapport van {agent}",
+    "aiReminderTitle": "Herinnering van {agent}",
+    "aiReminder": "Open hem om hem te lezen",
     "reportDone": "De geplande run is klaar",
     "reportFailed": "De geplande run is mislukt",
     "untitled": "Naamloos",

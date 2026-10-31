@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} 想要记住内容",
     "memory": "为其记忆提议了 {count} 条笔记",
     "reportTitle": "来自 {agent} 的报告",
+    "aiReminderTitle": "来自 {agent} 的提醒",
+    "aiReminder": "打开查看内容",
     "reportDone": "其定时运行已完成",
     "reportFailed": "其定时运行失败",
     "untitled": "无标题",

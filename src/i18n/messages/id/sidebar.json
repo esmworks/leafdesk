@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Pengingat dari {agent}",
+    "open": "Buka",
+    "later": "Ingatkan lagi dalam 1 jam",
+    "done": "Selesai"
+  },
   "inbox": {
     "title": "Kotak masuk",
     "empty": "Belum ada notifikasi",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, other {# catatan}} dari eksekusi pada baris yang tidak dapat Anda buka",
     "memoryAnswered": "Sudah ditinjau",
     "reportTitle": "Laporan dari {agent}",
+    "aiReminderTitle": "Pengingat dari {agent}",
     "reportDone": "Eksekusi terjadwalnya telah selesai.",
     "reportFailed": "Eksekusi terjadwalnya gagal. Buka untuk melihat penyebabnya.",
     "reportHidden": "Eksekusi terjadwalnya telah selesai, pada basis data yang tidak dapat Anda buka.",

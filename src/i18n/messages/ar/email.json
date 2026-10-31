@@ -272,6 +272,8 @@
     "memoryTitle": "يريد {agent} أن يتذكر",
     "memory": "{count, plural, one {يقترح ملاحظة لذاكرته} two {يقترح ملاحظتين لذاكرته} few {يقترح # ملاحظات لذاكرته} many {يقترح # ملاحظة لذاكرته} other {يقترح # ملاحظة لذاكرته}}",
     "reportTitle": "تقرير من {agent}",
+    "aiReminderTitle": "تذكير من {agent}",
+    "aiReminder": "افتحه لقراءته",
     "reportDone": "انتهى تشغيله المجدول",
     "reportFailed": "فشل تشغيله المجدول",
     "untitled": "بلا عنوان",

@@ -34,6 +34,7 @@ import {
 } from "@/lib/agent-chat";
 import { callConnectionName, callToSend, type AgentStepRecord } from "@/lib/agents";
 import { conversationTitle } from "@/lib/ai-chat";
+import { isTimeZone } from "@/lib/time-zone";
 import { hasAgentLevel, type AgentLevel } from "@/lib/agent-sharing";
 import { AccessError, isGuest, pageVisibleTo, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
 import { isAiError, takeRateLimit } from "@/server/ai";
@@ -158,7 +159,7 @@ async function ownConversation(userId: string, agentId: string, conversationId: 
  */
 export async function sendAgentChat(
   userId: string,
-  input: { workspaceId: string; agentId: string; place: ChatPlace; conversationId: string | null; message: string },
+  input: { workspaceId: string; agentId: string; place: ChatPlace; conversationId: string | null; message: string; timeZone?: string },
 ): Promise<{ conversation: AgentConversationSummary; runId: string }> {
   const message = input.message.trim();
   if (!message) refuse("invalid", "Write a message");
@@ -198,7 +199,7 @@ export async function sendAgentChat(
         agentId: agent!.id,
         workspaceId: input.workspaceId,
         source: { kind: "chat", userId, conversationId: conversation.id },
-        context: { actorId: userId },
+        context: { actorId: userId, ...(isTimeZone(input.timeZone) ? { timeZone: input.timeZone } : {}) },
         prompt: message,
       })
       .returning({ id: agentRun.id });

@@ -1,5 +1,5 @@
 {
-  "id": "c23c53d1-e523-4558-80ed-c54667ac2890",
+  "id": "6907d457-3def-438c-8963-a216e14fa5f5",
   "prevId": "1d4a8ffe-bfc6-4134-a201-5736bff9e511",
   "version": "7",
   "dialect": "postgresql",
@@ -6759,7 +6759,7 @@
       "checkConstraints": {
         "notification_subject_check": {
           "name": "notification_subject_check",
-          "value": "\"notification\".\"kind\" in ('join_request', 'review', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached', 'ai_limit', 'agent_limit_request') or \"notification\".\"page_id\" is not null"
+          "value": "\"notification\".\"kind\" in ('join_request', 'review', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached', 'ai_limit', 'agent_limit_request', 'ai_reminder') or \"notification\".\"page_id\" is not null"
         }
       },
       "isRLSEnabled": false
@@ -8047,6 +8047,20 @@
           "notNull": true,
           "default": true
         },
+        "ai_reminder_inbox": {
+          "name": "ai_reminder_inbox",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "ai_reminder_emails": {
+          "name": "ai_reminder_emails",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "reaction_inbox": {
           "name": "reaction_inbox",
           "type": "boolean",
@@ -8166,6 +8180,13 @@
           "notNull": true,
           "default": true
         },
+        "ai_reminder_push": {
+          "name": "ai_reminder_push",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
         "assignment_telegram": {
           "name": "assignment_telegram",
           "type": "boolean",
@@ -8266,6 +8287,13 @@
         },
         "verification_telegram": {
           "name": "verification_telegram",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "ai_reminder_telegram": {
+          "name": "ai_reminder_telegram",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -16932,74 +16960,6 @@
           "tableTo": "mail_folder",
           "columnsFrom": [
             "folder_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.mail_send": {
-      "name": "mail_send",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "mailbox_id": {
-          "name": "mailbox_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sent_at": {
-          "name": "sent_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "mail_send_mailbox_idx": {
-          "name": "mail_send_mailbox_idx",
-          "columns": [
-            {
-              "expression": "mailbox_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "sent_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "mail_send_mailbox_id_mailbox_id_fk": {
-          "name": "mail_send_mailbox_id_mailbox_id_fk",
-          "tableFrom": "mail_send",
-          "tableTo": "mailbox",
-          "columnsFrom": [
-            "mailbox_id"
           ],
           "columnsTo": [
             "id"

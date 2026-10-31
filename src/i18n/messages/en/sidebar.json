@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Reminder from {agent}",
+    "open": "Open",
+    "later": "Remind me in 1 hour",
+    "done": "Done"
+  },
   "inbox": {
     "title": "Inbox",
     "empty": "No notifications yet",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {A note} other {# notes}} from a run on a row you can’t open",
     "memoryAnswered": "Already reviewed",
     "reportTitle": "Report from {agent}",
+    "aiReminderTitle": "Reminder from {agent}",
     "reportDone": "Its scheduled run finished.",
     "reportFailed": "Its scheduled run failed. Open it to see why.",
     "reportHidden": "Its scheduled run finished, on a database you can't open.",

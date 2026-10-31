@@ -272,6 +272,8 @@
     "memoryTitle": "{agent} quiere recordar algo",
     "memory": "{count, plural, one {Propone una nota para su memoria} other {Propone # notas para su memoria}}",
     "reportTitle": "Informe de {agent}",
+    "aiReminderTitle": "Recordatorio de {agent}",
+    "aiReminder": "Ábrelo para leerlo",
     "reportDone": "Su ejecución programada terminó",
     "reportFailed": "Su ejecución programada falló",
     "untitled": "Sin título",

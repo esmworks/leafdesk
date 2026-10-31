@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Agents remind you.** Ask an agent in its chat, a request, a schedule or a mention to remind you
+  of something, and at that time the reminder opens over the page you have open (*Done*, *Remind
+  me in 1 hour*, *Open*), comes to your inbox and to your phone. Connected apps see them in
+  `list_notifications`. An agent reminds only the person its run works for, at most 30 days ahead,
+  about a page both can open; a run sets at most 3 and an agent has at most 20 waiting for one
+  person. Turned off under *Agent reminders* in Settings → Preferences. Migration 0168.
+
 - **Searching the whole text of mail in the Mail tab.** When the index (senders, subjects and
   first lines) finds less than a page, the mail server looks for the words in the messages' text
   too, in six folders at most; messages found that weren't read in yet are. No migration.
@@ -237,7 +244,7 @@
 
 - **One hourly sending limit per mailbox.** The 100 messages an hour a mailbox may send now count
   the Mail tab's messages and emails written on rows together, kept in the database, so a restart
-  no longer starts the count over. Migration 0168 (`mail_send`).
+  no longer starts the count over. Migration 0169 (`mail_send`).
 
 - **Answers in the Mail tab show without the mail they quote.** The earlier mail an HTML answer
   quotes at its end, as Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark

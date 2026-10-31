@@ -164,6 +164,12 @@
       }
     }
   },
+  "reminderPrompt": {
+    "title": "Promemoria da {agent}",
+    "open": "Apri",
+    "later": "Ricordamelo tra 1 ora",
+    "done": "Fatto"
+  },
   "inbox": {
     "title": "Posta in arrivo",
     "empty": "Ancora nessuna notifica",
@@ -236,6 +242,7 @@
     "memoryHidden": "{count, plural, one {Una nota} other {# note}} da un’esecuzione su una riga che non puoi aprire",
     "memoryAnswered": "Già esaminata",
     "reportTitle": "Rapporto da {agent}",
+    "aiReminderTitle": "Promemoria da {agent}",
     "reportDone": "La sua esecuzione pianificata è terminata.",
     "reportFailed": "La sua esecuzione pianificata non è riuscita. Aprila per vedere perché.",
     "reportHidden": "La sua esecuzione pianificata è terminata, su un database che non puoi aprire.",
