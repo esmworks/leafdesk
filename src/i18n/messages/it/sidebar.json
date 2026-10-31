@@ -245,6 +245,8 @@
     "aiReminderTitle": "Promemoria da {agent}",
     "reportDone": "La sua esecuzione pianificata è terminata.",
     "reportFailed": "La sua esecuzione pianificata non è riuscita. Aprila per vedere perché.",
+    "taskDone": "Compito da {agent}: fatto.",
+    "taskFailed": "Compito da {agent}: non concluso.",
     "reportHidden": "La sua esecuzione pianificata è terminata, su un database che non puoi aprire.",
     "reportGone": "L’esecuzione non è più conservata.",
     "aiAccountTitle": "Account IA rimosso",

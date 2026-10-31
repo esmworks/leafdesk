@@ -245,6 +245,8 @@
     "aiReminderTitle": "Påminnelse fra {agent}",
     "reportDone": "Den planlagte kjøringen er ferdig.",
     "reportFailed": "Den planlagte kjøringen mislyktes. Åpne den for å se hvorfor.",
+    "taskDone": "Oppgave fra {agent}: ferdig.",
+    "taskFailed": "Oppgave fra {agent}: ble ikke ferdig.",
     "reportHidden": "Den planlagte kjøringen er ferdig, på en database du ikke kan åpne.",
     "reportGone": "Kjøringen er ikke lenger lagret.",
     "aiAccountTitle": "KI-konto fjernet",

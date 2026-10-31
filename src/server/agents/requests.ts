@@ -6,7 +6,7 @@
  *
  * Asking is refused rather than queued when the run couldn't do anything: a paused or archived
  * agent, AI off for the workspace, the month's tokens used up, or MAX_REQUESTED_RUNS of the agent's
- * asked-for runs still waiting or under way.
+ * asked-for runs (and tasks other agents gave it, handoff.ts) still waiting or under way.
  */
 import { and, count, eq, inArray, isNull, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
@@ -16,6 +16,7 @@ import { MAX_AGENT_PROMPT, MAX_REQUESTED_RUNS, type AgentRunVia, type AgentRunVi
 import { pageAccessOf } from "@/server/access";
 import { aiAvailable } from "@/server/ai-writing";
 import { recordAudit } from "@/server/audit";
+import { requestedRuns } from "./handoff";
 import { kickAgents } from "./kick";
 import { AgentError, agentFor, getAgentRun } from "./manage";
 import { overMonthlyLimit } from "./usage";
@@ -62,7 +63,7 @@ export async function requestAgentRun(userId: string, agentId: string, request: 
         and(
           eq(agentRun.agentId, agent.id),
           inArray(agentRun.status, ["pending", "running", "awaiting_approval"]),
-          sql`${agentRun.source}->>'kind' = 'request'`,
+          requestedRuns,
         ),
       );
     if ((waiting?.n ?? 0) >= MAX_REQUESTED_RUNS) throw new AgentError("tooManyRuns", "Too many runs of this agent are waiting", { max: String(MAX_REQUESTED_RUNS) });

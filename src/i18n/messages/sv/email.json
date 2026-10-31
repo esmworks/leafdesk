@@ -276,6 +276,8 @@
     "aiReminder": "Öppna den för att läsa den",
     "reportDone": "Dess schemalagda körning är klar",
     "reportFailed": "Dess schemalagda körning misslyckades",
+    "taskDone": "Uppgift från {agent}: klar",
+    "taskFailed": "Uppgift från {agent}: blev inte klar",
     "untitled": "Namnlös",
     "snooze": "Snooza 1 timme",
     "read": "Markera som läst",

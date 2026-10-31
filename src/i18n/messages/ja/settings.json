@@ -668,6 +668,8 @@
         "done": "<agent></agent>に依頼しました：「{task}」",
         "failed": "<agent></agent>に依頼しましたが、その実行は失敗しました：「{task}」",
         "waiting": "<agent></agent>に依頼しました。この実行が先に進んだ時点では終わっていませんでした：「{task}」",
+        "queued": "<agent></agent>にタスクを任せました：「{task}」",
+        "busy": "<agent></agent>にタスクを任せられませんでした：待機中のタスクが多すぎます",
         "paused": "<agent></agent>に依頼できませんでした：一時停止中です",
         "archived": "<agent></agent>に依頼できませんでした：アーカイブされています",
         "limitReached": "<agent></agent>に依頼できませんでした：月間トークン上限に達しています"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "エージェントのリマインダー",
     "aiReminderDescription": "頼んでおいたことを、エージェントがその時刻にリマインドします。開いているページの上にも表示されます。",
     "aiReminderChannel": "エージェントのリマインダー: {channel}",
+    "agentTaskTitle": "エージェントのタスク",
+    "agentTaskDescription": "あなたのために動くエージェントが別のエージェントにタスクを渡し、それが完了したか、完了できませんでした。",
+    "agentTaskChannel": "エージェントのタスク: {channel}",
     "dashboardEmailsHeading": "ダッシュボードのメール",
     "dashboardEmailsDescription": "定期的にメールで届くダッシュボードと、ほかの人向けに設定したダッシュボードです。",
     "dashboardEmailsNone": "ダッシュボードのメールはありません",

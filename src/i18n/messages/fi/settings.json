@@ -673,6 +673,8 @@
         "done": "Kysyi agentilta <agent></agent>: ”{task}”",
         "failed": "Kysyi agentilta <agent></agent>, mutta sen ajo epäonnistui: ”{task}”",
         "waiting": "Kysyi agentilta <agent></agent>; se ei ollut valmis, kun tämä ajo jatkoi: ”{task}”",
+        "queued": "Antoi agentille <agent></agent> tehtävän: ”{task}”",
+        "busy": "Tehtävää ei voitu antaa agentille <agent></agent>: liian monta odottaa",
         "paused": "Agentilta <agent></agent> ei voitu kysyä: se on keskeytetty",
         "archived": "Agentilta <agent></agent> ei voitu kysyä: se on arkistoitu",
         "limitReached": "Agentilta <agent></agent> ei voitu kysyä: se on käyttänyt kuukausittaisen tokenrajansa"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Agenttien muistutukset",
     "aiReminderDescription": "Agentti muistuttaa sinua pyytämästäsi asiasta, kun aika koittaa. Muistutus avautuu myös avoimen sivun päälle.",
     "aiReminderChannel": "Agenttien muistutukset: {channel}",
+    "agentTaskTitle": "Agenttien tehtävät",
+    "agentTaskDescription": "Puolestasi toimiva agentti antoi toiselle agentille tehtävän, ja se valmistui tai jäi kesken.",
+    "agentTaskChannel": "Agenttien tehtävät: {channel}",
     "dashboardEmailsHeading": "Koontinäyttöjen sähköpostit",
     "dashboardEmailsDescription": "Sinulle aikataulun mukaan sähköpostilla lähetettävät koontinäytöt ja ne, jotka olet määrittänyt muille.",
     "dashboardEmailsNone": "Ei koontinäyttöjen sähköposteja",

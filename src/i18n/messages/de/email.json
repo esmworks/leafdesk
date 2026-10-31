@@ -276,6 +276,8 @@
     "aiReminder": "Zum Lesen öffnen",
     "reportDone": "Sein geplanter Lauf ist fertig",
     "reportFailed": "Sein geplanter Lauf ist fehlgeschlagen",
+    "taskDone": "Aufgabe von {agent}: erledigt",
+    "taskFailed": "Aufgabe von {agent}: nicht abgeschlossen",
     "untitled": "Ohne Titel",
     "snooze": "1 Stunde zurückstellen",
     "read": "Als gelesen markieren",

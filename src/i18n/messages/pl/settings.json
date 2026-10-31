@@ -668,6 +668,8 @@
         "done": "Poproszono agenta <agent></agent>: „{task}”",
         "failed": "Poproszono agenta <agent></agent>, ale jego uruchomienie się nie powiodło: „{task}”",
         "waiting": "Poproszono agenta <agent></agent>; nie skończył, gdy to uruchomienie poszło dalej: „{task}”",
+        "queued": "Dał zadanie agentowi <agent></agent>: „{task}”",
+        "busy": "Nie udało się dać zadania agentowi <agent></agent>: czeka ich zbyt wiele",
         "paused": "Nie udało się poprosić agenta <agent></agent>: jest wstrzymany",
         "archived": "Nie udało się poprosić agenta <agent></agent>: jest zarchiwizowany",
         "limitReached": "Nie udało się poprosić agenta <agent></agent>: wyczerpał miesięczny limit tokenów"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Przypomnienia agentów",
     "aiReminderDescription": "Agent przypomina ci o czymś, o co go poprosiłeś, gdy nadejdzie pora. Przypomnienie otwiera się też nad otwartą stroną.",
     "aiReminderChannel": "Przypomnienia agentów: {channel}",
+    "agentTaskTitle": "Zadania agentów",
+    "agentTaskDescription": "Agent pracujący dla Ciebie dał innemu agentowi zadanie, które zostało wykonane albo nie mogło zostać ukończone.",
+    "agentTaskChannel": "Zadania agentów: {channel}",
     "dashboardEmailsHeading": "E-maile z pulpitami",
     "dashboardEmailsDescription": "Pulpity wysyłane do Ciebie e-mailem według harmonogramu oraz te, które skonfigurowano dla innych.",
     "dashboardEmailsNone": "Brak e-maili z pulpitami",

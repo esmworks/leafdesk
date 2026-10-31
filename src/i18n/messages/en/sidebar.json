@@ -245,6 +245,8 @@
     "aiReminderTitle": "Reminder from {agent}",
     "reportDone": "Its scheduled run finished.",
     "reportFailed": "Its scheduled run failed. Open it to see why.",
+    "taskDone": "Task from {agent}: done.",
+    "taskFailed": "Task from {agent}: it couldn’t finish.",
     "reportHidden": "Its scheduled run finished, on a database you can't open.",
     "reportGone": "The run is no longer kept.",
     "aiAccountTitle": "AI account removed",

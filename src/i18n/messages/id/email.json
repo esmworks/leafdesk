@@ -276,6 +276,8 @@
     "aiReminder": "Buka untuk membacanya",
     "reportDone": "Eksekusi terjadwalnya selesai",
     "reportFailed": "Eksekusi terjadwalnya gagal",
+    "taskDone": "Tugas dari {agent}: selesai",
+    "taskFailed": "Tugas dari {agent}: tidak selesai",
     "untitled": "Tanpa judul",
     "snooze": "Tunda 1 jam",
     "read": "Tandai sudah dibaca",

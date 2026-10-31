@@ -668,6 +668,8 @@
         "done": "<agent></agent>에게 요청함: “{task}”",
         "failed": "<agent></agent>에게 요청했지만 해당 실행이 실패함: “{task}”",
         "waiting": "<agent></agent>에게 요청함. 이 실행이 계속될 때까지 끝나지 않음: “{task}”",
+        "queued": "<agent></agent>에게 작업을 맡겼습니다: “{task}”",
+        "busy": "<agent></agent>에게 작업을 맡길 수 없습니다: 대기 중인 작업이 너무 많습니다",
         "paused": "<agent></agent>에게 요청할 수 없음: 일시 중지됨",
         "archived": "<agent></agent>에게 요청할 수 없음: 보관됨",
         "limitReached": "<agent></agent>에게 요청할 수 없음: 월간 토큰 한도를 모두 사용함"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "에이전트 리마인더",
     "aiReminderDescription": "에이전트가 부탁한 일을 시간이 되면 알려 줍니다. 열려 있는 페이지 위에도 나타납니다.",
     "aiReminderChannel": "에이전트 리마인더: {channel}",
+    "agentTaskTitle": "에이전트 작업",
+    "agentTaskDescription": "나를 위해 일하는 에이전트가 다른 에이전트에게 작업을 맡겼고, 그 작업이 끝났거나 끝내지 못했습니다.",
+    "agentTaskChannel": "에이전트 작업: {channel}",
     "dashboardEmailsHeading": "대시보드 이메일",
     "dashboardEmailsDescription": "일정에 따라 이메일로 받는 대시보드와 다른 사람을 위해 설정한 대시보드입니다.",
     "dashboardEmailsNone": "대시보드 이메일 없음",

@@ -245,6 +245,8 @@
     "aiReminderTitle": "Muistutus: {agent}",
     "reportDone": "Sen ajastettu ajo päättyi.",
     "reportFailed": "Sen ajastettu ajo epäonnistui. Avaa se nähdäksesi syyn.",
+    "taskDone": "Tehtävä agentilta {agent}: valmis.",
+    "taskFailed": "Tehtävä agentilta {agent}: jäi kesken.",
     "reportHidden": "Sen ajastettu ajo päättyi tietokannassa, jota et voi avata.",
     "reportGone": "Ajoa ei enää säilytetä.",
     "aiAccountTitle": "Tekoälytili poistettu",

@@ -668,6 +668,8 @@
         "done": "שאל את <agent></agent>: „{task}”",
         "failed": "שאל את <agent></agent>, אבל ההרצה שלו נכשלה: „{task}”",
         "waiting": "שאל את <agent></agent>; הוא עוד לא סיים כשההרצה הזו המשיכה: „{task}”",
+        "queued": "נתן משימה ל־<agent></agent>: ”{task}”",
+        "busy": "לא ניתן היה לתת משימה ל־<agent></agent>: יותר מדי משימות ממתינות",
         "paused": "לא היה אפשר לשאול את <agent></agent>: הוא מושהה",
         "archived": "לא היה אפשר לשאול את <agent></agent>: הוא בארכיון",
         "limitReached": "לא היה אפשר לשאול את <agent></agent>: הוא ניצל את מגבלת האסימונים החודשית שלו"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "תזכורות של סוכנים",
     "aiReminderDescription": "סוכן מזכיר לך משהו שביקשת ממנו כשמגיע הזמן. התזכורת נפתחת גם מעל הדף הפתוח.",
     "aiReminderChannel": "תזכורות של סוכנים: {channel}",
+    "agentTaskTitle": "משימות של סוכנים",
+    "agentTaskDescription": "סוכן שעובד בשבילך נתן לסוכן אחר משימה, והיא הושלמה או שלא ניתן היה להשלים אותה.",
+    "agentTaskChannel": "משימות של סוכנים: {channel}",
     "dashboardEmailsHeading": "דוא״לים של לוחות בקרה",
     "dashboardEmailsDescription": "לוחות בקרה שנשלחים אליך בדוא״ל לפי לוח זמנים, ואלה שהגדרת עבור אחרים.",
     "dashboardEmailsNone": "אין דוא״לים של לוחות בקרה",

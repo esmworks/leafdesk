@@ -673,6 +673,8 @@
         "done": "<agent></agent> gevraagd: “{task}”",
         "failed": "<agent></agent> gevraagd, maar die uitvoering mislukte: “{task}”",
         "waiting": "<agent></agent> gevraagd; die was nog niet klaar toen deze uitvoering doorging: “{task}”",
+        "queued": "Gaf <agent></agent> een taak: ‘{task}’",
+        "busy": "Kon <agent></agent> geen taak geven: er wachten er te veel",
         "paused": "Kon <agent></agent> niet vragen: die is gepauzeerd",
         "archived": "Kon <agent></agent> niet vragen: die is gearchiveerd",
         "limitReached": "Kon <agent></agent> niet vragen: die heeft de maandelijkse tokenlimiet opgebruikt"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Herinneringen van agents",
     "aiReminderDescription": "Een agent herinnert je op het afgesproken moment aan iets waar je om vroeg. De herinnering opent ook boven de pagina die je open hebt.",
     "aiReminderChannel": "Herinneringen van agents: {channel}",
+    "agentTaskTitle": "Taken van agents",
+    "agentTaskDescription": "Een agent die voor je werkt gaf een andere agent een taak, en die is klaar of kon niet worden afgerond.",
+    "agentTaskChannel": "Taken van agents: {channel}",
     "dashboardEmailsHeading": "Dashboard-e-mails",
     "dashboardEmailsDescription": "Dashboards die je volgens een schema per e-mail krijgt, en die je voor anderen hebt ingesteld.",
     "dashboardEmailsNone": "Geen dashboard-e-mails",

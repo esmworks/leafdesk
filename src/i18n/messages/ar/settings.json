@@ -668,6 +668,8 @@
         "done": "سأل <agent></agent>: «{task}»",
         "failed": "سأل <agent></agent>، لكن تشغيله فشل: «{task}»",
         "waiting": "سأل <agent></agent>؛ لم يكن قد انتهى حين واصل هذا التشغيل: «{task}»",
+        "queued": "أسند مهمة إلى <agent></agent>: «{task}»",
+        "busy": "تعذّر إسناد مهمة إلى <agent></agent>: لديه مهام كثيرة في الانتظار",
         "paused": "تعذّر سؤال <agent></agent>: إنه متوقف مؤقتًا",
         "archived": "تعذّر سؤال <agent></agent>: إنه مؤرشف",
         "limitReached": "تعذّر سؤال <agent></agent>: استنفد حد الرموز الشهري"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "تذكيرات الوكلاء",
     "aiReminderDescription": "يذكّرك وكيل بشيء طلبته منه عندما يحين وقته. ويظهر التذكير أيضًا فوق الصفحة المفتوحة.",
     "aiReminderChannel": "تذكيرات الوكلاء: {channel}",
+    "agentTaskTitle": "مهام الوكلاء",
+    "agentTaskDescription": "أعطى وكيل يعمل لصالحك وكيلًا آخر مهمة، فاكتملت أو تعذّر إكمالها.",
+    "agentTaskChannel": "مهام الوكلاء: {channel}",
     "dashboardEmailsHeading": "رسائل لوحات المعلومات",
     "dashboardEmailsDescription": "لوحات المعلومات التي تصلك بالبريد وفق جدول زمني، وتلك التي أعددتها للآخرين.",
     "dashboardEmailsNone": "لا رسائل للوحات المعلومات",

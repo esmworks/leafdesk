@@ -245,6 +245,8 @@
     "aiReminderTitle": "Påmindelse fra {agent}",
     "reportDone": "Dens planlagte kørsel er færdig.",
     "reportFailed": "Dens planlagte kørsel mislykkedes. Åbn den for at se hvorfor.",
+    "taskDone": "Opgave fra {agent}: færdig.",
+    "taskFailed": "Opgave fra {agent}: blev ikke færdig.",
     "reportHidden": "Dens planlagte kørsel er færdig, på en database du ikke kan åbne.",
     "reportGone": "Kørslen gemmes ikke længere.",
     "aiAccountTitle": "AI-konto fjernet",

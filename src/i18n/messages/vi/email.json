@@ -276,6 +276,8 @@
     "aiReminder": "Mở để đọc",
     "reportDone": "Lần chạy theo lịch của tác tử đã hoàn tất",
     "reportFailed": "Lần chạy theo lịch của tác tử đã thất bại",
+    "taskDone": "Việc từ {agent}: đã xong",
+    "taskFailed": "Việc từ {agent}: chưa xong được",
     "untitled": "Chưa đặt tên",
     "snooze": "Hoãn 1 giờ",
     "read": "Đánh dấu đã đọc",

@@ -276,6 +276,8 @@
     "aiReminder": "افتحه لقراءته",
     "reportDone": "انتهى تشغيله المجدول",
     "reportFailed": "فشل تشغيله المجدول",
+    "taskDone": "مهمة من {agent}: اكتملت",
+    "taskFailed": "مهمة من {agent}: لم تكتمل",
     "untitled": "بلا عنوان",
     "snooze": "تأجيل ساعة",
     "read": "تعليم كمقروء",

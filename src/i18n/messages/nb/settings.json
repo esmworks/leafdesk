@@ -673,6 +673,8 @@
         "done": "Spurte <agent></agent>: «{task}»",
         "failed": "Spurte <agent></agent>, men kjøringen mislyktes: «{task}»",
         "waiting": "Spurte <agent></agent>; den var ikke ferdig da denne kjøringen gikk videre: «{task}»",
+        "queued": "Ga <agent></agent> en oppgave: «{task}»",
+        "busy": "Kunne ikke gi <agent></agent> en oppgave: for mange venter",
         "paused": "Kunne ikke spørre <agent></agent>: den er satt på pause",
         "archived": "Kunne ikke spørre <agent></agent>: den er arkivert",
         "limitReached": "Kunne ikke spørre <agent></agent>: den har brukt opp den månedlige tokengrensen"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Påminnelser fra agenter",
     "aiReminderDescription": "En agent minner deg på noe du har bedt den om, når tiden er inne. Påminnelsen åpnes også over siden du har åpen.",
     "aiReminderChannel": "Påminnelser fra agenter: {channel}",
+    "agentTaskTitle": "Agenters oppgaver",
+    "agentTaskDescription": "En agent som jobber for deg, ga en annen agent en oppgave, og den ble ferdig eller kunne ikke fullføres.",
+    "agentTaskChannel": "Agenters oppgaver: {channel}",
     "dashboardEmailsHeading": "Dashbord-e-poster",
     "dashboardEmailsDescription": "Dashbord som sendes til deg på e-post etter en tidsplan, og de du har satt opp for andre.",
     "dashboardEmailsNone": "Ingen dashbord-e-poster",

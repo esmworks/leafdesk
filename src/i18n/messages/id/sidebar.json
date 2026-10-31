@@ -245,6 +245,8 @@
     "aiReminderTitle": "Pengingat dari {agent}",
     "reportDone": "Eksekusi terjadwalnya telah selesai.",
     "reportFailed": "Eksekusi terjadwalnya gagal. Buka untuk melihat penyebabnya.",
+    "taskDone": "Tugas dari {agent}: selesai.",
+    "taskFailed": "Tugas dari {agent}: tidak selesai.",
     "reportHidden": "Eksekusi terjadwalnya telah selesai, pada basis data yang tidak dapat Anda buka.",
     "reportGone": "Eksekusi tersebut tidak lagi disimpan.",
     "aiAccountTitle": "Akun AI dihapus",

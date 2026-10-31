@@ -668,6 +668,8 @@
         "done": "求助了 <agent></agent>：“{task}”",
         "failed": "求助了 <agent></agent>，但其运行失败：“{task}”",
         "waiting": "求助了 <agent></agent>；本次运行继续时它尚未完成：“{task}”",
+        "queued": "把任务交给了<agent></agent>：“{task}”",
+        "busy": "无法把任务交给<agent></agent>：等待中的任务太多",
         "paused": "无法求助 <agent></agent>：它已暂停",
         "archived": "无法求助 <agent></agent>：它已归档",
         "limitReached": "无法求助 <agent></agent>：它已用完每月令牌上限"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "智能体提醒",
     "aiReminderDescription": "智能体会在约定的时间提醒你托付给它的事，提醒也会在当前打开的页面上弹出。",
     "aiReminderChannel": "智能体提醒：{channel}",
+    "agentTaskTitle": "智能体的任务",
+    "agentTaskDescription": "为你工作的智能体把任务交给了另一个智能体，任务已完成或未能完成。",
+    "agentTaskChannel": "智能体的任务：{channel}",
     "dashboardEmailsHeading": "仪表板邮件",
     "dashboardEmailsDescription": "按计划发送给你的仪表板，以及你为他人设置的仪表板。",
     "dashboardEmailsNone": "没有仪表板邮件",

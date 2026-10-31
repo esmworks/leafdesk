@@ -148,6 +148,7 @@ import {
   describeAgentVersion,
   describeRestoreSkip,
   describeSharing,
+  describeTaskReport,
   notesToDrop,
   toAgentPatch,
   toScheduleInput,
@@ -1485,7 +1486,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "List notifications",
       description:
-        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders (also ones agents set for the user), notifications from database automations, changes to database rows the user follows (what changed, from what to what), edits to pages the user watches, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval, changes agents proposed for their review, notes agents' runs proposed for their memory, and follow-ups of theirs that paused because an email didn't pass the check, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
+        "List the user's inbox, newest first: database rows someone assigned them to, pages someone shared with them, new comments in comment threads the user is in, mentions, reminders (also ones agents set for the user), notifications from database automations, changes to database rows the user follows (what changed, from what to what), edits to pages the user watches, requests for access to pages the user can share and (for owners) join requests, agents' calls waiting for approval, changes agents proposed for their review, notes agents' runs proposed for their memory, what tasks agents gave each other found, and follow-ups of theirs that paused because an email didn't pass the check, with who did it and a link. Only the kinds the user keeps in their inbox are listed. Reading does not mark them read.",
       inputSchema: z.object({
         workspace_id: z.string().optional().describe("Only this workspace; all of the user's workspaces when omitted."),
         unread_only: z.boolean().default(false).describe("Only notifications the user hasn't read yet."),
@@ -1562,6 +1563,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 url: r ? `${env.appUrl}${agentReportPath(n.workspaceId, r.agentId, r.runId)}` : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
               };
             }
+            if (n.kind === "agent_task") return describeTaskReport(n, env.appUrl);
             // Changes waiting for review: list_pending_changes shows them.
             if (n.kind === "review") {
               const waiting = n.review?.count ?? 0;

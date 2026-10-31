@@ -1,0 +1,39 @@
+/**
+ * Where opening a notification leads, for push messages and the inbox alike. Its own module: the
+ * reminder over the page (in every workspace page's first load) needs it, not the rest of push.ts.
+ */
+
+import { aiLimitPath } from "./agent-guardrails";
+import { agentPagePath } from "./agent-page";
+import { agentMemoryPath, agentReportPath } from "./agents";
+import { commentHash } from "./comments";
+import { rowEmailHash } from "./mail";
+import { reviewPath } from "./pending-changes";
+import type { PushItem } from "./push";
+
+/** Where opening the notification leads: the same place the inbox does. */
+export function pushLink(item: PushItem): string {
+  if (item.kind === "agent_approval") {
+    return `/w/${item.workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`;
+  }
+  if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
+  if (item.kind === "agent_report") return item.report ? agentReportPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
+  // A task's report opens the chat with the agent that gave it, which the person works with (the
+  // agent that did it may not be shared with them).
+  if (item.kind === "agent_task") return item.report?.from ? agentPagePath(item.workspaceId, item.report.from.agentId) : `/w/${item.workspaceId}`;
+  if (item.kind === "review") return reviewPath(item.workspaceId);
+  if (item.kind === "ai_limit") return aiLimitPath(item.workspaceId, item.aiLimit?.agent?.id ?? null);
+  // The owner answers in the inbox; the agent is where its limit and use are.
+  if (item.kind === "agent_limit_request") return aiLimitPath(item.workspaceId, item.limitRequest?.agentId ?? null);
+  // The workspace's AI account is chosen in Settings > General.
+  if (item.kind === "ai_account_detached") return `/w/${item.workspaceId}/settings`;
+  // Findings are reviewed, and dismissed, in Settings > Security.
+  if (item.kind === "sensitive_content") return `/w/${item.workspaceId}/settings?tab=security#setting-sensitiveFindings`;
+  // Reports are dismissed, or the page taken off the web, in Settings > Security.
+  if (item.kind === "page_reported") return `/w/${item.workspaceId}/settings?tab=security#setting-pageReports`;
+  // A reminder opens the page it is about, else the chat with the agent that set it.
+  if (item.kind === "ai_reminder" && item.pageId === null) return item.aiReminder?.agentId ? agentPagePath(item.workspaceId, item.aiReminder.agentId) : `/w/${item.workspaceId}`;
+  if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
+  if (item.kind === "row_email" && item.rowEmail) return `/w/${item.workspaceId}/p/${item.pageId}${rowEmailHash(item.rowEmail.id)}`;
+  return `/w/${item.workspaceId}/p/${item.pageId}${(item.kind === "comment" || item.kind === "reaction") && item.threadId ? commentHash(item.threadId) : ""}`;
+}

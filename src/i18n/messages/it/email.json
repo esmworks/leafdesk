@@ -276,6 +276,8 @@
     "aiReminder": "Aprilo per leggerlo",
     "reportDone": "La sua esecuzione pianificata è terminata",
     "reportFailed": "La sua esecuzione pianificata non è riuscita",
+    "taskDone": "Compito da {agent}: fatto",
+    "taskFailed": "Compito da {agent}: non concluso",
     "untitled": "Senza titolo",
     "snooze": "Posticipa di 1 ora",
     "read": "Segna come letta",

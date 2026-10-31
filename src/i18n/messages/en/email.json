@@ -276,6 +276,8 @@
     "aiReminder": "Open it to read it",
     "reportDone": "Its scheduled run finished",
     "reportFailed": "Its scheduled run failed",
+    "taskDone": "Task from {agent}: done",
+    "taskFailed": "Task from {agent}: it couldn’t finish",
     "untitled": "Untitled",
     "snooze": "Snooze 1 hour",
     "read": "Mark as read",

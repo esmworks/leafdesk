@@ -673,6 +673,8 @@
         "done": "Đã hỏi <agent></agent>: “{task}”",
         "failed": "Đã hỏi <agent></agent>, nhưng lần chạy của nó thất bại: “{task}”",
         "waiting": "Đã hỏi <agent></agent>; nó chưa xong khi lần chạy này tiếp tục: “{task}”",
+        "queued": "Đã giao cho <agent></agent> một việc: “{task}”",
+        "busy": "Không giao được việc cho <agent></agent>: có quá nhiều việc đang chờ",
         "paused": "Không thể hỏi <agent></agent>: nó đang tạm dừng",
         "archived": "Không thể hỏi <agent></agent>: nó đã được lưu trữ",
         "limitReached": "Không thể hỏi <agent></agent>: nó đã dùng hết giới hạn token hằng tháng"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Lời nhắc của tác tử",
     "aiReminderDescription": "Một tác tử nhắc bạn điều bạn đã nhờ khi đến giờ. Lời nhắc cũng mở ra phía trên trang bạn đang mở.",
     "aiReminderChannel": "Lời nhắc của tác tử: {channel}",
+    "agentTaskTitle": "Việc của các tác tử",
+    "agentTaskDescription": "Một tác tử làm việc cho bạn đã giao việc cho một tác tử khác, và việc đó đã xong hoặc không xong được.",
+    "agentTaskChannel": "Việc của các tác tử: {channel}",
     "dashboardEmailsHeading": "Email bảng điều khiển",
     "dashboardEmailsDescription": "Các bảng điều khiển được gửi cho bạn qua email theo lịch, và những bảng bạn thiết lập cho người khác.",
     "dashboardEmailsNone": "Không có email bảng điều khiển",

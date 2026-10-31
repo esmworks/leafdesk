@@ -668,6 +668,8 @@
         "done": "<agent></agent> ajanına sordu: “{task}”",
         "failed": "<agent></agent> ajanına sordu, ancak onun çalışması başarısız oldu: “{task}”",
         "waiting": "<agent></agent> ajanına sordu; bu çalışma devam ettiğinde henüz bitirmemişti: “{task}”",
+        "queued": "<agent></agent> ajanına görev verdi: “{task}”",
+        "busy": "<agent></agent> ajanına görev verilemedi: bekleyen görevi çok",
         "paused": "<agent></agent> ajanına sorulamadı: duraklatılmış",
         "archived": "<agent></agent> ajanına sorulamadı: arşivlenmiş",
         "limitReached": "<agent></agent> ajanına sorulamadı: aylık token sınırı dolmuş"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Ajan hatırlatmaları",
     "aiReminderDescription": "Bir ajan, ondan istediğiniz bir şeyi zamanı gelince hatırlatır. Hatırlatma açık olan sayfanın üzerinde de belirir.",
     "aiReminderChannel": "Ajan hatırlatmaları: {channel}",
+    "agentTaskTitle": "Ajanların görevleri",
+    "agentTaskDescription": "Sizin için çalışan bir ajan başka bir ajana görev verdi; görev bitti ya da bitirilemedi.",
+    "agentTaskChannel": "Ajanların görevleri: {channel}",
     "dashboardEmailsHeading": "Gösterge paneli e-postaları",
     "dashboardEmailsDescription": "Size zamanlanmış olarak e-postayla gönderilen gösterge panelleri ve başkaları için kurduklarınız.",
     "dashboardEmailsNone": "Gösterge paneli e-postası yok",

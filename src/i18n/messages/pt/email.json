@@ -276,6 +276,8 @@
     "aiReminder": "Abra para ler",
     "reportDone": "A execução agendada terminou",
     "reportFailed": "A execução agendada falhou",
+    "taskDone": "Tarefa de {agent}: concluída",
+    "taskFailed": "Tarefa de {agent}: não foi concluída",
     "untitled": "Sem título",
     "snooze": "Adiar 1 hora",
     "read": "Marcar como lido",

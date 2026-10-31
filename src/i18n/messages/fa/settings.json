@@ -668,6 +668,8 @@
         "done": "از <agent></agent> پرسید: «{task}»",
         "failed": "از <agent></agent> پرسید، اما اجرای آن ناموفق بود: «{task}»",
         "waiting": "از <agent></agent> پرسید؛ وقتی این اجرا ادامه پیدا کرد هنوز تمام نشده بود: «{task}»",
+        "queued": "به <agent></agent> کاری سپرد: «{task}»",
+        "busy": "نشد به <agent></agent> کاری سپرد: کارهای در انتظارش زیاد است",
         "paused": "نتوانست از <agent></agent> بپرسد: متوقف است",
         "archived": "نتوانست از <agent></agent> بپرسد: بایگانی شده است",
         "limitReached": "نتوانست از <agent></agent> بپرسد: سقف ماهانه توکن آن پر شده است"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "یادآوری‌های عامل‌ها",
     "aiReminderDescription": "یک عامل وقتی زمانش برسد چیزی را که از او خواسته‌اید به شما یادآوری می‌کند. یادآوری روی صفحهٔ باز هم نمایش داده می‌شود.",
     "aiReminderChannel": "یادآوری‌های عامل‌ها: {channel}",
+    "agentTaskTitle": "کارهای عامل‌ها",
+    "agentTaskDescription": "عاملی که برای شما کار می‌کند به عامل دیگری کاری سپرد، و آن کار انجام شد یا تمام نشد.",
+    "agentTaskChannel": "کارهای عامل‌ها: {channel}",
     "dashboardEmailsHeading": "ایمیل‌های داشبورد",
     "dashboardEmailsDescription": "داشبوردهایی که طبق زمان‌بندی برای شما ایمیل می‌شوند و آن‌هایی که برای دیگران تنظیم کرده‌اید.",
     "dashboardEmailsNone": "ایمیل داشبوردی نیست",

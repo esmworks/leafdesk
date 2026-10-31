@@ -245,6 +245,8 @@
     "aiReminderTitle": "Recordatorio de {agent}",
     "reportDone": "Su ejecución programada terminó.",
     "reportFailed": "Su ejecución programada falló. Ábrela para ver por qué.",
+    "taskDone": "Tarea de {agent}: hecha.",
+    "taskFailed": "Tarea de {agent}: no pudo terminarla.",
     "reportHidden": "Su ejecución programada terminó, en una base de datos que no puedes abrir.",
     "reportGone": "La ejecución ya no se conserva.",
     "aiAccountTitle": "Cuenta de IA quitada",

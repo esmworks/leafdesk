@@ -673,6 +673,8 @@
         "done": "Bertanya kepada <agent></agent>: “{task}”",
         "failed": "Bertanya kepada <agent></agent>, tetapi eksekusinya gagal: “{task}”",
         "waiting": "Bertanya kepada <agent></agent>; belum selesai saat eksekusi ini berlanjut: “{task}”",
+        "queued": "Memberi <agent></agent> tugas: “{task}”",
+        "busy": "Tidak bisa memberi <agent></agent> tugas: terlalu banyak yang menunggu",
         "paused": "Tidak dapat bertanya kepada <agent></agent>: sedang dijeda",
         "archived": "Tidak dapat bertanya kepada <agent></agent>: sudah diarsipkan",
         "limitReached": "Tidak dapat bertanya kepada <agent></agent>: telah memakai batas token bulanannya"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Pengingat dari agen",
     "aiReminderDescription": "Agen mengingatkan Anda tentang sesuatu yang Anda minta saat waktunya tiba. Pengingat juga terbuka di atas halaman yang sedang Anda buka.",
     "aiReminderChannel": "Pengingat dari agen: {channel}",
+    "agentTaskTitle": "Tugas agen",
+    "agentTaskDescription": "Agen yang bekerja untuk Anda memberi agen lain sebuah tugas, dan tugas itu selesai atau tidak bisa diselesaikan.",
+    "agentTaskChannel": "Tugas agen: {channel}",
     "dashboardEmailsHeading": "Email dasbor",
     "dashboardEmailsDescription": "Dasbor yang dikirim ke Anda lewat email sesuai jadwal, dan yang Anda atur untuk orang lain.",
     "dashboardEmailsNone": "Tidak ada email dasbor",

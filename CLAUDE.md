@@ -201,6 +201,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   a run works for (`remind_person`, no recipient argument): `server/ai-reminders.ts`, a notification
   of kind `ai_reminder` waiting snoozed until its time (`deliverSnoozed` wakes it), shown over the
   page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`.
+  Agents asking agents: `handoff.ts` (`ask_agent` waits; `assign_agent` queues the helper's run
+  with `queued` on its `handoff` source, read by the giving agent through `agent_run_task_idx`: a
+  task that `agent_tasks` lists for the same person and whose end `run.ts` `reportRun` reports as an
+  `agent_task`, a kind people turn off, opening the giving agent's chat).
 - **Connections** (outbound MCP): `src/server/connections/` (`manage.ts`, `client.ts`, `fetch.ts`
   for the address checks, `events.ts` for inbound events, `approvals.ts`). A fetch of an address a
   member or visitor gives passes `{ untrusted: true }`: only `WEB_FETCH_ALLOWED_HOSTS` applies to

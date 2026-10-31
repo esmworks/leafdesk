@@ -668,6 +668,8 @@
         "done": "A sollicité <agent></agent> : « {task} »",
         "failed": "A sollicité <agent></agent>, mais son exécution a échoué : « {task} »",
         "waiting": "A sollicité <agent></agent> ; il n’avait pas fini quand cette exécution a continué : « {task} »",
+        "queued": "A confié une tâche à <agent></agent> : « {task} »",
+        "busy": "Impossible de confier une tâche à <agent></agent> : trop de tâches en attente",
         "paused": "N’a pas pu solliciter <agent></agent> : il est en pause",
         "archived": "N’a pas pu solliciter <agent></agent> : il est archivé",
         "limitReached": "N’a pas pu solliciter <agent></agent> : il a atteint sa limite mensuelle de tokens"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Rappels des agents",
     "aiReminderDescription": "Un agent vous rappelle, le moment venu, ce que vous lui avez demandé. Le rappel s’ouvre aussi par-dessus la page ouverte.",
     "aiReminderChannel": "Rappels des agents : {channel}",
+    "agentTaskTitle": "Tâches des agents",
+    "agentTaskDescription": "Un agent qui travaille pour vous a confié une tâche à un autre agent, et elle est terminée ou n’a pas pu l’être.",
+    "agentTaskChannel": "Tâches des agents: {channel}",
     "dashboardEmailsHeading": "E-mails de tableaux de bord",
     "dashboardEmailsDescription": "Les tableaux de bord qui vous sont envoyés par e-mail selon un calendrier, et ceux que vous avez configurés pour d’autres.",
     "dashboardEmailsNone": "Aucun e-mail de tableau de bord",

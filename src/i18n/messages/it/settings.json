@@ -668,6 +668,8 @@
         "done": "Ha chiesto a <agent></agent>: «{task}»",
         "failed": "Ha chiesto a <agent></agent>, ma la sua esecuzione non è riuscita: «{task}»",
         "waiting": "Ha chiesto a <agent></agent>; non aveva finito quando questa esecuzione è andata avanti: «{task}»",
+        "queued": "Ha affidato un compito a <agent></agent>: «{task}»",
+        "busy": "Impossibile affidare un compito a <agent></agent>: ne ha troppi in attesa",
         "paused": "Non ha potuto chiedere a <agent></agent>: è in pausa",
         "archived": "Non ha potuto chiedere a <agent></agent>: è archiviato",
         "limitReached": "Non ha potuto chiedere a <agent></agent>: ha esaurito il suo limite mensile di token"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Promemoria degli agenti",
     "aiReminderDescription": "Un agente ti ricorda qualcosa che gli hai chiesto, quando arriva il momento. Si apre anche sopra la pagina aperta.",
     "aiReminderChannel": "Promemoria degli agenti: {channel}",
+    "agentTaskTitle": "Compiti degli agenti",
+    "agentTaskDescription": "Un agente che lavora per te ha affidato un compito a un altro agente, che lo ha concluso o non è riuscito a concluderlo.",
+    "agentTaskChannel": "Compiti degli agenti: {channel}",
     "dashboardEmailsHeading": "Email delle dashboard",
     "dashboardEmailsDescription": "Le dashboard che ricevi via email a intervalli programmati e quelle che hai configurato per altri.",
     "dashboardEmailsNone": "Nessuna email di dashboard",

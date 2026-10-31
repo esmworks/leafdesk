@@ -291,8 +291,26 @@ it did is who sees the asking run. A run asks at most 3 times, and waits for up 
 all. A helper that is
 paused, archived or over its monthly token limit isn't run: the asking run hears why and goes on
 without it, as it does when a helper waits for an owner's approval or isn't done in time (its run
-finishes on its own). The asking run's history shows "Asked *agent*: *task*", opening the helper's
-run, and the helper's shows who asked it, opening the asking run. The helper runs in the asking
+finishes on its own, as a task). The asking run's history shows "Asked *agent*: *task*", opening the helper's
+run, and the helper's shows who asked it, opening the asking run.
+
+**Giving tasks.** For longer work whose answer the run doesn't need at once, the same runs get
+`assign_agent`: it takes the same arguments as `ask_agent`, queues the helper's run as a task and
+goes on without waiting ("Gave *agent* a task: *task*" in its history). The helper's run follows the
+same rules as a helper asked with `ask_agent`, and counts toward the helper's 5 runs waiting or
+under way at once, with the runs owners ask for; past that the task isn't given and the run hears
+so. When the task's run ends, the person behind the run that gave it (who wrote in the chat, asked
+for the run, set the schedule or mentioned the agent) gets its report in the inbox, a member too,
+and as a push message that names the agents but not the answer; it opens the chat with the agent
+that gave the task, which they work with. Its text is hidden from them, as a scheduled run's is,
+once they can't open the row, database or page the giving run was about. They turn these reports
+off under **Agents' tasks** in Settings → Preferences. Later runs of the same agent for that person
+list their tasks with `agent_tasks`: to whom, how each goes (not started, under way, waiting for an
+approval, done or failed) and the answers of those done, as data from another agent. A run for
+someone else sees none of them, and a run no person stands behind sees only the tasks it gave
+itself. An agent whose owners took away the agents it can ask keeps `agent_tasks` while tasks it
+gave are kept. A helper asked with `ask_agent` that isn't done in time goes on as such a task. The
+tasks and `ask_agent` together count toward the 3 asks of a run. The helper runs in the asking
 run's slot of the worker, so even `AI_CONCURRENCY=1` never waits on itself. Archiving an agent takes
 it off every list. Each helper uses its own run settings, its model included: where agents can
 choose between the main and the fast model, give the agent that plans the job and weighs the

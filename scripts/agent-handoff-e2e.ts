@@ -7,8 +7,11 @@
  * can't ask further, a run asks at most MAX_HANDOFFS_PER_RUN times, a paused or archived helper or
  * one over its monthly limit is explained instead of run; a helper of a run a member started is held
  * to that member's access, and one of a run no one stands behind is untrusted; who sees the helper's
- * run is who sees the asking run. Everything runs with AI_CONCURRENCY=1, where a helper queued
- * behind the run waiting for it would never start.
+ * run is who sees the asking run. A run gives a task with assign_agent and goes on at once; the
+ * helper's run is queued, counted against the helper's MAX_REQUESTED_RUNS, and when it ends the
+ * person behind the asking run gets its report (a member too); a later run for the same person
+ * reads how it went with agent_tasks, one for someone else doesn't. Everything runs with
+ * AI_CONCURRENCY=1, where a helper queued behind the run waiting for it would never start.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-handoff-e2e.ts
@@ -25,7 +28,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, agentUsage, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentRun, agentUsage, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -40,8 +43,12 @@ const { requestAgentRun } = await import("@/server/agents/requests");
 const { flushAgentRuns, queueAgentRun } = await import("@/server/agents/run");
 const automations = await import("@/server/automations/manage");
 const { flushAutomations } = await import("@/server/automations/run");
-const { describeAgentRun } = await import("@/server/mcp/agents");
-const { MAX_HANDOFFS_PER_RUN } = await import("@/lib/agents");
+const { describeAgentRun, describeTaskReport } = await import("@/server/mcp/agents");
+const { listNotifications } = await import("@/server/notifications");
+const { setNotificationPreference } = await import("@/server/notification-preferences");
+const { goOnAsTask } = await import("@/server/agents/handoff");
+const { pushLink } = await import("@/lib/push");
+const { MAX_HANDOFFS_PER_RUN, MAX_REQUESTED_RUNS } = await import("@/lib/agents");
 type AgentHandoffRecord = import("@/lib/agents").AgentHandoffRecord;
 
 const RUN = `agent-handoff-e2e-${Date.now().toString(36)}`;
@@ -280,6 +287,124 @@ try {
     "a helper of a run no member stands behind is untrusted: its connection tools wait for an owner",
     strangerHelper?.source,
   );
+
+  // ── A task given to do in its own time ──────────────────────────────────────────────────────
+  fake.chats.length = 0;
+  const assign = () => ({ name: "assign_agent", arguments: { agent: "Researcher", task: "Find what a widget costs in the price list.", send_back: "the price" } });
+  models({
+    Coordinator: script([assign], (r) => `Gave it: ${toolResults(r).join(" | ")}`),
+    Researcher: script([() => ({ name: "read_page", arguments: { page_id: prices.id } })], (r) => (toolResults(r).some((t) => t.includes("PRICE-42")) ? "It costs PRICE-42." : "I couldn't read the price list.")),
+  });
+  const giving = await requestAgentRun(ids.owner, coordinator.id, { task: "Have the researcher price a widget; don't wait.", rowId: null, via: "api" });
+  await flushAgentRuns();
+  const [givingRun] = await db.select().from(agentRun).where(eq(agentRun.id, giving.id));
+  const [taskRun] = (await db.select().from(agentRun).where(eq(agentRun.agentId, researcher.id))).filter((r) => r.source.kind === "handoff" && r.source.parentRunId === giving.id);
+  const taskStep = givingRun.steps.find((s): s is AgentHandoffRecord => s.kind === "handoff");
+  check(
+    givingRun.status === "done" && givingRun.answer.includes(`has the task (id ${taskRun?.id})`) && !givingRun.answer.includes("PRICE-42"),
+    "assign_agent gives the task and the run goes on at once, without the answer",
+    givingRun.answer,
+  );
+  check(taskStep?.outcome === "queued" && taskStep.runId === taskRun.id, "…the step says it gave a task, linking to the helper's run", taskStep);
+  check(
+    taskRun.source.kind === "handoff" && taskRun.source.queued === true && taskRun.source.boundTo === ids.owner && taskRun.status === "done" && taskRun.answer.includes("PRICE-42"),
+    "the helper's run is queued as a task, held to the owner, and done in its own time",
+    taskRun,
+  );
+  const taskChats = fake.chats.filter((c) => isAgent(c, "Researcher"));
+  check(taskChats.length > 0 && taskChats[0].messages.some((m) => textOf(m.content).includes("gave you this task to do in your own time")), "…knowing the agent reads its answer later");
+  check(fake.chats.filter((c) => isAgent(c, "Coordinator")).every((c) => toolNames(c).includes("assign_agent") && toolNames(c).includes("agent_tasks")), "a run of an agent with helpers gets assign_agent and agent_tasks");
+
+  const reports = (await listNotifications(ids.owner, { workspaceId })).filter((n) => n.report?.runId === taskRun.id);
+  check(
+    reports.length === 1 && reports[0].kind === "agent_task" && reports[0].report?.from?.agentName === "Coordinator" && reports[0].report.text?.includes("PRICE-42"),
+    "the owner behind the run gets the task's report, naming the agent that gave it",
+    reports,
+  );
+  check(pushLink(reports[0]) === `/w/${workspaceId}/agents/${coordinator.id}`, "…which opens the chat with the agent that gave it, not the one that did it", pushLink(reports[0]));
+  const taskSummary = describeTaskReport(reports[0], "https://app.test");
+  check(
+    taskSummary.summary.includes(`"Researcher" finished a task the agent "Coordinator" gave it`) && taskSummary.summary.includes("PRICE-42") && taskSummary.given_by_agent_id === coordinator.id && taskSummary.url === `https://app.test/w/${workspaceId}/agents/${coordinator.id}`,
+    "list_notifications describes the task's report",
+    taskSummary,
+  );
+  await setNotificationPreference(ids.owner, "agent_task", "inbox", false);
+  check(!(await listNotifications(ids.owner, { workspaceId })).some((n) => n.kind === "agent_task"), "a person who turns tasks' reports off doesn't see them");
+  await setNotificationPreference(ids.owner, "agent_task", "inbox", true);
+
+  fake.chats.length = 0;
+  models({ Coordinator: script([() => ({ name: "agent_tasks", arguments: {} })], (r) => `Tasks: ${toolResults(r).join(" | ")}`), Researcher: () => ({ text: "Unused." }) });
+  const checking = await requestAgentRun(ids.owner, coordinator.id, { task: "How did the researcher's task go?", rowId: null, via: "api" });
+  await flushAgentRuns();
+  const [checkingRun] = await db.select().from(agentRun).where(eq(agentRun.id, checking.id));
+  check(
+    checkingRun.answer.includes(`Task ${taskRun.id}`) && checkingRun.answer.includes("Done.") && checkingRun.answer.includes("PRICE-42") && checkingRun.answer.includes("<<<EXTERNAL DATA"),
+    "a later run for the same person reads how the task went, its answer framed as data",
+    checkingRun.answer,
+  );
+  const otherOwners = await requestAgentRun(ids.owner2, coordinator.id, { task: "Which tasks did you give?", rowId: null, via: "api" });
+  await flushAgentRuns();
+  const [otherRun] = await db.select().from(agentRun).where(eq(agentRun.id, otherOwners.id));
+  check(otherRun.answer.includes("given no tasks for this person") && !otherRun.answer.includes("PRICE-42"), "…one for another person doesn't see it", otherRun.answer);
+
+  // A member gets a task's report too, though scheduled runs' reports are for owners.
+  await db.insert(notification).values({ userId: ids.member, workspaceId, kind: "agent_task", actorId: null, agentRunId: taskRun.id });
+  await db.insert(notification).values({ userId: ids.member, workspaceId, kind: "agent_report", actorId: null, agentRunId: givingRun.id });
+  const memberReports = (await listNotifications(ids.member, { workspaceId })).filter((n) => n.kind === "agent_task" || n.kind === "agent_report");
+  check(memberReports.length === 1 && memberReports[0].kind === "agent_task" && memberReports[0].report?.runId === taskRun.id, "a member sees a task's report, but not a scheduled run's", memberReports);
+
+  // An asked helper not done in time goes on as a task, unless it ended meanwhile.
+  const handoffSource = { kind: "handoff" as const, parentRunId: giving.id, fromAgentId: coordinator.id, callId: `${RUN}-late`, boundTo: ids.owner, trusted: true, parent: { kind: "request" as const, requestedBy: ids.owner, via: "api" as const } };
+  const [late] = await db.insert(agentRun).values({ agentId: researcher.id, workspaceId, source: handoffSource, context: { actorId: ids.owner }, prompt: "Price a gadget." }).returning();
+  const [ended] = await db
+    .insert(agentRun)
+    .values({ agentId: researcher.id, workspaceId, source: { ...handoffSource, callId: `${RUN}-ended` }, context: { actorId: ids.owner }, prompt: "Price a gizmo.", status: "done", answer: "Done." })
+    .returning();
+  check(!(await goOnAsTask(ended.id)), "a helper's run that ended before the asking run stopped waiting doesn't become a task");
+  const [endedNow] = await db.select().from(agentRun).where(eq(agentRun.id, ended.id));
+  check(endedNow.source.kind === "handoff" && !endedNow.source.queued, "…and is left as it was", endedNow.source);
+  check(await goOnAsTask(late.id), "one still waiting becomes a task");
+  models({ Coordinator: () => ({ text: "Unused." }), Researcher: () => ({ text: "A gadget costs GADGET-7." }) });
+  await flushAgentRuns();
+  const lateReports = (await listNotifications(ids.owner, { workspaceId })).filter((n) => n.kind === "agent_task" && n.report?.runId === late.id);
+  check(lateReports.length === 1 && lateReports[0].report?.text?.includes("GADGET-7"), "…and its end is reported to the person as a task's", lateReports);
+
+  // An agent whose helpers are gone still reads the tasks it gave.
+  await agents.updateAgent(ids.owner, coordinator.id, { helperAgentIds: [] });
+  fake.chats.length = 0;
+  models({ Coordinator: script([() => ({ name: "agent_tasks", arguments: {} })], (r) => `Tasks: ${toolResults(r).join(" | ")}`), Researcher: () => ({ text: "Unused." }) });
+  const afterwards = await requestAgentRun(ids.owner, coordinator.id, { task: "How did the gadget go?", rowId: null, via: "api" });
+  await flushAgentRuns();
+  const [afterRun] = await db.select().from(agentRun).where(eq(agentRun.id, afterwards.id));
+  const afterTools = toolNames(fake.chats.find((c) => isAgent(c, "Coordinator"))!);
+  check(
+    afterRun.answer.includes("GADGET-7") && afterTools.includes("agent_tasks") && !afterTools.includes("assign_agent") && !afterTools.includes("ask_agent"),
+    "an agent left with no one to ask keeps agent_tasks for the tasks it gave, and nothing more",
+    { answer: afterRun.answer, afterTools },
+  );
+  await agents.updateAgent(ids.owner, coordinator.id, { helperAgentIds: [researcher.id] });
+
+  // The helper's queue is full: the task isn't given.
+  const filler = Array.from({ length: MAX_REQUESTED_RUNS }, (_, i) => ({
+    agentId: researcher.id,
+    workspaceId,
+    source: { kind: "request" as const, requestedBy: ids.owner, via: "api" as const },
+    context: { actorId: ids.owner },
+    prompt: `Filler ${i}`,
+    nextAt: new Date(Date.now() + 86_400_000),
+  }));
+  const fillers = await db.insert(agentRun).values(filler).returning({ id: agentRun.id });
+  fake.chats.length = 0;
+  models({ Coordinator: script([assign], (r) => `Gave it: ${toolResults(r).join(" | ")}`), Researcher: () => ({ text: "Unused." }) });
+  const full = await requestAgentRun(ids.owner, coordinator.id, { task: "Give the researcher one more.", rowId: null, via: "api" });
+  await flushAgentRuns();
+  const [fullRun] = await db.select().from(agentRun).where(eq(agentRun.id, full.id));
+  check(
+    fullRun.answer.includes(`${MAX_REQUESTED_RUNS} tasks waiting`) && fullRun.steps.some((s) => s.kind === "handoff" && s.outcome === "busy" && s.runId === null),
+    "a helper with MAX_REQUESTED_RUNS waiting gets no more tasks, and the step says so",
+    fullRun.answer,
+  );
+  await db.delete(agentRun).where(inArray(agentRun.id, fillers.map((f) => f.id)));
 
   console.log(`\n${passed} checks passed`);
 } finally {

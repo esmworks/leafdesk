@@ -245,6 +245,8 @@
     "aiReminderTitle": "Påminnelse från {agent}",
     "reportDone": "Dess schemalagda körning är klar.",
     "reportFailed": "Dess schemalagda körning misslyckades. Öppna den för att se varför.",
+    "taskDone": "Uppgift från {agent}: klar.",
+    "taskFailed": "Uppgift från {agent}: blev inte klar.",
     "reportHidden": "Dess schemalagda körning är klar, på en databas som du inte kan öppna.",
     "reportGone": "Körningen sparas inte längre.",
     "aiAccountTitle": "AI-kontot har tagits bort",

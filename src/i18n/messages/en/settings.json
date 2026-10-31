@@ -673,6 +673,8 @@
         "done": "Asked <agent></agent>: “{task}”",
         "failed": "Asked <agent></agent>, but its run failed: “{task}”",
         "waiting": "Asked <agent></agent>; it hadn’t finished when this run went on: “{task}”",
+        "queued": "Gave <agent></agent> a task: “{task}”",
+        "busy": "Couldn’t give <agent></agent> a task: it has too many waiting",
         "paused": "Couldn’t ask <agent></agent>: it’s paused",
         "archived": "Couldn’t ask <agent></agent>: it’s archived",
         "limitReached": "Couldn’t ask <agent></agent>: it has used its monthly token limit"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Agent reminders",
     "aiReminderDescription": "An agent reminds you of something you asked it to, when the time comes. It also opens over the page you have open.",
     "aiReminderChannel": "Agent reminders: {channel}",
+    "agentTaskTitle": "Agents' tasks",
+    "agentTaskDescription": "An agent working for you gave another agent a task, and it finished or couldn't.",
+    "agentTaskChannel": "Agents' tasks: {channel}",
     "dashboardEmailsHeading": "Dashboard emails",
     "dashboardEmailsDescription": "Dashboards emailed to you on a schedule, and the ones you set up for others.",
     "dashboardEmailsNone": "No dashboard emails",

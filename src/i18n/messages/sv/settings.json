@@ -673,6 +673,8 @@
         "done": "Frågade <agent></agent>: ”{task}”",
         "failed": "Frågade <agent></agent>, men dess körning misslyckades: ”{task}”",
         "waiting": "Frågade <agent></agent>; den var inte klar när den här körningen fortsatte: ”{task}”",
+        "queued": "Gav <agent></agent> en uppgift: ”{task}”",
+        "busy": "Kunde inte ge <agent></agent> en uppgift: för många väntar",
         "paused": "Kunde inte fråga <agent></agent>: den är pausad",
         "archived": "Kunde inte fråga <agent></agent>: den är arkiverad",
         "limitReached": "Kunde inte fråga <agent></agent>: den har förbrukat sin månatliga tokengräns"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Påminnelser från agenter",
     "aiReminderDescription": "En agent påminner dig om något du bett den om när det är dags. Påminnelsen öppnas också över sidan du har öppen.",
     "aiReminderChannel": "Påminnelser från agenter: {channel}",
+    "agentTaskTitle": "Agenters uppgifter",
+    "agentTaskDescription": "En agent som arbetar åt dig gav en annan agent en uppgift, och den blev klar eller kunde inte slutföras.",
+    "agentTaskChannel": "Agenters uppgifter: {channel}",
     "dashboardEmailsHeading": "Instrumentpanelsmejl",
     "dashboardEmailsDescription": "Instrumentpaneler som skickas till dig med e-post enligt ett schema, och de du har ställt in åt andra.",
     "dashboardEmailsNone": "Inga instrumentpanelsmejl",

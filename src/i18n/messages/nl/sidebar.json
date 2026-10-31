@@ -245,6 +245,8 @@
     "aiReminderTitle": "Herinnering van {agent}",
     "reportDone": "De geplande run is klaar.",
     "reportFailed": "De geplande run is mislukt. Open hem om te zien waarom.",
+    "taskDone": "Taak van {agent}: klaar.",
+    "taskFailed": "Taak van {agent}: niet afgerond.",
     "reportHidden": "De geplande run is klaar, op een database die je niet kunt openen.",
     "reportGone": "De run wordt niet meer bewaard.",
     "aiAccountTitle": "AI-account verwijderd",

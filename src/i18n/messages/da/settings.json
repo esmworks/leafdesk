@@ -673,6 +673,8 @@
         "done": "Spurgte <agent></agent>: “{task}”",
         "failed": "Spurgte <agent></agent>, men dens kørsel mislykkedes: “{task}”",
         "waiting": "Spurgte <agent></agent>; den var ikke færdig, da denne kørsel fortsatte: “{task}”",
+        "queued": "Gav <agent></agent> en opgave: “{task}”",
+        "busy": "Kunne ikke give <agent></agent> en opgave: for mange venter",
         "paused": "Kunne ikke spørge <agent></agent>: den er sat på pause",
         "archived": "Kunne ikke spørge <agent></agent>: den er arkiveret",
         "limitReached": "Kunne ikke spørge <agent></agent>: den har brugt sin månedlige tokengrænse"
@@ -2117,6 +2119,9 @@
     "aiReminderTitle": "Påmindelser fra agenter",
     "aiReminderDescription": "En agent minder dig om noget, du har bedt den om, når tiden kommer. Påmindelsen åbner også over den side, du har åben.",
     "aiReminderChannel": "Påmindelser fra agenter: {channel}",
+    "agentTaskTitle": "Agenters opgaver",
+    "agentTaskDescription": "En agent, der arbejder for dig, gav en anden agent en opgave, og den blev færdig eller kunne ikke gøres færdig.",
+    "agentTaskChannel": "Agenters opgaver: {channel}",
     "dashboardEmailsHeading": "Dashboard-e-mails",
     "dashboardEmailsDescription": "Dashboards, der sendes til dig som e-mail efter en tidsplan, og dem, du har sat op til andre.",
     "dashboardEmailsNone": "Ingen dashboard-e-mails",

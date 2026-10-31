@@ -245,6 +245,8 @@
     "aiReminderTitle": "{agent} hatırlatıyor",
     "reportDone": "Zamanlanmış çalışması bitti.",
     "reportFailed": "Zamanlanmış çalışması başarısız oldu. Nedenini görmek için aç.",
+    "taskDone": "{agent} ajanından görev: tamamlandı.",
+    "taskFailed": "{agent} ajanından görev: bitiremedi.",
     "reportHidden": "Zamanlanmış çalışması, açamadığın bir veritabanında bitti.",
     "reportGone": "Çalışma artık saklanmıyor.",
     "aiAccountTitle": "Yapay zekâ hesabı kaldırıldı",

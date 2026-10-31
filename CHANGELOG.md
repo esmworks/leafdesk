@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Agents give each other tasks.** An agent that may ask other agents can now also give one a
+  task to do in its own time (`assign_agent`) and go on without waiting. When the task is done, the
+  person the run worked for gets its report in the inbox and on their phone (it opens the chat with
+  the agent that gave the task; **Agents' tasks** in Settings → Preferences turns them off), and the
+  agent's later runs for that person read how their tasks went, and their answers, with
+  `agent_tasks`. A task counts toward the helper's runs waiting at once, with the runs owners ask
+  for. A helper asked with `ask_agent` that isn't done in time now goes on as such a task instead of
+  its answer being lost. Migration 0169.
+
 - **Agents remind you.** Ask an agent in its chat, a request, a schedule or a mention to remind you
   of something, and at that time the reminder opens over the page you have open (*Done*, *Remind
   me in 1 hour*, *Open*), comes to your inbox and to your phone. Connected apps see them in
