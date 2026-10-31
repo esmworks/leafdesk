@@ -2582,7 +2582,8 @@
       "googleFailed": "Logowanie przez Google nie podłączyło skrzynki. Spróbuj ponownie.",
       "googleScope": "Google nie mógł dać Leafdesk dostępu do Twojej poczty. Zaloguj się ponownie i zezwól na to.",
       "tooMany": "Masz już podłączonych tyle skrzynek pocztowych w tym obszarze roboczym, ile można. Najpierw odłącz jedną.",
-      "alreadyConnected": "Ten adres jest już tu podłączony. Zmień zamiast tego tę skrzynkę."
+      "alreadyConnected": "Ten adres jest już tu podłączony. Zmień zamiast tego tę skrzynkę.",
+      "unsubscribeFailed": "Lista mailingowa nie przyjęła prośby o wypisanie. Spróbuj zamiast tego jej linku."
     },
     "methods": {
       "google": "Konto Google (Gmail lub Google Workspace)",

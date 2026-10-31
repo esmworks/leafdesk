@@ -51,7 +51,11 @@
   "imagesTrusted": "Images from this sender always show.",
   "stopImages": "Stop",
   "unverified": "The sender’s domain didn’t confirm that this message comes from it. Be careful with its links and files.",
-  "unsubscribe": "Unsubscribe from this list",
+  "unsubscribe": "Unsubscribe",
+  "unsubscribeConfirm": "Unsubscribe from the mailing list of {sender}? {how, select, mail {A message asking for it goes to {address} from your mailbox.} other {The list is told at once.}}",
+  "unsubscribing": "Unsubscribing…",
+  "unsubscribed": "Unsubscribed",
+  "unsubscribedNote": "Unsubscribed from {sender}",
   "attachments": "{count, plural, one {# file} other {# files}}",
   "noMailboxTitle": "Connect a mailbox to use Mail",
   "noMailboxText": "Mail shows the mailboxes you connected in this workspace. Connect one in your account settings; email must be on in the workspace.",
@@ -140,6 +144,28 @@
     "quoteHide": "Hide the quoted message",
     "quoteRemove": "Remove the quoted message"
   },
+  "bulk": {
+    "select": "Select",
+    "selectThread": "Select conversation: {subject}",
+    "selectAll": "Select all",
+    "selected": "{count} selected",
+    "clear": "Clear selection",
+    "toolbar": "Selected conversations",
+    "done": {
+      "archive": "{count, plural, one {# conversation archived} other {# conversations archived}}",
+      "trash": "{count, plural, one {# conversation moved to the trash} other {# conversations moved to the trash}}",
+      "junk": "{count, plural, one {# conversation marked as junk} other {# conversations marked as junk}}",
+      "inbox": "{count, plural, one {# conversation moved to the inbox} other {# conversations moved to the inbox}}",
+      "delete": "{count, plural, one {# conversation deleted forever} other {# conversations deleted forever}}",
+      "move": "{count, plural, one {# conversation moved to {folder}} other {# conversations moved to {folder}}}"
+    }
+  },
+  "printThread": "Print conversation",
+  "messageMenu": "More",
+  "printMessage": "Print",
+  "showSource": "Show original",
+  "downloadSource": "Download message (.eml)",
+  "allInboxes": "All inboxes",
   "ai": {
     "summarize": "Summarize",
     "summarizeHint": "Summarize this conversation with AI",
@@ -159,6 +185,24 @@
     "friendly": "Friendlier",
     "use": "Use this",
     "useNote": "It takes the place of what you wrote above your signature. Undo brings it back.",
-    "mailFailed": "The mail couldn't be read from the mail server. Try again in a moment."
+    "mailFailed": "The mail couldn't be read from the mail server. Try again in a moment.",
+    "rowContext": "Also reads the fields of {row}, as you see them.",
+    "tasks": {
+      "find": "Find tasks",
+      "findHint": "Find with AI what this conversation asks of you",
+      "title": "Tasks from this conversation",
+      "finding": "Finding tasks…",
+      "again": "Find again",
+      "close": "Close",
+      "unreadable": "The AI's answer couldn't be read. Try again.",
+      "none": "The AI found nothing this conversation asks of you.",
+      "text": "Task",
+      "toRow": "They go to {row} as your to-dos.",
+      "toNote": "They go to today's daily note as your to-dos.",
+      "add": "Add to my tasks",
+      "addedRow": "Added to {row}.",
+      "addedNote": "Added to today's daily note.",
+      "open": "Open"
+    }
   }
 }

@@ -2582,7 +2582,8 @@
       "googleFailed": "使用 Google 登录未能连接邮箱。请重试。",
       "googleScope": "Google 未获准让 Leafdesk 访问你的邮件。请重新登录并允许。",
       "tooMany": "你在此工作区连接的邮箱已达上限。请先断开一个。",
-      "alreadyConnected": "你已在此连接了这个地址。请改为修改那个邮箱。"
+      "alreadyConnected": "你已在此连接了这个地址。请改为修改那个邮箱。",
+      "unsubscribeFailed": "邮件列表未接受退订请求。请改用该列表的链接。"
     },
     "methods": {
       "google": "Google 账号（Gmail 或 Google Workspace）",

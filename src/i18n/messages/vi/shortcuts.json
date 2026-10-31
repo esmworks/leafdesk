@@ -1,12 +1,14 @@
 {
   "title": "Phím tắt",
   "or": "hoặc",
+  "then": "rồi",
   "groups": {
     "general": "Chung",
     "navigation": "Điều hướng",
     "text": "Định dạng văn bản",
     "blocks": "Khối",
-    "databases": "Cơ sở dữ liệu"
+    "databases": "Cơ sở dữ liệu",
+    "mail": "Thư"
   },
   "items": {
     "shortcuts": "Hiện các phím tắt",
@@ -61,6 +63,30 @@
     "rowComment": "Bình luận về hàng (khi menu của hàng đang mở)",
     "rowTrash": "Chuyển hàng vào thùng rác (khi menu của hàng đang mở)",
     "link": "Liên kết văn bản đã chọn",
-    "newSubPage": "Tạo trang bên trong trang này, liên kết trong văn bản (sau dấu cách)"
+    "newSubPage": "Tạo trang bên trong trang này, liên kết trong văn bản (sau dấu cách)",
+    "mailCompose": "Viết thư mới",
+    "mailSearch": "Tìm thư",
+    "mailNext": "Mở cuộc trò chuyện tiếp theo",
+    "mailPrevious": "Mở cuộc trò chuyện trước",
+    "mailOpen": "Mở cuộc trò chuyện đầu tiên",
+    "mailBack": "Quay lại danh sách hoặc bỏ chọn",
+    "mailSelect": "Chọn cuộc trò chuyện đang mở",
+    "mailSelectAll": "Chọn mọi cuộc trò chuyện trong danh sách",
+    "mailArchive": "Lưu trữ hoặc chuyển lại vào hộp thư đến",
+    "mailTrash": "Chuyển vào thùng rác (trong thùng rác: xóa vĩnh viễn)",
+    "mailJunk": "Đánh dấu là thư rác",
+    "mailStar": "Gắn sao hoặc bỏ gắn sao",
+    "mailUnread": "Đánh dấu chưa đọc",
+    "mailRead": "Đánh dấu đã đọc",
+    "mailUndo": "Hoàn tác lần di chuyển gần nhất",
+    "mailReply": "Trả lời",
+    "mailReplyAll": "Trả lời tất cả",
+    "mailForward": "Chuyển tiếp",
+    "mailSend": "Gửi thư đang soạn",
+    "mailGoInbox": "Đến hộp thư đến",
+    "mailGoSent": "Đến thư đã gửi",
+    "mailGoDrafts": "Đến thư nháp",
+    "mailGoArchive": "Đến mục lưu trữ",
+    "mailGoTrash": "Đến thùng rác"
   }
 }

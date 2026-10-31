@@ -2582,7 +2582,8 @@
       "googleFailed": "Signing in with Google didn't connect the mailbox. Try again.",
       "googleScope": "Google wasn't allowed to give Leafdesk access to your mail. Sign in again and allow it.",
       "tooMany": "You've connected as many mailboxes in this workspace as you can. Disconnect one first.",
-      "alreadyConnected": "You've already connected that address here. Change that mailbox instead."
+      "alreadyConnected": "You've already connected that address here. Change that mailbox instead.",
+      "unsubscribeFailed": "The mailing list didn't take the request to unsubscribe. Try its link instead."
     },
     "methods": {
       "google": "Google account (Gmail or Google Workspace)",

@@ -1,12 +1,14 @@
 {
   "title": "Scorciatoie da tastiera",
   "or": "o",
+  "then": "poi",
   "groups": {
     "general": "Generale",
     "navigation": "Navigazione",
     "text": "Formattazione del testo",
     "blocks": "Blocchi",
-    "databases": "Database"
+    "databases": "Database",
+    "mail": "Posta"
   },
   "items": {
     "shortcuts": "Mostra le scorciatoie da tastiera",
@@ -61,6 +63,30 @@
     "rowComment": "Commenta la riga (con il suo menu aperto)",
     "rowTrash": "Sposta la riga nel cestino (con il suo menu aperto)",
     "link": "Collega il testo selezionato",
-    "newSubPage": "Crea una pagina dentro questa, collegata nel testo (dopo uno spazio)"
+    "newSubPage": "Crea una pagina dentro questa, collegata nel testo (dopo uno spazio)",
+    "mailCompose": "Scrivi un nuovo messaggio",
+    "mailSearch": "Cerca nella posta",
+    "mailNext": "Apri la conversazione successiva",
+    "mailPrevious": "Apri la conversazione precedente",
+    "mailOpen": "Apri la prima conversazione",
+    "mailBack": "Torna all’elenco o annulla la selezione",
+    "mailSelect": "Seleziona la conversazione aperta",
+    "mailSelectAll": "Seleziona tutte le conversazioni dell’elenco",
+    "mailArchive": "Archivia o sposta di nuovo in Posta in arrivo",
+    "mailTrash": "Sposta nel cestino (nel cestino: elimina definitivamente)",
+    "mailJunk": "Segna come spam",
+    "mailStar": "Aggiungi o rimuovi la stella",
+    "mailUnread": "Segna come da leggere",
+    "mailRead": "Segna come letto",
+    "mailUndo": "Annulla l’ultimo spostamento",
+    "mailReply": "Rispondi",
+    "mailReplyAll": "Rispondi a tutti",
+    "mailForward": "Inoltra",
+    "mailSend": "Invia il messaggio che stai scrivendo",
+    "mailGoInbox": "Vai a Posta in arrivo",
+    "mailGoSent": "Vai alla posta inviata",
+    "mailGoDrafts": "Vai alle bozze",
+    "mailGoArchive": "Vai all’archivio",
+    "mailGoTrash": "Vai al cestino"
   }
 }

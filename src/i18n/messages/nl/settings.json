@@ -2582,7 +2582,8 @@
       "googleFailed": "Aanmelden met Google heeft de mailbox niet gekoppeld. Probeer het opnieuw.",
       "googleScope": "Google mocht Leafdesk geen toegang tot je mail geven. Meld je opnieuw aan en sta het toe.",
       "tooMany": "Je hebt in deze werkruimte zoveel mailboxen gekoppeld als mogelijk is. Ontkoppel er eerst een.",
-      "alreadyConnected": "Dat adres is hier al gekoppeld. Wijzig die mailbox in plaats daarvan."
+      "alreadyConnected": "Dat adres is hier al gekoppeld. Wijzig die mailbox in plaats daarvan.",
+      "unsubscribeFailed": "De mailinglijst heeft het verzoek om uit te schrijven niet aangenomen. Probeer in plaats daarvan de link van de lijst."
     },
     "methods": {
       "google": "Google-account (Gmail of Google Workspace)",

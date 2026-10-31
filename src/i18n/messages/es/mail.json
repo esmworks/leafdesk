@@ -51,7 +51,11 @@
   "imagesTrusted": "Las imágenes de este remitente se muestran siempre.",
   "stopImages": "Dejar de mostrar",
   "unverified": "El dominio del remitente no confirmó que este mensaje provenga de él. Ten cuidado con sus enlaces y archivos.",
-  "unsubscribe": "Cancelar la suscripción a esta lista",
+  "unsubscribe": "Cancelar suscripción",
+  "unsubscribeConfirm": "¿Cancelar la suscripción a la lista de correo de {sender}? {how, select, mail {Se enviará a {address} un mensaje desde tu buzón pidiéndolo.} other {Se avisa a la lista de inmediato.}}",
+  "unsubscribing": "Cancelando la suscripción…",
+  "unsubscribed": "Suscripción cancelada",
+  "unsubscribedNote": "Suscripción a {sender} cancelada",
   "attachments": "{count, plural, one {# archivo} other {# archivos}}",
   "noMailboxTitle": "Conecta un buzón para usar Correo",
   "noMailboxText": "Correo muestra los buzones que conectaste en este espacio de trabajo. Conecta uno en los ajustes de tu cuenta; el correo electrónico debe estar activado en el espacio de trabajo.",
@@ -140,6 +144,28 @@
     "quoteHide": "Ocultar el mensaje citado",
     "quoteRemove": "Quitar el mensaje citado"
   },
+  "bulk": {
+    "select": "Seleccionar",
+    "selectThread": "Seleccionar conversación: {subject}",
+    "selectAll": "Seleccionar todo",
+    "selected": "{count} seleccionadas",
+    "clear": "Borrar selección",
+    "toolbar": "Conversaciones seleccionadas",
+    "done": {
+      "archive": "{count, plural, one {# conversación archivada} other {# conversaciones archivadas}}",
+      "trash": "{count, plural, one {# conversación movida a la papelera} other {# conversaciones movidas a la papelera}}",
+      "junk": "{count, plural, one {# conversación marcada como spam} other {# conversaciones marcadas como spam}}",
+      "inbox": "{count, plural, one {# conversación movida a recibidos} other {# conversaciones movidas a recibidos}}",
+      "delete": "{count, plural, one {# conversación eliminada definitivamente} other {# conversaciones eliminadas definitivamente}}",
+      "move": "{count, plural, one {# conversación movida a {folder}} other {# conversaciones movidas a {folder}}}"
+    }
+  },
+  "printThread": "Imprimir conversación",
+  "messageMenu": "Más",
+  "printMessage": "Imprimir",
+  "showSource": "Mostrar original",
+  "downloadSource": "Descargar mensaje (.eml)",
+  "allInboxes": "Todos los recibidos",
   "ai": {
     "summarize": "Resumir",
     "summarizeHint": "Resumir esta conversación con IA",
@@ -159,6 +185,24 @@
     "friendly": "Más cercano",
     "use": "Usar esto",
     "useNote": "Sustituye lo que escribiste encima de tu firma. Deshacer lo recupera.",
-    "mailFailed": "No se pudo leer el mensaje del servidor de correo. Inténtalo de nuevo en un momento."
+    "mailFailed": "No se pudo leer el mensaje del servidor de correo. Inténtalo de nuevo en un momento.",
+    "rowContext": "También lee los campos de {row}, tal como los ves.",
+    "tasks": {
+      "find": "Buscar tareas",
+      "findHint": "Busca con IA lo que esta conversación te pide",
+      "title": "Tareas de esta conversación",
+      "finding": "Buscando tareas…",
+      "again": "Buscar de nuevo",
+      "close": "Cerrar",
+      "unreadable": "No se pudo leer la respuesta de la IA. Inténtalo de nuevo.",
+      "none": "La IA no encontró nada que esta conversación te pida.",
+      "text": "Tarea",
+      "toRow": "Se añaden a {row} como tus tareas pendientes.",
+      "toNote": "Se añaden a la nota diaria de hoy como tus tareas pendientes.",
+      "add": "Añadir a mis tareas",
+      "addedRow": "Añadidas a {row}.",
+      "addedNote": "Añadidas a la nota diaria de hoy.",
+      "open": "Abrir"
+    }
   }
 }

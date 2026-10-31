@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertOctagon, Archive, ChevronLeft, ChevronRight, ExternalLink, Folder, FolderInput, Forward, Inbox, Link2, Mail, MailOpen, Reply, ReplyAll, Search, Star, Trash2 } from "lucide-react";
+import { AlertOctagon, Archive, ChevronLeft, ChevronRight, ExternalLink, Folder, FolderInput, Forward, Inbox, Link2, Mail, MailOpen, Reply, ReplyAll, Search, SquareCheck, Star, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { showToast } from "@/components/toast";
@@ -12,7 +12,8 @@ import { useFolderName } from "./mail-sidebar";
 /**
  * A conversation's menu in the list, opened with a right click: answers, the moves and flags of
  * the thread's toolbar (and the keys that do them), moving to any folder, its sender's mail, and
- * its link. Loaded with the first right click.
+ * its link. On one of several selected conversations, only the moves and flags, for all of them.
+ * Loaded with the first right click.
  */
 
 const Key = ({ children }: { children: ReactNode }) => <kbd className="font-sans text-xs text-fg-faint">{children}</kbd>;
@@ -20,23 +21,32 @@ const Key = ({ children }: { children: ReactNode }) => <kbd className="font-sans
 export function ThreadMenu({
   at,
   item,
+  many,
   box,
   folder,
+  acrossMailboxes,
   href,
   onClose,
   onAction,
   onCompose,
   onFind,
+  onSelect,
 }: {
   at: { x: number; y: number };
+  /** The conversation, or with `many`, the selection's: unread if any is, starred if all are. */
   item: MailThreadItem;
+  /** How many selected conversations the menu is for, or 0 for one. */
+  many: number;
   box: MailboxTabView;
   folder: MailFolderView;
+  /** The selection is of several mailboxes (all inboxes): no folder of one takes them all. */
+  acrossMailboxes: boolean;
   href: string;
   onClose: () => void;
   onAction: (action: MailAction, to?: MailFolderView) => void;
   onCompose: (mode: ComposeMode) => void;
   onFind: (search: string) => void;
+  onSelect: () => void;
 }) {
   const t = useTranslations("mail");
   const folderName = useFolderName();
@@ -47,7 +57,7 @@ export function ThreadMenu({
   };
   const away = folder.role === "trash" || folder.role === "junk";
   const sender = item.senders.find((s) => s.address !== box.address);
-  const targets = (box.folders ?? []).filter((f) => f.id !== folder.id && movableTo(f));
+  const targets = acrossMailboxes ? [] : (box.folders ?? []).filter((f) => f.id !== folder.id && movableTo(f));
 
   return (
     <Popover at={at} open onOpenChange={(open) => !open && onClose()} className="w-72" trigger={() => null}>
@@ -67,15 +77,21 @@ export function ThreadMenu({
         </div>
       ) : (
         <>
-          <MenuItem icon={<Reply className="h-4 w-4" />} trailing={<Key>R</Key>} onClick={run(() => onCompose("reply"))}>
-            {t("actions.reply")}
-          </MenuItem>
-          <MenuItem icon={<ReplyAll className="h-4 w-4" />} trailing={<Key>A</Key>} onClick={run(() => onCompose("replyAll"))}>
-            {t("actions.replyAll")}
-          </MenuItem>
-          <MenuItem icon={<Forward className="h-4 w-4" />} trailing={<Key>F</Key>} onClick={run(() => onCompose("forward"))}>
-            {t("actions.forward")}
-          </MenuItem>
+          {many ? (
+            <div className="px-2 py-1 text-xs font-medium text-fg-muted">{t("bulk.selected", { count: many })}</div>
+          ) : (
+            <>
+              <MenuItem icon={<Reply className="h-4 w-4" />} trailing={<Key>R</Key>} onClick={run(() => onCompose("reply"))}>
+                {t("actions.reply")}
+              </MenuItem>
+              <MenuItem icon={<ReplyAll className="h-4 w-4" />} trailing={<Key>A</Key>} onClick={run(() => onCompose("replyAll"))}>
+                {t("actions.replyAll")}
+              </MenuItem>
+              <MenuItem icon={<Forward className="h-4 w-4" />} trailing={<Key>F</Key>} onClick={run(() => onCompose("forward"))}>
+                {t("actions.forward")}
+              </MenuItem>
+            </>
+          )}
           <MenuSeparator />
           {away || folder.role === "archive" ? (
             <MenuItem icon={<Inbox className="h-4 w-4" />} trailing={<Key>E</Key>} onClick={run(() => onAction("inbox"))}>
@@ -101,7 +117,7 @@ export function ThreadMenu({
             </MenuItem>
           )}
           {item.unread ? (
-            <MenuItem icon={<MailOpen className="h-4 w-4" />} onClick={run(() => onAction("read"))}>
+            <MenuItem icon={<MailOpen className="h-4 w-4" />} trailing={<Key>⇧I</Key>} onClick={run(() => onAction("read"))}>
               {t("actions.read")}
             </MenuItem>
           ) : (
@@ -117,7 +133,12 @@ export function ThreadMenu({
               {t("actions.move")}
             </MenuItem>
           )}
-          {sender && (
+          {!many && (
+            <MenuItem icon={<SquareCheck className="h-4 w-4" />} trailing={<Key>X</Key>} onClick={run(onSelect)}>
+              {t("bulk.select")}
+            </MenuItem>
+          )}
+          {sender && !many && (
             <>
               <MenuSeparator />
               <MenuItem icon={<Search className="h-4 w-4" />} onClick={run(() => onFind(`from:${sender.address}`))}>
@@ -125,21 +146,25 @@ export function ThreadMenu({
               </MenuItem>
             </>
           )}
-          <MenuSeparator />
-          <MenuItem icon={<ExternalLink className="h-4 w-4" />} onClick={run(() => window.open(href, "_blank", "noopener"))}>
-            {t("actions.openInNewTab")}
-          </MenuItem>
-          <MenuItem
-            icon={<Link2 className="h-4 w-4" />}
-            onClick={run(() =>
-              void navigator.clipboard.writeText(new URL(href, window.location.origin).toString()).then(
-                () => showToast({ message: t("actions.linkCopied") }),
-                () => {},
-              ),
-            )}
-          >
-            {t("actions.copyLink")}
-          </MenuItem>
+          {!many && (
+            <>
+              <MenuSeparator />
+              <MenuItem icon={<ExternalLink className="h-4 w-4" />} onClick={run(() => window.open(href, "_blank", "noopener"))}>
+                {t("actions.openInNewTab")}
+              </MenuItem>
+              <MenuItem
+                icon={<Link2 className="h-4 w-4" />}
+                onClick={run(() =>
+                  void navigator.clipboard.writeText(new URL(href, window.location.origin).toString()).then(
+                    () => showToast({ message: t("actions.linkCopied") }),
+                    () => {},
+                  ),
+                )}
+              >
+                {t("actions.copyLink")}
+              </MenuItem>
+            </>
+          )}
         </>
       )}
     </Popover>

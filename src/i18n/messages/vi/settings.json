@@ -2582,7 +2582,8 @@
       "googleFailed": "Đăng nhập bằng Google không kết nối được hộp thư. Hãy thử lại.",
       "googleScope": "Google không được phép cấp cho Leafdesk quyền truy cập thư của bạn. Hãy đăng nhập lại và cho phép.",
       "tooMany": "Bạn đã kết nối số hộp thư tối đa trong không gian làm việc này. Hãy ngắt kết nối một hộp trước.",
-      "alreadyConnected": "Địa chỉ này đã được kết nối ở đây. Hãy thay đổi hộp thư đó."
+      "alreadyConnected": "Địa chỉ này đã được kết nối ở đây. Hãy thay đổi hộp thư đó.",
+      "unsubscribeFailed": "Danh sách thư không chấp nhận yêu cầu hủy đăng ký. Hãy thử liên kết của danh sách."
     },
     "methods": {
       "google": "Tài khoản Google (Gmail hoặc Google Workspace)",

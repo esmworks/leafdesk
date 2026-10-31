@@ -1,12 +1,14 @@
 {
   "title": "Keyboard shortcuts",
   "or": "or",
+  "then": "then",
   "groups": {
     "general": "General",
     "navigation": "Navigation",
     "text": "Text formatting",
     "blocks": "Blocks",
-    "databases": "Databases"
+    "databases": "Databases",
+    "mail": "Mail"
   },
   "items": {
     "shortcuts": "Show the keyboard shortcuts",
@@ -61,6 +63,30 @@
     "rowComment": "Comment on the row (its menu open)",
     "rowTrash": "Move the row to the trash (its menu open)",
     "link": "Link the selected text",
-    "newSubPage": "Make a page inside this one, linked in the text (after a space)"
+    "newSubPage": "Make a page inside this one, linked in the text (after a space)",
+    "mailCompose": "Write a new message",
+    "mailSearch": "Search mail",
+    "mailNext": "Open the next conversation",
+    "mailPrevious": "Open the previous conversation",
+    "mailOpen": "Open the first conversation",
+    "mailBack": "Back to the list, or leave the selection",
+    "mailSelect": "Select the open conversation",
+    "mailSelectAll": "Select every conversation in the list",
+    "mailArchive": "Archive, or move back to the inbox",
+    "mailTrash": "Move to the trash (delete forever there)",
+    "mailJunk": "Mark as junk",
+    "mailStar": "Star or remove the star",
+    "mailUnread": "Mark as unread",
+    "mailRead": "Mark as read",
+    "mailUndo": "Undo the last move",
+    "mailReply": "Reply",
+    "mailReplyAll": "Reply all",
+    "mailForward": "Forward",
+    "mailSend": "Send the message being written",
+    "mailGoInbox": "Go to the inbox",
+    "mailGoSent": "Go to sent mail",
+    "mailGoDrafts": "Go to drafts",
+    "mailGoArchive": "Go to the archive",
+    "mailGoTrash": "Go to the trash"
   }
 }

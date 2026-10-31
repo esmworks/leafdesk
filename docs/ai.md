@@ -88,6 +88,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
 | Mail: a thread's summary | `AI_FAST_MODEL` | low |
+| Mail: a thread's tasks | `AI_MODEL` | low |
 | Mail: the composer's writer | `AI_MODEL` | low |
 | Chat | `AI_MODEL` (or the model picked, see `AI_CHAT_MODELS`) | medium, or as picked (see *Picking how much it thinks*) |
 | Chat in research mode | `AI_MODEL` (or the model picked) | the model's default |
@@ -128,8 +129,17 @@ her and say Friday works"), save it with the bookmark, or pick one of your saved
 with AI* under the thread opens a reply and writes it at once. The answer shows in the panel first;
 *Use this* puts it in place of what you wrote above your signature and the quoted message, which
 stay as they are, and Undo brings your text back. The writer never sends anything: you read it and
-press Send. The messages are read from the mail server without marking them read, only when you
-ask, and go to the workspace's AI provider framed as data, never as instructions; nothing reads
+press Send. In an answer to someone who is a row of a database the thread links to (a customer, a
+contact), the writer also reads that row's fields, as you may see them, and the panel says so: it
+uses a fact from them (a name, a date, an amount) only where the email needs it and is told not to
+pass on internal notes. While your AI chat's memory is on, it reads your notes there too, for how
+you write and who you are, and nothing else from them. *Find tasks* (the list icon at the top of a
+thread) lists what the conversation asks of you or what you promised, each with its due day when
+the mail says one; tick, reword or leave out each, and *Add to my tasks* adds them as your to-dos,
+with a link back to the mail: on the page of the thread's row when you may change it, else in
+today's daily note. They show in My tasks like any to-do that mentions you. The messages are read from the mail server without marking them read, only when you
+ask, and go to the workspace's AI provider framed as data (their subjects and senders' names too),
+never as instructions; nothing reads
 mail for the AI in the background. Only the mailbox's owner can use it, and it counts as *Writing
 assistant* in Settings > AI usage.
 

@@ -2582,7 +2582,8 @@
       "googleFailed": "Die Anmeldung mit Google hat das Postfach nicht verbunden. Versuchen Sie es erneut.",
       "googleScope": "Google durfte Leafdesk keinen Zugriff auf Ihre E-Mails geben. Melden Sie sich erneut an und erlauben Sie es.",
       "tooMany": "Du hast in diesem Workspace so viele Postfächer verbunden wie möglich. Trenne zuerst eines.",
-      "alreadyConnected": "Diese Adresse ist hier schon verbunden. Ändere stattdessen dieses Postfach."
+      "alreadyConnected": "Diese Adresse ist hier schon verbunden. Ändere stattdessen dieses Postfach.",
+      "unsubscribeFailed": "Die Mailingliste hat die Abmeldung nicht angenommen. Versuche stattdessen ihren Link."
     },
     "methods": {
       "google": "Google-Konto (Gmail oder Google Workspace)",

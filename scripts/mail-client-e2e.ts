@@ -85,7 +85,9 @@ const { emptyFolder, holdMail, mailAction, sendHeld, sendMail, sendStatus, undoS
 const drafts = await import("@/server/mail-client/drafts");
 const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
+const { stopWatching, watchMailbox } = await import("@/server/mail-client/watch");
 const images = await import("@/server/mail-client/images");
+const { unsubscribe } = await import("@/server/mail-client/unsubscribe");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 
@@ -279,6 +281,31 @@ try {
   check(bySubject("Ekim bülteni")?.row === null && bySubject("Ekim bülteni")?.hasAttachments, "mail from no row's address names none, and shows it has files");
   check(first.items.every((t) => t.unread), "new mail is unread");
 
+  // All inboxes as one
+  const salesInbox = salesListed!.folders!.find((f) => f.role === "inbox")!;
+  const all = await read.listThreads(ids.ada, { mailboxId: "all", folderId: "", workspaceId });
+  check(
+    all.items.length === 4 &&
+      all.items.every((t, i) => i === 0 || all.items[i - 1].sentAt >= t.sentAt) &&
+      all.items.filter((t) => t.mailboxId === salesBoxId && t.folderId === salesInbox.id).map((t) => t.subject).join() === "Fiyat sorusu" &&
+      all.items.filter((t) => t.mailboxId === boxId).every((t) => t.folderId === inbox.id),
+    "all inboxes list as one, newest first, each thread with its mailbox and inbox",
+    all.items.map((t) => [t.subject, t.mailboxId === salesBoxId]),
+  );
+  check(first.items.every((t) => t.mailboxId === boxId && t.folderId === inbox.id), "a folder's threads name it too");
+  const allFound = await read.listThreads(ids.ada, { mailboxId: "all", folderId: "", workspaceId, search: "fiyat" });
+  check(
+    allFound.items.map((t) => `${t.subject}@${t.mailboxId === salesBoxId ? "sales" : "ada"}`).sort().join() === "Fiyat sorusu@sales,Re: Teklif@ada",
+    "searching all inboxes searches every mailbox",
+    allFound.items.map((t) => t.subject),
+  );
+  check(!(await read.listThreads(ids.bob, { mailboxId: "all", folderId: "", workspaceId })).items.length, "another member's all inboxes hold none of Ada's mail");
+  const fiyat = all.items.find((t) => t.mailboxId === salesBoxId)!;
+  await mailAction(ids.ada, { mailboxId: fiyat.mailboxId, folderId: fiyat.folderId, threadIds: [fiyat.threadId], action: "star" });
+  const [fiyatRow] = await db.select().from(mailMessage).where(eq(mailMessage.id, fiyat.messageId));
+  check(fiyatRow.flagged && fiyatRow.mailboxId === salesBoxId, "a thread of all inboxes is starred in its own mailbox");
+  await mailAction(ids.ada, { mailboxId: fiyat.mailboxId, folderId: fiyat.folderId, threadIds: [fiyat.threadId], action: "unstar" });
+
   const thread = await read.getThread(ids.ada, { mailboxId: boxId, threadId: teklif!.threadId, folderId: inbox.id });
   check(
     thread.messages.map((m) => m.subject).join("|") === "Teklif|Re: Teklif|Re: Teklif" && thread.messages[2].folderRole === "sent",
@@ -297,7 +324,7 @@ try {
   check(body.html!.includes("data:image/png;base64,"), "an image the message carries is shown inline");
   check(/target="_blank"/.test(body.html!) && /rel="noopener noreferrer"/.test(body.html!), "links open in a new tab");
   check(body.attachments.length === 1 && body.attachments[0].name === "fiyat.pdf", "the files list leaves out the image already shown", body.attachments);
-  check(body.unsubscribe === "https://lists.test/unsub?u=1" && body.text.includes("Bülten metni"), "the text and the web unsubscribe address come along", body);
+  check(body.unsubscribe?.how === "mail" && body.unsubscribe.address === "unsub@lists.test" && body.text.includes("Bülten metni"), "the text and the list's way out come along: a mail before a web page", body);
   const withImages = await read.readBody(ids.ada, { id: bulten.messageId, images: true });
   check(withImages.html!.includes("https://tracker.example/pixel.gif") && withImages.blockedImages === 0, "asked for, remote images stay in");
   check(withImages.images === "asked" && body.images === null, "the body says why its images load", [withImages.images, body.images]);
@@ -320,10 +347,14 @@ try {
   const file = await read.readAttachment(ids.ada, { id: bulten.messageId, part: body.attachments[0].part });
   check(file.data.equals(PDF) && file.contentType === "application/pdf", "a file downloads as it was sent");
   check((await errorCode(() => read.readAttachment(ids.ada, { id: bulten.messageId, part: "9" }))) === "gone", "a part the message doesn't have isn't served");
+  const source = await read.readSource(ids.ada, { id: bulten.messageId });
+  const sourceText = source.data.toString("utf8");
+  check(source.subject === bulten.subject && /^List-Unsubscribe: /im.test(sourceText) && /^Content-Type: application\/pdf/im.test(sourceText), "the original comes whole, headers and files", sourceText.slice(0, 300));
 
   // Who reads it
   check((await errorCode(() => read.listThreads(ids.bob, { mailboxId: boxId, folderId: inbox.id }))) === "noMailbox", "another member can't list it");
   check((await errorCode(() => read.readBody(ids.bob, { id: bulten.messageId }))) === "noMailbox", "nor read its messages, held in memory or not");
+  check((await errorCode(() => read.readSource(ids.bob, { id: bulten.messageId }))) === "noMailbox", "nor their originals");
   check((await errorCode(() => mailAction(ids.bob, { mailboxId: boxId, folderId: inbox.id, threadIds: [bulten.threadId], action: "trash" }))) === "noMailbox", "nor change them");
 
   // Actions
@@ -345,6 +376,11 @@ try {
       (await errorCode(() => mailAction(ids.ada, { mailboxId: boxId, folderId: projeler.id, threadIds: [teklif!.threadId], action: "move" }))) === "invalid",
     "but not to the sent folder, nor without one",
   );
+  const selected = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.map((i) => i.threadId);
+  await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: selected, action: "star" });
+  const starredBoth = (await uidsIn("INBOX", { flagged: true })).length;
+  await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: selected, action: "unstar" });
+  check(selected.length === 2 && starredBoth === 2 && !(await uidsIn("INBOX", { flagged: true })).length, "one action changes every selected thread", [selected, starredBoth]);
   await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: [bulten.threadId], action: "trash" });
   const trash = folder("trash");
   const trashed = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: trash.id });
@@ -689,6 +725,75 @@ try {
   check(found.items.length === 1 && found.items[0].threadId === teklif!.threadId, "search finds by sender and subject in every folder but the trash", found.items.map((t) => t.subject));
   check((await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id, search: "sipariş formu" })).items.length === 1, "and words of the first line");
 
+  // Leaving mailing lists
+  const robot = `robot.${RUN}@lists.test`;
+  const list = { from: `Liste <${stranger}>`, to: ada, text: "Liste" };
+  const oneClickHeaders = { "List-Unsubscribe": "<https://lists.test/u?x=1>, <mailto:unsub@lists.test>", "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" };
+  await outside.sendMail({ ...list, subject: "Tek tık liste", headers: oneClickHeaders });
+  await outside.sendMail({ ...list, subject: "Posta liste", headers: { "List-Unsubscribe": `<mailto:${robot}?subject=Abonelik%20iptal>` } });
+  await outside.sendMail({ ...list, subject: "Sahte liste", headers: { ...oneClickHeaders, "Authentication-Results": "mx.lists.test; dmarc=fail header.from=lists.test" } });
+  await settle();
+  await sweep();
+  const lists = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items;
+  const listMessage = (subject: string) => lists.find((t) => t.subject === subject)!.messageId;
+  const offers = await Promise.all(["Tek tık liste", "Posta liste", "Sahte liste"].map(async (s) => (await read.readBody(ids.ada, { id: listMessage(s) })).unsubscribe));
+  check(
+    offers[0]?.how === "oneClick" && offers[1]?.how === "mail" && offers[1].address === robot && offers[2]?.how === "web" && offers[2].url === "https://lists.test/u?x=1",
+    "a list offers its one-click address, else a mail to it; a sender failing the check, only its web page",
+    offers,
+  );
+  const posted: { url: string; method: string; body: string; reach: unknown }[] = [];
+  const listAnswers = (status: number) => async (url: string | URL | Request, init: RequestInit = {}, reach: unknown = {}) => {
+    posted.push({ url: String(url), method: init.method ?? "GET", body: String(init.body), reach });
+    return new Response(null, { status });
+  };
+  check((await unsubscribe(ids.ada, { id: listMessage("Tek tık liste") }, listAnswers(200))) === "oneClick", "one click unsubscribes");
+  check(
+    posted[0]?.url === "https://lists.test/u?x=1" && posted[0].method === "POST" && posted[0].body === "List-Unsubscribe=One-Click" && (posted[0].reach as { untrusted?: boolean }).untrusted === true,
+    "by posting List-Unsubscribe=One-Click to the list's address, as an untrusted address",
+    posted,
+  );
+  check((await errorCode(() => unsubscribe(ids.ada, { id: listMessage("Tek tık liste") }, listAnswers(500)))) === "unsubscribeFailed", "a list that refuses it says so");
+  check((await errorCode(() => unsubscribe(ids.bob, { id: listMessage("Tek tık liste") }, listAnswers(200)))) === "noMailbox" && posted.length === 2, "another member can't unsubscribe the mailbox");
+  check((await unsubscribe(ids.ada, { id: listMessage("Posta liste") })) === "mail", "a list with only an address to mail unsubscribes by mail");
+  check(/^Subject: Abonelik iptal$/m.test(await lastMessageTo(robot)), "the mail goes from the mailbox to the list's address, with the subject the list asks for");
+  check((await errorCode(() => unsubscribe(ids.ada, { id: listMessage("Sahte liste") }, listAnswers(200)))) === "invalid" && posted.length === 2, "nothing goes to a sender that failed the check");
+
+  // Searching the messages' text on the server: the index keeps only their first lines.
+  const filler = "Bu ay yapılan bakımların özeti aşağıdadır. ".repeat(12);
+  await outside.sendMail({ ...base, subject: "Bakım raporu", text: `Merhaba,\n\n${filler}\nKondenserbobini değişti.` });
+  await sweep();
+  // One the index hasn't read yet (put there after the last read).
+  const oldDate = new Date(Date.now() - 200 * 86_400_000);
+  await asAda((client) =>
+    client.append("INBOX", Buffer.from(`From: ${customer}\r\nTo: ${ada}\r\nSubject: Eski sozlesme\r\nMessage-ID: <sozlesme.${RUN}@acme.test>\r\nDate: ${oldDate.toUTCString()}\r\n\r\nYillikmuhafaza maddesi.\r\n`), ["\\Seen"], oldDate),
+  );
+  const inText = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id, search: "kondenserbobini" });
+  check(inText.items.length === 1 && inText.items[0].subject === "Bakım raporu", "a word past the first lines is found in the text on the server", inText.items.map((t) => t.subject));
+  check(inText.items[0]?.preview && !/kondenserbobini/i.test(inText.items[0].preview), "though the index's first lines don't have it");
+  const older = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id, search: "yillikmuhafaza" });
+  check(older.items.length === 1 && older.items[0].subject === "Eski sozlesme", "a message the index hasn't read yet is found and read into it", older.items.map((t) => t.subject));
+  check((await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id, search: "kondenserbobini yokboylesoz" })).items.length === 0, "every word must be in the text");
+  check((await read.listThreads(ids.bob, { mailboxId: boxId, folderId: inbox.id, search: "kondenserbobini" }).catch(() => null)) === null, "nobody else searches the mailbox");
+
+  // Live: a watched inbox (IDLE) tells of new mail as it comes, already read into the index.
+  check(await asAda(async (client) => client.capabilities.has("IDLE")), "the test server takes IDLE");
+  const heard: { mailboxId: string; folderId: string }[] = [];
+  const unwatch = watchMailbox(boxId, (change) => heard.push(change));
+  try {
+    // The watch signs in and selects the inbox first.
+    await settle();
+    await settle();
+    await outside.sendMail({ ...base, subject: `Canlı ${RUN}`, text: "Şimdi geldi." });
+    for (let i = 0; i < 25 && !heard.length; i++) await settle();
+    check(heard[0]?.mailboxId === boxId && heard[0]?.folderId === inbox.id, "new mail in a watched inbox is told at once", heard);
+    const [live] = await db.select({ id: mailMessage.id }).from(mailMessage).where(and(eq(mailMessage.folderId, inbox.id), eq(mailMessage.subject, `Canlı ${RUN}`)));
+    check(live, "and is in the index by then");
+  } finally {
+    unwatch();
+    stopWatching(boxId);
+  }
+
   // Paging
   const firstPage = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: folder("sent").id });
   check(firstPage.next === null, "a short list has no next page");
@@ -700,6 +805,7 @@ try {
   outside.close();
   if (boxId) closeImap(boxId);
   if (salesBoxId) closeImap(salesBoxId);
+  if (boxId) stopWatching(boxId);
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
   await db.delete(user).where(inArray(user.id, Object.values(ids)));
   hocuspocus.closeConnections();

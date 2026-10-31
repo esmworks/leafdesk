@@ -255,7 +255,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `credentials.ts` `withMailCredentials`, which renews the token; a member has up to
   `MAX_MAILBOXES` in a workspace, so a lookup of "their mailbox" adds `mailbox.isDefault`, as
   follow-ups, agents and drafts do), the Mail tab `mail-client/` (the owner's own mail alone,
-  `access.ts`; headers indexed by the minute's mailbox sweep, `indexer.ts`, bodies read live through
+  `access.ts`; headers indexed by the minute's mailbox sweep, `indexer.ts`, and while a tab listens
+  (`api/mail/events`, an event stream that ends every 10 minutes so the browser opens it again and is
+  checked again) by `watch.ts`, an IDLE connection on the inbox outside the pool, whose NOOPs would
+  end IDLE; the tab loads its side, `mail-live.ts`, lazily; a search finding less than a page in the index
+  asks the servers too, `read.ts` `bodyMatches` (SEARCH BODY, kept a few minutes for the next pages); bodies read live through
   `pool.ts` `withImap`, two queued connections per mailbox (lane `open` for clicks, `background`
   for folder reads and loading ahead) kept alive by NOOPs and keyed by its servers and password, never
   `updatedAt`, which the sweep changes; a server can drop one silently, leaving its commands waiting
@@ -265,7 +269,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
   into `MOVES` in `mail-app.tsx`; action `move` takes the folder's id in `to`, checked by
-  `movableTo`; a row's right-click menu is `thread-menu.tsx`, a `lazyPart`); why a message's
+  `movableTo`; a row's right-click menu is `thread-menu.tsx`, a `lazyPart`, as is the selection's bar
+  `selection-bar.tsx`; `act` takes a list of threads, sent in `MAIL_MAX_THREADS` pieces, each to the mailbox and folder
+the item names: all inboxes, `box=all` (`ALL_INBOXES`, one query in `read.ts` `threadPage`), list
+several mailboxes, whose thread ids can repeat, so the list keys threads by `itemKey`; a new key
+  there goes into the `mail` group of `lib/shortcuts.ts` too); leaving a
+  mailing list is `unsubscribe.ts`, re-reading the headers on the server (`lib/mail-unsubscribe.ts`); why a message's
   images from other sites load is `lib/mail-images.ts`, decided after the fetch for DMARC, from what
   `images.ts` remembers: messages shown before and trusted senders; `body-cache.ts` keys bodies by
   that reason, so `readBody` and `prefetchBodies` work it out alike or a click reads it again;
@@ -290,6 +299,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, which scripts skip with `sendHeld`;
   AI: `mail-client/ai.ts` behind `/api/ai/mail` (prompts pure in `ai-prompts.ts`), reading bodies
   with `read.ts` `messageForAi`, which never marks them seen; a thread's summary is `mail_message.summary` on its newest message;
+  the writer reads the answered mail's row (`rowOfMessage`, then `databases.getRow` as the person) and the person's
+  `ai-memory.ts` notes; a thread's tasks are parsed in the browser (`lib/mail-tasks.ts`) and added by
+  `mail-client/tasks.ts` as to-dos mentioning the person (row page, else daily note), checked again there;
   the composer's writer `composer-ai.tsx` replaces only `writing-range.ts`'s part, above the
   signature, keeping its pictures), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs

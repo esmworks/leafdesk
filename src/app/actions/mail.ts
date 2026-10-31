@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailDraftRef, MailDraftView, MailFolderView, MailHeldSend, MailSavedDraft, MailSendStatus, MailThreadPage, MailThreadView, MailUndoneSend } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
@@ -8,6 +8,8 @@ import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, rea
 import { suggestAddresses } from "@/server/mail-client/contacts";
 import { discardDraft, openDraft, saveDraft } from "@/server/mail-client/drafts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
+import { addMailTasks, type AddedMailTasks, type MailTasksInput } from "@/server/mail-client/tasks";
+import { unsubscribe } from "@/server/mail-client/unsubscribe";
 import { emptyFolder, holdMail, mailAction, sendStatus, undoSend } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
@@ -45,7 +47,7 @@ export async function refreshFolderAction(mailboxId: string, folderId: string): 
   return run((userId) => refreshFolder(userId, mailboxId, folderId));
 }
 
-export async function listThreadsAction(input: { mailboxId: string; folderId: string; search?: string; cursor?: string | null }): Promise<ActionResult<MailThreadPage>> {
+export async function listThreadsAction(input: { mailboxId: string; folderId: string; workspaceId?: string; search?: string; cursor?: string | null }): Promise<ActionResult<MailThreadPage>> {
   return run((userId) => listThreads(userId, input));
 }
 
@@ -66,6 +68,15 @@ export async function suggestAddressesAction(input: { mailboxId: string; query: 
   return run((userId) => suggestAddresses(userId, input));
 }
 
+/** Adds the tasks the AI found in a thread, as the person ticked them, as their to-dos (server/mail-client/tasks.ts). */
+export async function addMailTasksAction(input: MailTasksInput): Promise<ActionResult<AddedMailTasks>> {
+  return run(async (userId) => {
+    // The ids are checked where they are looked up; the tasks and day are cleaned there.
+    if (!input || typeof input.mailboxId !== "string" || typeof input.folderId !== "string" || typeof input.threadId !== "string") throw new RowMailError("invalid");
+    return addMailTasks(userId, input, { locale: await getLocale() });
+  });
+}
+
 /** Always loads images in mail from this sender to the mailbox. */
 export async function trustImageSenderAction(input: { mailboxId: string; address: string }): Promise<ActionResult<null>> {
   return run((userId) => trustImageSender(userId, input));
@@ -74,6 +85,14 @@ export async function trustImageSenderAction(input: { mailboxId: string; address
 /** Stops loading images from this sender unless asked (from a message or from Settings). */
 export async function forgetImageSenderAction(input: { mailboxId: string; address: string }): Promise<ActionResult<null>> {
   return run((userId) => forgetImageSender(userId, input));
+}
+
+/** Leaves the mailing list a message came from, by its one-click POST or a mail to the list. */
+export async function unsubscribeAction(input: { id: string }): Promise<ActionResult<null>> {
+  return run(async (userId) => {
+    await unsubscribe(userId, input);
+    return null;
+  });
 }
 
 export async function refreshMailboxAction(mailboxId: string): Promise<ActionResult<MailboxTabView>> {

@@ -2582,7 +2582,8 @@
       "googleFailed": "Entrar com o Google não conectou a caixa de correio. Tente de novo.",
       "googleScope": "O Google não teve permissão para dar ao Leafdesk acesso ao seu e-mail. Entre de novo e permita.",
       "tooMany": "Você já conectou todas as caixas de e-mail possíveis neste espaço de trabalho. Desconecte uma primeiro.",
-      "alreadyConnected": "Você já conectou esse endereço aqui. Altere essa caixa em vez disso."
+      "alreadyConnected": "Você já conectou esse endereço aqui. Altere essa caixa em vez disso.",
+      "unsubscribeFailed": "A lista de e-mails não aceitou o pedido de cancelamento da inscrição. Tente o link dela."
     },
     "methods": {
       "google": "Conta do Google (Gmail ou Google Workspace)",

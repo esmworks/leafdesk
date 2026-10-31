@@ -7,10 +7,48 @@
 - **Agents remind you.** Ask an agent in its chat, a request, a schedule or a mention to remind you
   of something, and at that time the reminder opens over the page you have open (*Done*, *Remind
   me in 1 hour*, *Open*), comes to your inbox and to your phone. Connected apps see them in
-  `list_notifications`. An agent reminds only the person
-  its run works for, at most 30 days ahead, about a page both can open; a run sets at most 3 and an
-  agent has at most 20 waiting for one person. Turned off under *Agent reminders* in Settings →
-  Preferences. Migration 0168.
+  `list_notifications`. An agent reminds only the person its run works for, at most 30 days ahead,
+  about a page both can open; a run sets at most 3 and an agent has at most 20 waiting for one
+  person. Turned off under *Agent reminders* in Settings → Preferences. Migration 0168.
+
+- **Searching the whole text of mail in the Mail tab.** When the index (senders, subjects and
+  first lines) finds less than a page, the mail server looks for the words in the messages' text
+  too, in six folders at most; messages found that weren't read in yet are. No migration.
+
+- **New mail shows at once in the Mail tab.** While the tab is open in front, the server waits
+  on each of the person's inboxes with IMAP IDLE (one more connection per mailbox, closed soon
+  after the tab goes) and tells the tab as mail comes, goes or is marked elsewhere; the list and
+  counts follow within seconds instead of the minute's check. No migration.
+
+- **All inboxes in the Mail tab.** With several mailboxes, *All inboxes* in the sidebar lists their
+  inboxes as one list, newest first, with each thread's mailbox marked; search, the keys, the
+  selection bar and Undo work across them, and each thread is read, answered and moved in its own
+  mailbox. No migration.
+
+- **Search words marked in the Mail tab's list.** A search's words are marked in the senders,
+  subjects and first lines of the threads it lists, where it found them.
+
+- **Printing and the original message in the Mail tab.** A button over a thread prints all its
+  messages, with their senders, recipients and dates and nothing else of the page; a message's menu
+  prints it alone, shows its original source (headers and all) or downloads it as an .eml file.
+  No migration.
+
+- **More keys in the Mail tab.** `g` then `i`, `s`, `d`, `a` or `t` opens the inbox, sent mail,
+  drafts, archive or trash; ⌘/Ctrl+Z undoes the last archive, move or deletion while its Undo
+  lasts; Shift+I marks read. The keyboard shortcuts dialog (`?`) lists the Mail tab's keys, and the
+  search box's commands (`>`) open Mail and a new message. No migration.
+
+- **Unsubscribing from mailing lists in the Mail tab.** Mail from a list shows *Unsubscribe*
+  beside its answers: after a confirmation the server uses the list's one-click address
+  (List-Unsubscribe-Post), else mails the list's unsubscribe address from the mailbox; a list with
+  only a web page opens it. Nothing goes on its own to a sender that failed the provider's DMARC
+  check. No migration.
+
+- **Selecting several threads in the Mail tab.** Threads are selected with the box that shows on
+  hover, ⌘/Ctrl-click, Shift-click for a range, `x` for the open one or ⌘/Ctrl+A; a bar over the
+  list then archives, trashes, marks as junk, read or unread, stars or moves them all at once, with
+  one Undo. The keys and a right click on a selected thread act on the whole selection. ⌘/Ctrl-click
+  on a thread no longer opens it in a new tab (its menu still does). No migration.
 
 - **Empty trash in the Mail tab.** The trash and junk folders get *Empty trash* and *Empty junk*
   over their list: after asking, every message in the folder is deleted for good, on the mail
@@ -38,8 +76,12 @@
   composer opens a writer that drafts a reply from a few words, improves, shortens, corrects,
   translates or changes the tone of what is written, or follows a saved prompt; its result is
   shown first and replaces only the text above the signature and the quoted mail, in one step
-  that can be undone. Reading mail for the AI doesn't mark it as read, and it follows the
-  workspace's AI setting. Migration 0167.
+  that can be undone. Answering someone who is a database row, the writer also reads that row's
+  fields as the person may see them (the panel names the row), and the person's AI memory notes
+  while memory is on. *Find tasks* lists what a conversation asks of the person, with due days;
+  the ones ticked become their to-dos, linked back to the mail, on the row's page or else in
+  today's daily note, and so show in My tasks. Reading mail for the AI doesn't mark it as read,
+  and it follows the workspace's AI setting. Migration 0167.
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
   and calendar with a message's formatting (bold, italic, lists, links), or pasted from another
   mail program, which keeps it as it came: its images, table layout, sizes and colors, sent as

@@ -3,7 +3,7 @@ import type { ImapFlow } from "imapflow";
 import { db } from "@/db";
 import { mailFolder, mailMessage, type mailbox } from "@/db/schema";
 import { MAX_SENDS_PER_HOUR } from "@/lib/mail";
-import { MAIL_UNDO_SECONDS, movableTo, type MailAction, type MailDraftInput, type MailHeldSend, type MailUndoneSend } from "@/lib/mail-client";
+import { MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, movableTo, type MailAction, type MailDraftInput, type MailHeldSend, type MailUndoneSend } from "@/lib/mail-client";
 import { RowMailError, type RowMailErrorCode } from "@/server/row-mail/settings";
 import { connectError } from "@/server/row-mail/connect";
 import { keepSent, SAVES_SENT, sendRaw } from "@/server/row-mail/send";
@@ -24,7 +24,6 @@ type Box = typeof mailbox.$inferSelect;
 type FolderRow = typeof mailFolder.$inferSelect;
 type MessageRow = typeof mailMessage.$inferSelect;
 
-const MAX_THREADS = 200;
 const MOVES: Partial<Record<MailAction, "archive" | "trash" | "junk" | "inbox">> = { archive: "archive", trash: "trash", junk: "junk", inbox: "inbox" };
 const FLAGS: Partial<Record<MailAction, { flag: string; on: boolean; column: "seen" | "flagged" }>> = {
   read: { flag: "\\Seen", on: true, column: "seen" },
@@ -57,7 +56,7 @@ export async function mailAction(userId: string, input: { mailboxId: string; fol
   const box = await requireOwnMailbox(userId, input.mailboxId);
   const all = await folders(box);
   const folder = all.find((f) => f.id === input.folderId);
-  const threadIds = Array.isArray(input.threadIds) ? [...new Set(input.threadIds.filter((t) => typeof t === "string" && t))].slice(0, MAX_THREADS) : [];
+  const threadIds = Array.isArray(input.threadIds) ? [...new Set(input.threadIds.filter((t) => typeof t === "string" && t))].slice(0, MAIL_MAX_THREADS) : [];
   const action = input.action;
   const to = action === "move" ? all.find((f) => f.id === input.to && f.id !== folder?.id && movableTo(f)) : undefined;
   if (!folder || !threadIds.length || !(action in MOVES || action in FLAGS || action === "delete" || to)) throw new RowMailError("invalid");

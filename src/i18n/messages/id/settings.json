@@ -2582,7 +2582,8 @@
       "googleFailed": "Login dengan Google tidak menghubungkan kotak surat. Coba lagi.",
       "googleScope": "Google tidak diizinkan memberi Leafdesk akses ke email Anda. Login lagi dan izinkan.",
       "tooMany": "Anda sudah menghubungkan kotak surat sebanyak yang diizinkan di ruang kerja ini. Putuskan salah satunya dulu.",
-      "alreadyConnected": "Alamat itu sudah terhubung di sini. Ubah kotak surat itu saja."
+      "alreadyConnected": "Alamat itu sudah terhubung di sini. Ubah kotak surat itu saja.",
+      "unsubscribeFailed": "Milis tidak menerima permintaan berhenti berlangganan. Coba tautannya saja."
     },
     "methods": {
       "google": "Akun Google (Gmail atau Google Workspace)",

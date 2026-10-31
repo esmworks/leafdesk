@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useSyncExternalStore } from "react";
 import { read } from "@/components/read";
-import type { MailboxTabView, MailFolderView } from "@/lib/mail-client";
+import { ALL_INBOXES, type MailboxTabView, type MailFolderView } from "@/lib/mail-client";
 
 /**
  * The person's mailboxes and folders in the workspace, shared by the sidebar's Mail tab and the
@@ -102,11 +102,15 @@ export function countUnread(mailboxId: string, folderId: string, delta: number) 
   });
 }
 
-/** The mailbox and folder an address names, else the default mailbox and its inbox. */
+/**
+ * The mailbox and folder an address names, else the default mailbox and its inbox. `all` when it
+ * names all inboxes (ALL_INBOXES) and there are several: `box` and `folder` are the default
+ * mailbox and its inbox then, for writing and for what the inboxes share.
+ */
 export function pickOpen(boxes: MailboxTabView[] | null, boxId: string | null, folderId: string | null) {
   const box = boxes?.find((b) => b.id === boxId) ?? boxes?.[0] ?? null;
   const folder = box?.folders?.find((f) => f.id === folderId) ?? box?.folders?.find((f) => f.role === "inbox") ?? box?.folders?.[0] ?? null;
-  return { box, folder };
+  return { box, folder, all: boxId === ALL_INBOXES && (boxes?.length ?? 0) > 1 };
 }
 
 /**
@@ -120,11 +124,15 @@ export function stayInMail(e: { metaKey: boolean; ctrlKey: boolean; shiftKey: bo
   window.history.pushState(null, "", href);
 }
 
-export function mailHref(workspaceId: string, open: { box?: string | null; f?: string | null; t?: string | null; q?: string | null; c?: string | null } = {}) {
+export type MailOpen = { box?: string | null; f?: string | null; t?: string | null; m?: string | null; q?: string | null; c?: string | null };
+
+/** The Mail page's address. In all inboxes (`box=all`), `m` is the open thread's mailbox. */
+export function mailHref(workspaceId: string, open: MailOpen = {}) {
   const params = new URLSearchParams();
   if (open.box) params.set("box", open.box);
   if (open.f) params.set("f", open.f);
   if (open.t) params.set("t", open.t);
+  if (open.t && open.m) params.set("m", open.m);
   if (open.q) params.set("q", open.q);
   if (open.c) params.set("c", open.c);
   const query = params.toString();

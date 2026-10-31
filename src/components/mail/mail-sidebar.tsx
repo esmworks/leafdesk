@@ -1,12 +1,12 @@
 "use client";
 
-import { AlertOctagon, Archive, Folder, Inbox, Send, SquarePen, FileText, Trash2, type LucideIcon } from "lucide-react";
+import { AlertOctagon, Archive, Folder, Inbox, Mails, Send, SquarePen, FileText, Trash2, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback } from "react";
 import { cn } from "@/components/ui";
-import type { MailboxTabView, MailFolderRole, MailFolderView } from "@/lib/mail-client";
+import { ALL_INBOXES, type MailboxTabView, type MailFolderRole, type MailFolderView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { mailHref, pickOpen, requestCompose, stayInMail, useMailboxes } from "./mail-store";
 
@@ -63,7 +63,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
   const t = useTranslations("mail");
   const search = useSearchParams();
   const { boxes, error } = useMailboxes(workspaceId);
-  const { box, folder } = pickOpen(boxes, search.get("box"), search.get("f"));
+  const { box, folder, all } = pickOpen(boxes, search.get("box"), search.get("f"));
 
   if (error) return <p className="px-2 py-1 text-sm text-fg-muted">{error}</p>;
   if (!boxes || !box) {
@@ -78,9 +78,24 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
   const roles = (box.folders ?? []).filter((f) => f.role);
   const own = (box.folders ?? []).filter((f) => !f.role);
   const others = boxes.filter((b) => b.id !== box.id);
+  const allHref = mailHref(workspaceId, { box: ALL_INBOXES });
+  const allUnread = boxes.reduce((n, b) => n + (b.folders?.find((f) => f.role === "inbox")?.unseen ?? 0), 0);
 
   return (
     <div className="space-y-3">
+      {/* Several mailboxes: their inboxes as one list, above the open mailbox. */}
+      {boxes.length > 1 && (
+        <Link
+          href={allHref}
+          onClick={(e) => stayInMail(e, allHref)}
+          aria-current={all ? "page" : undefined}
+          className={cn(rowClass, all && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
+        >
+          <Mails className="h-4 w-4 shrink-0 text-fg-icon" />
+          <span className={cn("min-w-0 flex-1 truncate", allUnread > 0 && "font-medium text-fg")}>{t("allInboxes")}</span>
+          {allUnread > 0 && <span className="text-xs font-medium tabular-nums text-fg">{allUnread}</span>}
+        </Link>
+      )}
       {/* The mailbox, New message and its folders in one column, spaced like the folders. */}
       <div className="space-y-px">
         <div className={cn(rowClass, "hover:bg-transparent")} title={box.address}>
@@ -100,7 +115,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
         ) : (
           <nav className="space-y-px" aria-label={t("foldersLabel")}>
             {roles.map((f) => (
-              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={f.id === folder?.id} />
+              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && f.id === folder?.id} />
             ))}
           </nav>
         )}
@@ -110,7 +125,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
           <h2 className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">{t("ownFolders")}</h2>
           <div className="space-y-px">
             {own.map((f) => (
-              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={f.id === folder?.id} />
+              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && f.id === folder?.id} />
             ))}
           </div>
         </section>

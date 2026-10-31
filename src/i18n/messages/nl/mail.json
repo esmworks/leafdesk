@@ -51,7 +51,11 @@
   "imagesTrusted": "Afbeeldingen van deze afzender worden altijd getoond.",
   "stopImages": "Stoppen",
   "unverified": "Het domein van de afzender heeft niet bevestigd dat dit bericht van dat domein komt. Wees voorzichtig met de links en bestanden erin.",
-  "unsubscribe": "Uitschrijven van deze lijst",
+  "unsubscribe": "Uitschrijven",
+  "unsubscribeConfirm": "Uitschrijven van de mailinglijst van {sender}? {how, select, mail {Er gaat een bericht met dat verzoek vanuit je mailbox naar {address}.} other {De lijst krijgt het meteen te horen.}}",
+  "unsubscribing": "Uitschrijven…",
+  "unsubscribed": "Uitgeschreven",
+  "unsubscribedNote": "Uitgeschreven bij {sender}",
   "attachments": "{count, plural, one {# bestand} other {# bestanden}}",
   "noMailboxTitle": "Koppel een mailbox om Mail te gebruiken",
   "noMailboxText": "Mail toont de mailboxen die je in deze werkruimte hebt gekoppeld. Koppel er een in je accountinstellingen; e-mail moet aan staan in de werkruimte.",
@@ -140,6 +144,28 @@
     "quoteHide": "Geciteerd bericht verbergen",
     "quoteRemove": "Geciteerd bericht verwijderen"
   },
+  "bulk": {
+    "select": "Selecteren",
+    "selectThread": "Gesprek selecteren: {subject}",
+    "selectAll": "Alles selecteren",
+    "selected": "{count} geselecteerd",
+    "clear": "Selectie wissen",
+    "toolbar": "Geselecteerde gesprekken",
+    "done": {
+      "archive": "{count, plural, one {# gesprek gearchiveerd} other {# gesprekken gearchiveerd}}",
+      "trash": "{count, plural, one {# gesprek naar de prullenbak verplaatst} other {# gesprekken naar de prullenbak verplaatst}}",
+      "junk": "{count, plural, one {# gesprek als spam gemarkeerd} other {# gesprekken als spam gemarkeerd}}",
+      "inbox": "{count, plural, one {# gesprek naar Postvak IN verplaatst} other {# gesprekken naar Postvak IN verplaatst}}",
+      "delete": "{count, plural, one {# gesprek definitief verwijderd} other {# gesprekken definitief verwijderd}}",
+      "move": "{count, plural, one {# gesprek verplaatst naar {folder}} other {# gesprekken verplaatst naar {folder}}}"
+    }
+  },
+  "printThread": "Gesprek afdrukken",
+  "messageMenu": "Meer",
+  "printMessage": "Afdrukken",
+  "showSource": "Origineel weergeven",
+  "downloadSource": "Bericht downloaden (.eml)",
+  "allInboxes": "Alle postvakken IN",
   "ai": {
     "summarize": "Samenvatten",
     "summarizeHint": "Dit gesprek samenvatten met AI",
@@ -159,6 +185,24 @@
     "friendly": "Vriendelijker",
     "use": "Gebruiken",
     "useNote": "Vervangt wat je boven je handtekening hebt geschreven. Ongedaan maken zet het terug.",
-    "mailFailed": "Het bericht kon niet van de mailserver worden gelezen. Probeer het zo opnieuw."
+    "mailFailed": "Het bericht kon niet van de mailserver worden gelezen. Probeer het zo opnieuw.",
+    "rowContext": "Leest ook de velden van {row}, zoals jij ze ziet.",
+    "tasks": {
+      "find": "Taken vinden",
+      "findHint": "Vind met AI wat dit gesprek van je vraagt",
+      "title": "Taken uit dit gesprek",
+      "finding": "Taken zoeken…",
+      "again": "Opnieuw zoeken",
+      "close": "Sluiten",
+      "unreadable": "Het antwoord van de AI kon niet worden gelezen. Probeer het opnieuw.",
+      "none": "De AI vond niets wat dit gesprek van je vraagt.",
+      "text": "Taak",
+      "toRow": "Ze komen als jouw to-do's in {row}.",
+      "toNote": "Ze komen als jouw to-do's in de dagnotitie van vandaag.",
+      "add": "Toevoegen aan mijn taken",
+      "addedRow": "Toegevoegd aan {row}.",
+      "addedNote": "Toegevoegd aan de dagnotitie van vandaag.",
+      "open": "Openen"
+    }
   }
 }

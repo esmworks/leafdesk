@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Fragment, useMemo } from "react";
-import { Dialog, DialogBody, DialogHeader } from "@/components/ui";
+import { cn, Dialog, DialogBody, DialogHeader } from "@/components/ui";
 import { isMac, keyLabels, SHORTCUT_GROUPS, type Combo } from "@/lib/shortcuts";
 
 /** The keyboard shortcuts (lib/shortcuts), in groups, with the keys this computer has. */
@@ -28,7 +28,7 @@ export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () 
                     {shortcut.combos.map((combo, i) => (
                       <Fragment key={i}>
                         {i > 0 && <span className="text-xs text-fg-muted">{t("or")}</span>}
-                        <Keys combo={combo} mac={mac} />
+                        <Keys combo={combo} mac={mac} then={shortcut.sequence ? t("then") : null} />
                       </Fragment>
                     ))}
                   </dd>
@@ -42,16 +42,15 @@ export function ShortcutsDialog({ open, onClose }: { open: boolean; onClose: () 
   );
 }
 
-function Keys({ combo, mac }: { combo: Combo; mac: boolean }) {
+/** A combination's key caps; `then` between them when they are pressed one after the other. */
+function Keys({ combo, mac, then }: { combo: Combo; mac: boolean; then: string | null }) {
   return (
-    <span className="flex items-center gap-0.5">
+    <span className={cn("flex items-center", then ? "gap-1" : "gap-0.5")}>
       {keyLabels(combo, mac).map((label, i) => (
-        <kbd
-          key={i}
-          className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-bg-subtle px-1 font-sans text-xs text-fg-muted"
-        >
-          {label}
-        </kbd>
+        <Fragment key={i}>
+          {i > 0 && then && <span className="text-xs text-fg-muted">{then}</span>}
+          <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-bg-subtle px-1 font-sans text-xs text-fg-muted">{label}</kbd>
+        </Fragment>
       ))}
     </span>
   );

@@ -51,7 +51,11 @@
   "imagesTrusted": "此发件人的图片总会显示。",
   "stopImages": "停止",
   "unverified": "发件人的域名未确认此邮件来自该域名。请谨慎对待其中的链接和文件。",
-  "unsubscribe": "退订此邮件列表",
+  "unsubscribe": "退订",
+  "unsubscribeConfirm": "要退订 {sender} 的邮件列表吗？{how, select, mail {将从你的邮箱向 {address} 发送一封请求退订的邮件。} other {会立即通知该列表。}}",
+  "unsubscribing": "正在退订…",
+  "unsubscribed": "已退订",
+  "unsubscribedNote": "已退订 {sender}",
   "attachments": "{count, plural, other {# 个文件}}",
   "noMailboxTitle": "连接邮箱以使用邮件",
   "noMailboxText": "“邮件”显示你在此工作区中连接的邮箱。请在账户设置中连接邮箱；工作区中需开启电子邮件。",
@@ -140,6 +144,28 @@
     "quoteHide": "隐藏引用的邮件",
     "quoteRemove": "移除引用的邮件"
   },
+  "bulk": {
+    "select": "选择",
+    "selectThread": "选择会话：{subject}",
+    "selectAll": "全选",
+    "selected": "已选择 {count} 项",
+    "clear": "清除选择",
+    "toolbar": "已选会话",
+    "done": {
+      "archive": "{count, plural, other {已归档 # 个会话}}",
+      "trash": "{count, plural, other {已将 # 个会话移到废纸篓}}",
+      "junk": "{count, plural, other {已将 # 个会话标记为垃圾邮件}}",
+      "inbox": "{count, plural, other {已将 # 个会话移到收件箱}}",
+      "delete": "{count, plural, other {已永久删除 # 个会话}}",
+      "move": "{count, plural, other {已将 # 个会话移至 {folder}}}"
+    }
+  },
+  "printThread": "打印会话",
+  "messageMenu": "更多",
+  "printMessage": "打印",
+  "showSource": "显示原始邮件",
+  "downloadSource": "下载邮件 (.eml)",
+  "allInboxes": "所有收件箱",
   "ai": {
     "summarize": "总结",
     "summarizeHint": "用 AI 总结此对话",
@@ -159,6 +185,24 @@
     "friendly": "更友好",
     "use": "使用",
     "useNote": "替换你在签名上方写的内容。撤销可恢复。",
-    "mailFailed": "无法从邮件服务器读取邮件。请稍后再试。"
+    "mailFailed": "无法从邮件服务器读取邮件。请稍后再试。",
+    "rowContext": "还会按你能看到的内容读取 {row} 的字段。",
+    "tasks": {
+      "find": "查找任务",
+      "findHint": "用 AI 找出这段对话要你做的事",
+      "title": "这段对话中的任务",
+      "finding": "正在查找任务…",
+      "again": "重新查找",
+      "close": "关闭",
+      "unreadable": "无法读取 AI 的回答。请重试。",
+      "none": "AI 没有找到这段对话要你做的事。",
+      "text": "任务",
+      "toRow": "它们会作为你的待办添加到 {row}。",
+      "toNote": "它们会作为你的待办添加到今天的每日笔记。",
+      "add": "添加到我的任务",
+      "addedRow": "已添加到 {row}。",
+      "addedNote": "已添加到今天的每日笔记。",
+      "open": "打开"
+    }
   }
 }

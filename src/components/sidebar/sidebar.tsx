@@ -492,6 +492,16 @@ export function Sidebar({
   // Daily notes are private top-level pages, so the journal only for those who may add them.
   const onMailPage = pathname.startsWith(`/w/${workspaceId}/mail`);
   const tabs: SidebarTab[] = ["home", ...(topLevel ? (["journal"] as const) : []), ...(aiChat ? (["chat"] as const) : []), ...(mail ? (["mail"] as const) : [])];
+  // A new message, from the New menu or the search box's commands, on the Mail page.
+  const composeMail = () => {
+    setTab("mail");
+    // The store is the Mail page's, loaded with it: not in every page's first load.
+    void import("@/components/mail/mail-store").then(({ requestCompose }) => {
+      requestCompose();
+      if (!onMailPage) router.push(`/w/${workspaceId}/mail`);
+    });
+    sidebar?.close();
+  };
   const routeTab: SidebarTab = onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
   const [tab, setTab] = useState<SidebarTab>(routeTab);
   // Where the person last was in each tab, in this visit.
@@ -1347,13 +1357,7 @@ export function Sidebar({
                           icon={<MailIcon className="h-4 w-4" />}
                           onClick={() => {
                             close();
-                            setTab("mail");
-                            // The store is the Mail page's, loaded with it: not in every page's first load.
-                            void import("@/components/mail/mail-store").then(({ requestCompose }) => {
-                              requestCompose();
-                              if (!onMailPage) router.push(`/w/${workspaceId}/mail`);
-                            });
-                            sidebar?.close();
+                            composeMail();
                           }}
                         >
                           {tMail("compose")}
@@ -1689,6 +1693,12 @@ export function Sidebar({
             : []),
           ...(!guest
             ? [{ id: "people", label: t("nav.people"), icon: <Users className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/people`) }]
+            : []),
+          ...(mail
+            ? [
+                { id: "mail", label: tMail("metaTitle"), icon: <MailIcon className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/mail`) },
+                { id: "mail-compose", label: tMail("compose"), icon: <MailIcon className="h-4 w-4" />, run: composeMail },
+              ]
             : []),
           { id: "inbox", label: t("nav.inbox"), icon: <Inbox className="h-4 w-4" />, run: () => setInboxOpen(true) },
           { id: "settings", label: t("nav.settings"), icon: <Settings className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/settings`) },

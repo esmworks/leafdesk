@@ -51,7 +51,11 @@
   "imagesTrusted": "Le immagini di questo mittente vengono sempre mostrate.",
   "stopImages": "Interrompi",
   "unverified": "Il dominio del mittente non ha confermato che questo messaggio proviene da lui. Fai attenzione ai suoi link e file.",
-  "unsubscribe": "Annulla l’iscrizione a questa lista",
+  "unsubscribe": "Annulla iscrizione",
+  "unsubscribeConfirm": "Annullare l’iscrizione alla mailing list di {sender}? {how, select, mail {Un messaggio che lo chiede parte dalla tua casella verso {address}.} other {La lista viene avvisata subito.}}",
+  "unsubscribing": "Annullamento dell’iscrizione…",
+  "unsubscribed": "Iscrizione annullata",
+  "unsubscribedNote": "Iscrizione a {sender} annullata",
   "attachments": "{count, plural, one {# file} other {# file}}",
   "noMailboxTitle": "Collega una casella per usare la Posta",
   "noMailboxText": "La Posta mostra le caselle che hai collegato in questo spazio di lavoro. Collegane una nelle impostazioni del tuo account; l’email deve essere attiva nello spazio di lavoro.",
@@ -140,6 +144,28 @@
     "quoteHide": "Nascondi il messaggio citato",
     "quoteRemove": "Rimuovi il messaggio citato"
   },
+  "bulk": {
+    "select": "Seleziona",
+    "selectThread": "Seleziona conversazione: {subject}",
+    "selectAll": "Seleziona tutto",
+    "selected": "{count} selezionate",
+    "clear": "Annulla selezione",
+    "toolbar": "Conversazioni selezionate",
+    "done": {
+      "archive": "{count, plural, one {# conversazione archiviata} other {# conversazioni archiviate}}",
+      "trash": "{count, plural, one {# conversazione spostata nel cestino} other {# conversazioni spostate nel cestino}}",
+      "junk": "{count, plural, one {# conversazione segnata come spam} other {# conversazioni segnate come spam}}",
+      "inbox": "{count, plural, one {# conversazione spostata in Posta in arrivo} other {# conversazioni spostate in Posta in arrivo}}",
+      "delete": "{count, plural, one {# conversazione eliminata definitivamente} other {# conversazioni eliminate definitivamente}}",
+      "move": "{count, plural, one {# conversazione spostata in {folder}} other {# conversazioni spostate in {folder}}}"
+    }
+  },
+  "printThread": "Stampa conversazione",
+  "messageMenu": "Altro",
+  "printMessage": "Stampa",
+  "showSource": "Mostra originale",
+  "downloadSource": "Scarica messaggio (.eml)",
+  "allInboxes": "Tutta la posta in arrivo",
   "ai": {
     "summarize": "Riassumi",
     "summarizeHint": "Riassumi questa conversazione con l'IA",
@@ -159,6 +185,24 @@
     "friendly": "Più cordiale",
     "use": "Usa questo",
     "useNote": "Sostituisce ciò che hai scritto sopra la firma. Annulla lo ripristina.",
-    "mailFailed": "Non è stato possibile leggere il messaggio dal server di posta. Riprova tra poco."
+    "mailFailed": "Non è stato possibile leggere il messaggio dal server di posta. Riprova tra poco.",
+    "rowContext": "Legge anche i campi di {row}, come li vedi tu.",
+    "tasks": {
+      "find": "Trova le attività",
+      "findHint": "Trova con l'IA cosa ti chiede questa conversazione",
+      "title": "Attività da questa conversazione",
+      "finding": "Ricerca delle attività…",
+      "again": "Cerca di nuovo",
+      "close": "Chiudi",
+      "unreadable": "Non è stato possibile leggere la risposta dell'IA. Riprova.",
+      "none": "L'IA non ha trovato nulla che questa conversazione ti chieda.",
+      "text": "Attività",
+      "toRow": "Vengono aggiunte a {row} come tue cose da fare.",
+      "toNote": "Vengono aggiunte alla nota giornaliera di oggi come tue cose da fare.",
+      "add": "Aggiungi alle mie attività",
+      "addedRow": "Aggiunte a {row}.",
+      "addedNote": "Aggiunte alla nota giornaliera di oggi.",
+      "open": "Apri"
+    }
   }
 }

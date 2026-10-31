@@ -51,7 +51,11 @@
   "imagesTrusted": "Bilder från den här avsändaren visas alltid.",
   "stopImages": "Sluta",
   "unverified": "Avsändarens domän bekräftade inte att meddelandet kommer därifrån. Var försiktig med länkar och filer i det.",
-  "unsubscribe": "Avsluta prenumerationen på den här listan",
+  "unsubscribe": "Avsluta prenumeration",
+  "unsubscribeConfirm": "Avsluta prenumerationen på e-postlistan från {sender}? {how, select, mail {Ett meddelande som ber om det skickas till {address} från din brevlåda.} other {Listan får veta det direkt.}}",
+  "unsubscribing": "Avslutar prenumerationen…",
+  "unsubscribed": "Prenumerationen avslutad",
+  "unsubscribedNote": "Prenumerationen på {sender} avslutad",
   "attachments": "{count, plural, one {# fil} other {# filer}}",
   "noMailboxTitle": "Anslut en brevlåda för att använda E-post",
   "noMailboxText": "E-post visar de brevlådor du har anslutit i den här arbetsytan. Anslut en i dina kontoinställningar; e-post måste vara aktiverat i arbetsytan.",
@@ -140,6 +144,28 @@
     "quoteHide": "Dölj det citerade meddelandet",
     "quoteRemove": "Ta bort det citerade meddelandet"
   },
+  "bulk": {
+    "select": "Markera",
+    "selectThread": "Markera konversation: {subject}",
+    "selectAll": "Markera alla",
+    "selected": "{count} markerade",
+    "clear": "Rensa markeringen",
+    "toolbar": "Markerade konversationer",
+    "done": {
+      "archive": "{count, plural, one {# konversation arkiverades} other {# konversationer arkiverades}}",
+      "trash": "{count, plural, one {# konversation flyttades till papperskorgen} other {# konversationer flyttades till papperskorgen}}",
+      "junk": "{count, plural, one {# konversation markerades som skräppost} other {# konversationer markerades som skräppost}}",
+      "inbox": "{count, plural, one {# konversation flyttades till inkorgen} other {# konversationer flyttades till inkorgen}}",
+      "delete": "{count, plural, one {# konversation togs bort permanent} other {# konversationer togs bort permanent}}",
+      "move": "{count, plural, one {# konversation flyttades till {folder}} other {# konversationer flyttades till {folder}}}"
+    }
+  },
+  "printThread": "Skriv ut konversation",
+  "messageMenu": "Mer",
+  "printMessage": "Skriv ut",
+  "showSource": "Visa original",
+  "downloadSource": "Ladda ned meddelande (.eml)",
+  "allInboxes": "Alla inkorgar",
   "ai": {
     "summarize": "Sammanfatta",
     "summarizeHint": "Sammanfatta den här konversationen med AI",
@@ -159,6 +185,24 @@
     "friendly": "Vänligare",
     "use": "Använd detta",
     "useNote": "Ersätter det du skrivit ovanför din signatur. Ångra tar tillbaka det.",
-    "mailFailed": "Meddelandet kunde inte läsas från e-postservern. Försök igen om en stund."
+    "mailFailed": "Meddelandet kunde inte läsas från e-postservern. Försök igen om en stund.",
+    "rowContext": "Läser också fälten i {row}, så som du ser dem.",
+    "tasks": {
+      "find": "Hitta uppgifter",
+      "findHint": "Hitta med AI vad den här konversationen ber dig om",
+      "title": "Uppgifter från den här konversationen",
+      "finding": "Letar efter uppgifter…",
+      "again": "Sök igen",
+      "close": "Stäng",
+      "unreadable": "AI:ns svar kunde inte läsas. Försök igen.",
+      "none": "AI hittade inget som den här konversationen ber dig om.",
+      "text": "Uppgift",
+      "toRow": "De läggs i {row} som dina att göra.",
+      "toNote": "De läggs i dagens daganteckning som dina att göra.",
+      "add": "Lägg till i mina uppgifter",
+      "addedRow": "Tillagda i {row}.",
+      "addedNote": "Tillagda i dagens daganteckning.",
+      "open": "Öppna"
+    }
   }
 }

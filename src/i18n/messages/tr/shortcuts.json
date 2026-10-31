@@ -1,12 +1,14 @@
 {
   "title": "Klavye kısayolları",
   "or": "veya",
+  "then": "ardından",
   "groups": {
     "general": "Genel",
     "navigation": "Gezinme",
     "text": "Metin biçimlendirme",
     "blocks": "Bloklar",
-    "databases": "Veritabanları"
+    "databases": "Veritabanları",
+    "mail": "Posta"
   },
   "items": {
     "shortcuts": "Klavye kısayollarını göster",
@@ -61,6 +63,30 @@
     "rowComment": "Satıra yorum yap (menüsü açıkken)",
     "rowTrash": "Satırı çöp kutusuna taşı (menüsü açıkken)",
     "link": "Seçili metne bağlantı ekle",
-    "newSubPage": "Bunun içinde, metinden bağlantı verilen bir sayfa oluştur (boşluktan sonra)"
+    "newSubPage": "Bunun içinde, metinden bağlantı verilen bir sayfa oluştur (boşluktan sonra)",
+    "mailCompose": "Yeni ileti yaz",
+    "mailSearch": "Postada ara",
+    "mailNext": "Sonraki yazışmayı aç",
+    "mailPrevious": "Önceki yazışmayı aç",
+    "mailOpen": "İlk yazışmayı aç",
+    "mailBack": "Listeye dön veya seçimi temizle",
+    "mailSelect": "Açık yazışmayı seç",
+    "mailSelectAll": "Listedeki tüm yazışmaları seç",
+    "mailArchive": "Arşivle veya gelen kutusuna geri taşı",
+    "mailTrash": "Çöp kutusuna taşı (oradayken kalıcı olarak sil)",
+    "mailJunk": "Gereksiz olarak işaretle",
+    "mailStar": "Yıldızla veya yıldızı kaldır",
+    "mailUnread": "Okunmadı olarak işaretle",
+    "mailRead": "Okundu olarak işaretle",
+    "mailUndo": "Son taşımayı geri al",
+    "mailReply": "Yanıtla",
+    "mailReplyAll": "Tümünü yanıtla",
+    "mailForward": "İlet",
+    "mailSend": "Yazılmakta olan iletiyi gönder",
+    "mailGoInbox": "Gelen kutusuna git",
+    "mailGoSent": "Gönderilenlere git",
+    "mailGoDrafts": "Taslaklara git",
+    "mailGoArchive": "Arşive git",
+    "mailGoTrash": "Çöp kutusuna git"
   }
 }
