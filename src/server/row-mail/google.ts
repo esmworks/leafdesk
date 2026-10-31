@@ -1,6 +1,6 @@
-import { createHash, randomBytes } from "node:crypto";
 import { MAIL_PROVIDERS, type MailboxServers } from "@/lib/mail";
 import { MailConnectError } from "./connect";
+import { expiresAt, idTokenClaims, MailSignInError, tokenRequest, type MailOAuthTokens, type OAuthApp } from "./oauth";
 
 /**
  * Connecting a Gmail or Google Workspace mailbox by signing in with Google instead of typing an app
@@ -22,25 +22,9 @@ export const GOOGLE_MAIL = {
 export const GOOGLE_MAIL_SCOPE = "https://mail.google.com/";
 
 /** A Google sign-in as kept, sealed, in the mailbox's `secret`. */
-export type GoogleMailTokens = { refreshToken: string; accessToken: string; expiresAt: number };
+export type GoogleMailTokens = MailOAuthTokens;
 
-export type GoogleApp = { clientId: string; clientSecret: string };
-
-/** Why a sign-in didn't give a mailbox: Google refused or couldn't be reached, or mail access wasn't allowed. */
-export class GoogleSignInError extends Error {
-  constructor(
-    readonly reason: "failed" | "scope",
-    message: string,
-  ) {
-    super(message);
-  }
-}
-
-/** A fresh PKCE verifier and its S256 challenge. */
-export function pkce() {
-  const verifier = randomBytes(32).toString("base64url");
-  return { verifier, challenge: createHash("sha256").update(verifier).digest("base64url") };
-}
+export type GoogleApp = OAuthApp;
 
 /** Where to send the browser to sign in; `loginHint` picks the account when the person has several. */
 export function googleAuthorizationUrl(app: GoogleApp, input: { state: string; challenge: string; redirectUri: string; loginHint?: string | null }): string {
@@ -61,53 +45,15 @@ export function googleAuthorizationUrl(app: GoogleApp, input: { state: string; c
   return url.href;
 }
 
-type TokenAnswer = { access_token?: string; refresh_token?: string; expires_in?: number; scope?: string; id_token?: string; error?: string; error_description?: string };
-
-/** A POST to Google's token endpoint: its answer, or what it said when it refused (`status` null when it couldn't be reached). */
-async function tokenRequest(form: Record<string, string>): Promise<{ answer: TokenAnswer; status: number | null; said: string }> {
-  let res: Response;
-  try {
-    res = await fetch(GOOGLE_MAIL.tokenUrl, {
-      method: "POST",
-      headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" },
-      body: new URLSearchParams(form).toString(),
-      redirect: "error",
-      signal: AbortSignal.timeout(20_000),
-    });
-  } catch (error) {
-    return { answer: {}, status: null, said: error instanceof Error ? error.message : String(error) };
-  }
-  const text = await res.text().catch(() => "");
-  let answer: TokenAnswer = {};
-  try {
-    answer = JSON.parse(text) as TokenAnswer;
-  } catch {
-    // Not JSON: said by its text.
-  }
-  const said = answer.error ? `${answer.error}${answer.error_description ? `: ${answer.error_description}` : ""}` : text.replace(/\s+/g, " ").trim().slice(0, 200);
-  return { answer, status: res.ok && answer.access_token ? res.status : res.ok ? 400 : res.status, said };
-}
-
-const expiresAt = (answer: TokenAnswer, now = Date.now()) => now + Math.max(0, Number(answer.expires_in ?? 3600)) * 1000;
-
-/**
- * The verified address in the ID token. It came straight from Google's token endpoint over TLS, not
- * through the browser, so its claims are read without checking its signature (OpenID Connect Core 3.1.3.7).
- */
+/** The verified address in Google's ID token (oauth.ts `idTokenClaims`). */
 export function idTokenEmail(idToken: string | undefined): string | null {
-  const payload = idToken?.split(".")[1];
-  if (!payload) return null;
-  try {
-    const claims = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as { email?: unknown; email_verified?: unknown };
-    return typeof claims.email === "string" && (claims.email_verified === true || claims.email_verified === "true") ? claims.email : null;
-  } catch {
-    return null;
-  }
+  const claims = idTokenClaims(idToken);
+  return typeof claims?.email === "string" && (claims.email_verified === true || claims.email_verified === "true") ? claims.email : null;
 }
 
 /** Trades the code the browser came back with for tokens (with the PKCE verifier), and the address they are for. */
 export async function exchangeGoogleCode(app: GoogleApp, input: { code: string; verifier: string; redirectUri: string }): Promise<{ tokens: GoogleMailTokens; email: string }> {
-  const { answer, status, said } = await tokenRequest({
+  const { answer, status, said } = await tokenRequest(GOOGLE_MAIL.tokenUrl, {
     grant_type: "authorization_code",
     code: input.code,
     redirect_uri: input.redirectUri,
@@ -115,14 +61,14 @@ export async function exchangeGoogleCode(app: GoogleApp, input: { code: string; 
     client_secret: app.clientSecret,
     code_verifier: input.verifier,
   });
-  if (status !== 200 || !answer.access_token) throw new GoogleSignInError("failed", `Google sign-in failed: ${status ?? "unreachable"} ${said}`.trim());
+  if (status !== 200 || !answer.access_token) throw new MailSignInError("failed", `Google sign-in failed: ${status ?? "unreachable"} ${said}`.trim());
   // Google lets people untick what an app asks for; without mail nothing would work.
   if (answer.scope !== undefined && !answer.scope.split(" ").includes(GOOGLE_MAIL_SCOPE)) {
-    throw new GoogleSignInError("scope", "Google sign-in didn't allow access to mail");
+    throw new MailSignInError("scope", "Google sign-in didn't allow access to mail");
   }
   const email = idTokenEmail(answer.id_token);
-  if (!email) throw new GoogleSignInError("failed", "Google sign-in gave no verified address");
-  if (!answer.refresh_token) throw new GoogleSignInError("failed", "Google sign-in gave no refresh token");
+  if (!email) throw new MailSignInError("failed", "Google sign-in gave no verified address");
+  if (!answer.refresh_token) throw new MailSignInError("failed", "Google sign-in gave no refresh token");
   return { tokens: { refreshToken: answer.refresh_token, accessToken: answer.access_token, expiresAt: expiresAt(answer) }, email };
 }
 
@@ -132,7 +78,7 @@ export async function exchangeGoogleCode(app: GoogleApp, input: { code: string; 
  * pass, and counts as not reaching the server.
  */
 export async function refreshGoogleTokens(app: GoogleApp, tokens: GoogleMailTokens): Promise<GoogleMailTokens> {
-  const { answer, status, said } = await tokenRequest({
+  const { answer, status, said } = await tokenRequest(GOOGLE_MAIL.tokenUrl, {
     grant_type: "refresh_token",
     refresh_token: tokens.refreshToken,
     client_id: app.clientId,

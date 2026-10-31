@@ -276,6 +276,8 @@
     "aiReminder": "Åbn den for at læse den",
     "reportDone": "Dens planlagte kørsel er færdig",
     "reportFailed": "Dens planlagte kørsel mislykkedes",
+    "taskDone": "Opgave fra {agent}: færdig",
+    "taskFailed": "Opgave fra {agent}: blev ikke færdig",
     "untitled": "Uden titel",
     "snooze": "Udsæt 1 time",
     "read": "Markér som læst",

@@ -32,7 +32,7 @@ export const MAX_AGENT_DESCRIPTION = 300;
 export const MAX_AGENT_INSTRUCTIONS = 8_000;
 /** The task an automation's "Run an agent" action gives the agent. */
 export const MAX_AGENT_PROMPT = 2_000;
-/** Runs owners asked for that one agent may have waiting or under way at once. */
+/** Runs owners asked for, and tasks other agents gave it, that one agent may have waiting or under way at once. */
 export const MAX_REQUESTED_RUNS = 5;
 /** The most of a thread a mention's run reads: its last comments before the one that mentioned the agent, oldest first. */
 export const MENTION_THREAD_COMMENTS = 20;
@@ -54,6 +54,8 @@ export const MAX_AGENT_WRITES = 5;
 /** Other agents one agent may ask (its "Agents it can ask"), and times one run may ask them. */
 export const MAX_AGENT_HELPERS = 10;
 export const MAX_HANDOFFS_PER_RUN = 3;
+/** Tasks given to other agents that an agent's run lists at once (`agent_tasks`), newest first. */
+export const MAX_LISTED_TASKS = 10;
 /** The longest a run waits, in all, for the agents it asks. */
 export const MAX_HANDOFF_WAIT_MS = 4 * 60_000;
 /** Skills one agent may have, and how much of them one run reads (all of them together). */
@@ -173,6 +175,11 @@ export type AgentRunSource =
       trusted: boolean;
       /** What started the asking run: who sees what the helper's run did is who sees that run's. */
       parent: Exclude<AgentRunSource, { kind: "handoff" }>;
+      /**
+       * A task given to do in its own time (`assign_agent`) rather than waited for: the asking agent
+       * reads how it went with `agent_tasks`, and the person behind the asking run gets its report.
+       */
+      queued?: true;
     }
   | {
       kind: "chat";
@@ -290,7 +297,8 @@ export function skillStepsToAdd(steps: AgentStepRecord[], now: AgentSkillRecord[
 
 /**
  * Another agent the run asked (see server/agents/handoff.ts): its run, and how it went (`waiting`:
- * the run still waits, for an owner's approval or its turn), or why it couldn't be asked.
+ * the run still waits, for an owner's approval or its turn; `queued`: given as a task to do in its
+ * own time), or why it couldn't be asked.
  */
 export type AgentHandoffRecord = {
   kind: "handoff";
@@ -298,7 +306,7 @@ export type AgentHandoffRecord = {
   agentName: string;
   runId: string | null;
   task: string;
-  outcome: "done" | "failed" | "waiting" | "paused" | "archived" | "limitReached";
+  outcome: "done" | "failed" | "waiting" | "queued" | "paused" | "archived" | "limitReached" | "busy";
 };
 
 /** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented, used a tool or asked another agent. */

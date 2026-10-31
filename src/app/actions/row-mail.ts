@@ -3,12 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
-import type { MailboxView, MailSettingsView } from "@/lib/mail";
+import type { MailboxView, MailSettingsView, MailSignInProvider } from "@/lib/mail";
+import type { DiscoveredMailServers } from "@/lib/mail-discover";
 import { AccessError } from "@/server/access";
+import { discoverMailServers } from "@/server/row-mail/discover";
 import { hideRowEmail, listRowEmails, type RowEmailList } from "@/server/row-mail/list";
 import { queueRowEmail, sendSoon, type RowEmailDraft } from "@/server/row-mail/send";
 import {
-  beginGoogleMailbox,
+  beginMailSignIn,
   connectMailbox,
   disconnectMailbox,
   getMailSettings,
@@ -59,12 +61,17 @@ export async function connectMailboxAction(workspaceId: string, input: MailboxIn
   return run((userId) => connectMailbox(userId, workspaceId, input));
 }
 
-/** Begins connecting the member's mailbox by signing in with Google: the address to send the browser to. */
-export async function beginGoogleMailboxAction(
+/** The servers of the mailbox an address names, found in its domain's settings (null when none are). */
+export async function discoverMailServersAction(address: string): Promise<ActionResult<DiscoveredMailServers | null>> {
+  return run(() => discoverMailServers(typeof address === "string" ? address.slice(0, 320) : ""));
+}
+
+/** Begins connecting the member's mailbox by signing in with Google or Microsoft: the address to send the browser to. */
+export async function beginMailSignInAction(
   workspaceId: string,
-  input: { consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null; mailboxId?: string | null },
+  input: { provider: MailSignInProvider; consent: boolean; timeZone?: string | null; displayName?: string | null; address?: string | null; mailboxId?: string | null },
 ): Promise<ActionResult<{ url: string }>> {
-  return run((userId) => beginGoogleMailbox(userId, workspaceId, input));
+  return run((userId) => beginMailSignIn(userId, workspaceId, input));
 }
 
 /** How follow-ups send from the member's mailbox: a daily limit and the time zone of their send windows. */

@@ -129,7 +129,14 @@ export const agentRun = pgTable(
     startedAt: timestamp("started_at", { withTimezone: true }),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
   },
-  (t) => [index("agent_run_due_idx").on(t.status, t.nextAt), index("agent_run_agent_idx").on(t.agentId, t.createdAt)],
+  (t) => [
+    index("agent_run_due_idx").on(t.status, t.nextAt),
+    index("agent_run_agent_idx").on(t.agentId, t.createdAt),
+    // Tasks an agent gave others (server/agents/handoff.ts `agent_tasks`), read by the giving agent.
+    index("agent_run_task_idx")
+      .on(sql`(${t.source}->>'fromAgentId')`, t.createdAt)
+      .where(sql`${t.source}->>'kind' = 'handoff' and ${t.source}->>'queued' = 'true'`),
+  ],
 );
 
 /**

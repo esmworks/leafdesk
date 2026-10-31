@@ -92,6 +92,13 @@ export const userPreference = pgTable("user_preference", {
   aiReminderInbox: boolean("ai_reminder_inbox").notNull().default(true),
   aiReminderEmails: boolean("ai_reminder_emails").notNull().default(false),
   /**
+   * Tasks an agent gave another agent while working for me ended (server/agents/handoff.ts): show
+   * their reports in my inbox. No email goes out about them (`agentTaskEmails` is kept for the
+   * shape every kind has, and unused).
+   */
+  agentTaskInbox: boolean("agent_task_inbox").notNull().default(true),
+  agentTaskEmails: boolean("agent_task_emails").notNull().default(false),
+  /**
    * Reactions to my comments: show them in my inbox. No email goes out about them (`reactionEmails`
    * is kept for the shape every kind has, and unused); push and Telegram are off until turned on.
    */
@@ -118,6 +125,7 @@ export const userPreference = pgTable("user_preference", {
   reactionPush: boolean("reaction_push").notNull().default(false),
   verificationPush: boolean("verification_push").notNull().default(true),
   aiReminderPush: boolean("ai_reminder_push").notNull().default(true),
+  agentTaskPush: boolean("agent_task_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -138,6 +146,7 @@ export const userPreference = pgTable("user_preference", {
   reactionTelegram: boolean("reaction_telegram").notNull().default(false),
   verificationTelegram: boolean("verification_telegram").notNull().default(true),
   aiReminderTelegram: boolean("ai_reminder_telegram").notNull().default(true),
+  agentTaskTelegram: boolean("agent_task_telegram").notNull().default(true),
   /**
    * Leafdesk's links opened in a browser go on to the desktop app (lib/desktop-links.ts): "off",
    * "ask" (the page offers to) or "always" (it tries at once, and stays in the browser if no app
@@ -395,11 +404,12 @@ export const NOTIFICATION_KINDS = [
   "ai_limit",
   "agent_limit_request",
   "ai_reminder",
+  "agent_task",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /**
  * The only kinds that may be about no page (access requests are about the page asked for): join
- * requests, changes waiting for review, agents' approvals, notes, reports and reminders, a detached
+ * requests, changes waiting for review, agents' approvals, notes, reports, reminders and tasks, a detached
  * AI account and AI limits. Readers of the inbox show these by their kind, never by a missing page.
  */
 export const PAGELESS_KINDS = [
@@ -412,6 +422,7 @@ export const PAGELESS_KINDS = [
   "ai_limit",
   "agent_limit_request",
   "ai_reminder",
+  "agent_task",
 ] as const satisfies readonly NotificationKind[];
 /**
  * Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, a
@@ -480,6 +491,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * "ai_reminder": agent `actorId`'s run `agentRunId` set a reminder for the user, who asked for it
  * there (server/ai-reminders.ts); `message` is what to remind them of, `pageId` the page it is
  * about, if any. It waits snoozed until its time (`snoozedUntil`), then shows and opens over the page.
+ * "agent_task": agent `actorId`'s run `agentRunId`, a task another agent gave it while working for
+ * the user (server/agents/handoff.ts `assign_agent`), ended; it tells them what it found or why it
+ * failed, and has no page.
  * Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
@@ -521,8 +535,8 @@ export const notification = pgTable(
      */
     message: text("message"),
     /**
-     * Agent approval, memory and report notifications: the run whose call or notes wait, or that
-     * finished. Not an agent's reminder: runs are deleted after a while, and it may wait longer.
+     * Agent approval, memory, report and task notifications: the run whose call or notes wait, or
+     * that finished. Not an agent's reminder: runs are deleted after a while, and it may wait longer.
      */
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

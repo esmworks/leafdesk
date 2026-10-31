@@ -669,6 +669,8 @@
         "done": "Pediu a <agent></agent>: “{task}”",
         "failed": "Pediu a <agent></agent>, mas a execução dele falhou: “{task}”",
         "waiting": "Pediu a <agent></agent>; ele não tinha terminado quando esta execução seguiu: “{task}”",
+        "queued": "Deu uma tarefa a <agent></agent>: “{task}”",
+        "busy": "Não foi possível dar uma tarefa a <agent></agent>: tem tarefas demais em espera",
         "paused": "Não pôde pedir a <agent></agent>: ele está pausado",
         "archived": "Não pôde pedir a <agent></agent>: ele está arquivado",
         "limitReached": "Não pôde pedir a <agent></agent>: ele usou o limite mensal de tokens"
@@ -2124,6 +2126,9 @@
     "aiReminderTitle": "Lembretes de agentes",
     "aiReminderDescription": "Um agente lembra você de algo que você pediu, quando chega a hora. O lembrete também se abre sobre a página aberta.",
     "aiReminderChannel": "Lembretes de agentes: {channel}",
+    "agentTaskTitle": "Tarefas de agentes",
+    "agentTaskDescription": "Um agente que trabalha para você deu uma tarefa a outro agente, e ela foi concluída ou não pôde ser.",
+    "agentTaskChannel": "Tarefas de agentes: {channel}",
     "dashboardEmailsHeading": "E-mails de painéis",
     "dashboardEmailsDescription": "Painéis enviados a você por e-mail em uma programação e os que você configurou para outras pessoas.",
     "dashboardEmailsNone": "Nenhum e-mail de painel",
@@ -2538,7 +2543,7 @@
         "tls": "Não foi possível estabelecer uma conexão segura com o servidor de e-mail.",
         "unreachable": "Não é possível acessar o servidor de e-mail agora.",
         "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada.",
-        "signIn": "O login do Google não funciona mais. Entre com o Google de novo."
+        "signIn": "O acesso a esta caixa de correio não funciona mais. Entre de novo para conectá-la."
       }
     },
     "fields": {
@@ -2564,6 +2569,13 @@
       "yandex": "Crie uma senha de app para e-mail nas configurações do seu Yandex ID.",
       "zoho": "Ative o acesso IMAP nas configurações do Zoho Mail e crie uma senha de app."
     },
+    "discover": {
+      "looking": "Procurando os servidores de e-mail deste domínio…",
+      "found": "Preenchido a partir {source, select, autoconfig {das configurações de e-mail do próprio domínio} ispdb {da lista pública de provedores de e-mail} mx {do provedor que recebe o e-mail do domínio} other {dos registros de serviço do domínio}}. Confira antes de conectar.",
+      "none": "Nenhuma configuração de e-mail foi encontrada para este domínio. Digite os servidores abaixo.",
+      "google": "O e-mail deste domínio está no Google.",
+      "microsoft": "Esta caixa de correio está na Microsoft, cujos servidores não aceitam mais senhas de app."
+    },
     "membersHeading": "Caixas de e-mail dos membros",
     "membersDescription": "Quem conectou uma caixa de e-mail neste espaço de trabalho. Ninguém além do dono vê o que há nela.",
     "memberStatus": {
@@ -2585,21 +2597,28 @@
       "noInbox": "O servidor de e-mail não mostra nenhuma caixa de entrada.",
       "accessDenied": "Você não tem acesso para fazer isso.",
       "gone": "Essa mensagem não está mais nesta linha.",
-      "signIn": "O login do Google não funciona mais. Entre com o Google de novo.",
+      "signIn": "O acesso a esta caixa de correio não funciona mais. Entre de novo para conectá-la.",
       "googleFailed": "Entrar com o Google não conectou a caixa de correio. Tente de novo.",
       "googleScope": "O Google não teve permissão para dar ao Leafdesk acesso ao seu e-mail. Entre de novo e permita.",
+      "microsoftFailed": "Entrar com a Microsoft não conectou a caixa de correio. Tente novamente.",
+      "microsoftScope": "A Microsoft não pôde dar ao Leafdesk acesso aos seus e-mails. Entre de novo e permita, ou peça ao administrador da sua organização para permitir o Leafdesk.",
       "tooMany": "Você já conectou todas as caixas de e-mail possíveis neste espaço de trabalho. Desconecte uma primeiro.",
       "alreadyConnected": "Você já conectou esse endereço aqui. Altere essa caixa em vez disso.",
       "unsubscribeFailed": "A lista de e-mails não aceitou o pedido de cancelamento da inscrição. Tente o link dela."
     },
     "methods": {
       "google": "Conta do Google (Gmail ou Google Workspace)",
+      "microsoft": "Conta Microsoft (Outlook.com ou Microsoft 365)",
       "password": "Senha de app (qualquer provedor, por IMAP e SMTP)"
     },
     "googleHint": "Você entra no Google e permite que o Leafdesk leia e envie seus e-mails. Não é preciso senha de app, e você pode retirar o acesso na sua conta do Google a qualquer momento.",
     "googleConnect": "Entrar com o Google",
     "googleLeaving": "Abrindo o Google…",
     "googleSignedIn": "conectada com o Google",
+    "microsoftHint": "Você entra na Microsoft e permite que o Leafdesk leia e envie seus e-mails. Os servidores da Microsoft não aceitam senhas de app, então é assim que uma caixa do Outlook.com ou Microsoft 365 se conecta. Você pode retirar o acesso na sua conta Microsoft a qualquer momento.",
+    "microsoftConnect": "Entrar com a Microsoft",
+    "microsoftLeaving": "Abrindo a Microsoft…",
+    "microsoftSignedIn": "conectado com a Microsoft",
     "googleConnected": "Sua caixa de correio está conectada.",
     "dismiss": "Fechar"
   },

@@ -276,6 +276,8 @@
     "aiReminder": "Otwórz, aby przeczytać",
     "reportDone": "Zaplanowane uruchomienie zakończyło się",
     "reportFailed": "Zaplanowane uruchomienie nie powiodło się",
+    "taskDone": "Zadanie od {agent}: wykonane",
+    "taskFailed": "Zadanie od {agent}: nie ukończone",
     "untitled": "Bez tytułu",
     "snooze": "Odłóż o 1 godzinę",
     "read": "Oznacz jako przeczytane",

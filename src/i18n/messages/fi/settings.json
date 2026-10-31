@@ -674,6 +674,8 @@
         "done": "Kysyi agentilta <agent></agent>: ”{task}”",
         "failed": "Kysyi agentilta <agent></agent>, mutta sen ajo epäonnistui: ”{task}”",
         "waiting": "Kysyi agentilta <agent></agent>; se ei ollut valmis, kun tämä ajo jatkoi: ”{task}”",
+        "queued": "Antoi agentille <agent></agent> tehtävän: ”{task}”",
+        "busy": "Tehtävää ei voitu antaa agentille <agent></agent>: liian monta odottaa",
         "paused": "Agentilta <agent></agent> ei voitu kysyä: se on keskeytetty",
         "archived": "Agentilta <agent></agent> ei voitu kysyä: se on arkistoitu",
         "limitReached": "Agentilta <agent></agent> ei voitu kysyä: se on käyttänyt kuukausittaisen tokenrajansa"
@@ -2124,6 +2126,9 @@
     "aiReminderTitle": "Agenttien muistutukset",
     "aiReminderDescription": "Agentti muistuttaa sinua pyytämästäsi asiasta, kun aika koittaa. Muistutus avautuu myös avoimen sivun päälle.",
     "aiReminderChannel": "Agenttien muistutukset: {channel}",
+    "agentTaskTitle": "Agenttien tehtävät",
+    "agentTaskDescription": "Puolestasi toimiva agentti antoi toiselle agentille tehtävän, ja se valmistui tai jäi kesken.",
+    "agentTaskChannel": "Agenttien tehtävät: {channel}",
     "dashboardEmailsHeading": "Koontinäyttöjen sähköpostit",
     "dashboardEmailsDescription": "Sinulle aikataulun mukaan sähköpostilla lähetettävät koontinäytöt ja ne, jotka olet määrittänyt muille.",
     "dashboardEmailsNone": "Ei koontinäyttöjen sähköposteja",
@@ -2538,7 +2543,7 @@
         "tls": "Suojattua yhteyttä postipalvelimeen ei voitu muodostaa.",
         "unreachable": "Postipalvelimeen ei saada juuri nyt yhteyttä.",
         "noInbox": "Postipalvelimella ei näy saapuneiden kansiota.",
-        "signIn": "Google-kirjautuminen ei enää toimi. Kirjaudu uudelleen Googlella."
+        "signIn": "Tämän postilaatikon kirjautuminen ei enää toimi. Kirjaudu uudelleen yhdistääksesi sen."
       }
     },
     "fields": {
@@ -2564,6 +2569,13 @@
       "yandex": "Luo postille sovellussalasana Yandex ID -asetuksissasi.",
       "zoho": "Ota IMAP-käyttö käyttöön Zoho Mailin asetuksissa ja luo sovellussalasana."
     },
+    "discover": {
+      "looking": "Haetaan tämän verkkotunnuksen postipalvelimia…",
+      "found": "Täytetty {source, select, autoconfig {verkkotunnuksen omista postiasetuksista} ispdb {julkisesta postipalveluntarjoajien luettelosta} mx {verkkotunnuksen postin vastaanottavalta palveluntarjoajalta} other {verkkotunnuksen palvelutietueista}}. Tarkista ne ennen yhdistämistä.",
+      "none": "Tälle verkkotunnukselle ei löytynyt postiasetuksia. Kirjoita palvelimet alle.",
+      "google": "Tämän verkkotunnuksen posti on Googlella.",
+      "microsoft": "Tämä postilaatikko on Microsoftilla, jonka palvelimet eivät enää hyväksy sovellussalasanoja."
+    },
     "membersHeading": "Jäsenten postilaatikot",
     "membersDescription": "Kuka on yhdistänyt postilaatikon tähän työtilaan. Kukaan muu kuin sen omistaja ei näe sen sisältöä.",
     "memberStatus": {
@@ -2585,21 +2597,28 @@
       "noInbox": "Postipalvelimella ei näy saapuneiden kansiota.",
       "accessDenied": "Sinulla ei ole oikeutta tehdä tätä.",
       "gone": "Viesti ei ole enää tällä rivillä.",
-      "signIn": "Google-kirjautuminen ei enää toimi. Kirjaudu uudelleen Googlella.",
+      "signIn": "Tämän postilaatikon kirjautuminen ei enää toimi. Kirjaudu uudelleen yhdistääksesi sen.",
       "googleFailed": "Googlella kirjautuminen ei yhdistänyt postilaatikkoa. Yritä uudelleen.",
       "googleScope": "Google ei saanut antaa Leafdeskille pääsyä sähköpostiisi. Kirjaudu uudelleen ja salli se.",
+      "microsoftFailed": "Microsoft-kirjautuminen ei yhdistänyt postilaatikkoa. Yritä uudelleen.",
+      "microsoftScope": "Microsoft ei saanut antaa Leafdeskille pääsyä postiisi. Kirjaudu uudelleen ja salli se, tai pyydä organisaatiosi ylläpitäjää sallimaan Leafdesk.",
       "tooMany": "Olet yhdistänyt tähän työtilaan niin monta postilaatikkoa kuin voit. Katkaise ensin yhden yhteys.",
       "alreadyConnected": "Olet jo yhdistänyt tämän osoitteen tänne. Muuta sen sijaan sitä postilaatikkoa.",
       "unsubscribeFailed": "Postituslista ei hyväksynyt tilauksen peruutuspyyntöä. Kokeile sen sijaan listan omaa linkkiä."
     },
     "methods": {
       "google": "Google-tili (Gmail tai Google Workspace)",
+      "microsoft": "Microsoft-tili (Outlook.com tai Microsoft 365)",
       "password": "Sovellussalasana (mikä tahansa palvelu, IMAP ja SMTP)"
     },
     "googleHint": "Kirjaudut Googleen ja sallit Leafdeskin lukea ja lähettää sähköpostiasi. Sovellussalasanaa ei tarvita, ja voit perua pääsyn Google-tililtäsi milloin tahansa.",
     "googleConnect": "Kirjaudu Googlella",
     "googleLeaving": "Avataan Googlea…",
     "googleSignedIn": "kirjauduttu Googlella",
+    "microsoftHint": "Kirjaudut Microsoftille ja annat Leafdeskin lukea ja lähettää postiasi. Microsoftin palvelimet eivät hyväksy sovellussalasanoja, joten Outlook.com- tai Microsoft 365 -postilaatikko yhdistetään näin. Voit perua pääsyn Microsoft-tililtäsi milloin tahansa.",
+    "microsoftConnect": "Kirjaudu Microsoftilla",
+    "microsoftLeaving": "Avataan Microsoft…",
+    "microsoftSignedIn": "kirjauduttu Microsoftilla",
     "googleConnected": "Postilaatikkosi on yhdistetty.",
     "dismiss": "Sulje"
   },

@@ -674,6 +674,8 @@
         "done": "Bertanya kepada <agent></agent>: “{task}”",
         "failed": "Bertanya kepada <agent></agent>, tetapi eksekusinya gagal: “{task}”",
         "waiting": "Bertanya kepada <agent></agent>; belum selesai saat eksekusi ini berlanjut: “{task}”",
+        "queued": "Memberi <agent></agent> tugas: “{task}”",
+        "busy": "Tidak bisa memberi <agent></agent> tugas: terlalu banyak yang menunggu",
         "paused": "Tidak dapat bertanya kepada <agent></agent>: sedang dijeda",
         "archived": "Tidak dapat bertanya kepada <agent></agent>: sudah diarsipkan",
         "limitReached": "Tidak dapat bertanya kepada <agent></agent>: telah memakai batas token bulanannya"
@@ -2124,6 +2126,9 @@
     "aiReminderTitle": "Pengingat dari agen",
     "aiReminderDescription": "Agen mengingatkan Anda tentang sesuatu yang Anda minta saat waktunya tiba. Pengingat juga terbuka di atas halaman yang sedang Anda buka.",
     "aiReminderChannel": "Pengingat dari agen: {channel}",
+    "agentTaskTitle": "Tugas agen",
+    "agentTaskDescription": "Agen yang bekerja untuk Anda memberi agen lain sebuah tugas, dan tugas itu selesai atau tidak bisa diselesaikan.",
+    "agentTaskChannel": "Tugas agen: {channel}",
     "dashboardEmailsHeading": "Email dasbor",
     "dashboardEmailsDescription": "Dasbor yang dikirim ke Anda lewat email sesuai jadwal, dan yang Anda atur untuk orang lain.",
     "dashboardEmailsNone": "Tidak ada email dasbor",
@@ -2538,7 +2543,7 @@
         "tls": "Koneksi aman ke server email tidak dapat dibuat.",
         "unreachable": "Server email tidak dapat dijangkau saat ini.",
         "noInbox": "Server email tidak menampilkan kotak masuk.",
-        "signIn": "Login Google tidak lagi berfungsi. Login dengan Google lagi."
+        "signIn": "Login kotak surat ini tidak berfungsi lagi. Masuk lagi untuk menghubungkannya."
       }
     },
     "fields": {
@@ -2564,6 +2569,13 @@
       "yandex": "Buat kata sandi aplikasi untuk email di pengaturan Yandex ID Anda.",
       "zoho": "Aktifkan akses IMAP di pengaturan Zoho Mail dan buat kata sandi aplikasi."
     },
+    "discover": {
+      "looking": "Mencari server email domain ini…",
+      "found": "Diisi dari {source, select, autoconfig {pengaturan email domain itu sendiri} ispdb {daftar publik penyedia email} mx {penyedia yang menerima email domain} other {catatan layanan domain}}. Periksa sebelum menghubungkan.",
+      "none": "Tidak ada pengaturan email untuk domain ini. Ketik servernya di bawah.",
+      "google": "Email domain ini ada di Google.",
+      "microsoft": "Kotak surat ini ada di Microsoft, yang servernya tidak lagi menerima sandi aplikasi."
+    },
     "membersHeading": "Kotak surat anggota",
     "membersDescription": "Siapa yang telah menghubungkan kotak surat di ruang kerja ini. Tidak ada yang melihat isinya selain pemiliknya.",
     "memberStatus": {
@@ -2585,21 +2597,28 @@
       "noInbox": "Server email tidak menampilkan kotak masuk.",
       "accessDenied": "Anda tidak memiliki akses untuk melakukan ini.",
       "gone": "Pesan itu tidak lagi ada pada baris ini.",
-      "signIn": "Login Google tidak lagi berfungsi. Login dengan Google lagi.",
+      "signIn": "Login kotak surat ini tidak berfungsi lagi. Masuk lagi untuk menghubungkannya.",
       "googleFailed": "Login dengan Google tidak menghubungkan kotak surat. Coba lagi.",
       "googleScope": "Google tidak diizinkan memberi Leafdesk akses ke email Anda. Login lagi dan izinkan.",
+      "microsoftFailed": "Masuk dengan Microsoft tidak menghubungkan kotak surat. Coba lagi.",
+      "microsoftScope": "Microsoft tidak diizinkan memberi Leafdesk akses ke email Anda. Masuk lagi dan izinkan, atau minta administrator organisasi Anda mengizinkan Leafdesk.",
       "tooMany": "Anda sudah menghubungkan kotak surat sebanyak yang diizinkan di ruang kerja ini. Putuskan salah satunya dulu.",
       "alreadyConnected": "Alamat itu sudah terhubung di sini. Ubah kotak surat itu saja.",
       "unsubscribeFailed": "Milis tidak menerima permintaan berhenti berlangganan. Coba tautannya saja."
     },
     "methods": {
       "google": "Akun Google (Gmail atau Google Workspace)",
+      "microsoft": "Akun Microsoft (Outlook.com atau Microsoft 365)",
       "password": "Kata sandi aplikasi (penyedia apa pun, lewat IMAP dan SMTP)"
     },
     "googleHint": "Anda login di Google dan mengizinkan Leafdesk membaca dan mengirim email Anda. Kata sandi aplikasi tidak diperlukan, dan Anda bisa mencabut aksesnya di akun Google kapan saja.",
     "googleConnect": "Login dengan Google",
     "googleLeaving": "Membuka Google…",
     "googleSignedIn": "login dengan Google",
+    "microsoftHint": "Anda masuk di Microsoft dan mengizinkan Leafdesk membaca dan mengirim email Anda. Server Microsoft tidak menerima sandi aplikasi, jadi beginilah kotak surat Outlook.com atau Microsoft 365 dihubungkan. Anda dapat mencabut akses di akun Microsoft kapan saja.",
+    "microsoftConnect": "Masuk dengan Microsoft",
+    "microsoftLeaving": "Membuka Microsoft…",
+    "microsoftSignedIn": "masuk dengan Microsoft",
     "googleConnected": "Kotak surat Anda terhubung.",
     "dismiss": "Tutup"
   },

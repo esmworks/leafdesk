@@ -245,6 +245,8 @@
     "aiReminderTitle": "Lời nhắc từ {agent}",
     "reportDone": "Lần chạy theo lịch của tác tử đã hoàn tất.",
     "reportFailed": "Lần chạy theo lịch của tác tử đã thất bại. Hãy mở để xem lý do.",
+    "taskDone": "Việc từ {agent}: đã xong.",
+    "taskFailed": "Việc từ {agent}: chưa xong được.",
     "reportHidden": "Lần chạy theo lịch của tác tử đã hoàn tất, trên một cơ sở dữ liệu bạn không thể mở.",
     "reportGone": "Lần chạy này không còn được lưu giữ.",
     "aiAccountTitle": "Đã gỡ tài khoản AI",

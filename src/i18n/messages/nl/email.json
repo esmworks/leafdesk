@@ -276,6 +276,8 @@
     "aiReminder": "Open hem om hem te lezen",
     "reportDone": "De geplande run is klaar",
     "reportFailed": "De geplande run is mislukt",
+    "taskDone": "Taak van {agent}: klaar",
+    "taskFailed": "Taak van {agent}: niet afgerond",
     "untitled": "Naamloos",
     "snooze": "1 uur sluimeren",
     "read": "Als gelezen markeren",

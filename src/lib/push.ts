@@ -3,12 +3,8 @@
  * subscription, and what a push message says about a notification (see server/push.ts).
  */
 
-import { aiLimitLine, aiLimitPath, type AiLimitNotice } from "./agent-guardrails";
-import { agentPagePath } from "./agent-page";
-import { agentMemoryPath, agentReportPath } from "./agents";
-import { commentHash } from "./comments";
-import { rowEmailHash } from "./mail";
-import { reviewPath } from "./pending-changes";
+import { aiLimitLine, type AiLimitNotice } from "./agent-guardrails";
+import { pushLink } from "./push-link";
 import { canSnooze } from "./snooze";
 import type { SuggestionNotice } from "./suggestions";
 import { isTimeZone } from "./time-zone";
@@ -127,7 +123,7 @@ export type PushItem = {
   requestEmail: string | null;
   approval: { agentId: string; runId: string; agentName: string; tool: string; connectionName: string } | null;
   memory: { agentId: string; agentName: string; count: number } | null;
-  report: { agentId: string; runId: string; agentName: string; status: string } | null;
+  report: { agentId: string; runId: string; agentName: string; status: string; from?: { agentId: string; agentName: string } | null } | null;
   /** Row updates: which values changed (a null property is the title), and whether the body. */
   rowUpdate: { changes: { property: { name: string } | null }[]; body: boolean } | null;
   /** Row emails: the message and who it is from. */
@@ -157,32 +153,10 @@ export const SUGGESTION_LINES = {
   rejected: "suggestionRejected",
 } as const satisfies Record<SuggestionNotice, string>;
 
+export { pushLink };
+
 /** The texts of a push message (`push` in email.json), already in the recipient's language. */
 export type PushTranslator = (key: string, values?: Record<string, string | number>) => string;
-
-/** Where opening the notification leads: the same place the inbox does. */
-export function pushLink(item: PushItem): string {
-  if (item.kind === "agent_approval") {
-    return `/w/${item.workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`;
-  }
-  if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
-  if (item.kind === "agent_report") return item.report ? agentReportPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
-  if (item.kind === "review") return reviewPath(item.workspaceId);
-  if (item.kind === "ai_limit") return aiLimitPath(item.workspaceId, item.aiLimit?.agent?.id ?? null);
-  // The owner answers in the inbox; the agent is where its limit and use are.
-  if (item.kind === "agent_limit_request") return aiLimitPath(item.workspaceId, item.limitRequest?.agentId ?? null);
-  // The workspace's AI account is chosen in Settings > General.
-  if (item.kind === "ai_account_detached") return `/w/${item.workspaceId}/settings`;
-  // Findings are reviewed, and dismissed, in Settings > Security.
-  if (item.kind === "sensitive_content") return `/w/${item.workspaceId}/settings?tab=security#setting-sensitiveFindings`;
-  // Reports are dismissed, or the page taken off the web, in Settings > Security.
-  if (item.kind === "page_reported") return `/w/${item.workspaceId}/settings?tab=security#setting-pageReports`;
-  // A reminder opens the page it is about, else the chat with the agent that set it.
-  if (item.kind === "ai_reminder" && item.pageId === null) return item.aiReminder?.agentId ? agentPagePath(item.workspaceId, item.aiReminder.agentId) : `/w/${item.workspaceId}`;
-  if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;
-  if (item.kind === "row_email" && item.rowEmail) return `/w/${item.workspaceId}/p/${item.pageId}${rowEmailHash(item.rowEmail.id)}`;
-  return `/w/${item.workspaceId}/p/${item.pageId}${(item.kind === "comment" || item.kind === "reaction") && item.threadId ? commentHash(item.threadId) : ""}`;
-}
 
 /** The zone a reminder's time reads in: the one stored with the reminder, UTC without a valid one. */
 const reminderZone = (item: PushItem) => (isTimeZone(item.reminderTimeZone) ? item.reminderTimeZone : "UTC");
@@ -215,6 +189,12 @@ export function pushPayload(
     if (!item.report) return null;
     title = t("reportTitle", { agent: item.report.agentName || actor });
     line = item.report.status === "failed" ? t("reportFailed") : t("reportDone");
+  } else if (item.kind === "agent_task") {
+    // Not what it found either, as for a report.
+    if (!item.report) return null;
+    title = t("reportTitle", { agent: item.report.agentName || actor });
+    const agent = item.report.from?.agentName || t("someone");
+    line = item.report.status === "failed" ? t("taskFailed", { agent }) : t("taskDone", { agent });
   } else if (item.kind === "review") {
     // How many, not what they change: a lock screen shows it to whoever holds the device.
     title = t("reviewTitle");

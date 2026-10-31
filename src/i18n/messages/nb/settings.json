@@ -674,6 +674,8 @@
         "done": "Spurte <agent></agent>: «{task}»",
         "failed": "Spurte <agent></agent>, men kjøringen mislyktes: «{task}»",
         "waiting": "Spurte <agent></agent>; den var ikke ferdig da denne kjøringen gikk videre: «{task}»",
+        "queued": "Ga <agent></agent> en oppgave: «{task}»",
+        "busy": "Kunne ikke gi <agent></agent> en oppgave: for mange venter",
         "paused": "Kunne ikke spørre <agent></agent>: den er satt på pause",
         "archived": "Kunne ikke spørre <agent></agent>: den er arkivert",
         "limitReached": "Kunne ikke spørre <agent></agent>: den har brukt opp den månedlige tokengrensen"
@@ -2124,6 +2126,9 @@
     "aiReminderTitle": "Påminnelser fra agenter",
     "aiReminderDescription": "En agent minner deg på noe du har bedt den om, når tiden er inne. Påminnelsen åpnes også over siden du har åpen.",
     "aiReminderChannel": "Påminnelser fra agenter: {channel}",
+    "agentTaskTitle": "Agenters oppgaver",
+    "agentTaskDescription": "En agent som jobber for deg, ga en annen agent en oppgave, og den ble ferdig eller kunne ikke fullføres.",
+    "agentTaskChannel": "Agenters oppgaver: {channel}",
     "dashboardEmailsHeading": "Dashbord-e-poster",
     "dashboardEmailsDescription": "Dashbord som sendes til deg på e-post etter en tidsplan, og de du har satt opp for andre.",
     "dashboardEmailsNone": "Ingen dashbord-e-poster",
@@ -2538,7 +2543,7 @@
         "tls": "Kunne ikke opprette en sikker tilkobling til e-postserveren.",
         "unreachable": "E-postserveren kan ikke nås akkurat nå.",
         "noInbox": "E-postserveren viser ingen innboks.",
-        "signIn": "Google-påloggingen virker ikke lenger. Logg på med Google igjen."
+        "signIn": "Innloggingen for denne postkassen virker ikke lenger. Logg inn igjen for å koble den til."
       }
     },
     "fields": {
@@ -2564,6 +2569,13 @@
       "yandex": "Lag et app-passord for e-post i innstillingene for Yandex ID.",
       "zoho": "Slå på IMAP-tilgang i innstillingene for Zoho Mail, og lag et app-passord."
     },
+    "discover": {
+      "looking": "Slår opp e-postserverne til dette domenet…",
+      "found": "Fylt ut fra {source, select, autoconfig {domenets egne e-postinnstillinger} ispdb {den offentlige listen over e-postleverandører} mx {leverandøren som tar imot domenets e-post} other {domenets tjenesteposter}}. Sjekk dem før du kobler til.",
+      "none": "Fant ingen e-postinnstillinger for dette domenet. Skriv inn serverne nedenfor.",
+      "google": "E-posten til dette domenet ligger hos Google.",
+      "microsoft": "Denne postkassen ligger hos Microsoft, der serverne ikke lenger godtar app-passord."
+    },
     "membersHeading": "Medlemmenes postkasser",
     "membersDescription": "Hvem som har koblet til en postkasse i dette arbeidsområdet. Ingen andre enn eieren ser hva som er i den.",
     "memberStatus": {
@@ -2585,21 +2597,28 @@
       "noInbox": "E-postserveren viser ingen innboks.",
       "accessDenied": "Du har ikke tilgang til å gjøre dette.",
       "gone": "Den meldingen er ikke lenger på denne raden.",
-      "signIn": "Google-påloggingen virker ikke lenger. Logg på med Google igjen.",
+      "signIn": "Innloggingen for denne postkassen virker ikke lenger. Logg inn igjen for å koble den til.",
       "googleFailed": "Pålogging med Google koblet ikke til postkassen. Prøv igjen.",
       "googleScope": "Google fikk ikke lov til å gi Leafdesk tilgang til e-posten din. Logg på igjen og tillat det.",
+      "microsoftFailed": "Innlogging med Microsoft koblet ikke til postkassen. Prøv igjen.",
+      "microsoftScope": "Microsoft fikk ikke gi Leafdesk tilgang til e-posten din. Logg inn igjen og tillat det, eller be administratoren i organisasjonen din om å tillate Leafdesk.",
       "tooMany": "Du har koblet til så mange postkasser i dette arbeidsområdet som du kan. Koble fra en først.",
       "alreadyConnected": "Den adressen er allerede koblet til her. Endre den postkassen i stedet.",
       "unsubscribeFailed": "E-postlisten tok ikke imot forespørselen om å avslutte abonnementet. Prøv lenken dens i stedet."
     },
     "methods": {
       "google": "Google-konto (Gmail eller Google Workspace)",
+      "microsoft": "Microsoft-konto (Outlook.com eller Microsoft 365)",
       "password": "App-passord (alle leverandører, via IMAP og SMTP)"
     },
     "googleHint": "Du logger på hos Google og lar Leafdesk lese og sende e-posten din. Du trenger ikke app-passord, og du kan trekke tilbake tilgangen i Google-kontoen din når som helst.",
     "googleConnect": "Logg på med Google",
     "googleLeaving": "Åpner Google…",
     "googleSignedIn": "pålogget med Google",
+    "microsoftHint": "Du logger inn hos Microsoft og lar Leafdesk lese og sende e-posten din. Microsofts servere godtar ikke app-passord, så slik kobles en Outlook.com- eller Microsoft 365-postkasse til. Du kan når som helst trekke tilbake tilgangen i Microsoft-kontoen din.",
+    "microsoftConnect": "Logg inn med Microsoft",
+    "microsoftLeaving": "Åpner Microsoft…",
+    "microsoftSignedIn": "logget inn med Microsoft",
     "googleConnected": "Postkassen din er tilkoblet.",
     "dismiss": "Lukk"
   },

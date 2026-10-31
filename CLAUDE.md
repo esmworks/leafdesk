@@ -201,6 +201,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   a run works for (`remind_person`, no recipient argument): `server/ai-reminders.ts`, a notification
   of kind `ai_reminder` waiting snoozed until its time (`deliverSnoozed` wakes it), shown over the
   page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`.
+  Agents asking agents: `handoff.ts` (`ask_agent` waits; `assign_agent` queues the helper's run
+  with `queued` on its `handoff` source, read by the giving agent through `agent_run_task_idx`: a
+  task that `agent_tasks` lists for the same person and whose end `run.ts` `reportRun` reports as an
+  `agent_task`, a kind people turn off, opening the giving agent's chat).
 - **Connections** (outbound MCP): `src/server/connections/` (`manage.ts`, `client.ts`, `fetch.ts`
   for the address checks, `events.ts` for inbound events, `approvals.ts`). A fetch of an address a
   member or visitor gives passes `{ untrusted: true }`: only `WEB_FETCH_ALLOWED_HOSTS` applies to
@@ -251,7 +255,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   GitHub pull requests moving tasks `github-sync/` (deliveries handled in the request at `api/github/[syncId]`; pure
   ID matching and the status rule in `src/lib/github-sync.ts`), the Send to Slack step's address
   check and message in `src/lib/slack.ts`, mail to and from rows `row-mail/`
-  (a mailbox signs in with a password or a Google sign-in, `google.ts`; open it through
+  (a mailbox signs in with a password or a Google or Microsoft sign-in, `google.ts`, `microsoft.ts`,
+  shared `oauth.ts`; its servers found from the address by `discover.ts`; open it through
   `credentials.ts` `withMailCredentials`, which renews the token; a member has up to
   `MAX_MAILBOXES` in a workspace, so a lookup of "their mailbox" adds `mailbox.isDefault`, as
   follow-ups, agents and drafts do), the Mail tab `mail-client/` (the owner's own mail alone,

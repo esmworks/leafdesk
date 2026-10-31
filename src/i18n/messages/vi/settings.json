@@ -674,6 +674,8 @@
         "done": "Đã hỏi <agent></agent>: “{task}”",
         "failed": "Đã hỏi <agent></agent>, nhưng lần chạy của nó thất bại: “{task}”",
         "waiting": "Đã hỏi <agent></agent>; nó chưa xong khi lần chạy này tiếp tục: “{task}”",
+        "queued": "Đã giao cho <agent></agent> một việc: “{task}”",
+        "busy": "Không giao được việc cho <agent></agent>: có quá nhiều việc đang chờ",
         "paused": "Không thể hỏi <agent></agent>: nó đang tạm dừng",
         "archived": "Không thể hỏi <agent></agent>: nó đã được lưu trữ",
         "limitReached": "Không thể hỏi <agent></agent>: nó đã dùng hết giới hạn token hằng tháng"
@@ -2124,6 +2126,9 @@
     "aiReminderTitle": "Lời nhắc của tác tử",
     "aiReminderDescription": "Một tác tử nhắc bạn điều bạn đã nhờ khi đến giờ. Lời nhắc cũng mở ra phía trên trang bạn đang mở.",
     "aiReminderChannel": "Lời nhắc của tác tử: {channel}",
+    "agentTaskTitle": "Việc của các tác tử",
+    "agentTaskDescription": "Một tác tử làm việc cho bạn đã giao việc cho một tác tử khác, và việc đó đã xong hoặc không xong được.",
+    "agentTaskChannel": "Việc của các tác tử: {channel}",
     "dashboardEmailsHeading": "Email bảng điều khiển",
     "dashboardEmailsDescription": "Các bảng điều khiển được gửi cho bạn qua email theo lịch, và những bảng bạn thiết lập cho người khác.",
     "dashboardEmailsNone": "Không có email bảng điều khiển",
@@ -2538,7 +2543,7 @@
         "tls": "Không thể tạo kết nối an toàn đến máy chủ thư.",
         "unreachable": "Hiện không thể kết nối đến máy chủ thư.",
         "noInbox": "Máy chủ thư không có hộp thư đến.",
-        "signIn": "Đăng nhập Google không còn hoạt động. Hãy đăng nhập lại bằng Google."
+        "signIn": "Đăng nhập cho hộp thư này không còn hoạt động. Hãy đăng nhập lại để kết nối."
       }
     },
     "fields": {
@@ -2564,6 +2569,13 @@
       "yandex": "Hãy tạo mật khẩu ứng dụng cho thư trong cài đặt Yandex ID của bạn.",
       "zoho": "Hãy bật quyền truy cập IMAP trong cài đặt Zoho Mail và tạo mật khẩu ứng dụng."
     },
+    "discover": {
+      "looking": "Đang tìm máy chủ thư của tên miền này…",
+      "found": "Đã điền từ {source, select, autoconfig {cài đặt thư riêng của tên miền} ispdb {danh sách công khai các nhà cung cấp thư} mx {nhà cung cấp nhận thư của tên miền} other {bản ghi dịch vụ của tên miền}}. Hãy kiểm tra trước khi kết nối.",
+      "none": "Không tìm thấy cài đặt thư cho tên miền này. Nhập máy chủ bên dưới.",
+      "google": "Thư của tên miền này ở Google.",
+      "microsoft": "Hộp thư này ở Microsoft, máy chủ của họ không còn nhận mật khẩu ứng dụng."
+    },
     "membersHeading": "Hộp thư của thành viên",
     "membersDescription": "Ai đã kết nối hộp thư trong không gian làm việc này. Không ai ngoài chủ hộp thư thấy được nội dung bên trong.",
     "memberStatus": {
@@ -2585,21 +2597,28 @@
       "noInbox": "Máy chủ thư không có hộp thư đến.",
       "accessDenied": "Bạn không có quyền thực hiện việc này.",
       "gone": "Tin nhắn đó không còn trên hàng này nữa.",
-      "signIn": "Đăng nhập Google không còn hoạt động. Hãy đăng nhập lại bằng Google.",
+      "signIn": "Đăng nhập cho hộp thư này không còn hoạt động. Hãy đăng nhập lại để kết nối.",
       "googleFailed": "Đăng nhập bằng Google không kết nối được hộp thư. Hãy thử lại.",
       "googleScope": "Google không được phép cấp cho Leafdesk quyền truy cập thư của bạn. Hãy đăng nhập lại và cho phép.",
+      "microsoftFailed": "Đăng nhập bằng Microsoft không kết nối được hộp thư. Hãy thử lại.",
+      "microsoftScope": "Microsoft không được phép cấp cho Leafdesk quyền truy cập thư của bạn. Hãy đăng nhập lại và cho phép, hoặc nhờ quản trị viên tổ chức cho phép Leafdesk.",
       "tooMany": "Bạn đã kết nối số hộp thư tối đa trong không gian làm việc này. Hãy ngắt kết nối một hộp trước.",
       "alreadyConnected": "Địa chỉ này đã được kết nối ở đây. Hãy thay đổi hộp thư đó.",
       "unsubscribeFailed": "Danh sách thư không chấp nhận yêu cầu hủy đăng ký. Hãy thử liên kết của danh sách."
     },
     "methods": {
       "google": "Tài khoản Google (Gmail hoặc Google Workspace)",
+      "microsoft": "Tài khoản Microsoft (Outlook.com hoặc Microsoft 365)",
       "password": "Mật khẩu ứng dụng (mọi nhà cung cấp, qua IMAP và SMTP)"
     },
     "googleHint": "Bạn đăng nhập ở Google và cho phép Leafdesk đọc và gửi thư của bạn. Không cần mật khẩu ứng dụng, và bạn có thể thu hồi quyền truy cập trong tài khoản Google bất cứ lúc nào.",
     "googleConnect": "Đăng nhập bằng Google",
     "googleLeaving": "Đang mở Google…",
     "googleSignedIn": "đã đăng nhập bằng Google",
+    "microsoftHint": "Bạn đăng nhập ở Microsoft và cho phép Leafdesk đọc và gửi thư của bạn. Máy chủ của Microsoft không nhận mật khẩu ứng dụng, nên hộp thư Outlook.com hoặc Microsoft 365 được kết nối theo cách này. Bạn có thể thu hồi quyền truy cập trong tài khoản Microsoft bất cứ lúc nào.",
+    "microsoftConnect": "Đăng nhập bằng Microsoft",
+    "microsoftLeaving": "Đang mở Microsoft…",
+    "microsoftSignedIn": "đã đăng nhập bằng Microsoft",
     "googleConnected": "Hộp thư của bạn đã được kết nối.",
     "dismiss": "Đóng"
   },

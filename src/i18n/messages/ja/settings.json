@@ -669,6 +669,8 @@
         "done": "<agent></agent>に依頼しました：「{task}」",
         "failed": "<agent></agent>に依頼しましたが、その実行は失敗しました：「{task}」",
         "waiting": "<agent></agent>に依頼しました。この実行が先に進んだ時点では終わっていませんでした：「{task}」",
+        "queued": "<agent></agent>にタスクを任せました：「{task}」",
+        "busy": "<agent></agent>にタスクを任せられませんでした：待機中のタスクが多すぎます",
         "paused": "<agent></agent>に依頼できませんでした：一時停止中です",
         "archived": "<agent></agent>に依頼できませんでした：アーカイブされています",
         "limitReached": "<agent></agent>に依頼できませんでした：月間トークン上限に達しています"
@@ -2124,6 +2126,9 @@
     "aiReminderTitle": "エージェントのリマインダー",
     "aiReminderDescription": "頼んでおいたことを、エージェントがその時刻にリマインドします。開いているページの上にも表示されます。",
     "aiReminderChannel": "エージェントのリマインダー: {channel}",
+    "agentTaskTitle": "エージェントのタスク",
+    "agentTaskDescription": "あなたのために動くエージェントが別のエージェントにタスクを渡し、それが完了したか、完了できませんでした。",
+    "agentTaskChannel": "エージェントのタスク: {channel}",
     "dashboardEmailsHeading": "ダッシュボードのメール",
     "dashboardEmailsDescription": "定期的にメールで届くダッシュボードと、ほかの人向けに設定したダッシュボードです。",
     "dashboardEmailsNone": "ダッシュボードのメールはありません",
@@ -2538,7 +2543,7 @@
         "tls": "メールサーバーとの安全な接続を確立できませんでした。",
         "unreachable": "現在メールサーバーにアクセスできません。",
         "noInbox": "メールサーバーに受信トレイが表示されません。",
-        "signIn": "Google のサインインが使えなくなりました。もう一度 Google でサインインしてください。"
+        "signIn": "このメールボックスのサインインは使えなくなりました。接続するにはもう一度サインインしてください。"
       }
     },
     "fields": {
@@ -2564,6 +2569,13 @@
       "yandex": "Yandex IDの設定で、メール用のアプリパスワードを作成してください。",
       "zoho": "Zoho Mailの設定でIMAPアクセスを有効にし、アプリパスワードを作成してください。"
     },
+    "discover": {
+      "looking": "このドメインのメールサーバーを探しています…",
+      "found": "{source, select, autoconfig {ドメイン独自のメール設定} ispdb {メールプロバイダーの公開リスト} mx {ドメインのメールを受け取るプロバイダー} other {ドメインのサービスレコード}}から入力しました。接続する前に確認してください。",
+      "none": "このドメインのメール設定は見つかりませんでした。下にサーバーを入力してください。",
+      "google": "このドメインのメールは Google にあります。",
+      "microsoft": "このメールボックスは Microsoft にあり、そのサーバーはアプリパスワードを受け付けなくなりました。"
+    },
     "membersHeading": "メンバーのメールボックス",
     "membersDescription": "このワークスペースでメールボックスを接続した人です。中身を見られるのは本人だけです。",
     "memberStatus": {
@@ -2585,21 +2597,28 @@
       "noInbox": "メールサーバーに受信トレイが表示されません。",
       "accessDenied": "この操作を行うアクセス権がありません。",
       "gone": "このメッセージはもうこの行にありません。",
-      "signIn": "Google のサインインが使えなくなりました。もう一度 Google でサインインしてください。",
+      "signIn": "このメールボックスのサインインは使えなくなりました。接続するにはもう一度サインインしてください。",
       "googleFailed": "Google でのサインインでメールボックスを接続できませんでした。もう一度お試しください。",
       "googleScope": "Leafdesk にメールへのアクセスを与えることが Google で許可されませんでした。もう一度サインインして許可してください。",
+      "microsoftFailed": "Microsoft でのサインインではメールボックスを接続できませんでした。もう一度お試しください。",
+      "microsoftScope": "Microsoft が Leafdesk にメールへのアクセスを与えることを許可されませんでした。もう一度サインインして許可するか、組織の管理者に Leafdesk の許可を依頼してください。",
       "tooMany": "このワークスペースで接続できるメールボックスの上限に達しています。先にどれかの接続を解除してください。",
       "alreadyConnected": "そのアドレスはここで接続済みです。代わりにそのメールボックスを変更してください。",
       "unsubscribeFailed": "メーリングリストが配信停止のリクエストを受け付けませんでした。代わりにリストのリンクをお試しください。"
     },
     "methods": {
       "google": "Google アカウント（Gmail または Google Workspace）",
+      "microsoft": "Microsoft アカウント（Outlook.com または Microsoft 365）",
       "password": "アプリパスワード（任意のプロバイダー、IMAP と SMTP）"
     },
     "googleHint": "Google でサインインし、Leafdesk がメールを読んで送ることを許可します。アプリパスワードは不要で、アクセスはいつでも Google アカウントで取り消せます。",
     "googleConnect": "Google でサインイン",
     "googleLeaving": "Google を開いています…",
     "googleSignedIn": "Google でサインイン済み",
+    "microsoftHint": "Microsoft にサインインし、Leafdesk にメールの読み取りと送信を許可します。Microsoft のサーバーはアプリパスワードを受け付けないため、Outlook.com や Microsoft 365 のメールボックスはこの方法で接続します。アクセスは Microsoft アカウントからいつでも取り消せます。",
+    "microsoftConnect": "Microsoft でサインイン",
+    "microsoftLeaving": "Microsoft を開いています…",
+    "microsoftSignedIn": "Microsoft でサインイン済み",
     "googleConnected": "メールボックスを接続しました。",
     "dismiss": "閉じる"
   },

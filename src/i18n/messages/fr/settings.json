@@ -669,6 +669,8 @@
         "done": "A sollicité <agent></agent> : « {task} »",
         "failed": "A sollicité <agent></agent>, mais son exécution a échoué : « {task} »",
         "waiting": "A sollicité <agent></agent> ; il n’avait pas fini quand cette exécution a continué : « {task} »",
+        "queued": "A confié une tâche à <agent></agent> : « {task} »",
+        "busy": "Impossible de confier une tâche à <agent></agent> : trop de tâches en attente",
         "paused": "N’a pas pu solliciter <agent></agent> : il est en pause",
         "archived": "N’a pas pu solliciter <agent></agent> : il est archivé",
         "limitReached": "N’a pas pu solliciter <agent></agent> : il a atteint sa limite mensuelle de tokens"
@@ -2124,6 +2126,9 @@
     "aiReminderTitle": "Rappels des agents",
     "aiReminderDescription": "Un agent vous rappelle, le moment venu, ce que vous lui avez demandé. Le rappel s’ouvre aussi par-dessus la page ouverte.",
     "aiReminderChannel": "Rappels des agents : {channel}",
+    "agentTaskTitle": "Tâches des agents",
+    "agentTaskDescription": "Un agent qui travaille pour vous a confié une tâche à un autre agent, et elle est terminée ou n’a pas pu l’être.",
+    "agentTaskChannel": "Tâches des agents: {channel}",
     "dashboardEmailsHeading": "E-mails de tableaux de bord",
     "dashboardEmailsDescription": "Les tableaux de bord qui vous sont envoyés par e-mail selon un calendrier, et ceux que vous avez configurés pour d’autres.",
     "dashboardEmailsNone": "Aucun e-mail de tableau de bord",
@@ -2538,7 +2543,7 @@
         "tls": "Impossible d’établir une connexion sécurisée avec le serveur de messagerie.",
         "unreachable": "Le serveur de messagerie est injoignable pour le moment.",
         "noInbox": "Le serveur de messagerie n’affiche aucune boîte de réception.",
-        "signIn": "La connexion Google ne fonctionne plus. Reconnectez-vous avec Google."
+        "signIn": "La connexion de cette boîte aux lettres ne fonctionne plus. Reconnectez-vous pour la relier."
       }
     },
     "fields": {
@@ -2564,6 +2569,13 @@
       "yandex": "Créez un mot de passe d’application pour la messagerie dans les paramètres de votre Yandex ID.",
       "zoho": "Activez l’accès IMAP dans les paramètres de Zoho Mail et créez un mot de passe d’application."
     },
+    "discover": {
+      "looking": "Recherche des serveurs de messagerie de ce domaine…",
+      "found": "Rempli à partir {source, select, autoconfig {des réglages de messagerie du domaine} ispdb {de la liste publique des fournisseurs de messagerie} mx {du fournisseur qui reçoit le courrier du domaine} other {des enregistrements de service du domaine}}. Vérifiez-les avant de vous connecter.",
+      "none": "Aucun réglage de messagerie n'a été trouvé pour ce domaine. Saisissez ses serveurs ci-dessous.",
+      "google": "Le courrier de ce domaine est chez Google.",
+      "microsoft": "Cette boîte aux lettres est chez Microsoft, dont les serveurs n'acceptent plus les mots de passe d'application."
+    },
     "membersHeading": "Boîtes mail des membres",
     "membersDescription": "Qui a connecté une boîte mail dans cet espace de travail. Personne d’autre que son propriétaire ne voit ce qu’elle contient.",
     "memberStatus": {
@@ -2585,21 +2597,28 @@
       "noInbox": "Le serveur de messagerie n’affiche aucune boîte de réception.",
       "accessDenied": "Vous n’avez pas l’accès nécessaire pour faire cela.",
       "gone": "Ce message n’est plus sur cette ligne.",
-      "signIn": "La connexion Google ne fonctionne plus. Reconnectez-vous avec Google.",
+      "signIn": "La connexion de cette boîte aux lettres ne fonctionne plus. Reconnectez-vous pour la relier.",
       "googleFailed": "La connexion avec Google n’a pas relié la boîte aux lettres. Réessayez.",
       "googleScope": "Google n’a pas été autorisé à donner à Leafdesk l’accès à vos e-mails. Reconnectez-vous et autorisez-le.",
+      "microsoftFailed": "La connexion avec Microsoft n'a pas relié la boîte aux lettres. Réessayez.",
+      "microsoftScope": "Microsoft n'a pas été autorisé à donner à Leafdesk l'accès à votre courrier. Reconnectez-vous et autorisez-le, ou demandez à l'administrateur de votre organisation d'autoriser Leafdesk.",
       "tooMany": "Vous avez connecté autant de boîtes mail que possible dans cet espace de travail. Déconnectez-en une d’abord.",
       "alreadyConnected": "Cette adresse est déjà connectée ici. Modifiez plutôt cette boîte mail.",
       "unsubscribeFailed": "La liste de diffusion n’a pas accepté la demande de désabonnement. Essayez plutôt son lien."
     },
     "methods": {
       "google": "Compte Google (Gmail ou Google Workspace)",
+      "microsoft": "Compte Microsoft (Outlook.com ou Microsoft 365)",
       "password": "Mot de passe d’application (tout fournisseur, via IMAP et SMTP)"
     },
     "googleHint": "Vous vous connectez chez Google et autorisez Leafdesk à lire et envoyer vos e-mails. Aucun mot de passe d’application n’est nécessaire, et vous pouvez retirer l’accès à tout moment dans votre compte Google.",
     "googleConnect": "Se connecter avec Google",
     "googleLeaving": "Ouverture de Google…",
     "googleSignedIn": "connectée avec Google",
+    "microsoftHint": "Vous vous connectez chez Microsoft et autorisez Leafdesk à lire et envoyer votre courrier. Les serveurs de Microsoft n'acceptent pas les mots de passe d'application : c'est ainsi qu'une boîte Outlook.com ou Microsoft 365 se connecte. Vous pouvez retirer l'accès à tout moment dans votre compte Microsoft.",
+    "microsoftConnect": "Se connecter avec Microsoft",
+    "microsoftLeaving": "Ouverture de Microsoft…",
+    "microsoftSignedIn": "connecté avec Microsoft",
     "googleConnected": "Votre boîte aux lettres est connectée.",
     "dismiss": "Fermer"
   },

@@ -276,6 +276,8 @@
     "aiReminder": "開いて内容を確認してください",
     "reportDone": "スケジュールされた実行が完了しました",
     "reportFailed": "スケジュールされた実行が失敗しました",
+    "taskDone": "{agent}からのタスク：完了しました",
+    "taskFailed": "{agent}からのタスク：完了できませんでした",
     "untitled": "無題",
     "snooze": "1時間スヌーズ",
     "read": "既読にする",

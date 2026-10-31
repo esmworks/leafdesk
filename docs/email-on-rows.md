@@ -9,6 +9,14 @@ account, in Settings → Email and calendar, for that workspace only: the addres
 IMAP and SMTP server) and an app password made for Leafdesk. The mailbox is tried before it is
 kept, and its password is sealed like a connection's secrets (`LEAFDESK_ENCRYPTION_KEY`).
 
+For an address at another provider the form looks the servers up as it is typed and fills them in,
+saying where they came from: the domain's own autoconfig file (`autoconfig.<domain>` or its
+`.well-known` path, https only), the public provider database mail clients share
+(autoconfig.thunderbird.net), the provider that takes the domain's mail (its MX records), or its
+DNS service records (`_imaps._tcp`, `_submission._tcp`). Only the domain is sent anywhere, never the
+address. A domain whose mail is at Google picks Google; one at Microsoft says that Microsoft's
+servers no longer take app passwords. Servers typed by hand are never replaced.
+
 A member may connect up to five mailboxes in a workspace, a shared sales or support address beside
 their own, say; connecting an address again changes its mailbox. One of them is their default: the
 first one connected, or whichever they make it with *Make default*. When the default is
@@ -36,6 +44,24 @@ full mail scope, which Google counts as restricted: a consent screen of type *In
 one Google Workspace organization) needs nothing more, while an *External* one signs in only its
 test users until Google has verified the app. In the desktop app the sign-in happens in the
 system's browser, as for connections and storage.
+
+An Outlook.com or Microsoft 365 mailbox connects by signing in with Microsoft, since Microsoft's
+IMAP and SMTP no longer take app passwords: *Microsoft account* in the form works like Google's,
+and the form turns to it by itself when the address typed is at Microsoft. The address is the one
+Microsoft's sign-in names (its `email`, else its user name), and the mailbox is tried with it
+before it is kept, so the sign-in must be able to open that mailbox. Microsoft hands out a new
+refresh token each time the access token is renewed, and the newest is kept. Personal accounts
+send through `smtp-mail.outlook.com`, work and school accounts through `smtp.office365.com`; both
+read from `outlook.office365.com`.
+
+To offer it, the server's administrator registers an app in Microsoft Entra ID (App
+registrations): a *Web* redirect URI `<APP_URL>/api/mail/oauth/callback`, a client secret, and the
+delegated permissions `IMAP.AccessAsUser.All` and `SMTP.Send` of Office 365 Exchange Online (with
+`offline_access`, `openid`, `email` and `profile`), then sets `MAIL_MICROSOFT_CLIENT_ID` and
+`MAIL_MICROSOFT_CLIENT_SECRET`. Which accounts may sign in follows the app's supported account
+types and `MAIL_MICROSOFT_TENANT`: `common` (the default), `organizations`, `consumers`, or one
+organization's tenant id or domain. An organization may need its administrator to consent to the
+app first, and SMTP AUTH must be allowed for the mailbox in Exchange Online.
 
 Every minute the server reads the inbox and the sent folder of each mailbox, from where it last
 stopped, headers first. A message goes on a row when an earlier message of its thread is on one,

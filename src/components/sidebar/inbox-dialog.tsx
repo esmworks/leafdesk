@@ -21,7 +21,8 @@ import { UserAvatar } from "@/components/user-avatar";
 import { InboxSwipe } from "./inbox-swipe";
 import { groupCounts, groupInbox, type InboxEntry } from "@/lib/inbox-groups";
 import { approvalLevelsFor, initialApprovalLevel, type ApprovalLevel } from "@/lib/access-requests";
-import { pushLink, SUGGESTION_LINES } from "@/lib/push";
+import { SUGGESTION_LINES } from "@/lib/push";
+import { pushLink } from "@/lib/push-link";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
@@ -215,6 +216,11 @@ export function InboxDialog({
                     <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                     <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
                   </>
+                ) : item.kind === "agent_task" ? (
+                  <>
+                    <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
+                  </>
                 ) : item.kind === "ai_reminder" ? (
                   <>
                     <AlarmClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -263,7 +269,7 @@ export function InboxDialog({
                 nested ? cn("text-sm", !item.read && "font-medium") : "mt-0.5 text-xs leading-5 text-fg-muted",
                 // A run's report can run long: the run itself has all of it. (line-clamp sets its own
                 // display, which `block` would override.)
-                item.kind === "agent_report" ? "line-clamp-3" : "block",
+                item.kind === "agent_report" || item.kind === "agent_task" ? "line-clamp-3" : "block",
               )}
             >
               {item.kind === "agent_approval"
@@ -286,6 +292,12 @@ export function InboxDialog({
                     : item.report.text === null
                       ? t("reportHidden")
                       : item.report.text || t("reportDone")
+                : item.kind === "agent_task"
+                ? !item.report
+                  ? t("reportGone")
+                  : item.report.status === "failed"
+                    ? t("taskFailed", { agent: item.report.from?.agentName || t("someone") })
+                    : item.report.text || t("taskDone", { agent: item.report.from?.agentName || t("someone") })
                 : item.kind === "review"
                 ? t("review", { count: item.review?.count ?? 0, agent: item.actorName || t("someone") })
                 : item.kind === "ai_account_detached"

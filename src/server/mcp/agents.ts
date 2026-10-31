@@ -46,6 +46,8 @@ import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { id } from "@/server/operations";
 import { PermissionError } from "@/server/permissions";
 import { pageUrl, ToolInputError } from "./format";
+import { agentPagePath } from "@/lib/agent-page";
+import type { InboxItem } from "@/server/notifications";
 
 /**
  * Agents over MCP: the tools' input schemas, their output (snake_case, with app links), and
@@ -671,6 +673,31 @@ export function describeAgentSchedule(workspaceId: string, s: AgentScheduleView)
 const quote = (text: string) => `"${text}"`;
 const short = (text: string, max = 200) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
+/**
+ * A task's report in list_notifications (`agent_task`): what the agent another agent gave it to
+ * found, or that it failed. It opens the chat with the agent that gave it, which the user works
+ * with; list_agent_runs has the whole run, for its owners.
+ */
+export function describeTaskReport(n: Pick<InboxItem, "id" | "kind" | "read" | "createdAt" | "report" | "workspaceId" | "workspaceName">, appUrl: string) {
+  const r = n.report;
+  const giver = r?.from ? `the agent ${quote(r.from.agentName)}` : "an agent since removed";
+  return {
+    id: n.id,
+    kind: n.kind,
+    read: n.read,
+    created_at: n.createdAt.toISOString(),
+    summary: !r
+      ? "A task one agent gave another finished; the run is no longer kept"
+      : r.status === "failed"
+        ? `The agent ${quote(r.agentName)} couldn't finish a task ${giver} gave it while working for the user (${r.code ?? "error"})`
+        : `The agent ${quote(r.agentName)} finished a task ${giver} gave it while working for the user${r.text ? `, answering: ${quote(r.text)}` : ""}`,
+    ...(r ? { agent_id: r.agentId, run_id: r.runId, ...(r.from ? { given_by_agent_id: r.from.agentId } : {}) } : {}),
+    workspace_id: n.workspaceId,
+    workspace_name: n.workspaceName,
+    url: r?.from ? `${appUrl}${agentPagePath(n.workspaceId, r.from.agentId)}` : `${appUrl}/w/${n.workspaceId}`,
+  };
+}
+
 /** One step of a run as a line, with the ids it touched. */
 export function describeAgentStep(step: AgentStepRecord) {
   switch (step.kind) {
@@ -737,6 +764,8 @@ export function describeAgentStep(step: AgentStepRecord) {
         done: "Asked",
         failed: "Asked (its run failed)",
         waiting: "Asked (its run hadn't finished when this one went on)",
+        queued: "Gave a task to",
+        busy: "Couldn't give a task (too many waiting) to",
         paused: "Couldn't ask (paused)",
         archived: "Couldn't ask (archived)",
         limitReached: "Couldn't ask (it used its monthly token limit)",

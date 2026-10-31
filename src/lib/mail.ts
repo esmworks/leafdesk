@@ -5,8 +5,10 @@
  */
 
 export type MailboxStatus = "connecting" | "ok" | "error";
-/** How a mailbox signs in: a password (an app password, mostly), or a Google sign-in. */
-export type MailboxAuth = "password" | "google";
+/** How a mailbox signs in: a password (an app password, mostly), or a sign-in with Google or Microsoft. */
+export type MailboxAuth = "password" | "google" | "microsoft";
+/** The providers a mailbox can be connected by signing in with. */
+export type MailSignInProvider = Exclude<MailboxAuth, "password">;
 export type RowEmailDirection = "in" | "out";
 export type RowEmailStatus = "received" | "hidden" | "queued" | "sent" | "failed";
 
@@ -198,6 +200,8 @@ export type OwnMailbox = {
   enabled: boolean;
   /** Whether the server can connect a Gmail or Google Workspace mailbox by signing in with Google. */
   google: boolean;
+  /** Whether the server can connect an Outlook.com or Microsoft 365 mailbox by signing in with Microsoft. */
+  microsoft: boolean;
   /** The default first, then in the order they were connected. */
   mailboxes: MailboxView[];
 };

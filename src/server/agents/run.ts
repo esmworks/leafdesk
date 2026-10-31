@@ -109,7 +109,7 @@ import { COMBINE, MAX_MERGE_ROWS } from "@/lib/merge-rows";
 import { PropertyValueError } from "@/lib/properties";
 import type { ChatWriteRecord } from "@/db/schema/ai";
 import { runClock } from "./clock";
-import { ASK_AGENT, handoffEventText, handoffFor, handoffHold } from "./handoff";
+import { handoffEventText, handoffFor, handoffHold } from "./handoff";
 import { chatRunHistory, chatRunTyped, closeChatTurn } from "./chat-store";
 import { approversOf } from "./approvers";
 import { agentsWorker } from "./kick";
@@ -307,7 +307,7 @@ async function claim(limit: number): Promise<Run[]> {
 type Ending = { status: "done" | "failed"; code?: AgentRunCode | null; error?: string | null; steps?: AgentStepRecord[]; answer?: string; usage?: AgentRunUsage | null };
 
 async function finish(run: Run, values: Ending) {
-  await db
+  const [ended] = await db
     .update(agentRun)
     .set({
       status: values.status,
@@ -320,29 +320,35 @@ async function finish(run: Run, values: Ending) {
       pending: null,
       finishedAt: new Date(),
     })
-    .where(eq(agentRun.id, run.id));
-  await reportScheduledRun(run);
+    .where(eq(agentRun.id, run.id))
+    // As it is now: a helper asked with ask_agent that wasn't done in time became a task meanwhile (handoff.ts).
+    .returning({ source: agentRun.source });
+  await reportRun({ ...run, source: ended?.source ?? run.source });
   await replyToMention(run, values);
   await closeChatTurn(run, values);
 }
 
 /**
- * Tells the owner who set a schedule that its run ended (done or failed): the report is the run
- * itself, which their inbox shows. Never throws; the run's ending is saved either way.
+ * Tells the owner who set a schedule that its run ended (done or failed), and the person behind
+ * the run that gave a task to another agent (handoff.ts `assign_agent`) that the task's run did
+ * (an `agent_task`, which they may turn off): the report is the run itself, which their inbox
+ * shows. Never throws; the run's ending is saved either way.
  */
-async function reportScheduledRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "source">) {
-  if (!isScheduleRun(run.source)) return;
+async function reportRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "source">) {
+  const task = run.source.kind === "handoff" && run.source.queued ? run.source : null;
+  const to = isScheduleRun(run.source) ? run.source.scheduledBy : task ? remindedPerson(task.parent) : null;
+  if (!to) return;
   try {
     // From the agent's user, looked up in the same statement.
     const actorId = sql<string>`(select ${workspaceAgent.userId} from ${workspaceAgent} where ${workspaceAgent.id} = ${run.agentId})`;
     const inserted = await db
       .insert(notification)
-      .values({ userId: run.source.scheduledBy, workspaceId: run.workspaceId, kind: "agent_report", actorId, agentRunId: run.id })
+      .values({ userId: to, workspaceId: run.workspaceId, kind: task ? "agent_task" : "agent_report", actorId, agentRunId: run.id })
       .returning({ id: notification.id });
     signalInbox(run.workspaceId);
     pushNotifications(inserted.map((n) => n.id));
   } catch (error) {
-    console.error("[agents] could not report a scheduled run", redactError(error));
+    console.error("[agents] could not report a run", redactError(error));
   }
 }
 
@@ -684,7 +690,7 @@ async function converse(
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...(leavesNote ? [HANDOFF_TOOL] : []),
     ...webTools,
-    ...(handoff ? [handoff.tool] : []),
+    ...(handoff ? handoff.tools : []),
     ...(reminder ? [reminder.tool] : []),
     ...toolset.tools,
     ...(moreTools ? [FIND_TOOLS, USE_TOOL] : []),
@@ -993,7 +999,8 @@ async function converse(
       if (!out.isError) writes += 1;
       return out;
     }
-    if (handoff && call.name === ASK_AGENT) return handoff.ask(call, room(messages));
+    const handedTo = handoff?.call(call, room(messages));
+    if (handedTo) return handedTo;
     if (moreTools && MORE_TOOL_NAMES.has(call.name)) {
       const more = await moreTools.open();
       if (call.name === FIND_TOOLS.name) return { content: findTools(more, typeof call.arguments.query === "string" ? call.arguments.query.slice(0, 200) : "", room(messages)) };
@@ -1430,7 +1437,7 @@ export async function expireApprovals() {
         await db.update(agentRun).set({ steps, pending: null }).where(eq(agentRun.id, run.id));
       }
       await withdrawApproval(run.id);
-      await reportScheduledRun(run);
+      await reportRun(run);
       await replyToMention(run, { status: "failed", code: "approvalTimeout" });
       await closeChatTurn({ ...run, steps }, { code: "approvalTimeout" });
     }

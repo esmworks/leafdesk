@@ -90,14 +90,15 @@ export const mailbox = pgTable(
     uniqueIndex("mailbox_address_idx").on(t.workspaceId, t.userId, t.address),
     uniqueIndex("mailbox_default_idx").on(t.workspaceId, t.userId).where(sql`${t.isDefault}`),
     check("mailbox_status_check", sql`${t.status} in ('connecting', 'ok', 'error')`),
-    check("mailbox_auth_check", sql`${t.auth} in ('password', 'google')`),
+    check("mailbox_auth_check", sql`${t.auth} in ('password', 'google', 'microsoft')`),
   ],
 );
 
 /**
- * A Google sign-in a member began to connect their mailbox in a workspace, until the browser comes
- * back with its `state` (server/row-mail/google.ts). Used once; ones older than fifteen minutes are
- * void. `data` is sealed: the PKCE verifier, the consent given and the member's time zone.
+ * A sign-in with Google or Microsoft a member began to connect their mailbox in a workspace, until
+ * the browser comes back with its `state` (server/row-mail/google.ts, microsoft.ts). Used once;
+ * ones older than fifteen minutes are void. `data` is sealed: the provider (Google when missing),
+ * the PKCE verifier, the consent given and the member's time zone.
  */
 export const mailboxOauth = pgTable("mailbox_oauth", {
   state: text("state").primaryKey(),

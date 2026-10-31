@@ -30,7 +30,7 @@ import {
 import { addReactor, parseReactors, reactionSummary, removeReactor, type Reactor } from "@/lib/comment-reactions";
 import { avatarSrc } from "@/lib/avatar";
 import { isAiLimitNotice, type AiLimitNotice } from "@/lib/agent-guardrails";
-import { callConnectionName, callToSend, inboxCallInput, isScheduleRun, readEmail, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
+import { callConnectionName, callToSend, inboxCallInput, readEmail, runPageOf, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
 import { readableProperties, referencedIds, resolveValue, type ActivityValue } from "@/lib/row-activity";
@@ -848,10 +848,15 @@ export type InboxAgentReport = {
   agentName: string;
   status: AgentRunStatus;
   code: AgentRunCode | null;
-  /** The start of the agent's answer; null when the run looked after a database the user can no longer open. */
+  /** The start of the agent's answer; null when the run's row, database or page is one the user can no longer open. */
   text: string | null;
   /** It read the user's email (lib/agents.ts readEmail): the app shows its report, connected apps don't. */
   email: boolean;
+  /**
+   * A task's report (agents/handoff.ts `assign_agent`): the agent that gave the task, where the
+   * report opens (its chat, which the person had the run with), null once it is gone.
+   */
+  from?: { agentId: string; agentName: string } | null;
 };
 
 /** The most of a report the inbox shows; the whole of it is in the run. */
@@ -898,6 +903,8 @@ export type InboxAccessRequest = {
 
 const databasePage = alias(page, "database_page");
 const actor = alias(user, "actor");
+/** The agent that gave a task (reportsOf). */
+const givingAgent = alias(workspaceAgent, "giving_agent");
 
 /**
  * Notifications about pages the user can still open, of the kinds they keep in their inbox; ones
@@ -944,6 +951,8 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
       and(eq(notification.kind, "ai_limit"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // Changes waiting for review have no page: they show while the user is in the workspace.
       and(eq(notification.kind, "review"), inWorkspace(sql`${userId}`, notification.workspaceId)),
+      // A task's report goes to the person behind the run that gave it, who may be a member.
+      and(eq(notification.kind, "agent_task"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // So do an agent's reminders about no page; one about a page follows the page, as above.
       and(eq(notification.kind, "ai_reminder"), isNull(notification.pageId), inWorkspace(sql`${userId}`, notification.workspaceId)),
     ),
@@ -1053,7 +1062,7 @@ export async function listNotifications(
   const [approvals, proposals, reports, updates, emails, reviews, reactions, limits, limitRequests] = await Promise.all([
     approvalsOf(userId, runsOf("agent_approval")),
     inboxProposals(userId, runsOf("agent_memory")),
-    reportsOf(userId, runsOf("agent_report")),
+    reportsOf(userId, [...runsOf("agent_report"), ...runsOf("agent_task")]),
     rowUpdatesOf(userId, rows.filter((r) => r.kind === "row_update")),
     rowEmailsOf(userId, rows.filter((r) => r.kind === "row_email")),
     Promise.all(reviewWorkspaces.map(async (id) => [id, await countPendingFor(userId, id)] as const)).then((counts) => new Map(counts)),
@@ -1103,7 +1112,7 @@ export async function listNotifications(
       read: readAt !== null,
       approval: agentRunId && row.kind === "agent_approval" ? (approvals.get(agentRunId) ?? null) : null,
       memory: agentRunId && row.kind === "agent_memory" ? (proposals.get(agentRunId) ?? null) : null,
-      report: agentRunId && row.kind === "agent_report" ? (reports.get(agentRunId) ?? null) : null,
+      report: agentRunId && (row.kind === "agent_report" || row.kind === "agent_task") ? (reports.get(agentRunId) ?? null) : null,
       accessRequest:
         row.kind === "access_request" && requestId
           ? {
@@ -1293,7 +1302,7 @@ export async function rowUpdateFor(viewer: string, notificationId: string) {
   return update ? { ...update, databaseTitle: row.databaseTitle } : null;
 }
 
-/** How these scheduled runs ended, for their reports in `viewer`'s inbox. */
+/** How these scheduled runs and tasks ended, for their reports in `viewer`'s inbox. */
 async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, InboxAgentReport>> {
   if (!runIds.length) return new Map();
   const runs = await db
@@ -1306,26 +1315,29 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
       source: agentRun.source,
       agentId: agentRun.agentId,
       agentName: workspaceAgent.name,
+      giverId: givingAgent.id,
+      giverName: givingAgent.name,
     })
     .from(agentRun)
     .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentRun.agentId))
+    .leftJoin(givingAgent, and(sql`${agentRun.source}->>'kind' = 'handoff'`, sql`${givingAgent.id} = ${agentRun.source}->>'fromAgentId'`))
     .where(inArray(agentRun.id, runIds));
-  const databaseIds = [...new Set(runs.flatMap((r) => (isScheduleRun(r.source) && r.source.databaseId ? [r.source.databaseId] : [])))];
-  const open = new Set(
-    databaseIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, databaseIds), pageVisibleTo(viewer)))).map((p) => p.id) : [],
-  );
+  // A task's run shows as the run that gave it (lib/agents accessSource): its row, database or page counts.
+  const pageIds = [...new Set(runs.flatMap((r) => runPageOf(r.source) ?? []))];
+  const open = new Set(pageIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, pageIds), pageVisibleTo(viewer)))).map((p) => p.id) : []);
   const out = new Map<string, InboxAgentReport>();
   for (const r of runs) {
-    // What it says may quote the database: only for those who can still open it.
-    const hidden = isScheduleRun(r.source) && Boolean(r.source.databaseId) && !open.has(r.source.databaseId!);
+    // What it says may quote that page: only for those who can still open it.
+    const about = runPageOf(r.source);
     out.set(r.id, {
       runId: r.id,
       agentId: r.agentId,
       agentName: r.agentName,
       status: r.status,
       code: r.code ?? null,
-      text: hidden ? null : snippetOf(markdownPlain(r.answer), REPORT_CHARS),
+      text: about && !open.has(about) ? null : snippetOf(markdownPlain(r.answer), REPORT_CHARS),
       email: readEmail(r.steps),
+      ...(r.source.kind === "handoff" ? { from: r.giverId ? { agentId: r.giverId, agentName: r.giverName ?? "" } : null } : {}),
     });
   }
   return out;

@@ -669,6 +669,8 @@
         "done": "שאל את <agent></agent>: „{task}”",
         "failed": "שאל את <agent></agent>, אבל ההרצה שלו נכשלה: „{task}”",
         "waiting": "שאל את <agent></agent>; הוא עוד לא סיים כשההרצה הזו המשיכה: „{task}”",
+        "queued": "נתן משימה ל־<agent></agent>: ”{task}”",
+        "busy": "לא ניתן היה לתת משימה ל־<agent></agent>: יותר מדי משימות ממתינות",
         "paused": "לא היה אפשר לשאול את <agent></agent>: הוא מושהה",
         "archived": "לא היה אפשר לשאול את <agent></agent>: הוא בארכיון",
         "limitReached": "לא היה אפשר לשאול את <agent></agent>: הוא ניצל את מגבלת האסימונים החודשית שלו"
@@ -2124,6 +2126,9 @@
     "aiReminderTitle": "תזכורות של סוכנים",
     "aiReminderDescription": "סוכן מזכיר לך משהו שביקשת ממנו כשמגיע הזמן. התזכורת נפתחת גם מעל הדף הפתוח.",
     "aiReminderChannel": "תזכורות של סוכנים: {channel}",
+    "agentTaskTitle": "משימות של סוכנים",
+    "agentTaskDescription": "סוכן שעובד בשבילך נתן לסוכן אחר משימה, והיא הושלמה או שלא ניתן היה להשלים אותה.",
+    "agentTaskChannel": "משימות של סוכנים: {channel}",
     "dashboardEmailsHeading": "דוא״לים של לוחות בקרה",
     "dashboardEmailsDescription": "לוחות בקרה שנשלחים אליך בדוא״ל לפי לוח זמנים, ואלה שהגדרת עבור אחרים.",
     "dashboardEmailsNone": "אין דוא״לים של לוחות בקרה",
@@ -2538,7 +2543,7 @@
         "tls": "לא ניתן היה ליצור חיבור מאובטח לשרת הדואר.",
         "unreachable": "אי אפשר להגיע לשרת הדואר כרגע.",
         "noInbox": "שרת הדואר לא מציג תיבת דואר נכנס.",
-        "signIn": "הכניסה עם Google כבר לא פועלת. יש להיכנס שוב עם Google."
+        "signIn": "הכניסה לתיבת הדואר הזו כבר לא עובדת. היכנסו שוב כדי לחבר אותה."
       }
     },
     "fields": {
@@ -2564,6 +2569,13 @@
       "yandex": "יש ליצור סיסמת אפליקציה לדואר בהגדרות של Yandex ID.",
       "zoho": "יש להפעיל גישת IMAP בהגדרות של Zoho Mail וליצור סיסמת אפליקציה."
     },
+    "discover": {
+      "looking": "מחפשים את שרתי הדואר של הדומיין…",
+      "found": "מולא מתוך {source, select, autoconfig {הגדרות הדואר של הדומיין עצמו} ispdb {הרשימה הציבורית של ספקי הדואר} mx {הספק שמקבל את הדואר של הדומיין} other {רשומות השירות של הדומיין}}. בדקו אותם לפני ההתחברות.",
+      "none": "לא נמצאו הגדרות דואר לדומיין הזה. הקלידו את השרתים שלו למטה.",
+      "google": "הדואר של הדומיין הזה נמצא ב-Google.",
+      "microsoft": "תיבת הדואר הזו נמצאת ב-Microsoft, שהשרתים שלה כבר לא מקבלים סיסמאות לאפליקציות."
+    },
     "membersHeading": "תיבות הדואר של החברים",
     "membersDescription": "מי חיבר תיבת דואר בסביבת העבודה הזו. אף אחד מלבד הבעלים שלה לא רואה מה יש בה.",
     "memberStatus": {
@@ -2585,21 +2597,28 @@
       "noInbox": "שרת הדואר לא מציג תיבת דואר נכנס.",
       "accessDenied": "אין לך גישה לבצע את הפעולה הזו.",
       "gone": "ההודעה הזו כבר לא נמצאת בשורה הזו.",
-      "signIn": "הכניסה עם Google כבר לא פועלת. יש להיכנס שוב עם Google.",
+      "signIn": "הכניסה לתיבת הדואר הזו כבר לא עובדת. היכנסו שוב כדי לחבר אותה.",
       "googleFailed": "הכניסה עם Google לא חיברה את תיבת הדואר. יש לנסות שוב.",
       "googleScope": "Google לא הורשה לתת ל-Leafdesk גישה לדואר שלך. יש להיכנס שוב ולאשר זאת.",
+      "microsoftFailed": "הכניסה עם Microsoft לא חיברה את תיבת הדואר. נסו שוב.",
+      "microsoftScope": "Microsoft לא הורשתה לתת ל-Leafdesk גישה לדואר שלכם. היכנסו שוב ואשרו, או בקשו ממנהל הארגון לאשר את Leafdesk.",
       "tooMany": "חיברת בסביבת העבודה הזו את המספר המרבי של תיבות דואר. יש לנתק אחת קודם.",
       "alreadyConnected": "הכתובת הזו כבר מחוברת כאן. אפשר לשנות את התיבה הזו במקום.",
       "unsubscribeFailed": "רשימת התפוצה לא קיבלה את בקשת ביטול המנוי. אפשר לנסות את הקישור שלה במקום."
     },
     "methods": {
       "google": "חשבון Google ‏(Gmail או Google Workspace)",
+      "microsoft": "חשבון Microsoft ‏(Outlook.com או Microsoft 365)",
       "password": "סיסמת אפליקציה (כל ספק, דרך IMAP ו-SMTP)"
     },
     "googleHint": "נכנסים ב-Google ומאשרים ל-Leafdesk לקרוא ולשלוח את הדואר שלך. אין צורך בסיסמת אפליקציה, ואפשר לבטל את הגישה בחשבון Google בכל עת.",
     "googleConnect": "כניסה עם Google",
     "googleLeaving": "Google נפתח…",
     "googleSignedIn": "מחוברת עם Google",
+    "microsoftHint": "נכנסים ב-Microsoft ומאשרים ל-Leafdesk לקרוא ולשלוח את הדואר שלכם. השרתים של Microsoft לא מקבלים סיסמאות לאפליקציות, ולכן כך מחברים תיבה של Outlook.com או Microsoft 365. אפשר לבטל את הגישה בחשבון Microsoft בכל עת.",
+    "microsoftConnect": "כניסה עם Microsoft",
+    "microsoftLeaving": "פותחים את Microsoft…",
+    "microsoftSignedIn": "מחובר עם Microsoft",
     "googleConnected": "תיבת הדואר שלך מחוברת.",
     "dismiss": "סגירה"
   },

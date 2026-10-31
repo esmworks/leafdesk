@@ -21,7 +21,7 @@ function AgentLink({ name, agentId, runId, onOpenRun }: { name: string; agentId:
 /** A step of a run that asked another agent: whom, the task, and how its run went (or why it couldn't be asked). */
 export function HandoffStepLine({ step, onOpenRun }: { step: AgentHandoffRecord; onOpenRun?: OpenAgentRun }) {
   const t = useTranslations("settings.agents.runs.handoff");
-  const bad = step.outcome !== "done" && step.outcome !== "waiting";
+  const bad = step.outcome !== "done" && step.outcome !== "waiting" && step.outcome !== "queued";
   return (
     <>
       <Users className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", bad && "text-danger")} aria-hidden />

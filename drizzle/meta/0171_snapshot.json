@@ -1,5 +1,5 @@
 {
-  "id": "c0ba8620-b2bb-45e5-a6c2-d0f09f64ba89",
+  "id": "a8f0b957-ade8-4ffb-8388-984518b37327",
   "prevId": "d0d9db93-5ad5-45f3-92e2-903db631671a",
   "version": "7",
   "dialect": "postgresql",
@@ -14023,89 +14023,6 @@
       },
       "isRLSEnabled": false
     },
-    "public.agent_mailbox": {
-      "name": "agent_mailbox",
-      "schema": "",
-      "columns": {
-        "agent_id": {
-          "name": "agent_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "mailbox_id": {
-          "name": "mailbox_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "agent_mailbox_mailbox_idx": {
-          "name": "agent_mailbox_mailbox_idx",
-          "columns": [
-            {
-              "expression": "mailbox_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "agent_mailbox_agent_id_workspace_agent_id_fk": {
-          "name": "agent_mailbox_agent_id_workspace_agent_id_fk",
-          "tableFrom": "agent_mailbox",
-          "tableTo": "workspace_agent",
-          "columnsFrom": [
-            "agent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "agent_mailbox_mailbox_id_mailbox_id_fk": {
-          "name": "agent_mailbox_mailbox_id_mailbox_id_fk",
-          "tableFrom": "agent_mailbox",
-          "tableTo": "mailbox",
-          "columnsFrom": [
-            "mailbox_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "agent_mailbox_agent_id_mailbox_id_pk": {
-          "name": "agent_mailbox_agent_id_mailbox_id_pk",
-          "columns": [
-            "agent_id",
-            "mailbox_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.agent_run": {
       "name": "agent_run",
       "schema": "",
@@ -17491,7 +17408,7 @@
         },
         "mailbox_auth_check": {
           "name": "mailbox_auth_check",
-          "value": "\"mailbox\".\"auth\" in ('password', 'google')"
+          "value": "\"mailbox\".\"auth\" in ('password', 'google', 'microsoft')"
         }
       },
       "isRLSEnabled": false

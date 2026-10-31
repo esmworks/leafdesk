@@ -11,7 +11,16 @@
   sends: you send its drafts from the Mail tab. An answer goes only to the people of its thread, a
   new email only to addresses you wrote; once a run, or an earlier answer of the same chat, has
   read email it only reads pages and drafts. Other people who use or edit the agent never see your
-  mail, and connected apps (MCP, the REST API) get nothing such runs did or answered. Migration 0171.
+  mail, and connected apps (MCP, the REST API) get nothing such runs did or answered. Migration 0173.
+
+- **Agents give each other tasks.** An agent that may ask other agents can now also give one a
+  task to do in its own time (`assign_agent`) and go on without waiting. When the task is done, the
+  person the run worked for gets its report in the inbox and on their phone (it opens the chat with
+  the agent that gave the task; **Agents' tasks** in Settings → Preferences turns them off), and the
+  agent's later runs for that person read how their tasks went, and their answers, with
+  `agent_tasks`. A task counts toward the helper's runs waiting at once, with the runs owners ask
+  for. A helper asked with `ask_agent` that isn't done in time now goes on as such a task instead of
+  its answer being lost. Migration 0172.
 
 - **Agents remind you.** Ask an agent in its chat, a request, a schedule or a mention to remind you
   of something, and at that time the reminder opens over the page you have open (*Done*, *Remind
@@ -19,6 +28,16 @@
   `list_notifications`. An agent reminds only the person its run works for, at most 30 days ahead,
   about a page both can open; a run sets at most 3 and an agent has at most 20 waiting for one
   person. Turned off under *Agent reminders* in Settings → Preferences. Migration 0168.
+
+- **Outlook.com and Microsoft 365 mailboxes connect by signing in with Microsoft.** Their servers
+  take no app passwords any more; *Microsoft account* in the connect form signs in at Microsoft,
+  and the form turns to it by itself for an address at Microsoft. Offered once the server sets the
+  new `MAIL_MICROSOFT_CLIENT_ID` and `MAIL_MICROSOFT_CLIENT_SECRET` (and, to limit who may sign in,
+  `MAIL_MICROSOFT_TENANT`). Migration 0171 (`mailbox.auth` may be `microsoft`).
+
+- **Mail servers found from the address.** Connecting a mailbox at a provider the form doesn't
+  list fills in its IMAP and SMTP servers from the domain's autoconfig file, the public provider
+  database, its MX records or its DNS service records, and says where they came from. No migration.
 
 - **Snippets in the Mail tab's composer.** A button beside the formatting puts one of the person's
   or the workspace's snippets into the message, found by title or trigger, its placeholders filled

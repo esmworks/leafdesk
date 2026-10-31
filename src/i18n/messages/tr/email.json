@@ -276,6 +276,8 @@
     "aiReminder": "Okumak için açın",
     "reportDone": "Zamanlanmış çalışması bitti",
     "reportFailed": "Zamanlanmış çalışması başarısız oldu",
+    "taskDone": "{agent} ajanından görev: tamamlandı",
+    "taskFailed": "{agent} ajanından görev: bitiremedi",
     "untitled": "Adsız",
     "snooze": "1 saat ertele",
     "read": "Okundu işaretle",

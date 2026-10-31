@@ -276,6 +276,8 @@
     "aiReminder": "Ábrelo para leerlo",
     "reportDone": "Su ejecución programada terminó",
     "reportFailed": "Su ejecución programada falló",
+    "taskDone": "Tarea de {agent}: hecha",
+    "taskFailed": "Tarea de {agent}: no pudo terminarla",
     "untitled": "Sin título",
     "snooze": "Posponer 1 hora",
     "read": "Marcar como leído",

@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { markReadAction, snoozeAction } from "@/app/actions/notifications";
 import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, PageIcon, pageLabel } from "@/components/ui";
-import { pushLink } from "@/lib/push";
+import { pushLink } from "@/lib/push-link";
 import { relativeTime } from "@/lib/relative-time";
 import { snoozeUntil } from "@/lib/snooze";
 import type { InboxItem } from "@/server/notifications";
