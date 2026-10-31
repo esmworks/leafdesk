@@ -203,12 +203,12 @@ function startingConfig(type: ViewType, config: ViewConfig, properties: Property
     next.groupBy = chartGroupProperty(properties, {})?.id;
     next.columnBy ??= firstDate;
   }
-  if ((type === "calendar" || type === "timeline") && !next.dateBy) next.dateBy = firstDate;
+  if ((type === "calendar" || type === "agenda" || type === "timeline") && !next.dateBy) next.dateBy = firstDate;
   if (type === "map" && !next.placeBy) next.placeBy = properties.find((p) => p.type === "place")?.id;
   return next;
 }
 
-/** A linked view picks its own layout: table, board, calendar, gallery, list, feed, timeline, map, chart or pivot. */
+/** A linked view picks its own layout: table, board, calendar, agenda, gallery, list, feed, timeline, map, chart or pivot. */
 function LayoutMenu({
   view,
   properties,

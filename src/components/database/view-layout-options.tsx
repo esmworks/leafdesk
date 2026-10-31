@@ -71,6 +71,14 @@ import { isPercent } from "@/lib/number-format";
 import { boardGroupProperty, isHiddenInView, isSortable, TEXT_GROUP_TYPES } from "@/lib/properties";
 import { holdsTimestamp } from "@/lib/property-types";
 import { DEFAULT_LOAD_LIMIT, LOAD_LIMITS, loadLimitOf } from "@/lib/load-limit";
+import {
+  AGENDA_PRIORITY_TYPES,
+  AGENDA_STATUS_TYPES,
+  agendaDateProperty,
+  agendaPriorityProperty,
+  agendaStatusProperty,
+  showsUndated,
+} from "@/lib/agenda";
 import { CARD_SIZES, coverProperty, galleryCover, OPEN_ROWS, openRowsOf, opensRows, viewDateProperty, viewPlaceProperty } from "@/lib/views";
 import { SWITCHABLE_VIEW_TYPES } from "@/lib/view-layouts";
 import { parentProperty, SUB_ITEMS_DISPLAYS, subItemsDisplay, subItemsProperty } from "@/lib/sub-items";
@@ -509,6 +517,20 @@ function LayoutSettings({
               : undefined
           }
         />
+      ) : view.type === "agenda" ? (
+        <AgendaSettings
+          view={view}
+          properties={properties}
+          onSet={set}
+          onCreateDateProperty={
+            locked
+              ? undefined
+              : () => {
+                  close();
+                  onCreateDateProperty();
+                }
+          }
+        />
       ) : view.type === "calendar" ? (
         // Saturdays and Sundays, in the month and the week alike.
         <Toggle on={config.showWeekends !== false} onChange={(on) => set({ showWeekends: on ? undefined : false })}>
@@ -550,6 +572,7 @@ function LayoutSettings({
             view.type === "timeline" ||
             view.type === "map" ||
             view.type === "calendar" ||
+            view.type === "agenda" ||
             subItems) && (
             <MenuSeparator />
           )}
@@ -617,6 +640,71 @@ function LayoutSettings({
           {tSprints("menuItem")}
         </MenuItem>
       )}
+    </>
+  );
+}
+
+/**
+ * Agenda views: the date that places rows on days, what marks them done, an optional priority
+ * ordering rows within a time, and whether rows without a date are listed (see lib/agenda).
+ */
+function AgendaSettings({
+  view,
+  properties,
+  onSet,
+  onCreateDateProperty,
+}: {
+  view: View;
+  properties: Property[];
+  onSet: (patch: ViewConfig) => void;
+  onCreateDateProperty?: () => void;
+}) {
+  const t = useTranslations("database.layout");
+  const config = view.config;
+  const dates = properties.filter((p) => p.type === "date");
+  const statuses = properties.filter((p) => (AGENDA_STATUS_TYPES as readonly string[]).includes(p.type));
+  const priorities = properties.filter((p) => (AGENDA_PRIORITY_TYPES as readonly string[]).includes(p.type));
+  const date = agendaDateProperty(config, properties);
+  const status = agendaStatusProperty(config, properties);
+  const priority = agendaPriorityProperty(config, properties);
+  // What marks rows done ranks nothing.
+  const rankers = priorities.filter((p) => p.id !== status?.id || p.id === priority?.id);
+  return (
+    <>
+      <Heading>{t("agendaDate")}</Heading>
+      {!dates.length && <p className="px-2 pb-1.5 text-xs text-fg-faint">{t("agendaNeedsDate")}</p>}
+      {dates.map((p) => (
+        <Choice key={p.id} active={date?.id === p.id} onClick={() => onSet({ dateBy: p.id })}>
+          {p.name}
+        </Choice>
+      ))}
+      {onCreateDateProperty && (
+        <MenuItem icon={<Plus className="h-3.5 w-3.5" />} onClick={onCreateDateProperty}>
+          {t("newDateProperty")}
+        </MenuItem>
+      )}
+      <MenuSeparator />
+      <Heading>{t("agendaStatus")}</Heading>
+      {!statuses.length && <p className="max-w-60 px-2 pb-1.5 text-xs text-fg-faint">{t("agendaNeedsStatus")}</p>}
+      {statuses.map((p) => (
+        <Choice key={p.id} active={status?.id === p.id} onClick={() => onSet({ statusBy: p.id })}>
+          {p.name}
+        </Choice>
+      ))}
+      <MenuSeparator />
+      <Heading>{t("agendaPriority")}</Heading>
+      <Choice active={!priority} onClick={() => onSet({ priorityBy: undefined })}>
+        {t("noPriority")}
+      </Choice>
+      {rankers.map((p) => (
+        <Choice key={p.id} active={priority?.id === p.id} onClick={() => onSet({ priorityBy: p.id })}>
+          {p.name}
+        </Choice>
+      ))}
+      <MenuSeparator />
+      <Toggle on={showsUndated(config)} onChange={(on) => onSet({ showUndated: on ? undefined : false })}>
+        {t("showUndated")}
+      </Toggle>
     </>
   );
 }

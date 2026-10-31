@@ -251,6 +251,9 @@ try {
   check((await api(full, "GET", `/agents/${router.id}/runs/not-a-run`)).status === 404, "an unknown run is not found");
 
   // ── Usage and the monthly limit ───────────────────────────────────────────────────────────────
+  // Past its first day: a new agent spending past a quarter of its limit is paused instead
+  // (lib/agent-guardrails.ts spendingFast), which would end the run below before the limit does.
+  await db.update(workspaceAgent).set({ createdAt: new Date(Date.now() - 2 * 86_400_000) }).where(eq(workspaceAgent.id, router.id));
   const usage = await api(full, "GET", `/agents/${router.id}/usage`);
   const month = usage.json.months?.[0];
   check(usage.status === 200 && month?.runs === 2 && month.input_tokens === 50 && month.output_tokens === 25, "the agent's usage counts each run and every turn", usage.json);

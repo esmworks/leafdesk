@@ -1046,7 +1046,7 @@ function clockMinutes(text: string): number | null {
  * on top takes a date in words ("fri 5pm", "+2w" from the start shown), its time only with
  * "Include time" on; slash dates follow the property's format when it sets an order.
  */
-function DateEditor({
+export function DateEditor({
   value,
   anchor,
   onChange,

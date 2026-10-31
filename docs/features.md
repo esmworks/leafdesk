@@ -313,13 +313,13 @@
     leaves the workspace. Someone who may change the database's views turns one into a shared view
     with *Share with everyone*. MCP's `create_database_view` takes `personal`, and `get_database`
     marks them.
-  - Views: table, board, calendar, gallery, list, feed (rows as posts, newest first, with the
+  - Views: table, board, calendar, agenda (a day's rows, see below), gallery, list, feed (rows as posts, newest first, with the
     start of their bodies, emoji reactions and their comments), timeline (a column per day, week,
     month, quarter or year), map (rows as pins at a place
     property; press and hold or right-click a spot to pick among its pins or put a row without a place there), chart, pivot (see below) and dashboard (widgets over the database, see Dashboards), each with its own filters,
     sorting, grouping and shown properties (one by one, or all hidden or shown at once). The *View
     settings* menu beside the toolbar holds all of a view's settings in one place: its layout
-    (a table, board, calendar, gallery, list, feed, timeline or map switches to any of the others,
+    (a table, board, calendar, agenda, gallery, list, feed, timeline or map switches to any of the others,
     keeping its filters, sorts, properties and grouping, which a board shows as columns, a timeline
     as swimlanes and a map as pin colors; a board, calendar or map without one picks what it goes by),
     properties, filters, sorts and grouping, each a page of the menu, then the layout's own
@@ -522,6 +522,17 @@
   - Charts over a date can show a running total, or what remains (a burndown): grouped by the day
     work was finished, each period takes its rows away from the whole, and rows without that date
     stay open. An automation that sets the date to today when a status changes to done fills it in.
+  - Agenda views list one day's rows at a time, picked on a strip of two weeks of days (each with a
+    dot while it holds rows not done; arrows move it a week, *Today* comes back). Under it: rows
+    whose date ended before today and that aren't done (*Overdue*, shown on today), the day's rows
+    by time, whole days and dates over several days first, and rows without a date unless the view
+    hides them. Adding an agenda asks for its date, what marks a row done (a status in its done
+    group or a ticked checkbox, either made right there) and, if wanted, a priority: a select or
+    status whose first option ranks highest among rows at the same time. Each row is ticked off
+    with its circle, moved to tomorrow (keeping its time and length) or given another date from its
+    line. The view's filters, sorts and search choose the rows as in any view. Over MCP,
+    `create_database_view` and `update_database_view` take `date_by` and `agenda`
+    (`status_by`, `priority_by`, `show_undated`; see `leafdesk://docs/views`).
   - Pivot views lay the rows out as a table of figures: a line per group of one property, a
     column per group of another (or one column without it), each cell a count of the rows in both
     or the sum, average, median, smallest or largest of a number, number formula or rollup, in the

@@ -906,7 +906,20 @@ export const uniqueValue = pgTable(
   (t) => [primaryKey({ columns: [t.rowId, t.propertyId] }), uniqueIndex("unique_value_key_idx").on(t.propertyId, sql`md5(${t.key})`)],
 );
 
-export type ViewType = "table" | "board" | "calendar" | "gallery" | "list" | "feed" | "timeline" | "map" | "chart" | "pivot" | "dashboard" | "form";
+export type ViewType =
+  | "table"
+  | "board"
+  | "calendar"
+  | "agenda"
+  | "gallery"
+  | "list"
+  | "feed"
+  | "timeline"
+  | "map"
+  | "chart"
+  | "pivot"
+  | "dashboard"
+  | "form";
 /** Grouping by a date: one group per day, week (Monday to Sunday), month, quarter or year. */
 export type GroupDateBy = "day" | "week" | "month" | "quarter" | "year";
 export type GroupStatusBy = "option" | "group";
@@ -1083,8 +1096,17 @@ export type ViewConfig = {
   collapsedSubGroups?: string[];
   /** Boards: columns tinted with their option's color; tinted when missing. */
   colorColumns?: boolean;
-  /** Calendar views: the date property that places rows on days. Timelines: where bars start. */
+  /** Calendar and agenda views: the date property that places rows on days. Timelines: where bars start. */
   dateBy?: string;
+  /**
+   * Agenda views: the status or checkbox property telling done rows from the rest (lib/agenda);
+   * the first status, else the first checkbox, when missing.
+   */
+  statusBy?: string;
+  /** Agenda views: a select or status whose option order ranks rows within a time (first highest); none when missing. */
+  priorityBy?: string;
+  /** Agenda views: the section of rows without a date; shown when missing. */
+  showUndated?: boolean;
   /** Timelines: the date property where bars end; without it bars are one day long. */
   endDateBy?: string;
   /** Timelines: "week" when missing. */

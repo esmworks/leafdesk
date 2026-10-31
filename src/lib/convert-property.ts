@@ -367,6 +367,8 @@ export function retypeViewConfig(
     dateBy: c.dateBy === id && !dates ? undefined : c.dateBy,
     endDateBy: c.endDateBy === id && !dates ? undefined : c.endDateBy,
     periodBy: c.periodBy === id && !isPeriodPropertyType(to.type) ? PERIOD_NONE : c.periodBy,
+    statusBy: c.statusBy === id && to.type !== "status" && to.type !== "checkbox" ? undefined : c.statusBy,
+    priorityBy: c.priorityBy === id && to.type !== "select" && to.type !== "status" ? undefined : c.priorityBy,
     placeBy: c.placeBy === id && to.type !== "place" ? undefined : c.placeBy,
     cover: c.cover?.source === "property" && c.cover.propertyId === id && type !== "files" ? undefined : c.cover,
     chartAggregate: c.chartAggregate?.propertyId === id ? undefined : c.chartAggregate,

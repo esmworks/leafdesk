@@ -460,6 +460,23 @@ const pivotSettingsInput = z
   .strict();
 type PivotSettingsInput = z.infer<typeof pivotSettingsInput>;
 
+/** An agenda view's settings besides its date (date_by), as create_database_view and update_database_view take them. */
+const agendaSettingsInput = z
+  .object({
+    status_by: z
+      .string()
+      .optional()
+      .describe("The status or checkbox property that marks rows done (a status in its done group, a ticked checkbox); the first status, else the first checkbox, by default."),
+    priority_by: z
+      .string()
+      .nullable()
+      .optional()
+      .describe("A select or status whose option order ranks rows at the same time, the first option highest; null for none (the default)."),
+    show_undated: z.boolean().optional().describe("List rows without a date in their own section (true by default)."),
+  })
+  .strict();
+type AgendaSettingsInput = z.infer<typeof agendaSettingsInput>;
+
 /** Layout settings of calendar, gallery and timeline views, shared by create_database_view and update_database_view. */
 const viewLayoutInputs = {
   end_date_by: z
@@ -539,6 +556,7 @@ const viewLayoutInputs = {
 /** Display settings offered on views themselves, not on dashboard widgets (each widget's list stays short). */
 const viewDisplayInputs = {
   show_weekends: z.boolean().optional().describe("Calendar only: show Saturdays and Sundays (true by default)."),
+  agenda: checked(agendaSettingsInput, "object", `Agenda only: {status_by, priority_by, show_undated}. ${see("views")}`).optional(),
   show_icons: z.boolean().optional().describe("Views with rows: page icons by titles (true by default)."),
   wrap_properties: z.boolean().optional().describe("Board and gallery only: wrap long values on cards (default false)."),
   load_limit: z.literal(LOAD_LIMITS).optional().describe("Board (per column) and gallery only: cards shown before Load more (default 50)."),
@@ -651,6 +669,7 @@ type ViewInput = {
   calendar_mode?: CalendarMode;
   show_table?: boolean;
   show_weekends?: boolean;
+  agenda?: AgendaSettingsInput;
   show_icons?: boolean;
   wrap_properties?: boolean;
   load_limit?: LoadLimit;
@@ -876,10 +895,10 @@ function viewConfigPatch(
   if (input.group_number_by !== undefined) patch.groupNumberBy = input.group_number_by ?? undefined;
   if (input.hide_empty_groups !== undefined) patch.hideEmptyGroups = input.hide_empty_groups || undefined;
   if (input.date_by !== undefined) {
-    only("date_by", "calendar", "timeline");
+    only("date_by", "calendar", "agenda", "timeline");
     const prop = requireProperty(props, input.date_by);
-    if (type === "calendar" && prop.type !== "date") {
-      throw new ToolInputError(`Calendars place rows by a date property; "${prop.name}" is ${prop.type}.`);
+    if ((type === "calendar" || type === "agenda") && prop.type !== "date") {
+      throw new ToolInputError(`${type === "calendar" ? "Calendars" : "Agendas"} place rows by a date property; "${prop.name}" is ${prop.type}.`);
     }
     if (type === "timeline" && prop.type !== "date" && !holdsTimestamp(prop.type)) {
       throw new ToolInputError(
@@ -913,6 +932,26 @@ function viewConfigPatch(
     only("show_weekends", "calendar");
     patch.showWeekends = input.show_weekends ? undefined : false;
   }
+  if (input.agenda !== undefined) only("agenda", "agenda");
+  const agenda = input.agenda ?? {};
+  if (agenda.status_by !== undefined) {
+    const prop = requireProperty(props, agenda.status_by);
+    if (prop.type !== "status" && prop.type !== "checkbox") {
+      throw new ToolInputError(`Agendas mark rows done by a status or checkbox property; "${prop.name}" is ${prop.type}.`);
+    }
+    patch.statusBy = prop.id;
+  }
+  if (agenda.priority_by !== undefined) {
+    if (agenda.priority_by === null) patch.priorityBy = undefined;
+    else {
+      const prop = requireProperty(props, agenda.priority_by);
+      if (prop.type !== "select" && prop.type !== "status") {
+        throw new ToolInputError(`Agendas rank rows by the options of a select or status property; "${prop.name}" is ${prop.type}.`);
+      }
+      patch.priorityBy = prop.id;
+    }
+  }
+  if (agenda.show_undated !== undefined) patch.showUndated = agenda.show_undated ? undefined : false;
   if (input.show_icons !== undefined) {
     only("show_icons", ...ROW_VIEW_TYPES);
     patch.showIcons = input.show_icons ? undefined : false;
@@ -1265,9 +1304,9 @@ async function pdfText(bytes: Buffer): Promise<{ text: string; pages: number } |
 const FILTERS_DOC =
   'List rows of a database with optional filters and sorts. Filters reference properties by name (or "title", "created_at", "updated_at") and use select / status option names as values; all must match unless filter_combinator is "or", and groups ({type: "group", combinator, rules}) mix the two, e.g. Status is Done and (Assignee contains me or Priority is High). Ops: contains, does_not_contain, equals, not_equals, is_any_of, is_none_of, is_empty, is_not_empty, gt, gte, lt, lte, is_within. Text contains / does_not_contain ignore case. For a relation use contains / not_equals with a related row id or title; for a person, created_by or last_edited_by, contains / not_equals with a user id, email, name or "me". is_any_of / is_none_of take a list: option names on select and status, and on multi_select, relation and people the row holds at least one / none, e.g. {"property": "Status", "op": "is_any_of", "value": ["Todo", "In progress"]}; people lists may include "me". Numbers compare with gt, gte, lt and lte. Dates, created_time and last_edited_time use equals (that day), gt/gte/lt/lte with YYYY-MM-DD, and is_within takes today, {this,last,next}_{week,month,quarter,year} (weeks from Monday), or past_n_days / next_n_days with "days" (both include today), counted from the current date on the server. A range matches when any of its days does; times count on their day in the server time zone. Dates sort by their start. Checklists and files only support is_empty / is_not_empty. Sorting follows the grouping order of a status and the start of a date. Returns property values by name; relations as [{id, title}], people as [{id, name}], checklists as [{text, checked}], files as [{name, url}]. Values the user may not see are left out and named in hidden_properties; properties hidden in every row cannot be filtered or sorted by. Rows come a page at a time (limit, at most 200): when has_more is true, call again with cursor set to next_cursor and the same filters, sorts and view_id to read on, until next_cursor is null; total is how many rows match. properties (names) narrows each row to those values, to keep large reads small. Rows archived on their own are left out unless include_archived is true or view_id names a view that shows them.';
 const VIEWS_DOC =
-  'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "feed" (posts: each row with its body, reactions and comments, newest first unless sorted), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "pivot" (a table of figures by group_by and pivot.columns_by; see leafdesk://docs/pivots), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) relation (one group per linked row), text, url, email, phone (group_text_by) or number (ranges, group_number_by); a formula or rollup as its result. A row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.';
+  'Add a saved view to a database: a "table" (optionally grouped into collapsible sections with group_by), a "board" (cards in columns by group_by), a "calendar" (rows placed on the days of a date property, across every day of a range and at their times in the week mode; see calendar_mode), an "agenda" (one day\'s rows at a time, picked on a strip of days: what is overdue and not done on top when the day is today, then the day\'s rows by time and, unless agenda.show_undated is false, rows without a date; date_by places rows, agenda.status_by marks them done and agenda.priority_by optionally ranks rows at the same time), a "gallery" (cards with a cover: the first image in each row\'s body, or in a files property with cover), a "list" (one compact line per row), a "feed" (posts: each row with its body, reactions and comments, newest first unless sorted), a "timeline" (bars from a start date to an optional end date, optionally in swimlanes by group_by), a "map" (pins at a place property; group_by a select colors them), a "chart" (see chart_type), a "pivot" (a table of figures by group_by and pivot.columns_by; see leafdesk://docs/pivots), a "dashboard" (a grid of widgets over the database: numbers, charts, lists and other views, each with its own settings; see widgets. Without widgets it starts with the row count, the sum of the first number property, a chart by the first select or status property and the rows edited last) or a "form" (questions people answer to add a row; see questions, defaults and public). Views group by a select, status (per option, or per todo / in_progress / done with group_status_by "group"), multi_select, person, created_by, last_edited_by, checkbox (unchecked / checked), date, created_time or last_edited_time (per day, week from Monday, month or year with group_date_by, month by default) relation (one group per linked row), text, url, email, phone (group_text_by) or number (ranges, group_number_by); a formula or rollup as its result. A row with several tags, people or links shows in each of their groups. Filters (with groups and filter_combinator) and sorts use the same form as query_database; a person filter on "me" shows everyone who opens the view their own rows, and is_within date filters count from the day the view is opened.';
 const VIEW_UPDATE_DOC =
-  "Rename a saved view, switch its layout (type) or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar or timeline dates, calendar month or week, timeline zoom and table, gallery cards, a form's questions, texts, default values and public link, or a dashboard's widgets (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.";
+  "Rename a saved view, switch its layout (type) or change its filters, sorts, grouping (boards and tables, see create_database_view) or timeline swimlanes, calendar, agenda or timeline dates, an agenda's done and priority properties, calendar month or week, timeline zoom and table, gallery cards, a form's questions, texts, default values and public link, or a dashboard's widgets (view ids from get_database). before_view_id or after_view_id moves the view's tab next to another view of the database; the first tab is the one a published database shows. filters and sorts replace the view's current ones (filters with filter_combinator, \"and\" unless given); pass an empty array to clear them. filter_combinator alone switches how the current filters combine. Settings you leave out keep their values.";
 const ADD_PROPERTY_DOC =
   `Add a property (column) to a database. For select and multi_select, pass the option names. For status, pass option names (spread over the groups: first todo, last done, the rest in_progress) or {name, group} objects; without options a status gets Not started, In progress and Done. Other types ignore options. For a relation, pass related_database_id (a database in the same workspace, or this one); with two_way the related database also gets a property listing the links back. created_by, created_time, last_edited_by and last_edited_time fill themselves in. A formula computes its value from the row's other properties: pass the expression in formula. Any property can have a description saying what it holds and how to fill it. A select or multi_select can depend on a select property (depends_on, option_parents). ${FORMULA_HELP} ${ROLLUP_HELP}`;
 const UPDATE_PROPERTY_DOC =
@@ -1324,7 +1363,7 @@ function allDocs(): Record<DocTopic, Doc> {
     views: {
       title: "Database views",
       description: "View types and every view setting: grouping, calendars, timelines, galleries, maps, charts, forms and color rules.",
-      text: [VIEWS_DOC, VIEW_UPDATE_DOC, schemaText("view settings", VIEW_SETTINGS_DOC)].join("\n\n"),
+      text: [VIEWS_DOC, VIEW_UPDATE_DOC, schemaText("view settings", VIEW_SETTINGS_DOC), schemaText("agenda", agendaSettingsInput)].join("\n\n"),
     },
     pivots: {
       title: "Pivot views",
@@ -3546,7 +3585,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "Create a database view",
       description:
-        `Add a saved view to a database: a table, board, calendar, gallery, list, feed, timeline, map, chart, pivot, dashboard or form, with its own filters, sorts, grouping and layout settings. Each type and setting: ${docUri("views")}; filters: ${docUri("filters")}; a dashboard view's widgets: ${docUri("dashboards")}.`,
+        `Add a saved view to a database: a table, board, calendar, agenda, gallery, list, feed, timeline, map, chart, pivot, dashboard or form, with its own filters, sorts, grouping and layout settings. Each type and setting: ${docUri("views")}; filters: ${docUri("filters")}; a dashboard view's widgets: ${docUri("dashboards")}.`,
       inputSchema: z.object({
         database_id: id("database"),
         name: z.string().min(1).max(100).describe("View name."),
@@ -3563,7 +3602,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
           .string()
           .optional()
           .describe(
-            "Calendar: the date property that places rows on days. Timeline: the date (or created_time / last_edited_time) property where bars start. Defaults to the first date property.",
+            "Calendar and agenda: the date property that places rows on days. Timeline: the date (or created_time / last_edited_time) property where bars start. Defaults to the first date property.",
           ),
         ...viewLayoutParams,
         ...viewDisplayParams,
@@ -3644,7 +3683,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
         date_by: z
           .string()
           .optional()
-          .describe("Calendar: the date property that places rows on days. Timeline: the property where bars start."),
+          .describe("Calendar and agenda: the date property that places rows on days. Timeline: the property where bars start."),
         ...viewLayoutParams,
         ...viewDisplayParams,
         ...formParams,

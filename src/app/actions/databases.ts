@@ -400,9 +400,16 @@ export async function deletePropertyAction(propertyId: string) {
   return run((userId) => databases.deleteProperty(userId, propertyId));
 }
 
-export async function addViewAction(databaseId: string, input: { name: string; type: ViewType; personal?: boolean }) {
+export async function addViewAction(databaseId: string, input: { name: string; type: ViewType; personal?: boolean; config?: ViewConfig }) {
+  // The settings are checked by databases.addView (filterConfigError, layoutConfigError).
+  const config = input.config && typeof input.config === "object" && !Array.isArray(input.config) ? input.config : undefined;
   return run((userId) =>
-    databases.addView(userId, databaseId, { name: String(input.name), type: input.type, personal: input.personal === true }),
+    databases.addView(userId, databaseId, {
+      name: String(input.name),
+      type: input.type,
+      personal: input.personal === true,
+      ...(config ? { config } : {}),
+    }),
   );
 }
 
