@@ -321,6 +321,7 @@
       "mail": {
         "searched": "Cercato nella posta «{query}» · {count, plural, =0 {nessun risultato} one {# conversazione} other {# conversazioni}}",
         "read": "Email letta",
+        "attachment": "Letto «{name}» da",
         "noSubject": "(nessun oggetto)",
         "earlier": "In questa conversazione sono già state lette email, quindi questa risposta legge solo pagine e scrive bozze",
         "to": "a {to}",

@@ -31,7 +31,7 @@ import { reviewChanges, type ReviewBlock } from "@/lib/page-review";
 import { PropertyValueError } from "@/lib/properties";
 import { anyWordTerms } from "@/lib/search-words";
 import { AccessError, hasLevel, pageAccessOf } from "@/server/access";
-import type { AiTool } from "@/server/ai";
+import type { AiTool, AiUsage } from "@/server/ai";
 import { attachmentBlock, formatSources, truncateText, type ChatSourceText } from "@/server/ai/prompts";
 import { activeVerifications } from "@/server/verification";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
@@ -657,7 +657,8 @@ export function valuesLine(properties: Record<string, unknown>) {
     .join("; ");
 }
 
-export type ToolOutcome = { content: string; isError?: boolean; step?: ChatStepRecord };
+/** `usage`: what a model the tool asked spent (an image described for read_mail_attachment), counted with the turn's. */
+export type ToolOutcome = { content: string; isError?: boolean; step?: ChatStepRecord; usage?: AiUsage };
 
 /**
  * The arguments each reading tool takes. Only providers in a strict mode hold a model to

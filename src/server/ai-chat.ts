@@ -788,7 +788,9 @@ async function* runChat(
             out = "action" in prepared ? await saveMailDraft(userId, prepared, decision) : prepared;
           } else {
             out = await runChatMailTool(userId, workspaceId, call, registry, left);
-            // Mail is anyone's words, and could pass itself off as the person's wish: what follows is asked about.
+            // An image of the mail described by another model: counted against this answer's limit.
+            if (out.usage) spentUsd += out.usage.costUsd;
+            // Mail and its files are anyone's words, and could pass themselves off as the person's wish: what follows is asked about.
             if (!out.isError) {
               untrusted = true;
               if (mode === "auto") mode = "ask";

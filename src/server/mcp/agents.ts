@@ -743,7 +743,7 @@ export function describeAgentStep(step: AgentStepRecord) {
       return {
         kind: "mail",
         action: step.action,
-        summary: { search: "Searched the user's email", read: "Read an email", draft: "Saved an email draft", earlier: "Went on from a chat that read email" }[step.action],
+        summary: { search: "Searched the user's email", read: "Read an email", attachment: "Read a file of an email", draft: "Saved an email draft", earlier: "Went on from a chat that read email" }[step.action],
       };
     case "memory": {
       const how = { remember: "Remembered", propose: "Proposed a note for an owner to keep", forget: "Dropped a note", handoff: "Left a note for the schedule's next run" }[step.action];

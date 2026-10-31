@@ -12,6 +12,7 @@ import * as z from "zod";
 import { db } from "@/db";
 import { mailMessage } from "@/db/schema";
 import { isAiLanguage } from "@/lib/ai";
+import type { MailAttachmentView } from "@/lib/mail-client";
 import { mailTaskDay } from "@/lib/mail-tasks";
 import { DRAFT_ACTIONS, MAIL_WRITE_ACTIONS, MAX_MAIL_INSTRUCTION, SUMMARY_MESSAGES } from "@/lib/mail-ai";
 import { aiConfig, AiError, contentChars, stream, type AiStream } from "@/server/ai";
@@ -90,9 +91,13 @@ export async function startMailAi(userId: string, input: MailAiInput, signal?: A
   return { answer, finished: (text) => saveSummary(read.newestId, text) };
 }
 
+/** The files of a message read for the AI: its id in the index and who sent it, to name them by. */
+export type AiMailFiles = { messageId: string; from: string; attachments: MailAttachmentView[] };
+
 /**
  * A thread's last messages as the model reads them, oldest first (never marked seen), its newest
- * one's id and the row its other party is. Also the AI chat's read_mail (ai-chat-mail.ts).
+ * one's id, the row its other party is and the files of those messages (only the AI chat's
+ * read_mail lists them, ai-chat-mail.ts).
  */
 export async function threadForAi(userId: string, input: { mailboxId: string; folderId: string; threadId: string }) {
   const thread = await getThread(userId, { mailboxId: input.mailboxId, threadId: input.threadId, folderId: input.folderId });
@@ -101,11 +106,15 @@ export async function threadForAi(userId: string, input: { mailboxId: string; fo
   if (!sent.length) throw new AiError("invalid", "The thread has only drafts");
   // One after another on the mailbox's connection: most were just opened and come from memory.
   const messages: AiMailMessage[] = [];
+  const files: AiMailFiles[] = [];
   for (const m of sent.slice(-SUMMARY_MESSAGES)) {
     const found = await messageForAi(userId, m.id).catch(() => null);
     messages.push(found ? asAiMessage(found) : { from: m.from, sentAt: new Date(m.sentAt), text: m.preview, mine: false });
+    // As the Mail tab lists them: images the HTML shows aren't among them (read.ts loadBody).
+    const attachments = found?.attachments ?? [];
+    if (attachments.length) files.push({ messageId: m.id, from: m.from.address, attachments });
   }
-  return { subject: thread.subject, messages, newestId: sent[sent.length - 1].id, row: thread.row };
+  return { subject: thread.subject, messages, newestId: sent[sent.length - 1].id, row: thread.row, files };
 }
 
 /** Keeps the summary on the thread's newest message, and drops the thread's older ones. */

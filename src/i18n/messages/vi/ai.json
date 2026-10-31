@@ -321,6 +321,7 @@
       "mail": {
         "searched": "Đã tìm trong thư “{query}” · {count, plural, =0 {không tìm thấy gì} other {# chuỗi thư}}",
         "read": "Đã đọc email",
+        "attachment": "Đã đọc “{name}” từ",
         "noSubject": "(không có tiêu đề)",
         "earlier": "Email đã được đọc trước đó trong cuộc trò chuyện này, nên câu trả lời này chỉ đọc trang và viết bản nháp",
         "to": "đến {to}",

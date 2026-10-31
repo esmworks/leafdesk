@@ -587,7 +587,7 @@ export const runPageOf = (given: AgentRunSource): string | null => {
 export const mailRun = (source: AgentRunSource): boolean => (source.kind === "chat" && !source.fromApp) || (isScheduleRun(source) && !source.databaseId);
 
 /** The mail tools of an agent's run (server/ai-chat-mail.ts MAIL_TOOL_NAMES). */
-export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "draft_mail"]);
+export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "read_mail_attachment", "draft_mail"]);
 
 /**
  * What a run that read email may still call besides the mail tools: reading pages, finding tools,
