@@ -2557,6 +2557,13 @@
       "yandex": "Luo postille sovellussalasana Yandex ID -asetuksissasi.",
       "zoho": "Ota IMAP-käyttö käyttöön Zoho Mailin asetuksissa ja luo sovellussalasana."
     },
+    "discover": {
+      "looking": "Haetaan tämän verkkotunnuksen postipalvelimia…",
+      "found": "Täytetty {source, select, autoconfig {verkkotunnuksen omista postiasetuksista} ispdb {julkisesta postipalveluntarjoajien luettelosta} mx {verkkotunnuksen postin vastaanottavalta palveluntarjoajalta} other {verkkotunnuksen palvelutietueista}}. Tarkista ne ennen yhdistämistä.",
+      "none": "Tälle verkkotunnukselle ei löytynyt postiasetuksia. Kirjoita palvelimet alle.",
+      "google": "Tämän verkkotunnuksen posti on Googlella.",
+      "microsoft": "Tämä postilaatikko on Microsoftilla, jonka palvelimet eivät enää hyväksy sovellussalasanoja."
+    },
     "membersHeading": "Jäsenten postilaatikot",
     "membersDescription": "Kuka on yhdistänyt postilaatikon tähän työtilaan. Kukaan muu kuin sen omistaja ei näe sen sisältöä.",
     "memberStatus": {

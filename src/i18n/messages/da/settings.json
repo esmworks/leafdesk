@@ -2557,6 +2557,13 @@
       "yandex": "Lav en app-adgangskode til e-mail i dine Yandex ID-indstillinger.",
       "zoho": "Slå IMAP-adgang til i Zoho Mails indstillinger, og lav en app-adgangskode."
     },
+    "discover": {
+      "looking": "Slår dette domænes mailservere op…",
+      "found": "Udfyldt fra {source, select, autoconfig {domænets egne mailindstillinger} ispdb {den offentlige liste over mailudbydere} mx {udbyderen, der modtager domænets mail} other {domænets servicerecords}}. Tjek dem, før du forbinder.",
+      "none": "Der blev ikke fundet mailindstillinger for dette domæne. Skriv dets servere nedenfor.",
+      "google": "Dette domænes mail ligger hos Google.",
+      "microsoft": "Denne postkasse ligger hos Microsoft, hvis servere ikke længere tager imod app-adgangskoder."
+    },
     "membersHeading": "Medlemmernes postkasser",
     "membersDescription": "Hvem der har forbundet en postkasse i dette arbejdsområde. Ingen andre end ejeren ser, hvad der er i den.",
     "memberStatus": {

@@ -2557,6 +2557,13 @@
       "yandex": "Make an app password for mail in your Yandex ID settings.",
       "zoho": "Turn on IMAP access in Zoho Mail's settings and make an app password."
     },
+    "discover": {
+      "looking": "Looking up this domain's mail servers…",
+      "found": "Filled in from {source, select, autoconfig {the domain's own mail settings} ispdb {the public list of mail providers} mx {the provider that takes the domain's mail} other {the domain's service records}}. Check them before connecting.",
+      "none": "No mail settings were found for this domain. Type its servers below.",
+      "google": "This domain's mail is at Google.",
+      "microsoft": "This mailbox is at Microsoft, whose servers no longer take app passwords."
+    },
     "membersHeading": "Members' mailboxes",
     "membersDescription": "Who has connected a mailbox in this workspace. Nobody but its owner sees what is in it.",
     "memberStatus": {

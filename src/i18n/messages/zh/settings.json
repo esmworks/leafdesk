@@ -2557,6 +2557,13 @@
       "yandex": "在 Yandex ID 设置中为邮件创建应用专用密码。",
       "zoho": "在 Zoho Mail 设置中开启 IMAP 访问，并创建应用专用密码。"
     },
+    "discover": {
+      "looking": "正在查找此域名的邮件服务器…",
+      "found": "已根据{source, select, autoconfig {域名自己的邮件设置} ispdb {公开的邮件服务商列表} mx {接收该域名邮件的服务商} other {域名的服务记录}}填写。连接前请检查。",
+      "none": "未找到此域名的邮件设置。请在下方填写服务器。",
+      "google": "此域名的邮件在 Google。",
+      "microsoft": "此邮箱在 Microsoft，其服务器已不再接受应用专用密码。"
+    },
     "membersHeading": "成员的邮箱",
     "membersDescription": "在此工作区连接了邮箱的人。除邮箱主人外，没有人能看到其中的内容。",
     "memberStatus": {

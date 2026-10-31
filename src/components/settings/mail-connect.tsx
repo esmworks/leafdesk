@@ -1,9 +1,11 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { beginGoogleMailboxAction, connectMailboxAction } from "@/app/actions/row-mail";
+import { readWith } from "@/components/read";
 import { Button, cn, Input, selectClass } from "@/components/ui";
-import { MAIL_PROVIDERS, providerFor, type MailboxAuth, type MailboxServers, type MailboxView } from "@/lib/mail";
+import { MAIL_PROVIDERS, normalizeAddress, providerFor, type MailboxAuth, type MailboxServers, type MailboxView } from "@/lib/mail";
+import type { DiscoveredMailServers } from "@/lib/mail-discover";
 import { browserTimeZone } from "@/lib/time-zone";
 import { useAction } from "./workspace-settings";
 
@@ -129,7 +131,20 @@ function MailboxForm({
   const { pending, error, run } = useAction();
   const chosen = MAIL_PROVIDERS.find((p) => p.id === provider);
   const effective = chosen ? chosen.servers : servers;
-  const set = (patch: Partial<MailboxServers>) => setServers((s) => ({ ...s, ...patch }));
+  // Servers typed by hand are never overwritten by what is found.
+  const typed = useRef(!!mailbox);
+  const set = (patch: Partial<MailboxServers>) => {
+    typed.current = true;
+    setServers((s) => ({ ...s, ...patch }));
+  };
+  const found = useDiscovery(mailbox ? "" : address, (result) => {
+    if (typed.current) return;
+    if (result?.signIn === "google") return setProvider("google");
+    setProvider("other");
+    if (!result) return;
+    setServers(result.servers);
+    if (result.username !== normalizeAddress(address)) setUsername(result.username);
+  });
 
   return (
     <form
@@ -168,6 +183,7 @@ function MailboxForm({
             }}
             placeholder="ada@example.com"
           />
+          {found && <span className="block text-xs text-fg-muted">{found}</span>}
         </label>
         <label className="block space-y-1">
           <span className="text-sm font-medium">{t("fields.displayName")}</span>
@@ -176,7 +192,15 @@ function MailboxForm({
       </div>
       <label className="block space-y-1">
         <span className="text-sm font-medium">{t("fields.provider")}</span>
-        <select className={cn(selectClass, "w-full")} value={provider} required onChange={(e) => setProvider(e.target.value)}>
+        <select
+          className={cn(selectClass, "w-full")}
+          value={provider}
+          required
+          onChange={(e) => {
+            typed.current = true;
+            setProvider(e.target.value);
+          }}
+        >
           <option value="" disabled>
             {t("fields.chooseProvider")}
           </option>
@@ -246,6 +270,41 @@ function MailboxForm({
       </div>
     </form>
   );
+}
+
+/**
+ * Looks up the servers of an address typed that isn't at a provider the form knows (a while after
+ * the last keystroke; server/row-mail/discover.ts), hands them to `onFound` (null when there are
+ * none) and says where they were found.
+ */
+function useDiscovery(address: string, onFound: (found: DiscoveredMailServers | null) => void): string | null {
+  const t = useTranslations("settings.email.discover");
+  const [note, setNote] = useState<string | null>(null);
+  const handler = useRef(onFound);
+  handler.current = onFound;
+  const done = useRef(new Set<string>());
+  useEffect(() => {
+    const normal = normalizeAddress(address);
+    if (!normal || providerFor(normal) || done.current.has(normal)) return;
+    const stop = new AbortController();
+    const wait = setTimeout(() => {
+      setNote(t("looking"));
+      void readWith(stop.signal, "mailDiscover", normal)
+        .then((result) => {
+          if (!result.ok) return setNote(null);
+          done.current.add(normal);
+          const found = result.data;
+          setNote(!found ? t("none") : found.signIn === "microsoft" ? t("microsoft") : found.signIn === "google" ? t("google") : t("found", { source: found.source }));
+          handler.current(found);
+        })
+        .catch(() => undefined);
+    }, 700);
+    return () => {
+      clearTimeout(wait);
+      stop.abort();
+    };
+  }, [address, t]);
+  return note;
 }
 
 function ServerFields({

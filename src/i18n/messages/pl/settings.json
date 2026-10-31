@@ -2557,6 +2557,13 @@
       "yandex": "Utwórz hasło aplikacji do poczty w ustawieniach swojego Yandex ID.",
       "zoho": "Włącz dostęp IMAP w ustawieniach Zoho Mail i utwórz hasło aplikacji."
     },
+    "discover": {
+      "looking": "Wyszukiwanie serwerów poczty tej domeny…",
+      "found": "Wypełniono na podstawie {source, select, autoconfig {własnych ustawień poczty domeny} ispdb {publicznej listy dostawców poczty} mx {dostawcy, który odbiera pocztę domeny} other {rekordów usług domeny}}. Sprawdź je przed połączeniem.",
+      "none": "Nie znaleziono ustawień poczty dla tej domeny. Wpisz jej serwery poniżej.",
+      "google": "Poczta tej domeny jest w Google.",
+      "microsoft": "Ta skrzynka jest w Microsoft, którego serwery nie przyjmują już haseł aplikacji."
+    },
     "membersHeading": "Skrzynki pocztowe członków",
     "membersDescription": "Kto podłączył skrzynkę pocztową w tym obszarze roboczym. Nikt poza jej właścicielem nie widzi, co w niej jest.",
     "memberStatus": {

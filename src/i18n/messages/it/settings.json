@@ -2557,6 +2557,13 @@
       "yandex": "Crea una password per le app per la posta nelle impostazioni del tuo Yandex ID.",
       "zoho": "Attiva l’accesso IMAP nelle impostazioni di Zoho Mail e crea una password per le app."
     },
+    "discover": {
+      "looking": "Ricerca dei server di posta di questo dominio…",
+      "found": "Compilato da {source, select, autoconfig {le impostazioni di posta del dominio} ispdb {l'elenco pubblico dei provider di posta} mx {il provider che riceve la posta del dominio} other {i record di servizio del dominio}}. Controllali prima di collegarti.",
+      "none": "Nessuna impostazione di posta trovata per questo dominio. Inserisci i suoi server qui sotto.",
+      "google": "La posta di questo dominio è su Google.",
+      "microsoft": "Questa casella è su Microsoft, i cui server non accettano più password per le app."
+    },
     "membersHeading": "Caselle di posta dei membri",
     "membersDescription": "Chi ha collegato una casella di posta in questo spazio di lavoro. Nessuno tranne il suo proprietario vede cosa contiene.",
     "memberStatus": {

@@ -2557,6 +2557,13 @@
       "yandex": "Crie uma senha de app para e-mail nas configurações do seu Yandex ID.",
       "zoho": "Ative o acesso IMAP nas configurações do Zoho Mail e crie uma senha de app."
     },
+    "discover": {
+      "looking": "Procurando os servidores de e-mail deste domínio…",
+      "found": "Preenchido a partir {source, select, autoconfig {das configurações de e-mail do próprio domínio} ispdb {da lista pública de provedores de e-mail} mx {do provedor que recebe o e-mail do domínio} other {dos registros de serviço do domínio}}. Confira antes de conectar.",
+      "none": "Nenhuma configuração de e-mail foi encontrada para este domínio. Digite os servidores abaixo.",
+      "google": "O e-mail deste domínio está no Google.",
+      "microsoft": "Esta caixa de correio está na Microsoft, cujos servidores não aceitam mais senhas de app."
+    },
     "membersHeading": "Caixas de e-mail dos membros",
     "membersDescription": "Quem conectou uma caixa de e-mail neste espaço de trabalho. Ninguém além do dono vê o que há nela.",
     "memberStatus": {

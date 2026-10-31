@@ -2557,6 +2557,13 @@
       "yandex": "Yandex ID ayarlarınızda e-posta için bir uygulama şifresi oluşturun.",
       "zoho": "Zoho Mail ayarlarında IMAP erişimini açın ve bir uygulama şifresi oluşturun."
     },
+    "discover": {
+      "looking": "Bu alan adının posta sunucuları aranıyor…",
+      "found": "{source, select, autoconfig {Alan adının kendi posta ayarlarından} ispdb {Herkese açık posta sağlayıcıları listesinden} mx {Alan adının postasını alan sağlayıcıdan} other {Alan adının servis kayıtlarından}} dolduruldu. Bağlanmadan önce kontrol edin.",
+      "none": "Bu alan adı için posta ayarı bulunamadı. Sunucularını aşağıya yazın.",
+      "google": "Bu alan adının postası Google'da.",
+      "microsoft": "Bu posta kutusu Microsoft'ta; sunucuları artık uygulama şifresi kabul etmiyor."
+    },
     "membersHeading": "Üyelerin posta kutuları",
     "membersDescription": "Bu çalışma alanında posta kutusu bağlamış olanlar. İçindekileri sahibinden başkası görmez.",
     "memberStatus": {

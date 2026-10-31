@@ -11,6 +11,10 @@
   about a page both can open; a run sets at most 3 and an agent has at most 20 waiting for one
   person. Turned off under *Agent reminders* in Settings → Preferences. Migration 0168.
 
+- **Mail servers found from the address.** Connecting a mailbox at a provider the form doesn't
+  list fills in its IMAP and SMTP servers from the domain's autoconfig file, the public provider
+  database, its MX records or its DNS service records, and says where they came from. No migration.
+
 - **Snippets in the Mail tab's composer.** A button beside the formatting puts one of the person's
   or the workspace's snippets into the message, found by title or trigger, its placeholders filled
   in (`{{page}}` is the subject). No migration.

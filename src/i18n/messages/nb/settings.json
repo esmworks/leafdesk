@@ -2557,6 +2557,13 @@
       "yandex": "Lag et app-passord for e-post i innstillingene for Yandex ID.",
       "zoho": "Slå på IMAP-tilgang i innstillingene for Zoho Mail, og lag et app-passord."
     },
+    "discover": {
+      "looking": "Slår opp e-postserverne til dette domenet…",
+      "found": "Fylt ut fra {source, select, autoconfig {domenets egne e-postinnstillinger} ispdb {den offentlige listen over e-postleverandører} mx {leverandøren som tar imot domenets e-post} other {domenets tjenesteposter}}. Sjekk dem før du kobler til.",
+      "none": "Fant ingen e-postinnstillinger for dette domenet. Skriv inn serverne nedenfor.",
+      "google": "E-posten til dette domenet ligger hos Google.",
+      "microsoft": "Denne postkassen ligger hos Microsoft, der serverne ikke lenger godtar app-passord."
+    },
     "membersHeading": "Medlemmenes postkasser",
     "membersDescription": "Hvem som har koblet til en postkasse i dette arbeidsområdet. Ingen andre enn eieren ser hva som er i den.",
     "memberStatus": {

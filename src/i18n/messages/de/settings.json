@@ -2557,6 +2557,13 @@
       "yandex": "Erstelle in den Einstellungen deiner Yandex ID ein App-Passwort für E-Mail.",
       "zoho": "Aktiviere in den Einstellungen von Zoho Mail den IMAP-Zugriff und erstelle ein App-Passwort."
     },
+    "discover": {
+      "looking": "Die Mailserver dieser Domain werden gesucht…",
+      "found": "Ausgefüllt aus {source, select, autoconfig {den eigenen Mail-Einstellungen der Domain} ispdb {der öffentlichen Liste der Mail-Anbieter} mx {dem Anbieter, der die Mail der Domain annimmt} other {den Diensteinträgen der Domain}}. Prüfen Sie sie vor dem Verbinden.",
+      "none": "Für diese Domain wurden keine Mail-Einstellungen gefunden. Geben Sie ihre Server unten ein.",
+      "google": "Die Mail dieser Domain liegt bei Google.",
+      "microsoft": "Dieses Postfach liegt bei Microsoft, dessen Server keine App-Passwörter mehr annehmen."
+    },
     "membersHeading": "Postfächer der Mitglieder",
     "membersDescription": "Wer in diesem Workspace ein Postfach verbunden hat. Was darin liegt, sieht nur dessen Inhaber.",
     "memberStatus": {

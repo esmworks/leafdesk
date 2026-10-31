@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { MailboxView, MailSettingsView } from "@/lib/mail";
+import type { DiscoveredMailServers } from "@/lib/mail-discover";
 import { AccessError } from "@/server/access";
+import { discoverMailServers } from "@/server/row-mail/discover";
 import { hideRowEmail, listRowEmails, type RowEmailList } from "@/server/row-mail/list";
 import { queueRowEmail, sendSoon, type RowEmailDraft } from "@/server/row-mail/send";
 import {
@@ -57,6 +59,11 @@ export async function setMailDatabasesAction(
 
 export async function connectMailboxAction(workspaceId: string, input: MailboxInput): Promise<ActionResult<MailboxView>> {
   return run((userId) => connectMailbox(userId, workspaceId, input));
+}
+
+/** The servers of the mailbox an address names, found in its domain's settings (null when none are). */
+export async function discoverMailServersAction(address: string): Promise<ActionResult<DiscoveredMailServers | null>> {
+  return run(() => discoverMailServers(typeof address === "string" ? address.slice(0, 320) : ""));
 }
 
 /** Begins connecting the member's mailbox by signing in with Google: the address to send the browser to. */

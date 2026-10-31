@@ -2557,6 +2557,13 @@
       "yandex": "Créez un mot de passe d’application pour la messagerie dans les paramètres de votre Yandex ID.",
       "zoho": "Activez l’accès IMAP dans les paramètres de Zoho Mail et créez un mot de passe d’application."
     },
+    "discover": {
+      "looking": "Recherche des serveurs de messagerie de ce domaine…",
+      "found": "Rempli à partir {source, select, autoconfig {des réglages de messagerie du domaine} ispdb {de la liste publique des fournisseurs de messagerie} mx {du fournisseur qui reçoit le courrier du domaine} other {des enregistrements de service du domaine}}. Vérifiez-les avant de vous connecter.",
+      "none": "Aucun réglage de messagerie n'a été trouvé pour ce domaine. Saisissez ses serveurs ci-dessous.",
+      "google": "Le courrier de ce domaine est chez Google.",
+      "microsoft": "Cette boîte aux lettres est chez Microsoft, dont les serveurs n'acceptent plus les mots de passe d'application."
+    },
     "membersHeading": "Boîtes mail des membres",
     "membersDescription": "Qui a connecté une boîte mail dans cet espace de travail. Personne d’autre que son propriétaire ne voit ce qu’elle contient.",
     "memberStatus": {

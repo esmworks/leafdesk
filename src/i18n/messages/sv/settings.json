@@ -2557,6 +2557,13 @@
       "yandex": "Skapa ett applösenord för e-post i inställningarna för ditt Yandex ID.",
       "zoho": "Slå på IMAP-åtkomst i Zoho Mails inställningar och skapa ett applösenord."
     },
+    "discover": {
+      "looking": "Letar upp domänens e-postservrar…",
+      "found": "Ifyllt från {source, select, autoconfig {domänens egna e-postinställningar} ispdb {den offentliga listan över e-postleverantörer} mx {leverantören som tar emot domänens e-post} other {domänens tjänsteposter}}. Kontrollera dem innan du ansluter.",
+      "none": "Inga e-postinställningar hittades för domänen. Skriv in dess servrar nedan.",
+      "google": "Domänens e-post finns hos Google.",
+      "microsoft": "Den här brevlådan finns hos Microsoft, vars servrar inte längre tar emot applösenord."
+    },
     "membersHeading": "Medlemmarnas brevlådor",
     "membersDescription": "Vem som har anslutit en brevlåda i den här arbetsytan. Ingen annan än ägaren ser vad som finns i den.",
     "memberStatus": {

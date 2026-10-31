@@ -2557,6 +2557,13 @@
       "yandex": "Hãy tạo mật khẩu ứng dụng cho thư trong cài đặt Yandex ID của bạn.",
       "zoho": "Hãy bật quyền truy cập IMAP trong cài đặt Zoho Mail và tạo mật khẩu ứng dụng."
     },
+    "discover": {
+      "looking": "Đang tìm máy chủ thư của tên miền này…",
+      "found": "Đã điền từ {source, select, autoconfig {cài đặt thư riêng của tên miền} ispdb {danh sách công khai các nhà cung cấp thư} mx {nhà cung cấp nhận thư của tên miền} other {bản ghi dịch vụ của tên miền}}. Hãy kiểm tra trước khi kết nối.",
+      "none": "Không tìm thấy cài đặt thư cho tên miền này. Nhập máy chủ bên dưới.",
+      "google": "Thư của tên miền này ở Google.",
+      "microsoft": "Hộp thư này ở Microsoft, máy chủ của họ không còn nhận mật khẩu ứng dụng."
+    },
     "membersHeading": "Hộp thư của thành viên",
     "membersDescription": "Ai đã kết nối hộp thư trong không gian làm việc này. Không ai ngoài chủ hộp thư thấy được nội dung bên trong.",
     "memberStatus": {

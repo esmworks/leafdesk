@@ -2557,6 +2557,13 @@
       "yandex": "Buat kata sandi aplikasi untuk email di pengaturan Yandex ID Anda.",
       "zoho": "Aktifkan akses IMAP di pengaturan Zoho Mail dan buat kata sandi aplikasi."
     },
+    "discover": {
+      "looking": "Mencari server email domain ini…",
+      "found": "Diisi dari {source, select, autoconfig {pengaturan email domain itu sendiri} ispdb {daftar publik penyedia email} mx {penyedia yang menerima email domain} other {catatan layanan domain}}. Periksa sebelum menghubungkan.",
+      "none": "Tidak ada pengaturan email untuk domain ini. Ketik servernya di bawah.",
+      "google": "Email domain ini ada di Google.",
+      "microsoft": "Kotak surat ini ada di Microsoft, yang servernya tidak lagi menerima sandi aplikasi."
+    },
     "membersHeading": "Kotak surat anggota",
     "membersDescription": "Siapa yang telah menghubungkan kotak surat di ruang kerja ini. Tidak ada yang melihat isinya selain pemiliknya.",
     "memberStatus": {

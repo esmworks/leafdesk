@@ -9,6 +9,14 @@ account, in Settings → Email and calendar, for that workspace only: the addres
 IMAP and SMTP server) and an app password made for Leafdesk. The mailbox is tried before it is
 kept, and its password is sealed like a connection's secrets (`LEAFDESK_ENCRYPTION_KEY`).
 
+For an address at another provider the form looks the servers up as it is typed and fills them in,
+saying where they came from: the domain's own autoconfig file (`autoconfig.<domain>` or its
+`.well-known` path, https only), the public provider database mail clients share
+(autoconfig.thunderbird.net), the provider that takes the domain's mail (its MX records), or its
+DNS service records (`_imaps._tcp`, `_submission._tcp`). Only the domain is sent anywhere, never the
+address. A domain whose mail is at Google picks Google; one at Microsoft says that Microsoft's
+servers no longer take app passwords. Servers typed by hand are never replaced.
+
 A member may connect up to five mailboxes in a workspace, a shared sales or support address beside
 their own, say; connecting an address again changes its mailbox. One of them is their default: the
 first one connected, or whichever they make it with *Make default*. When the default is

@@ -2557,6 +2557,13 @@
       "yandex": "Yandex ID 설정에서 메일용 앱 비밀번호를 만드세요.",
       "zoho": "Zoho Mail 설정에서 IMAP 액세스를 켜고 앱 비밀번호를 만드세요."
     },
+    "discover": {
+      "looking": "이 도메인의 메일 서버를 찾는 중…",
+      "found": "{source, select, autoconfig {도메인 자체 메일 설정} ispdb {메일 제공업체 공개 목록} mx {도메인 메일을 받는 제공업체} other {도메인의 서비스 레코드}}에서 채웠습니다. 연결하기 전에 확인하세요.",
+      "none": "이 도메인의 메일 설정을 찾지 못했습니다. 아래에 서버를 입력하세요.",
+      "google": "이 도메인의 메일은 Google에 있습니다.",
+      "microsoft": "이 메일함은 Microsoft에 있으며, 그 서버는 더 이상 앱 비밀번호를 받지 않습니다."
+    },
     "membersHeading": "멤버의 메일함",
     "membersDescription": "이 워크스페이스에서 메일함을 연결한 사람입니다. 메일함의 내용은 그 주인만 볼 수 있습니다.",
     "memberStatus": {

@@ -2557,6 +2557,13 @@
       "yandex": "Maak een app-wachtwoord voor mail in de instellingen van je Yandex ID.",
       "zoho": "Zet IMAP-toegang aan in de instellingen van Zoho Mail en maak een app-wachtwoord."
     },
+    "discover": {
+      "looking": "De mailservers van dit domein worden opgezocht…",
+      "found": "Ingevuld vanuit {source, select, autoconfig {de eigen mailinstellingen van het domein} ispdb {de openbare lijst van mailproviders} mx {de provider die de mail van het domein ontvangt} other {de servicerecords van het domein}}. Controleer ze voordat je verbindt.",
+      "none": "Er zijn geen mailinstellingen voor dit domein gevonden. Vul de servers hieronder in.",
+      "google": "De mail van dit domein staat bij Google.",
+      "microsoft": "Deze mailbox staat bij Microsoft, waarvan de servers geen app-wachtwoorden meer accepteren."
+    },
     "membersHeading": "Mailboxen van leden",
     "membersDescription": "Wie in deze werkruimte een mailbox heeft gekoppeld. Niemand behalve de eigenaar ziet wat erin staat.",
     "memberStatus": {
