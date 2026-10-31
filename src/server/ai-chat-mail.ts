@@ -238,7 +238,7 @@ async function readMail(userId: string, workspaceId: string, messageId: string, 
     throw error;
   });
   const row = thread.row ? `\n\nThe other party is the database row "${oneLine(thread.row.title) || "(untitled)"}" (page_id ${thread.row.rowId}).` : "";
-  const files = filesText(thread.files);
+  const files = filesText(thread.files, Math.min(FILES_CHARS, Math.floor(room / 4)));
   const path = mailPath(workspaceId, at);
   const entry = registerWeb(registry, {
     url: `${env.appUrl}${path}`,
@@ -256,8 +256,8 @@ const FILES_PER_MESSAGE = 20;
 const FILE_NAME_CHARS = 150;
 const FILES_CHARS = 5_000;
 
-/** The files of a thread's messages read_mail lists, to read with read_mail_attachment; "" without any. */
-function filesText(files: AiMailFiles[]): string {
+/** The files of a thread's messages read_mail lists, in about `max` characters, to read with read_mail_attachment; "" without any. */
+function filesText(files: AiMailFiles[], max: number): string {
   if (!files.length) return "";
   const lines = files.flatMap((f) => [
     `From ${f.from} (message_id ${f.messageId}):`,
@@ -268,7 +268,7 @@ function filesText(files: AiMailFiles[]): string {
     ...(f.attachments.length > FILES_PER_MESSAGE ? [`- and ${f.attachments.length - FILES_PER_MESSAGE} more`] : []),
   ]);
   let list = lines.join("\n");
-  if (list.length > FILES_CHARS) list = `${list.slice(0, list.lastIndexOf("\n", FILES_CHARS))}\n- … and more`;
+  if (list.length > max) list = `${list.slice(0, Math.max(0, list.lastIndexOf("\n", max)))}\n- … and more`;
   return `\n\nFiles of these messages (read one with ${MAIL_TOOL_NAMES.attachment}):\n${list}`;
 }
 
@@ -294,13 +294,15 @@ async function readMailAttachment(userId: string, workspaceId: string, args: Rec
       noImageModel: "No model here can look at images, so this image can't be read. Say so.",
       failed: "The image couldn't be read now. Answer with what you have.",
     }[read.problem];
-    return { content: `"${step.name}": ${why}`, isError: true };
+    // Without the file's name: it is the sender's words, and this answer isn't framed.
+    return { content: why, isError: true };
   }
 
   const length = read.text.length;
   const start = Math.max(1, Math.floor(Number(args.from_char) || 1));
-  if (start > length) return { content: `"${step.name}" has ${length} characters.`, isError: true };
+  if (start > length) return { content: `The file has ${length} characters.`, isError: true };
   const shown = read.text.slice(start - 1, start - 1 + Math.max(0, Math.min(FILE_CHARS, room - 1_000)));
+  if (!shown) return { content: "There is no room left in this request to read more of the file. Answer with what you have.", isError: true };
   const end = start + shown.length - 1;
   const more = end < length ? `Characters ${start}-${end} of ${length}: read on with from_char ${end + 1}.` : read.partial ? "Only the start of this long file was read." : undefined;
   const as = read.kind === "image" ? "The image's text and what it shows, as a model that looked at it wrote them." : undefined;

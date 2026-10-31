@@ -174,11 +174,13 @@ describe("read_mail_attachment", () => {
     const next = await read({ message_id: "m-1", file: "2", from_char: 30_001 }, 50_000);
     expect(next.content).not.toMatch(/read on with/);
     expect(await read({ message_id: "m-1", file: "2", from_char: 50_000 })).toMatchObject({ isError: true });
+    // No room left: said so, never an empty read that points back where it was.
+    expect(await read({ message_id: "m-1", file: "2" }, 1_000)).toMatchObject({ isError: true, content: expect.stringMatching(/no room left/) });
   });
 
   it("says why a file gives nothing, without a step", async () => {
     mocks.mailFileForAi.mockResolvedValueOnce({ name: "tarama.pdf", problem: "empty" });
-    expect(await read({ message_id: "m-1", file: "2" })).toEqual({ content: expect.stringMatching(/^"tarama.pdf": The file has no text to read/), isError: true });
+    expect(await read({ message_id: "m-1", file: "2" })).toEqual({ content: expect.stringMatching(/^The file has no text to read/), isError: true });
     mocks.mailFileForAi.mockResolvedValueOnce({ name: "foto.jpg", problem: "noImageModel" });
     expect((await read({ message_id: "m-1", file: "2" })).content).toMatch(/No model here can look at images/);
   });
