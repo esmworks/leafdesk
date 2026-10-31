@@ -116,5 +116,26 @@
     "removeRecipient": "Remover {address}",
     "recipientPlaceholder": "Nome ou endereço",
     "suggestions": "Endereços sugeridos"
+  },
+  "ai": {
+    "summarize": "Resumir",
+    "summarizeHint": "Resumir esta conversa com IA",
+    "summary": "Resumo",
+    "summarizing": "Resumindo…",
+    "resummarize": "Resumir de novo",
+    "newer": "{count, plural, one {Chegou # mensagem depois deste resumo.} other {Chegaram # mensagens depois deste resumo.}}",
+    "replyWithAi": "Responder com IA",
+    "write": "Escrever com IA",
+    "closeWriter": "Fechar o redator de IA",
+    "instruction": "O que a IA deve escrever",
+    "placeholder": "Diga à IA o que escrever…",
+    "placeholderReply": "O que a resposta deve dizer? Ou escolha Escrever resposta…",
+    "placeholderDraft": "Diga à IA o que mudar…",
+    "reply": "Escrever resposta",
+    "formal": "Mais formal",
+    "friendly": "Mais amigável",
+    "use": "Usar isto",
+    "useNote": "Substitui o que você escreveu acima da assinatura. Desfazer traz de volta.",
+    "mailFailed": "Não foi possível ler a mensagem no servidor de e-mail. Tente novamente em instantes."
   }
 }

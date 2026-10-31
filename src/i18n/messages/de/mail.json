@@ -116,5 +116,26 @@
     "removeRecipient": "{address} entfernen",
     "recipientPlaceholder": "Name oder Adresse",
     "suggestions": "Vorgeschlagene Adressen"
+  },
+  "ai": {
+    "summarize": "Zusammenfassen",
+    "summarizeHint": "Diese Unterhaltung mit KI zusammenfassen",
+    "summary": "Zusammenfassung",
+    "summarizing": "Wird zusammengefasst…",
+    "resummarize": "Erneut zusammenfassen",
+    "newer": "{count, plural, one {Nach dieser Zusammenfassung kam # Nachricht.} other {Nach dieser Zusammenfassung kamen # Nachrichten.}}",
+    "replyWithAi": "Mit KI antworten",
+    "write": "Mit KI schreiben",
+    "closeWriter": "KI-Schreibhilfe schließen",
+    "instruction": "Was die KI schreiben soll",
+    "placeholder": "Sag der KI, was sie schreiben soll…",
+    "placeholderReply": "Was soll die Antwort sagen? Oder wähle Antwort schreiben…",
+    "placeholderDraft": "Sag der KI, was sie ändern soll…",
+    "reply": "Antwort schreiben",
+    "formal": "Förmlicher",
+    "friendly": "Freundlicher",
+    "use": "Übernehmen",
+    "useNote": "Ersetzt, was du über deiner Signatur geschrieben hast. Rückgängig holt es zurück.",
+    "mailFailed": "Die Nachricht konnte nicht vom Mailserver gelesen werden. Versuche es gleich noch einmal."
   }
 }

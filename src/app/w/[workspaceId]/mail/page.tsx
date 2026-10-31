@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { MailApp } from "@/components/mail/mail-app";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { buttonClass } from "@/components/ui";
+import { aiAvailable } from "@/server/ai-writing";
 import { mailTabShown } from "@/server/mail-client/read";
 import { requireWorkspaceSession } from "@/server/session";
 
@@ -33,5 +34,5 @@ export default async function MailPage({ params }: { params: Promise<{ workspace
       </>
     );
   }
-  return <MailApp workspaceId={workspaceId} />;
+  return <MailApp workspaceId={workspaceId} ai={await aiAvailable(workspaceId)} />;
 }

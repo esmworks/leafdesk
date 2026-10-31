@@ -116,5 +116,26 @@
     "removeRecipient": "{address} を削除",
     "recipientPlaceholder": "名前またはアドレス",
     "suggestions": "候補のアドレス"
+  },
+  "ai": {
+    "summarize": "要約",
+    "summarizeHint": "この会話を AI で要約",
+    "summary": "要約",
+    "summarizing": "要約しています…",
+    "resummarize": "もう一度要約",
+    "newer": "{count, plural, other {この要約の後に # 件のメッセージが届きました。}}",
+    "replyWithAi": "AI で返信",
+    "write": "AI で書く",
+    "closeWriter": "AI ライターを閉じる",
+    "instruction": "AI に書いてほしい内容",
+    "placeholder": "AI に書く内容を伝える…",
+    "placeholderReply": "返信で伝えることは？ または「返信を書く」を選択…",
+    "placeholderDraft": "AI に変更内容を伝える…",
+    "reply": "返信を書く",
+    "formal": "よりフォーマルに",
+    "friendly": "より親しみやすく",
+    "use": "これを使う",
+    "useNote": "署名の上に書いた内容と置き換わります。元に戻すで戻せます。",
+    "mailFailed": "メールサーバーからメッセージを読み込めませんでした。しばらくしてからもう一度お試しください。"
   }
 }

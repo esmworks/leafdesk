@@ -116,5 +116,26 @@
     "removeRecipient": "Hapus {address}",
     "recipientPlaceholder": "Nama atau alamat",
     "suggestions": "Alamat yang disarankan"
+  },
+  "ai": {
+    "summarize": "Ringkas",
+    "summarizeHint": "Ringkas percakapan ini dengan AI",
+    "summary": "Ringkasan",
+    "summarizing": "Meringkas…",
+    "resummarize": "Ringkas lagi",
+    "newer": "{count, plural, other {# pesan masuk setelah ringkasan ini.}}",
+    "replyWithAi": "Balas dengan AI",
+    "write": "Tulis dengan AI",
+    "closeWriter": "Tutup penulis AI",
+    "instruction": "Yang perlu ditulis AI",
+    "placeholder": "Beri tahu AI apa yang harus ditulis…",
+    "placeholderReply": "Apa isi balasannya? Atau pilih Tulis balasan…",
+    "placeholderDraft": "Beri tahu AI apa yang harus diubah…",
+    "reply": "Tulis balasan",
+    "formal": "Lebih formal",
+    "friendly": "Lebih ramah",
+    "use": "Gunakan ini",
+    "useNote": "Menggantikan yang Anda tulis di atas tanda tangan. Urungkan akan mengembalikannya.",
+    "mailFailed": "Pesan tidak dapat dibaca dari server email. Coba lagi sebentar lagi."
   }
 }

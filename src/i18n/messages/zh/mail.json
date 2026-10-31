@@ -116,5 +116,26 @@
     "removeRecipient": "移除 {address}",
     "recipientPlaceholder": "姓名或地址",
     "suggestions": "建议的地址"
+  },
+  "ai": {
+    "summarize": "总结",
+    "summarizeHint": "用 AI 总结此对话",
+    "summary": "总结",
+    "summarizing": "正在总结…",
+    "resummarize": "重新总结",
+    "newer": "{count, plural, other {此总结之后又收到 # 封邮件。}}",
+    "replyWithAi": "用 AI 回复",
+    "write": "用 AI 写",
+    "closeWriter": "关闭 AI 写作助手",
+    "instruction": "AI 要写的内容",
+    "placeholder": "告诉 AI 要写什么…",
+    "placeholderReply": "回复要说什么？或选择“写回复”…",
+    "placeholderDraft": "告诉 AI 要改什么…",
+    "reply": "写回复",
+    "formal": "更正式",
+    "friendly": "更友好",
+    "use": "使用",
+    "useNote": "替换你在签名上方写的内容。撤销可恢复。",
+    "mailFailed": "无法从邮件服务器读取邮件。请稍后再试。"
   }
 }

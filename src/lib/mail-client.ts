@@ -264,6 +264,8 @@ export type MailThreadView = {
   subject: string;
   messages: MailMessageView[];
   row: MailThreadItem["row"];
+  /** The AI's summary asked for last, and the message it reaches up to (newer ones came after it when that isn't the last). */
+  summary: { text: string; messageId: string } | null;
 };
 
 /** A message written in the Mail tab. */

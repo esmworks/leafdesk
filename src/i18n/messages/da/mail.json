@@ -116,5 +116,26 @@
     "removeRecipient": "Fjern {address}",
     "recipientPlaceholder": "Navn eller adresse",
     "suggestions": "Foreslåede adresser"
+  },
+  "ai": {
+    "summarize": "Opsummer",
+    "summarizeHint": "Opsummer denne samtale med AI",
+    "summary": "Opsummering",
+    "summarizing": "Opsummerer…",
+    "resummarize": "Opsummer igen",
+    "newer": "{count, plural, one {# besked kom efter denne opsummering.} other {# beskeder kom efter denne opsummering.}}",
+    "replyWithAi": "Svar med AI",
+    "write": "Skriv med AI",
+    "closeWriter": "Luk AI-skriveren",
+    "instruction": "Hvad AI skal skrive",
+    "placeholder": "Fortæl AI, hvad den skal skrive…",
+    "placeholderReply": "Hvad skal svaret sige? Eller vælg Skriv svar…",
+    "placeholderDraft": "Fortæl AI, hvad den skal ændre…",
+    "reply": "Skriv svar",
+    "formal": "Mere formel",
+    "friendly": "Venligere",
+    "use": "Brug denne",
+    "useNote": "Erstatter det, du har skrevet over din signatur. Fortryd bringer det tilbage.",
+    "mailFailed": "Beskeden kunne ikke læses fra mailserveren. Prøv igen om lidt."
   }
 }

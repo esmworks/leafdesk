@@ -116,5 +116,26 @@
     "removeRecipient": "Poista {address}",
     "recipientPlaceholder": "Nimi tai osoite",
     "suggestions": "Ehdotetut osoitteet"
+  },
+  "ai": {
+    "summarize": "Tiivistä",
+    "summarizeHint": "Tiivistä tämä keskustelu tekoälyllä",
+    "summary": "Tiivistelmä",
+    "summarizing": "Tiivistetään…",
+    "resummarize": "Tiivistä uudelleen",
+    "newer": "{count, plural, one {Tämän tiivistelmän jälkeen tuli # viesti.} other {Tämän tiivistelmän jälkeen tuli # viestiä.}}",
+    "replyWithAi": "Vastaa tekoälyllä",
+    "write": "Kirjoita tekoälyllä",
+    "closeWriter": "Sulje tekoälykirjoittaja",
+    "instruction": "Mitä tekoälyn pitää kirjoittaa",
+    "placeholder": "Kerro tekoälylle, mitä kirjoittaa…",
+    "placeholderReply": "Mitä vastauksen pitää sanoa? Tai valitse Kirjoita vastaus…",
+    "placeholderDraft": "Kerro tekoälylle, mitä muuttaa…",
+    "reply": "Kirjoita vastaus",
+    "formal": "Muodollisempi",
+    "friendly": "Ystävällisempi",
+    "use": "Käytä tätä",
+    "useNote": "Korvaa sen, mitä kirjoitit allekirjoituksesi yläpuolelle. Kumoa palauttaa sen.",
+    "mailFailed": "Viestiä ei voitu lukea sähköpostipalvelimelta. Yritä hetken päästä uudelleen."
   }
 }

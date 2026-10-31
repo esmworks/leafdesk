@@ -116,5 +116,26 @@
     "removeRecipient": "Rimuovi {address}",
     "recipientPlaceholder": "Nome o indirizzo",
     "suggestions": "Indirizzi suggeriti"
+  },
+  "ai": {
+    "summarize": "Riassumi",
+    "summarizeHint": "Riassumi questa conversazione con l'IA",
+    "summary": "Riassunto",
+    "summarizing": "Riassunto in corso…",
+    "resummarize": "Riassumi di nuovo",
+    "newer": "{count, plural, one {Dopo questo riassunto è arrivato # messaggio.} other {Dopo questo riassunto sono arrivati # messaggi.}}",
+    "replyWithAi": "Rispondi con l'IA",
+    "write": "Scrivi con l'IA",
+    "closeWriter": "Chiudi l'assistente di scrittura IA",
+    "instruction": "Cosa deve scrivere l'IA",
+    "placeholder": "Di' all'IA cosa scrivere…",
+    "placeholderReply": "Cosa deve dire la risposta? Oppure scegli Scrivi risposta…",
+    "placeholderDraft": "Di' all'IA cosa cambiare…",
+    "reply": "Scrivi risposta",
+    "formal": "Più formale",
+    "friendly": "Più cordiale",
+    "use": "Usa questo",
+    "useNote": "Sostituisce ciò che hai scritto sopra la firma. Annulla lo ripristina.",
+    "mailFailed": "Non è stato possibile leggere il messaggio dal server di posta. Riprova tra poco."
   }
 }

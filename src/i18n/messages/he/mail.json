@@ -116,5 +116,26 @@
     "removeRecipient": "הסרת {address}",
     "recipientPlaceholder": "שם או כתובת",
     "suggestions": "כתובות מוצעות"
+  },
+  "ai": {
+    "summarize": "סיכום",
+    "summarizeHint": "סכם את השיחה הזו עם AI",
+    "summary": "סיכום",
+    "summarizing": "מסכם…",
+    "resummarize": "סכם שוב",
+    "newer": "{count, plural, one {הודעה אחת הגיעה אחרי הסיכום הזה.} other {# הודעות הגיעו אחרי הסיכום הזה.}}",
+    "replyWithAi": "השב עם AI",
+    "write": "כתוב עם AI",
+    "closeWriter": "סגור את כותב ה-AI",
+    "instruction": "מה ה-AI צריך לכתוב",
+    "placeholder": "אמור ל-AI מה לכתוב…",
+    "placeholderReply": "מה התשובה צריכה לומר? או בחר כתוב תשובה…",
+    "placeholderDraft": "אמור ל-AI מה לשנות…",
+    "reply": "כתוב תשובה",
+    "formal": "רשמי יותר",
+    "friendly": "ידידותי יותר",
+    "use": "השתמש בזה",
+    "useNote": "מחליף את מה שכתבת מעל החתימה. ביטול מחזיר אותו.",
+    "mailFailed": "לא ניתן היה לקרוא את ההודעה משרת הדואר. נסה שוב בעוד רגע."
   }
 }

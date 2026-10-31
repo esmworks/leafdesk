@@ -116,5 +116,26 @@
     "removeRecipient": "{address} adresini kaldır",
     "recipientPlaceholder": "Ad veya adres",
     "suggestions": "Önerilen adresler"
+  },
+  "ai": {
+    "summarize": "Özetle",
+    "summarizeHint": "Bu konuşmayı AI ile özetle",
+    "summary": "Özet",
+    "summarizing": "Özetleniyor…",
+    "resummarize": "Yeniden özetle",
+    "newer": "{count, plural, one {Bu özetten sonra # ileti geldi.} other {Bu özetten sonra # ileti geldi.}}",
+    "replyWithAi": "AI ile yanıtla",
+    "write": "AI ile yaz",
+    "closeWriter": "AI yazıcıyı kapat",
+    "instruction": "AI ne yazsın",
+    "placeholder": "AI'a ne yazacağını söyle…",
+    "placeholderReply": "Yanıtta ne denmeli? Ya da Yanıt yaz'ı seç…",
+    "placeholderDraft": "AI'a neyi değiştireceğini söyle…",
+    "reply": "Yanıt yaz",
+    "formal": "Daha resmi",
+    "friendly": "Daha samimi",
+    "use": "Bunu kullan",
+    "useNote": "İmzanın üstünde yazdıklarının yerini alır. Geri al ile eski hâline döner.",
+    "mailFailed": "İleti posta sunucusundan okunamadı. Biraz sonra yeniden dene."
   }
 }

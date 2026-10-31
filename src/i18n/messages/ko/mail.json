@@ -116,5 +116,26 @@
     "removeRecipient": "{address} 삭제",
     "recipientPlaceholder": "이름 또는 주소",
     "suggestions": "추천 주소"
+  },
+  "ai": {
+    "summarize": "요약",
+    "summarizeHint": "이 대화를 AI로 요약",
+    "summary": "요약",
+    "summarizing": "요약하는 중…",
+    "resummarize": "다시 요약",
+    "newer": "{count, plural, other {이 요약 후에 메시지 #개가 도착했습니다.}}",
+    "replyWithAi": "AI로 답장",
+    "write": "AI로 쓰기",
+    "closeWriter": "AI 작성 도우미 닫기",
+    "instruction": "AI가 쓸 내용",
+    "placeholder": "AI에게 쓸 내용을 알려 주세요…",
+    "placeholderReply": "답장에 어떤 내용을 담을까요? 또는 답장 쓰기를 선택하세요…",
+    "placeholderDraft": "AI에게 바꿀 내용을 알려 주세요…",
+    "reply": "답장 쓰기",
+    "formal": "더 격식 있게",
+    "friendly": "더 친근하게",
+    "use": "이것 사용",
+    "useNote": "서명 위에 쓴 내용을 대체합니다. 실행 취소로 되돌릴 수 있습니다.",
+    "mailFailed": "메일 서버에서 메시지를 읽지 못했습니다. 잠시 후 다시 시도하세요."
   }
 }

@@ -116,5 +116,26 @@
     "removeRecipient": "ลบ {address}",
     "recipientPlaceholder": "ชื่อหรือที่อยู่",
     "suggestions": "ที่อยู่ที่แนะนำ"
+  },
+  "ai": {
+    "summarize": "สรุป",
+    "summarizeHint": "สรุปบทสนทนานี้ด้วย AI",
+    "summary": "สรุป",
+    "summarizing": "กำลังสรุป…",
+    "resummarize": "สรุปอีกครั้ง",
+    "newer": "{count, plural, other {มีข้อความเข้ามาอีก # ข้อความหลังจากสรุปนี้}}",
+    "replyWithAi": "ตอบกลับด้วย AI",
+    "write": "เขียนด้วย AI",
+    "closeWriter": "ปิดผู้ช่วยเขียน AI",
+    "instruction": "สิ่งที่ AI ควรเขียน",
+    "placeholder": "บอก AI ว่าจะเขียนอะไร…",
+    "placeholderReply": "คำตอบควรบอกอะไร? หรือเลือกเขียนคำตอบ…",
+    "placeholderDraft": "บอก AI ว่าจะเปลี่ยนอะไร…",
+    "reply": "เขียนคำตอบ",
+    "formal": "เป็นทางการขึ้น",
+    "friendly": "เป็นกันเองขึ้น",
+    "use": "ใช้ข้อความนี้",
+    "useNote": "แทนที่สิ่งที่คุณเขียนไว้เหนือลายเซ็น กดเลิกทำเพื่อนำกลับมา",
+    "mailFailed": "อ่านข้อความจากเซิร์ฟเวอร์อีเมลไม่ได้ ลองอีกครั้งในอีกสักครู่"
   }
 }

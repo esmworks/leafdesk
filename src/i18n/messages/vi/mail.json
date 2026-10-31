@@ -116,5 +116,26 @@
     "removeRecipient": "Xóa {address}",
     "recipientPlaceholder": "Tên hoặc địa chỉ",
     "suggestions": "Địa chỉ gợi ý"
+  },
+  "ai": {
+    "summarize": "Tóm tắt",
+    "summarizeHint": "Tóm tắt cuộc trò chuyện này bằng AI",
+    "summary": "Tóm tắt",
+    "summarizing": "Đang tóm tắt…",
+    "resummarize": "Tóm tắt lại",
+    "newer": "{count, plural, other {Có thêm # thư đến sau bản tóm tắt này.}}",
+    "replyWithAi": "Trả lời bằng AI",
+    "write": "Viết bằng AI",
+    "closeWriter": "Đóng trình viết AI",
+    "instruction": "Điều AI cần viết",
+    "placeholder": "Cho AI biết cần viết gì…",
+    "placeholderReply": "Câu trả lời nên nói gì? Hoặc chọn Viết trả lời…",
+    "placeholderDraft": "Cho AI biết cần thay đổi gì…",
+    "reply": "Viết trả lời",
+    "formal": "Trang trọng hơn",
+    "friendly": "Thân thiện hơn",
+    "use": "Dùng nội dung này",
+    "useNote": "Thay cho phần bạn đã viết phía trên chữ ký. Hoàn tác sẽ khôi phục lại.",
+    "mailFailed": "Không đọc được thư từ máy chủ thư. Hãy thử lại sau giây lát."
   }
 }

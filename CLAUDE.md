@@ -173,7 +173,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   carry data out too: a write of the model's (agent runs, the chat, approved proposals) sets
   `WriteActor.model`, and `writeBlocks` turns its media that would load another site into links
   (`lib/model-media.ts`); a new place a model writes a page sets it. Outside text goes to the model
-  through `connections/tools.ts` `externalData`/`frameData` (a frame with a new id each time);
+  through `ai/frame.ts` `externalData`/`frameData` (a frame with a new id each time);
   `ai/index.ts` strips invisible characters from all of it (`lib/invisible-text.ts`).
 - **Search.** `src/server/pages.ts` `searchPages` merges `fullTextSearch` with semantic search;
   `semantic-search.ts` `searchScope` is the one place a search's scope and filters become SQL, used
@@ -275,7 +275,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `Signature` node, a `div[data-signature]` that `outgoing.ts` puts under `-- ` in the text part,
   and row emails start with its text; one pasted with images or tables is kept whole inside
   `div[data-pasted]`, `lib/pasted-signature.ts` (its cleaning rules in `-config.ts`), the editor's `PastedSignature` atom, shown in a
-  shadow root by `components/mail/pasted-signature.tsx` and cleaned on its own terms when sent), follow-up
+  shadow root by `components/mail/pasted-signature.tsx` and cleaned on its own terms when sent;
+  AI: `mail-client/ai.ts` behind `/api/ai/mail` (prompts pure in `ai-prompts.ts`), reading bodies
+  with `read.ts` `messageForAi`, which never marks them seen; a thread's summary is
+  `mail_message.summary` on its newest message; the composer's writer `composer-ai.tsx` replaces
+  only `writing-range.ts`'s part, above the signature and the quoted mail), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
   `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner

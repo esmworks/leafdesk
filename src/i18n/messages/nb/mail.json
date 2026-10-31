@@ -116,5 +116,26 @@
     "removeRecipient": "Fjern {address}",
     "recipientPlaceholder": "Navn eller adresse",
     "suggestions": "Foreslåtte adresser"
+  },
+  "ai": {
+    "summarize": "Oppsummer",
+    "summarizeHint": "Oppsummer denne samtalen med KI",
+    "summary": "Oppsummering",
+    "summarizing": "Oppsummerer…",
+    "resummarize": "Oppsummer på nytt",
+    "newer": "{count, plural, one {# melding kom etter denne oppsummeringen.} other {# meldinger kom etter denne oppsummeringen.}}",
+    "replyWithAi": "Svar med KI",
+    "write": "Skriv med KI",
+    "closeWriter": "Lukk KI-skriveren",
+    "instruction": "Hva KI skal skrive",
+    "placeholder": "Fortell KI hva den skal skrive…",
+    "placeholderReply": "Hva skal svaret si? Eller velg Skriv svar…",
+    "placeholderDraft": "Fortell KI hva den skal endre…",
+    "reply": "Skriv svar",
+    "formal": "Mer formell",
+    "friendly": "Vennligere",
+    "use": "Bruk denne",
+    "useNote": "Erstatter det du har skrevet over signaturen din. Angre henter det tilbake.",
+    "mailFailed": "Meldingen kunne ikke leses fra e-postserveren. Prøv igjen om litt."
   }
 }

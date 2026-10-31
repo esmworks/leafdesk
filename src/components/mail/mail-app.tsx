@@ -106,7 +106,8 @@ const forPage = (e: KeyboardEvent) => {
 };
 
 /** The Mail page: a folder's threads beside the open one, with search and keyboard shortcuts. */
-export function MailApp({ workspaceId }: { workspaceId: string }) {
+/** `ai`: the workspace has AI on, so threads offer a summary and the composer its writer (server/mail-client/ai.ts). */
+export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean }) {
   const t = useTranslations("mail");
   const folderName = useFolderName();
   const search = useSearchParams();
@@ -513,6 +514,8 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
       </section>
       {composing ? (
         <Composer
+          workspaceId={workspaceId}
+          ai={ai}
           box={box}
           boxes={boxes}
           mode="new"
@@ -528,6 +531,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
         <ThreadView
           key={threadId}
           workspaceId={workspaceId}
+          ai={ai}
           box={box}
           folder={folder}
           threadId={threadId}

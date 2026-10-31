@@ -116,5 +116,26 @@
     "removeRecipient": "Ta bort {address}",
     "recipientPlaceholder": "Namn eller adress",
     "suggestions": "Föreslagna adresser"
+  },
+  "ai": {
+    "summarize": "Sammanfatta",
+    "summarizeHint": "Sammanfatta den här konversationen med AI",
+    "summary": "Sammanfattning",
+    "summarizing": "Sammanfattar…",
+    "resummarize": "Sammanfatta igen",
+    "newer": "{count, plural, one {# meddelande kom efter den här sammanfattningen.} other {# meddelanden kom efter den här sammanfattningen.}}",
+    "replyWithAi": "Svara med AI",
+    "write": "Skriv med AI",
+    "closeWriter": "Stäng AI-skrivaren",
+    "instruction": "Vad AI ska skriva",
+    "placeholder": "Berätta för AI vad den ska skriva…",
+    "placeholderReply": "Vad ska svaret säga? Eller välj Skriv svar…",
+    "placeholderDraft": "Berätta för AI vad den ska ändra…",
+    "reply": "Skriv svar",
+    "formal": "Mer formell",
+    "friendly": "Vänligare",
+    "use": "Använd detta",
+    "useNote": "Ersätter det du skrivit ovanför din signatur. Ångra tar tillbaka det.",
+    "mailFailed": "Meddelandet kunde inte läsas från e-postservern. Försök igen om en stund."
   }
 }

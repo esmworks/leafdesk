@@ -116,5 +116,26 @@
     "removeRecipient": "{address} verwijderen",
     "recipientPlaceholder": "Naam of adres",
     "suggestions": "Voorgestelde adressen"
+  },
+  "ai": {
+    "summarize": "Samenvatten",
+    "summarizeHint": "Dit gesprek samenvatten met AI",
+    "summary": "Samenvatting",
+    "summarizing": "Bezig met samenvatten…",
+    "resummarize": "Opnieuw samenvatten",
+    "newer": "{count, plural, one {Na deze samenvatting kwam # bericht binnen.} other {Na deze samenvatting kwamen # berichten binnen.}}",
+    "replyWithAi": "Beantwoorden met AI",
+    "write": "Schrijven met AI",
+    "closeWriter": "AI-schrijfhulp sluiten",
+    "instruction": "Wat de AI moet schrijven",
+    "placeholder": "Vertel de AI wat er moet komen te staan…",
+    "placeholderReply": "Wat moet het antwoord zeggen? Of kies Antwoord schrijven…",
+    "placeholderDraft": "Vertel de AI wat er moet veranderen…",
+    "reply": "Antwoord schrijven",
+    "formal": "Formeler",
+    "friendly": "Vriendelijker",
+    "use": "Gebruiken",
+    "useNote": "Vervangt wat je boven je handtekening hebt geschreven. Ongedaan maken zet het terug.",
+    "mailFailed": "Het bericht kon niet van de mailserver worden gelezen. Probeer het zo opnieuw."
   }
 }

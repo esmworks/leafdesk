@@ -116,5 +116,26 @@
     "removeRecipient": "Usuń {address}",
     "recipientPlaceholder": "Imię i nazwisko lub adres",
     "suggestions": "Sugerowane adresy"
+  },
+  "ai": {
+    "summarize": "Podsumuj",
+    "summarizeHint": "Podsumuj tę rozmowę za pomocą AI",
+    "summary": "Podsumowanie",
+    "summarizing": "Podsumowywanie…",
+    "resummarize": "Podsumuj ponownie",
+    "newer": "{count, plural, one {Po tym podsumowaniu przyszła # wiadomość.} few {Po tym podsumowaniu przyszły # wiadomości.} many {Po tym podsumowaniu przyszło # wiadomości.} other {Po tym podsumowaniu przyszło # wiadomości.}}",
+    "replyWithAi": "Odpowiedz z AI",
+    "write": "Pisz z AI",
+    "closeWriter": "Zamknij asystenta pisania AI",
+    "instruction": "Co ma napisać AI",
+    "placeholder": "Powiedz AI, co napisać…",
+    "placeholderReply": "Co ma zawierać odpowiedź? Albo wybierz Napisz odpowiedź…",
+    "placeholderDraft": "Powiedz AI, co zmienić…",
+    "reply": "Napisz odpowiedź",
+    "formal": "Bardziej formalnie",
+    "friendly": "Bardziej przyjaźnie",
+    "use": "Użyj tego",
+    "useNote": "Zastępuje to, co napisano nad podpisem. Cofnij przywraca poprzednią treść.",
+    "mailFailed": "Nie udało się odczytać wiadomości z serwera poczty. Spróbuj ponownie za chwilę."
   }
 }

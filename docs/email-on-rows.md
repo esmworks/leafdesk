@@ -114,6 +114,9 @@ search, `j` and `k` next and previous thread, `o` or Enter open the first; in a 
 `#` trash, `!` junk, `s` star, `u` unread, `r` reply, `a` reply all, `f` forward, Escape back to
 the list. Backups leave the Mail tab's index out: it is read again once the mailbox is connected.
 
+With AI on in the workspace, a thread can be summarized and the composer has an AI writer (see
+[AI in the Mail tab](ai.md#ai-features)).
+
 Each mailbox can have a signature, written under Account › Email and calendar with the same
 formatting a message has, or pasted there from another mail program. A pasted signature with
 images or a table layout is kept as it came (images from web addresses or carried in it, sizes,

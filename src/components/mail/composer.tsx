@@ -1,17 +1,22 @@
 "use client";
 
 import type { Editor } from "@tiptap/core";
-import { Check, ChevronDown, ChevronLeft, Paperclip, Send, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, Paperclip, Send, Sparkles, Trash2, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { sendMailAction } from "@/app/actions/mail";
+import { lazyPart } from "@/components/lazy-part";
 import { showToast } from "@/components/toast";
 import { Button, cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { MAX_COMPOSE_BYTES, type MailboxTabView, type MailMessageView } from "@/lib/mail-client";
+import type { MailWriteAction } from "@/lib/mail-ai";
 import { parseRecipient, showAddress, splitAddresses, startFrom, type ComposeMode, type ComposeSource, type Recipient } from "./compose-start";
 import { FormatBar, MailEditorContent, putSignature, useMailEditor, writeBelow } from "./mail-editor";
 import { MailboxMark } from "./mail-sidebar";
 import { RecipientField } from "./recipient-field";
+
+// The AI writer loads the first time it is opened.
+const ComposerAi = lazyPart(() => import("./composer-ai").then((m) => m.ComposerAi));
 
 /** A new message left unsent (the pane closed, another thread opened): it comes back as it was, until sent or discarded. */
 type Kept = { fromId: string; to: Recipient[]; cc: Recipient[]; bcc: Recipient[]; subject: string; html: string; files: File[] };
@@ -21,9 +26,13 @@ let kept: Kept | null = null;
  * Writes a message: a new one in the page's pane (`layout` "pane", from any of the person's
  * mailboxes), or an answer or forward of `source` under its thread (the server adds the thread's
  * references, and a forward's files). Formatting is the editor's (mail-editor.tsx); sends with
- * ⌘/Ctrl+Enter; files come from the button or dropped on it.
+ * ⌘/Ctrl+Enter; files come from the button or dropped on it. With `ai`, the AI writer
+ * (composer-ai.tsx) opens from beside the formatting, or at once running `aiStart`.
  */
 export function Composer({
+  workspaceId,
+  ai,
+  aiStart = null,
   box,
   boxes = [box],
   mode,
@@ -32,6 +41,9 @@ export function Composer({
   onSent,
   onClose,
 }: {
+  workspaceId: string;
+  ai: boolean;
+  aiStart?: MailWriteAction | null;
   box: MailboxTabView;
   boxes?: MailboxTabView[];
   mode: ComposeMode;
@@ -41,25 +53,23 @@ export function Composer({
   onClose: () => void;
 }) {
   const t = useTranslations("mail.composer");
+  const tai = useTranslations("mail.ai");
   const locale = useLocale();
   const when = (iso: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
   const keeps = mode === "new";
   const [initial] = useState(() => {
-    if (keeps && kept) return { ...kept, from: boxes.find((b) => b.id === kept!.fromId) ?? box, restored: true };
-    const start = startFrom(
-      mode,
-      box,
-      source,
-      (m) => t("replyHeader", { date: when(m.sentAt), name: m.from.name || m.from.address }),
-      (m: MailMessageView) => [
-        t("forwardedHeader"),
-        `${t("from")}: ${showAddress(m.from)}`,
-        `${t("date")}: ${when(m.sentAt)}`,
-        `${t("subject")}: ${m.subject}`,
-        `${t("to")}: ${m.to.map(showAddress).join(", ")}`,
-      ],
-    );
-    return { ...start, from: box, bcc: [] as Recipient[], files: [] as File[], restored: false };
+    if (keeps && kept) return { ...kept, from: boxes.find((b) => b.id === kept!.fromId) ?? box, restored: true, headers: [] as string[] };
+    const header = (m: MailMessageView) => t("replyHeader", { date: when(m.sentAt), name: m.from.name || m.from.address });
+    const start = startFrom(mode, box, source, header, (m: MailMessageView) => [
+      t("forwardedHeader"),
+      `${t("from")}: ${showAddress(m.from)}`,
+      `${t("date")}: ${when(m.sentAt)}`,
+      `${t("subject")}: ${m.subject}`,
+      `${t("to")}: ${m.to.map(showAddress).join(", ")}`,
+    ]);
+    // The first line of what is quoted under the message: the AI writer works above it.
+    const headers = source ? [header(source.message), t("forwardedHeader")] : [];
+    return { ...start, from: box, bcc: [] as Recipient[], files: [] as File[], restored: false, headers };
   });
   const [from, setFrom] = useState(initial.from);
   const [to, setTo] = useState(initial.to);
@@ -73,6 +83,7 @@ export function Composer({
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [dropping, setDropping] = useState(false);
+  const [writer, setWriter] = useState<{ start: MailWriteAction | null } | null>(ai && aiStart ? { start: aiStart } : null);
   const typed = useRef({ to: "", cc: "", bcc: "" });
   const html = useRef(initial.html);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -234,6 +245,11 @@ export function Composer({
           <FormatBar editor={editor} linking={linking} setLinking={setLinking} />
         </div>
       )}
+      {ai && editor && (
+        <IconButton label={tai("write")} aria-pressed={!!writer} className={cn("h-8 w-8 text-fg-icon", writer && "bg-bg-active text-fg")} onClick={() => setWriter(writer ? null : { start: null })}>
+          <Sparkles className="h-4 w-4" />
+        </IconButton>
+      )}
       <span className="flex-1" />
       <IconButton label={t("attach")} className="h-8 w-8 text-fg-icon" onClick={() => fileInput.current?.click()}>
         <Paperclip className="h-4 w-4" />
@@ -319,6 +335,22 @@ export function Composer({
         </>
       )}
       {error && <p className={cn("pb-2 text-sm text-danger", pane ? "px-4" : "px-3")}>{error}</p>}
+      {writer && editor && (
+        <ComposerAi
+          editor={editor}
+          workspaceId={workspaceId}
+          mailboxId={from.id}
+          answering={source && mode !== "new" ? { id: source.message.id, reply: answering } : null}
+          subject={subject}
+          to={to.map((r) => r.name || r.address)}
+          headers={initial.headers}
+          start={writer.start}
+          onClose={() => {
+            setWriter(null);
+            editor.commands.focus();
+          }}
+        />
+      )}
       {footer}
       {dropping && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] border-2 border-dashed border-accent bg-bg/80 text-sm font-medium text-accent">

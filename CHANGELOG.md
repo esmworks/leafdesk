@@ -4,6 +4,14 @@
 
 ### Added
 
+- **AI in the Mail tab.** A thread's *Summarize* button writes a short summary of the
+  conversation under its subject, kept for the next visit and marked when newer messages came
+  after it. *Reply with AI* under a message drafts an answer, and the sparkles button in the
+  composer opens a writer that drafts a reply from a few words, improves, shortens, corrects,
+  translates or changes the tone of what is written, or follows a saved prompt; its result is
+  shown first and replaces only the text above the signature and the quoted mail, in one step
+  that can be undone. Reading mail for the AI doesn't mark it as read, and it follows the
+  workspace's AI setting. Migration 0167.
 - **Signatures for mailboxes.** Each mailbox gets a signature, written under Account › Email
   and calendar with a message's formatting (bold, italic, lists, links), or pasted from another
   mail program, which keeps it as it came: its images, table layout, sizes and colors, sent as
