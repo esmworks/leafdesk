@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { MailAction, MailBody, MailboxTabView, MailDraftInput, MailFolderView, MailThreadPage, MailThreadView } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
-import { getThread, listMailboxes, listThreads, openMailbox, readBody, refreshFolder, refreshMailbox } from "@/server/mail-client/read";
+import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, readBody, refreshFolder, refreshMailbox } from "@/server/mail-client/read";
 import { mailAction, sendMail } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
@@ -52,6 +52,10 @@ export async function getThreadAction(input: { mailboxId: string; threadId: stri
 
 export async function readBodyAction(input: { id: string; images?: boolean }): Promise<ActionResult<MailBody>> {
   return run((userId) => readBody(userId, input));
+}
+
+export async function prefetchBodiesAction(input: { ids: string[] }): Promise<ActionResult<null>> {
+  return run((userId) => prefetchBodies(userId, input));
 }
 
 export async function refreshMailboxAction(mailboxId: string): Promise<ActionResult<MailboxTabView>> {
