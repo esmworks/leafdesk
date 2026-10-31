@@ -22,6 +22,15 @@
   "firstReadHint": "Den nyeste e-posten din vises om et øyeblikk. Eldre e-post, opptil tre måneder tilbake, kommer inn i løpet av de neste minuttene.",
   "empty": "Ingen e-post her.",
   "emptySearch": "Ingen e-post samsvarer.",
+  "emptyFolder": {
+    "trash": "Tøm papirkurven",
+    "junk": "Tøm søppelpost",
+    "trashTitle": "Tømme papirkurven?",
+    "junkTitle": "Tømme søppelpost?",
+    "body": "Alle meldinger i {folder} slettes for godt, også på e-postserveren. Dette kan ikke angres.",
+    "trashDone": "Papirkurven er tømt",
+    "junkDone": "Søppelpost er tømt"
+  },
   "noneOpen": "Velg en samtale for å lese den.",
   "loading": "Laster …",
   "loadFailed": "E-posten kunne ikke lastes. Prøv igjen om litt.",

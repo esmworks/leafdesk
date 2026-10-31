@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Empty trash in the Mail tab.** The trash and junk folders get *Empty trash* and *Empty junk*
+  over their list: after asking, every message in the folder is deleted for good, on the mail
+  server too, including any not listed yet. No migration.
+
 - **Pictures in Mail tab messages.** A picture pasted into a message, or dropped on its text,
   goes where it is put and is sent as part of the message (PNG, JPEG, GIF or WebP, within the
   files' limit), not as an attachment; other files dropped are still attached. Drafts keep their

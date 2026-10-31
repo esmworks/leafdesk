@@ -22,6 +22,15 @@
   "firstReadHint": "Din senaste e-post visas om en stund. Äldre e-post, upp till tre månader tillbaka, kommer in de närmaste minuterna.",
   "empty": "Ingen e-post här.",
   "emptySearch": "Ingen e-post matchar.",
+  "emptyFolder": {
+    "trash": "Töm papperskorgen",
+    "junk": "Töm skräppost",
+    "trashTitle": "Tömma papperskorgen?",
+    "junkTitle": "Tömma skräpposten?",
+    "body": "Alla meddelanden i {folder} raderas för alltid, även på e-postservern. Det går inte att ångra.",
+    "trashDone": "Papperskorgen tömd",
+    "junkDone": "Skräpposten tömd"
+  },
   "noneOpen": "Välj en konversation för att läsa den.",
   "loading": "Läser in …",
   "loadFailed": "E-posten kunde inte läsas in. Försök igen om en stund.",

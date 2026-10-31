@@ -22,6 +22,15 @@
   "firstReadHint": "最新邮件稍后显示。最多三个月前的旧邮件会在接下来几分钟内陆续载入。",
   "empty": "这里没有邮件。",
   "emptySearch": "没有匹配的邮件。",
+  "emptyFolder": {
+    "trash": "清空废纸篓",
+    "junk": "清空垃圾邮件",
+    "trashTitle": "清空废纸篓？",
+    "junkTitle": "清空垃圾邮件？",
+    "body": "{folder} 中的所有邮件都会被永久删除，邮件服务器上也是。此操作无法撤销。",
+    "trashDone": "废纸篓已清空",
+    "junkDone": "垃圾邮件已清空"
+  },
   "noneOpen": "选择一个会话即可阅读。",
   "loading": "加载中…",
   "loadFailed": "无法加载邮件。请稍后重试。",

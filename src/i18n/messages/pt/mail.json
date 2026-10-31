@@ -22,6 +22,15 @@
   "firstReadHint": "Seus e-mails mais recentes aparecem em instantes. Os mais antigos, de até três meses atrás, chegam nos próximos minutos.",
   "empty": "Nenhum e-mail aqui.",
   "emptySearch": "Nenhum e-mail encontrado.",
+  "emptyFolder": {
+    "trash": "Esvaziar lixeira",
+    "junk": "Esvaziar spam",
+    "trashTitle": "Esvaziar a lixeira?",
+    "junkTitle": "Esvaziar o spam?",
+    "body": "Todas as mensagens em {folder} são excluídas para sempre, também no servidor de e-mail. Isso não pode ser desfeito.",
+    "trashDone": "Lixeira esvaziada",
+    "junkDone": "Spam esvaziado"
+  },
   "noneOpen": "Escolha uma conversa para lê-la.",
   "loading": "Carregando…",
   "loadFailed": "Não foi possível carregar os e-mails. Tente novamente em instantes.",

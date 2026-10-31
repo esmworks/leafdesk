@@ -99,7 +99,8 @@ From the open thread: reply, reply all and forward (with its files), archive, ju
 mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
 trash is for good. A right click on a thread in the list opens the same answers and moves without
 opening it, plus *Move to* any of the mailbox's folders (not Sent or Drafts), the sender's other
-mail (a `from:` search), *Open in new tab* and *Copy link*. *New message* opens beside the list, where the open thread would be, and Back
+mail (a `from:` search), *Open in new tab* and *Copy link*. *Empty trash* (and *Empty junk*) over
+the folder's list deletes all of it for good after asking, on the mail server too. *New message* opens beside the list, where the open thread would be, and Back
 closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
 through, with bulleted and numbered lists, quotes and links (⌘/Ctrl+K), and goes out as HTML with
 a plain-text part beside it; other formatting pasted in falls away. A picture pasted in, or dropped

@@ -137,6 +137,29 @@ export async function mailAction(userId: string, input: { mailboxId: string; fol
   });
 }
 
+/**
+ * Empties the trash or the junk folder: every message in it on the server goes for good, those the
+ * index hasn't read yet too.
+ */
+export async function emptyFolder(userId: string, input: { mailboxId: string; folderId: string }) {
+  const box = await requireOwnMailbox(userId, input.mailboxId);
+  const folder = (await folders(box)).find((f) => f.id === input.folderId);
+  if (!folder || (folder.role !== "trash" && folder.role !== "junk")) throw new RowMailError("invalid");
+  await withImap(box, async (client) => {
+    const lock = await client.getMailboxLock(folder.path);
+    try {
+      // Searched, not counted: a connection that holds the folder open already may not have heard of
+      // new messages. Deleted as one range, not a UID list a large trash would make too long a line.
+      const uids = (await client.search({ all: true }, { uid: true })) || [];
+      if (uids.length) await client.messageDelete("1:*", { uid: true });
+      await db.delete(mailMessage).where(eq(mailMessage.folderId, folder.id));
+    } finally {
+      lock.release();
+    }
+    await recount(client, folder);
+  });
+}
+
 /** Sends from the Mail tab, per mailbox an hour, in this process (row-mail's sending counts its own). */
 const sends = ((globalThis as typeof globalThis & { __leafdeskMailSends?: Map<string, number[]> }).__leafdeskMailSends ??= new Map<string, number[]>());
 

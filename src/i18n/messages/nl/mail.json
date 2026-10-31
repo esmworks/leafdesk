@@ -22,6 +22,15 @@
   "firstReadHint": "Je nieuwste mail verschijnt zo. Oudere mail, tot drie maanden terug, komt de komende minuten binnen.",
   "empty": "Hier is geen mail.",
   "emptySearch": "Geen mail gevonden.",
+  "emptyFolder": {
+    "trash": "Prullenbak legen",
+    "junk": "Ongewenst legen",
+    "trashTitle": "Prullenbak legen?",
+    "junkTitle": "Ongewenst legen?",
+    "body": "Alle berichten in {folder} worden definitief verwijderd, ook op de mailserver. Dit kan niet ongedaan worden gemaakt.",
+    "trashDone": "Prullenbak geleegd",
+    "junkDone": "Ongewenst geleegd"
+  },
   "noneOpen": "Kies een gesprek om het te lezen.",
   "loading": "Laden…",
   "loadFailed": "Mail kon niet worden geladen. Probeer het zo opnieuw.",

@@ -8,7 +8,7 @@ import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, rea
 import { suggestAddresses } from "@/server/mail-client/contacts";
 import { discardDraft, openDraft, saveDraft } from "@/server/mail-client/drafts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
-import { holdMail, mailAction, sendStatus, undoSend } from "@/server/mail-client/write";
+import { emptyFolder, holdMail, mailAction, sendStatus, undoSend } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
 import { requireUserId } from "@/server/session";
@@ -83,6 +83,13 @@ export async function refreshMailboxAction(mailboxId: string): Promise<ActionRes
 export async function mailActionAction(input: { mailboxId: string; folderId: string; threadIds: string[]; action: MailAction; to?: string }): Promise<ActionResult<null>> {
   return run(async (userId) => {
     await mailAction(userId, input);
+    return null;
+  });
+}
+
+export async function emptyFolderAction(input: { mailboxId: string; folderId: string }): Promise<ActionResult<null>> {
+  return run(async (userId) => {
+    await emptyFolder(userId, input);
     return null;
   });
 }

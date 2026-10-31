@@ -22,6 +22,15 @@
   "firstReadHint": "Email terbaru Anda akan tampil sebentar lagi. Email yang lebih lama, hingga tiga bulan ke belakang, masuk dalam beberapa menit ke depan.",
   "empty": "Tidak ada email di sini.",
   "emptySearch": "Tidak ada email yang cocok.",
+  "emptyFolder": {
+    "trash": "Kosongkan sampah",
+    "junk": "Kosongkan spam",
+    "trashTitle": "Kosongkan sampah?",
+    "junkTitle": "Kosongkan spam?",
+    "body": "Semua pesan di {folder} dihapus selamanya, juga di server email. Ini tidak bisa dibatalkan.",
+    "trashDone": "Sampah dikosongkan",
+    "junkDone": "Spam dikosongkan"
+  },
   "noneOpen": "Pilih percakapan untuk membacanya.",
   "loading": "Memuat…",
   "loadFailed": "Email tidak dapat dimuat. Coba lagi sebentar lagi.",

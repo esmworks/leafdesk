@@ -22,6 +22,15 @@
   "firstReadHint": "Thư mới nhất sẽ hiện ra trong giây lát. Thư cũ hơn, từ ba tháng trở lại, sẽ được tải về trong vài phút tới.",
   "empty": "Không có thư nào ở đây.",
   "emptySearch": "Không có thư nào khớp.",
+  "emptyFolder": {
+    "trash": "Dọn sạch thùng rác",
+    "junk": "Dọn sạch thư rác",
+    "trashTitle": "Dọn sạch thùng rác?",
+    "junkTitle": "Dọn sạch thư rác?",
+    "body": "Mọi thư trong {folder} sẽ bị xóa vĩnh viễn, cả trên máy chủ thư. Không thể hoàn tác.",
+    "trashDone": "Đã dọn sạch thùng rác",
+    "junkDone": "Đã dọn sạch thư rác"
+  },
   "noneOpen": "Chọn một cuộc trò chuyện để đọc.",
   "loading": "Đang tải…",
   "loadFailed": "Không tải được thư. Hãy thử lại sau giây lát.",

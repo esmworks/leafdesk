@@ -22,6 +22,15 @@
   "firstReadHint": "Tu correo más reciente aparecerá en un momento. El correo anterior, de hasta tres meses atrás, llegará en los próximos minutos.",
   "empty": "No hay correo aquí.",
   "emptySearch": "Ningún correo coincide.",
+  "emptyFolder": {
+    "trash": "Vaciar papelera",
+    "junk": "Vaciar spam",
+    "trashTitle": "¿Vaciar la papelera?",
+    "junkTitle": "¿Vaciar spam?",
+    "body": "Todos los mensajes de {folder} se eliminan para siempre, también en el servidor de correo. No se puede deshacer.",
+    "trashDone": "Papelera vaciada",
+    "junkDone": "Spam vaciado"
+  },
   "noneOpen": "Elige una conversación para leerla.",
   "loading": "Cargando…",
   "loadFailed": "No se pudo cargar el correo. Inténtalo de nuevo en un momento.",

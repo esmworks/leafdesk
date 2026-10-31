@@ -22,6 +22,15 @@
   "firstReadHint": "La tua posta più recente appare tra un attimo. La posta meno recente, fino a tre mesi fa, arriva nei prossimi minuti.",
   "empty": "Nessun messaggio qui.",
   "emptySearch": "Nessun messaggio corrisponde.",
+  "emptyFolder": {
+    "trash": "Svuota cestino",
+    "junk": "Svuota posta indesiderata",
+    "trashTitle": "Svuotare il cestino?",
+    "junkTitle": "Svuotare la posta indesiderata?",
+    "body": "Tutti i messaggi in {folder} vengono eliminati per sempre, anche sul server di posta. L’operazione non si può annullare.",
+    "trashDone": "Cestino svuotato",
+    "junkDone": "Posta indesiderata svuotata"
+  },
   "noneOpen": "Scegli una conversazione da leggere.",
   "loading": "Caricamento…",
   "loadFailed": "Impossibile caricare la posta. Riprova tra un momento.",

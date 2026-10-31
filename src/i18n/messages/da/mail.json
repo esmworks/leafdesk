@@ -22,6 +22,15 @@
   "firstReadHint": "Din seneste mail vises om et øjeblik. Ældre mail, op til tre måneder tilbage, kommer ind i løbet af de næste minutter.",
   "empty": "Ingen mail her.",
   "emptySearch": "Ingen mail matcher.",
+  "emptyFolder": {
+    "trash": "Tøm papirkurv",
+    "junk": "Tøm uønsket",
+    "trashTitle": "Tøm papirkurven?",
+    "junkTitle": "Tøm uønsket?",
+    "body": "Alle beskeder i {folder} slettes for altid, også på mailserveren. Det kan ikke fortrydes.",
+    "trashDone": "Papirkurven er tømt",
+    "junkDone": "Uønsket er tømt"
+  },
   "noneOpen": "Vælg en samtale for at læse den.",
   "loading": "Indlæser…",
   "loadFailed": "Mail kunne ikke indlæses. Prøv igen om lidt.",

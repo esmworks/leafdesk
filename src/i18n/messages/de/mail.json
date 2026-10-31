@@ -22,6 +22,15 @@
   "firstReadHint": "Deine neuesten Mails erscheinen gleich. Ältere Mails, bis zu drei Monate zurück, folgen in den nächsten Minuten.",
   "empty": "Hier sind keine Mails.",
   "emptySearch": "Keine passenden Mails.",
+  "emptyFolder": {
+    "trash": "Papierkorb leeren",
+    "junk": "Spam leeren",
+    "trashTitle": "Papierkorb leeren?",
+    "junkTitle": "Spam leeren?",
+    "body": "Alle Nachrichten in {folder} werden endgültig gelöscht, auch auf dem Mailserver. Das lässt sich nicht rückgängig machen.",
+    "trashDone": "Papierkorb geleert",
+    "junkDone": "Spam geleert"
+  },
   "noneOpen": "Wähle eine Unterhaltung zum Lesen.",
   "loading": "Wird geladen…",
   "loadFailed": "Die Mails konnten nicht geladen werden. Versuche es gleich noch einmal.",

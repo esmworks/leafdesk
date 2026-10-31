@@ -22,6 +22,15 @@
   "firstReadHint": "Najnowsza poczta pojawi się za chwilę. Starsza, sprzed maksymalnie trzech miesięcy, będzie się wczytywać przez kilka następnych minut.",
   "empty": "Brak poczty.",
   "emptySearch": "Brak pasującej poczty.",
+  "emptyFolder": {
+    "trash": "Opróżnij kosz",
+    "junk": "Opróżnij spam",
+    "trashTitle": "Opróżnić kosz?",
+    "junkTitle": "Opróżnić spam?",
+    "body": "Wszystkie wiadomości w folderze {folder} zostaną trwale usunięte, także z serwera poczty. Tego nie można cofnąć.",
+    "trashDone": "Kosz opróżniony",
+    "junkDone": "Spam opróżniony"
+  },
   "noneOpen": "Wybierz konwersację, aby ją przeczytać.",
   "loading": "Wczytywanie…",
   "loadFailed": "Nie udało się wczytać poczty. Spróbuj ponownie za chwilę.",

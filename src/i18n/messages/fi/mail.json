@@ -22,6 +22,15 @@
   "firstReadHint": "Uusimmat viestisi näkyvät hetken kuluttua. Vanhemmat viestit, enintään kolmen kuukauden ajalta, tulevat seuraavien minuuttien aikana.",
   "empty": "Ei viestejä.",
   "emptySearch": "Ei hakua vastaavia viestejä.",
+  "emptyFolder": {
+    "trash": "Tyhjennä roskakori",
+    "junk": "Tyhjennä roskaposti",
+    "trashTitle": "Tyhjennetäänkö roskakori?",
+    "junkTitle": "Tyhjennetäänkö roskaposti?",
+    "body": "Kaikki kansion {folder} viestit poistetaan pysyvästi, myös sähköpostipalvelimelta. Tätä ei voi kumota.",
+    "trashDone": "Roskakori tyhjennetty",
+    "junkDone": "Roskaposti tyhjennetty"
+  },
   "noneOpen": "Valitse keskustelu luettavaksi.",
   "loading": "Ladataan…",
   "loadFailed": "Viestejä ei voitu ladata. Yritä hetken kuluttua uudelleen.",

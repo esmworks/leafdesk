@@ -4,12 +4,12 @@ import { Database, Inbox, Paperclip, RefreshCw, Search, Star } from "lucide-reac
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { mailActionAction, refreshMailboxAction } from "@/app/actions/mail";
+import { emptyFolderAction, mailActionAction, refreshMailboxAction } from "@/app/actions/mail";
 import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { showToast } from "@/components/toast";
-import { cn, IconButton } from "@/components/ui";
+import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton } from "@/components/ui";
 import { MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
@@ -109,6 +109,7 @@ const forPage = (e: KeyboardEvent) => {
 /** The Mail page: a folder's threads beside the open one, with search and keyboard shortcuts. */
 export function MailApp({ workspaceId }: { workspaceId: string }) {
   const t = useTranslations("mail");
+  const tc = useTranslations("common");
   const folderName = useFolderName();
   const search = useSearchParams();
   const { boxes, error: boxesError } = useMailboxes(workspaceId);
@@ -135,6 +136,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const [menu, setMenu] = useState<{ item: MailThreadItem; at: { x: number; y: number } } | null>(null);
   const openMenu = useCallback((item: MailThreadItem, at: { x: number; y: number }) => setMenu({ item, at }), []);
   const [refreshing, setRefreshing] = useState(false);
+  const [emptying, setEmptying] = useState<"ask" | "working" | null>(null);
   const searchBox = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   // Moves wait MAIL_UNDO_SECONDS for Undo before the mail server hears of them.
@@ -435,6 +437,36 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     } else if (result) showToast({ message: result.error });
   }
 
+  // Emptying the trash or junk: what waits for Undo goes first (a thread moved out of it keeps its move).
+  async function emptyOpenFolder() {
+    if (!box || !folder || emptying === "working") return;
+    const mailboxId = box.id;
+    const folderId = folder.id;
+    const role = folder.role === "junk" ? "junk" : "trash";
+    const from = shown.current;
+    setEmptying("working");
+    for (const [id, p] of pending.current) {
+      clearTimeout(p.timer);
+      p.run();
+      pending.current.delete(id);
+    }
+    const result = await emptyFolderAction({ mailboxId, folderId }).catch(() => null);
+    setEmptying(null);
+    if (!result?.ok) {
+      showToast({ message: result?.error ?? tc("genericError") });
+      return;
+    }
+    // Still on the folder emptied: its list and open thread go.
+    if (shown.current === from) {
+      setList({ items: [], next: null, loading: false, error: null });
+      if (threadId) go({ t: null }, true);
+    }
+    showToast({ message: t(`emptyFolder.${role}Done`) });
+    void read("mailRefreshFolder", mailboxId, folderId)
+      .then((r) => r.ok && putFolders(mailboxId, r.data))
+      .catch(() => {});
+  }
+
   if (boxesError) return <Notice>{boxesError}</Notice>;
   if (!boxes) return <div className="h-full" aria-busy />;
   if (!box) return null;
@@ -459,6 +491,11 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
             <h1 className="truncate text-base font-semibold">{query ? t("results") : name}</h1>
             {!query && folder.unseen > 0 && folder.role !== "trash" && folder.role !== "junk" && <span className="shrink-0 text-xs text-fg-faint">{t("unreadCount", { count: folder.unseen })}</span>}
             <span className="flex-1" />
+            {!query && (folder.role === "trash" || folder.role === "junk") && (items.length > 0 || folder.total > 0) && (
+              <Button size="sm" variant="ghost" className="shrink-0" onClick={() => setEmptying("ask")} disabled={emptying === "working"}>
+                {t(`emptyFolder.${folder.role}`)}
+              </Button>
+            )}
             <IconButton label={t("refresh")} className="h-8 w-8 text-fg-icon" onClick={() => void refreshAll()} disabled={refreshing}>
               <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
             </IconButton>
@@ -529,6 +566,25 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
             </>
           )}
         </div>
+        {(folder.role === "trash" || folder.role === "junk") && (
+          <Dialog open={!!emptying} onClose={() => emptying === "ask" && setEmptying(null)} className="max-w-md">
+            <DialogBody className="pt-5">
+              <div className="space-y-1.5">
+                <DialogTitle>{t(`emptyFolder.${folder.role}Title`)}</DialogTitle>
+                <p className="text-sm text-fg-muted">{t("emptyFolder.body", { folder: name })}</p>
+              </div>
+            </DialogBody>
+            <DialogFooter>
+              {/* Focus in the dialog keeps the list's shortcuts off it. */}
+              <Button variant="secondary" onClick={() => setEmptying(null)} disabled={emptying === "working"} autoFocus>
+                {tc("cancel")}
+              </Button>
+              <Button variant="danger" onClick={() => void emptyOpenFolder()} disabled={emptying === "working"}>
+                {t("actions.delete")}
+              </Button>
+            </DialogFooter>
+          </Dialog>
+        )}
         {menu && (
           <ThreadMenu
             key={`${menu.item.threadId}-${menu.at.x}-${menu.at.y}`}

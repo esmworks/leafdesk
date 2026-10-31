@@ -22,6 +22,15 @@
   "firstReadHint": "Vos courriels les plus récents s’afficheront dans un instant. Les plus anciens, jusqu’à trois mois en arrière, arriveront dans les prochaines minutes.",
   "empty": "Aucun courriel ici.",
   "emptySearch": "Aucun courriel ne correspond.",
+  "emptyFolder": {
+    "trash": "Vider la corbeille",
+    "junk": "Vider les indésirables",
+    "trashTitle": "Vider la corbeille ?",
+    "junkTitle": "Vider les indésirables ?",
+    "body": "Tous les messages de {folder} sont supprimés définitivement, sur le serveur de messagerie aussi. Cette action est irréversible.",
+    "trashDone": "Corbeille vidée",
+    "junkDone": "Indésirables vidés"
+  },
   "noneOpen": "Choisissez une conversation pour la lire.",
   "loading": "Chargement…",
   "loadFailed": "Impossible de charger le courriel. Réessayez dans un instant.",
