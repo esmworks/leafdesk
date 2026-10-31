@@ -138,6 +138,7 @@
     "modeNote": "Tryb dotyczy ogólnego czatu AI: agent działa według własnych ustawień.",
     "waiting": "{agent} czeka na twoją zgodę na użycie {connection}. Odpowiedz w wiadomości z przyciskami.",
     "waitingOwner": "{agent} czeka, aż właściciel obszaru roboczego zatwierdzi wywołanie. Odpowiedź przyjdzie tutaj, gdy to zrobi.",
+    "waitingApp": "{agent} czeka na Twoją zgodę na użycie {connection}. Odpowiedz na stronie agenta w Leafdesk; jego odpowiedź przyjdzie tutaj potem.",
     "readOnlyWorkspace": "{workspace} pozwala połączonym aplikacjom tylko czytać, więc jego agenci nie przyjmują stąd wiadomości. /agent wraca do ogólnego czatu AI.",
     "states": {
       "gone": "Ten agent nie jest już dostępny. Twoje wiadomości znów trafiają do ogólnego czatu AI.",

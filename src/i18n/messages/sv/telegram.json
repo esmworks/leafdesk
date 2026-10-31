@@ -138,6 +138,7 @@
     "modeNote": "Läget gäller den allmänna AI-chatten: en agent följer sina egna inställningar.",
     "waiting": "{agent} väntar på ditt godkännande för att använda {connection}. Svara i meddelandet med knapparna.",
     "waitingOwner": "{agent} väntar på att en ägare av arbetsytan godkänner ett anrop. Svaret kommer hit när det sker.",
+    "waitingApp": "{agent} väntar på ditt godkännande för att använda {connection}. Svara på agentens sida i Leafdesk; svaret kommer hit när du har gjort det.",
     "readOnlyWorkspace": "{workspace} låter anslutna appar bara läsa, så dess agenter tar inte emot meddelanden härifrån. /agent går tillbaka till den allmänna AI-chatten.",
     "states": {
       "gone": "Den agenten är inte längre tillgänglig. Dina meddelanden går till den allmänna AI-chatten igen.",

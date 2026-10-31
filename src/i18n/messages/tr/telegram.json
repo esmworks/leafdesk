@@ -138,6 +138,7 @@
     "modeNote": "Mod, genel AI sohbetine aittir: ajan kendi ayarlarına uyar.",
     "waiting": "{agent}, {connection} kullanmak için onayını bekliyor. Düğmeli mesajdan yanıtla.",
     "waitingOwner": "{agent}, bir çağrı için çalışma alanı sahibinin onayını bekliyor. Onaylandığında yanıt buraya gelir.",
+    "waitingApp": "{agent}, {connection} bağlantısını kullanmak için onayını bekliyor. Leafdesk'te ajanın sayfasından yanıtla; cevabı ondan sonra buraya gelir.",
     "readOnlyWorkspace": "{workspace}, bağlı uygulamaların yalnızca okumasına izin veriyor; bu yüzden ajanları buradan mesaj almaz. /agent ile genel AI sohbetine dönersin.",
     "states": {
       "gone": "O ajan artık kullanılamıyor. Mesajların yeniden genel AI sohbetine gidiyor.",

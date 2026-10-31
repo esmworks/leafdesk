@@ -47,6 +47,13 @@ import { appPageUrl, changeLines, html, localeOf, send, sendHtml, translatorFor,
 
 /** Answers that are being written, by link: /stop aborts one; a second question waits for it. */
 const answering = new Map<string, AbortController>();
+/**
+ * Agents' answers still followed while their run waits on a call, by link (agent-chat.ts): the
+ * chat takes other messages meanwhile; /stop, with no other answer being written, stops them.
+ */
+const waitingFollows = new Map<string, Set<AbortController>>();
+/** The answers that are agents' (agent-chat.ts): their follow says it stopped itself. */
+const agentAnswers = new WeakSet<AbortSignal>();
 /** Approval messages still waiting, by approval id: their text, to keep when the buttons go. */
 const asked = new Map<string, { text: string; messageId: number | null }>();
 
@@ -121,25 +128,43 @@ async function onMessage(message: TelegramMessage) {
   if (answering.has(link.id)) return void (await send(chatId, escapeHtml(t("busy"))));
   const controller = new AbortController();
   answering.set(link.id, controller);
-  try {
-    await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, question, voice ?? null, controller.signal));
-  } finally {
+  // An agent's run waiting on a call frees the chat; its follow goes on among the waiting ones.
+  const release = () => {
+    if (answering.get(link.id) !== controller) return;
     answering.delete(link.id);
+    waitingFollows.set(link.id, (waitingFollows.get(link.id) ?? new Set()).add(controller));
+  };
+  try {
+    await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, question, voice ?? null, controller.signal, release));
+  } finally {
+    if (answering.get(link.id) === controller) answering.delete(link.id);
+    const waiting = waitingFollows.get(link.id);
+    if (waiting?.delete(controller) && !waiting.size) waitingFollows.delete(link.id);
   }
+}
+
+/**
+ * Stops the link's answers: the one being written, else (or with `all`) those waiting on a call.
+ * `said`: all of them were agents', whose follow says it stopped.
+ */
+function stopAnswers(link: TelegramLinkRow, all = false): { stopped: boolean; said: boolean } {
+  const running = answering.get(link.id);
+  const stopping = [...(running ? [running] : []), ...(all || !running ? (waitingFollows.get(link.id) ?? []) : [])];
+  for (const controller of stopping) controller.abort();
+  return { stopped: stopping.length > 0, said: stopping.length > 0 && stopping.every((c) => agentAnswers.has(c.signal)) };
 }
 
 async function onCommand(link: TelegramLinkRow, t: Translator, command: string) {
   const chatId = link.chatId;
   if (command === "start" || command === "help") return void (await send(chatId, escapeHtml(t("help"))));
   if (command === "stop") {
-    const running = answering.get(link.id);
-    running?.abort();
-    // Following an agent's answer, the follow says it stopped (agent-chat.ts).
-    if (running && link.agentId) return;
-    return void (await send(chatId, escapeHtml(t(running ? "stopped" : "nothingToStop"))));
+    const { stopped, said } = stopAnswers(link);
+    // An agent's answer being followed: the follow says it stopped (agent-chat.ts).
+    if (said) return;
+    return void (await send(chatId, escapeHtml(t(stopped ? "stopped" : "nothingToStop"))));
   }
   if (command === "unlink") {
-    answering.get(link.id)?.abort();
+    stopAnswers(link, true);
     await unlinkTelegram(link.userId);
     return void (await send(chatId, escapeHtml(t("unlinked"))));
   }
@@ -229,7 +254,7 @@ async function heard(link: TelegramLinkRow, t: Translator, workspaceId: string, 
 }
 
 /** Asks the AI chat a question for the link's person and sends its answer to the chat. */
-async function ask(link: TelegramLinkRow, t: Translator, text: string, voice: TelegramMessage["voice"] | null, signal: AbortSignal) {
+async function ask(link: TelegramLinkRow, t: Translator, text: string, voice: TelegramMessage["voice"] | null, signal: AbortSignal, release: () => void) {
   const chatId = link.chatId;
   const workspace = await currentWorkspace(link);
   if (!workspace) return void (await send(chatId, escapeHtml(t("noWorkspace"))));
@@ -243,7 +268,10 @@ async function ask(link: TelegramLinkRow, t: Translator, text: string, voice: Te
   try {
     const question = text || (voice ? await heard(link, t, workspace.id, voice, signal) : null);
     if (!question) return;
-    if (link.agentId) return await askAgent(link, t, workspace, question, signal, (on) => (waiting = on));
+    if (link.agentId) {
+      agentAnswers.add(signal);
+      return await askAgent(link, t, workspace, question, signal, { waiting: (on) => (waiting = on), release });
+    }
     const mode = linkMode(link.mode);
     const readOnly = mode !== "read" && (await asWrite(() => connectedAppHold(link.userId, workspace.id))) === "readOnly";
     if (readOnly) await send(chatId, html(t, "readOnlyWorkspace", { workspace: escapeHtml(workspace.name) }));

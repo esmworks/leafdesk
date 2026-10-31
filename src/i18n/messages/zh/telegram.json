@@ -138,6 +138,7 @@
     "modeNote": "模式属于通用 AI 聊天：智能体遵循自己的设置。",
     "waiting": "{agent} 正在等待你批准使用 {connection}。请在带按钮的消息中回复。",
     "waitingOwner": "{agent} 正在等待工作区所有者批准一次调用。批准后回答会发到这里。",
+    "waitingApp": "{agent} 正在等待你批准使用 {connection}。请在 Leafdesk 中该智能体的页面上回复；回复后，它的答案会发到这里。",
     "readOnlyWorkspace": "{workspace} 只允许已连接的应用读取，因此其智能体不接收来自这里的消息。/agent 可回到通用 AI 聊天。",
     "states": {
       "gone": "该智能体已不可用。你的消息重新发送到通用 AI 聊天。",

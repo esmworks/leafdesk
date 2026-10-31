@@ -32,7 +32,7 @@ import {
   type AgentConversationSummary,
   type ChatPlace,
 } from "@/lib/agent-chat";
-import { callConnectionName, callToSend, type AgentStepRecord } from "@/lib/agents";
+import { callConnectionName, callToSend, type AgentRunStatus, type AgentStepRecord } from "@/lib/agents";
 import { conversationTitle } from "@/lib/ai-chat";
 import { isTimeZone } from "@/lib/time-zone";
 import { hasAgentLevel, type AgentLevel } from "@/lib/agent-sharing";
@@ -161,7 +161,7 @@ async function ownConversation(userId: string, agentId: string, conversationId: 
 export async function sendAgentChat(
   userId: string,
   input: { workspaceId: string; agentId: string; place: ChatPlace; conversationId: string | null; message: string; timeZone?: string },
-): Promise<{ conversation: AgentConversationSummary; runId: string }> {
+): Promise<{ conversation: AgentConversationSummary; runId: string; agent: { name: string; icon: string | null } }> {
   const message = input.message.trim();
   if (!message) refuse("invalid", "Write a message");
   if (message.length > MAX_AGENT_CHAT_MESSAGE) refuse("tooLong", `A message has at most ${MAX_AGENT_CHAT_MESSAGE} characters`);
@@ -218,7 +218,11 @@ export async function sendAgentChat(
   });
   kickAgents();
   await pruneConversations(userId, agent!.id, chatId);
-  return { conversation: { id: conversation.id, title: conversation.title, updatedAt: conversation.updatedAt.toISOString() }, runId };
+  return {
+    conversation: { id: conversation.id, title: conversation.title, updatedAt: conversation.updatedAt.toISOString() },
+    runId,
+    agent: { name: agent!.name, icon: agent!.icon },
+  };
 }
 
 /** Keeps the person's MAX_AGENT_CONVERSATIONS most recent conversations in the place. */
@@ -381,6 +385,19 @@ export async function deleteAgentConversation(userId: string, workspaceId: strin
         placeIs(place?.chatId ?? null),
       ),
     );
+}
+
+/**
+ * Where a run answering the person's message stands, in one small read, for following it over a
+ * long time (a chat from Telegram): its status and the call it waits on. chatTurn says the rest,
+ * checking access again. Null for a run that isn't theirs.
+ */
+export async function chatRunState(userId: string, runId: string): Promise<{ status: AgentRunStatus; callId: string | null } | null> {
+  const [run] = await db
+    .select({ status: agentRun.status, callId: sql<string | null>`${agentRun.pending}->>'callId'` })
+    .from(agentRun)
+    .where(and(eq(agentRun.id, runId), sql`${agentRun.source}->>'kind' = 'chat'`, sql`${agentRun.source}->>'userId' = ${userId}`));
+  return run ?? null;
 }
 
 /**

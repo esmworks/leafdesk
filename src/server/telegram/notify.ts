@@ -8,7 +8,7 @@ import { telegramMessages } from "@/i18n/messages/telegram";
 import { env } from "@/lib/env";
 import { formatIsoDate } from "@/lib/mentions";
 import { pushPayload } from "@/lib/push";
-import { escapeHtml, htmlToText } from "@/lib/telegram-format";
+import { escapeHtml } from "@/lib/telegram-format";
 import { AccessError, ConnectedAppReadOnlyError, workspacesHiddenFromApp } from "@/server/access";
 import { asWrite, runAsConnectedApp } from "@/server/connected-app";
 import { ApprovalError, decideApproval } from "@/server/connections/approvals";
@@ -16,8 +16,9 @@ import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { getNotificationPreferences, telegramWanted } from "@/server/notification-preferences";
 import { listNotifications, markRead, snoozeNotification, type InboxApproval, type InboxItem } from "@/server/notifications";
-import { sendMessage, TelegramApiError, type InlineKeyboard } from "./api";
+import { TelegramApiError, type InlineKeyboard } from "./api";
 import { setTelegramNotifications } from "./links";
+import { send } from "./say";
 
 /**
  * Inbox notifications in Telegram: each new one also goes, as a message, to the Telegram chat its
@@ -64,12 +65,12 @@ export async function deliverTelegram(ids: string[]): Promise<void> {
         return listed.filter((item) => !hidden.has(item.workspaceId));
       });
       if (!items.length) return;
-      const locale = await recipientLocale(link.userId, theirs.find((r) => r.locale)?.locale);
+      const texts = notifyTexts(await recipientLocale(link.userId, theirs.find((r) => r.locale)?.locale));
       for (const item of items) {
-        const message = itemMessage(item, locale);
+        const message = itemMessage(item, texts);
         if (!message) continue;
         try {
-          await sendItem(link.chatId, message);
+          await send(link.chatId, message.text, message.keyboard);
         } catch (error) {
           // 403: the person blocked the bot or deleted the chat; stop until they turn it on again.
           if (error instanceof TelegramApiError && error.code === 403) {
@@ -83,12 +84,18 @@ export async function deliverTelegram(ids: string[]): Promise<void> {
   );
 }
 
-/** A notification as a Telegram message: what its push notification says, with its buttons; null for one that has none. */
-function itemMessage(item: InboxItem, locale: Locale): { text: string; keyboard: InlineKeyboard } | null {
+type NotifyTexts = ReturnType<typeof notifyTexts>;
+
+/** What a notification's message is written with, in the person's language: made once for all of theirs. */
+function notifyTexts(locale: Locale) {
   const te = emailTranslator(locale);
-  const texts = (key: string, values?: Record<string, string | number>) => te(`push.${key}` as Parameters<typeof te>[0], values);
-  const t = createTranslator({ locale, messages: { telegram: telegramMessages[locale] }, namespace: "telegram.notify" });
-  const payload = pushPayload(item, texts, (date, timeZone) => formatIsoDate(date, locale, "medium", timeZone));
+  const push = (key: string, values?: Record<string, string | number>) => te(`push.${key}` as Parameters<typeof te>[0], values);
+  return { locale, push, t: createTranslator({ locale, messages: { telegram: telegramMessages[locale] }, namespace: "telegram.notify" }) };
+}
+
+/** A notification as a Telegram message: what its push notification says, with its buttons; null for one that has none. */
+function itemMessage(item: InboxItem, { locale, push, t }: NotifyTexts): { text: string; keyboard: InlineKeyboard } | null {
+  const payload = pushPayload(item, push, (date, timeZone) => formatIsoDate(date, locale, "medium", timeZone));
   if (!payload) return null;
   if (item.approval) return approvalMessage(item, item.approval, payload, t);
   const text = [
@@ -107,15 +114,6 @@ function itemMessage(item: InboxItem, locale: Locale): { text: string; keyboard:
   return { text, keyboard };
 }
 
-/** Sends a notification's message; markup Telegram can't parse goes again as plain text. */
-async function sendItem(chatId: string, message: { text: string; keyboard: InlineKeyboard }) {
-  const { text, keyboard } = message;
-  await sendMessage(chatId, text, { keyboard }).catch((error: unknown) => {
-    if (error instanceof TelegramApiError && error.code === 400) return sendMessage(chatId, htmlToText(text), { keyboard, plain: true });
-    throw error;
-  });
-}
-
 /**
  * Sends the person the approval message of the call a run waits on for them, as deliverTelegram
  * would (for a chat with an agent from Telegram whose person doesn't get their notifications
@@ -130,9 +128,9 @@ export async function sendApprovalHere(userId: string, chatId: string, runId: st
     .limit(1);
   if (!found) return false;
   const [item] = await listNotifications(userId, { ids: [found.id] });
-  const message = item?.approval ? itemMessage(item, await recipientLocale(userId, found.locale)) : null;
+  const message = item?.approval ? itemMessage(item, notifyTexts(await recipientLocale(userId, found.locale))) : null;
   if (!message) return false;
-  await sendItem(chatId, message);
+  await send(chatId, message.text, message.keyboard);
   return true;
 }
 

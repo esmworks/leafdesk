@@ -138,6 +138,7 @@
     "modeNote": "Tila koskee yleistä tekoälychattia: agentti noudattaa omia asetuksiaan.",
     "waiting": "{agent} odottaa hyväksyntääsi käyttää palvelua {connection}. Vastaa painikkeelliseen viestiin.",
     "waitingOwner": "{agent} odottaa, että työtilan omistaja hyväksyy kutsun. Vastaus tulee tänne, kun se tapahtuu.",
+    "waitingApp": "{agent} odottaa hyväksyntääsi käyttää palvelua {connection}. Vastaa agentin sivulla Leafdeskissä; sen vastaus tulee tänne, kun olet vastannut.",
     "readOnlyWorkspace": "{workspace} sallii yhdistetyille sovelluksille vain lukemisen, joten sen agentit eivät ota viestejä vastaan täältä. /agent palaa yleiseen tekoälychattiin.",
     "states": {
       "gone": "Agentti ei ole enää käytettävissä. Viestisi menevät taas yleiseen tekoälychattiin.",

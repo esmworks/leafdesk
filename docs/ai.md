@@ -834,9 +834,11 @@ what it does in that chat: its own instructions, skills and notes, its access he
 person's, read-only for someone who may only use it; `/mode` doesn't apply to it. Its answer
 shows as it is written, in one message edited every few seconds, then formatted, with the pages it
 changed. A call it waits on comes as the approval message above (once, when notifications come to
-the chat; otherwise sent for this chat), and the answer follows once the call is answered, for up to
-a day; `/stop` stops following, and the agent finishes its answer on its page, as it does when the
-server restarts meanwhile. Messages from Telegram are a connected app's: they count as writes, so a
+the chat; otherwise sent for this chat, or, when that isn't possible, a note to answer it on the
+agent's page), and the answer follows once the call is answered, for up to a day; meanwhile the chat
+takes other messages. `/stop` stops following (the answer being written first, then those waiting on
+a call), and the agent finishes its answer on its page, as it does when the person loses access or
+the server restarts meanwhile. Messages from Telegram are a connected app's: they count as writes, so a
 workspace that lets apps only read takes none, and the agent gets no email tools. An agent that is
 archived or no longer shared with the person sends messages back to the AI chat, and so does picking
 another workspace.

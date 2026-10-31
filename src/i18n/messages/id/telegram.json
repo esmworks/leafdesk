@@ -138,6 +138,7 @@
     "modeNote": "Mode berlaku untuk obrolan AI umum: agen mengikuti pengaturannya sendiri.",
     "waiting": "{agent} menunggu persetujuan Anda untuk menggunakan {connection}. Jawab di pesan yang memiliki tombol.",
     "waitingOwner": "{agent} menunggu pemilik ruang kerja menyetujui sebuah panggilan. Jawabannya akan datang ke sini setelah itu.",
+    "waitingApp": "{agent} menunggu persetujuanmu untuk memakai {connection}. Jawab di halaman agen di Leafdesk; jawabannya akan datang ke sini setelah itu.",
     "readOnlyWorkspace": "{workspace} hanya mengizinkan aplikasi terhubung membaca, jadi agennya tidak menerima pesan dari sini. /agent kembali ke obrolan AI umum.",
     "states": {
       "gone": "Agen itu tidak tersedia lagi. Pesan Anda kembali dikirim ke obrolan AI umum.",

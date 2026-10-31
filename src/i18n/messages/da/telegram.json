@@ -138,6 +138,7 @@
     "modeNote": "Tilstanden gælder den generelle AI-chat: en agent følger sine egne indstillinger.",
     "waiting": "{agent} venter på din godkendelse til at bruge {connection}. Svar i beskeden med knapperne.",
     "waitingOwner": "{agent} venter på, at en ejer af arbejdsområdet godkender et kald. Svaret kommer her, når det sker.",
+    "waitingApp": "{agent} venter på din godkendelse til at bruge {connection}. Svar på agentens side i Leafdesk; svaret kommer her, når du har gjort det.",
     "readOnlyWorkspace": "{workspace} lader forbundne apps kun læse, så dets agenter modtager ikke beskeder herfra. /agent går tilbage til den generelle AI-chat.",
     "states": {
       "gone": "Den agent er ikke længere tilgængelig. Dine beskeder går til den generelle AI-chat igen.",

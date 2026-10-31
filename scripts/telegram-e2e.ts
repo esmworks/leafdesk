@@ -28,6 +28,8 @@ type Sent = { method: string; params: Record<string, unknown>; /** A sent messag
 const sent: Sent[] = [];
 /** Chats that blocked the bot: Telegram answers 403 to messages there. */
 const blocked = new Set<number>();
+/** Messages can't be edited (the person deleted them): Telegram answers 400. */
+let editsGone = false;
 let messageIds = 1000;
 const VOICE = Buffer.from("OggS fake voice message bytes");
 const telegram: Server = createServer(async (req, res) => {
@@ -50,6 +52,10 @@ const telegram: Server = createServer(async (req, res) => {
   if (method === "getFile") return ok({ file_id: params.file_id, file_path: "voice/file_1.oga", file_size: VOICE.length });
   if (method === "sendMessage" && blocked.has(Number(params.chat_id))) {
     res.writeHead(403, { "Content-Type": "application/json" }).end(JSON.stringify({ ok: false, error_code: 403, description: "Forbidden: bot was blocked by the user" }));
+    return;
+  }
+  if (method === "editMessageText" && editsGone) {
+    res.writeHead(400, { "Content-Type": "application/json" }).end(JSON.stringify({ ok: false, error_code: 400, description: "Bad Request: message to edit not found" }));
     return;
   }
   if (method === "sendMessage") sent[sent.length - 1].id = messageIds + 1;
@@ -581,6 +587,14 @@ try {
   const preview = sent.slice(mark).find((s) => s.method === "sendMessage" && Number(s.params.chat_id) === ALICE.id && String(s.params.text).endsWith("✍️"));
   const previewEdits = sent.slice(mark).filter((s) => s.method === "editMessageText" && s.params.message_id === preview?.id).map((s) => String(s.params.text));
   check(preview && String(preview.params.text).startsWith("word0") && previewEdits.at(-1) === words, "a slow answer shows as it is written, in one message edited into the answer", { preview: preview?.params.text, previewEdits });
+  fake.delayMs = 150;
+  editsGone = true;
+  mark = sent.length;
+  await toAgent(text(ALICE, "Write slowly again"));
+  fake.delayMs = 0;
+  editsGone = false;
+  const sentAnew = sent.slice(mark).filter((s) => s.method === "sendMessage" && Number(s.params.chat_id) === ALICE.id);
+  check(sentAnew.length === 2 && sentAnew[0].params.text !== words && sentAnew[1].params.text === words, "an answer whose message can't be edited (deleted meanwhile) comes anew", sentAnew.map((s) => s.params.text));
 
   fake.setTranscript(() => "What did you file?");
   fake.setChat(() => ({ text: "The Q3 note." }));
@@ -600,7 +614,7 @@ try {
   await flushAgentRuns();
 
   /** Sends a message whose run then waits on a call, as an approval would park it; the run, and the bot's handling still going. */
-  const parkedChat = async (body: string, callId: string) => {
+  const parkedChat = async (body: string, callId: string, notify = true) => {
     const handled = handleUpdate(text(ALICE, body));
     const run = await chatRun();
     const args = { title: body };
@@ -614,8 +628,10 @@ try {
       })
       .where(eq(agentRun.id, run.id))
       .returning();
-    await notifyApprovers(parked, bot.userId);
-    await flushPush();
+    if (notify) {
+      await notifyApprovers(parked, bot.userId);
+      await flushPush();
+    }
     return { run, handled };
   };
   /** Ends a parked run with an answer, as the worker would once it goes on. */
@@ -638,8 +654,37 @@ try {
   await until(() => said(ALICE.id, mark).includes("waits for your approval to use"), "the note that the agent waits", 15_000);
   const cards = messagesTo(ALICE.id, mark).filter((m) => m.includes("Filer asks to go ahead"));
   check(cards.length === 1, "with notifications on, the inbox's message comes once, with a note that the agent waits", messagesTo(ALICE.id, mark));
-  await answerParked(loud.run.id, "Logged.");
+  mark = sent.length;
+  await handleUpdate(text(ALICE, "Meanwhile?"));
+  check(
+    said(ALICE.id, mark).includes("The agent is still answering your last message.") && !said(ALICE.id, mark).includes("I'm still answering"),
+    "while the run waits on a call the chat takes other messages (this one the agent's conversation refuses)",
+    said(ALICE.id, mark),
+  );
+  await handleUpdate(text(ALICE, "/stop"));
   await loud.handled;
+  check(said(ALICE.id, mark).includes("I stopped following."), "/stop stops following an answer waiting on a call", said(ALICE.id, mark));
+  await answerParked(loud.run.id, "Logged.");
+
+  await handleUpdate(press(ALICE, "nt:off", 3004));
+  mark = sent.length;
+  const unasked = await parkedChat("And to the archive", "chat-call-3", false);
+  await until(() => said(ALICE.id, mark).includes("on the agent's page in Leafdesk"), "the note to answer the call in Leafdesk", 40_000);
+  check(!messagesTo(ALICE.id, mark).some((m) => m.includes("asks to go ahead")), "a call whose approval message can't be sent here says to answer it in Leafdesk");
+  await answerParked(unasked.run.id, "Archived.");
+  await unasked.handled;
+  check(shownTo(mark).at(-1) === "Archived.", "…and the answer still comes", shownTo(mark));
+  await handleUpdate(press(ALICE, "nt:on", 3005));
+
+  fake.setChat(() => ({ text: "Gone." }));
+  mark = sent.length;
+  const lost = handleUpdate(text(ALICE, "Are you there?"));
+  await chatRun();
+  await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "off" });
+  await flushAgentRuns();
+  await lost;
+  await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "full" });
+  check(said(ALICE.id, mark).includes("I stopped following.") && !said(ALICE.id, mark).includes("Gone."), "a follow that loses access stops, saying the answer is on the agent's page", said(ALICE.id, mark));
 
   mark = sent.length;
   await handleUpdate(text(ALICE, "/new"));

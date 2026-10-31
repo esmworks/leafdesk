@@ -138,6 +138,7 @@
     "modeNote": "Chế độ thuộc về trò chuyện AI chung: tác tử làm theo cài đặt riêng của nó.",
     "waiting": "{agent} đang chờ bạn chấp thuận để dùng {connection}. Hãy trả lời trong tin nhắn có nút.",
     "waitingOwner": "{agent} đang chờ chủ sở hữu không gian làm việc chấp thuận một lệnh gọi. Câu trả lời sẽ đến đây sau khi được chấp thuận.",
+    "waitingApp": "{agent} đang chờ bạn chấp thuận để dùng {connection}. Hãy trả lời trên trang của tác tử trong Leafdesk; câu trả lời sẽ đến đây sau đó.",
     "readOnlyWorkspace": "{workspace} chỉ cho phép ứng dụng đã kết nối đọc, nên các tác tử ở đó không nhận tin nhắn từ đây. /agent để quay lại trò chuyện AI chung.",
     "states": {
       "gone": "Tác tử đó không còn khả dụng. Tin nhắn của bạn lại được gửi tới trò chuyện AI chung.",

@@ -138,6 +138,7 @@
     "modeNote": "El modo es del chat de IA general: un agente sigue su propia configuración.",
     "waiting": "{agent} espera tu aprobación para usar {connection}. Responde en el mensaje con sus botones.",
     "waitingOwner": "{agent} espera a que un propietario del espacio de trabajo apruebe una llamada. Su respuesta llegará aquí cuando lo haga.",
+    "waitingApp": "{agent} espera tu aprobación para usar {connection}. Respóndela en la página del agente en Leafdesk; su respuesta llegará aquí cuando lo hagas.",
     "readOnlyWorkspace": "{workspace} solo permite leer a las apps conectadas, así que sus agentes no reciben mensajes desde aquí. /agent vuelve al chat de IA general.",
     "states": {
       "gone": "Ese agente ya no está disponible. Tus mensajes vuelven al chat de IA general.",

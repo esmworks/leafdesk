@@ -138,6 +138,7 @@
     "modeNote": "Der Modus gilt für den allgemeinen KI-Chat: Ein Agent folgt seinen eigenen Einstellungen.",
     "waiting": "{agent} wartet auf deine Freigabe, um {connection} zu nutzen. Antworte in der Nachricht mit den Schaltflächen.",
     "waitingOwner": "{agent} wartet darauf, dass ein Workspace-Inhaber einen Aufruf freigibt. Die Antwort kommt hierher, sobald das geschieht.",
+    "waitingApp": "{agent} wartet auf deine Freigabe, um {connection} zu nutzen. Antworte auf der Seite des Agenten in Leafdesk; seine Antwort kommt danach hierher.",
     "readOnlyWorkspace": "{workspace} erlaubt verbundenen Apps nur das Lesen, daher nehmen seine Agenten von hier keine Nachrichten an. Mit /agent geht es zurück zum allgemeinen KI-Chat.",
     "states": {
       "gone": "Dieser Agent ist nicht mehr verfügbar. Deine Nachrichten gehen wieder an den allgemeinen KI-Chat.",

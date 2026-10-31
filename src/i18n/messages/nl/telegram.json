@@ -138,6 +138,7 @@
     "modeNote": "De modus hoort bij de algemene AI-chat: een agent volgt zijn eigen instellingen.",
     "waiting": "{agent} wacht op je goedkeuring om {connection} te gebruiken. Antwoord in het bericht met de knoppen.",
     "waitingOwner": "{agent} wacht tot een eigenaar van de werkruimte een aanroep goedkeurt. Het antwoord komt hier zodra dat gebeurt.",
+    "waitingApp": "{agent} wacht op je goedkeuring om {connection} te gebruiken. Beantwoord die op de pagina van de agent in Leafdesk; het antwoord komt daarna hier.",
     "readOnlyWorkspace": "{workspace} laat gekoppelde apps alleen lezen, dus de agents nemen hier geen berichten aan. Met /agent ga je terug naar de algemene AI-chat.",
     "states": {
       "gone": "Die agent is niet meer beschikbaar. Je berichten gaan weer naar de algemene AI-chat.",

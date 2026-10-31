@@ -138,6 +138,7 @@
     "modeNote": "Modusen gjelder den generelle KI-chatten: en agent følger sine egne innstillinger.",
     "waiting": "{agent} venter på godkjenningen din for å bruke {connection}. Svar i meldingen med knappene.",
     "waitingOwner": "{agent} venter på at en eier av arbeidsområdet godkjenner et kall. Svaret kommer hit når det skjer.",
+    "waitingApp": "{agent} venter på godkjenningen din for å bruke {connection}. Svar på agentens side i Leafdesk; svaret kommer hit når du har gjort det.",
     "readOnlyWorkspace": "{workspace} lar tilkoblede apper bare lese, så agentene der tar ikke imot meldinger herfra. /agent går tilbake til den generelle KI-chatten.",
     "states": {
       "gone": "Den agenten er ikke lenger tilgjengelig. Meldingene dine går til den generelle KI-chatten igjen.",
