@@ -1372,7 +1372,9 @@
       "request": "کاری که خواستید",
       "requestOn": "کاری که خواستید · {place}",
       "mention": "در یک نظر از او نام بردید",
-      "mentionOn": "در {place} از او نام بردید"
+      "mentionOn": "در {place} از او نام بردید",
+      "mail": "ایمیل تازه",
+      "mailOn": "ایمیل تازه · {place}"
     },
     "doneQuietly": "انجام شد.",
     "side": {

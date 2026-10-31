@@ -37,6 +37,7 @@ import {
   type AgentModel,
   type AgentRowChanges,
   type AgentRunView,
+  type AgentStepRecord,
   type AgentView,
 } from "@/lib/agents";
 import { agentTargets } from "@/lib/automations";
@@ -513,7 +514,7 @@ export async function releaseDatabaseFromAgents(userId: string, databaseId: stri
  * all of an agent's runs that someone who can only interact with it sees.
  */
 export const startedBy = (userId: string) =>
-  sql`(${agentRun.source}->>'requestedBy' = ${userId} or ${agentRun.source}->>'scheduledBy' = ${userId} or ${agentRun.source}->>'mentionedBy' = ${userId} or (${agentRun.source}->>'kind' = 'chat' and ${agentRun.source}->>'userId' = ${userId}))`;
+  sql`(${agentRun.source}->>'requestedBy' = ${userId} or ${agentRun.source}->>'scheduledBy' = ${userId} or ${agentRun.source}->>'mentionedBy' = ${userId} or (${agentRun.source}->>'kind' in ('chat', 'mail') and ${agentRun.source}->>'userId' = ${userId}))`;
 
 /**
  * An agent's latest runs, newest first: all of them for those who can edit it, only their own for
@@ -545,6 +546,12 @@ export async function getAgentRun(userId: string, agentId: string, runId: string
 }
 
 /** Runs as `userId` may see them (see listAgentRuns); `owner`: they own the workspace. */
+/** The subject of the email a run new email started read first (its first mail step). */
+const arrivedSubject = (steps: AgentStepRecord[]) => {
+  const read = steps.find((s) => s.kind === "mail" && s.action === "read");
+  return read && read.kind === "mail" && read.action === "read" ? read.subject : "";
+};
+
 export async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], { exact, owner }: { exact: boolean; owner: boolean }): Promise<AgentRunView[]> {
   // A helper's run shows as the run that asked it does (accessSource): its row or database counts.
   const rowIds = [
@@ -622,7 +629,7 @@ export async function viewRuns(userId: string, runs: (typeof agentRun.$inferSele
             ? [r.source.scheduledBy]
             : r.source.kind === "mention"
               ? [r.source.mentionedBy]
-              : r.source.kind === "chat"
+              : r.source.kind === "chat" || r.source.kind === "mail"
                 ? [r.source.userId]
                 : [],
       ),
@@ -673,6 +680,7 @@ export async function viewRuns(userId: string, runs: (typeof agentRun.$inferSele
           ? { by: r.source.requestedBy, byName: requesters.get(r.source.requestedBy) ?? "", via: r.source.via, task: open ? r.prompt : "" }
           : null,
       chat: r.source.kind === "chat" ? { by: r.source.userId, byName: requesters.get(r.source.userId) ?? "", message: open ? r.prompt : "" } : null,
+      mail: r.source.kind === "mail" ? { by: r.source.userId, byName: requesters.get(r.source.userId) ?? "", subject: open ? arrivedSubject(r.steps) : "" } : null,
       schedule: isScheduleRun(r.source)
         ? {
             id: liveSchedules.has(r.source.scheduleId) ? r.source.scheduleId : "",

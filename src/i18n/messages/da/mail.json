@@ -223,5 +223,14 @@
       "addedNote": "Føjet til dagens dagsnote.",
       "open": "Åbn"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "læst",
+      "drafted": "skrev et svarudkast",
+      "sorted": "sorteret",
+      "summarized": "opsummeret"
+    }
   }
 }

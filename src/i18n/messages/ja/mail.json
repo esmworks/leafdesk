@@ -223,5 +223,14 @@
       "addedNote": "今日のデイリーノートに追加しました。",
       "open": "開く"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "読みました",
+      "drafted": "返信を下書きしました",
+      "sorted": "整理しました",
+      "summarized": "要約しました"
+    }
   }
 }

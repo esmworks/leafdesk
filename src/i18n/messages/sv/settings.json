@@ -632,7 +632,8 @@
         "approvalTimeout": "Ingen svarade på dess anrop inom ett dygn, så inget skickades.",
         "connectionGone": "Anslutningen som startade den har tagits bort.",
         "limitReached": "Den hade förbrukat agentens månatliga tokengräns.",
-        "costLimit": "Arbetsytan hade nått sin månatliga kostnadsgräns för AI."
+        "costLimit": "Arbetsytan hade nått sin månatliga kostnadsgräns för AI.",
+        "mailGone": "Mejlet finns inte längre i brevlådan, eller brevlådan är inte längre öppen för agenten."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "En borttagen anslutning",
@@ -683,7 +684,8 @@
       "fromChat": "Ett chattmeddelande från {name}",
       "chattedBy": "chatt av {name}",
       "yoursOnly": "Du ser körningarna som du har startat.",
-      "waitingForOwner": "En ägare av arbetsytan svarar på det här anropet."
+      "waitingForOwner": "En ägare av arbetsytan svarar på det här anropet.",
+      "fromMail": "E-post till {name}"
     },
     "usage": {
       "thisMonth": "Den här månaden: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Utgå från en mall",
-      "description": "Färdiga agenter för en databas. De flesta körs på varje ny rad, framgångsloggaren på en anslutnings händelser; du väljer databasen och vad den använder."
+      "description": "Färdiga agenter för en databas. De flesta körs på varje ny rad, framgångsloggaren på en anslutnings händelser och e-postassistenten på ny e-post i din brevlåda; du väljer databasen och vad den använder."
     },
     "wizard": {
       "title": "Konfigurera {name}",
@@ -703,7 +705,8 @@
         "database": "Välj en databas",
         "properties": "Välj dess egenskaper",
         "pages": "Välj sidorna den läser",
-        "connection": "Välj var dess händelser kommer ifrån"
+        "connection": "Välj var dess händelser kommer ifrån",
+        "mailbox": "Välj dess brevlåda"
       },
       "chooseDatabase": "Vilken databas ska den arbeta med? Du behöver full åtkomst till den.",
       "searchDatabases": "Sök databaser",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Den här databasen har ingen egenskap som den kan fylla i: text, en länk, en e-postadress, ett telefonnummer, ett tal eller ett urval med alternativ. Lägg till en och konfigurera sedan agenten.",
       "companyAutofilled": "Utelämnade, eftersom AI-autofyll fyller i dem: {properties}.",
       "summaryWeb": "Den får webbåtkomst för att slå upp företagen.",
+      "chooseCustomers": "Vilken databas med kunder eller kontakter ska den hålla uppdaterad? Du behöver full åtkomst till den.",
+      "mailbox": "Brevlåda",
+      "mailboxHelp": "Ny e-post i den här brevlådan startar agenten. Bara du ser vad den läser, skriver och föreslår.",
+      "noMailbox": "Du har ingen brevlåda i den här arbetsytan än. <link>Lägg till en under E-post</link> och konfigurera sedan agenten.",
+      "summaryMail": "När du skapar den läggs agenten till, {mailbox} öppnas för den och ny e-post där startar den. Agenten får redigeringsåtkomst till {database}; varje rad eller ändring den föreslår väntar på ditt godkännande under Att granska.",
       "back": "Tillbaka",
       "next": "Nästa",
       "create": "Skapa agent",
@@ -757,7 +765,8 @@
         "sameOptions": "Välj två olika alternativ.",
         "needPages": "Välj minst en sida.",
         "needName": "Ge agenten ett namn.",
-        "needConnection": "Välj en anslutning."
+        "needConnection": "Välj en anslutning.",
+        "needMailbox": "Välj en brevlåda."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Ange upp till 10 e-postadresser.",
         "requestTokens": "Begär ett heltal tokens över den nuvarande gränsen, högst 1 000 000 000.",
         "requestNote": "Ange varför med högst 500 tecken.",
-        "noLimit": "Den här agenten har ingen gräns att höja."
+        "noLimit": "Den här agenten har ingen gräns att höja.",
+        "mailbox": "Välj en av dina brevlådor i den här arbetsytan."
       },
       "noteEmpty": "Skriv vad agenten ska komma ihåg.",
       "noteTooLong": "En anteckning kan ha högst {max} tecken.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Din e-post",
-      "description": "Öppna en brevlåda så att den här agenten kan söka i och läsa din e-post och spara utkast där: i dina chattar med den här och i scheman du ställer in som inte sköter någon databas.",
+      "description": "Öppna en brevlåda så att den här agenten kan söka, läsa och sortera din e-post och spara utkast i den: i dina chattar med den här, i scheman du ställer in utan en databas att sköta, och vid ny e-post när du slår på det.",
       "open": "Öppna {address} för den här agenten",
-      "note": "Den skickar aldrig e-post: du skickar dess utkast från fliken Mail. När en körning har läst e-post läser den bara sidor och skriver utkast. Andra som använder eller redigerar agenten ser aldrig din e-post."
+      "note": "Den skickar aldrig e-post: Du skickar dess utkast från fliken E-post. När en körning har läst e-post läser den bara sidor och arbetar med din e-post. Andra som använder eller redigerar den här agenten ser aldrig din e-post.",
+      "trigger": {
+        "label": "Kör vid ny e-post",
+        "edit": "Ändra",
+        "task": "Vad som ska göras med varje nytt mejl",
+        "taskPlaceholder": "Sammanfatta det, skriv ett svarsutkast när ett efterfrågas och arkivera nyhetsbrev.",
+        "senders": "Bara från (valfritt)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Skriv e-postadresser eller domäner åtskilda med kommatecken.",
+        "subject": "Bara med de här orden i ämnet (valfritt)",
+        "subjectPlaceholder": "offert",
+        "knownOnly": "Bara från personer som är rader i dina databaser",
+        "skipped": "E-post du skickar, utkast, autosvar, e-postlistor och massutskick startar den aldrig. Högst {hour} körningar i timmen och {day} om dagen från den här brevlådan.",
+        "limited": "Viss e-post hoppades över nyligen: gränsen per timme eller per dag nåddes."
+      }
     }
   },
   "analytics": {

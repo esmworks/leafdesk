@@ -627,7 +627,8 @@
         "approvalTimeout": "Ninguém respondeu à chamada dele em um dia, então nada foi enviado.",
         "connectionGone": "A conexão que a iniciou foi removida.",
         "limitReached": "Ele já tinha usado o limite mensal de tokens do agente.",
-        "costLimit": "O espaço de trabalho tinha atingido o limite mensal de custo de IA."
+        "costLimit": "O espaço de trabalho tinha atingido o limite mensal de custo de IA.",
+        "mailGone": "O e-mail já não está na caixa, ou a caixa já não está aberta ao agente."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Uma conexão removida",
@@ -683,7 +684,8 @@
       "emailFailed": "Não conseguiu redigir um e-mail:",
       "emailHidden": "Redigiu um e-mail numa linha que você não pode abrir",
       "emailSent": "Enviou um e-mail para {to}:",
-      "emailSendFailed": "Não foi possível enviar um e-mail para {to}:"
+      "emailSendFailed": "Não foi possível enviar um e-mail para {to}:",
+      "fromMail": "E-mail para {name}"
     },
     "usage": {
       "thisMonth": "Este mês: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Começar por um modelo",
-      "description": "Agentes prontos para um banco de dados. A maioria é executada em cada nova linha, e o registrador de conquistas nos eventos de uma conexão; você escolhe o banco de dados e o que ele usa."
+      "description": "Agentes prontos para um banco de dados. A maioria é executada em cada nova linha, o registrador de conquistas nos eventos de uma conexão e o assistente de e-mail nos e-mails novos da sua caixa; você escolhe o banco de dados e o que ele usa."
     },
     "wizard": {
       "title": "Configurar {name}",
@@ -703,7 +705,8 @@
         "database": "Escolha um banco de dados",
         "properties": "Escolha as propriedades",
         "pages": "Escolha as páginas que ele lê",
-        "connection": "Escolha de onde vêm os eventos"
+        "connection": "Escolha de onde vêm os eventos",
+        "mailbox": "Escolha a caixa de e-mail"
       },
       "chooseDatabase": "Em qual banco de dados ele deve trabalhar? Você precisa ter acesso total a ele.",
       "searchDatabases": "Pesquisar bancos de dados",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Este banco de dados não tem nenhuma propriedade que ele possa preencher: texto, link, e-mail, telefone, número ou uma seleção com opções. Adicione uma e depois configure o agente.",
       "companyAutofilled": "Deixadas de fora, porque o preenchimento automático com IA as preenche: {properties}.",
       "summaryWeb": "Ele recebe acesso à web, para pesquisar as empresas.",
+      "chooseCustomers": "Qual banco de dados de clientes ou contatos ele deve manter atualizado? Você precisa de acesso total a ele.",
+      "mailbox": "Caixa de e-mail",
+      "mailboxHelp": "Os e-mails novos desta caixa iniciam o agente. Só você vê o que ele lê, escreve e propõe.",
+      "noMailbox": "Você ainda não tem uma caixa de e-mail neste espaço de trabalho. <link>Adicione uma em E-mail</link> e depois configure o agente.",
+      "summaryMail": "Criá-lo adiciona o agente, abre {mailbox} para ele e faz os e-mails novos dali o iniciarem. O agente recebe acesso de edição a {database}; cada linha ou mudança que ele propõe espera sua aprovação em Para revisar.",
       "back": "Voltar",
       "next": "Avançar",
       "create": "Criar agente",
@@ -757,7 +765,8 @@
         "sameOptions": "Escolha duas opções diferentes.",
         "needPages": "Escolha pelo menos uma página.",
         "needName": "Dê um nome ao agente.",
-        "needConnection": "Escolha uma conexão."
+        "needConnection": "Escolha uma conexão.",
+        "needMailbox": "Escolha uma caixa de e-mail."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Digite até 10 endereços de e-mail.",
         "requestTokens": "Peça um número inteiro de tokens acima do limite atual, até 1.000.000.000.",
         "requestNote": "Explique o motivo em no máximo 500 caracteres.",
-        "noLimit": "Este agente não tem limite para aumentar."
+        "noLimit": "Este agente não tem limite para aumentar.",
+        "mailbox": "Escolha uma das suas caixas de e-mail neste espaço de trabalho."
       },
       "noteEmpty": "Escreva o que o agente deve lembrar.",
       "noteTooLong": "Uma nota pode ter no máximo {max} caracteres.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Seu e-mail",
-      "description": "Abra uma caixa para que este agente possa pesquisar e ler seus e-mails e salvar rascunhos nela: nas suas conversas com ele aqui e nos agendamentos que você define sem um banco de dados a cuidar.",
+      "description": "Abra uma caixa para que este agente possa pesquisar, ler e organizar o seu e-mail e guardar rascunhos nela: nas suas conversas com ele aqui, nos agendamentos que definir sem base de dados a acompanhar e, se ativar, quando chegar e-mail novo.",
       "open": "Abrir {address} para este agente",
-      "note": "Ele nunca envia e-mails: você envia os rascunhos dele pela aba E-mail. Depois que uma execução lê e-mails, ela só lê páginas e escreve rascunhos. Outras pessoas que usam ou editam este agente nunca veem seus e-mails."
+      "note": "Nunca envia e-mail: é você quem envia os rascunhos na aba E-mail. Depois de uma execução ler e-mail, ela só lê páginas e trabalha no seu e-mail. As outras pessoas que usam ou editam este agente nunca veem o seu e-mail.",
+      "trigger": {
+        "label": "Executar com e-mail novo",
+        "edit": "Alterar",
+        "task": "O que fazer com cada e-mail novo",
+        "taskPlaceholder": "Resuma-o, prepare uma resposta quando for pedida e arquive as newsletters.",
+        "senders": "Só de (opcional)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Escreva endereços de e-mail ou domínios separados por vírgulas.",
+        "subject": "Só com estas palavras no assunto (opcional)",
+        "subjectPlaceholder": "proposta",
+        "knownOnly": "Só de pessoas que são linhas das suas bases de dados",
+        "skipped": "O e-mail que envia, os rascunhos, as respostas automáticas, as listas de distribuição e os envios em massa nunca o iniciam. No máximo {hour} execuções por hora e {day} por dia desta caixa.",
+        "limited": "Recentemente alguns e-mails ficaram de fora: o limite por hora ou por dia foi atingido."
+      }
     }
   },
   "analytics": {

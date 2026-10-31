@@ -1372,7 +1372,9 @@
       "request": "요청한 작업",
       "requestOn": "요청한 작업 · {place}",
       "mention": "댓글에서 멘션함",
-      "mentionOn": "{place}에서 멘션함"
+      "mentionOn": "{place}에서 멘션함",
+      "mail": "새 메일",
+      "mailOn": "새 메일 · {place}"
     },
     "doneQuietly": "완료했습니다.",
     "side": {

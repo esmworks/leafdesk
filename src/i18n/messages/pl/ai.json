@@ -328,6 +328,15 @@
           "done": "Zapisano wersję roboczą:",
           "declined": "Odrzucono wersję roboczą:",
           "failed": "Nie udało się zapisać wersji roboczej:"
+        },
+        "summarized": "Podsumowano:",
+        "moved": "Przeniesiono do {folder}:",
+        "sorted": {
+          "read": "Oznaczono jako przeczytane:",
+          "unread": "Oznaczono jako nieprzeczytane:",
+          "star": "Oznaczono gwiazdką:",
+          "unstar": "Usunięto gwiazdkę:",
+          "archive": "Zarchiwizowano:"
         }
       }
     },

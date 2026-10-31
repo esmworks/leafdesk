@@ -6,14 +6,15 @@ import { MAX_AGENT_INSTRUCTIONS } from "./agents";
  * Built-in agents: a few ready-made agents for a database. Most are started by an automation when a
  * row is added; the wins logger by a trigger on a connection's events, adding a row for each one
  * that is a win. The company researcher looks each new row's company up on the web (it gets web
- * access) and fills the row's empty properties. Picking one (Settings > Agents > Start from a template) creates an ordinary agent
+ * access) and fills the row's empty properties. The mail assistant is started by new email in the
+ * installer's own mailbox (agents/mail-trigger.ts) and proposes changes to a database of customers. Picking one (Settings > Agents > Start from a template) creates an ordinary agent
  * with instructions filled in with the database's own property and option names, and the
  * automation or trigger that runs it (see server/agents/builtin.ts `installBuiltinAgent`). The
  * structure is here; the texts, instructions included, are in
  * `i18n/messages/<locale>/agentTemplates.json`, so an agent speaks the language of whoever set it up.
  */
 
-export const BUILTIN_AGENT_KEYS = ["ticket-router", "request-answerer", "duplicate-finder", "wins-logger", "company-details"] as const;
+export const BUILTIN_AGENT_KEYS = ["ticket-router", "request-answerer", "duplicate-finder", "wins-logger", "company-details", "mail-assistant"] as const;
 export type BuiltinAgentKey = (typeof BUILTIN_AGENT_KEYS)[number];
 
 export const isBuiltinAgentKey = (value: unknown): value is BuiltinAgentKey =>
@@ -25,16 +26,17 @@ export const BUILTIN_AGENT_ICONS: Record<BuiltinAgentKey, string> = {
   "duplicate-finder": "🔁",
   "wins-logger": "🏆",
   "company-details": "🏢",
+  "mail-assistant": "📬",
 };
 
-/** Agents a connection's events start (through a trigger) rather than an automation on new rows. */
+/** Agents a connection's events start (through a trigger) rather than an automation on new rows; the mail assistant is started by new email. */
 export const EVENT_AGENT_KEYS = ["wins-logger"] as const satisfies readonly BuiltinAgentKey[];
 export type EventAgentKey = (typeof EVENT_AGENT_KEYS)[number];
 export const isEventAgentKey = (key: BuiltinAgentKey): key is EventAgentKey =>
   (EVENT_AGENT_KEYS as readonly string[]).includes(key);
 
 /** Agents that fill the database's own properties and bring none of their own. */
-export const FILLING_AGENT_KEYS = ["wins-logger", "company-details"] as const satisfies readonly BuiltinAgentKey[];
+export const FILLING_AGENT_KEYS = ["wins-logger", "company-details", "mail-assistant"] as const satisfies readonly BuiltinAgentKey[];
 /** Agents whose setup offers to create a property of their own (see `newPropertyNames`). */
 export type OwnPropertyKey = Exclude<BuiltinAgentKey, (typeof FILLING_AGENT_KEYS)[number]>;
 export const bringsOwnProperty = (key: BuiltinAgentKey): key is OwnPropertyKey => !(FILLING_AGENT_KEYS as readonly string[]).includes(key);
@@ -75,7 +77,9 @@ export const NEW_PROPERTY = "new";
  * `pages` are the pages the answerer may read (shared with it to view). The wins logger's events
  * come from `connectionId`, of `eventType` (null or empty for any); its trigger starts untrusted,
  * and each row it adds waits for an owner either way. The company researcher's `properties` are
- * those it may fill (see `isCompanyProperty`). `name` replaces the template's name when given.
+ * those it may fill (see `isCompanyProperty`). The mail assistant works on mail of `mailboxId`, one
+ * of the installer's own, from senders who have a row when `knownOnly`. `name` replaces the
+ * template's name when given.
  */
 export type BuiltinAgentSetup = { databaseId: string; name?: string } & (
   | { key: "ticket-router"; properties: string[]; rules: string }
@@ -83,6 +87,7 @@ export type BuiltinAgentSetup = { databaseId: string; name?: string } & (
   | { key: "duplicate-finder"; property: string }
   | { key: "wins-logger"; connectionId: string; eventType?: string | null }
   | { key: "company-details"; properties: string[] }
+  | { key: "mail-assistant"; mailboxId: string; knownOnly?: boolean }
 );
 
 /** The texts of one language (server/agents/builtin.ts `builtinAgentTexts` loads them). */
@@ -103,7 +108,7 @@ export function newPropertyNames(texts: BuiltinAgentTexts, key: OwnPropertyKey) 
 
 /**
  * A template as the gallery lists it, with the property its setup offers to create (none for the
- * wins logger and the company researcher, which fill the database's own).
+ * wins logger, the company researcher and the mail assistant, which use the database's own).
  */
 export type BuiltinAgentSummary = {
   key: BuiltinAgentKey;
@@ -159,6 +164,7 @@ export type BuiltinAgentNames = { database: string } & (
   | { key: "duplicate-finder"; property: string }
   | { key: "wins-logger"; databaseId: string; properties: LogProperty[]; connection: string }
   | { key: "company-details"; properties: CompanyProperty[] }
+  | { key: "mail-assistant"; databaseId: string }
 );
 
 /** `{name}` placeholders filled in one pass, so a value that has braces of its own stays as it is. */
@@ -235,6 +241,8 @@ export function buildBuiltinAgent(texts: BuiltinAgentTexts, names: BuiltinAgentN
       lines.pop();
       instructions = write();
     }
+  } else if (names.key === "mail-assistant") {
+    instructions = fill(texts["mail-assistant"].instructions, { database: quote(database), databaseId: names.databaseId });
   } else {
     instructions = fill(texts["duplicate-finder"].instructions, { database: quote(database), property: quote(names.property) });
   }

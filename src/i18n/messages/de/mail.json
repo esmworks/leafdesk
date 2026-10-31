@@ -223,5 +223,14 @@
       "addedNote": "Zur heutigen Tagesnotiz hinzugefügt.",
       "open": "Öffnen"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "gelesen",
+      "drafted": "Antwort entworfen",
+      "sorted": "geordnet",
+      "summarized": "zusammengefasst"
+    }
   }
 }

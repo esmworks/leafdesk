@@ -328,6 +328,15 @@
           "done": "Rascunho salvo:",
           "declined": "Rascunho recusado:",
           "failed": "Não foi possível salvar o rascunho:"
+        },
+        "summarized": "Resumido:",
+        "moved": "Movido para {folder}:",
+        "sorted": {
+          "read": "Marcado como lido:",
+          "unread": "Marcado como não lido:",
+          "star": "Com estrela:",
+          "unstar": "Sem estrela:",
+          "archive": "Arquivado:"
         }
       }
     },

@@ -6,7 +6,10 @@
  * automation that runs it on every new row, which shares the database with it (edit). The wins
  * logger gets the database shared (edit) and an untrusted trigger on the connection instead; each
  * row it adds from an event waits for an owner's approval (agents/run.ts). The company researcher
- * brings nothing of its own: it gets web access and fills the database's chosen properties.
+ * brings nothing of its own: it gets web access and fills the database's chosen properties. The mail
+ * assistant gets the database shared (edit), one of the installer's mailboxes opened to it and that
+ * mailbox's trigger on new email turned on (agents/mail.ts); what it would change in the database
+ * waits for the mailbox's owner alone (agents/run.ts).
  */
 import { and, count, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
@@ -43,10 +46,13 @@ import {
 import { PropertyValueError } from "@/lib/properties";
 import { pageAccessOf } from "@/server/access";
 import { AgentError, archiveAgent, createAgent, setAgentAccess } from "@/server/agents/manage";
+import { setAgentMailbox, setAgentMailTrigger } from "@/server/agents/mail";
 import { requireAgentCreator } from "@/server/agents/sharing";
 import { createAutomation } from "@/server/automations/manage";
 import { assertTriggerRoom, ConnectionError, createTrigger, ownedConnection } from "@/server/connections/manage";
 import { addProperty, ensureOption, getProperties, requireDatabase } from "@/server/databases";
+import { requireOwnMailbox } from "@/server/mail-client/access";
+import { RowMailError } from "@/server/row-mail/settings";
 
 /** The texts in the given UI language; English for any other, and for texts a language lacks. */
 export async function builtinAgentTexts(locale: string | undefined): Promise<BuiltinAgentTexts> {
@@ -103,7 +109,8 @@ async function addOwnProperty(
 
 /**
  * Sets up a built-in agent on a database (those who may create agents, with full access to the database). Returns the
- * agent and the automation that runs it, or for the wins logger the connection's trigger.
+ * agent and the automation that runs it, or for the wins logger the connection's trigger (the mail
+ * assistant has neither: its mailbox's new email starts it).
  */
 export async function installBuiltinAgent(
   userId: string,
@@ -116,7 +123,7 @@ export async function installBuiltinAgent(
   const database = await requireDatabase(userId, String(setup.databaseId ?? ""), "full");
   if (database.workspaceId !== workspaceId) throw invalid("database", "The database is in another workspace");
   const databaseId = database.id;
-  if (!isEventAgentKey(setup.key)) {
+  if (!isEventAgentKey(setup.key) && setup.key !== "mail-assistant") {
     const [{ n }] = await db.select({ n: count() }).from(databaseAutomation).where(eq(databaseAutomation.databaseId, databaseId));
     if (n >= MAX_AUTOMATIONS) {
       throw new PropertyValueError(`A database has at most ${MAX_AUTOMATIONS} automations`, "tooManyAutomations", { max: String(MAX_AUTOMATIONS) });
@@ -130,7 +137,17 @@ export async function installBuiltinAgent(
   const pages: { id: string; title: string }[] = [];
   let create: () => Promise<void> = async () => {};
   let trigger: { connectionId: string; eventType: string | null } | null = null;
-  if (setup.key === "wins-logger") {
+  let mail: { mailboxId: string; knownOnly: boolean } | null = null;
+  if (setup.key === "mail-assistant") {
+    // Checked before anything is made; opening the mailbox to the agent checks the same again.
+    const box = await requireOwnMailbox(userId, String(setup.mailboxId ?? "")).catch((error: unknown) => {
+      throw error instanceof RowMailError ? invalid("mailbox", "Choose one of your mailboxes") : error;
+    });
+    if (box.workspaceId !== workspaceId) throw invalid("mailbox", "Choose one of your mailboxes");
+    // Only mail from people who have a row, unless the wizard said otherwise.
+    mail = { mailboxId: box.id, knownOnly: setup.knownOnly !== false };
+    names = { key: "mail-assistant", database: database.title, databaseId };
+  } else if (setup.key === "wins-logger") {
     // Checked before anything is made; createTrigger checks the same again once the agent exists.
     const conn = await ownedConnection(userId, String(setup.connectionId ?? ""));
     if (conn.workspaceId !== workspaceId) throw new ConnectionError("notFound", "Connection not found");
@@ -228,10 +245,22 @@ export async function installBuiltinAgent(
     instructions: built.instructions,
     webAccess: built.webAccess,
     // Its answers go to people who asked: someone reads each one before it is written to the row.
-    ...(names.key === "request-answerer" ? { rowChanges: "review" as const } : {}),
+    // The mail assistant's changes come from email: they wait for the mailbox's owner either way.
+    ...(names.key === "request-answerer" || names.key === "mail-assistant" ? { rowChanges: "review" as const } : {}),
   });
   try {
     for (const page of pages) await setAgentAccess(userId, agent.id, page.id, "view");
+    if (mail) {
+      // It proposes rows and changes there; opening the mailbox shares nothing else.
+      await setAgentAccess(userId, agent.id, databaseId, "edit");
+      await setAgentMailbox(userId, agent.id, mail.mailboxId, true);
+      await setAgentMailTrigger(userId, agent.id, mail.mailboxId, {
+        on: true,
+        task: built.task,
+        filters: { senders: [], subject: "", knownOnly: mail.knownOnly },
+      });
+      return { agent, automationId: null, triggerId: null };
+    }
     if (trigger) {
       // It adds rows to the log; a trigger shares nothing by itself.
       await setAgentAccess(userId, agent.id, databaseId, "edit");

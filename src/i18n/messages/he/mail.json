@@ -223,5 +223,14 @@
       "addedNote": "נוסף לפתק היומי של היום.",
       "open": "פתח"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "קרא",
+      "drafted": "ניסח טיוטת תשובה",
+      "sorted": "סידר",
+      "summarized": "סיכם"
+    }
   }
 }

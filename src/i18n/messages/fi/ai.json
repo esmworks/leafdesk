@@ -328,6 +328,15 @@
           "done": "Luonnos tallennettu:",
           "declined": "Luonnos hylätty:",
           "failed": "Luonnosta ei voitu tallentaa:"
+        },
+        "summarized": "Tiivistetty:",
+        "moved": "Siirretty kansioon {folder}:",
+        "sorted": {
+          "read": "Merkitty luetuksi:",
+          "unread": "Merkitty lukemattomaksi:",
+          "star": "Tähdellä merkitty:",
+          "unstar": "Tähti poistettu:",
+          "archive": "Arkistoitu:"
         }
       }
     },

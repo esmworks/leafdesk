@@ -223,5 +223,14 @@
       "addedNote": "Tillagda i dagens daganteckning.",
       "open": "Öppna"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "läst",
+      "drafted": "skrev ett svarsutkast",
+      "sorted": "sorterat",
+      "summarized": "sammanfattat"
+    }
   }
 }

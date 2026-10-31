@@ -1372,7 +1372,9 @@
       "request": "Việc bạn đã nhờ",
       "requestOn": "Việc bạn đã nhờ · {place}",
       "mention": "Bạn đã nhắc đến nó trong một bình luận",
-      "mentionOn": "Bạn đã nhắc đến nó trên {place}"
+      "mentionOn": "Bạn đã nhắc đến nó trên {place}",
+      "mail": "Email mới",
+      "mailOn": "Email mới · {place}"
     },
     "doneQuietly": "Xong.",
     "side": {

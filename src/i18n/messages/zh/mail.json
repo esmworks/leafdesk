@@ -223,5 +223,14 @@
       "addedNote": "已添加到今天的每日笔记。",
       "open": "打开"
     }
+  },
+  "agentMark": {
+    "title": "{name}:{did}",
+    "did": {
+      "read": "已阅读",
+      "drafted": "已起草回复",
+      "sorted": "已整理",
+      "summarized": "已总结"
+    }
   }
 }

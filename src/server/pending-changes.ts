@@ -10,7 +10,8 @@
  * only the people it asks may approve it (the run goes on) or dismiss it (the run stops).
  *
  * Who sees a proposal: whoever may open its row (or, for a new row, its database) and see every
- * value it sets; an email draft, whoever reads the row's email (row-mail/access.ts). The people it
+ * value it sets; an email draft, whoever reads the row's email (row-mail/access.ts). One proposed
+ * from someone's email (`private_to`) only they see, and never through a connected app. The people it
  * is for hear about it in their inbox (kind "review"), batched: one unread notification per person
  * and workspace, which newer proposals bring back to the top.
  */
@@ -55,6 +56,7 @@ import {
 } from "@/server/access";
 import { loadLookups } from "@/server/activity-lookups";
 import { recordAudit } from "@/server/audit";
+import { connectedAppCall } from "@/server/connected-app";
 import { isAgentUser } from "@/server/agents/users";
 import { getCollab, type WriteActor } from "@/server/collab/bridge";
 import { getProperties, normalizeRowProperties } from "@/server/databases";
@@ -109,6 +111,8 @@ export type ProposalInput = {
   agent: { id: string; userId: string } | null;
   runId: string | null;
   senderId?: string | null;
+  /** The one person who sees and answers it: a change proposed from their email. */
+  privateTo?: string | null;
   /** Who to tell, besides the sender of a draft: the first of them who may approve it (see reviewersOf). */
   for: (string | null | undefined)[];
 };
@@ -161,12 +165,13 @@ export async function proposeChange(input: ProposalInput): Promise<{ id: string;
         agentRunId: input.runId,
         proposedBy: input.agent?.userId ?? null,
         senderId: input.senderId ?? null,
+        privateTo: input.privateTo ?? null,
       })
       .returning({ id: pendingChange.id });
     id = made.id;
   }
   const reviewers = await reviewersOf(
-    { kind: input.kind, workspaceId: input.workspaceId, databaseId: input.databaseId, rowId: input.rowId, senderId: input.senderId ?? null },
+    { kind: input.kind, workspaceId: input.workspaceId, databaseId: input.databaseId, rowId: input.rowId, senderId: input.senderId ?? null, privateTo: input.privateTo ?? null },
     input.for,
   );
   await notifyReviewers(input.workspaceId, reviewers, input.agent?.userId ?? null);
@@ -181,13 +186,15 @@ export async function proposeChange(input: ProposalInput): Promise<{ id: string;
  * queue: telling every editor of a database about each proposal would bury them.
  */
 export async function reviewersOf(
-  change: { kind: PendingChangeKind; workspaceId: string; databaseId: string; rowId: string | null; senderId: string | null },
+  change: { kind: PendingChangeKind; workspaceId: string; databaseId: string; rowId: string | null; senderId: string | null; privateTo?: string | null },
   candidates: (string | null | undefined)[],
 ): Promise<string[]> {
   if (change.kind === "email_draft") return change.senderId ? [change.senderId] : [];
   const target = change.rowId ?? change.databaseId;
   const mayEdit = async (userId: string) =>
     !(await isAgentUser(userId)) && Boolean(await findMembership(userId, change.workspaceId)) && hasLevel((await pageAccessOf(userId, target)).level, "content");
+  // Theirs alone: no one else hears of it.
+  if (change.privateTo) return (await mayEdit(change.privateTo)) ? [change.privateTo] : [];
   for (const id of new Set(candidates.filter((c): c is string => !!c))) {
     if (await mayEdit(id)) return [id];
   }
@@ -241,8 +248,15 @@ const sender = alias(user, "sender");
 const targetRank = (userId: string) => accessRank(userId, sql`coalesce(${pendingChange.rowId}, ${pendingChange.databaseId})`);
 const EDIT_RANK = 3;
 
+/**
+ * SQL: one proposed from someone's email is theirs alone, and stays in the app (a connected app,
+ * MCP or the REST API, gets none: what such runs did never leaves it).
+ */
+const ownProposal = (userId: string) =>
+  connectedAppCall(userId) ? isNull(pendingChange.privateTo) : or(isNull(pendingChange.privateTo), eq(pendingChange.privateTo, userId));
+
 /** SQL: proposals the viewer may at least see, by their access to the page (values and email are checked after). */
-const seenBy = (userId: string) => sql`${targetRank(userId)} > 0`;
+const seenBy = (userId: string) => and(sql`${targetRank(userId)} > 0`, ownProposal(userId));
 
 /**
  * Proposals of a workspace the viewer may see, newest first: those still to be answered (`open`,
@@ -290,6 +304,7 @@ export async function countPendingFor(userId: string, workspaceId: string): Prom
       and(
         eq(pendingChange.workspaceId, workspaceId),
         inArray(pendingChange.status, [...OPEN]),
+        ownProposal(userId),
         or(
           and(eq(pendingChange.kind, "email_draft"), eq(pendingChange.senderId, userId)),
           and(eq(pendingChange.kind, "automation_approval"), sql`${pendingChange.payload}->'approverIds' @> jsonb_build_array(${userId}::text)`),

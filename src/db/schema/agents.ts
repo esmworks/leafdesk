@@ -14,6 +14,7 @@ import type {
   ApprovalDecision,
 } from "@/lib/agents";
 import type { AgentChatMessageRecord } from "@/lib/agent-chat";
+import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
 import { page, workspace, workspaceMember } from "./app";
 import { user } from "./auth";
@@ -377,7 +378,8 @@ export const agentLimitRequest = pgTable(
 /**
  * A mailbox its owner opened to an agent (server/agents/mail.ts): the agent's runs that work for
  * them and show what they did to them alone read its mail and save drafts in it. Only the
- * mailbox's owner adds or removes one; the mailbox going takes it away.
+ * mailbox's owner adds or removes one; the mailbox going takes it away. With `onNewMail`, each new
+ * email in its inbox that `filters` take starts a run with `task` (agents/mail-trigger.ts).
  */
 export const agentMailbox = pgTable(
   "agent_mailbox",
@@ -389,6 +391,11 @@ export const agentMailbox = pgTable(
       .notNull()
       .references(() => mailbox.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    onNewMail: boolean("on_new_mail").notNull().default(false),
+    task: text("task").notNull().default(""),
+    filters: jsonb("filters").$type<MailTriggerFilters>().notNull().default({ senders: [], subject: "", knownOnly: false }),
+    /** When new email last found the hourly or daily limit reached and started no run (lib/agents.ts MAX_MAIL_RUNS_PER_HOUR). */
+    limitedAt: timestamp("limited_at", { withTimezone: true }),
   },
   (t) => [primaryKey({ columns: [t.agentId, t.mailboxId] }), index("agent_mailbox_mailbox_idx").on(t.mailboxId)],
 );

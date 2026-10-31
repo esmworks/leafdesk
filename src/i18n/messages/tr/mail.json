@@ -223,5 +223,14 @@
       "addedNote": "Bugünün günlük notuna eklendi.",
       "open": "Aç"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "okudu",
+      "drafted": "cevap taslağı hazırladı",
+      "sorted": "düzenledi",
+      "summarized": "özetledi"
+    }
   }
 }

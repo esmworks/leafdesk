@@ -9,7 +9,7 @@
  * the person started otherwise (schedules, tasks, mentions) come in as the agent speaking up, asked
  * for again as they go on; a block keeps conversations to pick from. Loaded only where a chat is shown.
  */
-import { ArrowUp, AtSign, Check, Clock, ListChecks, Loader2, Plus, Trash2, TriangleAlert } from "lucide-react";
+import { ArrowUp, AtSign, Check, Clock, ListChecks, Loader2, Mail, Plus, Trash2, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -735,7 +735,7 @@ function RunMessage({
   const format = useFormatter();
   // The agent's own chat marks each day: the time is enough.
   const when = format.dateTime(new Date(run.at), { hour: "2-digit", minute: "2-digit" });
-  const Icon = run.kind === "schedule" ? Clock : run.kind === "mention" ? AtSign : ListChecks;
+  const Icon = run.kind === "schedule" ? Clock : run.kind === "mention" ? AtSign : run.kind === "mail" ? Mail : ListChecks;
   const from = run.label ? t(`from.${run.kind}On`, { place: run.label }) : t(`from.${run.kind}`);
   return (
     <div className="space-y-1 text-sm" data-agent-run={run.kind}>

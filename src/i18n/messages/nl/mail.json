@@ -223,5 +223,14 @@
       "addedNote": "Toegevoegd aan de dagnotitie van vandaag.",
       "open": "Openen"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "gelezen",
+      "drafted": "antwoord opgesteld",
+      "sorted": "geordend",
+      "summarized": "samengevat"
+    }
   }
 }

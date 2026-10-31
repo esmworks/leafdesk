@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { MailboxAuth, MailboxFolders, MailboxStatus, RowEmailDirection, RowEmailStatus } from "../../lib/mail";
-import type { MailAddress, MailFolderRole } from "../../lib/mail-client";
+import type { MailAddress, MailAgentMark, MailFolderRole } from "../../lib/mail-client";
 import { page, workspace } from "./app";
 import { user } from "./auth";
 import { file } from "./files";
@@ -265,6 +265,14 @@ export const mailMessage = pgTable(
      * another folder, the message gone from the server) and is made again on the next ask.
      */
     summary: text("summary"),
+    /**
+     * Written by a machine (an auto-reply, a mailing list, bulk mail: lib/mail.ts isAutomated, or a
+     * List-Id or List-Unsubscribe header): such new mail starts no agent's run. Read with the
+     * headers when the message is indexed; false for messages indexed before it was kept.
+     */
+    automated: boolean("automated").notNull().default(false),
+    /** What agents did with it, each once (agents/run.ts): the Mail tab marks its thread. */
+    agentMarks: jsonb("agent_marks").$type<MailAgentMark[]>(),
   },
   (t) => [
     uniqueIndex("mail_message_uid_idx").on(t.folderId, t.uid),

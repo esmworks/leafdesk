@@ -223,5 +223,14 @@
       "addedNote": "Aggiunte alla nota giornaliera di oggi.",
       "open": "Apri"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "l'ha letta",
+      "drafted": "ha preparato una risposta",
+      "sorted": "l'ha ordinata",
+      "summarized": "l'ha riassunta"
+    }
   }
 }

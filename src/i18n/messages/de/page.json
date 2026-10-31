@@ -1372,7 +1372,9 @@
       "request": "Eine Aufgabe von dir",
       "requestOn": "Eine Aufgabe von dir · {place}",
       "mention": "Du hast es in einem Kommentar erwähnt",
-      "mentionOn": "Du hast es auf {place} erwähnt"
+      "mentionOn": "Du hast es auf {place} erwähnt",
+      "mail": "Neue E-Mail",
+      "mailOn": "Neue E-Mail · {place}"
     },
     "doneQuietly": "Erledigt.",
     "side": {

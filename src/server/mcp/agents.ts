@@ -743,7 +743,14 @@ export function describeAgentStep(step: AgentStepRecord) {
       return {
         kind: "mail",
         action: step.action,
-        summary: { search: "Searched the user's email", read: "Read an email", draft: "Saved an email draft", earlier: "Went on from a chat that read email" }[step.action],
+        summary: {
+          search: "Searched the user's email",
+          read: "Read an email",
+          draft: "Saved an email draft",
+          earlier: "Went on from a chat that read email",
+          sort: "Sorted an email thread",
+          summary: "Kept a summary of an email thread",
+        }[step.action],
       };
     case "memory": {
       const how = { remember: "Remembered", propose: "Proposed a note for an owner to keep", forget: "Dropped a note", handoff: "Left a note for the schedule's next run" }[step.action];
@@ -859,6 +866,8 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
   }
   // A chat's message is its person's alone (empty for anyone else).
   if (source.kind === "chat") return { source: { kind: source.kind, by: { id: source.userId, name: run.chat?.byName ?? "" }, message: run.chat?.message ?? "" } };
+  // Whose email came, never what it said: that stays in the app.
+  if (source.kind === "mail") return { source: { kind: source.kind, mailbox_of: { id: source.userId, name: run.mail?.byName ?? "" } } };
   return {
     source: { kind: source.kind, requested_by: { id: source.requestedBy, name: run.request?.byName ?? "" }, via: source.via, task: run.request?.task ?? "", ...database },
     ...row,
@@ -868,7 +877,7 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
 /** A run as list_agent_runs returns it. */
 export function describeAgentRun(workspaceId: string, run: AgentRunView) {
   // What a run that read email did and said shows only in the app (lib/agents.ts readEmail).
-  const mailed = readEmail(run.steps);
+  const mailed = readEmail(run.steps) || run.source.kind === "mail";
   return {
     id: run.id,
     status: run.status,

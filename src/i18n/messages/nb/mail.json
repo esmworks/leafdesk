@@ -223,5 +223,14 @@
       "addedNote": "Lagt til i dagens dagsnotat.",
       "open": "Åpne"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "lest",
+      "drafted": "skrev et svarutkast",
+      "sorted": "sortert",
+      "summarized": "oppsummert"
+    }
   }
 }

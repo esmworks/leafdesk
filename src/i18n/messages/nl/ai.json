@@ -328,6 +328,15 @@
           "done": "Concept opgeslagen:",
           "declined": "Concept geweigerd:",
           "failed": "Concept kon niet worden opgeslagen:"
+        },
+        "summarized": "Samengevat:",
+        "moved": "Verplaatst naar {folder}:",
+        "sorted": {
+          "read": "Als gelezen gemarkeerd:",
+          "unread": "Als ongelezen gemarkeerd:",
+          "star": "Met ster:",
+          "unstar": "Ster verwijderd:",
+          "archive": "Gearchiveerd:"
         }
       }
     },

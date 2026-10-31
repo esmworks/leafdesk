@@ -145,7 +145,7 @@ export const THREAD_RUNS = 30;
  */
 export type AgentChatRunView = {
   id: string;
-  kind: "schedule" | "request" | "mention";
+  kind: "schedule" | "request" | "mention" | "mail";
   status: AgentRunStatus;
   code: AgentRunCode | null;
   label: string | null;

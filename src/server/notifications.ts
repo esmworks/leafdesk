@@ -1336,7 +1336,7 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
       status: r.status,
       code: r.code ?? null,
       text: about && !open.has(about) ? null : snippetOf(markdownPlain(r.answer), REPORT_CHARS),
-      email: readEmail(r.steps),
+      email: readEmail(r.steps) || r.source.kind === "mail",
       ...(r.source.kind === "handoff" ? { from: r.giverId ? { agentId: r.giverId, agentName: r.giverName ?? "" } : null } : {}),
     });
   }

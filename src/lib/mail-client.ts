@@ -217,6 +217,12 @@ export type MailboxTabView = {
 };
 
 /** A thread in a folder's list. */
+/** What an agent did with a message (agents/run.ts): read it when it came, drafted its answer, sorted it (read, starred, archived, moved) or summarized its thread. */
+export const MAIL_AGENT_DEEDS = ["read", "drafted", "sorted", "summarized"] as const;
+export type MailAgentDeed = (typeof MAIL_AGENT_DEEDS)[number];
+/** One agent's work on a message, kept on it (`mail_message.agent_marks`): what it did, the latest first time each. */
+export type MailAgentMark = { agentId: string; did: MailAgentDeed[]; at: string };
+
 export type MailThreadItem = {
   threadId: string;
   /** The mailbox and folder it is listed from, which its moves and flags go to (several in ALL_INBOXES). */
@@ -241,7 +247,12 @@ export type MailThreadItem = {
   snoozedUntil: string | null;
   /** The database row the other party is (its title and database), when one is. */
   row: { rowId: string; databaseId: string; title: string; icon: string | null } | null;
+  /** Agents that worked on its messages here, and what they did, for the list's mark (none: empty). */
+  agents: MailThreadAgent[];
 };
+
+/** An agent's work on a thread, as the Mail tab marks it: its name and icon, and what it did. */
+export type MailThreadAgent = { agentId: string; name: string; icon: string | null; did: MailAgentDeed[] };
 
 export type MailThreadPage = { items: MailThreadItem[]; next: string | null };
 

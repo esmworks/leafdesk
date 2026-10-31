@@ -328,6 +328,15 @@
           "done": "Taslak kaydedildi:",
           "declined": "Taslak reddedildi:",
           "failed": "Taslak kaydedilemedi:"
+        },
+        "summarized": "Özetlendi:",
+        "moved": "{folder} klasörüne taşındı:",
+        "sorted": {
+          "read": "Okundu işaretlendi:",
+          "unread": "Okunmadı işaretlendi:",
+          "star": "Yıldızlandı:",
+          "unstar": "Yıldızı kaldırıldı:",
+          "archive": "Arşivlendi:"
         }
       }
     },

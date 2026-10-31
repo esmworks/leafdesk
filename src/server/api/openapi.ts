@@ -781,12 +781,12 @@ const SCHEMAS: Record<string, JsonSchema> = {
       status: { type: "string", enum: ["pending", "running", "awaiting_approval", "done", "failed"] },
       code: {
         type: "string",
-        description: "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached or error.",
+        description: "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached, mailGone or error.",
       },
       error: { type: "string" },
       source: loose(
         {
-          kind: { type: "string", enum: ["automation", "connection", "request", "schedule", "mention", "handoff"] },
+          kind: { type: "string", enum: ["automation", "connection", "request", "schedule", "mention", "handoff", "chat", "mail"] },
           requested_by: loose({ id, name: { type: "string" } }),
           via: { type: "string", enum: ["api", "mcp"] },
           task: {
@@ -798,6 +798,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
           asked_by: { ...loose({ agent_id: id, name: { type: "string" }, run_id: id }), description: "For a run another agent asked for (`handoff`): that agent and its run." },
           database: loose({ id, title: { type: ["string", "null"], description: "null where the user can't open the database." }, url }),
           mentioned_by: loose({ id, name: { type: "string" } }),
+          mailbox_of: { ...loose({ id, name: { type: "string" } }), description: "For a run new email started (`mail`): whose mailbox it came to." },
           thread_id: { type: "string", description: "The comment thread the agent answers in." },
           page: loose({ id, title: { type: ["string", "null"], description: "null where the user can't open the page." }, url }),
         },

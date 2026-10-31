@@ -16,15 +16,16 @@
  * reply only to the people of its thread, a new email only to addresses the person wrote in their
  * message or task (`typed`) or the mailbox's own.
  */
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { createTranslator } from "next-intl";
 import { db } from "@/db";
 import { mailbox, mailFolder, mailMessage } from "@/db/schema";
+import type { MailSortAction } from "@/db/schema/ai";
 import type { ChatActionView } from "@/lib/ai-chat";
 import { env } from "@/lib/env";
 import { normalizeAddress } from "@/lib/mail";
 import { draftHtml } from "@/lib/mail-ai";
-import { ALL_INBOXES, type MailThreadItem } from "@/lib/mail-client";
+import { ALL_INBOXES, movableTo, type MailAgentDeed, type MailAgentMark, type MailThreadItem } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
 import { AiError, type AiTool } from "@/server/ai";
 import { externalData } from "@/server/ai/frame";
@@ -34,11 +35,12 @@ import { connectedAppCall } from "@/server/connected-app";
 import { loadMessages } from "@/i18n/messages";
 import { recipientLocale } from "@/server/mail/locale";
 import { RowMailError } from "@/server/row-mail/settings";
-import { threadForAi } from "@/server/mail-client/ai";
+import { saveSummary, threadForAi } from "@/server/mail-client/ai";
 import { conversationText } from "@/server/mail-client/ai-prompts";
 import { saveDraft } from "@/server/mail-client/drafts";
 import { outgoingBody } from "@/server/mail-client/outgoing";
 import { listMailboxes, listThreads, mailTabShown, openMailbox, ownMessage } from "@/server/mail-client/read";
+import { mailAction } from "@/server/mail-client/write";
 
 export const MAIL_TOOL_NAMES = { search: "search_mail", read: "read_mail", draft: "draft_mail" } as const;
 
@@ -106,8 +108,45 @@ const AGENT_DRAFT_TOOL: AiTool = {
     "Saves an email as a draft in the person's Drafts folder; it is never sent: they read it and send it from the Mail tab. With reply_to it answers that message in its thread, the earlier mail under it, and goes only to people of that thread; a new email goes only to addresses the person wrote in their message or task.",
 };
 
+/** What an agent's run does to the person's mail besides reading and drafting: sorting threads and keeping their summaries. */
+export const AGENT_MAIL_ACTION_NAMES = { sort: "sort_mail", summary: "summarize_mail" } as const;
+export const AGENT_MAIL_ACTIONS: ReadonlySet<string> = new Set(Object.values(AGENT_MAIL_ACTION_NAMES));
+const SORT_ACTIONS: readonly MailSortAction[] = ["read", "unread", "star", "unstar", "archive", "move"];
+const SUMMARY_CHARS = 1_500;
+
+const AGENT_ACTION_TOOLS: AiTool[] = [
+  {
+    name: AGENT_MAIL_ACTION_NAMES.sort,
+    description:
+      "Sorts an email thread of the person's: marks it read or unread, stars or unstars it, archives it, or moves it to one of the mailbox's folders by its name. Never the trash or junk, never deleting: the person can undo any of it in the Mail tab.",
+    parameters: {
+      type: "object",
+      properties: {
+        message_id: { type: "string", description: "A message_id of the thread (from read_mail, search_mail or the email that came)." },
+        action: { type: "string", enum: [...SORT_ACTIONS] },
+        folder: { type: "string", description: "For move: the name of the folder, as the Mail tab shows it." },
+      },
+      required: ["message_id", "action"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: AGENT_MAIL_ACTION_NAMES.summary,
+    description: `Keeps a summary of an email thread, which the Mail tab shows above it: a few short lines in the language of the email, who wants what and by when. At most ${SUMMARY_CHARS} characters; it takes the place of the thread's earlier summary.`,
+    parameters: {
+      type: "object",
+      properties: {
+        message_id: { type: "string", description: "A message_id of the thread." },
+        summary: { type: "string" },
+      },
+      required: ["message_id", "summary"],
+      additionalProperties: false,
+    },
+  },
+];
+
 /** The mail tools of an agent's run held to these mailboxes (agents/mail.ts runMailboxes): none without one. */
-export const agentMailToolset = (boxes: readonly string[]): AiTool[] => (boxes.length ? [...READ_TOOLS, AGENT_DRAFT_TOOL] : []);
+export const agentMailToolset = (boxes: readonly string[]): AiTool[] => (boxes.length ? [...READ_TOOLS, AGENT_DRAFT_TOOL, ...AGENT_ACTION_TOOLS] : []);
 
 /**
  * The mail tools to offer in this chat: none outside the app (the Telegram bot runs as a connected
@@ -356,4 +395,103 @@ export async function saveMailDraft(userId: string, prepared: PreparedDraft, dec
     content: `The draft is saved in the Drafts folder of ${prepared.box.address}. It is not sent: the person reviews and sends it from the Mail tab.`,
     step: { ...step, url: drafts ? mailPath(prepared.workspaceId, { mailboxId: prepared.box.id, folderId: drafts.id }) : null, outcome: "done" },
   };
+}
+
+/**
+ * Notes on a message what an agent did with it (`mail_message.agent_marks`), once per deed: the Mail
+ * tab marks its thread. Never throws: the mark is a courtesy, not the work.
+ */
+export async function markMail(messageId: string, agentId: string, deed: MailAgentDeed) {
+  try {
+    await db.transaction(async (tx) => {
+      const [row] = await tx.select({ marks: mailMessage.agentMarks }).from(mailMessage).where(eq(mailMessage.id, messageId)).for("update");
+      if (!row) return;
+      const marks: MailAgentMark[] = row.marks ?? [];
+      const mine = marks.find((m) => m.agentId === agentId);
+      const at = new Date().toISOString();
+      const next = mine
+        ? marks.map((m) => (m === mine ? { ...m, did: m.did.includes(deed) ? m.did : [...m.did, deed], at } : m))
+        : [...marks, { agentId, did: [deed], at }];
+      await tx.update(mailMessage).set({ agentMarks: next }).where(eq(mailMessage.id, messageId));
+    });
+  } catch (error) {
+    console.warn("[mail] could not mark a message an agent worked on:", (error as Error)?.message ?? error);
+  }
+}
+
+/**
+ * Runs sort_mail or summarize_mail for an agent's run, as `userId` (the mailbox's owner), on a
+ * thread of the mailboxes opened to it (`boxes`).
+ */
+export async function runAgentMailAction(
+  userId: string,
+  workspaceId: string,
+  call: { name: string; arguments: Record<string, unknown> },
+  scope: { boxes: readonly string[]; agentId: string },
+): Promise<ToolOutcome> {
+  const tool = AGENT_ACTION_TOOLS.find((t) => t.name === call.name);
+  if (!tool) return { content: `Unknown tool ${call.name}.`, isError: true };
+  const refused = unknownArguments(call.name, call.arguments, argumentNames(tool));
+  if (refused) return refused;
+  const found = await ownMessage(userId, text(call.arguments.message_id, 100)).catch(() => null);
+  if (!found || found.box.workspaceId !== workspaceId || !scope.boxes.includes(found.box.id)) {
+    return { content: "No email with that message_id can be found. Use a message_id from read_mail or search_mail.", isError: true };
+  }
+  const { box, message } = found;
+  const subject = oneLine(message.subject) || "(no subject)";
+  const url = mailPath(workspaceId, { mailboxId: box.id, folderId: message.folderId, threadId: message.threadId });
+
+  if (call.name === AGENT_MAIL_ACTION_NAMES.summary) {
+    const summary = text(call.arguments.summary, SUMMARY_CHARS + 1);
+    if (!summary) return { content: `${call.name} needs the summary.`, isError: true };
+    if (summary.length > SUMMARY_CHARS) return { content: `The summary is longer than ${SUMMARY_CHARS} characters.`, isError: true };
+    // On the thread's newest message, as the Mail tab keeps the summaries it makes (mail-client/ai.ts).
+    const [newest] = await db
+      .select({ id: mailMessage.id })
+      .from(mailMessage)
+      .where(and(eq(mailMessage.mailboxId, box.id), eq(mailMessage.threadId, message.threadId), eq(mailMessage.draft, false)))
+      .orderBy(desc(mailMessage.sentAt))
+      .limit(1);
+    if (!newest) return { content: "That thread has nothing to summarize.", isError: true };
+    await saveSummary(newest.id, summary);
+    await markMail(newest.id, scope.agentId, "summarized");
+    return { content: "The summary is kept: the Mail tab shows it above the thread.", step: { kind: "mail", action: "summary", subject, url } };
+  }
+
+  const action = SORT_ACTIONS.find((a) => a === call.arguments.action);
+  if (!action) return { content: `action is one of ${SORT_ACTIONS.join(", ")}.`, isError: true };
+  let to: { id: string; name: string } | null = null;
+  if (action === "move") {
+    const name = text(call.arguments.folder, 200).toLocaleLowerCase();
+    const folders = await db.select().from(mailFolder).where(eq(mailFolder.mailboxId, box.id));
+    const target = folders.find((f) => f.name.toLocaleLowerCase() === name || f.path.toLocaleLowerCase() === name);
+    if (!target || !movableTo(target) || target.role === "trash" || target.role === "junk" || target.id === message.folderId) {
+      const names = folders.filter((f) => movableTo(f) && f.role !== "trash" && f.role !== "junk" && f.id !== message.folderId).map((f) => `"${f.name}"`);
+      return { content: `There is no folder "${name}" to move it to. The folders: ${names.join(", ") || "none"}.`, isError: true };
+    }
+    to = { id: target.id, name: target.name };
+  } else if (call.arguments.folder !== undefined) {
+    return { content: "folder goes only with action move.", isError: true };
+  }
+  try {
+    await mailAction(userId, { mailboxId: box.id, folderId: message.folderId, threadIds: [message.threadId], action, ...(to ? { to: to.id } : {}) });
+  } catch (error) {
+    if (!(error instanceof RowMailError || error instanceof AccessError)) throw error;
+    return { content: "The mail server didn't take the change. Leave the thread as it is.", isError: true };
+  }
+  // The message keeps its row when it moves (write.ts), so its mark goes along.
+  await markMail(message.id, scope.agentId, "sorted");
+  const where = action === "move" || action === "archive" ? (await locate(message.id)) ?? url : url;
+  return { content: `Done: the thread is ${SORT_DONE[action]}${to ? ` "${to.name}"` : ""}.`, step: { kind: "mail", action: "sort", subject, did: action, folder: to?.name ?? null, url: where } };
+}
+
+const SORT_DONE: Record<MailSortAction, string> = { read: "marked read", unread: "marked unread", star: "starred", unstar: "unstarred", archive: "archived", move: "moved to" };
+
+/** The Mail tab's address of a message's thread where it is now (after a move), or null when it left the index. */
+async function locate(messageId: string) {
+  const [row] = await db
+    .select({ mailboxId: mailMessage.mailboxId, folderId: mailMessage.folderId, threadId: mailMessage.threadId, workspaceId: sql<string>`(select ${mailbox.workspaceId} from ${mailbox} where ${mailbox.id} = ${mailMessage.mailboxId})` })
+    .from(mailMessage)
+    .where(eq(mailMessage.id, messageId));
+  return row ? mailPath(row.workspaceId, row) : null;
 }

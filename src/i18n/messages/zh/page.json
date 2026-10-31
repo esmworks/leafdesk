@@ -1372,7 +1372,9 @@
       "request": "你请求的任务",
       "requestOn": "你请求的任务 · {place}",
       "mention": "你在评论中提到了它",
-      "mentionOn": "你在 {place} 中提到了它"
+      "mentionOn": "你在 {place} 中提到了它",
+      "mail": "新邮件",
+      "mailOn": "新邮件 · {place}"
     },
     "doneQuietly": "已完成。",
     "side": {

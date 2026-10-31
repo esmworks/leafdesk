@@ -632,7 +632,8 @@
         "approvalTimeout": "Tidak ada yang menjawab panggilannya dalam sehari, jadi tidak ada yang dikirim.",
         "connectionGone": "Koneksi yang memulainya telah dihapus.",
         "limitReached": "Agen telah memakai batas token bulanannya.",
-        "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanannya."
+        "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanannya.",
+        "mailGone": "Email sudah tidak ada di kotak surat, atau kotak surat tidak lagi dibuka untuk agen."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "Koneksi yang dihapus",
@@ -683,7 +684,8 @@
       "fromChat": "Pesan obrolan dari {name}",
       "chattedBy": "obrolan oleh {name}",
       "yoursOnly": "Anda melihat eksekusi yang Anda mulai.",
-      "waitingForOwner": "Pemilik ruang kerja menjawab panggilan ini."
+      "waitingForOwner": "Pemilik ruang kerja menjawab panggilan ini.",
+      "fromMail": "Email untuk {name}"
     },
     "usage": {
       "thisMonth": "Bulan ini: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Mulai dari templat",
-      "description": "Agen siap pakai untuk basis data. Sebagian besar berjalan pada setiap baris baru, pencatat pencapaian pada peristiwa dari koneksi; Anda memilih basis data dan apa yang dipakainya."
+      "description": "Agen siap pakai untuk basis data. Sebagian besar berjalan pada setiap baris baru, pencatat pencapaian pada peristiwa dari koneksi, dan asisten email pada email baru di kotak surat Anda; Anda memilih basis data dan apa yang dipakainya."
     },
     "wizard": {
       "title": "Siapkan {name}",
@@ -703,7 +705,8 @@
         "database": "Pilih basis data",
         "properties": "Pilih propertinya",
         "pages": "Pilih halaman yang dibacanya",
-        "connection": "Pilih asal peristiwanya"
+        "connection": "Pilih asal peristiwanya",
+        "mailbox": "Pilih kotak suratnya"
       },
       "chooseDatabase": "Pada basis data mana agen ini bekerja? Anda memerlukan akses penuh ke basis data tersebut.",
       "searchDatabases": "Cari basis data",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "Basis data ini tidak memiliki properti yang dapat diisi: teks, tautan, email, nomor telepon, angka, atau pilihan dengan opsi. Tambahkan satu, lalu siapkan agennya.",
       "companyAutofilled": "Dilewati, karena isian otomatis AI yang mengisinya: {properties}.",
       "summaryWeb": "Agen mendapat akses web, untuk mencari perusahaan.",
+      "chooseCustomers": "Database pelanggan atau kontak mana yang harus ia jaga tetap terbaru? Anda perlu akses penuh ke sana.",
+      "mailbox": "Kotak surat",
+      "mailboxHelp": "Email baru di kotak surat ini memulai agen. Hanya Anda yang melihat apa yang ia baca, tulis, dan usulkan.",
+      "noMailbox": "Anda belum punya kotak surat di ruang kerja ini. <link>Tambahkan satu di Email</link>, lalu siapkan agennya.",
+      "summaryMail": "Membuatnya menambahkan agen, membuka {mailbox} untuknya, dan membuat email baru di sana memulainya. Agen mendapat akses edit ke {database}; setiap baris atau perubahan yang ia usulkan menunggu persetujuan Anda di Untuk ditinjau.",
       "back": "Kembali",
       "next": "Berikutnya",
       "create": "Buat agen",
@@ -757,7 +765,8 @@
         "sameOptions": "Pilih dua opsi yang berbeda.",
         "needPages": "Pilih setidaknya satu halaman.",
         "needName": "Beri nama agen.",
-        "needConnection": "Pilih koneksi."
+        "needConnection": "Pilih koneksi.",
+        "needMailbox": "Pilih kotak surat."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Masukkan hingga 10 alamat email.",
         "requestTokens": "Minta jumlah token berupa bilangan bulat di atas batas saat ini, hingga 1.000.000.000.",
         "requestNote": "Jelaskan alasannya dalam maksimal 500 karakter.",
-        "noLimit": "Agen ini tidak punya batas yang dapat dinaikkan."
+        "noLimit": "Agen ini tidak punya batas yang dapat dinaikkan.",
+        "mailbox": "Pilih salah satu kotak surat Anda di ruang kerja ini."
       },
       "noteEmpty": "Tulis apa yang harus diingat agen.",
       "noteTooLong": "Catatan dapat memiliki paling banyak {max} karakter.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Email Anda",
-      "description": "Buka kotak surat agar agen ini dapat mencari dan membaca email di dalamnya serta menyimpan draf di sana: di obrolan Anda dengannya di sini, dan di jadwal yang Anda atur tanpa basis data untuk diurus.",
+      "description": "Buka kotak surat agar agen ini bisa mencari, membaca, dan merapikan emailnya serta menyimpan draf di sana: dalam obrolanmu dengannya di sini, dalam jadwal yang kamu atur tanpa basis data yang diurus, dan saat email baru datang jika kamu menyalakannya.",
       "open": "Buka {address} untuk agen ini",
-      "note": "Agen ini tidak pernah mengirim email: Anda yang mengirim drafnya dari tab Mail. Setelah membaca email, suatu jalannya hanya membaca halaman dan menulis draf. Orang lain yang memakai atau mengedit agen ini tidak pernah melihat email Anda."
+      "note": "Agen ini tidak pernah mengirim email: drafnya kamu kirim dari tab Email. Setelah sebuah proses membaca email, ia hanya membaca halaman dan mengerjakan emailmu. Orang lain yang menggunakan atau mengedit agen ini tidak pernah melihat emailmu.",
+      "trigger": {
+        "label": "Jalankan saat ada email baru",
+        "edit": "Ubah",
+        "task": "Apa yang dilakukan dengan setiap email baru",
+        "taskPlaceholder": "Ringkas, buat draf balasan bila diminta, dan arsipkan buletin.",
+        "senders": "Hanya dari (opsional)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Tulis alamat email atau domain, dipisahkan koma.",
+        "subject": "Hanya dengan kata-kata ini di subjek (opsional)",
+        "subjectPlaceholder": "penawaran",
+        "knownOnly": "Hanya dari orang yang menjadi baris di basis datamu",
+        "skipped": "Email yang kamu kirim, draf, balasan otomatis, milis, dan email massal tidak pernah menjalankannya. Paling banyak {hour} proses per jam dan {day} per hari dari kotak surat ini.",
+        "limited": "Beberapa email terlewat belakangan ini: batas per jam atau per hari tercapai."
+      }
     }
   },
   "analytics": {

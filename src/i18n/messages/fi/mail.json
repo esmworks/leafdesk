@@ -223,5 +223,14 @@
       "addedNote": "Lisätty tämän päivän muistiinpanoon.",
       "open": "Avaa"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "luki",
+      "drafted": "laati vastausluonnoksen",
+      "sorted": "järjesteli",
+      "summarized": "tiivisti"
+    }
   }
 }

@@ -223,5 +223,14 @@
       "addedNote": "Added to today's daily note.",
       "open": "Open"
     }
+  },
+  "agentMark": {
+    "title": "{name}: {did}",
+    "did": {
+      "read": "read it",
+      "drafted": "drafted an answer",
+      "sorted": "sorted it",
+      "summarized": "summarized it"
+    }
   }
 }

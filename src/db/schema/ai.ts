@@ -169,13 +169,18 @@ export type ChatWebRecord =
  * threads), a thread read (its subject), or a draft saved (`done`, with where it is), declined by
  * the person or `failed`. `url` is the Mail tab's address of the thread or the drafts. `earlier`:
  * an agent's chat run whose conversation read email before (agents/run.ts), held to what one that
- * read it may do.
+ * read it may do. An agent's run also sorts a thread (`sort`) and keeps its summary (`summary`).
  */
 export type ChatMailRecord =
   | { kind: "mail"; action: "search"; query: string; results: number }
   | { kind: "mail"; action: "earlier" }
   | { kind: "mail"; action: "read"; subject: string; url: string }
-  | { kind: "mail"; action: "draft"; subject: string; to: string[]; url: string | null; outcome: "done" | "failed" | "declined" };
+  | { kind: "mail"; action: "draft"; subject: string; to: string[]; url: string | null; outcome: "done" | "failed" | "declined" }
+  | { kind: "mail"; action: "sort"; subject: string; did: MailSortAction; folder: string | null; url: string }
+  | { kind: "mail"; action: "summary"; subject: string; url: string };
+
+/** What an agent's sort_mail did to a thread (server/ai-chat-mail.ts): `move` names the folder. */
+export type MailSortAction = "read" | "unread" | "star" | "unstar" | "archive" | "move";
 
 /**
  * A call the AI chat made to a connection's tool (server/connections), with the connection's name

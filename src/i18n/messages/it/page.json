@@ -1372,7 +1372,9 @@
       "request": "Un compito che hai chiesto",
       "requestOn": "Un compito che hai chiesto · {place}",
       "mention": "L’hai menzionato in un commento",
-      "mentionOn": "L’hai menzionato in {place}"
+      "mentionOn": "L’hai menzionato in {place}",
+      "mail": "Nuova email",
+      "mailOn": "Nuova email · {place}"
     },
     "doneQuietly": "Fatto.",
     "side": {

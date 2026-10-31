@@ -328,6 +328,15 @@
           "done": "Draft saved:",
           "declined": "Declined the draft:",
           "failed": "Couldn't save the draft:"
+        },
+        "summarized": "Summarized:",
+        "moved": "Moved to {folder}:",
+        "sorted": {
+          "read": "Marked read:",
+          "unread": "Marked unread:",
+          "star": "Starred:",
+          "unstar": "Unstarred:",
+          "archive": "Archived:"
         }
       }
     },

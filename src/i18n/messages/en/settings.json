@@ -632,7 +632,8 @@
         "approvalTimeout": "No one answered its call within a day, so nothing was sent.",
         "connectionGone": "The connection that started it was removed.",
         "limitReached": "It had used the agent’s monthly token limit.",
-        "costLimit": "The workspace had reached its monthly AI cost limit."
+        "costLimit": "The workspace had reached its monthly AI cost limit.",
+        "mailGone": "The email is gone from the mailbox, or the mailbox is no longer open to the agent."
       },
       "fromConnection": "{connection} · {event}",
       "removedConnection": "A removed connection",
@@ -683,7 +684,8 @@
       "fromChat": "A chat message from {name}",
       "chattedBy": "chat by {name}",
       "yoursOnly": "You see the runs you started.",
-      "waitingForOwner": "A workspace owner answers this call."
+      "waitingForOwner": "A workspace owner answers this call.",
+      "fromMail": "Email to {name}"
     },
     "usage": {
       "thisMonth": "This month: {usage}",
@@ -695,7 +697,7 @@
     },
     "templates": {
       "heading": "Start from a template",
-      "description": "Ready-made agents for a database. Most run on every new row, the wins logger on a connection’s events; you choose the database and what it uses."
+      "description": "Ready-made agents for a database. Most run on every new row, the wins logger on a connection’s events and the mail assistant on new email in your mailbox; you choose the database and what it uses."
     },
     "wizard": {
       "title": "Set up {name}",
@@ -703,7 +705,8 @@
         "database": "Choose a database",
         "properties": "Choose its properties",
         "pages": "Choose the pages it reads",
-        "connection": "Choose where its events come from"
+        "connection": "Choose where its events come from",
+        "mailbox": "Choose its mailbox"
       },
       "chooseDatabase": "Which database should it work on? You need full access to it.",
       "searchDatabases": "Search databases",
@@ -747,6 +750,11 @@
       "noCompanyProperties": "This database has no property it can fill: text, a link, an email, a phone number, a number, or a select with options. Add one, then set the agent up.",
       "companyAutofilled": "Left out, as AI autofill fills them: {properties}.",
       "summaryWeb": "It gets web access, to look the companies up.",
+      "chooseCustomers": "Which database of customers or contacts should it keep up to date? You need full access to it.",
+      "mailbox": "Mailbox",
+      "mailboxHelp": "New email in this mailbox starts the agent. Only you see what it reads, drafts and proposes.",
+      "noMailbox": "You have no mailbox in this workspace yet. <link>Add one in Mail</link>, then set the agent up.",
+      "summaryMail": "Creating it adds the agent, opens {mailbox} to it and has new email there start it. The agent gets edit access to {database}; each row or change it proposes waits for your approval in For review.",
       "back": "Back",
       "next": "Next",
       "create": "Create agent",
@@ -757,7 +765,8 @@
         "sameOptions": "Choose two different options.",
         "needPages": "Choose at least one page.",
         "needName": "Give the agent a name.",
-        "needConnection": "Choose a connection."
+        "needConnection": "Choose a connection.",
+        "needMailbox": "Choose a mailbox."
       }
     },
     "errors": {
@@ -789,7 +798,8 @@
         "mailRecipients": "Enter up to 10 email addresses.",
         "requestTokens": "Ask for a whole number of tokens above the current limit, up to 1,000,000,000.",
         "requestNote": "Say why in at most 500 characters.",
-        "noLimit": "This agent has no limit to raise."
+        "noLimit": "This agent has no limit to raise.",
+        "mailbox": "Choose one of your mailboxes in this workspace."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",
@@ -997,9 +1007,23 @@
     },
     "mail": {
       "title": "Your email",
-      "description": "Open a mailbox to let this agent search and read its mail and save drafts in it: in your chats with it here, and in schedules you set that look after no database.",
+      "description": "Open a mailbox to let this agent search, read and sort its mail and save drafts in it: in your chats with it here, in schedules you set that look after no database, and on new email when you turn that on.",
       "open": "Open {address} to this agent",
-      "note": "It never sends email: you send its drafts from the Mail tab. Once a run has read email, it only reads pages and drafts. Others who use or edit this agent never see your mail."
+      "note": "It never sends email: you send its drafts from the Mail tab. Once a run has read email, it only reads pages and works on your mail. Others who use or edit this agent never see your mail.",
+      "trigger": {
+        "label": "Run on new email",
+        "edit": "Change",
+        "task": "What to do with each new email",
+        "taskPlaceholder": "Summarize it, draft an answer when one is asked for, and archive newsletters.",
+        "senders": "Only from (optional)",
+        "sendersPlaceholder": "ayse@example.com, @example.com",
+        "sendersInvalid": "Write email addresses or domains, separated by commas.",
+        "subject": "Only with these words in the subject (optional)",
+        "subjectPlaceholder": "offer",
+        "knownOnly": "Only from people who are rows of your databases",
+        "skipped": "Email you send, drafts, auto-replies, mailing lists and bulk mail never start it. At most {hour} runs an hour and {day} a day from this mailbox.",
+        "limited": "Some email was left out lately: the hourly or daily limit was reached."
+      }
     }
   },
   "analytics": {

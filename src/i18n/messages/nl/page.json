@@ -1372,7 +1372,9 @@
       "request": "Een taak die je vroeg",
       "requestOn": "Een taak die je vroeg · {place}",
       "mention": "Je noemde het in een opmerking",
-      "mentionOn": "Je noemde het op {place}"
+      "mentionOn": "Je noemde het op {place}",
+      "mail": "Nieuwe e-mail",
+      "mailOn": "Nieuwe e-mail · {place}"
     },
     "doneQuietly": "Klaar.",
     "side": {

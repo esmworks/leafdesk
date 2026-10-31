@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Database, Inbox, Paperclip, RefreshCw, Search, Star } from "lucide-react";
+import { Bot, Clock, Database, Inbox, Paperclip, RefreshCw, Search, Star } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -11,7 +11,20 @@ import { SelectBox, useSelection } from "@/components/selection";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { currentToast, dismissToast, showToast } from "@/components/toast";
 import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton } from "@/components/ui";
-import { ALL_INBOXES, MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, mailQueryMarks, snoozableFrom, type MailAction, type MailFolderView, type MailQueryMarks, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
+import {
+  ALL_INBOXES,
+  MAIL_MAX_THREADS,
+  MAIL_UNDO_SECONDS,
+  mailQueryMarks,
+  snoozableFrom,
+  type MailAction,
+  type MailAgentDeed,
+  type MailFolderView,
+  type MailQueryMarks,
+  type MailThreadAgent,
+  type MailThreadItem,
+  type MailUndoneSend,
+} from "@/lib/mail-client";
 import { highlightParts } from "@/lib/search-highlight";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
@@ -44,6 +57,33 @@ type List = { items: MailThreadItem[]; next: string | null; loading: boolean; er
 const untilText = (locale: string, until: Date | string) => new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(until));
 
 /** Text with a search's words marked, inside words too, as the mail search finds them. */
+/** What an agent's mark names first: the deed that leaves the person most to look at. */
+const DEED_ORDER: MailAgentDeed[] = ["drafted", "summarized", "sorted", "read"];
+
+/** An agent that worked on the thread (agents/run.ts marks): its name and what it did most, all of it on hover. */
+function AgentMark({ agent }: { agent: MailThreadAgent }) {
+  const t = useTranslations("mail.agentMark");
+  const did = DEED_ORDER.filter((d) => agent.did.includes(d));
+  const all = did.map((d) => t(`did.${d}`)).join(", ");
+  return (
+    <span
+      title={t("title", { name: agent.name, did: all })}
+      data-agent-mark={agent.agentId}
+      className="inline-flex max-w-56 items-center gap-1 rounded border border-border bg-bg-subtle px-1.5 py-px text-xs text-fg-muted"
+    >
+      <Bot className="h-3 w-3 shrink-0 text-fg-icon" aria-hidden />
+      {/* The name stays whole up to a point; what it did gives way first. */}
+      <span className="max-w-32 shrink-0 truncate">{agent.name}</span>
+      {did[0] && (
+        <span className="min-w-0 truncate" aria-hidden>
+          · {t(`did.${did[0]}`)}
+        </span>
+      )}
+      <span className="sr-only">{all}</span>
+    </span>
+  );
+}
+
 function Marked({ text, words }: { text: string; words: string[] | undefined }) {
   if (!words?.length) return text;
   return highlightParts(text, words, { anywhere: true }).map((part, i) =>
@@ -164,12 +204,17 @@ const ThreadRow = memo(function ThreadRow({
               <Marked text={item.preview} words={marks?.preview} />
             </div>
           )}
-          {item.row && (
-            <div className="mt-1">
-              <span className="inline-flex max-w-48 items-center gap-1 rounded border border-border bg-bg-subtle px-1.5 py-px text-xs text-fg-muted">
-                <Database className="h-3 w-3 shrink-0 text-fg-icon" />
-                <span className="truncate">{item.row.title || t("untitledRow")}</span>
-              </span>
+          {(item.row || item.agents.length > 0) && (
+            <div className="mt-1 flex min-w-0 flex-wrap gap-1">
+              {item.row && (
+                <span className="inline-flex max-w-48 items-center gap-1 rounded border border-border bg-bg-subtle px-1.5 py-px text-xs text-fg-muted">
+                  <Database className="h-3 w-3 shrink-0 text-fg-icon" />
+                  <span className="truncate">{item.row.title || t("untitledRow")}</span>
+                </span>
+              )}
+              {item.agents.map((agent) => (
+                <AgentMark key={agent.agentId} agent={agent} />
+              ))}
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@ import type { FetchMessageObject, FetchQueryObject, ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import { db } from "@/db";
 import { mailFolder, mailMessage, type mailbox } from "@/db/schema";
-import { bareMessageId, normalizeAddress, parseHeaderBlock, parseMessageIds } from "@/lib/mail";
+import { bareMessageId, isAutomated, normalizeAddress, parseHeaderBlock, parseMessageIds } from "@/lib/mail";
 import { MAIL_BACKFILL_DAYS, MAIL_BACKFILL_LIMIT, previewText, subjectKey, type MailAddress } from "@/lib/mail-client";
 import { discoverFolders, type FolderRow } from "./folders";
 import { hasFiles, messageParts } from "./structure";
@@ -29,7 +29,7 @@ const FOLDER_LIST_EVERY_MS = 10 * 60_000;
 /** Without CONDSTORE, flags are read again for this many of the newest messages each pass. */
 const RECENT_FLAGS = 300;
 
-const FETCH: FetchQueryObject = { uid: true, envelope: true, flags: true, bodyStructure: true, headers: ["references"], threadId: true, size: true, internalDate: true, source: { maxLength: PREVIEW_BYTES } };
+const FETCH: FetchQueryObject = { uid: true, envelope: true, flags: true, bodyStructure: true, headers: ["references", "auto-submitted", "precedence", "list-id", "list-unsubscribe"], threadId: true, size: true, internalDate: true, source: { maxLength: PREVIEW_BYTES } };
 
 const addresses = (list: { address?: string; name?: string }[] | undefined): MailAddress[] =>
   (list ?? []).flatMap((a) => {
@@ -55,8 +55,12 @@ function dateOf(message: FetchMessageObject) {
   return new Date();
 }
 
-/** Writes fetched messages into the index, each into its thread. */
-async function store(box: Box, folder: FolderRow, messages: FetchMessageObject[]) {
+/**
+ * Writes fetched messages into the index, each into its thread. Returns the ids of those it added:
+ * a message the sweep and a watching tab both read is added by one of them.
+ */
+async function store(box: Box, folder: FolderRow, messages: FetchMessageObject[]): Promise<string[]> {
+  const added: string[] = [];
   for (const message of messages) {
     const envelope = message.envelope ?? {};
     const fields = parseHeaderBlock(message.headers);
@@ -82,7 +86,9 @@ async function store(box: Box, folder: FolderRow, messages: FetchMessageObject[]
     });
     const from = addresses(envelope.from)[0];
     const flags = message.flags ?? new Set<string>();
-    await db
+    const header = (name: string) => fields.get(name)?.[0] ?? null;
+    const automated = isAutomated({ autoSubmitted: header("auto-submitted"), precedence: header("precedence") }) || !!header("list-id") || !!header("list-unsubscribe");
+    const [inserted] = await db
       .insert(mailMessage)
       .values({
         mailboxId: box.id,
@@ -106,9 +112,13 @@ async function store(box: Box, folder: FolderRow, messages: FetchMessageObject[]
         draft: flags.has("\\Draft"),
         hasAttachments: hasFiles(messageParts(message.bodyStructure)),
         size: message.size ?? 0,
+        automated,
       })
-      .onConflictDoNothing();
+      .onConflictDoNothing()
+      .returning({ id: mailMessage.id });
+    if (inserted) added.push(inserted.id);
   }
+  return added;
 }
 
 /** A search's numbers; a search the server didn't answer stops the pass, which must not read it as "none". */
@@ -127,6 +137,17 @@ async function fetchUids(client: ImapFlow, uids: number[]) {
 /** Reads messages just put in a folder (a saved draft) into the index; the caller holds the folder open. */
 export async function indexUids(client: ImapFlow, box: Box, folder: FolderRow, uids: number[]) {
   await store(box, folder, await fetchUids(client, uids));
+}
+
+/**
+ * Tells the agents watching the mailbox's inbox (agents/mail-trigger.ts) of mail just come: loaded
+ * only then, since agents' code reaches far. Never throws, nor holds up the index.
+ */
+function arrived(box: Box, messageIds: string[]) {
+  if (!messageIds.length) return;
+  void import("@/server/agents/mail-trigger")
+    .then((m) => m.mailArrived(box, messageIds))
+    .catch((error) => console.warn(`[mail-client] new mail in ${box.id} reached no agent:`, (error as Error)?.message ?? error));
 }
 
 type FlagState = { uid: number; flags: Set<string> };
@@ -165,7 +186,10 @@ export async function indexFolder(client: ImapFlow, box: Box, folder: FolderRow,
     if (newest > lastUid && budget > 0) {
       const fresh = found(await client.search({ uid: `${lastUid + 1}:*` }, { uid: true })).filter((uid) => uid > lastUid).sort((a, b) => a - b);
       const take = fresh.slice(0, budget);
-      await store(box, folder, await fetchUids(client, take));
+      const added = await store(box, folder, await fetchUids(client, take));
+      // Only mail come since the inbox was last read: never its first read, nor a numbering anew,
+      // which read what was there as the newest.
+      if (folder.role === "inbox" && uidValidity === folder.uidValidity) arrived(box, added);
       read += take.length;
       lastUid = take.length < fresh.length ? take[take.length - 1] : Math.max(lastUid, newest);
     }

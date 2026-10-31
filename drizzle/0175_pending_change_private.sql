@@ -1,0 +1,2 @@
+ALTER TABLE "pending_change" ADD COLUMN "private_to" text;--> statement-breakpoint
+ALTER TABLE "pending_change" ADD CONSTRAINT "pending_change_private_to_user_id_fk" FOREIGN KEY ("private_to") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;

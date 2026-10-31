@@ -312,7 +312,7 @@ export async function agentThread(userId: string, workspaceId: string, agentId: 
 
 /**
  * The agent's latest runs the person started other than by chatting (schedules they set last,
- * tasks they asked for, comments of theirs that mentioned it), oldest first, for their chat with it
+ * tasks they asked for, comments of theirs that mentioned it, their email that came), oldest first, for their chat with it
  * to show as the agent speaking up: what each did as the agent's history shows it to them
  * (manage.ts viewRuns), and the call one waits on only for an owner who answers it.
  */
@@ -334,15 +334,15 @@ export async function threadRuns(userId: string, workspaceId: string, agentId: s
       const view = views[i];
       Object.assign(connections, view.connections);
       const kind = row.source.kind;
-      if (kind !== "schedule" && kind !== "request" && kind !== "mention") return null;
+      if (kind !== "schedule" && kind !== "request" && kind !== "mention" && kind !== "mail") return null;
       const answers = view.pending && row.status === "awaiting_approval" && (await approversOf(row)).includes(userId);
       return {
         id: view.id,
         kind,
         status: view.status,
         code: view.code,
-        label: view.schedule ? view.schedule.databaseTitle || null : view.mention ? view.mention.pageTitle : view.rowTitle,
-        task: view.schedule?.task ?? view.mention?.task ?? view.request?.task ?? "",
+        label: view.schedule ? view.schedule.databaseTitle || null : view.mention ? view.mention.pageTitle : view.mail ? view.mail.subject || null : view.rowTitle,
+        task: view.schedule?.task ?? view.mention?.task ?? view.request?.task ?? (view.mail && row.prompt) ?? "",
         answer: view.answer,
         steps: await stepsFor(userId, view.steps),
         pending:

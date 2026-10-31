@@ -1372,7 +1372,9 @@
       "request": "Uma tarefa que você pediu",
       "requestOn": "Uma tarefa que você pediu · {place}",
       "mention": "Você o mencionou em um comentário",
-      "mentionOn": "Você o mencionou em {place}"
+      "mentionOn": "Você o mencionou em {place}",
+      "mail": "E-mail novo",
+      "mailOn": "E-mail novo · {place}"
     },
     "doneQuietly": "Concluído.",
     "side": {
