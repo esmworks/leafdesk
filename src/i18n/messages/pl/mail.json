@@ -156,7 +156,11 @@
     "notSent": "Nie wysłano: {reason} Jest zachowana w wersjach roboczych.",
     "quoteShow": "Pokaż cytowaną wiadomość",
     "quoteHide": "Ukryj cytowaną wiadomość",
-    "quoteRemove": "Usuń cytowaną wiadomość"
+    "quoteRemove": "Usuń cytowaną wiadomość",
+    "templates": "Wstaw fragment",
+    "templatesSearch": "Znajdź fragment",
+    "templatesNone": "Żaden fragment nie pasuje.",
+    "templatesEmpty": "Nie ma jeszcze fragmentów. Utwórz je w Ustawienia › Fragmenty."
   },
   "bulk": {
     "select": "Zaznacz",

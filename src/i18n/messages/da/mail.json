@@ -156,7 +156,11 @@
     "notSent": "Ikke sendt: {reason} Den er gemt i Kladder.",
     "quoteShow": "Vis den citerede besked",
     "quoteHide": "Skjul den citerede besked",
-    "quoteRemove": "Fjern den citerede besked"
+    "quoteRemove": "Fjern den citerede besked",
+    "templates": "Indsæt tekstbid",
+    "templatesSearch": "Find en tekstbid",
+    "templatesNone": "Ingen tekstbid passer.",
+    "templatesEmpty": "Ingen tekstbidder endnu. Opret dem under Indstillinger › Tekstbidder."
   },
   "bulk": {
     "select": "Vælg",

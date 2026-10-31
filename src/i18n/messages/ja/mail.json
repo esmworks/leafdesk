@@ -156,7 +156,11 @@
     "notSent": "送信できませんでした: {reason} 下書きに保存されています。",
     "quoteShow": "引用されたメッセージを表示",
     "quoteHide": "引用されたメッセージを隠す",
-    "quoteRemove": "引用されたメッセージを削除"
+    "quoteRemove": "引用されたメッセージを削除",
+    "templates": "スニペットを挿入",
+    "templatesSearch": "スニペットを検索",
+    "templatesNone": "一致するスニペットはありません。",
+    "templatesEmpty": "スニペットはまだありません。設定 › スニペットで作成できます。"
   },
   "bulk": {
     "select": "選択",

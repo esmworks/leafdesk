@@ -285,7 +285,7 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `?c=new` pane or under a thread, `composer.tsx` with the TipTap editor `mail-editor.tsx` (lazy:
   ProseMirror stays out of the thread's chunk), what a reply starts from `compose-start.ts`, the
   HTML sent cleaned again and turned into its text part by `outgoing.ts`, addresses suggested by
-  `contacts.ts`; a mailbox's signature, `mailbox.signature` and `signature_text`, is the editor's
+  `contacts.ts`, snippets put in by `template-menu.tsx` as `templates.ts` turns them into mail; a mailbox's signature, `mailbox.signature` and `signature_text`, is the editor's
   `Signature` node, a `div[data-signature]` that `outgoing.ts` puts under `-- ` in the text part,
   and row emails start with its text; one pasted with images or tables is kept whole inside
   `div[data-pasted]`, `lib/pasted-signature.ts` (its cleaning rules in `-config.ts`), the editor's `PastedSignature` atom, shown in a

@@ -156,7 +156,11 @@
     "notSent": "Gönderilemedi: {reason} Taslaklarda saklandı.",
     "quoteShow": "Alıntılanan iletiyi göster",
     "quoteHide": "Alıntılanan iletiyi gizle",
-    "quoteRemove": "Alıntılanan iletiyi kaldır"
+    "quoteRemove": "Alıntılanan iletiyi kaldır",
+    "templates": "Parçacık ekle",
+    "templatesSearch": "Parçacık bul",
+    "templatesNone": "Eşleşen parçacık yok.",
+    "templatesEmpty": "Henüz parçacık yok. Ayarlar › Parçacıklar altında oluşturun."
   },
   "bulk": {
     "select": "Seç",

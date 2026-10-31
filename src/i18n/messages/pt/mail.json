@@ -156,7 +156,11 @@
     "notSent": "Não enviado: {reason} Ficou guardado nos rascunhos.",
     "quoteShow": "Mostrar a mensagem citada",
     "quoteHide": "Ocultar a mensagem citada",
-    "quoteRemove": "Remover a mensagem citada"
+    "quoteRemove": "Remover a mensagem citada",
+    "templates": "Inserir trecho",
+    "templatesSearch": "Procurar um trecho",
+    "templatesNone": "Nenhum trecho corresponde.",
+    "templatesEmpty": "Ainda não há trechos. Crie-os em Configurações › Trechos."
   },
   "bulk": {
     "select": "Selecionar",

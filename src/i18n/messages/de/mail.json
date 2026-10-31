@@ -156,7 +156,11 @@
     "notSent": "Nicht gesendet: {reason} Sie liegt in den Entwürfen.",
     "quoteShow": "Zitierte Nachricht anzeigen",
     "quoteHide": "Zitierte Nachricht ausblenden",
-    "quoteRemove": "Zitierte Nachricht entfernen"
+    "quoteRemove": "Zitierte Nachricht entfernen",
+    "templates": "Textbaustein einfügen",
+    "templatesSearch": "Textbaustein suchen",
+    "templatesNone": "Kein Textbaustein passt.",
+    "templatesEmpty": "Noch keine Textbausteine. Lege sie unter Einstellungen › Textbausteine an."
   },
   "bulk": {
     "select": "Auswählen",

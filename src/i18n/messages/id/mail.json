@@ -156,7 +156,11 @@
     "notSent": "Tidak terkirim: {reason} Disimpan di Draf.",
     "quoteShow": "Tampilkan pesan yang dikutip",
     "quoteHide": "Sembunyikan pesan yang dikutip",
-    "quoteRemove": "Hapus pesan yang dikutip"
+    "quoteRemove": "Hapus pesan yang dikutip",
+    "templates": "Sisipkan potongan teks",
+    "templatesSearch": "Cari potongan teks",
+    "templatesNone": "Tidak ada potongan teks yang cocok.",
+    "templatesEmpty": "Belum ada potongan teks. Buat di Pengaturan › Potongan teks."
   },
   "bulk": {
     "select": "Pilih",

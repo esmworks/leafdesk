@@ -156,7 +156,11 @@
     "notSent": "Ikke sendt: {reason} Den er lagret i Utkast.",
     "quoteShow": "Vis den siterte meldingen",
     "quoteHide": "Skjul den siterte meldingen",
-    "quoteRemove": "Fjern den siterte meldingen"
+    "quoteRemove": "Fjern den siterte meldingen",
+    "templates": "Sett inn tekstbit",
+    "templatesSearch": "Finn en tekstbit",
+    "templatesNone": "Ingen tekstbit passer.",
+    "templatesEmpty": "Ingen tekstbiter ennå. Lag dem under Innstillinger › Tekstbiter."
   },
   "bulk": {
     "select": "Velg",

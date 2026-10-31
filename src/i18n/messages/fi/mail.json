@@ -156,7 +156,11 @@
     "notSent": "Ei lähetetty: {reason} Se on tallessa luonnoksissa.",
     "quoteShow": "Näytä lainattu viesti",
     "quoteHide": "Piilota lainattu viesti",
-    "quoteRemove": "Poista lainattu viesti"
+    "quoteRemove": "Poista lainattu viesti",
+    "templates": "Lisää tekstikatkelma",
+    "templatesSearch": "Etsi tekstikatkelma",
+    "templatesNone": "Mikään tekstikatkelma ei vastaa.",
+    "templatesEmpty": "Ei vielä tekstikatkelmia. Luo niitä kohdassa Asetukset › Tekstikatkelmat."
   },
   "bulk": {
     "select": "Valitse",

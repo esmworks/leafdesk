@@ -156,7 +156,11 @@
     "notSent": "Niet verzonden: {reason} Het staat bij Concepten.",
     "quoteShow": "Geciteerd bericht tonen",
     "quoteHide": "Geciteerd bericht verbergen",
-    "quoteRemove": "Geciteerd bericht verwijderen"
+    "quoteRemove": "Geciteerd bericht verwijderen",
+    "templates": "Tekstfragment invoegen",
+    "templatesSearch": "Tekstfragment zoeken",
+    "templatesNone": "Geen tekstfragment gevonden.",
+    "templatesEmpty": "Nog geen tekstfragmenten. Maak ze onder Instellingen › Tekstfragmenten."
   },
   "bulk": {
     "select": "Selecteren",

@@ -156,7 +156,11 @@
     "notSent": "Chưa gửi được: {reason} Thư được giữ trong Bản nháp.",
     "quoteShow": "Hiện thư được trích dẫn",
     "quoteHide": "Ẩn thư được trích dẫn",
-    "quoteRemove": "Bỏ thư được trích dẫn"
+    "quoteRemove": "Bỏ thư được trích dẫn",
+    "templates": "Chèn đoạn mẫu",
+    "templatesSearch": "Tìm đoạn mẫu",
+    "templatesNone": "Không có đoạn mẫu nào khớp.",
+    "templatesEmpty": "Chưa có đoạn mẫu. Tạo trong Cài đặt › Đoạn mẫu."
   },
   "bulk": {
     "select": "Chọn",

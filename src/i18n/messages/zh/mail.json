@@ -156,7 +156,11 @@
     "notSent": "未发送：{reason} 已保存在草稿中。",
     "quoteShow": "显示引用的邮件",
     "quoteHide": "隐藏引用的邮件",
-    "quoteRemove": "移除引用的邮件"
+    "quoteRemove": "移除引用的邮件",
+    "templates": "插入片段",
+    "templatesSearch": "查找片段",
+    "templatesNone": "没有匹配的片段。",
+    "templatesEmpty": "还没有片段。可在 设置 › 片段 中创建。"
   },
   "bulk": {
     "select": "选择",

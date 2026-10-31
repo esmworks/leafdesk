@@ -87,6 +87,8 @@ const { suggestAddresses } = await import("@/server/mail-client/contacts");
 const { closeImap } = await import("@/server/mail-client/pool");
 const { stopWatching, watchMailbox } = await import("@/server/mail-client/watch");
 const { runMailSnoozes } = await import("@/server/mail-client/snooze");
+const { mailTemplate } = await import("@/server/mail-client/templates");
+const { createSnippet } = await import("@/server/snippets");
 const images = await import("@/server/mail-client/images");
 const { unsubscribe } = await import("@/server/mail-client/unsubscribe");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -852,6 +854,16 @@ try {
   }
 
   // Paging
+  // A snippet put into a message: placeholders filled in, formatting a message holds kept.
+  const greeting = await createSnippet(ids.ada, { kind: "personal" }, { trigger: `selam${RUN}`.slice(0, 32).toLowerCase().replace(/[^a-z0-9_-]/g, ""), title: "Selam", body: "**Merhaba** {{me}}, konu: {{page}}\n\n## Başlık\n\n- madde {{cursor}}" });
+  const template = await mailTemplate(ids.ada, { id: greeting.id, locale: "tr", timeZone: "Europe/Istanbul", subject: "Teklif *özel*" });
+  check(
+    /<strong>Merhaba<\/strong>/.test(template.html) && template.html.includes("Ada, konu: Teklif *özel*") && /<li>(<p>)?madde/.test(template.html) && template.html.includes("Başlık") && !/ldsnip|<h2/.test(template.html),
+    "a snippet goes into a message with its placeholders filled in, in what a message holds",
+    template.html,
+  );
+  check((await errorCode(() => mailTemplate(ids.bob, { id: greeting.id, locale: "tr", timeZone: "UTC", subject: "" }))) === "SnippetError", "another member can't put in someone's own snippet");
+
   const firstPage = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: folder("sent").id });
   check(firstPage.next === null, "a short list has no next page");
 

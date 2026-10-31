@@ -156,7 +156,11 @@
     "notSent": "보내지 못했습니다: {reason} 임시 보관함에 저장했습니다.",
     "quoteShow": "인용된 메시지 보기",
     "quoteHide": "인용된 메시지 숨기기",
-    "quoteRemove": "인용된 메시지 삭제"
+    "quoteRemove": "인용된 메시지 삭제",
+    "templates": "스니펫 삽입",
+    "templatesSearch": "스니펫 찾기",
+    "templatesNone": "일치하는 스니펫이 없습니다.",
+    "templatesEmpty": "아직 스니펫이 없습니다. 설정 › 스니펫에서 만드세요."
   },
   "bulk": {
     "select": "선택",

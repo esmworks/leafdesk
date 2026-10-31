@@ -156,7 +156,11 @@
     "notSent": "Non envoyé : {reason} Il est conservé dans les brouillons.",
     "quoteShow": "Afficher le message cité",
     "quoteHide": "Masquer le message cité",
-    "quoteRemove": "Retirer le message cité"
+    "quoteRemove": "Retirer le message cité",
+    "templates": "Insérer un extrait",
+    "templatesSearch": "Chercher un extrait",
+    "templatesNone": "Aucun extrait ne correspond.",
+    "templatesEmpty": "Pas encore d’extraits. Créez-les dans Paramètres › Extraits."
   },
   "bulk": {
     "select": "Sélectionner",

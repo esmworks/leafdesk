@@ -156,7 +156,11 @@
     "notSent": "Non inviato: {reason} È conservato nelle bozze.",
     "quoteShow": "Mostra il messaggio citato",
     "quoteHide": "Nascondi il messaggio citato",
-    "quoteRemove": "Rimuovi il messaggio citato"
+    "quoteRemove": "Rimuovi il messaggio citato",
+    "templates": "Inserisci un frammento",
+    "templatesSearch": "Cerca un frammento",
+    "templatesNone": "Nessun frammento corrisponde.",
+    "templatesEmpty": "Ancora nessun frammento. Creali in Impostazioni › Frammenti."
   },
   "bulk": {
     "select": "Seleziona",

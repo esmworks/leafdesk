@@ -146,7 +146,11 @@ on the text, goes where it is put and is sent as part of the message (PNG, JPEG,
 the files' limit); other files dropped on the composer are attached. A reply or forward carries the earlier
 message under what is written, as it looked (tables, colors, the images it carries), folded under
 *•••* in the composer and taken off with *Remove the quoted message*; the plain-text part quotes
-its text with `>`. *From* picks any of the
+its text with `>`. The composer's snippet button puts in
+one of the person's snippets or the workspace's (written under Settings › Snippets, as for pages),
+found by title or trigger, with `{{date}}`, `{{time}}` and `{{me}}` filled in and `{{page}}` as the
+message's subject; formatting a message can't hold, such as headings and tables, becomes plain
+text. *From* picks any of the
 member's mailboxes; recipients are suggested as they are typed, from the people that mailbox wrote
 to (first) and heard from, and ⌘/Ctrl+Enter sends. A message being written is kept as a draft in
 the mailbox's Drafts folder on the mail server (made if it has none) a few seconds after each

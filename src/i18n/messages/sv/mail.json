@@ -156,7 +156,11 @@
     "notSent": "Inte skickat: {reason} Det sparas i Utkast.",
     "quoteShow": "Visa det citerade meddelandet",
     "quoteHide": "Dölj det citerade meddelandet",
-    "quoteRemove": "Ta bort det citerade meddelandet"
+    "quoteRemove": "Ta bort det citerade meddelandet",
+    "templates": "Infoga textsnutt",
+    "templatesSearch": "Hitta en textsnutt",
+    "templatesNone": "Ingen textsnutt matchar.",
+    "templatesEmpty": "Inga textsnuttar än. Skapa dem under Inställningar › Textsnuttar."
   },
   "bulk": {
     "select": "Markera",

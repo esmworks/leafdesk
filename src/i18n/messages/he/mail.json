@@ -156,7 +156,11 @@
     "notSent": "לא נשלח: {reason} ההודעה נשמרה בטיוטות.",
     "quoteShow": "הצגת ההודעה המצוטטת",
     "quoteHide": "הסתרת ההודעה המצוטטת",
-    "quoteRemove": "הסרת ההודעה המצוטטת"
+    "quoteRemove": "הסרת ההודעה המצוטטת",
+    "templates": "הוספת קטע",
+    "templatesSearch": "חיפוש קטע",
+    "templatesNone": "אין קטע מתאים.",
+    "templatesEmpty": "אין עדיין קטעים. צרו אותם בהגדרות › קטעים."
   },
   "bulk": {
     "select": "בחירה",

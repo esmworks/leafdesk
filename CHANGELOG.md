@@ -11,6 +11,10 @@
   about a page both can open; a run sets at most 3 and an agent has at most 20 waiting for one
   person. Turned off under *Agent reminders* in Settings → Preferences. Migration 0168.
 
+- **Snippets in the Mail tab's composer.** A button beside the formatting puts one of the person's
+  or the workspace's snippets into the message, found by title or trigger, its placeholders filled
+  in (`{{page}}` is the subject). No migration.
+
 - **Snoozing conversations in the Mail tab.** *Snooze* (the clock over a thread, the selection's
   bar, a right click or `b`) puts conversations away until later today, tomorrow, the weekend,
   next week or a moment typed in words. They wait in a *Snoozed* folder on the mail server and come

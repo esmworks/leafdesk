@@ -156,7 +156,11 @@
     "notSent": "Not sent: {reason} It is kept in Drafts.",
     "quoteShow": "Show the quoted message",
     "quoteHide": "Hide the quoted message",
-    "quoteRemove": "Remove the quoted message"
+    "quoteRemove": "Remove the quoted message",
+    "templates": "Insert a snippet",
+    "templatesSearch": "Find a snippet",
+    "templatesNone": "No snippet matches.",
+    "templatesEmpty": "No snippets yet. Make them under Settings › Snippets."
   },
   "bulk": {
     "select": "Select",
