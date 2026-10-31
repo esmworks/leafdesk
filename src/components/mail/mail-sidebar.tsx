@@ -24,7 +24,7 @@ export function useFolderName() {
   return (folder: Pick<MailFolderView, "role" | "name">) => (folder.role ? t(folder.role) : folder.name);
 }
 
-const rowClass = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start text-fg-muted hover:bg-bg-hover hover:text-fg";
+const rowClass = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start hover:bg-bg-hover";
 
 function FolderLink({ workspaceId, box, folder, active }: { workspaceId: string; box: MailboxTabView; folder: MailFolderView; active: boolean }) {
   const name = useFolderName();
@@ -124,7 +124,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
                 <Link key={other.id} href={mailHref(workspaceId, { box: other.id })} className={rowClass} title={other.address}>
                   <MailboxMark address={other.address} className="h-4 w-4 text-[10px]" />
                   <span className="min-w-0 flex-1 truncate">{other.address}</span>
-                  {unread > 0 && <span className="text-xs tabular-nums text-fg-faint">{unread}</span>}
+                  {unread > 0 && <span className="text-xs tabular-nums text-fg-muted">{unread}</span>}
                 </Link>
               );
             })}
