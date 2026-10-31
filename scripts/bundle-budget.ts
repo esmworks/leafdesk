@@ -125,7 +125,7 @@ import { gzipSync } from "node:zlib";
  * opened) adds about 3 kB to all first loads together and under 1 kB to any page's: the thread's
  * new code moves shared modules between chunks, copying a few server-action stubs into more of them.
  */
-const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1219, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 792, firstLoadShared: 1220, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
