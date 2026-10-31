@@ -866,7 +866,6 @@ export function ThreadView({
                   workspaceId={workspaceId}
                   ai={ai}
                   aiStart={aiStart}
-                  row={thread.row}
                   box={box}
                   mode={compose}
                   layout="inline"

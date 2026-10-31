@@ -12,14 +12,12 @@ import * as z from "zod";
 import { db } from "@/db";
 import { mailMessage } from "@/db/schema";
 import { isAiLanguage } from "@/lib/ai";
-import { env } from "@/lib/env";
 import { mailTaskDay } from "@/lib/mail-tasks";
 import { DRAFT_ACTIONS, MAIL_WRITE_ACTIONS, MAX_MAIL_INSTRUCTION, SUMMARY_MESSAGES } from "@/lib/mail-ai";
 import { aiConfig, AiError, contentChars, stream, type AiStream } from "@/server/ai";
 import { memoryForPrompt, memoryOn } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
-import { getRow } from "@/server/databases";
-import { displayProperties } from "@/server/mcp/query";
+import { visibleRow } from "@/server/operations";
 import { requireOwnMailbox } from "./access";
 import { MEMORY_CHARS, ROW_CHARS, rowText, summaryPrompt, tasksPrompt, writePrompt, type AiMailMessage } from "./ai-prompts";
 import { getThread, messageForAi, rowOfMessage } from "./read";
@@ -140,19 +138,24 @@ async function write(userId: string, workspaceId: string, input: Extract<MailAiI
  * the person may see them now, or null when there is none or they may no longer see it.
  */
 async function answeringRow(userId: string, messageId: string): Promise<string | null> {
-  const chip = await rowOfMessage(userId, messageId);
-  if (!chip) return null;
   try {
-    const { databaseTitle, properties, row, relations, people } = await getRow(userId, chip.rowId);
-    return rowText({ title: row.title, database: databaseTitle, fields: displayProperties(properties, row.properties, { relations, people }, env.appUrl) }, ROW_CHARS);
+    const chip = await rowOfMessage(userId, messageId);
+    if (!chip) return null;
+    const { databaseTitle, row, fields } = await visibleRow(userId, chip.rowId);
+    return rowText({ title: row.title, database: databaseTitle, fields }, ROW_CHARS);
   } catch {
+    // Only context: without it the writer still answers, and the answered mail's own read says what went wrong.
     return null;
   }
 }
 
-/** The person's notes from the AI chat's memory while it is on for them, without the chat's ids. */
+/** The person's newest notes from the AI chat's memory while it is on for them, only the notes: without the chat's ids or its line about older ones. */
 async function memoryNotes(userId: string, workspaceId: string): Promise<string | null> {
   if (!(await memoryOn(userId, workspaceId))) return null;
   const { text } = await memoryForPrompt(userId, workspaceId, MEMORY_CHARS);
-  return text.replace(/^- \(memory_id [^)]*\) /gm, "- ") || null;
+  const notes = text.split("\n").flatMap((line) => {
+    const note = /^- \(memory_id [^)]*\) /.exec(line);
+    return note ? [`- ${line.slice(note[0].length)}`] : [];
+  });
+  return notes.join("\n") || null;
 }

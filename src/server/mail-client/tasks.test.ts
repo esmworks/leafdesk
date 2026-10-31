@@ -31,7 +31,7 @@ beforeEach(() => {
 
 describe("addMailTasks", () => {
   it("adds to-dos on the row's page that mention the person, link back to the mail and carry the day", async () => {
-    expect(await addMailTasks("u1", input)).toEqual({ pageId: "row-1", row: true, workspaceId: "ws-1", count: 2 });
+    expect(await addMailTasks("u1", input)).toEqual({ pageId: "row-1", row: true, workspaceId: "ws-1" });
     expect(mocks.requirePageAccess).toHaveBeenCalledWith("u1", "row-1", "content");
     const [pageId, blocks, actor] = mocks.appendBlocks.mock.calls[0] as unknown as [string, { type: string; content: { type: string; props?: Record<string, string>; href?: string }[] }[], object];
     expect(pageId).toBe("row-1");

@@ -26,7 +26,7 @@ const mocks = vi.hoisted(() => ({
   getThread: vi.fn(),
   messageForAi: vi.fn(),
   rowOfMessage: vi.fn(async () => null as { rowId: string } | null),
-  getRow: vi.fn(),
+  visibleRow: vi.fn(),
   memoryOn: vi.fn(async () => false),
   memoryForPrompt: vi.fn(async () => ({ text: "", count: 0 })),
   stream: vi.fn(async () => ({ result: async () => ({ stopReason: "stop" }) })),
@@ -34,9 +34,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock("./access", () => ({ requireOwnMailbox: mocks.requireOwnMailbox }));
 vi.mock("@/server/ai-writing", () => ({ aiAvailable: mocks.aiAvailable }));
 vi.mock("./read", () => ({ getThread: mocks.getThread, messageForAi: mocks.messageForAi, rowOfMessage: mocks.rowOfMessage }));
-vi.mock("@/server/databases", () => ({ getRow: mocks.getRow }));
+vi.mock("@/server/operations", () => ({ visibleRow: mocks.visibleRow }));
 vi.mock("@/server/ai-memory", () => ({ memoryOn: mocks.memoryOn, memoryForPrompt: mocks.memoryForPrompt }));
-vi.mock("@/server/mcp/query", () => ({ displayProperties: (_props: unknown, values: Record<string, unknown>) => values }));
 vi.mock("@/server/ai", async (original) => ({ ...(await original<typeof import("@/server/ai")>()), stream: mocks.stream }));
 
 const { startMailAi } = await import("./ai");
@@ -105,25 +104,30 @@ describe("startMailAi", () => {
   it("writes with the fields of the other party's row and the person's notes, without the chat's ids", async () => {
     mocks.messageForAi.mockResolvedValue(read("m-9"));
     mocks.rowOfMessage.mockResolvedValue({ rowId: "row-1" });
-    mocks.getRow.mockResolvedValue({ databaseTitle: "Müşteriler", properties: [], row: { title: "Acme Ltd", properties: { Şehir: "İzmir" } }, relations: {}, people: [] });
+    mocks.visibleRow.mockResolvedValue({ databaseTitle: "Müşteriler", row: { title: "Acme Ltd" }, fields: { Şehir: "İzmir" } });
     mocks.memoryOn.mockResolvedValue(true);
-    mocks.memoryForPrompt.mockResolvedValue({ text: "- (memory_id n-1) Kısa yazarım.", count: 1 });
+    mocks.memoryForPrompt.mockResolvedValue({ text: "(Older notes don't fit in this question.)\n- (memory_id n-1) Kısa yazarım.", count: 2 });
     await startMailAi("u1", { kind: "write", mailboxId: "box-1", action: "reply", draft: "", answering: "m-9" });
     expect(mocks.rowOfMessage).toHaveBeenCalledWith("u1", "m-9");
-    expect(mocks.getRow).toHaveBeenCalledWith("u1", "row-1");
+    expect(mocks.visibleRow).toHaveBeenCalledWith("u1", "row-1");
     const prompt = JSON.stringify(mocks.stream.mock.calls[0]);
     expect(prompt).toContain("Acme Ltd (a record in Müşteriler)\\nŞehir: İzmir");
     expect(prompt).toContain("<memory>\\n- Kısa yazarım.\\n</memory>");
-    expect(prompt).not.toContain("memory_id");
+    expect(prompt).not.toMatch(/memory_id|Older notes/);
   });
 
   it("writes without the row when the person may no longer see it", async () => {
     mocks.messageForAi.mockResolvedValue(read("m-9"));
     mocks.rowOfMessage.mockResolvedValue({ rowId: "row-1" });
-    mocks.getRow.mockRejectedValue(new Error("access"));
+    mocks.visibleRow.mockRejectedValue(new Error("access"));
     await startMailAi("u1", { kind: "write", mailboxId: "box-1", action: "reply", draft: "", answering: "m-9" });
     const [request] = mocks.stream.mock.calls[0] as unknown as [{ messages: { content: string }[] }];
     expect(request.messages[0].content).not.toContain("<row>");
+
+    // Nor when finding the row fails: it is only context.
+    mocks.rowOfMessage.mockRejectedValue(new Error("gone"));
+    await startMailAi("u1", { kind: "write", mailboxId: "box-1", action: "reply", draft: "", answering: "m-9" });
+    expect(mocks.stream).toHaveBeenCalledTimes(2);
   });
 
   it("finds a thread's tasks from today, and keeps no summary", async () => {

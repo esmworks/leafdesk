@@ -261,6 +261,8 @@ export type MailMessageView = {
   flagged: boolean;
   draft: boolean;
   hasAttachments: boolean;
+  /** The database row its other party is (who wrote it, or whom the owner wrote to): what the writer reads when answering it. */
+  row: MailThreadItem["row"];
   /** Read from the mail server: null until then, or when the message is gone from it. */
   body: MailBody | null;
 };
