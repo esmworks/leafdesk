@@ -410,6 +410,8 @@ export function remapViewConfig(
   }
   if (config.dateBy !== undefined) out.dateBy = map(config.dateBy);
   if (config.endDateBy !== undefined) out.endDateBy = map(config.endDateBy);
+  if (config.statusBy !== undefined) out.statusBy = map(config.statusBy);
+  if (config.priorityBy !== undefined) out.priorityBy = map(config.priorityBy);
   if (config.placeBy !== undefined) out.placeBy = map(config.placeBy);
   if (config.stackBy !== undefined) out.stackBy = map(config.stackBy);
   if (config.columnBy !== undefined) out.columnBy = map(config.columnBy);
@@ -473,6 +475,8 @@ export function dropPropertyReferences(config: ViewConfig, gone: (propertyId: st
     subGroupBy: c.subGroupBy !== undefined && gone(c.subGroupBy) ? undefined : c.subGroupBy,
     dateBy: c.dateBy !== undefined && gone(c.dateBy) ? undefined : c.dateBy,
     endDateBy: c.endDateBy !== undefined && gone(c.endDateBy) ? undefined : c.endDateBy,
+    statusBy: c.statusBy !== undefined && gone(c.statusBy) ? undefined : c.statusBy,
+    priorityBy: c.priorityBy !== undefined && gone(c.priorityBy) ? undefined : c.priorityBy,
     placeBy: c.placeBy !== undefined && gone(c.placeBy) ? undefined : c.placeBy,
     stackBy: c.stackBy !== undefined && gone(c.stackBy) ? undefined : c.stackBy,
     columnBy: c.columnBy !== undefined && gone(c.columnBy) ? undefined : c.columnBy,

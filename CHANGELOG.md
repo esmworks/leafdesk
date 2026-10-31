@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Agenda views.** A new kind of database view lists one day's rows, picked on a strip of days:
+  overdue rows that aren't done on top (on today), then the day's rows by time, then rows without
+  a date (which the view can hide). Adding one asks for its date, what marks a row done (a status
+  or a checkbox, either made on the spot) and, if wanted, a priority whose option order ranks rows
+  at the same time. Rows are ticked off, moved to tomorrow or given another date from their line,
+  and the view's filters, sorts and search apply as in the database's other views. MCP's
+  `create_database_view` and `update_database_view` take `type: "agenda"` with `date_by` and
+  `agenda` (`status_by`, `priority_by`, `show_undated`), and `get_database` describes them; the
+  MCP tool list's budget goes from 168.5 to 168.7 KB for them. No migration.
+
 - **A Mail tab for members' own mail.** A member with a mailbox in the workspace gets a Mail tab
   in the sidebar's tab strip: their mailboxes and folders with unread counts, a folder's threads
   beside the open one, HTML mail shown cleaned with images from other sites held back, files,

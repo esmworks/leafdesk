@@ -741,9 +741,12 @@ export function useDatabase(
         );
       },
 
-      /** Adds a view; `personal`: only the viewer sees it (databaseView.ownerId). */
-      addView(name: string, type: ViewType, personal = false) {
-        return mutateSchema((s) => s, () => addViewAction(databaseId, { name, type, personal }));
+      /**
+       * Adds a view; `personal`: only the viewer sees it (databaseView.ownerId). `config`: settings
+       * it starts with over the type's defaults (an agenda's properties picked as it is made).
+       */
+      addView(name: string, type: ViewType, personal = false, config?: ViewConfig) {
+        return mutateSchema((s) => s, () => addViewAction(databaseId, { name, type, personal, ...(config ? { config } : {}) }));
       },
 
       /** Shares a personal view with everyone who may see the database. */

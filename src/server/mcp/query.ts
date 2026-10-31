@@ -13,6 +13,7 @@ import type {
   ViewType,
 } from "@/db/schema/app";
 import type { AggregateResult } from "@/lib/aggregate";
+import { agendaDateProperty, agendaPriorityProperty, agendaStatusProperty, showsUndated } from "@/lib/agenda";
 import { AUTOFILL_BODY, AUTOFILL_TITLE, isAutofillType, type AiAutofillConfig } from "@/lib/ai";
 import { columnSettings, columnSortOf, pivotColumnProperty, pivotData, pivotMeasure, pivotRowProperty } from "@/lib/pivot";
 import {
@@ -453,6 +454,7 @@ export function describeViewConfig(props: PropertyDef[], config: ViewConfig, loo
     ...(type === "dashboard" ? { period: config.period || "all" } : {}),
     ...(type === "chart" ? describeChart(props, config) : {}),
     ...(type === "pivot" ? describePivot(props, config) : {}),
+    ...(type === "agenda" ? describeAgenda(props, config) : {}),
     ...(type === "board" ? describeBoard(props, config) : {}),
     ...(config.filters?.length ? { filters: config.filters.map(describeEntry) } : {}),
     ...(config.filters?.length && config.filterCombinator === "or" ? { filter_combinator: "or" } : {}),
@@ -559,6 +561,19 @@ function describeChart(props: PropertyDef[], config: ViewConfig) {
  * A pivot's settings by name, as create_database_view takes them: its rows (group_by, falling back
  * as the pivot does), what its cells calculate (a stale calculation counts rows) and its columns.
  */
+/** An agenda's settings as create_database_view takes them, with the properties it falls back to (see lib/agenda). */
+function describeAgenda(props: PropertyDef[], config: ViewConfig) {
+  const date = agendaDateProperty(config, props);
+  return {
+    ...(date ? { date_by: date.name } : {}),
+    agenda: {
+      status_by: agendaStatusProperty(config, props)?.name ?? null,
+      priority_by: agendaPriorityProperty(config, props)?.name ?? null,
+      show_undated: showsUndated(config),
+    },
+  };
+}
+
 function describePivot(props: PropertyDef[], config: ViewConfig) {
   const rowBy = pivotRowProperty(props, config);
   const columnBy = pivotColumnProperty(props, config, rowBy);

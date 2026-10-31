@@ -30,6 +30,7 @@ export const VIEW_TYPES = [
   "table",
   "board",
   "calendar",
+  "agenda",
   "gallery",
   "list",
   "feed",
@@ -52,7 +53,7 @@ export const TIMELINE_ZOOMS = ["day", "week", "month", "quarter", "year"] as con
 export const CALENDAR_MODES = ["month", "week"] as const satisfies readonly CalendarMode[];
 export const OPEN_ROWS = ["panel", "center", "page"] as const satisfies readonly OpenRows[];
 /** The views whose rows open from them; forms have none and charts list theirs as links. */
-export const ROW_VIEW_TYPES = ["table", "board", "calendar", "gallery", "list", "feed", "timeline", "map"] as const satisfies readonly ViewType[];
+export const ROW_VIEW_TYPES = ["table", "board", "calendar", "agenda", "gallery", "list", "feed", "timeline", "map"] as const satisfies readonly ViewType[];
 
 /** How narrow and how wide a table column may be saved (the table keeps a dragged column within these). */
 export const MIN_COLUMN_WIDTH = 60;
@@ -67,6 +68,7 @@ export const DEFAULT_VIEW_NAMES: Record<ViewType, string> = {
   table: "Table",
   board: "Board",
   calendar: "Calendar",
+  agenda: "Agenda",
   gallery: "Gallery",
   list: "List",
   feed: "Feed",
@@ -121,7 +123,7 @@ export function coverProperty<P extends { id: string; type: string }>(config: Pi
  */
 export function layoutConfigError(config: ViewConfig): string | null {
   const c = config as Record<string, unknown>;
-  for (const key of ["groupBy", "subGroupBy", "dateBy", "endDateBy", "stackBy", "placeBy", "columnBy", "periodBy"] as const) {
+  for (const key of ["groupBy", "subGroupBy", "dateBy", "endDateBy", "statusBy", "priorityBy", "stackBy", "placeBy", "columnBy", "periodBy"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "string") return `${key} must be a property id`;
   }
   if (c.subItems !== undefined && !SUB_ITEMS_DISPLAYS.includes(c.subItems as SubItemsDisplay)) {
@@ -136,7 +138,7 @@ export function layoutConfigError(config: ViewConfig): string | null {
   if (c.openRows !== undefined && !OPEN_ROWS.includes(c.openRows as OpenRows)) {
     return `openRows must be one of: ${OPEN_ROWS.join(", ")}`;
   }
-  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showIcons", "wrapProperties", "showVerticalLines", "stripedRows", "colorColumns", "showTotals"] as const) {
+  for (const key of ["showTable", "showValues", "showLegend", "showWeekends", "showUndated", "showIcons", "wrapProperties", "showVerticalLines", "stripedRows", "colorColumns", "showTotals"] as const) {
     if (c[key] !== undefined && typeof c[key] !== "boolean") return `${key} must be true or false`;
   }
   if (c.defaultTemplateId !== undefined && c.defaultTemplateId !== null && (typeof c.defaultTemplateId !== "string" || !c.defaultTemplateId)) {

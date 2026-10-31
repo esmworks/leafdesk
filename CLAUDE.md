@@ -110,6 +110,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   Pivot views: `lib/pivot.ts` (pure; totals measure the rows they cover, never the cells added
   up), one table `components/database/pivot-table.tsx` for the app, published pages and print,
   `server/pivot-text.ts` for server-made files (PDF, the view's CSV/HTML download).
+  Agenda views: `lib/agenda.ts` (pure: sections, done, moving dates), one database's rows only,
+  `components/database/agenda-view.tsx`; adding one opens `agenda-setup-dialog.tsx` first (date,
+  done and priority properties). MCP takes `statusBy`, `priorityBy` and `showUndated` in one
+  `agenda` object (docs topic `views`), which keeps the tool list in its budget.
   Several linked databases at once (views, example rows, an intro page) are a plan: checked in
   `src/lib/database-plan.ts`, created all-or-nothing by `database-plan.ts` `createFromPlan`, which
   Build with AI (`ai-build.ts` drafts the plan) and the AI chat's `create_database` both use.
@@ -378,7 +382,7 @@ because they are separate module graphs.
   names English texts that exist and a group or row marked `anchor="<id>"`, and every settings tab
   has one. A new setting gets an entry there, with the condition the page shows it under.
 - `src/server/mcp/tools-context.test.ts`: the MCP tool list every client sends its model stays
-  under 92 tools, 167 KB in all and 12 KB per tool. Raise a number only on purpose, in the same
+  under 92 tools, 168.7 KB in all and 12 KB per tool. Raise a number only on purpose, in the same
   commit; first move what a model needs only now and then into a docs topic.
 - `scripts/bundle-budget.ts` (CI, after `pnpm build`): gzipped client JS budgets for the largest
   route's first load, all routes' first-load chunks together and the largest on-demand chunk. Lazy

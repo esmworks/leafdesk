@@ -1134,7 +1134,7 @@ describe("relations and calendars", () => {
     ];
     databases.getDatabase.mockResolvedValue({ ...database, views });
     const onForm = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-f", open_rows: "page" });
-    expect(onForm.text).toMatch(/open_rows only applies to table, board, calendar, gallery, list, feed, timeline and map views/);
+    expect(onForm.text).toMatch(/open_rows only applies to table, board, calendar, agenda, gallery, list, feed, timeline and map views/);
     const r = await callTool(writer, "update_database_view", { database_id: "db-1", view_id: "view-b", open_rows: "page" });
     expect(databases.updateView).toHaveBeenLastCalledWith("user-1", "view-b", { config: { groupBy: "prop-status", openRows: "page" } });
     expect(r.data).toMatchObject({ open_rows: "page" });
@@ -1627,6 +1627,38 @@ describe("database views", () => {
     expect(databases.addView).toHaveBeenCalledWith("user-1", "db-1", expect.objectContaining({ type: "map" }));
     expect(databases.updateView).toHaveBeenCalledWith("user-1", "view-5", { config: { groupBy: "prop-status", placeBy: "prop-where" } });
     expect(r.data).toMatchObject({ type: "map", place_by: "Where", group_by: "Status" });
+  });
+
+  it("sets up an agenda view's date, done and priority properties", async () => {
+    const due = { id: "prop-due", name: "Due", type: "date", options: {} };
+    const done = { id: "prop-done", name: "Done", type: "checkbox", options: {} };
+    const priority = { id: "prop-priority", name: "Priority", type: "select", options: { options: [] } };
+    databases.getDatabase.mockResolvedValue({ ...database, properties: [status, notes, due, done, priority] });
+    const onTable = await callTool(writer, "create_database_view", { database_id: "db-1", name: "T", agenda: { status_by: "Done" } });
+    expect(onTable.text).toMatch(/agenda only applies to agenda views/);
+    const unknown = await callTool(writer, "create_database_view", { database_id: "db-1", name: "A", type: "agenda", agenda: { status: "Done" } });
+    expect(unknown.isError).toBe(true);
+    const badStatus = await callTool(writer, "create_database_view", { database_id: "db-1", name: "A", type: "agenda", agenda: { status_by: "Notes" } });
+    expect(badStatus.text).toMatch(/Agendas mark rows done by a status or checkbox property; "Notes" is text/);
+    const badPriority = await callTool(writer, "create_database_view", { database_id: "db-1", name: "A", type: "agenda", agenda: { priority_by: "Due" } });
+    expect(badPriority.text).toMatch(/Agendas rank rows by the options of a select or status property; "Due" is date/);
+    const badDate = await callTool(writer, "create_database_view", { database_id: "db-1", name: "A", type: "agenda", date_by: "Notes" });
+    expect(badDate.text).toMatch(/Agendas place rows by a date property; "Notes" is text/);
+    expect(databases.addView).not.toHaveBeenCalled();
+
+    databases.addView.mockResolvedValue({ id: "view-6", name: "Agenda", type: "agenda", config: {} });
+    const r = await callTool(writer, "create_database_view", {
+      database_id: "db-1",
+      name: "Agenda",
+      type: "agenda",
+      date_by: "Due",
+      agenda: { status_by: "Done", priority_by: "Priority", show_undated: false },
+    });
+    expect(databases.addView).toHaveBeenCalledWith("user-1", "db-1", expect.objectContaining({ type: "agenda" }));
+    expect(databases.updateView).toHaveBeenCalledWith("user-1", "view-6", {
+      config: { dateBy: "prop-due", statusBy: "prop-done", priorityBy: "prop-priority", showUndated: false },
+    });
+    expect(r.data).toMatchObject({ type: "agenda", date_by: "Due", agenda: { status_by: "Done", priority_by: "Priority", show_undated: false } });
   });
 
   it("groups tables by date with a bucket size, and ungroups them", async () => {
