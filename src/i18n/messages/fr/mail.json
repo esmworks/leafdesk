@@ -126,6 +126,9 @@
     "draftDiscarded": "Brouillon supprimé",
     "alreadySent": "Déjà envoyé, impossible de l'annuler",
     "sendUndone": "Envoi annulé : le message est de nouveau un brouillon",
-    "notSent": "Non envoyé : {reason} Il est conservé dans les brouillons."
+    "notSent": "Non envoyé : {reason} Il est conservé dans les brouillons.",
+    "quoteShow": "Afficher le message cité",
+    "quoteHide": "Masquer le message cité",
+    "quoteRemove": "Retirer le message cité"
   }
 }

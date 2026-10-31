@@ -126,6 +126,9 @@
     "draftDiscarded": "Bozza eliminata",
     "alreadySent": "Già inviato, non si può annullare",
     "sendUndone": "Invio annullato: il messaggio è di nuovo una bozza",
-    "notSent": "Non inviato: {reason} È conservato nelle bozze."
+    "notSent": "Non inviato: {reason} È conservato nelle bozze.",
+    "quoteShow": "Mostra il messaggio citato",
+    "quoteHide": "Nascondi il messaggio citato",
+    "quoteRemove": "Rimuovi il messaggio citato"
   }
 }

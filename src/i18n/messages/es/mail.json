@@ -126,6 +126,9 @@
     "draftDiscarded": "Borrador descartado",
     "alreadySent": "Ya se envió, no se puede deshacer",
     "sendUndone": "Envío deshecho: el mensaje vuelve a ser un borrador",
-    "notSent": "No se envió: {reason} Se guarda en Borradores."
+    "notSent": "No se envió: {reason} Se guarda en Borradores.",
+    "quoteShow": "Mostrar el mensaje citado",
+    "quoteHide": "Ocultar el mensaje citado",
+    "quoteRemove": "Quitar el mensaje citado"
   }
 }

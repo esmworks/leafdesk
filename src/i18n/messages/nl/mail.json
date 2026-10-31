@@ -126,6 +126,9 @@
     "draftDiscarded": "Concept verwijderd",
     "alreadySent": "Al verzonden, kan niet worden teruggenomen",
     "sendUndone": "Verzenden ongedaan gemaakt: het bericht is weer een concept",
-    "notSent": "Niet verzonden: {reason} Het staat bij Concepten."
+    "notSent": "Niet verzonden: {reason} Het staat bij Concepten.",
+    "quoteShow": "Geciteerd bericht tonen",
+    "quoteHide": "Geciteerd bericht verbergen",
+    "quoteRemove": "Geciteerd bericht verwijderen"
   }
 }

@@ -11,7 +11,7 @@
  * folder; a draft is kept in the drafts folder (made where there is none), each save replacing the last under one
  * Message-ID with the files it kept, opens again with its Bcc and signature, marks the thread it answers, and goes
  * once sent or thrown away; a message sent waits for Undo, which makes it a draft again, and goes when its seconds are up; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
- * recipient fields suggest the people written with; an answer's HTML shows without the earlier mail it quotes, which comes apart; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
+ * recipient fields suggest the people written with; an answer's HTML shows without the earlier mail it quotes, which comes apart, and one written here carries the original's HTML, text and images under it, kept from draft to draft and left out when taken off; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
  * elsewhere; search finds by sender and subject; no one but the mailbox's owner reads it.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -494,13 +494,61 @@ try {
   await outside.sendMail({
     ...base,
     subject: "Re: Yeni sipariş",
-    text: "Onaylıyoruz.",
+    text: "Onaylıyoruz.\n\n> Sipariş formu | adet",
     html: `<div>Onaylıyoruz.</div><div class="gmail_quote"><div class="gmail_attr">On Mon, Ada wrote:</div><blockquote class="gmail_quote"><table><tr><td>Sipariş formu</td></tr></table></blockquote></div>`,
   });
   await sweep();
   const quoting = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.find((t) => t.subject === "Re: Yeni sipariş");
   const answerBody = quoting ? await read.readBody(ids.ada, { id: quoting.messageId }) : null;
   check(!!answerBody?.html?.includes("Onaylıyoruz.") && !answerBody.html.includes("Sipariş formu") && !!answerBody.quotedHtml?.includes("<table>"), "an answer's HTML comes without the mail it quotes, which comes apart", answerBody?.quotedHtml);
+
+  // Answering with the mail before it quoted under what is written
+  const quotedDraft = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Re: Yeni sipariş", html: "<p>Tesekkurler</p>", replyTo: quoting!.messageId, quote: { header: ["Ayse yazdi:"] } });
+  const openedQuote = await drafts.openDraft(ids.ada, quotedDraft.id!);
+  check(openedQuote.html.includes("Tesekkurler") && !openedQuote.html.includes("Onaylıyoruz") && !!openedQuote.quote?.includes("Onaylıyoruz.") && openedQuote.quote.includes("Ayse yazdi:"), "a draft keeps the quote under what is written, and opens with it apart", openedQuote);
+  const resaved = await drafts.saveDraft(ids.ada, {
+    mailboxId: boxId,
+    to: [customer],
+    cc: [],
+    bcc: [],
+    subject: "Re: Yeni sipariş",
+    html: "<p>Tesekkurler, yarin gonderiyoruz</p>",
+    replyTo: quoting!.messageId,
+    draft: { id: quotedDraft.id, messageId: quotedDraft.messageId, mailboxId: boxId, keep: [] },
+    quote: { header: null },
+  });
+  check(!!(await drafts.openDraft(ids.ada, resaved.id!)).quote?.includes("<table>"), "saved again, it takes the quote from the draft before, its table kept");
+  await sendMail(ids.ada, {
+    mailboxId: boxId,
+    to: [customer],
+    cc: [],
+    bcc: [],
+    subject: "Re: Yeni sipariş",
+    html: "<p>Tesekkurler, yarin gonderiyoruz</p>",
+    replyTo: quoting!.messageId,
+    draft: { id: resaved.id, messageId: resaved.messageId, mailboxId: boxId, keep: [] },
+    quote: { header: null },
+  });
+  const quotedSent = (await lastMessageTo(customer)).replace(/=\r?\n/g, "");
+  check(
+    quotedSent.includes("yarin gonderiyoruz") && quotedSent.includes("leafdesk_quote") && quotedSent.includes("<table>") && /^> > Sipari.* \| adet/m.test(quotedSent) && !/^> Tesekkurler/m.test(quotedSent),
+    "the answer sent carries the original's HTML under it, and its own text part quoted with >, kept from draft to draft",
+    quotedSent.slice(-1500),
+  );
+  await outside.sendMail({
+    ...base,
+    subject: "Logo",
+    html: `<p>Yeni logomuz</p><img src="cid:logo.${RUN}@acme.test">`,
+    attachments: [{ filename: "logo.png", content: PNG, cid: `logo.${RUN}@acme.test` }],
+  });
+  await sweep();
+  const logo = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.find((t) => t.subject === "Logo");
+  await sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Re: Logo", html: "<p>Cok guzel</p>", replyTo: logo!.messageId, quote: { header: ["Ayse yazdi:"] } });
+  const logoSent = (await lastMessageTo(customer)).replace(/=\r?\n/g, "");
+  check(logoSent.includes(`cid:logo.${RUN}@acme.test`) && new RegExp(`Content-ID: <logo\\.${RUN}@acme\\.test>`, "i").test(logoSent), "an image the original carries goes along with the quote", logoSent.slice(0, 3000));
+  await sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Re: Logo", html: "<p>Alintisiz</p>", replyTo: logo!.messageId, quote: null });
+  const bare = (await lastMessageTo(customer)).replace(/=\r?\n/g, "");
+  check(bare.includes("Alintisiz") && !bare.includes("leafdesk_quote") && !bare.includes("Yeni logomuz"), "an answer whose quote was taken off goes without it");
   const inInbox = await db.select().from(mailMessage).where(eq(mailMessage.folderId, inbox.id));
   check(inInbox.filter((m) => m.subjectKey === "bütçe").length === 1, "and leaves out what was deleted elsewhere", inInbox.map((m) => m.subject));
   check(inInbox.find((m) => m.subjectKey === "bütçe")?.flagged, "and takes flags changed elsewhere");

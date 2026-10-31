@@ -12,6 +12,7 @@ import { buildMessage, newMessageId, written, type Attachment, type Written } fr
 import { draftForSend, keepAsDraft, sentDraft } from "./drafts";
 import { makeFolder, recount } from "./folders";
 import { withImap } from "./pool";
+import { withQuote, type Quote } from "./quote";
 
 /**
  * What the Mail tab changes on the mail server: flags, moves between folders, deleting for good
@@ -139,7 +140,7 @@ export async function mailAction(userId: string, input: { mailboxId: string; fol
 /** Sends from the Mail tab, per mailbox an hour, in this process (row-mail's sending counts its own). */
 const sends = ((globalThis as typeof globalThis & { __leafdeskMailSends?: Map<string, number[]> }).__leafdeskMailSends ??= new Map<string, number[]>());
 
-type Prepared = { userId: string; box: Box; draft: MailDraftInput; w: Written; attachments: Attachment[]; raw: Buffer };
+type Prepared = { userId: string; box: Box; draft: MailDraftInput; w: Written; attachments: Attachment[]; quote: Quote | null; raw: Buffer };
 
 const recentSends = (box: Box) => (sends.get(box.id) ?? []).filter((at) => at > Date.now() - 3_600_000);
 
@@ -150,11 +151,12 @@ const recentSends = (box: Box) => (sends.get(box.id) ?? []).filter((at) => at > 
  */
 async function prepare(userId: string, draft: MailDraftInput, files: File[]): Promise<Prepared> {
   const box = await requireOwnMailbox(userId, draft?.mailboxId);
-  const w = await written(box, draft, { toSend: true });
+  const typed = await written(box, draft, { toSend: true });
   if (recentSends(box).length >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
-  const attachments = await draftForSend(userId, box, draft, files);
+  const { attachments, quote } = await draftForSend(userId, box, draft, files);
+  const w = withQuote(typed, quote);
   const raw = await buildMessage(userId, box, w, attachments, { messageId: newMessageId(box), draft: false });
-  return { userId, box, draft, w, attachments, raw };
+  return { userId, box, draft, w, attachments, quote, raw };
 }
 
 /**
@@ -232,7 +234,7 @@ export async function sendHeld(id: string) {
     entry.error = error instanceof RowMailError ? error.code : "unreachable";
     entry.state = "failed";
     if (!(error instanceof RowMailError)) console.error("[mail-client] a held message could not be sent", error);
-    await keepAsDraft(entry.userId, entry.draft, entry.attachments).catch((e) => console.error("[mail-client] a message not sent could not be kept as a draft", e));
+    await keepAsDraft(entry.userId, entry.draft, entry.attachments, entry.quote).catch((e) => console.error("[mail-client] a message not sent could not be kept as a draft", e));
   }
   settled(id);
 }
@@ -248,7 +250,7 @@ export async function undoSend(userId: string, id: string): Promise<MailUndoneSe
   if (entry.timer) clearTimeout(entry.timer);
   entry.state = "undone";
   settled(id);
-  const saved = await keepAsDraft(userId, entry.draft, entry.attachments);
+  const saved = await keepAsDraft(userId, entry.draft, entry.attachments, entry.quote);
   return { id: saved.id, replyTo: entry.w.answers?.id ?? null };
 }
 

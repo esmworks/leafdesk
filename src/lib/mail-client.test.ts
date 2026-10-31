@@ -68,6 +68,8 @@ describe("previewText", () => {
     expect(previewText("Merhaba,\n\nTeklif ekte.\n\n> Eski ileti\n> devam")).toBe("Merhaba, Teklif ekte.");
     expect(previewText("Kısa\n-----Original Message-----\nFrom: x")).toBe("Kısa");
     expect(previewText("a".repeat(500))).toHaveLength(200);
+    expect(previewText("Rica ederiz.\n\n31 Eki 2026 15:54 tarihinde Erkal Acar şunu yazdı:\n> Teşekkürler")).toBe("Rica ederiz.");
+    expect(previewText("Teşekkürler.\n\nOn Fri, Erhan wrote:\n\n> Teklif")).toBe("Teşekkürler.");
   });
 });
 

@@ -177,6 +177,13 @@
   quotes at its end, as Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark
   it, folds under *•••* and opens in place; plain-text answers already did.
 
+- **Replies and forwards from the Mail tab carry the earlier mail as it looked.** It no longer
+  goes into the editor as plain lines: what is written stays on its own, the original goes under
+  it with its tables, colors and the images it carries, behind *•••* to look at or taken off with
+  *Remove the quoted message*, and the plain-text part quotes the original's own text with `>`.
+  Drafts keep it from one save to the next. Mail lists also leave the "… wrote:" line above a
+  quote out of a message's first line.
+
 - **A database's tabs and toolbar scroll away with the page.** On a full database page they no
   longer stay at the top as you scroll down; only a table's column names do, right under the
   page's top bar, so more rows fit on the screen.

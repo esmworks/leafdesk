@@ -126,6 +126,9 @@
     "draftDiscarded": "Draf dibuang",
     "alreadySent": "Sudah terkirim, tidak dapat dibatalkan",
     "sendUndone": "Pengiriman dibatalkan: pesan kembali menjadi draf",
-    "notSent": "Tidak terkirim: {reason} Disimpan di Draf."
+    "notSent": "Tidak terkirim: {reason} Disimpan di Draf.",
+    "quoteShow": "Tampilkan pesan yang dikutip",
+    "quoteHide": "Sembunyikan pesan yang dikutip",
+    "quoteRemove": "Hapus pesan yang dikutip"
   }
 }

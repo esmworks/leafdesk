@@ -126,6 +126,9 @@
     "draftDiscarded": "Entwurf verworfen",
     "alreadySent": "Bereits gesendet, kann nicht zurückgenommen werden",
     "sendUndone": "Senden rückgängig gemacht: die Nachricht ist wieder ein Entwurf",
-    "notSent": "Nicht gesendet: {reason} Sie liegt in den Entwürfen."
+    "notSent": "Nicht gesendet: {reason} Sie liegt in den Entwürfen.",
+    "quoteShow": "Zitierte Nachricht anzeigen",
+    "quoteHide": "Zitierte Nachricht ausblenden",
+    "quoteRemove": "Zitierte Nachricht entfernen"
   }
 }

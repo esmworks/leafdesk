@@ -126,6 +126,9 @@
     "draftDiscarded": "Kladde kasseret",
     "alreadySent": "Allerede sendt, kan ikke fortrydes",
     "sendUndone": "Afsendelse fortrudt: beskeden er en kladde igen",
-    "notSent": "Ikke sendt: {reason} Den er gemt i Kladder."
+    "notSent": "Ikke sendt: {reason} Den er gemt i Kladder.",
+    "quoteShow": "Vis den citerede besked",
+    "quoteHide": "Skjul den citerede besked",
+    "quoteRemove": "Fjern den citerede besked"
   }
 }

@@ -54,26 +54,22 @@ function answerAddresses(all: boolean, box: MailboxTabView, message: MailMessage
 /** Whether reply-all would write to anyone a reply doesn't: only then is it offered. */
 export const replyAllAdds = (box: MailboxTabView, message: MailMessageView) => answerAddresses(true, box, message, null).cc.length > 0;
 
-const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-/** Lines of text as the editor's paragraphs. */
-const paragraphs = (lines: string[]) => lines.map((line) => `<p>${escape(line)}</p>`).join("");
-
-export type ComposeStart = { to: Recipient[]; cc: Recipient[]; subject: string; html: string };
+export type ComposeStart = { to: Recipient[]; cc: Recipient[]; subject: string; html: string; quote: string[] | null };
 
 /** A signature's HTML as the editor reads it into a message (mail-editor.tsx `Signature`). */
 export const signatureBlock = (html: string) => `<div data-signature="">${html}</div>`;
 
 /**
- * What a message starts with: a line to write on, an empty one and the mailbox's signature, then for a
- * reply, reply-all or forward the earlier message, quoted under who wrote it when, or under a
- * forward's header.
+ * What a message starts with: a line to write on, an empty one and the mailbox's signature. A reply,
+ * reply-all or forward carries the earlier message under it, which the server adds as it saves or
+ * sends (server/mail-client/quote.ts) under `quote`, the lines the composer writes above it: who
+ * wrote it when, or a forward's header.
  */
 export function startFrom(mode: ComposeMode, box: MailboxTabView, source: ComposeSource | null, header: (m: MailMessageView) => string, forwarded: (m: MailMessageView) => string[]): ComposeStart {
-  const signature = box.signature ? `<p></p>${signatureBlock(box.signature)}` : "";
-  if (!source || mode === "new") return { to: [], cc: [], subject: "", html: signature && `<p></p>${signature}` };
+  const html = box.signature ? `<p></p><p></p>${signatureBlock(box.signature)}` : "";
+  if (!source || mode === "new") return { to: [], cc: [], subject: "", html, quote: null };
   const { message, body } = source;
-  const lines = (body?.text ?? message.preview).replace(/\r\n/g, "\n").trimEnd().split("\n");
-  if (mode === "forward") return { to: [], cc: [], subject: forwardSubject(message.subject), html: `<p></p>${signature}${signature && "<p></p>"}${paragraphs(forwarded(message))}<p></p>${paragraphs(lines)}` };
+  if (mode === "forward") return { to: [], cc: [], subject: forwardSubject(message.subject), html, quote: forwarded(message) };
   const { to, cc } = answerAddresses(mode === "replyAll", box, message, body?.replyTo.length ? body.replyTo : null);
-  return { to, cc, subject: replySubject(message.subject), html: `<p></p>${signature}<p></p><p>${escape(header(message))}</p><blockquote>${paragraphs(lines)}</blockquote>` };
+  return { to, cc, subject: replySubject(message.subject), html, quote: [header(message)] };
 }

@@ -126,6 +126,9 @@
     "draftDiscarded": "Draft discarded",
     "alreadySent": "Already sent: it couldn't be taken back",
     "sendUndone": "Sending undone: the message is a draft again",
-    "notSent": "Not sent: {reason} It is kept in Drafts."
+    "notSent": "Not sent: {reason} It is kept in Drafts.",
+    "quoteShow": "Show the quoted message",
+    "quoteHide": "Hide the quoted message",
+    "quoteRemove": "Remove the quoted message"
   }
 }

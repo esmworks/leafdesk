@@ -9,7 +9,9 @@ import { requireOwnMailbox } from "./access";
 import { addedFiles, attachedBytes, buildMessage, filesOf, newMessageId, storedMessage, written, type Attachment, type StoredMessage, type Written } from "./compose";
 import { makeFolder, recount, type FolderRow } from "./folders";
 import { indexFolder, indexUids } from "./indexer";
+import { cleanMailHtml } from "./html";
 import { editableBody } from "./outgoing";
+import { freshQuote, keptQuote, splitQuote, withQuote, type Quote } from "./quote";
 import { withImap } from "./pool";
 import { decodeText, fileView, messageParts, readParts } from "./structure";
 
@@ -125,20 +127,42 @@ export async function saveDraft(userId: string, input: MailDraftInput, files: Fi
   const box = await requireOwnMailbox(userId, input?.mailboxId);
   const w = await written(box, input, { toSend: false });
   const earlier = await earlierDraft(userId, box, input.draft);
-  return storeDraft(userId, box, w, await draftFiles(box, input, files, earlier), earlier);
+  const attachments = await draftFiles(box, input, files, earlier);
+  const quote = await quoteFor(box, input, earlier);
+  return storeDraft(userId, box, withQuote(w, quote), [...attachments, ...(quote?.files ?? [])], earlier, quote);
+}
+
+/**
+ * The earlier mail a message carries under what was written (quote.ts): the one its draft before
+ * carries, else the message it answers or forwards under the header the composer wrote.
+ */
+async function quoteFor(box: Box, input: MailDraftInput, earlier: Earlier | null): Promise<Quote | null> {
+  const asked = input.quote;
+  if (!asked || typeof asked !== "object") return null;
+  if (earlier?.message) {
+    const draft = earlier.message;
+    const kept = await withImap(earlier.box, (client) => keptQuote(client, draft));
+    if (kept) return kept;
+  }
+  const header = Array.isArray(asked.header) ? asked.header.filter((line): line is string => typeof line === "string").slice(0, 12).map((line) => line.replace(/[\r\n]+/g, " ").slice(0, 500)) : null;
+  const sourceId = input.forward ?? input.replyTo;
+  if (!header?.length || !sourceId) return null;
+  const source = await storedMessage(box, sourceId);
+  return withImap(box, (client) => freshQuote(client, source, header, !!input.forward));
 }
 
 /**
  * Keeps a message that was to be sent as a draft again, with the files it was going with: sending
  * it was undone, or failed.
  */
-export async function keepAsDraft(userId: string, input: MailDraftInput, attachments: Attachment[]): Promise<MailSavedDraft> {
+export async function keepAsDraft(userId: string, input: MailDraftInput, attachments: Attachment[], quote: Quote | null): Promise<MailSavedDraft> {
   const box = await requireOwnMailbox(userId, input?.mailboxId);
   const w = await written(box, input, { toSend: false });
-  return storeDraft(userId, box, w, attachments, await earlierDraft(userId, box, input.draft));
+  return storeDraft(userId, box, withQuote(w, quote), attachments, await earlierDraft(userId, box, input.draft), quote);
 }
 
-async function storeDraft(userId: string, box: Box, w: Written, attachments: Attachment[], earlier: Earlier | null): Promise<MailSavedDraft> {
+/** Puts a draft in the drafts folder in place of `earlier`; its files come back but for the quote's images. */
+async function storeDraft(userId: string, box: Box, w: Written, attachments: Attachment[], earlier: Earlier | null, quote: Quote | null): Promise<MailSavedDraft> {
   // The same Message-ID from the first save on (the draft is found by it); a new one for a draft
   // moved to another mailbox, which must not be taken for its copy there.
   const messageId = earlier?.messageId && earlier.box.id === box.id ? earlier.messageId : newMessageId(box);
@@ -165,7 +189,8 @@ async function storeDraft(userId: string, box: Box, w: Written, attachments: Att
         if (!uid) return { folder, uid: null, attachments: [] };
         await indexUids(client, box, folder, [uid]);
         const fetched = await client.fetchOne(String(uid), { uid: true, bodyStructure: true }, { uid: true });
-        return { folder, uid, attachments: fetched && fetched.bodyStructure ? messageParts(fetched.bodyStructure).attachments.map(fileView) : [] };
+        const parts = fetched && fetched.bodyStructure ? messageParts(fetched.bodyStructure).attachments : [];
+        return { folder, uid, attachments: parts.filter((a) => !(a.inline && a.contentId && quote?.cids.has(a.contentId))).map(fileView) };
       } finally {
         lock.release();
       }
@@ -202,10 +227,12 @@ export async function sentDraft(userId: string, box: Box, ref: MailDraftRef | nu
   await removeCopies(earlier, null).catch((error) => console.warn(`[mail-client] could not remove a sent draft: ${(error as Error)?.message}`));
 }
 
-/** What the composer needs before sending: the draft it saved last and the files that brings. */
+/** What the composer needs before sending: the files and the quote the draft it saved last brings. */
 export async function draftForSend(userId: string, box: Box, input: MailDraftInput, files: File[]) {
   const earlier = await earlierDraft(userId, box, input.draft);
-  return draftFiles(box, input, files, earlier);
+  const attachments = await draftFiles(box, input, files, earlier);
+  const quote = await quoteFor(box, input, earlier);
+  return { attachments: [...attachments, ...(quote?.files ?? [])], quote };
 }
 
 const viewAddresses = (list: { address?: string; name?: string }[] | undefined): MailAddress[] =>
@@ -240,6 +267,8 @@ export async function openDraft(userId: string, id: string): Promise<MailDraftVi
     }
   });
   if (!read) throw new RowMailError("gone");
+  // The quote it carries is shown apart, not written on (quote.ts).
+  const split = read.html ? await splitQuote(read.html) : null;
   const [answers] = message.inReplyTo
     ? await db
         .select({ id: mailMessage.id })
@@ -256,8 +285,9 @@ export async function openDraft(userId: string, id: string): Promise<MailDraftVi
     cc: viewAddresses(read.envelope.cc),
     bcc: viewAddresses(read.envelope.bcc),
     subject: message.subject,
-    html: await editableBody(read.html, read.text),
+    html: await editableBody(split?.html ?? null, read.text),
     replyTo: answers?.id ?? null,
-    attachments: read.parts.attachments.map(fileView),
+    attachments: read.parts.attachments.filter((a) => !(a.inline && a.contentId && split?.quote?.includes(`cid:${a.contentId}`))).map(fileView),
+    quote: split?.quote ? (await cleanMailHtml(split.quote, { images: false, inline: new Map() })).html : null,
   };
 }

@@ -126,6 +126,9 @@
     "draftDiscarded": "Đã hủy thư nháp",
     "alreadySent": "Đã gửi, không thể hoàn tác",
     "sendUndone": "Đã hoàn tác gửi: thư lại là bản nháp",
-    "notSent": "Chưa gửi được: {reason} Thư được giữ trong Bản nháp."
+    "notSent": "Chưa gửi được: {reason} Thư được giữ trong Bản nháp.",
+    "quoteShow": "Hiện thư được trích dẫn",
+    "quoteHide": "Ẩn thư được trích dẫn",
+    "quoteRemove": "Bỏ thư được trích dẫn"
   }
 }

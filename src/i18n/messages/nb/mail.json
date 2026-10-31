@@ -126,6 +126,9 @@
     "draftDiscarded": "Utkast forkastet",
     "alreadySent": "Allerede sendt, kan ikke angres",
     "sendUndone": "Sending angret: meldingen er et utkast igjen",
-    "notSent": "Ikke sendt: {reason} Den er lagret i Utkast."
+    "notSent": "Ikke sendt: {reason} Den er lagret i Utkast.",
+    "quoteShow": "Vis den siterte meldingen",
+    "quoteHide": "Skjul den siterte meldingen",
+    "quoteRemove": "Fjern den siterte meldingen"
   }
 }

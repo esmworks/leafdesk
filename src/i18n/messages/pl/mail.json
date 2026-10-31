@@ -126,6 +126,9 @@
     "draftDiscarded": "Wersja robocza odrzucona",
     "alreadySent": "Już wysłano, nie można cofnąć",
     "sendUndone": "Wysyłanie cofnięte: wiadomość znów jest wersją roboczą",
-    "notSent": "Nie wysłano: {reason} Jest zachowana w wersjach roboczych."
+    "notSent": "Nie wysłano: {reason} Jest zachowana w wersjach roboczych.",
+    "quoteShow": "Pokaż cytowaną wiadomość",
+    "quoteHide": "Ukryj cytowaną wiadomość",
+    "quoteRemove": "Usuń cytowaną wiadomość"
   }
 }

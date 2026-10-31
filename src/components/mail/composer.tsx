@@ -24,6 +24,7 @@ import {
 } from "@/lib/mail-client";
 import { parseRecipient, showAddress, splitAddresses, startFrom, type ComposeMode, type ComposeSource, type Recipient } from "./compose-start";
 import { FormatBar, MailEditorContent, putSignature, useMailEditor, writeBelow } from "./mail-editor";
+import { MailFrame } from "./mail-frame";
 import { MailboxMark } from "./mail-sidebar";
 import { RecipientField } from "./recipient-field";
 
@@ -98,6 +99,8 @@ export function Composer({
         html: draft.html,
         from: boxes.find((b) => b.id === draft.mailboxId) ?? box,
         files: draft.attachments.map((stored): Attached => ({ stored })),
+        // The server takes the quote from the draft before (quote.ts): no header needed.
+        quote: null as string[] | null,
       };
     }
     const start = startFrom(
@@ -123,6 +126,9 @@ export function Composer({
   const [showBcc, setShowBcc] = useState(initial.bcc.length > 0);
   const [subject, setSubject] = useState(initial.subject);
   const [files, setFiles] = useState(initial.files);
+  // The earlier mail goes under what is written (the server adds it): shown folded, taken off on asking.
+  const quotedFirst = draft ? !!draft.quote : !!initial.quote;
+  const [quoted, setQuoted] = useState(quotedFirst);
   const [written, setWritten] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -162,12 +168,12 @@ export function Composer({
   const swapped = useRef(false);
   const mounted = useRef(true);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
-  const touched = written || to !== initial.to || cc !== initial.cc || bcc !== initial.bcc || subject !== initial.subject || files !== initial.files || from !== initial.from;
-  const latest = useRef({ from, to, cc, bcc, subject, files, touched });
+  const touched = written || to !== initial.to || cc !== initial.cc || bcc !== initial.bcc || subject !== initial.subject || files !== initial.files || from !== initial.from || quoted !== quotedFirst;
+  const latest = useRef({ from, to, cc, bcc, subject, files, quoted, touched });
   const saved = useRef(onSaved);
   saved.current = onSaved;
   useEffect(() => {
-    latest.current = { from, to, cc, bcc, subject, files, touched };
+    latest.current = { from, to, cc, bcc, subject, files, quoted, touched };
   });
 
   /** What the fields hold, as the server takes it: addresses typed but not yet made recipients count when they are addresses. */
@@ -182,7 +188,7 @@ export function Composer({
 
   /** The message as sent to the server: the draft it replaces, the files it keeps from it, the files added since. */
   const formOf = (fields: Recipient[][]) => {
-    const { from, subject, files } = latest.current;
+    const { from, subject, files, quoted } = latest.current;
     const ref: MailDraftRef | null = savedDraft.current
       ? { ...savedDraft.current, keep: files.flatMap((f) => ("stored" in f ? [f.stored.part] : [])) }
       : null;
@@ -199,6 +205,7 @@ export function Composer({
         replyTo,
         forward: mode === "forward" ? (source?.message.id ?? null) : null,
         draft: ref,
+        quote: quoted ? { header: initial.quote } : null,
       }),
     );
     const kept = files.filter((f): f is { stored: MailAttachmentView } => "stored" in f);
@@ -253,7 +260,7 @@ export function Composer({
     changed();
     // changed reads everything through refs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, to, cc, bcc, subject, files]);
+  }, [from, to, cc, bcc, subject, files, quoted]);
 
   // Closing (another thread opened, the pane closed, the page left) saves what is not saved yet.
   useEffect(() => {
@@ -409,6 +416,14 @@ export function Composer({
     </ul>
   );
 
+  const quotePart = quoted && (
+    <QuotePreview
+      html={draft ? draft.quote : source && initial.quote ? quoteOf(source, initial.quote, mode === "forward") : null}
+      startOpen={mode === "forward"}
+      onRemove={() => setQuoted(false)}
+    />
+  );
+
   const footer = (
     <div className={cn("flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-border py-2", pane ? "px-4" : "px-3")}>
       <Button variant="primary" onClick={() => void send()} disabled={sending} title={t("sendHint")}>
@@ -498,6 +513,7 @@ export function Composer({
             <div className="flex flex-1 cursor-text flex-col py-4" onMouseDown={(e) => writeBelow(editor, e)}>
               <MailEditorContent editor={editor} className="flex flex-1 flex-col [&_.ProseMirror]:flex-1" />
             </div>
+            {quotePart}
             {attached}
           </div>
         </div>
@@ -507,6 +523,7 @@ export function Composer({
           <div className="px-3 py-3">
             <MailEditorContent editor={editor} className="[&_.ProseMirror]:min-h-32" />
           </div>
+          {quotePart && <div className="px-3">{quotePart}</div>}
           {attached}
         </>
       )}
@@ -515,6 +532,55 @@ export function Composer({
       {dropping && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] border-2 border-dashed border-accent bg-bg/80 text-sm font-medium text-accent">
           {t("dropFiles")}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const escapeHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/**
+ * The earlier mail as the server will put it under an answer or a forward (server/mail-client/quote.ts):
+ * the header lines, then the message read, its folded quote too, in a cited quote for an answer.
+ */
+function quoteOf({ message, body }: ComposeSource, header: string[], forward: boolean) {
+  const inside = (html: string) => /<body[^>]*>([\s\S]*)<\/body>/i.exec(html)?.[1] ?? html;
+  const original = body?.html
+    ? inside(body.html) + (body.quotedHtml ? inside(body.quotedHtml) : "")
+    : `<div style="white-space:pre-wrap">${escapeHtml(body?.text ?? message.preview)}</div>`;
+  const head = `<p style="margin:0 0 8px">${header.map(escapeHtml).join("<br>")}</p>`;
+  const quoted = forward ? `<div>${original}</div>` : `<blockquote type="cite">${original}</blockquote>`;
+  const styles = body?.html ? (/<head[^>]*>[\s\S]*?<\/head>/i.exec(body.html)?.[0] ?? "") : "";
+  return `<html>${styles}<body>${head}${quoted}</body></html>`;
+}
+
+/** The earlier mail under what is written: folded behind "•••", shown as it goes, and taken off on asking. */
+function QuotePreview({ html, startOpen, onRemove }: { html: string | null; startOpen: boolean; onRemove: () => void }) {
+  const t = useTranslations("mail.composer");
+  const [open, setOpen] = useState(startOpen && !!html);
+  return (
+    <div className="pb-3">
+      <div className="flex items-center gap-2">
+        {html && (
+          <button
+            type="button"
+            className="rounded border border-border px-1.5 text-xs text-fg-muted hover:bg-bg-hover"
+            onClick={() => setOpen(!open)}
+            aria-expanded={open}
+            aria-label={t(open ? "quoteHide" : "quoteShow")}
+            title={t(open ? "quoteHide" : "quoteShow")}
+          >
+            •••
+          </button>
+        )}
+        <button type="button" className="text-xs text-fg-muted hover:text-fg hover:underline" onClick={onRemove}>
+          {t("quoteRemove")}
+        </button>
+      </div>
+      {open && html && (
+        <div className="mt-2 overflow-hidden rounded-md border border-border bg-white p-3">
+          <MailFrame html={html} images={false} title={t("quoteShow")} />
         </div>
       )}
     </div>

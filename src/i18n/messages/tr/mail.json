@@ -126,6 +126,9 @@
     "draftDiscarded": "Taslak silindi",
     "alreadySent": "Zaten gönderildi, geri alınamadı",
     "sendUndone": "Gönderim geri alındı: ileti yeniden taslak",
-    "notSent": "Gönderilemedi: {reason} Taslaklarda saklandı."
+    "notSent": "Gönderilemedi: {reason} Taslaklarda saklandı.",
+    "quoteShow": "Alıntılanan iletiyi göster",
+    "quoteHide": "Alıntılanan iletiyi gizle",
+    "quoteRemove": "Alıntılanan iletiyi kaldır"
   }
 }

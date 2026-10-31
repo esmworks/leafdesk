@@ -126,6 +126,9 @@
     "draftDiscarded": "Utkast slängt",
     "alreadySent": "Redan skickat, kan inte ångras",
     "sendUndone": "Sändningen ångrad: meddelandet är ett utkast igen",
-    "notSent": "Inte skickat: {reason} Det sparas i Utkast."
+    "notSent": "Inte skickat: {reason} Det sparas i Utkast.",
+    "quoteShow": "Visa det citerade meddelandet",
+    "quoteHide": "Dölj det citerade meddelandet",
+    "quoteRemove": "Ta bort det citerade meddelandet"
   }
 }

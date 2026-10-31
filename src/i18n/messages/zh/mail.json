@@ -126,6 +126,9 @@
     "draftDiscarded": "草稿已舍弃",
     "alreadySent": "已发送，无法撤回",
     "sendUndone": "已撤销发送：邮件已回到草稿",
-    "notSent": "未发送：{reason} 已保存在草稿中。"
+    "notSent": "未发送：{reason} 已保存在草稿中。",
+    "quoteShow": "显示引用的邮件",
+    "quoteHide": "隐藏引用的邮件",
+    "quoteRemove": "移除引用的邮件"
   }
 }
