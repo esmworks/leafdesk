@@ -163,6 +163,9 @@ function DatabasesGroup({ workspaceId, view, onChange }: { workspaceId: string; 
 // The forms come with opening one, not with the settings page.
 const MailboxConnect = lazyPart(() => import("./mail-connect").then((m) => m.MailboxConnect), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
+// A pasted signature's preview comes with a mailbox that has one.
+const SavedPastedSignature = lazyPart(() => import("@/components/mail/pasted-signature").then((m) => m.SavedPastedSignature), <div aria-busy="true" className="mt-1 h-20" />);
+
 // The editor comes with opening it too.
 const SignatureEditor = lazyPart(() => import("./mail-signature").then((m) => m.SignatureEditor), <div aria-busy="true" className="h-32 animate-pulse rounded-md bg-bg-subtle" />);
 
@@ -191,7 +194,11 @@ function SignatureRow({ mailbox, title, onSaved }: { mailbox: MailboxView; title
       description={
         mailbox.signature ? (
           // As messages show it: the HTML the server kept of it (server/mail-client/outgoing.ts cleanSignature).
-          <div className="mail-editor pointer-events-none line-clamp-4" dir="auto" dangerouslySetInnerHTML={{ __html: mailbox.signature }} />
+          mailbox.signaturePasted ? (
+            <SavedPastedSignature signature={mailbox.signature} className="mt-1 max-h-40" />
+          ) : (
+            <div className="mail-editor pointer-events-none line-clamp-4" dir="auto" dangerouslySetInnerHTML={{ __html: mailbox.signature }} />
+          )
         ) : (
           t("signatureNone")
         )

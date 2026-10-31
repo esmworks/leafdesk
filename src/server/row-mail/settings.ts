@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { databaseProperty, mailbox, mailboxOauth, mailDatabase, page, user } from "@/db/schema";
 import { env } from "@/lib/env";
 import { MAX_DAILY_LIMIT } from "@/lib/sequences";
+import { pastedHtml } from "@/lib/pasted-signature";
 import { isTimeZone } from "@/lib/time-zone";
 import { MAX_MAILBOXES, MAX_SIGNATURE_HTML, normalizeAddress, type MailboxAuth, type MailboxFolders, type MailboxServers, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
 import { isGuest, requireMembership } from "@/server/access";
@@ -69,6 +70,7 @@ function mailboxView(m: typeof mailbox.$inferSelect): MailboxView {
     timeZone: m.timeZone,
     signature: m.signature,
     signatureText: m.signatureText,
+    signaturePasted: pastedHtml(m.signature) !== null,
   };
 }
 

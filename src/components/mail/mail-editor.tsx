@@ -3,16 +3,21 @@
 import { Editor, Extension, Node } from "@tiptap/core";
 import { Placeholder } from "@tiptap/extensions/placeholder";
 import { StarterKit } from "@tiptap/starter-kit";
+import purify from "dompurify";
 import { Bold, Italic, Link2, List, ListOrdered, RemoveFormatting, Strikethrough, TextQuote, Underline } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { cn, IconButton, Popover } from "@/components/ui";
 import { normalizeAddress } from "@/lib/mail";
+import { pastedHtml, wrapPasted } from "@/lib/pasted-signature";
+import { PASTED_SIGNATURE_CONFIG } from "@/lib/pasted-signature-config";
 import { signatureBlock } from "./compose-start";
+import { PASTED_BOX, showPasted } from "./pasted-signature";
 
 /**
  * The Mail tab's editor: paragraphs, bold, italic, underline, strike, links, lists and quotes,
- * and the sender's signature (`Signature`, around paragraphs of its own), which is what
+ * and the sender's signature (`Signature`, around paragraphs of its own, or `PastedSignature`),
+ * which is what
  * server/mail-client/outgoing.ts lets through when it is sent. Other formatting
  * pasted in falls away as it comes. It is bound to React here rather than through TipTap's React
  * package: that package's module is shared with the page editor's first load, and what the
@@ -50,6 +55,43 @@ const Signature = Node.create({
 });
 
 /**
+ * A signature pasted from another mail program (lib/pasted-signature.ts), which this editor can't
+ * hold: shown as it is, kept or taken out whole, and sent as it is. It is cleaned as it comes in,
+ * from the mailbox or from a paste, so what it shows and writes back holds nothing that runs.
+ */
+const PastedSignature = Node.create({
+  name: "pastedSignature",
+  group: "block",
+  atom: true,
+  selectable: true,
+  addAttributes: () => ({ html: { default: "", rendered: false } }),
+  parseHTML: () => [
+    {
+      tag: "div[data-signature]",
+      priority: 60,
+      getAttrs: (el) => {
+        const html = pastedHtml(el.innerHTML);
+        return html === null ? false : { html: purify.sanitize(html, PASTED_SIGNATURE_CONFIG) as string };
+      },
+    },
+  ],
+  renderHTML: ({ node }) => {
+    const dom = document.createElement("div");
+    dom.setAttribute("data-signature", "");
+    dom.innerHTML = wrapPasted(node.attrs.html as string);
+    return dom;
+  },
+  addNodeView: () => ({ node }) => {
+    const dom = document.createElement("div");
+    dom.className = PASTED_BOX;
+    showPasted(dom, node.attrs.html as string);
+    return { dom };
+  },
+});
+
+const SIGNATURES = new Set(["signature", "pastedSignature"]);
+
+/**
  * Changes the message's signature to `html` when the mailbox it goes out from changes: in its
  * place, or gone when the new one has none. A message that has none gets one at its end only when
  * `add` (the earlier mailbox had none either, so it wasn't taken out by hand).
@@ -65,7 +107,7 @@ export function putSignature(editor: Editor, html: string | null, add: boolean) 
 function signatureAt(editor: Editor) {
   let at = null as { from: number; to: number } | null;
   editor.state.doc.forEach((node, offset) => {
-    if (!at && node.type.name === "signature") at = { from: offset, to: offset + node.nodeSize };
+    if (!at && SIGNATURES.has(node.type.name)) at = { from: offset, to: offset + node.nodeSize };
   });
   return at;
 }
@@ -115,9 +157,10 @@ export function useMailEditor({ html, placeholder, label, onChange, autofocus }:
           horizontalRule: false,
           link: { openOnClick: false, autolink: true, defaultProtocol: "https", protocols: ["mailto"] },
           // A message may end with its signature: no empty line after it to write on below it by mistake.
-          trailingNode: { notAfter: ["paragraph", "signature"] },
+          trailingNode: { notAfter: ["paragraph", ...SIGNATURES] },
         }),
         Signature,
+        PastedSignature,
         Placeholder.configure({ placeholder }),
         Keys.configure({ onLink: () => setLinking(true) }),
       ],
@@ -140,7 +183,8 @@ export function MailEditorContent({ editor, className }: { editor: Editor | null
       if (!editor.isDestroyed) editor.unmount();
     };
   }, [editor]);
-  return <div ref={host} className={cn("text-sm leading-relaxed [&_.ProseMirror]:min-h-full", className)} />;
+  // Its height is the caller's: a `min-h-*` on `.ProseMirror` there, or `flex-1` in a pane.
+  return <div ref={host} className={cn("text-sm leading-relaxed", className)} />;
 }
 
 const marks = (e: Editor) => ({
