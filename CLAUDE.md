@@ -253,7 +253,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `access.ts`; headers indexed by the minute's mailbox sweep, `indexer.ts`, bodies read live through
   `pool.ts` `withImap`, two queued connections per mailbox (lane `open` for clicks, `background`
   for folder reads and loading ahead) kept alive by NOOPs and keyed by its servers and password, never
-  `updatedAt`, which the sweep changes; bodies held a few minutes in memory, `body-cache.ts`, and in
+  `updatedAt`, which the sweep changes; a server can drop one silently, leaving its commands waiting
+  minutes for the socket timeout, so work someone waits on passes `within` (closed then, throwing
+  `ConnectionLost`, which `readBody` tries once more on a new connection); bodies held a few minutes in memory, `body-cache.ts`, and in
   the tab, `components/mail/mail-cache.ts`; HTML cleaned by `html.ts` into a sandboxed frame; the page is
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
