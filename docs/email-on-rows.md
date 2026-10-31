@@ -69,6 +69,32 @@ host name or `host:port`) to let mailboxes reach it, also without TLS. Backups k
 rows and which databases mail lands on, not the mailboxes: members connect them again after a
 restore.
 
+### The Mail tab
+
+A member with a mailbox in the workspace gets a Mail tab in the sidebar's tab strip, while email
+is on there. It is their own mail, all of it, not only what landed on rows: the sidebar lists each
+of their mailboxes with its folders and unread counts, and the page shows a folder's threads
+beside the open one. Only the mailbox's owner reads it; guests, other members, owners, agents,
+MCP clients, the REST API and automations don't.
+
+Leafdesk keeps each folder's headers and first lines, read 90 days back once the owner first
+opens Mail and kept up to date by the minute's read; the messages themselves, their HTML and their
+files are read from the mail server when a thread is opened, and aren't stored. HTML mail is shown
+cleaned, in a frame of its own, and images from other sites stay out until *Show images* (they tell
+the sender the mail was opened, and from where). Messages are grouped into threads by the
+server's thread ids, their references and, within 30 days, a reply's subject.
+
+From the open thread: reply, reply all and forward (with its files), archive, junk, trash, star and
+mark unread; moves can be undone for 5 seconds before they reach the server, and deleting from the
+trash is for good. *New message* writes one in plain text with files of up to 20 MB in all, at most
+100 recipients and 100 messages an hour from each mailbox; the sent folder keeps a copy. The search
+box looks through every folder but the trash and junk, in senders, recipients, subjects and first
+lines, and takes `from:`, `to:`, `subject:`, `is:unread`, `is:read`, `is:starred`,
+`has:attachment`, `after:2026-01-31` and `before:`. Keys: `c` new message, `/`
+search, `j` and `k` next and previous thread, `o` or Enter open the first; in a thread `e` archive,
+`#` trash, `!` junk, `s` star, `u` unread, `r` reply, `a` reply all, `f` forward, Escape back to
+the list. Backups leave the Mail tab's index out: it is read again once the mailbox is connected.
+
 ### Follow-ups
 
 A follow-up sequence sends a row's contact a few emails one after another until they answer.

@@ -4,6 +4,14 @@
 
 ### Added
 
+- **A Mail tab for members' own mail.** A member with a mailbox in the workspace gets a Mail tab
+  in the sidebar's tab strip: their mailboxes and folders with unread counts, a folder's threads
+  beside the open one, HTML mail shown cleaned with images from other sites held back, files,
+  reply, reply all, forward and new messages, archive, junk, trash and star with a 5-second undo,
+  search with `from:`, `is:unread`, `has:attachment` and the like, and keyboard shortcuts. Only
+  headers and first lines are kept, 90 days back; messages are read from the mail server when
+  opened. Only the mailbox's owner sees it. Migration 0164.
+
 - **Guardrails for agents' spending.** *Who can create agents* has a third choice: owners and
   the members and groups they pick. Owners, and an agent's creator, get an inbox item and an email
   when an agent passes 80% of its monthly token limit and when it reaches it, and owners when the

@@ -245,7 +245,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (a mailbox signs in with a password or a Google sign-in, `google.ts`; open it through
   `credentials.ts` `withMailCredentials`, which renews the token; a member has up to
   `MAX_MAILBOXES` in a workspace, so a lookup of "their mailbox" adds `mailbox.isDefault`, as
-  follow-ups, agents and drafts do), follow-up
+  follow-ups, agents and drafts do), the Mail tab `mail-client/` (the owner's own mail alone,
+  `access.ts`; headers indexed by the minute's mailbox sweep, `indexer.ts`, bodies read live through
+  `pool.ts` `withImap`, one queued connection per mailbox keyed by its servers and password, never
+  `updatedAt`, which the sweep changes; HTML cleaned by `html.ts` into a sandboxed frame; the page is
+  `components/mail/`, which holds moves `MAIL_UNDO_SECONDS` before sending them), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks
   `page-webhooks/` (queued from `pages.ts`, `collab/service.ts` and `comments.ts`, sent as the owner

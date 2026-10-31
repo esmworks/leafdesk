@@ -137,7 +137,7 @@ export const rowEmail = pgTable(
     cc: text("cc").array().notNull().default(sql`'{}'::text[]`),
     subject: text("subject").notNull().default(""),
     text: text("text").notNull().default(""),
-    /** Cleaned HTML (server/row-mail/html.ts); null for plain-text mail. */
+    /** HTML of the message; rows show its text, so nothing writes it yet. */
     html: text("html"),
     /** The provider's check said the sender's domain did not vouch for it (DMARC failed). */
     unverifiedSender: boolean("unverified_sender").notNull().default(false),
