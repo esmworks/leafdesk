@@ -14,7 +14,10 @@ const CONFIG: Config = {
   FORBID_TAGS: ["form", "input", "button", "textarea", "select", "option", "base", "link", "meta", "iframe", "frame", "frameset", "object", "embed", "applet", "audio", "video", "source", "track", "portal", "math", "svg"],
   FORBID_ATTR: ["srcset", "ping", "action", "formaction", "background", "poster", "lowsrc", "dynsrc"],
   ALLOW_DATA_ATTR: false,
-  ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|tel:|cid:|data:image\/(?:png|gif|jpe?g|webp);base64,|#)/i,
+  // DOMPurify tests every attribute value it has no list for against this, not only addresses: like
+  // its own default, it lets through values that name no scheme (a width, `center`, `ltr`, `#fff`, a
+  // relative link), or a message's sizes, alignment and table spans are dropped.
+  ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel|cid):|data:image\/(?:png|gif|jpe?g|webp);base64,|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
 };
 
 const REMOTE = /^\s*(https?:)?\/\//i;
