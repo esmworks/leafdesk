@@ -28,8 +28,9 @@
   minutes, so most open at once. Images a person showed in a message show again when it opens,
   and always for senders they pick (*Always show from this sender*, listed under Account › Email
   and calendar) and for mail from their mailbox's own domain, unless the sender failed DMARC. Only
-  the mailbox's owner sees it. Migrations 0164 and 0165; new dependencies `@tiptap/starter-kit`
-  and `@tiptap/extensions`.
+  the mailbox's owner sees it. *New message* in the sidebar's New menu opens a new message from
+  any page. Migrations 0164 and 0165; new dependencies `@tiptap/starter-kit` and
+  `@tiptap/extensions`.
 
 - **Word export, and Word and Excel files from the AI chat.** "Export as Word" in the page menu
   downloads a page or row as a .docx file meant for further editing, with the PDF export's choices
@@ -201,7 +202,9 @@
   wrong kind: numbers and dates in them came out as text, or text as numbers.
 - **Frozen columns no longer let text show beside them.** Scrolled sideways, a table's frozen
   columns stopped at the page's margin, and the columns scrolling past showed through in the strip
-  between them and the edge. They now move along across the margin and hold at the edge.
+  between them and the edge. They now move along across the margin and hold just short of the
+  edge, with only the row's select box beside them. Tables also no longer shake as they scroll
+  sideways.
 
 - **Resolved comments no longer break the page.** Resolving a thread, or opening *Resolved* or
   *All* in the comments panel, showed "Something went wrong" when the thread was resolved by
