@@ -161,7 +161,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
         release();
       }
     }
-    if (query.get("format") === "docx" && target.kind !== "database") {
+    if (query.get("format") === "docx") {
+      // A database's rows go to a spreadsheet instead (`format=xlsx`).
+      if (target.kind === "database") return new Response("Bad request", { status: 400 });
       const release = startExport(userId);
       try {
         const docx = await pageDocx(userId, pageId, {

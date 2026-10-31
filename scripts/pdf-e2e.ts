@@ -281,6 +281,9 @@ try {
   check(partOf((await files.readStored(docxFile))!, "word/document.xml").includes("GBOX 15-C2-140 N kondenser"), "the stored file is the row's Word file");
 
   const narrow = await databases.addView(owner, offers.id, { name: "Short", type: "table", config: { hidden: [notes.id] } });
+  fake.setChat(pdfMaker({ page_id: offers.id }, "read_page"));
+  await ask(alice, { workspaceId, message: "Which views?", mode: "auto" });
+  check(lastToolResult().includes(`"Short" (view_id ${narrow.id}, table)`), "reading a database lists its views, for create_xlsx", lastToolResult());
   fake.setChat(pdfMaker({ database_id: offers.id, view_id: narrow.id, page_id: letter.id }, "create_xlsx"));
   const xlsx = await ask(alice, { workspaceId, message: "Excel of the offers", mode: "ask" }, "approve");
   const xlsxAsked = xlsx.approvals[0]?.action;

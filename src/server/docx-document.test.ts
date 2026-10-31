@@ -137,6 +137,22 @@ describe("docx document", () => {
     expect(files["word/_rels/document.xml.rels"]).toContain("https://app.example/api/files/b");
   });
 
+  it("drops control characters XML doesn't allow, which pasted text carries", async () => {
+    const files = await parts(
+      input([
+        block("paragraph", [text("a\u000bb\u0001c")]),
+        block("codeBlock", [text("x\u0002y")]),
+        block("callout", [text("note")], { title: "Ti\u0003tle" }),
+        block("paragraph", [{ type: "link", href: "https://example.com/\u0004", content: [text("link")] }]),
+      ]),
+    );
+    const doc = files["word/document.xml"];
+    expect(doc).toContain(">abc<");
+    expect(doc).toContain(">xy<");
+    expect(doc).toContain(">Title<");
+    for (const part of Object.values(files)) expect(part).not.toMatch(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/);
+  });
+
   it("lists a row's values and a database's rows as tables", async () => {
     const doc = (
       await parts(

@@ -33,6 +33,7 @@ import { tint } from "@/lib/letterheads";
 import { listStyleAt } from "@/lib/list-markers";
 import { SUBSCRIPT, SUPERSCRIPT } from "@/lib/text-scripts";
 import { BOOKMARK_BLOCK, WEB_EMBED_BLOCK } from "@/lib/web-blocks";
+import { xmlSafe } from "@/lib/xlsx";
 import { AMOUNT, type PdfInput, type PdfLetterhead, type PdfSection, type PdfTable } from "@/server/pdf-document";
 
 /**
@@ -46,7 +47,8 @@ import { AMOUNT, type PdfInput, type PdfLetterhead, type PdfSection, type PdfTab
  * Word's pitfalls, solved here once: every size in twips (1/20 pt) or half-points, page size and
  * margins given outright, list markers from numbering definitions (each numbered list counting from
  * 1 in its own instance), table and cell widths in DXA (percentages break in other editors),
- * shading `CLEAR` (`SOLID` paints black), line breaks as breaks, not "\n".
+ * shading `CLEAR` (`SOLID` paints black), line breaks as breaks, not "\n", and no control
+ * characters (pasted text carries them; Word refuses a file with one).
  */
 
 export const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -120,7 +122,7 @@ type Walk = { input: DocxInput; section: PdfSection; notes: Map<number, string>;
 
 /** Text runs of `text` in `style`, a line break for each "\n". */
 function runs(text: string, style: RunStyle): TextRun[] {
-  return text.split("\n").map(
+  return xmlSafe(text).split("\n").map(
     (part, i) =>
       new TextRun({
         text: part,
@@ -150,7 +152,7 @@ function inline(content: unknown, walk: Walk, inherited: RunStyle = {}): Paragra
     if (node.type === "link") {
       const href = str(node.href);
       const children = inline(node.content, walk, { ...inherited, color: LINK, underline: true });
-      return href ? [new ExternalHyperlink({ link: walk.input.link(href), children })] : children;
+      return href ? [new ExternalHyperlink({ link: walk.input.link(xmlSafe(href)), children })] : children;
     }
     if (node.type === FOOTNOTE) {
       const id = walk.nextNote.n++;
@@ -263,7 +265,7 @@ function blockContent(block: MdBlock, walk: Walk, width: number, level: number, 
       const code = lines.map(
         (text, i) =>
           new Paragraph({
-            children: [new TextRun({ text: text || " ", font: CODE_FONT, size: 18 })],
+            children: [new TextRun({ text: xmlSafe(text) || " ", font: CODE_FONT, size: 18 })],
             shading: shading(SUBTLE),
             spacing: { before: 0, after: i === lines.length - 1 ? 120 : 0, line: 240 },
             ...set,
@@ -280,10 +282,11 @@ function blockContent(block: MdBlock, walk: Walk, width: number, level: number, 
       const fill = backgroundColor(prop(block, "backgroundColor"));
       // An emoji icon goes before the text; a built-in one is a drawing Word has no font for.
       const icon = iconText(str(prop(block, "icon")));
-      const text = new Paragraph({ children: [...(icon ? [new TextRun({ text: `${icon} ` })] : []), ...inline(block.content, walk)] });
-      const inner = width - indent - 240;
+      const text = new Paragraph({ children: [...(icon ? runs(`${icon} `, {}) : []), ...inline(block.content, walk)] });
+      // Inside the box's margins (boxed).
+      const inner = width - indent - 2 * BOX_MARGIN;
       const body: Block[] = [
-        ...(title ? [new Paragraph({ children: [new TextRun({ text: title, bold: true })], spacing: { after: 40 } })] : []),
+        ...(title ? [new Paragraph({ children: runs(title, { bold: true }), spacing: { after: 40 } })] : []),
         text,
         ...(block.children?.length ? blocksContent(block.children, walk, inner) : []),
       ];
@@ -316,7 +319,7 @@ function blockContent(block: MdBlock, walk: Walk, width: number, level: number, 
     case BOOKMARK_BLOCK:
     case WEB_EMBED_BLOCK: {
       const url = str(prop(block, "url"));
-      return url ? [new Paragraph({ children: [new ExternalHyperlink({ link: url, children: runs(url, { color: LINK, underline: true }) })], ...set })] : [];
+      return url ? [new Paragraph({ children: [new ExternalHyperlink({ link: xmlSafe(url), children: runs(url, { color: LINK, underline: true }) })], ...set })] : [];
     }
     case COLUMN_LIST_BLOCK: {
       // Side by side in a table without lines, each column its share of the width.
@@ -325,14 +328,14 @@ function blockContent(block: MdBlock, walk: Walk, width: number, level: number, 
       const shares = columns.map((c) => columnWidth(prop(c, "width")));
       const total = shares.reduce((a, b) => a + b, 0);
       const widths = fitWidths(shares.map((s) => (s / total) * (width - indent)), width - indent);
-      const cells = columns.map(
-        (c, i) =>
-          new TableCell({
-            width: { size: widths[i], type: WidthType.DXA },
-            margins: { left: i === 0 ? 0 : 160, right: i === columns.length - 1 ? 0 : 160 },
-            children: cellBlocks(blocksContent(c.children ?? [], walk, widths[i])),
-          }),
-      );
+      const cells = columns.map((c, i) => {
+        const margins = { left: i === 0 ? 0 : 160, right: i === columns.length - 1 ? 0 : 160 };
+        return new TableCell({
+          width: { size: widths[i], type: WidthType.DXA },
+          margins,
+          children: cellBlocks(blocksContent(c.children ?? [], walk, widths[i] - margins.left - margins.right)),
+        });
+      });
       return [
         new Table({
           rows: [new TableRow({ children: cells })],
@@ -385,7 +388,7 @@ const spacer = () => new Paragraph({ spacing: { before: 0, after: 0 }, children:
 function fileLine(block: MdBlock, input: DocxInput, options: Partial<Exclude<ParagraphOptions, string>> = {}): Paragraph {
   const url = str(prop(block, "url"));
   const name = str(prop(block, "name")) || url;
-  const children = url ? [new ExternalHyperlink({ link: input.link(url), children: runs(name, { color: LINK, underline: true }) })] : runs(name, {});
+  const children = url ? [new ExternalHyperlink({ link: input.link(xmlSafe(url)), children: runs(name, { color: LINK, underline: true }) })] : runs(name, {});
   return new Paragraph({ children, ...options });
 }
 
@@ -436,7 +439,7 @@ function imageRun(dataUrl: string, block: MdBlock, width: number): ImageRun | nu
   const preview = Number(prop(block, "previewWidth"));
   const maxWidth = Math.min(width / TWIPS_PER_PX, Number.isFinite(preview) && preview > 0 ? preview : Infinity);
   const scale = Math.min(1, maxWidth / image.width, MAX_IMAGE_HEIGHT_PX / image.height);
-  const alt = str(prop(block, "caption")) || str(prop(block, "name"));
+  const alt = xmlSafe(str(prop(block, "caption")) || str(prop(block, "name")));
   return new ImageRun({
     type: image.type,
     data: image.data,
@@ -457,6 +460,9 @@ function cellBlocks(blocks: Block[]): Block[] {
   return blocks.length && blocks[blocks.length - 1] instanceof Paragraph ? blocks : [...blocks, new Paragraph({ children: [] })];
 }
 
+/** The space inside a box's edge, at either side. */
+const BOX_MARGIN = 200;
+
 /** Content in a box: filled, or framed in the border color. */
 function boxed(blocks: Block[], width: number, { fill, frame }: { fill?: string; frame?: boolean }, indent = 0): Table {
   const edge = frame ? line(BORDER, 4) : NO_LINE;
@@ -472,7 +478,7 @@ function boxed(blocks: Block[], width: number, { fill, frame }: { fill?: string;
         children: [
           new TableCell({
             width: { size: width, type: WidthType.DXA },
-            margins: { top: 120, bottom: 120, left: 200, right: 200 },
+            margins: { top: 120, bottom: 120, left: BOX_MARGIN, right: BOX_MARGIN },
             borders,
             ...(fill ? { shading: shading(fill) } : {}),
             children: cellBlocks(blocks),
@@ -787,7 +793,7 @@ export function docxDocument(input: DocxInput): Document {
   const heading = (size: number, before: number) => ({ run: { font: FONT, size, bold: true, color: FG }, paragraph: { spacing: { before, after: 80 }, keepNext: true, keepLines: true } });
   return new Document({
     creator: "Leafdesk",
-    title: input.title || input.labels.untitled,
+    title: xmlSafe(input.title || input.labels.untitled),
     styles: {
       default: {
         document: { run: { font: FONT, size: BODY_SIZE, color: FG }, paragraph: { spacing: { after: 120, line: 276 } } },

@@ -791,11 +791,14 @@ export async function listPages(
   };
 }
 
-/** `maxMarkdownChars` bounds the body returned (MCP keeps it to what a model reads at once). */
+/**
+ * `maxMarkdownChars` bounds the body returned (MCP keeps it to what a model reads at once);
+ * `views` adds a database's views (`database_views`: id, name, type) for the AI chat's read_page.
+ */
 export async function getPage(
   ctx: OperationContext,
   { page_id, offset, with_block_ids }: Args<"getPage">,
-  { maxMarkdownChars }: { maxMarkdownChars?: number } = {},
+  { maxMarkdownChars, views: withViews = false }: { maxMarkdownChars?: number; views?: boolean } = {},
 ) {
   const { userId } = ctx;
   const { page, parent, parentDatabase } = await loadPage(ctx, page_id);
@@ -849,11 +852,12 @@ export async function getPage(
     Object.assign(out, await rowFields(ctx, page.id));
   }
   if (page.kind === "database") {
-    const { properties, access, propertyAccess: levels } = await databases.getDatabase(userId, page.id);
+    const { properties, views, access, propertyAccess: levels } = await databases.getDatabase(userId, page.id);
     const lookups = await databases.getLookups(userId, properties);
     out.database_properties = properties.map((p) =>
       describeProperty(p, lookups, properties, { access: levels?.[p.id], restricted: !access.open }),
     );
+    if (withViews) out.database_views = views.map((v) => ({ id: v.id, name: v.name, type: v.type }));
     out.note = "This is a database. Use query_database to list its rows and get_database for its full schema.";
   } else {
     out.markdown = body.text;

@@ -1665,7 +1665,7 @@ async function readPage(ctx: ops.OperationContext, workspaceId: string, scope: C
     if (!inside) return null;
   }
   const textChars = Math.max(1_000, maxChars - PAGE_HEAD_CHARS);
-  const out = (await ops.getPage(ctx, { page_id: pageId, offset, with_block_ids: withBlockIds }, { maxMarkdownChars: textChars })) as Record<string, unknown>;
+  const out = (await ops.getPage(ctx, { page_id: pageId, offset, with_block_ids: withBlockIds }, { maxMarkdownChars: textChars, views: true })) as Record<string, unknown>;
   if (out.workspace_id !== workspaceId || out.in_trash || out.template) return null;
   const parts: string[] = [];
   if (typeof out.path === "string") parts.push(`Path: ${out.path}`);
@@ -1675,7 +1675,7 @@ async function readPage(ctx: ops.OperationContext, workspaceId: string, scope: C
   }
   if (Array.isArray(out.database_properties)) {
     parts.push(`A database (database_id ${pageId}; query_database lists the rows that match filters). Its properties:\n${(out.database_properties as DescribedProperty[]).map(propertyLine).join("\n")}`);
-    const { views } = await getDatabase(ctx.userId, pageId);
+    const views = (out.database_views ?? []) as { id: string; name: string; type: string }[];
     if (views.length) parts.push(`Its views: ${views.map((v) => `"${v.name}" (view_id ${v.id}, ${v.type})`).join(", ")}`);
     parts.push(await databaseRows(ctx, pageId));
   } else if (typeof out.database_id === "string") {

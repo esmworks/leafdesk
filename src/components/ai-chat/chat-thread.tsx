@@ -50,6 +50,7 @@ import {
   CHAT_THINKING,
   changedMemory,
   changedThings,
+  makesFile,
   type ChatMode,
   type ChatOptions,
   type ChatSourceView,
@@ -1250,7 +1251,7 @@ function ChangePrompt({
             t(action.action === "readWeb" ? "readWebHint" : "searchWebHint")
           ) : action.target ? (
             <>
-              {t(action.action === "updateRow" ? "row" : action.action === "editPage" || action.action === "createPdf" || action.action === "createDocx" || action.action === "createXlsx" || comment ? "page" : "in")}
+              {t(action.action === "updateRow" ? "row" : action.action === "editPage" || makesFile(action.action) || comment ? "page" : "in")}
               <PageLink page={action.target} onSource={onSource} />
             </>
           ) : (

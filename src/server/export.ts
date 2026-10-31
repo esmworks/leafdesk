@@ -183,10 +183,18 @@ export function databaseTable(
 /**
  * A database's rows for a one-file export (all of them, or those of `only`, in that order) as
  * table cells, recorded in the audit log as exported in `format`; with `columns`, only those
- * properties, in that order (ids the user can't see match nothing).
+ * properties, in that order (ids the user can't see match nothing). `loaded`: the database as the
+ * caller read it already.
  */
-async function exportedTable(userId: string, databaseId: string, only: string[] | null, format: ExportRecord["format"], columns: string[] | null = null) {
-  const snapshot = await getDatabaseSnapshot(userId, databaseId);
+async function exportedTable(
+  userId: string,
+  databaseId: string,
+  only: string[] | null,
+  format: ExportRecord["format"],
+  columns: string[] | null = null,
+  loaded?: Snapshot,
+) {
+  const snapshot = loaded ?? (await getDatabaseSnapshot(userId, databaseId));
   await assertExportAllowed(snapshot.database.workspaceId);
   const byId = new Map(snapshot.rows.map((row) => [row.id, row]));
   const rows = only ? only.flatMap((id) => byId.get(id) ?? []) : snapshot.rows;
@@ -207,8 +215,8 @@ async function exportedTable(userId: string, databaseId: string, only: string[] 
  * A pivot of the rows `view` names, laid out as the app's table (server/pivot-text): plain numbers
  * in a CSV, values written as the app shows them in HTML and PDF. Recorded like other exports.
  */
-async function exportedPivot(userId: string, databaseId: string, view: ViewExport, config: ViewConfig, format: ExportRecord["format"]) {
-  const snapshot = await getDatabaseSnapshot(userId, databaseId);
+async function exportedPivot(userId: string, databaseId: string, view: ViewExport, config: ViewConfig, format: ExportRecord["format"], loaded?: Snapshot) {
+  const snapshot = loaded ?? (await getDatabaseSnapshot(userId, databaseId));
   await assertExportAllowed(snapshot.database.workspaceId);
   const byId = new Map(snapshot.rows.map((row) => [row.id, row]));
   const rows = view.rows.flatMap((id) => byId.get(id) ?? []);
@@ -256,12 +264,13 @@ export type ViewExport = { rows: string[]; properties: string[]; name: string; p
 
 /**
  * The rows and properties a view of a database shows (see ViewExport) as table cells, for a CSV,
- * HTML or PDF of just that view, titled after the database and the view.
+ * HTML or PDF of just that view, titled after the database and the view (`loaded`: the database
+ * as the caller read it already).
  */
-export async function databaseViewTable(userId: string, databaseId: string, view: ViewExport, format: "csv" | "html" | "pdf" | "xlsx") {
+export async function databaseViewTable(userId: string, databaseId: string, view: ViewExport, format: "csv" | "html" | "pdf" | "xlsx", loaded?: Snapshot) {
   const { snapshot, header, cells } = view.pivot
-    ? await exportedPivot(userId, databaseId, view, view.pivot, format)
-    : await exportedTable(userId, databaseId, view.rows, format, view.properties);
+    ? await exportedPivot(userId, databaseId, view, view.pivot, format, loaded)
+    : await exportedTable(userId, databaseId, view.rows, format, view.properties, loaded);
   const title = [snapshot.database.title.trim(), view.name.trim()].filter(Boolean).join(" – ");
   return { title, workspaceId: snapshot.database.workspaceId, header, cells };
 }
@@ -286,14 +295,14 @@ function columnTypes(properties: Parameters<typeof valueType>[0][]): (string | n
 /**
  * A saved view of a database as an Excel workbook, and its title (the database's and the view's
  * names): the rows it shows with the properties it shows, in its order, worked out the way the
- * database page works them out for "Export view"; a pivot view's table instead, its groups by
- * `timeZone`'s days. Null when `userId` has no such view; throws ExportError while export is off.
+ * database page works them out for "Export view"; a pivot view's table instead. Its date filters
+ * and a pivot's groups count `timeZone`'s days. Null when `userId` has no such view; throws ExportError while export is off.
  */
 export async function viewXlsx(userId: string, databaseId: string, viewId: string, timeZone = "UTC") {
   const snapshot = await getDatabaseSnapshot(userId, databaseId);
   const view = snapshot.views.find((v) => v.id === viewId);
   if (!view) return null;
-  const rows = applyView(snapshot.rows, withViewSorts(view), snapshot.properties, { viewerId: snapshot.viewerId, people: snapshot.people });
+  const rows = applyView(snapshot.rows, withViewSorts(view), snapshot.properties, { viewerId: snapshot.viewerId, people: snapshot.people, timeZone });
   const shown = orderProperties(snapshot.properties, view.config.propertyOrder).filter((p) => !isHiddenInView(view, p));
   const exported: ViewExport = {
     rows: rows.map((row) => row.id),
@@ -301,7 +310,7 @@ export async function viewXlsx(userId: string, databaseId: string, viewId: strin
     name: view.name,
     ...(view.type === "pivot" ? { pivot: view.config, timeZone } : {}),
   };
-  const { title, header, cells } = await databaseViewTable(userId, databaseId, exported, "xlsx");
+  const { title, header, cells } = await databaseViewTable(userId, databaseId, exported, "xlsx", snapshot);
   const types = view.type === "pivot" ? [] : columnTypes(shown);
   const typed = cells.map((row) => row.map((value, i) => typedCell(value, types[i] ?? null)));
   return { title, rows: rows.length, xlsx: toXlsx([header, ...typed], { name: title }) };
