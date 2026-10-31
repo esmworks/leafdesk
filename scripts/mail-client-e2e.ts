@@ -549,6 +549,77 @@ try {
   await sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Re: Logo", html: "<p>Alintisiz</p>", replyTo: logo!.messageId, quote: null });
   const bare = (await lastMessageTo(customer)).replace(/=\r?\n/g, "");
   check(bare.includes("Alintisiz") && !bare.includes("leafdesk_quote") && !bare.includes("Yeni logomuz"), "an answer whose quote was taken off goes without it");
+  const logoDraft = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Re: Logo", html: "<p>Taslaktan</p>", replyTo: logo!.messageId, quote: { header: ["Ayse yazdi:"] } });
+  check(!logoDraft.attachments.length, "the images a quote carries aren't listed as the draft's files", logoDraft.attachments);
+  const logoAgain = await drafts.saveDraft(ids.ada, {
+    mailboxId: boxId,
+    to: [customer],
+    cc: [],
+    bcc: [],
+    subject: "Re: Logo",
+    html: "<p>Taslaktan, ikinci</p>",
+    replyTo: logo!.messageId,
+    draft: { id: logoDraft.id, messageId: logoDraft.messageId, mailboxId: boxId, keep: [] },
+    quote: { header: null },
+  });
+  await sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Re: Logo", html: "<p>Taslaktan, ikinci</p>", replyTo: logo!.messageId, draft: { id: logoAgain.id, messageId: logoAgain.messageId, mailboxId: boxId, keep: [] }, quote: { header: null } });
+  const logoFromDraft = (await lastMessageTo(customer)).replace(/=\r?\n/g, "");
+  check(logoFromDraft.includes("Taslaktan, ikinci") && (logoFromDraft.match(/Content-ID: <logo\./gi) ?? []).length === 1, "and go along, once, when the draft is saved again and sent", logoFromDraft.slice(0, 3000));
+
+  // Forwarding with the original under its header, and its files
+  await outside.sendMail({
+    ...base,
+    subject: "Fiyat listesi",
+    text: "Liste asagida.\nKalem | Tutar",
+    html: `<p>Liste asagida.</p><table><tr><td>Kalem</td><td>Tutar</td></tr></table><img src="cid:imza.${RUN}@acme.test">`,
+    attachments: [
+      { filename: "liste.pdf", content: PDF, contentType: "application/pdf" },
+      { filename: "imza.png", content: PNG, cid: `imza.${RUN}@acme.test` },
+    ],
+  });
+  await sweep();
+  const liste = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.find((t) => t.subject === "Fiyat listesi");
+  const forwardHeader = ["---------- Forwarded message ----------", `From: ${customer}`, "Subject: Fiyat listesi"];
+  const forwardDraft = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [sales], cc: [], bcc: [], subject: "Fwd: Fiyat listesi", html: "<p>Bilgine</p>", forward: liste!.messageId, quote: { header: forwardHeader } });
+  const openedForward = await drafts.openDraft(ids.ada, forwardDraft.id!);
+  check(
+    !openedForward.html.includes("Kalem") && !!openedForward.quote?.includes("<table>") && openedForward.quote.includes("Forwarded message") && openedForward.attachments.map((a) => a.name).join() === "liste.pdf",
+    "a forward's draft keeps the original apart, under its header, with the original's files but not its pictures",
+    openedForward,
+  );
+  const forwardAgain = await drafts.saveDraft(ids.ada, {
+    mailboxId: boxId,
+    to: [sales],
+    cc: [],
+    bcc: [],
+    subject: "Fwd: Fiyat listesi",
+    html: "<p>Bilgine, son hali</p>",
+    draft: { id: forwardDraft.id, messageId: forwardDraft.messageId, mailboxId: boxId, keep: openedForward.attachments.map((a) => a.part) },
+    quote: { header: null },
+  });
+  await sendMail(ids.ada, {
+    mailboxId: boxId,
+    to: [sales],
+    cc: [],
+    bcc: [],
+    subject: "Fwd: Fiyat listesi",
+    html: "<p>Bilgine, son hali</p>",
+    draft: { id: forwardAgain.id, messageId: forwardAgain.messageId, mailboxId: boxId, keep: forwardAgain.attachments.map((a) => a.part) },
+    quote: { header: null },
+  });
+  const forwarded = (await lastMessageTo(sales)).replace(/=\r?\n/g, "");
+  check(
+    forwarded.includes("Bilgine, son hali") &&
+      forwarded.includes("leafdesk_forward") &&
+      (forwarded.match(/Forwarded message/g) ?? []).length === 2 &&
+      forwarded.includes("<table>") &&
+      /^Kalem \| Tutar/m.test(forwarded) &&
+      !/^> /m.test(forwarded) &&
+      forwarded.includes("liste.pdf") &&
+      (forwarded.match(/Content-ID: <imza\./gi) ?? []).length === 1,
+    "a forward goes with the original under its header (once in each part), its text unquoted, its file and its picture",
+    forwarded.slice(0, 4000),
+  );
   const inInbox = await db.select().from(mailMessage).where(eq(mailMessage.folderId, inbox.id));
   check(inInbox.filter((m) => m.subjectKey === "bütçe").length === 1, "and leaves out what was deleted elsewhere", inInbox.map((m) => m.subject));
   check(inInbox.find((m) => m.subjectKey === "bütçe")?.flagged, "and takes flags changed elsewhere");
