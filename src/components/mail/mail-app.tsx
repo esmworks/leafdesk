@@ -57,15 +57,15 @@ const ThreadRow = memo(function ThreadRow({
       <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", item.unread ? "bg-accent" : "bg-transparent")} aria-hidden />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
-          <span className={cn("truncate text-sm", item.unread ? "font-semibold" : "text-fg-muted")}>{senders}</span>
-          {item.count > 1 && <span className="text-xs text-fg-faint tabular-nums">{item.count}</span>}
+          <span className={cn("truncate text-sm", item.unread && "font-semibold")}>{senders}</span>
+          {item.count > 1 && <span className="text-xs text-fg-muted tabular-nums">{item.count}</span>}
           <span className="flex-1" />
           {item.hasAttachments && <Paperclip className="h-3.5 w-3.5 shrink-0 text-fg-icon" aria-label={t("hasFiles")} />}
           {item.starred && <Star className="h-3.5 w-3.5 shrink-0 fill-current text-amber-500" aria-label={t("starred")} />}
-          <span className={cn("shrink-0 text-xs tabular-nums", item.unread ? "text-fg" : "text-fg-faint")}>{when(item.sentAt)}</span>
+          <span className={cn("shrink-0 text-xs tabular-nums", item.unread ? "font-semibold text-fg" : "text-fg-muted")}>{when(item.sentAt)}</span>
         </div>
-        <div className={cn("truncate text-sm", item.unread ? "text-fg" : "text-fg-muted")}>{item.subject || t("noSubject")}</div>
-        {item.preview && <div className="truncate text-sm text-fg-faint">{item.preview}</div>}
+        <div className={cn("truncate text-sm", item.unread && "font-semibold")}>{item.subject || t("noSubject")}</div>
+        {item.preview && <div className="truncate text-sm text-fg-muted">{item.preview}</div>}
         {item.row && (
           <div className="mt-1">
             <span className="inline-flex max-w-48 items-center gap-1 rounded border border-border bg-bg-subtle px-1.5 py-px text-xs text-fg-muted">
