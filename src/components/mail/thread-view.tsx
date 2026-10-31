@@ -141,12 +141,12 @@ function Message({
         </div>
       </button>
       {body?.unverifiedSender && (
-        <p className="mt-3 flex items-start gap-2 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm text-fg-muted">
+        <p className="mt-3 flex sm:ms-11 items-start gap-2 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm text-fg-muted">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
           {t("unverified")}
         </p>
       )}
-      <div className="mt-4">
+      <div className="mt-4 sm:ps-11">
         {loaded?.loading && !body ? (
           <div className="space-y-2" aria-busy>
             {[90, 75, 82, 40].map((w) => (
@@ -194,7 +194,7 @@ function Message({
         ) : null}
       </div>
       {last && body && (
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap gap-2 sm:ps-11">
           <Button onClick={() => onCompose("reply")}>
             <Reply className="h-4 w-4 text-fg-icon" />
             {t("actions.reply")}
