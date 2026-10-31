@@ -24,7 +24,8 @@
   minutes, so most open at once. Images a person showed in a message show again when it opens,
   and always for senders they pick (*Always show from this sender*, listed under Account › Email
   and calendar) and for mail from their mailbox's own domain, unless the sender failed DMARC. Only
-  the mailbox's owner sees it. Migrations 0164 and 0165.
+  the mailbox's owner sees it. *New message* in the sidebar's New menu opens a new message from
+  any page. Migrations 0164 and 0165.
 
 - **Word export, and Word and Excel files from the AI chat.** "Export as Word" in the page menu
   downloads a page or row as a .docx file meant for further editing, with the PDF export's choices

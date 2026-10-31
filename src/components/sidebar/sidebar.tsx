@@ -298,6 +298,7 @@ export function Sidebar({
   const tOffline = useTranslations("offline");
   const tShortcuts = useTranslations("shortcuts");
   const tBuild = useTranslations("build");
+  const tMail = useTranslations("mail");
   // Databases drafted by AI: where AI is on in the workspace, and the server can be reached.
   const canBuild = Boolean(aiChat?.available) && !offline;
   /** Tooltip for a control that needs the server while it can't be reached. */
@@ -1290,8 +1291,8 @@ export function Sidebar({
                   </span>
                 )}
               </IconButton>
-              {(topLevel || aiChat) && (
-                // What to start: a page, a chat or a database.
+              {(topLevel || aiChat || mail) && (
+                // What to start: a page, a chat, a message or a database.
                 <Popover
                   trigger={({ open, toggle }) => (
                     <IconButton
@@ -1330,6 +1331,23 @@ export function Sidebar({
                           }}
                         >
                           {tAi("newChat")}
+                        </MenuItem>
+                      )}
+                      {mail && (
+                        <MenuItem
+                          icon={<MailIcon className="h-4 w-4" />}
+                          onClick={() => {
+                            close();
+                            setTab("mail");
+                            // The store is the Mail page's, loaded with it: not in every page's first load.
+                            void import("@/components/mail/mail-store").then(({ requestCompose }) => {
+                              requestCompose();
+                              if (!onMailPage) router.push(`/w/${workspaceId}/mail`);
+                            });
+                            sidebar?.close();
+                          }}
+                        >
+                          {tMail("compose")}
                         </MenuItem>
                       )}
                       {topLevel && (

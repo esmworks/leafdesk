@@ -114,13 +114,22 @@ export function mailHref(workspaceId: string, open: { box?: string | null; f?: s
   return `/w/${workspaceId}/mail${query ? `?${query}` : ""}`;
 }
 
-// "New message" in the sidebar opens the composer on the page.
+// "New message" in the sidebar opens the composer on the page. Asked before the page is there (the
+// sidebar's New menu goes to the page after asking), it opens as soon as the page listens.
 const composeListeners = new Set<() => void>();
+let composeWaiting = false;
 export const onCompose = (listener: () => void) => {
   composeListeners.add(listener);
+  if (composeWaiting) {
+    composeWaiting = false;
+    listener();
+  }
   return () => void composeListeners.delete(listener);
 };
-export const requestCompose = () => composeListeners.forEach((l) => l());
+export const requestCompose = () => {
+  if (composeListeners.size) composeListeners.forEach((l) => l());
+  else composeWaiting = true;
+};
 
 /** A message's time as lists show it: the hour today, the day this year, else the date. */
 export function useWhen() {
