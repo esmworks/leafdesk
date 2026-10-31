@@ -11,7 +11,8 @@ import { SelectBox, useSelection } from "@/components/selection";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { currentToast, dismissToast, showToast } from "@/components/toast";
 import { cn, IconButton } from "@/components/ui";
-import { ALL_INBOXES, MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
+import { ALL_INBOXES, MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, mailQueryMarks, type MailAction, type MailFolderView, type MailQueryMarks, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
+import { highlightParts } from "@/lib/search-highlight";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen, type MailOpen } from "./mail-store";
@@ -37,6 +38,20 @@ const itemKey = (item: Pick<MailThreadItem, "mailboxId" | "threadId">) => `${ite
 
 type List = { items: MailThreadItem[]; next: string | null; loading: boolean; error: string | null };
 
+/** Text with a search's words marked, inside words too, as the mail search finds them. */
+function Marked({ text, words }: { text: string; words: string[] | undefined }) {
+  if (!words?.length) return text;
+  return highlightParts(text, words, { anywhere: true }).map((part, i) =>
+    part.match ? (
+      <mark key={i} className="rounded-[2px] bg-amber-200/70 text-inherit dark:bg-amber-400/30">
+        {part.text}
+      </mark>
+    ) : (
+      part.text
+    ),
+  );
+}
+
 const ThreadRow = memo(function ThreadRow({
   item,
   href,
@@ -46,6 +61,7 @@ const ThreadRow = memo(function ThreadRow({
   menuOpen,
   me,
   mailbox,
+  marks,
   onOpen,
   onSelect,
   onHover,
@@ -63,6 +79,8 @@ const ThreadRow = memo(function ThreadRow({
   me: string;
   /** The mailbox it came to, named in all inboxes. */
   mailbox: string | null;
+  /** The search's words, marked where it looked for them. */
+  marks: MailQueryMarks | null;
   onOpen: (item: MailThreadItem) => void;
   /** Selects it or takes it out of the selection; `range` from the last one clicked (Shift). */
   onSelect: (item: MailThreadItem, range: boolean) => void;
@@ -109,7 +127,9 @@ const ThreadRow = memo(function ThreadRow({
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
-            <span className={cn("truncate text-sm", item.unread && "font-semibold")}>{senders}</span>
+            <span className={cn("truncate text-sm", item.unread && "font-semibold")}>
+              <Marked text={senders} words={marks?.senders} />
+            </span>
             {item.hasDraft && <span className="shrink-0 text-xs font-medium text-danger">{t("draft")}</span>}
             {item.count > 1 && <span className="text-xs text-fg-muted tabular-nums">{item.count}</span>}
             <span className="flex-1" />
@@ -123,8 +143,14 @@ const ThreadRow = memo(function ThreadRow({
             )}
             <span className={cn("shrink-0 text-xs tabular-nums", item.unread ? "font-semibold text-fg" : "text-fg-muted")}>{when(item.sentAt)}</span>
           </div>
-          <div className={cn("truncate text-sm", item.unread && "font-semibold")}>{item.subject || t("noSubject")}</div>
-          {item.preview && <div className="truncate text-sm text-fg-muted">{item.preview}</div>}
+          <div className={cn("truncate text-sm", item.unread && "font-semibold")}>
+            {item.subject ? <Marked text={item.subject} words={marks?.subject} /> : t("noSubject")}
+          </div>
+          {item.preview && (
+            <div className="truncate text-sm text-fg-muted">
+              <Marked text={item.preview} words={marks?.preview} />
+            </div>
+          )}
           {item.row && (
             <div className="mt-1">
               <span className="inline-flex max-w-48 items-center gap-1 rounded border border-border bg-bg-subtle px-1.5 py-px text-xs text-fg-muted">
@@ -187,6 +213,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const [pane, setPane] = useState({ c: composeParam, n: 0, draft: draftId });
   if (pane.c !== composeParam) setPane(composeParam && composeParam === savedTo ? { ...pane, c: composeParam } : { c: composeParam, n: pane.n + 1, draft: draftId });
   const query = search.get("q") ?? "";
+  const marks = useMemo(() => mailQueryMarks(query), [query]);
   const [typed, setTyped] = useState(query);
   const [list, setList] = useState<List>({ items: [], next: null, loading: true, error: null });
   const [compose, setCompose] = useState<ComposeMode | null>(null);
@@ -710,6 +737,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
                   menuOpen={!!menu && itemKey(menu.item) === itemKey(item)}
                   me={boxOf(item).address}
                   mailbox={all ? boxOf(item).address : null}
+                  marks={marks}
                   onOpen={openThread}
                   onSelect={onSelect}
                   onHover={aheadOf}

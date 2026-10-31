@@ -149,7 +149,7 @@ attached, at most 100 recipients and 100 messages an hour from each mailbox; the
 a copy. The search
 box looks through every folder but the trash and junk, in senders, recipients, subjects and first
 lines, and takes `from:`, `to:`, `subject:`, `is:unread`, `is:read`, `is:starred`,
-`has:attachment`, `after:2026-01-31` and `before:`. Keys: `c` new message, `/`
+`has:attachment`, `after:2026-01-31` and `before:`; the words found are marked in the list. Keys: `c` new message, `/`
 search, `j` and `k` next and previous thread, `o` or Enter open the first; in a thread `e` archive,
 `#` trash, `!` junk, `s` star, `u` unread, `r` reply, `a` reply all, `f` forward, Escape back to
 the list. Backups leave the Mail tab's index out: it is read again once the mailbox is connected.

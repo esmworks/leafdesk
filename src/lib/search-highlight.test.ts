@@ -12,6 +12,11 @@ describe("highlightParts", () => {
     expect(marked("İstanbul ofisi, Isparta deposu", ["istanbul", "ısparta"])).toEqual(["İstanbul", "Isparta"]);
   });
 
+  it("marks inside words when asked to", () => {
+    expect(highlightParts("Fiyat listesi", ["yat"], { anywhere: true }).filter((p) => p.match).map((p) => p.text)).toEqual(["yat"]);
+    expect(marked("Fiyat listesi", ["yat"])).toEqual([]);
+  });
+
   it("marks Chinese and Japanese inside a sentence", () => {
     expect(marked("明日の会議について", ["会議"])).toEqual(["会議"]);
   });

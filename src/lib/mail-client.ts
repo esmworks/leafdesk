@@ -197,6 +197,15 @@ export function parseMailQuery(input: string): MailQuery {
   return query;
 }
 
+/** What a search marks in a list's rows, where it looked for it: its words in all three, `from:` in the senders, `subject:` in the subject. */
+export type MailQueryMarks = { senders: string[]; subject: string[]; preview: string[] };
+
+export function mailQueryMarks(input: string): MailQueryMarks | null {
+  const { words, from, subject } = parseMailQuery(input);
+  if (!words.length && !from && !subject) return null;
+  return { senders: from ? [...words, from] : words, subject: subject ? [...words, subject] : words, preview: words };
+}
+
 /** A folder in the Mail tab's sidebar. */
 export type MailFolderView = { id: string; path: string; name: string; role: MailFolderRole | null; unseen: number; total: number; depth: number };
 

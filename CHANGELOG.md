@@ -9,6 +9,9 @@
   selection bar and Undo work across them, and each thread is read, answered and moved in its own
   mailbox. No migration.
 
+- **Search words marked in the Mail tab's list.** A search's words are marked in the senders,
+  subjects and first lines of the threads it lists, where it found them.
+
 - **Printing and the original message in the Mail tab.** A button over a thread prints all its
   messages, with their senders, recipients and dates and nothing else of the page; a message's menu
   prints it alone, shows its original source (headers and all) or downloads it as an .eml file.
