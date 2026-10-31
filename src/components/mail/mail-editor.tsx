@@ -12,7 +12,8 @@ import { signatureBlock } from "./compose-start";
 
 /**
  * The Mail tab's editor: paragraphs, bold, italic, underline, strike, links, lists and quotes,
- * and the sender's signature (`Signature`, around paragraphs of its own), which is what
+ * pictures pasted or dropped in (`Picture`), and the sender's signature (`Signature`, around
+ * paragraphs of its own), which is what
  * server/mail-client/outgoing.ts lets through when it is sent. Other formatting
  * pasted in falls away as it comes. It is bound to React here rather than through TipTap's React
  * package: that package's module is shared with the page editor's first load, and what the
@@ -48,6 +49,38 @@ const Signature = Node.create({
   parseHTML: () => [{ tag: "div[data-signature]" }],
   renderHTML: () => ["div", { "data-signature": "" }, 0],
 });
+
+/**
+ * A picture in the message's text: shown from the browser (`src`, the file pasted or dropped, or
+ * the data of a draft's picture), sent as a part of the message under `cid` (composer.tsx
+ * `formOf`). Only pictures marked so are read: others pasted in from a page fall away.
+ */
+const Picture = Node.create({
+  name: "picture",
+  group: "block",
+  atom: true,
+  draggable: true,
+  addAttributes: () => ({
+    src: { default: null },
+    cid: { default: null, parseHTML: (el) => el.getAttribute("data-cid"), renderHTML: (attrs) => ({ "data-cid": attrs.cid }) },
+    alt: { default: null },
+  }),
+  parseHTML: () => [{ tag: "img[data-cid]" }],
+  renderHTML: ({ HTMLAttributes }) => ["img", HTMLAttributes],
+});
+
+/** The picture files among `files` (others are attached as files). */
+export const pictureFiles = (files: Iterable<File>) => Array.from(files).filter((f) => /^image\/(png|jpeg|gif|webp)$/.test(f.type));
+
+/** Puts `files` in the text as pictures, at `at` or where the caret is, each under a Content-ID of its own. */
+export function putPictures(editor: Editor, files: File[], at: number | null, keep: (cid: string, file: File) => void) {
+  const nodes = files.map((file) => {
+    const cid = `${crypto.randomUUID()}@leafdesk`;
+    keep(cid, file);
+    return { type: "picture", attrs: { src: URL.createObjectURL(file), cid, alt: file.name || null } };
+  });
+  editor.chain().focus().insertContentAt(at ?? editor.state.selection, nodes).run();
+}
 
 /**
  * Changes the message's signature to `html` when the mailbox it goes out from changes: in its
@@ -95,9 +128,26 @@ const writingEnd = (editor: Editor) => {
 };
 
 /** The editor, made once in the browser from the first values given; `MailEditorContent` shows it. */
-export function useMailEditor({ html, placeholder, label, onChange, autofocus }: { html: string; placeholder: string; label: string; onChange: (editor: Editor) => void; autofocus: "start" | "end" | false }) {
+export function useMailEditor({
+  html,
+  placeholder,
+  label,
+  onChange,
+  onPictures,
+  autofocus,
+}: {
+  html: string;
+  placeholder: string;
+  label: string;
+  onChange: (editor: Editor) => void;
+  /** Pictures pasted: the composer puts them in the text (a signature takes none). */
+  onPictures?: (files: File[]) => void;
+  autofocus: "start" | "end" | false;
+}) {
   const changed = useRef(onChange);
   changed.current = onChange;
+  const pasted = useRef(onPictures);
+  pasted.current = onPictures;
   const first = useRef({ html, placeholder, label, autofocus });
   const [linking, setLinking] = useState(false);
   const [editor, setEditor] = useState<Editor | null>(null);
@@ -118,10 +168,19 @@ export function useMailEditor({ html, placeholder, label, onChange, autofocus }:
           trailingNode: { notAfter: ["paragraph", "signature"] },
         }),
         Signature,
+        Picture,
         Placeholder.configure({ placeholder }),
         Keys.configure({ onLink: () => setLinking(true) }),
       ],
-      editorProps: { attributes: { class: "mail-editor outline-none", "aria-label": label, "aria-multiline": "true", role: "textbox" } },
+      editorProps: {
+        attributes: { class: "mail-editor outline-none", "aria-label": label, "aria-multiline": "true", role: "textbox" },
+        handlePaste: (_view, event) => {
+          const files = pictureFiles(event.clipboardData?.files ?? []);
+          if (!files.length || !pasted.current) return false;
+          pasted.current(files);
+          return true;
+        },
+      },
       onUpdate: ({ editor }) => changed.current(editor),
     });
     setEditor(made);
@@ -140,7 +199,12 @@ export function MailEditorContent({ editor, className }: { editor: Editor | null
       if (!editor.isDestroyed) editor.unmount();
     };
   }, [editor]);
-  return <div ref={host} className={cn("text-sm leading-relaxed [&_.ProseMirror]:min-h-full", className)} />;
+  return (
+    <div
+      ref={host}
+      className={cn("text-sm leading-relaxed [&_.ProseMirror]:min-h-full [&_img]:my-1 [&_img]:h-auto [&_img]:max-w-full [&_img.ProseMirror-selectednode]:outline-2 [&_img.ProseMirror-selectednode]:outline-accent", className)}
+    />
+  );
 }
 
 const marks = (e: Editor) => ({

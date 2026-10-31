@@ -23,7 +23,7 @@ import {
   type MailUndoneSend,
 } from "@/lib/mail-client";
 import { parseRecipient, showAddress, splitAddresses, startFrom, type ComposeMode, type ComposeSource, type Recipient } from "./compose-start";
-import { FormatBar, MailEditorContent, putSignature, useMailEditor, writeBelow } from "./mail-editor";
+import { FormatBar, MailEditorContent, pictureFiles, putPictures, putSignature, useMailEditor, writeBelow } from "./mail-editor";
 import { MailFrame } from "./mail-frame";
 import { MailboxMark } from "./mail-sidebar";
 import { RecipientField } from "./recipient-field";
@@ -33,6 +33,23 @@ type Attached = { file: File } | { stored: MailAttachmentView };
 
 const sizeOf = (a: Attached) => ("file" in a ? a.file.size : Math.round(a.stored.size / 1.37));
 const nameOf = (a: Attached) => ("file" in a ? a.file.name : a.stored.name);
+
+/**
+ * The editor's HTML as it is sent: its pictures shown from the browser written as the parts of the
+ * message they go as (`cid:`), with the Content-IDs it shows.
+ */
+function withPictureIds(html: string) {
+  if (!html.includes("data-cid")) return { html, cids: [] as string[] };
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const cids: string[] = [];
+  for (const img of Array.from(doc.querySelectorAll("img[data-cid]"))) {
+    const cid = img.getAttribute("data-cid")!;
+    cids.push(cid);
+    img.setAttribute("src", `cid:${cid}`);
+    img.removeAttribute("data-cid");
+  }
+  return { html: doc.body.innerHTML, cids };
+}
 
 /** Asks how a message sent went once its Undo seconds are up, again while it is still going. */
 function followSend(sendId: string, then: (status: MailSendStatus) => void, tries = 0) {
@@ -137,6 +154,12 @@ export function Composer({
   const html = useRef(initial.html);
   const fileInput = useRef<HTMLInputElement>(null);
   const toInput = useRef<HTMLInputElement>(null);
+  // Pictures put in the text, by Content-ID: each goes to the server once, with the first save that
+  // shows it; after that it is carried over from the draft saved last (`savedPictures`).
+  const pictures = useRef(new Map<string, File>());
+  const savedPictures = useRef(new Set(withPictureIds(initial.html).cids));
+  const picturesBytes = () => withPictureIds(editorRef.current?.getHTML() ?? "").cids.reduce((n, cid) => n + (pictures.current.get(cid)?.size ?? 0), 0);
+  const editorRef = useRef<Editor | null>(null);
   const answering = mode === "reply" || mode === "replyAll";
   // The message it answers: the one under which it is written, or the one its draft answers.
   const replyTo = answering ? (source?.message.id ?? null) : (draft?.replyTo ?? null);
@@ -150,7 +173,9 @@ export function Composer({
       setWritten(true);
       changed();
     },
+    onPictures: (list) => editorRef.current && putPictures(editorRef.current, list, null, (cid, file) => pictures.current.set(cid, file)),
   });
+  editorRef.current = editor;
 
   useEffect(() => {
     if (!answering) toInput.current?.focus();
@@ -193,6 +218,7 @@ export function Composer({
       ? { ...savedDraft.current, keep: files.flatMap((f) => ("stored" in f ? [f.stored.part] : [])) }
       : null;
     const form = new FormData();
+    const written = withPictureIds(editor?.isEmpty ? "" : (editor?.getHTML() ?? html.current));
     form.set(
       "draft",
       JSON.stringify({
@@ -201,7 +227,7 @@ export function Composer({
         cc: fields[1].map((r) => r.address),
         bcc: fields[2].map((r) => r.address),
         subject,
-        html: editor?.isEmpty ? "" : (editor?.getHTML() ?? html.current),
+        html: written.html,
         replyTo,
         forward: mode === "forward" ? (source?.message.id ?? null) : null,
         draft: ref,
@@ -211,7 +237,14 @@ export function Composer({
     const kept = files.filter((f): f is { stored: MailAttachmentView } => "stored" in f);
     const added = files.filter((f): f is { file: File } => "file" in f);
     for (const { file } of added) form.append("file", file);
-    return { form, kept, added };
+    // A picture the draft saved last showed comes from there; others go now, if their file is here.
+    for (const cid of written.cids) {
+      const file = pictures.current.get(cid);
+      if (!file || (savedDraft.current && savedPictures.current.has(cid))) continue;
+      form.append("inline", file);
+      form.append("inlineCid", cid);
+    }
+    return { form, kept, added, shown: written.cids };
   };
 
   /** Saves the draft now, after a save under way; nothing when nothing changed since the last. */
@@ -221,11 +254,12 @@ export function Composer({
     const run = saves.current.then(async () => {
       if (done.current || sendingNow.current || !latest.current.touched || savedEdits.current === edits.current) return;
       const at = edits.current;
-      const { form, kept, added } = formOf(fieldsNow(false));
+      const { form, kept, added, shown } = formOf(fieldsNow(false));
       setSaveState("saving");
       const result = await saveDraftAction(form).catch(() => null);
       if (!result?.ok) return setSaveState("failed");
       savedDraft.current = { id: result.data.id, messageId: result.data.messageId, mailboxId: latest.current.from.id };
+      savedPictures.current = new Set(shown);
       savedEdits.current = at;
       // The files sent now are on the server: they are kept from there from now on, in the order
       // they went (the files it kept, then the ones added), unless they were taken off meanwhile.
@@ -245,7 +279,7 @@ export function Composer({
   function changed() {
     edits.current += 1;
     if (timer.current) clearTimeout(timer.current);
-    const heavy = latest.current.files.reduce((n, f) => n + sizeOf(f), 0) > MAIL_DRAFT_HEAVY;
+    const heavy = latest.current.files.reduce((n, f) => n + sizeOf(f), 0) + picturesBytes() > MAIL_DRAFT_HEAVY;
     timer.current = setTimeout(() => void saveNow(), heavy ? MAIL_DRAFT_SLOW_MS : MAIL_DRAFT_SAVE_MS);
   }
 
@@ -294,7 +328,7 @@ export function Composer({
     const bad = fields.flat().filter((r) => r.bad);
     if (bad.length) return setError(t("badAddress", { addresses: bad.map((r) => r.address).join(", ") }));
     if (!fields.some((f) => f.length)) return setError(t("needRecipient"));
-    if (files.reduce((n, f) => n + sizeOf(f), 0) > MAX_COMPOSE_BYTES) return setError(t("tooLarge", { size: `${MAX_COMPOSE_BYTES / 1024 / 1024} MB` }));
+    if (files.reduce((n, f) => n + sizeOf(f), 0) + picturesBytes() > MAX_COMPOSE_BYTES) return setError(t("tooLarge", { size: `${MAX_COMPOSE_BYTES / 1024 / 1024} MB` }));
     setError(null);
     setSending(true);
     sendingNow.current = true;
@@ -339,7 +373,7 @@ export function Composer({
   }
 
   const pane = layout === "pane";
-  const addFiles = (list: FileList | null | undefined) => setFiles((now) => [...now, ...Array.from(list ?? []).map((file): Attached => ({ file }))]);
+  const addFiles = (list: Iterable<File> | null | undefined) => setFiles((now) => [...now, ...Array.from(list ?? []).map((file): Attached => ({ file }))]);
   const ccToggles = (
     <span className="flex shrink-0 gap-1 pt-1">
       {!showCc && (
@@ -491,7 +525,12 @@ export function Composer({
         e.preventDefault();
         e.stopPropagation();
         setDropping(false);
-        addFiles(e.dataTransfer.files);
+        // Pictures dropped on the text go in it where they fall; other files, and pictures dropped
+        // anywhere else, are attached.
+        const all = Array.from(e.dataTransfer.files);
+        const inText = editor && editor.view.dom.contains(e.target as Node) ? pictureFiles(all) : [];
+        if (editor && inText.length) putPictures(editor, inText, editor.view.posAtCoords({ left: e.clientX, top: e.clientY })?.pos ?? null, (cid, file) => pictures.current.set(cid, file));
+        addFiles(all.filter((f) => !inText.includes(f)));
       }}
     >
       {pane && (

@@ -8,7 +8,7 @@ import { RowMailError, type RowMailErrorCode } from "@/server/row-mail/settings"
 import { connectError } from "@/server/row-mail/connect";
 import { keepSent, SAVES_SENT, sendRaw } from "@/server/row-mail/send";
 import { requireOwnMailbox } from "./access";
-import { buildMessage, newMessageId, written, type Attachment, type Written } from "./compose";
+import { buildMessage, newMessageId, written, type Attachment, type InlineFile, type Written } from "./compose";
 import { draftForSend, keepAsDraft, sentDraft } from "./drafts";
 import { makeFolder, recount } from "./folders";
 import { withImap } from "./pool";
@@ -146,14 +146,15 @@ const recentSends = (box: Box) => (sends.get(box.id) ?? []).filter((at) => at > 
 
 /**
  * A message ready to go out, checked: who it goes to and what it says, within the hour's sends,
- * with its files gathered (those it kept in its draft, those it forwards, `files`) and its MIME
+ * with its files gathered (those it kept in its draft, those it forwards, `files`, the pictures of
+ * its text, `inline`) and its MIME
  * message built, so what can be wrong with it shows before it waits.
  */
-async function prepare(userId: string, draft: MailDraftInput, files: File[]): Promise<Prepared> {
+async function prepare(userId: string, draft: MailDraftInput, files: File[], inline: InlineFile[]): Promise<Prepared> {
   const box = await requireOwnMailbox(userId, draft?.mailboxId);
   const typed = await written(box, draft, { toSend: true });
   if (recentSends(box).length >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
-  const { attachments, quote } = await draftForSend(userId, box, draft, files);
+  const { attachments, quote } = await draftForSend(userId, box, draft, typed, files, inline);
   const w = withQuote(typed, quote);
   const raw = await buildMessage(userId, box, w, attachments, { messageId: newMessageId(box), draft: false });
   return { userId, box, draft, w, attachments, quote, raw };
@@ -194,8 +195,8 @@ async function deliver({ userId, box, draft, w, raw }: Prepared) {
  * References of the message it answers), a forward (with the files of the message it forwards)
  * or a new one, with `files`. A message saved as a draft brings the files it kept there.
  */
-export async function sendMail(userId: string, draft: MailDraftInput, files: File[] = []): Promise<void> {
-  await deliver(await prepare(userId, draft, files));
+export async function sendMail(userId: string, draft: MailDraftInput, files: File[] = [], inline: InlineFile[] = []): Promise<void> {
+  await deliver(await prepare(userId, draft, files, inline));
 }
 
 /**
@@ -214,8 +215,8 @@ const settled = (id: string) => setTimeout(() => held.delete(id), KEPT_MS).unref
  * Sends a message (as sendMail) after MAIL_UNDO_SECONDS, unless undone. Returns the id to undo it
  * by and to ask how it went: a send that fails then keeps the message as a draft.
  */
-export async function holdMail(userId: string, draft: MailDraftInput, files: File[] = []): Promise<MailHeldSend> {
-  const prepared = await prepare(userId, draft, files);
+export async function holdMail(userId: string, draft: MailDraftInput, files: File[] = [], inline: InlineFile[] = []): Promise<MailHeldSend> {
+  const prepared = await prepare(userId, draft, files, inline);
   const id = crypto.randomUUID();
   held.set(id, { ...prepared, timer: setTimeout(() => void sendHeld(id), MAIL_UNDO_SECONDS * 1000), state: "held", error: null });
   return { sendId: id };

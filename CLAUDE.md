@@ -274,7 +274,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   the old copy only after, files kept are read back from it by part number; an answer's or forward's
   earlier mail never enters the editor: the server adds it under what is written (`quote.ts`, a
   `.leafdesk_quote` / `.leafdesk_forward` element, from the original the first time and from the
-  draft before after that); a send waits
+  draft before after that); pictures in the text are the editor's `Picture` node, sent as `cid:`
+  parts (`compose.ts` `inlineFiles`, form field `inline`), each uploaded once and carried over from
+  the draft saved last by Content-ID, opened again as data URLs marked `data-cid`; a send waits
   `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, which scripts skip with `sendHeld`), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs
   a round as of any moment, which `scripts/follow-ups-e2e.ts` uses), page webhooks

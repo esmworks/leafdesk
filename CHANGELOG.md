@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Pictures in Mail tab messages.** A picture pasted into a message, or dropped on its text,
+  goes where it is put and is sent as part of the message (PNG, JPEG, GIF or WebP, within the
+  files' limit), not as an attachment; other files dropped are still attached. Drafts keep their
+  pictures and send each only once. No migration.
+
 - **Undo send in the Mail tab.** A message sent waits 5 seconds on the server, with *Undo* in the
   note that it was sent: taken back, it is a draft again and opens where it was written. It still
   goes if the tab is closed meanwhile; one the mail server refuses then is kept as a draft and the
@@ -220,6 +225,9 @@
   only while an answer is being written.
 
 ### Fixed
+
+- **Mail with pictures as wide as the reading pane shows no scrollbar beside it.** The Mail tab
+  showed one that narrowed the message without anything to scroll.
 
 - **Short HTML mail in the Mail tab no longer leaves a gap under it.** Its frame took the height
   it started with when the message was shorter.

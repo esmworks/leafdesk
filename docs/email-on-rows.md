@@ -102,7 +102,9 @@ opening it, plus *Move to* any of the mailbox's folders (not Sent or Drafts), th
 mail (a `from:` search), *Open in new tab* and *Copy link*. *New message* opens beside the list, where the open thread would be, and Back
 closes it; a reply is written under the thread. Text can be bold, italic, underlined or struck
 through, with bulleted and numbered lists, quotes and links (⌘/Ctrl+K), and goes out as HTML with
-a plain-text part beside it; other formatting pasted in falls away. A reply or forward carries the earlier
+a plain-text part beside it; other formatting pasted in falls away. A picture pasted in, or dropped
+on the text, goes where it is put and is sent as part of the message (PNG, JPEG, GIF or WebP, within
+the files' limit); other files dropped on the composer are attached. A reply or forward carries the earlier
 message under what is written, as it looked (tables, colors, the images it carries), folded under
 *•••* in the composer and taken off with *Remove the quoted message*; the plain-text part quotes
 its text with `>`. *From* picks any of the

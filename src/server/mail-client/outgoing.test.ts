@@ -21,6 +21,16 @@ describe("outgoingBody", () => {
     expect(html).toContain("kötü");
   });
 
+  it("keeps pictures only from the message's own parts", async () => {
+    const { html, text } = await outgoingBody(
+      `<p>Logo:</p><img src="cid:a1b2.c3@leafdesk" alt="logo"><img src="https://track.example/p.gif"><img src="data:image/png;base64,AAAA"><img src="cid:bad id"><p><a href="cid:a1b2.c3@leafdesk">bağ</a></p>`,
+    );
+    expect(html).toContain(`<img src="cid:a1b2.c3@leafdesk" alt="logo" style="max-width:100%;height:auto">`);
+    expect(html).not.toMatch(/track\.example|data:image|bad id|href="cid/);
+    expect(html).toContain("bağ");
+    expect(text).toBe("Logo:\nbağ");
+  });
+
   it("writes lines, lists and quotes as plain text", async () => {
     const { text, html } = await outgoingBody(
       `<p>Merhaba,</p><p></p><ul><li><p>bir</p></li><li><p>iki<br>devam</p></li></ul><ol><li><p>ilk</p></li><li><p>son</p></li></ol><p><a href="https://leafdesk.app">site</a></p><blockquote><p>Önceki</p><p></p><p>ileti</p></blockquote>`,
@@ -45,6 +55,10 @@ describe("outgoingBody", () => {
 });
 
 describe("cleanSignature", () => {
+  it("takes no pictures", async () => {
+    expect((await cleanSignature(`<p>Ada</p><img src="cid:a@leafdesk">`))?.html).toBe("<p>Ada</p>");
+  });
+
   it("keeps the formatting a message may have and no signature inside it", async () => {
     const signed = await cleanSignature(`<p><em>Ayşe</em> <img src="https://x.example/logo.png"></p><div data-signature=""><p>iç</p></div><p></p><p></p>`);
     expect(signed).toEqual({ html: "<p><em>Ayşe</em> </p><p>iç</p>", text: "Ayşe\niç" });

@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
+/** The tallest a message is shown whole; a longer one scrolls in its frame. */
+const MAX_HEIGHT = 20000;
+
 /**
  * A message's HTML, cleaned on the server (server/mail-client/html.ts), in a frame of its own: its
  * styles stay inside, nothing in it runs (the sandbox has no scripts), and its own content policy
@@ -27,7 +30,12 @@ export function MailFrame({ html, images, title }: { html: string; images: boole
       // keep the frame's first height. Rounded up: scrollHeight rounds a height like 734.4 down, and
       // Chromium scrolls the frame for the fraction left over.
       const body = frame.contentDocument?.body;
-      if (body) setHeight(Math.min(20000, Math.max(24, body.scrollHeight, Math.ceil(body.getBoundingClientRect().height))));
+      if (!body) return;
+      const whole = Math.max(24, body.scrollHeight, Math.ceil(body.getBoundingClientRect().height));
+      setHeight(Math.min(MAX_HEIGHT, whole));
+      // Shown whole, it has nothing to scroll: a scrollbar would only narrow it, and pictures as
+      // wide as the frame would shrink, take the scrollbar away, grow back and bring it again.
+      frame.contentDocument!.documentElement.style.overflowY = whole > MAX_HEIGHT ? "auto" : "hidden";
     };
     const resize = new ResizeObserver(measure);
     resize.observe(frame);

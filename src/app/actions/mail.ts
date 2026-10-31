@@ -87,7 +87,11 @@ export async function mailActionAction(input: { mailboxId: string; folderId: str
   });
 }
 
-/** A message the composer sent: `draft` as JSON under "draft", the files added since its last save under "file". */
+/**
+ * A message the composer sent: `draft` as JSON under "draft", the files added since its last save
+ * under "file", and the pictures put in its text since then under "inline", each with its
+ * Content-ID under "inlineCid" in the same order.
+ */
 function composed(form: FormData) {
   let draft: MailDraftInput;
   try {
@@ -96,15 +100,19 @@ function composed(form: FormData) {
     throw new RowMailError("invalid");
   }
   if (!draft || typeof draft !== "object") throw new RowMailError("invalid");
-  return { draft, files: form.getAll("file").filter((f): f is File => f instanceof File) };
+  const pictures = form.getAll("inline");
+  const cids = form.getAll("inlineCid");
+  if (pictures.length !== cids.length) throw new RowMailError("invalid");
+  const inline = pictures.map((file, i) => ({ cid: String(cids[i]), file: file as File }));
+  return { draft, files: form.getAll("file").filter((f): f is File => f instanceof File), inline };
 }
 
 /** Sends a message (see `composed`); the draft it was saved as goes. */
 /** Sends what the composer holds after the seconds Undo has (see `composed`). */
 export async function sendMailAction(form: FormData): Promise<ActionResult<MailHeldSend>> {
   return run(async (userId) => {
-    const { draft, files } = composed(form);
-    return holdMail(userId, draft, files);
+    const { draft, files, inline } = composed(form);
+    return holdMail(userId, draft, files, inline);
   });
 }
 
@@ -125,8 +133,8 @@ export async function sendStatusAction(sendId: string): Promise<ActionResult<Mai
 /** Saves what the composer holds as a draft in the mailbox's drafts folder, in place of its last save (see `composed`). */
 export async function saveDraftAction(form: FormData): Promise<ActionResult<MailSavedDraft>> {
   return run(async (userId) => {
-    const { draft, files } = composed(form);
-    return saveDraft(userId, draft, files);
+    const { draft, files, inline } = composed(form);
+    return saveDraft(userId, draft, files, inline);
   });
 }
 

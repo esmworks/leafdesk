@@ -6,11 +6,11 @@ import { normalizeAddress } from "@/lib/mail";
 import { MAX_COMPOSE_BYTES, type MailAddress, type MailDraftInput, type MailDraftRef, type MailDraftView, type MailSavedDraft } from "@/lib/mail-client";
 import { RowMailError } from "@/server/row-mail/settings";
 import { requireOwnMailbox } from "./access";
-import { addedFiles, attachedBytes, buildMessage, filesOf, newMessageId, storedMessage, written, type Attachment, type StoredMessage, type Written } from "./compose";
+import { addedFiles, attachedBytes, buildMessage, filesOf, inlineFiles, newMessageId, storedMessage, written, type Attachment, type InlineFile, type StoredMessage, type Written } from "./compose";
 import { makeFolder, recount, type FolderRow } from "./folders";
 import { indexFolder, indexUids } from "./indexer";
 import { cleanMailHtml } from "./html";
-import { editableBody } from "./outgoing";
+import { editableBody, shownCids } from "./outgoing";
 import { freshQuote, keptQuote, splitQuote, withQuote, type Quote } from "./quote";
 import { withImap } from "./pool";
 import { decodeText, fileView, messageParts, readParts } from "./structure";
@@ -29,6 +29,8 @@ const MESSAGE_ID = /^[^\s<>"]{1,300}$/;
 /** Bytes of a draft's text or HTML read to open it. */
 const MAX_DRAFT_BYTES = 2 * 1024 * 1024;
 const travelling = (bytes: number) => Math.ceil(bytes * 1.4) + 1024;
+/** The pictures a draft's text opens with, as data: the types a composer adds (compose.ts `inlineFiles`). */
+const PICTURE_DATA = /^image\/(png|jpeg|gif|webp)$/;
 
 /** The mailbox's drafts folder, made where the server has none. */
 async function draftsFolder(client: ImapFlow, box: Box): Promise<FolderRow> {
@@ -65,22 +67,31 @@ async function earlierDraft(userId: string, box: Box, ref: MailDraftRef | null |
 }
 type Earlier = NonNullable<Awaited<ReturnType<typeof earlierDraft>>>;
 
-/** The files a message keeps from its draft before, or (a first save, or a send without one) brings from what it forwards. */
-async function carriedFiles(box: Box, input: MailDraftInput, earlier: Earlier | null): Promise<Attachment[]> {
+/**
+ * The files a message keeps from its draft before, or (a first save, or a send without one) brings
+ * from what it forwards; and from the draft before, the pictures its text still shows (`pictures`)
+ * that weren't sent again.
+ */
+async function carriedFiles(box: Box, input: MailDraftInput, earlier: Earlier | null, pictures: Set<string>): Promise<Attachment[]> {
   if (earlier?.message) {
     const message = earlier.message;
-    return earlier.keep.length ? withImap(earlier.box, (client) => filesOf(client, message, earlier.keep)) : [];
+    return withImap(earlier.box, async (client) => [
+      ...(earlier.keep.length ? await filesOf(client, message, earlier.keep) : []),
+      ...(pictures.size ? await filesOf(client, message, { cids: pictures }) : []),
+    ]);
   }
   if (!input.forward) return [];
   const forwarded = await storedMessage(box, input.forward);
   return withImap(box, (client) => filesOf(client, forwarded, "files"));
 }
 
-/** Everything a message brings: what it carries over, then the files added now. */
-async function draftFiles(box: Box, input: MailDraftInput, files: File[], earlier: Earlier | null) {
-  const carried = await carriedFiles(box, input, earlier);
+/** Everything a message brings: what it carries over, then the files and the pictures of its text added now. */
+async function draftFiles(box: Box, input: MailDraftInput, w: Written, files: File[], inline: InlineFile[], earlier: Earlier | null) {
+  const sent = new Set(inline.map((p) => p.cid));
+  const carried = await carriedFiles(box, input, earlier, new Set([...shownCids(w.html)].filter((cid) => !sent.has(cid))));
   if (attachedBytes(carried) > MAX_COMPOSE_BYTES) throw new RowMailError("tooMany");
-  return [...carried, ...(await addedFiles(files, attachedBytes(carried)))];
+  const added = await addedFiles(files, attachedBytes(carried));
+  return [...carried, ...added, ...(await inlineFiles(inline, attachedBytes(carried) + attachedBytes(added)))];
 }
 
 /**
@@ -123,13 +134,13 @@ async function removeCopies(earlier: Earlier, except: { mailboxId: string; uid: 
  * saved before, `input.draft`), with the files it kept from that one and `files` added now.
  * Returns the new draft's id in the index, its Message-ID and its files.
  */
-export async function saveDraft(userId: string, input: MailDraftInput, files: File[] = []): Promise<MailSavedDraft> {
+export async function saveDraft(userId: string, input: MailDraftInput, files: File[] = [], inline: InlineFile[] = []): Promise<MailSavedDraft> {
   const box = await requireOwnMailbox(userId, input?.mailboxId);
   const w = await written(box, input, { toSend: false });
   const earlier = await earlierDraft(userId, box, input.draft);
-  const attachments = await draftFiles(box, input, files, earlier);
+  const attachments = await draftFiles(box, input, w, files, inline, earlier);
   const quote = await quoteFor(box, input, earlier);
-  return storeDraft(userId, box, withQuote(w, quote), [...attachments, ...(quote?.files ?? [])], earlier, quote);
+  return storeDraft(userId, box, withQuote(w, quote), [...attachments, ...(quote?.files ?? [])], earlier);
 }
 
 /**
@@ -158,11 +169,11 @@ async function quoteFor(box: Box, input: MailDraftInput, earlier: Earlier | null
 export async function keepAsDraft(userId: string, input: MailDraftInput, attachments: Attachment[], quote: Quote | null): Promise<MailSavedDraft> {
   const box = await requireOwnMailbox(userId, input?.mailboxId);
   const w = await written(box, input, { toSend: false });
-  return storeDraft(userId, box, withQuote(w, quote), attachments, await earlierDraft(userId, box, input.draft), quote);
+  return storeDraft(userId, box, withQuote(w, quote), attachments, await earlierDraft(userId, box, input.draft));
 }
 
-/** Puts a draft in the drafts folder in place of `earlier`; its files come back but for the quote's images. */
-async function storeDraft(userId: string, box: Box, w: Written, attachments: Attachment[], earlier: Earlier | null, quote: Quote | null): Promise<MailSavedDraft> {
+/** Puts a draft in the drafts folder in place of `earlier`; its files come back but for the pictures its text and quote show. */
+async function storeDraft(userId: string, box: Box, w: Written, attachments: Attachment[], earlier: Earlier | null): Promise<MailSavedDraft> {
   // The same Message-ID from the first save on (the draft is found by it); a new one for a draft
   // moved to another mailbox, which must not be taken for its copy there.
   const messageId = earlier?.messageId && earlier.box.id === box.id ? earlier.messageId : newMessageId(box);
@@ -190,7 +201,8 @@ async function storeDraft(userId: string, box: Box, w: Written, attachments: Att
         await indexUids(client, box, folder, [uid]);
         const fetched = await client.fetchOne(String(uid), { uid: true, bodyStructure: true }, { uid: true });
         const parts = fetched && fetched.bodyStructure ? messageParts(fetched.bodyStructure).attachments : [];
-        return { folder, uid, attachments: parts.filter((a) => !(a.inline && a.contentId && quote?.cids.has(a.contentId))).map(fileView) };
+        const shown = shownCids(w.html);
+        return { folder, uid, attachments: parts.filter((a) => !(a.inline && a.contentId && shown.has(a.contentId))).map(fileView) };
       } finally {
         lock.release();
       }
@@ -228,9 +240,9 @@ export async function sentDraft(userId: string, box: Box, ref: MailDraftRef | nu
 }
 
 /** What the composer needs before sending: the files and the quote the draft it saved last brings. */
-export async function draftForSend(userId: string, box: Box, input: MailDraftInput, files: File[]) {
+export async function draftForSend(userId: string, box: Box, input: MailDraftInput, w: Written, files: File[], inline: InlineFile[]) {
   const earlier = await earlierDraft(userId, box, input.draft);
-  const attachments = await draftFiles(box, input, files, earlier);
+  const attachments = await draftFiles(box, input, w, files, inline, earlier);
   const quote = await quoteFor(box, input, earlier);
   return { attachments: [...attachments, ...(quote?.files ?? [])], quote };
 }
@@ -269,6 +281,16 @@ export async function openDraft(userId: string, id: string): Promise<MailDraftVi
   if (!read) throw new RowMailError("gone");
   // The quote it carries is shown apart, not written on (quote.ts).
   const split = read.html ? await splitQuote(read.html) : null;
+  // The pictures of its text come as data the editor shows, marked with their Content-ID, by which
+  // the next save carries them over from this draft without sending them again.
+  const body = await editableBody(split?.html ?? null, read.text);
+  const shown = shownCids(body);
+  const pictures = new Map((shown.size ? await withImap(box, (client) => filesOf(client, message, { cids: shown })) : []).map((p) => [p.cid, p]));
+  const html = body.replace(/<img\b([^>]*?)\bsrc="cid:([^"]+)"([^>]*)>/gi, (_, before: string, cid: string, after: string) => {
+    const picture = pictures.get(cid);
+    return picture && PICTURE_DATA.test(picture.contentType) ? `<img${before}src="data:${picture.contentType};base64,${picture.content.toString("base64")}" data-cid="${cid}"${after}>` : "";
+  });
+  const inMessage = shownCids(read.html);
   const [answers] = message.inReplyTo
     ? await db
         .select({ id: mailMessage.id })
@@ -285,9 +307,9 @@ export async function openDraft(userId: string, id: string): Promise<MailDraftVi
     cc: viewAddresses(read.envelope.cc),
     bcc: viewAddresses(read.envelope.bcc),
     subject: message.subject,
-    html: await editableBody(split?.html ?? null, read.text),
+    html,
     replyTo: answers?.id ?? null,
-    attachments: read.parts.attachments.filter((a) => !(a.inline && a.contentId && split?.quote?.includes(`cid:${a.contentId}`))).map(fileView),
+    attachments: read.parts.attachments.filter((a) => !(a.inline && a.contentId && inMessage.has(a.contentId))).map(fileView),
     quote: split?.quote ? (await cleanMailHtml(split.quote, { images: false, inline: new Map() })).html : null,
   };
 }

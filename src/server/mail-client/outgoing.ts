@@ -4,18 +4,23 @@ import type { Config } from "dompurify";
  * What the Mail tab's editor writes (components/mail/mail-editor.tsx), made fit to send: only the
  * formatting it offers survives (paragraphs, bold, italic, underline, strike, links, lists and
  * quotes, and the sender's signature around some of them), links only to the web or an address,
- * and no styles but the few written here, inline, as mail programs want them. The message's
- * plain-text part is written from the same HTML.
+ * pictures only as parts of the message (`cid:`, compose.ts `inlineFiles`), and no styles but the
+ * few written here, inline, as mail programs want them. The message's plain-text part is written
+ * from the same HTML.
  */
 
 const CONFIG: Config = {
-  ALLOWED_TAGS: ["p", "br", "strong", "b", "em", "i", "u", "s", "a", "ul", "ol", "li", "blockquote", "div"],
-  ALLOWED_ATTR: ["href", "data-signature"],
-  ALLOWED_URI_REGEXP: /^(?:https?|mailto):/i,
+  ALLOWED_TAGS: ["p", "br", "strong", "b", "em", "i", "u", "s", "a", "ul", "ol", "li", "blockquote", "div", "img"],
+  ALLOWED_ATTR: ["href", "src", "alt", "data-signature"],
+  // One list for links and pictures: `onlyParts` takes what each may not have.
+  ALLOWED_URI_REGEXP: /^(?:https?|mailto|cid):/i,
   ALLOW_DATA_ATTR: false,
 };
-/** A signature is kept as the formatting inside one: never a signature of its own. */
-const SIGNATURE_CONFIG: Config = { ...CONFIG, ALLOWED_TAGS: CONFIG.ALLOWED_TAGS!.filter((tag) => tag !== "div"), ALLOWED_ATTR: ["href"] };
+/** A signature is kept as the formatting inside one: never a signature of its own, nor pictures. */
+const SIGNATURE_CONFIG: Config = { ...CONFIG, ALLOWED_TAGS: CONFIG.ALLOWED_TAGS!.filter((tag) => tag !== "div" && tag !== "img"), ALLOWED_ATTR: ["href"] };
+
+/** A message's picture's Content-ID as the composer makes it: checked before it is matched anywhere. */
+export const INLINE_CID = /^[A-Za-z0-9._-]{1,64}@[A-Za-z0-9.-]{1,64}$/;
 
 /** Paragraphs follow each other as lines, as the editor shows them. */
 const STYLES: Record<string, string> = {
@@ -24,6 +29,7 @@ const STYLES: Record<string, string> = {
   OL: "margin:0;padding-inline-start:1.5em",
   BLOCKQUOTE: "margin:0 0 0 0.8ex;border-inline-start:2px solid #d0d7de;padding-inline-start:1ex;color:#57606a",
   DIV: "margin:0",
+  IMG: "max-width:100%;height:auto",
 };
 const FONT = "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;color:#1f2328";
 
@@ -33,8 +39,21 @@ async function clean(raw: string, config: Config) {
   const [{ JSDOM, VirtualConsole }, { default: createDOMPurify }] = await Promise.all([import("jsdom"), import("dompurify")]);
   const { window } = new JSDOM("", { virtualConsole: new VirtualConsole() });
   const purify = createDOMPurify(window as unknown as Parameters<typeof createDOMPurify>[0]);
-  return { window, body: purify.sanitize(raw, { ...config, RETURN_DOM: true }) as unknown as HTMLElement };
+  return { window, body: onlyParts(purify.sanitize(raw, { ...config, RETURN_DOM: true }) as unknown as HTMLElement) };
 }
+
+/** Pictures only from the message's own parts, links never to them. */
+function onlyParts(body: HTMLElement) {
+  for (const img of Array.from(body.querySelectorAll("img"))) {
+    const cid = /^cid:(.*)$/i.exec(img.getAttribute("src") ?? "")?.[1];
+    if (!cid || !INLINE_CID.test(cid)) img.remove();
+  }
+  for (const a of Array.from(body.querySelectorAll("a[href]"))) if (/^cid:/i.test(a.getAttribute("href") ?? "")) a.removeAttribute("href");
+  return body;
+}
+
+/** The Content-IDs of the pictures an HTML shows from the message's parts. */
+export const shownCids = (html: string | undefined | null) => new Set(Array.from((html ?? "").matchAll(/<img\b[^>]*\bsrc="cid:([^"]+)"/gi), (m) => m[1]));
 
 /** The text part: no spaces at lines' ends, but for the one of a signature's "-- " line. */
 const textOf = (body: Element) =>

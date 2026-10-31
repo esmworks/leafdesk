@@ -11,7 +11,8 @@
  * folder; a draft is kept in the drafts folder (made where there is none), each save replacing the last under one
  * Message-ID with the files it kept, opens again with its Bcc and signature, marks the thread it answers, and goes
  * once sent or thrown away; a message sent waits for Undo, which makes it a draft again, and goes when its seconds are up; a new message goes out from the mailbox picked, its formatting cleaned and a plain-text part beside it;
- * recipient fields suggest the people written with; an answer's HTML shows without the earlier mail it quotes, which comes apart, and one written here carries the original's HTML, text and images under it, kept from draft to draft and left out when taken off; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
+ * recipient fields suggest the people written with; an answer's HTML shows without the earlier mail it quotes, which comes apart, and one written here carries the original's HTML, text and images under it, kept from draft to draft and left out when taken off; a forward carries the original under its header with its files;
+ * pictures put in the text go as parts of the message, kept by a draft and carried over without being sent again; the minute's sweep reads new mail, flags changed elsewhere and messages deleted
  * elsewhere; search finds by sender and subject; no one but the mailbox's owner reads it.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -620,6 +621,47 @@ try {
     "a forward goes with the original under its header (once in each part), its text unquoted, its file and its picture",
     forwarded.slice(0, 4000),
   );
+
+  // Pictures put in the text
+  const picture = (name: string) => new File([PNG], name, { type: "image/png" });
+  const firstCid = `ekran1.${RUN}@leafdesk`;
+  await sendMail(
+    ids.ada,
+    { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Ekran", html: `<p>Ekran:</p><img src="cid:${firstCid}" alt="ekran"><img src="cid:yok.${RUN}@leafdesk"><p>Bitti</p>` },
+    [],
+    [{ cid: firstCid, file: picture("ekran.png") }],
+  );
+  const withPicture = (await lastMessageTo(customer)).replace(/=\r?\n/g, "");
+  check(
+    /multipart\/related/i.test(withPicture) && (withPicture.match(new RegExp(`Content-ID: <ekran1\\.${RUN}@leafdesk>`, "gi")) ?? []).length === 1 && withPicture.includes(`src=3D"cid:${firstCid}"`) && !withPicture.includes("cid:yok.") && /^Ekran:\r?\nBitti/m.test(withPicture),
+    "a picture put in the text goes as a part of the message it shows, one without a part is left out, the text part is only words",
+    withPicture.slice(0, 3000),
+  );
+  check((await errorCode(() => sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "x", html: "<p>x</p>" }, [], [{ cid: `not.${RUN}@leafdesk`, file: new File(["x"], "x.txt", { type: "text/plain" }) }]))) === "invalid", "only pictures go in the text");
+  const secondCid = `ekran2.${RUN}@leafdesk`;
+  const pictureDraft = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Ekran 2", html: `<p>Bak</p><img src="cid:${secondCid}">` }, [], [{ cid: secondCid, file: picture("ekran2.png") }]);
+  const openedPicture = await drafts.openDraft(ids.ada, pictureDraft.id!);
+  check(
+    !pictureDraft.attachments.length && !openedPicture.attachments.length && openedPicture.html.includes(`data-cid="${secondCid}"`) && openedPicture.html.includes("src=\"data:image/png;base64,"),
+    "a draft's picture isn't one of its files, and opens as data the editor shows, marked with its Content-ID",
+    openedPicture.html.slice(0, 300),
+  );
+  const pictureAgain = await drafts.saveDraft(ids.ada, {
+    mailboxId: boxId,
+    to: [customer],
+    cc: [],
+    bcc: [],
+    subject: "Ekran 2",
+    html: `<p>Bak, son hali</p><img src="cid:${secondCid}">`,
+    draft: { id: pictureDraft.id, messageId: pictureDraft.messageId, mailboxId: boxId, keep: [] },
+  });
+  await sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Ekran 2", html: `<p>Bak, son hali</p><img src="cid:${secondCid}">`, draft: { id: pictureAgain.id, messageId: pictureAgain.messageId, mailboxId: boxId, keep: [] } });
+  const pictureSent = (await lastMessageTo(customer)).replace(/=\r?\n/g, "");
+  check(pictureSent.includes("son hali") && (pictureSent.match(new RegExp(`Content-ID: <ekran2\\.${RUN}@leafdesk>`, "gi")) ?? []).length === 1, "saved again and sent without sending it again, the picture comes over from the draft, once", pictureSent.slice(0, 2500));
+  await sweep();
+  const sentPicture = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: folder("sent").id })).items.find((t) => t.subject === "Ekran 2");
+  const sentBody = sentPicture ? await read.readBody(ids.ada, { id: sentPicture.messageId }) : null;
+  check(!!sentBody?.html?.includes("data:image/png;base64,") && !sentBody.attachments.length, "the copy in the sent folder shows it in place, not as a file", sentBody?.attachments);
   const inInbox = await db.select().from(mailMessage).where(eq(mailMessage.folderId, inbox.id));
   check(inInbox.filter((m) => m.subjectKey === "bütçe").length === 1, "and leaves out what was deleted elsewhere", inInbox.map((m) => m.subject));
   check(inInbox.find((m) => m.subjectKey === "bütçe")?.flagged, "and takes flags changed elsewhere");
