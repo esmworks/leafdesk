@@ -1,7 +1,7 @@
 "use client";
 
 import { Database, Inbox, Paperclip, RefreshCw, Search, Star } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { mailActionAction, refreshMailboxAction } from "@/app/actions/mail";
@@ -12,6 +12,7 @@ import { showToast } from "@/components/toast";
 import { cn, Dialog, DialogHeader, IconButton } from "@/components/ui";
 import { MAIL_UNDO_SECONDS, type MailAction, type MailThreadItem } from "@/lib/mail-client";
 import type { ComposeMode } from "./composer";
+import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen } from "./mail-store";
 import { useFolderName } from "./mail-sidebar";
 
@@ -23,6 +24,9 @@ const Composer = lazyPart(() => import("./composer").then((m) => m.Composer));
 const REFRESH_MS = 60_000;
 const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "delete"];
 const keepOpen = () => {};
+/** Messages shown in the list are loaded ahead from the top, at most this many. */
+const AHEAD_TOP = 8;
+const aheadOf = (item: MailThreadItem) => loadAhead([item.messageId]);
 
 type List = { items: MailThreadItem[]; next: string | null; loading: boolean; error: string | null };
 
@@ -32,12 +36,14 @@ const ThreadRow = memo(function ThreadRow({
   selected,
   me,
   onOpen,
+  onHover,
 }: {
   item: MailThreadItem;
   href: string;
   selected: boolean;
   me: string;
   onOpen: (item: MailThreadItem) => void;
+  onHover: (item: MailThreadItem) => void;
 }) {
   const t = useTranslations("mail");
   const when = useWhen();
@@ -47,6 +53,7 @@ const ThreadRow = memo(function ThreadRow({
       href={href}
       data-thread={item.threadId}
       aria-current={selected ? "true" : undefined}
+      onPointerEnter={() => onHover(item)}
       onClick={(e) => {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
         e.preventDefault();
@@ -57,15 +64,15 @@ const ThreadRow = memo(function ThreadRow({
       <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", item.unread ? "bg-accent" : "bg-transparent")} aria-hidden />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
-          <span className={cn("truncate text-sm", item.unread ? "font-semibold" : "text-fg-muted")}>{senders}</span>
-          {item.count > 1 && <span className="text-xs text-fg-faint tabular-nums">{item.count}</span>}
+          <span className={cn("truncate text-sm", item.unread && "font-semibold")}>{senders}</span>
+          {item.count > 1 && <span className="text-xs text-fg-muted tabular-nums">{item.count}</span>}
           <span className="flex-1" />
           {item.hasAttachments && <Paperclip className="h-3.5 w-3.5 shrink-0 text-fg-icon" aria-label={t("hasFiles")} />}
           {item.starred && <Star className="h-3.5 w-3.5 shrink-0 fill-current text-amber-500" aria-label={t("starred")} />}
-          <span className={cn("shrink-0 text-xs tabular-nums", item.unread ? "text-fg" : "text-fg-faint")}>{when(item.sentAt)}</span>
+          <span className={cn("shrink-0 text-xs tabular-nums", item.unread ? "font-semibold text-fg" : "text-fg-muted")}>{when(item.sentAt)}</span>
         </div>
-        <div className={cn("truncate text-sm", item.unread ? "text-fg" : "text-fg-muted")}>{item.subject || t("noSubject")}</div>
-        {item.preview && <div className="truncate text-sm text-fg-faint">{item.preview}</div>}
+        <div className={cn("truncate text-sm", item.unread && "font-semibold")}>{item.subject || t("noSubject")}</div>
+        {item.preview && <div className="truncate text-sm text-fg-muted">{item.preview}</div>}
         {item.row && (
           <div className="mt-1">
             <span className="inline-flex max-w-48 items-center gap-1 rounded border border-border bg-bg-subtle px-1.5 py-px text-xs text-fg-muted">
@@ -93,7 +100,6 @@ const forPage = (e: KeyboardEvent) => {
 export function MailApp({ workspaceId }: { workspaceId: string }) {
   const t = useTranslations("mail");
   const folderName = useFolderName();
-  const router = useRouter();
   const search = useSearchParams();
   const { boxes, error: boxesError } = useMailboxes(workspaceId);
   const { box, folder } = pickOpen(boxes, search.get("box"), search.get("f"));
@@ -120,10 +126,11 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const go = useCallback(
     (open: { box?: string | null; f?: string | null; t?: string | null; q?: string | null }, replace = false) => {
       const href = mailHref(workspaceId, { box: box?.id, f: folder?.id, t: threadId, q: query || null, ...open });
-      if (replace) router.replace(href, { scroll: false });
-      else router.push(href, { scroll: false });
+      // Only the address changes: the page is the same, so the server isn't asked for it again.
+      if (replace) window.history.replaceState(null, "", href);
+      else window.history.pushState(null, "", href);
     },
-    [box?.id, folder?.id, threadId, query, router, workspaceId],
+    [box?.id, folder?.id, threadId, query, workspaceId],
   );
 
   // The first open of a mailbox reads its folders and newest mail.
@@ -164,8 +171,8 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     if (!box?.folders || !folder) return;
     setList({ items: [], next: null, loading: true, error: null });
     void loadPage(null);
-    // loadPage follows box, folder and query.
-  }, [box?.id, box?.folders, folder?.id, query]); // eslint-disable-line react-hooks/exhaustive-deps
+    // loadPage follows box, folder and query; new folder counts (a refresh) leave the list as it is.
+  }, [box?.id, !!box?.folders, folder?.id, query]); // eslint-disable-line react-hooks/exhaustive-deps
   // The timer below reads the list as it is then (a search typed since included).
   const loadLatest = useRef(loadPage);
   useEffect(() => {
@@ -218,6 +225,13 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
 
   const items = list.items;
   const selected = items.find((i) => i.threadId === threadId) ?? null;
+
+  // The top of the list, and the threads beside the open one, are loaded ahead.
+  useEffect(() => loadAhead(items.slice(0, AHEAD_TOP).map((i) => i.messageId)), [items]);
+  useEffect(() => {
+    const at = items.findIndex((i) => i.threadId === threadId);
+    if (at >= 0) loadAhead([items[at + 1], items[at + 2], items[at - 1]].map((i) => i?.messageId));
+  }, [items, threadId]);
 
   const act = useCallback(
     (item: MailThreadItem, action: MailAction) => {
@@ -447,6 +461,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
                   selected={item.threadId === threadId}
                   me={box.address}
                   onOpen={openThread}
+                  onHover={aheadOf}
                 />
               ))}
               {list.loading && <div className="py-3 text-center text-xs text-fg-faint">{t("loading")}</div>}
@@ -461,6 +476,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
           box={box}
           folder={folder}
           threadId={threadId}
+          first={selected ? { id: selected.messageId, unread: selected.unread } : null}
           starred={!!selected?.starred}
           onAction={(action) => {
             const item = selected ?? { threadId, unread: false, starred: false } as MailThreadItem;

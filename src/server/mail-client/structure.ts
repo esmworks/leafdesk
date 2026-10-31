@@ -103,6 +103,17 @@ export function decodeText(raw: Buffer, encoding: string, charset: string | null
  * decodeTransfer; null when the server has no such part. In the folder already open.
  */
 export async function readPart(client: ImapFlow, uid: number, part: string, limit: number): Promise<Buffer | null> {
-  const fetched = await client.fetchOne(String(uid), { uid: true, bodyParts: [{ key: part, maxLength: limit }] }, { uid: true });
-  return (fetched && (fetched.bodyParts?.get(part) ?? fetched.bodyParts?.get(part.toLowerCase()))) || null;
+  return (await readParts(client, uid, [{ part, limit }])).get(part) ?? null;
+}
+
+/** Several parts of a message in one command, by part number (those the server has). */
+export async function readParts(client: ImapFlow, uid: number, parts: { part: string; limit: number }[]): Promise<Map<string, Buffer>> {
+  const found = new Map<string, Buffer>();
+  if (!parts.length) return found;
+  const fetched = await client.fetchOne(String(uid), { uid: true, bodyParts: parts.map((p) => ({ key: p.part, maxLength: p.limit })) }, { uid: true });
+  for (const { part } of parts) {
+    const raw = fetched ? (fetched.bodyParts?.get(part) ?? fetched.bodyParts?.get(part.toLowerCase())) : null;
+    if (raw) found.set(part, raw);
+  }
+  return found;
 }

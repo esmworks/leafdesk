@@ -80,6 +80,8 @@ import { gzipSync } from "node:zlib";
  * The Mail tab's page (the folder's list, its keys and undo) adds about 9 kB to all first loads
  * together, as a route of its own; the open thread and a new message load when shown. Its tab in
  * the sidebar adds about 0.3 kB to every route's first load; its folders load when it is picked.
+ * Asking the server to read the list's first messages ahead, and changing the address without a
+ * server round trip, add about 0.5 kB to all first loads together.
  *
  * Dialogs' shared parts (title bar, body, footer bar, in components/ui.tsx, which every route loads)
  * and the inbox's tabs and row actions add under 1 kB to a page's first load and about 1 kB to all

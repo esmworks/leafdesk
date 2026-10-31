@@ -93,6 +93,17 @@ export function pickOpen(boxes: MailboxTabView[] | null, boxId: string | null, f
   return { box, folder };
 }
 
+/**
+ * A link's click within the Mail page: only the address changes, so the server isn't asked for the
+ * page again. From another page, or opened elsewhere (a modifier, another button), the link goes.
+ */
+export function stayInMail(e: { metaKey: boolean; ctrlKey: boolean; shiftKey: boolean; altKey: boolean; button: number; preventDefault: () => void }, href: string) {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+  if (new URL(href, window.location.href).pathname !== window.location.pathname) return;
+  e.preventDefault();
+  window.history.pushState(null, "", href);
+}
+
 export function mailHref(workspaceId: string, open: { box?: string | null; f?: string | null; t?: string | null; q?: string | null } = {}) {
   const params = new URLSearchParams();
   if (open.box) params.set("box", open.box);

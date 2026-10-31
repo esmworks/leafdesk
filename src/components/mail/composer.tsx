@@ -54,13 +54,21 @@ function startFrom(mode: ComposeMode, box: MailboxTabView, source: ComposeSource
   const { message, body } = source;
   const text = body?.text ?? message.preview;
   if (mode === "forward") return { to: "", cc: "", subject: forwardSubject(message.subject), text: `\n\n${forwarded(message)}\n${text}` };
-  const mine = message.from.address === box.address;
-  const replyTo = body?.replyTo.length ? body.replyTo : null;
-  const to = mine ? message.to : (replyTo ?? [message.from]);
-  const taken = new Set([box.address, ...to.map((a) => a.address)]);
-  const cc = mode === "replyAll" ? [...message.to, ...message.cc].filter((a) => !taken.has(a.address) && (taken.add(a.address), true)) : [];
+  const { to, cc } = answerAddresses(mode === "replyAll", box, message, body?.replyTo.length ? body.replyTo : null);
   return { to: to.map(show).join(", "), cc: cc.map(show).join(", "), subject: replySubject(message.subject), text: `\n\n${quoteText(text, header(message))}` };
 }
+
+/** Who an answer goes to: the sender (or their Reply-To), or one's own recipients; reply-all copies the others. */
+function answerAddresses(all: boolean, box: MailboxTabView, message: MailMessageView, replyTo: MailAddress[] | null) {
+  const mine = message.from.address === box.address;
+  const to = mine ? message.to : (replyTo ?? [message.from]);
+  const taken = new Set([box.address, ...to.map((a) => a.address)]);
+  const cc = all ? [...message.to, ...message.cc].filter((a) => !taken.has(a.address) && (taken.add(a.address), true)) : [];
+  return { to, cc };
+}
+
+/** Whether reply-all would write to anyone a reply doesn't: only then is it offered. */
+export const replyAllAdds = (box: MailboxTabView, message: MailMessageView) => answerAddresses(true, box, message, null).cc.length > 0;
 
 /**
  * Writes a message from the open mailbox: a new one, or an answer or forward of `source` (the

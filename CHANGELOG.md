@@ -20,7 +20,8 @@
   reply, reply all, forward and new messages, archive, junk, trash and star with a 5-second undo,
   search with `from:`, `is:unread`, `has:attachment` and the like, and keyboard shortcuts. Only
   headers and first lines are kept, 90 days back; messages are read from the mail server when
-  opened. Only the mailbox's owner sees it. Migration 0164.
+  opened, or ahead for the first threads and those beside the open one, and held in memory a few
+  minutes, so most open at once. Only the mailbox's owner sees it. Migration 0164.
 
 - **Word export, and Word and Excel files from the AI chat.** "Export as Word" in the page menu
   downloads a page or row as a .docx file meant for further editing, with the PDF export's choices

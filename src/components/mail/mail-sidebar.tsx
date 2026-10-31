@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/components/ui";
 import type { MailboxTabView, MailFolderRole, MailFolderView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
-import { mailHref, pickOpen, requestCompose, useMailboxes } from "./mail-store";
+import { mailHref, pickOpen, requestCompose, stayInMail, useMailboxes } from "./mail-store";
 
 export const FOLDER_ICONS: Record<MailFolderRole, LucideIcon> = {
   inbox: Inbox,
@@ -24,16 +24,18 @@ export function useFolderName() {
   return (folder: Pick<MailFolderView, "role" | "name">) => (folder.role ? t(folder.role) : folder.name);
 }
 
-const rowClass = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start text-fg-muted hover:bg-bg-hover hover:text-fg";
+const rowClass = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start hover:bg-bg-hover";
 
 function FolderLink({ workspaceId, box, folder, active }: { workspaceId: string; box: MailboxTabView; folder: MailFolderView; active: boolean }) {
   const name = useFolderName();
   const Icon = folder.role ? FOLDER_ICONS[folder.role] : Folder;
   // The unread count is what the inbox and own folders are read by; the trash and junk don't nag.
   const count = folder.role === "trash" || folder.role === "junk" || folder.role === "sent" ? 0 : folder.unseen;
+  const href = mailHref(workspaceId, { box: box.id, f: folder.id });
   return (
     <Link
-      href={mailHref(workspaceId, { box: box.id, f: folder.id })}
+      href={href}
+      onClick={(e) => stayInMail(e, href)}
       aria-current={active ? "page" : undefined}
       className={cn(rowClass, active && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
       style={folder.depth ? { paddingInlineStart: `${0.5 + folder.depth * 0.75}rem` } : undefined}
@@ -121,10 +123,10 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
             {others.map((other) => {
               const unread = other.folders?.find((f) => f.role === "inbox")?.unseen ?? 0;
               return (
-                <Link key={other.id} href={mailHref(workspaceId, { box: other.id })} className={rowClass} title={other.address}>
+                <Link key={other.id} href={mailHref(workspaceId, { box: other.id })} onClick={(e) => stayInMail(e, mailHref(workspaceId, { box: other.id }))} className={rowClass} title={other.address}>
                   <MailboxMark address={other.address} className="h-4 w-4 text-[10px]" />
                   <span className="min-w-0 flex-1 truncate">{other.address}</span>
-                  {unread > 0 && <span className="text-xs tabular-nums text-fg-faint">{unread}</span>}
+                  {unread > 0 && <span className="text-xs tabular-nums text-fg-muted">{unread}</span>}
                 </Link>
               );
             })}

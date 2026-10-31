@@ -1,5 +1,4 @@
 import { and, asc, desc, eq, inArray, isNull, sql, type SQL } from "drizzle-orm";
-import type { ImapFlow } from "imapflow";
 import { db } from "@/db";
 import { mailbox, mailFolder, mailMessage, page } from "@/db/schema";
 import { dmarcFailed, normalizeAddress, parseHeaderBlock } from "@/lib/mail";
@@ -22,8 +21,9 @@ import { requireMailIn, requireOwnMailbox } from "./access";
 import { discoverFolders, orderFolders } from "./folders";
 import { cleanMailHtml, htmlText } from "./html";
 import { indexFolder, indexMailbox, isIndexed } from "./indexer";
-import { withImap } from "./pool";
-import { decodeText, decodeTransfer, fileView, messageParts, readPart, type PartRef } from "./structure";
+import { bodyHeld, heldBody } from "./body-cache";
+import { warmImap, withImap, type ImapLane } from "./pool";
+import { decodeText, decodeTransfer, fileView, messageParts, readPart, readParts, type PartRef } from "./structure";
 
 /**
  * What the Mail tab reads: the person's mailboxes and folders, a folder's threads from the index,
@@ -113,9 +113,11 @@ export async function refreshFolder(userId: string, mailboxId: string, folderId:
     .from(mailFolder)
     .where(and(eq(mailFolder.id, folderId), eq(mailFolder.mailboxId, box.id)));
   if (!folder) throw new RowMailError("gone");
+  // The page is open: the first click shouldn't wait to sign in.
+  warmImap(box, folder.path);
   if (Date.now() - (refreshed.get(folder.id) ?? 0) > REFRESH_EVERY_MS) {
     refreshed.set(folder.id, Date.now());
-    await withImap(box, (client) => indexFolder(client, box, folder, MAIL_PAGE * 2));
+    await withImap(box, (client) => indexFolder(client, box, folder, MAIL_PAGE * 2), "background");
   }
   const folders = await db.select().from(mailFolder).where(eq(mailFolder.mailboxId, box.id));
   return orderFolders(folders).map(folderView);
@@ -124,7 +126,7 @@ export async function refreshFolder(userId: string, mailboxId: string, folderId:
 /** Reads everything again now (the Refresh button): the folder list and every folder. */
 export async function refreshMailbox(userId: string, mailboxId: string): Promise<MailboxTabView> {
   const box = await requireOwnMailbox(userId, mailboxId);
-  await withImap(box, (client) => indexMailbox(client, box, { force: true }));
+  await withImap(box, (client) => indexMailbox(client, box, { force: true }), "background");
   const folders = await db.select().from(mailFolder).where(eq(mailFolder.mailboxId, box.id));
   return tabView(box, folders);
 }
@@ -390,11 +392,6 @@ export async function getThread(userId: string, input: { mailboxId: string; thre
 /** Base64 makes a file about a third larger on the way. */
 const travelling = (bytes: number) => Math.ceil(bytes * 1.4) + 1024;
 
-async function readText(client: ImapFlow, uid: number, ref: PartRef) {
-  const raw = await readPart(client, uid, ref.part, travelling(MAX_BODY_BYTES)).catch(() => null);
-  return raw ? decodeText(raw, ref.encoding, ref.charset) : null;
-}
-
 /** The message row and its folder, for its owner. */
 async function ownMessage(userId: string, id: string) {
   const [found] =
@@ -423,52 +420,119 @@ function unsubscribeLink(value: string | undefined) {
 }
 
 /**
- * Reads a message's text, cleaned HTML and list of files from the mail server, and marks it read.
- * With `images`, its HTML loads images from other sites too. A message no longer on the server
- * throws `gone`.
+ * Reads a message's text, cleaned HTML and list of files from the mail server (or memory, when it
+ * was read lately or loaded ahead), and marks it read. With `images`, its HTML loads images from
+ * other sites too. A message no longer on the server throws `gone`.
  */
 export async function readBody(userId: string, input: { id: string; images?: boolean }): Promise<MailBody> {
   const { box, message, folder } = await ownMessage(userId, input.id);
-  const result = await withImap(box, async (client) => {
-    const lock = await client.getMailboxLock(folder.path);
-    try {
-      const fetched = await client.fetchOne(String(message.uid), { uid: true, bodyStructure: true, headers: ["reply-to", "authentication-results", "list-unsubscribe"] }, { uid: true });
-      if (!fetched || !fetched.bodyStructure) return null;
-      const parts = messageParts(fetched.bodyStructure);
-      const fields = parseHeaderBlock(fetched.headers);
-      const text = parts.text ? await readText(client, message.uid, parts.text) : null;
-      const rawHtml = parts.html ? await readText(client, message.uid, parts.html) : null;
-      const inline = new Map<string, string>();
-      if (rawHtml) {
-        let total = 0;
-        for (const file of parts.attachments) {
-          if (!file.contentId || !file.contentType.startsWith("image/") || !rawHtml.includes(`cid:${file.contentId}`)) continue;
-          if (file.size > MAX_INLINE_IMAGE * 1.4 || total > MAX_INLINE_TOTAL) continue;
-          if (!/^image\/(png|gif|jpe?g|webp)$/.test(file.contentType)) continue;
-          const raw = await readPart(client, message.uid, file.part, travelling(MAX_INLINE_IMAGE)).catch(() => null);
-          if (!raw) continue;
-          const data = decodeTransfer(raw, file.encoding);
-          total += data.length;
-          inline.set(file.contentId, `data:${file.contentType};base64,${data.toString("base64")}`);
-        }
-      }
-      if (!message.seen) await client.messageFlagsAdd(String(message.uid), ["\\Seen"], { uid: true }).catch(() => false);
-      return { parts, fields, text, rawHtml, inline };
-    } finally {
-      lock.release();
-    }
-  });
-  // Gone from the server, or not found this once: the next pass's check takes it out of the index if it is gone.
-  if (!result) throw new RowMailError("gone");
+  const started = performance.now();
+  const held = heldBody(message.id, !!input.images, (started) => loadBody(box, message, folder, !!input.images, "open", started), { queued: false });
+  const body = await held.body;
+  if (held.from !== "server") console.info(`[mail-client] body ${Math.round(performance.now() - started)} ms from ${held.from}`);
   if (!message.seen) {
     await db.update(mailMessage).set({ seen: true }).where(eq(mailMessage.id, message.id));
     await db
       .update(mailFolder)
       .set({ unseen: sql`greatest(0, ${mailFolder.unseen} - 1)` })
       .where(eq(mailFolder.id, folder.id));
+    // The server hears of it after the answer has gone.
+    void withImap(box, async (client) => {
+      const lock = await client.getMailboxLock(folder.path);
+      try {
+        await client.messageFlagsAdd(String(message.uid), ["\\Seen"], { uid: true });
+      } finally {
+        lock.release();
+      }
+    }).catch(() => {});
   }
-  const cleaned = result.rawHtml ? await cleanMailHtml(result.rawHtml, { images: !!input.images, inline: result.inline }) : null;
+  return body;
+}
+
+/** At most this many messages are loaded ahead at once. */
+const AHEAD = 8;
+
+/**
+ * Loads messages the person is likely to open next (the top of the list, the neighbours of the open
+ * thread) into memory, one after another on the mailbox's background connection, without marking
+ * them read.
+ */
+export async function prefetchBodies(userId: string, input: { ids: string[] }): Promise<null> {
+  const ids = Array.isArray(input?.ids) ? input.ids.filter((id): id is string => typeof id === "string" && !!id).slice(0, AHEAD) : [];
+  for (const id of ids) {
+    if (bodyHeld(id, false)) continue;
+    const found = await ownMessage(userId, id).catch(() => null);
+    if (!found) continue;
+    await heldBody(id, false, (started) => loadBody(found.box, found.message, found.folder, false, "background", started)).body.catch(() => null);
+  }
+  return null;
+}
+
+/**
+ * A message's body from the mail server, unchanged there: its structure, then the text, HTML and
+ * images it carries in one more command. Logs how long each step took.
+ */
+async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images: boolean, lane: ImapLane, started: () => void): Promise<MailBody> {
+  const time = { wait: 0, select: 0, structure: 0, parts: 0, clean: 0 };
+  let mark = performance.now();
+  const step = (name: keyof typeof time) => {
+    const now = performance.now();
+    time[name] = Math.round(now - mark);
+    mark = now;
+  };
+  const result = await withImap(
+    box,
+    async (client) => {
+      step("wait");
+      started();
+      const lock = await client.getMailboxLock(folder.path);
+      step("select");
+      try {
+        const fetched = await client.fetchOne(String(message.uid), { uid: true, bodyStructure: true, headers: ["reply-to", "authentication-results", "list-unsubscribe"] }, { uid: true });
+        step("structure");
+        if (!fetched || !fetched.bodyStructure) return null;
+        const parts = messageParts(fetched.bodyStructure);
+        const fields = parseHeaderBlock(fetched.headers);
+        // Images the HTML may show, within the limits: which of them it does is known once it is read.
+        let room = MAX_INLINE_TOTAL;
+        const pictures = parts.html
+          ? parts.attachments.filter((file) => {
+              if (!file.contentId || !/^image\/(png|gif|jpe?g|webp)$/.test(file.contentType) || file.size > MAX_INLINE_IMAGE * 1.4 || file.size > room * 1.4) return false;
+              room -= file.size / 1.4;
+              return true;
+            })
+          : [];
+        const wanted = [
+          ...[parts.text, parts.html].filter((ref): ref is PartRef => !!ref).map((ref) => ({ part: ref.part, limit: travelling(MAX_BODY_BYTES) })),
+          ...pictures.map((file) => ({ part: file.part, limit: travelling(MAX_INLINE_IMAGE) })),
+        ];
+        const raw = await readParts(client, message.uid, wanted).catch(() => new Map<string, Buffer>());
+        step("parts");
+        const textOf = (ref: PartRef | null) => {
+          const bytes = ref && raw.get(ref.part);
+          return bytes ? decodeText(bytes, ref.encoding, ref.charset) : null;
+        };
+        const rawHtml = textOf(parts.html);
+        const inline = new Map<string, string>();
+        for (const file of pictures) {
+          const bytes = raw.get(file.part);
+          if (!bytes || !rawHtml?.includes(`cid:${file.contentId}`)) continue;
+          inline.set(file.contentId!, `data:${file.contentType};base64,${decodeTransfer(bytes, file.encoding).toString("base64")}`);
+        }
+        return { parts, fields, text: textOf(parts.text), rawHtml, inline };
+      } finally {
+        lock.release();
+      }
+    },
+    lane,
+  );
+  // Gone from the server, or not found this once: the next pass's check takes it out of the index if it is gone.
+  if (!result) throw new RowMailError("gone");
+  const cleaned = result.rawHtml ? await cleanMailHtml(result.rawHtml, { images, inline: result.inline }) : null;
   const text = result.text ?? (result.rawHtml ? await htmlText(result.rawHtml) : "");
+  step("clean");
+  const total = Object.values(time).reduce((a, b) => a + b, 0);
+  console.info(`[mail-client] body ${total} ms on ${lane} (wait ${time.wait}, select ${time.select}, structure ${time.structure}, parts ${time.parts}, clean ${time.clean})`);
   const shownInline = new Set(result.inline.keys());
   const attachments: MailAttachmentView[] = result.parts.attachments.filter((a) => !(a.inline && a.contentId && shownInline.has(a.contentId))).map(fileView);
   return {

@@ -18,14 +18,15 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Fragment, useCallback, useEffect, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { read } from "@/components/read";
 import { Button, cn, IconButton, PageIcon } from "@/components/ui";
 import { pagePath } from "@/lib/mentions";
 import type { MailAction, MailAddress, MailBody, MailboxTabView, MailFolderView, MailMessageView, MailThreadView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
-import { Composer, type ComposeMode } from "./composer";
+import { Composer, type ComposeMode, replyAllAdds } from "./composer";
+import { cachedBody, cachedThread, keepBody, keepThread } from "./mail-cache";
 import { MailFrame } from "./mail-frame";
 import { useWhen } from "./mail-store";
 
@@ -85,6 +86,12 @@ function TextBody({ text }: { text: string }) {
 }
 
 
+/** What opening a thread opens: its newest message, and the ones not read yet. */
+function opensFirst(thread: MailThreadView) {
+  const messages = thread.messages;
+  return new Set(messages.filter((m, i) => i === messages.length - 1 || !m.seen).map((m) => m.id));
+}
+
 type Loaded = { body: MailBody | null; images: boolean; error: string | null; loading: boolean };
 
 function Message({
@@ -121,32 +128,49 @@ function Message({
     );
   }
   const body = loaded?.body;
+  const allowReplyAll = replyAllAdds(box, message);
   return (
     <article className={cn("px-6 py-5", !last && "border-b border-border")}>
-      <button type="button" onClick={onToggle} className="flex w-full items-start gap-3 text-start">
-        <Avatar who={message.from} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline gap-2">
-            <span className="truncate text-sm font-semibold">{message.from.name || message.from.address}</span>
-            {message.from.name && <span className="truncate text-sm text-fg-faint max-sm:hidden">{message.from.address}</span>}
-            <span className="flex-1" />
-            <span className="shrink-0 text-xs text-fg-faint" title={when(message.sentAt, true)}>
-              {when(message.sentAt, true)}
-            </span>
+      <div className="flex items-start gap-1">
+        <button type="button" onClick={onToggle} className="flex min-w-0 flex-1 items-start gap-3 text-start">
+          <Avatar who={message.from} />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <span className="truncate text-sm font-semibold">{message.from.name || message.from.address}</span>
+              {message.from.name && <span className="truncate text-sm text-fg-faint max-sm:hidden">{message.from.address}</span>}
+              <span className="flex-1" />
+              <span className="shrink-0 text-xs text-fg-faint" title={when(message.sentAt, true)}>
+                {when(message.sentAt, true)}
+              </span>
+            </div>
+            <div className="truncate text-xs text-fg-muted">
+              {t("toLine", { names: message.to.map(name).join(", ") || "—" })}
+              {message.cc.length > 0 && ` · ${t("ccLine", { names: message.cc.map(name).join(", ") })}`}
+            </div>
           </div>
-          <div className="truncate text-xs text-fg-muted">
-            {t("toLine", { names: message.to.map(name).join(", ") || "—" })}
-            {message.cc.length > 0 && ` · ${t("ccLine", { names: message.cc.map(name).join(", ") })}`}
-          </div>
+        </button>
+        {/* Answers to this message, at hand without scrolling past it. */}
+        <div className="-me-1.5 -mt-1 ms-2 flex shrink-0 items-center">
+          <IconButton label={t("actions.reply")} className="h-8 w-8 text-fg-icon" onClick={() => onCompose("reply")}>
+            <Reply className="h-4 w-4" />
+          </IconButton>
+          {allowReplyAll && (
+            <IconButton label={t("actions.replyAll")} className="h-8 w-8 text-fg-icon" onClick={() => onCompose("replyAll")}>
+              <ReplyAll className="h-4 w-4" />
+            </IconButton>
+          )}
+          <IconButton label={t("actions.forward")} className="h-8 w-8 text-fg-icon" onClick={() => onCompose("forward")}>
+            <Forward className="h-4 w-4" />
+          </IconButton>
         </div>
-      </button>
+      </div>
       {body?.unverifiedSender && (
-        <p className="mt-3 flex items-start gap-2 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm text-fg-muted">
+        <p className="mt-3 flex sm:ms-11 items-start gap-2 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm text-fg-muted">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
           {t("unverified")}
         </p>
       )}
-      <div className="mt-4">
+      <div className="mt-4 sm:ps-11">
         {loaded?.loading && !body ? (
           <div className="space-y-2" aria-busy>
             {[90, 75, 82, 40].map((w) => (
@@ -194,12 +218,12 @@ function Message({
         ) : null}
       </div>
       {last && body && (
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-wrap gap-2 sm:ps-11">
           <Button onClick={() => onCompose("reply")}>
             <Reply className="h-4 w-4 text-fg-icon" />
             {t("actions.reply")}
           </Button>
-          {message.to.length + message.cc.length > 1 && (
+          {allowReplyAll && (
             <Button onClick={() => onCompose("replyAll")}>
               <ReplyAll className="h-4 w-4 text-fg-icon" />
               {t("actions.replyAll")}
@@ -227,6 +251,7 @@ export function ThreadView({
   box,
   folder,
   threadId,
+  first,
   starred,
   onAction,
   onBack,
@@ -239,6 +264,8 @@ export function ThreadView({
   box: MailboxTabView;
   folder: MailFolderView;
   threadId: string;
+  /** The message the list shows for the thread, read at once beside the thread itself. */
+  first: { id: string; unread: boolean } | null;
   starred: boolean;
   onAction: (action: MailAction) => void;
   onBack: () => void;
@@ -251,21 +278,43 @@ export function ThreadView({
   const t = useTranslations("mail");
   const router = useRouter();
   const rowPanel = useRowPanel();
-  const [thread, setThread] = useState<MailThreadView | null>(null);
+  // What this tab read of the thread before shows at once; it is read again behind it.
+  const [thread, setThread] = useState<MailThreadView | null>(() => cachedThread(box.id, folder.id, threadId));
   const [error, setError] = useState<string | null>(null);
-  const [open, setOpen] = useState<Set<string>>(new Set());
-  const [bodies, setBodies] = useState<Record<string, Loaded>>({});
+  const [open, setOpen] = useState<Set<string>>(() => (thread ? opensFirst(thread) : new Set()));
+  const [bodies, setBodies] = useState<Record<string, Loaded>>(() => {
+    const shown: Record<string, Loaded> = {};
+    for (const id of thread ? opensFirst(thread) : first ? [first.id] : []) {
+      const body = cachedBody(id, false);
+      if (body) shown[id] = { body, images: false, error: null, loading: false };
+    }
+    return shown;
+  });
   const [version, setVersion] = useState(0);
+  const [answering, setAnswering] = useState<string | null>(null);
+  // Closing the composer forgets which message it answered, so R, A and F answer the newest again.
+  if (!compose && answering) setAnswering(null);
+  // Messages asked for already: the list's message is asked for before the thread comes.
+  const asked = useRef(new Set<string>());
 
   const loadBody = useCallback(
-    (message: MailMessageView, images = false) => {
-      setBodies((b) => ({ ...b, [message.id]: { body: b[message.id]?.body ?? null, images, error: null, loading: true } }));
-      void read("mailBody", { id: message.id, images })
+    (id: string, seen: boolean, images = false) => {
+      asked.current.add(id);
+      const held = cachedBody(id, images);
+      // Shown from this tab's memory; asked again only to mark it read.
+      if (held) {
+        setBodies((b) => ({ ...b, [id]: { body: held, images, error: null, loading: false } }));
+        if (!seen) void read("mailBody", { id, images }).then((result) => result.ok && onRead()).catch(() => {});
+        return;
+      }
+      setBodies((b) => ({ ...b, [id]: { body: b[id]?.body ?? null, images, error: null, loading: true } }));
+      void read("mailBody", { id, images })
         .then((result) => {
-          setBodies((b) => ({ ...b, [message.id]: result.ok ? { body: result.data, images, error: null, loading: false } : { body: null, images, error: result.error, loading: false } }));
-          if (result.ok && !message.seen) onRead();
+          if (result.ok) keepBody(id, images, result.data);
+          setBodies((b) => ({ ...b, [id]: result.ok ? { body: result.data, images, error: null, loading: false } : { body: null, images, error: result.error, loading: false } }));
+          if (result.ok && !seen) onRead();
         })
-        .catch(() => setBodies((b) => ({ ...b, [message.id]: { body: null, images, error: t("loadFailed"), loading: false } })));
+        .catch(() => setBodies((b) => ({ ...b, [id]: { body: null, images, error: t("loadFailed"), loading: false } })));
     },
     [onRead, t],
   );
@@ -273,22 +322,22 @@ export function ThreadView({
   useEffect(() => {
     let live = true;
     setError(null);
+    if (first && !asked.current.has(first.id)) loadBody(first.id, !first.unread);
     void read("mailThread", { mailboxId: box.id, threadId, folderId: folder.id })
       .then((result) => {
         if (!live) return;
         if (!result.ok) return setError(result.error);
+        keepThread(box.id, folder.id, result.data);
         setThread(result.data);
-        const messages = result.data.messages;
-        // The newest message opens, and the ones not read yet.
-        const opened = new Set(messages.filter((m, i) => i === messages.length - 1 || !m.seen).map((m) => m.id));
-        setOpen(opened);
-        for (const m of messages) if (opened.has(m.id)) loadBody(m);
+        const opened = opensFirst(result.data);
+        setOpen((was) => new Set([...was, ...opened]));
+        for (const m of result.data.messages) if (opened.has(m.id) && !asked.current.has(m.id)) loadBody(m.id, m.seen);
       })
       .catch(() => live && setError(t("loadFailed")));
     return () => {
       live = false;
     };
-    // loadBody changes with onRead; the thread is read again only when it is another one.
+    // loadBody changes with onRead, first with the list; the thread is read again only when it is another one.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [box.id, threadId, folder.id, version]);
 
@@ -297,12 +346,14 @@ export function ThreadView({
     if (next.has(message.id)) next.delete(message.id);
     else {
       next.add(message.id);
-      if (!bodies[message.id]?.body) loadBody(message);
+      if (!bodies[message.id]?.body) loadBody(message.id, message.seen);
     }
     setOpen(next);
   };
 
   const last = thread?.messages[thread.messages.length - 1] ?? null;
+  // The message a reply or forward answers: the one whose button was pressed, else (keys) the newest.
+  const source = thread?.messages.find((m) => m.id === answering) ?? last;
   const moves: { action: MailAction; icon: ReactNode }[] =
     folder.role === "trash" || folder.role === "junk"
       ? [
@@ -375,19 +426,22 @@ export function ThreadView({
                   open={open.has(m.id)}
                   loaded={bodies[m.id]}
                   onToggle={() => toggle(m)}
-                  onImages={() => loadBody(m, true)}
+                  onImages={() => loadBody(m.id, true, true)}
                   last={m.id === last?.id}
-                  onCompose={onComposeChange}
+                  onCompose={(mode) => {
+                    setAnswering(m.id);
+                    onComposeChange(mode);
+                  }}
                 />
               ))}
             </div>
-            {compose && last && (
+            {compose && source && (
               <div className="px-6 pt-2">
                 <Composer
-                  key={`${compose}-${last.id}`}
+                  key={`${compose}-${source.id}`}
                   box={box}
                   mode={compose}
-                  source={{ message: last, body: bodies[last.id]?.body ?? null }}
+                  source={{ message: source, body: bodies[source.id]?.body ?? null }}
                   onCancel={() => onComposeChange(null)}
                   onSent={() => {
                     onComposeChange(null);
