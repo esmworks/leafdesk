@@ -130,5 +130,21 @@
     "quoteShow": "Tampilkan pesan yang dikutip",
     "quoteHide": "Sembunyikan pesan yang dikutip",
     "quoteRemove": "Hapus pesan yang dikutip"
+  },
+  "bulk": {
+    "select": "Pilih",
+    "selectThread": "Pilih percakapan: {subject}",
+    "selectAll": "Pilih semua",
+    "selected": "{count} dipilih",
+    "clear": "Hapus pilihan",
+    "toolbar": "Percakapan yang dipilih",
+    "done": {
+      "archive": "{count, plural, other {# percakapan diarsipkan}}",
+      "trash": "{count, plural, other {# percakapan dipindahkan ke sampah}}",
+      "junk": "{count, plural, other {# percakapan ditandai sebagai spam}}",
+      "inbox": "{count, plural, other {# percakapan dipindahkan ke kotak masuk}}",
+      "delete": "{count, plural, other {# percakapan dihapus permanen}}",
+      "move": "{count, plural, other {# percakapan dipindahkan ke {folder}}}"
+    }
   }
 }

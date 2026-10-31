@@ -130,5 +130,21 @@
     "quoteShow": "Visa det citerade meddelandet",
     "quoteHide": "Dölj det citerade meddelandet",
     "quoteRemove": "Ta bort det citerade meddelandet"
+  },
+  "bulk": {
+    "select": "Markera",
+    "selectThread": "Markera konversation: {subject}",
+    "selectAll": "Markera alla",
+    "selected": "{count} markerade",
+    "clear": "Rensa markeringen",
+    "toolbar": "Markerade konversationer",
+    "done": {
+      "archive": "{count, plural, one {# konversation arkiverades} other {# konversationer arkiverades}}",
+      "trash": "{count, plural, one {# konversation flyttades till papperskorgen} other {# konversationer flyttades till papperskorgen}}",
+      "junk": "{count, plural, one {# konversation markerades som skräppost} other {# konversationer markerades som skräppost}}",
+      "inbox": "{count, plural, one {# konversation flyttades till inkorgen} other {# konversationer flyttades till inkorgen}}",
+      "delete": "{count, plural, one {# konversation togs bort permanent} other {# konversationer togs bort permanent}}",
+      "move": "{count, plural, one {# konversation flyttades till {folder}} other {# konversationer flyttades till {folder}}}"
+    }
   }
 }

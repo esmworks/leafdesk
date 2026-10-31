@@ -130,5 +130,21 @@
     "quoteShow": "Näytä lainattu viesti",
     "quoteHide": "Piilota lainattu viesti",
     "quoteRemove": "Poista lainattu viesti"
+  },
+  "bulk": {
+    "select": "Valitse",
+    "selectThread": "Valitse keskustelu: {subject}",
+    "selectAll": "Valitse kaikki",
+    "selected": "{count} valittu",
+    "clear": "Tyhjennä valinta",
+    "toolbar": "Valitut keskustelut",
+    "done": {
+      "archive": "{count, plural, one {# keskustelu arkistoitu} other {# keskustelua arkistoitu}}",
+      "trash": "{count, plural, one {# keskustelu siirretty roskakoriin} other {# keskustelua siirretty roskakoriin}}",
+      "junk": "{count, plural, one {# keskustelu merkitty roskapostiksi} other {# keskustelua merkitty roskapostiksi}}",
+      "inbox": "{count, plural, one {# keskustelu siirretty saapuneisiin} other {# keskustelua siirretty saapuneisiin}}",
+      "delete": "{count, plural, one {# keskustelu poistettu pysyvästi} other {# keskustelua poistettu pysyvästi}}",
+      "move": "{count, plural, one {# keskustelu siirretty kansioon {folder}} other {# keskustelua siirretty kansioon {folder}}}"
+    }
   }
 }

@@ -130,5 +130,21 @@
     "quoteShow": "Pokaż cytowaną wiadomość",
     "quoteHide": "Ukryj cytowaną wiadomość",
     "quoteRemove": "Usuń cytowaną wiadomość"
+  },
+  "bulk": {
+    "select": "Zaznacz",
+    "selectThread": "Zaznacz konwersację: {subject}",
+    "selectAll": "Zaznacz wszystko",
+    "selected": "Zaznaczono: {count}",
+    "clear": "Wyczyść zaznaczenie",
+    "toolbar": "Zaznaczone konwersacje",
+    "done": {
+      "archive": "{count, plural, one {Zarchiwizowano # konwersację} few {Zarchiwizowano # konwersacje} many {Zarchiwizowano # konwersacji} other {Zarchiwizowano # konwersacji}}",
+      "trash": "{count, plural, one {Przeniesiono # konwersację do kosza} few {Przeniesiono # konwersacje do kosza} many {Przeniesiono # konwersacji do kosza} other {Przeniesiono # konwersacji do kosza}}",
+      "junk": "{count, plural, one {Oznaczono # konwersację jako spam} few {Oznaczono # konwersacje jako spam} many {Oznaczono # konwersacji jako spam} other {Oznaczono # konwersacji jako spam}}",
+      "inbox": "{count, plural, one {Przeniesiono # konwersację do odebranych} few {Przeniesiono # konwersacje do odebranych} many {Przeniesiono # konwersacji do odebranych} other {Przeniesiono # konwersacji do odebranych}}",
+      "delete": "{count, plural, one {Usunięto na zawsze # konwersację} few {Usunięto na zawsze # konwersacje} many {Usunięto na zawsze # konwersacji} other {Usunięto na zawsze # konwersacji}}",
+      "move": "{count, plural, one {Przeniesiono # konwersację do: {folder}} few {Przeniesiono # konwersacje do: {folder}} many {Przeniesiono # konwersacji do: {folder}} other {Przeniesiono # konwersacji do: {folder}}}"
+    }
   }
 }

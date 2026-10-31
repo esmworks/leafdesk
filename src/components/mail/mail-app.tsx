@@ -3,14 +3,15 @@
 import { Database, Inbox, Paperclip, RefreshCw, Search, Star } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { mailActionAction, refreshMailboxAction } from "@/app/actions/mail";
 import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
+import { SelectBox, useSelection } from "@/components/selection";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { showToast } from "@/components/toast";
 import { cn, IconButton } from "@/components/ui";
-import { MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
+import { MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, type MailAction, type MailFolderView, type MailThreadItem, type MailUndoneSend } from "@/lib/mail-client";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen } from "./mail-store";
@@ -20,6 +21,7 @@ import { useFolderName } from "./mail-sidebar";
 const ThreadView = lazyPart(() => import("./thread-view").then((m) => m.ThreadView), <div className="min-w-0 flex-1" />);
 const PaneComposer = lazyPart(() => import("./composer").then((m) => m.PaneComposer), <div className="min-w-0 flex-1" />);
 const ThreadMenu = lazyPart(() => import("./thread-menu").then((m) => m.ThreadMenu));
+const SelectionBar = lazyPart(() => import("./selection-bar").then((m) => m.SelectionBar), <div className="h-8" />);
 
 /** How often the open folder asks the mail server for new mail while the page is in front. */
 const REFRESH_MS = 60_000;
@@ -34,19 +36,28 @@ const ThreadRow = memo(function ThreadRow({
   item,
   href,
   selected,
+  checked,
+  selecting,
   menuOpen,
   me,
   onOpen,
+  onSelect,
   onHover,
   onMenu,
 }: {
   item: MailThreadItem;
   href: string;
   selected: boolean;
+  /** It is among the conversations selected for the selection bar. */
+  checked: boolean;
+  /** Some conversation is selected: every row shows its box. */
+  selecting: boolean;
   /** Its right-click menu is open: it stays marked meanwhile. */
   menuOpen: boolean;
   me: string;
   onOpen: (item: MailThreadItem) => void;
+  /** Selects it or takes it out of the selection; `range` from the last one clicked (Shift). */
+  onSelect: (item: MailThreadItem, range: boolean) => void;
   onHover: (item: MailThreadItem) => void;
   onMenu: (item: MailThreadItem, at: { x: number; y: number }) => void;
 }) {
@@ -54,57 +65,86 @@ const ThreadRow = memo(function ThreadRow({
   const when = useWhen();
   const senders = item.senders.map((s) => (s.address === me ? t("me") : s.name?.split(" ")[0] || s.address)).join(", ");
   return (
-    <a
-      href={href}
-      data-thread={item.threadId}
-      aria-current={selected ? "true" : undefined}
-      onPointerEnter={() => onHover(item)}
-      onClick={(e) => {
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-        e.preventDefault();
-        onOpen(item);
-      }}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        onMenu(item, { x: e.clientX, y: e.clientY });
-      }}
-      className={cn("relative flex gap-3 border-b border-border px-4 py-2.5 outline-none focus-visible:bg-bg-hover", selected ? "bg-bg-active" : menuOpen ? "bg-bg-hover" : "hover:bg-bg-hover")}
-    >
-      <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", item.unread ? "bg-accent" : "bg-transparent")} aria-hidden />
-      <div className="min-w-0 flex-1">
-        <div className="flex items-baseline gap-2">
-          <span className={cn("truncate text-sm", item.unread && "font-semibold")}>{senders}</span>
-          {item.hasDraft && <span className="shrink-0 text-xs font-medium text-danger">{t("draft")}</span>}
-          {item.count > 1 && <span className="text-xs text-fg-muted tabular-nums">{item.count}</span>}
-          <span className="flex-1" />
-          {item.hasAttachments && <Paperclip className="h-3.5 w-3.5 shrink-0 text-fg-icon" aria-label={t("hasFiles")} />}
-          {item.starred && <Star className="h-3.5 w-3.5 shrink-0 fill-current text-amber-500" aria-label={t("starred")} />}
-          <span className={cn("shrink-0 text-xs tabular-nums", item.unread ? "font-semibold text-fg" : "text-fg-muted")}>{when(item.sentAt)}</span>
-        </div>
-        <div className={cn("truncate text-sm", item.unread && "font-semibold")}>{item.subject || t("noSubject")}</div>
-        {item.preview && <div className="truncate text-sm text-fg-muted">{item.preview}</div>}
-        {item.row && (
-          <div className="mt-1">
-            <span className="inline-flex max-w-48 items-center gap-1 rounded border border-border bg-bg-subtle px-1.5 py-px text-xs text-fg-muted">
-              <Database className="h-3 w-3 shrink-0 text-fg-icon" />
-              <span className="truncate">{item.row.title || t("untitledRow")}</span>
-            </span>
-          </div>
+    <div className="group relative">
+      <a
+        href={href}
+        data-thread={item.threadId}
+        aria-current={selected ? "true" : undefined}
+        onPointerEnter={() => onHover(item)}
+        // Shift-click selects a range, not the text between.
+        onMouseDown={(e) => e.shiftKey && e.preventDefault()}
+        onClick={(e) => {
+          if (e.button !== 0) return;
+          e.preventDefault();
+          // Cmd/Ctrl-click and Shift-click select; the menu opens a conversation in a new tab.
+          if (e.metaKey || e.ctrlKey || e.shiftKey) onSelect(item, e.shiftKey);
+          else onOpen(item);
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          onMenu(item, { x: e.clientX, y: e.clientY });
+        }}
+        className={cn(
+          "relative flex gap-3 border-b border-border px-4 py-2.5 outline-none focus-visible:bg-bg-hover",
+          selected ? "bg-bg-active" : menuOpen ? "bg-bg-hover" : "hover:bg-bg-hover",
+          checked && "bg-accent/10 hover:bg-accent/15",
         )}
-      </div>
-    </a>
+      >
+        {/* The unread dot gives way to the selection box (laid over it, outside the link) on hover. */}
+        <span
+          className={cn(
+            "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+            item.unread ? "bg-accent" : "bg-transparent",
+            selecting || checked ? "opacity-0" : "group-hover:opacity-0 group-has-[input:focus-visible]:opacity-0",
+          )}
+          aria-hidden
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-2">
+            <span className={cn("truncate text-sm", item.unread && "font-semibold")}>{senders}</span>
+            {item.hasDraft && <span className="shrink-0 text-xs font-medium text-danger">{t("draft")}</span>}
+            {item.count > 1 && <span className="text-xs text-fg-muted tabular-nums">{item.count}</span>}
+            <span className="flex-1" />
+            {item.hasAttachments && <Paperclip className="h-3.5 w-3.5 shrink-0 text-fg-icon" aria-label={t("hasFiles")} />}
+            {item.starred && <Star className="h-3.5 w-3.5 shrink-0 fill-current text-amber-500" aria-label={t("starred")} />}
+            <span className={cn("shrink-0 text-xs tabular-nums", item.unread ? "font-semibold text-fg" : "text-fg-muted")}>{when(item.sentAt)}</span>
+          </div>
+          <div className={cn("truncate text-sm", item.unread && "font-semibold")}>{item.subject || t("noSubject")}</div>
+          {item.preview && <div className="truncate text-sm text-fg-muted">{item.preview}</div>}
+          {item.row && (
+            <div className="mt-1">
+              <span className="inline-flex max-w-48 items-center gap-1 rounded border border-border bg-bg-subtle px-1.5 py-px text-xs text-fg-muted">
+                <Database className="h-3 w-3 shrink-0 text-fg-icon" />
+                <span className="truncate">{item.row.title || t("untitledRow")}</span>
+              </span>
+            </div>
+          )}
+        </div>
+      </a>
+      {/* A touch screen keeps the dot until a selection starts (the menu's Select). */}
+      <span className={cn("absolute top-2 inset-s-2", !selecting && "pointer-coarse:hidden")}>
+        <SelectBox
+          checked={checked}
+          label={t("bulk.selectThread", { subject: item.subject || t("noSubject") })}
+          visible={selecting}
+          onToggle={(range) => onSelect(item, range)}
+        />
+      </span>
+    </div>
   );
 });
 
 /** Elements whose Enter is their own: it presses or follows them. */
 const PRESSABLE = "a, button, summary, [role=button], [role=link], [role=menuitem], [role=option], [role=tab]";
 
-/** Whether a key press is for the page: not typed into a field, nor with a modifier. */
-const forPage = (e: KeyboardEvent) => {
+/** Whether a key press was typed into a field, or into a dialog. */
+const inField = (e: KeyboardEvent) => {
   const el = e.target as HTMLElement | null;
-  if (e.metaKey || e.ctrlKey || e.altKey) return false;
-  return !(el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.closest("[data-dialog]")));
+  return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || !!el.closest("[data-dialog]"));
 };
+
+/** Whether a key press is for the page: not typed into a field, nor with a modifier. */
+const forPage = (e: KeyboardEvent) => !(e.metaKey || e.ctrlKey || e.altKey) && !inField(e);
 
 /** The Mail page: a folder's threads beside the open one, with search and keyboard shortcuts. */
 export function MailApp({ workspaceId }: { workspaceId: string }) {
@@ -113,10 +153,12 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const search = useSearchParams();
   const { boxes, error: boxesError } = useMailboxes(workspaceId);
   const { box, folder } = pickOpen(boxes, search.get("box"), search.get("f"));
-  // A thread is opened soon after the list shows, and a right click opens its menu at once: their code starts loading now.
+  // A thread is opened soon after the list shows, a right click opens its menu at once, and a
+  // selection shows its bar: their code starts loading now.
   useEffect(() => {
     void ThreadView.preload();
     void ThreadMenu.preload();
+    void SelectionBar.preload();
   }, []);
   const threadId = search.get("t");
   // A new message is written in the pane where a thread shows (?c=new), so Back closes it; a saved
@@ -138,7 +180,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   const searchBox = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   // Moves wait MAIL_UNDO_SECONDS for Undo before the mail server hears of them.
-  const pending = useRef(new Map<string, { run: () => void; timer: ReturnType<typeof setTimeout> }>());
+  const pending = useRef(new Map<string, { threadIds: string[]; run: () => void; timer: ReturnType<typeof setTimeout> }>());
   // What the list shows: an answer or an Undo for another mailbox, folder or search is dropped.
   const shownKey = box && folder ? `${box.id}|${folder.id}|${query}` : null;
   const shown = useRef(shownKey);
@@ -177,7 +219,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
       const result = await read("mailThreads", { mailboxId: box.id, folderId: folder.id, search: query, cursor }).catch(() => null);
       if (shown.current !== key) return;
       if (!result?.ok) return setList((l) => ({ ...l, loading: false, error: result?.error ?? t("loadFailed") }));
-      const skip = new Set(pending.current.keys());
+      const skip = new Set([...pending.current.values()].flatMap((p) => p.threadIds));
       setList((l) => {
         const fresh = result.data.items.filter((i) => !skip.has(i.threadId));
         if (cursor) return { items: [...l.items, ...fresh.filter((i) => !l.items.some((o) => o.threadId === i.threadId))], next: result.data.next, loading: false, error: null };
@@ -269,6 +311,19 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
 
   const items = list.items;
   const selected = items.find((i) => i.threadId === threadId) ?? null;
+  // Conversations picked for the selection bar: Cmd/Ctrl- or Shift-click, x, their boxes.
+  const rows = useMemo(() => items.map((i) => ({ id: i.threadId })), [items]);
+  const selection = useSelection(rows);
+  const picked = useMemo(() => {
+    const ids = new Set(selection.ids);
+    return items.filter((i) => ids.has(i.threadId));
+  }, [items, selection.ids]);
+  // The rows and keys reach the selection through a ref: its functions change on every render.
+  const selectionRef = useRef(selection);
+  useEffect(() => {
+    selectionRef.current = selection;
+  });
+  const onSelect = useCallback((item: MailThreadItem, range: boolean) => selectionRef.current.toggle(item.threadId, range), []);
 
   // The top of the list, and the threads beside the open one, are loaded ahead.
   useEffect(() => loadAhead(items.slice(0, AHEAD_TOP).map((i) => i.messageId)), [items]);
@@ -278,50 +333,69 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   }, [items, threadId]);
 
   const act = useCallback(
-    (item: MailThreadItem, action: MailAction, to?: MailFolderView) => {
-      if (!box || !folder) return;
+    (targets: MailThreadItem[], action: MailAction, to?: MailFolderView) => {
+      if (!box || !folder || !targets.length) return;
       const mailboxId = box.id;
       const folderId = folder.id;
-      const send = () =>
-        void mailActionAction({ mailboxId, folderId, threadIds: [item.threadId], action, to: to?.id }).then((result) => {
-          if (!result.ok) {
-            showToast({ message: result.error });
-            void loadPage(null);
-            void loadMailboxes(workspaceId);
-          }
-        });
+      const ids = targets.map((i) => i.threadId);
+      const unseen = targets.reduce((n, i) => n + i.unseen, 0);
+      const send = () => {
+        for (let at = 0; at < ids.length; at += MAIL_MAX_THREADS) {
+          void mailActionAction({ mailboxId, folderId, threadIds: ids.slice(at, at + MAIL_MAX_THREADS), action, to: to?.id }).then((result) => {
+            if (!result.ok) {
+              showToast({ message: result.error });
+              void loadPage(null);
+              void loadMailboxes(workspaceId);
+            }
+          });
+        }
+      };
+      const touched = new Set(ids);
       if (!MOVES.includes(action)) {
-        const patch: Partial<MailThreadItem> =
+        const patch = (item: MailThreadItem): Partial<MailThreadItem> =>
           action === "read" ? { unread: false, unseen: 0 } : action === "unread" ? { unread: true, unseen: item.held } : { starred: action === "star" };
         // A search lists threads of every folder: the counts wait for the next refresh then.
-        if (!query && action === "read") countUnread(mailboxId, folderId, -item.unseen);
-        if (!query && action === "unread") countUnread(mailboxId, folderId, item.held - item.unseen);
-        setList((l) => ({ ...l, items: l.items.map((i) => (i.threadId === item.threadId ? { ...i, ...patch } : i)) }));
-        if (action === "unread") counted.current.delete(item.threadId);
-        if (action === "unread" && threadId === item.threadId) go({ t: null });
+        if (!query && action === "read") countUnread(mailboxId, folderId, -unseen);
+        if (!query && action === "unread") countUnread(mailboxId, folderId, targets.reduce((n, i) => n + i.held - i.unseen, 0));
+        setList((l) => ({ ...l, items: l.items.map((i) => (touched.has(i.threadId) ? { ...i, ...patch(i) } : i)) }));
+        if (action === "unread") for (const id of ids) counted.current.delete(id);
+        if (action === "unread" && threadId && touched.has(threadId)) go({ t: null });
         return send();
       }
-      // Out of the list at once, to the next thread; to the server after the Undo window.
-      const at = items.findIndex((i) => i.threadId === item.threadId);
-      const next = items[at + 1] ?? items[at - 1] ?? null;
-      setList((l) => ({ ...l, items: l.items.filter((i) => i.threadId !== item.threadId) }));
-      if (!query) countUnread(mailboxId, folderId, -item.unseen);
-      if (threadId === item.threadId) go({ t: next?.threadId ?? null }, true);
+      // Out of the list at once, the open one to the next thread left; to the server after the Undo window.
+      if (threadId && touched.has(threadId)) {
+        const at = items.findIndex((i) => i.threadId === threadId);
+        const left = (i: MailThreadItem) => !touched.has(i.threadId);
+        const next = items.slice(at + 1).find(left) ?? items.slice(0, Math.max(at, 0)).findLast(left) ?? null;
+        go({ t: next?.threadId ?? null }, true);
+      }
+      setList((l) => ({ ...l, items: l.items.filter((i) => !touched.has(i.threadId)) }));
+      if (!query) countUnread(mailboxId, folderId, -unseen);
       const from = shown.current;
+      const key = crypto.randomUUID();
       const timer = setTimeout(() => {
-        pending.current.delete(item.threadId);
+        pending.current.delete(key);
         send();
       }, MAIL_UNDO_SECONDS * 1000);
-      pending.current.set(item.threadId, { run: send, timer });
+      pending.current.set(key, { threadIds: ids, run: send, timer });
+      const count = targets.length;
+      const done = action as "archive";
       showToast({
-        message: to ? t("done.move", { folder: folderName(to) }) : t(`done.${action as "archive"}`),
+        message:
+          count > 1
+            ? to
+              ? t("bulk.done.move", { count, folder: folderName(to) })
+              : t(`bulk.done.${done}`, { count })
+            : to
+              ? t("done.move", { folder: folderName(to) })
+              : t(`done.${done}`),
         undo: () => {
-          const waiting = pending.current.get(item.threadId);
+          const waiting = pending.current.get(key);
           if (!waiting) return;
           clearTimeout(waiting.timer);
-          pending.current.delete(item.threadId);
-          if (!query) countUnread(mailboxId, folderId, item.unseen);
-          if (shown.current === from) setList((l) => ({ ...l, items: [...l.items, item].sort((a, b) => b.sentAt.localeCompare(a.sentAt)) }));
+          pending.current.delete(key);
+          if (!query) countUnread(mailboxId, folderId, unseen);
+          if (shown.current === from) setList((l) => ({ ...l, items: [...l.items, ...targets].sort((a, b) => b.sentAt.localeCompare(a.sentAt)) }));
         },
       });
     },
@@ -368,14 +442,23 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     setList((l) => ({ ...l, items: l.items.map((i) => (i.threadId === threadId ? { ...i, unread: false, unseen: 0 } : i)) }));
   }, [box, folder, threadId, query]);
 
-  // Keyboard: c new, / search, j/k next/previous, Enter/o open, e archive, # trash, ! junk, s star,
-  // u unread, r/a/f reply/all/forward, Esc back to the list.
+  // Keyboard: c new, / search, j/k next/previous, Enter/o open, x select, ⌘A select all, e archive,
+  // # trash, ! junk, s star, u unread, Shift+I read (the selection's, or the open thread's), r/a/f
+  // reply/all/forward, Esc back to the list (or out of the selection first).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (composing || menu) return;
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key === "a" && items.length && !inField(e)) {
+        e.preventDefault();
+        if (!selectionRef.current.all) selectionRef.current.toggleAll();
+        return;
+      }
       // With a conversation's menu open, keys are the menu's (Escape closes it).
-      if (!forPage(e) || composing || menu) return;
+      if (!forPage(e)) return;
       const at = items.findIndex((i) => i.threadId === threadId || (!!draftId && i.messageId === draftId));
       const current = at >= 0 && threadId ? items[at] : null;
+      // The moves and flags are the selection's while there is one.
+      const targets = picked.length ? picked : current ? [current] : null;
       const move = (to: number) => {
         const target = items[Math.max(0, Math.min(items.length - 1, to))];
         if (!target) return;
@@ -394,19 +477,26 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
         keys.o = () => openThread(first);
         if (!(e.target as HTMLElement | null)?.closest?.(PRESSABLE)) keys.Enter = keys.o;
       }
-      if (current) {
+      if (targets) {
         const archive = folder?.role === "archive" || folder?.role === "trash" || folder?.role === "junk" ? "inbox" : "archive";
-        if (folder?.role !== "junk") keys["!"] = () => act(current, "junk");
+        if (folder?.role !== "junk") keys["!"] = () => act(targets, "junk");
         Object.assign(keys, {
-          Escape: () => go({ t: null }),
-          e: () => act(current, archive),
-          "#": () => act(current, folder?.role === "trash" ? "delete" : "trash"),
-          s: () => act(current, current.starred ? "unstar" : "star"),
-          u: () => act(current, "unread"),
+          e: () => act(targets, archive),
+          "#": () => act(targets, folder?.role === "trash" ? "delete" : "trash"),
+          s: () => act(targets, targets.every((i) => i.starred) ? "unstar" : "star"),
+          u: () => act(targets, "unread"),
+          I: () => act(targets, "read"),
+        });
+      }
+      if (current) {
+        keys.x = () => onSelect(current, false);
+        Object.assign(keys, {
           r: () => setCompose("reply"),
           a: () => setCompose("replyAll"),
           f: () => setCompose("forward"),
         });
+        // Escape leaves a selection first (useSelection).
+        if (!picked.length) keys.Escape = () => go({ t: null });
       }
       const run = keys[e.key];
       if (!run) return;
@@ -415,7 +505,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [items, threadId, draftId, folder?.role, act, openThread, go, composing, menu]);
+  }, [items, picked, threadId, draftId, folder?.role, act, openThread, onSelect, go, composing, menu]);
 
   // Search as typed, a moment after the last key.
   useEffect(() => {
@@ -450,19 +540,33 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
   }
 
   const name = folderName(folder);
+  // A right click on one of several selected conversations is for all of them.
+  const menuMany = menu && picked.length > 1 && selection.isSelected(menu.item.threadId) ? picked : null;
   return (
     <div className="flex h-full min-h-0">
       <section className={cn("flex w-full min-w-0 shrink-0 flex-col border-e border-border md:w-[400px]", (threadId || composing) && "hidden md:flex")} aria-label={name}>
         <div className="shrink-0 space-y-2 border-b border-border px-4 pt-3 pb-3">
-          <div className="flex items-center gap-2">
-            <SidebarOpenButton className="-ms-1.5 max-md:-ms-2" />
-            <h1 className="truncate text-base font-semibold">{query ? t("results") : name}</h1>
-            {!query && folder.unseen > 0 && folder.role !== "trash" && folder.role !== "junk" && <span className="shrink-0 text-xs text-fg-faint">{t("unreadCount", { count: folder.unseen })}</span>}
-            <span className="flex-1" />
-            <IconButton label={t("refresh")} className="h-8 w-8 text-fg-icon" onClick={() => void refreshAll()} disabled={refreshing}>
-              <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
-            </IconButton>
-          </div>
+          {picked.length ? (
+            <SelectionBar
+              items={picked}
+              all={selection.all}
+              box={box}
+              folder={folder}
+              onToggleAll={selection.toggleAll}
+              onClear={selection.clear}
+              onAction={(action, to) => act(picked, action, to)}
+            />
+          ) : (
+            <div className="flex items-center gap-2">
+              <SidebarOpenButton className="-ms-1.5 max-md:-ms-2" />
+              <h1 className="truncate text-base font-semibold">{query ? t("results") : name}</h1>
+              {!query && folder.unseen > 0 && folder.role !== "trash" && folder.role !== "junk" && <span className="shrink-0 text-xs text-fg-faint">{t("unreadCount", { count: folder.unseen })}</span>}
+              <span className="flex-1" />
+              <IconButton label={t("refresh")} className="h-8 w-8 text-fg-icon" onClick={() => void refreshAll()} disabled={refreshing}>
+                <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+              </IconButton>
+            </div>
+          )}
           <label className="flex h-8 items-center gap-2 rounded-md border border-border bg-bg px-2.5 focus-within:border-accent">
             <Search className="h-3.5 w-3.5 shrink-0 text-fg-faint" />
             <input
@@ -518,9 +622,12 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
                   item={item}
                   href={mailHref(workspaceId, { box: box.id, f: folder.id, t: item.threadId, q: query || null })}
                   selected={item.threadId === threadId || (!!draftId && item.messageId === draftId)}
+                  checked={selection.isSelected(item.threadId)}
+                  selecting={selection.some}
                   menuOpen={menu?.item.threadId === item.threadId}
                   me={box.address}
                   onOpen={openThread}
+                  onSelect={onSelect}
                   onHover={aheadOf}
                   onMenu={openMenu}
                 />
@@ -533,12 +640,14 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
           <ThreadMenu
             key={`${menu.item.threadId}-${menu.at.x}-${menu.at.y}`}
             at={menu.at}
-            item={menu.item}
+            item={menuMany ? { ...menu.item, unread: menuMany.some((i) => i.unread), starred: menuMany.every((i) => i.starred) } : menu.item}
+            many={menuMany?.length ?? 0}
             box={box}
             folder={folder}
             href={mailHref(workspaceId, { box: box.id, f: folder.id, t: menu.item.threadId, q: query || null })}
             onClose={() => setMenu(null)}
-            onAction={(action, to) => act(menu.item, action, to)}
+            onAction={(action, to) => act(menuMany ?? [menu.item], action, to)}
+            onSelect={() => onSelect(menu.item, false)}
             onCompose={(mode) => {
               openThread(menu.item);
               setCompose(mode);
@@ -574,7 +683,7 @@ export function MailApp({ workspaceId }: { workspaceId: string }) {
           starred={!!selected?.starred}
           onAction={(action) => {
             const item = selected ?? { threadId, unread: false, starred: false } as MailThreadItem;
-            act(item, action);
+            act([item], action);
           }}
           onBack={() => go({ t: null })}
           onRead={onRead}

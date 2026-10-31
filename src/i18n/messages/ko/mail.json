@@ -130,5 +130,21 @@
     "quoteShow": "인용된 메시지 보기",
     "quoteHide": "인용된 메시지 숨기기",
     "quoteRemove": "인용된 메시지 삭제"
+  },
+  "bulk": {
+    "select": "선택",
+    "selectThread": "대화 선택: {subject}",
+    "selectAll": "모두 선택",
+    "selected": "{count}개 선택됨",
+    "clear": "선택 해제",
+    "toolbar": "선택한 대화",
+    "done": {
+      "archive": "{count, plural, other {대화 #개를 보관했습니다}}",
+      "trash": "{count, plural, other {대화 #개를 휴지통으로 이동했습니다}}",
+      "junk": "{count, plural, other {대화 #개를 스팸으로 표시했습니다}}",
+      "inbox": "{count, plural, other {대화 #개를 받은편지함으로 이동했습니다}}",
+      "delete": "{count, plural, other {대화 #개를 영구 삭제했습니다}}",
+      "move": "{count, plural, other {대화 #개를 {folder}(으)로 이동했습니다}}"
+    }
   }
 }

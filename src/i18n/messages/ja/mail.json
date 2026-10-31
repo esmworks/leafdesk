@@ -130,5 +130,21 @@
     "quoteShow": "引用されたメッセージを表示",
     "quoteHide": "引用されたメッセージを隠す",
     "quoteRemove": "引用されたメッセージを削除"
+  },
+  "bulk": {
+    "select": "選択",
+    "selectThread": "会話を選択: {subject}",
+    "selectAll": "すべて選択",
+    "selected": "{count}件を選択中",
+    "clear": "選択を解除",
+    "toolbar": "選択した会話",
+    "done": {
+      "archive": "{count, plural, other {# 件の会話をアーカイブしました}}",
+      "trash": "{count, plural, other {# 件の会話をゴミ箱に移動しました}}",
+      "junk": "{count, plural, other {# 件の会話を迷惑メールにしました}}",
+      "inbox": "{count, plural, other {# 件の会話を受信トレイに移動しました}}",
+      "delete": "{count, plural, other {# 件の会話を完全に削除しました}}",
+      "move": "{count, plural, other {# 件の会話を {folder} に移動しました}}"
+    }
   }
 }

@@ -130,5 +130,21 @@
     "quoteShow": "Geciteerd bericht tonen",
     "quoteHide": "Geciteerd bericht verbergen",
     "quoteRemove": "Geciteerd bericht verwijderen"
+  },
+  "bulk": {
+    "select": "Selecteren",
+    "selectThread": "Gesprek selecteren: {subject}",
+    "selectAll": "Alles selecteren",
+    "selected": "{count} geselecteerd",
+    "clear": "Selectie wissen",
+    "toolbar": "Geselecteerde gesprekken",
+    "done": {
+      "archive": "{count, plural, one {# gesprek gearchiveerd} other {# gesprekken gearchiveerd}}",
+      "trash": "{count, plural, one {# gesprek naar de prullenbak verplaatst} other {# gesprekken naar de prullenbak verplaatst}}",
+      "junk": "{count, plural, one {# gesprek als spam gemarkeerd} other {# gesprekken als spam gemarkeerd}}",
+      "inbox": "{count, plural, one {# gesprek naar Postvak IN verplaatst} other {# gesprekken naar Postvak IN verplaatst}}",
+      "delete": "{count, plural, one {# gesprek definitief verwijderd} other {# gesprekken definitief verwijderd}}",
+      "move": "{count, plural, one {# gesprek verplaatst naar {folder}} other {# gesprekken verplaatst naar {folder}}}"
+    }
   }
 }

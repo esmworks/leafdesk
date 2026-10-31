@@ -130,5 +130,21 @@
     "quoteShow": "Alıntılanan iletiyi göster",
     "quoteHide": "Alıntılanan iletiyi gizle",
     "quoteRemove": "Alıntılanan iletiyi kaldır"
+  },
+  "bulk": {
+    "select": "Seç",
+    "selectThread": "Yazışmayı seç: {subject}",
+    "selectAll": "Tümünü seç",
+    "selected": "{count} seçili",
+    "clear": "Seçimi temizle",
+    "toolbar": "Seçili yazışmalar",
+    "done": {
+      "archive": "{count, plural, one {# yazışma arşivlendi} other {# yazışma arşivlendi}}",
+      "trash": "{count, plural, one {# yazışma çöp kutusuna taşındı} other {# yazışma çöp kutusuna taşındı}}",
+      "junk": "{count, plural, one {# yazışma gereksiz olarak işaretlendi} other {# yazışma gereksiz olarak işaretlendi}}",
+      "inbox": "{count, plural, one {# yazışma gelen kutusuna taşındı} other {# yazışma gelen kutusuna taşındı}}",
+      "delete": "{count, plural, one {# yazışma kalıcı olarak silindi} other {# yazışma kalıcı olarak silindi}}",
+      "move": "{count, plural, one {# yazışma {folder} klasörüne taşındı} other {# yazışma {folder} klasörüne taşındı}}"
+    }
   }
 }

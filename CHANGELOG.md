@@ -4,6 +4,12 @@
 
 ### Added
 
+- **Selecting several threads in the Mail tab.** Threads are selected with the box that shows on
+  hover, ⌘/Ctrl-click, Shift-click for a range, `x` for the open one or ⌘/Ctrl+A; a bar over the
+  list then archives, trashes, marks as junk, read or unread, stars or moves them all at once, with
+  one Undo. The keys and a right click on a selected thread act on the whole selection. ⌘/Ctrl-click
+  on a thread no longer opens it in a new tab (its menu still does). No migration.
+
 - **Pictures in Mail tab messages.** A picture pasted into a message, or dropped on its text,
   goes where it is put and is sent as part of the message (PNG, JPEG, GIF or WebP, within the
   files' limit), not as an attachment; other files dropped are still attached. Drafts keep their

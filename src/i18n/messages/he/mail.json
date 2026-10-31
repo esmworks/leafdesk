@@ -130,5 +130,21 @@
     "quoteShow": "הצגת ההודעה המצוטטת",
     "quoteHide": "הסתרת ההודעה המצוטטת",
     "quoteRemove": "הסרת ההודעה המצוטטת"
+  },
+  "bulk": {
+    "select": "בחירה",
+    "selectThread": "בחירת שיחה: {subject}",
+    "selectAll": "בחירת הכול",
+    "selected": "נבחרו: {count}",
+    "clear": "ניקוי הבחירה",
+    "toolbar": "שיחות שנבחרו",
+    "done": {
+      "archive": "{count, plural, one {שיחה אחת הועברה לארכיון} two {שתי שיחות הועברו לארכיון} other {# שיחות הועברו לארכיון}}",
+      "trash": "{count, plural, one {שיחה אחת הועברה לפח} two {שתי שיחות הועברו לפח} other {# שיחות הועברו לפח}}",
+      "junk": "{count, plural, one {שיחה אחת סומנה כספאם} two {שתי שיחות סומנו כספאם} other {# שיחות סומנו כספאם}}",
+      "inbox": "{count, plural, one {שיחה אחת הועברה לדואר נכנס} two {שתי שיחות הועברו לדואר נכנס} other {# שיחות הועברו לדואר נכנס}}",
+      "delete": "{count, plural, one {שיחה אחת נמחקה לצמיתות} two {שתי שיחות נמחקו לצמיתות} other {# שיחות נמחקו לצמיתות}}",
+      "move": "{count, plural, one {שיחה אחת הועברה אל {folder}} two {שתי שיחות הועברו אל {folder}} other {# שיחות הועברו אל {folder}}}"
+    }
   }
 }

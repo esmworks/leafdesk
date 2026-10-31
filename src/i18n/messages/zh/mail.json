@@ -130,5 +130,21 @@
     "quoteShow": "显示引用的邮件",
     "quoteHide": "隐藏引用的邮件",
     "quoteRemove": "移除引用的邮件"
+  },
+  "bulk": {
+    "select": "选择",
+    "selectThread": "选择会话：{subject}",
+    "selectAll": "全选",
+    "selected": "已选择 {count} 项",
+    "clear": "清除选择",
+    "toolbar": "已选会话",
+    "done": {
+      "archive": "{count, plural, other {已归档 # 个会话}}",
+      "trash": "{count, plural, other {已将 # 个会话移到废纸篓}}",
+      "junk": "{count, plural, other {已将 # 个会话标记为垃圾邮件}}",
+      "inbox": "{count, plural, other {已将 # 个会话移到收件箱}}",
+      "delete": "{count, plural, other {已永久删除 # 个会话}}",
+      "move": "{count, plural, other {已将 # 个会话移至 {folder}}}"
+    }
   }
 }

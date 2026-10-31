@@ -345,6 +345,11 @@ try {
       (await errorCode(() => mailAction(ids.ada, { mailboxId: boxId, folderId: projeler.id, threadIds: [teklif!.threadId], action: "move" }))) === "invalid",
     "but not to the sent folder, nor without one",
   );
+  const selected = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.map((i) => i.threadId);
+  await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: selected, action: "star" });
+  const starredBoth = (await uidsIn("INBOX", { flagged: true })).length;
+  await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: selected, action: "unstar" });
+  check(selected.length === 2 && starredBoth === 2 && !(await uidsIn("INBOX", { flagged: true })).length, "one action changes every selected thread", [selected, starredBoth]);
   await mailAction(ids.ada, { mailboxId: boxId, folderId: inbox.id, threadIds: [bulten.threadId], action: "trash" });
   const trash = folder("trash");
   const trashed = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: trash.id });

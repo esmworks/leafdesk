@@ -26,6 +26,8 @@ export const MAIL_PREVIEW_CHARS = 200;
 export const SUBJECT_THREAD_DAYS = 30;
 /** Seconds an archive or a deletion waits, so Undo can take it back before the mail server hears of it. */
 export const MAIL_UNDO_SECONDS = 5;
+/** Conversations one archive, move or flag changes at most: a larger selection goes in several. */
+export const MAIL_MAX_THREADS = 200;
 /** Recipients a message from the Mail tab may have, To, Cc and Bcc together. */
 export const MAX_MAIL_RECIPIENTS = 100;
 /** Attachments a message from the Mail tab may bring, together. */

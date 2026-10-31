@@ -130,5 +130,21 @@
     "quoteShow": "แสดงข้อความที่อ้างถึง",
     "quoteHide": "ซ่อนข้อความที่อ้างถึง",
     "quoteRemove": "นำข้อความที่อ้างถึงออก"
+  },
+  "bulk": {
+    "select": "เลือก",
+    "selectThread": "เลือกการสนทนา: {subject}",
+    "selectAll": "เลือกทั้งหมด",
+    "selected": "เลือกแล้ว {count}",
+    "clear": "ล้างการเลือก",
+    "toolbar": "การสนทนาที่เลือก",
+    "done": {
+      "archive": "{count, plural, other {เก็บการสนทนาถาวร # รายการแล้ว}}",
+      "trash": "{count, plural, other {ย้ายการสนทนา # รายการไปถังขยะแล้ว}}",
+      "junk": "{count, plural, other {ทำเครื่องหมายการสนทนา # รายการเป็นจดหมายขยะแล้ว}}",
+      "inbox": "{count, plural, other {ย้ายการสนทนา # รายการไปกล่องขาเข้าแล้ว}}",
+      "delete": "{count, plural, other {ลบการสนทนา # รายการถาวรแล้ว}}",
+      "move": "{count, plural, other {ย้ายการสนทนา # รายการไปที่ {folder} แล้ว}}"
+    }
   }
 }

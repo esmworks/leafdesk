@@ -130,5 +130,21 @@
     "quoteShow": "Mostrar a mensagem citada",
     "quoteHide": "Ocultar a mensagem citada",
     "quoteRemove": "Remover a mensagem citada"
+  },
+  "bulk": {
+    "select": "Selecionar",
+    "selectThread": "Selecionar conversa: {subject}",
+    "selectAll": "Selecionar tudo",
+    "selected": "{count} selecionadas",
+    "clear": "Limpar seleção",
+    "toolbar": "Conversas selecionadas",
+    "done": {
+      "archive": "{count, plural, one {# conversa arquivada} other {# conversas arquivadas}}",
+      "trash": "{count, plural, one {# conversa movida para a lixeira} other {# conversas movidas para a lixeira}}",
+      "junk": "{count, plural, one {# conversa marcada como spam} other {# conversas marcadas como spam}}",
+      "inbox": "{count, plural, one {# conversa movida para a caixa de entrada} other {# conversas movidas para a caixa de entrada}}",
+      "delete": "{count, plural, one {# conversa excluída permanentemente} other {# conversas excluídas permanentemente}}",
+      "move": "{count, plural, one {# conversa movida para {folder}} other {# conversas movidas para {folder}}}"
+    }
   }
 }

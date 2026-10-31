@@ -130,5 +130,21 @@
     "quoteShow": "Zitierte Nachricht anzeigen",
     "quoteHide": "Zitierte Nachricht ausblenden",
     "quoteRemove": "Zitierte Nachricht entfernen"
+  },
+  "bulk": {
+    "select": "Auswählen",
+    "selectThread": "Unterhaltung auswählen: {subject}",
+    "selectAll": "Alle auswählen",
+    "selected": "{count} ausgewählt",
+    "clear": "Auswahl aufheben",
+    "toolbar": "Ausgewählte Unterhaltungen",
+    "done": {
+      "archive": "{count, plural, one {# Unterhaltung archiviert} other {# Unterhaltungen archiviert}}",
+      "trash": "{count, plural, one {# Unterhaltung in den Papierkorb verschoben} other {# Unterhaltungen in den Papierkorb verschoben}}",
+      "junk": "{count, plural, one {# Unterhaltung als Spam markiert} other {# Unterhaltungen als Spam markiert}}",
+      "inbox": "{count, plural, one {# Unterhaltung in den Posteingang verschoben} other {# Unterhaltungen in den Posteingang verschoben}}",
+      "delete": "{count, plural, one {# Unterhaltung endgültig gelöscht} other {# Unterhaltungen endgültig gelöscht}}",
+      "move": "{count, plural, one {# Unterhaltung nach {folder} verschoben} other {# Unterhaltungen nach {folder} verschoben}}"
+    }
   }
 }

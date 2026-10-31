@@ -130,5 +130,21 @@
     "quoteShow": "Vis den siterte meldingen",
     "quoteHide": "Skjul den siterte meldingen",
     "quoteRemove": "Fjern den siterte meldingen"
+  },
+  "bulk": {
+    "select": "Velg",
+    "selectThread": "Velg samtale: {subject}",
+    "selectAll": "Velg alle",
+    "selected": "{count} valgt",
+    "clear": "Fjern markeringen",
+    "toolbar": "Valgte samtaler",
+    "done": {
+      "archive": "{count, plural, one {# samtale er arkivert} other {# samtaler er arkivert}}",
+      "trash": "{count, plural, one {# samtale er flyttet til papirkurven} other {# samtaler er flyttet til papirkurven}}",
+      "junk": "{count, plural, one {# samtale er merket som søppelpost} other {# samtaler er merket som søppelpost}}",
+      "inbox": "{count, plural, one {# samtale er flyttet til innboksen} other {# samtaler er flyttet til innboksen}}",
+      "delete": "{count, plural, one {# samtale er slettet for godt} other {# samtaler er slettet for godt}}",
+      "move": "{count, plural, one {# samtale er flyttet til {folder}} other {# samtaler er flyttet til {folder}}}"
+    }
   }
 }

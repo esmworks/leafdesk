@@ -130,5 +130,21 @@
     "quoteShow": "Hiện thư được trích dẫn",
     "quoteHide": "Ẩn thư được trích dẫn",
     "quoteRemove": "Bỏ thư được trích dẫn"
+  },
+  "bulk": {
+    "select": "Chọn",
+    "selectThread": "Chọn cuộc trò chuyện: {subject}",
+    "selectAll": "Chọn tất cả",
+    "selected": "Đã chọn {count}",
+    "clear": "Bỏ chọn",
+    "toolbar": "Cuộc trò chuyện đã chọn",
+    "done": {
+      "archive": "{count, plural, other {Đã lưu trữ # cuộc trò chuyện}}",
+      "trash": "{count, plural, other {Đã chuyển # cuộc trò chuyện vào thùng rác}}",
+      "junk": "{count, plural, other {Đã đánh dấu # cuộc trò chuyện là thư rác}}",
+      "inbox": "{count, plural, other {Đã chuyển # cuộc trò chuyện vào hộp thư đến}}",
+      "delete": "{count, plural, other {Đã xóa vĩnh viễn # cuộc trò chuyện}}",
+      "move": "{count, plural, other {Đã chuyển # cuộc trò chuyện đến {folder}}}"
+    }
   }
 }

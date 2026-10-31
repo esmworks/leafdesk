@@ -130,5 +130,21 @@
     "quoteShow": "Vis den citerede besked",
     "quoteHide": "Skjul den citerede besked",
     "quoteRemove": "Fjern den citerede besked"
+  },
+  "bulk": {
+    "select": "Vælg",
+    "selectThread": "Vælg samtale: {subject}",
+    "selectAll": "Vælg alle",
+    "selected": "{count} valgt",
+    "clear": "Ryd markering",
+    "toolbar": "Valgte samtaler",
+    "done": {
+      "archive": "{count, plural, one {# samtale er arkiveret} other {# samtaler er arkiveret}}",
+      "trash": "{count, plural, one {# samtale er flyttet til papirkurven} other {# samtaler er flyttet til papirkurven}}",
+      "junk": "{count, plural, one {# samtale er markeret som spam} other {# samtaler er markeret som spam}}",
+      "inbox": "{count, plural, one {# samtale er flyttet til indbakken} other {# samtaler er flyttet til indbakken}}",
+      "delete": "{count, plural, one {# samtale er slettet permanent} other {# samtaler er slettet permanent}}",
+      "move": "{count, plural, one {# samtale er flyttet til {folder}} other {# samtaler er flyttet til {folder}}}"
+    }
   }
 }
