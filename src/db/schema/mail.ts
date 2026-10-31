@@ -292,3 +292,22 @@ export const mailImageSender = pgTable(
   },
   (t) => [primaryKey({ columns: [t.mailboxId, t.address] })],
 );
+
+/**
+ * When each message sent from the Mail tab went out (server/mail-client/write.ts), counted with the
+ * mailbox's row emails against MAX_SENDS_PER_HOUR, so the hour's sends outlive a restart. Rows older
+ * than a day are dropped as new ones come.
+ */
+export const mailSend = pgTable(
+  "mail_send",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    mailboxId: text("mailbox_id")
+      .notNull()
+      .references(() => mailbox.id, { onDelete: "cascade" }),
+    sentAt: timestamp("sent_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("mail_send_mailbox_idx").on(t.mailboxId, t.sentAt)],
+);

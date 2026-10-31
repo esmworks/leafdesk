@@ -1,7 +1,7 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import type { ImapFlow } from "imapflow";
 import { db } from "@/db";
-import { mailFolder, mailMessage, type mailbox } from "@/db/schema";
+import { mailFolder, mailMessage, mailSend, rowEmail, type mailbox } from "@/db/schema";
 import { MAX_SENDS_PER_HOUR } from "@/lib/mail";
 import { MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, movableTo, type MailAction, type MailDraftInput, type MailHeldSend, type MailUndoneSend } from "@/lib/mail-client";
 import { RowMailError, type RowMailErrorCode } from "@/server/row-mail/settings";
@@ -159,12 +159,16 @@ export async function emptyFolder(userId: string, input: { mailboxId: string; fo
   });
 }
 
-/** Sends from the Mail tab, per mailbox an hour, in this process (row-mail's sending counts its own). */
-const sends = ((globalThis as typeof globalThis & { __leafdeskMailSends?: Map<string, number[]> }).__leafdeskMailSends ??= new Map<string, number[]>());
-
 type Prepared = { userId: string; box: Box; draft: MailDraftInput; w: Written; attachments: Attachment[]; quote: Quote | null; raw: Buffer };
 
-const recentSends = (box: Box) => (sends.get(box.id) ?? []).filter((at) => at > Date.now() - 3_600_000);
+/** What the mailbox sent in the last hour: from the Mail tab and to rows, held together to MAX_SENDS_PER_HOUR. */
+async function sentThisHour(box: Box) {
+  const [row] = await db.execute<{ n: number }>(sql`
+    select (select count(*) from ${mailSend} where ${mailSend.mailboxId} = ${box.id} and ${mailSend.sentAt} > now() - interval '1 hour')
+      + (select count(*) from ${rowEmail} where ${rowEmail.mailboxId} = ${box.id} and ${rowEmail.direction} = 'out' and ${rowEmail.createdAt} > now() - interval '1 hour') as n
+  `);
+  return Number(row?.n ?? 0);
+}
 
 /**
  * A message ready to go out, checked: who it goes to and what it says, within the hour's sends,
@@ -175,7 +179,7 @@ const recentSends = (box: Box) => (sends.get(box.id) ?? []).filter((at) => at > 
 async function prepare(userId: string, draft: MailDraftInput, files: File[], inline: InlineFile[]): Promise<Prepared> {
   const box = await requireOwnMailbox(userId, draft?.mailboxId);
   const typed = await written(box, draft, { toSend: true });
-  if (recentSends(box).length >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
+  if ((await sentThisHour(box)) >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
   const { attachments, quote } = await draftForSend(userId, box, draft, typed, files, inline);
   const w = withQuote(typed, quote);
   const raw = await buildMessage(userId, box, w, attachments, { messageId: newMessageId(box), draft: false });
@@ -193,7 +197,8 @@ async function deliver({ userId, box, draft, w, raw }: Prepared) {
     const failed = connectError(error);
     throw new RowMailError(failed.code === "auth" || failed.code === "signIn" ? failed.code : "unreachable");
   }
-  sends.set(box.id, [...recentSends(box), Date.now()]);
+  await db.insert(mailSend).values({ mailboxId: box.id });
+  await db.delete(mailSend).where(and(eq(mailSend.mailboxId, box.id), lt(mailSend.sentAt, sql`now() - interval '1 day'`)));
 
   await sentDraft(userId, box, draft.draft);
   const sent = (await folders(box)).find((f) => f.role === "sent");

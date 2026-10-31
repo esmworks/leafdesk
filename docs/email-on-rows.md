@@ -148,7 +148,8 @@ folder. A message sent waits 5 seconds on the server before it goes, so *Undo* c
 it goes back to the drafts, and opens again where it was written. It still goes when the page is
 closed meanwhile; if the server restarts in those seconds it doesn't, and the draft last saved stays.
 A message that can't be sent then is kept as a draft and says why. Files of up to 20 MB in all, dropped on the message or
-attached, at most 100 recipients and 100 messages an hour from each mailbox; the sent folder keeps
+attached, at most 100 recipients and 100 messages an hour from each mailbox (the Mail tab's and
+emails written on rows counted together, across restarts); the sent folder keeps
 a copy. The search
 box looks through every folder but the trash and junk, in senders, recipients, subjects and first
 lines; when that finds less than a page, the mail server also looks for the words in the messages'

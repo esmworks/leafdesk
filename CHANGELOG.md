@@ -235,6 +235,10 @@
 
 ### Changed
 
+- **One hourly sending limit per mailbox.** The 100 messages an hour a mailbox may send now count
+  the Mail tab's messages and emails written on rows together, kept in the database, so a restart
+  no longer starts the count over. Migration 0168 (`mail_send`).
+
 - **Answers in the Mail tab show without the mail they quote.** The earlier mail an HTML answer
   quotes at its end, as Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark
   it, folds under *•••* and opens in place; plain-text answers already did.

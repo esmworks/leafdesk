@@ -74,7 +74,7 @@ const { and, eq, inArray } = await import("drizzle-orm");
 const nodemailer = (await import("nodemailer")).default;
 const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
-const { mailbox, mailFolder, mailMessage, user, workspace, workspaceMember } = await import("@/db/schema");
+const { mailbox, mailFolder, mailMessage, mailSend, user, workspace, workspaceMember } = await import("@/db/schema");
 const { addProperty } = await import("@/server/databases");
 const { createPage } = await import("@/server/pages");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
@@ -758,6 +758,13 @@ try {
   check((await unsubscribe(ids.ada, { id: listMessage("Posta liste") })) === "mail", "a list with only an address to mail unsubscribes by mail");
   check(/^Subject: Abonelik iptal$/m.test(await lastMessageTo(robot)), "the mail goes from the mailbox to the list's address, with the subject the list asks for");
   check((await errorCode(() => unsubscribe(ids.ada, { id: listMessage("Sahte liste") }, listAnswers(200)))) === "invalid" && posted.length === 2, "nothing goes to a sender that failed the check");
+
+  // The hour's sends are counted in the database, with the mailbox's row emails.
+  const counted = await db.select({ id: mailSend.id }).from(mailSend).where(eq(mailSend.mailboxId, boxId));
+  check(counted.length > 0, "each message sent is counted", counted.length);
+  await db.insert(mailSend).values(Array.from({ length: 100 }, () => ({ mailboxId: boxId })));
+  check((await errorCode(() => sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Sınır", html: "<p>Bir tane daha</p>" }))) === "rateLimited", "past the hour's limit the Mail tab sends no more");
+  await db.delete(mailSend).where(eq(mailSend.mailboxId, boxId));
 
   // Searching the messages' text on the server: the index keeps only their first lines.
   const filler = "Bu ay yapılan bakımların özeti aşağıdadır. ".repeat(12);

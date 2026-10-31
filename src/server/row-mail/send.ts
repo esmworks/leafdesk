@@ -1,7 +1,7 @@
 import { and, count, eq, gt, inArray, sql } from "drizzle-orm";
 import MailComposer from "nodemailer/lib/mail-composer";
 import { db } from "@/db";
-import { mailbox, rowEmail, user } from "@/db/schema";
+import { mailbox, mailSend, rowEmail, user } from "@/db/schema";
 import { MAX_MAIL_TEXT, MAX_SENDS_PER_HOUR, normalizeAddress, SEND_RETRY_MINUTES } from "@/lib/mail";
 import { AccessError } from "@/server/access";
 import { startSweep } from "@/server/sweep";
@@ -95,7 +95,12 @@ export async function queueRowEmail(userId: string, rowId: string, draft: RowEma
       .select({ n: count() })
       .from(rowEmail)
       .where(and(eq(rowEmail.mailboxId, box.id), eq(rowEmail.direction, "out"), gt(rowEmail.createdAt, sql`now() - interval '1 hour'`)));
-    if ((sent?.n ?? 0) >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
+    // The Mail tab's sends from the mailbox count too.
+    const [fromTab] = await tx
+      .select({ n: count() })
+      .from(mailSend)
+      .where(and(eq(mailSend.mailboxId, box.id), gt(mailSend.sentAt, sql`now() - interval '1 hour'`)));
+    if ((sent?.n ?? 0) + (fromTab?.n ?? 0) >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
     const [queued] = await tx
       .insert(rowEmail)
       .values({
