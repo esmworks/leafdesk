@@ -1,6 +1,6 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailDraftRef, MailDraftView, MailFolderView, MailHeldSend, MailSavedDraft, MailSendStatus, MailThreadPage, MailThreadView, MailUndoneSend } from "@/lib/mail-client";
 import { AccessError } from "@/server/access";
@@ -8,6 +8,7 @@ import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, rea
 import { suggestAddresses } from "@/server/mail-client/contacts";
 import { discardDraft, openDraft, saveDraft } from "@/server/mail-client/drafts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
+import { addMailTasks, type AddedMailTasks, type MailTasksInput } from "@/server/mail-client/tasks";
 import { unsubscribe } from "@/server/mail-client/unsubscribe";
 import { emptyFolder, holdMail, mailAction, sendStatus, undoSend } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
@@ -65,6 +66,15 @@ export async function prefetchBodiesAction(input: { ids: string[] }): Promise<Ac
 /** The addresses a recipient field suggests for what is typed in it. */
 export async function suggestAddressesAction(input: { mailboxId: string; query: string }): Promise<ActionResult<MailAddress[]>> {
   return run((userId) => suggestAddresses(userId, input));
+}
+
+/** Adds the tasks the AI found in a thread, as the person ticked them, as their to-dos (server/mail-client/tasks.ts). */
+export async function addMailTasksAction(input: MailTasksInput): Promise<ActionResult<AddedMailTasks>> {
+  return run(async (userId) => {
+    // The ids are checked where they are looked up; the tasks and day are cleaned there.
+    if (!input || typeof input.mailboxId !== "string" || typeof input.folderId !== "string" || typeof input.threadId !== "string") throw new RowMailError("invalid");
+    return addMailTasks(userId, input, { locale: await getLocale() });
+  });
 }
 
 /** Always loads images in mail from this sender to the mailbox. */

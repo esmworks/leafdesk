@@ -185,6 +185,24 @@
     "friendly": "Venligere",
     "use": "Brug denne",
     "useNote": "Erstatter det, du har skrevet over din signatur. Fortryd bringer det tilbage.",
-    "mailFailed": "Beskeden kunne ikke læses fra mailserveren. Prøv igen om lidt."
+    "mailFailed": "Beskeden kunne ikke læses fra mailserveren. Prøv igen om lidt.",
+    "rowContext": "Læser også felterne i {row}, som du ser dem.",
+    "tasks": {
+      "find": "Find opgaver",
+      "findHint": "Find med AI, hvad denne samtale beder dig om",
+      "title": "Opgaver fra denne samtale",
+      "finding": "Finder opgaver…",
+      "again": "Find igen",
+      "close": "Luk",
+      "unreadable": "AI'ens svar kunne ikke læses. Prøv igen.",
+      "none": "AI fandt intet, som denne samtale beder dig om.",
+      "text": "Opgave",
+      "toRow": "De kommer i {row} som dine to-dos.",
+      "toNote": "De kommer i dagens dagsnote som dine to-dos.",
+      "add": "Føj til mine opgaver",
+      "addedRow": "Føjet til {row}.",
+      "addedNote": "Føjet til dagens dagsnote.",
+      "open": "Åbn"
+    }
   }
 }

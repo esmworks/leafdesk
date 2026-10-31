@@ -185,6 +185,24 @@
     "friendly": "Mais amigável",
     "use": "Usar isto",
     "useNote": "Substitui o que você escreveu acima da assinatura. Desfazer traz de volta.",
-    "mailFailed": "Não foi possível ler a mensagem no servidor de e-mail. Tente novamente em instantes."
+    "mailFailed": "Não foi possível ler a mensagem no servidor de e-mail. Tente novamente em instantes.",
+    "rowContext": "Também lê os campos de {row}, como você os vê.",
+    "tasks": {
+      "find": "Encontrar tarefas",
+      "findHint": "Encontre com IA o que esta conversa pede a você",
+      "title": "Tarefas desta conversa",
+      "finding": "Procurando tarefas…",
+      "again": "Procurar de novo",
+      "close": "Fechar",
+      "unreadable": "Não foi possível ler a resposta da IA. Tente de novo.",
+      "none": "A IA não encontrou nada que esta conversa peça a você.",
+      "text": "Tarefa",
+      "toRow": "Elas vão para {row} como seus afazeres.",
+      "toNote": "Elas vão para a nota diária de hoje como seus afazeres.",
+      "add": "Adicionar às minhas tarefas",
+      "addedRow": "Adicionadas a {row}.",
+      "addedNote": "Adicionadas à nota diária de hoje.",
+      "open": "Abrir"
+    }
   }
 }

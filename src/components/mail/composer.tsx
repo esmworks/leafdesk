@@ -21,6 +21,7 @@ import {
   type MailDraftView,
   type MailMessageView,
   type MailSendStatus,
+  type MailThreadView,
   type MailUndoneSend,
 } from "@/lib/mail-client";
 import type { MailWriteAction } from "@/lib/mail-ai";
@@ -80,12 +81,14 @@ function followSend(sendId: string, then: (status: MailSendStatus) => void, trie
  * button or dropped on it. A message sent waits MAIL_UNDO_SECONDS on the server for Undo, which
  * makes it a draft again for `onUndone` to open; `onDelivered` follows once it went (or failed and
  * was kept as a draft). With `ai`, the AI writer (composer-ai.tsx) opens from beside the
- * formatting, or at once running `aiStart`.
+ * formatting, or at once running `aiStart`; it reads the fields of `row`, the database row the
+ * answered mail's other party is, and says so.
  */
 export function Composer({
   workspaceId,
   ai,
   aiStart = null,
+  row = null,
   box,
   boxes = [box],
   mode,
@@ -101,6 +104,8 @@ export function Composer({
   workspaceId: string;
   ai: boolean;
   aiStart?: MailWriteAction | null;
+  /** The row the thread's other party is (MailThreadView.row), which the writer reads for an answer. */
+  row?: MailThreadView["row"];
   box: MailboxTabView;
   boxes?: MailboxTabView[];
   mode: ComposeMode;
@@ -594,6 +599,7 @@ export function Composer({
           answering={source && mode !== "new" ? { id: source.message.id, reply: answering } : null}
           subject={subject}
           to={to.map((r) => r.name || r.address)}
+          row={source && mode !== "new" ? row : null}
           start={writer.start}
           onClose={() => {
             setWriter(null);

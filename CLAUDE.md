@@ -296,6 +296,9 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, which scripts skip with `sendHeld`;
   AI: `mail-client/ai.ts` behind `/api/ai/mail` (prompts pure in `ai-prompts.ts`), reading bodies
   with `read.ts` `messageForAi`, which never marks them seen; a thread's summary is `mail_message.summary` on its newest message;
+  the writer reads the answered mail's row (`rowOfMessage`, then `databases.getRow` as the person) and the person's
+  `ai-memory.ts` notes; a thread's tasks are parsed in the browser (`lib/mail-tasks.ts`) and added by
+  `mail-client/tasks.ts` as to-dos mentioning the person (row page, else daily note), checked again there;
   the composer's writer `composer-ai.tsx` replaces only `writing-range.ts`'s part, above the
   signature, keeping its pictures), follow-up
   sequences on rows `sequences/` (sent by a 30-second `startSequences` job; `runSequences(now)` runs

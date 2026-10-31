@@ -185,6 +185,24 @@
     "friendly": "Daha samimi",
     "use": "Bunu kullan",
     "useNote": "İmzanın üstünde yazdıklarının yerini alır. Geri al ile eski hâline döner.",
-    "mailFailed": "İleti posta sunucusundan okunamadı. Biraz sonra yeniden dene."
+    "mailFailed": "İleti posta sunucusundan okunamadı. Biraz sonra yeniden dene.",
+    "rowContext": "{row} kaydının alanlarını da, senin gördüğün kadarıyla okur.",
+    "tasks": {
+      "find": "Görevleri bul",
+      "findHint": "Bu konuşmanın senden istediklerini AI ile bul",
+      "title": "Bu konuşmadaki görevler",
+      "finding": "Görevler aranıyor…",
+      "again": "Yeniden bul",
+      "close": "Kapat",
+      "unreadable": "AI'ın cevabı okunamadı. Yeniden dene.",
+      "none": "AI bu konuşmada senden istenen bir şey bulmadı.",
+      "text": "Görev",
+      "toRow": "{row} sayfasına yapılacakların olarak eklenir.",
+      "toNote": "Bugünün günlük notuna yapılacakların olarak eklenir.",
+      "add": "Görevlerime ekle",
+      "addedRow": "{row} sayfasına eklendi.",
+      "addedNote": "Bugünün günlük notuna eklendi.",
+      "open": "Aç"
+    }
   }
 }

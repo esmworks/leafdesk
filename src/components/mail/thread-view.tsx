@@ -11,6 +11,7 @@ import {
   Forward,
   Image as ImageIcon,
   Inbox,
+  ListTodo,
   MailOpen,
   MoreHorizontal,
   Paperclip,
@@ -46,6 +47,7 @@ import { useWhen } from "./mail-store";
 
 // The editor loads the first time an answer is written.
 const Composer = lazyPart(() => import("./composer").then((m) => m.Composer));
+const MailTasks = lazyPart(() => import("./mail-tasks").then((m) => m.MailTasks));
 
 /** A sender's letter, in the color an address always gets (as people's avatars elsewhere). */
 function Avatar({ who }: { who: MailAddress }) {
@@ -616,6 +618,7 @@ export function ThreadView({
     };
   }, []);
   const summary = useSummary(box.id, folder.id, threadId, thread, setThread);
+  const [tasks, setTasks] = useState(false);
   // Messages asked for already: the list's message is asked for before the thread comes.
   const asked = useRef(new Set<string>());
 
@@ -784,6 +787,11 @@ export function ThreadView({
             {t("ai.summarize")}
           </Button>
         )}
+        {ai && thread && !tasks && (
+          <IconButton label={t("ai.tasks.find")} title={t("ai.tasks.findHint")} className="ms-1 h-8 w-8 shrink-0 text-fg-icon" onClick={() => setTasks(true)}>
+            <ListTodo className="h-4 w-4" />
+          </IconButton>
+        )}
         {thread && sent.length > 0 && (
           <IconButton label={t("printThread")} className="h-8 w-8 text-fg-icon" disabled={printing} onClick={() => void print(sent, false)}>
             <Printer className="h-4 w-4" />
@@ -803,6 +811,7 @@ export function ThreadView({
               <h2 className="text-xl leading-snug font-semibold [overflow-wrap:anywhere]">{thread.subject || t("noSubject")}</h2>
             </div>
             {summary.state && <SummaryCard state={summary.state} thread={thread} onAgain={summary.run} />}
+            {tasks && <MailTasks workspaceId={workspaceId} mailboxId={box.id} folderId={folder.id} threadId={threadId} row={thread.row} onClose={() => setTasks(false)} />}
             {thread.row && (
               <div className="mx-6 mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
                 <Database className="h-4 w-4 shrink-0 text-fg-icon" />
@@ -857,6 +866,7 @@ export function ThreadView({
                   workspaceId={workspaceId}
                   ai={ai}
                   aiStart={aiStart}
+                  row={thread.row}
                   box={box}
                   mode={compose}
                   layout="inline"
