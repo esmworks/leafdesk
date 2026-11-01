@@ -29,7 +29,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentChatFile, agentConversation, agentRun, agentUsage, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { conversationFile: agentChatFile, conversation: agentConversation, agentRun, agentUsage, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { asWrite, runAsConnectedApp } = await import("@/server/connected-app");
 const { purgeOrphanFiles } = await import("@/server/files");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -46,7 +46,7 @@ const { followLiveText } = await import("@/server/agents/live-text");
 const { chatFileOfPerson } = await import("@/server/agents/chat-files");
 const { refOf, storageOf } = await import("@/server/storage/workspace");
 const { pageMarkdown } = await import("@/server/export");
-const { agentChatLine, applyLiveEdit } = await import("@/lib/agent-chat");
+const { agentChatLine, agentMessages, applyLiveEdit } = await import("@/lib/agent-chat");
 
 const RUN = `agent-chat-e2e-${Date.now().toString(36)}`;
 
@@ -472,9 +472,10 @@ try {
   check(body !== null && (await new Response(body).text()) === "order,days\nORD-1,3\n", "the person downloads it as written");
   check((await chatFileOfPerson(ids.member, fileId)) === null, "no one else can");
   const [fileRow] = await db.select({ messages: agentConversation.messages }).from(agentConversation).where(eq(agentConversation.id, talk));
-  const fileQuestion = fileRow.messages.find((m) => m.runId === withFile.runId && m.role === "user");
+  const fileMessages = agentMessages(fileRow.messages);
+  const fileQuestion = fileMessages.find((m) => m.runId === withFile.runId && m.role === "user");
   check(
-    fileQuestion?.files?.[0]?.name === "orders.csv" && !JSON.stringify(fileRow.messages).includes("FILE-CONTENT-LATE") && fileRow.messages.at(-1)?.attached?.[0]?.id === fileId,
+    fileQuestion?.files?.[0]?.name === "orders.csv" && !JSON.stringify(fileRow.messages).includes("FILE-CONTENT-LATE") && fileMessages.at(-1)?.attached?.[0]?.id === fileId,
     "the conversation keeps the file's name and size, never its text",
     fileQuestion,
   );
@@ -579,7 +580,7 @@ try {
   const [lateRun] = await db.select().from(agentRun).where(eq(agentRun.id, late.runId!));
   const lateConversation = await db.select().from(agentConversation).where(eq(agentConversation.id, late.conversation.id));
   check(
-    lateRun.status === "failed" && lateRun.code === "noAccess" && lateConversation[0].messages.at(-1)?.code === "noAccess",
+    lateRun.status === "failed" && lateRun.code === "noAccess" && agentMessages(lateConversation[0].messages).at(-1)?.code === "noAccess",
     "a run whose person is now a guest fails, and the chat says why",
     { lateRun, messages: lateConversation[0].messages },
   );

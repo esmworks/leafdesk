@@ -47,7 +47,8 @@
  */
 import { and, asc, count, desc, eq, inArray, isNotNull, ne, notExists, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentConversation, agentRun, aiMemory, connection, notification, page, user, workspaceAgent, type ChatMemoryRecord } from "@/db/schema";
+import { agentMessages } from "@/lib/agent-chat";
+import { conversation, agentRun, aiMemory, connection, notification, page, user, workspaceAgent, type ChatMemoryRecord } from "@/db/schema";
 import type { MemoryKind } from "@/db/schema/ai";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import {
@@ -391,10 +392,10 @@ export async function undoAgentCorrection(userId: string, workspaceId: string, r
     } else if (note) await tx.delete(aiMemory).where(eq(aiMemory.id, note.id));
     await tx.update(agentRun).set({ steps: undoneIn(run.steps, stepIndex, memoryId) }).where(eq(agentRun.id, run.id));
     const conversationId = run.source.kind === "chat" ? run.source.conversationId : "";
-    const [found] = await tx.select({ messages: agentConversation.messages }).from(agentConversation).where(eq(agentConversation.id, conversationId)).for("update");
+    const [found] = await tx.select({ messages: conversation.messages }).from(conversation).where(eq(conversation.id, conversationId)).for("update");
     if (found) {
-      const messages = found.messages.map((m) => (m.role === "assistant" && m.runId === run.id && m.steps ? { ...m, steps: undoneIn(m.steps, stepIndex, memoryId) } : m));
-      await tx.update(agentConversation).set({ messages }).where(eq(agentConversation.id, conversationId));
+      const messages = agentMessages(found.messages).map((m) => (m.role === "assistant" && m.runId === run.id && m.steps ? { ...m, steps: undoneIn(m.steps, stepIndex, memoryId) } : m));
+      await tx.update(conversation).set({ messages }).where(eq(conversation.id, conversationId));
     }
   });
   await audit(userId, agent, { undone: 1 });

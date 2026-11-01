@@ -35,7 +35,8 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentConversation, agentRun, aiMemory, auditEvent, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { conversation: agentConversation, agentRun, aiMemory, auditEvent, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentMessages } = await import("@/lib/agent-chat");
 const { listNotifications, unreadCount } = await import("@/server/notifications");
 const { withdrawApproval } = await import("@/server/connections/approvals");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -613,7 +614,7 @@ try {
   const [afterLater] = await db.select().from(agentRun).where(eq(agentRun.id, twice.run.id));
   const [laterChat] = await db.select().from(agentConversation).where(eq(agentConversation.id, twice.conversationId));
   const outcomeAt = (steps: readonly { kind: string; outcome?: unknown }[] | undefined, i: number) => steps?.[i]?.outcome;
-  const chatSteps = laterChat.messages.find((m) => m.role === "assistant" && m.runId === twice.run.id)?.steps;
+  const chatSteps = agentMessages(laterChat.messages).find((m) => m.role === "assistant" && m.runId === twice.run.id)?.steps;
   check((await notesInDb()).find((n) => n.id === tags.id)?.text === "Tags live in Support.", "undoing the later brings back what the earlier said");
   check(
     outcomeAt(afterLater.steps, secondTag) === "undone" && outcomeAt(afterLater.steps, firstTag) === "done" && outcomeAt(chatSteps, secondTag) === "undone" && outcomeAt(chatSteps, firstTag) === "done",

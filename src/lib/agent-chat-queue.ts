@@ -1,5 +1,5 @@
 // Client-safe: messages written to an agent while it answers (lib/agent-chat.ts). They wait with
-// the conversation (`agent_conversation.queue`), at most MAX_QUEUED, and when the answer ends
+// the conversation (`conversation.queue`), at most MAX_QUEUED, and when the answer ends
 // (however it ends, server/agents/chat-store.ts closeChatTurn) they go together as the next turn:
 // one run whose prompt is each of them in order, kept in the conversation one by one.
 

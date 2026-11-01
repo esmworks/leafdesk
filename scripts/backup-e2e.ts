@@ -48,7 +48,7 @@ process.env.UPLOAD_DIR = join(work, PEER ? "peer-uploads" : "uploads");
 const { eq, inArray, like, sql } = await import("drizzle-orm");
 const Y = await import("yjs");
 const { db } = await import("@/db");
-const { account, aiConversation, aiMemory, apiToken, auditEvent, file, page, pageSnapshot, session, storageDeletion, user, workspace } = await import("@/db/schema");
+const { account, conversation: aiConversation, aiMemory, apiToken, auditEvent, file, page, pageSnapshot, session, storageDeletion, user, workspace } = await import("@/db/schema");
 const { makeSignature } = await import("better-auth/crypto");
 const { encodeValue, idRewriter, rewriteDeep } = await import("@/lib/backup");
 const { COLLAB_FRAGMENT } = await import("@/lib/collab-constants");
@@ -371,7 +371,7 @@ async function main() {
     check(Object.keys(fileHashes).length === 2, "two files are backed up");
     const backedUp = new Map<string, string>();
     for (const entry of await zipEntries(archive)) backedUp.set(entry.name, Buffer.from(await readEntry(archive, entry, 1e9)).toString("utf8"));
-    check(![...backedUp.keys()].some((name) => name.startsWith("tables/ai_conversation/")), "people's AI chats stay out of the backup");
+    check(![...backedUp.keys()].some((name) => name.startsWith("tables/conversation/") || name.startsWith("tables/conversation_file/")), "people's AI chats stay out of the backup");
     const notesBackedUp = [...backedUp].filter(([name]) => name.startsWith("tables/ai_memory/")).flatMap(([, text]) => text.split("\n").filter(Boolean).map((line) => JSON.parse(line) as Row));
     check(notesBackedUp.length === 1 && notesBackedUp[0].user_id === agentUserId, "of the AI's notes, only the agent's are backed up", notesBackedUp);
     const [created] = await db.select().from(auditEvent).where(sql`${auditEvent.workspaceId} = ${ws} and ${auditEvent.action} = 'backup.created'`);

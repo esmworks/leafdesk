@@ -4,10 +4,9 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import {
   account,
-  agentConversation,
   aiAccount,
-  aiConversation,
   aiMemory,
+  conversation,
   apiToken,
   calendarFeed,
   databaseView,
@@ -1211,8 +1210,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     await forgetWorkspaceGrants(tx, workspaceId, targetId);
     // Their AI chat and agent chat conversations quote the workspace's pages, and what it
     // remembers about them is the workspace's context: they go with them.
-    await tx.delete(aiConversation).where(and(eq(aiConversation.workspaceId, workspaceId), eq(aiConversation.userId, targetId)));
-    await tx.delete(agentConversation).where(and(eq(agentConversation.workspaceId, workspaceId), eq(agentConversation.userId, targetId)));
+    await tx.delete(conversation).where(and(eq(conversation.workspaceId, workspaceId), eq(conversation.userId, targetId)));
     await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, targetId)));
     // Their mailbox in the workspace (and its password) goes too; the mail it brought stays on rows.
     await tx.delete(mailbox).where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, targetId)));
@@ -1823,8 +1821,7 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
     released = await releaseAiAccount(tx, workspaceId, userId);
     // Their AI chat and agent chat conversations quote the workspace's pages, and what it
     // remembers about them is the workspace's context: they go with the membership.
-    await tx.delete(aiConversation).where(and(eq(aiConversation.workspaceId, workspaceId), eq(aiConversation.userId, userId)));
-    await tx.delete(agentConversation).where(and(eq(agentConversation.workspaceId, workspaceId), eq(agentConversation.userId, userId)));
+    await tx.delete(conversation).where(and(eq(conversation.workspaceId, workspaceId), eq(conversation.userId, userId)));
     await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, userId)));
     const heir = await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, userId, heir);

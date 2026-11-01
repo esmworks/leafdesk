@@ -30,7 +30,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, isNull, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, aiConversation, databaseView, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { agentRun, conversation: aiConversation, databaseView, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");

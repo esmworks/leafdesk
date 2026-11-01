@@ -316,13 +316,24 @@ async function checkUpgrade(manifestPath: string, beforePath: string) {
       changed: (table: string, column: string, value: unknown) =>
         table === "account" && ["access_token", "refresh_token", "id_token"].includes(column) && value === null,
     };
+    /**
+     * Tables the migrations since the older release moved into another, rows and values kept under
+     * the same primary key: 0184_conversations (the AI chat's and agents' conversations and their
+     * files in one table each; 0185 drops the old ones).
+     */
+    const MOVED: Record<string, string> = {
+      ai_conversation: "conversation",
+      agent_conversation: "conversation",
+      ai_chat_file: "conversation_file",
+      agent_chat_file: "conversation_file",
+    };
     const lost: unknown[] = [];
     const changed: unknown[] = [];
     const appeared: Record<string, number> = {};
     const deleted: Record<string, string[]> = {};
     let rows = 0;
     for (const [name, old] of Object.entries(before)) {
-      const now = after[name];
+      const now = after[name] ?? after[MOVED[name] ?? ""];
       if (!now) {
         lost.push({ table: name });
         continue;
@@ -344,6 +355,7 @@ async function checkUpgrade(manifestPath: string, beforePath: string) {
           if (!INTENDED_ROWS.changed(name, column, next[column])) changed.push({ table: name, row: key, column, before: value, after: next[column] });
         }
       }
+      if (name in MOVED) continue;
       const added = Object.keys(now.rows).filter((key) => !(key in old.rows)).length;
       if (added) appeared[name] = added;
     }

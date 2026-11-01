@@ -204,11 +204,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `/api/agents/chat/live` sends the person chatting as edits; the answer itself is still
   `agent_run.answer`, and `agent-chat.tsx` keeps the turn under way in the same list item (and key)
   as its answer, or the answer's text would flow in a second time. Messages sent while a chat run
-  answers wait in `agent_conversation.queue` (`lib/agent-chat-queue.ts`); `chat-store.ts`
+  answers wait in `conversation.queue` (`lib/agent-chat-queue.ts`); `chat-store.ts`
   `closeChatTurn` runs before `finish` flips the status and, under the conversation row's lock (as
   `sendAgentChat` takes it), writes the answer and starts the queue's run (source `after`), so
   several user records can share one run id (keys and history merge them). Files an agent attaches
-  are `agent_chat_file` rows (`agents/chat-files.ts`), left out of backups and orphan sweeps. Each agent is its own user. Memory
+  are `conversation_file` rows with a `run_id` (`agents/chat-files.ts`), left out of backups and orphan sweeps. Each agent is its own user. Memory
   (`memory.ts`): runs only propose notes, a proposal with `replacesId` changes that kept note in
   place; except a correction (`ai_memory.kind`) in an editor's own chat while `dispatch.ts`
   `untainted()` holds, kept at once and undone by `undoAgentCorrection` from the step's `previous`

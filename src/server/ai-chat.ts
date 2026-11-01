@@ -43,14 +43,14 @@
  * research mode it plans sub-questions, searches and reads (the web too, where on) and writes a
  * long cited report, with read-only tools, more turns and a token budget of its own.
  *
- * Conversations are kept per person (ai_conversation) and only ever shown to them; cited pages are
+ * Conversations are kept per person (`conversation`, without an agent) and only ever shown to them; cited pages are
  * looked up again with their current access whenever a conversation is shown.
  */
 import { and, desc, eq, inArray, isNotNull, isNull, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   agentRun,
-  aiConversation,
+  conversation as conversationTable,
   type AgentRunState,
   type ChatAttachmentRecord,
   type ChatMessageRecord,
@@ -216,15 +216,18 @@ async function chatSkill(userId: string, workspaceId: string, skillId: string): 
 
 type ChatSkill = { id: string; title: string; body: string };
 
+/** An AI chat conversation: one without an agent, whose messages are the chat's own records. */
+type AiConversation = Omit<typeof conversationTable.$inferSelect, "messages"> & { messages: ChatMessageRecord[] };
+
 /** The person's conversation (theirs, in this workspace), or noAccess. */
 async function ownConversation(userId: string, workspaceId: string, conversationId: string) {
   const [found] = await db
     .select()
-    .from(aiConversation)
-    .where(and(eq(aiConversation.id, conversationId), eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId)))
+    .from(conversationTable)
+    .where(and(eq(conversationTable.id, conversationId), eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId)))
     .limit(1);
   if (!found) refuse("noAccess", "Conversation not found");
-  return found;
+  return found as AiConversation;
 }
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -270,14 +273,14 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   // nothing is changed, notes about the person included.
   const appReadOnly = (await asWrite(() => connectedAppHold(userId, input.workspaceId))) === "readOnly";
   const timeZone = isTimeZone(input.timeZone) ? input.timeZone : browserTimeZone();
-  const conversation =
+  const conversation: AiConversation =
     existing ??
-    (
+    ((
       await db
-        .insert(aiConversation)
+        .insert(conversationTable)
         .values({ userId, workspaceId: input.workspaceId, title: conversationTitle(message || files.records.map((a) => a.name).join(", ")), model: model?.id ?? null, thinking, messages: [] })
         .returning()
-    )[0];
+    )[0] as AiConversation);
   const source: AssistantRunSource = {
     kind: "assistant",
     userId,
@@ -314,10 +317,10 @@ async function pickModel(userId: string, workspaceId: string, wanted: string | n
 /** The model of the person's latest conversation in the workspace that names one. */
 async function latestModel(userId: string, workspaceId: string): Promise<string | null> {
   const [row] = await db
-    .select({ model: aiConversation.model })
-    .from(aiConversation)
-    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId), isNotNull(aiConversation.model)))
-    .orderBy(desc(aiConversation.updatedAt))
+    .select({ model: conversationTable.model })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId), isNotNull(conversationTable.model)))
+    .orderBy(desc(conversationTable.updatedAt))
     .limit(1);
   return row?.model ?? null;
 }
@@ -325,10 +328,10 @@ async function latestModel(userId: string, workspaceId: string): Promise<string 
 /** How much the person's latest conversation in the workspace that says so thinks; `balanced` without one. */
 async function latestThinking(userId: string, workspaceId: string): Promise<ChatThinking> {
   const [row] = await db
-    .select({ thinking: aiConversation.thinking })
-    .from(aiConversation)
-    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId), isNotNull(aiConversation.thinking)))
-    .orderBy(desc(aiConversation.updatedAt))
+    .select({ thinking: conversationTable.thinking })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId), isNotNull(conversationTable.thinking)))
+    .orderBy(desc(conversationTable.updatedAt))
     .limit(1);
   return isChatThinking(row?.thinking) ? row.thinking : "balanced";
 }
@@ -361,7 +364,7 @@ const THINKING_LEVELS: Record<ChatThinking, AiRequest["thinking"]> = { fast: "of
 async function askedFiles(
   userId: string,
   workspaceId: string,
-  existing: typeof aiConversation.$inferSelect | null,
+  existing: AiConversation | null,
   ids: string[],
   replaced: number,
 ): Promise<{ records: ChatAttachmentRecord[]; rows: FileRow[] }> {
@@ -414,7 +417,7 @@ function filesPrompt(files: { contents: ChatFileContent[]; imageNames: string[];
  * The records the last question and its answer take (2), to be asked again; refused when there is
  * none, or when that answer changed things (asking again would make them twice).
  */
-function lastTurn(existing: typeof aiConversation.$inferSelect | null): number {
+function lastTurn(existing: AiConversation | null): number {
   const [question, answer] = existing?.messages.slice(-2) ?? [];
   if (question?.role !== "user" || answer?.role !== "assistant") refuse("invalid", "There is no answer to ask again");
   if (answer.steps?.some(changedThings)) refuse("invalid", "An answer that changed things can't be asked again");
@@ -428,7 +431,7 @@ type AssistantRun = typeof agentRun.$inferSelect & { source: AssistantRunSource 
 type ChatSetup = {
   scope: ResolvedScope | null;
   skill: ChatSkill | null;
-  conversation: typeof aiConversation.$inferSelect;
+  conversation: AiConversation;
   /** The connections' tools allowed the chat are offered (not to guests). */
   connections: boolean;
   /** The question's own files: their records (named apart from the conversation's others) and rows. */
@@ -857,7 +860,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
   }
   // Nothing to keep: a conversation this question started goes again.
   await db.delete(agentRun).where(eq(agentRun.id, run.id));
-  if (source.started) await db.delete(aiConversation).where(and(eq(aiConversation.id, conversation.id), sql`jsonb_array_length(${aiConversation.messages}) = 0`));
+  if (source.started) await db.delete(conversationTable).where(and(eq(conversationTable.id, conversation.id), sql`jsonb_array_length(${conversationTable.messages}) = 0`));
   yield { type: "error", code: failure };
 }
 
@@ -1014,35 +1017,36 @@ export async function answerUnderWay(userId: string, conversationId: string): Pr
 async function saveTurn(tx: Tx, conversationId: string, records: ChatMessageRecord[], replace: number, model: string | null, thinking: ChatThinking) {
   // Keeps the records before the replaced ones (a jsonb array's elements, in order).
   const kept = replace
-    ? sql`coalesce((select jsonb_agg(e order by i) from jsonb_array_elements(${aiConversation.messages}) with ordinality as t(e, i) where i <= jsonb_array_length(${aiConversation.messages}) - ${replace}), '[]'::jsonb)`
-    : sql`${aiConversation.messages}`;
+    ? sql`coalesce((select jsonb_agg(e order by i) from jsonb_array_elements(${conversationTable.messages}) with ordinality as t(e, i) where i <= jsonb_array_length(${conversationTable.messages}) - ${replace}), '[]'::jsonb)`
+    : sql`${conversationTable.messages}`;
   await tx
-    .update(aiConversation)
+    .update(conversationTable)
     .set({ messages: sql`${kept} || ${JSON.stringify(records)}::jsonb`, model, thinking, updatedAt: new Date() })
-    .where(eq(aiConversation.id, conversationId));
+    .where(eq(conversationTable.id, conversationId));
 }
 
 /** Keeps the person's MAX_CONVERSATIONS most recent conversations in the workspace. */
 async function pruneConversations(userId: string, workspaceId: string) {
   const keep = await db
-    .select({ id: aiConversation.id })
-    .from(aiConversation)
-    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId)))
-    .orderBy(desc(aiConversation.updatedAt))
+    .select({ id: conversationTable.id })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId)))
+    .orderBy(desc(conversationTable.updatedAt))
     .limit(MAX_CONVERSATIONS);
   if (keep.length < MAX_CONVERSATIONS) return;
   // A conversation being answered (an old one asked again, in another tab or from Telegram) stays:
   // its answer saves into it.
   const answering = [...answeringIn(userId, workspaceId)];
   const old = and(
-    eq(aiConversation.userId, userId),
-    eq(aiConversation.workspaceId, workspaceId),
-    notInArray(aiConversation.id, [...keep.map((k) => k.id), ...answering]),
+    eq(conversationTable.userId, userId),
+    eq(conversationTable.workspaceId, workspaceId),
+    isNull(conversationTable.agentId),
+    notInArray(conversationTable.id, [...keep.map((k) => k.id), ...answering]),
   );
-  const gone = await db.select({ id: aiConversation.id }).from(aiConversation).where(old);
+  const gone = await db.select({ id: conversationTable.id }).from(conversationTable).where(old);
   if (!gone.length) return;
   await deleteConversationFiles(gone.map((c) => c.id));
-  await db.delete(aiConversation).where(inArray(aiConversation.id, gone.map((c) => c.id)));
+  await db.delete(conversationTable).where(inArray(conversationTable.id, gone.map((c) => c.id)));
 }
 
 /** A step as the person may see it now: a page read that they can't open has no title. */
@@ -1107,10 +1111,10 @@ export async function viewSources(userId: string, refs: ChatSourceRef[]): Promis
 export async function listConversations(userId: string, workspaceId: string): Promise<ConversationSummary[]> {
   await requireMembership(userId, workspaceId);
   const rows = await db
-    .select({ id: aiConversation.id, title: aiConversation.title, updatedAt: aiConversation.updatedAt })
-    .from(aiConversation)
-    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId)))
-    .orderBy(desc(aiConversation.updatedAt));
+    .select({ id: conversationTable.id, title: conversationTable.title, updatedAt: conversationTable.updatedAt })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId)))
+    .orderBy(desc(conversationTable.updatedAt));
   const answering = answeringIn(userId, workspaceId);
   return rows.map((r) => ({ id: r.id, title: r.title, updatedAt: r.updatedAt.toISOString(), ...(answering.has(r.id) ? { answering: true as const } : {}) }));
 }
@@ -1191,19 +1195,20 @@ export async function deleteConversations(userId: string, workspaceId: string, c
   await requireMembership(userId, workspaceId);
   stopRunsIn(userId, workspaceId, conversationIds);
   const theirs = and(
-    eq(aiConversation.userId, userId),
-    eq(aiConversation.workspaceId, workspaceId),
-    conversationIds === "all" ? undefined : inArray(aiConversation.id, conversationIds.length ? conversationIds : [""]),
+    eq(conversationTable.userId, userId),
+    eq(conversationTable.workspaceId, workspaceId),
+    isNull(conversationTable.agentId),
+    conversationIds === "all" ? undefined : inArray(conversationTable.id, conversationIds.length ? conversationIds : [""]),
   );
   // Their files go with them, from storage too.
-  const gone = await db.select({ id: aiConversation.id }).from(aiConversation).where(theirs);
+  const gone = await db.select({ id: conversationTable.id }).from(conversationTable).where(theirs);
   await deleteConversationFiles(gone.map((c) => c.id));
   if (gone.length) {
     await db
       .delete(agentRun)
       .where(and(isNull(agentRun.agentId), sql`${agentRun.source}->>'userId' = ${userId}`, sql`${agentRun.source}->>'conversationId' in ${gone.map((c) => c.id)}`));
   }
-  await db.delete(aiConversation).where(theirs);
+  await db.delete(conversationTable).where(theirs);
 }
 
 /** A conversation's records less the turns whose answer read email (lib/agents.ts readEmail), question and answer alike. */

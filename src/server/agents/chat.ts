@@ -14,9 +14,10 @@
  */
 import { and, desc, eq, inArray, isNull, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentChatFile, agentConversation, agentRun, connection, page, workspaceAgent } from "@/db/schema";
+import { conversationFile, conversation as conversationTable, agentRun, connection, page, workspaceAgent } from "@/db/schema";
 import {
   agentChatLine,
+  agentMessages,
   MAX_AGENT_CHAT_MESSAGE,
   MAX_AGENT_CONVERSATIONS,
   MAX_THREAD_MESSAGES,
@@ -135,14 +136,14 @@ async function pageHoldsChat(userId: string, workspaceId: string, agentId: strin
 /** The person's conversations with the agent in this place, newest first. */
 async function conversationsOf(userId: string, agentId: string, chatId: string | null): Promise<AgentConversationSummary[]> {
   const rows = await db
-    .select({ id: agentConversation.id, title: agentConversation.title, updatedAt: agentConversation.updatedAt })
-    .from(agentConversation)
-    .where(and(eq(agentConversation.userId, userId), eq(agentConversation.agentId, agentId), placeIs(chatId)))
-    .orderBy(desc(agentConversation.updatedAt));
+    .select({ id: conversationTable.id, title: conversationTable.title, updatedAt: conversationTable.updatedAt })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.agentId, agentId), placeIs(chatId)))
+    .orderBy(desc(conversationTable.updatedAt));
   return rows.map((r) => ({ id: r.id, title: r.title, updatedAt: r.updatedAt.toISOString() }));
 }
 
-const placeIs = (chatId: string | null) => (chatId ? eq(agentConversation.chatId, chatId) : sql`${agentConversation.chatId} is null`);
+const placeIs = (chatId: string | null) => (chatId ? eq(conversationTable.chatId, chatId) : sql`${conversationTable.chatId} is null`);
 
 /**
  * What the chat shows first: where the person stands, the agent (unless it is gone, or they are a
@@ -166,9 +167,10 @@ export async function agentChatInfo(userId: string, workspaceId: string, agentId
 async function ownConversation(userId: string, agentId: string, conversationId: string, chatId: string | null) {
   const [found] = await db
     .select()
-    .from(agentConversation)
-    .where(and(eq(agentConversation.id, conversationId), eq(agentConversation.userId, userId), eq(agentConversation.agentId, agentId), placeIs(chatId)));
-  return found ?? refuse("noAccess", "Conversation not found");
+    .from(conversationTable)
+    .where(and(eq(conversationTable.id, conversationId), eq(conversationTable.userId, userId), eq(conversationTable.agentId, agentId), placeIs(chatId)));
+  if (!found) return refuse("noAccess", "Conversation not found");
+  return { ...found, messages: agentMessages(found.messages) };
 }
 
 /**
@@ -261,16 +263,16 @@ export async function sendAgentChat(
     let leftover: AgentChatQueuedRecord[] = [];
     if (existing) {
       // Locked as chat-store.ts closeChatTurn locks it: a message either waits for the answer, or comes after it.
-      const [locked] = await tx.select({ messages: agentConversation.messages, queue: agentConversation.queue }).from(agentConversation).where(eq(agentConversation.id, existing.id)).for("update");
+      const [locked] = await tx.select({ messages: conversationTable.messages, queue: conversationTable.queue }).from(conversationTable).where(eq(conversationTable.id, existing.id)).for("update");
       if (!locked) return refuse("noAccess", "Conversation not found");
-      const last = locked.messages.at(-1);
+      const last = agentMessages(locked.messages).at(-1);
       if (last?.role === "user" && (await stillAnswering(tx, last.runId))) {
         if (locked.queue.length >= MAX_QUEUED) refuse("queueFull", `At most ${MAX_QUEUED} messages wait for an answer`);
         const [saved] = await tx
-          .update(agentConversation)
-          .set({ queue: sql`${agentConversation.queue} || ${JSON.stringify([item])}::jsonb`, updatedAt: now })
-          .where(eq(agentConversation.id, existing.id))
-          .returning({ id: agentConversation.id, title: agentConversation.title, updatedAt: agentConversation.updatedAt });
+          .update(conversationTable)
+          .set({ queue: sql`${conversationTable.queue} || ${JSON.stringify([item])}::jsonb`, updatedAt: now })
+          .where(eq(conversationTable.id, existing.id))
+          .returning({ id: conversationTable.id, title: conversationTable.title, updatedAt: conversationTable.updatedAt });
         return { conversation: saved, runId: null, queued: queueView([item])[0], behind: last.runId };
       }
       leftover = locked.queue;
@@ -279,7 +281,7 @@ export async function sendAgentChat(
       existing ??
       (
         await tx
-          .insert(agentConversation)
+          .insert(conversationTable)
           .values({ agentId: agent.id, workspaceId: input.workspaceId, userId, chatId, title: conversationTitle(message || files[0].name) })
           .returning()
       )[0];
@@ -316,15 +318,15 @@ export async function sendAgentChat(
       .returning({ id: agentRun.id });
     const records: AgentChatMessageRecord[] = turn.records.map((r) => ({ ...r, runId: run.id }));
     const [saved] = await tx
-      .update(agentConversation)
+      .update(conversationTable)
       // The agent's own chat is one conversation that goes on: its oldest messages go at MAX_KEPT_MESSAGES.
       .set({
-        messages: sql`(select coalesce(jsonb_agg(e order by i), '[]'::jsonb) from jsonb_array_elements(${agentConversation.messages} || ${JSON.stringify(records)}::jsonb) with ordinality as t(e, i) where i > jsonb_array_length(${agentConversation.messages}) + ${records.length} - ${MAX_KEPT_MESSAGES})`,
+        messages: sql`(select coalesce(jsonb_agg(e order by i), '[]'::jsonb) from jsonb_array_elements(${conversationTable.messages} || ${JSON.stringify(records)}::jsonb) with ordinality as t(e, i) where i > jsonb_array_length(${conversationTable.messages}) + ${records.length} - ${MAX_KEPT_MESSAGES})`,
         ...(leftover.length ? { queue: [] } : {}),
         updatedAt: now,
       })
-      .where(eq(agentConversation.id, conversation.id))
-      .returning({ id: agentConversation.id, title: agentConversation.title, updatedAt: agentConversation.updatedAt });
+      .where(eq(conversationTable.id, conversation.id))
+      .returning({ id: conversationTable.id, title: conversationTable.title, updatedAt: conversationTable.updatedAt });
     return { conversation: saved, runId: run.id, queued: null, behind: null };
   });
   if (sent.runId) kickAgents();
@@ -355,14 +357,14 @@ export async function removeQueuedAgentChat(
   return db.transaction(async (tx) => {
     // Locked as closeChatTurn locks it: the message is either still waiting, or gone with its turn.
     const [found] = await tx
-      .select({ queue: agentConversation.queue })
-      .from(agentConversation)
-      .where(and(eq(agentConversation.id, input.conversationId), eq(agentConversation.userId, userId)))
+      .select({ queue: conversationTable.queue })
+      .from(conversationTable)
+      .where(and(eq(conversationTable.id, input.conversationId), eq(conversationTable.userId, userId)))
       .for("update");
     const queue = found?.queue ?? [];
     const left = queue.filter((q) => q.id !== input.queuedId);
     if (left.length === queue.length) return { removed: false, queued: queueView(queue) };
-    await tx.update(agentConversation).set({ queue: left }).where(eq(agentConversation.id, input.conversationId));
+    await tx.update(conversationTable).set({ queue: left }).where(eq(conversationTable.id, input.conversationId));
     return { removed: true, queued: queueView(left) };
   });
 }
@@ -434,9 +436,9 @@ export async function summarizeAgentConversation(
     at: new Date().toISOString(),
   };
   const [created] = await db
-    .insert(agentConversation)
+    .insert(conversationTable)
     .values({ agentId: agent.id, workspaceId: input.workspaceId, userId, chatId, title: found.title, messages: [record] })
-    .returning({ id: agentConversation.id, title: agentConversation.title, updatedAt: agentConversation.updatedAt });
+    .returning({ id: conversationTable.id, title: conversationTable.title, updatedAt: conversationTable.updatedAt });
   await pruneConversations(userId, agent.id, chatId);
   return { conversation: { id: created.id, title: created.title, updatedAt: created.updatedAt.toISOString() }, summary };
 }
@@ -462,13 +464,14 @@ export async function redoAgentChat(
   takeAllowance(userId, input.workspaceId);
   const now = Date.now();
   const done = await db.transaction(async (tx) => {
-    const [locked] = await tx.select({ messages: agentConversation.messages, queue: agentConversation.queue }).from(agentConversation).where(eq(agentConversation.id, existing.id)).for("update");
+    const [locked] = await tx.select({ messages: conversationTable.messages, queue: conversationTable.queue }).from(conversationTable).where(eq(conversationTable.id, existing.id)).for("update");
     if (!locked) return refuse("noAccess", "Conversation not found");
-    const answer = locked.messages.at(-1);
+    const kept = agentMessages(locked.messages);
+    const answer = kept.at(-1);
     if (!answer || answer.role !== "assistant" || answer.summary) return refuse("nothingToRedo", "There is no answer to do again");
-    let start = locked.messages.length - 1;
-    while (start > 0 && locked.messages[start - 1].role === "user" && locked.messages[start - 1].runId === answer.runId) start--;
-    const questions = locked.messages.slice(start, -1);
+    let start = kept.length - 1;
+    while (start > 0 && kept[start - 1].role === "user" && kept[start - 1].runId === answer.runId) start--;
+    const questions = kept.slice(start, -1);
     if (!questions.length) return refuse("nothingToRedo", "There is no question to ask again");
     const contents = questions.map((q, i) => (edited !== null && i === questions.length - 1 ? edited : q.content));
     const [before] = await tx.select({ source: agentRun.source, context: agentRun.context }).from(agentRun).where(eq(agentRun.id, answer.runId));
@@ -498,7 +501,7 @@ export async function redoAgentChat(
       })
       .returning({ id: agentRun.id });
     // The dropped answer's files go from the chat: with no row tying them to it, the orphan sweep removes them (files.ts purgeOrphanFiles).
-    await tx.delete(agentChatFile).where(and(eq(agentChatFile.runId, answer.runId), eq(agentChatFile.conversationId, existing.id)));
+    await tx.delete(conversationFile).where(and(eq(conversationFile.runId, answer.runId), eq(conversationFile.conversationId, existing.id)));
     const records: AgentChatMessageRecord[] = questions.map((q, i) => ({
       role: "user",
       content: contents[i],
@@ -508,10 +511,10 @@ export async function redoAgentChat(
       at: new Date(now + i).toISOString(),
     }));
     const [saved] = await tx
-      .update(agentConversation)
-      .set({ messages: [...locked.messages.slice(0, start), ...records], updatedAt: new Date(now) })
-      .where(eq(agentConversation.id, existing.id))
-      .returning({ id: agentConversation.id, title: agentConversation.title, updatedAt: agentConversation.updatedAt });
+      .update(conversationTable)
+      .set({ messages: [...kept.slice(0, start), ...records], updatedAt: new Date(now) })
+      .where(eq(conversationTable.id, existing.id))
+      .returning({ id: conversationTable.id, title: conversationTable.title, updatedAt: conversationTable.updatedAt });
     return { runId: run.id, saved };
   });
   kickAgents();
@@ -530,7 +533,7 @@ export async function searchAgentChats(userId: string, workspaceId: string, agen
   if (q.length < AGENT_CHAT_SEARCH.minChars) return [];
   const rows = await db.execute<{ id: string; chat_id: string | null; title: string; message: AgentChatMessageRecord }>(sql`
     select c.id, c.chat_id, c.title, e.value as message
-    from ${agentConversation} c cross join lateral jsonb_array_elements(c.messages) as e(value)
+    from ${conversationTable} c cross join lateral jsonb_array_elements(c.messages) as e(value)
     where c.user_id = ${userId} and c.agent_id = ${agentId} and c.workspace_id = ${workspaceId}
       and strpos(lower(e.value->>'content'), lower(${q})) > 0
     order by e.value->>'at' desc
@@ -566,19 +569,19 @@ export async function searchAgentChats(userId: string, workspaceId: string, agen
 /** Keeps the person's MAX_AGENT_CONVERSATIONS most recent conversations in the place. */
 async function pruneConversations(userId: string, agentId: string, chatId: string | null) {
   const keep = await db
-    .select({ id: agentConversation.id })
-    .from(agentConversation)
-    .where(and(eq(agentConversation.userId, userId), eq(agentConversation.agentId, agentId), placeIs(chatId)))
-    .orderBy(desc(agentConversation.updatedAt))
+    .select({ id: conversationTable.id })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.agentId, agentId), placeIs(chatId)))
+    .orderBy(desc(conversationTable.updatedAt))
     .limit(MAX_AGENT_CONVERSATIONS);
   if (keep.length < MAX_AGENT_CONVERSATIONS) return;
-  await db.delete(agentConversation).where(
+  await db.delete(conversationTable).where(
     and(
-      eq(agentConversation.userId, userId),
-      eq(agentConversation.agentId, agentId),
+      eq(conversationTable.userId, userId),
+      eq(conversationTable.agentId, agentId),
       placeIs(chatId),
       notInArray(
-        agentConversation.id,
+        conversationTable.id,
         keep.map((k) => k.id),
       ),
     ),
@@ -644,17 +647,17 @@ export async function getAgentConversation(userId: string, workspaceId: string, 
 export async function agentThread(userId: string, workspaceId: string, agentId: string): Promise<AgentChatThread> {
   await standing(userId, workspaceId, agentId);
   const conversations = await db
-    .select({ id: agentConversation.id, messages: agentConversation.messages, queue: agentConversation.queue, updatedAt: agentConversation.updatedAt })
-    .from(agentConversation)
-    .where(and(eq(agentConversation.userId, userId), eq(agentConversation.agentId, agentId), placeIs(null)))
-    .orderBy(desc(agentConversation.updatedAt));
+    .select({ id: conversationTable.id, messages: conversationTable.messages, queue: conversationTable.queue, updatedAt: conversationTable.updatedAt })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.agentId, agentId), placeIs(null)))
+    .orderBy(desc(conversationTable.updatedAt));
   const latest = conversations[0] ?? null;
   const records = conversations
-    .flatMap((c) => c.messages)
+    .flatMap((c) => agentMessages(c.messages))
     .sort((a, b) => a.at.localeCompare(b.at))
     .slice(-MAX_THREAD_MESSAGES);
   const messages = await Promise.all(records.map((m) => messageView(userId, m)));
-  const last = latest?.messages.at(-1);
+  const last = latest && agentMessages(latest.messages).at(-1);
   const { runs, connections } = await threadRuns(userId, workspaceId, agentId);
   return {
     conversationId: latest?.id ?? null,
@@ -669,10 +672,10 @@ export async function agentThread(userId: string, workspaceId: string, agentId: 
 /** The conversation a new message in the agent's own chat with the person joins (the latest there), if any. */
 export async function latestThreadConversation(userId: string, agentId: string): Promise<string | null> {
   const [latest] = await db
-    .select({ id: agentConversation.id })
-    .from(agentConversation)
-    .where(and(eq(agentConversation.userId, userId), eq(agentConversation.agentId, agentId), placeIs(null)))
-    .orderBy(desc(agentConversation.updatedAt))
+    .select({ id: conversationTable.id })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.agentId, agentId), placeIs(null)))
+    .orderBy(desc(conversationTable.updatedAt))
     .limit(1);
   return latest?.id ?? null;
 }
@@ -730,12 +733,12 @@ export async function threadRuns(userId: string, workspaceId: string, agentId: s
 export async function deleteAgentConversation(userId: string, workspaceId: string, agentId: string, conversationId: string, place: ChatPlace) {
   await standing(userId, workspaceId, agentId);
   await db
-    .delete(agentConversation)
+    .delete(conversationTable)
     .where(
       and(
-        eq(agentConversation.id, conversationId),
-        eq(agentConversation.userId, userId),
-        eq(agentConversation.agentId, agentId),
+        eq(conversationTable.id, conversationId),
+        eq(conversationTable.userId, userId),
+        eq(conversationTable.agentId, agentId),
         placeIs(place?.chatId ?? null),
       ),
     );
@@ -771,7 +774,7 @@ export async function chatTurn(userId: string, workspaceId: string, runId: strin
   const connections = await connectionNames(run.steps, pendingCall?.connectionId ?? null);
   const ended = run.status === "done" || run.status === "failed";
   const conversationId = run.source.kind === "chat" ? run.source.conversationId : "";
-  const [conversation] = await db.select({ queue: agentConversation.queue }).from(agentConversation).where(eq(agentConversation.id, conversationId));
+  const [conversation] = await db.select({ queue: conversationTable.queue }).from(conversationTable).where(eq(conversationTable.id, conversationId));
   return {
     runId: run.id,
     status: run.status,

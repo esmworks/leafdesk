@@ -448,6 +448,11 @@
   stop it, in the app and in Telegram. Each answer is now kept as a run as it goes, so one the
   server was writing when it restarted goes on from where it was a few minutes later and is kept in
   the conversation, without making a change twice. Migration 0183.
+- **AI chats and chats with agents are kept in one table.** Migration `0184_conversations` moves
+  `ai_conversation` and `agent_conversation` into `conversation`, and `ai_chat_file` and
+  `agent_chat_file` into `conversation_file`, with their ids, so links, notes and Telegram chats
+  keep pointing at them; `0185_drop_old_conversations` drops the old tables. Nothing changes in
+  the app.
 - **Mail reads better on a phone.** A message built for a wider column (most newsletters and
   notices) is laid out closer to that column and shrunk to fit, by at most 30%, instead of being
   squeezed to a few words a line; plain messages stay full size. The thread's margins are narrower

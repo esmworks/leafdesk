@@ -102,7 +102,7 @@ export function agentLinkRef(text: string, origin: string): { workspaceId: strin
 export type AgentChatFileRef = { name: string; size: number };
 /** A text file as it is sent: its name, size in bytes and text (lib/agent-chat-files.ts). */
 export type AgentChatFileIn = AgentChatFileRef & { text: string };
-/** A file the agent attached to its answer (`attach_file`, the `agent_chat_file` table), which only the person opens. */
+/** A file the agent attached to its answer (`attach_file`, a `conversation_file` row), which only the person opens. */
 export type AgentChatAnswerFile = { id: string; name: string; size: number; contentType: string };
 
 /**
@@ -128,6 +128,9 @@ export type AgentChatMessageRecord = {
   localRead?: true;
   at: string;
 };
+
+/** The messages of a conversation with an agent (`conversation.messages` where `agent_id` is set). */
+export const agentMessages = (messages: readonly object[]) => messages as AgentChatMessageRecord[];
 
 /**
  * A message written while the conversation's answer was under way: it waits (at most

@@ -2,7 +2,7 @@
  * Files an agent attaches to its answer in a person's chat (lib/agent-chat-files.ts): its
  * `attach_file` tool, on chat runs only, writes a text file (CSV, Markdown, text, JSON) that is
  * stored as an upload of the workspace on no page (files.ts storeFile, counted against its
- * storage) and tied to the person and the conversation (`agent_chat_file`). Only that person opens
+ * storage) and tied to the person and the conversation (`conversation_file`, with the run). Only that person opens
  * it (`chatFileOfPerson`, served by /api/agents/chat/files/[id]); the answer shows it, and the
  * Telegram bot sends it after an answer it follows. It counts as one of the run's changes and the
  * agent's daily ones (run.ts `change`), but changes nothing anyone else sees: no one approves it.
@@ -10,7 +10,7 @@
 import { Readable } from "node:stream";
 import { and, count, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { agentChatFile, file } from "@/db/schema";
+import { conversationFile, file } from "@/db/schema";
 import { ANSWER_FILE_LIMITS, answerFile } from "@/lib/agent-chat-files";
 import { formatBytes } from "@/lib/files";
 import type { AgentToolRecord } from "@/lib/agents";
@@ -57,7 +57,7 @@ export async function attachChatFile(
       isError: true,
     };
   }
-  const [{ attached }] = await db.select({ attached: count() }).from(agentChatFile).where(eq(agentChatFile.runId, run.id));
+  const [{ attached }] = await db.select({ attached: count() }).from(conversationFile).where(eq(conversationFile.runId, run.id));
   if (attached >= ANSWER_FILE_LIMITS.perRun) return { content: `You have attached ${ANSWER_FILE_LIMITS.perRun} files, the most one answer may have.`, isError: true };
   const step = (outcome: AgentToolRecord["outcome"]): AgentToolRecord => ({ kind: "tool", connectionId: null, tool: ATTACH_FILE, input: checked.name, outcome });
   try {
@@ -66,7 +66,7 @@ export async function attachChatFile(
         workspaceId: run.workspaceId,
         pageId: null,
         uploadedBy: agentUserId,
-        record: async (tx, fileId) => void (await tx.insert(agentChatFile).values({ fileId, userId, workspaceId: run.workspaceId, conversationId, runId: run.id })),
+        record: async (tx, fileId) => void (await tx.insert(conversationFile).values({ fileId, userId, workspaceId: run.workspaceId, conversationId, runId: run.id })),
       },
       { name: checked.name, contentType: checked.contentType, body: Readable.from([Buffer.from(content, "utf8")]), declaredSize: checked.size },
       { maxBytes: ANSWER_FILE_LIMITS.bytes },
@@ -87,8 +87,8 @@ export async function chatFileOfPerson(userId: string, fileId: string): Promise<
   const [found] = await db
     .select({ file })
     .from(file)
-    .innerJoin(agentChatFile, eq(agentChatFile.fileId, file.id))
-    .where(and(eq(file.id, fileId), eq(agentChatFile.userId, userId)))
+    .innerJoin(conversationFile, eq(conversationFile.fileId, file.id))
+    .where(and(eq(file.id, fileId), eq(conversationFile.userId, userId)))
     .limit(1);
   return found?.file ?? null;
 }

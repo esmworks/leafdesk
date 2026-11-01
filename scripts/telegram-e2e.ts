@@ -91,7 +91,8 @@ process.env.APP_URL = "https://leaf.test";
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { aiConversation, page, telegramLink, telegramLinkCode, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { conversation: aiConversation, page, telegramLink, telegramLinkCode, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { agentMessages } = await import("@/lib/agent-chat");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -99,7 +100,7 @@ const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { recordShare } = await import("@/server/notifications");
 const { flushPush } = await import("@/server/push");
 const { getNotificationPreferences, setNotificationPreference } = await import("@/server/notification-preferences");
-const { agentConversation, agentRun, auditEvent, notification, workspaceAgent } = await import("@/db/schema");
+const { conversation: agentConversation, agentRun, auditEvent, notification, workspaceAgent } = await import("@/db/schema");
 const { createAgent } = await import("@/server/agents/manage");
 const chat = await import("@/server/agents/chat");
 const { tellRoutineEnded } = await import("@/server/telegram/routine");
@@ -806,7 +807,7 @@ try {
   const summarizedId = (await linkNow()).agentConversationId;
   const [summarizedConversation] = summarizedId ? await db.select().from(agentConversation).where(eq(agentConversation.id, summarizedId)) : [];
   check(
-    summarizedId !== freshId && said(ALICE.id, mark).includes("starts from this summary") && said(ALICE.id, mark).includes("TG-SUMMARY") && summarizedConversation?.messages[0]?.summary === true,
+    summarizedId !== freshId && said(ALICE.id, mark).includes("starts from this summary") && said(ALICE.id, mark).includes("TG-SUMMARY") && (summarizedConversation && agentMessages(summarizedConversation.messages)[0]?.summary) === true,
     "/new summary starts a new conversation from a summary of the last, and shows it",
     said(ALICE.id, mark),
   );

@@ -28,7 +28,8 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentConversation, agentRun, aiMemory, auditEvent, session, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { conversation: agentConversation, agentRun, aiMemory, auditEvent, session, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentMessages } = await import("@/lib/agent-chat");
 const { makeSignature } = await import("better-auth/crypto");
 const { env } = await import("@/lib/env");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -335,7 +336,7 @@ try {
   await flushAgentRuns();
   const [brokenRun] = await db.select().from(agentRun).where(eq(agentRun.id, broken.runId!));
   const [brokenTalk] = await db.select().from(agentConversation).where(eq(agentConversation.id, broken.conversation.id));
-  const brokenAnswer = brokenTalk.messages.find((m) => m.role === "assistant" && m.runId === broken.runId);
+  const brokenAnswer = agentMessages(brokenTalk.messages).find((m) => m.role === "assistant" && m.runId === broken.runId);
   check(brokenRun.status === "failed" && firstLocalRead(brokenTalk.messages) >= 0, "a turn that failed after reading the computer keeps its steps in the conversation", brokenAnswer);
 
   fake.chats.length = 0;

@@ -7,7 +7,7 @@ import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { and, asc, eq, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentChatFile, aiChatFile, file, fileReference, page, propertyPermission, storageDeletion, workspaceStorage } from "@/db/schema";
+import { conversationFile, file, fileReference, page, propertyPermission, storageDeletion, workspaceStorage } from "@/db/schema";
 import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl, formatBytes, isFileId } from "@/lib/files";
 import { COMMENT_IMAGE_TYPES } from "@/lib/comments";
 import { sameLocation } from "@/lib/workspace-storage";
@@ -654,8 +654,7 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
           isNull(file.pageId),
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id} and r.authorized)`,
           sql`not ${uploadUnderHold()}`,
-          sql`not exists (select 1 from ${aiChatFile} c where c.file_id = ${file.id})`,
-          sql`not exists (select 1 from ${agentChatFile} c where c.file_id = ${file.id})`,
+          sql`not exists (select 1 from ${conversationFile} c where c.file_id = ${file.id})`,
           workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
         ),
       )
@@ -692,8 +691,7 @@ export async function purgeUnusedUploads({
               and exists (select 1 from ${page} p where p.id = ${file.pageId} and p.kind = 'database')))`,
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
           sql`not ${uploadUnderHold()}`,
-          sql`not exists (select 1 from ${aiChatFile} c where c.file_id = ${file.id} and c.conversation_id is not null)`,
-          sql`not exists (select 1 from ${agentChatFile} c where c.file_id = ${file.id})`,
+          sql`not exists (select 1 from ${conversationFile} c where c.file_id = ${file.id} and c.conversation_id is not null)`,
         ),
       )
       .returning(fileObjectColumns);

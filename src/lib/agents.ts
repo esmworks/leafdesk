@@ -204,7 +204,7 @@ export type AgentRunSource =
       kind: "chat";
       /** Who wrote the message; the run is held to their access as well, and is theirs alone. */
       userId: string;
-      /** Their conversation (`agent_conversation`) the answer goes to. */
+      /** Their conversation (`conversation`) the answer goes to. */
       conversationId: string;
       /** Sent from a connected app (MCP, the REST API, the Telegram bot), which reads the answer. */
       fromApp?: boolean;
@@ -240,7 +240,7 @@ export type AgentRunSource =
 
 /**
  * A person's own AI chat: the run has no agent (`agent_run.agent_id` null) and runs as them, with
- * their access, model and limits, and answers in their conversation (`ai_conversation`, made before
+ * their access, model and limits, and answers in their conversation (`conversation`, made before
  * the run starts). What the question was asked with is kept here, so the run goes on as it began
  * after waiting for the person's answer.
  */

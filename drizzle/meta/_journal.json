@@ -1289,6 +1289,20 @@
       "when": 1793545828399,
       "tag": "0183_assistant_runs",
       "breakpoints": true
+    },
+    {
+      "idx": 184,
+      "version": "7",
+      "when": 1793550160173,
+      "tag": "0184_conversations",
+      "breakpoints": true
+    },
+    {
+      "idx": 185,
+      "version": "7",
+      "when": 1793550178950,
+      "tag": "0185_drop_old_conversations",
+      "breakpoints": true
     }
   ]
 }

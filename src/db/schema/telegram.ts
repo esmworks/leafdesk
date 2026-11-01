@@ -1,6 +1,6 @@
 import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { aiConversation } from "./ai";
-import { agentConversation, workspaceAgent } from "./agents";
+import { conversation } from "./ai";
+import { workspaceAgent } from "./agents";
 import { workspace } from "./app";
 import { user } from "./auth";
 
@@ -31,10 +31,10 @@ export const telegramLink = pgTable(
     username: text("username"),
     displayName: text("display_name").notNull().default(""),
     workspaceId: text("workspace_id").references(() => workspace.id, { onDelete: "set null" }),
-    conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "set null" }),
+    conversationId: text("conversation_id").references(() => conversation.id, { onDelete: "set null" }),
     mode: text("mode").notNull().default("ask"),
     agentId: text("agent_id").references(() => workspaceAgent.id, { onDelete: "set null" }),
-    agentConversationId: text("agent_conversation_id").references(() => agentConversation.id, { onDelete: "set null" }),
+    agentConversationId: text("agent_conversation_id").references(() => conversation.id, { onDelete: "set null" }),
     /** Inbox notifications go to the chat too (which kinds: user_preference's `…Telegram` columns). */
     notifications: boolean("notifications").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
