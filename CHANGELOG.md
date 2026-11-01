@@ -504,6 +504,11 @@
 
 ### Fixed
 
+- **The AI chat box fits a phone's width.** With a model choice and a thinking level, its row of
+  buttons ran past the box and pushed Send out of reach, and a longer permission such as "Read
+  only" broke onto two lines; on a narrow box the chips now keep only what tells them apart (the
+  thinking level shows its icon), the permission stays whole on one line and a long model name is
+  cut short.
 - **Messages no longer show under the agent chat's message box on a phone.** On a phone with a
   home indicator, the box held a little above the bottom edge and the conversation showed through
   the strip beneath it; the strip now takes the page's background.
