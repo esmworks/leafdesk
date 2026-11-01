@@ -663,6 +663,7 @@
         "read": "Odczytano plik na komputerze",
         "write": "Zapisano plik na komputerze",
         "trash": "Przeniesiono coś z komputera do kosza",
+        "earlier": "Wcześniej w tej rozmowie odczytano pliki z komputera, więc w tej odpowiedzi nic nie wychodzi poza Leafdesk",
         "declined": "odrzucono; nic nie zrobiono",
         "expired": "brak odpowiedzi na czas; nic nie zrobiono",
         "failed": "nie udało się",

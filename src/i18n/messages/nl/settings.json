@@ -668,6 +668,7 @@
         "read": "Een bestand op de computer gelezen",
         "write": "Een bestand op de computer geschreven",
         "trash": "Iets op de computer naar de prullenbak verplaatst",
+        "earlier": "Eerder in dit gesprek zijn bestanden op de computer gelezen, dus in dit antwoord gaat niets buiten Leafdesk",
         "declined": "geweigerd; er is niets gedaan",
         "expired": "niet op tijd beantwoord; er is niets gedaan",
         "failed": "kon niet worden uitgevoerd",

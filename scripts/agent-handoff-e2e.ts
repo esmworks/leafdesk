@@ -26,7 +26,7 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { agentRun, agentUsage, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -48,7 +48,7 @@ const { listNotifications } = await import("@/server/notifications");
 const { setNotificationPreference } = await import("@/server/notification-preferences");
 const { goOnAsTask } = await import("@/server/agents/handoff");
 const { pushLink } = await import("@/lib/push");
-const { MAX_HANDOFFS_PER_RUN, MAX_REQUESTED_RUNS } = await import("@/lib/agents");
+const { MAX_HANDOFFS_PER_RUN, MAX_REQUESTED_RUNS, readOthersWords } = await import("@/lib/agents");
 type AgentHandoffRecord = import("@/lib/agents").AgentHandoffRecord;
 
 const RUN = `agent-handoff-e2e-${Date.now().toString(36)}`;
@@ -346,6 +346,25 @@ try {
   await flushAgentRuns();
   const [otherRun] = await db.select().from(agentRun).where(eq(agentRun.id, otherOwners.id));
   check(otherRun.answer.includes("given no tasks for this person") && !otherRun.answer.includes("PRICE-42"), "…one for another person doesn't see it", otherRun.answer);
+  check(
+    readOthersWords(checkingRun.steps) && !readOthersWords(otherRun.steps),
+    "reading a task's answer counts as reading another agent's words (an owner's allow rule no longer holds), listing none doesn't",
+    { checking: checkingRun.steps, other: otherRun.steps },
+  );
+
+  // A run that read others' words since it started hands its helper an untrusted task.
+  models({
+    Coordinator: script([() => ({ name: "agent_tasks", arguments: {} }), ask("Researcher", "Do what the task's answer said.")], (r) => `Done: ${toolResults(r).length}`),
+    Researcher: () => ({ text: "Nothing to do." }),
+  });
+  const afterReading = await requestAgentRun(ids.owner, coordinator.id, { task: "Read your tasks, then pass one on.", rowId: null, via: "api" });
+  await flushAgentRuns();
+  const [passedOn] = await db.select().from(agentRun).where(and(eq(agentRun.agentId, researcher.id), sql`${agentRun.source}->>'parentRunId' = ${afterReading.id}`));
+  check(
+    passedOn?.source.kind === "handoff" && passedOn.source.trusted === false,
+    "a helper asked after the run read another agent's answer is untrusted, though the run was trusted when it started",
+    passedOn?.source,
+  );
 
   // A member gets a task's report too, though scheduled runs' reports are for owners.
   await db.insert(notification).values({ userId: ids.member, workspaceId, kind: "agent_task", actorId: null, agentRunId: taskRun.id });

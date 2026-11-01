@@ -668,6 +668,7 @@
         "read": "Membaca file di komputer",
         "write": "Menulis file di komputer",
         "trash": "Memindahkan sesuatu di komputer ke tempat sampah",
+        "earlier": "File di komputer dibaca sebelumnya dalam percakapan ini, jadi tidak ada yang keluar dari Leafdesk dalam jawaban ini",
         "declined": "ditolak; tidak ada yang dilakukan",
         "expired": "tidak dijawab tepat waktu; tidak ada yang dilakukan",
         "failed": "tidak dapat dilakukan",

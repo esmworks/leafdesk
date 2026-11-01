@@ -220,6 +220,23 @@ try {
   await memory.deleteAgentMemory(ids.owner, router.id, [hiddenProposal.id]);
   const seen = await memory.listAgentMemory(ids.owner, router.id);
   check(seen[0].text === proposals[0].text && seen[0].run?.rowTitle === "I want a refund", "the owner who can open it sees the note and the row it came from", seen);
+  // A run a connection's event started is the owners' (its list hides it from others): so is what it proposed.
+  const eventRunId = await queueAgentRun({
+    agentId: router.id,
+    workspaceId,
+    source: { kind: "connection", connectionId: `${RUN}-connection`, triggerId: `${RUN}-trigger`, eventId: `${RUN}-event` },
+    context: {} as never,
+    prompt: "An event came.",
+  });
+  await db.update(agentRun).set({ status: "done", finishedAt: new Date() }).where(eq(agentRun.id, eventRunId));
+  const [eventProposal] = await db
+    .insert(aiMemory)
+    .values({ userId: router.userId, workspaceId, text: "EVENT-SECRET goes to the vendor.", status: "proposed", agentRunId: eventRunId })
+    .returning();
+  const memberSees = (await memory.listAgentMemory(ids.member, router.id)).find((n) => n.id === eventProposal.id);
+  const ownerSees = (await memory.listAgentMemory(ids.owner, router.id)).find((n) => n.id === eventProposal.id);
+  check(memberSees?.text === null && ownerSees?.text === eventProposal.text, "a member the agent is shared with doesn't see what a connection's event run proposed; an owner does", { memberSees, ownerSees });
+  await db.delete(aiMemory).where(eq(aiMemory.id, eventProposal.id));
   check(await fails(memory.keepAgentMemory(ids.member, router.id, proposals[0].id), isCode("notAllowed")), "members who can only view and interact can't keep a proposal");
   const keptNote = await memory.keepAgentMemory(ids.owner, router.id, proposals[0].id, "Refund questions are Billing tickets.");
   check(keptNote.status === "kept" && keptNote.text === "Refund questions are Billing tickets." && keptNote.run === null, "an owner keeps a proposal, changed", keptNote);

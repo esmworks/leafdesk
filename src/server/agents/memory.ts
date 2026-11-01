@@ -58,15 +58,18 @@ import {
   MAX_CORRECTIONS_PER_RUN,
   MAX_HANDOFF_CHARS,
   MAX_PROPOSALS_PER_RUN,
+  readEmail,
   type AgentMemoryView,
   type AgentRunSource,
 } from "@/lib/agents";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
+import { readLocalFiles } from "@/lib/local-reads";
 import { redactError, redactText } from "@/lib/redact";
 import { pageVisibleTo, requireMembership, workspaceOwnerIds } from "@/server/access";
 import type { AiTool } from "@/server/ai";
 import { cleanNote, lockNotes, memoryAvailable, MemoryError, sameNote, writeNote } from "@/server/ai-memory";
 import { recordAudit } from "@/server/audit";
+import { connectedAppCall } from "@/server/connected-app";
 import { signalInbox, type InboxAgentMemory } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
 import { AgentError, agentFor, auditDetails } from "./manage";
@@ -105,15 +108,26 @@ async function noteOf(agent: Agent, memoryId: string): Promise<Note> {
 async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string, NonNullable<AgentMemoryView["run"]>>> {
   const runIds = [...new Set(notes.flatMap((n) => (n.agentRunId ? [n.agentRunId] : [])))];
   if (!runIds.length) return new Map();
-  const runs = await db.select({ id: agentRun.id, source: agentRun.source, createdAt: agentRun.createdAt }).from(agentRun).where(inArray(agentRun.id, runIds));
+  const runs = await db
+    .select({ id: agentRun.id, workspaceId: agentRun.workspaceId, source: agentRun.source, steps: agentRun.steps, createdAt: agentRun.createdAt })
+    .from(agentRun)
+    .where(inArray(agentRun.id, runIds));
+  // What a run that read mail or files on the person's computer said stays in the app, as its
+  // steps and answer do (describeAgentRun in mcp/agents.ts).
+  const throughApp = connectedAppCall(viewer) !== null;
   const rowIds = runs.flatMap((r) => (isRowRun(r.source) ? [r.source.rowId] : []));
+  // A connection's event is the owners' (ownerSeesRun), and so is what its run read (see viewRuns).
+  const eventRun = runs.find((r) => isEventRun(r.source));
+  const owners = eventRun ? new Set(await workspaceOwnerIds(eventRun.workspaceId)) : new Set<string>();
   // A run another owner asked for, or one of their schedules without a database, read with their access (see viewRuns).
   const othersRun = (source: (typeof runs)[number]["source"]) =>
-    source.kind === "request"
-      ? source.requestedBy !== viewer
-      : source.kind === "chat"
-        ? source.userId !== viewer
-        : isScheduleRun(source) && !source.databaseId && source.scheduledBy !== viewer;
+    isEventRun(source)
+      ? !owners.has(viewer)
+      : source.kind === "request"
+        ? source.requestedBy !== viewer
+        : source.kind === "chat"
+          ? source.userId !== viewer
+          : isScheduleRun(source) && !source.databaseId && source.scheduledBy !== viewer;
   const databaseIds = runs.flatMap((r) => (isScheduleRun(r.source) && r.source.databaseId ? [r.source.databaseId] : []));
   const openDatabases = new Set(
     databaseIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, databaseIds), pageVisibleTo(viewer)))).map((p) => p.id) : [],
@@ -138,6 +152,7 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
         scheduled: isScheduleRun(r.source),
         databaseHidden: isScheduleRun(r.source) && Boolean(r.source.databaseId) && !openDatabases.has(r.source.databaseId!),
         othersRun: othersRun(r.source),
+        ...(throughApp && (r.source.kind === "mail" || readEmail(r.steps) || readLocalFiles(r.steps)) ? { appHidden: true as const } : {}),
       },
     ]),
   );
@@ -145,10 +160,12 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
 
 /**
  * Whether `viewer` may read a proposal: not when it came from a run on a row (or a schedule's
- * database) they can't open, nor from a run another owner started for themselves.
+ * database) they can't open, from a run another owner started for themselves, for anyone but
+ * owners from a run a connection's event started, nor through a connected app from a run that
+ * read mail or files on the computer.
  */
 const readable = (run: AgentMemoryView["run"] | undefined) =>
-  !run || ((run.rowId === null || run.rowTitle !== null) && !run.databaseHidden && !run.othersRun);
+  !run || ((run.rowId === null || run.rowTitle !== null) && !run.databaseHidden && !run.othersRun && !run.appHidden);
 
 /** The names of the people who said these notes' corrections. */
 async function sayers(notes: Note[]): Promise<Map<string, string>> {

@@ -249,6 +249,18 @@ export async function keepSent(box: Mailbox, raw: Buffer, path = box.folders.sen
  * what the server answered, as `failure` words it.
  */
 export async function sendFromMailbox(box: Mailbox, message: { fromName: string; to: string[]; subject: string; text: string }) {
+  // Held to the hour's sends with the Mail tab's and the rows' (MAX_SENDS_PER_HOUR), and counted
+  // among them: the slot is taken before sending and given back if the server refuses it.
+  const slot = await db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`leafdesk:row-mail-send:${box.id}`}))`);
+    const [row] = await tx.execute<{ n: number }>(sql`
+      select (select count(*) from ${mailSend} where ${mailSend.mailboxId} = ${box.id} and ${mailSend.sentAt} > now() - interval '1 hour')
+        + (select count(*) from ${rowEmail} where ${rowEmail.mailboxId} = ${box.id} and ${rowEmail.direction} = 'out' and ${rowEmail.createdAt} > now() - interval '1 hour') as n
+    `);
+    if (Number(row?.n ?? 0) >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
+    const [taken] = await tx.insert(mailSend).values({ mailboxId: box.id }).returning({ id: mailSend.id });
+    return taken;
+  });
   const raw = await composeRowEmail({
     ...message,
     fromAddress: box.address,
@@ -261,6 +273,7 @@ export async function sendFromMailbox(box: Mailbox, message: { fromName: string;
   try {
     await sendRaw(box, raw, message.to);
   } catch (error) {
+    await db.delete(mailSend).where(eq(mailSend.id, slot.id));
     throw new Error(failure(error), { cause: error });
   }
   await keepSent(box, raw);

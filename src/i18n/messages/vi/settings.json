@@ -668,6 +668,7 @@
         "read": "Đã đọc một tệp trên máy tính",
         "write": "Đã ghi một tệp trên máy tính",
         "trash": "Đã chuyển một mục trên máy tính vào thùng rác",
+        "earlier": "Tệp trên máy tính đã được đọc trước đó trong cuộc trò chuyện này, nên câu trả lời này không gửi gì ra ngoài Leafdesk",
         "declined": "bị từ chối; không làm gì cả",
         "expired": "không được trả lời kịp; không làm gì cả",
         "failed": "không thực hiện được",

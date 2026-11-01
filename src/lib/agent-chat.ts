@@ -168,6 +168,8 @@ export type AgentChatMessageView = {
   files?: AgentChatFileRef[];
   attached?: AgentChatAnswerFile[];
   summary?: boolean;
+  /** A summary drawn from turns that read files on the person's computer (AgentChatMessageRecord). */
+  localRead?: true;
   at: string;
 };
 

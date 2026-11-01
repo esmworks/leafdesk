@@ -23,6 +23,7 @@
   "firstReadHint": "Den nyeste e-posten din vises om et øyeblikk. Eldre e-post, opptil tre måneder tilbake, kommer inn i løpet av de neste minuttene.",
   "empty": "Ingen e-post her.",
   "emptySearch": "Ingen e-post samsvarer.",
+  "emptyStarred": "Ingen stjernemerkede samtaler.",
   "emptyFolder": {
     "trash": "Tøm papirkurven",
     "junk": "Tøm søppelpost",
@@ -185,6 +186,7 @@
   "showSource": "Vis original",
   "downloadSource": "Last ned melding (.eml)",
   "allInboxes": "Alle innbokser",
+  "allStarred": "Alle stjernemerkede",
   "ai": {
     "summarize": "Oppsummer",
     "summarizeHint": "Oppsummer denne samtalen med KI",

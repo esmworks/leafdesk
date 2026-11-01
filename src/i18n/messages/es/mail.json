@@ -23,6 +23,7 @@
   "firstReadHint": "Tu correo más reciente aparecerá en un momento. El correo anterior, de hasta tres meses atrás, llegará en los próximos minutos.",
   "empty": "No hay correo aquí.",
   "emptySearch": "Ningún correo coincide.",
+  "emptyStarred": "No hay conversaciones destacadas.",
   "emptyFolder": {
     "trash": "Vaciar papelera",
     "junk": "Vaciar spam",
@@ -185,6 +186,7 @@
   "showSource": "Mostrar original",
   "downloadSource": "Descargar mensaje (.eml)",
   "allInboxes": "Todos los recibidos",
+  "allStarred": "Todos los destacados",
   "ai": {
     "summarize": "Resumir",
     "summarizeHint": "Resumir esta conversación con IA",

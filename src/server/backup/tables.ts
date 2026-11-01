@@ -20,8 +20,12 @@ const ofPages =
 const ofTeamspaces: Scope = (ws) => sql`teamspace_id in (select id from teamspace where workspace_id = ${ws})`;
 const ofAgents: Scope = (ws) => sql`agent_id in (select id from workspace_agent where workspace_id = ${ws})`;
 const ofConnections: Scope = (ws) => sql`connection_id in (select id from connection where workspace_id = ${ws})`;
-/** Agents' notes: what the AI remembers about a person is theirs alone, like their chats. */
-const agentsNotes: Scope = (ws) => sql`workspace_id = ${ws} and user_id in (select user_id from workspace_agent where workspace_id = ${ws})`;
+/**
+ * Agents' notes: what the AI remembers about a person is theirs alone, like their chats. Only those
+ * kept: a proposal waits on the run that made it, which isn't backed up, and without it would read
+ * as anyone's to see (agents/memory.ts readable).
+ */
+const agentsNotes: Scope = (ws) => sql`workspace_id = ${ws} and status = 'kept' and user_id in (select user_id from workspace_agent where workspace_id = ${ws})`;
 /** The workspace's files but those attached to AI chats, which are private to their people like the chats. */
 const files = (ws: string) => sql`(select id from file where workspace_id = ${ws} and id not in (select file_id from ai_chat_file) and id not in (select file_id from agent_chat_file))`;
 const ofFiles: Scope = (ws) => sql`file_id in ${files(ws)}`;

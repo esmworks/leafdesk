@@ -548,7 +548,13 @@ function describeMemory(workspaceId: string, note: AgentMemoryView) {
         }
       : {}),
     ...(note.replaces ? { replaces: { memory_id: note.replaces.id, text: note.replaces.text } } : {}),
-    ...(note.text === null ? { note: "Proposed by a run on a row (or a database) the user can't open: its text is hidden." } : {}),
+    ...(note.text === null
+      ? {
+          note: note.run?.appHidden
+            ? "Proposed by a run that read email or files on the user's computer: its text shows only in Leafdesk itself."
+            : "Proposed by a run on a row (or a database) the user can't open: its text is hidden.",
+        }
+      : {}),
     created_at: note.createdAt,
     updated_at: note.updatedAt,
   };

@@ -37,6 +37,7 @@ import {
   MAX_AGENT_TOKEN_LIMIT,
   OWN_TOOLS_NAME,
   WEB_TOOL_NAMES,
+  COMPUTER_EARLIER,
   isComputerTool,
   type AgentAccessLevel,
   type AgentAccessView,
@@ -901,7 +902,7 @@ export function AgentStepLine({
     return <WebStepLine step={step} />;
   }
   if (step.kind === "handoff") return <HandoffStepLine step={step} onOpenRun={onOpenRun} />;
-  if (step.kind === "tool" && step.connectionId === null && isComputerTool(step.tool)) return <ComputerStepLine step={step} />;
+  if (step.kind === "tool" && step.connectionId === null && (isComputerTool(step.tool) || step.tool === COMPUTER_EARLIER)) return <ComputerStepLine step={step} />;
   if (step.kind === "tool") {
     const connection = step.connectionId === null ? OWN_TOOLS_NAME : (connections[step.connectionId] ?? t("removedConnection"));
     return <ToolStepLine step={step} connection={connection} />;

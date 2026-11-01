@@ -1,13 +1,13 @@
 "use client";
 
-import { AlertOctagon, Archive, Clock, Folder, Inbox, Mails, Send, SquarePen, FileText, Trash2, type LucideIcon } from "lucide-react";
+import { AlertOctagon, Archive, Clock, Folder, Inbox, Mails, Send, SquarePen, Star, FileText, Trash2, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback } from "react";
+import { Fragment, useCallback } from "react";
 import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn } from "@/components/ui";
-import { ALL_INBOXES, type MailboxTabView, type MailFolderRole, type MailFolderView } from "@/lib/mail-client";
+import { ALL_INBOXES, STARRED, type MailboxTabView, type MailFolderRole, type MailFolderView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
 import { mailHref, pickOpen, requestCompose, stayInMail, useMailboxes } from "./mail-store";
 
@@ -50,6 +50,16 @@ function FolderLink({ workspaceId, box, folder, active, onPick }: { workspaceId:
   );
 }
 
+/** The starred conversations of a mailbox, or of all of them: no count, they are kept rather than read through. */
+function StarredLink({ href, label, active, onPick }: { href: string; label: string; active: boolean; onPick: (e: React.MouseEvent, href: string) => void }) {
+  return (
+    <Link href={href} onClick={(e) => onPick(e, href)} aria-current={active ? "page" : undefined} className={cn(rowClass, active && "bg-bg-active font-medium text-fg hover:bg-bg-active")}>
+      <Star className="h-4 w-4 shrink-0 text-fg-icon" />
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+    </Link>
+  );
+}
+
 /** A mailbox's letter, in a color of its own from its address. */
 export function MailboxMark({ address, className }: { address: string; className?: string }) {
   const color = userColor(address);
@@ -65,7 +75,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
   const t = useTranslations("mail");
   const search = useSearchParams();
   const { boxes, error } = useMailboxes(workspaceId);
-  const { box, folder, all } = pickOpen(boxes, search.get("box"), search.get("f"));
+  const { box, folder, all, starred } = pickOpen(boxes, search.get("box"), search.get("f"));
   const router = useRouter();
   const closeDrawer = useSidebar()?.close;
   // A phone's drawer may show this list over another page, and on the Mail page a folder only changes
@@ -99,18 +109,21 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
 
   return (
     <div className="space-y-3">
-      {/* Several mailboxes: their inboxes as one list, above the open mailbox. */}
+      {/* Several mailboxes: their inboxes as one list, and their starred, above the open mailbox. */}
       {boxes.length > 1 && (
-        <Link
-          href={allHref}
-          onClick={(e) => pick(e, allHref)}
-          aria-current={all ? "page" : undefined}
-          className={cn(rowClass, all && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
-        >
-          <Mails className="h-4 w-4 shrink-0 text-fg-icon" />
-          <span className={cn("min-w-0 flex-1 truncate", allUnread > 0 && "font-medium text-fg")}>{t("allInboxes")}</span>
-          {allUnread > 0 && <span className="text-xs font-medium tabular-nums text-fg">{allUnread}</span>}
-        </Link>
+        <div className="space-y-px">
+          <Link
+            href={allHref}
+            onClick={(e) => pick(e, allHref)}
+            aria-current={all && !starred ? "page" : undefined}
+            className={cn(rowClass, all && !starred && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
+          >
+            <Mails className="h-4 w-4 shrink-0 text-fg-icon" />
+            <span className={cn("min-w-0 flex-1 truncate", allUnread > 0 && "font-medium text-fg")}>{t("allInboxes")}</span>
+            {allUnread > 0 && <span className="text-xs font-medium tabular-nums text-fg">{allUnread}</span>}
+          </Link>
+          <StarredLink href={mailHref(workspaceId, { box: ALL_INBOXES, f: STARRED })} label={t("allStarred")} active={all && starred} onPick={pick} />
+        </div>
       )}
       {/* The mailbox, New message and its folders in one column, spaced like the folders. */}
       <div className="space-y-px">
@@ -131,7 +144,10 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
         ) : (
           <nav className="space-y-px" aria-label={t("foldersLabel")}>
             {roles.map((f) => (
-              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && f.id === folder?.id} onPick={pick} />
+              <Fragment key={f.id}>
+                <FolderLink workspaceId={workspaceId} box={box} folder={f} active={!all && !starred && f.id === folder?.id} onPick={pick} />
+                {f.role === "inbox" && <StarredLink href={mailHref(workspaceId, { box: box.id, f: STARRED })} label={t("starred")} active={!all && starred} onPick={pick} />}
+              </Fragment>
             ))}
           </nav>
         )}
@@ -141,7 +157,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
           <h2 className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">{t("ownFolders")}</h2>
           <div className="space-y-px">
             {own.map((f) => (
-              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && f.id === folder?.id} onPick={pick} />
+              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && !starred && f.id === folder?.id} onPick={pick} />
             ))}
           </div>
         </section>

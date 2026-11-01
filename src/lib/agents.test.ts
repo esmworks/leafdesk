@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   accessSource,
+  AGENT_TASKS_TOOL,
   AGENT_EMAIL_DOMAIN,
   agentEmail,
   agentRunPath,
@@ -295,6 +296,8 @@ describe("after reading email", () => {
     // A folder or a file on the person's computer: anything may have put it there.
     expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.read, "done")])).toBe(true);
     expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.list, "done")])).toBe(true);
+    // Answers of tasks given to other agents, read back with agent_tasks.
+    expect(readOthersWords([tool(null, AGENT_TASKS_TOOL, "done")])).toBe(true);
     expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.read, "failed"), tool(null, COMPUTER_TOOL_NAMES.write, "done"), tool(null, COMPUTER_TOOL_NAMES.trash, "declined")])).toBe(false);
     // Nothing came back: refused, declined, waiting, or Leafdesk's own tools.
     expect(readOthersWords([tool(null, WEB_TOOL_NAMES.read, "refused"), tool("c1", "create_issue", "declined"), tool(null, "create_row", "done"), handoff("queued")])).toBe(false);

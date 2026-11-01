@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { AGENT_CHAT_FILE_LIMITS, agentChatFileType } from "@/lib/agent-chat-files";
 import { CHAT_MODES, type ChatActionView, type ChatMode, type ChatSourceView, type ChatStepView } from "@/lib/ai-chat";
 import { decodeBytes } from "@/lib/file-viewer";
@@ -10,6 +11,7 @@ import type { AiErrorCode } from "@/lib/ai";
 import { isAiError, sttLimits } from "@/server/ai";
 import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
 import { startChat } from "@/server/ai-chat";
+import { conversationBusy, dropRun, followRun, openRun, runEvents } from "@/server/ai-chat-runs";
 import { asWrite, runAsConnectedApp } from "@/server/connected-app";
 import { transcribeDictation } from "@/server/voice-notes";
 import { listWorkspaces } from "@/server/workspaces";
@@ -346,7 +348,24 @@ async function ask(link: TelegramLinkRow, t: Translator, { text, voice, document
     const readOnly = mode !== "read" && (await asWrite(() => connectedAppHold(link.userId, workspace.id))) === "readOnly";
     if (readOnly) await send(chatId, html(t, "readOnlyWorkspace", { workspace: escapeHtml(workspace.name) }));
 
-    const start = (conversationId: string | null) => startChat(link.userId, { workspaceId: workspace.id, conversationId, message: question, mode }, signal);
+    // The conversation is the app's too: one answer at a time in it, wherever it was asked.
+    if (link.conversationId && (await conversationBusy(link.userId, link.conversationId))) return void (await send(chatId, escapeHtml(t("busyInApp"))));
+    // Kept with the app's answers (ai-chat-runs.ts), so the app sees the conversation busy, and Stop
+    // or deleting it there stops this one too; /stop here stops it as before.
+    const start = async (conversationId: string | null) => {
+      const run = openRun({ id: randomUUID(), userId: link.userId, workspaceId: workspace.id, conversationId })!;
+      const stop = () => run.controller.abort();
+      if (signal.aborted) stop();
+      else signal.addEventListener("abort", stop, { once: true });
+      try {
+        void runEvents(run, await startChat(link.userId, { workspaceId: workspace.id, conversationId, message: question, mode }, run.controller.signal));
+        return followRun(link.userId, run.id)!;
+      } catch (error) {
+        signal.removeEventListener("abort", stop);
+        dropRun(run);
+        throw error;
+      }
+    };
     let events;
     try {
       events = await start(link.conversationId);

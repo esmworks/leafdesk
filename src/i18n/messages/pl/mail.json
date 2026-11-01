@@ -23,6 +23,7 @@
   "firstReadHint": "Najnowsza poczta pojawi się za chwilę. Starsza, sprzed maksymalnie trzech miesięcy, będzie się wczytywać przez kilka następnych minut.",
   "empty": "Brak poczty.",
   "emptySearch": "Brak pasującej poczty.",
+  "emptyStarred": "Brak rozmów oznaczonych gwiazdką.",
   "emptyFolder": {
     "trash": "Opróżnij kosz",
     "junk": "Opróżnij spam",
@@ -185,6 +186,7 @@
   "showSource": "Pokaż oryginał",
   "downloadSource": "Pobierz wiadomość (.eml)",
   "allInboxes": "Wszystkie odebrane",
+  "allStarred": "Wszystkie oznaczone gwiazdką",
   "ai": {
     "summarize": "Podsumuj",
     "summarizeHint": "Podsumuj tę rozmowę za pomocą AI",

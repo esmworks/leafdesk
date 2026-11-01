@@ -30,6 +30,8 @@ export const MAIL_UNDO_SECONDS = 5;
 export const MAIL_MAX_THREADS = 200;
 /** The mailbox id that lists the inboxes of all the person's mailboxes in the workspace as one. */
 export const ALL_INBOXES = "all";
+/** The folder id that lists a mailbox's starred conversations, from every folder but the trash, junk and snoozed (in ALL_INBOXES, of all of them). */
+export const STARRED = "starred";
 /** Recipients a message from the Mail tab may have, To, Cc and Bcc together. */
 export const MAX_MAIL_RECIPIENTS = 100;
 /** Attachments a message from the Mail tab may bring, together. */
@@ -225,7 +227,7 @@ export type MailAgentMark = { agentId: string; did: MailAgentDeed[]; at: string 
 
 export type MailThreadItem = {
   threadId: string;
-  /** The mailbox and folder it is listed from, which its moves and flags go to (several in ALL_INBOXES). */
+  /** The mailbox and folder it is listed from, which its moves and flags go to (several in ALL_INBOXES; in STARRED, its newest starred message's). */
   mailboxId: string;
   folderId: string;
   /** The newest message of the thread in this folder, which opening the thread starts from. */

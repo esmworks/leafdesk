@@ -668,6 +668,7 @@
         "read": "Luki tiedoston tietokoneelta",
         "write": "Kirjoitti tiedoston tietokoneelle",
         "trash": "Siirsi jotain tietokoneelta roskakoriin",
+        "earlier": "Tietokoneen tiedostoja luettiin aiemmin tässä keskustelussa, joten tässä vastauksessa mitään ei lähde Leafdeskistä",
         "declined": "hylätty; mitään ei tehty",
         "expired": "ei vastausta ajoissa; mitään ei tehty",
         "failed": "ei onnistunut",

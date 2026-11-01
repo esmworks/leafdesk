@@ -12,6 +12,11 @@
   `0181_sender_marks` adds `mail_message.sender_auth` and the `mail_sender_logo` table; mail
   indexed earlier is checked again a few hundred messages a minute. New setting `SENDER_LOGOS=off`
   stops the logo look-ups.
+- **Starred mail has its own place in Mail.** *Starred* under the inbox lists a mailbox's
+  conversations with a starred message in any folder but the trash, junk and snoozed, and with
+  several mailboxes *All starred* lists them all. Stars set in another mail program show too. A
+  conversation archived, moved back to the inbox or to a folder from there stays in the list; the
+  search box searches within it.
 - **Installing on iPhone and iPad is explained in the app, and the installed app's icon counts
   unread notifications.** iPhone and iPad browsers have no install prompt, so *Install app* in the
   workspace menu now shows there too and explains adding Leafdesk with *Add to Home Screen*. Where
@@ -507,6 +512,11 @@
 
 ### Fixed
 
+- **The AI chat box fits a phone's width.** With a model choice and a thinking level, its row of
+  buttons ran past the box and pushed Send out of reach, and a longer permission such as "Read
+  only" broke onto two lines; on a narrow box the chips now keep only what tells them apart (the
+  thinking level shows its icon), the permission stays whole on one line and a long model name is
+  cut short.
 - **Messages no longer show under the agent chat's message box on a phone.** On a phone with a
   home indicator, the box held a little above the bottom edge and the conversation showed through
   the strip beneath it; the strip now takes the page's background.
@@ -615,6 +625,28 @@
   the body (`database_id` to `/databases/{database_id}/query`) must leave it out. The AI chat's and
   agents' reading tools (`query_database`, `search_pages`, `read_page` …) tell the model the same,
   so it asks again instead of answering from an unfiltered list.
+- **The AI chat and agents keep what they read where it belongs.** The AI chat's further tools
+  (`use_tool`) reached the person's other workspaces, including one whose owners turned AI off;
+  they now see only the chat's workspace. Comments, agent chats and other people's words read
+  through them reach the model framed as data and make the rest of the answer ask first. A
+  conversation that read files on the person's computer keeps saying so in later turns, even once
+  older messages are trimmed, so connected apps get neither those turns nor a summary drawn from
+  them, and later turns still go without the web, other agents and email. A helper agent asked by
+  a run that read outside words no longer gets its "allow" rules, and other agents' answers read
+  through `agent_tasks` count as outside words. The AI chat's history sent to the Telegram bot
+  leaves out turns that read mail. Memory proposals from runs started by a connection's event show
+  only to workspace owners, connected apps don't get the text of one made by a run that read mail
+  or files on the computer, and a restored backup brings back only notes that were kept. An
+  agent's report by email counts toward the mailbox's sends per hour.
+- **Agent chats lose no steps when a run fails, and wait less.** A run that failed or expired
+  saved the steps it had when it started, dropping its changes, a correction's Undo and the mark
+  that it read mail or files; a message sent behind a run the tab wasn't following stayed queued
+  until the page was reloaded; proposals and reminders made by a mail or schedule run could be
+  made again after a restart; and a spending pause let the other calls of the same turn run. The
+  Telegram bot's AI chat answers are followed like the app's, so asking again in the app can't
+  drop the bot's turn, and a question sent while the app is answering in the same conversation is
+  turned away. An answer opened the moment it ends no longer shows twice, and a conversation still
+  being answered is never cleaned away.
 
 ## 0.6.7 — 2026-10-29
 

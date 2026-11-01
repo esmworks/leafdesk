@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Sovellukset saavat vain lukea työtilassa {workspace}, joten vastaan muuttamatta siellä mitään.",
   "busy": "Vastaan vielä edelliseen kysymykseesi. Keskeytä se lähettämällä /stop.",
+  "busyInApp": "Tähän keskusteluun vastataan vielä Leafdeskissä. Kysy uudelleen, kun vastaus on valmis.",
   "stopped": "Keskeytetty.",
   "nothingToStop": "En vastaa juuri nyt mihinkään.",
   "unlinked": "Tätä Telegram-tiliä ei ole enää yhdistetty Leafdeskiin.",

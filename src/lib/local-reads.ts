@@ -6,11 +6,13 @@
  * Pages of the workspace and the computer's own tools stay open. Server-only callers; kept apart
  * from lib/agents.ts, which client code loads.
  */
-import { COMPUTER_READ_TOOLS, type AgentStepRecord } from "./agents";
+import { COMPUTER_EARLIER, COMPUTER_READ_TOOLS, type AgentStepRecord } from "./agents";
 
-/** Whether a run's steps show it brought something in from the person's computer. */
+/** Whether a run's steps show it brought something in from the person's computer, or went on from a turn that had (COMPUTER_EARLIER). */
 export const readLocalFiles = (steps: readonly (AgentStepRecord | { kind: string })[] | undefined): boolean =>
-  (steps ?? []).some((s) => s.kind === "tool" && "tool" in s && s.connectionId === null && s.outcome === "done" && COMPUTER_READ_TOOLS.has(s.tool));
+  (steps ?? []).some(
+    (s) => s.kind === "tool" && "tool" in s && s.connectionId === null && s.outcome === "done" && (COMPUTER_READ_TOOLS.has(s.tool) || s.tool === COMPUTER_EARLIER),
+  );
 
 /**
  * Where a conversation first holds something from the person's computer: the first message whose

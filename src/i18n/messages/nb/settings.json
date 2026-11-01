@@ -668,6 +668,7 @@
         "read": "Leste en fil på datamaskinen",
         "write": "Skrev en fil på datamaskinen",
         "trash": "Flyttet noe på datamaskinen til papirkurven",
+        "earlier": "Filer på datamaskinen ble lest tidligere i denne samtalen, så ingenting forlater Leafdesk i dette svaret",
         "declined": "avslått; ingenting ble gjort",
         "expired": "ikke besvart i tide; ingenting ble gjort",
         "failed": "kunne ikke utføres",

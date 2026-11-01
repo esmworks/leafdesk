@@ -55,6 +55,7 @@ import {
   type ChatSourceRef,
   type ChatStepRecord,
 } from "@/db/schema";
+import { OTHERS_WORDS_MORE_TOOLS, readEmail } from "@/lib/agents";
 import type { AiErrorCode } from "@/lib/ai";
 import {
   changedMemory,
@@ -84,7 +85,7 @@ import { CHAT_FILE_LIMITS, chatFileKind, chatFileUrl, type ChatAttachmentView } 
 import { pageLabel } from "@/lib/labels";
 import { createPage } from "@/server/pages";
 import { AccessError, connectedAppHold, isGuest, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
-import { asWrite } from "@/server/connected-app";
+import { asWrite, connectedAppCall, withinWorkspace } from "@/server/connected-app";
 import {
   AiError,
   aiConfig,
@@ -604,7 +605,14 @@ async function* runChat(
       if (decision === "always" && !untrusted && !tool.eachTime) mode = "auto";
     }
     try {
-      return await callMoreTool(more, picked, left, signal);
+      // Held to this workspace: the person's tools would reach the others too (connected-app.ts withinWorkspace).
+      const out = await withinWorkspace(userId, workspaceId, () => callMoreTool(more, picked, left, signal));
+      // Other agents' answers and others' words in the inbox could pass themselves off as the person's wish: what follows is asked about.
+      if (!out.isError && OTHERS_WORDS_MORE_TOOLS.has(tool.name)) {
+        untrusted = true;
+        if (mode === "auto") mode = "ask";
+      }
+      return out;
     } catch (error) {
       if (signal?.aborted) throw new AiError("aborted", "The answer was stopped");
       throw error;
@@ -630,7 +638,8 @@ async function* runChat(
     // ---------------------------------------------------------------------------- the question
     // Nothing is searched for the model: it gets the map of what there is and decides itself.
     const earlier = existing?.messages.slice(0, existing.messages.length - replaced) ?? [];
-    const history: AiMessage[] = chatHistory(earlier, Math.floor(room() * HISTORY_SHARE));
+    // Asked from a connected app (the Telegram bot), which gets no mail tools: nor what turns that read mail said.
+    const history: AiMessage[] = chatHistory(connectedAppCall(userId) ? withoutMailTurns(earlier) : earlier, Math.floor(room() * HISTORY_SHARE));
     const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0 };
     const filesText = hasFiles ? filesPrompt(read, Math.floor((room() - sizeOf(history) - message.length - memory.text.length) * FILES_SHARE)) : "";
     const imagesSize = read.images.length * IMAGE_CHARS;
@@ -838,6 +847,7 @@ async function* runChat(
     const refs: ChatSourceRef[] = registry.sources
       .filter((s) => cited.has(s.n))
       .map((s) => (s.url ? { n: s.n, url: s.url, title: s.title } : { n: s.n, pageId: s.pageId, blockId: s.blockId }));
+    const sources = await viewSources(userId, refs);
     const now = new Date().toISOString();
     const note = stopped ? "stopped" : failure ? undefined : stopReason === "length" ? "cutOff" : undefined;
     const ms = Date.now() - started;
@@ -870,12 +880,14 @@ async function* runChat(
       model,
       thinking,
     );
+    // The answer ends as soon as its turn is saved: a page opening the conversation now finds the
+    // turn there, and no answer on its way to follow again on top of it (ai-chat-runs.ts runningIn).
+    yield { type: "sources", sources };
+    if (!failure) yield { type: "done", stopReason, ms };
+    else yield { type: "error", code: failure };
     // Kept with the question: they now go with the conversation.
     await keepQuestionFiles(conversation.id, kept.map((f) => f.id));
     await pruneConversations(userId, workspaceId);
-    yield { type: "sources", sources: await viewSources(userId, refs) };
-    if (!failure) yield { type: "done", stopReason, ms };
-    else yield { type: "error", code: failure };
     return;
   }
   // Nothing to keep: a conversation this question started goes again.
@@ -909,13 +921,13 @@ async function pruneConversations(userId: string, workspaceId: string) {
     .orderBy(desc(aiConversation.updatedAt))
     .limit(MAX_CONVERSATIONS);
   if (keep.length < MAX_CONVERSATIONS) return;
+  // A conversation being answered (an old one asked again, in another tab or from Telegram) stays:
+  // its answer saves into it.
+  const answering = [...answeringIn(userId, workspaceId)];
   const old = and(
     eq(aiConversation.userId, userId),
     eq(aiConversation.workspaceId, workspaceId),
-    notInArray(
-      aiConversation.id,
-      keep.map((k) => k.id),
-    ),
+    notInArray(aiConversation.id, [...keep.map((k) => k.id), ...answering]),
   );
   const gone = await db.select({ id: aiConversation.id }).from(aiConversation).where(old);
   if (!gone.length) return;
@@ -1077,4 +1089,19 @@ export async function deleteConversations(userId: string, workspaceId: string, c
   const gone = await db.select({ id: aiConversation.id }).from(aiConversation).where(theirs);
   await deleteConversationFiles(gone.map((c) => c.id));
   await db.delete(aiConversation).where(theirs);
+}
+
+/** A conversation's records less the turns whose answer read email (lib/agents.ts readEmail), question and answer alike. */
+export function withoutMailTurns<T extends { role: "user" | "assistant"; steps?: { kind: string; action?: unknown }[] }>(records: T[]): T[] {
+  const kept: T[] = [];
+  for (let i = 0; i < records.length; i++) {
+    const next = records[i + 1];
+    if (records[i].role === "user" && next?.role === "assistant" && readEmail(next.steps)) {
+      i++;
+      continue;
+    }
+    if (records[i].role === "assistant" && readEmail(records[i].steps)) continue;
+    kept.push(records[i]);
+  }
+  return kept;
 }

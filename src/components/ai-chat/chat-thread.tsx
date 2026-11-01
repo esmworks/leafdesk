@@ -498,7 +498,8 @@ export function ChatThread({
                     </span>
                   )}
                   {/* What goes in with the question and what the chat may change on the left; the model, dictation and Send on the right. */}
-                  <div className={cn("flex min-w-0 items-center", empty ? "gap-3" : "gap-2")}>
+                  {/* A container: on a narrow box (a phone, the panel) the chips keep only what tells them apart, so the model's name fits. */}
+                  <div className={cn("@container flex min-w-0 items-center max-sm:gap-1.5", empty ? "gap-3" : "gap-2")}>
                     <AddMenu
                       className={cn(round, "border border-border text-fg hover:bg-bg-hover disabled:opacity-40 disabled:hover:bg-transparent")}
                       disabled={Boolean(blocked)}
@@ -1058,6 +1059,8 @@ function ModePicker({
     <Popover
       side="top"
       className="w-64"
+      // What the chat may change is read in full; the model's name gives way first.
+      wrapperClassName="shrink-0"
       trigger={({ open, toggle }) => (
         <button
           type="button"
@@ -1068,9 +1071,9 @@ function ModePicker({
           title={t(`${mode}Hint`)}
           className={chipTrigger}
         >
-          <Icon className="h-3.5 w-3.5" />
-          <span>{t(mode)}</span>
-          <ChevronDown className="h-3 w-3" />
+          <Icon className="h-3.5 w-3.5 shrink-0 @max-sm:hidden" />
+          <span className="whitespace-nowrap">{t(mode)}</span>
+          <ChevronDown className="h-3 w-3 shrink-0" />
         </button>
       )}
     >
@@ -1129,6 +1132,8 @@ function ModelPicker({ models, model, onChange }: { models: ChatOptions["models"
     <Popover
       side="top"
       className="w-64"
+      // The wrapper lets the chip shrink, so a long name is cut short instead of pushing Send out of the box.
+      wrapperClassName="min-w-0"
       trigger={({ open, toggle }) => (
         <button
           type="button"
@@ -1139,7 +1144,7 @@ function ModelPicker({ models, model, onChange }: { models: ChatOptions["models"
           title={t("hint")}
           className={cn(chipTrigger, "max-w-44")}
         >
-          <Cpu className="h-3.5 w-3.5 shrink-0" />
+          <Cpu className="h-3.5 w-3.5 shrink-0 @max-sm:hidden" />
           <span className="min-w-0 truncate">{name}</span>
           <ChevronDown className="h-3 w-3 shrink-0" />
         </button>
@@ -1183,6 +1188,7 @@ function ThinkingPicker({ thinking, onChange }: { thinking: ChatThinking; onChan
       side="top"
       align="end"
       className="w-64"
+      wrapperClassName="min-w-0"
       trigger={({ open, toggle }) => (
         <button
           type="button"
@@ -1194,8 +1200,8 @@ function ThinkingPicker({ thinking, onChange }: { thinking: ChatThinking; onChan
           className={chipTrigger}
         >
           <Lightbulb className="h-3.5 w-3.5 shrink-0" />
-          <span>{t(thinking)}</span>
-          <ChevronDown className="h-3 w-3 shrink-0" />
+          <span className="min-w-0 truncate @max-sm:hidden">{t(thinking)}</span>
+          <ChevronDown className="h-3 w-3 shrink-0 @max-sm:hidden" />
         </button>
       )}
     >

@@ -663,6 +663,7 @@
         "read": "Bilgisayarda bir dosya okundu",
         "write": "Bilgisayarda bir dosya yazıldı",
         "trash": "Bilgisayarda bir şey çöp kutusuna taşındı",
+        "earlier": "Bu konuşmada daha önce bilgisayardaki dosyalar okundu; bu yanıtta Leafdesk dışına hiçbir şey gönderilmiyor",
         "declined": "reddedildi; hiçbir şey yapılmadı",
         "expired": "zamanında yanıt gelmedi; hiçbir şey yapılmadı",
         "failed": "yapılamadı",

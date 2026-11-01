@@ -6,6 +6,7 @@ import { imagesShown, sameOrganization, type MailImagesFrom } from "@/lib/mail-i
 import { unsubscribeOffer, unsubscribeTargets } from "@/lib/mail-unsubscribe";
 import {
   ALL_INBOXES,
+  STARRED,
   MAIL_PAGE,
   parseMailQuery,
   type MailAddress,
@@ -344,7 +345,8 @@ async function threadFolders(box: Box, from: FolderRow | null) {
  * A folder's threads, newest first, MAIL_PAGE at a time (`cursor` is the last page's `next`). With a
  * search, all folders but the trash and junk are searched, as kept in the index: senders, recipients,
  * subjects and first lines. The mailbox ALL_INBOXES lists the inboxes of all the person's mailboxes
- * in `workspaceId` as one (its search, all their folders but the trash and junk).
+ * in `workspaceId` as one (its search, all their folders but the trash and junk). The folder STARRED
+ * lists the conversations with a starred message in any folder but the trash, junk and snoozed.
  */
 export async function listThreads(
   userId: string,
@@ -352,6 +354,7 @@ export async function listThreads(
 ): Promise<MailThreadPage> {
   const search = typeof input.search === "string" ? input.search.trim().slice(0, 500) : "";
   const cursor = typeof input.cursor === "string" ? input.cursor : null;
+  const starred = input.folderId === STARRED;
   if (input.mailboxId === ALL_INBOXES) {
     const workspaceId = input.workspaceId ?? "";
     await requireMailIn(userId, workspaceId);
@@ -375,9 +378,14 @@ export async function listThreads(
           )
       : [];
     const listed = boxes.flatMap((box) => inboxes.filter((f) => f.mailboxId === box.id).map((folder) => ({ box, folder })));
-    return threadPage(userId, workspaceId, listed, search, cursor);
+    return threadPage(userId, workspaceId, listed, search, cursor, starred);
   }
   const box = await requireOwnMailbox(userId, input.mailboxId);
+  if (starred) {
+    // Its threads go by their own folders; the inbox stands in for the list's.
+    const [inbox] = await db.select().from(mailFolder).where(and(eq(mailFolder.mailboxId, box.id), eq(mailFolder.role, "inbox")));
+    return inbox ? threadPage(userId, box.workspaceId, [{ box, folder: inbox }], search, cursor, true) : { items: [], next: null };
+  }
   const folder = await folderOf(box, input.folderId);
   return threadPage(userId, box.workspaceId, [{ box, folder }], search, cursor);
 }
@@ -437,16 +445,26 @@ async function senderMarks(userId: string, workspaceId: string, wanted: MarkWant
   );
 }
 
-async function threadPage(userId: string, workspaceId: string, listed: { box: Box; folder: FolderRow }[], search: string, cursor: string | null): Promise<MailThreadPage> {
-  // Per mailbox: the folders listed (all but the trash and junk for a search) and those whose messages count in a thread.
+async function threadPage(userId: string, workspaceId: string, listed: { box: Box; folder: FolderRow }[], search: string, cursor: string | null, starred = false): Promise<MailThreadPage> {
+  // Per mailbox: the folders listed (all but the trash and junk for a search, and the snoozed too for the starred) and those whose messages count in a thread.
   const each = await Promise.all(
     listed.map(async ({ box, folder }) => {
       const visible = await threadFolders(box, folder);
-      return { box, folder, visible, scope: search ? (await threadFolders(box, null)).map((f) => f.id) : [folder.id] };
+      const scope = search || starred ? (await threadFolders(box, null)).filter((f) => !starred || f.role !== "snoozed").map((f) => f.id) : [folder.id];
+      return { box, folder, visible, scope };
     }),
   );
   const scope = each.flatMap((e) => e.scope);
   if (!scope.length) return { items: [], next: null };
+  const inScope = starred
+    ? and(
+        inArray(mailMessage.folderId, scope),
+        sql`(${mailMessage.mailboxId}, ${mailMessage.threadId}) in (select s.mailbox_id, s.thread_id from ${mailMessage} s where s.flagged and s.folder_id in (${sql.join(
+          scope.map((id) => sql`${id}`),
+          sql`, `,
+        )}))`,
+      )
+    : inArray(mailMessage.folderId, scope);
 
   let after: SQL | undefined;
   // "<date>|<mailbox>|<thread>": a thread's id may hold a "|" of its own.
@@ -454,13 +472,14 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
   const threadId = rest.join("|");
   if (at && mailboxId && threadId && !Number.isNaN(Date.parse(at))) after = sql`(t.last, t.mailbox_id, t.thread_id) < (${at}::timestamptz, ${mailboxId}, ${threadId})`;
   // A thread back from a snooze is listed as of the moment it came back (snooze.ts), if that is later.
-  const groupsOf = (where: SQL | undefined) => db.execute<{ mailbox_id: string; thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; files: boolean; drafts: boolean; newest: string; until: string | null }>(sql`
+  const groupsOf = (where: SQL | undefined) => db.execute<{ mailbox_id: string; thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; starred_in: string | null; files: boolean; drafts: boolean; newest: string; until: string | null }>(sql`
     select * from (
       select ${mailMessage.mailboxId} as mailbox_id, ${mailMessage.threadId} as thread_id,
         greatest(max(${mailMessage.sentAt}), max(${mailSnooze.wokeAt})) as last,
         max(${mailSnooze.until}) filter (where ${mailSnooze.wokeAt} is null) as until,
         bool_or(not ${mailMessage.seen}) as unread, count(*)::int as held,
         (count(*) filter (where not ${mailMessage.seen}))::int as unseen, bool_or(${mailMessage.flagged}) as starred,
+        (array_agg(${mailMessage.folderId} order by ${mailMessage.sentAt} desc) filter (where ${mailMessage.flagged}))[1] as starred_in,
         bool_or(${mailMessage.hasAttachments}) as files, bool_or(${mailMessage.draft}) as drafts,
         (array_agg(${mailMessage.id} order by ${mailMessage.sentAt} desc, ${mailMessage.uid} desc))[1] as newest
       from ${mailMessage}
@@ -472,7 +491,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
     order by t.last desc, t.mailbox_id desc, t.thread_id desc
     limit ${MAIL_PAGE + 1}
   `);
-  let groups = await groupsOf(and(inArray(mailMessage.folderId, scope), search ? searchCondition(search) : undefined));
+  let groups = await groupsOf(and(inScope, search ? searchCondition(search) : undefined));
   // Less than a page in the index: the mail servers look in the messages' text too.
   const words = search ? parseMailQuery(search).words.slice(0, 5) : [];
   if (words.some((w) => [...w].length >= 3) && (cursor || groups.length <= MAIL_PAGE)) {
@@ -481,7 +500,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
     for (const s of searched) s.folders = folders.filter((f) => s.ids.includes(f.id));
     const key = [userId, search, ...each.map((e) => e.box.id).sort()].join("|");
     const found = await bodyMatches(key, searched, words, !!cursor);
-    if (found.length) groups = await groupsOf(and(inArray(mailMessage.folderId, scope), searchCondition(search, found)));
+    if (found.length) groups = await groupsOf(and(inScope, searchCondition(search, found)));
   }
   const page_ = [...groups];
   const more = page_.length > MAIL_PAGE;
@@ -565,7 +584,8 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
       {
         threadId: g.thread_id,
         mailboxId: g.mailbox_id,
-        folderId: from.folder.id,
+        // A starred thread's moves and flags go to the folder of its newest starred message.
+        folderId: (starred && g.starred_in) || from.folder.id,
         messageId: message.id,
         senders: senders.length ? senders.slice(0, 4) : [{ address: message.fromAddress, name: message.fromName }],
         subject: message.subject,

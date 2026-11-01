@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "In {workspace} le app possono solo leggere, quindi rispondo senza modificare nulla lì.",
   "busy": "Sto ancora rispondendo alla tua ultima domanda. Invia /stop per fermarla.",
+  "busyInApp": "A questa conversazione si sta ancora rispondendo in Leafdesk. Chiedi di nuovo quando la risposta è finita.",
   "stopped": "Fermato.",
   "nothingToStop": "Al momento non sto rispondendo a nulla.",
   "unlinked": "Questo account Telegram non è più collegato a Leafdesk.",

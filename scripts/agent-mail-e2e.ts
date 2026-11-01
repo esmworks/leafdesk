@@ -67,7 +67,7 @@ const { eq, inArray } = await import("drizzle-orm");
 const nodemailer = (await import("nodemailer")).default;
 const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
-const { agentDailyChange, agentRun, notification, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentDailyChange, agentRun, mailbox, mailSend, notification, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -84,6 +84,7 @@ const { listAgentVersions, restoreAgentVersion } = await import("@/server/agents
 const { flushAgentRuns } = await import("@/server/agents/run");
 const { runDueSchedules } = await import("@/server/schedules");
 const { MAX_SCHEDULED_WRITES } = await import("@/lib/agents");
+const { MAX_SENDS_PER_HOUR } = await import("@/lib/mail");
 
 const RUN =`agent-mail-e2e-${Date.now().toString(36)}`;
 
@@ -301,6 +302,25 @@ try {
     { results: capped.slice(-2), steps: run?.steps.slice(-3) },
   );
   await agents.setAgentAccess(ids.owner, tracker.id, orders.id, "view");
+
+  // The agent's messages count toward the mailbox's sends in an hour, with the Mail tab's and the rows'.
+  const [ownerBox] = await db.select().from(mailbox).where(eq(mailbox.userId, ids.owner));
+  const sentBefore = (await db.select().from(mailSend).where(eq(mailSend.mailboxId, ownerBox.id))).length;
+  check(sentBefore === 2, "each message the agent sent is counted among the mailbox's sends", sentBefore);
+  await db.insert(mailSend).values(Array.from({ length: MAX_SENDS_PER_HOUR - sentBefore }, () => ({ mailboxId: ownerBox.id })));
+  fake.chats.length = 0;
+  fake.setChat(caller([{ name: "send_email", arguments: { subject: `${subject} (3)`, text } }], "Tried."));
+  await runNow(set.id);
+  run = await lastRun(tracker.id);
+  const full = toolResults(fake.chats.at(-1)!);
+  await settle();
+  check(
+    full[0]?.includes(`sent ${MAX_SENDS_PER_HOUR} messages in the last hour`) && !(await folderOf(planning)).some((m) => m.subject === `${subject} (3)`),
+    "a mailbox that sent its hour's most sends nothing more for the agent",
+    full,
+  );
+  check((await db.select().from(mailSend).where(eq(mailSend.mailboxId, ownerBox.id))).length === MAX_SENDS_PER_HOUR, "…and counts nothing for what it didn't send");
+  await db.delete(mailSend).where(eq(mailSend.mailboxId, ownerBox.id));
 
   // ── No mailbox, or no recipients: no tool ────────────────────────────────────────────────────
   const memberSet = await agentSchedules.setAgentSchedule(ids.member, tracker.id, null, { rule: daily, timeZone: ZONE, task: "Email the overdue orders.", databaseId: orders.id });

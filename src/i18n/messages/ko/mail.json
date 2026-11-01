@@ -23,6 +23,7 @@
   "firstReadHint": "최근 메일은 잠시 후 표시됩니다. 최대 3개월 전까지의 이전 메일은 몇 분에 걸쳐 가져옵니다.",
   "empty": "메일이 없습니다.",
   "emptySearch": "일치하는 메일이 없습니다.",
+  "emptyStarred": "별표한 대화가 없습니다.",
   "emptyFolder": {
     "trash": "휴지통 비우기",
     "junk": "스팸 비우기",
@@ -185,6 +186,7 @@
   "showSource": "원본 보기",
   "downloadSource": "메시지 다운로드 (.eml)",
   "allInboxes": "모든 받은편지함",
+  "allStarred": "모든 별표 메일",
   "ai": {
     "summarize": "요약",
     "summarizeHint": "이 대화를 AI로 요약",

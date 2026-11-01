@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Aplikasi hanya boleh membaca di {workspace}, jadi saya menjawab tanpa mengubah apa pun di sana.",
   "busy": "Saya masih menjawab pertanyaan terakhir Anda. Kirim /stop untuk menghentikannya.",
+  "busyInApp": "Percakapan ini masih dijawab di Leafdesk. Tanyakan lagi setelah jawaban itu selesai.",
   "stopped": "Dihentikan.",
   "nothingToStop": "Saya tidak sedang menjawab apa pun saat ini.",
   "unlinked": "Akun Telegram ini tidak lagi tertaut ke Leafdesk.",

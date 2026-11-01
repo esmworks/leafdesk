@@ -663,6 +663,7 @@
         "read": "Leyó un archivo del ordenador",
         "write": "Escribió un archivo en el ordenador",
         "trash": "Movió algo del ordenador a la papelera",
+        "earlier": "Antes en esta conversación se leyeron archivos del ordenador, así que en esta respuesta nada sale de Leafdesk",
         "declined": "rechazado; no se hizo nada",
         "expired": "sin respuesta a tiempo; no se hizo nada",
         "failed": "no se pudo hacer",

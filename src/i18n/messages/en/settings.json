@@ -668,6 +668,7 @@
         "read": "Read a file on the computer",
         "write": "Wrote a file on the computer",
         "trash": "Moved something on the computer to the trash",
+        "earlier": "Files on the computer were read earlier in this conversation, so nothing goes out of Leafdesk in this answer",
         "declined": "declined; nothing was done",
         "expired": "no answer in time; nothing was done",
         "failed": "couldn’t be done",

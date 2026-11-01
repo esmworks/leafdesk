@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "{workspace}에서는 앱이 읽기만 할 수 있으므로 아무것도 변경하지 않고 답합니다.",
   "busy": "아직 이전 질문에 답하는 중입니다. 멈추려면 /stop을 보내세요.",
+  "busyInApp": "이 대화는 아직 Leafdesk에서 답변 중입니다. 답변이 끝나면 다시 질문해 주세요.",
   "stopped": "중지했습니다.",
   "nothingToStop": "지금은 답하고 있는 것이 없습니다.",
   "unlinked": "이 Telegram 계정은 더 이상 Leafdesk에 연결되어 있지 않습니다.",
