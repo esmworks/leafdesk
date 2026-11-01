@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 0.7.0 — 2026-11-02
+
+### Upgrading from 0.6.7
+
+- **Back up the database first.** Migrations 0159 to 0187 run automatically when the container
+  starts (from source, run `pnpm db:migrate`). Among them, `0184_conversations` moves the AI
+  chat's and agents' conversations and their files into the new `conversation` and
+  `conversation_file` tables, and `0185_drop_old_conversations` drops the old ones. The others add
+  the Mail tab's tables (`mail_message`, `mail_send`, `mail_snooze`, `mail_sender_logo` …), several
+  mailboxes per member, agents' guardrails, tasks, mailboxes and approval rules, AI reminders and
+  the Telegram bot's agent chats.
+- **Download the new `docker-compose.yml`.** It passes the new `MAIL_MICROSOFT_CLIENT_ID`,
+  `MAIL_MICROSOFT_CLIENT_SECRET`, `MAIL_MICROSOFT_TENANT` and `SENDER_LOGOS` settings on to the
+  app. An existing `.env` keeps working.
+- **Optional: Microsoft sign-in for mailboxes.** Set `MAIL_MICROSOFT_CLIENT_ID` and
+  `MAIL_MICROSOFT_CLIENT_SECRET` (and `MAIL_MICROSOFT_TENANT` for one organization only) to let
+  members connect Outlook.com and Microsoft 365 mailboxes without a password
+  (docs/email-on-rows.md).
+- **Optional: no sender logos.** The Mail tab looks up the logos of the domains verified mail comes
+  from; `SENDER_LOGOS=off` stops it.
+
 ### Added
 
 - **What someone just sent you comes as a card at the top of the window.** An assignment, a mention,
@@ -337,6 +358,26 @@
   any page. Migrations 0164 and 0165; new dependencies `@tiptap/starter-kit` and
   `@tiptap/extensions`.
 
+- **Mail attachments open in the file viewer.** A tap opens one over the conversation, with a
+  close button and the message's other files a swipe away; PDFs, Word documents and Excel
+  workbooks show in place, and a PDF sent as plain bytes (`application/octet-stream`) shows as a
+  PDF.
+- **Mail fits a phone.** A message laid out for a wider column (most newsletters and notices,
+  600px tables) is drawn at its own width and shrunk to fit, by at most 30%, instead of being cut
+  off or squeezed to a few words a line; plain messages and ones that adapt to the screen stay full
+  size. The thread's margins are narrower on a phone and a message's time sits under its sender.
+- **Plain mail reads in the dark theme.** A message in the mail program's default colors (text,
+  links, quotes and tables, as most people's mail is) shows in the page's own colors. Newsletters
+  and other mail with its own colors, backgrounds or pictures keep a white page, which they were
+  made for.
+- **Answers show without the mail they quote.** The earlier mail an answer quotes at its end, as
+  Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark it, folds under
+  *•••* and opens in place.
+- **Replies and forwards carry the earlier mail as it looked.** What is written stays on its
+  own in the editor; the original goes under it with its tables, colors and the images it carries,
+  behind *•••* to look at or taken off with *Remove the quoted message*, and the plain-text part
+  quotes the original's own text with `>`. Drafts keep it from one save to the next. Mail lists
+  leave the "… wrote:" line above a quote out of a message's first line.
 - **Word export, and Word and Excel files from the AI chat.** "Export as Word" in the page menu
   downloads a page or row as a .docx file meant for further editing, with the PDF export's choices
   (letterhead, a row's values, comments): Word's heading styles, numbering and footnotes, tables
@@ -459,9 +500,6 @@
 
 ### Changed
 
-- **New message in the Mail tab is a button beside the mailbox's address.** It was a row of its own
-  right above the inbox, where it took clicks meant for the inbox; the folders move up a row. `C`
-  still starts a message.
 - **Chatting with an agent looks and works like the AI chat.** The agent's page, its chat block in
   pages and the Chat tab of its settings show the same conversation and question box as the AI chat:
   the same answers, steps, files, dictation and asking again, with the agent's runs, days and
@@ -496,10 +534,6 @@
   `agent_chat_file` into `conversation_file`, with their ids, so links, notes and Telegram chats
   keep pointing at them; `0185_drop_old_conversations` drops the old tables. Nothing changes in
   the app.
-- **Mail reads better on a phone.** A message built for a wider column (most newsletters and
-  notices) is laid out closer to that column and shrunk to fit, by at most 30%, instead of being
-  squeezed to a few words a line; plain messages stay full size. The thread's margins are narrower
-  on a phone and a message's time sits under its sender, so the name isn't cut short.
 - **The AI chat keeps notes about you at once, with Undo.** When you tell it about yourself, the
   note is kept (or changed, or dropped) right away in every mode, and its step has *Undo*; it asks
   first, as before, only when the answer read something from outside (a web page, an email, a
@@ -551,25 +585,9 @@
   the AI chat. Only the person chatting sees it, with credentials masked as in the kept answer; a
   run taken by another server process still shows its answer whole at the end.
 
-- **Plain mail reads in the dark theme.** A message in the mail program's default colors (text,
-  links, quotes and tables, as most people's mail is) now shows in the page's own colors in the Mail
-  tab, so on the dark theme it no longer sits on a white card. Newsletters and other mail with its
-  own colors, backgrounds or pictures keep their white page, which they were made for.
-
 - **One hourly sending limit per mailbox.** The 100 messages an hour a mailbox may send now count
   the Mail tab's messages and emails written on rows together, kept in the database, so a restart
   no longer starts the count over. Migration 0169 (`mail_send`).
-
-- **Answers in the Mail tab show without the mail they quote.** The earlier mail an HTML answer
-  quotes at its end, as Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark
-  it, folds under *•••* and opens in place; plain-text answers already did.
-
-- **Replies and forwards from the Mail tab carry the earlier mail as it looked.** It no longer
-  goes into the editor as plain lines: what is written stays on its own, the original goes under
-  it with its tables, colors and the images it carries, behind *•••* to look at or taken off with
-  *Remove the quoted message*, and the plain-text part quotes the original's own text with `>`.
-  Drafts keep it from one save to the next. Mail lists also leave the "… wrote:" line above a
-  quote out of a message's first line.
 
 - **A database's tabs and toolbar scroll away with the page.** On a full database page they no
   longer stay at the top as you scroll down; only a table's column names do, right under the
@@ -598,33 +616,15 @@
   last. Owners get one inbox item per agent instead of one per run. Migration 0162; existing inbox
   items for proposals are cut to one per agent and owner.
 
-- **Chats with agents look like the AI chat.** On an agent's page, in its Chat tab and in an Agent
-  chat block, questions sit in the same box, the steps of an answer show under a running clock
-  and fold into how long it took, and an answer and a question can be copied, with the time on
-  hover. A chat box in an agent's settings no longer scrolls sideways.
 - **The chat list shows a dot only beside a conversation being answered.** Every conversation in
   the sidebar's chat list had a faint dot; now the place stays empty, and the dot fades in and out
   only while an answer is being written.
 
 ### Fixed
 
-- **An agent can still propose a note after reading your email.** Once a chat had read email, the
-  agent refused to remember anything you told it, so it could only say it would note it. It now
-  proposes the note: never kept at once, only you read it in the agent's Memory tab and may keep
-  it. Forgetting a note stays refused after email, and the agent says who reviews its proposal.
 - **An agent's sent reports read as sent in MCP and the REST API.** A run's email to the agent's
   own recipients went out at once but was listed as a draft waiting for review; it now reads
   "Sent an email to …", or that it couldn't be sent, while a row's email still reads as a draft.
-- **Mail attachments open in the file viewer.** A tap opens one over the conversation, with a
-  close button and the message's other files a swipe away, where an app on a phone's home screen
-  opened it in a new tab with no way back; PDFs, Word documents and Excel workbooks show in place,
-  and a PDF sent as plain bytes (`application/octet-stream`) shows as a PDF.
-- **Mail designed wider than a phone fits the screen.** A message laid out at a fixed width (600px
-  tables) was cut off at the right edge, and tables were squeezed until words broke across lines;
-  such a message is now drawn at its own width and shrunk to fit, while one that adapts to the
-  screen shows as before.
-- **An empty Mail list shows one menu button on a phone.** "No starred conversations" and the
-  other empty lists drew a second sidebar button under the header.
 - **Dictating a question on a phone no longer covers the AI chat box's chips.** While it records,
   the model and thinking chips step aside for the timer and Stop.
 
@@ -633,9 +633,6 @@
   only" broke onto two lines; on a narrow box the chips now keep only what tells them apart (the
   thinking level shows its icon), the permission stays whole on one line and a long model name is
   cut short.
-- **Messages no longer show under the agent chat's message box on a phone.** On a phone with a
-  home indicator, the box held a little above the bottom edge and the conversation showed through
-  the strip beneath it; the strip now takes the page's background.
 - **The top of the installed app on iPhone is no longer blurred.** iOS 26 faded the first lines
   under the status bar, so a page's header looked washed out and text scrolling up went blurry
   there; the status bar now sits on a solid band in the page's color. An app added to the Home
@@ -646,19 +643,6 @@
 - **Buttons that appeared only under the mouse show on touch screens.** Adding a row on a calendar
   day, adding a sub-item in a list or timeline, refreshing or resizing a bookmark and the saved AI
   prompts' buttons were hidden until hovered, which a finger can't do.
-- **The Mail tab opens for people without a mailbox.** It failed with "Something went wrong"
-  instead of offering to connect one.
-- **An agent with a mailbox opened to it says why a run can't read it.** A run started through a
-  connected app (an AI assistant using the MCP server, the REST API, Telegram), a request, a row or
-  a mention has no email tools, so what it read can't leave Leafdesk; the agent asked for the
-  mailbox to be opened to it instead of saying to ask it in its chat in Leafdesk.
-
-- **Mail with pictures as wide as the reading pane shows no scrollbar beside it.** The Mail tab
-  showed one that narrowed the message without anything to scroll.
-
-- **Short HTML mail in the Mail tab no longer leaves a gap under it.** Its frame took the height
-  it started with when the message was shorter.
-
 - **Google Sheets syncs no longer need a column with a different value in every row.** A sync set
   up with the key column left empty finds rows by their place in the sheet, so ledgers of dates,
   names and amounts come in whole, rows that repeat each other included. Before, an empty key
@@ -669,19 +653,10 @@
 - **The settings' navigation keeps its top in place.** Only its list of settings scrolls now; the
   way back and the search stay put, so in the desktop app they no longer slide under the window's
   buttons.
-- **A message in the Mail tab no longer stays loading when the mail server stops answering.** A
-  connection the server dropped without a word kept the message waiting for minutes; now one that
-  doesn't answer a keep-alive in 10 seconds, or a message in 30, is closed and the message read
-  again on a new one.
-- **The boxes beside a chat no longer cut a line in half.** A long list of sources, changed pages,
-  runs or schedules beside the AI chat and an agent's page fades out at its edges and leaves room
-  under its last line, instead of ending on a line sliced by the box's border.
 - **Closing a source beside the AI chat keeps the conversation where it was.** A page opened from
   an answer's citation, or from the sources beside the conversation, gave focus back on closing to
   the first place that page was cited, so a page an earlier answer also cited took the conversation
   back to its start. Focus now goes back to what was clicked.
-- **Excel exports of a database with a button property** gave the columns after the button the
-  wrong kind: numbers and dates in them came out as text, or text as numbers.
 - **Frozen columns no longer let text show beside them.** Scrolled sideways, a table's frozen
   columns stopped at the page's margin, and the columns scrolling past showed through in the strip
   between them and the edge. They now move along across the margin and hold just short of the
