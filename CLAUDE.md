@@ -314,7 +314,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   minutes for the socket timeout, so work someone waits on passes `within` (closed then, throwing
   `ConnectionLost`, which `readBody` tries once more on a new connection); bodies held a few minutes in memory, `body-cache.ts`, and in
   the tab, `components/mail/mail-cache.ts`; HTML cleaned by `html.ts` into a sandboxed frame, drawn in the
-  page's colors when `plain-html.ts` finds only default ones, else on white; the page is
+  page's colors when `plain-html.ts` finds only default ones, else on white; attachments open in
+  the file viewer, never a tab of their own (`lib/mail-attachments.ts` `attachmentForViewer`: its
+  `elsewhere` addresses are `view=pdf` for the PDF frame and `api/mail/attachment/preview` for
+  Word, and `attachmentType` serves a PDF sent as plain bytes as one); the page is
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
   into `MOVES` in `mail-app.tsx`; action `move` takes the folder's id in `to`, checked by

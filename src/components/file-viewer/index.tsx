@@ -30,6 +30,12 @@ export type ViewerFile = {
    * viewer shows from there and downloads through the server (lib/downloads).
    */
   download?: string;
+  /**
+   * A file kept somewhere other than the file route (a message's attachment, api/mail/attachment):
+   * where a PDF frame and a Word document's preview read it from. Its route isn't asked what it is
+   * (it would read the whole file): `type` says, and its size stays unknown.
+   */
+  elsewhere?: { pdf: string; docx: string };
 };
 
 const FileViewer = lazyPart(() => import("./file-viewer").then((m) => m.default));

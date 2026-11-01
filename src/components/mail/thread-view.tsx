@@ -13,7 +13,9 @@ import { isAiErrorCode } from "@/lib/ai";
 import type { MailWriteAction } from "@/lib/mail-ai";
 import { pagePath } from "@/lib/mentions";
 import { snoozableFrom, type MailAction, type MailAddress, type MailBody, type MailboxTabView, type MailDraftView, type MailFolderView, type MailMessageView, type MailThreadView, type MailUndoneSend, type MailUnsubscribe } from "@/lib/mail-client";
+import { plainClick, useFileViewer } from "@/components/file-viewer";
 import { lazyPart } from "@/components/lazy-part";
+import { attachmentForViewer, attachmentUrl } from "@/lib/mail-attachments";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
 import { discardDraftAction, forgetImageSenderAction, trustImageSenderAction, unsubscribeAction } from "@/app/actions/mail";
 import { showToast } from "@/components/toast";
@@ -250,6 +252,7 @@ function Message({
 }) {
   const t = useTranslations("mail");
   const when = useWhen();
+  const viewer = useFileViewer();
   const me = message.from.address === box.address;
   const name = (a: MailAddress) => (a.address === box.address ? t("me") : a.name || a.address);
   if (!open) {
@@ -353,12 +356,22 @@ function Message({
             )}
             {body.attachments.length > 0 && (
               <ul className="mt-4 flex flex-wrap gap-2" aria-label={t("attachments", { count: body.attachments.length })}>
-                {body.attachments.map((file) => (
+                {body.attachments.map((file, index) => (
                   <li key={file.part}>
                     <a
-                      href={`/api/mail/attachment?m=${encodeURIComponent(message.id)}&p=${encodeURIComponent(file.part)}`}
+                      href={attachmentUrl(message.id, file.part)}
                       target="_blank"
                       rel="noopener"
+                      // Opened over the thread, never in a tab of its own: an app on a phone's home
+                      // screen has no way back from one. A click with a modifier still opens a tab.
+                      onClick={(event) => {
+                        if (!plainClick(event)) return;
+                        event.preventDefault();
+                        viewer.open(
+                          body.attachments.map((f) => attachmentForViewer(message.id, f)),
+                          index,
+                        );
+                      }}
                       className="inline-flex max-w-72 items-center gap-2 rounded-md border border-border px-2.5 py-1.5 text-sm hover:bg-bg-hover"
                     >
                       <Paperclip className="h-3.5 w-3.5 shrink-0 text-fg-icon" />
@@ -369,6 +382,7 @@ function Message({
                 ))}
               </ul>
             )}
+            {viewer.element}
           </>
         ) : null}
       </div>

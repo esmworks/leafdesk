@@ -3,7 +3,6 @@
 import { ExternalLink, FileText, Maximize2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { fileUrl, pdfViewUrl } from "@/lib/files";
 
 /**
  * An uploaded PDF shown in place, in the editor's file blocks and on published pages.
@@ -11,14 +10,15 @@ import { fileUrl, pdfViewUrl } from "@/lib/files";
  * The browser's own PDF viewer draws it, in an `<object>`: Chrome's viewer refuses to run in a
  * sandboxed iframe, and an `<object>` falls back to its content (the link) where there is no
  * viewer, where an iframe would download the file on every visit (Android). Browsers that say they
- * have no viewer (`navigator.pdfViewerEnabled`) get only the link. The object loads `pdfViewUrl`,
- * which the file route answers only for files stored as application/pdf (served with nosniff and
- * framable by this site alone), so a file merely named ".pdf" shows the fallback instead.
+ * have no viewer (`navigator.pdfViewerEnabled`) get only the link. The object loads `viewUrl`
+ * (lib/files pdfViewUrl, or a mail attachment's `&view=pdf`), which the route answers only for
+ * files that are PDFs (served with nosniff and framable by this site alone), so a file merely
+ * named ".pdf" shows the fallback instead. `url` is the file itself.
  *
  * Its expand button opens the file viewer (components/file-viewer), which `fill` draws it in: the
  * whole height it is given, without the line above it.
  */
-export function PdfViewer({ fileId, name, caption, fill = false }: { fileId: string; name: string; caption?: string; fill?: boolean }) {
+export function PdfViewer({ url, viewUrl, name, caption, fill = false }: { url: string; viewUrl: string; name: string; caption?: string; fill?: boolean }) {
   const t = useTranslations("page.pdf");
   const tv = useTranslations("page.viewer");
   // Unknown until mounted: the server can't tell, and assuming a viewer keeps the layout steady.
@@ -29,7 +29,7 @@ export function PdfViewer({ fileId, name, caption, fill = false }: { fileId: str
   const label = name || t("untitled");
   const link = (
     <a
-      href={fileUrl(fileId)}
+      href={url}
       target="_blank"
       rel="noopener"
       className="inline-flex max-w-full min-w-0 items-center gap-1.5 text-sm text-fg no-underline hover:underline"
@@ -45,18 +45,18 @@ export function PdfViewer({ fileId, name, caption, fill = false }: { fileId: str
       className={fill ? "flex h-full min-h-0 w-full min-w-0 flex-1 flex-col" : "w-full min-w-0"}
       contentEditable={false}
       data-leafdesk-pdf=""
-      data-file-url={fileUrl(fileId)}
+      data-file-url={url}
       data-file-name={name}
     >
       {!fill && (
         <div className="flex min-w-0 items-center justify-between gap-2 pb-1.5">
           {link}
-          <ExpandButton url={fileUrl(fileId)} name={name} label={tv("expand")} />
+          <ExpandButton url={url} name={name} label={tv("expand")} />
         </div>
       )}
       {viewer ? (
         <object
-          data={pdfViewUrl(fileId)}
+          data={viewUrl}
           type="application/pdf"
           aria-label={t("frameTitle", { name: label })}
           className={

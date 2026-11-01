@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { dispositionOf, isSafeInline } from "@/lib/files";
+import { attachmentType } from "@/lib/mail-attachments";
 import { AccessError } from "@/server/access";
 import { readAttachment } from "@/server/mail-client/read";
 import { RowMailError } from "@/server/row-mail/settings";
@@ -9,7 +10,8 @@ import { RowMailError } from "@/server/row-mail/settings";
  * else (server/mail-client/read.ts); anyone else gets the same 404 as for a file that doesn't exist.
  * Served as /api/files serves uploads: only raster images and PDFs in the browser, everything else
  * as a download, never sniffed, and sandboxed should a browser render it anyway. `?m=` is the
- * message's id in the index, `?p=` the part.
+ * message's id in the index, `?p=` the part. The file viewer's PDF frame asks for `&view=pdf`,
+ * answered only for a PDF (as api/files does); `&download=1` saves it.
  */
 const BASE_HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -25,17 +27,20 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   try {
     const file = await readAttachment(session.user.id, { id: url.searchParams.get("m") ?? "", part: url.searchParams.get("p") ?? "" });
-    const download = url.searchParams.get("download") === "1";
+    const contentType = attachmentType(file);
+    const view = url.searchParams.get("view");
+    if (view !== null && (view !== "pdf" || contentType !== "application/pdf")) return answer(404, "Not found");
+    const download = url.searchParams.get("download") === "1" && view === null;
     return new Response(new Uint8Array(file.data), {
       status: 200,
       headers: {
         ...BASE_HEADERS,
-        "Content-Type": file.contentType,
-        "Content-Disposition": download ? dispositionOf("application/octet-stream", file.name) : dispositionOf(file.contentType, file.name),
+        "Content-Type": contentType,
+        "Content-Disposition": download ? dispositionOf("application/octet-stream", file.name) : dispositionOf(contentType, file.name),
         "Content-Security-Policy":
-          file.contentType === "application/pdf"
+          contentType === "application/pdf"
             ? "frame-ancestors 'self'"
-            : isSafeInline(file.contentType)
+            : isSafeInline(contentType)
               ? "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox"
               : "default-src 'none'; sandbox",
         "Content-Length": String(file.data.length),
