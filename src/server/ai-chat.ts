@@ -250,6 +250,9 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     throw error;
   });
   if (!(await aiAvailable(input.workspaceId))) refuse("disabled", "AI is off for this workspace");
+  // An answer a server that stopped left waiting on the person: no one can answer it now. Given up
+  // before the conversation is read, as what it changed is kept there.
+  if (input.conversationId) await dropLeftBehind(userId, input.conversationId);
   const existing = input.conversationId ? await ownConversation(userId, input.workspaceId, input.conversationId) : null;
   const model = await pickModel(userId, input.workspaceId, input.model ?? existing?.model ?? (existing ? null : await latestModel(userId, input.workspaceId)));
   const thinking = isChatThinking(input.thinking) ? input.thinking : existing ? (existing.thinking ?? "balanced") : await latestThinking(userId, input.workspaceId);
@@ -267,8 +270,6 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   // nothing is changed, notes about the person included.
   const appReadOnly = (await asWrite(() => connectedAppHold(userId, input.workspaceId))) === "readOnly";
   const timeZone = isTimeZone(input.timeZone) ? input.timeZone : browserTimeZone();
-  // An answer a server that stopped left waiting on the person: no one can answer it now.
-  if (existing) await dropLeftBehind(userId, existing.id);
   const conversation =
     existing ??
     (
@@ -641,6 +642,8 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
             status: "awaiting_approval",
             state: snapshot(),
             pending: { callId: call.id, connectionId: null, tool: call.name, arguments: redactValue(call.arguments), askedAt: new Date().toISOString(), action, askId: id },
+            // Taking it up again after the person's decision is no failed attempt.
+            attempts: 0,
             nextAt: new Date(),
           })
           .where(eq(agentRun.id, run.id));
@@ -872,14 +875,14 @@ function registryOf(sources: Registry["sources"]): Registry {
  */
 export async function resumeChatRun(run: AssistantRun): Promise<void> {
   const { source } = run;
-  if (run.attempts > MAX_RESUMES) return void (await db.delete(agentRun).where(eq(agentRun.id, run.id)));
+  if (run.attempts > MAX_RESUMES) return abandon(run);
   const go = async () => {
     const setup = await resumeSetup(run).catch((error: unknown) => {
       if (isAiError(error) || error instanceof AccessError) return null;
       throw error;
     });
     // It can't go on (the person left the workspace, AI is off, the conversation is gone): nothing more is done.
-    if (!setup) return void (await db.delete(agentRun).where(eq(agentRun.id, run.id)));
+    if (!setup) return abandon(run);
     const events = converseChat(run, setup, undefined, false);
     while (!(await events.next()).done);
   };
@@ -935,11 +938,39 @@ export async function decideParkedChange(userId: string, approvalId: string, dec
   return true;
 }
 
+/**
+ * Gives up an answer that can't go on: what it changed (rows, pages, notes) is still kept in the
+ * conversation, as a turn marked stopped, as when the person stops it; else it just goes.
+ */
+async function abandon(run: AssistantRun) {
+  const { source } = run;
+  const steps = run.state?.chat?.steps ?? [];
+  const changed = steps.some((s) => changedThings(s) || (s.kind === "memory" && changedMemory(s)));
+  const at = new Date().toISOString();
+  await db.transaction(async (tx) => {
+    if (changed) {
+      const question: ChatMessageRecord = {
+        role: "user",
+        content: run.prompt,
+        ...(source.scope ? { scope: "pageId" in source.scope ? { kind: "page" as const, id: source.scope.pageId } : { kind: "teamspace" as const, id: source.scope.teamspaceId } } : {}),
+        ...(source.files.length ? { attachments: source.files } : {}),
+        ...(source.research ? { research: true } : {}),
+        at,
+      };
+      const ms = Date.now() - (run.state?.chat?.startedAt ?? run.createdAt.getTime());
+      await saveTurn(tx, source.conversationId, [question, { role: "assistant", content: "", sources: [], note: "stopped", steps, ms, at }], source.replaced, source.model, source.thinking);
+    }
+    await tx.delete(agentRun).where(eq(agentRun.id, run.id));
+  });
+  if (changed) await keepQuestionFiles(source.conversationId, source.files.map((f) => f.id));
+}
+
 /** Answers of the person's in a conversation left waiting on them by a server that stopped: no one can answer them now. */
 async function dropLeftBehind(userId: string, conversationId: string) {
   const waitingHere = [...runsWaitingHere()];
-  await db
-    .delete(agentRun)
+  const left = await db
+    .select()
+    .from(agentRun)
     .where(
       and(
         isNull(agentRun.agentId),
@@ -949,6 +980,7 @@ async function dropLeftBehind(userId: string, conversationId: string) {
         waitingHere.length ? notInArray(agentRun.id, waitingHere) : undefined,
       ),
     );
+  for (const run of left) if (run.source.kind === "assistant") await abandon({ ...run, source: run.source });
 }
 
 /**

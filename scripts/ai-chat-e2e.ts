@@ -894,6 +894,15 @@ try {
     resumedTurn,
   );
   check(!(await parkedRun()) && !(await decideParkedChange(alice, ask2, "approve")), "…its run goes once the turn is kept, and the decision can't be used again");
+  fake.setChat(caller([write("create_row", { database_id: parts.id, title: "De-icer" })]));
+  for await (const e of await startChat(alice, { workspaceId, conversationId: parkedConversation!, message: "Add de-icer" })) if (e.type === "approval") break;
+  check((await parkedRun())?.status === "awaiting_approval", "an answer left waiting again…");
+  fake.setChat(caller([]));
+  const afterLeft = await ask(alice, { workspaceId, conversationId: parkedConversation!, message: "Never mind" });
+  check(
+    afterLeft.done && !(await parkedRun()) && (await getConversation(alice, workspaceId, parkedConversation!)).messages.length === 4 && (await rowsOf(parts.id, "De-icer")).length === 0,
+    "…is given up by a new question in its conversation: it changed nothing, so it leaves no turn",
+  );
 
   // ── Leafdesk's further tools (find_tools, use_tool) ─────────────────────────────────────────
   const viewsNamed = (name: string) => db.select().from(databaseView).where(and(eq(databaseView.databaseId, parts.id), eq(databaseView.name, name)));
