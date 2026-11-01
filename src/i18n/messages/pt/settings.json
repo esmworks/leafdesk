@@ -557,7 +557,7 @@
       "libraryNote": "Habilidades são criadas na <link>biblioteca de habilidades</link>."
     },
     "memory": {
-      "description": "Notas que acompanham toda execução deste agente, para que ele não precise aprender as mesmas coisas de novo. As execuções dele propõem notas; nenhuma acompanha uma execução até que um proprietário a mantenha.",
+      "description": "Notas que acompanham toda execução deste agente, para que ele não precise aprender as mesmas coisas de novo. As execuções dele propõem notas; nenhuma acompanha uma execução até que um proprietário a mantenha. As correções que alguém que pode editá-lo dá no próprio chat com ele são mantidas na hora.",
       "rule": "Uma execução lê linhas, páginas e eventos que outras pessoas e serviços escreveram, e uma nota poderia levar as palavras deles para todas as execuções seguintes. Leia cada proposta antes de mantê-la. As notas mantidas acompanham toda execução, seja quem for que a inicie.",
       "off": "A memória de IA está desativada neste espaço de trabalho: as execuções não levam notas nem propõem nenhuma até que um proprietário a ative em <link>Configurações → Geral</link>.",
       "archived": "Restaure o agente para alterar a memória dele.",
@@ -591,7 +591,9 @@
       "forgetAll": "Esquecer tudo",
       "confirmForgetAll": "{name} deve esquecer tudo o que lembra?",
       "waiting": "{count, plural, one {# nota para revisar} other {# notas para revisar}}",
-      "toReview": "{count, plural, one {# nota para revisar} other {# notas para revisar}}"
+      "toReview": "{count, plural, one {# nota para revisar} other {# notas para revisar}}",
+      "correction": "Correção",
+      "correctionFrom": "Correção · do chat de {name}"
     },
     "runs": {
       "description": "As execuções mais recentes dele, mantidas por {days} dias.",
@@ -837,7 +839,8 @@
       "notAllowed": "Seu acesso a este agente não permite isso.",
       "ownersOnly": "Só proprietários do espaço de trabalho alteram o limite mensal de tokens de um agente.",
       "notAMember": "Um agente só pode ser compartilhado com proprietários, membros e grupos do espaço de trabalho.",
-      "requestNotFound": "Este pedido já foi respondido."
+      "requestNotFound": "Este pedido já foi respondido.",
+      "noteChanged": "Esta nota mudou desde então. Altere-a na aba Memória do agente."
     },
     "connections": {
       "description": "As ferramentas de cada conexão que este agente pode usar. Ferramentas que só leem são executadas na hora, exceto em uma linha vinda de uma resposta anônima de formulário; qualquer outra aguarda a aprovação de um proprietário toda vez que o agente a chama.",

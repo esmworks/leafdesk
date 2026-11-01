@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Declined remembering:",
           "forget": "Declined forgetting:"
-        }
+        },
+        "correct": "Noted as a correction:",
+        "undone": "Correction undone:"
       },
       "connection": {
         "done": "{connection}: called {tool}",

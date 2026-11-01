@@ -20,7 +20,8 @@ import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
  * What an agent remembers (server/agents/memory.ts): the notes that go with each of its runs, and
  * the ones its runs proposed, which wait here until an owner keeps (as they are or changed) or
  * dismisses them; a proposal that is a kept note's new text shows that note, which keeping changes.
- * Owners also write, change and delete notes.
+ * Owners also write, change and delete notes. Corrections (what someone told the agent it got
+ * wrong, kept at once from their chat) are labelled with whose chat it was, and listed first.
  */
 export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId: string; agent: AgentView; memoryOff: boolean }) {
   const t = useTranslations("settings.agents.memory");
@@ -50,7 +51,8 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
     setEditing(null);
   };
   const proposed = notes?.filter((n) => n.status === "proposed") ?? [];
-  const kept = notes?.filter((n) => n.status === "kept") ?? [];
+  // Corrections first: what someone told the agent it got wrong.
+  const kept = [...(notes?.filter((n) => n.status === "kept") ?? [])].sort((a, b) => Number(b.kind === "correction") - Number(a.kind === "correction"));
   const full = kept.length >= MAX_MEMORIES;
   const editable = !agent.archived && editsAgent(agent);
   // Forgetting stays open on an archived agent, not to those who only see it.
@@ -155,6 +157,7 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
                             </p>
                           )}
                           {note.text === null ? <p className="text-fg-muted">{t(note.run?.othersRun ? "hiddenOthersText" : "hiddenText")}</p> : <p className="break-words">{note.text}</p>}
+                          {note.kind === "correction" && <p className="text-xs font-medium text-fg-muted">{t("correction")}</p>}
                           <Origin workspaceId={workspaceId} note={note} />
                         </div>
                         {editable && note.text !== null && (
@@ -189,7 +192,10 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
                   <li key={note.id} className="group/note px-3 py-1.5 text-sm">
                     {editor(note) || (
                       <div className="flex items-start gap-1">
-                        <p className="min-w-0 flex-1 py-1 break-words">{note.text}</p>
+                        <div className="min-w-0 flex-1 py-1">
+                          <p className="break-words">{note.text}</p>
+                          {note.kind === "correction" && <CorrectionLabel note={note} />}
+                        </div>
                         {editable && (
                           <IconButton
                             label={t("edit")}
@@ -254,6 +260,14 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
       )}
     </div>
   );
+}
+
+/** A kept correction: whose chat it came from (when that is known) and when it last changed. */
+function CorrectionLabel({ note }: { note: AgentMemoryView }) {
+  const t = useTranslations("settings.agents.memory");
+  const format = useFormatter();
+  const when = format.dateTime(new Date(note.updatedAt), { dateStyle: "medium" });
+  return <p className="text-xs text-fg-faint">{`${note.saidBy?.name ? t("correctionFrom", { name: note.saidBy.name }) : t("correction")} · ${when}`}</p>;
 }
 
 /** Where a proposal comes from: the run's row (named when the viewer can open it) or connection, and when. */

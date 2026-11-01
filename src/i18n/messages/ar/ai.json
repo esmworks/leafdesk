@@ -306,7 +306,9 @@
         "declined": {
           "remember": "رُفض التذكّر:",
           "forget": "رُفض النسيان:"
-        }
+        },
+        "correct": "سُجّلت كتصحيح:",
+        "undone": "أُلغي التصحيح:"
       },
       "connection": {
         "done": "{connection}: تم استدعاء {tool}",

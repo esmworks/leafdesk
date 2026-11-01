@@ -39,7 +39,8 @@
  *
  * The notes its owners kept from earlier runs go with each run (memory.ts). A run whose input a
  * member or a trusted trigger stands behind may propose new ones (`remember`), which wait for an
- * owner, and drop old ones (`forget`); others may neither. A schedule's run also reads where the
+ * owner, and drop old ones (`forget`); others may neither. The chat of someone who can edit the
+ * agent keeps what they correct at once, while it read nothing else (`untainted`). A schedule's run also reads where the
  * schedule's previous run left off and leaves its own (`note_for_next_run`). With the workspace's
  * AI memory off, no run carries notes or may keep any, nor where an earlier run left off.
  *
@@ -62,6 +63,7 @@ import {
   isMentionRun,
   isMailRun,
   READS_AFTER_MAIL,
+  readOthersWords,
   isRowRun,
   isScheduleRun,
   mailRun,
@@ -973,6 +975,25 @@ async function converse(
    * no connection's tool at all.)
    */
   const readOutside = () => askEveryTool || steps.some((s) => s.kind === "tool" && s.connectionId === null && webNames.has(s.tool) && s.outcome === "done");
+  // Text files attached to a chat's message: data from outside, as an email is.
+  const filesAttached = "files" in run.context && (run.context.files?.length ?? 0) > 0;
+  /**
+   * Whether a chat run, at this point, has read nothing but its person's words and the workspace:
+   * its message is theirs (typed in the app or sent from Telegram, not written by another connected
+   * app), no file came with it, and it read no email (mailRead: this run's, or the conversation's
+   * before), web page or search, connection tool's answer or other agent's answer (readOthersWords,
+   * and externalChars for anything a service sent back). A chat of someone who can edit the agent
+   * keeps a correction at once only then (memory.ts). Earlier turns count only for email: what else
+   * they read reached the person in those answers, and this run only as that text.
+   */
+  const untainted = () =>
+    run.source.kind === "chat" &&
+    (!run.source.fromApp || run.source.telegram === true) &&
+    !askEveryTool &&
+    !filesAttached &&
+    !mailRead &&
+    externalChars === 0 &&
+    !readOthersWords(steps);
   /** Whether an owner's "allow" rule still stands: its owner is still one. */
   const ruleStands = async (setBy: string | null) => Boolean(setBy) && (await findMembership(setBy!, run.workspaceId))?.role === "owner";
 
@@ -1116,7 +1137,10 @@ async function converse(
     // Notes change nothing in the workspace: they don't count as changes.
     if (AGENT_MEMORY_TOOL_NAMES.has(call.name)) {
       if (!remembers) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
-      return runAgentMemoryTool(agent, run, call);
+      // A correction said in the chat of someone who can edit the agent, while nothing else spoke, is kept at once.
+      const saidBy = run.source.kind === "chat" && chatWrites && untainted() ? run.source.userId : null;
+      const kept = steps.filter((s) => s.kind === "memory" && s.action === "correct").length;
+      return runAgentMemoryTool(agent, run, call, { correction: saidBy ? { saidBy, kept } : null });
     }
     if (call.name === HANDOFF_TOOL.name) {
       if (!leavesNote) return { content: `There is no tool "${call.name}" in this run.`, isError: true };

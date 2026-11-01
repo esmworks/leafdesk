@@ -38,7 +38,7 @@ import { agentMailboxesOf, setAgentMailbox, setAgentMailTrigger } from "@/server
 import { addAgentCreator, agentCreators, agentSharing, parseShareTarget, removeAgentCreator, removeAgentShare, setAgentShare } from "@/server/agents/sharing";
 import { agentGrantSummary } from "@/server/connections/manage";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
-import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, updateAgentMemory } from "@/server/agents/memory";
+import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, undoAgentCorrection, updateAgentMemory } from "@/server/agents/memory";
 import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
 import { decideLimitRequest, pendingLimitRequest, requestHigherLimit } from "@/server/agents/limits";
@@ -310,6 +310,11 @@ export async function deleteAgentMemoryAction(workspaceId: string, agentId: stri
     },
     { refresh: true },
   );
+}
+
+/** Takes back a correction a chat run kept at once (its step's Undo). */
+export async function undoAgentCorrectionAction(workspaceId: string, runId: string, memoryId: string) {
+  return run(workspaceId, (userId) => undoAgentCorrection(userId, workspaceId, String(runId), String(memoryId)));
 }
 
 /** A comment the agent wrote; its text only when the viewer can open the row it's on. */

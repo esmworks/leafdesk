@@ -557,7 +557,7 @@
       "libraryNote": "Taidot tehdään <link>taitokirjastossa</link>."
     },
     "memory": {
-      "description": "Muistiinpanot, jotka kulkevat tämän agentin jokaisen ajon mukana, jotta sen ei tarvitse oppia samoja asioita uudelleen. Sen ajot ehdottavat muistiinpanoja; mikään ei kulje ajon mukana ennen kuin omistaja säilyttää sen.",
+      "description": "Muistiinpanot, jotka kulkevat tämän agentin jokaisen ajon mukana, jotta sen ei tarvitse oppia samoja asioita uudelleen. Sen ajot ehdottavat muistiinpanoja; mikään ei kulje ajon mukana ennen kuin omistaja säilyttää sen. Korjaukset, jotka agenttia muokata voiva antaa omassa keskustelussaan sen kanssa, säilytetään heti.",
       "rule": "Ajo lukee muiden ihmisten ja palveluiden kirjoittamia rivejä, sivuja ja tapahtumia, ja muistiinpano voi viedä heidän sanansa jokaiseen myöhempään ajoon. Lue jokainen ehdotus ennen kuin säilytät sen. Säilytetyt muistiinpanot kulkevat jokaisen ajon mukana, käynnistipä sen kuka tahansa.",
       "off": "Tekoälyn muisti on poistettu käytöstä tässä työtilassa: ajot eivät kuljeta eivätkä ehdota muistiinpanoja, kunnes omistaja ottaa sen käyttöön kohdassa <link>Asetukset → Yleiset</link>.",
       "archived": "Palauta agentti muuttaaksesi sen muistia.",
@@ -591,7 +591,9 @@
       "forgetAll": "Unohda kaikki",
       "confirmForgetAll": "Unohtaako {name} kaiken, mitä se muistaa?",
       "waiting": "{count, plural, one {# tarkistettava muistiinpano} other {# tarkistettavaa muistiinpanoa}}",
-      "toReview": "{count, plural, one {# tarkistettava muistiinpano} other {# tarkistettavaa muistiinpanoa}}"
+      "toReview": "{count, plural, one {# tarkistettava muistiinpano} other {# tarkistettavaa muistiinpanoa}}",
+      "correction": "Korjaus",
+      "correctionFrom": "Korjaus · keskustelusta käyttäjän {name} kanssa"
     },
     "runs": {
       "description": "Sen viimeisimmät ajot, säilytetään {days} päivää.",
@@ -837,7 +839,8 @@
       "notAllowed": "Pääsysi tähän agenttiin ei salli tätä.",
       "ownersOnly": "Vain työtilan omistajat muuttavat agentin kuukausittaista tokenrajaa.",
       "notAMember": "Agentin voi jakaa vain työtilan omistajien, jäsenten ja ryhmien kanssa.",
-      "requestNotFound": "Tähän pyyntöön on jo vastattu."
+      "requestNotFound": "Tähän pyyntöön on jo vastattu.",
+      "noteChanged": "Tätä muistiinpanoa on sittemmin muutettu. Muuta sitä agentin Muisti-välilehdellä."
     },
     "connections": {
       "description": "Kunkin yhteyden työkalut, joita tämä agentti saa käyttää. Pelkästään lukevat työkalut toimivat heti, paitsi anonyymin lomakevastauksen rivillä; muut odottavat omistajan hyväksyntää aina, kun agentti kutsuu niitä.",

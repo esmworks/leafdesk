@@ -557,7 +557,7 @@
       "libraryNote": "Beceriler <link>beceri kütüphanesinde</link> oluşturulur."
     },
     "memory": {
-      "description": "Bu ajanın her çalışmasıyla birlikte giden notlar; aynı şeyleri yeniden öğrenmesi gerekmez. Çalışmaları not önerir; bir sahip tutmadıkça hiçbiri bir çalışmaya gitmez.",
+      "description": "Bu ajanın her çalışmasıyla birlikte giden notlar; aynı şeyleri yeniden öğrenmesi gerekmez. Çalışmaları not önerir; bir sahip tutmadıkça hiçbiri bir çalışmaya gitmez. Ajanı düzenleyebilen birinin kendi sohbetinde verdiği düzeltmeler hemen tutulur.",
       "rule": "Bir çalışma başka kişilerin ve servislerin yazdığı satırları, sayfaları ve olayları okur; bir not onların sözlerini sonraki her çalışmaya taşıyabilir. Tutmadan önce her öneriyi okuyun. Tutulan notlar, kim başlatırsa başlatsın her çalışmaya gider.",
       "off": "Bu çalışma alanında yapay zekâ hafızası kapalı: bir sahip <link>Ayarlar → Genel</link> bölümünden açana kadar çalışmalar not taşımaz ve not önermez.",
       "archived": "Hafızasını değiştirmek için ajanı geri getirin.",
@@ -591,7 +591,9 @@
       "forgetAll": "Her şeyi unut",
       "confirmForgetAll": "{name} hatırladığı her şeyi unutsun mu?",
       "waiting": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}",
-      "toReview": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}"
+      "toReview": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}",
+      "correction": "Düzeltme",
+      "correctionFrom": "Düzeltme · {name} ile sohbetten"
     },
     "runs": {
       "description": "Son çalışmaları; {days} gün saklanır.",
@@ -837,7 +839,8 @@
       "notAllowed": "Bu ajana erişimin buna izin vermiyor.",
       "ownersOnly": "Bir ajanın aylık token sınırını yalnızca çalışma alanı sahipleri değiştirir.",
       "notAMember": "Bir ajan yalnızca çalışma alanının sahipleri, üyeleri ve gruplarıyla paylaşılabilir.",
-      "requestNotFound": "Bu istek zaten yanıtlandı."
+      "requestNotFound": "Bu istek zaten yanıtlandı.",
+      "noteChanged": "Bu not o zamandan beri değişti. Ajanın Hafıza sekmesinden değiştirin."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",

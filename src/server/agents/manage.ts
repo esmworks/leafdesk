@@ -689,7 +689,8 @@ export async function viewRuns(userId: string, runs: (typeof agentRun.$inferSele
       error: open ? r.error : null,
       source: r.source,
       rowTitle: isRowRun(r.source) ? (titles.get(r.source.rowId) ?? null) : null,
-      steps: open ? r.steps.map((s) => (s.kind === "skill" && !openSkills.has(s.pageId) ? { ...s, title: "" } : s)) : [],
+      // A correction's note as it was before stays with the run, for Undo (memory.ts).
+      steps: open ? r.steps.map((s) => (s.kind === "skill" && !openSkills.has(s.pageId) ? { ...s, title: "" } : s.kind === "memory" && s.previous ? { ...s, previous: undefined } : s)) : [],
       answer: open ? r.answer : "",
       quiet: r.quiet,
       usage: r.usage,

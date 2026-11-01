@@ -557,7 +557,7 @@
       "libraryNote": "Færdigheder laves i <link>færdighedsbiblioteket</link>."
     },
     "memory": {
-      "description": "Noter, der følger med hver kørsel af denne agent, så den ikke skal lære de samme ting igen. Dens kørsler foreslår noter; ingen følger med en kørsel, før en ejer beholder den.",
+      "description": "Noter, der følger med hver kørsel af denne agent, så den ikke skal lære de samme ting igen. Dens kørsler foreslår noter; ingen følger med en kørsel, før en ejer beholder den. Rettelser, som en, der kan redigere den, giver i sin egen chat med den, beholdes med det samme.",
       "rule": "En kørsel læser rækker, sider og hændelser, som andre personer og tjenester har skrevet, og en note kan bære deres ord ind i alle senere kørsler. Læs hvert forslag, før du beholder det. Beholdte noter følger med hver kørsel, uanset hvem der starter den.",
       "off": "AI-hukommelse er slået fra i dette arbejdsområde: kørsler har ingen noter med og foreslår ingen, før en ejer slår den til under <link>Indstillinger → Generelt</link>.",
       "archived": "Gendan agenten for at ændre dens hukommelse.",
@@ -591,7 +591,9 @@
       "forgetAll": "Glem alt",
       "confirmForgetAll": "Skal {name} glemme alt, den husker?",
       "waiting": "{count, plural, one {# note til gennemgang} other {# noter til gennemgang}}",
-      "toReview": "{count, plural, one {# note til gennemgang} other {# noter til gennemgang}}"
+      "toReview": "{count, plural, one {# note til gennemgang} other {# noter til gennemgang}}",
+      "correction": "Rettelse",
+      "correctionFrom": "Rettelse · fra chatten med {name}"
     },
     "runs": {
       "description": "Dens seneste kørsler, gemt i {days} dage.",
@@ -837,7 +839,8 @@
       "notAllowed": "Din adgang til denne agent tillader ikke dette.",
       "ownersOnly": "Kun arbejdsområdets ejere ændrer en agents månedlige tokengrænse.",
       "notAMember": "En agent kan kun deles med arbejdsområdets ejere, medlemmer og grupper.",
-      "requestNotFound": "Denne anmodning er allerede besvaret."
+      "requestNotFound": "Denne anmodning er allerede besvaret.",
+      "noteChanged": "Denne note er ændret siden. Ret den under agentens fane Hukommelse."
     },
     "connections": {
       "description": "Værktøjerne fra hver forbindelse, som denne agent må bruge. Værktøjer, der kun læser, kører med det samme, undtagen på en række fra et anonymt formularsvar; alle andre venter på en ejers godkendelse, hver gang agenten kalder dem.",

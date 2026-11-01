@@ -557,7 +557,7 @@
       "libraryNote": "Skills legst du in der <link>Skill-Bibliothek</link> an."
     },
     "memory": {
-      "description": "Notizen, die jedem Lauf dieses Agenten mitgegeben werden, damit er dasselbe nicht neu lernen muss. Seine Läufe schlagen Notizen vor; keine geht mit einem Lauf mit, bis ein Inhaber sie behält.",
+      "description": "Notizen, die jedem Lauf dieses Agenten mitgegeben werden, damit er dasselbe nicht neu lernen muss. Seine Läufe schlagen Notizen vor; keine geht mit einem Lauf mit, bis ein Inhaber sie behält. Korrekturen, die jemand, der ihn bearbeiten darf, im eigenen Chat mit ihm gibt, werden sofort behalten.",
       "rule": "Ein Lauf liest Zeilen, Seiten und Ereignisse, die andere Personen und Dienste geschrieben haben, und eine Notiz könnte deren Worte in jeden späteren Lauf tragen. Lesen Sie jeden Vorschlag, bevor Sie ihn behalten. Behaltene Notizen gehen mit jedem Lauf mit, egal wer ihn startet.",
       "off": "Das KI-Gedächtnis ist in diesem Workspace aus: Läufe enthalten keine Notizen und schlagen keine vor, bis ein Inhaber es unter <link>Einstellungen → Allgemein</link> einschaltet.",
       "archived": "Stellen Sie den Agenten wieder her, um sein Gedächtnis zu ändern.",
@@ -591,7 +591,9 @@
       "forgetAll": "Alles vergessen",
       "confirmForgetAll": "Soll {name} alles vergessen, was er sich gemerkt hat?",
       "waiting": "{count, plural, one {# Notiz zu prüfen} other {# Notizen zu prüfen}}",
-      "toReview": "{count, plural, one {# Notiz zu prüfen} other {# Notizen zu prüfen}}"
+      "toReview": "{count, plural, one {# Notiz zu prüfen} other {# Notizen zu prüfen}}",
+      "correction": "Korrektur",
+      "correctionFrom": "Korrektur · aus dem Chat mit {name}"
     },
     "runs": {
       "description": "Seine letzten Durchläufe, {days} Tage lang aufbewahrt.",
@@ -837,7 +839,8 @@
       "notAllowed": "Dein Zugriff auf diesen Agenten erlaubt das nicht.",
       "ownersOnly": "Nur Workspace-Inhaber ändern das monatliche Token-Limit eines Agenten.",
       "notAMember": "Ein Agent kann nur mit Inhabern, Mitgliedern und Gruppen des Workspace geteilt werden.",
-      "requestNotFound": "Diese Anfrage wurde bereits beantwortet."
+      "requestNotFound": "Diese Anfrage wurde bereits beantwortet.",
+      "noteChanged": "Diese Notiz wurde seitdem geändert. Sie lässt sich im Tab „Gedächtnis“ des Agenten ändern."
     },
     "connections": {
       "description": "Die Werkzeuge jeder Verbindung, die dieser Agent nutzen darf. Werkzeuge, die nur lesen, laufen sofort, außer bei einer Zeile aus einer anonymen Formularantwort; alle anderen warten bei jedem Aufruf auf die Freigabe eines Inhabers.",

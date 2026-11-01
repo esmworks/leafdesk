@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Menolak mengingat:",
           "forget": "Menolak melupakan:"
-        }
+        },
+        "correct": "Dicatat sebagai koreksi:",
+        "undone": "Koreksi dibatalkan:"
       },
       "connection": {
         "done": "{connection}: memanggil {tool}",

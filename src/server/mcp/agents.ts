@@ -463,6 +463,8 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           throw new ToolInputError(
             "No note with this memory_id in the agent's memory that the user may read. Call get_agent to see its notes; a proposal from a run on a row the user can't open may only be dismissed (change_agent_memory dismiss).",
           );
+        case "noteChanged":
+          throw new ToolInputError("The note changed since. Call get_agent to see it, and change it with change_agent_memory.");
       }
     }
     if (error instanceof PermissionError) throw new ToolInputError(`${error.message}.`);
@@ -527,6 +529,8 @@ function describeMemory(workspaceId: string, note: AgentMemoryView) {
   return {
     memory_id: note.id,
     text: note.text,
+    // What a person told the agent it got wrong; kept from their chat, it names them.
+    ...(note.kind === "correction" ? { kind: "correction", ...(note.saidBy ? { said_by: note.saidBy.name } : {}) } : {}),
     ...(note.run
       ? {
           proposed_by_run: {
@@ -754,7 +758,13 @@ export function describeAgentStep(step: AgentStepRecord) {
         }[step.action],
       };
     case "memory": {
-      const how = { remember: "Remembered", propose: "Proposed a note for an owner to keep", forget: "Dropped a note", handoff: "Left a note for the schedule's next run" }[step.action];
+      const how = {
+        remember: "Remembered",
+        propose: "Proposed a note for an owner to keep",
+        forget: "Dropped a note",
+        handoff: "Left a note for the schedule's next run",
+        correct: step.outcome === "undone" ? "Kept a correction the user gave, which they took back" : "Kept a correction the user gave",
+      }[step.action];
       return { kind: "memory", action: step.action, summary: `${how}: ${quote(short(step.text))}` };
     }
     case "skill": {

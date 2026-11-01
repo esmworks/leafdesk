@@ -557,7 +557,7 @@
       "libraryNote": "Kỹ năng được tạo trong <link>thư viện kỹ năng</link>."
     },
     "memory": {
-      "description": "Các ghi chú đi kèm mọi lần chạy của tác tử này, để nó không phải học lại những điều giống nhau. Các lần chạy của nó đề xuất ghi chú; không ghi chú nào đi kèm lần chạy cho đến khi một chủ sở hữu giữ nó lại.",
+      "description": "Các ghi chú đi kèm mọi lần chạy của tác tử này, để nó không phải học lại những điều giống nhau. Các lần chạy của nó đề xuất ghi chú; không ghi chú nào đi kèm lần chạy cho đến khi một chủ sở hữu giữ nó lại. Những đính chính mà người có thể chỉnh sửa tác tử đưa ra trong cuộc trò chuyện riêng của họ được giữ ngay.",
       "rule": "Một lần chạy đọc các hàng, trang và sự kiện mà người khác và các dịch vụ đã viết, và một ghi chú có thể đưa lời của họ vào mọi lần chạy sau. Hãy đọc từng đề xuất trước khi giữ lại. Các ghi chú đã giữ đi kèm mọi lần chạy, bất kể ai khởi động.",
       "off": "Bộ nhớ AI đang tắt trong không gian làm việc này: các lần chạy không mang ghi chú nào và không đề xuất ghi chú nào cho đến khi một chủ sở hữu bật nó trong <link>Cài đặt → Chung</link>.",
       "archived": "Hãy khôi phục tác tử để thay đổi bộ nhớ của nó.",
@@ -591,7 +591,9 @@
       "forgetAll": "Quên tất cả",
       "confirmForgetAll": "{name} có nên quên mọi thứ nó ghi nhớ không?",
       "waiting": "{count, plural, other {# ghi chú cần xem xét}}",
-      "toReview": "{count, plural, other {# ghi chú cần xem xét}}"
+      "toReview": "{count, plural, other {# ghi chú cần xem xét}}",
+      "correction": "Đính chính",
+      "correctionFrom": "Đính chính · từ cuộc trò chuyện của {name}"
     },
     "runs": {
       "description": "Các lần chạy gần nhất của nó, được giữ trong {days} ngày.",
@@ -837,7 +839,8 @@
       "notAllowed": "Quyền truy cập của bạn vào tác tử này không cho phép việc này.",
       "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới thay đổi giới hạn token hằng tháng của tác tử.",
       "notAMember": "Một tác tử chỉ có thể được chia sẻ với các chủ sở hữu, thành viên và nhóm của không gian làm việc.",
-      "requestNotFound": "Yêu cầu này đã được trả lời."
+      "requestNotFound": "Yêu cầu này đã được trả lời.",
+      "noteChanged": "Ghi chú này đã thay đổi kể từ đó. Hãy đổi nó trong thẻ Bộ nhớ của tác tử."
     },
     "connections": {
       "description": "Các công cụ của mỗi kết nối mà tác tử này được dùng. Các công cụ chỉ đọc chạy ngay, trừ trên một hàng từ câu trả lời biểu mẫu ẩn danh; công cụ nào khác đều chờ một chủ sở hữu chấp thuận mỗi lần tác tử gọi.",

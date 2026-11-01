@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Onthouden geweigerd:",
           "forget": "Vergeten geweigerd:"
-        }
+        },
+        "correct": "Genoteerd als correctie:",
+        "undone": "Correctie ongedaan gemaakt:"
       },
       "connection": {
         "done": "{connection}: {tool} aangeroepen",

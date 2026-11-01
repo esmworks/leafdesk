@@ -54,7 +54,6 @@ import { AgentGuardrailFields, dailyLimitOf, quietHoursDraft, quietHoursOf } fro
 import { AgentHistoryTab } from "./agent-history-tab";
 import { AskedByLine, HandoffStepLine, type OpenAgentRun } from "./agent-handoff-step";
 import { AgentHelpersField } from "./agent-helpers-field";
-import { AgentMemoryTab } from "./agent-memory-tab";
 import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
@@ -71,6 +70,7 @@ const AgentLimitRequest = lazyPart(() => import("./agent-limit-request").then((m
 /** The person's own mailboxes on the Access tab: agent chats in pages bring this module along. */
 const AgentMailboxes = lazyPart(() => import("./agent-mailboxes").then((m) => m.AgentMailboxes));
 const AgentShareTab = lazyPart(() => import("./agent-share-tab").then((m) => m.AgentShareTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
+const AgentMemoryTab = lazyPart(() => import("./agent-memory-tab").then((m) => m.AgentMemoryTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 /** An agent's emoji, or a robot when it has none. */
 export function AgentIcon({ icon, className }: { icon: string | null; className?: string }) {

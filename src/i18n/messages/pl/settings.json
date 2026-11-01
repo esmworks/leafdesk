@@ -557,7 +557,7 @@
       "libraryNote": "Umiejętności tworzy się w <link>bibliotece umiejętności</link>."
     },
     "memory": {
-      "description": "Notatki dołączane do każdego uruchomienia tego agenta, aby nie musiał uczyć się tych samych rzeczy od nowa. Jego uruchomienia proponują notatki; żadna nie trafia do uruchomienia, dopóki właściciel jej nie zachowa.",
+      "description": "Notatki dołączane do każdego uruchomienia tego agenta, aby nie musiał uczyć się tych samych rzeczy od nowa. Jego uruchomienia proponują notatki; żadna nie trafia do uruchomienia, dopóki właściciel jej nie zachowa. Poprawki, które ktoś mogący go edytować podaje we własnym czacie z nim, są zachowywane od razu.",
       "rule": "Uruchomienie odczytuje wiersze, strony i zdarzenia napisane przez inne osoby i usługi, a notatka mogłaby przenieść ich słowa do każdego późniejszego uruchomienia. Przeczytaj każdą propozycję, zanim ją zachowasz. Zachowane notatki trafiają do każdego uruchomienia, niezależnie od tego, kto je rozpoczyna.",
       "off": "Pamięć AI jest wyłączona w tym obszarze roboczym: uruchomienia nie zawierają notatek ani ich nie proponują, dopóki właściciel jej nie włączy w sekcji <link>Ustawienia → Ogólne</link>.",
       "archived": "Przywróć agenta, aby zmienić jego pamięć.",
@@ -591,7 +591,9 @@
       "forgetAll": "Zapomnij wszystko",
       "confirmForgetAll": "Czy {name} ma zapomnieć wszystko, co pamięta?",
       "waiting": "{count, plural, one {# notatka do przejrzenia} few {# notatki do przejrzenia} many {# notatek do przejrzenia} other {# notatki do przejrzenia}}",
-      "toReview": "{count, plural, one {# notatka do przejrzenia} few {# notatki do przejrzenia} many {# notatek do przejrzenia} other {# notatki do przejrzenia}}"
+      "toReview": "{count, plural, one {# notatka do przejrzenia} few {# notatki do przejrzenia} many {# notatek do przejrzenia} other {# notatki do przejrzenia}}",
+      "correction": "Poprawka",
+      "correctionFrom": "Poprawka · z czatu użytkownika {name}"
     },
     "runs": {
       "description": "Ostatnie uruchomienia, przechowywane przez {days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}.",
@@ -837,7 +839,8 @@
       "notAllowed": "Twój dostęp do tego agenta na to nie pozwala.",
       "ownersOnly": "Miesięczny limit tokenów agenta zmieniają tylko właściciele obszaru roboczego.",
       "notAMember": "Agenta można udostępnić tylko właścicielom, członkom i grupom obszaru roboczego.",
-      "requestNotFound": "Na tę prośbę już odpowiedziano."
+      "requestNotFound": "Na tę prośbę już odpowiedziano.",
+      "noteChanged": "Ta notatka zmieniła się od tego czasu. Zmień ją na karcie Pamięć agenta."
     },
     "connections": {
       "description": "Narzędzia każdego połączenia, których ten agent może używać. Narzędzia tylko do odczytu działają od razu, chyba że w wierszu z anonimowej odpowiedzi z formularza; każde inne czeka na zatwierdzenie właściciela za każdym razem, gdy agent je wywołuje.",

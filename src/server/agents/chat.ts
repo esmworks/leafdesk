@@ -268,7 +268,7 @@ export async function sendAgentChat(
       .values({
         agentId: agent.id,
         workspaceId: input.workspaceId,
-        source: { kind: "chat", userId, conversationId: conversation.id, ...(fromApp ? { fromApp: true } : {}) },
+        source: { kind: "chat", userId, conversationId: conversation.id, ...(fromApp ? { fromApp: true } : {}), ...(input.via === "telegram" ? { telegram: true as const } : {}) },
         context: { actorId: userId, ...(timeZone ? { timeZone } : {}), ...(files.length ? { files } : {}) },
         prompt: message,
       })

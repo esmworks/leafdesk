@@ -200,7 +200,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   several user records can share one run id (keys and history merge them). Files an agent attaches
   are `agent_chat_file` rows (`agents/chat-files.ts`), left out of backups and orphan sweeps. Each agent is its own user. Memory
   (`memory.ts`): runs only propose notes, a proposal with `replacesId` changes that kept note in
-  place; a schedule's run reads and leaves `agent_run.handoff`, kept to the same schedule, setter,
+  place; except a correction (`ai_memory.kind`) in an editor's own chat while `run.ts`
+  `untainted()` holds, kept at once and undone by `undoAgentCorrection` from the step's `previous`
+  (a new source of outside words in a run goes into `untainted`); a schedule's run reads and leaves `agent_run.handoff`, kept to the same schedule, setter,
   database and task (`sameSchedule`); `agent_memory` inbox items are one per agent and owner,
   moved between runs by `withdrawNotices`. Email:
   drafts on rows wait for review (`email-drafts.ts`); a report to the agent's own `mail_recipients`

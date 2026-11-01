@@ -557,7 +557,7 @@
       "libraryNote": "Vaardigheden worden gemaakt in de <link>vaardighedenbibliotheek</link>."
     },
     "memory": {
-      "description": "Notities die met elke uitvoering van deze agent meegaan, zodat hij niet steeds dezelfde dingen opnieuw hoeft te leren. Zijn uitvoeringen stellen notities voor; geen enkele gaat mee met een uitvoering tot een eigenaar haar bewaart.",
+      "description": "Notities die met elke uitvoering van deze agent meegaan, zodat hij niet steeds dezelfde dingen opnieuw hoeft te leren. Zijn uitvoeringen stellen notities voor; geen enkele gaat mee met een uitvoering tot een eigenaar haar bewaart. Correcties die iemand die hem mag bewerken in de eigen chat met hem geeft, worden meteen bewaard.",
       "rule": "Een uitvoering leest rijen, pagina’s en gebeurtenissen die andere mensen en diensten hebben geschreven, en een notitie kan hun woorden meenemen naar elke latere uitvoering. Lees elk voorstel voordat je het bewaart. Bewaarde notities gaan mee met elke uitvoering, wie die ook start.",
       "off": "AI-geheugen staat uit in deze werkruimte: uitvoeringen nemen geen notities mee en stellen er geen voor tot een eigenaar het aanzet in <link>Instellingen → Algemeen</link>.",
       "archived": "Zet de agent terug om zijn geheugen te wijzigen.",
@@ -591,7 +591,9 @@
       "forgetAll": "Alles vergeten",
       "confirmForgetAll": "Moet {name} alles vergeten wat hij onthoudt?",
       "waiting": "{count, plural, one {# notitie om te beoordelen} other {# notities om te beoordelen}}",
-      "toReview": "{count, plural, one {# notitie om te beoordelen} other {# notities om te beoordelen}}"
+      "toReview": "{count, plural, one {# notitie om te beoordelen} other {# notities om te beoordelen}}",
+      "correction": "Correctie",
+      "correctionFrom": "Correctie · uit de chat met {name}"
     },
     "runs": {
       "description": "Zijn laatste uitvoeringen, {days} dagen bewaard.",
@@ -837,7 +839,8 @@
       "notAllowed": "Je toegang tot deze agent staat dit niet toe.",
       "ownersOnly": "Alleen eigenaren van de werkruimte wijzigen de maandelijkse tokenlimiet van een agent.",
       "notAMember": "Een agent kan alleen worden gedeeld met de eigenaren, leden en groepen van de werkruimte.",
-      "requestNotFound": "Dit verzoek is al beantwoord."
+      "requestNotFound": "Dit verzoek is al beantwoord.",
+      "noteChanged": "Deze notitie is sindsdien gewijzigd. Wijzig haar op het tabblad Geheugen van de agent."
     },
     "connections": {
       "description": "De tools van elke koppeling die deze agent mag gebruiken. Tools die alleen lezen, draaien direct, behalve op een rij uit een anoniem formulierantwoord; elke andere wacht op goedkeuring van een eigenaar telkens als de agent haar aanroept.",

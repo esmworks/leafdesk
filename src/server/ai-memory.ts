@@ -242,18 +242,21 @@ export async function deleteMemories(userId: string, workspaceId: string, memory
 
 /**
  * The kept notes for a question, or for an agent's run (agents/memory.ts): newest first as far as
- * `maxChars` takes them, then shown oldest first, each with its id for `forget` and `replaces`.
+ * `maxChars` takes them, then shown oldest first, each with its id for `forget` and `replaces`. An
+ * agent's corrections are taken before its other notes, and marked.
  */
 export async function memoryForPrompt(userId: string, workspaceId: string, maxChars: number): Promise<{ text: string; count: number }> {
   const notes = await notesOf(userId, workspaceId);
-  const lines: string[] = [];
+  const lineOf = (note: Note) => `- (memory_id ${note.id}) ${note.kind === "correction" ? "(correction) " : ""}${note.text}`;
+  const taken = new Set<string>();
   let used = 0;
-  for (const note of [...notes].reverse()) {
-    const line = `- (memory_id ${note.id}) ${note.text}`;
-    if (used + line.length + 1 > maxChars) break;
-    used += line.length + 1;
-    lines.unshift(line);
+  for (const note of [...notes.filter((n) => n.kind === "correction"), ...notes.filter((n) => n.kind !== "correction").reverse()]) {
+    const length = lineOf(note).length + 1;
+    if (used + length > maxChars) break;
+    used += length;
+    taken.add(note.id);
   }
+  const lines = notes.filter((n) => taken.has(n.id)).map(lineOf);
   if (lines.length < notes.length) lines.unshift("(Older notes don't fit in this question.)");
   return { text: lines.join("\n"), count: notes.length };
 }

@@ -306,7 +306,9 @@
         "declined": {
           "remember": "به خاطر سپردن رد شد:",
           "forget": "فراموش کردن رد شد:"
-        }
+        },
+        "correct": "به‌عنوان اصلاحیه ثبت شد:",
+        "undone": "اصلاحیه لغو شد:"
       },
       "connection": {
         "done": "{connection}: {tool} فراخوانده شد",

@@ -557,7 +557,7 @@
       "libraryNote": "Keterampilan dibuat di <link>pustaka keterampilan</link>."
     },
     "memory": {
-      "description": "Catatan yang menyertai setiap eksekusi agen ini, sehingga ia tidak perlu mempelajari hal yang sama lagi. Eksekusinya mengusulkan catatan; tidak ada yang menyertai eksekusi sampai pemilik menyimpannya.",
+      "description": "Catatan yang menyertai setiap eksekusi agen ini, sehingga ia tidak perlu mempelajari hal yang sama lagi. Eksekusinya mengusulkan catatan; tidak ada yang menyertai eksekusi sampai pemilik menyimpannya. Koreksi yang diberikan seseorang yang dapat mengeditnya dalam obrolannya sendiri dengan agen ini langsung disimpan.",
       "rule": "Eksekusi membaca baris, halaman, dan peristiwa yang ditulis orang lain dan layanan, dan sebuah catatan dapat membawa kata-kata mereka ke setiap eksekusi berikutnya. Baca setiap usulan sebelum Anda menyimpannya. Catatan yang disimpan menyertai setiap eksekusi, siapa pun yang memulainya.",
       "off": "Memori AI dimatikan di ruang kerja ini: eksekusi tidak membawa catatan dan tidak mengusulkan apa pun sampai pemilik mengaktifkannya di <link>Pengaturan → Umum</link>.",
       "archived": "Pulihkan agen untuk mengubah memorinya.",
@@ -591,7 +591,9 @@
       "forgetAll": "Lupakan semuanya",
       "confirmForgetAll": "Haruskah {name} melupakan semua yang diingatnya?",
       "waiting": "{count, plural, other {# catatan untuk ditinjau}}",
-      "toReview": "{count, plural, other {# catatan untuk ditinjau}}"
+      "toReview": "{count, plural, other {# catatan untuk ditinjau}}",
+      "correction": "Koreksi",
+      "correctionFrom": "Koreksi · dari obrolan {name}"
     },
     "runs": {
       "description": "Eksekusi terbarunya, disimpan selama {days} hari.",
@@ -837,7 +839,8 @@
       "notAllowed": "Akses Anda ke agen ini tidak mengizinkan hal ini.",
       "ownersOnly": "Hanya pemilik ruang kerja yang mengubah batas token bulanan agen.",
       "notAMember": "Agen hanya dapat dibagikan kepada pemilik, anggota, dan grup ruang kerja.",
-      "requestNotFound": "Permintaan ini sudah dijawab."
+      "requestNotFound": "Permintaan ini sudah dijawab.",
+      "noteChanged": "Catatan ini sudah berubah sejak itu. Ubah di tab Memori agen."
     },
     "connections": {
       "description": "Alat dari setiap koneksi yang boleh dipakai agen ini. Alat yang hanya membaca langsung berjalan, kecuali pada baris dari jawaban formulir anonim; yang lain menunggu persetujuan pemilik setiap kali agen memanggilnya.",

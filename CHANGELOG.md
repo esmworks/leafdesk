@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Agents keep the corrections you give them in your own chat.** When someone who can edit an
+  agent tells it in their chat (its page, a chat block or Telegram) that it got something wrong, or
+  must always or never do something, the agent notes it as a correction (`remember` with
+  `kind: "correction"`), kept at once rather than proposed, as long as that run read nothing but
+  their words and the workspace (no email, web page, connection or other agent's answer, attached
+  file, nor a message from another connected app); at most three a run. The chat shows *Noted as a
+  correction* with *Undo*, which deletes the note or restores what the note it changed said.
+  Corrections go with every later run marked as such, are listed first in the *Memory* tab with whose
+  chat they came from, put nothing in the owners' inboxes and are counted in the audit log. In
+  every other run a correction is a proposal labelled as one. `get_agent` shows `kind` and
+  `said_by`. Migration 0180 (columns `ai_memory.kind`, `ai_memory.said_by`).
+
 - **Scheduled agent runs can end quietly, say why they failed, and report in a line.** A
   schedule's run gets a `finish_run` tool: with `nothing_new` (when it checked, found nothing to
   tell and changed nothing) it ends without a report, so nothing comes to the inbox, push or

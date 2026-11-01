@@ -3,7 +3,7 @@
 
 import { agentPagePath } from "./agent-page";
 import type { AgentShareLevel } from "./agent-sharing";
-import type { ChatStepRecord, MemoryStatus } from "@/db/schema/ai";
+import type { ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
 import type { QuietHours } from "./quiet-hours";
 import type { RepeatRule, ScheduleError } from "./schedule";
 
@@ -69,6 +69,8 @@ export const MAX_AGENT_SKILL_CHARS = 12_000;
 export const MAX_AGENT_PROPOSALS = 10;
 /** Notes one run may propose: what it learned that lasts is rarely more than a fact or two. */
 export const MAX_PROPOSALS_PER_RUN = 2;
+/** Corrections one chat run may keep at once (server/agents/memory.ts); it proposes those past them. */
+export const MAX_CORRECTIONS_PER_RUN = 3;
 /** The longest note a schedule's run leaves for its next run (where it left off). */
 export const MAX_HANDOFF_CHARS = 2_000;
 /**
@@ -202,7 +204,10 @@ export type AgentRunSource =
       fromApp?: boolean;
       /** Its messages waited in the queue while this run answered (lib/agent-chat-queue.ts). */
       after?: string;
-      /** One of them came from the Telegram bot, which follows this run's answer too. */
+      /**
+       * Its message (or one of those that waited) came from the Telegram bot, which follows this
+       * run's answer too: the person's own words, unlike another connected app's.
+       */
       telegram?: true;
     }
   | {
@@ -530,12 +535,15 @@ export type AgentSkillView = {
  * run and waiting for an owner. `run` is the run that proposed it: its row (the title only when the
  * viewer can open it) or the connection whose event started it. A proposal from a run on a row the
  * viewer can't open, or from a run another owner started for themselves, has no `text` for them:
- * it may quote what they can't open; they may only dismiss it.
+ * it may quote what they can't open; they may only dismiss it. A correction (`kind`) kept from
+ * someone's chat names them (`saidBy`, null once they are gone).
  */
 export type AgentMemoryView = {
   id: string;
   text: string | null;
   status: MemoryStatus;
+  kind: MemoryKind;
+  saidBy: { id: string; name: string } | null;
   run: {
     id: string;
     createdAt: string;
@@ -697,6 +705,22 @@ const READ_MAIL_ACTIONS: ReadonlySet<string> = new Set(["search", "read", "attac
  */
 export const readEmail = (steps: readonly { kind: string; action?: unknown }[] | undefined): boolean =>
   (steps ?? []).some((s) => s.kind === "mail" && typeof s.action === "string" && READ_MAIL_ACTIONS.has(s.action));
+
+const WEB_TOOLS: ReadonlySet<string> = new Set(Object.values(WEB_TOOL_NAMES));
+
+/**
+ * Whether a run's steps show it read words no one in its conversation wrote: email (readEmail), a
+ * web page or search, what a connection's tool answered (failed too: a service's error says what
+ * it likes), or another agent's answer, which may carry what that agent read. A chat run that did
+ * keeps no correction at once (server/agents/memory.ts).
+ */
+export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
+  readEmail(steps) ||
+  steps.some((s) =>
+    s.kind === "tool"
+      ? (s.outcome === "done" || s.outcome === "failed") && (s.connectionId !== null || WEB_TOOLS.has(s.tool))
+      : s.kind === "handoff" && s.outcome === "done",
+  );
 
 /**
  * Whether an owner sees what a run read, thought and answered, and the call it waits on, and so

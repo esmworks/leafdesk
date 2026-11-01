@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Mémorisation refusée :",
           "forget": "Oubli refusé :"
-        }
+        },
+        "correct": "Noté comme correction :",
+        "undone": "Correction annulée :"
       },
       "connection": {
         "done": "{connection} : {tool} appelé",

@@ -306,7 +306,9 @@
         "declined": {
           "remember": "기억 거절됨:",
           "forget": "잊기 거절됨:"
-        }
+        },
+        "correct": "수정 사항으로 기록함:",
+        "undone": "수정 사항 취소됨:"
       },
       "connection": {
         "done": "{connection}: {tool} 호출함",

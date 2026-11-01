@@ -938,6 +938,8 @@ export async function viewStep(userId: string, record: ChatStepRecord, pages?: A
     const hidden = (record.targetId && !target) || (record.pageId && !made);
     return { kind: "write", action: record.action, outcome: record.outcome, target, page: made, title: hidden ? null : record.title, changes: hidden ? [] : record.changes };
   }
+  // What a kept note said before a correction changed it stays with the run, for Undo.
+  if (record.kind === "memory" && record.previous) return { ...record, previous: undefined };
   if (record.kind !== "read" && record.kind !== "query") return record;
   const id = record.kind === "read" ? record.pageId : record.databaseId;
   const seen = (pages ?? (await visiblePages(userId, [id]))).get(id);

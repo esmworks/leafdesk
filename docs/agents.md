@@ -344,6 +344,23 @@ change, crossed out, above the new text, and *Keep* changes that note in place. 
 also sees the proposals of the same schedule's earlier runs that still wait, and changes one
 rather than proposing it again; the newer text takes its place.
 
+**Corrections.** A chat is the one run where someone does talk to the agent. When you tell it there
+that it got something wrong, or that it must always or never do something ("No, invoices go to
+Finance/2026", "Always answer in Turkish"), it notes that as a *correction* (`remember` with
+`kind: "correction"`). In the chat of someone who can edit the agent (in the agent's page, a chat
+block or from Telegram) a correction is kept at once, as said by them, no owner asked: the chat
+shows a step *Noted as a correction* with *Undo*, which deletes the note, or puts back what the kept
+note it changed said before (not once someone changed the note since). That holds only while the
+run has read nothing but your words and the workspace: once it read email, a web page or search,
+what a connection's tool or another agent answered, or a file attached to your message, or when
+another connected app (MCP, the REST API) sent the message, a correction is only proposed, as it
+is in every other run (other people's chats can't keep notes at all). One run keeps at most three
+corrections at once; past that, or with the memory full, the next is proposed. Corrections go with
+every later run marked as such, before the agent's other notes. The *Memory* tab lists them first,
+labelled *Correction · from <person>'s chat*, and labels proposed corrections too; a kept
+correction puts nothing in the owners' inboxes, and the audit log counts it, and its Undo, as a
+change to the agent. `get_agent` marks them with `kind: "correction"` and `said_by`.
+
 **Where a schedule's run left off.** A run of a schedule often can't finish everything (a
 connected service lets it read only so much at a time). It leaves where it stopped with
 `note_for_next_run`, a step of the run with credentials masked, and the same schedule's next run

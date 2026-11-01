@@ -306,7 +306,9 @@
         "declined": {
           "remember": "השמירה בזיכרון נדחתה:",
           "forget": "השכחה נדחתה:"
-        }
+        },
+        "correct": "נרשם כתיקון:",
+        "undone": "התיקון בוטל:"
       },
       "connection": {
         "done": "{connection}: הופעל {tool}",

@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Rifiutato di ricordare:",
           "forget": "Rifiutato di dimenticare:"
-        }
+        },
+        "correct": "Annotato come correzione:",
+        "undone": "Correzione annullata:"
       },
       "connection": {
         "done": "{connection}: chiamato {tool}",

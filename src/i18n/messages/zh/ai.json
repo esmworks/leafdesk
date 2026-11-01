@@ -306,7 +306,9 @@
         "declined": {
           "remember": "已拒绝记住：",
           "forget": "已拒绝忘记："
-        }
+        },
+        "correct": "已记为更正：",
+        "undone": "已撤销更正："
       },
       "connection": {
         "done": "{connection}：已调用 {tool}",

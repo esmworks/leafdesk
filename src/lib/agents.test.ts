@@ -18,8 +18,10 @@ import {
   MAX_SCHEDULED_WRITES,
   ownerSeesRun,
   readEmail,
+  readOthersWords,
   runPageOf,
   skillStepsToAdd,
+  WEB_TOOL_NAMES,
   type AgentRunSource,
   type AgentSkillRecord,
   type AgentStepRecord,
@@ -255,6 +257,22 @@ describe("after reading email", () => {
     expect(readEmail(steps([{ kind: "mail", action: "summary", subject: "x", url: "/m" }]))).toBe(false);
     expect(readEmail(steps([{ kind: "memory", action: "remember", text: "x" }]))).toBe(false);
     expect(readEmail(undefined)).toBe(false);
+  });
+
+  it("knows a run that read others' words: email, the web, a connection's answer, another agent's answer", () => {
+    const tool = (connectionId: string | null, name: string, outcome: Extract<AgentStepRecord, { kind: "tool" }>["outcome"]): AgentStepRecord => ({ kind: "tool", connectionId, tool: name, input: "", outcome });
+    const handoff = (outcome: Extract<AgentStepRecord, { kind: "handoff" }>["outcome"]): AgentStepRecord => ({ kind: "handoff", agentId: "a2", agentName: "Helper", runId: null, task: "x", outcome });
+    expect(readOthersWords([{ kind: "mail", action: "earlier" }])).toBe(true);
+    expect(readOthersWords([tool(null, WEB_TOOL_NAMES.read, "done")])).toBe(true);
+    expect(readOthersWords([tool(null, WEB_TOOL_NAMES.search, "done")])).toBe(true);
+    expect(readOthersWords([tool("c1", "list_issues", "done")])).toBe(true);
+    // A service's error says what it likes too.
+    expect(readOthersWords([tool("c1", "list_issues", "failed")])).toBe(true);
+    expect(readOthersWords([handoff("done")])).toBe(true);
+    // Nothing came back: refused, declined, waiting, or Leafdesk's own tools.
+    expect(readOthersWords([tool(null, WEB_TOOL_NAMES.read, "refused"), tool("c1", "create_issue", "declined"), tool(null, "create_row", "done"), handoff("queued")])).toBe(false);
+    expect(readOthersWords([{ kind: "read", pageId: "p1" }, { kind: "search", query: null, results: 2 }, { kind: "memory", action: "correct", text: "x", memoryId: "m1" }])).toBe(false);
+    expect(readOthersWords([])).toBe(false);
   });
 
   it("lets such a run only read pages, find and use tools, and use the mail tools", () => {

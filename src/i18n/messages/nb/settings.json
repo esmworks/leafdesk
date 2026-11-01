@@ -557,7 +557,7 @@
       "libraryNote": "Ferdigheter lages i <link>ferdighetsbiblioteket</link>."
     },
     "memory": {
-      "description": "Notater som følger med hver kjøring av denne agenten, så den slipper å lære det samme på nytt. Kjøringene foreslår notater; ingen følger med en kjøring før en eier beholder det.",
+      "description": "Notater som følger med hver kjøring av denne agenten, så den slipper å lære det samme på nytt. Kjøringene foreslår notater; ingen følger med en kjøring før en eier beholder det. Rettelser som noen som kan redigere den, gir i sin egen chat med den, beholdes med en gang.",
       "rule": "En kjøring leser rader, sider og hendelser som andre personer og tjenester har skrevet, og et notat kan bære ordene deres videre inn i alle senere kjøringer. Les hvert forslag før du beholder det. Beholdte notater følger med hver kjøring, uansett hvem som starter den.",
       "off": "KI-minne er slått av i dette arbeidsområdet: kjøringer har ingen notater med seg og foreslår ingen før en eier slår det på under <link>Innstillinger → Generelt</link>.",
       "archived": "Gjenopprett agenten for å endre minnet.",
@@ -591,7 +591,9 @@
       "forgetAll": "Glem alt",
       "confirmForgetAll": "Skal {name} glemme alt den husker?",
       "waiting": "{count, plural, one {# notat å se gjennom} other {# notater å se gjennom}}",
-      "toReview": "{count, plural, one {# notat å se gjennom} other {# notater å se gjennom}}"
+      "toReview": "{count, plural, one {# notat å se gjennom} other {# notater å se gjennom}}",
+      "correction": "Rettelse",
+      "correctionFrom": "Rettelse · fra chatten med {name}"
     },
     "runs": {
       "description": "De siste kjøringene, som lagres i {days} dager.",
@@ -837,7 +839,8 @@
       "notAllowed": "Tilgangen din til denne agenten tillater ikke dette.",
       "ownersOnly": "Bare eiere av arbeidsområdet kan endre den månedlige tokengrensen til en agent.",
       "notAMember": "En agent kan bare deles med eiere, medlemmer og grupper i arbeidsområdet.",
-      "requestNotFound": "Denne forespørselen er allerede besvart."
+      "requestNotFound": "Denne forespørselen er allerede besvart.",
+      "noteChanged": "Dette notatet er endret siden. Endre det i agentens Minne-fane."
     },
     "connections": {
       "description": "Verktøyene fra hver tilkobling som denne agenten kan bruke. Verktøy som bare leser, kjøres med en gang, unntatt på en rad fra et anonymt skjemasvar; alle andre venter på godkjenning fra en eier hver gang agenten kaller dem.",
