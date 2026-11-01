@@ -41,6 +41,7 @@ import {
   type AgentView,
 } from "@/lib/agents";
 import { agentTargets } from "@/lib/automations";
+import { isDailyChangeLimit, MAX_DAILY_CHANGES, parseQuietHours, type QuietHours } from "@/lib/quiet-hours";
 import { ICON_RULE, parseIcon } from "@/lib/icon";
 import type { AgentLevel, AgentShareLevel } from "@/lib/agent-sharing";
 import { AccessError, pageAccessOf, pageVisibleTo, requireMember } from "@/server/access";
@@ -74,6 +75,10 @@ export type AgentInput = {
   model?: AgentModel;
   /** Whether its runs change rows at once or propose the changes for review. */
   rowChanges?: AgentRowChanges;
+  /** When calls an owner's rule allows wait instead (lib/quiet-hours.ts); null: never. */
+  quietHours?: QuietHours | null;
+  /** The most changes a day; null removes the limit. */
+  dailyChangeLimit?: number | null;
   /** Its "Agents it can ask" (see helpers.ts), all of them. */
   helperAgentIds?: string[];
 };
@@ -96,6 +101,19 @@ function checkLimit(value: unknown) {
 
 function checkRowChanges(value: unknown): AgentRowChanges {
   if (!isAgentRowChanges(value)) throw new AgentError("invalid", 'An agent changes rows "direct"ly or proposes them for "review"', { reason: "rowChanges" });
+  return value;
+}
+
+function checkQuietHours(value: unknown): QuietHours | null {
+  if (value === null) return null;
+  const quiet = parseQuietHours(value);
+  if (!quiet) throw new AgentError("invalid", "Quiet hours are a start and an end time (HH:MM, not the same) and a time zone", { reason: "quietHours" });
+  return quiet;
+}
+
+function checkDailyChangeLimit(value: unknown): number | null {
+  if (value === null) return null;
+  if (!isDailyChangeLimit(value)) throw new AgentError("invalid", `A daily change limit is a whole number of changes, from 1 to ${MAX_DAILY_CHANGES}`, { reason: "dailyChangeLimit" });
   return value;
 }
 
@@ -150,6 +168,8 @@ export function viewAgent(a: Agent, access: AgentShareLevel): AgentView {
     monthlyTokenLimit: a.monthlyTokenLimit,
     model: a.model,
     rowChanges: a.rowChanges,
+    quietHours: a.quietHours ? parseQuietHours(a.quietHours) : null,
+    dailyChangeLimit: a.dailyChangeLimit,
     access,
     createdAt: a.createdAt.toISOString(),
     updatedAt: a.updatedAt.toISOString(),
@@ -165,6 +185,8 @@ export const auditDetails = (a: Agent) => ({
   monthlyTokenLimit: a.monthlyTokenLimit,
   model: a.model,
   rowChanges: a.rowChanges,
+  quietHours: a.quietHours,
+  dailyChangeLimit: a.dailyChangeLimit,
 });
 
 export { agentWithLevel } from "./sharing";
@@ -232,13 +254,17 @@ export type CopyOptions = {
 /**
  * Creates an agent, for owners and (when the workspace lets them) members: shared with everyone in
  * the workspace (can view and interact), and with its creator at full access. Only owners give it
- * a monthly token limit, except the one of the agent it copies.
+ * a monthly token limit, quiet hours and a daily change limit, except those of the agent it copies.
  */
 export async function createAgent(userId: string, workspaceId: string, input: AgentInput, copy?: CopyOptions): Promise<AgentView> {
   const membership = await requireAgentCreator(userId, workspaceId);
   const keptLimit = copy !== undefined && input.monthlyTokenLimit === copy.copiedFrom.monthlyTokenLimit;
   if (input.monthlyTokenLimit !== undefined && input.monthlyTokenLimit !== null && membership.role !== "owner" && !keptLimit) {
     throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's monthly token limit");
+  }
+  // As the token limit: a copy keeps those of the agent it copies.
+  if (membership.role !== "owner" && guardrailsChanged(input, copy?.copiedFrom ?? null)) {
+    throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's quiet hours and daily change limit");
   }
   const name = checkName(input.name);
   const icon = checkIcon(input.icon);
@@ -273,6 +299,8 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
         monthlyTokenLimit,
         model,
         rowChanges: input.rowChanges === undefined ? "direct" : checkRowChanges(input.rowChanges),
+        quietHours: input.quietHours === undefined ? null : checkQuietHours(input.quietHours),
+        dailyChangeLimit: input.dailyChangeLimit === undefined ? null : checkDailyChangeLimit(input.dailyChangeLimit),
         createdBy: userId,
       })
       .returning();
@@ -293,14 +321,29 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
 }
 
 /**
+ * Whether `input` would give the agent other quiet hours or another daily change limit than
+ * `before` has (none for a new agent): the same ones sent back are no change.
+ */
+function guardrailsChanged(input: AgentInput, before: Pick<Agent, "quietHours" | "dailyChangeLimit"> | null): boolean {
+  const quietBefore = before?.quietHours ? parseQuietHours(before.quietHours) : null;
+  const quietChanged = input.quietHours !== undefined && JSON.stringify(input.quietHours ? parseQuietHours(input.quietHours) ?? input.quietHours : null) !== JSON.stringify(quietBefore);
+  const limitChanged = input.dailyChangeLimit !== undefined && (input.dailyChangeLimit ?? null) !== (before?.dailyChangeLimit ?? null);
+  return quietChanged || limitChanged;
+}
+
+/**
  * Changes an agent, for those who can edit it; what `patch` leaves out stays as it was. Only owners
- * change its monthly token limit (the same limit sent back is no change).
+ * change its monthly token limit, quiet hours and daily change limit (the same ones sent back are
+ * no change).
  */
 export async function updateAgent(userId: string, agentId: string, patch: AgentInput): Promise<AgentView> {
   const { agent: current, level, owner } = await agentWithLevel(userId, agentId, "edit");
   if (current.archivedAt) throw new AgentError("archived", "Restore the agent to change it");
   if (patch.monthlyTokenLimit !== undefined && patch.monthlyTokenLimit !== current.monthlyTokenLimit && !owner) {
     throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's monthly token limit");
+  }
+  if (!owner && guardrailsChanged(patch, current)) {
+    throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's quiet hours and daily change limit");
   }
   const set: Partial<Agent> = {};
   if (patch.name !== undefined) set.name = checkName(patch.name);
@@ -313,6 +356,8 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
   if (patch.model !== undefined) set.model = checkModel(patch.model);
   if (patch.rowChanges !== undefined) set.rowChanges = checkRowChanges(patch.rowChanges);
+  if (patch.quietHours !== undefined) set.quietHours = checkQuietHours(patch.quietHours);
+  if (patch.dailyChangeLimit !== undefined) set.dailyChangeLimit = checkDailyChangeLimit(patch.dailyChangeLimit);
   const helpersBefore = (await helperIdsOf([agentId])).get(agentId) ?? [];
   const helpers = patch.helperAgentIds === undefined ? helpersBefore : await checkHelpers(userId, current.workspaceId, agentId, patch.helperAgentIds, helpersBefore);
   const helpersChanged = helpers.join() !== helpersBefore.join();
@@ -661,10 +706,13 @@ export async function viewRuns(userId: string, runs: (typeof agentRun.$inferSele
       status: r.status,
       code: r.code ?? null,
       error: open ? r.error : null,
-      source: r.source,
+      // The web session a chat's message came from stays on the server (agents/computer.ts).
+      source: r.source.kind === "chat" && r.source.sessionId ? { ...r.source, sessionId: undefined } : r.source,
       rowTitle: isRowRun(r.source) ? (titles.get(r.source.rowId) ?? null) : null,
-      steps: open ? r.steps.map((s) => (s.kind === "skill" && !openSkills.has(s.pageId) ? { ...s, title: "" } : s)) : [],
+      // A correction's note as it was before stays with the run, for Undo (memory.ts).
+      steps: open ? r.steps.map((s) => (s.kind === "skill" && !openSkills.has(s.pageId) ? { ...s, title: "" } : s.kind === "memory" && s.previous ? { ...s, previous: undefined } : s)) : [],
       answer: open ? r.answer : "",
+      quiet: r.quiet,
       usage: r.usage,
       pending:
         open && r.pending

@@ -12,6 +12,8 @@ export type AgentErrorCode =
   | "noteTooLong"
   | "memoryFull"
   | "noteNotFound"
+  /** A correction taken back after someone changed its note (memory.ts undoAgentCorrection). */
+  | "noteChanged"
   | "paused"
   | "aiOff"
   | "limitReached"

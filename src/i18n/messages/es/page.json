@@ -1344,6 +1344,7 @@
       "approvalTimeout": "Nadie respondió a su llamada a tiempo, así que no se envió nada.",
       "limitReached": "El agente ha usado sus tokens del mes.",
       "costLimit": "El espacio de trabajo ha alcanzado su límite mensual de coste de IA.",
+      "selfReported": "El agente dijo que no pudo hacer su tarea.",
       "error": "Algo salió mal."
     },
     "errors": {
@@ -1357,7 +1358,11 @@
       "gone": "Este agente ya no está disponible.",
       "paused": "Este agente está en pausa, así que no puede responder.",
       "aiOff": "La IA está desactivada en este espacio de trabajo, así que el agente no puede responder.",
-      "limitReached": "Este agente ha usado sus tokens del mes."
+      "limitReached": "Este agente ha usado sus tokens del mes.",
+      "queueFull": "Ya hay {max} mensajes esperando la respuesta. Envía este cuando el agente haya respondido.",
+      "badFile": "No se puede adjuntar este archivo: solo archivos de texto (CSV, TSV, TXT, Markdown, JSON), como máximo {max} por mensaje.",
+      "nothingToRedo": "No hay ninguna respuesta que rehacer.",
+      "summaryFailed": "El agente no pudo resumir esta conversación. Inténtalo de nuevo."
     },
     "picker": {
       "search": "Buscar agentes",
@@ -1386,10 +1391,41 @@
       "mailOn": "Correo nuevo · {place}"
     },
     "doneQuietly": "Hecho.",
+    "nothingNew": "Nada nuevo",
     "side": {
       "label": "Acerca de {name}",
       "paused": "En pausa"
-    }
+    },
+    "deferred": "Retenida hasta que terminen las horas de silencio ({time})…",
+    "deferredApproval": "El agente retiene una llamada hasta que terminen sus horas de silencio ({time}). Puedes aprobarla ahora.",
+    "queued": "En cola",
+    "queuedHint": "Irá a {name} cuando haya respondido",
+    "removeQueued": "Quitar de la cola",
+    "queuedAlreadySent": "Ese mensaje ya se había enviado al agente.",
+    "newWithSummary": "Nueva conversación con un resumen",
+    "summary": "Resumen de una conversación anterior",
+    "edit": "Editar",
+    "regenerate": "Regenerar",
+    "files": {
+      "attach": "Adjuntar archivos de texto",
+      "remove": "Quitar {name}",
+      "download": "Descargar {name}",
+      "tooMany": "Como máximo {max} archivos por mensaje.",
+      "tooLarge": "{name} supera los {size}.",
+      "type": "No se puede adjuntar {name}: solo archivos CSV, TSV, TXT, Markdown y JSON.",
+      "binary": "{name} no es un archivo de texto."
+    },
+    "search": {
+      "open": "Buscar en las conversaciones",
+      "placeholder": "Busca en tus conversaciones con {name}",
+      "hint": "Escribe al menos {min} caracteres.",
+      "empty": "No se encontró nada.",
+      "results": "Resultados de la búsqueda",
+      "inThread": "Chat del agente",
+      "onPage": "En una página",
+      "onClosedPage": "En una página que no puedes abrir"
+    },
+    "computerFiles": "Puede usar archivos de tu ordenador: {folders}"
   },
   "button": {
     "untitled": "Botón",

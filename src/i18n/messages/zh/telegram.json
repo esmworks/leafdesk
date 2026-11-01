@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "已以 {name} 的身份关联到 Leafdesk。你还没有加入可供我回答的工作区：加入一个后，用 /workspace 选择它。",
   "notLinked": "此聊天未关联 Leafdesk 账户。在 Leafdesk 中打开 设置 → 已连接的应用 → Telegram，然后选择“关联 Telegram”。",
   "badCode": "此链接已过期或已被使用。请在 Leafdesk 中新建一个：设置 → 已连接的应用 → Telegram。",
-  "help": "提出问题或发送语音消息，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/workspace：选择我回答所用的工作区\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/notifications：开启或关闭此聊天中的通知\n/unlink：取消关联此 Telegram 账户",
+  "help": "提出问题或发送语音消息，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/new summary：从上一段对话的摘要开始与代理的新对话\n/workspace：选择我回答所用的工作区\n/agent：与你的某个智能体聊天\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/notifications：开启或关闭此聊天中的通知\n/unlink：取消关联此 Telegram 账户",
   "commands": {
     "new": "开始新对话",
     "workspace": "选择我回答所用的工作区",
+    "agent": "与你的某个智能体聊天",
     "mode": "选择我可以更改什么",
     "stop": "停止正在撰写的回答",
     "unlink": "取消关联此 Telegram 账户",
@@ -123,5 +124,80 @@
     "invalid": "请先发送一个问题。",
     "interrupted": "回答期间服务器重启了。请再问一次。",
     "limitReached": "此工作区已达到每月 AI 费用上限，下个月之前将拒绝提问。"
+  },
+  "agent": {
+    "general": "通用 AI 聊天",
+    "none": "{workspace} 中没有与你共享的智能体。",
+    "pick": "你的消息发送给 {agent}。选择另一个智能体，或通用 AI 聊天：",
+    "pickNone": "你的消息发送到 {workspace} 的通用 AI 聊天。选择一个智能体来聊天：",
+    "set": "你的消息现在发送给 {agent}。对话在它页面上的聊天中继续；/agent 可切换回来。",
+    "setReadOnly": "你的消息现在发送给 {agent}。你只能使用它：它根据你们都能看到的页面回答，不做任何更改。",
+    "generalSet": "已回到 {workspace} 的通用 AI 聊天。",
+    "newConversation": "与智能体开始新对话。",
+    "stopped": "我已停止跟进。{agent} 会写完回答，你可以在它的页面上看到。",
+    "modeNote": "模式属于通用 AI 聊天：智能体遵循自己的设置。",
+    "waiting": "{agent} 正在等待你批准使用 {connection}。请在带按钮的消息中回复。",
+    "waitingOwner": "{agent} 正在等待工作区所有者批准一次调用。批准后回答会发到这里。",
+    "waitingApp": "{agent} 正在等待你批准使用 {connection}。请在 Leafdesk 中该智能体的页面上回复；回复后，它的答案会发到这里。",
+    "readOnlyWorkspace": "{workspace} 只允许已连接的应用读取，因此其智能体不接收来自这里的消息。/agent 可回到通用 AI 聊天。",
+    "states": {
+      "gone": "该智能体已不可用。你的消息重新发送到通用 AI 聊天。",
+      "noAccess": "该智能体已不再与你共享。你的消息重新发送到通用 AI 聊天。",
+      "guest": "访客不能与智能体聊天。你的消息重新发送到通用 AI 聊天。",
+      "paused": "该智能体已暂停。请它的所有者开启它，或用 /agent 选择另一个。",
+      "aiOff": "此工作区已关闭 AI。",
+      "limitReached": "该智能体本月的令牌已用完。请用 /agent 选择另一个。"
+    },
+    "refused": {
+      "tooLong": "发给智能体的消息最多 {max} 个字符。",
+      "busy": "智能体仍在回答你的上一条消息。",
+      "rateLimited": "同时发送的消息太多。请稍后再试。",
+      "invalid": "请先发送一条消息。",
+      "queueFull": "已有 {max} 条消息在等待代理的回答。请在它回答后再发送这条。",
+      "badFile": "代理只接收文本文件（CSV、TSV、TXT、Markdown、JSON），每个最多 {size}。",
+      "summaryFailed": "代理无法总结这段对话。请重试，或用 /new 重新开始。"
+    },
+    "failed": {
+      "aiOff": "此工作区已关闭 AI。",
+      "agentDisabled": "智能体在回答前被暂停。",
+      "noAccess": "智能体已无法打开所需内容。",
+      "provider": "AI 提供商无法回答。请稍后再试。",
+      "timeout": "智能体回答耗时过长。请再试一次。",
+      "tooManyAttempts": "智能体多次尝试后仍无法回答。",
+      "approvalTimeout": "一天内无人回复批准请求，因此未发送任何内容。",
+      "limitReached": "智能体本月的令牌已用完。",
+      "costLimit": "回答已达到费用上限。",
+      "selfReported": "代理表示它未能完成任务。",
+      "error": "智能体回答时出了问题。"
+    },
+    "routine": {
+      "done": "{agent} 已完成“{task}”。",
+      "failed": "{agent} 未能完成“{task}”。",
+      "reasons": {
+        "aiOff": "此工作区已关闭 AI。",
+        "agentDisabled": "该智能体已被暂停或归档。",
+        "noAccess": "代理或设置该计划的人已无法打开任务所需的内容。",
+        "rowGone": "该行已被删除。",
+        "databaseGone": "它负责的数据库已被删除或移到回收站。",
+        "commentGone": "提及它的评论已被删除，或其页面已移到回收站。",
+        "provider": "AI 提供方没有响应。",
+        "timeout": "运行时间过长。",
+        "tooManyAttempts": "未能及时开始：工作区的 AI 额度一直处于用尽状态。",
+        "approvalTimeout": "一天内没有人答复它的调用请求，因此没有发送任何内容。",
+        "connectionGone": "任务所需的一个连接已被移除。",
+        "mailGone": "邮件已不在邮箱中,或该邮箱已不再向此智能体开放。",
+        "limitReached": "它已用完该智能体的每月令牌上限。",
+        "costLimit": "工作区此前已达到每月 AI 费用上限。",
+        "selfReported": "代理表示它未能完成任务。",
+        "error": "出了点问题。"
+      },
+      "email": "它读取了你的邮件，因此报告只在 Leafdesk 中显示。"
+    },
+    "deferred": "{agent} 将一个调用暂缓至安静时段结束。届时回答会发到这里。",
+    "queued": "已排队：代理回答完后会读到它。",
+    "nothingToSummarize": "还没有可以总结的与代理的对话。",
+    "newSummary": "与代理的新对话，从上一段对话的这份摘要开始：",
+    "fileFailed": "无法下载该文件。请再发送一次。",
+    "fileNotSent": "无法发送文件 {name}。它在代理页面上的回答中。"
   }
 }

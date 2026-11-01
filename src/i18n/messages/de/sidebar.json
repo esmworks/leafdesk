@@ -245,6 +245,7 @@
     "aiReminderTitle": "Erinnerung von {agent}",
     "reportDone": "Sein geplanter Lauf ist fertig.",
     "reportFailed": "Sein geplanter Lauf ist fehlgeschlagen. Öffne ihn, um zu sehen, warum.",
+    "reportFailedReason": "Sein geplanter Lauf konnte seine Aufgabe nicht erledigen: {reason}",
     "taskDone": "Aufgabe von {agent}: erledigt.",
     "taskFailed": "Aufgabe von {agent}: nicht abgeschlossen.",
     "reportHidden": "Sein geplanter Lauf ist fertig, in einer Datenbank, die du nicht öffnen kannst.",

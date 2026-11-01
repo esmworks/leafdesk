@@ -469,7 +469,18 @@
       "rowChangesDirect": "Skriv dem direkt",
       "rowChangesReview": "Föreslå dem för granskning",
       "rowChangesDirectHelp": "Rader den lägger till och värden den ändrar sparas direkt, under dess namn.",
-      "rowChangesReviewHelp": "Rader den skulle lägga till och värden den skulle ändra väntar under Att granska tills någon som kan redigera dem godkänner eller avvisar var och en."
+      "rowChangesReviewHelp": "Rader den skulle lägga till och värden den skulle ändra väntar under Att granska tills någon som kan redigera dem godkänner eller avvisar var och en.",
+      "quietHours": "Tysta timmar",
+      "quietHoursHelp": "Anrop som en ägares regel alltid tillåter väntar tills de tysta timmarna är slut, utan att meddela någon. Anrop som behöver godkännande frågar som vanligt.",
+      "quietFrom": "Från",
+      "quietTo": "Till",
+      "quietTimeZone": "Tidszon",
+      "quietHoursInvalid": "Välj två olika tider och en tidszon.",
+      "dailyChangeLimit": "Ändringar per dag",
+      "dailyChangeLimitPlaceholder": "Ingen gräns",
+      "dailyChangeLimitHelp": "Det högsta antalet ändringar den gör på en dag: rader, sidor, kommentarer, e-post den skickar och anslutningsanrop som ändrar något. Fler avvisas. Dagen följer de tysta timmarnas tidszon, annars UTC.",
+      "dailyChangeLimitInvalid": "Ange ett heltal från 1 till {max}.",
+      "guardrailsOwnersOnly": "Bara arbetsytans ägare ställer in tysta timmar och den dagliga ändringsgränsen."
     },
     "describe": {
       "button": "Beskriv en agent",
@@ -547,7 +558,7 @@
       "libraryNote": "Färdigheter skapas i <link>färdighetsbiblioteket</link>."
     },
     "memory": {
-      "description": "Anteckningar som följer med varje körning av den här agenten, så att den inte behöver lära sig samma saker igen. Dess körningar föreslår anteckningar; ingen följer med en körning förrän en ägare behåller den.",
+      "description": "Anteckningar som följer med varje körning av den här agenten, så att den inte behöver lära sig samma saker igen. Dess körningar föreslår anteckningar; ingen följer med en körning förrän en ägare behåller den. Rättelser som någon som kan redigera den ger i sin egen chatt med den behålls direkt.",
       "rule": "En körning läser rader, sidor och händelser som andra personer och tjänster har skrivit, och en anteckning kan föra deras ord vidare till varje senare körning. Läs varje förslag innan du behåller det. Behållna anteckningar följer med varje körning, oavsett vem som startar den.",
       "off": "AI-minnet är avstängt i den här arbetsytan: körningar har inga anteckningar och föreslår inga förrän en ägare slår på det under <link>Inställningar → Allmänt</link>.",
       "archived": "Återställ agenten för att ändra dess minne.",
@@ -581,7 +592,9 @@
       "forgetAll": "Glöm allt",
       "confirmForgetAll": "Ska {name} glömma allt den minns?",
       "waiting": "{count, plural, one {# anteckning att granska} other {# anteckningar att granska}}",
-      "toReview": "{count, plural, one {# anteckning att granska} other {# anteckningar att granska}}"
+      "toReview": "{count, plural, one {# anteckning att granska} other {# anteckningar att granska}}",
+      "correction": "Rättelse",
+      "correctionFrom": "Rättelse · från chatten med {name}"
     },
     "runs": {
       "description": "Dess senaste körningar, som sparas i {days} dagar.",
@@ -592,7 +605,9 @@
         "running": "Körs",
         "done": "Klar",
         "failed": "Misslyckades",
-        "awaiting_approval": "Väntar på godkännande"
+        "awaiting_approval": "Väntar på godkännande",
+        "deferred": "Väntar på tysta timmar",
+        "quiet": "Inget nytt"
       },
       "rowHidden": "En rad som du inte kan öppna",
       "took": "tog {time}",
@@ -610,6 +625,7 @@
       "hideDetails": "Dölj vad den gjorde",
       "noSteps": "Den sökte, läste eller ändrade ingenting.",
       "answer": "Dess sista ord",
+      "givenReason": "Angiven orsak",
       "comment": "Kommenterade:",
       "commentFailed": "Kunde inte kommentera:",
       "commentHidden": "Kommenterade på en rad som du inte kan öppna",
@@ -633,6 +649,7 @@
         "connectionGone": "Anslutningen som startade den har tagits bort.",
         "limitReached": "Den hade förbrukat agentens månatliga tokengräns.",
         "costLimit": "Arbetsytan hade nått sin månatliga kostnadsgräns för AI.",
+        "selfReported": "Agenten meddelade att den inte kunde utföra sin uppgift.",
         "mailGone": "Mejlet finns inte längre i brevlådan, eller brevlådan är inte längre öppen för agenten."
       },
       "fromConnection": "{connection} · {event}",
@@ -646,6 +663,17 @@
         "searchFailed": "Kunde inte söka på webben",
         "approved": "godkänt"
       },
+      "computer": {
+        "list": "Listade en mapp på datorn",
+        "read": "Läste en fil på datorn",
+        "write": "Skrev en fil på datorn",
+        "trash": "Flyttade något på datorn till papperskorgen",
+        "declined": "avböjt; inget gjordes",
+        "expired": "inget svar i tid; inget gjordes",
+        "failed": "kunde inte utföras",
+        "afterMail": "stoppat efter att e-post lästs; inget gjordes",
+        "limited": "över agentens dagliga gräns för ändringar; inget gjordes"
+      },
       "tool": {
         "done": "Anropade ”{tool}” på {connection}",
         "failed": "Kunde inte anropa ”{tool}” på {connection}",
@@ -654,9 +682,14 @@
         "expired": "Dess anrop av ”{tool}” på {connection} hann inte besvaras; inget skickades",
         "refused": "Dess anrop av ”{tool}” på {connection} avvisades, eftersom ingen kunde godkänna det; inget skickades",
         "afterMail": "Anropet av ”{tool}” på {connection} hölls tillbaka: efter att ha läst e-post läser en körning bara sidor och skriver utkast; inget skickades",
+        "afterLocalRead": "Anropet av ”{tool}” på {connection} hölls tillbaka: efter att ha läst filer på datorn går inget ut; inget skickades",
+        "afterLocalReadOut": "Anropet av ”{tool}” hölls tillbaka: efter att filer på datorn lästs går inget ut; inget skickades",
         "approved": "godkänt",
         "answered": "besvarat av en ägare",
-        "note": "Anteckning: {note}"
+        "note": "Anteckning: {note}",
+        "denied": "Dess anrop av ”{tool}” på {connection} avvisades av en ägares regel; inget skickades",
+        "limited": "Dess anrop av ”{tool}” på {connection} avvisades: agenten har gjort så många ändringar som den får på en dag; inget gjordes",
+        "allowedByRule": "tillåtet av en ägares regel"
       },
       "skill": {
         "used": "Följde färdigheten <name></name>",
@@ -685,7 +718,8 @@
       "chattedBy": "chatt av {name}",
       "yoursOnly": "Du ser körningarna som du har startat.",
       "waitingForOwner": "En ägare av arbetsytan svarar på det här anropet.",
-      "fromMail": "E-post till {name}"
+      "fromMail": "E-post till {name}",
+      "deferred": "Väntar tills dess tysta timmar är slut ({time}); en ägare kan godkänna det nu."
     },
     "usage": {
       "thisMonth": "Den här månaden: {usage}",
@@ -799,7 +833,9 @@
         "requestTokens": "Begär ett heltal tokens över den nuvarande gränsen, högst 1 000 000 000.",
         "requestNote": "Ange varför med högst 500 tecken.",
         "noLimit": "Den här agenten har ingen gräns att höja.",
-        "mailbox": "Välj en av dina brevlådor i den här arbetsytan."
+        "mailbox": "Välj en av dina brevlådor i den här arbetsytan.",
+        "quietHours": "Tysta timmar kräver två olika tider (TT:MM) och en tidszon.",
+        "dailyChangeLimit": "Ange en daglig ändringsgräns som ett heltal från 1 till 10 000."
       },
       "noteEmpty": "Skriv vad agenten ska komma ihåg.",
       "noteTooLong": "En anteckning kan ha högst {max} tecken.",
@@ -815,9 +851,10 @@
       "scheduleNotFound": "Det här schemat finns inte längre.",
       "versionNotFound": "Den här versionen finns inte längre.",
       "notAllowed": "Din åtkomst till den här agenten tillåter inte detta.",
-      "ownersOnly": "Bara arbetsytans ägare ändrar en agents månatliga tokengräns.",
+      "ownersOnly": "Bara arbetsytans ägare ändrar en agents månatliga tokengräns, tysta timmar och dagliga ändringsgräns.",
       "notAMember": "En agent kan bara delas med arbetsytans ägare, medlemmar och grupper.",
-      "requestNotFound": "Den här begäran har redan besvarats."
+      "requestNotFound": "Den här begäran har redan besvarats.",
+      "noteChanged": "Den här anteckningen har ändrats sedan dess. Ändra den på agentens flik Minne."
     },
     "connections": {
       "description": "Verktygen i varje anslutning som den här agenten får använda. Verktyg som bara läser körs direkt, utom på en rad från ett anonymt formulärsvar; alla andra väntar på en ägares godkännande varje gång agenten anropar dem.",
@@ -826,7 +863,13 @@
       "notReady": "Den här anslutningen är inte redo (den behöver en inloggning eller misslyckas), så agenten kan inte använda dess verktyg för tillfället.",
       "noTools": "Inga verktyg listade än.",
       "ownersChoose": "Verktygen i varje anslutning som den här agenten får använda. Bara arbetsytans ägare väljer dem.",
-      "none": "Den här agenten kan inte använda någon anslutnings verktyg."
+      "none": "Den här agenten kan inte använda någon anslutnings verktyg.",
+      "rulesNote": "För varje valt verktyg kan du också ange en regel: tillåt alltid (det går utan att fråga, om inte körningen har läst innehåll utifrån) eller avvisa alltid.",
+      "ruleLabel": "Regel för {tool}",
+      "ruleAsk": "Fråga varje gång",
+      "ruleAllowed": "Tillåtet",
+      "ruleAllow": "Tillåt alltid",
+      "ruleDeny": "Avvisa alltid"
     },
     "schedules": {
       "description": "Låt den här agenten köras på egen hand, enligt ett schema: varje körning utför uppgiften, på databasen du väljer om någon, och du får dess rapport i din inkorg. Dess körningar kan bara öppna det du kan öppna.",
@@ -896,7 +939,9 @@
         "skills": "Färdigheter",
         "schedules": "Scheman",
         "shares": "Delade sidor",
-        "row_changes": "Ändringar i rader"
+        "row_changes": "Ändringar i rader",
+        "quiet_hours": "Tysta timmar",
+        "daily_change_limit": "Ändringar per dag"
       },
       "back": "Alla versioner",
       "compareNote": "Vad som ändrats från den här versionen till agentens nuvarande konfiguration. Återställning tar tillbaka det som den här versionen hade.",
@@ -1984,7 +2029,8 @@
         "shared": "Satte åtkomsten för {subject} till agenten ”{target}”: {level}",
         "unshared": "Tog bort {subject} från delningen av agenten ”{target}”",
         "creator_added": "Lät {subject} skapa agenter",
-        "creator_removed": "Tog bort {subject} från dem som kan skapa agenter"
+        "creator_removed": "Tog bort {subject} från dem som kan skapa agenter",
+        "local_file": "{op, select, trash {Flyttade ”{path}” till papperskorgen} other {Skrev ”{path}”}} på {target}s dator ({outcome})"
       },
       "connection": {
         "created": "Lade till anslutningen ”{target}”",
@@ -2051,7 +2097,9 @@
     },
     "outcomes": {
       "done": "klart",
-      "failed": "misslyckades"
+      "failed": "misslyckades",
+      "declined": "avböjt",
+      "expired": "obesvarat"
     },
     "agentLevels": {
       "full": "Full åtkomst",

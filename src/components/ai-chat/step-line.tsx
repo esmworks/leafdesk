@@ -62,8 +62,9 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
     // An agent's proposal waits for an owner, and its note for its next run needs none: neither is declined in its run.
     const action = step.action;
     const declined = step.outcome === "declined" && (action === "remember" || action === "forget");
-    const Icon = declined ? Ban : action === "forget" ? BrainCog : Brain;
-    const label = declined && (action === "remember" || action === "forget") ? t(`steps.memory.declined.${action}`) : t(`steps.memory.${action}`);
+    const undone = step.outcome === "undone";
+    const Icon = declined || undone ? Ban : action === "forget" ? BrainCog : Brain;
+    const label = declined && (action === "remember" || action === "forget") ? t(`steps.memory.declined.${action}`) : undone ? t("steps.memory.undone") : t(`steps.memory.${action}`);
     return (
       <>
         <Icon className={icon} />

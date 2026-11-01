@@ -1344,6 +1344,7 @@
       "approvalTimeout": "Kukaan ei vastannut sen kutsuun ajoissa, joten mitään ei lähetetty.",
       "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
       "costLimit": "Työtila on saavuttanut tekoälyn kuukausittaisen kustannusrajansa.",
+      "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
       "error": "Jokin meni vikaan."
     },
     "errors": {
@@ -1357,7 +1358,11 @@
       "gone": "Tämä agentti ei ole enää käytettävissä.",
       "paused": "Tämä agentti on keskeytetty, joten se ei voi vastata.",
       "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa, joten agentti ei voi vastata.",
-      "limitReached": "Tämä agentti on käyttänyt kuukauden tokeninsa."
+      "limitReached": "Tämä agentti on käyttänyt kuukauden tokeninsa.",
+      "queueFull": "Vastausta odottaa jo {max} viestiä. Lähetä tämä, kun agentti on vastannut.",
+      "badFile": "Tiedostoa ei voi liittää: vain tekstitiedostot (CSV, TSV, TXT, Markdown, JSON), enintään {max} viestiä kohden.",
+      "nothingToRedo": "Uudelleen tehtävää vastausta ei ole.",
+      "summaryFailed": "Agentti ei pystynyt tiivistämään keskustelua. Yritä uudelleen."
     },
     "picker": {
       "search": "Hae agentteja",
@@ -1386,10 +1391,41 @@
       "mailOn": "Uusi sähköposti · {place}"
     },
     "doneQuietly": "Valmis.",
+    "nothingNew": "Ei uutta",
     "side": {
       "label": "Tietoja: {name}",
       "paused": "Keskeytetty"
-    }
+    },
+    "deferred": "Odottaa hiljaisten tuntien loppuun ({time})…",
+    "deferredApproval": "Agentti pidättää kutsun hiljaisten tuntiensa loppuun ({time}). Voit hyväksyä sen nyt.",
+    "queued": "Jonossa",
+    "queuedHint": "Menee agentille {name}, kun se on vastannut",
+    "removeQueued": "Poista jonosta",
+    "queuedAlreadySent": "Viesti oli jo lähtenyt agentille.",
+    "newWithSummary": "Uusi keskustelu tiivistelmän kanssa",
+    "summary": "Tiivistelmä aiemmasta keskustelusta",
+    "edit": "Muokkaa",
+    "regenerate": "Luo uudelleen",
+    "files": {
+      "attach": "Liitä tekstitiedostoja",
+      "remove": "Poista {name}",
+      "download": "Lataa {name}",
+      "tooMany": "Enintään {max} tiedostoa viestiä kohden.",
+      "tooLarge": "{name} on suurempi kuin {size}.",
+      "type": "Tiedostoa {name} ei voi liittää: vain CSV-, TSV-, TXT-, Markdown- ja JSON-tiedostot.",
+      "binary": "{name} ei ole tekstitiedosto."
+    },
+    "search": {
+      "open": "Hae keskusteluista",
+      "placeholder": "Hae keskusteluistasi agentin {name} kanssa",
+      "hint": "Kirjoita vähintään {min} merkkiä.",
+      "empty": "Mitään ei löytynyt.",
+      "results": "Hakutulokset",
+      "inThread": "Agentin keskustelu",
+      "onPage": "Sivulla",
+      "onClosedPage": "Sivulla, jota et voi avata"
+    },
+    "computerFiles": "Voi käyttää tietokoneesi tiedostoja: {folders}"
   },
   "button": {
     "untitled": "Painike",

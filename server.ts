@@ -82,6 +82,8 @@ const { startSequences } = await import("./src/server/sequences/run");
 const { startDatabaseSyncs } = await import("./src/server/jira-sync/run");
 const { startTelegram } = await import("./src/server/telegram");
 const { siteGate, upgradeAllowed } = await import("./src/server/site-hosts");
+const { desktopBridgeHooks } = await import("./src/server/desktop-bridge/socket");
+const { DESKTOP_BRIDGE_PATH } = await import("./src/lib/desktop-bridge");
 
 const { hocuspocus, service } = createCollab();
 registerCollab(service);
@@ -129,6 +131,10 @@ const ws = crossws({
     },
   },
 });
+
+// The desktop app's bridge for agents' files on its computer (server/desktop-bridge/): a read's
+// answer is at most 512 KB of text, which JSON escaping can grow; anything far bigger is refused.
+const desktopBridge = crossws({ serverOptions: { maxPayload: 4 * 1024 * 1024 }, hooks: desktopBridgeHooks() });
 
 const trustedProxies = trustedProxyCount();
 
@@ -179,6 +185,8 @@ server.on("upgrade", (req: IncomingMessage, socket: Duplex, head: Buffer) => {
 function upgrade(req: IncomingMessage, socket: Duplex, head: Buffer, pathname: string) {
   if (pathname === "/collab") {
     ws.handleUpgrade(req, socket, head);
+  } else if (pathname === DESKTOP_BRIDGE_PATH) {
+    desktopBridge.handleUpgrade(req, socket, head);
   } else {
     // Next dev (HMR) websockets.
     handleNextUpgrade(req, socket, head);

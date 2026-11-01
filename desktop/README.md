@@ -64,6 +64,7 @@ each platform.
 | `src/server-address.ts` | Turning what was typed into addresses to try |
 | `src/strings.ts` | The app's own texts in the web app's 24 languages |
 | `src/menu.ts`, `src/context-menu.ts` | Application and right-click menus |
+| `src/agent-files.ts` | Agents' access to files on this computer (menu, Agent File Access): the websocket to the server's `/desktop-bridge`, the folders' checks (links, `..`, credential places, 512 KB), the question before each write or move to the trash, the log in the app's data folder (tested) |
 | `src/global-shortcut.ts` | The system-wide shortcut to AI chat (Go → Ask AI Shortcut): its choices, labels and the server's `/ai` address |
 | `src/updates.ts` | Updates from GitHub releases |
 | `src/preload.cts` | The bridges the connect page and the tab strip use (never given to server pages); marks server pages with `data-desktop-app` and passes their `data-page-icon` to the tab |

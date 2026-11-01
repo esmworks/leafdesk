@@ -469,7 +469,18 @@
       "rowChangesDirect": "Les faire directement",
       "rowChangesReview": "Les proposer à la vérification",
       "rowChangesDirectHelp": "Les lignes qu’il ajoute et les valeurs qu’il modifie sont enregistrées tout de suite, en son nom.",
-      "rowChangesReviewHelp": "Les lignes qu’il ajouterait et les valeurs qu’il modifierait attendent dans À vérifier jusqu’à ce qu’une personne pouvant les modifier approuve ou écarte chacune d’elles."
+      "rowChangesReviewHelp": "Les lignes qu’il ajouterait et les valeurs qu’il modifierait attendent dans À vérifier jusqu’à ce qu’une personne pouvant les modifier approuve ou écarte chacune d’elles.",
+      "quietHours": "Heures calmes",
+      "quietHoursHelp": "Les appels qu’une règle d’un propriétaire autorise toujours attendent la fin des heures calmes, sans prévenir personne. Les appels qui demandent une approbation la demandent comme d’habitude.",
+      "quietFrom": "De",
+      "quietTo": "À",
+      "quietTimeZone": "Fuseau horaire",
+      "quietHoursInvalid": "Choisissez deux heures différentes et un fuseau horaire.",
+      "dailyChangeLimit": "Modifications par jour",
+      "dailyChangeLimitPlaceholder": "Aucune limite",
+      "dailyChangeLimitHelp": "Le nombre maximal de modifications qu’il fait en un jour : lignes, pages, commentaires, e-mails qu’il envoie et appels de connexion qui modifient quelque chose. Les suivantes sont refusées. Le jour suit le fuseau des heures calmes, sinon UTC.",
+      "dailyChangeLimitInvalid": "Saisissez un nombre entier de 1 à {max}.",
+      "guardrailsOwnersOnly": "Seuls les propriétaires de l’espace de travail fixent les heures calmes et la limite quotidienne de modifications."
     },
     "describe": {
       "button": "Décrire un agent",
@@ -547,7 +558,7 @@
       "libraryNote": "Les compétences se créent dans la <link>bibliothèque de compétences</link>."
     },
     "memory": {
-      "description": "Des notes qui accompagnent chaque exécution de cet agent, pour qu’il n’ait pas à réapprendre les mêmes choses. Ses exécutions proposent des notes ; aucune n’accompagne une exécution tant qu’un propriétaire ne l’a pas gardée.",
+      "description": "Des notes qui accompagnent chaque exécution de cet agent, pour qu’il n’ait pas à réapprendre les mêmes choses. Ses exécutions proposent des notes ; aucune n’accompagne une exécution tant qu’un propriétaire ne l’a pas gardée. Les corrections qu’une personne pouvant le modifier lui donne dans sa propre discussion sont gardées aussitôt.",
       "rule": "Une exécution lit des lignes, des pages et des événements écrits par d’autres personnes et services, et une note pourrait porter leurs mots dans chaque exécution suivante. Lisez chaque proposition avant de la garder. Les notes gardées accompagnent chaque exécution, quelle que soit la personne qui la lance.",
       "off": "La mémoire IA est désactivée dans cet espace de travail : les exécutions n’emportent aucune note et n’en proposent pas tant qu’un propriétaire ne l’active pas dans <link>Paramètres → Général</link>.",
       "archived": "Restaurez l’agent pour modifier sa mémoire.",
@@ -581,7 +592,9 @@
       "forgetAll": "Tout oublier",
       "confirmForgetAll": "{name} doit-il oublier tout ce qu’il retient ?",
       "waiting": "{count, plural, one {# note à examiner} other {# notes à examiner}}",
-      "toReview": "{count, plural, one {# note à examiner} other {# notes à examiner}}"
+      "toReview": "{count, plural, one {# note à examiner} other {# notes à examiner}}",
+      "correction": "Correction",
+      "correctionFrom": "Correction · de la discussion avec {name}"
     },
     "runs": {
       "description": "Ses dernières exécutions, conservées {days} jours.",
@@ -592,7 +605,9 @@
         "running": "En cours",
         "done": "Terminée",
         "failed": "Échouée",
-        "awaiting_approval": "En attente d’approbation"
+        "awaiting_approval": "En attente d’approbation",
+        "deferred": "En attente des heures calmes",
+        "quiet": "Rien de nouveau"
       },
       "rowHidden": "Une ligne que vous ne pouvez pas ouvrir",
       "took": "a pris {time}",
@@ -610,6 +625,7 @@
       "hideDetails": "Masquer ce qu’il a fait",
       "noSteps": "Il n’a rien cherché, lu ni modifié.",
       "answer": "Ses derniers mots",
+      "givenReason": "Sa raison",
       "comment": "A commenté :",
       "commentFailed": "N’a pas pu commenter :",
       "commentHidden": "A commenté une ligne que vous ne pouvez pas ouvrir",
@@ -628,6 +644,7 @@
         "connectionGone": "La connexion qui l’a lancée a été supprimée.",
         "limitReached": "La limite mensuelle de tokens de l’agent était atteinte.",
         "costLimit": "L'espace de travail avait atteint sa limite mensuelle de coût d'IA.",
+        "selfReported": "L’agent a indiqué qu’il n’a pas pu faire sa tâche.",
         "mailGone": "L'e-mail n'est plus dans la boîte, ou la boîte n'est plus ouverte à l'agent."
       },
       "fromConnection": "{connection} · {event}",
@@ -641,6 +658,17 @@
         "searchFailed": "N’a pas pu chercher sur le web",
         "approved": "approuvé"
       },
+      "computer": {
+        "list": "A listé un dossier de l’ordinateur",
+        "read": "A lu un fichier de l’ordinateur",
+        "write": "A écrit un fichier sur l’ordinateur",
+        "trash": "A mis quelque chose de l’ordinateur à la corbeille",
+        "declined": "refusé ; rien n’a été fait",
+        "expired": "sans réponse à temps ; rien n’a été fait",
+        "failed": "n’a pas pu être fait",
+        "afterMail": "retenu après la lecture d’e-mails ; rien n’a été fait",
+        "limited": "au-delà de la limite quotidienne de modifications de l’agent ; rien n’a été fait"
+      },
       "tool": {
         "done": "A appelé « {tool} » sur {connection}",
         "failed": "N’a pas pu appeler « {tool} » sur {connection}",
@@ -649,9 +677,14 @@
         "expired": "Son appel de « {tool} » sur {connection} a expiré ; rien n’a été envoyé",
         "refused": "Son appel de « {tool} » sur {connection} a été refusé, personne ne pouvant l’approuver ; rien n’a été envoyé",
         "afterMail": "Son appel de « {tool} » sur {connection} a été retenu : après avoir lu des e-mails, une exécution ne fait plus que lire des pages et rédiger des brouillons ; rien n’a été envoyé",
+        "afterLocalRead": "Son appel de « {tool} » sur {connection} a été retenu : après la lecture de fichiers de l’ordinateur, rien ne sort ; rien n’a été envoyé",
+        "afterLocalReadOut": "Son appel à « {tool} » a été retenu : après la lecture de fichiers sur l’ordinateur, rien ne sort ; rien n’a été envoyé",
         "approved": "approuvé",
         "answered": "répondu par un propriétaire",
-        "note": "Note : {note}"
+        "note": "Note : {note}",
+        "denied": "Son appel de « {tool} » sur {connection} a été refusé par la règle d’un propriétaire ; rien n’a été envoyé",
+        "limited": "Son appel de « {tool} » sur {connection} a été refusé : l’agent a fait autant de modifications qu’il peut en un jour ; rien n’a été fait",
+        "allowedByRule": "autorisé par la règle d’un propriétaire"
       },
       "skill": {
         "used": "A suivi la compétence <name></name>",
@@ -685,7 +718,8 @@
       "emailHidden": "A rédigé un e-mail sur une ligne que vous ne pouvez pas ouvrir",
       "emailSent": "E-mail envoyé à {to} :",
       "emailSendFailed": "Impossible d’envoyer un e-mail à {to} :",
-      "fromMail": "E-mail reçu par {name}"
+      "fromMail": "E-mail reçu par {name}",
+      "deferred": "En attente jusqu’à la fin de ses heures calmes ({time}) ; un propriétaire peut l’approuver dès maintenant."
     },
     "usage": {
       "thisMonth": "Ce mois-ci : {usage}",
@@ -799,7 +833,9 @@
         "requestTokens": "Demandez un nombre entier de tokens supérieur à la limite actuelle, jusqu’à 1 000 000 000.",
         "requestNote": "Expliquez pourquoi en 500 caractères au plus.",
         "noLimit": "Cet agent n’a pas de limite à relever.",
-        "mailbox": "Choisissez l’une de vos boîtes mail de cet espace de travail."
+        "mailbox": "Choisissez l’une de vos boîtes mail de cet espace de travail.",
+        "quietHours": "Les heures calmes demandent deux heures différentes (HH:MM) et un fuseau horaire.",
+        "dailyChangeLimit": "Saisissez une limite quotidienne de modifications, un nombre entier de 1 à 10 000."
       },
       "noteEmpty": "Écrivez ce que l’agent doit retenir.",
       "noteTooLong": "Une note peut contenir au plus {max} caractères.",
@@ -815,9 +851,10 @@
       "scheduleNotFound": "Cette planification n’existe plus.",
       "versionNotFound": "Cette version n’existe plus.",
       "notAllowed": "Votre accès à cet agent ne le permet pas.",
-      "ownersOnly": "Seuls les propriétaires de l’espace de travail modifient la limite mensuelle de jetons d’un agent.",
+      "ownersOnly": "Seuls les propriétaires de l’espace de travail modifient la limite mensuelle de jetons, les heures calmes et la limite quotidienne de modifications d’un agent.",
       "notAMember": "Un agent ne peut être partagé qu’avec les propriétaires, les membres et les groupes de l’espace de travail.",
-      "requestNotFound": "Cette demande a déjà reçu une réponse."
+      "requestNotFound": "Cette demande a déjà reçu une réponse.",
+      "noteChanged": "Cette note a changé depuis. Modifiez-la dans l’onglet Mémoire de l’agent."
     },
     "connections": {
       "description": "Les outils de chaque connexion que cet agent peut utiliser. Les outils qui ne font que lire s’exécutent aussitôt, sauf sur une ligne issue d’une réponse anonyme à un formulaire ; les autres attendent l’approbation d’un propriétaire à chaque appel.",
@@ -826,7 +863,13 @@
       "notReady": "Cette connexion n’est pas prête (elle demande une connexion ou échoue) : l’agent ne peut pas utiliser ses outils pour l’instant.",
       "noTools": "Aucun outil listé pour l’instant.",
       "ownersChoose": "Les outils de chaque connexion que cet agent peut utiliser. Seuls les propriétaires de l’espace de travail les choisissent.",
-      "none": "Cet agent ne peut utiliser les outils d’aucune connexion."
+      "none": "Cet agent ne peut utiliser les outils d’aucune connexion.",
+      "rulesNote": "Pour chaque outil choisi, vous pouvez aussi fixer une règle : toujours l’autoriser (il part sans demander, sauf si l’exécution a lu du contenu extérieur) ou toujours le refuser.",
+      "ruleLabel": "Règle pour {tool}",
+      "ruleAsk": "Demander à chaque fois",
+      "ruleAllowed": "Autorisé",
+      "ruleAllow": "Toujours autoriser",
+      "ruleDeny": "Toujours refuser"
     },
     "schedules": {
       "description": "Laissez cet agent s’exécuter tout seul selon une planification : chaque exécution fait la tâche, sur la base de données choisie le cas échéant, et son rapport arrive dans votre boîte de réception. Ses exécutions n’ouvrent que ce que vous pouvez ouvrir.",
@@ -896,7 +939,9 @@
         "skills": "Compétences",
         "schedules": "Planifications",
         "shares": "Pages partagées",
-        "row_changes": "Modifications des lignes"
+        "row_changes": "Modifications des lignes",
+        "quiet_hours": "Heures calmes",
+        "daily_change_limit": "Modifications par jour"
       },
       "back": "Toutes les versions",
       "compareNote": "Ce qui a changé entre cette version et la configuration actuelle de l’agent. Restaurer rétablit ce que contenait cette version.",
@@ -1984,7 +2029,8 @@
         "shared": "A défini l’accès de {subject} à l’agent « {target} » : {level}",
         "unshared": "A retiré {subject} du partage de l’agent « {target} »",
         "creator_added": "A autorisé {subject} à créer des agents",
-        "creator_removed": "A retiré {subject} des personnes pouvant créer des agents"
+        "creator_removed": "A retiré {subject} des personnes pouvant créer des agents",
+        "local_file": "{op, select, trash {A mis « {path} » à la corbeille} other {A écrit « {path} »}} sur l’ordinateur de {target} ({outcome})"
       },
       "connection": {
         "created": "A ajouté la connexion « {target} »",
@@ -2051,7 +2097,9 @@
     },
     "outcomes": {
       "done": "fait",
-      "failed": "échec"
+      "failed": "échec",
+      "declined": "refusé",
+      "expired": "sans réponse"
     },
     "agentLevels": {
       "full": "Accès complet",

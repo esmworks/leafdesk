@@ -469,7 +469,18 @@
       "rowChangesDirect": "Doğrudan yazsın",
       "rowChangesReview": "İncelemeye önersin",
       "rowChangesDirectHelp": "Eklediği satırlar ve değiştirdiği değerler hemen, onun adıyla kaydedilir.",
-      "rowChangesReviewHelp": "Ekleyeceği satırlar ve değiştireceği değerler, onları düzenleyebilen biri her birini onaylayana ya da reddedene kadar İncelenecekler bölümünde bekler."
+      "rowChangesReviewHelp": "Ekleyeceği satırlar ve değiştireceği değerler, onları düzenleyebilen biri her birini onaylayana ya da reddedene kadar İncelenecekler bölümünde bekler.",
+      "quietHours": "Sessiz saatler",
+      "quietHoursHelp": "Bir sahibin kuralıyla her zaman izin verilen çağrılar, kimseye haber vermeden sessiz saatler bitene kadar bekler. Onay gereken çağrılar her zamanki gibi sorulur.",
+      "quietFrom": "Başlangıç",
+      "quietTo": "Bitiş",
+      "quietTimeZone": "Saat dilimi",
+      "quietHoursInvalid": "İki farklı saat ve bir saat dilimi seçin.",
+      "dailyChangeLimit": "Günlük değişiklik sınırı",
+      "dailyChangeLimitPlaceholder": "Sınır yok",
+      "dailyChangeLimitHelp": "Bir günde yapacağı en fazla değişiklik: satırlar, sayfalar, yorumlar, gönderdiği e-postalar ve bir şeyi değiştiren bağlantı çağrıları. Fazlası reddedilir. Gün, sessiz saatlerin saat dilimine, yoksa UTC'ye göre sayılır.",
+      "dailyChangeLimitInvalid": "1 ile {max} arasında bir tam sayı girin.",
+      "guardrailsOwnersOnly": "Sessiz saatleri ve günlük değişiklik sınırını yalnızca çalışma alanı sahipleri belirler."
     },
     "describe": {
       "button": "Ajanı anlat",
@@ -547,7 +558,7 @@
       "libraryNote": "Beceriler <link>beceri kütüphanesinde</link> oluşturulur."
     },
     "memory": {
-      "description": "Bu ajanın her çalışmasıyla birlikte giden notlar; aynı şeyleri yeniden öğrenmesi gerekmez. Çalışmaları not önerir; bir sahip tutmadıkça hiçbiri bir çalışmaya gitmez.",
+      "description": "Bu ajanın her çalışmasıyla birlikte giden notlar; aynı şeyleri yeniden öğrenmesi gerekmez. Çalışmaları not önerir; bir sahip tutmadıkça hiçbiri bir çalışmaya gitmez. Ajanı düzenleyebilen birinin kendi sohbetinde verdiği düzeltmeler hemen tutulur.",
       "rule": "Bir çalışma başka kişilerin ve servislerin yazdığı satırları, sayfaları ve olayları okur; bir not onların sözlerini sonraki her çalışmaya taşıyabilir. Tutmadan önce her öneriyi okuyun. Tutulan notlar, kim başlatırsa başlatsın her çalışmaya gider.",
       "off": "Bu çalışma alanında yapay zekâ hafızası kapalı: bir sahip <link>Ayarlar → Genel</link> bölümünden açana kadar çalışmalar not taşımaz ve not önermez.",
       "archived": "Hafızasını değiştirmek için ajanı geri getirin.",
@@ -581,7 +592,9 @@
       "forgetAll": "Her şeyi unut",
       "confirmForgetAll": "{name} hatırladığı her şeyi unutsun mu?",
       "waiting": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}",
-      "toReview": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}"
+      "toReview": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}",
+      "correction": "Düzeltme",
+      "correctionFrom": "Düzeltme · {name} ile sohbetten"
     },
     "runs": {
       "description": "Son çalışmaları; {days} gün saklanır.",
@@ -592,7 +605,9 @@
         "running": "Çalışıyor",
         "done": "Tamamlandı",
         "failed": "Başarısız",
-        "awaiting_approval": "Onay bekliyor"
+        "awaiting_approval": "Onay bekliyor",
+        "deferred": "Sessiz saatler için bekletiliyor",
+        "quiet": "Yeni bir şey yok"
       },
       "rowHidden": "Açamadığınız bir satır",
       "took": "{time} sürdü",
@@ -610,6 +625,7 @@
       "hideDetails": "Ne yaptığını gizle",
       "noSteps": "Hiçbir şey aramadı, okumadı ya da değiştirmedi.",
       "answer": "Son sözleri",
+      "givenReason": "Belirttiği neden",
       "comment": "Yorum yazdı:",
       "commentFailed": "Yorum yazamadı:",
       "commentHidden": "Açamadığınız bir satıra yorum yazdı",
@@ -628,6 +644,7 @@
         "connectionGone": "Onu başlatan bağlantı kaldırıldı.",
         "limitReached": "Ajanın aylık token sınırı dolmuştu.",
         "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaşmıştı.",
+        "selfReported": "Ajan görevini yapamadığını bildirdi.",
         "mailGone": "E-posta kutudan gitti ya da kutu artık bu ajana açık değil."
       },
       "fromConnection": "{connection} · {event}",
@@ -641,6 +658,17 @@
         "searchFailed": "Web’de arama yapılamadı",
         "approved": "onaylandı"
       },
+      "computer": {
+        "list": "Bilgisayarda bir klasör listelendi",
+        "read": "Bilgisayarda bir dosya okundu",
+        "write": "Bilgisayarda bir dosya yazıldı",
+        "trash": "Bilgisayarda bir şey çöp kutusuna taşındı",
+        "declined": "reddedildi; hiçbir şey yapılmadı",
+        "expired": "zamanında yanıt gelmedi; hiçbir şey yapılmadı",
+        "failed": "yapılamadı",
+        "afterMail": "e-posta okunduktan sonra durduruldu; hiçbir şey yapılmadı",
+        "limited": "ajanın günlük değişiklik sınırı aşıldı; hiçbir şey yapılmadı"
+      },
       "tool": {
         "done": "{connection} üzerinde “{tool}” çağrıldı",
         "failed": "{connection} üzerinde “{tool}” çağrılamadı",
@@ -649,9 +677,14 @@
         "expired": "{connection} üzerindeki “{tool}” çağrısının süresi doldu; hiçbir şey gönderilmedi",
         "refused": "{connection} üzerindeki “{tool}” çağrısı, onaylayacak kimse olmadığından reddedildi; hiçbir şey gönderilmedi",
         "afterMail": "{connection} üzerindeki “{tool}” çağrısı durduruldu: e-posta okuyan bir çalışma bundan sonra yalnızca sayfa okur ve taslak yazar; hiçbir şey gönderilmedi",
+        "afterLocalRead": "{connection} üzerindeki “{tool}” çağrısı tutuldu: bilgisayardaki dosyalar okunduktan sonra hiçbir şey dışarı gitmez; hiçbir şey gönderilmedi",
+        "afterLocalReadOut": "“{tool}” çağrısı tutuldu: bilgisayardaki dosyalar okunduktan sonra dışarı hiçbir şey gitmez; hiçbir şey gönderilmedi",
         "approved": "onaylandı",
         "answered": "bir sahip yanıtladı",
-        "note": "Not: {note}"
+        "note": "Not: {note}",
+        "denied": "{connection} üzerinde “{tool}” çağrısı bir sahibin kuralıyla reddedildi; hiçbir şey gönderilmedi",
+        "limited": "{connection} üzerinde “{tool}” çağrısı reddedildi: ajan bir günde yapabileceği kadar değişiklik yaptı; hiçbir şey yapılmadı",
+        "allowedByRule": "bir sahibin kuralıyla izin verildi"
       },
       "skill": {
         "used": "<name></name> becerisini izledi",
@@ -685,7 +718,8 @@
       "emailHidden": "Açamadığın bir satırda e-posta taslağı yazdı",
       "emailSent": "E-posta gönderdi ({to}):",
       "emailSendFailed": "E-posta gönderemedi ({to}):",
-      "fromMail": "{name} kişisine gelen e-posta"
+      "fromMail": "{name} kişisine gelen e-posta",
+      "deferred": "Sessiz saatleri bitene kadar ({time}) bekletiliyor; bir sahip şimdi onaylayabilir."
     },
     "usage": {
       "thisMonth": "Bu ay: {usage}",
@@ -799,7 +833,9 @@
         "requestTokens": "Geçerli limitin üzerinde, en fazla 1.000.000.000 olan bir tam sayı token isteyin.",
         "requestNote": "Gerekçenizi en fazla 500 karakterle yazın.",
         "noLimit": "Bu ajanın artırılacak bir limiti yok.",
-        "mailbox": "Bu çalışma alanındaki posta kutularınızdan birini seçin."
+        "mailbox": "Bu çalışma alanındaki posta kutularınızdan birini seçin.",
+        "quietHours": "Sessiz saatler için iki farklı saat (SS:DD) ve bir saat dilimi gerekir.",
+        "dailyChangeLimit": "Günlük değişiklik sınırını 1 ile 10.000 arasında bir tam sayı olarak girin."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",
@@ -815,9 +851,10 @@
       "scheduleNotFound": "Bu zamanlama artık yok.",
       "versionNotFound": "Bu sürüm artık yok.",
       "notAllowed": "Bu ajana erişimin buna izin vermiyor.",
-      "ownersOnly": "Bir ajanın aylık token sınırını yalnızca çalışma alanı sahipleri değiştirir.",
+      "ownersOnly": "Bir ajanın aylık token sınırını, sessiz saatlerini ve günlük değişiklik sınırını yalnızca çalışma alanı sahipleri değiştirir.",
       "notAMember": "Bir ajan yalnızca çalışma alanının sahipleri, üyeleri ve gruplarıyla paylaşılabilir.",
-      "requestNotFound": "Bu istek zaten yanıtlandı."
+      "requestNotFound": "Bu istek zaten yanıtlandı.",
+      "noteChanged": "Bu not o zamandan beri değişti. Ajanın Hafıza sekmesinden değiştirin."
     },
     "connections": {
       "description": "Bu ajanın her bağlantıda kullanabileceği araçlar. Yalnızca okuyan araçlar hemen çalışır (anonim bir form yanıtından gelen satırda hariç); diğerleri ajan her çağırdığında bir sahibin onayını bekler.",
@@ -826,7 +863,13 @@
       "notReady": "Bu bağlantı hazır değil (giriş gerekiyor ya da hata veriyor); ajan şimdilik araçlarını kullanamaz.",
       "noTools": "Henüz listelenmiş araç yok.",
       "ownersChoose": "Bu ajanın kullanabileceği her bağlantının araçları. Bunları yalnızca çalışma alanı sahipleri seçer.",
-      "none": "Bu ajan hiçbir bağlantının araçlarını kullanamaz."
+      "none": "Bu ajan hiçbir bağlantının araçlarını kullanamaz.",
+      "rulesNote": "Seçilen her araç için bir kural da koyabilirsiniz: her zaman izin ver (çalışma dış içerik okumadıysa sormadan gider) ya da her zaman reddet.",
+      "ruleLabel": "{tool} için kural",
+      "ruleAsk": "Her seferinde sor",
+      "ruleAllowed": "İzinli",
+      "ruleAllow": "Her zaman izin ver",
+      "ruleDeny": "Her zaman reddet"
     },
     "schedules": {
       "description": "Bu ajan bir zamanlamayla kendiliğinden çalışsın: her çalışma görevi yapar, seçtiysen bir veritabanı üzerinde; raporu gelen kutuna düşer. Çalışmaları yalnızca senin açabildiklerini açabilir.",
@@ -896,7 +939,9 @@
         "skills": "Beceriler",
         "schedules": "Zamanlamalar",
         "shares": "Paylaşılan sayfalar",
-        "row_changes": "Satır değişiklikleri"
+        "row_changes": "Satır değişiklikleri",
+        "quiet_hours": "Sessiz saatler",
+        "daily_change_limit": "Günlük değişiklik sınırı"
       },
       "back": "Tüm sürümler",
       "compareNote": "Bu sürümden ajanın şu anki kurulumuna kadar değişenler. Geri yüklemek bu sürümdekileri geri getirir.",
@@ -1984,7 +2029,8 @@
         "shared": "Erişim ayarlandı: {subject}, “{target}” ajanında: {level}",
         "unshared": "Paylaşımdan çıkarıldı: {subject}, “{target}” ajanından",
         "creator_added": "Ajan oluşturma izni verildi: {subject}",
-        "creator_removed": "Ajan oluşturma izni kaldırıldı: {subject}"
+        "creator_removed": "Ajan oluşturma izni kaldırıldı: {subject}",
+        "local_file": "{target} kişisinin bilgisayarında {op, select, trash {“{path}” çöp kutusuna taşındı} other {“{path}” yazıldı}} ({outcome})"
       },
       "connection": {
         "created": "“{target}” bağlantısını ekledi",
@@ -2051,7 +2097,9 @@
     },
     "outcomes": {
       "done": "tamamlandı",
-      "failed": "başarısız"
+      "failed": "başarısız",
+      "declined": "reddedildi",
+      "expired": "yanıtlanmadı"
     },
     "agentLevels": {
       "full": "Tam erişim",

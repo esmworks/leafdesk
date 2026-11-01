@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Đã từ chối ghi nhớ:",
           "forget": "Đã từ chối quên:"
-        }
+        },
+        "correct": "Đã ghi nhận là một đính chính:",
+        "undone": "Đã hoàn tác đính chính:"
       },
       "connection": {
         "done": "{connection}: đã gọi {tool}",

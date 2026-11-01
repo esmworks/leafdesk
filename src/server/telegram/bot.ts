@@ -1,18 +1,16 @@
-import { createTranslator } from "next-intl";
-import { DEFAULT_LOCALE, negotiateLocale, type Locale } from "@/i18n/config";
-import { telegramMessages } from "@/i18n/messages/telegram";
-import { CHAT_MODES, sourceHref, type ChatActionView, type ChatMode, type ChatSourceView, type ChatStepView } from "@/lib/ai-chat";
+import { AGENT_CHAT_FILE_LIMITS, agentChatFileType } from "@/lib/agent-chat-files";
+import { CHAT_MODES, type ChatActionView, type ChatMode, type ChatSourceView, type ChatStepView } from "@/lib/ai-chat";
+import { decodeBytes } from "@/lib/file-viewer";
+import { formatBytes } from "@/lib/files";
 import { MAX_REDO_NOTE } from "@/lib/connections";
-import { env } from "@/lib/env";
 import { pageLabel } from "@/lib/labels";
-import { escapeHtml, htmlToText, markdownToTelegramBlocks, packMessages, preview } from "@/lib/telegram-format";
+import { escapeHtml, markdownToTelegramBlocks, packMessages, preview } from "@/lib/telegram-format";
 import { connectedAppHold } from "@/server/access";
 import type { AiErrorCode } from "@/lib/ai";
 import { isAiError, sttLimits } from "@/server/ai";
 import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
 import { startChat } from "@/server/ai-chat";
 import { asWrite, runAsConnectedApp } from "@/server/connected-app";
-import { savedLocale } from "@/server/mail/locale";
 import { transcribeDictation } from "@/server/voice-notes";
 import { listWorkspaces } from "@/server/workspaces";
 import {
@@ -23,13 +21,14 @@ import {
   sendMessage,
   sendTyping,
   TelegramApiError,
-  type InlineKeyboard,
   type TelegramCallbackQuery,
   type TelegramMessage,
   type TelegramUpdate,
 } from "./api";
+import { agentPicker, askAgent, newAgentConversationFromSummary, pickAgent, type FollowHooks } from "./agent-chat";
 import { answerCall, answerNotification } from "./notify";
 import { linkMode, linkOf, linkWithCode, setTelegramNotifications, touchLink, unlinkTelegram, updateLink, type TelegramLinkRow } from "./links";
+import { appPageUrl, changeLines, html, localeOf, send, sendHtml, translatorFor, type Translator } from "./say";
 
 /**
  * The Telegram bot: people who linked their Telegram account (links.ts) ask the AI chat
@@ -39,39 +38,28 @@ import { linkMode, linkOf, linkWithCode, setTelegramNotifications, touchLink, un
  * tokens: a workspace that turned apps off isn't offered, and one that lets them only read is
  * answered without changes. In mode `ask`, each change (and each note to remember, and each call
  * that changes something at a connection) is asked about with buttons under a message; only the
- * linked person can press them.
+ * linked person can press them. With /agent, messages go to one of the workspace's agents instead
+ * (agent-chat.ts).
  *
- * One question at a time per person: another waits until the answer is in (or /stop). Commands:
- * /start (with a link code: links the account), /help, /new, /workspace, /mode, /stop,
+ * One question at a time per person: another waits until the answer is in (or /stop); one to an
+ * agent still answering joins its queue instead (agent-chat.ts). Commands:
+ * /start (with a link code: links the account), /help, /new (`/new summary`), /workspace, /agent, /mode, /stop,
  * /notifications, /unlink. The person's inbox notifications come to the chat too (notify.ts), with
  * buttons to mark them read or snooze them, and an agent's call waiting for an owner with buttons
  * to approve, decline or send it back with a note (written in answer to the bot's question).
  */
 
-type Translator = ReturnType<typeof translatorFor>;
-
-function translatorFor(locale: Locale) {
-  return createTranslator({ locale, messages: { telegram: telegramMessages[locale] }, namespace: "telegram" });
-}
-
-/** The person's language: the one they last used Leafdesk in, else their Telegram app's. */
-async function localeOf(userId: string | null, languageCode?: string): Promise<Locale> {
-  const saved = userId ? await savedLocale(userId).catch(() => null) : null;
-  return saved ?? (languageCode ? negotiateLocale(languageCode) : DEFAULT_LOCALE);
-}
-
-/**
- * A translated text as HTML with its values put in as given HTML: the text is escaped, the values
- * aren't (escape them with escapeHtml unless they are markup).
- */
-function html(t: Translator, key: Parameters<Translator>[0], values: Record<string, string> = {}): string {
-  const tokens = Object.fromEntries(Object.keys(values).map((name, i) => [name, `\u0001${i}\u0001`]));
-  const list = Object.values(values);
-  return escapeHtml(t(key, tokens)).replace(/\u0001(\d+)\u0001/g, (_, i: string) => list[Number(i)]);
-}
-
 /** Answers that are being written, by link: /stop aborts one; a second question waits for it. */
 const answering = new Map<string, AbortController>();
+/**
+ * Agents' answers still followed while their run waits on a call (or waited for, an answer no follow
+ * here is on, agent-chat.ts), by link: the chat takes other messages meanwhile; /stop, with no other
+ * answer being written, stops them. A follow started by a message sent while another answer is
+ * followed waits here too until that one lets go of the chat.
+ */
+const waitingFollows = new Map<string, Set<AbortController>>();
+/** The answers that are agents' (agent-chat.ts): their follow says it stopped itself. */
+const agentAnswers = new WeakSet<AbortSignal>();
 /** Approval messages still waiting, by approval id: their text, to keep when the buttons go. */
 const asked = new Map<string, { text: string; messageId: number | null }>();
 
@@ -85,23 +73,8 @@ const MAX_NOTES_ASKED = 1_000;
 
 /** How often "typing…" is sent again while an answer is written (Telegram shows it for 5 s). */
 const TYPING_EVERY_MS = 4_500;
-
-/** Sends HTML messages, each again as plain text when Telegram can't parse its markup. */
-async function sendHtml(chatId: string, messages: string[], keyboard?: InlineKeyboard): Promise<number | null> {
-  let last: number | null = null;
-  for (const [i, text] of messages.entries()) {
-    const options = i === messages.length - 1 && keyboard ? { keyboard } : {};
-    try {
-      last = await sendMessage(chatId, text, options);
-    } catch (error) {
-      if (!(error instanceof TelegramApiError && error.code === 400)) throw error;
-      last = await sendMessage(chatId, htmlToText(text), { ...options, plain: true });
-    }
-  }
-  return last;
-}
-
-const send = (chatId: string, text: string, keyboard?: InlineKeyboard) => sendHtml(chatId, [text], keyboard);
+/** How often a follow waiting to take the chat looks whether the answer followed there let go of it. */
+const CLAIM_POLL_MS = 250;
 
 /** The bot's command in a message (`/new`, `/new@bot`), lower case, and what follows it. */
 export function commandOf(text: string): { command: string; rest: string } | null {
@@ -156,37 +129,100 @@ async function onMessage(message: TelegramMessage) {
     else await editButtons(chatId, asked.messageId).catch(() => {});
     return void (await sendMessage(chatId, escapeHtml(t(`notify.call.${outcome}`)), { replyTo: asked.messageId }));
   }
-  if (command) return onCommand(link, t, command.command);
+  if (command) return onCommand(link, t, command.command, command.rest);
   const voice = message.voice ?? message.audio;
+  // A file goes only to an agent; the general AI chat reads the caption alone, as before.
+  const document = link.agentId ? (message.document ?? null) : null;
   const question = (text || message.caption || "").trim();
-  if (!question && !voice) return void (await send(chatId, escapeHtml(t("onlyText"))));
-  if (answering.has(link.id)) return void (await send(chatId, escapeHtml(t("busy"))));
+  if (!question && !voice && !document) return void (await send(chatId, escapeHtml(t("onlyText"))));
+  const running = answering.get(link.id);
+  // An answer being written takes no other question, but for an agent's being followed (below).
+  if (running && (!link.agentId || !agentAnswers.has(running.signal))) return void (await send(chatId, escapeHtml(t("busy"))));
   const controller = new AbortController();
-  answering.set(link.id, controller);
-  try {
-    await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, question, voice ?? null, controller.signal));
-  } finally {
+  const wait = () => waitingFollows.set(link.id, (waitingFollows.get(link.id) ?? new Set()).add(controller));
+  const unwait = () => {
+    const waiting = waitingFollows.get(link.id);
+    if (waiting?.delete(controller) && !waiting.size) waitingFollows.delete(link.id);
+  };
+  // `claimed`: the answer being written in the chat is this one's (or it was let go, waiting on a call or for another answer).
+  let claimed = !running;
+  let claim = async () => {};
+  const stopWithRunning = () => controller.abort();
+  if (running) {
+    // An agent's answer being followed: this message joins the conversation's queue, and the follow under way takes its answer.
+    // Should it be followed on its own (it started a run, or waits for an answer no follow here is on), it waits among the
+    // waiting follows, stopped with the answer being followed, until that one lets go of the chat, then takes its place.
+    wait();
+    running.signal.addEventListener("abort", stopWithRunning, { once: true });
+    claim = async () => {
+      while (answering.get(link.id) === running && !controller.signal.aborted) await new Promise((resolve) => setTimeout(resolve, CLAIM_POLL_MS));
+      if (claimed || controller.signal.aborted) return;
+      claimed = true;
+      if (answering.has(link.id)) return;
+      unwait();
+      answering.set(link.id, controller);
+    };
+  } else answering.set(link.id, controller);
+  // An agent's run waiting on a call (or for another answer) frees the chat; its follow goes on among the waiting ones.
+  const release = () => {
+    claimed = true;
+    if (answering.get(link.id) !== controller) return;
     answering.delete(link.id);
+    wait();
+  };
+  try {
+    await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, { text: question, voice: voice ?? null, document }, controller.signal, { release, claim }));
+  } finally {
+    running?.signal.removeEventListener("abort", stopWithRunning);
+    if (answering.get(link.id) === controller) answering.delete(link.id);
+    unwait();
   }
 }
 
-async function onCommand(link: TelegramLinkRow, t: Translator, command: string) {
+/**
+ * Stops the link's answers: the one being written, else (or with `all`) those waiting on a call.
+ * `said`: all of them were agents', whose follow says it stopped.
+ */
+function stopAnswers(link: TelegramLinkRow, all = false): { stopped: boolean; said: boolean } {
+  const running = answering.get(link.id);
+  const stopping = [...(running ? [running] : []), ...(all || !running ? (waitingFollows.get(link.id) ?? []) : [])];
+  for (const controller of stopping) controller.abort();
+  return { stopped: stopping.length > 0, said: stopping.length > 0 && stopping.every((c) => agentAnswers.has(c.signal)) };
+}
+
+async function onCommand(link: TelegramLinkRow, t: Translator, command: string, rest: string) {
   const chatId = link.chatId;
   if (command === "start" || command === "help") return void (await send(chatId, escapeHtml(t("help"))));
   if (command === "stop") {
-    const running = answering.get(link.id);
-    running?.abort();
-    return void (await send(chatId, escapeHtml(t(running ? "stopped" : "nothingToStop"))));
+    const { stopped, said } = stopAnswers(link);
+    // An agent's answer being followed: the follow says it stopped (agent-chat.ts).
+    if (said) return;
+    return void (await send(chatId, escapeHtml(t(stopped ? "stopped" : "nothingToStop"))));
   }
   if (command === "unlink") {
-    answering.get(link.id)?.abort();
+    stopAnswers(link, true);
     await unlinkTelegram(link.userId);
     return void (await send(chatId, escapeHtml(t("unlinked"))));
   }
   if (command === "new") {
-    await updateLink(link.id, { conversationId: null });
     const workspace = await runAsConnectedApp({ userId: link.userId }, () => currentWorkspace(link));
+    if (workspace && link.agentId && rest.toLowerCase() === "summary") {
+      void sendTyping(chatId).catch(() => {});
+      return runAsConnectedApp({ userId: link.userId }, () => newAgentConversationFromSummary(link, t, workspace));
+    }
+    if (workspace && link.agentId) {
+      await updateLink(link.id, { agentConversationId: null });
+      return void (await send(chatId, escapeHtml(t("agent.newConversation"))));
+    }
+    await updateLink(link.id, { conversationId: null });
     return void (await send(chatId, workspace ? html(t, "newConversation", { workspace: escapeHtml(workspace.name) }) : escapeHtml(t("noWorkspace"))));
+  }
+  if (command === "agent") {
+    const picker = await runAsConnectedApp({ userId: link.userId }, async () => {
+      const workspace = await currentWorkspace(link);
+      return workspace ? agentPicker(link, t, workspace) : null;
+    });
+    return void (await send(chatId, picker?.text ?? escapeHtml(t("noWorkspace")), picker?.keyboard));
   }
   if (command === "workspace") {
     const [workspaces, current] = await runAsConnectedApp({ userId: link.userId }, () => Promise.all([listWorkspaces(link.userId), currentWorkspace(link)]));
@@ -202,24 +238,28 @@ async function onCommand(link: TelegramLinkRow, t: Translator, command: string) 
   if (command === "mode") {
     const mode = linkMode(link.mode);
     const keyboard = { inline_keyboard: CHAT_MODES.map((m) => [{ text: `${m === mode ? "✓ " : ""}${t(`modes.${m}`)}`, callback_data: `md:${m}` }]) };
-    return void (await send(chatId, html(t, "pickMode", { mode: escapeHtml(t(`modes.${mode}`)) }), keyboard));
+    // An agent follows its own settings: the mode is the AI chat's.
+    const note = link.agentId ? `\n\n<i>${escapeHtml(t("agent.modeNote"))}</i>` : "";
+    return void (await send(chatId, `${html(t, "pickMode", { mode: escapeHtml(t(`modes.${mode}`)) })}${note}`, keyboard));
   }
   await send(chatId, escapeHtml(t("help")));
 }
 
 /**
  * The workspace the link's questions go to: its own while the person is in it and apps may reach
- * it, else their first such workspace (kept on the link, with a new conversation); null when there
- * is none. Runs inside the person's connected-app call.
+ * it, else their first such workspace (kept on the link, with a new conversation and no agent);
+ * null when there is none. Runs inside the person's connected-app call.
  */
 async function currentWorkspace(link: TelegramLinkRow): Promise<{ id: string; name: string } | null> {
   const workspaces = await listWorkspaces(link.userId);
   const found = workspaces.find((w) => w.id === link.workspaceId) ?? workspaces[0];
   if (!found) return null;
   if (found.id !== link.workspaceId) {
-    await updateLink(link.id, { workspaceId: found.id, conversationId: null });
+    await updateLink(link.id, { workspaceId: found.id, conversationId: null, agentId: null, agentConversationId: null });
     link.workspaceId = found.id;
     link.conversationId = null;
+    link.agentId = null;
+    link.agentConversationId = null;
   }
   return { id: found.id, name: found.name };
 }
@@ -253,8 +293,35 @@ async function heard(link: TelegramLinkRow, t: Translator, workspaceId: string, 
   }
 }
 
-/** Asks the AI chat a question for the link's person and sends its answer to the chat. */
-async function ask(link: TelegramLinkRow, t: Translator, text: string, voice: TelegramMessage["voice"] | null, signal: AbortSignal) {
+/**
+ * Reads a text file sent to an agent: its name and text, or null when the person was told why not
+ * (a kind or size the chat doesn't take, a download that failed).
+ */
+async function documentText(link: TelegramLinkRow, t: Translator, document: NonNullable<TelegramMessage["document"]>, signal: AbortSignal) {
+  const name = document.file_name || "file.txt";
+  const badFile = () => send(link.chatId, escapeHtml(t("agent.refused.badFile", { size: formatBytes(AGENT_CHAT_FILE_LIMITS.bytes) })));
+  if (!agentChatFileType(name, document.mime_type ?? "") || (document.file_size ?? 0) > AGENT_CHAT_FILE_LIMITS.bytes) {
+    await badFile();
+    return null;
+  }
+  try {
+    const blob = await downloadFile(document.file_id, AGENT_CHAT_FILE_LIMITS.bytes, signal);
+    return { name, text: decodeBytes(new Uint8Array(await blob.arrayBuffer())) };
+  } catch (error) {
+    if (signal.aborted) return null;
+    if (error instanceof TelegramApiError && error.code === 413) await badFile();
+    else {
+      if (!(error instanceof TelegramApiError)) console.error("[telegram] couldn't read a file", error);
+      await send(link.chatId, escapeHtml(t("agent.fileFailed")));
+    }
+    return null;
+  }
+}
+
+type Incoming = { text: string; voice: TelegramMessage["voice"] | null; document: TelegramMessage["document"] | null };
+
+/** Asks the AI chat (or the link's agent) a question for the link's person and sends its answer to the chat. */
+async function ask(link: TelegramLinkRow, t: Translator, { text, voice, document }: Incoming, signal: AbortSignal, { release, claim }: Pick<FollowHooks, "release" | "claim">) {
   const chatId = link.chatId;
   const workspace = await currentWorkspace(link);
   if (!workspace) return void (await send(chatId, escapeHtml(t("noWorkspace"))));
@@ -267,6 +334,13 @@ async function ask(link: TelegramLinkRow, t: Translator, text: string, voice: Te
   const approvals: string[] = [];
   try {
     const question = text || (voice ? await heard(link, t, workspace.id, voice, signal) : null);
+    if (link.agentId) {
+      const file = document ? await documentText(link, t, document, signal) : null;
+      if (document && !file) return;
+      if (!question && !file) return;
+      agentAnswers.add(signal);
+      return await askAgent(link, t, workspace, question ?? "", file ? [file] : [], signal, { waiting: (on) => (waiting = on), release, claim });
+    }
     if (!question) return;
     const mode = linkMode(link.mode);
     const readOnly = mode !== "read" && (await asWrite(() => connectedAppHold(link.userId, workspace.id))) === "readOnly";
@@ -322,27 +396,16 @@ async function ask(link: TelegramLinkRow, t: Translator, text: string, voice: Te
 
 /** The answer as messages: its text, the changes it made, its sources and a note when cut short. */
 function answerMessages(t: Translator, answer: string, sources: ChatSourceView[], steps: ChatStepView[], ending: { stopReason?: "stop" | "length"; error?: AiErrorCode }): string[] {
-  const pageUrl = (source: Pick<ChatSourceView, "workspaceId" | "pageId" | "blockId">) => {
-    const href = sourceHref(source);
-    return href ? `${env.appUrl}${href}` : null;
-  };
   const cite = (n: number) => {
     const source = sources.find((s) => s.n === n);
-    return source ? pageUrl(source) : null;
+    return source ? appPageUrl(source) : null;
   };
   const blocks = markdownToTelegramBlocks(answer, cite);
-  const changes = steps.flatMap((step) => {
-    if (step.kind !== "write") return [];
-    // A link only to the row or page made or changed: a declined new one has none.
-    const page = step.page ?? (step.action === "updateRow" || step.action === "editPage" ? step.target : null);
-    const title = escapeHtml(pageLabel(step.title ?? page?.title ?? "", t("approval.aPage")));
-    const href = page ? pageUrl({ workspaceId: page.workspaceId, pageId: page.pageId, blockId: null }) : null;
-    return [html(t, `changed.${step.outcome}`, { what: href ? `<a href="${escapeHtml(href)}">${title}</a>` : title })];
-  });
-  if (changes.length) blocks.push(changes.join("\n"));
+  const changes = changeLines(t, steps);
+  if (changes) blocks.push(changes);
   if (sources.length) {
     const lines = sources.map((s) => {
-      const href = pageUrl(s);
+      const href = appPageUrl(s);
       const title = s.title === null ? escapeHtml(t("sourceGone")) : escapeHtml(pageLabel(s.title, t("approval.aPage")));
       return `[${s.n}] ${href ? `<a href="${escapeHtml(href)}">${title}</a>` : title}`;
     });
@@ -454,8 +517,19 @@ async function onCallback(query: TelegramCallbackQuery) {
     const found = (await runAsConnectedApp({ userId: link.userId }, () => listWorkspaces(link.userId))).find((w) => w.id === workspace[1]);
     await answerCallback(query.id);
     if (!found) return void (await editMessage(chatId, message.message_id, escapeHtml(t("noWorkspace"))).catch(() => {}));
-    await updateLink(link.id, { workspaceId: found.id, conversationId: null });
+    await updateLink(link.id, { workspaceId: found.id, conversationId: null, agentId: null, agentConversationId: null });
     await editMessage(chatId, message.message_id, html(t, "workspaceSet", { workspace: escapeHtml(found.name) })).catch(() => {});
+    return;
+  }
+
+  const agent = /^ag:([\w-]{1,60})$/.exec(data);
+  if (agent) {
+    await answerCallback(query.id);
+    const text = await runAsConnectedApp({ userId: link.userId }, async () => {
+      const workspace = await currentWorkspace(link);
+      return workspace ? pickAgent(link, t, workspace, agent[1] === "-" ? null : agent[1]) : escapeHtml(t("noWorkspace"));
+    });
+    await editMessage(chatId, message.message_id, text).catch(() => {});
     return;
   }
 

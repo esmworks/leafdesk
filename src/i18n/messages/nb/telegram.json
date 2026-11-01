@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Koblet til Leafdesk som {name}. Du er ennå ikke med i et arbeidsområde jeg kan svare fra: bli med i et, og velg det med /workspace.",
   "notLinked": "Denne chatten er ikke koblet til en Leafdesk-konto. I Leafdesk åpner du Innstillinger → Tilkoblede apper → Telegram og velger Koble Telegram.",
   "badCode": "Den lenken er utløpt eller allerede brukt. Lag en ny i Leafdesk: Innstillinger → Tilkoblede apper → Telegram.",
-  "help": "Still et spørsmål eller send en talemelding, så svarer jeg ut fra Leafdesk-sidene dine og viser til dem.\n\n/new: start en ny samtale\n/workspace: velg arbeidsområdet jeg svarer fra\n/mode: velg hva jeg kan endre\n/stop: stopp svaret som skrives\n/notifications: slå varslene dine i denne chatten på eller av\n/unlink: koble fra denne Telegram-kontoen",
+  "help": "Still et spørsmål eller send en talemelding, så svarer jeg ut fra Leafdesk-sidene dine og viser til dem.\n\n/new: start en ny samtale\n/new summary: start en ny samtale med en agent fra et sammendrag av den forrige\n/workspace: velg arbeidsområdet jeg svarer fra\n/agent: chat med en av agentene dine\n/mode: velg hva jeg kan endre\n/stop: stopp svaret som skrives\n/notifications: slå varslene dine i denne chatten på eller av\n/unlink: koble fra denne Telegram-kontoen",
   "commands": {
     "new": "Start en ny samtale",
     "workspace": "Velg arbeidsområdet jeg svarer fra",
+    "agent": "Chat med en av agentene dine",
     "mode": "Velg hva jeg kan endre",
     "stop": "Stopp svaret som skrives",
     "unlink": "Koble fra denne Telegram-kontoen",
@@ -123,5 +124,80 @@
     "invalid": "Send et spørsmål først.",
     "interrupted": "Serveren startet på nytt mens den svarte. Spør igjen.",
     "limitReached": "Dette arbeidsområdet har nådd den månedlige kostnadsgrensen for KI, så spørsmål avvises til neste måned."
+  },
+  "agent": {
+    "general": "Generell KI-chat",
+    "none": "Ingen agenter i {workspace} er delt med deg.",
+    "pick": "Meldingene dine går til {agent}. Velg en annen agent eller den generelle KI-chatten:",
+    "pickNone": "Meldingene dine går til den generelle KI-chatten i {workspace}. Velg en agent å chatte med:",
+    "set": "Meldingene dine går nå til {agent}. Samtalen fortsetter i chatten din på siden dens; /agent bytter tilbake.",
+    "setReadOnly": "Meldingene dine går nå til {agent}. Du kan bare bruke den: den svarer ut fra sider dere begge kan se, og endrer ingenting.",
+    "generalSet": "Tilbake til den generelle KI-chatten i {workspace}.",
+    "newConversation": "Ny samtale med agenten.",
+    "stopped": "Jeg sluttet å følge svaret. {agent} gjør det ferdig, og du finner det på siden dens.",
+    "modeNote": "Modusen gjelder den generelle KI-chatten: en agent følger sine egne innstillinger.",
+    "waiting": "{agent} venter på godkjenningen din for å bruke {connection}. Svar i meldingen med knappene.",
+    "waitingOwner": "{agent} venter på at en eier av arbeidsområdet godkjenner et kall. Svaret kommer hit når det skjer.",
+    "waitingApp": "{agent} venter på godkjenningen din for å bruke {connection}. Svar på agentens side i Leafdesk; svaret kommer hit når du har gjort det.",
+    "readOnlyWorkspace": "{workspace} lar tilkoblede apper bare lese, så agentene der tar ikke imot meldinger herfra. /agent går tilbake til den generelle KI-chatten.",
+    "states": {
+      "gone": "Den agenten er ikke lenger tilgjengelig. Meldingene dine går til den generelle KI-chatten igjen.",
+      "noAccess": "Den agenten er ikke lenger delt med deg. Meldingene dine går til den generelle KI-chatten igjen.",
+      "guest": "Gjester chatter ikke med agenter. Meldingene dine går til den generelle KI-chatten igjen.",
+      "paused": "Denne agenten er satt på pause. Be en av eierne slå den på, eller velg en annen med /agent.",
+      "aiOff": "KI er slått av i dette arbeidsområdet.",
+      "limitReached": "Denne agenten har brukt opp tokenene sine for måneden. Velg en annen med /agent."
+    },
+    "refused": {
+      "tooLong": "En melding til en agent har høyst {max} tegn.",
+      "busy": "Agenten svarer fortsatt på den forrige meldingen din.",
+      "rateLimited": "For mange meldinger på en gang. Prøv igjen om litt.",
+      "invalid": "Send en melding først.",
+      "queueFull": "{max} meldinger venter allerede på agentens svar. Send denne når den har svart.",
+      "badFile": "Agenter tar bare tekstfiler (CSV, TSV, TXT, Markdown, JSON), opptil {size} hver.",
+      "summaryFailed": "Agenten klarte ikke å oppsummere samtalen. Prøv igjen, eller begynn på nytt med /new."
+    },
+    "failed": {
+      "aiOff": "KI er slått av i dette arbeidsområdet.",
+      "agentDisabled": "Agenten ble satt på pause før den svarte.",
+      "noAccess": "Agenten kan ikke lenger åpne det den trengte.",
+      "provider": "KI-leverandøren kunne ikke svare. Prøv igjen senere.",
+      "timeout": "Agenten brukte for lang tid på å svare. Prøv igjen.",
+      "tooManyAttempts": "Agenten klarte ikke å svare etter flere forsøk.",
+      "approvalTimeout": "Ingen svarte på godkjenningen innen et døgn, så ingenting ble sendt.",
+      "limitReached": "Agenten har brukt opp tokenene sine for måneden.",
+      "costLimit": "Svaret nådde kostnadsgrensen sin.",
+      "selfReported": "Agenten sa at den ikke kunne gjøre oppgaven sin.",
+      "error": "Noe gikk galt mens agenten svarte."
+    },
+    "routine": {
+      "done": "{agent} er ferdig med «{task}».",
+      "failed": "{agent} kunne ikke fullføre «{task}».",
+      "reasons": {
+        "aiOff": "KI er slått av i dette arbeidsområdet.",
+        "agentDisabled": "Agenten ble satt på pause eller arkivert.",
+        "noAccess": "Agenten, eller den som satte opp tidsplanen, kan ikke lenger åpne det oppgaven trenger.",
+        "rowGone": "Raden ble slettet.",
+        "databaseGone": "Databasen den har ansvar for, ble slettet eller flyttet til papirkurven.",
+        "commentGone": "Kommentaren som nevnte den, ble slettet, eller siden ble flyttet til papirkurven.",
+        "provider": "KI-leverandøren svarte ikke.",
+        "timeout": "Kjøringen tok for lang tid.",
+        "tooManyAttempts": "Den kunne ikke starte i tide: arbeidsområdets KI-kvote forble brukt opp.",
+        "approvalTimeout": "Ingen svarte på kallet innen et døgn, så ingenting ble sendt.",
+        "connectionGone": "En tilkobling oppgaven trengte, ble fjernet.",
+        "mailGone": "E-posten er ikke lenger i postkassen, eller postkassen er ikke lenger åpen for agenten.",
+        "limitReached": "Den hadde brukt opp agentens månedlige tokengrense.",
+        "costLimit": "Arbeidsområdet hadde nådd den månedlige kostnadsgrensen for KI.",
+        "selfReported": "Agenten sa at den ikke kunne gjøre oppgaven sin.",
+        "error": "Noe gikk galt."
+      },
+      "email": "Den leste e-posten din, så rapporten vises bare i Leafdesk."
+    },
+    "deferred": "{agent} holder tilbake et kall til de stille timene er over. Svaret kommer hit da.",
+    "queued": "I kø: agenten leser den når den har svart.",
+    "nothingToSummarize": "Det finnes ingen samtale med agenten å oppsummere ennå.",
+    "newSummary": "Ny samtale med agenten. Den starter fra dette sammendraget av den forrige:",
+    "fileFailed": "Jeg klarte ikke å laste ned filen. Prøv å sende den på nytt.",
+    "fileNotSent": "Jeg klarte ikke å sende filen {name}. Den ligger ved svaret på agentens side."
   }
 }

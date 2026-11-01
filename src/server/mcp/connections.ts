@@ -1,5 +1,5 @@
 import * as z from "zod";
-import type { AgentGrantView, ConnectionView } from "@/lib/connections";
+import { type AgentGrantView, type ConnectionView, TOOL_RULES } from "@/lib/connections";
 import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { ConnectionError } from "@/server/connections/manage";
 import { id } from "@/server/operations";
@@ -23,6 +23,12 @@ export const connectionInputs = {
       .array(z.string())
       .max(200)
       .describe("The names of the connection's tools the agent may use (as list_connections names them); this replaces the list. An empty list takes the connection from the agent."),
+    rules: z
+      .record(z.string(), z.enum(TOOL_RULES))
+      .optional()
+      .describe(
+        "Per tool: allow (a write goes unasked, unless the run read outside content; held in quiet hours) or deny (never called). Replaces this connection's rules; omit to keep them.",
+      ),
   }),
 };
 
@@ -35,10 +41,10 @@ export function describeConnection(conn: ConnectionView, grant?: AgentGrantView 
     sign_in: conn.authType,
     status: conn.status,
     ...(conn.status !== "ready" && conn.statusError ? { problem: conn.statusError.split(":")[0] } : {}),
-    tools: conn.tools.map((t) => ({ name: t.name, title: t.title, kind: t.kind === "read" ? "reads (runs at once, but waits for approval on runs a stranger's input started)" : "writes (each call waits for an owner's approval)" })),
+    tools: conn.tools.map((t) => ({ name: t.name, title: t.title, kind: t.kind === "read" ? "reads (runs at once, but waits for approval on runs a stranger's input started)" : "writes (each call waits for an owner's approval, unless a rule for the agent allows it)" })),
     event_url: conn.eventUrl,
     event_signing: conn.eventPreset,
-    ...(grant !== undefined ? { agent_tools: grant?.tools ?? [] } : {}),
+    ...(grant !== undefined ? { agent_tools: grant?.tools ?? [], agent_rules: grant?.rules ?? {} } : {}),
   };
 }
 

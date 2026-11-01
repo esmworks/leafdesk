@@ -33,6 +33,8 @@ export type TelegramMessage = {
   /** The bot's message this one answers (a note asked for with forceReply). */
   reply_to_message?: { message_id: number };
   audio?: { file_id: string; duration: number; mime_type?: string; file_size?: number };
+  /** A file sent as a document (a text file for an agent; the message's text is its caption). */
+  document?: { file_id: string; file_name?: string; mime_type?: string; file_size?: number };
 };
 export type TelegramCallbackQuery = { id: string; from: TelegramUser; message?: TelegramMessage; data?: string };
 export type TelegramUpdate = { update_id: number; message?: TelegramMessage; callback_query?: TelegramCallbackQuery };
@@ -51,15 +53,16 @@ export const POLL_SECONDS = 50;
 
 const apiUrl = (method: string) => `${env.telegramApiUrl}/bot${env.telegramBotToken}/${method}`;
 
-/** Calls a Bot API method with a JSON body; its `result`, or TelegramApiError. */
-export async function callApi<T>(method: string, params: Record<string, unknown> = {}, signal?: AbortSignal): Promise<T> {
+/** Calls a Bot API method with a JSON body (or a form, for a file sent); its `result`, or TelegramApiError. */
+export async function callApi<T>(method: string, params: Record<string, unknown> | FormData = {}, signal?: AbortSignal): Promise<T> {
   if (!env.telegramBotToken) throw new TelegramApiError(method, 0, "TELEGRAM_BOT_TOKEN is not set");
   let response: Response;
   try {
+    const form = params instanceof FormData;
     response = await fetch(apiUrl(method), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(params),
+      ...(form ? {} : { headers: { "Content-Type": "application/json" } }),
+      body: form ? params : JSON.stringify(params),
       // getUpdates holds the request open for POLL_SECONDS; every other call is quick.
       signal: AbortSignal.any([AbortSignal.timeout(method === "getUpdates" ? (POLL_SECONDS + 15) * 1000 : 30_000), ...(signal ? [signal] : [])]),
     });
@@ -92,6 +95,16 @@ export async function downloadFile(fileId: string, maxBytes: number, signal?: Ab
   const blob = await response.blob();
   if (blob.size > maxBytes) throw new TelegramApiError("getFile", 413, "The file is too large");
   return blob;
+}
+
+/** Sends a file as a document, with a plain caption; the sent message's id. */
+export async function sendDocument(chatId: string, file: { name: string; contentType: string; bytes: Uint8Array }, caption?: string): Promise<number> {
+  const form = new FormData();
+  form.set("chat_id", chatId);
+  form.set("document", new Blob([new Uint8Array(file.bytes)], { type: file.contentType }), file.name);
+  if (caption) form.set("caption", caption.slice(0, 1_024));
+  const sent = await callApi<TelegramMessage>("sendDocument", form);
+  return sent.message_id;
 }
 
 /** Sends a message in HTML (or as plain text); the sent message's id. */

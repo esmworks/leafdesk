@@ -7,7 +7,7 @@ import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { and, asc, eq, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { aiChatFile, file, fileReference, page, propertyPermission, storageDeletion, workspaceStorage } from "@/db/schema";
+import { agentChatFile, aiChatFile, file, fileReference, page, propertyPermission, storageDeletion, workspaceStorage } from "@/db/schema";
 import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl, formatBytes, isFileId } from "@/lib/files";
 import { COMMENT_IMAGE_TYPES } from "@/lib/comments";
 import { sameLocation } from "@/lib/workspace-storage";
@@ -642,7 +642,8 @@ export async function drainStorageDeletions(): Promise<{ deleted: number; failed
  * or everywhere). A page showing the file without authorization doesn't count: nobody can read the
  * file through it. Uploads of people under a legal hold stay (server/legal-hold.ts). Files
  * attached to an AI chat have no page; they go with their conversation (ai-chat-files.ts), or as
- * uploads nothing used (purgeUnusedUploads). Returns how many went.
+ * uploads nothing used (purgeUnusedUploads). Files an agent attached to a person's chat go here
+ * once their conversation is gone (agents/chat-files.ts). Returns how many went.
  */
 export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
   const keys = await db.transaction(async (tx) => {
@@ -654,6 +655,7 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id} and r.authorized)`,
           sql`not ${uploadUnderHold()}`,
           sql`not exists (select 1 from ${aiChatFile} c where c.file_id = ${file.id})`,
+          sql`not exists (select 1 from ${agentChatFile} c where c.file_id = ${file.id})`,
           workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
         ),
       )
@@ -691,6 +693,7 @@ export async function purgeUnusedUploads({
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
           sql`not ${uploadUnderHold()}`,
           sql`not exists (select 1 from ${aiChatFile} c where c.file_id = ${file.id} and c.conversation_id is not null)`,
+          sql`not exists (select 1 from ${agentChatFile} c where c.file_id = ${file.id})`,
         ),
       )
       .returning(fileObjectColumns);

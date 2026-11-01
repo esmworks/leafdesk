@@ -2987,6 +2987,7 @@ describe("agents", () => {
 
     const cases: [string, Record<string, string>, RegExp][] = [
       ["noteNotFound", {}, /get_agent.*only be dismissed/],
+      ["noteChanged", {}, /changed since.*change_agent_memory/],
       ["memoryFull", { max: "30" }, /full \(30 kept notes\).*change_agent_memory/],
       ["noteTooLong", { max: "300" }, /at most 300 characters/],
       ["noteEmpty", {}, /needs text/],

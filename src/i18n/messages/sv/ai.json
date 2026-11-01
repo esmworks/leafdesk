@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Avböjde att komma ihåg:",
           "forget": "Avböjde att glömma:"
-        }
+        },
+        "correct": "Antecknat som en rättelse:",
+        "undone": "Rättelse ångrad:"
       },
       "connection": {
         "done": "{connection}: anropade {tool}",

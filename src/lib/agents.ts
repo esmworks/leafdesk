@@ -3,7 +3,8 @@
 
 import { agentPagePath } from "./agent-page";
 import type { AgentShareLevel } from "./agent-sharing";
-import type { ChatStepRecord, MemoryStatus } from "@/db/schema/ai";
+import type { ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
+import type { QuietHours } from "./quiet-hours";
 import type { RepeatRule, ScheduleError } from "./schedule";
 
 /**
@@ -73,6 +74,8 @@ export const MAX_AGENT_SKILL_CHARS = 12_000;
 export const MAX_AGENT_PROPOSALS = 10;
 /** Notes one run may propose: what it learned that lasts is rarely more than a fact or two. */
 export const MAX_PROPOSALS_PER_RUN = 2;
+/** Corrections one chat run may keep at once (server/agents/memory.ts); it proposes those past them. */
+export const MAX_CORRECTIONS_PER_RUN = 3;
 /** The longest note a schedule's run leaves for its next run (where it left off). */
 export const MAX_HANDOFF_CHARS = 2_000;
 /**
@@ -204,6 +207,24 @@ export type AgentRunSource =
       conversationId: string;
       /** Sent from a connected app (MCP, the REST API, the Telegram bot), which reads the answer. */
       fromApp?: boolean;
+      /** Its messages waited in the queue while this run answered (lib/agent-chat-queue.ts). */
+      after?: string;
+      /**
+       * Its message (or one of those that waited) came from the Telegram bot, which follows this
+       * run's answer too: the person's own words, unlike another connected app's.
+       */
+      telegram?: true;
+      /**
+       * Its message (or one of those that waited) came from a connected app other than the
+       * Telegram bot (MCP, the REST API): another app's words, never kept as the person's own.
+       */
+      otherApp?: true;
+      /**
+       * The web session it was sent from in the app (each message of a merged turn from the same
+       * one): only the desktop app connected with this very session lends the run its computer
+       * (server/agents/computer.ts), so a chat sent from a phone or another computer gets none.
+       */
+      sessionId?: string;
     }
   | {
       kind: "mail";
@@ -252,6 +273,8 @@ export type AgentRunContext =
       locale?: string;
       /** The zone the run's times read in: the browser's of whoever wrote a chat message, a schedule's own. */
       timeZone?: string;
+      /** A chat's run: the text files attached to its messages (lib/agent-chat-files.ts), which go to the model as data. */
+      files?: { name: string; size: number; text: string }[];
     };
 
 /** `awaiting_approval`: a tool that may change something outside waits for an owner's answer. */
@@ -281,11 +304,17 @@ export type AgentToolRecord = {
   input: string;
   /**
    * `refused`: a page a schedule's run may not read with no one to ask (lib/web-calls.ts); `afterMail`:
-   * a call besides reading pages and drafting after the run read email (agents/mail.ts). Nothing was sent.
+   * a call besides reading pages and drafting after the run read email (agents/mail.ts);
+   * `afterLocalRead`: a call that would carry something out (a connection's tool, the web, another
+   * agent, sending email) after the run, or its conversation, read files on the person's computer
+   * (agents/run.ts); `denied`: an owner's rule declines every call of the tool; `limited`: a change
+   * past the agent's daily limit (of any tool, Leafdesk's own too). Nothing was sent.
    */
-  outcome: "done" | "failed" | "declined" | "redo" | "expired" | "refused" | "afterMail";
+  outcome: "done" | "failed" | "declined" | "redo" | "expired" | "refused" | "afterMail" | "afterLocalRead" | "denied" | "limited";
   /** Who approved, declined or sent it back. */
   decidedBy?: string | null;
+  /** An owner's "allow" rule sent it without asking (lib/connections.ts TOOL_RULES): no one approved it. */
+  rule?: "allow";
   note?: string;
 };
 
@@ -338,17 +367,35 @@ export type AgentHandoffRecord = {
 /** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented, used a tool or asked another agent. */
 export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentEmailRecord | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
 
-/** A call waiting for approval: what will be sent, and since when. No connection (null): Leafdesk's own tool. */
+/**
+ * A call waiting for approval: what will be sent, and since when. No connection (null): Leafdesk's
+ * own tool. `deferredUntil`: a call an owner's rule lets go without asking, held for the agent's
+ * quiet hours; no one is asked, and the run goes on at that time (an owner may still approve it
+ * before then).
+ */
 export type AgentPendingCall = {
   callId: string;
   connectionId: string | null;
   tool: string;
   arguments: Record<string, unknown>;
   askedAt: string;
+  deferredUntil?: string;
 };
 
 /** The tools of an agent with web access (server/agents/web.ts): Leafdesk's own, so their steps name no connection. */
 export const WEB_TOOL_NAMES = { read: "read_web_page", search: "search_web" } as const;
+
+/**
+ * The tools a chat's run gets for files on its person's computer, while their desktop app is
+ * connected (server/agents/computer.ts): Leafdesk's own, so their steps name no connection. A
+ * step's input is the file's place as `{"path": "<folder>/<path>"}` (and `bytes` for a write),
+ * never what a file holds; `declined`: the person said no on their computer, `expired`: no one
+ * answered there in time.
+ */
+export const COMPUTER_TOOL_NAMES = { list: "computer_list_folder", read: "computer_read_file", write: "computer_write_file", trash: "computer_trash_file" } as const;
+/** The computer's tools that bring what it holds into the run: words no one in the conversation wrote. */
+export const COMPUTER_READ_TOOLS: ReadonlySet<string> = new Set([COMPUTER_TOOL_NAMES.list, COMPUTER_TOOL_NAMES.read]);
+export const isComputerTool = (name: string) => Object.values(COMPUTER_TOOL_NAMES).some((n) => n === name);
 
 /** What a call to Leafdesk's own tool (no connection) names in place of a connection. */
 export const OWN_TOOLS_NAME = "Leafdesk";
@@ -391,7 +438,8 @@ export type ApprovalDecision = "approve" | "decline" | "redo";
  * archived, it can't open the row, the comment that mentioned it is gone, the email that started
  * it is gone (or its mailbox no longer opened to the agent), the model failed, the
  * run took too long, no one answered a call that waited for approval, the agent used its tokens
- * for the month, or the workspace's AI reached its monthly cost limit.
+ * for the month, the workspace's AI reached its monthly cost limit, or a schedule's run said it
+ * couldn't do its task (finish_run, see finishRunCall; its reason is the run's answer).
  */
 export const AGENT_RUN_CODES = [
   "aiOff",
@@ -408,9 +456,55 @@ export const AGENT_RUN_CODES = [
   "mailGone",
   "limitReached",
   "costLimit",
+  "selfReported",
   "error",
 ] as const;
 export type AgentRunCode = (typeof AGENT_RUN_CODES)[number];
+
+/** The tool a schedule's run ends itself with (server/agents/run.ts): nothing new to report, or the task couldn't be done. */
+export const FINISH_RUN_TOOL = "finish_run";
+export const FINISH_RUN_OUTCOMES = ["nothing_new", "failed"] as const;
+export type FinishRunOutcome = (typeof FINISH_RUN_OUTCOMES)[number];
+/** The most of the reason finish_run keeps. */
+export const MAX_FINISH_REASON = 300;
+
+/** The outcomes of a tool step whose call wasn't made: refused, declined by an owner's rule or a person, never answered or past the daily limit. */
+const BLOCKED_TOOL_OUTCOMES: ReadonlySet<AgentToolRecord["outcome"]> = new Set(["declined", "expired", "refused", "afterMail", "afterLocalRead", "denied", "limited"]);
+
+/**
+ * Whether a run's steps leave its person something to hear besides changes: a call that wasn't
+ * made (BLOCKED_TOOL_OUTCOMES) or a task given to another agent to do later (`assign_agent`, a
+ * `queued` handoff).
+ */
+export const leftUntold = (steps: readonly AgentStepRecord[]): boolean =>
+  steps.some((s) => (s.kind === "tool" && BLOCKED_TOOL_OUTCOMES.has(s.outcome)) || (s.kind === "handoff" && s.outcome === "queued"));
+
+/**
+ * A finish_run call checked: how the run ends and why, or what the agent is told instead. A run
+ * that changed something (`changed`) can't end as nothing new: what it changed must be told, in
+ * a report; nor can one that left something untold (`untold`, see leftUntold): a call it couldn't
+ * make, or a task it gave another agent. A failure needs its reason; nothing new may have one.
+ */
+export function finishRunCall(
+  args: Record<string, unknown>,
+  { changed, untold }: { changed: boolean; untold: boolean },
+): { outcome: FinishRunOutcome; reason: string } | { error: string } {
+  const outcome = FINISH_RUN_OUTCOMES.find((o) => o === args.outcome);
+  if (!outcome) return { error: `outcome is "nothing_new" or "failed". The run goes on.` };
+  const reason = typeof args.reason === "string" ? args.reason.replace(/\s+/g, " ").trim() : "";
+  if (reason.length > MAX_FINISH_REASON) return { error: `The reason has at most ${MAX_FINISH_REASON} characters. The run goes on.` };
+  if (outcome === "failed" && !reason) return { error: "Give a reason: why the task couldn't be done, for the person who set the schedule. The run goes on." };
+  if (outcome === "nothing_new" && changed) {
+    return { error: "You changed something in this run, so it isn't nothing new: the person who set the schedule must hear what changed. Don't call finish_run; write your report as your final message." };
+  }
+  if (outcome === "nothing_new" && untold) {
+    return {
+      error:
+        "In this run a call wasn't made (refused, declined or past a limit) or you gave another agent a task, so it isn't nothing new: the person who set the schedule must hear of it. Don't call finish_run nothing_new; write your report as your final message.",
+    };
+  }
+  return { outcome, reason };
+}
 
 export type AgentRunUsage = {
   inputTokens: number;
@@ -449,6 +543,10 @@ export type AgentView = {
   model: AgentModel;
   /** Whether its runs change rows at once or propose the changes for review (see AGENT_ROW_CHANGES). */
   rowChanges: AgentRowChanges;
+  /** When connection calls an owner's rule allows wait instead of going (lib/quiet-hours.ts); null: never. */
+  quietHours: QuietHours | null;
+  /** The most changes its runs may make in a day, together; null: no limit. */
+  dailyChangeLimit: number | null;
   /** The viewer's level on it (lib/agent-sharing): owners of the workspace always have full access. */
   access: AgentShareLevel;
   createdAt: string;
@@ -488,12 +586,15 @@ export type AgentSkillView = {
  * run and waiting for an owner. `run` is the run that proposed it: its row (the title only when the
  * viewer can open it) or the connection whose event started it. A proposal from a run on a row the
  * viewer can't open, or from a run another owner started for themselves, has no `text` for them:
- * it may quote what they can't open; they may only dismiss it.
+ * it may quote what they can't open; they may only dismiss it. A correction (`kind`) kept from
+ * someone's chat names them (`saidBy`, null once they are gone).
  */
 export type AgentMemoryView = {
   id: string;
   text: string | null;
   status: MemoryStatus;
+  kind: MemoryKind;
+  saidBy: { id: string; name: string } | null;
   run: {
     id: string;
     createdAt: string;
@@ -547,7 +648,10 @@ export type AgentRunView = {
   /** The row's title, when the viewer can open it. */
   rowTitle: string | null;
   steps: AgentStepRecord[];
+  /** What it said at the end; for a schedule's run it ended with finish_run, the reason it gave. */
   answer: string;
+  /** A schedule's run that found nothing new (finish_run): it told no one. */
+  quiet: boolean;
   usage: AgentRunUsage | null;
   /**
    * The call waiting for approval (owners only), with its connection's name: its input masked, or,
@@ -630,10 +734,22 @@ export const mailRun = (source: AgentRunSource): boolean => (source.kind === "ch
 export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "read_mail_attachment", "draft_mail", "sort_mail", "summarize_mail"]);
 
 /**
- * What a run that read email may still call besides the mail tools: reading pages, finding tools,
- * and use_tool, whose writes run.ts refuses on their own.
+ * What a run that read email may still call besides the mail tools: reading pages (and files on
+ * the person's computer, which bring something in but carry nothing out), finding tools, and
+ * use_tool, whose writes run.ts refuses on their own.
  */
-export const READS_AFTER_MAIL: ReadonlySet<string> = new Set(["search_pages", "read_page", "query_database", "list_comments", "page_history", "page_version", "read_attachment", "find_tools", "use_tool"]);
+export const READS_AFTER_MAIL: ReadonlySet<string> = new Set([
+  "search_pages",
+  "read_page",
+  "query_database",
+  "list_comments",
+  "page_history",
+  "page_version",
+  "read_attachment",
+  "find_tools",
+  "use_tool",
+  ...COMPUTER_READ_TOOLS,
+]);
 
 /**
  * Whether a run that read email may make this call: email is anyone's words and could steer it into
@@ -652,6 +768,33 @@ const READ_MAIL_ACTIONS: ReadonlySet<string> = new Set(["search", "read", "attac
  */
 export const readEmail = (steps: readonly { kind: string; action?: unknown }[] | undefined): boolean =>
   (steps ?? []).some((s) => s.kind === "mail" && typeof s.action === "string" && READ_MAIL_ACTIONS.has(s.action));
+
+const WEB_TOOLS: ReadonlySet<string> = new Set(Object.values(WEB_TOOL_NAMES));
+
+/**
+ * Leafdesk's further tools (use_tool, server/ai-more-tools.ts) whose answer carries other agents'
+ * answers or what reached the person's inbox from others: runs, chats with agents, notifications.
+ */
+export const OTHERS_WORDS_MORE_TOOLS: ReadonlySet<string> = new Set(["list_agent_runs", "get_agent_chat", "chat_with_agent", "start_agent_run", "list_notifications"]);
+
+/**
+ * Whether a run's steps show it read words no one in its conversation wrote: email (readEmail), a
+ * web page or search, what a connection's tool answered (failed too: a service's error says what
+ * it likes), a folder or file on the person's computer (anything may have put it there), or
+ * another agent's answer, which may carry what that agent read (asked with ask_agent, or read
+ * through use_tool: OTHERS_WORDS_MORE_TOOLS). A chat run that did keeps no correction at once
+ * (server/agents/memory.ts), and an owner's "allow" rule doesn't hold on it (server/agents/run.ts).
+ */
+export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
+  readEmail(steps) ||
+  steps.some((s) =>
+    s.kind === "tool"
+      ? ((s.outcome === "done" || s.outcome === "failed") && (s.connectionId !== null || WEB_TOOLS.has(s.tool))) ||
+        (s.connectionId === null && s.outcome === "done" && COMPUTER_READ_TOOLS.has(s.tool))
+      : s.kind === "leafdesk"
+        ? s.outcome === "done" && OTHERS_WORDS_MORE_TOOLS.has(s.tool)
+        : s.kind === "handoff" && s.outcome === "done",
+  );
 
 /**
  * Whether an owner sees what a run read, thought and answered, and the call it waits on, and so

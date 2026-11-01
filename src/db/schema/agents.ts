@@ -13,11 +13,13 @@ import type {
   AgentStepRecord,
   ApprovalDecision,
 } from "@/lib/agents";
-import type { AgentChatMessageRecord } from "@/lib/agent-chat";
+import type { AgentChatMessageRecord, AgentChatQueuedRecord } from "@/lib/agent-chat";
 import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
+import type { QuietHours } from "@/lib/quiet-hours";
 import { page, workspace, workspaceMember } from "./app";
 import { user } from "./auth";
+import { file } from "./files";
 import { memberGroup } from "./groups";
 import { mailbox } from "./mail";
 
@@ -36,6 +38,8 @@ export type AgentRunState = {
   webFound?: string[];
   /** It read email (agents/mail.ts): from then on it only reads pages and drafts email. */
   mailRead?: boolean;
+  /** It, or its conversation before it, read files on the person's computer (lib/local-reads.ts): from then on nothing goes out. */
+  localRead?: boolean;
   decision?: { decision: ApprovalDecision; userId: string; note?: string };
 };
 
@@ -75,6 +79,10 @@ export const workspaceAgent = pgTable(
     model: text("model").$type<AgentModel>().notNull().default("main"),
     /** Whether its runs write rows at once or propose the changes for review (lib/agents AGENT_ROW_CHANGES). */
     rowChanges: text("row_changes").$type<AgentRowChanges>().notNull().default("direct"),
+    /** When calls an owner's rule lets go without asking wait instead (lib/quiet-hours.ts); null: never. */
+    quietHours: jsonb("quiet_hours").$type<QuietHours>(),
+    /** The most changes its runs may make in a day, together (agent_daily_change); null: no limit. */
+    dailyChangeLimit: integer("daily_change_limit"),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -111,8 +119,13 @@ export const agentRun = pgTable(
     code: text("code").$type<AgentRunCode>(),
     error: text("error"),
     steps: jsonb("steps").$type<AgentStepRecord[]>().notNull().default([]),
-    /** What the agent said at the end. */
+    /** What the agent said at the end; for a schedule's run it ended with finish_run, the reason it gave. */
     answer: text("answer").notNull().default(""),
+    /**
+     * A schedule's run that found nothing new and changed nothing (finish_run `nothing_new`): it
+     * reports to no one, and the chat with the agent folds it to one line.
+     */
+    quiet: boolean("quiet").notNull().default(false),
     /**
      * A schedule's run: where it left off, for the schedule's next run (server/agents/memory.ts
      * `handoffFor`); each run leaves its own, and only the latest goes on.
@@ -158,6 +171,22 @@ export const agentUsage = pgTable(
     costUsd: doublePrecision("cost_usd").notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.agentId, t.month] })],
+);
+
+/**
+ * The changes an agent's runs made in a day (its quiet hours' day, else UTC's), against its daily
+ * limit: each change takes one before it is made (agents/daily-changes.ts). Kept a few days.
+ */
+export const agentDailyChange = pgTable(
+  "agent_daily_change",
+  {
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    day: date("day").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.agentId, t.day] })],
 );
 
 /**
@@ -248,10 +277,41 @@ export const agentConversation = pgTable(
     chatId: text("chat_id"),
     title: text("title").notNull().default(""),
     messages: jsonb("messages").$type<AgentChatMessageRecord[]>().notNull().default([]),
+    /** Messages written while an answer was under way, waiting to go as the next turn (lib/agent-chat-queue.ts). */
+    queue: jsonb("queue").$type<AgentChatQueuedRecord[]>().notNull().default([]),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("agent_conversation_user_idx").on(t.userId, t.agentId, t.chatId, t.updatedAt)],
+);
+
+/**
+ * A file an agent attached to its answer in a person's chat (its `attach_file` tool): an uploaded
+ * `file` of the workspace on no page, which only that person opens (/api/agents/chat/files/[id]),
+ * never through a page, a published page or a backup. It goes with the conversation: once this row
+ * is gone (the conversation deleted, the person or the agent removed) the file is an orphan, which
+ * files.ts purgeOrphanFiles deletes (legal holds kept).
+ */
+export const agentChatFile = pgTable(
+  "agent_chat_file",
+  {
+    fileId: text("file_id")
+      .primaryKey()
+      .references(() => file.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    conversationId: text("conversation_id")
+      .notNull()
+      .references(() => agentConversation.id, { onDelete: "cascade" }),
+    /** The run whose answer it goes with. */
+    runId: text("run_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("agent_chat_file_run_idx").on(t.runId), index("agent_chat_file_conversation_idx").on(t.conversationId)],
 );
 
 /**

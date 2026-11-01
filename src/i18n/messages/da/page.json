@@ -1344,6 +1344,7 @@
       "approvalTimeout": "Ingen svarede på dens kald i tide, så intet blev sendt.",
       "limitReached": "Agenten har brugt sine tokens for måneden.",
       "costLimit": "Arbejdsområdet har nået sin månedlige grænse for AI-omkostninger.",
+      "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
       "error": "Noget gik galt."
     },
     "errors": {
@@ -1357,7 +1358,11 @@
       "gone": "Denne agent er ikke længere tilgængelig.",
       "paused": "Denne agent er sat på pause, så den kan ikke svare.",
       "aiOff": "AI er slået fra i dette arbejdsområde, så agenten kan ikke svare.",
-      "limitReached": "Denne agent har brugt sine tokens for måneden."
+      "limitReached": "Denne agent har brugt sine tokens for måneden.",
+      "queueFull": "{max} beskeder venter allerede på svaret. Send denne, når agenten har svaret.",
+      "badFile": "Filen kan ikke vedhæftes: kun tekstfiler (CSV, TSV, TXT, Markdown, JSON), højst {max} pr. besked.",
+      "nothingToRedo": "Der er intet svar at lave om.",
+      "summaryFailed": "Agenten kunne ikke opsummere samtalen. Prøv igen."
     },
     "picker": {
       "search": "Søg i agenter",
@@ -1386,10 +1391,41 @@
       "mailOn": "Ny e-mail · {place}"
     },
     "doneQuietly": "Færdig.",
+    "nothingNew": "Intet nyt",
     "side": {
       "label": "Om {name}",
       "paused": "Sat på pause"
-    }
+    },
+    "deferred": "Venter til de stille timer er slut ({time})…",
+    "deferredApproval": "Agenten holder et kald tilbage, til dens stille timer er slut ({time}). Du kan godkende det nu.",
+    "queued": "I kø",
+    "queuedHint": "Går til {name}, når den har svaret",
+    "removeQueued": "Fjern fra køen",
+    "queuedAlreadySent": "Den besked var allerede sendt til agenten.",
+    "newWithSummary": "Ny samtale med et resumé",
+    "summary": "Resumé af en tidligere samtale",
+    "edit": "Rediger",
+    "regenerate": "Generér igen",
+    "files": {
+      "attach": "Vedhæft tekstfiler",
+      "remove": "Fjern {name}",
+      "download": "Download {name}",
+      "tooMany": "Højst {max} filer pr. besked.",
+      "tooLarge": "{name} er større end {size}.",
+      "type": "{name} kan ikke vedhæftes: kun CSV-, TSV-, TXT-, Markdown- og JSON-filer.",
+      "binary": "{name} er ikke en tekstfil."
+    },
+    "search": {
+      "open": "Søg i samtaler",
+      "placeholder": "Søg i dine samtaler med {name}",
+      "hint": "Skriv mindst {min} tegn.",
+      "empty": "Intet fundet.",
+      "results": "Søgeresultater",
+      "inThread": "Agentens chat",
+      "onPage": "På en side",
+      "onClosedPage": "På en side, du ikke kan åbne"
+    },
+    "computerFiles": "Kan bruge filer på din computer: {folders}"
   },
   "button": {
     "untitled": "Knap",

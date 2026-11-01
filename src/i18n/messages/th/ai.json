@@ -306,7 +306,9 @@
         "declined": {
           "remember": "ปฏิเสธการจดจำ:",
           "forget": "ปฏิเสธการลืม:"
-        }
+        },
+        "correct": "บันทึกเป็นการแก้ไข:",
+        "undone": "ยกเลิกการแก้ไขแล้ว:"
       },
       "connection": {
         "done": "{connection}: เรียกใช้ {tool} แล้ว",

@@ -1,11 +1,11 @@
 /**
  * Copying an agent: a new agent with the setup of one that works, to change for another team or
  * job. The copy takes how the agent behaves (its name numbered like a page's copy, icon,
- * description, instructions, model, web access, how it changes rows, monthly token limit, whether
- * it is paused, its skills, the agents it can ask and the tools of its connections), and none of
- * what it reaches or who uses it: no pages are shared with the copy, it is shared as a new agent
- * is (manage.ts createAgent), and it has no schedules, connection triggers, memory, runs, chats,
- * versions or usage of the source.
+ * description, instructions, model, web access, how it changes rows, monthly token limit, quiet
+ * hours, daily change limit, whether it is paused, its skills, the agents it can ask and the tools
+ * of its connections with their rules), and none of what it reaches or who uses it: no pages are
+ * shared with the copy, it is shared as a new agent is (manage.ts createAgent), and it has no
+ * schedules, connection triggers, memory, runs, chats, versions or usage of the source.
  *
  * Who may: whoever may create agents in the workspace and edit the agent (they can read its
  * instructions). An archived agent can be copied too; the copy is live. What the copier couldn't
@@ -15,8 +15,9 @@
  */
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { agentGrant, agentSkill, workspaceAgent } from "@/db/schema";
+import { agentGrant, agentSkill, agentToolRule, workspaceAgent } from "@/db/schema";
 import { numberedCopyTitle } from "@/lib/duplicate";
+import { parseQuietHours } from "@/lib/quiet-hours";
 import type { AgentView, CopyLeftOut } from "@/lib/agents";
 import { helperIdsOf } from "./helpers";
 import { agentWithLevel, agentLevels, requireAgentCreator } from "./sharing";
@@ -45,6 +46,7 @@ export async function duplicateAgent(userId: string, agentId: string, overrides:
   const keptSkills = await copyableSkills(userId, workspaceId, skills);
   const grants = await db.select().from(agentGrant).where(eq(agentGrant.agentId, source.id));
   const keptGrants = owner ? grants : [];
+  const keptRules = owner ? await db.select().from(agentToolRule).where(eq(agentToolRule.agentId, source.id)) : [];
 
   const input: AgentInput = {
     name: numberedCopyTitle(source.name, names) || source.name,
@@ -56,6 +58,8 @@ export async function duplicateAgent(userId: string, agentId: string, overrides:
     webAccess: source.webAccess,
     mailRecipients: source.mailRecipients,
     monthlyTokenLimit: source.monthlyTokenLimit,
+    quietHours: parseQuietHours(source.quietHours),
+    dailyChangeLimit: source.dailyChangeLimit,
     model: source.model,
     rowChanges: source.rowChanges,
     helperAgentIds: keptHelpers,
@@ -66,6 +70,8 @@ export async function duplicateAgent(userId: string, agentId: string, overrides:
     setUp: async (tx, created) => {
       if (keptSkills.length) await tx.insert(agentSkill).values(keptSkills.map((pageId, position) => ({ agentId: created.id, pageId, position, addedBy: userId })));
       if (keptGrants.length) await tx.insert(agentGrant).values(keptGrants.map((g) => ({ agentId: created.id, connectionId: g.connectionId, tools: g.tools })));
+      // The copier, an owner, sets the copy's rules.
+      if (keptRules.length) await tx.insert(agentToolRule).values(keptRules.map((r) => ({ agentId: created.id, connectionId: r.connectionId, tool: r.tool, rule: r.rule, setBy: userId })));
     },
   });
 

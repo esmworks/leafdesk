@@ -5,24 +5,73 @@ import {
   agentEmail,
   agentRunPath,
   callToSend,
+  finishRunCall,
   INBOX_CALL_CHARS,
+  MAX_FINISH_REASON,
   inboxCallInput,
   isAgentEmail,
   isMentionRun,
   isScheduleRun,
+  leftUntold,
   mailRun,
   mayCallAfterMail,
   MAX_AGENT_WRITES,
   MAX_SCHEDULED_WRITES,
   ownerSeesRun,
   readEmail,
+  readOthersWords,
   runPageOf,
   skillStepsToAdd,
+  WEB_TOOL_NAMES,
+  COMPUTER_TOOL_NAMES,
   type AgentRunSource,
   type AgentSkillRecord,
   type AgentStepRecord,
 } from "./agents";
 import { redactValue } from "./redact";
+
+describe("finishRunCall", () => {
+  const quiet = { changed: false, untold: false };
+  it("ends a run that changed nothing as nothing new, with or without a reason", () => {
+    expect(finishRunCall({ outcome: "nothing_new" }, quiet)).toEqual({ outcome: "nothing_new", reason: "" });
+    expect(finishRunCall({ outcome: "nothing_new", reason: "  No new  rows. " }, quiet)).toEqual({ outcome: "nothing_new", reason: "No new rows." });
+  });
+
+  it("refuses nothing new once the run changed something: that is told in a report", () => {
+    const out = finishRunCall({ outcome: "nothing_new", reason: "All fine" }, { changed: true, untold: false });
+    expect("error" in out && out.error).toContain("write your report");
+  });
+
+  it("refuses nothing new when a call wasn't made or a task went to another agent", () => {
+    const out = finishRunCall({ outcome: "nothing_new" }, { changed: false, untold: true });
+    expect("error" in out && out.error).toContain("write your report");
+    // Failing still goes: its reason is told.
+    expect(finishRunCall({ outcome: "failed", reason: "Declined." }, { changed: false, untold: true })).toEqual({ outcome: "failed", reason: "Declined." });
+  });
+
+  it("ends a run as failed only with a reason, changes or not", () => {
+    expect("error" in finishRunCall({ outcome: "failed" }, quiet)).toBe(true);
+    expect(finishRunCall({ outcome: "failed", reason: "The sheet is gone." }, { changed: true, untold: false })).toEqual({ outcome: "failed", reason: "The sheet is gone." });
+  });
+
+  it("refuses an unknown outcome and a reason too long", () => {
+    expect("error" in finishRunCall({ outcome: "done" }, quiet)).toBe(true);
+    expect("error" in finishRunCall({ outcome: "failed", reason: "x".repeat(MAX_FINISH_REASON + 1) }, quiet)).toBe(true);
+  });
+});
+
+describe("leftUntold", () => {
+  const tool = (outcome: Extract<AgentStepRecord, { kind: "tool" }>["outcome"]): AgentStepRecord => ({ kind: "tool", connectionId: "c1", tool: "send", input: "", outcome });
+  const handoff = (outcome: Extract<AgentStepRecord, { kind: "handoff" }>["outcome"]): AgentStepRecord => ({ kind: "handoff", agentId: "a2", agentName: "Helper", runId: null, task: "x", outcome });
+  it("knows a call that wasn't made and a task given to another agent", () => {
+    for (const outcome of ["declined", "expired", "refused", "afterMail", "denied", "limited"] as const) expect(leftUntold([tool(outcome)]), outcome).toBe(true);
+    expect(leftUntold([handoff("queued")])).toBe(true);
+  });
+  it("leaves out calls made, answers asked for and other steps", () => {
+    expect(leftUntold([tool("done"), tool("failed"), tool("redo"), handoff("done"), handoff("failed"), { kind: "read", pageId: "p1" }])).toBe(false);
+    expect(leftUntold([])).toBe(false);
+  });
+});
 
 describe("agents' addresses", () => {
   it("are in a domain that can't receive mail", () => {
@@ -233,9 +282,43 @@ describe("after reading email", () => {
     expect(readEmail(undefined)).toBe(false);
   });
 
+  it("knows a run that read others' words: email, the web, a connection's answer, another agent's answer", () => {
+    const tool = (connectionId: string | null, name: string, outcome: Extract<AgentStepRecord, { kind: "tool" }>["outcome"]): AgentStepRecord => ({ kind: "tool", connectionId, tool: name, input: "", outcome });
+    const handoff = (outcome: Extract<AgentStepRecord, { kind: "handoff" }>["outcome"]): AgentStepRecord => ({ kind: "handoff", agentId: "a2", agentName: "Helper", runId: null, task: "x", outcome });
+    expect(readOthersWords([{ kind: "mail", action: "earlier" }])).toBe(true);
+    expect(readOthersWords([tool(null, WEB_TOOL_NAMES.read, "done")])).toBe(true);
+    expect(readOthersWords([tool(null, WEB_TOOL_NAMES.search, "done")])).toBe(true);
+    expect(readOthersWords([tool("c1", "list_issues", "done")])).toBe(true);
+    // A service's error says what it likes too.
+    expect(readOthersWords([tool("c1", "list_issues", "failed")])).toBe(true);
+    expect(readOthersWords([handoff("done")])).toBe(true);
+    // A folder or a file on the person's computer: anything may have put it there.
+    expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.read, "done")])).toBe(true);
+    expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.list, "done")])).toBe(true);
+    expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.read, "failed"), tool(null, COMPUTER_TOOL_NAMES.write, "done"), tool(null, COMPUTER_TOOL_NAMES.trash, "declined")])).toBe(false);
+    // Nothing came back: refused, declined, waiting, or Leafdesk's own tools.
+    expect(readOthersWords([tool(null, WEB_TOOL_NAMES.read, "refused"), tool("c1", "create_issue", "declined"), tool(null, "create_row", "done"), handoff("queued")])).toBe(false);
+    expect(readOthersWords([{ kind: "read", pageId: "p1" }, { kind: "search", query: null, results: 2 }, { kind: "memory", action: "correct", text: "x", memoryId: "m1" }])).toBe(false);
+    expect(readOthersWords([])).toBe(false);
+  });
+
+  it("counts other agents' answers and the inbox read through use_tool, not other further tools", () => {
+    const more = (tool: string, outcome: "done" | "failed" | "declined" = "done", writes = false): AgentStepRecord => ({ kind: "leafdesk", tool, title: tool, writes, input: "", outcome });
+    for (const name of ["list_agent_runs", "get_agent_chat", "chat_with_agent", "start_agent_run", "list_notifications"]) {
+      expect(readOthersWords([more(name, "done", name === "chat_with_agent" || name === "start_agent_run")]), name).toBe(true);
+    }
+    // Nothing came back from a call that failed or the person declined; other tools read the workspace.
+    expect(readOthersWords([more("list_agent_runs", "failed"), more("chat_with_agent", "declined", true)])).toBe(false);
+    expect(readOthersWords([more("list_trash"), more("list_automations"), more("create_automation", "done", true)])).toBe(false);
+  });
+
   it("lets such a run only read pages, find and use tools, and use the mail tools", () => {
-    for (const name of ["read_page", "search_pages", "query_database", "find_tools", "use_tool", "search_mail", "read_mail", "read_mail_attachment", "draft_mail"]) expect(mayCallAfterMail(name, false)).toBe(true);
-    for (const name of ["edit_page", "create_page", "update_row", "add_comment", "send_email", "remember", "ask_agent", "read_web_page", "search_web", "leave_note"]) expect(mayCallAfterMail(name, false)).toBe(false);
+    for (const name of ["read_page", "search_pages", "query_database", "find_tools", "use_tool", "search_mail", "read_mail", "read_mail_attachment", "draft_mail", COMPUTER_TOOL_NAMES.list, COMPUTER_TOOL_NAMES.read]) {
+      expect(mayCallAfterMail(name, false)).toBe(true);
+    }
+    for (const name of ["edit_page", "create_page", "update_row", "add_comment", "send_email", "remember", "ask_agent", "read_web_page", "search_web", "leave_note", COMPUTER_TOOL_NAMES.write, COMPUTER_TOOL_NAMES.trash]) {
+      expect(mayCallAfterMail(name, false)).toBe(false);
+    }
     // A connected service's tool, even one that only reads and shares a page tool's name.
     expect(mayCallAfterMail("read_page", true)).toBe(false);
   });

@@ -78,7 +78,7 @@ export function RunProposals({ workspaceId, runId }: { workspaceId: string; runI
               {t("approveAll", { count: proposals.open.length })}
             </Button>
           )}
-          <Link href={reviewPath(workspaceId, { runId })} className={buttonClass({ size: "sm" })}>
+          <Link href={`${reviewPath(workspaceId)}?run=${encodeURIComponent(runId)}`} className={buttonClass({ size: "sm" })}>
             {t("review")}
           </Link>
         </div>

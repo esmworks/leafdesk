@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Gekoppeld aan Leafdesk als {name}. Je zit nog niet in een werkruimte waaruit ik kan antwoorden: word lid van een werkruimte en kies haar daarna met /workspace.",
   "notLinked": "Deze chat is niet gekoppeld aan een Leafdesk-account. Open in Leafdesk Instellingen → Gekoppelde apps → Telegram en kies Telegram koppelen.",
   "badCode": "Die link is verlopen of al gebruikt. Maak een nieuwe in Leafdesk: Instellingen → Gekoppelde apps → Telegram.",
-  "help": "Stel een vraag, of stuur een spraakbericht, en ik antwoord op basis van je Leafdesk-pagina’s, met bronvermelding.\n\n/new: een nieuw gesprek beginnen\n/workspace: de werkruimte kiezen waaruit ik antwoord\n/mode: kiezen wat ik mag wijzigen\n/stop: het antwoord stoppen dat wordt geschreven\n/notifications: je meldingen in deze chat aan- of uitzetten\n/unlink: dit Telegram-account ontkoppelen",
+  "help": "Stel een vraag, of stuur een spraakbericht, en ik antwoord op basis van je Leafdesk-pagina’s, met bronvermelding.\n\n/new: een nieuw gesprek beginnen\n/new summary: begin een nieuw gesprek met een agent vanuit een samenvatting van het vorige\n/workspace: de werkruimte kiezen waaruit ik antwoord\n/agent: chatten met een van je agents\n/mode: kiezen wat ik mag wijzigen\n/stop: het antwoord stoppen dat wordt geschreven\n/notifications: je meldingen in deze chat aan- of uitzetten\n/unlink: dit Telegram-account ontkoppelen",
   "commands": {
     "new": "Een nieuw gesprek beginnen",
     "workspace": "De werkruimte kiezen waaruit ik antwoord",
+    "agent": "Chatten met een van je agents",
     "mode": "Kiezen wat ik mag wijzigen",
     "stop": "Het antwoord stoppen dat wordt geschreven",
     "unlink": "Dit Telegram-account ontkoppelen",
@@ -123,5 +124,80 @@
     "invalid": "Stuur eerst een vraag.",
     "interrupted": "De server is herstart tijdens het antwoorden. Vraag het opnieuw.",
     "limitReached": "Deze werkruimte heeft de maandelijkse limiet voor AI-kosten bereikt, dus vragen worden tot volgende maand geweigerd."
+  },
+  "agent": {
+    "general": "Algemene AI-chat",
+    "none": "Er zijn geen agents in {workspace} met je gedeeld.",
+    "pick": "Je berichten gaan naar {agent}. Kies een andere agent, of de algemene AI-chat:",
+    "pickNone": "Je berichten gaan naar de algemene AI-chat van {workspace}. Kies een agent om mee te chatten:",
+    "set": "Je berichten gaan nu naar {agent}. Het gesprek loopt door in je chat op zijn pagina; met /agent ga je terug.",
+    "setReadOnly": "Je berichten gaan nu naar {agent}. Je kunt hem alleen gebruiken: hij antwoordt uit pagina's die jullie allebei kunnen zien en verandert niets.",
+    "generalSet": "Terug naar de algemene AI-chat van {workspace}.",
+    "newConversation": "Nieuw gesprek met de agent.",
+    "stopped": "Ik volg het antwoord niet meer. {agent} maakt het af; je vindt het op zijn pagina.",
+    "modeNote": "De modus hoort bij de algemene AI-chat: een agent volgt zijn eigen instellingen.",
+    "waiting": "{agent} wacht op je goedkeuring om {connection} te gebruiken. Antwoord in het bericht met de knoppen.",
+    "waitingOwner": "{agent} wacht tot een eigenaar van de werkruimte een aanroep goedkeurt. Het antwoord komt hier zodra dat gebeurt.",
+    "waitingApp": "{agent} wacht op je goedkeuring om {connection} te gebruiken. Beantwoord die op de pagina van de agent in Leafdesk; het antwoord komt daarna hier.",
+    "readOnlyWorkspace": "{workspace} laat gekoppelde apps alleen lezen, dus de agents nemen hier geen berichten aan. Met /agent ga je terug naar de algemene AI-chat.",
+    "states": {
+      "gone": "Die agent is niet meer beschikbaar. Je berichten gaan weer naar de algemene AI-chat.",
+      "noAccess": "Die agent wordt niet meer met je gedeeld. Je berichten gaan weer naar de algemene AI-chat.",
+      "guest": "Gasten chatten niet met agents. Je berichten gaan weer naar de algemene AI-chat.",
+      "paused": "Deze agent is gepauzeerd. Vraag een van de eigenaren hem aan te zetten, of kies een andere met /agent.",
+      "aiOff": "AI staat uit in deze werkruimte.",
+      "limitReached": "Deze agent heeft zijn tokens voor deze maand gebruikt. Kies een andere met /agent."
+    },
+    "refused": {
+      "tooLong": "Een bericht aan een agent heeft hoogstens {max} tekens.",
+      "busy": "De agent beantwoordt je vorige bericht nog.",
+      "rateLimited": "Te veel berichten tegelijk. Probeer het zo opnieuw.",
+      "invalid": "Stuur eerst een bericht.",
+      "queueFull": "Er wachten al {max} berichten op het antwoord van de agent. Stuur dit bericht zodra hij heeft geantwoord.",
+      "badFile": "Agents nemen alleen tekstbestanden aan (CSV, TSV, TXT, Markdown, JSON), elk tot {size}.",
+      "summaryFailed": "De agent kon het gesprek niet samenvatten. Probeer het opnieuw, of begin opnieuw met /new."
+    },
+    "failed": {
+      "aiOff": "AI staat uit in deze werkruimte.",
+      "agentDisabled": "De agent werd gepauzeerd voordat hij antwoordde.",
+      "noAccess": "De agent kan niet meer openen wat hij nodig had.",
+      "provider": "De AI-aanbieder kon niet antwoorden. Probeer het later opnieuw.",
+      "timeout": "De agent deed te lang over het antwoord. Probeer het opnieuw.",
+      "tooManyAttempts": "De agent kon na meerdere pogingen niet antwoorden.",
+      "approvalTimeout": "Niemand beantwoordde de goedkeuring binnen een dag, dus er is niets verstuurd.",
+      "limitReached": "De agent heeft zijn tokens voor deze maand gebruikt.",
+      "costLimit": "Het antwoord bereikte zijn kostenlimiet.",
+      "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
+      "error": "Er ging iets mis terwijl de agent antwoordde."
+    },
+    "routine": {
+      "done": "{agent} heeft ‘{task}’ afgerond.",
+      "failed": "{agent} kon ‘{task}’ niet afronden.",
+      "reasons": {
+        "aiOff": "AI staat uit in deze werkruimte.",
+        "agentDisabled": "De agent is gepauzeerd of gearchiveerd.",
+        "noAccess": "De agent, of degene die het schema heeft ingesteld, kan niet meer openen wat de taak nodig heeft.",
+        "rowGone": "De rij is verwijderd.",
+        "databaseGone": "De database waarover hij gaat, is verwijderd of naar de prullenbak verplaatst.",
+        "commentGone": "De opmerking die hem vermeldde, is verwijderd, of de pagina ervan is naar de prullenbak verplaatst.",
+        "provider": "De AI-aanbieder gaf geen antwoord.",
+        "timeout": "De uitvoering duurde te lang.",
+        "tooManyAttempts": "Hij kon niet op tijd starten: het AI-tegoed van de werkruimte bleef opgebruikt.",
+        "approvalTimeout": "Niemand beantwoordde zijn aanroep binnen een dag, dus er is niets verstuurd.",
+        "connectionGone": "Een koppeling die de taak nodig had, is verwijderd.",
+        "mailGone": "De e-mail staat niet meer in de mailbox, of de mailbox is niet meer open voor de agent.",
+        "limitReached": "Hij had de maandelijkse tokenlimiet van de agent opgebruikt.",
+        "costLimit": "De werkruimte had haar maandelijkse limiet voor AI-kosten bereikt.",
+        "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
+        "error": "Er ging iets mis."
+      },
+      "email": "Hij heeft je e-mail gelezen, dus zijn verslag staat alleen in Leafdesk."
+    },
+    "deferred": "{agent} houdt een aanroep vast tot zijn stille uren voorbij zijn. Het antwoord komt dan hier.",
+    "queued": "In de wachtrij: de agent leest het zodra hij heeft geantwoord.",
+    "nothingToSummarize": "Er is nog geen gesprek met de agent om samen te vatten.",
+    "newSummary": "Nieuw gesprek met de agent. Het begint met deze samenvatting van het vorige:",
+    "fileFailed": "Ik kon dat bestand niet downloaden. Probeer het opnieuw te sturen.",
+    "fileNotSent": "Ik kon het bestand {name} niet sturen. Het staat bij het antwoord op de pagina van de agent."
   }
 }

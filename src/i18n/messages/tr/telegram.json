@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Leafdesk’e {name} olarak bağlandın. Henüz yanıt verebileceğim bir çalışma alanında değilsin: birine katıl, sonra /workspace ile seç.",
   "notLinked": "Bu sohbet bir Leafdesk hesabına bağlı değil. Leafdesk’te Ayarlar → Bağlı uygulamalar → Telegram’ı açıp Telegram’ı bağla’yı seç.",
   "badCode": "Bu bağlantının süresi dolmuş ya da zaten kullanılmış. Leafdesk’te yenisini oluştur: Ayarlar → Bağlı uygulamalar → Telegram.",
-  "help": "Bir soru sor ya da sesli mesaj gönder; Leafdesk sayfalarından, onları kaynak göstererek yanıtlarım.\n\n/new: yeni bir sohbet başlat\n/workspace: yanıt verdiğim çalışma alanını seç\n/mode: neleri değiştirebileceğimi seç\n/stop: yazılmakta olan yanıtı durdur\n/notifications: bu sohbetteki bildirimlerini aç ya da kapat\n/unlink: bu Telegram hesabının bağlantısını kaldır",
+  "help": "Bir soru sor ya da sesli mesaj gönder; Leafdesk sayfalarından, onları kaynak göstererek yanıtlarım.\n\n/new: yeni bir sohbet başlat\n/new summary: bir ajanla, son sohbetin özetinden yeni bir sohbet başlat\n/workspace: yanıt verdiğim çalışma alanını seç\n/agent: ajanlarından biriyle sohbet et\n/mode: neleri değiştirebileceğimi seç\n/stop: yazılmakta olan yanıtı durdur\n/notifications: bu sohbetteki bildirimlerini aç ya da kapat\n/unlink: bu Telegram hesabının bağlantısını kaldır",
   "commands": {
     "new": "Yeni bir sohbet başlat",
     "workspace": "Yanıt verdiğim çalışma alanını seç",
+    "agent": "Ajanlarından biriyle sohbet et",
     "mode": "Neleri değiştirebileceğimi seç",
     "stop": "Yazılmakta olan yanıtı durdur",
     "unlink": "Bu Telegram hesabının bağlantısını kaldır",
@@ -123,5 +124,80 @@
     "invalid": "Önce bir soru gönder.",
     "interrupted": "Sunucu yanıt verirken yeniden başladı. Yeniden sor.",
     "limitReached": "Bu çalışma alanı aylık yapay zekâ maliyet sınırına ulaştı; sorular gelecek aya kadar reddediliyor."
+  },
+  "agent": {
+    "general": "Genel AI sohbeti",
+    "none": "{workspace} içinde seninle paylaşılmış ajan yok.",
+    "pick": "Mesajların {agent} ajanına gidiyor. Başka bir ajan ya da genel AI sohbetini seç:",
+    "pickNone": "Mesajların {workspace} genel AI sohbetine gidiyor. Sohbet edeceğin ajanı seç:",
+    "set": "Mesajların artık {agent} ajanına gidiyor. Sohbet, ajanın sayfasındaki sohbetinde sürüyor; /agent ile geri dönersin.",
+    "setReadOnly": "Mesajların artık {agent} ajanına gidiyor. Onu yalnızca kullanabilirsin: ikinizin de görebildiği sayfalardan yanıtlar, hiçbir şeyi değiştirmez.",
+    "generalSet": "{workspace} genel AI sohbetine dönüldü.",
+    "newConversation": "Ajanla yeni sohbet.",
+    "stopped": "Takibi bıraktım. {agent} yanıtını bitirecek; yanıtı ajanın sayfasında bulursun.",
+    "modeNote": "Mod, genel AI sohbetine aittir: ajan kendi ayarlarına uyar.",
+    "waiting": "{agent}, {connection} kullanmak için onayını bekliyor. Düğmeli mesajdan yanıtla.",
+    "waitingOwner": "{agent}, bir çağrı için çalışma alanı sahibinin onayını bekliyor. Onaylandığında yanıt buraya gelir.",
+    "waitingApp": "{agent}, {connection} bağlantısını kullanmak için onayını bekliyor. Leafdesk'te ajanın sayfasından yanıtla; cevabı ondan sonra buraya gelir.",
+    "readOnlyWorkspace": "{workspace}, bağlı uygulamaların yalnızca okumasına izin veriyor; bu yüzden ajanları buradan mesaj almaz. /agent ile genel AI sohbetine dönersin.",
+    "states": {
+      "gone": "O ajan artık kullanılamıyor. Mesajların yeniden genel AI sohbetine gidiyor.",
+      "noAccess": "O ajan artık seninle paylaşılmıyor. Mesajların yeniden genel AI sohbetine gidiyor.",
+      "guest": "Misafirler ajanlarla sohbet edemez. Mesajların yeniden genel AI sohbetine gidiyor.",
+      "paused": "Bu ajan duraklatılmış. Sahiplerinden birinden açmasını iste ya da /agent ile başkasını seç.",
+      "aiOff": "Bu çalışma alanında AI kapalı.",
+      "limitReached": "Bu ajan bu ayki token hakkını kullandı. /agent ile başkasını seç."
+    },
+    "refused": {
+      "tooLong": "Bir ajana mesaj en fazla {max} karakter olabilir.",
+      "busy": "Ajan hâlâ son mesajını yanıtlıyor.",
+      "rateLimited": "Aynı anda çok fazla mesaj. Biraz sonra yeniden dene.",
+      "invalid": "Önce bir mesaj gönder.",
+      "queueFull": "Ajanın yanıtını bekleyen {max} mesaj zaten var. Bunu ajan yanıtladıktan sonra gönder.",
+      "badFile": "Ajanlar yalnızca metin dosyası alır (CSV, TSV, TXT, Markdown, JSON), her biri en fazla {size}.",
+      "summaryFailed": "Ajan sohbeti özetleyemedi. Yeniden dene ya da /new ile baştan başla."
+    },
+    "failed": {
+      "aiOff": "Bu çalışma alanında AI kapalı.",
+      "agentDisabled": "Ajan yanıtlamadan önce duraklatıldı.",
+      "noAccess": "Ajan ihtiyaç duyduğu şeyi artık açamıyor.",
+      "provider": "AI sağlayıcısı yanıt veremedi. Daha sonra yeniden dene.",
+      "timeout": "Ajanın yanıtı çok uzun sürdü. Yeniden dene.",
+      "tooManyAttempts": "Ajan birkaç denemeden sonra yanıt veremedi.",
+      "approvalTimeout": "Onaya bir gün içinde yanıt verilmedi, bu yüzden hiçbir şey gönderilmedi.",
+      "limitReached": "Ajan bu ayki token hakkını kullandı.",
+      "costLimit": "Yanıt maliyet sınırına ulaştı.",
+      "selfReported": "Ajan görevini yapamadığını bildirdi.",
+      "error": "Ajan yanıtlarken bir şeyler ters gitti."
+    },
+    "routine": {
+      "done": "{agent}, “{task}” işini bitirdi.",
+      "failed": "{agent}, “{task}” işini bitiremedi.",
+      "reasons": {
+        "aiOff": "Bu çalışma alanında yapay zekâ kapalı.",
+        "agentDisabled": "Ajan duraklatılmış ya da arşivlenmişti.",
+        "noAccess": "Ajan ya da zamanlamayı kuran kişi, görevin gerektirdiklerini artık açamıyor.",
+        "rowGone": "Satır silinmiş.",
+        "databaseGone": "Baktığı veritabanı silindi ya da çöp kutusuna taşındı.",
+        "commentGone": "Ondan bahseden yorum silindi ya da sayfası çöp kutusuna taşındı.",
+        "provider": "Yapay zekâ sağlayıcısı yanıt vermedi.",
+        "timeout": "Çalışma çok uzun sürdü.",
+        "tooManyAttempts": "Zamanında başlayamadı: çalışma alanının yapay zekâ kotası dolu kaldı.",
+        "approvalTimeout": "Çağrısını bir gün içinde kimse yanıtlamadı; hiçbir şey gönderilmedi.",
+        "connectionGone": "Görevin ihtiyaç duyduğu bir bağlantı kaldırıldı.",
+        "mailGone": "E-posta kutudan gitti ya da kutu artık bu ajana açık değil.",
+        "limitReached": "Ajanın aylık token sınırı dolmuştu.",
+        "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaşmıştı.",
+        "selfReported": "Ajan görevini yapamadığını bildirdi.",
+        "error": "Bir şeyler ters gitti."
+      },
+      "email": "E-postanı okudu, bu yüzden raporu yalnızca Leafdesk’te görünüyor."
+    },
+    "deferred": "{agent} sessiz saatleri bitene kadar bir çağrıyı bekletiyor. Cevabı o zaman buraya gelir.",
+    "queued": "Sıraya alındı: ajan yanıtını bitirince bunu okur.",
+    "nothingToSummarize": "Ajanla özetlenecek bir sohbet henüz yok.",
+    "newSummary": "Ajanla yeni sohbet. Bir önceki sohbetin şu özetinden başlıyor:",
+    "fileFailed": "O dosyayı indiremedim. Yeniden göndermeyi dene.",
+    "fileNotSent": "{name} dosyasını gönderemedim. Ajanın sayfasında yanıtın yanında duruyor."
   }
 }

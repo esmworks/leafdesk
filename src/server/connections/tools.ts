@@ -1,9 +1,9 @@
 import type { CallToolResult } from "@modelcontextprotocol/client";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentGrant, connection } from "@/db/schema";
+import { agentGrant, agentToolRule, connection } from "@/db/schema";
 import type { AgentToolRecord } from "@/lib/agents";
-import { MAX_TOOL_RESULT_CHARS, namespacedTool, type ConnectionTool } from "@/lib/connections";
+import { MAX_TOOL_RESULT_CHARS, namespacedTool, type ConnectionTool, type ToolRule } from "@/lib/connections";
 import { redactError, redactText, redactValue } from "@/lib/redact";
 import type { AiTool } from "@/server/ai";
 import { frameData } from "@/server/ai/frame";
@@ -17,7 +17,8 @@ import { callConnectionTool, classify, type ConnectionClientError, type Connecti
  * add tools or permissions.
  */
 
-export type ConnectionToolEntry = { connection: ConnectionRow; tool: ConnectionTool };
+/** `rule`: an owner's rule on the agent's tool (lib/connections.ts TOOL_RULES) and who set it; the AI chat's tools have none. */
+export type ConnectionToolEntry = { connection: ConnectionRow; tool: ConnectionTool; rule?: { rule: ToolRule; setBy: string | null } };
 export type ConnectionToolset = { tools: AiTool[]; byName: Map<string, ConnectionToolEntry> };
 
 const EMPTY: ConnectionToolset = { tools: [], byName: new Map() };
@@ -28,33 +29,49 @@ function parametersOf(schema: Record<string, unknown>): Record<string, unknown> 
   return { type: "object", properties: {}, additionalProperties: true };
 }
 
+/** What the model reads of a tool before its own description: its connection, and whether its calls wait or are declined. */
+function labelOf(conn: ConnectionRow, tool: ConnectionTool, rule: ToolRule | undefined) {
+  if (rule === "deny") return `${conn.name}; an owner declined every call of it: don't call it`;
+  if (tool.kind === "read") return conn.name;
+  return rule === "allow" ? `${conn.name}; may wait for a person's approval before it is sent` : `${conn.name}; a person must approve each call before it is sent`;
+}
+
 /** The tools allowed on each connection, as the model sees them; `writes` false leaves out the ones that change something. */
-function toolsetOf(rows: { allowed: string[]; connection: ConnectionRow }[], { writes = true } = {}): ConnectionToolset {
+function toolsetOf(
+  rows: { allowed: string[]; connection: ConnectionRow; rules?: ReadonlyMap<string, { rule: ToolRule; setBy: string | null }> }[],
+  { writes = true } = {},
+): ConnectionToolset {
   if (!rows.length) return EMPTY;
   const tools: AiTool[] = [];
   const byName = new Map<string, ConnectionToolEntry>();
-  for (const { allowed: names, connection: conn } of rows) {
+  for (const { allowed: names, connection: conn, rules } of rows) {
     const allowed = new Set(names);
     for (const tool of conn.tools) {
       if (!allowed.has(tool.name) || (!writes && tool.kind === "write")) continue;
       const name = namespacedTool(conn.slug, tool.name);
       if (byName.has(name)) continue;
-      byName.set(name, { connection: conn, tool });
-      const label = tool.kind === "read" ? conn.name : `${conn.name}; a person must approve each call before it is sent`;
+      const rule = rules?.get(tool.name);
+      byName.set(name, { connection: conn, tool, ...(rule ? { rule } : {}) });
+      const label = labelOf(conn, tool, rule?.rule);
       tools.push({ name, description: `[${label}] ${tool.title ? `${tool.title}: ` : ""}${tool.description}`.slice(0, 1_500), parameters: parametersOf(tool.inputSchema) });
     }
   }
   return { tools, byName };
 }
 
-/** The connection tools an agent may use in a run; `writes` false (a read-only chat) leaves out the ones that change something. */
+/** The connection tools an agent may use in a run, with the rules owners set on them; `writes` false (a read-only chat) leaves out the ones that change something. */
 export async function agentToolset(agentId: string, { writes = true }: { writes?: boolean } = {}): Promise<ConnectionToolset> {
-  const rows = await db
-    .select({ grant: agentGrant, connection })
-    .from(agentGrant)
-    .innerJoin(connection, eq(connection.id, agentGrant.connectionId))
-    .where(and(eq(agentGrant.agentId, agentId), eq(connection.status, "ready")));
-  return toolsetOf(rows.map((r) => ({ allowed: r.grant.tools, connection: r.connection })), { writes });
+  const [rows, ruleRows] = await Promise.all([
+    db
+      .select({ grant: agentGrant, connection })
+      .from(agentGrant)
+      .innerJoin(connection, eq(connection.id, agentGrant.connectionId))
+      .where(and(eq(agentGrant.agentId, agentId), eq(connection.status, "ready"))),
+    db.select().from(agentToolRule).where(eq(agentToolRule.agentId, agentId)),
+  ]);
+  const rulesOf = (connectionId: string) =>
+    new Map(ruleRows.filter((r) => r.connectionId === connectionId).map((r) => [r.tool, { rule: r.rule, setBy: r.setBy }] as const));
+  return toolsetOf(rows.map((r) => ({ allowed: r.grant.tools, connection: r.connection, rules: rulesOf(r.connection.id) })), { writes });
 }
 
 /** The connection tools the workspace's AI chat may use; `writes` false (a read-only chat) leaves out the ones that change something. */
@@ -137,6 +154,8 @@ export async function runConnectionTool(input: {
   /** The AI chat called it (rather than an agent's run). */
   chat?: boolean;
   approvedBy: string | null;
+  /** An owner's "allow" rule sent it without asking: no one approved it, `setBy` set the rule. */
+  allowedByRule?: { setBy: string | null };
   room: number;
   signal?: AbortSignal;
 }): Promise<ToolCallOutcome> {
@@ -150,6 +169,7 @@ export async function runConnectionTool(input: {
     input: summary,
     outcome,
     ...(input.approvedBy ? { decidedBy: input.approvedBy } : {}),
+    ...(input.allowedByRule ? { rule: "allow" as const } : {}),
   });
   const audit = (outcome: "done" | "failed", error?: string) =>
     recordAudit({
@@ -157,7 +177,16 @@ export async function runConnectionTool(input: {
       actorId: input.actorId,
       action: "connection.tool_called",
       target: { type: "connection", id: conn.id, label: conn.name },
-      details: { tool: tool.name, kind: tool.kind, input: summary, approvedBy: input.approvedBy, outcome, ...(input.chat ? { via: "chat" } : {}), ...(error ? { error: redactText(error).slice(0, 200) } : {}) },
+      details: {
+        tool: tool.name,
+        kind: tool.kind,
+        input: summary,
+        approvedBy: input.approvedBy,
+        ...(input.allowedByRule ? { rule: "allow", ruleSetBy: input.allowedByRule.setBy } : {}),
+        outcome,
+        ...(input.chat ? { via: "chat" } : {}),
+        ...(error ? { error: redactText(error).slice(0, 200) } : {}),
+      },
     }).catch((e) => console.error("[connections] could not record a tool call", redactError(e)));
 
   let result: CallToolResult;

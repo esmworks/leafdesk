@@ -245,6 +245,7 @@
     "aiReminderTitle": "来自 {agent} 的提醒",
     "reportDone": "其定时运行已完成。",
     "reportFailed": "其定时运行失败。打开以查看原因。",
+    "reportFailedReason": "其定时运行未能完成任务：{reason}",
     "taskDone": "来自 {agent} 的任务：已完成。",
     "taskFailed": "来自 {agent} 的任务：未能完成。",
     "reportHidden": "其定时运行已完成，运行于一个你无法打开的数据库。",

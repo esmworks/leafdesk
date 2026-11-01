@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Forbundet med Leafdesk som {name}. Du er endnu ikke med i et arbejdsområde, jeg kan svare ud fra: bliv medlem af et, og vælg det så med /workspace.",
   "notLinked": "Denne chat er ikke forbundet med en Leafdesk-konto. Åbn Indstillinger → Forbundne apps → Telegram i Leafdesk, og vælg Forbind Telegram.",
   "badCode": "Det link er udløbet eller allerede brugt. Lav et nyt i Leafdesk: Indstillinger → Forbundne apps → Telegram.",
-  "help": "Stil et spørgsmål, eller send en talebesked, så svarer jeg ud fra dine Leafdesk-sider og henviser til dem.\n\n/new: start en ny samtale\n/workspace: vælg det arbejdsområde, jeg svarer ud fra\n/mode: vælg, hvad jeg må ændre\n/stop: stop svaret, der er ved at blive skrevet\n/notifications: slå dine notifikationer i denne chat til eller fra\n/unlink: afbryd forbindelsen til denne Telegram-konto",
+  "help": "Stil et spørgsmål, eller send en talebesked, så svarer jeg ud fra dine Leafdesk-sider og henviser til dem.\n\n/new: start en ny samtale\n/new summary: start en ny samtale med en agent ud fra et resumé af den forrige\n/workspace: vælg det arbejdsområde, jeg svarer ud fra\n/agent: chat med en af dine agenter\n/mode: vælg, hvad jeg må ændre\n/stop: stop svaret, der er ved at blive skrevet\n/notifications: slå dine notifikationer i denne chat til eller fra\n/unlink: afbryd forbindelsen til denne Telegram-konto",
   "commands": {
     "new": "Start en ny samtale",
     "workspace": "Vælg det arbejdsområde, jeg svarer ud fra",
+    "agent": "Chat med en af dine agenter",
     "mode": "Vælg, hvad jeg må ændre",
     "stop": "Stop svaret, der er ved at blive skrevet",
     "unlink": "Afbryd forbindelsen til denne Telegram-konto",
@@ -123,5 +124,80 @@
     "invalid": "Send et spørgsmål først.",
     "interrupted": "Serveren genstartede under svaret. Spørg igen.",
     "limitReached": "Dette arbejdsområde har nået sin månedlige grænse for AI-omkostninger, så spørgsmål afvises indtil næste måned."
+  },
+  "agent": {
+    "general": "Generel AI-chat",
+    "none": "Ingen agenter i {workspace} er delt med dig.",
+    "pick": "Dine beskeder går til {agent}. Vælg en anden agent eller den generelle AI-chat:",
+    "pickNone": "Dine beskeder går til den generelle AI-chat i {workspace}. Vælg en agent at chatte med:",
+    "set": "Dine beskeder går nu til {agent}. Samtalen fortsætter i din chat på dens side; /agent skifter tilbage.",
+    "setReadOnly": "Dine beskeder går nu til {agent}. Du kan kun bruge den: den svarer ud fra sider, I begge kan se, og ændrer intet.",
+    "generalSet": "Tilbage til den generelle AI-chat i {workspace}.",
+    "newConversation": "Ny samtale med agenten.",
+    "stopped": "Jeg holdt op med at følge svaret. {agent} gør det færdigt, og du finder det på dens side.",
+    "modeNote": "Tilstanden gælder den generelle AI-chat: en agent følger sine egne indstillinger.",
+    "waiting": "{agent} venter på din godkendelse til at bruge {connection}. Svar i beskeden med knapperne.",
+    "waitingOwner": "{agent} venter på, at en ejer af arbejdsområdet godkender et kald. Svaret kommer her, når det sker.",
+    "waitingApp": "{agent} venter på din godkendelse til at bruge {connection}. Svar på agentens side i Leafdesk; svaret kommer her, når du har gjort det.",
+    "readOnlyWorkspace": "{workspace} lader forbundne apps kun læse, så dets agenter modtager ikke beskeder herfra. /agent går tilbage til den generelle AI-chat.",
+    "states": {
+      "gone": "Den agent er ikke længere tilgængelig. Dine beskeder går til den generelle AI-chat igen.",
+      "noAccess": "Den agent er ikke længere delt med dig. Dine beskeder går til den generelle AI-chat igen.",
+      "guest": "Gæster chatter ikke med agenter. Dine beskeder går til den generelle AI-chat igen.",
+      "paused": "Denne agent er sat på pause. Bed en af dens ejere om at slå den til, eller vælg en anden med /agent.",
+      "aiOff": "AI er slået fra i dette arbejdsområde.",
+      "limitReached": "Denne agent har brugt sine tokens for måneden. Vælg en anden med /agent."
+    },
+    "refused": {
+      "tooLong": "En besked til en agent har højst {max} tegn.",
+      "busy": "Agenten svarer stadig på din sidste besked.",
+      "rateLimited": "For mange beskeder på én gang. Prøv igen om lidt.",
+      "invalid": "Send en besked først.",
+      "queueFull": "{max} beskeder venter allerede på agentens svar. Send denne, når den har svaret.",
+      "badFile": "Agenter tager kun tekstfiler (CSV, TSV, TXT, Markdown, JSON), op til {size} hver.",
+      "summaryFailed": "Agenten kunne ikke opsummere samtalen. Prøv igen, eller start forfra med /new."
+    },
+    "failed": {
+      "aiOff": "AI er slået fra i dette arbejdsområde.",
+      "agentDisabled": "Agenten blev sat på pause, før den svarede.",
+      "noAccess": "Agenten kan ikke længere åbne det, den havde brug for.",
+      "provider": "AI-udbyderen kunne ikke svare. Prøv igen senere.",
+      "timeout": "Agenten var for længe om at svare. Prøv igen.",
+      "tooManyAttempts": "Agenten kunne ikke svare efter flere forsøg.",
+      "approvalTimeout": "Ingen svarede på godkendelsen inden for et døgn, så intet blev sendt.",
+      "limitReached": "Agenten har brugt sine tokens for måneden.",
+      "costLimit": "Svaret nåede sin omkostningsgrænse.",
+      "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+      "error": "Noget gik galt, mens agenten svarede."
+    },
+    "routine": {
+      "done": "{agent} er færdig med »{task}«.",
+      "failed": "{agent} kunne ikke gøre »{task}« færdig.",
+      "reasons": {
+        "aiOff": "AI er slået fra i dette arbejdsområde.",
+        "agentDisabled": "Agenten blev sat på pause eller arkiveret.",
+        "noAccess": "Agenten, eller den der satte tidsplanen op, kan ikke længere åbne det, opgaven kræver.",
+        "rowGone": "Rækken blev slettet.",
+        "databaseGone": "Den database, den passer, blev slettet eller flyttet til papirkurven.",
+        "commentGone": "Kommentaren, der omtalte den, blev slettet, eller dens side blev flyttet til papirkurven.",
+        "provider": "AI-udbyderen svarede ikke.",
+        "timeout": "Kørslen tog for lang tid.",
+        "tooManyAttempts": "Den kunne ikke starte i tide: arbejdsområdets AI-kvote forblev opbrugt.",
+        "approvalTimeout": "Ingen svarede på dens kald inden for et døgn, så intet blev sendt.",
+        "connectionGone": "En forbindelse, som opgaven havde brug for, blev fjernet.",
+        "mailGone": "E-mailen er ikke længere i postkassen, eller postkassen er ikke længere åben for agenten.",
+        "limitReached": "Den havde brugt agentens månedlige tokengrænse.",
+        "costLimit": "Arbejdsområdet havde nået sin månedlige grænse for AI-omkostninger.",
+        "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+        "error": "Noget gik galt."
+      },
+      "email": "Den læste din e-mail, så dens rapport vises kun i Leafdesk."
+    },
+    "deferred": "{agent} holder et kald tilbage, til dens stille timer er slut. Svaret kommer her til den tid.",
+    "queued": "I kø: agenten læser den, når den har svaret.",
+    "nothingToSummarize": "Der er endnu ingen samtale med agenten at opsummere.",
+    "newSummary": "Ny samtale med agenten. Den starter fra dette resumé af den forrige:",
+    "fileFailed": "Jeg kunne ikke downloade filen. Prøv at sende den igen.",
+    "fileNotSent": "Jeg kunne ikke sende filen {name}. Den ligger ved svaret på agentens side."
   }
 }

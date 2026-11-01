@@ -1233,6 +1233,41 @@
       "when": 1793480398683,
       "tag": "0175_pending_change_private",
       "breakpoints": true
+    },
+    {
+      "idx": 176,
+      "version": "7",
+      "when": 1793487038972,
+      "tag": "0176_telegram_agent_chat",
+      "breakpoints": true
+    },
+    {
+      "idx": 177,
+      "version": "7",
+      "when": 1793490703912,
+      "tag": "0177_agent_approval_policy",
+      "breakpoints": true
+    },
+    {
+      "idx": 178,
+      "version": "7",
+      "when": 1793493905559,
+      "tag": "0178_agent_chat_queue_files",
+      "breakpoints": true
+    },
+    {
+      "idx": 179,
+      "version": "7",
+      "when": 1793496642080,
+      "tag": "0179_agent_run_quiet",
+      "breakpoints": true
+    },
+    {
+      "idx": 180,
+      "version": "7",
+      "when": 1793498590864,
+      "tag": "0180_agent_memory_corrections",
+      "breakpoints": true
     }
   ]
 }

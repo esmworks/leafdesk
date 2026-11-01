@@ -419,7 +419,7 @@ try {
   );
   const chatted = await chat.sendAgentChat(ids.ada, { workspaceId, agentId: daily.id, place: null, conversationId: null, message: "Update Acme from today's email." });
   await flushAgentRuns();
-  const [chatRun] = await db.select().from(agentRun).where(eq(agentRun.id, chatted.runId));
+  const [chatRun] = await db.select().from(agentRun).where(eq(agentRun.id, chatted.runId!));
   check(chatRun.status === "done", "the chat's run finishes", { status: chatRun.status, code: chatRun.code, error: chatRun.error });
   check(["read_mail", "update_row", "create_row"].every((t) => offered(fake.chats[0]).includes(t)), "a chat in the app is offered the mail tools and the row writes", offered(fake.chats[0]));
   const chatResults = toolResults(fake.chats.at(-1)!);
@@ -442,7 +442,7 @@ try {
     chat.sendAgentChat(ids.ada, { workspaceId, agentId: daily.id, place: null, conversationId: null, message: "Read my email." }),
   );
   await flushAgentRuns();
-  const [appRun] = await db.select().from(agentRun).where(eq(agentRun.id, viaApp.runId));
+  const [appRun] = await db.select().from(agentRun).where(eq(agentRun.id, viaApp.runId!));
   check(appRun.source.kind === "chat" && appRun.source.fromApp, "a chat from a connected app is marked so", appRun.source);
   check(!offered(fake.chats[0]).includes("read_mail"), "and gets no mail tools", offered(fake.chats[0]));
 

@@ -1344,6 +1344,7 @@
       "approvalTimeout": "Personne n’a répondu à son appel à temps : rien n’a été envoyé.",
       "limitReached": "L’agent a utilisé ses tokens du mois.",
       "costLimit": "L’espace de travail a atteint sa limite mensuelle de coût d’IA.",
+      "selfReported": "L’agent a indiqué qu’il n’a pas pu faire sa tâche.",
       "error": "Un problème est survenu."
     },
     "errors": {
@@ -1357,7 +1358,11 @@
       "gone": "Cet agent n’est plus disponible.",
       "paused": "Cet agent est en pause : il ne peut pas répondre.",
       "aiOff": "L’IA est désactivée dans cet espace de travail : l’agent ne peut pas répondre.",
-      "limitReached": "Cet agent a utilisé ses tokens du mois."
+      "limitReached": "Cet agent a utilisé ses tokens du mois.",
+      "queueFull": "{max} messages attendent déjà la réponse. Envoyez celui-ci une fois que l’agent aura répondu.",
+      "badFile": "Ce fichier ne peut pas être joint : uniquement des fichiers texte (CSV, TSV, TXT, Markdown, JSON), {max} au maximum par message.",
+      "nothingToRedo": "Il n’y a pas de réponse à refaire.",
+      "summaryFailed": "L’agent n’a pas pu résumer cette conversation. Réessayez."
     },
     "picker": {
       "search": "Rechercher des agents",
@@ -1386,10 +1391,41 @@
       "mailOn": "Nouvel e-mail · {place}"
     },
     "doneQuietly": "Terminé.",
+    "nothingNew": "Rien de nouveau",
     "side": {
       "label": "À propos de {name}",
       "paused": "En pause"
-    }
+    },
+    "deferred": "En attente jusqu’à la fin des heures calmes ({time})…",
+    "deferredApproval": "L’agent retient un appel jusqu’à la fin de ses heures calmes ({time}). Vous pouvez l’approuver dès maintenant.",
+    "queued": "En attente",
+    "queuedHint": "Partira vers {name} une fois sa réponse terminée",
+    "removeQueued": "Retirer de la file d’attente",
+    "queuedAlreadySent": "Ce message avait déjà été envoyé à l’agent.",
+    "newWithSummary": "Nouvelle conversation avec un résumé",
+    "summary": "Résumé d’une conversation précédente",
+    "edit": "Modifier",
+    "regenerate": "Régénérer",
+    "files": {
+      "attach": "Joindre des fichiers texte",
+      "remove": "Retirer {name}",
+      "download": "Télécharger {name}",
+      "tooMany": "{max} fichiers au maximum par message.",
+      "tooLarge": "{name} dépasse {size}.",
+      "type": "{name} ne peut pas être joint : uniquement des fichiers CSV, TSV, TXT, Markdown et JSON.",
+      "binary": "{name} n’est pas un fichier texte."
+    },
+    "search": {
+      "open": "Rechercher dans les conversations",
+      "placeholder": "Rechercher dans vos conversations avec {name}",
+      "hint": "Saisissez au moins {min} caractères.",
+      "empty": "Aucun résultat.",
+      "results": "Résultats de recherche",
+      "inThread": "Chat de l’agent",
+      "onPage": "Sur une page",
+      "onClosedPage": "Sur une page que vous ne pouvez pas ouvrir"
+    },
+    "computerFiles": "Peut utiliser des fichiers de votre ordinateur : {folders}"
   },
   "button": {
     "untitled": "Bouton",

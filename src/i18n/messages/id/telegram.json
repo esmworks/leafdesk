@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Tertaut ke Leafdesk sebagai {name}. Anda belum berada di ruang kerja yang dapat saya jadikan sumber jawaban: bergabunglah dengan satu, lalu pilih dengan /workspace.",
   "notLinked": "Obrolan ini belum tertaut ke akun Leafdesk. Di Leafdesk, buka Pengaturan → Aplikasi terhubung → Telegram dan pilih Tautkan Telegram.",
   "badCode": "Tautan itu sudah habis masa berlakunya atau sudah dipakai. Buat yang baru di Leafdesk: Pengaturan → Aplikasi terhubung → Telegram.",
-  "help": "Ajukan pertanyaan, atau kirim pesan suara, dan saya menjawab dari halaman Leafdesk Anda sambil mengutipnya.\n\n/new: mulai percakapan baru\n/workspace: pilih ruang kerja sumber jawaban saya\n/mode: pilih apa yang boleh saya ubah\n/stop: hentikan jawaban yang sedang ditulis\n/notifications: aktifkan atau nonaktifkan notifikasi Anda di obrolan ini\n/unlink: putuskan tautan akun Telegram ini",
+  "help": "Ajukan pertanyaan, atau kirim pesan suara, dan saya menjawab dari halaman Leafdesk Anda sambil mengutipnya.\n\n/new: mulai percakapan baru\n/new summary: mulai percakapan baru dengan agen dari ringkasan percakapan sebelumnya\n/workspace: pilih ruang kerja sumber jawaban saya\n/agent: mengobrol dengan salah satu agen Anda\n/mode: pilih apa yang boleh saya ubah\n/stop: hentikan jawaban yang sedang ditulis\n/notifications: aktifkan atau nonaktifkan notifikasi Anda di obrolan ini\n/unlink: putuskan tautan akun Telegram ini",
   "commands": {
     "new": "Mulai percakapan baru",
     "workspace": "Pilih ruang kerja sumber jawaban saya",
+    "agent": "Mengobrol dengan salah satu agen Anda",
     "mode": "Pilih apa yang boleh saya ubah",
     "stop": "Hentikan jawaban yang sedang ditulis",
     "unlink": "Putuskan tautan akun Telegram ini",
@@ -123,5 +124,80 @@
     "invalid": "Kirim pertanyaan terlebih dahulu.",
     "interrupted": "Server dimulai ulang saat menjawab. Tanyakan lagi.",
     "limitReached": "Ruang kerja ini mencapai batas biaya AI bulanan, sehingga pertanyaan ditolak hingga bulan depan."
+  },
+  "agent": {
+    "general": "Obrolan AI umum",
+    "none": "Tidak ada agen di {workspace} yang dibagikan dengan Anda.",
+    "pick": "Pesan Anda dikirim ke {agent}. Pilih agen lain, atau obrolan AI umum:",
+    "pickNone": "Pesan Anda dikirim ke obrolan AI umum {workspace}. Pilih agen untuk diajak mengobrol:",
+    "set": "Pesan Anda kini dikirim ke {agent}. Percakapan berlanjut di obrolan Anda pada halamannya; /agent untuk kembali.",
+    "setReadOnly": "Pesan Anda kini dikirim ke {agent}. Anda hanya dapat menggunakannya: ia menjawab dari halaman yang dapat dilihat kalian berdua dan tidak mengubah apa pun.",
+    "generalSet": "Kembali ke obrolan AI umum {workspace}.",
+    "newConversation": "Percakapan baru dengan agen.",
+    "stopped": "Saya berhenti mengikuti. {agent} menyelesaikan jawabannya, yang dapat Anda temukan di halamannya.",
+    "modeNote": "Mode berlaku untuk obrolan AI umum: agen mengikuti pengaturannya sendiri.",
+    "waiting": "{agent} menunggu persetujuan Anda untuk menggunakan {connection}. Jawab di pesan yang memiliki tombol.",
+    "waitingOwner": "{agent} menunggu pemilik ruang kerja menyetujui sebuah panggilan. Jawabannya akan datang ke sini setelah itu.",
+    "waitingApp": "{agent} menunggu persetujuanmu untuk memakai {connection}. Jawab di halaman agen di Leafdesk; jawabannya akan datang ke sini setelah itu.",
+    "readOnlyWorkspace": "{workspace} hanya mengizinkan aplikasi terhubung membaca, jadi agennya tidak menerima pesan dari sini. /agent kembali ke obrolan AI umum.",
+    "states": {
+      "gone": "Agen itu tidak tersedia lagi. Pesan Anda kembali dikirim ke obrolan AI umum.",
+      "noAccess": "Agen itu tidak lagi dibagikan dengan Anda. Pesan Anda kembali dikirim ke obrolan AI umum.",
+      "guest": "Tamu tidak mengobrol dengan agen. Pesan Anda kembali dikirim ke obrolan AI umum.",
+      "paused": "Agen ini dijeda. Minta salah satu pemiliknya menyalakannya, atau pilih yang lain dengan /agent.",
+      "aiOff": "AI dimatikan di ruang kerja ini.",
+      "limitReached": "Agen ini telah memakai token bulan ini. Pilih yang lain dengan /agent."
+    },
+    "refused": {
+      "tooLong": "Pesan ke agen paling banyak {max} karakter.",
+      "busy": "Agen masih menjawab pesan terakhir Anda.",
+      "rateLimited": "Terlalu banyak pesan sekaligus. Coba lagi sebentar lagi.",
+      "invalid": "Kirim pesan terlebih dahulu.",
+      "queueFull": "Sudah ada {max} pesan yang menunggu jawaban agen. Kirim pesan ini setelah agen menjawab.",
+      "badFile": "Agen hanya menerima file teks (CSV, TSV, TXT, Markdown, JSON), masing-masing hingga {size}.",
+      "summaryFailed": "Agen tidak dapat meringkas percakapan. Coba lagi, atau mulai dari awal dengan /new."
+    },
+    "failed": {
+      "aiOff": "AI dimatikan di ruang kerja ini.",
+      "agentDisabled": "Agen dijeda sebelum menjawab.",
+      "noAccess": "Agen tidak dapat lagi membuka yang dibutuhkannya.",
+      "provider": "Penyedia AI tidak dapat menjawab. Coba lagi nanti.",
+      "timeout": "Agen terlalu lama menjawab. Coba lagi.",
+      "tooManyAttempts": "Agen tidak dapat menjawab setelah beberapa kali mencoba.",
+      "approvalTimeout": "Tidak ada yang menjawab permintaan persetujuan dalam sehari, jadi tidak ada yang dikirim.",
+      "limitReached": "Agen telah memakai token bulan ini.",
+      "costLimit": "Jawaban mencapai batas biayanya.",
+      "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+      "error": "Terjadi masalah saat agen menjawab."
+    },
+    "routine": {
+      "done": "{agent} menyelesaikan “{task}”.",
+      "failed": "{agent} tidak dapat menyelesaikan “{task}”.",
+      "reasons": {
+        "aiOff": "AI dimatikan di ruang kerja ini.",
+        "agentDisabled": "Agen dijeda atau diarsipkan.",
+        "noAccess": "Agen, atau orang yang mengatur jadwalnya, tidak bisa lagi membuka apa yang dibutuhkan tugas itu.",
+        "rowGone": "Baris telah dihapus.",
+        "databaseGone": "Basis data yang diurusnya dihapus atau dipindahkan ke sampah.",
+        "commentGone": "Komentar yang menyebutnya dihapus, atau halamannya dipindahkan ke sampah.",
+        "provider": "Penyedia AI tidak menjawab.",
+        "timeout": "Eksekusi memakan waktu terlalu lama.",
+        "tooManyAttempts": "Agen tidak dapat mulai tepat waktu: jatah AI ruang kerja tetap habis.",
+        "approvalTimeout": "Tidak ada yang menjawab panggilannya dalam sehari, jadi tidak ada yang dikirim.",
+        "connectionGone": "Koneksi yang dibutuhkan tugas itu telah dihapus.",
+        "mailGone": "Email sudah tidak ada di kotak surat, atau kotak surat tidak lagi dibuka untuk agen.",
+        "limitReached": "Agen telah memakai batas token bulanannya.",
+        "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanannya.",
+        "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+        "error": "Terjadi kesalahan."
+      },
+      "email": "Agen ini membaca email Anda, jadi laporannya hanya tampil di Leafdesk."
+    },
+    "deferred": "{agent} menahan sebuah panggilan sampai jam tenangnya berakhir. Jawabannya akan datang ke sini saat itu.",
+    "queued": "Dalam antrean: agen akan membacanya setelah selesai menjawab.",
+    "nothingToSummarize": "Belum ada percakapan dengan agen untuk diringkas.",
+    "newSummary": "Percakapan baru dengan agen. Dimulai dari ringkasan percakapan sebelumnya ini:",
+    "fileFailed": "Saya tidak dapat mengunduh file itu. Coba kirim lagi.",
+    "fileNotSent": "Saya tidak dapat mengirim file {name}. File itu ada bersama jawaban di halaman agen."
   }
 }

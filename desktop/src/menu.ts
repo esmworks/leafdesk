@@ -1,6 +1,6 @@
 import { BrowserWindow, Menu, shell, type MenuItemConstructorOptions, type WebContents } from "electron";
 import { shortcutLabel } from "./global-shortcut.ts";
-import type { Strings } from "./strings.ts";
+import { fill, type Strings } from "./strings.ts";
 import { tabShortcuts } from "./tabs.ts";
 
 export const WEBSITE = "https://esmworks.github.io/leafdesk/";
@@ -21,7 +21,26 @@ type Actions = {
   backups?: { now: () => void; show: () => void; chooseFolder: () => void };
   /** The global shortcut to AI chat: the choices, the one picked (null: off), and whether another app has it. */
   shortcut: { choices: string[]; current: string | null; inUse: boolean; pick: (accelerator: string | null) => void };
+  /** Agents' access to files on this computer (agent-files.ts): on or off, the folders, whether the server is connected and why not. */
+  agentFiles: {
+    enabled: boolean;
+    folders: { label: string; root: string }[];
+    connected: boolean;
+    problem?: keyof typeof PROBLEMS;
+    toggle: () => void;
+    add: () => void;
+    remove: (root: string) => void;
+    showLog: () => void;
+  };
 };
+
+const PROBLEMS = { signedOut: "agentFilesProblemSignedOut", certificate: "agentFilesProblemCertificate", unreachable: "agentFilesProblemUnreachable" } as const;
+
+/** Whether agents' file access is connected, or why not when that is known. */
+function agentFilesStatus(t: Strings, connected: boolean, problem: keyof typeof PROBLEMS | undefined) {
+  if (connected) return t.agentFilesConnected;
+  return problem ? fill(t.agentFilesNotConnectedBecause, { reason: t[PROBLEMS[problem]] }) : t.agentFilesNotConnected;
+}
 
 /** The application menu, in the app's language; macOS gets its own app menu first. */
 export function buildMenu(t: Strings, actions: Actions) {
@@ -76,6 +95,34 @@ export function buildMenu(t: Strings, actions: Actions) {
     ...(shortcut.inUse ? [{ type: "separator" as const }, { label: t.shortcutInUse, enabled: false }] : []),
   ];
 
+  const { agentFiles } = actions;
+  const agentFilesItem: MenuItemConstructorOptions = {
+    label: t.menuAgentFiles,
+    submenu: [
+      { label: t.agentFilesOn, type: "checkbox", checked: agentFiles.enabled, click: () => agentFiles.toggle() },
+      ...(agentFiles.enabled && agentFiles.folders.length
+        ? [{ label: agentFilesStatus(t, agentFiles.connected, agentFiles.problem), enabled: false }]
+        : []),
+      { type: "separator" },
+      ...(agentFiles.folders.length
+        ? agentFiles.folders.map((folder): MenuItemConstructorOptions => ({ label: folder.root, enabled: false }))
+        : [{ label: t.agentFilesNone, enabled: false }]),
+      { label: t.agentFilesAdd, click: () => agentFiles.add() },
+      ...(agentFiles.folders.length
+        ? [
+            {
+              label: t.agentFilesRemoveMenu,
+              submenu: agentFiles.folders.map(
+                (folder): MenuItemConstructorOptions => ({ label: fill(t.agentFilesRemove, { folder: folder.label }), click: () => agentFiles.remove(folder.root) }),
+              ),
+            },
+          ]
+        : []),
+      { type: "separator" },
+      { label: t.agentFilesShowLog, click: () => agentFiles.showLog() },
+    ],
+  };
+
   const template: MenuItemConstructorOptions[] = [
     ...(mac
       ? [
@@ -86,6 +133,7 @@ export function buildMenu(t: Strings, actions: Actions) {
               { type: "separator" },
               changeServer,
               forgetItem,
+              agentFilesItem,
               { type: "separator" },
               { role: "services", label: t.menuServices },
               { type: "separator" },
@@ -102,7 +150,7 @@ export function buildMenu(t: Strings, actions: Actions) {
       label: t.menuFile,
       submenu: mac
         ? [...tabItems, ...backupItems, ...closeItems]
-        : [...tabItems, changeServer, forgetItem, { type: "separator" }, ...backupItems, ...closeItems, { role: "quit", label: t.menuQuit }],
+        : [...tabItems, changeServer, forgetItem, agentFilesItem, { type: "separator" }, ...backupItems, ...closeItems, { role: "quit", label: t.menuQuit }],
     },
     {
       label: t.menuEdit,

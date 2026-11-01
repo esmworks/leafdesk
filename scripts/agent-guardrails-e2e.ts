@@ -1,6 +1,7 @@
 /**
  * End-to-end check of agents' guardrails against the database: who may create agents when owners
- * choose people and groups (agent_creator); the notices near and at an agent's monthly limit and the
+ * choose people and groups (agent_creator); quiet hours and the daily change limit, which only
+ * owners set or restore; the notices near and at an agent's monthly limit and the
  * workspace's cost limit, to owners and the agent's creator, once a month (ai_limit); a new agent
  * spending fast turned off mid-run; and asking for a higher limit (agent_limit_request), answered
  * from the owners' inbox. Creates its own users and workspace and deletes them afterwards.
@@ -151,9 +152,40 @@ try {
   const helper = await agents.createAgent(ids.maker, workspaceId, { name: "Helper", instructions: "Answer briefly." });
   check(helper.access === "full", "the chosen member's agent is theirs at full access");
   await agents.updateAgent(ids.owner, helper.id, { monthlyTokenLimit: 1000 });
+
+  const agentRow = async (id: string) => (await db.select().from(workspaceAgent).where(eq(workspaceAgent.id, id)))[0];
+
+  // ── Quiet hours and the daily change limit: owners only, as the token limit ─────────────────
+  const quiet ={ start: "22:00", end: "07:00", timeZone: "Europe/Istanbul" };
+  check((await refusal(agents.updateAgent(ids.maker, helper.id, { quietHours: quiet }))) === "ownersOnly", "someone who can edit the agent but isn't an owner can't set its quiet hours");
+  check((await refusal(agents.updateAgent(ids.maker, helper.id, { dailyChangeLimit: 10 }))) === "ownersOnly", "…nor its daily change limit");
+  check(
+    (await refusal(agents.createAgent(ids.maker, workspaceId, { name: "Night owl", quietHours: quiet, dailyChangeLimit: 5 }))) === "ownersOnly",
+    "…nor give a new agent them",
+  );
+  await agents.updateAgent(ids.owner, helper.id, { quietHours: quiet, dailyChangeLimit: 10 });
+  const guarded = await agentRow(helper.id);
+  check(guarded.dailyChangeLimit === 10 && guarded.quietHours?.start === "22:00", "an owner sets both");
+  // The same values sent back, as the form does, are no change; anything else is refused.
+  await agents.updateAgent(ids.maker, helper.id, { quietHours: { timeZone: "Europe/Istanbul", end: "07:00", start: "22:00" }, dailyChangeLimit: 10, instructions: "Answer briefly, please." });
+  check((await agentRow(helper.id)).instructions === "Answer briefly, please.", "the editor still saves the rest with them as they were");
+  check((await refusal(agents.updateAgent(ids.maker, helper.id, { quietHours: null }))) === "ownersOnly", "…but can't take them off");
+  check((await refusal(agents.updateAgent(ids.maker, helper.id, { dailyChangeLimit: null }))) === "ownersOnly", "…either of them");
+  // A version from before them, restored by the editor, leaves them; by an owner, takes them back.
+  const before = (await versions.listAgentVersions(ids.owner, helper.id)).find((v) => v.kind === "created")!;
+  const editorRestore = await versions.restoreAgentVersion(ids.maker, helper.id, before.number);
+  const afterEditor = await agentRow(helper.id);
+  check(
+    afterEditor.dailyChangeLimit === 10 && afterEditor.quietHours !== null && ["quiet_hours", "daily_change_limit"].every((name) => editorRestore.skipped.some((s) => s.part === "setting" && s.name === name && s.reason === "noAccess")),
+    "an editor's restore of an older version leaves them, saying so",
+    editorRestore.skipped,
+  );
+  await versions.restoreAgentVersion(ids.owner, helper.id, before.number);
+  const afterOwner = await agentRow(helper.id);
+  check(afterOwner.dailyChangeLimit === null && afterOwner.quietHours === null, "an owner's restore brings them back as they were", afterOwner);
+  await agents.updateAgent(ids.owner, helper.id, { monthlyTokenLimit: 1000, instructions: "Answer briefly." });
   // Older than a day: not new any more, so spending is only measured against its limit.
   await db.execute(sql`update workspace_agent set created_at = now() - interval '3 days' where id = ${helper.id}`);
-  const agentRow = async (id: string) => (await db.select().from(workspaceAgent).where(eq(workspaceAgent.id, id)))[0];
   check((await notices.noticeAgentSpending(await agentRow(helper.id), 700)) === null && (await limitItems(ids.owner)).length === 0, "below 80% nobody hears");
   await notices.noticeAgentSpending(await agentRow(helper.id), 850);
   const nearOwner = await limitItems(ids.owner);

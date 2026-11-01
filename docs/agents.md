@@ -42,8 +42,16 @@ access is the bound, not the answerer's. A run takes model turns until it answer
 a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 (`AI_WORKSPACE_RATE_LIMIT`): a run waits for its turn rather than failing. Each run is kept for
 30 days after it finishes, with what the agent did step by step, its final answer, the tokens it
-used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `commentGone`, `provider`, `timeout`,
-`tooManyAttempts`, `limitReached` or `error`).
+used, and why it failed: `aiOff` (the workspace turned AI off), `agentDisabled` (the agent was
+paused or archived), `noAccess` (it can't open what it works on), `rowGone`, `databaseGone`,
+`commentGone` (its row, database or the comment that mentioned it is gone), `provider` (the model
+failed), `timeout` (the run took too long), `tooManyAttempts` (it was taken up too often without finishing: it couldn't start in time, the
+workspace's AI allowance staying used up),
+`approvalTimeout` (no one answered a call that waited for approval), `connectionGone` (the
+connection or tool a waiting call needed was taken away), `mailGone` (the email that started it is
+gone, or its mailbox no longer open to the agent), `limitReached` (the agent used its monthly
+tokens), `costLimit` (the workspace's AI reached its monthly cost limit), `selfReported` (a
+schedule's run said it couldn't do its task, below) or `error` (anything else).
 
 **Changes for review.** An agent's *Changes to rows* is *Write them directly* (the default) or
 *Propose them for review*: then the rows its runs would add and the values or titles they would
@@ -69,6 +77,23 @@ run shows who asked, from where and the task; read how it went with
 `GET /api/v1/agents/{id}/runs/{run_id}` or `list_agent_runs`. Asking is refused, not queued, while
 the agent is paused or archived, AI is off for the workspace, the agent used its monthly token
 limit, or 5 runs asked of it still wait. Each request is recorded in the audit log.
+
+**Schedules.** Anyone who can edit an agent gives it up to 10 schedules (its settings, the REST API
+or `set_agent_schedule`): a repeat rule in a time zone, a task and, if they like, a database it looks
+after, whose rows it may then change and comment on (at most 30 changes a run); on none it only reads.
+Each run is held to the access of whoever set the schedule last, and tells them how it went: its
+report comes to their inbox, with its first paragraph (200 characters, Markdown dropped) under the
+title there, though never in a push or Telegram notification, and into their chat with the agent.
+A run that checked and found nothing new, and changed nothing, ends itself with `finish_run`
+(`nothing_new`, a reason if it likes): nothing comes to the inbox, push or Telegram, the chat shows it
+as one muted line, *Nothing new* with the reason, its steps folded under it, and its *Runs* tab says
+*Nothing new*. A run that changed something can't end that way, nor one with a call that wasn't
+made (refused, declined by a rule or a person, never answered, past the daily limit) or a task it
+gave another agent with `assign_agent`: the agent is told to report that instead. One that can't do its task at all ends with `finish_run` `failed` and a reason of up to 300
+characters: it fails as `selfReported`, and the reason shows in its report, its run and the chat.
+`list_agent_runs` and the REST API mark a quiet run with `quiet: true`; the reason is its `answer`.
+When the person's chat with the [Telegram bot](ai.md#ai-chat-from-telegram) is pointed at the agent,
+each run that isn't quiet sends its summary there too.
 
 **Its model.** Where the server has a fast model (`AI_FAST_MODEL`, see [AI features](ai.md#ai-features)),
 the agent's settings let an owner choose which model its runs use, both named: the main model
@@ -119,8 +144,8 @@ person the run works for (who set its schedule, asked for the run, chats with it
 change that started it), connected under Account → Email and calendar while
 [email on rows](email-on-rows.md#email-on-rows) is on. A run for no one, or for someone without a
 mailbox there, doesn't get it. A run sends one message, in plain text; one with placeholders left to
-fill in is refused. It is put in the mailbox's sent folder, and the run's steps show its subject and
-recipients; nothing is retried, so a message the mail server refuses shows as failed. Since the run
+fill in is refused. It counts toward the agent's daily changes, not the run's own 5. It is put
+in the mailbox's sent folder, and the run's steps show its subject and recipients; nothing is retried, so a message the mail server refuses shows as failed. Since the run
 names no address, what it reads (a form answer, a synced row) can't send mail anywhere else. This is
 how a daily report reaches a fixed address; an email to a row's own contact is a draft instead
 (above).
@@ -146,7 +171,7 @@ conversation starts free.
 
 **Changes from your email wait for you.** What email says can't change your pages by itself, but
 the agent can propose rows and changes to rows from it (`create_row`, `update_row`, each with its
-reason, up to 60 in a run) in databases it may edit and you may edit too. In your chat with an
+reason, up to 60 in a run, each counted toward its daily change limit) in databases it may edit and you may edit too. In your chat with an
 agent that may change rows, a row write after email was read is such a proposal; a schedule you
 set that looks after no database may propose from its first step, so a daily run can read the
 day's email and leave its changes for you. Since a proposal's values and reason come from your mail,
@@ -240,10 +265,76 @@ comments of yours that mention it, each marked with what started it, its steps f
 waits on for an owner to approve in place. The chat asks for them again every 30 seconds, every 3
 while one goes on. Those finished since the conversation's earliest message that goes to the model
 (at most 5) go with each new message, so you can ask about what it did. A message
-has at most 4000 characters; the agent answers one at a time per conversation, within the
-workspace's AI allowance. A paused or archived agent, AI turned off, or an agent past its monthly
-limit leaves the chat saying so. Exported Markdown and HTML show the block as a line naming the
-agent, never what was said.
+has at most 4000 characters, within the workspace's AI allowance. A paused or archived agent, AI
+turned off, or an agent past its monthly limit leaves the chat saying so.
+
+- **Messages while it answers.** The agent answers one turn at a time per conversation; a message
+  written meanwhile waits under the answer being written, marked *Queued* (up to 5, each removable
+  until it goes). When the answer ends, however it ends, the waiting messages go together as its
+  next turn: one run reading them in order, each kept in the conversation as written. MCP's
+  `chat_with_agent` answers `status: queued` for such a message, and `get_agent_chat` lists those
+  waiting.
+- **Files.** The paperclip attaches up to 3 text files to a message (CSV, TSV, TXT, Markdown, JSON,
+  100 KB each). Their text goes to that run only, as data from outside rather than instructions;
+  the conversation keeps their names and sizes. The agent can attach files to its answer too (CSV,
+  TSV, Markdown, text or JSON, up to 200 KB, 5 an answer): stored with the workspace's files, shown
+  under the answer as downloads that only the person chatting can open, and counted as one of the
+  run's changes (and the agent's daily ones), with no approval. A run that read email attaches none.
+- **New conversation with a summary.** The scroll button sums up the conversation in one call to
+  the agent's model (counted in its usage and monthly limit, not as a run) and starts a new one
+  that begins with that summary, which later answers read as what was said before. A summary of
+  turns that read email is held as one that read it.
+- **Search.** The magnifier searches the person's own conversations with the agent, on its page and
+  in every block, for words in what was said; a hit opens its conversation at the message (a block's
+  on a page they can open).
+- **Regenerate and Edit.** Once the last answer has ended and nothing waits, *Regenerate* under it
+  asks again, and *Edit* on the last question changes it and asks again. The answer it replaces
+  leaves the conversation and what the model reads; its run stays in the *Runs* tab. Exported Markdown and HTML show the block as a line naming the
+agent, never what was said. The same chat goes on from Telegram after `/agent` (see
+[AI chat from Telegram](ai.md#ai-chat-from-telegram)).
+
+**Files on your computer.** In the [desktop app](desktop-and-offline.md#desktop-app), *Agent File
+Access* in the Leafdesk menu (File on Windows and Linux) lets agents in your own chats use folders
+you pick on that computer, for the server its windows show (each server has its own setting, so
+after switching servers it is off there until you turn it on). It is off until you turn it on and
+add a folder; turning it off ends it at once and closes a question it is asking as a no, and
+quitting the app or signing out ends it too. The disk itself, your home folder (or a folder
+holding it) and the system's settings for apps (`~/Library` on macOS, `AppData` on Windows) can't
+be added. While it is on, the app keeps a connection to the server (signed in as you with the
+app's own session, held to the workspace's sign-in policies like the app's window, and closed when
+that session ends) and tells the server only the folders' names. Each message you send an agent
+from that app's window (its page, its dialog or a block) while the app is connected gets
+`computer_list_folder` and `computer_read_file` (UTF-8 text files of up to 512 KB), and, in the
+chat of someone who can edit the agent, `computer_write_file` (up to 512 KB, making missing
+folders) and `computer_trash_file`; a message sent from a browser, or from another computer signed
+in as you, doesn't. Each write and move to the trash asks you on that computer, every time, with
+the agent's name, the workspace, the file and its size, and for a write its first and last lines;
+no answer within 2 minutes is a no, and nothing is ever deleted for good. They count as the run's
+changes (5 a message, and the agent's daily limit), and a run that read email makes none. Nothing
+else gets these tools: not other people's chats, schedules, mentions, requests or rows, and not
+chats from Telegram or other connected apps. The app checks every path itself: it stays inside its
+folder (`..` is refused, and a read follows only links that end inside it), a write or a move to
+the trash follows no link at all and never touches a hidden (`.`) name or a place programs start
+from at sign-in, places that hold keys, passwords, histories or settings (`.ssh`, `.git`, `.env`
+files, keychains, key files, shell histories, `.npmrc`, `.config/gh`, `.kube`, Terraform state …)
+are never listed, read or written, and it runs no commands. What a file holds reaches the model as
+data from outside, never instructions, and counts toward what the run read from outside, so a
+correction later in the same run is only proposed.
+
+What was read on your computer stays in the workspace: once a run has listed a folder or read a
+file there, that run and every later one in the same conversation refuse connection tools (reads
+too), the web, other agents (`ask_agent`, `assign_agent`) and `send_email`, the step showing the
+call as held back; pages, rows and the computer tools still work.
+Start a new conversation for those. Such turns are also left out of what Telegram or another
+connected app is told about the conversation. The run's steps show each call with its path (and a
+write's size) and whether it was done, declined or unanswered, never what a file holds; writes and
+moves to the trash are in the audit log (`agent.local_file`), and the app keeps its own log of
+every call (*Show Agent File Log*). The chat says which folders it can use while the app is
+connected; the menu says when it isn't connected and why, when that is known. This connection
+trusts only certificates from the public certificate authorities built into the app: a server
+with a self-signed certificate (even one trusted on the app's certificate screen) or one from an
+internal certificate authority can't take it, even though its windows work. Use a certificate
+from a public certificate authority for it.
 
 **Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
 for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the
@@ -254,6 +345,22 @@ output together): once the month's tokens reach it, a run under way stops at its
 (`limitReached`, counting what it used) and no run starts until the next month or until the limit
 is raised. Several runs of one agent under way at once can each take one more turn past it. The
 limit counts tokens rather than money because not every provider reports a price.
+
+**Quiet hours and a daily change limit.** Workspace owners can give an agent, in its settings,
+*quiet hours* (a start and an end time, which may cross midnight, in a time zone) and a number of
+*changes per day*. As with the monthly token limit, only owners set them: others who can edit the
+agent see them in its settings without changing them, and a version they restore leaves them as
+they are. In quiet hours a connection call that an owner's rule always allows
+(*Rules* under [Connections](connections.md); a rule doesn't hold on a run that read others' words
+or was given a file) isn't sent: the run waits, asking and telling
+no one, and goes on when they end; if the rule is gone by then, the call waits for an owner's
+approval as usual. An owner can approve the held call before that, from the agent's runs or its
+chat. Calls that need approval anyway ask at once, quiet hours or not. The daily limit counts
+every change a run makes (rows, pages, comments, merges, proposals, email drafts, the email it sends
+to its recipients, files it attaches, connection calls that change something), on the day in the quiet hours' time zone (UTC without them); past it a
+change is refused, the agent hears why and its run's steps show it. A change that fails is given
+back, except a connection call, which may have been done. A run's own limit (5 changes, 30 on a
+schedule's database, not counting the email to its recipients) still applies. Over MCP and the REST API both settings are set in the app.
 
 **Limit notices.** When an agent's month passes 80% of its limit, and again when it reaches it, the
 workspace's owners and the person who created the agent (while they are still a member) get an
@@ -304,6 +411,23 @@ a run proposes its new text instead of a second note: the *Memory* tab shows the
 change, crossed out, above the new text, and *Keep* changes that note in place. A schedule's run
 also sees the proposals of the same schedule's earlier runs that still wait, and changes one
 rather than proposing it again; the newer text takes its place.
+
+**Corrections.** A chat is the one run where someone does talk to the agent. When you tell it there
+that it got something wrong, or that it must always or never do something ("No, invoices go to
+Finance/2026", "Always answer in Turkish"), it notes that as a *correction* (`remember` with
+`kind: "correction"`). In the chat of someone who can edit the agent (in the agent's page, a chat
+block or from Telegram) a correction is kept at once, as said by them, no owner asked: the chat
+shows a step *Noted as a correction* with *Undo*, which deletes the note, or puts back what the kept
+note it changed said before (not once someone changed the note since). That holds only while the
+run has read nothing but your words and the workspace: once it read email, a web page or search,
+what a connection's tool or another agent answered, or a file attached to your message, or when
+another connected app (MCP, the REST API) sent the message, a correction is only proposed, as it
+is in every other run (other people's chats can't keep notes at all). One run keeps at most three
+corrections at once; past that, or with the memory full, the next is proposed. Corrections go with
+every later run marked as such, before the agent's other notes. The *Memory* tab lists them first,
+labelled *Correction · from <person>'s chat*, and labels proposed corrections too; a kept
+correction puts nothing in the owners' inboxes, and the audit log counts it, and its Undo, as a
+change to the agent. `get_agent` marks them with `kind: "correction"` and `said_by`.
 
 **Where a schedule's run left off.** A run of a schedule often can't finish everything (a
 connected service lets it read only so much at a time). It leaves where it stopped with
@@ -439,8 +563,9 @@ monthly limit, `row_changes`), asking for a run, and reading runs and usage (see
 **Copying an agent.** *Duplicate* in an agent's menu in Settings → Agents (archived ones too) makes
 a new agent with its setup, to change for another team or job: its name numbered like a page's
 copy ("Triage (1)"), icon, description, instructions, model, web access, how it changes rows,
-monthly token limit, whether it is paused (an archived agent's copy runs), its skills, the agents
-it can ask and its connections' tools. It takes nothing of what the agent reaches or who uses it:
+monthly token limit, quiet hours, daily change limit, whether it is paused (an archived agent's
+copy runs), its skills, the agents it can ask and its connections' tools with their rules (set
+again in the copier's name). It takes nothing of what the agent reaches or who uses it:
 no pages are shared with the copy, it is shared as a new agent is (everyone can view and interact,
 its maker has full access), and it starts with no schedules, connection triggers, memory, runs,
 chats, history or usage. Copying takes the right to create agents and edit access to the agent.

@@ -1344,6 +1344,7 @@
       "approvalTimeout": "没有人及时答复它的调用请求，因此没有发送任何内容。",
       "limitReached": "该智能体本月的令牌已用完。",
       "costLimit": "工作区已达到每月 AI 费用上限。",
+      "selfReported": "代理表示它未能完成任务。",
       "error": "出了点问题。"
     },
     "errors": {
@@ -1357,7 +1358,11 @@
       "gone": "此智能体已不可用。",
       "paused": "此智能体已暂停，因此无法回答。",
       "aiOff": "此工作区已关闭 AI，因此智能体无法回答。",
-      "limitReached": "此智能体本月的令牌已用完。"
+      "limitReached": "此智能体本月的令牌已用完。",
+      "queueFull": "已有 {max} 条消息在等待回答。请在代理回答后再发送这条。",
+      "badFile": "无法附加此文件：仅支持文本文件（CSV、TSV、TXT、Markdown、JSON），每条消息最多 {max} 个。",
+      "nothingToRedo": "没有可重新生成的回答。",
+      "summaryFailed": "代理无法总结这段对话。请重试。"
     },
     "picker": {
       "search": "搜索智能体",
@@ -1386,10 +1391,41 @@
       "mailOn": "新邮件 · {place}"
     },
     "doneQuietly": "已完成。",
+    "nothingNew": "没有新情况",
     "side": {
       "label": "关于 {name}",
       "paused": "已暂停"
-    }
+    },
+    "deferred": "暂缓至安静时段结束（{time}）…",
+    "deferredApproval": "智能体将一个调用暂缓至安静时段结束（{time}）。你现在即可批准。",
+    "queued": "排队中",
+    "queuedHint": "{name} 回答完后发给它",
+    "removeQueued": "移出队列",
+    "queuedAlreadySent": "这条消息已经发送给代理了。",
+    "newWithSummary": "带摘要的新对话",
+    "summary": "之前对话的摘要",
+    "edit": "编辑",
+    "regenerate": "重新生成",
+    "files": {
+      "attach": "附加文本文件",
+      "remove": "移除 {name}",
+      "download": "下载 {name}",
+      "tooMany": "每条消息最多 {max} 个文件。",
+      "tooLarge": "{name} 超过 {size}。",
+      "type": "无法附加 {name}：仅支持 CSV、TSV、TXT、Markdown 和 JSON 文件。",
+      "binary": "{name} 不是文本文件。"
+    },
+    "search": {
+      "open": "搜索对话",
+      "placeholder": "搜索你与 {name} 的对话",
+      "hint": "请至少输入 {min} 个字符。",
+      "empty": "未找到任何内容。",
+      "results": "搜索结果",
+      "inThread": "代理的聊天",
+      "onPage": "在某个页面中",
+      "onClosedPage": "在你无法打开的页面中"
+    },
+    "computerFiles": "可以使用你电脑上的文件：{folders}"
   },
   "button": {
     "untitled": "按钮",

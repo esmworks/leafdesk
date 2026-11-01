@@ -469,7 +469,18 @@
       "rowChangesDirect": "Skriv dem direkte",
       "rowChangesReview": "Foreslå dem til gjennomgang",
       "rowChangesDirectHelp": "Rader den legger til og verdier den endrer, lagres med en gang, i dens navn.",
-      "rowChangesReviewHelp": "Rader den vil legge til og verdier den vil endre, venter under Til gjennomgang til noen som kan redigere dem, godkjenner eller avviser hver enkelt."
+      "rowChangesReviewHelp": "Rader den vil legge til og verdier den vil endre, venter under Til gjennomgang til noen som kan redigere dem, godkjenner eller avviser hver enkelt.",
+      "quietHours": "Stille timer",
+      "quietHoursHelp": "Kall som en eiers regel alltid tillater, venter til de stille timene er over, uten å varsle noen. Kall som trenger godkjenning, spør fortsatt som vanlig.",
+      "quietFrom": "Fra",
+      "quietTo": "Til",
+      "quietTimeZone": "Tidssone",
+      "quietHoursInvalid": "Velg to ulike klokkeslett og en tidssone.",
+      "dailyChangeLimit": "Endringer per dag",
+      "dailyChangeLimitPlaceholder": "Ingen grense",
+      "dailyChangeLimitHelp": "Det høyeste antallet endringer den gjør på en dag: rader, sider, kommentarer, e-poster den sender og tilkoblingskall som endrer noe. Flere avvises. Dagen følger tidssonen til de stille timene, ellers UTC.",
+      "dailyChangeLimitInvalid": "Skriv inn et heltall fra 1 til {max}.",
+      "guardrailsOwnersOnly": "Bare eiere av arbeidsområdet angir stille timer og den daglige endringsgrensen."
     },
     "describe": {
       "button": "Beskriv en agent",
@@ -547,7 +558,7 @@
       "libraryNote": "Ferdigheter lages i <link>ferdighetsbiblioteket</link>."
     },
     "memory": {
-      "description": "Notater som følger med hver kjøring av denne agenten, så den slipper å lære det samme på nytt. Kjøringene foreslår notater; ingen følger med en kjøring før en eier beholder det.",
+      "description": "Notater som følger med hver kjøring av denne agenten, så den slipper å lære det samme på nytt. Kjøringene foreslår notater; ingen følger med en kjøring før en eier beholder det. Rettelser som noen som kan redigere den, gir i sin egen chat med den, beholdes med en gang.",
       "rule": "En kjøring leser rader, sider og hendelser som andre personer og tjenester har skrevet, og et notat kan bære ordene deres videre inn i alle senere kjøringer. Les hvert forslag før du beholder det. Beholdte notater følger med hver kjøring, uansett hvem som starter den.",
       "off": "KI-minne er slått av i dette arbeidsområdet: kjøringer har ingen notater med seg og foreslår ingen før en eier slår det på under <link>Innstillinger → Generelt</link>.",
       "archived": "Gjenopprett agenten for å endre minnet.",
@@ -581,7 +592,9 @@
       "forgetAll": "Glem alt",
       "confirmForgetAll": "Skal {name} glemme alt den husker?",
       "waiting": "{count, plural, one {# notat å se gjennom} other {# notater å se gjennom}}",
-      "toReview": "{count, plural, one {# notat å se gjennom} other {# notater å se gjennom}}"
+      "toReview": "{count, plural, one {# notat å se gjennom} other {# notater å se gjennom}}",
+      "correction": "Rettelse",
+      "correctionFrom": "Rettelse · fra chatten med {name}"
     },
     "runs": {
       "description": "De siste kjøringene, som lagres i {days} dager.",
@@ -592,7 +605,9 @@
         "running": "Kjører",
         "done": "Ferdig",
         "failed": "Mislyktes",
-        "awaiting_approval": "Venter på godkjenning"
+        "awaiting_approval": "Venter på godkjenning",
+        "deferred": "Venter på stille timer",
+        "quiet": "Ikke noe nytt"
       },
       "rowHidden": "En rad du ikke kan åpne",
       "took": "tok {time}",
@@ -610,6 +625,7 @@
       "hideDetails": "Skjul hva den gjorde",
       "noSteps": "Den søkte ikke, leste ikke og endret ingenting.",
       "answer": "Det siste den skrev",
+      "givenReason": "Begrunnelsen den ga",
       "comment": "Kommenterte:",
       "commentFailed": "Kunne ikke kommentere:",
       "commentHidden": "Kommenterte på en rad du ikke kan åpne",
@@ -633,6 +649,7 @@
         "connectionGone": "Tilkoblingen som startet den, ble fjernet.",
         "limitReached": "Den hadde brukt opp agentens månedlige tokengrense.",
         "costLimit": "Arbeidsområdet hadde nådd den månedlige kostnadsgrensen for KI.",
+        "selfReported": "Agenten sa at den ikke kunne gjøre oppgaven sin.",
         "mailGone": "E-posten er ikke lenger i postkassen, eller postkassen er ikke lenger åpen for agenten."
       },
       "fromConnection": "{connection} · {event}",
@@ -646,6 +663,17 @@
         "searchFailed": "Kunne ikke søke på nettet",
         "approved": "godkjent"
       },
+      "computer": {
+        "list": "Viste en mappe på datamaskinen",
+        "read": "Leste en fil på datamaskinen",
+        "write": "Skrev en fil på datamaskinen",
+        "trash": "Flyttet noe på datamaskinen til papirkurven",
+        "declined": "avslått; ingenting ble gjort",
+        "expired": "ikke besvart i tide; ingenting ble gjort",
+        "failed": "kunne ikke utføres",
+        "afterMail": "holdt tilbake etter lesing av e-post; ingenting ble gjort",
+        "limited": "over agentens daglige grense for endringer; ingenting ble gjort"
+      },
       "tool": {
         "done": "Kalte «{tool}» på {connection}",
         "failed": "Kunne ikke kalle «{tool}» på {connection}",
@@ -654,9 +682,14 @@
         "expired": "Kallet til «{tool}» på {connection} fikk tidsavbrudd; ingenting ble sendt",
         "refused": "Kallet til «{tool}» på {connection} ble avvist, siden ingen kunne godkjenne det; ingenting ble sendt",
         "afterMail": "Kallet av «{tool}» på {connection} ble holdt tilbake: etter å ha lest e-post leser en kjøring bare sider og skriver utkast; ingenting ble sendt",
+        "afterLocalRead": "Kallet av «{tool}» på {connection} ble holdt tilbake: etter å ha lest filer på datamaskinen går ingenting ut; ingenting ble sendt",
+        "afterLocalReadOut": "Kallet til «{tool}» ble holdt tilbake: etter at filer på datamaskinen er lest, går ingenting ut; ingenting ble sendt",
         "approved": "godkjent",
         "answered": "besvart av en eier",
-        "note": "Merknad: {note}"
+        "note": "Merknad: {note}",
+        "denied": "Kallet på «{tool}» på {connection} ble avvist av en eiers regel; ingenting ble sendt",
+        "limited": "Kallet på «{tool}» på {connection} ble avvist: agenten har gjort så mange endringer som den får på en dag; ingenting ble gjort",
+        "allowedByRule": "tillatt av en eiers regel"
       },
       "skill": {
         "used": "Fulgte ferdigheten <name></name>",
@@ -685,7 +718,8 @@
       "chattedBy": "chat av {name}",
       "yoursOnly": "Du ser kjøringene du har startet.",
       "waitingForOwner": "En eier av arbeidsområdet svarer på dette kallet.",
-      "fromMail": "E-post til {name}"
+      "fromMail": "E-post til {name}",
+      "deferred": "Venter til de stille timene er over ({time}); en eier kan godkjenne det nå."
     },
     "usage": {
       "thisMonth": "Denne måneden: {usage}",
@@ -799,7 +833,9 @@
         "requestTokens": "Be om et helt antall tokener over den nåværende grensen, opptil 1 000 000 000.",
         "requestNote": "Forklar hvorfor på maks. 500 tegn.",
         "noLimit": "Denne agenten har ingen grense som kan økes.",
-        "mailbox": "Velg en av postkassene dine i dette arbeidsområdet."
+        "mailbox": "Velg en av postkassene dine i dette arbeidsområdet.",
+        "quietHours": "Stille timer trenger to ulike klokkeslett (TT:MM) og en tidssone.",
+        "dailyChangeLimit": "Skriv inn en daglig endringsgrense som et heltall fra 1 til 10 000."
       },
       "noteEmpty": "Skriv hva agenten skal huske.",
       "noteTooLong": "Et notat kan ha høyst {max} tegn.",
@@ -815,9 +851,10 @@
       "scheduleNotFound": "Denne tidsplanen finnes ikke lenger.",
       "versionNotFound": "Denne versjonen finnes ikke lenger.",
       "notAllowed": "Tilgangen din til denne agenten tillater ikke dette.",
-      "ownersOnly": "Bare eiere av arbeidsområdet kan endre den månedlige tokengrensen til en agent.",
+      "ownersOnly": "Bare eiere av arbeidsområdet kan endre den månedlige tokengrensen, de stille timene og den daglige endringsgrensen til en agent.",
       "notAMember": "En agent kan bare deles med eiere, medlemmer og grupper i arbeidsområdet.",
-      "requestNotFound": "Denne forespørselen er allerede besvart."
+      "requestNotFound": "Denne forespørselen er allerede besvart.",
+      "noteChanged": "Dette notatet er endret siden. Endre det i agentens Minne-fane."
     },
     "connections": {
       "description": "Verktøyene fra hver tilkobling som denne agenten kan bruke. Verktøy som bare leser, kjøres med en gang, unntatt på en rad fra et anonymt skjemasvar; alle andre venter på godkjenning fra en eier hver gang agenten kaller dem.",
@@ -826,7 +863,13 @@
       "notReady": "Denne tilkoblingen er ikke klar (den krever pålogging eller feiler), så agenten kan ikke bruke verktøyene foreløpig.",
       "noTools": "Ingen verktøy oppført ennå.",
       "ownersChoose": "Verktøyene fra hver tilkobling som denne agenten kan bruke. Bare eiere av arbeidsområdet velger dem.",
-      "none": "Denne agenten kan ikke bruke verktøy fra noen tilkobling."
+      "none": "Denne agenten kan ikke bruke verktøy fra noen tilkobling.",
+      "rulesNote": "For hvert valgte verktøy kan du også sette en regel: tillat alltid (det går uten å spørre, med mindre kjøringen har lest innhold utenfra) eller avvis alltid.",
+      "ruleLabel": "Regel for {tool}",
+      "ruleAsk": "Spør hver gang",
+      "ruleAllowed": "Tillatt",
+      "ruleAllow": "Tillat alltid",
+      "ruleDeny": "Avvis alltid"
     },
     "schedules": {
       "description": "La denne agenten kjøre av seg selv etter en tidsplan: hver kjøring utfører oppgaven, på databasen du eventuelt velger, og du får rapporten i innboksen din. Kjøringene kan bare åpne det du selv kan åpne.",
@@ -896,7 +939,9 @@
         "skills": "Ferdigheter",
         "schedules": "Tidsplaner",
         "shares": "Delte sider",
-        "row_changes": "Endringer i rader"
+        "row_changes": "Endringer i rader",
+        "quiet_hours": "Stille timer",
+        "daily_change_limit": "Endringer per dag"
       },
       "back": "Alle versjoner",
       "compareNote": "Hva som er endret fra denne versjonen til agentens nåværende oppsett. Hvis du gjenoppretter, kommer det denne versjonen hadde, tilbake.",
@@ -1984,7 +2029,8 @@
         "shared": "Satte tilgangen for {subject} til agenten «{target}»: {level}",
         "unshared": "Fjernet {subject} fra delingen av agenten «{target}»",
         "creator_added": "Lot {subject} opprette agenter",
-        "creator_removed": "Fjernet {subject} fra dem som kan opprette agenter"
+        "creator_removed": "Fjernet {subject} fra dem som kan opprette agenter",
+        "local_file": "{op, select, trash {Flyttet «{path}» til papirkurven} other {Skrev «{path}»}} på datamaskinen til {target} ({outcome})"
       },
       "connection": {
         "created": "La til tilkoblingen «{target}»",
@@ -2051,7 +2097,9 @@
     },
     "outcomes": {
       "done": "fullført",
-      "failed": "mislyktes"
+      "failed": "mislyktes",
+      "declined": "avslått",
+      "expired": "ikke besvart"
     },
     "agentLevels": {
       "full": "Full tilgang",

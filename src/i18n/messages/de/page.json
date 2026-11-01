@@ -1344,6 +1344,7 @@
       "approvalTimeout": "Niemand hat seinen Aufruf rechtzeitig beantwortet, daher wurde nichts gesendet.",
       "limitReached": "Der Agent hat seine Tokens für diesen Monat verbraucht.",
       "costLimit": "Der Workspace hat sein monatliches KI-Kostenlimit erreicht.",
+      "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
       "error": "Etwas ist schiefgelaufen."
     },
     "errors": {
@@ -1357,7 +1358,11 @@
       "gone": "Dieser Agent ist nicht mehr verfügbar.",
       "paused": "Dieser Agent ist pausiert und kann daher nicht antworten.",
       "aiOff": "KI ist in diesem Workspace ausgeschaltet, daher kann der Agent nicht antworten.",
-      "limitReached": "Dieser Agent hat seine Tokens für diesen Monat verbraucht."
+      "limitReached": "Dieser Agent hat seine Tokens für diesen Monat verbraucht.",
+      "queueFull": "Es warten schon {max} Nachrichten auf die Antwort. Sende diese, wenn der Agent geantwortet hat.",
+      "badFile": "Diese Datei kann nicht angehängt werden: nur Textdateien (CSV, TSV, TXT, Markdown, JSON), höchstens {max} pro Nachricht.",
+      "nothingToRedo": "Es gibt keine Antwort, die neu erstellt werden kann.",
+      "summaryFailed": "Der Agent konnte diese Unterhaltung nicht zusammenfassen. Versuche es noch einmal."
     },
     "picker": {
       "search": "Agenten suchen",
@@ -1386,10 +1391,41 @@
       "mailOn": "Neue E-Mail · {place}"
     },
     "doneQuietly": "Erledigt.",
+    "nothingNew": "Nichts Neues",
     "side": {
       "label": "Über {name}",
       "paused": "Pausiert"
-    }
+    },
+    "deferred": "Wartet bis zum Ende der Ruhezeit ({time})…",
+    "deferredApproval": "Der Agent hält einen Aufruf bis zum Ende seiner Ruhezeit ({time}) zurück. Du kannst ihn jetzt freigeben.",
+    "queued": "In der Warteschlange",
+    "queuedHint": "Geht an {name}, sobald es geantwortet hat",
+    "removeQueued": "Aus der Warteschlange entfernen",
+    "queuedAlreadySent": "Diese Nachricht war schon an den Agenten gegangen.",
+    "newWithSummary": "Neue Unterhaltung mit Zusammenfassung",
+    "summary": "Zusammenfassung einer früheren Unterhaltung",
+    "edit": "Bearbeiten",
+    "regenerate": "Neu generieren",
+    "files": {
+      "attach": "Textdateien anhängen",
+      "remove": "{name} entfernen",
+      "download": "{name} herunterladen",
+      "tooMany": "Höchstens {max} Dateien pro Nachricht.",
+      "tooLarge": "{name} ist größer als {size}.",
+      "type": "{name} kann nicht angehängt werden: nur CSV-, TSV-, TXT-, Markdown- und JSON-Dateien.",
+      "binary": "{name} ist keine Textdatei."
+    },
+    "search": {
+      "open": "Unterhaltungen durchsuchen",
+      "placeholder": "Deine Unterhaltungen mit {name} durchsuchen",
+      "hint": "Gib mindestens {min} Zeichen ein.",
+      "empty": "Nichts gefunden.",
+      "results": "Suchergebnisse",
+      "inThread": "Chat des Agenten",
+      "onPage": "Auf einer Seite",
+      "onClosedPage": "Auf einer Seite, die du nicht öffnen kannst"
+    },
+    "computerFiles": "Kann Dateien auf deinem Computer verwenden: {folders}"
   },
   "button": {
     "untitled": "Schaltfläche",

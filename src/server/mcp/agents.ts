@@ -32,6 +32,7 @@ import {
   type AgentView,
   readEmail,
 } from "@/lib/agents";
+import { readLocalFiles } from "@/lib/local-reads";
 import { MAX_AGENT_MAIL_RECIPIENTS } from "@/lib/agent-mail";
 import { MAX_AGENT_REQUEST, type AgentDraft, type DraftTrigger } from "@/lib/agent-draft";
 import { AGENT_SHARE_LEVELS, type AgentSharingView } from "@/lib/agent-sharing";
@@ -305,7 +306,7 @@ type RepeatArgs = z.infer<typeof repeatInput>;
 
 /** Why a chat message wasn't taken, with what to do next. */
 const CHAT_REFUSALS: Partial<Record<AgentChatRefusal["code"], string>> = {
-  busy: "The agent is still answering in this conversation. Read the answer with get_agent_chat, then send the next message.",
+  queueFull: "Messages already wait for the agent's answer in this conversation. Read the answer with get_agent_chat, then send the next message.",
   noAccess: "The user can't chat with this agent: it isn't shared with them (share_agent), or the conversation isn't theirs.",
   guest: "Guests don't chat with agents.",
   gone: "This agent is archived or no longer in the workspace (list_agents).",
@@ -463,6 +464,8 @@ export async function withAgentErrors<T>(fn: () => Promise<T>): Promise<T> {
           throw new ToolInputError(
             "No note with this memory_id in the agent's memory that the user may read. Call get_agent to see its notes; a proposal from a run on a row the user can't open may only be dismissed (change_agent_memory dismiss).",
           );
+        case "noteChanged":
+          throw new ToolInputError("The note changed since. Call get_agent to see it, and change it with change_agent_memory.");
       }
     }
     if (error instanceof PermissionError) throw new ToolInputError(`${error.message}.`);
@@ -527,6 +530,8 @@ function describeMemory(workspaceId: string, note: AgentMemoryView) {
   return {
     memory_id: note.id,
     text: note.text,
+    // What a person told the agent it got wrong; kept from their chat, it names them.
+    ...(note.kind === "correction" ? { kind: "correction", ...(note.saidBy ? { said_by: note.saidBy.name } : {}) } : {}),
     ...(note.run
       ? {
           proposed_by_run: {
@@ -754,7 +759,13 @@ export function describeAgentStep(step: AgentStepRecord) {
         }[step.action],
       };
     case "memory": {
-      const how = { remember: "Remembered", propose: "Proposed a note for an owner to keep", forget: "Dropped a note", handoff: "Left a note for the schedule's next run" }[step.action];
+      const how = {
+        remember: "Remembered",
+        propose: "Proposed a note for an owner to keep",
+        forget: "Dropped a note",
+        handoff: "Left a note for the schedule's next run",
+        correct: step.outcome === "undone" ? "Kept a correction the user gave, which they took back" : "Kept a correction the user gave",
+      }[step.action];
       return { kind: "memory", action: step.action, summary: `${how}: ${quote(short(step.text))}` };
     }
     case "skill": {
@@ -795,13 +806,16 @@ export function describeAgentStep(step: AgentStepRecord) {
         expired: "No one answered (not sent):",
         refused: "Refused, its address being in neither the schedule's task nor the run's searches (not sent):",
         afterMail: "Held back after reading email (not sent):",
+        afterLocalRead: "Held back after reading files on the user's computer (not sent):",
+        denied: "Declined by an owner's rule (not sent):",
+        limited: "Refused, past the agent's daily limit of changes (not done):",
       }[step.outcome];
       return {
         kind: "tool",
         outcome: step.outcome,
         connection_id: step.connectionId,
         tool: step.tool,
-        summary: `${how} ${step.tool} ${short(step.input, 200)}${step.note ? ` (note: ${quote(short(step.note, 200))})` : ""}`,
+        summary: `${how} ${step.tool} ${short(step.input, 200)}${step.rule === "allow" ? " (an owner's rule allowed it)" : ""}${step.note ? ` (note: ${quote(short(step.note, 200))})` : ""}`,
       };
     }
   }
@@ -879,6 +893,9 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
 export function describeAgentRun(workspaceId: string, run: AgentRunView) {
   // What a run that read email did and said shows only in the app (lib/agents.ts readEmail).
   const mailed = readEmail(run.steps) || run.source.kind === "mail";
+  // So does what one that read files on the person's computer did and said (lib/local-reads.ts).
+  const local = !mailed && readLocalFiles(run.steps);
+  const hidden = mailed || local;
   return {
     id: run.id,
     status: run.status,
@@ -897,9 +914,12 @@ export function describeAgentRun(workspaceId: string, run: AgentRunView) {
           },
         }
       : {}),
-    steps: mailed ? [] : run.steps.map(describeAgentStep),
-    answer: mailed ? "" : run.answer,
+    steps: hidden ? [] : run.steps.map(describeAgentStep),
+    // A schedule's run that ended itself (finish_run): its answer is the reason it gave.
+    answer: hidden ? "" : run.answer,
+    ...(run.quiet ? { quiet: true } : {}),
     ...(mailed ? { email: "This run read the user's email, or went on from a chat that had: its steps and answer show only in Leafdesk's app." } : {}),
+    ...(local ? { local_files: "This run read files on the user's computer: its steps and answer show only in Leafdesk's app." } : {}),
     ...(run.usage
       ? {
           usage: {

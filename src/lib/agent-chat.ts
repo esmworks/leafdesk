@@ -98,17 +98,56 @@ export function agentLinkRef(text: string, origin: string): { workspaceId: strin
   return { workspaceId: match[1], agentId };
 }
 
-/** A message of a conversation as it is kept: the person's, or the agent's answer (its run's). */
+/** A text file the person attached to a message, as the message keeps it (its text went to the run only). */
+export type AgentChatFileRef = { name: string; size: number };
+/** A text file as it is sent: its name, size in bytes and text (lib/agent-chat-files.ts). */
+export type AgentChatFileIn = AgentChatFileRef & { text: string };
+/** A file the agent attached to its answer (`attach_file`, the `agent_chat_file` table), which only the person opens. */
+export type AgentChatAnswerFile = { id: string; name: string; size: number; contentType: string };
+
+/**
+ * A message of a conversation as it is kept: the person's, or the agent's answer (its run's).
+ * Messages that waited in the queue are kept one by one, all with the run that answered them.
+ * A conversation started from another's summary begins with it (`summary`, no run).
+ */
 export type AgentChatMessageRecord = {
   role: "user" | "assistant";
   content: string;
-  /** The run that answers (on the question) or answered (on the answer). */
+  /** The run that answers (on the question) or answered (on the answer); "" for a summary. */
   runId: string;
   /** Why the run ended without an answer. */
   code?: AgentRunCode | null;
   steps?: AgentStepRecord[];
+  /** The person's files on a question. */
+  files?: AgentChatFileRef[];
+  /** The agent's files on an answer. */
+  attached?: AgentChatAnswerFile[];
+  /** The summary of an earlier conversation this one started from. */
+  summary?: true;
+  /** A summary drawn from turns that read files on the person's computer (lib/local-reads.ts). */
+  localRead?: true;
   at: string;
 };
+
+/**
+ * A message written while the conversation's answer was under way: it waits (at most
+ * MAX_QUEUED, lib/agent-chat-queue.ts) and goes with the others as the next turn once the answer
+ * ends. `fromApp`: sent from a connected app; `via`: the app, when the Telegram bot follows it;
+ * `sessionId`: the web session it was sent from in the app (lib/agents.ts AgentRunSource).
+ */
+export type AgentChatQueuedRecord = {
+  id: string;
+  content: string;
+  at: string;
+  fromApp?: true;
+  via?: "telegram";
+  sessionId?: string;
+  files?: AgentChatFileIn[];
+  timeZone?: string;
+};
+
+/** A message waiting in the queue, as the chat shows it. */
+export type AgentChatQueuedView = { id: string; content: string; at: string; files: AgentChatFileRef[] };
 
 /** A step of an answer as the reader may see it now (as an agent's run history shows it). */
 export type AgentChatStepView =
@@ -126,6 +165,9 @@ export type AgentChatMessageView = {
   runId: string;
   code: AgentRunCode | null;
   steps: AgentChatStepView[];
+  files?: AgentChatFileRef[];
+  attached?: AgentChatAnswerFile[];
+  summary?: boolean;
   at: string;
 };
 
@@ -150,7 +192,10 @@ export type AgentChatRunView = {
   code: AgentRunCode | null;
   label: string | null;
   task: string;
+  /** What it said at the end; for a schedule's run ended with finish_run, the reason it gave. */
   answer: string;
+  /** A schedule's run that found nothing new: one muted line, its steps folded under it. */
+  quiet: boolean;
   steps: AgentChatStepView[];
   pending: AgentChatTurn["pending"];
   at: string;
@@ -167,6 +212,8 @@ export type AgentChatThread = {
   conversationId: string | null;
   messages: AgentChatMessageView[];
   running: string | null;
+  /** The latest conversation's messages waiting for its answer to end. */
+  queued: AgentChatQueuedView[];
   runs: AgentChatRunView[];
   connections: Record<string, string>;
 };
@@ -182,7 +229,29 @@ export type AgentChatTurn = {
   answer: string;
   steps: AgentChatStepView[];
   pending: { callId: string; tool: string; connectionName: string; input: string } | null;
+  /** When a call held for the agent's quiet hours goes on (ISO), for whoever follows the turn; null when none is. */
+  deferredUntil: string | null;
   connections: Record<string, string>;
+  /** The files the agent attached to its answer so far. */
+  attached: AgentChatAnswerFile[];
+  /** The conversation's messages waiting for this answer to end. */
+  queued: AgentChatQueuedView[];
+  /** Once it ended: the run that took the queued messages as the next turn, if any. */
+  next: string | null;
+};
+
+/** A message of the person's conversations with an agent that a search found (server/agents/chat.ts searchAgentChats). */
+export type AgentChatSearchHit = {
+  conversationId: string;
+  title: string;
+  /** The block's chat id; null: the agent's own chat. */
+  chatId: string | null;
+  /** A page the person can open that holds the block's chat; null for the agent's own chat, or when there is none. */
+  pageId: string | null;
+  role: "user" | "assistant";
+  runId: string;
+  at: string;
+  snippet: { before: string; match: string; after: string };
 };
 
 /**
@@ -206,13 +275,20 @@ export type AgentChatInfo = {
   /** Null when the agent is gone. */
   agent: { id: string; name: string; icon: string | null; description: string } | null;
   conversations: AgentConversationSummary[];
+  /** The labels of the folders on the person's computer its runs in the app may use now (their desktop app is connected); null when none. */
+  computer: string[] | null;
 };
 
-/** Why a message wasn't taken (beyond the chat's states above). */
-export const AGENT_CHAT_ERRORS = ["invalid", "tooLong", "busy", "rateLimited", "noAccess", "notOnPage"] as const;
+/**
+ * Why a message wasn't taken (beyond the chat's states above): `queueFull`, MAX_QUEUED messages
+ * wait already; `badFile`, a file that isn't one the chat takes; `busy`, a summary or a turn done
+ * again while an answer is under way or messages wait; `nothingToRedo`, no answer to do again;
+ * `summaryFailed`, the model couldn't write the summary.
+ */
+export const AGENT_CHAT_ERRORS = ["invalid", "tooLong", "busy", "queueFull", "badFile", "nothingToRedo", "summaryFailed", "rateLimited", "noAccess", "notOnPage"] as const;
 export type AgentChatError = (typeof AGENT_CHAT_ERRORS)[number] | Exclude<AgentChatState, "full" | "readOnly">;
 
 /** Why a chat's run ended without an answer, as the chat says it (others say "error"). */
-export const AGENT_CHAT_FAILURES = ["aiOff", "agentDisabled", "noAccess", "provider", "timeout", "tooManyAttempts", "approvalTimeout", "limitReached", "costLimit", "error"] as const;
+export const AGENT_CHAT_FAILURES = ["aiOff", "agentDisabled", "noAccess", "provider", "timeout", "tooManyAttempts", "approvalTimeout", "limitReached", "costLimit", "selfReported", "error"] as const;
 export const chatFailure = (code: AgentRunCode | null): (typeof AGENT_CHAT_FAILURES)[number] =>
   (AGENT_CHAT_FAILURES as readonly (AgentRunCode | null)[]).includes(code) ? (code as (typeof AGENT_CHAT_FAILURES)[number]) : "error";

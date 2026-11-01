@@ -4,7 +4,8 @@
  * recipients are checked when set and kept in its versions; a schedule's run, held to the owner who
  * set it, sends one message from that owner's mailbox to the agent's recipients only (the model
  * names no address), keeps it in the mailbox's sent folder and records it in the run's steps; a
- * second message in the same run is refused. A run for someone without a mailbox, or an agent
+ * second message in the same run is refused; the message counts toward the agent's daily changes
+ * but not the run's own limit. A run for someone without a mailbox, or an agent
  * without recipients, isn't offered the tool.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -66,7 +67,7 @@ const { eq, inArray } = await import("drizzle-orm");
 const nodemailer = (await import("nodemailer")).default;
 const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
-const { agentRun, notification, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentDailyChange, agentRun, notification, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -82,8 +83,9 @@ const { setAgentShare } = await import("@/server/agents/sharing");
 const { listAgentVersions, restoreAgentVersion } = await import("@/server/agents/versions");
 const { flushAgentRuns } = await import("@/server/agents/run");
 const { runDueSchedules } = await import("@/server/schedules");
+const { MAX_SCHEDULED_WRITES } = await import("@/lib/agents");
 
-const RUN = `agent-mail-e2e-${Date.now().toString(36)}`;
+const RUN =`agent-mail-e2e-${Date.now().toString(36)}`;
 
 const { hocuspocus, service } = createCollab();
 registerCollab(service);
@@ -236,6 +238,8 @@ try {
   const set = await agentSchedules.setAgentSchedule(ids.owner, tracker.id, null, { rule: daily, timeZone: ZONE, task: "Email the overdue orders.", databaseId: orders.id });
   const subject = `Overdue orders ${RUN}`;
   const text = "Good morning,\n\nTwo orders are past their delivery date:\n- G-1 (GNK 800-1)\n- G-2\n\nOlcay";
+  // A daily limit, so the day's count is kept: the message sent is one of the agent's changes.
+  await agents.updateAgent(ids.owner, tracker.id, { dailyChangeLimit: 5 });
   fake.chats.length = 0;
   fake.setChat(
     caller(
@@ -268,6 +272,35 @@ try {
     "the run's steps record it",
     run.steps,
   );
+  const counted = await db.select().from(agentDailyChange).where(eq(agentDailyChange.agentId, tracker.id));
+  check(counted.length === 1 && counted[0].count === 1, "the message counts as one of the day's changes; the refused second one is given back", counted);
+  await agents.updateAgent(ids.owner, tracker.id, { dailyChangeLimit: null });
+
+  // The message isn't one of the run's own changes: after it, the run still makes all of them.
+  await agents.setAgentAccess(ids.owner, tracker.id, orders.id, "comment");
+  const order = await createPage({ userId: ids.owner }, { workspaceId, parentId: orders.id, title: "G-1" });
+  fake.chats.length = 0;
+  fake.setChat(
+    caller(
+      [
+        { name: "send_email", arguments: { subject: `${subject} (2)`, text } },
+        ...Array.from({ length: MAX_SCHEDULED_WRITES }, (_, i) => ({ name: "add_comment", arguments: { row_id: order.id, text: `Checked the order (${i + 1}).` } })),
+      ],
+      "Emailed and noted.",
+    ),
+  );
+  await runNow(set.id);
+  run = await lastRun(tracker.id);
+  const capped = toolResults(fake.chats.at(-1)!);
+  check(
+    run?.status === "done" &&
+      capped[0]?.startsWith("Sent to") &&
+      capped.length === MAX_SCHEDULED_WRITES + 1 &&
+      run.steps.filter((s) => s.kind === "comment" && s.outcome === "done").length === MAX_SCHEDULED_WRITES,
+    `after sending, the run still makes its ${MAX_SCHEDULED_WRITES} changes`,
+    { results: capped.slice(-2), steps: run?.steps.slice(-3) },
+  );
+  await agents.setAgentAccess(ids.owner, tracker.id, orders.id, "view");
 
   // ── No mailbox, or no recipients: no tool ────────────────────────────────────────────────────
   const memberSet = await agentSchedules.setAgentSchedule(ids.member, tracker.id, null, { rule: daily, timeZone: ZONE, task: "Email the overdue orders.", databaseId: orders.id });

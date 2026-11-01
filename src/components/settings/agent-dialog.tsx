@@ -37,6 +37,7 @@ import {
   MAX_AGENT_TOKEN_LIMIT,
   OWN_TOOLS_NAME,
   WEB_TOOL_NAMES,
+  isComputerTool,
   type AgentAccessLevel,
   type AgentAccessView,
   type AgentModel,
@@ -50,10 +51,10 @@ import {
 import { commentHash } from "@/lib/comments";
 import { AgentChatTab } from "./agent-chat-tab";
 import { AgentConnectionsTab } from "./agent-connections-tab";
+import { AgentGuardrailFields, dailyLimitOf, quietHoursDraft, quietHoursOf } from "./agent-guardrail-fields";
 import { AgentHistoryTab } from "./agent-history-tab";
 import { AskedByLine, HandoffStepLine, type OpenAgentRun } from "./agent-handoff-step";
 import { AgentHelpersField } from "./agent-helpers-field";
-import { AgentMemoryTab } from "./agent-memory-tab";
 import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
@@ -69,7 +70,9 @@ export const AGENT_TABS: readonly Exclude<AgentTab, "share">[] = ["settings", "a
 const AgentLimitRequest = lazyPart(() => import("./agent-limit-request").then((m) => m.AgentLimitRequest));
 /** The person's own mailboxes on the Access tab: agent chats in pages bring this module along. */
 const AgentMailboxes = lazyPart(() => import("./agent-mailboxes").then((m) => m.AgentMailboxes));
+const ComputerStepLine = lazyPart(() => import("./computer-step").then((m) => m.ComputerStepLine));
 const AgentShareTab = lazyPart(() => import("./agent-share-tab").then((m) => m.AgentShareTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
+const AgentMemoryTab = lazyPart(() => import("./agent-memory-tab").then((m) => m.AgentMemoryTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 /** An agent's emoji, or a robot when it has none. */
 export function AgentIcon({ icon, className }: { icon: string | null; className?: string }) {
@@ -240,6 +243,8 @@ export function AgentForm({
   const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
   const [model, setModel] = useState<AgentModel>(agent?.model ?? "main");
   const [rowChanges, setRowChanges] = useState<AgentRowChanges>(agent?.rowChanges ?? "direct");
+  const [quiet, setQuiet] = useState(() => quietHoursDraft(agent?.quietHours));
+  const [dailyLimit, setDailyLimit] = useState(agent?.dailyChangeLimit ? String(agent.dailyChangeLimit) : "");
   // Null until loaded: saving then leaves them as they are.
   const [helpers, setHelpers] = useState<string[] | null>(null);
   const { pending, error, run } = useAction();
@@ -251,9 +256,14 @@ export function AgentForm({
   const limitValid = monthlyTokenLimit === null || (Number.isInteger(monthlyTokenLimit) && monthlyTokenLimit >= 1 && monthlyTokenLimit <= MAX_AGENT_TOKEN_LIMIT);
   // Checked again by the server.
   const recipients = parseMailRecipients(mailRecipients);
+  // Undefined when not valid; checked again by the server.
+  const quietHours = quietHoursOf(quiet);
+  const dailyChangeLimit = dailyLimitOf(dailyLimit);
+  // Only owners change them: anyone else's form shows them and sends them back as they were.
+  const guardrailsValid = !isOwner || (quietHours !== undefined && dailyChangeLimit !== undefined);
 
   const submit = () => {
-    if (!clean || locked || !limitValid || !recipients) return;
+    if (!clean || locked || !limitValid || !recipients || !guardrailsValid) return;
     const value = {
       name: clean,
       icon,
@@ -263,8 +273,8 @@ export function AgentForm({
       webAccess,
       mailRecipients: recipients,
       rowChanges,
-      // Left as it is by anyone but an owner.
-      ...(isOwner ? { monthlyTokenLimit } : {}),
+      // Left as they are by anyone but an owner.
+      ...(isOwner ? { monthlyTokenLimit, quietHours, dailyChangeLimit } : {}),
       ...(models ? { model } : {}),
       helperAgentIds: helpers ?? undefined,
     };
@@ -398,6 +408,7 @@ export function AgentForm({
             {!limitValid ? t("limitInvalid") : isOwner ? t("limitHelp") : t("limitOwnersOnly")}
           </span>
         </label>
+        <AgentGuardrailFields quiet={quiet} onQuiet={setQuiet} dailyLimit={dailyLimit} onDailyLimit={setDailyLimit} disabled={locked || !isOwner} ownersOnly={!isOwner} />
         <AgentHelpersField workspaceId={workspaceId} agentId={agent?.id ?? null} value={helpers} disabled={locked} onChange={setHelpers} />
       </fieldset>
       <DialogFooter>
@@ -409,7 +420,7 @@ export function AgentForm({
         <Button variant="secondary" onClick={onDone}>
           {tc("cancel")}
         </Button>
-        <Button type="submit" variant="primary" disabled={locked || pending || !clean || !limitValid || !recipients}>
+        <Button type="submit" variant="primary" disabled={locked || pending || !clean || !limitValid || !recipients || !guardrailsValid}>
           {agent ? (pending ? tc("saving") : tc("save")) : pending ? t("creating") : t("create")}
         </Button>
       </DialogFooter>
@@ -799,7 +810,7 @@ function RunItem({
               <span className="min-w-0 flex-1 truncate text-sm text-fg-muted">{t("rowHidden")}</span>
             )}
             <span className={cn("shrink-0 text-xs", failed ? "text-danger" : run.status === "awaiting_approval" ? "font-medium text-fg" : "text-fg-muted")}>
-              {t(`status.${run.status}`)}
+              {run.status === "awaiting_approval" && run.pending?.deferredUntil ? t("status.deferred") : run.quiet ? t("status.quiet") : t(`status.${run.status}`)}
             </span>
           </div>
           <div className="text-xs text-fg-faint">
@@ -843,7 +854,11 @@ function RunItem({
           )}
           {run.pending && (
             <div className="rounded-lg border border-border p-3">
-              <p className="mb-1.5 text-sm font-medium">{t("waiting")}</p>
+              <p className="mb-1.5 text-sm font-medium">
+                {run.pending.deferredUntil
+                  ? t("deferred", { time: format.dateTime(new Date(run.pending.deferredUntil), { dateStyle: "medium", timeStyle: "short" }) })
+                  : t("waiting")}
+              </p>
               {answers ? (
                 <ApprovalActions
                   workspaceId={workspaceId}
@@ -857,7 +872,8 @@ function RunItem({
           )}
           {run.answer && (
             <div>
-              <p className="mb-0.5 text-xs font-medium text-fg-muted">{t("answer")}</p>
+              {/* A run that ended itself (finish_run) kept the reason it gave as its answer. */}
+              <p className="mb-0.5 text-xs font-medium text-fg-muted">{run.quiet || run.code === "selfReported" ? t("givenReason") : t("answer")}</p>
               <p className="text-sm break-words whitespace-pre-wrap">{run.answer}</p>
             </div>
           )}
@@ -885,6 +901,7 @@ export function AgentStepLine({
     return <WebStepLine step={step} />;
   }
   if (step.kind === "handoff") return <HandoffStepLine step={step} onOpenRun={onOpenRun} />;
+  if (step.kind === "tool" && step.connectionId === null && isComputerTool(step.tool)) return <ComputerStepLine step={step} />;
   if (step.kind === "tool") {
     const connection = step.connectionId === null ? OWN_TOOLS_NAME : (connections[step.connectionId] ?? t("removedConnection"));
     return <ToolStepLine step={step} connection={connection} />;
@@ -956,13 +973,15 @@ function SkillStepLine({ step, onOpen }: { step: AgentSkillRecord; onOpen: (page
 /** A call to a connection's tool: which, with what, and how it went (and who answered, when someone did). */
 function ToolStepLine({ step, connection }: { step: AgentToolRecord; connection: string }) {
   const t = useTranslations("settings.agents.runs.tool");
-  const bad = step.outcome === "failed" || step.outcome === "expired";
+  const bad = step.outcome === "failed" || step.outcome === "expired" || step.outcome === "limited";
   return (
     <>
       <Plug className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", bad && "text-danger")} />
       <span className="min-w-0 break-words">
-        {t(step.outcome, { tool: step.tool, connection })}
+        {/* Held back after a local read without a connection: the web, another agent or email, none of them Leafdesk's own. */}
+        {step.outcome === "afterLocalRead" && step.connectionId === null ? t("afterLocalReadOut", { tool: step.tool }) : t(step.outcome, { tool: step.tool, connection })}
         {step.decidedBy && step.outcome !== "expired" && <span className="text-fg-faint"> · {t(step.outcome === "done" ? "approved" : "answered")}</span>}
+        {step.rule === "allow" && <span className="text-fg-faint"> · {t("allowedByRule")}</span>}
         {step.note && <span className="block text-xs text-fg-faint">{t("note", { note: step.note })}</span>}
         <code className="mt-0.5 block truncate text-xs text-fg-faint" title={step.input}>
           {step.input}

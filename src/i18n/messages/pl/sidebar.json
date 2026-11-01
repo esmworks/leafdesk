@@ -245,6 +245,7 @@
     "aiReminderTitle": "Przypomnienie od {agent}",
     "reportDone": "Zaplanowane uruchomienie zakończyło się.",
     "reportFailed": "Zaplanowane uruchomienie nie powiodło się. Otwórz je, aby zobaczyć dlaczego.",
+    "reportFailedReason": "Zaplanowane uruchomienie nie mogło wykonać zadania: {reason}",
     "taskDone": "Zadanie od {agent}: wykonane.",
     "taskFailed": "Zadanie od {agent}: nie ukończone.",
     "reportHidden": "Zaplanowane uruchomienie zakończyło się w bazie danych, której nie możesz otworzyć.",

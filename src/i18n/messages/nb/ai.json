@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Avslo å huske:",
           "forget": "Avslo å glemme:"
-        }
+        },
+        "correct": "Notert som en rettelse:",
+        "undone": "Rettelse angret:"
       },
       "connection": {
         "done": "{connection}: kalte {tool}",

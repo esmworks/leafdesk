@@ -220,11 +220,25 @@ export type ChatToolRecord = {
  * server/ai-memory.ts. Records from before notes were approved have no outcome: they were done.
  * An agent's run `propose`s notes instead: they wait for an owner (server/agents/memory.ts).
  */
-/** `handoff`: a schedule's run left a note for the schedule's next run (server/agents/memory.ts). */
-export type ChatMemoryRecord = { kind: "memory"; action: "remember" | "propose" | "forget" | "handoff"; text: string; outcome?: "done" | "declined" };
+/**
+ * `handoff`: a schedule's run left a note for the schedule's next run (server/agents/memory.ts).
+ * `correct`: an agent's chat run kept a correction at once, `memoryId`, with the text the kept note
+ * it changed had before (`previous`; none: a new note); `undone` once the person took it back.
+ */
+export type ChatMemoryRecord = {
+  kind: "memory";
+  action: "remember" | "propose" | "forget" | "handoff" | "correct";
+  text: string;
+  outcome?: "done" | "declined" | "undone";
+  memoryId?: string;
+  previous?: { text: string; kind: MemoryKind; saidBy: string | null } | null;
+};
 
 /** A note in use (`kept`), or one an agent's run proposed that waits for an owner (`proposed`). */
 export type MemoryStatus = "kept" | "proposed";
+
+/** An ordinary note, or an agent's note that corrects it (see aiMemory `kind`). */
+export type MemoryKind = "note" | "correction";
 
 /**
  * A change the AI chat may make: add a database row, change one, add a page, change a page's text,
@@ -386,6 +400,13 @@ export const aiMemory = pgTable(
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
     /** A proposal's kept note it would change (null: a new note, also once that note is gone). */
     replacesId: text("replaces_id").references((): AnyPgColumn => aiMemory.id, { onDelete: "set null" }),
+    /**
+     * An agent's note that corrects it (`correction`): something a person told it it got wrong, or
+     * must always or never do. Kept at once from the chat of someone who can edit the agent, who is
+     * `saidBy` (null: proposed by another run, or that person is gone); see server/agents/memory.ts.
+     */
+    kind: text("kind").$type<MemoryKind>().notNull().default("note"),
+    saidBy: text("said_by").references(() => user.id, { onDelete: "set null" }),
     /** The connected app (OAuth client) that kept the note or last changed it over MCP, if one did. */
     oauthClientId: text("oauth_client_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

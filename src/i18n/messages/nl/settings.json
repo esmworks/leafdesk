@@ -469,7 +469,18 @@
       "rowChangesDirect": "Direct schrijven",
       "rowChangesReview": "Ter beoordeling voorstellen",
       "rowChangesDirectHelp": "Rijen die hij toevoegt en waarden die hij wijzigt, worden direct opgeslagen, onder zijn naam.",
-      "rowChangesReviewHelp": "Rijen die hij zou toevoegen en waarden die hij zou wijzigen, wachten onder Ter beoordeling tot iemand die ze kan bewerken elk ervan goedkeurt of negeert."
+      "rowChangesReviewHelp": "Rijen die hij zou toevoegen en waarden die hij zou wijzigen, wachten onder Ter beoordeling tot iemand die ze kan bewerken elk ervan goedkeurt of negeert.",
+      "quietHours": "Stille uren",
+      "quietHoursHelp": "Aanroepen die een regel van een eigenaar altijd toestaat, wachten tot de stille uren voorbij zijn, zonder iemand te melden. Aanroepen die goedkeuring nodig hebben, vragen daar zoals altijd om.",
+      "quietFrom": "Van",
+      "quietTo": "Tot",
+      "quietTimeZone": "Tijdzone",
+      "quietHoursInvalid": "Kies twee verschillende tijden en een tijdzone.",
+      "dailyChangeLimit": "Wijzigingen per dag",
+      "dailyChangeLimitPlaceholder": "Geen limiet",
+      "dailyChangeLimitHelp": "Het maximum aantal wijzigingen dat hij op een dag doet: rijen, pagina’s, opmerkingen, e-mails die hij verstuurt en verbindingsaanroepen die iets veranderen. Meer wordt geweigerd. De dag volgt de tijdzone van de stille uren, anders UTC.",
+      "dailyChangeLimitInvalid": "Voer een geheel getal van 1 tot {max} in.",
+      "guardrailsOwnersOnly": "Alleen eigenaren van de werkruimte stellen stille uren en de dagelijkse wijzigingslimiet in."
     },
     "describe": {
       "button": "Een agent beschrijven",
@@ -547,7 +558,7 @@
       "libraryNote": "Vaardigheden worden gemaakt in de <link>vaardighedenbibliotheek</link>."
     },
     "memory": {
-      "description": "Notities die met elke uitvoering van deze agent meegaan, zodat hij niet steeds dezelfde dingen opnieuw hoeft te leren. Zijn uitvoeringen stellen notities voor; geen enkele gaat mee met een uitvoering tot een eigenaar haar bewaart.",
+      "description": "Notities die met elke uitvoering van deze agent meegaan, zodat hij niet steeds dezelfde dingen opnieuw hoeft te leren. Zijn uitvoeringen stellen notities voor; geen enkele gaat mee met een uitvoering tot een eigenaar haar bewaart. Correcties die iemand die hem mag bewerken in de eigen chat met hem geeft, worden meteen bewaard.",
       "rule": "Een uitvoering leest rijen, pagina’s en gebeurtenissen die andere mensen en diensten hebben geschreven, en een notitie kan hun woorden meenemen naar elke latere uitvoering. Lees elk voorstel voordat je het bewaart. Bewaarde notities gaan mee met elke uitvoering, wie die ook start.",
       "off": "AI-geheugen staat uit in deze werkruimte: uitvoeringen nemen geen notities mee en stellen er geen voor tot een eigenaar het aanzet in <link>Instellingen → Algemeen</link>.",
       "archived": "Zet de agent terug om zijn geheugen te wijzigen.",
@@ -581,7 +592,9 @@
       "forgetAll": "Alles vergeten",
       "confirmForgetAll": "Moet {name} alles vergeten wat hij onthoudt?",
       "waiting": "{count, plural, one {# notitie om te beoordelen} other {# notities om te beoordelen}}",
-      "toReview": "{count, plural, one {# notitie om te beoordelen} other {# notities om te beoordelen}}"
+      "toReview": "{count, plural, one {# notitie om te beoordelen} other {# notities om te beoordelen}}",
+      "correction": "Correctie",
+      "correctionFrom": "Correctie · uit de chat met {name}"
     },
     "runs": {
       "description": "Zijn laatste uitvoeringen, {days} dagen bewaard.",
@@ -592,7 +605,9 @@
         "running": "Bezig",
         "done": "Klaar",
         "failed": "Mislukt",
-        "awaiting_approval": "Wacht op goedkeuring"
+        "awaiting_approval": "Wacht op goedkeuring",
+        "deferred": "Wacht op einde stille uren",
+        "quiet": "Niets nieuws"
       },
       "rowHidden": "Een rij die je niet kunt openen",
       "took": "duurde {time}",
@@ -610,6 +625,7 @@
       "hideDetails": "Verbergen wat hij deed",
       "noSteps": "Hij heeft niets gezocht, gelezen of gewijzigd.",
       "answer": "Zijn laatste woorden",
+      "givenReason": "De opgegeven reden",
       "comment": "Opmerking geplaatst:",
       "commentFailed": "Kon geen opmerking plaatsen:",
       "commentHidden": "Opmerking geplaatst op een rij die je niet kunt openen",
@@ -633,6 +649,7 @@
         "connectionGone": "De koppeling die hem startte, is verwijderd.",
         "limitReached": "Hij had de maandelijkse tokenlimiet van de agent opgebruikt.",
         "costLimit": "De werkruimte had haar maandelijkse limiet voor AI-kosten bereikt.",
+        "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
         "mailGone": "De e-mail staat niet meer in de mailbox, of de mailbox is niet meer open voor de agent."
       },
       "fromConnection": "{connection} · {event}",
@@ -646,6 +663,17 @@
         "searchFailed": "Kon niet op het web zoeken",
         "approved": "goedgekeurd"
       },
+      "computer": {
+        "list": "Een map op de computer weergegeven",
+        "read": "Een bestand op de computer gelezen",
+        "write": "Een bestand op de computer geschreven",
+        "trash": "Iets op de computer naar de prullenbak verplaatst",
+        "declined": "geweigerd; er is niets gedaan",
+        "expired": "niet op tijd beantwoord; er is niets gedaan",
+        "failed": "kon niet worden uitgevoerd",
+        "afterMail": "tegengehouden na het lezen van e-mail; er is niets gedaan",
+        "limited": "boven de daglimiet aan wijzigingen van de agent; er is niets gedaan"
+      },
       "tool": {
         "done": "“{tool}” aangeroepen op {connection}",
         "failed": "Kon “{tool}” niet aanroepen op {connection}",
@@ -654,9 +682,14 @@
         "expired": "De tijd voor zijn aanroep van “{tool}” op {connection} is verstreken; er is niets verstuurd",
         "refused": "Zijn aanroep van “{tool}” op {connection} is geweigerd, omdat niemand die kon goedkeuren; er is niets verstuurd",
         "afterMail": "De aanroep van ‘{tool}’ op {connection} werd tegengehouden: na het lezen van e-mail leest een run alleen nog pagina’s en schrijft concepten; er is niets verzonden",
+        "afterLocalRead": "De aanroep van “{tool}” op {connection} werd tegengehouden: na het lezen van bestanden op de computer gaat er niets naar buiten; er is niets verzonden",
+        "afterLocalReadOut": "De aanroep van ‘{tool}’ is tegengehouden: na het lezen van bestanden op de computer gaat er niets naar buiten; er is niets verzonden",
         "approved": "goedgekeurd",
         "answered": "beantwoord door een eigenaar",
-        "note": "Notitie: {note}"
+        "note": "Notitie: {note}",
+        "denied": "Zijn aanroep van ‘{tool}’ op {connection} is geweigerd door de regel van een eigenaar; er is niets verstuurd",
+        "limited": "Zijn aanroep van ‘{tool}’ op {connection} is geweigerd: de agent heeft zoveel wijzigingen gedaan als hij op een dag mag; er is niets gedaan",
+        "allowedByRule": "toegestaan door de regel van een eigenaar"
       },
       "skill": {
         "used": "De vaardigheid <name></name> gevolgd",
@@ -685,7 +718,8 @@
       "chattedBy": "chat door {name}",
       "yoursOnly": "Je ziet de uitvoeringen die jij hebt gestart.",
       "waitingForOwner": "Een eigenaar van de werkruimte beantwoordt deze aanroep.",
-      "fromMail": "E-mail aan {name}"
+      "fromMail": "E-mail aan {name}",
+      "deferred": "Wacht tot zijn stille uren voorbij zijn ({time}); een eigenaar kan hem nu goedkeuren."
     },
     "usage": {
       "thisMonth": "Deze maand: {usage}",
@@ -799,7 +833,9 @@
         "requestTokens": "Vraag een geheel aantal tokens boven de huidige limiet, tot 1.000.000.000.",
         "requestNote": "Geef de reden in maximaal 500 tekens.",
         "noLimit": "Deze agent heeft geen limiet om te verhogen.",
-        "mailbox": "Kies een van je mailboxen in deze werkruimte."
+        "mailbox": "Kies een van je mailboxen in deze werkruimte.",
+        "quietHours": "Stille uren hebben twee verschillende tijden (UU:MM) en een tijdzone nodig.",
+        "dailyChangeLimit": "Voer een dagelijkse wijzigingslimiet in als geheel getal van 1 tot 10.000."
       },
       "noteEmpty": "Schrijf wat de agent moet onthouden.",
       "noteTooLong": "Een notitie mag maximaal {max} tekens hebben.",
@@ -815,9 +851,10 @@
       "scheduleNotFound": "Deze planning bestaat niet meer.",
       "versionNotFound": "Deze versie bestaat niet meer.",
       "notAllowed": "Je toegang tot deze agent staat dit niet toe.",
-      "ownersOnly": "Alleen eigenaren van de werkruimte wijzigen de maandelijkse tokenlimiet van een agent.",
+      "ownersOnly": "Alleen eigenaren van de werkruimte wijzigen de maandelijkse tokenlimiet, de stille uren en de dagelijkse wijzigingslimiet van een agent.",
       "notAMember": "Een agent kan alleen worden gedeeld met de eigenaren, leden en groepen van de werkruimte.",
-      "requestNotFound": "Dit verzoek is al beantwoord."
+      "requestNotFound": "Dit verzoek is al beantwoord.",
+      "noteChanged": "Deze notitie is sindsdien gewijzigd. Wijzig haar op het tabblad Geheugen van de agent."
     },
     "connections": {
       "description": "De tools van elke koppeling die deze agent mag gebruiken. Tools die alleen lezen, draaien direct, behalve op een rij uit een anoniem formulierantwoord; elke andere wacht op goedkeuring van een eigenaar telkens als de agent haar aanroept.",
@@ -826,7 +863,13 @@
       "notReady": "Deze koppeling is niet klaar (ze vereist een aanmelding of faalt), dus de agent kan haar tools voorlopig niet gebruiken.",
       "noTools": "Nog geen tools vermeld.",
       "ownersChoose": "De tools van elke koppeling die deze agent mag gebruiken. Alleen eigenaren van de werkruimte kiezen ze.",
-      "none": "Deze agent kan de tools van geen enkele koppeling gebruiken."
+      "none": "Deze agent kan de tools van geen enkele koppeling gebruiken.",
+      "rulesNote": "Voor elk gekozen hulpmiddel kun je ook een regel instellen: altijd toestaan (het gaat zonder te vragen, tenzij de run inhoud van buiten heeft gelezen) of altijd weigeren.",
+      "ruleLabel": "Regel voor {tool}",
+      "ruleAsk": "Elke keer vragen",
+      "ruleAllowed": "Toegestaan",
+      "ruleAllow": "Altijd toestaan",
+      "ruleDeny": "Altijd weigeren"
     },
     "schedules": {
       "description": "Laat deze agent zelfstandig draaien, volgens een planning: elke uitvoering doet de taak, op de database die je kiest als je er een kiest, en je krijgt het verslag in je inbox. Zijn uitvoeringen kunnen alleen openen wat jij kunt openen.",
@@ -896,7 +939,9 @@
         "skills": "Vaardigheden",
         "schedules": "Planningen",
         "shares": "Gedeelde pagina’s",
-        "row_changes": "Wijzigingen in rijen"
+        "row_changes": "Wijzigingen in rijen",
+        "quiet_hours": "Stille uren",
+        "daily_change_limit": "Wijzigingen per dag"
       },
       "back": "Alle versies",
       "compareNote": "Wat er is veranderd van deze versie tot de huidige instelling van de agent. Terugzetten brengt terug wat deze versie had.",
@@ -1984,7 +2029,8 @@
         "shared": "De toegang van {subject} tot de agent “{target}” ingesteld: {level}",
         "unshared": "{subject} verwijderd uit het delen van de agent “{target}”",
         "creator_added": "{subject} toestemming gegeven om agents te maken",
-        "creator_removed": "{subject} verwijderd bij wie agents kan maken"
+        "creator_removed": "{subject} verwijderd bij wie agents kan maken",
+        "local_file": "{op, select, trash {Heeft “{path}” naar de prullenbak verplaatst} other {Heeft “{path}” geschreven}} op de computer van {target} ({outcome})"
       },
       "connection": {
         "created": "De koppeling “{target}” toegevoegd",
@@ -2051,7 +2097,9 @@
     },
     "outcomes": {
       "done": "klaar",
-      "failed": "mislukt"
+      "failed": "mislukt",
+      "declined": "geweigerd",
+      "expired": "niet beantwoord"
     },
     "agentLevels": {
       "full": "Volledige toegang",

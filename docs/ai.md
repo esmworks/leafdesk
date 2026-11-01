@@ -780,8 +780,9 @@ the linked account; in a group it answers commands only, to say so. Commands:
 
 | Command | What it does |
 | --- | --- |
-| `/new` | Starts a new conversation (the earlier ones stay in the app's chat history) |
+| `/new` | Starts a new conversation (the earlier ones stay in the app's chat history); with an agent, `/new summary` starts it from a summary of the last |
 | `/workspace` | Picks the workspace questions go to, from buttons, in a new conversation |
+| `/agent` | Sends messages to one of the workspace's agents shared with the person, or back to the AI chat |
 | `/mode` | Picks what the chat may change: *Ask* before each change (the default), change without asking (*Auto*), or *Read only* |
 | `/stop` | Stops the answer being written; what it did so far is kept |
 | `/notifications` | Turns notifications in the chat on or off |
@@ -824,6 +825,32 @@ for can answer it, only the call the message shows (an agent that asked again si
 to its new call), and only once; the answer counts as the owner's, and the audit log notes it was
 given from Telegram. A workspace that lets connected apps only read has its calls answered in the
 app.
+
+**Chatting with an agent.** `/agent` lists the workspace's agents shared with the person (see
+[Chatting with an agent](agents.md#agents)); once one is picked, messages and voice messages go to
+it instead of the AI chat, each one a message of the agent's own chat with the person, joining its
+latest conversation, the one its page shows, so the conversation goes on in the app (`/new` starts
+a new one there). The agent does
+what it does in that chat: its own instructions, skills and notes, its access held to the
+person's, read-only for someone who may only use it; `/mode` doesn't apply to it. Its answer
+shows as it is written, in one message edited every few seconds, then formatted, with the pages it
+changed. A call it waits on comes as the approval message above (once, when notifications come to
+the chat; otherwise sent for this chat, or, when that isn't possible, a note to answer it on the
+agent's page), and the answer follows once the call is answered, for up to a day; meanwhile the chat
+takes other messages. A message sent while the agent answers is queued for its next turn (the bot
+says *Queued*) and its answer follows the first. A text file sent as a document (CSV, TSV, TXT,
+Markdown, JSON, 100 KB) goes to the agent with its caption as the message, and files the agent
+attaches to its answer come after it as documents. `/new summary` starts a new conversation from a
+summary of the last and shows that summary. `/stop` stops following (the answer being written first, then those waiting on
+a call), and the agent finishes its answer on its page, as it does when the person loses access or
+the server restarts meanwhile. Messages from Telegram are a connected app's: they count as writes, so a
+workspace that lets apps only read takes none, and the agent gets no email tools. An agent that is
+archived or no longer shared with the person sends messages back to the AI chat, and so does picking
+another workspace. While the chat is pointed at an agent, each run of a schedule the person set for
+it says how it went there too: the agent's name, the task it finished (or couldn't) and the start of
+its report (500 characters, cut between paragraphs) or why it failed, with a link to the run. A run
+that found nothing new sends nothing, one that read their email only says its report is in the app,
+and none comes once the workspace turns connected apps off or they can't open the schedule's database.
 
 **Who may reach what.** The bot acts as the person, as a connected app does: each question is
 checked like an MCP request against the person's access and against the workspace's *Connected

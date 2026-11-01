@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { ApprovalDecision } from "@/lib/agents";
-import type { AgentGrantView, ConnectionEventView, ConnectionTriggerView, ConnectionView, ToolKind } from "@/lib/connections";
+import { isToolRule, type AgentGrantView, type ConnectionEventView, type ConnectionTriggerView, type ConnectionView, type ToolKind, type ToolRule } from "@/lib/connections";
 import { AccessError } from "@/server/access";
 import { ApprovalError, decideApproval } from "@/server/connections/approvals";
 import {
@@ -157,9 +157,17 @@ export async function listAgentGrantsAction(workspaceId: string, agentId: string
   return run(workspaceId, (userId) => listAgentGrants(userId, String(agentId)));
 }
 
-export async function setAgentGrantAction(workspaceId: string, agentId: string, connectionId: string, tools: string[]): Promise<ActionResult<AgentGrantView[]>> {
+/** Sets an agent's tools on a connection and, when given, the rules on them (those it leaves out have none). */
+export async function setAgentGrantAction(
+  workspaceId: string,
+  agentId: string,
+  connectionId: string,
+  tools: string[],
+  rules?: Record<string, ToolRule>,
+): Promise<ActionResult<AgentGrantView[]>> {
   const list = Array.isArray(tools) ? tools.filter((t): t is string => typeof t === "string") : [];
-  return run(workspaceId, (userId) => setAgentGrant(userId, String(agentId), String(connectionId), list));
+  const given = rules && typeof rules === "object" ? Object.fromEntries(Object.entries(rules).filter((entry): entry is [string, ToolRule] => isToolRule(entry[1]))) : undefined;
+  return run(workspaceId, (userId) => setAgentGrant(userId, String(agentId), String(connectionId), list, given));
 }
 
 /** An owner's answer to an agent's call that waits for approval. */

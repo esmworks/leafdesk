@@ -245,6 +245,7 @@
     "aiReminderTitle": "{agent} からのリマインダー",
     "reportDone": "スケジュールされた実行が完了しました。",
     "reportFailed": "スケジュールされた実行が失敗しました。開いて理由を確認してください。",
+    "reportFailedReason": "スケジュールされた実行はタスクを完了できませんでした: {reason}",
     "taskDone": "{agent}からのタスク：完了しました。",
     "taskFailed": "{agent}からのタスク：完了できませんでした。",
     "reportHidden": "スケジュールされた実行が、あなたが開けないデータベースで完了しました。",

@@ -64,8 +64,7 @@ import { rowMailAccess } from "@/server/row-mail/access";
 import { inboxKinds } from "@/server/notification-preferences";
 import { propertyAccessFor } from "@/server/property-access";
 import { pushNotifications } from "@/server/push";
-import { snippetOf } from "@/server/semantic-text";
-import { markdownPlain } from "@/lib/markdown-plain";
+import { markdownSummary } from "@/lib/markdown-plain";
 import { canInviteGuests } from "@/server/workspaces";
 import { countPendingFor } from "@/server/pending-changes";
 import { startSweep } from "@/server/sweep";
@@ -848,7 +847,12 @@ export type InboxAgentReport = {
   agentName: string;
   status: AgentRunStatus;
   code: AgentRunCode | null;
-  /** The start of the agent's answer; null when the run's row, database or page is one the user can no longer open. */
+  /**
+   * The first paragraph of the agent's answer as a line (lib/markdown-plain.ts markdownSummary), or
+   * of a failed run's own reason (finish_run, code `selfReported`); null when the run's row,
+   * database or page is one the user can no longer open. Only the app's inbox shows it: push and
+   * Telegram notifications don't (lib/push.ts).
+   */
   text: string | null;
   /** It read the user's email (lib/agents.ts readEmail): the app shows its report, connected apps don't. */
   email: boolean;
@@ -859,8 +863,8 @@ export type InboxAgentReport = {
   from?: { agentId: string; agentName: string } | null;
 };
 
-/** The most of a report the inbox shows; the whole of it is in the run. */
-const REPORT_CHARS = 400;
+/** The most of a report the inbox shows, under its title; the whole of it is in the run. */
+const REPORT_CHARS = 200;
 
 export type InboxAgentMemory = {
   runId: string;
@@ -1335,7 +1339,7 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
       agentName: r.agentName,
       status: r.status,
       code: r.code ?? null,
-      text: about && !open.has(about) ? null : snippetOf(markdownPlain(r.answer), REPORT_CHARS),
+      text: about && !open.has(about) ? null : markdownSummary(r.answer, REPORT_CHARS),
       email: readEmail(r.steps) || r.source.kind === "mail",
       ...(r.source.kind === "handoff" ? { from: r.giverId ? { agentId: r.giverId, agentName: r.giverName ?? "" } : null } : {}),
     });

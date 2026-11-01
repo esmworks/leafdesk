@@ -245,6 +245,7 @@
     "aiReminderTitle": "Recordatorio de {agent}",
     "reportDone": "Su ejecución programada terminó.",
     "reportFailed": "Su ejecución programada falló. Ábrela para ver por qué.",
+    "reportFailedReason": "Su ejecución programada no pudo hacer su tarea: {reason}",
     "taskDone": "Tarea de {agent}: hecha.",
     "taskFailed": "Tarea de {agent}: no pudo terminarla.",
     "reportHidden": "Su ejecución programada terminó, en una base de datos que no puedes abrir.",

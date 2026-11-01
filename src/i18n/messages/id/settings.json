@@ -469,7 +469,18 @@
       "rowChangesDirect": "Tulis langsung",
       "rowChangesReview": "Usulkan untuk ditinjau",
       "rowChangesDirectHelp": "Baris yang ditambahkannya dan nilai yang diubahnya langsung disimpan, atas namanya.",
-      "rowChangesReviewHelp": "Baris yang akan ditambahkannya dan nilai yang akan diubahnya menunggu di Untuk ditinjau sampai seseorang yang dapat mengeditnya menyetujui atau menolak masing-masing."
+      "rowChangesReviewHelp": "Baris yang akan ditambahkannya dan nilai yang akan diubahnya menunggu di Untuk ditinjau sampai seseorang yang dapat mengeditnya menyetujui atau menolak masing-masing.",
+      "quietHours": "Jam tenang",
+      "quietHoursHelp": "Panggilan yang selalu diizinkan oleh aturan pemilik menunggu hingga jam tenang berakhir, tanpa memberi tahu siapa pun. Panggilan yang perlu persetujuan tetap meminta seperti biasa.",
+      "quietFrom": "Dari",
+      "quietTo": "Sampai",
+      "quietTimeZone": "Zona waktu",
+      "quietHoursInvalid": "Pilih dua waktu berbeda dan zona waktu.",
+      "dailyChangeLimit": "Perubahan per hari",
+      "dailyChangeLimitPlaceholder": "Tanpa batas",
+      "dailyChangeLimitHelp": "Perubahan terbanyak yang dibuatnya dalam sehari: baris, halaman, komentar, email yang dikirimnya, dan panggilan koneksi yang mengubah sesuatu. Selebihnya ditolak. Hari dihitung dengan zona waktu jam tenang, jika tidak ada dengan UTC.",
+      "dailyChangeLimitInvalid": "Masukkan bilangan bulat dari 1 sampai {max}.",
+      "guardrailsOwnersOnly": "Hanya pemilik ruang kerja yang mengatur jam tenang dan batas perubahan harian."
     },
     "describe": {
       "button": "Deskripsikan agen",
@@ -547,7 +558,7 @@
       "libraryNote": "Keterampilan dibuat di <link>pustaka keterampilan</link>."
     },
     "memory": {
-      "description": "Catatan yang menyertai setiap eksekusi agen ini, sehingga ia tidak perlu mempelajari hal yang sama lagi. Eksekusinya mengusulkan catatan; tidak ada yang menyertai eksekusi sampai pemilik menyimpannya.",
+      "description": "Catatan yang menyertai setiap eksekusi agen ini, sehingga ia tidak perlu mempelajari hal yang sama lagi. Eksekusinya mengusulkan catatan; tidak ada yang menyertai eksekusi sampai pemilik menyimpannya. Koreksi yang diberikan seseorang yang dapat mengeditnya dalam obrolannya sendiri dengan agen ini langsung disimpan.",
       "rule": "Eksekusi membaca baris, halaman, dan peristiwa yang ditulis orang lain dan layanan, dan sebuah catatan dapat membawa kata-kata mereka ke setiap eksekusi berikutnya. Baca setiap usulan sebelum Anda menyimpannya. Catatan yang disimpan menyertai setiap eksekusi, siapa pun yang memulainya.",
       "off": "Memori AI dimatikan di ruang kerja ini: eksekusi tidak membawa catatan dan tidak mengusulkan apa pun sampai pemilik mengaktifkannya di <link>Pengaturan → Umum</link>.",
       "archived": "Pulihkan agen untuk mengubah memorinya.",
@@ -581,7 +592,9 @@
       "forgetAll": "Lupakan semuanya",
       "confirmForgetAll": "Haruskah {name} melupakan semua yang diingatnya?",
       "waiting": "{count, plural, other {# catatan untuk ditinjau}}",
-      "toReview": "{count, plural, other {# catatan untuk ditinjau}}"
+      "toReview": "{count, plural, other {# catatan untuk ditinjau}}",
+      "correction": "Koreksi",
+      "correctionFrom": "Koreksi · dari obrolan {name}"
     },
     "runs": {
       "description": "Eksekusi terbarunya, disimpan selama {days} hari.",
@@ -592,7 +605,9 @@
         "running": "Berjalan",
         "done": "Selesai",
         "failed": "Gagal",
-        "awaiting_approval": "Menunggu persetujuan"
+        "awaiting_approval": "Menunggu persetujuan",
+        "deferred": "Ditahan untuk jam tenang",
+        "quiet": "Tidak ada yang baru"
       },
       "rowHidden": "Baris yang tidak dapat Anda buka",
       "took": "memakan waktu {time}",
@@ -610,6 +625,7 @@
       "hideDetails": "Sembunyikan yang dilakukannya",
       "noSteps": "Agen tidak mencari, membaca, atau mengubah apa pun.",
       "answer": "Kata-kata terakhirnya",
+      "givenReason": "Alasannya",
       "comment": "Berkomentar:",
       "commentFailed": "Tidak dapat berkomentar:",
       "commentHidden": "Berkomentar pada baris yang tidak dapat Anda buka",
@@ -633,6 +649,7 @@
         "connectionGone": "Koneksi yang memulainya telah dihapus.",
         "limitReached": "Agen telah memakai batas token bulanannya.",
         "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanannya.",
+        "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
         "mailGone": "Email sudah tidak ada di kotak surat, atau kotak surat tidak lagi dibuka untuk agen."
       },
       "fromConnection": "{connection} · {event}",
@@ -646,6 +663,17 @@
         "searchFailed": "Tidak dapat mencari di web",
         "approved": "disetujui"
       },
+      "computer": {
+        "list": "Menampilkan isi folder di komputer",
+        "read": "Membaca file di komputer",
+        "write": "Menulis file di komputer",
+        "trash": "Memindahkan sesuatu di komputer ke tempat sampah",
+        "declined": "ditolak; tidak ada yang dilakukan",
+        "expired": "tidak dijawab tepat waktu; tidak ada yang dilakukan",
+        "failed": "tidak dapat dilakukan",
+        "afterMail": "ditahan setelah membaca email; tidak ada yang dilakukan",
+        "limited": "melewati batas perubahan harian agen; tidak ada yang dilakukan"
+      },
       "tool": {
         "done": "Memanggil “{tool}” di {connection}",
         "failed": "Tidak dapat memanggil “{tool}” di {connection}",
@@ -654,9 +682,14 @@
         "expired": "Panggilannya ke “{tool}” di {connection} kehabisan waktu; tidak ada yang dikirim",
         "refused": "Panggilannya ke “{tool}” di {connection} ditolak karena tidak ada yang bisa menyetujuinya; tidak ada yang dikirim",
         "afterMail": "Panggilan “{tool}” di {connection} ditahan: setelah membaca email, sebuah run hanya membaca halaman dan menulis draf; tidak ada yang dikirim",
+        "afterLocalRead": "Panggilannya ke “{tool}” di {connection} ditahan: setelah membaca file di komputer, tidak ada yang keluar; tidak ada yang dikirim",
+        "afterLocalReadOut": "Panggilannya ke “{tool}” ditahan: setelah membaca file di komputer, tidak ada yang keluar; tidak ada yang dikirim",
         "approved": "disetujui",
         "answered": "dijawab oleh pemilik",
-        "note": "Catatan: {note}"
+        "note": "Catatan: {note}",
+        "denied": "Panggilannya ke “{tool}” di {connection} ditolak oleh aturan pemilik; tidak ada yang dikirim",
+        "limited": "Panggilannya ke “{tool}” di {connection} ditolak: agen sudah membuat perubahan sebanyak yang boleh dalam sehari; tidak ada yang dilakukan",
+        "allowedByRule": "diizinkan oleh aturan pemilik"
       },
       "skill": {
         "used": "Mengikuti keterampilan <name></name>",
@@ -685,7 +718,8 @@
       "chattedBy": "obrolan oleh {name}",
       "yoursOnly": "Anda melihat eksekusi yang Anda mulai.",
       "waitingForOwner": "Pemilik ruang kerja menjawab panggilan ini.",
-      "fromMail": "Email untuk {name}"
+      "fromMail": "Email untuk {name}",
+      "deferred": "Ditahan sampai jam tenangnya berakhir ({time}); pemilik dapat menyetujuinya sekarang."
     },
     "usage": {
       "thisMonth": "Bulan ini: {usage}",
@@ -799,7 +833,9 @@
         "requestTokens": "Minta jumlah token berupa bilangan bulat di atas batas saat ini, hingga 1.000.000.000.",
         "requestNote": "Jelaskan alasannya dalam maksimal 500 karakter.",
         "noLimit": "Agen ini tidak punya batas yang dapat dinaikkan.",
-        "mailbox": "Pilih salah satu kotak surat Anda di ruang kerja ini."
+        "mailbox": "Pilih salah satu kotak surat Anda di ruang kerja ini.",
+        "quietHours": "Jam tenang memerlukan dua waktu berbeda (HH:MM) dan zona waktu.",
+        "dailyChangeLimit": "Masukkan batas perubahan harian sebagai bilangan bulat dari 1 sampai 10.000."
       },
       "noteEmpty": "Tulis apa yang harus diingat agen.",
       "noteTooLong": "Catatan dapat memiliki paling banyak {max} karakter.",
@@ -815,9 +851,10 @@
       "scheduleNotFound": "Jadwal ini sudah tidak ada.",
       "versionNotFound": "Versi ini sudah tidak ada.",
       "notAllowed": "Akses Anda ke agen ini tidak mengizinkan hal ini.",
-      "ownersOnly": "Hanya pemilik ruang kerja yang mengubah batas token bulanan agen.",
+      "ownersOnly": "Hanya pemilik ruang kerja yang mengubah batas token bulanan, jam tenang, dan batas perubahan harian agen.",
       "notAMember": "Agen hanya dapat dibagikan kepada pemilik, anggota, dan grup ruang kerja.",
-      "requestNotFound": "Permintaan ini sudah dijawab."
+      "requestNotFound": "Permintaan ini sudah dijawab.",
+      "noteChanged": "Catatan ini sudah berubah sejak itu. Ubah di tab Memori agen."
     },
     "connections": {
       "description": "Alat dari setiap koneksi yang boleh dipakai agen ini. Alat yang hanya membaca langsung berjalan, kecuali pada baris dari jawaban formulir anonim; yang lain menunggu persetujuan pemilik setiap kali agen memanggilnya.",
@@ -826,7 +863,13 @@
       "notReady": "Koneksi ini belum siap (perlu masuk atau gagal), sehingga agen belum dapat memakai alatnya.",
       "noTools": "Belum ada alat yang terdaftar.",
       "ownersChoose": "Alat dari setiap koneksi yang boleh dipakai agen ini. Hanya pemilik ruang kerja yang memilihnya.",
-      "none": "Agen ini tidak dapat memakai alat koneksi mana pun."
+      "none": "Agen ini tidak dapat memakai alat koneksi mana pun.",
+      "rulesNote": "Untuk setiap alat yang dipilih Anda juga dapat menetapkan aturan: selalu izinkan (berjalan tanpa bertanya, kecuali proses telah membaca konten dari luar) atau selalu tolak.",
+      "ruleLabel": "Aturan untuk {tool}",
+      "ruleAsk": "Tanya setiap kali",
+      "ruleAllowed": "Diizinkan",
+      "ruleAllow": "Selalu izinkan",
+      "ruleDeny": "Selalu tolak"
     },
     "schedules": {
       "description": "Biarkan agen ini berjalan sendiri, menurut jadwal: setiap eksekusi mengerjakan tugas, pada basis data pilihan Anda jika ada, dan Anda mendapat laporannya di kotak masuk. Eksekusinya hanya dapat membuka apa yang dapat Anda buka.",
@@ -896,7 +939,9 @@
         "skills": "Keterampilan",
         "schedules": "Jadwal",
         "shares": "Halaman yang dibagikan",
-        "row_changes": "Perubahan pada baris"
+        "row_changes": "Perubahan pada baris",
+        "quiet_hours": "Jam tenang",
+        "daily_change_limit": "Perubahan per hari"
       },
       "back": "Semua versi",
       "compareNote": "Apa yang berubah dari versi ini ke pengaturan agen saat ini. Memulihkan mengembalikan apa yang dimiliki versi ini.",
@@ -1984,7 +2029,8 @@
         "shared": "Mengatur akses {subject} ke agen “{target}”: {level}",
         "unshared": "Mengeluarkan {subject} dari berbagi agen “{target}”",
         "creator_added": "Mengizinkan {subject} membuat agen",
-        "creator_removed": "Menghapus {subject} dari yang dapat membuat agen"
+        "creator_removed": "Menghapus {subject} dari yang dapat membuat agen",
+        "local_file": "{op, select, trash {Memindahkan “{path}” ke tempat sampah} other {Menulis “{path}”}} di komputer {target} ({outcome})"
       },
       "connection": {
         "created": "Menambahkan koneksi “{target}”",
@@ -2051,7 +2097,9 @@
     },
     "outcomes": {
       "done": "selesai",
-      "failed": "gagal"
+      "failed": "gagal",
+      "declined": "ditolak",
+      "expired": "tidak dijawab"
     },
     "agentLevels": {
       "full": "Akses penuh",

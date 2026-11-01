@@ -3,10 +3,11 @@
   "linkedNoWorkspace": "Đã liên kết với Leafdesk với tư cách {name}. Bạn chưa ở trong không gian làm việc nào mà tôi có thể trả lời: hãy tham gia một không gian, rồi chọn nó bằng /workspace.",
   "notLinked": "Cuộc trò chuyện này chưa được liên kết với tài khoản Leafdesk nào. Trong Leafdesk, hãy mở Cài đặt → Ứng dụng đã kết nối → Telegram và chọn Liên kết Telegram.",
   "badCode": "Liên kết đó đã hết hạn hoặc đã được dùng. Hãy tạo liên kết mới trong Leafdesk: Cài đặt → Ứng dụng đã kết nối → Telegram.",
-  "help": "Hãy đặt câu hỏi, hoặc gửi tin nhắn thoại, và tôi sẽ trả lời dựa trên các trang Leafdesk của bạn, kèm trích dẫn.\n\n/new: bắt đầu cuộc trò chuyện mới\n/workspace: chọn không gian làm việc tôi dùng để trả lời\n/mode: chọn những gì tôi được phép thay đổi\n/stop: dừng việc viết câu trả lời\n/notifications: bật hoặc tắt thông báo của bạn trong cuộc trò chuyện này\n/unlink: hủy liên kết tài khoản Telegram này",
+  "help": "Hãy đặt câu hỏi, hoặc gửi tin nhắn thoại, và tôi sẽ trả lời dựa trên các trang Leafdesk của bạn, kèm trích dẫn.\n\n/new: bắt đầu cuộc trò chuyện mới\n/new summary: bắt đầu cuộc trò chuyện mới với tác nhân từ bản tóm tắt cuộc trước\n/workspace: chọn không gian làm việc tôi dùng để trả lời\n/agent: trò chuyện với một trong các tác tử của bạn\n/mode: chọn những gì tôi được phép thay đổi\n/stop: dừng việc viết câu trả lời\n/notifications: bật hoặc tắt thông báo của bạn trong cuộc trò chuyện này\n/unlink: hủy liên kết tài khoản Telegram này",
   "commands": {
     "new": "Bắt đầu cuộc trò chuyện mới",
     "workspace": "Chọn không gian làm việc tôi dùng để trả lời",
+    "agent": "Trò chuyện với một trong các tác tử của bạn",
     "mode": "Chọn những gì tôi được phép thay đổi",
     "stop": "Dừng việc viết câu trả lời",
     "unlink": "Hủy liên kết tài khoản Telegram này",
@@ -123,5 +124,80 @@
     "invalid": "Hãy gửi một câu hỏi trước.",
     "interrupted": "Máy chủ đã khởi động lại khi đang trả lời. Hãy hỏi lại.",
     "limitReached": "Không gian làm việc này đã đạt giới hạn chi phí AI hằng tháng, nên các câu hỏi bị từ chối cho đến tháng sau."
+  },
+  "agent": {
+    "general": "Trò chuyện AI chung",
+    "none": "Không có tác tử nào trong {workspace} được chia sẻ với bạn.",
+    "pick": "Tin nhắn của bạn được gửi tới {agent}. Hãy chọn tác tử khác hoặc trò chuyện AI chung:",
+    "pickNone": "Tin nhắn của bạn được gửi tới trò chuyện AI chung của {workspace}. Hãy chọn một tác tử để trò chuyện:",
+    "set": "Giờ tin nhắn của bạn được gửi tới {agent}. Cuộc trò chuyện tiếp tục trong khung chat của bạn trên trang của nó; /agent để chuyển lại.",
+    "setReadOnly": "Giờ tin nhắn của bạn được gửi tới {agent}. Bạn chỉ có thể sử dụng nó: nó trả lời từ các trang cả hai cùng xem được và không thay đổi gì.",
+    "generalSet": "Đã quay lại trò chuyện AI chung của {workspace}.",
+    "newConversation": "Cuộc trò chuyện mới với tác tử.",
+    "stopped": "Tôi đã ngừng theo dõi. {agent} sẽ viết xong câu trả lời, bạn có thể xem trên trang của nó.",
+    "modeNote": "Chế độ thuộc về trò chuyện AI chung: tác tử làm theo cài đặt riêng của nó.",
+    "waiting": "{agent} đang chờ bạn chấp thuận để dùng {connection}. Hãy trả lời trong tin nhắn có nút.",
+    "waitingOwner": "{agent} đang chờ chủ sở hữu không gian làm việc chấp thuận một lệnh gọi. Câu trả lời sẽ đến đây sau khi được chấp thuận.",
+    "waitingApp": "{agent} đang chờ bạn chấp thuận để dùng {connection}. Hãy trả lời trên trang của tác tử trong Leafdesk; câu trả lời sẽ đến đây sau đó.",
+    "readOnlyWorkspace": "{workspace} chỉ cho phép ứng dụng đã kết nối đọc, nên các tác tử ở đó không nhận tin nhắn từ đây. /agent để quay lại trò chuyện AI chung.",
+    "states": {
+      "gone": "Tác tử đó không còn khả dụng. Tin nhắn của bạn lại được gửi tới trò chuyện AI chung.",
+      "noAccess": "Tác tử đó không còn được chia sẻ với bạn. Tin nhắn của bạn lại được gửi tới trò chuyện AI chung.",
+      "guest": "Khách không trò chuyện với tác tử. Tin nhắn của bạn lại được gửi tới trò chuyện AI chung.",
+      "paused": "Tác tử này đang tạm dừng. Hãy nhờ một chủ sở hữu bật nó lên, hoặc chọn tác tử khác bằng /agent.",
+      "aiOff": "AI đã tắt trong không gian làm việc này.",
+      "limitReached": "Tác tử này đã dùng hết token của tháng. Hãy chọn tác tử khác bằng /agent."
+    },
+    "refused": {
+      "tooLong": "Tin nhắn gửi tác tử dài tối đa {max} ký tự.",
+      "busy": "Tác tử vẫn đang trả lời tin nhắn trước của bạn.",
+      "rateLimited": "Quá nhiều tin nhắn cùng lúc. Hãy thử lại sau giây lát.",
+      "invalid": "Hãy gửi một tin nhắn trước.",
+      "queueFull": "Đã có {max} tin nhắn đang chờ câu trả lời của tác nhân. Hãy gửi tin này sau khi nó trả lời.",
+      "badFile": "Tác nhân chỉ nhận tệp văn bản (CSV, TSV, TXT, Markdown, JSON), mỗi tệp tối đa {size}.",
+      "summaryFailed": "Tác nhân không thể tóm tắt cuộc trò chuyện. Hãy thử lại hoặc bắt đầu lại bằng /new."
+    },
+    "failed": {
+      "aiOff": "AI đã tắt trong không gian làm việc này.",
+      "agentDisabled": "Tác tử đã bị tạm dừng trước khi trả lời.",
+      "noAccess": "Tác tử không còn mở được thứ nó cần.",
+      "provider": "Nhà cung cấp AI không thể trả lời. Hãy thử lại sau.",
+      "timeout": "Tác tử trả lời quá lâu. Hãy thử lại.",
+      "tooManyAttempts": "Tác tử không thể trả lời sau nhiều lần thử.",
+      "approvalTimeout": "Không ai trả lời yêu cầu chấp thuận trong một ngày, nên không có gì được gửi.",
+      "limitReached": "Tác tử đã dùng hết token của tháng.",
+      "costLimit": "Câu trả lời đã chạm giới hạn chi phí.",
+      "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
+      "error": "Đã xảy ra sự cố khi tác tử trả lời."
+    },
+    "routine": {
+      "done": "{agent} đã xong “{task}”.",
+      "failed": "{agent} không thể hoàn thành “{task}”.",
+      "reasons": {
+        "aiOff": "AI đang tắt trong không gian làm việc này.",
+        "agentDisabled": "Tác tử đã bị tạm dừng hoặc lưu trữ.",
+        "noAccess": "Tác nhân, hoặc người đã đặt lịch, không còn mở được những gì tác vụ cần.",
+        "rowGone": "Hàng đã bị xóa.",
+        "databaseGone": "Cơ sở dữ liệu mà nó phụ trách đã bị xóa hoặc chuyển vào thùng rác.",
+        "commentGone": "Bình luận đã nhắc đến nó bị xóa, hoặc trang của bình luận đã được chuyển vào thùng rác.",
+        "provider": "Nhà cung cấp AI không phản hồi.",
+        "timeout": "Lần chạy mất quá nhiều thời gian.",
+        "tooManyAttempts": "Nó không thể khởi động kịp lúc: hạn mức AI của không gian làm việc vẫn bị dùng hết.",
+        "approvalTimeout": "Không ai trả lời lệnh gọi của nó trong vòng một ngày, nên không có gì được gửi đi.",
+        "connectionGone": "Một kết nối mà tác vụ cần đã bị xóa.",
+        "mailGone": "Email không còn trong hộp thư, hoặc hộp thư không còn mở cho tác tử.",
+        "limitReached": "Nó đã dùng hết giới hạn token hằng tháng của tác tử.",
+        "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
+        "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
+        "error": "Đã xảy ra lỗi."
+      },
+      "email": "Tác tử đã đọc email của bạn, nên báo cáo chỉ hiển thị trong Leafdesk."
+    },
+    "deferred": "{agent} đang giữ một lệnh gọi đến khi hết giờ yên lặng. Câu trả lời sẽ đến đây lúc đó.",
+    "queued": "Đang chờ: tác nhân sẽ đọc sau khi trả lời xong.",
+    "nothingToSummarize": "Chưa có cuộc trò chuyện nào với tác nhân để tóm tắt.",
+    "newSummary": "Cuộc trò chuyện mới với tác nhân. Bắt đầu từ bản tóm tắt cuộc trước này:",
+    "fileFailed": "Tôi không tải được tệp đó. Hãy thử gửi lại.",
+    "fileNotSent": "Tôi không gửi được tệp {name}. Tệp nằm cùng câu trả lời trên trang của tác nhân."
   }
 }

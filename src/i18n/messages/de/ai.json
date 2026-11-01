@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Merken abgelehnt:",
           "forget": "Vergessen abgelehnt:"
-        }
+        },
+        "correct": "Als Korrektur notiert:",
+        "undone": "Korrektur rückgängig gemacht:"
       },
       "connection": {
         "done": "{connection}: {tool} aufgerufen",

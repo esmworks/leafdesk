@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Muistaminen hylätty:",
           "forget": "Unohtaminen hylätty:"
-        }
+        },
+        "correct": "Merkitty korjaukseksi:",
+        "undone": "Korjaus peruttu:"
       },
       "connection": {
         "done": "{connection}: kutsuttiin {tool}",

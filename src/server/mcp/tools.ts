@@ -165,6 +165,7 @@ import * as connections from "@/server/connections/manage";
 import { connectionInputs, describeConnection, withConnectionErrors } from "./connections";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import {
+  AGENT_RUN_CODES,
   AGENT_RUN_HISTORY_DAYS,
   agentMemoryPath,
   agentReportPath,
@@ -175,6 +176,7 @@ import {
   MAX_SCHEDULED_WRITES,
   readEmail,
 } from "@/lib/agents";
+import { firstLocalRead } from "@/lib/local-reads";
 import { AGENT_VERSION_MERGE_MS, MAX_AGENT_VERSIONS } from "@/lib/agent-versions";
 import {
   actionsInput,
@@ -1554,7 +1556,9 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 summary: !r
                   ? "A scheduled run of an agent finished; the run is no longer kept"
                   : r.status === "failed"
-                    ? `A scheduled run of the agent "${r.agentName}" failed (${r.code ?? "error"}); list_agent_runs shows why`
+                    ? r.code === "selfReported" && r.text && !r.email
+                      ? `A scheduled run of the agent "${r.agentName}" ended as failed: it said it couldn't do its task, because "${r.text}"`
+                      : `A scheduled run of the agent "${r.agentName}" failed (${r.code ?? "error"}); list_agent_runs shows why`
                     : r.email
                       ? `A scheduled run of the agent "${r.agentName}" finished after reading the user's email: its report shows only in Leafdesk's app`
                       : r.text === null
@@ -3389,7 +3393,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     "list_agent_runs",
     {
       title: "List an agent's runs",
-      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, a connection event, an owner's request, a schedule, a comment mention, a chat message or another agent's handoff), its status (pending, running, awaiting_approval, done, failed), why it failed (aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached, error), what it did step by step, the call it waits on (credentials masked), its final answer and the tokens it used, with the model that answered. Approvals happen in Leafdesk, not here. Someone who can only interact with the agent sees only the runs they started. ${RUN_NOTE}`,
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (automation, event, request, schedule, mention, chat or an agent's handoff), its status (pending, running, awaiting_approval, done, failed), why it failed (${AGENT_RUN_CODES.join(", ")}; selfReported: a schedule's run gave up), quiet: true if a schedule's run found nothing new (for both, answer says why), its steps, the call it waits on (credentials masked), its answer, tokens used and model. Approve calls in Leafdesk. Those who only interact with it see only their own runs. ${RUN_NOTE}`,
       inputSchema: agentInputs.runs,
       annotations: READ,
     },
@@ -3454,7 +3458,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     "chat_with_agent",
     {
       title: "Chat with an agent",
-      description: `Send a message to an agent from list_agents, as the user chatting with it in the app (the conversation shows in their chat with the agent there), and wait up to wait_seconds for its answer. It answers following its instructions and skills, with what is shared with it and what the user can open; it may change pages and rows the way it would in the app's chat. Returns the answer, or status running when it needs longer (read it later with get_agent_chat) and awaiting_approval when a workspace owner must approve a call it wants to make. Go on in the same conversation with conversation_id; it answers one message at a time. Needs the agent shared with the user; uses the workspace's AI allowance.`,
+      description: `Send a message to an agent from list_agents, as the user chatting with it in the app (the conversation shows in their chat with the agent there), and wait up to wait_seconds for its answer. It answers following its instructions and skills, with what is shared with it and what the user can open; it may change pages and rows the way it would in the app's chat. Returns the answer, or status running when it needs longer (read it later with get_agent_chat) and awaiting_approval when a workspace owner must approve a call. Go on with conversation_id; one sent while it answers is queued for its next turn (status queued). Needs the agent shared with the user; uses the workspace's AI allowance.`,
       inputSchema: agentInputs.chat,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -3464,11 +3468,20 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
         withChatErrors(async () => {
           const { workspaceId } = await agents.getAgent(userId, agent_id);
           const sent = await agentChat.sendAgentChat(userId, { workspaceId, agentId: agent_id, place: null, conversationId: conversation_id ?? null, message });
+          if (!sent.runId) {
+            return {
+              agent_id,
+              conversation_id: sent.conversation.id,
+              status: "queued",
+              note: "The agent is still answering in this conversation: this message waits and goes as its next turn. Read both answers with get_agent_chat in a little while.",
+            };
+          }
           const until = Date.now() + wait_seconds * 1000;
-          let turn = await agentChat.chatTurn(userId, workspaceId, sent.runId);
+          const runId = sent.runId;
+          let turn = await agentChat.chatTurn(userId, workspaceId, runId);
           while ((turn.status === "pending" || turn.status === "running") && Date.now() < until) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            turn = await agentChat.chatTurn(userId, workspaceId, sent.runId);
+            turn = await agentChat.chatTurn(userId, workspaceId, runId);
           }
           return {
             agent_id,
@@ -3509,17 +3522,23 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
               };
             }
             const found = await agentChat.getAgentConversation(userId, workspaceId, agent_id, conversation_id, null);
+            // Files read on the person's computer stay with them: from the first turn that read there on, any message may quote them.
+            const local = firstLocalRead(found.messages);
+            const keptLocal = (i: number) => local >= 0 && i >= local;
             return {
               agent_id,
               conversation_id: found.id,
               title: found.title,
               answering: found.running !== null,
+              // Messages sent while it answered, going as its next turn.
+              ...(found.queued.length ? { queued: found.queued.map((q) => ({ text: q.content, at: q.at })) } : {}),
               // An answer that read email, or went on from one that had, shows only in the app (lib/agents.ts readEmail).
-              messages: found.messages.map((m) => ({
+              messages: found.messages.map((m, i) => ({
                 role: m.role,
-                text: readEmail(m.steps) ? "" : m.content,
+                text: readEmail(m.steps) || keptLocal(i) ? "" : m.content,
                 at: m.at,
                 ...(readEmail(m.steps) ? { email: "This answer read the user's email: it shows only in Leafdesk's app." } : {}),
+                ...(!readEmail(m.steps) && keptLocal(i) ? { local_files: "Files on the user's computer were read in this conversation: from there on it shows only in Leafdesk's app." } : {}),
                 ...(m.code ? { failed: chatFailure(m.code) } : {}),
               })),
             };
@@ -3564,7 +3583,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "List the workspace's connections",
       description:
-        "List the services the workspace's agents can use (each a remote MCP server an owner added, such as Slack or GitHub): their status (ready, needsAuth, error), their tools with what each does (reads: runs at once, except on runs started by an anonymous form answer or by an event from a trigger an owner hasn't marked trusted, where it waits too; writes: each call waits for an owner's approval in the inbox), and the address their signed events go to. Never their credentials or event secrets. With agent_id, each says which of its tools that agent may use. Owners only; owners add, sign in to and remove connections in Settings > Connections.",
+        "List the services the workspace's agents can use (each a remote MCP server an owner added, such as Slack or GitHub): their status (ready, needsAuth, error), their tools, each reading or writing (see set_agent_connection_tools), and the address their signed events go to. Never their credentials or event secrets. With agent_id, each says which of its tools that agent may use, and its rules. Owners only; owners add, sign in to and remove connections in Settings > Connections.",
       inputSchema: connectionInputs.list,
       annotations: READ,
     },
@@ -3583,15 +3602,15 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "Choose an agent's tools on a connection",
       description:
-        "Set which of a connection's tools an agent may use, replacing the list (an empty list takes the connection from the agent). Tools that only read run when the agent calls them (on a row from an anonymous form answer, and on a run a connection's event started unless an owner marked its trigger trusted in Settings > Connections, they wait as well); any other waits each time for an owner's approval in the inbox, and nothing is sent if no one answers in a day. Give an agent only the tools its task needs. Returns the agent's tools on every connection. Owners only.",
+        "Set which of a connection's tools an agent may use, replacing the list (an empty list takes it from the agent). Reads run when called (they wait on runs an anonymous form answer or an untrusted event trigger started); writes wait each time for an owner's approval in the inbox, unsent if no one answers in a day. Give an agent only the tools its task needs. Returns the agent's tools and rules per connection. Owners only.",
       inputSchema: connectionInputs.grant,
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    write(({ agent_id, connection_id, tools }) =>
+    write(({ agent_id, connection_id, tools, rules }) =>
       withConnectionErrors(async () => {
-        const grants = await connections.setAgentGrant(userId, agent_id, connection_id, tools);
-        return { agent_id, connections: grants.map((g) => ({ connection_id: g.connectionId, tools: g.tools })) };
+        const grants = await connections.setAgentGrant(userId, agent_id, connection_id, tools, rules);
+        return { agent_id, connections: grants.map((g) => ({ connection_id: g.connectionId, tools: g.tools, rules: g.rules })) };
       }),
     ),
   );

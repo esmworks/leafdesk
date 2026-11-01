@@ -469,7 +469,18 @@
       "rowChangesDirect": "Write them directly",
       "rowChangesReview": "Propose them for review",
       "rowChangesDirectHelp": "Rows it adds and values it changes are saved right away, under its name.",
-      "rowChangesReviewHelp": "Rows it would add and values it would change wait under For review until someone who can edit them approves or dismisses each one."
+      "rowChangesReviewHelp": "Rows it would add and values it would change wait under For review until someone who can edit them approves or dismisses each one.",
+      "quietHours": "Quiet hours",
+      "quietHoursHelp": "Calls an owner’s rule always allows wait until quiet hours end, without telling anyone. Calls that need approval still ask as usual.",
+      "quietFrom": "From",
+      "quietTo": "Until",
+      "quietTimeZone": "Time zone",
+      "quietHoursInvalid": "Choose two different times and a time zone.",
+      "dailyChangeLimit": "Changes per day",
+      "dailyChangeLimitPlaceholder": "No limit",
+      "dailyChangeLimitHelp": "The most changes it makes in a day: rows, pages, comments, emails it sends and connection calls that change something. Further ones are refused. The day follows the quiet hours’ time zone, else UTC.",
+      "dailyChangeLimitInvalid": "Enter a whole number from 1 to {max}.",
+      "guardrailsOwnersOnly": "Only workspace owners set quiet hours and the daily change limit."
     },
     "describe": {
       "button": "Describe an agent",
@@ -547,7 +558,7 @@
       "libraryNote": "Skills are made in the <link>skills library</link>."
     },
     "memory": {
-      "description": "Notes that go with every run of this agent, so it doesn’t have to learn the same things again. Its runs propose notes; none goes with a run until an owner keeps it.",
+      "description": "Notes that go with every run of this agent, so it doesn’t have to learn the same things again. Its runs propose notes; none goes with a run until an owner keeps it. Corrections someone who can edit it gives in their own chat with it are kept at once.",
       "rule": "A run reads rows, pages and events other people and services wrote, and a note could carry their words into every later run. Read each proposal before you keep it. Kept notes go with every run, whoever starts it.",
       "off": "AI memory is off in this workspace: runs carry no notes and propose none until an owner turns it on in <link>Settings → General</link>.",
       "archived": "Restore the agent to change its memory.",
@@ -581,7 +592,9 @@
       "forgetAll": "Forget everything",
       "confirmForgetAll": "Should {name} forget everything it remembers?",
       "waiting": "{count, plural, one {# note to review} other {# notes to review}}",
-      "toReview": "{count, plural, one {# note to review} other {# notes to review}}"
+      "toReview": "{count, plural, one {# note to review} other {# notes to review}}",
+      "correction": "Correction",
+      "correctionFrom": "Correction · from {name}’s chat"
     },
     "runs": {
       "description": "Its latest runs, kept for {days} days.",
@@ -592,7 +605,9 @@
         "running": "Running",
         "done": "Done",
         "failed": "Failed",
-        "awaiting_approval": "Waiting for approval"
+        "awaiting_approval": "Waiting for approval",
+        "deferred": "Held for quiet hours",
+        "quiet": "Nothing new"
       },
       "rowHidden": "A row you can’t open",
       "took": "took {time}",
@@ -610,6 +625,7 @@
       "hideDetails": "Hide what it did",
       "noSteps": "It didn’t search, read or change anything.",
       "answer": "Its last words",
+      "givenReason": "Its reason",
       "comment": "Commented:",
       "commentFailed": "Couldn’t comment:",
       "commentHidden": "Commented on a row you can’t open",
@@ -633,6 +649,7 @@
         "connectionGone": "The connection that started it was removed.",
         "limitReached": "It had used the agent’s monthly token limit.",
         "costLimit": "The workspace had reached its monthly AI cost limit.",
+        "selfReported": "The agent said it couldn’t do its task.",
         "mailGone": "The email is gone from the mailbox, or the mailbox is no longer open to the agent."
       },
       "fromConnection": "{connection} · {event}",
@@ -646,6 +663,17 @@
         "searchFailed": "Couldn’t search the web",
         "approved": "approved"
       },
+      "computer": {
+        "list": "Listed a folder on the computer",
+        "read": "Read a file on the computer",
+        "write": "Wrote a file on the computer",
+        "trash": "Moved something on the computer to the trash",
+        "declined": "declined; nothing was done",
+        "expired": "no answer in time; nothing was done",
+        "failed": "couldn’t be done",
+        "afterMail": "held back after reading email; nothing was done",
+        "limited": "past the agent’s daily limit of changes; nothing was done"
+      },
       "tool": {
         "done": "Called “{tool}” on {connection}",
         "failed": "Couldn’t call “{tool}” on {connection}",
@@ -654,9 +682,14 @@
         "expired": "Its call of “{tool}” on {connection} ran out of time; nothing was sent",
         "refused": "Its call of “{tool}” on {connection} was refused, as no one could approve it; nothing was sent",
         "afterMail": "Its call of “{tool}” on {connection} was held back: after reading email, a run only reads pages and drafts email; nothing was sent",
+        "afterLocalRead": "Its call of “{tool}” on {connection} was held back: after reading files on the computer, nothing goes out; nothing was sent",
+        "afterLocalReadOut": "Its call of “{tool}” was held back: after reading files on the computer, nothing goes out; nothing was sent",
         "approved": "approved",
         "answered": "answered by an owner",
-        "note": "Note: {note}"
+        "note": "Note: {note}",
+        "denied": "Its call of “{tool}” on {connection} was declined by an owner’s rule; nothing was sent",
+        "limited": "Its call of “{tool}” on {connection} was refused: the agent made as many changes as it may in a day; nothing was done",
+        "allowedByRule": "allowed by an owner’s rule"
       },
       "skill": {
         "used": "Followed the skill <name></name>",
@@ -685,7 +718,8 @@
       "chattedBy": "chat by {name}",
       "yoursOnly": "You see the runs you started.",
       "waitingForOwner": "A workspace owner answers this call.",
-      "fromMail": "Email to {name}"
+      "fromMail": "Email to {name}",
+      "deferred": "Held until its quiet hours end ({time}); an owner can approve it now."
     },
     "usage": {
       "thisMonth": "This month: {usage}",
@@ -799,7 +833,9 @@
         "requestTokens": "Ask for a whole number of tokens above the current limit, up to 1,000,000,000.",
         "requestNote": "Say why in at most 500 characters.",
         "noLimit": "This agent has no limit to raise.",
-        "mailbox": "Choose one of your mailboxes in this workspace."
+        "mailbox": "Choose one of your mailboxes in this workspace.",
+        "quietHours": "Quiet hours need two different times (HH:MM) and a time zone.",
+        "dailyChangeLimit": "Enter a daily change limit as a whole number from 1 to 10,000."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",
@@ -815,9 +851,10 @@
       "scheduleNotFound": "This schedule no longer exists.",
       "versionNotFound": "This version no longer exists.",
       "notAllowed": "Your access to this agent doesn’t allow this.",
-      "ownersOnly": "Only workspace owners change an agent’s monthly token limit.",
+      "ownersOnly": "Only workspace owners change an agent’s monthly token limit, quiet hours and daily change limit.",
       "notAMember": "An agent can be shared only with the workspace’s owners, members and groups.",
-      "requestNotFound": "This request was answered already."
+      "requestNotFound": "This request was answered already.",
+      "noteChanged": "This note changed since. Change it in the agent’s Memory tab."
     },
     "connections": {
       "description": "The tools of each connection this agent may use. Tools that only read run at once, except on a row from an anonymous form answer; any other waits for an owner’s approval every time the agent calls it.",
@@ -826,7 +863,13 @@
       "notReady": "This connection isn’t ready (it needs a sign-in or fails), so the agent can’t use its tools for now.",
       "noTools": "No tools listed yet.",
       "ownersChoose": "The tools of each connection this agent may use. Only workspace owners choose them.",
-      "none": "This agent can’t use any connection’s tools."
+      "none": "This agent can’t use any connection’s tools.",
+      "rulesNote": "For each chosen tool you can also set a rule: always allow it (it goes without asking, unless the run read outside content) or always decline it.",
+      "ruleLabel": "Rule for {tool}",
+      "ruleAsk": "Ask each time",
+      "ruleAllowed": "Allowed",
+      "ruleAllow": "Always allow",
+      "ruleDeny": "Always decline"
     },
     "schedules": {
       "description": "Let this agent run on its own, on a schedule: each run does the task, on the database you choose if any, and you get its report in your inbox. Its runs can open only what you can open.",
@@ -896,7 +939,9 @@
         "skills": "Skills",
         "schedules": "Schedules",
         "shares": "Shared pages",
-        "row_changes": "Changes to rows"
+        "row_changes": "Changes to rows",
+        "quiet_hours": "Quiet hours",
+        "daily_change_limit": "Changes per day"
       },
       "back": "All versions",
       "compareNote": "What changed from this version to the agent’s current setup. Restoring brings back what this version had.",
@@ -1984,7 +2029,8 @@
         "shared": "Set the access of {subject} to the agent “{target}”: {level}",
         "unshared": "Removed {subject} from the sharing of the agent “{target}”",
         "creator_added": "Let {subject} create agents",
-        "creator_removed": "Removed {subject} from those who can create agents"
+        "creator_removed": "Removed {subject} from those who can create agents",
+        "local_file": "{op, select, trash {Moved “{path}” to the trash} other {Wrote “{path}”}} on the computer of {target} ({outcome})"
       },
       "connection": {
         "created": "Added the connection “{target}”",
@@ -2051,7 +2097,9 @@
     },
     "outcomes": {
       "done": "done",
-      "failed": "failed"
+      "failed": "failed",
+      "declined": "declined",
+      "expired": "not answered"
     },
     "agentLevels": {
       "full": "Full access",

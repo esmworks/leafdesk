@@ -243,8 +243,10 @@ describe("chats with agents", () => {
     expect((await callTool(writer, "chat_with_agent", { agent_id: "agent-1", message: "Hi", wait_seconds: 0 })).data).toMatchObject({ status: "failed", failed: "aiOff" });
 
     const { AgentChatRefusal } = await import("@/server/agents/chat");
-    chat.sendAgentChat.mockRejectedValueOnce(new AgentChatRefusal("busy", "The agent is still answering"));
-    expect((await callTool(writer, "chat_with_agent", { agent_id: "agent-1", message: "Hi" })).text).toMatch(/still answering.*get_agent_chat/);
+    chat.sendAgentChat.mockResolvedValueOnce({ conversation: { id: "conv-1", title: "Hi", updatedAt: "2026-10-25T00:00:00.000Z" }, runId: null, queued: { id: "q-1", content: "Hi", at: "2026-10-25T00:00:00.000Z", files: [] } });
+    expect((await callTool(writer, "chat_with_agent", { agent_id: "agent-1", message: "Hi", conversation_id: "conv-1" })).data).toMatchObject({ status: "queued", note: expect.stringMatching(/next turn.*get_agent_chat/) });
+    chat.sendAgentChat.mockRejectedValueOnce(new AgentChatRefusal("queueFull", "At most 5 messages wait for an answer"));
+    expect((await callTool(writer, "chat_with_agent", { agent_id: "agent-1", message: "Hi" })).text).toMatch(/already wait.*get_agent_chat/);
     chat.sendAgentChat.mockRejectedValueOnce(new AgentChatRefusal("paused", "This chat isn't available"));
     expect((await callTool(writer, "chat_with_agent", { agent_id: "agent-1", message: "Hi" })).text).toMatch(/update_agent/);
     expect((await callTool(reader, "chat_with_agent", { agent_id: "agent-1", message: "Hi" })).text).toMatch(/pages:write/);
@@ -260,6 +262,7 @@ describe("chats with agents", () => {
       id: "conv-1",
       title: "Hi",
       running: "run-2",
+      queued: [{ id: "q-1", content: "And tomorrow?", at: "2026-10-25T00:01:30.000Z", files: [] }],
       messages: [
         { role: "user", content: "What is late?", at: "2026-10-25T00:00:00.000Z", code: null },
         { role: "assistant", content: "", at: "2026-10-25T00:00:05.000Z", code: "provider" },
@@ -267,7 +270,7 @@ describe("chats with agents", () => {
       ],
     });
     const one = await callTool(reader, "get_agent_chat", { agent_id: "agent-1", conversation_id: "conv-1" });
-    expect(one.data).toMatchObject({ conversation_id: "conv-1", answering: true });
+    expect(one.data).toMatchObject({ conversation_id: "conv-1", answering: true, queued: [{ text: "And tomorrow?", at: "2026-10-25T00:01:30.000Z" }] });
     expect(one.data.messages[1]).toEqual({ role: "assistant", text: "", at: "2026-10-25T00:00:05.000Z", failed: "provider" });
   });
 });

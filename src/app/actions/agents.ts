@@ -38,7 +38,7 @@ import { agentMailboxesOf, setAgentMailbox, setAgentMailTrigger } from "@/server
 import { addAgentCreator, agentCreators, agentSharing, parseShareTarget, removeAgentCreator, removeAgentShare, setAgentShare } from "@/server/agents/sharing";
 import { agentGrantSummary } from "@/server/connections/manage";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
-import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, updateAgentMemory } from "@/server/agents/memory";
+import { addAgentMemory, deleteAgentMemory, keepAgentMemory, listAgentMemory, undoAgentCorrection, updateAgentMemory } from "@/server/agents/memory";
 import { listAgentSchedules, removeAgentSchedule, setAgentSchedule } from "@/server/agents/schedules";
 import { addAgentSkill, listAgentSkills, removeAgentSkill } from "@/server/agents/skills";
 import { decideLimitRequest, pendingLimitRequest, requestHigherLimit } from "@/server/agents/limits";
@@ -54,7 +54,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit", "mailbox"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit", "mailbox", "quietHours", "dailyChangeLimit"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -103,6 +103,8 @@ const input = (value: AgentInput): AgentInput => ({
   monthlyTokenLimit: value?.monthlyTokenLimit,
   model: value?.model,
   rowChanges: value?.rowChanges,
+  quietHours: value?.quietHours,
+  dailyChangeLimit: value?.dailyChangeLimit,
   helperAgentIds: Array.isArray(value?.helperAgentIds) ? value.helperAgentIds.map(String) : undefined,
 });
 
@@ -308,6 +310,11 @@ export async function deleteAgentMemoryAction(workspaceId: string, agentId: stri
     },
     { refresh: true },
   );
+}
+
+/** Takes back a correction a chat run kept at once (its step's Undo; `stepIndex`: where the step is in the run's steps). */
+export async function undoAgentCorrectionAction(workspaceId: string, runId: string, memoryId: string, stepIndex: number) {
+  return run(workspaceId, (userId) => undoAgentCorrection(userId, workspaceId, String(runId), String(memoryId), Number(stepIndex)));
 }
 
 /** A comment the agent wrote; its text only when the viewer can open the row it's on. */

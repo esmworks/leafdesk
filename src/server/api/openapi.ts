@@ -781,7 +781,8 @@ const SCHEMAS: Record<string, JsonSchema> = {
       status: { type: "string", enum: ["pending", "running", "awaiting_approval", "done", "failed"] },
       code: {
         type: "string",
-        description: "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached, mailGone or error.",
+        description:
+          "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached, mailGone, costLimit, selfReported (a schedule's run said it couldn't do its task; answer holds its reason) or error.",
       },
       error: { type: "string" },
       source: loose(
@@ -806,7 +807,11 @@ const SCHEMAS: Record<string, JsonSchema> = {
       ),
       row: loose({ id, title: { type: ["string", "null"], description: "null where the user can't open the row." }, url }),
       steps: { type: "array", items: loose({ kind: { type: "string" }, summary: { type: "string" } }) },
-      answer: { type: "string", description: "What the agent said at the end; empty, with no steps, for a run that read the user's email (see email)." },
+      answer: {
+        type: "string",
+        description: "What the agent said at the end (for a schedule's run that ended itself, the reason it gave); empty, with no steps, for a run that read the user's email (see email).",
+      },
+      quiet: { type: "boolean", description: "Present (true) for a schedule's run that found nothing new and changed nothing: it reported to no one." },
       email: { type: "string", description: "Present when the run read the user's email, or went on from a chat that had: its steps and answer show only in the app." },
       usage: loose({
         rounds: { type: "integer" },

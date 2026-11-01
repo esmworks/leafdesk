@@ -306,7 +306,9 @@
         "declined": {
           "remember": "Hatırlamayı reddettin:",
           "forget": "Unutmayı reddettin:"
-        }
+        },
+        "correct": "Düzeltme olarak not edildi:",
+        "undone": "Düzeltme geri alındı:"
       },
       "connection": {
         "done": "{connection}: {tool} çağrıldı",
