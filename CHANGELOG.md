@@ -499,6 +499,9 @@
 
 ### Fixed
 
+- **Messages no longer show under the agent chat's message box on a phone.** On a phone with a
+  home indicator, the box held a little above the bottom edge and the conversation showed through
+  the strip beneath it; the strip now takes the page's background.
 - **The top of the installed app on iPhone is no longer blurred.** iOS 26 faded the first lines
   under the status bar, so a page's header looked washed out and text scrolling up went blurry
   there; the status bar now sits on a solid band in the page's color. An app added to the Home

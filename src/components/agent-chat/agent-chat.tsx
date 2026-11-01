@@ -750,7 +750,17 @@ export function AgentChat({
         )}
       </div>
 
-      <div className={cn(block ? "border-t border-border px-3 py-2" : page ? "sticky bottom-0 bg-bg pb-6" : "pt-2")}>
+      {/* On the page it holds above the scrolling <main>'s room for a phone's home indicator, which
+          sticky leaves out; its own background reaches down over that room, or messages show under it. */}
+      <div
+        className={cn(
+          block
+            ? "border-t border-border px-3 py-2"
+            : page
+              ? "sticky bottom-0 bg-bg pb-6 after:absolute after:inset-x-0 after:top-full after:h-(--safe-bottom) after:bg-bg"
+              : "pt-2",
+        )}
+      >
         {page && <ToLatest scroller={scroller} className="absolute -top-12 left-1/2 z-10 -translate-x-1/2" />}
         {(blocked || error) && (
           <p role={error ? "alert" : "status"} className={cn("mb-1.5 text-xs", error ? "text-danger" : "text-fg-muted")}>
