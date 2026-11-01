@@ -315,6 +315,17 @@ export async function workspacePeople(workspaceId: string): Promise<WorkspacePer
     .where(and(eq(workspaceMember.workspaceId, workspaceId), notAgentUser(workspaceMember.userId)));
 }
 
+/** The members of a workspace with these addresses (any case), for showing who mail is from. */
+export async function workspacePeopleByEmail(workspaceId: string, emails: string[]): Promise<WorkspacePerson[]> {
+  const wanted = [...new Set(emails.map((e) => e.toLowerCase()).filter(Boolean))];
+  if (!wanted.length) return [];
+  return db
+    .select({ id: user.id, name: user.name, email: user.email, image: user.image, role: workspaceMember.role })
+    .from(workspaceMember)
+    .innerJoin(user, eq(user.id, workspaceMember.userId))
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), notAgentUser(workspaceMember.userId), inArray(sql`lower(${user.email})`, wanted)));
+}
+
 /** How someone can sign in: a password, single sign-on, a passkey, or another provider's account (by its id: "github"). */
 export type SignInMethod = "password" | "sso" | "passkey" | (string & {});
 

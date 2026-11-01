@@ -251,7 +251,15 @@ export type MailThreadItem = {
   row: { rowId: string; databaseId: string; title: string; icon: string | null } | null;
   /** Agents that worked on its messages here, and what they did, for the list's mark (none: empty). */
   agents: MailThreadAgent[];
+  /** The round mark beside it: who the other party is, and the picture shown for them. */
+  mark: MailSenderMark;
 };
+
+/**
+ * Who a conversation's mark stands for (lib/sender-marks.ts): its other party, with a member's own
+ * picture, or the logo of the domain their mail verifiably came from; with neither, their initial.
+ */
+export type MailSenderMark = { address: string; name: string | null; image: string | null; logo: string | null };
 
 /** An agent's work on a thread, as the Mail tab marks it: its name and icon, and what it did. */
 export type MailThreadAgent = { agentId: string; name: string; icon: string | null; did: MailAgentDeed[] };
@@ -279,6 +287,8 @@ export type MailMessageView = {
   hasAttachments: boolean;
   /** The database row its other party is (who wrote it, or whom the owner wrote to): what the writer reads when answering it. */
   row: MailThreadItem["row"];
+  /** The round mark beside it: its sender, as the list draws a thread's other party. */
+  mark: MailSenderMark;
   /** Read from the mail server: null until then, or when the message is gone from it. */
   body: MailBody | null;
 };

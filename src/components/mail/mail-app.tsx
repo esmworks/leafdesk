@@ -31,6 +31,7 @@ import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen, type MailOpen } from "./mail-store";
 import { MailboxMark, useFolderName } from "./mail-sidebar";
+import { SenderMark } from "./sender-mark";
 
 // The open thread and a new message load the first time they show.
 const ThreadView = lazyPart(() => import("./thread-view").then((m) => m.ThreadView), <div className="min-w-0 flex-1" />);
@@ -138,7 +139,8 @@ const ThreadRow = memo(function ThreadRow({
   const t = useTranslations("mail");
   const when = useWhen();
   const locale = useLocale();
-  const senders = item.senders.map((s) => (s.address === me ? t("me") : s.name?.split(" ")[0] || s.address)).join(", ");
+  // One sender by their whole name; several by first names.
+  const senders = item.senders.map((s) => (s.address === me ? t("me") : (item.senders.length > 1 ? s.name?.split(" ")[0] : s.name) || s.address)).join(", ");
   return (
     <div className="group relative">
       <a
@@ -168,12 +170,13 @@ const ThreadRow = memo(function ThreadRow({
         {/* The unread dot gives way to the selection box (laid over it, outside the link) on hover. */}
         <span
           className={cn(
-            "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+            "-me-1 mt-3.5 h-2 w-2 shrink-0 rounded-full",
             item.unread ? "bg-accent" : "bg-transparent",
             selecting || checked ? "opacity-0" : "group-hover:opacity-0 group-has-[input:focus-visible]:opacity-0",
           )}
           aria-hidden
         />
+        <SenderMark mark={item.mark} />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <span className={cn("truncate text-sm", item.unread && "font-semibold")}>
@@ -223,7 +226,7 @@ const ThreadRow = memo(function ThreadRow({
         </div>
       </a>
       {/* A touch screen keeps the dot until a selection starts (the menu's Select). */}
-      <span className={cn("absolute top-2 inset-s-2", !selecting && "pointer-coarse:hidden")}>
+      <span className={cn("absolute top-4 inset-s-2", !selecting && "pointer-coarse:hidden")}>
         <SelectBox
           checked={checked}
           label={t("bulk.selectThread", { subject: item.subject || t("noSubject") })}

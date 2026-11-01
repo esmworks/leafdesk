@@ -347,6 +347,10 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   the draft saved last by Content-ID, opened again as data URLs marked `data-cid`; a send waits
   `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, and is counted in `mail_send`, which with
   `row_email` holds a mailbox to `MAX_SENDS_PER_HOUR` (both `write.ts` and `row-mail/send.ts` read both), which scripts skip with `sendHeld`;
+  the list's mark of each thread's other party is `lib/sender-marks.ts` (`mail_message.sender_auth`
+  from the first `Authentication-Results`, counted only for Google and Microsoft mailboxes, `fromReceiver`; kept by the indexer; pictures and logos only on a DMARC pass, logos fetched
+  by the `startSenderLogos` sweep into `mail_sender_logo` (off with `SENDER_LOGOS`), never on a request, and served cached-only
+  by `api/mail/logos/[domain]` to the person whose address `logoUrl` signed);
   AI: `mail-client/ai.ts` behind `/api/ai/mail` (prompts pure in `ai-prompts.ts`), reading bodies
   with `read.ts` `messageForAi`, which never marks them seen; a thread's summary is `mail_message.summary` on its newest message;
   the writer reads the answered mail's row (`rowOfMessage`, the composer's `MailMessageView.row`, then `operations.ts` `visibleRow` as the person) and the person's

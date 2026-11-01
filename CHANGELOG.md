@@ -4,6 +4,14 @@
 
 ### Added
 
+- **The Mail list shows who each conversation is with at a glance.** A mark beside each thread
+  shows the other party: a member's picture or the logo of the organization the mail came from,
+  when it verifiably did (DMARC passed, by a Google or Microsoft mailbox's own check; the logo is
+  the domain's BIMI logo, else its web site's icon, looked up in the background and kept for a
+  month), or else the first letter of their name. A single sender is now named in full. Migration
+  `0181_sender_marks` adds `mail_message.sender_auth` and the `mail_sender_logo` table; mail
+  indexed earlier is checked again a few hundred messages a minute. New setting `SENDER_LOGOS=off`
+  stops the logo look-ups.
 - **Starred mail has its own place in Mail.** *Starred* under the inbox lists a mailbox's
   conversations with a starred message in any folder but the trash, junk and snoozed, and with
   several mailboxes *All starred* lists them all. Stars set in another mail program show too. A

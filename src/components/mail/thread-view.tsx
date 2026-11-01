@@ -13,28 +13,18 @@ import { isAiErrorCode } from "@/lib/ai";
 import type { MailWriteAction } from "@/lib/mail-ai";
 import { pagePath } from "@/lib/mentions";
 import { snoozableFrom, type MailAction, type MailAddress, type MailBody, type MailboxTabView, type MailDraftView, type MailFolderView, type MailMessageView, type MailThreadView, type MailUndoneSend, type MailUnsubscribe } from "@/lib/mail-client";
-import { initialOf, textOn, userColor } from "@/lib/presence";
 import { lazyPart } from "@/components/lazy-part";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
 import { discardDraftAction, forgetImageSenderAction, trustImageSenderAction, unsubscribeAction } from "@/app/actions/mail";
 import { showToast } from "@/components/toast";
 import { cachedBody, cachedThread, forgetBodies, keepBody, keepThread } from "./mail-cache";
 import { MailFrame } from "./mail-frame";
+import { SenderMark } from "./sender-mark";
 import { useWhen } from "./mail-store";
 
 // The editor loads the first time an answer is written.
 const Composer = lazyPart(() => import("./composer").then((m) => m.Composer));
 const MailTasks = lazyPart(() => import("./mail-tasks").then((m) => m.MailTasks));
-
-/** A sender's letter, in the color an address always gets (as people's avatars elsewhere). */
-function Avatar({ who }: { who: MailAddress }) {
-  const color = userColor(who.address);
-  return (
-    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium" style={{ background: color, color: textOn(color) }}>
-      {initialOf(who.name || who.address)}
-    </span>
-  );
-}
 
 const URL_RE = /\bhttps?:\/\/[^\s<>"')\]]+/g;
 
@@ -115,7 +105,7 @@ function DraftCard({ message, onEdit, onDiscard, busy }: { message: MailMessageV
   const when = useWhen();
   return (
     <div className="flex items-center gap-3 border-b border-border px-6 py-3">
-      <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-fg-icon">
+      <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-fg-icon">
         <Pencil className="h-3.5 w-3.5" />
       </span>
       <button type="button" onClick={onEdit} disabled={busy} className="flex min-w-0 flex-1 items-baseline gap-3 text-start">
@@ -265,7 +255,7 @@ function Message({
   if (!open) {
     return (
       <button type="button" onClick={onToggle} className="flex w-full items-center gap-3 border-b border-border px-6 py-3 text-start hover:bg-bg-hover">
-        <Avatar who={message.from} />
+        <SenderMark mark={message.mark} />
         <span className="w-36 shrink-0 truncate text-sm font-medium">{me ? t("me") : message.from.name || message.from.address}</span>
         <span className="min-w-0 flex-1 truncate text-sm text-fg-faint">{message.preview}</span>
         <span className="shrink-0 text-xs text-fg-faint">{when(message.sentAt)}</span>
@@ -278,7 +268,7 @@ function Message({
     <article className={cn("px-6 py-5", !last && "border-b border-border")}>
       <div className="flex items-start gap-1">
         <button type="button" onClick={onToggle} className="flex min-w-0 flex-1 items-start gap-3 text-start">
-          <Avatar who={message.from} />
+          <SenderMark mark={message.mark} />
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2">
               <span className="truncate text-sm font-semibold">{message.from.name || message.from.address}</span>

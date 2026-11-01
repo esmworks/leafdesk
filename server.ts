@@ -78,6 +78,7 @@ const { startLocalBackups } = await import("./src/server/local-backups");
 const { startRowMailSync } = await import("./src/server/row-mail/sync");
 const { startRowMailSender } = await import("./src/server/row-mail/send");
 const { startMailSnoozes } = await import("./src/server/mail-client/snooze");
+const { startSenderLogos } = await import("./src/server/mail-client/sender-logos");
 const { startSequences } = await import("./src/server/sequences/run");
 const { startDatabaseSyncs } = await import("./src/server/jira-sync/run");
 const { startTelegram } = await import("./src/server/telegram");
@@ -259,6 +260,8 @@ server.listen(port, hostname, () => {
   startRowMailSender();
   // Brings conversations snoozed in the Mail tab back to the inbox when their time comes.
   startMailSnoozes();
+  // Looks up the logos of the domains verified mail in the Mail tab came from.
+  startSenderLogos();
   startSequences();
   // Keeps databases synced from Jira and GitHub in step, each as often as it was set to.
   startDatabaseSyncs();

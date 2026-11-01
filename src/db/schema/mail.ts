@@ -2,7 +2,8 @@ import { sql } from "drizzle-orm";
 import { boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { MailboxAuth, MailboxFolders, MailboxStatus, RowEmailDirection, RowEmailStatus } from "../../lib/mail";
 import type { MailAddress, MailAgentMark, MailFolderRole } from "../../lib/mail-client";
-import { page, workspace } from "./app";
+import type { SenderAuth } from "../../lib/sender-marks";
+import { bytea, page, workspace } from "./app";
 import { user } from "./auth";
 import { file } from "./files";
 
@@ -271,6 +272,12 @@ export const mailMessage = pgTable(
      * headers when the message is indexed; false for messages indexed before it was kept.
      */
     automated: boolean("automated").notNull().default(false),
+    /**
+     * What the provider's check said of its sender (lib/sender-marks.ts), which the list's mark of
+     * the sender goes by; null until read (messages indexed before it was kept are read again, a
+     * few at a time, by the indexer). Never read for sent mail.
+     */
+    senderAuth: text("sender_auth").$type<SenderAuth>(),
     /** What agents did with it, each once (agents/run.ts): the Mail tab marks its thread. */
     agentMarks: jsonb("agent_marks").$type<MailAgentMark[]>(),
   },
@@ -342,4 +349,23 @@ export const mailSnooze = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [uniqueIndex("mail_snooze_thread_idx").on(t.mailboxId, t.threadId), index("mail_snooze_due_idx").on(t.until).where(sql`${t.wokeAt} is null`)],
+);
+
+/**
+ * The logo of a domain mail came from, shown beside its conversations in the Mail list
+ * (server/mail-client/sender-logos.ts): from its BIMI record, else its web site's icon. Asked for
+ * by the list when a verified sender has none yet, and fetched by a sweep, never while someone
+ * waits; kept for every workspace alike, since it is what the domain shows the world. `image` is
+ * null when none was found; either way it is looked at again from `next_check_at`.
+ */
+export const mailSenderLogo = pgTable(
+  "mail_sender_logo",
+  {
+    domain: text("domain").primaryKey(),
+    image: bytea("image"),
+    imageType: text("image_type"),
+    checkedAt: timestamp("checked_at", { withTimezone: true }),
+    nextCheckAt: timestamp("next_check_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("mail_sender_logo_due_idx").on(t.nextCheckAt)],
 );

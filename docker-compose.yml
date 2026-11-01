@@ -153,6 +153,8 @@ services:
       WEB_FETCH_ALLOWED_HOSTS: ${WEB_FETCH_ALLOWED_HOSTS:-}
       # Settings → Health: off stops fetching the web addresses in pages to find broken links.
       WEB_LINK_CHECKS: ${WEB_LINK_CHECKS:-}
+      # Mail tab: off stops looking up the logos of the domains verified mail came from.
+      SENDER_LOGOS: ${SENDER_LOGOS:-}
       # Email on rows: mail servers on a private network that mailboxes may reach (see docs/email-on-rows.md).
       MAIL_ALLOWED_HOSTS: ${MAIL_ALLOWED_HOSTS:-}
       # Email on rows: the Google OAuth client mailboxes sign in with instead of an app password.
