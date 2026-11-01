@@ -1,6 +1,5 @@
 /**
- * Answers on their way: the AI chat's (`/api/ai/chat`, see ai-chat.ts) and agents' chat runs
- * (agents/live-text.ts, which publishes only their text, masked). Each runs apart from the request
+ * AI chat answers on their way (`/api/ai/chat`, see ai-chat.ts). Each runs apart from the request
  * that asked for it: a page reloaded or closed mid-answer doesn't stop it, and it saves its turn as
  * usual. Its events so far are kept (text run together, without pings and the model's thinking), so
  * the page coming back, or another tab, follows it again from the start: what was written, its
@@ -8,10 +7,16 @@
  * (stopRun), only from the person whose answer it is; one that comes before its answer has started
  * stops it as it starts. Kept in this process like the approvals they may wait on
  * (ai-chat-approvals.ts); an answer that ended stays a minute for a page reading it just then.
- * An agent's run is kept under a key no browser picks (live-text.ts), and the AI chat's questions
- * about its own conversations (runningIn, answeringIn, conversationBusy, stopRunsIn) skip it.
+ *
+ * An agent's chat run publishes here too (agents/run.ts processRun, `agent`), under its own id and
+ * for the person chatting: its text masked as the run keeps it (agents/answer-text.ts), its steps
+ * (`agentStep`), and `done` once its turn is saved, however it ended (the turn says how). One that
+ * waits for an approval, or is put back for later, ends here without `done`, and opens again under
+ * the same id when it goes on. Following one asks only that it is the person's: the run lives
+ * minutes, and what it shows is theirs. Agent runs are no AI chat answer: they never make a
+ * conversation busy here nor show as answering, and a conversation's deletion doesn't stop them.
  */
-import type { ChatEvent } from "@/lib/ai-chat";
+import type { RunEvent } from "@/lib/agent-chat";
 
 /** How long an ended answer stays to be followed, and how long a Stop waits for its answer to start. */
 const KEEP_MS = 60_000;
@@ -26,13 +31,13 @@ type Run = {
   workspaceId: string;
   /** Known once the answer has said it (its `conversation` event), for a new conversation. */
   conversationId: string | null;
-  /** An agent's chat run: only its text is published, and it is no AI chat conversation's. */
+  /** An agent's chat run, not an AI chat answer. */
   agent: boolean;
   controller: AbortController;
   /** The events so far, as a page following the answer from the start needs them. */
-  log: ChatEvent[];
+  log: RunEvent[];
   /** Pages following it: told each event as it comes, and null once it has ended. */
-  followers: Set<(event: ChatEvent | null) => void>;
+  followers: Set<(event: RunEvent | null) => void>;
   ended: boolean;
   settled: Promise<void>;
   settle: () => void;
@@ -56,16 +61,18 @@ export const isRunId = (id: unknown): id is string => typeof id === "string" && 
  * Its signal is what the answer runs with (aborted already when a Stop came first). Hand it the
  * answer's events with runEvents, or drop it with dropRun when the answer was refused.
  */
-export function openRun({ agent = false, ...meta }: { id: string; userId: string; workspaceId: string; conversationId: string | null; agent?: boolean }): Run | null {
+export function openRun(meta: { id: string; userId: string; workspaceId: string; conversationId: string | null; agent?: boolean }): Run | null {
   // An answer that ended may go on again under its id (a run taken up again: ai-chat.ts resumeChatRun).
   if (store.runs.get(meta.id)?.ended === false) return null;
   let settle = () => {};
   const settled = new Promise<void>((resolve) => (settle = resolve));
-  const run: Run = { ...meta, agent, controller: new AbortController(), log: [], followers: new Set(), ended: false, settled, settle };
+  const run: Run = { ...meta, agent: meta.agent ?? false, controller: new AbortController(), log: [], followers: new Set(), ended: false, settled, settle };
   if (store.earlyStops.delete(`${meta.userId}:${meta.id}`)) run.controller.abort();
   store.runs.set(meta.id, run);
   return run;
 }
+
+export type ChatRun = Run;
 
 /** Forgets a run whose answer was refused before it started. */
 export function dropRun(run: Run) {
@@ -73,28 +80,23 @@ export function dropRun(run: Run) {
   run.settle();
 }
 
-export type AnswerRun = Run;
-
 /** Runs the answer's events to their end, whoever follows them: kept, and told to its followers. */
-export async function runEvents(run: Run, events: AsyncIterable<ChatEvent>) {
+export async function runEvents(run: Run, events: AsyncIterable<RunEvent>) {
   try {
-    for await (const event of events) pushEvent(run, event);
+    for await (const event of events) publish(run, event);
   } catch (error) {
     console.error("[ai] chat answer failed", error);
-    if (!run.ended) pushEvent(run, { type: "error", code: "provider" });
+    if (!run.ended) publish(run, { type: "error", code: "provider" });
   } finally {
     endRun(run);
   }
 }
 
-/** One event of an answer (an agent's run publishes its own, live-text.ts): kept, and told to its followers. */
-export function pushEvent(run: Run, event: ChatEvent) {
-  if (run.ended) return;
+/** Publishes one event of the run's (an agent's chat run publishes its own, then ends with endRun). */
+export function publish(run: Run, event: RunEvent) {
   if (event.type === "conversation") run.conversationId = event.id;
-  // An agent's run publishes only text: what a reset takes back needn't be read again from the start.
-  if (run.agent && event.type === "reset") run.log = [];
   // Not kept: pings only keep a connection open, and the model's thinking is never kept.
-  else if (event.type !== "ping" && event.type !== "reasoning") {
+  if (event.type !== "ping" && event.type !== "reasoning") {
     const last = run.log.at(-1);
     if (event.type === "text" && last?.type === "text") run.log[run.log.length - 1] = { type: "text", text: last.text + event.text };
     else run.log.push(event);
@@ -104,7 +106,7 @@ export function pushEvent(run: Run, event: ChatEvent) {
   if (event.type === "done" || event.type === "error") endRun(run);
 }
 
-/** Ends an answer: its followers stop following, and it stays a minute for one reading it just then. */
+/** Ends the run here: its followers stop following, and it stays a minute for one arriving just then. */
 export function endRun(run: Run) {
   if (run.ended) return;
   run.ended = true;
@@ -120,21 +122,19 @@ export function endRun(run: Run) {
 /**
  * The person's answer's events from its start, then as they come, until it ends or `signal`
  * aborts (the page went: the answer goes on). Null when there is no such answer of theirs.
- * `pingMs`: a ping after that long without an event (an agent's run publishes none of its own while
- * a tool answers), so a proxy keeps the connection open.
  */
-export function followRun(userId: string, runId: string, signal?: AbortSignal, pingMs?: number): AsyncGenerator<ChatEvent> | null {
+export function followRun(userId: string, runId: string, signal?: AbortSignal): AsyncGenerator<RunEvent> | null {
   const run = store.runs.get(runId);
   if (!run || run.userId !== userId) return null;
-  return follow(run, signal, pingMs);
+  return follow(run, signal);
 }
 
-async function* follow(run: Run, signal?: AbortSignal, pingMs?: number): AsyncGenerator<ChatEvent> {
+async function* follow(run: Run, signal?: AbortSignal): AsyncGenerator<RunEvent> {
   // Taken together, in one go: nothing comes between what was kept and what follows.
   const queue = [...run.log];
   let ended = run.ended;
   let wake: (() => void) | null = null;
-  const listener = (event: ChatEvent | null) => {
+  const listener = (event: RunEvent | null) => {
     if (event) queue.push(event);
     else ended = true;
     wake?.();
@@ -146,14 +146,8 @@ async function* follow(run: Run, signal?: AbortSignal, pingMs?: number): AsyncGe
     for (;;) {
       while (queue.length && !signal?.aborted) yield queue.shift()!;
       if (ended || signal?.aborted) return;
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      const pinged = await new Promise<boolean>((resolve) => {
-        wake = () => resolve(false);
-        if (pingMs) timer = setTimeout(() => resolve(true), pingMs);
-      });
-      clearTimeout(timer);
+      await new Promise<void>((resolve) => (wake = resolve));
       wake = null;
-      if (pinged && !queue.length && !ended && !signal?.aborted) yield { type: "ping" };
     }
   } finally {
     run.followers.delete(listener);
@@ -166,22 +160,17 @@ async function* follow(run: Run, signal?: AbortSignal, pingMs?: number): AsyncGe
  * came first) is stopped as it starts.
  */
 export function stopRun(userId: string, runId: string): boolean {
-  if (store.runs.has(runId)) return abortRun(userId, runId);
+  const run = store.runs.get(runId);
+  if (run) {
+    if (run.userId !== userId) return false;
+    if (run.ended) return false;
+    run.controller.abort();
+    return true;
+  }
   const now = Date.now();
   for (const [key, at] of store.earlyStops) if (now - at > KEEP_MS) store.earlyStops.delete(key);
   if (store.earlyStops.size < MAX_EARLY_STOPS) store.earlyStops.set(`${userId}:${runId}`, now);
   return false;
-}
-
-/** Whether an answer has that id here: on its way, or ended a moment ago. */
-export const knownRun = (runId: string) => store.runs.has(runId);
-
-/** Stops the person's answer if it is on its way here: true when it was. Never one not started yet. */
-export function abortRun(userId: string, runId: string): boolean {
-  const run = store.runs.get(runId);
-  if (!run || run.userId !== userId || run.ended) return false;
-  run.controller.abort();
-  return true;
 }
 
 /** Stops the person's answers in these conversations (being deleted), or in all of theirs in the workspace. */

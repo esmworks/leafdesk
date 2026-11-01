@@ -32,6 +32,7 @@ import {
   type AgentChatSearchHit,
   type AgentChatState,
   type AgentChatStepView,
+  type AgentStepEvent,
   type AgentChatThread,
   type AgentChatTurn,
   type AgentConversationSummary,
@@ -43,6 +44,7 @@ import { AGENT_CHAT_SEARCH, searchSnippet } from "@/lib/agent-chat-search";
 import { AGENT_CHAT_SUMMARY_SYSTEM, SUMMARY_INPUT_CHARS, SUMMARY_MAX_CHARS, summaryInput } from "@/lib/agent-chat-summary";
 import { callConnectionName, callToSend, isAgentRun, readEmail, type AgentRunStatus, type AgentStepRecord } from "@/lib/agents";
 import { firstLocalRead } from "@/lib/local-reads";
+import { redactValue } from "@/lib/redact";
 import { conversationTitle } from "@/lib/ai-chat";
 import { isTimeZone } from "@/lib/time-zone";
 import { hasAgentLevel, type AgentLevel } from "@/lib/agent-sharing";
@@ -383,7 +385,7 @@ export async function stopAgentChat(userId: string, input: { workspaceId: string
   if (!found || found.source.kind !== "chat" || found.source.userId !== userId) refuse("noAccess", "Not your chat's answer");
   // Loaded here: run.ts reaches this module through dispatch.ts.
   const { stopRun } = await import("./run");
-  return { stopped: await stopRun(input.runId, userId) };
+  return { stopped: await stopRun(input.runId) };
 }
 
 /**
@@ -620,6 +622,16 @@ async function stepsFor(userId: string, steps: AgentStepRecord[]): Promise<Agent
   );
 }
 
+/**
+ * A chat run's new steps, from the `from`th, as its events bring them to the person chatting
+ * (run.ts converse): masked as the run keeps them, shown as chatTurn shows them to that person.
+ */
+export async function chatStepEvents(userId: string, steps: AgentStepRecord[], from: number): Promise<AgentStepEvent[]> {
+  const kept = redactValue(steps);
+  const [views, connections] = await Promise.all([stepsFor(userId, kept), connectionNames(kept)]);
+  return views.map((step, i) => ({ type: "agentStep", index: from + i, step, connections }));
+}
+
 /** The names of the connections steps (and a waiting call) name. */
 async function connectionNames(steps: AgentStepRecord[], also: string | null = null): Promise<Record<string, string>> {
   const ids = [...new Set([...steps.flatMap((s) => (s.kind === "tool" && s.connectionId ? [s.connectionId] : [])), ...(also ? [also] : [])])];
@@ -824,23 +836,6 @@ export async function nextQueuedRun(userId: string, runId: string): Promise<{ id
     .where(and(sql`${agentRun.source}->>'kind' = 'chat'`, sql`${agentRun.source}->>'userId' = ${userId}`, sql`${agentRun.source}->>'after' = ${runId}`))
     .limit(1);
   return next ?? null;
-}
-
-/**
- * Whether the person may follow what a chat run is writing (live-text.ts): their own chat's run,
- * in a workspace they may enter, as chatTurn shows it to them.
- */
-export async function mayFollowChatTurn(userId: string, workspaceId: string, runId: string): Promise<boolean> {
-  try {
-    await requireMembership(userId, workspaceId);
-  } catch {
-    return false;
-  }
-  const [run] = await db
-    .select({ id: agentRun.id })
-    .from(agentRun)
-    .where(and(eq(agentRun.id, runId), eq(agentRun.workspaceId, workspaceId), sql`${agentRun.source}->>'kind' = 'chat'`, sql`${agentRun.source}->>'userId' = ${userId}`));
-  return Boolean(run);
 }
 
 /** The workspace's agents shared with the person, for a block (not a guest's) to show: names, nothing of their settings. */

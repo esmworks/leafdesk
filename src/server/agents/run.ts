@@ -77,10 +77,11 @@ import { hasAgentLevel } from "@/lib/agent-sharing";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
 import { redactError, redactText, redactValue } from "@/lib/redact";
-import { ANSWER_CHARS, startLiveText, stopLiveText, type LiveTextWriter } from "./live-text";
+import { ANSWER_CHARS, answerEvents } from "./answer-text";
 import { threadBefore } from "@/lib/comments";
 import { findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
+import { endRun, openRun, publish, type ChatRun } from "@/server/ai-chat-runs";
 import { aiConfig, AiError, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiToolCall } from "@/server/ai";
 import { agentChatPrompt, agentEventPrompt, agentMailPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
@@ -173,25 +174,30 @@ async function claim(limit: number): Promise<(typeof agentRun.$inferSelect)[]> {
 }
 
 /**
- * Stops a chat run its person (`userId`) asked to stop: one answering ends at once with what it
- * wrote so far (code `stopped`, which tells no one), through the answers' store its text goes
- * through (live-text.ts); one not started yet ends before the worker takes it, and one the worker
- * took but that isn't answering yet stops as it starts. False when it was none of these (it ended
- * already, or waits for an approval).
+ * The chat answers under way in this process, by run, for Stop (`stopRun`). On globalThis: the
+ * server action asking runs in Next's bundle, the worker in server.ts's module graph.
  */
-export async function stopRun(runId: string, userId: string): Promise<boolean> {
-  if (stopLiveText(userId, runId, false)) return true;
+const answering = ((globalThis as { __leafdeskAgentChatStops?: Map<string, AbortController> }).__leafdeskAgentChatStops ??= new Map());
+
+/**
+ * Stops a chat run the person asked to stop: one answering ends at once with what it wrote so far
+ * (code `stopped`, which tells no one); one not started yet ends before the worker takes it.
+ * False when it was neither (it ended already, or waits for an approval).
+ */
+export async function stopRun(runId: string): Promise<boolean> {
+  const controller = answering.get(runId);
+  if (controller) {
+    controller.abort();
+    return true;
+  }
   const [taken] = await db
     .update(agentRun)
     .set({ status: "running", nextAt: new Date() })
     .where(and(eq(agentRun.id, runId), eq(agentRun.status, "pending")))
     .returning();
-  if (taken && isAgentRun(taken)) {
-    await finish(taken, { status: "failed", code: "stopped", answer: "" });
-    return true;
-  }
-  const [now] = await db.select({ status: agentRun.status }).from(agentRun).where(eq(agentRun.id, runId));
-  return stopLiveText(userId, runId, now?.status === "running");
+  if (!taken || !isAgentRun(taken)) return false;
+  await finish(taken, { status: "failed", code: "stopped", answer: "" });
+  return true;
 }
 
 async function finish(run: Run, values: Ending) {
@@ -445,30 +451,44 @@ export async function processRun(run: Run): Promise<void> {
   // the agent, made at once like its other changes there; none a person is asked about each time.
   // Opened once the agent looks for one.
   const moreTools = lazyMoreTools(agent.userId, { writes: chatWrites, eachTime: false });
-  // A chat's answer is shown to the person as it is written, and may be stopped by them (live-text.ts, stopRun).
-  const live = run.source.kind === "chat" ? startLiveText(run.id, run.source.userId, run.workspaceId) : null;
-  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites, moreTools, live, signal: live?.signal }))
-    .catch((error: unknown) => ({ error }))
-    .finally(() => {
-      clearInterval(heartbeat);
-      live?.end();
-      void moreTools.close();
-    });
-  if ("error" in outcome) {
-    const error = outcome.error;
-    if (isAiError(error) && error.code === "rateLimited") return later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
-    const code: AgentRunCode = !isAiError(error)
-      ? "error"
-      : error.code === "limitReached"
-        ? "costLimit"
-        : error.code === "aborted" || error.code === "timeout"
-          ? "timeout"
-          : "provider";
-    if (!isAiError(error)) console.error("[agents] run failed", redactError(error));
-    return finish(run, { status: "failed", code, error: error instanceof Error ? error.message : String(error) });
+  // A chat's answer is followed by its person as it is written, where the AI chat's answers are
+  // (ai-chat-runs.ts, under the run's id), and they may stop it (stopRun): one signal for both.
+  const live = run.source.kind === "chat" ? openRun({ id: run.id, userId: run.source.userId, workspaceId: run.workspaceId, conversationId: run.source.conversationId, agent: true }) : null;
+  const stop = run.source.kind === "chat" ? (live?.controller ?? new AbortController()) : null;
+  if (stop) answering.set(run.id, stop);
+  const started = Date.now();
+  // Told once the turn is saved: whoever follows reads it then, ended (and the queue's next run started).
+  const ended = async (values: Ending) => {
+    await finish(run, values);
+    if (live) publish(live, { type: "done", stopReason: "stop", ms: Date.now() - started });
+  };
+  try {
+    const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites, moreTools, live, signal: stop?.signal }))
+      .catch((error: unknown) => ({ error }))
+      .finally(() => {
+        clearInterval(heartbeat);
+        answering.delete(run.id);
+        void moreTools.close();
+      });
+    if ("error" in outcome) {
+      const error = outcome.error;
+      if (isAiError(error) && error.code === "rateLimited") return await later(run, new Date(Date.now() + (error.retryAfterMs ?? 30_000)));
+      const code: AgentRunCode = !isAiError(error)
+        ? "error"
+        : error.code === "limitReached"
+          ? "costLimit"
+          : error.code === "aborted" || error.code === "timeout"
+            ? "timeout"
+            : "provider";
+      if (!isAiError(error)) console.error("[agents] run failed", redactError(error));
+      return await ended({ status: "failed", code, error: error instanceof Error ? error.message : String(error) });
+    }
+    if (outcome.status === "awaiting") return await park(run, agent, outcome);
+    return await ended(outcome);
+  } finally {
+    // However it went: one waiting for an approval, or put back for later, opens again when it goes on.
+    if (live) endRun(live);
   }
-  if (outcome.status === "awaiting") return park(run, agent, outcome);
-  return finish(run, outcome);
 }
 
 /**
@@ -528,7 +548,7 @@ async function converse(
     trusted: boolean;
     chatWrites: boolean;
     moreTools: ReturnType<typeof lazyMoreTools>;
-    live: LiveTextWriter | null;
+    live: ChatRun | null;
     signal?: AbortSignal;
   },
 ): Promise<Ending | Paused> {
@@ -697,6 +717,18 @@ async function converse(
   const ending = (e: Ending | Paused) => e;
   // The text of the answer so far, kept when the person stops it.
   let text = "";
+  // A chat's answer goes to its person as it is written, masked (answer-text.ts), with its steps as they are taken.
+  const shown = live ? answerEvents((event) => publish(live, event)) : null;
+  const viewer = run.source.kind === "chat" ? run.source.userId : null;
+  // Those before it went on after an approval come with the turn (chat.ts chatTurn).
+  let published = run.steps.length;
+  const publishSteps = async () => {
+    if (!live || !viewer || steps.length <= published) return;
+    const from = published;
+    published = steps.length;
+    const { chatStepEvents } = await import("./chat");
+    for (const event of await chatStepEvents(viewer, steps.slice(from), from)) publish(live, event);
+  };
   const stopped = (): Ending => ({ status: "failed", code: "stopped", steps, usage, answer: text });
   const turns = runTurns<never, Ending | Paused>(
     messages,
@@ -704,7 +736,7 @@ async function converse(
     {
       request: () => ({ feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, tools: runTools, sessionId: run.id, signal }),
       // A chat's turn is streamed: its text so far goes to the person as it comes.
-      streaming: Boolean(live),
+      streaming: Boolean(shown),
       spentUsd: () => usage.costUsd,
       limitUsd,
       async *beforeTurn(round) {
@@ -748,6 +780,8 @@ async function converse(
       async *answerCalls(calls, answerNext) {
         if (calls) dispatch.take(calls);
         const paused = await dispatch.drain(calls ? undefined : saved?.decision);
+        // Never in the run's way: the person reads them with the turn anyway.
+        await publishSteps().catch((error: unknown) => console.error("[agents] could not show a chat run's steps", redactError(error)));
         if (paused) return paused;
         if (dispatch.ending) return dispatch.ending;
         // The next turn is the last: the model reads that with the results.
@@ -769,17 +803,17 @@ async function converse(
     }
     if (next.done) {
       if (!next.value.answered) return next.value.ending;
-      live?.write(next.value.text, true);
+      shown?.write(next.value.text, true);
       return { status: "done", steps, answer: next.value.text, usage };
     }
     const event = next.value;
     if (event.type === "thinking" || event.type === "reset") {
       // A new turn, or text taken back for tool calls: the person's answer starts over.
       text = "";
-      live?.clear();
+      shown?.clear();
     } else if (event.type === "text") {
       text += event.text;
-      live?.write(text);
+      shown?.write(text);
     }
   }
 }

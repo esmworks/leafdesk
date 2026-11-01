@@ -260,10 +260,14 @@ export type AgentChatSearchHit = {
 };
 
 /**
- * What a turn under way has written once an event `/api/agents/chat/live` sends comes
- * (server/agents/live-text.ts): `text` adds to it, `reset` starts it over, others leave it.
+ * A step a chat run took, as its events bring it to the person chatting (run.ts converse,
+ * server/ai-chat-runs.ts): the `index`th of the run's steps, as chatTurn shows it, with the names of
+ * the connections it names. Those taken before the run went on after an approval come with the turn.
  */
-export const liveTextAfter = (text: string, event: ChatEvent) => (event.type === "text" ? text + event.text : event.type === "reset" ? "" : text);
+export type AgentStepEvent = { type: "agentStep"; index: number; step: AgentChatStepView; connections: Record<string, string> };
+
+/** What an answer under way sends whoever follows it (`GET /api/ai/chat?run=`): the AI chat's events, and an agent chat run's steps. */
+export type RunEvent = ChatEvent | AgentStepEvent;
 
 /**
  * Where a person stands with an agent's chat: they may chat (`full` when they can edit the agent,

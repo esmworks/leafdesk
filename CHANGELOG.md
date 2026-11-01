@@ -465,6 +465,12 @@
   waiting messages between them. The agent's settings are grouped into four parts: Instructions
   (with skills and memory), Tools and access (with connections), Triggers and Advanced (model, limits
   and quiet hours); links to a tab still open it.
+- **An agent's chat answer comes the way the AI chat's does.** Its text as it is written, its steps
+  as it takes them and its end now come over the AI chat's own answer stream, so a step shows the
+  moment it is taken rather than up to a second later, and the turn is read once it ends instead
+  of every second; Telegram follows the same stream. Credentials stay masked while it is written,
+  as the kept answer is, and the finished answer no longer flows in a second time. The separate
+  `/api/agents/chat/live` endpoint is gone.
 - **Owners can turn off changes without asking in the AI chat.** Settings → General → AI has a new
   switch, *Changes without asking*: when off, the chat's *Auto* mode and "Yes, and don't ask again"
   are gone and every change is asked about, also in answers already under way. It is on by default.
@@ -499,14 +505,11 @@
   tool, offered only then.
 - **Stop an agent's answer.** While an agent answers in its chat, the box's Stop button ends the
   answer at once and keeps what it wrote so far, marked *Stopped*; a message it hasn't started on
-  yet ends before it starts, also when the agent has just taken it up. Nobody is notified, and the next message goes as usual. The REST API
+  yet ends before it starts. Nobody is notified, and the next message goes as usual. The REST API
   and MCP show such a run as failed with the code `stopped`.
 - **The AI chat and agents answer with the same turns.** Asking the model, making room when a
   conversation grows too long for it, and the last turn answering with what it has now run the same
-  way for both, so a fix in one is a fix in the other. An agent's answer being written also reaches
-  its chat and the Telegram bot the way the AI chat's does, and its steps show as soon as a turn of
-  tool calls ends rather than at the next look a second later; its finished answer no longer
-  flows in a second time.
+  way for both, so a fix in one is a fix in the other.
 - **An agent's chat box is the AI chat's.** The same rounded box with round buttons, files dropped
   or pasted on it to attach them, and questions dictated where the workspace writes down speech.
 - **Agents are in the sidebar's Chat tab too.** Under New chat, the Chat tab lists the agents you

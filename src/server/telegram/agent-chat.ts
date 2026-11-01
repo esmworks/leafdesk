@@ -1,4 +1,4 @@
-import { chatFailure, liveTextAfter, MAX_AGENT_CHAT_MESSAGE, type AgentChatError, type AgentChatState, type AgentChatTurn } from "@/lib/agent-chat";
+import { chatFailure, MAX_AGENT_CHAT_MESSAGE, type AgentChatError, type AgentChatState, type AgentChatTurn } from "@/lib/agent-chat";
 import { AGENT_CHAT_FILE_LIMITS } from "@/lib/agent-chat-files";
 import { livePreview } from "@/lib/agent-chat-preview";
 import { MAX_QUEUED } from "@/lib/agent-chat-queue";
@@ -18,7 +18,7 @@ import {
   summarizeAgentConversation,
 } from "@/server/agents/chat";
 import { chatFileOfPerson } from "@/server/agents/chat-files";
-import { followLiveText } from "@/server/agents/live-text";
+import { followRun } from "@/server/ai-chat-runs";
 import { asWrite, runAsConnectedApp } from "@/server/connected-app";
 import { refOf, storageOf } from "@/server/storage/workspace";
 import { editMessage, sendDocument, TelegramApiError, type InlineKeyboard } from "./api";
@@ -40,8 +40,8 @@ import { changeLines, html, send, sendHtml, type Translator } from "./say";
  * or by another app, or a follow that ended), the bot waits for that answer to end, without showing
  * it (it may draw on what this chat may not show, as email), and follows the turn that takes it.
  *
- * The answer is followed as the agent writes it, in one message edited every few seconds
- * (live-text.ts), then put there formatted, with the pages it changed. A call it waits on comes as
+ * The answer is followed as the agent writes it, in one message edited every few seconds (the
+ * run's events, ai-chat-runs.ts, masked as the run keeps its answer), then put there formatted, with the pages it changed. A call it waits on comes as
  * the inbox's approval message (notify.ts) when this person answers it: from deliverTelegram when
  * their notifications come here, else sent here; the chat keeps following, for as long as the call
  * may wait, but takes other messages meanwhile (`release`). /stop stops following; the agent
@@ -320,15 +320,23 @@ async function follow(link: TelegramLinkRow, t: Translator, workspace: Workspace
   const following = new AbortController();
   const stop = () => following.abort();
   signal.addEventListener("abort", stop);
-  // The text so far, from the agents' worker in this process; followed again while the run goes on
-  // (each follow reads it from the start of the turn under way).
+  // The text so far, from the agents' worker in this process (none from another's: the answer comes
+  // whole); followed again when the run goes on after an approval, from its start each time.
   let text = "";
   void (async () => {
     while (!following.signal.aborted) {
+      const events = followRun(link.userId, runId, following.signal);
       try {
         let written = "";
-        for await (const event of followLiveText(link.userId, runId, following.signal)) text = written = liveTextAfter(written, event);
-      } catch {}
+        for await (const event of events ?? []) {
+          if (event.type === "text") written += event.text;
+          else if (event.type === "reset") written = "";
+          else continue;
+          text = written;
+        }
+      } catch {
+        // Followed again below.
+      }
       await pause(POLL_MS, following.signal);
     }
   })();

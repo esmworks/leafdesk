@@ -42,11 +42,11 @@ type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const agents = await import("@/server/agents/manage");
 const chat = await import("@/server/agents/chat");
 const { flushAgentRuns } = await import("@/server/agents/run");
-const { followLiveText } = await import("@/server/agents/live-text");
+const { followRun } = await import("@/server/ai-chat-runs");
 const { chatFileOfPerson } = await import("@/server/agents/chat-files");
 const { refOf, storageOf } = await import("@/server/storage/workspace");
 const { pageMarkdown } = await import("@/server/export");
-const { agentChatLine, agentMessages, liveTextAfter } = await import("@/lib/agent-chat");
+const { agentChatLine, agentMessages } = await import("@/lib/agent-chat");
 
 const RUN = `agent-chat-e2e-${Date.now().toString(36)}`;
 
@@ -86,23 +86,14 @@ const toolResults = (request: FakeChatRequest) => request.messages.filter((m) =>
 const toolNames = (request: FakeChatRequest) => (request.tools ?? []).map((t) => t.function.name);
 
 /** A model that makes these tool calls, one per turn, then says `done`. */
-/**
- * Follows what a chat run writes, as the chat does: again while it isn't answering yet, until a
- * follow that had something ends (the run ended) or `signal` aborts. `seen` gets the text after each
- * event, and stops the follow by answering false.
- */
-async function followText(userId: string, runId: string, signal: AbortSignal, seen: (text: string) => boolean | void) {
-  while (!signal.aborted) {
-    let text = "";
-    let any = false;
-    for await (const event of followLiveText(userId, runId, signal)) {
-      any = true;
-      text = liveTextAfter(text, event);
-      if (seen(text) === false) return;
-    }
-    if (any) return;
+/** A run's events (ai-chat-runs.ts) once the worker in this process has taken it; null if it never does. */
+async function followOnceTaken(userId: string, runId: string) {
+  for (let i = 0; i < 400; i++) {
+    const events = followRun(userId, runId);
+    if (events) return events;
     await new Promise((resolve) => setTimeout(resolve, 5));
   }
+  return null;
 }
 
 function caller(calls: { name: string; arguments: Record<string, unknown> }[], done = "Done.") {
@@ -188,24 +179,33 @@ try {
 
   // ── The answer as it is written ────────────────────────────────────────────────────────────
   const written = "Orders ship on Tuesdays and Thursdays, from the north depot, before noon.";
-  fake.setChat(() => ({ text: written }));
+  fake.setChat(caller([{ name: "read_page", arguments: { page_id: minutes.id } }], written));
   fake.delayMs = 15;
   const writing = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "When do orders ship?" });
-  check(await chat.mayFollowChatTurn(ids.owner, workspaceId, writing.runId!), "the person chatting may follow what the run writes");
-  check(!(await chat.mayFollowChatTurn(ids.member, workspaceId, writing.runId!)), "no one else may");
-  const followingWriting = new AbortController();
+  const flushingWriting = flushAgentRuns();
+  const events = await followOnceTaken(ids.owner, writing.runId!);
+  check(events !== null, "the person chatting may follow what the run writes");
+  check(followRun(ids.member, writing.runId!) === null, "no one else may");
   const seen: string[] = [];
+  const streamedSteps: string[] = [];
   let liveText = "";
-  const following = followText(ids.owner, writing.runId!, followingWriting.signal, (text) => {
-    liveText = text;
-    seen.push(text);
-  });
-  await flushAgentRuns();
-  await following;
+  let lastEvent = "";
+  let turnAtDone: Awaited<ReturnType<typeof chat.chatTurn>> | null = null;
+  for await (const event of events ?? []) {
+    lastEvent = event.type;
+    if (event.type === "text") {
+      liveText += event.text;
+      seen.push(liveText);
+    } else if (event.type === "reset") liveText = "";
+    else if (event.type === "agentStep") streamedSteps.push(`${event.index}:${event.step.kind}`);
+    else if (event.type === "done") turnAtDone = await chat.chatTurn(ids.owner, workspaceId, writing.runId!);
+  }
+  await flushingWriting;
   fake.delayMs = 0;
   const grown = seen.filter(Boolean);
   check(grown.length >= 5 && grown.every((t, i) => i === 0 || t.startsWith(grown[i - 1])), "the answer is followed as it grows, word by word", seen);
-  check(liveText === written && (await chat.chatTurn(ids.owner, workspaceId, writing.runId!)).answer === written, "and ends as the answer the run keeps", liveText);
+  check(streamedSteps.length === 1 && streamedSteps[0] === "0:read", "its steps come as they are taken, by their place in the run", streamedSteps);
+  check(lastEvent === "done" && turnAtDone?.status === "done" && turnAtDone.answer === written && liveText === written, "and it ends, once its turn is saved, as the answer the run keeps", { lastEvent, turnAtDone, liveText });
 
   // ── Stop ───────────────────────────────────────────────────────────────────────────────────
   const notStarted = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "Never mind this one" });
@@ -217,11 +217,19 @@ try {
   fake.setChat(() => ({ text: long }));
   fake.delayMs = 15;
   const stopping = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "Tell me everything" });
-  const followingStop = new AbortController();
+  let partial = "";
+  let stopAsked = false;
+  let lastStopEvent = "";
   const flushing = flushAgentRuns();
-  await followText(ids.owner, stopping.runId!, followingStop.signal, (text) => text.length <= 20);
-  followingStop.abort();
-  check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! })).stopped, "Stop on an answer being written ends it");
+  for await (const event of (await followOnceTaken(ids.owner, stopping.runId!)) ?? []) {
+    lastStopEvent = event.type;
+    if (event.type === "text") partial += event.text;
+    if (partial.length > 20 && !stopAsked) {
+      stopAsked = true;
+      check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! })).stopped, "Stop on an answer being written ends it");
+    }
+  }
+  check(stopAsked && lastStopEvent === "done", "…and whoever follows it is told once it is saved", lastStopEvent);
   await flushing;
   fake.delayMs = 0;
   const [stoppedRun] = await db.select().from(agentRun).where(eq(agentRun.id, stopping.runId!));

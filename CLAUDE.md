@@ -203,7 +203,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   check holds: agent code takes `AgentRunRow` and narrows rows it reads with `isAgentRun`) and
   the run's turns with the model (`converse`, on the turn loop `src/server/assistant/turns.ts`
   `runTurns` that the AI chat's `converseChat` shares: hooks for limits, counting, making room and
-  answering calls; Stop is `run.ts` `stopRun`, aborting the run's answer in `ai-chat-runs.ts`,
+  answering calls; Stop is `run.ts` `stopRun`, through `globalThis.__leafdeskAgentChatStops`,
   ending with code `stopped`); what a run is offered and how each tool call is
   answered (waits, counts, refusals) is `src/server/assistant/dispatch.ts`
   (`setUpRun`, `createDispatch`). Every run is started through `server/triggers.ts`
@@ -215,11 +215,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   all call it. A triggered agent's conversations belong to the agent's own user, so no one lists
   them; who sees a run is still its `source`. `listTriggers` there is the one list of what starts
   an agent or a person's own chat. Own requests (`server/own-requests.ts`) are a person's question
-  on a schedule, run as their AI chat by the worker (`resumeChatRun`). A chat run streams its turns: the text so far
-  goes, masked as the kept answer, into the AI chat's answers' store as `text`/`reset` events
-  (`agents/live-text.ts` over `ai-chat-runs.ts`, keyed `agent:<runId>`, which the AI chat's own
-  conversation reads skip), which `/api/agents/chat/live` and the Telegram bot follow; the answer itself is still
-  `agent_run.answer`, and `use-agent-chat.ts` keeps the turn under way in the same list item (and key)
+  on a schedule, run as their AI chat by the worker (`resumeChatRun`). A chat run streams its turns into the AI chat's run
+  store (`ai-chat-runs.ts`, keyed by its id, `agent` runs, followed by the person chatting at
+  `GET /api/ai/chat?run=`): text masked as the kept answer (`agents/answer-text.ts`, a `reset` when
+  masking takes shown text back), `agentStep` events by their index, `done` only after `finish`
+  saved the turn; one parked or put back ends there without `done` and opens again under the same
+  id. The answer itself is still `agent_run.answer`, and `use-agent-chat.ts` keeps the turn under way in the same list item (and key)
   as its answer, or the answer's text would flow in a second time. Messages sent while a chat run
   answers wait in `conversation.queue` (`lib/agent-chat-queue.ts`); `chat-store.ts`
   `closeChatTurn` runs before `finish` flips the status and, under the conversation row's lock (as
@@ -306,7 +307,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `page_task_backfill`, which a restore of an older backup fills too), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
-  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/` (`/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followLiveText` show it, in the agent's latest conversation; a message queued behind a run no follow watches starts a waiter, `watched`, that follows only the queue's run), synced databases (own
+  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/` (`/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followRun` show it, in the agent's latest conversation; a message queued behind a run no follow watches starts a waiter, `watched`, that follows only the queue's run), synced databases (own
   `database_sync` table, `source` jira, github, ical, gcal, postgres or sheets; the runs and the one-minute sweep
   are `jira-sync/run.ts` for all, rows written by `synced-rows.ts`, errors are `JiraError` codes;
   Jira in `jira-sync/` and `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and

@@ -52,7 +52,8 @@ const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const runs = await import("@/server/ai-chat-runs");
 const { decidePageReview, getPageReview } = await import("@/server/page-review");
-type ChatEvent = import("@/lib/ai-chat").ChatEvent;
+// What following an answer brings (ai-chat-runs.ts); an AI chat answer sends no agent steps.
+type ChatEvent = import("@/lib/agent-chat").RunEvent;
 type ChatStepView = import("@/lib/ai-chat").ChatStepView;
 type ChatInput = import("@/server/ai-chat").ChatInput;
 
