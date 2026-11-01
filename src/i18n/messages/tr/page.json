@@ -1345,6 +1345,7 @@
       "limitReached": "Ajan bu ayki token sınırına ulaştı.",
       "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaştı.",
       "selfReported": "Ajan görevini yapamadığını bildirdi.",
+      "stopped": "Durduruldu.",
       "error": "Bir şeyler ters gitti."
     },
     "errors": {

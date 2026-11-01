@@ -371,6 +371,22 @@ export async function removeQueuedAgentChat(
 }
 
 /**
+ * Stop on the person's own answer under way (or not started yet): it ends with what it wrote so far
+ * (run.ts stopRun). False when it had ended already or waits for an approval.
+ */
+export async function stopAgentChat(userId: string, input: { workspaceId: string; agentId: string; runId: string }): Promise<{ stopped: boolean }> {
+  await seesAgent(userId, input.workspaceId, input.agentId);
+  const [found] = await db
+    .select({ source: agentRun.source })
+    .from(agentRun)
+    .where(and(eq(agentRun.id, input.runId), eq(agentRun.agentId, input.agentId), eq(agentRun.workspaceId, input.workspaceId)));
+  if (!found || found.source.kind !== "chat" || found.source.userId !== userId) refuse("noAccess", "Not your chat's answer");
+  // Loaded here: run.ts reaches this module through dispatch.ts.
+  const { stopRun } = await import("./run");
+  return { stopped: await stopRun(input.runId) };
+}
+
+/**
  * The person's conversation as the summary's model reads it: from a connected app, without the
  * turns that read email, nor any from the first that read files on the person's computer (as
  * chat-store.ts chatRunHistory leaves them out there); `mail` and `localRead`, whether what it

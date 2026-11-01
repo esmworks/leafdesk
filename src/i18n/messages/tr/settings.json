@@ -677,6 +677,7 @@
         "limitReached": "Ajanın aylık token sınırı dolmuştu.",
         "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaşmıştı.",
         "selfReported": "Ajan görevini yapamadığını bildirdi.",
+        "stopped": "Durduruldu.",
         "mailGone": "E-posta kutudan gitti ya da kutu artık bu ajana açık değil."
       },
       "fromConnection": "{connection} · {event}",

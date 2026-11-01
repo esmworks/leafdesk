@@ -17,6 +17,7 @@ import {
   redoAgentChatAction,
   removeQueuedAgentChatAction,
   sendAgentChatAction,
+  stopAgentChatAction,
   summarizeAgentConversationAction,
 } from "@/app/actions/agent-chat";
 import { undoAgentCorrectionAction } from "@/app/actions/agents";
@@ -488,6 +489,14 @@ export function useAgentChat({ workspaceId, agentId, place }: { workspaceId: str
   if (running) shown.push(item(`assistant-${running}`, { kind: "live", runId: running }, live?.runId === running ? live.text : ""));
   for (const q of queued) shown.push(item(`queued-${q.id}`, { kind: "queued", queued: q }, q.content, "user"));
 
+  // Stop: the answer ends on the server with what it wrote so far, and comes back as the turn polled
+  // above (code `stopped`). One waiting for an owner's approval is answered there instead.
+  const stop = async () => {
+    if (!running) return;
+    const res = await stopAgentChatAction(workspaceId, agentId, running).catch(() => null);
+    if (res && !res.ok) setError(res.error);
+  };
+
   const chat: ThreadChat = {
     workspaceId,
     conversationId,
@@ -498,6 +507,7 @@ export function useAgentChat({ workspaceId, agentId, place }: { workspaceId: str
     setInput,
     inputRef,
     running: running !== null,
+    stop: running && turn?.status !== "awaiting_approval" ? () => void stop() : undefined,
     files: files.map((f) => ({ id: f.name, name: f.name, contentType: "text/plain", size: f.size, url: "" })),
     attachFiles: attach,
     removeFile: (name: string) => setFiles((list) => list.filter((f) => f.name !== name)),

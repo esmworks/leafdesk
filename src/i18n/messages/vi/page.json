@@ -1345,6 +1345,7 @@
       "limitReached": "Tác tử đã dùng hết token của tháng.",
       "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
       "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
+      "stopped": "Đã dừng.",
       "error": "Đã xảy ra lỗi."
     },
     "errors": {

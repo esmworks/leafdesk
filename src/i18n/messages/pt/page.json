@@ -1345,6 +1345,7 @@
       "limitReached": "O agente já usou os tokens do mês.",
       "costLimit": "O espaço de trabalho atingiu o limite mensal de custo de IA.",
       "selfReported": "O agente disse que não conseguiu fazer a tarefa.",
+      "stopped": "Parado.",
       "error": "Algo deu errado."
     },
     "errors": {

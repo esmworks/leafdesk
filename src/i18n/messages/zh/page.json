@@ -1345,6 +1345,7 @@
       "limitReached": "该智能体本月的令牌已用完。",
       "costLimit": "工作区已达到每月 AI 费用上限。",
       "selfReported": "代理表示它未能完成任务。",
+      "stopped": "已停止。",
       "error": "出了点问题。"
     },
     "errors": {

@@ -677,6 +677,7 @@
         "limitReached": "Das monatliche Token-Limit des Agenten war aufgebraucht.",
         "costLimit": "Der Workspace hatte sein monatliches KI-Kostenlimit erreicht.",
         "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
+        "stopped": "Gestoppt.",
         "mailGone": "Die E-Mail ist nicht mehr im Postfach, oder das Postfach ist für den Agenten nicht mehr geöffnet."
       },
       "fromConnection": "{connection} · {event}",

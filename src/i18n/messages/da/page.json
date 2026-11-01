@@ -1345,6 +1345,7 @@
       "limitReached": "Agenten har brugt sine tokens for måneden.",
       "costLimit": "Arbejdsområdet har nået sin månedlige grænse for AI-omkostninger.",
       "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+      "stopped": "Stoppet.",
       "error": "Noget gik galt."
     },
     "errors": {

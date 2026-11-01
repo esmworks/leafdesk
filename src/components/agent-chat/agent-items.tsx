@@ -215,7 +215,7 @@ function Answer({
           <AnswerText text={message.content} sources={NO_SOURCES} onSource={noop} writing={arrived} />
         </div>
       )}
-      {message.code && <p className="mt-1 text-xs text-danger">{t(`failed.${chatFailure(message.code)}`)}</p>}
+      {message.code && <p className={cn("mt-1 text-xs", message.code === "stopped" ? "text-fg-muted" : "text-danger")}>{t(`failed.${chatFailure(message.code)}`)}</p>}
       {message.attached && <AnswerFiles files={message.attached} />}
       {proposed && <RunProposals workspaceId={context.workspaceId} runId={message.runId} />}
       {(text || onRedo) && !live && (

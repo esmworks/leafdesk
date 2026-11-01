@@ -1345,6 +1345,7 @@
       "limitReached": "Agen telah memakai token bulanannya.",
       "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanan.",
       "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+      "stopped": "Dihentikan.",
       "error": "Terjadi kesalahan."
     },
     "errors": {

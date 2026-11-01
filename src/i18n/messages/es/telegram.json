@@ -170,6 +170,7 @@
       "limitReached": "El agente usó sus tokens del mes.",
       "costLimit": "La respuesta alcanzó su límite de costo.",
       "selfReported": "El agente dijo que no pudo hacer su tarea.",
+      "stopped": "Detenido.",
       "error": "Algo salió mal mientras el agente respondía."
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "El agente había agotado su límite mensual de tokens.",
         "costLimit": "El espacio de trabajo había alcanzado su límite mensual de coste de IA.",
         "selfReported": "El agente dijo que no pudo hacer su tarea.",
+        "stopped": "Detenido.",
         "error": "Algo salió mal."
       },
       "email": "Leyó tu correo, así que su informe solo se ve en Leafdesk."

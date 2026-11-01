@@ -170,6 +170,7 @@
       "limitReached": "Agen telah memakai token bulan ini.",
       "costLimit": "Jawaban mencapai batas biayanya.",
       "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+      "stopped": "Dihentikan.",
       "error": "Terjadi masalah saat agen menjawab."
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "Agen telah memakai batas token bulanannya.",
         "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanannya.",
         "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+        "stopped": "Dihentikan.",
         "error": "Terjadi kesalahan."
       },
       "email": "Agen ini membaca email Anda, jadi laporannya hanya tampil di Leafdesk."

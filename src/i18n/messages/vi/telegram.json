@@ -170,6 +170,7 @@
       "limitReached": "Tác tử đã dùng hết token của tháng.",
       "costLimit": "Câu trả lời đã chạm giới hạn chi phí.",
       "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
+      "stopped": "Đã dừng.",
       "error": "Đã xảy ra sự cố khi tác tử trả lời."
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "Nó đã dùng hết giới hạn token hằng tháng của tác tử.",
         "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
         "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
+        "stopped": "Đã dừng.",
         "error": "Đã xảy ra lỗi."
       },
       "email": "Tác tử đã đọc email của bạn, nên báo cáo chỉ hiển thị trong Leafdesk."

@@ -170,6 +170,7 @@
       "limitReached": "Agenten har brugt sine tokens for måneden.",
       "costLimit": "Svaret nåede sin omkostningsgrænse.",
       "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+      "stopped": "Stoppet.",
       "error": "Noget gik galt, mens agenten svarede."
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "Den havde brugt agentens månedlige tokengrænse.",
         "costLimit": "Arbejdsområdet havde nået sin månedlige grænse for AI-omkostninger.",
         "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+        "stopped": "Stoppet.",
         "error": "Noget gik galt."
       },
       "email": "Den læste din e-mail, så dens rapport vises kun i Leafdesk."

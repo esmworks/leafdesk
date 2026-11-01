@@ -682,6 +682,7 @@
         "limitReached": "Se oli käyttänyt agentin kuukausittaisen tokenrajan.",
         "costLimit": "Työtila oli saavuttanut kuukausittaisen tekoälyn kustannusrajansa.",
         "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
+        "stopped": "Pysäytetty.",
         "mailGone": "Sähköposti ei ole enää postilaatikossa, tai postilaatikko ei ole enää avoinna agentille."
       },
       "fromConnection": "{connection} · {event}",

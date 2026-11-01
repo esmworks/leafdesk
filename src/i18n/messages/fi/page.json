@@ -1345,6 +1345,7 @@
       "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
       "costLimit": "Työtila on saavuttanut tekoälyn kuukausittaisen kustannusrajansa.",
       "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
+      "stopped": "Pysäytetty.",
       "error": "Jokin meni vikaan."
     },
     "errors": {

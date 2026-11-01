@@ -1345,6 +1345,7 @@
       "limitReached": "De agent heeft zijn tokens voor deze maand opgebruikt.",
       "costLimit": "De werkruimte heeft de maandelijkse limiet voor AI-kosten bereikt.",
       "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
+      "stopped": "Gestopt.",
       "error": "Er ging iets mis."
     },
     "errors": {

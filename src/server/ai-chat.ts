@@ -95,11 +95,9 @@ import {
   IMAGE_CHARS,
   isAiError,
   promptRoomFor,
-  stream,
   takeRateLimit,
   takeWorkspaceCapacity,
   type AiMessage,
-  type AiResult,
   type AiToolCall,
   type AiRequest,
   type ChatModelOption,
@@ -108,7 +106,8 @@ import { setTimeout as sleep } from "node:timers/promises";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
 import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt } from "@/server/ai/prompts";
-import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
+import { ANSWER_NOW } from "@/server/ai/turns";
+import { runTurns } from "@/server/assistant/turns";
 import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
 import { chatMailToolset } from "@/server/ai-chat-mail";
 import { chatWebOn, chatWebToolset, PLAN_TOOL } from "@/server/ai-chat-web";
@@ -630,8 +629,6 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       return earlierMessages > 0;
     };
     let roomMade = 0;
-    // The last turn called tools instead of answering: it's asked once more, with none run.
-    let closing = false;
     // Turns with the model so far, and the calls of the latest still to answer (the first one, the
     // person decided on while the run was parked).
     let round = saved?.rounds ?? 0;
@@ -705,109 +702,103 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     // ------------------------------------------------------------------------------ model turns
     // Turns go on until the model answers; the last (turns.ts) answers with what it has (research
     // writes its report). Each turn also counts against the workspace's rate and cost limits, and
-    // the person can stop the answer.
-    for (;;) {
-      if (!queue.length) {
-        // A long answer waits for the workspace's AI allowance rather than failing.
-        for (let wait = round > 0 ? takeWorkspaceCapacity(workspaceId) : 0; wait > 0; wait = takeWorkspaceCapacity(workspaceId)) {
-          yield { type: "ping" };
-          try {
-            await sleep(Math.min(wait, PING_MS), undefined, { signal });
-          } catch {
-            throw new AiError("aborted", "The answer was stopped");
-          }
-        }
-        const last = isLastTurn(round, spentUsd, limitUsd);
-        yield { type: "thinking" };
-        let streamed = "";
-        // Text shown since the last reset: once a tool call starts, it was the model thinking aloud.
-        let shown = false;
-        let result: AiResult;
-        try {
-          const turn = stream({
-            feature,
-            model,
-            userId,
-            workspaceId,
-            skipRateLimit: true,
-            system,
-            messages,
-            // Tools stay declared (providers want them while the conversation has tool calls); the
-            // last turn is told to answer instead, and what it writes is the answer.
-            tools,
-            signal,
-            sessionId: conversation.id,
-            ...(research ? {} : { thinking: THINKING_LEVELS[thinking] }),
-            thinkingEvents: true,
-            toolEvents: true,
-          });
-          for await (const event of turn) {
-            // The model's thinking is shown as it comes, and not kept.
-            if (event.type === "thinking") {
-              yield { type: "reasoning", text: event.delta };
-              continue;
+    // the person can stop the answer (the request's signal).
+    const turns = runTurns<ChatEvent, never>(
+      messages,
+      { round, pending: queue.length > 0 },
+      {
+        request: () => ({
+          feature,
+          model,
+          userId,
+          workspaceId,
+          skipRateLimit: true,
+          system,
+          // Tools stay declared (providers want them while the conversation has tool calls); the
+          // last turn is told to answer instead, and what it writes is the answer.
+          tools,
+          signal,
+          sessionId: conversation.id,
+          ...(research ? {} : { thinking: THINKING_LEVELS[thinking] }),
+          thinkingEvents: true,
+          toolEvents: true,
+        }),
+        streaming: true,
+        spentUsd: () => spentUsd,
+        limitUsd,
+        async *beforeTurn(at) {
+          // A long answer waits for the workspace's AI allowance rather than failing.
+          for (let wait = at > 0 ? takeWorkspaceCapacity(workspaceId) : 0; wait > 0; wait = takeWorkspaceCapacity(workspaceId)) {
+            yield { type: "ping" };
+            try {
+              await sleep(Math.min(wait, PING_MS), undefined, { signal });
+            } catch {
+              throw new AiError("aborted", "The answer was stopped");
             }
-            // Writing a tool call's arguments (rows to add) can take minutes: the page shows it works.
-            if (event.type === "toolCall") {
-              if (shown) yield { type: "reset" };
-              shown = false;
-              yield { type: "thinking" };
-              continue;
+          }
+          return null;
+        },
+        afterTurn: async (result) => {
+          answeredBy = result.model;
+          spentUsd += result.usage.costUsd;
+          return null;
+        },
+        // Twice at most, and not once text was shown.
+        makeRoom: (streamed) => {
+          if (streamed || roomMade >= 2 || !makeRoom()) return false;
+          roomMade += 1;
+          return true;
+        },
+        thought: async (text) => {
+          answer = "";
+          const thought = thoughtText(text);
+          return thought ? await step({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought }) : null;
+        },
+        async *answerCalls(calls, answerNext) {
+          if (calls) {
+            queue = [...calls];
+            round += 1;
+          }
+          while (queue.length) {
+            const call = queue[0];
+            const left = roomToRead(messages, () => room() - sizeOf(messages) - 300);
+            let out = await dispatch.answer(call, decided, left);
+            decided = null;
+            while ("ask" in out) {
+              const decision = yield* park(call, out.ask);
+              out = await dispatch.answer(call, decision, left);
             }
-            streamed += event.delta;
-            answer = streamed;
-            shown = true;
-            yield { type: "text", text: event.delta };
+            // An image of the mail described by another model: counted against this answer's limit.
+            if (out.usage) spentUsd += out.usage.costUsd;
+            if (out.step) yield await step(out.step);
+            const content = answerNext ? `${out.content}\n\n${ANSWER_NOW}` : out.content;
+            messages.push({ role: "tool", toolCallId: call.id, name: call.name, content, isError: out.isError });
+            queue.shift();
+            await checkpoint();
           }
-          result = await turn.result();
-        } catch (error) {
-          // Too long for the model: the same turn is asked again with room made, twice at most.
-          if (isAiError(error) && error.code === "tooLarge" && !streamed && roomMade < 2 && makeRoom()) {
-            roomMade += 1;
-            continue;
+          return null;
+        },
+      },
+    );
+    try {
+      for (;;) {
+        const next = await turns.next();
+        if (next.done) {
+          if (next.value.answered) {
+            answer = next.value.text;
+            stopReason = next.value.stopReason;
           }
-          throw error;
-        }
-        answeredBy = result.model;
-        spentUsd += result.usage.costUsd;
-        if (last && result.toolCalls.length && !closing) {
-          closing = true;
-          if (shown) yield { type: "reset" };
-          refuseLastCalls(messages, result);
-          continue;
-        }
-        if (!result.toolCalls.length || last) {
-          answer = result.text;
-          stopReason = result.stopReason === "length" ? "length" : "stop";
           break;
         }
-        // Text before a tool call is the model thinking aloud, not the answer: it's kept as a step.
-        if (shown) yield { type: "reset" };
-        const thought = thoughtText(streamed);
-        if (thought) yield await step({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
-        answer = "";
-        messages.push(result.message);
-        queue = [...result.toolCalls];
-        round += 1;
+        const event = next.value;
+        // What was written so far is kept if the person stops the answer.
+        if (event.type === "text") answer += event.text;
+        else if (event.type === "reset") answer = "";
+        yield event;
       }
-      const answerNext = isLastTurn(round, spentUsd, limitUsd);
-      while (queue.length) {
-        const call = queue[0];
-        const left = roomToRead(messages, () => room() - sizeOf(messages) - 300);
-        let out = await dispatch.answer(call, decided, left);
-        decided = null;
-        while ("ask" in out) {
-          const decision = yield* park(call, out.ask);
-          out = await dispatch.answer(call, decision, left);
-        }
-        // An image of the mail described by another model: counted against this answer's limit.
-        if (out.usage) spentUsd += out.usage.costUsd;
-        if (out.step) yield await step(out.step);
-        const content = answerNext ? `${out.content}\n\n${ANSWER_NOW}` : out.content;
-        messages.push({ role: "tool", toolCallId: call.id, name: call.name, content, isError: out.isError });
-        queue.shift();
-        await checkpoint();
-      }
+    } finally {
+      // Closed early (no one follows a run that waits here any more): the turn's waits close too.
+      await turns.return({ answered: false, ending: undefined as never });
     }
     if (!answer.trim()) throw new AiError("empty", "The model gave no answer");
   } catch (error) {

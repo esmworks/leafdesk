@@ -782,7 +782,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
       code: {
         type: "string",
         description:
-          "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached, mailGone, costLimit, selfReported (a schedule's run said it couldn't do its task; answer holds its reason) or error.",
+          "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached, mailGone, costLimit, selfReported (a schedule's run said it couldn't do its task; answer holds its reason), stopped (the person stopped a chat's answer; answer holds what it wrote by then) or error.",
       },
       error: { type: "string" },
       source: loose(

@@ -677,6 +677,7 @@
         "limitReached": "Wyczerpał miesięczny limit tokenów agenta.",
         "costLimit": "Przestrzeń robocza osiągnęła wcześniej miesięczny limit kosztów AI.",
         "selfReported": "Agent zgłosił, że nie mógł wykonać zadania.",
+        "stopped": "Zatrzymano.",
         "mailGone": "Wiadomości nie ma już w skrzynce albo skrzynka nie jest już otwarta dla agenta."
       },
       "fromConnection": "{connection} · {event}",

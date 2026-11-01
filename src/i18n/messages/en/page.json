@@ -1345,6 +1345,7 @@
       "limitReached": "The agent has used its tokens for the month.",
       "costLimit": "The workspace has reached its monthly AI cost limit.",
       "selfReported": "The agent said it couldn’t do its task.",
+      "stopped": "Stopped.",
       "error": "Something went wrong."
     },
     "errors": {

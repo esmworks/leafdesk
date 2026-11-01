@@ -501,7 +501,8 @@ export type ApprovalDecision = "approve" | "decline" | "redo";
  * it is gone (or its mailbox no longer opened to the agent), the model failed, the
  * run took too long, no one answered a call that waited for approval, the agent used its tokens
  * for the month, the workspace's AI reached its monthly cost limit, or a schedule's run said it
- * couldn't do its task (finish_run, see finishRunCall; its reason is the run's answer).
+ * couldn't do its task (finish_run, see finishRunCall; its reason is the run's answer), or the
+ * person stopped a chat's answer (agents/run.ts stopRun; its answer is what was written by then).
  */
 export const AGENT_RUN_CODES = [
   "aiOff",
@@ -519,6 +520,7 @@ export const AGENT_RUN_CODES = [
   "limitReached",
   "costLimit",
   "selfReported",
+  "stopped",
   "error",
 ] as const;
 export type AgentRunCode = (typeof AGENT_RUN_CODES)[number];

@@ -1345,6 +1345,7 @@
       "limitReached": "Agenten har använt sina token för månaden.",
       "costLimit": "Arbetsytan har nått sin månatliga kostnadsgräns för AI.",
       "selfReported": "Agenten meddelade att den inte kunde utföra sin uppgift.",
+      "stopped": "Stoppat.",
       "error": "Något gick fel."
     },
     "errors": {

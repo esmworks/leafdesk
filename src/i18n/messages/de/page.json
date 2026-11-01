@@ -1345,6 +1345,7 @@
       "limitReached": "Der Agent hat seine Tokens für diesen Monat verbraucht.",
       "costLimit": "Der Workspace hat sein monatliches KI-Kostenlimit erreicht.",
       "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
+      "stopped": "Gestoppt.",
       "error": "Etwas ist schiefgelaufen."
     },
     "errors": {

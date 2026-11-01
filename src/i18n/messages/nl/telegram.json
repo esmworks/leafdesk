@@ -170,6 +170,7 @@
       "limitReached": "De agent heeft zijn tokens voor deze maand gebruikt.",
       "costLimit": "Het antwoord bereikte zijn kostenlimiet.",
       "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
+      "stopped": "Gestopt.",
       "error": "Er ging iets mis terwijl de agent antwoordde."
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "Hij had de maandelijkse tokenlimiet van de agent opgebruikt.",
         "costLimit": "De werkruimte had haar maandelijkse limiet voor AI-kosten bereikt.",
         "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
+        "stopped": "Gestopt.",
         "error": "Er ging iets mis."
       },
       "email": "Hij heeft je e-mail gelezen, dus zijn verslag staat alleen in Leafdesk."

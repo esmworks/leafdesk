@@ -294,6 +294,6 @@ export const AGENT_CHAT_ERRORS = ["invalid", "tooLong", "busy", "queueFull", "ba
 export type AgentChatError = (typeof AGENT_CHAT_ERRORS)[number] | Exclude<AgentChatState, "full" | "readOnly">;
 
 /** Why a chat's run ended without an answer, as the chat says it (others say "error"). */
-export const AGENT_CHAT_FAILURES = ["aiOff", "agentDisabled", "noAccess", "provider", "timeout", "tooManyAttempts", "approvalTimeout", "limitReached", "costLimit", "selfReported", "error"] as const;
+export const AGENT_CHAT_FAILURES = ["aiOff", "agentDisabled", "noAccess", "provider", "timeout", "tooManyAttempts", "approvalTimeout", "limitReached", "costLimit", "selfReported", "stopped", "error"] as const;
 export const chatFailure = (code: AgentRunCode | null): (typeof AGENT_CHAT_FAILURES)[number] =>
   (AGENT_CHAT_FAILURES as readonly (AgentRunCode | null)[]).includes(code) ? (code as (typeof AGENT_CHAT_FAILURES)[number]) : "error";

@@ -170,6 +170,7 @@
       "limitReached": "Agent wykorzystał tokeny na ten miesiąc.",
       "costLimit": "Odpowiedź osiągnęła limit kosztów.",
       "selfReported": "Agent zgłosił, że nie mógł wykonać zadania.",
+      "stopped": "Zatrzymano.",
       "error": "Coś poszło nie tak podczas odpowiedzi agenta."
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "Wyczerpał miesięczny limit tokenów agenta.",
         "costLimit": "Przestrzeń robocza osiągnęła wcześniej miesięczny limit kosztów AI.",
         "selfReported": "Agent zgłosił, że nie mógł wykonać zadania.",
+        "stopped": "Zatrzymano.",
         "error": "Coś poszło nie tak."
       },
       "email": "Przeczytał twoją pocztę, więc jego raport widać tylko w Leafdesk."

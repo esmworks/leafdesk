@@ -682,6 +682,7 @@
         "limitReached": "Hij had de maandelijkse tokenlimiet van de agent opgebruikt.",
         "costLimit": "De werkruimte had haar maandelijkse limiet voor AI-kosten bereikt.",
         "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
+        "stopped": "Gestopt.",
         "mailGone": "De e-mail staat niet meer in de mailbox, of de mailbox is niet meer open voor de agent."
       },
       "fromConnection": "{connection} · {event}",

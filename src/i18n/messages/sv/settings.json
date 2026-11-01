@@ -682,6 +682,7 @@
         "limitReached": "Den hade förbrukat agentens månatliga tokengräns.",
         "costLimit": "Arbetsytan hade nått sin månatliga kostnadsgräns för AI.",
         "selfReported": "Agenten meddelade att den inte kunde utföra sin uppgift.",
+        "stopped": "Stoppat.",
         "mailGone": "Mejlet finns inte längre i brevlådan, eller brevlådan är inte längre öppen för agenten."
       },
       "fromConnection": "{connection} · {event}",

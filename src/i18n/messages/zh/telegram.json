@@ -170,6 +170,7 @@
       "limitReached": "智能体本月的令牌已用完。",
       "costLimit": "回答已达到费用上限。",
       "selfReported": "代理表示它未能完成任务。",
+      "stopped": "已停止。",
       "error": "智能体回答时出了问题。"
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "它已用完该智能体的每月令牌上限。",
         "costLimit": "工作区此前已达到每月 AI 费用上限。",
         "selfReported": "代理表示它未能完成任务。",
+        "stopped": "已停止。",
         "error": "出了点问题。"
       },
       "email": "它读取了你的邮件，因此报告只在 Leafdesk 中显示。"

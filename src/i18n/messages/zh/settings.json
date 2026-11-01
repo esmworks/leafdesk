@@ -677,6 +677,7 @@
         "limitReached": "它已用完该智能体的每月令牌上限。",
         "costLimit": "工作区此前已达到每月 AI 费用上限。",
         "selfReported": "代理表示它未能完成任务。",
+        "stopped": "已停止。",
         "mailGone": "邮件已不在邮箱中,或该邮箱已不再向此智能体开放。"
       },
       "fromConnection": "{connection} · {event}",

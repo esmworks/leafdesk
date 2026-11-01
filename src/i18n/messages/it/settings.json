@@ -677,6 +677,7 @@
         "limitReached": "Aveva esaurito il limite mensile di token dell’agente.",
         "costLimit": "Lo spazio di lavoro aveva raggiunto il limite mensile di costo dell'IA.",
         "selfReported": "L’agente ha detto di non essere riuscito a svolgere il compito.",
+        "stopped": "Interrotto.",
         "mailGone": "L'email non è più nella casella, oppure la casella non è più aperta all'agente."
       },
       "fromConnection": "{connection} · {event}",

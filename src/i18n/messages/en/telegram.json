@@ -170,6 +170,7 @@
       "limitReached": "The agent used its tokens for the month.",
       "costLimit": "The answer reached its cost limit.",
       "selfReported": "The agent said it couldn't do its task.",
+      "stopped": "Stopped.",
       "error": "Something went wrong while the agent answered."
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "It had used the agent’s monthly token limit.",
         "costLimit": "The workspace had reached its monthly AI cost limit.",
         "selfReported": "The agent said it couldn’t do its task.",
+        "stopped": "Stopped.",
         "error": "Something went wrong."
       },
       "email": "It read your email, so its report shows only in Leafdesk."

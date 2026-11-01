@@ -81,7 +81,7 @@ import { ANSWER_CHARS, startLiveText, type LiveTextWriter } from "./live-text";
 import { threadBefore } from "@/lib/comments";
 import { findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
-import { aiConfig, AiError, complete, isAiError, promptRoomFor, stream, takeWorkspaceCapacity, type AiMessage, type AiRequest, type AiResult, type AiToolCall } from "@/server/ai";
+import { aiConfig, AiError, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiToolCall } from "@/server/ai";
 import { agentChatPrompt, agentEventPrompt, agentMailPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryForPrompt } from "@/server/ai-memory";
@@ -113,7 +113,8 @@ import { pruneDailyChanges } from "./daily-changes";
 import { noticeAgentSpending } from "@/server/ai-limit-notices";
 import { pruneAiUsage } from "@/server/ai/usage-store";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
-import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
+import { ANSWER_NOW } from "@/server/ai/turns";
+import { runTurns } from "@/server/assistant/turns";
 import { createDispatch, MAX_COMMENT, scheduledDatabase, setUpRun, type Ending, type Paused } from "@/server/assistant/dispatch";
 import { pruneTriggerConversations, queueAgentRun } from "@/server/triggers";
 import { noteScheduleOutcome } from "@/server/schedules";
@@ -169,6 +170,33 @@ async function claim(limit: number): Promise<(typeof agentRun.$inferSelect)[]> {
   const ids = [...taken].map((r) => r.id);
   if (!ids.length) return [];
   return db.select().from(agentRun).where(inArray(agentRun.id, ids)).orderBy(agentRun.createdAt);
+}
+
+/**
+ * The chat answers under way in this process, by run, for Stop (`stopRun`). On globalThis: the
+ * server action asking runs in Next's bundle, the worker in server.ts's module graph.
+ */
+const answering = ((globalThis as { __leafdeskAgentChatStops?: Map<string, AbortController> }).__leafdeskAgentChatStops ??= new Map());
+
+/**
+ * Stops a chat run the person asked to stop: one answering ends at once with what it wrote so far
+ * (code `stopped`, which tells no one); one not started yet ends before the worker takes it.
+ * False when it was neither (it ended already, or waits for an approval).
+ */
+export async function stopRun(runId: string): Promise<boolean> {
+  const controller = answering.get(runId);
+  if (controller) {
+    controller.abort();
+    return true;
+  }
+  const [taken] = await db
+    .update(agentRun)
+    .set({ status: "running", nextAt: new Date() })
+    .where(and(eq(agentRun.id, runId), eq(agentRun.status, "pending")))
+    .returning();
+  if (!taken || !isAgentRun(taken)) return false;
+  await finish(taken, { status: "failed", code: "stopped", answer: "" });
+  return true;
 }
 
 async function finish(run: Run, values: Ending) {
@@ -424,10 +452,14 @@ export async function processRun(run: Run): Promise<void> {
   const moreTools = lazyMoreTools(agent.userId, { writes: chatWrites, eachTime: false });
   // A chat's answer is shown to the person as it is written (live-text.ts).
   const live = run.source.kind === "chat" ? startLiveText(run.id) : null;
-  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites, moreTools, live }))
+  // A chat's answer may be stopped by its person (stopRun).
+  const stop = run.source.kind === "chat" ? new AbortController() : null;
+  if (stop) answering.set(run.id, stop);
+  const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites, moreTools, live, signal: stop?.signal }))
     .catch((error: unknown) => ({ error }))
     .finally(() => {
       clearInterval(heartbeat);
+      answering.delete(run.id);
       live?.end();
       void moreTools.close();
     });
@@ -498,7 +530,16 @@ async function converse(
     chatWrites,
     moreTools: allMoreTools,
     live,
-  }: { member: string | null; bound: string | null; trusted: boolean; chatWrites: boolean; moreTools: ReturnType<typeof lazyMoreTools>; live: LiveTextWriter | null },
+    signal,
+  }: {
+    member: string | null;
+    bound: string | null;
+    trusted: boolean;
+    chatWrites: boolean;
+    moreTools: ReturnType<typeof lazyMoreTools>;
+    live: LiveTextWriter | null;
+    signal?: AbortSignal;
+  },
 ): Promise<Ending | Paused> {
   const setup = await setUpRun(agent, run, { member, bound, trusted, chatWrites, moreTools: allMoreTools, runHelper: runInSlot });
   if ("status" in setup) return setup;
@@ -663,92 +704,95 @@ async function converse(
 
   const dispatch = createDispatch(setup, { messages, steps, usage, registry, room, writes, externalChars, webFound, mailRead, localRead, queue });
 
-  if (saved) {
-    const paused = await dispatch.drain(saved.decision);
-    if (paused) return paused;
-    if (dispatch.ending) return dispatch.ending;
-  }
-
   const limitUsd = aiConfig().limits.runLimitUsd;
-  let finalAnswer = "";
-  // The last turn called tools instead of answering: it's asked once more, with none run.
-  let closing = false;
-  for (let round = Math.max(firstRound, usage.rounds); ; round++) {
-    if (round > firstRound) {
-      const wait = takeWorkspaceCapacity(run.workspaceId);
-      if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
-    }
-    if (dispatch.pausedBySpending) return { status: "failed", code: "agentDisabled", steps, usage };
-    // The month's tokens may have run out since the run started or was taken again (other runs of
-    // the agent use them too); a new run's first turn was checked in processRun.
-    if ((round > firstRound || saved) && (await overMonthlyLimit(agent))) return { status: "failed", code: "limitReached", steps, usage };
-    const last = isLastTurn(round, usage.costUsd, limitUsd);
-    let result: AiResult;
-    try {
-      const request: AiRequest = { feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, messages, tools, sessionId: run.id };
-      if (live) {
-        // A chat's turn is streamed: its text so far goes to the person as it comes.
-        live.clear();
-        const turn = stream(request);
-        let text = "";
-        for await (const event of turn) {
-          if (event.type !== "text") continue;
-          text += event.delta;
-          live.write(text);
+  const ending = (e: Ending | Paused) => e;
+  // The text of the answer so far, kept when the person stops it.
+  let text = "";
+  const stopped = (): Ending => ({ status: "failed", code: "stopped", steps, usage, answer: text });
+  const turns = runTurns<never, Ending | Paused>(
+    messages,
+    { round: Math.max(firstRound, usage.rounds), pending: Boolean(saved) },
+    {
+      request: () => ({ feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, tools, sessionId: run.id, signal }),
+      // A chat's turn is streamed: its text so far goes to the person as it comes.
+      streaming: Boolean(live),
+      spentUsd: () => usage.costUsd,
+      limitUsd,
+      async *beforeTurn(round) {
+        // Stopped while a tool answered: no further turn.
+        if (signal?.aborted) return stopped();
+        if (round > firstRound) {
+          const wait = takeWorkspaceCapacity(run.workspaceId);
+          if (wait > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15_000)));
         }
-        result = await turn.result();
-      } else result = await complete(request);
+        if (dispatch.pausedBySpending) return ending({ status: "failed", code: "agentDisabled", steps, usage });
+        // The month's tokens may have run out since the run started or was taken again (other runs of
+        // the agent use them too); a new run's first turn was checked in processRun.
+        if ((round > firstRound || saved) && (await overMonthlyLimit(agent))) return ending({ status: "failed", code: "limitReached", steps, usage });
+        return null;
+      },
+      afterTurn: async (result) => {
+        // Counted as it comes back, so a run that fails later still counts what it used; a run is one
+        // of the month's runs at its first turn.
+        const monthTokens = await addAgentUsage(agent.id, { runs: usage.rounds === 0 ? 1 : 0, ...result.usage }).catch((error) => {
+          console.error("[agents] could not count what a run used", redactError(error));
+          return null;
+        });
+        // Its limit nearing is told of; a new agent spending fast is paused, which ends this run too.
+        if (monthTokens !== null && (await noticeAgentSpending(agent, monthTokens)) === "paused") {
+          return ending({ status: "failed", code: "agentDisabled", steps, usage });
+        }
+        usage.rounds += 1;
+        usage.inputTokens += result.usage.inputTokens;
+        usage.outputTokens += result.usage.outputTokens;
+        usage.costUsd += result.usage.costUsd;
+        usage.model = result.model;
+        return null;
+      },
+      // Old tool results make room (the agent can call the tool again), as often as there are some.
+      makeRoom: () => dropOldToolResults(messages) > 0,
+      thought: async (text) => {
+        const thought = redactText(text.replace(/\s+/g, " ").trim());
+        if (thought) steps.push({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
+        return null;
+      },
+      async *answerCalls(calls, answerNext) {
+        if (calls) dispatch.take(calls);
+        const paused = await dispatch.drain(calls ? undefined : saved?.decision);
+        if (paused) return paused;
+        if (dispatch.ending) return dispatch.ending;
+        // The next turn is the last: the model reads that with the results.
+        const lastResult = messages.at(-1);
+        if (calls && answerNext && lastResult?.role === "tool") {
+          messages[messages.length - 1] = { ...lastResult, content: `${lastResult.content}\n\n${ANSWER_NOW}` };
+        }
+        return null;
+      },
+    },
+  );
+  for (;;) {
+    let next: Awaited<ReturnType<typeof turns.next>>;
+    try {
+      next = await turns.next();
     } catch (error) {
-      // Too long for the model: old tool results make room (the agent can call the tool again),
-      // and the same turn is asked again.
-      if (isAiError(error) && error.code === "tooLarge" && dropOldToolResults(messages) > 0) {
-        round -= 1;
-        continue;
-      }
+      if (signal?.aborted) return stopped();
       throw error;
     }
-    // Counted as it comes back, so a run that fails later still counts what it used; a run is one
-    // of the month's runs at its first turn.
-    const monthTokens = await addAgentUsage(agent.id, { runs: usage.rounds === 0 ? 1 : 0, ...result.usage }).catch((error) => {
-      console.error("[agents] could not count what a run used", redactError(error));
-      return null;
-    });
-    // Its limit nearing is told of; a new agent spending fast is paused, which ends this run too.
-    if (monthTokens !== null && (await noticeAgentSpending(agent, monthTokens)) === "paused") {
-      return { status: "failed", code: "agentDisabled", steps, usage };
+    if (next.done) {
+      if (!next.value.answered) return next.value.ending;
+      live?.write(next.value.text, true);
+      return { status: "done", steps, answer: next.value.text, usage };
     }
-    usage.rounds += 1;
-    usage.inputTokens += result.usage.inputTokens;
-    usage.outputTokens += result.usage.outputTokens;
-    usage.costUsd += result.usage.costUsd;
-    usage.model = result.model;
-    if (last && result.toolCalls.length && !closing) {
-      closing = true;
-      refuseLastCalls(messages, result);
-      round -= 1;
-      continue;
-    }
-    if (!result.toolCalls.length || last) {
-      finalAnswer = result.text;
-      live?.write(finalAnswer, true);
-      break;
-    }
-    // What it wrote before calling tools becomes a thought step: the person's answer starts over.
-    live?.clear();
-    const thought = redactText(result.text.replace(/\s+/g, " ").trim());
-    if (thought) steps.push({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
-    messages.push(result.message);
-    dispatch.take(result.toolCalls);
-    const paused = await dispatch.drain(undefined);
-    if (paused) return paused;
-    if (dispatch.ending) return dispatch.ending;
-    // The next turn is the last: the model reads that with the results.
-    const lastResult = messages.at(-1);
-    if (isLastTurn(round + 1, usage.costUsd, limitUsd) && lastResult?.role === "tool") {
-      messages[messages.length - 1] = { ...lastResult, content: `${lastResult.content}\n\n${ANSWER_NOW}` };
+    const event = next.value;
+    if (event.type === "thinking" || event.type === "reset") {
+      // A new turn, or text taken back for tool calls: the person's answer starts over.
+      text = "";
+      live?.clear();
+    } else if (event.type === "text") {
+      text += event.text;
+      live?.write(text);
     }
   }
-  return { status: "done", steps, answer: finalAnswer, usage };
 }
 
 /** Names of the people (and agents) who wrote in a thread, for a mention's run to read it by. */

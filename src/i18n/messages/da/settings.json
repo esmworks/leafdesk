@@ -682,6 +682,7 @@
         "limitReached": "Den havde brugt agentens månedlige tokengrænse.",
         "costLimit": "Arbejdsområdet havde nået sin månedlige grænse for AI-omkostninger.",
         "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+        "stopped": "Stoppet.",
         "mailGone": "E-mailen er ikke længere i postkassen, eller postkassen er ikke længere åben for agenten."
       },
       "fromConnection": "{connection} · {event}",

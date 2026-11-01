@@ -682,6 +682,7 @@
         "limitReached": "Nó đã dùng hết giới hạn token hằng tháng của tác tử.",
         "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
         "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
+        "stopped": "Đã dừng.",
         "mailGone": "Email không còn trong hộp thư, hoặc hộp thư không còn mở cho tác tử."
       },
       "fromConnection": "{connection} · {event}",

@@ -677,6 +677,7 @@
         "limitReached": "에이전트의 월간 토큰 한도를 모두 사용했습니다.",
         "costLimit": "워크스페이스가 이미 월간 AI 비용 한도에 도달했습니다.",
         "selfReported": "에이전트가 작업을 해낼 수 없었다고 알렸습니다.",
+        "stopped": "중지되었습니다.",
         "mailGone": "메일이 더 이상 메일함에 없거나 메일함이 더 이상 에이전트에게 열려 있지 않습니다."
       },
       "fromConnection": "{connection} · {event}",

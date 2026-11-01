@@ -191,6 +191,37 @@ try {
   check(grown.length >= 5 && grown.every((t, i) => i === 0 || t.startsWith(grown[i - 1])), "the answer is followed as it grows, word by word", seen);
   check(liveText === written && (await chat.chatTurn(ids.owner, workspaceId, writing.runId!)).answer === written, "and ends as the answer the run keeps", liveText);
 
+  // ── Stop ───────────────────────────────────────────────────────────────────────────────────
+  const notStarted = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "Never mind this one" });
+  check((await refusal(chat.stopAgentChat(ids.member, { workspaceId, agentId: helper.id, runId: notStarted.runId! }))) === "noAccess", "no one else stops a person's answer");
+  check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: notStarted.runId! })).stopped, "Stop on an answer not started yet ends it");
+  const [stoppedEarly] = await db.select().from(agentRun).where(eq(agentRun.id, notStarted.runId!));
+  check(stoppedEarly.status === "failed" && stoppedEarly.code === "stopped" && stoppedEarly.startedAt === null, "…before the worker takes it, as stopped", stoppedEarly);
+  const long = Array.from({ length: 60 }, (_, i) => `word${i}`).join(" ");
+  fake.setChat(() => ({ text: long }));
+  fake.delayMs = 15;
+  const stopping = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "Tell me everything" });
+  const followingStop = new AbortController();
+  let partial = "";
+  const flushing = flushAgentRuns();
+  for await (const edit of followLiveText(stopping.runId!, followingStop.signal)) {
+    partial = applyLiveEdit(partial, edit);
+    if (partial.length > 20) break;
+  }
+  followingStop.abort();
+  check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! })).stopped, "Stop on an answer being written ends it");
+  await flushing;
+  fake.delayMs = 0;
+  const [stoppedRun] = await db.select().from(agentRun).where(eq(agentRun.id, stopping.runId!));
+  check(
+    stoppedRun.status === "failed" && stoppedRun.code === "stopped" && Boolean(stoppedRun.answer) && long.startsWith(stoppedRun.answer!) && stoppedRun.answer !== long,
+    "…keeping what it wrote by then",
+    { status: stoppedRun.status, code: stoppedRun.code, answer: stoppedRun.answer },
+  );
+  check(!(await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! })).stopped, "…and Stop on an ended answer does nothing");
+  const afterStop = await chat.getAgentConversation(ids.owner, workspaceId, helper.id, first.conversation.id, null);
+  check(afterStop.running === null, "the conversation is free for the next message", afterStop.running);
+
   // ── Leafdesk's further tools ───────────────────────────────────────────────────────────────
   const orders = await createPage(owner, { workspaceId, teamspaceId: general.id, kind: "database", title: "Orders" });
   await agents.setAgentAccess(ids.owner, helper.id, orders.id, "edit");
@@ -296,7 +327,7 @@ try {
   const thread = await chat.agentThread(ids.owner, workspaceId, helper.id);
   check(
     thread.conversationId === archiving.conversation.id &&
-      thread.messages.length === 8 &&
+      thread.messages.length === 12 &&
       thread.messages[0].content === "What did the board discuss?" &&
       thread.messages.at(-1)?.content === "Added it.",
     "the dialog's conversations read as one, oldest first, a new message joining the latest",

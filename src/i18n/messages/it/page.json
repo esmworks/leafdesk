@@ -1345,6 +1345,7 @@
       "limitReached": "L’agente ha esaurito i token del mese.",
       "costLimit": "Lo spazio di lavoro ha raggiunto il limite mensile di costo dell’IA.",
       "selfReported": "L’agente ha detto di non essere riuscito a svolgere il compito.",
+      "stopped": "Interrotto.",
       "error": "Si è verificato un errore."
     },
     "errors": {

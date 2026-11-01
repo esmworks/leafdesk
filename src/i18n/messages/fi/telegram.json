@@ -170,6 +170,7 @@
       "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
       "costLimit": "Vastaus saavutti kustannusrajansa.",
       "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
+      "stopped": "Pysäytetty.",
       "error": "Jokin meni vikaan agentin vastatessa."
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "Se oli käyttänyt agentin kuukausittaisen tokenrajan.",
         "costLimit": "Työtila oli saavuttanut kuukausittaisen tekoälyn kustannusrajansa.",
         "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
+        "stopped": "Pysäytetty.",
         "error": "Jotain meni pieleen."
       },
       "email": "Se luki sähköpostisi, joten sen raportti näkyy vain Leafdeskissä."

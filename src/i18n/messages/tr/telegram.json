@@ -170,6 +170,7 @@
       "limitReached": "Ajan bu ayki token hakkını kullandı.",
       "costLimit": "Yanıt maliyet sınırına ulaştı.",
       "selfReported": "Ajan görevini yapamadığını bildirdi.",
+      "stopped": "Durduruldu.",
       "error": "Ajan yanıtlarken bir şeyler ters gitti."
     },
     "routine": {
@@ -191,6 +192,7 @@
         "limitReached": "Ajanın aylık token sınırı dolmuştu.",
         "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaşmıştı.",
         "selfReported": "Ajan görevini yapamadığını bildirdi.",
+        "stopped": "Durduruldu.",
         "error": "Bir şeyler ters gitti."
       },
       "email": "E-postanı okudu, bu yüzden raporu yalnızca Leafdesk’te görünüyor."

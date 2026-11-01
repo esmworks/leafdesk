@@ -682,6 +682,7 @@
         "limitReached": "Agen telah memakai batas token bulanannya.",
         "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanannya.",
         "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+        "stopped": "Dihentikan.",
         "mailGone": "Email sudah tidak ada di kotak surat, atau kotak surat tidak lagi dibuka untuk agen."
       },
       "fromConnection": "{connection} · {event}",

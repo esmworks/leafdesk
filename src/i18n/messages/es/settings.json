@@ -677,6 +677,7 @@
         "limitReached": "El agente había agotado su límite mensual de tokens.",
         "costLimit": "El espacio de trabajo había alcanzado su límite mensual de coste de IA.",
         "selfReported": "El agente dijo que no pudo hacer su tarea.",
+        "stopped": "Detenido.",
         "mailGone": "El correo ya no está en el buzón, o el buzón ya no está abierto al agente."
       },
       "fromConnection": "{connection} · {event}",
