@@ -12,6 +12,12 @@
  * results, and refuses any other read at once. A run may end itself with finish_run: quietly when
  * it found nothing new (no report; refused after a change or a call that wasn't made), or as
  * failed with its reason.
+ * Through the trigger layer (server/triggers.ts): a schedule's runs join one conversation kept for
+ * it (key `schedule:<id>`); a run that fails counts toward its failures in a row, one that goes well
+ * counts them from 0, and the tenth in a row turns it off and tells whoever set it; times missed
+ * make one run; listTriggers lists what starts the agent. A person's own request on a schedule
+ * (server/own-requests.ts) is asked as their own AI chat by the worker, in their conversation kept
+ * for it, and counts its failures the same way.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-schedule-e2e.ts
@@ -28,9 +34,10 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentDailyChange, agentRun, agentShare, auditEvent, notification, page, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentDailyChange, agentRun, agentShare, auditEvent, conversation, notification, page, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { SCHEDULE_FAILURE_LIMIT } = await import("@/lib/schedule");
 const { changeDay } = await import("@/lib/quiet-hours");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -46,6 +53,9 @@ const agentSchedules = await import("@/server/agents/schedules");
 const { flushAgentRuns } = await import("@/server/agents/run");
 const { agentThread } = await import("@/server/agents/chat");
 const { runDueSchedules } = await import("@/server/schedules");
+// Registers the own_request schedule kind, as server.ts does.
+const ownRequests = await import("@/server/own-requests");
+const { listTriggers } = await import("@/server/triggers");
 const { listNotifications } = await import("@/server/notifications");
 const { createApiToken } = await import("@/server/api/tokens");
 const { handleApiRequest } = await import("@/server/api");
@@ -213,6 +223,13 @@ try {
   );
   const moved = await scheduleRow(set.id);
   check(moved.nextRunAt! > new Date() && moved.enabled, "the schedule's next run moved on");
+  // The trigger layer: a schedule's runs go to one conversation kept for it, the agent's own.
+  const [scheduleConversation] = runs[0].conversationId ? await db.select().from(conversation).where(eq(conversation.id, runs[0].conversationId)) : [];
+  check(
+    scheduleConversation?.key === `schedule:${set.id}` && scheduleConversation.agentId === keeper.id && scheduleConversation.userId === keeper.userId,
+    "its run joins the conversation kept for the schedule, which belongs to the agent's own user",
+    scheduleConversation,
+  );
   check((await runNow(set.id)) === 1 && (await runsOf(keeper.id)).length === 1, "while its run still waits, the schedule skips one rather than piling up");
 
   await flushAgentRuns();
@@ -503,6 +520,74 @@ try {
     "…and reports, the reason as its inbox line",
     failedReported,
   );
+  check(failedRun.conversationId === scheduleConversation.id, "each run of the schedule joins the same conversation", failedRun.conversationId);
+
+  // ── Failing again and again turns it off ─────────────────────────────────────────────────────
+  check((await scheduleRow(set.id)).failures >= 1, "a failed run counts toward the schedule's failures in a row");
+  await db.update(schedule).set({ failures: 4 }).where(eq(schedule.id, set.id));
+  fake.setChat(() => ({ text: "All on track." }));
+  await runNow(set.id);
+  await flushAgentRuns();
+  check((await latestRun()).status === "done" && (await scheduleRow(set.id)).failures === 0, "a run that goes well counts them from 0 again");
+  await db.update(schedule).set({ failures: SCHEDULE_FAILURE_LIMIT - 2 }).where(eq(schedule.id, set.id));
+  fake.setChat(() => ({ toolCalls: [{ name: "finish_run", arguments: { outcome: "failed", reason: "Still no due dates." } }] }));
+  await runNow(set.id);
+  await flushAgentRuns();
+  check((await scheduleRow(set.id)).enabled, "below the limit it stays on");
+  await runNow(set.id);
+  await flushAgentRuns();
+  const offAfterFailures = await scheduleRow(set.id);
+  check(
+    !offAfterFailures.enabled && offAfterFailures.nextRunAt === null && offAfterFailures.lastError === "failed" && offAfterFailures.failures === SCHEDULE_FAILURE_LIMIT,
+    `the ${SCHEDULE_FAILURE_LIMIT}th failure in a row turns the schedule off`,
+    offAfterFailures,
+  );
+  const pausedNotices = (await listNotifications(ids.owner, { workspaceId })).filter((n) => n.kind === "schedule_paused");
+  check(
+    pausedNotices.length === 1 &&
+      pausedNotices[0].schedulePaused?.agentId === keeper.id &&
+      pausedNotices[0].schedulePaused.agentName === "Board keeper" &&
+      pausedNotices[0].schedulePaused.failures === SCHEDULE_FAILURE_LIMIT &&
+      pausedNotices[0].schedulePaused.task === task.slice(0, 200),
+    "…and tells whoever set it, once, naming the agent and the task",
+    pausedNotices,
+  );
+  check(!(await listNotifications(ids.member, { workspaceId })).some((n) => n.kind === "schedule_paused"), "…and no one else");
+  const runsWhenOff = (await runsOf(keeper.id)).length;
+  await runNow(set.id);
+  check((await runsOf(keeper.id)).length === runsWhenOff, "a schedule turned off doesn't run");
+  const setAgain = await agentSchedules.setAgentSchedule(ids.owner, keeper.id, set.id, {});
+  check(setAgain.enabled && setAgain.failures === 0 && (await scheduleRow(set.id)).failures === 0, "setting it again turns it back on and counts from 0", setAgain);
+
+  // ── Times missed while the server was down make one run, not one each ────────────────────────
+  await flushAgentRuns();
+  const runsBeforeMissed = (await runsOf(keeper.id)).length;
+  fake.setChat(() => ({ text: "Caught up." }));
+  await db.update(schedule).set({ nextRunAt: new Date(Date.now() - 5 * 24 * 3_600_000) }).where(eq(schedule.id, set.id));
+  await runDueSchedules(new Date());
+  await runDueSchedules(new Date());
+  const afterMissed = await scheduleRow(set.id);
+  check(
+    (await runsOf(keeper.id)).length === runsBeforeMissed + 1 && afterMissed.nextRunAt! > new Date(),
+    "five days of missed times make one run, and the next time is counted from now",
+    { runs: (await runsOf(keeper.id)).length - runsBeforeMissed, nextRunAt: afterMissed.nextRunAt },
+  );
+  await flushAgentRuns();
+
+  // ── One place lists what starts the agent ────────────────────────────────────────────────────
+  const keeperTriggers = await listTriggers(ids.owner, workspaceId, keeper.id);
+  const keeperSchedule = keeperTriggers.find((t) => t.kind === "schedule");
+  check(
+    keeperTriggers.some((t) => t.kind === "chat" && t.available && t.conversation === "fixed") &&
+      keeperTriggers.some((t) => t.kind === "mention" && t.conversation === "keyed") &&
+      keeperSchedule?.kind === "schedule" &&
+      keeperSchedule.id === set.id &&
+      keeperSchedule.scheduleKind === "agent" &&
+      keeperSchedule.conversation === "keyed" &&
+      keeperSchedule.failures === 0,
+    "the agent's triggers list its chat, mentions and its schedule, with the conversation each goes to",
+    keeperTriggers,
+  );
 
   await agents.archiveAgent(ids.owner, keeper.id);
   await runNow(set.id);
@@ -513,6 +598,91 @@ try {
   await agentSchedules.removeAgentSchedule(ids.owner, keeper.id, set.id);
   check(!(await scheduleRow(set.id)), "an owner deletes the schedule");
   check(await failsWith(agentSchedules.removeAgentSchedule(ids.owner, keeper.id, set.id), "scheduleNotFound"), "a schedule deleted already isn't found");
+
+  // ── One's own request on a schedule ──────────────────────────────────────────────────────────
+  const ownTask = "Tell me which rows on the work board changed since yesterday.";
+  check(await failsWith(ownRequests.setOwnRequest(ids.owner, workspaceId, null, { rule: daily, timeZone: ZONE, task: " " }), "invalid", "task"), "an own request needs a task");
+  const own = await ownRequests.setOwnRequest(ids.owner, workspaceId, null, { rule: daily, timeZone: ZONE, task: ownTask, mode: "ask" });
+  check(own.enabled && own.scheduleKind === "own_request" && own.task === ownTask && own.setBy?.id === ids.owner && own.failures === 0, "a person sets a request of their own on a schedule", own);
+  check((await ownRequests.listOwnRequests(ids.member, workspaceId)).length === 0, "no one else lists it");
+  check(await failsWith(ownRequests.setOwnRequest(ids.member, workspaceId, own.id, { task: "Mine now" }), "scheduleNotFound"), "…or changes it");
+  check(await failsWith(ownRequests.removeOwnRequest(ids.member, workspaceId, own.id), "scheduleNotFound"), "…or removes it");
+  check((await scheduleRow(own.id)).settings.mode === "read", "a request that isn't `auto` only reads");
+  const selfTriggers = await listTriggers(ids.owner, workspaceId);
+  check(
+    selfTriggers.some((t) => t.kind === "chat" && t.available) && selfTriggers.some((t) => t.kind === "schedule" && t.id === own.id && t.scheduleKind === "own_request"),
+    "the person's own triggers list their AI chat and the request",
+    selfTriggers,
+  );
+
+  const ownRuns = () => db.select().from(agentRun).where(and(eq(agentRun.workspaceId, workspaceId), sql`${agentRun.source}->>'scheduleId' = ${own.id}`));
+  fake.chats.length = 0;
+  fake.setChat(() => ({ text: "Two rows changed: the quarterly report and release 2.1." }));
+  await runNow(own.id);
+  const [ownRun] = await ownRuns();
+  const [ownConversation] = ownRun?.conversationId ? await db.select().from(conversation).where(eq(conversation.id, ownRun.conversationId)) : [];
+  check(
+    ownRun?.agentId === null &&
+      ownRun.status === "pending" &&
+      ownRun.source.kind === "assistant" &&
+      ownRun.source.userId === ids.owner &&
+      ownRun.source.scheduleId === own.id &&
+      ownRun.source.mode === "read" &&
+      ownRun.source.conversationId === ownRun.conversationId &&
+      ownRun.prompt === ownTask &&
+      ownConversation?.key === `schedule:${own.id}` &&
+      ownConversation.userId === ids.owner &&
+      ownConversation.agentId === null,
+    "when it comes round it queues an answer of the person's own AI chat, in a conversation of theirs kept for it",
+    { ownRun, ownConversation },
+  );
+  await runNow(own.id);
+  check((await ownRuns()).length === 1, "while that answer waits, the request skips a time");
+  await flushAgentRuns({ assistant: true });
+  const [answered] = await db.select().from(conversation).where(eq(conversation.id, ownConversation.id));
+  const answeredMessages = answered.messages as { role: string; content: string }[];
+  check(
+    fake.chats.length >= 1 &&
+      answeredMessages.length === 2 &&
+      answeredMessages[0].role === "user" &&
+      answeredMessages[0].content === ownTask &&
+      answeredMessages[1].role === "assistant" &&
+      answeredMessages[1].content.includes("Two rows changed") &&
+      (await ownRuns()).length === 0,
+    "the worker answers it as the person, and the turn goes into that conversation",
+    answeredMessages,
+  );
+  check((await scheduleRow(own.id)).failures === 0, "an answer that goes well leaves its failures at 0");
+
+  fake.setChat(() => ({ text: "Nothing new since yesterday." }));
+  await runNow(own.id);
+  const [againRun] = await ownRuns();
+  check(againRun?.conversationId === ownConversation.id, "its next time joins the same conversation", againRun);
+  await flushAgentRuns({ assistant: true });
+  const [twice] = await db.select().from(conversation).where(eq(conversation.id, ownConversation.id));
+  check((twice.messages as unknown[]).length === 4, "…where the answers line up", twice.messages);
+
+  // An answer that fails counts; the tenth in a row turns the request off and tells the person.
+  await db.update(schedule).set({ failures: SCHEDULE_FAILURE_LIMIT - 1 }).where(eq(schedule.id, own.id));
+  setAiEnv({ AI_PROVIDER: "openai-compatible", AI_MODEL: "fake-chat", AI_BASE_URL: "http://127.0.0.1:9/v1", AI_WORKSPACE_RATE_LIMIT: "1000", AI_RATE_LIMIT: "1000" });
+  try {
+    await runNow(own.id);
+    await flushAgentRuns({ assistant: true });
+  } finally {
+    setAiEnv({ AI_PROVIDER: "openai-compatible", AI_MODEL: "fake-chat", AI_BASE_URL: fake.baseUrl, AI_WORKSPACE_RATE_LIMIT: "1000", AI_RATE_LIMIT: "1000" });
+  }
+  const ownOff = await scheduleRow(own.id);
+  check(!ownOff.enabled && ownOff.lastError === "failed" && ownOff.failures === SCHEDULE_FAILURE_LIMIT, "an answer that fails the tenth time in a row turns the request off", ownOff);
+  const ownPaused = (await listNotifications(ids.owner, { workspaceId })).filter((n) => n.kind === "schedule_paused" && n.schedulePaused?.own);
+  check(
+    ownPaused.length === 1 && ownPaused[0].schedulePaused?.agentId === null && ownPaused[0].schedulePaused.task === ownTask,
+    "…and tells the person, as their own request",
+    ownPaused,
+  );
+  const ownAgain = await ownRequests.setOwnRequest(ids.owner, workspaceId, own.id, {});
+  check(ownAgain.enabled && ownAgain.failures === 0 && ownAgain.task === ownTask, "setting it again turns it back on", ownAgain);
+  await ownRequests.removeOwnRequest(ids.owner, workspaceId, own.id);
+  check(!(await scheduleRow(own.id)), "the person removes it");
 
   console.log(`\n${passed} checks passed`);
 } finally {

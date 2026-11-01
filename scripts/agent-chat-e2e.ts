@@ -146,6 +146,7 @@ try {
   await flushAgentRuns();
   const [ownerRun] = await db.select().from(agentRun).where(eq(agentRun.id, first.runId!));
   check(ownerRun.status === "done" && ownerRun.source.kind === "chat" && ownerRun.source.userId === ids.owner, "the owner's message is a run with the chat source", ownerRun);
+  check(ownerRun.conversationId === first.conversation.id, "…linked to the conversation it answers (the trigger layer's fixed conversation)", ownerRun.conversationId);
   const ownerTools = toolNames(fake.chats[0]);
   check(["create_row", "update_row", "create_page", "edit_page"].every((n) => ownerTools.includes(n)), "an owner's chat is offered the tools that change pages", ownerTools);
   check(toolResults(fake.chats.at(-1)!).some((r) => r.includes("BOARD-SECRET")), "an owner's chat reads what both the owner and the agent can open");
