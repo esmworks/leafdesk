@@ -23,6 +23,7 @@
   "firstReadHint": "Vos courriels les plus récents s’afficheront dans un instant. Les plus anciens, jusqu’à trois mois en arrière, arriveront dans les prochaines minutes.",
   "empty": "Aucun courriel ici.",
   "emptySearch": "Aucun courriel ne correspond.",
+  "emptyStarred": "Aucune conversation en favori.",
   "emptyFolder": {
     "trash": "Vider la corbeille",
     "junk": "Vider les indésirables",
@@ -185,6 +186,7 @@
   "showSource": "Afficher l’original",
   "downloadSource": "Télécharger le message (.eml)",
   "allInboxes": "Toutes les boîtes de réception",
+  "allStarred": "Tous les favoris",
   "ai": {
     "summarize": "Résumer",
     "summarizeHint": "Résumer cette conversation avec l'IA",

@@ -23,6 +23,7 @@
   "firstReadHint": "La tua posta più recente appare tra un attimo. La posta meno recente, fino a tre mesi fa, arriva nei prossimi minuti.",
   "empty": "Nessun messaggio qui.",
   "emptySearch": "Nessun messaggio corrisponde.",
+  "emptyStarred": "Nessuna conversazione speciale.",
   "emptyFolder": {
     "trash": "Svuota cestino",
     "junk": "Svuota posta indesiderata",
@@ -185,6 +186,7 @@
   "showSource": "Mostra originale",
   "downloadSource": "Scarica messaggio (.eml)",
   "allInboxes": "Tutta la posta in arrivo",
+  "allStarred": "Tutti gli speciali",
   "ai": {
     "summarize": "Riassumi",
     "summarizeHint": "Riassumi questa conversazione con l'IA",

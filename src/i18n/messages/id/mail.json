@@ -23,6 +23,7 @@
   "firstReadHint": "Email terbaru Anda akan tampil sebentar lagi. Email yang lebih lama, hingga tiga bulan ke belakang, masuk dalam beberapa menit ke depan.",
   "empty": "Tidak ada email di sini.",
   "emptySearch": "Tidak ada email yang cocok.",
+  "emptyStarred": "Tidak ada percakapan berbintang.",
   "emptyFolder": {
     "trash": "Kosongkan sampah",
     "junk": "Kosongkan spam",
@@ -185,6 +186,7 @@
   "showSource": "Tampilkan asli",
   "downloadSource": "Unduh pesan (.eml)",
   "allInboxes": "Semua kotak masuk",
+  "allStarred": "Semua berbintang",
   "ai": {
     "summarize": "Ringkas",
     "summarizeHint": "Ringkas percakapan ini dengan AI",

@@ -23,6 +23,7 @@
   "firstReadHint": "Thư mới nhất sẽ hiện ra trong giây lát. Thư cũ hơn, từ ba tháng trở lại, sẽ được tải về trong vài phút tới.",
   "empty": "Không có thư nào ở đây.",
   "emptySearch": "Không có thư nào khớp.",
+  "emptyStarred": "Không có cuộc trò chuyện nào đã gắn sao.",
   "emptyFolder": {
     "trash": "Dọn sạch thùng rác",
     "junk": "Dọn sạch thư rác",
@@ -185,6 +186,7 @@
   "showSource": "Hiển thị bản gốc",
   "downloadSource": "Tải xuống thư (.eml)",
   "allInboxes": "Tất cả hộp thư đến",
+  "allStarred": "Tất cả đã gắn sao",
   "ai": {
     "summarize": "Tóm tắt",
     "summarizeHint": "Tóm tắt cuộc trò chuyện này bằng AI",

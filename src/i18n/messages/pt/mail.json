@@ -23,6 +23,7 @@
   "firstReadHint": "Seus e-mails mais recentes aparecem em instantes. Os mais antigos, de até três meses atrás, chegam nos próximos minutos.",
   "empty": "Nenhum e-mail aqui.",
   "emptySearch": "Nenhum e-mail encontrado.",
+  "emptyStarred": "Nenhuma conversa com estrela.",
   "emptyFolder": {
     "trash": "Esvaziar lixeira",
     "junk": "Esvaziar spam",
@@ -185,6 +186,7 @@
   "showSource": "Mostrar original",
   "downloadSource": "Baixar mensagem (.eml)",
   "allInboxes": "Todas as caixas de entrada",
+  "allStarred": "Todas com estrela",
   "ai": {
     "summarize": "Resumir",
     "summarizeHint": "Resumir esta conversa com IA",

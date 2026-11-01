@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useSyncExternalStore } from "react";
 import { read } from "@/components/read";
-import { ALL_INBOXES, type MailboxTabView, type MailFolderView } from "@/lib/mail-client";
+import { ALL_INBOXES, STARRED, type MailboxTabView, type MailFolderView } from "@/lib/mail-client";
 
 /**
  * The person's mailboxes and folders in the workspace, shared by the sidebar's Mail tab and the
@@ -105,12 +105,13 @@ export function countUnread(mailboxId: string, folderId: string, delta: number) 
 /**
  * The mailbox and folder an address names, else the default mailbox and its inbox. `all` when it
  * names all inboxes (ALL_INBOXES) and there are several: `box` and `folder` are the default
- * mailbox and its inbox then, for writing and for what the inboxes share.
+ * mailbox and its inbox then, for writing and for what the inboxes share. `starred` when it names
+ * the starred conversations (STARRED), of the mailbox or of all: `folder` is its inbox then.
  */
 export function pickOpen(boxes: MailboxTabView[] | null, boxId: string | null, folderId: string | null) {
   const box = boxes?.find((b) => b.id === boxId) ?? boxes?.[0] ?? null;
   const folder = box?.folders?.find((f) => f.id === folderId) ?? box?.folders?.find((f) => f.role === "inbox") ?? box?.folders?.[0] ?? null;
-  return { box, folder, all: boxId === ALL_INBOXES && (boxes?.length ?? 0) > 1 };
+  return { box, folder, all: boxId === ALL_INBOXES && (boxes?.length ?? 0) > 1, starred: folderId === STARRED };
 }
 
 /**

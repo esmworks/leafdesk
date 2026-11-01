@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Starred mail has its own place in Mail.** *Starred* under the inbox lists a mailbox's
+  conversations with a starred message in any folder but the trash, junk and snoozed, and with
+  several mailboxes *All starred* lists them all. Stars set in another mail program show too. A
+  conversation archived, moved back to the inbox or to a folder from there stays in the list; the
+  search box searches within it.
 - **Installing on iPhone and iPad is explained in the app, and the installed app's icon counts
   unread notifications.** iPhone and iPad browsers have no install prompt, so *Install app* in the
   workspace menu now shows there too and explains adding Leafdesk with *Add to Home Screen*. Where
@@ -499,11 +504,6 @@
 
 ### Fixed
 
-- **The AI chat box fits a phone's width.** With a model choice and a thinking level, its row of
-  buttons ran past the box and pushed Send out of reach, and a longer permission such as "Read
-  only" broke onto two lines; on a narrow box the chips now keep only what tells them apart (the
-  thinking level shows its icon), the permission stays whole on one line and a long model name is
-  cut short.
 - **Messages no longer show under the agent chat's message box on a phone.** On a phone with a
   home indicator, the box held a little above the bottom edge and the conversation showed through
   the strip beneath it; the strip now takes the page's background.

@@ -23,6 +23,7 @@
   "firstReadHint": "Son postalarınız birazdan görünür. Üç aya kadar eski postalar önümüzdeki dakikalarda gelir.",
   "empty": "Burada posta yok.",
   "emptySearch": "Eşleşen posta yok.",
+  "emptyStarred": "Yıldızlı konuşma yok.",
   "emptyFolder": {
     "trash": "Çöp kutusunu boşalt",
     "junk": "Gereksizi boşalt",
@@ -185,6 +186,7 @@
   "showSource": "Orijinali göster",
   "downloadSource": "İletiyi indir (.eml)",
   "allInboxes": "Tüm gelen kutuları",
+  "allStarred": "Tüm yıldızlılar",
   "ai": {
     "summarize": "Özetle",
     "summarizeHint": "Bu konuşmayı AI ile özetle",

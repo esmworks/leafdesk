@@ -23,6 +23,7 @@
   "firstReadHint": "Din senaste e-post visas om en stund. Äldre e-post, upp till tre månader tillbaka, kommer in de närmaste minuterna.",
   "empty": "Ingen e-post här.",
   "emptySearch": "Ingen e-post matchar.",
+  "emptyStarred": "Inga stjärnmärkta konversationer.",
   "emptyFolder": {
     "trash": "Töm papperskorgen",
     "junk": "Töm skräppost",
@@ -185,6 +186,7 @@
   "showSource": "Visa original",
   "downloadSource": "Ladda ned meddelande (.eml)",
   "allInboxes": "Alla inkorgar",
+  "allStarred": "Alla stjärnmärkta",
   "ai": {
     "summarize": "Sammanfatta",
     "summarizeHint": "Sammanfatta den här konversationen med AI",
