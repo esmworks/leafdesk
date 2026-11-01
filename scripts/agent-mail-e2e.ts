@@ -66,7 +66,7 @@ const { eq, inArray } = await import("drizzle-orm");
 const nodemailer = (await import("nodemailer")).default;
 const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
-const { agentRun, notification, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentDailyChange, agentRun, notification, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -236,6 +236,8 @@ try {
   const set = await agentSchedules.setAgentSchedule(ids.owner, tracker.id, null, { rule: daily, timeZone: ZONE, task: "Email the overdue orders.", databaseId: orders.id });
   const subject = `Overdue orders ${RUN}`;
   const text = "Good morning,\n\nTwo orders are past their delivery date:\n- G-1 (GNK 800-1)\n- G-2\n\nOlcay";
+  // A daily limit, so the day's count is kept: the message sent is one of the agent's changes.
+  await agents.updateAgent(ids.owner, tracker.id, { dailyChangeLimit: 5 });
   fake.chats.length = 0;
   fake.setChat(
     caller(
@@ -268,6 +270,9 @@ try {
     "the run's steps record it",
     run.steps,
   );
+  const counted = await db.select().from(agentDailyChange).where(eq(agentDailyChange.agentId, tracker.id));
+  check(counted.length === 1 && counted[0].count === 1, "the message counts as one of the day's changes; the refused second one is given back", counted);
+  await agents.updateAgent(ids.owner, tracker.id, { dailyChangeLimit: null });
 
   // ── No mailbox, or no recipients: no tool ────────────────────────────────────────────────────
   const memberSet = await agentSchedules.setAgentSchedule(ids.member, tracker.id, null, { rule: daily, timeZone: ZONE, task: "Email the overdue orders.", databaseId: orders.id });

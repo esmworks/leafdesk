@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} ha completato «{task}».",
       "failed": "{agent} non è riuscito a completare «{task}».",
+      "reasons": {
+        "aiOff": "L’IA è disattivata in questo spazio di lavoro.",
+        "agentDisabled": "L’agente è stato messo in pausa o archiviato.",
+        "noAccess": "L’agente, o la persona che ha impostato la pianificazione, non può più aprire ciò che serve all’attività.",
+        "rowGone": "La riga è stata eliminata.",
+        "databaseGone": "Il database di cui si occupa è stato eliminato o spostato nel cestino.",
+        "commentGone": "Il commento che lo menzionava è stato eliminato, o la sua pagina è stata spostata nel cestino.",
+        "provider": "Il provider IA non ha risposto.",
+        "timeout": "L’esecuzione ha richiesto troppo tempo.",
+        "tooManyAttempts": "Non è riuscita a partire in tempo: la quota IA dello spazio di lavoro è rimasta esaurita.",
+        "approvalTimeout": "Nessuno ha risposto alla sua chiamata entro un giorno, quindi non è stato inviato nulla.",
+        "connectionGone": "È stata rimossa una connessione che serviva all’attività.",
+        "mailGone": "L'email non è più nella casella, oppure la casella non è più aperta all'agente.",
+        "limitReached": "Aveva esaurito il limite mensile di token dell’agente.",
+        "costLimit": "Lo spazio di lavoro aveva raggiunto il limite mensile di costo dell'IA.",
+        "selfReported": "L’agente ha detto di non essere riuscito a svolgere il compito.",
+        "error": "Si è verificato un errore."
+      },
       "email": "Ha letto la tua email, quindi il suo resoconto si vede solo in Leafdesk."
     },
     "deferred": "{agent} trattiene una chiamata fino alla fine delle sue ore di silenzio. La risposta arriverà qui allora.",

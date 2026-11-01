@@ -1392,6 +1392,7 @@
     "queued": "I kø",
     "queuedHint": "Går til {name} når den har svart",
     "removeQueued": "Fjern fra køen",
+    "queuedAlreadySent": "Den meldingen var allerede sendt til agenten.",
     "newWithSummary": "Ny samtale med et sammendrag",
     "summary": "Sammendrag av en tidligere samtale",
     "edit": "Rediger",

@@ -209,6 +209,11 @@ export type AgentRunSource =
        * run's answer too: the person's own words, unlike another connected app's.
        */
       telegram?: true;
+      /**
+       * Its message (or one of those that waited) came from a connected app other than the
+       * Telegram bot (MCP, the REST API): another app's words, never kept as the person's own.
+       */
+      otherApp?: true;
     }
   | {
       kind: "mail";
@@ -450,12 +455,27 @@ export type FinishRunOutcome = (typeof FINISH_RUN_OUTCOMES)[number];
 /** The most of the reason finish_run keeps. */
 export const MAX_FINISH_REASON = 300;
 
+/** The outcomes of a tool step whose call wasn't made: refused, declined by an owner's rule or a person, never answered or past the daily limit. */
+const BLOCKED_TOOL_OUTCOMES: ReadonlySet<AgentToolRecord["outcome"]> = new Set(["declined", "expired", "refused", "afterMail", "denied", "limited"]);
+
+/**
+ * Whether a run's steps leave its person something to hear besides changes: a call that wasn't
+ * made (BLOCKED_TOOL_OUTCOMES) or a task given to another agent to do later (`assign_agent`, a
+ * `queued` handoff).
+ */
+export const leftUntold = (steps: readonly AgentStepRecord[]): boolean =>
+  steps.some((s) => (s.kind === "tool" && BLOCKED_TOOL_OUTCOMES.has(s.outcome)) || (s.kind === "handoff" && s.outcome === "queued"));
+
 /**
  * A finish_run call checked: how the run ends and why, or what the agent is told instead. A run
  * that changed something (`changed`) can't end as nothing new: what it changed must be told, in
- * a report. A failure needs its reason; nothing new may have one.
+ * a report; nor can one that left something untold (`untold`, see leftUntold): a call it couldn't
+ * make, or a task it gave another agent. A failure needs its reason; nothing new may have one.
  */
-export function finishRunCall(args: Record<string, unknown>, changed: boolean): { outcome: FinishRunOutcome; reason: string } | { error: string } {
+export function finishRunCall(
+  args: Record<string, unknown>,
+  { changed, untold }: { changed: boolean; untold: boolean },
+): { outcome: FinishRunOutcome; reason: string } | { error: string } {
   const outcome = FINISH_RUN_OUTCOMES.find((o) => o === args.outcome);
   if (!outcome) return { error: `outcome is "nothing_new" or "failed". The run goes on.` };
   const reason = typeof args.reason === "string" ? args.reason.replace(/\s+/g, " ").trim() : "";
@@ -463,6 +483,12 @@ export function finishRunCall(args: Record<string, unknown>, changed: boolean): 
   if (outcome === "failed" && !reason) return { error: "Give a reason: why the task couldn't be done, for the person who set the schedule. The run goes on." };
   if (outcome === "nothing_new" && changed) {
     return { error: "You changed something in this run, so it isn't nothing new: the person who set the schedule must hear what changed. Don't call finish_run; write your report as your final message." };
+  }
+  if (outcome === "nothing_new" && untold) {
+    return {
+      error:
+        "In this run a call wasn't made (refused, declined or past a limit) or you gave another agent a task, so it isn't nothing new: the person who set the schedule must hear of it. Don't call finish_run nothing_new; write your report as your final message.",
+    };
   }
   return { outcome, reason };
 }
@@ -733,11 +759,18 @@ export const readEmail = (steps: readonly { kind: string; action?: unknown }[] |
 const WEB_TOOLS: ReadonlySet<string> = new Set(Object.values(WEB_TOOL_NAMES));
 
 /**
+ * Leafdesk's further tools (use_tool, server/ai-more-tools.ts) whose answer carries other agents'
+ * answers or what reached the person's inbox from others: runs, chats with agents, notifications.
+ */
+export const OTHERS_WORDS_MORE_TOOLS: ReadonlySet<string> = new Set(["list_agent_runs", "get_agent_chat", "chat_with_agent", "start_agent_run", "list_notifications"]);
+
+/**
  * Whether a run's steps show it read words no one in its conversation wrote: email (readEmail), a
  * web page or search, what a connection's tool answered (failed too: a service's error says what
  * it likes), a folder or file on the person's computer (anything may have put it there), or
- * another agent's answer, which may carry what that agent read. A chat run that did keeps no
- * correction at once (server/agents/memory.ts).
+ * another agent's answer, which may carry what that agent read (asked with ask_agent, or read
+ * through use_tool: OTHERS_WORDS_MORE_TOOLS). A chat run that did keeps no correction at once
+ * (server/agents/memory.ts), and an owner's "allow" rule doesn't hold on it (server/agents/run.ts).
  */
 export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
   readEmail(steps) ||
@@ -745,7 +778,9 @@ export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
     s.kind === "tool"
       ? ((s.outcome === "done" || s.outcome === "failed") && (s.connectionId !== null || WEB_TOOLS.has(s.tool))) ||
         (s.connectionId === null && s.outcome === "done" && COMPUTER_READ_TOOLS.has(s.tool))
-      : s.kind === "handoff" && s.outcome === "done",
+      : s.kind === "leafdesk"
+        ? s.outcome === "done" && OTHERS_WORDS_MORE_TOOLS.has(s.tool)
+        : s.kind === "handoff" && s.outcome === "done",
   );
 
 /**

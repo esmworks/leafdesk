@@ -259,7 +259,8 @@ export function AgentForm({
   // Undefined when not valid; checked again by the server.
   const quietHours = quietHoursOf(quiet);
   const dailyChangeLimit = dailyLimitOf(dailyLimit);
-  const guardrailsValid = quietHours !== undefined && dailyChangeLimit !== undefined;
+  // Only owners change them: anyone else's form shows them and sends them back as they were.
+  const guardrailsValid = !isOwner || (quietHours !== undefined && dailyChangeLimit !== undefined);
 
   const submit = () => {
     if (!clean || locked || !limitValid || !recipients || !guardrailsValid) return;
@@ -272,10 +273,8 @@ export function AgentForm({
       webAccess,
       mailRecipients: recipients,
       rowChanges,
-      quietHours,
-      dailyChangeLimit,
-      // Left as it is by anyone but an owner.
-      ...(isOwner ? { monthlyTokenLimit } : {}),
+      // Left as they are by anyone but an owner.
+      ...(isOwner ? { monthlyTokenLimit, quietHours, dailyChangeLimit } : {}),
       ...(models ? { model } : {}),
       helperAgentIds: helpers ?? undefined,
     };
@@ -409,7 +408,7 @@ export function AgentForm({
             {!limitValid ? t("limitInvalid") : isOwner ? t("limitHelp") : t("limitOwnersOnly")}
           </span>
         </label>
-        <AgentGuardrailFields quiet={quiet} onQuiet={setQuiet} dailyLimit={dailyLimit} onDailyLimit={setDailyLimit} disabled={locked} />
+        <AgentGuardrailFields quiet={quiet} onQuiet={setQuiet} dailyLimit={dailyLimit} onDailyLimit={setDailyLimit} disabled={locked || !isOwner} ownersOnly={!isOwner} />
         <AgentHelpersField workspaceId={workspaceId} agentId={agent?.id ?? null} value={helpers} disabled={locked} onChange={setHelpers} />
       </fieldset>
       <DialogFooter>

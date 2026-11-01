@@ -1392,6 +1392,7 @@
     "queued": "대기 중",
     "queuedHint": "{name}의 답변이 끝나면 전달됩니다",
     "removeQueued": "대기열에서 빼기",
+    "queuedAlreadySent": "그 메시지는 이미 에이전트에게 전송되었습니다.",
     "newWithSummary": "요약으로 새 대화",
     "summary": "이전 대화의 요약",
     "edit": "편집",

@@ -555,9 +555,13 @@ try {
   const proposedCorrection = (await memory.listAgentMemory(ids.owner, router.id)).find((n) => n.text === "Scheduled correction.");
   check(proposedCorrection?.status === "proposed" && proposedCorrection.kind === "correction" && proposedCorrection.saidBy === null && correctSteps(scheduledCorrection).length === 0, "a schedule's run's correction is a proposal labelled as one", proposedCorrection);
 
-  // Undo, from the chat's step.
-  check(await fails(memory.undoAgentCorrection(ids.member, workspaceId, said.run.id, invoices.id), isCode("notAllowed")), "someone else who can't edit the agent can't take a correction back");
-  await memory.undoAgentCorrection(ids.owner, workspaceId, said.run.id, invoices.id);
+  // Undo, from the chat's step: the step is named by where it is in the run's steps.
+  /** Where the `nth` correction of `memoryId` is in a run's steps. */
+  const stepOf = (run: typeof agentRun.$inferSelect, memoryId: string, nth = 0) =>
+    run.steps.flatMap((s, i) => (s.kind === "memory" && s.action === "correct" && s.memoryId === memoryId ? [i] : []))[nth] ?? -1;
+  check(await fails(memory.undoAgentCorrection(ids.member, workspaceId, said.run.id, invoices.id, stepOf(said.run, invoices.id)), isCode("notAllowed")), "someone else who can't edit the agent can't take a correction back");
+  check(await fails(memory.undoAgentCorrection(ids.owner, workspaceId, said.run.id, invoices.id, stepOf(said.run, invoices.id) + 1), isCode("noteNotFound")), "a step index that isn't this note's correction is refused");
+  await memory.undoAgentCorrection(ids.owner, workspaceId, said.run.id, invoices.id, stepOf(said.run, invoices.id));
   check(!(await notesInDb()).some((n) => n.id === invoices.id), "undo deletes a correction that was a new note");
   const [undoneRun] = await db.select().from(agentRun).where(eq(agentRun.id, said.run.id));
   const [undoneChat] = await db.select().from(agentConversation).where(eq(agentConversation.id, said.conversationId));
@@ -568,14 +572,44 @@ try {
     undoneChat.messages,
   );
   const beforeAgain = (await notesInDb()).length;
-  await memory.undoAgentCorrection(ids.owner, workspaceId, said.run.id, invoices.id);
+  await memory.undoAgentCorrection(ids.owner, workspaceId, said.run.id, invoices.id, stepOf(said.run, invoices.id));
   check((await notesInDb()).length === beforeAgain, "undoing twice does nothing more");
-  await memory.undoAgentCorrection(ids.other, workspaceId, changing.run.id, refund.id);
+  await memory.undoAgentCorrection(ids.other, workspaceId, changing.run.id, refund.id, stepOf(changing.run, refund.id));
   const restored = (await notesInDb()).find((n) => n.id === refund.id);
   check(restored?.text === refundBefore.text && restored.kind === "note" && restored.saidBy === null, "undo by another owner restores what a changed note said before, as it was", restored);
   const turkish = (await notesInDb()).find((n) => n.text === "Always answer in Turkish.")!;
   await memory.updateAgentMemory(ids.owner, router.id, turkish.id, "Always answer in Turkish or English.");
-  check(await fails(memory.undoAgentCorrection(ids.owner, workspaceId, many.run.id, turkish.id), isCode("noteChanged")), "a correction whose note changed since can't be undone");
+  check(await fails(memory.undoAgentCorrection(ids.owner, workspaceId, many.run.id, turkish.id, stepOf(many.run, turkish.id)), isCode("noteChanged")), "a correction whose note changed since can't be undone");
+
+  // Two corrections of one note in one run: each step is undone on its own, the later one first.
+  const tags = await memory.addAgentMemory(ids.owner, router.id, "Tags live in Ops.");
+  fake.chats.length = 0;
+  fake.setChat(correcting({ text: "Tags live in Support.", replaces: tags.id }, { text: "Tags live in Sales.", replaces: tags.id }));
+  const twice = await chatRun(ids.owner, "Tags: Support. No, Sales.");
+  const [firstTag, secondTag] = [stepOf(twice.run, tags.id, 0), stepOf(twice.run, tags.id, 1)];
+  check(firstTag >= 0 && secondTag > firstTag && (await notesInDb()).find((n) => n.id === tags.id)?.text === "Tags live in Sales.", "two corrections of one note in a run: two steps, the note says the later", twice.run.steps);
+  check(
+    await fails(memory.undoAgentCorrection(ids.owner, workspaceId, twice.run.id, tags.id, firstTag), isCode("noteChanged")),
+    "the earlier can't be undone while the later one changed the note again",
+  );
+  await memory.undoAgentCorrection(ids.owner, workspaceId, twice.run.id, tags.id, secondTag);
+  const [afterLater] = await db.select().from(agentRun).where(eq(agentRun.id, twice.run.id));
+  const [laterChat] = await db.select().from(agentConversation).where(eq(agentConversation.id, twice.conversationId));
+  const outcomeAt = (steps: readonly { kind: string; outcome?: unknown }[] | undefined, i: number) => steps?.[i]?.outcome;
+  const chatSteps = laterChat.messages.find((m) => m.role === "assistant" && m.runId === twice.run.id)?.steps;
+  check((await notesInDb()).find((n) => n.id === tags.id)?.text === "Tags live in Support.", "undoing the later brings back what the earlier said");
+  check(
+    outcomeAt(afterLater.steps, secondTag) === "undone" && outcomeAt(afterLater.steps, firstTag) === "done" && outcomeAt(chatSteps, secondTag) === "undone" && outcomeAt(chatSteps, firstTag) === "done",
+    "…marking only its own step undone, in the run and the conversation",
+    { run: afterLater.steps, chat: chatSteps },
+  );
+  await memory.undoAgentCorrection(ids.owner, workspaceId, twice.run.id, tags.id, firstTag);
+  const [afterBoth] = await db.select().from(agentRun).where(eq(agentRun.id, twice.run.id));
+  check(
+    (await notesInDb()).find((n) => n.id === tags.id)?.text === "Tags live in Ops." && outcomeAt(afterBoth.steps, firstTag) === "undone",
+    "then the earlier one undoes to what the note said before the run",
+    afterBoth.steps,
+  );
 
   // Back to the notes from before.
   const added = (await notesInDb()).filter((n) => !notesBefore.has(n.id)).map((n) => n.id);

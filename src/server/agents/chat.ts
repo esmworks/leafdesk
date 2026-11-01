@@ -14,7 +14,7 @@
  */
 import { and, desc, eq, inArray, isNull, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentConversation, agentRun, connection, page, workspaceAgent } from "@/db/schema";
+import { agentChatFile, agentConversation, agentRun, connection, page, workspaceAgent } from "@/db/schema";
 import {
   agentChatLine,
   MAX_AGENT_CHAT_MESSAGE,
@@ -37,7 +37,7 @@ import {
   type ChatPlace,
 } from "@/lib/agent-chat";
 import { checkChatFiles } from "@/lib/agent-chat-files";
-import { MAX_QUEUED, queueView, turnPrompt } from "@/lib/agent-chat-queue";
+import { MAX_QUEUED, queuedTurn, queueView, turnPrompt } from "@/lib/agent-chat-queue";
 import { AGENT_CHAT_SEARCH, searchSnippet } from "@/lib/agent-chat-search";
 import { AGENT_CHAT_SUMMARY_SYSTEM, SUMMARY_INPUT_CHARS, SUMMARY_MAX_CHARS, summaryInput } from "@/lib/agent-chat-summary";
 import { callConnectionName, callToSend, readEmail, type AgentRunStatus, type AgentStepRecord } from "@/lib/agents";
@@ -166,10 +166,13 @@ async function ownConversation(userId: string, agentId: string, conversationId: 
   return found ?? refuse("noAccess", "Conversation not found");
 }
 
-/** A message sent: the run that answers it, or (written while an answer was under way) its place in the queue. */
+/**
+ * A message sent: the run that answers it, or (written while an answer was under way) its place in
+ * the queue and the run whose answer it waits for (`behind`).
+ */
 export type SentAgentChat = { conversation: AgentConversationSummary; agent: { name: string; icon: string | null } } & (
   | { runId: string; queued: null }
-  | { runId: null; queued: AgentChatQueuedView }
+  | { runId: null; queued: AgentChatQueuedView; behind: string }
 );
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -205,7 +208,8 @@ async function mayChat(userId: string, workspaceId: string, agentId: string, pla
  * queues the run with the message, in the conversation (a new one without `conversationId`), and
  * wakes the worker. While the conversation's answer is under way, the message waits in its queue
  * instead (at most MAX_QUEUED), to go as the next turn once the answer ends (chat-store.ts);
- * `via` names the app that follows it (the Telegram bot).
+ * `via` names the app that follows it (the Telegram bot). Messages still waiting once no answer is
+ * under way (an answer's end that couldn't take them) go first, in this message's turn.
  */
 export async function sendAgentChat(
   userId: string,
@@ -233,7 +237,18 @@ export async function sendAgentChat(
   const now = new Date();
   const fromApp = connectedAppCall(userId);
   const timeZone = isTimeZone(input.timeZone) ? input.timeZone : undefined;
+  const item: AgentChatQueuedRecord = {
+    id: crypto.randomUUID(),
+    content: message,
+    at: now.toISOString(),
+    ...(fromApp ? { fromApp: true as const } : {}),
+    ...(input.via ? { via: input.via } : {}),
+    ...(files.length ? { files } : {}),
+    ...(timeZone ? { timeZone } : {}),
+  };
   const sent = await db.transaction(async (tx) => {
+    // Messages left waiting after an answer whose end couldn't take them (closeChatTurn failed): they go first, with this one.
+    let leftover: AgentChatQueuedRecord[] = [];
     if (existing) {
       // Locked as chat-store.ts closeChatTurn locks it: a message either waits for the answer, or comes after it.
       const [locked] = await tx.select({ messages: agentConversation.messages, queue: agentConversation.queue }).from(agentConversation).where(eq(agentConversation.id, existing.id)).for("update");
@@ -241,22 +256,14 @@ export async function sendAgentChat(
       const last = locked.messages.at(-1);
       if (last?.role === "user" && (await stillAnswering(tx, last.runId))) {
         if (locked.queue.length >= MAX_QUEUED) refuse("queueFull", `At most ${MAX_QUEUED} messages wait for an answer`);
-        const item: AgentChatQueuedRecord = {
-          id: crypto.randomUUID(),
-          content: message,
-          at: now.toISOString(),
-          ...(fromApp ? { fromApp: true as const } : {}),
-          ...(input.via ? { via: input.via } : {}),
-          ...(files.length ? { files } : {}),
-          ...(timeZone ? { timeZone } : {}),
-        };
         const [saved] = await tx
           .update(agentConversation)
           .set({ queue: sql`${agentConversation.queue} || ${JSON.stringify([item])}::jsonb`, updatedAt: now })
           .where(eq(agentConversation.id, existing.id))
           .returning({ id: agentConversation.id, title: agentConversation.title, updatedAt: agentConversation.updatedAt });
-        return { conversation: saved, runId: null, queued: queueView([item])[0] };
+        return { conversation: saved, runId: null, queued: queueView([item])[0], behind: last.runId };
       }
+      leftover = locked.queue;
     }
     const conversation =
       existing ??
@@ -266,53 +273,86 @@ export async function sendAgentChat(
           .values({ agentId: agent.id, workspaceId: input.workspaceId, userId, chatId, title: conversationTitle(message || files[0].name) })
           .returning()
       )[0];
+    // One turn of the leftover messages and this one, in order (the last a moment ago); else this one alone.
+    const turn = leftover.length
+      ? queuedTurn([...leftover, item], "", now.getTime() - leftover.length - 1)
+      : {
+          records: [{ role: "user" as const, content: message, runId: "", ...(files.length ? { files: files.map((f) => ({ name: f.name, size: f.size })) } : {}), at: now.toISOString() }],
+          prompt: message,
+          files,
+          fromApp: Boolean(fromApp),
+          telegram: input.via === "telegram",
+          otherApp: Boolean(fromApp) && input.via !== "telegram",
+          timeZone,
+        };
     const [run] = await tx
       .insert(agentRun)
       .values({
         agentId: agent.id,
         workspaceId: input.workspaceId,
-        source: { kind: "chat", userId, conversationId: conversation.id, ...(fromApp ? { fromApp: true } : {}), ...(input.via === "telegram" ? { telegram: true as const } : {}) },
-        context: { actorId: userId, ...(timeZone ? { timeZone } : {}), ...(files.length ? { files } : {}) },
-        prompt: message,
+        source: {
+          kind: "chat",
+          userId,
+          conversationId: conversation.id,
+          ...(turn.fromApp ? { fromApp: true } : {}),
+          ...(turn.telegram ? { telegram: true as const } : {}),
+          ...(turn.otherApp ? { otherApp: true as const } : {}),
+        },
+        context: { actorId: userId, ...(turn.timeZone ? { timeZone: turn.timeZone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
+        prompt: turn.prompt,
       })
       .returning({ id: agentRun.id });
-    const record: AgentChatMessageRecord = {
-      role: "user",
-      content: message,
-      runId: run.id,
-      ...(files.length ? { files: files.map((f) => ({ name: f.name, size: f.size })) } : {}),
-      at: now.toISOString(),
-    };
+    const records: AgentChatMessageRecord[] = turn.records.map((r) => ({ ...r, runId: run.id }));
     const [saved] = await tx
       .update(agentConversation)
       // The agent's own chat is one conversation that goes on: its oldest messages go at MAX_KEPT_MESSAGES.
       .set({
-        messages: sql`(select coalesce(jsonb_agg(e order by i), '[]'::jsonb) from jsonb_array_elements(${agentConversation.messages} || ${JSON.stringify([record])}::jsonb) with ordinality as t(e, i) where i > jsonb_array_length(${agentConversation.messages}) + 1 - ${MAX_KEPT_MESSAGES})`,
+        messages: sql`(select coalesce(jsonb_agg(e order by i), '[]'::jsonb) from jsonb_array_elements(${agentConversation.messages} || ${JSON.stringify(records)}::jsonb) with ordinality as t(e, i) where i > jsonb_array_length(${agentConversation.messages}) + ${records.length} - ${MAX_KEPT_MESSAGES})`,
+        ...(leftover.length ? { queue: [] } : {}),
         updatedAt: now,
       })
       .where(eq(agentConversation.id, conversation.id))
       .returning({ id: agentConversation.id, title: agentConversation.title, updatedAt: agentConversation.updatedAt });
-    return { conversation: saved, runId: run.id, queued: null };
+    return { conversation: saved, runId: run.id, queued: null, behind: null };
   });
   if (sent.runId) kickAgents();
   await pruneConversations(userId, agent.id, chatId);
   const conversation = { id: sent.conversation.id, title: sent.conversation.title, updatedAt: sent.conversation.updatedAt.toISOString() };
   const who = { name: agent.name, icon: agent.icon };
-  return sent.runId ? { conversation, agent: who, runId: sent.runId, queued: null } : { conversation, agent: who, runId: null, queued: sent.queued! };
+  return sent.runId ? { conversation, agent: who, runId: sent.runId, queued: null } : { conversation, agent: who, runId: null, queued: sent.queued!, behind: sent.behind! };
 }
 
-/** Takes a message out of the conversation's queue before it goes; the messages still waiting. */
-export async function removeQueuedAgentChat(userId: string, input: { workspaceId: string; agentId: string; place: ChatPlace; conversationId: string; queuedId: string }): Promise<AgentChatQueuedView[]> {
-  await standing(userId, input.workspaceId, input.agentId);
+/** Checks that the agent is still one of the workspace's and shared with the person (as mayChat does, whatever its state). */
+async function seesAgent(userId: string, workspaceId: string, agentId: string) {
+  const { role, agent, level } = await standing(userId, workspaceId, agentId);
+  if (isGuest(role as "guest")) refuse("guest", "Guests don't chat with agents");
+  if (!agent) refuse("gone", "Agent not found");
+  if (level === "none") refuse("noAccess", "Agent not found");
+}
+
+/**
+ * Takes a message out of the conversation's queue before it goes: whether it was still there (not
+ * sent meanwhile, as the answer before it ended), and the messages still waiting.
+ */
+export async function removeQueuedAgentChat(
+  userId: string,
+  input: { workspaceId: string; agentId: string; place: ChatPlace; conversationId: string; queuedId: string },
+): Promise<{ removed: boolean; queued: AgentChatQueuedView[] }> {
+  await seesAgent(userId, input.workspaceId, input.agentId);
   await ownConversation(userId, input.agentId, input.conversationId, input.place?.chatId ?? null);
-  const [left] = await db
-    .update(agentConversation)
-    .set({
-      queue: sql`(select coalesce(jsonb_agg(e order by i), '[]'::jsonb) from jsonb_array_elements(${agentConversation.queue}) with ordinality as t(e, i) where e->>'id' <> ${input.queuedId})`,
-    })
-    .where(and(eq(agentConversation.id, input.conversationId), eq(agentConversation.userId, userId)))
-    .returning({ queue: agentConversation.queue });
-  return queueView(left?.queue ?? []);
+  return db.transaction(async (tx) => {
+    // Locked as closeChatTurn locks it: the message is either still waiting, or gone with its turn.
+    const [found] = await tx
+      .select({ queue: agentConversation.queue })
+      .from(agentConversation)
+      .where(and(eq(agentConversation.id, input.conversationId), eq(agentConversation.userId, userId)))
+      .for("update");
+    const queue = found?.queue ?? [];
+    const left = queue.filter((q) => q.id !== input.queuedId);
+    if (left.length === queue.length) return { removed: false, queued: queueView(queue) };
+    await tx.update(agentConversation).set({ queue: left }).where(eq(agentConversation.id, input.conversationId));
+    return { removed: true, queued: queueView(left) };
+  });
 }
 
 /**
@@ -336,7 +376,7 @@ function summaryRecords(messages: AgentChatMessageRecord[], fromApp: boolean) {
  * to the agent's model (counted in its usage and limits like its runs) sums it up, and the new
  * conversation begins with that summary, which its runs read as what was said before
  * (chat-store.ts). A summary drawn from turns that read email is held as such (lib/agents.ts
- * readEmail). Refused while an answer is under way or messages wait.
+ * readEmail). Refused while an answer is under way.
  */
 export async function summarizeAgentConversation(
   userId: string,
@@ -346,7 +386,8 @@ export async function summarizeAgentConversation(
   const chatId = input.place?.chatId ?? null;
   const found = await ownConversation(userId, agent.id, input.conversationId, chatId);
   const last = found.messages.at(-1);
-  if (found.queue.length || (last?.role === "user" && (await stillAnswering(db, last.runId)))) refuse("busy", "The agent is still answering");
+  // Messages waiting while no answer is under way were left over (an answer's end that couldn't take them): they stay with the old conversation.
+  if (last?.role === "user" && (await stillAnswering(db, last.runId))) refuse("busy", "The agent is still answering");
   const { records, mail } = summaryRecords(found.messages, Boolean(connectedAppCall(userId)));
   const text = summaryInput(records, SUMMARY_INPUT_CHARS);
   if (!text) refuse("invalid", "Nothing to sum up yet");
@@ -380,9 +421,11 @@ export async function summarizeAgentConversation(
 
 /**
  * Does the conversation's last turn again: drops its answer (the run stays in the agent's
- * history) and runs its question again, the last of them changed to `message` when given (Edit);
- * the files that went with it go again. Only when its answer is the conversation's last message
- * and no messages wait.
+ * history, the files it attached go from the chat) and runs its question again, the last of them
+ * changed to `message` when given (Edit); the files that went with it go again, and it comes from
+ * where the question came from (the app, Telegram, another connected app), with its clock. Only
+ * when its answer is the conversation's last message: messages still waiting then were left over
+ * (an answer's end that couldn't take them) and go after the new answer.
  */
 export async function redoAgentChat(
   userId: string,
@@ -401,26 +444,36 @@ export async function redoAgentChat(
     if (!locked) return refuse("noAccess", "Conversation not found");
     const answer = locked.messages.at(-1);
     if (!answer || answer.role !== "assistant" || answer.summary) return refuse("nothingToRedo", "There is no answer to do again");
-    if (locked.queue.length) refuse("busy", "Messages wait for an answer");
     let start = locked.messages.length - 1;
     while (start > 0 && locked.messages[start - 1].role === "user" && locked.messages[start - 1].runId === answer.runId) start--;
     const questions = locked.messages.slice(start, -1);
     if (!questions.length) return refuse("nothingToRedo", "There is no question to ask again");
     const contents = questions.map((q, i) => (edited !== null && i === questions.length - 1 ? edited : q.content));
-    const [before] = await tx.select({ context: agentRun.context }).from(agentRun).where(eq(agentRun.id, answer.runId));
-    const context = before && "files" in before.context ? before.context : null;
-    const zone = isTimeZone(input.timeZone) ? input.timeZone : (context?.timeZone ?? undefined);
-    const files = context?.files ?? [];
+    const [before] = await tx.select({ source: agentRun.source, context: agentRun.context }).from(agentRun).where(eq(agentRun.id, answer.runId));
+    const oldZone = before && "timeZone" in before.context ? before.context.timeZone : undefined;
+    const zone = isTimeZone(input.timeZone) ? input.timeZone : (oldZone ?? undefined);
+    const files = (before && "files" in before.context ? before.context.files : undefined) ?? [];
+    // The question is asked again as it was asked: from where it came (a connected app's has no mail tools; another app's words aren't the person's).
+    const was = before?.source.kind === "chat" ? before.source : null;
     const [run] = await tx
       .insert(agentRun)
       .values({
         agentId: agent.id,
         workspaceId: input.workspaceId,
-        source: { kind: "chat", userId, conversationId: existing.id, ...(connectedAppCall(userId) ? { fromApp: true } : {}) },
+        source: {
+          kind: "chat",
+          userId,
+          conversationId: existing.id,
+          ...(was?.fromApp || (!was && connectedAppCall(userId)) ? { fromApp: true } : {}),
+          ...(was?.telegram ? { telegram: true as const } : {}),
+          ...(was?.otherApp ? { otherApp: true as const } : {}),
+        },
         context: { actorId: userId, ...(zone ? { timeZone: zone } : {}), ...(files.length ? { files } : {}) },
         prompt: turnPrompt(contents),
       })
       .returning({ id: agentRun.id });
+    // The dropped answer's files go from the chat: with no row tying them to it, the orphan sweep removes them (files.ts purgeOrphanFiles).
+    await tx.delete(agentChatFile).where(and(eq(agentChatFile.runId, answer.runId), eq(agentChatFile.conversationId, existing.id)));
     const records: AgentChatMessageRecord[] = questions.map((q, i) => ({
       role: "user",
       content: contents[i],
@@ -447,7 +500,7 @@ export async function redoAgentChat(
  * Only their own conversations, ever.
  */
 export async function searchAgentChats(userId: string, workspaceId: string, agentId: string, query: string): Promise<AgentChatSearchHit[]> {
-  await standing(userId, workspaceId, agentId);
+  await seesAgent(userId, workspaceId, agentId);
   const q = query.trim().slice(0, AGENT_CHAT_SEARCH.maxChars);
   if (q.length < AGENT_CHAT_SEARCH.minChars) return [];
   const rows = await db.execute<{ id: string; chat_id: string | null; title: string; message: AgentChatMessageRecord }>(sql`

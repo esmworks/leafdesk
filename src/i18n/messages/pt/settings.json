@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Alterações por dia",
       "dailyChangeLimitPlaceholder": "Sem limite",
       "dailyChangeLimitHelp": "O máximo de alterações que ele faz em um dia: linhas, páginas, comentários e chamadas de conexão que alteram algo. As seguintes são recusadas. O dia segue o fuso das horas de silêncio, senão UTC.",
-      "dailyChangeLimitInvalid": "Digite um número inteiro de 1 a {max}."
+      "dailyChangeLimitInvalid": "Digite um número inteiro de 1 a {max}.",
+      "guardrailsOwnersOnly": "Só proprietários do espaço de trabalho definem as horas de silêncio e o limite diário de alterações."
     },
     "describe": {
       "button": "Descrever um agente",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Este agendamento não existe mais.",
       "versionNotFound": "Esta versão não existe mais.",
       "notAllowed": "Seu acesso a este agente não permite isso.",
-      "ownersOnly": "Só proprietários do espaço de trabalho alteram o limite mensal de tokens de um agente.",
+      "ownersOnly": "Só proprietários do espaço de trabalho alteram o limite mensal de tokens, as horas de silêncio e o limite diário de alterações de um agente.",
       "notAMember": "Um agente só pode ser compartilhado com proprietários, membros e grupos do espaço de trabalho.",
       "requestNotFound": "Este pedido já foi respondido.",
       "noteChanged": "Esta nota mudou desde então. Altere-a na aba Memória do agente."

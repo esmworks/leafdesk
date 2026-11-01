@@ -29,7 +29,8 @@ export function dailyLimitOf(text: string): number | null | undefined {
 
 /**
  * The agent's guardrails in its form: quiet hours, when calls an owner's rule lets go without
- * asking wait until they end, and the most changes it may make in a day.
+ * asking wait until they end, and the most changes it may make in a day. Only owners set them
+ * (`ownersOnly`: the viewer isn't one, and sees them as they are).
  */
 export function AgentGuardrailFields({
   quiet,
@@ -37,12 +38,14 @@ export function AgentGuardrailFields({
   dailyLimit,
   onDailyLimit,
   disabled,
+  ownersOnly = false,
 }: {
   quiet: QuietHoursDraft;
   onQuiet: (draft: QuietHoursDraft) => void;
   dailyLimit: string;
   onDailyLimit: (text: string) => void;
   disabled: boolean;
+  ownersOnly?: boolean;
 }) {
   const t = useTranslations("settings.agents.form");
   const zones = useMemo(() => listTimeZones(quiet.timeZone), [quiet.timeZone]);
@@ -103,6 +106,7 @@ export function AgentGuardrailFields({
         <span className={cn("mt-1 block text-xs", limitValid ? "text-fg-muted" : "text-danger")}>
           {limitValid ? t("dailyChangeLimitHelp") : t("dailyChangeLimitInvalid", { max: MAX_DAILY_CHANGES })}
         </span>
+        {ownersOnly && <span className="mt-1 block text-xs text-fg-muted">{t("guardrailsOwnersOnly")}</span>}
       </label>
     </>
   );

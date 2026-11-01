@@ -1392,6 +1392,7 @@
     "queued": "En attente",
     "queuedHint": "Partira vers {name} une fois sa réponse terminée",
     "removeQueued": "Retirer de la file d’attente",
+    "queuedAlreadySent": "Ce message avait déjà été envoyé à l’agent.",
     "newWithSummary": "Nouvelle conversation avec un résumé",
     "summary": "Résumé d’une conversation précédente",
     "edit": "Modifier",

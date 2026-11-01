@@ -1392,6 +1392,7 @@
     "queued": "I kö",
     "queuedHint": "Går till {name} när den har svarat",
     "removeQueued": "Ta bort från kön",
+    "queuedAlreadySent": "Det meddelandet hade redan skickats till agenten.",
     "newWithSummary": "Ny konversation med en sammanfattning",
     "summary": "Sammanfattning av en tidigare konversation",
     "edit": "Redigera",

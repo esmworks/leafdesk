@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} menyelesaikan “{task}”.",
       "failed": "{agent} tidak dapat menyelesaikan “{task}”.",
+      "reasons": {
+        "aiOff": "AI dimatikan di ruang kerja ini.",
+        "agentDisabled": "Agen dijeda atau diarsipkan.",
+        "noAccess": "Agen, atau orang yang mengatur jadwalnya, tidak bisa lagi membuka apa yang dibutuhkan tugas itu.",
+        "rowGone": "Baris telah dihapus.",
+        "databaseGone": "Basis data yang diurusnya dihapus atau dipindahkan ke sampah.",
+        "commentGone": "Komentar yang menyebutnya dihapus, atau halamannya dipindahkan ke sampah.",
+        "provider": "Penyedia AI tidak menjawab.",
+        "timeout": "Eksekusi memakan waktu terlalu lama.",
+        "tooManyAttempts": "Agen tidak dapat mulai tepat waktu: jatah AI ruang kerja tetap habis.",
+        "approvalTimeout": "Tidak ada yang menjawab panggilannya dalam sehari, jadi tidak ada yang dikirim.",
+        "connectionGone": "Koneksi yang dibutuhkan tugas itu telah dihapus.",
+        "mailGone": "Email sudah tidak ada di kotak surat, atau kotak surat tidak lagi dibuka untuk agen.",
+        "limitReached": "Agen telah memakai batas token bulanannya.",
+        "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanannya.",
+        "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+        "error": "Terjadi kesalahan."
+      },
       "email": "Agen ini membaca email Anda, jadi laporannya hanya tampil di Leafdesk."
     },
     "deferred": "{agent} menahan sebuah panggilan sampai jam tenangnya berakhir. Jawabannya akan datang ke sini saat itu.",

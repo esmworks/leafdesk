@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} er færdig med »{task}«.",
       "failed": "{agent} kunne ikke gøre »{task}« færdig.",
+      "reasons": {
+        "aiOff": "AI er slået fra i dette arbejdsområde.",
+        "agentDisabled": "Agenten blev sat på pause eller arkiveret.",
+        "noAccess": "Agenten, eller den der satte tidsplanen op, kan ikke længere åbne det, opgaven kræver.",
+        "rowGone": "Rækken blev slettet.",
+        "databaseGone": "Den database, den passer, blev slettet eller flyttet til papirkurven.",
+        "commentGone": "Kommentaren, der omtalte den, blev slettet, eller dens side blev flyttet til papirkurven.",
+        "provider": "AI-udbyderen svarede ikke.",
+        "timeout": "Kørslen tog for lang tid.",
+        "tooManyAttempts": "Den kunne ikke starte i tide: arbejdsområdets AI-kvote forblev opbrugt.",
+        "approvalTimeout": "Ingen svarede på dens kald inden for et døgn, så intet blev sendt.",
+        "connectionGone": "En forbindelse, som opgaven havde brug for, blev fjernet.",
+        "mailGone": "E-mailen er ikke længere i postkassen, eller postkassen er ikke længere åben for agenten.",
+        "limitReached": "Den havde brugt agentens månedlige tokengrænse.",
+        "costLimit": "Arbejdsområdet havde nået sin månedlige grænse for AI-omkostninger.",
+        "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+        "error": "Noget gik galt."
+      },
       "email": "Den læste din e-mail, så dens rapport vises kun i Leafdesk."
     },
     "deferred": "{agent} holder et kald tilbage, til dens stille timer er slut. Svaret kommer her til den tid.",

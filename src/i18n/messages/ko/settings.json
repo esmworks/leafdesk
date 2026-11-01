@@ -479,7 +479,8 @@
       "dailyChangeLimit": "하루 변경 수",
       "dailyChangeLimitPlaceholder": "제한 없음",
       "dailyChangeLimitHelp": "하루에 하는 변경의 최대 수입니다: 행, 페이지, 댓글, 무언가를 바꾸는 연결 호출. 그 이상은 거부됩니다. 날짜는 조용한 시간의 시간대, 없으면 UTC 기준입니다.",
-      "dailyChangeLimitInvalid": "1에서 {max} 사이의 정수를 입력하세요."
+      "dailyChangeLimitInvalid": "1에서 {max} 사이의 정수를 입력하세요.",
+      "guardrailsOwnersOnly": "조용한 시간과 하루 변경 한도는 워크스페이스 소유자만 설정합니다."
     },
     "describe": {
       "button": "설명으로 에이전트 만들기",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "이 일정은 더 이상 존재하지 않습니다.",
       "versionNotFound": "이 버전은 더 이상 없습니다.",
       "notAllowed": "이 에이전트에 대한 액세스 권한으로는 이 작업을 할 수 없습니다.",
-      "ownersOnly": "에이전트의 월간 토큰 한도는 워크스페이스 소유자만 변경합니다.",
+      "ownersOnly": "에이전트의 월간 토큰 한도, 조용한 시간, 하루 변경 한도는 워크스페이스 소유자만 변경합니다.",
       "notAMember": "에이전트는 워크스페이스의 소유자, 멤버, 그룹과만 공유할 수 있습니다.",
       "requestNotFound": "이 요청에는 이미 답변했습니다.",
       "noteChanged": "이 메모는 그 이후 변경되었습니다. 에이전트의 메모리 탭에서 변경하세요."

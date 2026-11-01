@@ -1,7 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { telegramLink, workspaceAgent } from "@/db/schema";
-import { chatFailure } from "@/lib/agent-chat";
 import { agentReportPath, readEmail, type AgentRunCode, type AgentRunSource, type AgentStepRecord } from "@/lib/agents";
 import { env } from "@/lib/env";
 import { markdownLead } from "@/lib/markdown-plain";
@@ -16,7 +15,8 @@ import { html, localeOf, sendHtml, translatorFor } from "./say";
  * `nothing_new`), the person who set the schedule hears of it in their chat with the bot, when that
  * chat is pointed at this agent of the run's workspace (/agent, agent-chat.ts): the agent's name,
  * the task it finished (or couldn't), the start of its report (SUMMARY_CHARS, cut between
- * paragraphs) or why it failed, and a link to the run on the agent's page. It is the person's own
+ * paragraphs) or why it failed (`agent.routine.reasons`, one for each run code; the agent's own
+ * reason when it ended itself as failed), and a link to the run on the agent's page. It is the person's own
  * chat with the agent, so it says what the report says, unlike a notification (lib/push.ts); the
  * inbox's `agent_report` goes as well. Checked as the bot checks a connected app's call: a
  * workspace that turned connected apps off, one the person left, or a database they can no longer
@@ -69,7 +69,7 @@ export async function tellRoutineEnded(run: EndedRoutine): Promise<void> {
     const body = readEmail(run.steps)
       ? [`<i>${escapeHtml(t("agent.routine.email"))}</i>`]
       : run.status === "failed"
-        ? [`<i>${escapeHtml(run.code === "selfReported" && run.answer.trim() ? run.answer.trim() : t(`agent.failed.${chatFailure(run.code)}`))}</i>`]
+        ? [`<i>${escapeHtml(run.code === "selfReported" && run.answer.trim() ? run.answer.trim() : t(`agent.routine.reasons.${run.code ?? "error"}`))}</i>`]
         : markdownToTelegramBlocks(markdownLead(run.answer, SUMMARY_CHARS));
     const open = `<a href="${escapeHtml(`${env.appUrl}${agentReportPath(run.workspaceId, run.agentId, run.id)}`)}">${escapeHtml(t("notify.openRun"))}</a>`;
     await sendHtml(link.chatId, packMessages([head, ...body, open]));

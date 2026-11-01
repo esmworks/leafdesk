@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} finished “{task}”.",
       "failed": "{agent} couldn't finish “{task}”.",
+      "reasons": {
+        "aiOff": "AI is off in this workspace.",
+        "agentDisabled": "The agent was paused or archived.",
+        "noAccess": "The agent, or the person who set the schedule, can't open what the task needs anymore.",
+        "rowGone": "The row was deleted.",
+        "databaseGone": "The database it looks after was deleted or moved to the trash.",
+        "commentGone": "The comment that mentioned it was deleted, or its page was moved to the trash.",
+        "provider": "The AI provider didn’t answer.",
+        "timeout": "The run took too long.",
+        "tooManyAttempts": "It couldn’t start in time: the workspace’s AI allowance stayed used up.",
+        "approvalTimeout": "No one answered its call within a day, so nothing was sent.",
+        "connectionGone": "A connection the task needed was removed.",
+        "mailGone": "The email is gone from the mailbox, or the mailbox is no longer open to the agent.",
+        "limitReached": "It had used the agent’s monthly token limit.",
+        "costLimit": "The workspace had reached its monthly AI cost limit.",
+        "selfReported": "The agent said it couldn’t do its task.",
+        "error": "Something went wrong."
+      },
       "email": "It read your email, so its report shows only in Leafdesk."
     },
     "deferred": "{agent} holds a call until its quiet hours end. Its answer comes here then.",

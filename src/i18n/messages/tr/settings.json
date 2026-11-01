@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Günlük değişiklik sınırı",
       "dailyChangeLimitPlaceholder": "Sınır yok",
       "dailyChangeLimitHelp": "Bir günde yapacağı en fazla değişiklik: satırlar, sayfalar, yorumlar ve bir şeyi değiştiren bağlantı çağrıları. Fazlası reddedilir. Gün, sessiz saatlerin saat dilimine, yoksa UTC'ye göre sayılır.",
-      "dailyChangeLimitInvalid": "1 ile {max} arasında bir tam sayı girin."
+      "dailyChangeLimitInvalid": "1 ile {max} arasında bir tam sayı girin.",
+      "guardrailsOwnersOnly": "Sessiz saatleri ve günlük değişiklik sınırını yalnızca çalışma alanı sahipleri belirler."
     },
     "describe": {
       "button": "Ajanı anlat",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Bu zamanlama artık yok.",
       "versionNotFound": "Bu sürüm artık yok.",
       "notAllowed": "Bu ajana erişimin buna izin vermiyor.",
-      "ownersOnly": "Bir ajanın aylık token sınırını yalnızca çalışma alanı sahipleri değiştirir.",
+      "ownersOnly": "Bir ajanın aylık token sınırını, sessiz saatlerini ve günlük değişiklik sınırını yalnızca çalışma alanı sahipleri değiştirir.",
       "notAMember": "Bir ajan yalnızca çalışma alanının sahipleri, üyeleri ve gruplarıyla paylaşılabilir.",
       "requestNotFound": "Bu istek zaten yanıtlandı.",
       "noteChanged": "Bu not o zamandan beri değişti. Ajanın Hafıza sekmesinden değiştirin."

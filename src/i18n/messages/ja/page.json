@@ -1392,6 +1392,7 @@
     "queued": "待機中",
     "queuedHint": "{name} の回答が終わると送られます",
     "removeQueued": "待機列から外す",
+    "queuedAlreadySent": "そのメッセージはすでにエージェントに送信されていました。",
     "newWithSummary": "要約付きの新しい会話",
     "summary": "以前の会話の要約",
     "edit": "編集",

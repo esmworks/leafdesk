@@ -254,13 +254,17 @@ export type CopyOptions = {
 /**
  * Creates an agent, for owners and (when the workspace lets them) members: shared with everyone in
  * the workspace (can view and interact), and with its creator at full access. Only owners give it
- * a monthly token limit, except the one of the agent it copies.
+ * a monthly token limit, quiet hours and a daily change limit, except those of the agent it copies.
  */
 export async function createAgent(userId: string, workspaceId: string, input: AgentInput, copy?: CopyOptions): Promise<AgentView> {
   const membership = await requireAgentCreator(userId, workspaceId);
   const keptLimit = copy !== undefined && input.monthlyTokenLimit === copy.copiedFrom.monthlyTokenLimit;
   if (input.monthlyTokenLimit !== undefined && input.monthlyTokenLimit !== null && membership.role !== "owner" && !keptLimit) {
     throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's monthly token limit");
+  }
+  // As the token limit: a copy keeps those of the agent it copies.
+  if (membership.role !== "owner" && guardrailsChanged(input, copy?.copiedFrom ?? null)) {
+    throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's quiet hours and daily change limit");
   }
   const name = checkName(input.name);
   const icon = checkIcon(input.icon);
@@ -317,14 +321,29 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
 }
 
 /**
+ * Whether `input` would give the agent other quiet hours or another daily change limit than
+ * `before` has (none for a new agent): the same ones sent back are no change.
+ */
+function guardrailsChanged(input: AgentInput, before: Pick<Agent, "quietHours" | "dailyChangeLimit"> | null): boolean {
+  const quietBefore = before?.quietHours ? parseQuietHours(before.quietHours) : null;
+  const quietChanged = input.quietHours !== undefined && JSON.stringify(input.quietHours ? parseQuietHours(input.quietHours) ?? input.quietHours : null) !== JSON.stringify(quietBefore);
+  const limitChanged = input.dailyChangeLimit !== undefined && (input.dailyChangeLimit ?? null) !== (before?.dailyChangeLimit ?? null);
+  return quietChanged || limitChanged;
+}
+
+/**
  * Changes an agent, for those who can edit it; what `patch` leaves out stays as it was. Only owners
- * change its monthly token limit (the same limit sent back is no change).
+ * change its monthly token limit, quiet hours and daily change limit (the same ones sent back are
+ * no change).
  */
 export async function updateAgent(userId: string, agentId: string, patch: AgentInput): Promise<AgentView> {
   const { agent: current, level, owner } = await agentWithLevel(userId, agentId, "edit");
   if (current.archivedAt) throw new AgentError("archived", "Restore the agent to change it");
   if (patch.monthlyTokenLimit !== undefined && patch.monthlyTokenLimit !== current.monthlyTokenLimit && !owner) {
     throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's monthly token limit");
+  }
+  if (!owner && guardrailsChanged(patch, current)) {
+    throw new AgentError("ownersOnly", "Only the workspace's owners set an agent's quiet hours and daily change limit");
   }
   const set: Partial<Agent> = {};
   if (patch.name !== undefined) set.name = checkName(patch.name);

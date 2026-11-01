@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Perubahan per hari",
       "dailyChangeLimitPlaceholder": "Tanpa batas",
       "dailyChangeLimitHelp": "Perubahan terbanyak yang dibuatnya dalam sehari: baris, halaman, komentar, dan panggilan koneksi yang mengubah sesuatu. Selebihnya ditolak. Hari dihitung dengan zona waktu jam tenang, jika tidak ada dengan UTC.",
-      "dailyChangeLimitInvalid": "Masukkan bilangan bulat dari 1 sampai {max}."
+      "dailyChangeLimitInvalid": "Masukkan bilangan bulat dari 1 sampai {max}.",
+      "guardrailsOwnersOnly": "Hanya pemilik ruang kerja yang mengatur jam tenang dan batas perubahan harian."
     },
     "describe": {
       "button": "Deskripsikan agen",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Jadwal ini sudah tidak ada.",
       "versionNotFound": "Versi ini sudah tidak ada.",
       "notAllowed": "Akses Anda ke agen ini tidak mengizinkan hal ini.",
-      "ownersOnly": "Hanya pemilik ruang kerja yang mengubah batas token bulanan agen.",
+      "ownersOnly": "Hanya pemilik ruang kerja yang mengubah batas token bulanan, jam tenang, dan batas perubahan harian agen.",
       "notAMember": "Agen hanya dapat dibagikan kepada pemilik, anggota, dan grup ruang kerja.",
       "requestNotFound": "Permintaan ini sudah dijawab.",
       "noteChanged": "Catatan ini sudah berubah sejak itu. Ubah di tab Memori agen."

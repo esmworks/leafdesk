@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} sai valmiiksi tehtävän ”{task}”.",
       "failed": "{agent} ei saanut valmiiksi tehtävää ”{task}”.",
+      "reasons": {
+        "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa.",
+        "agentDisabled": "Agentti keskeytettiin tai arkistoitiin.",
+        "noAccess": "Agentti tai ajastuksen asettanut henkilö ei voi enää avata sitä, mitä tehtävä tarvitsee.",
+        "rowGone": "Rivi poistettiin.",
+        "databaseGone": "Tietokanta, jota se hoitaa, poistettiin tai siirrettiin roskakoriin.",
+        "commentGone": "Sen maininnut kommentti poistettiin tai sen sivu siirrettiin roskakoriin.",
+        "provider": "Tekoälypalvelu ei vastannut.",
+        "timeout": "Ajo kesti liian kauan.",
+        "tooManyAttempts": "Se ei ehtinyt käynnistyä ajoissa: työtilan tekoälykiintiö pysyi käytettynä.",
+        "approvalTimeout": "Kukaan ei vastannut sen kutsuun vuorokauden kuluessa, joten mitään ei lähetetty.",
+        "connectionGone": "Yhteys, jota tehtävä tarvitsi, poistettiin.",
+        "mailGone": "Sähköposti ei ole enää postilaatikossa, tai postilaatikko ei ole enää avoinna agentille.",
+        "limitReached": "Se oli käyttänyt agentin kuukausittaisen tokenrajan.",
+        "costLimit": "Työtila oli saavuttanut kuukausittaisen tekoälyn kustannusrajansa.",
+        "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
+        "error": "Jotain meni pieleen."
+      },
       "email": "Se luki sähköpostisi, joten sen raportti näkyy vain Leafdeskissä."
     },
     "deferred": "{agent} pidättää kutsun hiljaisten tuntiensa loppuun. Vastaus tulee tänne silloin.",

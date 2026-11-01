@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Modifiche al giorno",
       "dailyChangeLimitPlaceholder": "Nessun limite",
       "dailyChangeLimitHelp": "Il massimo di modifiche che fa in un giorno: righe, pagine, commenti e chiamate di connessione che cambiano qualcosa. Le successive vengono rifiutate. Il giorno segue il fuso delle ore di silenzio, altrimenti UTC.",
-      "dailyChangeLimitInvalid": "Inserisci un numero intero da 1 a {max}."
+      "dailyChangeLimitInvalid": "Inserisci un numero intero da 1 a {max}.",
+      "guardrailsOwnersOnly": "Solo i proprietari dello spazio di lavoro impostano le ore di silenzio e il limite giornaliero di modifiche."
     },
     "describe": {
       "button": "Descrivi un agente",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Questa pianificazione non esiste più.",
       "versionNotFound": "Questa versione non esiste più.",
       "notAllowed": "Il tuo accesso a questo agente non lo consente.",
-      "ownersOnly": "Solo i proprietari dello spazio di lavoro modificano il limite mensile di token di un agente.",
+      "ownersOnly": "Solo i proprietari dello spazio di lavoro modificano il limite mensile di token, le ore di silenzio e il limite giornaliero di modifiche di un agente.",
       "notAMember": "Un agente può essere condiviso solo con proprietari, membri e gruppi dello spazio di lavoro.",
       "requestNotFound": "Questa richiesta ha già ricevuto risposta.",
       "noteChanged": "Questa nota è cambiata nel frattempo. Modificala nella scheda Memoria dell’agente."

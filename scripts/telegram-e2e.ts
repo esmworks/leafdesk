@@ -11,10 +11,12 @@
  * call waiting for an owner, approved, declined or sent back with a note from its message (approve
  * only when all of the call shows, only its owner, only the call they saw, not where apps only read);
  * and chatting with an agent: answers followed as they are written, a message sent meanwhile queued
- * and its answer following, `/new summary`, a text file sent as a document going to the agent and a
- * file the agent attaches coming back as one; and a routine of the agent picked there sending its
- * summary (or the reason it couldn't do its task) to the chat, and nothing when it found nothing
- * new. Creates its own users and workspaces and deletes them afterwards.
+ * and its answer following (also behind an answer asked in the app, which isn't shown), messages
+ * joining the latest conversation (one the app started too), a second message's own run followed
+ * only once the first answer is in and stopped by /stop, `/new summary`, a text file sent as a
+ * document going to the agent and a file the agent attaches coming back as one; and a routine of
+ * the agent picked there sending its summary (or why it couldn't do its task) to the chat, and
+ * nothing when it found nothing new. Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/telegram-e2e.ts
  *
@@ -99,6 +101,8 @@ const { flushPush } = await import("@/server/push");
 const { getNotificationPreferences, setNotificationPreference } = await import("@/server/notification-preferences");
 const { agentConversation, agentRun, auditEvent, notification, workspaceAgent } = await import("@/db/schema");
 const { createAgent } = await import("@/server/agents/manage");
+const chat = await import("@/server/agents/chat");
+const { tellRoutineEnded } = await import("@/server/telegram/routine");
 const { flushAgentRuns } = await import("@/server/agents/run");
 const { removeAgentSchedule, setAgentSchedule } = await import("@/server/agents/schedules");
 const { runDueSchedules } = await import("@/server/schedules");
@@ -660,6 +664,59 @@ try {
   // The run that took "Two" went on too, followed by no one now.
   await chatRun();
 
+  // A conversation started in the app is the one a message from here joins; one queued behind the app's answer is answered here, the app's answer never shown.
+  fake.setChat((request) => ({ text: asked(request).includes("TG-BEHIND") ? "TG-BEHIND answered." : "APP-ANSWER-PRIVATE" }));
+  const fromApp = await chat.sendAgentChat(ids.alice, { workspaceId: ws, agentId: agent.id, place: null, conversationId: null, message: "Asked in the app" });
+  const appRun = await chatRun();
+  check(appRun.id === fromApp.runId && (await chat.latestThreadConversation(ids.alice, agent.id)) === fromApp.conversation.id, "a conversation started in the app is the latest");
+  mark = sent.length;
+  const behind = handleUpdate(text(ALICE, "And TG-BEHIND"));
+  await until(() => said(ALICE.id, mark).includes("Queued"), "the message queued behind the app's answer");
+  check((await linkNow()).agentConversationId === fromApp.conversation.id, "a message from here joins the latest conversation, the one the app started", await linkNow());
+  await flushAgentRuns();
+  await behind;
+  const behindRun = await chatRun();
+  check(behindRun.source.kind === "chat" && behindRun.source.after === appRun.id && behindRun.source.telegram === true, "…and goes as the turn after the app's answer", behindRun.source);
+  check(
+    shownTo(mark).includes("TG-BEHIND answered.") && !shownTo(mark).some((m) => m.includes("APP-ANSWER-PRIVATE")),
+    "with no follow here on the app's answer, the bot waits for it, not shown, and follows the turn that takes the message",
+    shownTo(mark),
+  );
+
+  // A second message that starts a run of its own (the latest conversation is another) while an answer is followed waits for that follow to let go of the chat, then is followed: /stop reaches it.
+  const slowWords = (n: number, mark: string) => Array.from({ length: n }, (_, i) => `${mark}${i}`).join(" ");
+  fake.setChat((request) => ({ text: asked(request).includes("Second run") ? slowWords(40, "late") : "First run answered." }));
+  fake.delayMs = 150;
+  mark = sent.length;
+  const firstFollowed = handleUpdate(text(ALICE, "First run"));
+  await chatRun();
+  const [newer] = await db
+    .insert(agentConversation)
+    .values({ agentId: agent.id, workspaceId: ws, userId: ids.alice, title: "Newer", messages: [{ role: "assistant", content: "Hello.", runId: "", at: new Date().toISOString() }] })
+    .returning({ id: agentConversation.id });
+  const secondFollowed = handleUpdate(text(ALICE, "Second run"));
+  const secondRun = await chatRun();
+  check(secondRun.source.kind === "chat" && secondRun.source.conversationId === newer.id && !said(ALICE.id, mark).includes("Queued"), "a second message to a conversation with no answer under way starts a run", secondRun.source);
+  const flushing = flushAgentRuns();
+  await until(() => shownTo(mark).some((m) => m.includes("late0")), "the second run's answer being written", 20_000);
+  const inOrder = shownTo(mark);
+  const lateAt = inOrder.findIndex((m) => m.includes("late0"));
+  check(
+    lateAt > inOrder.indexOf("First run answered.") && inOrder.indexOf("First run answered.") >= 0 && !inOrder.slice(lateAt).some((m) => m.startsWith("First run")),
+    "the second run is shown only once the first answer is in, never between",
+    inOrder,
+  );
+  await handleUpdate(text(ALICE, "/stop"));
+  await secondFollowed;
+  await firstFollowed;
+  await flushing;
+  fake.delayMs = 0;
+  check(
+    said(ALICE.id, mark).includes("I stopped following.") && !shownTo(mark).includes(slowWords(40, "late")),
+    "once it took the chat, /stop stops following it",
+    shownTo(mark),
+  );
+
   /** Sends a message whose run then waits on a call, as an approval would park it; the run, and the bot's handling still going. */
   const parkedChat = async (body: string, callId: string, notify = true) => {
     const handled = handleUpdate(text(ALICE, body));
@@ -818,6 +875,23 @@ try {
   check(
     messagesTo(ALICE.id, mark).some((m) => m.includes("couldn't finish “Check the tyre vendors”.") && m.includes("The vendor list is empty.")),
     "a routine that says it couldn't do its task sends its reason",
+    messagesTo(ALICE.id, mark),
+  );
+  mark = sent.length;
+  await tellRoutineEnded({
+    id: routineRun.id,
+    workspaceId: ws,
+    agentId: agent.id,
+    source: { kind: "schedule", scheduleId: routine.id, scheduledBy: ids.alice },
+    status: "failed",
+    code: "timeout",
+    answer: "",
+    steps: [],
+    prompt: "Check the tyre vendors",
+  });
+  check(
+    messagesTo(ALICE.id, mark).some((m) => m.includes("couldn't finish") && m.includes("The run took too long.") && !m.includes("Try again")),
+    "a routine that failed otherwise says why in words for a routine's run",
     messagesTo(ALICE.id, mark),
   );
   fake.setChat(() => ({ toolCalls: [{ name: "finish_run", arguments: { outcome: "nothing_new" } }] }));

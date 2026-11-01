@@ -312,9 +312,9 @@ export async function deleteAgentMemoryAction(workspaceId: string, agentId: stri
   );
 }
 
-/** Takes back a correction a chat run kept at once (its step's Undo). */
-export async function undoAgentCorrectionAction(workspaceId: string, runId: string, memoryId: string) {
-  return run(workspaceId, (userId) => undoAgentCorrection(userId, workspaceId, String(runId), String(memoryId)));
+/** Takes back a correction a chat run kept at once (its step's Undo; `stepIndex`: where the step is in the run's steps). */
+export async function undoAgentCorrectionAction(workspaceId: string, runId: string, memoryId: string, stepIndex: number) {
+  return run(workspaceId, (userId) => undoAgentCorrection(userId, workspaceId, String(runId), String(memoryId), Number(stepIndex)));
 }
 
 /** A comment the agent wrote; its text only when the viewer can open the row it's on. */

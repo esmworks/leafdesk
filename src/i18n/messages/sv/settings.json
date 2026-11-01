@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Ändringar per dag",
       "dailyChangeLimitPlaceholder": "Ingen gräns",
       "dailyChangeLimitHelp": "Det högsta antalet ändringar den gör på en dag: rader, sidor, kommentarer och anslutningsanrop som ändrar något. Fler avvisas. Dagen följer de tysta timmarnas tidszon, annars UTC.",
-      "dailyChangeLimitInvalid": "Ange ett heltal från 1 till {max}."
+      "dailyChangeLimitInvalid": "Ange ett heltal från 1 till {max}.",
+      "guardrailsOwnersOnly": "Bara arbetsytans ägare ställer in tysta timmar och den dagliga ändringsgränsen."
     },
     "describe": {
       "button": "Beskriv en agent",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Det här schemat finns inte längre.",
       "versionNotFound": "Den här versionen finns inte längre.",
       "notAllowed": "Din åtkomst till den här agenten tillåter inte detta.",
-      "ownersOnly": "Bara arbetsytans ägare ändrar en agents månatliga tokengräns.",
+      "ownersOnly": "Bara arbetsytans ägare ändrar en agents månatliga tokengräns, tysta timmar och dagliga ändringsgräns.",
       "notAMember": "En agent kan bara delas med arbetsytans ägare, medlemmar och grupper.",
       "requestNotFound": "Den här begäran har redan besvarats.",
       "noteChanged": "Den här anteckningen har ändrats sedan dess. Ändra den på agentens flik Minne."

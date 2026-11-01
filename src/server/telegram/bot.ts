@@ -25,7 +25,7 @@ import {
   type TelegramMessage,
   type TelegramUpdate,
 } from "./api";
-import { agentPicker, askAgent, newAgentConversationFromSummary, pickAgent } from "./agent-chat";
+import { agentPicker, askAgent, newAgentConversationFromSummary, pickAgent, type FollowHooks } from "./agent-chat";
 import { answerCall, answerNotification } from "./notify";
 import { linkMode, linkOf, linkWithCode, setTelegramNotifications, touchLink, unlinkTelegram, updateLink, type TelegramLinkRow } from "./links";
 import { appPageUrl, changeLines, html, localeOf, send, sendHtml, translatorFor, type Translator } from "./say";
@@ -52,8 +52,10 @@ import { appPageUrl, changeLines, html, localeOf, send, sendHtml, translatorFor,
 /** Answers that are being written, by link: /stop aborts one; a second question waits for it. */
 const answering = new Map<string, AbortController>();
 /**
- * Agents' answers still followed while their run waits on a call, by link (agent-chat.ts): the
- * chat takes other messages meanwhile; /stop, with no other answer being written, stops them.
+ * Agents' answers still followed while their run waits on a call (or waited for, an answer no follow
+ * here is on, agent-chat.ts), by link: the chat takes other messages meanwhile; /stop, with no other
+ * answer being written, stops them. A follow started by a message sent while another answer is
+ * followed waits here too until that one lets go of the chat.
  */
 const waitingFollows = new Map<string, Set<AbortController>>();
 /** The answers that are agents' (agent-chat.ts): their follow says it stopped itself. */
@@ -71,6 +73,8 @@ const MAX_NOTES_ASKED = 1_000;
 
 /** How often "typing…" is sent again while an answer is written (Telegram shows it for 5 s). */
 const TYPING_EVERY_MS = 4_500;
+/** How often a follow waiting to take the chat looks whether the answer followed there let go of it. */
+const CLAIM_POLL_MS = 250;
 
 /** The bot's command in a message (`/new`, `/new@bot`), lower case, and what follows it. */
 export function commandOf(text: string): { command: string; rest: string } | null {
@@ -132,25 +136,46 @@ async function onMessage(message: TelegramMessage) {
   const question = (text || message.caption || "").trim();
   if (!question && !voice && !document) return void (await send(chatId, escapeHtml(t("onlyText"))));
   const running = answering.get(link.id);
-  if (running) {
-    // An agent's answer being followed: this message joins the conversation's queue, and the follow under way takes its answer.
-    if (!link.agentId || !agentAnswers.has(running.signal)) return void (await send(chatId, escapeHtml(t("busy"))));
-    return void (await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, { text: question, voice: voice ?? null, document }, running.signal, () => {})));
-  }
+  // An answer being written takes no other question, but for an agent's being followed (below).
+  if (running && (!link.agentId || !agentAnswers.has(running.signal))) return void (await send(chatId, escapeHtml(t("busy"))));
   const controller = new AbortController();
-  answering.set(link.id, controller);
-  // An agent's run waiting on a call frees the chat; its follow goes on among the waiting ones.
-  const release = () => {
-    if (answering.get(link.id) !== controller) return;
-    answering.delete(link.id);
-    waitingFollows.set(link.id, (waitingFollows.get(link.id) ?? new Set()).add(controller));
-  };
-  try {
-    await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, { text: question, voice: voice ?? null, document }, controller.signal, release));
-  } finally {
-    if (answering.get(link.id) === controller) answering.delete(link.id);
+  const wait = () => waitingFollows.set(link.id, (waitingFollows.get(link.id) ?? new Set()).add(controller));
+  const unwait = () => {
     const waiting = waitingFollows.get(link.id);
     if (waiting?.delete(controller) && !waiting.size) waitingFollows.delete(link.id);
+  };
+  // `claimed`: the answer being written in the chat is this one's (or it was let go, waiting on a call or for another answer).
+  let claimed = !running;
+  let claim = async () => {};
+  const stopWithRunning = () => controller.abort();
+  if (running) {
+    // An agent's answer being followed: this message joins the conversation's queue, and the follow under way takes its answer.
+    // Should it be followed on its own (it started a run, or waits for an answer no follow here is on), it waits among the
+    // waiting follows, stopped with the answer being followed, until that one lets go of the chat, then takes its place.
+    wait();
+    running.signal.addEventListener("abort", stopWithRunning, { once: true });
+    claim = async () => {
+      while (answering.get(link.id) === running && !controller.signal.aborted) await new Promise((resolve) => setTimeout(resolve, CLAIM_POLL_MS));
+      if (claimed || controller.signal.aborted) return;
+      claimed = true;
+      if (answering.has(link.id)) return;
+      unwait();
+      answering.set(link.id, controller);
+    };
+  } else answering.set(link.id, controller);
+  // An agent's run waiting on a call (or for another answer) frees the chat; its follow goes on among the waiting ones.
+  const release = () => {
+    claimed = true;
+    if (answering.get(link.id) !== controller) return;
+    answering.delete(link.id);
+    wait();
+  };
+  try {
+    await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, { text: question, voice: voice ?? null, document }, controller.signal, { release, claim }));
+  } finally {
+    running?.signal.removeEventListener("abort", stopWithRunning);
+    if (answering.get(link.id) === controller) answering.delete(link.id);
+    unwait();
   }
 }
 
@@ -296,7 +321,7 @@ async function documentText(link: TelegramLinkRow, t: Translator, document: NonN
 type Incoming = { text: string; voice: TelegramMessage["voice"] | null; document: TelegramMessage["document"] | null };
 
 /** Asks the AI chat (or the link's agent) a question for the link's person and sends its answer to the chat. */
-async function ask(link: TelegramLinkRow, t: Translator, { text, voice, document }: Incoming, signal: AbortSignal, release: () => void) {
+async function ask(link: TelegramLinkRow, t: Translator, { text, voice, document }: Incoming, signal: AbortSignal, { release, claim }: Pick<FollowHooks, "release" | "claim">) {
   const chatId = link.chatId;
   const workspace = await currentWorkspace(link);
   if (!workspace) return void (await send(chatId, escapeHtml(t("noWorkspace"))));
@@ -314,7 +339,7 @@ async function ask(link: TelegramLinkRow, t: Translator, { text, voice, document
       if (document && !file) return;
       if (!question && !file) return;
       agentAnswers.add(signal);
-      return await askAgent(link, t, workspace, question ?? "", file ? [file] : [], signal, { waiting: (on) => (waiting = on), release });
+      return await askAgent(link, t, workspace, question ?? "", file ? [file] : [], signal, { waiting: (on) => (waiting = on), release, claim });
     }
     if (!question) return;
     const mode = linkMode(link.mode);

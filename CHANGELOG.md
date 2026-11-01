@@ -26,7 +26,8 @@
   `kind: "correction"`), kept at once rather than proposed, as long as that run read nothing but
   their words and the workspace (no email, web page, connection or other agent's answer, attached
   file, nor a message from another connected app); at most three a run. The chat shows *Noted as a
-  correction* with *Undo*, which deletes the note or restores what the note it changed said.
+  correction* with *Undo*, which deletes the note or restores what the note it changed said (of two
+  corrections of one note in a run, the later one first).
   Corrections go with every later run marked as such, are listed first in the *Memory* tab with whose
   chat they came from, put nothing in the owners' inboxes and are counted in the audit log. In
   every other run a correction is a proposal labelled as one. `get_agent` shows `kind` and
@@ -36,7 +37,8 @@
   schedule's run gets a `finish_run` tool: with `nothing_new` (when it checked, found nothing to
   tell and changed nothing) it ends without a report, so nothing comes to the inbox, push or
   Telegram, and the agent's chat shows it as one muted *Nothing new* line with its steps folded; a
-  run that changed something is told to report instead. With `failed` and a reason it ends as
+  run that changed something, had a call refused or declined, or gave another agent a task is told
+  to report instead. With `failed` and a reason it ends as
   failed (`selfReported`), the reason shown in its report, its run and the chat. A run's report in
   the inbox now shows its first paragraph under the title (push and Telegram notifications still
   say only that it finished). When your Telegram chat is pointed at the agent with `/agent`, each
@@ -44,30 +46,36 @@
   the REST API mark quiet runs with `quiet`. Migration 0179 (column `agent_run.quiet`).
 
 - **Agent chats queue messages, take files, start from summaries and can be searched.** A message
-  written while an agent answers waits under the answer, marked *Queued* (up to 5, each removable),
-  and goes with the others as its next turn once the answer ends, in the app, from MCP's
-  `chat_with_agent` (`status: queued`) and from Telegram, which follows that answer too. Up to 3
+  written while an agent answers waits under the answer, marked *Queued* (up to 5, each removable
+  until it goes), and goes with the others as its next turn once the answer ends, in the app, from
+  MCP's `chat_with_agent` (`status: queued`) and from Telegram, which follows that answer too, also
+  when the answer it waited for was asked in the app (that one isn't shown in Telegram). Up to 3
   text files (CSV, TSV, TXT, Markdown, JSON) go with a message, from the chat's box or as a Telegram
   document; the agent can attach text files to its answer with a new `attach_file` tool, downloads
   only the person chatting can open, sent to Telegram after the answer. *New conversation with a
   summary* (and `/new summary` in Telegram) starts a new conversation from a summary the agent's
   model writes. A search box finds what you said with the agent in all your chats with it, and the
-  last turn can be regenerated or its question edited. Migration 0178 (column
+  last turn can be regenerated or its question edited (asked again as it was first asked, the
+  files the old answer attached removed). Migration 0178 (column
   `agent_conversation.queue`, table `agent_chat_file`).
 
 - **Rules, quiet hours and a daily change limit for agents.** Owners can set each connection tool
   an agent may use to *Always allow* (its calls go without asking, except on runs that read
-  outside content, which still wait for an owner) or *Always decline* (never called), on the
-  agent's *Connections* tab or with `rules` on MCP's `set_agent_connection_tools`. An agent's
-  settings take quiet hours, in which allowed calls wait silently until they end (an owner can
-  approve one early), and a number of changes per day past which its changes are refused. Runs'
-  steps say when a rule allowed or declined a call or the limit refused one. Migration 0177 (tables
+  outside content, which still wait for an owner: a web page or search, any connection tool's
+  answer, files on the person's computer, another agent's answer, a file attached to the chat) or
+  *Always decline* (never called), on the agent's *Connections* tab or with `rules` on MCP's
+  `set_agent_connection_tools`. In an agent's settings owners also set quiet hours, in which
+  allowed calls wait silently until they end (an owner can approve one early), and a number of
+  changes per day past which its changes are refused (email it sends to its recipients counts
+  too); others who can edit the agent see both without changing them. Runs' steps say when a rule
+  allowed or declined a call or the limit refused one. Migration 0177 (tables
   `agent_tool_rule` and `agent_daily_change`, columns `quiet_hours` and `daily_change_limit`).
 
 - **Chat with your agents from Telegram.** `/agent` in the Telegram bot lists the workspace's
   agents shared with you; once you pick one, your messages and voice messages go to it instead of
-  the AI chat, in the same chat its page shows, so the conversation goes on in the app (`/new`
-  starts a new one). Its answer shows as it is written, then formatted with the pages it changed; a
+  the AI chat, in the same chat its page shows, so the conversation goes on in the app: each
+  message joins your latest conversation there, wherever you wrote last (`/new` starts a new one).
+  Its answer shows as it is written, then formatted with the pages it changed; a
   call it waits on comes as an approval message with its buttons, and the answer follows once it is
   answered. Messages from Telegram count as a connected app's writes, so a workspace that lets apps
   only read takes none. Migration 0176.

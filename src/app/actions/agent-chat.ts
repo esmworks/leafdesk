@@ -87,7 +87,7 @@ export async function sendAgentChatAction(input: {
   );
 }
 
-/** Takes a message out of the queue before it goes. */
+/** Takes a message out of the queue before it goes: whether it was still there, and the messages still waiting. */
 export async function removeQueuedAgentChatAction(workspaceId: string, agentId: string, conversationId: string, queuedId: string, place: ChatPlace) {
   return run((userId) =>
     removeQueuedAgentChat(userId, { workspaceId: String(workspaceId), agentId: String(agentId), place: placeOf(place), conversationId: String(conversationId), queuedId: String(queuedId) }),

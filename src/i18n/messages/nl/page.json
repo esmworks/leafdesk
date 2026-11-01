@@ -1392,6 +1392,7 @@
     "queued": "In de wachtrij",
     "queuedHint": "Gaat naar {name} zodra het heeft geantwoord",
     "removeQueued": "Uit de wachtrij halen",
+    "queuedAlreadySent": "Dat bericht was al naar de agent verstuurd.",
     "newWithSummary": "Nieuw gesprek met een samenvatting",
     "summary": "Samenvatting van een eerder gesprek",
     "edit": "Bewerken",

@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent}, “{task}” işini bitirdi.",
       "failed": "{agent}, “{task}” işini bitiremedi.",
+      "reasons": {
+        "aiOff": "Bu çalışma alanında yapay zekâ kapalı.",
+        "agentDisabled": "Ajan duraklatılmış ya da arşivlenmişti.",
+        "noAccess": "Ajan ya da zamanlamayı kuran kişi, görevin gerektirdiklerini artık açamıyor.",
+        "rowGone": "Satır silinmiş.",
+        "databaseGone": "Baktığı veritabanı silindi ya da çöp kutusuna taşındı.",
+        "commentGone": "Ondan bahseden yorum silindi ya da sayfası çöp kutusuna taşındı.",
+        "provider": "Yapay zekâ sağlayıcısı yanıt vermedi.",
+        "timeout": "Çalışma çok uzun sürdü.",
+        "tooManyAttempts": "Zamanında başlayamadı: çalışma alanının yapay zekâ kotası dolu kaldı.",
+        "approvalTimeout": "Çağrısını bir gün içinde kimse yanıtlamadı; hiçbir şey gönderilmedi.",
+        "connectionGone": "Görevin ihtiyaç duyduğu bir bağlantı kaldırıldı.",
+        "mailGone": "E-posta kutudan gitti ya da kutu artık bu ajana açık değil.",
+        "limitReached": "Ajanın aylık token sınırı dolmuştu.",
+        "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaşmıştı.",
+        "selfReported": "Ajan görevini yapamadığını bildirdi.",
+        "error": "Bir şeyler ters gitti."
+      },
       "email": "E-postanı okudu, bu yüzden raporu yalnızca Leafdesk’te görünüyor."
     },
     "deferred": "{agent} sessiz saatleri bitene kadar bir çağrıyı bekletiyor. Cevabı o zaman buraya gelir.",

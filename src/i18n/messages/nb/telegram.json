@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} er ferdig med «{task}».",
       "failed": "{agent} kunne ikke fullføre «{task}».",
+      "reasons": {
+        "aiOff": "KI er slått av i dette arbeidsområdet.",
+        "agentDisabled": "Agenten ble satt på pause eller arkivert.",
+        "noAccess": "Agenten, eller den som satte opp tidsplanen, kan ikke lenger åpne det oppgaven trenger.",
+        "rowGone": "Raden ble slettet.",
+        "databaseGone": "Databasen den har ansvar for, ble slettet eller flyttet til papirkurven.",
+        "commentGone": "Kommentaren som nevnte den, ble slettet, eller siden ble flyttet til papirkurven.",
+        "provider": "KI-leverandøren svarte ikke.",
+        "timeout": "Kjøringen tok for lang tid.",
+        "tooManyAttempts": "Den kunne ikke starte i tide: arbeidsområdets KI-kvote forble brukt opp.",
+        "approvalTimeout": "Ingen svarte på kallet innen et døgn, så ingenting ble sendt.",
+        "connectionGone": "En tilkobling oppgaven trengte, ble fjernet.",
+        "mailGone": "E-posten er ikke lenger i postkassen, eller postkassen er ikke lenger åpen for agenten.",
+        "limitReached": "Den hadde brukt opp agentens månedlige tokengrense.",
+        "costLimit": "Arbeidsområdet hadde nådd den månedlige kostnadsgrensen for KI.",
+        "selfReported": "Agenten sa at den ikke kunne gjøre oppgaven sin.",
+        "error": "Noe gikk galt."
+      },
       "email": "Den leste e-posten din, så rapporten vises bare i Leafdesk."
     },
     "deferred": "{agent} holder tilbake et kall til de stille timene er over. Svaret kommer hit da.",

@@ -1392,6 +1392,7 @@
     "queued": "I kø",
     "queuedHint": "Går til {name}, når den har svaret",
     "removeQueued": "Fjern fra køen",
+    "queuedAlreadySent": "Den besked var allerede sendt til agenten.",
     "newWithSummary": "Ny samtale med et resumé",
     "summary": "Resumé af en tidligere samtale",
     "edit": "Rediger",

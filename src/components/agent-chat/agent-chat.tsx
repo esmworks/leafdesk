@@ -462,7 +462,11 @@ export function AgentChat({
     if (!conversationId) return;
     const res = await removeQueuedAgentChatAction(workspaceId, agentId, conversationId, id, placeRef.current);
     if (!res.ok) return setError(res.error);
-    setQueued(res.data);
+    setQueued(res.data.queued);
+    if (res.data.removed) return;
+    // Sent meanwhile, as the answer before it ended: the conversation, read again, shows it now.
+    await (placeRef.current === null ? openThread() : open(conversationId));
+    setError(t("queuedAlreadySent"));
   };
 
   const summarize = async () => {
@@ -526,12 +530,13 @@ export function AgentChat({
   };
 
   // A correction an answer kept at once, taken back: its step reads as undone.
-  const undoCorrection = async (runId: string, memoryId: string): Promise<string | null> => {
-    const res = await undoAgentCorrectionAction(workspaceId, runId, memoryId).catch(() => null);
+  const undoCorrection = async (runId: string, memoryId: string, index: number): Promise<string | null> => {
+    const res = await undoAgentCorrectionAction(workspaceId, runId, memoryId, index).catch(() => null);
     if (!res) return tc("genericError");
     if (!res.ok) return res.error;
+    // That step alone: another correction of the same note in the answer keeps its Undo.
     const undone = (steps: AgentChatStepView[]) =>
-      steps.map((s) => (s.kind === "memory" && s.action === "correct" && s.memoryId === memoryId ? { ...s, outcome: "undone" as const } : s));
+      steps.map((s, i) => (i === index && s.kind === "memory" && s.action === "correct" && s.memoryId === memoryId ? { ...s, outcome: "undone" as const } : s));
     setMessages((list) => list.map((m) => (m.role === "assistant" && m.runId === runId ? { ...m, steps: undone(m.steps) } : m)));
     return null;
   };
@@ -709,7 +714,7 @@ export function AgentChat({
                       connections={connections}
                       onOpen={openPage}
                       onRedo={item.message.runId === redoRun && editing === null ? () => void redo(null) : undefined}
-                      onUndo={(memoryId) => undoCorrection(item.message.runId, memoryId)}
+                      onUndo={(memoryId, index) => undoCorrection(item.message.runId, memoryId, index)}
                     />
                   )}
                 </li>
@@ -998,8 +1003,8 @@ function Answer({
   last: boolean;
   /** The last answer, done again (Regenerate). */
   onRedo?: () => void;
-  /** Takes back a correction this answer's run kept (once it ended): null when it was, else why not. */
-  onUndo?: (memoryId: string) => Promise<string | null>;
+  /** Takes back a correction this answer's run kept (once it ended; `index`: its step's): null when it was, else why not. */
+  onUndo?: (memoryId: string, index: number) => Promise<string | null>;
   /** Being written, or came while the chat was open: its text flows in. */
   arrived?: boolean;
   connections: Record<string, string>;
@@ -1082,12 +1087,12 @@ function StepItems({
   steps: AgentChatStepView[];
   connections: Record<string, string>;
   onOpen: (pageId: string) => void;
-  onUndo?: (memoryId: string) => Promise<string | null>;
+  onUndo?: (memoryId: string, index: number) => Promise<string | null>;
 }) {
   return steps.map((step, i) => (
     <li key={i} className="flex min-w-0 items-start gap-1.5">
       {onUndo && step.kind === "memory" && step.action === "correct" && step.memoryId && step.outcome !== "undone" ? (
-        <CorrectionStepLine step={step} memoryId={step.memoryId} onOpen={onOpen} onUndo={onUndo} />
+        <CorrectionStepLine step={step} memoryId={step.memoryId} onOpen={onOpen} onUndo={(memoryId) => onUndo(memoryId, i)} />
       ) : (
         <AgentStepLine step={step} connections={connections} onOpen={onOpen} />
       )}

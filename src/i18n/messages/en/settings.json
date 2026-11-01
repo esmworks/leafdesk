@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Changes per day",
       "dailyChangeLimitPlaceholder": "No limit",
       "dailyChangeLimitHelp": "The most changes it makes in a day: rows, pages, comments and connection calls that change something. Further ones are refused. The day follows the quiet hours’ time zone, else UTC.",
-      "dailyChangeLimitInvalid": "Enter a whole number from 1 to {max}."
+      "dailyChangeLimitInvalid": "Enter a whole number from 1 to {max}.",
+      "guardrailsOwnersOnly": "Only workspace owners set quiet hours and the daily change limit."
     },
     "describe": {
       "button": "Describe an agent",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "This schedule no longer exists.",
       "versionNotFound": "This version no longer exists.",
       "notAllowed": "Your access to this agent doesn’t allow this.",
-      "ownersOnly": "Only workspace owners change an agent’s monthly token limit.",
+      "ownersOnly": "Only workspace owners change an agent’s monthly token limit, quiet hours and daily change limit.",
       "notAMember": "An agent can be shared only with the workspace’s owners, members and groups.",
       "requestNotFound": "This request was answered already.",
       "noteChanged": "This note changed since. Change it in the agent’s Memory tab."

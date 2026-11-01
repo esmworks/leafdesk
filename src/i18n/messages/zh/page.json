@@ -1392,6 +1392,7 @@
     "queued": "排队中",
     "queuedHint": "{name} 回答完后发给它",
     "removeQueued": "移出队列",
+    "queuedAlreadySent": "这条消息已经发送给代理了。",
     "newWithSummary": "带摘要的新对话",
     "summary": "之前对话的摘要",
     "edit": "编辑",

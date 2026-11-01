@@ -1392,6 +1392,7 @@
     "queued": "W kolejce",
     "queuedHint": "Trafi do {name}, gdy skończy odpowiadać",
     "removeQueued": "Usuń z kolejki",
+    "queuedAlreadySent": "Ta wiadomość została już wysłana do agenta.",
     "newWithSummary": "Nowa rozmowa z podsumowaniem",
     "summary": "Podsumowanie wcześniejszej rozmowy",
     "edit": "Edytuj",

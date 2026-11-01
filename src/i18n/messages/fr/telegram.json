@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} a terminé « {task} ».",
       "failed": "{agent} n’a pas pu terminer « {task} ».",
+      "reasons": {
+        "aiOff": "L’IA est désactivée dans cet espace de travail.",
+        "agentDisabled": "L’agent était en pause ou archivé.",
+        "noAccess": "L’agent, ou la personne qui a configuré la planification, ne peut plus ouvrir ce dont la tâche a besoin.",
+        "rowGone": "La ligne a été supprimée.",
+        "databaseGone": "La base de données dont il s’occupe a été supprimée ou mise à la corbeille.",
+        "commentGone": "Le commentaire qui l’a mentionné a été supprimé, ou sa page a été mise à la corbeille.",
+        "provider": "Le fournisseur d’IA n’a pas répondu.",
+        "timeout": "L’exécution a pris trop de temps.",
+        "tooManyAttempts": "Il n’a pas pu démarrer à temps : le quota d’IA de l’espace de travail est resté épuisé.",
+        "approvalTimeout": "Personne n’a répondu à son appel dans la journée : rien n’a été envoyé.",
+        "connectionGone": "Une connexion dont la tâche avait besoin a été supprimée.",
+        "mailGone": "L'e-mail n'est plus dans la boîte, ou la boîte n'est plus ouverte à l'agent.",
+        "limitReached": "La limite mensuelle de tokens de l’agent était atteinte.",
+        "costLimit": "L'espace de travail avait atteint sa limite mensuelle de coût d'IA.",
+        "selfReported": "L’agent a indiqué qu’il n’a pas pu faire sa tâche.",
+        "error": "Un problème est survenu."
+      },
       "email": "Il a lu vos e-mails : son rapport ne s’affiche donc que dans Leafdesk."
     },
     "deferred": "{agent} retient un appel jusqu’à la fin de ses heures calmes. Sa réponse arrivera ici à ce moment-là.",

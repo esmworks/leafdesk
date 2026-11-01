@@ -35,11 +35,23 @@ describe("agent chat queue", () => {
     ]);
     expect(turn.files.map((f) => f.name)).toEqual(["list.csv", "list (2).csv"]);
     expect(turn.records[1].files).toEqual([{ name: "list (2).csv", size: 2 }]);
-    expect(turn).toMatchObject({ fromApp: false, telegram: true, timeZone: "Europe/Istanbul" });
+    expect(turn).toMatchObject({ fromApp: false, telegram: true, otherApp: false, timeZone: "Europe/Istanbul" });
   });
 
   it("takes the turn as one from a connected app when one of its messages was", () => {
     expect(queuedTurn([item("q1", "a"), item("q2", "b", { fromApp: true })], "r", 0).fromApp).toBe(true);
+  });
+
+  it("marks a turn holding another app's message apart from the Telegram bot's own", () => {
+    const flags = (queue: AgentChatQueuedRecord[]) => {
+      const { fromApp, telegram, otherApp } = queuedTurn(queue, "r", 0);
+      return { fromApp, telegram, otherApp };
+    };
+    expect(flags([item("q1", "a")])).toEqual({ fromApp: false, telegram: false, otherApp: false });
+    expect(flags([item("q1", "a", { fromApp: true, via: "telegram" })])).toEqual({ fromApp: true, telegram: true, otherApp: false });
+    expect(flags([item("q1", "a", { fromApp: true })])).toEqual({ fromApp: true, telegram: false, otherApp: true });
+    // One message from another app and one from Telegram: the turn isn't only the person's words.
+    expect(flags([item("q1", "a", { fromApp: true }), item("q2", "b", { fromApp: true, via: "telegram" })])).toEqual({ fromApp: true, telegram: true, otherApp: true });
   });
 
   it("merges a turn's questions for the history, but not a summary or another run's", () => {

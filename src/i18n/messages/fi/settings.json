@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Muutoksia päivässä",
       "dailyChangeLimitPlaceholder": "Ei rajaa",
       "dailyChangeLimitHelp": "Enimmäismäärä muutoksia, jotka se tekee päivässä: rivit, sivut, kommentit ja jotain muuttavat yhteyskutsut. Seuraavat hylätään. Päivä lasketaan hiljaisten tuntien aikavyöhykkeellä, muuten UTC:n mukaan.",
-      "dailyChangeLimitInvalid": "Anna kokonaisluku väliltä 1–{max}."
+      "dailyChangeLimitInvalid": "Anna kokonaisluku väliltä 1–{max}.",
+      "guardrailsOwnersOnly": "Vain työtilan omistajat asettavat hiljaiset tunnit ja päivittäisen muutosrajan."
     },
     "describe": {
       "button": "Kuvaile agentti",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Tätä ajastusta ei ole enää olemassa.",
       "versionNotFound": "Tätä versiota ei ole enää olemassa.",
       "notAllowed": "Pääsysi tähän agenttiin ei salli tätä.",
-      "ownersOnly": "Vain työtilan omistajat muuttavat agentin kuukausittaista tokenrajaa.",
+      "ownersOnly": "Vain työtilan omistajat muuttavat agentin kuukausittaista tokenrajaa, hiljaisia tunteja ja päivittäistä muutosrajaa.",
       "notAMember": "Agentin voi jakaa vain työtilan omistajien, jäsenten ja ryhmien kanssa.",
       "requestNotFound": "Tähän pyyntöön on jo vastattu.",
       "noteChanged": "Tätä muistiinpanoa on sittemmin muutettu. Muuta sitä agentin Muisti-välilehdellä."

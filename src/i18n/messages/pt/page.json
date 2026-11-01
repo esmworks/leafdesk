@@ -1392,6 +1392,7 @@
     "queued": "Na fila",
     "queuedHint": "Vai para {name} quando ele tiver respondido",
     "removeQueued": "Remover da fila",
+    "queuedAlreadySent": "Essa mensagem já tinha sido enviada ao agente.",
     "newWithSummary": "Nova conversa com um resumo",
     "summary": "Resumo de uma conversa anterior",
     "edit": "Editar",

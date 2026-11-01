@@ -325,23 +325,34 @@ export async function deleteAgentMemory(userId: string, agentId: string, which: 
   return gone.length;
 }
 
-/** Marks a chat run's `correct` step for this note as undone, on the run and in its conversation. */
-const undoneIn = (steps: AgentRunSteps, memoryId: string): AgentRunSteps =>
-  steps.map((s) => (s.kind === "memory" && s.action === "correct" && s.memoryId === memoryId ? { ...s, outcome: "undone" as const } : s));
 type AgentRunSteps = (typeof agentRun.$inferSelect)["steps"];
+/** The `correct` step at `index` of a run's steps, when it is one for this note. */
+const correctionAt = (steps: AgentRunSteps, index: number, memoryId: string): ChatMemoryRecord | null => {
+  const step = Number.isInteger(index) && index >= 0 ? steps[index] : undefined;
+  return step?.kind === "memory" && step.action === "correct" && step.memoryId === memoryId ? step : null;
+};
+/**
+ * Marks that one `correct` step as undone, on the run and in its conversation (whose answer keeps
+ * the run's steps in the same order): another correction of the same note in the run stays.
+ */
+const undoneIn = (steps: AgentRunSteps, index: number, memoryId: string): AgentRunSteps => {
+  const said = correctionAt(steps, index, memoryId);
+  return said ? steps.map((s, i) => (i === index ? { ...said, outcome: "undone" as const } : s)) : steps;
+};
 
 /**
- * Takes back a correction a chat run kept at once (its `correct` step, once the run ended): the
- * note goes, or the kept note it changed says again what it said before (as it was, said by whom
- * it was). For the person whose chat it was, or someone who can edit the agent. Refused when the
- * note changed since (`noteChanged`): what someone wrote after it stays.
+ * Takes back a correction a chat run kept at once (its `correct` step at `stepIndex` of the run's
+ * steps, once the run ended): the note goes, or the kept note it changed says again what it said
+ * before (as it was, said by whom it was). For the person whose chat it was, or someone who can
+ * edit the agent. Refused when the note changed since (`noteChanged`), a later correction in the
+ * same run too: what was written after it stays, so the latest is taken back first.
  */
-export async function undoAgentCorrection(userId: string, workspaceId: string, runId: string, memoryId: string): Promise<void> {
+export async function undoAgentCorrection(userId: string, workspaceId: string, runId: string, memoryId: string, stepIndex: number): Promise<void> {
   const [run] = await db.select().from(agentRun).where(and(eq(agentRun.id, runId), eq(agentRun.workspaceId, workspaceId)));
   if (!run || run.source.kind !== "chat") throw new AgentError("noteNotFound", "Note not found");
   const agent = await agentFor(userId, run.agentId, run.source.userId === userId ? "interact" : "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to change its memory");
-  const said = run.steps.find((s): s is ChatMemoryRecord => s.kind === "memory" && s.action === "correct" && s.memoryId === memoryId);
+  const said = correctionAt(run.steps, stepIndex, memoryId);
   if (!said) throw new AgentError("noteNotFound", "Note not found");
   if (said.outcome === "undone") return;
   // While the run goes on it saves its steps from what it holds, which would lose the mark.
@@ -358,11 +369,11 @@ export async function undoAgentCorrection(userId: string, workspaceId: string, r
     if (note && said.previous) {
       await tx.update(aiMemory).set({ text: said.previous.text, kind: said.previous.kind, saidBy: said.previous.saidBy, updatedAt: new Date() }).where(eq(aiMemory.id, note.id));
     } else if (note) await tx.delete(aiMemory).where(eq(aiMemory.id, note.id));
-    await tx.update(agentRun).set({ steps: undoneIn(run.steps, memoryId) }).where(eq(agentRun.id, run.id));
+    await tx.update(agentRun).set({ steps: undoneIn(run.steps, stepIndex, memoryId) }).where(eq(agentRun.id, run.id));
     const conversationId = run.source.kind === "chat" ? run.source.conversationId : "";
     const [found] = await tx.select({ messages: agentConversation.messages }).from(agentConversation).where(eq(agentConversation.id, conversationId)).for("update");
     if (found) {
-      const messages = found.messages.map((m) => (m.role === "assistant" && m.runId === run.id && m.steps ? { ...m, steps: undoneIn(m.steps, memoryId) } : m));
+      const messages = found.messages.map((m) => (m.role === "assistant" && m.runId === run.id && m.steps ? { ...m, steps: undoneIn(m.steps, stepIndex, memoryId) } : m));
       await tx.update(agentConversation).set({ messages }).where(eq(agentConversation.id, conversationId));
     }
   });

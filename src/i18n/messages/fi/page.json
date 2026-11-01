@@ -1392,6 +1392,7 @@
     "queued": "Jonossa",
     "queuedHint": "Menee agentille {name}, kun se on vastannut",
     "removeQueued": "Poista jonosta",
+    "queuedAlreadySent": "Viesti oli jo lähtenyt agentille.",
     "newWithSummary": "Uusi keskustelu tiivistelmän kanssa",
     "summary": "Tiivistelmä aiemmasta keskustelusta",
     "edit": "Muokkaa",

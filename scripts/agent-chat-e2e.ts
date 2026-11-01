@@ -8,10 +8,12 @@
  * found for them, whatever the model asks for); guests, archived agents and agents over their
  * monthly limit don't chat; each person's conversations are theirs alone (owners don't see a
  * member's, members don't see each other's); messages written while it answers wait (five at most,
- * each removable) and go as one next turn; text files go to the model framed, and a file it
- * attaches is the person's alone; a conversation goes on from its summary; a person searches their
- * own conversations only; the last turn is done again or edited; exported Markdown names the agent
- * and nothing said. Creates its own users and workspace and deletes them afterwards.
+ * each removable until it went) and go as one next turn, one holding another app's message never
+ * keeping a correction at once, and messages left waiting going with the next one; text files go to
+ * the model framed, and a file it attaches is the person's alone; a conversation goes on from its
+ * summary; a person searches their own conversations only; the last turn is done again or edited
+ * (as it was asked, its answer's files gone); exported Markdown names the agent and nothing said.
+ * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-chat-e2e.ts
  *
@@ -27,7 +29,9 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentConversation, agentRun, agentUsage, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentChatFile, agentConversation, agentRun, agentUsage, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { asWrite, runAsConnectedApp } = await import("@/server/connected-app");
+const { purgeOrphanFiles } = await import("@/server/files");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -350,7 +354,10 @@ try {
   const fourth = await queue("QUEUED-FOUR");
   const fifth = await queue("QUEUED-FIVE");
   check((await refusal(queue("A sixth"))) === "queueFull", "a sixth is refused while five wait");
-  for (const item of [dropped, fourth, fifth]) await chat.removeQueuedAgentChat(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: talk, queuedId: item.queued!.id });
+  const removals = [];
+  for (const item of [dropped, fourth, fifth]) removals.push(await chat.removeQueuedAgentChat(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: talk, queuedId: item.queued!.id }));
+  check(removals.every((r) => r.removed) && removals.at(-1)?.queued.length === 2, "a message taken out of the queue says it was there", removals);
+  check(one.runId === null && one.behind === asking.runId, "a queued message names the answer it waits for", one);
   check(
     (await refusal(chat.removeQueuedAgentChat(ids.member, { workspaceId, agentId: helper.id, place, conversationId: talk, queuedId: one.queued!.id }))) === "noAccess",
     "no one else takes a message out of the queue",
@@ -377,6 +384,62 @@ try {
   const queuedAsked = everything(fake.chats.at(-1)!);
   check(queuedAsked.includes("First question") && queuedAsked.includes("Answered the first.") && !queuedAsked.includes("QUEUED-DROPPED"), "the model reads the turn after the one before it, without the removed message");
   check((await chat.chatTurn(ids.owner, workspaceId, asking.runId!)).next === nextRunId, "the ended turn names the run that took the queue");
+  const alreadySent = await chat.removeQueuedAgentChat(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: talk, queuedId: one.queued!.id });
+  check(!alreadySent.removed && alreadySent.queued.length === 0, "taking out a message that went meanwhile says it was already sent", alreadySent);
+
+  // ── Another app's message and a Telegram one in one turn ───────────────────────────────────
+  fake.setChat((request) =>
+    everything(request).includes("MIXED-TG") ? caller([{ name: "remember", arguments: { text: "Mixed turns go to Finance.", kind: "correction" } }], "Noted both.")(request) : { text: "Answered the opener." },
+  );
+  const opener = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: null, message: "Opener" });
+  const mixedId = opener.conversation.id;
+  const asApp = (message: string, via?: "telegram") =>
+    runAsConnectedApp({ userId: ids.owner }, () => asWrite(() => chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: mixedId, message, ...(via ? { via } : {}) })));
+  await asApp("From another app MIXED-MCP");
+  await asApp("From Telegram MIXED-TG", "telegram");
+  fake.chats.length = 0;
+  await flushAgentRuns();
+  const mixed = await chat.getAgentConversation(ids.owner, workspaceId, helper.id, mixedId, place);
+  const [mixedRun] = await db.select().from(agentRun).where(eq(agentRun.id, mixed.messages.at(-1)!.runId));
+  check(
+    mixedRun.source.kind === "chat" && mixedRun.source.fromApp === true && mixedRun.source.telegram === true && mixedRun.source.otherApp === true,
+    "a turn of another app's message and a Telegram one is marked as holding another app's words",
+    mixedRun.source,
+  );
+  const mixedResults = toolResults(fake.chats.at(-1)!);
+  check(
+    toolNames(fake.chats.at(-1)!).includes("remember") && mixedResults.length === 1 && !mixedResults[0].startsWith("Kept at once"),
+    "…so a correction in it is only proposed, never kept at once",
+    mixedResults,
+  );
+  const single = await runAsConnectedApp({ userId: ids.owner }, () =>
+    asWrite(() => chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: null, message: "Only from Telegram", via: "telegram" })),
+  );
+  const [singleRun] = await db.select({ source: agentRun.source }).from(agentRun).where(eq(agentRun.id, single.runId!));
+  check(singleRun.source.kind === "chat" && singleRun.source.telegram === true && !singleRun.source.otherApp, "a message from Telegram alone isn't another app's", singleRun.source);
+  await flushAgentRuns();
+
+  // ── Messages left waiting go with the next one ─────────────────────────────────────────────
+  await db
+    .update(agentConversation)
+    .set({ queue: [{ id: `${RUN}-left`, content: "LEFTOVER-ONE", at: new Date().toISOString() }] })
+    .where(eq(agentConversation.id, mixedId));
+  fake.setChat(() => ({ text: "- A summary LEFT-SUMMARY" }));
+  const leftSummary = await chat.summarizeAgentConversation(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: mixedId });
+  check(leftSummary.summary.includes("LEFT-SUMMARY"), "messages left waiting with no answer under way don't hold up a summary");
+  fake.setChat(() => ({ text: "Folded." }));
+  const folded = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: mixedId, message: "NEW-AFTER-LEFTOVER" });
+  check(folded.runId !== null, "a message to a conversation with no answer under way starts a run, though messages were left waiting", folded);
+  await flushAgentRuns();
+  const [foldedRun] = await db.select().from(agentRun).where(eq(agentRun.id, folded.runId!));
+  const foldedConversation = await chat.getAgentConversation(ids.owner, workspaceId, helper.id, mixedId, place);
+  check(
+    foldedRun.prompt === "LEFTOVER-ONE\n\nNEW-AFTER-LEFTOVER" &&
+      foldedConversation.messages.slice(-3).map((m) => `${m.role}:${m.content}:${m.runId === folded.runId}`).join("|") === "user:LEFTOVER-ONE:true|user:NEW-AFTER-LEFTOVER:true|assistant:Folded.:true" &&
+      foldedConversation.queued.length === 0,
+    "the messages left waiting go first, in the new message's turn, and the queue empties",
+    { prompt: foldedRun.prompt, messages: foldedConversation.messages.slice(-3), queued: foldedConversation.queued },
+  );
 
   // ── Files both ways ────────────────────────────────────────────────────────────────────────
   fake.setChat(caller([{ name: "attach_file", arguments: { name: "Late orders.csv", content: "order,days\nORD-1,3\n" } }], "Here is the list."));
@@ -480,6 +543,27 @@ try {
     (await refusal(chat.redoAgentChat(ids.member, { workspaceId, agentId: helper.id, place, conversationId: freshId, message: null }))) === "noAccess",
     "nor in someone else's conversation",
   );
+  await flushAgentRuns();
+
+  // A turn asked from a connected app, on its clock, whose answer attached a file: done again as it was asked, the file gone with the answer.
+  fake.setChat(caller([{ name: "attach_file", arguments: { name: "Redo.csv", content: "a,b\n1,2\n" } }], "Attached."));
+  const appTurn = await runAsConnectedApp({ userId: ids.owner }, () =>
+    asWrite(() => chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: null, message: "Make a file", timeZone: "Europe/Istanbul" })),
+  );
+  await flushAgentRuns();
+  const appTurnFile = (await chat.chatTurn(ids.owner, workspaceId, appTurn.runId!)).attached[0];
+  check(appTurnFile?.name === "Redo.csv", "the turn's answer attached a file", appTurnFile);
+  fake.setChat(() => ({ text: "Again, without a file." }));
+  const redone = await chat.redoAgentChat(ids.owner, { workspaceId, agentId: helper.id, place, conversationId: appTurn.conversation.id, message: null });
+  const [redoneRun] = await db.select().from(agentRun).where(eq(agentRun.id, redone.runId));
+  check(
+    redoneRun.source.kind === "chat" && redoneRun.source.fromApp === true && redoneRun.source.otherApp === true && "timeZone" in redoneRun.context && redoneRun.context.timeZone === "Europe/Istanbul",
+    "Regenerate in the app asks again as the question was asked: from the connected app, on its clock",
+    { source: redoneRun.source, context: redoneRun.context },
+  );
+  const filesLeft = await db.select().from(agentChatFile).where(eq(agentChatFile.runId, appTurn.runId!));
+  await purgeOrphanFiles(workspaceId);
+  check(filesLeft.length === 0 && (await chatFileOfPerson(ids.owner, appTurnFile.id)) === null, "the dropped answer's file goes from the chat, and the orphan sweep removes it", filesLeft);
   await flushAgentRuns();
 
   // ── Guests, limits and archived agents ─────────────────────────────────────────────────────

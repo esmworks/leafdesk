@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} hat „{task}“ erledigt.",
       "failed": "{agent} konnte „{task}“ nicht erledigen.",
+      "reasons": {
+        "aiOff": "KI ist in diesem Workspace ausgeschaltet.",
+        "agentDisabled": "Der Agent war pausiert oder archiviert.",
+        "noAccess": "Der Agent oder die Person, die den Zeitplan eingerichtet hat, kann nicht mehr öffnen, was die Aufgabe braucht.",
+        "rowGone": "Die Zeile wurde gelöscht.",
+        "databaseGone": "Die Datenbank, um die er sich kümmert, wurde gelöscht oder in den Papierkorb verschoben.",
+        "commentGone": "Der Kommentar, der ihn erwähnt hat, wurde gelöscht, oder seine Seite wurde in den Papierkorb verschoben.",
+        "provider": "Der KI-Anbieter hat nicht geantwortet.",
+        "timeout": "Der Durchlauf hat zu lange gedauert.",
+        "tooManyAttempts": "Er konnte nicht rechtzeitig starten: Das KI-Kontingent des Workspaces blieb aufgebraucht.",
+        "approvalTimeout": "Niemand hat seinen Aufruf innerhalb eines Tages beantwortet, daher wurde nichts gesendet.",
+        "connectionGone": "Eine Verbindung, die die Aufgabe brauchte, wurde entfernt.",
+        "mailGone": "Die E-Mail ist nicht mehr im Postfach, oder das Postfach ist für den Agenten nicht mehr geöffnet.",
+        "limitReached": "Das monatliche Token-Limit des Agenten war aufgebraucht.",
+        "costLimit": "Der Workspace hatte sein monatliches KI-Kostenlimit erreicht.",
+        "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
+        "error": "Etwas ist schiefgelaufen."
+      },
       "email": "Er hat deine E-Mails gelesen, daher steht sein Bericht nur in Leafdesk."
     },
     "deferred": "{agent} hält einen Aufruf bis zum Ende seiner Ruhezeit zurück. Seine Antwort kommt dann hierher.",

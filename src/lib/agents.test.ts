@@ -12,6 +12,7 @@ import {
   isAgentEmail,
   isMentionRun,
   isScheduleRun,
+  leftUntold,
   mailRun,
   mayCallAfterMail,
   MAX_AGENT_WRITES,
@@ -30,24 +31,45 @@ import {
 import { redactValue } from "./redact";
 
 describe("finishRunCall", () => {
+  const quiet = { changed: false, untold: false };
   it("ends a run that changed nothing as nothing new, with or without a reason", () => {
-    expect(finishRunCall({ outcome: "nothing_new" }, false)).toEqual({ outcome: "nothing_new", reason: "" });
-    expect(finishRunCall({ outcome: "nothing_new", reason: "  No new  rows. " }, false)).toEqual({ outcome: "nothing_new", reason: "No new rows." });
+    expect(finishRunCall({ outcome: "nothing_new" }, quiet)).toEqual({ outcome: "nothing_new", reason: "" });
+    expect(finishRunCall({ outcome: "nothing_new", reason: "  No new  rows. " }, quiet)).toEqual({ outcome: "nothing_new", reason: "No new rows." });
   });
 
   it("refuses nothing new once the run changed something: that is told in a report", () => {
-    const out = finishRunCall({ outcome: "nothing_new", reason: "All fine" }, true);
+    const out = finishRunCall({ outcome: "nothing_new", reason: "All fine" }, { changed: true, untold: false });
     expect("error" in out && out.error).toContain("write your report");
   });
 
+  it("refuses nothing new when a call wasn't made or a task went to another agent", () => {
+    const out = finishRunCall({ outcome: "nothing_new" }, { changed: false, untold: true });
+    expect("error" in out && out.error).toContain("write your report");
+    // Failing still goes: its reason is told.
+    expect(finishRunCall({ outcome: "failed", reason: "Declined." }, { changed: false, untold: true })).toEqual({ outcome: "failed", reason: "Declined." });
+  });
+
   it("ends a run as failed only with a reason, changes or not", () => {
-    expect("error" in finishRunCall({ outcome: "failed" }, false)).toBe(true);
-    expect(finishRunCall({ outcome: "failed", reason: "The sheet is gone." }, true)).toEqual({ outcome: "failed", reason: "The sheet is gone." });
+    expect("error" in finishRunCall({ outcome: "failed" }, quiet)).toBe(true);
+    expect(finishRunCall({ outcome: "failed", reason: "The sheet is gone." }, { changed: true, untold: false })).toEqual({ outcome: "failed", reason: "The sheet is gone." });
   });
 
   it("refuses an unknown outcome and a reason too long", () => {
-    expect("error" in finishRunCall({ outcome: "done" }, false)).toBe(true);
-    expect("error" in finishRunCall({ outcome: "failed", reason: "x".repeat(MAX_FINISH_REASON + 1) }, false)).toBe(true);
+    expect("error" in finishRunCall({ outcome: "done" }, quiet)).toBe(true);
+    expect("error" in finishRunCall({ outcome: "failed", reason: "x".repeat(MAX_FINISH_REASON + 1) }, quiet)).toBe(true);
+  });
+});
+
+describe("leftUntold", () => {
+  const tool = (outcome: Extract<AgentStepRecord, { kind: "tool" }>["outcome"]): AgentStepRecord => ({ kind: "tool", connectionId: "c1", tool: "send", input: "", outcome });
+  const handoff = (outcome: Extract<AgentStepRecord, { kind: "handoff" }>["outcome"]): AgentStepRecord => ({ kind: "handoff", agentId: "a2", agentName: "Helper", runId: null, task: "x", outcome });
+  it("knows a call that wasn't made and a task given to another agent", () => {
+    for (const outcome of ["declined", "expired", "refused", "afterMail", "denied", "limited"] as const) expect(leftUntold([tool(outcome)]), outcome).toBe(true);
+    expect(leftUntold([handoff("queued")])).toBe(true);
+  });
+  it("leaves out calls made, answers asked for and other steps", () => {
+    expect(leftUntold([tool("done"), tool("failed"), tool("redo"), handoff("done"), handoff("failed"), { kind: "read", pageId: "p1" }])).toBe(false);
+    expect(leftUntold([])).toBe(false);
   });
 });
 
@@ -278,6 +300,16 @@ describe("after reading email", () => {
     expect(readOthersWords([tool(null, WEB_TOOL_NAMES.read, "refused"), tool("c1", "create_issue", "declined"), tool(null, "create_row", "done"), handoff("queued")])).toBe(false);
     expect(readOthersWords([{ kind: "read", pageId: "p1" }, { kind: "search", query: null, results: 2 }, { kind: "memory", action: "correct", text: "x", memoryId: "m1" }])).toBe(false);
     expect(readOthersWords([])).toBe(false);
+  });
+
+  it("counts other agents' answers and the inbox read through use_tool, not other further tools", () => {
+    const more = (tool: string, outcome: "done" | "failed" | "declined" = "done", writes = false): AgentStepRecord => ({ kind: "leafdesk", tool, title: tool, writes, input: "", outcome });
+    for (const name of ["list_agent_runs", "get_agent_chat", "chat_with_agent", "start_agent_run", "list_notifications"]) {
+      expect(readOthersWords([more(name, "done", name === "chat_with_agent" || name === "start_agent_run")]), name).toBe(true);
+    }
+    // Nothing came back from a call that failed or the person declined; other tools read the workspace.
+    expect(readOthersWords([more("list_agent_runs", "failed"), more("chat_with_agent", "declined", true)])).toBe(false);
+    expect(readOthersWords([more("list_trash"), more("list_automations"), more("create_automation", "done", true)])).toBe(false);
   });
 
   it("lets such a run only read pages, find and use tools, and use the mail tools", () => {

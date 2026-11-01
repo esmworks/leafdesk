@@ -1392,6 +1392,7 @@
     "queued": "Dalam antrean",
     "queuedHint": "Dikirim ke {name} setelah selesai menjawab",
     "removeQueued": "Hapus dari antrean",
+    "queuedAlreadySent": "Pesan itu sudah terkirim ke agen.",
     "newWithSummary": "Percakapan baru dengan ringkasan",
     "summary": "Ringkasan percakapan sebelumnya",
     "edit": "Edit",

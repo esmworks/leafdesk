@@ -1392,6 +1392,7 @@
     "queued": "In der Warteschlange",
     "queuedHint": "Geht an {name}, sobald es geantwortet hat",
     "removeQueued": "Aus der Warteschlange entfernen",
+    "queuedAlreadySent": "Diese Nachricht war schon an den Agenten gegangen.",
     "newWithSummary": "Neue Unterhaltung mit Zusammenfassung",
     "summary": "Zusammenfassung einer früheren Unterhaltung",
     "edit": "Bearbeiten",

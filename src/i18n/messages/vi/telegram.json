@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} đã xong “{task}”.",
       "failed": "{agent} không thể hoàn thành “{task}”.",
+      "reasons": {
+        "aiOff": "AI đang tắt trong không gian làm việc này.",
+        "agentDisabled": "Tác tử đã bị tạm dừng hoặc lưu trữ.",
+        "noAccess": "Tác nhân, hoặc người đã đặt lịch, không còn mở được những gì tác vụ cần.",
+        "rowGone": "Hàng đã bị xóa.",
+        "databaseGone": "Cơ sở dữ liệu mà nó phụ trách đã bị xóa hoặc chuyển vào thùng rác.",
+        "commentGone": "Bình luận đã nhắc đến nó bị xóa, hoặc trang của bình luận đã được chuyển vào thùng rác.",
+        "provider": "Nhà cung cấp AI không phản hồi.",
+        "timeout": "Lần chạy mất quá nhiều thời gian.",
+        "tooManyAttempts": "Nó không thể khởi động kịp lúc: hạn mức AI của không gian làm việc vẫn bị dùng hết.",
+        "approvalTimeout": "Không ai trả lời lệnh gọi của nó trong vòng một ngày, nên không có gì được gửi đi.",
+        "connectionGone": "Một kết nối mà tác vụ cần đã bị xóa.",
+        "mailGone": "Email không còn trong hộp thư, hoặc hộp thư không còn mở cho tác tử.",
+        "limitReached": "Nó đã dùng hết giới hạn token hằng tháng của tác tử.",
+        "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
+        "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
+        "error": "Đã xảy ra lỗi."
+      },
       "email": "Tác tử đã đọc email của bạn, nên báo cáo chỉ hiển thị trong Leafdesk."
     },
     "deferred": "{agent} đang giữ một lệnh gọi đến khi hết giờ yên lặng. Câu trả lời sẽ đến đây lúc đó.",

@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} terminó «{task}».",
       "failed": "{agent} no pudo terminar «{task}».",
+      "reasons": {
+        "aiOff": "La IA está desactivada en este espacio de trabajo.",
+        "agentDisabled": "El agente estaba en pausa o archivado.",
+        "noAccess": "El agente, o la persona que configuró la programación, ya no puede abrir lo que necesita la tarea.",
+        "rowGone": "La fila se eliminó.",
+        "databaseGone": "La base de datos que atiende se eliminó o se movió a la papelera.",
+        "commentGone": "El comentario que lo mencionó se eliminó, o su página se movió a la papelera.",
+        "provider": "El proveedor de IA no respondió.",
+        "timeout": "La ejecución tardó demasiado.",
+        "tooManyAttempts": "No pudo empezar a tiempo: el cupo de IA del espacio de trabajo siguió agotado.",
+        "approvalTimeout": "Nadie respondió a su llamada en un día, así que no se envió nada.",
+        "connectionGone": "Se eliminó una conexión que la tarea necesitaba.",
+        "mailGone": "El correo ya no está en el buzón, o el buzón ya no está abierto al agente.",
+        "limitReached": "El agente había agotado su límite mensual de tokens.",
+        "costLimit": "El espacio de trabajo había alcanzado su límite mensual de coste de IA.",
+        "selfReported": "El agente dijo que no pudo hacer su tarea.",
+        "error": "Algo salió mal."
+      },
       "email": "Leyó tu correo, así que su informe solo se ve en Leafdesk."
     },
     "deferred": "{agent} retiene una llamada hasta que terminen sus horas de silencio. Su respuesta llegará aquí entonces.",

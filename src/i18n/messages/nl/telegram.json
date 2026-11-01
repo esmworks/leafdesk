@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} heeft ‘{task}’ afgerond.",
       "failed": "{agent} kon ‘{task}’ niet afronden.",
+      "reasons": {
+        "aiOff": "AI staat uit in deze werkruimte.",
+        "agentDisabled": "De agent is gepauzeerd of gearchiveerd.",
+        "noAccess": "De agent, of degene die het schema heeft ingesteld, kan niet meer openen wat de taak nodig heeft.",
+        "rowGone": "De rij is verwijderd.",
+        "databaseGone": "De database waarover hij gaat, is verwijderd of naar de prullenbak verplaatst.",
+        "commentGone": "De opmerking die hem vermeldde, is verwijderd, of de pagina ervan is naar de prullenbak verplaatst.",
+        "provider": "De AI-aanbieder gaf geen antwoord.",
+        "timeout": "De uitvoering duurde te lang.",
+        "tooManyAttempts": "Hij kon niet op tijd starten: het AI-tegoed van de werkruimte bleef opgebruikt.",
+        "approvalTimeout": "Niemand beantwoordde zijn aanroep binnen een dag, dus er is niets verstuurd.",
+        "connectionGone": "Een koppeling die de taak nodig had, is verwijderd.",
+        "mailGone": "De e-mail staat niet meer in de mailbox, of de mailbox is niet meer open voor de agent.",
+        "limitReached": "Hij had de maandelijkse tokenlimiet van de agent opgebruikt.",
+        "costLimit": "De werkruimte had haar maandelijkse limiet voor AI-kosten bereikt.",
+        "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
+        "error": "Er ging iets mis."
+      },
       "email": "Hij heeft je e-mail gelezen, dus zijn verslag staat alleen in Leafdesk."
     },
     "deferred": "{agent} houdt een aanroep vast tot zijn stille uren voorbij zijn. Het antwoord komt dan hier.",

@@ -1392,6 +1392,7 @@
     "queued": "Queued",
     "queuedHint": "Goes to {name} once it has answered",
     "removeQueued": "Remove from the queue",
+    "queuedAlreadySent": "That message had already gone to the agent.",
     "newWithSummary": "New conversation with a summary",
     "summary": "Summary of an earlier conversation",
     "edit": "Edit",

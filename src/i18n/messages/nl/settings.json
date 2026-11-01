@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Wijzigingen per dag",
       "dailyChangeLimitPlaceholder": "Geen limiet",
       "dailyChangeLimitHelp": "Het maximum aantal wijzigingen dat hij op een dag doet: rijen, pagina’s, opmerkingen en verbindingsaanroepen die iets veranderen. Meer wordt geweigerd. De dag volgt de tijdzone van de stille uren, anders UTC.",
-      "dailyChangeLimitInvalid": "Voer een geheel getal van 1 tot {max} in."
+      "dailyChangeLimitInvalid": "Voer een geheel getal van 1 tot {max} in.",
+      "guardrailsOwnersOnly": "Alleen eigenaren van de werkruimte stellen stille uren en de dagelijkse wijzigingslimiet in."
     },
     "describe": {
       "button": "Een agent beschrijven",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Deze planning bestaat niet meer.",
       "versionNotFound": "Deze versie bestaat niet meer.",
       "notAllowed": "Je toegang tot deze agent staat dit niet toe.",
-      "ownersOnly": "Alleen eigenaren van de werkruimte wijzigen de maandelijkse tokenlimiet van een agent.",
+      "ownersOnly": "Alleen eigenaren van de werkruimte wijzigen de maandelijkse tokenlimiet, de stille uren en de dagelijkse wijzigingslimiet van een agent.",
       "notAMember": "Een agent kan alleen worden gedeeld met de eigenaren, leden en groepen van de werkruimte.",
       "requestNotFound": "Dit verzoek is al beantwoord.",
       "noteChanged": "Deze notitie is sindsdien gewijzigd. Wijzig haar op het tabblad Geheugen van de agent."

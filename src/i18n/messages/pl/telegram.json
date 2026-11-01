@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} ukończył „{task}”.",
       "failed": "{agent} nie mógł ukończyć „{task}”.",
+      "reasons": {
+        "aiOff": "AI jest wyłączona w tym obszarze roboczym.",
+        "agentDisabled": "Agent został wstrzymany lub zarchiwizowany.",
+        "noAccess": "Agent lub osoba, która ustawiła harmonogram, nie może już otworzyć tego, czego potrzebuje zadanie.",
+        "rowGone": "Wiersz został usunięty.",
+        "databaseGone": "Baza danych, którą się zajmuje, została usunięta lub przeniesiona do kosza.",
+        "commentGone": "Komentarz, który o nim wspomniał, został usunięty albo jego strona trafiła do kosza.",
+        "provider": "Dostawca AI nie odpowiedział.",
+        "timeout": "Uruchomienie trwało zbyt długo.",
+        "tooManyAttempts": "Nie udało się rozpocząć na czas: limit AI obszaru roboczego pozostawał wyczerpany.",
+        "approvalTimeout": "Nikt nie odpowiedział na jego wywołanie w ciągu doby, więc nic nie zostało wysłane.",
+        "connectionGone": "Usunięto połączenie potrzebne do zadania.",
+        "mailGone": "Wiadomości nie ma już w skrzynce albo skrzynka nie jest już otwarta dla agenta.",
+        "limitReached": "Wyczerpał miesięczny limit tokenów agenta.",
+        "costLimit": "Przestrzeń robocza osiągnęła wcześniej miesięczny limit kosztów AI.",
+        "selfReported": "Agent zgłosił, że nie mógł wykonać zadania.",
+        "error": "Coś poszło nie tak."
+      },
       "email": "Przeczytał twoją pocztę, więc jego raport widać tylko w Leafdesk."
     },
     "deferred": "{agent} wstrzymuje wywołanie do końca godzin ciszy. Odpowiedź przyjdzie tu wtedy.",

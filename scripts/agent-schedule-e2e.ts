@@ -10,7 +10,8 @@
  * the agent pauses it ("accessLost") until set again, as does archiving the agent ("agentGone").
  * With web access, a schedule's run searches, reads the pages of its task and of its searches'
  * results, and refuses any other read at once. A run may end itself with finish_run: quietly when
- * it found nothing new (no report; refused after a change), or as failed with its reason.
+ * it found nothing new (no report; refused after a change or a call that wasn't made), or as
+ * failed with its reason.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-schedule-e2e.ts
@@ -29,7 +30,8 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, agentShare, auditEvent, notification, page, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentDailyChange, agentRun, agentShare, auditEvent, notification, page, schedule, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { changeDay } = await import("@/lib/quiet-hours");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { archivePage, createPage, restorePage } = await import("@/server/pages");
@@ -459,6 +461,31 @@ try {
     "its report in the inbox shows the answer's first paragraph as a line",
     changedReport,
   );
+
+  // Nothing new after a call that wasn't made (here past the day's limit) is refused too: the run reports it.
+  await agents.updateAgent(ids.owner, keeper.id, { dailyChangeLimit: 1 });
+  await db.insert(agentDailyChange).values({ agentId: keeper.id, day: changeDay(new Date(), null), count: 1 }).onConflictDoUpdate({ target: [agentDailyChange.agentId, agentDailyChange.day], set: { count: 1 } });
+  fake.chats.length = 0;
+  fake.setChat(
+    caller(
+      [
+        { name: "add_comment", arguments: { row_id: release.id, text: "Over the limit" } },
+        { name: "finish_run", arguments: { outcome: "nothing_new" } },
+      ],
+      "Couldn't comment on release 2.1: the day's changes are used up.",
+    ),
+  );
+  await runNow(set.id);
+  await flushAgentRuns();
+  const blockedRun = await latestRun();
+  const blockedRefusal = toolResults(fake.chats.at(-1)!).at(-1);
+  check(
+    blockedRun.status === "done" && !blockedRun.quiet && blockedRun.steps.some((s) => s.kind === "tool" && s.outcome === "limited") && blockedRefusal?.includes("wasn't made") && blockedRefusal.includes("write your report"),
+    "finish_run nothing_new after a call that wasn't made is refused, and the run reports it",
+    { blockedRun, blockedRefusal },
+  );
+  check((await reportsFor(blockedRun.id)).length === 1, "…in the inbox");
+  await agents.updateAgent(ids.owner, keeper.id, { dailyChangeLimit: null });
 
   // Failed: the run fails as selfReported, with its reason, and still reports.
   fake.setChat(() => ({ toolCalls: [{ name: "finish_run", arguments: { outcome: "failed", reason: "The board has no due dates to check." } }] }));

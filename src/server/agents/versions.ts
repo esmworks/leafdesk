@@ -196,7 +196,7 @@ function skipReason(error: unknown): AgentRestoreSkipReason | null {
 
 /** Brings back the settings of a snapshot; those gone or no longer valid are skipped. */
 /** Settings only the workspace's owners change (see updateAgent): someone else's restore leaves them as they are. */
-const OWNERS_SETTINGS: ReadonlySet<string> = new Set(["monthly_token_limit"]);
+const OWNERS_SETTINGS: ReadonlySet<string> = new Set(["monthly_token_limit", "quiet_hours", "daily_change_limit"]);
 
 async function restoreSettings(agent: Agent, settings: Record<string, unknown>, skipped: AgentRestoreSkip[], owner: boolean) {
   const columns = new Map(agentColumns().map(([key, column]) => [column.name, { key, column }]));

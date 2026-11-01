@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Ændringer pr. dag",
       "dailyChangeLimitPlaceholder": "Ingen grænse",
       "dailyChangeLimitHelp": "Det største antal ændringer, den laver på en dag: rækker, sider, kommentarer og forbindelseskald, der ændrer noget. Flere afvises. Dagen følger de stille timers tidszone, ellers UTC.",
-      "dailyChangeLimitInvalid": "Angiv et helt tal fra 1 til {max}."
+      "dailyChangeLimitInvalid": "Angiv et helt tal fra 1 til {max}.",
+      "guardrailsOwnersOnly": "Kun arbejdsområdets ejere angiver stille timer og den daglige ændringsgrænse."
     },
     "describe": {
       "button": "Beskriv en agent",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Denne tidsplan findes ikke længere.",
       "versionNotFound": "Denne version findes ikke længere.",
       "notAllowed": "Din adgang til denne agent tillader ikke dette.",
-      "ownersOnly": "Kun arbejdsområdets ejere ændrer en agents månedlige tokengrænse.",
+      "ownersOnly": "Kun arbejdsområdets ejere ændrer en agents månedlige tokengrænse, stille timer og daglige ændringsgrænse.",
       "notAMember": "En agent kan kun deles med arbejdsområdets ejere, medlemmer og grupper.",
       "requestNotFound": "Denne anmodning er allerede besvaret.",
       "noteChanged": "Denne note er ændret siden. Ret den under agentens fane Hukommelse."

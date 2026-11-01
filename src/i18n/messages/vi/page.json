@@ -1392,6 +1392,7 @@
     "queued": "Đang chờ",
     "queuedHint": "Sẽ gửi đến {name} sau khi trả lời xong",
     "removeQueued": "Xóa khỏi hàng chờ",
+    "queuedAlreadySent": "Tin nhắn đó đã được gửi đến tác nhân rồi.",
     "newWithSummary": "Cuộc trò chuyện mới kèm tóm tắt",
     "summary": "Tóm tắt một cuộc trò chuyện trước",
     "edit": "Sửa",

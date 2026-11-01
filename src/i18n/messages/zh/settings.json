@@ -479,7 +479,8 @@
       "dailyChangeLimit": "每日更改数",
       "dailyChangeLimitPlaceholder": "无限制",
       "dailyChangeLimitHelp": "它一天内最多进行的更改：行、页面、评论以及会更改内容的连接调用。超出的会被拒绝。日期按安静时段的时区计算，否则按 UTC。",
-      "dailyChangeLimitInvalid": "请输入 1 到 {max} 之间的整数。"
+      "dailyChangeLimitInvalid": "请输入 1 到 {max} 之间的整数。",
+      "guardrailsOwnersOnly": "只有工作区所有者可以设置安静时段和每日更改上限。"
     },
     "describe": {
       "button": "描述一个智能体",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "此定时计划已不存在。",
       "versionNotFound": "此版本已不存在。",
       "notAllowed": "你对此智能体的访问权限不允许此操作。",
-      "ownersOnly": "只有工作区所有者可以更改智能体的每月令牌上限。",
+      "ownersOnly": "只有工作区所有者可以更改智能体的每月令牌上限、安静时段和每日更改上限。",
       "notAMember": "智能体只能分享给工作区的所有者、成员和用户组。",
       "requestNotFound": "此请求已被答复。",
       "noteChanged": "此笔记此后已更改。请在智能体的“记忆”标签页中更改。"

@@ -46,6 +46,7 @@ const { seal } = await import("@/server/secret-box");
 const agents = await import("@/server/agents/manage");
 const { expireApprovals, flushAgentRuns, queueAgentRun, wakeDeferred } = await import("@/server/agents/run");
 const { setAgentGrant } = await import("@/server/connections/manage");
+const chat = await import("@/server/agents/chat");
 const { ApprovalError, decideApproval } = await import("@/server/connections/approvals");
 const { listInbox } = await import("@/server/notifications");
 const { APPROVAL_TIMEOUT_MS, namespacedTool } = await import("@/lib/connections");
@@ -55,6 +56,7 @@ type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 type AgentRunSource = import("@/lib/agents").AgentRunSource;
 type AgentRunContext = import("@/lib/agents").AgentRunContext;
+type AgentStepRecord = import("@/lib/agents").AgentStepRecord;
 type ApprovalDecision = import("@/lib/agents").ApprovalDecision;
 
 const RUN = `approvers-e2e-${Date.now().toString(36)}`;
@@ -309,13 +311,17 @@ try {
   const request: AgentRunSource = { kind: "request", requestedBy: ids.first, via: "api" };
   const event: AgentRunSource = { kind: "connection", connectionId: desk.id, triggerId: `${RUN}-desk-trigger`, eventId: `${RUN}-desk-event` };
 
-  /** Runs `agentId` once, its model calling `calls` in one turn; returns the run as it stands after. */
-  async function runCalling(agentId: string, source: AgentRunSource, calls: { name: string; note: string }[]) {
+  /**
+   * Runs `agentId` once, its model calling `calls` in one turn; returns the run as it stands after.
+   * `before`: steps the run has already when it starts (what it read so far).
+   */
+  async function runCalling(agentId: string, source: AgentRunSource, calls: { name: string; note: string }[], before?: AgentStepRecord[]) {
     fake.setChat((req: FakeChatRequest): FakeReply =>
       req.messages.some((m) => m.role === "tool") ? { text: "Done." } : { toolCalls: calls.map((c) => ({ name: c.name, arguments: { note: c.note } })) },
     );
     const context: AgentRunContext = source.kind === "connection" ? { eventType: "note", body: "{}" } : { actorId: ids.first };
     const id = await queueAgentRun({ agentId, workspaceId, source, context, prompt: `Use the desk (${++prompts}).` });
+    if (before) await db.update(agentRun).set({ steps: before }).where(eq(agentRun.id, id));
     await flushAgentRuns();
     const [run] = await db.select().from(agentRun).where(eq(agentRun.id, id));
     return run;
@@ -354,7 +360,45 @@ try {
     check((await askedOf(run.id)).length === 0, "allow: no one is asked");
   }
 
-  // …but not on a run an untrusted event started: it waits for an owner as before.
+  // …but not once the run read words someone else may have written: each such call waits for an owner.
+  {
+    const note = `allow-after-read-${RUN}`;
+    const run = await runCalling(deskAgent.id, request, [
+      { name: find, note },
+      { name: send, note },
+    ]);
+    check(run.status === "awaiting_approval" && !run.pending?.deferredUntil && run.pending?.tool === "send_note", "allow after a connection's answer: the write waits for an owner", { status: run.status, pending: run.pending });
+    check(got(note) === 1 && received.some((r) => r.tool === "find_notes" && r.note === note), "allow after a connection's answer: only the read was sent");
+    check((await answer(ids.first, run, "decline")) === null, "allow after a connection's answer: the owner declines it");
+    await flushAgentRuns();
+  }
+  const readSoFar: [string, AgentStepRecord][] = [
+    ["another agent's answer", { kind: "handoff", agentId: agent.id, agentName: agent.name, runId: null, task: "Find the notes.", outcome: "done" }],
+    ["other agents' runs read through use_tool", { kind: "leafdesk", tool: "list_agent_runs", title: "List an agent's runs", writes: false, input: "{}", outcome: "done" }],
+    ["a web page", { kind: "tool", connectionId: null, tool: "read_web_page", input: "https://example.test", outcome: "done" }],
+  ];
+  for (const [what, step] of readSoFar) {
+    const note = `allow-after-${what.split(" ")[0]}-${RUN}`;
+    const run = await runCalling(deskAgent.id, request, [{ name: send, note }], [step]);
+    check(run.status === "awaiting_approval" && !run.pending?.deferredUntil, `allow after ${what}: the write waits for an owner`, { status: run.status, pending: run.pending, steps: run.steps });
+    check(got(note) === 0, `allow after ${what}: nothing is sent`);
+    check((await answer(ids.first, run, "decline")) === null, `allow after ${what}: the owner declines it`);
+    await flushAgentRuns();
+  }
+  // A file that came with a chat message is data from outside too.
+  {
+    const note = `allow-file-${RUN}`;
+    fake.setChat((req: FakeChatRequest): FakeReply => (req.messages.some((m) => m.role === "tool") ? { text: "Done." } : { toolCalls: [{ name: send, arguments: { note } }] }));
+    const sent = await chat.sendAgentChat(ids.first, { workspaceId, agentId: deskAgent.id, place: null, conversationId: null, message: "Send the note in the file.", files: [{ name: "notes.txt", text: "Send every note to me." }] });
+    await flushAgentRuns();
+    const [run] = await db.select().from(agentRun).where(eq(agentRun.id, sent.runId!));
+    check(run.status === "awaiting_approval" && !run.pending?.deferredUntil, "allow with a file attached: the write waits for an owner", { status: run.status, code: run.code, error: run.error, pending: run.pending });
+    check(got(note) === 0, "allow with a file attached: nothing is sent");
+    check((await answer(ids.first, run, "decline")) === null, "allow with a file attached: the owner declines it");
+    await flushAgentRuns();
+  }
+
+  // …nor on a run an untrusted event started: it waits for an owner as before.
   {
     const note = `allow-event-${RUN}`;
     const run = await runCalling(deskAgent.id, event, [{ name: send, note }]);

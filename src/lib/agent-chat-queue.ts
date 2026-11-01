@@ -23,8 +23,9 @@ export const queueView = (queue: readonly AgentChatQueuedRecord[]): AgentChatQue
  * The turn the queued messages make once the answer before them ends at `at` (ms): each as a
  * question of the run `runId`, a moment after the answer and in order; the run's prompt and files
  * (named apart from one another); whether a connected app sent one (the run is then one from an
- * app: no mail tools) and whether the Telegram bot did (it follows the answer); and the clock the
- * last one was written on.
+ * app: no mail tools), whether the Telegram bot did (it follows the answer) and whether an app other
+ * than the bot did (its words aren't the person's: run.ts `untainted`); and the clock the last one
+ * was written on.
  */
 export function queuedTurn(queue: readonly AgentChatQueuedRecord[], runId: string, at: number) {
   const names: string[] = [];
@@ -44,6 +45,7 @@ export function queuedTurn(queue: readonly AgentChatQueuedRecord[], runId: strin
     files,
     fromApp: queue.some((q) => q.fromApp),
     telegram: queue.some((q) => q.via === "telegram"),
+    otherApp: queue.some((q) => q.fromApp && q.via !== "telegram"),
     timeZone: queue.findLast((q) => q.timeZone)?.timeZone,
   };
 }

@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Zmiany dziennie",
       "dailyChangeLimitPlaceholder": "Bez limitu",
       "dailyChangeLimitHelp": "Najwięcej zmian, jakie wprowadza w ciągu dnia: wiersze, strony, komentarze i wywołania połączeń, które coś zmieniają. Kolejne są odrzucane. Dzień liczy się w strefie czasowej godzin ciszy, a bez niej w UTC.",
-      "dailyChangeLimitInvalid": "Wpisz liczbę całkowitą od 1 do {max}."
+      "dailyChangeLimitInvalid": "Wpisz liczbę całkowitą od 1 do {max}.",
+      "guardrailsOwnersOnly": "Godziny ciszy i dzienny limit zmian ustawiają tylko właściciele obszaru roboczego."
     },
     "describe": {
       "button": "Opisz agenta",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Ten harmonogram już nie istnieje.",
       "versionNotFound": "Ta wersja już nie istnieje.",
       "notAllowed": "Twój dostęp do tego agenta na to nie pozwala.",
-      "ownersOnly": "Miesięczny limit tokenów agenta zmieniają tylko właściciele obszaru roboczego.",
+      "ownersOnly": "Miesięczny limit tokenów, godziny ciszy i dzienny limit zmian agenta zmieniają tylko właściciele obszaru roboczego.",
       "notAMember": "Agenta można udostępnić tylko właścicielom, członkom i grupom obszaru roboczego.",
       "requestNotFound": "Na tę prośbę już odpowiedziano.",
       "noteChanged": "Ta notatka zmieniła się od tego czasu. Zmień ją na karcie Pamięć agenta."

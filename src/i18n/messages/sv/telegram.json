@@ -173,6 +173,24 @@
     "routine": {
       "done": "{agent} är klar med ”{task}”.",
       "failed": "{agent} kunde inte slutföra ”{task}”.",
+      "reasons": {
+        "aiOff": "AI är avstängt i den här arbetsytan.",
+        "agentDisabled": "Agenten pausades eller arkiverades.",
+        "noAccess": "Agenten, eller den som ställde in schemat, kan inte längre öppna det som uppgiften behöver.",
+        "rowGone": "Raden har raderats.",
+        "databaseGone": "Databasen den tar hand om har raderats eller flyttats till papperskorgen.",
+        "commentGone": "Kommentaren som nämnde den har raderats, eller så har dess sida flyttats till papperskorgen.",
+        "provider": "AI-leverantören svarade inte.",
+        "timeout": "Körningen tog för lång tid.",
+        "tooManyAttempts": "Den kunde inte starta i tid: arbetsytans AI-kvot förblev förbrukad.",
+        "approvalTimeout": "Ingen svarade på dess anrop inom ett dygn, så inget skickades.",
+        "connectionGone": "En anslutning som uppgiften behövde har tagits bort.",
+        "mailGone": "Mejlet finns inte längre i brevlådan, eller brevlådan är inte längre öppen för agenten.",
+        "limitReached": "Den hade förbrukat agentens månatliga tokengräns.",
+        "costLimit": "Arbetsytan hade nått sin månatliga kostnadsgräns för AI.",
+        "selfReported": "Agenten meddelade att den inte kunde utföra sin uppgift.",
+        "error": "Något gick fel."
+      },
       "email": "Den läste din e-post, så rapporten visas bara i Leafdesk."
     },
     "deferred": "{agent} håller kvar ett anrop tills dess tysta timmar är slut. Svaret kommer hit då.",

@@ -1392,6 +1392,7 @@
     "queued": "Sırada",
     "queuedHint": "{name} yanıtını bitirince ona gider",
     "removeQueued": "Sıradan çıkar",
+    "queuedAlreadySent": "Bu mesaj ajana zaten gönderilmişti.",
     "newWithSummary": "Özetle yeni sohbet",
     "summary": "Önceki bir sohbetin özeti",
     "edit": "Düzenle",

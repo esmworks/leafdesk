@@ -166,7 +166,15 @@ export async function closeChatTurn(run: EndedRun, ending: { answer?: string; co
           .values({
             agentId: run.agentId,
             workspaceId: run.workspaceId,
-            source: { kind: "chat", userId: source.userId, conversationId: source.conversationId, ...(turn.fromApp ? { fromApp: true } : {}), after: run.id, ...(turn.telegram ? { telegram: true as const } : {}) },
+            source: {
+              kind: "chat",
+              userId: source.userId,
+              conversationId: source.conversationId,
+              ...(turn.fromApp ? { fromApp: true } : {}),
+              after: run.id,
+              ...(turn.telegram ? { telegram: true as const } : {}),
+              ...(turn.otherApp ? { otherApp: true as const } : {}),
+            },
             context: { actorId: source.userId, ...(zone ? { timeZone: zone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
             prompt: turn.prompt,
           })

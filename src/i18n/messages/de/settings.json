@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Änderungen pro Tag",
       "dailyChangeLimitPlaceholder": "Kein Limit",
       "dailyChangeLimitHelp": "Die meisten Änderungen, die er an einem Tag macht: Zeilen, Seiten, Kommentare und Verbindungsaufrufe, die etwas ändern. Weitere werden abgelehnt. Der Tag richtet sich nach der Zeitzone der Ruhezeiten, sonst UTC.",
-      "dailyChangeLimitInvalid": "Gib eine ganze Zahl von 1 bis {max} ein."
+      "dailyChangeLimitInvalid": "Gib eine ganze Zahl von 1 bis {max} ein.",
+      "guardrailsOwnersOnly": "Nur Workspace-Inhaber legen Ruhezeiten und das tägliche Änderungslimit fest."
     },
     "describe": {
       "button": "Agent beschreiben",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Diesen Zeitplan gibt es nicht mehr.",
       "versionNotFound": "Diese Version gibt es nicht mehr.",
       "notAllowed": "Dein Zugriff auf diesen Agenten erlaubt das nicht.",
-      "ownersOnly": "Nur Workspace-Inhaber ändern das monatliche Token-Limit eines Agenten.",
+      "ownersOnly": "Nur Workspace-Inhaber ändern das monatliche Token-Limit, die Ruhezeiten und das tägliche Änderungslimit eines Agenten.",
       "notAMember": "Ein Agent kann nur mit Inhabern, Mitgliedern und Gruppen des Workspace geteilt werden.",
       "requestNotFound": "Diese Anfrage wurde bereits beantwortet.",
       "noteChanged": "Diese Notiz wurde seitdem geändert. Sie lässt sich im Tab „Gedächtnis“ des Agenten ändern."

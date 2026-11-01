@@ -83,8 +83,8 @@ import {
   type AgentRunUsage,
   type AgentStepRecord,
   WEB_TOOL_NAMES,
-  COMPUTER_READ_TOOLS,
   isComputerTool,
+  leftUntold,
 } from "@/lib/agents";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
@@ -224,7 +224,7 @@ const MERGE_ROWS: AiTool = {
 
 const FINISH_RUN: AiTool = {
   name: FINISH_RUN_TOOL,
-  description: `Ends this run at once, in place of a report. "nothing_new": you checked and there is nothing to tell or do, and you changed nothing; the person who set the schedule isn't told. "failed": you couldn't do the task (what you need is gone, or isn't shared with you); they are told, with your reason. Calls after it in the same turn are not made. Once you changed something, don't call it: report what you changed.`,
+  description: `Ends this run at once, in place of a report. "nothing_new": you checked and there is nothing to tell or do, and you changed nothing; the person who set the schedule isn't told. "failed": you couldn't do the task (what you need is gone, or isn't shared with you); they are told, with your reason. Calls after it in the same turn are not made. Once you changed something, a call of yours wasn't made (refused, declined, past a limit) or you gave another agent a task, don't call it with "nothing_new": report that instead.`,
   parameters: {
     type: "object",
     properties: {
@@ -370,8 +370,9 @@ async function finish(run: Run, values: Ending) {
   await reportRun({ ...run, source }, values);
   await replyToMention(run, values);
   // A routine's summary to the chat its setter has with the agent in Telegram, as saved (masked).
+  // Not waited for: Telegram in trouble would hold the worker's slot (it never throws).
   if (ended && isScheduleRun(source) && !values.quiet) {
-    await tellRoutineEnded({ ...ended, id: run.id, workspaceId: run.workspaceId, agentId: run.agentId, source, status: values.status, code: values.code ?? null });
+    void tellRoutineEnded({ ...ended, id: run.id, workspaceId: run.workspaceId, agentId: run.agentId, source, status: values.status, code: values.code ?? null });
   }
 }
 
@@ -979,16 +980,16 @@ async function converse(
 
   // The agent's quiet hours, if it has any: a call a rule lets go waits for their end.
   const quiet = agent.quietHours ? parseQuietHours(agent.quietHours) : null;
-  /**
-   * Whether the run read what anyone may have written, which could steer its calls: a run no one
-   * stands behind (askEveryTool), or one that read a web page or searched, or a folder or file on
-   * the person's computer. An owner's "allow" rule doesn't hold there: each call waits for a
-   * person, as without one. (A run that read email calls no connection's tool at all.)
-   */
-  const readOutside = () =>
-    askEveryTool || steps.some((s) => s.kind === "tool" && s.connectionId === null && (webNames.has(s.tool) || COMPUTER_READ_TOOLS.has(s.tool)) && s.outcome === "done");
   // Text files attached to a chat's message: data from outside, as an email is.
   const filesAttached = "files" in run.context && (run.context.files?.length ?? 0) > 0;
+  /**
+   * Whether the run read what anyone may have written, which could steer its calls: a run no one
+   * stands behind (askEveryTool), one a file came with, or one whose steps read others' words
+   * (readOthersWords: a web page or search, a connection tool's answer, a folder or file on the
+   * person's computer, another agent's answer). An owner's "allow" rule doesn't hold there: each
+   * call waits for a person, as without one. (A run that read email calls no connection's tool at all.)
+   */
+  const readOutside = () => askEveryTool || filesAttached || readOthersWords(steps);
   /**
    * Whether a chat run, at this point, has read nothing but its person's words and the workspace:
    * its message is theirs (typed in the app or sent from Telegram, not written by another connected
@@ -1000,6 +1001,9 @@ async function converse(
    */
   const untainted = () =>
     run.source.kind === "chat" &&
+    // No message of the turn came from another connected app (one of a merged queue may have);
+    // runs queued before `otherApp` existed still need theirs to be the Telegram bot's.
+    !run.source.otherApp &&
     (!run.source.fromApp || run.source.telegram === true) &&
     !askEveryTool &&
     !filesAttached &&
@@ -1050,7 +1054,7 @@ async function converse(
     // Something changed (or an email sent) is told in a report instead.
     if (call.name === FINISH_RUN.name && scheduled) {
       const changed = writes > 0 || steps.some((s) => s.kind === "email" && s.outcome === "sent");
-      const checked = finishRunCall(call.arguments, changed);
+      const checked = finishRunCall(call.arguments, { changed, untold: leftUntold(steps) });
       if ("error" in checked) return { content: checked.error, isError: true };
       ending =
         checked.outcome === "nothing_new"
@@ -1271,9 +1275,10 @@ async function converse(
         }),
       );
     }
+    // A report sent to the agent's own recipients: one of the run's changes, as a draft is.
     if (mailer && call.name === SEND_EMAIL) {
       const sentBefore = steps.some((s) => s.kind === "email" && s.pageId === null);
-      return sendAgentEmail({ sender: mailer, recipients: agent.mailRecipients, args: call.arguments, sentBefore });
+      return change(call, () => sendAgentEmail({ sender: mailer, recipients: agent.mailRecipients, args: call.arguments, sentBefore }));
     }
     if (databaseId && call.name === MERGE_ROWS.name && tools.includes(MERGE_ROWS)) {
       return change(call, () => mergeRowsTool(ctx, agent, databaseId, call.arguments));
@@ -1768,7 +1773,8 @@ export async function expireApprovals() {
       await withdrawApproval(run.id);
       await reportRun(run);
       await replyToMention(run, { status: "failed", code: "approvalTimeout" });
-      if (isScheduleRun(run.source)) await tellRoutineEnded({ ...run, source: run.source, status: "failed", code: "approvalTimeout" });
+      // Not waited for, as in finish(): Telegram in trouble would hold up the sweep.
+      if (isScheduleRun(run.source)) void tellRoutineEnded({ ...run, source: run.source, status: "failed", code: "approvalTimeout" });
     }
   } catch (error) {
     console.error("[agents] could not expire approvals", redactError(error));

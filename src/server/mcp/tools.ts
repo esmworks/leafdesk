@@ -165,6 +165,7 @@ import * as connections from "@/server/connections/manage";
 import { connectionInputs, describeConnection, withConnectionErrors } from "./connections";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
 import {
+  AGENT_RUN_CODES,
   AGENT_RUN_HISTORY_DAYS,
   agentMemoryPath,
   agentReportPath,
@@ -3391,7 +3392,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     "list_agent_runs",
     {
       title: "List an agent's runs",
-      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (an automation and its row, a connection event, an owner's request, a schedule, a comment mention, a chat message or another agent's handoff), its status (pending, running, awaiting_approval, done, failed), why it failed (aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached, error), what it did step by step, the call it waits on (credentials masked), its final answer and the tokens it used, with the model that answered. Approvals happen in Leafdesk, not here. Someone who can only interact with the agent sees only the runs they started. ${RUN_NOTE}`,
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (automation, event, request, schedule, mention, chat or an agent's handoff), its status (pending, running, awaiting_approval, done, failed), why it failed (${AGENT_RUN_CODES.join(", ")}; selfReported: a schedule's run gave up), quiet: true if a schedule's run found nothing new (for both, answer says why), its steps, the call it waits on (credentials masked), its answer, tokens used and model. Approve calls in Leafdesk. Those who only interact with it see only their own runs. ${RUN_NOTE}`,
       inputSchema: agentInputs.runs,
       annotations: READ,
     },

@@ -479,7 +479,8 @@
       "dailyChangeLimit": "Số thay đổi mỗi ngày",
       "dailyChangeLimitPlaceholder": "Không giới hạn",
       "dailyChangeLimitHelp": "Số thay đổi tối đa nó thực hiện trong một ngày: hàng, trang, bình luận và lệnh gọi kết nối có thay đổi gì đó. Các thay đổi tiếp theo bị từ chối. Ngày được tính theo múi giờ của giờ yên lặng, nếu không thì theo UTC.",
-      "dailyChangeLimitInvalid": "Nhập một số nguyên từ 1 đến {max}."
+      "dailyChangeLimitInvalid": "Nhập một số nguyên từ 1 đến {max}.",
+      "guardrailsOwnersOnly": "Chỉ chủ sở hữu không gian làm việc mới đặt giờ yên lặng và giới hạn thay đổi mỗi ngày."
     },
     "describe": {
       "button": "Mô tả một tác tử",
@@ -848,7 +849,7 @@
       "scheduleNotFound": "Lịch chạy này không còn tồn tại.",
       "versionNotFound": "Phiên bản này không còn tồn tại.",
       "notAllowed": "Quyền truy cập của bạn vào tác tử này không cho phép việc này.",
-      "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới thay đổi giới hạn token hằng tháng của tác tử.",
+      "ownersOnly": "Chỉ chủ sở hữu không gian làm việc mới thay đổi giới hạn token hằng tháng, giờ yên lặng và giới hạn thay đổi mỗi ngày của tác tử.",
       "notAMember": "Một tác tử chỉ có thể được chia sẻ với các chủ sở hữu, thành viên và nhóm của không gian làm việc.",
       "requestNotFound": "Yêu cầu này đã được trả lời.",
       "noteChanged": "Ghi chú này đã thay đổi kể từ đó. Hãy đổi nó trong thẻ Bộ nhớ của tác tử."

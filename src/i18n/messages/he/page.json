@@ -1392,6 +1392,7 @@
     "queued": "בתור",
     "queuedHint": "יישלח אל {name} אחרי שיסיים לענות",
     "removeQueued": "הסרה מהתור",
+    "queuedAlreadySent": "ההודעה הזאת כבר נשלחה לסוכן.",
     "newWithSummary": "שיחה חדשה עם סיכום",
     "summary": "סיכום של שיחה קודמת",
     "edit": "עריכה",

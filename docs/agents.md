@@ -42,8 +42,16 @@ access is the bound, not the answerer's. A run takes model turns until it answer
 a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 (`AI_WORKSPACE_RATE_LIMIT`): a run waits for its turn rather than failing. Each run is kept for
 30 days after it finishes, with what the agent did step by step, its final answer, the tokens it
-used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `commentGone`, `provider`, `timeout`,
-`tooManyAttempts`, `limitReached`, `selfReported` or `error`).
+used, and why it failed: `aiOff` (the workspace turned AI off), `agentDisabled` (the agent was
+paused or archived), `noAccess` (it can't open what it works on), `rowGone`, `databaseGone`,
+`commentGone` (its row, database or the comment that mentioned it is gone), `provider` (the model
+failed), `timeout` (the run took too long), `tooManyAttempts` (it was taken up too often without finishing: it couldn't start in time, the
+workspace's AI allowance staying used up),
+`approvalTimeout` (no one answered a call that waited for approval), `connectionGone` (the
+connection or tool a waiting call needed was taken away), `mailGone` (the email that started it is
+gone, or its mailbox no longer open to the agent), `limitReached` (the agent used its monthly
+tokens), `costLimit` (the workspace's AI reached its monthly cost limit), `selfReported` (a
+schedule's run said it couldn't do its task, below) or `error` (anything else).
 
 **Changes for review.** An agent's *Changes to rows* is *Write them directly* (the default) or
 *Propose them for review*: then the rows its runs would add and the values or titles they would
@@ -79,8 +87,9 @@ title there, though never in a push or Telegram notification, and into their cha
 A run that checked and found nothing new, and changed nothing, ends itself with `finish_run`
 (`nothing_new`, a reason if it likes): nothing comes to the inbox, push or Telegram, the chat shows it
 as one muted line, *Nothing new* with the reason, its steps folded under it, and its *Runs* tab says
-*Nothing new*. A run that changed something can't end that way: the agent is told to report what it
-changed. One that can't do its task at all ends with `finish_run` `failed` and a reason of up to 300
+*Nothing new*. A run that changed something can't end that way, nor one with a call that wasn't
+made (refused, declined by a rule or a person, never answered, past the daily limit) or a task it
+gave another agent with `assign_agent`: the agent is told to report that instead. One that can't do its task at all ends with `finish_run` `failed` and a reason of up to 300
 characters: it fails as `selfReported`, and the reason shows in its report, its run and the chat.
 `list_agent_runs` and the REST API mark a quiet run with `quiet: true`; the reason is its `answer`.
 When the person's chat with the [Telegram bot](ai.md#ai-chat-from-telegram) is pointed at the agent,
@@ -135,8 +144,8 @@ person the run works for (who set its schedule, asked for the run, chats with it
 change that started it), connected under Account → Email and calendar while
 [email on rows](email-on-rows.md#email-on-rows) is on. A run for no one, or for someone without a
 mailbox there, doesn't get it. A run sends one message, in plain text; one with placeholders left to
-fill in is refused. It is put in the mailbox's sent folder, and the run's steps show its subject and
-recipients; nothing is retried, so a message the mail server refuses shows as failed. Since the run
+fill in is refused. It counts as one of the run's changes (and the agent's daily ones). It is put
+in the mailbox's sent folder, and the run's steps show its subject and recipients; nothing is retried, so a message the mail server refuses shows as failed. Since the run
 names no address, what it reads (a form answer, a synced row) can't send mail anywhere else. This is
 how a daily report reaches a fixed address; an email to a row's own contact is a draft instead
 (above).
@@ -305,15 +314,18 @@ output together): once the month's tokens reach it, a run under way stops at its
 is raised. Several runs of one agent under way at once can each take one more turn past it. The
 limit counts tokens rather than money because not every provider reports a price.
 
-**Quiet hours and a daily change limit.** Anyone who can edit an agent can give it, in its
-settings, *quiet hours* (a start and an end time, which may cross midnight, in a time zone) and a
-number of *changes per day*. In quiet hours a connection call that an owner's rule always allows
-(*Connections* under [Connections](connections.md)) isn't sent: the run waits, asking and telling
+**Quiet hours and a daily change limit.** Workspace owners can give an agent, in its settings,
+*quiet hours* (a start and an end time, which may cross midnight, in a time zone) and a number of
+*changes per day*. As with the monthly token limit, only owners set them: others who can edit the
+agent see them in its settings without changing them, and a version they restore leaves them as
+they are. In quiet hours a connection call that an owner's rule always allows
+(*Rules* under [Connections](connections.md); a rule doesn't hold on a run that read others' words
+or was given a file) isn't sent: the run waits, asking and telling
 no one, and goes on when they end; if the rule is gone by then, the call waits for an owner's
 approval as usual. An owner can approve the held call before that, from the agent's runs or its
 chat. Calls that need approval anyway ask at once, quiet hours or not. The daily limit counts
-every change a run makes (rows, pages, comments, merges, proposals, email drafts, connection calls
-that change something), on the day in the quiet hours' time zone (UTC without them); past it a
+every change a run makes (rows, pages, comments, merges, proposals, email drafts, the email it sends
+to its recipients, files it attaches, connection calls that change something), on the day in the quiet hours' time zone (UTC without them); past it a
 change is refused, the agent hears why and its run's steps show it. A change that fails is given
 back, except a connection call, which may have been done. A run's own limit (5 changes, 30 on a
 schedule's database) still applies. Over MCP and the REST API both settings are set in the app.
