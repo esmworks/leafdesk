@@ -620,6 +620,8 @@ async function messageView(userId: string, m: AgentChatMessageRecord): Promise<A
     ...(m.files?.length ? { files: m.files } : {}),
     ...(m.attached?.length ? { attached: m.attached } : {}),
     ...(m.summary ? { summary: true } : {}),
+    // A summary drawn from turns that read the person's computer: lib/local-reads.ts firstLocalRead reads it.
+    ...(m.localRead ? { localRead: true as const } : {}),
     at: m.at,
   };
 }

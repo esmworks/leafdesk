@@ -148,6 +148,8 @@ export async function closeChatTurn(run: EndedRun, ending: { answer?: string; co
   if (run.source.kind !== "chat") return;
   const source = run.source;
   try {
+    // Without its steps (a run that threw), those it saved as it went: `run` holds them as it was claimed.
+    const steps = ending.steps ?? (await db.select({ steps: agentRun.steps }).from(agentRun).where(eq(agentRun.id, run.id)))[0]?.steps ?? run.steps;
     const attached = await answerFiles(run.id);
     const next = await db.transaction(async (tx) => {
       const [found] = await tx
@@ -162,7 +164,7 @@ export async function closeChatTurn(run: EndedRun, ending: { answer?: string; co
         content: redactText(ending.answer ?? "").slice(0, 8_000),
         runId: run.id,
         ...(ending.code ? { code: ending.code } : {}),
-        steps: redactValue(ending.steps ?? run.steps),
+        steps: redactValue(steps),
         ...(attached.length ? { attached } : {}),
         at: new Date(now).toISOString(),
       };

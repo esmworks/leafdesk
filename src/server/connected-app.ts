@@ -89,3 +89,23 @@ export function connectedAppRefusal(mode: ConnectedAppsMode, writing: boolean): 
   if (mode === "read" && writing) return "readOnly";
   return null;
 }
+
+/**
+ * Leafdesk's own tools run for one workspace's AI (the chat's use_tool, server/ai-more-tools.ts):
+ * while `fn` runs, every other workspace of `userId` reads as one they aren't in, as a workspace
+ * that turned connected apps off does (connectedAppHold, workspacesHiddenFromApp in access.ts). The
+ * person's tools there would otherwise reach a workspace whose owners turned AI off, or whose own
+ * AI account the content isn't meant for.
+ */
+const globalForBound = globalThis as unknown as { __leafdeskBoundWorkspace?: AsyncLocalStorage<{ userId: string; workspaceId: string }> };
+const bound = (globalForBound.__leafdeskBoundWorkspace ??= new AsyncLocalStorage<{ userId: string; workspaceId: string }>());
+
+export function withinWorkspace<T>(userId: string, workspaceId: string, fn: () => T): T {
+  return bound.run({ userId, workspaceId }, fn);
+}
+
+/** The workspace `userId`'s calls are held to (withinWorkspace), or null. */
+export function boundWorkspace(userId: string): string | null {
+  const current = bound.getStore();
+  return current && current.userId === userId ? current.workspaceId : null;
+}

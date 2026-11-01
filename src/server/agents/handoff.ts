@@ -28,6 +28,7 @@ import { db } from "@/db";
 import { agentHelper, agentRun, workspaceAgent } from "@/db/schema";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import {
+  AGENT_TASKS_TOOL,
   MAX_AGENT_PROMPT,
   MAX_HANDOFFS_PER_RUN,
   MAX_LISTED_TASKS,
@@ -53,7 +54,7 @@ type CallResult = { content: string; isError?: boolean; step?: AgentStepRecord }
 
 export const ASK_AGENT = "ask_agent";
 export const ASSIGN_AGENT = "assign_agent";
-export const AGENT_TASKS = "agent_tasks";
+export const AGENT_TASKS = AGENT_TASKS_TOOL;
 /** A wait shorter than this isn't worth starting: the asking run hears there is no time left. */
 const MIN_WAIT_MS = 20_000;
 /** How often a run waiting for a helper the worker took looks again. */
@@ -121,14 +122,14 @@ export async function goOnAsTask(runId: string): Promise<boolean> {
 /**
  * `ask_agent`, `assign_agent` and `agent_tasks` for a run of `agent`, or null when the run may not
  * ask (it is a helper's run itself) or the agent has no one to ask. An agent whose helpers are gone
- * keeps `agent_tasks` while it gave tasks before, for those still under way or done. `bound` and
- * `trusted` are the run's (see processRun in run.ts); `runHelper` does a helper's run in this slot
- * as the worker would.
+ * keeps `agent_tasks` while it gave tasks before, for those still under way or done. `bound` is
+ * the run's (see processRun in run.ts), `trusted` says whether it is still trusted when it asks;
+ * `runHelper` does a helper's run in this slot as the worker would.
  */
 export async function handoffFor(
   agent: Agent,
   run: Run,
-  { bound, trusted, clock, runHelper }: { bound: string | null; trusted: boolean; clock: RunClock; runHelper: (run: Run) => Promise<void> },
+  { bound, trusted, clock, runHelper }: { bound: string | null; trusted: () => boolean; clock: RunClock; runHelper: (run: Run) => Promise<void> },
 ): Promise<{ tools: AiTool[]; call: (call: AiToolCall, room: number) => Promise<CallResult> | null } | null> {
   if (run.source.kind === "handoff") return null;
   const parent = run.source;
@@ -241,7 +242,9 @@ export async function handoffFor(
     fromAgentId: agent.id,
     callId: call.id,
     boundTo: bound,
-    trusted,
+    // As the run stands when it asks: one that read others' words since it started hands on a task
+    // they may have written, and the helper's run is held as one no one stands behind.
+    trusted: trusted(),
     parent,
     ...(queued ? { queued: true as const } : {}),
   });
@@ -369,7 +372,8 @@ export async function handoffFor(
       if (r.status === "awaiting_approval") return `${head}. It waits for a person to approve one of its calls.`;
       return `${head}. ${r.status === "running" ? "It is working on it." : "It hasn't started yet."}`;
     });
-    return { content: lines.join("\n\n") };
+    // An answer listed is another agent's words (lib/agents.ts readOthersWords), as one ask_agent waited for.
+    return { content: lines.join("\n\n"), ...(done ? { step: { kind: "tool", connectionId: null, tool: AGENT_TASKS, input: only ?? "", outcome: "done" } } : {}) };
   };
 
   if (!helpers.length) return { tools: [tasksTool], call: (call, room) => (call.name === AGENT_TASKS ? tasks(call, room) : null) };

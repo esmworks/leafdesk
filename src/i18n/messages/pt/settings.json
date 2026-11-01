@@ -663,6 +663,7 @@
         "read": "Leu um arquivo do computador",
         "write": "Escreveu um arquivo no computador",
         "trash": "Moveu algo do computador para a lixeira",
+        "earlier": "Arquivos do computador foram lidos antes nesta conversa, então nada sai do Leafdesk nesta resposta",
         "declined": "recusado; nada foi feito",
         "expired": "sem resposta a tempo; nada foi feito",
         "failed": "não foi possível fazer",

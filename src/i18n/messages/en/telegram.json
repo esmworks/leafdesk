@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Apps may only read in {workspace}, so I answer without changing anything there.",
   "busy": "I'm still answering your last question. Send /stop to stop it.",
+  "busyInApp": "This conversation is still being answered in Leafdesk. Ask again once that answer is done.",
   "stopped": "Stopped.",
   "nothingToStop": "I'm not answering anything right now.",
   "unlinked": "This Telegram account is no longer linked to Leafdesk.",

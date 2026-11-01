@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "{workspace} içinde uygulamalar yalnızca okuyabiliyor; bu yüzden orada hiçbir şeyi değiştirmeden yanıtlıyorum.",
   "busy": "Hâlâ önceki soruna yanıt yazıyorum. Durdurmak için /stop gönder.",
+  "busyInApp": "Bu konuşma Leafdesk'te hâlâ yanıtlanıyor. O yanıt bitince yeniden sor.",
   "stopped": "Durduruldu.",
   "nothingToStop": "Şu an yazdığım bir yanıt yok.",
   "unlinked": "Bu Telegram hesabı artık Leafdesk’e bağlı değil.",

@@ -663,6 +663,7 @@
         "read": "Hat eine Datei auf dem Computer gelesen",
         "write": "Hat eine Datei auf dem Computer geschrieben",
         "trash": "Hat etwas auf dem Computer in den Papierkorb gelegt",
+        "earlier": "In dieser Unterhaltung wurden zuvor Dateien auf dem Computer gelesen, daher verlässt in dieser Antwort nichts Leafdesk",
         "declined": "abgelehnt; nichts wurde getan",
         "expired": "nicht rechtzeitig beantwortet; nichts wurde getan",
         "failed": "konnte nicht ausgeführt werden",

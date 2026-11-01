@@ -395,6 +395,13 @@ export const WEB_TOOL_NAMES = { read: "read_web_page", search: "search_web" } as
 export const COMPUTER_TOOL_NAMES = { list: "computer_list_folder", read: "computer_read_file", write: "computer_write_file", trash: "computer_trash_file" } as const;
 /** The computer's tools that bring what it holds into the run: words no one in the conversation wrote. */
 export const COMPUTER_READ_TOOLS: ReadonlySet<string> = new Set([COMPUTER_TOOL_NAMES.list, COMPUTER_TOOL_NAMES.read]);
+/**
+ * Not a tool: the step a chat run starts with when an earlier turn of its conversation read files on
+ * the person's computer (lib/local-reads.ts), as `{ kind: "mail", action: "earlier" }` is for email.
+ * Each later turn carries it, so what such a turn did and said stays with the person however far
+ * back the read was, and after older messages are dropped.
+ */
+export const COMPUTER_EARLIER = "computer_earlier";
 export const isComputerTool = (name: string) => Object.values(COMPUTER_TOOL_NAMES).some((n) => n === name);
 
 /** What a call to Leafdesk's own tool (no connection) names in place of a connection. */
@@ -607,6 +614,8 @@ export type AgentMemoryView = {
     databaseHidden: boolean;
     /** Another owner asked for it, or a schedule of theirs without a database started it: its proposals' text is theirs alone. */
     othersRun: boolean;
+    /** Read through a connected app, of a run that read mail or files on the person's computer: its proposals' text shows only in the app. */
+    appHidden?: true;
   } | null;
   /** A proposal's kept note it would change when kept (null: it would be a new note). */
   replaces: { id: string; text: string } | null;
@@ -777,12 +786,15 @@ const WEB_TOOLS: ReadonlySet<string> = new Set(Object.values(WEB_TOOL_NAMES));
  */
 export const OTHERS_WORDS_MORE_TOOLS: ReadonlySet<string> = new Set(["list_agent_runs", "get_agent_chat", "chat_with_agent", "start_agent_run", "list_notifications"]);
 
+/** The tool listing the tasks a run's agent gave others (server/agents/handoff.ts): its step, when it listed an answer, is another agent's words. */
+export const AGENT_TASKS_TOOL = "agent_tasks";
+
 /**
  * Whether a run's steps show it read words no one in its conversation wrote: email (readEmail), a
  * web page or search, what a connection's tool answered (failed too: a service's error says what
  * it likes), a folder or file on the person's computer (anything may have put it there), or
- * another agent's answer, which may carry what that agent read (asked with ask_agent, or read
- * through use_tool: OTHERS_WORDS_MORE_TOOLS). A chat run that did keeps no correction at once
+ * another agent's answer, which may carry what that agent read (asked with ask_agent, read back
+ * with agent_tasks, or read through use_tool: OTHERS_WORDS_MORE_TOOLS). A chat run that did keeps no correction at once
  * (server/agents/memory.ts), and an owner's "allow" rule doesn't hold on it (server/agents/run.ts).
  */
 export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
@@ -790,7 +802,7 @@ export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
   steps.some((s) =>
     s.kind === "tool"
       ? ((s.outcome === "done" || s.outcome === "failed") && (s.connectionId !== null || WEB_TOOLS.has(s.tool))) ||
-        (s.connectionId === null && s.outcome === "done" && COMPUTER_READ_TOOLS.has(s.tool))
+        (s.connectionId === null && s.outcome === "done" && (COMPUTER_READ_TOOLS.has(s.tool) || s.tool === AGENT_TASKS_TOOL))
       : s.kind === "leafdesk"
         ? s.outcome === "done" && OTHERS_WORDS_MORE_TOOLS.has(s.tool)
         : s.kind === "handoff" && s.outcome === "done",

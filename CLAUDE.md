@@ -163,8 +163,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `ai-tools.ts` (reads refuse arguments their schema doesn't name, `unknownArguments`; writes
   reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this
-  process as the person; `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without
-  the latter; it imports `mcp/tools` lazily, which reaches `agents/chat` and so `ai-chat`); CSV files
+  process as the person, held to the chat's workspace by `connected-app.ts` `withinWorkspace`;
+  `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without the latter; it imports `mcp/tools` lazily, which reaches `agents/chat` and so `ai-chat`); CSV files
   attached to questions: `src/lib/chat-attachments.ts` (limits, names) and
   `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`; semantic
   index and search: `semantic-index.ts`, `semantic-search.ts`; related pages under a page rank the
@@ -237,7 +237,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   Files on the chatting person's computer (`agents/computer.ts`, the desktop app's bridge in
   `server/desktop-bridge/`) go only to chat runs whose source carries the web `sessionId` of the
   connected app's own session (actions pass it; queued turns keep it only when all came from it);
-  once a run or an earlier turn of its conversation read there (`lib/local-reads.ts`), `run.ts`
+  once a run or an earlier turn of its conversation read there (`lib/local-reads.ts`; a later
+  turn starts with a `COMPUTER_EARLIER` step, so trimming the history keeps the mark), `run.ts`
   refuses connection tools, the web, `ask_agent`/`assign_agent` and `send_email` (`localRead`), and
   MCP and the REST API leave out what such turns did and said (`describeAgentRun`, `get_agent_chat`).
   `send_email` counts only toward the daily change limit, never the run's own cap.

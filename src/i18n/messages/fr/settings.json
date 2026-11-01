@@ -663,6 +663,7 @@
         "read": "A lu un fichier de l’ordinateur",
         "write": "A écrit un fichier sur l’ordinateur",
         "trash": "A mis quelque chose de l’ordinateur à la corbeille",
+        "earlier": "Des fichiers de l’ordinateur ont été lus plus tôt dans cette conversation : rien ne sort de Leafdesk dans cette réponse",
         "declined": "refusé ; rien n’a été fait",
         "expired": "sans réponse à temps ; rien n’a été fait",
         "failed": "n’a pas pu être fait",

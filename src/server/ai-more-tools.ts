@@ -9,7 +9,9 @@
  */
 import { Client, InMemoryTransport, type CallToolResult } from "@modelcontextprotocol/client";
 import type { ChatToolRecord } from "@/db/schema/ai";
+import { OTHERS_WORDS_MORE_TOOLS } from "@/lib/agents";
 import type { AiTool, AiToolCall } from "@/server/ai";
+import { frameData } from "@/server/ai/frame";
 import { truncateText } from "@/server/ai/prompts";
 import { inputSummary, resultText } from "@/server/connections/tools";
 import { DOCS_PREFIX } from "@/server/mcp/docs";
@@ -247,7 +249,11 @@ export async function callMoreTool(
 ): Promise<{ content: string; isError: boolean; step: ChatToolRecord }> {
   try {
     const out = await tools.call(tool.name, args, signal);
-    return { content: truncateText(out.text, Math.max(200, room)), isError: out.isError, step: moreToolStep(tool, args, out.isError ? "failed" : "done") };
+    // Agents' answers and what reached the inbox from others come framed as the data they are.
+    const content = !out.isError && OTHERS_WORDS_MORE_TOOLS.has(tool.name)
+      ? frameData(`What ${tool.name} answered: other agents' and people's words.`, out.text, Math.max(200, room))
+      : truncateText(out.text, Math.max(200, room));
+    return { content, isError: out.isError, step: moreToolStep(tool, args, out.isError ? "failed" : "done") };
   } catch (error) {
     if (signal?.aborted) throw error;
     console.error(`[ai] ${tool.name} failed`, error);

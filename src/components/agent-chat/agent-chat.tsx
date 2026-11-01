@@ -438,8 +438,13 @@ export function AgentChat({
       setFiles([]);
       setConversationId(sent.conversation.id);
       setInfo((current) => current && { ...current, conversations: [sent.conversation, ...current.conversations.filter((c) => c.id !== sent.conversation.id)] });
-      // Written while the agent answers: it waits for the answer.
-      if (!sent.runId) return setQueued((list) => [...list, sent.queued!]);
+      // Written while the agent answers: it waits for the answer. An answer this page doesn't follow
+      // (asked from Telegram, another tab or a connected app): the conversation is read again, with
+      // that turn and its run, so its answer and the next turn come here too.
+      if (!sent.runId) {
+        if (!running) return void (placeRef.current === null ? openThread() : open(sent.conversation.id));
+        return setQueued((list) => [...list, sent.queued!]);
+      }
       const refs = files.map((f) => ({ name: f.name, size: f.size }));
       setMessages((list) => [...list, { role: "user", content: message, runId: sent.runId!, code: null, steps: [], ...(refs.length ? { files: refs } : {}), at: new Date().toISOString() }]);
       setRunning(sent.runId);

@@ -83,6 +83,7 @@ import {
   type AgentRunSource,
   type AgentRunUsage,
   type AgentStepRecord,
+  COMPUTER_EARLIER,
   WEB_TOOL_NAMES,
   isComputerTool,
   leftUntold,
@@ -745,7 +746,7 @@ async function converse(
   const leavesNote = memoryOn && scheduled;
   const mentionTools = mentionEdits?.edits ? [EDIT_PAGE, ...(mentionEdits.row ? [UPDATE_ROW] : [])] : [];
   // Other agents it may ask; none on a helper's run, nor on one that reads email from the start.
-  const handoff = arrival ? null : await handoffFor(agent, run, { bound, trusted: !askEveryTool, clock, runHelper: runInSlot });
+  const handoff = arrival ? null : await handoffFor(agent, run, { bound, trusted: () => !askEveryTool && !readOutside(), clock, runHelper: runInSlot });
   // The person it works for, whom it may remind of something (ai-reminders.ts): not on a helper's
   // run, whose task another agent wrote, nor on one reading what no member stands behind.
   const reminded = handedOff || askEveryTool || arrival ? null : remindedPerson(run.source);
@@ -948,8 +949,12 @@ async function converse(
       mailRead = true;
       steps.push({ kind: "mail", action: "earlier" });
     }
-    // What was read on the person's computer stays with them, however far back (lib/local-reads.ts).
-    if (history.localRead) localRead = true;
+    // What was read on the person's computer stays with them, however far back (lib/local-reads.ts);
+    // the step marks this turn too, so MCP and the REST API leave it out, as they do the read itself.
+    if (history.localRead) {
+      localRead = true;
+      steps.push({ kind: "tool", connectionId: null, tool: COMPUTER_EARLIER, input: "", outcome: "done" });
+    }
     const held =
       (history.mailRead ? "\n\n(Email was read earlier in this conversation: this run only reads pages and drafts email.)" : "") +
       (history.localRead ? "\n\n(Files on the person's computer were read earlier in this conversation: this run sends nothing out of Leafdesk: no connected service's tool, web page or search, other agent or email.)" : "");
@@ -1099,6 +1104,8 @@ async function converse(
           : { status: "failed", code: "selfReported", answer: checked.reason, steps, usage };
       return { content: "The run ends here." };
     }
+    // Turned off for spending fast mid-turn: the turn's other calls aren't made either.
+    if (pausedBySpending) return { content: "This agent was turned off for spending fast. Nothing was done; finish now.", isError: true };
     // Email is anyone's words, and could steer the run into sending on what it read: once it read
     // some, it only reads pages and drafts email (whose recipients ai-chat-mail.ts checks). Nothing
     // waits for approval either: an owner who isn't the mailbox's would see what it would send.
@@ -1158,7 +1165,6 @@ async function converse(
       };
     }
     if (member && mailTools.some((t) => t.name === call.name)) {
-      if (pausedBySpending) return { content: "This agent was turned off for spending fast. Nothing was done; finish now.", isError: true };
       if (call.name === MAIL_TOOL_NAMES.draft) {
         const over = atLimit();
         if (over) return over;
@@ -1377,7 +1383,9 @@ async function converse(
     let pendingDecision = decision;
     while (queue.length) {
       const call = queue[0];
-      const writesBefore = writes + emailsSent;
+      // What a run left behind it: a run taken again after a restart starts over, and would do it twice.
+      const made = () => writes + emailsSent + proposals + remindersSet(steps);
+      const writesBefore = made();
       const answered = Boolean(pendingDecision);
       let out: Answered;
       if (pendingDecision) {
@@ -1411,7 +1419,7 @@ async function converse(
         return null;
       }
       // A chat's steps are saved as they come: the person follows them (chat.ts chatTurn).
-      if (answered || writes + emailsSent !== writesBefore || chat) await checkpoint();
+      if (answered || made() !== writesBefore || chat) await checkpoint();
     }
     return null;
   };
@@ -1818,7 +1826,7 @@ export async function expireApprovals() {
           ? [...found.steps, { kind: "tool", connectionId: pending.connectionId, tool: pending.tool, input: inputSummary(pending.arguments), outcome: "expired" }]
           : found.steps;
         // The chat's turn first, as in finish(): whoever follows the run finds it once it reads as ended.
-        await closeChatTurn({ ...found, steps }, { code: "approvalTimeout" });
+        await closeChatTurn({ ...found, steps }, { code: "approvalTimeout", steps });
         await tx
           .update(agentRun)
           .set({ status: "failed", code: "approvalTimeout", finishedAt: new Date(), state: null, pending: null, steps })
