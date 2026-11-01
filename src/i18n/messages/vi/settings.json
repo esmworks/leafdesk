@@ -404,13 +404,37 @@
       "schedules": "Lịch chạy",
       "history": "Lịch sử",
       "chat": "Trò chuyện",
-      "general": "Chung"
+      "general": "Chung",
+      "allTriggers": "Tất cả"
     },
     "sections": {
       "instructions": "Hướng dẫn",
       "tools": "Công cụ và quyền truy cập",
       "triggers": "Trình kích hoạt",
       "advanced": "Nâng cao"
+    },
+    "triggers": {
+      "description": "Những gì có thể khởi chạy tác tử này, và cuộc trò chuyện mỗi lần chạy đi vào. Mở một mục để thay đổi.",
+      "loadFailed": "Không tải được danh sách.",
+      "chat": "Trò chuyện",
+      "chatHint": "Mọi người trò chuyện với nó trên trang của nó, trong một khối của trang hoặc từ Telegram.",
+      "mention": "Lượt nhắc",
+      "mentionHint": "Một thành viên nhắc đến nó trong bình luận.",
+      "request": "Yêu cầu",
+      "requestHint": "Được yêu cầu qua MCP hoặc REST API.",
+      "schedule": "Lịch",
+      "automationIn": "Tự động hóa trong {database}",
+      "buttonIn": "Nút trong {database}",
+      "untitled": "Không có tiêu đề",
+      "mail": "Email mới đến {address}",
+      "connection": "Sự kiện từ {connection}",
+      "conversation": {
+        "new": "Mỗi lần một cuộc trò chuyện mới",
+        "keyed": "Một cuộc trò chuyện cho mỗi hàng, chuỗi hoặc lịch",
+        "fixed": "Cuộc trò chuyện riêng"
+      },
+      "off": "Tắt",
+      "unavailable": "Không dành cho bạn"
     },
     "empty": "Chưa có tác tử nào.",
     "emptyOwner": "Chưa có tác tử nào. Hãy tạo một tác tử, hoặc bắt đầu từ một mẫu bên dưới.",

@@ -404,13 +404,37 @@
       "schedules": "スケジュール",
       "history": "履歴",
       "chat": "チャット",
-      "general": "一般"
+      "general": "一般",
+      "allTriggers": "すべて"
     },
     "sections": {
       "instructions": "指示",
       "tools": "ツールとアクセス",
       "triggers": "トリガー",
       "advanced": "詳細設定"
+    },
+    "triggers": {
+      "description": "このエージェントの実行を開始できるものと、各実行が入る会話です。変更するには開いてください。",
+      "loadFailed": "一覧を読み込めませんでした。",
+      "chat": "チャット",
+      "chatHint": "エージェントのページ、ページ内のブロック、または Telegram からチャットします。",
+      "mention": "メンション",
+      "mentionHint": "メンバーがコメントでメンションします。",
+      "request": "リクエスト",
+      "requestHint": "MCP または REST API で依頼されます。",
+      "schedule": "スケジュール",
+      "automationIn": "{database} のオートメーション",
+      "buttonIn": "{database} のボタン",
+      "untitled": "無題",
+      "mail": "{address} 宛ての新着メール",
+      "connection": "{connection} のイベント",
+      "conversation": {
+        "new": "毎回新しい会話",
+        "keyed": "行・スレッド・スケジュールごとに 1 つの会話",
+        "fixed": "自身のチャット"
+      },
+      "off": "オフ",
+      "unavailable": "利用できません"
     },
     "empty": "エージェントはまだありません。",
     "emptyOwner": "エージェントはまだありません。作成するか、下のテンプレートから始めてください。",

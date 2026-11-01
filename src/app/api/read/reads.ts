@@ -14,6 +14,7 @@ import { discoverMailServersAction } from "@/app/actions/row-mail";
 import { settingsSearchAction } from "@/app/actions/settings-search";
 import { usableSnippetsAction } from "@/app/actions/snippets";
 import { tagSuggestionsAction } from "@/app/actions/tags";
+import { listTriggersAction } from "@/app/actions/triggers";
 
 /**
  * Server actions that components call on their own (as a page opens, on a timer, as a box fills)
@@ -37,6 +38,7 @@ export const READS = {
   sidebarAgents: sidebarAgentsAction,
   agentLimitRequest: pendingAgentLimitRequestAction,
   agentMailboxes: agentMailboxesAction,
+  agentTriggers: listTriggersAction,
   recentSearch: recentSearchAction,
   searchFilterOptions: searchFilterOptionsAction,
   search: searchAction,

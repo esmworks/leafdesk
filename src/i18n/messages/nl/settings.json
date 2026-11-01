@@ -404,13 +404,37 @@
       "schedules": "Planningen",
       "history": "Geschiedenis",
       "chat": "Chat",
-      "general": "Algemeen"
+      "general": "Algemeen",
+      "allTriggers": "Alles"
     },
     "sections": {
       "instructions": "Instructies",
       "tools": "Hulpmiddelen en toegang",
       "triggers": "Triggers",
       "advanced": "Geavanceerd"
+    },
+    "triggers": {
+      "description": "Wat de runs van deze agent kan starten, en naar welk gesprek elke run gaat. Open er een om het te wijzigen.",
+      "loadFailed": "De lijst kon niet worden geladen.",
+      "chat": "Chat",
+      "chatHint": "Mensen chatten ermee op zijn pagina, in een blok op een pagina of via Telegram.",
+      "mention": "Vermeldingen",
+      "mentionHint": "Een lid vermeldt hem in een opmerking.",
+      "request": "Verzoeken",
+      "requestHint": "Gevraagd via MCP of de REST API.",
+      "schedule": "Planning",
+      "automationIn": "Automatisering in {database}",
+      "buttonIn": "Knop in {database}",
+      "untitled": "Naamloos",
+      "mail": "Nieuwe e-mail aan {address}",
+      "connection": "Gebeurtenissen van {connection}",
+      "conversation": {
+        "new": "Elke keer een nieuw gesprek",
+        "keyed": "Eén gesprek per rij, thread of planning",
+        "fixed": "Zijn eigen chat"
+      },
+      "off": "Uit",
+      "unavailable": "Niet voor jou"
     },
     "empty": "Nog geen agents.",
     "emptyOwner": "Nog geen agents. Maak er een, of begin hieronder met een sjabloon.",

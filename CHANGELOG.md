@@ -473,8 +473,8 @@
   Automations and buttons, mentions, requests, schedules, mail, connection events, chats and agents
   handing work to each other now all start runs the same way, and each run is linked to a
   conversation: the one kept for its row, comment thread, mail thread or schedule, the chat it
-  answers, or a new one. What can start an agent (or your own AI chat) is listed in one place for
-  its page to show. Who sees a run is unchanged. Migration `0186_trigger_layer` adds
+  answers, or a new one. What can start an agent is listed in one place, under Triggers → All in
+  its settings, each with the conversation its runs go to and a way to where it is changed. Who sees a run is unchanged. Migration `0186_trigger_layer` adds
   `agent_run.conversation_id` and `conversation.key`.
 - **The AI chat waits for your decision as long as you take, and survives a restart.** A change it
   asks about no longer counts as declined after 15 minutes: the answer waits until you decide or

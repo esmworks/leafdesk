@@ -404,13 +404,37 @@
       "schedules": "Zamanlamalar",
       "history": "Geçmiş",
       "chat": "Sohbet",
-      "general": "Genel"
+      "general": "Genel",
+      "allTriggers": "Tümü"
     },
     "sections": {
       "instructions": "Talimatlar",
       "tools": "Araçlar ve erişim",
       "triggers": "Tetikleyiciler",
       "advanced": "Gelişmiş"
+    },
+    "triggers": {
+      "description": "Bu ajanın çalışmalarını neyin başlatabileceği ve her çalışmanın hangi konuşmaya gittiği. Değiştirmek için birini açın.",
+      "loadFailed": "Liste yüklenemedi.",
+      "chat": "Sohbet",
+      "chatHint": "Kişiler onunla kendi sayfasında, bir sayfadaki blokta ya da Telegram'dan sohbet eder.",
+      "mention": "Bahsetmeler",
+      "mentionHint": "Bir üye bir yorumda ondan bahseder.",
+      "request": "İstekler",
+      "requestHint": "MCP ya da REST API üzerinden istenir.",
+      "schedule": "Zamanlama",
+      "automationIn": "{database} içinde otomasyon",
+      "buttonIn": "{database} içinde düğme",
+      "untitled": "Adsız",
+      "mail": "{address} adresine yeni e-posta",
+      "connection": "{connection} olayları",
+      "conversation": {
+        "new": "Her seferinde yeni bir konuşma",
+        "keyed": "Satır, yorum dizisi ya da zamanlama başına tek konuşma",
+        "fixed": "Kendi sohbeti"
+      },
+      "off": "Kapalı",
+      "unavailable": "Size açık değil"
     },
     "empty": "Henüz ajan yok.",
     "emptyOwner": "Henüz ajan yok. Bir tane oluşturun ya da aşağıdaki şablonlardan biriyle başlayın.",

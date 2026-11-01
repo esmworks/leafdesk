@@ -404,13 +404,37 @@
       "schedules": "Programaciones",
       "history": "Historial",
       "chat": "Chat",
-      "general": "General"
+      "general": "General",
+      "allTriggers": "Todo"
     },
     "sections": {
       "instructions": "Instrucciones",
       "tools": "Herramientas y acceso",
       "triggers": "Desencadenantes",
       "advanced": "Avanzado"
+    },
+    "triggers": {
+      "description": "Lo que puede iniciar las ejecuciones de este agente y la conversación a la que va cada una. Abre uno para cambiarlo.",
+      "loadFailed": "No se pudo cargar la lista.",
+      "chat": "Chat",
+      "chatHint": "La gente chatea con él en su página, en un bloque de una página o desde Telegram.",
+      "mention": "Menciones",
+      "mentionHint": "Un miembro lo menciona en un comentario.",
+      "request": "Solicitudes",
+      "requestHint": "Se pide por MCP o la API REST.",
+      "schedule": "Programación",
+      "automationIn": "Automatización en {database}",
+      "buttonIn": "Botón en {database}",
+      "untitled": "Sin título",
+      "mail": "Correo nuevo a {address}",
+      "connection": "Eventos de {connection}",
+      "conversation": {
+        "new": "Una conversación nueva cada vez",
+        "keyed": "Una conversación por fila, hilo o programación",
+        "fixed": "Su propio chat"
+      },
+      "off": "Desactivado",
+      "unavailable": "No disponible para ti"
     },
     "empty": "Todavía no hay agentes.",
     "emptyOwner": "Todavía no hay agentes. Crea uno o empieza con una plantilla de abajo.",

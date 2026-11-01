@@ -404,13 +404,37 @@
       "schedules": "定时计划",
       "history": "历史",
       "chat": "对话",
-      "general": "常规"
+      "general": "常规",
+      "allTriggers": "全部"
     },
     "sections": {
       "instructions": "指令",
       "tools": "工具与访问",
       "triggers": "触发器",
       "advanced": "高级"
+    },
+    "triggers": {
+      "description": "可以启动此智能体运行的内容，以及每次运行进入的对话。打开一项即可更改。",
+      "loadFailed": "无法加载列表。",
+      "chat": "聊天",
+      "chatHint": "人们在它的页面、页面中的块或 Telegram 中与它聊天。",
+      "mention": "提及",
+      "mentionHint": "成员在评论中提及它。",
+      "request": "请求",
+      "requestHint": "通过 MCP 或 REST API 请求。",
+      "schedule": "计划",
+      "automationIn": "{database} 中的自动化",
+      "buttonIn": "{database} 中的按钮",
+      "untitled": "无标题",
+      "mail": "发往 {address} 的新邮件",
+      "connection": "来自 {connection} 的事件",
+      "conversation": {
+        "new": "每次一个新对话",
+        "keyed": "每行、每个讨论串或每个计划一个对话",
+        "fixed": "它自己的聊天"
+      },
+      "off": "已关闭",
+      "unavailable": "对你不可用"
     },
     "empty": "还没有智能体。",
     "emptyOwner": "还没有智能体。创建一个，或从下面的模板开始。",

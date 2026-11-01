@@ -404,13 +404,37 @@
       "schedules": "Ajastukset",
       "history": "Historia",
       "chat": "Chat",
-      "general": "Yleiset"
+      "general": "Yleiset",
+      "allTriggers": "Kaikki"
     },
     "sections": {
       "instructions": "Ohjeet",
       "tools": "Työkalut ja käyttöoikeudet",
       "triggers": "Käynnistimet",
       "advanced": "Lisäasetukset"
+    },
+    "triggers": {
+      "description": "Mikä voi käynnistää tämän agentin ajot ja mihin keskusteluun kukin ajo menee. Avaa yksi muuttaaksesi sitä.",
+      "loadFailed": "Luetteloa ei voitu ladata.",
+      "chat": "Keskustelu",
+      "chatHint": "Sen kanssa keskustellaan sen sivulla, sivun lohkossa tai Telegramissa.",
+      "mention": "Maininnat",
+      "mentionHint": "Jäsen mainitsee sen kommentissa.",
+      "request": "Pyynnöt",
+      "requestHint": "Pyydetään MCP:n tai REST API:n kautta.",
+      "schedule": "Ajoitus",
+      "automationIn": "Automaatio kohteessa {database}",
+      "buttonIn": "Painike kohteessa {database}",
+      "untitled": "Nimetön",
+      "mail": "Uusi sähköposti osoitteeseen {address}",
+      "connection": "Tapahtumat: {connection}",
+      "conversation": {
+        "new": "Uusi keskustelu joka kerta",
+        "keyed": "Yksi keskustelu riviä, ketjua tai ajoitusta kohden",
+        "fixed": "Oma keskustelunsa"
+      },
+      "off": "Pois",
+      "unavailable": "Ei sinulle"
     },
     "empty": "Ei vielä agentteja.",
     "emptyOwner": "Ei vielä agentteja. Luo agentti tai aloita alla olevasta mallista.",

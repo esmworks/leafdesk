@@ -404,13 +404,37 @@
       "schedules": "Schedules",
       "history": "History",
       "chat": "Chat",
-      "general": "General"
+      "general": "General",
+      "allTriggers": "All"
     },
     "sections": {
       "instructions": "Instructions",
       "tools": "Tools and access",
       "triggers": "Triggers",
       "advanced": "Advanced"
+    },
+    "triggers": {
+      "description": "What can start this agent's runs, and the conversation each run goes to. Open one to change it.",
+      "loadFailed": "The list could not be loaded.",
+      "chat": "Chat",
+      "chatHint": "People chat with it on its page, in a page's block or from Telegram.",
+      "mention": "Mentions",
+      "mentionHint": "A member mentions it in a comment.",
+      "request": "Requests",
+      "requestHint": "Asked for through MCP or the REST API.",
+      "schedule": "Schedule",
+      "automationIn": "Automation in {database}",
+      "buttonIn": "Button in {database}",
+      "untitled": "Untitled",
+      "mail": "New email to {address}",
+      "connection": "Events from {connection}",
+      "conversation": {
+        "new": "A new conversation each time",
+        "keyed": "One conversation per row, thread or schedule",
+        "fixed": "Its own chat"
+      },
+      "off": "Off",
+      "unavailable": "Not for you"
     },
     "empty": "No agents yet.",
     "emptyOwner": "No agents yet. Create one, or start from a template below.",

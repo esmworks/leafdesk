@@ -404,13 +404,37 @@
       "schedules": "Scheman",
       "history": "Historik",
       "chat": "Chatt",
-      "general": "Allmänt"
+      "general": "Allmänt",
+      "allTriggers": "Alla"
     },
     "sections": {
       "instructions": "Instruktioner",
       "tools": "Verktyg och åtkomst",
       "triggers": "Utlösare",
       "advanced": "Avancerat"
+    },
+    "triggers": {
+      "description": "Vad som kan starta agentens körningar och vilken konversation varje körning hamnar i. Öppna en för att ändra den.",
+      "loadFailed": "Listan kunde inte läsas in.",
+      "chat": "Chatt",
+      "chatHint": "Man chattar med den på dess sida, i ett block på en sida eller via Telegram.",
+      "mention": "Omnämnanden",
+      "mentionHint": "En medlem nämner den i en kommentar.",
+      "request": "Förfrågningar",
+      "requestHint": "Begärs via MCP eller REST API.",
+      "schedule": "Schema",
+      "automationIn": "Automatisering i {database}",
+      "buttonIn": "Knapp i {database}",
+      "untitled": "Namnlös",
+      "mail": "Nytt e-postmeddelande till {address}",
+      "connection": "Händelser från {connection}",
+      "conversation": {
+        "new": "En ny konversation varje gång",
+        "keyed": "En konversation per rad, tråd eller schema",
+        "fixed": "Sin egen chatt"
+      },
+      "off": "Av",
+      "unavailable": "Inte för dig"
     },
     "empty": "Inga agenter än.",
     "emptyOwner": "Inga agenter än. Skapa en, eller utgå från en mall nedan.",

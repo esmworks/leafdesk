@@ -404,13 +404,37 @@
       "schedules": "الجداول الزمنية",
       "history": "السجل",
       "chat": "المحادثة",
-      "general": "عام"
+      "general": "عام",
+      "allTriggers": "الكل"
     },
     "sections": {
       "instructions": "التعليمات",
       "tools": "الأدوات والوصول",
       "triggers": "المشغّلات",
       "advanced": "متقدم"
+    },
+    "triggers": {
+      "description": "ما الذي يمكنه بدء عمليات هذا الوكيل، والمحادثة التي تذهب إليها كل عملية. افتح أحدها لتغييره.",
+      "loadFailed": "تعذّر تحميل القائمة.",
+      "chat": "الدردشة",
+      "chatHint": "يتحدث الأشخاص معه في صفحته أو في كتلة داخل صفحة أو من Telegram.",
+      "mention": "الإشارات",
+      "mentionHint": "يشير إليه عضو في تعليق.",
+      "request": "الطلبات",
+      "requestHint": "يُطلب عبر MCP أو REST API.",
+      "schedule": "جدول زمني",
+      "automationIn": "أتمتة في {database}",
+      "buttonIn": "زر في {database}",
+      "untitled": "بلا عنوان",
+      "mail": "بريد جديد إلى {address}",
+      "connection": "أحداث من {connection}",
+      "conversation": {
+        "new": "محادثة جديدة في كل مرة",
+        "keyed": "محادثة واحدة لكل صف أو سلسلة أو جدول",
+        "fixed": "دردشته الخاصة"
+      },
+      "off": "متوقف",
+      "unavailable": "غير متاح لك"
     },
     "empty": "لا وكلاء بعد.",
     "emptyOwner": "لا وكلاء بعد. أنشئ وكيلًا، أو ابدأ من أحد القوالب أدناه.",

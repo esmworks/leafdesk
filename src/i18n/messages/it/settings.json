@@ -404,13 +404,37 @@
       "schedules": "Pianificazioni",
       "history": "Cronologia",
       "chat": "Chat",
-      "general": "Generale"
+      "general": "Generale",
+      "allTriggers": "Tutti"
     },
     "sections": {
       "instructions": "Istruzioni",
       "tools": "Strumenti e accesso",
       "triggers": "Attivatori",
       "advanced": "Avanzate"
+    },
+    "triggers": {
+      "description": "Cosa può avviare le esecuzioni di questo agente e in quale conversazione va ciascuna. Aprine uno per modificarlo.",
+      "loadFailed": "Impossibile caricare l'elenco.",
+      "chat": "Chat",
+      "chatHint": "Si chatta con lui sulla sua pagina, in un blocco di una pagina o da Telegram.",
+      "mention": "Menzioni",
+      "mentionHint": "Un membro lo menziona in un commento.",
+      "request": "Richieste",
+      "requestHint": "Richiesto tramite MCP o l'API REST.",
+      "schedule": "Pianificazione",
+      "automationIn": "Automazione in {database}",
+      "buttonIn": "Pulsante in {database}",
+      "untitled": "Senza titolo",
+      "mail": "Nuova email a {address}",
+      "connection": "Eventi da {connection}",
+      "conversation": {
+        "new": "Una nuova conversazione ogni volta",
+        "keyed": "Una conversazione per riga, thread o pianificazione",
+        "fixed": "La sua chat"
+      },
+      "off": "Disattivato",
+      "unavailable": "Non per te"
     },
     "empty": "Ancora nessun agente.",
     "emptyOwner": "Ancora nessun agente. Creane uno o parti da un modello qui sotto.",

@@ -404,13 +404,37 @@
       "schedules": "Tidsplaner",
       "history": "Historik",
       "chat": "Chat",
-      "general": "Generelt"
+      "general": "Generelt",
+      "allTriggers": "Alle"
     },
     "sections": {
       "instructions": "Instruktioner",
       "tools": "Værktøjer og adgang",
       "triggers": "Udløsere",
       "advanced": "Avanceret"
+    },
+    "triggers": {
+      "description": "Hvad der kan starte agentens kørsler, og hvilken samtale hver kørsel går til. Åbn en for at ændre den.",
+      "loadFailed": "Listen kunne ikke indlæses.",
+      "chat": "Chat",
+      "chatHint": "Folk chatter med den på dens side, i en blok på en side eller fra Telegram.",
+      "mention": "Omtaler",
+      "mentionHint": "Et medlem nævner den i en kommentar.",
+      "request": "Anmodninger",
+      "requestHint": "Bedt om via MCP eller REST API.",
+      "schedule": "Tidsplan",
+      "automationIn": "Automatisering i {database}",
+      "buttonIn": "Knap i {database}",
+      "untitled": "Uden titel",
+      "mail": "Ny e-mail til {address}",
+      "connection": "Hændelser fra {connection}",
+      "conversation": {
+        "new": "En ny samtale hver gang",
+        "keyed": "Én samtale pr. række, tråd eller tidsplan",
+        "fixed": "Dens egen chat"
+      },
+      "off": "Slået fra",
+      "unavailable": "Ikke for dig"
     },
     "empty": "Ingen agenter endnu.",
     "emptyOwner": "Ingen agenter endnu. Opret en, eller start fra en skabelon nedenfor.",

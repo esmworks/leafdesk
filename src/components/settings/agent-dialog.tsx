@@ -66,13 +66,13 @@ import { REMIND_TOOL_NAME } from "@/lib/ai-reminders";
  * tab bar. Its settings are four sections, each with the tabs in it (`settings` is the instructions,
  * `tools` and `advanced` the form's other parts); runs, the chat and its versions come after them.
  */
-export type AgentTab = "settings" | "skills" | "memory" | "tools" | "access" | "connections" | "schedules" | "advanced" | "runs" | "chat" | "history" | "share";
+export type AgentTab = "settings" | "skills" | "memory" | "tools" | "access" | "connections" | "triggers" | "schedules" | "advanced" | "runs" | "chat" | "history" | "share";
 /** The server's main and fast models' names, shown with the agent's choice between them. */
 export type AgentModelNames = { main: string; fast: string };
 export const AGENT_SECTIONS = {
   instructions: ["settings", "skills", "memory"],
   tools: ["tools", "access", "connections"],
-  triggers: ["schedules"],
+  triggers: ["triggers", "schedules"],
   advanced: ["advanced"],
 } as const satisfies Record<string, readonly AgentTab[]>;
 type AgentSection = keyof typeof AGENT_SECTIONS;
@@ -87,6 +87,7 @@ const AgentLimitRequest = lazyPart(() => import("./agent-limit-request").then((m
 const AgentMailboxes = lazyPart(() => import("./agent-mailboxes").then((m) => m.AgentMailboxes));
 const ComputerStepLine = lazyPart(() => import("./computer-step").then((m) => m.ComputerStepLine));
 const AgentShareTab = lazyPart(() => import("./agent-share-tab").then((m) => m.AgentShareTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
+const AgentTriggersTab = lazyPart(() => import("./agent-triggers-tab").then((m) => m.AgentTriggersTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 const AgentMemoryTab = lazyPart(() => import("./agent-memory-tab").then((m) => m.AgentMemoryTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 /** An agent's emoji, or a robot when it has none. */
@@ -199,7 +200,7 @@ export function AgentDialog({
                 onClick={() => onTab(name)}
                 className={cn("flex items-center gap-1.5 border-b-2 pb-0.5", tab === name ? "border-fg text-fg" : "border-transparent text-fg-muted hover:text-fg")}
               >
-                {name === "settings" ? t("sections.instructions") : name === "tools" ? t("tabs.general") : name === "advanced" ? t("sections.advanced") : t(`tabs.${name}`)}
+                {name === "settings" ? t("sections.instructions") : name === "tools" ? t("tabs.general") : name === "advanced" ? t("sections.advanced") : name === "triggers" ? t("tabs.allTriggers") : t(`tabs.${name}`)}
                 {name === "memory" && memoryBadge}
               </button>
             ))}
@@ -233,6 +234,8 @@ export function AgentDialog({
         <AgentMemoryTab workspaceId={workspaceId} agent={agent} memoryOff={memoryOff} />
       ) : tab === "connections" ? (
         <AgentConnectionsTab workspaceId={workspaceId} agent={agent} isOwner={isOwner} />
+      ) : tab === "triggers" ? (
+        <AgentTriggersTab workspaceId={workspaceId} agent={agent} onTab={onTab} />
       ) : tab === "schedules" ? (
         <AgentSchedulesTab workspaceId={workspaceId} agent={agent} onRuns={() => onTab("runs")} />
       ) : tab === "history" ? (

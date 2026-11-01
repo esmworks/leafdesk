@@ -404,13 +404,37 @@
       "schedules": "일정",
       "history": "기록",
       "chat": "채팅",
-      "general": "일반"
+      "general": "일반",
+      "allTriggers": "전체"
     },
     "sections": {
       "instructions": "지시사항",
       "tools": "도구 및 액세스",
       "triggers": "트리거",
       "advanced": "고급"
+    },
+    "triggers": {
+      "description": "이 에이전트의 실행을 시작할 수 있는 것과 각 실행이 들어가는 대화입니다. 바꾸려면 하나를 여세요.",
+      "loadFailed": "목록을 불러오지 못했습니다.",
+      "chat": "채팅",
+      "chatHint": "사람들이 에이전트 페이지, 페이지의 블록 또는 Telegram에서 채팅합니다.",
+      "mention": "멘션",
+      "mentionHint": "멤버가 댓글에서 멘션합니다.",
+      "request": "요청",
+      "requestHint": "MCP 또는 REST API로 요청합니다.",
+      "schedule": "일정",
+      "automationIn": "{database}의 자동화",
+      "buttonIn": "{database}의 버튼",
+      "untitled": "제목 없음",
+      "mail": "{address}(으)로 온 새 메일",
+      "connection": "{connection} 이벤트",
+      "conversation": {
+        "new": "매번 새 대화",
+        "keyed": "행, 스레드 또는 일정마다 대화 하나",
+        "fixed": "자체 채팅"
+      },
+      "off": "꺼짐",
+      "unavailable": "사용할 수 없음"
     },
     "empty": "아직 에이전트가 없습니다.",
     "emptyOwner": "아직 에이전트가 없습니다. 새로 만들거나 아래 템플릿에서 시작하세요.",

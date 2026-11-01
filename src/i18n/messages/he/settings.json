@@ -404,13 +404,37 @@
       "schedules": "תזמונים",
       "history": "היסטוריה",
       "chat": "צ׳אט",
-      "general": "כללי"
+      "general": "כללי",
+      "allTriggers": "הכול"
     },
     "sections": {
       "instructions": "הוראות",
       "tools": "כלים וגישה",
       "triggers": "טריגרים",
       "advanced": "מתקדם"
+    },
+    "triggers": {
+      "description": "מה יכול להפעיל את הריצות של הסוכן, ולאיזו שיחה הולכת כל ריצה. פתחו אחד כדי לשנות אותו.",
+      "loadFailed": "לא ניתן לטעון את הרשימה.",
+      "chat": "צ'אט",
+      "chatHint": "משוחחים איתו בדף שלו, בבלוק בדף או מ-Telegram.",
+      "mention": "אזכורים",
+      "mentionHint": "חבר מזכיר אותו בתגובה.",
+      "request": "בקשות",
+      "requestHint": "מתבקש דרך MCP או REST API.",
+      "schedule": "תזמון",
+      "automationIn": "אוטומציה ב-{database}",
+      "buttonIn": "כפתור ב-{database}",
+      "untitled": "ללא כותרת",
+      "mail": "דוא\"ל חדש אל {address}",
+      "connection": "אירועים מ-{connection}",
+      "conversation": {
+        "new": "שיחה חדשה בכל פעם",
+        "keyed": "שיחה אחת לכל שורה, שרשור או תזמון",
+        "fixed": "הצ'אט שלו"
+      },
+      "off": "כבוי",
+      "unavailable": "לא זמין לך"
     },
     "empty": "אין עדיין סוכנים.",
     "emptyOwner": "אין עדיין סוכנים. אפשר ליצור סוכן, או להתחיל מאחת התבניות שלמטה.",

@@ -404,13 +404,37 @@
       "schedules": "Tidsplaner",
       "history": "Historikk",
       "chat": "Chat",
-      "general": "Generelt"
+      "general": "Generelt",
+      "allTriggers": "Alle"
     },
     "sections": {
       "instructions": "Instruksjoner",
       "tools": "Verktøy og tilgang",
       "triggers": "Utløsere",
       "advanced": "Avansert"
+    },
+    "triggers": {
+      "description": "Hva som kan starte agentens kjøringer, og hvilken samtale hver kjøring går til. Åpne en for å endre den.",
+      "loadFailed": "Listen kunne ikke lastes.",
+      "chat": "Chat",
+      "chatHint": "Folk chatter med den på siden dens, i en blokk på en side eller fra Telegram.",
+      "mention": "Omtaler",
+      "mentionHint": "Et medlem nevner den i en kommentar.",
+      "request": "Forespørsler",
+      "requestHint": "Bedt om via MCP eller REST API.",
+      "schedule": "Tidsplan",
+      "automationIn": "Automatisering i {database}",
+      "buttonIn": "Knapp i {database}",
+      "untitled": "Uten tittel",
+      "mail": "Ny e-post til {address}",
+      "connection": "Hendelser fra {connection}",
+      "conversation": {
+        "new": "En ny samtale hver gang",
+        "keyed": "Én samtale per rad, tråd eller tidsplan",
+        "fixed": "Sin egen chat"
+      },
+      "off": "Av",
+      "unavailable": "Ikke for deg"
     },
     "empty": "Ingen agenter ennå.",
     "emptyOwner": "Ingen agenter ennå. Opprett en, eller start fra en mal nedenfor.",

@@ -404,13 +404,37 @@
       "schedules": "Zeitpläne",
       "history": "Verlauf",
       "chat": "Chat",
-      "general": "Allgemein"
+      "general": "Allgemein",
+      "allTriggers": "Alle"
     },
     "sections": {
       "instructions": "Anweisungen",
       "tools": "Werkzeuge und Zugriff",
       "triggers": "Auslöser",
       "advanced": "Erweitert"
+    },
+    "triggers": {
+      "description": "Was die Läufe dieses Agenten starten kann und in welche Unterhaltung jeder Lauf geht. Zum Ändern einen öffnen.",
+      "loadFailed": "Die Liste konnte nicht geladen werden.",
+      "chat": "Chat",
+      "chatHint": "Personen chatten mit ihm auf seiner Seite, in einem Block auf einer Seite oder über Telegram.",
+      "mention": "Erwähnungen",
+      "mentionHint": "Ein Mitglied erwähnt ihn in einem Kommentar.",
+      "request": "Anfragen",
+      "requestHint": "Über MCP oder die REST API angefragt.",
+      "schedule": "Zeitplan",
+      "automationIn": "Automatisierung in {database}",
+      "buttonIn": "Schaltfläche in {database}",
+      "untitled": "Ohne Titel",
+      "mail": "Neue E-Mail an {address}",
+      "connection": "Ereignisse von {connection}",
+      "conversation": {
+        "new": "Jedes Mal eine neue Unterhaltung",
+        "keyed": "Eine Unterhaltung je Zeile, Thread oder Zeitplan",
+        "fixed": "Sein eigener Chat"
+      },
+      "off": "Aus",
+      "unavailable": "Nicht für dich"
     },
     "empty": "Noch keine Agenten.",
     "emptyOwner": "Noch keine Agenten. Erstelle einen oder beginne unten mit einer Vorlage.",

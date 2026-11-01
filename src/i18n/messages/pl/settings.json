@@ -404,13 +404,37 @@
       "schedules": "Harmonogramy",
       "history": "Historia",
       "chat": "Czat",
-      "general": "Ogólne"
+      "general": "Ogólne",
+      "allTriggers": "Wszystko"
     },
     "sections": {
       "instructions": "Instrukcje",
       "tools": "Narzędzia i dostęp",
       "triggers": "Wyzwalacze",
       "advanced": "Zaawansowane"
+    },
+    "triggers": {
+      "description": "Co może uruchomić przebiegi tego agenta i do której rozmowy trafia każdy przebieg. Otwórz jeden, aby go zmienić.",
+      "loadFailed": "Nie udało się wczytać listy.",
+      "chat": "Czat",
+      "chatHint": "Rozmawia się z nim na jego stronie, w bloku na stronie lub przez Telegram.",
+      "mention": "Wzmianki",
+      "mentionHint": "Członek wspomina go w komentarzu.",
+      "request": "Prośby",
+      "requestHint": "Zlecane przez MCP lub REST API.",
+      "schedule": "Harmonogram",
+      "automationIn": "Automatyzacja w {database}",
+      "buttonIn": "Przycisk w {database}",
+      "untitled": "Bez tytułu",
+      "mail": "Nowy e-mail do {address}",
+      "connection": "Zdarzenia z {connection}",
+      "conversation": {
+        "new": "Za każdym razem nowa rozmowa",
+        "keyed": "Jedna rozmowa na wiersz, wątek lub harmonogram",
+        "fixed": "Jego własny czat"
+      },
+      "off": "Wyłączone",
+      "unavailable": "Niedostępne dla Ciebie"
     },
     "empty": "Brak agentów.",
     "emptyOwner": "Brak agentów. Utwórz agenta lub zacznij od jednego z poniższych szablonów.",

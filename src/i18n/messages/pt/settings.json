@@ -404,13 +404,37 @@
       "schedules": "Agendamentos",
       "history": "Histórico",
       "chat": "Chat",
-      "general": "Geral"
+      "general": "Geral",
+      "allTriggers": "Tudo"
     },
     "sections": {
       "instructions": "Instruções",
       "tools": "Ferramentas e acesso",
       "triggers": "Gatilhos",
       "advanced": "Avançado"
+    },
+    "triggers": {
+      "description": "O que pode iniciar as execuções deste agente e a conversa para onde vai cada uma. Abra um para alterá-lo.",
+      "loadFailed": "Não foi possível carregar a lista.",
+      "chat": "Chat",
+      "chatHint": "As pessoas conversam com ele na página dele, num bloco de uma página ou pelo Telegram.",
+      "mention": "Menções",
+      "mentionHint": "Um membro o menciona num comentário.",
+      "request": "Pedidos",
+      "requestHint": "Pedido via MCP ou API REST.",
+      "schedule": "Agendamento",
+      "automationIn": "Automação em {database}",
+      "buttonIn": "Botão em {database}",
+      "untitled": "Sem título",
+      "mail": "Novo e-mail para {address}",
+      "connection": "Eventos de {connection}",
+      "conversation": {
+        "new": "Uma conversa nova a cada vez",
+        "keyed": "Uma conversa por linha, tópico ou agendamento",
+        "fixed": "O próprio chat"
+      },
+      "off": "Desativado",
+      "unavailable": "Não disponível para você"
     },
     "empty": "Nenhum agente ainda.",
     "emptyOwner": "Nenhum agente ainda. Crie um ou comece por um modelo abaixo.",
