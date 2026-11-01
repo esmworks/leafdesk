@@ -188,7 +188,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   in `page_tag` by `server/page-tags.ts` (persistPage, copies, backfill queue), marked and suggested
   in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
-  `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
+  `src/lib/agents.ts`) and the run's turns with the model (`converse`); what a run is offered and
+  how each tool call is answered (waits, counts, refusals) is `src/server/assistant/dispatch.ts`
+  (`setUpRun`, `createDispatch`); runs are queued from `requests.ts`, `chat.ts`,
   `mentions.ts`, `handoff.ts` and the `agent` schedule kind. A chat run streams its turns: the text so far
   goes to an in-process store (`agents/live-text.ts`, masked as the kept answer) that
   `/api/agents/chat/live` sends the person chatting as edits; the answer itself is still
@@ -200,7 +202,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   several user records can share one run id (keys and history merge them). Files an agent attaches
   are `agent_chat_file` rows (`agents/chat-files.ts`), left out of backups and orphan sweeps. Each agent is its own user. Memory
   (`memory.ts`): runs only propose notes, a proposal with `replacesId` changes that kept note in
-  place; except a correction (`ai_memory.kind`) in an editor's own chat while `run.ts`
+  place; except a correction (`ai_memory.kind`) in an editor's own chat while `dispatch.ts`
   `untainted()` holds, kept at once and undone by `undoAgentCorrection` from the step's `previous`
   (the step found by its index in `run.steps`, which the conversation's copy keeps); `lib/agents.ts`
   `readOthersWords` is the one rule of outside words, read by `untainted()` and by `readOutside()`,
@@ -211,13 +213,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   goes out at once from the run's person's mailbox (`send-mail.ts`, through `row-mail/send.ts`
   `sendFromMailbox`). Spending guardrails: `server/ai-limit-notices.ts` (the `ai_limit` inbox
   kind near and at a limit, one row per person and month by a unique index; a new agent spending
-  fast is turned off mid-run from `run.ts`), `agents/limits.ts` (requests for a higher limit,
+  fast is turned off mid-run from `run.ts` and `dispatch.ts`), `agents/limits.ts` (requests for a higher limit,
   answered from owners' inboxes), pure part `lib/agent-guardrails.ts`; who creates agents is
   `sharing.ts` `mayCreate` (`agent_creator` when the setting is `chosen`). Owners' per-tool rules
   are `agent_tool_rule`, written only by `connections/manage.ts` `setAgentGrant`; a call held for
   quiet hours (`lib/quiet-hours.ts`) is an `awaiting_approval` run with `pending.deferredUntil`,
   woken by `run.ts` `wakeDeferred` in the sweep (expiry skips it); every change a run makes goes
-  through `change()` in `run.ts`, which takes the day's count from `agents/daily-changes.ts`.
+  through `change()` in `dispatch.ts`, which takes the day's count from `agents/daily-changes.ts`.
   Files on the chatting person's computer: the desktop app (`desktop/src/agent-files.ts`, which
   checks every path again itself) opens the websocket `/desktop-bridge` (`server.ts` routes it to
   `server/desktop-bridge/socket.ts`: the session cookie plus the app's header, which no web page can
@@ -240,7 +242,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `server/desktop-bridge/`) go only to chat runs whose source carries the web `sessionId` of the
   connected app's own session (actions pass it; queued turns keep it only when all came from it);
   once a run or an earlier turn of its conversation read there (`lib/local-reads.ts`; a later
-  turn starts with a `COMPUTER_EARLIER` step, so trimming the history keeps the mark), `run.ts`
+  turn starts with a `COMPUTER_EARLIER` step, so trimming the history keeps the mark), `dispatch.ts`
   refuses connection tools, the web, `ask_agent`/`assign_agent` and `send_email` (`localRead`), and
   MCP and the REST API leave out what such turns did and said (`describeAgentRun`, `get_agent_chat`).
   `send_email` counts only toward the daily change limit, never the run's own cap.
@@ -368,7 +370,7 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   an agent gets them only for
   mailboxes their owner opened to it (`agents/mail.ts`, table `agent_mailbox`) on runs `lib/agents.ts`
   `mailRun` allows (shown to that person alone, in the app); its drafts are saved unasked, so
-  `prepareMailDraft` checks recipients, and once a run read mail `run.ts` refuses all but page reads,
+  `prepareMailDraft` checks recipients, and once a run read mail `dispatch.ts` refuses all but page reads,
   the mail tools and row proposals to the mail's person alone (`state.mailRead`, `mailProposes`;
   the chat's run message shows them, `agent-chat/run-proposals.tsx`), as in the chat's later runs (`lib/agents.ts` `readEmail` on their
   history, `chat-store.ts`); MCP and the REST API leave out what such runs did and answered;
@@ -377,7 +379,7 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   (filters pure in `lib/agent-mail-trigger.ts`; `store` returns only rows it inserted, so the sweep
   and the IDLE watch never both start one); such a run reads the thread first and starts tainted;
   `sort_mail`/`summarize_mail` and the Mail list's agent marks (`mail_message.agent_marks`) are
-  `ai-chat-mail.ts` `runAgentMailAction`/`markMail`; it may also propose rows (`run.ts` `propose`),
+  `ai-chat-mail.ts` `runAgentMailAction`/`markMail`; it may also propose rows (`dispatch.ts` `propose`),
   stored with `pending_change.private_to` set to the mailbox's owner, which `pending-changes.ts`
   shows, counts and lets answer only to them (`ownProposal`; never to connected apps); a new read
   of pending changes adds it; the built-in `mail-assistant` template sets this up;

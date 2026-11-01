@@ -62,7 +62,7 @@ export async function rowPendingChangesAction(workspaceId: string, rowId: string
 /** What one agent run proposed, for its message in the agent's chat: the open ones the person may answer, and how many were approved. */
 export type RunProposals = { open: string[]; waiting: number; approved: number };
 
-/** The changes one agent run proposed (agents/run.ts), as its chat shows them. */
+/** The changes one agent run proposed (assistant/dispatch.ts), as its chat shows them. */
 export async function runProposalsAction(workspaceId: string, runId: string): Promise<ActionResult<RunProposals>> {
   return run(async (userId) => {
     const filter = { runId: String(runId) };

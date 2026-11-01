@@ -20,7 +20,7 @@
  * One run does speak with a person: a chat run. What someone who can edit the agent tells it there
  * it got wrong, or must always or never do, is a correction (`kind` correction), and a correction
  * they said is kept at once, as said by them (`saidBy`), no owner asked: they are one. Only while
- * the run read nothing but their words and the workspace (run.ts `untainted`: no email, web page or
+ * the run read nothing but their words and the workspace (assistant/dispatch.ts `untainted`: no email, web page or
  * search, connection's answer, other agent's answer or attached file), since otherwise the
  * "correction" may be what that told the model to keep; and at most MAX_CORRECTIONS_PER_RUN in a
  * run, within MAX_MEMORIES kept notes. Past those, and in every other run, a correction is a

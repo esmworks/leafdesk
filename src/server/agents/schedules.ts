@@ -11,7 +11,7 @@
  * the database ("accessLost"). A paused agent, a database in the trash or one not shared with the
  * agent skips runs instead, and a schedule whose last run still waits (for its turn, or for an owner
  * to approve a call) skips one. A run over a database with rows no one in the workspace stands
- * behind (an anonymous form answer) asks an owner before each connection tool (run.ts).
+ * behind (an anonymous form answer) asks an owner before each connection tool (assistant/dispatch.ts).
  *
  * The server imports this module for its handler (server.ts); the scheduler itself doesn't, so
  * modules it is imported by stay clear of the agents' worker.

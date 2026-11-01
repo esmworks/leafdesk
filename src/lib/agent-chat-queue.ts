@@ -24,7 +24,7 @@ export const queueView = (queue: readonly AgentChatQueuedRecord[]): AgentChatQue
  * question of the run `runId`, a moment after the answer and in order; the run's prompt and files
  * (named apart from one another); whether a connected app sent one (the run is then one from an
  * app: no mail tools), whether the Telegram bot did (it follows the answer) and whether an app other
- * than the bot did (its words aren't the person's: run.ts `untainted`); the web session they were
+ * than the bot did (its words aren't the person's: assistant/dispatch.ts `untainted`); the web session they were
  * all sent from, only when it is one and the same (agents/computer.ts lends the computer only then);
  * and the clock the last one was written on.
  */

@@ -53,7 +53,7 @@ export const MAX_AGENT_TOKEN_LIMIT = 1_000_000_000;
 /** Writes one run may make. What it may spend is AI_RUN_LIMIT_USD; it has no turn or time limit of its own. */
 export const MAX_AGENT_WRITES = 5;
 /**
- * Rows one run that read email may propose (agents/run.ts): nothing changes until the person
+ * Rows one run that read email may propose (assistant/dispatch.ts): nothing changes until the person
  * approves, so a list read from an email (a day's balances) is proposed whole.
  */
 export const MAX_MAIL_PROPOSALS = 60;
@@ -745,7 +745,7 @@ export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "re
 /**
  * What a run that read email may still call besides the mail tools: reading pages (and files on
  * the person's computer, which bring something in but carry nothing out), finding tools, and
- * use_tool, whose writes run.ts refuses on their own.
+ * use_tool, whose writes assistant/dispatch.ts refuses on their own.
  */
 export const READS_AFTER_MAIL: ReadonlySet<string> = new Set([
   "search_pages",

@@ -131,7 +131,7 @@ export type ConnectionEventView = {
 };
 
 /**
- * An owner's standing answer for one tool of an agent's (server/agents/run.ts): "deny" refuses
+ * An owner's standing answer for one tool of an agent's (server/assistant/dispatch.ts): "deny" refuses
  * every call of it, read or write, sending nothing; "allow" sends a writing tool's calls without
  * asking, except on a run that read what no one stands behind, where each still waits, and during
  * the agent's quiet hours, until they end. A tool without one is asked about (writes) or runs (reads).

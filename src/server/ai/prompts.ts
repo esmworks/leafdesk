@@ -830,7 +830,7 @@ export function agentSystemPrompt(
     /** The person it works for opened a mailbox to it, but a run like this one doesn't read email (lib/agents.ts mailRun). */
     mailHeld?: boolean;
     /**
-     * Rows it proposes from email to the person whose email it is (agents/run.ts): `always` on a run
+     * Rows it proposes from email to the person whose email it is (assistant/dispatch.ts): `always` on a run
      * new email or a schedule started, `afterMail` in a chat once email was read.
      */
     mailProposes?: "always" | "afterMail";
