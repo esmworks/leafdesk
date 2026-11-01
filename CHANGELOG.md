@@ -459,6 +459,9 @@
 
 ### Changed
 
+- **New message in the Mail tab is a button beside the mailbox's address.** It was a row of its own
+  right above the inbox, where it took clicks meant for the inbox; the folders move up a row. `C`
+  still starts a message.
 - **Chatting with an agent looks and works like the AI chat.** The agent's page, its chat block in
   pages and the Chat tab of its settings show the same conversation and question box as the AI chat:
   the same answers, steps, files, dictation and asking again, with the agent's runs, days and

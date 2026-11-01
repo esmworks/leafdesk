@@ -70,7 +70,7 @@ export function MailboxMark({ address, className }: { address: string; className
   );
 }
 
-/** What the sidebar shows in its Mail tab: the open mailbox's folders, New message, the other mailboxes. */
+/** What the sidebar shows in its Mail tab: the open mailbox with New message, its folders, the other mailboxes. */
 export function MailSidebar({ workspaceId }: { workspaceId: string }) {
   const t = useTranslations("mail");
   const search = useSearchParams();
@@ -125,16 +125,22 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
           <StarredLink href={mailHref(workspaceId, { box: ALL_INBOXES, f: STARRED })} label={t("allStarred")} active={all && starred} onPick={pick} />
         </div>
       )}
-      {/* The mailbox, New message and its folders in one column, spaced like the folders. */}
+      {/* The mailbox and its folders in one column, spaced like the folders. New message is a button
+          at the end of the mailbox's row: a row of its own sat right above the inbox and took its clicks. */}
       <div className="space-y-px">
-        <div className={cn(rowClass, "hover:bg-transparent")} title={box.address}>
+        <div className={cn(rowClass, "pe-0.5 hover:bg-transparent")}>
           <MailboxMark address={box.address} />
-          <span className="min-w-0 flex-1 truncate font-medium">{box.address}</span>
+          <span className="min-w-0 flex-1 truncate font-medium" title={box.address}>{box.address}</span>
+          <button
+            type="button"
+            onClick={compose}
+            aria-label={t("compose")}
+            title={`${t("compose")} (C)`}
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-fg-icon hover:bg-bg-hover hover:text-fg"
+          >
+            <SquarePen className="h-4 w-4" />
+          </button>
         </div>
-        <button type="button" className={rowClass} onClick={compose} title={`${t("compose")} (C)`}>
-          <SquarePen className="h-4 w-4 shrink-0 text-fg-icon" />
-          <span className="flex-1 truncate">{t("compose")}</span>
-        </button>
         {box.folders === null ? (
           <div className="space-y-1.5 px-2 pt-2" aria-busy>
             {[60, 45, 55, 40].map((w) => (
