@@ -3,7 +3,7 @@
 // editor schemas.
 
 import type { AgentCommentRecord, AgentEmailRecord, AgentHandoffRecord, AgentRunCode, AgentRunStatus, AgentSkillRecord, AgentStepRecord, AgentToolRecord } from "./agents";
-import type { ChatStepView } from "./ai-chat";
+import type { ChatEvent, ChatStepView } from "./ai-chat";
 
 /**
  * Chatting with an agent: a person writes to one of the workspace's agents and it answers, each
@@ -260,12 +260,14 @@ export type AgentChatSearchHit = {
 };
 
 /**
- * A change to what a turn under way has written so far, as `/api/agents/chat/live` sends it
- * (server/agents/live-text.ts): keep the first `at` letters, then add `add`.
+ * A step a chat run took, as its events bring it to the person chatting (run.ts converse,
+ * server/ai-chat-runs.ts): the `index`th of the run's steps, as chatTurn shows it, with the names of
+ * the connections it names. Those taken before the run went on after an approval come with the turn.
  */
-export type LiveTextEdit = { at: number; add: string };
+export type AgentStepEvent = { type: "agentStep"; index: number; step: AgentChatStepView; connections: Record<string, string> };
 
-export const applyLiveEdit = (text: string, edit: LiveTextEdit) => text.slice(0, edit.at) + edit.add;
+/** What an answer under way sends whoever follows it (`GET /api/ai/chat?run=`): the AI chat's events, and an agent chat run's steps. */
+export type RunEvent = ChatEvent | AgentStepEvent;
 
 /**
  * Where a person stands with an agent's chat: they may chat (`full` when they can edit the agent,

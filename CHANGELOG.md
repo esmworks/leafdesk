@@ -465,6 +465,11 @@
   waiting messages between them. The agent's settings are grouped into four parts: Instructions
   (with skills and memory), Tools and access (with connections), Triggers and Advanced (model, limits
   and quiet hours); links to a tab still open it.
+- **An agent's chat answer comes the way the AI chat's does.** Its text as it is written, its steps
+  as it takes them and its end now come over the AI chat's own answer stream, so a step shows the
+  moment it is taken rather than up to a second later, and the turn is read once it ends instead
+  of every second; Telegram follows the same stream. Credentials stay masked while it is written,
+  as the kept answer is. The separate `/api/agents/chat/live` endpoint is gone.
 - **Owners can turn off changes without asking in the AI chat.** Settings → General → AI has a new
   switch, *Changes without asking*: when off, the chat's *Auto* mode and "Yes, and don't ask again"
   are gone and every change is asked about, also in answers already under way. It is on by default.
