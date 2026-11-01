@@ -11,6 +11,7 @@
     "open": "Menunggu",
     "decided": "Sudah dijawab",
     "allRows": "Tampilkan semua baris",
+    "allRuns": "Tampilkan semua jalannya",
     "clear": "Hapus filter"
   },
   "count": "{count, plural, other {# perubahan}}",

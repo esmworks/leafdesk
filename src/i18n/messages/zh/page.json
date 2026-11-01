@@ -1321,6 +1321,15 @@
     "working": "处理中…",
     "waiting": "正在等待 AI 空闲名额…",
     "approval": "智能体想要使用一个工具。批准该调用后它才能继续。",
+    "proposals": {
+      "title": "建议的更改",
+      "waiting": "{count, plural, other {# 项更改等待你批准}}",
+      "approved": "{count, plural, other {已批准 # 项}}",
+      "approveAll": "{count, plural, one {批准} other {全部批准（# 项）}}",
+      "review": "查看",
+      "skipped": "{count, plural, other {有 # 项更改无法完成：请查看。}}",
+      "failed": "无法批准这些更改。请重试。"
+    },
     "steps": "{count, plural, other {# 个步骤}}",
     "conversations": "对话",
     "newConversation": "新对话",

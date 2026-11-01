@@ -11,6 +11,7 @@
     "open": "Wachtend",
     "decided": "Beantwoord",
     "allRows": "Alle rijen tonen",
+    "allRuns": "Alle runs tonen",
     "clear": "Filters wissen"
   },
   "count": "{count, plural, one {# wijziging} other {# wijzigingen}}",

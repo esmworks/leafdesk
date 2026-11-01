@@ -9,7 +9,7 @@ import { recordPageViewAction } from "@/app/actions/page-views";
 import { placeAtAction } from "@/app/actions/places";
 import { getPageReviewAction, listTrashAction, recentSearchAction, searchAction, searchFilterOptionsAction } from "@/app/actions/pages";
 import { relatedPagesAction } from "@/app/actions/related-pages";
-import { pendingCountAction } from "@/app/actions/review";
+import { pendingCountAction, runProposalsAction } from "@/app/actions/review";
 import { discoverMailServersAction } from "@/app/actions/row-mail";
 import { settingsSearchAction } from "@/app/actions/settings-search";
 import { usableSnippetsAction } from "@/app/actions/snippets";
@@ -32,6 +32,7 @@ export const READS = {
   unreadCount: unreadCountAction,
   dueReminders: dueRemindersAction,
   pendingCount: pendingCountAction,
+  runProposals: runProposalsAction,
   sidebarAgents: sidebarAgentsAction,
   agentLimitRequest: pendingAgentLimitRequestAction,
   agentMailboxes: agentMailboxesAction,

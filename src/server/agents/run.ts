@@ -64,6 +64,7 @@ import {
   mayCallAfterMail,
   MAX_AGENT_PROMPT,
   MAX_AGENT_WRITES,
+  MAX_MAIL_PROPOSALS,
   MAX_SCHEDULED_WRITES,
   MENTION_THREAD_CHARS,
   MENTION_THREAD_COMMENTS,
@@ -361,10 +362,10 @@ async function reportRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "sour
   }
 }
 
-/** Whether a run new email started leaves its person something: a draft saved, or a failure other than the email being gone. */
+/** Whether a run new email started leaves its person something: a draft saved, rows proposed (approved in its chat), or a failure other than the email being gone. */
 function mailNeedsPerson(ending: Pick<Ending, "status" | "code" | "steps">) {
   if (ending.status === "failed") return ending.code !== "mailGone" && ending.code !== "agentDisabled";
-  return (ending.steps ?? []).some((s) => s.kind === "mail" && s.action === "draft" && s.outcome === "done");
+  return (ending.steps ?? []).some((s) => (s.kind === "mail" && s.action === "draft" && s.outcome === "done") || (s.kind === "write" && s.outcome === "proposed"));
 }
 
 /** What an agent mentioned in a comment says in the thread when its run ends without an answer, by the run's code (lib/agents). */
@@ -695,6 +696,15 @@ async function converse(
   // run, whose task another agent wrote, nor on one reading what no member stands behind.
   const reminded = handedOff || askEveryTool || arrival ? null : remindedPerson(run.source);
   const reminder = reminded ? reminderFor(run) : null;
+  // The email of the person the run works for, in the mailboxes they opened to the agent (mail.ts):
+  // only on a run that shows what it did to them alone and stays in the app (lib/agents.ts mailRun).
+  const mailBoxes = mailRun(run.source) ? await runMailboxes(agent, member) : [];
+  // Opened to it but not read on a run like this one: it says why instead of asking to be given mail.
+  const mailHeld = !mailRun(run.source) && (await runMailboxes(agent, member)).length > 0;
+  // Rows a run proposes from email, to the person whose email it is (see propose): a run new email
+  // started from the start, a schedule's (not on a database) whenever, and the chat of someone who
+  // may edit the agent once it read email. Nothing changes until that person approves.
+  const mailProposes = mailBoxes.length > 0 && !databaseId && (Boolean(arrival) || scheduled || (chat && chatWrites));
   const ownTools = rowRun
     ? AGENT_TOOLS
     : databaseId
@@ -705,19 +715,16 @@ async function converse(
           ? [...CHAT_TOOLS.filter((t) => READS_AFTER_MAIL.has(t.name)), CREATE_ROW, UPDATE_ROW]
           : chatWrites
             ? [...CHAT_TOOLS, ...WRITE_TOOLS]
-            : [...CHAT_TOOLS, ...mentionTools];
-  const reviews = proposes && ownTools.some((t) => PROPOSE_TOOLS.has(t.name));
+            : mailProposes
+              ? [...CHAT_TOOLS, ...mentionTools, CREATE_ROW, UPDATE_ROW]
+              : [...CHAT_TOOLS, ...mentionTools];
+  const reviews = (proposes || mailProposes) && ownTools.some((t) => PROPOSE_TOOLS.has(t.name));
   // A run on a row, or a schedule's on a database, that works for someone with a mailbox where mail
   // is matched to the rows drafts email from it; each draft waits for them (email-drafts.ts).
   const draftDatabase = databaseId ?? (isRowRun(run.source) ? await databaseOfRow(run.source.rowId) : null);
   const sender = await draftSender(member, run.workspaceId, draftDatabase);
   // Email to the agent's own recipients, from the mailbox of the member the run works for (send-mail.ts).
   const mailer = await mailSender(member, run.workspaceId, agent.mailRecipients);
-  // The email of the person the run works for, in the mailboxes they opened to the agent (mail.ts):
-  // only on a run that shows what it did to them alone and stays in the app (lib/agents.ts mailRun).
-  const mailBoxes = mailRun(run.source) ? await runMailboxes(agent, member) : [];
-  // Opened to it but not read on a run like this one: it says why instead of asking to be given mail.
-  const mailHeld = !mailRun(run.source) && (await runMailboxes(agent, member)).length > 0;
   // Its person closed the mailbox to the agent (or lost it) since the email came.
   if (arrival && !mailBoxes.includes(arrival.mailboxId)) return { status: "failed", code: "mailGone", steps: [...run.steps], usage: run.usage ?? { inputTokens: 0, outputTokens: 0, costUsd: 0, rounds: 0 } };
   const mailTools = agentMailToolset(mailBoxes);
@@ -727,7 +734,7 @@ async function converse(
   // Leafdesk's further tools, on a run someone stands behind (and that doesn't read email from the start).
   const moreTools = askEveryTool || arrival ? null : allMoreTools;
   const tools = [
-    ...forReview(ownTools, proposes),
+    ...forReview(ownTools, proposes || mailProposes),
     ...(merges ? [MERGE_ROWS] : []),
     ...(sender ? [draftEmailTool(sender, { anyRow: Boolean(databaseId) })] : []),
     ...(mailer ? [sendEmailTool(mailer, agent.mailRecipients)] : []),
@@ -764,10 +771,12 @@ async function converse(
     skills: skillSet.skills,
     remembers,
     leavesNote,
-    reviews,
+    // In a chat, only what it proposes from email waits: its wording is the chat's own.
+    reviews: reviews && !chat,
     drafts: Boolean(sender),
     mail: mailTools.length > 0,
     mailHeld,
+    mailProposes: mailProposes ? (chat ? "afterMail" : "always") : undefined,
     mailArrived: Boolean(arrival),
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
@@ -782,6 +791,8 @@ async function converse(
   const usage: AgentRunUsage = run.usage ? { ...run.usage } : { inputTokens: 0, outputTokens: 0, costUsd: 0, rounds: 0 };
   let messages: AiMessage[];
   let writes = 0;
+  // Rows proposed from email (MAX_MAIL_PROPOSALS), apart from the changes it made.
+  let proposals = steps.filter((s) => s.kind === "write" && s.outcome === "proposed").length;
   let externalChars = 0;
   let reminders = remindersSet(steps);
   // The addresses this run's searches returned: a schedule's run may read them.
@@ -893,7 +904,8 @@ async function converse(
     if (!row) return { content: "This change can't be proposed.", isError: true };
     const reason = typeof call.arguments.reason === "string" ? call.arguments.reason.trim() : "";
     if (!reason) return { content: "Give a reason: why you propose this change, for the person reviewing it. Nothing was proposed.", isError: true };
-    if (arrival && !hasLevel((await pageAccessOf(arrival.userId, row.rowId ?? row.databaseId)).level, "content")) {
+    const mailPerson = mailProposes ? member : null;
+    if (mailPerson && !hasLevel((await pageAccessOf(mailPerson, row.rowId ?? row.databaseId)).level, "content")) {
       return { content: "The person whose email this is can't edit that row or database, so they couldn't approve it. Nothing was proposed.", isError: true };
     }
     const { replaced } = await proposeChange({
@@ -907,8 +919,8 @@ async function converse(
       source: { kind: "agent_run", runId: run.id, automationRunId: run.source.kind === "automation" ? run.source.automationRunId : null },
       agent: { id: agent.id, userId: agent.userId },
       runId: run.id,
-      for: arrival ? [arrival.userId] : [member, agent.createdBy],
-      privateTo: arrival?.userId ?? null,
+      for: mailPerson ? [mailPerson] : [member, agent.createdBy],
+      privateTo: mailPerson,
     });
     return {
       content: `${replaced ? "Proposed again, in place of your earlier proposal for this row" : "Proposed"}: it waits for a person to approve it under For review and isn't made yet. Don't propose it again.`,
@@ -922,13 +934,14 @@ async function converse(
     // Email is anyone's words, and could steer the run into sending on what it read: once it read
     // some, it only reads pages and drafts email (whose recipients ai-chat-mail.ts checks). Nothing
     // waits for approval either: an owner who isn't the mailbox's would see what it would send.
-    // A run new email started proposes rows to its person alone, who approves each (see propose).
-    if (arrival && reviews && PROPOSE_TOOLS.has(call.name)) {
-      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+    // A run reading email proposes rows to its person alone, who approves them (see propose): one
+    // new email or a schedule started from the start, a chat once it read email.
+    if (mailProposes && (!chat || mailRead) && PROPOSE_TOOLS.has(call.name)) {
+      if (proposals >= MAX_MAIL_PROPOSALS) return { content: `You have proposed ${MAX_MAIL_PROPOSALS} changes, the most one run may. Finish now, saying what is left.`, isError: true };
       const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
       if (!("action" in prepared)) return prepared;
       const out = await propose(prepared, call);
-      if (!out.isError) writes += 1;
+      if (!out.isError) proposals += 1;
       return out;
     }
     if (mailRead && !mayCallAfterMail(call.name, Boolean(external))) {

@@ -1321,6 +1321,15 @@
     "working": "Pracuje…",
     "waiting": "Czeka na wolne miejsce AI…",
     "approval": "Agent chce użyć narzędzia. Zatwierdź wywołanie, aby mógł kontynuować.",
+    "proposals": {
+      "title": "Proponowane zmiany",
+      "waiting": "{count, plural, one {# zmiana czeka na twoje zatwierdzenie} few {# zmiany czekają na twoje zatwierdzenie} other {# zmian czeka na twoje zatwierdzenie}}",
+      "approved": "{count, plural, other {zatwierdzono: #}}",
+      "approveAll": "{count, plural, one {Zatwierdź} other {Zatwierdź wszystkie (#)}}",
+      "review": "Przejrzyj",
+      "skipped": "{count, plural, other {Nie udało się wprowadzić zmian: #. Przejrzyj je.}}",
+      "failed": "Nie udało się zatwierdzić zmian. Spróbuj ponownie."
+    },
     "steps": "{count, plural, one {# krok} few {# kroki} many {# kroków} other {# kroku}}",
     "conversations": "Rozmowy",
     "newConversation": "Nowa rozmowa",

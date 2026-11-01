@@ -1321,6 +1321,15 @@
     "working": "Arbeider…",
     "waiting": "Venter på ledig KI-kapasitet…",
     "approval": "Agenten vil bruke et verktøy. Godkjenn kallet for å la den fortsette.",
+    "proposals": {
+      "title": "Foreslåtte endringer",
+      "waiting": "{count, plural, one {# endring venter på godkjenningen din} other {# endringer venter på godkjenningen din}}",
+      "approved": "{count, plural, other {# godkjent}}",
+      "approveAll": "{count, plural, one {Godkjenn} other {Godkjenn alle #}}",
+      "review": "Se gjennom",
+      "skipped": "{count, plural, one {# endring kunne ikke gjøres: se gjennom den.} other {# endringer kunne ikke gjøres: se gjennom dem.}}",
+      "failed": "Endringene kunne ikke godkjennes. Prøv igjen."
+    },
     "steps": "{count, plural, one {# trinn} other {# trinn}}",
     "conversations": "Samtaler",
     "newConversation": "Ny samtale",

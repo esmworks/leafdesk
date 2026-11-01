@@ -11,6 +11,7 @@
     "open": "Bekleyenler",
     "decided": "Yanıtlananlar",
     "allRows": "Tüm satırları göster",
+    "allRuns": "Tüm çalışmaları göster",
     "clear": "Filtreleri temizle"
   },
   "count": "{count, plural, one {# değişiklik} other {# değişiklik}}",

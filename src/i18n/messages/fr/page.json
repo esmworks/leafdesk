@@ -1321,6 +1321,15 @@
     "working": "En cours…",
     "waiting": "En attente d’un créneau d’IA…",
     "approval": "L’agent veut utiliser un outil. Approuvez l’appel pour qu’il puisse continuer.",
+    "proposals": {
+      "title": "Modifications proposées",
+      "waiting": "{count, plural, one {# modification attend ton approbation} other {# modifications attendent ton approbation}}",
+      "approved": "{count, plural, one {# approuvée} other {# approuvées}}",
+      "approveAll": "{count, plural, one {Approuver} other {Tout approuver (#)}}",
+      "review": "Examiner",
+      "skipped": "{count, plural, one {# modification n'a pas pu être faite : examine-la.} other {# modifications n'ont pas pu être faites : examine-les.}}",
+      "failed": "Les modifications n'ont pas pu être approuvées. Réessaie."
+    },
     "steps": "{count, plural, one {# étape} other {# étapes}}",
     "conversations": "Conversations",
     "newConversation": "Nouvelle conversation",

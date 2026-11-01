@@ -1321,6 +1321,15 @@
     "working": "جارٍ العمل…",
     "waiting": "في انتظار دور لدى الذكاء الاصطناعي…",
     "approval": "يريد الوكيل استخدام أداة. وافق على الاستدعاء ليتمكن من المتابعة.",
+    "proposals": {
+      "title": "التغييرات المقترحة",
+      "waiting": "{count, plural, one {تغيير واحد ينتظر موافقتك} other {# تغييرات تنتظر موافقتك}}",
+      "approved": "{count, plural, other {تمت الموافقة على #}}",
+      "approveAll": "{count, plural, one {موافقة} other {الموافقة على الكل (#)}}",
+      "review": "مراجعة",
+      "skipped": "{count, plural, other {تعذّر إجراء # من التغييرات: راجعها.}}",
+      "failed": "تعذّرت الموافقة على التغييرات. حاول مرة أخرى."
+    },
     "steps": "{count, plural, zero {لا خطوات} one {خطوة واحدة} two {خطوتان} few {# خطوات} many {# خطوة} other {# خطوة}}",
     "conversations": "المحادثات",
     "newConversation": "محادثة جديدة",

@@ -1321,6 +1321,15 @@
     "working": "Çalışıyor…",
     "waiting": "Yapay zekâ sırası bekleniyor…",
     "approval": "Ajan bir araç kullanmak istiyor. Devam edebilmesi için çağrıyı onayla.",
+    "proposals": {
+      "title": "Önerilen değişiklikler",
+      "waiting": "{count, plural, other {# değişiklik onayını bekliyor}}",
+      "approved": "{count, plural, other {# onaylandı}}",
+      "approveAll": "{count, plural, one {Onayla} other {Tümünü onayla (#)}}",
+      "review": "İncele",
+      "skipped": "{count, plural, other {# değişiklik yapılamadı: incele.}}",
+      "failed": "Değişiklikler onaylanamadı. Yeniden dene."
+    },
     "steps": "{count, plural, one {# adım} other {# adım}}",
     "conversations": "Sohbetler",
     "newConversation": "Yeni sohbet",

@@ -1321,6 +1321,15 @@
     "working": "در حال کار…",
     "waiting": "در انتظار نوبت هوش مصنوعی…",
     "approval": "عامل می‌خواهد از یک ابزار استفاده کند. برای ادامهٔ کار، فراخوانی را تأیید کنید.",
+    "proposals": {
+      "title": "تغییرات پیشنهادی",
+      "waiting": "{count, plural, other {# تغییر منتظر تأیید شماست}}",
+      "approved": "{count, plural, other {# تأیید شد}}",
+      "approveAll": "{count, plural, one {تأیید} other {تأیید همه (#)}}",
+      "review": "بررسی",
+      "skipped": "{count, plural, other {# تغییر انجام نشد: آن‌ها را بررسی کنید.}}",
+      "failed": "تغییرات تأیید نشد. دوباره تلاش کنید."
+    },
     "steps": "{count, plural, one {# گام} other {# گام}}",
     "conversations": "گفت‌وگوها",
     "newConversation": "گفت‌وگوی جدید",

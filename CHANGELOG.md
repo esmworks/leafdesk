@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Agents propose changes from your email, and you approve them in their chat.** In your chat with
+  an agent that may change rows, row writes after it read email become proposals instead of being
+  refused, and a schedule you set that looks after no database can read the day's email and propose
+  rows and row changes (up to 60 a run). Only you see them; the run's message in the agent's chat
+  shows how many wait, with *Approve all* and *Review*, and *For review* can be narrowed to one run.
+  A run new email started that proposed rows now leaves an inbox report that opens that chat.
+
 - **A mail assistant keeps your customers up to date from your email.** A new template under
   *Start from a template* sets up an agent on one of your mailboxes and a database of customers:
   for each new email (by default only from people who are rows) it finds the sender's row and

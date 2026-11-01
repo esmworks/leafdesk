@@ -325,8 +325,9 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   an agent gets them only for
   mailboxes their owner opened to it (`agents/mail.ts`, table `agent_mailbox`) on runs `lib/agents.ts`
   `mailRun` allows (shown to that person alone, in the app); its drafts are saved unasked, so
-  `prepareMailDraft` checks recipients, and once a run read mail `run.ts` refuses all but page reads
-  and the mail tools (`state.mailRead`), as in the chat's later runs (`lib/agents.ts` `readEmail` on their
+  `prepareMailDraft` checks recipients, and once a run read mail `run.ts` refuses all but page reads,
+  the mail tools and row proposals to the mail's person alone (`state.mailRead`, `mailProposes`;
+  the chat's run message shows them, `agent-chat/run-proposals.tsx`), as in the chat's later runs (`lib/agents.ts` `readEmail` on their
   history, `chat-store.ts`); MCP and the REST API leave out what such runs did and answered;
   new inbox mail starts runs (source `mail`) through `indexer.ts` `arrived` → `agents/mail-trigger.ts`
   (filters pure in `lib/agent-mail-trigger.ts`; `store` returns only rows it inserted, so the sweep

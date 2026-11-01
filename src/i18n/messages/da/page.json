@@ -1321,6 +1321,15 @@
     "working": "Arbejder…",
     "waiting": "Venter på en ledig AI-plads…",
     "approval": "Agenten vil bruge et værktøj. Godkend kaldet for at lade den fortsætte.",
+    "proposals": {
+      "title": "Foreslåede ændringer",
+      "waiting": "{count, plural, one {# ændring venter på din godkendelse} other {# ændringer venter på din godkendelse}}",
+      "approved": "{count, plural, other {# godkendt}}",
+      "approveAll": "{count, plural, one {Godkend} other {Godkend alle #}}",
+      "review": "Gennemse",
+      "skipped": "{count, plural, one {# ændring kunne ikke foretages: gennemse den.} other {# ændringer kunne ikke foretages: gennemse dem.}}",
+      "failed": "Ændringerne kunne ikke godkendes. Prøv igen."
+    },
     "steps": "{count, plural, one {# trin} other {# trin}}",
     "conversations": "Samtaler",
     "newConversation": "Ny samtale",

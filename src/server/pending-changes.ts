@@ -276,6 +276,7 @@ export async function listPendingChanges(
     filter.agentId ? eq(pendingChange.agentId, filter.agentId) : undefined,
     filter.databaseId ? eq(pendingChange.databaseId, filter.databaseId) : undefined,
     filter.rowId ? eq(pendingChange.rowId, filter.rowId) : undefined,
+    filter.runId ? eq(pendingChange.agentRunId, filter.runId) : undefined,
     seenBy(userId),
   );
   return viewsOf(userId, where, Math.min(Math.max(1, limit), MAX_PENDING_PAGE));

@@ -52,8 +52,8 @@ agent, database or row), with every value as it was, is now and would become. An
 the row and the values it sets approves a change (as themselves, after editing it if they like) or
 dismisses it, one at a time or several; a row changed since in a value the proposal sets needs
 *Approve anyway*. The person the run worked for hears of new proposals in their inbox, and
-unanswered ones expire after 30 days. Chats with an agent still write directly; the *Request
-answerer* template proposes. An agent's email drafts wait there too (see
+unanswered ones expire after 30 days. Chats with an agent still write directly, until they read
+email (see *Changes from your email wait for you*); the *Request answerer* template proposes. An agent's email drafts wait there too (see
 [Email on rows](email-on-rows.md#email-on-rows)). Over MCP: `list_pending_changes` and
 `answer_pending_change`; over the REST API, `/pending-changes`.
 
@@ -137,11 +137,23 @@ API, a chat sent from a connected app, a row's or a mention's run. Reading marks
 person reads it and sends it from the Mail tab. So that what an email says can't steer a draft to
 someone else, an answer goes only to the people of its thread and a new email only to addresses
 the person wrote in their messages or the schedule's task (or the mailbox's own). Once a run has
-read email or a file of one it only reads pages and works on that mail (drafts, `sort_mail`, `summarize_mail`): any other change, a connected service's tool, the web,
+read email or a file of one it only reads pages, works on that mail (drafts, `sort_mail`,
+`summarize_mail`) and proposes rows: any other change, a connected service's tool, the web,
 `send_email`, a note, a handoff note or another agent is refused, and the agent says what it would
 do instead. Its answer may quote that mail, so the chat's later runs that have it in their history
 (and the agent's own chat after a schedule that read email) are held the same way; a new
-conversation starts free. MCP and the REST API show neither the steps nor the answer of such runs,
+conversation starts free.
+
+**Changes from your email wait for you.** What email says can't change your pages by itself, but
+the agent can propose rows and changes to rows from it (`create_row`, `update_row`, each with its
+reason, up to 60 in a run) in databases it may edit and you may edit too. In your chat with an
+agent that may change rows, a row write after email was read is such a proposal; a schedule you
+set that looks after no database may propose from its first step, so a daily run can read the
+day's email and leave its changes for you. Since a proposal's values and reason come from your mail,
+only you see, count and answer it, and MCP and the REST API don't list it. The run's message in
+the agent's chat shows how many wait, with *Approve all* and *Review*, which opens *For review*
+narrowed to that run; the run's inbox report opens that chat. A schedule that looks after a
+database changes its rows itself, so it gets no email. MCP and the REST API show neither the steps nor the answer of such runs,
 and `list_notifications` leaves out such a schedule's report: they show only in the app.
 
 **Running on new email.** For a mailbox you opened to an agent, *Run on new email* starts one of
@@ -163,7 +175,8 @@ deleting), and `draft_mail` saves an answer. It may also propose rows and change
 nothing changes until you approve. Since a proposal's values and reason come from your mail, only
 you see, count and answer it under *For review*, and only you are notified; other owners of the
 database or the agent don't see it, nor do MCP or the REST API. Its last message, a sentence or two on what it did,
-shows in your chat with the agent; the inbox tells you only when it saved a draft or failed. The
+shows in your chat with the agent; the inbox tells you only when it saved a draft, proposed rows
+or failed. The
 thread carries the agent's mark in the Mail tab's list, naming what it did. A paused or archived
 agent starts nothing, and closing the mailbox to the agent turns this off.
 

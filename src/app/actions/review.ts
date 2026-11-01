@@ -31,6 +31,7 @@ const filterOf = (filter: PendingChangeFilter | undefined): PendingChangeFilter 
   agentId: typeof filter?.agentId === "string" && filter.agentId ? filter.agentId : null,
   databaseId: typeof filter?.databaseId === "string" && filter.databaseId ? filter.databaseId : null,
   rowId: typeof filter?.rowId === "string" && filter.rowId ? filter.rowId : null,
+  runId: typeof filter?.runId === "string" && filter.runId ? filter.runId : null,
 });
 
 export type ReviewQueue = {
@@ -56,6 +57,25 @@ export async function listPendingChangesAction(
 /** The changes waiting on one row, for its banner. */
 export async function rowPendingChangesAction(workspaceId: string, rowId: string): Promise<ActionResult<PendingChangeView[]>> {
   return run((userId) => review.listPendingChanges(userId, String(workspaceId), { filter: { rowId: String(rowId) } }));
+}
+
+/** What one agent run proposed, for its message in the agent's chat: the open ones the person may answer, and how many were approved. */
+export type RunProposals = { open: string[]; waiting: number; approved: number };
+
+/** The changes one agent run proposed (agents/run.ts), as its chat shows them. */
+export async function runProposalsAction(workspaceId: string, runId: string): Promise<ActionResult<RunProposals>> {
+  return run(async (userId) => {
+    const filter = { runId: String(runId) };
+    const [open, decided] = await Promise.all([
+      review.listPendingChanges(userId, String(workspaceId), { filter }),
+      review.listPendingChanges(userId, String(workspaceId), { filter, status: "decided" }),
+    ]);
+    return {
+      open: open.filter((c) => c.canApprove).map((c) => c.id),
+      waiting: open.length,
+      approved: decided.filter((c) => c.status === "approved").length,
+    };
+  });
 }
 
 /** How many changes wait for the person in the workspace, for the sidebar. */

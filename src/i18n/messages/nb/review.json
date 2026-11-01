@@ -11,6 +11,7 @@
     "open": "Venter",
     "decided": "Besvart",
     "allRows": "Vis alle rader",
+    "allRuns": "Vis alle kjøringer",
     "clear": "Fjern filtre"
   },
   "count": "{count, plural, one {# endring} other {# endringer}}",

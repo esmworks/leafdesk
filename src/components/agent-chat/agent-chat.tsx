@@ -23,6 +23,7 @@ import { CopyAction, MessageTime, questionBox, revealed, StepsFold } from "@/com
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { read } from "@/components/read";
 import { AgentIcon, AgentStepLine } from "@/components/settings/agent-dialog";
+import { RunProposals } from "./run-proposals";
 import { SideBox, SideItem } from "@/components/side-box";
 import { cn, IconButton, selectClass } from "@/components/ui";
 import {
@@ -509,6 +510,7 @@ export function AgentChat({
                     <Question message={item.message} page={page} />
                   ) : (
                     <Answer
+                      workspaceId={workspaceId}
                       message={item.message}
                       ms={tookMs(item.message, askedAt)}
                       last={!running && i === items.length - 1}
@@ -524,6 +526,7 @@ export function AgentChat({
                 ? [
                     <li key={`assistant-${running}`}>
                       <Answer
+                        workspaceId={workspaceId}
                         message={{ role: "assistant", content: live?.runId === running ? live.text : "", runId: running, code: null, steps: turn?.steps ?? [], at: "" }}
                         ms={undefined}
                         last={false}
@@ -688,6 +691,7 @@ function tookMs(answer: AgentChatMessageView, askedAt: Map<string, string>) {
  * ends, so its text goes on flowing from where it was.
  */
 function Answer({
+  workspaceId,
   message,
   ms,
   last,
@@ -696,6 +700,7 @@ function Answer({
   onOpen,
   live = null,
 }: {
+  workspaceId: string;
   message: AgentChatMessageView;
   ms: number | undefined;
   last: boolean;
@@ -707,6 +712,7 @@ function Answer({
 }) {
   const t = useTranslations("page.agentChat");
   const text = message.content.trim();
+  const proposed = !live && message.steps.some((s) => s.kind === "write" && s.outcome === "proposed");
   return (
     <div className="group/answer text-sm leading-normal">
       {live ? (
@@ -739,6 +745,7 @@ function Answer({
         </div>
       )}
       {message.code && <p className="mt-1 text-xs text-danger">{t(`failed.${chatFailure(message.code)}`)}</p>}
+      {proposed && <RunProposals workspaceId={workspaceId} runId={message.runId} />}
       {text && !live && (
         <div className={cn("mt-1.5 -ms-1 flex items-center gap-0.5", !last && revealed)}>
           <CopyAction text={text} />
@@ -825,6 +832,7 @@ function RunMessage({
         <p className="text-fg-muted">{t("doneQuietly")}</p>
       ) : run.status === "done" || run.status === "failed" ? (
         <Answer
+          workspaceId={workspaceId}
           message={{ role: "assistant", content: run.answer, runId: run.id, code: run.status === "failed" ? (run.code ?? "error") : null, steps: run.steps, at: run.at }}
           ms={run.ms ?? undefined}
           last={last}
@@ -833,6 +841,7 @@ function RunMessage({
         />
       ) : (
         <Answer
+          workspaceId={workspaceId}
           message={{ role: "assistant", content: "", runId: run.id, code: null, steps: run.steps, at: run.at }}
           ms={undefined}
           last={false}

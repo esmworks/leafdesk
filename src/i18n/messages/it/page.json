@@ -1321,6 +1321,15 @@
     "working": "Al lavoro…",
     "waiting": "In attesa di uno slot IA…",
     "approval": "L’agente vuole usare uno strumento. Approva la chiamata per farlo proseguire.",
+    "proposals": {
+      "title": "Modifiche proposte",
+      "waiting": "{count, plural, one {# modifica attende la tua approvazione} other {# modifiche attendono la tua approvazione}}",
+      "approved": "{count, plural, one {# approvata} other {# approvate}}",
+      "approveAll": "{count, plural, one {Approva} other {Approva tutte (#)}}",
+      "review": "Esamina",
+      "skipped": "{count, plural, one {Non è stato possibile fare # modifica: esaminala.} other {Non è stato possibile fare # modifiche: esaminale.}}",
+      "failed": "Non è stato possibile approvare le modifiche. Riprova."
+    },
     "steps": "{count, plural, one {# passaggio} other {# passaggi}}",
     "conversations": "Conversazioni",
     "newConversation": "Nuova conversazione",

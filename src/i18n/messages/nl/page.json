@@ -1321,6 +1321,15 @@
     "working": "Bezig…",
     "waiting": "Wachten op een AI-plek…",
     "approval": "De agent wil een tool gebruiken. Keur de aanroep goed om hem verder te laten gaan.",
+    "proposals": {
+      "title": "Voorgestelde wijzigingen",
+      "waiting": "{count, plural, one {# wijziging wacht op je goedkeuring} other {# wijzigingen wachten op je goedkeuring}}",
+      "approved": "{count, plural, other {# goedgekeurd}}",
+      "approveAll": "{count, plural, one {Goedkeuren} other {Alle # goedkeuren}}",
+      "review": "Bekijken",
+      "skipped": "{count, plural, one {# wijziging kon niet worden doorgevoerd: bekijk haar.} other {# wijzigingen konden niet worden doorgevoerd: bekijk ze.}}",
+      "failed": "De wijzigingen konden niet worden goedgekeurd. Probeer het opnieuw."
+    },
     "steps": "{count, plural, one {# stap} other {# stappen}}",
     "conversations": "Gesprekken",
     "newConversation": "Nieuw gesprek",

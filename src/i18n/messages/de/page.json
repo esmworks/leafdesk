@@ -1321,6 +1321,15 @@
     "working": "Arbeitet …",
     "waiting": "Wartet auf einen freien KI-Platz …",
     "approval": "Der Agent möchte ein Tool verwenden. Gib den Aufruf frei, damit er weitermachen kann.",
+    "proposals": {
+      "title": "Vorgeschlagene Änderungen",
+      "waiting": "{count, plural, one {# Änderung wartet auf deine Freigabe} other {# Änderungen warten auf deine Freigabe}}",
+      "approved": "{count, plural, other {# freigegeben}}",
+      "approveAll": "{count, plural, one {Freigeben} other {Alle # freigeben}}",
+      "review": "Prüfen",
+      "skipped": "{count, plural, one {# Änderung konnte nicht vorgenommen werden: prüfe sie.} other {# Änderungen konnten nicht vorgenommen werden: prüfe sie.}}",
+      "failed": "Die Änderungen konnten nicht freigegeben werden. Versuche es noch einmal."
+    },
     "steps": "{count, plural, one {# Schritt} other {# Schritte}}",
     "conversations": "Unterhaltungen",
     "newConversation": "Neue Unterhaltung",

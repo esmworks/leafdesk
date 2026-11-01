@@ -1321,6 +1321,15 @@
     "working": "Bekerja…",
     "waiting": "Menunggu slot AI…",
     "approval": "Agen ingin memakai sebuah alat. Setujui panggilan agar agen melanjutkan.",
+    "proposals": {
+      "title": "Perubahan yang diusulkan",
+      "waiting": "{count, plural, other {# perubahan menunggu persetujuan Anda}}",
+      "approved": "{count, plural, other {# disetujui}}",
+      "approveAll": "{count, plural, one {Setujui} other {Setujui semua (#)}}",
+      "review": "Tinjau",
+      "skipped": "{count, plural, other {# perubahan tidak dapat dibuat: tinjau.}}",
+      "failed": "Perubahan tidak dapat disetujui. Coba lagi."
+    },
     "steps": "{count, plural, other {# langkah}}",
     "conversations": "Percakapan",
     "newConversation": "Percakapan baru",

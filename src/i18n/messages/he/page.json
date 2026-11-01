@@ -1321,6 +1321,15 @@
     "working": "עובד…",
     "waiting": "ממתין למקום פנוי ב־AI…",
     "approval": "הסוכן רוצה להשתמש בכלי. יש לאשר את הקריאה כדי שימשיך.",
+    "proposals": {
+      "title": "שינויים מוצעים",
+      "waiting": "{count, plural, one {שינוי אחד ממתין לאישורך} other {# שינויים ממתינים לאישורך}}",
+      "approved": "{count, plural, other {# אושרו}}",
+      "approveAll": "{count, plural, one {אישור} other {אישור הכול (#)}}",
+      "review": "סקירה",
+      "skipped": "{count, plural, other {לא ניתן היה לבצע # שינויים: יש לסקור אותם.}}",
+      "failed": "לא ניתן היה לאשר את השינויים. נסו שוב."
+    },
     "steps": "{count, plural, one {שלב אחד} two {שני שלבים} other {# שלבים}}",
     "conversations": "שיחות",
     "newConversation": "שיחה חדשה",

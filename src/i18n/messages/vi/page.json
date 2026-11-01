@@ -1321,6 +1321,15 @@
     "working": "Đang xử lý…",
     "waiting": "Đang chờ một suất AI…",
     "approval": "Tác tử muốn dùng một công cụ. Hãy phê duyệt lệnh gọi để nó tiếp tục.",
+    "proposals": {
+      "title": "Thay đổi được đề xuất",
+      "waiting": "{count, plural, other {# thay đổi đang chờ bạn duyệt}}",
+      "approved": "{count, plural, other {Đã duyệt #}}",
+      "approveAll": "{count, plural, one {Duyệt} other {Duyệt tất cả (#)}}",
+      "review": "Xem lại",
+      "skipped": "{count, plural, other {Không thực hiện được # thay đổi: hãy xem lại.}}",
+      "failed": "Không duyệt được các thay đổi. Hãy thử lại."
+    },
     "steps": "{count, plural, other {# bước}}",
     "conversations": "Các cuộc trò chuyện",
     "newConversation": "Cuộc trò chuyện mới",

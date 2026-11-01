@@ -1321,6 +1321,15 @@
     "working": "กำลังทำงาน…",
     "waiting": "กำลังรอคิว AI…",
     "approval": "เอเจนต์ต้องการใช้เครื่องมือ อนุมัติการเรียกใช้เพื่อให้ดำเนินต่อ",
+    "proposals": {
+      "title": "การเปลี่ยนแปลงที่เสนอ",
+      "waiting": "{count, plural, other {มีการเปลี่ยนแปลง # รายการรอการอนุมัติจากคุณ}}",
+      "approved": "{count, plural, other {อนุมัติแล้ว # รายการ}}",
+      "approveAll": "{count, plural, one {อนุมัติ} other {อนุมัติทั้งหมด (#)}}",
+      "review": "ตรวจดู",
+      "skipped": "{count, plural, other {ทำการเปลี่ยนแปลง # รายการไม่ได้ โปรดตรวจดู}}",
+      "failed": "อนุมัติการเปลี่ยนแปลงไม่ได้ ลองอีกครั้ง"
+    },
     "steps": "{count, plural, other {# ขั้นตอน}}",
     "conversations": "การสนทนา",
     "newConversation": "การสนทนาใหม่",

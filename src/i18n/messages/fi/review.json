@@ -11,6 +11,7 @@
     "open": "Odottavat",
     "decided": "Vastatut",
     "allRows": "Näytä kaikki rivit",
+    "allRuns": "Näytä kaikki ajot",
     "clear": "Tyhjennä suodattimet"
   },
   "count": "{count, plural, one {# muutos} other {# muutosta}}",

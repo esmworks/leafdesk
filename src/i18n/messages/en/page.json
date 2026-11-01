@@ -1321,6 +1321,15 @@
     "working": "Working…",
     "waiting": "Waiting for an AI slot…",
     "approval": "The agent wants to use a tool. Approve the call to let it go on.",
+    "proposals": {
+      "title": "Proposed changes",
+      "waiting": "{count, plural, one {# change waits for your approval} other {# changes wait for your approval}}",
+      "approved": "{count, plural, other {# approved}}",
+      "approveAll": "{count, plural, one {Approve} other {Approve all #}}",
+      "review": "Review",
+      "skipped": "{count, plural, one {# change couldn't be made: review it.} other {# changes couldn't be made: review them.}}",
+      "failed": "The changes couldn't be approved. Try again."
+    },
     "steps": "{count, plural, one {# step} other {# steps}}",
     "conversations": "Conversations",
     "newConversation": "New conversation",

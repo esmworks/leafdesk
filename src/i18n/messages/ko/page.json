@@ -1321,6 +1321,15 @@
     "working": "작업 중…",
     "waiting": "AI 슬롯을 기다리는 중…",
     "approval": "에이전트가 도구를 사용하려고 합니다. 계속하려면 호출을 승인하세요.",
+    "proposals": {
+      "title": "제안된 변경",
+      "waiting": "{count, plural, other {변경 #개가 승인을 기다립니다}}",
+      "approved": "{count, plural, other {#개 승인됨}}",
+      "approveAll": "{count, plural, one {승인} other {모두 승인(#개)}}",
+      "review": "검토",
+      "skipped": "{count, plural, other {변경 #개를 적용하지 못했습니다. 검토하세요.}}",
+      "failed": "변경을 승인하지 못했습니다. 다시 시도하세요."
+    },
     "steps": "{count, plural, other {#단계}}",
     "conversations": "대화",
     "newConversation": "새 대화",

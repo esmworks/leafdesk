@@ -51,6 +51,11 @@ export const MAX_AGENT_TOKEN_LIMIT = 1_000_000_000;
 
 /** Writes one run may make. What it may spend is AI_RUN_LIMIT_USD; it has no turn or time limit of its own. */
 export const MAX_AGENT_WRITES = 5;
+/**
+ * Rows one run that read email may propose (agents/run.ts): nothing changes until the person
+ * approves, so a list read from an email (a day's balances) is proposed whole.
+ */
+export const MAX_MAIL_PROPOSALS = 60;
 /** Other agents one agent may ask (its "Agents it can ask"), and times one run may ask them. */
 export const MAX_AGENT_HELPERS = 10;
 export const MAX_HANDOFFS_PER_RUN = 3;
