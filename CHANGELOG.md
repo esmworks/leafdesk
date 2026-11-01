@@ -446,8 +446,9 @@
 - **The AI chat waits for your decision as long as you take, and survives a restart.** A change it
   asks about no longer counts as declined after 15 minutes: the answer waits until you decide or
   stop it, in the app and in Telegram. Each answer is now kept as a run as it goes, so one the
-  server was writing when it restarted goes on from where it was a few minutes later and is kept in
-  the conversation, without making a change twice. Migration 0183.
+  server was writing when it restarted goes on from where it was a few minutes later, or as soon as
+  you open its conversation, where you see it go on; one waiting for your decision asks again
+  there. It is kept in the conversation, without making a change twice. Migration 0183.
 - **AI chats and chats with agents are kept in one table.** Migration `0184_conversations` moves
   `ai_conversation` and `agent_conversation` into `conversation`, and `ai_chat_file` and
   `agent_chat_file` into `conversation_file`, with their ids, so links, notes and Telegram chats

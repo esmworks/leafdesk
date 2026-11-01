@@ -880,10 +880,19 @@ try {
   check(!(await decideParkedChange(alice, parkedAsk!, "approve")), "…so what it asked before can no longer be decided");
   const ask2 = reclaimed!.pending!.askId!;
   check(!(await decideParkedChange(carol, ask2, "approve")), "…nor can anyone else decide it");
-  check(!(await answerUnderWay(alice, parkedConversation!)), "a parked answer doesn't hold up the conversation");
-  check(await decideParkedChange(alice, ask2, "approve"), "the person decides it in the database");
-  check(await answerUnderWay(alice, parkedConversation!), "…after which the conversation is being answered");
-  await flushAgentRuns({ assistant: true });
+  check(await answerUnderWay(alice, parkedConversation!), "…and it waits here, holding up its conversation as an answer asking here does");
+  check((await getConversation(alice, workspaceId, parkedConversation!)).run === parked.id, "…for a page opening the conversation to follow, under its run's id");
+  const resumedEvents: string[] = [];
+  const following = (async () => {
+    for await (const e of runs.followRun(alice, parked.id)!) resumedEvents.push(e.type === "step" ? `step:${e.step.kind}` : e.type);
+  })();
+  check(await decideParkedChange(alice, ask2, "approve"), "the person decides it");
+  await following;
+  check(
+    resumedEvents[0] === "conversation" && resumedEvents.includes("approval") && resumedEvents.at(-1) === "done",
+    "…and the page follows it from where it was asked again to its end",
+    resumedEvents,
+  );
   const resumedTurn = (await getConversation(alice, workspaceId, parkedConversation!)).messages;
   check(
     (await rowsOf(parts.id, "Ice scraper")).length === 1 &&
@@ -896,11 +905,37 @@ try {
   check(!(await parkedRun()) && !(await decideParkedChange(alice, ask2, "approve")), "…its run goes once the turn is kept, and the decision can't be used again");
   fake.setChat(caller([write("create_row", { database_id: parts.id, title: "De-icer" })]));
   for await (const e of await startChat(alice, { workspaceId, conversationId: parkedConversation!, message: "Add de-icer" })) if (e.type === "approval") break;
-  check((await parkedRun())?.status === "awaiting_approval", "an answer left waiting again…");
+  const leftAgain = await parkedRun();
+  check(leftAgain?.status === "awaiting_approval", "an answer left waiting again…");
+  const opened = await getConversation(alice, workspaceId, parkedConversation!);
+  check(opened.run === leftAgain!.id && opened.messages.length === 2, "…is taken up again by a page opening its conversation, to follow", opened.run);
+  const adoptedEvents: string[] = [];
+  let adoptedAsk: string | null = null;
+  for await (const e of runs.followRun(alice, opened.run!)!) {
+    adoptedEvents.push(e.type);
+    if (e.type === "approval") {
+      adoptedAsk = e.id;
+      decideChange(alice, e.id, "decline");
+    }
+  }
+  check(
+    adoptedEvents[0] === "conversation" &&
+      adoptedAsk !== null &&
+      adoptedAsk !== leftAgain!.pending?.askId &&
+      adoptedEvents.at(-1) === "done" &&
+      !(await parkedRun()) &&
+      (await getConversation(alice, workspaceId, parkedConversation!)).messages.length === 4 &&
+      (await rowsOf(parts.id, "De-icer")).length === 0,
+    "…asking again: declined there, nothing is added and the turn is kept",
+    adoptedEvents,
+  );
+  fake.setChat(caller([write("create_row", { database_id: parts.id, title: "De-icer" })]));
+  for await (const e of await startChat(alice, { workspaceId, conversationId: parkedConversation!, message: "Add de-icer again" })) if (e.type === "approval") break;
+  check((await parkedRun())?.status === "awaiting_approval", "one left waiting once more…");
   fake.setChat(caller([]));
   const afterLeft = await ask(alice, { workspaceId, conversationId: parkedConversation!, message: "Never mind" });
   check(
-    afterLeft.done && !(await parkedRun()) && (await getConversation(alice, workspaceId, parkedConversation!)).messages.length === 4 && (await rowsOf(parts.id, "De-icer")).length === 0,
+    afterLeft.done && !(await parkedRun()) && (await getConversation(alice, workspaceId, parkedConversation!)).messages.length === 6 && (await rowsOf(parts.id, "De-icer")).length === 0,
     "…is given up by a new question in its conversation: it changed nothing, so it leaves no turn",
   );
 

@@ -46,7 +46,7 @@
  * Conversations are kept per person (`conversation`, without an agent) and only ever shown to them; cited pages are
  * looked up again with their current access whenever a conversation is shown.
  */
-import { and, desc, eq, inArray, isNotNull, isNull, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, isNull, lt, notInArray, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   agentRun,
@@ -118,8 +118,8 @@ import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
 import { memoryForPrompt, memoryOn, MEMORY_TOOLS } from "@/server/ai-memory";
 import { remindTool } from "@/server/ai-reminders";
-import { awaitDecision, runsWaitingHere, type ChatDecision } from "@/server/ai-chat-approvals";
-import { answeringIn, conversationBusy, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
+import { awaitDecision, decideChange, runsWaitingHere, type ChatDecision } from "@/server/ai-chat-approvals";
+import { answeringIn, conversationBusy, openRun, runEvents, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
 import { FIND_TOOLS, lazyMoreTools, USE_TOOL } from "@/server/ai-more-tools";
 import { chatToolset } from "@/server/connections/tools";
 import { createChatDispatch, type ResolvedScope } from "@/server/assistant/chat-dispatch";
@@ -305,7 +305,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     .values({ agentId: null, workspaceId: input.workspaceId, source, context: { actorId: userId, timeZone }, prompt: message, status: "running", attempts: 1, startedAt: new Date() })
     .returning();
   const setup: ChatSetup = { scope, skill, conversation, connections: !isGuest(membership.role), files, web: await chatWebOn(input.workspaceId) };
-  return converseChat({ ...run, source }, setup, signal, true);
+  return converseChat({ ...run, source }, setup, signal);
 }
 
 /** The model a question asks for, when the workspace's AI offers it; else its main model (null without AI). */
@@ -441,11 +441,11 @@ type ChatSetup = {
 };
 
 /**
- * The answer's turns with the model, from the start or from where its run left off (`run.state`).
- * `here`: someone in this process follows it, so a change it asks about waits here for the
- * person's decision; without (the worker), the run is left parked and the generator ends.
+ * The answer's turns with the model, from the start or from where its run left off (`run.state`):
+ * one going on shows the steps it took before first, for a page following it from here. A change
+ * it asks about waits in this process for the person's decision.
  */
-async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortSignal | undefined, here: boolean): AsyncGenerator<ChatEvent> {
+async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortSignal | undefined): AsyncGenerator<ChatEvent> {
   const { source } = run;
   const { userId, timeZone, thinking, replaced } = source;
   const workspaceId = run.workspaceId;
@@ -488,7 +488,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
   // Notes the answer asked again kept or dropped: they stay done, so they go with the new answer
   // (shown first), not with the records it replaces.
   const carried = replaced ? (conversation.messages.at(-1)?.steps ?? []).filter((s) => s.kind === "memory" && s.outcome !== "declined") : [];
-  if (!saved) for (const record of carried) yield { type: "step", step: await viewStep(userId, record) };
+  for (const record of saved ? steps : carried) yield { type: "step", step: await viewStep(userId, record) };
   // Leafdesk's further tools, started when the model first looks for one; a read-only chat gets
   // those that only read.
   const moreTools = lazyMoreTools(userId, { writes: initialMode !== "read" });
@@ -631,13 +631,14 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     });
     /**
      * Asks the person about a change, a note or a web call: the run is parked with what it asks,
-     * and waits here for their decision (pinging meanwhile), however long it takes. Null without
-     * anyone here: the run stays parked until decideParkedChange.
+     * and waits here for their decision (pinging meanwhile), however long it takes. A server that
+     * stops meanwhile leaves it parked: decideParkedChange, or a page opening its conversation
+     * (adoptLeftBehind), goes on with it.
      */
-    async function* park(call: AiToolCall, action: ChatActionView): AsyncGenerator<ChatEvent, ChatDecision | null> {
+    async function* park(call: AiToolCall, action: ChatActionView): AsyncGenerator<ChatEvent, ChatDecision> {
       // Waiting before the run is parked: the person may answer as soon as they are asked.
-      const waiting = here ? awaitDecision(userId, run.id, signal) : null;
-      const id = waiting?.id ?? crypto.randomUUID();
+      const waiting = awaitDecision(userId, run.id, signal);
+      const id = waiting.id;
       try {
         await db
           .update(agentRun)
@@ -650,7 +651,6 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
             nextAt: new Date(),
           })
           .where(eq(agentRun.id, run.id));
-        if (!waiting) return null;
         yield { type: "approval", id, action };
         let decision: ChatDecision;
         for (;;) {
@@ -672,7 +672,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
         if (!taken) throw new AiError("aborted", "The answer was stopped");
         return decision;
       } finally {
-        waiting?.cancel();
+        waiting.cancel();
       }
     }
     /** Keeps where the answer stands after each call: a run taken up again doesn't make a change twice. */
@@ -778,8 +778,6 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
         decided = null;
         while ("ask" in out) {
           const decision = yield* park(call, out.ask);
-          // Parked for the person, with no one here to wait: the worker goes on once they decide.
-          if (!decision) return;
           out = await dispatch.answer(call, decision, left);
         }
         // An image of the mail described by another model: counted against this answer's limit.
@@ -871,26 +869,69 @@ function registryOf(sources: Registry["sources"]): Registry {
 }
 
 /**
- * Goes on with an answer of the person's that the agents' worker took (server/agents/run.ts):
- * after they decided on a change while no one waited for it here, or left running by a server that
- * stopped. Its checks run again, with the person's access as it is now; nothing follows it here,
- * so it is seen once its turn is kept.
+ * Goes on with an answer of the person's in this process: taken by the agents' worker (after they
+ * decided on a change while no one waited for it here, or left running by a server that stopped),
+ * or by a page opening its conversation (adoptLeftBehind). Its checks run again, with the person's
+ * access as it is now. It runs as a chat answer does (ai-chat-runs.ts, under the run's own id), so
+ * the page follows it; this returns once it ends or asks the person, and a decision it waits on
+ * then is answered here.
  */
 export async function resumeChatRun(run: AssistantRun): Promise<void> {
   const { source } = run;
   if (run.attempts > MAX_RESUMES) return abandon(run);
-  const go = async () => {
-    const setup = await resumeSetup(run).catch((error: unknown) => {
-      if (isAiError(error) || error instanceof AccessError) return null;
-      throw error;
-    });
-    // It can't go on (the person left the workspace, AI is off, the conversation is gone): nothing more is done.
-    if (!setup) return abandon(run);
-    const events = converseChat(run, setup, undefined, false);
-    while (!(await events.next()).done);
-  };
   // Asked through a connected app (the Telegram bot): held as it was then.
-  await (source.fromApp ? runAsConnectedApp({ userId: source.userId }, go) : go());
+  const held = <T>(fn: () => Promise<T>) => (source.fromApp ? runAsConnectedApp({ userId: source.userId }, fn) : fn());
+  const setup = await held(() => resumeSetup(run)).catch((error: unknown) => {
+    if (isAiError(error) || error instanceof AccessError) return null;
+    throw error;
+  });
+  // It can't go on (the person left the workspace, AI is off, the conversation is gone): nothing more is done.
+  if (!setup) return abandon(run);
+  const live = openRun({ id: run.id, userId: source.userId, workspaceId: run.workspaceId, conversationId: source.conversationId });
+  // Followed here already: someone else goes on with it.
+  if (!live) return;
+  let settled = () => {};
+  const asked = new Promise<void>((resolve) => (settled = resolve));
+  async function* events() {
+    try {
+      for await (const event of converseChat(run, setup!, live!.controller.signal)) {
+        yield event;
+        if (event.type === "approval") settled();
+      }
+    } finally {
+      settled();
+    }
+  }
+  void held(() => runEvents(live, events()));
+  await asked;
+}
+
+/**
+ * Goes on here with the person's answer in a conversation that a server that stopped left waiting
+ * on their decision, or left running (its heartbeat stopped): it asks them again, for the page
+ * opening the conversation to follow. The id it runs under, or null when there is none.
+ */
+async function adoptLeftBehind(userId: string, workspaceId: string, conversationId: string): Promise<string | null> {
+  const waitingHere = [...runsWaitingHere()];
+  const [taken] = await db
+    .update(agentRun)
+    .set({ status: "running", nextAt: new Date(), attempts: sql`${agentRun.attempts} + 1` })
+    .where(
+      and(
+        isNull(agentRun.agentId),
+        eq(agentRun.workspaceId, workspaceId),
+        sql`${agentRun.source}->>'userId' = ${userId}`,
+        sql`${agentRun.source}->>'conversationId' = ${conversationId}`,
+        or(
+          and(eq(agentRun.status, "awaiting_approval"), waitingHere.length ? notInArray(agentRun.id, waitingHere) : undefined),
+          and(eq(agentRun.status, "running"), lt(agentRun.nextAt, new Date(Date.now() - 3 * HEARTBEAT_MS))),
+        ),
+      ),
+    )
+    .returning();
+  if (!taken || taken.source.kind !== "assistant") return null;
+  await resumeChatRun({ ...taken, source: taken.source });
+  return runningIn(userId, conversationId);
 }
 
 /** What a run going on works with, checked again as startChat checks it. */
@@ -914,11 +955,12 @@ async function resumeSetup(run: AssistantRun): Promise<ChatSetup> {
 }
 
 /**
- * Decides a change the person was asked about whose answer no one waits on in this process (the
- * server restarted meanwhile): its run goes on in the agents' worker. False when it isn't theirs
- * or no longer waits.
+ * Decides a change the person was asked about: the answer waiting on it here goes on; one no one
+ * waits on in this process (the server restarted meanwhile) goes on in the agents' worker. False
+ * when it isn't theirs or no longer waits.
  */
 export async function decideParkedChange(userId: string, approvalId: string, decision: ChatDecision): Promise<boolean> {
+  if (decideChange(userId, approvalId, decision)) return true;
   const [found] = await db
     .update(agentRun)
     .set({
@@ -1160,7 +1202,7 @@ export async function getConversation(userId: string, workspaceId: string, conve
       };
     }),
   );
-  return { id: found.id, title: found.title, model: found.model, thinking: found.thinking ?? "balanced", messages, run: runningIn(userId, found.id) };
+  return { id: found.id, title: found.title, model: found.model, thinking: found.thinking ?? "balanced", messages, run: runningIn(userId, found.id) ?? (await adoptLeftBehind(userId, workspaceId, found.id)) };
 }
 
 const attachmentView = (a: ChatAttachmentRecord): ChatAttachmentView => ({ ...a, url: chatFileUrl(a.id) });

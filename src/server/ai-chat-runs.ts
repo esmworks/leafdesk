@@ -46,12 +46,14 @@ const store = ((globalThis as Record<string, unknown>)[KEY] ??= { runs: new Map<
 export const isRunId = (id: unknown): id is string => typeof id === "string" && /^[\w-]{8,100}$/.test(id);
 
 /**
- * Registers an answer about to start, under the id the browser picked; null when that id is taken.
+ * Registers an answer about to start, under the id the browser picked (or its run's, going on);
+ * null when an answer under way has that id.
  * Its signal is what the answer runs with (aborted already when a Stop came first). Hand it the
  * answer's events with runEvents, or drop it with dropRun when the answer was refused.
  */
 export function openRun(meta: { id: string; userId: string; workspaceId: string; conversationId: string | null }): Run | null {
-  if (store.runs.has(meta.id)) return null;
+  // An answer that ended may go on again under its id (a run taken up again: ai-chat.ts resumeChatRun).
+  if (store.runs.get(meta.id)?.ended === false) return null;
   let settle = () => {};
   const settled = new Promise<void>((resolve) => (settle = resolve));
   const run: Run = { ...meta, controller: new AbortController(), log: [], followers: new Set(), ended: false, settled, settle };

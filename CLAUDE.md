@@ -164,7 +164,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   state after each tool call; a change it asks about parks it (`awaiting_approval`, the approval id
   is `pending.askId`) and waits in `ai-chat-approvals.ts`, with no time limit. The agents' worker
   goes on with one a stopped server left running, or one decided with no one waiting
-  (`decideParkedChange`), through `resumeChatRun`; the row goes with the turn's save. What the chat
+  (`decideParkedChange`), and `getConversation` with one left parked or running there
+  (`adoptLeftBehind`), both through `resumeChatRun`, which runs it here under the run's id for
+  the page to follow; the row goes with the turn's save. What the chat
   asks about before a call is `assistant/chat-dispatch.ts`. Chat: `ai-chat.ts`; its tools:
   `ai-tools.ts` (reads refuse arguments their schema doesn't name, `unknownArguments`; writes
   reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every

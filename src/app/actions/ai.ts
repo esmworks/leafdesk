@@ -11,7 +11,7 @@ import { decideParkedChange, deleteConversations, getConversation, listConversat
 import { addMemory, deleteMemories, listMemories, MemoryError, memoryUse, setMemoryUse, updateMemory } from "@/server/ai-memory";
 import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
 import { MAX_PROMPT_NAME, MAX_PROMPT_TEXT, MAX_SAVED_PROMPTS } from "@/lib/ai-saved-prompts";
-import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
+import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { isRunId, stopRun } from "@/server/ai-chat-runs";
 import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-properties";
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
@@ -195,7 +195,7 @@ export async function decideChangeAction(approvalId: string, decision: ChatDecis
   return run(async (userId) => {
     if (decision !== "approve" && decision !== "always" && decision !== "decline") return false;
     // Waited on here, or (the server restarted since) parked for the worker to go on with.
-    return decideChange(userId, String(approvalId), decision) || (await decideParkedChange(userId, String(approvalId), decision));
+    return decideParkedChange(userId, String(approvalId), decision);
   });
 }
 

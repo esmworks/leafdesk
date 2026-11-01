@@ -9,7 +9,7 @@ import { escapeHtml, markdownToTelegramBlocks, packMessages, preview } from "@/l
 import { connectedAppHold } from "@/server/access";
 import type { AiErrorCode } from "@/lib/ai";
 import { isAiError, sttLimits } from "@/server/ai";
-import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
+import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { answerUnderWay, decideParkedChange, startChat } from "@/server/ai-chat";
 import { dropRun, followRun, openRun, runEvents } from "@/server/ai-chat-runs";
 import { asWrite, runAsConnectedApp } from "@/server/connected-app";
@@ -524,7 +524,7 @@ async function onCallback(query: TelegramCallbackQuery) {
     const decision = DECISIONS[choice];
     const text = asked.get(id)?.text ?? escapeHtml(message.text ?? "");
     asked.delete(id);
-    if (!decideChange(link.userId, id, decision) && !(await decideParkedChange(link.userId, id, decision))) {
+    if (!(await decideParkedChange(link.userId, id, decision))) {
       await answerCallback(query.id, t("approval.gone"));
       await editMessage(chatId, message.message_id, text).catch(() => {});
       return;

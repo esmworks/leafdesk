@@ -268,7 +268,8 @@ makes changes without asking; *Read only* doesn't offer the model changes at all
 checked (the target, your edit access, the values) before you are asked; nothing is written while it
 waits, however long you take, and stopping the answer leaves it unmade (leaving the page doesn't:
 you are asked again when you come back). An answer the server was writing when it restarted goes on
-from where it was some minutes later, and is kept in the conversation.
+from where it was some minutes later, or as soon as you open its conversation, and you see it go on
+there; one that was waiting for your decision asks again when you open the conversation.
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
 
