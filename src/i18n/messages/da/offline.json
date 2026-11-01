@@ -6,6 +6,12 @@
   "readOnlyCopy": "Offlinekopi fra {time}, skrivebeskyttet",
   "signOutUnsynced": "Nogle sider har ændringer, der endnu ikke er nået frem til serveren. Hvis du logger ud, fjernes de fra denne browser. Vil du logge ud alligevel?",
   "installApp": "Installér app",
+  "iosInstall": {
+    "title": "Føj Leafdesk til din hjemmeskærm",
+    "share": "Tryk på knappen Del i browserens værktøjslinje.",
+    "add": "Vælg “Føj til hjemmeskærm”, og tryk derefter på Tilføj.",
+    "done": "Leafdesk åbner derefter fra sit symbol i sit eget vindue uden browserens bjælker."
+  },
   "page": {
     "documentTitle": "Offline",
     "heading": "Du er offline",

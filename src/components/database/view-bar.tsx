@@ -596,7 +596,7 @@ function ToolbarButton({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        "inline-flex h-7 min-w-7 items-center justify-center gap-1 rounded-md px-1.5 text-sm hover:bg-bg-hover",
+        "inline-flex h-7 min-w-7 items-center justify-center gap-1 rounded-md px-1.5 text-sm hover:bg-bg-hover pointer-coarse:h-8 pointer-coarse:min-w-8",
         active ? "text-accent" : "text-fg-muted hover:text-fg",
       )}
     >

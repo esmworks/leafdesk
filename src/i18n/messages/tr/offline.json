@@ -6,6 +6,12 @@
   "readOnlyCopy": "{time} tarihli çevrimdışı kopya, salt okunur",
   "signOutUnsynced": "Bazı sayfalarda sunucuya henüz ulaşmamış değişiklikler var. Çıkış yaparsanız bu tarayıcıdan silinirler. Yine de çıkış yapılsın mı?",
   "installApp": "Uygulamayı yükle",
+  "iosInstall": {
+    "title": "Leafdesk'i ana ekranınıza ekleyin",
+    "share": "Tarayıcının araç çubuğundaki Paylaş düğmesine dokunun.",
+    "add": "“Ana Ekrana Ekle”yi seçin, sonra Ekle'ye dokunun.",
+    "done": "Leafdesk bundan sonra simgesinden, tarayıcı çubukları olmadan kendi penceresinde açılır."
+  },
   "page": {
     "documentTitle": "Çevrimdışı",
     "heading": "Çevrimdışısınız",

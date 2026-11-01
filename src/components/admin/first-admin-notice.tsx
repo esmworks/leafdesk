@@ -35,7 +35,7 @@ export function FirstAdminNotice({ workspaceId }: { workspaceId: string }) {
   return (
     <div
       role="status"
-      className="fixed end-4 bottom-4 z-40 w-[min(24rem,calc(100vw-2rem))] rounded-lg border border-border bg-bg p-4 shadow-lg"
+      className="fixed end-4 bottom-safe-4 z-40 w-[min(24rem,calc(100vw-2rem))] rounded-lg border border-border bg-bg p-4 shadow-lg"
     >
       <div className="flex items-start gap-3">
         <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-accent" aria-hidden />

@@ -31,7 +31,7 @@ export default function MeetingRecordingBar({
   return (
     <div
       role="status"
-      className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-md items-center gap-2 rounded-lg border border-border bg-bg px-3 py-2 text-sm shadow-lg sm:inset-x-auto sm:inset-e-6"
+      className="fixed inset-x-4 bottom-safe-4 z-40 mx-auto flex max-w-md items-center gap-2 rounded-lg border border-border bg-bg px-3 py-2 text-sm shadow-lg sm:inset-x-auto sm:inset-e-6"
     >
       <span className={recording.status === "recording" && recording.source !== "file" ? "h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-danger" : "h-2.5 w-2.5 shrink-0 rounded-full bg-fg-faint"} aria-hidden />
       <Link href={href} className="min-w-0 flex-1 truncate hover:underline">

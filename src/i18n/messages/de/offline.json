@@ -6,6 +6,12 @@
   "readOnlyCopy": "Offline-Kopie vom {time}, schreibgeschützt",
   "signOutUnsynced": "Einige Seiten enthalten Änderungen, die den Server noch nicht erreicht haben. Wenn du dich abmeldest, werden sie aus diesem Browser entfernt. Trotzdem abmelden?",
   "installApp": "App installieren",
+  "iosInstall": {
+    "title": "Leafdesk zum Home-Bildschirm hinzufügen",
+    "share": "Tippe in der Symbolleiste des Browsers auf „Teilen“.",
+    "add": "Wähle „Zum Home-Bildschirm“ und tippe dann auf „Hinzufügen“.",
+    "done": "Leafdesk öffnet sich dann über sein Symbol in einem eigenen Fenster, ohne die Leisten des Browsers."
+  },
   "page": {
     "documentTitle": "Offline",
     "heading": "Du bist offline",

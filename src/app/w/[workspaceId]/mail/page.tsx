@@ -3,7 +3,6 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { MailApp } from "@/components/mail/mail-app";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
-import { buttonClass } from "@/components/ui";
 import { aiAvailable } from "@/server/ai-writing";
 import { mailTabShown } from "@/server/mail-client/read";
 import { requireWorkspaceSession } from "@/server/session";
@@ -27,7 +26,11 @@ export default async function MailPage({ params }: { params: Promise<{ workspace
         <div className="mx-auto max-w-md px-6 py-20 text-center">
           <h1 className="text-lg font-semibold">{t("noMailboxTitle")}</h1>
           <p className="mt-2 text-sm text-fg-muted">{t("noMailboxText")}</p>
-          <Link href="/account?tab=mail" className={`${buttonClass({ variant: "primary" })} mt-5`}>
+          {/* A primary button's look (ui.tsx buttonClass, which this server component can't call). */}
+          <Link
+            href="/account?tab=mail"
+            className="mt-5 inline-flex h-8 items-center justify-center rounded-md bg-accent px-3 text-sm font-medium text-accent-fg shadow-[inset_0_1px_0_rgb(255_255_255/0.18),0_1px_2px_rgb(0_0_0/0.12)] transition-colors hover:opacity-90"
+          >
             {t("noMailboxAction")}
           </Link>
         </div>

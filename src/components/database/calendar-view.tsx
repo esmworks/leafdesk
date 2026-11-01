@@ -322,7 +322,7 @@ export function CalendarView({
                       aria-label={t("calendar.addOnDay", { date: dayLabel(day) })}
                       title={t("calendar.addOnDay", { date: dayLabel(day) })}
                       onClick={() => addOn(day)}
-                      className="invisible inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted group-hover:visible hover:bg-bg-active hover:text-fg focus-visible:visible"
+                      className="invisible inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted group-hover:visible hover:bg-bg-active hover:text-fg focus-visible:visible pointer-coarse:visible"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
@@ -389,7 +389,7 @@ export function CalendarView({
                     aria-label={t("calendar.addOnDay", { date: dayLabel(day) })}
                     title={t("calendar.addOnDay", { date: dayLabel(day) })}
                     onClick={() => addOn(day)}
-                    className="invisible inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-fg-muted group-hover:visible hover:bg-bg-active hover:text-fg focus-visible:visible"
+                    className="invisible inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-fg-muted group-hover:visible hover:bg-bg-active hover:text-fg focus-visible:visible pointer-coarse:visible"
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </button>

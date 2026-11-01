@@ -5,8 +5,10 @@
 **Installing.** Leafdesk is a web app with a manifest, icons and a service worker, so browsers
 offer to install it: the install icon in Chrome's or Edge's address bar, "Install app" in the
 workspace menu (shown only while the browser offers it; nothing pops up on its own), or "Add to
-Home Screen" in Safari's share menu on iPhone and iPad. Installed, it opens in its own window and
-starts at your last workspace. Installing needs HTTPS (or `localhost`).
+Home Screen" in the share menu on iPhone and iPad, where "Install app" explains the steps.
+Installed, it opens in its own window and starts at your last workspace; where the system shows
+icon badges, its icon carries the unread inbox count. On phones it keeps clear of the notch and
+home indicator. Installing needs HTTPS (or `localhost`).
 
 **Offline.** Every page you open is also kept in the browser (its Yjs document, in IndexedDB).
 Without a connection — no network, or the server is down — the page stays editable; the header

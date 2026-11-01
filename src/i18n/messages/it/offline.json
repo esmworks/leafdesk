@@ -6,6 +6,12 @@
   "readOnlyCopy": "Copia offline delle {time}, sola lettura",
   "signOutUnsynced": "Alcune pagine hanno modifiche che non sono ancora arrivate al server. Se esci, verranno rimosse da questo browser. Vuoi uscire comunque?",
   "installApp": "Installa app",
+  "iosInstall": {
+    "title": "Aggiungi Leafdesk alla schermata Home",
+    "share": "Tocca il pulsante Condividi nella barra degli strumenti del browser.",
+    "add": "Scegli «Aggiungi alla schermata Home», poi tocca Aggiungi.",
+    "done": "Leafdesk si aprirà dalla sua icona in una finestra tutta sua, senza le barre del browser."
+  },
   "page": {
     "documentTitle": "Offline",
     "heading": "Sei offline",

@@ -6,6 +6,12 @@
   "readOnlyCopy": "Bản ngoại tuyến từ {time}, chỉ đọc",
   "signOutUnsynced": "Một số trang có chỉnh sửa chưa được gửi lên máy chủ. Đăng xuất sẽ xóa chúng khỏi trình duyệt này. Vẫn đăng xuất?",
   "installApp": "Cài đặt ứng dụng",
+  "iosInstall": {
+    "title": "Thêm Leafdesk vào màn hình chính",
+    "share": "Chạm vào nút Chia sẻ trên thanh công cụ của trình duyệt.",
+    "add": "Chọn “Thêm vào MH chính”, rồi chạm vào Thêm.",
+    "done": "Sau đó Leafdesk sẽ mở từ biểu tượng của nó trong một cửa sổ riêng, không có các thanh của trình duyệt."
+  },
   "page": {
     "documentTitle": "Ngoại tuyến",
     "heading": "Bạn đang ngoại tuyến",

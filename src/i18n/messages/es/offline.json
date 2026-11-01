@@ -6,6 +6,12 @@
   "readOnlyCopy": "Copia sin conexión de {time}, solo lectura",
   "signOutUnsynced": "Algunas páginas tienen cambios que aún no han llegado al servidor. Al cerrar sesión se eliminarán de este navegador. ¿Cerrar sesión de todos modos?",
   "installApp": "Instalar app",
+  "iosInstall": {
+    "title": "Añade Leafdesk a tu pantalla de inicio",
+    "share": "Toca el botón Compartir en la barra de herramientas del navegador.",
+    "add": "Elige «Añadir a pantalla de inicio» y toca Añadir.",
+    "done": "Leafdesk se abrirá desde su icono en una ventana propia, sin las barras del navegador."
+  },
   "page": {
     "documentTitle": "Sin conexión",
     "heading": "No tienes conexión",

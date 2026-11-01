@@ -3,14 +3,36 @@
 import { MonitorDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useSyncExternalStore } from "react";
+import { lazyPart } from "@/components/lazy-part";
 import { MenuItem } from "@/components/ui";
+
+const IosInstallHelp = lazyPart(() => import("./ios-install-help").then((m) => m.IosInstallHelp));
 
 /** Chrome/Edge's install prompt event (not in the DOM typings). */
 type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed" }> };
 
 let deferred: InstallPromptEvent | null = null;
+let iosHelpOpen = false;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
+const subscribe = (onChange: () => void) => {
+  listeners.add(onChange);
+  return () => void listeners.delete(onChange);
+};
+const setIosHelp = (open: boolean) => {
+  iosHelpOpen = open;
+  emit();
+};
+
+/**
+ * A tab in an iPhone or iPad browser, not the installed app: those browsers offer no install
+ * prompt, only "Add to Home Screen" in their Share menu. iPadOS says it is a Mac, one with touch.
+ */
+function iosTab() {
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+  const installed = matchMedia("(display-mode: standalone)").matches || (navigator as { standalone?: boolean }).standalone === true;
+  return ios && !installed;
+}
 
 /**
  * Keeps the browser's install prompt for the "Install app" menu item instead of letting it pop up
@@ -55,30 +77,30 @@ export function AppShellSetup() {
     }
     return stop;
   }, []);
-  return null;
+  // Opened from the menu item, which closes with its menu.
+  const iosHelp = useSyncExternalStore(subscribe, () => iosHelpOpen, () => false);
+  return iosHelp ? <IosInstallHelp onClose={() => setIosHelp(false)} /> : null;
 }
 
 function useInstallPrompt() {
-  return useSyncExternalStore(
-    (onChange) => {
-      listeners.add(onChange);
-      return () => void listeners.delete(onChange);
-    },
-    () => deferred,
-    () => null,
-  );
+  return useSyncExternalStore(subscribe, () => deferred, () => null);
 }
 
-/** "Install app" in the workspace menu, shown only while the browser offers installing. */
+/**
+ * "Install app" in the workspace menu, shown while the browser offers installing, and in iPhone
+ * and iPad browsers, where it explains adding Leafdesk to the home screen.
+ */
 export function InstallAppMenuItem({ onDone }: { onDone: () => void }) {
   const t = useTranslations("offline");
   const prompt = useInstallPrompt();
-  if (!prompt) return null;
+  const ios = useSyncExternalStore(subscribe, iosTab, () => false);
+  if (!prompt && !ios) return null;
   return (
     <MenuItem
       icon={<MonitorDown className="h-4 w-4" />}
       onClick={() => {
         onDone();
+        if (!prompt) return setIosHelp(true);
         void prompt.prompt().catch(() => {});
         void prompt.userChoice.then(() => {
           // A prompt can be used once; the browser offers a new one later if it was dismissed.

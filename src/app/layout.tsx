@@ -47,10 +47,14 @@ async function chosenContrast() {
   return isContrast(contrast) ? contrast : null;
 }
 
-// The browser bar (and an installed app's title bar) takes the page background of the theme.
+// The browser bar (and an installed app's title bar) takes the page background of the theme. On a
+// phone the page reaches under the notch and home indicator (globals.css keeps clear of them), and
+// the on-screen keyboard shortens the page, so what is fixed to its bottom stays above the keys.
 export async function generateViewport(): Promise<Viewport> {
   const theme = await chosenTheme();
   return {
+    viewportFit: "cover",
+    interactiveWidget: "resizes-content",
     themeColor: theme
       ? THEME_COLORS[theme]
       : [

@@ -4,6 +4,11 @@
 
 ### Added
 
+- **Installing on iPhone and iPad is explained in the app, and the installed app's icon counts
+  unread notifications.** iPhone and iPad browsers have no install prompt, so *Install app* in the
+  workspace menu now shows there too and explains adding Leafdesk with *Add to Home Screen*. Where
+  the system shows icon badges, the installed app's icon carries the workspace's unread inbox count
+  while it is open, and a mark when a push notification arrives while it is closed.
 - **Agents propose changes from your email, and you approve them in their chat.** In your chat with
   an agent that may change rows, row writes after it read email become proposals instead of being
   refused, and a schedule you set that looks after no database can read the day's email and propose
@@ -407,6 +412,13 @@
 
 ### Changed
 
+- **Phones: bigger buttons, room for the notch and home indicator, and the keyboard.** On touch
+  screens the page header's buttons are 36 px and a database's toolbar buttons 32 px, and the slash
+  menu leaves out keyboard shortcuts. Installed on a phone, Leafdesk reaches under the notch and
+  home indicator: the page, the side panels, the open sidebar and what floats at the bottom (notes,
+  the selection's bar, the recording bar) end above the indicator, and the page keeps clear of a
+  notch held sideways. On Android the on-screen keyboard shortens the page, so what sits at its
+  bottom, such as the AI chat's box, stays above the keys.
 - **AI chat answers flow in as they are written.** The answer's text now comes in a few letters at
   a time, at an even pace, instead of jumping a whole piece at once whenever the network delivers
   one; what is left when it ends is shown over a few frames rather than in one. Only the answer
@@ -479,6 +491,14 @@
 
 ### Fixed
 
+- **A table no longer widens the whole page on a phone.** The column names kept for screen readers
+  reached outside the table's sideways scrolling, so the page grew to the table's width and could
+  be dragged sideways, header and all.
+- **Buttons that appeared only under the mouse show on touch screens.** Adding a row on a calendar
+  day, adding a sub-item in a list or timeline, refreshing or resizing a bookmark and the saved AI
+  prompts' buttons were hidden until hovered, which a finger can't do.
+- **The Mail tab opens for people without a mailbox.** It failed with "Something went wrong"
+  instead of offering to connect one.
 - **An agent with a mailbox opened to it says why a run can't read it.** A run started through a
   connected app (an AI assistant using the MCP server, the REST API, Telegram), a request, a row or
   a mention has no email tools, so what it read can't leave Leafdesk; the agent asked for the

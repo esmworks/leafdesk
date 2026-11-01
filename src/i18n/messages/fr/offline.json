@@ -6,6 +6,12 @@
   "readOnlyCopy": "Copie hors ligne du {time}, en lecture seule",
   "signOutUnsynced": "Certaines pages contiennent des modifications qui n’ont pas encore atteint le serveur. Se déconnecter les supprimera de ce navigateur. Se déconnecter quand même ?",
   "installApp": "Installer l’application",
+  "iosInstall": {
+    "title": "Ajouter Leafdesk à l'écran d'accueil",
+    "share": "Touchez le bouton Partager dans la barre d'outils du navigateur.",
+    "add": "Choisissez « Sur l'écran d'accueil », puis touchez Ajouter.",
+    "done": "Leafdesk s'ouvre ensuite depuis son icône dans sa propre fenêtre, sans les barres du navigateur."
+  },
   "page": {
     "documentTitle": "Hors ligne",
     "heading": "Vous êtes hors ligne",

@@ -16,9 +16,9 @@
  *   page kept in the same per-user cache, if there is one.
  * - Everything else (API routes, uploads, server actions, RSC requests, the collab websocket) is
  *   never touched.
- * - Push messages (server/push.ts) show as notifications; opening one brings an open Leafdesk tab
- *   to the notification's page, or opens a new window; its Mark as read button marks it read and
- *   its Snooze button snoozes it for an hour.
+ * - Push messages (server/push.ts) show as notifications and mark the installed app's icon;
+ *   opening one brings an open Leafdesk tab to the notification's page, or opens a new window; its
+ *   Mark as read button marks it read and its Snooze button snoozes it for an hour.
  *
  * Bump VERSION when changing this file's caching of static files.
  */
@@ -309,7 +309,9 @@ async function trim(cache) {
 // every message shows a notification (browsers require it), a generic one if the data is unusable.
 
 self.addEventListener("push", (event) => {
-  event.waitUntil(showPush(readPush(event.data)));
+  // The installed app's icon gets a mark until the app, opened, shows the inbox's count (sidebar.tsx).
+  const badge = "setAppBadge" in self.navigator ? self.navigator.setAppBadge().catch(() => {}) : null;
+  event.waitUntil(Promise.all([showPush(readPush(event.data)), badge]));
 });
 
 /** The message's fields, each checked; null when it carries no usable JSON. */

@@ -63,7 +63,7 @@ export default function TurnIntoPageDialog({
         onPick={(target) => void move(target)}
       />
       {failed && blockIds && (
-        <p role="alert" className="fixed inset-x-0 bottom-4 z-[70] mx-auto w-fit rounded-md bg-danger px-3 py-1.5 text-sm text-white shadow">
+        <p role="alert" className="fixed inset-x-0 bottom-safe-4 z-[70] mx-auto w-fit rounded-md bg-danger px-3 py-1.5 text-sm text-white shadow">
           {t("failed")}
         </p>
       )}

@@ -257,6 +257,11 @@ export function Sidebar({
   const [inboxMounted, setInboxMounted] = useState(false);
   if (inboxOpen && !inboxMounted) setInboxMounted(true);
   const [unread, setUnread] = useState(0);
+  // The installed app's icon carries the count, where the system shows one.
+  useEffect(() => {
+    if (!("setAppBadge" in navigator)) return;
+    void (unread > 0 ? navigator.setAppBadge(unread) : navigator.clearAppBadge()).catch(() => {});
+  }, [unread]);
   // Agents' reminders whose time came, shown over the page one at a time; `reminderWake` is
   // bumped when the server says one came.
   const [reminderWake, setReminderWake] = useState(0);
@@ -1168,7 +1173,7 @@ export function Sidebar({
         onMouseLeave={sidebar?.collapsed ? sidebar.hidePeek : undefined}
         className={cn(
           "relative flex shrink-0 flex-col border-e border-border bg-bg-subtle text-sm select-none",
-          "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:w-[min(18rem,85vw)] max-md:shadow-xl md:w-[var(--sidebar-w)]",
+          "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:pb-(--safe-bottom) max-md:w-[min(18rem,85vw)] max-md:shadow-xl md:w-[var(--sidebar-w)]",
           sidebar?.collapsed &&
             "md:fixed md:top-12 md:bottom-3 md:inset-s-0 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,visibility] md:duration-200 md:ease-out",
           sidebar?.collapsed && (sidebar.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-[calc(100%+1rem)] md:rtl:translate-x-[calc(100%+1rem)]"),
