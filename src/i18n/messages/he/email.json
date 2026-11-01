@@ -258,6 +258,8 @@
     "rowUpdateBody": "הטקסט",
     "pageUpdated": "{actor} ערך את הדף הזה",
     "rowEmail": "אימייל מ־{from}",
+    "newMail": "הודעה חדשה",
+    "newMailCount": "{count, plural, one {הודעה חדשה אחת} other {# הודעות חדשות}}",
     "followUp": "רצף המעקב “{sequence}” הושהה: צריך לבדוק את האימייל הבא שלו",
     "reaction": "{actor} הגיב/ה {emoji} לתגובה שלך",
     "people": "{others, plural, =0 {{name}} one {{name} ועוד אדם אחד} two {{name} ועוד שניים} other {{name} ועוד #}}",

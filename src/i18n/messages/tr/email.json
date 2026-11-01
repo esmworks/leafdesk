@@ -258,6 +258,8 @@
     "rowUpdateBody": "metin",
     "pageUpdated": "{actor} bu sayfayı düzenledi",
     "rowEmail": "{from} e-posta gönderdi",
+    "newMail": "Yeni ileti",
+    "newMailCount": "{count, plural, one {# yeni ileti} other {# yeni ileti}}",
     "followUp": "“{sequence}” takibi duraklatıldı: sıradaki e-postasına bakılması gerekiyor",
     "reaction": "{actor} yorumunuza {emoji} tepkisi verdi",
     "people": "{others, plural, =0 {{name}} one {{name} ve # kişi daha} other {{name} ve # kişi daha}}",

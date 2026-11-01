@@ -258,6 +258,8 @@
     "rowUpdateBody": "teksti",
     "pageUpdated": "{actor} muokkasi tätä sivua",
     "rowEmail": "Sähköposti lähettäjältä {from}",
+    "newMail": "Uusi sähköposti",
+    "newMailCount": "{count, plural, one {# uusi sähköposti} other {# uutta sähköpostia}}",
     "followUp": "Seurantasarja ”{sequence}” keskeytetty: sen seuraava sähköposti pitää tarkistaa",
     "reaction": "{actor} reagoi kommenttiisi: {emoji}",
     "people": "{others, plural, =0 {{name}} one {{name} ja # muu} other {{name} ja # muuta}}",

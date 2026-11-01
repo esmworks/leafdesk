@@ -258,6 +258,8 @@
     "rowUpdateBody": "متن",
     "pageUpdated": "{actor} این صفحه را ویرایش کرد",
     "rowEmail": "ایمیل از {from}",
+    "newMail": "ایمیل جدید",
+    "newMailCount": "{count, plural, one {# ایمیل جدید} other {# ایمیل جدید}}",
     "followUp": "پیگیری «{sequence}» متوقف شد: ایمیل بعدی آن نیاز به بررسی دارد",
     "reaction": "{actor} با {emoji} به دیدگاه شما واکنش نشان داد",
     "people": "{others, plural, =0 {{name}} one {{name} و # نفر دیگر} other {{name} و # نفر دیگر}}",

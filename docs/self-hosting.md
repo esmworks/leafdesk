@@ -184,7 +184,8 @@ the inbox and email. Push follows the inbox: a kind kept out of the inbox isn't 
 notification brings an open Leafdesk tab to the page, or opens one; its "Mark as read" button
 marks the inbox item read (its email, if still to come, then doesn't go) and its "Snooze 1 hour"
 button puts it off as the inbox's snooze does (not on agents' requests to go ahead, which wait
-only so long). People who linked Telegram get the same notifications there too (see
+only so long). New mail in the Mail tab's inboxes is pushed too, without an inbox item (see
+[The Mail tab](email-on-rows.md#the-mail-tab)). People who linked Telegram get the same notifications there too (see
 [AI chat from Telegram](ai.md#ai-chat-from-telegram)), with a Telegram column of their own.
 
 Push is off until the server has a VAPID key pair. Notifications don't go from your server to the

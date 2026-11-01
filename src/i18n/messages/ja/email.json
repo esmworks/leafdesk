@@ -258,6 +258,8 @@
     "rowUpdateBody": "本文",
     "pageUpdated": "{actor}さんがこのページを編集しました",
     "rowEmail": "{from}からのメール",
+    "newMail": "新着メール",
+    "newMailCount": "{count, plural, other {新着メール # 件}}",
     "followUp": "フォローアップ「{sequence}」が一時停止しました：次のメールの確認が必要です",
     "reaction": "{actor}があなたのコメントに{emoji}でリアクションしました",
     "people": "{others, plural, =0 {{name}さん} other {{name}さんほか#人}}",

@@ -258,6 +258,8 @@
     "rowUpdateBody": "teksten",
     "pageUpdated": "{actor} har redigert denne siden",
     "rowEmail": "E-post fra {from}",
+    "newMail": "Ny e-post",
+    "newMailCount": "{count, plural, one {# ny e-post} other {# nye e-poster}}",
     "followUp": "Oppfølgingen «{sequence}» er satt på pause: neste e-post må ses over",
     "reaction": "{actor} har reagert med {emoji} på kommentaren din",
     "people": "{others, plural, =0 {{name}} one {{name} og # annen} other {{name} og # andre}}",

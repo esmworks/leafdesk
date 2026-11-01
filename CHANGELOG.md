@@ -4,6 +4,12 @@
 
 ### Added
 
+- **New mail comes as a notification on your phone.** Mail arriving in a Mail tab inbox is pushed,
+  within a minute, to the devices where push notifications are on: who wrote and to which address,
+  never the subject, and opening it opens the thread; several at once come as one notification.
+  Mail you already read, your own, and newsletters, mailing lists and automatic replies don't.
+  Each mailbox turns it off under Account › Email and calendar. Migration `0182_mailbox_notify`
+  adds `mailbox.notify`.
 - **The AI chat sets reminders.** Ask it to remind you of something once ("remind me tomorrow at 9
   to call Ayşe") and it sets the reminder for you: the box shows its text and time on your clock
   first, and it comes as an agent's reminder does, over the page you have open, in your inbox and on

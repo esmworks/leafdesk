@@ -258,6 +258,8 @@
     "rowUpdateBody": "nội dung",
     "pageUpdated": "{actor} đã chỉnh sửa trang này",
     "rowEmail": "Email từ {from}",
+    "newMail": "Email mới",
+    "newMailCount": "{count, plural, other {# email mới}}",
     "followUp": "Chuỗi theo dõi “{sequence}” đã tạm dừng: email tiếp theo cần được xem xét",
     "reaction": "{actor} đã bày tỏ cảm xúc {emoji} với bình luận của bạn",
     "people": "{others, plural, =0 {{name}} other {{name} và # người khác}}",

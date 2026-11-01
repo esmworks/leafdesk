@@ -8,7 +8,7 @@ import { db } from "@/db";
 import { notification, pushSubscription, session } from "@/db/schema";
 import { env } from "@/lib/env";
 import { formatIsoDate } from "@/lib/mentions";
-import { encodePushPayload, isAllowedPushHost, parsePushSubscription, pushPayload, type PushSubscriptionInput, type VapidConfig } from "@/lib/push";
+import { encodePushPayload, isAllowedPushHost, parsePushSubscription, pushPayload, type PushPayload, type PushSubscriptionInput, type PushTranslator, type VapidConfig } from "@/lib/push";
 import { checkTarget } from "@/server/link-preview";
 import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
@@ -20,7 +20,8 @@ import { deliverTelegram } from "@/server/telegram/notify";
  * Push notifications: each new inbox notification also goes, as a push message, to the browsers
  * where its recipient turned them on (Settings > Preferences), when the server has VAPID keys
  * (env.vapid). Sending never holds up or fails what caused the notification: it starts after the
- * notification is saved and runs on its own.
+ * notification is saved and runs on its own. New mail in a mailbox's inbox goes the same way
+ * without an inbox notification (pushToPerson).
  *
  * A message says only what the inbox shows for the notification (server/notifications.ts reads it
  * with the same access checks), in the recipient's language, and leads where the inbox does. It is
@@ -80,6 +81,40 @@ export async function flushPush() {
 
 type Subscription = typeof pushSubscription.$inferSelect;
 
+/** The devices of each of these people whose sign-in is still valid. */
+async function devicesOf(userIds: string[]): Promise<Map<string, Subscription[]>> {
+  const devices = new Map<string, Subscription[]>();
+  if (!userIds.length) return devices;
+  const subscriptions = await db
+    .select({ subscription: pushSubscription })
+    .from(pushSubscription)
+    .innerJoin(session, eq(session.id, pushSubscription.sessionId))
+    .where(and(inArray(pushSubscription.userId, userIds), gt(session.expiresAt, new Date())));
+  for (const { subscription } of subscriptions) devices.set(subscription.userId, [...(devices.get(subscription.userId) ?? []), subscription]);
+  return devices;
+}
+
+/**
+ * Sends a push message that is no inbox notification (new mail: mail-client/notify.ts) to the
+ * person's devices, without waiting, as pushNotifications does. `message` writes it with the texts
+ * in their language; null sends nothing. The installed app's icon keeps the workspace's unread count.
+ */
+export function pushToPerson(userId: string, workspaceId: string, message: (t: PushTranslator) => PushPayload | null) {
+  const vapid = env.vapid;
+  if (vapid) track(deliverToPerson(userId, workspaceId, message, vapid), "could not send push notifications");
+}
+
+async function deliverToPerson(userId: string, workspaceId: string, message: (t: PushTranslator) => PushPayload | null, vapid: VapidConfig) {
+  const targets = (await devicesOf([userId])).get(userId);
+  if (!targets?.length) return;
+  const t = emailTranslator(await recipientLocale(userId, undefined));
+  const payload = message((key, values) => t(`push.${key}` as Parameters<typeof t>[0], values));
+  if (!payload) return;
+  const unread = await unreadCount(userId, workspaceId).catch(() => undefined);
+  const json = encodePushPayload({ ...payload, url: `${env.appUrl}${payload.url}`, unread });
+  await Promise.all(targets.map((target) => sendTo(target, json, vapid)));
+}
+
 async function deliver(ids: string[]) {
   const vapid = env.vapid;
   if (!vapid) return;
@@ -88,15 +123,7 @@ async function deliver(ids: string[]) {
     .from(notification)
     .where(and(inArray(notification.id, ids), isNull(notification.readAt)));
   if (!rows.length) return;
-  const recipients = [...new Set(rows.map((r) => r.userId))];
-  // Only devices whose sign-in is still valid.
-  const subscriptions = await db
-    .select({ subscription: pushSubscription })
-    .from(pushSubscription)
-    .innerJoin(session, eq(session.id, pushSubscription.sessionId))
-    .where(and(inArray(pushSubscription.userId, recipients), gt(session.expiresAt, new Date())));
-  const devices = new Map<string, Subscription[]>();
-  for (const { subscription } of subscriptions) devices.set(subscription.userId, [...(devices.get(subscription.userId) ?? []), subscription]);
+  const devices = await devicesOf([...new Set(rows.map((r) => r.userId))]);
   await Promise.all(
     [...devices].map(async ([userId, targets]) => {
       const preferences = await getNotificationPreferences(userId);

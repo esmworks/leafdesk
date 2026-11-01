@@ -372,7 +372,8 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   the mail tools and row proposals to the mail's person alone (`state.mailRead`, `mailProposes`;
   the chat's run message shows them, `agent-chat/run-proposals.tsx`), as in the chat's later runs (`lib/agents.ts` `readEmail` on their
   history, `chat-store.ts`); MCP and the REST API leave out what such runs did and answered;
-  new inbox mail starts runs (source `mail`) through `indexer.ts` `arrived` → `agents/mail-trigger.ts`
+  new inbox mail is pushed to the owner's devices from `indexer.ts` `arrived` → `mail-client/notify.ts`
+  (`mailbox.notify`; no inbox item: `push.ts` `pushToPerson`, texts `lib/mail-push.ts`) and starts runs (source `mail`) through `agents/mail-trigger.ts`
   (filters pure in `lib/agent-mail-trigger.ts`; `store` returns only rows it inserted, so the sweep
   and the IDLE watch never both start one); such a run reads the thread first and starts tainted;
   `sort_mail`/`summarize_mail` and the Mail list's agent marks (`mail_message.agent_marks`) are

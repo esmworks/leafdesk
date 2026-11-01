@@ -258,6 +258,8 @@
     "rowUpdateBody": "ข้อความ",
     "pageUpdated": "{actor} แก้ไขหน้านี้",
     "rowEmail": "อีเมลจาก {from}",
+    "newMail": "อีเมลใหม่",
+    "newMailCount": "{count, plural, other {อีเมลใหม่ # ฉบับ}}",
     "followUp": "การติดตามผล “{sequence}” หยุดชั่วคราว: อีเมลฉบับถัดไปต้องได้รับการตรวจดู",
     "reaction": "{actor} แสดงปฏิกิริยา {emoji} ต่อความคิดเห็นของคุณ",
     "people": "{others, plural, =0 {{name}} other {{name} และอีก # คน}}",

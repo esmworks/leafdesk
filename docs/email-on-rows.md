@@ -123,6 +123,15 @@ where one is removed; *Stop* on a message does the same. The earlier mail an ans
 end folds under *•••*, which opens it in place. Messages are grouped into threads by the server's
 thread ids, their references and, within 30 days, a reply's subject.
 
+New mail in a mailbox's inbox comes as a notification on the owner's devices where push
+notifications are on (see [Push notifications](self-hosting.md#push-notifications)), within a
+minute: who wrote and to which address, never the subject or the text, since a lock screen shows it
+to whoever holds the device. Opening it opens the thread; mail found together comes as one
+notification ("3 new emails") that opens the inbox. Mail already read elsewhere, the owner's own,
+drafts, and mail sent by machines or to lists (newsletters, mailing lists, automatic replies) don't
+come, and nothing goes to the Leafdesk inbox or Telegram. Each mailbox turns it off under Account ›
+Email and calendar, *New mail notifications*.
+
 Each thread in the list has a mark beside it for the other party (whom you wrote to, in your sent
 mail): a member's own picture, else the logo of the organization the mail came from, else the
 first letter of their name. A picture or a logo shows only when the provider's check says the

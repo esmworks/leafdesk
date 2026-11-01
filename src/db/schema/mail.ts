@@ -79,6 +79,8 @@ export const mailbox = pgTable(
      */
     signature: text("signature"),
     signatureText: text("signature_text"),
+    /** New mail in its inbox goes to its owner's devices as a push message (server/mail-client/notify.ts). */
+    notify: boolean("notify").notNull().default(true),
     /** When its owner agreed that mail matched to rows shows to everyone who sees those rows. */
     consentedAt: timestamp("consented_at", { withTimezone: true }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

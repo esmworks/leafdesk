@@ -189,14 +189,18 @@ export async function indexUids(client: ImapFlow, box: Box, folder: FolderRow, u
 }
 
 /**
- * Tells the agents watching the mailbox's inbox (agents/mail-trigger.ts) of mail just come: loaded
- * only then, since agents' code reaches far. Never throws, nor holds up the index.
+ * Tells the agents watching the mailbox's inbox (agents/mail-trigger.ts) of mail just come, and
+ * pushes it to the owner's devices (notify.ts): loaded only then, since agents' and push code reach
+ * far. Never throws, nor holds up the index.
  */
 function arrived(box: Box, messageIds: string[]) {
   if (!messageIds.length) return;
   void import("@/server/agents/mail-trigger")
     .then((m) => m.mailArrived(box, messageIds))
     .catch((error) => console.warn(`[mail-client] new mail in ${box.id} reached no agent:`, (error as Error)?.message ?? error));
+  void import("./notify")
+    .then((m) => m.notifyNewMail(box, messageIds))
+    .catch((error) => console.warn(`[mail-client] new mail in ${box.id} wasn't pushed:`, (error as Error)?.message ?? error));
 }
 
 type FlagState = { uid: number; flags: Set<string> };
