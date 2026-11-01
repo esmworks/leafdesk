@@ -33,7 +33,8 @@ import type { SidebarLayout } from "../../lib/sidebar-sections";
 import { aiAccount } from "./ai-accounts";
 import { user } from "./auth";
 
-const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
+/** Postgres binary data, read as bytes. */
+export const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
   dataType: () => "bytea",
   toDriver: (value) => Buffer.from(value),
   fromDriver: (value) => new Uint8Array(value),

@@ -123,6 +123,23 @@ where one is removed; *Stop* on a message does the same. The earlier mail an ans
 end folds under *•••*, which opens it in place. Messages are grouped into threads by the server's
 thread ids, their references and, within 30 days, a reply's subject.
 
+Each thread in the list has a mark beside it for the other party (whom you wrote to, in your sent
+mail): a member's own picture, else the logo of the organization the mail came from, else the
+first letter of their name. A picture or a logo shows only when the provider's check says the
+sender's domain vouched for the message (DMARC passed), and only the check of a Google or Microsoft
+mailbox counts: both put their own result on top of every message, while another mail server may
+pass on whatever result a sender wrote in, so mail to other providers always shows initials (your
+own sent mail shows your picture). Logos never show for public mail services such as gmail.com nor
+for the mailbox's own domain, whose people would all look alike. The server looks a domain's logo
+up in the background, the first time a verified sender of it shows, so it appears on a later look:
+the logo the domain publishes for its mail (BIMI), else the largest icon its web site names (a site
+that turns away programs gets none). It asks the domain itself, through the same checks as saving a
+web page, and sends nothing about the mailbox; logos are kept for a month, a domain without one is
+asked again after a week, one that didn't answer the next day. A logo's address works only for the
+person it was shown to. `SENDER_LOGOS=off` turns the look-ups off; the list then shows pictures and
+initials only. Mail already in the index is checked again a few hundred messages a minute, newest
+first.
+
 With several mailboxes, *All inboxes* at the top of the sidebar lists their inboxes as one, newest
 first, each thread marked with its mailbox's letter; its search looks in all of them. A thread
 opened, answered or moved there stays in its own mailbox, and *Move to* offers that mailbox's

@@ -2,7 +2,7 @@ import { and, asc, desc, eq, inArray, isNull, or, sql, type SQL } from "drizzle-
 import { db } from "@/db";
 import { mailbox, mailFolder, mailMessage, mailSnooze, page, workspaceAgent } from "@/db/schema";
 import { dmarcFailed, normalizeAddress, parseHeaderBlock } from "@/lib/mail";
-import { imagesShown, type MailImagesFrom } from "@/lib/mail-images";
+import { imagesShown, sameOrganization, type MailImagesFrom } from "@/lib/mail-images";
 import { unsubscribeOffer, unsubscribeTargets } from "@/lib/mail-unsubscribe";
 import {
   ALL_INBOXES,
@@ -15,19 +15,23 @@ import {
   type MailboxTabView,
   type MailFolderView,
   type MailMessageView,
+  type MailSenderMark,
   type MailThreadAgent,
   type MailThreadItem,
   type MailThreadPage,
   type MailThreadView,
 } from "@/lib/mail-client";
+import { logoDomain } from "@/lib/sender-marks";
 import { RowMailError } from "@/server/row-mail/settings";
 import { mailDatabases } from "@/server/row-mail/match";
+import { workspacePeopleByEmail } from "@/server/workspaces";
 import { requireMailIn, requireOwnMailbox } from "./access";
 import { discoverFolders, orderFolders } from "./folders";
 import { cleanMailHtml, htmlText } from "./html";
 import { indexFolder, indexMailbox, indexUids, isIndexed } from "./indexer";
 import { bodyHeld, heldBody } from "./body-cache";
 import { imagesFor } from "./images";
+import { knownLogos, logoUrl, senderLogosEnabled, wantLogos } from "./sender-logos";
 import { ConnectionLost, SHORT_MS, warmImap, withImap, type ImapLane } from "./pool";
 import { decodeText, decodeTransfer, fileView, messageParts, readPart, readParts, type PartRef } from "./structure";
 
@@ -400,6 +404,39 @@ function threadAgents(messages: { agentMarks: MailAgentMark[] | null }[], agents
   return [...out.values()];
 }
 
+/** Folders of what the owner wrote, whose sender is them whatever the headers say. */
+const OWN_FOLDERS: (string | null)[] = ["sent", "drafts"];
+
+type MarkWanted = { key: string; box: Box; address: string; name: string | null; auths: (string | null)[] };
+
+/**
+ * Marks of senders (lib/sender-marks.ts), by `key`, for `userId`: when the provider vouched for
+ * their mail here (a pass among `auths` and no failure), a member's picture, else the logo of their
+ * domain (not the mailbox's own organization, whose people it would all look alike); otherwise
+ * their initial, with a member's name. Domains never looked at are asked for, and show a logo once
+ * the job has found one.
+ */
+async function senderMarks(userId: string, workspaceId: string, wanted: MarkWanted[]): Promise<Map<string, MailSenderMark>> {
+  const people = new Map((await workspacePeopleByEmail(workspaceId, wanted.map((w) => w.address))).map((p) => [p.email.toLowerCase(), p]));
+  const logos = senderLogosEnabled();
+  const planned = wanted.map((w) => {
+    const vouched = w.auths.includes("pass") && !w.auths.includes("fail");
+    const person = people.get(w.address.toLowerCase());
+    const image = vouched ? (person?.image ?? null) : null;
+    const domain = logos && vouched && !image && !sameOrganization(w.box.address, w.address) ? logoDomain(w.address) : null;
+    return { ...w, name: w.name ?? person?.name ?? null, image, domain };
+  });
+  const domains = planned.flatMap((p) => (p.domain ? [p.domain] : []));
+  const known = await knownLogos(domains);
+  await wantLogos(domains.filter((d) => !known.has(d)));
+  return new Map(
+    planned.map((p) => {
+      const version = p.domain ? known.get(p.domain) : null;
+      return [p.key, { address: p.address, name: p.name, image: p.image, logo: p.domain && version != null ? logoUrl(userId, p.domain, version) : null }];
+    }),
+  );
+}
+
 async function threadPage(userId: string, workspaceId: string, listed: { box: Box; folder: FolderRow }[], search: string, cursor: string | null): Promise<MailThreadPage> {
   // Per mailbox: the folders listed (all but the trash and junk for a search) and those whose messages count in a thread.
   const each = await Promise.all(
@@ -475,6 +512,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
         fromName: mailMessage.fromName,
         sentAt: mailMessage.sentAt,
         agentMarks: mailMessage.agentMarks,
+        senderAuth: mailMessage.senderAuth,
       })
       .from(mailMessage)
       .where(
@@ -498,6 +536,19 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
     newest.map(party).filter((a): a is string => !!a),
   );
   const agents = await agentsOf(members.flatMap((m) => (m.agentMarks ?? []).map((mark) => mark.agentId)));
+  // Each thread's mark is its other party's, by its newest message.
+  const marks = await senderMarks(
+    userId,
+    workspaceId,
+    newest.flatMap((message): MarkWanted[] => {
+      const box = listedIn.get(message.mailboxId)?.box;
+      if (!box) return [];
+      const address = party(message) ?? message.fromAddress;
+      const name = address === message.fromAddress ? message.fromName : ([...message.to, ...message.cc].find((a) => a.address === address)?.name ?? null);
+      const theirs = members.filter((m) => m.mailboxId === message.mailboxId && m.threadId === message.threadId && m.fromAddress === address);
+      return [{ key: message.id, box, address, name, auths: [...theirs.map((m) => m.senderAuth), message.fromAddress === address ? message.senderAuth : null] }];
+    }),
+  );
 
   const items = shown.flatMap((g): MailThreadItem[] => {
     const message = newestById.get(g.newest);
@@ -530,6 +581,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
         snoozedUntil: g.until ? new Date(g.until).toISOString() : null,
         row: other ? (rows.get(other) ?? null) : null,
         agents: threadAgents(inThread, agents),
+        mark: marks.get(message.id) ?? { address: message.fromAddress, name: message.fromName, image: null, logo: null },
       },
     ];
   });
@@ -537,7 +589,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
   return { items, next: more ? `${new Date(last.last).toISOString()}|${last.mailbox_id}|${last.thread_id}` : null };
 }
 
-function messageView(m: MessageRow, folders: Map<string, FolderRow>, row: RowChip | null): MailMessageView {
+function messageView(m: MessageRow, folders: Map<string, FolderRow>, row: RowChip | null, mark: MailSenderMark | undefined): MailMessageView {
   return {
     id: m.id,
     folderId: m.folderId,
@@ -554,6 +606,7 @@ function messageView(m: MessageRow, folders: Map<string, FolderRow>, row: RowChi
     draft: m.draft,
     hasAttachments: m.hasAttachments,
     row,
+    mark: mark ?? { address: m.fromAddress, name: m.fromName, image: null, logo: null },
     body: null,
   };
 }
@@ -599,10 +652,17 @@ export async function getThread(userId: string, input: { mailboxId: string; thre
   const chips = await rowsForAddresses(box.workspaceId, userId, parties.filter((a): a is string => !!a));
   // The newest summary made, on whichever copy of its message it was saved, shown on the copy here.
   const summarized = [...rows].reverse().find((m) => m.summary);
+  // Each message's mark is its sender's, as the list draws it; what the owner sent is theirs.
+  const sentBy = (r: MessageRow) => (OWN_FOLDERS.includes(byId.get(r.folderId)?.role ?? "") ? "pass" : r.senderAuth);
+  const marks = await senderMarks(
+    userId,
+    box.workspaceId,
+    messages.map((m) => ({ key: m.id, box, address: m.fromAddress, name: m.fromName, auths: rows.filter((r) => r.fromAddress === m.fromAddress).map(sentBy) })),
+  );
   return {
     threadId: input.threadId,
     subject: named.subject || messages[0].subject,
-    messages: messages.map((m, i) => messageView(m, byId, chips.get(parties[i] ?? "") ?? null)),
+    messages: messages.map((m, i) => messageView(m, byId, chips.get(parties[i] ?? "") ?? null, marks.get(m.id))),
     row: other ? (chips.get(other) ?? null) : null,
     summary: summarized?.summary ? { text: summarized.summary, messageId: kept.get(summarized.messageId ?? summarized.id)?.id ?? summarized.id } : null,
   };

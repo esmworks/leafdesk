@@ -104,6 +104,14 @@ export const env = {
     return !/^(off|false|0|no)$/i.test(process.env.WEB_LINK_CHECKS?.trim() ?? "");
   },
   /**
+   * SENDER_LOGOS=off stops the server from looking up the logos of the domains verified mail in
+   * the Mail tab came from (server/mail-client/sender-logos.ts: their BIMI records and web sites);
+   * the list then shows initials and members' pictures only. On by default.
+   */
+  get senderLogos() {
+    return !/^(off|false|0|no)$/i.test(process.env.SENDER_LOGOS?.trim() ?? "");
+  },
+  /**
    * MAIL_ALLOWED_HOSTS: mail servers (host names, or host:port) members' mailboxes may be on even
    * though they are on a private network or a local name, and may talk to without TLS (a mail
    * server on the same machine or in the office, say); comma-separated. Every other mailbox is
