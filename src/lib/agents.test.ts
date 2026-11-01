@@ -315,11 +315,11 @@ describe("after reading email", () => {
     expect(readOthersWords([more("list_trash"), more("list_automations"), more("create_automation", "done", true)])).toBe(false);
   });
 
-  it("lets such a run only read pages, find and use tools, and use the mail tools", () => {
-    for (const name of ["read_page", "search_pages", "query_database", "find_tools", "use_tool", "search_mail", "read_mail", "read_mail_attachment", "draft_mail", COMPUTER_TOOL_NAMES.list, COMPUTER_TOOL_NAMES.read]) {
+  it("lets such a run only read pages, find and use tools, propose notes, and use the mail tools", () => {
+    for (const name of ["read_page", "search_pages", "query_database", "find_tools", "use_tool", "remember", "search_mail", "read_mail", "read_mail_attachment", "draft_mail", COMPUTER_TOOL_NAMES.list, COMPUTER_TOOL_NAMES.read]) {
       expect(mayCallAfterMail(name, false)).toBe(true);
     }
-    for (const name of ["edit_page", "create_page", "update_row", "add_comment", "send_email", "remember", "ask_agent", "read_web_page", "search_web", "leave_note", COMPUTER_TOOL_NAMES.write, COMPUTER_TOOL_NAMES.trash]) {
+    for (const name of ["edit_page", "create_page", "update_row", "add_comment", "send_email", "forget", "ask_agent", "read_web_page", "search_web", "leave_note", COMPUTER_TOOL_NAMES.write, COMPUTER_TOOL_NAMES.trash]) {
       expect(mayCallAfterMail(name, false)).toBe(false);
     }
     // A connected service's tool, even one that only reads and shares a page tool's name.

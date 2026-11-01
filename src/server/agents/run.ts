@@ -732,7 +732,7 @@ async function converse(
       steps.push({ kind: "tool", connectionId: null, tool: COMPUTER_EARLIER, input: "", outcome: "done" });
     }
     const held =
-      (history.mailRead ? "\n\n(Email was read earlier in this conversation: this run only reads pages and drafts email.)" : "") +
+      (history.mailRead ? `\n\n(Email was read earlier in this conversation: this run only reads pages${remembers ? ", proposes notes" : ""} and drafts email.)` : "") +
       (history.localRead ? "\n\n(Files on the person's computer were read earlier in this conversation: this run sends nothing out of Leafdesk: no connected service's tool, web page or search, other agent or email.)" : "");
     // The text files attached to the message, as data from outside, sharing a part of the room.
     const attached = "files" in run.context ? (run.context.files ?? []) : [];

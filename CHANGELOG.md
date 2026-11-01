@@ -608,6 +608,10 @@
 
 ### Fixed
 
+- **An agent can still propose a note after reading your email.** Once a chat had read email, the
+  agent refused to remember anything you told it, so it could only say it would note it. It now
+  proposes the note: never kept at once, only you read it in the agent's Memory tab and may keep
+  it. Forgetting a note stays refused after email, and the agent says who reviews its proposal.
 - **An agent's sent reports read as sent in MCP and the REST API.** A run's email to the agent's
   own recipients went out at once but was listed as a draft waiting for review; it now reads
   "Sent an email to …", or that it couldn't be sent, while a row's email still reads as a draft.

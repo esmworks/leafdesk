@@ -540,7 +540,8 @@ export function createDispatch(
     // Turned off for spending fast mid-turn: the turn's other calls aren't made either.
     if (pausedBySpending) return { content: "This agent was turned off for spending fast. Nothing was done; finish now.", isError: true };
     // Email is anyone's words, and could steer the run into sending on what it read: once it read
-    // some, it only reads pages and drafts email (whose recipients ai-chat-mail.ts checks). Nothing
+    // some, it only reads pages, drafts email (whose recipients ai-chat-mail.ts checks) and proposes
+    // notes, which its person reads before any run does (agents/memory.ts). Nothing
     // waits for approval either: an owner who isn't the mailbox's would see what it would send.
     // A run reading email proposes rows to its person alone, who approves them (see propose): one
     // new email or a schedule started from the start, a chat once it read email. Each counts toward
@@ -581,7 +582,7 @@ export function createDispatch(
     }
     if (mailRead && !mayCallAfterMail(call.name, Boolean(external))) {
       return {
-        content: "You have read email in this run, and email is anyone's words: from here on this run only reads pages and works on email. Nothing was done; say what you would do instead, and the person can ask for it.",
+        content: "You have read email in this run, and email is anyone's words: from here on this run only reads pages, works on email and proposes notes. Nothing was done; say what you would do instead, and the person can ask for it.",
         isError: true,
         step: { kind: "tool", connectionId: external?.connection.id ?? null, tool: external?.tool.name ?? call.name, input: inputSummary(call.arguments), outcome: "afterMail" },
       };

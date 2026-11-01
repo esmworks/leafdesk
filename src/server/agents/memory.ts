@@ -22,7 +22,9 @@
  * they said is kept at once, as said by them (`saidBy`), no owner asked: they are one. Only while
  * the run read nothing but their words and the workspace (assistant/dispatch.ts `untainted`: no email, web page or
  * search, connection's answer, other agent's answer or attached file), since otherwise the
- * "correction" may be what that told the model to keep; and at most MAX_CORRECTIONS_PER_RUN in a
+ * "correction" may be what that told the model to keep. A run that read email still proposes
+ * (lib/agents.ts READS_AFTER_MAIL), never forgets: its proposal reads only to the person it ran
+ * for (proposingRuns), whose mail it is. At most MAX_CORRECTIONS_PER_RUN in a
  * run, within MAX_MEMORIES kept notes. Past those, and in every other run, a correction is a
  * proposal marked as one. A kept correction is a step of the run (`correct`) that its person takes
  * back with Undo (undoAgentCorrection): the note goes, or the one it changed says again what it said
@@ -789,8 +791,13 @@ export async function runAgentMemoryTool(
   // whether or not that reaches them.
   await noticeProposal(agent, run.id).catch((error: unknown) => console.error("[agents] could not tell owners of a proposed note", redactError(error)));
   const changes = outcome.note.replacesId ? ` as the new text of memory_id ${outcome.note.replacesId}` : "";
+  // A chat's proposal reads only to the person chatting (proposingRuns othersRun), who may edit the agent.
+  const reader =
+    run.source.kind === "chat"
+      ? "The person you chat with can read it and keep it, in your Memory tab"
+      : "An owner of the workspace will read it and decide whether you keep it";
   return {
-    content: `${proposedBecause}${outcome.kind === "changed" ? "Proposed again, in place of the proposal that waited" : "Proposed"}${kind === "correction" ? " as a correction" : ""}${changes} (memory_id ${outcome.note.id}). An owner of the workspace will read it and decide whether you keep it: it is not in your memory yet, and nothing in this run changes because of it.`,
+    content: `${proposedBecause}${outcome.kind === "changed" ? "Proposed again, in place of the proposal that waited" : "Proposed"}${kind === "correction" ? " as a correction" : ""}${changes} (memory_id ${outcome.note.id}). ${reader}: it is not in your memory yet, and nothing in this run changes because of it.`,
     step: step("propose", outcome.note.text),
   };
 }

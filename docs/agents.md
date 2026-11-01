@@ -169,9 +169,10 @@ person reads it and sends it from the Mail tab. So that what an email says can't
 someone else, an answer goes only to the people of its thread and a new email only to addresses
 the person wrote in their messages or the schedule's task (or the mailbox's own). Once a run has
 read email or a file of one it only reads pages, works on that mail (drafts, `sort_mail`,
-`summarize_mail`) and proposes rows: any other change, a connected service's tool, the web,
-`send_email`, a note, a handoff note or another agent is refused, and the agent says what it would
-do instead. Its answer may quote that mail, so the chat's later runs that have it in their history
+`summarize_mail`) and proposes rows and notes: any other change, a connected service's tool, the
+web, `send_email`, forgetting a note, a handoff note or another agent is refused, and the agent says
+what it would do instead. A note it proposes then is never kept at once, and only the person the
+run worked for reads it (in the *Memory* tab) and may keep it. Its answer may quote that mail, so the chat's later runs that have it in their history
 (and the agent's own chat after a schedule that read email) are held the same way; a new
 conversation starts free.
 

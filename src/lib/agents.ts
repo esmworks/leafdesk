@@ -803,8 +803,10 @@ export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "re
 
 /**
  * What a run that read email may still call besides the mail tools: reading pages (and files on
- * the person's computer, which bring something in but carry nothing out), finding tools, and
- * use_tool, whose writes assistant/dispatch.ts refuses on their own.
+ * the person's computer, which bring something in but carry nothing out), finding tools, use_tool,
+ * whose writes assistant/dispatch.ts refuses on their own, and `remember`, which then only proposes
+ * a note (dispatch.ts untainted) whose text the run's own person alone reads and keeps
+ * (agents/memory.ts). Never `forget`: it drops a kept note at once.
  */
 export const READS_AFTER_MAIL: ReadonlySet<string> = new Set([
   "search_pages",
@@ -816,6 +818,7 @@ export const READS_AFTER_MAIL: ReadonlySet<string> = new Set([
   "read_attachment",
   "find_tools",
   "use_tool",
+  "remember",
   ...COMPUTER_READ_TOOLS,
 ]);
 

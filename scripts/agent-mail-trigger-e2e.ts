@@ -9,7 +9,8 @@
  * message with what it did (shown in the Mail tab's list) and leaves its person an inbox report; the
  * hourly limit holds further mail back and says so on the mailbox; a run whose mailbox was closed
  * to the agent fails quietly. Rows it proposes from the email wait in For review for the mailbox's
- * owner alone: another editor of the database, and a connected app, see none of them. The mail
+ * owner alone: another editor of the database, and a connected app, see none of them; a chat that
+ * read email only proposes notes, whose text its person alone reads, and forgets none. The mail
  * assistant template takes only the installer's own mailbox and sets all this up on it.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -93,6 +94,8 @@ const agents = await import("@/server/agents/manage");
 const { agentMailboxesOf, setAgentMailbox, setAgentMailTrigger } = await import("@/server/agents/mail");
 const { flushAgentRuns } = await import("@/server/agents/run");
 const chat = await import("@/server/agents/chat");
+const { keepAgentMemory, listAgentMemory } = await import("@/server/agents/memory");
+const { setAgentShare } = await import("@/server/agents/sharing");
 const { setAgentSchedule } = await import("@/server/agents/schedules");
 const { runDueSchedules } = await import("@/server/schedules");
 const { installBuiltinAgent } = await import("@/server/agents/builtin");
@@ -419,6 +422,8 @@ try {
         () => ({ name: "update_row", arguments: { row_id: acme.id, properties: { Notes: "Wants 100 GNK 800 by Friday." }, reason: "Ayşe's price request." } }),
         () => ({ name: "create_row", arguments: { database_id: customers.id, title: "Can Demir", reason: "Named in the email." } }),
         () => ({ name: "create_page", arguments: { title: "Notes" } }),
+        () => ({ name: "remember", arguments: { text: "Ada runs Acme's account.", kind: "correction" } }),
+        () => ({ name: "forget", arguments: { memory_id: "any" } }),
       ],
       "I proposed two changes from the email.",
     ),
@@ -434,6 +439,19 @@ try {
     "before email is read a chat's write is made; after, row writes are proposals and other writes are refused",
     chatResults,
   );
+  check(
+    chatResults[5]?.startsWith("Proposed as a correction") && chatResults[5]?.includes("The person you chat with") && chatResults[6]?.includes("proposes notes"),
+    "after email is read a note is only proposed, never kept at once, and forget is refused",
+    chatResults.slice(5),
+  );
+  const notesFor = async (userId: string) => (await listAgentMemory(userId, daily.id)).filter((n) => n.run?.id === chatRun.id);
+  const adaNotes = await notesFor(ids.ada);
+  check(adaNotes.length === 1 && adaNotes[0].status === "proposed" && adaNotes[0].text === "Ada runs Acme's account.", "the person chatting reads the proposed note", adaNotes);
+  await setAgentShare(ids.ada, daily.id, { kind: "person", userId: ids.bob }, "edit");
+  const bobNotes = await notesFor(ids.bob);
+  check(bobNotes.length === 1 && bobNotes[0].text === null, "another editor of the agent sees it without its text", bobNotes);
+  await keepAgentMemory(ids.ada, daily.id, adaNotes[0].id);
+  check((await notesFor(ids.ada)).length === 0 && (await listAgentMemory(ids.ada, daily.id)).some((n) => n.status === "kept" && n.text === "Ada runs Acme's account."), "kept by its person, the note goes with the agent's runs");
   check((await notesOf()) === "Before mail", "the proposal changes nothing yet");
   const fromChat = await review.listPendingChanges(ids.ada, workspaceId, { filter: { runId: chatRun.id } });
   check(fromChat.length === 2 && fromChat.every((c) => c.agent?.id === daily.id), "For review narrowed to the run lists both", fromChat.map((c) => c.kind));
