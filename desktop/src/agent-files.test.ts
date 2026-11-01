@@ -620,13 +620,17 @@ test("turned off while the person is asked: the question closes as a no, and a y
     let enabled = true;
     const { h, log } = host(box, true);
     h.folders = () => (enabled ? box.folders : []);
+    let asked!: () => void;
+    const askedYet = new Promise<void>((r) => (asked = r));
     h.ask = (_approval, signal) =>
       new Promise<boolean>((resolve) => {
         const both = AbortSignal.any([signal, off.signal]);
         both.addEventListener("abort", () => resolve(false));
+        asked();
       });
+    // Turned off only once the person is asked: a slow machine reaches the question after a while.
     const pending = answerCall(call("write", "Docs/off.md", "x"), h);
-    await new Promise((r) => setTimeout(r, 5));
+    await askedYet;
     enabled = false;
     off.abort();
     assert.deepEqual(await pending, { type: "result", id: "write-1", ok: false, error: "denied" });
