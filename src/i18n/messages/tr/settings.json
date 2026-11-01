@@ -58,6 +58,7 @@
       "about": "sürüm lisans güncelleme",
       "workspaceName": "ad yeniden adlandır simge",
       "ai": "yapay zekâ sohbet model sağlayıcı bellek",
+      "aiAutoChanges": "otomatik onay onaysız sormadan değişiklik",
       "workspaceMail": "e-posta satırlar posta gönder",
       "export": "yedek indir zip markdown dışa aktar pdf",
       "members": "kişiler davet kullanıcılar roller çıkar",
@@ -402,7 +403,14 @@
       "connections": "Bağlantılar",
       "schedules": "Zamanlamalar",
       "history": "Geçmiş",
-      "chat": "Sohbet"
+      "chat": "Sohbet",
+      "general": "Genel"
+    },
+    "sections": {
+      "instructions": "Talimatlar",
+      "tools": "Araçlar ve erişim",
+      "triggers": "Tetikleyiciler",
+      "advanced": "Gelişmiş"
     },
     "empty": "Henüz ajan yok.",
     "emptyOwner": "Henüz ajan yok. Bir tane oluşturun ya da aşağıdaki şablonlardan biriyle başlayın.",

@@ -58,6 +58,7 @@
       "about": "versión licencia actualización",
       "workspaceName": "nombre renombrar icono",
       "ai": "inteligencia artificial chat modelo proveedor memoria",
+      "aiAutoChanges": "automático aprobar aprobación cambios sin preguntar",
       "workspaceMail": "correo filas enviar email",
       "export": "copia de seguridad descargar zip markdown pdf",
       "members": "personas invitar usuarios roles quitar",
@@ -402,7 +403,14 @@
       "connections": "Conexiones",
       "schedules": "Programaciones",
       "history": "Historial",
-      "chat": "Chat"
+      "chat": "Chat",
+      "general": "General"
+    },
+    "sections": {
+      "instructions": "Instrucciones",
+      "tools": "Herramientas y acceso",
+      "triggers": "Desencadenantes",
+      "advanced": "Avanzado"
     },
     "empty": "Todavía no hay agentes.",
     "emptyOwner": "Todavía no hay agentes. Crea uno o empieza con una plantilla de abajo.",

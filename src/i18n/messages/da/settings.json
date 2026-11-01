@@ -58,6 +58,7 @@
       "about": "version licens opdatering",
       "workspaceName": "navn omdøb ikon",
       "ai": "kunstig intelligens chat model udbyder hukommelse",
+      "aiAutoChanges": "auto godkend godkendelse ændringer uden at spørge",
       "workspaceMail": "e-mail rækker post send",
       "export": "sikkerhedskopi download zip markdown eksport pdf",
       "members": "personer invitér brugere roller fjern medlemmer",
@@ -402,7 +403,14 @@
       "connections": "Forbindelser",
       "schedules": "Tidsplaner",
       "history": "Historik",
-      "chat": "Chat"
+      "chat": "Chat",
+      "general": "Generelt"
+    },
+    "sections": {
+      "instructions": "Instruktioner",
+      "tools": "Værktøjer og adgang",
+      "triggers": "Udløsere",
+      "advanced": "Avanceret"
     },
     "empty": "Ingen agenter endnu.",
     "emptyOwner": "Ingen agenter endnu. Opret en, eller start fra en skabelon nedenfor.",

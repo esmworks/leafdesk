@@ -58,6 +58,7 @@
       "about": "versie licentie update over",
       "workspaceName": "naam hernoemen pictogram",
       "ai": "kunstmatige intelligentie chat model aanbieder geheugen",
+      "aiAutoChanges": "automatisch goedkeuren goedkeuring wijzigingen zonder vragen",
       "workspaceMail": "e-mail rijen mail versturen",
       "export": "back-up downloaden zip markdown exporteren pdf",
       "members": "personen uitnodigen gebruikers rollen verwijderen leden",
@@ -402,7 +403,14 @@
       "connections": "Koppelingen",
       "schedules": "Planningen",
       "history": "Geschiedenis",
-      "chat": "Chat"
+      "chat": "Chat",
+      "general": "Algemeen"
+    },
+    "sections": {
+      "instructions": "Instructies",
+      "tools": "Hulpmiddelen en toegang",
+      "triggers": "Triggers",
+      "advanced": "Geavanceerd"
     },
     "empty": "Nog geen agents.",
     "emptyOwner": "Nog geen agents. Maak er een, of begin hieronder met een sjabloon.",

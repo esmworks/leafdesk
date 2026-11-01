@@ -11,6 +11,10 @@
  * it asks about takes the box's place until the person decides.
  * A research report can be saved as a page. Questions asked while an answer is on its way wait in a
  * strip above the box.
+ * An agent's chat (agent-chat/agent-thread.tsx) is the same thread: its `ThreadChat` leaves out what
+ * it doesn't have (skills, research, modes, models, Stop), whose pickers then don't show, and its
+ * own items (days, runs, its queue) come through `renderItem`. Variant `box` is the smaller one in a
+ * page's agent block and the agent's dialog.
  */
 import {
   ArrowUp,
@@ -70,7 +74,7 @@ import { MemoryDialog } from "./memory-dialog";
 import { carriesFiles, composerBox, CopyAction, MessageTime, questionBox, revealed, roundButton, StepsFold } from "./message-parts";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, reminderLabel, StepLine } from "./step-line";
-import { useReasoning, type ChangeDecision, type Chat, type ChatMessage, type ChatSkillPick, type ChatStatus, type PendingChange, type QueuedQuestion, type Reasoning } from "./use-chat";
+import { useReasoning, type ChangeDecision, type ChatMessage, type ChatSkillPick, type ChatStatus, type PendingChange, type QueuedQuestion, type Reasoning, type ThreadChat } from "./use-chat";
 
 // Lines to the chat's questions, and the way back to its latest answer: loaded once there is a conversation.
 const TurnLines = lazyPart(() => import("@/components/chat-navigation").then((m) => m.TurnLines));
@@ -85,8 +89,14 @@ export function ChatThread({
   starters,
   variant,
   voice,
+  placeholder,
+  empty: emptyText,
+  header,
+  above,
+  renderItem,
+  autoFocus = true,
 }: {
-  chat: Chat;
+  chat: ThreadChat;
   /** Why questions can't be asked now (offline, AI off), shown above the box. */
   blocked: string | null;
   /** Asks the typed question; with `again`, its question (and skill) in place of the last question and answer. */
@@ -96,9 +106,21 @@ export function ChatThread({
   scope?: ReactNode;
   /** Under the empty page's box: questions to start from (ChatStarters). */
   starters?: ReactNode;
-  variant: "panel" | "page";
+  /** `box`: a chat inside something else (an agent's dialog, a page's block), as tall as it needs up to what its parent allows. */
+  variant: "panel" | "page" | "box";
   /** The recording limits when questions can be dictated here, else null. */
   voice: VoiceNoteLimits | null;
+  /** The box's placeholder, and what an empty conversation says, in place of the AI chat's. */
+  placeholder?: string;
+  empty?: ReactNode;
+  /** Above the messages, in their column (an agent's name and description on its page). */
+  header?: ReactNode;
+  /** Above the box (a note about files on the person's computer). */
+  above?: ReactNode;
+  /** An agent's chat: draws a message that has an `item` (its answers, runs, days…); null leaves it to the thread. */
+  renderItem?: (message: ChatMessage, index: number, last: boolean) => ReactNode | null;
+  /** The box takes focus as the thread shows (not in a page's block, which would take it from the page). */
+  autoFocus?: boolean;
 }) {
   const t = useTranslations("ai.chat");
   const [memoryOpen, setMemoryOpen] = useState(false);
@@ -121,7 +143,7 @@ export function ChatThread({
       },
       /** Asks the question at `index` again, edited. */
       edit: (index: number, question: string) => latest.current.onSend({ question, skill: latest.current.chat.messages[index]?.skill }),
-      saveReport: (index: number) => latest.current.chat.saveReport(index),
+      saveReport: (index: number) => latest.current.chat.saveReport?.(index) ?? Promise.resolve(null),
     }),
     [],
   );
@@ -134,13 +156,15 @@ export function ChatThread({
     setScroller(el);
   }, []);
   const page = variant === "page";
+  const box = variant === "box";
   // An empty page's box stands on its own under the greeting: roomier, and lifted off the page.
   const fresh = messages.length === 0;
   const empty = page && fresh;
   // While the box holds a paste, its text is drawn behind it with the labels as chips.
   const chipsRef = useRef<HTMLDivElement>(null);
   const caretWas = useRef(0);
-  const chips = chat.pastes.length > 0;
+  const pastes = chat.pastes ?? [];
+  const chips = pastes.length > 0;
   const boxText = cn("block w-full text-sm leading-normal", empty ? "min-h-[46px]" : "min-h-10");
   // The box grows with what is typed, up to its max-height, then scrolls.
   useLayoutEffect(() => {
@@ -186,17 +210,17 @@ export function ChatThread({
   const skills = useSkillPicker({
     workspaceId: chat.workspaceId,
     input,
-    disabled: Boolean(blocked) || chat.skill !== null,
+    disabled: Boolean(blocked) || !chat.setSkill || Boolean(chat.skill),
     onPick: (skill) => {
-      chat.setSkill(skill);
+      chat.setSkill?.(skill);
       setInput("");
       inputRef.current?.focus();
     },
   });
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, [inputRef]);
+    if (autoFocus) inputRef.current?.focus();
+  }, [inputRef, autoFocus]);
   // The answers' renderer, while the conversation's messages load, and what reads an answer as it
   // comes: loaded with the first answer, it would hold back that answer's first pieces meanwhile.
   useEffect(() => {
@@ -240,8 +264,10 @@ export function ChatThread({
   }, []);
 
   const hasFiles = chat.files.length > 0;
+  const models = chat.options?.models ?? [];
+  const takesFile = (file: File) => (chat.takesFile ? chat.takesFile(file) : chatFileKind(file.type, file.name) !== null);
   // A question waits for its files to be uploaded.
-  const uploading = chat.files.some((f) => f.uploading);
+  const uploading = chat.files.some((f) => f.uploading) || Boolean(chat.sending);
   const send = () => {
     if (blocked) return;
     setDictation(null);
@@ -255,12 +281,14 @@ export function ChatThread({
   // would make them twice).
   const last = messages[messages.length - 1];
   const askAgain =
-    !running &&
-    !blocked &&
-    chat.conversationId !== null &&
-    messages.length >= 2 &&
-    last.role === "assistant" &&
-    !last.steps?.some(changedThings);
+    chat.askAgain ??
+    (!running &&
+      !blocked &&
+      chat.conversationId !== null &&
+      messages.length >= 2 &&
+      last.role === "assistant" &&
+      !last.steps?.some(changedThings));
+  const editIndex = !askAgain ? -1 : chat.editKey !== undefined ? messages.findIndex((m) => m.key === chat.editKey) : messages.length - 2;
 
   const turns = page
     ? messages.flatMap((m, i) => (m.role === "user" ? [{ id: m.key, question: m.content, answer: messages[i + 1]?.content ?? "" }] : []))
@@ -268,13 +296,15 @@ export function ChatThread({
 
   return (
     <>
-      <div className="relative flex min-h-0 flex-1 flex-col">
+      <div className={cn("relative flex min-h-0 flex-col", box ? "shrink" : "flex-1")}>
         <div
           ref={list}
           className={cn(
             // A scrollbar's room is kept from the start, so the column doesn't shift when the answers fill the page.
-            "min-h-0 flex-1 overflow-y-auto font-sans [scrollbar-gutter:stable]",
-            page ? "px-4 py-6 md:px-8" : "px-4 py-3",
+            "min-h-0 overflow-y-auto font-sans [scrollbar-gutter:stable]",
+            // In a box, the list is as tall as its messages until the box's parent stops it.
+            box ? "shrink" : "flex-1",
+            page ? "px-4 py-6 md:px-8" : box ? "px-3 py-3" : "px-4 py-3",
             // An empty page puts the greeting and the question box together a little above the middle.
             empty && "flex flex-col justify-end pb-6",
           )}
@@ -283,8 +313,11 @@ export function ChatThread({
           {/* Room for the boxes beside the conversation on a wide page (chat-page.tsx). */}
           <div className={cn(page && "pe-(--side-pad)")}>
             <div className={cn(page && "mx-auto w-full max-w-3xl")}>
+              {header}
               {messages.length === 0 ? (
-                page ? (
+                emptyText ? (
+                  <div className="py-6 text-sm text-fg-muted">{emptyText}</div>
+                ) : page ? (
                   <div className="space-y-2 text-center">
                     <h2 className="text-2xl font-semibold">{t("greeting")}</h2>
                     <p className="mx-auto max-w-md text-sm text-fg-muted">{t("intro")}</p>
@@ -295,9 +328,10 @@ export function ChatThread({
               ) : (
                 <ol className={cn(page ? "space-y-6" : "space-y-4")}>
                   {messages.map((m, i) => (
-                    <li key={m.key} data-turn={m.role === "user" ? m.key : undefined}>
-                      {m.role === "user" ? (
-                        <Question message={m} index={i} page={page} onEdit={askAgain && i === messages.length - 2 ? handlers.edit : undefined} />
+                    <li key={m.key} data-turn={m.role === "user" && m.item === undefined ? m.key : undefined}>
+                      {(m.item !== undefined && renderItem?.(m, i, i === messages.length - 1)) ||
+                        (m.role === "user" ? (
+                        <Question message={m} index={i} page={page} onEdit={i === editIndex ? handlers.edit : undefined} />
                       ) : (
                         <Answer
                           message={m}
@@ -313,7 +347,7 @@ export function ChatThread({
                           workspaceId={chat.workspaceId}
                           labels={labels}
                         />
-                      )}
+                      ))}
                     </li>
                   ))}
                 </ol>
@@ -332,7 +366,11 @@ export function ChatThread({
         // The list's padding plus its scrollbar's room on each side (measured above).
         className={cn(
           "shrink-0 pr-[calc(1rem+var(--gutter-r))] pl-[calc(1rem+var(--gutter-l))]",
-          page ? "pb-4 md:pr-[calc(2rem+var(--gutter-r))] md:pl-[calc(2rem+var(--gutter-l))]" : "pt-1 pb-3",
+          page
+            ? "pb-4 md:pr-[calc(2rem+var(--gutter-r))] md:pl-[calc(2rem+var(--gutter-l))]"
+            : box
+              ? "pr-[calc(0.75rem+var(--gutter-r))] pb-3 pl-[calc(0.75rem+var(--gutter-l))]"
+              : "pt-1 pb-3",
         )}
         style={{ "--gutter-l": `${gutter.left}px`, "--gutter-r": `${gutter.right}px` } as React.CSSProperties}
       >
@@ -354,17 +392,18 @@ export function ChatThread({
                 {dictation.message}
               </p>
             )}
+            {above}
             {!chat.pending && <QueueStrip queued={chat.queued} onClear={chat.clearQueue} />}
             {chat.pending ? (
-              <ChangePrompt pending={chat.pending} onDecide={(d) => void chat.decide(d)} onSource={onSource} />
+              <ChangePrompt pending={chat.pending} always={chat.options?.autoChanges !== false} onDecide={(d) => void chat.decide(d)} onSource={onSource} />
             ) : (
               <div className={cn("rounded-2xl", empty && "shadow-[0_1px_3px_rgb(16_24_40/0.05),0_10px_30px_rgb(16_24_40/0.08)] dark:shadow-[0_1px_3px_rgb(0_0_0/0.28),0_10px_30px_rgb(0_0_0/0.32)]")}>
                 {/* Before the first question, a strip above the box, its lower edge tucked behind it: what kind of
                     question, and where answers come from; both stay as picked for the conversation. Below the page in
                     the dark, the box above it; narrow, its choices drop their icons. */}
-                {fresh && (
+                {fresh && chat.setResearch && (
                   <div className="@container -mb-3.5 flex items-center gap-2 rounded-t-2xl bg-bg-subtle px-2.5 pt-2 pb-6 dark:bg-black/25">
-                    <KindTabs research={chat.research} onChange={chat.setResearch} />
+                    <KindTabs research={Boolean(chat.research)} onChange={chat.setResearch} />
                     <span className="flex-1" />
                     {scope}
                   </div>
@@ -401,7 +440,7 @@ export function ChatThread({
                     <SkillChip
                       skill={chat.skill}
                       onRemove={() => {
-                        chat.setSkill(null);
+                        chat.setSkill?.(null);
                         inputRef.current?.focus();
                       }}
                     />
@@ -414,7 +453,7 @@ export function ChatThread({
                     </div>
                   )}
                   <div className="relative">
-                    {chips && <PasteChips text={input} pastes={chat.pastes} boxRef={chipsRef} className={boxText} />}
+                    {chips && <PasteChips text={input} pastes={pastes} boxRef={chipsRef} className={boxText} />}
                     <textarea
                       ref={inputRef}
                       value={input}
@@ -426,21 +465,21 @@ export function ChatThread({
                       onSelect={(e) => {
                         const box = e.currentTarget;
                         if (box.selectionStart !== box.selectionEnd) return;
-                        const at = caretOutsideLabels(chat.pastes, box.selectionStart, caretWas.current);
+                        const at = caretOutsideLabels(pastes, box.selectionStart, caretWas.current);
                         if (at !== box.selectionStart) box.setSelectionRange(at, at);
                         caretWas.current = at;
                       }}
                       // A long paste goes in as a label (the text itself is sent in its place).
                       onPaste={(e) => {
                         // A copied file or image is attached, not pasted as its name.
-                        const pasted = Array.from(e.clipboardData.files).filter((f) => chatFileKind(f.type, f.name) !== null);
+                        const pasted = Array.from(e.clipboardData.files).filter(takesFile);
                         if (pasted.length) {
                           e.preventDefault();
                           void chat.attachFiles(pasted);
                           return;
                         }
                         const raw = e.clipboardData.getData("text/plain");
-                        if (!raw || !shouldCollapsePaste(raw)) return;
+                        if (!raw || !chat.pasteInput || !shouldCollapsePaste(raw)) return;
                         e.preventDefault();
                         const box = e.currentTarget;
                         const caret = chat.pasteInput(normalizePaste(raw), box.selectionStart, box.selectionEnd);
@@ -454,13 +493,13 @@ export function ChatThread({
                         // Backspace in the empty box takes off the picked skill.
                         if (e.key === "Backspace" && !input && chat.skill) {
                           e.preventDefault();
-                          chat.setSkill(null);
+                          chat.setSkill?.(null);
                           return;
                         }
                         // …and Backspace or Delete next to a label takes all of it.
                         const box = e.currentTarget;
                         if ((e.key === "Backspace" || e.key === "Delete") && box.selectionStart === box.selectionEnd) {
-                          const cut = deleteLabel({ text: input, pastes: chat.pastes }, box.selectionStart, e.key);
+                          const cut = deleteLabel({ text: input, pastes }, box.selectionStart, e.key);
                           if (cut) {
                             e.preventDefault();
                             setInput(cut.text);
@@ -475,9 +514,10 @@ export function ChatThread({
                         }
                       }}
                       rows={1}
+                      maxLength={chat.maxLength}
                       disabled={Boolean(blocked)}
-                      placeholder={running ? t("placeholderBusy") : chat.research ? t("research.placeholder") : t("placeholder")}
-                      aria-label={t("placeholder")}
+                      placeholder={placeholder ?? (running ? t("placeholderBusy") : chat.research ? t("research.placeholder") : t("placeholder"))}
+                      aria-label={placeholder ?? t("placeholder")}
                       className={cn(
                         boxText,
                         "relative resize-none bg-transparent outline-none placeholder:text-fg-faint disabled:opacity-60",
@@ -496,20 +536,34 @@ export function ChatThread({
                   {/* A container: on a narrow box (a phone, the panel) the chips keep only what tells them apart, so the model's name fits. */}
                   {/* While dictating there, the model and thinking chips give the recording their room. */}
                   <div className={cn("group/composer @container flex min-w-0 items-center max-sm:gap-1.5", empty ? "gap-3" : "gap-2")}>
-                    <AddMenu
-                      className={cn(round, "border border-border text-fg hover:bg-bg-hover disabled:opacity-40 disabled:hover:bg-transparent")}
-                      disabled={Boolean(blocked)}
-                      skillPicked={chat.skill !== null}
-                      onAttach={() => fileInput.current?.click()}
-                      onSkill={() => {
-                        if (!input) setInput("/");
-                        inputRef.current?.focus();
-                      }}
-                    />
+                    {/* Files, and a skill where the chat takes one; files alone without. */}
+                    {chat.setSkill ? (
+                      <AddMenu
+                        className={cn(round, "border border-border text-fg hover:bg-bg-hover disabled:opacity-40 disabled:hover:bg-transparent")}
+                        disabled={Boolean(blocked)}
+                        skillPicked={Boolean(chat.skill)}
+                        onAttach={() => fileInput.current?.click()}
+                        onSkill={() => {
+                          if (!input) setInput("/");
+                          inputRef.current?.focus();
+                        }}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        aria-label={t("files.attach")}
+                        title={t("files.attach")}
+                        className={cn(round, "border border-border text-fg hover:bg-bg-hover disabled:opacity-40 disabled:hover:bg-transparent")}
+                        disabled={Boolean(blocked)}
+                        onClick={() => fileInput.current?.click()}
+                      >
+                        <Paperclip className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                     <input
                       ref={fileInput}
                       type="file"
-                      accept={CHAT_FILE_ACCEPT}
+                      accept={chat.fileAccept ?? CHAT_FILE_ACCEPT}
                       multiple
                       hidden
                       onChange={(e) => {
@@ -518,23 +572,26 @@ export function ChatThread({
                         if (picked.length) void chat.attachFiles(picked);
                       }}
                     />
-                    <ModePicker
-                      mode={chat.mode}
-                      onChange={chat.setMode}
-                      research={chat.research}
-                      asSuggestions={chat.asSuggestions}
-                      onSuggestions={chat.setAsSuggestions}
-                    />
+                    {chat.mode && chat.setMode && chat.setAsSuggestions && (
+                      <ModePicker
+                        modes={chat.options?.autoChanges === false ? CHAT_MODES.filter((m) => m !== "auto") : CHAT_MODES}
+                        mode={chat.mode}
+                        onChange={chat.setMode}
+                        research={Boolean(chat.research)}
+                        asSuggestions={Boolean(chat.asSuggestions)}
+                        onSuggestions={chat.setAsSuggestions}
+                      />
+                    )}
                     <span className="flex-1" />
-                    {chat.options.models.length > 1 && <ModelPicker models={chat.options.models} model={chat.model ?? chat.options.models[0].id} onChange={chat.setModel} />}
-                    {!chat.research && (chat.options.models.find((m) => m.id === chat.model) ?? chat.options.models[0])?.thinks && (
+                    {models.length > 1 && chat.setModel && <ModelPicker models={models} model={chat.model ?? models[0].id} onChange={chat.setModel} />}
+                    {!chat.research && chat.thinking && chat.setThinking && (models.find((m) => m.id === chat.model) ?? models[0])?.thinks && (
                       <ThinkingPicker thinking={chat.thinking} onChange={chat.setThinking} />
                     )}
                     {voice && canRecord && (
                       <DictateButton workspaceId={chat.workspaceId} limits={voice} disabled={Boolean(blocked)} onText={dictated} onNotice={setDictation} />
                     )}
                     {/* While an answer is on its way, Send becomes Stop, and a typed question can be queued beside it. */}
-                    {running ? (
+                    {running && chat.stop ? (
                       <div className="flex items-center gap-1.5">
                         {(input.trim() || hasFiles) && (
                           <button
@@ -1023,12 +1080,15 @@ function AddMenu({
 
 /** What the chat may change, under the question box. */
 function ModePicker({
+  modes,
   mode,
   onChange,
   research,
   asSuggestions,
   onSuggestions,
 }: {
+  /** The modes offered: without `auto` while the workspace has changing without asking off. */
+  modes: readonly ChatMode[];
   mode: ChatMode;
   onChange: (mode: ChatMode) => void;
   research: boolean;
@@ -1073,7 +1133,7 @@ function ModePicker({
       {(close) => (
         <div role="menu" aria-label={t("label")}>
           <p className="px-2 pt-1 pb-1.5 text-xs font-medium text-fg-muted">{t("label")}</p>
-          {CHAT_MODES.map((m) => {
+          {modes.map((m) => {
             const ItemIcon = MODE_ICONS[m];
             return (
               <MenuItem
@@ -1240,10 +1300,13 @@ const isMemory = (action: PendingChange["action"]) => action.action === "remembe
  */
 function ChangePrompt({
   pending,
+  always,
   onDecide,
   onSource,
 }: {
   pending: PendingChange;
+  /** "Don't ask again" may be offered: the workspace lets the chat change things without asking. */
+  always: boolean;
   onDecide: (decision: ChangeDecision) => void;
   onSource: (source: ChatSourceView) => void;
 }) {
@@ -1262,7 +1325,7 @@ function ChangePrompt({
   const web = action.action === "readWeb" || action.action === "searchWeb";
   // A mail draft: shown whole, every recipient and all of its text, as it would be saved.
   const draft = action.action === "draftMail";
-  const decisions = memory || reminder || action.action === "connection" || action.eachTime || web ? EACH_TIME_DECISIONS : DECISIONS;
+  const decisions = memory || reminder || action.action === "connection" || action.eachTime || web || !always ? EACH_TIME_DECISIONS : DECISIONS;
   const question = action.action === "connection" ? t("question.connection", { connection: action.connection?.name ?? "" }) : t(`question.${action.action}`);
   useEffect(() => {
     first.current?.focus();

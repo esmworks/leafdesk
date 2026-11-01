@@ -48,6 +48,8 @@ export type ChatDispatchContext = {
   initialMode: ChatMode;
   /** What it may change now (the run's `state.mode`, after "don't ask again" or words from outside). */
   mode: ChatMode;
+  /** The workspace lets the chat change things without asking: "don't ask again" makes the mode `auto`. */
+  autoChanges: boolean;
   research: boolean;
   /** The connections' tools the chat was offered (null: none). */
   external: ConnectionToolset | null;
@@ -133,7 +135,7 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     if (tool.writes && (tool.eachTime || mode !== "auto")) {
       if (!decision) return { ask: { action: "tool", target: null, title: tool.title, changes: [], content: inputSummary(args, 2_000), ...(tool.eachTime ? { eachTime: true } : {}) } };
       if (decision === "decline") return { content: DECLINED.change, step: moreToolStep(tool, args, "declined") };
-      if (decision === "always" && !outside() && !tool.eachTime) mode = "auto";
+      if (decision === "always" && cx.autoChanges && !outside() && !tool.eachTime) mode = "auto";
     }
     try {
       // Held to this workspace: the person's tools would reach the others too (connected-app.ts withinWorkspace).
@@ -213,7 +215,7 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     const change = await once(call, () => prepareWrite(cx.ctx, workspaceId, cx.scope, call, cx.extra));
     if (!("action" in change)) return change;
     if (!decision && mode === "ask") return { ask: change.action };
-    if (decision === "always" && !outside()) mode = "auto";
+    if (decision === "always" && cx.autoChanges && !outside()) mode = "auto";
     return applyWrite(change, decision ?? "approve", registry);
   }
 

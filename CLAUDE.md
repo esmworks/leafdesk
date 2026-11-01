@@ -149,9 +149,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   each query and body schema `.strict()`, so a field a route doesn't name answers 400 (a script
   sending a path's id in the body too gets one).
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
-  `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats
-  (`components/agent-chat/agent-chat.tsx`) draw questions, steps and message actions with
-  `components/ai-chat/message-parts.tsx`, so they stay alike. An answer's text flows in a few
+  `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats are one
+  `ChatThread` (`components/ai-chat/chat-thread.tsx`, which takes a `ThreadChat`): an agent's
+  (`components/agent-chat/agent-thread.tsx`, lazy) brings its state from `use-agent-chat.ts` and
+  draws what only it has (days, runs, the queue, the answer under way) through `renderItem`
+  (`agent-items.tsx`); both draw steps and message actions with `message-parts.tsx`. Changing things
+  without asking is the workspace's `aiAutoChanges`, checked in `converseChat` as a run (re)starts. An answer's text flows in a few
   letters a frame (`ai-chat/smooth-text.ts`, called by the lazy markdown renderer when `writing`);
   `chat-thread.tsx` memoizes `Answer` and `Question`, so their props stay stable (`handlers`, read
   through a ref) or every piece redraws the whole conversation. The panel and the full-page chat
@@ -204,7 +207,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `mentions.ts`, `handoff.ts` and the `agent` schedule kind. A chat run streams its turns: the text so far
   goes to an in-process store (`agents/live-text.ts`, masked as the kept answer) that
   `/api/agents/chat/live` sends the person chatting as edits; the answer itself is still
-  `agent_run.answer`, and `agent-chat.tsx` keeps the turn under way in the same list item (and key)
+  `agent_run.answer`, and `use-agent-chat.ts` keeps the turn under way in the same list item (and key)
   as its answer, or the answer's text would flow in a second time. Messages sent while a chat run
   answers wait in `conversation.queue` (`lib/agent-chat-queue.ts`); `chat-store.ts`
   `closeChatTurn` runs before `finish` flips the status and, under the conversation row's lock (as
@@ -559,7 +562,7 @@ because they are separate module graphs.
   Something fixed to the window's bottom clears a phone's home indicator (`viewport-fit=cover`):
   `bottom-safe-4` instead of `bottom-4` for what floats, `pb-(--safe-bottom)` on a full-height panel.
   Something `sticky bottom-0` in `<main>` stops above `<main>`'s `pb-(--safe-bottom)`: paint that strip
-  under it (`after:top-full after:h-(--safe-bottom) after:bg-bg`, as `agent-chat.tsx` does).
+  under it (`after:top-full after:h-(--safe-bottom) after:bg-bg`).
   iOS 26 blurs the top ~40pt of an installed app unless a fixed, full-width box over 10px tall
   sits at the top edge; the root layout's invisible `data-status-band` is that box (globals.css).
   An absolutely placed element (an `sr-only` label too) inside a sideways-scrolling box needs a

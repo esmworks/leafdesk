@@ -448,6 +448,16 @@
 
 ### Changed
 
+- **Chatting with an agent looks and works like the AI chat.** The agent's page, its chat block in
+  pages and the Chat tab of its settings show the same conversation and question box as the AI chat:
+  the same answers, steps, files, dictation and asking again, with the agent's runs, days and
+  waiting messages between them. The agent's settings are grouped into four parts: Instructions
+  (with skills and memory), Tools and access (with connections), Triggers and Advanced (model, limits
+  and quiet hours); links to a tab still open it.
+- **Owners can turn off changes without asking in the AI chat.** Settings → General → AI has a new
+  switch, *Changes without asking*: when off, the chat's *Auto* mode and "Yes, and don't ask again"
+  are gone and every change is asked about, also in answers already under way. It is on by default.
+  The same section lists the models people may pick in the chat.
 - **The AI chat waits for your decision as long as you take, and survives a restart.** A change it
   asks about no longer counts as declined after 15 minutes: the answer waits until you decide or
   stop it, in the app and in Telegram. Each answer is now kept as a run as it goes, so one the

@@ -58,6 +58,7 @@
       "about": "version licens uppdatering om",
       "workspaceName": "namn byt namn ikon",
       "ai": "artificiell intelligens chatt modell leverantör minne",
+      "aiAutoChanges": "auto godkänn godkännande ändringar utan att fråga",
       "workspaceMail": "e-post rader post skicka",
       "export": "säkerhetskopia ladda ned zip markdown export pdf",
       "members": "personer bjud in användare roller ta bort medlemmar",
@@ -402,7 +403,14 @@
       "connections": "Anslutningar",
       "schedules": "Scheman",
       "history": "Historik",
-      "chat": "Chatt"
+      "chat": "Chatt",
+      "general": "Allmänt"
+    },
+    "sections": {
+      "instructions": "Instruktioner",
+      "tools": "Verktyg och åtkomst",
+      "triggers": "Utlösare",
+      "advanced": "Avancerat"
     },
     "empty": "Inga agenter än.",
     "emptyOwner": "Inga agenter än. Skapa en, eller utgå från en mall nedan.",

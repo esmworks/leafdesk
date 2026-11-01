@@ -58,6 +58,7 @@
       "about": "version license update",
       "workspaceName": "name rename icon",
       "ai": "artificial intelligence chat model provider memory",
+      "aiAutoChanges": "auto approve approval changes without asking",
       "workspaceMail": "email rows mail send",
       "export": "backup download zip markdown pdf",
       "members": "people invite users roles remove",
@@ -402,7 +403,14 @@
       "connections": "Connections",
       "schedules": "Schedules",
       "history": "History",
-      "chat": "Chat"
+      "chat": "Chat",
+      "general": "General"
+    },
+    "sections": {
+      "instructions": "Instructions",
+      "tools": "Tools and access",
+      "triggers": "Triggers",
+      "advanced": "Advanced"
     },
     "empty": "No agents yet.",
     "emptyOwner": "No agents yet. Create one, or start from a template below.",

@@ -58,6 +58,7 @@
       "about": "버전 라이선스 업데이트",
       "workspaceName": "이름 이름 바꾸기 아이콘",
       "ai": "인공지능 채팅 모델 공급자 메모리",
+      "aiAutoChanges": "자동 승인 묻지 않고 변경",
       "workspaceMail": "이메일 행 메일 보내기",
       "export": "백업 다운로드 zip markdown pdf",
       "members": "사람 초대 사용자 역할 제거",
@@ -402,7 +403,14 @@
       "connections": "연결",
       "schedules": "일정",
       "history": "기록",
-      "chat": "채팅"
+      "chat": "채팅",
+      "general": "일반"
+    },
+    "sections": {
+      "instructions": "지시사항",
+      "tools": "도구 및 액세스",
+      "triggers": "트리거",
+      "advanced": "고급"
     },
     "empty": "아직 에이전트가 없습니다.",
     "emptyOwner": "아직 에이전트가 없습니다. 새로 만들거나 아래 템플릿에서 시작하세요.",

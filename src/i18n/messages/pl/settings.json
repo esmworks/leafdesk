@@ -58,6 +58,7 @@
       "about": "wersja licencja aktualizacja",
       "workspaceName": "nazwa zmień nazwę ikona",
       "ai": "sztuczna inteligencja czat model dostawca pamięć",
+      "aiAutoChanges": "automatycznie zatwierdzanie zgoda zmiany bez pytania",
       "workspaceMail": "e-mail wiersze poczta wyślij",
       "export": "kopia zapasowa pobierz zip markdown pdf",
       "members": "osoby zaproś użytkownicy role usuń",
@@ -402,7 +403,14 @@
       "connections": "Połączenia",
       "schedules": "Harmonogramy",
       "history": "Historia",
-      "chat": "Czat"
+      "chat": "Czat",
+      "general": "Ogólne"
+    },
+    "sections": {
+      "instructions": "Instrukcje",
+      "tools": "Narzędzia i dostęp",
+      "triggers": "Wyzwalacze",
+      "advanced": "Zaawansowane"
     },
     "empty": "Brak agentów.",
     "emptyOwner": "Brak agentów. Utwórz agenta lub zacznij od jednego z poniższych szablonów.",

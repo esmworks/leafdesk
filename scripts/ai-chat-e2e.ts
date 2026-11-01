@@ -46,7 +46,7 @@ const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const index = await import("@/server/semantic-index");
-const { answerUnderWay, decideParkedChange, deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
+const { answerUnderWay, chatOptionsFor, decideParkedChange, deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
 const { flushAgentRuns } = await import("@/server/agents/run");
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
@@ -841,6 +841,22 @@ try {
     always.steps,
   );
   check(always.steps.includes("write:updateRow:done:Spark plugs"), "…a changed row shown as a step too", always.steps);
+  // An owner turned changing without asking off: Auto asks, and "don't ask again" covers one change.
+  await updateWorkspaceSettings(owner, workspaceId, { aiAutoChanges: false });
+  check((await chatOptionsFor(alice, workspaceId)).autoChanges === false, "with changes without asking off, the chat box isn't offered Auto");
+  fake.setChat(
+    caller([
+      write("create_row", { database_id: parts.id, title: "Tow rope", properties: { Stock: "Ordered" } }),
+      write("create_row", { database_id: parts.id, title: "Jump leads", properties: { Stock: "Ordered" } }),
+    ]),
+  );
+  const held = await ask(alice, { workspaceId, message: "Add a tow rope and jump leads", mode: "auto" }, { onEvent: (e) => void (e.type === "approval" && decideChange(alice, e.id, "always")) });
+  check(
+    held.done && approvals(held).length === 2 && (await rowsOf(parts.id, "Tow rope")).length === 1 && (await rowsOf(parts.id, "Jump leads")).length === 1,
+    "…a question in Auto asks about each change, \"don't ask again\" included",
+    { approvals: approvals(held).length, steps: held.steps },
+  );
+  await updateWorkspaceSettings(owner, workspaceId, { aiAutoChanges: true });
   const keptChanges = await getConversation(alice, workspaceId, always.conversationId!);
   const keptUpdate = keptChanges.messages[1].steps?.find((st) => st.kind === "write" && st.action === "updateRow");
   check(

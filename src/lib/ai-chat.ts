@@ -44,6 +44,8 @@ export type ChatOptions = {
   /** How much a new conversation thinks: the person's latest conversation's choice. */
   defaultThinking: ChatThinking;
   webSearch: boolean;
+  /** The workspace lets the chat change things without asking (mode `auto`, "don't ask again"). */
+  autoChanges: boolean;
 };
 
 /**

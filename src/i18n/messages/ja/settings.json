@@ -58,6 +58,7 @@
       "about": "バージョン ライセンス アップデート",
       "workspaceName": "名前 名前変更 アイコン",
       "ai": "人工知能 チャット モデル プロバイダー メモリ",
+      "aiAutoChanges": "自動 承認 確認なし 変更",
       "workspaceMail": "メール 行 送信",
       "export": "バックアップ ダウンロード zip markdown pdf",
       "members": "メンバー 招待 ユーザー ロール 削除",
@@ -402,7 +403,14 @@
       "connections": "接続",
       "schedules": "スケジュール",
       "history": "履歴",
-      "chat": "チャット"
+      "chat": "チャット",
+      "general": "一般"
+    },
+    "sections": {
+      "instructions": "指示",
+      "tools": "ツールとアクセス",
+      "triggers": "トリガー",
+      "advanced": "詳細設定"
     },
     "empty": "エージェントはまだありません。",
     "emptyOwner": "エージェントはまだありません。作成するか、下のテンプレートから始めてください。",

@@ -264,7 +264,9 @@ before it is made (what, where, a new row's values and the start of a new page's
 to a page's text the blocks it changes, adds and removes; for a changed row each property's old
 value next to the new one, and the old title when it is renamed) with *Yes*, *Yes, and don't ask
 again* (the mode becomes *Auto*) and *No*, also as 1, 2, 3 on the keyboard (Escape says no); *Auto*
-makes changes without asking; *Read only* doesn't offer the model changes at all. A change is
+makes changes without asking; *Read only* doesn't offer the model changes at all. An owner can turn
+*Auto* off for the workspace (Settings → General → AI, *Changes without asking*): the chat then asks
+before every change, and *Yes, and don't ask again* isn't offered. A change is
 checked (the target, your edit access, the values) before you are asked; nothing is written while it
 waits, however long you take, and stopping the answer leaves it unmade (leaving the page doesn't:
 you are asked again when you come back). An answer the server was writing when it restarted goes on

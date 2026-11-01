@@ -126,6 +126,7 @@ import { createChatDispatch, type ResolvedScope } from "@/server/assistant/chat-
 import { kickAgents } from "@/server/agents/kick";
 import * as ops from "@/server/operations";
 import { activeVerifications } from "@/server/verification";
+import { workspaceSettings } from "@/server/workspaces";
 import { ATTACHMENT_TOOLS, ATTACHMENT_WRITE_TOOLS, CHAT_TOOLS, MAP_CHARS, visiblePages, workspaceMap, WRITE_TOOLS, type Registry } from "@/server/ai-tools";
 
 /** The most of what the model says before a search or read that is kept as a step. */
@@ -304,7 +305,7 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     .insert(agentRun)
     .values({ agentId: null, workspaceId: input.workspaceId, source, context: { actorId: userId, timeZone }, prompt: message, status: "running", attempts: 1, startedAt: new Date() })
     .returning();
-  const setup: ChatSetup = { scope, skill, conversation, connections: !isGuest(membership.role), files, web: await chatWebOn(input.workspaceId) };
+  const setup: ChatSetup = { scope, skill, conversation, connections: !isGuest(membership.role), files, web: await chatWebOn(input.workspaceId), autoChanges: await chatAutoOn(input.workspaceId) };
   return converseChat({ ...run, source }, setup, signal);
 }
 
@@ -338,16 +339,18 @@ async function latestThinking(userId: string, workspaceId: string): Promise<Chat
 
 /**
  * What the chat box offers the person in the workspace (see ChatOptions): the models, the one and
- * the thinking a new conversation starts with, and whether the chat searches the web there.
+ * the thinking a new conversation starts with, whether the chat searches the web there and whether
+ * it may change things without asking.
  */
 export async function chatOptionsFor(userId: string, workspaceId: string): Promise<ChatOptions> {
-  const [models, latest, defaultThinking, webSearch] = await Promise.all([
+  const [models, latest, defaultThinking, webSearch, autoChanges] = await Promise.all([
     chatModelsFor(workspaceId),
     latestModel(userId, workspaceId),
     latestThinking(userId, workspaceId),
     chatWebOn(workspaceId),
+    chatAutoOn(workspaceId),
   ]);
-  return { models, defaultModel: models.find((m) => m.id === latest)?.id ?? models[0]?.id ?? null, defaultThinking, webSearch };
+  return { models, defaultModel: models.find((m) => m.id === latest)?.id ?? models[0]?.id ?? null, defaultThinking, webSearch, autoChanges };
 }
 
 /**
@@ -438,7 +441,14 @@ type ChatSetup = {
   files: { records: ChatAttachmentRecord[]; rows: FileRow[] };
   /** The chat may search the web and read web pages. */
   web: boolean;
+  /** The chat may change things without asking (the workspace's `aiAutoChanges`); else `auto` asks. */
+  autoChanges: boolean;
 };
+
+/** Whether the workspace lets its AI chat change things without asking (`aiAutoChanges`, on unless an owner turned it off). */
+export async function chatAutoOn(workspaceId: string): Promise<boolean> {
+  return (await workspaceSettings(workspaceId)).aiAutoChanges !== false;
+}
 
 /**
  * The answer's turns with the model, from the start or from where its run left off (`run.state`):
@@ -450,7 +460,8 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
   const { userId, timeZone, thinking, replaced } = source;
   const workspaceId = run.workspaceId;
   const research = source.research === true;
-  const initialMode = source.mode;
+  // An owner may have turned changing without asking off since the question was asked.
+  const initialMode = source.mode === "auto" && !setup.autoChanges ? "ask" : source.mode;
   const model = source.model;
   const { scope, skill, conversation, files } = setup;
   const message = run.prompt;
@@ -561,7 +572,8 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       scope,
       registry,
       initialMode,
-      mode: saved?.mode ?? initialMode,
+      mode: saved?.mode === "auto" && !setup.autoChanges ? "ask" : (saved?.mode ?? initialMode),
+      autoChanges: setup.autoChanges,
       research,
       external,
       moreTools,
@@ -951,6 +963,7 @@ async function resumeSetup(run: AssistantRun): Promise<ChatSetup> {
     connections: !isGuest(membership.role),
     files: { records: run.source.files.filter((f) => there.has(f.id)), rows },
     web: await chatWebOn(run.workspaceId),
+    autoChanges: await chatAutoOn(run.workspaceId),
   };
 }
 

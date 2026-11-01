@@ -58,6 +58,7 @@
       "about": "versione licenza aggiornamento",
       "workspaceName": "nome rinomina icona",
       "ai": "intelligenza artificiale chat modello fornitore memoria",
+      "aiAutoChanges": "automatico approvare approvazione modifiche senza chiedere",
       "workspaceMail": "email righe posta invia",
       "export": "backup scarica zip markdown pdf",
       "members": "persone invita utenti ruoli rimuovi",
@@ -402,7 +403,14 @@
       "connections": "Connessioni",
       "schedules": "Pianificazioni",
       "history": "Cronologia",
-      "chat": "Chat"
+      "chat": "Chat",
+      "general": "Generale"
+    },
+    "sections": {
+      "instructions": "Istruzioni",
+      "tools": "Strumenti e accesso",
+      "triggers": "Attivatori",
+      "advanced": "Avanzate"
     },
     "empty": "Ancora nessun agente.",
     "emptyOwner": "Ancora nessun agente. Creane uno o parti da un modello qui sotto.",

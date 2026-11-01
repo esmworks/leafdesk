@@ -105,6 +105,11 @@ export type WorkspaceSettings = {
    */
   aiWebSearch: boolean;
   /**
+   * Whether the AI chat may change things without asking each time (its mode `auto` and "don't ask
+   * again", server/ai-chat.ts). Off, every change is asked about; only owners change it.
+   */
+  aiAutoChanges: boolean;
+  /**
    * The most the workspace's AI requests may cost in a calendar month (UTC), in US dollars, as an
    * owner set it; null: no limit of its own. Counts what every AI account paid, the workspace's own
    * included. The server's AI_MONTHLY_LIMIT_USD caps what its own AI_* key pays besides (see
@@ -207,6 +212,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   ai: true,
   aiMemory: true,
   aiWebSearch: false,
+  aiAutoChanges: true,
   aiMonthlyLimitUsd: null,
   trashRetentionDays: 30,
   export: true,

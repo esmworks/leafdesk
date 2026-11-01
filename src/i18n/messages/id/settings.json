@@ -58,6 +58,7 @@
       "about": "versi lisensi pembaruan",
       "workspaceName": "nama ganti nama ikon",
       "ai": "kecerdasan buatan obrolan model penyedia memori",
+      "aiAutoChanges": "otomatis setujui persetujuan perubahan tanpa bertanya",
       "workspaceMail": "email baris surat kirim",
       "export": "cadangan unduh zip markdown ekspor pdf",
       "members": "orang undang pengguna peran hapus anggota",
@@ -402,7 +403,14 @@
       "connections": "Koneksi",
       "schedules": "Jadwal",
       "history": "Riwayat",
-      "chat": "Obrolan"
+      "chat": "Obrolan",
+      "general": "Umum"
+    },
+    "sections": {
+      "instructions": "Instruksi",
+      "tools": "Alat dan akses",
+      "triggers": "Pemicu",
+      "advanced": "Lanjutan"
     },
     "empty": "Belum ada agen.",
     "emptyOwner": "Belum ada agen. Buat satu, atau mulai dari templat di bawah.",

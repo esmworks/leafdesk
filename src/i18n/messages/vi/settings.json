@@ -58,6 +58,7 @@
       "about": "phiên bản giấy phép cập nhật",
       "workspaceName": "tên đổi tên biểu tượng",
       "ai": "trí tuệ nhân tạo trò chuyện mô hình nhà cung cấp bộ nhớ",
+      "aiAutoChanges": "tự động phê duyệt thay đổi không cần hỏi",
       "workspaceMail": "email hàng thư gửi",
       "export": "sao lưu tải xuống zip markdown xuất pdf",
       "members": "người mời người dùng vai trò xóa thành viên",
@@ -402,7 +403,14 @@
       "connections": "Kết nối",
       "schedules": "Lịch chạy",
       "history": "Lịch sử",
-      "chat": "Trò chuyện"
+      "chat": "Trò chuyện",
+      "general": "Chung"
+    },
+    "sections": {
+      "instructions": "Hướng dẫn",
+      "tools": "Công cụ và quyền truy cập",
+      "triggers": "Trình kích hoạt",
+      "advanced": "Nâng cao"
     },
     "empty": "Chưa có tác tử nào.",
     "emptyOwner": "Chưa có tác tử nào. Hãy tạo một tác tử, hoặc bắt đầu từ một mẫu bên dưới.",

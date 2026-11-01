@@ -1623,6 +1623,7 @@ const SETTING_VALUES: {
   ai: [true, false],
   aiMemory: [true, false],
   aiWebSearch: [false, true],
+  aiAutoChanges: [true, false],
   trashRetentionDays: TRASH_RETENTION_CHOICES,
   memberInvites: ["owners", "members_with_approval", "any_member"],
   domainJoin: ["join", "request"],

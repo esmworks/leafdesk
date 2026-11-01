@@ -58,6 +58,7 @@
       "about": "Version Lizenz Update",
       "workspaceName": "Name umbenennen Symbol",
       "ai": "künstliche Intelligenz Chat Modell Anbieter Gedächtnis",
+      "aiAutoChanges": "automatisch genehmigen freigabe änderungen ohne rückfrage",
       "workspaceMail": "E-Mail Zeilen Mail senden",
       "export": "Sicherung herunterladen ZIP Markdown pdf",
       "members": "Personen einladen Benutzer Rollen entfernen",
@@ -402,7 +403,14 @@
       "connections": "Verbindungen",
       "schedules": "Zeitpläne",
       "history": "Verlauf",
-      "chat": "Chat"
+      "chat": "Chat",
+      "general": "Allgemein"
+    },
+    "sections": {
+      "instructions": "Anweisungen",
+      "tools": "Werkzeuge und Zugriff",
+      "triggers": "Auslöser",
+      "advanced": "Erweitert"
     },
     "empty": "Noch keine Agenten.",
     "emptyOwner": "Noch keine Agenten. Erstelle einen oder beginne unten mit einer Vorlage.",

@@ -58,6 +58,7 @@
       "about": "version licence mise à jour",
       "workspaceName": "nom renommer icône",
       "ai": "intelligence artificielle discussion modèle fournisseur mémoire",
+      "aiAutoChanges": "auto approuver approbation modifications sans demander",
       "workspaceMail": "e-mail lignes courrier envoyer",
       "export": "sauvegarde télécharger zip markdown pdf",
       "members": "personnes inviter utilisateurs rôles retirer",
@@ -402,7 +403,14 @@
       "connections": "Connexions",
       "schedules": "Planifications",
       "history": "Historique",
-      "chat": "Chat"
+      "chat": "Chat",
+      "general": "Général"
+    },
+    "sections": {
+      "instructions": "Instructions",
+      "tools": "Outils et accès",
+      "triggers": "Déclencheurs",
+      "advanced": "Avancé"
     },
     "empty": "Aucun agent pour l’instant.",
     "emptyOwner": "Aucun agent pour l’instant. Créez-en un, ou partez d’un modèle ci-dessous.",
