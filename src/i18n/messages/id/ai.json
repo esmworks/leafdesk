@@ -312,7 +312,11 @@
           "forget": "Menolak melupakan:"
         },
         "correct": "Dicatat sebagai koreksi:",
-        "undone": "Koreksi dibatalkan:"
+        "undone": "Koreksi dibatalkan:",
+        "undoneNote": {
+          "remember": "Batal mengingat:",
+          "forget": "Batal melupakan:"
+        }
       },
       "connection": {
         "done": "{connection}: memanggil {tool}",
@@ -531,7 +535,9 @@
       "tooLong": "Catatan paling banyak {max} karakter.",
       "full": "Memori menampung paling banyak {max} catatan. Hapus satu terlebih dahulu.",
       "notFound": "Catatan itu sudah tidak ada.",
-      "off": "Memori AI dinonaktifkan di ruang kerja ini."
+      "off": "Memori AI dinonaktifkan di ruang kerja ini.",
+      "changed": "Catatan itu sudah berubah sejak saat itu. Ubah di Memori saja.",
+      "busy": "Tunggu sampai jawabannya selesai."
     }
   },
   "accounts": {

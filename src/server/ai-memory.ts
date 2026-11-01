@@ -7,9 +7,10 @@
  * connected read and keep the same notes over MCP (mcp/memory.ts), while the memory is on. Agents keep
  * notes here too, under their own users, that their runs only propose (server/agents/memory.ts).
  *
- * A note goes with every later question, so text the model read on a page could otherwise pass
- * itself off as a lasting note: unless the chat's mode is `auto`, the person approves each note
- * the chat keeps or drops before it is (ai-chat.ts), as with changes to the workspace.
+ * A note goes with every later question, so text from outside could otherwise pass itself off as
+ * a lasting note: the chat keeps or drops a note at once only in a turn that read nothing from
+ * outside (lib/memory-rule.ts), with Undo on its step (undoNote), and asks the person otherwise.
+ * Notes too many for a question's room are read with `read_memory`, offered only then.
  *
  * Two switches turn it off without deleting a note: the person's own in the Memory view, for them
  * in the workspace (kept with their membership), and the owners' for the whole workspace (the
@@ -31,7 +32,7 @@ import type { ChatDecision } from "@/server/ai-chat-approvals";
 import type { ToolOutcome } from "@/server/ai-tools";
 import { getMemberAiMemory, setMemberAiMemory, workspaceSettings } from "@/server/workspaces";
 
-export type MemoryErrorCode = "empty" | "tooLong" | "full" | "notFound" | "off";
+export type MemoryErrorCode = "empty" | "tooLong" | "full" | "notFound" | "off" | "changed" | "busy";
 
 export class MemoryError extends Error {
   constructor(
@@ -245,7 +246,7 @@ export async function deleteMemories(userId: string, workspaceId: string, memory
  * `maxChars` takes them, then shown oldest first, each with its id for `forget` and `replaces`. An
  * agent's corrections are taken before its other notes, and marked.
  */
-export async function memoryForPrompt(userId: string, workspaceId: string, maxChars: number): Promise<{ text: string; count: number }> {
+export async function memoryForPrompt(userId: string, workspaceId: string, maxChars: number): Promise<{ text: string; count: number; shown: number }> {
   const notes = await notesOf(userId, workspaceId);
   const lineOf = (note: Note) => `- (memory_id ${note.id}) ${note.kind === "correction" ? "(correction) " : ""}${note.text}`;
   const taken = new Set<string>();
@@ -257,8 +258,28 @@ export async function memoryForPrompt(userId: string, workspaceId: string, maxCh
     taken.add(note.id);
   }
   const lines = notes.filter((n) => taken.has(n.id)).map(lineOf);
-  if (lines.length < notes.length) lines.unshift("(Older notes don't fit in this question.)");
-  return { text: lines.join("\n"), count: notes.length };
+  if (lines.length < notes.length) lines.unshift(`(Older notes don't fit here: read them with ${READ_MEMORY_TOOL.name}.)`);
+  return { text: lines.join("\n"), count: notes.length, shown: lines.length - (lines.length > taken.size ? 1 : 0) };
+}
+
+/** Reads the notes that didn't fit in the prompt: offered only when some didn't (memoryForPrompt `shown` < `count`). */
+export const READ_MEMORY_TOOL: AiTool = {
+  name: "read_memory",
+  description: "Reads the kept notes that don't fit in the question, oldest first, each with its memory_id. With query, only the notes with those words.",
+  parameters: {
+    type: "object",
+    properties: { query: { type: "string", description: "Words a note must have, if any." } },
+    additionalProperties: false,
+  },
+};
+
+/** The kept notes for read_memory (the person's own, or an agent's under its user), with `query`'s words if given. */
+export async function readMemory(userId: string, workspaceId: string, args: Record<string, unknown>): Promise<ToolOutcome> {
+  const lower = (text: string) => text.toLocaleLowerCase("tr");
+  const words = lower(typeof args.query === "string" ? args.query : "").split(/\s+/).filter(Boolean);
+  const notes = (await notesOf(userId, workspaceId)).filter((n) => words.every((w) => lower(n.text).includes(w)));
+  if (!notes.length) return { content: words.length ? "No kept note has those words." : "No notes are kept." };
+  return { content: notes.map((n) => `- (memory_id ${n.id}) ${n.kind === "correction" ? "(correction) " : ""}${n.text}`).join("\n") };
 }
 
 export const MEMORY_TOOLS: AiTool[] = [
@@ -292,7 +313,9 @@ export const MEMORY_TOOL_NAMES = new Set(MEMORY_TOOLS.map((t) => t.name));
 /** A note the chat is about to keep or drop, checked, for the person to approve (see applyMemory). */
 export type PreparedMemory = {
   action: ChatActionView;
-  change: { kind: "remember"; text: string; replaces: string | null } | { kind: "forget"; id: string; text: string };
+  change:
+    | { kind: "remember"; text: string; replaces: string | null; previous: ChatMemoryRecord["previous"] }
+    | { kind: "forget"; id: string; text: string; previous: NonNullable<ChatMemoryRecord["previous"]> };
 };
 
 const NOT_FOUND: ToolOutcome = { content: "There is no note with that memory_id.", isError: true };
@@ -305,6 +328,9 @@ function refused(error: unknown): ToolOutcome {
   if (error.code === "tooLong") return { content: `Too long: a note may have at most ${MAX_MEMORY_CHARS} characters. Keep it shorter.`, isError: true };
   return { content: "remember needs the text of the note.", isError: true };
 }
+
+/** What a note said before a change, for Undo. */
+const was = (note: Note): NonNullable<ChatMemoryRecord["previous"]> => ({ text: note.text, kind: note.kind, saidBy: note.saidBy });
 
 const memoryAction = (action: "remember" | "forget", text: string): ChatActionView => ({ action, target: null, title: text, changes: [], content: null });
 
@@ -323,7 +349,7 @@ export async function prepareMemory(
   if (call.name === "forget") {
     const gone = notes.find((m) => m.id === arg("memory_id"));
     if (!gone) return NOT_FOUND;
-    return { action: memoryAction("forget", gone.text), change: { kind: "forget", id: gone.id, text: gone.text } };
+    return { action: memoryAction("forget", gone.text), change: { kind: "forget", id: gone.id, text: gone.text, previous: was(gone) } };
   }
   let text: string;
   try {
@@ -332,11 +358,12 @@ export async function prepareMemory(
     return refused(error);
   }
   const replaces = arg("replaces") || null;
-  if (replaces && !notes.some((m) => m.id === replaces)) return NOT_FOUND;
+  const replaced = replaces ? notes.find((m) => m.id === replaces) : undefined;
+  if (replaces && !replaced) return NOT_FOUND;
   const known = notes.find((m) => m.id !== replaces && sameNote(m.text, text));
   if (known && !replaces) return { content: `Already remembered (memory_id ${known.id}).` };
   if (!replaces && notes.length >= MAX_MEMORIES) return refused(new MemoryError("full", ""));
-  return { action: memoryAction("remember", text), change: { kind: "remember", text, replaces } };
+  return { action: memoryAction("remember", text), change: { kind: "remember", text, replaces, previous: replaced ? was(replaced) : null } };
 }
 
 /** Keeps or drops the note once approved (or without asking, in mode `auto`). */
@@ -358,12 +385,41 @@ export async function applyMemory(
       .where(and(eq(aiMemory.id, change.id), eq(aiMemory.userId, userId), eq(aiMemory.workspaceId, workspaceId)))
       .returning();
     if (!gone) return NOT_FOUND;
-    return { content: "Forgotten.", step: step("done", gone.text) };
+    return { content: "Forgotten.", step: { ...step("done", gone.text), memoryId: gone.id, previous: change.previous } };
   }
   try {
     const kept = await writeNote(userId, workspaceId, change.text, { replaces: change.replaces, conversationId });
-    return { content: `Remembered (memory_id ${kept.id}).`, step: step("done", kept.text) };
+    // One the person had already is theirs as it was: nothing to undo.
+    const undo = kept.known ? {} : { memoryId: kept.id, previous: change.previous };
+    return { content: `Remembered (memory_id ${kept.id}).`, step: { ...step("done", kept.text), ...undo } };
   } catch (error) {
     return refused(error);
   }
+}
+
+/**
+ * Undoes what a step of the chat did to a note (applyMemory): a note it kept goes, one it changed
+ * says again what it said, one it dropped comes back. `changed` when the note was changed since
+ * (in the Memory view, by a later answer), `full` when a dropped note has no room to come back.
+ */
+export async function undoNote(userId: string, workspaceId: string, step: ChatMemoryRecord): Promise<"done" | "changed" | "full"> {
+  if (!step.memoryId) return "changed";
+  const id = step.memoryId;
+  return db.transaction(async (tx) => {
+    await lockNotes(tx, userId, workspaceId);
+    const notes = await notesOf(userId, workspaceId, tx, null);
+    const note = notes.find((n) => n.id === id);
+    if (step.action === "forget") {
+      if (!step.previous || note) return "changed";
+      if (notes.some((n) => n.status === "kept" && sameNote(n.text, step.previous!.text))) return "done";
+      if (notes.filter((n) => n.status === "kept").length >= MAX_MEMORIES) return "full";
+      await tx.insert(aiMemory).values({ id, userId, workspaceId, text: step.previous.text, kind: step.previous.kind, saidBy: step.previous.saidBy, status: "kept" });
+      return "done";
+    }
+    if (!note || note.status !== "kept" || note.text !== step.text) return "changed";
+    if (step.previous) {
+      await tx.update(aiMemory).set({ text: step.previous.text, kind: step.previous.kind, saidBy: step.previous.saidBy, updatedAt: new Date() }).where(eq(aiMemory.id, id));
+    } else await tx.delete(aiMemory).where(eq(aiMemory.id, id));
+    return "done";
+  });
 }

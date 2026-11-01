@@ -8,8 +8,8 @@
  */
 import { AlarmClock, Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, Paperclip, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment } from "react";
-import { cn, PageIcon, pageLabel } from "@/components/ui";
+import { Fragment, useState } from "react";
+import { Button, cn, PageIcon, pageLabel } from "@/components/ui";
 import { makesFile, type ChatChange, type ChatPageView, type ChatQueryCondition, type ChatSourceView, type ChatStepView, type ChatWriteView } from "@/lib/ai-chat";
 
 export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (source: ChatSourceView) => void }) {
@@ -65,7 +65,14 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
     const declined = step.outcome === "declined" && (action === "remember" || action === "forget");
     const undone = step.outcome === "undone";
     const Icon = declined || undone ? Ban : action === "forget" ? BrainCog : Brain;
-    const label = declined && (action === "remember" || action === "forget") ? t(`steps.memory.declined.${action}`) : undone ? t("steps.memory.undone") : t(`steps.memory.${action}`);
+    const label =
+      declined && (action === "remember" || action === "forget")
+        ? t(`steps.memory.declined.${action}`)
+        : undone
+          ? action === "remember" || action === "forget"
+            ? t(`steps.memory.undoneNote.${action}`)
+            : t("steps.memory.undone")
+          : t(`steps.memory.${action}`);
     return (
       <>
         <Icon className={icon} />
@@ -371,5 +378,40 @@ function Condition({ condition }: { condition: ChatQueryCondition }) {
       {condition.property} {/\p{L}/u.test(op) ? op.toLocaleLowerCase(locale) : op}
       {value && ` ${value}`}
     </span>
+  );
+}
+
+/** Whether a step's note can be undone from its line: one kept, changed or dropped at once (lib/memory-rule.ts). */
+export const undoableNote = (step: ChatStepView): step is Extract<ChatStepView, { kind: "memory" }> & { memoryId: string } =>
+  step.kind === "memory" && step.outcome === "done" && Boolean(step.memoryId) && (step.action === "remember" || step.action === "forget" || step.action === "correct");
+
+/** A note a step kept, changed or dropped, with Undo: `onUndo` gives null when it was undone, else why not. */
+export function UndoableStepLine({ step, onSource, onUndo }: { step: ChatStepView; onSource: (source: ChatSourceView) => void; onUndo: () => Promise<string | null> }) {
+  const tc = useTranslations("common");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <>
+      <StepLine step={step} onSource={onSource} />
+      <Button
+        size="sm"
+        variant="ghost"
+        className="-my-0.5 h-6 shrink-0 px-1.5 text-xs"
+        disabled={pending}
+        onClick={async () => {
+          setPending(true);
+          const failed = await onUndo();
+          setPending(false);
+          setError(failed);
+        }}
+      >
+        {tc("toast.undo")}
+      </Button>
+      {error && (
+        <span role="alert" className="text-xs text-danger">
+          {error}
+        </span>
+      )}
+    </>
   );
 }

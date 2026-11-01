@@ -312,7 +312,11 @@
           "forget": "Unohtaminen hylätty:"
         },
         "correct": "Merkitty korjaukseksi:",
-        "undone": "Korjaus peruttu:"
+        "undone": "Korjaus peruttu:",
+        "undoneNote": {
+          "remember": "Muistaminen peruttu:",
+          "forget": "Unohtaminen peruttu:"
+        }
       },
       "connection": {
         "done": "{connection}: kutsuttiin {tool}",
@@ -531,7 +535,9 @@
       "tooLong": "Muistiinpanossa voi olla enintään {max} merkkiä.",
       "full": "Muistiin mahtuu enintään {max} muistiinpanoa. Poista ensin yksi.",
       "notFound": "Muistiinpanoa ei ole enää.",
-      "off": "Tekoälyn muisti on poistettu käytöstä tässä työtilassa."
+      "off": "Tekoälyn muisti on poistettu käytöstä tässä työtilassa.",
+      "changed": "Muistiinpano on muuttunut sen jälkeen. Muuta se Muistissa.",
+      "busy": "Odota, että vastaus on valmis."
     }
   },
   "accounts": {

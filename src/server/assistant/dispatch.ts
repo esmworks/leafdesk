@@ -41,7 +41,8 @@ import { redactError, redactText, redactValue } from "@/lib/redact";
 import { agentWebCallAsks, scheduledWebCallGoes } from "@/lib/web-calls";
 import { AccessError, findMembership, hasLevel, pageAccessOf } from "@/server/access";
 import { type AiMessage, type AiTool, type AiToolCall } from "@/server/ai";
-import { memoryAvailable } from "@/server/ai-memory";
+import { memoryAvailable, READ_MEMORY_TOOL, readMemory } from "@/server/ai-memory";
+import { noteWrite } from "@/lib/memory-rule";
 import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, pickMoreTool, readDocsTopic, USE_TOOL } from "@/server/ai-more-tools";
 import { applyWrite, CHAT_TOOLS, prepareWrite, runTool, WRITE_TOOL_NAMES, WRITE_TOOLS, type PreparedWrite, type Registry, type ToolOutcome } from "@/server/ai-tools";
 import { proposeChange } from "@/server/pending-changes";
@@ -396,7 +397,7 @@ export function createDispatch(
     queue: AiToolCall[];
   },
 ) {
-  const { agent, run, member, chatWrites, outside, ctx, rowRun, scheduled, databaseId, maxWrites, eventRun, mention, askEveryTool, webNames, webAsks, unattended, webTask, chat, proposes, ownApproved, unanswered, toolset, remembers, leavesNote, mentionTools, handoff, reminded, reminder, mailBoxes, mailProposes, sender, mailer, mailTools, computer, moreTools, tools } = setup;
+  const { agent, run, member, chatWrites, outside, ctx, rowRun, scheduled, databaseId, maxWrites, eventRun, mention, askEveryTool, webNames, webAsks, unattended, webTask, chat, proposes, ownApproved, unanswered, toolset, remembers, leavesNote, mentionTools, handoff, reminded, reminder, mailBoxes, mailProposes, sender, mailer, mailTools, computer, moreTools, tools, memoryOn } = setup;
   let { writes, externalChars, webFound, mailRead, localRead, queue } = start;
   // Rows proposed from email (MAX_MAIL_PROPOSALS), apart from the changes it made.
   let proposals = steps.filter((s) => s.kind === "write" && s.outcome === "proposed").length;
@@ -665,11 +666,18 @@ export function createDispatch(
       // A write that failed may still have been done there: it counts all the same.
       return writing ? change(call, send, { countsFailed: true }) : send();
     }
+    // Kept notes that didn't fit in the prompt (offered only then, run.ts).
+    if (call.name === READ_MEMORY_TOOL.name) {
+      if (!memoryOn) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
+      return readMemory(agent.userId, run.workspaceId, call.arguments);
+    }
     // Notes change nothing in the workspace: they don't count as changes.
     if (AGENT_MEMORY_TOOL_NAMES.has(call.name)) {
       if (!remembers) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
-      // A correction said in the chat of someone who can edit the agent, while nothing else spoke, is kept at once.
-      const saidBy = run.source.kind === "chat" && chatWrites && untainted() ? run.source.userId : null;
+      // A correction said in the chat of someone who can edit the agent, while nothing else spoke,
+      // is kept at once; any other note is proposed (lib/memory-rule.ts).
+      const personSaid = run.source.kind === "chat" && chatWrites && untainted();
+      const saidBy = run.source.kind === "chat" && noteWrite({ agent: true, personSaid }) === "keep" ? run.source.userId : null;
       const kept = steps.filter((s) => s.kind === "memory" && s.action === "correct").length;
       return runAgentMemoryTool(agent, run, call, { correction: saidBy ? { saidBy, kept } : null });
     }

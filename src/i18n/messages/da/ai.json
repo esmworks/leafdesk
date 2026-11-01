@@ -312,7 +312,11 @@
           "forget": "Afviste at glemme:"
         },
         "correct": "Noteret som en rettelse:",
-        "undone": "Rettelse fortrudt:"
+        "undone": "Rettelse fortrudt:",
+        "undoneNote": {
+          "remember": "Fortrød at huske:",
+          "forget": "Fortrød at glemme:"
+        }
       },
       "connection": {
         "done": "{connection}: kaldte {tool}",
@@ -531,7 +535,9 @@
       "tooLong": "En note må højst have {max} tegn.",
       "full": "Hukommelsen rummer højst {max} noter. Slet først en.",
       "notFound": "Den note findes ikke længere.",
-      "off": "AI-hukommelsen er slået fra i dette arbejdsområde."
+      "off": "AI-hukommelsen er slået fra i dette arbejdsområde.",
+      "changed": "Den note er ændret siden. Ret den i Hukommelse i stedet.",
+      "busy": "Vent, til svaret er færdigt."
     }
   },
   "accounts": {

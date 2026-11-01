@@ -312,7 +312,11 @@
           "forget": "Oubli refusé :"
         },
         "correct": "Noté comme correction :",
-        "undone": "Correction annulée :"
+        "undone": "Correction annulée :",
+        "undoneNote": {
+          "remember": "Mémorisation annulée :",
+          "forget": "Oubli annulé :"
+        }
       },
       "connection": {
         "done": "{connection} : {tool} appelé",
@@ -531,7 +535,9 @@
       "tooLong": "Une note peut contenir au plus {max} caractères.",
       "full": "La mémoire contient au plus {max} notes. Supprimez-en une d'abord.",
       "notFound": "Cette note n'existe plus.",
-      "off": "La mémoire de l’IA est désactivée dans cet espace de travail."
+      "off": "La mémoire de l’IA est désactivée dans cet espace de travail.",
+      "changed": "Cette note a changé depuis. Modifiez-la plutôt dans Mémoire.",
+      "busy": "Attendez la fin de la réponse."
     }
   },
   "accounts": {

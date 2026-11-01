@@ -7,7 +7,7 @@ import { MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
-import { decideParkedChange, deleteConversations, getConversation, listConversations, saveReportAsPage } from "@/server/ai-chat";
+import { decideParkedChange, deleteConversations, getConversation, listConversations, saveReportAsPage, undoChatNote } from "@/server/ai-chat";
 import { addMemory, deleteMemories, listMemories, MemoryError, memoryUse, setMemoryUse, updateMemory } from "@/server/ai-memory";
 import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
 import { MAX_PROMPT_NAME, MAX_PROMPT_TEXT, MAX_SAVED_PROMPTS } from "@/lib/ai-saved-prompts";
@@ -160,6 +160,11 @@ export async function saveReportAsPageAction(workspaceId: string, conversationId
 
 export async function listMemoriesAction(workspaceId: string) {
   return run((userId) => listMemories(userId, String(workspaceId)));
+}
+
+/** Undo on a note an answer kept, changed or dropped: it goes back to what it was. */
+export async function undoChatNoteAction(workspaceId: string, conversationId: string, memoryId: string) {
+  return run((userId) => undoChatNote(userId, String(workspaceId), String(conversationId), String(memoryId)));
 }
 
 /** Whether the person has the AI chat's memory on in a workspace (their own switch). */

@@ -312,7 +312,11 @@
           "forget": "已拒绝忘记："
         },
         "correct": "已记为更正：",
-        "undone": "已撤销更正："
+        "undone": "已撤销更正：",
+        "undoneNote": {
+          "remember": "已撤销记住：",
+          "forget": "已撤销忘记："
+        }
       },
       "connection": {
         "done": "{connection}：已调用 {tool}",
@@ -531,7 +535,9 @@
       "tooLong": "每条笔记最多 {max} 个字符。",
       "full": "记忆最多可保存 {max} 条笔记。请先删除一条。",
       "notFound": "该笔记已不存在。",
-      "off": "此工作区已关闭 AI 记忆。"
+      "off": "此工作区已关闭 AI 记忆。",
+      "changed": "这条笔记此后已更改。请改在记忆中修改。",
+      "busy": "请等待回答完成。"
     }
   },
   "accounts": {

@@ -20,11 +20,11 @@
  */
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { decideChangeAction, deleteConversationAction, saveReportAsPageAction, stopChatAction } from "@/app/actions/ai";
+import { decideChangeAction, deleteConversationAction, saveReportAsPageAction, stopChatAction, undoChatNoteAction } from "@/app/actions/ai";
 import { read } from "@/components/read";
 import { isAiErrorCode } from "@/lib/ai";
 import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
-import { CHAT_MODES, type ChatActionView, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView, type ChatThinking } from "@/lib/ai-chat";
+import { CHAT_MODES, type ChatActionView, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView, type ChatStepView, type ChatThinking } from "@/lib/ai-chat";
 import {
   CHAT_CSV_MAX_COLUMNS,
   CHAT_CSV_MAX_ROWS,
@@ -673,6 +673,16 @@ export function useChat(
     return result.data.pageId;
   }
 
+  /** Undo on a note an answer kept, changed or dropped at once: null when undone (its step says so), else why not. */
+  async function undoNote(memoryId: string): Promise<string | null> {
+    if (!conversationId) return null;
+    const result = await undoChatNoteAction(workspaceId, conversationId, memoryId).catch(() => null);
+    if (!result?.ok) return result?.error ?? t("offline");
+    const undone = (step: ChatStepView): ChatStepView => (step.kind === "memory" && step.memoryId === memoryId && step.outcome === "done" ? { ...step, outcome: "undone" } : step);
+    setMessages((list) => list.map((m) => (m.steps?.some((s) => s.kind === "memory" && s.memoryId === memoryId) ? { ...m, steps: m.steps.map(undone) } : m)));
+    return null;
+  }
+
   /** Deletes a conversation (or all of them); the open one is replaced by a new chat. True when done. */
   async function remove(id: string | "all") {
     if (id === "all" && !confirm(t("confirmDeleteAll"))) return false;
@@ -711,6 +721,7 @@ export function useChat(
     research,
     setResearch,
     saveReport,
+    undoNote,
     status,
     error,
     running,
@@ -744,7 +755,7 @@ export type ThreadChat = Pick<
   Partial<
     Pick<
       Chat,
-      "skill" | "setSkill" | "pastes" | "pasteInput" | "options" | "model" | "setModel" | "thinking" | "setThinking" | "research" | "setResearch" | "mode" | "setMode" | "asSuggestions" | "setAsSuggestions" | "saveReport" | "stop"
+      "skill" | "setSkill" | "pastes" | "pasteInput" | "options" | "model" | "setModel" | "thinking" | "setThinking" | "research" | "setResearch" | "mode" | "setMode" | "asSuggestions" | "setAsSuggestions" | "saveReport" | "stop" | "undoNote"
     >
   > & {
     /** The files it takes: the picker's `accept`, and whether a dropped or pasted file is one (the AI chat's otherwise). */

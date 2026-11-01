@@ -115,7 +115,7 @@ import type { FileRow } from "@/server/files";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
-import { memoryForPrompt, memoryOn, MEMORY_TOOLS } from "@/server/ai-memory";
+import { memoryForPrompt, MemoryError, memoryOn, MEMORY_TOOLS, READ_MEMORY_TOOL, undoNote } from "@/server/ai-memory";
 import { remindTool } from "@/server/ai-reminders";
 import { awaitDecision, decideChange, runsWaitingHere, type ChatDecision } from "@/server/ai-chat-approvals";
 import { answeringIn, conversationBusy, openRun, runEvents, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
@@ -594,6 +594,11 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       signal,
     });
 
+    // The person's notes, newest first as far as their share of the room takes them; those that
+    // don't fit are read with read_memory, offered only then (also to an answer taken up again).
+    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0, shown: 0 };
+    if (memory.shown < memory.count) tools.push(READ_MEMORY_TOOL);
+
     // ---------------------------------------------------------------------------- the question
     let messages: AiMessage[];
     let question: AiMessage;
@@ -606,7 +611,6 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       // Nothing is searched for the model: it gets the map of what there is and decides itself.
       // Asked from a connected app (the Telegram bot), which gets no mail tools: nor what turns that read mail said.
       const history: AiMessage[] = chatHistory(source.fromApp ? withoutMailTurns(earlier) : earlier, Math.floor(room() * HISTORY_SHARE));
-      const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0 };
       const filesText = hasFiles ? filesPrompt(read, Math.floor((room() - sizeOf(history) - message.length - memory.text.length) * FILES_SHARE)) : "";
       const imagesSize = read.images.length * IMAGE_CHARS;
       const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - filesText.length - imagesSize - 2_000);
@@ -1254,6 +1258,31 @@ export async function saveReportAsPage(
   const title = conversationTitle(question?.role === "user" ? question.content : found.title) || labels.untitled;
   const made = await createPage({ userId }, { workspaceId, teamspaceId: null, title, markdown });
   return { pageId: made.id };
+}
+
+/**
+ * Undo on a note an answer kept, changed or dropped (ai-memory.ts undoNote): the note goes back to
+ * what it was and the step says it was undone. MemoryError `busy` while the conversation is being
+ * answered (its turn would be saved over the mark), `changed` when the note changed since, `full`.
+ */
+export async function undoChatNote(userId: string, workspaceId: string, conversationId: string, memoryId: string): Promise<void> {
+  await requireMembership(userId, workspaceId);
+  const found = await ownConversation(userId, workspaceId, conversationId);
+  const step = found.messages.flatMap((m) => m.steps ?? []).find((s) => s.kind === "memory" && s.memoryId === memoryId && s.outcome === "done");
+  if (!step || step.kind !== "memory") throw new MemoryError("notFound", "Note not found");
+  if (await answerUnderWay(userId, conversationId)) throw new MemoryError("busy", "The conversation is being answered");
+  const undone = await undoNote(userId, workspaceId, step);
+  if (undone !== "done") throw new MemoryError(undone, "The note can't be undone");
+  await db.transaction(async (tx) => {
+    const [now] = await tx.select({ messages: conversationTable.messages }).from(conversationTable).where(eq(conversationTable.id, conversationId)).for("update");
+    if (!now) return;
+    const messages = (now.messages as ChatMessageRecord[]).map((m) =>
+      m.steps?.some((s) => s.kind === "memory" && s.memoryId === memoryId)
+        ? { ...m, steps: m.steps.map((s) => (s.kind === "memory" && s.memoryId === memoryId && s.outcome === "done" ? { ...s, outcome: "undone" as const } : s)) }
+        : m,
+    );
+    await tx.update(conversationTable).set({ messages }).where(eq(conversationTable.id, conversationId));
+  });
 }
 
 /** Deletes conversations of the person (only theirs), stopping answers on their way in them and dropping those parked there. */

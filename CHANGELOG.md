@@ -491,6 +491,12 @@
   notices) is laid out closer to that column and shrunk to fit, by at most 30%, instead of being
   squeezed to a few words a line; plain messages stay full size. The thread's margins are narrower
   on a phone and a message's time sits under its sender, so the name isn't cut short.
+- **The AI chat keeps notes about you at once, with Undo.** When you tell it about yourself, the
+  note is kept (or changed, or dropped) right away in every mode, and its step has *Undo*; it asks
+  first, as before, only when the answer read something from outside (a web page, an email, a
+  connected service) or while the workspace has changes without asking off. Agents keep the same
+  rule for corrections. Notes too many for a question's room are read with a new `read_memory`
+  tool, offered only then.
 - **Stop an agent's answer.** While an agent answers in its chat, the box's Stop button ends the
   answer at once and keeps what it wrote so far, marked *Stopped*; a message it hasn't started on
   yet ends before it starts. Nobody is notified, and the next message goes as usual. The REST API

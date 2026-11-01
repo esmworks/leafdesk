@@ -312,7 +312,11 @@
           "forget": "Avböjde att glömma:"
         },
         "correct": "Antecknat som en rättelse:",
-        "undone": "Rättelse ångrad:"
+        "undone": "Rättelse ångrad:",
+        "undoneNote": {
+          "remember": "Ångrade att komma ihåg:",
+          "forget": "Ångrade att glömma:"
+        }
       },
       "connection": {
         "done": "{connection}: anropade {tool}",
@@ -531,7 +535,9 @@
       "tooLong": "En anteckning får vara högst {max} tecken.",
       "full": "Minnet rymmer högst {max} anteckningar. Radera en först.",
       "notFound": "Den anteckningen finns inte längre.",
-      "off": "AI-minnet är avstängt i den här arbetsytan."
+      "off": "AI-minnet är avstängt i den här arbetsytan.",
+      "changed": "Anteckningen har ändrats sedan dess. Ändra den i Minne i stället.",
+      "busy": "Vänta tills svaret är klart."
     }
   },
   "accounts": {

@@ -312,7 +312,11 @@
           "forget": "Recusado esquecer:"
         },
         "correct": "Anotado como correção:",
-        "undone": "Correção desfeita:"
+        "undone": "Correção desfeita:",
+        "undoneNote": {
+          "remember": "Desfez lembrar:",
+          "forget": "Desfez esquecer:"
+        }
       },
       "connection": {
         "done": "{connection}: {tool} chamado",
@@ -531,7 +535,9 @@
       "tooLong": "Uma nota pode ter no máximo {max} caracteres.",
       "full": "A memória comporta no máximo {max} notas. Exclua uma primeiro.",
       "notFound": "Essa nota não existe mais.",
-      "off": "A memória da IA está desativada neste espaço de trabalho."
+      "off": "A memória da IA está desativada neste espaço de trabalho.",
+      "changed": "Essa nota mudou desde então. Altere-a em Memória.",
+      "busy": "Aguarde até a resposta terminar."
     }
   },
   "accounts": {

@@ -312,7 +312,11 @@
           "forget": "Avslo å glemme:"
         },
         "correct": "Notert som en rettelse:",
-        "undone": "Rettelse angret:"
+        "undone": "Rettelse angret:",
+        "undoneNote": {
+          "remember": "Angret å huske:",
+          "forget": "Angret å glemme:"
+        }
       },
       "connection": {
         "done": "{connection}: kalte {tool}",
@@ -531,7 +535,9 @@
       "tooLong": "Et notat kan ha høyst {max} tegn.",
       "full": "Minnet kan inneholde høyst {max} notater. Slett ett først.",
       "notFound": "Det notatet finnes ikke lenger.",
-      "off": "KI-minnet er slått av i dette arbeidsområdet."
+      "off": "KI-minnet er slått av i dette arbeidsområdet.",
+      "changed": "Det notatet er endret siden. Endre det i Minne i stedet.",
+      "busy": "Vent til svaret er ferdig."
     }
   },
   "accounts": {

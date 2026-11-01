@@ -11,15 +11,14 @@
 import { AtSign, ChevronRight, Clock, ListChecks, Loader2, Mail, RotateCcw, ScrollText, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
-import type { ChatMemoryRecord } from "@/db/schema/ai";
 import { AnswerText } from "@/components/ai-chat/answer-text";
 import { AttachmentChip } from "@/components/ai-chat/attachment-chip";
 import { CopyAction, questionBox, revealed, StepsFold } from "@/components/ai-chat/message-parts";
-import { StepLine } from "@/components/ai-chat/step-line";
+import { undoableNote, UndoableStepLine } from "@/components/ai-chat/step-line";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { lazyPart } from "@/components/lazy-part";
 import { AgentStepLine } from "@/components/settings/agent-dialog";
-import { Button, cn, IconButton } from "@/components/ui";
+import { cn, IconButton } from "@/components/ui";
 import { chatFailure, type AgentChatMessageView, type AgentChatQueuedView, type AgentChatRunView, type AgentChatStepView, type AgentChatTurn } from "@/lib/agent-chat";
 import { AnswerFiles } from "./chat-files";
 import type { AgentItem } from "./use-agent-chat";
@@ -235,44 +234,13 @@ function Answer({
 function StepItems({ steps, context, onUndo }: { steps: AgentChatStepView[]; context: ItemContext; onUndo?: (memoryId: string, index: number) => Promise<string | null> }) {
   return steps.map((step, i) => (
     <li key={i} className="flex min-w-0 items-start gap-1.5">
-      {onUndo && step.kind === "memory" && step.action === "correct" && step.memoryId && step.outcome !== "undone" ? (
-        <CorrectionStepLine step={step} memoryId={step.memoryId} onOpen={context.onOpen} onUndo={(memoryId) => onUndo(memoryId, i)} />
+      {onUndo && step.kind === "memory" && step.action === "correct" && undoableNote(step) ? (
+        <UndoableStepLine step={step} onSource={(source) => source.pageId && context.onOpen(source.pageId)} onUndo={() => onUndo(step.memoryId, i)} />
       ) : (
         <AgentStepLine step={step} connections={context.connections} onOpen={context.onOpen} />
       )}
     </li>
   ));
-}
-
-/** A correction a chat run kept at once, with Undo (server/agents/memory.ts undoAgentCorrection). */
-function CorrectionStepLine({ step, memoryId, onOpen, onUndo }: { step: ChatMemoryRecord; memoryId: string; onOpen: (pageId: string) => void; onUndo: (memoryId: string) => Promise<string | null> }) {
-  const tc = useTranslations("common");
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  return (
-    <>
-      <StepLine step={step} onSource={(source) => source.pageId && onOpen(source.pageId)} />
-      <Button
-        size="sm"
-        variant="ghost"
-        className="-my-0.5 h-6 shrink-0 px-1.5 text-xs"
-        disabled={pending}
-        onClick={async () => {
-          setPending(true);
-          const failed = await onUndo(memoryId);
-          setPending(false);
-          setError(failed);
-        }}
-      >
-        {tc("toast.undo")}
-      </Button>
-      {error && (
-        <span role="alert" className="text-xs text-danger">
-          {error}
-        </span>
-      )}
-    </>
-  );
 }
 
 function DayLabel({ at }: { at: string }) {

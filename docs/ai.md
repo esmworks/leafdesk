@@ -385,11 +385,15 @@ is decided or someone edits the page. Only people who may edit the page see it.
 **Memory.** The chat remembers short notes about you in each workspace: who you are, what you work
 on, how you want answers. When you tell it about yourself or ask it to remember something, it keeps
 a note (`remember`, also in place of an older note it corrects) and drops one when you ask it to
-forget (`forget`). Since a note goes with every later question, the chat asks you first, as it
-does before a change (*Yes* or *No*), also in *Read only*, where notes are the one thing it may
-keep; only *Auto* keeps and drops notes without asking. Each note kept, dropped or declined shows
-among the answer's steps, a *Memory updated* line under the answer opens *Memory*, and asking an
-answer again keeps its notes with the new answer. It keeps only what you say in your questions,
+forget (`forget`). It does so at once, in every mode (*Read only* too, where notes are the one
+thing it may keep), and the step it shows has *Undo*, which drops a note it kept, gives a changed
+note its earlier text, or brings a dropped one back (unless you changed the note since). Since a
+note goes with every later question, the chat asks you first (*Yes* or *No*) when the answer read
+something from outside before (a web page, an email, a connected service's tool), and always while
+the workspace has changes without asking off. Each note kept, dropped or declined shows among the
+answer's steps, a *Memory updated* line under the answer opens *Memory*, and asking an answer again
+keeps its notes with the new answer. When your notes are more than a question's share of the room
+takes, the newest go with it and the chat reads the others with `read_memory`, offered only then. It keeps only what you say in your questions,
 never what pages or tool results say, and a note you already have (case aside) is kept once. Your notes go with each of your later questions in that workspace, as notes rather
 than instructions: they never widen what the chat may read or change. The brain button in the chat's
 header opens *Memory*, where you see, add, change and delete notes, or forget everything. Up to 30
@@ -821,7 +825,7 @@ answer made and its sources as links to their pages (`APP_URL` must be an addres
 phone can open). Conversations are the person's AI chat conversations: they show in the app's
 chat history and follow its limits.
 
-**Changes.** In *Ask* mode, each change (a row, a page, a page's text, a note to remember, a call
+**Changes.** In *Ask* mode, each change (a row, a page, a page's text, a call
 to a connection's tool that changes something) and, in every mode, each web search or page read
 (with its words or address) comes as a message saying what and where, with
 *Yes* and *No* buttons (and *Yes, don't ask again* for changes in the workspace). Only the linked

@@ -312,7 +312,11 @@
           "forget": "Declined forgetting:"
         },
         "correct": "Noted as a correction:",
-        "undone": "Correction undone:"
+        "undone": "Correction undone:",
+        "undoneNote": {
+          "remember": "Undid remembering:",
+          "forget": "Undid forgetting:"
+        }
       },
       "connection": {
         "done": "{connection}: called {tool}",
@@ -531,7 +535,9 @@
       "tooLong": "A note may have at most {max} characters.",
       "full": "Memory holds at most {max} notes. Delete one first.",
       "notFound": "That note isn't there anymore.",
-      "off": "The AI memory is turned off in this workspace."
+      "off": "The AI memory is turned off in this workspace.",
+      "changed": "That note changed since. Change it in Memory instead.",
+      "busy": "Wait until the answer is done."
     }
   },
   "accounts": {

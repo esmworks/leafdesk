@@ -312,7 +312,11 @@
           "forget": "Vergessen abgelehnt:"
         },
         "correct": "Als Korrektur notiert:",
-        "undone": "Korrektur rückgängig gemacht:"
+        "undone": "Korrektur rückgängig gemacht:",
+        "undoneNote": {
+          "remember": "Merken rückgängig gemacht:",
+          "forget": "Vergessen rückgängig gemacht:"
+        }
       },
       "connection": {
         "done": "{connection}: {tool} aufgerufen",
@@ -531,7 +535,9 @@
       "tooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
       "full": "Das Gedächtnis fasst höchstens {max} Notizen. Lösche zuerst eine.",
       "notFound": "Diese Notiz gibt es nicht mehr.",
-      "off": "Das KI-Gedächtnis ist in diesem Workspace ausgeschaltet."
+      "off": "Das KI-Gedächtnis ist in diesem Workspace ausgeschaltet.",
+      "changed": "Diese Notiz hat sich seitdem geändert. Ändere sie stattdessen unter Gedächtnis.",
+      "busy": "Warte, bis die Antwort fertig ist."
     }
   },
   "accounts": {

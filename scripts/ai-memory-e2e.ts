@@ -34,9 +34,9 @@ const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
-const { getConversation, startChat } = await import("@/server/ai-chat");
+const { getConversation, startChat, undoChatNote } = await import("@/server/ai-chat");
 const { decideChange } = await import("@/server/ai-chat-approvals");
-const { addMemory, deleteMemories, listMemories, memoryAvailable, memoryForPrompt, MemoryError, memoryUse, setMemoryUse, updateMemory } = await import(
+const { addMemory, deleteMemories, listMemories, memoryAvailable, memoryForPrompt, MemoryError, memoryUse, readMemory, setMemoryUse, updateMemory } = await import(
   "@/server/ai-memory"
 );
 const { MAX_MEMORIES, MAX_MEMORY_CHARS } = await import("@/lib/ai-chat");
@@ -141,12 +141,12 @@ try {
   fake.chats.length = 0;
   const first = await ask(alice, { workspaceId, message: "Remember that I lead the design team." });
   check(first.done && first.steps.join("|") === "remember:Leads the design team.", "remember keeps a note, on one line, and the answer shows it as a step", first);
-  check(first.approvals.join("|") === "remember:Leads the design team.", "…once the person approves it (the chat asks by default)", first.approvals);
+  check(first.approvals.length === 0, "…at once, in a turn of the person's own words (nothing to approve)", first.approvals);
   const firstRequest = fake.chats[0];
   check(memoryOf(firstRequest) === null, "a question with nothing remembered carries no memory");
   check(
-    ["remember", "forget"].every((name) => toolNames(firstRequest).includes(name)),
-    "the chat is offered remember and forget",
+    ["remember", "forget"].every((name) => toolNames(firstRequest).includes(name)) && !toolNames(firstRequest).includes("read_memory"),
+    "the chat is offered remember and forget, and read_memory only when notes don't fit",
     toolNames(firstRequest),
   );
   check(
@@ -268,7 +268,30 @@ try {
   const forgot = await ask(alice, { workspaceId, message: "Forget where I work" });
   check(forgot.steps.join("|") === "forget:Leads the brand team." && (await notesOf(alice)).length === 0, "forget drops the person's note, the step saying which");
 
+  // ── Undo ────────────────────────────────────────────────────────────────────────────────────
+  const stepOf = async (conversationId: string) => (await getConversation(alice, workspaceId, conversationId)).messages.at(-1)?.steps?.find((st) => st.kind === "memory");
+  const forgotStep = await stepOf(forgot.conversationId!);
+  check(forgotStep?.kind === "memory" && forgotStep.memoryId === kept.id, "a note dropped at once carries its id on its step, for Undo", forgotStep);
+  await undoChatNote(alice, workspaceId, forgot.conversationId!, kept.id);
+  const back = await notesOf(alice);
+  check(back.length === 1 && back[0].id === kept.id && back[0].text === "Leads the brand team.", "Undo brings a dropped note back as it was", back);
+  check((await stepOf(forgot.conversationId!))?.outcome === "undone", "…and its step says it was undone");
+  const twiceUndone = await undoChatNote(alice, workspaceId, forgot.conversationId!, kept.id).catch((e) => e);
+  check(twiceUndone instanceof MemoryError && twiceUndone.code === "notFound", "…once");
+  const movedStep = await stepOf(moved.conversationId!);
+  await updateMemory(alice, workspaceId, kept.id, "Leads the sales team.");
+  const changedSince = await undoChatNote(alice, workspaceId, moved.conversationId!, movedStep?.kind === "memory" ? movedStep.memoryId! : "").catch((e) => e);
+  check(changedSince instanceof MemoryError && changedSince.code === "changed", "a note changed since can't be undone from an older step", changedSince);
+  await updateMemory(alice, workspaceId, kept.id, "Leads the brand team.");
+  await undoChatNote(alice, workspaceId, moved.conversationId!, kept.id);
+  check((await notesOf(alice))[0]?.text === "Leads the design team.", "Undo on a note changed in place gives it its earlier text");
+  const bobUndo = await undoChatNote(bob, workspaceId, forgot.conversationId!, kept.id).catch((e) => e);
+  check(bobUndo instanceof AccessError || bobUndo?.code === "noAccess", "no one else undoes it", bobUndo);
+  await deleteMemories(alice, workspaceId, "all");
+
   // ── Approving, declining, Auto ──────────────────────────────────────────────────────────────
+  // With changes without asking off for the workspace, each note is asked about.
+  await updateWorkspaceSettings(owner, workspaceId, { aiAutoChanges: false });
   fake.setChat(caller([{ name: "remember", arguments: { text: "Prefers short answers." } }]));
   fake.chats.length = 0;
   const declined = await ask(alice, { workspaceId, message: "Short answers please" }, "decline");
@@ -281,6 +304,7 @@ try {
   const readAsked = await ask(alice, { workspaceId, message: "Short answers please", mode: "read" });
   check(readAsked.approvals.join("|") === "remember:Prefers short answers." && (await notesOf(alice)).length === 1, "a read-only chat asks before keeping a note too");
   await deleteMemories(alice, workspaceId, "all");
+  await updateWorkspaceSettings(owner, workspaceId, { aiAutoChanges: true });
   const auto = await ask(alice, { workspaceId, message: "Short answers please", mode: "auto" });
   check(auto.approvals.length === 0 && auto.steps.join("|") === "remember:Prefers short answers." && (await notesOf(alice)).length === 1, "Auto keeps a note without asking");
   await deleteMemories(alice, workspaceId, "all");
@@ -336,10 +360,13 @@ try {
   );
   const cut = await memoryForPrompt(alice, workspaceId, 200);
   check(
-    cut.count === MAX_MEMORIES && cut.text.startsWith("(Older notes don't fit in this question.)") && cut.text.includes(`Note ${MAX_MEMORIES - 1} `) && !cut.text.includes("Note 0 "),
+    cut.count === MAX_MEMORIES && cut.shown < cut.count && cut.text.startsWith("(Older notes don't fit here: read them with read_memory.)") && cut.text.includes(`Note ${MAX_MEMORIES - 1} `) && !cut.text.includes("Note 0 "),
     "what doesn't fit in the prompt's share leaves the oldest notes out, saying so",
     cut.text,
   );
+  const readAll = await readMemory(alice, workspaceId, {});
+  const readSome = await readMemory(alice, workspaceId, { query: "note 0" });
+  check(readAll.content.split("\n").length === MAX_MEMORIES && readSome.content.includes("Note 0 ") && !readSome.content.includes("Note 1 "), "read_memory reads them all, or those with the words asked", readSome);
   const fullError = await addMemory(alice, workspaceId, "One more.").catch((e) => e);
   check(fullError instanceof MemoryError && fullError.code === "full", "the Memory view can't add past the limit either");
 

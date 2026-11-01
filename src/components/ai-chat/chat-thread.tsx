@@ -73,7 +73,7 @@ import { DictateButton, type DictationNotice } from "./dictate-button";
 import { MemoryDialog } from "./memory-dialog";
 import { carriesFiles, composerBox, CopyAction, MessageTime, questionBox, revealed, roundButton, StepsFold } from "./message-parts";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
-import { PageLink, reminderLabel, StepLine } from "./step-line";
+import { PageLink, reminderLabel, StepLine, undoableNote, UndoableStepLine } from "./step-line";
 import { useReasoning, type ChangeDecision, type ChatMessage, type ChatSkillPick, type ChatStatus, type PendingChange, type QueuedQuestion, type Reasoning, type ThreadChat } from "./use-chat";
 
 // Lines to the chat's questions, and the way back to its latest answer: loaded once there is a conversation.
@@ -144,6 +144,7 @@ export function ChatThread({
       /** Asks the question at `index` again, edited. */
       edit: (index: number, question: string) => latest.current.onSend({ question, skill: latest.current.chat.messages[index]?.skill }),
       saveReport: (index: number) => latest.current.chat.saveReport?.(index) ?? Promise.resolve(null),
+      undoNote: (memoryId: string) => latest.current.chat.undoNote?.(memoryId) ?? Promise.resolve(null),
     }),
     [],
   );
@@ -343,6 +344,7 @@ export function ChatThread({
                           onRetry={askAgain && i === messages.length - 1 ? handlers.retry : undefined}
                           onSource={handlers.source}
                           onMemory={handlers.memory}
+                          onUndoNote={chat.undoNote ? handlers.undoNote : undefined}
                           onSaveReport={m.research && chat.conversationId ? handlers.saveReport : undefined}
                           workspaceId={chat.workspaceId}
                           labels={labels}
@@ -680,6 +682,7 @@ const Answer = memo(function Answer({
   onRetry,
   onSource,
   onMemory,
+  onUndoNote,
   onSaveReport,
   workspaceId,
   labels,
@@ -698,6 +701,8 @@ const Answer = memo(function Answer({
   onSource: (source: ChatSourceView) => void;
   /** Opens the Memory dialog (from the line saying the answer kept or dropped a note). */
   onMemory: () => void;
+  /** Undoes a note a step kept, changed or dropped at once: null when it was, else why not. */
+  onUndoNote?: (memoryId: string) => Promise<string | null>;
   /** A research report: saves it as a page, giving its id (null when it couldn't). */
   onSaveReport?: (index: number) => Promise<string | null>;
   workspaceId: string;
@@ -714,7 +719,7 @@ const Answer = memo(function Answer({
   return (
     <div className="group/answer font-sans text-sm leading-normal">
       {message.steps ? (
-        <Steps message={message} status={status} waiting={waiting} reasoning={reasoning} onSource={onSource} />
+        <Steps message={message} status={status} waiting={waiting} reasoning={reasoning} onSource={onSource} onUndoNote={status === null ? onUndoNote : undefined} />
       ) : (
         // Answers kept from before steps were.
         status === "thinking" &&
@@ -878,19 +883,25 @@ function Steps({
   waiting,
   reasoning,
   onSource,
+  onUndoNote,
 }: {
   message: ChatMessage;
   status: ChatStatus | null;
   waiting: boolean;
   reasoning: Reasoning;
   onSource: (source: ChatSourceView) => void;
+  onUndoNote?: (memoryId: string) => Promise<string | null>;
 }) {
   const t = useTranslations("ai.chat");
   return (
     <StepsFold live={status !== null} ms={message.ms} startedAt={message.startedAt}>
       {(message.steps ?? []).map((step, i) => (
         <li key={i} className="flex min-w-0 items-start gap-1.5">
-          <StepLine step={step} onSource={onSource} />
+          {onUndoNote && undoableNote(step) ? (
+            <UndoableStepLine step={step} onSource={onSource} onUndo={() => onUndoNote(step.memoryId)} />
+          ) : (
+            <StepLine step={step} onSource={onSource} />
+          )}
         </li>
       ))}
       {waiting ? (

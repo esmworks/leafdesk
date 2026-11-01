@@ -24,7 +24,8 @@ import { withinWorkspace } from "@/server/connected-app";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { isChatMailTool, MAIL_TOOL_NAMES, prepareMailDraft, runChatMailTool, saveMailDraft } from "@/server/ai-chat-mail";
 import { isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
-import { applyMemory, MEMORY_TOOL_NAMES, prepareMemory } from "@/server/ai-memory";
+import { applyMemory, MEMORY_TOOL_NAMES, prepareMemory, READ_MEMORY_TOOL, readMemory } from "@/server/ai-memory";
+import { noteWrite } from "@/lib/memory-rule";
 import { REMIND_TOOL_NAME, reminderWhen, setReminder } from "@/server/ai-reminders";
 import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, moreToolStep, pickMoreTool, readDocsTopic } from "@/server/ai-more-tools";
 import { chatToolNow, inputSummary, runConnectionTool, type ConnectionToolEntry, type ConnectionToolset } from "@/server/connections/tools";
@@ -202,11 +203,13 @@ export function createChatDispatch(cx: ChatDispatchContext) {
       return saveMailDraft(userId, draft, decision);
     }
     // With the memory off, remember and forget aren't offered: called anyway, they're unknown.
+    if (cx.remembers && call.name === READ_MEMORY_TOOL.name) return readMemory(userId, workspaceId, call.arguments);
     if (cx.remembers && MEMORY_TOOL_NAMES.has(call.name)) {
-      // Text the model read could pass itself off as a lasting note: the person approves each.
+      // Text read from outside could pass itself off as a lasting note: then the person approves
+      // each; in a turn of their own words it is kept at once, with Undo (lib/memory-rule.ts).
       const note = await once(call, () => prepareMemory(userId, workspaceId, call));
       if (!("action" in note)) return note;
-      if (!decision && mode !== "auto") return { ask: note.action };
+      if (!decision && mode !== "auto" && noteWrite({ agent: false, personSaid: !outside(), askAll: !cx.autoChanges }) === "ask") return { ask: note.action };
       return applyMemory(userId, workspaceId, cx.conversationId, note, decision ?? "approve");
     }
     if (call.name === REMIND_TOOL_NAME && !research) return remind(call, decision);

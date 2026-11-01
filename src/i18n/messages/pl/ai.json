@@ -312,7 +312,11 @@
           "forget": "Odrzucono zapomnienie:"
         },
         "correct": "Zapisano jako poprawkę:",
-        "undone": "Cofnięto poprawkę:"
+        "undone": "Cofnięto poprawkę:",
+        "undoneNote": {
+          "remember": "Cofnięto zapamiętanie:",
+          "forget": "Cofnięto zapomnienie:"
+        }
       },
       "connection": {
         "done": "{connection}: wywołano {tool}",
@@ -531,7 +535,9 @@
       "tooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
       "full": "Pamięć mieści najwyżej {max, plural, one {# notatkę} few {# notatki} many {# notatek} other {# notatki}}. Najpierw usuń jedną.",
       "notFound": "Tej notatki już nie ma.",
-      "off": "Pamięć AI jest wyłączona w tym obszarze roboczym."
+      "off": "Pamięć AI jest wyłączona w tym obszarze roboczym.",
+      "changed": "Ta notatka zmieniła się od tego czasu. Zmień ją w Pamięci.",
+      "busy": "Poczekaj, aż odpowiedź się zakończy."
     }
   },
   "accounts": {

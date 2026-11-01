@@ -312,7 +312,11 @@
           "forget": "Vergeten geweigerd:"
         },
         "correct": "Genoteerd als correctie:",
-        "undone": "Correctie ongedaan gemaakt:"
+        "undone": "Correctie ongedaan gemaakt:",
+        "undoneNote": {
+          "remember": "Onthouden ongedaan gemaakt:",
+          "forget": "Vergeten ongedaan gemaakt:"
+        }
       },
       "connection": {
         "done": "{connection}: {tool} aangeroepen",
@@ -531,7 +535,9 @@
       "tooLong": "Een notitie mag maximaal {max} tekens hebben.",
       "full": "Het geheugen bevat maximaal {max} notities. Verwijder er eerst een.",
       "notFound": "Die notitie bestaat niet meer.",
-      "off": "Het AI-geheugen is uitgeschakeld in deze werkruimte."
+      "off": "Het AI-geheugen is uitgeschakeld in deze werkruimte.",
+      "changed": "Die notitie is sindsdien gewijzigd. Wijzig hem in Geheugen.",
+      "busy": "Wacht tot het antwoord klaar is."
     }
   },
   "accounts": {

@@ -312,7 +312,11 @@
           "forget": "Đã từ chối quên:"
         },
         "correct": "Đã ghi nhận là một đính chính:",
-        "undone": "Đã hoàn tác đính chính:"
+        "undone": "Đã hoàn tác đính chính:",
+        "undoneNote": {
+          "remember": "Đã hoàn tác ghi nhớ:",
+          "forget": "Đã hoàn tác quên:"
+        }
       },
       "connection": {
         "done": "{connection}: đã gọi {tool}",
@@ -531,7 +535,9 @@
       "tooLong": "Một ghi chú có tối đa {max} ký tự.",
       "full": "Bộ nhớ chứa tối đa {max} ghi chú. Hãy xóa một ghi chú trước.",
       "notFound": "Ghi chú đó không còn nữa.",
-      "off": "Bộ nhớ AI đã bị tắt trong không gian làm việc này."
+      "off": "Bộ nhớ AI đã bị tắt trong không gian làm việc này.",
+      "changed": "Ghi chú đó đã thay đổi kể từ đó. Hãy sửa nó trong Bộ nhớ.",
+      "busy": "Hãy đợi câu trả lời xong."
     }
   },
   "accounts": {

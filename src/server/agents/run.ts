@@ -84,7 +84,7 @@ import { runActingFor } from "@/server/acting-for";
 import { aiConfig, AiError, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiToolCall } from "@/server/ai";
 import { agentChatPrompt, agentEventPrompt, agentMailPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
-import { memoryForPrompt } from "@/server/ai-memory";
+import { memoryForPrompt, READ_MEMORY_TOOL } from "@/server/ai-memory";
 import { lazyMoreTools } from "@/server/ai-more-tools";
 import { runTool, workspaceMap, type Registry } from "@/server/ai-tools";
 import { asAutomation } from "@/server/automations/queue";
@@ -600,6 +600,11 @@ async function converse(
   let firstRound = 0;
   let queue: AiToolCall[] = [];
 
+  // The agent's kept notes, newest first as far as their share takes them; those that don't fit
+  // are read with read_memory, offered only then (to a run taken up again too).
+  const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "", count: 0, shown: 0 };
+  const runTools = memory.shown < memory.count ? [...tools, READ_MEMORY_TOOL] : tools;
+
   const saved = run.state;
   if (saved) {
     messages = saved.messages as AiMessage[];
@@ -615,7 +620,6 @@ async function converse(
     const read = await runTool(ctx, run.workspaceId, undefined, { name: "read_page", arguments: { page_id: run.source.rowId } }, registry, Math.min(8_000, room([])));
     if (read.isError) return { status: "failed", code: "noAccess", steps, usage };
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     messages = [{ role: "user", content: agentTaskPrompt({ task: run.prompt, event: await eventText(run), row: read.content, map, memory: memory.text }) }];
   } else if (scheduled) {
     // The database it looks after, read as the agent (within the owner's access), as source 1.
@@ -624,7 +628,6 @@ async function converse(
       : null;
     if (read?.isError) return { status: "failed", code: "noAccess", steps, usage };
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     const proposed = remembers ? await proposalsForPrompt(agent, run) : "";
     const left = leavesNote ? await lastHandoff(run) : null;
     messages = [
@@ -652,7 +655,6 @@ async function converse(
     const names = await threadNames(thread.comments.map((c) => c.userId));
     const before = threadBefore(thread, comment.id, (id) => names.get(id) ?? "Someone", { max: MENTION_THREAD_COMMENTS, chars: MENTION_THREAD_CHARS });
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     messages = [
       { role: "user", content: agentMentionPrompt({ comment: run.prompt, event: await eventText(run), page: read.content, thread: before, map, memory: memory.text }) },
     ];
@@ -664,12 +666,10 @@ async function converse(
     if (read.step) steps.push(read.step as AgentStepRecord);
     await markMail(arrival.messageId, agent.id, "read");
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     messages = [{ role: "user", content: agentMailPrompt({ task: run.prompt, event: await eventText(run), thread: read.content, map, memory: memory.text }) }];
   } else if (chat) {
     // The conversation so far, then the message, with the workspace as the agent sees it (with the person).
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     const history = await chatRunHistory(run, Math.floor(room([]) * CHAT_HISTORY_SHARE));
     // Answers that quote email are anyone's words too: the run goes on as one that read it (dispatch.ts).
     if (history.mailRead) {
@@ -692,11 +692,9 @@ async function converse(
     messages = [...history.messages, { role: "user", content: agentChatPrompt({ message: run.prompt, event: await eventText(run), map, memory: memory.text, files }) + held }];
   } else if (requested) {
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     messages = [{ role: "user", content: agentRequestPrompt({ task: run.prompt, event: await eventText(run), map, memory: memory.text }) }];
   } else {
     const map = await workspaceMap(ctx, run.workspaceId, null, MAP_CHARS);
-    const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "" };
     const type = "eventType" in run.context ? run.context.eventType : "event";
     const body = `Type: ${type}\n\n${"body" in run.context ? run.context.body.slice(0, EVENT_CHARS) : ""}`;
     messages = [{ role: "user", content: agentEventPrompt({ task: run.prompt, event: await eventText(run), body, map, memory: memory.text }) }];
@@ -713,7 +711,7 @@ async function converse(
     messages,
     { round: Math.max(firstRound, usage.rounds), pending: Boolean(saved) },
     {
-      request: () => ({ feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, tools, sessionId: run.id, signal }),
+      request: () => ({ feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, tools: runTools, sessionId: run.id, signal }),
       // A chat's turn is streamed: its text so far goes to the person as it comes.
       streaming: Boolean(live),
       spentUsd: () => usage.costUsd,

@@ -434,7 +434,10 @@ corrections at once; past that, or with the memory full, the next is proposed. C
 every later run marked as such, before the agent's other notes. The *Memory* tab lists them first,
 labelled *Correction · from <person>'s chat*, and labels proposed corrections too; a kept
 correction puts nothing in the owners' inboxes, and the audit log counts it, and its Undo, as a
-change to the agent. `get_agent` marks them with `kind: "correction"` and `said_by`.
+change to the agent. `get_agent` marks them with `kind: "correction"` and `said_by`. The AI chat follows the same
+rule for the notes it keeps about you: kept at once in a turn of your own words, with Undo, and
+asked about otherwise. Kept notes too many for a run's prompt are read with `read_memory`, offered
+only then.
 
 **Where a schedule's run left off.** A run of a schedule often can't finish everything (a
 connected service lets it read only so much at a time). It leaves where it stopped with

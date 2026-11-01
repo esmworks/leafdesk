@@ -312,7 +312,11 @@
           "forget": "Unutmayı reddettin:"
         },
         "correct": "Düzeltme olarak not edildi:",
-        "undone": "Düzeltme geri alındı:"
+        "undone": "Düzeltme geri alındı:",
+        "undoneNote": {
+          "remember": "Hatırlama geri alındı:",
+          "forget": "Unutma geri alındı:"
+        }
       },
       "connection": {
         "done": "{connection}: {tool} çağrıldı",
@@ -531,7 +535,9 @@
       "tooLong": "Bir not en fazla {max} karakter olabilir.",
       "full": "Hafıza en fazla {max} not tutar. Önce birini sil.",
       "notFound": "Bu not artık yok.",
-      "off": "Bu çalışma alanında yapay zekâ hafızası kapalı."
+      "off": "Bu çalışma alanında yapay zekâ hafızası kapalı.",
+      "changed": "Bu not o zamandan beri değişti. Hafıza'dan değiştir.",
+      "busy": "Cevap bitene kadar bekle."
     }
   },
   "accounts": {
