@@ -165,6 +165,7 @@
       "limitReached": "Ajan bu ayki token hakkını kullandı.",
       "costLimit": "Yanıt maliyet sınırına ulaştı.",
       "error": "Ajan yanıtlarken bir şeyler ters gitti."
-    }
+    },
+    "deferred": "{agent} sessiz saatleri bitene kadar bir çağrıyı bekletiyor. Cevabı o zaman buraya gelir."
   }
 }

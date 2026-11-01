@@ -7,13 +7,14 @@ import { agentGrantSummaryAction } from "@/app/actions/agents";
 import { listAgentGrantsAction, listConnectionsAction, setAgentGrantAction } from "@/app/actions/connections";
 import { cn } from "@/components/ui";
 import type { AgentView } from "@/lib/agents";
-import type { AgentGrantSummary, AgentGrantView, ConnectionView } from "@/lib/connections";
+import type { AgentGrantSummary, AgentGrantView, ConnectionView, ToolRule } from "@/lib/connections";
 import { ConnectionIcon, ToolKindLabel } from "./connections-panel";
 
 /**
  * The tools of each connection an agent may use. Ticking a tool allows it at once; tools that
- * change something still wait for an owner's approval each time the agent calls them. Only owners
- * choose them (the connections are theirs): anyone else the agent is shared with sees the list.
+ * change something still wait for an owner's approval each time the agent calls them, unless an
+ * owner's rule always allows or always declines a tool. Only owners choose them (the connections
+ * are theirs): anyone else the agent is shared with sees the list.
  */
 export function AgentConnectionsTab({ workspaceId, agent, isOwner }: { workspaceId: string; agent: AgentView; isOwner: boolean }) {
   return isOwner ? <GrantsEditor workspaceId={workspaceId} agent={agent} /> : <GrantsList workspaceId={workspaceId} agent={agent} />;
@@ -60,8 +61,9 @@ function GrantsList({ workspaceId, agent }: { workspaceId: string; agent: AgentV
             </div>
             <ul className="divide-y divide-border">
               {grant.tools.map((tool) => (
-                <li key={tool} className="px-3 py-1.5 text-sm">
-                  {tool}
+                <li key={tool} className="flex items-baseline gap-2 px-3 py-1.5 text-sm">
+                  <span className="min-w-0 flex-1 truncate">{tool}</span>
+                  {grant.rules[tool] && <span className="shrink-0 text-xs text-fg-muted">{t(grant.rules[tool] === "allow" ? "ruleAllow" : "ruleDeny")}</span>}
                 </li>
               ))}
             </ul>
@@ -98,14 +100,18 @@ function GrantsEditor({ workspaceId, agent }: { workspaceId: string; agent: Agen
 
   const allowed = (connectionId: string) => new Set(grants.find((g) => g.connectionId === connectionId)?.tools ?? []);
 
-  const save = async (connectionId: string, tools: string[]) => {
+  const rulesOf = (connectionId: string) => grants.find((g) => g.connectionId === connectionId)?.rules ?? {};
+
+  const save = async (connectionId: string, tools: string[], given: Record<string, ToolRule>) => {
+    // A rule goes with its tool.
+    const rules = Object.fromEntries(Object.entries(given).filter(([tool]) => tools.includes(tool)));
     setSaving(connectionId);
     setError(null);
     const before = grants;
     // Shown at once; put back if it didn't save.
-    setGrants((list) => [...list.filter((g) => g.connectionId !== connectionId), ...(tools.length ? [{ connectionId, tools }] : [])]);
+    setGrants((list) => [...list.filter((g) => g.connectionId !== connectionId), ...(tools.length ? [{ connectionId, tools, rules }] : [])]);
     try {
-      const res = await setAgentGrantAction(workspaceId, agent.id, connectionId, tools);
+      const res = await setAgentGrantAction(workspaceId, agent.id, connectionId, tools, rules);
       if (res.ok) setGrants(res.data);
       else {
         setGrants(before);
@@ -121,7 +127,9 @@ function GrantsEditor({ workspaceId, agent }: { workspaceId: string; agent: Agen
 
   return (
     <div className="max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4">
-      <p className="text-sm text-fg-muted">{t("description")}</p>
+      <p className="text-sm text-fg-muted">
+        {t("description")} {t("rulesNote")}
+      </p>
       {error && (
         <p role="alert" className="text-sm text-danger">
           {error}
@@ -142,11 +150,18 @@ function GrantsEditor({ workspaceId, agent }: { workspaceId: string; agent: Agen
       ) : (
         connections.map((conn) => {
           const chosen = allowed(conn.id);
+          const rules = rulesOf(conn.id);
           const toggle = (tool: string, on: boolean) => {
             const next = new Set(chosen);
             if (on) next.add(tool);
             else next.delete(tool);
-            void save(conn.id, [...next]);
+            void save(conn.id, [...next], rules);
+          };
+          const setRule = (tool: string, rule: ToolRule | "") => {
+            const next = { ...rules };
+            if (rule) next[tool] = rule;
+            else delete next[tool];
+            void save(conn.id, [...chosen], next);
           };
           return (
             <section key={conn.id} className="rounded-lg border border-border">
@@ -181,6 +196,19 @@ function GrantsEditor({ workspaceId, agent }: { workspaceId: string; agent: Agen
                           </span>
                           {tool.description && <span className="line-clamp-2 text-xs text-fg-muted">{tool.description}</span>}
                         </label>
+                        {chosen.has(tool.name) && (
+                          <select
+                            aria-label={t("ruleLabel", { tool: tool.title || tool.name })}
+                            className="shrink-0 rounded-md border border-border bg-bg px-1.5 py-0.5 text-xs"
+                            value={rules[tool.name] ?? ""}
+                            disabled={saving === conn.id}
+                            onChange={(e) => setRule(tool.name, e.target.value as ToolRule | "")}
+                          >
+                            <option value="">{t(tool.kind === "write" ? "ruleAsk" : "ruleAllowed")}</option>
+                            {tool.kind === "write" && <option value="allow">{t("ruleAllow")}</option>}
+                            <option value="deny">{t("ruleDeny")}</option>
+                          </select>
+                        )}
                       </li>
                     );
                   })}

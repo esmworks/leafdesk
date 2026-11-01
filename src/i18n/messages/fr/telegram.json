@@ -165,6 +165,7 @@
       "limitReached": "L’agent a utilisé ses jetons du mois.",
       "costLimit": "La réponse a atteint sa limite de coût.",
       "error": "Un problème est survenu pendant la réponse de l’agent."
-    }
+    },
+    "deferred": "{agent} retient un appel jusqu’à la fin de ses heures calmes. Sa réponse arrivera ici à ce moment-là."
   }
 }

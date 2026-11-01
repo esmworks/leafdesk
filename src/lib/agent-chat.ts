@@ -182,6 +182,8 @@ export type AgentChatTurn = {
   answer: string;
   steps: AgentChatStepView[];
   pending: { callId: string; tool: string; connectionName: string; input: string } | null;
+  /** When a call held for the agent's quiet hours goes on (ISO), for whoever follows the turn; null when none is. */
+  deferredUntil: string | null;
   connections: Record<string, string>;
 };
 

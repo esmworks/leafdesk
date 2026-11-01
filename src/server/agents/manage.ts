@@ -41,6 +41,7 @@ import {
   type AgentView,
 } from "@/lib/agents";
 import { agentTargets } from "@/lib/automations";
+import { isDailyChangeLimit, MAX_DAILY_CHANGES, parseQuietHours, type QuietHours } from "@/lib/quiet-hours";
 import { ICON_RULE, parseIcon } from "@/lib/icon";
 import type { AgentLevel, AgentShareLevel } from "@/lib/agent-sharing";
 import { AccessError, pageAccessOf, pageVisibleTo, requireMember } from "@/server/access";
@@ -74,6 +75,10 @@ export type AgentInput = {
   model?: AgentModel;
   /** Whether its runs change rows at once or propose the changes for review. */
   rowChanges?: AgentRowChanges;
+  /** When calls an owner's rule allows wait instead (lib/quiet-hours.ts); null: never. */
+  quietHours?: QuietHours | null;
+  /** The most changes a day; null removes the limit. */
+  dailyChangeLimit?: number | null;
   /** Its "Agents it can ask" (see helpers.ts), all of them. */
   helperAgentIds?: string[];
 };
@@ -96,6 +101,19 @@ function checkLimit(value: unknown) {
 
 function checkRowChanges(value: unknown): AgentRowChanges {
   if (!isAgentRowChanges(value)) throw new AgentError("invalid", 'An agent changes rows "direct"ly or proposes them for "review"', { reason: "rowChanges" });
+  return value;
+}
+
+function checkQuietHours(value: unknown): QuietHours | null {
+  if (value === null) return null;
+  const quiet = parseQuietHours(value);
+  if (!quiet) throw new AgentError("invalid", "Quiet hours are a start and an end time (HH:MM, not the same) and a time zone", { reason: "quietHours" });
+  return quiet;
+}
+
+function checkDailyChangeLimit(value: unknown): number | null {
+  if (value === null) return null;
+  if (!isDailyChangeLimit(value)) throw new AgentError("invalid", `A daily change limit is a whole number of changes, from 1 to ${MAX_DAILY_CHANGES}`, { reason: "dailyChangeLimit" });
   return value;
 }
 
@@ -150,6 +168,8 @@ export function viewAgent(a: Agent, access: AgentShareLevel): AgentView {
     monthlyTokenLimit: a.monthlyTokenLimit,
     model: a.model,
     rowChanges: a.rowChanges,
+    quietHours: a.quietHours ? parseQuietHours(a.quietHours) : null,
+    dailyChangeLimit: a.dailyChangeLimit,
     access,
     createdAt: a.createdAt.toISOString(),
     updatedAt: a.updatedAt.toISOString(),
@@ -165,6 +185,8 @@ export const auditDetails = (a: Agent) => ({
   monthlyTokenLimit: a.monthlyTokenLimit,
   model: a.model,
   rowChanges: a.rowChanges,
+  quietHours: a.quietHours,
+  dailyChangeLimit: a.dailyChangeLimit,
 });
 
 export { agentWithLevel } from "./sharing";
@@ -273,6 +295,8 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
         monthlyTokenLimit,
         model,
         rowChanges: input.rowChanges === undefined ? "direct" : checkRowChanges(input.rowChanges),
+        quietHours: input.quietHours === undefined ? null : checkQuietHours(input.quietHours),
+        dailyChangeLimit: input.dailyChangeLimit === undefined ? null : checkDailyChangeLimit(input.dailyChangeLimit),
         createdBy: userId,
       })
       .returning();
@@ -313,6 +337,8 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
   if (patch.model !== undefined) set.model = checkModel(patch.model);
   if (patch.rowChanges !== undefined) set.rowChanges = checkRowChanges(patch.rowChanges);
+  if (patch.quietHours !== undefined) set.quietHours = checkQuietHours(patch.quietHours);
+  if (patch.dailyChangeLimit !== undefined) set.dailyChangeLimit = checkDailyChangeLimit(patch.dailyChangeLimit);
   const helpersBefore = (await helperIdsOf([agentId])).get(agentId) ?? [];
   const helpers = patch.helperAgentIds === undefined ? helpersBefore : await checkHelpers(userId, current.workspaceId, agentId, patch.helperAgentIds, helpersBefore);
   const helpersChanged = helpers.join() !== helpersBefore.join();

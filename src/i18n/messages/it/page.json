@@ -1380,7 +1380,9 @@
     "side": {
       "label": "Informazioni su {name}",
       "paused": "In pausa"
-    }
+    },
+    "deferred": "In attesa fino alla fine delle ore di silenzio ({time})…",
+    "deferredApproval": "L’agente trattiene una chiamata fino alla fine delle sue ore di silenzio ({time}). Puoi approvarla ora."
   },
   "button": {
     "untitled": "Pulsante",

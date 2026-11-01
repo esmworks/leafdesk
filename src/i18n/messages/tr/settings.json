@@ -469,7 +469,17 @@
       "rowChangesDirect": "Doğrudan yazsın",
       "rowChangesReview": "İncelemeye önersin",
       "rowChangesDirectHelp": "Eklediği satırlar ve değiştirdiği değerler hemen, onun adıyla kaydedilir.",
-      "rowChangesReviewHelp": "Ekleyeceği satırlar ve değiştireceği değerler, onları düzenleyebilen biri her birini onaylayana ya da reddedene kadar İncelenecekler bölümünde bekler."
+      "rowChangesReviewHelp": "Ekleyeceği satırlar ve değiştireceği değerler, onları düzenleyebilen biri her birini onaylayana ya da reddedene kadar İncelenecekler bölümünde bekler.",
+      "quietHours": "Sessiz saatler",
+      "quietHoursHelp": "Bir sahibin kuralıyla her zaman izin verilen çağrılar, kimseye haber vermeden sessiz saatler bitene kadar bekler. Onay gereken çağrılar her zamanki gibi sorulur.",
+      "quietFrom": "Başlangıç",
+      "quietTo": "Bitiş",
+      "quietTimeZone": "Saat dilimi",
+      "quietHoursInvalid": "İki farklı saat ve bir saat dilimi seçin.",
+      "dailyChangeLimit": "Günlük değişiklik sınırı",
+      "dailyChangeLimitPlaceholder": "Sınır yok",
+      "dailyChangeLimitHelp": "Bir günde yapacağı en fazla değişiklik: satırlar, sayfalar, yorumlar ve bir şeyi değiştiren bağlantı çağrıları. Fazlası reddedilir. Gün, sessiz saatlerin saat dilimine, yoksa UTC'ye göre sayılır.",
+      "dailyChangeLimitInvalid": "1 ile {max} arasında bir tam sayı girin."
     },
     "describe": {
       "button": "Ajanı anlat",
@@ -592,7 +602,8 @@
         "running": "Çalışıyor",
         "done": "Tamamlandı",
         "failed": "Başarısız",
-        "awaiting_approval": "Onay bekliyor"
+        "awaiting_approval": "Onay bekliyor",
+        "deferred": "Sessiz saatler için bekletiliyor"
       },
       "rowHidden": "Açamadığınız bir satır",
       "took": "{time} sürdü",
@@ -651,7 +662,10 @@
         "afterMail": "{connection} üzerindeki “{tool}” çağrısı durduruldu: e-posta okuyan bir çalışma bundan sonra yalnızca sayfa okur ve taslak yazar; hiçbir şey gönderilmedi",
         "approved": "onaylandı",
         "answered": "bir sahip yanıtladı",
-        "note": "Not: {note}"
+        "note": "Not: {note}",
+        "denied": "{connection} üzerinde “{tool}” çağrısı bir sahibin kuralıyla reddedildi; hiçbir şey gönderilmedi",
+        "limited": "{connection} üzerinde “{tool}” çağrısı reddedildi: ajan bir günde yapabileceği kadar değişiklik yaptı; hiçbir şey yapılmadı",
+        "allowedByRule": "bir sahibin kuralıyla izin verildi"
       },
       "skill": {
         "used": "<name></name> becerisini izledi",
@@ -685,7 +699,8 @@
       "emailHidden": "Açamadığın bir satırda e-posta taslağı yazdı",
       "emailSent": "E-posta gönderdi ({to}):",
       "emailSendFailed": "E-posta gönderemedi ({to}):",
-      "fromMail": "{name} kişisine gelen e-posta"
+      "fromMail": "{name} kişisine gelen e-posta",
+      "deferred": "Sessiz saatleri bitene kadar ({time}) bekletiliyor; bir sahip şimdi onaylayabilir."
     },
     "usage": {
       "thisMonth": "Bu ay: {usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "Geçerli limitin üzerinde, en fazla 1.000.000.000 olan bir tam sayı token isteyin.",
         "requestNote": "Gerekçenizi en fazla 500 karakterle yazın.",
         "noLimit": "Bu ajanın artırılacak bir limiti yok.",
-        "mailbox": "Bu çalışma alanındaki posta kutularınızdan birini seçin."
+        "mailbox": "Bu çalışma alanındaki posta kutularınızdan birini seçin.",
+        "quietHours": "Sessiz saatler için iki farklı saat (SS:DD) ve bir saat dilimi gerekir.",
+        "dailyChangeLimit": "Günlük değişiklik sınırını 1 ile 10.000 arasında bir tam sayı olarak girin."
       },
       "noteEmpty": "Ajanın neyi hatırlaması gerektiğini yazın.",
       "noteTooLong": "Bir not en fazla {max} karakter olabilir.",
@@ -826,7 +843,13 @@
       "notReady": "Bu bağlantı hazır değil (giriş gerekiyor ya da hata veriyor); ajan şimdilik araçlarını kullanamaz.",
       "noTools": "Henüz listelenmiş araç yok.",
       "ownersChoose": "Bu ajanın kullanabileceği her bağlantının araçları. Bunları yalnızca çalışma alanı sahipleri seçer.",
-      "none": "Bu ajan hiçbir bağlantının araçlarını kullanamaz."
+      "none": "Bu ajan hiçbir bağlantının araçlarını kullanamaz.",
+      "rulesNote": "Seçilen her araç için bir kural da koyabilirsiniz: her zaman izin ver (çalışma dış içerik okumadıysa sormadan gider) ya da her zaman reddet.",
+      "ruleLabel": "{tool} için kural",
+      "ruleAsk": "Her seferinde sor",
+      "ruleAllowed": "İzinli",
+      "ruleAllow": "Her zaman izin ver",
+      "ruleDeny": "Her zaman reddet"
     },
     "schedules": {
       "description": "Bu ajan bir zamanlamayla kendiliğinden çalışsın: her çalışma görevi yapar, seçtiysen bir veritabanı üzerinde; raporu gelen kutuna düşer. Çalışmaları yalnızca senin açabildiklerini açabilir.",
@@ -896,7 +919,9 @@
         "skills": "Beceriler",
         "schedules": "Zamanlamalar",
         "shares": "Paylaşılan sayfalar",
-        "row_changes": "Satır değişiklikleri"
+        "row_changes": "Satır değişiklikleri",
+        "quiet_hours": "Sessiz saatler",
+        "daily_change_limit": "Günlük değişiklik sınırı"
       },
       "back": "Tüm sürümler",
       "compareNote": "Bu sürümden ajanın şu anki kurulumuna kadar değişenler. Geri yüklemek bu sürümdekileri geri getirir.",

@@ -1380,7 +1380,9 @@
     "side": {
       "label": "Acerca de {name}",
       "paused": "En pausa"
-    }
+    },
+    "deferred": "Retenida hasta que terminen las horas de silencio ({time})…",
+    "deferredApproval": "El agente retiene una llamada hasta que terminen sus horas de silencio ({time}). Puedes aprobarla ahora."
   },
   "button": {
     "untitled": "Botón",

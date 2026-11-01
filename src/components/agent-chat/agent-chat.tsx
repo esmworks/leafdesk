@@ -530,7 +530,7 @@ export function AgentChat({
                         arrived
                         connections={connections}
                         onOpen={openPage}
-                        live={{ workspaceId, status: turn?.status ?? "pending", pending: waiting, startedAt: askedAt.get(running) }}
+                        live={{ workspaceId, status: turn?.status ?? "pending", pending: waiting, deferredUntil: turn?.deferredUntil ?? null, startedAt: askedAt.get(running) }}
                       />
                     </li>,
                   ]
@@ -703,9 +703,17 @@ function Answer({
   arrived?: boolean;
   connections: Record<string, string>;
   onOpen: (pageId: string) => void;
-  live?: { workspaceId: string; status: AgentChatRunView["status"]; pending: AgentChatTurn["pending"]; startedAt: string | undefined; onAnswered?: () => void } | null;
+  live?: {
+    workspaceId: string;
+    status: AgentChatRunView["status"];
+    pending: AgentChatTurn["pending"];
+    deferredUntil?: string | null;
+    startedAt: string | undefined;
+    onAnswered?: () => void;
+  } | null;
 }) {
   const t = useTranslations("page.agentChat");
+  const format = useFormatter();
   const text = message.content.trim();
   return (
     <div className="group/answer text-sm leading-normal">
@@ -716,7 +724,15 @@ function Answer({
             <li className="flex items-center gap-1.5">
               <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden />
               {/* A call only an owner answers: the person chatting sees that it waits. */}
-              <span>{live.status === "pending" ? t("waiting") : live.status === "awaiting_approval" ? t("awaitingOwner") : t("working")}</span>
+              <span>
+                {live.status === "pending"
+                  ? t("waiting")
+                  : live.status === "awaiting_approval"
+                    ? live.deferredUntil
+                      ? t("deferred", { time: format.dateTime(new Date(live.deferredUntil), { timeStyle: "short" }) })
+                      : t("awaitingOwner")
+                    : t("working")}
+              </span>
             </li>
           )}
         </StepsFold>
@@ -729,7 +745,9 @@ function Answer({
       )}
       {live?.pending && (
         <div className="mb-2 rounded-lg border border-border p-3">
-          <p className="mb-1.5 text-sm">{t("approval")}</p>
+          <p className="mb-1.5 text-sm">
+            {live.deferredUntil ? t("deferredApproval", { time: format.dateTime(new Date(live.deferredUntil), { timeStyle: "short" }) }) : t("approval")}
+          </p>
           <ApprovalActions workspaceId={live.workspaceId} approval={{ runId: message.runId, ...live.pending }} onAnswered={live.onAnswered ?? noop} />
         </div>
       )}

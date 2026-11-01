@@ -1380,7 +1380,9 @@
     "side": {
       "label": "Over {name}",
       "paused": "Gepauzeerd"
-    }
+    },
+    "deferred": "Wacht tot de stille uren voorbij zijn ({time})…",
+    "deferredApproval": "De agent houdt een aanroep vast tot zijn stille uren voorbij zijn ({time}). Je kunt hem nu goedkeuren."
   },
   "button": {
     "untitled": "Knop",

@@ -469,7 +469,17 @@
       "rowChangesDirect": "Skriv dem direkte",
       "rowChangesReview": "Foreslå dem til gennemgang",
       "rowChangesDirectHelp": "Rækker, den tilføjer, og værdier, den ændrer, gemmes med det samme under dens navn.",
-      "rowChangesReviewHelp": "Rækker, den ville tilføje, og værdier, den ville ændre, venter under Til gennemgang, indtil en, der kan redigere dem, godkender eller afviser hver enkelt."
+      "rowChangesReviewHelp": "Rækker, den ville tilføje, og værdier, den ville ændre, venter under Til gennemgang, indtil en, der kan redigere dem, godkender eller afviser hver enkelt.",
+      "quietHours": "Stille timer",
+      "quietHoursHelp": "Kald, som en ejers regel altid tillader, venter til de stille timer er slut, uden at give nogen besked. Kald, der kræver godkendelse, spørger stadig som normalt.",
+      "quietFrom": "Fra",
+      "quietTo": "Til",
+      "quietTimeZone": "Tidszone",
+      "quietHoursInvalid": "Vælg to forskellige tidspunkter og en tidszone.",
+      "dailyChangeLimit": "Ændringer pr. dag",
+      "dailyChangeLimitPlaceholder": "Ingen grænse",
+      "dailyChangeLimitHelp": "Det største antal ændringer, den laver på en dag: rækker, sider, kommentarer og forbindelseskald, der ændrer noget. Flere afvises. Dagen følger de stille timers tidszone, ellers UTC.",
+      "dailyChangeLimitInvalid": "Angiv et helt tal fra 1 til {max}."
     },
     "describe": {
       "button": "Beskriv en agent",
@@ -592,7 +602,8 @@
         "running": "Kører",
         "done": "Færdig",
         "failed": "Mislykkedes",
-        "awaiting_approval": "Venter på godkendelse"
+        "awaiting_approval": "Venter på godkendelse",
+        "deferred": "Venter på stille timer"
       },
       "rowHidden": "En række, du ikke kan åbne",
       "took": "tog {time}",
@@ -656,7 +667,10 @@
         "afterMail": "Kaldet af “{tool}” på {connection} blev holdt tilbage: efter at have læst e-mail læser en kørsel kun sider og skriver kladder; intet blev sendt",
         "approved": "godkendt",
         "answered": "besvaret af en ejer",
-        "note": "Note: {note}"
+        "note": "Note: {note}",
+        "denied": "Dens kald af “{tool}” på {connection} blev afvist af en ejers regel; intet blev sendt",
+        "limited": "Dens kald af “{tool}” på {connection} blev afvist: agenten har lavet så mange ændringer, som den må på en dag; intet blev gjort",
+        "allowedByRule": "tilladt af en ejers regel"
       },
       "skill": {
         "used": "Fulgte færdigheden <name></name>",
@@ -685,7 +699,8 @@
       "chattedBy": "chat af {name}",
       "yoursOnly": "Du ser de kørsler, du har startet.",
       "waitingForOwner": "En ejer af arbejdsområdet svarer på dette kald.",
-      "fromMail": "E-mail til {name}"
+      "fromMail": "E-mail til {name}",
+      "deferred": "Venter til dens stille timer er slut ({time}); en ejer kan godkende den nu."
     },
     "usage": {
       "thisMonth": "Denne måned: {usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "Bed om et helt antal tokens over den nuværende grænse, op til 1.000.000.000.",
         "requestNote": "Skriv hvorfor på højst 500 tegn.",
         "noLimit": "Denne agent har ingen grænse, der kan hæves.",
-        "mailbox": "Vælg en af dine postkasser i dette arbejdsområde."
+        "mailbox": "Vælg en af dine postkasser i dette arbejdsområde.",
+        "quietHours": "Stille timer kræver to forskellige tidspunkter (TT:MM) og en tidszone.",
+        "dailyChangeLimit": "Angiv en daglig ændringsgrænse som et helt tal fra 1 til 10.000."
       },
       "noteEmpty": "Skriv, hvad agenten skal huske.",
       "noteTooLong": "En note må højst have {max} tegn.",
@@ -826,7 +843,13 @@
       "notReady": "Denne forbindelse er ikke klar (den kræver login eller fejler), så agenten kan ikke bruge dens værktøjer lige nu.",
       "noTools": "Ingen værktøjer vist endnu.",
       "ownersChoose": "Værktøjerne fra hver forbindelse, som denne agent må bruge. Kun arbejdsområdets ejere vælger dem.",
-      "none": "Denne agent kan ikke bruge nogen forbindelses værktøjer."
+      "none": "Denne agent kan ikke bruge nogen forbindelses værktøjer.",
+      "rulesNote": "For hvert valgt værktøj kan du også sætte en regel: tillad altid (det går uden at spørge, medmindre kørslen har læst indhold udefra) eller afvis altid.",
+      "ruleLabel": "Regel for {tool}",
+      "ruleAsk": "Spørg hver gang",
+      "ruleAllowed": "Tilladt",
+      "ruleAllow": "Tillad altid",
+      "ruleDeny": "Afvis altid"
     },
     "schedules": {
       "description": "Lad denne agent køre af sig selv efter en tidsplan: hver kørsel udfører opgaven, på den database, du eventuelt vælger, og du får dens rapport i din indbakke. Dens kørsler kan kun åbne det, du kan åbne.",
@@ -896,7 +919,9 @@
         "skills": "Færdigheder",
         "schedules": "Tidsplaner",
         "shares": "Delte sider",
-        "row_changes": "Ændringer i rækker"
+        "row_changes": "Ændringer i rækker",
+        "quiet_hours": "Stille timer",
+        "daily_change_limit": "Ændringer pr. dag"
       },
       "back": "Alle versioner",
       "compareNote": "Hvad der er ændret fra denne version til agentens nuværende opsætning. Gendannelse bringer det tilbage, som denne version havde.",

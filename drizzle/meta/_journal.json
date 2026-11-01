@@ -1240,6 +1240,13 @@
       "when": 1793487038972,
       "tag": "0176_telegram_agent_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 177,
+      "version": "7",
+      "when": 1793490703912,
+      "tag": "0177_agent_approval_policy",
+      "breakpoints": true
     }
   ]
 }

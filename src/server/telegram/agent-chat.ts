@@ -216,13 +216,21 @@ async function follow(link: TelegramLinkRow, t: Translator, workspace: Workspace
         if (state.status === "done" || state.status === "failed") ended = await turnNow();
         parked = state.status === "awaiting_approval";
         hooks.waiting(parked);
+        // A call held for the agent's quiet hours is told of apart from the same call asked about once they end.
+        const waitingOn = `${state.callId ?? ""}${state.deferred ? ":deferred" : ""}`;
         if (!parked) told = null;
-        else if (told !== (state.callId ?? "")) {
+        else if (told !== waitingOn) {
           if (told === null) hooks.release();
-          const turn = await turnNow();
-          if (await tellWaiting(link, t, runId, turn.pending, agent, ++tries)) {
-            told = turn.pending?.callId ?? "";
+          if (state.deferred) {
+            await send(chatId, html(t, "agent.deferred", { agent }));
+            told = waitingOn;
             tries = 0;
+          } else {
+            const turn = await turnNow();
+            if (await tellWaiting(link, t, runId, turn.pending, agent, ++tries)) {
+              told = turn.pending?.callId ?? "";
+              tries = 0;
+            }
           }
         }
         failed = 0;

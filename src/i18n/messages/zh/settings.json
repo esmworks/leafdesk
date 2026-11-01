@@ -469,7 +469,17 @@
       "rowChangesDirect": "直接写入",
       "rowChangesReview": "提议以供审阅",
       "rowChangesDirectHelp": "它添加的行和更改的值会立即以它的名义保存。",
-      "rowChangesReviewHelp": "它要添加的行和要更改的值会在“待审阅”中等待，直到有编辑权限的人逐一批准或忽略。"
+      "rowChangesReviewHelp": "它要添加的行和要更改的值会在“待审阅”中等待，直到有编辑权限的人逐一批准或忽略。",
+      "quietHours": "安静时段",
+      "quietHoursHelp": "所有者规则始终允许的调用会等到安静时段结束，且不通知任何人。需要批准的调用仍照常请求批准。",
+      "quietFrom": "从",
+      "quietTo": "到",
+      "quietTimeZone": "时区",
+      "quietHoursInvalid": "请选择两个不同的时间和一个时区。",
+      "dailyChangeLimit": "每日更改数",
+      "dailyChangeLimitPlaceholder": "无限制",
+      "dailyChangeLimitHelp": "它一天内最多进行的更改：行、页面、评论以及会更改内容的连接调用。超出的会被拒绝。日期按安静时段的时区计算，否则按 UTC。",
+      "dailyChangeLimitInvalid": "请输入 1 到 {max} 之间的整数。"
     },
     "describe": {
       "button": "描述一个智能体",
@@ -592,7 +602,8 @@
         "running": "运行中",
         "done": "已完成",
         "failed": "失败",
-        "awaiting_approval": "等待批准"
+        "awaiting_approval": "等待批准",
+        "deferred": "因安静时段暂缓"
       },
       "rowHidden": "你无法打开的某一行",
       "took": "用时 {time}",
@@ -651,7 +662,10 @@
         "afterMail": "其在 {connection} 上对“{tool}”的调用被拦下：读过邮件后，运行只读取页面并起草邮件；未发送任何内容",
         "approved": "已批准",
         "answered": "已由所有者答复",
-        "note": "备注：{note}"
+        "note": "备注：{note}",
+        "denied": "它在 {connection} 上对“{tool}”的调用被所有者的规则拒绝；未发送任何内容",
+        "limited": "它在 {connection} 上对“{tool}”的调用被拒绝：智能体已达到一天内可进行的更改数；未执行任何操作",
+        "allowedByRule": "由所有者的规则允许"
       },
       "skill": {
         "used": "遵循了技能 <name></name>",
@@ -685,7 +699,8 @@
       "emailHidden": "在你无法打开的行上起草了一封邮件",
       "emailSent": "已向 {to} 发送邮件：",
       "emailSendFailed": "无法向 {to} 发送邮件：",
-      "fromMail": "发给 {name} 的邮件"
+      "fromMail": "发给 {name} 的邮件",
+      "deferred": "暂缓至安静时段结束（{time}）；所有者现在即可批准。"
     },
     "usage": {
       "thisMonth": "本月：{usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "请求高于当前上限的整数令牌数，最多 1,000,000,000。",
         "requestNote": "请用不超过 500 个字符说明原因。",
         "noLimit": "此智能体没有可提高的上限。",
-        "mailbox": "请选择你在此工作区中的一个邮箱。"
+        "mailbox": "请选择你在此工作区中的一个邮箱。",
+        "quietHours": "安静时段需要两个不同的时间（HH:MM）和一个时区。",
+        "dailyChangeLimit": "请输入 1 到 10,000 之间的整数作为每日更改上限。"
       },
       "noteEmpty": "请写下智能体应记住的内容。",
       "noteTooLong": "每条笔记最多 {max} 个字符。",
@@ -826,7 +843,13 @@
       "notReady": "此连接尚未就绪（需要登录或出现故障），因此智能体暂时无法使用其工具。",
       "noTools": "尚未列出任何工具。",
       "ownersChoose": "此智能体可以使用的各连接的工具。只有工作区所有者可以选择。",
-      "none": "此智能体不能使用任何连接的工具。"
+      "none": "此智能体不能使用任何连接的工具。",
+      "rulesNote": "对每个已选工具，你还可以设置规则：始终允许（无需询问即发送，除非本次运行读取过外部内容）或始终拒绝。",
+      "ruleLabel": "{tool} 的规则",
+      "ruleAsk": "每次询问",
+      "ruleAllowed": "已允许",
+      "ruleAllow": "始终允许",
+      "ruleDeny": "始终拒绝"
     },
     "schedules": {
       "description": "让此智能体按计划自行运行：每次运行都会执行任务（如果选择了数据库，则在该数据库上执行），你会在收件箱中收到其报告。其运行只能打开你能打开的内容。",
@@ -896,7 +919,9 @@
         "skills": "技能",
         "schedules": "定时计划",
         "shares": "共享页面",
-        "row_changes": "对行的更改"
+        "row_changes": "对行的更改",
+        "quiet_hours": "安静时段",
+        "daily_change_limit": "每日更改数"
       },
       "back": "所有版本",
       "compareNote": "从此版本到代理当前配置之间的变化。恢复后将回到此版本的内容。",

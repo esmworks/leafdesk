@@ -124,6 +124,8 @@ import { agentSkillRoom, runSkills } from "./skills";
 import { runWebTool, webToolsFor } from "./web";
 import { agentLevel } from "./sharing";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
+import { dailyLimitReached, giveBackDailyChange, pruneDailyChanges, takeDailyChange } from "./daily-changes";
+import { parseQuietHours, quietUntil } from "@/lib/quiet-hours";
 import { noticeAgentSpending } from "@/server/ai-limit-notices";
 import { pruneAiUsage } from "@/server/ai/usage-store";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
@@ -404,9 +406,12 @@ async function later(run: Run, at: Date) {
 /**
  * Parks a run until an owner answers the call it waits on (or the call runs out of time). `pending`
  * keeps the call's input with credentials masked, for lists and the audit log; what is sent once
- * approved is the call as the agent made it, from `state`, which is what owners approve.
+ * approved is the call as the agent made it, from `state`, which is what owners approve. A call
+ * held for the agent's quiet hours (`deferredUntil`) asks no one: the sweep takes the run again
+ * then (wakeDeferred), and it is asked about only if its rule no longer lets it go.
  */
 async function park(run: Run, agent: Agent, values: { state: AgentRunState; pending: AgentPendingCall; steps: AgentStepRecord[]; usage: AgentRunUsage }) {
+  const deferred = values.pending.deferredUntil ? new Date(values.pending.deferredUntil) : null;
   await db
     .update(agentRun)
     .set({
@@ -417,10 +422,10 @@ async function park(run: Run, agent: Agent, values: { state: AgentRunState; pend
       usage: values.usage,
       // Taking it again for an answer is no failed attempt.
       attempts: 0,
-      nextAt: new Date(Date.now() + APPROVAL_TIMEOUT_MS),
+      nextAt: deferred ?? new Date(Date.now() + APPROVAL_TIMEOUT_MS),
     })
     .where(eq(agentRun.id, run.id));
-  await notifyApprovers(run, agent.userId);
+  if (!deferred) await notifyApprovers(run, agent.userId);
 }
 
 // -------------------------------------------------------------------------------------- run
@@ -612,6 +617,11 @@ function withinMember<T>(agent: Agent, member: string | null, fn: () => Promise<
 
 type Paused = { status: "awaiting"; state: AgentRunState; pending: AgentPendingCall; steps: AgentStepRecord[]; usage: AgentRunUsage };
 type CallResult = { content: string; isError?: boolean; step?: AgentStepRecord };
+/** A call an owner's rule lets go, held until the agent's quiet hours end. */
+type Deferred = { deferUntil: Date };
+/** How `answer` answers a call: done (or refused), waiting for an owner (null), or held for quiet hours. */
+type Answered = CallResult | Deferred | null;
+const isDeferred = (out: Answered): out is Deferred => out !== null && "deferUntil" in out;
 
 /** The run's turns with the model (from the start, or from where it waited): what it did, and how it ended. */
 async function converse(
@@ -879,6 +889,48 @@ async function converse(
     messages = [{ role: "user", content: agentEventPrompt({ task: run.prompt, event: await eventText(run), body, map, memory: memory.text }) }];
   }
 
+  /** Refuses a change past the most one run (or a chat's message) may make; null while there is room. */
+  const atLimit = (per: "run" | "message" = "run"): CallResult | null =>
+    writes >= maxWrites ? { content: `You have made ${maxWrites} changes, the most one ${per} may make. Finish now.`, isError: true } : null;
+
+  /** What the agent hears, and its steps keep, when its day's changes are used up: nothing was done. */
+  const limited = (call: AiToolCall): CallResult => {
+    const external = toolset.byName.get(call.name);
+    return {
+      content: `You have made the most changes this agent may make in a day (${agent.dailyChangeLimit}). Nothing was done; finish now, saying what is left to do.`,
+      isError: true,
+      step: { kind: "tool", connectionId: external?.connection.id ?? null, tool: external?.tool.name ?? call.name, input: inputSummary(call.arguments), outcome: "limited" },
+    };
+  };
+
+  /**
+   * Makes one change, counted against the run's limit and the agent's daily one: the day's is taken
+   * just before the change (daily-changes.ts), and given back when the change fails, unless a
+   * failure may still have done it (`countsFailed`: a connection's call, as the run's own count).
+   */
+  const change = async (call: AiToolCall, make: () => Promise<CallResult>, { per = "run", countsFailed = false }: { per?: "run" | "message"; countsFailed?: boolean } = {}): Promise<CallResult> => {
+    const over = atLimit(per);
+    if (over) return over;
+    const taken = await takeDailyChange(agent);
+    if (!taken) return limited(call);
+    const out = await make();
+    if (!out.isError || countsFailed) writes += 1;
+    else await giveBackDailyChange(agent, taken.day);
+    return out;
+  };
+
+  // The agent's quiet hours, if it has any: a call a rule lets go waits for their end.
+  const quiet = agent.quietHours ? parseQuietHours(agent.quietHours) : null;
+  /**
+   * Whether the run read what anyone may have written, which could steer its calls: a run no one
+   * stands behind (askEveryTool), or one that read a web page or searched. An owner's "allow" rule
+   * doesn't hold there: each call waits for a person, as without one. (A run that read email calls
+   * no connection's tool at all.)
+   */
+  const readOutside = () => askEveryTool || steps.some((s) => s.kind === "tool" && s.connectionId === null && webNames.has(s.tool) && s.outcome === "done");
+  /** Whether an owner's "allow" rule still stands: its owner is still one. */
+  const ruleStands = async (setBy: string | null) => Boolean(setBy) && (await findMembership(setBy!, run.workspaceId))?.role === "owner";
+
   /**
    * Keeps a checked create_row or update_row for review rather than making it (pending-changes.ts):
    * the person the run works for hears about it, else whoever made the agent, else the owners. One
@@ -913,20 +965,19 @@ async function converse(
     };
   };
 
-  /** Answers one tool call; null when it must wait for approval. */
-  const answer = async (call: AiToolCall, approved: { userId: string } | null): Promise<CallResult | null> => {
+  /** Answers one tool call; null when it must wait for approval, or when to go on with it after the agent's quiet hours. */
+  const answer = async (call: AiToolCall, approved: { userId: string } | null): Promise<Answered> => {
     const external = toolset.byName.get(call.name);
     // Email is anyone's words, and could steer the run into sending on what it read: once it read
     // some, it only reads pages and drafts email (whose recipients ai-chat-mail.ts checks). Nothing
     // waits for approval either: an owner who isn't the mailbox's would see what it would send.
     // A run new email started proposes rows to its person alone, who approves each (see propose).
     if (arrival && reviews && PROPOSE_TOOLS.has(call.name)) {
-      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const over = atLimit();
+      if (over) return over;
       const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
       if (!("action" in prepared)) return prepared;
-      const out = await propose(prepared, call);
-      if (!out.isError) writes += 1;
-      return out;
+      return change(call, () => propose(prepared, call));
     }
     if (mailRead && !mayCallAfterMail(call.name, Boolean(external))) {
       return {
@@ -938,21 +989,16 @@ async function converse(
     if (member && mailTools.some((t) => t.name === call.name)) {
       if (pausedBySpending) return { content: "This agent was turned off for spending fast. Nothing was done; finish now.", isError: true };
       if (call.name === MAIL_TOOL_NAMES.draft) {
-        if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+        const over = atLimit();
+        if (over) return over;
         const prepared = await prepareMailDraft(member, run.workspaceId, call.arguments, undefined, { boxes: mailBoxes, typed: [run.prompt, ...(await chatRunTyped(run))] });
         if (!("action" in prepared)) return prepared;
-        const out = await saveMailDraft(member, prepared, "approve");
-        if (!out.isError) {
-          writes += 1;
-          if (prepared.input.replyTo) await markMail(prepared.input.replyTo, agent.id, "drafted");
-        }
+        const out = await change(call, () => saveMailDraft(member, prepared, "approve"));
+        if (!out.isError && prepared.input.replyTo) await markMail(prepared.input.replyTo, agent.id, "drafted");
         return out;
       }
       if (AGENT_MAIL_ACTIONS.has(call.name)) {
-        if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
-        const out = await runAgentMailAction(member, run.workspaceId, call, { boxes: mailBoxes, agentId: agent.id });
-        if (!out.isError) writes += 1;
-        return out;
+        return change(call, () => runAgentMailAction(member, run.workspaceId, call, { boxes: mailBoxes, agentId: agent.id }));
       }
       const out = await runChatMailTool(member, run.workspaceId, call, registry, room(messages), mailBoxes);
       if (!out.isError) mailRead = true;
@@ -971,16 +1017,44 @@ async function converse(
       return out;
     }
     if (external) {
-      if (external.tool.kind === "write" && writes >= maxWrites) {
-        return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      // An owner's rule declining the tool holds over everything, a person's approval given before it too.
+      if (external.rule?.rule === "deny") {
+        return {
+          content: `An owner declined every call of "${external.tool.name}" for you: it was not sent. Don't call it again; finish without it, saying what you would have done.`,
+          isError: true,
+          step: { kind: "tool", connectionId: external.connection.id, tool: external.tool.name, input: inputSummary(call.arguments), outcome: "denied" },
+        };
       }
-      if ((external.tool.kind === "write" || askEveryTool) && !approved) return null;
+      const writing = external.tool.kind === "write";
+      if (writing) {
+        const over = atLimit();
+        if (over) return over;
+        // No one is asked about, nor waits for, a change the day has no room for.
+        if (!approved && (await dailyLimitReached(agent))) return limited(call);
+      }
+      // An owner's "allow" rule sends a write without asking, on a run nothing outside could steer.
+      const byRule = writing && !approved && external.rule?.rule === "allow" && !readOutside() && (await ruleStands(external.rule.setBy));
+      if ((writing || askEveryTool) && !approved && !byRule) return null;
+      if (byRule) {
+        const until = quiet ? quietUntil(new Date(), quiet) : null;
+        if (until) return { deferUntil: until };
+      }
       const left = MAX_RUN_EXTERNAL_CHARS - externalChars;
       if (left <= 200) return { content: "You have read as much from connected services as one run may. Finish with what you have.", isError: true };
-      const out = await runConnectionTool({ entry: external, args: call.arguments, actorId: agent.userId, approvedBy: approved?.userId ?? null, room: left });
-      externalChars += out.chars;
-      if (external.tool.kind === "write") writes += 1;
-      return out;
+      const send = async () => {
+        const out = await runConnectionTool({
+          entry: external,
+          args: call.arguments,
+          actorId: agent.userId,
+          approvedBy: approved?.userId ?? null,
+          allowedByRule: byRule ? { setBy: external.rule?.setBy ?? null } : undefined,
+          room: left,
+        });
+        externalChars += out.chars;
+        return out;
+      };
+      // A write that failed may still have been done there: it counts all the same.
+      return writing ? change(call, send, { countsFailed: true }) : send();
     }
     // Notes change nothing in the workspace: they don't count as changes.
     if (AGENT_MEMORY_TOOL_NAMES.has(call.name)) {
@@ -1028,69 +1102,62 @@ async function converse(
     }
     // An owner's chat changes what they ask for at once: they are there, and asked.
     if (chatWrites && WRITE_TOOL_NAMES.has(call.name)) {
-      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one message may make. Finish now.`, isError: true };
+      const over = atLimit("message");
+      if (over) return over;
       const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
       if (!("action" in prepared)) return prepared;
-      const out = await asAutomation(() => applyWrite(prepared, "approve", registry));
-      if (!out.isError) writes += 1;
-      return out;
+      return change(call, () => asAutomation(() => applyWrite(prepared, "approve", registry)), { per: "message" });
     }
     // A row an event's run would add, proposed for review.
     if (proposes && eventRun && call.name === CREATE_ROW.name) {
-      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const over = atLimit();
+      if (over) return over;
       const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
       if (!("action" in prepared)) return prepared;
-      const out = await propose(prepared, call);
-      if (!out.isError) writes += 1;
-      return out;
+      return change(call, () => propose(prepared, call));
     }
     if (ownApproved.has(call.name)) {
-      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const over = atLimit();
+      if (over) return over;
       // Checked first, so a call that can't be made goes back to the agent rather than to an owner.
       const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
       if (!("action" in prepared)) return prepared;
       // As a connection's writing tool: a trusted service is one whose events the agent may read, not
       // one that may change the workspace without an owner.
-      if (!approved) return null;
-      const out = await asAutomation(() => applyWrite(prepared, "approve", registry));
-      if (!out.isError) writes += 1;
-      return out;
+      if (!approved) return (await dailyLimitReached(agent)) ? limited(call) : null;
+      return change(call, () => asAutomation(() => applyWrite(prepared, "approve", registry)));
     }
     const mentionWrite = mention && mentionTools.some((t) => t.name === call.name);
     if ((rowRun || databaseId || mentionWrite) && (call.name === "update_row" || call.name === "edit_page" || call.name === "add_comment")) {
-      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
-      const out: CallResult =
-        call.name === "add_comment" ? await addComment(agent, run, call.arguments) : await changeRow(ctx, run, call, proposes && call.name === UPDATE_ROW.name ? propose : null);
-      if (!out.isError) writes += 1;
-      return out;
+      return change(call, () =>
+        call.name === "add_comment" ? addComment(agent, run, call.arguments) : changeRow(ctx, run, call, proposes && call.name === UPDATE_ROW.name ? propose : null),
+      );
     }
     if (sender && call.name === DRAFT_EMAIL) {
-      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
+      const over = atLimit();
+      if (over) return over;
       const rowId = databaseId ? (typeof call.arguments.row_id === "string" ? call.arguments.row_id.trim() : "") : isRowRun(run.source) ? run.source.rowId : "";
       if (databaseId && !(await isRowOf(rowId, databaseId))) {
         return { content: `You may draft email only on rows of the database this run looks after (database_id ${databaseId}).`, isError: true };
       }
-      const out = await draftRowEmail({
-        workspaceId: run.workspaceId,
-        agent: { id: agent.id, userId: agent.userId },
-        runId: run.id,
-        automationRunId: run.source.kind === "automation" ? run.source.automationRunId : null,
-        sender,
-        rowId,
-        args: call.arguments,
-      });
-      if (!out.isError) writes += 1;
-      return out;
+      return change(call, () =>
+        draftRowEmail({
+          workspaceId: run.workspaceId,
+          agent: { id: agent.id, userId: agent.userId },
+          runId: run.id,
+          automationRunId: run.source.kind === "automation" ? run.source.automationRunId : null,
+          sender,
+          rowId,
+          args: call.arguments,
+        }),
+      );
     }
     if (mailer && call.name === SEND_EMAIL) {
       const sentBefore = steps.some((s) => s.kind === "email" && s.pageId === null);
       return sendAgentEmail({ sender: mailer, recipients: agent.mailRecipients, args: call.arguments, sentBefore });
     }
     if (databaseId && call.name === MERGE_ROWS.name && tools.includes(MERGE_ROWS)) {
-      if (writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one run may make. Finish now.`, isError: true };
-      const out = await mergeRowsTool(ctx, agent, databaseId, call.arguments);
-      if (!out.isError) writes += 1;
-      return out;
+      return change(call, () => mergeRowsTool(ctx, agent, databaseId, call.arguments));
     }
     const handedTo = handoff?.call(call, room(messages));
     if (handedTo) return handedTo;
@@ -1102,10 +1169,8 @@ async function converse(
       if (mailRead && picked.tool.writes) {
         return { content: "Email was read in this conversation: this run only reads pages and drafts email. Nothing was done; say what you would do instead, so the person can do it.", isError: true };
       }
-      if (picked.tool.writes && writes >= maxWrites) return { content: `You have made ${maxWrites} changes, the most one message may make. Finish now.`, isError: true };
-      const out = await (picked.tool.writes ? asAutomation(() => callMoreTool(more, picked, room(messages))) : callMoreTool(more, picked, room(messages)));
-      if (picked.tool.writes && !out.isError) writes += 1;
-      return out;
+      if (picked.tool.writes) return change(call, () => asAutomation(() => callMoreTool(more, picked, room(messages))), { per: "message" });
+      return callMoreTool(more, picked, room(messages));
     }
     if (moreTools && call.name === "read_page" && isDocsAddress(call.arguments.page_id) && tools.some((t) => t.name === "read_page")) {
       const docs = await readDocsTopic(call.arguments.page_id, room(messages));
@@ -1134,12 +1199,12 @@ async function converse(
       const call = queue[0];
       const writesBefore = writes;
       const answered = Boolean(pendingDecision);
-      let out: CallResult | null;
+      let out: Answered;
       if (pendingDecision) {
         out = await decided(call, pendingDecision, toolset, answer, ownApproved);
         pendingDecision = undefined;
       } else out = await answer(call, null);
-      if (!out) {
+      if (!out || isDeferred(out)) {
         // A connection's tool, or Leafdesk's own (create_row on an event's run): no connection.
         const external = toolset.byName.get(call.name);
         return {
@@ -1151,6 +1216,7 @@ async function converse(
             tool: external?.tool.name ?? call.name,
             arguments: call.arguments,
             askedAt: new Date().toISOString(),
+            ...(out ? { deferredUntil: out.deferUntil.toISOString() } : {}),
           },
           steps,
           usage,
@@ -1259,7 +1325,7 @@ async function decided(
   call: AiToolCall,
   decision: NonNullable<AgentRunState["decision"]>,
   toolset: ConnectionToolset,
-  answer: (call: AiToolCall, approved: { userId: string } | null) => Promise<CallResult | null>,
+  answer: (call: AiToolCall, approved: { userId: string } | null) => Promise<Answered>,
   ownApproved: ReadonlySet<string>,
 ): Promise<CallResult> {
   const external = toolset.byName.get(call.name);
@@ -1275,7 +1341,11 @@ async function decided(
     input: inputSummary(call.arguments),
     decidedBy: decision.userId,
   };
-  if (decision.decision === "approve") return (await answer(call, { userId: decision.userId }))!;
+  if (decision.decision === "approve") {
+    // Approved, a call goes now: neither asked about again nor held for quiet hours.
+    const out = await answer(call, { userId: decision.userId });
+    return out && !isDeferred(out) ? out : { content: `The tool "${call.name}" can't be called now. Nothing was sent; finish without it.`, isError: true };
+  }
   if (decision.decision === "decline") {
     return { content: "A person declined this call: it was not sent. Don't call it again in this run; finish without it, saying what you would have done.", step: { ...base, outcome: "declined" } };
   }
@@ -1489,6 +1559,7 @@ function sweep(): Promise<void> {
   sweeping = (async () => {
     do {
       sweepAgain = false;
+      await wakeDeferred();
       await expireApprovals();
       await takeDue();
     } while (sweepAgain);
@@ -1516,13 +1587,29 @@ async function takeDue() {
   }
 }
 
+/**
+ * Runs whose call waited for the agent's quiet hours go on once they end: taken as any queued run,
+ * the call is answered again (`answer`), so it goes only if its rule still lets it, and is asked
+ * about otherwise (or held again, should the quiet hours have moved).
+ */
+export async function wakeDeferred() {
+  try {
+    await db
+      .update(agentRun)
+      .set({ status: "pending", nextAt: new Date(), pending: null })
+      .where(and(eq(agentRun.status, "awaiting_approval"), lte(agentRun.nextAt, new Date()), sql`${agentRun.pending}->>'deferredUntil' is not null`));
+  } catch (error) {
+    console.error("[agents] could not wake runs held for quiet hours", redactError(error));
+  }
+}
+
 /** Runs whose call no one answered in time fail, sending nothing. */
 export async function expireApprovals() {
   try {
     const expired = await db
       .update(agentRun)
       .set({ status: "failed", code: "approvalTimeout", finishedAt: new Date(), state: null })
-      .where(and(eq(agentRun.status, "awaiting_approval"), lte(agentRun.nextAt, new Date())))
+      .where(and(eq(agentRun.status, "awaiting_approval"), lte(agentRun.nextAt, new Date()), sql`${agentRun.pending}->>'deferredUntil' is null`))
       .returning({
         id: agentRun.id,
         steps: agentRun.steps,
@@ -1580,6 +1667,7 @@ export async function pruneAgentRuns() {
     .where(lte(connectionEvent.receivedAt, new Date(Date.now() - CONNECTION_EVENT_DAYS * 24 * 60 * 60_000)))
     .catch((error) => console.error("[connections] could not prune events", redactError(error)));
   await pruneAgentUsage().catch((error) => console.error("[agents] could not prune usage", redactError(error)));
+  await pruneDailyChanges().catch((error) => console.error("[agents] could not prune daily changes", redactError(error)));
   await pruneAiUsage().catch((error) => console.error("[ai] could not prune usage", redactError(error)));
 }
 

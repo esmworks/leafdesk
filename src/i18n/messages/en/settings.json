@@ -469,7 +469,17 @@
       "rowChangesDirect": "Write them directly",
       "rowChangesReview": "Propose them for review",
       "rowChangesDirectHelp": "Rows it adds and values it changes are saved right away, under its name.",
-      "rowChangesReviewHelp": "Rows it would add and values it would change wait under For review until someone who can edit them approves or dismisses each one."
+      "rowChangesReviewHelp": "Rows it would add and values it would change wait under For review until someone who can edit them approves or dismisses each one.",
+      "quietHours": "Quiet hours",
+      "quietHoursHelp": "Calls an owner’s rule always allows wait until quiet hours end, without telling anyone. Calls that need approval still ask as usual.",
+      "quietFrom": "From",
+      "quietTo": "Until",
+      "quietTimeZone": "Time zone",
+      "quietHoursInvalid": "Choose two different times and a time zone.",
+      "dailyChangeLimit": "Changes per day",
+      "dailyChangeLimitPlaceholder": "No limit",
+      "dailyChangeLimitHelp": "The most changes it makes in a day: rows, pages, comments and connection calls that change something. Further ones are refused. The day follows the quiet hours’ time zone, else UTC.",
+      "dailyChangeLimitInvalid": "Enter a whole number from 1 to {max}."
     },
     "describe": {
       "button": "Describe an agent",
@@ -592,7 +602,8 @@
         "running": "Running",
         "done": "Done",
         "failed": "Failed",
-        "awaiting_approval": "Waiting for approval"
+        "awaiting_approval": "Waiting for approval",
+        "deferred": "Held for quiet hours"
       },
       "rowHidden": "A row you can’t open",
       "took": "took {time}",
@@ -656,7 +667,10 @@
         "afterMail": "Its call of “{tool}” on {connection} was held back: after reading email, a run only reads pages and drafts email; nothing was sent",
         "approved": "approved",
         "answered": "answered by an owner",
-        "note": "Note: {note}"
+        "note": "Note: {note}",
+        "denied": "Its call of “{tool}” on {connection} was declined by an owner’s rule; nothing was sent",
+        "limited": "Its call of “{tool}” on {connection} was refused: the agent made as many changes as it may in a day; nothing was done",
+        "allowedByRule": "allowed by an owner’s rule"
       },
       "skill": {
         "used": "Followed the skill <name></name>",
@@ -685,7 +699,8 @@
       "chattedBy": "chat by {name}",
       "yoursOnly": "You see the runs you started.",
       "waitingForOwner": "A workspace owner answers this call.",
-      "fromMail": "Email to {name}"
+      "fromMail": "Email to {name}",
+      "deferred": "Held until its quiet hours end ({time}); an owner can approve it now."
     },
     "usage": {
       "thisMonth": "This month: {usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "Ask for a whole number of tokens above the current limit, up to 1,000,000,000.",
         "requestNote": "Say why in at most 500 characters.",
         "noLimit": "This agent has no limit to raise.",
-        "mailbox": "Choose one of your mailboxes in this workspace."
+        "mailbox": "Choose one of your mailboxes in this workspace.",
+        "quietHours": "Quiet hours need two different times (HH:MM) and a time zone.",
+        "dailyChangeLimit": "Enter a daily change limit as a whole number from 1 to 10,000."
       },
       "noteEmpty": "Write what the agent should remember.",
       "noteTooLong": "A note can have at most {max} characters.",
@@ -826,7 +843,13 @@
       "notReady": "This connection isn’t ready (it needs a sign-in or fails), so the agent can’t use its tools for now.",
       "noTools": "No tools listed yet.",
       "ownersChoose": "The tools of each connection this agent may use. Only workspace owners choose them.",
-      "none": "This agent can’t use any connection’s tools."
+      "none": "This agent can’t use any connection’s tools.",
+      "rulesNote": "For each chosen tool you can also set a rule: always allow it (it goes without asking, unless the run read outside content) or always decline it.",
+      "ruleLabel": "Rule for {tool}",
+      "ruleAsk": "Ask each time",
+      "ruleAllowed": "Allowed",
+      "ruleAllow": "Always allow",
+      "ruleDeny": "Always decline"
     },
     "schedules": {
       "description": "Let this agent run on its own, on a schedule: each run does the task, on the database you choose if any, and you get its report in your inbox. Its runs can open only what you can open.",
@@ -896,7 +919,9 @@
         "skills": "Skills",
         "schedules": "Schedules",
         "shares": "Shared pages",
-        "row_changes": "Changes to rows"
+        "row_changes": "Changes to rows",
+        "quiet_hours": "Quiet hours",
+        "daily_change_limit": "Changes per day"
       },
       "back": "All versions",
       "compareNote": "What changed from this version to the agent’s current setup. Restoring brings back what this version had.",

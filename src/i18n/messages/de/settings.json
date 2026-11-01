@@ -469,7 +469,17 @@
       "rowChangesDirect": "Direkt schreiben",
       "rowChangesReview": "Zur Prüfung vorschlagen",
       "rowChangesDirectHelp": "Zeilen, die er hinzufügt, und Werte, die er ändert, werden sofort unter seinem Namen gespeichert.",
-      "rowChangesReviewHelp": "Zeilen, die er hinzufügen, und Werte, die er ändern würde, warten unter „Zu prüfen“, bis jemand, der sie bearbeiten darf, jede einzelne freigibt oder verwirft."
+      "rowChangesReviewHelp": "Zeilen, die er hinzufügen, und Werte, die er ändern würde, warten unter „Zu prüfen“, bis jemand, der sie bearbeiten darf, jede einzelne freigibt oder verwirft.",
+      "quietHours": "Ruhezeiten",
+      "quietHoursHelp": "Aufrufe, die eine Regel eines Inhabers immer erlaubt, warten bis zum Ende der Ruhezeit, ohne jemanden zu benachrichtigen. Aufrufe, die eine Freigabe brauchen, fragen weiterhin wie gewohnt.",
+      "quietFrom": "Von",
+      "quietTo": "Bis",
+      "quietTimeZone": "Zeitzone",
+      "quietHoursInvalid": "Wähle zwei verschiedene Uhrzeiten und eine Zeitzone.",
+      "dailyChangeLimit": "Änderungen pro Tag",
+      "dailyChangeLimitPlaceholder": "Kein Limit",
+      "dailyChangeLimitHelp": "Die meisten Änderungen, die er an einem Tag macht: Zeilen, Seiten, Kommentare und Verbindungsaufrufe, die etwas ändern. Weitere werden abgelehnt. Der Tag richtet sich nach der Zeitzone der Ruhezeiten, sonst UTC.",
+      "dailyChangeLimitInvalid": "Gib eine ganze Zahl von 1 bis {max} ein."
     },
     "describe": {
       "button": "Agent beschreiben",
@@ -592,7 +602,8 @@
         "running": "Läuft",
         "done": "Fertig",
         "failed": "Fehlgeschlagen",
-        "awaiting_approval": "Wartet auf Freigabe"
+        "awaiting_approval": "Wartet auf Freigabe",
+        "deferred": "Wartet auf Ende der Ruhezeit"
       },
       "rowHidden": "Eine Zeile, die du nicht öffnen kannst",
       "took": "dauerte {time}",
@@ -651,7 +662,10 @@
         "afterMail": "Der Aufruf von „{tool}“ bei {connection} wurde zurückgehalten: Nach dem Lesen von E-Mails liest ein Lauf nur noch Seiten und schreibt Entwürfe; nichts wurde gesendet",
         "approved": "freigegeben",
         "answered": "von einem Inhaber beantwortet",
-        "note": "Notiz: {note}"
+        "note": "Notiz: {note}",
+        "denied": "Sein Aufruf von „{tool}“ auf {connection} wurde durch die Regel eines Inhabers abgelehnt; nichts wurde gesendet",
+        "limited": "Sein Aufruf von „{tool}“ auf {connection} wurde abgelehnt: Der Agent hat so viele Änderungen gemacht, wie er an einem Tag darf; nichts wurde getan",
+        "allowedByRule": "durch die Regel eines Inhabers erlaubt"
       },
       "skill": {
         "used": "Ist dem Skill <name></name> gefolgt",
@@ -685,7 +699,8 @@
       "emailHidden": "Hat eine E-Mail zu einer Zeile entworfen, die du nicht öffnen kannst",
       "emailSent": "E-Mail an {to} gesendet:",
       "emailSendFailed": "E-Mail an {to} konnte nicht gesendet werden:",
-      "fromMail": "E-Mail an {name}"
+      "fromMail": "E-Mail an {name}",
+      "deferred": "Wartet bis zum Ende seiner Ruhezeit ({time}); ein Inhaber kann ihn jetzt freigeben."
     },
     "usage": {
       "thisMonth": "Diesen Monat: {usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "Fordere eine ganze Zahl von Tokens über dem aktuellen Limit an, höchstens 1.000.000.000.",
         "requestNote": "Begründe es in höchstens 500 Zeichen.",
         "noLimit": "Dieser Agent hat kein Limit, das erhöht werden könnte.",
-        "mailbox": "Wähle eines deiner Postfächer in diesem Arbeitsbereich."
+        "mailbox": "Wähle eines deiner Postfächer in diesem Arbeitsbereich.",
+        "quietHours": "Ruhezeiten brauchen zwei verschiedene Uhrzeiten (HH:MM) und eine Zeitzone.",
+        "dailyChangeLimit": "Gib ein tägliches Änderungslimit als ganze Zahl von 1 bis 10.000 ein."
       },
       "noteEmpty": "Schreiben Sie, was sich der Agent merken soll.",
       "noteTooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
@@ -826,7 +843,13 @@
       "notReady": "Diese Verbindung ist nicht bereit (sie braucht eine Anmeldung oder schlägt fehl), daher kann der Agent ihre Werkzeuge vorerst nicht nutzen.",
       "noTools": "Noch keine Werkzeuge aufgelistet.",
       "ownersChoose": "Die Tools jeder Verbindung, die dieser Agent nutzen darf. Nur Workspace-Inhaber wählen sie aus.",
-      "none": "Dieser Agent darf keine Tools von Verbindungen nutzen."
+      "none": "Dieser Agent darf keine Tools von Verbindungen nutzen.",
+      "rulesNote": "Für jedes gewählte Werkzeug kannst du auch eine Regel setzen: immer erlauben (es läuft ohne Nachfrage, außer der Lauf hat fremde Inhalte gelesen) oder immer ablehnen.",
+      "ruleLabel": "Regel für {tool}",
+      "ruleAsk": "Jedes Mal fragen",
+      "ruleAllowed": "Erlaubt",
+      "ruleAllow": "Immer erlauben",
+      "ruleDeny": "Immer ablehnen"
     },
     "schedules": {
       "description": "Lass diesen Agenten nach Zeitplan von selbst laufen: Jeder Lauf erledigt die Aufgabe, auf Wunsch in einer Datenbank, und sein Bericht landet in deinem Posteingang. Seine Läufe öffnen nur, was du öffnen kannst.",
@@ -896,7 +919,9 @@
         "skills": "Skills",
         "schedules": "Zeitpläne",
         "shares": "Freigegebene Seiten",
-        "row_changes": "Änderungen an Zeilen"
+        "row_changes": "Änderungen an Zeilen",
+        "quiet_hours": "Ruhezeiten",
+        "daily_change_limit": "Änderungen pro Tag"
       },
       "back": "Alle Versionen",
       "compareNote": "Was sich von dieser Version bis zur aktuellen Einrichtung des Agenten geändert hat. Beim Wiederherstellen kommt zurück, was diese Version hatte.",

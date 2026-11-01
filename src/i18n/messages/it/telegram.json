@@ -165,6 +165,7 @@
       "limitReached": "L’agente ha usato i suoi token del mese.",
       "costLimit": "La risposta ha raggiunto il limite di costo.",
       "error": "Qualcosa è andato storto mentre l’agente rispondeva."
-    }
+    },
+    "deferred": "{agent} trattiene una chiamata fino alla fine delle sue ore di silenzio. La risposta arriverà qui allora."
   }
 }

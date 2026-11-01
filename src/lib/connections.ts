@@ -130,8 +130,19 @@ export type ConnectionEventView = {
   receivedAt: string;
 };
 
-/** The tools an agent may use on a connection. */
-export type AgentGrantView = { connectionId: string; tools: string[] };
+/**
+ * An owner's standing answer for one tool of an agent's (server/agents/run.ts): "deny" refuses
+ * every call of it, read or write, sending nothing; "allow" sends a writing tool's calls without
+ * asking, except on a run that read what no one stands behind, where each still waits, and during
+ * the agent's quiet hours, until they end. A tool without one is asked about (writes) or runs (reads).
+ */
+export const TOOL_RULES = ["allow", "deny"] as const;
+export type ToolRule = (typeof TOOL_RULES)[number];
+
+export const isToolRule = (value: unknown): value is ToolRule => typeof value === "string" && (TOOL_RULES as readonly string[]).includes(value);
+
+/** The tools an agent may use on a connection, and the rules an owner set on some of them (by tool name). */
+export type AgentGrantView = { connectionId: string; tools: string[]; rules: Record<string, ToolRule> };
 /** A connection whose tools an agent may use, named, as those the agent is shared with see it. */
 export type AgentGrantSummary = AgentGrantView & { name: string; icon: string | null };
 

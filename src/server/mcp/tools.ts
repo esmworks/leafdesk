@@ -3564,7 +3564,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "List the workspace's connections",
       description:
-        "List the services the workspace's agents can use (each a remote MCP server an owner added, such as Slack or GitHub): their status (ready, needsAuth, error), their tools with what each does (reads: runs at once, except on runs started by an anonymous form answer or by an event from a trigger an owner hasn't marked trusted, where it waits too; writes: each call waits for an owner's approval in the inbox), and the address their signed events go to. Never their credentials or event secrets. With agent_id, each says which of its tools that agent may use. Owners only; owners add, sign in to and remove connections in Settings > Connections.",
+        "List the services the workspace's agents can use (each a remote MCP server an owner added, such as Slack or GitHub): their status (ready, needsAuth, error), their tools, each reading or writing (see set_agent_connection_tools), and the address their signed events go to. Never their credentials or event secrets. With agent_id, each says which of its tools that agent may use, and its rules. Owners only; owners add, sign in to and remove connections in Settings > Connections.",
       inputSchema: connectionInputs.list,
       annotations: READ,
     },
@@ -3583,15 +3583,15 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     {
       title: "Choose an agent's tools on a connection",
       description:
-        "Set which of a connection's tools an agent may use, replacing the list (an empty list takes the connection from the agent). Tools that only read run when the agent calls them (on a row from an anonymous form answer, and on a run a connection's event started unless an owner marked its trigger trusted in Settings > Connections, they wait as well); any other waits each time for an owner's approval in the inbox, and nothing is sent if no one answers in a day. Give an agent only the tools its task needs. Returns the agent's tools on every connection. Owners only.",
+        "Set which of a connection's tools an agent may use, replacing the list (an empty list takes it from the agent). Reads run when called (they wait on runs an anonymous form answer or an untrusted event trigger started); writes wait each time for an owner's approval in the inbox, unsent if no one answers in a day. Give an agent only the tools its task needs. Returns the agent's tools and rules per connection. Owners only.",
       inputSchema: connectionInputs.grant,
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       scopeChallenge: requireWrite,
     },
-    write(({ agent_id, connection_id, tools }) =>
+    write(({ agent_id, connection_id, tools, rules }) =>
       withConnectionErrors(async () => {
-        const grants = await connections.setAgentGrant(userId, agent_id, connection_id, tools);
-        return { agent_id, connections: grants.map((g) => ({ connection_id: g.connectionId, tools: g.tools })) };
+        const grants = await connections.setAgentGrant(userId, agent_id, connection_id, tools, rules);
+        return { agent_id, connections: grants.map((g) => ({ connection_id: g.connectionId, tools: g.tools, rules: g.rules })) };
       }),
     ),
   );

@@ -165,6 +165,7 @@
       "limitReached": "Der Agent hat seine Tokens für den Monat verbraucht.",
       "costLimit": "Die Antwort hat ihr Kostenlimit erreicht.",
       "error": "Beim Antworten des Agenten ist etwas schiefgelaufen."
-    }
+    },
+    "deferred": "{agent} hält einen Aufruf bis zum Ende seiner Ruhezeit zurück. Seine Antwort kommt dann hierher."
   }
 }

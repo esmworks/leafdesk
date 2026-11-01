@@ -795,13 +795,15 @@ export function describeAgentStep(step: AgentStepRecord) {
         expired: "No one answered (not sent):",
         refused: "Refused, its address being in neither the schedule's task nor the run's searches (not sent):",
         afterMail: "Held back after reading email (not sent):",
+        denied: "Declined by an owner's rule (not sent):",
+        limited: "Refused, past the agent's daily limit of changes (not done):",
       }[step.outcome];
       return {
         kind: "tool",
         outcome: step.outcome,
         connection_id: step.connectionId,
         tool: step.tool,
-        summary: `${how} ${step.tool} ${short(step.input, 200)}${step.note ? ` (note: ${quote(short(step.note, 200))})` : ""}`,
+        summary: `${how} ${step.tool} ${short(step.input, 200)}${step.rule === "allow" ? " (an owner's rule allowed it)" : ""}${step.note ? ` (note: ${quote(short(step.note, 200))})` : ""}`,
       };
     }
   }

@@ -1,5 +1,6 @@
-import { boolean, index, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
-import type { ConnectionAuthType, ConnectionEventStatus, ConnectionStatus, ConnectionTool, EventPreset, ToolKind } from "@/lib/connections";
+import { sql } from "drizzle-orm";
+import { boolean, check, index, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { ConnectionAuthType, ConnectionEventStatus, ConnectionStatus, ConnectionTool, EventPreset, ToolKind, ToolRule } from "@/lib/connections";
 import { workspaceAgent } from "./agents";
 import { workspace } from "./app";
 import { user } from "./auth";
@@ -80,6 +81,29 @@ export const agentGrant = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.agentId, t.connectionId] })],
+);
+
+/**
+ * An owner's rule for one of the tools an agent may use on a connection (lib/connections.ts
+ * TOOL_RULES): always allow it, or always decline it. Set and taken away with the agent's tools
+ * (connections/manage.ts setAgentGrant); `setBy` is the owner, whose rule an "allow" stands for
+ * only while they are still an owner.
+ */
+export const agentToolRule = pgTable(
+  "agent_tool_rule",
+  {
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    connectionId: text("connection_id")
+      .notNull()
+      .references(() => connection.id, { onDelete: "cascade" }),
+    tool: text("tool").notNull(),
+    rule: text("rule").$type<ToolRule>().notNull(),
+    setBy: text("set_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.agentId, t.connectionId, t.tool] }), check("agent_tool_rule_rule_check", sql`${t.rule} in ('allow', 'deny')`)],
 );
 
 /** Runs an agent, with a task, on a connection's events of one type (null: any). */

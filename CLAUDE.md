@@ -204,7 +204,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   kind near and at a limit, one row per person and month by a unique index; a new agent spending
   fast is turned off mid-run from `run.ts`), `agents/limits.ts` (requests for a higher limit,
   answered from owners' inboxes), pure part `lib/agent-guardrails.ts`; who creates agents is
-  `sharing.ts` `mayCreate` (`agent_creator` when the setting is `chosen`). Reminders to the person
+  `sharing.ts` `mayCreate` (`agent_creator` when the setting is `chosen`). Owners' per-tool rules
+  are `agent_tool_rule`, written only by `connections/manage.ts` `setAgentGrant`; a call held for
+  quiet hours (`lib/quiet-hours.ts`) is an `awaiting_approval` run with `pending.deferredUntil`,
+  woken by `run.ts` `wakeDeferred` in the sweep (expiry skips it); every change a run makes goes
+  through `change()` in `run.ts`, which takes the day's count from `agents/daily-changes.ts`. Reminders to the person
   a run works for (`remind_person`, no recipient argument): `server/ai-reminders.ts`, a notification
   of kind `ai_reminder` waiting snoozed until its time (`deliverSnoozed` wakes it), shown over the
   page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`.

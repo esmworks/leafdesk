@@ -6,13 +6,14 @@
  */
 import { randomBytes } from "node:crypto";
 import { RegistrationRejectedError } from "@modelcontextprotocol/client";
-import { and, count, desc, eq, lte } from "drizzle-orm";
+import { and, count, desc, eq, lte, notInArray } from "drizzle-orm";
 import { db } from "@/db";
-import { agentGrant, connection, connectionEvent, connectionOauth, connectionTrigger, workspaceAgent } from "@/db/schema";
+import { agentGrant, agentToolRule, connection, connectionEvent, connectionOauth, connectionTrigger, workspaceAgent } from "@/db/schema";
 import {
   connectionSlug,
   isConnectionAuthType,
   isEventPreset,
+  isToolRule,
   MAX_CONNECTION_CLIENT_ID,
   MAX_CONNECTION_NAME,
   MAX_CONNECTION_TOKEN,
@@ -28,6 +29,7 @@ import {
   type ConnectionView,
   type EventPreset,
   type ToolKind,
+  type ToolRule,
 } from "@/lib/connections";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { env } from "@/lib/env";
@@ -284,6 +286,7 @@ export async function updateConnection(userId: string, connectionId: string, inp
   const { updated, grantsRemoved } = await db.transaction(async (tx) => {
     const [row] = await tx.update(connection).set(set).where(eq(connection.id, connectionId)).returning();
     const removed = moved ? await tx.delete(agentGrant).where(eq(agentGrant.connectionId, connectionId)).returning({ agentId: agentGrant.agentId }) : [];
+    if (moved) await tx.delete(agentToolRule).where(eq(agentToolRule.connectionId, connectionId));
     return { updated: row, grantsRemoved: removed.length };
   });
   if (reconnect) dropClient(connectionId);
@@ -591,12 +594,23 @@ export async function deleteTrigger(userId: string, triggerId: string): Promise<
 
 // --------------------------------------------------------------------------------- grants
 
-/** The tools of each connection an agent may use. */
+/** The rules owners set on an agent's tools, by connection and tool. */
+async function rulesOf(agentId: string): Promise<Map<string, Record<string, ToolRule>>> {
+  const rows = await db.select().from(agentToolRule).where(eq(agentToolRule.agentId, agentId));
+  const byConnection = new Map<string, Record<string, ToolRule>>();
+  for (const row of rows) byConnection.set(row.connectionId, { ...byConnection.get(row.connectionId), [row.tool]: row.rule });
+  return byConnection;
+}
+
+/** The tools of each connection an agent may use, with the rules set on them. */
 export async function listAgentGrants(userId: string, agentId: string): Promise<AgentGrantView[]> {
   await ownedAgentIn(userId, agentId);
-  const rows = await db.select().from(agentGrant).where(eq(agentGrant.agentId, agentId));
-  return rows.map((g) => ({ connectionId: g.connectionId, tools: g.tools }));
+  const [rows, rules] = await Promise.all([db.select().from(agentGrant).where(eq(agentGrant.agentId, agentId)), rulesOf(agentId)]);
+  return rows.map((g) => ({ connectionId: g.connectionId, tools: g.tools, rules: keptRules(rules.get(g.connectionId), g.tools) }));
 }
+
+/** The rules of the tools still chosen: a rule of a tool taken away is gone with it. */
+const keptRules = (rules: Record<string, ToolRule> | undefined, tools: string[]) => Object.fromEntries(Object.entries(rules ?? {}).filter(([tool]) => tools.includes(tool)));
 
 /**
  * The tools of each connection an agent may use, with the connections' names, for anyone the agent
@@ -604,17 +618,24 @@ export async function listAgentGrants(userId: string, agentId: string): Promise<
  */
 export async function agentGrantSummary(userId: string, agentId: string): Promise<AgentGrantSummary[]> {
   const { agent } = await agentWithLevel(userId, agentId, "interact");
-  const rows = await db
-    .select({ connectionId: agentGrant.connectionId, tools: agentGrant.tools, name: connection.name, icon: connection.icon })
-    .from(agentGrant)
-    .innerJoin(connection, eq(connection.id, agentGrant.connectionId))
-    .where(and(eq(agentGrant.agentId, agent.id), eq(connection.workspaceId, agent.workspaceId)))
-    .orderBy(connection.name);
-  return rows;
+  const [rows, rules] = await Promise.all([
+    db
+      .select({ connectionId: agentGrant.connectionId, tools: agentGrant.tools, name: connection.name, icon: connection.icon })
+      .from(agentGrant)
+      .innerJoin(connection, eq(connection.id, agentGrant.connectionId))
+      .where(and(eq(agentGrant.agentId, agent.id), eq(connection.workspaceId, agent.workspaceId)))
+      .orderBy(connection.name),
+    rulesOf(agent.id),
+  ]);
+  return rows.map((r) => ({ ...r, rules: keptRules(rules.get(r.connectionId), r.tools) }));
 }
 
-/** Sets the tools of a connection an agent may use (none: takes the connection from it). Owners only. */
-export async function setAgentGrant(userId: string, agentId: string, connectionId: string, tools: string[]): Promise<AgentGrantView[]> {
+/**
+ * Sets the tools of a connection an agent may use (none: takes the connection from it). Owners
+ * only. `rules`, when given, replaces the rules on those tools (a tool it leaves out has none);
+ * left out, the rules of the tools still chosen stay. A rule goes with its tool either way.
+ */
+export async function setAgentGrant(userId: string, agentId: string, connectionId: string, tools: string[], rules?: Record<string, ToolRule>): Promise<AgentGrantView[]> {
   const agent = await ownedAgentIn(userId, agentId);
   const row = await ownedConnection(userId, connectionId);
   if (row.workspaceId !== agent.workspaceId) throw new ConnectionError("notFound", "Connection not found");
@@ -622,20 +643,43 @@ export async function setAgentGrant(userId: string, agentId: string, connectionI
   const unknown = tools.find((t) => !known.has(t));
   if (unknown) throw new ConnectionError("unknownTool", `No tool "${unknown}"`, { tool: unknown });
   const chosen = [...new Set(tools)];
+  const ruled = rules === undefined ? null : Object.entries(rules);
+  // A rule is for a tool the agent may use.
+  const stray = ruled?.find(([tool, rule]) => !chosen.includes(tool) || !isToolRule(rule));
+  if (stray) throw new ConnectionError("unknownTool", `No tool "${stray[0]}" chosen to set a rule on`, { tool: stray[0] });
+  const rulesBefore = (await rulesOf(agentId)).get(connectionId) ?? {};
   const [before] = await db.select().from(agentGrant).where(and(eq(agentGrant.agentId, agentId), eq(agentGrant.connectionId, connectionId)));
-  if (!chosen.length) await db.delete(agentGrant).where(and(eq(agentGrant.agentId, agentId), eq(agentGrant.connectionId, connectionId)));
-  else {
-    await db
-      .insert(agentGrant)
-      .values({ agentId, connectionId, tools: chosen })
-      .onConflictDoUpdate({ target: [agentGrant.agentId, agentGrant.connectionId], set: { tools: chosen } });
-  }
+  const ruleOf = and(eq(agentToolRule.agentId, agentId), eq(agentToolRule.connectionId, connectionId));
+  await db.transaction(async (tx) => {
+    if (!chosen.length) await tx.delete(agentGrant).where(and(eq(agentGrant.agentId, agentId), eq(agentGrant.connectionId, connectionId)));
+    else {
+      await tx
+        .insert(agentGrant)
+        .values({ agentId, connectionId, tools: chosen })
+        .onConflictDoUpdate({ target: [agentGrant.agentId, agentGrant.connectionId], set: { tools: chosen } });
+    }
+    if (ruled) {
+      // Rules left as they were keep who set them, which an "allow" stands for.
+      const kept = ruled.filter(([tool, rule]) => rulesBefore[tool] === rule).map(([tool]) => tool);
+      await tx.delete(agentToolRule).where(kept.length ? and(ruleOf, notInArray(agentToolRule.tool, kept)) : ruleOf);
+      const added = ruled.filter(([tool, rule]) => rulesBefore[tool] !== rule);
+      if (added.length) await tx.insert(agentToolRule).values(added.map(([tool, rule]) => ({ agentId, connectionId, tool, rule, setBy: userId })));
+    } else if (chosen.length) await tx.delete(agentToolRule).where(and(ruleOf, notInArray(agentToolRule.tool, chosen)));
+    else await tx.delete(agentToolRule).where(ruleOf);
+  });
+  const rulesNow = ruled ? Object.fromEntries(ruled) : keptRules(rulesBefore, chosen);
   await recordAudit({
     workspaceId: row.workspaceId,
     actorId: userId,
     action: "connection.updated",
     target: { type: "connection", id: connectionId, label: row.name },
-    details: { ...auditDetails(row), agent: agent.name, tools: chosen, previousTools: before?.tools ?? [] },
+    details: {
+      ...auditDetails(row),
+      agent: agent.name,
+      tools: chosen,
+      previousTools: before?.tools ?? [],
+      ...(JSON.stringify(rulesNow) !== JSON.stringify(rulesBefore) ? { rules: rulesNow, previousRules: rulesBefore } : {}),
+    },
   });
   return listAgentGrants(userId, agentId);
 }

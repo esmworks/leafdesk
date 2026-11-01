@@ -165,6 +165,7 @@
       "limitReached": "Agenten har brukt opp tokenene sine for måneden.",
       "costLimit": "Svaret nådde kostnadsgrensen sin.",
       "error": "Noe gikk galt mens agenten svarte."
-    }
+    },
+    "deferred": "{agent} holder tilbake et kall til de stille timene er over. Svaret kommer hit da."
   }
 }

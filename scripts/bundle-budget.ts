@@ -137,7 +137,7 @@ import { gzipSync } from "node:zlib";
  * Agents run by new email (the steps of sorting and summarizing a thread in ChatThread, the
  * agents' marks in the Mail tab's list) add under 0.5 kB to all first loads together.
  */
-const BUDGET = { routeFirstLoad: 793, firstLoadShared: 1228, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 793, firstLoadShared: 1229, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

@@ -165,6 +165,7 @@
       "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
       "costLimit": "Vastaus saavutti kustannusrajansa.",
       "error": "Jokin meni vikaan agentin vastatessa."
-    }
+    },
+    "deferred": "{agent} pidättää kutsun hiljaisten tuntiensa loppuun. Vastaus tulee tänne silloin."
   }
 }

@@ -469,7 +469,17 @@
       "rowChangesDirect": "Kirjoita suoraan",
       "rowChangesReview": "Ehdota tarkistettavaksi",
       "rowChangesDirectHelp": "Sen lisäämät rivit ja muuttamat arvot tallennetaan heti sen nimellä.",
-      "rowChangesReviewHelp": "Rivit, jotka se lisäisi, ja arvot, jotka se muuttaisi, odottavat kohdassa Tarkistettavat, kunnes joku muokkausoikeuden omaava hyväksyy tai hylkää kunkin."
+      "rowChangesReviewHelp": "Rivit, jotka se lisäisi, ja arvot, jotka se muuttaisi, odottavat kohdassa Tarkistettavat, kunnes joku muokkausoikeuden omaava hyväksyy tai hylkää kunkin.",
+      "quietHours": "Hiljaiset tunnit",
+      "quietHoursHelp": "Kutsut, jotka omistajan sääntö sallii aina, odottavat hiljaisten tuntien loppuun ilmoittamatta kenellekään. Hyväksyntää vaativat kutsut kysytään tavalliseen tapaan.",
+      "quietFrom": "Alkaen",
+      "quietTo": "Asti",
+      "quietTimeZone": "Aikavyöhyke",
+      "quietHoursInvalid": "Valitse kaksi eri kellonaikaa ja aikavyöhyke.",
+      "dailyChangeLimit": "Muutoksia päivässä",
+      "dailyChangeLimitPlaceholder": "Ei rajaa",
+      "dailyChangeLimitHelp": "Enimmäismäärä muutoksia, jotka se tekee päivässä: rivit, sivut, kommentit ja jotain muuttavat yhteyskutsut. Seuraavat hylätään. Päivä lasketaan hiljaisten tuntien aikavyöhykkeellä, muuten UTC:n mukaan.",
+      "dailyChangeLimitInvalid": "Anna kokonaisluku väliltä 1–{max}."
     },
     "describe": {
       "button": "Kuvaile agentti",
@@ -592,7 +602,8 @@
         "running": "Käynnissä",
         "done": "Valmis",
         "failed": "Epäonnistui",
-        "awaiting_approval": "Odottaa hyväksyntää"
+        "awaiting_approval": "Odottaa hyväksyntää",
+        "deferred": "Odottaa hiljaisia tunteja"
       },
       "rowHidden": "Rivi, jota et voi avata",
       "took": "kesti {time}",
@@ -656,7 +667,10 @@
         "afterMail": "Kutsu ”{tool}” palvelussa {connection} pysäytettiin: sähköpostin lukemisen jälkeen ajo vain lukee sivuja ja kirjoittaa luonnoksia; mitään ei lähetetty",
         "approved": "hyväksytty",
         "answered": "omistaja vastasi",
-        "note": "Huomautus: {note}"
+        "note": "Huomautus: {note}",
+        "denied": "Sen kutsu ”{tool}” yhteydessä {connection} hylättiin omistajan säännöllä; mitään ei lähetetty",
+        "limited": "Sen kutsu ”{tool}” yhteydessä {connection} hylättiin: agentti on tehnyt niin monta muutosta kuin päivässä saa; mitään ei tehty",
+        "allowedByRule": "omistajan säännön sallima"
       },
       "skill": {
         "used": "Noudatti taitoa <name></name>",
@@ -685,7 +699,8 @@
       "chattedBy": "chat: {name}",
       "yoursOnly": "Näet käynnistämäsi ajot.",
       "waitingForOwner": "Työtilan omistaja vastaa tähän kutsuun.",
-      "fromMail": "Sähköposti henkilölle {name}"
+      "fromMail": "Sähköposti henkilölle {name}",
+      "deferred": "Odottaa hiljaisten tuntien loppuun ({time}); omistaja voi hyväksyä sen nyt."
     },
     "usage": {
       "thisMonth": "Tässä kuussa: {usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "Pyydä kokonaislukumäärä tokeneita nykyisen rajan yli, enintään 1 000 000 000.",
         "requestNote": "Kerro syy enintään 500 merkillä.",
         "noLimit": "Tällä agentilla ei ole korotettavaa rajaa.",
-        "mailbox": "Valitse jokin postilaatikoistasi tässä työtilassa."
+        "mailbox": "Valitse jokin postilaatikoistasi tässä työtilassa.",
+        "quietHours": "Hiljaiset tunnit tarvitsevat kaksi eri kellonaikaa (HH:MM) ja aikavyöhykkeen.",
+        "dailyChangeLimit": "Anna päivittäinen muutosraja kokonaislukuna väliltä 1–10 000."
       },
       "noteEmpty": "Kirjoita, mitä agentin pitäisi muistaa.",
       "noteTooLong": "Muistiinpanossa voi olla enintään {max} merkkiä.",
@@ -826,7 +843,13 @@
       "notReady": "Tämä yhteys ei ole valmis (se vaatii kirjautumisen tai epäonnistuu), joten agentti ei voi toistaiseksi käyttää sen työkaluja.",
       "noTools": "Työkaluja ei ole vielä lueteltu.",
       "ownersChoose": "Kunkin yhteyden työkalut, joita tämä agentti saa käyttää. Vain työtilan omistajat valitsevat ne.",
-      "none": "Tämä agentti ei voi käyttää minkään yhteyden työkaluja."
+      "none": "Tämä agentti ei voi käyttää minkään yhteyden työkaluja.",
+      "rulesNote": "Jokaiselle valitulle työkalulle voit myös asettaa säännön: salli aina (se menee kysymättä, ellei ajo ole lukenut ulkopuolista sisältöä) tai hylkää aina.",
+      "ruleLabel": "Sääntö: {tool}",
+      "ruleAsk": "Kysy joka kerta",
+      "ruleAllowed": "Sallittu",
+      "ruleAllow": "Salli aina",
+      "ruleDeny": "Hylkää aina"
     },
     "schedules": {
       "description": "Anna tämän agentin toimia itsenäisesti ajastetusti: jokainen ajo tekee tehtävän valitsemassasi tietokannassa, jos sellainen on, ja saat sen raportin saapuneisiisi. Sen ajot voivat avata vain sen, minkä sinä voit avata.",
@@ -896,7 +919,9 @@
         "skills": "Taidot",
         "schedules": "Ajastukset",
         "shares": "Jaetut sivut",
-        "row_changes": "Rivien muutokset"
+        "row_changes": "Rivien muutokset",
+        "quiet_hours": "Hiljaiset tunnit",
+        "daily_change_limit": "Muutoksia päivässä"
       },
       "back": "Kaikki versiot",
       "compareNote": "Mitä tästä versiosta on muuttunut agentin nykyiseen määritykseen. Palauttaminen tuo takaisin sen, mitä tässä versiossa oli.",

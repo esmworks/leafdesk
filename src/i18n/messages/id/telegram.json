@@ -165,6 +165,7 @@
       "limitReached": "Agen telah memakai token bulan ini.",
       "costLimit": "Jawaban mencapai batas biayanya.",
       "error": "Terjadi masalah saat agen menjawab."
-    }
+    },
+    "deferred": "{agent} menahan sebuah panggilan sampai jam tenangnya berakhir. Jawabannya akan datang ke sini saat itu."
   }
 }

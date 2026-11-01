@@ -1380,7 +1380,9 @@
     "side": {
       "label": "À propos de {name}",
       "paused": "En pause"
-    }
+    },
+    "deferred": "En attente jusqu’à la fin des heures calmes ({time})…",
+    "deferredApproval": "L’agent retient un appel jusqu’à la fin de ses heures calmes ({time}). Vous pouvez l’approuver dès maintenant."
   },
   "button": {
     "untitled": "Bouton",

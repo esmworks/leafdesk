@@ -469,7 +469,17 @@
       "rowChangesDirect": "Wprowadzaj je od razu",
       "rowChangesReview": "Proponuj je do przejrzenia",
       "rowChangesDirectHelp": "Wiersze, które dodaje, i wartości, które zmienia, są zapisywane od razu, pod jego nazwą.",
-      "rowChangesReviewHelp": "Wiersze, które by dodał, i wartości, które by zmienił, czekają w sekcji Do przejrzenia, aż ktoś, kto może je edytować, zatwierdzi lub odrzuci każdą z tych zmian."
+      "rowChangesReviewHelp": "Wiersze, które by dodał, i wartości, które by zmienił, czekają w sekcji Do przejrzenia, aż ktoś, kto może je edytować, zatwierdzi lub odrzuci każdą z tych zmian.",
+      "quietHours": "Godziny ciszy",
+      "quietHoursHelp": "Wywołania, na które reguła właściciela zawsze pozwala, czekają do końca godzin ciszy, bez powiadamiania kogokolwiek. Wywołania wymagające zatwierdzenia pytają jak zwykle.",
+      "quietFrom": "Od",
+      "quietTo": "Do",
+      "quietTimeZone": "Strefa czasowa",
+      "quietHoursInvalid": "Wybierz dwie różne godziny i strefę czasową.",
+      "dailyChangeLimit": "Zmiany dziennie",
+      "dailyChangeLimitPlaceholder": "Bez limitu",
+      "dailyChangeLimitHelp": "Najwięcej zmian, jakie wprowadza w ciągu dnia: wiersze, strony, komentarze i wywołania połączeń, które coś zmieniają. Kolejne są odrzucane. Dzień liczy się w strefie czasowej godzin ciszy, a bez niej w UTC.",
+      "dailyChangeLimitInvalid": "Wpisz liczbę całkowitą od 1 do {max}."
     },
     "describe": {
       "button": "Opisz agenta",
@@ -592,7 +602,8 @@
         "running": "Trwa",
         "done": "Gotowe",
         "failed": "Niepowodzenie",
-        "awaiting_approval": "Oczekuje na zatwierdzenie"
+        "awaiting_approval": "Oczekuje na zatwierdzenie",
+        "deferred": "Wstrzymane na godziny ciszy"
       },
       "rowHidden": "Wiersz, którego nie możesz otworzyć",
       "took": "trwało {time}",
@@ -651,7 +662,10 @@
         "afterMail": "Wywołanie „{tool}” w {connection} zostało wstrzymane: po przeczytaniu poczty uruchomienie tylko czyta strony i pisze wersje robocze; nic nie wysłano",
         "approved": "zatwierdzone",
         "answered": "odpowiedź właściciela",
-        "note": "Uwaga: {note}"
+        "note": "Uwaga: {note}",
+        "denied": "Jego wywołanie „{tool}” w {connection} zostało odrzucone przez regułę właściciela; nic nie wysłano",
+        "limited": "Jego wywołanie „{tool}” w {connection} zostało odrzucone: agent wprowadził tyle zmian, ile może w ciągu dnia; nic nie zrobiono",
+        "allowedByRule": "dozwolone przez regułę właściciela"
       },
       "skill": {
         "used": "Zastosowano umiejętność <name></name>",
@@ -685,7 +699,8 @@
       "emailHidden": "Przygotował szkic e-maila w wierszu, którego nie możesz otworzyć",
       "emailSent": "Wysłał e-mail do {to}:",
       "emailSendFailed": "Nie udało się wysłać e-maila do {to}:",
-      "fromMail": "E-mail do {name}"
+      "fromMail": "E-mail do {name}",
+      "deferred": "Wstrzymane do końca godzin ciszy ({time}); właściciel może je teraz zatwierdzić."
     },
     "usage": {
       "thisMonth": "W tym miesiącu: {usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "Podaj całkowitą liczbę tokenów wyższą niż obecny limit, do 1 000 000 000.",
         "requestNote": "Wyjaśnij powód w maksymalnie 500 znakach.",
         "noLimit": "Ten agent nie ma limitu, który można podnieść.",
-        "mailbox": "Wybierz jedną ze swoich skrzynek w tym obszarze roboczym."
+        "mailbox": "Wybierz jedną ze swoich skrzynek w tym obszarze roboczym.",
+        "quietHours": "Godziny ciszy wymagają dwóch różnych godzin (GG:MM) i strefy czasowej.",
+        "dailyChangeLimit": "Wpisz dzienny limit zmian jako liczbę całkowitą od 1 do 10 000."
       },
       "noteEmpty": "Napisz, co agent ma zapamiętać.",
       "noteTooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
@@ -826,7 +843,13 @@
       "notReady": "To połączenie nie jest gotowe (wymaga zalogowania lub nie działa), więc agent na razie nie może używać jego narzędzi.",
       "noTools": "Brak wymienionych narzędzi.",
       "ownersChoose": "Narzędzia każdego połączenia, z których ten agent może korzystać. Wybierają je tylko właściciele obszaru roboczego.",
-      "none": "Ten agent nie może korzystać z narzędzi żadnego połączenia."
+      "none": "Ten agent nie może korzystać z narzędzi żadnego połączenia.",
+      "rulesNote": "Dla każdego wybranego narzędzia możesz też ustawić regułę: zawsze zezwalaj (idzie bez pytania, chyba że uruchomienie czytało treści z zewnątrz) lub zawsze odrzucaj.",
+      "ruleLabel": "Reguła dla {tool}",
+      "ruleAsk": "Pytaj za każdym razem",
+      "ruleAllowed": "Dozwolone",
+      "ruleAllow": "Zawsze zezwalaj",
+      "ruleDeny": "Zawsze odrzucaj"
     },
     "schedules": {
       "description": "Pozwól temu agentowi działać samodzielnie według harmonogramu: każde uruchomienie wykonuje zadanie, w wybranej bazie danych, jeśli ją wskazano, a raport trafia do twojej skrzynki odbiorczej. Jego uruchomienia mogą otwierać tylko to, co ty możesz otworzyć.",
@@ -896,7 +919,9 @@
         "skills": "Umiejętności",
         "schedules": "Harmonogramy",
         "shares": "Udostępnione strony",
-        "row_changes": "Zmiany w wierszach"
+        "row_changes": "Zmiany w wierszach",
+        "quiet_hours": "Godziny ciszy",
+        "daily_change_limit": "Zmiany dziennie"
       },
       "back": "Wszystkie wersje",
       "compareNote": "Co zmieniło się od tej wersji do bieżącej konfiguracji agenta. Przywrócenie przywraca to, co miała ta wersja.",

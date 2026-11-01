@@ -1380,7 +1380,9 @@
     "side": {
       "label": "关于 {name}",
       "paused": "已暂停"
-    }
+    },
+    "deferred": "暂缓至安静时段结束（{time}）…",
+    "deferredApproval": "智能体将一个调用暂缓至安静时段结束（{time}）。你现在即可批准。"
   },
   "button": {
     "untitled": "按钮",

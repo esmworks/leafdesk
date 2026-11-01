@@ -165,6 +165,7 @@
       "limitReached": "Agent wykorzystał tokeny na ten miesiąc.",
       "costLimit": "Odpowiedź osiągnęła limit kosztów.",
       "error": "Coś poszło nie tak podczas odpowiedzi agenta."
-    }
+    },
+    "deferred": "{agent} wstrzymuje wywołanie do końca godzin ciszy. Odpowiedź przyjdzie tu wtedy."
   }
 }

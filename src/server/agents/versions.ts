@@ -31,6 +31,7 @@ import {
 import { parseMailRecipients } from "@/lib/agent-mail";
 import { MAX_AGENT_DESCRIPTION, MAX_AGENT_INSTRUCTIONS, MAX_AGENT_NAME, MAX_AGENT_SKILLS, MAX_AGENT_TOKEN_LIMIT } from "@/lib/agents";
 import { parseIcon } from "@/lib/icon";
+import { isDailyChangeLimit, parseQuietHours } from "@/lib/quiet-hours";
 import { AccessError, ConnectedAppReadOnlyError, pageVisibleTo } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { PermissionError } from "@/server/permissions";
@@ -143,6 +144,10 @@ function settingValue(field: string, column: PgColumn, value: unknown): unknown 
       return typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= MAX_AGENT_TOKEN_LIMIT ? value : undefined;
     case "mail_recipients":
       return Array.isArray(value) ? (parseMailRecipients(value) ?? undefined) : undefined;
+    case "quiet_hours":
+      return parseQuietHours(value) ?? undefined;
+    case "daily_change_limit":
+      return isDailyChangeLimit(value) ? value : undefined;
   }
   // Others by their column's type (and choices, when it has them).
   if (column.enumValues?.length && !column.enumValues.includes(value as string)) return undefined;

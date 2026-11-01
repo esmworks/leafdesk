@@ -1380,7 +1380,9 @@
     "side": {
       "label": "{name} 정보",
       "paused": "일시 중지됨"
-    }
+    },
+    "deferred": "조용한 시간이 끝날 때까지 보류 중({time})…",
+    "deferredApproval": "에이전트가 조용한 시간이 끝날 때까지({time}) 호출을 보류하고 있습니다. 지금 승인할 수 있습니다."
   },
   "button": {
     "untitled": "버튼",

@@ -469,7 +469,17 @@
       "rowChangesDirect": "Farle direttamente",
       "rowChangesReview": "Proporle da rivedere",
       "rowChangesDirectHelp": "Le righe che aggiunge e i valori che modifica vengono salvati subito, a suo nome.",
-      "rowChangesReviewHelp": "Le righe che aggiungerebbe e i valori che modificherebbe restano in attesa in Da rivedere finché qualcuno che può modificarli non approva o ignora ciascuno."
+      "rowChangesReviewHelp": "Le righe che aggiungerebbe e i valori che modificherebbe restano in attesa in Da rivedere finché qualcuno che può modificarli non approva o ignora ciascuno.",
+      "quietHours": "Ore di silenzio",
+      "quietHoursHelp": "Le chiamate che una regola di un proprietario consente sempre aspettano la fine delle ore di silenzio, senza avvisare nessuno. Quelle che richiedono approvazione la chiedono come sempre.",
+      "quietFrom": "Dalle",
+      "quietTo": "Alle",
+      "quietTimeZone": "Fuso orario",
+      "quietHoursInvalid": "Scegli due orari diversi e un fuso orario.",
+      "dailyChangeLimit": "Modifiche al giorno",
+      "dailyChangeLimitPlaceholder": "Nessun limite",
+      "dailyChangeLimitHelp": "Il massimo di modifiche che fa in un giorno: righe, pagine, commenti e chiamate di connessione che cambiano qualcosa. Le successive vengono rifiutate. Il giorno segue il fuso delle ore di silenzio, altrimenti UTC.",
+      "dailyChangeLimitInvalid": "Inserisci un numero intero da 1 a {max}."
     },
     "describe": {
       "button": "Descrivi un agente",
@@ -592,7 +602,8 @@
         "running": "In esecuzione",
         "done": "Completata",
         "failed": "Non riuscita",
-        "awaiting_approval": "In attesa di approvazione"
+        "awaiting_approval": "In attesa di approvazione",
+        "deferred": "In attesa delle ore di silenzio"
       },
       "rowHidden": "Una riga che non puoi aprire",
       "took": "ha impiegato {time}",
@@ -651,7 +662,10 @@
         "afterMail": "La sua chiamata a «{tool}» su {connection} è stata trattenuta: dopo aver letto email, un’esecuzione legge solo pagine e scrive bozze; non è stato inviato nulla",
         "approved": "approvata",
         "answered": "risposta da un proprietario",
-        "note": "Nota: {note}"
+        "note": "Nota: {note}",
+        "denied": "La sua chiamata di “{tool}” su {connection} è stata rifiutata dalla regola di un proprietario; non è stato inviato nulla",
+        "limited": "La sua chiamata di “{tool}” su {connection} è stata rifiutata: l’agente ha fatto tutte le modifiche che può in un giorno; non è stato fatto nulla",
+        "allowedByRule": "consentita dalla regola di un proprietario"
       },
       "skill": {
         "used": "Ha seguito la competenza <name></name>",
@@ -685,7 +699,8 @@
       "emailHidden": "Ha scritto una bozza di email su una riga che non puoi aprire",
       "emailSent": "Ha inviato un’email a {to}:",
       "emailSendFailed": "Non è riuscito a inviare un’email a {to}:",
-      "fromMail": "Email per {name}"
+      "fromMail": "Email per {name}",
+      "deferred": "In attesa fino alla fine delle sue ore di silenzio ({time}); un proprietario può approvarla ora."
     },
     "usage": {
       "thisMonth": "Questo mese: {usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "Chiedi un numero intero di token superiore al limite attuale, fino a 1.000.000.000.",
         "requestNote": "Spiega il motivo in al massimo 500 caratteri.",
         "noLimit": "Questo agente non ha un limite da aumentare.",
-        "mailbox": "Scegli una delle tue caselle di posta in questo spazio di lavoro."
+        "mailbox": "Scegli una delle tue caselle di posta in questo spazio di lavoro.",
+        "quietHours": "Le ore di silenzio richiedono due orari diversi (HH:MM) e un fuso orario.",
+        "dailyChangeLimit": "Inserisci un limite giornaliero di modifiche come numero intero da 1 a 10.000."
       },
       "noteEmpty": "Scrivi cosa deve ricordare l’agente.",
       "noteTooLong": "Una nota può avere al massimo {max} caratteri.",
@@ -826,7 +843,13 @@
       "notReady": "Questa connessione non è pronta (richiede un accesso o non funziona), quindi per ora l’agente non può usarne gli strumenti.",
       "noTools": "Ancora nessuno strumento elencato.",
       "ownersChoose": "Gli strumenti di ogni connessione che questo agente può usare. Solo i proprietari dello spazio di lavoro li scelgono.",
-      "none": "Questo agente non può usare gli strumenti di alcuna connessione."
+      "none": "Questo agente non può usare gli strumenti di alcuna connessione.",
+      "rulesNote": "Per ogni strumento scelto puoi anche impostare una regola: consentirlo sempre (parte senza chiedere, a meno che l’esecuzione abbia letto contenuti esterni) o rifiutarlo sempre.",
+      "ruleLabel": "Regola per {tool}",
+      "ruleAsk": "Chiedi ogni volta",
+      "ruleAllowed": "Consentito",
+      "ruleAllow": "Consenti sempre",
+      "ruleDeny": "Rifiuta sempre"
     },
     "schedules": {
       "description": "Fai eseguire questo agente da solo, secondo una pianificazione: ogni esecuzione svolge l’attività, sul database che scegli se presente, e ricevi il suo resoconto nella Posta in arrivo. Le sue esecuzioni possono aprire solo ciò che puoi aprire tu.",
@@ -896,7 +919,9 @@
         "skills": "Competenze",
         "schedules": "Pianificazioni",
         "shares": "Pagine condivise",
-        "row_changes": "Modifiche alle righe"
+        "row_changes": "Modifiche alle righe",
+        "quiet_hours": "Ore di silenzio",
+        "daily_change_limit": "Modifiche al giorno"
       },
       "back": "Tutte le versioni",
       "compareNote": "Cosa è cambiato da questa versione alla configurazione attuale dell’agente. Il ripristino riporta ciò che aveva questa versione.",

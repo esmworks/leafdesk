@@ -1380,7 +1380,9 @@
     "side": {
       "label": "Om {name}",
       "paused": "Sat på pause"
-    }
+    },
+    "deferred": "Venter til de stille timer er slut ({time})…",
+    "deferredApproval": "Agenten holder et kald tilbage, til dens stille timer er slut ({time}). Du kan godkende det nu."
   },
   "button": {
     "untitled": "Knap",

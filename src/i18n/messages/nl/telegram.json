@@ -165,6 +165,7 @@
       "limitReached": "De agent heeft zijn tokens voor deze maand gebruikt.",
       "costLimit": "Het antwoord bereikte zijn kostenlimiet.",
       "error": "Er ging iets mis terwijl de agent antwoordde."
-    }
+    },
+    "deferred": "{agent} houdt een aanroep vast tot zijn stille uren voorbij zijn. Het antwoord komt dan hier."
   }
 }

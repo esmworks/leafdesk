@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Rules, quiet hours and a daily change limit for agents.** Owners can set each connection tool
+  an agent may use to *Always allow* (its calls go without asking, except on runs that read
+  outside content, which still wait for an owner) or *Always decline* (never called), on the
+  agent's *Connections* tab or with `rules` on MCP's `set_agent_connection_tools`. An agent's
+  settings take quiet hours, in which allowed calls wait silently until they end (an owner can
+  approve one early), and a number of changes per day past which its changes are refused. Runs'
+  steps say when a rule allowed or declined a call or the limit refused one. Migration 0177 (tables
+  `agent_tool_rule` and `agent_daily_change`, columns `quiet_hours` and `daily_change_limit`).
+
 - **Chat with your agents from Telegram.** `/agent` in the Telegram bot lists the workspace's
   agents shared with you; once you pick one, your messages and voice messages go to it instead of
   the AI chat, in the same chat its page shows, so the conversation goes on in the app (`/new`

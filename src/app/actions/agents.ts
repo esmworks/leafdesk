@@ -54,7 +54,7 @@ import { requireUserId } from "@/server/session";
 // messages in production.
 
 /** Reasons an `invalid` error names, each with its own message. */
-const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit", "mailbox"] as const;
+const INVALID_REASONS = ["name", "icon", "level", "template", "database", "property", "option", "rules", "pages", "limit", "task", "taskLength", "repeat", "helpers", "shareLevel", "mailRecipients", "requestTokens", "requestNote", "noLimit", "mailbox", "quietHours", "dailyChangeLimit"] as const;
 type InvalidReason = (typeof INVALID_REASONS)[number];
 const isInvalidReason = (value: unknown): value is InvalidReason => (INVALID_REASONS as readonly unknown[]).includes(value);
 
@@ -103,6 +103,8 @@ const input = (value: AgentInput): AgentInput => ({
   monthlyTokenLimit: value?.monthlyTokenLimit,
   model: value?.model,
   rowChanges: value?.rowChanges,
+  quietHours: value?.quietHours,
+  dailyChangeLimit: value?.dailyChangeLimit,
   helperAgentIds: Array.isArray(value?.helperAgentIds) ? value.helperAgentIds.map(String) : undefined,
 });
 

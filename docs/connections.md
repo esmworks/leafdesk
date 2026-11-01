@@ -119,6 +119,17 @@ where a tool that isn't *read* asks the person before every call (see *Connectio
   If the tool or the connection is taken away while it waits, nothing is sent either
   (`connectionGone`).
 
+**Rules.** Next to each tool an agent may use, an owner can set a rule. *Always decline* keeps the
+agent from calling it at all, reading or writing: the agent is told so and nothing is sent. *Always
+allow* (for *write* tools) sends its calls without asking, except where every tool waits (a row
+from an anonymous form answer, an untrusted event, above) and on a run that has read a web page or
+searched: there the call waits for an owner as before. A rule counts only while whoever set it is
+still an owner; the run's steps and the audit log say a rule allowed a call. In the agent's quiet
+hours an allowed call waits until they end (*Quiet hours* under [Agents](agents.md)). Rules go
+with their tool: taking the tool from the agent, or moving the connection to a new address, drops
+them. Over MCP, `set_agent_connection_tools` takes `rules` and `list_connections` with an agent
+shows them (`agent_rules`).
+
 A tool's answer reaches the model cut to 8000 characters, and a run takes at most 40,000
 characters from connections in all. A call gets 30 seconds; when a writing call runs out of time
 the agent is told it may have been done and asked to say so in its answer. What the agent got from a tool

@@ -165,6 +165,7 @@
       "limitReached": "Tác tử đã dùng hết token của tháng.",
       "costLimit": "Câu trả lời đã chạm giới hạn chi phí.",
       "error": "Đã xảy ra sự cố khi tác tử trả lời."
-    }
+    },
+    "deferred": "{agent} đang giữ một lệnh gọi đến khi hết giờ yên lặng. Câu trả lời sẽ đến đây lúc đó."
   }
 }

@@ -16,6 +16,7 @@ import type {
 import type { AgentChatMessageRecord } from "@/lib/agent-chat";
 import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
+import type { QuietHours } from "@/lib/quiet-hours";
 import { page, workspace, workspaceMember } from "./app";
 import { user } from "./auth";
 import { memberGroup } from "./groups";
@@ -75,6 +76,10 @@ export const workspaceAgent = pgTable(
     model: text("model").$type<AgentModel>().notNull().default("main"),
     /** Whether its runs write rows at once or propose the changes for review (lib/agents AGENT_ROW_CHANGES). */
     rowChanges: text("row_changes").$type<AgentRowChanges>().notNull().default("direct"),
+    /** When calls an owner's rule lets go without asking wait instead (lib/quiet-hours.ts); null: never. */
+    quietHours: jsonb("quiet_hours").$type<QuietHours>(),
+    /** The most changes its runs may make in a day, together (agent_daily_change); null: no limit. */
+    dailyChangeLimit: integer("daily_change_limit"),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -158,6 +163,22 @@ export const agentUsage = pgTable(
     costUsd: doublePrecision("cost_usd").notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.agentId, t.month] })],
+);
+
+/**
+ * The changes an agent's runs made in a day (its quiet hours' day, else UTC's), against its daily
+ * limit: each change takes one before it is made (agents/daily-changes.ts). Kept a few days.
+ */
+export const agentDailyChange = pgTable(
+  "agent_daily_change",
+  {
+    agentId: text("agent_id")
+      .notNull()
+      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    day: date("day").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.agentId, t.day] })],
 );
 
 /**

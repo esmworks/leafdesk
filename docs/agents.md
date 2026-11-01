@@ -243,6 +243,19 @@ output together): once the month's tokens reach it, a run under way stops at its
 is raised. Several runs of one agent under way at once can each take one more turn past it. The
 limit counts tokens rather than money because not every provider reports a price.
 
+**Quiet hours and a daily change limit.** Anyone who can edit an agent can give it, in its
+settings, *quiet hours* (a start and an end time, which may cross midnight, in a time zone) and a
+number of *changes per day*. In quiet hours a connection call that an owner's rule always allows
+(*Connections* under [Connections](connections.md)) isn't sent: the run waits, asking and telling
+no one, and goes on when they end; if the rule is gone by then, the call waits for an owner's
+approval as usual. An owner can approve the held call before that, from the agent's runs or its
+chat. Calls that need approval anyway ask at once, quiet hours or not. The daily limit counts
+every change a run makes (rows, pages, comments, merges, proposals, email drafts, connection calls
+that change something), on the day in the quiet hours' time zone (UTC without them); past it a
+change is refused, the agent hears why and its run's steps show it. A change that fails is given
+back, except a connection call, which may have been done. A run's own limit (5 changes, 30 on a
+schedule's database) still applies. Over MCP and the REST API both settings are set in the app.
+
 **Limit notices.** When an agent's month passes 80% of its limit, and again when it reaches it, the
 workspace's owners and the person who created the agent (while they are still a member) get an
 inbox item and an email, once each a month. An agent less than a day old that spends fast (more
@@ -427,8 +440,9 @@ monthly limit, `row_changes`), asking for a run, and reading runs and usage (see
 **Copying an agent.** *Duplicate* in an agent's menu in Settings → Agents (archived ones too) makes
 a new agent with its setup, to change for another team or job: its name numbered like a page's
 copy ("Triage (1)"), icon, description, instructions, model, web access, how it changes rows,
-monthly token limit, whether it is paused (an archived agent's copy runs), its skills, the agents
-it can ask and its connections' tools. It takes nothing of what the agent reaches or who uses it:
+monthly token limit, quiet hours, daily change limit, whether it is paused (an archived agent's
+copy runs), its skills, the agents it can ask and its connections' tools with their rules (set
+again in the copier's name). It takes nothing of what the agent reaches or who uses it:
 no pages are shared with the copy, it is shared as a new agent is (everyone can view and interact,
 its maker has full access), and it starts with no schedules, connection triggers, memory, runs,
 chats, history or usage. Copying takes the right to create agents and edit access to the agent.

@@ -469,7 +469,17 @@
       "rowChangesDirect": "Direct schrijven",
       "rowChangesReview": "Ter beoordeling voorstellen",
       "rowChangesDirectHelp": "Rijen die hij toevoegt en waarden die hij wijzigt, worden direct opgeslagen, onder zijn naam.",
-      "rowChangesReviewHelp": "Rijen die hij zou toevoegen en waarden die hij zou wijzigen, wachten onder Ter beoordeling tot iemand die ze kan bewerken elk ervan goedkeurt of negeert."
+      "rowChangesReviewHelp": "Rijen die hij zou toevoegen en waarden die hij zou wijzigen, wachten onder Ter beoordeling tot iemand die ze kan bewerken elk ervan goedkeurt of negeert.",
+      "quietHours": "Stille uren",
+      "quietHoursHelp": "Aanroepen die een regel van een eigenaar altijd toestaat, wachten tot de stille uren voorbij zijn, zonder iemand te melden. Aanroepen die goedkeuring nodig hebben, vragen daar zoals altijd om.",
+      "quietFrom": "Van",
+      "quietTo": "Tot",
+      "quietTimeZone": "Tijdzone",
+      "quietHoursInvalid": "Kies twee verschillende tijden en een tijdzone.",
+      "dailyChangeLimit": "Wijzigingen per dag",
+      "dailyChangeLimitPlaceholder": "Geen limiet",
+      "dailyChangeLimitHelp": "Het maximum aantal wijzigingen dat hij op een dag doet: rijen, pagina’s, opmerkingen en verbindingsaanroepen die iets veranderen. Meer wordt geweigerd. De dag volgt de tijdzone van de stille uren, anders UTC.",
+      "dailyChangeLimitInvalid": "Voer een geheel getal van 1 tot {max} in."
     },
     "describe": {
       "button": "Een agent beschrijven",
@@ -592,7 +602,8 @@
         "running": "Bezig",
         "done": "Klaar",
         "failed": "Mislukt",
-        "awaiting_approval": "Wacht op goedkeuring"
+        "awaiting_approval": "Wacht op goedkeuring",
+        "deferred": "Wacht op einde stille uren"
       },
       "rowHidden": "Een rij die je niet kunt openen",
       "took": "duurde {time}",
@@ -656,7 +667,10 @@
         "afterMail": "De aanroep van ‘{tool}’ op {connection} werd tegengehouden: na het lezen van e-mail leest een run alleen nog pagina’s en schrijft concepten; er is niets verzonden",
         "approved": "goedgekeurd",
         "answered": "beantwoord door een eigenaar",
-        "note": "Notitie: {note}"
+        "note": "Notitie: {note}",
+        "denied": "Zijn aanroep van ‘{tool}’ op {connection} is geweigerd door de regel van een eigenaar; er is niets verstuurd",
+        "limited": "Zijn aanroep van ‘{tool}’ op {connection} is geweigerd: de agent heeft zoveel wijzigingen gedaan als hij op een dag mag; er is niets gedaan",
+        "allowedByRule": "toegestaan door de regel van een eigenaar"
       },
       "skill": {
         "used": "De vaardigheid <name></name> gevolgd",
@@ -685,7 +699,8 @@
       "chattedBy": "chat door {name}",
       "yoursOnly": "Je ziet de uitvoeringen die jij hebt gestart.",
       "waitingForOwner": "Een eigenaar van de werkruimte beantwoordt deze aanroep.",
-      "fromMail": "E-mail aan {name}"
+      "fromMail": "E-mail aan {name}",
+      "deferred": "Wacht tot zijn stille uren voorbij zijn ({time}); een eigenaar kan hem nu goedkeuren."
     },
     "usage": {
       "thisMonth": "Deze maand: {usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "Vraag een geheel aantal tokens boven de huidige limiet, tot 1.000.000.000.",
         "requestNote": "Geef de reden in maximaal 500 tekens.",
         "noLimit": "Deze agent heeft geen limiet om te verhogen.",
-        "mailbox": "Kies een van je mailboxen in deze werkruimte."
+        "mailbox": "Kies een van je mailboxen in deze werkruimte.",
+        "quietHours": "Stille uren hebben twee verschillende tijden (UU:MM) en een tijdzone nodig.",
+        "dailyChangeLimit": "Voer een dagelijkse wijzigingslimiet in als geheel getal van 1 tot 10.000."
       },
       "noteEmpty": "Schrijf wat de agent moet onthouden.",
       "noteTooLong": "Een notitie mag maximaal {max} tekens hebben.",
@@ -826,7 +843,13 @@
       "notReady": "Deze koppeling is niet klaar (ze vereist een aanmelding of faalt), dus de agent kan haar tools voorlopig niet gebruiken.",
       "noTools": "Nog geen tools vermeld.",
       "ownersChoose": "De tools van elke koppeling die deze agent mag gebruiken. Alleen eigenaren van de werkruimte kiezen ze.",
-      "none": "Deze agent kan de tools van geen enkele koppeling gebruiken."
+      "none": "Deze agent kan de tools van geen enkele koppeling gebruiken.",
+      "rulesNote": "Voor elk gekozen hulpmiddel kun je ook een regel instellen: altijd toestaan (het gaat zonder te vragen, tenzij de run inhoud van buiten heeft gelezen) of altijd weigeren.",
+      "ruleLabel": "Regel voor {tool}",
+      "ruleAsk": "Elke keer vragen",
+      "ruleAllowed": "Toegestaan",
+      "ruleAllow": "Altijd toestaan",
+      "ruleDeny": "Altijd weigeren"
     },
     "schedules": {
       "description": "Laat deze agent zelfstandig draaien, volgens een planning: elke uitvoering doet de taak, op de database die je kiest als je er een kiest, en je krijgt het verslag in je inbox. Zijn uitvoeringen kunnen alleen openen wat jij kunt openen.",
@@ -896,7 +919,9 @@
         "skills": "Vaardigheden",
         "schedules": "Planningen",
         "shares": "Gedeelde pagina’s",
-        "row_changes": "Wijzigingen in rijen"
+        "row_changes": "Wijzigingen in rijen",
+        "quiet_hours": "Stille uren",
+        "daily_change_limit": "Wijzigingen per dag"
       },
       "back": "Alle versies",
       "compareNote": "Wat er is veranderd van deze versie tot de huidige instelling van de agent. Terugzetten brengt terug wat deze versie had.",

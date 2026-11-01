@@ -469,7 +469,17 @@
       "rowChangesDirect": "Ghi trực tiếp",
       "rowChangesReview": "Đề xuất để xem xét",
       "rowChangesDirectHelp": "Các hàng nó thêm và giá trị nó thay đổi được lưu ngay, dưới tên của nó.",
-      "rowChangesReviewHelp": "Các hàng nó định thêm và giá trị nó định thay đổi sẽ chờ trong mục Cần xem xét cho đến khi một người có quyền chỉnh sửa chúng chấp thuận hoặc bỏ qua từng thay đổi."
+      "rowChangesReviewHelp": "Các hàng nó định thêm và giá trị nó định thay đổi sẽ chờ trong mục Cần xem xét cho đến khi một người có quyền chỉnh sửa chúng chấp thuận hoặc bỏ qua từng thay đổi.",
+      "quietHours": "Giờ yên lặng",
+      "quietHoursHelp": "Các lệnh gọi mà quy tắc của chủ sở hữu luôn cho phép sẽ chờ đến khi hết giờ yên lặng, không báo cho ai. Các lệnh gọi cần phê duyệt vẫn hỏi như thường lệ.",
+      "quietFrom": "Từ",
+      "quietTo": "Đến",
+      "quietTimeZone": "Múi giờ",
+      "quietHoursInvalid": "Chọn hai thời điểm khác nhau và một múi giờ.",
+      "dailyChangeLimit": "Số thay đổi mỗi ngày",
+      "dailyChangeLimitPlaceholder": "Không giới hạn",
+      "dailyChangeLimitHelp": "Số thay đổi tối đa nó thực hiện trong một ngày: hàng, trang, bình luận và lệnh gọi kết nối có thay đổi gì đó. Các thay đổi tiếp theo bị từ chối. Ngày được tính theo múi giờ của giờ yên lặng, nếu không thì theo UTC.",
+      "dailyChangeLimitInvalid": "Nhập một số nguyên từ 1 đến {max}."
     },
     "describe": {
       "button": "Mô tả một tác tử",
@@ -592,7 +602,8 @@
         "running": "Đang chạy",
         "done": "Hoàn tất",
         "failed": "Thất bại",
-        "awaiting_approval": "Chờ chấp thuận"
+        "awaiting_approval": "Chờ chấp thuận",
+        "deferred": "Đang giữ vì giờ yên lặng"
       },
       "rowHidden": "Một hàng bạn không mở được",
       "took": "mất {time}",
@@ -656,7 +667,10 @@
         "afterMail": "Lệnh gọi “{tool}” trên {connection} đã bị giữ lại: sau khi đọc email, lượt chạy chỉ đọc trang và viết bản nháp; không có gì được gửi",
         "approved": "đã chấp thuận",
         "answered": "được một chủ sở hữu trả lời",
-        "note": "Ghi chú: {note}"
+        "note": "Ghi chú: {note}",
+        "denied": "Lệnh gọi “{tool}” trên {connection} đã bị từ chối theo quy tắc của chủ sở hữu; không có gì được gửi",
+        "limited": "Lệnh gọi “{tool}” trên {connection} đã bị từ chối: tác tử đã thực hiện số thay đổi tối đa trong một ngày; không có gì được thực hiện",
+        "allowedByRule": "được cho phép theo quy tắc của chủ sở hữu"
       },
       "skill": {
         "used": "Đã làm theo kỹ năng <name></name>",
@@ -685,7 +699,8 @@
       "chattedBy": "trò chuyện bởi {name}",
       "yoursOnly": "Bạn thấy các lần chạy do bạn khởi động.",
       "waitingForOwner": "Một chủ sở hữu không gian làm việc trả lời lệnh gọi này.",
-      "fromMail": "Email gửi {name}"
+      "fromMail": "Email gửi {name}",
+      "deferred": "Đang giữ đến khi hết giờ yên lặng ({time}); chủ sở hữu có thể phê duyệt ngay bây giờ."
     },
     "usage": {
       "thisMonth": "Tháng này: {usage}",
@@ -799,7 +814,9 @@
         "requestTokens": "Hãy yêu cầu một số token nguyên lớn hơn giới hạn hiện tại, tối đa 1.000.000.000.",
         "requestNote": "Nêu lý do trong tối đa 500 ký tự.",
         "noLimit": "Tác tử này không có giới hạn để nâng.",
-        "mailbox": "Chọn một trong các hộp thư của bạn trong không gian làm việc này."
+        "mailbox": "Chọn một trong các hộp thư của bạn trong không gian làm việc này.",
+        "quietHours": "Giờ yên lặng cần hai thời điểm khác nhau (HH:MM) và một múi giờ.",
+        "dailyChangeLimit": "Nhập giới hạn thay đổi hằng ngày là một số nguyên từ 1 đến 10.000."
       },
       "noteEmpty": "Hãy viết điều tác tử nên ghi nhớ.",
       "noteTooLong": "Một ghi chú có tối đa {max} ký tự.",
@@ -826,7 +843,13 @@
       "notReady": "Kết nối này chưa sẵn sàng (cần đăng nhập hoặc bị lỗi), nên tác tử tạm thời không dùng được các công cụ của nó.",
       "noTools": "Chưa có công cụ nào được liệt kê.",
       "ownersChoose": "Các công cụ của mỗi kết nối mà tác tử này được dùng. Chỉ chủ sở hữu không gian làm việc mới chọn được chúng.",
-      "none": "Tác tử này không dùng được công cụ của kết nối nào."
+      "none": "Tác tử này không dùng được công cụ của kết nối nào.",
+      "rulesNote": "Với mỗi công cụ đã chọn, bạn cũng có thể đặt quy tắc: luôn cho phép (chạy mà không hỏi, trừ khi lần chạy đã đọc nội dung bên ngoài) hoặc luôn từ chối.",
+      "ruleLabel": "Quy tắc cho {tool}",
+      "ruleAsk": "Hỏi mỗi lần",
+      "ruleAllowed": "Được phép",
+      "ruleAllow": "Luôn cho phép",
+      "ruleDeny": "Luôn từ chối"
     },
     "schedules": {
       "description": "Cho phép tác tử này tự chạy theo lịch: mỗi lần chạy thực hiện nhiệm vụ, trên cơ sở dữ liệu bạn chọn nếu có, và bạn nhận báo cáo trong hộp thư đến. Các lần chạy của nó chỉ mở được những gì bạn mở được.",
@@ -896,7 +919,9 @@
         "skills": "Kỹ năng",
         "schedules": "Lịch chạy",
         "shares": "Các trang được chia sẻ",
-        "row_changes": "Thay đổi trên các hàng"
+        "row_changes": "Thay đổi trên các hàng",
+        "quiet_hours": "Giờ yên lặng",
+        "daily_change_limit": "Số thay đổi mỗi ngày"
       },
       "back": "Tất cả phiên bản",
       "compareNote": "Những gì đã thay đổi từ phiên bản này đến thiết lập hiện tại của tác tử. Khôi phục sẽ đưa lại những gì phiên bản này có.",

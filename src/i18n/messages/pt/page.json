@@ -1380,7 +1380,9 @@
     "side": {
       "label": "Sobre {name}",
       "paused": "Pausado"
-    }
+    },
+    "deferred": "Retida até o fim das horas de silêncio ({time})…",
+    "deferredApproval": "O agente retém uma chamada até o fim das horas de silêncio ({time}). Você pode aprová-la agora."
   },
   "button": {
     "untitled": "Botão",

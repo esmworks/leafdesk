@@ -4,6 +4,7 @@
 import { agentPagePath } from "./agent-page";
 import type { AgentShareLevel } from "./agent-sharing";
 import type { ChatStepRecord, MemoryStatus } from "@/db/schema/ai";
+import type { QuietHours } from "./quiet-hours";
 import type { RepeatRule, ScheduleError } from "./schedule";
 
 /**
@@ -276,11 +277,15 @@ export type AgentToolRecord = {
   input: string;
   /**
    * `refused`: a page a schedule's run may not read with no one to ask (lib/web-calls.ts); `afterMail`:
-   * a call besides reading pages and drafting after the run read email (agents/mail.ts). Nothing was sent.
+   * a call besides reading pages and drafting after the run read email (agents/mail.ts); `denied`:
+   * an owner's rule declines every call of the tool; `limited`: a change past the agent's daily
+   * limit (of any tool, Leafdesk's own too). Nothing was sent.
    */
-  outcome: "done" | "failed" | "declined" | "redo" | "expired" | "refused" | "afterMail";
+  outcome: "done" | "failed" | "declined" | "redo" | "expired" | "refused" | "afterMail" | "denied" | "limited";
   /** Who approved, declined or sent it back. */
   decidedBy?: string | null;
+  /** An owner's "allow" rule sent it without asking (lib/connections.ts TOOL_RULES): no one approved it. */
+  rule?: "allow";
   note?: string;
 };
 
@@ -333,13 +338,19 @@ export type AgentHandoffRecord = {
 /** One thing a run did: followed a skill, searched, read, queried, changed, thought aloud, commented, used a tool or asked another agent. */
 export type AgentStepRecord = ChatStepRecord | AgentCommentRecord | AgentEmailRecord | AgentToolRecord | AgentSkillRecord | AgentHandoffRecord;
 
-/** A call waiting for approval: what will be sent, and since when. No connection (null): Leafdesk's own tool. */
+/**
+ * A call waiting for approval: what will be sent, and since when. No connection (null): Leafdesk's
+ * own tool. `deferredUntil`: a call an owner's rule lets go without asking, held for the agent's
+ * quiet hours; no one is asked, and the run goes on at that time (an owner may still approve it
+ * before then).
+ */
 export type AgentPendingCall = {
   callId: string;
   connectionId: string | null;
   tool: string;
   arguments: Record<string, unknown>;
   askedAt: string;
+  deferredUntil?: string;
 };
 
 /** The tools of an agent with web access (server/agents/web.ts): Leafdesk's own, so their steps name no connection. */
@@ -444,6 +455,10 @@ export type AgentView = {
   model: AgentModel;
   /** Whether its runs change rows at once or propose the changes for review (see AGENT_ROW_CHANGES). */
   rowChanges: AgentRowChanges;
+  /** When connection calls an owner's rule allows wait instead of going (lib/quiet-hours.ts); null: never. */
+  quietHours: QuietHours | null;
+  /** The most changes its runs may make in a day, together; null: no limit. */
+  dailyChangeLimit: number | null;
   /** The viewer's level on it (lib/agent-sharing): owners of the workspace always have full access. */
   access: AgentShareLevel;
   createdAt: string;

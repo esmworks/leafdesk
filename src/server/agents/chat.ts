@@ -389,12 +389,13 @@ export async function deleteAgentConversation(userId: string, workspaceId: strin
 
 /**
  * Where a run answering the person's message stands, in one small read, for following it over a
- * long time (a chat from Telegram): its status and the call it waits on. chatTurn says the rest,
+ * long time (a chat from Telegram): its status, the call it waits on and whether that call is held
+ * for the agent's quiet hours rather than asked about. chatTurn says the rest,
  * checking access again. Null for a run that isn't theirs.
  */
-export async function chatRunState(userId: string, runId: string): Promise<{ status: AgentRunStatus; callId: string | null } | null> {
+export async function chatRunState(userId: string, runId: string): Promise<{ status: AgentRunStatus; callId: string | null; deferred: boolean } | null> {
   const [run] = await db
-    .select({ status: agentRun.status, callId: sql<string | null>`${agentRun.pending}->>'callId'` })
+    .select({ status: agentRun.status, callId: sql<string | null>`${agentRun.pending}->>'callId'`, deferred: sql<boolean>`(${agentRun.pending}->>'deferredUntil') is not null` })
     .from(agentRun)
     .where(and(eq(agentRun.id, runId), sql`${agentRun.source}->>'kind' = 'chat'`, sql`${agentRun.source}->>'userId' = ${userId}`));
   return run ?? null;
@@ -428,6 +429,7 @@ export async function chatTurn(userId: string, workspaceId: string, runId: strin
           input: JSON.stringify(callToSend(pendingCall, run.state?.queue) ?? pendingCall.arguments, null, 2),
         }
       : null,
+    deferredUntil: run.status === "awaiting_approval" ? (run.pending?.deferredUntil ?? null) : null,
     connections,
   };
 }

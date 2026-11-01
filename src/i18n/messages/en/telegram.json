@@ -165,6 +165,7 @@
       "limitReached": "The agent used its tokens for the month.",
       "costLimit": "The answer reached its cost limit.",
       "error": "Something went wrong while the agent answered."
-    }
+    },
+    "deferred": "{agent} holds a call until its quiet hours end. Its answer comes here then."
   }
 }

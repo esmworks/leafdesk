@@ -1380,7 +1380,9 @@
     "side": {
       "label": "{name} について",
       "paused": "一時停止中"
-    }
+    },
+    "deferred": "静かな時間が終わるまで保留中（{time}）…",
+    "deferredApproval": "エージェントは静かな時間が終わるまで（{time}）呼び出しを保留しています。今すぐ承認できます。"
   },
   "button": {
     "untitled": "ボタン",
