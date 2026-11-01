@@ -517,14 +517,26 @@ export function Sidebar({
     lastPath.current[routeTab] = query ? `${pathname}?${query}` : pathname;
   }, [routeTab, pathname, query]);
 
+  // A phone's drawer covers the page: a tab there only changes the list, and what is picked in it opens.
+  const drawerOpen = sidebar?.drawerOpen ?? false;
+  useEffect(() => {
+    if (!drawerOpen) setTab(routeTab);
+  }, [drawerOpen, routeTab]);
+
   function openTab(next: SidebarTab) {
     const back = next === tab ? undefined : lastPath.current[next];
     setTab(next);
+    if (drawerOpen) return;
     if (back) router.push(back);
     else if (next === "journal") openDailyNote();
     else router.push(next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
-    // A new chat on the chat page only changes the address's `?c=`, which leaves a phone's drawer open.
-    if (next === "chat") sidebar?.close();
+  }
+
+  function newChat() {
+    setTab("chat");
+    router.push(chatPath(workspaceId));
+    // On the chat page only the address's `?c=` changes, which leaves a phone's drawer open.
+    sidebar?.close();
   }
 
   /** The teamspace a page lands in under `parentId`, or at the top of `section` (null: private). */
@@ -1349,9 +1361,7 @@ export function Sidebar({
                           icon={<MessagesSquare className="h-4 w-4" />}
                           onClick={() => {
                             close();
-                            setTab("chat");
-                            router.push(chatPath(workspaceId));
-                            sidebar?.close();
+                            newChat();
                           }}
                         >
                           {tAi("newChat")}
@@ -1529,7 +1539,7 @@ export function Sidebar({
             <MailSidebar workspaceId={workspaceId} />
           ) : tab === "chat" && aiChat ? (
             <>
-              <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={() => openTab("chat")}>
+              <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={newChat}>
                 {tAi("newChat")}
               </SidebarButton>
               <div className="mt-2">

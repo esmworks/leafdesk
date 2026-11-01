@@ -8,8 +8,8 @@
   "installApp": "Cài đặt ứng dụng",
   "iosInstall": {
     "title": "Thêm Leafdesk vào màn hình chính",
-    "share": "Chạm vào nút Chia sẻ trên thanh công cụ của trình duyệt.",
-    "add": "Chọn “Thêm vào MH chính”, rồi chạm vào Thêm.",
+    "share": "Chạm vào nút Chia sẻ, trên thanh công cụ của trình duyệt hoặc trong menu cạnh địa chỉ.",
+    "add": "Chọn “Thêm vào MH chính” (chạm vào Thêm nữa nếu không thấy), rồi chạm vào Thêm.",
     "done": "Sau đó Leafdesk sẽ mở từ biểu tượng của nó trong một cửa sổ riêng, không có các thanh của trình duyệt."
   },
   "page": {

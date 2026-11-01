@@ -8,8 +8,8 @@
   "installApp": "App installieren",
   "iosInstall": {
     "title": "Leafdesk zum Home-Bildschirm hinzufügen",
-    "share": "Tippe in der Symbolleiste des Browsers auf „Teilen“.",
-    "add": "Wähle „Zum Home-Bildschirm“ und tippe dann auf „Hinzufügen“.",
+    "share": "Tippe auf „Teilen“, in der Symbolleiste des Browsers oder im Menü neben der Adresse.",
+    "add": "Wähle „Zum Home-Bildschirm“ (tippe auf „Mehr“, falls es fehlt) und tippe dann auf „Hinzufügen“.",
     "done": "Leafdesk öffnet sich dann über sein Symbol in einem eigenen Fenster, ohne die Leisten des Browsers."
   },
   "page": {

@@ -213,6 +213,7 @@ export default async function SettingsPage({
   const tab: SettingsTab | AccountSettingsTab = accountTab ?? tabs.find((name) => name === requested) ?? "general";
   const [t, ta, isAdmin] = await Promise.all([getTranslations("settings"), getTranslations("account"), instanceAdmin(user)]);
   const href = (name: string) => `/w/${workspaceId}/settings?tab=${name}`;
+  const tabPicked = typeof query.tab === "string";
 
   return (
     <div className="settings-type flex min-h-full flex-col md:flex-row">
@@ -220,6 +221,7 @@ export default async function SettingsPage({
         label={t("title")}
         back={{ href: `/w/${workspaceId}`, label: ta("back", { workspace: workspace.name }) }}
         search={<SettingsSearch items={searchIndex} />}
+        list={{ href: `/w/${workspaceId}/settings`, open: tabPicked }}
         groups={[
           {
             label: ta("title"),
@@ -243,7 +245,8 @@ export default async function SettingsPage({
         ]}
       />
 
-      <div className="min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12">
+      {/* Phones show the list of tabs alone until one is picked (settings-nav.tsx). */}
+      <div className={`min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12 ${tabPicked ? "" : "max-md:hidden"}`}>
         <div className="mx-auto max-w-3xl">
           <SettingsJump setting={typeof query.setting === "string" ? query.setting : undefined} />
           {accountTab && <AccountTabContent tab={accountTabForSettings(accountTab)} session={session} query={query} />}

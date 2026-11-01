@@ -938,6 +938,30 @@
 }
 
 /*
+ * An installed app on iOS 26 and later blurs the top ~40pt of the page under the status bar,
+ * unless a fixed box spanning the window's width and taller than 10px sits at the top edge: then it
+ * paints that box's background there instead. This band is that box (app/layout.tsx); its background
+ * is only read, never painted (clipped to its text, which it has none of).
+ */
+[data-status-band] {
+  display: none;
+}
+@media (display-mode: standalone) {
+  [data-status-band] {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 2147483647;
+    height: 12px;
+    pointer-events: none;
+    background: var(--color-bg);
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/*
  * The AI chat panel's width (ai-chat/chat-panel.tsx marks the workspace data-chat-open while it is
  * open). In wider windows the page and the row panel end where it starts, rather than lying under
  * it; on a phone it covers the window.

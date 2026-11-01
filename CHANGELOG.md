@@ -419,6 +419,14 @@
   the selection's bar, the recording bar) end above the indicator, and the page keeps clear of a
   notch held sideways. On Android the on-screen keyboard shortens the page, so what sits at its
   bottom, such as the AI chat's box, stays above the keys.
+- **Settings on a phone open as a list.** Settings starts with every section in grouped rows, as a
+  phone's own settings do, and a section opens on its own page with a way back to the list, in
+  place of one row of tabs that scrolled sideways.
+- **On a phone, the sidebar's tabs change only the list.** Switching between Home, Journal, Chat
+  and Mail in the drawer shows that tab's list and leaves the page behind as it was; the page
+  changes when you pick something in the list. Closing the drawer without picking goes back to the
+  page's own tab. The AI chat box's buttons are larger on touch screens, and the floating menu
+  button keeps a background of its own as the page scrolls under it.
 - **AI chat answers flow in as they are written.** The answer's text now comes in a few letters at
   a time, at an even pace, instead of jumping a whole piece at once whenever the network delivers
   one; what is left when it ends is shown over a few frames rather than in one. Only the answer
@@ -491,6 +499,10 @@
 
 ### Fixed
 
+- **The top of the installed app on iPhone is no longer blurred.** iOS 26 faded the first lines
+  under the status bar, so a page's header looked washed out and text scrolling up went blurry
+  there; the status bar now sits on a solid band in the page's color. An app added to the Home
+  Screen before this needs no reinstall.
 - **A table no longer widens the whole page on a phone.** The column names kept for screen readers
   reached outside the table's sideways scrolling, so the page grew to the table's width and could
   be dragged sideways, header and all.

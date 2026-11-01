@@ -8,8 +8,8 @@
   "installApp": "Uygulamayı yükle",
   "iosInstall": {
     "title": "Leafdesk'i ana ekranınıza ekleyin",
-    "share": "Tarayıcının araç çubuğundaki Paylaş düğmesine dokunun.",
-    "add": "“Ana Ekrana Ekle”yi seçin, sonra Ekle'ye dokunun.",
+    "share": "Paylaş düğmesine dokunun; tarayıcının araç çubuğunda ya da adresin yanındaki menüdedir.",
+    "add": "“Ana Ekrana Ekle”yi seçin (listede yoksa Daha Fazla'ya dokunun), sonra Ekle'ye dokunun.",
     "done": "Leafdesk bundan sonra simgesinden, tarayıcı çubukları olmadan kendi penceresinde açılır."
   },
   "page": {

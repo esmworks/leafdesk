@@ -176,7 +176,8 @@ export function FloatingSidebarButton() {
   if (/\/(p\/[\w-]+|graph\/?$|ai\/?$|mail\/?$)/.test(pathname) || isSettingsPath(pathname)) return null;
   return (
     <div data-window-controls-clear className="sticky top-0 z-20 h-0">
-      <SidebarOpenButton className="m-2" />
+      {/* The page scrolls under it: a background of its own keeps it off the text. */}
+      <SidebarOpenButton className="m-2 bg-bg" />
     </div>
   );
 }

@@ -8,8 +8,8 @@
   "installApp": "Install app",
   "iosInstall": {
     "title": "Add Leafdesk to your home screen",
-    "share": "Tap the Share button in the browser's toolbar.",
-    "add": "Choose “Add to Home Screen”, then tap Add.",
+    "share": "Tap the Share button, in the browser's toolbar or in the menu beside the address.",
+    "add": "Choose “Add to Home Screen” (tap More if it isn't listed), then tap Add.",
     "done": "Leafdesk then opens from its icon in a window of its own, without the browser's bars."
   },
   "page": {

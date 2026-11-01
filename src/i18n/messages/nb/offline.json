@@ -8,8 +8,8 @@
   "installApp": "Installer appen",
   "iosInstall": {
     "title": "Legg Leafdesk på Hjem-skjermen",
-    "share": "Trykk på Del-knappen i nettleserens verktøylinje.",
-    "add": "Velg «Legg til på Hjem-skjerm», og trykk deretter på Legg til.",
+    "share": "Trykk på Del-knappen, i nettleserens verktøylinje eller i menyen ved siden av adressen.",
+    "add": "Velg «Legg til på Hjem-skjerm» (trykk på Mer hvis den ikke vises), og trykk deretter på Legg til.",
     "done": "Leafdesk åpnes da fra symbolet sitt i et eget vindu, uten nettleserens linjer."
   },
   "page": {

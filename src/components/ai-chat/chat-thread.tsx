@@ -248,7 +248,8 @@ export function ChatThread({
     setDictation(null);
     onSend();
   };
-  const round = cn(roundButton, empty ? "h-7 w-7" : "h-[26px] w-[26px]");
+  // A finger needs more room than the pointer they are sized for.
+  const round = cn(roundButton, empty ? "h-7 w-7" : "h-[26px] w-[26px]", "pointer-coarse:h-9 pointer-coarse:w-9");
   // Send and Stop are filled; Send is faded while there is nothing to send.
   const filled = cn(round, "bg-fg text-bg enabled:hover:opacity-85 disabled:opacity-35");
   // The last question can be answered again, or edited, unless its answer changed things (that

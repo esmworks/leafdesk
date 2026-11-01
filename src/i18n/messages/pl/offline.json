@@ -8,8 +8,8 @@
   "installApp": "Zainstaluj aplikację",
   "iosInstall": {
     "title": "Dodaj Leafdesk do ekranu początkowego",
-    "share": "Stuknij przycisk Udostępnij na pasku narzędzi przeglądarki.",
-    "add": "Wybierz „Do ekranu początkowego”, a następnie stuknij Dodaj.",
+    "share": "Stuknij przycisk Udostępnij na pasku narzędzi przeglądarki lub w menu obok adresu.",
+    "add": "Wybierz „Do ekranu początkowego” (stuknij Więcej, jeśli go nie ma), a następnie stuknij Dodaj.",
     "done": "Leafdesk będzie się wtedy otwierać z ikony we własnym oknie, bez pasków przeglądarki."
   },
   "page": {

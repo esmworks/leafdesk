@@ -8,8 +8,8 @@
   "installApp": "Pasang aplikasi",
   "iosInstall": {
     "title": "Tambahkan Leafdesk ke layar utama",
-    "share": "Ketuk tombol Bagikan di bilah alat browser.",
-    "add": "Pilih “Tambah ke Layar Utama”, lalu ketuk Tambah.",
+    "share": "Ketuk tombol Bagikan, di bilah alat browser atau di menu di samping alamat.",
+    "add": "Pilih “Tambah ke Layar Utama” (ketuk Lainnya jika tidak ada), lalu ketuk Tambah.",
     "done": "Setelah itu Leafdesk terbuka dari ikonnya di jendelanya sendiri, tanpa bilah browser."
   },
   "page": {

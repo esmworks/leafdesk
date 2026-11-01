@@ -8,8 +8,8 @@
   "installApp": "Installera appen",
   "iosInstall": {
     "title": "Lägg till Leafdesk på hemskärmen",
-    "share": "Tryck på Dela-knappen i webbläsarens verktygsfält.",
-    "add": "Välj ”Lägg till på hemskärmen” och tryck sedan på Lägg till.",
+    "share": "Tryck på Dela-knappen, i webbläsarens verktygsfält eller i menyn bredvid adressen.",
+    "add": "Välj ”Lägg till på hemskärmen” (tryck på Mer om den inte syns) och tryck sedan på Lägg till.",
     "done": "Leafdesk öppnas sedan från sin symbol i ett eget fönster, utan webbläsarens fält."
   },
   "page": {

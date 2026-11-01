@@ -535,6 +535,8 @@ because they are separate module graphs.
   Something sticky in the workspace's scrolling `<main>` holds at `top-0`: `<main>` starts below the strip already.
   Something fixed to the window's bottom clears a phone's home indicator (`viewport-fit=cover`):
   `bottom-safe-4` instead of `bottom-4` for what floats, `pb-(--safe-bottom)` on a full-height panel.
+  iOS 26 blurs the top ~40pt of an installed app unless a fixed, full-width box over 10px tall
+  sits at the top edge; the root layout's invisible `data-status-band` is that box (globals.css).
   An absolutely placed element (an `sr-only` label too) inside a sideways-scrolling box needs a
   positioned ancestor inside that box, or it escapes the scrolling and widens the page on a phone.
   Something fixed to the window's end edge sits at `inset-e-(--chat-width)` (globals.css), so it stays

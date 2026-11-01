@@ -2,9 +2,10 @@
 
 import { AlertOctagon, Archive, Clock, Folder, Inbox, Mails, Send, SquarePen, FileText, Trash2, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback } from "react";
+import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn } from "@/components/ui";
 import { ALL_INBOXES, type MailboxTabView, type MailFolderRole, type MailFolderView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
@@ -28,7 +29,7 @@ export function useFolderName() {
 
 const rowClass = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start hover:bg-bg-hover";
 
-function FolderLink({ workspaceId, box, folder, active }: { workspaceId: string; box: MailboxTabView; folder: MailFolderView; active: boolean }) {
+function FolderLink({ workspaceId, box, folder, active, onPick }: { workspaceId: string; box: MailboxTabView; folder: MailFolderView; active: boolean; onPick: (e: React.MouseEvent, href: string) => void }) {
   const name = useFolderName();
   const Icon = folder.role ? FOLDER_ICONS[folder.role] : Folder;
   // The unread count is what the inbox and own folders are read by; the trash and junk don't nag.
@@ -37,7 +38,7 @@ function FolderLink({ workspaceId, box, folder, active }: { workspaceId: string;
   return (
     <Link
       href={href}
-      onClick={(e) => stayInMail(e, href)}
+      onClick={(e) => onPick(e, href)}
       aria-current={active ? "page" : undefined}
       className={cn(rowClass, active && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
       style={folder.depth ? { paddingInlineStart: `${0.5 + folder.depth * 0.75}rem` } : undefined}
@@ -65,6 +66,20 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
   const search = useSearchParams();
   const { boxes, error } = useMailboxes(workspaceId);
   const { box, folder, all } = pickOpen(boxes, search.get("box"), search.get("f"));
+  const router = useRouter();
+  const closeDrawer = useSidebar()?.close;
+  // A phone's drawer may show this list over another page, and on the Mail page a folder only changes
+  // the address's query, which leaves the drawer open.
+  const pick = (e: React.MouseEvent, href: string) => {
+    stayInMail(e, href);
+    closeDrawer?.();
+  };
+  const compose = () => {
+    requestCompose();
+    closeDrawer?.();
+    const href = mailHref(workspaceId);
+    if (new URL(href, window.location.href).pathname !== window.location.pathname) router.push(href);
+  };
 
   if (error) return <p className="px-2 py-1 text-sm text-fg-muted">{error}</p>;
   if (!boxes || !box) {
@@ -88,7 +103,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
       {boxes.length > 1 && (
         <Link
           href={allHref}
-          onClick={(e) => stayInMail(e, allHref)}
+          onClick={(e) => pick(e, allHref)}
           aria-current={all ? "page" : undefined}
           className={cn(rowClass, all && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
         >
@@ -103,7 +118,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
           <MailboxMark address={box.address} />
           <span className="min-w-0 flex-1 truncate font-medium">{box.address}</span>
         </div>
-        <button type="button" className={rowClass} onClick={requestCompose} title={`${t("compose")} (C)`}>
+        <button type="button" className={rowClass} onClick={compose} title={`${t("compose")} (C)`}>
           <SquarePen className="h-4 w-4 shrink-0 text-fg-icon" />
           <span className="flex-1 truncate">{t("compose")}</span>
         </button>
@@ -116,7 +131,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
         ) : (
           <nav className="space-y-px" aria-label={t("foldersLabel")}>
             {roles.map((f) => (
-              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && f.id === folder?.id} />
+              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && f.id === folder?.id} onPick={pick} />
             ))}
           </nav>
         )}
@@ -126,7 +141,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
           <h2 className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">{t("ownFolders")}</h2>
           <div className="space-y-px">
             {own.map((f) => (
-              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && f.id === folder?.id} />
+              <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && f.id === folder?.id} onPick={pick} />
             ))}
           </div>
         </section>
@@ -138,7 +153,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
             {others.map((other) => {
               const unread = other.folders?.find((f) => f.role === "inbox")?.unseen ?? 0;
               return (
-                <Link key={other.id} href={mailHref(workspaceId, { box: other.id })} onClick={(e) => stayInMail(e, mailHref(workspaceId, { box: other.id }))} className={rowClass} title={other.address}>
+                <Link key={other.id} href={mailHref(workspaceId, { box: other.id })} onClick={(e) => pick(e, mailHref(workspaceId, { box: other.id }))} className={rowClass} title={other.address}>
                   <MailboxMark address={other.address} />
                   <span className="min-w-0 flex-1 truncate">{other.address}</span>
                   {unread > 0 && <span className="text-xs tabular-nums text-fg-muted">{unread}</span>}

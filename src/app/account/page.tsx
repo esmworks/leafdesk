@@ -41,6 +41,7 @@ export default async function AccountPage({
       <SettingsNav
         label={t("title")}
         back={{ href: from ? `/w/${from.id}` : "/", label: from ? t("back", { workspace: from.name }) : t("backHome") }}
+        list={{ href: `/account${suffix.replace("&", "?")}`, open: typeof query.tab === "string" }}
         groups={[
           {
             label: t("title"),
@@ -59,7 +60,7 @@ export default async function AccountPage({
           },
         ]}
       />
-      <main className="min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12">
+      <main className={`min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12 ${typeof query.tab === "string" ? "" : "max-md:hidden"}`}>
         <div className="mx-auto max-w-3xl">
           <AccountTabContent tab={tab} session={session} query={query} />
         </div>

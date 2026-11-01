@@ -8,8 +8,8 @@
   "installApp": "Installa app",
   "iosInstall": {
     "title": "Aggiungi Leafdesk alla schermata Home",
-    "share": "Tocca il pulsante Condividi nella barra degli strumenti del browser.",
-    "add": "Scegli «Aggiungi alla schermata Home», poi tocca Aggiungi.",
+    "share": "Tocca il pulsante Condividi, nella barra degli strumenti del browser o nel menu accanto all'indirizzo.",
+    "add": "Scegli «Aggiungi alla schermata Home» (tocca Altro se non compare), poi tocca Aggiungi.",
     "done": "Leafdesk si aprirà dalla sua icona in una finestra tutta sua, senza le barre del browser."
   },
   "page": {

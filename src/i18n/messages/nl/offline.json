@@ -8,8 +8,8 @@
   "installApp": "App installeren",
   "iosInstall": {
     "title": "Zet Leafdesk op je beginscherm",
-    "share": "Tik op de deelknop in de werkbalk van de browser.",
-    "add": "Kies ‘Zet op beginscherm’ en tik op Voeg toe.",
+    "share": "Tik op de deelknop, in de werkbalk van de browser of in het menu naast het adres.",
+    "add": "Kies ‘Zet op beginscherm’ (tik op Meer als het er niet bij staat) en tik op Voeg toe.",
     "done": "Leafdesk opent dan vanaf zijn pictogram in een eigen venster, zonder de balken van de browser."
   },
   "page": {

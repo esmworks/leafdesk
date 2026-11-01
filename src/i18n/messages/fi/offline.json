@@ -8,8 +8,8 @@
   "installApp": "Asenna sovellus",
   "iosInstall": {
     "title": "Lisää Leafdesk kotinäyttöön",
-    "share": "Napauta selaimen työkalupalkin Jaa-painiketta.",
-    "add": "Valitse ”Lisää Koti-valikkoon” ja napauta sitten Lisää.",
+    "share": "Napauta Jaa-painiketta selaimen työkalupalkissa tai osoitteen vieressä olevassa valikossa.",
+    "add": "Valitse ”Lisää Koti-valikkoon” (napauta Lisää-kohtaa, jos sitä ei näy) ja napauta sitten Lisää.",
     "done": "Leafdesk avautuu sen jälkeen kuvakkeestaan omaan ikkunaansa ilman selaimen palkkeja."
   },
   "page": {

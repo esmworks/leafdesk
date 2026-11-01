@@ -8,8 +8,8 @@
   "installApp": "Instalar app",
   "iosInstall": {
     "title": "Añade Leafdesk a tu pantalla de inicio",
-    "share": "Toca el botón Compartir en la barra de herramientas del navegador.",
-    "add": "Elige «Añadir a pantalla de inicio» y toca Añadir.",
+    "share": "Toca el botón Compartir, en la barra de herramientas del navegador o en el menú junto a la dirección.",
+    "add": "Elige «Añadir a pantalla de inicio» (toca Más si no aparece) y toca Añadir.",
     "done": "Leafdesk se abrirá desde su icono en una ventana propia, sin las barras del navegador."
   },
   "page": {
