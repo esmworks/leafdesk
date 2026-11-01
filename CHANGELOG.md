@@ -20,8 +20,9 @@
 - **Installing on iPhone and iPad is explained in the app, and the installed app's icon counts
   unread notifications.** iPhone and iPad browsers have no install prompt, so *Install app* in the
   workspace menu now shows there too and explains adding Leafdesk with *Add to Home Screen*. Where
-  the system shows icon badges, the installed app's icon carries the workspace's unread inbox count
-  while it is open, and a mark when a push notification arrives while it is closed.
+  the system shows icon badges, the installed app's icon carries the workspace's unread inbox count,
+  while it is closed too: each push notification brings the count along, and its *Mark as read* and
+  *Snooze* buttons bring it down.
 - **Agents propose changes from your email, and you approve them in their chat.** In your chat with
   an agent that may change rows, row writes after it read email become proposals instead of being
   refused, and a schedule you set that looks after no database can read the day's email and propose

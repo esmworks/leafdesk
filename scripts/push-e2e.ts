@@ -189,8 +189,9 @@ try {
     payload.title === "Fix login" &&
       payload.body === "Owner Olcay assigned you to “Assignee” · Tasks" &&
       payload.url === `${env.appUrl}/w/${workspaceId}/p/${first.id}` &&
-      payload.tag === assigned.id,
-    "the browser reads what the inbox says, the row's link and the notification as its tag",
+      payload.tag === assigned.id &&
+      payload.unread === 1,
+    "the browser reads what the inbox says, the row's link, the notification as its tag and the unread count",
     payload,
   );
   check(Buffer.byteLength(decrypt(phone, message.body)) < 3_000, "…in under 3 KB");
@@ -209,6 +210,7 @@ try {
   await flushPush();
   const mention = count() === 1 ? JSON.parse(decrypt(phone, received[0].body)) : null;
   check(mention?.title === "Plan" && mention.body === "Owner Olcay sizden bahsetti", "a mention is pushed in the recipient's language", mention);
+  check(mention?.unread === 2, "…counting both unread notifications for the app's icon", mention);
 
   // ------------------------------------------------------------------ preferences
   received.splice(0);

@@ -1454,6 +1454,20 @@ export async function unreadCount(userId: string, workspaceId: string, kinds?: N
   return row?.n ?? 0;
 }
 
+/**
+ * The unread count of the workspace one of the user's notifications is in, for the installed app's
+ * icon after a push notification's button changed it (public/sw.js). Null when there is no such
+ * notification or the user left the workspace.
+ */
+export async function unreadCountBeside(userId: string, notificationId: string): Promise<number | null> {
+  const [row] = await db
+    .select({ workspaceId: notification.workspaceId })
+    .from(notification)
+    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId)));
+  if (!row) return null;
+  return unreadCount(userId, row.workspaceId).catch(() => null);
+}
+
 /** The longest a notification can be snoozed for. */
 const MAX_SNOOZE_MS = 30 * 86_400_000;
 

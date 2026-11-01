@@ -89,8 +89,11 @@ const MAX_BODY = 500;
 const byteLength = (text: string) => new TextEncoder().encode(text).length;
 const cut = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
-/** The JSON a push message carries, with the title and body shortened until it fits MAX_PUSH_PAYLOAD. */
-export function encodePushPayload(payload: PushPayload): string {
+/**
+ * The JSON a push message carries, with the title and body shortened until it fits MAX_PUSH_PAYLOAD.
+ * `unread` is the workspace's unread count, which the installed app's icon shows (public/sw.js).
+ */
+export function encodePushPayload(payload: PushPayload & { unread?: number }): string {
   let title = cut(payload.title, MAX_TITLE);
   let body = cut(payload.body, MAX_BODY);
   let json = JSON.stringify({ ...payload, title, body });

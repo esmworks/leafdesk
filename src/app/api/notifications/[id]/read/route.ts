@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { isCrossSite } from "@/server/cross-site";
-import { markNotificationRead } from "@/server/notifications";
+import { markNotificationRead, unreadCountBeside } from "@/server/notifications";
 
 /**
  * Marks one of the signed-in user's notifications read: `POST /api/notifications/<id>/read` with
@@ -16,5 +16,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
   const { id } = await params;
   const found = await markNotificationRead(session.user.id, id);
-  return new Response(null, { status: found ? 204 : 404, headers: { "Cache-Control": "no-store" } });
+  if (!found) return new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
+  // The workspace's unread count now, for the installed app's icon.
+  return Response.json({ unread: await unreadCountBeside(session.user.id, id) }, { headers: { "Cache-Control": "no-store" } });
 }

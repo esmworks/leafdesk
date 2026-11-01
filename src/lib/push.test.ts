@@ -270,6 +270,10 @@ describe("encodePushPayload", () => {
     expect(JSON.parse(encodePushPayload(payload))).toEqual(payload);
   });
 
+  it("carries the workspace's unread count for the app's icon", () => {
+    expect(JSON.parse(encodePushPayload({ ...payload, unread: 3 })).unread).toBe(3);
+  });
+
   it("cuts long texts to fit the limit, keeping the link and tag", () => {
     const long = { ...payload, title: "ğ".repeat(5_000), body: "ş".repeat(5_000) };
     const json = encodePushPayload(long);

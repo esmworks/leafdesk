@@ -13,7 +13,7 @@ import { checkTarget } from "@/server/link-preview";
 import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { getNotificationPreferences, pushWanted } from "@/server/notification-preferences";
-import { listNotifications } from "@/server/notifications";
+import { listNotifications, unreadCount } from "@/server/notifications";
 import { deliverTelegram } from "@/server/telegram/notify";
 
 /**
@@ -107,10 +107,16 @@ async function deliver(ids: string[]) {
       const locale = await recipientLocale(userId, theirs.find((r) => r.locale)?.locale);
       const t = emailTranslator(locale);
       const texts = (key: string, values?: Record<string, string | number>) => t(`push.${key}` as Parameters<typeof t>[0], values);
+      // Each workspace's unread count, read once: the installed app's icon shows it.
+      const counts = new Map<string, Promise<number | undefined>>();
+      const unread = (workspaceId: string) => {
+        if (!counts.has(workspaceId)) counts.set(workspaceId, unreadCount(userId, workspaceId).catch(() => undefined));
+        return counts.get(workspaceId)!;
+      };
       for (const item of items) {
         const payload = pushPayload(item, texts, (date, timeZone) => formatIsoDate(date, locale, "medium", timeZone));
         if (!payload) continue;
-        const json = encodePushPayload({ ...payload, url: `${env.appUrl}${payload.url}` });
+        const json = encodePushPayload({ ...payload, url: `${env.appUrl}${payload.url}`, unread: await unread(item.workspaceId) });
         await Promise.all(targets.map((target) => sendTo(target, json, vapid)));
       }
     }),
