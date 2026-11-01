@@ -17,13 +17,19 @@ after you approve them over OAuth.
 </picture>
 
 - **Pages and databases**: a block editor with slash commands, and databases whose rows are pages,
-  shown as table, board, calendar, gallery, list, feed, timeline, map, chart, dashboard or form, with relations,
-  formulas and rollups; dashboards put numbers, charts and lists from several databases on a page.
+  shown as table, board, calendar, agenda, gallery, list, feed, timeline, map, chart, pivot, dashboard or form,
+  with relations, formulas, rollups and buttons; dashboards put numbers, charts and lists from several databases
+  on a page.
+- **Your email beside your work**: a Mail tab for each member's own mailboxes (Gmail and Microsoft 365
+  with a sign-in, any other over IMAP and SMTP) with threads, full-text search, snooze, drafts, undo send,
+  signatures and snippets; AI summarizes threads and drafts answers from the customer's row, and mail
+  on database rows and follow-up sequences keep the conversation with the record.
 - **Realtime and offline**: edit together with live cursors, keep working without a connection.
 - **Built for AI assistants**: connect Claude or any other MCP client over OAuth 2.1 and approve
   what it may read or change; optional AI writing, AI properties, a chat that remembers what you
-  tell it, reusable skills, and agents that work on database rows, with Anthropic, OpenAI, Google
-  or a local model.
+  tell it and sets reminders, reusable skills, and agents that work on database rows, read the
+  mailboxes you open to them, chat on Telegram and keep to the rules and limits owners set, with
+  Anthropic, OpenAI, Google, OpenRouter or a local model.
 - **Bring your pages**: import a Notion *Markdown & CSV* export, an Obsidian vault, a Confluence space, Evernote notebooks,
   OneNote pages and sections, a Trello board, an Asana project, a Monday.com board, Markdown files, TextBundles, Word
   documents, Google documents, PDFs, web pages saved as one file, a folder or CSV, and keep a database of Jira issues,
@@ -35,6 +41,11 @@ after you approve them over OAuth.
   AGPL-3.0 licensed, in 24 languages.
 - **Or on your computer**: the desktop app for macOS, Windows and Linux runs Leafdesk on its own,
   with no server to set up, and backs your workspace up every day; it connects to a server too.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/mail-dark.png">
+  <img src=".github/screenshots/mail-light.png" alt="The Mail tab: the inbox's conversations beside an open thread with a customer about pricing">
+</picture>
 
 Claude planning a launch in Leafdesk over MCP: a database, its tasks, a board view and a kickoff
 page, all showing up live (sped up):
