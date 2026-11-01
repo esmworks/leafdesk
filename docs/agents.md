@@ -94,6 +94,12 @@ characters: it fails as `selfReported`, and the reason shows in its report, its 
 `list_agent_runs` and the REST API mark a quiet run with `quiet: true`; the reason is its `answer`.
 When the person's chat with the [Telegram bot](ai.md#ai-chat-from-telegram) is pointed at the agent,
 each run that isn't quiet sends its summary there too.
+A schedule's runs all go to one conversation of the agent's kept for that schedule. A run that
+fails (`failed`, including `selfReported`) counts toward the schedule's failures in a row, one that
+ends well counts from 0 again; after 10 in a row the schedule turns itself off and whoever set it
+gets a *Schedules turned off* inbox item (its own notification setting) naming the agent and the
+task. Setting the schedule again turns it back on. Times missed while the server was down make one
+run when it is back, not one each.
 
 **Its model.** Where the server has a fast model (`AI_FAST_MODEL`, see [AI features](ai.md#ai-features)),
 the agent's settings let an owner choose which model its runs use, both named: the main model

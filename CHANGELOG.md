@@ -12,9 +12,9 @@
 - **A schedule that keeps failing turns itself off and tells you.** After 10 failed runs in a row,
   an agent's schedule or your own scheduled question turns off, and whoever set it gets an inbox
   notification (its own setting, *Schedules turned off*) naming the agent and the task; a run
-  that goes well counts from 0 again, and setting the schedule again turns it back on. Times missed
-  while the server was down still make one run, not one each. Migration `0186_trigger_layer` adds
-  `schedule.failures` and the notification kind's settings.
+  that goes well counts from 0 again, and setting the schedule again turns it back on. As before,
+  times missed while the server was down make one run, not one each. Migration
+  `0186_trigger_layer` adds `schedule.failures` and the notification kind's settings.
 
 - **New mail comes as a notification on your phone.** Mail arriving in a Mail tab inbox is pushed,
   within a minute, to the devices where push notifications are on: who wrote and to which address,
