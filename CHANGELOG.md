@@ -9,6 +9,17 @@
   open shows at the window's top corner with the person's picture, what they did and the page; more
   stack behind it with a count. Click it to open it and mark it read; it goes by itself after a few
   seconds, or when closed, and stays unread in the inbox.
+- **Ask the AI chat something on a schedule.** A question of your own can now come round by itself
+  (daily, weekly …, in your time zone), asked as you, with your access, as if you had typed it;
+  its answers line up in one conversation of your AI chat kept for it. It only reads unless you
+  let it change things, and it skips a time while its last answer still waits. Only you see or
+  change it. For now it is set through the app's server actions, not yet a screen.
+- **A schedule that keeps failing turns itself off and tells you.** After 10 failed runs in a row,
+  an agent's schedule or your own scheduled question turns off, and whoever set it gets an inbox
+  notification (its own setting, *Schedules turned off*) naming the agent and the task; a run
+  that goes well counts from 0 again, and setting the schedule again turns it back on. As before,
+  times missed while the server was down make one run, not one each. Migration
+  `0186_trigger_layer` adds `schedule.failures` and the notification kind's settings.
 - **New mail comes as a notification on your phone.** Mail arriving in a Mail tab inbox is pushed,
   within a minute, to the devices where push notifications are on: who wrote and to which address,
   never the subject, and opening it opens the thread; several at once come as one notification.
@@ -458,6 +469,13 @@
   switch, *Changes without asking*: when off, the chat's *Auto* mode and "Yes, and don't ask again"
   are gone and every change is asked about, also in answers already under way. It is on by default.
   The same section lists the models people may pick in the chat.
+- **Everything that starts an agent goes through one place, and keeps to one conversation.**
+  Automations and buttons, mentions, requests, schedules, mail, connection events, chats and agents
+  handing work to each other now all start runs the same way, and each run is linked to a
+  conversation: the one kept for its row, comment thread, mail thread or schedule, the chat it
+  answers, or a new one. What can start an agent (or your own AI chat) is listed in one place for
+  its page to show. Who sees a run is unchanged. Migration `0186_trigger_layer` adds
+  `agent_run.conversation_id` and `conversation.key`.
 - **The AI chat waits for your decision as long as you take, and survives a restart.** A change it
   asks about no longer counts as declined after 15 minutes: the answer waits until you decide or
   stop it, in the app and in Telegram. Each answer is now kept as a run as it goes, so one the

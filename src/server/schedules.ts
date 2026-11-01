@@ -1,10 +1,11 @@
-import { and, asc, count, eq, lte, sql } from "drizzle-orm";
+import { and, asc, count, eq, gt, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { page, schedule } from "@/db/schema";
+import { notification, page, schedule, workspaceAgent } from "@/db/schema";
 import {
   nextOccurrence,
   parseRepeatRule,
   repeatSummary,
+  SCHEDULE_FAILURE_LIMIT,
   type RepeatRule,
   type ScheduleError,
   type ScheduleKind,
@@ -17,6 +18,8 @@ import { getCollab } from "@/server/collab/bridge";
 import { requireDatabase, withCode } from "@/server/databases";
 import { createRow } from "@/server/templates";
 import { startSweep } from "@/server/sweep";
+import { signalInbox } from "@/server/notifications";
+import { pushNotifications } from "@/server/push";
 
 /**
  * Schedules (lib/schedule for the rules): something that happens on a repeat rule, in a time zone.
@@ -29,6 +32,11 @@ import { startSweep } from "@/server/sweep";
  *
  * A schedule runs as the person who set it last, with their access at the time. A run they could
  * no longer do pauses it (`enabled` off, with the reason in `lastError`) until someone sets it again.
+ *
+ * Missed times are never made up: a schedule due several times while the server was down runs once,
+ * then keeps to the rule (claimDue counts the next run from now). An agent's schedule and an own
+ * request count the runs they start that fail in a row (`failures`, noteScheduleOutcome): at
+ * SCHEDULE_FAILURE_LIMIT the schedule turns itself off and tells whoever set it (`schedule_paused`).
  */
 
 const SWEEP_INTERVAL_MS = 30_000;
@@ -116,9 +124,55 @@ async function runOne(row: ScheduleRow, at: Date, now: Date) {
     .update(schedule)
     .set(pause ? { enabled: false, nextRunAt: null, lastError: error } : { lastRunAt: done ? now : undefined, lastError: error })
     .where(eq(schedule.id, row.id));
+  // A run that couldn't start counts as failed; one that started counts once it ends (its worker tells).
+  if (error === "failed" && COUNTED_KINDS.has(row.kind)) await noteScheduleOutcome(row.id, false);
   // The template's menu shows how it repeats; an agent's run changes rows (and says so) on its own.
   if (row.kind === "row_template" && row.databaseId) getCollab().broadcast(`db:${row.databaseId}`, "rows");
 }
+
+/** Kinds whose runs are counted toward SCHEDULE_FAILURE_LIMIT: those that start a run of the AI. */
+const COUNTED_KINDS: ReadonlySet<ScheduleKind> = new Set(["agent", "own_request"]);
+
+/**
+ * Counts how a schedule's run went (an agent's run, an own request's answer, or a start that
+ * failed): one that went well sets `failures` back to 0; the SCHEDULE_FAILURE_LIMIT-th failure in
+ * a row turns the schedule off (`lastError` "failed") and tells whoever set it, once. Setting it
+ * again turns it back on and starts the count over. Never throws: the run's ending is kept either way.
+ */
+export async function noteScheduleOutcome(scheduleId: string, ok: boolean) {
+  try {
+    if (ok) {
+      await db.update(schedule).set({ failures: 0 }).where(and(eq(schedule.id, scheduleId), gt(schedule.failures, 0)));
+      return;
+    }
+    const [counted] = await db
+      .update(schedule)
+      .set({ failures: sql`${schedule.failures} + 1` })
+      .where(eq(schedule.id, scheduleId))
+      .returning({ failures: schedule.failures, enabled: schedule.enabled });
+    if (!counted?.enabled || counted.failures < SCHEDULE_FAILURE_LIMIT) return;
+    // Only the update that turns it off tells: two failures ending at once tell once.
+    const [off] = await db
+      .update(schedule)
+      .set({ enabled: false, nextRunAt: null, lastError: "failed" })
+      .where(and(eq(schedule.id, scheduleId), eq(schedule.enabled, true)))
+      .returning();
+    if (!off?.runAs || !COUNTED_KINDS.has(off.kind)) return;
+    // From the agent's user (an agent's schedule), or no one (the person's own request).
+    const actorId = off.kind === "agent" && off.agentId ? sql<string>`(select ${workspaceAgent.userId} from ${workspaceAgent} where ${workspaceAgent.id} = ${off.agentId})` : null;
+    const inserted = await db
+      .insert(notification)
+      .values({ userId: off.runAs, workspaceId: off.workspaceId, kind: "schedule_paused", actorId, message: (off.settings.task ?? "").slice(0, PAUSED_TASK_CHARS) })
+      .returning({ id: notification.id });
+    signalInbox(off.workspaceId);
+    pushNotifications(inserted.map((n) => n.id));
+  } catch (error) {
+    console.error("could not count a schedule's run", scheduleId, error);
+  }
+}
+
+/** The most of a schedule's task its `schedule_paused` notice keeps. */
+const PAUSED_TASK_CHARS = 200;
 
 /** Runs every schedule due at `now`. Returns how many ran (or tried to). */
 export async function runDueSchedules(now = new Date()) {

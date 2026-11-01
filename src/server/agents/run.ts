@@ -63,14 +63,11 @@ import {
   hasAgentSource,
   isAgentRun,
   isScheduleRun,
-  MAX_AGENT_PROMPT,
   MENTION_THREAD_CHARS,
   MENTION_THREAD_COMMENTS,
   skillStepsToAdd,
   type AgentPendingCall,
   type AgentRunCode,
-  type AgentRunContext,
-  type AgentRunSource,
   type AgentRunUsage,
   type AgentStepRecord,
   COMPUTER_EARLIER,
@@ -118,6 +115,8 @@ import { pruneAiUsage } from "@/server/ai/usage-store";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
 import { createDispatch, MAX_COMMENT, scheduledDatabase, setUpRun, type Ending, type Paused } from "@/server/assistant/dispatch";
+import { pruneTriggerConversations, queueAgentRun } from "@/server/triggers";
+import { noteScheduleOutcome } from "@/server/schedules";
 
 const SWEEP_INTERVAL_MS = 5_000;
 /** A run taken (or last gone on with, see converse) this long ago and not finished belongs to a worker that stopped: it's taken again. */
@@ -149,50 +148,8 @@ type Agent = typeof workspaceAgent.$inferSelect;
 
 const state = agentsWorker;
 
-/**
- * What makes two queued runs the same run: the automation's run, the event and trigger, the
- * schedule and the time it was due, the comment that mentioned the agent, or the email that came.
- * Each run an owner
- * asks for is its own.
- */
-function sameSource(source: AgentRunSource, context: AgentRunContext) {
-  // A "for each" step runs the agent once per found row of the automation's run.
-  if (source.kind === "automation") return sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId} and ${agentRun.source}->>'rowId' = ${source.rowId}`;
-  if (source.kind === "connection") return sql`${agentRun.source}->>'eventId' = ${source.eventId} and ${agentRun.source}->>'triggerId' = ${source.triggerId}`;
-  if (source.kind === "mention") return sql`${agentRun.source}->>'commentId' = ${source.commentId}`;
-  if (source.kind === "mail") return sql`${agentRun.source}->>'kind' = 'mail' and ${agentRun.source}->>'messageId' = ${source.messageId}`;
-  if (source.kind === "schedule" && "scheduledFor" in context && context.scheduledFor) {
-    return sql`${agentRun.source}->>'scheduleId' = ${source.scheduleId} and ${agentRun.context}->>'scheduledFor' = ${context.scheduledFor}`;
-  }
-  return sql`false`;
-}
-
-/**
- * Queues a run of an agent; the worker takes it at once (or at its next sweep). A step taken again
- * (its worker stopped before saving that it queued the run) finds the run it queued rather than
- * queuing another.
- */
-export async function queueAgentRun(input: {
-  agentId: string;
-  workspaceId: string;
-  source: AgentRunSource;
-  context: AgentRunContext;
-  prompt: string;
-}): Promise<string> {
-  const prompt = input.prompt.slice(0, MAX_AGENT_PROMPT);
-  const [queued] = await db
-    .select({ id: agentRun.id })
-    .from(agentRun)
-    .where(and(eq(agentRun.agentId, input.agentId), sameSource(input.source, input.context), eq(agentRun.prompt, prompt)))
-    .limit(1);
-  if (queued) return queued.id;
-  const [run] = await db
-    .insert(agentRun)
-    .values({ ...input, prompt })
-    .returning({ id: agentRun.id });
-  state.kick?.();
-  return run.id;
-}
+/** Queued through the trigger layer (server/triggers.ts); kept here for the scripts that queue runs. */
+export { queueAgentRun };
 
 /** Takes due runs, marking them running, so two sweeps never take the same one. */
 async function claim(limit: number): Promise<(typeof agentRun.$inferSelect)[]> {
@@ -236,6 +193,8 @@ async function finish(run: Run, values: Ending) {
     // As it is now: a helper asked with ask_agent that wasn't done in time became a task meanwhile (handoff.ts).
     .returning({ source: agentRun.source, answer: agentRun.answer, steps: agentRun.steps, prompt: agentRun.prompt });
   const source = ended && hasAgentSource(ended) ? ended.source : run.source;
+  // A schedule's runs failing again and again turn it off (server/schedules.ts).
+  if (isScheduleRun(run.source)) await noteScheduleOutcome(run.source.scheduleId, values.status === "done");
   await reportRun({ ...run, source }, values);
   await replyToMention(run, values);
   // A routine's summary to the chat its setter has with the agent in Telegram, as saved (masked).
@@ -1010,6 +969,7 @@ export async function pruneAgentRuns() {
     .delete(agentRun)
     .where(and(isNull(agentRun.agentId), lte(agentRun.createdAt, new Date(Date.now() - AGENT_RUN_HISTORY_DAYS * 24 * 60 * 60_000))))
     .catch((error) => console.error("[ai] could not prune chat runs", redactError(error)));
+  await pruneTriggerConversations(AGENT_RUN_HISTORY_DAYS).catch((error) => console.error("[agents] could not prune conversations", redactError(error)));
   await db
     .delete(connectionEvent)
     .where(lte(connectionEvent.receivedAt, new Date(Date.now() - CONNECTION_EVENT_DAYS * 24 * 60 * 60_000)))

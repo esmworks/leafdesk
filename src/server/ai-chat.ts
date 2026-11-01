@@ -124,6 +124,8 @@ import { FIND_TOOLS, lazyMoreTools, USE_TOOL } from "@/server/ai-more-tools";
 import { chatToolset } from "@/server/connections/tools";
 import { createChatDispatch, type ResolvedScope } from "@/server/assistant/chat-dispatch";
 import { kickAgents } from "@/server/agents/kick";
+import { startTriggered } from "@/server/triggers";
+import { noteScheduleOutcome } from "@/server/schedules";
 import * as ops from "@/server/operations";
 import { activeVerifications } from "@/server/verification";
 import { workspaceSettings } from "@/server/workspaces";
@@ -301,10 +303,16 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     replaced,
     ...(existing ? {} : { started: true as const }),
   };
-  const [run] = await db
-    .insert(agentRun)
-    .values({ agentId: null, workspaceId: input.workspaceId, source, context: { actorId: userId, timeZone }, prompt: message, status: "running", attempts: 1, startedAt: new Date() })
-    .returning();
+  // The person's own run in their conversation, answered here at once (claimed): the worker leaves it be.
+  const { run } = await startTriggered({
+    target: { self: userId },
+    workspaceId: input.workspaceId,
+    source,
+    context: { actorId: userId, timeZone },
+    prompt: message,
+    conversation: { rule: "fixed", conversationId: conversation.id },
+    claimed: true,
+  });
   const setup: ChatSetup = { scope, skill, conversation, connections: !isGuest(membership.role), files, web: await chatWebOn(input.workspaceId), autoChanges: await chatAutoOn(input.workspaceId) };
   return converseChat({ ...run, source }, setup, signal);
 }
@@ -865,13 +873,24 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     else yield { type: "error", code: failure };
     // Kept with the question: they now go with the conversation.
     await keepQuestionFiles(conversation.id, kept.map((f) => f.id));
+    if (source.scheduleId) await scheduledOutcome(source.scheduleId, failure);
     await pruneConversations(userId, workspaceId);
     return;
   }
+  if (source.scheduleId) await scheduledOutcome(source.scheduleId, failure);
   // Nothing to keep: a conversation this question started goes again.
   await db.delete(agentRun).where(eq(agentRun.id, run.id));
   if (source.started) await db.delete(conversationTable).where(and(eq(conversationTable.id, conversation.id), sql`jsonb_array_length(${conversationTable.messages}) = 0`));
   yield { type: "error", code: failure };
+}
+
+/**
+ * How an answer one of the person's own schedules asked for ended (server/own-requests.ts), for the
+ * schedule's failures in a row; one the person stopped counts neither way.
+ */
+async function scheduledOutcome(scheduleId: string, failure: AiErrorCode | null) {
+  if (failure === "aborted") return;
+  await noteScheduleOutcome(scheduleId, failure === null);
 }
 
 /** The sources an answer may cite, as it left them (server/ai-tools.ts register). */
@@ -1021,6 +1040,7 @@ async function abandon(run: AssistantRun) {
     await tx.delete(agentRun).where(eq(agentRun.id, run.id));
   });
   if (changed) await keepQuestionFiles(source.conversationId, source.files.map((f) => f.id));
+  if (source.scheduleId) await scheduledOutcome(source.scheduleId, "provider");
 }
 
 /** Answers of the person's in a conversation left waiting on them by a server that stopped: no one can answer them now. */

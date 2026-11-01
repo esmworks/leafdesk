@@ -203,8 +203,16 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   check holds: agent code takes `AgentRunRow` and narrows rows it reads with `isAgentRun`) and
   the run's turns with the model (`converse`); what a run is offered and how each tool call is
   answered (waits, counts, refusals) is `src/server/assistant/dispatch.ts`
-  (`setUpRun`, `createDispatch`); runs are queued from `requests.ts`, `chat.ts`,
-  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. A chat run streams its turns: the text so far
+  (`setUpRun`, `createDispatch`). Every run is started through `server/triggers.ts`
+  `startTriggered` (a target agent or `{ self }` for the person's own AI chat, the source, and a
+  conversation rule from `lib/triggers.ts`: `new`, `keyed` on `conversation.key` such as
+  `row:<id>`, `thread:<id>`, `mail:<threadId>`, `schedule:<id>`, or `fixed`), which dedupes,
+  links `agent_run.conversation_id` and kicks the worker; requests, chat, mentions, handoff, mail,
+  connection events, automations, the `agent` and `own_request` schedule kinds and the AI chat
+  all call it. A triggered agent's conversations belong to the agent's own user, so no one lists
+  them; who sees a run is still its `source`. `listTriggers` there is the one list of what starts
+  an agent or a person's own chat. Own requests (`server/own-requests.ts`) are a person's question
+  on a schedule, run as their AI chat by the worker (`resumeChatRun`). A chat run streams its turns: the text so far
   goes to an in-process store (`agents/live-text.ts`, masked as the kept answer) that
   `/api/agents/chat/live` sends the person chatting as edits; the answer itself is still
   `agent_run.answer`, and `use-agent-chat.ts` keeps the turn under way in the same list item (and key)
@@ -281,7 +289,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `meetings.ts` `summarizeMeeting` through `server/meeting-triggers.ts`; a "row added" trigger with
   `filled` waits on a row added untitled until it is filled in, `lib/automations.ts`
   `newRowWaitsUntil`, and `PageView` leaving a row calls `newRowClosed`) and
-  `src/server/schedules.ts` (`registerScheduleHandler`).
+  `src/server/schedules.ts` (`registerScheduleHandler`; missed times make one run; the `agent`
+  and `own_request` kinds count failures in a row through `noteScheduleOutcome`, called when the
+  run ends, which turns the schedule off at `SCHEDULE_FAILURE_LIMIT` with a `schedule_paused`
+  inbox item).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
   table synced in `persistPage` by `meeting-notes.ts`; an uploaded file is decoded in the browser
   and sent in a live recording's pieces, `components/voice/meeting-upload-session.ts`), to-dos in

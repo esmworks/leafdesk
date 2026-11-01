@@ -28,7 +28,7 @@ import { recordAudit } from "@/server/audit";
 import { lockWorkspaceSchedules, MAX_SCHEDULES_PER_WORKSPACE, registerScheduleHandler, ScheduleRunError, type ScheduleRow } from "@/server/schedules";
 import { AgentError, agentFor } from "./manage";
 import { agentLevel as levelOnAgent } from "./sharing";
-import { queueAgentRun } from "./run";
+import { startTriggered } from "@/server/triggers";
 import { recordAgentVersion } from "./version-record";
 
 /**
@@ -82,6 +82,7 @@ async function viewSchedules(userId: string, agentUserId: string, rows: Schedule
       nextRunAt: r.enabled && r.nextRunAt ? r.nextRunAt.toISOString() : null,
       lastRunAt: r.lastRunAt?.toISOString() ?? null,
       lastError: SCHEDULE_ERRORS.includes(r.lastError as ScheduleError) && r.lastError !== "dashboardGone" ? (r.lastError as AgentScheduleView["lastError"]) : null,
+      failures: r.failures,
       setBy: r.runAs ? { id: r.runAs, name: setters.get(r.runAs) ?? "" } : null,
     };
   });
@@ -163,6 +164,8 @@ export async function setAgentSchedule(
     enabled: true,
     nextRunAt: nextOccurrence(rule, timeZone, now),
     lastError: null,
+    // Set again, it counts its failures in a row from 0 (server/schedules.ts noteScheduleOutcome).
+    failures: 0,
     runAs: userId,
   };
 
@@ -260,8 +263,8 @@ registerScheduleHandler("agent", async ({ schedule: row, runAs, at }) => {
     if ((await pageAccessOf(agent.userId, row.databaseId)).level === "none") return false;
   }
   if (await runWaiting(row)) return false;
-  await queueAgentRun({
-    agentId: agent.id,
+  await startTriggered({
+    target: { agentId: agent.id },
     workspaceId: row.workspaceId,
     source: { kind: "schedule", scheduleId: row.id, scheduledBy: runAs, ...(row.databaseId ? { databaseId: row.databaseId } : {}) },
     context: { actorId: runAs, scheduledFor: at.toISOString(), timeZone: row.timeZone },

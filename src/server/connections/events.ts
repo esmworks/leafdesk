@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { connection, connectionEvent, connectionTrigger, workspaceAgent } from "@/db/schema";
 import { MAX_EVENT_BYTES, MAX_TRIGGER_EVENT } from "@/lib/connections";
 import { redactText, redactValue } from "@/lib/redact";
-import { queueAgentRun } from "@/server/agents/run";
+import { startTriggered } from "@/server/triggers";
 import { open } from "../secret-box";
 import { triggerMatches, verifyEvent } from "./verify";
 
@@ -109,15 +109,14 @@ export async function receiveEvent(connectionId: string, request: Request): Prom
   const text = typeof verified.payload === "string" ? redactText(verified.payload) : JSON.stringify(redactValue(verified.payload), null, 1);
   const runIds: string[] = [];
   for (const { trigger } of matching) {
-    runIds.push(
-      await queueAgentRun({
-        agentId: trigger.agentId,
-        workspaceId: conn.workspaceId,
-        source: { kind: "connection", connectionId: conn.id, triggerId: trigger.id, eventId: event.id },
-        context: { eventType, body: text.slice(0, EVENT_BODY_CHARS) },
-        prompt: trigger.prompt,
-      }),
-    );
+    const { run } = await startTriggered({
+      target: { agentId: trigger.agentId },
+      workspaceId: conn.workspaceId,
+      source: { kind: "connection", connectionId: conn.id, triggerId: trigger.id, eventId: event.id },
+      context: { eventType, body: text.slice(0, EVENT_BODY_CHARS) },
+      prompt: trigger.prompt,
+    });
+    runIds.push(run.id);
   }
   await db
     .update(connectionEvent)

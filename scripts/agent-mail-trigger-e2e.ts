@@ -72,7 +72,7 @@ const { and, eq, inArray, sql } = await import("drizzle-orm");
 const nodemailer = (await import("nodemailer")).default;
 const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
-const { agentMailbox, agentRun, mailbox, mailMessage, notification, page, schedule, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentMailbox, agentRun, conversation, mailbox, mailMessage, notification, page, schedule, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { setPagePermission } = await import("@/server/permissions");
 const { runAsConnectedApp } = await import("@/server/connected-app");
 const review = await import("@/server/pending-changes");
@@ -241,6 +241,12 @@ try {
     runs.length === 1 && runs[0].status === "pending" && runs[0].source.kind === "mail" && runs[0].source.threadId === priceMessage?.threadId && runs[0].prompt.startsWith("Summarize"),
     "new mail from a row starts one run, with the task; lists, auto-replies, strangers and the owner's own mail start none",
     runs.map((r) => ({ source: r.source, status: r.status })),
+  );
+  const [mailConversation] = runs[0].conversationId ? await db.select().from(conversation).where(eq(conversation.id, runs[0].conversationId)) : [];
+  check(
+    mailConversation?.key === `mail:${priceMessage!.threadId}` && mailConversation.agentId === helper.id && mailConversation.userId === helper.userId,
+    "the run joins the agent's conversation kept for the mail thread",
+    mailConversation,
   );
   check((await messageBy(`Haftalık bülten ${RUN}`))?.automated === true && (await messageBy(`Ofis dışında ${RUN}`))?.automated === true, "mailing lists and auto-replies are marked as written by a machine");
 

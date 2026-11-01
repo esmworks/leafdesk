@@ -271,6 +271,11 @@ export type AssistantRunSource = {
   replaced: number;
   /** The question started the conversation: it goes again when nothing of the answer is kept. */
   started?: true;
+  /**
+   * Asked by one of the person's own schedules (kind `own_request`, server/own-requests.ts) rather
+   * than typed: how it ends counts toward the schedule's failures in a row (server/schedules.ts).
+   */
+  scheduleId?: string;
 };
 
 /** What `agent_run.source` holds: an agent's run's start, or a person's own AI chat's. */
@@ -693,6 +698,8 @@ export type AgentScheduleView = {
   nextRunAt: string | null;
   lastRunAt: string | null;
   lastError: Exclude<ScheduleError, "dashboardGone"> | null;
+  /** Its runs that failed in a row; at SCHEDULE_FAILURE_LIMIT (lib/schedule.ts) it turned itself off. */
+  failures: number;
   /** The owner who set it last: its runs are held to their access. */
   setBy: { id: string; name: string } | null;
 };

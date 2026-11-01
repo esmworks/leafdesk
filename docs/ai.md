@@ -414,6 +414,16 @@ later on its own, so work to be done again and again ("every morning, list what'
 `create_agent` when you have none and may make one, and asks you before each. With changes off it
 says so instead. People turn reminders off under *AI reminders* in Settings → Preferences.
 
+**Your own questions on a schedule.** A question can also come round by itself without an agent: a
+repeat rule in your time zone and the question (up to 10 per person and workspace). Each time it is
+asked as you, with your access, model and limits, as if you had typed it, and its answers line up in
+one conversation of your AI chat kept for it. It only reads unless set to change things (*Auto*,
+asking first after reading others' words, as the chat does); while its last answer still waits, a
+time is skipped. Only you list, change or remove it; leaving the workspace pauses it, AI being off
+skips its times, and after 10 failed answers in a row it turns itself off with a *Schedules turned
+off* inbox item. For now it is set through the app's server actions (`setOwnRequestAction`), with no
+screen of its own yet.
+
 The same notes reach the AI apps you connect over MCP, so each of them knows you as the chat does:
 `list_memory` reads them (an app is told to at the start of a conversation), and `change_memory`
 keeps a note, changes one or deletes some or all of them, with the chat's

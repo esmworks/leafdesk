@@ -21,6 +21,8 @@ export function pushLink(item: PushItem): string {
   // A task's report opens the chat with the agent that gave it, which the person works with (the
   // agent that did it may not be shared with them).
   if (item.kind === "agent_task") return item.report?.from ? agentPagePath(item.workspaceId, item.report.from.agentId) : `/w/${item.workspaceId}`;
+  // A schedule turned off: the agent's page, where it is set again; one's own request, the AI chat its answers went to.
+  if (item.kind === "schedule_paused") return item.schedulePaused?.agentId ? agentPagePath(item.workspaceId, item.schedulePaused.agentId) : `/w/${item.workspaceId}/ai`;
   if (item.kind === "review") return reviewPath(item.workspaceId);
   if (item.kind === "ai_limit") return aiLimitPath(item.workspaceId, item.aiLimit?.agent?.id ?? null);
   // The owner answers in the inbox; the agent is where its limit and use are.

@@ -147,6 +147,8 @@ export type PushItem = {
   createdAt?: Date | string;
   /** Reminders an agent set: what they say, and which agent; `own`: one the user asked the AI chat for. */
   aiReminder?: { text: string; agentId: string | null; agentName: string | null; own?: true } | null;
+  /** A schedule that turned itself off after failing again and again: an agent's (`agentName`), or the person's own request. */
+  schedulePaused?: { task: string; agentId: string | null; agentName: string | null; own: boolean; failures: number } | null;
 };
 
 /** The line of a comment notification about a suggested edit, in the inbox and in push messages. */
@@ -198,6 +200,11 @@ export function pushPayload(
     title = t("reportTitle", { agent: item.report.agentName || actor });
     const agent = item.report.from?.agentName || t("someone");
     line = item.report.status === "failed" ? t("taskFailed", { agent }) : t("taskDone", { agent });
+  } else if (item.kind === "schedule_paused") {
+    // Not its task: an agent's may name what is in a database.
+    const paused = item.schedulePaused;
+    title = paused?.agentName ? t("schedulePausedTitle", { agent: paused.agentName }) : t("schedulePausedOwnTitle");
+    line = t("schedulePaused", { count: paused?.failures ?? 0 });
   } else if (item.kind === "review") {
     // How many, not what they change: a lock screen shows it to whoever holds the device.
     title = t("reviewTitle");
