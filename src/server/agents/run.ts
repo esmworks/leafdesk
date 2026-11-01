@@ -965,7 +965,9 @@ export async function expireApprovals() {
 export async function flushAgentRuns() {
   for (;;) {
     await sweep();
-    while (running.size) await new Promise((resolve) => setTimeout(resolve, 20));
+    // A sweep a run started (kickAgents, as a helper's task is queued) marks what it takes as running
+    // before it is in `running`: waiting for it too, so that run isn't missed.
+    while (running.size || sweeping) await new Promise((resolve) => setTimeout(resolve, 20));
     const [due] = await db
       .select({ id: agentRun.id })
       .from(agentRun)
