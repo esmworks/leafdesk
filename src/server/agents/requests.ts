@@ -16,6 +16,7 @@ import { MAX_AGENT_PROMPT, MAX_REQUESTED_RUNS, type AgentRunVia, type AgentRunVi
 import { pageAccessOf } from "@/server/access";
 import { aiAvailable } from "@/server/ai-writing";
 import { recordAudit } from "@/server/audit";
+import { startTriggered } from "@/server/triggers";
 import { requestedRuns } from "./handoff";
 import { kickAgents } from "./kick";
 import { AgentError, agentFor, getAgentRun } from "./manage";
@@ -67,17 +68,15 @@ export async function requestAgentRun(userId: string, agentId: string, request: 
         ),
       );
     if ((waiting?.n ?? 0) >= MAX_REQUESTED_RUNS) throw new AgentError("tooManyRuns", "Too many runs of this agent are waiting", { max: String(MAX_REQUESTED_RUNS) });
-    const [queued] = await tx
-      .insert(agentRun)
-      .values({
-        agentId: agent.id,
-        workspaceId: agent.workspaceId,
-        source: { kind: "request", requestedBy: userId, via: request.via, ...(row ?? {}) },
-        context: { actorId: userId },
-        prompt: task,
-      })
-      .returning({ id: agentRun.id });
-    return queued.id;
+    const { run } = await startTriggered({
+      target: { agentId: agent.id },
+      workspaceId: agent.workspaceId,
+      source: { kind: "request", requestedBy: userId, via: request.via, ...(row ?? {}) },
+      context: { actorId: userId },
+      prompt: task,
+      tx,
+    });
+    return run.id;
   });
   kickAgents();
   await recordAudit({

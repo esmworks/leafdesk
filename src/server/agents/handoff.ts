@@ -44,6 +44,7 @@ import { findMembership } from "@/server/access";
 import type { AiTool, AiToolCall } from "@/server/ai";
 import { frameData } from "@/server/connections/tools";
 import type { RunClock } from "./clock";
+import { startTriggered } from "@/server/triggers";
 import { kickAgents } from "./kick";
 import { agentLevel } from "./sharing";
 import { overMonthlyLimit } from "./usage";
@@ -269,20 +270,15 @@ export async function handoffFor(
     let helperRun = await startedBefore(helper.id, call.id);
     let mine = false;
     if (!helperRun) {
-      const [inserted] = await db
-        .insert(agentRun)
-        .values({
-          agentId: helper.id,
-          workspaceId: run.workspaceId,
-          source: sourceFor(call, false),
-          context: { actorId: agent.userId },
-          prompt,
-          // Taken by this slot at once: the worker leaves it be.
-          status: "running",
-          attempts: 1,
-          startedAt: new Date(),
-        })
-        .returning();
+      const { run: inserted } = await startTriggered({
+        target: { agentId: helper.id },
+        workspaceId: run.workspaceId,
+        source: sourceFor(call, false),
+        context: { actorId: agent.userId },
+        prompt,
+        // Taken by this slot at once: the worker leaves it be.
+        claimed: true,
+      });
       if (!isAgentRun(inserted)) throw new Error("A helper's run is an agent's");
       helperRun = inserted;
       mine = true;
@@ -335,10 +331,14 @@ export async function handoffFor(
         .from(agentRun)
         .where(and(eq(agentRun.agentId, helper.id), inArray(agentRun.status, ["pending", "running", "awaiting_approval"]), requestedRuns));
       if ((waiting?.n ?? 0) >= MAX_REQUESTED_RUNS) return null;
-      const [inserted] = await tx
-        .insert(agentRun)
-        .values({ agentId: helper.id, workspaceId: run.workspaceId, source: sourceFor(call, true), context: { actorId: agent.userId }, prompt })
-        .returning({ id: agentRun.id });
+      const { run: inserted } = await startTriggered({
+        target: { agentId: helper.id },
+        workspaceId: run.workspaceId,
+        source: sourceFor(call, true),
+        context: { actorId: agent.userId },
+        prompt,
+        tx,
+      });
       return inserted;
     });
     asked += 1;

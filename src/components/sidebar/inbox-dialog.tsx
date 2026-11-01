@@ -221,6 +221,13 @@ export function InboxDialog({
                     <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                     <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
                   </>
+                ) : item.kind === "schedule_paused" ? (
+                  <>
+                    <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">
+                      {item.schedulePaused?.agentName ? t("schedulePausedTitle", { agent: item.schedulePaused.agentName }) : t("schedulePausedOwnTitle")}
+                    </span>
+                  </>
                 ) : item.kind === "ai_reminder" ? (
                   <>
                     <AlarmClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -301,6 +308,8 @@ export function InboxDialog({
                   : item.report.status === "failed"
                     ? t("taskFailed", { agent: item.report.from?.agentName || t("someone") })
                     : item.report.text || t("taskDone", { agent: item.report.from?.agentName || t("someone") })
+                : item.kind === "schedule_paused"
+                ? t("schedulePaused", { count: item.schedulePaused?.failures ?? 0, task: item.schedulePaused?.task ?? "" })
                 : item.kind === "review"
                 ? t("review", { count: item.review?.count ?? 0, agent: item.actorName || t("someone") })
                 : item.kind === "ai_account_detached"

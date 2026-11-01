@@ -57,6 +57,7 @@ import { approversOf } from "./approvers";
 import { computerFolders } from "./computer";
 import { answerFiles } from "./chat-store";
 import { AgentError } from "./errors";
+import { startTriggered } from "@/server/triggers";
 import { kickAgents } from "./kick";
 import { startedBy, viewRuns } from "./manage";
 import { agentLevel, agentLevels, agentWithLevel } from "./sharing";
@@ -298,24 +299,24 @@ export async function sendAgentChat(
           sessionId,
           timeZone,
         };
-    const [run] = await tx
-      .insert(agentRun)
-      .values({
-        agentId: agent.id,
-        workspaceId: input.workspaceId,
-        source: {
-          kind: "chat",
-          userId,
-          conversationId: conversation.id,
-          ...(turn.fromApp ? { fromApp: true } : {}),
-          ...(turn.telegram ? { telegram: true as const } : {}),
-          ...(turn.otherApp ? { otherApp: true as const } : {}),
-          ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
-        },
-        context: { actorId: userId, ...(turn.timeZone ? { timeZone: turn.timeZone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
-        prompt: turn.prompt,
-      })
-      .returning({ id: agentRun.id });
+    // The chat's own conversation, locked above (or just made): the trigger layer only links the run to it.
+    const { run } = await startTriggered({
+      target: { agentId: agent.id },
+      workspaceId: input.workspaceId,
+      source: {
+        kind: "chat",
+        userId,
+        conversationId: conversation.id,
+        ...(turn.fromApp ? { fromApp: true } : {}),
+        ...(turn.telegram ? { telegram: true as const } : {}),
+        ...(turn.otherApp ? { otherApp: true as const } : {}),
+        ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
+      },
+      context: { actorId: userId, ...(turn.timeZone ? { timeZone: turn.timeZone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
+      prompt: turn.prompt,
+      conversation: { rule: "fixed", conversationId: conversation.id },
+      tx,
+    });
     const records: AgentChatMessageRecord[] = turn.records.map((r) => ({ ...r, runId: run.id }));
     const [saved] = await tx
       .update(conversationTable)
@@ -481,25 +482,24 @@ export async function redoAgentChat(
     // The question is asked again as it was asked: from where it came (a connected app's has no mail tools; another app's words aren't the person's).
     const was = before?.source.kind === "chat" ? before.source : null;
     const fromApp = Boolean(was?.fromApp || (!was && connectedAppCall(userId)));
-    const [run] = await tx
-      .insert(agentRun)
-      .values({
-        agentId: agent.id,
-        workspaceId: input.workspaceId,
-        source: {
-          kind: "chat",
-          userId,
-          conversationId: existing.id,
-          ...(fromApp ? { fromApp: true } : {}),
-          ...(was?.telegram ? { telegram: true as const } : {}),
-          ...(was?.otherApp ? { otherApp: true as const } : {}),
-          // The session asking again now, wherever the question first came from in the app.
-          ...(!fromApp && !connectedAppCall(userId) && input.sessionId ? { sessionId: input.sessionId } : {}),
-        },
-        context: { actorId: userId, ...(zone ? { timeZone: zone } : {}), ...(files.length ? { files } : {}) },
-        prompt: turnPrompt(contents),
-      })
-      .returning({ id: agentRun.id });
+    const { run } = await startTriggered({
+      target: { agentId: agent.id },
+      workspaceId: input.workspaceId,
+      source: {
+        kind: "chat",
+        userId,
+        conversationId: existing.id,
+        ...(fromApp ? { fromApp: true } : {}),
+        ...(was?.telegram ? { telegram: true as const } : {}),
+        ...(was?.otherApp ? { otherApp: true as const } : {}),
+        // The session asking again now, wherever the question first came from in the app.
+        ...(!fromApp && !connectedAppCall(userId) && input.sessionId ? { sessionId: input.sessionId } : {}),
+      },
+      context: { actorId: userId, ...(zone ? { timeZone: zone } : {}), ...(files.length ? { files } : {}) },
+      prompt: turnPrompt(contents),
+      conversation: { rule: "fixed", conversationId: existing.id },
+      tx,
+    });
     // The dropped answer's files go from the chat: with no row tying them to it, the orphan sweep removes them (files.ts purgeOrphanFiles).
     await tx.delete(conversationFile).where(and(eq(conversationFile.runId, answer.runId), eq(conversationFile.conversationId, existing.id)));
     const records: AgentChatMessageRecord[] = questions.map((q, i) => ({

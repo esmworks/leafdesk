@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique, uniqueIndex, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { databaseProperty, page, tsvector, workspace } from "./app";
 import { agentRun, workspaceAgent } from "./agents";
 import { user } from "./auth";
@@ -356,12 +356,21 @@ export const conversation = pgTable(
     messages: jsonb("messages").$type<ConversationMessageRecord[]>().notNull().default([]),
     /** An agent chat's messages written while an answer was under way, waiting to go as the next turn (lib/agent-chat-queue.ts). */
     queue: jsonb("queue").$type<AgentChatQueuedRecord[]>().notNull().default([]),
+    /**
+     * A conversation a trigger keeps going (server/triggers.ts, lib/triggers.ts ConversationRule
+     * `keyed`): what it is about (`row:<id>`, `mail:<threadId>`, `schedule:<id>` …), one per
+     * person, workspace, agent and key. Null for one a person started, or a trigger's fresh one.
+     */
+    key: text("key"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("conversation_user_idx").on(t.userId, t.workspaceId, t.updatedAt),
     index("conversation_agent_idx").on(t.agentId, t.userId, t.chatId, t.updatedAt),
+    uniqueIndex("conversation_key_idx")
+      .on(t.userId, t.workspaceId, sql`coalesce(${t.agentId}, '')`, t.key)
+      .where(sql`${t.key} is not null`),
   ],
 );
 

@@ -31,6 +31,7 @@ import { addReactor, parseReactors, reactionSummary, removeReactor, type Reactor
 import { avatarSrc } from "@/lib/avatar";
 import { isAiLimitNotice, type AiLimitNotice } from "@/lib/agent-guardrails";
 import { callConnectionName, callToSend, inboxCallInput, isAgentRun, readEmail, runPageOf, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
+import { SCHEDULE_FAILURE_LIMIT } from "@/lib/schedule";
 import { newAssignees } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
 import { readableProperties, referencedIds, resolveValue, type ActivityValue } from "@/lib/row-activity";
@@ -798,7 +799,12 @@ export type InboxItem = {
   limitRequest: InboxLimitRequest | null;
   /** Reminders an agent or the AI chat set: what to remind the user of, and which agent (null once it is gone, or `own`). */
   aiReminder: InboxAiReminder | null;
+  /** A schedule the user set that turned itself off: whose (an agent, null once gone; or the user's own request) and the start of its task. */
+  schedulePaused: InboxSchedulePaused | null;
 };
+
+/** `agentId` null: the user's own request, or an agent that is gone (`agentName` then null too). */
+export type InboxSchedulePaused = { task: string; agentId: string | null; agentName: string | null; own: boolean; failures: number };
 
 /** `own`: one the user asked the AI chat for (its actor is the user). */
 export type InboxAiReminder = { text: string; agentId: string | null; agentName: string | null; own?: true };
@@ -958,6 +964,8 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
       and(eq(notification.kind, "review"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // A task's report goes to the person behind the run that gave it, who may be a member.
       and(eq(notification.kind, "agent_task"), inWorkspace(sql`${userId}`, notification.workspaceId)),
+      // A schedule turned off tells whoever set it, who may be a member.
+      and(eq(notification.kind, "schedule_paused"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // So do an agent's reminders about no page; one about a page follows the page, as above.
       and(eq(notification.kind, "ai_reminder"), isNull(notification.pageId), inWorkspace(sql`${userId}`, notification.workspaceId)),
     ),
@@ -1072,7 +1080,7 @@ export async function listNotifications(
     rowEmailsOf(userId, rows.filter((r) => r.kind === "row_email")),
     Promise.all(reviewWorkspaces.map(async (id) => [id, await countPendingFor(userId, id)] as const)).then((counts) => new Map(counts)),
     reactionsOf(rows.filter((r) => r.kind === "reaction")),
-    aiLimitAgentsOf(rows.flatMap((r) => ((r.kind === "ai_limit" || r.kind === "ai_reminder") && r.actorId ? [r.actorId] : []))),
+    aiLimitAgentsOf(rows.flatMap((r) => ((r.kind === "ai_limit" || r.kind === "ai_reminder" || r.kind === "schedule_paused") && r.actorId ? [r.actorId] : []))),
     limitRequestsOf(rows.flatMap((r) => (r.kind === "agent_limit_request" && r.agentLimitRequestId ? [r.agentLimitRequestId] : []))),
   ]);
   // A row update with nothing left the user may see (a property's access changed since) isn't shown,
@@ -1095,13 +1103,20 @@ export async function listNotifications(
       actorImage: avatarSrc(actorImage),
       // A reaction's message is the comment it quotes (see reaction below), a comment's what became of its suggestion,
       // an AI limit's which notice it is (aiLimit below), a reminder's what it says (aiReminder below).
-      automationMessage: row.kind === "reaction" || row.kind === "comment" || row.kind === "ai_limit" || row.kind === "ai_reminder" ? null : automationMessage,
+      automationMessage: row.kind === "reaction" || row.kind === "comment" || row.kind === "ai_limit" || row.kind === "ai_reminder" || row.kind === "schedule_paused" ? null : automationMessage,
       aiReminder:
         row.kind === "ai_reminder"
           ? (() => {
               if (row.actorId === userId) return { text: automationMessage ?? "", agentId: null, agentName: null, own: true as const };
               const agent = (row.actorId && limits.get(row.actorId)) || null;
               return { text: automationMessage ?? "", agentId: agent?.id ?? null, agentName: agent?.name ?? row.actorName };
+            })()
+          : null,
+      schedulePaused:
+        row.kind === "schedule_paused"
+          ? (() => {
+              const agent = (row.actorId && limits.get(row.actorId)) || null;
+              return { task: automationMessage ?? "", agentId: agent?.id ?? null, agentName: agent?.name ?? null, own: row.actorId === null, failures: SCHEDULE_FAILURE_LIMIT };
             })()
           : null,
       aiLimit:

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { RepeatRule, ScheduleKind, ScheduleSettings } from "@/lib/schedule";
 import { workspaceAgent } from "./agents";
 import { page, workspace } from "./app";
@@ -11,7 +11,8 @@ import { user } from "./auth";
  * An "agent" schedule starts a run of `agentId` with the task in `settings`, on `databaseId` when it
  * names one; it goes with the agent. A "dashboard_email" schedule emails the figures of a dashboard
  * on `pageId` (a dashboard block of the page, or a dashboard view of the database) to the people in
- * `settings`; it goes with the page.
+ * `settings`; it goes with the page. An "own_request" schedule asks the AI chat the task in `settings`
+ * as the person who set it, in a conversation of theirs kept for the schedule (server/own-requests.ts).
  * It runs as the person who set it last, with their access at the time, and pauses (`enabled`
  * off, with `lastError`) when they can no longer do it.
  */
@@ -43,6 +44,12 @@ export const schedule = pgTable(
     lastRunAt: timestamp("last_run_at", { withTimezone: true }),
     /** Why the last run didn't happen (see ScheduleError); null after one that did. */
     lastError: text("last_error"),
+    /**
+     * Runs that failed in a row (the run itself, for an agent's or an own request's: its worker
+     * tells, server/schedules.ts `noteScheduleOutcome`); one that went well sets it back to 0. At
+     * SCHEDULE_FAILURE_LIMIT the schedule turns itself off and tells whoever set it.
+     */
+    failures: integer("failures").notNull().default(0),
     /** Who set it last: it runs as them. Null once their account is gone (it pauses). */
     runAs: text("run_as").references(() => user.id, { onDelete: "set null" }),
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),

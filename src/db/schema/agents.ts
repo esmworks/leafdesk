@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, check, date, doublePrecision, foreignKey, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique, uniqueIndex } from "drizzle-orm/pg-core";
+import { bigint, boolean, check, date, doublePrecision, foreignKey, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, type AnyPgColumn } from "drizzle-orm/pg-core";
 import type {
   AgentAccessLevel,
   AgentModel,
@@ -14,7 +14,7 @@ import type {
   ApprovalDecision,
   RunSource,
 } from "@/lib/agents";
-import type { ChatStepRecord } from "./ai";
+import { conversation, type ChatStepRecord } from "./ai";
 import type { ChatMode } from "@/lib/ai-chat";
 import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
@@ -127,6 +127,12 @@ export const agentRun = pgTable(
     context: jsonb("context").$type<AgentRunContext>().notNull(),
     /** The task the run was given (an automation action's prompt). */
     prompt: text("prompt").notNull().default(""),
+    /**
+     * The conversation the trigger that started it joined (server/triggers.ts): a fresh one, the one
+     * of its key (a row, an email thread, a schedule) or a chat's own. Only a link: who sees the run
+     * is still decided by its `source` (lib/agents.ts ownerSeesRun). Null for runs from before 0186.
+     */
+    conversationId: text("conversation_id").references((): AnyPgColumn => conversation.id, { onDelete: "set null" }),
     status: text("status").$type<AgentRunStatus>().notNull().default("pending"),
     code: text("code").$type<AgentRunCode>(),
     error: text("error"),
@@ -158,6 +164,7 @@ export const agentRun = pgTable(
   (t) => [
     index("agent_run_due_idx").on(t.status, t.nextAt),
     index("agent_run_agent_idx").on(t.agentId, t.createdAt),
+    index("agent_run_conversation_idx").on(t.conversationId).where(sql`${t.conversationId} is not null`),
     // Tasks an agent gave others (server/agents/handoff.ts `agent_tasks`), read by the giving agent.
     index("agent_run_task_idx")
       .on(sql`(${t.source}->>'fromAgentId')`, t.createdAt)

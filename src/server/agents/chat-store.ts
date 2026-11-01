@@ -16,6 +16,7 @@ import { readEmail, type AgentRunCode, type AgentStepRecord } from "@/lib/agents
 import { firstLocalRead } from "@/lib/local-reads";
 import { redactError, redactText, redactValue } from "@/lib/redact";
 import { chatHistory } from "@/server/ai/prompts";
+import { startTriggered } from "@/server/triggers";
 import { kickAgents } from "./kick";
 
 type Run = Pick<typeof agentRun.$inferSelect, "id" | "source" | "steps">;
@@ -171,28 +172,29 @@ export async function closeChatTurn(run: EndedRun, ending: { answer?: string; co
       };
       let added: AgentChatMessageRecord[] = [record];
       let nextRun: string | null = null;
-      if (found.queue.length) {
+      // A chat's run is always an agent's (agent_run_agent_check).
+      if (found.queue.length && run.agentId) {
         const turn = queuedTurn(found.queue, "", now);
         const zone = turn.timeZone ?? ("timeZone" in run.context ? run.context.timeZone : undefined);
-        const [queued] = await tx
-          .insert(agentRun)
-          .values({
-            agentId: run.agentId,
-            workspaceId: run.workspaceId,
-            source: {
-              kind: "chat",
-              userId: source.userId,
-              conversationId: source.conversationId,
-              ...(turn.fromApp ? { fromApp: true } : {}),
-              after: run.id,
-              ...(turn.telegram ? { telegram: true as const } : {}),
-              ...(turn.otherApp ? { otherApp: true as const } : {}),
-              ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
-            },
-            context: { actorId: source.userId, ...(zone ? { timeZone: zone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
-            prompt: turn.prompt,
-          })
-          .returning({ id: agentRun.id });
+        // The queue's turn, in the conversation locked above: the trigger layer only links it there.
+        const { run: queued } = await startTriggered({
+          target: { agentId: run.agentId },
+          workspaceId: run.workspaceId,
+          source: {
+            kind: "chat",
+            userId: source.userId,
+            conversationId: source.conversationId,
+            ...(turn.fromApp ? { fromApp: true } : {}),
+            after: run.id,
+            ...(turn.telegram ? { telegram: true as const } : {}),
+            ...(turn.otherApp ? { otherApp: true as const } : {}),
+            ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
+          },
+          context: { actorId: source.userId, ...(zone ? { timeZone: zone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
+          prompt: turn.prompt,
+          conversation: { rule: "fixed", conversationId: source.conversationId },
+          tx,
+        });
         nextRun = queued.id;
         added = [record, ...turn.records.map((r) => ({ ...r, runId: queued.id }))];
       }
