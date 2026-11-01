@@ -171,6 +171,16 @@
     "later": "1 時間後に再通知",
     "done": "完了"
   },
+  "arrivals": {
+    "label": "新しい通知",
+    "close": "閉じる",
+    "count": "{count, plural, other {# 件の新しい通知}}",
+    "assignment": "あなたを「{property}」に割り当てました",
+    "mention": "あなたをメンションしました",
+    "comment": "参加中のスレッドにコメントしました",
+    "pageShared": "ページを共有しました",
+    "accessRequest": "ページへのアクセスをリクエストしました"
+  },
   "inbox": {
     "title": "受信トレイ",
     "empty": "通知はまだありません",

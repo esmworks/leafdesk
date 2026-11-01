@@ -171,6 +171,16 @@
     "later": "Over 1 uur herinneren",
     "done": "Klaar"
   },
+  "arrivals": {
+    "label": "Nieuwe meldingen",
+    "close": "Sluiten",
+    "count": "{count, plural, one {# nieuwe melding} other {# nieuwe meldingen}}",
+    "assignment": "Heeft je toegewezen aan ‘{property}’",
+    "mention": "Heeft je genoemd",
+    "comment": "Heeft gereageerd in een discussie waar je in zit",
+    "pageShared": "Heeft een pagina met je gedeeld",
+    "accessRequest": "Heeft toegang tot een pagina gevraagd"
+  },
   "inbox": {
     "title": "Inbox",
     "empty": "Nog geen meldingen",

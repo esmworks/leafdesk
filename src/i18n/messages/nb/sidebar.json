@@ -171,6 +171,16 @@
     "later": "Minn meg på om 1 time",
     "done": "Ferdig"
   },
+  "arrivals": {
+    "label": "Nye varsler",
+    "close": "Lukk",
+    "count": "{count, plural, one {# nytt varsel} other {# nye varsler}}",
+    "assignment": "Tildelte deg «{property}»",
+    "mention": "Nevnte deg",
+    "comment": "Kommenterte i en tråd du er med i",
+    "pageShared": "Delte en side med deg",
+    "accessRequest": "Ba om tilgang til en side"
+  },
   "inbox": {
     "title": "Innboks",
     "empty": "Ingen varsler ennå",

@@ -4,7 +4,7 @@ import { getConversationAction, listConversationsAction } from "@/app/actions/ai
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftAction, openMailboxAction, prefetchBodiesAction, readBodyAction, refreshFolderAction, sendStatusAction, suggestAddressesAction } from "@/app/actions/mail";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
-import { dueRemindersAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
+import { arrivalsAction, dueRemindersAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
 import { recordPageViewAction } from "@/app/actions/page-views";
 import { placeAtAction } from "@/app/actions/places";
 import { getPageReviewAction, listTrashAction, recentSearchAction, searchAction, searchFilterOptionsAction } from "@/app/actions/pages";
@@ -31,6 +31,7 @@ export const READS = {
   recordPageView: recordPageViewAction,
   unreadCount: unreadCountAction,
   dueReminders: dueRemindersAction,
+  arrivals: arrivalsAction,
   pendingCount: pendingCountAction,
   runProposals: runProposalsAction,
   sidebarAgents: sidebarAgentsAction,

@@ -171,6 +171,16 @@
     "later": "1 saat sonra hatırlat",
     "done": "Tamam"
   },
+  "arrivals": {
+    "label": "Yeni bildirimler",
+    "close": "Kapat",
+    "count": "{count, plural, one {# yeni bildirim} other {# yeni bildirim}}",
+    "assignment": "Seni “{property}” alanına atadı",
+    "mention": "Senden bahsetti",
+    "comment": "Bulunduğun bir yazışmaya yorum yaptı",
+    "pageShared": "Seninle bir sayfa paylaştı",
+    "accessRequest": "Bir sayfaya erişim istedi"
+  },
   "inbox": {
     "title": "Gelen kutusu",
     "empty": "Henüz bildirim yok",

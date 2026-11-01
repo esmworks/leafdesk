@@ -4,6 +4,7 @@ import { db } from "@/db";
 import type { RequestedLevel } from "@/lib/access-requests";
 import { UNSNOOZABLE_KINDS } from "@/lib/snooze";
 import { REMINDER_PROMPT_MS } from "@/lib/ai-reminders";
+import { ARRIVAL_KINDS, ARRIVAL_WINDOW_MS } from "@/lib/inbox-arrivals";
 import { REMINDER_EVENT } from "@/lib/reminder-event";
 import {
   accessRequest,
@@ -1410,6 +1411,16 @@ export async function listInbox(userId: string, workspaceId: string, kinds?: Not
 export async function dueReminders(userId: string, workspaceId: string, now = new Date()): Promise<InboxItem[]> {
   const items = await listNotifications(userId, { workspaceId, kinds: ["ai_reminder"], unreadOnly: true, limit: 10 });
   return items.filter((item) => now.getTime() - item.createdAt.getTime() <= REMINDER_PROMPT_MS).reverse();
+}
+
+/**
+ * What people just sent the user in the workspace, newest first: unread notifications of
+ * ARRIVAL_KINDS come within ARRIVAL_WINDOW_MS. The cards over the page show these as they come
+ * (components/sidebar/arrival-cards.tsx); an older one, or one marked unread again, waits in the inbox.
+ */
+export async function recentArrivals(userId: string, workspaceId: string, now = new Date()): Promise<InboxItem[]> {
+  const items = await listNotifications(userId, { workspaceId, kinds: [...ARRIVAL_KINDS], unreadOnly: true, limit: 10 });
+  return items.filter((item) => now.getTime() - item.createdAt.getTime() <= ARRIVAL_WINDOW_MS);
 }
 
 /**

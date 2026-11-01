@@ -171,6 +171,16 @@
     "later": "1시간 후 다시 알림",
     "done": "완료"
   },
+  "arrivals": {
+    "label": "새 알림",
+    "close": "닫기",
+    "count": "{count, plural, other {새 알림 #개}}",
+    "assignment": "회원님을 “{property}”에 배정했습니다",
+    "mention": "회원님을 멘션했습니다",
+    "comment": "참여 중인 스레드에 댓글을 남겼습니다",
+    "pageShared": "페이지를 공유했습니다",
+    "accessRequest": "페이지 접근을 요청했습니다"
+  },
   "inbox": {
     "title": "수신함",
     "empty": "아직 알림이 없습니다",

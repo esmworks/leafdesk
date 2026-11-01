@@ -171,6 +171,16 @@
     "later": "Påminn mig om 1 timme",
     "done": "Klar"
   },
+  "arrivals": {
+    "label": "Nya aviseringar",
+    "close": "Stäng",
+    "count": "{count, plural, one {# ny avisering} other {# nya aviseringar}}",
+    "assignment": "Tilldelade dig ”{property}”",
+    "mention": "Nämnde dig",
+    "comment": "Kommenterade i en tråd du är med i",
+    "pageShared": "Delade en sida med dig",
+    "accessRequest": "Bad om åtkomst till en sida"
+  },
   "inbox": {
     "title": "Inkorg",
     "empty": "Inga aviseringar än",

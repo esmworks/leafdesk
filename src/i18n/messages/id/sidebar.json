@@ -171,6 +171,16 @@
     "later": "Ingatkan lagi dalam 1 jam",
     "done": "Selesai"
   },
+  "arrivals": {
+    "label": "Notifikasi baru",
+    "close": "Tutup",
+    "count": "{count, plural, other {# notifikasi baru}}",
+    "assignment": "Menugaskan Anda ke “{property}”",
+    "mention": "Menyebut Anda",
+    "comment": "Berkomentar di utas yang Anda ikuti",
+    "pageShared": "Membagikan halaman dengan Anda",
+    "accessRequest": "Meminta akses ke halaman"
+  },
   "inbox": {
     "title": "Kotak masuk",
     "empty": "Belum ada notifikasi",

@@ -171,6 +171,16 @@
     "later": "In 1 Stunde erinnern",
     "done": "Erledigt"
   },
+  "arrivals": {
+    "label": "Neue Benachrichtigungen",
+    "close": "Schließen",
+    "count": "{count, plural, one {# neue Benachrichtigung} other {# neue Benachrichtigungen}}",
+    "assignment": "Hat dich „{property}“ zugewiesen",
+    "mention": "Hat dich erwähnt",
+    "comment": "Hat in einem Thread kommentiert, an dem du beteiligt bist",
+    "pageShared": "Hat eine Seite mit dir geteilt",
+    "accessRequest": "Hat Zugriff auf eine Seite angefragt"
+  },
   "inbox": {
     "title": "Posteingang",
     "empty": "Noch keine Benachrichtigungen",

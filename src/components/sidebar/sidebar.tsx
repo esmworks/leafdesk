@@ -111,12 +111,14 @@ import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
 import { lazyPart } from "@/components/lazy-part";
+import { useArrivals } from "./use-arrivals";
 import { useDueReminders } from "./use-due-reminders";
 import { read } from "@/components/read";
 
 // Loaded the first time the inbox opens: it is not needed to show a page.
 const InboxDialog = lazyPart(() => import("./inbox-dialog").then((m) => m.InboxDialog));
 const ReminderPrompt = lazyPart(() => import("./reminder-prompt").then((m) => m.ReminderPrompt));
+const ArrivalCards = lazyPart(() => import("./arrival-cards").then((m) => m.ArrivalCards));
 // Loaded the first time the Mail tab opens: most people open it now and then.
 const MailSidebar = lazyPart(() => import("@/components/mail/mail-sidebar").then((m) => m.MailSidebar));
 // Loaded the first time the import dialog opens, with the readers of every format it takes.
@@ -257,6 +259,8 @@ export function Sidebar({
   const [inboxMounted, setInboxMounted] = useState(false);
   if (inboxOpen && !inboxMounted) setInboxMounted(true);
   const [unread, setUnread] = useState(0);
+  // The workspace whose count `unread` is, once it came.
+  const [countedIn, setCountedIn] = useState<string | null>(null);
   // The installed app's icon carries the count, where the system shows one.
   useEffect(() => {
     if (!("setAppBadge" in navigator)) return;
@@ -266,6 +270,12 @@ export function Sidebar({
   // bumped when the server says one came.
   const [reminderWake, setReminderWake] = useState(0);
   const [reminders, reminderSettled] = useDueReminders(workspaceId, unread, reminderWake);
+  // What people just sent, as cards at the window's top end.
+  const [arrivals, dismissArrivals] = useArrivals(workspaceId, countedIn === workspaceId ? unread : null);
+  // The inbox shows them all: their cards go.
+  useEffect(() => {
+    if (inboxOpen) dismissArrivals();
+  }, [inboxOpen, dismissArrivals]);
   // Changes agents proposed that wait for the person (the "For review" page), counted with the inbox.
   const [reviewCount, setReviewCount] = useState(0);
   // Bumped on every inbox signal so an open inbox reloads.
@@ -364,7 +374,12 @@ export function Sidebar({
     refreshFavorites();
   }, [workspaceId, refreshFavorites]);
   const refreshInbox = useCallback(() => {
-    read("unreadCount", workspaceId).then(setUnread).catch(() => {});
+    read("unreadCount", workspaceId)
+      .then((count) => {
+        setUnread(count);
+        setCountedIn(workspaceId);
+      })
+      .catch(() => {});
     read("pendingCount", workspaceId).then(setReviewCount).catch(() => {});
     // Agents made or archived elsewhere (the AI chat, settings, another window) show up with it.
     read("sidebarAgents", workspaceId)
@@ -1769,6 +1784,9 @@ export function Sidebar({
             refreshInbox();
           }}
         />
+      )}
+      {arrivals.length > 0 && !inboxOpen && reminders.length === 0 && (
+        <ArrivalCards workspaceId={workspaceId} arrivals={arrivals} onDismiss={dismissArrivals} onRead={refreshInbox} />
       )}
       {canCreateWorkspace && <NewWorkspaceDialog open={newWorkspaceOpen} onClose={() => setNewWorkspaceOpen(false)} />}
       <TemplatesDialog

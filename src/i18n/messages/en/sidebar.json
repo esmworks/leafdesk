@@ -171,6 +171,16 @@
     "later": "Remind me in 1 hour",
     "done": "Done"
   },
+  "arrivals": {
+    "label": "New notifications",
+    "close": "Close",
+    "count": "{count, plural, one {# new notification} other {# new notifications}}",
+    "assignment": "Assigned you to “{property}”",
+    "mention": "Mentioned you",
+    "comment": "Commented in a thread you're in",
+    "pageShared": "Shared a page with you",
+    "accessRequest": "Asked for access to a page"
+  },
   "inbox": {
     "title": "Inbox",
     "empty": "No notifications yet",

@@ -171,6 +171,16 @@
     "later": "Nhắc lại sau 1 giờ",
     "done": "Xong"
   },
+  "arrivals": {
+    "label": "Thông báo mới",
+    "close": "Đóng",
+    "count": "{count, plural, other {# thông báo mới}}",
+    "assignment": "Đã giao bạn vào “{property}”",
+    "mention": "Đã nhắc đến bạn",
+    "comment": "Đã bình luận trong chuỗi bạn tham gia",
+    "pageShared": "Đã chia sẻ một trang với bạn",
+    "accessRequest": "Đã yêu cầu quyền truy cập một trang"
+  },
   "inbox": {
     "title": "Hộp thư đến",
     "empty": "Chưa có thông báo nào",

@@ -171,6 +171,16 @@
     "later": "Me le rappeler dans 1 heure",
     "done": "Terminé"
   },
+  "arrivals": {
+    "label": "Nouvelles notifications",
+    "close": "Fermer",
+    "count": "{count, plural, one {# nouvelle notification} other {# nouvelles notifications}}",
+    "assignment": "Vous a assigné à « {property} »",
+    "mention": "Vous a mentionné",
+    "comment": "A commenté un fil auquel vous participez",
+    "pageShared": "A partagé une page avec vous",
+    "accessRequest": "A demandé l’accès à une page"
+  },
   "inbox": {
     "title": "Boîte de réception",
     "empty": "Aucune notification pour l’instant",

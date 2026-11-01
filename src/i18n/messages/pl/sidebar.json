@@ -171,6 +171,16 @@
     "later": "Przypomnij za 1 godzinę",
     "done": "Gotowe"
   },
+  "arrivals": {
+    "label": "Nowe powiadomienia",
+    "close": "Zamknij",
+    "count": "{count, plural, one {# nowe powiadomienie} few {# nowe powiadomienia} many {# nowych powiadomień} other {# nowego powiadomienia}}",
+    "assignment": "Przypisał(a) cię do „{property}”",
+    "mention": "Wspomniał(a) o tobie",
+    "comment": "Skomentował(a) w wątku, w którym uczestniczysz",
+    "pageShared": "Udostępnił(a) ci stronę",
+    "accessRequest": "Poprosił(a) o dostęp do strony"
+  },
   "inbox": {
     "title": "Skrzynka odbiorcza",
     "empty": "Brak powiadomień",

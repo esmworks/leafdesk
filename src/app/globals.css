@@ -1689,6 +1689,25 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 }
 
 /*
+ * A card of what someone just sent (components/sidebar/arrival-cards.tsx) drops a little into
+ * place, each new one on top of the stack.
+ */
+@keyframes leafdesk-arrival-in {
+  from {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+}
+[data-arrival-card] {
+  animation: leafdesk-arrival-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-arrival-card] {
+    animation: none;
+  }
+}
+
+/*
  * A note that only says something is loading (a page's body while its document arrives over the
  * collab connection): hidden for its first 400 ms, so a quick load goes from the empty space
  * straight to the content instead of flashing the note.

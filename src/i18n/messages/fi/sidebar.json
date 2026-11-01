@@ -171,6 +171,16 @@
     "later": "Muistuta tunnin päästä",
     "done": "Valmis"
   },
+  "arrivals": {
+    "label": "Uudet ilmoitukset",
+    "close": "Sulje",
+    "count": "{count, plural, one {# uusi ilmoitus} other {# uutta ilmoitusta}}",
+    "assignment": "Määritti sinut kenttään ”{property}”",
+    "mention": "Mainitsi sinut",
+    "comment": "Kommentoi keskustelussa, jossa olet mukana",
+    "pageShared": "Jakoi sivun kanssasi",
+    "accessRequest": "Pyysi pääsyä sivulle"
+  },
   "inbox": {
     "title": "Saapuneet",
     "empty": "Ei vielä ilmoituksia",

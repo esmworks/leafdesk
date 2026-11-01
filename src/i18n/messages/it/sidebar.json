@@ -171,6 +171,16 @@
     "later": "Ricordamelo tra 1 ora",
     "done": "Fatto"
   },
+  "arrivals": {
+    "label": "Nuove notifiche",
+    "close": "Chiudi",
+    "count": "{count, plural, one {# nuova notifica} other {# nuove notifiche}}",
+    "assignment": "Ti ha assegnato a “{property}”",
+    "mention": "Ti ha menzionato",
+    "comment": "Ha commentato in una discussione a cui partecipi",
+    "pageShared": "Ha condiviso una pagina con te",
+    "accessRequest": "Ha chiesto l’accesso a una pagina"
+  },
   "inbox": {
     "title": "Posta in arrivo",
     "empty": "Ancora nessuna notifica",

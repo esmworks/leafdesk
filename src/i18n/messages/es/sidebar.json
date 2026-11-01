@@ -171,6 +171,16 @@
     "later": "Recordármelo en 1 hora",
     "done": "Hecho"
   },
+  "arrivals": {
+    "label": "Notificaciones nuevas",
+    "close": "Cerrar",
+    "count": "{count, plural, one {# notificación nueva} other {# notificaciones nuevas}}",
+    "assignment": "Te asignó a «{property}»",
+    "mention": "Te mencionó",
+    "comment": "Comentó en un hilo en el que participas",
+    "pageShared": "Compartió una página contigo",
+    "accessRequest": "Pidió acceso a una página"
+  },
   "inbox": {
     "title": "Bandeja de entrada",
     "empty": "Todavía no hay notificaciones",

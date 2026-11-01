@@ -4,6 +4,11 @@
 
 ### Added
 
+- **What someone just sent you comes as a card at the top of the window.** An assignment, a mention,
+  a reply in your thread, a share or an access request that arrives while you have the workspace
+  open shows at the window's top corner with the person's picture, what they did and the page; more
+  stack behind it with a count. Click it to open it and mark it read; it goes by itself after a few
+  seconds, or when closed, and stays unread in the inbox.
 - **New mail comes as a notification on your phone.** Mail arriving in a Mail tab inbox is pushed,
   within a minute, to the devices where push notifications are on: who wrote and to which address,
   never the subject, and opening it opens the thread; several at once come as one notification.

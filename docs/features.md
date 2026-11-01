@@ -771,7 +771,10 @@
   watch. Owners also find there an agent's call waiting for approval and the notes an agent's run
   proposed for its memory, and the person an agent's run worked for hears of the changes it proposed
   for review (see [Agents](agents.md#agents)). A comment notification opens the page with that thread
-  selected. Snooze an item for an hour, until tomorrow morning or until next Monday (9:00 your
+  selected. While you have the workspace open, what someone just did for you (an assignment, a
+  mention, a reply, a share, an access request) also comes as a card at the window's top corner,
+  the newest on top of a stack with a count: click it to open it, or let it go after a few seconds,
+  unread in the inbox (hovering keeps it). Snooze an item for an hour, until tomorrow morning or until next Monday (9:00 your
   time): it leaves the inbox and comes back unread then, along with its email if that hadn't gone
   yet. On a phone, swipe an item toward the end of the line to mark it read (or unread again) and
   toward its start to snooze it until tomorrow morning. Archive an item, or every read one at once

@@ -171,6 +171,16 @@
     "later": "להזכיר בעוד שעה",
     "done": "סיום"
   },
+  "arrivals": {
+    "label": "התראות חדשות",
+    "close": "סגירה",
+    "count": "{count, plural, one {התראה חדשה אחת} two {# התראות חדשות} other {# התראות חדשות}}",
+    "assignment": "שייך אותך ל„{property}”",
+    "mention": "הזכיר אותך",
+    "comment": "הגיב בשרשור שאת/ה משתתף/ת בו",
+    "pageShared": "שיתף איתך דף",
+    "accessRequest": "ביקש גישה לדף"
+  },
   "inbox": {
     "title": "דואר נכנס",
     "empty": "אין עדיין התראות",
