@@ -304,6 +304,8 @@ export function Sidebar({
       });
   }, [searchOpen, offline, workspaceId]);
   const onChatPage = Boolean(aiChat) && isChatPath(pathname, workspaceId);
+  // An agent's page is a chat too: the chat tab, where its agents are listed, stays open beside it.
+  const onAgentPage = Boolean(aiChat) && pathname.startsWith(`/w/${workspaceId}/agents/`);
   const tAi = useTranslations("ai.chat");
   const tJournal = useTranslations("journal");
   const { open: openDailyNote, pending: openingDailyNote, error: dailyNoteError } = useOpenDailyNote(workspaceId);
@@ -497,6 +499,21 @@ export function Sidebar({
   // Daily notes are private top-level pages, so the journal only for those who may add them.
   const onMailPage = pathname.startsWith(`/w/${workspaceId}/mail`);
   const tabs: SidebarTab[] = ["home", ...(topLevel ? (["journal"] as const) : []), ...(aiChat ? (["chat"] as const) : []), ...(mail ? (["mail"] as const) : [])];
+  // Unread mail in the inboxes, on the Mail tab. The store is loaded after the page, as for composeMail.
+  const [mailUnread, setMailUnread] = useState(0);
+  useEffect(() => {
+    if (!mail) return;
+    let stop: (() => void) | undefined;
+    let gone = false;
+    void import("@/components/mail/mail-store").then(({ watchInboxUnread }) => {
+      if (!gone) stop = watchInboxUnread(workspaceId, setMailUnread);
+    });
+    return () => {
+      gone = true;
+      stop?.();
+      setMailUnread(0);
+    };
+  }, [mail, workspaceId]);
   // A new message, from the New menu or the search box's commands, on the Mail page.
   const composeMail = () => {
     setTab("mail");
@@ -507,7 +524,7 @@ export function Sidebar({
     });
     sidebar?.close();
   };
-  const routeTab: SidebarTab = onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
+  const routeTab: SidebarTab = onChatPage || onAgentPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
   const [tab, setTab] = useState<SidebarTab>(routeTab);
   // Where the person last was in each tab, in this visit.
   const lastPath = useRef<Partial<Record<SidebarTab, string>>>({});
@@ -914,6 +931,30 @@ export function Sidebar({
 
   if (isSettingsPath(pathname)) return null;
 
+  // The agents they may talk to, each opening its page (a chat with it): in the home tab's section and the chat tab.
+  const agentLinks = (
+    <ul className="space-y-px">
+      {agents.map((agent) => (
+        <li key={agent.id}>
+          <Link
+            href={agentPagePath(workspaceId, agent.id)}
+            aria-current={pathname === agentPagePath(workspaceId, agent.id) ? "page" : undefined}
+            className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg"
+          >
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+              {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}
+            </span>
+            <span className="truncate ps-0.5">{agent.name}</span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+  const manageAgents = (
+    <IconButton label={t("sections.manageAgents")} onClick={() => router.push(`/w/${workspaceId}/settings?tab=agents`)}>
+      <MoreHorizontal className="h-3.5 w-3.5" />
+    </IconButton>
+  );
   // Each section as it shows (or null when it has nothing to show), placed in the person's order.
   const sectionContent: Record<SidebarSection, React.ReactNode> = {
     favorites: favorites.length > 0 && (
@@ -1134,28 +1175,9 @@ export function Sidebar({
         label={t("sections.agents")}
         open={!isFolded(AGENTS_SECTION)}
         onToggle={() => fold(AGENTS_SECTION)}
-        actions={
-          <IconButton label={t("sections.manageAgents")} onClick={() => router.push(`/w/${workspaceId}/settings?tab=agents`)}>
-            <MoreHorizontal className="h-3.5 w-3.5" />
-          </IconButton>
-        }
+        actions={manageAgents}
       >
-        <ul className="space-y-px">
-          {agents.map((agent) => (
-            <li key={agent.id}>
-              <Link
-                href={agentPagePath(workspaceId, agent.id)}
-                aria-current={pathname === agentPagePath(workspaceId, agent.id) ? "page" : undefined}
-                className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg"
-              >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-                  {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}
-                </span>
-                <span className="truncate ps-0.5">{agent.name}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {agentLinks}
       </SectionGroup>
     ),
   };
@@ -1487,6 +1509,7 @@ export function Sidebar({
                   selected: tab === key,
                   disabled: unreachable || (key === "journal" && openingDailyNote),
                   title: unreachable ? needsServer(label) : undefined,
+                  count: key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) } : undefined,
                   onClick: () => openTab(key),
                 };
               })}
@@ -1542,6 +1565,17 @@ export function Sidebar({
               <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={newChat}>
                 {tAi("newChat")}
               </SidebarButton>
+              {agents.length > 0 && (
+                <section aria-labelledby="chat-agents-heading" className="mt-2">
+                  <div className="group/heading flex h-7 items-center rounded-md pe-1 hover:bg-bg-hover">
+                    <h2 id="chat-agents-heading" className="min-w-0 flex-1 truncate px-2 text-xs font-medium text-fg-muted">
+                      {t("sections.agents")}
+                    </h2>
+                    <span className="flex opacity-0 group-hover/heading:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100">{manageAgents}</span>
+                  </div>
+                  {agentLinks}
+                </section>
+              )}
               <div className="mt-2">
                 <ConversationList />
               </div>
@@ -2138,12 +2172,24 @@ function ResizeHandle() {
  * their icons. Pointing at another (or reaching it from the keyboard) widens it to show its name
  * while the open one narrows to its icon, so one name shows at a time and none is cut short.
  */
+const countText = (count: number) => (count > 99 ? "99+" : String(count));
+
 function SidebarTabs({
   label,
   tabs,
 }: {
   label: string;
-  tabs: { key: string; label: string; icon: React.ReactNode; selected: boolean; disabled?: boolean; title?: string; onClick: () => void }[];
+  tabs: {
+    key: string;
+    label: string;
+    icon: React.ReactNode;
+    selected: boolean;
+    disabled?: boolean;
+    title?: string;
+    /** A count on the icon's corner (unread mail), with its words for screen readers. */
+    count?: { value: number; label: string };
+    onClick: () => void;
+  }[];
 }) {
   return (
     <div role="tablist" aria-label={label} className="group/tabs mt-1.5 flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
@@ -2164,7 +2210,27 @@ function SidebarTabs({
               : "grow border-transparent text-fg-muted hover:grow-[3] hover:text-fg focus-visible:grow-[3]",
           )}
         >
-          {tab.icon}
+          {tab.count ? (
+            <span className="relative flex shrink-0">
+              {tab.icon}
+              {/* On the icon's corner while the name is folded away, ringed in the tab's own color so
+                  it doesn't blur into the icon; beside the name while that shows. */}
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute -end-1.5 -top-1.5 min-w-3.5 rounded-full bg-danger px-[3px] text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums ring-2 transition-opacity duration-200 motion-reduce:transition-none",
+                  tab.selected
+                    ? "opacity-0 ring-bg group-has-[[data-other-tab]:hover]/tabs:opacity-100 group-has-[[data-other-tab]:focus-visible]/tabs:opacity-100"
+                    : "ring-bg-hover group-hover/tab:opacity-0 group-focus-visible/tab:opacity-0",
+                )}
+              >
+                {countText(tab.count.value)}
+              </span>
+              <span className="sr-only">{tab.count.label}</span>
+            </span>
+          ) : (
+            tab.icon
+          )}
           {/* A column that opens from nothing to the name's width, so the name slides in. */}
           <span
             className={cn(
@@ -2175,7 +2241,14 @@ function SidebarTabs({
             )}
           >
             <span className="min-w-0 overflow-hidden">
-              <span className="block truncate ps-1.5">{tab.label}</span>
+              <span className="flex items-center gap-1.5 ps-1.5">
+                <span className="min-w-0 truncate">{tab.label}</span>
+                {tab.count && (
+                  <span aria-hidden className="min-w-4 shrink-0 rounded-full bg-danger px-1 text-center text-[10px] leading-4 font-semibold text-white tabular-nums">
+                    {countText(tab.count.value)}
+                  </span>
+                )}
+              </span>
             </span>
           </span>
         </button>

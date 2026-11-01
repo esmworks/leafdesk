@@ -4,6 +4,10 @@
 
 ### Added
 
+- **The sidebar's Mail tab counts unread mail.** A small red count sits on the envelope while the
+  tab is folded, and beside the name when it shows; it adds up the inboxes of all your mailboxes
+  and follows them each minute.
+
 - **The Mail list shows who each conversation is with at a glance.** A mark beside each thread
   shows the other party: a member's picture or the logo of the organization the mail came from,
   when it verifiably did (DMARC passed, by a Google or Microsoft mailbox's own check; the logo is
@@ -512,6 +516,15 @@
   only while an answer is being written.
 
 ### Fixed
+
+- **Mail designed wider than a phone fits the screen.** A message laid out at a fixed width (600px
+  tables) was cut off at the right edge, and tables were squeezed until words broke across lines;
+  such a message is now drawn at its own width and shrunk to fit, while one that adapts to the
+  screen shows as before.
+- **An empty Mail list shows one menu button on a phone.** "No starred conversations" and the
+  other empty lists drew a second sidebar button under the header.
+- **Dictating a question on a phone no longer covers the AI chat box's chips.** While it records,
+  the model and thinking chips step aside for the timer and Stop.
 
 - **The AI chat box fits a phone's width.** With a model choice and a thinking level, its row of
   buttons ran past the box and pushed Send out of reach, and a longer permission such as "Read

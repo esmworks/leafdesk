@@ -9,7 +9,7 @@ import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn } from "@/components/ui";
 import { ALL_INBOXES, STARRED, type MailboxTabView, type MailFolderRole, type MailFolderView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
-import { mailHref, pickOpen, requestCompose, stayInMail, useMailboxes } from "./mail-store";
+import { inboxUnread, mailHref, pickOpen, requestCompose, stayInMail, useMailboxes } from "./mail-store";
 
 export const FOLDER_ICONS: Record<MailFolderRole, LucideIcon> = {
   inbox: Inbox,
@@ -105,7 +105,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
   const own = (box.folders ?? []).filter((f) => !f.role);
   const others = boxes.filter((b) => b.id !== box.id);
   const allHref = mailHref(workspaceId, { box: ALL_INBOXES });
-  const allUnread = boxes.reduce((n, b) => n + (b.folders?.find((f) => f.role === "inbox")?.unseen ?? 0), 0);
+  const allUnread = inboxUnread(boxes);
 
   return (
     <div className="space-y-3">

@@ -80,6 +80,41 @@ export function useMailboxes(workspaceId: string) {
   return current.error === OFFLINE ? { ...current, error: t("loadFailed") } : current;
 }
 
+/** Unread mail in the inboxes of all the mailboxes. */
+export function inboxUnread(boxes: MailboxTabView[]) {
+  return boxes.reduce((n, b) => n + (b.folders?.find((f) => f.role === "inbox")?.unseen ?? 0), 0);
+}
+
+/** How often the sidebar's Mail tab reads the counts again while the window is shown. */
+const UNREAD_AGAIN_MS = 60_000;
+
+/**
+ * Calls `onCount` with the inboxes' unread count now and whenever it changes, reading the mailboxes
+ * again each minute and as the window comes back (the sidebar's Mail tab, which loads this module
+ * lazily). Returns the function that stops it.
+ */
+export function watchInboxUnread(workspaceId: string, onCount: (count: number) => void) {
+  let last = -1;
+  const report = () => {
+    if (state.workspaceId !== workspaceId || !state.boxes) return;
+    const count = inboxUnread(state.boxes);
+    if (count !== last) onCount((last = count));
+  };
+  const unsubscribe = subscribe(report);
+  const again = () => {
+    if (document.visibilityState === "visible") void loadMailboxes(workspaceId);
+  };
+  if (state.workspaceId !== workspaceId || !state.boxes) void loadMailboxes(workspaceId);
+  else report();
+  const timer = setInterval(again, UNREAD_AGAIN_MS);
+  document.addEventListener("visibilitychange", again);
+  return () => {
+    unsubscribe();
+    clearInterval(timer);
+    document.removeEventListener("visibilitychange", again);
+  };
+}
+
 /** Puts a mailbox's newer view in place (after it was opened or refreshed). */
 export function putMailbox(box: MailboxTabView) {
   if (!state.boxes) return;

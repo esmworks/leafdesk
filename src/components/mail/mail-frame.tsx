@@ -48,7 +48,7 @@ export function MailFrame({ html, images, title, plain = false }: { html: string
   const policy = `default-src 'none'; img-src data:${images ? " https: http:" : ""}; style-src 'unsafe-inline'; font-src data:`;
   const doc = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${policy}"><base target="_blank"><style>
     html{color-scheme:light}body{display:flow-root;margin:0;padding:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#1f2328;background:#fff;overflow-wrap:anywhere}
-    img{max-width:100%;height:auto}[data-blocked]{display:none!important}table{max-width:100%}pre{white-space:pre-wrap}blockquote{margin:0 0 0 .8em;padding-left:.8em;border-left:2px solid #d0d7de;color:#57606a}
+    img{max-width:100%;height:auto}[data-blocked]{display:none!important}pre{white-space:pre-wrap}blockquote{margin:0 0 0 .8em;padding-left:.8em;border-left:2px solid #d0d7de;color:#57606a}
   </style></head><body>${html.replace(/^[\s\S]*?<body[^>]*>/i, "").replace(/<\/body>[\s\S]*$/i, "")}</body></html>`;
   const styles = /<head[^>]*>([\s\S]*?)<\/head>/i.exec(html)?.[1] ?? "";
   // The page's colors come after the message's own styles, so they win.
@@ -63,7 +63,21 @@ export function MailFrame({ html, images, title, plain = false }: { html: string
       // Chromium scrolls the frame for the fraction left over.
       const body = frame.contentDocument?.body;
       if (!body) return;
-      const whole = Math.max(24, body.scrollHeight, Math.ceil(body.getBoundingClientRect().height));
+      // A message laid out wider than the frame (a fixed 600px table on a phone) is drawn at its own
+      // width and shrunk to fit, as a whole, rather than cut off at the edge or squeezed into a
+      // column a word wide. Measured each time at the frame's width, so a wider frame (a turned
+      // phone) shows it larger again.
+      body.style.width = "";
+      body.style.transform = "";
+      const room = frame.contentDocument!.documentElement.clientWidth;
+      const natural = body.scrollWidth;
+      const scale = natural > room + 1 ? room / natural : 1;
+      if (scale < 1) {
+        body.style.width = `${natural}px`;
+        body.style.transformOrigin = "0 0";
+        body.style.transform = `scale(${scale})`;
+      }
+      const whole = Math.ceil(Math.max(24, body.scrollHeight, body.getBoundingClientRect().height / scale) * scale);
       setHeight(Math.min(MAX_HEIGHT, whole));
       // Shown whole, it has nothing to scroll: a scrollbar would only narrow it, and pictures as
       // wide as the frame would shrink, take the scrollbar away, grow back and bring it again.

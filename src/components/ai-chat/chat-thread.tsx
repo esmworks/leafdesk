@@ -499,7 +499,8 @@ export function ChatThread({
                   )}
                   {/* What goes in with the question and what the chat may change on the left; the model, dictation and Send on the right. */}
                   {/* A container: on a narrow box (a phone, the panel) the chips keep only what tells them apart, so the model's name fits. */}
-                  <div className={cn("@container flex min-w-0 items-center max-sm:gap-1.5", empty ? "gap-3" : "gap-2")}>
+                  {/* While dictating there, the model and thinking chips give the recording their room. */}
+                  <div className={cn("group/composer @container flex min-w-0 items-center max-sm:gap-1.5", empty ? "gap-3" : "gap-2")}>
                     <AddMenu
                       className={cn(round, "border border-border text-fg hover:bg-bg-hover disabled:opacity-40 disabled:hover:bg-transparent")}
                       disabled={Boolean(blocked)}
@@ -1133,7 +1134,7 @@ function ModelPicker({ models, model, onChange }: { models: ChatOptions["models"
       side="top"
       className="w-64"
       // The wrapper lets the chip shrink, so a long name is cut short instead of pushing Send out of the box.
-      wrapperClassName="min-w-0"
+      wrapperClassName="min-w-0 @max-sm:group-has-[[data-recording]]/composer:hidden"
       trigger={({ open, toggle }) => (
         <button
           type="button"
@@ -1188,7 +1189,7 @@ function ThinkingPicker({ thinking, onChange }: { thinking: ChatThinking; onChan
       side="top"
       align="end"
       className="w-64"
-      wrapperClassName="min-w-0"
+      wrapperClassName="min-w-0 @max-sm:group-has-[[data-recording]]/composer:hidden"
       trigger={({ open, toggle }) => (
         <button
           type="button"

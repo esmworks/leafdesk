@@ -857,7 +857,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
           }}
         >
           {list.error && !items.length ? (
-            <Notice>{list.error}</Notice>
+            <Notice inList>{list.error}</Notice>
           ) : list.loading && !items.length ? (
             <div aria-busy>
               {Array.from({ length: 8 }, (_, i) => (
@@ -868,7 +868,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
               ))}
             </div>
           ) : !items.length ? (
-            <Notice>
+            <Notice inList>
               {starred && !query ? <Star className="mx-auto mb-2 h-5 w-5 text-fg-icon" /> : <Inbox className="mx-auto mb-2 h-5 w-5 text-fg-icon" />}
               {query ? t("emptySearch") : starred ? t("emptyStarred") : t("empty")}
             </Notice>
@@ -981,12 +981,15 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   );
 }
 
-function Notice({ children }: { children: React.ReactNode }) {
+/** A message in place of the page, or (`inList`) of the list, under a header that has the sidebar's button already. */
+function Notice({ children, inList = false }: { children: React.ReactNode; inList?: boolean }) {
   return (
     <>
-      <div className="h-0">
-        <SidebarOpenButton className="m-2" />
-      </div>
+      {!inList && (
+        <div className="h-0">
+          <SidebarOpenButton className="m-2" />
+        </div>
+      )}
       <div className="mx-auto max-w-sm px-6 py-16 text-center text-sm text-fg-muted">{children}</div>
     </>
   );

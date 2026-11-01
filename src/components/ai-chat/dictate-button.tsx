@@ -104,6 +104,8 @@ export function DictateButton({
         aria-label={label}
         title={label}
         aria-pressed={recording}
+        // The chat box makes room for it on a phone (chat-thread.tsx).
+        data-recording={recording || undefined}
         aria-disabled={sending || undefined}
         className={cn(
           "inline-flex h-[26px] shrink-0 items-center justify-center transition-colors disabled:opacity-40 disabled:hover:bg-transparent",
@@ -129,7 +131,7 @@ export function DictateButton({
               {formatDuration(state.seconds)}
             </span>
             <Square className="h-3 w-3 fill-current" aria-hidden />
-            <span>{t("stopShort")}</span>
+            <span className="@max-xs:sr-only">{t("stopShort")}</span>
           </>
         ) : (
           <Mic className="h-4 w-4" />
