@@ -683,6 +683,7 @@
         "refused": "Kallet til «{tool}» på {connection} ble avvist, siden ingen kunne godkjenne det; ingenting ble sendt",
         "afterMail": "Kallet av «{tool}» på {connection} ble holdt tilbake: etter å ha lest e-post leser en kjøring bare sider og skriver utkast; ingenting ble sendt",
         "afterLocalRead": "Kallet av «{tool}» på {connection} ble holdt tilbake: etter å ha lest filer på datamaskinen går ingenting ut; ingenting ble sendt",
+        "afterLocalReadOut": "Kallet til «{tool}» ble holdt tilbake: etter at filer på datamaskinen er lest, går ingenting ut; ingenting ble sendt",
         "approved": "godkjent",
         "answered": "besvart av en eier",
         "note": "Merknad: {note}",

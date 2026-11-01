@@ -678,6 +678,7 @@
         "refused": "Wywołanie „{tool}” w połączeniu {connection} odrzucono, bo nikt nie mógł go zatwierdzić; nic nie wysłano",
         "afterMail": "Wywołanie „{tool}” w {connection} zostało wstrzymane: po przeczytaniu poczty uruchomienie tylko czyta strony i pisze wersje robocze; nic nie wysłano",
         "afterLocalRead": "Jego wywołanie „{tool}” w {connection} wstrzymano: po odczytaniu plików na komputerze nic nie wychodzi na zewnątrz; nic nie wysłano",
+        "afterLocalReadOut": "Wywołanie „{tool}” zostało wstrzymane: po odczytaniu plików na komputerze nic nie wychodzi na zewnątrz; nic nie wysłano",
         "approved": "zatwierdzone",
         "answered": "odpowiedź właściciela",
         "note": "Uwaga: {note}",

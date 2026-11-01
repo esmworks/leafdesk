@@ -683,6 +683,7 @@
         "refused": "Lệnh gọi “{tool}” trên {connection} của nó bị từ chối vì không ai có thể phê duyệt; không có gì được gửi đi",
         "afterMail": "Lệnh gọi “{tool}” trên {connection} đã bị giữ lại: sau khi đọc email, lượt chạy chỉ đọc trang và viết bản nháp; không có gì được gửi",
         "afterLocalRead": "Lệnh gọi “{tool}” trên {connection} đã bị giữ lại: sau khi đọc tệp trên máy tính, không gì được gửi ra ngoài; không gì được gửi",
+        "afterLocalReadOut": "Lệnh gọi “{tool}” đã bị giữ lại: sau khi đọc tệp trên máy tính, không gì được gửi ra ngoài; không gì được gửi",
         "approved": "đã chấp thuận",
         "answered": "được một chủ sở hữu trả lời",
         "note": "Ghi chú: {note}",

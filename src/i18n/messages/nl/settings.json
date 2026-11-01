@@ -683,6 +683,7 @@
         "refused": "Zijn aanroep van “{tool}” op {connection} is geweigerd, omdat niemand die kon goedkeuren; er is niets verstuurd",
         "afterMail": "De aanroep van ‘{tool}’ op {connection} werd tegengehouden: na het lezen van e-mail leest een run alleen nog pagina’s en schrijft concepten; er is niets verzonden",
         "afterLocalRead": "De aanroep van “{tool}” op {connection} werd tegengehouden: na het lezen van bestanden op de computer gaat er niets naar buiten; er is niets verzonden",
+        "afterLocalReadOut": "De aanroep van ‘{tool}’ is tegengehouden: na het lezen van bestanden op de computer gaat er niets naar buiten; er is niets verzonden",
         "approved": "goedgekeurd",
         "answered": "beantwoord door een eigenaar",
         "note": "Notitie: {note}",

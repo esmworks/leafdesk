@@ -678,6 +678,7 @@
         "refused": "La sua chiamata a “{tool}” su {connection} è stata rifiutata, non potendola approvare nessuno; non è stato inviato nulla",
         "afterMail": "La sua chiamata a «{tool}» su {connection} è stata trattenuta: dopo aver letto email, un’esecuzione legge solo pagine e scrive bozze; non è stato inviato nulla",
         "afterLocalRead": "La sua chiamata a “{tool}” su {connection} è stata trattenuta: dopo aver letto file del computer non esce nulla; non è stato inviato nulla",
+        "afterLocalReadOut": "La chiamata a «{tool}» è stata trattenuta: dopo aver letto file sul computer, non esce nulla; non è stato inviato nulla",
         "approved": "approvata",
         "answered": "risposta da un proprietario",
         "note": "Nota: {note}",

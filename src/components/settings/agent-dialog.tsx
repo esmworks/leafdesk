@@ -978,7 +978,8 @@ function ToolStepLine({ step, connection }: { step: AgentToolRecord; connection:
     <>
       <Plug className={cn("mt-[3px] h-3.5 w-3.5 shrink-0", bad && "text-danger")} />
       <span className="min-w-0 break-words">
-        {t(step.outcome, { tool: step.tool, connection })}
+        {/* Held back after a local read without a connection: the web, another agent or email, none of them Leafdesk's own. */}
+        {step.outcome === "afterLocalRead" && step.connectionId === null ? t("afterLocalReadOut", { tool: step.tool }) : t(step.outcome, { tool: step.tool, connection })}
         {step.decidedBy && step.outcome !== "expired" && <span className="text-fg-faint"> · {t(step.outcome === "done" ? "approved" : "answered")}</span>}
         {step.rule === "allow" && <span className="text-fg-faint"> · {t("allowedByRule")}</span>}
         {step.note && <span className="block text-xs text-fg-faint">{t("note", { note: step.note })}</span>}

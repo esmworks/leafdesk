@@ -678,6 +678,7 @@
         "refused": "{connection} üzerindeki “{tool}” çağrısı, onaylayacak kimse olmadığından reddedildi; hiçbir şey gönderilmedi",
         "afterMail": "{connection} üzerindeki “{tool}” çağrısı durduruldu: e-posta okuyan bir çalışma bundan sonra yalnızca sayfa okur ve taslak yazar; hiçbir şey gönderilmedi",
         "afterLocalRead": "{connection} üzerindeki “{tool}” çağrısı tutuldu: bilgisayardaki dosyalar okunduktan sonra hiçbir şey dışarı gitmez; hiçbir şey gönderilmedi",
+        "afterLocalReadOut": "“{tool}” çağrısı tutuldu: bilgisayardaki dosyalar okunduktan sonra dışarı hiçbir şey gitmez; hiçbir şey gönderilmedi",
         "approved": "onaylandı",
         "answered": "bir sahip yanıtladı",
         "note": "Not: {note}",

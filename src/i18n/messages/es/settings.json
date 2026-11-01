@@ -678,6 +678,7 @@
         "refused": "Su llamada a «{tool}» en {connection} se rechazó porque nadie podía aprobarla; no se envió nada",
         "afterMail": "Su llamada a «{tool}» en {connection} se retuvo: tras leer correo, una ejecución solo lee páginas y redacta borradores; no se envió nada",
         "afterLocalRead": "Su llamada a “{tool}” en {connection} se retuvo: después de leer archivos del ordenador no sale nada; no se envió nada",
+        "afterLocalReadOut": "Su llamada a «{tool}» se retuvo: tras leer archivos del ordenador, no sale nada; no se envió nada",
         "approved": "aprobada",
         "answered": "respondida por un propietario",
         "note": "Nota: {note}",

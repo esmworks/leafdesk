@@ -1155,8 +1155,12 @@ function timeline(messages: AgentChatMessageView[], runs: AgentChatRunView[], da
     if (message.role === "user" || !units.length) units.push([{ at: message.at, message }]);
     else units.at(-1)!.push({ at: message.at, message });
   }
+  // The question still being answered stays last, above the answer under way drawn after the list.
+  const asking = units.at(-1)?.every((item) => item.message?.role === "user") ? units.pop() : undefined;
   for (const run of runs) units.push([{ at: run.at, run }]);
-  const items = units.sort((a, b) => a[0].at.localeCompare(b[0].at)).flat();
+  units.sort((a, b) => a[0].at.localeCompare(b[0].at));
+  if (asking) units.push(asking);
+  const items = units.flat();
   if (!days) return items;
   let last = "";
   return items.flatMap((item): Item[] => {

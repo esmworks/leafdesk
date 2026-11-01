@@ -683,6 +683,7 @@
         "refused": "Panggilannya ke “{tool}” di {connection} ditolak karena tidak ada yang bisa menyetujuinya; tidak ada yang dikirim",
         "afterMail": "Panggilan “{tool}” di {connection} ditahan: setelah membaca email, sebuah run hanya membaca halaman dan menulis draf; tidak ada yang dikirim",
         "afterLocalRead": "Panggilannya ke “{tool}” di {connection} ditahan: setelah membaca file di komputer, tidak ada yang keluar; tidak ada yang dikirim",
+        "afterLocalReadOut": "Panggilannya ke “{tool}” ditahan: setelah membaca file di komputer, tidak ada yang keluar; tidak ada yang dikirim",
         "approved": "disetujui",
         "answered": "dijawab oleh pemilik",
         "note": "Catatan: {note}",

@@ -678,6 +678,7 @@
         "refused": "A chamada de “{tool}” em {connection} foi recusada, pois ninguém podia aprová-la; nada foi enviado",
         "afterMail": "A chamada de “{tool}” em {connection} foi retida: depois de ler e-mails, uma execução só lê páginas e escreve rascunhos; nada foi enviado",
         "afterLocalRead": "A chamada de “{tool}” em {connection} foi retida: depois de ler arquivos do computador, nada sai; nada foi enviado",
+        "afterLocalReadOut": "A chamada a “{tool}” foi retida: depois de ler arquivos no computador, nada sai; nada foi enviado",
         "approved": "aprovada",
         "answered": "respondida por um proprietário",
         "note": "Nota: {note}",

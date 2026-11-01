@@ -683,6 +683,7 @@
         "refused": "Its call of “{tool}” on {connection} was refused, as no one could approve it; nothing was sent",
         "afterMail": "Its call of “{tool}” on {connection} was held back: after reading email, a run only reads pages and drafts email; nothing was sent",
         "afterLocalRead": "Its call of “{tool}” on {connection} was held back: after reading files on the computer, nothing goes out; nothing was sent",
+        "afterLocalReadOut": "Its call of “{tool}” was held back: after reading files on the computer, nothing goes out; nothing was sent",
         "approved": "approved",
         "answered": "answered by an owner",
         "note": "Note: {note}",

@@ -678,6 +678,7 @@
         "refused": "Sein Aufruf von „{tool}“ bei {connection} wurde abgelehnt, da niemand ihn genehmigen konnte; nichts wurde gesendet",
         "afterMail": "Der Aufruf von „{tool}“ bei {connection} wurde zurückgehalten: Nach dem Lesen von E-Mails liest ein Lauf nur noch Seiten und schreibt Entwürfe; nichts wurde gesendet",
         "afterLocalRead": "Sein Aufruf von „{tool}“ bei {connection} wurde zurückgehalten: Nach dem Lesen von Dateien auf dem Computer geht nichts hinaus; nichts wurde gesendet",
+        "afterLocalReadOut": "Der Aufruf von „{tool}“ wurde zurückgehalten: Nach dem Lesen von Dateien auf dem Computer geht nichts hinaus; es wurde nichts gesendet",
         "approved": "freigegeben",
         "answered": "von einem Inhaber beantwortet",
         "note": "Notiz: {note}",

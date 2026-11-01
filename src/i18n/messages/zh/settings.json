@@ -678,6 +678,7 @@
         "refused": "它对 {connection} 上“{tool}”的调用因无人可批准而被拒绝；没有发送任何内容",
         "afterMail": "其在 {connection} 上对“{tool}”的调用被拦下：读过邮件后，运行只读取页面并起草邮件；未发送任何内容",
         "afterLocalRead": "它对 {connection} 上“{tool}”的调用被拦下：读取电脑上的文件后，任何内容都不会外发；未发送任何内容",
+        "afterLocalReadOut": "对“{tool}”的调用已被拦下：读取电脑上的文件后，任何内容都不会外发；未发送任何内容",
         "approved": "已批准",
         "answered": "已由所有者答复",
         "note": "备注：{note}",

@@ -683,6 +683,7 @@
         "refused": "Dess anrop av ”{tool}” på {connection} avvisades, eftersom ingen kunde godkänna det; inget skickades",
         "afterMail": "Anropet av ”{tool}” på {connection} hölls tillbaka: efter att ha läst e-post läser en körning bara sidor och skriver utkast; inget skickades",
         "afterLocalRead": "Anropet av ”{tool}” på {connection} hölls tillbaka: efter att ha läst filer på datorn går inget ut; inget skickades",
+        "afterLocalReadOut": "Anropet av ”{tool}” hölls tillbaka: efter att filer på datorn lästs går inget ut; inget skickades",
         "approved": "godkänt",
         "answered": "besvarat av en ägare",
         "note": "Anteckning: {note}",
