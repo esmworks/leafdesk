@@ -213,6 +213,15 @@ try {
   check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: notStarted.runId! })).stopped, "Stop on an answer not started yet ends it");
   const [stoppedEarly] = await db.select().from(agentRun).where(eq(agentRun.id, notStarted.runId!));
   check(stoppedEarly.status === "failed" && stoppedEarly.code === "stopped" && stoppedEarly.startedAt === null, "…before the worker takes it, as stopped", stoppedEarly);
+  // Taken by the worker but not answering yet: the Stop waits for it to start.
+  const justTaken = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "And this one" });
+  await db.update(agentRun).set({ status: "running" }).where(eq(agentRun.id, justTaken.runId!));
+  check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: justTaken.runId! })).stopped, "Stop on an answer the agent has just taken up ends it");
+  await db.update(agentRun).set({ status: "pending" }).where(eq(agentRun.id, justTaken.runId!));
+  const chatsBefore = fake.chats.length;
+  await flushAgentRuns();
+  const [stoppedTaken] = await db.select().from(agentRun).where(eq(agentRun.id, justTaken.runId!));
+  check(stoppedTaken.status === "failed" && stoppedTaken.code === "stopped" && fake.chats.length === chatsBefore, "…as it starts, without asking the model", { status: stoppedTaken.status, code: stoppedTaken.code });
   const long = Array.from({ length: 60 }, (_, i) => `word${i}`).join(" ");
   fake.setChat(() => ({ text: long }));
   fake.delayMs = 15;
@@ -347,7 +356,7 @@ try {
   const thread = await chat.agentThread(ids.owner, workspaceId, helper.id);
   check(
     thread.conversationId === archiving.conversation.id &&
-      thread.messages.length === 12 &&
+      thread.messages.length === 14 &&
       thread.messages[0].content === "What did the board discuss?" &&
       thread.messages.at(-1)?.content === "Added it.",
     "the dialog's conversations read as one, oldest first, a new message joining the latest",

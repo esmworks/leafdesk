@@ -173,6 +173,9 @@ export function stopRun(userId: string, runId: string): boolean {
   return false;
 }
 
+/** Whether an answer has that id here: on its way, or ended a moment ago. */
+export const knownRun = (runId: string) => store.runs.has(runId);
+
 /** Stops the person's answers in these conversations (being deleted), or in all of theirs in the workspace. */
 export function stopRunsIn(userId: string, workspaceId: string, conversationIds: string[] | "all") {
   for (const run of store.runs.values()) {

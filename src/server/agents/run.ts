@@ -81,7 +81,7 @@ import { ANSWER_CHARS, answerEvents } from "./answer-text";
 import { threadBefore } from "@/lib/comments";
 import { findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
-import { endRun, openRun, publish, type ChatRun } from "@/server/ai-chat-runs";
+import { endRun, knownRun, openRun, publish, stopRun as stopAnswer, type ChatRun } from "@/server/ai-chat-runs";
 import { aiConfig, AiError, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiToolCall } from "@/server/ai";
 import { agentChatPrompt, agentEventPrompt, agentMailPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
@@ -180,11 +180,12 @@ async function claim(limit: number): Promise<(typeof agentRun.$inferSelect)[]> {
 const answering = ((globalThis as { __leafdeskAgentChatStops?: Map<string, AbortController> }).__leafdeskAgentChatStops ??= new Map());
 
 /**
- * Stops a chat run the person asked to stop: one answering ends at once with what it wrote so far
- * (code `stopped`, which tells no one); one not started yet ends before the worker takes it.
- * False when it was neither (it ended already, or waits for an approval).
+ * Stops a chat run its person (`userId`) asked to stop: one answering ends at once with what it
+ * wrote so far (code `stopped`, which tells no one); one not started yet ends before the worker
+ * takes it; one the worker took but that isn't answering yet stops as it starts (the answers' store
+ * keeps the Stop for it). False when it was none of these (it ended already, or waits for an approval).
  */
-export async function stopRun(runId: string): Promise<boolean> {
+export async function stopRun(runId: string, userId: string): Promise<boolean> {
   const controller = answering.get(runId);
   if (controller) {
     controller.abort();
@@ -195,8 +196,17 @@ export async function stopRun(runId: string): Promise<boolean> {
     .set({ status: "running", nextAt: new Date() })
     .where(and(eq(agentRun.id, runId), eq(agentRun.status, "pending")))
     .returning();
-  if (!taken || !isAgentRun(taken)) return false;
-  await finish(taken, { status: "failed", code: "stopped", answer: "" });
+  if (taken && isAgentRun(taken)) {
+    await finish(taken, { status: "failed", code: "stopped", answer: "" });
+    return true;
+  }
+  // One that answered here has ended already.
+  if (knownRun(runId)) return false;
+  const [now] = await db.select({ status: agentRun.status }).from(agentRun).where(eq(agentRun.id, runId));
+  if (now?.status !== "running") return false;
+  stopAnswer(userId, runId);
+  // Or it started answering meanwhile.
+  answering.get(runId)?.abort();
   return true;
 }
 
