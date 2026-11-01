@@ -430,6 +430,10 @@
 
 ### Changed
 
+- **Agents are in the sidebar's Chat tab too.** Under New chat, the Chat tab lists the agents you
+  can talk to, above your conversations, and an agent's page keeps the Chat tab open with that
+  agent marked, so talking to the AI and to an agent starts in one place. The Agents section of the
+  Home tab stays, and can be hidden there as before.
 - **Phones: bigger buttons, room for the notch and home indicator, and the keyboard.** On touch
   screens the page header's buttons are 36 px and a database's toolbar buttons 32 px, and the slash
   menu leaves out keyboard shortcuts. Installed on a phone, Leafdesk reaches under the notch and

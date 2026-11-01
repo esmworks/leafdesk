@@ -139,8 +139,10 @@ import { gzipSync } from "node:zlib";
  * Changes an agent proposes from email, shown under its run's message in the agent's chat, add a
  * few dozen bytes to a page's route (the box itself loads when a run proposed something), which
  * stood at its budget.
+ * The Mail tab's unread count, the chat box's chips stepping aside while dictating and the agents
+ * in the sidebar's chat tab add under 0.5 kB to all first loads together, which stood at its budget.
  */
-const BUDGET = { routeFirstLoad: 794, firstLoadShared: 1229, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 794, firstLoadShared: 1230, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

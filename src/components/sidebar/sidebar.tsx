@@ -931,30 +931,6 @@ export function Sidebar({
 
   if (isSettingsPath(pathname)) return null;
 
-  // The agents they may talk to, each opening its page (a chat with it): in the home tab's section and the chat tab.
-  const agentLinks = (
-    <ul className="space-y-px">
-      {agents.map((agent) => (
-        <li key={agent.id}>
-          <Link
-            href={agentPagePath(workspaceId, agent.id)}
-            aria-current={pathname === agentPagePath(workspaceId, agent.id) ? "page" : undefined}
-            className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg"
-          >
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-              {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}
-            </span>
-            <span className="truncate ps-0.5">{agent.name}</span>
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-  const manageAgents = (
-    <IconButton label={t("sections.manageAgents")} onClick={() => router.push(`/w/${workspaceId}/settings?tab=agents`)}>
-      <MoreHorizontal className="h-3.5 w-3.5" />
-    </IconButton>
-  );
   // Each section as it shows (or null when it has nothing to show), placed in the person's order.
   const sectionContent: Record<SidebarSection, React.ReactNode> = {
     favorites: favorites.length > 0 && (
@@ -1175,9 +1151,28 @@ export function Sidebar({
         label={t("sections.agents")}
         open={!isFolded(AGENTS_SECTION)}
         onToggle={() => fold(AGENTS_SECTION)}
-        actions={manageAgents}
+        actions={
+          <IconButton label={t("sections.manageAgents")} onClick={() => router.push(`/w/${workspaceId}/settings?tab=agents`)}>
+            <MoreHorizontal className="h-3.5 w-3.5" />
+          </IconButton>
+        }
       >
-        {agentLinks}
+        <ul className="space-y-px">
+          {agents.map((agent) => (
+            <li key={agent.id}>
+              <Link
+                href={agentPagePath(workspaceId, agent.id)}
+                aria-current={pathname === agentPagePath(workspaceId, agent.id) ? "page" : undefined}
+                className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg"
+              >
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+                  {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}
+                </span>
+                <span className="truncate ps-0.5">{agent.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </SectionGroup>
     ),
   };
@@ -1565,17 +1560,8 @@ export function Sidebar({
               <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={newChat}>
                 {tAi("newChat")}
               </SidebarButton>
-              {agents.length > 0 && (
-                <section aria-labelledby="chat-agents-heading" className="mt-2">
-                  <div className="group/heading flex h-7 items-center rounded-md pe-1 hover:bg-bg-hover">
-                    <h2 id="chat-agents-heading" className="min-w-0 flex-1 truncate px-2 text-xs font-medium text-fg-muted">
-                      {t("sections.agents")}
-                    </h2>
-                    <span className="flex opacity-0 group-hover/heading:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100">{manageAgents}</span>
-                  </div>
-                  {agentLinks}
-                </section>
-              )}
+              {/* The same section as the home tab's (folded or not alike): an agent's page is a chat with it. */}
+              {agents.length > 0 && <div className="mt-2">{sectionContent.agents}</div>}
               <div className="mt-2">
                 <ConversationList />
               </div>
