@@ -13,6 +13,7 @@ import { AGENT_CHAT_HISTORY, type AgentChatAnswerFile, type AgentChatMessageReco
 import { mergeTurnQuestions, queuedTurn } from "@/lib/agent-chat-queue";
 import { summaryTurn } from "@/lib/agent-chat-summary";
 import { readEmail, type AgentRunCode, type AgentStepRecord } from "@/lib/agents";
+import { firstLocalRead } from "@/lib/local-reads";
 import { redactError, redactText, redactValue } from "@/lib/redact";
 import { chatHistory } from "@/server/ai/prompts";
 import { kickAgents } from "./kick";
@@ -30,19 +31,27 @@ const chatSteps = (steps: AgentStepRecord[] | undefined): ChatStepRecord[] =>
  * id) the person's other runs of the agent in that time (ownRunTurns) come in among them, so that
  * what it did on its own can be talked about. Empty for other runs. `mailRead`: a turn it takes
  * read email (lib/agents.ts readEmail), so the run is held as one that read it; a run sent from a
- * connected app leaves such turns out instead, as it may not have what they say.
+ * connected app leaves such turns out instead, as it may not have what they say. `localRead`: the
+ * conversation, however far back, holds something read on the person's computer
+ * (lib/local-reads.ts), so the run sends nothing out; a run sent from a connected app leaves out
+ * every turn from the first that did instead.
  */
-export async function chatRunHistory(run: Run, budget: number): Promise<{ messages: { role: "user" | "assistant"; content: string }[]; mailRead: boolean }> {
-  if (run.source.kind !== "chat") return { messages: [], mailRead: false };
+export async function chatRunHistory(
+  run: Run,
+  budget: number,
+): Promise<{ messages: { role: "user" | "assistant"; content: string }[]; mailRead: boolean; localRead: boolean }> {
+  if (run.source.kind !== "chat") return { messages: [], mailRead: false, localRead: false };
   const fromApp = Boolean(run.source.fromApp);
   const [found] = await db
     .select({ messages: agentConversation.messages, chatId: agentConversation.chatId, agentId: agentConversation.agentId })
     .from(agentConversation)
     .where(eq(agentConversation.id, run.source.conversationId));
-  if (!found) return { messages: [], mailRead: false };
+  if (!found) return { messages: [], mailRead: false, localRead: false };
   const at = found.messages.findIndex((m) => m.role === "user" && m.runId === run.id);
+  const earlier = at >= 0 ? found.messages.slice(0, at) : found.messages;
+  const local = firstLocalRead(earlier);
   // Messages that waited in the queue go with their answer as one question.
-  const before = mergeTurnQuestions(at >= 0 ? found.messages.slice(0, at) : found.messages).slice(-AGENT_CHAT_HISTORY);
+  const before = mergeTurnQuestions(fromApp && local >= 0 ? earlier.slice(0, local) : earlier).slice(-AGENT_CHAT_HISTORY);
   const turns = before.flatMap((m) => {
     const mail = readEmail(m.steps);
     // A summary the conversation started from: what was said before it.
@@ -69,6 +78,7 @@ export async function chatRunHistory(run: Run, budget: number): Promise<{ messag
       budget,
     ),
     mailRead: kept.some(mailed),
+    localRead: !fromApp && local >= 0,
   };
 }
 
@@ -174,6 +184,7 @@ export async function closeChatTurn(run: EndedRun, ending: { answer?: string; co
               after: run.id,
               ...(turn.telegram ? { telegram: true as const } : {}),
               ...(turn.otherApp ? { otherApp: true as const } : {}),
+              ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
             },
             context: { actorId: source.userId, ...(zone ? { timeZone: zone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
             prompt: turn.prompt,

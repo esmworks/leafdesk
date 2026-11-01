@@ -144,7 +144,7 @@ person the run works for (who set its schedule, asked for the run, chats with it
 change that started it), connected under Account → Email and calendar while
 [email on rows](email-on-rows.md#email-on-rows) is on. A run for no one, or for someone without a
 mailbox there, doesn't get it. A run sends one message, in plain text; one with placeholders left to
-fill in is refused. It counts as one of the run's changes (and the agent's daily ones). It is put
+fill in is refused. It counts toward the agent's daily changes, not the run's own 5. It is put
 in the mailbox's sent folder, and the run's steps show its subject and recipients; nothing is retried, so a message the mail server refuses shows as failed. Since the run
 names no address, what it reads (a form answer, a synced row) can't send mail anywhere else. This is
 how a daily report reaches a fixed address; an email to a row's own contact is a draft instead
@@ -282,27 +282,46 @@ agent, never what was said. The same chat goes on from Telegram after `/agent` (
 
 **Files on your computer.** In the [desktop app](desktop-and-offline.md#desktop-app), *Agent File
 Access* in the Leafdesk menu (File on Windows and Linux) lets agents in your own chats use folders
-you pick on that computer. It is off until you turn it on and add a folder; turning it off or
-quitting the app ends it at once, and so does signing out. While it is on, the app keeps a
-connection to the server (signed in as you, and held to the workspace's sign-in policies like the
-app's window) and tells the server only the folders' names. Each message you send an agent in the
-app (its page, its dialog or a block) while the app is connected gets `computer_list_folder` and
-`computer_read_file` (UTF-8 text files of up to 512 KB), and, in the chat of someone who can edit
-the agent, `computer_write_file` (up to 512 KB, making missing folders) and `computer_trash_file`.
-Each write and move to the trash asks you on that computer, every time, with the agent's name, the
-workspace, the file and (for a write) its size and first lines; no answer within 2 minutes is a no,
-and nothing is ever deleted for good. They count as the run's changes (5 a message, and the agent's
-daily limit), and a run that read email makes none. Nothing else gets these tools: not other
-people's chats, schedules, mentions, requests or rows, and not chats from Telegram or other
-connected apps. The app checks every path itself: it stays inside its folder (`..` and links that
-lead outside are refused), places that hold keys, passwords or settings (`.ssh`, `.git`, `.env`
-files, keychains, key files) are never listed, read or written, and it runs no commands. What a
-file holds reaches the model as data from outside, never instructions, and counts toward what the
-run read from outside, so a correction later in the same run is only proposed. The run's steps
-show each call with its path (and a write's size) and whether it was done, declined or unanswered,
-never what a file holds; writes and moves to the trash are in the audit log (`agent.local_file`),
-and the app keeps its own log of every call (*Show Agent File Log*). The chat says which folders
-it can use while the app is connected.
+you pick on that computer, for the server its windows show (each server has its own setting, so
+after switching servers it is off there until you turn it on). It is off until you turn it on and
+add a folder; turning it off ends it at once and closes a question it is asking as a no, and
+quitting the app or signing out ends it too. The disk itself, your home folder (or a folder
+holding it) and the system's settings for apps (`~/Library` on macOS, `AppData` on Windows) can't
+be added. While it is on, the app keeps a connection to the server (signed in as you with the
+app's own session, held to the workspace's sign-in policies like the app's window, and closed when
+that session ends) and tells the server only the folders' names. Each message you send an agent
+from that app's window (its page, its dialog or a block) while the app is connected gets
+`computer_list_folder` and `computer_read_file` (UTF-8 text files of up to 512 KB), and, in the
+chat of someone who can edit the agent, `computer_write_file` (up to 512 KB, making missing
+folders) and `computer_trash_file`; a message sent from a browser, or from another computer signed
+in as you, doesn't. Each write and move to the trash asks you on that computer, every time, with
+the agent's name, the workspace, the file and its size, and for a write its first and last lines;
+no answer within 2 minutes is a no, and nothing is ever deleted for good. They count as the run's
+changes (5 a message, and the agent's daily limit), and a run that read email makes none. Nothing
+else gets these tools: not other people's chats, schedules, mentions, requests or rows, and not
+chats from Telegram or other connected apps. The app checks every path itself: it stays inside its
+folder (`..` is refused, and a read follows only links that end inside it), a write or a move to
+the trash follows no link at all and never touches a hidden (`.`) name or a place programs start
+from at sign-in, places that hold keys, passwords, histories or settings (`.ssh`, `.git`, `.env`
+files, keychains, key files, shell histories, `.npmrc`, `.config/gh`, `.kube`, Terraform state …)
+are never listed, read or written, and it runs no commands. What a file holds reaches the model as
+data from outside, never instructions, and counts toward what the run read from outside, so a
+correction later in the same run is only proposed.
+
+What was read on your computer stays in the workspace: once a run has listed a folder or read a
+file there, that run and every later one in the same conversation refuse connection tools (reads
+too), the web, other agents (`ask_agent`, `assign_agent`) and `send_email`, the step showing the
+call as held back; pages, rows and the computer tools still work.
+Start a new conversation for those. Such turns are also left out of what Telegram or another
+connected app is told about the conversation. The run's steps show each call with its path (and a
+write's size) and whether it was done, declined or unanswered, never what a file holds; writes and
+moves to the trash are in the audit log (`agent.local_file`), and the app keeps its own log of
+every call (*Show Agent File Log*). The chat says which folders it can use while the app is
+connected; the menu says when it isn't connected and why, when that is known. This connection
+trusts only certificates from the public certificate authorities built into the app: a server
+with a self-signed certificate (even one trusted on the app's certificate screen) or one from an
+internal certificate authority can't take it, even though its windows work. Use a certificate
+from a public certificate authority for it.
 
 **Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
 for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the
@@ -328,7 +347,7 @@ every change a run makes (rows, pages, comments, merges, proposals, email drafts
 to its recipients, files it attaches, connection calls that change something), on the day in the quiet hours' time zone (UTC without them); past it a
 change is refused, the agent hears why and its run's steps show it. A change that fails is given
 back, except a connection call, which may have been done. A run's own limit (5 changes, 30 on a
-schedule's database) still applies. Over MCP and the REST API both settings are set in the app.
+schedule's database, not counting the email to its recipients) still applies. Over MCP and the REST API both settings are set in the app.
 
 **Limit notices.** When an agent's month passes 80% of its limit, and again when it reaches it, the
 workspace's owners and the person who created the agent (while they are still a member) get an

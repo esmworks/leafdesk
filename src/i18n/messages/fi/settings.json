@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Valitse kaksi eri kellonaikaa ja aikavyöhyke.",
       "dailyChangeLimit": "Muutoksia päivässä",
       "dailyChangeLimitPlaceholder": "Ei rajaa",
-      "dailyChangeLimitHelp": "Enimmäismäärä muutoksia, jotka se tekee päivässä: rivit, sivut, kommentit ja jotain muuttavat yhteyskutsut. Seuraavat hylätään. Päivä lasketaan hiljaisten tuntien aikavyöhykkeellä, muuten UTC:n mukaan.",
+      "dailyChangeLimitHelp": "Enimmäismäärä muutoksia, jotka se tekee päivässä: rivit, sivut, kommentit, sen lähettämät sähköpostit ja jotain muuttavat yhteyskutsut. Seuraavat hylätään. Päivä lasketaan hiljaisten tuntien aikavyöhykkeellä, muuten UTC:n mukaan.",
       "dailyChangeLimitInvalid": "Anna kokonaisluku väliltä 1–{max}.",
       "guardrailsOwnersOnly": "Vain työtilan omistajat asettavat hiljaiset tunnit ja päivittäisen muutosrajan."
     },
@@ -682,6 +682,7 @@
         "expired": "Sen kutsu työkaluun ”{tool}” yhteydessä {connection} vanheni; mitään ei lähetetty",
         "refused": "Sen kutsu työkaluun ”{tool}” yhteydessä {connection} torjuttiin, koska kukaan ei voinut hyväksyä sitä; mitään ei lähetetty",
         "afterMail": "Kutsu ”{tool}” palvelussa {connection} pysäytettiin: sähköpostin lukemisen jälkeen ajo vain lukee sivuja ja kirjoittaa luonnoksia; mitään ei lähetetty",
+        "afterLocalRead": "Sen kutsu ”{tool}” yhteydessä {connection} pidätettiin: tietokoneen tiedostojen lukemisen jälkeen mitään ei lähde ulos; mitään ei lähetetty",
         "approved": "hyväksytty",
         "answered": "omistaja vastasi",
         "note": "Huomautus: {note}",

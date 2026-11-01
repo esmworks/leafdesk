@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Wybierz dwie różne godziny i strefę czasową.",
       "dailyChangeLimit": "Zmiany dziennie",
       "dailyChangeLimitPlaceholder": "Bez limitu",
-      "dailyChangeLimitHelp": "Najwięcej zmian, jakie wprowadza w ciągu dnia: wiersze, strony, komentarze i wywołania połączeń, które coś zmieniają. Kolejne są odrzucane. Dzień liczy się w strefie czasowej godzin ciszy, a bez niej w UTC.",
+      "dailyChangeLimitHelp": "Najwięcej zmian, jakie wprowadza w ciągu dnia: wiersze, strony, komentarze, wysyłane e-maile i wywołania połączeń, które coś zmieniają. Kolejne są odrzucane. Dzień liczy się w strefie czasowej godzin ciszy, a bez niej w UTC.",
       "dailyChangeLimitInvalid": "Wpisz liczbę całkowitą od 1 do {max}.",
       "guardrailsOwnersOnly": "Godziny ciszy i dzienny limit zmian ustawiają tylko właściciele obszaru roboczego."
     },
@@ -677,6 +677,7 @@
         "expired": "Czas na wywołanie „{tool}” w połączeniu {connection} upłynął; nic nie wysłano",
         "refused": "Wywołanie „{tool}” w połączeniu {connection} odrzucono, bo nikt nie mógł go zatwierdzić; nic nie wysłano",
         "afterMail": "Wywołanie „{tool}” w {connection} zostało wstrzymane: po przeczytaniu poczty uruchomienie tylko czyta strony i pisze wersje robocze; nic nie wysłano",
+        "afterLocalRead": "Jego wywołanie „{tool}” w {connection} wstrzymano: po odczytaniu plików na komputerze nic nie wychodzi na zewnątrz; nic nie wysłano",
         "approved": "zatwierdzone",
         "answered": "odpowiedź właściciela",
         "note": "Uwaga: {note}",

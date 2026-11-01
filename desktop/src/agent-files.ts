@@ -8,11 +8,16 @@
  * ever deleted for good. Every call, done or refused, is a line in a log on this computer.
  *
  * Everything here is checked again on this side, whatever the server sent: a place is
- * `<folder label>/<path inside it>`; `..`, backslashes and control characters are refused; the
- * existing part of a path is resolved through links and must stay inside its folder; places that
- * hold keys, passwords or settings (`.ssh`, `.git`, `.env` files, keychains …) are never touched;
- * reads and writes stop at 512 KB, and a file that isn't UTF-8 text isn't read. Nothing runs a
- * shell. The rules mirror src/lib/desktop-bridge.ts in the web app.
+ * `<folder label>/<path inside it>`; `..`, backslashes, control and invisible characters, `:` and
+ * names Windows keeps for devices are refused; a read may follow links that end inside its folder,
+ * while a write or a move to the trash follows none, anywhere in the path, and never touches a
+ * hidden (`.`) name or a place things start from at sign-in; places that hold keys, passwords or
+ * settings (`.ssh`, `.git`, `.env` files, keychains, shell histories …) are never touched; reads
+ * and writes stop at 512 KB, and a file that isn't UTF-8 text isn't read. Nothing runs a shell.
+ * The rules mirror src/lib/desktop-bridge.ts in the web app.
+ *
+ * The bridge only connects for the server the windows show, with that server's own settings, and
+ * closes and connects again when the server's pings stop.
  *
  * Pure apart from the file system: Electron's parts (dialogs, the trash, cookies) come from main.ts.
  */
@@ -30,10 +35,23 @@ export const MAX_FOLDERS = 20;
 export const APPROVAL_MS = 2 * 60_000;
 /** The log is rotated past this size, keeping one older file. */
 export const AUDIT_MAX_BYTES = 1024 * 1024;
+/** How often the server pings (DESKTOP_PING_MS in the web app): none for twice this, and the connection is taken as lost. */
+export const PING_MS = 30_000;
 const MAX_LABEL = 100;
 const MAX_PLACE = 1_000;
-const PREVIEW_LINES = 8;
+/** A write's preview shows its first lines and its last ones, with how many are left out between. */
+const PREVIEW_HEAD = 8;
+const PREVIEW_TAIL = 4;
 const PREVIEW_LINE_CHARS = 200;
+
+/** Control characters and ones that change how text around them reads (direction marks, zero-width ones). */
+const HIDDEN = /[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩﻿]/;
+const HIDDEN_ALL = new RegExp(HIDDEN.source, "g");
+
+/** Text with those characters taken out, for names shown in a question. */
+export function withoutHidden(text: string): string {
+  return text.replace(HIDDEN_ALL, "");
+}
 
 export type FileOp = "list" | "read" | "write" | "trash";
 export type FileError = "denied" | "unanswered" | "notFound" | "outside" | "protected" | "tooLarge" | "binary" | "notFile" | "notFolder" | "failed";
@@ -60,14 +78,40 @@ export function readAgentFilesSettings(value: unknown): AgentFilesSettings | und
   return { enabled: enabled === true, folders: kept };
 }
 
+/**
+ * The settings of each server the app has connected to, by main.ts's `serverKey()` ("local" or the
+ * server's origin): folders picked for one server are never offered to another.
+ */
+export type AgentFilesByServer = Record<string, AgentFilesSettings>;
+
+export function readAgentFilesByServer(value: unknown): AgentFilesByServer | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const kept = Object.entries(value).flatMap(([key, settings]) => {
+    const read = readAgentFilesSettings(settings);
+    return key && read ? [[key, read] as const] : [];
+  });
+  return kept.length ? Object.fromEntries(kept) : undefined;
+}
+
+/** Settings kept before they were per server go to the server open now (none: they are dropped). */
+export function moveToServer(legacy: AgentFilesSettings | undefined, byServer: AgentFilesByServer | undefined, key: string | undefined): AgentFilesByServer | undefined {
+  if (!legacy || !key || byServer?.[key]) return byServer;
+  return { ...byServer, [key]: legacy };
+}
+
 /** A folder agents may use, and the label the server knows it by. */
 export type AllowedFolder = { label: string; root: string };
+
+/** The folders agents may use now: none while access is off, whatever was picked. */
+export function activeFolders(settings: AgentFilesSettings | undefined): AllowedFolder[] {
+  return settings?.enabled ? folderLabels(settings.folders) : [];
+}
 
 /** Each folder's label: its name, made a plain name, with " (2)" and so on where two have the same. */
 export function folderLabels(folders: readonly string[]): AllowedFolder[] {
   const used = new Set<string>();
   return folders.slice(0, MAX_FOLDERS).map((root) => {
-    let base = path.basename(root).replace(/[/\\\u0000-\u001f]/g, "-").trim().slice(0, MAX_LABEL - 5);
+    let base = withoutHidden(path.basename(root).replace(/[/\\]/g, "-")).trim().slice(0, MAX_LABEL - 5);
     if (!base || base === "." || base === "..") base = "Folder";
     let label = base;
     for (let n = 2; used.has(label); n++) label = `${base} (${n})`;
@@ -78,19 +122,89 @@ export function folderLabels(folders: readonly string[]): AllowedFolder[] {
 
 // ── Places that are never touched ───────────────────────────────────────────────────────────
 
-const PROTECTED_FOLDERS = new Set([".ssh", ".gnupg", ".aws", ".azure", ".kube", ".docker", ".git", ".password-store", "keychains"]);
-const PROTECTED_FILES = new Set([".netrc", ".npmrc", ".pypirc", ".git-credentials", ".gitconfig", ".pgpass", ".htpasswd", "id_rsa", "id_dsa", "id_ecdsa", "id_ed25519", "known_hosts", "authorized_keys"]);
+const PROTECTED_FOLDERS = new Set([".ssh", ".gnupg", ".aws", ".azure", ".kube", ".docker", ".git", ".password-store", ".terraform.d", "keychains", "keyrings", "kwalletd"]);
+const PROTECTED_FILES = new Set([
+  ".netrc",
+  ".npmrc",
+  ".pypirc",
+  ".git-credentials",
+  ".gitconfig",
+  ".pgpass",
+  ".htpasswd",
+  ".vault-token",
+  ".zsh_history",
+  ".bash_history",
+  ".sh_history",
+  ".histfile",
+  ".python_history",
+  ".node_repl_history",
+  ".psql_history",
+  ".mysql_history",
+  "id_rsa",
+  "id_dsa",
+  "id_ecdsa",
+  "id_ed25519",
+  "known_hosts",
+  "authorized_keys",
+]);
 const PROTECTED_EXTENSIONS = [".pem", ".key", ".p12", ".pfx", ".kdbx", ".keychain", ".keychain-db", ".gpg", ".asc", ".ppk"];
+/** Names protected only inside a certain folder: `.config/gh`, `.cargo/credentials.toml` … */
+const PROTECTED_INSIDE: readonly [string, (name: string) => boolean][] = [
+  [".config", (name) => name === "gh" || name === "gcloud"],
+  [".cargo", (name) => name.startsWith("credentials")],
+];
+/** Where things start from at sign-in: nothing is written there, whatever folder it is in. */
+const STARTS_AT_SIGN_IN = [
+  ["library", "launchagents"],
+  ["library", "launchdaemons"],
+  ["start menu", "programs", "startup"],
+  [".config", "autostart"],
+];
 
 /** Whether a file or folder's name marks keys, passwords or settings, which agents never use. */
 export function isProtectedName(name: string): boolean {
   const lower = name.toLowerCase();
-  return PROTECTED_FOLDERS.has(lower) || PROTECTED_FILES.has(lower) || lower.startsWith(".env") || PROTECTED_EXTENSIONS.some((ext) => lower.endsWith(ext));
+  return PROTECTED_FOLDERS.has(lower) || PROTECTED_FILES.has(lower) || lower.startsWith(".env") || lower.includes(".tfstate") || PROTECTED_EXTENSIONS.some((ext) => lower.endsWith(ext));
+}
+
+const partsOf = (fullPath: string) => fullPath.split(/[/\\]/).filter(Boolean);
+
+/** Whether a path's parts pass through such a place (letter case aside). */
+export function hasProtectedParts(parts: readonly string[]): boolean {
+  const lower = parts.map((part) => part.toLowerCase());
+  return lower.some((part, i) => isProtectedName(part) || (i > 0 && PROTECTED_INSIDE.some(([parent, inside]) => lower[i - 1] === parent && inside(part))));
 }
 
 /** Whether a path, from the top of the file system, passes through such a place. */
 export function hasProtectedPart(fullPath: string): boolean {
-  return fullPath.split(/[/\\]/).some((part) => part && isProtectedName(part));
+  return hasProtectedParts(partsOf(fullPath));
+}
+
+/** Whether a path passes through a place things start from at sign-in. */
+export function startsAtSignIn(fullPath: string): boolean {
+  const lower = partsOf(fullPath).map((part) => part.toLowerCase());
+  return STARTS_AT_SIGN_IN.some((run) => lower.some((_, i) => run.every((part, j) => lower[i + j] === part)));
+}
+
+/**
+ * Whether a folder the person picked can't be offered to agents: the whole disk, the home
+ * folder or one holding it, the system's settings for apps (`~/Library`, `AppData`) or inside
+ * them, or a place of keys and passwords. `real` is the folder through its links.
+ */
+export function refusedRoot(real: string, home: string, platform: NodeJS.Platform): boolean {
+  const p = platform === "win32" ? path.win32 : path.posix;
+  const fold = (value: string) => (platform === "win32" || platform === "darwin" ? value.toLowerCase() : value);
+  const folder = fold(p.resolve(real));
+  const homeFolder = fold(p.resolve(home));
+  const within = (parent: string, child: string) => {
+    const relative = p.relative(parent, child);
+    return relative === "" || (relative !== ".." && !relative.startsWith(`..${p.sep}`) && !p.isAbsolute(relative));
+  };
+  if (p.parse(folder).root === folder || hasProtectedPart(real)) return true;
+  // The home folder, or a folder holding it.
+  if (within(folder, homeFolder)) return true;
+  const settings = platform === "win32" ? ["AppData"] : platform === "darwin" ? ["Library"] : [".config", ".local"];
+  return settings.some((name) => within(fold(p.join(homeFolder, name)), folder));
 }
 
 // ── Places ──────────────────────────────────────────────────────────────────────────────────
@@ -105,14 +219,27 @@ const isInside = (root: string, target: string) => {
 
 const errorCode = (error: unknown) => (error as NodeJS.ErrnoException | null)?.code;
 
+/** Names Windows keeps for devices, with or without an extension. */
+const DEVICE_NAME = /^(con|prn|aux|nul|com[0-9¹²³]|lpt[0-9¹²³])(\.|$)/i;
+
+/**
+ * Whether a part of a path can't be used on every system alike: a `:` (another stream of a file on
+ * Windows), a device name, or a trailing dot or space (which Windows drops, so `id_rsa.` would be
+ * `id_rsa`). Checked everywhere, so the rules are the same on every computer.
+ */
+export function isUnsafePart(part: string): boolean {
+  return part.includes(":") || DEVICE_NAME.test(part) || part.endsWith(".") || part.endsWith(" ");
+}
+
 /**
  * Where a place the server sent is on this computer, or why it can't be used: the folder by its
  * label, the path inside it resolved through links as far as it exists, and refused when it
- * leaves the folder (`outside`) or passes a protected place (`protected`).
+ * leaves the folder or a link leads back to the folder itself (`outside`) or passes a protected
+ * place (`protected`). A change checks more with `checkChangePlace`.
  */
 export async function resolvePlace(folders: readonly AllowedFolder[], raw: unknown): Promise<Resolved> {
   if (typeof raw !== "string" || !raw.trim() || raw.length > MAX_PLACE) throw new FileRefusal("outside");
-  if (/[\\\u0000-\u001f]/.test(raw)) throw new FileRefusal("outside");
+  if (raw.includes("\\") || HIDDEN.test(raw)) throw new FileRefusal("outside");
   const all = raw
     .trim()
     .split("/")
@@ -121,7 +248,8 @@ export async function resolvePlace(folders: readonly AllowedFolder[], raw: unkno
   const [label, ...parts] = all;
   const folder = folders.find((f) => f.label === label);
   if (!folder) throw new FileRefusal("outside");
-  if (parts.some(isProtectedName)) throw new FileRefusal("protected");
+  if (hasProtectedParts(parts)) throw new FileRefusal("protected");
+  if (parts.some(isUnsafePart)) throw new FileRefusal("outside");
 
   let root: string;
   try {
@@ -140,11 +268,34 @@ export async function resolvePlace(folders: readonly AllowedFolder[], raw: unkno
       throw new FileRefusal("failed");
     }
     const full = path.join(real, ...parts.slice(i));
-    if (!isInside(root, full)) throw new FileRefusal("outside");
-    if (hasProtectedPart(path.relative(root, full))) throw new FileRefusal("protected");
+    if (!isInside(root, full) || (parts.length && full === root)) throw new FileRefusal("outside");
+    if (hasProtectedPart(full)) throw new FileRefusal("protected");
     return { label: folder.label, root, parts, real: full, exists: i === parts.length };
   }
   throw new FileRefusal("notFound");
+}
+
+/**
+ * What a write or a move to the trash must also hold: a place strictly inside its folder, no
+ * hidden (`.`) name in it, not where things start from at sign-in, and no link anywhere along it,
+ * the last part included (each part that exists is looked at itself, from the folder down, rather
+ * than through links: on Windows a file can't be opened refusing links).
+ */
+export async function checkChangePlace(place: Resolved): Promise<void> {
+  if (!place.parts.length || place.real === place.root) throw new FileRefusal("protected");
+  if (place.parts.some((part) => part.startsWith(".")) || startsAtSignIn(place.real)) throw new FileRefusal("protected");
+  let at = place.root;
+  for (const part of place.parts) {
+    at = path.join(at, part);
+    let stat;
+    try {
+      stat = await fs.lstat(at);
+    } catch (error) {
+      if (errorCode(error) === "ENOENT") return;
+      throw new FileRefusal(errorCode(error) === "ENOTDIR" ? "notFound" : "failed");
+    }
+    if (stat.isSymbolicLink()) throw new FileRefusal("outside");
+  }
 }
 
 // ── What a call does ────────────────────────────────────────────────────────────────────────
@@ -177,7 +328,9 @@ export function textOf(bytes: Uint8Array): string | null {
   }
 }
 
-// A link swapped in after the check isn't followed when opening (where the system has the flag).
+// On macOS and Linux a link swapped in for the file's last part after the checks isn't followed
+// when opening. Windows has no such flag (0): there the checks just before opening are all there is,
+// and a link swapped in between them and the open, or in a folder above, isn't caught.
 const NO_FOLLOW = fsConstants.O_NOFOLLOW ?? 0;
 
 /** A text file's contents, at most MAX_FILE_BYTES. */
@@ -211,13 +364,13 @@ export async function writeText(folders: readonly AllowedFolder[], placeText: st
   if (bytes > MAX_FILE_BYTES) throw new FileRefusal("tooLarge");
   const place = await resolvePlace(folders, placeText);
   if (!place.parts.length) throw new FileRefusal("notFile");
-  if (place.exists && (await fs.stat(place.real)).isDirectory()) throw new FileRefusal("notFile");
-  if (!place.exists) {
-    await fs.mkdir(path.dirname(place.real), { recursive: true });
-    // Checked again once the folders are there: one may have been swapped for a link meanwhile.
-    const again = await resolvePlace(folders, placeText);
-    if (again.real !== place.real) throw new FileRefusal("outside");
-  }
+  await checkChangePlace(place);
+  if (place.exists && (await fs.lstat(place.real)).isDirectory()) throw new FileRefusal("notFile");
+  if (!place.exists) await fs.mkdir(path.dirname(place.real), { recursive: true });
+  // Checked again just before opening: a part may have been swapped for a link meanwhile.
+  const again = await resolvePlace(folders, placeText);
+  if (again.real !== place.real) throw new FileRefusal("outside");
+  await checkChangePlace(again);
   const handle = await fs.open(place.real, fsConstants.O_WRONLY | fsConstants.O_CREAT | fsConstants.O_TRUNC | NO_FOLLOW, 0o644);
   try {
     await handle.writeFile(content, "utf8");
@@ -232,14 +385,19 @@ export async function writeText(folders: readonly AllowedFolder[], placeText: st
 /** What the person is asked about. */
 export type Approval = { op: "write" | "trash"; agent: string; workspace: string; place: string; server: string; bytes?: number; preview?: string };
 
-/** The first lines of what a write puts in the file, for the question. */
-export function previewOf(content: string): string {
-  return content
-    .split(/\r?\n/)
-    .slice(0, PREVIEW_LINES)
-    .map((line) => (line.length > PREVIEW_LINE_CHARS ? `${line.slice(0, PREVIEW_LINE_CHARS)}…` : line))
-    .join("\n")
-    .trimEnd();
+/**
+ * What a write puts in the file, for the question: its first lines and, when longer, its last ones
+ * with `more(count)` between, so nothing hides at the end; characters that change how text reads
+ * are taken out, and tabs shown as spaces.
+ */
+export function previewOf(content: string, more: (count: number) => string = (count) => `… ${count} …`): string {
+  const lines = content.trimEnd().split(/\r?\n/);
+  const clean = (line: string) => {
+    const plain = withoutHidden(line.replaceAll("\t", "  "));
+    return plain.length > PREVIEW_LINE_CHARS ? `${plain.slice(0, PREVIEW_LINE_CHARS)}…` : plain;
+  };
+  if (lines.length <= PREVIEW_HEAD + PREVIEW_TAIL + 1) return lines.map(clean).join("\n");
+  return [...lines.slice(0, PREVIEW_HEAD).map(clean), more(lines.length - PREVIEW_HEAD - PREVIEW_TAIL), ...lines.slice(-PREVIEW_TAIL).map(clean)].join("\n");
 }
 
 /** Bytes as the question shows them. */
@@ -317,6 +475,8 @@ export type FileHost = {
   /** Moves a file or folder to the system's trash. */
   trash: (fullPath: string) => Promise<void>;
   audit: (entry: AuditEntry) => Promise<void>;
+  /** The line a long preview shows between its first and last lines, in the person's language. */
+  moreLines?: (count: number) => string;
   now?: () => Date;
   approvalMs?: number;
 };
@@ -329,7 +489,8 @@ export function readCall(value: unknown): Call | null {
   const v = value as Record<string, unknown>;
   if (v.type !== "call" || typeof v.id !== "string" || v.id.length > 64 || !OPS.includes(v.op as FileOp) || typeof v.path !== "string") return null;
   if (v.op === "write" && typeof v.content !== "string") return null;
-  const name = (x: unknown) => (typeof x === "string" ? x.slice(0, 200) : "");
+  // Shown in the question: nothing in them may turn the text around or hide part of it.
+  const name = (x: unknown) => (typeof x === "string" ? withoutHidden(x).trim().slice(0, 200) : "");
   return { type: "call", id: v.id, op: v.op as FileOp, path: v.path, ...(v.op === "write" ? { content: v.content as string } : {}), agent: name(v.agent), workspace: name(v.workspace) };
 }
 
@@ -357,12 +518,18 @@ async function perform(call: Call, host: FileHost, bytes: number | undefined): P
   if (call.op === "read") return { op: "read", ...(await readText(place)) };
 
   // Checked before asking, so the person isn't asked about something that can't be done.
+  let trashBytes: number | undefined;
   if (call.op === "write") {
     if ((bytes ?? 0) > MAX_FILE_BYTES) throw new FileRefusal("tooLarge");
-    if (!place.parts.length || (place.exists && (await fs.stat(place.real)).isDirectory())) throw new FileRefusal("notFile");
+    if (!place.parts.length) throw new FileRefusal("notFile");
+    await checkChangePlace(place);
+    if (place.exists && (await fs.lstat(place.real)).isDirectory()) throw new FileRefusal("notFile");
   } else {
     if (!place.parts.length) throw new FileRefusal("protected");
     if (!place.exists) throw new FileRefusal("notFound");
+    await checkChangePlace(place);
+    const stat = await fs.lstat(place.real);
+    if (stat.isFile()) trashBytes = stat.size;
   }
   const approval: Approval = {
     op: call.op,
@@ -370,15 +537,17 @@ async function perform(call: Call, host: FileHost, bytes: number | undefined): P
     workspace: call.workspace,
     place: [place.label, ...place.parts].join("/"),
     server: host.server,
-    ...(call.op === "write" ? { bytes, preview: previewOf(call.content ?? "") } : {}),
+    ...(call.op === "write" ? { bytes, preview: previewOf(call.content ?? "", host.moreLines) } : trashBytes !== undefined ? { bytes: trashBytes } : {}),
   };
   const answer = await askWithTimeout((signal) => host.ask(approval, signal), host.approvalMs ?? APPROVAL_MS);
   if (answer !== "allowed") throw new FileRefusal(answer === "denied" ? "denied" : "unanswered");
 
-  // The folders may have changed while the person thought about it: everything is checked again.
+  // Access may have been turned off or the folders changed while the person thought about it:
+  // everything is checked again (no folders while it is off).
   if (call.op === "write") return { op: "write", ...(await writeText(host.folders(), call.path, call.content ?? "")) };
   const again = await resolvePlace(host.folders(), call.path);
   if (!again.exists || !again.parts.length) throw new FileRefusal("notFound");
+  await checkChangePlace(again);
   await host.trash(again.real);
   return { op: "trash" };
 }
@@ -404,12 +573,15 @@ export type SocketLike = {
   close(code?: number): void;
   onopen: (() => void) | null;
   onmessage: ((event: { data: unknown }) => void) | null;
-  onclose: (() => void) | null;
-  onerror: (() => void) | null;
+  onclose: ((event?: { code?: number }) => void) | null;
+  onerror: ((event?: unknown) => void) | null;
 };
 
 /** Where the bridge connects and what it announces; null while file access is off or no server is open. */
 export type BridgeTarget = { origin: string; folders: readonly AllowedFolder[] } | null;
+
+/** Why the bridge isn't connected, when that is known: the menu says so. */
+export type BridgeProblem = "signedOut" | "certificate" | "unreachable";
 
 export type BridgeDeps = {
   open: (url: string, headers: Record<string, string>) => SocketLike;
@@ -417,19 +589,48 @@ export type BridgeDeps = {
   cookie: (origin: string) => Promise<string>;
   version: string;
   answer: (call: Call, origin: string) => Promise<Result>;
-  onStatus?: (connected: boolean) => void;
+  onStatus?: (connected: boolean, problem?: BridgeProblem) => void;
 };
 
 const OPEN = 1;
+/** What the server closes the socket with when no session or an ended one came with it (server/desktop-bridge/). */
+const SIGNED_OUT_CODES = new Set([4401, 4403]);
+const CERTIFICATE_CODE = /CERT|SELF_SIGNED|UNABLE_TO_GET_ISSUER|UNABLE_TO_VERIFY|DEPTH_ZERO|ERR_TLS/i;
 
-/** Keeps the websocket to the server open while there is a target, reconnecting with backoff. */
+/**
+ * Why a connection failed, from the error it failed with (and the errors that caused it): the
+ * system not trusting the server's certificate, or the server not answering. The app's own trust
+ * in a certificate (certificates.ts) covers its windows only, not this connection.
+ */
+export function problemOf(error: unknown): "certificate" | "unreachable" {
+  let at: unknown = error;
+  for (let depth = 0; depth < 6 && at && typeof at === "object"; depth++) {
+    const { code, message } = at as { code?: unknown; message?: unknown };
+    if ((typeof code === "string" && CERTIFICATE_CODE.test(code)) || (typeof message === "string" && /certificate/i.test(message))) return "certificate";
+    const next = at as { error?: unknown; cause?: unknown };
+    at = next.error ?? next.cause;
+  }
+  return "unreachable";
+}
+
+/**
+ * Keeps the websocket to the server open while there is a target, reconnecting with backoff, and
+ * taking the connection as lost when the server's pings stop for twice their interval (a socket
+ * whose network went away can stay "open" for a long time).
+ */
 export class AgentFilesBridge {
   private readonly deps: BridgeDeps;
   private target: BridgeTarget = null;
+  /** Counts the servers followed: a connection or retry started for an earlier one gives up. */
+  private generation = 0;
   private socket: SocketLike | null = null;
   private timer: ReturnType<typeof setTimeout> | undefined;
+  private watchdog: ReturnType<typeof setInterval> | undefined;
+  private lastHeard = 0;
   private failures = 0;
   private connected = false;
+  private problem: BridgeProblem | undefined;
+  private reported: string | undefined;
 
   constructor(deps: BridgeDeps) {
     this.deps = deps;
@@ -439,17 +640,26 @@ export class AgentFilesBridge {
     return this.connected;
   }
 
-  /** Follows a new target: reconnects for another server, says hello again for other folders, closes for none. */
+  /**
+   * Follows a new target: reconnects for another server, says hello again for other folders,
+   * closes for none. The same server with the same folders (main.ts makes a new target each time
+   * its menu is drawn) changes nothing.
+   */
   update(target: BridgeTarget) {
     const before = this.target;
-    this.target = target && target.folders.length ? target : null;
-    if (this.target && before && this.target.origin === before.origin) {
-      if (labels(this.target) !== labels(before) && this.socket?.readyState === OPEN && this.connected) this.hello(this.socket);
+    const next = target && target.folders.length ? target : null;
+    if (next && before && next.origin === before.origin) {
+      this.target = next;
+      if (labels(next) !== labels(before) && this.socket?.readyState === OPEN && this.connected) this.hello(this.socket);
       return;
     }
+    this.target = next;
+    this.generation++;
     this.drop();
     this.failures = 0;
-    if (this.target) void this.connect();
+    this.problem = undefined;
+    this.report();
+    if (next) void this.connect();
   }
 
   stop() {
@@ -461,65 +671,105 @@ export class AgentFilesBridge {
     socket.send(JSON.stringify({ type: "hello", version: this.deps.version, folders: this.target.folders.map((f) => f.label) }));
   }
 
+  /** Tells the app when being connected, or why not, changed. */
+  private report() {
+    const now = `${this.connected}:${this.connected ? "" : (this.problem ?? "")}`;
+    if (now === this.reported) return;
+    this.reported = now;
+    this.deps.onStatus?.(this.connected, this.connected ? undefined : this.problem);
+  }
+
   private setConnected(value: boolean) {
-    if (this.connected === value) return;
     this.connected = value;
-    this.deps.onStatus?.(value);
+    this.report();
+  }
+
+  private close(socket: SocketLike) {
+    socket.onopen = socket.onmessage = socket.onclose = socket.onerror = null;
+    try {
+      socket.close(1000);
+    } catch {}
   }
 
   private drop() {
     clearTimeout(this.timer);
     this.timer = undefined;
+    clearInterval(this.watchdog);
+    this.watchdog = undefined;
     const socket = this.socket;
     this.socket = null;
-    if (socket) {
-      socket.onopen = socket.onmessage = socket.onclose = socket.onerror = null;
-      try {
-        socket.close(1000);
-      } catch {}
-    }
+    if (socket) this.close(socket);
     this.setConnected(false);
   }
 
   private async connect() {
-    const target = this.target;
-    if (!target) return;
+    const generation = this.generation;
+    const origin = this.target?.origin;
+    if (!origin) return;
     let socket: SocketLike;
     try {
-      const cookie = await this.deps.cookie(target.origin);
-      if (this.target !== target) return;
-      socket = this.deps.open(bridgeUrl(target.origin), { [BRIDGE_HEADER]: "1", ...(cookie ? { cookie } : {}) });
-    } catch {
-      this.retry(target);
+      const cookie = await this.deps.cookie(origin);
+      if (this.generation !== generation) return;
+      socket = this.deps.open(bridgeUrl(origin), { [BRIDGE_HEADER]: "1", ...(cookie ? { cookie } : {}) });
+    } catch (error) {
+      this.problem = problemOf(error);
+      this.report();
+      this.retry(generation);
       return;
     }
     this.socket = socket;
     socket.onopen = () => {
       this.failures = 0;
+      this.problem = undefined;
+      this.lastHeard = Date.now();
+      this.watch(socket, generation);
       this.setConnected(true);
       this.hello(socket);
     };
-    socket.onmessage = (event) => this.receive(socket, target.origin, event.data);
-    socket.onerror = () => {};
-    socket.onclose = () => {
+    socket.onmessage = (event) => this.receive(socket, origin, event.data);
+    socket.onerror = (event) => {
+      if (this.socket === socket) this.problem = problemOf(event);
+    };
+    socket.onclose = (event) => {
       if (this.socket !== socket) return;
-      this.socket = null;
-      this.setConnected(false);
-      this.retry(target);
+      if (event?.code !== undefined && SIGNED_OUT_CODES.has(event.code)) this.problem = "signedOut";
+      this.lost(socket, generation);
     };
   }
 
-  private retry(target: NonNullable<BridgeTarget>) {
-    if (this.target !== target) return;
+  /** The socket is gone, or taken as gone: forgets it and tries again. */
+  private lost(socket: SocketLike, generation: number) {
+    if (this.socket !== socket) return;
+    clearInterval(this.watchdog);
+    this.watchdog = undefined;
+    this.socket = null;
+    this.close(socket);
+    this.problem ??= "unreachable";
+    this.setConnected(false);
+    this.retry(generation);
+  }
+
+  /** Takes the connection as lost once nothing came from the server for twice the ping interval. */
+  private watch(socket: SocketLike, generation: number) {
+    clearInterval(this.watchdog);
+    this.watchdog = setInterval(() => {
+      if (Date.now() - this.lastHeard > 2 * PING_MS) this.lost(socket, generation);
+    }, PING_MS);
+    this.watchdog.unref?.();
+  }
+
+  private retry(generation: number) {
+    if (this.generation !== generation || !this.target) return;
     clearTimeout(this.timer);
     this.timer = setTimeout(() => {
       this.timer = undefined;
-      if (this.target === target && !this.socket) void this.connect();
+      if (this.generation === generation && this.target && !this.socket) void this.connect();
     }, reconnectDelay(this.failures++));
     this.timer.unref?.();
   }
 
   private receive(socket: SocketLike, origin: string, data: unknown) {
+    if (this.socket === socket) this.lastHeard = Date.now();
     let message: unknown;
     try {
       message = JSON.parse(typeof data === "string" ? data : Buffer.from(data as ArrayBuffer).toString("utf8"));

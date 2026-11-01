@@ -828,8 +828,9 @@ app.
 
 **Chatting with an agent.** `/agent` lists the workspace's agents shared with the person (see
 [Chatting with an agent](agents.md#agents)); once one is picked, messages and voice messages go to
-it instead of the AI chat, each one a message of the agent's own chat with the person, the one its
-page shows, so the conversation goes on in the app (`/new` starts a new one there). The agent does
+it instead of the AI chat, each one a message of the agent's own chat with the person, joining its
+latest conversation, the one its page shows, so the conversation goes on in the app (`/new` starts
+a new one there). The agent does
 what it does in that chat: its own instructions, skills and notes, its access held to the
 person's, read-only for someone who may only use it; `/mode` doesn't apply to it. Its answer
 shows as it is written, in one message edited every few seconds, then formatted, with the pages it

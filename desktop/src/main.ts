@@ -28,7 +28,23 @@ import {
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { AgentFilesBridge, answerCall, appendAudit, auditLine, folderLabels, formatSize, hasProtectedPart, MAX_FOLDERS, oneAtATime, type Approval, type SocketLike } from "./agent-files.ts";
+import {
+  activeFolders,
+  AgentFilesBridge,
+  answerCall,
+  appendAudit,
+  auditLine,
+  folderLabels,
+  formatSize,
+  MAX_FOLDERS,
+  moveToServer,
+  oneAtATime,
+  refusedRoot,
+  type AgentFilesSettings,
+  type Approval,
+  type BridgeProblem,
+  type SocketLike,
+} from "./agent-files.ts";
 import { CertificateTrust, isCertificateError, type CertificateProblem } from "./certificates.ts";
 import { showContextMenu } from "./context-menu.ts";
 import { activeShortcut, aiChatPath, defaultShortcut, SHORTCUT_OFF, shortcutChoices, workspaceIn } from "./global-shortcut.ts";
@@ -189,6 +205,12 @@ if (!app.requestSingleInstanceLock()) {
 
 function start() {
   settings = loadSettings(settingsFile());
+  // Agents' file access was kept for whichever server was open before each server had its own.
+  if (settings.agentFiles) {
+    settings.agentFilesByServer = moveToServer(settings.agentFiles, settings.agentFilesByServer, serverKey());
+    delete settings.agentFiles;
+    save();
+  }
   locale = systemLocale();
   app.userAgentFallback = plainUserAgent(app.userAgentFallback);
   if (process.platform === "win32") app.setAppUserModelId("io.github.esmworks.leafdesk");
@@ -273,9 +295,10 @@ function refreshMenu() {
         },
       },
       agentFiles: {
-        enabled: settings.agentFiles?.enabled === true,
-        folders: agentFolders(),
+        enabled: agentFilesSettings()?.enabled === true,
+        folders: folderLabels(agentFilesSettings()?.folders ?? []),
         connected: agentFilesConnected,
+        problem: agentFilesProblem,
         toggle: toggleAgentFiles,
         add: () => void addAgentFolder(),
         remove: removeAgentFolder,
@@ -416,10 +439,25 @@ function reportBackup(result: BackupResult) {
 // ── Agents' access to files on this computer (agent-files.ts) ─────────────────────────────────
 
 const agentFilesLog = () => path.join(app.getPath("userData"), "logs", "agent-files.log");
-const agentFolders = () => folderLabels(settings.agentFiles?.folders ?? []);
+/** The settings of the server the windows show: each server has its own, and one never set is off. */
+const agentFilesSettings = (): AgentFilesSettings | undefined => {
+  const key = serverKey();
+  return key ? settings.agentFilesByServer?.[key] : undefined;
+};
+function setAgentFilesSettings(value: AgentFilesSettings) {
+  const key = serverKey();
+  if (!key) return;
+  settings.agentFilesByServer = { ...settings.agentFilesByServer, [key]: value };
+  save();
+}
+/** The folders agents may use now: none while access is off. */
+const agentFolders = () => activeFolders(agentFilesSettings());
 /** The person sees one question at a time. */
 const askInTurn = oneAtATime();
+/** Aborted when access is turned off: questions shown or waiting close as a no. */
+let agentQuestions = new AbortController();
 let agentFilesConnected = false;
+let agentFilesProblem: BridgeProblem | undefined;
 
 /** Node's WebSocket, which takes headers (the session's cookie and the app's header) unlike a page's. */
 const NodeWebSocket = WebSocket as unknown as new (url: string, init: { headers: Record<string, string> }) => SocketLike;
@@ -434,21 +472,28 @@ const agentFiles = new AgentFilesBridge({
   answer: (call, origin) =>
     answerCall(call, {
       server: origin,
-      folders: agentFolders,
-      ask: (approval, signal) => askInTurn((turn) => askAboutFile(approval, turn))(signal),
+      // Another server's folders never serve this one's call, even when the windows switched while it waited.
+      folders: () => (currentOrigin() === origin ? agentFolders() : []),
+      ask: (approval, signal) => {
+        // Taken when the call comes: turning access off while it waits for its turn aborts it too.
+        const off = agentQuestions.signal;
+        return askInTurn((turn) => askAboutFile(approval, AbortSignal.any([turn, off])))(AbortSignal.any([signal, off]));
+      },
       trash: (fullPath) => shell.trashItem(fullPath),
       audit: (entry) => appendAudit(agentFilesLog(), auditLine(entry)),
+      moreLines: (count) => fill(strings().agentAskMoreLines, { count: String(count) }),
     }),
-  onStatus: (connected) => {
+  onStatus: (connected, problem) => {
     agentFilesConnected = connected;
+    agentFilesProblem = problem;
     refreshMenu();
   },
 });
 
-/** Connects the bridge to the server the windows show while file access is on with folders; closes it otherwise. */
+/** Connects the bridge to the server the windows show while file access is on there with folders; closes it otherwise. */
 function syncAgentFiles() {
   const origin = currentOrigin();
-  const on = settings.agentFiles?.enabled === true && !!origin && (!isLocal() || localReady);
+  const on = !!origin && (!isLocal() || localReady);
   agentFiles.update(on && origin ? { origin, folders: agentFolders() } : null);
 }
 
@@ -475,16 +520,22 @@ async function askAboutFile(approval: Approval, signal: AbortSignal): Promise<bo
     signal,
   };
   const { response } = window ? await dialog.showMessageBox(window.window, box) : await dialog.showMessageBox(box);
-  return !signal.aborted && response === 1;
+  // Access may have been turned off while the question was open: then the answer counts for nothing.
+  return !signal.aborted && response === 1 && agentFilesSettings()?.enabled === true;
 }
 
 function toggleAgentFiles() {
-  const current = settings.agentFiles ?? { enabled: false, folders: [] };
-  settings.agentFiles = { ...current, enabled: !current.enabled };
-  save();
+  if (!serverKey()) return;
+  const current = agentFilesSettings() ?? { enabled: false, folders: [] };
+  const next = { ...current, enabled: !current.enabled };
+  if (!next.enabled) {
+    agentQuestions.abort();
+    agentQuestions = new AbortController();
+  }
+  setAgentFilesSettings(next);
   refreshMenu();
   // Turned on with no folder yet: the next step is picking one.
-  if (settings.agentFiles.enabled && !settings.agentFiles.folders.length) void addAgentFolder();
+  if (next.enabled && !next.folders.length) void addAgentFolder();
 }
 
 async function addAgentFolder() {
@@ -495,24 +546,25 @@ async function addAgentFolder() {
   const folder = filePaths[0];
   if (canceled || !folder) return;
   const real = await fs.promises.realpath(folder).catch(() => folder);
-  // A folder that is (or is inside) a place of keys and passwords, or the whole disk, isn't offered to agents.
-  if (hasProtectedPart(real) || path.parse(real).root === real) {
+  // The whole disk, the home folder (or one holding it), the system's settings for apps and places
+  // of keys and passwords aren't offered to agents.
+  if (refusedRoot(real, app.getPath("home"), process.platform)) {
     const box = { type: "warning" as const, message: t.agentFilesRefused };
     if (window) await dialog.showMessageBox(window, box);
     else await dialog.showMessageBox(box);
     return;
   }
-  const current = settings.agentFiles ?? { enabled: true, folders: [] };
+  if (!serverKey()) return;
+  const current = agentFilesSettings() ?? { enabled: true, folders: [] };
   if (current.folders.includes(real) || current.folders.length >= MAX_FOLDERS) return;
-  settings.agentFiles = { enabled: current.enabled, folders: [...current.folders, real] };
-  save();
+  setAgentFilesSettings({ enabled: current.enabled, folders: [...current.folders, real] });
   refreshMenu();
 }
 
 function removeAgentFolder(root: string) {
-  if (!settings.agentFiles) return;
-  settings.agentFiles = { ...settings.agentFiles, folders: settings.agentFiles.folders.filter((folder) => folder !== root) };
-  save();
+  const current = agentFilesSettings();
+  if (!current) return;
+  setAgentFilesSettings({ ...current, folders: current.folders.filter((folder) => folder !== root) });
   refreshMenu();
 }
 

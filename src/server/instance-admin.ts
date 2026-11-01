@@ -5,6 +5,7 @@ import { storedAllowedNetworks, type AllowedNetwork } from "@/lib/ip-allowlist";
 import { isInstanceAdmin } from "@/lib/instance-admin";
 import { notAgentUser } from "@/server/agents/users";
 import { getCollab } from "@/server/collab/bridge";
+import { closeEndedDesktopSessions } from "@/server/desktop-bridge/registry";
 import { writeNetworks } from "@/server/allowed-networks";
 import { firstAdminId, instanceAdmin } from "@/server/first-admin";
 import { workspaceCounts } from "@/server/workspaces";
@@ -119,11 +120,16 @@ export async function listInstanceUsers(
   };
 }
 
-/** Drops the live collaboration connections of these users' ended sessions (all of them unless kept). */
+/**
+ * Drops the live connections of these users' ended sessions (all of them unless kept): their desktop
+ * apps' bridges (deleted with raw SQL, the sessions end no hook), then collaboration.
+ */
 async function disconnect(userIds: Iterable<string>, current: AdminSession) {
+  const ids = new Set(userIds);
+  for (const id of ids) closeEndedDesktopSessions(id, id === current.user.id ? [current.session.id] : []);
   try {
     const collab = getCollab();
-    for (const id of new Set(userIds)) await collab.disconnectSessions(id, id === current.user.id ? [current.session.id] : []);
+    for (const id of ids) await collab.disconnectSessions(id, id === current.user.id ? [current.session.id] : []);
   } catch (error) {
     // Scripts and tests run without the collab server; its connections end with their tokens.
     console.warn("[admin] could not close collab connections", error);

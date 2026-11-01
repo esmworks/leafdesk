@@ -214,6 +214,12 @@ export type AgentRunSource =
        * Telegram bot (MCP, the REST API): another app's words, never kept as the person's own.
        */
       otherApp?: true;
+      /**
+       * The web session it was sent from in the app (each message of a merged turn from the same
+       * one): only the desktop app connected with this very session lends the run its computer
+       * (server/agents/computer.ts), so a chat sent from a phone or another computer gets none.
+       */
+      sessionId?: string;
     }
   | {
       kind: "mail";
@@ -293,11 +299,13 @@ export type AgentToolRecord = {
   input: string;
   /**
    * `refused`: a page a schedule's run may not read with no one to ask (lib/web-calls.ts); `afterMail`:
-   * a call besides reading pages and drafting after the run read email (agents/mail.ts); `denied`:
-   * an owner's rule declines every call of the tool; `limited`: a change past the agent's daily
-   * limit (of any tool, Leafdesk's own too). Nothing was sent.
+   * a call besides reading pages and drafting after the run read email (agents/mail.ts);
+   * `afterLocalRead`: a call that would carry something out (a connection's tool, the web, another
+   * agent, sending email) after the run, or its conversation, read files on the person's computer
+   * (agents/run.ts); `denied`: an owner's rule declines every call of the tool; `limited`: a change
+   * past the agent's daily limit (of any tool, Leafdesk's own too). Nothing was sent.
    */
-  outcome: "done" | "failed" | "declined" | "redo" | "expired" | "refused" | "afterMail" | "denied" | "limited";
+  outcome: "done" | "failed" | "declined" | "redo" | "expired" | "refused" | "afterMail" | "afterLocalRead" | "denied" | "limited";
   /** Who approved, declined or sent it back. */
   decidedBy?: string | null;
   /** An owner's "allow" rule sent it without asking (lib/connections.ts TOOL_RULES): no one approved it. */
@@ -456,7 +464,7 @@ export type FinishRunOutcome = (typeof FINISH_RUN_OUTCOMES)[number];
 export const MAX_FINISH_REASON = 300;
 
 /** The outcomes of a tool step whose call wasn't made: refused, declined by an owner's rule or a person, never answered or past the daily limit. */
-const BLOCKED_TOOL_OUTCOMES: ReadonlySet<AgentToolRecord["outcome"]> = new Set(["declined", "expired", "refused", "afterMail", "denied", "limited"]);
+const BLOCKED_TOOL_OUTCOMES: ReadonlySet<AgentToolRecord["outcome"]> = new Set(["declined", "expired", "refused", "afterMail", "afterLocalRead", "denied", "limited"]);
 
 /**
  * Whether a run's steps leave its person something to hear besides changes: a call that wasn't

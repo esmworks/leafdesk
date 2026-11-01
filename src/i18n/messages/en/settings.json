@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Choose two different times and a time zone.",
       "dailyChangeLimit": "Changes per day",
       "dailyChangeLimitPlaceholder": "No limit",
-      "dailyChangeLimitHelp": "The most changes it makes in a day: rows, pages, comments and connection calls that change something. Further ones are refused. The day follows the quiet hours’ time zone, else UTC.",
+      "dailyChangeLimitHelp": "The most changes it makes in a day: rows, pages, comments, emails it sends and connection calls that change something. Further ones are refused. The day follows the quiet hours’ time zone, else UTC.",
       "dailyChangeLimitInvalid": "Enter a whole number from 1 to {max}.",
       "guardrailsOwnersOnly": "Only workspace owners set quiet hours and the daily change limit."
     },
@@ -682,6 +682,7 @@
         "expired": "Its call of “{tool}” on {connection} ran out of time; nothing was sent",
         "refused": "Its call of “{tool}” on {connection} was refused, as no one could approve it; nothing was sent",
         "afterMail": "Its call of “{tool}” on {connection} was held back: after reading email, a run only reads pages and drafts email; nothing was sent",
+        "afterLocalRead": "Its call of “{tool}” on {connection} was held back: after reading files on the computer, nothing goes out; nothing was sent",
         "approved": "approved",
         "answered": "answered by an owner",
         "note": "Note: {note}",

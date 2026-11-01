@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Chọn hai thời điểm khác nhau và một múi giờ.",
       "dailyChangeLimit": "Số thay đổi mỗi ngày",
       "dailyChangeLimitPlaceholder": "Không giới hạn",
-      "dailyChangeLimitHelp": "Số thay đổi tối đa nó thực hiện trong một ngày: hàng, trang, bình luận và lệnh gọi kết nối có thay đổi gì đó. Các thay đổi tiếp theo bị từ chối. Ngày được tính theo múi giờ của giờ yên lặng, nếu không thì theo UTC.",
+      "dailyChangeLimitHelp": "Số thay đổi tối đa nó thực hiện trong một ngày: hàng, trang, bình luận, email nó gửi và lệnh gọi kết nối có thay đổi gì đó. Các thay đổi tiếp theo bị từ chối. Ngày được tính theo múi giờ của giờ yên lặng, nếu không thì theo UTC.",
       "dailyChangeLimitInvalid": "Nhập một số nguyên từ 1 đến {max}.",
       "guardrailsOwnersOnly": "Chỉ chủ sở hữu không gian làm việc mới đặt giờ yên lặng và giới hạn thay đổi mỗi ngày."
     },
@@ -682,6 +682,7 @@
         "expired": "Lệnh gọi “{tool}” trên {connection} của nó đã hết thời gian; không có gì được gửi đi",
         "refused": "Lệnh gọi “{tool}” trên {connection} của nó bị từ chối vì không ai có thể phê duyệt; không có gì được gửi đi",
         "afterMail": "Lệnh gọi “{tool}” trên {connection} đã bị giữ lại: sau khi đọc email, lượt chạy chỉ đọc trang và viết bản nháp; không có gì được gửi",
+        "afterLocalRead": "Lệnh gọi “{tool}” trên {connection} đã bị giữ lại: sau khi đọc tệp trên máy tính, không gì được gửi ra ngoài; không gì được gửi",
         "approved": "đã chấp thuận",
         "answered": "được một chủ sở hữu trả lời",
         "note": "Ghi chú: {note}",

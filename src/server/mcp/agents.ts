@@ -32,6 +32,7 @@ import {
   type AgentView,
   readEmail,
 } from "@/lib/agents";
+import { readLocalFiles } from "@/lib/local-reads";
 import { MAX_AGENT_MAIL_RECIPIENTS } from "@/lib/agent-mail";
 import { MAX_AGENT_REQUEST, type AgentDraft, type DraftTrigger } from "@/lib/agent-draft";
 import { AGENT_SHARE_LEVELS, type AgentSharingView } from "@/lib/agent-sharing";
@@ -805,6 +806,7 @@ export function describeAgentStep(step: AgentStepRecord) {
         expired: "No one answered (not sent):",
         refused: "Refused, its address being in neither the schedule's task nor the run's searches (not sent):",
         afterMail: "Held back after reading email (not sent):",
+        afterLocalRead: "Held back after reading files on the user's computer (not sent):",
         denied: "Declined by an owner's rule (not sent):",
         limited: "Refused, past the agent's daily limit of changes (not done):",
       }[step.outcome];
@@ -891,6 +893,9 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
 export function describeAgentRun(workspaceId: string, run: AgentRunView) {
   // What a run that read email did and said shows only in the app (lib/agents.ts readEmail).
   const mailed = readEmail(run.steps) || run.source.kind === "mail";
+  // So does what one that read files on the person's computer did and said (lib/local-reads.ts).
+  const local = !mailed && readLocalFiles(run.steps);
+  const hidden = mailed || local;
   return {
     id: run.id,
     status: run.status,
@@ -909,11 +914,12 @@ export function describeAgentRun(workspaceId: string, run: AgentRunView) {
           },
         }
       : {}),
-    steps: mailed ? [] : run.steps.map(describeAgentStep),
+    steps: hidden ? [] : run.steps.map(describeAgentStep),
     // A schedule's run that ended itself (finish_run): its answer is the reason it gave.
-    answer: mailed ? "" : run.answer,
+    answer: hidden ? "" : run.answer,
     ...(run.quiet ? { quiet: true } : {}),
     ...(mailed ? { email: "This run read the user's email, or went on from a chat that had: its steps and answer show only in Leafdesk's app." } : {}),
+    ...(local ? { local_files: "This run read files on the user's computer: its steps and answer show only in Leafdesk's app." } : {}),
     ...(run.usage
       ? {
           usage: {

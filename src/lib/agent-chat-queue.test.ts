@@ -38,6 +38,14 @@ describe("agent chat queue", () => {
     expect(turn).toMatchObject({ fromApp: false, telegram: true, otherApp: false, timeZone: "Europe/Istanbul" });
   });
 
+  it("keeps the web session only when every message of the turn came from that one", () => {
+    expect(queuedTurn([item("q1", "a", { sessionId: "s1" }), item("q2", "b", { sessionId: "s1" })], "r", 0).sessionId).toBe("s1");
+    expect(queuedTurn([item("q1", "a", { sessionId: "s1" }), item("q2", "b", { sessionId: "s2" })], "r", 0).sessionId).toBeUndefined();
+    // A message from Telegram (or another app) has none: the turn has none either.
+    expect(queuedTurn([item("q1", "a", { sessionId: "s1" }), item("q2", "b", { fromApp: true, via: "telegram" })], "r", 0).sessionId).toBeUndefined();
+    expect(queuedTurn([], "r", 0).sessionId).toBeUndefined();
+  });
+
   it("takes the turn as one from a connected app when one of its messages was", () => {
     expect(queuedTurn([item("q1", "a"), item("q2", "b", { fromApp: true })], "r", 0).fromApp).toBe(true);
   });

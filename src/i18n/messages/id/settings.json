@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Pilih dua waktu berbeda dan zona waktu.",
       "dailyChangeLimit": "Perubahan per hari",
       "dailyChangeLimitPlaceholder": "Tanpa batas",
-      "dailyChangeLimitHelp": "Perubahan terbanyak yang dibuatnya dalam sehari: baris, halaman, komentar, dan panggilan koneksi yang mengubah sesuatu. Selebihnya ditolak. Hari dihitung dengan zona waktu jam tenang, jika tidak ada dengan UTC.",
+      "dailyChangeLimitHelp": "Perubahan terbanyak yang dibuatnya dalam sehari: baris, halaman, komentar, email yang dikirimnya, dan panggilan koneksi yang mengubah sesuatu. Selebihnya ditolak. Hari dihitung dengan zona waktu jam tenang, jika tidak ada dengan UTC.",
       "dailyChangeLimitInvalid": "Masukkan bilangan bulat dari 1 sampai {max}.",
       "guardrailsOwnersOnly": "Hanya pemilik ruang kerja yang mengatur jam tenang dan batas perubahan harian."
     },
@@ -682,6 +682,7 @@
         "expired": "Panggilannya ke “{tool}” di {connection} kehabisan waktu; tidak ada yang dikirim",
         "refused": "Panggilannya ke “{tool}” di {connection} ditolak karena tidak ada yang bisa menyetujuinya; tidak ada yang dikirim",
         "afterMail": "Panggilan “{tool}” di {connection} ditahan: setelah membaca email, sebuah run hanya membaca halaman dan menulis draf; tidak ada yang dikirim",
+        "afterLocalRead": "Panggilannya ke “{tool}” di {connection} ditahan: setelah membaca file di komputer, tidak ada yang keluar; tidak ada yang dikirim",
         "approved": "disetujui",
         "answered": "dijawab oleh pemilik",
         "note": "Catatan: {note}",

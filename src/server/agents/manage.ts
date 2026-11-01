@@ -706,7 +706,8 @@ export async function viewRuns(userId: string, runs: (typeof agentRun.$inferSele
       status: r.status,
       code: r.code ?? null,
       error: open ? r.error : null,
-      source: r.source,
+      // The web session a chat's message came from stays on the server (agents/computer.ts).
+      source: r.source.kind === "chat" && r.source.sessionId ? { ...r.source, sessionId: undefined } : r.source,
       rowTitle: isRowRun(r.source) ? (titles.get(r.source.rowId) ?? null) : null,
       // A correction's note as it was before stays with the run, for Undo (memory.ts).
       steps: open ? r.steps.map((s) => (s.kind === "skill" && !openSkills.has(s.pageId) ? { ...s, title: "" } : s.kind === "memory" && s.previous ? { ...s, previous: undefined } : s)) : [],

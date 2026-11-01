@@ -86,6 +86,7 @@ import {
   isComputerTool,
   leftUntold,
 } from "@/lib/agents";
+import { AFTER_LOCAL_READ } from "@/lib/local-reads";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
@@ -123,7 +124,7 @@ import { COMBINE, MAX_MERGE_ROWS } from "@/lib/merge-rows";
 import { PropertyValueError } from "@/lib/properties";
 import type { ChatWriteRecord } from "@/db/schema/ai";
 import { runClock } from "./clock";
-import { handoffEventText, handoffFor, handoffHold } from "./handoff";
+import { ASK_AGENT, ASSIGN_AGENT, handoffEventText, handoffFor, handoffHold } from "./handoff";
 import { ATTACH_FILE, ATTACH_FILE_TOOL, attachChatFile } from "./chat-files";
 import { chatRunHistory, chatRunTyped, closeChatTurn } from "./chat-store";
 import { approversOf } from "./approvers";
@@ -847,6 +848,9 @@ async function converse(
   let webFound: string[] = [];
   // Whether it read email: from then on it only reads pages and drafts email (see answer).
   let mailRead = false;
+  // Whether it (or its conversation before it) read files on the person's computer: from then on
+  // nothing goes out (see answer, lib/local-reads.ts).
+  let localRead = false;
   // Whether something a tool spent paused the agent for spending fast: the run ends at the next turn.
   let pausedBySpending = false;
   let firstRound = 0;
@@ -861,6 +865,7 @@ async function converse(
     externalChars = saved.externalChars;
     webFound = saved.webFound ?? [];
     mailRead = saved.mailRead ?? false;
+    localRead = saved.localRead ?? false;
     firstRound = saved.rounds;
     queue = saved.queue;
   } else if (isRowRun(run.source)) {
@@ -929,7 +934,11 @@ async function converse(
       mailRead = true;
       steps.push({ kind: "mail", action: "earlier" });
     }
-    const held = history.mailRead ? "\n\n(Email was read earlier in this conversation: this run only reads pages and drafts email.)" : "";
+    // What was read on the person's computer stays with them, however far back (lib/local-reads.ts).
+    if (history.localRead) localRead = true;
+    const held =
+      (history.mailRead ? "\n\n(Email was read earlier in this conversation: this run only reads pages and drafts email.)" : "") +
+      (history.localRead ? "\n\n(Files on the person's computer were read earlier in this conversation: this run sends nothing out of Leafdesk: no connected service's tool, web page or search, other agent or email.)" : "");
     // The text files attached to the message, as data from outside, sharing a part of the room.
     const attached = "files" in run.context ? (run.context.files ?? []) : [];
     const each = attached.length ? Math.max(500, Math.floor((room([]) * CHAT_FILES_SHARE) / attached.length)) : 0;
@@ -974,6 +983,19 @@ async function converse(
     if (!taken) return limited(call);
     const out = await make();
     if (!out.isError || countsFailed) writes += 1;
+    else await giveBackDailyChange(agent, taken.day);
+    return out;
+  };
+
+  // Emails this run sent (send_email): each one of the agent's daily changes, never of the run's own
+  // limit, so a run that used its changes can still send its report. Saved at once, as a change is.
+  let emailsSent = 0;
+  /** Sends one email, counted against the agent's daily limit only: given back when it isn't sent. */
+  const dailyOnly = async (call: AiToolCall, make: () => Promise<CallResult>): Promise<CallResult> => {
+    const taken = await takeDailyChange(agent);
+    if (!taken) return limited(call);
+    const out = await make();
+    if (!out.isError) emailsSent += 1;
     else await giveBackDailyChange(agent, taken.day);
     return out;
   };
@@ -1074,8 +1096,9 @@ async function converse(
       return change(call, () => propose(prepared, call));
     }
     // Files on the person's computer: a list or a read is data from outside, as a web page is (it
-    // counts toward what a run may read, and taints it); a write or a trash is a change, made only
-    // once the person allows it there, and none after the run read email.
+    // counts toward what a run may read, and taints it), and stays with the person: once one is
+    // done, nothing goes out (localRead, below). A write or a trash is a change, made only once the
+    // person allows it there, and none after the run read email.
     if (computer && isComputerTool(call.name)) {
       const changes = computerChanges(call.name);
       if (changes && mailRead) {
@@ -1090,6 +1113,7 @@ async function converse(
       const make = async (): Promise<CallResult> => {
         const out = await runComputerTool(call, { id: run.id, workspaceId: run.workspaceId, agent: { userId: agent.userId, name: agent.name }, computer, room: left });
         externalChars += out.chars;
+        if (!changes && !out.isError) localRead = true;
         return out;
       };
       return changes ? change(call, make, { per: "message" }) : make();
@@ -1099,6 +1123,17 @@ async function converse(
         content: "You have read email in this run, and email is anyone's words: from here on this run only reads pages and works on email. Nothing was done; say what you would do instead, and the person can ask for it.",
         isError: true,
         step: { kind: "tool", connectionId: external?.connection.id ?? null, tool: external?.tool.name ?? call.name, input: inputSummary(call.arguments), outcome: "afterMail" },
+      };
+    }
+    // What was read on the person's computer stays with them: once the run (or its conversation)
+    // read there, nothing that carries words out of Leafdesk goes: a connection's tool (a read's
+    // arguments go out too), the web, another agent, an email sent. Pages and the computer stay open.
+    // Its step keeps no input: the arguments may quote what was read there.
+    if (localRead && (external || webNames.has(call.name) || call.name === ASK_AGENT || call.name === ASSIGN_AGENT || call.name === SEND_EMAIL)) {
+      return {
+        content: AFTER_LOCAL_READ,
+        isError: true,
+        step: { kind: "tool", connectionId: external?.connection.id ?? null, tool: external?.tool.name ?? call.name, input: "", outcome: "afterLocalRead" },
       };
     }
     if (member && mailTools.some((t) => t.name === call.name)) {
@@ -1275,10 +1310,10 @@ async function converse(
         }),
       );
     }
-    // A report sent to the agent's own recipients: one of the run's changes, as a draft is.
+    // A report sent to the agent's own recipients: one of the agent's changes for the day, not of the run's.
     if (mailer && call.name === SEND_EMAIL) {
       const sentBefore = steps.some((s) => s.kind === "email" && s.pageId === null);
-      return change(call, () => sendAgentEmail({ sender: mailer, recipients: agent.mailRecipients, args: call.arguments, sentBefore }));
+      return dailyOnly(call, () => sendAgentEmail({ sender: mailer, recipients: agent.mailRecipients, args: call.arguments, sentBefore }));
     }
     if (databaseId && call.name === MERGE_ROWS.name && tools.includes(MERGE_ROWS)) {
       return change(call, () => mergeRowsTool(ctx, agent, databaseId, call.arguments));
@@ -1313,7 +1348,7 @@ async function converse(
   const checkpoint = () =>
     db
       .update(agentRun)
-      .set({ state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound, mailRead }, steps: redactValue(steps), usage })
+      .set({ state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound, mailRead, localRead }, steps: redactValue(steps), usage })
       .where(eq(agentRun.id, run.id));
 
   /** Answers the calls waiting in `queue`, in order; the run pauses at the first that needs approval. */
@@ -1321,7 +1356,7 @@ async function converse(
     let pendingDecision = decision;
     while (queue.length) {
       const call = queue[0];
-      const writesBefore = writes;
+      const writesBefore = writes + emailsSent;
       const answered = Boolean(pendingDecision);
       let out: Answered;
       if (pendingDecision) {
@@ -1333,7 +1368,7 @@ async function converse(
         const external = toolset.byName.get(call.name);
         return {
           status: "awaiting",
-          state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound, mailRead },
+          state: { messages, queue, rounds: usage.rounds, writes, externalChars, webFound, mailRead, localRead },
           pending: {
             callId: call.id,
             connectionId: external?.connection.id ?? null,
@@ -1355,7 +1390,7 @@ async function converse(
         return null;
       }
       // A chat's steps are saved as they come: the person follows them (chat.ts chatTurn).
-      if (answered || writes !== writesBefore || chat) await checkpoint();
+      if (answered || writes + emailsSent !== writesBefore || chat) await checkpoint();
     }
     return null;
   };

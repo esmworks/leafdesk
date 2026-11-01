@@ -41,6 +41,7 @@ import { MAX_QUEUED, queuedTurn, queueView, turnPrompt } from "@/lib/agent-chat-
 import { AGENT_CHAT_SEARCH, searchSnippet } from "@/lib/agent-chat-search";
 import { AGENT_CHAT_SUMMARY_SYSTEM, SUMMARY_INPUT_CHARS, SUMMARY_MAX_CHARS, summaryInput } from "@/lib/agent-chat-summary";
 import { callConnectionName, callToSend, readEmail, type AgentRunStatus, type AgentStepRecord } from "@/lib/agents";
+import { firstLocalRead } from "@/lib/local-reads";
 import { conversationTitle } from "@/lib/ai-chat";
 import { isTimeZone } from "@/lib/time-zone";
 import { hasAgentLevel, type AgentLevel } from "@/lib/agent-sharing";
@@ -143,8 +144,12 @@ async function conversationsOf(userId: string, agentId: string, chatId: string |
 
 const placeIs = (chatId: string | null) => (chatId ? eq(agentConversation.chatId, chatId) : sql`${agentConversation.chatId} is null`);
 
-/** What the chat shows first: where the person stands, the agent (unless it is gone, or they are a guest) and their conversations. */
-export async function agentChatInfo(userId: string, workspaceId: string, agentId: string, place: ChatPlace): Promise<AgentChatInfo> {
+/**
+ * What the chat shows first: where the person stands, the agent (unless it is gone, or they are a
+ * guest) and their conversations; the folders of their computer only when `sessionId`, the session
+ * asking, is the one their desktop app connected with.
+ */
+export async function agentChatInfo(userId: string, workspaceId: string, agentId: string, place: ChatPlace, sessionId?: string): Promise<AgentChatInfo> {
   const { role, agent, level } = await standing(userId, workspaceId, agentId);
   const state = await chatState(role, level, agent, workspaceId);
   if (state === "guest" || state === "gone" || state === "noAccess" || !agent) return { state, agent: null, conversations: [], computer: null };
@@ -153,7 +158,7 @@ export async function agentChatInfo(userId: string, workspaceId: string, agentId
     agent: { id: agent.id, name: agent.name, icon: agent.icon, description: agent.description },
     conversations: await conversationsOf(userId, agent.id, place?.chatId ?? null),
     // Their desktop app's folders the runs of this chat may use (agents/computer.ts).
-    computer: state === "full" || state === "readOnly" ? await computerFolders(userId, workspaceId) : null,
+    computer: (state === "full" || state === "readOnly") && sessionId && !connectedAppCall(userId) ? await computerFolders(userId, workspaceId, sessionId) : null,
   };
 }
 
@@ -208,8 +213,9 @@ async function mayChat(userId: string, workspaceId: string, agentId: string, pla
  * queues the run with the message, in the conversation (a new one without `conversationId`), and
  * wakes the worker. While the conversation's answer is under way, the message waits in its queue
  * instead (at most MAX_QUEUED), to go as the next turn once the answer ends (chat-store.ts);
- * `via` names the app that follows it (the Telegram bot). Messages still waiting once no answer is
- * under way (an answer's end that couldn't take them) go first, in this message's turn.
+ * `via` names the app that follows it (the Telegram bot); `sessionId`, the web session it was sent
+ * from in the app (kept on the run's source; agents/computer.ts). Messages still waiting once no
+ * answer is under way (an answer's end that couldn't take them) go first, in this message's turn.
  */
 export async function sendAgentChat(
   userId: string,
@@ -222,6 +228,7 @@ export async function sendAgentChat(
     timeZone?: string;
     files?: { name: string; text: string }[];
     via?: "telegram";
+    sessionId?: string;
   },
 ): Promise<SentAgentChat> {
   const message = input.message.trim();
@@ -237,12 +244,15 @@ export async function sendAgentChat(
   const now = new Date();
   const fromApp = connectedAppCall(userId);
   const timeZone = isTimeZone(input.timeZone) ? input.timeZone : undefined;
+  // Only a message typed in the app has a session of its own; a connected app's never lends a computer.
+  const sessionId = !fromApp && !input.via && input.sessionId ? input.sessionId : undefined;
   const item: AgentChatQueuedRecord = {
     id: crypto.randomUUID(),
     content: message,
     at: now.toISOString(),
     ...(fromApp ? { fromApp: true as const } : {}),
     ...(input.via ? { via: input.via } : {}),
+    ...(sessionId ? { sessionId } : {}),
     ...(files.length ? { files } : {}),
     ...(timeZone ? { timeZone } : {}),
   };
@@ -283,6 +293,7 @@ export async function sendAgentChat(
           fromApp: Boolean(fromApp),
           telegram: input.via === "telegram",
           otherApp: Boolean(fromApp) && input.via !== "telegram",
+          sessionId,
           timeZone,
         };
     const [run] = await tx
@@ -297,6 +308,7 @@ export async function sendAgentChat(
           ...(turn.fromApp ? { fromApp: true } : {}),
           ...(turn.telegram ? { telegram: true as const } : {}),
           ...(turn.otherApp ? { otherApp: true as const } : {}),
+          ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
         },
         context: { actorId: userId, ...(turn.timeZone ? { timeZone: turn.timeZone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
         prompt: turn.prompt,
@@ -357,18 +369,20 @@ export async function removeQueuedAgentChat(
 
 /**
  * The person's conversation as the summary's model reads it: from a connected app, without the
- * turns that read email (as chat-store.ts chatRunHistory leaves them out there); `mail`, whether
- * what it reads drew on email.
+ * turns that read email, nor any from the first that read files on the person's computer (as
+ * chat-store.ts chatRunHistory leaves them out there); `mail` and `localRead`, whether what it
+ * reads drew on email or on such files.
  */
 function summaryRecords(messages: AgentChatMessageRecord[], fromApp: boolean) {
+  const local = firstLocalRead(messages);
   const units: AgentChatMessageRecord[][] = [];
-  for (const m of messages) {
+  for (const m of fromApp && local >= 0 ? messages.slice(0, local) : messages) {
     if (m.role === "user" || !units.length) units.push([m]);
     else units.at(-1)!.push(m);
   }
   const mailed = (unit: AgentChatMessageRecord[]) => unit.some((m) => readEmail(m.steps));
   const kept = fromApp ? units.filter((unit) => !mailed(unit)) : units;
-  return { records: kept.flat(), mail: kept.some(mailed) };
+  return { records: kept.flat(), mail: kept.some(mailed), localRead: !fromApp && local >= 0 };
 }
 
 /**
@@ -388,7 +402,7 @@ export async function summarizeAgentConversation(
   const last = found.messages.at(-1);
   // Messages waiting while no answer is under way were left over (an answer's end that couldn't take them): they stay with the old conversation.
   if (last?.role === "user" && (await stillAnswering(db, last.runId))) refuse("busy", "The agent is still answering");
-  const { records, mail } = summaryRecords(found.messages, Boolean(connectedAppCall(userId)));
+  const { records, mail, localRead } = summaryRecords(found.messages, Boolean(connectedAppCall(userId)));
   const text = summaryInput(records, SUMMARY_INPUT_CHARS);
   if (!text) refuse("invalid", "Nothing to sum up yet");
   takeAllowance(userId, input.workspaceId);
@@ -410,7 +424,15 @@ export async function summarizeAgentConversation(
     throw error;
   }
   if (!summary) refuse("summaryFailed", "The model wrote no summary");
-  const record: AgentChatMessageRecord = { role: "assistant", content: summary, runId: "", summary: true, ...(mail ? { steps: [{ kind: "mail", action: "earlier" }] } : {}), at: new Date().toISOString() };
+  const record: AgentChatMessageRecord = {
+    role: "assistant",
+    content: summary,
+    runId: "",
+    summary: true,
+    ...(mail ? { steps: [{ kind: "mail", action: "earlier" }] } : {}),
+    ...(localRead ? { localRead: true as const } : {}),
+    at: new Date().toISOString(),
+  };
   const [created] = await db
     .insert(agentConversation)
     .values({ agentId: agent.id, workspaceId: input.workspaceId, userId, chatId, title: found.title, messages: [record] })
@@ -429,7 +451,7 @@ export async function summarizeAgentConversation(
  */
 export async function redoAgentChat(
   userId: string,
-  input: { workspaceId: string; agentId: string; place: ChatPlace; conversationId: string; message: string | null; timeZone?: string },
+  input: { workspaceId: string; agentId: string; place: ChatPlace; conversationId: string; message: string | null; timeZone?: string; sessionId?: string },
 ): Promise<{ runId: string; conversation: AgentConversationSummary }> {
   const edited = input.message === null ? null : input.message.trim();
   if (edited !== null && !edited) refuse("invalid", "Write a message");
@@ -455,6 +477,7 @@ export async function redoAgentChat(
     const files = (before && "files" in before.context ? before.context.files : undefined) ?? [];
     // The question is asked again as it was asked: from where it came (a connected app's has no mail tools; another app's words aren't the person's).
     const was = before?.source.kind === "chat" ? before.source : null;
+    const fromApp = Boolean(was?.fromApp || (!was && connectedAppCall(userId)));
     const [run] = await tx
       .insert(agentRun)
       .values({
@@ -464,9 +487,11 @@ export async function redoAgentChat(
           kind: "chat",
           userId,
           conversationId: existing.id,
-          ...(was?.fromApp || (!was && connectedAppCall(userId)) ? { fromApp: true } : {}),
+          ...(fromApp ? { fromApp: true } : {}),
           ...(was?.telegram ? { telegram: true as const } : {}),
           ...(was?.otherApp ? { otherApp: true as const } : {}),
+          // The session asking again now, wherever the question first came from in the app.
+          ...(!fromApp && !connectedAppCall(userId) && input.sessionId ? { sessionId: input.sessionId } : {}),
         },
         context: { actorId: userId, ...(zone ? { timeZone: zone } : {}), ...(files.length ? { files } : {}) },
         prompt: turnPrompt(contents),

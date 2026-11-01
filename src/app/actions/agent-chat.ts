@@ -24,7 +24,7 @@ import {
   threadRuns,
   type ChatPlace,
 } from "@/server/agents/chat";
-import { requireUserId } from "@/server/session";
+import { getSession, requireUserId } from "@/server/session";
 
 // Chatting with an agent (server/agents/chat.ts), in its dialog and in a page's block. Refusals
 // come back translated, with their code for the chat to react to.
@@ -52,8 +52,11 @@ const placeOf = (place: ChatPlace): ChatPlace =>
     ? { chatId: place.chatId.slice(0, 100), pageId: place.pageId.slice(0, 100) }
     : null;
 
+/** The web session asking: only the desktop app connected with this very session lends a chat its computer (agents/computer.ts). */
+const sessionIdNow = async () => (await getSession())?.session.id;
+
 export async function agentChatInfoAction(workspaceId: string, agentId: string, place: ChatPlace) {
-  return run((userId) => agentChatInfo(userId, workspaceId, agentId, placeOf(place)));
+  return run(async (userId) => agentChatInfo(userId, workspaceId, agentId, placeOf(place), await sessionIdNow()));
 }
 
 /** Only names and texts of the files a message carries, whatever the browser sent (sendAgentChat checks them). */
@@ -83,6 +86,7 @@ export async function sendAgentChatAction(input: {
       files: filesOf(input.files),
       // The times the agent sets (reminders) read on the writer's clock.
       timeZone: (await cookies()).get(TIME_ZONE_COOKIE)?.value,
+      sessionId: await sessionIdNow(),
     }),
   );
 }
@@ -109,6 +113,7 @@ export async function redoAgentChatAction(workspaceId: string, agentId: string, 
       conversationId: String(conversationId),
       message: typeof message === "string" ? message : null,
       timeZone: (await cookies()).get(TIME_ZONE_COOKIE)?.value,
+      sessionId: await sessionIdNow(),
     }),
   );
 }

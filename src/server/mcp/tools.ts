@@ -176,6 +176,7 @@ import {
   MAX_SCHEDULED_WRITES,
   readEmail,
 } from "@/lib/agents";
+import { firstLocalRead } from "@/lib/local-reads";
 import { AGENT_VERSION_MERGE_MS, MAX_AGENT_VERSIONS } from "@/lib/agent-versions";
 import {
   actionsInput,
@@ -3521,6 +3522,9 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
               };
             }
             const found = await agentChat.getAgentConversation(userId, workspaceId, agent_id, conversation_id, null);
+            // Files read on the person's computer stay with them: from the first turn that read there on, any message may quote them.
+            const local = firstLocalRead(found.messages);
+            const keptLocal = (i: number) => local >= 0 && i >= local;
             return {
               agent_id,
               conversation_id: found.id,
@@ -3529,11 +3533,12 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
               // Messages sent while it answered, going as its next turn.
               ...(found.queued.length ? { queued: found.queued.map((q) => ({ text: q.content, at: q.at })) } : {}),
               // An answer that read email, or went on from one that had, shows only in the app (lib/agents.ts readEmail).
-              messages: found.messages.map((m) => ({
+              messages: found.messages.map((m, i) => ({
                 role: m.role,
-                text: readEmail(m.steps) ? "" : m.content,
+                text: readEmail(m.steps) || keptLocal(i) ? "" : m.content,
                 at: m.at,
                 ...(readEmail(m.steps) ? { email: "This answer read the user's email: it shows only in Leafdesk's app." } : {}),
+                ...(!readEmail(m.steps) && keptLocal(i) ? { local_files: "Files on the user's computer were read in this conversation: from there on it shows only in Leafdesk's app." } : {}),
                 ...(m.code ? { failed: chatFailure(m.code) } : {}),
               })),
             };

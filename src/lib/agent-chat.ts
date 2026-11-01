@@ -124,13 +124,16 @@ export type AgentChatMessageRecord = {
   attached?: AgentChatAnswerFile[];
   /** The summary of an earlier conversation this one started from. */
   summary?: true;
+  /** A summary drawn from turns that read files on the person's computer (lib/local-reads.ts). */
+  localRead?: true;
   at: string;
 };
 
 /**
  * A message written while the conversation's answer was under way: it waits (at most
  * MAX_QUEUED, lib/agent-chat-queue.ts) and goes with the others as the next turn once the answer
- * ends. `fromApp`: sent from a connected app; `via`: the app, when the Telegram bot follows it.
+ * ends. `fromApp`: sent from a connected app; `via`: the app, when the Telegram bot follows it;
+ * `sessionId`: the web session it was sent from in the app (lib/agents.ts AgentRunSource).
  */
 export type AgentChatQueuedRecord = {
   id: string;
@@ -138,6 +141,7 @@ export type AgentChatQueuedRecord = {
   at: string;
   fromApp?: true;
   via?: "telegram";
+  sessionId?: string;
   files?: AgentChatFileIn[];
   timeZone?: string;
 };

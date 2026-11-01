@@ -202,7 +202,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`memory.ts`): runs only propose notes, a proposal with `replacesId` changes that kept note in
   place; except a correction (`ai_memory.kind`) in an editor's own chat while `run.ts`
   `untainted()` holds, kept at once and undone by `undoAgentCorrection` from the step's `previous`
-  (a new source of outside words in a run goes into `untainted`); a schedule's run reads and leaves `agent_run.handoff`, kept to the same schedule, setter,
+  (the step found by its index in `run.steps`, which the conversation's copy keeps); `lib/agents.ts`
+  `readOthersWords` is the one rule of outside words, read by `untainted()` and by `readOutside()`,
+  which an owner's "allow" rule needs false, so a new source of outside words goes there; a schedule's run reads and leaves `agent_run.handoff`, kept to the same schedule, setter,
   database and task (`sameSchedule`); `agent_memory` inbox items are one per agent and owner,
   moved between runs by `withdrawNotices`. Email:
   drafts on rows wait for review (`email-drafts.ts`); a report to the agent's own `mail_recipients`
@@ -232,6 +234,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   sets `agent_run.quiet` and `reportRun` sends nothing; `failed` is code `selfReported`; the reason
   is the run's `answer` either way. A schedule's run that isn't quiet also goes to its setter's
   Telegram chat when that is pointed at the agent (`server/telegram/routine.ts`, called from `finish`).
+  Files on the chatting person's computer (`agents/computer.ts`, the desktop app's bridge in
+  `server/desktop-bridge/`) go only to chat runs whose source carries the web `sessionId` of the
+  connected app's own session (actions pass it; queued turns keep it only when all came from it);
+  once a run or an earlier turn of its conversation read there (`lib/local-reads.ts`), `run.ts`
+  refuses connection tools, the web, `ask_agent`/`assign_agent` and `send_email` (`localRead`), and
+  MCP and the REST API leave out what such turns did and said (`describeAgentRun`, `get_agent_chat`).
+  `send_email` counts only toward the daily change limit, never the run's own cap.
   Agents asking agents: `handoff.ts` (`ask_agent` waits; `assign_agent` queues the helper's run
   with `queued` on its `handoff` source, read by the giving agent through `agent_run_task_idx`: a
   task that `agent_tasks` lists for the same person and whose end `run.ts` `reportRun` reports as an
@@ -264,7 +273,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `page_task_backfill`, which a restore of an older backup fills too), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
-  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/` (`/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followLiveText` show it), synced databases (own
+  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/` (`/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followLiveText` show it, in the agent's latest conversation; a message queued behind a run no follow watches starts a waiter, `watched`, that follows only the queue's run), synced databases (own
   `database_sync` table, `source` jira, github, ical, gcal, postgres or sheets; the runs and the one-minute sweep
   are `jira-sync/run.ts` for all, rows written by `synced-rows.ts`, errors are `JiraError` codes;
   Jira in `jira-sync/` and `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and

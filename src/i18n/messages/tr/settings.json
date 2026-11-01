@@ -478,7 +478,7 @@
       "quietHoursInvalid": "İki farklı saat ve bir saat dilimi seçin.",
       "dailyChangeLimit": "Günlük değişiklik sınırı",
       "dailyChangeLimitPlaceholder": "Sınır yok",
-      "dailyChangeLimitHelp": "Bir günde yapacağı en fazla değişiklik: satırlar, sayfalar, yorumlar ve bir şeyi değiştiren bağlantı çağrıları. Fazlası reddedilir. Gün, sessiz saatlerin saat dilimine, yoksa UTC'ye göre sayılır.",
+      "dailyChangeLimitHelp": "Bir günde yapacağı en fazla değişiklik: satırlar, sayfalar, yorumlar, gönderdiği e-postalar ve bir şeyi değiştiren bağlantı çağrıları. Fazlası reddedilir. Gün, sessiz saatlerin saat dilimine, yoksa UTC'ye göre sayılır.",
       "dailyChangeLimitInvalid": "1 ile {max} arasında bir tam sayı girin.",
       "guardrailsOwnersOnly": "Sessiz saatleri ve günlük değişiklik sınırını yalnızca çalışma alanı sahipleri belirler."
     },
@@ -677,6 +677,7 @@
         "expired": "{connection} üzerindeki “{tool}” çağrısının süresi doldu; hiçbir şey gönderilmedi",
         "refused": "{connection} üzerindeki “{tool}” çağrısı, onaylayacak kimse olmadığından reddedildi; hiçbir şey gönderilmedi",
         "afterMail": "{connection} üzerindeki “{tool}” çağrısı durduruldu: e-posta okuyan bir çalışma bundan sonra yalnızca sayfa okur ve taslak yazar; hiçbir şey gönderilmedi",
+        "afterLocalRead": "{connection} üzerindeki “{tool}” çağrısı tutuldu: bilgisayardaki dosyalar okunduktan sonra hiçbir şey dışarı gitmez; hiçbir şey gönderilmedi",
         "approved": "onaylandı",
         "answered": "bir sahip yanıtladı",
         "note": "Not: {note}",

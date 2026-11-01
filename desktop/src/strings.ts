@@ -119,13 +119,18 @@ const en = {
   agentFilesRemove: "Remove “{folder}”",
   agentFilesShowLog: "Show Agent File Log",
   agentFilesChoose: "Choose a folder agents may use",
-  agentFilesRefused: "Agents may not use this folder: it is the whole disk, or holds keys, passwords or settings.",
+  agentFilesRefused: "Agents may not use this folder: it is the whole disk, your home folder, a folder of system settings, or holds keys, passwords or settings.",
   agentWriteTitle: "{agent} wants to write a file on this computer",
   agentTrashTitle: "{agent} wants to move a file to the trash",
   agentAskDetail: "Workspace: {workspace}\nFile: {path}",
   agentAskSize: "Size: {size}",
   agentAskBegins: "It begins:",
   agentAskTimeout: "If you don’t answer within 2 minutes, it isn’t allowed.",
+  agentFilesNotConnectedBecause: "Not connected: {reason}",
+  agentFilesProblemSignedOut: "sign in to the server in this app",
+  agentFilesProblemCertificate: "the system doesn’t trust the server’s certificate",
+  agentFilesProblemUnreachable: "the server can’t be reached",
+  agentAskMoreLines: "… {count} more lines …",
 };
 
 export type Strings = typeof en;
@@ -244,13 +249,18 @@ const tr: Strings = {
   agentFilesRemove: "“{folder}” klasörünü kaldır",
   agentFilesShowLog: "Ajan Dosya Kaydını Göster",
   agentFilesChoose: "Ajanların kullanabileceği bir klasör seçin",
-  agentFilesRefused: "Ajanlar bu klasörü kullanamaz: diskin tamamı ya da anahtar, parola veya ayar içeriyor.",
+  agentFilesRefused: "Ajanlar bu klasörü kullanamaz: diskin tamamı, ana klasörünüz ya da bir sistem ayarları klasörü, veya anahtar, parola ya da ayar içeriyor.",
   agentWriteTitle: "{agent} bu bilgisayara bir dosya yazmak istiyor",
   agentTrashTitle: "{agent} bir dosyayı çöp kutusuna taşımak istiyor",
   agentAskDetail: "Çalışma alanı: {workspace}\nDosya: {path}",
   agentAskSize: "Boyut: {size}",
   agentAskBegins: "Şöyle başlıyor:",
   agentAskTimeout: "2 dakika içinde yanıt vermezseniz izin verilmez.",
+  agentFilesNotConnectedBecause: "Bağlı değil: {reason}",
+  agentFilesProblemSignedOut: "bu uygulamada sunucuya giriş yapın",
+  agentFilesProblemCertificate: "sistem sunucunun sertifikasına güvenmiyor",
+  agentFilesProblemUnreachable: "sunucuya ulaşılamıyor",
+  agentAskMoreLines: "… {count} satır daha …",
 };
 
 const de: Strings = {
@@ -367,13 +377,18 @@ const de: Strings = {
   agentFilesRemove: "„{folder}“ entfernen",
   agentFilesShowLog: "Dateiprotokoll der Agenten zeigen",
   agentFilesChoose: "Wähle einen Ordner, den Agenten nutzen dürfen",
-  agentFilesRefused: "Agenten dürfen diesen Ordner nicht nutzen: Er ist die ganze Festplatte oder enthält Schlüssel, Passwörter oder Einstellungen.",
+  agentFilesRefused: "Agenten dürfen diesen Ordner nicht nutzen: Er ist die ganze Festplatte, dein Benutzerordner, ein Ordner mit Systemeinstellungen oder enthält Schlüssel, Passwörter oder Einstellungen.",
   agentWriteTitle: "{agent} möchte eine Datei auf diesem Computer schreiben",
   agentTrashTitle: "{agent} möchte eine Datei in den Papierkorb legen",
   agentAskDetail: "Arbeitsbereich: {workspace}\nDatei: {path}",
   agentAskSize: "Größe: {size}",
   agentAskBegins: "Sie beginnt so:",
   agentAskTimeout: "Ohne Antwort innerhalb von 2 Minuten wird es nicht erlaubt.",
+  agentFilesNotConnectedBecause: "Nicht verbunden: {reason}",
+  agentFilesProblemSignedOut: "melde dich in dieser App beim Server an",
+  agentFilesProblemCertificate: "das System vertraut dem Zertifikat des Servers nicht",
+  agentFilesProblemUnreachable: "der Server ist nicht erreichbar",
+  agentAskMoreLines: "… {count} weitere Zeilen …",
 };
 
 const es: Strings = {
@@ -490,13 +505,18 @@ const es: Strings = {
   agentFilesRemove: "Quitar «{folder}»",
   agentFilesShowLog: "Mostrar registro de archivos de agentes",
   agentFilesChoose: "Elige una carpeta que puedan usar los agentes",
-  agentFilesRefused: "Los agentes no pueden usar esta carpeta: es todo el disco o contiene claves, contraseñas o ajustes.",
+  agentFilesRefused: "Los agentes no pueden usar esta carpeta: es todo el disco, tu carpeta personal, una carpeta de ajustes del sistema, o contiene claves, contraseñas o ajustes.",
   agentWriteTitle: "{agent} quiere escribir un archivo en este ordenador",
   agentTrashTitle: "{agent} quiere mover un archivo a la papelera",
   agentAskDetail: "Espacio de trabajo: {workspace}\nArchivo: {path}",
   agentAskSize: "Tamaño: {size}",
   agentAskBegins: "Empieza así:",
   agentAskTimeout: "Si no respondes en 2 minutos, no se permite.",
+  agentFilesNotConnectedBecause: "No conectado: {reason}",
+  agentFilesProblemSignedOut: "inicia sesión en el servidor en esta app",
+  agentFilesProblemCertificate: "el sistema no confía en el certificado del servidor",
+  agentFilesProblemUnreachable: "no se puede acceder al servidor",
+  agentAskMoreLines: "… {count} líneas más …",
 };
 
 const fr: Strings = {
@@ -613,13 +633,18 @@ const fr: Strings = {
   agentFilesRemove: "Retirer « {folder} »",
   agentFilesShowLog: "Afficher le journal des fichiers des agents",
   agentFilesChoose: "Choisissez un dossier que les agents peuvent utiliser",
-  agentFilesRefused: "Les agents ne peuvent pas utiliser ce dossier : c’est le disque entier, ou il contient des clés, des mots de passe ou des réglages.",
+  agentFilesRefused: "Les agents ne peuvent pas utiliser ce dossier : c’est le disque entier, votre dossier personnel, un dossier de réglages système, ou il contient des clés, des mots de passe ou des réglages.",
   agentWriteTitle: "{agent} veut écrire un fichier sur cet ordinateur",
   agentTrashTitle: "{agent} veut placer un fichier dans la corbeille",
   agentAskDetail: "Espace de travail : {workspace}\nFichier : {path}",
   agentAskSize: "Taille : {size}",
   agentAskBegins: "Il commence ainsi :",
   agentAskTimeout: "Sans réponse dans les 2 minutes, ce n’est pas autorisé.",
+  agentFilesNotConnectedBecause: "Non connecté : {reason}",
+  agentFilesProblemSignedOut: "connectez-vous au serveur dans cette app",
+  agentFilesProblemCertificate: "le système ne fait pas confiance au certificat du serveur",
+  agentFilesProblemUnreachable: "le serveur est injoignable",
+  agentAskMoreLines: "… {count} lignes de plus …",
 };
 
 const it: Strings = {
@@ -736,13 +761,18 @@ const it: Strings = {
   agentFilesRemove: "Rimuovi “{folder}”",
   agentFilesShowLog: "Mostra il registro dei file degli agenti",
   agentFilesChoose: "Scegli una cartella che gli agenti possono usare",
-  agentFilesRefused: "Gli agenti non possono usare questa cartella: è l’intero disco o contiene chiavi, password o impostazioni.",
+  agentFilesRefused: "Gli agenti non possono usare questa cartella: è l’intero disco, la tua cartella Inizio, una cartella di impostazioni di sistema, oppure contiene chiavi, password o impostazioni.",
   agentWriteTitle: "{agent} vuole scrivere un file su questo computer",
   agentTrashTitle: "{agent} vuole spostare un file nel cestino",
   agentAskDetail: "Spazio di lavoro: {workspace}\nFile: {path}",
   agentAskSize: "Dimensione: {size}",
   agentAskBegins: "Inizia così:",
   agentAskTimeout: "Se non rispondi entro 2 minuti, non è consentito.",
+  agentFilesNotConnectedBecause: "Non connesso: {reason}",
+  agentFilesProblemSignedOut: "accedi al server in questa app",
+  agentFilesProblemCertificate: "il sistema non si fida del certificato del server",
+  agentFilesProblemUnreachable: "il server non è raggiungibile",
+  agentAskMoreLines: "… altre {count} righe …",
 };
 
 const pt: Strings = {
@@ -859,13 +889,18 @@ const pt: Strings = {
   agentFilesRemove: "Remover “{folder}”",
   agentFilesShowLog: "Mostrar registro de arquivos dos agentes",
   agentFilesChoose: "Escolha uma pasta que os agentes podem usar",
-  agentFilesRefused: "Os agentes não podem usar esta pasta: é o disco inteiro ou contém chaves, senhas ou configurações.",
+  agentFilesRefused: "Os agentes não podem usar esta pasta: é o disco inteiro, sua pasta pessoal, uma pasta de configurações do sistema, ou contém chaves, senhas ou configurações.",
   agentWriteTitle: "{agent} quer gravar um arquivo neste computador",
   agentTrashTitle: "{agent} quer mover um arquivo para a lixeira",
   agentAskDetail: "Espaço de trabalho: {workspace}\nArquivo: {path}",
   agentAskSize: "Tamanho: {size}",
   agentAskBegins: "Começa assim:",
   agentAskTimeout: "Se você não responder em 2 minutos, não será permitido.",
+  agentFilesNotConnectedBecause: "Não conectado: {reason}",
+  agentFilesProblemSignedOut: "entre no servidor neste app",
+  agentFilesProblemCertificate: "o sistema não confia no certificado do servidor",
+  agentFilesProblemUnreachable: "não é possível acessar o servidor",
+  agentAskMoreLines: "… mais {count} linhas …",
 };
 
 const pl: Strings = {
@@ -982,13 +1017,18 @@ const pl: Strings = {
   agentFilesRemove: "Usuń „{folder}”",
   agentFilesShowLog: "Pokaż dziennik plików agentów",
   agentFilesChoose: "Wybierz folder, którego mogą używać agenci",
-  agentFilesRefused: "Agenci nie mogą używać tego folderu: to cały dysk albo zawiera klucze, hasła lub ustawienia.",
+  agentFilesRefused: "Agenci nie mogą używać tego folderu: to cały dysk, twój folder domowy, folder ustawień systemu albo zawiera klucze, hasła lub ustawienia.",
   agentWriteTitle: "{agent} chce zapisać plik na tym komputerze",
   agentTrashTitle: "{agent} chce przenieść plik do kosza",
   agentAskDetail: "Obszar roboczy: {workspace}\nPlik: {path}",
   agentAskSize: "Rozmiar: {size}",
   agentAskBegins: "Zaczyna się tak:",
   agentAskTimeout: "Bez odpowiedzi w ciągu 2 minut nie będzie to dozwolone.",
+  agentFilesNotConnectedBecause: "Brak połączenia: {reason}",
+  agentFilesProblemSignedOut: "zaloguj się do serwera w tej aplikacji",
+  agentFilesProblemCertificate: "system nie ufa certyfikatowi serwera",
+  agentFilesProblemUnreachable: "serwer jest nieosiągalny",
+  agentAskMoreLines: "… jeszcze wiersze: {count} …",
 };
 
 const ru: Strings = {
@@ -1105,13 +1145,18 @@ const ru: Strings = {
   agentFilesRemove: "Убрать «{folder}»",
   agentFilesShowLog: "Показать журнал файлов агентов",
   agentFilesChoose: "Выберите папку, которую могут использовать агенты",
-  agentFilesRefused: "Агентам нельзя использовать эту папку: это весь диск, или в ней ключи, пароли или настройки.",
+  agentFilesRefused: "Агентам нельзя использовать эту папку: это весь диск, ваша домашняя папка, папка системных настроек, или в ней ключи, пароли или настройки.",
   agentWriteTitle: "{agent} хочет записать файл на этом компьютере",
   agentTrashTitle: "{agent} хочет переместить файл в корзину",
   agentAskDetail: "Рабочее пространство: {workspace}\nФайл: {path}",
   agentAskSize: "Размер: {size}",
   agentAskBegins: "Начало:",
   agentAskTimeout: "Если не ответить в течение 2 минут, это не будет разрешено.",
+  agentFilesNotConnectedBecause: "Нет подключения: {reason}",
+  agentFilesProblemSignedOut: "войдите на сервер в этом приложении",
+  agentFilesProblemCertificate: "система не доверяет сертификату сервера",
+  agentFilesProblemUnreachable: "сервер недоступен",
+  agentAskMoreLines: "… ещё строк: {count} …",
 };
 
 const uk: Strings = {
@@ -1228,13 +1273,18 @@ const uk: Strings = {
   agentFilesRemove: "Прибрати «{folder}»",
   agentFilesShowLog: "Показати журнал файлів агентів",
   agentFilesChoose: "Виберіть теку, яку можуть використовувати агенти",
-  agentFilesRefused: "Агентам не можна використовувати цю теку: це весь диск, або в ній ключі, паролі чи налаштування.",
+  agentFilesRefused: "Агентам не можна використовувати цю теку: це весь диск, ваша домашня тека, тека системних налаштувань, або в ній ключі, паролі чи налаштування.",
   agentWriteTitle: "{agent} хоче записати файл на цьому комп’ютері",
   agentTrashTitle: "{agent} хоче перемістити файл у кошик",
   agentAskDetail: "Робочий простір: {workspace}\nФайл: {path}",
   agentAskSize: "Розмір: {size}",
   agentAskBegins: "Починається так:",
   agentAskTimeout: "Якщо не відповісти протягом 2 хвилин, це не буде дозволено.",
+  agentFilesNotConnectedBecause: "Немає з’єднання: {reason}",
+  agentFilesProblemSignedOut: "увійдіть на сервер у цьому застосунку",
+  agentFilesProblemCertificate: "система не довіряє сертифікату сервера",
+  agentFilesProblemUnreachable: "сервер недоступний",
+  agentAskMoreLines: "… ще рядків: {count} …",
 };
 
 const ar: Strings = {
@@ -1351,13 +1401,18 @@ const ar: Strings = {
   agentFilesRemove: "إزالة “{folder}”",
   agentFilesShowLog: "إظهار سجل ملفات الوكلاء",
   agentFilesChoose: "اختر مجلدًا يمكن للوكلاء استخدامه",
-  agentFilesRefused: "لا يمكن للوكلاء استخدام هذا المجلد: إنه القرص بأكمله أو يحتوي على مفاتيح أو كلمات مرور أو إعدادات.",
+  agentFilesRefused: "لا يمكن للوكلاء استخدام هذا المجلد: إنه القرص بأكمله أو مجلد المنزل أو مجلد إعدادات النظام، أو يحتوي على مفاتيح أو كلمات مرور أو إعدادات.",
   agentWriteTitle: "يريد {agent} كتابة ملف على هذا الكمبيوتر",
   agentTrashTitle: "يريد {agent} نقل ملف إلى سلة المهملات",
   agentAskDetail: "مساحة العمل: {workspace}\nالملف: {path}",
   agentAskSize: "الحجم: {size}",
   agentAskBegins: "يبدأ هكذا:",
   agentAskTimeout: "إذا لم تُجب خلال دقيقتين، فلن يُسمح بذلك.",
+  agentFilesNotConnectedBecause: "غير متصل: {reason}",
+  agentFilesProblemSignedOut: "سجّل الدخول إلى الخادم في هذا التطبيق",
+  agentFilesProblemCertificate: "النظام لا يثق بشهادة الخادم",
+  agentFilesProblemUnreachable: "تعذّر الوصول إلى الخادم",
+  agentAskMoreLines: "… أسطر أخرى: {count} …",
 };
 
 const he: Strings = {
@@ -1474,13 +1529,18 @@ const he: Strings = {
   agentFilesRemove: "הסרת “{folder}”",
   agentFilesShowLog: "הצגת יומן הקבצים של הסוכנים",
   agentFilesChoose: "בחירת תיקייה שסוכנים יכולים להשתמש בה",
-  agentFilesRefused: "סוכנים לא יכולים להשתמש בתיקייה הזו: זה כל הדיסק, או שיש בה מפתחות, סיסמאות או הגדרות.",
+  agentFilesRefused: "סוכנים לא יכולים להשתמש בתיקייה הזו: זה כל הדיסק, תיקיית הבית שלך, תיקיית הגדרות מערכת, או שיש בה מפתחות, סיסמאות או הגדרות.",
   agentWriteTitle: "{agent} רוצה לכתוב קובץ במחשב הזה",
   agentTrashTitle: "{agent} רוצה להעביר קובץ לפח",
   agentAskDetail: "סביבת עבודה: {workspace}\nקובץ: {path}",
   agentAskSize: "גודל: {size}",
   agentAskBegins: "הוא מתחיל כך:",
   agentAskTimeout: "אם לא תענה תוך 2 דקות, זה לא יותר.",
+  agentFilesNotConnectedBecause: "לא מחובר: {reason}",
+  agentFilesProblemSignedOut: "יש להתחבר לשרת באפליקציה הזו",
+  agentFilesProblemCertificate: "המערכת לא סומכת על האישור של השרת",
+  agentFilesProblemUnreachable: "אין גישה לשרת",
+  agentAskMoreLines: "… עוד שורות: {count} …",
 };
 
 const fa: Strings = {
@@ -1597,13 +1657,18 @@ const fa: Strings = {
   agentFilesRemove: "حذف «{folder}»",
   agentFilesShowLog: "نمایش گزارش فایل‌های عامل‌ها",
   agentFilesChoose: "پوشه‌ای را انتخاب کنید که عامل‌ها بتوانند از آن استفاده کنند",
-  agentFilesRefused: "عامل‌ها نمی‌توانند از این پوشه استفاده کنند: کل دیسک است یا کلید، گذرواژه یا تنظیمات دارد.",
+  agentFilesRefused: "عامل‌ها نمی‌توانند از این پوشه استفاده کنند: کل دیسک، پوشهٔ خانهٔ شما یا پوشهٔ تنظیمات سیستم است، یا کلید، گذرواژه یا تنظیمات دارد.",
   agentWriteTitle: "{agent} می‌خواهد فایلی روی این رایانه بنویسد",
   agentTrashTitle: "{agent} می‌خواهد فایلی را به سطل زباله ببرد",
   agentAskDetail: "فضای کاری: {workspace}\nفایل: {path}",
   agentAskSize: "اندازه: {size}",
   agentAskBegins: "این‌طور شروع می‌شود:",
   agentAskTimeout: "اگر ظرف ۲ دقیقه پاسخ ندهید، اجازه داده نمی‌شود.",
+  agentFilesNotConnectedBecause: "متصل نیست: {reason}",
+  agentFilesProblemSignedOut: "در این برنامه وارد سرور شوید",
+  agentFilesProblemCertificate: "سیستم به گواهی سرور اعتماد ندارد",
+  agentFilesProblemUnreachable: "سرور در دسترس نیست",
+  agentAskMoreLines: "… خطوط دیگر: {count} …",
 };
 
 const ja: Strings = {
@@ -1720,13 +1785,18 @@ const ja: Strings = {
   agentFilesRemove: "「{folder}」を削除",
   agentFilesShowLog: "エージェントのファイルログを表示",
   agentFilesChoose: "エージェントが使えるフォルダを選択",
-  agentFilesRefused: "エージェントはこのフォルダを使えません：ディスク全体か、鍵・パスワード・設定が含まれています。",
+  agentFilesRefused: "エージェントはこのフォルダを使えません：ディスク全体、ホームフォルダ、システム設定のフォルダであるか、鍵・パスワード・設定が含まれています。",
   agentWriteTitle: "{agent} がこのコンピュータにファイルを書き込もうとしています",
   agentTrashTitle: "{agent} がファイルをゴミ箱に移そうとしています",
   agentAskDetail: "ワークスペース：{workspace}\nファイル：{path}",
   agentAskSize: "サイズ：{size}",
   agentAskBegins: "冒頭：",
   agentAskTimeout: "2分以内に答えないと許可されません。",
+  agentFilesNotConnectedBecause: "未接続：{reason}",
+  agentFilesProblemSignedOut: "このアプリでサーバーにサインインしてください",
+  agentFilesProblemCertificate: "システムがサーバーの証明書を信頼していません",
+  agentFilesProblemUnreachable: "サーバーに接続できません",
+  agentAskMoreLines: "… ほか {count} 行 …",
 };
 
 const ko: Strings = {
@@ -1843,13 +1913,18 @@ const ko: Strings = {
   agentFilesRemove: "“{folder}” 제거",
   agentFilesShowLog: "에이전트 파일 기록 보기",
   agentFilesChoose: "에이전트가 사용할 수 있는 폴더 선택",
-  agentFilesRefused: "에이전트는 이 폴더를 사용할 수 없습니다: 디스크 전체이거나 키, 비밀번호 또는 설정이 들어 있습니다.",
+  agentFilesRefused: "에이전트는 이 폴더를 사용할 수 없습니다: 디스크 전체, 홈 폴더, 시스템 설정 폴더이거나 키, 비밀번호 또는 설정이 들어 있습니다.",
   agentWriteTitle: "{agent}이(가) 이 컴퓨터에 파일을 쓰려고 합니다",
   agentTrashTitle: "{agent}이(가) 파일을 휴지통으로 옮기려고 합니다",
   agentAskDetail: "워크스페이스: {workspace}\n파일: {path}",
   agentAskSize: "크기: {size}",
   agentAskBegins: "시작 부분:",
   agentAskTimeout: "2분 안에 답하지 않으면 허용되지 않습니다.",
+  agentFilesNotConnectedBecause: "연결되지 않음: {reason}",
+  agentFilesProblemSignedOut: "이 앱에서 서버에 로그인하세요",
+  agentFilesProblemCertificate: "시스템이 서버의 인증서를 신뢰하지 않습니다",
+  agentFilesProblemUnreachable: "서버에 연결할 수 없습니다",
+  agentAskMoreLines: "… {count}줄 더 …",
 };
 
 const zh: Strings = {
@@ -1965,13 +2040,18 @@ const zh: Strings = {
   agentFilesRemove: "移除“{folder}”",
   agentFilesShowLog: "显示代理文件日志",
   agentFilesChoose: "选择代理可以使用的文件夹",
-  agentFilesRefused: "代理不能使用此文件夹：它是整个磁盘，或包含密钥、密码或设置。",
+  agentFilesRefused: "代理不能使用此文件夹：它是整个磁盘、你的主文件夹、系统设置文件夹，或包含密钥、密码或设置。",
   agentWriteTitle: "{agent} 想在这台电脑上写入一个文件",
   agentTrashTitle: "{agent} 想把一个文件移到废纸篓",
   agentAskDetail: "工作区：{workspace}\n文件：{path}",
   agentAskSize: "大小：{size}",
   agentAskBegins: "开头如下：",
   agentAskTimeout: "2 分钟内未回答则不允许。",
+  agentFilesNotConnectedBecause: "未连接：{reason}",
+  agentFilesProblemSignedOut: "请在此应用中登录服务器",
+  agentFilesProblemCertificate: "系统不信任服务器的证书",
+  agentFilesProblemUnreachable: "无法访问服务器",
+  agentAskMoreLines: "… 还有 {count} 行 …",
 };
 
 const id: Strings = {
@@ -2088,13 +2168,18 @@ const id: Strings = {
   agentFilesRemove: "Hapus “{folder}”",
   agentFilesShowLog: "Tampilkan Log File Agen",
   agentFilesChoose: "Pilih folder yang boleh dipakai agen",
-  agentFilesRefused: "Agen tidak boleh memakai folder ini: ini seluruh disk, atau berisi kunci, kata sandi, atau pengaturan.",
+  agentFilesRefused: "Agen tidak boleh memakai folder ini: ini seluruh disk, folder rumah Anda, folder pengaturan sistem, atau berisi kunci, kata sandi, atau pengaturan.",
   agentWriteTitle: "{agent} ingin menulis file di komputer ini",
   agentTrashTitle: "{agent} ingin memindahkan file ke tempat sampah",
   agentAskDetail: "Ruang kerja: {workspace}\nFile: {path}",
   agentAskSize: "Ukuran: {size}",
   agentAskBegins: "Awalnya:",
   agentAskTimeout: "Jika tidak dijawab dalam 2 menit, tidak diizinkan.",
+  agentFilesNotConnectedBecause: "Tidak terhubung: {reason}",
+  agentFilesProblemSignedOut: "masuk ke server di aplikasi ini",
+  agentFilesProblemCertificate: "sistem tidak memercayai sertifikat server",
+  agentFilesProblemUnreachable: "server tidak dapat dijangkau",
+  agentAskMoreLines: "… {count} baris lagi …",
 };
 
 const th: Strings = {
@@ -2211,13 +2296,18 @@ const th: Strings = {
   agentFilesRemove: "เอา “{folder}” ออก",
   agentFilesShowLog: "แสดงบันทึกไฟล์ของเอเจนต์",
   agentFilesChoose: "เลือกโฟลเดอร์ที่เอเจนต์ใช้ได้",
-  agentFilesRefused: "เอเจนต์ใช้โฟลเดอร์นี้ไม่ได้: เป็นทั้งดิสก์ หรือมีคีย์ รหัสผ่าน หรือการตั้งค่า",
+  agentFilesRefused: "เอเจนต์ใช้โฟลเดอร์นี้ไม่ได้: เป็นทั้งดิสก์ โฟลเดอร์บ้านของคุณ โฟลเดอร์การตั้งค่าระบบ หรือมีคีย์ รหัสผ่าน หรือการตั้งค่า",
   agentWriteTitle: "{agent} ต้องการเขียนไฟล์ในคอมพิวเตอร์นี้",
   agentTrashTitle: "{agent} ต้องการย้ายไฟล์ไปที่ถังขยะ",
   agentAskDetail: "พื้นที่ทำงาน: {workspace}\nไฟล์: {path}",
   agentAskSize: "ขนาด: {size}",
   agentAskBegins: "ขึ้นต้นว่า:",
   agentAskTimeout: "หากไม่ตอบภายใน 2 นาที จะไม่อนุญาต",
+  agentFilesNotConnectedBecause: "ไม่ได้เชื่อมต่อ: {reason}",
+  agentFilesProblemSignedOut: "ลงชื่อเข้าใช้เซิร์ฟเวอร์ในแอปนี้",
+  agentFilesProblemCertificate: "ระบบไม่เชื่อถือใบรับรองของเซิร์ฟเวอร์",
+  agentFilesProblemUnreachable: "เข้าถึงเซิร์ฟเวอร์ไม่ได้",
+  agentAskMoreLines: "… อีก {count} บรรทัด …",
 };
 
 const vi: Strings = {
@@ -2334,13 +2424,18 @@ const vi: Strings = {
   agentFilesRemove: "Gỡ “{folder}”",
   agentFilesShowLog: "Hiện nhật ký tệp của tác tử",
   agentFilesChoose: "Chọn một thư mục tác tử được dùng",
-  agentFilesRefused: "Tác tử không được dùng thư mục này: đó là cả ổ đĩa, hoặc chứa khóa, mật khẩu hay cài đặt.",
+  agentFilesRefused: "Tác tử không được dùng thư mục này: đó là cả ổ đĩa, thư mục nhà của bạn, một thư mục cài đặt hệ thống, hoặc chứa khóa, mật khẩu hay cài đặt.",
   agentWriteTitle: "{agent} muốn ghi một tệp trên máy tính này",
   agentTrashTitle: "{agent} muốn chuyển một tệp vào thùng rác",
   agentAskDetail: "Không gian làm việc: {workspace}\nTệp: {path}",
   agentAskSize: "Kích thước: {size}",
   agentAskBegins: "Phần đầu:",
   agentAskTimeout: "Nếu bạn không trả lời trong 2 phút, việc này sẽ không được phép.",
+  agentFilesNotConnectedBecause: "Chưa kết nối: {reason}",
+  agentFilesProblemSignedOut: "hãy đăng nhập vào máy chủ trong ứng dụng này",
+  agentFilesProblemCertificate: "hệ thống không tin cậy chứng chỉ của máy chủ",
+  agentFilesProblemUnreachable: "không thể truy cập máy chủ",
+  agentAskMoreLines: "… còn {count} dòng …",
 };
 
 /** Same languages as the web app (src/i18n/config.ts), English first. */
@@ -2461,13 +2556,18 @@ const da: Strings = {
   agentFilesRemove: "Fjern “{folder}”",
   agentFilesShowLog: "Vis agenters fillog",
   agentFilesChoose: "Vælg en mappe, som agenter må bruge",
-  agentFilesRefused: "Agenter må ikke bruge denne mappe: det er hele disken, eller den indeholder nøgler, adgangskoder eller indstillinger.",
+  agentFilesRefused: "Agenter må ikke bruge denne mappe: det er hele disken, din hjemmemappe, en mappe med systemindstillinger, eller den indeholder nøgler, adgangskoder eller indstillinger.",
   agentWriteTitle: "{agent} vil skrive en fil på denne computer",
   agentTrashTitle: "{agent} vil flytte en fil til papirkurven",
   agentAskDetail: "Arbejdsområde: {workspace}\nFil: {path}",
   agentAskSize: "Størrelse: {size}",
   agentAskBegins: "Den begynder:",
   agentAskTimeout: "Hvis du ikke svarer inden for 2 minutter, er det ikke tilladt.",
+  agentFilesNotConnectedBecause: "Ikke forbundet: {reason}",
+  agentFilesProblemSignedOut: "log ind på serveren i denne app",
+  agentFilesProblemCertificate: "systemet stoler ikke på serverens certifikat",
+  agentFilesProblemUnreachable: "serveren kan ikke nås",
+  agentAskMoreLines: "… {count} linjer mere …",
 };
 
 const nl: Strings = {
@@ -2584,13 +2684,18 @@ const nl: Strings = {
   agentFilesRemove: "“{folder}” verwijderen",
   agentFilesShowLog: "Bestandslog van agenten tonen",
   agentFilesChoose: "Kies een map die agenten mogen gebruiken",
-  agentFilesRefused: "Agenten mogen deze map niet gebruiken: het is de hele schijf, of er staan sleutels, wachtwoorden of instellingen in.",
+  agentFilesRefused: "Agenten mogen deze map niet gebruiken: het is de hele schijf, je thuismap, een map met systeeminstellingen, of er staan sleutels, wachtwoorden of instellingen in.",
   agentWriteTitle: "{agent} wil een bestand op deze computer schrijven",
   agentTrashTitle: "{agent} wil een bestand naar de prullenbak verplaatsen",
   agentAskDetail: "Werkruimte: {workspace}\nBestand: {path}",
   agentAskSize: "Grootte: {size}",
   agentAskBegins: "Het begint zo:",
   agentAskTimeout: "Als je niet binnen 2 minuten antwoordt, is het niet toegestaan.",
+  agentFilesNotConnectedBecause: "Niet verbonden: {reason}",
+  agentFilesProblemSignedOut: "log in deze app in op de server",
+  agentFilesProblemCertificate: "het systeem vertrouwt het certificaat van de server niet",
+  agentFilesProblemUnreachable: "de server is niet bereikbaar",
+  agentAskMoreLines: "… nog {count} regels …",
 };
 
 const nb: Strings = {
@@ -2707,13 +2812,18 @@ const nb: Strings = {
   agentFilesRemove: "Fjern «{folder}»",
   agentFilesShowLog: "Vis agenters fillogg",
   agentFilesChoose: "Velg en mappe agenter kan bruke",
-  agentFilesRefused: "Agenter kan ikke bruke denne mappen: den er hele disken, eller inneholder nøkler, passord eller innstillinger.",
+  agentFilesRefused: "Agenter kan ikke bruke denne mappen: den er hele disken, hjemmemappen din, en mappe med systeminnstillinger, eller inneholder nøkler, passord eller innstillinger.",
   agentWriteTitle: "{agent} vil skrive en fil på denne datamaskinen",
   agentTrashTitle: "{agent} vil flytte en fil til papirkurven",
   agentAskDetail: "Arbeidsområde: {workspace}\nFil: {path}",
   agentAskSize: "Størrelse: {size}",
   agentAskBegins: "Den begynner slik:",
   agentAskTimeout: "Svarer du ikke innen 2 minutter, er det ikke tillatt.",
+  agentFilesNotConnectedBecause: "Ikke tilkoblet: {reason}",
+  agentFilesProblemSignedOut: "logg på serveren i denne appen",
+  agentFilesProblemCertificate: "systemet stoler ikke på serverens sertifikat",
+  agentFilesProblemUnreachable: "serveren kan ikke nås",
+  agentAskMoreLines: "… {count} linjer til …",
 };
 
 const fi: Strings = {
@@ -2830,13 +2940,18 @@ const fi: Strings = {
   agentFilesRemove: "Poista ”{folder}”",
   agentFilesShowLog: "Näytä agenttien tiedostoloki",
   agentFilesChoose: "Valitse kansio, jota agentit saavat käyttää",
-  agentFilesRefused: "Agentit eivät saa käyttää tätä kansiota: se on koko levy, tai siinä on avaimia, salasanoja tai asetuksia.",
+  agentFilesRefused: "Agentit eivät saa käyttää tätä kansiota: se on koko levy, kotikansiosi, järjestelmäasetusten kansio, tai siinä on avaimia, salasanoja tai asetuksia.",
   agentWriteTitle: "{agent} haluaa kirjoittaa tiedoston tälle tietokoneelle",
   agentTrashTitle: "{agent} haluaa siirtää tiedoston roskakoriin",
   agentAskDetail: "Työtila: {workspace}\nTiedosto: {path}",
   agentAskSize: "Koko: {size}",
   agentAskBegins: "Se alkaa näin:",
   agentAskTimeout: "Jos et vastaa 2 minuutissa, sitä ei sallita.",
+  agentFilesNotConnectedBecause: "Ei yhteyttä: {reason}",
+  agentFilesProblemSignedOut: "kirjaudu palvelimelle tässä sovelluksessa",
+  agentFilesProblemCertificate: "järjestelmä ei luota palvelimen varmenteeseen",
+  agentFilesProblemUnreachable: "palvelimeen ei saada yhteyttä",
+  agentAskMoreLines: "… vielä {count} riviä …",
 };
 
 const sv: Strings = {
@@ -2953,13 +3068,18 @@ const sv: Strings = {
   agentFilesRemove: "Ta bort ”{folder}”",
   agentFilesShowLog: "Visa agenters fillogg",
   agentFilesChoose: "Välj en mapp som agenter får använda",
-  agentFilesRefused: "Agenter får inte använda den här mappen: det är hela disken, eller den innehåller nycklar, lösenord eller inställningar.",
+  agentFilesRefused: "Agenter får inte använda den här mappen: det är hela disken, din hemmapp, en mapp med systeminställningar, eller den innehåller nycklar, lösenord eller inställningar.",
   agentWriteTitle: "{agent} vill skriva en fil på den här datorn",
   agentTrashTitle: "{agent} vill flytta en fil till papperskorgen",
   agentAskDetail: "Arbetsyta: {workspace}\nFil: {path}",
   agentAskSize: "Storlek: {size}",
   agentAskBegins: "Den börjar så här:",
   agentAskTimeout: "Om du inte svarar inom 2 minuter tillåts det inte.",
+  agentFilesNotConnectedBecause: "Inte ansluten: {reason}",
+  agentFilesProblemSignedOut: "logga in på servern i den här appen",
+  agentFilesProblemCertificate: "systemet litar inte på serverns certifikat",
+  agentFilesProblemUnreachable: "servern kan inte nås",
+  agentAskMoreLines: "… {count} rader till …",
 };
 
 export const STRINGS = { en, tr, de, es, fr, it, pt, pl, ru, uk, ar, he, fa, ja, ko, zh, id, th, vi, da, nl, nb, fi, sv } satisfies Record<string, Strings>;

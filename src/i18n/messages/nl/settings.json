@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Kies twee verschillende tijden en een tijdzone.",
       "dailyChangeLimit": "Wijzigingen per dag",
       "dailyChangeLimitPlaceholder": "Geen limiet",
-      "dailyChangeLimitHelp": "Het maximum aantal wijzigingen dat hij op een dag doet: rijen, pagina’s, opmerkingen en verbindingsaanroepen die iets veranderen. Meer wordt geweigerd. De dag volgt de tijdzone van de stille uren, anders UTC.",
+      "dailyChangeLimitHelp": "Het maximum aantal wijzigingen dat hij op een dag doet: rijen, pagina’s, opmerkingen, e-mails die hij verstuurt en verbindingsaanroepen die iets veranderen. Meer wordt geweigerd. De dag volgt de tijdzone van de stille uren, anders UTC.",
       "dailyChangeLimitInvalid": "Voer een geheel getal van 1 tot {max} in.",
       "guardrailsOwnersOnly": "Alleen eigenaren van de werkruimte stellen stille uren en de dagelijkse wijzigingslimiet in."
     },
@@ -682,6 +682,7 @@
         "expired": "De tijd voor zijn aanroep van “{tool}” op {connection} is verstreken; er is niets verstuurd",
         "refused": "Zijn aanroep van “{tool}” op {connection} is geweigerd, omdat niemand die kon goedkeuren; er is niets verstuurd",
         "afterMail": "De aanroep van ‘{tool}’ op {connection} werd tegengehouden: na het lezen van e-mail leest een run alleen nog pagina’s en schrijft concepten; er is niets verzonden",
+        "afterLocalRead": "De aanroep van “{tool}” op {connection} werd tegengehouden: na het lezen van bestanden op de computer gaat er niets naar buiten; er is niets verzonden",
         "approved": "goedgekeurd",
         "answered": "beantwoord door een eigenaar",
         "note": "Notitie: {note}",

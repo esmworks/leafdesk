@@ -38,6 +38,8 @@ export type AgentRunState = {
   webFound?: string[];
   /** It read email (agents/mail.ts): from then on it only reads pages and drafts email. */
   mailRead?: boolean;
+  /** It, or its conversation before it, read files on the person's computer (lib/local-reads.ts): from then on nothing goes out. */
+  localRead?: boolean;
   decision?: { decision: ApprovalDecision; userId: string; note?: string };
 };
 

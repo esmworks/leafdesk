@@ -7,8 +7,11 @@
  * in an announced folder, each a step that keeps the place and never the content, the changes in
  * the audit log; a place outside the announced folders never reaches the app; another person's
  * chat and a schedule's run get no computer tools; an app gone mid-run makes the call fail; a
- * local read taints the run (a correction afterwards is only proposed); a session held back by the
- * workspace's sign-in policies or ended elsewhere opens no files. Creates its own users and
+ * local read taints the run (a correction afterwards is only proposed); the tools go only to chats
+ * sent from the app's own session, not a browser's; after a local read, the web, other agents and
+ * email are held back in that run and the conversation's next turns, not in a new conversation; a
+ * session held back by the workspace's sign-in policies, ended elsewhere, expired or deleted opens
+ * no files and closes the app's connection. Creates its own users and
  * workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/desktop-files-e2e.ts
@@ -41,7 +44,7 @@ const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { disconnectEndedSessions } = await import("@/server/account-security");
 const { authenticateDesktop } = await import("@/server/desktop-bridge/socket");
 const { connectDesktop, desktopOf } = await import("@/server/desktop-bridge/registry");
-const { COMPUTER_TOOL_NAMES } = await import("@/lib/agents");
+const { COMPUTER_TOOL_NAMES, WEB_TOOL_NAMES } = await import("@/lib/agents");
 const { DESKTOP_BRIDGE_HEADER } = await import("@/lib/desktop-bridge");
 type ServerMessage = import("@/lib/desktop-bridge").ServerMessage;
 type DesktopCall = import("@/lib/desktop-bridge").DesktopCall;
@@ -158,11 +161,13 @@ try {
   const who = await authenticateDesktop(new Headers({ [DESKTOP_BRIDGE_HEADER]: "1", cookie }));
   check(who?.userId === ids.owner && who.sessionId === sessionId, "the app's header and a signed session cookie sign the app in as that person", who);
 
-  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null)).computer === null, "with no app connected, the chat says nothing of a computer");
+  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null, sessionId)).computer === null, "with no app connected, the chat says nothing of a computer");
   const desktop = fakeDesktop(ids.owner, sessionId);
   check(desktopOf(ids.owner)?.folders.join() === "Docs", "the app is connected with the folder it announced");
-  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null)).computer?.join() === "Docs", "the owner's chat says it can use the folder");
-  check((await chat.agentChatInfo(ids.other, workspaceId, helper.id, null)).computer === null, "another person's chat doesn't");
+  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null, sessionId)).computer?.join() === "Docs", "the owner's chat says it can use the folder");
+  check((await chat.agentChatInfo(ids.other, workspaceId, helper.id, null, sessionId)).computer === null, "another person's chat doesn't");
+  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null)).computer === null, "nor does the owner's chat without a session (a connected app's)");
+  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null, `${RUN}-browser`)).computer === null, "nor the owner's chat in another session than the app's (a browser)");
 
   // ── The owner's chat ───────────────────────────────────────────────────────────────────────
   fake.chats.length = 0;
@@ -180,7 +185,7 @@ try {
       "Done with your files.",
     ),
   );
-  const sent = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "Tidy my Docs folder." });
+  const sent = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId, message: "Tidy my Docs folder." });
   await flushAgentRuns();
   const [run] = await db.select().from(agentRun).where(eq(agentRun.id, sent.runId!));
   check(run.status === "done" && run.answer === "Done with your files.", "the chat's run finishes", run);
@@ -234,12 +239,74 @@ try {
 
   // The same correction in a run that read nothing from the computer is kept at once.
   fake.setChat(caller([{ name: "remember", arguments: { text: "Answer in short sentences.", kind: "correction" } }]));
-  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "No, answer in short sentences." });
+  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId, message: "No, answer in short sentences." });
   await flushAgentRuns();
   const kept = (await db.select().from(aiMemory).where(eq(aiMemory.userId, helper.userId))).find((n) => n.text === "Answer in short sentences.");
   check(kept?.status === "kept", "without one, it is kept at once", kept);
 
+  // ── Another session of the same person ─────────────────────────────────────────────────────
+  fake.chats.length = 0;
+  fake.setChat(caller([{ name: COMPUTER_TOOL_NAMES.read, arguments: { path: "Docs/plan.md" } }]));
+  const browser = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId: `${RUN}-browser`, message: "Read my plan." });
+  await flushAgentRuns();
+  check(!toolNames(fake.chats[0]).some((n) => computerNames.includes(n)), "the owner's chat from a browser, another session than the app's, gets no computer tools", toolNames(fake.chats[0]));
+  const [browserRun] = await db.select().from(agentRun).where(eq(agentRun.id, browser.runId!));
+  check(browserRun.status === "done" && desktop.calls.length === 4, "and never reaches the app", desktop.calls);
+
+  // ── What was read on the computer stays there ──────────────────────────────────────────────
+  await agents.updateAgent(ids.owner, helper.id, { webAccess: true });
+  fake.chats.length = 0;
+  fake.setChat(
+    caller([
+      { name: COMPUTER_TOOL_NAMES.read, arguments: { path: "Docs/plan.md" } },
+      { name: WEB_TOOL_NAMES.read, arguments: { url: "https://example.com/?q=LOCAL-PLAN" } },
+      { name: "ask_agent", arguments: { agent: "Anyone", question: "LOCAL-PLAN" } },
+      { name: "send_email", arguments: { subject: "Plan", text: "LOCAL-PLAN" } },
+    ]),
+  );
+  const local = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId, message: "Read my plan, then look it up." });
+  await flushAgentRuns();
+  const [localRun] = await db.select().from(agentRun).where(eq(agentRun.id, local.runId!));
+  const heldBack = (steps: typeof localRun.steps) => steps.filter((s) => s.kind === "tool" && s.outcome === "afterLocalRead").map((s) => (s.kind === "tool" ? s.tool : ""));
+  check(toolNames(fake.chats[0]).includes(WEB_TOOL_NAMES.read), "the agent has the web", toolNames(fake.chats[0]));
+  check(heldBack(localRun.steps).join() === `${WEB_TOOL_NAMES.read},ask_agent,send_email`, "after a local read, a web call, another agent and an email are held back in that run", localRun.steps);
+  const localResults = toolResults(fake.chats.at(-1)!);
+  check(localResults.length === 4 && localResults.slice(1).every((r) => r.startsWith("Files on the person's computer were read")), "and the agent hears why", localResults);
+  check(!JSON.stringify(localRun.steps.filter((s) => s.kind === "tool" && s.outcome === "afterLocalRead")).includes("LOCAL-PLAN"), "their steps keep no arguments, which may quote the file", localRun.steps);
+
+  fake.chats.length = 0;
+  fake.setChat(
+    caller([
+      { name: WEB_TOOL_NAMES.read, arguments: { url: "https://example.com/" } },
+      { name: "assign_agent", arguments: { agent: "Anyone", task: "Look." } },
+      { name: COMPUTER_TOOL_NAMES.list, arguments: { path: "Docs" } },
+    ]),
+  );
+  const next = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: local.conversation.id, sessionId, message: "Now look up the web." });
+  await flushAgentRuns();
+  const [nextRun] = await db.select().from(agentRun).where(eq(agentRun.id, next.runId!));
+  check(heldBack(nextRun.steps).join() === `${WEB_TOOL_NAMES.read},assign_agent`, "the next turn of that conversation holds them back too, though it read nothing itself", nextRun.steps);
+  check(
+    nextRun.steps.some((s) => s.kind === "tool" && s.tool === COMPUTER_TOOL_NAMES.list && s.outcome === "done"),
+    "while the computer stays open to it",
+    nextRun.steps,
+  );
+  check(everything(fake.chats[0]).includes("Files on the person's computer were read earlier in this conversation"), "and its prompt says so", everything(fake.chats[0]).slice(-2000));
+  const { describeAgentRun } = await import("@/server/mcp/agents");
+  const [localView] = await agents.listAgentRuns(ids.owner, helper.id, 50).then((r) => r.filter((x) => x.id === localRun.id));
+  const described = localView ? describeAgentRun(workspaceId, localView) : null;
+  check(described && described.answer === "" && described.steps.length === 0 && "local_files" in described, "connected apps see neither the steps nor the answer of a run that read the computer", described);
+
+  fake.chats.length = 0;
+  fake.setChat(caller([{ name: WEB_TOOL_NAMES.read, arguments: { url: "https://example.com/" } }]));
+  const fresh = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId, message: "Look up the web." });
+  await flushAgentRuns();
+  const [freshRun] = await db.select().from(agentRun).where(eq(agentRun.id, fresh.runId!));
+  check(heldBack(freshRun.steps).length === 0, "a new conversation isn't held back", freshRun.steps);
+  await agents.updateAgent(ids.owner, helper.id, { webAccess: false });
+
   // ── Runs that get no computer ──────────────────────────────────────────────────────────────
+  const callsBefore = desktop.calls.length;
   fake.chats.length = 0;
   fake.setChat(caller([{ name: COMPUTER_TOOL_NAMES.read, arguments: { path: "Docs/plan.md" } }]));
   const others = await chat.sendAgentChat(ids.other, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "Read the owner's plan." });
@@ -248,7 +315,7 @@ try {
   check(!everything(fake.chats[0]).includes("computer_"), "and its prompt says nothing of one");
   check(toolResults(fake.chats.at(-1)!)[0].startsWith(`There is no tool "${COMPUTER_TOOL_NAMES.read}"`), "a computer call it makes anyway is refused", toolResults(fake.chats.at(-1)!));
   const [othersRun] = await db.select().from(agentRun).where(eq(agentRun.id, others.runId!));
-  check(othersRun.status === "done" && desktop.calls.length === 4, "and never reaches the owner's computer", desktop.calls);
+  check(othersRun.status === "done" && desktop.calls.length === callsBefore, "and never reaches the owner's computer", desktop.calls);
 
   fake.chats.length = 0;
   fake.setChat(caller([]));
@@ -273,37 +340,57 @@ try {
       },
     ]),
   );
-  const gone = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "Read the plan." });
+  const gone = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId, message: "Read the plan." });
   await flushAgentRuns();
   const [goneRun] = await db.select().from(agentRun).where(eq(agentRun.id, gone.runId!));
   check(toolNames(fake.chats[0]).includes(COMPUTER_TOOL_NAMES.read), "a run that started with the app connected has the tools");
   check(toolResults(fake.chats.at(-1)!)[1]?.includes("isn't connected"), "a call after the app went is told the computer isn't connected", toolResults(fake.chats.at(-1)!));
   const goneSteps = goneRun.steps.filter((s) => s.kind === "tool" && computerNames.includes(s.tool));
   check(goneSteps.map((s) => (s.kind === "tool" ? s.outcome : "")).join() === "done,failed", "its step failed", goneRun.steps);
-  check(desktopOf(ids.owner) === null && (await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null)).computer === null, "and the chat no longer says it can use the folder");
+  check(desktopOf(ids.owner) === null && (await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null, sessionId)).computer === null, "and the chat no longer says it can use the folder");
 
   fake.chats.length = 0;
   fake.setChat(caller([]));
-  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "Anything?" });
+  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId, message: "Anything?" });
   await flushAgentRuns();
   check(!toolNames(fake.chats[0]).some((n) => computerNames.includes(n)), "the next run gets no computer tools");
 
   // ── Sign-in policies and ended sessions ────────────────────────────────────────────────────
   const again = fakeDesktop(ids.owner, sessionId);
-  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null)).computer?.join() === "Docs", "a reconnected app is usable again");
+  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null, sessionId)).computer?.join() === "Docs", "a reconnected app is usable again");
   await updateWorkspaceSettings(ids.owner, workspaceId, { requireTwoFactor: true }, { strongSession: true });
-  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null)).computer === null, "an app whose session the workspace's two-step policy holds back opens no files");
+  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null, sessionId)).computer === null, "an app whose session the workspace's two-step policy holds back opens no files");
   fake.chats.length = 0;
   fake.setChat(caller([]));
-  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "And now?" });
+  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId, message: "And now?" });
   await flushAgentRuns();
   check(fake.chats.length > 0 && fake.chats.every((r) => !toolNames(r).some((n) => computerNames.includes(n))), "and its runs get no computer tools");
   await updateWorkspaceSettings(ids.owner, workspaceId, { requireTwoFactor: false });
-  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null)).computer?.join() === "Docs", "lifting the policy opens them again");
+  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null, sessionId)).computer?.join() === "Docs", "lifting the policy opens them again");
 
   await db.delete(session).where(eq(session.id, sessionId));
   await disconnectEndedSessions(ids.owner);
   check(again.closedWith.join() === "4403" && desktopOf(ids.owner) === null, "a session ended elsewhere closes its app's connection");
+
+  // A session that expired, or was deleted without the connection hearing of it, is found out
+  // when the chat next looks: the app's connection is closed then.
+  const later = `${RUN}-later`;
+  await db.insert(session).values({ id: later, token: `${later}-token`, userId: ids.owner, expiresAt: new Date(Date.now() + 3_600_000), updatedAt: new Date() });
+  const third = fakeDesktop(ids.owner, later);
+  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null, later)).computer?.join() === "Docs", "an app on a live session is usable");
+  await db.update(session).set({ expiresAt: new Date(Date.now() - 1_000) }).where(eq(session.id, later));
+  check((await chat.agentChatInfo(ids.owner, workspaceId, helper.id, null, later)).computer === null, "once its session expired, the chat says nothing of a computer");
+  check(third.closedWith.join() === "4403" && desktopOf(ids.owner, later) === null, "and the app's connection is closed", third.closedWith);
+  const gone2 = `${RUN}-gone`;
+  await db.insert(session).values({ id: gone2, token: `${gone2}-token`, userId: ids.owner, expiresAt: new Date(Date.now() + 3_600_000), updatedAt: new Date() });
+  const fourth = fakeDesktop(ids.owner, gone2);
+  await db.delete(session).where(eq(session.id, gone2));
+  fake.chats.length = 0;
+  fake.setChat(caller([]));
+  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId: gone2, message: "Still there?" });
+  await flushAgentRuns();
+  check(!toolNames(fake.chats[0]).some((n) => computerNames.includes(n)), "a run for a session deleted without notice gets no computer tools", toolNames(fake.chats[0]));
+  check(fourth.closedWith.join() === "4403" && desktopOf(ids.owner, gone2) === null, "and its app's connection is closed", fourth.closedWith);
 
   console.log(`\n${passed} checks passed`);
 } finally {

@@ -478,7 +478,7 @@
       "quietHoursInvalid": "異なる2つの時刻とタイムゾーンを選んでください。",
       "dailyChangeLimit": "1日の変更数",
       "dailyChangeLimitPlaceholder": "上限なし",
-      "dailyChangeLimitHelp": "1日に行う変更の上限です（行、ページ、コメント、何かを変更する接続の呼び出し）。それを超える変更は拒否されます。日付は静かな時間のタイムゾーン、なければ UTC で数えます。",
+      "dailyChangeLimitHelp": "1日に行う変更の上限です（行、ページ、コメント、送信するメール、何かを変更する接続の呼び出し）。それを超える変更は拒否されます。日付は静かな時間のタイムゾーン、なければ UTC で数えます。",
       "dailyChangeLimitInvalid": "1〜{max} の整数を入力してください。",
       "guardrailsOwnersOnly": "静かな時間と1日の変更上限を設定できるのはワークスペースのオーナーだけです。"
     },
@@ -677,6 +677,7 @@
         "expired": "{connection}での「{tool}」の呼び出しは期限切れになったため、何も送信されませんでした",
         "refused": "{connection}での「{tool}」の呼び出しは承認できる人がいないため拒否され、何も送信されませんでした",
         "afterMail": "{connection} の「{tool}」の呼び出しは保留されました。メールを読んだ実行はその後ページを読み下書きを書くだけです。何も送信されていません",
+        "afterLocalRead": "{connection} の「{tool}」の呼び出しは保留されました: コンピューターのファイルを読んだ後は何も外に出ません。何も送信されていません",
         "approved": "承認済み",
         "answered": "オーナーが応答",
         "note": "メモ：{note}",

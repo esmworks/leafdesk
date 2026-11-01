@@ -5,20 +5,29 @@
 ### Added
 
 - **Agents can use files on your computer, through the desktop app.** *Agent File Access* in the
-  desktop app's menu, off by default, lets you add folders that agents in your own chats may use:
-  while the app is connected, each message you send an agent in the app gets tools to list a
+  desktop app's menu, off by default and set for each server, lets you add folders that agents in
+  your own chats may use (not the disk, your home folder or the system's settings for apps): while
+  the app is connected, each message you send an agent from that app's window gets tools to list a
   folder and read UTF-8 text files there (up to 512 KB), and, if you can edit the agent, to write
-  a file and move one to the trash. The app asks you before every write and move to the trash
-  (agent, workspace, file, size and first lines; no answer within 2 minutes is a no), never deletes
-  for good, keeps every path inside its folder (no `..`, no links leading out), never touches
-  places with keys, passwords or settings (`.ssh`, `.git`, `.env` files, keychains) and keeps a log
-  of every call. The app connects over a new websocket, `/desktop-bridge`, signed in with its
-  session and held to the workspace's sign-in policies; it tells the server only the folders'
-  names. Changes count toward the run's and the agent's daily limits; a run that read email makes
-  none, and what a file holds reaches the model as data from outside, so a correction later in that
-  run is only proposed. Steps show the path and outcome, never contents; writes and moves to the
-  trash are in the audit log (`agent.local_file`). Other people's chats, schedules, mentions and
-  chats from connected apps never get these tools. No migration.
+  a file and move one to the trash; a message from a browser or another computer doesn't. The app
+  asks you before every write and move to the trash (agent, workspace, file, size, and a write's
+  first and last lines; no answer within 2 minutes is a no, and turning access off closes the
+  question as a no), never deletes for good, keeps every path inside its folder (no `..`; reads
+  follow only links that end inside it, writes and moves to the trash follow none and never touch
+  hidden names or places programs start from at sign-in), never touches places with keys,
+  passwords, histories or settings (`.ssh`, `.git`, `.env` files, keychains, shell histories,
+  `.npmrc`, `.config/gh`, Terraform state …) and keeps a log of every call. The app connects over a
+  new websocket, `/desktop-bridge`, signed in with its own session and held to the workspace's
+  sign-in policies; the connection closes when that session ends or is signed out, and the app
+  connects again when the server's pings stop. It tells the server only the folders' names. Changes
+  count toward the run's and the agent's daily limits; a run that read email makes none, and what a
+  file holds reaches the model as data from outside, so a correction later in that run is only
+  proposed. Once a run read something on the computer, it and later runs of that conversation
+  refuse connection tools, the web, other agents and `send_email`. Steps show the path and outcome,
+  never contents; writes and moves to the trash are in the audit log (`agent.local_file`). Other
+  people's chats, schedules, mentions and chats from connected apps never get these tools. The
+  connection works only with servers whose certificate is from a public certificate authority. No
+  migration.
 
 - **Agents keep the corrections you give them in your own chat.** When someone who can edit an
   agent tells it in their chat (its page, a chat block or Telegram) that it got something wrong, or
@@ -67,7 +76,7 @@
   `set_agent_connection_tools`. In an agent's settings owners also set quiet hours, in which
   allowed calls wait silently until they end (an owner can approve one early), and a number of
   changes per day past which its changes are refused (email it sends to its recipients counts
-  too); others who can edit the agent see both without changing them. Runs' steps say when a rule
+  too, and no longer counts toward a run's own 5 changes); others who can edit the agent see both without changing them. Runs' steps say when a rule
   allowed or declined a call or the limit refused one. Migration 0177 (tables
   `agent_tool_rule` and `agent_daily_change`, columns `quiet_hours` and `daily_change_limit`).
 

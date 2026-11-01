@@ -478,7 +478,7 @@
       "quietHoursInvalid": "请选择两个不同的时间和一个时区。",
       "dailyChangeLimit": "每日更改数",
       "dailyChangeLimitPlaceholder": "无限制",
-      "dailyChangeLimitHelp": "它一天内最多进行的更改：行、页面、评论以及会更改内容的连接调用。超出的会被拒绝。日期按安静时段的时区计算，否则按 UTC。",
+      "dailyChangeLimitHelp": "它一天内最多进行的更改：行、页面、评论、它发送的邮件以及会更改内容的连接调用。超出的会被拒绝。日期按安静时段的时区计算，否则按 UTC。",
       "dailyChangeLimitInvalid": "请输入 1 到 {max} 之间的整数。",
       "guardrailsOwnersOnly": "只有工作区所有者可以设置安静时段和每日更改上限。"
     },
@@ -677,6 +677,7 @@
         "expired": "它对 {connection} 上“{tool}”的调用已超时；没有发送任何内容",
         "refused": "它对 {connection} 上“{tool}”的调用因无人可批准而被拒绝；没有发送任何内容",
         "afterMail": "其在 {connection} 上对“{tool}”的调用被拦下：读过邮件后，运行只读取页面并起草邮件；未发送任何内容",
+        "afterLocalRead": "它对 {connection} 上“{tool}”的调用被拦下：读取电脑上的文件后，任何内容都不会外发；未发送任何内容",
         "approved": "已批准",
         "answered": "已由所有者答复",
         "note": "备注：{note}",

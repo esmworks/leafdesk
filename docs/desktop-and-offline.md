@@ -156,7 +156,10 @@ when another app already has the keys. Offline editing works as in the installed
 **Agents and your files.** *Agent File Access* in the Leafdesk menu (File on Windows and Linux),
 off by default, lets agents in your own chats list, read, write and move to the trash text files in
 folders you add there, asking you before every write and move to the trash; see
-[Files on your computer](agents.md#files-on-your-computer).
+[Files on your computer](agents.md#files-on-your-computer). Each server has its own setting. Its
+connection trusts only certificates from public certificate authorities: with a self-signed
+certificate (trusted as above) or an internal certificate authority the windows work but agents
+can't use your files, and the menu says *Not connected*.
 
 **Not yet.** Push notifications don't reach the desktop app (the inbox still shows what's new), and
 passkeys may not work in it; sign in with a password, a code or single sign-on there.

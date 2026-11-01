@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Wähle zwei verschiedene Uhrzeiten und eine Zeitzone.",
       "dailyChangeLimit": "Änderungen pro Tag",
       "dailyChangeLimitPlaceholder": "Kein Limit",
-      "dailyChangeLimitHelp": "Die meisten Änderungen, die er an einem Tag macht: Zeilen, Seiten, Kommentare und Verbindungsaufrufe, die etwas ändern. Weitere werden abgelehnt. Der Tag richtet sich nach der Zeitzone der Ruhezeiten, sonst UTC.",
+      "dailyChangeLimitHelp": "Die meisten Änderungen, die er an einem Tag macht: Zeilen, Seiten, Kommentare, E-Mails, die er sendet, und Verbindungsaufrufe, die etwas ändern. Weitere werden abgelehnt. Der Tag richtet sich nach der Zeitzone der Ruhezeiten, sonst UTC.",
       "dailyChangeLimitInvalid": "Gib eine ganze Zahl von 1 bis {max} ein.",
       "guardrailsOwnersOnly": "Nur Workspace-Inhaber legen Ruhezeiten und das tägliche Änderungslimit fest."
     },
@@ -677,6 +677,7 @@
         "expired": "Sein Aufruf von „{tool}“ bei {connection} ist abgelaufen; nichts wurde gesendet",
         "refused": "Sein Aufruf von „{tool}“ bei {connection} wurde abgelehnt, da niemand ihn genehmigen konnte; nichts wurde gesendet",
         "afterMail": "Der Aufruf von „{tool}“ bei {connection} wurde zurückgehalten: Nach dem Lesen von E-Mails liest ein Lauf nur noch Seiten und schreibt Entwürfe; nichts wurde gesendet",
+        "afterLocalRead": "Sein Aufruf von „{tool}“ bei {connection} wurde zurückgehalten: Nach dem Lesen von Dateien auf dem Computer geht nichts hinaus; nichts wurde gesendet",
         "approved": "freigegeben",
         "answered": "von einem Inhaber beantwortet",
         "note": "Notiz: {note}",

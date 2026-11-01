@@ -39,6 +39,7 @@ import { applyDomainPolicies } from "@/server/join-requests";
 import { revokeAllConnectedApps } from "@/server/mcp/grants";
 import { revokeAllApiTokens } from "@/server/api/tokens";
 import { disconnectEndedSessions } from "@/server/account-security";
+import { closeEndedDesktopSessions } from "@/server/desktop-bridge/registry";
 import { emailChangedEmail, emailChangeEmail, mailStatus, passwordChangedEmail, sendMail } from "@/server/mail";
 import { recipientLocale, requestLocale } from "@/server/mail/locale";
 import { clearPasswordResetRequirement, consumeResetStep, resetStepUser } from "@/server/required-password";
@@ -627,6 +628,8 @@ export async function deleteAccount(current: AccountSession, input: { confirmati
   // Workspaces that ran on their own AI account: owners hear, and the search index follows the model they have now.
   await afterAiAccountReleased(aiReleased).catch((error) => console.error("[account] could not finish detaching AI accounts", error));
 
+  // The sessions went with the account, by SQL: no hook closes the desktop app's bridge.
+  closeEndedDesktopSessions(userId, []);
   try {
     await getCollab().disconnectSessions(userId, []);
   } catch (error) {

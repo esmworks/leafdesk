@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Velg to ulike klokkeslett og en tidssone.",
       "dailyChangeLimit": "Endringer per dag",
       "dailyChangeLimitPlaceholder": "Ingen grense",
-      "dailyChangeLimitHelp": "Det høyeste antallet endringer den gjør på en dag: rader, sider, kommentarer og tilkoblingskall som endrer noe. Flere avvises. Dagen følger tidssonen til de stille timene, ellers UTC.",
+      "dailyChangeLimitHelp": "Det høyeste antallet endringer den gjør på en dag: rader, sider, kommentarer, e-poster den sender og tilkoblingskall som endrer noe. Flere avvises. Dagen følger tidssonen til de stille timene, ellers UTC.",
       "dailyChangeLimitInvalid": "Skriv inn et heltall fra 1 til {max}.",
       "guardrailsOwnersOnly": "Bare eiere av arbeidsområdet angir stille timer og den daglige endringsgrensen."
     },
@@ -682,6 +682,7 @@
         "expired": "Kallet til «{tool}» på {connection} fikk tidsavbrudd; ingenting ble sendt",
         "refused": "Kallet til «{tool}» på {connection} ble avvist, siden ingen kunne godkjenne det; ingenting ble sendt",
         "afterMail": "Kallet av «{tool}» på {connection} ble holdt tilbake: etter å ha lest e-post leser en kjøring bare sider og skriver utkast; ingenting ble sendt",
+        "afterLocalRead": "Kallet av «{tool}» på {connection} ble holdt tilbake: etter å ha lest filer på datamaskinen går ingenting ut; ingenting ble sendt",
         "approved": "godkjent",
         "answered": "besvart av en eier",
         "note": "Merknad: {note}",

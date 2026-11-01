@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Elige dos horas distintas y una zona horaria.",
       "dailyChangeLimit": "Cambios por día",
       "dailyChangeLimitPlaceholder": "Sin límite",
-      "dailyChangeLimitHelp": "El máximo de cambios que hace en un día: filas, páginas, comentarios y llamadas de conexión que cambian algo. Los siguientes se rechazan. El día sigue la zona horaria de las horas de silencio o, si no, UTC.",
+      "dailyChangeLimitHelp": "El máximo de cambios que hace en un día: filas, páginas, comentarios, correos que envía y llamadas de conexión que cambian algo. Los siguientes se rechazan. El día sigue la zona horaria de las horas de silencio o, si no, UTC.",
       "dailyChangeLimitInvalid": "Escribe un número entero de 1 a {max}.",
       "guardrailsOwnersOnly": "Solo los propietarios del espacio de trabajo fijan las horas de silencio y el límite diario de cambios."
     },
@@ -677,6 +677,7 @@
         "expired": "Su llamada a «{tool}» en {connection} caducó; no se envió nada",
         "refused": "Su llamada a «{tool}» en {connection} se rechazó porque nadie podía aprobarla; no se envió nada",
         "afterMail": "Su llamada a «{tool}» en {connection} se retuvo: tras leer correo, una ejecución solo lee páginas y redacta borradores; no se envió nada",
+        "afterLocalRead": "Su llamada a “{tool}” en {connection} se retuvo: después de leer archivos del ordenador no sale nada; no se envió nada",
         "approved": "aprobada",
         "answered": "respondida por un propietario",
         "note": "Nota: {note}",

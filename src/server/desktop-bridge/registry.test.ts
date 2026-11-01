@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DESKTOP_CHANGE_TIMEOUT_MS, DESKTOP_PING_MS, DESKTOP_READ_TIMEOUT_MS, type ServerMessage } from "@/lib/desktop-bridge";
-import { callDesktop, closeEndedDesktopSessions, connectDesktop, desktopOf, pingDesktops } from "./registry";
+import { callDesktop, closeDesktopSession, closeEndedDesktopSessions, connectDesktop, desktopOf, pingDesktops } from "./registry";
 
 const facts = { strong: false, ssoProviderId: null, ip: "10.0.0.1" };
 
@@ -75,6 +75,28 @@ describe("the desktop registry", () => {
     second.link.closed();
     expect(await answer).toEqual({ ok: false, error: "offline" });
     expect(desktopOf("u1")?.folders).toEqual(["Documents"]);
+  });
+
+  it("lends a session's own app only, the latest of them, and closes a session's apps", async () => {
+    const laptop = fakeApp("u1", "laptop");
+    laptop.hello(["Documents"]);
+    vi.advanceTimersByTime(10);
+    const desk = fakeApp("u1", "desk");
+    desk.hello(["Work"]);
+    expect(desktopOf("u1", "laptop")?.folders).toEqual(["Documents"]);
+    expect(desktopOf("u1", "desk")?.folders).toEqual(["Work"]);
+    expect(desktopOf("u1", "phone")).toBeNull();
+    // A call goes to the session's own app, however recent another is.
+    void callDesktop("u1", { op: "list", path: "Documents", agent: "A", workspace: "W" }, { sessionId: "laptop" });
+    expect(lastCall(laptop.sent)).toMatchObject({ path: "Documents" });
+    expect(lastCall(desk.sent)).toBeUndefined();
+    expect(await callDesktop("u1", { op: "list", path: "Documents", agent: "A", workspace: "W" }, { sessionId: "phone" })).toEqual({ ok: false, error: "offline" });
+
+    closeDesktopSession("u1", "laptop");
+    expect(laptop.closed).toEqual([4403]);
+    expect(desk.closed).toEqual([]);
+    expect(desktopOf("u1", "laptop")).toBeNull();
+    expect(desktopOf("u1", "desk")?.folders).toEqual(["Work"]);
   });
 
   it("closes the apps of sessions that ended, and those that stop answering pings", () => {

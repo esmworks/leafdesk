@@ -478,7 +478,7 @@
       "quietHoursInvalid": "Välj två olika tider och en tidszon.",
       "dailyChangeLimit": "Ändringar per dag",
       "dailyChangeLimitPlaceholder": "Ingen gräns",
-      "dailyChangeLimitHelp": "Det högsta antalet ändringar den gör på en dag: rader, sidor, kommentarer och anslutningsanrop som ändrar något. Fler avvisas. Dagen följer de tysta timmarnas tidszon, annars UTC.",
+      "dailyChangeLimitHelp": "Det högsta antalet ändringar den gör på en dag: rader, sidor, kommentarer, e-post den skickar och anslutningsanrop som ändrar något. Fler avvisas. Dagen följer de tysta timmarnas tidszon, annars UTC.",
       "dailyChangeLimitInvalid": "Ange ett heltal från 1 till {max}.",
       "guardrailsOwnersOnly": "Bara arbetsytans ägare ställer in tysta timmar och den dagliga ändringsgränsen."
     },
@@ -682,6 +682,7 @@
         "expired": "Dess anrop av ”{tool}” på {connection} hann inte besvaras; inget skickades",
         "refused": "Dess anrop av ”{tool}” på {connection} avvisades, eftersom ingen kunde godkänna det; inget skickades",
         "afterMail": "Anropet av ”{tool}” på {connection} hölls tillbaka: efter att ha läst e-post läser en körning bara sidor och skriver utkast; inget skickades",
+        "afterLocalRead": "Anropet av ”{tool}” på {connection} hölls tillbaka: efter att ha läst filer på datorn går inget ut; inget skickades",
         "approved": "godkänt",
         "answered": "besvarat av en ägare",
         "note": "Anteckning: {note}",

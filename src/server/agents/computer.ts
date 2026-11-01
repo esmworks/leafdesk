@@ -7,16 +7,19 @@
  * from a connected app (what it reads would leave in that app's answer), another agent's, a
  * schedule's or a row's.
  *
- * Whether the app is there, and whether the session it came with meets the workspace's sign-in
- * policies, is asked when the run starts and again at each call. A place is
+ * Only the app connected with the very web session the message was sent from lends its computer
+ * (the run's `source.sessionId`): a chat sent from a phone's browser, or another computer, gets
+ * none. Whether that app is there, whether its session still exists and hasn't expired (else the
+ * app is closed), and whether it meets the workspace's sign-in policies, is asked when the run
+ * starts and again at each call. A place is
  * `<folder label>/<path>`, checked against the folders the app announced (lib/desktop-bridge.ts);
  * the app checks it again itself. What a list or a read brings is data from outside (framed, and
  * it counts as such for the run: agents/run.ts). Steps and the audit log keep the place and the
  * size, never what a file holds.
  */
-import { eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import { db } from "@/db";
-import { workspace } from "@/db/schema";
+import { session, workspace } from "@/db/schema";
 import { COMPUTER_TOOL_NAMES, isComputerTool, type AgentRunSource, type AgentToolRecord } from "@/lib/agents";
 import { localPlace, MAX_LOCAL_FILE_BYTES, utf8Bytes, type DesktopError, type DesktopOp, type DesktopResult } from "@/lib/desktop-bridge";
 import { formatBytes } from "@/lib/files";
@@ -25,7 +28,7 @@ import { policyHoldFor } from "@/server/access";
 import type { AiTool, AiToolCall } from "@/server/ai";
 import { frameData } from "@/server/ai/frame";
 import { recordAudit } from "@/server/audit";
-import { callDesktop, desktopOf } from "@/server/desktop-bridge/registry";
+import { callDesktop, closeDesktopSession, desktopOf } from "@/server/desktop-bridge/registry";
 
 const pathParameter = { type: "string", description: "<folder>/<path inside it>, with / between parts; a folder alone for its top." } as const;
 
@@ -55,28 +58,42 @@ const TRASH_TOOL: AiTool = {
   parameters: { type: "object", properties: { path: pathParameter }, required: ["path"], additionalProperties: false },
 };
 
-/** What a run may do on its person's computer: the folders' labels, and whether it may change files there. */
-export type Computer = { personId: string; folders: string[]; writes: boolean };
+/** What a run may do on its person's computer: the app's session, the folders' labels, and whether it may change files there. */
+export type Computer = { personId: string; sessionId: string; folders: string[]; writes: boolean };
 
 /**
  * The computer a chat's run may use, as its person's app stands now: null for any other run, a run
- * sent from a connected app, a person with no app connected (or none with a folder), or an app
- * whose session the workspace's sign-in policies hold back.
+ * sent from a connected app or from a session no desktop app connected with, a person with no app
+ * connected (or none with a folder), or an app whose session ended or the workspace's sign-in
+ * policies hold back.
  */
 export async function computerFor(source: AgentRunSource, workspaceId: string, writes: boolean): Promise<Computer | null> {
-  if (source.kind !== "chat" || source.fromApp) return null;
-  const desktop = await usableDesktop(source.userId, workspaceId);
-  return desktop ? { personId: source.userId, folders: desktop.folders, writes } : null;
+  if (source.kind !== "chat" || source.fromApp || !source.sessionId) return null;
+  const desktop = await usableDesktop(source.userId, workspaceId, source.sessionId);
+  return desktop ? { personId: source.userId, sessionId: source.sessionId, folders: desktop.folders, writes } : null;
 }
 
-/** The labels of the folders a person's chat runs in this workspace may use now, for the chat to say so; null when none. */
-export async function computerFolders(personId: string, workspaceId: string): Promise<string[] | null> {
-  return (await usableDesktop(personId, workspaceId))?.folders ?? null;
+/** The labels of the folders a person's chat runs sent from this session in this workspace may use now, for the chat to say so; null when none. */
+export async function computerFolders(personId: string, workspaceId: string, sessionId: string): Promise<string[] | null> {
+  return (await usableDesktop(personId, workspaceId, sessionId))?.folders ?? null;
 }
 
-async function usableDesktop(personId: string, workspaceId: string) {
-  const desktop = desktopOf(personId);
+/** Whether a session is still there and unexpired: one signed out or run out closes its app. */
+async function sessionLive(sessionId: string) {
+  const [found] = await db
+    .select({ id: session.id })
+    .from(session)
+    .where(and(eq(session.id, sessionId), gt(session.expiresAt, new Date())));
+  return Boolean(found);
+}
+
+async function usableDesktop(personId: string, workspaceId: string, sessionId: string) {
+  const desktop = desktopOf(personId, sessionId);
   if (!desktop) return null;
+  if (!(await sessionLive(sessionId))) {
+    closeDesktopSession(personId, sessionId);
+    return null;
+  }
   // A session that couldn't open the workspace in the app doesn't open it to its files either.
   return (await policyHoldFor(personId, workspaceId, desktop.facts)) ? null : desktop;
 }
@@ -165,7 +182,7 @@ export async function runComputerTool(
   if (!op || (!computer.writes && (op === "write" || op === "trash"))) return { content: `There is no tool "${call.name}" in this run.`, isError: true, chars: 0 };
   const step = (outcome: AgentToolRecord["outcome"]): AgentToolRecord => ({ kind: "tool", connectionId: null, tool: call.name, input: computerStepInput(call) ?? "", outcome });
   // As the app stands now: it may have gone, changed its folders, or come back with a session held back.
-  const desktop = await usableDesktop(computer.personId, run.workspaceId);
+  const desktop = await usableDesktop(computer.personId, run.workspaceId, computer.sessionId);
   if (!desktop) return { content: refusal("offline", op, ""), isError: true, step: step("failed"), chars: 0 };
   const place = localPlace(call.arguments.path, desktop.folders);
   if ("error" in place) return { content: `${place.error} Nothing was done.`, isError: true, chars: 0 };
@@ -174,13 +191,18 @@ export async function runComputerTool(
   const bytes = content === undefined ? 0 : utf8Bytes(content);
   if (bytes > MAX_LOCAL_FILE_BYTES) return { content: `The text is larger than ${MAX_LOCAL_FILE_BYTES / 1024} KB: nothing was written.`, isError: true, chars: 0 };
 
-  const answer = await callDesktop(computer.personId, {
-    op,
-    path: place.path,
-    ...(content !== undefined ? { content } : {}),
-    agent: run.agent.name,
-    workspace: await workspaceName(run.workspaceId),
-  });
+  const answer = await callDesktop(
+    computer.personId,
+    {
+      op,
+      path: place.path,
+      ...(content !== undefined ? { content } : {}),
+      agent: run.agent.name,
+      // Without its name the person is still asked, by the server's address.
+      workspace: await workspaceName(run.workspaceId).catch(() => ""),
+    },
+    { sessionId: computer.sessionId },
+  );
   const error = answer.ok ? (answer.result.op === op ? null : "failed") : answer.error;
   if (op === "write" || op === "trash") {
     await recordAudit({

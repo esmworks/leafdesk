@@ -4,11 +4,13 @@
  * the calls waiting for its answer. Kept on globalThis: server.ts takes the connections, while the
  * agents' worker and Next's pages (the chat's note) ask about them, from separate module graphs.
  *
- * A connection counts once it said hello with at least one folder. Of a person's apps (two
- * computers), the one that connected last answers. A connection silent for two pings, closed, or
- * whose session ended (closeEndedDesktopSessions, from account-security.ts) is dropped, and the
- * calls waiting on it end as `offline`. Nothing here checks workspace policies: callers ask
- * `policyHoldFor` with `facts` each time (agents/computer.ts).
+ * A connection counts once it said hello with at least one folder. A chat's run uses only the app
+ * that connected with the session its message was sent from (`sessionId`; agents/computer.ts), the
+ * latest of those. A connection silent for two pings, closed, or whose session ended
+ * (closeEndedDesktopSessions, from account-security.ts, and closeDesktopSession when
+ * agents/computer.ts finds its session gone or expired) is dropped, and the calls waiting on it end
+ * as `offline`. Nothing here checks workspace policies: callers ask `policyHoldFor` with `facts`
+ * each time (agents/computer.ts).
  */
 import { randomUUID } from "node:crypto";
 import {
@@ -103,25 +105,29 @@ function drop(connection: Connection) {
   }
 }
 
-/** The app of `userId` that answers: the latest that announced at least one folder. */
-function current(userId: string): Connection | null {
-  const ready = (registry.byUser.get(userId) ?? []).filter((c) => c.folders && c.folders.length > 0);
+/** The app of `userId` that answers: the latest that announced at least one folder (of those connected with `sessionId`, when given). */
+function current(userId: string, sessionId?: string): Connection | null {
+  const ready = (registry.byUser.get(userId) ?? []).filter((c) => c.folders && c.folders.length > 0 && (sessionId === undefined || c.sessionId === sessionId));
   return ready.reduce<Connection | null>((latest, c) => (!latest || c.connectedAt > latest.connectedAt ? c : latest), null);
 }
 
-/** The person's connected app with folders to use, or null. */
-export function desktopOf(userId: string): ConnectedDesktop | null {
-  const found = current(userId);
+/** The person's connected app with folders to use (the one connected with `sessionId`, when given), or null. */
+export function desktopOf(userId: string, sessionId?: string): ConnectedDesktop | null {
+  const found = current(userId, sessionId);
   return found?.folders ? { folders: [...found.folders], version: found.version, facts: found.facts, sessionId: found.sessionId } : null;
 }
 
 /**
- * Asks the person's app for one thing and waits for its answer: `offline` when there is none (or
- * it goes meanwhile), `timeout` when it doesn't answer in time (a read's 30 seconds, a change's
- * time for the person to answer and a little more).
+ * Asks the person's app (the one connected with `sessionId`, when given) for one thing and waits
+ * for its answer: `offline` when there is none (or it goes meanwhile), `timeout` when it doesn't
+ * answer in time (a read's 30 seconds, a change's time for the person to answer and a little more).
  */
-export function callDesktop(userId: string, call: Omit<DesktopCall, "type" | "id">, timeoutMs?: number): Promise<DesktopAnswer> {
-  const connection = current(userId);
+export function callDesktop(
+  userId: string,
+  call: Omit<DesktopCall, "type" | "id">,
+  { timeoutMs, sessionId }: { timeoutMs?: number; sessionId?: string } = {},
+): Promise<DesktopAnswer> {
+  const connection = current(userId, sessionId);
   if (!connection) return Promise.resolve({ ok: false, error: "offline" });
   const id = randomUUID();
   const wait = timeoutMs ?? (call.op === "write" || call.op === "trash" ? DESKTOP_CHANGE_TIMEOUT_MS : DESKTOP_READ_TIMEOUT_MS);
@@ -147,6 +153,15 @@ export function closeEndedDesktopSessions(userId: string, live: readonly string[
   const kept = new Set(live);
   for (const connection of registry.byUser.get(userId) ?? []) {
     if (live.length && connection.sessionId && kept.has(connection.sessionId)) continue;
+    connection.transport.close(4403, "Forbidden");
+    drop(connection);
+  }
+}
+
+/** Closes the person's apps connected with this session: it was signed out, or ran out. */
+export function closeDesktopSession(userId: string, sessionId: string) {
+  for (const connection of registry.byUser.get(userId) ?? []) {
+    if (connection.sessionId !== sessionId) continue;
     connection.transport.close(4403, "Forbidden");
     drop(connection);
   }
