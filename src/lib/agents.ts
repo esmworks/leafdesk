@@ -4,6 +4,7 @@
 import { agentPagePath } from "./agent-page";
 import type { AgentShareLevel } from "./agent-sharing";
 import type { ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
+import type { ChatActionView, ChatScope, ChatThinking } from "./ai-chat";
 import type { QuietHours } from "./quiet-hours";
 import type { RepeatRule, ScheduleError } from "./schedule";
 
@@ -237,6 +238,44 @@ export type AgentRunSource =
       messageId: string;
     };
 
+/**
+ * A person's own AI chat: the run has no agent (`agent_run.agent_id` null) and runs as them, with
+ * their access, model and limits, and answers in their conversation (`ai_conversation`, made before
+ * the run starts). What the question was asked with is kept here, so the run goes on as it began
+ * after waiting for the person's answer.
+ */
+export type AssistantRunSource = {
+  kind: "assistant";
+  userId: string;
+  conversationId: string;
+  /** The page or teamspace the question keeps to, checked again when the run (re)starts. */
+  scope: ChatScope;
+  skillId: string | null;
+  model: string | null;
+  thinking: ChatThinking;
+  /** Research mode: a plan, searches and reads, then a long cited report; nothing is changed. */
+  research?: true;
+  /** What it writes in page bodies goes in as the AI's suggested edits. */
+  asSuggestions?: true;
+  /** Asked through a connected app (the Telegram bot), which follows the answer. */
+  fromApp?: true;
+  /** The files attached to the question (`file` ids), in order. */
+  files: string[];
+  /** How many of the conversation's last turns the answer replaces once kept (answer again, an edited question). */
+  replaced: number;
+};
+
+/** What `agent_run.source` holds: an agent's run's start, or a person's own AI chat's. */
+export type RunSource = AgentRunSource | AssistantRunSource;
+
+/**
+ * A run of an agent's: any but a person's own AI chat, which has no agent (a check of the table
+ * holds the two together). `hasAgentSource` for rows read without their agent.
+ */
+export const isAgentRun = <T extends { agentId: string | null; source: RunSource }>(run: T): run is T & { agentId: string; source: AgentRunSource } =>
+  run.agentId !== null && run.source.kind !== "assistant";
+export const hasAgentSource = <T extends { source: RunSource }>(run: T): run is T & { source: AgentRunSource } => run.source.kind !== "assistant";
+
 /** What happened that the run responds to, for its prompt and its history. */
 export type AgentRunContext =
   | {
@@ -380,6 +419,8 @@ export type AgentPendingCall = {
   arguments: Record<string, unknown>;
   askedAt: string;
   deferredUntil?: string;
+  /** An AI chat's run (source `assistant`): the change as the person is asked about it in the chat. */
+  action?: ChatActionView;
 };
 
 /** The tools of an agent with web access (server/agents/web.ts): Leafdesk's own, so their steps name no connection. */

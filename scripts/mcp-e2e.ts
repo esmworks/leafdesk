@@ -1177,7 +1177,8 @@ async function main() {
   const { runAgentMemoryTool } = await import("@/server/agents/memory");
   const { agentRun } = await import("@/db/schema");
   const bot = { userId: triage.user_id as string, workspaceId: ws };
-  const [proposingRun] = await db.select().from(agentRun).where(eq(agentRun.id, agentRunEntry.id));
+  const { isAgentRun } = await import("@/lib/agents");
+  const [proposingRun] = (await db.select().from(agentRun).where(eq(agentRun.id, agentRunEntry.id))).filter(isAgentRun);
   for (const text of [`Printers jam on Mondays ${RUN}`, `Toner is in room 4 ${RUN}`]) {
     const proposed = await runAgentMemoryTool(bot, proposingRun, { name: "remember", arguments: { text } });
     check(!proposed.isError, "a run proposes a note", proposed);

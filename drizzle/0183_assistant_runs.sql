@@ -1,0 +1,2 @@
+ALTER TABLE "agent_run" ALTER COLUMN "agent_id" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "agent_run" ADD CONSTRAINT "agent_run_agent_check" CHECK (("agent_run"."agent_id" is null) = coalesce("agent_run"."source"->>'kind' = 'assistant', false));

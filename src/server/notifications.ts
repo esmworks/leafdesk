@@ -30,7 +30,7 @@ import {
 import { addReactor, parseReactors, reactionSummary, removeReactor, type Reactor } from "@/lib/comment-reactions";
 import { avatarSrc } from "@/lib/avatar";
 import { isAiLimitNotice, type AiLimitNotice } from "@/lib/agent-guardrails";
-import { callConnectionName, callToSend, inboxCallInput, readEmail, runPageOf, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
+import { callConnectionName, callToSend, inboxCallInput, isAgentRun, readEmail, runPageOf, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
 import { newAssignees } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
 import { readableProperties, referencedIds, resolveValue, type ActivityValue } from "@/lib/row-activity";
@@ -1327,7 +1327,8 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
     .from(agentRun)
     .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentRun.agentId))
     .leftJoin(givingAgent, and(sql`${agentRun.source}->>'kind' = 'handoff'`, sql`${givingAgent.id} = ${agentRun.source}->>'fromAgentId'`))
-    .where(inArray(agentRun.id, runIds));
+    .where(inArray(agentRun.id, runIds))
+    .then((found) => found.filter(isAgentRun));
   // A task's run shows as the run that gave it (lib/agents accessSource): its row, database or page counts.
   const pageIds = [...new Set(runs.flatMap((r) => runPageOf(r.source) ?? []))];
   const open = new Set(pageIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, pageIds), pageVisibleTo(viewer)))).map((p) => p.id) : []);
@@ -1367,7 +1368,8 @@ async function approvalsOf(viewer: string, runIds: string[]): Promise<Map<string
     })
     .from(agentRun)
     .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentRun.agentId))
-    .where(and(inArray(agentRun.id, runIds), eq(agentRun.status, "awaiting_approval")));
+    .where(and(inArray(agentRun.id, runIds), eq(agentRun.status, "awaiting_approval")))
+    .then((found) => found.filter(isAgentRun));
   const connectionIds = [...new Set(runs.flatMap((r) => (r.pending?.connectionId ? [r.pending.connectionId] : [])))];
   const names = new Map(
     connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],

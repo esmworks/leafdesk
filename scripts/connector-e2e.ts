@@ -51,6 +51,7 @@ process.env.CONNECTOR_ALLOWED_HOSTS = `localhost:${PEER_PORT}`;
 const { and, eq, inArray } = await import("drizzle-orm");
 const { default: postgres } = await import("postgres");
 const { db } = await import("@/db");
+const { isAgentRun } = await import("@/lib/agents");
 const { agentRun, auditEvent, connection, connectionEvent, notification, page, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
@@ -259,6 +260,7 @@ function hmacEvent(connectionId: string, secret: string, input: { type: string; 
 
 async function runOf(id: string) {
   const [run] = await db.select().from(agentRun).where(eq(agentRun.id, id));
+  if (!isAgentRun(run)) throw new Error(`not an agent's run: ${id}`);
   return run;
 }
 

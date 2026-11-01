@@ -8,7 +8,7 @@
  */
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, page, workspaceAgent, type AgentRunState } from "@/db/schema";
+import { agentRun, page, workspaceAgent, type AgentRunRow, type AgentRunState } from "@/db/schema";
 import {
   accessSource,
   FINISH_RUN_OUTCOMES,
@@ -77,7 +77,7 @@ import { noticeAgentSpending } from "@/server/ai-limit-notices";
 /** The most of a comment an agent writes. */
 export const MAX_COMMENT = 4_000;
 
-export type Run = typeof agentRun.$inferSelect;
+export type Run = AgentRunRow;
 /** Who a run answers as, and the settings it keeps to: an agent's. */
 export type Profile = typeof workspaceAgent.$inferSelect;
 type Agent = Profile;

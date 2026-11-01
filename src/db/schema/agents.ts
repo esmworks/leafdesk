@@ -12,8 +12,10 @@ import type {
   AgentRunUsage,
   AgentStepRecord,
   ApprovalDecision,
+  RunSource,
 } from "@/lib/agents";
 import type { AgentChatMessageRecord, AgentChatQueuedRecord } from "@/lib/agent-chat";
+import type { ChatMode } from "@/lib/ai-chat";
 import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
 import type { QuietHours } from "@/lib/quiet-hours";
@@ -41,6 +43,11 @@ export type AgentRunState = {
   /** It, or its conversation before it, read files on the person's computer (lib/local-reads.ts): from then on nothing goes out. */
   localRead?: boolean;
   decision?: { decision: ApprovalDecision; userId: string; note?: string };
+  /**
+   * An AI chat's run (source `assistant`): what it may change now. It starts as the person chose
+   * and turns from `auto` to `ask` once the run read words no one in the conversation wrote.
+   */
+  mode?: ChatMode;
 };
 
 /**
@@ -105,13 +112,12 @@ export const agentRun = pgTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    agentId: text("agent_id")
-      .notNull()
-      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    /** The agent it runs as; null for a person's own AI chat (source `assistant`), which runs as them. */
+    agentId: text("agent_id").references(() => workspaceAgent.id, { onDelete: "cascade" }),
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
-    source: jsonb("source").$type<AgentRunSource>().notNull(),
+    source: jsonb("source").$type<RunSource>().notNull(),
     context: jsonb("context").$type<AgentRunContext>().notNull(),
     /** The task the run was given (an automation action's prompt). */
     prompt: text("prompt").notNull().default(""),
@@ -150,8 +156,13 @@ export const agentRun = pgTable(
     index("agent_run_task_idx")
       .on(sql`(${t.source}->>'fromAgentId')`, t.createdAt)
       .where(sql`${t.source}->>'kind' = 'handoff' and ${t.source}->>'queued' = 'true'`),
+    // A person's own AI chat runs without an agent, and only it.
+    check("agent_run_agent_check", sql`(${t.agentId} is null) = coalesce(${t.source}->>'kind' = 'assistant', false)`),
   ],
 );
+
+/** An agent's run (lib/agents.ts isAgentRun); a person's own AI chat's has no agent. */
+export type AgentRunRow = typeof agentRun.$inferSelect & { agentId: string; source: AgentRunSource };
 
 /**
  * What an agent's runs used in a calendar month (UTC), added to after each turn with the model, so

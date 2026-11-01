@@ -51,6 +51,8 @@ import { agentConversation, agentRun, aiMemory, connection, notification, page, 
 import type { MemoryKind } from "@/db/schema/ai";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import {
+  hasAgentSource,
+  isAgentRun,
   isEventRun,
   isRowRun,
   isScheduleRun,
@@ -111,7 +113,8 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
   const runs = await db
     .select({ id: agentRun.id, workspaceId: agentRun.workspaceId, source: agentRun.source, steps: agentRun.steps, createdAt: agentRun.createdAt })
     .from(agentRun)
-    .where(inArray(agentRun.id, runIds));
+    .where(inArray(agentRun.id, runIds))
+    .then((found) => found.filter(hasAgentSource));
   // What a run that read mail or files on the person's computer said stays in the app, as its
   // steps and answer do (describeAgentRun in mcp/agents.ts).
   const throughApp = connectedAppCall(viewer) !== null;
@@ -366,7 +369,7 @@ const undoneIn = (steps: AgentRunSteps, index: number, memoryId: string): AgentR
  */
 export async function undoAgentCorrection(userId: string, workspaceId: string, runId: string, memoryId: string, stepIndex: number): Promise<void> {
   const [run] = await db.select().from(agentRun).where(and(eq(agentRun.id, runId), eq(agentRun.workspaceId, workspaceId)));
-  if (!run || run.source.kind !== "chat") throw new AgentError("noteNotFound", "Note not found");
+  if (!run || !isAgentRun(run) || run.source.kind !== "chat") throw new AgentError("noteNotFound", "Note not found");
   const agent = await agentFor(userId, run.agentId, run.source.userId === userId ? "interact" : "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to change its memory");
   const said = correctionAt(run.steps, stepIndex, memoryId);
@@ -487,7 +490,7 @@ export async function inboxProposals(viewer: string, runIds: string[]): Promise<
     .select({ id: agentRun.id, agentId: agentRun.agentId })
     .from(agentRun)
     .where(inArray(agentRun.id, runIds));
-  const agentIds = [...new Set(runs.map((r) => r.agentId))];
+  const agentIds = [...new Set(runs.flatMap((r) => r.agentId ?? []))];
   if (!agentIds.length) return new Map();
   const notes = await db
     .select({ note: aiMemory, agentId: workspaceAgent.id, agentName: workspaceAgent.name })
@@ -503,7 +506,7 @@ export async function inboxProposals(viewer: string, runIds: string[]): Promise<
     else byAgent.set(agentId, { agentId, agentName, count: 1, text: readable(proposing.get(note.agentRunId!)) ? note.text : null });
   }
   return new Map(runs.flatMap((r) => {
-    const waiting = byAgent.get(r.agentId);
+    const waiting = r.agentId ? byAgent.get(r.agentId) : undefined;
     return waiting ? [[r.id, { runId: r.id, ...waiting }] as const] : [];
   }));
 }

@@ -25,10 +25,11 @@
  */
 import { and, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentHelper, agentRun, workspaceAgent } from "@/db/schema";
+import { agentHelper, agentRun, workspaceAgent, type AgentRunRow } from "@/db/schema";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import {
   AGENT_TASKS_TOOL,
+  isAgentRun,
   MAX_AGENT_PROMPT,
   MAX_HANDOFFS_PER_RUN,
   MAX_LISTED_TASKS,
@@ -47,7 +48,13 @@ import { kickAgents } from "./kick";
 import { agentLevel } from "./sharing";
 import { overMonthlyLimit } from "./usage";
 
-type Run = typeof agentRun.$inferSelect;
+type Run = AgentRunRow;
+
+/** A helper's run as it is now (always an agent's). */
+async function runNow(id: string): Promise<Run | undefined> {
+  const [found] = await db.select().from(agentRun).where(eq(agentRun.id, id));
+  return found && isAgentRun(found) ? found : undefined;
+}
 type Agent = typeof workspaceAgent.$inferSelect;
 type HandoffSource = Extract<AgentRunSource, { kind: "handoff" }>;
 type CallResult = { content: string; isError?: boolean; step?: AgentStepRecord };
@@ -234,7 +241,7 @@ export async function handoffFor(
       .from(agentRun)
       .where(and(eq(agentRun.agentId, helperId), sql`${agentRun.source}->>'parentRunId' = ${run.id}`, sql`${agentRun.source}->>'callId' = ${callId}`))
       .limit(1);
-    return existing;
+    return existing && isAgentRun(existing) ? existing : undefined;
   };
   const sourceFor = (call: AiToolCall, queued: boolean): HandoffSource => ({
     kind: "handoff",
@@ -262,7 +269,7 @@ export async function handoffFor(
     let helperRun = await startedBefore(helper.id, call.id);
     let mine = false;
     if (!helperRun) {
-      [helperRun] = await db
+      const [inserted] = await db
         .insert(agentRun)
         .values({
           agentId: helper.id,
@@ -276,6 +283,8 @@ export async function handoffFor(
           startedAt: new Date(),
         })
         .returning();
+      if (!isAgentRun(inserted)) throw new Error("A helper's run is an agent's");
+      helperRun = inserted;
       mine = true;
     }
 
@@ -300,7 +309,7 @@ export async function handoffFor(
     // It goes on as a task: agent_tasks lists it, and its report reaches the person when it ends.
     if (!(await goOnAsTask(ended.id))) {
       // It ended just now: as if the wait had seen it.
-      const [now] = await db.select().from(agentRun).where(eq(agentRun.id, ended.id));
+      const now = await runNow(ended.id);
       if (now?.status === "done" || now?.status === "failed") return answerOf(now);
     }
     return {
@@ -407,7 +416,7 @@ async function waitFor(given: Run, mine: boolean, askingRunId: string, until: nu
       held = false;
     }
     await db.update(agentRun).set({ nextAt: new Date() }).where(and(eq(agentRun.id, askingRunId), eq(agentRun.status, "running")));
-    const [fresh] = await db.select().from(agentRun).where(eq(agentRun.id, current.id));
+    const fresh = await runNow(current.id);
     if (!fresh) return { ...current, status: "failed", code: "error" };
     current = fresh;
     if (current.status === "done" || current.status === "failed" || current.status === "awaiting_approval" || Date.now() >= until) return current;
@@ -419,7 +428,7 @@ async function waitFor(given: Run, mine: boolean, askingRunId: string, until: nu
         returning id
       `);
       if ([...taken].length) {
-        const [claimed] = await db.select().from(agentRun).where(eq(agentRun.id, current.id));
+        const claimed = await runNow(current.id);
         if (claimed) {
           current = claimed;
           held = true;

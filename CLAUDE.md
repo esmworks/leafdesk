@@ -188,8 +188,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   in `page_tag` by `server/page-tags.ts` (persistPage, copies, backfill queue), marked and suggested
   in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
-  `src/lib/agents.ts`) and the run's turns with the model (`converse`); what a run is offered and
-  how each tool call is answered (waits, counts, refusals) is `src/server/assistant/dispatch.ts`
+  `src/lib/agents.ts`; `agent_id` is null only for source `assistant`, a person's own AI chat, as a
+  check holds: agent code takes `AgentRunRow` and narrows rows it reads with `isAgentRun`) and
+  the run's turns with the model (`converse`); what a run is offered and how each tool call is
+  answered (waits, counts, refusals) is `src/server/assistant/dispatch.ts`
   (`setUpRun`, `createDispatch`); runs are queued from `requests.ts`, `chat.ts`,
   `mentions.ts`, `handoff.ts` and the `agent` schedule kind. A chat run streams its turns: the text so far
   goes to an in-process store (`agents/live-text.ts`, masked as the kept answer) that

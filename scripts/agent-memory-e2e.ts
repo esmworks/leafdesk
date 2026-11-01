@@ -46,7 +46,7 @@ const { setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
-const { MAX_AGENT_PROPOSALS, MAX_CORRECTIONS_PER_RUN, MAX_PROPOSALS_PER_RUN, WEB_TOOL_NAMES } = await import("@/lib/agents");
+const { isAgentRun, MAX_AGENT_PROPOSALS, MAX_CORRECTIONS_PER_RUN, MAX_PROPOSALS_PER_RUN, WEB_TOOL_NAMES } = await import("@/lib/agents");
 const { REDACTED } = await import("@/lib/redact");
 const agents = await import("@/server/agents/manage");
 const memory = await import("@/server/agents/memory");
@@ -140,7 +140,7 @@ try {
     await flushAgentRuns();
     await flushAutomations();
   };
-  const latestRun = async () => (await db.select().from(agentRun).where(eq(agentRun.agentId, router.id)).orderBy(agentRun.createdAt)).at(-1)!;
+  const latestRun = async () => (await db.select().from(agentRun).where(eq(agentRun.agentId, router.id)).orderBy(agentRun.createdAt)).filter(isAgentRun).at(-1)!;
   const notesInDb = () => db.select().from(aiMemory).where(eq(aiMemory.userId, router.userId)).orderBy(aiMemory.createdAt);
   const notices = (runId: string) => db.select().from(notification).where(and(eq(notification.agentRunId, runId), eq(notification.kind, "agent_memory")));
   const inboxItem = async (userId: string, runId: string) => (await listNotifications(userId, { workspaceId })).find((n) => n.kind === "agent_memory" && n.memory?.runId === runId);

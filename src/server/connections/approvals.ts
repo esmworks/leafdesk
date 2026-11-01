@@ -1,7 +1,7 @@
 import { and, eq, gt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentRun, connection, notification, workspaceAgent } from "@/db/schema";
-import { OWN_TOOLS_NAME, type AgentPendingCall, type AgentRunSource, type ApprovalDecision } from "@/lib/agents";
+import { isAgentRun, OWN_TOOLS_NAME, type AgentPendingCall, type ApprovalDecision, type RunSource } from "@/lib/agents";
 import { MAX_REDO_NOTE } from "@/lib/connections";
 import { redactError } from "@/lib/redact";
 import { AccessError, ConnectedAppReadOnlyError, requireMembership, WorkspacePolicyError } from "@/server/access";
@@ -41,7 +41,7 @@ function refreshInboxes(workspaceId: string) {
 }
 
 /** Tells the owners who answer the run's call (approversOf) that it waits for them: an inbox item each, about the run. */
-export async function notifyApprovers(run: { id: string; workspaceId: string; source: AgentRunSource }, agentUserId: string) {
+export async function notifyApprovers(run: { id: string; workspaceId: string; source: RunSource }, agentUserId: string) {
   const owners = await approversOf(run);
   if (!owners.length) return;
   const inserted = await db
@@ -74,7 +74,8 @@ export async function decideApproval(userId: string, input: { runId: string; cal
     .select({ id: agentRun.id, workspaceId: agentRun.workspaceId, status: agentRun.status, pending: agentRun.pending, agentId: agentRun.agentId, source: agentRun.source })
     .from(agentRun)
     .where(eq(agentRun.id, input.runId));
-  if (!run) throw new ApprovalError("notFound", "No such run");
+  // A person's own AI chat is answered in the chat (decideChange).
+  if (!run || !isAgentRun(run)) throw new ApprovalError("notFound", "No such run");
   // As every owner's action: the workspace's sign-in policies (two-step verification, single
   // sign-on) hold this session to them too, and say so rather than refusing as for a member.
   await requireMembership(userId, run.workspaceId, "owner").catch((error: unknown) => {

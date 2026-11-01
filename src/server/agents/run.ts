@@ -53,13 +53,15 @@
  */
 import { and, eq, inArray, isNotNull, isNull, lte, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, connection, connectionEvent, connectionTrigger, notification, page, user, workspaceAgent, type AgentRunState } from "@/db/schema";
+import { agentRun, connection, connectionEvent, connectionTrigger, notification, page, user, workspaceAgent, type AgentRunRow, type AgentRunState } from "@/db/schema";
 import {
   AGENT_RUN_HISTORY_DAYS,
   isEventRun,
   isMentionRun,
   isMailRun,
   isRowRun,
+  hasAgentSource,
+  isAgentRun,
   isScheduleRun,
   MAX_AGENT_PROMPT,
   MENTION_THREAD_CHARS,
@@ -139,7 +141,7 @@ const CHAT_HISTORY_SHARE = 0.25;
 /** The part of the room the files attached to a chat message may take, all together. */
 const CHAT_FILES_SHARE = 0.4;
 
-type Run = typeof agentRun.$inferSelect;
+type Run = AgentRunRow;
 type Agent = typeof workspaceAgent.$inferSelect;
 
 
@@ -199,8 +201,9 @@ async function claim(limit: number): Promise<Run[]> {
     update ${agentRun} set status = 'running', attempts = attempts + 1, next_at = now(), started_at = coalesce(started_at, now())
     where id in (
       select id from ${agentRun}
-      where (status = 'pending' and next_at <= now())
-         or (status = 'running' and next_at <= now() - make_interval(secs => ${STALE_MS / 1000}))
+      where ((status = 'pending' and next_at <= now())
+         or (status = 'running' and next_at <= now() - make_interval(secs => ${STALE_MS / 1000})))
+        and agent_id is not null
       order by next_at
       limit ${limit}
       for update skip locked
@@ -209,7 +212,8 @@ async function claim(limit: number): Promise<Run[]> {
   `);
   const ids = [...taken].map((r) => r.id);
   if (!ids.length) return [];
-  return db.select().from(agentRun).where(inArray(agentRun.id, ids)).orderBy(agentRun.createdAt);
+  const runs = await db.select().from(agentRun).where(inArray(agentRun.id, ids)).orderBy(agentRun.createdAt);
+  return runs.filter(isAgentRun);
 }
 
 async function finish(run: Run, values: Ending) {
@@ -233,7 +237,7 @@ async function finish(run: Run, values: Ending) {
     .where(eq(agentRun.id, run.id))
     // As it is now: a helper asked with ask_agent that wasn't done in time became a task meanwhile (handoff.ts).
     .returning({ source: agentRun.source, answer: agentRun.answer, steps: agentRun.steps, prompt: agentRun.prompt });
-  const source = ended?.source ?? run.source;
+  const source = ended && hasAgentSource(ended) ? ended.source : run.source;
   await reportRun({ ...run, source }, values);
   await replyToMention(run, values);
   // A routine's summary to the chat its setter has with the agent in Telegram, as saved (masked).
@@ -917,7 +921,9 @@ export async function wakeDeferred() {
 /** Runs whose call no one answered in time fail, sending nothing. */
 export async function expireApprovals() {
   try {
-    const overdue = () => and(eq(agentRun.status, "awaiting_approval"), lte(agentRun.nextAt, new Date()), sql`${agentRun.pending}->>'deferredUntil' is null`);
+    // A person's own AI chat waits for their answer however long it takes.
+    const overdue = () =>
+      and(eq(agentRun.status, "awaiting_approval"), lte(agentRun.nextAt, new Date()), sql`${agentRun.pending}->>'deferredUntil' is null`, isNotNull(agentRun.agentId));
     const due = await db.select({ id: agentRun.id }).from(agentRun).where(overdue());
     for (const { id } of due) {
       const run = await db.transaction(async (tx) => {
@@ -936,7 +942,7 @@ export async function expireApprovals() {
           .from(agentRun)
           .where(and(eq(agentRun.id, id), overdue()))
           .for("update");
-        if (!found) return null;
+        if (!found || !isAgentRun(found)) return null;
         const pending = found.pending;
         const steps: AgentStepRecord[] = pending
           ? [...found.steps, { kind: "tool", connectionId: pending.connectionId, tool: pending.tool, input: inputSummary(pending.arguments), outcome: "expired" }]
@@ -971,7 +977,7 @@ export async function flushAgentRuns() {
     const [due] = await db
       .select({ id: agentRun.id })
       .from(agentRun)
-      .where(and(eq(agentRun.status, "pending"), lte(agentRun.nextAt, new Date())))
+      .where(and(eq(agentRun.status, "pending"), lte(agentRun.nextAt, new Date()), isNotNull(agentRun.agentId)))
       .limit(1);
     if (!due) return;
   }

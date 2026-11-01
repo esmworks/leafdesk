@@ -40,7 +40,7 @@ import { checkChatFiles } from "@/lib/agent-chat-files";
 import { MAX_QUEUED, queuedTurn, queueView, turnPrompt } from "@/lib/agent-chat-queue";
 import { AGENT_CHAT_SEARCH, searchSnippet } from "@/lib/agent-chat-search";
 import { AGENT_CHAT_SUMMARY_SYSTEM, SUMMARY_INPUT_CHARS, SUMMARY_MAX_CHARS, summaryInput } from "@/lib/agent-chat-summary";
-import { callConnectionName, callToSend, readEmail, type AgentRunStatus, type AgentStepRecord } from "@/lib/agents";
+import { callConnectionName, callToSend, isAgentRun, readEmail, type AgentRunStatus, type AgentStepRecord } from "@/lib/agents";
 import { firstLocalRead } from "@/lib/local-reads";
 import { conversationTitle } from "@/lib/ai-chat";
 import { isTimeZone } from "@/lib/time-zone";
@@ -693,7 +693,8 @@ export async function threadRuns(userId: string, workspaceId: string, agentId: s
     .from(agentRun)
     .where(and(eq(agentRun.agentId, agentId), eq(agentRun.workspaceId, workspaceId), startedBy(userId), sql`${agentRun.source}->>'kind' <> 'chat'`))
     .orderBy(desc(agentRun.createdAt))
-    .limit(THREAD_RUNS);
+    .limit(THREAD_RUNS)
+    .then((found) => found.filter(isAgentRun));
   const views = await viewRuns(userId, rows, { exact: owner, owner });
   const connections: Record<string, string> = {};
   const runs = await Promise.all(
