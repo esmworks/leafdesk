@@ -605,6 +605,9 @@
 
 ### Fixed
 
+- **An agent's sent reports read as sent in MCP and the REST API.** A run's email to the agent's
+  own recipients went out at once but was listed as a draft waiting for review; it now reads
+  "Sent an email to …", or that it couldn't be sent, while a row's email still reads as a draft.
 - **Mail attachments open in the file viewer.** A tap opens one over the conversation, with a
   close button and the message's other files a swipe away, where an app on a phone's home screen
   opened it in a new tab with no way back; PDFs, Word documents and Excel workbooks show in place,
