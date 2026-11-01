@@ -1,24 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { applyLiveEdit, type LiveTextEdit } from "@/lib/agent-chat";
-import { ANSWER_CHARS, editBetween, followLiveText, shownText, startLiveText } from "./live-text";
+import type { ChatEvent } from "@/lib/ai-chat";
+import { liveTextAfter } from "@/lib/agent-chat";
+import { answeringIn, stopRunsIn } from "@/server/ai-chat-runs";
+import { ANSWER_CHARS, followLiveText, shownText, startLiveText, stopLiveText } from "./live-text";
 
 let n = 0;
 const runId = () => `live-test-${Date.now()}-${n++}`;
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-/** Follows a run, keeping the text the edits make; `stop` ends the follow. */
-function follower(id: string) {
+/** Follows a run as `userId`, keeping its events and the text they make; `stop` ends the follow. */
+function follower(id: string, userId = "person") {
   const controller = new AbortController();
-  const state = { text: "", edits: [] as LiveTextEdit[], done: false };
+  const state = { text: "", events: [] as ChatEvent[], done: false };
   const finished = (async () => {
-    for await (const edit of followLiveText(id, controller.signal)) {
-      state.edits.push(edit);
-      state.text = applyLiveEdit(state.text, edit);
+    for await (const event of followLiveText(userId, id, controller.signal)) {
+      state.events.push(event);
+      state.text = liveTextAfter(state.text, event);
     }
     state.done = true;
   })();
   return {
     state,
+    finished,
     stop: async () => {
       controller.abort();
       await finished;
@@ -45,28 +48,11 @@ describe("shownText", () => {
   });
 });
 
-describe("editBetween", () => {
-  it("keeps what the texts share at the start", () => {
-    expect(editBetween("Hello there", "Hello world")).toEqual({ at: 6, add: "world" });
-    expect(editBetween("abc", "")).toEqual({ at: 0, add: "" });
-    expect(applyLiveEdit("Hello there", editBetween("Hello there", "Hello world"))).toBe("Hello world");
-  });
-
-  it("never cuts an emoji in two", () => {
-    const edit = editBetween("a😀", "a😃");
-    expect(edit.at).toBe(1);
-    expect(applyLiveEdit("a😀", edit)).toBe("a😃");
-  });
-});
-
-describe("followLiveText", () => {
-  it("sends what is written, starts over with a new turn, and waits for a run to start", async () => {
+describe("startLiveText", () => {
+  it("publishes the text as the AI chat's answer events, starting over with a reset", async () => {
     const id = runId();
+    const live = startLiveText(id, "person", "ws")!;
     const f = follower(id);
-    await tick();
-    // Not started yet: all of it is nothing so far.
-    expect(f.state.edits).toEqual([{ at: 0, add: "" }]);
-    const live = startLiveText(id);
     live.write("Looking at ");
     await tick();
     live.write("Looking at the page ");
@@ -76,31 +62,101 @@ describe("followLiveText", () => {
     live.write("The answer is", true);
     await tick();
     expect(f.state.text).toBe("The answer is");
+    expect(f.state.events).toEqual([
+      { type: "text", text: "Looking at " },
+      { type: "text", text: "the page " },
+      { type: "reset" },
+      { type: "text", text: "The answer is" },
+    ]);
     live.end();
-    await tick();
-    // Stopped (an approval, say): waited for, and it starts over when it goes on.
-    expect(f.state.done).toBe(false);
-    const again = startLiveText(id);
-    await tick();
-    expect(f.state.text).toBe("");
-    again.write("Done", true);
-    await tick();
-    expect(f.state.text).toBe("Done");
-    again.end();
-    await f.stop();
+    await f.finished;
     expect(f.state.done).toBe(true);
   });
 
-  it("gives a follower arriving after the end the text all at once", async () => {
+  it("sends the text again whole when what is shown no longer begins with what was sent", async () => {
     const id = runId();
-    const live = startLiveText(id);
+    const live = startLiveText(id, "person", "ws")!;
+    const f = follower(id);
+    live.write("First try ");
+    live.write("Second ");
+    await tick();
+    expect(f.state.events.slice(-2)).toEqual([{ type: "reset" }, { type: "text", text: "Second " }]);
+    expect(f.state.text).toBe("Second ");
+    live.end();
+    await f.stop();
+  });
+
+  it("is followed only by the person chatting, and not before it answers", async () => {
+    const id = runId();
+    const early = follower(id);
+    await early.finished;
+    expect(early.state.events).toEqual([]);
+    const live = startLiveText(id, "person", "ws")!;
+    live.write("Mine ");
+    const other = follower(id, "someone-else");
+    await other.finished;
+    expect(other.state.events).toEqual([]);
+    live.end();
+  });
+
+  it("gives a follower arriving after the end the turn's text all at once", async () => {
+    const id = runId();
+    const live = startLiveText(id, "person", "ws")!;
+    live.write("Thinking it over ");
+    live.clear();
     live.write("All of it", true);
     live.end();
     // Writes after the end change nothing.
     live.write("More", true);
     const f = follower(id);
-    await tick();
-    expect(f.state.edits).toEqual([{ at: 0, add: "All of it" }]);
-    await f.stop();
+    await f.finished;
+    expect(f.state.events).toEqual([{ type: "text", text: "All of it" }]);
+  });
+
+  it("is under way once at a time, and may go on again after it ended (an approval)", () => {
+    const id = runId();
+    const live = startLiveText(id, "person", "ws")!;
+    expect(startLiveText(id, "person", "ws")).toBeNull();
+    live.end();
+    const again = startLiveText(id, "person", "ws");
+    expect(again).not.toBeNull();
+    again!.end();
+  });
+});
+
+describe("stopLiveText", () => {
+  it("stops the person's answer under way, never another's", () => {
+    const id = runId();
+    const live = startLiveText(id, "person", "ws")!;
+    expect(stopLiveText("someone-else", id, false)).toBe(false);
+    expect(live.signal.aborted).toBe(false);
+    expect(stopLiveText("person", id, false)).toBe(true);
+    expect(live.signal.aborted).toBe(true);
+    live.end();
+    expect(stopLiveText("person", id, true)).toBe(false);
+  });
+
+  it("stops a run taken but not answering yet as it starts, and only such a one", () => {
+    const waiting = runId();
+    expect(stopLiveText("person", waiting, false)).toBe(false);
+    const notStopped = startLiveText(waiting, "person", "ws")!;
+    expect(notStopped.signal.aborted).toBe(false);
+    notStopped.end();
+    const taken = runId();
+    expect(stopLiveText("person", taken, true)).toBe(true);
+    const live = startLiveText(taken, "person", "ws")!;
+    expect(live.signal.aborted).toBe(true);
+    live.end();
+  });
+});
+
+describe("the answers' store", () => {
+  it("leaves an agent's run out of the AI chat's own conversations", () => {
+    const id = runId();
+    const live = startLiveText(id, "person", "ws-agents")!;
+    expect(answeringIn("person", "ws-agents").size).toBe(0);
+    stopRunsIn("person", "ws-agents", "all");
+    expect(live.signal.aborted).toBe(false);
+    live.end();
   });
 });

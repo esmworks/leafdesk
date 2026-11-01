@@ -46,7 +46,7 @@ const { followLiveText } = await import("@/server/agents/live-text");
 const { chatFileOfPerson } = await import("@/server/agents/chat-files");
 const { refOf, storageOf } = await import("@/server/storage/workspace");
 const { pageMarkdown } = await import("@/server/export");
-const { agentChatLine, agentMessages, applyLiveEdit } = await import("@/lib/agent-chat");
+const { agentChatLine, agentMessages, liveTextAfter } = await import("@/lib/agent-chat");
 
 const RUN = `agent-chat-e2e-${Date.now().toString(36)}`;
 
@@ -86,6 +86,25 @@ const toolResults = (request: FakeChatRequest) => request.messages.filter((m) =>
 const toolNames = (request: FakeChatRequest) => (request.tools ?? []).map((t) => t.function.name);
 
 /** A model that makes these tool calls, one per turn, then says `done`. */
+/**
+ * Follows what a chat run writes, as the chat does: again while it isn't answering yet, until a
+ * follow that had something ends (the run ended) or `signal` aborts. `seen` gets the text after each
+ * event, and stops the follow by answering false.
+ */
+async function followText(userId: string, runId: string, signal: AbortSignal, seen: (text: string) => boolean | void) {
+  while (!signal.aborted) {
+    let text = "";
+    let any = false;
+    for await (const event of followLiveText(userId, runId, signal)) {
+      any = true;
+      text = liveTextAfter(text, event);
+      if (seen(text) === false) return;
+    }
+    if (any) return;
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+}
+
 function caller(calls: { name: string; arguments: Record<string, unknown> }[], done = "Done.") {
   return (request: FakeChatRequest): FakeReply => {
     const made = request.messages.filter((m) => m.role === "assistant" && m.tool_calls?.length).length;
@@ -177,14 +196,11 @@ try {
   const followingWriting = new AbortController();
   const seen: string[] = [];
   let liveText = "";
-  const following = (async () => {
-    for await (const edit of followLiveText(writing.runId!, followingWriting.signal)) {
-      liveText = applyLiveEdit(liveText, edit);
-      seen.push(liveText);
-    }
-  })();
+  const following = followText(ids.owner, writing.runId!, followingWriting.signal, (text) => {
+    liveText = text;
+    seen.push(text);
+  });
   await flushAgentRuns();
-  followingWriting.abort();
   await following;
   fake.delayMs = 0;
   const grown = seen.filter(Boolean);
@@ -202,12 +218,8 @@ try {
   fake.delayMs = 15;
   const stopping = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "Tell me everything" });
   const followingStop = new AbortController();
-  let partial = "";
   const flushing = flushAgentRuns();
-  for await (const edit of followLiveText(stopping.runId!, followingStop.signal)) {
-    partial = applyLiveEdit(partial, edit);
-    if (partial.length > 20) break;
-  }
+  await followText(ids.owner, stopping.runId!, followingStop.signal, (text) => text.length <= 20);
   followingStop.abort();
   check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! })).stopped, "Stop on an answer being written ends it");
   await flushing;

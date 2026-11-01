@@ -85,8 +85,9 @@ export function AgentThreadItem({ item, text, last, page, context }: { item: Age
       );
     case "live": {
       const { turn } = context;
+      // In the same box as the answer it becomes: the answer stays mounted and doesn't flow in again.
       return (
-        <>
+        <div data-at="">
           <Answer
             message={{ role: "assistant", content: text, runId: item.runId, code: null, steps: turn?.steps ?? [], at: "" }}
             ms={undefined}
@@ -96,7 +97,7 @@ export function AgentThreadItem({ item, text, last, page, context }: { item: Age
             live={{ status: turn?.status ?? "pending", pending: turn?.pending && context.approves ? turn.pending : null, deferredUntil: turn?.deferredUntil ?? null, startedAt: context.askedAt.get(item.runId) }}
           />
           {turn && turn.attached.length > 0 && <AnswerFiles files={turn.attached} />}
-        </>
+        </div>
       );
     }
   }

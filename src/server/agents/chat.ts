@@ -383,7 +383,7 @@ export async function stopAgentChat(userId: string, input: { workspaceId: string
   if (!found || found.source.kind !== "chat" || found.source.userId !== userId) refuse("noAccess", "Not your chat's answer");
   // Loaded here: run.ts reaches this module through dispatch.ts.
   const { stopRun } = await import("./run");
-  return { stopped: await stopRun(input.runId) };
+  return { stopped: await stopRun(input.runId, userId) };
 }
 
 /**

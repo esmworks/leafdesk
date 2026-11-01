@@ -1,55 +1,28 @@
 /**
- * What an agent's chat run is writing, while it writes it (run.ts converse publishes it, the
- * follow route `/api/agents/chat/live` sends it to the person chatting). Only the text of the
- * model's turn under way: a turn that ends in tool calls starts over (its text becomes a thought
- * step), and the answer itself is still the run's `answer`, read when the run ends. Nothing here is
- * kept: it lives in this process for the run's time and a short while after, so a follower arriving
- * just then still gets it. A run taken by another process's worker has none here; its answer then
- * comes whole at the end, as before.
+ * What an agent's chat run is writing, while it writes it: run.ts converse publishes it into the
+ * answers' store the AI chat's answers go through (ai-chat-runs.ts), as `text` and `reset` events,
+ * and the follow route `/api/agents/chat/live` and the Telegram bot read them back. Only the text of
+ * the model's turn under way: a turn that ends in tool calls starts over (a `reset`; its text becomes
+ * a thought step), and the answer itself is still the run's `answer`, read when the run ends. The
+ * store's run is also what Stop aborts (run.ts stopRun). A run taken by another process's worker has
+ * none here; its answer then comes whole at the end.
  *
  * The text is published as the run will keep it: credentials masked (lib/redact.ts) and cut at
  * ANSWER_CHARS. While a turn is written its last word is held back, so a token being written
- * shows only once it is whole and can be masked.
+ * shows only once it is whole and can be masked; should masking change what was sent already, the
+ * text is sent again whole after a `reset`.
  */
-import type { LiveTextEdit } from "@/lib/agent-chat";
+import type { ChatEvent } from "@/lib/ai-chat";
 import { redactText } from "@/lib/redact";
+import { abortRun, endRun, followRun, knownRun, openRun, pushEvent, stopRun } from "@/server/ai-chat-runs";
 
 /** As much of an answer as a run keeps (run.ts finish). */
 export const ANSWER_CHARS = 8_000;
-/** How long an ended run's text stays for a follower arriving just then. */
-const KEEP_MS = 60_000;
-/** How long a follower goes without an edit before it is sent one that changes nothing. */
+/** How long a follower goes without an event before it is sent a ping. */
 const PING_MS = 20_000;
-/** The longest one follow goes on; the chat opens another while the run goes on. */
-const FOLLOW_MS = 10 * 60_000;
 
-type Live = {
-  text: string;
-  /** Started by the run's worker in this process (not only waited for by a follower). */
-  started: boolean;
-  ended: boolean;
-  followers: Set<() => void>;
-  timer: ReturnType<typeof setTimeout> | null;
-};
-
-// On globalThis: the worker (server.ts) and the follow route (Next's bundle) are separate module graphs.
-const KEY = "__leafdeskAgentLiveText";
-const store = ((globalThis as Record<string, unknown>)[KEY] ??= { runs: new Map<string, Live>() }) as { runs: Map<string, Live> };
-
-function entry(runId: string): Live {
-  let live = store.runs.get(runId);
-  if (!live) {
-    live = { text: "", started: false, ended: false, followers: new Set(), timer: null };
-    store.runs.set(runId, live);
-  }
-  return live;
-}
-
-function publish(live: Live, text: string) {
-  if (text === live.text) return;
-  live.text = text;
-  for (const wake of live.followers) wake();
-}
+/** An agent's run in the answers' store: a key the AI chat's browser-picked ids (`[\w-]`) never take. */
+const key = (runId: string) => `agent:${runId}`;
 
 /** What of a turn's text so far is shown: masked, without its last word while it may still grow. */
 export function shownText(text: string, whole: boolean): string {
@@ -60,89 +33,50 @@ export function shownText(text: string, whole: boolean): string {
 }
 
 /**
- * Starts publishing a chat run's text (again, for a run going on after an approval). `write` takes
- * the turn's text so far, `whole` once the turn has ended with it as the answer; `clear` starts
- * over (a new turn, or one that called tools); `end` when the run stops, however it went.
+ * Starts publishing a chat run's text (again, for a run going on after an approval), for the person
+ * chatting (`userId`). `write` takes the turn's text so far, `whole` once the turn has ended with it
+ * as the answer; `clear` starts over (a new turn, or one that called tools); `end` when the run
+ * stops, however it went. `signal` aborts when the person stops the answer. Null when the run is
+ * under way here already.
  */
-export function startLiveText(runId: string) {
-  const live = entry(runId);
-  if (live.timer) clearTimeout(live.timer);
-  live.timer = null;
-  live.started = true;
-  live.ended = false;
-  publish(live, "");
+export function startLiveText(runId: string, userId: string, workspaceId: string) {
+  const answer = openRun({ id: key(runId), userId, workspaceId, conversationId: null, agent: true });
+  if (!answer) return null;
+  let sent = "";
+  const show = (text: string) => {
+    if (text === sent) return;
+    if (sent && !text.startsWith(sent)) pushEvent(answer, { type: "reset" });
+    const added = text.startsWith(sent) ? text.slice(sent.length) : text;
+    if (added) pushEvent(answer, { type: "text", text: added });
+    sent = text;
+  };
   return {
-    write: (text: string, whole = false) => {
-      if (!live.ended) publish(live, shownText(text, whole));
-    },
-    clear: () => {
-      if (!live.ended) publish(live, "");
-    },
-    end: () => {
-      if (live.ended) return;
-      live.ended = true;
-      for (const wake of live.followers) wake();
-      // Then it is as if it never started here; a follower still waiting forgets it as it goes.
-      live.timer = setTimeout(() => {
-        live.started = false;
-        if (store.runs.get(runId) === live && !live.followers.size) store.runs.delete(runId);
-      }, KEEP_MS);
-      live.timer.unref?.();
-    },
+    signal: answer.controller.signal,
+    write: (text: string, whole = false) => show(shownText(text, whole)),
+    clear: () => show(""),
+    end: () => endRun(answer),
   };
 }
 
-export type LiveTextWriter = ReturnType<typeof startLiveText>;
+export type LiveTextWriter = NonNullable<ReturnType<typeof startLiveText>>;
 
-/** How to go from `from` to `to`: the letters they share at the start are kept. */
-export function editBetween(from: string, to: string): LiveTextEdit {
-  let at = 0;
-  const most = Math.min(from.length, to.length);
-  while (at < most && from.charCodeAt(at) === to.charCodeAt(at)) at++;
-  // Never between the two halves of an emoji.
-  if (at > 0 && at < to.length && /[\uDC00-\uDFFF]/.test(to[at])) at--;
-  return { at, add: to.slice(at) };
+/**
+ * The person's chat run's text events from its start, then as they come, until it ends or `signal`
+ * aborts; nothing when it isn't under way here (not started yet, waiting for an approval, ended a
+ * while ago). The caller checks first that the run is the person's chat (chat.ts mayFollowChatTurn).
+ */
+export function followLiveText(userId: string, runId: string, signal: AbortSignal): AsyncGenerator<ChatEvent> {
+  return followRun(userId, key(runId), signal, PING_MS) ?? (async function* () {})();
 }
 
 /**
- * A run's text as it changes, until `signal` aborts or FOLLOW_MS have gone by: first all of it,
- * then edits, and an edit that changes nothing after PING_MS without one (a proxy keeps the
- * connection open). A run that hasn't started here yet, or has stopped (waiting for an approval),
- * is waited for: it starts over when it goes on. The caller checks first that the run is the
- * person's chat (chat.ts mayFollowChatTurn), and stops following once the run has ended.
+ * Stops the person's chat run if it answers here: true when it did, or when it was taken but hasn't
+ * started answering yet (`taken`: it stops as it starts). Never one waiting for an approval.
  */
-export async function* followLiveText(runId: string, signal: AbortSignal): AsyncGenerator<LiveTextEdit> {
-  const live = entry(runId);
-  let wake: (() => void) | null = null;
-  const listener = () => wake?.();
-  live.followers.add(listener);
-  signal.addEventListener("abort", listener);
-  try {
-    const until = Date.now() + FOLLOW_MS;
-    let sent = live.text;
-    yield { at: 0, add: sent };
-    for (;;) {
-      if (signal.aborted || Date.now() > until) return;
-      // Taken whole each time: changes that came while the last edit was sent run together.
-      if (live.text !== sent) {
-        const edit = editBetween(sent, live.text);
-        sent = live.text;
-        yield edit;
-        continue;
-      }
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      const pinged = await new Promise<boolean>((resolve) => {
-        wake = () => resolve(false);
-        timer = setTimeout(() => resolve(true), PING_MS);
-      });
-      clearTimeout(timer);
-      wake = null;
-      if (pinged && live.text === sent && !signal.aborted) yield { at: sent.length, add: "" };
-    }
-  } finally {
-    live.followers.delete(listener);
-    signal.removeEventListener("abort", listener);
-    // Waited for here only, by no one now: the run is another process's, or never started.
-    if (!live.started && !live.followers.size && store.runs.get(runId) === live) store.runs.delete(runId);
-  }
+export function stopLiveText(userId: string, runId: string, taken: boolean): boolean {
+  if (abortRun(userId, key(runId))) return true;
+  // One that answered here has ended already.
+  if (!taken || knownRun(key(runId))) return false;
+  stopRun(userId, key(runId));
+  return true;
 }

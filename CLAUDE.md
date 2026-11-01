@@ -203,7 +203,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   check holds: agent code takes `AgentRunRow` and narrows rows it reads with `isAgentRun`) and
   the run's turns with the model (`converse`, on the turn loop `src/server/assistant/turns.ts`
   `runTurns` that the AI chat's `converseChat` shares: hooks for limits, counting, making room and
-  answering calls; Stop is `run.ts` `stopRun`, through `globalThis.__leafdeskAgentChatStops`,
+  answering calls; Stop is `run.ts` `stopRun`, aborting the run's answer in `ai-chat-runs.ts`,
   ending with code `stopped`); what a run is offered and how each tool call is
   answered (waits, counts, refusals) is `src/server/assistant/dispatch.ts`
   (`setUpRun`, `createDispatch`). Every run is started through `server/triggers.ts`
@@ -216,8 +216,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   them; who sees a run is still its `source`. `listTriggers` there is the one list of what starts
   an agent or a person's own chat. Own requests (`server/own-requests.ts`) are a person's question
   on a schedule, run as their AI chat by the worker (`resumeChatRun`). A chat run streams its turns: the text so far
-  goes to an in-process store (`agents/live-text.ts`, masked as the kept answer) that
-  `/api/agents/chat/live` sends the person chatting as edits; the answer itself is still
+  goes, masked as the kept answer, into the AI chat's answers' store as `text`/`reset` events
+  (`agents/live-text.ts` over `ai-chat-runs.ts`, keyed `agent:<runId>`, which the AI chat's own
+  conversation reads skip), which `/api/agents/chat/live` and the Telegram bot follow; the answer itself is still
   `agent_run.answer`, and `use-agent-chat.ts` keeps the turn under way in the same list item (and key)
   as its answer, or the answer's text would flow in a second time. Messages sent while a chat run
   answers wait in `conversation.queue` (`lib/agent-chat-queue.ts`); `chat-store.ts`

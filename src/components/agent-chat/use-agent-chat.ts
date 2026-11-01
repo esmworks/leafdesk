@@ -3,8 +3,9 @@
 /**
  * A chat with an agent (see lib/agent-chat.ts) as ChatThread shows it: the agent's own chat (no
  * place), or a page block's conversations. Each message is one of the agent's runs, done by its
- * worker: the chat follows the run (its steps as they come, then its answer) by asking for it again
- * every second, shows its answer as it is written (`/api/agents/chat/live`), and the agent's own
+ * worker: the chat follows the run (its steps as they come, then its answer) by asking for it again,
+ * shows its answer as it is written (`/api/agents/chat/live`, the AI chat's answer events, which
+ * also say when to ask again: a turn of tool calls, the end), and the agent's own
  * chat brings in the person's runs started otherwise (schedules, tasks, mentions), asked for again
  * as they go on. A message written while the agent answers waits in the conversation's queue and
  * goes as the next turn; the box takes a few text files (chat-files.tsx); the last turn can be done
@@ -24,7 +25,7 @@ import { undoAgentCorrectionAction } from "@/app/actions/agents";
 import type { ChatMessage, Reasoning, ThreadChat } from "@/components/ai-chat/use-chat";
 import { read } from "@/components/read";
 import {
-  applyLiveEdit,
+  liveTextAfter,
   MAX_AGENT_CHAT_MESSAGE,
   type AgentChatFileIn,
   type AgentChatInfo,
@@ -34,13 +35,14 @@ import {
   type AgentChatStepView,
   type AgentChatTurn,
   type ChatPlace,
-  type LiveTextEdit,
 } from "@/lib/agent-chat";
+import type { ChatEvent } from "@/lib/ai-chat";
 import { AGENT_CHAT_FILE_ACCEPT, agentChatFileType } from "@/lib/agent-chat-files";
 import { readChatFiles, useFileProblem } from "./chat-files";
 
-/** How often a turn under way is asked for. */
+/** How often a turn under way is asked for: while its writing isn't followed (it may not have started), and while it is. */
 const POLL_MS = 1_000;
+const FOLLOWED_POLL_MS = 5_000;
 /** How often the agent's own chat asks for its runs again: while one goes on, and otherwise. */
 const RUNS_BUSY_MS = 3_000;
 const RUNS_IDLE_MS = 30_000;
@@ -133,8 +135,11 @@ export function useAgentChat({ workspaceId, agentId, place }: { workspaceId: str
   const [turn, setTurn] = useState<AgentChatTurn | null>(null);
   // What that run has written so far, as it writes it.
   const [live, setLive] = useState<{ runId: string; text: string } | null>(null);
-  // Whether its writing is followed now, and a count raised to follow it again.
+  // Whether its writing is followed now, since when, and a count raised to follow it again.
   const followed = useRef(false);
+  const followedAt = useRef(0);
+  // Asks for the turn under way now rather than at its next time (set while one is).
+  const pollNow = useRef<() => void>(noop);
   const [followAgain, setFollowAgain] = useState(0);
   const [input, setInput] = useState("");
   // The messages waiting for the answer under way, and the files the box carries.
@@ -237,13 +242,20 @@ export function useAgentChat({ workspaceId, agentId, place }: { workspaceId: str
     // chatId and pageId stand for the place: another block's chat loads again.
   }, [load, chatId, pageId]);
 
-  // A turn under way: asked for every second until its run ends, then its answer joins the messages.
+  // A turn under way: asked for until its run ends, then its answer joins the messages. Every second
+  // while its writing isn't followed, less often while it is: the follow asks sooner when it matters.
   useEffect(() => {
     if (!running) return;
     let on = true;
+    let busy = false;
+    let again = false;
     let timer: ReturnType<typeof setTimeout>;
     const poll = async () => {
+      clearTimeout(timer);
+      if (busy) return void (again = true);
+      busy = true;
       const res = await read("agentChatTurn", workspaceId, running).catch(() => null);
+      busy = false;
       if (!on) return;
       if (res?.ok) {
         setTurn(res.data);
@@ -273,26 +285,33 @@ export function useAgentChat({ workspaceId, agentId, place }: { workspaceId: str
           return;
         }
         setQueued(res.data.queued);
-        // Its writing is followed again when the follow ended while it goes on (it went on after an approval).
-        if ((res.data.status === "running" || res.data.status === "pending") && !followed.current) setFollowAgain((n) => n + 1);
+        // Its writing is followed again while it goes on and isn't (not started before, or going on
+        // after an approval), at most once a poll's time.
+        if ((res.data.status === "running" || res.data.status === "pending") && !followed.current && Date.now() - followedAt.current >= POLL_MS) setFollowAgain((n) => n + 1);
       }
-      timer = setTimeout(() => void poll(), POLL_MS);
+      const soon = again;
+      again = false;
+      timer = setTimeout(() => void poll(), soon ? 0 : followed.current ? FOLLOWED_POLL_MS : POLL_MS);
     };
+    pollNow.current = () => void poll();
     void poll();
     return () => {
       on = false;
       clearTimeout(timer);
+      pollNow.current = noop;
     };
   }, [running, workspaceId, reopen]);
 
-  // What the turn under way writes, as it writes it (server/agents/live-text.ts): edits to its text.
-  // Only the person's own chat runs in this process are written here; others' answers come whole.
+  // What the turn under way writes, as it writes it (server/agents/live-text.ts): the AI chat's
+  // answer events, its text from the start of the turn, again on each follow. Only the person's own
+  // chat runs answering in this process are written here; others' answers come whole.
   useEffect(() => {
     if (!running) return;
     const controller = new AbortController();
     followed.current = true;
+    followedAt.current = Date.now();
     void (async () => {
-      let again = false;
+      let accepted = false;
       try {
         const res = await fetch(`/api/agents/chat/live?workspace=${encodeURIComponent(workspaceId)}&run=${encodeURIComponent(running)}`, {
           headers: { "x-leafdesk-chat": "1" },
@@ -300,18 +319,23 @@ export function useAgentChat({ workspaceId, agentId, place }: { workspaceId: str
         });
         // Refused: the answer comes whole when the run ends, as it would without this.
         if (!res.ok || !res.body) return;
-        again = true;
-        for await (const edit of jsonLines<LiveTextEdit>(res.body)) {
-          setLive((was) => {
-            const before = was?.runId === running ? was.text : "";
-            const text = applyLiveEdit(before, edit);
-            return was && text === before ? was : { runId: running, text };
-          });
+        accepted = true;
+        let text = "";
+        for await (const event of jsonLines<ChatEvent>(res.body)) {
+          text = liveTextAfter(text, event);
+          const now = text;
+          setLive((was) => (was?.runId === running && was.text === now ? was : { runId: running, text: now }));
+          // A turn that called tools: its steps are there to read.
+          if (event.type === "reset") pollNow.current();
         }
       } catch {
         // Cut off: followed again while the run goes on.
       } finally {
-        if (again && !controller.signal.aborted) followed.current = false;
+        if (!controller.signal.aborted) {
+          followed.current = false;
+          // It ended, or waits for an approval: how the turn stands is read now.
+          if (accepted) pollNow.current();
+        }
       }
     })();
     return () => {

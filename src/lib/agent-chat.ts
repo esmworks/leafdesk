@@ -3,7 +3,7 @@
 // editor schemas.
 
 import type { AgentCommentRecord, AgentEmailRecord, AgentHandoffRecord, AgentRunCode, AgentRunStatus, AgentSkillRecord, AgentStepRecord, AgentToolRecord } from "./agents";
-import type { ChatStepView } from "./ai-chat";
+import type { ChatEvent, ChatStepView } from "./ai-chat";
 
 /**
  * Chatting with an agent: a person writes to one of the workspace's agents and it answers, each
@@ -260,12 +260,10 @@ export type AgentChatSearchHit = {
 };
 
 /**
- * A change to what a turn under way has written so far, as `/api/agents/chat/live` sends it
- * (server/agents/live-text.ts): keep the first `at` letters, then add `add`.
+ * What a turn under way has written once an event `/api/agents/chat/live` sends comes
+ * (server/agents/live-text.ts): `text` adds to it, `reset` starts it over, others leave it.
  */
-export type LiveTextEdit = { at: number; add: string };
-
-export const applyLiveEdit = (text: string, edit: LiveTextEdit) => text.slice(0, edit.at) + edit.add;
+export const liveTextAfter = (text: string, event: ChatEvent) => (event.type === "text" ? text + event.text : event.type === "reset" ? "" : text);
 
 /**
  * Where a person stands with an agent's chat: they may chat (`full` when they can edit the agent,

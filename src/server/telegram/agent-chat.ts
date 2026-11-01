@@ -1,4 +1,4 @@
-import { applyLiveEdit, chatFailure, MAX_AGENT_CHAT_MESSAGE, type AgentChatError, type AgentChatState, type AgentChatTurn } from "@/lib/agent-chat";
+import { chatFailure, liveTextAfter, MAX_AGENT_CHAT_MESSAGE, type AgentChatError, type AgentChatState, type AgentChatTurn } from "@/lib/agent-chat";
 import { AGENT_CHAT_FILE_LIMITS } from "@/lib/agent-chat-files";
 import { livePreview } from "@/lib/agent-chat-preview";
 import { MAX_QUEUED } from "@/lib/agent-chat-queue";
@@ -320,15 +320,16 @@ async function follow(link: TelegramLinkRow, t: Translator, workspace: Workspace
   const following = new AbortController();
   const stop = () => following.abort();
   signal.addEventListener("abort", stop);
-  // The text so far, from the agents' worker in this process; followed again when a follow runs out.
+  // The text so far, from the agents' worker in this process; followed again while the run goes on
+  // (each follow reads it from the start of the turn under way).
   let text = "";
   void (async () => {
     while (!following.signal.aborted) {
       try {
-        for await (const change of followLiveText(runId, following.signal)) text = applyLiveEdit(text, change);
-      } catch {
-        await pause(POLL_MS, following.signal);
-      }
+        let written = "";
+        for await (const event of followLiveText(link.userId, runId, following.signal)) text = written = liveTextAfter(written, event);
+      } catch {}
+      await pause(POLL_MS, following.signal);
     }
   })();
   let previewId: number | null = null;
