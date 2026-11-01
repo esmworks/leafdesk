@@ -437,6 +437,10 @@
 
 ### Changed
 
+- **Mail reads better on a phone.** A message built for a wider column (most newsletters and
+  notices) is laid out closer to that column and shrunk to fit, by at most 30%, instead of being
+  squeezed to a few words a line; plain messages stay full size. The thread's margins are narrower
+  on a phone and a message's time sits under its sender, so the name isn't cut short.
 - **An agent's chat box is the AI chat's.** The same rounded box with round buttons, files dropped
   or pasted on it to attach them, and questions dictated where the workspace writes down speech.
 - **Agents are in the sidebar's Chat tab too.** Under New chat, the Chat tab lists the agents you

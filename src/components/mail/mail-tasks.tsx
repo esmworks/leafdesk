@@ -106,7 +106,7 @@ export function MailTasks({
   const picked = items.filter((item) => item.picked && item.text.trim()).length;
 
   return (
-    <section aria-label={t("title")} className="mx-6 mt-4 rounded-md border border-border px-3 py-2.5 text-sm">
+    <section aria-label={t("title")} className="mx-4 sm:mx-6 mt-4 rounded-md border border-border px-3 py-2.5 text-sm">
       <div className="flex items-center gap-2 text-xs font-medium text-fg-muted">
         <ListTodo className="h-3.5 w-3.5 shrink-0" aria-hidden />
         <span className="flex-1">{t("title")}</span>

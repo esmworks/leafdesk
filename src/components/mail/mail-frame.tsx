@@ -4,6 +4,23 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 /** The tallest a message is shown whole; a longer one scrolls in its frame. */
 const MAX_HEIGHT = 20000;
+/** The most a message built for a wider column is shrunk to be laid out closer to that column. */
+const DESIGN_SCALE = 0.7;
+/** Elements a message's column is built of. */
+const COLUMNS = "table, td, div, center, section, article, header, footer, main";
+
+/**
+ * The widest column a message asks for (a `max-width: 600px` box that gives way on a phone), at
+ * most 800 pixels; 0 when none does.
+ */
+function designedWidth(doc: Document) {
+  let widest = 0;
+  for (const el of doc.querySelectorAll<HTMLElement>(COLUMNS)) {
+    const max = /^(\d+(?:\.\d+)?)px$/.exec(getComputedStyle(el).maxWidth);
+    if (max) widest = Math.max(widest, Number(max[1]));
+  }
+  return Math.min(widest, 800);
+}
 
 /**
  * A message's HTML, cleaned on the server (server/mail-client/html.ts), in a frame of its own: its
@@ -57,6 +74,8 @@ export function MailFrame({ html, images, title, plain = false }: { html: string
   useEffect(() => {
     const frame = ref.current;
     if (!frame) return;
+    // Read once the message is in (a plain one asks for none), not from a half-loaded document.
+    let designed: number | null = plain ? 0 : null;
     const measure = () => {
       // The body, not the page: the page is never shorter than the frame, so a short message would
       // keep the frame's first height. Rounded up: scrollHeight rounds a height like 734.4 down, and
@@ -65,11 +84,16 @@ export function MailFrame({ html, images, title, plain = false }: { html: string
       if (!body) return;
       // A message laid out wider than the frame (a fixed 600px table on a phone) is drawn at its own
       // width and shrunk to fit, as a whole, rather than cut off at the edge or squeezed into a
-      // column a word wide. Measured each time at the frame's width, so a wider frame (a turned
-      // phone) shows it larger again.
+      // column a word wide. One built for a wider column that gives way (max-width) is laid out
+      // closer to that column, shrunk by at most DESIGN_SCALE: squeezed to a phone, its own margins
+      // and large type leave a few words a line. Measured each time at the frame's width, so a
+      // wider frame (a turned phone) shows it larger again.
       body.style.width = "";
       body.style.transform = "";
       const room = frame.contentDocument!.documentElement.clientWidth;
+      designed ??= designedWidth(frame.contentDocument!);
+      const wanted = Math.min(designed, room / DESIGN_SCALE);
+      if (wanted > room + 1) body.style.width = `${wanted}px`;
       const natural = body.scrollWidth;
       const scale = natural > room + 1 ? room / natural : 1;
       if (scale < 1) {
@@ -86,6 +110,7 @@ export function MailFrame({ html, images, title, plain = false }: { html: string
     const resize = new ResizeObserver(measure);
     resize.observe(frame);
     const loaded = () => {
+      if (!plain) designed = null;
       measure();
       // Images without a size that come in late grow the message: followed as it grows.
       const body = frame.contentDocument?.body;
@@ -101,7 +126,7 @@ export function MailFrame({ html, images, title, plain = false }: { html: string
       clearTimeout(stop);
       resize.disconnect();
     };
-  }, [srcDoc]);
+  }, [srcDoc, plain]);
 
   // On the white page the message reads as part of it, with no box. In the dark theme a designed
   // one keeps its white page as a card: it was written for white. Nothing in the frame's own box (no
