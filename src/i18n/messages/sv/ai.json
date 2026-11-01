@@ -320,6 +320,10 @@
         "failed": "{tool} misslyckades",
         "declined": "Avböjt: {tool}"
       },
+      "reminder": {
+        "done": "Påminnelse inställd på {when}:",
+        "declined": "Avböjde en påminnelse på {when}:"
+      },
       "mail": {
         "searched": "Sökte i mejlen efter ”{query}” · {count, plural, =0 {inget hittades} one {# konversation} other {# konversationer}}",
         "read": "Läste mejlet",
@@ -362,6 +366,7 @@
         "createPage": "Lägga till den här sidan?",
         "remember": "Komma ihåg det här om dig?",
         "forget": "Glömma den här anteckningen?",
+        "remind": "Påminna dig om det här?",
         "editPage": "Ändra den här sidans text?",
         "createPdf": "Skapa en PDF av den här sidan och bifoga den?",
         "createDocx": "Skapa ett Word-dokument av den här sidan och bifoga det?",
@@ -379,6 +384,7 @@
       "row": "Rad",
       "topLevel": "Högst upp i arbetsytan, privat för dig",
       "memoryHint": "Minne: skickas med dina senare frågor i den här arbetsytan",
+      "remindHint": "{when}: över sidan du har öppen, i inkorgen och på din telefon",
       "cleared": "(rensat)",
       "approve": "Ja",
       "always": "Ja, och fråga inte igen (Auto)",

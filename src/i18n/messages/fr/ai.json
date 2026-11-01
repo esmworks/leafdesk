@@ -320,6 +320,10 @@
         "failed": "Échec de {tool}",
         "declined": "Refusé : {tool}"
       },
+      "reminder": {
+        "done": "Rappel prévu le {when} :",
+        "declined": "Rappel refusé pour le {when} :"
+      },
       "mail": {
         "searched": "Recherche dans les e-mails de « {query} » · {count, plural, =0 {aucun résultat} one {# conversation} other {# conversations}}",
         "read": "E-mail lu",
@@ -362,6 +366,7 @@
         "createPage": "Ajouter cette page ?",
         "remember": "Retenir ceci à votre sujet ?",
         "forget": "Oublier cette note ?",
+        "remind": "Vous le rappeler ?",
         "editPage": "Modifier le texte de cette page ?",
         "createPdf": "Créer un PDF de cette page et le joindre ?",
         "createDocx": "Créer un document Word de cette page et le joindre ?",
@@ -379,6 +384,7 @@
       "row": "Ligne",
       "topLevel": "En haut de l'espace de travail, privée",
       "memoryHint": "Mémoire : envoyée avec vos prochaines questions dans cet espace de travail",
+      "remindHint": "{when} : par-dessus la page ouverte, dans votre boîte de réception et sur votre téléphone",
       "cleared": "(effacé)",
       "approve": "Oui",
       "always": "Oui, et ne plus demander (Auto)",

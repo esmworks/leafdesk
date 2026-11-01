@@ -86,6 +86,7 @@
     "createXlsx": "Utworzyć plik Excel {title} i dołączyć go do {target}?",
     "source": "Wiersze z {name}.",
     "remember": "Zapamiętać to o tobie?",
+    "remind": "Przypomnieć ci o tym?",
     "forget": "Zapomnieć tę notatkę?",
     "connection": "Wysłać to do {connection} ({tool})?",
     "tool": "Wprowadzić tę zmianę ({tool})?",

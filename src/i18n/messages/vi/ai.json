@@ -320,6 +320,10 @@
         "failed": "{tool} thất bại",
         "declined": "Đã từ chối: {tool}"
       },
+      "reminder": {
+        "done": "Đã đặt lời nhắc lúc {when}:",
+        "declined": "Đã từ chối lời nhắc lúc {when}:"
+      },
       "mail": {
         "searched": "Đã tìm trong thư “{query}” · {count, plural, =0 {không tìm thấy gì} other {# chuỗi thư}}",
         "read": "Đã đọc email",
@@ -362,6 +366,7 @@
         "createPage": "Thêm trang này?",
         "remember": "Ghi nhớ điều này về bạn?",
         "forget": "Quên ghi chú này?",
+        "remind": "Nhắc bạn điều này?",
         "editPage": "Thay đổi nội dung của trang này?",
         "createPdf": "Tạo PDF của trang này và đính kèm?",
         "createDocx": "Tạo tài liệu Word của trang này và đính kèm?",
@@ -379,6 +384,7 @@
       "row": "Hàng",
       "topLevel": "Ở cấp cao nhất của không gian làm việc, riêng tư cho bạn",
       "memoryHint": "Bộ nhớ: gửi kèm các câu hỏi sau đó của bạn trong không gian làm việc này",
+      "remindHint": "{when}: phía trên trang bạn đang mở, trong hộp thư đến và trên điện thoại của bạn",
       "cleared": "(đã xóa)",
       "approve": "Có",
       "always": "Có, và đừng hỏi lại (Tự động)",

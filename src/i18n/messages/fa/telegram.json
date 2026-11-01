@@ -86,6 +86,7 @@
     "createXlsx": "فایل Excel {title} ساخته و به {target} پیوست شود؟",
     "source": "ردیف‌های {name}.",
     "remember": "این را درباره شما به خاطر بسپارم؟",
+    "remind": "این را به شما یادآوری کنم؟",
     "forget": "این یادداشت فراموش شود؟",
     "connection": "این به {connection} ({tool}) فرستاده شود؟",
     "tool": "این تغییر انجام شود ({tool})؟",

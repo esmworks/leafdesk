@@ -273,6 +273,7 @@
     "memory": "{count, plural, other {Mengusulkan # catatan untuk memorinya}}",
     "reportTitle": "Laporan dari {agent}",
     "aiReminderTitle": "Pengingat dari {agent}",
+    "aiReminderOwnTitle": "Pengingat",
     "aiReminder": "Buka untuk membacanya",
     "reportDone": "Eksekusi terjadwalnya selesai",
     "reportFailed": "Eksekusi terjadwalnya gagal",

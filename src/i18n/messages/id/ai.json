@@ -320,6 +320,10 @@
         "failed": "{tool} gagal",
         "declined": "Ditolak: {tool}"
       },
+      "reminder": {
+        "done": "Pengingat diatur untuk {when}:",
+        "declined": "Pengingat untuk {when} ditolak:"
+      },
       "mail": {
         "searched": "Mencari email untuk “{query}” · {count, plural, =0 {tidak ada yang ditemukan} other {# utas}}",
         "read": "Membaca email",
@@ -362,6 +366,7 @@
         "createPage": "Tambahkan halaman ini?",
         "remember": "Ingat hal ini tentang Anda?",
         "forget": "Lupakan catatan ini?",
+        "remind": "Ingatkan Anda tentang ini?",
         "editPage": "Ubah teks halaman ini?",
         "createPdf": "Buat PDF halaman ini dan lampirkan?",
         "createDocx": "Buat dokumen Word halaman ini dan lampirkan?",
@@ -379,6 +384,7 @@
       "row": "Baris",
       "topLevel": "Di bagian atas ruang kerja, privat untuk Anda",
       "memoryHint": "Memori: dikirim bersama pertanyaan Anda berikutnya di ruang kerja ini",
+      "remindHint": "{when}: di atas halaman yang Anda buka, di kotak masuk, dan di ponsel Anda",
       "cleared": "(dikosongkan)",
       "approve": "Ya",
       "always": "Ya, dan jangan tanya lagi (Otomatis)",

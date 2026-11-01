@@ -86,6 +86,7 @@
     "createXlsx": "Luodaanko Excel-tiedosto {title} ja liitetäänkö se kohteeseen {target}?",
     "source": "Rivit: {name}.",
     "remember": "Muistetaanko tämä sinusta?",
+    "remind": "Muistutetaanko tästä?",
     "forget": "Unohdetaanko tämä muistiinpano?",
     "connection": "Lähetetäänkö tämä yhteyteen {connection} ({tool})?",
     "tool": "Tehdäänkö tämä muutos ({tool})?",

@@ -86,6 +86,7 @@
     "createXlsx": "Vil du lave Excel-filen {title} og vedhæfte den til {target}?",
     "source": "Rækker fra {name}.",
     "remember": "Skal jeg huske dette om dig?",
+    "remind": "Skal jeg minde dig om dette?",
     "forget": "Skal jeg glemme denne note?",
     "connection": "Vil du sende dette til {connection} ({tool})?",
     "tool": "Foretag denne ændring ({tool})?",

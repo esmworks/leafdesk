@@ -86,6 +86,7 @@
     "createXlsx": "Skapa Excel-filen {title} och bifoga den till {target}?",
     "source": "Rader från {name}.",
     "remember": "Komma ihåg det här om dig?",
+    "remind": "Påminna dig om det här?",
     "forget": "Glömma den här anteckningen?",
     "connection": "Skicka det här till {connection} ({tool})?",
     "tool": "Göra den här ändringen ({tool})?",

@@ -86,6 +86,7 @@
     "createXlsx": "Créer le fichier Excel {title} et le joindre à {target} ?",
     "source": "Lignes de {name}.",
     "remember": "Retenir ceci à votre sujet ?",
+    "remind": "Vous le rappeler ?",
     "forget": "Oublier cette note ?",
     "connection": "Envoyer ceci à {connection} ({tool}) ?",
     "tool": "Faire ce changement ({tool}) ?",

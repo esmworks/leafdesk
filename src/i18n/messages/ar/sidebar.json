@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "تذكير من {agent}",
+    "ownTitle": "تذكير",
     "open": "فتح",
     "later": "ذكّرني بعد ساعة",
     "done": "تم"
@@ -243,6 +244,7 @@
     "memoryAnswered": "تمت مراجعتها بالفعل",
     "reportTitle": "تقرير من {agent}",
     "aiReminderTitle": "تذكير من {agent}",
+    "aiReminderOwnTitle": "تذكيرك",
     "reportDone": "انتهى تشغيله المجدول.",
     "reportFailed": "فشل تشغيله المجدول. افتحه لمعرفة السبب.",
     "reportFailedReason": "تعذّر على تشغيله المجدول إنجاز مهمته: {reason}",

@@ -273,6 +273,7 @@
     "memory": "{count, plural, one {یک یادداشت برای حافظه‌اش پیشنهاد می‌کند} other {# یادداشت برای حافظه‌اش پیشنهاد می‌کند}}",
     "reportTitle": "گزارش از {agent}",
     "aiReminderTitle": "یادآوری از {agent}",
+    "aiReminderOwnTitle": "یادآوری",
     "aiReminder": "برای خواندن بازش کنید",
     "reportDone": "اجرای زمان‌بندی‌شده آن تمام شد",
     "reportFailed": "اجرای زمان‌بندی‌شده آن ناموفق بود",

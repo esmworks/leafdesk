@@ -154,7 +154,14 @@ export type ChatStepRecord =
   | ChatMemoryRecord
   | ChatConnectionRecord
   | ChatToolRecord
+  | ChatReminderRecord
   | { kind: "thought"; text: string };
+
+/**
+ * A reminder the AI chat set for the person asking (server/ai-reminders.ts): what it says and
+ * when, "YYYY-MM-DD HH:MM" on their clock; `declined` when they said no.
+ */
+export type ChatReminderRecord = { kind: "reminder"; text: string; when: string; outcome: "done" | "declined" };
 
 /**
  * The AI chat on the web (where owners turned it on, server/agents/web.ts): a search (`query`, how

@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Przypomnienie od {agent}",
+    "ownTitle": "Przypomnienie",
     "open": "Otwórz",
     "later": "Przypomnij za 1 godzinę",
     "done": "Gotowe"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Już przejrzane",
     "reportTitle": "Raport od: {agent}",
     "aiReminderTitle": "Przypomnienie od {agent}",
+    "aiReminderOwnTitle": "Twoje przypomnienie",
     "reportDone": "Zaplanowane uruchomienie zakończyło się.",
     "reportFailed": "Zaplanowane uruchomienie nie powiodło się. Otwórz je, aby zobaczyć dlaczego.",
     "reportFailedReason": "Zaplanowane uruchomienie nie mogło wykonać zadania: {reason}",

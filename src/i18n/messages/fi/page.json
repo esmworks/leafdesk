@@ -1408,6 +1408,7 @@
     "regenerate": "Luo uudelleen",
     "files": {
       "attach": "Liitä tekstitiedostoja",
+      "drop": "Pudota tekstitiedostot liittääksesi ne",
       "remove": "Poista {name}",
       "download": "Lataa {name}",
       "tooMany": "Enintään {max} tiedostoa viestiä kohden.",

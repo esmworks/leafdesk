@@ -7,7 +7,10 @@
  * zone's clock; what is no time, gone by or too far ahead, pages the person or the agent can't open
  * and calls past the per-run limit are refused; one about no page shows too; an agent has at most
  * MAX_WAITING_REMINDERS waiting for a person, even when runs set them at once; one turned off in
- * the inbox doesn't open over the page.
+ * the inbox doesn't open over the page. The AI chat sets one for the person asking, asked about
+ * first (unless on Auto) with its text and time on their clock, never in research; it shows in the
+ * inbox as their own; declined, none is set. Asked for a routine, the chat is told it is an agent's
+ * schedule, which it adds through use_tool, asked about each time.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/ai-reminders-e2e.ts
@@ -40,6 +43,12 @@ const { REMIND_TOOL_NAME, remindersSet, setReminder } = await import("@/server/a
 const agents = await import("@/server/agents/manage");
 const chat = await import("@/server/agents/chat");
 const { flushAgentRuns } = await import("@/server/agents/run");
+const { startChat } = await import("@/server/ai-chat");
+const { decideChange } = await import("@/server/ai-chat-approvals");
+const { listAgentSchedules } = await import("@/server/agents/schedules");
+type ChatInput = import("@/server/ai-chat").ChatInput;
+type ChatActionView = import("@/lib/ai-chat").ChatActionView;
+type ChatEvent = import("@/lib/ai-chat").ChatEvent;
 
 const RUN = `ai-reminders-e2e-${Date.now().toString(36)}`;
 
@@ -154,7 +163,7 @@ try {
   check(rewoken?.id === shown.id && rewoken.createdAt.getTime() === again.getTime(), "snoozed for an hour, it opens over the page again then, as of its new time", rewoken);
 
   // ── What is refused ─────────────────────────────────────────────────────────────────────────
-  const person = { workspaceId, agentUserId: helper.userId, personId: ids.owner, timeZone: "Europe/Istanbul" };
+  const person = { workspaceId, actorId: helper.userId, personId: ids.owner, timeZone: "Europe/Istanbul" };
   const call = (args: Record<string, unknown>) => ({ id: "c", name: REMIND_TOOL_NAME, arguments: args });
   const before = (await reminders()).length;
   const refused = await Promise.all([
@@ -203,6 +212,91 @@ try {
     "an agent has at most MAX_WAITING_REMINDERS waiting for a person, even when they are set at once",
     { over, stillWaiting },
   );
+
+  // ── The AI chat sets one for the person asking ─────────────────────────────────────────────
+  /** Runs a question to the end (the member's, unless `as` says), deciding each approval it asks for. */
+  const ask = async (input: Omit<ChatInput, "workspaceId">, decide: "approve" | "decline" = "approve", as = ids.member) => {
+    const events: ChatEvent[] = [];
+    const asked: ChatActionView[] = [];
+    for await (const event of await startChat(as, { workspaceId, timeZone: "Europe/Istanbul", ...input })) {
+      events.push(event);
+      if (event.type === "approval") {
+        asked.push(event.action);
+        decideChange(as, event.id, decide);
+      }
+    }
+    return { asked, steps: events.flatMap((e) => (e.type === "step" ? [e.step] : [])), done: events.at(-1)?.type === "done" };
+  };
+  const ownReminders = async () => (await reminders()).filter((r) => r.userId === ids.member && r.actorId === ids.member);
+  const tomorrow = new Date(Date.now() + 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Europe/Istanbul" });
+  const systemOf = (request: FakeChatRequest) => String(request.messages.find((m) => m.role === "system")?.content ?? "");
+  fake.chats.length = 0;
+  fake.setChat(caller([[{ name: REMIND_TOOL_NAME, arguments: { text: "Call Ayşe about the offer", at: `${tomorrow}T09:00`, page_id: offer.id } }]], "I'll remind you."));
+  const chatSet = await ask({ message: "Remind me tomorrow at 9 to call Ayşe", mode: "ask" });
+  check(
+    toolNames(fake.chats[0]).includes(REMIND_TOOL_NAME) && /remind_person/.test(systemOf(fake.chats[0])) && /set_agent_schedule/.test(systemOf(fake.chats[0])),
+    "the AI chat offers remind_person, and its rules say routines are an agent's schedule",
+    systemOf(fake.chats[0]).slice(0, 400),
+  );
+  check(
+    chatSet.asked.length === 1 && chatSet.asked[0].action === "remind" && chatSet.asked[0].title === "Call Ayşe about the offer" && chatSet.asked[0].content === `${tomorrow} 09:00`,
+    "…asks first, with its text and the time on the person's clock",
+    chatSet.asked,
+  );
+  const [own] = await ownReminders();
+  check(
+    chatSet.done && own?.pageId === offer.id && own.snoozedUntil?.toISOString() === new Date(`${tomorrow}T06:00:00Z`).toISOString(),
+    "…then sets it for them, from them, about the page, at 9:00 in Istanbul",
+    own,
+  );
+  check(
+    chatSet.steps.some((st) => st.kind === "reminder" && st.outcome === "done" && st.when === `${tomorrow} 09:00` && st.text === "Call Ayşe about the offer"),
+    "…as a step of the answer",
+    chatSet.steps,
+  );
+  await db.update(notification).set({ snoozedUntil: new Date(Date.now() - 1_000) }).where(eq(notification.id, own.id));
+  await deliverSnoozed();
+  const ownItem = (await inbox(ids.member)).find((n) => n.id === own.id);
+  check(
+    ownItem?.aiReminder?.own === true && ownItem.aiReminder.agentName === null && ownItem.aiReminder.text === "Call Ayşe about the offer",
+    "in the inbox it is their own reminder, named by no agent",
+    ownItem?.aiReminder,
+  );
+
+  fake.setChat(caller([[{ name: REMIND_TOOL_NAME, arguments: { text: "Water the plants", at: `${tomorrow}T18:00` } }]], "Okay."));
+  const declined = await ask({ message: "Remind me to water the plants at six tomorrow", mode: "ask" }, "decline");
+  check(
+    (await ownReminders()).length === 1 && declined.steps.some((st) => st.kind === "reminder" && st.outcome === "declined"),
+    "declined, no reminder is set, and the step says so",
+    declined.steps,
+  );
+  fake.setChat(caller([[{ name: REMIND_TOOL_NAME, arguments: { text: "Water the plants", at: `${tomorrow}T18:00` } }]], "Okay."));
+  const auto = await ask({ message: "Remind me to water the plants at six tomorrow", mode: "auto" });
+  check(auto.asked.length === 0 && (await ownReminders()).length === 2, "on Auto it is set without asking");
+  fake.chats.length = 0;
+  fake.setChat(() => ({ text: "A report." }));
+  await ask({ message: "Research the offers", research: true });
+  check(fake.chats.length > 0 && fake.chats.every((c) => !toolNames(c).includes(REMIND_TOOL_NAME)), "research isn't offered it");
+
+  // ── …and hands a routine to an agent as a schedule ────────────────────────────────────────
+  // Members make agents only where owners let them: the owner asks.
+  const morning = await agents.createAgent(ids.owner, workspaceId, { name: "Morning desk", instructions: "Help me in the mornings." });
+  const routineSchedule = {
+    agent_id: morning.id,
+    action: "add",
+    repeat: { frequency: "daily", time: "08:00" },
+    time_zone: "Europe/Istanbul",
+    task: "List what is due today and tell me.",
+  };
+  fake.chats.length = 0;
+  fake.setChat(
+    caller([[{ name: "find_tools", arguments: { query: "agent schedule" } }], [{ name: "use_tool", arguments: { name: "set_agent_schedule", arguments: routineSchedule } }]], "Morning desk will do it every day at 8."),
+  );
+  const routine = await ask({ message: "Every morning at 8, list what is due today", mode: "auto" }, "approve", ids.owner);
+  check(toolResults(fake.chats[1]).some((r) => r.includes("set_agent_schedule")), "find_tools finds set_agent_schedule", toolResults(fake.chats[1]));
+  check(routine.asked.length === 1 && routine.asked[0].action === "tool" && routine.asked[0].eachTime === true, "…which is asked about each time, also on Auto", routine.asked);
+  const made = await listAgentSchedules(ids.owner, morning.id);
+  check(made.length === 1 && made[0].timeZone === "Europe/Istanbul" && made[0].task === routineSchedule.task, "…and puts the routine on the person's agent", made);
 
   // ── Turned off ──────────────────────────────────────────────────────────────────────────────
   await setNotificationPreference(ids.owner, "ai_reminder", "inbox", false);

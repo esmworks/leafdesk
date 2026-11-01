@@ -86,6 +86,7 @@
     "createXlsx": "Het Excel-bestand {title} maken en bij {target} voegen?",
     "source": "Rijen uit {name}.",
     "remember": "Dit over jou onthouden?",
+    "remind": "Je hieraan herinneren?",
     "forget": "Deze notitie vergeten?",
     "connection": "Dit naar {connection} ({tool}) sturen?",
     "tool": "Deze wijziging doorvoeren ({tool})?",

@@ -86,6 +86,7 @@
     "createXlsx": "ליצור את קובץ ה־Excel {title} ולצרף אותו ל־{target}?",
     "source": "שורות מתוך {name}.",
     "remember": "לזכור את זה עליכם?",
+    "remind": "להזכיר לך את זה?",
     "forget": "לשכוח את ההערה הזו?",
     "connection": "לשלוח את זה אל {connection} ({tool})?",
     "tool": "לבצע את השינוי הזה ({tool})?",

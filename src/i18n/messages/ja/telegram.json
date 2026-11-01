@@ -86,6 +86,7 @@
     "createXlsx": "Excel ファイル {title} を作成して {target} に添付しますか？",
     "source": "{name} の行。",
     "remember": "これをあなたについて覚えておきますか？",
+    "remind": "これをリマインドしますか？",
     "forget": "このメモを忘れますか？",
     "connection": "これを {connection}（{tool}）に送信しますか？",
     "tool": "この変更を行いますか（{tool}）？",

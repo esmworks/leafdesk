@@ -320,6 +320,10 @@
         "failed": "{tool} mislukt",
         "declined": "Geweigerd: {tool}"
       },
+      "reminder": {
+        "done": "Herinnering gezet voor {when}:",
+        "declined": "Herinnering voor {when} geweigerd:"
+      },
       "mail": {
         "searched": "E-mail doorzocht op ‘{query}’ · {count, plural, =0 {niets gevonden} one {# gesprek} other {# gesprekken}}",
         "read": "E-mail gelezen",
@@ -362,6 +366,7 @@
         "createPage": "Deze pagina toevoegen?",
         "remember": "Dit over jou onthouden?",
         "forget": "Deze notitie vergeten?",
+        "remind": "Je hieraan herinneren?",
         "editPage": "De tekst van deze pagina wijzigen?",
         "createPdf": "Een pdf van deze pagina maken en bijvoegen?",
         "createDocx": "Een Word-document van deze pagina maken en bijvoegen?",
@@ -379,6 +384,7 @@
       "row": "Rij",
       "topLevel": "Bovenaan de werkruimte, alleen zichtbaar voor jou",
       "memoryHint": "Geheugen: meegestuurd met je latere vragen in deze werkruimte",
+      "remindHint": "{when}: boven de pagina die je open hebt, in je inbox en op je telefoon",
       "cleared": "(gewist)",
       "approve": "Ja",
       "always": "Ja, en niet meer vragen (Automatisch)",

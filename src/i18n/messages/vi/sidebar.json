@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Lời nhắc từ {agent}",
+    "ownTitle": "Lời nhắc",
     "open": "Mở",
     "later": "Nhắc lại sau 1 giờ",
     "done": "Xong"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Đã xem xét",
     "reportTitle": "Báo cáo từ {agent}",
     "aiReminderTitle": "Lời nhắc từ {agent}",
+    "aiReminderOwnTitle": "Lời nhắc của bạn",
     "reportDone": "Lần chạy theo lịch của tác tử đã hoàn tất.",
     "reportFailed": "Lần chạy theo lịch của tác tử đã thất bại. Hãy mở để xem lý do.",
     "reportFailedReason": "Lần chạy theo lịch không làm được nhiệm vụ: {reason}",

@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Påminnelse från {agent}",
+    "ownTitle": "Påminnelse",
     "open": "Öppna",
     "later": "Påminn mig om 1 timme",
     "done": "Klar"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Redan granskad",
     "reportTitle": "Rapport från {agent}",
     "aiReminderTitle": "Påminnelse från {agent}",
+    "aiReminderOwnTitle": "Din påminnelse",
     "reportDone": "Dess schemalagda körning är klar.",
     "reportFailed": "Dess schemalagda körning misslyckades. Öppna den för att se varför.",
     "reportFailedReason": "Dess schemalagda körning kunde inte utföra sin uppgift: {reason}",

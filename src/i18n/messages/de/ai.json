@@ -320,6 +320,10 @@
         "failed": "{tool} fehlgeschlagen",
         "declined": "Abgelehnt: {tool}"
       },
+      "reminder": {
+        "done": "Erinnerung gestellt für {when}:",
+        "declined": "Erinnerung für {when} abgelehnt:"
+      },
       "mail": {
         "searched": "E-Mails nach „{query}“ durchsucht · {count, plural, =0 {nichts gefunden} one {# Unterhaltung} other {# Unterhaltungen}}",
         "read": "E-Mail gelesen",
@@ -362,6 +366,7 @@
         "createPage": "Diese Seite hinzufügen?",
         "remember": "Das über dich merken?",
         "forget": "Diese Notiz vergessen?",
+        "remind": "Dich daran erinnern?",
         "editPage": "Den Text dieser Seite ändern?",
         "createPdf": "Ein PDF dieser Seite erstellen und anhängen?",
         "createDocx": "Ein Word-Dokument dieser Seite erstellen und anhängen?",
@@ -379,6 +384,7 @@
       "row": "Zeile",
       "topLevel": "Ganz oben im Workspace, nur für dich",
       "memoryHint": "Gedächtnis: wird mit deinen weiteren Fragen in diesem Workspace gesendet",
+      "remindHint": "{when}: über der geöffneten Seite, im Posteingang und auf deinem Handy",
       "cleared": "(geleert)",
       "approve": "Ja",
       "always": "Ja, nicht mehr fragen (Automatisch)",

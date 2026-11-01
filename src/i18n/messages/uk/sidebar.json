@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Нагадування від {agent}",
+    "ownTitle": "Нагадування",
     "open": "Відкрити",
     "later": "Нагадати через 1 годину",
     "done": "Готово"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Уже переглянуто",
     "reportTitle": "Звіт від {agent}",
     "aiReminderTitle": "Нагадування від {agent}",
+    "aiReminderOwnTitle": "Ваше нагадування",
     "reportDone": "Запланований запуск завершено.",
     "reportFailed": "Запланований запуск не вдався. Відкрийте його, щоб дізнатися чому.",
     "reportFailedReason": "Запланований запуск не зміг виконати завдання: {reason}",

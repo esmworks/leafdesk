@@ -145,8 +145,8 @@ export type PushItem = {
   limitRequest?: { agentId: string; agentName: string; tokens: number } | null;
   /** When it was recorded: a verification reminder recorded at or after its date says the verification ended. */
   createdAt?: Date | string;
-  /** Reminders an agent set: what they say, and which agent. */
-  aiReminder?: { text: string; agentId: string | null; agentName: string | null } | null;
+  /** Reminders an agent set: what they say, and which agent; `own`: one the user asked the AI chat for. */
+  aiReminder?: { text: string; agentId: string | null; agentName: string | null; own?: true } | null;
 };
 
 /** The line of a comment notification about a suggested edit, in the inbox and in push messages. */
@@ -224,7 +224,7 @@ export function pushPayload(
   } else if (item.kind === "ai_reminder") {
     // Not what it says: the model wrote it, maybe from what the run read, and a lock screen shows
     // it to whoever holds the device. The page it is about, as for other kinds.
-    title = t("aiReminderTitle", { agent: item.aiReminder?.agentName || actor });
+    title = item.aiReminder?.own ? t("aiReminderOwnTitle") : t("aiReminderTitle", { agent: item.aiReminder?.agentName || actor });
     line = item.pageId ? item.pageTitle?.trim() || t("untitled") : t("aiReminder");
   } else if (item.kind === "join_request") {
     title = t("joinRequestTitle");

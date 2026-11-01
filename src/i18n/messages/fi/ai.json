@@ -320,6 +320,10 @@
         "failed": "{tool} epäonnistui",
         "declined": "Hylätty: {tool}"
       },
+      "reminder": {
+        "done": "Muistutus asetettu ajalle {when}:",
+        "declined": "Hylätty muistutus ajalle {when}:"
+      },
       "mail": {
         "searched": "Haettiin postista ”{query}” · {count, plural, =0 {ei tuloksia} one {# keskustelu} other {# keskustelua}}",
         "read": "Luettiin sähköposti",
@@ -362,6 +366,7 @@
         "createPage": "Lisätäänkö tämä sivu?",
         "remember": "Muistetaanko tämä sinusta?",
         "forget": "Unohdetaanko tämä muistiinpano?",
+        "remind": "Muistutetaanko tästä?",
         "editPage": "Muutetaanko tämän sivun tekstiä?",
         "createPdf": "Luodaanko tästä sivusta PDF ja liitetäänkö se?",
         "createDocx": "Luodaanko tästä sivusta Word-asiakirja ja liitetäänkö se?",
@@ -379,6 +384,7 @@
       "row": "Rivi",
       "topLevel": "Työtilan ylimmällä tasolla, vain sinulle näkyvänä",
       "memoryHint": "Muisti: lähetetään myöhempien kysymystesi mukana tässä työtilassa",
+      "remindHint": "{when}: avoimen sivun päällä, saapuneissa ja puhelimessasi",
       "cleared": "(tyhjennetty)",
       "approve": "Kyllä",
       "always": "Kyllä, äläkä kysy uudelleen (Automaattinen)",

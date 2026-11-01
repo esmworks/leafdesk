@@ -4,6 +4,13 @@
 
 ### Added
 
+- **The AI chat sets reminders.** Ask it to remind you of something once ("remind me tomorrow at 9
+  to call Ayşe") and it sets the reminder for you: the box shows its text and time on your clock
+  first, and it comes as an agent's reminder does, over the page you have open, in your inbox and on
+  your phone, titled as your own. The notification setting is now *AI reminders*.
+- **The AI chat hands routines to an agent.** Work to be done again and again ("every morning, list
+  what's due today") goes to one of your agents as a schedule, asked about first, since the chat
+  does nothing later on its own; with changes off it says so.
 - **The sidebar's Mail tab counts unread mail.** A small red count sits on the envelope while the
   tab is folded, and beside the name when it shows; it adds up the inboxes of all your mailboxes
   and follows them each minute.
@@ -430,6 +437,8 @@
 
 ### Changed
 
+- **An agent's chat box is the AI chat's.** The same rounded box with round buttons, files dropped
+  or pasted on it to attach them, and questions dictated where the workspace writes down speech.
 - **Agents are in the sidebar's Chat tab too.** Under New chat, the Chat tab lists the agents you
   can talk to, above your conversations, and an agent's page keeps the Chat tab open with that
   agent marked, so talking to the AI and to an agent starts in one place. The Agents section of the
@@ -521,6 +530,10 @@
 
 ### Fixed
 
+- **Mail attachments open in the file viewer.** A tap opens one over the conversation, with a
+  close button and the message's other files a swipe away, where an app on a phone's home screen
+  opened it in a new tab with no way back; PDFs, Word documents and Excel workbooks show in place,
+  and a PDF sent as plain bytes (`application/octet-stream`) shows as a PDF.
 - **Mail designed wider than a phone fits the screen.** A message laid out at a fixed width (600px
   tables) was cut off at the right edge, and tables were squeezed until words broke across lines;
   such a message is now drawn at its own width and shrunk to fit, while one that adapts to the

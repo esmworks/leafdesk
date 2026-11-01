@@ -273,6 +273,7 @@
     "memory": "{count, plural, one {Proposes a note for its memory} other {Proposes # notes for its memory}}",
     "reportTitle": "Report from {agent}",
     "aiReminderTitle": "Reminder from {agent}",
+    "aiReminderOwnTitle": "Reminder",
     "aiReminder": "Open it to read it",
     "reportDone": "Its scheduled run finished",
     "reportFailed": "Its scheduled run failed",

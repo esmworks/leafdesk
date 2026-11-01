@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Herinnering van {agent}",
+    "ownTitle": "Herinnering",
     "open": "Openen",
     "later": "Over 1 uur herinneren",
     "done": "Klaar"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Al bekeken",
     "reportTitle": "Rapport van {agent}",
     "aiReminderTitle": "Herinnering van {agent}",
+    "aiReminderOwnTitle": "Je herinnering",
     "reportDone": "De geplande run is klaar.",
     "reportFailed": "De geplande run is mislukt. Open hem om te zien waarom.",
     "reportFailedReason": "De geplande run kon zijn taak niet uitvoeren: {reason}",

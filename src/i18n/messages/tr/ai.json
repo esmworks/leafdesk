@@ -320,6 +320,10 @@
         "failed": "{tool} başarısız oldu",
         "declined": "Reddedildi: {tool}"
       },
+      "reminder": {
+        "done": "{when} için hatırlatma kuruldu:",
+        "declined": "{when} için hatırlatma reddedildi:"
+      },
       "mail": {
         "searched": "Postada “{query}” arandı · {count, plural, =0 {bir şey bulunamadı} one {# konuşma} other {# konuşma}}",
         "read": "E-posta okundu",
@@ -362,6 +366,7 @@
         "createPage": "Bu sayfa eklensin mi?",
         "remember": "Bunu senin hakkında hatırlasın mı?",
         "forget": "Bu not unutulsun mu?",
+        "remind": "Bunu sana hatırlatayım mı?",
         "editPage": "Bu sayfanın metni değiştirilsin mi?",
         "createPdf": "Bu sayfanın PDF'i oluşturulup eklensin mi?",
         "createDocx": "Bu sayfanın Word belgesi oluşturulup eklensin mi?",
@@ -379,6 +384,7 @@
       "row": "Satır:",
       "topLevel": "Çalışma alanının en üstünde, yalnızca sana özel",
       "memoryHint": "Hafıza: bu çalışma alanındaki sonraki sorularınla gönderilir",
+      "remindHint": "{when}: açık olan sayfanın üzerinde, gelen kutunda ve telefonunda",
       "cleared": "(temizlenir)",
       "approve": "Evet",
       "always": "Evet, bundan sonra sorma (Otomatik)",

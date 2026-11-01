@@ -320,6 +320,10 @@
         "failed": "{tool} falhou",
         "declined": "Recusado: {tool}"
       },
+      "reminder": {
+        "done": "Lembrete definido para {when}:",
+        "declined": "Lembrete para {when} recusado:"
+      },
       "mail": {
         "searched": "Pesquisou no e-mail “{query}” · {count, plural, =0 {nada encontrado} one {# conversa} other {# conversas}}",
         "read": "Leu o e-mail",
@@ -362,6 +366,7 @@
         "createPage": "Adicionar esta página?",
         "remember": "Lembrar isto sobre você?",
         "forget": "Esquecer esta nota?",
+        "remind": "Lembrar você disto?",
         "editPage": "Alterar o texto desta página?",
         "createPdf": "Criar um PDF desta página e anexá-lo?",
         "createDocx": "Criar um documento do Word desta página e anexá-lo?",
@@ -379,6 +384,7 @@
       "row": "Linha",
       "topLevel": "No topo do espaço de trabalho, privada para você",
       "memoryHint": "Memória: enviada com suas próximas perguntas neste espaço de trabalho",
+      "remindHint": "{when}: sobre a página aberta, na sua caixa de entrada e no seu telefone",
       "cleared": "(apagado)",
       "approve": "Sim",
       "always": "Sim, e não perguntar de novo (Automático)",

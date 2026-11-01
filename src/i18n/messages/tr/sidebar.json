@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "{agent} hatırlatıyor",
+    "ownTitle": "Hatırlatma",
     "open": "Aç",
     "later": "1 saat sonra hatırlat",
     "done": "Tamam"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Zaten incelendi",
     "reportTitle": "{agent} raporu",
     "aiReminderTitle": "{agent} hatırlatıyor",
+    "aiReminderOwnTitle": "Hatırlatman",
     "reportDone": "Zamanlanmış çalışması bitti.",
     "reportFailed": "Zamanlanmış çalışması başarısız oldu. Nedenini görmek için aç.",
     "reportFailedReason": "Zamanlanmış çalışması görevini yapamadı: {reason}",

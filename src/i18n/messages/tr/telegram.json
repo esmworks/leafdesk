@@ -86,6 +86,7 @@
     "createXlsx": "{title} Excel dosyası oluşturulup {target} sayfasına eklensin mi?",
     "source": "Satırlar: {name}.",
     "remember": "Bunu senin hakkında hatırlayayım mı?",
+    "remind": "Bunu sana hatırlatayım mı?",
     "forget": "Bu not unutulsun mu?",
     "connection": "Bu, {connection} ({tool}) hizmetine gönderilsin mi?",
     "tool": "Bu değişiklik yapılsın mı ({tool})?",

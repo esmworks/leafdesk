@@ -1254,7 +1254,7 @@ async function converse(
     if (call.name === REMIND_TOOL_NAME) {
       if (!reminder || !reminded) return { content: `There is no tool "${call.name}" in this run.`, isError: true };
       if (reminders >= MAX_REMINDERS_PER_RUN) return { content: `You have set ${MAX_REMINDERS_PER_RUN} reminders, the most one run may set.`, isError: true };
-      const out = await setReminder({ workspaceId: run.workspaceId, agentUserId: agent.userId, personId: reminded, timeZone: reminder.timeZone }, call);
+      const out = await setReminder({ workspaceId: run.workspaceId, actorId: agent.userId, personId: reminded, timeZone: reminder.timeZone }, call);
       if (!out.isError) reminders += 1;
       return out;
     }

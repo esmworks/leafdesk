@@ -1408,6 +1408,7 @@
     "regenerate": "Opnieuw genereren",
     "files": {
       "attach": "Tekstbestanden toevoegen",
+      "drop": "Laat de tekstbestanden los om ze toe te voegen",
       "remove": "{name} verwijderen",
       "download": "{name} downloaden",
       "tooMany": "Maximaal {max} bestanden per bericht.",

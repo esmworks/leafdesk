@@ -39,7 +39,7 @@ import {
   Telescope,
   Zap,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Fragment, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
 import { lazyPart } from "@/components/lazy-part";
@@ -67,9 +67,9 @@ import { useCanRecord } from "@/components/voice/dictation";
 import { chipTrigger } from "./composer-chip";
 import { DictateButton, type DictationNotice } from "./dictate-button";
 import { MemoryDialog } from "./memory-dialog";
-import { CopyAction, MessageTime, questionBox, revealed, StepsFold } from "./message-parts";
+import { carriesFiles, composerBox, CopyAction, MessageTime, questionBox, revealed, roundButton, StepsFold } from "./message-parts";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
-import { PageLink, StepLine } from "./step-line";
+import { PageLink, reminderLabel, StepLine } from "./step-line";
 import { useReasoning, type ChangeDecision, type Chat, type ChatMessage, type ChatSkillPick, type ChatStatus, type PendingChange, type QueuedQuestion, type Reasoning } from "./use-chat";
 
 // Lines to the chat's questions, and the way back to its latest answer: loaded once there is a conversation.
@@ -105,7 +105,6 @@ export function ChatThread({
   // Files go in through the button, by dropping them on the box, or pasted.
   const fileInput = useRef<HTMLInputElement>(null);
   const [dropping, setDropping] = useState(false);
-  const carriesFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types).includes("Files");
   const { messages, status, error, input, setInput, running, inputRef } = chat;
   // The messages' handlers stay the same from one render to the next, reading what is current
   // when called: each piece of an answer then draws only that answer again, not the conversation.
@@ -390,11 +389,7 @@ export function ChatThread({
                     setDropping(false);
                     if (!blocked) void chat.attachFiles(Array.from(e.dataTransfer.files));
                   }}
-                  className={cn(
-                    "relative flex flex-col rounded-2xl border bg-bg transition-colors dark:bg-bg-subtle",
-                    empty ? "gap-4 px-4 pt-3.5 pb-3" : "gap-2.5 px-3.5 pt-3 pb-2.5",
-                    dropping ? "border-accent ring-1 ring-accent" : "border-border",
-                  )}
+                  className={cn(composerBox(dropping), empty ? "gap-4 px-4 pt-3.5 pb-3" : "gap-2.5 px-3.5 pt-3 pb-2.5")}
                 >
                   {dropping && (
                     <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-bg/90 text-sm text-fg-muted">
@@ -928,9 +923,6 @@ function QueueStrip({ queued, onClear }: { queued: QueuedQuestion[]; onClear: ()
 
 const MODE_ICONS = { ask: Hand, auto: Zap, read: Eye } as const;
 
-/** The box's round buttons (add, Send, Stop); the box gives their size. */
-const roundButton = "inline-flex shrink-0 items-center justify-center rounded-full transition-[background-color,opacity]";
-
 /** Above the box: a question answered from the workspace, or research that ends in a report. */
 function KindTabs({ research, onChange }: { research: boolean; onChange: (research: boolean) => void }) {
   const t = useTranslations("ai.chat.kind");
@@ -1256,18 +1248,21 @@ function ChangePrompt({
   onSource: (source: ChatSourceView) => void;
 }) {
   const t = useTranslations("ai.chat.approval");
+  const locale = useLocale();
   const typeLabel = usePropertyTypeLabel();
   const first = useRef<HTMLButtonElement>(null);
   const { action } = pending;
   const comment = action.action === "addComment";
   const memory = isMemory(action);
+  // A reminder for the person: its text, and when, on their clock.
+  const reminder = action.action === "remind";
   // A call to a connection's tool or to one of Leafdesk's further tools: shown as what it is given.
   const call = action.action === "connection" || action.action === "tool";
   // A web call: the address or the words, exactly as they would leave the workspace.
   const web = action.action === "readWeb" || action.action === "searchWeb";
   // A mail draft: shown whole, every recipient and all of its text, as it would be saved.
   const draft = action.action === "draftMail";
-  const decisions = memory || action.action === "connection" || action.eachTime || web ? EACH_TIME_DECISIONS : DECISIONS;
+  const decisions = memory || reminder || action.action === "connection" || action.eachTime || web ? EACH_TIME_DECISIONS : DECISIONS;
   const question = action.action === "connection" ? t("question.connection", { connection: action.connection?.name ?? "" }) : t(`question.${action.action}`);
   useEffect(() => {
     first.current?.focus();
@@ -1293,7 +1288,7 @@ function ChangePrompt({
         {action.title && web && <p className="rounded bg-bg-subtle px-2 py-1 font-mono text-xs break-all whitespace-pre-wrap text-fg">{action.title}</p>}
         {action.title && !comment && !web && (
           <p className="font-medium break-words text-fg">
-            {memory ? (
+            {memory || reminder ? (
               `“${action.title}”`
             ) : call ? (
               action.title
@@ -1309,6 +1304,8 @@ function ChangePrompt({
         <p className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
           {memory ? (
             t("memoryHint")
+          ) : reminder ? (
+            t("remindHint", { when: reminderLabel(action.content ?? "", locale) })
           ) : call ? (
             action.action === "tool" ? t("toolHint") : t("connectionHint", { connection: action.connection?.name ?? "" })
           ) : web ? (
@@ -1372,6 +1369,7 @@ function ChangePrompt({
           </ul>
         )}
         {action.content &&
+          !reminder &&
           (call ? (
             <pre className="max-h-40 overflow-auto rounded bg-bg-subtle px-2 py-1 text-xs break-all whitespace-pre-wrap text-fg-muted">{action.content}</pre>
           ) : draft ? (

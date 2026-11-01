@@ -86,6 +86,7 @@
     "createXlsx": "Створити файл Excel {title} і прикріпити його до {target}?",
     "source": "Рядки з {name}.",
     "remember": "Запам’ятати це про вас?",
+    "remind": "Нагадати вам про це?",
     "forget": "Забути цю нотатку?",
     "connection": "Надіслати це до {connection} ({tool})?",
     "tool": "Внести цю зміну ({tool})?",

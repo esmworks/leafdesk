@@ -320,6 +320,10 @@
         "failed": "{tool} failed",
         "declined": "Declined: {tool}"
       },
+      "reminder": {
+        "done": "Reminder set for {when}:",
+        "declined": "Declined a reminder for {when}:"
+      },
       "mail": {
         "searched": "Searched mail for “{query}” · {count, plural, =0 {nothing found} one {# thread} other {# threads}}",
         "read": "Read the email",
@@ -362,6 +366,7 @@
         "createPage": "Add this page?",
         "remember": "Remember this about you?",
         "forget": "Forget this note?",
+        "remind": "Remind you of this?",
         "editPage": "Change this page's text?",
         "createPdf": "Make a PDF of this page and attach it?",
         "createDocx": "Make a Word document of this page and attach it?",
@@ -379,6 +384,7 @@
       "row": "Row",
       "topLevel": "At the top of the workspace, private to you",
       "memoryHint": "Memory: sent with your later questions in this workspace",
+      "remindHint": "{when}: over the page you have open, in your inbox and on your phone",
       "cleared": "(cleared)",
       "approve": "Yes",
       "always": "Yes, and don't ask again (Auto)",

@@ -1408,6 +1408,7 @@
     "regenerate": "Regenerar",
     "files": {
       "attach": "Adjuntar archivos de texto",
+      "drop": "Suelta los archivos de texto para adjuntarlos",
       "remove": "Quitar {name}",
       "download": "Descargar {name}",
       "tooMany": "Como máximo {max} archivos por mensaje.",

@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Pengingat dari {agent}",
+    "ownTitle": "Pengingat",
     "open": "Buka",
     "later": "Ingatkan lagi dalam 1 jam",
     "done": "Selesai"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Sudah ditinjau",
     "reportTitle": "Laporan dari {agent}",
     "aiReminderTitle": "Pengingat dari {agent}",
+    "aiReminderOwnTitle": "Pengingat Anda",
     "reportDone": "Eksekusi terjadwalnya telah selesai.",
     "reportFailed": "Eksekusi terjadwalnya gagal. Buka untuk melihat penyebabnya.",
     "reportFailedReason": "Eksekusi terjadwalnya tidak dapat menyelesaikan tugasnya: {reason}",

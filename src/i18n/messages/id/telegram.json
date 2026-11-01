@@ -86,6 +86,7 @@
     "createXlsx": "Buat file Excel {title} dan lampirkan ke {target}?",
     "source": "Baris dari {name}.",
     "remember": "Ingat hal ini tentang Anda?",
+    "remind": "Ingatkan Anda tentang ini?",
     "forget": "Lupakan catatan ini?",
     "connection": "Kirim ini ke {connection} ({tool})?",
     "tool": "Lakukan perubahan ini ({tool})?",

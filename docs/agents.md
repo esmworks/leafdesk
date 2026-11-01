@@ -511,7 +511,7 @@ comes the reminder opens over the page in every tab the person has open in the w
 Telegram message naming the agent and the page, not what it says (a lock screen shows it to whoever
 holds the device), but never by email; one missed for more than 12 hours waits in the inbox. A run sets at most 3, and an
 agent has at most 20 waiting for one person; each is a step of the run. People turn them off under
-*Agent reminders* in Settings → Preferences.
+*AI reminders* in Settings → Preferences, which covers the [AI chat's](ai.md) reminders too.
 
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see
 [AI features](ai.md#ai-features)) and the workspace must have AI on. Otherwise runs end as `aiOff`.

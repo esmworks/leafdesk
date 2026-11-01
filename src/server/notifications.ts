@@ -796,11 +796,12 @@ export type InboxItem = {
   aiLimit: InboxAiLimit | null;
   /** Requests for a higher agent limit: what was asked, while it waits for an answer. */
   limitRequest: InboxLimitRequest | null;
-  /** Reminders an agent set: what to remind the user of, and which agent (null once it is gone). */
+  /** Reminders an agent or the AI chat set: what to remind the user of, and which agent (null once it is gone, or `own`). */
   aiReminder: InboxAiReminder | null;
 };
 
-export type InboxAiReminder = { text: string; agentId: string | null; agentName: string | null };
+/** `own`: one the user asked the AI chat for (its actor is the user). */
+export type InboxAiReminder = { text: string; agentId: string | null; agentName: string | null; own?: true };
 
 export type InboxAiLimit = {
   notice: AiLimitNotice;
@@ -1098,6 +1099,7 @@ export async function listNotifications(
       aiReminder:
         row.kind === "ai_reminder"
           ? (() => {
+              if (row.actorId === userId) return { text: automationMessage ?? "", agentId: null, agentName: null, own: true as const };
               const agent = (row.actorId && limits.get(row.actorId)) || null;
               return { text: automationMessage ?? "", agentId: agent?.id ?? null, agentName: agent?.name ?? row.actorName };
             })()

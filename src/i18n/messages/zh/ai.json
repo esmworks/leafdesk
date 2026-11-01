@@ -320,6 +320,10 @@
         "failed": "{tool} 失败",
         "declined": "已拒绝：{tool}"
       },
+      "reminder": {
+        "done": "已设置 {when} 的提醒：",
+        "declined": "已拒绝 {when} 的提醒："
+      },
       "mail": {
         "searched": "在邮件中搜索了“{query}” · {count, plural, =0 {未找到} other {# 个会话}}",
         "read": "读取了邮件",
@@ -362,6 +366,7 @@
         "createPage": "要添加此页面吗？",
         "remember": "要记住关于你的这条信息吗？",
         "forget": "要忘记这条笔记吗？",
+        "remind": "要提醒你这件事吗？",
         "editPage": "要更改此页面的文本吗？",
         "createPdf": "生成此页面的 PDF 并附加到页面？",
         "createDocx": "生成此页面的 Word 文档并附加到页面？",
@@ -379,6 +384,7 @@
       "row": "行",
       "topLevel": "位于工作区顶层，仅你可见",
       "memoryHint": "记忆：会随你之后在此工作区中的提问一并发送",
+      "remindHint": "{when}：显示在当前打开的页面上、收件箱中和你的手机上",
       "cleared": "（已清空）",
       "approve": "是",
       "always": "是，且不再询问（自动）",

@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "การเตือนจาก {agent}",
+    "ownTitle": "การเตือน",
     "open": "เปิด",
     "later": "เตือนอีกครั้งใน 1 ชั่วโมง",
     "done": "เสร็จ"
@@ -243,6 +244,7 @@
     "memoryAnswered": "ตรวจสอบแล้ว",
     "reportTitle": "รายงานจาก {agent}",
     "aiReminderTitle": "การเตือนจาก {agent}",
+    "aiReminderOwnTitle": "การเตือนของคุณ",
     "reportDone": "การทำงานตามกำหนดเวลาเสร็จสิ้นแล้ว",
     "reportFailed": "การทำงานตามกำหนดเวลาล้มเหลว เปิดดูสาเหตุได้",
     "reportFailedReason": "การทำงานตามกำหนดเวลาทำงานของตนไม่สำเร็จ: {reason}",

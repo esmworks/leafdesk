@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Recordatorio de {agent}",
+    "ownTitle": "Recordatorio",
     "open": "Abrir",
     "later": "Recordármelo en 1 hora",
     "done": "Hecho"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Ya revisado",
     "reportTitle": "Informe de {agent}",
     "aiReminderTitle": "Recordatorio de {agent}",
+    "aiReminderOwnTitle": "Tu recordatorio",
     "reportDone": "Su ejecución programada terminó.",
     "reportFailed": "Su ejecución programada falló. Ábrela para ver por qué.",
     "reportFailedReason": "Su ejecución programada no pudo hacer su tarea: {reason}",

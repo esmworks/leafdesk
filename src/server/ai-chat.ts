@@ -116,6 +116,8 @@ import { getSkillContent, SkillError } from "@/server/skills";
 import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
 import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
+import { REMIND_TOOL_NAME, reminderWhen, remindTool, setReminder } from "@/server/ai-reminders";
+import { MAX_REMINDERS_PER_RUN, reminderText, reminderTime } from "@/lib/ai-reminders";
 import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
 import { answeringIn, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
 import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, moreToolStep, pickMoreTool, readDocsTopic, USE_TOOL } from "@/server/ai-more-tools";
@@ -475,9 +477,21 @@ async function* runChat(
   const webTools = web ? chatWebToolset() : [];
   // The person's own mail, where they may use the Mail tab; research only reads the workspace.
   const mailTools = research ? [] : await chatMailToolset(userId, workspaceId, { writes: mode !== "read" });
+  // Reminding the person of something changes nothing in the workspace: offered in every mode but research.
   const tools = research
     ? [PLAN_TOOL, ...CHAT_TOOLS, ...fileTools, ...webTools]
-    : [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), FIND_TOOLS, USE_TOOL, ...fileTools, ...(remembers ? MEMORY_TOOLS : []), ...webTools, ...mailTools, ...(external?.tools ?? [])];
+    : [
+        ...CHAT_TOOLS,
+        ...(mode === "read" ? [] : WRITE_TOOLS),
+        FIND_TOOLS,
+        USE_TOOL,
+        ...fileTools,
+        ...(remembers ? MEMORY_TOOLS : []),
+        remindTool(new Date(), timeZone, true),
+        ...webTools,
+        ...mailTools,
+        ...(external?.tools ?? []),
+      ];
   const promptScope = scope ? { kind: scope.kind, title: scope.kind === "page" ? pageLabel(scope.title) : scope.title } : null;
   const skillTitle = skill ? pageLabel(skill.title) : null;
   const system = research
@@ -617,6 +631,35 @@ async function* runChat(
       if (signal?.aborted) throw new AiError("aborted", "The answer was stopped");
       throw error;
     }
+  }
+  let reminders = 0;
+  /**
+   * A reminder for the person asking, on their clock. Asked about as notes are (unless the mode is
+   * `auto`, which anything read from outside turns into `ask`): the card also shows them the time
+   * it took from their words.
+   */
+  async function* remind(call: AiToolCall): AsyncGenerator<ChatEvent, ToolOutcome> {
+    if (reminders >= MAX_REMINDERS_PER_RUN) return { content: `You have set ${MAX_REMINDERS_PER_RUN} reminders, the most one answer may set.`, isError: true };
+    const text = reminderText(call.arguments.text);
+    const time = reminderTime(call.arguments.at, new Date(), timeZone);
+    // A text or time that doesn't do is refused below, with the reason, before anyone is asked.
+    const when = text && "at" in time ? reminderWhen(time.at, timeZone) : null;
+    if (when && mode !== "auto") {
+      const decision = yield* decide({ action: "remind", target: null, title: text, changes: [], content: when });
+      if (decision === "decline" || decision === "timeout") {
+        return {
+          content:
+            decision === "timeout"
+              ? "The person didn't answer in time, so no reminder was set. Say what you would have set."
+              : "The person declined this reminder: none was set. Don't try it again; ask what they want instead.",
+          step: { kind: "reminder", text, when, outcome: "declined" },
+        };
+      }
+    }
+    const out = await setReminder({ workspaceId, actorId: userId, personId: userId, timeZone }, call);
+    if (out.isError || !when) return { content: out.content, isError: true };
+    reminders += 1;
+    return { content: out.content, step: { kind: "reminder", text, when, outcome: "done" } };
   }
   // Notes the answer asked again kept or dropped: they stay done, so they go with the new answer
   // (shown first), not with the records it replaces.
@@ -813,7 +856,8 @@ async function* runChat(
           let decision: ChatDecision | "timeout" = "approve";
           if ("action" in prepared && mode !== "auto") decision = yield* decide(prepared.action);
           out = "action" in prepared ? await applyMemory(userId, workspaceId, conversation.id, prepared, decision) : prepared;
-        } else if (!writeTools.has(call.name)) out = await runTool(ctx, workspaceId, scope, call, registry, left, extra);
+        } else if (call.name === REMIND_TOOL_NAME && !research) out = yield* remind(call);
+        else if (!writeTools.has(call.name)) out = await runTool(ctx, workspaceId, scope, call, registry, left, extra);
         else if (mode === "read") out = { content: "Changes are off in this chat: say what you would change instead.", isError: true };
         else {
           const prepared = await prepareWrite(ctx, workspaceId, scope, call, extra);

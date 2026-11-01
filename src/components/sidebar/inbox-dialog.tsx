@@ -224,7 +224,7 @@ export function InboxDialog({
                 ) : item.kind === "ai_reminder" ? (
                   <>
                     <AlarmClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                    <span className="truncate">{t("aiReminderTitle", { agent: item.aiReminder?.agentName ?? item.actorName ?? t("someone") })}</span>
+                    <span className="truncate">{item.aiReminder?.own ? t("aiReminderOwnTitle") : t("aiReminderTitle", { agent: item.aiReminder?.agentName ?? item.actorName ?? t("someone") })}</span>
                   </>
                 ) : item.kind === "review" ? (
                   <>

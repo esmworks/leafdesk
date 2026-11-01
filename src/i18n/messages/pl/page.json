@@ -1408,6 +1408,7 @@
     "regenerate": "Wygeneruj ponownie",
     "files": {
       "attach": "Załącz pliki tekstowe",
+      "drop": "Upuść pliki tekstowe, aby je dołączyć",
       "remove": "Usuń {name}",
       "download": "Pobierz {name}",
       "tooMany": "Najwyżej {max} pliki na wiadomość.",

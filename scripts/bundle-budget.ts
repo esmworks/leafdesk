@@ -141,8 +141,11 @@ import { gzipSync } from "node:zlib";
  * stood at its budget.
  * The Mail tab's unread count, the chat box's chips stepping aside while dictating and the agents
  * in the sidebar's chat tab add under 0.5 kB to all first loads together, which stood at its budget.
+ * An agent's chat box made the AI chat's (files dropped or pasted, dictation, growing with its
+ * text) and reminders set from the AI chat add a few hundred bytes to a page's route, which stood
+ * at its budget.
  */
-const BUDGET = { routeFirstLoad: 794, firstLoadShared: 1230, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 795, firstLoadShared: 1230, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

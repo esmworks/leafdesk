@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Promemoria da {agent}",
+    "ownTitle": "Promemoria",
     "open": "Apri",
     "later": "Ricordamelo tra 1 ora",
     "done": "Fatto"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Già esaminata",
     "reportTitle": "Rapporto da {agent}",
     "aiReminderTitle": "Promemoria da {agent}",
+    "aiReminderOwnTitle": "Il tuo promemoria",
     "reportDone": "La sua esecuzione pianificata è terminata.",
     "reportFailed": "La sua esecuzione pianificata non è riuscita. Aprila per vedere perché.",
     "reportFailedReason": "La sua esecuzione pianificata non è riuscita a svolgere il compito: {reason}",

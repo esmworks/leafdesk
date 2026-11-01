@@ -86,6 +86,7 @@
     "createXlsx": "إنشاء ملف Excel {title} وإرفاقه بـ {target}؟",
     "source": "الصفوف من {name}.",
     "remember": "هل أتذكر هذا عنك؟",
+    "remind": "أذكّرك بهذا؟",
     "forget": "نسيان هذه الملاحظة؟",
     "connection": "إرسال هذا إلى {connection} ({tool})؟",
     "tool": "هل تريد إجراء هذا التغيير ({tool})؟",

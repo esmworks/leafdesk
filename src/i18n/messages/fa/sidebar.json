@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "یادآوری از {agent}",
+    "ownTitle": "یادآوری",
     "open": "باز کردن",
     "later": "یک ساعت دیگر یادآوری کن",
     "done": "انجام شد"
@@ -243,6 +244,7 @@
     "memoryAnswered": "قبلاً بررسی شده",
     "reportTitle": "گزارش از {agent}",
     "aiReminderTitle": "یادآوری از {agent}",
+    "aiReminderOwnTitle": "یادآوری شما",
     "reportDone": "اجرای زمان‌بندی‌شده آن تمام شد.",
     "reportFailed": "اجرای زمان‌بندی‌شده آن ناموفق بود. برای دیدن دلیل آن را باز کنید.",
     "reportFailedReason": "اجرای زمان‌بندی‌شده آن نتوانست کارش را انجام دهد: {reason}",

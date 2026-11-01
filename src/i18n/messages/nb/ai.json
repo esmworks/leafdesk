@@ -320,6 +320,10 @@
         "failed": "{tool} mislyktes",
         "declined": "Avslått: {tool}"
       },
+      "reminder": {
+        "done": "Påminnelse satt til {when}:",
+        "declined": "Avslo en påminnelse til {when}:"
+      },
       "mail": {
         "searched": "Søkte i e-post etter «{query}» · {count, plural, =0 {ingenting funnet} one {# tråd} other {# tråder}}",
         "read": "Leste e-posten",
@@ -362,6 +366,7 @@
         "createPage": "Vil du legge til denne siden?",
         "remember": "Skal dette huskes om deg?",
         "forget": "Vil du glemme dette notatet?",
+        "remind": "Skal jeg minne deg på dette?",
         "editPage": "Vil du endre teksten på denne siden?",
         "createPdf": "Vil du lage en PDF av denne siden og legge den ved?",
         "createDocx": "Vil du lage et Word-dokument av denne siden og legge det ved?",
@@ -379,6 +384,7 @@
       "row": "Rad",
       "topLevel": "Øverst i arbeidsområdet, privat for deg",
       "memoryHint": "Minne: sendes med de senere spørsmålene dine i dette arbeidsområdet",
+      "remindHint": "{when}: over siden du har åpen, i innboksen og på telefonen din",
       "cleared": "(tømt)",
       "approve": "Ja",
       "always": "Ja, og ikke spør igjen (Auto)",

@@ -1408,6 +1408,7 @@
     "regenerate": "Yeniden yanıtlat",
     "files": {
       "attach": "Metin dosyası ekle",
+      "drop": "Eklemek için metin dosyalarını bırak",
       "remove": "{name} dosyasını çıkar",
       "download": "{name} dosyasını indir",
       "tooMany": "Bir mesaja en fazla {max} dosya eklenebilir.",

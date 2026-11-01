@@ -86,6 +86,7 @@
     "createXlsx": "Tạo tệp Excel {title} và đính kèm vào {target}?",
     "source": "Các hàng của {name}.",
     "remember": "Ghi nhớ điều này về bạn?",
+    "remind": "Nhắc bạn điều này?",
     "forget": "Quên ghi chú này?",
     "connection": "Gửi nội dung này đến {connection} ({tool})?",
     "tool": "Thực hiện thay đổi này ({tool})?",

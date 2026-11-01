@@ -273,6 +273,7 @@
     "memory": "{count, plural, one {Hafızası için bir not öneriyor} other {Hafızası için # not öneriyor}}",
     "reportTitle": "{agent} raporu",
     "aiReminderTitle": "{agent} hatırlatıyor",
+    "aiReminderOwnTitle": "Hatırlatma",
     "aiReminder": "Okumak için açın",
     "reportDone": "Zamanlanmış çalışması bitti",
     "reportFailed": "Zamanlanmış çalışması başarısız oldu",

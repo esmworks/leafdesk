@@ -18,7 +18,7 @@
 import { ArrowUp, AtSign, Check, ChevronRight, Clock, ListChecks, Loader2, Mail, Paperclip, Pencil, Plus, RotateCcw, ScrollText, Search, Trash2, TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   deleteAgentConversationAction,
@@ -33,7 +33,10 @@ import { AnswerText } from "@/components/ai-chat/answer-text";
 import { StepLine } from "@/components/ai-chat/step-line";
 import { ChangedPagesBox, changedPages } from "@/components/ai-chat/chat-side";
 import { scrollingBox, ToLatest, TurnLines } from "@/components/chat-navigation";
-import { CopyAction, MessageTime, questionBox, revealed, StepsFold } from "@/components/ai-chat/message-parts";
+import { DictateButton, type DictationNotice } from "@/components/ai-chat/dictate-button";
+import { carriesFiles, composerBox, CopyAction, MessageTime, questionBox, revealed, roundButton, StepsFold } from "@/components/ai-chat/message-parts";
+import { useAiChat } from "@/components/ai-chat/chat-panel";
+import { useCanRecord } from "@/components/voice/dictation";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
@@ -55,7 +58,8 @@ import {
   type ChatPlace,
   type LiveTextEdit,
 } from "@/lib/agent-chat";
-import { AGENT_CHAT_FILE_ACCEPT } from "@/lib/agent-chat-files";
+import { AGENT_CHAT_FILE_ACCEPT, agentChatFileType } from "@/lib/agent-chat-files";
+import { insertDictation } from "@/lib/chat-paste";
 import { AnswerFiles, FileChips, readChatFiles, useFileProblem } from "./chat-files";
 
 const ChatSearch = lazyPart(() => import("./chat-search").then((m) => m.ChatSearch));
@@ -139,6 +143,27 @@ export function AgentChat({
   const [files, setFiles] = useState<AgentChatFileIn[]>([]);
   const fileInput = useRef<HTMLInputElement>(null);
   const fileProblem = useFileProblem();
+  // The box is the AI chat's: files dropped on it or pasted, and dictation where the workspace can transcribe.
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [dropping, setDropping] = useState(false);
+  const voice = useAiChat()?.voice ?? null;
+  const canRecord = useCanRecord();
+  const [dictation, setDictation] = useState<DictationNotice>(null);
+  const dictated = useCallback((text: string) => {
+    const box = inputRef.current;
+    if (!box) return;
+    const next = insertDictation(box.value, text, box.selectionStart, box.selectionEnd);
+    setInput(next.text);
+    box.focus();
+    requestAnimationFrame(() => box.setSelectionRange(next.caret, next.caret));
+  }, []);
+  // The box grows with what is typed, up to its max-height, then scrolls.
+  useLayoutEffect(() => {
+    const box = inputRef.current;
+    if (!box) return;
+    box.style.height = "auto";
+    box.style.height = `${box.scrollHeight}px`;
+  }, [input]);
   // The last question being edited (its text), the search open, and a summary being written.
   const [editing, setEditing] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
@@ -430,6 +455,7 @@ export function AgentChat({
     if ((!message && !files.length) || !info?.agent || !canChat || sending) return;
     setSending(true);
     setError(null);
+    setDictation(null);
     try {
       const res = await sendAgentChatAction({ workspaceId, agentId, place: placeRef.current, conversationId, message, files: files.map((f) => ({ name: f.name, text: f.text })) });
       if (!res.ok) return refused(res);
@@ -554,6 +580,8 @@ export function AgentChat({
   for (const m of messages) if (m.role === "user" && !askedAt.has(m.runId)) askedAt.set(m.runId, m.at);
   const block = variant === "block";
   const page = variant === "page";
+  // The AI chat's round buttons, roomier for a finger.
+  const round = cn(roundButton, "h-[26px] w-[26px] pointer-coarse:h-9 pointer-coarse:w-9");
   const answers = new Map(messages.flatMap((m) => (m.role === "assistant" ? [[m.runId, m.content] as const] : [])));
   // Questions that waited together are one turn (one run).
   const turns: { id: string; question: string; answer: string }[] = [];
@@ -767,36 +795,43 @@ export function AgentChat({
         )}
       >
         {page && <ToLatest scroller={scroller} className="absolute -top-12 left-1/2 z-10 -translate-x-1/2" />}
-        {(blocked || error) && (
-          <p role={error ? "alert" : "status"} className={cn("mb-1.5 text-xs", error ? "text-danger" : "text-fg-muted")}>
-            {error ?? blocked}
+        {(blocked || error || dictation) && (
+          <p role={error || dictation?.error ? "alert" : "status"} className={cn("mb-1.5 text-xs", error || dictation?.error ? "text-danger" : "text-fg-muted")}>
+            {error ?? blocked ?? dictation?.message}
           </p>
         )}
         {info?.computer && <ComputerNote folders={info.computer} />}
         <form
-          className={cn("flex flex-wrap items-end gap-2", page && "rounded-xl border border-border bg-bg px-3 py-2 shadow-sm")}
+          className={cn(composerBox(dropping), "gap-2 px-3.5 pt-3 pb-2.5", page && "shadow-sm")}
           onSubmit={(e) => {
             e.preventDefault();
             void send();
           }}
+          onDragOver={(e) => {
+            if (!canChat || !carriesFiles(e)) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = "copy";
+            setDropping(true);
+          }}
+          onDragLeave={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropping(false);
+          }}
+          onDrop={(e) => {
+            if (!carriesFiles(e)) return;
+            // Not to the page's editor around a block.
+            e.preventDefault();
+            e.stopPropagation();
+            setDropping(false);
+            if (canChat) void attach(Array.from(e.dataTransfer.files));
+          }}
         >
+          {dropping && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[inherit] bg-bg/90 text-sm text-fg-muted">{t("files.drop")}</div>
+          )}
           {files.length > 0 && <FileChips files={files} className="flex w-full flex-wrap gap-1.5" onRemove={(name) => setFiles((list) => list.filter((f) => f.name !== name))} />}
-          <input
-            ref={fileInput}
-            type="file"
-            multiple
-            hidden
-            accept={AGENT_CHAT_FILE_ACCEPT}
-            onChange={(e) => {
-              const picked = Array.from(e.target.files ?? []);
-              e.target.value = "";
-              void attach(picked);
-            }}
-          />
-          <IconButton label={t("files.attach")} title={t("files.attach")} className="mb-0.5 h-7 w-7" disabled={!canChat} onClick={() => fileInput.current?.click()}>
-            <Paperclip className="h-3.5 w-3.5" />
-          </IconButton>
           <textarea
+            ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -807,23 +842,57 @@ export function AgentChat({
                 void send();
               }
             }}
-            onPaste={(e) => e.stopPropagation()}
-            rows={Math.min(5, Math.max(1, input.split("\n").length))}
+            onPaste={(e) => {
+              e.stopPropagation();
+              // A copied text file is attached, not pasted as its name.
+              const pasted = Array.from(e.clipboardData.files).filter((f) => agentChatFileType(f.name, f.type) !== null);
+              if (!pasted.length) return;
+              e.preventDefault();
+              void attach(pasted);
+            }}
+            rows={1}
             maxLength={MAX_AGENT_CHAT_MESSAGE}
             disabled={!canChat}
             placeholder={t("placeholder", { name: agent.name })}
             aria-label={t("placeholder", { name: agent.name })}
-            className="min-h-8 min-w-0 flex-1 resize-none bg-transparent py-1 text-sm outline-none placeholder:text-fg-faint disabled:opacity-60"
+            className="block max-h-[180px] min-h-10 w-full resize-none bg-transparent text-sm leading-normal outline-none placeholder:text-fg-faint disabled:opacity-60"
           />
-          <button
-            type="submit"
-            aria-label={t("send")}
-            title={t("send")}
-            disabled={!canChat || (!input.trim() && !files.length) || sending}
-            className="mb-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-fg text-bg transition-colors hover:bg-fg/85 disabled:bg-bg-active disabled:text-fg-faint"
-          >
-            {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowUp className="h-3.5 w-3.5" />}
-          </button>
+          {/* Files on the left; dictation and Send on the right, as in the AI chat's box. */}
+          <div className="flex min-w-0 items-center gap-2">
+            <input
+              ref={fileInput}
+              type="file"
+              multiple
+              hidden
+              accept={AGENT_CHAT_FILE_ACCEPT}
+              onChange={(e) => {
+                const picked = Array.from(e.target.files ?? []);
+                e.target.value = "";
+                void attach(picked);
+              }}
+            />
+            <button
+              type="button"
+              aria-label={t("files.attach")}
+              title={t("files.attach")}
+              className={cn(round, "border border-border text-fg hover:bg-bg-hover disabled:opacity-40 disabled:hover:bg-transparent")}
+              disabled={!canChat}
+              onClick={() => fileInput.current?.click()}
+            >
+              <Paperclip className="h-3.5 w-3.5" />
+            </button>
+            <span className="flex-1" />
+            {voice && canRecord && <DictateButton workspaceId={workspaceId} limits={voice} disabled={!canChat} onText={dictated} onNotice={setDictation} />}
+            <button
+              type="submit"
+              aria-label={t("send")}
+              title={t("send")}
+              disabled={!canChat || (!input.trim() && !files.length) || sending}
+              className={cn(round, "bg-fg text-bg enabled:hover:opacity-85 disabled:opacity-35")}
+            >
+              {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.25} />}
+            </button>
+          </div>
         </form>
       </div>
       {lines && createPortal(<TurnLines scroller={scroller} turns={turns} />, lines)}

@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "{agent}의 리마인더",
+    "ownTitle": "리마인더",
     "open": "열기",
     "later": "1시간 후 다시 알림",
     "done": "완료"
@@ -243,6 +244,7 @@
     "memoryAnswered": "이미 검토됨",
     "reportTitle": "{agent}의 보고서",
     "aiReminderTitle": "{agent}의 리마인더",
+    "aiReminderOwnTitle": "내 리마인더",
     "reportDone": "예약된 실행이 완료되었습니다.",
     "reportFailed": "예약된 실행이 실패했습니다. 열어서 원인을 확인하세요.",
     "reportFailedReason": "예약된 실행이 작업을 해내지 못했습니다: {reason}",

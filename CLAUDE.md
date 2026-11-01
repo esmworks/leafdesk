@@ -229,7 +229,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   policies when it starts, checked again at each call. Reminders to the person
   a run works for (`remind_person`, no recipient argument): `server/ai-reminders.ts`, a notification
   of kind `ai_reminder` waiting snoozed until its time (`deliverSnoozed` wakes it), shown over the
-  page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`.
+  page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`. The
+  AI chat offers the same tool to the person asking (`ai-chat.ts` `remind`, a `reminder` step): its
+  actor is that person, which the inbox reads as `InboxAiReminder.own`.
   A schedule's run may end itself with `finish_run` (`lib/agents.ts` `finishRunCall`): `nothing_new`
   sets `agent_run.quiet` and `reportRun` sends nothing; `failed` is code `selfReported`; the reason
   is the run's `answer` either way. A schedule's run that isn't quiet also goes to its setter's

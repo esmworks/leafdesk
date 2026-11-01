@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Muistutus: {agent}",
+    "ownTitle": "Muistutus",
     "open": "Avaa",
     "later": "Muistuta tunnin päästä",
     "done": "Valmis"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Jo tarkistettu",
     "reportTitle": "Raportti: {agent}",
     "aiReminderTitle": "Muistutus: {agent}",
+    "aiReminderOwnTitle": "Muistutuksesi",
     "reportDone": "Sen ajastettu ajo päättyi.",
     "reportFailed": "Sen ajastettu ajo epäonnistui. Avaa se nähdäksesi syyn.",
     "reportFailedReason": "Sen ajastettu ajo ei pystynyt tekemään tehtäväänsä: {reason}",

@@ -273,6 +273,7 @@
     "memory": "{count, plural, one {Propone una nota per la sua memoria} other {Propone # note per la sua memoria}}",
     "reportTitle": "Rapporto da {agent}",
     "aiReminderTitle": "Promemoria da {agent}",
+    "aiReminderOwnTitle": "Promemoria",
     "aiReminder": "Aprilo per leggerlo",
     "reportDone": "La sua esecuzione pianificata è terminata",
     "reportFailed": "La sua esecuzione pianificata non è riuscita",

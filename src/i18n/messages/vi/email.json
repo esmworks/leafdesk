@@ -273,6 +273,7 @@
     "memory": "{count, plural, other {Đề xuất # ghi chú cho bộ nhớ của nó}}",
     "reportTitle": "Báo cáo từ {agent}",
     "aiReminderTitle": "Lời nhắc từ {agent}",
+    "aiReminderOwnTitle": "Lời nhắc",
     "aiReminder": "Mở để đọc",
     "reportDone": "Lần chạy theo lịch của tác tử đã hoàn tất",
     "reportFailed": "Lần chạy theo lịch của tác tử đã thất bại",

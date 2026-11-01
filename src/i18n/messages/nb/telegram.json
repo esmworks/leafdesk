@@ -86,6 +86,7 @@
     "createXlsx": "Vil du lage Excel-filen {title} og legge den ved {target}?",
     "source": "Rader fra {name}.",
     "remember": "Vil du at jeg skal huske dette om deg?",
+    "remind": "Skal jeg minne deg på dette?",
     "forget": "Vil du glemme dette notatet?",
     "connection": "Vil du sende dette til {connection} ({tool})?",
     "tool": "Gjøre denne endringen ({tool})?",

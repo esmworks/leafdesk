@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "תזכורת מ-{agent}",
+    "ownTitle": "תזכורת",
     "open": "פתיחה",
     "later": "להזכיר בעוד שעה",
     "done": "סיום"
@@ -243,6 +244,7 @@
     "memoryAnswered": "כבר נבדק",
     "reportTitle": "דוח מ־{agent}",
     "aiReminderTitle": "תזכורת מ-{agent}",
+    "aiReminderOwnTitle": "התזכורת שלך",
     "reportDone": "ההרצה המתוזמנת שלו הסתיימה.",
     "reportFailed": "ההרצה המתוזמנת שלו נכשלה. אפשר לפתוח אותה כדי לראות למה.",
     "reportFailedReason": "ההרצה המתוזמנת שלו לא הצליחה לבצע את המשימה: {reason}",

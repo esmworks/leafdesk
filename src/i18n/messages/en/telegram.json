@@ -86,6 +86,7 @@
     "createXlsx": "Make the Excel file {title} and attach it to {target}?",
     "source": "Rows of {name}.",
     "remember": "Remember this about you?",
+    "remind": "Remind you of this?",
     "forget": "Forget this note?",
     "connection": "Send this to {connection} ({tool})?",
     "tool": "Make this change ({tool})?",

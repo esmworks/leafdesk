@@ -1668,7 +1668,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
             }
             // An agent's reminder, about a page or none; the link opens what it is about.
             if (n.kind === "ai_reminder") {
-              const agent = n.aiReminder?.agentName ?? who;
+              const agent = n.aiReminder?.own ? "The AI chat, as the user asked," : (n.aiReminder?.agentName ?? who);
               return {
                 id: n.id,
                 kind: n.kind,

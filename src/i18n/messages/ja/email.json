@@ -273,6 +273,7 @@
     "memory": "メモリーに{count}件のメモを提案しています",
     "reportTitle": "{agent}からのレポート",
     "aiReminderTitle": "{agent} からのリマインダー",
+    "aiReminderOwnTitle": "リマインダー",
     "aiReminder": "開いて内容を確認してください",
     "reportDone": "スケジュールされた実行が完了しました",
     "reportFailed": "スケジュールされた実行が失敗しました",

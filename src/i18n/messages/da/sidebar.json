@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Påmindelse fra {agent}",
+    "ownTitle": "Påmindelse",
     "open": "Åbn",
     "later": "Mind mig om 1 time",
     "done": "Færdig"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Allerede gennemgået",
     "reportTitle": "Rapport fra {agent}",
     "aiReminderTitle": "Påmindelse fra {agent}",
+    "aiReminderOwnTitle": "Din påmindelse",
     "reportDone": "Dens planlagte kørsel er færdig.",
     "reportFailed": "Dens planlagte kørsel mislykkedes. Åbn den for at se hvorfor.",
     "reportFailedReason": "Den planlagte kørsel kunne ikke udføre sin opgave: {reason}",

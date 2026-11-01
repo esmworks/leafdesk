@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Reminder from {agent}",
+    "ownTitle": "Reminder",
     "open": "Open",
     "later": "Remind me in 1 hour",
     "done": "Done"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Already reviewed",
     "reportTitle": "Report from {agent}",
     "aiReminderTitle": "Reminder from {agent}",
+    "aiReminderOwnTitle": "Your reminder",
     "reportDone": "Its scheduled run finished.",
     "reportFailed": "Its scheduled run failed. Open it to see why.",
     "reportFailedReason": "Its scheduled run couldn’t do its task: {reason}",

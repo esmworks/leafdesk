@@ -3,10 +3,10 @@
 /**
  * One step an AI answer or an agent's run took (a search, a page read, a database queried, a
  * change made, a note kept about the person or dropped, a call to a connection's tool, a research
- * plan, a web search or a web page read, a thought), as a line: an icon and what happened, the
+ * plan, a web search or a web page read, a reminder set, a thought), as a line: an icon and what happened, the
  * pages it names as links (web pages open in a new tab).
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, Paperclip, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
+import { AlarmClock, Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, Paperclip, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment } from "react";
 import { cn, PageIcon, pageLabel } from "@/components/ui";
@@ -14,6 +14,7 @@ import { makesFile, type ChatChange, type ChatPageView, type ChatQueryCondition,
 
 export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (source: ChatSourceView) => void }) {
   const t = useTranslations("ai.chat");
+  const locale = useLocale();
   const icon = "mt-[3px] h-3.5 w-3.5 shrink-0";
   if (step.kind === "search") {
     return (
@@ -70,6 +71,16 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
         <Icon className={icon} />
         <span className="min-w-0 break-words">
           {label} <span className="text-fg">“{step.text}”</span>
+        </span>
+      </>
+    );
+  }
+  if (step.kind === "reminder") {
+    return (
+      <>
+        {step.outcome === "declined" ? <Ban className={icon} /> : <AlarmClock className={icon} />}
+        <span className="min-w-0 break-words">
+          {t(`steps.reminder.${step.outcome}`, { when: reminderLabel(step.when, locale) })} <span className="text-fg">“{step.text}”</span>
         </span>
       </>
     );
@@ -208,6 +219,14 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
       <span className="line-clamp-2 min-w-0 break-words">{step.text}</span>
     </>
   );
+}
+
+/** A reminder's time, "YYYY-MM-DD HH:MM" on the person's clock, in their language ("Mon, 2 Nov, 09:00"). */
+export function reminderLabel(when: string, locale: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/.exec(when);
+  if (!m) return when;
+  const options: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" };
+  return new Intl.DateTimeFormat(locale, options).format(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]));
 }
 
 const WRITE_ICONS = {

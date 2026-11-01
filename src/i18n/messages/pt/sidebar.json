@@ -166,6 +166,7 @@
   },
   "reminderPrompt": {
     "title": "Lembrete de {agent}",
+    "ownTitle": "Lembrete",
     "open": "Abrir",
     "later": "Lembrar em 1 hora",
     "done": "Concluído"
@@ -243,6 +244,7 @@
     "memoryAnswered": "Já revisado",
     "reportTitle": "Relatório de {agent}",
     "aiReminderTitle": "Lembrete de {agent}",
+    "aiReminderOwnTitle": "Seu lembrete",
     "reportDone": "A execução agendada terminou.",
     "reportFailed": "A execução agendada falhou. Abra para ver o motivo.",
     "reportFailedReason": "A execução agendada não conseguiu fazer a tarefa: {reason}",

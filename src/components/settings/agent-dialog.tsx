@@ -59,6 +59,7 @@ import { AgentHelpersField } from "./agent-helpers-field";
 import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
+import { REMIND_TOOL_NAME } from "@/lib/ai-reminders";
 
 /** The dialog's tabs; `share`, who the agent is shared with, opens from its header rather than the tab bar. */
 export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs" | "chat" | "history" | "share";
@@ -886,6 +887,9 @@ function RunItem({
 }
 
 /** A step of a run: the chat's steps, the comments the agent wrote, its calls to connections and the agents it asked. */
+/** A reminder links to no page. */
+const noSource = () => {};
+
 export function AgentStepLine({
   step,
   connections,
@@ -902,6 +906,12 @@ export function AgentStepLine({
     return <WebStepLine step={step} />;
   }
   if (step.kind === "handoff") return <HandoffStepLine step={step} onOpenRun={onOpenRun} />;
+  // A reminder it set reads as the AI chat's do: its step's input is "<when> · <text>" (server/ai-reminders.ts).
+  const said = step.kind === "tool" && step.connectionId === null && step.tool === REMIND_TOOL_NAME && step.outcome === "done" ? step.input.indexOf(" · ") : -1;
+  if (step.kind === "tool" && said > 0) {
+    const reminder = { kind: "reminder", when: step.input.slice(0, said), text: step.input.slice(said + 3), outcome: "done" } as const;
+    return <StepLine step={reminder} onSource={noSource} />;
+  }
   if (step.kind === "tool" && step.connectionId === null && (isComputerTool(step.tool) || step.tool === COMPUTER_EARLIER)) return <ComputerStepLine step={step} />;
   if (step.kind === "tool") {
     const connection = step.connectionId === null ? OWN_TOOLS_NAME : (connections[step.connectionId] ?? t("removedConnection"));

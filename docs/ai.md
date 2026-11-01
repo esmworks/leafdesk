@@ -399,6 +399,17 @@ the memory is off when asked to remember something). Workspace owners can turn t
 everyone under Settings → General → AI → *AI memory*, which also hides the *Memory* button. Neither
 switch deletes a note: they come back when the memory is turned on again.
 
+**Reminders and routines.** Ask the chat to remind you of something once ("remind me tomorrow at
+9 to call Ayşe") and it sets a reminder for you alone, up to 30 days ahead, on your clock (the
+browser's time zone): the box asks first, showing what it will say and when, unless the chat is on
+*Auto*. It comes as an agent's reminder does (over the page you have open, in your inbox, as a push
+or Telegram message), titled *Your reminder*; an answer sets at most 3. The chat can't do anything
+later on its own, so work to be done again and again ("every morning, list what's due today",
+"each Friday, sum up the week's sales") goes to one of your agents as a schedule
+([Agents](agents.md)): the chat finds `set_agent_schedule`, makes an agent first with
+`create_agent` when you have none and may make one, and asks you before each. With changes off it
+says so instead. People turn reminders off under *AI reminders* in Settings → Preferences.
+
 The same notes reach the AI apps you connect over MCP, so each of them knows you as the chat does:
 `list_memory` reads them (an app is told to at the start of a conversation), and `change_memory`
 keeps a note, changes one or deletes some or all of them, with the chat's

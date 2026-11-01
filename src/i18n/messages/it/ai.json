@@ -320,6 +320,10 @@
         "failed": "{tool} non riuscito",
         "declined": "Rifiutato: {tool}"
       },
+      "reminder": {
+        "done": "Promemoria impostato per {when}:",
+        "declined": "Promemoria rifiutato per {when}:"
+      },
       "mail": {
         "searched": "Cercato nella posta «{query}» · {count, plural, =0 {nessun risultato} one {# conversazione} other {# conversazioni}}",
         "read": "Email letta",
@@ -362,6 +366,7 @@
         "createPage": "Aggiungere questa pagina?",
         "remember": "Ricordare questo su di te?",
         "forget": "Dimenticare questa nota?",
+        "remind": "Te lo ricordo?",
         "editPage": "Modificare il testo di questa pagina?",
         "createPdf": "Creare un PDF di questa pagina e allegarlo?",
         "createDocx": "Creare un documento Word di questa pagina e allegarlo?",
@@ -379,6 +384,7 @@
       "row": "Riga",
       "topLevel": "Al primo livello dello spazio di lavoro, visibile solo a te",
       "memoryHint": "Memoria: inviata con le tue prossime domande in questo spazio di lavoro",
+      "remindHint": "{when}: sopra la pagina aperta, nella posta in arrivo e sul tuo telefono",
       "cleared": "(svuotato)",
       "approve": "Sì",
       "always": "Sì, e non chiedere più (Auto)",

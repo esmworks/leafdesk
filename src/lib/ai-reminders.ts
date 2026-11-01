@@ -3,6 +3,9 @@
 
 import { dayNumber, dayString, zonedInstant } from "./time-zone";
 
+/** The tool that sets one, in agents' runs and the AI chat alike. */
+export const REMIND_TOOL_NAME = "remind_person";
+
 /** The most a reminder says. */
 export const MAX_REMINDER_CHARS = 300;
 /** Reminders one run may set. */
