@@ -266,8 +266,9 @@ value next to the new one, and the old title when it is renamed) with *Yes*, *Ye
 again* (the mode becomes *Auto*) and *No*, also as 1, 2, 3 on the keyboard (Escape says no); *Auto*
 makes changes without asking; *Read only* doesn't offer the model changes at all. A change is
 checked (the target, your edit access, the values) before you are asked; nothing is written while it
-waits, and stopping the answer or 15 minutes without an answer leave it unmade (leaving the page
-doesn't: you are asked again when you come back).
+waits, however long you take, and stopping the answer leaves it unmade (leaving the page doesn't:
+you are asked again when you come back). An answer the server was writing when it restarted goes on
+from where it was some minutes later, and is kept in the conversation.
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
 
@@ -811,8 +812,8 @@ chat history and follow its limits.
 to a connection's tool that changes something) and, in every mode, each web search or page read
 (with its words or address) comes as a message saying what and where, with
 *Yes* and *No* buttons (and *Yes, don't ask again* for changes in the workspace). Only the linked
-person can press them; the answer waits up to 15 minutes, then goes on without the change, and
-the message's buttons go once the answer ends.
+person can press them; the answer waits until they do (or stop it), and the message's buttons go
+once the answer ends.
 
 **Notifications.** Each new item of the person's inbox also comes to the chat, as soon as it is
 saved: what the inbox shows for it (the page, or what it is about, then who did what), the

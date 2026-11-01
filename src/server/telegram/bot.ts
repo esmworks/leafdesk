@@ -10,8 +10,8 @@ import { connectedAppHold } from "@/server/access";
 import type { AiErrorCode } from "@/lib/ai";
 import { isAiError, sttLimits } from "@/server/ai";
 import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
-import { startChat } from "@/server/ai-chat";
-import { conversationBusy, dropRun, followRun, openRun, runEvents } from "@/server/ai-chat-runs";
+import { answerUnderWay, decideParkedChange, startChat } from "@/server/ai-chat";
+import { dropRun, followRun, openRun, runEvents } from "@/server/ai-chat-runs";
 import { asWrite, runAsConnectedApp } from "@/server/connected-app";
 import { transcribeDictation } from "@/server/voice-notes";
 import { listWorkspaces } from "@/server/workspaces";
@@ -349,7 +349,7 @@ async function ask(link: TelegramLinkRow, t: Translator, { text, voice, document
     if (readOnly) await send(chatId, html(t, "readOnlyWorkspace", { workspace: escapeHtml(workspace.name) }));
 
     // The conversation is the app's too: one answer at a time in it, wherever it was asked.
-    if (link.conversationId && (await conversationBusy(link.userId, link.conversationId))) return void (await send(chatId, escapeHtml(t("busyInApp"))));
+    if (link.conversationId && (await answerUnderWay(link.userId, link.conversationId))) return void (await send(chatId, escapeHtml(t("busyInApp"))));
     // Kept with the app's answers (ai-chat-runs.ts), so the app sees the conversation busy, and Stop
     // or deleting it there stops this one too; /stop here stops it as before.
     const start = async (conversationId: string | null) => {
@@ -524,7 +524,7 @@ async function onCallback(query: TelegramCallbackQuery) {
     const decision = DECISIONS[choice];
     const text = asked.get(id)?.text ?? escapeHtml(message.text ?? "");
     asked.delete(id);
-    if (!decideChange(link.userId, id, decision)) {
+    if (!decideChange(link.userId, id, decision) && !(await decideParkedChange(link.userId, id, decision))) {
       await answerCallback(query.id, t("approval.gone"));
       await editMessage(chatId, message.message_id, text).catch(() => {});
       return;

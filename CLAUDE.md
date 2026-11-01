@@ -159,7 +159,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   request (`ai-chat-runs.ts`, keyed by a run id the browser picks): closing the request only stops
   following it, Stop is `stopChatAction`, and `getConversation`'s `run` is followed again through
   `GET /api/ai/chat?run=`, which replays its events from the `conversation` event (it carries the
-  question: the turn is saved only at the end). Chat: `ai-chat.ts`; its tools:
+  question: the turn is saved only at the end). Each answer is also an `agent_run` without an agent
+  (source `assistant`), which `startChat` runs in its own process (`converseChat`), keeping its
+  state after each tool call; a change it asks about parks it (`awaiting_approval`, the approval id
+  is `pending.askId`) and waits in `ai-chat-approvals.ts`, with no time limit. The agents' worker
+  goes on with one a stopped server left running, or one decided with no one waiting
+  (`decideParkedChange`), through `resumeChatRun`; the row goes with the turn's save. What the chat
+  asks about before a call is `assistant/chat-dispatch.ts`. Chat: `ai-chat.ts`; its tools:
   `ai-tools.ts` (reads refuse arguments their schema doesn't name, `unknownArguments`; writes
   reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this

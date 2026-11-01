@@ -7,7 +7,7 @@ import { MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
-import { deleteConversations, getConversation, listConversations, saveReportAsPage } from "@/server/ai-chat";
+import { decideParkedChange, deleteConversations, getConversation, listConversations, saveReportAsPage } from "@/server/ai-chat";
 import { addMemory, deleteMemories, listMemories, MemoryError, memoryUse, setMemoryUse, updateMemory } from "@/server/ai-memory";
 import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
 import { MAX_PROMPT_NAME, MAX_PROMPT_TEXT, MAX_SAVED_PROMPTS } from "@/lib/ai-saved-prompts";
@@ -189,12 +189,13 @@ export async function deleteMemoryAction(workspaceId: string, memoryId: string |
 
 /**
  * The person's decision on a change the AI chat asked about (its `approval` event): false when it
- * no longer waits (stopped, timed out or decided) or isn't theirs.
+ * no longer waits (stopped or decided) or isn't theirs.
  */
 export async function decideChangeAction(approvalId: string, decision: ChatDecision) {
   return run(async (userId) => {
     if (decision !== "approve" && decision !== "always" && decision !== "decline") return false;
-    return decideChange(userId, String(approvalId), decision);
+    // Waited on here, or (the server restarted since) parked for the worker to go on with.
+    return decideChange(userId, String(approvalId), decision) || (await decideParkedChange(userId, String(approvalId), decision));
   });
 }
 

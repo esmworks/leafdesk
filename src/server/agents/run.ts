@@ -195,7 +195,7 @@ export async function queueAgentRun(input: {
 }
 
 /** Takes due runs, marking them running, so two sweeps never take the same one. */
-async function claim(limit: number): Promise<Run[]> {
+async function claim(limit: number): Promise<(typeof agentRun.$inferSelect)[]> {
   if (limit <= 0) return [];
   const taken = await db.execute<{ id: string }>(sql`
     update ${agentRun} set status = 'running', attempts = attempts + 1, next_at = now(), started_at = coalesce(started_at, now())
@@ -203,7 +203,6 @@ async function claim(limit: number): Promise<Run[]> {
       select id from ${agentRun}
       where ((status = 'pending' and next_at <= now())
          or (status = 'running' and next_at <= now() - make_interval(secs => ${STALE_MS / 1000})))
-        and agent_id is not null
       order by next_at
       limit ${limit}
       for update skip locked
@@ -212,8 +211,7 @@ async function claim(limit: number): Promise<Run[]> {
   `);
   const ids = [...taken].map((r) => r.id);
   if (!ids.length) return [];
-  const runs = await db.select().from(agentRun).where(inArray(agentRun.id, ids)).orderBy(agentRun.createdAt);
-  return runs.filter(isAgentRun);
+  return db.select().from(agentRun).where(inArray(agentRun.id, ids)).orderBy(agentRun.createdAt);
 }
 
 async function finish(run: Run, values: Ending) {
@@ -854,7 +852,16 @@ async function eventText(run: Run) {
 // ----------------------------------------------------------------------------------- worker
 
 /** Does a run taken in a slot of the worker (or, a helper's, in the slot of the run that asked it), failing it on an error. */
-function runInSlot(run: Run): Promise<void> {
+function runInSlot(run: typeof agentRun.$inferSelect): Promise<void> {
+  // A person's own AI chat, after their decision or left running by a server that stopped:
+  // imported here, as ai-chat.ts reaches this module through its tools.
+  if (!isAgentRun(run)) {
+    const { source } = run;
+    if (source.kind !== "assistant") return Promise.resolve();
+    return import("@/server/ai-chat")
+      .then(({ resumeChatRun }) => resumeChatRun({ ...run, source }))
+      .catch((error) => console.error("[ai] chat run failed", redactError(error)));
+  }
   return processRun(run).catch(async (error) => {
     console.error("[agents] run failed", redactError(error));
     await finish(run, { status: "failed", code: "error", error: error instanceof Error ? error.message : String(error) }).catch(() => undefined);
@@ -967,8 +974,11 @@ export async function expireApprovals() {
   }
 }
 
-/** Runs everything due now and waits for it (scripts and tests; the server sweeps on its own). */
-export async function flushAgentRuns() {
+/**
+ * Runs everything due now and waits for it (scripts and tests; the server sweeps on its own);
+ * `assistant`: people's own AI chats too, which the agents' scripts leave out.
+ */
+export async function flushAgentRuns({ assistant = false } = {}) {
   for (;;) {
     await sweep();
     // A sweep a run started (kickAgents, as a helper's task is queued) marks what it takes as running
@@ -977,7 +987,7 @@ export async function flushAgentRuns() {
     const [due] = await db
       .select({ id: agentRun.id })
       .from(agentRun)
-      .where(and(eq(agentRun.status, "pending"), lte(agentRun.nextAt, new Date()), isNotNull(agentRun.agentId)))
+      .where(and(eq(agentRun.status, "pending"), lte(agentRun.nextAt, new Date()), assistant ? undefined : isNotNull(agentRun.agentId)))
       .limit(1);
     if (!due) return;
   }
@@ -994,6 +1004,12 @@ export async function pruneAgentRuns() {
       ),
     )
     .catch((error) => console.error("[agents] could not prune runs", redactError(error)));
+  // A person's AI chat ends by deleting its run (its turn is in the conversation): one still here
+  // was left waiting by a server that stopped, with no one left to answer it.
+  await db
+    .delete(agentRun)
+    .where(and(isNull(agentRun.agentId), lte(agentRun.createdAt, new Date(Date.now() - AGENT_RUN_HISTORY_DAYS * 24 * 60 * 60_000))))
+    .catch((error) => console.error("[ai] could not prune chat runs", redactError(error)));
   await db
     .delete(connectionEvent)
     .where(lte(connectionEvent.receivedAt, new Date(Date.now() - CONNECTION_EVENT_DAYS * 24 * 60 * 60_000)))

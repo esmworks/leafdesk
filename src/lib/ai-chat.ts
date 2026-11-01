@@ -62,9 +62,6 @@ export const isChatThinking = (value: unknown): value is ChatThinking => typeof 
 export const CHAT_MODES = ["ask", "auto", "read"] as const;
 export type ChatMode = (typeof CHAT_MODES)[number];
 
-/** How long a change waits for the person's decision before it counts as declined. */
-export const APPROVAL_TIMEOUT_MS = 15 * 60_000;
-
 /** A source an answer cites, as the reader may see it now. */
 export type ChatSourceView = {
   n: number;

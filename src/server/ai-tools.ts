@@ -1604,14 +1604,11 @@ function preview(markdown: string | undefined) {
 }
 
 /** Makes an approved change (or records it declined): the step, and what the model is told. */
-export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision | "timeout", registry: Registry): Promise<ToolOutcome> {
+export async function applyWrite(prepared: PreparedWrite, decision: ChatDecision, registry: Registry): Promise<ToolOutcome> {
   const { record } = prepared;
-  if (decision === "decline" || decision === "timeout") {
+  if (decision === "decline") {
     return {
-      content:
-        decision === "timeout"
-          ? "The person didn't answer in time, so the change wasn't made. Say what you would have done."
-          : "The person declined this change: it wasn't made. Don't try it again; say what you would have done, or ask what they want instead.",
+      content: "The person declined this change: it wasn't made. Don't try it again; say what you would have done, or ask what they want instead.",
       step: { ...record, outcome: "declined", pageId: null },
     };
   }

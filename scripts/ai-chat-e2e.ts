@@ -28,9 +28,9 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, isNull, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { aiConversation, databaseView, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { agentRun, aiConversation, databaseView, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -46,7 +46,8 @@ const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const index = await import("@/server/semantic-index");
-const { deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
+const { answerUnderWay, decideParkedChange, deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
+const { flushAgentRuns } = await import("@/server/agents/run");
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const runs = await import("@/server/ai-chat-runs");
@@ -847,6 +848,53 @@ try {
     "changes are kept with the conversation, with the values set",
     keptUpdate,
   );
+  // ── An answer whose server stopped while it waited on the person ────────────────────────────
+  fake.setChat(caller([write("create_row", { database_id: parts.id, title: "Ice scraper" })]));
+  let parkedAsk: string | null = null;
+  let parkedConversation: string | null = null;
+  for await (const e of await startChat(alice, { workspaceId, message: "Add an ice scraper" })) {
+    if (e.type === "conversation") parkedConversation = e.id;
+    // The page and the process that waited go away here.
+    if (e.type === "approval") {
+      parkedAsk = e.id;
+      break;
+    }
+  }
+  const parkedRun = async () => (await db.select().from(agentRun).where(and(isNull(agentRun.agentId), sql`${agentRun.source}->>'conversationId' = ${parkedConversation}`)))[0];
+  const parked = await parkedRun();
+  check(
+    parked?.status === "awaiting_approval" && parked.pending?.askId === parkedAsk && parked.pending.action?.title === "Ice scraper" && parked.state?.queue.length === 1,
+    "an answer waiting on the person is kept as a parked run, with the change it asks about",
+    parked && { status: parked.status, pending: parked.pending },
+  );
+  check(!decideChange(alice, parkedAsk!, "approve"), "…which no one waits on here once its answer went away");
+  // Left running by a server that stopped: the worker takes it up where it left off, and asks again.
+  await db.update(agentRun).set({ status: "running", nextAt: new Date(Date.now() - 11 * 60_000) }).where(eq(agentRun.id, parked.id));
+  await flushAgentRuns({ assistant: true });
+  const reclaimed = await parkedRun();
+  check(
+    reclaimed?.status === "awaiting_approval" && reclaimed.pending?.askId !== parkedAsk && (await rowsOf(parts.id, "Ice scraper")).length === 0,
+    "a run left behind by a stopped server is taken up again where it left off, asking again and changing nothing",
+    reclaimed && { status: reclaimed.status, attempts: reclaimed.attempts },
+  );
+  check(!(await decideParkedChange(alice, parkedAsk!, "approve")), "…so what it asked before can no longer be decided");
+  const ask2 = reclaimed!.pending!.askId!;
+  check(!(await decideParkedChange(carol, ask2, "approve")), "…nor can anyone else decide it");
+  check(!(await answerUnderWay(alice, parkedConversation!)), "a parked answer doesn't hold up the conversation");
+  check(await decideParkedChange(alice, ask2, "approve"), "the person decides it in the database");
+  check(await answerUnderWay(alice, parkedConversation!), "…after which the conversation is being answered");
+  await flushAgentRuns({ assistant: true });
+  const resumedTurn = (await getConversation(alice, workspaceId, parkedConversation!)).messages;
+  check(
+    (await rowsOf(parts.id, "Ice scraper")).length === 1 &&
+      resumedTurn.length === 2 &&
+      resumedTurn[1].steps?.some((st) => st.kind === "write" && st.outcome === "done") === true &&
+      resumedTurn[1].content.startsWith("See Ice scraper"),
+    "the worker goes on with the answer: the change is made and the turn kept",
+    resumedTurn,
+  );
+  check(!(await parkedRun()) && !(await decideParkedChange(alice, ask2, "approve")), "…its run goes once the turn is kept, and the decision can't be used again");
+
   // ── Leafdesk's further tools (find_tools, use_tool) ─────────────────────────────────────────
   const viewsNamed = (name: string) => db.select().from(databaseView).where(and(eq(databaseView.databaseId, parts.id), eq(databaseView.name, name)));
   fake.setChat(caller([write("find_tools", { query: "board view" })]));

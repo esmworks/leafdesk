@@ -14,6 +14,7 @@ import type {
   ApprovalDecision,
   RunSource,
 } from "@/lib/agents";
+import type { ChatStepRecord } from "./ai";
 import type { AgentChatMessageRecord, AgentChatQueuedRecord } from "@/lib/agent-chat";
 import type { ChatMode } from "@/lib/ai-chat";
 import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
@@ -42,7 +43,14 @@ export type AgentRunState = {
   mailRead?: boolean;
   /** It, or its conversation before it, read files on the person's computer (lib/local-reads.ts): from then on nothing goes out. */
   localRead?: boolean;
-  decision?: { decision: ApprovalDecision; userId: string; note?: string };
+  /** `always`: an AI chat's yes, and don't ask again in this answer. */
+  decision?: { decision: ApprovalDecision | "always"; userId: string; note?: string };
+  /**
+   * An AI chat's run (server/ai-chat.ts): where its question sits in `messages`, the sources it may
+   * cite (server/ai-tools.ts Registry), its steps so far, what its turns cost, the model that
+   * answered, and when it started (ms).
+   */
+  chat?: { question: number; sources: unknown[]; steps: ChatStepRecord[]; spentUsd: number; answeredBy: string | null; startedAt: number };
   /**
    * An AI chat's run (source `assistant`): what it may change now. It starts as the person chose
    * and turns from `auto` to `ask` once the run read words no one in the conversation wrote.

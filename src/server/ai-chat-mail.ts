@@ -475,14 +475,11 @@ async function defaultMailbox(userId: string, workspaceId: string, boxes?: reado
 }
 
 /** Saves the draft the person approved, or says that nothing was saved. */
-export async function saveMailDraft(userId: string, prepared: PreparedDraft, decision: "approve" | "always" | "decline" | "timeout"): Promise<ToolOutcome> {
+export async function saveMailDraft(userId: string, prepared: PreparedDraft, decision: "approve" | "always" | "decline"): Promise<ToolOutcome> {
   const step = { kind: "mail" as const, action: "draft" as const, subject: prepared.input.subject, to: prepared.input.to };
-  if (decision === "decline" || decision === "timeout") {
+  if (decision === "decline") {
     return {
-      content:
-        decision === "timeout"
-          ? "The person didn't answer in time, so no draft was saved. Give the text in the answer instead."
-          : "The person declined this draft: nothing was saved. Don't try it again; ask them what to change.",
+      content: "The person declined this draft: nothing was saved. Don't try it again; ask them what to change.",
       step: { ...step, url: null, outcome: "declined" },
     };
   }

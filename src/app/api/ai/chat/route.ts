@@ -4,8 +4,8 @@ import { CHAT_MODES, CHAT_THINKING } from "@/lib/ai-chat";
 import { CHAT_FILE_LIMITS } from "@/lib/chat-attachments";
 import { AccessError } from "@/server/access";
 import { aiErrorStatus, isAiError } from "@/server/ai";
-import { startChat } from "@/server/ai-chat";
-import { conversationBusy, dropRun, followRun, isRunId, openRun, runEvents } from "@/server/ai-chat-runs";
+import { answerUnderWay, startChat } from "@/server/ai-chat";
+import { dropRun, followRun, isRunId, openRun, runEvents } from "@/server/ai-chat-runs";
 import { isCrossSite } from "@/server/cross-site";
 import { ndjsonResponse } from "@/server/ndjson-response";
 
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
   const { runId, ...input } = parsed.data;
   const userId = session.user.id;
-  if (input.conversationId && (await conversationBusy(userId, input.conversationId))) return fail("busy", "This conversation is still being answered", 409);
+  if (input.conversationId && (await answerUnderWay(userId, input.conversationId))) return fail("busy", "This conversation is still being answered", 409);
   const run = openRun({ id: runId, userId, workspaceId: input.workspaceId, conversationId: input.conversationId ?? null });
   if (!run) return fail("invalid", "That run id is taken", 409);
   let events;

@@ -3,8 +3,8 @@
 
 import { agentPagePath } from "./agent-page";
 import type { AgentShareLevel } from "./agent-sharing";
-import type { ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
-import type { ChatActionView, ChatScope, ChatThinking } from "./ai-chat";
+import type { ChatAttachmentRecord, ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
+import type { ChatActionView, ChatMode, ChatScope, ChatThinking } from "./ai-chat";
 import type { QuietHours } from "./quiet-hours";
 import type { RepeatRule, ScheduleError } from "./schedule";
 
@@ -249,20 +249,28 @@ export type AssistantRunSource = {
   userId: string;
   conversationId: string;
   /** The page or teamspace the question keeps to, checked again when the run (re)starts. */
-  scope: ChatScope;
+  scope: ChatScope | null;
   skillId: string | null;
   model: string | null;
   thinking: ChatThinking;
+  /** What the person chose it may change; `state.mode` is what it may now. */
+  mode: ChatMode;
+  /** The person's time zone, for what today is. */
+  timeZone: string;
   /** Research mode: a plan, searches and reads, then a long cited report; nothing is changed. */
   research?: true;
   /** What it writes in page bodies goes in as the AI's suggested edits. */
   asSuggestions?: true;
-  /** Asked through a connected app (the Telegram bot), which follows the answer. */
+  /** Asked through a connected app (the Telegram bot), which follows the answer and gets no mail tools. */
   fromApp?: true;
-  /** The files attached to the question (`file` ids), in order. */
-  files: string[];
-  /** How many of the conversation's last turns the answer replaces once kept (answer again, an edited question). */
+  /** Asked through a connected app where the workspace lets apps only read: no notes kept or dropped either. */
+  appReadOnly?: true;
+  /** The files attached to the question, in order, named apart from the conversation's others. */
+  files: ChatAttachmentRecord[];
+  /** How many of the conversation's last records the answer replaces once kept (answer again, an edited question). */
   replaced: number;
+  /** The question started the conversation: it goes again when nothing of the answer is kept. */
+  started?: true;
 };
 
 /** What `agent_run.source` holds: an agent's run's start, or a person's own AI chat's. */
@@ -419,8 +427,9 @@ export type AgentPendingCall = {
   arguments: Record<string, unknown>;
   askedAt: string;
   deferredUntil?: string;
-  /** An AI chat's run (source `assistant`): the change as the person is asked about it in the chat. */
+  /** An AI chat's run (source `assistant`): the change as the person is asked about it in the chat, under `askId` (its `approval` event's id). */
   action?: ChatActionView;
+  askId?: string;
 };
 
 /** The tools of an agent with web access (server/agents/web.ts): Leafdesk's own, so their steps name no connection. */
@@ -836,7 +845,9 @@ export const AGENT_TASKS_TOOL = "agent_tasks";
  * it likes), a folder or file on the person's computer (anything may have put it there), or
  * another agent's answer, which may carry what that agent read (asked with ask_agent, read back
  * with agent_tasks, or read through use_tool: OTHERS_WORDS_MORE_TOOLS). A chat run that did keeps no correction at once
- * (server/agents/memory.ts), and an owner's "allow" rule doesn't hold on it (server/agents/run.ts).
+ * (server/agents/memory.ts), and an owner's "allow" rule doesn't hold on it (server/assistant/dispatch.ts).
+ * The AI chat's own steps count too (a service's answer, the web): from then on its answer asks
+ * before each change (server/ai-chat.ts).
  */
 export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
   readEmail(steps) ||
@@ -846,7 +857,9 @@ export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
         (s.connectionId === null && s.outcome === "done" && (COMPUTER_READ_TOOLS.has(s.tool) || s.tool === AGENT_TASKS_TOOL))
       : s.kind === "leafdesk"
         ? s.outcome === "done" && OTHERS_WORDS_MORE_TOOLS.has(s.tool)
-        : s.kind === "handoff" && s.outcome === "done",
+        : s.kind === "connection"
+          ? s.outcome !== "declined"
+          : s.kind === "web" || (s.kind === "handoff" && s.outcome === "done"),
   );
 
 /**

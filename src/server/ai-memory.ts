@@ -345,11 +345,11 @@ export async function applyMemory(
   workspaceId: string,
   conversationId: string,
   prepared: PreparedMemory,
-  decision: ChatDecision | "timeout",
+  decision: ChatDecision,
 ): Promise<ToolOutcome> {
   const { change } = prepared;
   const step = (outcome: ChatMemoryRecord["outcome"], text: string): ChatMemoryRecord => ({ kind: "memory", action: change.kind, text, outcome });
-  if (decision === "decline" || decision === "timeout") {
+  if (decision === "decline") {
     return { content: "The person declined: don't keep or drop this note, and don't ask again.", step: step("declined", change.text) };
   }
   if (change.kind === "forget") {
