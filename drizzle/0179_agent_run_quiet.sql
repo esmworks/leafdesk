@@ -1,0 +1,1 @@
+ALTER TABLE "agent_run" ADD COLUMN "quiet" boolean DEFAULT false NOT NULL;

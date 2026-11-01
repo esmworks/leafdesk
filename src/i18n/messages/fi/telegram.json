@@ -167,7 +167,13 @@
       "approvalTimeout": "Kukaan ei vastannut hyväksyntään vuorokauden kuluessa, joten mitään ei lähetetty.",
       "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
       "costLimit": "Vastaus saavutti kustannusrajansa.",
+      "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
       "error": "Jokin meni vikaan agentin vastatessa."
+    },
+    "routine": {
+      "done": "{agent} sai valmiiksi tehtävän ”{task}”.",
+      "failed": "{agent} ei saanut valmiiksi tehtävää ”{task}”.",
+      "email": "Se luki sähköpostisi, joten sen raportti näkyy vain Leafdeskissä."
     },
     "deferred": "{agent} pidättää kutsun hiljaisten tuntiensa loppuun. Vastaus tulee tänne silloin.",
     "queued": "Jonossa: agentti lukee sen, kun se on vastannut.",

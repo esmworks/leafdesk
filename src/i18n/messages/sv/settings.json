@@ -603,7 +603,8 @@
         "done": "Klar",
         "failed": "Misslyckades",
         "awaiting_approval": "Väntar på godkännande",
-        "deferred": "Väntar på tysta timmar"
+        "deferred": "Väntar på tysta timmar",
+        "quiet": "Inget nytt"
       },
       "rowHidden": "En rad som du inte kan öppna",
       "took": "tog {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Dölj vad den gjorde",
       "noSteps": "Den sökte, läste eller ändrade ingenting.",
       "answer": "Dess sista ord",
+      "givenReason": "Angiven orsak",
       "comment": "Kommenterade:",
       "commentFailed": "Kunde inte kommentera:",
       "commentHidden": "Kommenterade på en rad som du inte kan öppna",
@@ -644,6 +646,7 @@
         "connectionGone": "Anslutningen som startade den har tagits bort.",
         "limitReached": "Den hade förbrukat agentens månatliga tokengräns.",
         "costLimit": "Arbetsytan hade nått sin månatliga kostnadsgräns för AI.",
+        "selfReported": "Agenten meddelade att den inte kunde utföra sin uppgift.",
         "mailGone": "Mejlet finns inte längre i brevlådan, eller brevlådan är inte längre öppen för agenten."
       },
       "fromConnection": "{connection} · {event}",

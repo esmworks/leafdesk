@@ -603,7 +603,8 @@
         "done": "已完成",
         "failed": "失败",
         "awaiting_approval": "等待批准",
-        "deferred": "因安静时段暂缓"
+        "deferred": "因安静时段暂缓",
+        "quiet": "没有新情况"
       },
       "rowHidden": "你无法打开的某一行",
       "took": "用时 {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "隐藏它做了什么",
       "noSteps": "它没有搜索、阅读或更改任何内容。",
       "answer": "它的最后回复",
+      "givenReason": "给出的原因",
       "comment": "已评论：",
       "commentFailed": "无法评论：",
       "commentHidden": "在你无法打开的某一行上发表了评论",
@@ -639,6 +641,7 @@
         "connectionGone": "触发它的连接已被移除。",
         "limitReached": "它已用完该智能体的每月令牌上限。",
         "costLimit": "工作区此前已达到每月 AI 费用上限。",
+        "selfReported": "代理表示它未能完成任务。",
         "mailGone": "邮件已不在邮箱中,或该邮箱已不再向此智能体开放。"
       },
       "fromConnection": "{connection} · {event}",

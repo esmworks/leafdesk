@@ -245,6 +245,7 @@
     "aiReminderTitle": "Herinnering van {agent}",
     "reportDone": "De geplande run is klaar.",
     "reportFailed": "De geplande run is mislukt. Open hem om te zien waarom.",
+    "reportFailedReason": "De geplande run kon zijn taak niet uitvoeren: {reason}",
     "taskDone": "Taak van {agent}: klaar.",
     "taskFailed": "Taak van {agent}: niet afgerond.",
     "reportHidden": "De geplande run is klaar, op een database die je niet kunt openen.",

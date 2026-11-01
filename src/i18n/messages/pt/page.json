@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Ninguém respondeu à chamada dele a tempo, então nada foi enviado.",
       "limitReached": "O agente já usou os tokens do mês.",
       "costLimit": "O espaço de trabalho atingiu o limite mensal de custo de IA.",
+      "selfReported": "O agente disse que não conseguiu fazer a tarefa.",
       "error": "Algo deu errado."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "E-mail novo · {place}"
     },
     "doneQuietly": "Concluído.",
+    "nothingNew": "Nada de novo",
     "side": {
       "label": "Sobre {name}",
       "paused": "Pausado"

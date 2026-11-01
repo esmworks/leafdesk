@@ -691,6 +691,7 @@ export async function viewRuns(userId: string, runs: (typeof agentRun.$inferSele
       rowTitle: isRowRun(r.source) ? (titles.get(r.source.rowId) ?? null) : null,
       steps: open ? r.steps.map((s) => (s.kind === "skill" && !openSkills.has(s.pageId) ? { ...s, title: "" } : s)) : [],
       answer: open ? r.answer : "",
+      quiet: r.quiet,
       usage: r.usage,
       pending:
         open && r.pending

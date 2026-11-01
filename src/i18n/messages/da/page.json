@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Ingen svarede på dens kald i tide, så intet blev sendt.",
       "limitReached": "Agenten har brugt sine tokens for måneden.",
       "costLimit": "Arbejdsområdet har nået sin månedlige grænse for AI-omkostninger.",
+      "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
       "error": "Noget gik galt."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Ny e-mail · {place}"
     },
     "doneQuietly": "Færdig.",
+    "nothingNew": "Intet nyt",
     "side": {
       "label": "Om {name}",
       "paused": "Sat på pause"

@@ -603,7 +603,8 @@
         "done": "Completata",
         "failed": "Non riuscita",
         "awaiting_approval": "In attesa di approvazione",
-        "deferred": "In attesa delle ore di silenzio"
+        "deferred": "In attesa delle ore di silenzio",
+        "quiet": "Niente di nuovo"
       },
       "rowHidden": "Una riga che non puoi aprire",
       "took": "ha impiegato {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Nascondi cosa ha fatto",
       "noSteps": "Non ha cercato, letto né modificato nulla.",
       "answer": "Le sue ultime parole",
+      "givenReason": "Il suo motivo",
       "comment": "Ha commentato:",
       "commentFailed": "Impossibile commentare:",
       "commentHidden": "Ha commentato una riga che non puoi aprire",
@@ -639,6 +641,7 @@
         "connectionGone": "La connessione che l’ha avviata è stata rimossa.",
         "limitReached": "Aveva esaurito il limite mensile di token dell’agente.",
         "costLimit": "Lo spazio di lavoro aveva raggiunto il limite mensile di costo dell'IA.",
+        "selfReported": "L’agente ha detto di non essere riuscito a svolgere il compito.",
         "mailGone": "L'email non è più nella casella, oppure la casella non è più aperta all'agente."
       },
       "fromConnection": "{connection} · {event}",

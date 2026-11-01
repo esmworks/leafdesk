@@ -603,7 +603,8 @@
         "done": "Tamamlandı",
         "failed": "Başarısız",
         "awaiting_approval": "Onay bekliyor",
-        "deferred": "Sessiz saatler için bekletiliyor"
+        "deferred": "Sessiz saatler için bekletiliyor",
+        "quiet": "Yeni bir şey yok"
       },
       "rowHidden": "Açamadığınız bir satır",
       "took": "{time} sürdü",
@@ -621,6 +622,7 @@
       "hideDetails": "Ne yaptığını gizle",
       "noSteps": "Hiçbir şey aramadı, okumadı ya da değiştirmedi.",
       "answer": "Son sözleri",
+      "givenReason": "Belirttiği neden",
       "comment": "Yorum yazdı:",
       "commentFailed": "Yorum yazamadı:",
       "commentHidden": "Açamadığınız bir satıra yorum yazdı",
@@ -639,6 +641,7 @@
         "connectionGone": "Onu başlatan bağlantı kaldırıldı.",
         "limitReached": "Ajanın aylık token sınırı dolmuştu.",
         "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaşmıştı.",
+        "selfReported": "Ajan görevini yapamadığını bildirdi.",
         "mailGone": "E-posta kutudan gitti ya da kutu artık bu ajana açık değil."
       },
       "fromConnection": "{connection} · {event}",

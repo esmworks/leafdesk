@@ -603,7 +603,8 @@
         "done": "Færdig",
         "failed": "Mislykkedes",
         "awaiting_approval": "Venter på godkendelse",
-        "deferred": "Venter på stille timer"
+        "deferred": "Venter på stille timer",
+        "quiet": "Intet nyt"
       },
       "rowHidden": "En række, du ikke kan åbne",
       "took": "tog {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Skjul, hvad den gjorde",
       "noSteps": "Den søgte ikke, læste ikke og ændrede ikke noget.",
       "answer": "Dens sidste ord",
+      "givenReason": "Dens begrundelse",
       "comment": "Kommenterede:",
       "commentFailed": "Kunne ikke kommentere:",
       "commentHidden": "Kommenterede på en række, du ikke kan åbne",
@@ -644,6 +646,7 @@
         "connectionGone": "Den forbindelse, der startede den, blev fjernet.",
         "limitReached": "Den havde brugt agentens månedlige tokengrænse.",
         "costLimit": "Arbejdsområdet havde nået sin månedlige grænse for AI-omkostninger.",
+        "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
         "mailGone": "E-mailen er ikke længere i postkassen, eller postkassen er ikke længere åben for agenten."
       },
       "fromConnection": "{connection} · {event}",

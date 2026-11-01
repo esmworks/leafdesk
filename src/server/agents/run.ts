@@ -54,6 +54,10 @@ import { agentRun, connection, connectionEvent, connectionTrigger, notification,
 import {
   accessSource,
   AGENT_RUN_HISTORY_DAYS,
+  FINISH_RUN_OUTCOMES,
+  FINISH_RUN_TOOL,
+  finishRunCall,
+  MAX_FINISH_REASON,
   isEventRun,
   isMentionRun,
   isMailRun,
@@ -106,6 +110,7 @@ import { recipientLocale } from "@/server/mail/locale";
 import { emailTranslator } from "@/server/mail/templates";
 import { signalInbox } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
+import { tellRoutineEnded } from "@/server/telegram/routine";
 import * as ops from "@/server/operations";
 import { ToolInputError } from "@/server/mcp/format";
 import { COMBINE, MAX_MERGE_ROWS } from "@/lib/merge-rows";
@@ -206,6 +211,20 @@ const MERGE_ROWS: AiTool = {
       title: { type: "string", description: "The page_id of the row whose title the kept row takes, if not its own." },
     },
     required: ["kept_row_id", "other_row_ids"],
+    additionalProperties: false,
+  },
+};
+
+const FINISH_RUN: AiTool = {
+  name: FINISH_RUN_TOOL,
+  description: `Ends this run at once, in place of a report. "nothing_new": you checked and there is nothing to tell or do, and you changed nothing; the person who set the schedule isn't told. "failed": you couldn't do the task (what you need is gone, or isn't shared with you); they are told, with your reason. Calls after it in the same turn are not made. Once you changed something, don't call it: report what you changed.`,
+  parameters: {
+    type: "object",
+    properties: {
+      outcome: { type: "string", enum: [...FINISH_RUN_OUTCOMES] },
+      reason: { type: "string", description: `Why, in a sentence (at most ${MAX_FINISH_REASON} characters); needed for "failed".` },
+    },
+    required: ["outcome"],
     additionalProperties: false,
   },
 };
@@ -316,7 +335,8 @@ async function claim(limit: number): Promise<Run[]> {
   return db.select().from(agentRun).where(inArray(agentRun.id, ids)).orderBy(agentRun.createdAt);
 }
 
-type Ending = { status: "done" | "failed"; code?: AgentRunCode | null; error?: string | null; steps?: AgentStepRecord[]; answer?: string; usage?: AgentRunUsage | null };
+/** How a run ended; `quiet`: a schedule's run that found nothing new (finish_run), which reports to no one. */
+type Ending = { status: "done" | "failed"; code?: AgentRunCode | null; error?: string | null; steps?: AgentStepRecord[]; answer?: string; usage?: AgentRunUsage | null; quiet?: boolean };
 
 async function finish(run: Run, values: Ending) {
   // A chat's answer (and the turn of the messages that waited for it) first: whoever follows the
@@ -331,15 +351,21 @@ async function finish(run: Run, values: Ending) {
       ...(values.steps ? { steps: redactValue(values.steps) } : {}),
       ...(values.answer !== undefined ? { answer: redactText(values.answer).slice(0, ANSWER_CHARS) } : {}),
       ...(values.usage !== undefined ? { usage: values.usage } : {}),
+      quiet: values.quiet ?? false,
       state: null,
       pending: null,
       finishedAt: new Date(),
     })
     .where(eq(agentRun.id, run.id))
     // As it is now: a helper asked with ask_agent that wasn't done in time became a task meanwhile (handoff.ts).
-    .returning({ source: agentRun.source });
-  await reportRun({ ...run, source: ended?.source ?? run.source }, values);
+    .returning({ source: agentRun.source, answer: agentRun.answer, steps: agentRun.steps, prompt: agentRun.prompt });
+  const source = ended?.source ?? run.source;
+  await reportRun({ ...run, source }, values);
   await replyToMention(run, values);
+  // A routine's summary to the chat its setter has with the agent in Telegram, as saved (masked).
+  if (ended && isScheduleRun(source) && !values.quiet) {
+    await tellRoutineEnded({ ...ended, id: run.id, workspaceId: run.workspaceId, agentId: run.agentId, source, status: values.status, code: values.code ?? null });
+  }
 }
 
 /**
@@ -347,10 +373,12 @@ async function finish(run: Run, values: Ending) {
  * the run that gave a task to another agent (handoff.ts `assign_agent`) that the task's run did
  * (an `agent_task`, which they may turn off): the report is the run itself, which their inbox
  * shows. A run their email started tells them only when it left them something to do (a draft to
- * send) or failed for a reason they can change: every email ringing would bury the inbox. Never
- * throws; the run's ending is saved either way.
+ * send) or failed for a reason they can change: every email ringing would bury the inbox; nor
+ * does a schedule's run that found nothing new (`quiet`). Never throws; the run's ending is saved
+ * either way.
  */
-async function reportRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "source">, ending?: Pick<Ending, "status" | "code" | "steps">) {
+async function reportRun(run: Pick<Run, "id" | "workspaceId" | "agentId" | "source">, ending?: Pick<Ending, "status" | "code" | "steps" | "quiet">) {
+  if (ending?.quiet) return;
   const task = run.source.kind === "handoff" && run.source.queued ? run.source : null;
   const mail = isMailRun(run.source) ? run.source : null;
   const mailReport = mail && ending ? mailNeedsPerson(ending) : false;
@@ -742,6 +770,8 @@ async function converse(
   // Leafdesk's further tools, on a run someone stands behind (and that doesn't read email from the start).
   const moreTools = askEveryTool || arrival ? null : allMoreTools;
   const tools = [
+    // A schedule's run may end itself: nothing new to tell, or a task it can't do (finishRunCall).
+    ...(scheduled ? [FINISH_RUN] : []),
     ...forReview(ownTools, proposes),
     ...(merges ? [MERGE_ROWS] : []),
     ...(sender ? [draftEmailTool(sender, { anyRow: Boolean(databaseId) })] : []),
@@ -808,6 +838,8 @@ async function converse(
   let pausedBySpending = false;
   let firstRound = 0;
   let queue: AiToolCall[] = [];
+  // How the run ends once finish_run is taken: right after that call, with nothing after it made.
+  let ending: Ending | null = null;
 
   const saved = run.state;
   if (saved) {
@@ -981,6 +1013,18 @@ async function converse(
   /** Answers one tool call; null when it must wait for approval, or when to go on with it after the agent's quiet hours. */
   const answer = async (call: AiToolCall, approved: { userId: string } | null): Promise<Answered> => {
     const external = toolset.byName.get(call.name);
+    // First, before what a run that read email may call: it changes nothing, and ends the run.
+    // Something changed (or an email sent) is told in a report instead.
+    if (call.name === FINISH_RUN.name && scheduled) {
+      const changed = writes > 0 || steps.some((s) => s.kind === "email" && s.outcome === "sent");
+      const checked = finishRunCall(call.arguments, changed);
+      if ("error" in checked) return { content: checked.error, isError: true };
+      ending =
+        checked.outcome === "nothing_new"
+          ? { status: "done", answer: checked.reason, quiet: true, steps, usage }
+          : { status: "failed", code: "selfReported", answer: checked.reason, steps, usage };
+      return { content: "The run ends here." };
+    }
     // Email is anyone's words, and could steer the run into sending on what it read: once it read
     // some, it only reads pages and drafts email (whose recipients ai-chat-mail.ts checks). Nothing
     // waits for approval either: an owner who isn't the mailbox's would see what it would send.
@@ -1243,6 +1287,11 @@ async function converse(
       if (out.step) steps.push(out.step);
       messages.push({ role: "tool", toolCallId: call.id, name: call.name, content: out.content, isError: out.isError });
       queue = queue.slice(1);
+      // finish_run: the calls after it in the turn are not made.
+      if (ending) {
+        queue = [];
+        return null;
+      }
       // A chat's steps are saved as they come: the person follows them (chat.ts chatTurn).
       if (answered || writes !== writesBefore || chat) await checkpoint();
     }
@@ -1252,6 +1301,7 @@ async function converse(
   if (saved) {
     const paused = await drain(saved.decision);
     if (paused) return paused;
+    if (ending) return ending;
   }
 
   const limitUsd = aiConfig().limits.runLimitUsd;
@@ -1326,6 +1376,7 @@ async function converse(
     queue = result.toolCalls;
     const paused = await drain(undefined);
     if (paused) return paused;
+    if (ending) return ending;
     // The next turn is the last: the model reads that with the results.
     const lastResult = messages.at(-1);
     if (isLastTurn(round + 1, usage.costUsd, limitUsd) && lastResult?.role === "tool") {
@@ -1637,6 +1688,8 @@ export async function expireApprovals() {
             agentId: agentRun.agentId,
             source: agentRun.source,
             context: agentRun.context,
+            answer: agentRun.answer,
+            prompt: agentRun.prompt,
           })
           .from(agentRun)
           .where(and(eq(agentRun.id, id), overdue()))
@@ -1658,6 +1711,7 @@ export async function expireApprovals() {
       await withdrawApproval(run.id);
       await reportRun(run);
       await replyToMention(run, { status: "failed", code: "approvalTimeout" });
+      if (isScheduleRun(run.source)) await tellRoutineEnded({ ...run, source: run.source, status: "failed", code: "approvalTimeout" });
     }
   } catch (error) {
     console.error("[agents] could not expire approvals", redactError(error));

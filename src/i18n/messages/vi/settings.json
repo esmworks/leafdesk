@@ -603,7 +603,8 @@
         "done": "Hoàn tất",
         "failed": "Thất bại",
         "awaiting_approval": "Chờ chấp thuận",
-        "deferred": "Đang giữ vì giờ yên lặng"
+        "deferred": "Đang giữ vì giờ yên lặng",
+        "quiet": "Không có gì mới"
       },
       "rowHidden": "Một hàng bạn không mở được",
       "took": "mất {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Ẩn những gì nó đã làm",
       "noSteps": "Nó không tìm kiếm, đọc hay thay đổi gì.",
       "answer": "Lời cuối của nó",
+      "givenReason": "Lý do nó đưa ra",
       "comment": "Đã bình luận:",
       "commentFailed": "Không thể bình luận:",
       "commentHidden": "Đã bình luận trên một hàng bạn không mở được",
@@ -644,6 +646,7 @@
         "connectionGone": "Kết nối đã khởi động nó đã bị xóa.",
         "limitReached": "Nó đã dùng hết giới hạn token hằng tháng của tác tử.",
         "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
+        "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
         "mailGone": "Email không còn trong hộp thư, hoặc hộp thư không còn mở cho tác tử."
       },
       "fromConnection": "{connection} · {event}",

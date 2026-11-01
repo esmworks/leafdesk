@@ -603,7 +603,8 @@
         "done": "Done",
         "failed": "Failed",
         "awaiting_approval": "Waiting for approval",
-        "deferred": "Held for quiet hours"
+        "deferred": "Held for quiet hours",
+        "quiet": "Nothing new"
       },
       "rowHidden": "A row you can’t open",
       "took": "took {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Hide what it did",
       "noSteps": "It didn’t search, read or change anything.",
       "answer": "Its last words",
+      "givenReason": "Its reason",
       "comment": "Commented:",
       "commentFailed": "Couldn’t comment:",
       "commentHidden": "Commented on a row you can’t open",
@@ -644,6 +646,7 @@
         "connectionGone": "The connection that started it was removed.",
         "limitReached": "It had used the agent’s monthly token limit.",
         "costLimit": "The workspace had reached its monthly AI cost limit.",
+        "selfReported": "The agent said it couldn’t do its task.",
         "mailGone": "The email is gone from the mailbox, or the mailbox is no longer open to the agent."
       },
       "fromConnection": "{connection} · {event}",

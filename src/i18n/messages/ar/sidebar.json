@@ -245,6 +245,7 @@
     "aiReminderTitle": "تذكير من {agent}",
     "reportDone": "انتهى تشغيله المجدول.",
     "reportFailed": "فشل تشغيله المجدول. افتحه لمعرفة السبب.",
+    "reportFailedReason": "تعذّر على تشغيله المجدول إنجاز مهمته: {reason}",
     "taskDone": "مهمة من {agent}: اكتملت.",
     "taskFailed": "مهمة من {agent}: لم تكتمل.",
     "reportHidden": "انتهى تشغيله المجدول، على قاعدة بيانات لا يمكنك فتحها.",

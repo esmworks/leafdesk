@@ -603,7 +603,8 @@
         "done": "Selesai",
         "failed": "Gagal",
         "awaiting_approval": "Menunggu persetujuan",
-        "deferred": "Ditahan untuk jam tenang"
+        "deferred": "Ditahan untuk jam tenang",
+        "quiet": "Tidak ada yang baru"
       },
       "rowHidden": "Baris yang tidak dapat Anda buka",
       "took": "memakan waktu {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Sembunyikan yang dilakukannya",
       "noSteps": "Agen tidak mencari, membaca, atau mengubah apa pun.",
       "answer": "Kata-kata terakhirnya",
+      "givenReason": "Alasannya",
       "comment": "Berkomentar:",
       "commentFailed": "Tidak dapat berkomentar:",
       "commentHidden": "Berkomentar pada baris yang tidak dapat Anda buka",
@@ -644,6 +646,7 @@
         "connectionGone": "Koneksi yang memulainya telah dihapus.",
         "limitReached": "Agen telah memakai batas token bulanannya.",
         "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanannya.",
+        "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
         "mailGone": "Email sudah tidak ada di kotak surat, atau kotak surat tidak lagi dibuka untuk agen."
       },
       "fromConnection": "{connection} · {event}",

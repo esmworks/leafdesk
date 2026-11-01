@@ -117,8 +117,13 @@ export const agentRun = pgTable(
     code: text("code").$type<AgentRunCode>(),
     error: text("error"),
     steps: jsonb("steps").$type<AgentStepRecord[]>().notNull().default([]),
-    /** What the agent said at the end. */
+    /** What the agent said at the end; for a schedule's run it ended with finish_run, the reason it gave. */
     answer: text("answer").notNull().default(""),
+    /**
+     * A schedule's run that found nothing new and changed nothing (finish_run `nothing_new`): it
+     * reports to no one, and the chat with the agent folds it to one line.
+     */
+    quiet: boolean("quiet").notNull().default(false),
     /**
      * A schedule's run: where it left off, for the schedule's next run (server/agents/memory.ts
      * `handoffFor`); each run leaves its own, and only the latest goes on.

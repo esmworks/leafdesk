@@ -603,7 +603,8 @@
         "done": "Fertig",
         "failed": "Fehlgeschlagen",
         "awaiting_approval": "Wartet auf Freigabe",
-        "deferred": "Wartet auf Ende der Ruhezeit"
+        "deferred": "Wartet auf Ende der Ruhezeit",
+        "quiet": "Nichts Neues"
       },
       "rowHidden": "Eine Zeile, die du nicht öffnen kannst",
       "took": "dauerte {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Ausblenden, was er getan hat",
       "noSteps": "Er hat nichts gesucht, gelesen oder geändert.",
       "answer": "Seine letzten Worte",
+      "givenReason": "Seine Begründung",
       "comment": "Kommentiert:",
       "commentFailed": "Konnte nicht kommentieren:",
       "commentHidden": "Hat eine Zeile kommentiert, die du nicht öffnen kannst",
@@ -639,6 +641,7 @@
         "connectionGone": "Die Verbindung, die ihn gestartet hat, wurde entfernt.",
         "limitReached": "Das monatliche Token-Limit des Agenten war aufgebraucht.",
         "costLimit": "Der Workspace hatte sein monatliches KI-Kostenlimit erreicht.",
+        "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
         "mailGone": "Die E-Mail ist nicht mehr im Postfach, oder das Postfach ist für den Agenten nicht mehr geöffnet."
       },
       "fromConnection": "{connection} · {event}",

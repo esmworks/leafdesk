@@ -603,7 +603,8 @@
         "done": "Gotowe",
         "failed": "Niepowodzenie",
         "awaiting_approval": "Oczekuje na zatwierdzenie",
-        "deferred": "Wstrzymane na godziny ciszy"
+        "deferred": "Wstrzymane na godziny ciszy",
+        "quiet": "Nic nowego"
       },
       "rowHidden": "Wiersz, którego nie możesz otworzyć",
       "took": "trwało {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Ukryj, co zrobił",
       "noSteps": "Niczego nie wyszukiwał, nie czytał ani nie zmieniał.",
       "answer": "Jego ostatnie słowa",
+      "givenReason": "Podany powód",
       "comment": "Skomentował:",
       "commentFailed": "Nie udało się skomentować:",
       "commentHidden": "Skomentował wiersz, którego nie możesz otworzyć",
@@ -639,6 +641,7 @@
         "connectionGone": "Połączenie, które je rozpoczęło, zostało usunięte.",
         "limitReached": "Wyczerpał miesięczny limit tokenów agenta.",
         "costLimit": "Przestrzeń robocza osiągnęła wcześniej miesięczny limit kosztów AI.",
+        "selfReported": "Agent zgłosił, że nie mógł wykonać zadania.",
         "mailGone": "Wiadomości nie ma już w skrzynce albo skrzynka nie jest już otwarta dla agenta."
       },
       "fromConnection": "{connection} · {event}",

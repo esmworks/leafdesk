@@ -245,6 +245,7 @@
     "aiReminderTitle": "Påminnelse från {agent}",
     "reportDone": "Dess schemalagda körning är klar.",
     "reportFailed": "Dess schemalagda körning misslyckades. Öppna den för att se varför.",
+    "reportFailedReason": "Dess schemalagda körning kunde inte utföra sin uppgift: {reason}",
     "taskDone": "Uppgift från {agent}: klar.",
     "taskFailed": "Uppgift från {agent}: blev inte klar.",
     "reportHidden": "Dess schemalagda körning är klar, på en databas som du inte kan öppna.",

@@ -167,7 +167,13 @@
       "approvalTimeout": "Niemand hat die Freigabe innerhalb eines Tages beantwortet, daher wurde nichts gesendet.",
       "limitReached": "Der Agent hat seine Tokens für den Monat verbraucht.",
       "costLimit": "Die Antwort hat ihr Kostenlimit erreicht.",
+      "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
       "error": "Beim Antworten des Agenten ist etwas schiefgelaufen."
+    },
+    "routine": {
+      "done": "{agent} hat „{task}“ erledigt.",
+      "failed": "{agent} konnte „{task}“ nicht erledigen.",
+      "email": "Er hat deine E-Mails gelesen, daher steht sein Bericht nur in Leafdesk."
     },
     "deferred": "{agent} hält einen Aufruf bis zum Ende seiner Ruhezeit zurück. Seine Antwort kommt dann hierher.",
     "queued": "In der Warteschlange: Der Agent liest sie, sobald er geantwortet hat.",

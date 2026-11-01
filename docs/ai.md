@@ -845,7 +845,11 @@ a call), and the agent finishes its answer on its page, as it does when the pers
 the server restarts meanwhile. Messages from Telegram are a connected app's: they count as writes, so a
 workspace that lets apps only read takes none, and the agent gets no email tools. An agent that is
 archived or no longer shared with the person sends messages back to the AI chat, and so does picking
-another workspace.
+another workspace. While the chat is pointed at an agent, each run of a schedule the person set for
+it says how it went there too: the agent's name, the task it finished (or couldn't) and the start of
+its report (500 characters, cut between paragraphs) or why it failed, with a link to the run. A run
+that found nothing new sends nothing, one that read their email only says its report is in the app,
+and none comes once the workspace turns connected apps off or they can't open the schedule's database.
 
 **Who may reach what.** The bot acts as the person, as a connected app does: each question is
 checked like an MCP request against the person's access and against the workspace's *Connected

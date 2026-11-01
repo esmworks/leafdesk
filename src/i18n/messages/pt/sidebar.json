@@ -245,6 +245,7 @@
     "aiReminderTitle": "Lembrete de {agent}",
     "reportDone": "A execução agendada terminou.",
     "reportFailed": "A execução agendada falhou. Abra para ver o motivo.",
+    "reportFailedReason": "A execução agendada não conseguiu fazer a tarefa: {reason}",
     "taskDone": "Tarefa de {agent}: concluída.",
     "taskFailed": "Tarefa de {agent}: não foi concluída.",
     "reportHidden": "A execução agendada terminou, em um banco de dados que você não pode abrir.",

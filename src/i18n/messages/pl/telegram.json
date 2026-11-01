@@ -167,7 +167,13 @@
       "approvalTimeout": "Nikt nie odpowiedział na prośbę o zgodę w ciągu doby, więc nic nie wysłano.",
       "limitReached": "Agent wykorzystał tokeny na ten miesiąc.",
       "costLimit": "Odpowiedź osiągnęła limit kosztów.",
+      "selfReported": "Agent zgłosił, że nie mógł wykonać zadania.",
       "error": "Coś poszło nie tak podczas odpowiedzi agenta."
+    },
+    "routine": {
+      "done": "{agent} ukończył „{task}”.",
+      "failed": "{agent} nie mógł ukończyć „{task}”.",
+      "email": "Przeczytał twoją pocztę, więc jego raport widać tylko w Leafdesk."
     },
     "deferred": "{agent} wstrzymuje wywołanie do końca godzin ciszy. Odpowiedź przyjdzie tu wtedy.",
     "queued": "W kolejce: agent przeczyta ją, gdy skończy odpowiadać.",

@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Çağrısını zamanında kimse yanıtlamadı; hiçbir şey gönderilmedi.",
       "limitReached": "Ajan bu ayki token sınırına ulaştı.",
       "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaştı.",
+      "selfReported": "Ajan görevini yapamadığını bildirdi.",
       "error": "Bir şeyler ters gitti."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Yeni e-posta · {place}"
     },
     "doneQuietly": "Bitti.",
+    "nothingNew": "Yeni bir şey yok",
     "side": {
       "label": "{name} hakkında",
       "paused": "Duraklatıldı"

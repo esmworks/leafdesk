@@ -9,7 +9,8 @@
  * run; a paused agent or a database in the trash skips runs; whoever set it losing edit access to
  * the agent pauses it ("accessLost") until set again, as does archiving the agent ("agentGone").
  * With web access, a schedule's run searches, reads the pages of its task and of its searches'
- * results, and refuses any other read at once.
+ * results, and refuses any other read at once. A run may end itself with finish_run: quietly when
+ * it found nothing new (no report; refused after a change), or as failed with its reason.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-schedule-e2e.ts
@@ -41,6 +42,7 @@ type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const agents = await import("@/server/agents/manage");
 const agentSchedules = await import("@/server/agents/schedules");
 const { flushAgentRuns } = await import("@/server/agents/run");
+const { agentThread } = await import("@/server/agents/chat");
 const { runDueSchedules } = await import("@/server/schedules");
 const { listNotifications } = await import("@/server/notifications");
 const { createApiToken } = await import("@/server/api/tokens");
@@ -396,6 +398,84 @@ try {
     delete process.env.WEB_SEARCH_URL;
     searchService.close();
   }
+
+  // ── Ending a run itself (finish_run) ──────────────────────────────────────────────────────────
+  const reportsFor = async (runId: string) => (await listNotifications(ids.owner, { workspaceId })).filter((n) => n.kind === "agent_report" && n.report?.runId === runId);
+  const latestRun = async () => (await runsOf(keeper.id)).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
+  // Nothing new: one turn, and a call after finish_run in the same turn isn't made.
+  fake.chats.length = 0;
+  fake.setChat(() => ({
+    toolCalls: [
+      { name: "finish_run", arguments: { outcome: "nothing_new", reason: "No row is overdue." } },
+      { name: "add_comment", arguments: { row_id: release.id, text: "Never written" } },
+    ],
+  }));
+  await runNow(set.id);
+  await flushAgentRuns();
+  const quietRun = await latestRun();
+  check(
+    quietRun.status === "done" && quietRun.quiet && quietRun.code === null && quietRun.answer === "No row is overdue." && fake.chats.length === 1,
+    "finish_run nothing_new ends a schedule's run at once, quiet, keeping its reason",
+    { quietRun, turns: fake.chats.length },
+  );
+  check(
+    fake.chats[0].tools?.some((t) => t.function.name === "finish_run") && fake.chats[0].messages.some((m) => textOf(m.content).includes('call finish_run with outcome "nothing_new"')),
+    "a schedule's run is offered finish_run, and its prompt says when to use it",
+  );
+  check(!quietRun.steps.some((s) => s.kind === "comment"), "a call after finish_run in the same turn isn't made", quietRun.steps);
+  check((await reportsFor(quietRun.id)).length === 0, "a quiet run sends no report (nothing in the inbox, push or Telegram)");
+  const quietHistory = (await agents.listAgentRuns(ids.owner, keeper.id)).find((r) => r.id === quietRun.id);
+  const quietThread = (await agentThread(ids.owner, workspaceId, keeper.id)).runs.find((r) => r.id === quietRun.id);
+  const quietRest = await api(token, "GET", `/agents/${keeper.id}/runs/${quietRun.id}`);
+  check(
+    quietHistory?.quiet === true && quietThread?.quiet === true && quietThread.answer === "No row is overdue." && quietRest.json.quiet === true && quietRest.json.answer === "No row is overdue.",
+    "the run's history, the chat with the agent and the REST API mark it quiet, with its reason",
+    { quietHistory, quietThread, quietRest },
+  );
+
+  // Nothing new after a change is refused: the change is reported, its first paragraph in the inbox.
+  fake.chats.length = 0;
+  fake.setChat(
+    caller(
+      [
+        { name: "add_comment", arguments: { row_id: release.id, text: "Still no owner?" } },
+        { name: "finish_run", arguments: { outcome: "nothing_new" } },
+      ],
+      "Asked again who owns release 2.1.\n\n- **Release 2.1**: no owner yet",
+    ),
+  );
+  await runNow(set.id);
+  await flushAgentRuns();
+  const changedRun = await latestRun();
+  const refusal = toolResults(fake.chats.at(-1)!).at(-1);
+  check(
+    changedRun.status === "done" && !changedRun.quiet && changedRun.answer.startsWith("Asked again") && refusal?.includes("write your report"),
+    "finish_run nothing_new after a change is refused, and the run reports what it changed",
+    { changedRun, refusal },
+  );
+  const changedReport = await reportsFor(changedRun.id);
+  check(
+    changedReport.length === 1 && changedReport[0].report?.text === "Asked again who owns release 2.1.",
+    "its report in the inbox shows the answer's first paragraph as a line",
+    changedReport,
+  );
+
+  // Failed: the run fails as selfReported, with its reason, and still reports.
+  fake.setChat(() => ({ toolCalls: [{ name: "finish_run", arguments: { outcome: "failed", reason: "The board has no due dates to check." } }] }));
+  await runNow(set.id);
+  await flushAgentRuns();
+  const failedRun = await latestRun();
+  check(
+    failedRun.status === "failed" && failedRun.code === "selfReported" && failedRun.answer === "The board has no due dates to check." && !failedRun.quiet,
+    "finish_run failed ends the run as failed (selfReported), keeping the reason",
+    failedRun,
+  );
+  const failedReported = await reportsFor(failedRun.id);
+  check(
+    failedReported.length === 1 && failedReported[0].report?.status === "failed" && failedReported[0].report.code === "selfReported" && failedReported[0].report.text === "The board has no due dates to check.",
+    "…and reports, the reason as its inbox line",
+    failedReported,
+  );
 
   await agents.archiveAgent(ids.owner, keeper.id);
   await runNow(set.id);

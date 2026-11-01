@@ -288,7 +288,10 @@ export function InboxDialog({
                 ? !item.report
                   ? t("reportGone")
                   : item.report.status === "failed"
-                    ? t("reportFailed")
+                    ? // The agent said why itself (finish_run): that, where the reader may see it.
+                      item.report.code === "selfReported" && item.report.text
+                      ? t("reportFailedReason", { reason: item.report.text })
+                      : t("reportFailed")
                     : item.report.text === null
                       ? t("reportHidden")
                       : item.report.text || t("reportDone")

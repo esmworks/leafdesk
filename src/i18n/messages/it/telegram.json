@@ -167,7 +167,13 @@
       "approvalTimeout": "Nessuno ha risposto all’approvazione entro un giorno, quindi non è stato inviato nulla.",
       "limitReached": "L’agente ha usato i suoi token del mese.",
       "costLimit": "La risposta ha raggiunto il limite di costo.",
+      "selfReported": "L’agente ha detto di non essere riuscito a svolgere il compito.",
       "error": "Qualcosa è andato storto mentre l’agente rispondeva."
+    },
+    "routine": {
+      "done": "{agent} ha completato «{task}».",
+      "failed": "{agent} non è riuscito a completare «{task}».",
+      "email": "Ha letto la tua email, quindi il suo resoconto si vede solo in Leafdesk."
     },
     "deferred": "{agent} trattiene una chiamata fino alla fine delle sue ore di silenzio. La risposta arriverà qui allora.",
     "queued": "In coda: l’agente lo leggerà quando avrà risposto.",

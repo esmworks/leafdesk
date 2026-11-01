@@ -809,7 +809,7 @@ function RunItem({
               <span className="min-w-0 flex-1 truncate text-sm text-fg-muted">{t("rowHidden")}</span>
             )}
             <span className={cn("shrink-0 text-xs", failed ? "text-danger" : run.status === "awaiting_approval" ? "font-medium text-fg" : "text-fg-muted")}>
-              {run.status === "awaiting_approval" && run.pending?.deferredUntil ? t("status.deferred") : t(`status.${run.status}`)}
+              {run.status === "awaiting_approval" && run.pending?.deferredUntil ? t("status.deferred") : run.quiet ? t("status.quiet") : t(`status.${run.status}`)}
             </span>
           </div>
           <div className="text-xs text-fg-faint">
@@ -871,7 +871,8 @@ function RunItem({
           )}
           {run.answer && (
             <div>
-              <p className="mb-0.5 text-xs font-medium text-fg-muted">{t("answer")}</p>
+              {/* A run that ended itself (finish_run) kept the reason it gave as its answer. */}
+              <p className="mb-0.5 text-xs font-medium text-fg-muted">{run.quiet || run.code === "selfReported" ? t("givenReason") : t("answer")}</p>
               <p className="text-sm break-words whitespace-pre-wrap">{run.answer}</p>
             </div>
           )}

@@ -403,7 +403,8 @@ export type ApprovalDecision = "approve" | "decline" | "redo";
  * archived, it can't open the row, the comment that mentioned it is gone, the email that started
  * it is gone (or its mailbox no longer opened to the agent), the model failed, the
  * run took too long, no one answered a call that waited for approval, the agent used its tokens
- * for the month, or the workspace's AI reached its monthly cost limit.
+ * for the month, the workspace's AI reached its monthly cost limit, or a schedule's run said it
+ * couldn't do its task (finish_run, see finishRunCall; its reason is the run's answer).
  */
 export const AGENT_RUN_CODES = [
   "aiOff",
@@ -420,9 +421,34 @@ export const AGENT_RUN_CODES = [
   "mailGone",
   "limitReached",
   "costLimit",
+  "selfReported",
   "error",
 ] as const;
 export type AgentRunCode = (typeof AGENT_RUN_CODES)[number];
+
+/** The tool a schedule's run ends itself with (server/agents/run.ts): nothing new to report, or the task couldn't be done. */
+export const FINISH_RUN_TOOL = "finish_run";
+export const FINISH_RUN_OUTCOMES = ["nothing_new", "failed"] as const;
+export type FinishRunOutcome = (typeof FINISH_RUN_OUTCOMES)[number];
+/** The most of the reason finish_run keeps. */
+export const MAX_FINISH_REASON = 300;
+
+/**
+ * A finish_run call checked: how the run ends and why, or what the agent is told instead. A run
+ * that changed something (`changed`) can't end as nothing new: what it changed must be told, in
+ * a report. A failure needs its reason; nothing new may have one.
+ */
+export function finishRunCall(args: Record<string, unknown>, changed: boolean): { outcome: FinishRunOutcome; reason: string } | { error: string } {
+  const outcome = FINISH_RUN_OUTCOMES.find((o) => o === args.outcome);
+  if (!outcome) return { error: `outcome is "nothing_new" or "failed". The run goes on.` };
+  const reason = typeof args.reason === "string" ? args.reason.replace(/\s+/g, " ").trim() : "";
+  if (reason.length > MAX_FINISH_REASON) return { error: `The reason has at most ${MAX_FINISH_REASON} characters. The run goes on.` };
+  if (outcome === "failed" && !reason) return { error: "Give a reason: why the task couldn't be done, for the person who set the schedule. The run goes on." };
+  if (outcome === "nothing_new" && changed) {
+    return { error: "You changed something in this run, so it isn't nothing new: the person who set the schedule must hear what changed. Don't call finish_run; write your report as your final message." };
+  }
+  return { outcome, reason };
+}
 
 export type AgentRunUsage = {
   inputTokens: number;
@@ -563,7 +589,10 @@ export type AgentRunView = {
   /** The row's title, when the viewer can open it. */
   rowTitle: string | null;
   steps: AgentStepRecord[];
+  /** What it said at the end; for a schedule's run it ended with finish_run, the reason it gave. */
   answer: string;
+  /** A schedule's run that found nothing new (finish_run): it told no one. */
+  quiet: boolean;
   usage: AgentRunUsage | null;
   /**
    * The call waiting for approval (owners only), with its connection's name: its input masked, or,

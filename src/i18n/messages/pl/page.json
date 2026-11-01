@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Nikt nie odpowiedział na jego wywołanie na czas, więc nic nie zostało wysłane.",
       "limitReached": "Agent wykorzystał swoje tokeny na ten miesiąc.",
       "costLimit": "Obszar roboczy osiągnął miesięczny limit kosztów AI.",
+      "selfReported": "Agent zgłosił, że nie mógł wykonać zadania.",
       "error": "Coś poszło nie tak."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Nowy e-mail · {place}"
     },
     "doneQuietly": "Gotowe.",
+    "nothingNew": "Nic nowego",
     "side": {
       "label": "O agencie {name}",
       "paused": "Wstrzymany"

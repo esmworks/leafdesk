@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Scheduled agent runs can end quietly, say why they failed, and report in a line.** A
+  schedule's run gets a `finish_run` tool: with `nothing_new` (when it checked, found nothing to
+  tell and changed nothing) it ends without a report, so nothing comes to the inbox, push or
+  Telegram, and the agent's chat shows it as one muted *Nothing new* line with its steps folded; a
+  run that changed something is told to report instead. With `failed` and a reason it ends as
+  failed (`selfReported`), the reason shown in its report, its run and the chat. A run's report in
+  the inbox now shows its first paragraph under the title (push and Telegram notifications still
+  say only that it finished). When your Telegram chat is pointed at the agent with `/agent`, each
+  run of a schedule you set sends its summary there with a link to the run. `list_agent_runs` and
+  the REST API mark quiet runs with `quiet`. Migration 0179 (column `agent_run.quiet`).
+
 - **Agent chats queue messages, take files, start from summaries and can be searched.** A message
   written while an agent answers waits under the answer, marked *Queued* (up to 5, each removable),
   and goes with the others as its next turn once the answer ends, in the app, from MCP's

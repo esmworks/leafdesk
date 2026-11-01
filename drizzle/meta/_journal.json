@@ -1254,6 +1254,13 @@
       "when": 1793493905559,
       "tag": "0178_agent_chat_queue_files",
       "breakpoints": true
+    },
+    {
+      "idx": 179,
+      "version": "7",
+      "when": 1793496642080,
+      "tag": "0179_agent_run_quiet",
+      "breakpoints": true
     }
   ]
 }

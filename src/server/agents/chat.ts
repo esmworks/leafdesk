@@ -628,6 +628,7 @@ export async function threadRuns(userId: string, workspaceId: string, agentId: s
         label: view.schedule ? view.schedule.databaseTitle || null : view.mention ? view.mention.pageTitle : view.mail ? view.mail.subject || null : view.rowTitle,
         task: view.schedule?.task ?? view.mention?.task ?? view.request?.task ?? (view.mail && row.prompt) ?? "",
         answer: view.answer,
+        quiet: view.quiet,
         steps: await stepsFor(userId, view.steps),
         pending:
           answers && view.pending

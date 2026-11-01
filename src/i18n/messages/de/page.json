@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Niemand hat seinen Aufruf rechtzeitig beantwortet, daher wurde nichts gesendet.",
       "limitReached": "Der Agent hat seine Tokens für diesen Monat verbraucht.",
       "costLimit": "Der Workspace hat sein monatliches KI-Kostenlimit erreicht.",
+      "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
       "error": "Etwas ist schiefgelaufen."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Neue E-Mail · {place}"
     },
     "doneQuietly": "Erledigt.",
+    "nothingNew": "Nichts Neues",
     "side": {
       "label": "Über {name}",
       "paused": "Pausiert"

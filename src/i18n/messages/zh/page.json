@@ -1335,6 +1335,7 @@
       "approvalTimeout": "没有人及时答复它的调用请求，因此没有发送任何内容。",
       "limitReached": "该智能体本月的令牌已用完。",
       "costLimit": "工作区已达到每月 AI 费用上限。",
+      "selfReported": "代理表示它未能完成任务。",
       "error": "出了点问题。"
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "新邮件 · {place}"
     },
     "doneQuietly": "已完成。",
+    "nothingNew": "没有新情况",
     "side": {
       "label": "关于 {name}",
       "paused": "已暂停"

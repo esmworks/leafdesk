@@ -167,7 +167,13 @@
       "approvalTimeout": "Không ai trả lời yêu cầu chấp thuận trong một ngày, nên không có gì được gửi.",
       "limitReached": "Tác tử đã dùng hết token của tháng.",
       "costLimit": "Câu trả lời đã chạm giới hạn chi phí.",
+      "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
       "error": "Đã xảy ra sự cố khi tác tử trả lời."
+    },
+    "routine": {
+      "done": "{agent} đã xong “{task}”.",
+      "failed": "{agent} không thể hoàn thành “{task}”.",
+      "email": "Tác tử đã đọc email của bạn, nên báo cáo chỉ hiển thị trong Leafdesk."
     },
     "deferred": "{agent} đang giữ một lệnh gọi đến khi hết giờ yên lặng. Câu trả lời sẽ đến đây lúc đó.",
     "queued": "Đang chờ: tác nhân sẽ đọc sau khi trả lời xong.",

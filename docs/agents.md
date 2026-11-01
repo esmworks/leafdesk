@@ -43,7 +43,7 @@ a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 (`AI_WORKSPACE_RATE_LIMIT`): a run waits for its turn rather than failing. Each run is kept for
 30 days after it finishes, with what the agent did step by step, its final answer, the tokens it
 used, and why it failed (`aiOff`, `agentDisabled`, `noAccess`, `rowGone`, `commentGone`, `provider`, `timeout`,
-`tooManyAttempts`, `limitReached` or `error`).
+`tooManyAttempts`, `limitReached`, `selfReported` or `error`).
 
 **Changes for review.** An agent's *Changes to rows* is *Write them directly* (the default) or
 *Propose them for review*: then the rows its runs would add and the values or titles they would
@@ -69,6 +69,22 @@ run shows who asked, from where and the task; read how it went with
 `GET /api/v1/agents/{id}/runs/{run_id}` or `list_agent_runs`. Asking is refused, not queued, while
 the agent is paused or archived, AI is off for the workspace, the agent used its monthly token
 limit, or 5 runs asked of it still wait. Each request is recorded in the audit log.
+
+**Schedules.** Anyone who can edit an agent gives it up to 10 schedules (its settings, the REST API
+or `set_agent_schedule`): a repeat rule in a time zone, a task and, if they like, a database it looks
+after, whose rows it may then change and comment on (at most 30 changes a run); on none it only reads.
+Each run is held to the access of whoever set the schedule last, and tells them how it went: its
+report comes to their inbox, with its first paragraph (200 characters, Markdown dropped) under the
+title there, though never in a push or Telegram notification, and into their chat with the agent.
+A run that checked and found nothing new, and changed nothing, ends itself with `finish_run`
+(`nothing_new`, a reason if it likes): nothing comes to the inbox, push or Telegram, the chat shows it
+as one muted line, *Nothing new* with the reason, its steps folded under it, and its *Runs* tab says
+*Nothing new*. A run that changed something can't end that way: the agent is told to report what it
+changed. One that can't do its task at all ends with `finish_run` `failed` and a reason of up to 300
+characters: it fails as `selfReported`, and the reason shows in its report, its run and the chat.
+`list_agent_runs` and the REST API mark a quiet run with `quiet: true`; the reason is its `answer`.
+When the person's chat with the [Telegram bot](ai.md#ai-chat-from-telegram) is pointed at the agent,
+each run that isn't quiet sends its summary there too.
 
 **Its model.** Where the server has a fast model (`AI_FAST_MODEL`, see [AI features](ai.md#ai-features)),
 the agent's settings let an owner choose which model its runs use, both named: the main model

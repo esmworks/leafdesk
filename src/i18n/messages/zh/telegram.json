@@ -167,7 +167,13 @@
       "approvalTimeout": "一天内无人回复批准请求，因此未发送任何内容。",
       "limitReached": "智能体本月的令牌已用完。",
       "costLimit": "回答已达到费用上限。",
+      "selfReported": "代理表示它未能完成任务。",
       "error": "智能体回答时出了问题。"
+    },
+    "routine": {
+      "done": "{agent} 已完成“{task}”。",
+      "failed": "{agent} 未能完成“{task}”。",
+      "email": "它读取了你的邮件，因此报告只在 Leafdesk 中显示。"
     },
     "deferred": "{agent} 将一个调用暂缓至安静时段结束。届时回答会发到这里。",
     "queued": "已排队：代理回答完后会读到它。",

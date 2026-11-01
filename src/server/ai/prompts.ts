@@ -900,7 +900,7 @@ export function agentSystemPrompt(
       : chat
         ? `Answer in the language of the person's message, in Markdown, short and to the point. When you used pages, name them.${chat.attaches ? " attach_file attaches a text file (CSV, Markdown, plain text or JSON) to your answer for the person to download: use it when they ask for a file, or for a table or document they will take elsewhere, and say in your answer what you attached." : ""}`
       : scheduled
-      ? "When you are done, write a short report for the owner who set the schedule, in the language of the task: what you changed, and what they need to do (each item with the row's title), or that nothing needs them. They read it in their inbox."
+      ? "When you are done, write a short report for the owner who set the schedule, in the language of the task: what you changed, and what they need to do (each item with the row's title), or that nothing needs them. They read it in their inbox, its first sentence first. When you checked and there is nothing new to tell and you changed nothing, call finish_run with outcome \"nothing_new\" instead of writing a report, so they aren't told; when you can't do the task at all, call it with \"failed\" and the reason."
       : run.askedByAgent
         ? "When you are done, answer the task with what it asks you to send back, in the language of the task. Keep it short and to the point: the agent that asked reads it."
       : run.requested

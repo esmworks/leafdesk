@@ -245,6 +245,7 @@
     "aiReminderTitle": "Pengingat dari {agent}",
     "reportDone": "Eksekusi terjadwalnya telah selesai.",
     "reportFailed": "Eksekusi terjadwalnya gagal. Buka untuk melihat penyebabnya.",
+    "reportFailedReason": "Eksekusi terjadwalnya tidak dapat menyelesaikan tugasnya: {reason}",
     "taskDone": "Tugas dari {agent}: selesai.",
     "taskFailed": "Tugas dari {agent}: tidak selesai.",
     "reportHidden": "Eksekusi terjadwalnya telah selesai, pada basis data yang tidak dapat Anda buka.",

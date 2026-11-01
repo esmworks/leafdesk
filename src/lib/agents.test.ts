@@ -5,7 +5,9 @@ import {
   agentEmail,
   agentRunPath,
   callToSend,
+  finishRunCall,
   INBOX_CALL_CHARS,
+  MAX_FINISH_REASON,
   inboxCallInput,
   isAgentEmail,
   isMentionRun,
@@ -23,6 +25,28 @@ import {
   type AgentStepRecord,
 } from "./agents";
 import { redactValue } from "./redact";
+
+describe("finishRunCall", () => {
+  it("ends a run that changed nothing as nothing new, with or without a reason", () => {
+    expect(finishRunCall({ outcome: "nothing_new" }, false)).toEqual({ outcome: "nothing_new", reason: "" });
+    expect(finishRunCall({ outcome: "nothing_new", reason: "  No new  rows. " }, false)).toEqual({ outcome: "nothing_new", reason: "No new rows." });
+  });
+
+  it("refuses nothing new once the run changed something: that is told in a report", () => {
+    const out = finishRunCall({ outcome: "nothing_new", reason: "All fine" }, true);
+    expect("error" in out && out.error).toContain("write your report");
+  });
+
+  it("ends a run as failed only with a reason, changes or not", () => {
+    expect("error" in finishRunCall({ outcome: "failed" }, false)).toBe(true);
+    expect(finishRunCall({ outcome: "failed", reason: "The sheet is gone." }, true)).toEqual({ outcome: "failed", reason: "The sheet is gone." });
+  });
+
+  it("refuses an unknown outcome and a reason too long", () => {
+    expect("error" in finishRunCall({ outcome: "done" }, false)).toBe(true);
+    expect("error" in finishRunCall({ outcome: "failed", reason: "x".repeat(MAX_FINISH_REASON + 1) }, false)).toBe(true);
+  });
+});
 
 describe("agents' addresses", () => {
   it("are in a domain that can't receive mail", () => {

@@ -1554,7 +1554,9 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 summary: !r
                   ? "A scheduled run of an agent finished; the run is no longer kept"
                   : r.status === "failed"
-                    ? `A scheduled run of the agent "${r.agentName}" failed (${r.code ?? "error"}); list_agent_runs shows why`
+                    ? r.code === "selfReported" && r.text && !r.email
+                      ? `A scheduled run of the agent "${r.agentName}" ended as failed: it said it couldn't do its task, because "${r.text}"`
+                      : `A scheduled run of the agent "${r.agentName}" failed (${r.code ?? "error"}); list_agent_runs shows why`
                     : r.email
                       ? `A scheduled run of the agent "${r.agentName}" finished after reading the user's email: its report shows only in Leafdesk's app`
                       : r.text === null

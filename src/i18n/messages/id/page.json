@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Tidak ada yang menjawab panggilannya tepat waktu, jadi tidak ada yang dikirim.",
       "limitReached": "Agen telah memakai token bulanannya.",
       "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanan.",
+      "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
       "error": "Terjadi kesalahan."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Email baru · {place}"
     },
     "doneQuietly": "Selesai.",
+    "nothingNew": "Tidak ada yang baru",
     "side": {
       "label": "Tentang {name}",
       "paused": "Dijeda"

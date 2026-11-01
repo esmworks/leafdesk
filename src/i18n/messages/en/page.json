@@ -1335,6 +1335,7 @@
       "approvalTimeout": "No one answered its call in time, so nothing was sent.",
       "limitReached": "The agent has used its tokens for the month.",
       "costLimit": "The workspace has reached its monthly AI cost limit.",
+      "selfReported": "The agent said it couldn’t do its task.",
       "error": "Something went wrong."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "New email · {place}"
     },
     "doneQuietly": "Done.",
+    "nothingNew": "Nothing new",
     "side": {
       "label": "About {name}",
       "paused": "Paused"

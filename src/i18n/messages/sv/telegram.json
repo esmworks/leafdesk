@@ -167,7 +167,13 @@
       "approvalTimeout": "Ingen svarade på godkännandet inom ett dygn, så inget skickades.",
       "limitReached": "Agenten har använt sina tokens för månaden.",
       "costLimit": "Svaret nådde sin kostnadsgräns.",
+      "selfReported": "Agenten meddelade att den inte kunde utföra sin uppgift.",
       "error": "Något gick fel medan agenten svarade."
+    },
+    "routine": {
+      "done": "{agent} är klar med ”{task}”.",
+      "failed": "{agent} kunde inte slutföra ”{task}”.",
+      "email": "Den läste din e-post, så rapporten visas bara i Leafdesk."
     },
     "deferred": "{agent} håller kvar ett anrop tills dess tysta timmar är slut. Svaret kommer hit då.",
     "queued": "I kö: agenten läser det när den har svarat.",

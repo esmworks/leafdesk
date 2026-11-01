@@ -603,7 +603,8 @@
         "done": "完了",
         "failed": "失敗",
         "awaiting_approval": "承認待ち",
-        "deferred": "静かな時間のため保留中"
+        "deferred": "静かな時間のため保留中",
+        "quiet": "新しいことはありません"
       },
       "rowHidden": "あなたが開けない行",
       "took": "所要時間：{time}",
@@ -621,6 +622,7 @@
       "hideDetails": "実行内容を隠す",
       "noSteps": "検索、読み取り、変更は何も行いませんでした。",
       "answer": "最後の応答",
+      "givenReason": "理由",
       "comment": "コメントしました：",
       "commentFailed": "コメントできませんでした：",
       "commentHidden": "あなたが開けない行にコメントしました",
@@ -639,6 +641,7 @@
         "connectionGone": "実行を開始した接続が削除されました。",
         "limitReached": "エージェントの月間トークン上限に達していました。",
         "costLimit": "ワークスペースが AI の月間コスト上限に達していました。",
+        "selfReported": "エージェントはタスクを完了できなかったと報告しました。",
         "mailGone": "メールがメールボックスにもうないか、メールボックスがこのエージェントに開放されていません。"
       },
       "fromConnection": "{connection} · {event}",

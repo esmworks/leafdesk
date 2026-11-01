@@ -167,7 +167,13 @@
       "approvalTimeout": "Tidak ada yang menjawab permintaan persetujuan dalam sehari, jadi tidak ada yang dikirim.",
       "limitReached": "Agen telah memakai token bulan ini.",
       "costLimit": "Jawaban mencapai batas biayanya.",
+      "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
       "error": "Terjadi masalah saat agen menjawab."
+    },
+    "routine": {
+      "done": "{agent} menyelesaikan “{task}”.",
+      "failed": "{agent} tidak dapat menyelesaikan “{task}”.",
+      "email": "Agen ini membaca email Anda, jadi laporannya hanya tampil di Leafdesk."
     },
     "deferred": "{agent} menahan sebuah panggilan sampai jam tenangnya berakhir. Jawabannya akan datang ke sini saat itu.",
     "queued": "Dalam antrean: agen akan membacanya setelah selesai menjawab.",

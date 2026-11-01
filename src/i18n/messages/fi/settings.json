@@ -603,7 +603,8 @@
         "done": "Valmis",
         "failed": "Epäonnistui",
         "awaiting_approval": "Odottaa hyväksyntää",
-        "deferred": "Odottaa hiljaisia tunteja"
+        "deferred": "Odottaa hiljaisia tunteja",
+        "quiet": "Ei uutta"
       },
       "rowHidden": "Rivi, jota et voi avata",
       "took": "kesti {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Piilota, mitä se teki",
       "noSteps": "Se ei hakenut, lukenut eikä muuttanut mitään.",
       "answer": "Sen viimeiset sanat",
+      "givenReason": "Sen perustelu",
       "comment": "Kommentoi:",
       "commentFailed": "Kommentointi epäonnistui:",
       "commentHidden": "Kommentoi riviä, jota et voi avata",
@@ -644,6 +646,7 @@
         "connectionGone": "Sen käynnistänyt yhteys poistettiin.",
         "limitReached": "Se oli käyttänyt agentin kuukausittaisen tokenrajan.",
         "costLimit": "Työtila oli saavuttanut kuukausittaisen tekoälyn kustannusrajansa.",
+        "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
         "mailGone": "Sähköposti ei ole enää postilaatikossa, tai postilaatikko ei ole enää avoinna agentille."
       },
       "fromConnection": "{connection} · {event}",

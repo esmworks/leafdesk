@@ -900,7 +900,9 @@ export function describeAgentRun(workspaceId: string, run: AgentRunView) {
         }
       : {}),
     steps: mailed ? [] : run.steps.map(describeAgentStep),
+    // A schedule's run that ended itself (finish_run): its answer is the reason it gave.
     answer: mailed ? "" : run.answer,
+    ...(run.quiet ? { quiet: true } : {}),
     ...(mailed ? { email: "This run read the user's email, or went on from a chat that had: its steps and answer show only in Leafdesk's app." } : {}),
     ...(run.usage
       ? {

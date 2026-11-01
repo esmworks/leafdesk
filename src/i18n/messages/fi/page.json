@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Kukaan ei vastannut sen kutsuun ajoissa, joten mitään ei lähetetty.",
       "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
       "costLimit": "Työtila on saavuttanut tekoälyn kuukausittaisen kustannusrajansa.",
+      "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
       "error": "Jokin meni vikaan."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Uusi sähköposti · {place}"
     },
     "doneQuietly": "Valmis.",
+    "nothingNew": "Ei uutta",
     "side": {
       "label": "Tietoja: {name}",
       "paused": "Keskeytetty"

@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Không ai trả lời lệnh gọi của nó kịp thời, nên không có gì được gửi.",
       "limitReached": "Tác tử đã dùng hết token của tháng.",
       "costLimit": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng.",
+      "selfReported": "Tác tử cho biết nó không làm được nhiệm vụ.",
       "error": "Đã xảy ra lỗi."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Email mới · {place}"
     },
     "doneQuietly": "Xong.",
+    "nothingNew": "Không có gì mới",
     "side": {
       "label": "Về {name}",
       "paused": "Đã tạm dừng"

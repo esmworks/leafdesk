@@ -603,7 +603,8 @@
         "done": "완료",
         "failed": "실패",
         "awaiting_approval": "승인 대기 중",
-        "deferred": "조용한 시간으로 보류됨"
+        "deferred": "조용한 시간으로 보류됨",
+        "quiet": "새로운 내용 없음"
       },
       "rowHidden": "열 수 없는 행",
       "took": "{time} 소요",
@@ -621,6 +622,7 @@
       "hideDetails": "수행한 작업 숨기기",
       "noSteps": "아무것도 검색하거나 읽거나 변경하지 않았습니다.",
       "answer": "마지막 응답",
+      "givenReason": "알린 이유",
       "comment": "댓글:",
       "commentFailed": "댓글을 남기지 못함:",
       "commentHidden": "열 수 없는 행에 댓글을 남김",
@@ -639,6 +641,7 @@
         "connectionGone": "실행을 시작한 연결이 제거되었습니다.",
         "limitReached": "에이전트의 월간 토큰 한도를 모두 사용했습니다.",
         "costLimit": "워크스페이스가 이미 월간 AI 비용 한도에 도달했습니다.",
+        "selfReported": "에이전트가 작업을 해낼 수 없었다고 알렸습니다.",
         "mailGone": "메일이 더 이상 메일함에 없거나 메일함이 더 이상 에이전트에게 열려 있지 않습니다."
       },
       "fromConnection": "{connection} · {event}",

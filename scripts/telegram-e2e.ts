@@ -12,8 +12,9 @@
  * only when all of the call shows, only its owner, only the call they saw, not where apps only read);
  * and chatting with an agent: answers followed as they are written, a message sent meanwhile queued
  * and its answer following, `/new summary`, a text file sent as a document going to the agent and a
- * file the agent attaches coming back as one. Creates its own users and workspaces and deletes them
- * afterwards.
+ * file the agent attaches coming back as one; and a routine of the agent picked there sending its
+ * summary (or the reason it couldn't do its task) to the chat, and nothing when it found nothing
+ * new. Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/telegram-e2e.ts
  *
@@ -99,6 +100,9 @@ const { getNotificationPreferences, setNotificationPreference } = await import("
 const { agentConversation, agentRun, auditEvent, notification, workspaceAgent } = await import("@/db/schema");
 const { createAgent } = await import("@/server/agents/manage");
 const { flushAgentRuns } = await import("@/server/agents/run");
+const { removeAgentSchedule, setAgentSchedule } = await import("@/server/agents/schedules");
+const { runDueSchedules } = await import("@/server/schedules");
+const { schedule } = await import("@/db/schema");
 const { notifyApprovers } = await import("@/server/connections/approvals");
 const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
@@ -773,6 +777,54 @@ try {
   mark = sent.length;
   await handleUpdate(text(ALICE, "/mode"));
   check(said(ALICE.id, mark).includes("an agent follows its own settings"), "/mode says an agent follows its own settings");
+
+  // A routine of the agent picked here: its summary comes to this chat; a quiet run sends nothing.
+  const routine = await setAgentSchedule(ids.alice, agent.id, null, {
+    rule: { frequency: "daily", interval: 1, weekdays: [], time: "08:00" },
+    timeZone: "UTC",
+    task: "Check the tyre vendors\nand tell me what changed.",
+  });
+  const runRoutine = async () => {
+    await db.update(schedule).set({ nextRunAt: new Date(Date.now() - 60_000) }).where(eq(schedule.id, routine.id));
+    await runDueSchedules(new Date());
+    await flushAgentRuns();
+    await flushPush();
+    const [latest] = await db.select().from(agentRun).where(and(eq(agentRun.agentId, agent.id), sql`${agentRun.source}->>'kind' = 'schedule'`)).orderBy(sql`${agentRun.createdAt} desc`).limit(1);
+    return latest;
+  };
+  fake.setChat(() => ({ text: `Northwind now sells ROUTINE-SUMMARY tyres.\n\n${"More detail. ".repeat(60)}` }));
+  mark = sent.length;
+  const routineRun = await runRoutine();
+  const routineMessages = messagesTo(ALICE.id, mark);
+  const routineMessage = routineMessages.find((m) => m.includes("finished “Check the tyre vendors”."));
+  check(
+    routineRun?.status === "done" &&
+      routineMessage?.includes("<b>Filer</b>") &&
+      routineMessage.includes("Northwind now sells ROUTINE-SUMMARY tyres.") &&
+      !routineMessage.includes("More detail") &&
+      routineMessage.includes(`https://leaf.test/w/${ws}/`) &&
+      routineMessage.includes(`?run=${routineRun.id}`),
+    "a routine's run sends its summary (whole paragraphs that fit) and a link to the run to the chat pointed at its agent",
+    { routineRun, routineMessages },
+  );
+  check(
+    routineMessages.filter((m) => m.includes("ROUTINE-SUMMARY")).length === 1 && routineMessages.some((m) => m.includes("Its scheduled run finished") && !m.includes("ROUTINE-SUMMARY")),
+    "…and only there: its inbox notification here still says only that it finished",
+    routineMessages,
+  );
+  fake.setChat(() => ({ toolCalls: [{ name: "finish_run", arguments: { outcome: "failed", reason: "The vendor list is empty." } }] }));
+  mark = sent.length;
+  await runRoutine();
+  check(
+    messagesTo(ALICE.id, mark).some((m) => m.includes("couldn't finish “Check the tyre vendors”.") && m.includes("The vendor list is empty.")),
+    "a routine that says it couldn't do its task sends its reason",
+    messagesTo(ALICE.id, mark),
+  );
+  fake.setChat(() => ({ toolCalls: [{ name: "finish_run", arguments: { outcome: "nothing_new" } }] }));
+  mark = sent.length;
+  const quietRoutine = await runRoutine();
+  check(quietRoutine?.quiet === true && messagesTo(ALICE.id, mark).length === 0, "a routine that found nothing new sends nothing: no summary, no notification", messagesTo(ALICE.id, mark));
+  await removeAgentSchedule(ids.alice, agent.id, routine.id);
 
   await updateWorkspaceSettings(ids.alice, ws, { connectedApps: "read" });
   mark = sent.length;

@@ -167,7 +167,13 @@
       "approvalTimeout": "Onaya bir gün içinde yanıt verilmedi, bu yüzden hiçbir şey gönderilmedi.",
       "limitReached": "Ajan bu ayki token hakkını kullandı.",
       "costLimit": "Yanıt maliyet sınırına ulaştı.",
+      "selfReported": "Ajan görevini yapamadığını bildirdi.",
       "error": "Ajan yanıtlarken bir şeyler ters gitti."
+    },
+    "routine": {
+      "done": "{agent}, “{task}” işini bitirdi.",
+      "failed": "{agent}, “{task}” işini bitiremedi.",
+      "email": "E-postanı okudu, bu yüzden raporu yalnızca Leafdesk’te görünüyor."
     },
     "deferred": "{agent} sessiz saatleri bitene kadar bir çağrıyı bekletiyor. Cevabı o zaman buraya gelir.",
     "queued": "Sıraya alındı: ajan yanıtını bitirince bunu okur.",

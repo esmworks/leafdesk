@@ -167,7 +167,13 @@
       "approvalTimeout": "No one answered the approval within a day, so nothing was sent.",
       "limitReached": "The agent used its tokens for the month.",
       "costLimit": "The answer reached its cost limit.",
+      "selfReported": "The agent said it couldn't do its task.",
       "error": "Something went wrong while the agent answered."
+    },
+    "routine": {
+      "done": "{agent} finished “{task}”.",
+      "failed": "{agent} couldn't finish “{task}”.",
+      "email": "It read your email, so its report shows only in Leafdesk."
     },
     "deferred": "{agent} holds a call until its quiet hours end. Its answer comes here then.",
     "queued": "Queued: the agent reads it once it has answered.",

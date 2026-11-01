@@ -15,7 +15,7 @@
  * conversations with the agent can be searched (chat-search.tsx, loaded when opened). Loaded only
  * where a chat is shown.
  */
-import { ArrowUp, AtSign, Check, Clock, ListChecks, Loader2, Mail, Paperclip, Pencil, Plus, RotateCcw, ScrollText, Search, Trash2, TriangleAlert, X } from "lucide-react";
+import { ArrowUp, AtSign, Check, ChevronRight, Clock, ListChecks, Loader2, Mail, Paperclip, Pencil, Plus, RotateCcw, ScrollText, Search, Trash2, TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -842,7 +842,7 @@ function SideBoxes({
                 ) : run.status === "failed" ? (
                   <TriangleAlert className="h-3.5 w-3.5 text-danger" />
                 ) : (
-                  <Check className="h-3.5 w-3.5" />
+                  <Check className={cn("h-3.5 w-3.5", run.quiet && "text-fg-faint")} />
                 )
               }
               onClick={() => onRun(run.id)}
@@ -1116,6 +1116,7 @@ function RunMessage({
   const when = format.dateTime(new Date(run.at), { hour: "2-digit", minute: "2-digit" });
   const Icon = run.kind === "schedule" ? Clock : run.kind === "mention" ? AtSign : run.kind === "mail" ? Mail : ListChecks;
   const from = run.label ? t(`from.${run.kind}On`, { place: run.label }) : t(`from.${run.kind}`);
+  if (run.quiet) return <QuietRun run={run} from={from} when={when} connections={connections} onOpen={onOpen} />;
   return (
     <div className="space-y-1 text-sm" data-agent-run={run.kind}>
       <p className="flex min-w-0 items-center gap-1.5 text-xs text-fg-muted" title={run.task || undefined}>
@@ -1145,6 +1146,66 @@ function RunMessage({
           onOpen={onOpen}
           live={{ workspaceId, status: run.status, pending: run.pending, startedAt: run.at, onAnswered }}
         />
+      )}
+    </div>
+  );
+}
+
+/**
+ * A schedule's run that found nothing new (finish_run): one muted line, with the reason it gave;
+ * the line opens the steps it took, when it took some.
+ */
+function QuietRun({
+  run,
+  from,
+  when,
+  connections,
+  onOpen,
+}: {
+  run: AgentChatRunView;
+  from: string;
+  when: string;
+  connections: Record<string, string>;
+  onOpen: (pageId: string) => void;
+}) {
+  const t = useTranslations("page.agentChat");
+  const [open, setOpen] = useState(false);
+  const reason = run.answer.trim();
+  const line = (
+    <>
+      <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden />
+      <span className="shrink-0">{t("nothingNew")}</span>
+      <span aria-hidden>·</span>
+      <span className="min-w-0 truncate">{reason || from}</span>
+      <span aria-hidden>·</span>
+      <time dateTime={run.at} className="shrink-0">
+        {when}
+      </time>
+      {run.steps.length > 0 && <ChevronRight className={cn("h-3.5 w-3.5 shrink-0 transition-transform", open ? "rotate-90" : "rtl:rotate-180")} aria-hidden />}
+    </>
+  );
+  const title = [from, run.task].filter(Boolean).join("\n") || undefined;
+  return (
+    <div className="text-xs text-fg-muted" data-agent-run={run.kind} data-agent-run-quiet>
+      {run.steps.length > 0 ? (
+        <button
+          type="button"
+          aria-expanded={open}
+          title={title}
+          onClick={() => setOpen(!open)}
+          className="-ms-1 flex max-w-full min-w-0 items-center gap-1.5 rounded px-1 py-0.5 hover:bg-bg-hover hover:text-fg"
+        >
+          {line}
+        </button>
+      ) : (
+        <p className="flex min-w-0 items-center gap-1.5" title={title}>
+          {line}
+        </p>
+      )}
+      {open && (
+        <ol className="mt-1 ms-1.5 space-y-1 border-s border-border ps-3">
+          <StepItems steps={run.steps} connections={connections} onOpen={onOpen} />
+        </ol>
       )}
     </div>
   );

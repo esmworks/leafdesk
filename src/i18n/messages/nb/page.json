@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Ingen svarte på kallet i tide, så ingenting ble sendt.",
       "limitReached": "Agenten har brukt opp tokenene sine for måneden.",
       "costLimit": "Arbeidsområdet har nådd den månedlige kostnadsgrensen for KI.",
+      "selfReported": "Agenten sa at den ikke kunne gjøre oppgaven sin.",
       "error": "Noe gikk galt."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Ny e-post · {place}"
     },
     "doneQuietly": "Ferdig.",
+    "nothingNew": "Ikke noe nytt",
     "side": {
       "label": "Om {name}",
       "paused": "Satt på pause"

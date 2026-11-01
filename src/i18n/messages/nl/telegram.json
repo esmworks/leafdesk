@@ -167,7 +167,13 @@
       "approvalTimeout": "Niemand beantwoordde de goedkeuring binnen een dag, dus er is niets verstuurd.",
       "limitReached": "De agent heeft zijn tokens voor deze maand gebruikt.",
       "costLimit": "Het antwoord bereikte zijn kostenlimiet.",
+      "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
       "error": "Er ging iets mis terwijl de agent antwoordde."
+    },
+    "routine": {
+      "done": "{agent} heeft ‘{task}’ afgerond.",
+      "failed": "{agent} kon ‘{task}’ niet afronden.",
+      "email": "Hij heeft je e-mail gelezen, dus zijn verslag staat alleen in Leafdesk."
     },
     "deferred": "{agent} houdt een aanroep vast tot zijn stille uren voorbij zijn. Het antwoord komt dan hier.",
     "queued": "In de wachtrij: de agent leest het zodra hij heeft geantwoord.",

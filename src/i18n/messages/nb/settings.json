@@ -603,7 +603,8 @@
         "done": "Ferdig",
         "failed": "Mislyktes",
         "awaiting_approval": "Venter på godkjenning",
-        "deferred": "Venter på stille timer"
+        "deferred": "Venter på stille timer",
+        "quiet": "Ikke noe nytt"
       },
       "rowHidden": "En rad du ikke kan åpne",
       "took": "tok {time}",
@@ -621,6 +622,7 @@
       "hideDetails": "Skjul hva den gjorde",
       "noSteps": "Den søkte ikke, leste ikke og endret ingenting.",
       "answer": "Det siste den skrev",
+      "givenReason": "Begrunnelsen den ga",
       "comment": "Kommenterte:",
       "commentFailed": "Kunne ikke kommentere:",
       "commentHidden": "Kommenterte på en rad du ikke kan åpne",
@@ -644,6 +646,7 @@
         "connectionGone": "Tilkoblingen som startet den, ble fjernet.",
         "limitReached": "Den hadde brukt opp agentens månedlige tokengrense.",
         "costLimit": "Arbeidsområdet hadde nådd den månedlige kostnadsgrensen for KI.",
+        "selfReported": "Agenten sa at den ikke kunne gjøre oppgaven sin.",
         "mailGone": "E-posten er ikke lenger i postkassen, eller postkassen er ikke lenger åpen for agenten."
       },
       "fromConnection": "{connection} · {event}",

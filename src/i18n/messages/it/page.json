@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Nessuno ha risposto alla sua chiamata in tempo, quindi non è stato inviato nulla.",
       "limitReached": "L’agente ha esaurito i token del mese.",
       "costLimit": "Lo spazio di lavoro ha raggiunto il limite mensile di costo dell’IA.",
+      "selfReported": "L’agente ha detto di non essere riuscito a svolgere il compito.",
       "error": "Si è verificato un errore."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Nuova email · {place}"
     },
     "doneQuietly": "Fatto.",
+    "nothingNew": "Niente di nuovo",
     "side": {
       "label": "Informazioni su {name}",
       "paused": "In pausa"

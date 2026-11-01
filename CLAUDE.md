@@ -217,6 +217,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   a run works for (`remind_person`, no recipient argument): `server/ai-reminders.ts`, a notification
   of kind `ai_reminder` waiting snoozed until its time (`deliverSnoozed` wakes it), shown over the
   page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`.
+  A schedule's run may end itself with `finish_run` (`lib/agents.ts` `finishRunCall`): `nothing_new`
+  sets `agent_run.quiet` and `reportRun` sends nothing; `failed` is code `selfReported`; the reason
+  is the run's `answer` either way. A schedule's run that isn't quiet also goes to its setter's
+  Telegram chat when that is pointed at the agent (`server/telegram/routine.ts`, called from `finish`).
   Agents asking agents: `handoff.ts` (`ask_agent` waits; `assign_agent` queues the helper's run
   with `queued` on its `handoff` source, read by the giving agent through `agent_run_task_idx`: a
   task that `agent_tasks` lists for the same person and whose end `run.ts` `reportRun` reports as an

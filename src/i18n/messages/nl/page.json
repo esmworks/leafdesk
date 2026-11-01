@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Niemand heeft de aanroep op tijd beantwoord, dus er is niets verstuurd.",
       "limitReached": "De agent heeft zijn tokens voor deze maand opgebruikt.",
       "costLimit": "De werkruimte heeft de maandelijkse limiet voor AI-kosten bereikt.",
+      "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
       "error": "Er ging iets mis."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Nieuwe e-mail · {place}"
     },
     "doneQuietly": "Klaar.",
+    "nothingNew": "Niets nieuws",
     "side": {
       "label": "Over {name}",
       "paused": "Gepauzeerd"

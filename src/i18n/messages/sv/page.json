@@ -1335,6 +1335,7 @@
       "approvalTimeout": "Ingen besvarade dess anrop i tid, så inget skickades.",
       "limitReached": "Agenten har använt sina token för månaden.",
       "costLimit": "Arbetsytan har nått sin månatliga kostnadsgräns för AI.",
+      "selfReported": "Agenten meddelade att den inte kunde utföra sin uppgift.",
       "error": "Något gick fel."
     },
     "errors": {
@@ -1381,6 +1382,7 @@
       "mailOn": "Ny e-post · {place}"
     },
     "doneQuietly": "Klart.",
+    "nothingNew": "Inget nytt",
     "side": {
       "label": "Om {name}",
       "paused": "Pausad"

@@ -188,7 +188,10 @@ export type AgentChatRunView = {
   code: AgentRunCode | null;
   label: string | null;
   task: string;
+  /** What it said at the end; for a schedule's run ended with finish_run, the reason it gave. */
   answer: string;
+  /** A schedule's run that found nothing new: one muted line, its steps folded under it. */
+  quiet: boolean;
   steps: AgentChatStepView[];
   pending: AgentChatTurn["pending"];
   at: string;
@@ -280,6 +283,6 @@ export const AGENT_CHAT_ERRORS = ["invalid", "tooLong", "busy", "queueFull", "ba
 export type AgentChatError = (typeof AGENT_CHAT_ERRORS)[number] | Exclude<AgentChatState, "full" | "readOnly">;
 
 /** Why a chat's run ended without an answer, as the chat says it (others say "error"). */
-export const AGENT_CHAT_FAILURES = ["aiOff", "agentDisabled", "noAccess", "provider", "timeout", "tooManyAttempts", "approvalTimeout", "limitReached", "costLimit", "error"] as const;
+export const AGENT_CHAT_FAILURES = ["aiOff", "agentDisabled", "noAccess", "provider", "timeout", "tooManyAttempts", "approvalTimeout", "limitReached", "costLimit", "selfReported", "error"] as const;
 export const chatFailure = (code: AgentRunCode | null): (typeof AGENT_CHAT_FAILURES)[number] =>
   (AGENT_CHAT_FAILURES as readonly (AgentRunCode | null)[]).includes(code) ? (code as (typeof AGENT_CHAT_FAILURES)[number]) : "error";
