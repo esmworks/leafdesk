@@ -144,8 +144,11 @@ import { gzipSync } from "node:zlib";
  * An agent's chat box made the AI chat's (files dropped or pasted, dictation, growing with its
  * text) and reminders set from the AI chat add a few hundred bytes to a page's route, which stood
  * at its budget.
+ * Stopping an agent's answer and undoing a note the chat kept (the step's Undo, shared by the AI
+ * chat and agents' chats in ChatThread) add about 0.15 kB to a page's route, which stood at its
+ * budget.
  */
-const BUDGET = { routeFirstLoad: 795, firstLoadShared: 1230, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 796, firstLoadShared: 1230, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;
