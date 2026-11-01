@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "已以 {name} 的身份关联到 Leafdesk。你还没有加入可供我回答的工作区：加入一个后，用 /workspace 选择它。",
   "notLinked": "此聊天未关联 Leafdesk 账户。在 Leafdesk 中打开 设置 → 已连接的应用 → Telegram，然后选择“关联 Telegram”。",
   "badCode": "此链接已过期或已被使用。请在 Leafdesk 中新建一个：设置 → 已连接的应用 → Telegram。",
-  "help": "提出问题或发送语音消息，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/workspace：选择我回答所用的工作区\n/agent：与你的某个智能体聊天\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/notifications：开启或关闭此聊天中的通知\n/unlink：取消关联此 Telegram 账户",
+  "help": "提出问题或发送语音消息，我会根据你的 Leafdesk 页面回答并注明出处。\n\n/new：开始新对话\n/new summary：从上一段对话的摘要开始与代理的新对话\n/workspace：选择我回答所用的工作区\n/agent：与你的某个智能体聊天\n/mode：选择我可以更改什么\n/stop：停止正在撰写的回答\n/notifications：开启或关闭此聊天中的通知\n/unlink：取消关联此 Telegram 账户",
   "commands": {
     "new": "开始新对话",
     "workspace": "选择我回答所用的工作区",
@@ -152,7 +152,10 @@
       "tooLong": "发给智能体的消息最多 {max} 个字符。",
       "busy": "智能体仍在回答你的上一条消息。",
       "rateLimited": "同时发送的消息太多。请稍后再试。",
-      "invalid": "请先发送一条消息。"
+      "invalid": "请先发送一条消息。",
+      "queueFull": "已有 {max} 条消息在等待代理的回答。请在它回答后再发送这条。",
+      "badFile": "代理只接收文本文件（CSV、TSV、TXT、Markdown、JSON），每个最多 {size}。",
+      "summaryFailed": "代理无法总结这段对话。请重试，或用 /new 重新开始。"
     },
     "failed": {
       "aiOff": "此工作区已关闭 AI。",
@@ -166,6 +169,11 @@
       "costLimit": "回答已达到费用上限。",
       "error": "智能体回答时出了问题。"
     },
-    "deferred": "{agent} 将一个调用暂缓至安静时段结束。届时回答会发到这里。"
+    "deferred": "{agent} 将一个调用暂缓至安静时段结束。届时回答会发到这里。",
+    "queued": "已排队：代理回答完后会读到它。",
+    "nothingToSummarize": "还没有可以总结的与代理的对话。",
+    "newSummary": "与代理的新对话，从上一段对话的这份摘要开始：",
+    "fileFailed": "无法下载该文件。请再发送一次。",
+    "fileNotSent": "无法发送文件 {name}。它在代理页面上的回答中。"
   }
 }

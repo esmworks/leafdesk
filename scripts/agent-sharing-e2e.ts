@@ -239,7 +239,7 @@ try {
   fake.chats.length = 0;
   const asked = await chat.sendAgentChat(ids.viewer, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "When is lunch?" });
   await flushAgentRuns();
-  const [viewerRun] = await db.select().from(agentRun).where(eq(agentRun.id, asked.runId));
+  const [viewerRun] = await db.select().from(agentRun).where(eq(agentRun.id, asked.runId!));
   const viewerTools = toolNames(fake.chats[0]);
   check(viewerRun?.status === "done" && !writeTools.some((n) => viewerTools.includes(n)), "a viewer's chat answers, with reading tools only", { status: viewerRun?.status, viewerTools });
   fake.setChat(() => ({ text: "Done." }));
@@ -262,7 +262,7 @@ try {
   check(fake.chats.length > 0 && !toolNames(fake.chats[0]).includes("notes__send_note"), "nor is an editor's run asked for on a row, which no owner answers for", toolNames(fake.chats[0]));
   const viewerRuns = await agents.listAgentRuns(ids.viewer, helper.id);
   check(viewerRuns.length === 1 && viewerRuns[0].id === asked.runId, "view & interact lists its own runs alone", viewerRuns.map((r) => r.id));
-  check((await refusal(agents.getAgentRun(ids.viewer, helper.id, editorAsked.runId))) === "notFound", "…and doesn't open someone else's");
+  check((await refusal(agents.getAgentRun(ids.viewer, helper.id, editorAsked.runId!))) === "notFound", "…and doesn't open someone else's");
   check((await agents.listAgentRuns(ids.editor, helper.id)).length >= 2, "can edit lists the agent's runs");
 
   // ── Mentions, by level ──────────────────────────────────────────────────────────────────────

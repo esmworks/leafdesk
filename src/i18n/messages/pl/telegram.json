@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Połączono z Leafdesk jako {name}. Nie należysz jeszcze do obszaru roboczego, z którego mogę odpowiadać: dołącz do jakiegoś, a potem wybierz go poleceniem /workspace.",
   "notLinked": "Ten czat nie jest połączony z kontem Leafdesk. W Leafdesk otwórz Ustawienia → Połączone aplikacje → Telegram i wybierz Połącz z Telegramem.",
   "badCode": "Ten link wygasł lub został już użyty. Utwórz nowy w Leafdesk: Ustawienia → Połączone aplikacje → Telegram.",
-  "help": "Zadaj pytanie albo wyślij wiadomość głosową, a odpowiem na podstawie twoich stron w Leafdesk, podając je jako źródła.\n\n/new: zacznij nową rozmowę\n/workspace: wybierz obszar roboczy, z którego odpowiadam\n/agent: czatuj z jednym ze swoich agentów\n/mode: wybierz, co mogę zmieniać\n/stop: zatrzymaj pisaną odpowiedź\n/notifications: włącz lub wyłącz swoje powiadomienia w tym czacie\n/unlink: odłącz to konto Telegram",
+  "help": "Zadaj pytanie albo wyślij wiadomość głosową, a odpowiem na podstawie twoich stron w Leafdesk, podając je jako źródła.\n\n/new: zacznij nową rozmowę\n/new summary: zacznij nową rozmowę z agentem od podsumowania poprzedniej\n/workspace: wybierz obszar roboczy, z którego odpowiadam\n/agent: czatuj z jednym ze swoich agentów\n/mode: wybierz, co mogę zmieniać\n/stop: zatrzymaj pisaną odpowiedź\n/notifications: włącz lub wyłącz swoje powiadomienia w tym czacie\n/unlink: odłącz to konto Telegram",
   "commands": {
     "new": "Zacznij nową rozmowę",
     "workspace": "Wybierz obszar roboczy, z którego odpowiadam",
@@ -152,7 +152,10 @@
       "tooLong": "Wiadomość do agenta może mieć najwyżej {max} znaków.",
       "busy": "Agent wciąż odpowiada na twoją poprzednią wiadomość.",
       "rateLimited": "Za dużo wiadomości naraz. Spróbuj ponownie za chwilę.",
-      "invalid": "Najpierw wyślij wiadomość."
+      "invalid": "Najpierw wyślij wiadomość.",
+      "queueFull": "Na odpowiedź agenta czeka już {max} wiadomości. Wyślij tę, gdy odpowie.",
+      "badFile": "Agenci przyjmują tylko pliki tekstowe (CSV, TSV, TXT, Markdown, JSON), każdy do {size}.",
+      "summaryFailed": "Agent nie zdołał podsumować rozmowy. Spróbuj ponownie albo zacznij od nowa poleceniem /new."
     },
     "failed": {
       "aiOff": "AI jest wyłączone w tym obszarze roboczym.",
@@ -166,6 +169,11 @@
       "costLimit": "Odpowiedź osiągnęła limit kosztów.",
       "error": "Coś poszło nie tak podczas odpowiedzi agenta."
     },
-    "deferred": "{agent} wstrzymuje wywołanie do końca godzin ciszy. Odpowiedź przyjdzie tu wtedy."
+    "deferred": "{agent} wstrzymuje wywołanie do końca godzin ciszy. Odpowiedź przyjdzie tu wtedy.",
+    "queued": "W kolejce: agent przeczyta ją, gdy skończy odpowiadać.",
+    "nothingToSummarize": "Nie ma jeszcze rozmowy z agentem do podsumowania.",
+    "newSummary": "Nowa rozmowa z agentem. Zaczyna się od tego podsumowania poprzedniej:",
+    "fileFailed": "Nie udało mi się pobrać tego pliku. Spróbuj wysłać go ponownie.",
+    "fileNotSent": "Nie udało mi się wysłać pliku {name}. Jest przy odpowiedzi na stronie agenta."
   }
 }

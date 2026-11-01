@@ -1348,7 +1348,11 @@
       "gone": "Tác tử này không còn khả dụng.",
       "paused": "Tác tử này đang tạm dừng, nên không thể trả lời.",
       "aiOff": "AI đang tắt trong không gian làm việc này, nên tác tử không thể trả lời.",
-      "limitReached": "Tác tử này đã dùng hết token của tháng."
+      "limitReached": "Tác tử này đã dùng hết token của tháng.",
+      "queueFull": "Đã có {max} tin nhắn đang chờ câu trả lời. Hãy gửi tin này sau khi tác nhân trả lời.",
+      "badFile": "Không thể đính kèm tệp này: chỉ tệp văn bản (CSV, TSV, TXT, Markdown, JSON), tối đa {max} cho mỗi tin nhắn.",
+      "nothingToRedo": "Không có câu trả lời nào để làm lại.",
+      "summaryFailed": "Tác nhân không thể tóm tắt cuộc trò chuyện này. Hãy thử lại."
     },
     "picker": {
       "search": "Tìm tác tử",
@@ -1382,7 +1386,33 @@
       "paused": "Đã tạm dừng"
     },
     "deferred": "Đang giữ đến khi hết giờ yên lặng ({time})…",
-    "deferredApproval": "Tác tử đang giữ một lệnh gọi đến khi hết giờ yên lặng ({time}). Bạn có thể phê duyệt ngay bây giờ."
+    "deferredApproval": "Tác tử đang giữ một lệnh gọi đến khi hết giờ yên lặng ({time}). Bạn có thể phê duyệt ngay bây giờ.",
+    "queued": "Đang chờ",
+    "queuedHint": "Sẽ gửi đến {name} sau khi trả lời xong",
+    "removeQueued": "Xóa khỏi hàng chờ",
+    "newWithSummary": "Cuộc trò chuyện mới kèm tóm tắt",
+    "summary": "Tóm tắt một cuộc trò chuyện trước",
+    "edit": "Sửa",
+    "regenerate": "Tạo lại",
+    "files": {
+      "attach": "Đính kèm tệp văn bản",
+      "remove": "Xóa {name}",
+      "download": "Tải xuống {name}",
+      "tooMany": "Tối đa {max} tệp cho mỗi tin nhắn.",
+      "tooLarge": "{name} lớn hơn {size}.",
+      "type": "Không thể đính kèm {name}: chỉ tệp CSV, TSV, TXT, Markdown và JSON.",
+      "binary": "{name} không phải tệp văn bản."
+    },
+    "search": {
+      "open": "Tìm trong các cuộc trò chuyện",
+      "placeholder": "Tìm trong các cuộc trò chuyện của bạn với {name}",
+      "hint": "Nhập ít nhất {min} ký tự.",
+      "empty": "Không tìm thấy gì.",
+      "results": "Kết quả tìm kiếm",
+      "inThread": "Trò chuyện của tác nhân",
+      "onPage": "Trên một trang",
+      "onClosedPage": "Trên một trang bạn không mở được"
+    }
   },
   "button": {
     "untitled": "Nút",

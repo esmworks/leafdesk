@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Connecté à Leafdesk en tant que {name}. Vous n’êtes encore dans aucun espace de travail depuis lequel je peux répondre : rejoignez-en un, puis choisissez-le avec /workspace.",
   "notLinked": "Cette conversation n’est liée à aucun compte Leafdesk. Dans Leafdesk, ouvrez Paramètres → Applications connectées → Telegram et choisissez Lier Telegram.",
   "badCode": "Ce lien a expiré ou a déjà été utilisé. Créez-en un nouveau dans Leafdesk : Paramètres → Applications connectées → Telegram.",
-  "help": "Posez une question ou envoyez un message vocal, et je réponds à partir de vos pages Leafdesk, en les citant.\n\n/new : commencer une nouvelle conversation\n/workspace : choisir l’espace de travail depuis lequel je réponds\n/agent : discuter avec l’un de vos agents\n/mode : choisir ce que je peux modifier\n/stop : arrêter la réponse en cours d’écriture\n/notifications : activer ou désactiver vos notifications dans cette conversation\n/unlink : délier ce compte Telegram",
+  "help": "Posez une question ou envoyez un message vocal, et je réponds à partir de vos pages Leafdesk, en les citant.\n\n/new : commencer une nouvelle conversation\n/new summary : commencer une nouvelle conversation avec un agent à partir d’un résumé de la précédente\n/workspace : choisir l’espace de travail depuis lequel je réponds\n/agent : discuter avec l’un de vos agents\n/mode : choisir ce que je peux modifier\n/stop : arrêter la réponse en cours d’écriture\n/notifications : activer ou désactiver vos notifications dans cette conversation\n/unlink : délier ce compte Telegram",
   "commands": {
     "new": "Commencer une nouvelle conversation",
     "workspace": "Choisir l’espace de travail depuis lequel je réponds",
@@ -152,7 +152,10 @@
       "tooLong": "Un message à un agent compte au plus {max} caractères.",
       "busy": "L’agent répond encore à votre dernier message.",
       "rateLimited": "Trop de messages à la fois. Réessayez dans un instant.",
-      "invalid": "Envoyez d’abord un message."
+      "invalid": "Envoyez d’abord un message.",
+      "queueFull": "{max} messages attendent déjà la réponse de l’agent. Envoyez celui-ci une fois qu’il aura répondu.",
+      "badFile": "Les agents n’acceptent que des fichiers texte (CSV, TSV, TXT, Markdown, JSON), jusqu’à {size} chacun.",
+      "summaryFailed": "L’agent n’a pas pu résumer la conversation. Réessayez, ou recommencez avec /new."
     },
     "failed": {
       "aiOff": "L’IA est désactivée dans cet espace de travail.",
@@ -166,6 +169,11 @@
       "costLimit": "La réponse a atteint sa limite de coût.",
       "error": "Un problème est survenu pendant la réponse de l’agent."
     },
-    "deferred": "{agent} retient un appel jusqu’à la fin de ses heures calmes. Sa réponse arrivera ici à ce moment-là."
+    "deferred": "{agent} retient un appel jusqu’à la fin de ses heures calmes. Sa réponse arrivera ici à ce moment-là.",
+    "queued": "En attente : l’agent le lira une fois sa réponse terminée.",
+    "nothingToSummarize": "Il n’y a pas encore de conversation avec l’agent à résumer.",
+    "newSummary": "Nouvelle conversation avec l’agent. Elle part de ce résumé de la précédente :",
+    "fileFailed": "Je n’ai pas pu télécharger ce fichier. Essayez de l’envoyer à nouveau.",
+    "fileNotSent": "Je n’ai pas pu envoyer le fichier {name}. Il se trouve avec la réponse sur la page de l’agent."
   }
 }

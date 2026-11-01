@@ -1,19 +1,24 @@
 /**
  * Where a chat's runs keep what was said (`agent_conversation`, see lib/agent-chat.ts): the run
  * reads the conversation before its message, and writes its answer there when it ends, however it
- * ends. Kept apart from chat.ts (the chat's checks and lists), which queues runs: the worker
- * (run.ts) imports this.
+ * ends, with the files it attached; the messages that waited meanwhile (lib/agent-chat-queue.ts)
+ * then go as the next turn. Kept apart from chat.ts (the chat's checks and lists), which queues
+ * runs: the worker (run.ts) imports this.
  */
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentConversation, agentRun } from "@/db/schema";
+import { agentChatFile, agentConversation, agentRun, file } from "@/db/schema";
 import type { ChatStepRecord } from "@/db/schema/ai";
-import { AGENT_CHAT_HISTORY, type AgentChatMessageRecord } from "@/lib/agent-chat";
+import { AGENT_CHAT_HISTORY, type AgentChatAnswerFile, type AgentChatMessageRecord } from "@/lib/agent-chat";
+import { mergeTurnQuestions, queuedTurn } from "@/lib/agent-chat-queue";
+import { summaryTurn } from "@/lib/agent-chat-summary";
 import { readEmail, type AgentRunCode, type AgentStepRecord } from "@/lib/agents";
 import { redactError, redactText, redactValue } from "@/lib/redact";
 import { chatHistory } from "@/server/ai/prompts";
+import { kickAgents } from "./kick";
 
 type Run = Pick<typeof agentRun.$inferSelect, "id" | "source" | "steps">;
+type EndedRun = Run & Pick<typeof agentRun.$inferSelect, "agentId" | "workspaceId" | "context">;
 
 /** The steps the people's chat knows how to put into a conversation's history (changes made, connection calls). */
 const chatSteps = (steps: AgentStepRecord[] | undefined): ChatStepRecord[] =>
@@ -36,8 +41,18 @@ export async function chatRunHistory(run: Run, budget: number): Promise<{ messag
     .where(eq(agentConversation.id, run.source.conversationId));
   if (!found) return { messages: [], mailRead: false };
   const at = found.messages.findIndex((m) => m.role === "user" && m.runId === run.id);
-  const before = (at >= 0 ? found.messages.slice(0, at) : found.messages).slice(-AGENT_CHAT_HISTORY);
-  const turns = before.map((m) => ({ role: m.role, content: m.code && !m.content ? "(No answer: the run failed.)" : m.content, steps: chatSteps(m.steps), at: m.at, mail: readEmail(m.steps) }));
+  // Messages that waited in the queue go with their answer as one question.
+  const before = mergeTurnQuestions(at >= 0 ? found.messages.slice(0, at) : found.messages).slice(-AGENT_CHAT_HISTORY);
+  const turns = before.flatMap((m) => {
+    const mail = readEmail(m.steps);
+    // A summary the conversation started from: what was said before it.
+    if (m.summary) return summaryTurn(m.content).map((t) => ({ ...t, steps: [] as ChatStepRecord[], attachments: undefined, at: m.at, mail }));
+    const failed = m.code && !m.content ? "(No answer: the run failed.)" : m.content;
+    const attached = m.attached?.length ? `\n\n(You attached the files ${m.attached.map((f) => `"${f.name}"`).join(", ")} to this answer.)` : "";
+    // The files' text went to that run only: later ones know their names.
+    const attachments = m.files?.map((f) => ({ id: "", name: f.name, contentType: "text/plain", size: f.size }));
+    return [{ role: m.role, content: `${failed}${attached}`, steps: chatSteps(m.steps), attachments, at: m.at, mail }];
+  });
   const own = found.chatId === null ? await ownRunTurns(found.agentId, run.source.userId, before[0]?.at ?? null, at >= 0 ? found.messages[at].at : null) : [];
   // Turns stay whole (a question, then its answer): a run that started while one was answered goes after it.
   const units: (typeof turns)[] = [];
@@ -94,37 +109,78 @@ async function ownRunTurns(agentId: string, userId: string, from: string | null,
       const at = r.createdAt.toISOString();
       const started = r.source.kind === "schedule" ? "on a schedule they set" : r.source.kind === "mention" ? "when they mentioned you in a comment" : "on a task they asked for";
       return [
-        { role: "user" as const, content: `(Not a message: you ran ${started}, at ${at}. The task: ${r.prompt.slice(0, 1_000)})`, steps: [], at, mail: false },
-        { role: "assistant" as const, content: r.answer, steps: chatSteps(r.steps), at, mail: readEmail(r.steps) },
+        { role: "user" as const, content: `(Not a message: you ran ${started}, at ${at}. The task: ${r.prompt.slice(0, 1_000)})`, steps: [], attachments: undefined, at, mail: false },
+        { role: "assistant" as const, content: r.answer, steps: chatSteps(r.steps), attachments: undefined, at, mail: readEmail(r.steps) },
       ];
     });
 }
 
+/** The files the agent attached to a chat run's answer (`attach_file`), oldest first. */
+export async function answerFiles(runId: string): Promise<AgentChatAnswerFile[]> {
+  return db
+    .select({ id: file.id, name: file.name, size: file.size, contentType: file.contentType })
+    .from(agentChatFile)
+    .innerJoin(file, eq(file.id, agentChatFile.fileId))
+    .where(eq(agentChatFile.runId, runId))
+    .orderBy(asc(agentChatFile.createdAt));
+}
+
 /**
- * Writes a chat run's answer (or that it failed, and why) to its conversation, once: a run ended
- * twice (its worker stopped as it finished) adds nothing the second time. Never throws: the run's
- * ending is saved either way.
+ * Writes a chat run's answer (or that it failed, and why) to its conversation, with the files it
+ * attached, once: a run ended twice (its worker stopped as it finished) adds nothing the second
+ * time. The messages that waited for it go on at once as the next turn: one run (source `after`
+ * this one), each kept as a question of it after the answer. The conversation's row is locked
+ * meanwhile, as chat.ts locks it to queue a message, so none slips between. Called before the
+ * run's status changes (run.ts finish): once a run reads as ended, its answer and the next turn
+ * are there. Never throws: the run's ending is saved either way.
  */
-export async function closeChatTurn(run: Run, ending: { answer?: string; code?: AgentRunCode | null; steps?: AgentStepRecord[] }) {
+export async function closeChatTurn(run: EndedRun, ending: { answer?: string; code?: AgentRunCode | null; steps?: AgentStepRecord[] }) {
   if (run.source.kind !== "chat") return;
+  const source = run.source;
   try {
-    const record: AgentChatMessageRecord = {
-      role: "assistant",
-      content: redactText(ending.answer ?? "").slice(0, 8_000),
-      runId: run.id,
-      ...(ending.code ? { code: ending.code } : {}),
-      steps: redactValue(ending.steps ?? run.steps),
-      at: new Date().toISOString(),
-    };
-    await db
-      .update(agentConversation)
-      .set({ messages: sql`${agentConversation.messages} || ${JSON.stringify([record])}::jsonb`, updatedAt: new Date() })
-      .where(
-        and(
-          eq(agentConversation.id, run.source.conversationId),
-          sql`not (${agentConversation.messages} @> ${JSON.stringify([{ role: "assistant", runId: run.id }])}::jsonb)`,
-        ),
-      );
+    const attached = await answerFiles(run.id);
+    const next = await db.transaction(async (tx) => {
+      const [found] = await tx
+        .select({ messages: agentConversation.messages, queue: agentConversation.queue })
+        .from(agentConversation)
+        .where(eq(agentConversation.id, source.conversationId))
+        .for("update");
+      if (!found || found.messages.some((m) => m.role === "assistant" && m.runId === run.id)) return null;
+      const now = Date.now();
+      const record: AgentChatMessageRecord = {
+        role: "assistant",
+        content: redactText(ending.answer ?? "").slice(0, 8_000),
+        runId: run.id,
+        ...(ending.code ? { code: ending.code } : {}),
+        steps: redactValue(ending.steps ?? run.steps),
+        ...(attached.length ? { attached } : {}),
+        at: new Date(now).toISOString(),
+      };
+      let added: AgentChatMessageRecord[] = [record];
+      let nextRun: string | null = null;
+      if (found.queue.length) {
+        const turn = queuedTurn(found.queue, "", now);
+        const zone = turn.timeZone ?? ("timeZone" in run.context ? run.context.timeZone : undefined);
+        const [queued] = await tx
+          .insert(agentRun)
+          .values({
+            agentId: run.agentId,
+            workspaceId: run.workspaceId,
+            source: { kind: "chat", userId: source.userId, conversationId: source.conversationId, ...(turn.fromApp ? { fromApp: true } : {}), after: run.id, ...(turn.telegram ? { telegram: true as const } : {}) },
+            context: { actorId: source.userId, ...(zone ? { timeZone: zone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
+            prompt: turn.prompt,
+          })
+          .returning({ id: agentRun.id });
+        nextRun = queued.id;
+        added = [record, ...turn.records.map((r) => ({ ...r, runId: queued.id }))];
+      }
+      await tx
+        .update(agentConversation)
+        .set({ messages: sql`${agentConversation.messages} || ${JSON.stringify(added)}::jsonb`, queue: [], updatedAt: new Date(now) })
+        .where(eq(agentConversation.id, source.conversationId));
+      return nextRun;
+    });
+    if (next) kickAgents();
   } catch (error) {
     console.error("[agents] could not keep a chat's answer", redactError(error));
   }

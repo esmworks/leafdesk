@@ -1348,7 +1348,11 @@
       "gone": "Agen ini sudah tidak tersedia.",
       "paused": "Agen ini dijeda, jadi tidak dapat menjawab.",
       "aiOff": "AI nonaktif di ruang kerja ini, jadi agen tidak dapat menjawab.",
-      "limitReached": "Agen ini telah memakai token bulanannya."
+      "limitReached": "Agen ini telah memakai token bulanannya.",
+      "queueFull": "Sudah ada {max} pesan yang menunggu jawaban. Kirim pesan ini setelah agen menjawab.",
+      "badFile": "File ini tidak dapat dilampirkan: hanya file teks (CSV, TSV, TXT, Markdown, JSON), maksimal {max} per pesan.",
+      "nothingToRedo": "Tidak ada jawaban untuk dibuat ulang.",
+      "summaryFailed": "Agen tidak dapat meringkas percakapan ini. Coba lagi."
     },
     "picker": {
       "search": "Cari agen",
@@ -1382,7 +1386,33 @@
       "paused": "Dijeda"
     },
     "deferred": "Ditahan sampai jam tenang berakhir ({time})…",
-    "deferredApproval": "Agen menahan sebuah panggilan sampai jam tenangnya berakhir ({time}). Anda dapat menyetujuinya sekarang."
+    "deferredApproval": "Agen menahan sebuah panggilan sampai jam tenangnya berakhir ({time}). Anda dapat menyetujuinya sekarang.",
+    "queued": "Dalam antrean",
+    "queuedHint": "Dikirim ke {name} setelah selesai menjawab",
+    "removeQueued": "Hapus dari antrean",
+    "newWithSummary": "Percakapan baru dengan ringkasan",
+    "summary": "Ringkasan percakapan sebelumnya",
+    "edit": "Edit",
+    "regenerate": "Buat ulang",
+    "files": {
+      "attach": "Lampirkan file teks",
+      "remove": "Hapus {name}",
+      "download": "Unduh {name}",
+      "tooMany": "Maksimal {max} file per pesan.",
+      "tooLarge": "{name} lebih besar dari {size}.",
+      "type": "{name} tidak dapat dilampirkan: hanya file CSV, TSV, TXT, Markdown, dan JSON.",
+      "binary": "{name} bukan file teks."
+    },
+    "search": {
+      "open": "Cari di percakapan",
+      "placeholder": "Cari di percakapan Anda dengan {name}",
+      "hint": "Ketik minimal {min} karakter.",
+      "empty": "Tidak ditemukan apa pun.",
+      "results": "Hasil pencarian",
+      "inThread": "Chat agen",
+      "onPage": "Di sebuah halaman",
+      "onClosedPage": "Di halaman yang tidak dapat Anda buka"
+    }
   },
   "button": {
     "untitled": "Tombol",

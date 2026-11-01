@@ -1348,7 +1348,11 @@
       "gone": "This agent is no longer available.",
       "paused": "This agent is paused, so it can’t answer.",
       "aiOff": "AI is off in this workspace, so the agent can’t answer.",
-      "limitReached": "This agent has used its tokens for the month."
+      "limitReached": "This agent has used its tokens for the month.",
+      "queueFull": "{max} messages already wait for the answer. Send this one once the agent has answered.",
+      "badFile": "This file can’t be attached: only text files (CSV, TSV, TXT, Markdown, JSON), at most {max} per message.",
+      "nothingToRedo": "There’s no answer to do again.",
+      "summaryFailed": "The agent couldn’t sum up this conversation. Try again."
     },
     "picker": {
       "search": "Search agents",
@@ -1382,7 +1386,33 @@
       "paused": "Paused"
     },
     "deferred": "Held until quiet hours end ({time})…",
-    "deferredApproval": "The agent holds a call until its quiet hours end ({time}). You can approve it now."
+    "deferredApproval": "The agent holds a call until its quiet hours end ({time}). You can approve it now.",
+    "queued": "Queued",
+    "queuedHint": "Goes to {name} once it has answered",
+    "removeQueued": "Remove from the queue",
+    "newWithSummary": "New conversation with a summary",
+    "summary": "Summary of an earlier conversation",
+    "edit": "Edit",
+    "regenerate": "Regenerate",
+    "files": {
+      "attach": "Attach text files",
+      "remove": "Remove {name}",
+      "download": "Download {name}",
+      "tooMany": "At most {max} files per message.",
+      "tooLarge": "{name} is larger than {size}.",
+      "type": "{name} can’t be attached: only CSV, TSV, TXT, Markdown and JSON files.",
+      "binary": "{name} isn’t a text file."
+    },
+    "search": {
+      "open": "Search conversations",
+      "placeholder": "Search your conversations with {name}",
+      "hint": "Type at least {min} characters.",
+      "empty": "Nothing found.",
+      "results": "Search results",
+      "inThread": "Agent’s chat",
+      "onPage": "On a page",
+      "onClosedPage": "On a page you can’t open"
+    }
   },
   "button": {
     "untitled": "Button",

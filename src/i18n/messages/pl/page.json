@@ -1348,7 +1348,11 @@
       "gone": "Ten agent nie jest już dostępny.",
       "paused": "Ten agent jest wstrzymany, więc nie może odpowiedzieć.",
       "aiOff": "AI jest wyłączona w tym obszarze roboczym, więc agent nie może odpowiedzieć.",
-      "limitReached": "Ten agent wykorzystał swoje tokeny na ten miesiąc."
+      "limitReached": "Ten agent wykorzystał swoje tokeny na ten miesiąc.",
+      "queueFull": "Na odpowiedź czeka już {max} wiadomości. Wyślij tę, gdy agent odpowie.",
+      "badFile": "Nie można załączyć tego pliku: tylko pliki tekstowe (CSV, TSV, TXT, Markdown, JSON), najwyżej {max} na wiadomość.",
+      "nothingToRedo": "Nie ma odpowiedzi do ponownego wygenerowania.",
+      "summaryFailed": "Agent nie zdołał podsumować tej rozmowy. Spróbuj ponownie."
     },
     "picker": {
       "search": "Szukaj agentów",
@@ -1382,7 +1386,33 @@
       "paused": "Wstrzymany"
     },
     "deferred": "Wstrzymane do końca godzin ciszy ({time})…",
-    "deferredApproval": "Agent wstrzymuje wywołanie do końca godzin ciszy ({time}). Możesz je teraz zatwierdzić."
+    "deferredApproval": "Agent wstrzymuje wywołanie do końca godzin ciszy ({time}). Możesz je teraz zatwierdzić.",
+    "queued": "W kolejce",
+    "queuedHint": "Trafi do {name}, gdy skończy odpowiadać",
+    "removeQueued": "Usuń z kolejki",
+    "newWithSummary": "Nowa rozmowa z podsumowaniem",
+    "summary": "Podsumowanie wcześniejszej rozmowy",
+    "edit": "Edytuj",
+    "regenerate": "Wygeneruj ponownie",
+    "files": {
+      "attach": "Załącz pliki tekstowe",
+      "remove": "Usuń {name}",
+      "download": "Pobierz {name}",
+      "tooMany": "Najwyżej {max} pliki na wiadomość.",
+      "tooLarge": "{name} jest większy niż {size}.",
+      "type": "Nie można załączyć {name}: tylko pliki CSV, TSV, TXT, Markdown i JSON.",
+      "binary": "{name} nie jest plikiem tekstowym."
+    },
+    "search": {
+      "open": "Szukaj w rozmowach",
+      "placeholder": "Szukaj w swoich rozmowach z {name}",
+      "hint": "Wpisz co najmniej {min} znaki.",
+      "empty": "Nic nie znaleziono.",
+      "results": "Wyniki wyszukiwania",
+      "inThread": "Czat agenta",
+      "onPage": "Na stronie",
+      "onClosedPage": "Na stronie, której nie możesz otworzyć"
+    }
   },
   "button": {
     "untitled": "Przycisk",

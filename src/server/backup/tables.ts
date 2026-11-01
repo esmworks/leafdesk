@@ -23,7 +23,7 @@ const ofConnections: Scope = (ws) => sql`connection_id in (select id from connec
 /** Agents' notes: what the AI remembers about a person is theirs alone, like their chats. */
 const agentsNotes: Scope = (ws) => sql`workspace_id = ${ws} and user_id in (select user_id from workspace_agent where workspace_id = ${ws})`;
 /** The workspace's files but those attached to AI chats, which are private to their people like the chats. */
-const files = (ws: string) => sql`(select id from file where workspace_id = ${ws} and id not in (select file_id from ai_chat_file))`;
+const files = (ws: string) => sql`(select id from file where workspace_id = ${ws} and id not in (select file_id from ai_chat_file) and id not in (select file_id from agent_chat_file))`;
 const ofFiles: Scope = (ws) => sql`file_id in ${files(ws)}`;
 
 /** The tables a backup holds, by SQL name, with the rows of the workspace in each. */
@@ -198,6 +198,7 @@ export const LEFT_OUT: Record<string, string> = {
   ai_conversation: "people's AI chats, which only each of them may read",
   ai_saved_prompt: "the prompts each person saved for the AI assistant, theirs alone like their chats",
   agent_conversation: "people's chats with agents, which only each of them may read (their answers are agent runs, not backed up either)",
+  agent_chat_file: "files agents attached to their answers in people's chats, private to those people like the chats (their files are left out too)",
   ai_account: "people's own AI provider keys; the workspace uses the new server's AI until an owner attaches one again",
   ai_usage_person: "AI usage by person, which names people of the old server; the workspace's own totals (ai_usage) are backed up",
   page_view: "who opened which page when, for analytics only: not content, and it names people of the old server",

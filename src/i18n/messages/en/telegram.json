@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Linked to Leafdesk as {name}. You aren't in a workspace I can answer from yet: join one, then pick it with /workspace.",
   "notLinked": "This chat isn't linked to a Leafdesk account. In Leafdesk, open Settings → Connected apps → Telegram and choose Link Telegram.",
   "badCode": "That link has run out or was used already. Make a new one in Leafdesk: Settings → Connected apps → Telegram.",
-  "help": "Ask a question, or send a voice message, and I answer from your Leafdesk pages, citing them.\n\n/new: start a new conversation\n/workspace: choose the workspace I answer from\n/agent: chat with one of your agents\n/mode: choose what I may change\n/stop: stop the answer being written\n/notifications: turn your notifications in this chat on or off\n/unlink: unlink this Telegram account",
+  "help": "Ask a question, or send a voice message, and I answer from your Leafdesk pages, citing them.\n\n/new: start a new conversation\n/new summary: start a new conversation with an agent from a summary of the last one\n/workspace: choose the workspace I answer from\n/agent: chat with one of your agents\n/mode: choose what I may change\n/stop: stop the answer being written\n/notifications: turn your notifications in this chat on or off\n/unlink: unlink this Telegram account",
   "commands": {
     "new": "Start a new conversation",
     "workspace": "Choose the workspace I answer from",
@@ -152,7 +152,10 @@
       "tooLong": "A message to an agent has at most {max} characters.",
       "busy": "The agent is still answering your last message.",
       "rateLimited": "Too many messages at once. Try again in a moment.",
-      "invalid": "Send a message first."
+      "invalid": "Send a message first.",
+      "queueFull": "{max} messages already wait for the agent’s answer. Send this one once it has answered.",
+      "badFile": "Agents take text files only (CSV, TSV, TXT, Markdown, JSON), up to {size} each.",
+      "summaryFailed": "The agent couldn’t sum up the conversation. Try again, or start afresh with /new."
     },
     "failed": {
       "aiOff": "AI is turned off in this workspace.",
@@ -166,6 +169,11 @@
       "costLimit": "The answer reached its cost limit.",
       "error": "Something went wrong while the agent answered."
     },
-    "deferred": "{agent} holds a call until its quiet hours end. Its answer comes here then."
+    "deferred": "{agent} holds a call until its quiet hours end. Its answer comes here then.",
+    "queued": "Queued: the agent reads it once it has answered.",
+    "nothingToSummarize": "There’s no conversation with the agent to sum up yet.",
+    "newSummary": "New conversation with the agent. It starts from this summary of the last one:",
+    "fileFailed": "I couldn’t download that file. Try sending it again.",
+    "fileNotSent": "I couldn’t send the file {name}. It’s with the answer on the agent’s page."
   }
 }

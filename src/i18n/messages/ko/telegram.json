@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "{name}(으)로 Leafdesk에 연결되었습니다. 아직 답변에 쓸 수 있는 워크스페이스에 참여하지 않았습니다. 참여한 뒤 /workspace로 선택하세요.",
   "notLinked": "이 채팅은 Leafdesk 계정에 연결되어 있지 않습니다. Leafdesk에서 설정 → 연결된 앱 → Telegram을 열고 Telegram 연결을 선택하세요.",
   "badCode": "이 링크는 만료되었거나 이미 사용되었습니다. Leafdesk에서 새 링크를 만드세요: 설정 → 연결된 앱 → Telegram.",
-  "help": "질문을 보내거나 음성 메시지를 보내면 Leafdesk 페이지를 바탕으로 출처와 함께 답합니다.\n\n/new: 새 대화 시작\n/workspace: 답변에 쓸 워크스페이스 선택\n/agent: 내 에이전트 중 하나와 채팅\n/mode: 변경해도 되는 범위 선택\n/stop: 작성 중인 답변 중지\n/notifications: 이 채팅의 알림 켜기 또는 끄기\n/unlink: 이 Telegram 계정 연결 해제",
+  "help": "질문을 보내거나 음성 메시지를 보내면 Leafdesk 페이지를 바탕으로 출처와 함께 답합니다.\n\n/new: 새 대화 시작\n/new summary: 이전 대화의 요약으로 에이전트와 새 대화 시작\n/workspace: 답변에 쓸 워크스페이스 선택\n/agent: 내 에이전트 중 하나와 채팅\n/mode: 변경해도 되는 범위 선택\n/stop: 작성 중인 답변 중지\n/notifications: 이 채팅의 알림 켜기 또는 끄기\n/unlink: 이 Telegram 계정 연결 해제",
   "commands": {
     "new": "새 대화 시작",
     "workspace": "답변에 쓸 워크스페이스 선택",
@@ -152,7 +152,10 @@
       "tooLong": "에이전트에게 보내는 메시지는 최대 {max}자입니다.",
       "busy": "에이전트가 아직 지난 메시지에 답하는 중입니다.",
       "rateLimited": "한 번에 메시지가 너무 많습니다. 잠시 후 다시 시도하세요.",
-      "invalid": "먼저 메시지를 보내세요."
+      "invalid": "먼저 메시지를 보내세요.",
+      "queueFull": "이미 {max}개의 메시지가 에이전트의 답변을 기다리고 있습니다. 답변한 뒤 보내세요.",
+      "badFile": "에이전트는 텍스트 파일(CSV, TSV, TXT, Markdown, JSON)만 받으며, 각각 최대 {size}입니다.",
+      "summaryFailed": "에이전트가 대화를 요약하지 못했습니다. 다시 시도하거나 /new로 새로 시작하세요."
     },
     "failed": {
       "aiOff": "이 워크스페이스에서는 AI가 꺼져 있습니다.",
@@ -166,6 +169,11 @@
       "costLimit": "답변이 비용 한도에 도달했습니다.",
       "error": "에이전트가 답하는 중에 문제가 생겼습니다."
     },
-    "deferred": "{agent}이(가) 조용한 시간이 끝날 때까지 호출을 보류하고 있습니다. 답변은 그때 여기로 옵니다."
+    "deferred": "{agent}이(가) 조용한 시간이 끝날 때까지 호출을 보류하고 있습니다. 답변은 그때 여기로 옵니다.",
+    "queued": "대기 중: 에이전트가 답변을 마친 뒤 읽습니다.",
+    "nothingToSummarize": "아직 요약할 에이전트와의 대화가 없습니다.",
+    "newSummary": "에이전트와의 새 대화입니다. 이전 대화의 이 요약에서 시작합니다:",
+    "fileFailed": "그 파일을 다운로드하지 못했습니다. 다시 보내 보세요.",
+    "fileNotSent": "{name} 파일을 보내지 못했습니다. 에이전트 페이지의 답변에 있습니다."
   }
 }

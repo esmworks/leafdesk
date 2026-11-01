@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Kopplad till Leafdesk som {name}. Du ingår inte i någon arbetsyta som jag kan svara utifrån än: gå med i en och välj den sedan med /workspace.",
   "notLinked": "Den här chatten är inte kopplad till något Leafdesk-konto. Öppna Inställningar → Anslutna appar → Telegram i Leafdesk och välj Koppla Telegram.",
   "badCode": "Den länken har gått ut eller har redan använts. Skapa en ny i Leafdesk: Inställningar → Anslutna appar → Telegram.",
-  "help": "Ställ en fråga eller skicka ett röstmeddelande, så svarar jag utifrån dina Leafdesk-sidor och anger dem som källor.\n\n/new: starta en ny konversation\n/workspace: välj arbetsytan jag svarar utifrån\n/agent: chatta med en av dina agenter\n/mode: välj vad jag får ändra\n/stop: stoppa svaret som skrivs\n/notifications: slå på eller av dina aviseringar i den här chatten\n/unlink: koppla bort det här Telegram-kontot",
+  "help": "Ställ en fråga eller skicka ett röstmeddelande, så svarar jag utifrån dina Leafdesk-sidor och anger dem som källor.\n\n/new: starta en ny konversation\n/new summary: starta en ny konversation med en agent utifrån en sammanfattning av den förra\n/workspace: välj arbetsytan jag svarar utifrån\n/agent: chatta med en av dina agenter\n/mode: välj vad jag får ändra\n/stop: stoppa svaret som skrivs\n/notifications: slå på eller av dina aviseringar i den här chatten\n/unlink: koppla bort det här Telegram-kontot",
   "commands": {
     "new": "Starta en ny konversation",
     "workspace": "Välj arbetsytan jag svarar utifrån",
@@ -152,7 +152,10 @@
       "tooLong": "Ett meddelande till en agent har högst {max} tecken.",
       "busy": "Agenten svarar fortfarande på ditt förra meddelande.",
       "rateLimited": "För många meddelanden på en gång. Försök igen om en stund.",
-      "invalid": "Skicka ett meddelande först."
+      "invalid": "Skicka ett meddelande först.",
+      "queueFull": "{max} meddelanden väntar redan på agentens svar. Skicka det här när den har svarat.",
+      "badFile": "Agenter tar bara emot textfiler (CSV, TSV, TXT, Markdown, JSON), upp till {size} var.",
+      "summaryFailed": "Agenten kunde inte sammanfatta konversationen. Försök igen, eller börja om med /new."
     },
     "failed": {
       "aiOff": "AI är avstängt i den här arbetsytan.",
@@ -166,6 +169,11 @@
       "costLimit": "Svaret nådde sin kostnadsgräns.",
       "error": "Något gick fel medan agenten svarade."
     },
-    "deferred": "{agent} håller kvar ett anrop tills dess tysta timmar är slut. Svaret kommer hit då."
+    "deferred": "{agent} håller kvar ett anrop tills dess tysta timmar är slut. Svaret kommer hit då.",
+    "queued": "I kö: agenten läser det när den har svarat.",
+    "nothingToSummarize": "Det finns ännu ingen konversation med agenten att sammanfatta.",
+    "newSummary": "Ny konversation med agenten. Den börjar från den här sammanfattningen av den förra:",
+    "fileFailed": "Jag kunde inte ladda ned filen. Försök skicka den igen.",
+    "fileNotSent": "Jag kunde inte skicka filen {name}. Den finns vid svaret på agentens sida."
   }
 }

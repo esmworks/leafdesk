@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Đã liên kết với Leafdesk với tư cách {name}. Bạn chưa ở trong không gian làm việc nào mà tôi có thể trả lời: hãy tham gia một không gian, rồi chọn nó bằng /workspace.",
   "notLinked": "Cuộc trò chuyện này chưa được liên kết với tài khoản Leafdesk nào. Trong Leafdesk, hãy mở Cài đặt → Ứng dụng đã kết nối → Telegram và chọn Liên kết Telegram.",
   "badCode": "Liên kết đó đã hết hạn hoặc đã được dùng. Hãy tạo liên kết mới trong Leafdesk: Cài đặt → Ứng dụng đã kết nối → Telegram.",
-  "help": "Hãy đặt câu hỏi, hoặc gửi tin nhắn thoại, và tôi sẽ trả lời dựa trên các trang Leafdesk của bạn, kèm trích dẫn.\n\n/new: bắt đầu cuộc trò chuyện mới\n/workspace: chọn không gian làm việc tôi dùng để trả lời\n/agent: trò chuyện với một trong các tác tử của bạn\n/mode: chọn những gì tôi được phép thay đổi\n/stop: dừng việc viết câu trả lời\n/notifications: bật hoặc tắt thông báo của bạn trong cuộc trò chuyện này\n/unlink: hủy liên kết tài khoản Telegram này",
+  "help": "Hãy đặt câu hỏi, hoặc gửi tin nhắn thoại, và tôi sẽ trả lời dựa trên các trang Leafdesk của bạn, kèm trích dẫn.\n\n/new: bắt đầu cuộc trò chuyện mới\n/new summary: bắt đầu cuộc trò chuyện mới với tác nhân từ bản tóm tắt cuộc trước\n/workspace: chọn không gian làm việc tôi dùng để trả lời\n/agent: trò chuyện với một trong các tác tử của bạn\n/mode: chọn những gì tôi được phép thay đổi\n/stop: dừng việc viết câu trả lời\n/notifications: bật hoặc tắt thông báo của bạn trong cuộc trò chuyện này\n/unlink: hủy liên kết tài khoản Telegram này",
   "commands": {
     "new": "Bắt đầu cuộc trò chuyện mới",
     "workspace": "Chọn không gian làm việc tôi dùng để trả lời",
@@ -152,7 +152,10 @@
       "tooLong": "Tin nhắn gửi tác tử dài tối đa {max} ký tự.",
       "busy": "Tác tử vẫn đang trả lời tin nhắn trước của bạn.",
       "rateLimited": "Quá nhiều tin nhắn cùng lúc. Hãy thử lại sau giây lát.",
-      "invalid": "Hãy gửi một tin nhắn trước."
+      "invalid": "Hãy gửi một tin nhắn trước.",
+      "queueFull": "Đã có {max} tin nhắn đang chờ câu trả lời của tác nhân. Hãy gửi tin này sau khi nó trả lời.",
+      "badFile": "Tác nhân chỉ nhận tệp văn bản (CSV, TSV, TXT, Markdown, JSON), mỗi tệp tối đa {size}.",
+      "summaryFailed": "Tác nhân không thể tóm tắt cuộc trò chuyện. Hãy thử lại hoặc bắt đầu lại bằng /new."
     },
     "failed": {
       "aiOff": "AI đã tắt trong không gian làm việc này.",
@@ -166,6 +169,11 @@
       "costLimit": "Câu trả lời đã chạm giới hạn chi phí.",
       "error": "Đã xảy ra sự cố khi tác tử trả lời."
     },
-    "deferred": "{agent} đang giữ một lệnh gọi đến khi hết giờ yên lặng. Câu trả lời sẽ đến đây lúc đó."
+    "deferred": "{agent} đang giữ một lệnh gọi đến khi hết giờ yên lặng. Câu trả lời sẽ đến đây lúc đó.",
+    "queued": "Đang chờ: tác nhân sẽ đọc sau khi trả lời xong.",
+    "nothingToSummarize": "Chưa có cuộc trò chuyện nào với tác nhân để tóm tắt.",
+    "newSummary": "Cuộc trò chuyện mới với tác nhân. Bắt đầu từ bản tóm tắt cuộc trước này:",
+    "fileFailed": "Tôi không tải được tệp đó. Hãy thử gửi lại.",
+    "fileNotSent": "Tôi không gửi được tệp {name}. Tệp nằm cùng câu trả lời trên trang của tác nhân."
   }
 }

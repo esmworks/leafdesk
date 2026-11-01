@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Yhdistetty Leafdeskiin käyttäjänä {name}. Et ole vielä työtilassa, josta voin vastata: liity johonkin ja valitse se komennolla /workspace.",
   "notLinked": "Tätä keskustelua ei ole yhdistetty Leafdesk-tiliin. Avaa Leafdeskissä Asetukset → Yhdistetyt sovellukset → Telegram ja valitse Yhdistä Telegram.",
   "badCode": "Linkki on vanhentunut tai jo käytetty. Luo uusi Leafdeskissä: Asetukset → Yhdistetyt sovellukset → Telegram.",
-  "help": "Esitä kysymys tai lähetä ääniviesti, niin vastaan Leafdesk-sivujesi pohjalta ja viittaan niihin.\n\n/new: aloita uusi keskustelu\n/workspace: valitse työtila, josta vastaan\n/agent: keskustele jonkin agenttisi kanssa\n/mode: valitse, mitä saan muuttaa\n/stop: keskeytä kirjoitettava vastaus\n/notifications: ota ilmoitukset käyttöön tai pois tässä keskustelussa\n/unlink: poista tämän Telegram-tilin yhteys",
+  "help": "Esitä kysymys tai lähetä ääniviesti, niin vastaan Leafdesk-sivujesi pohjalta ja viittaan niihin.\n\n/new: aloita uusi keskustelu\n/new summary: aloita uusi keskustelu agentin kanssa edellisen tiivistelmästä\n/workspace: valitse työtila, josta vastaan\n/agent: keskustele jonkin agenttisi kanssa\n/mode: valitse, mitä saan muuttaa\n/stop: keskeytä kirjoitettava vastaus\n/notifications: ota ilmoitukset käyttöön tai pois tässä keskustelussa\n/unlink: poista tämän Telegram-tilin yhteys",
   "commands": {
     "new": "Aloita uusi keskustelu",
     "workspace": "Valitse työtila, josta vastaan",
@@ -152,7 +152,10 @@
       "tooLong": "Viestissä agentille voi olla enintään {max} merkkiä.",
       "busy": "Agentti vastaa vielä edelliseen viestiisi.",
       "rateLimited": "Liian monta viestiä kerralla. Yritä hetken päästä uudelleen.",
-      "invalid": "Lähetä ensin viesti."
+      "invalid": "Lähetä ensin viesti.",
+      "queueFull": "Agentin vastausta odottaa jo {max} viestiä. Lähetä tämä, kun se on vastannut.",
+      "badFile": "Agentit ottavat vain tekstitiedostoja (CSV, TSV, TXT, Markdown, JSON), kukin enintään {size}.",
+      "summaryFailed": "Agentti ei pystynyt tiivistämään keskustelua. Yritä uudelleen tai aloita alusta komennolla /new."
     },
     "failed": {
       "aiOff": "Tekoäly on poistettu käytöstä tässä työtilassa.",
@@ -166,6 +169,11 @@
       "costLimit": "Vastaus saavutti kustannusrajansa.",
       "error": "Jokin meni vikaan agentin vastatessa."
     },
-    "deferred": "{agent} pidättää kutsun hiljaisten tuntiensa loppuun. Vastaus tulee tänne silloin."
+    "deferred": "{agent} pidättää kutsun hiljaisten tuntiensa loppuun. Vastaus tulee tänne silloin.",
+    "queued": "Jonossa: agentti lukee sen, kun se on vastannut.",
+    "nothingToSummarize": "Agentin kanssa ei ole vielä tiivistettävää keskustelua.",
+    "newSummary": "Uusi keskustelu agentin kanssa. Se alkaa tästä edellisen keskustelun tiivistelmästä:",
+    "fileFailed": "En voinut ladata tiedostoa. Yritä lähettää se uudelleen.",
+    "fileNotSent": "En voinut lähettää tiedostoa {name}. Se on vastauksen kohdalla agentin sivulla."
   }
 }

@@ -1348,7 +1348,11 @@
       "gone": "Denne agenten er ikke lenger tilgjengelig.",
       "paused": "Denne agenten er satt på pause, så den kan ikke svare.",
       "aiOff": "KI er slått av i dette arbeidsområdet, så agenten kan ikke svare.",
-      "limitReached": "Denne agenten har brukt opp tokenene sine for måneden."
+      "limitReached": "Denne agenten har brukt opp tokenene sine for måneden.",
+      "queueFull": "{max} meldinger venter allerede på svaret. Send denne når agenten har svart.",
+      "badFile": "Denne filen kan ikke legges ved: bare tekstfiler (CSV, TSV, TXT, Markdown, JSON), høyst {max} per melding.",
+      "nothingToRedo": "Det finnes ikke noe svar å gjøre på nytt.",
+      "summaryFailed": "Agenten klarte ikke å oppsummere samtalen. Prøv igjen."
     },
     "picker": {
       "search": "Søk etter agenter",
@@ -1382,7 +1386,33 @@
       "paused": "Satt på pause"
     },
     "deferred": "Venter til de stille timene er over ({time})…",
-    "deferredApproval": "Agenten holder tilbake et kall til de stille timene er over ({time}). Du kan godkjenne det nå."
+    "deferredApproval": "Agenten holder tilbake et kall til de stille timene er over ({time}). Du kan godkjenne det nå.",
+    "queued": "I kø",
+    "queuedHint": "Går til {name} når den har svart",
+    "removeQueued": "Fjern fra køen",
+    "newWithSummary": "Ny samtale med et sammendrag",
+    "summary": "Sammendrag av en tidligere samtale",
+    "edit": "Rediger",
+    "regenerate": "Generer på nytt",
+    "files": {
+      "attach": "Legg ved tekstfiler",
+      "remove": "Fjern {name}",
+      "download": "Last ned {name}",
+      "tooMany": "Høyst {max} filer per melding.",
+      "tooLarge": "{name} er større enn {size}.",
+      "type": "{name} kan ikke legges ved: bare CSV-, TSV-, TXT-, Markdown- og JSON-filer.",
+      "binary": "{name} er ikke en tekstfil."
+    },
+    "search": {
+      "open": "Søk i samtaler",
+      "placeholder": "Søk i samtalene dine med {name}",
+      "hint": "Skriv minst {min} tegn.",
+      "empty": "Fant ingenting.",
+      "results": "Søkeresultater",
+      "inThread": "Agentens chat",
+      "onPage": "På en side",
+      "onClosedPage": "På en side du ikke kan åpne"
+    }
   },
   "button": {
     "untitled": "Knapp",

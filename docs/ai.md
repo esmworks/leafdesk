@@ -780,7 +780,7 @@ the linked account; in a group it answers commands only, to say so. Commands:
 
 | Command | What it does |
 | --- | --- |
-| `/new` | Starts a new conversation (the earlier ones stay in the app's chat history) |
+| `/new` | Starts a new conversation (the earlier ones stay in the app's chat history); with an agent, `/new summary` starts it from a summary of the last |
 | `/workspace` | Picks the workspace questions go to, from buttons, in a new conversation |
 | `/agent` | Sends messages to one of the workspace's agents shared with the person, or back to the AI chat |
 | `/mode` | Picks what the chat may change: *Ask* before each change (the default), change without asking (*Auto*), or *Read only* |
@@ -836,7 +836,11 @@ shows as it is written, in one message edited every few seconds, then formatted,
 changed. A call it waits on comes as the approval message above (once, when notifications come to
 the chat; otherwise sent for this chat, or, when that isn't possible, a note to answer it on the
 agent's page), and the answer follows once the call is answered, for up to a day; meanwhile the chat
-takes other messages. `/stop` stops following (the answer being written first, then those waiting on
+takes other messages. A message sent while the agent answers is queued for its next turn (the bot
+says *Queued*) and its answer follows the first. A text file sent as a document (CSV, TSV, TXT,
+Markdown, JSON, 100 KB) goes to the agent with its caption as the message, and files the agent
+attaches to its answer come after it as documents. `/new summary` starts a new conversation from a
+summary of the last and shows that summary. `/stop` stops following (the answer being written first, then those waiting on
 a call), and the agent finishes its answer on its page, as it does when the person loses access or
 the server restarts meanwhile. Messages from Telegram are a connected app's: they count as writes, so a
 workspace that lets apps only read takes none, and the agent gets no email tools. An agent that is

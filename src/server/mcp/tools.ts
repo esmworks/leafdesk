@@ -3454,7 +3454,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     "chat_with_agent",
     {
       title: "Chat with an agent",
-      description: `Send a message to an agent from list_agents, as the user chatting with it in the app (the conversation shows in their chat with the agent there), and wait up to wait_seconds for its answer. It answers following its instructions and skills, with what is shared with it and what the user can open; it may change pages and rows the way it would in the app's chat. Returns the answer, or status running when it needs longer (read it later with get_agent_chat) and awaiting_approval when a workspace owner must approve a call it wants to make. Go on in the same conversation with conversation_id; it answers one message at a time. Needs the agent shared with the user; uses the workspace's AI allowance.`,
+      description: `Send a message to an agent from list_agents, as the user chatting with it in the app (the conversation shows in their chat with the agent there), and wait up to wait_seconds for its answer. It answers following its instructions and skills, with what is shared with it and what the user can open; it may change pages and rows the way it would in the app's chat. Returns the answer, or status running when it needs longer (read it later with get_agent_chat) and awaiting_approval when a workspace owner must approve a call. Go on with conversation_id; one sent while it answers is queued for its next turn (status queued). Needs the agent shared with the user; uses the workspace's AI allowance.`,
       inputSchema: agentInputs.chat,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
       scopeChallenge: requireWrite,
@@ -3464,11 +3464,20 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
         withChatErrors(async () => {
           const { workspaceId } = await agents.getAgent(userId, agent_id);
           const sent = await agentChat.sendAgentChat(userId, { workspaceId, agentId: agent_id, place: null, conversationId: conversation_id ?? null, message });
+          if (!sent.runId) {
+            return {
+              agent_id,
+              conversation_id: sent.conversation.id,
+              status: "queued",
+              note: "The agent is still answering in this conversation: this message waits and goes as its next turn. Read both answers with get_agent_chat in a little while.",
+            };
+          }
           const until = Date.now() + wait_seconds * 1000;
-          let turn = await agentChat.chatTurn(userId, workspaceId, sent.runId);
+          const runId = sent.runId;
+          let turn = await agentChat.chatTurn(userId, workspaceId, runId);
           while ((turn.status === "pending" || turn.status === "running") && Date.now() < until) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            turn = await agentChat.chatTurn(userId, workspaceId, sent.runId);
+            turn = await agentChat.chatTurn(userId, workspaceId, runId);
           }
           return {
             agent_id,
@@ -3514,6 +3523,8 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
               conversation_id: found.id,
               title: found.title,
               answering: found.running !== null,
+              // Messages sent while it answered, going as its next turn.
+              ...(found.queued.length ? { queued: found.queued.map((q) => ({ text: q.content, at: q.at })) } : {}),
               // An answer that read email, or went on from one that had, shows only in the app (lib/agents.ts readEmail).
               messages: found.messages.map((m) => ({
                 role: m.role,

@@ -1348,7 +1348,11 @@
       "gone": "Den här agenten är inte längre tillgänglig.",
       "paused": "Den här agenten är pausad, så den kan inte svara.",
       "aiOff": "AI är avstängt i den här arbetsytan, så agenten kan inte svara.",
-      "limitReached": "Den här agenten har använt sina token för månaden."
+      "limitReached": "Den här agenten har använt sina token för månaden.",
+      "queueFull": "{max} meddelanden väntar redan på svaret. Skicka det här när agenten har svarat.",
+      "badFile": "Filen kan inte bifogas: endast textfiler (CSV, TSV, TXT, Markdown, JSON), högst {max} per meddelande.",
+      "nothingToRedo": "Det finns inget svar att göra om.",
+      "summaryFailed": "Agenten kunde inte sammanfatta konversationen. Försök igen."
     },
     "picker": {
       "search": "Sök agenter",
@@ -1382,7 +1386,33 @@
       "paused": "Pausad"
     },
     "deferred": "Väntar tills de tysta timmarna är slut ({time})…",
-    "deferredApproval": "Agenten håller kvar ett anrop tills dess tysta timmar är slut ({time}). Du kan godkänna det nu."
+    "deferredApproval": "Agenten håller kvar ett anrop tills dess tysta timmar är slut ({time}). Du kan godkänna det nu.",
+    "queued": "I kö",
+    "queuedHint": "Går till {name} när den har svarat",
+    "removeQueued": "Ta bort från kön",
+    "newWithSummary": "Ny konversation med en sammanfattning",
+    "summary": "Sammanfattning av en tidigare konversation",
+    "edit": "Redigera",
+    "regenerate": "Generera igen",
+    "files": {
+      "attach": "Bifoga textfiler",
+      "remove": "Ta bort {name}",
+      "download": "Ladda ned {name}",
+      "tooMany": "Högst {max} filer per meddelande.",
+      "tooLarge": "{name} är större än {size}.",
+      "type": "{name} kan inte bifogas: endast CSV-, TSV-, TXT-, Markdown- och JSON-filer.",
+      "binary": "{name} är inte en textfil."
+    },
+    "search": {
+      "open": "Sök i konversationer",
+      "placeholder": "Sök i dina konversationer med {name}",
+      "hint": "Skriv minst {min} tecken.",
+      "empty": "Inget hittades.",
+      "results": "Sökresultat",
+      "inThread": "Agentens chatt",
+      "onPage": "På en sida",
+      "onClosedPage": "På en sida du inte kan öppna"
+    }
   },
   "button": {
     "untitled": "Knapp",

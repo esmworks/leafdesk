@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Mit Leafdesk verbunden als {name}. Du bist noch in keinem Workspace, aus dem ich antworten kann: Tritt einem bei und wähle ihn dann mit /workspace.",
   "notLinked": "Dieser Chat ist mit keinem Leafdesk-Konto verbunden. Öffne in Leafdesk Einstellungen → Verbundene Apps → Telegram und wähle Telegram verbinden.",
   "badCode": "Dieser Link ist abgelaufen oder wurde schon benutzt. Erstelle in Leafdesk einen neuen: Einstellungen → Verbundene Apps → Telegram.",
-  "help": "Stell eine Frage oder schick eine Sprachnachricht, und ich antworte aus deinen Leafdesk-Seiten, mit Verweisen darauf.\n\n/new: ein neues Gespräch beginnen\n/workspace: den Workspace wählen, aus dem ich antworte\n/agent: mit einem deiner Agenten chatten\n/mode: wählen, was ich ändern darf\n/stop: die Antwort anhalten, die gerade geschrieben wird\n/notifications: deine Benachrichtigungen in diesem Chat an- oder ausschalten\n/unlink: die Verbindung dieses Telegram-Kontos trennen",
+  "help": "Stell eine Frage oder schick eine Sprachnachricht, und ich antworte aus deinen Leafdesk-Seiten, mit Verweisen darauf.\n\n/new: ein neues Gespräch beginnen\n/new summary: eine neue Unterhaltung mit einem Agenten aus einer Zusammenfassung der letzten beginnen\n/workspace: den Workspace wählen, aus dem ich antworte\n/agent: mit einem deiner Agenten chatten\n/mode: wählen, was ich ändern darf\n/stop: die Antwort anhalten, die gerade geschrieben wird\n/notifications: deine Benachrichtigungen in diesem Chat an- oder ausschalten\n/unlink: die Verbindung dieses Telegram-Kontos trennen",
   "commands": {
     "new": "Ein neues Gespräch beginnen",
     "workspace": "Den Workspace wählen, aus dem ich antworte",
@@ -152,7 +152,10 @@
       "tooLong": "Eine Nachricht an einen Agenten hat höchstens {max} Zeichen.",
       "busy": "Der Agent beantwortet noch deine letzte Nachricht.",
       "rateLimited": "Zu viele Nachrichten auf einmal. Versuch es gleich noch einmal.",
-      "invalid": "Schick zuerst eine Nachricht."
+      "invalid": "Schick zuerst eine Nachricht.",
+      "queueFull": "Es warten schon {max} Nachrichten auf die Antwort des Agenten. Sende diese, wenn er geantwortet hat.",
+      "badFile": "Agenten nehmen nur Textdateien (CSV, TSV, TXT, Markdown, JSON), je bis zu {size}.",
+      "summaryFailed": "Der Agent konnte die Unterhaltung nicht zusammenfassen. Versuche es noch einmal oder beginne mit /new neu."
     },
     "failed": {
       "aiOff": "KI ist in diesem Workspace ausgeschaltet.",
@@ -166,6 +169,11 @@
       "costLimit": "Die Antwort hat ihr Kostenlimit erreicht.",
       "error": "Beim Antworten des Agenten ist etwas schiefgelaufen."
     },
-    "deferred": "{agent} hält einen Aufruf bis zum Ende seiner Ruhezeit zurück. Seine Antwort kommt dann hierher."
+    "deferred": "{agent} hält einen Aufruf bis zum Ende seiner Ruhezeit zurück. Seine Antwort kommt dann hierher.",
+    "queued": "In der Warteschlange: Der Agent liest sie, sobald er geantwortet hat.",
+    "nothingToSummarize": "Es gibt noch keine Unterhaltung mit dem Agenten, die sich zusammenfassen lässt.",
+    "newSummary": "Neue Unterhaltung mit dem Agenten. Sie beginnt mit dieser Zusammenfassung der letzten:",
+    "fileFailed": "Ich konnte die Datei nicht herunterladen. Sende sie bitte noch einmal.",
+    "fileNotSent": "Ich konnte die Datei {name} nicht senden. Sie liegt bei der Antwort auf der Seite des Agenten."
   }
 }

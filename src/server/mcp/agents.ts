@@ -305,7 +305,7 @@ type RepeatArgs = z.infer<typeof repeatInput>;
 
 /** Why a chat message wasn't taken, with what to do next. */
 const CHAT_REFUSALS: Partial<Record<AgentChatRefusal["code"], string>> = {
-  busy: "The agent is still answering in this conversation. Read the answer with get_agent_chat, then send the next message.",
+  queueFull: "Messages already wait for the agent's answer in this conversation. Read the answer with get_agent_chat, then send the next message.",
   noAccess: "The user can't chat with this agent: it isn't shared with them (share_agent), or the conversation isn't theirs.",
   guest: "Guests don't chat with agents.",
   gone: "This agent is archived or no longer in the workspace (list_agents).",

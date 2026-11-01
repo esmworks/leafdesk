@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Gekoppeld aan Leafdesk als {name}. Je zit nog niet in een werkruimte waaruit ik kan antwoorden: word lid van een werkruimte en kies haar daarna met /workspace.",
   "notLinked": "Deze chat is niet gekoppeld aan een Leafdesk-account. Open in Leafdesk Instellingen → Gekoppelde apps → Telegram en kies Telegram koppelen.",
   "badCode": "Die link is verlopen of al gebruikt. Maak een nieuwe in Leafdesk: Instellingen → Gekoppelde apps → Telegram.",
-  "help": "Stel een vraag, of stuur een spraakbericht, en ik antwoord op basis van je Leafdesk-pagina’s, met bronvermelding.\n\n/new: een nieuw gesprek beginnen\n/workspace: de werkruimte kiezen waaruit ik antwoord\n/agent: chatten met een van je agents\n/mode: kiezen wat ik mag wijzigen\n/stop: het antwoord stoppen dat wordt geschreven\n/notifications: je meldingen in deze chat aan- of uitzetten\n/unlink: dit Telegram-account ontkoppelen",
+  "help": "Stel een vraag, of stuur een spraakbericht, en ik antwoord op basis van je Leafdesk-pagina’s, met bronvermelding.\n\n/new: een nieuw gesprek beginnen\n/new summary: begin een nieuw gesprek met een agent vanuit een samenvatting van het vorige\n/workspace: de werkruimte kiezen waaruit ik antwoord\n/agent: chatten met een van je agents\n/mode: kiezen wat ik mag wijzigen\n/stop: het antwoord stoppen dat wordt geschreven\n/notifications: je meldingen in deze chat aan- of uitzetten\n/unlink: dit Telegram-account ontkoppelen",
   "commands": {
     "new": "Een nieuw gesprek beginnen",
     "workspace": "De werkruimte kiezen waaruit ik antwoord",
@@ -152,7 +152,10 @@
       "tooLong": "Een bericht aan een agent heeft hoogstens {max} tekens.",
       "busy": "De agent beantwoordt je vorige bericht nog.",
       "rateLimited": "Te veel berichten tegelijk. Probeer het zo opnieuw.",
-      "invalid": "Stuur eerst een bericht."
+      "invalid": "Stuur eerst een bericht.",
+      "queueFull": "Er wachten al {max} berichten op het antwoord van de agent. Stuur dit bericht zodra hij heeft geantwoord.",
+      "badFile": "Agents nemen alleen tekstbestanden aan (CSV, TSV, TXT, Markdown, JSON), elk tot {size}.",
+      "summaryFailed": "De agent kon het gesprek niet samenvatten. Probeer het opnieuw, of begin opnieuw met /new."
     },
     "failed": {
       "aiOff": "AI staat uit in deze werkruimte.",
@@ -166,6 +169,11 @@
       "costLimit": "Het antwoord bereikte zijn kostenlimiet.",
       "error": "Er ging iets mis terwijl de agent antwoordde."
     },
-    "deferred": "{agent} houdt een aanroep vast tot zijn stille uren voorbij zijn. Het antwoord komt dan hier."
+    "deferred": "{agent} houdt een aanroep vast tot zijn stille uren voorbij zijn. Het antwoord komt dan hier.",
+    "queued": "In de wachtrij: de agent leest het zodra hij heeft geantwoord.",
+    "nothingToSummarize": "Er is nog geen gesprek met de agent om samen te vatten.",
+    "newSummary": "Nieuw gesprek met de agent. Het begint met deze samenvatting van het vorige:",
+    "fileFailed": "Ik kon dat bestand niet downloaden. Probeer het opnieuw te sturen.",
+    "fileNotSent": "Ik kon het bestand {name} niet sturen. Het staat bij het antwoord op de pagina van de agent."
   }
 }

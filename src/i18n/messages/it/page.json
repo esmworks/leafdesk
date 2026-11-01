@@ -1348,7 +1348,11 @@
       "gone": "Questo agente non è più disponibile.",
       "paused": "Questo agente è in pausa, quindi non può rispondere.",
       "aiOff": "L’IA è disattivata in questo spazio di lavoro, quindi l’agente non può rispondere.",
-      "limitReached": "Questo agente ha esaurito i token del mese."
+      "limitReached": "Questo agente ha esaurito i token del mese.",
+      "queueFull": "Ci sono già {max} messaggi in attesa della risposta. Invia questo quando l’agente avrà risposto.",
+      "badFile": "Impossibile allegare questo file: solo file di testo (CSV, TSV, TXT, Markdown, JSON), al massimo {max} per messaggio.",
+      "nothingToRedo": "Non c’è nessuna risposta da rifare.",
+      "summaryFailed": "L’agente non è riuscito a riassumere questa conversazione. Riprova."
     },
     "picker": {
       "search": "Cerca agenti",
@@ -1382,7 +1386,33 @@
       "paused": "In pausa"
     },
     "deferred": "In attesa fino alla fine delle ore di silenzio ({time})…",
-    "deferredApproval": "L’agente trattiene una chiamata fino alla fine delle sue ore di silenzio ({time}). Puoi approvarla ora."
+    "deferredApproval": "L’agente trattiene una chiamata fino alla fine delle sue ore di silenzio ({time}). Puoi approvarla ora.",
+    "queued": "In coda",
+    "queuedHint": "Andrà a {name} quando avrà risposto",
+    "removeQueued": "Rimuovi dalla coda",
+    "newWithSummary": "Nuova conversazione con un riepilogo",
+    "summary": "Riepilogo di una conversazione precedente",
+    "edit": "Modifica",
+    "regenerate": "Rigenera",
+    "files": {
+      "attach": "Allega file di testo",
+      "remove": "Rimuovi {name}",
+      "download": "Scarica {name}",
+      "tooMany": "Al massimo {max} file per messaggio.",
+      "tooLarge": "{name} supera {size}.",
+      "type": "Impossibile allegare {name}: solo file CSV, TSV, TXT, Markdown e JSON.",
+      "binary": "{name} non è un file di testo."
+    },
+    "search": {
+      "open": "Cerca nelle conversazioni",
+      "placeholder": "Cerca nelle tue conversazioni con {name}",
+      "hint": "Digita almeno {min} caratteri.",
+      "empty": "Nessun risultato.",
+      "results": "Risultati della ricerca",
+      "inThread": "Chat dell’agente",
+      "onPage": "In una pagina",
+      "onClosedPage": "In una pagina che non puoi aprire"
+    }
   },
   "button": {
     "untitled": "Pulsante",

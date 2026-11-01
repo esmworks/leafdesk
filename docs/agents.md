@@ -227,9 +227,31 @@ comments of yours that mention it, each marked with what started it, its steps f
 waits on for an owner to approve in place. The chat asks for them again every 30 seconds, every 3
 while one goes on. Those finished since the conversation's earliest message that goes to the model
 (at most 5) go with each new message, so you can ask about what it did. A message
-has at most 4000 characters; the agent answers one at a time per conversation, within the
-workspace's AI allowance. A paused or archived agent, AI turned off, or an agent past its monthly
-limit leaves the chat saying so. Exported Markdown and HTML show the block as a line naming the
+has at most 4000 characters, within the workspace's AI allowance. A paused or archived agent, AI
+turned off, or an agent past its monthly limit leaves the chat saying so.
+
+- **Messages while it answers.** The agent answers one turn at a time per conversation; a message
+  written meanwhile waits under the answer being written, marked *Queued* (up to 5, each removable
+  until it goes). When the answer ends, however it ends, the waiting messages go together as its
+  next turn: one run reading them in order, each kept in the conversation as written. MCP's
+  `chat_with_agent` answers `status: queued` for such a message, and `get_agent_chat` lists those
+  waiting.
+- **Files.** The paperclip attaches up to 3 text files to a message (CSV, TSV, TXT, Markdown, JSON,
+  100 KB each). Their text goes to that run only, as data from outside rather than instructions;
+  the conversation keeps their names and sizes. The agent can attach files to its answer too (CSV,
+  TSV, Markdown, text or JSON, up to 200 KB, 5 an answer): stored with the workspace's files, shown
+  under the answer as downloads that only the person chatting can open, and counted as one of the
+  run's changes (and the agent's daily ones), with no approval. A run that read email attaches none.
+- **New conversation with a summary.** The scroll button sums up the conversation in one call to
+  the agent's model (counted in its usage and monthly limit, not as a run) and starts a new one
+  that begins with that summary, which later answers read as what was said before. A summary of
+  turns that read email is held as one that read it.
+- **Search.** The magnifier searches the person's own conversations with the agent, on its page and
+  in every block, for words in what was said; a hit opens its conversation at the message (a block's
+  on a page they can open).
+- **Regenerate and Edit.** Once the last answer has ended and nothing waits, *Regenerate* under it
+  asks again, and *Edit* on the last question changes it and asks again. The answer it replaces
+  leaves the conversation and what the model reads; its run stays in the *Runs* tab. Exported Markdown and HTML show the block as a line naming the
 agent, never what was said. The same chat goes on from Telegram after `/agent` (see
 [AI chat from Telegram](ai.md#ai-chat-from-telegram)).
 

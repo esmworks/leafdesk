@@ -797,7 +797,7 @@ export function agentSystemPrompt(
      * A person is chatting with the agent: an owner, whose run may change pages (`writes`), or
      * anyone else, whose run only reads (lib/agent-chat.ts).
      */
-    chat?: { writes: boolean };
+    chat?: { writes: boolean; attaches?: boolean };
     /** A connection event's run: it may add rows to databases shared with it to edit, each once approved. */
     addsRows?: boolean;
     /**
@@ -898,7 +898,7 @@ export function agentSystemPrompt(
       : mentioned
       ? "Your last message is posted, as you, as your reply in the thread: answer the comment directly, in its language, in plain text, in a few sentences. Say what you changed, if anything. Don't say that you will reply or post anything."
       : chat
-        ? "Answer in the language of the person's message, in Markdown, short and to the point. When you used pages, name them."
+        ? `Answer in the language of the person's message, in Markdown, short and to the point. When you used pages, name them.${chat.attaches ? " attach_file attaches a text file (CSV, Markdown, plain text or JSON) to your answer for the person to download: use it when they ask for a file, or for a table or document they will take elsewhere, and say in your answer what you attached." : ""}`
       : scheduled
       ? "When you are done, write a short report for the owner who set the schedule, in the language of the task: what you changed, and what they need to do (each item with the row's title), or that nothing needs them. They read it in their inbox."
       : run.askedByAgent
@@ -932,12 +932,14 @@ export function agentEventPrompt(input: { task: string; event: string; body: str
 }
 
 /** A person's message in a chat with the agent: who writes, the workspace as the agent sees it (with them), its memory and the message. */
-export function agentChatPrompt(input: { message: string; event: string; map: string; memory?: string }): string {
+export function agentChatPrompt(input: { message: string; event: string; map: string; memory?: string; files?: string[] }): string {
   const parts = [
     agentMemory(input.memory),
     input.event,
     input.map ? `The workspace as you can see it:\n${tagged("workspace", input.map)}` : "",
-    `Their message:\n${tagged("message", input.message.trim())}`,
+    // The files they attached, each framed as data (agents/run.ts).
+    ...(input.files ?? []),
+    `Their message:\n${tagged("message", input.message.trim() || (input.files?.length ? "(Only the attached files.)" : ""))}`,
   ];
   return parts.filter(Boolean).join("\n\n");
 }

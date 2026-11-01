@@ -1348,7 +1348,11 @@
       "gone": "Bu ajan artık kullanılamıyor.",
       "paused": "Bu ajan duraklatıldı, bu yüzden yanıt veremiyor.",
       "aiOff": "Bu çalışma alanında yapay zekâ kapalı, bu yüzden ajan yanıt veremiyor.",
-      "limitReached": "Bu ajan bu ayki token sınırına ulaştı."
+      "limitReached": "Bu ajan bu ayki token sınırına ulaştı.",
+      "queueFull": "Yanıtı bekleyen {max} mesaj zaten var. Bunu ajan yanıtladıktan sonra gönder.",
+      "badFile": "Bu dosya eklenemez: yalnızca metin dosyaları (CSV, TSV, TXT, Markdown, JSON), bir mesaja en fazla {max} tane.",
+      "nothingToRedo": "Yeniden yapılacak bir yanıt yok.",
+      "summaryFailed": "Ajan bu sohbeti özetleyemedi. Yeniden dene."
     },
     "picker": {
       "search": "Ajan ara",
@@ -1382,7 +1386,33 @@
       "paused": "Duraklatıldı"
     },
     "deferred": "Sessiz saatler bitene kadar bekletiliyor ({time})…",
-    "deferredApproval": "Ajan, sessiz saatleri bitene kadar ({time}) bir çağrıyı bekletiyor. Şimdi onaylayabilirsiniz."
+    "deferredApproval": "Ajan, sessiz saatleri bitene kadar ({time}) bir çağrıyı bekletiyor. Şimdi onaylayabilirsiniz.",
+    "queued": "Sırada",
+    "queuedHint": "{name} yanıtını bitirince ona gider",
+    "removeQueued": "Sıradan çıkar",
+    "newWithSummary": "Özetle yeni sohbet",
+    "summary": "Önceki bir sohbetin özeti",
+    "edit": "Düzenle",
+    "regenerate": "Yeniden yanıtlat",
+    "files": {
+      "attach": "Metin dosyası ekle",
+      "remove": "{name} dosyasını çıkar",
+      "download": "{name} dosyasını indir",
+      "tooMany": "Bir mesaja en fazla {max} dosya eklenebilir.",
+      "tooLarge": "{name}, {size} sınırından büyük.",
+      "type": "{name} eklenemez: yalnızca CSV, TSV, TXT, Markdown ve JSON dosyaları.",
+      "binary": "{name} bir metin dosyası değil."
+    },
+    "search": {
+      "open": "Sohbetlerde ara",
+      "placeholder": "{name} ile sohbetlerinde ara",
+      "hint": "En az {min} karakter yaz.",
+      "empty": "Hiçbir şey bulunamadı.",
+      "results": "Arama sonuçları",
+      "inThread": "Ajanın sohbeti",
+      "onPage": "Bir sayfada",
+      "onClosedPage": "Açamadığın bir sayfada"
+    }
   },
   "button": {
     "untitled": "Düğme",

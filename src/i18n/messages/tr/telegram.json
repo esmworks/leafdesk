@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Leafdesk’e {name} olarak bağlandın. Henüz yanıt verebileceğim bir çalışma alanında değilsin: birine katıl, sonra /workspace ile seç.",
   "notLinked": "Bu sohbet bir Leafdesk hesabına bağlı değil. Leafdesk’te Ayarlar → Bağlı uygulamalar → Telegram’ı açıp Telegram’ı bağla’yı seç.",
   "badCode": "Bu bağlantının süresi dolmuş ya da zaten kullanılmış. Leafdesk’te yenisini oluştur: Ayarlar → Bağlı uygulamalar → Telegram.",
-  "help": "Bir soru sor ya da sesli mesaj gönder; Leafdesk sayfalarından, onları kaynak göstererek yanıtlarım.\n\n/new: yeni bir sohbet başlat\n/workspace: yanıt verdiğim çalışma alanını seç\n/agent: ajanlarından biriyle sohbet et\n/mode: neleri değiştirebileceğimi seç\n/stop: yazılmakta olan yanıtı durdur\n/notifications: bu sohbetteki bildirimlerini aç ya da kapat\n/unlink: bu Telegram hesabının bağlantısını kaldır",
+  "help": "Bir soru sor ya da sesli mesaj gönder; Leafdesk sayfalarından, onları kaynak göstererek yanıtlarım.\n\n/new: yeni bir sohbet başlat\n/new summary: bir ajanla, son sohbetin özetinden yeni bir sohbet başlat\n/workspace: yanıt verdiğim çalışma alanını seç\n/agent: ajanlarından biriyle sohbet et\n/mode: neleri değiştirebileceğimi seç\n/stop: yazılmakta olan yanıtı durdur\n/notifications: bu sohbetteki bildirimlerini aç ya da kapat\n/unlink: bu Telegram hesabının bağlantısını kaldır",
   "commands": {
     "new": "Yeni bir sohbet başlat",
     "workspace": "Yanıt verdiğim çalışma alanını seç",
@@ -152,7 +152,10 @@
       "tooLong": "Bir ajana mesaj en fazla {max} karakter olabilir.",
       "busy": "Ajan hâlâ son mesajını yanıtlıyor.",
       "rateLimited": "Aynı anda çok fazla mesaj. Biraz sonra yeniden dene.",
-      "invalid": "Önce bir mesaj gönder."
+      "invalid": "Önce bir mesaj gönder.",
+      "queueFull": "Ajanın yanıtını bekleyen {max} mesaj zaten var. Bunu ajan yanıtladıktan sonra gönder.",
+      "badFile": "Ajanlar yalnızca metin dosyası alır (CSV, TSV, TXT, Markdown, JSON), her biri en fazla {size}.",
+      "summaryFailed": "Ajan sohbeti özetleyemedi. Yeniden dene ya da /new ile baştan başla."
     },
     "failed": {
       "aiOff": "Bu çalışma alanında AI kapalı.",
@@ -166,6 +169,11 @@
       "costLimit": "Yanıt maliyet sınırına ulaştı.",
       "error": "Ajan yanıtlarken bir şeyler ters gitti."
     },
-    "deferred": "{agent} sessiz saatleri bitene kadar bir çağrıyı bekletiyor. Cevabı o zaman buraya gelir."
+    "deferred": "{agent} sessiz saatleri bitene kadar bir çağrıyı bekletiyor. Cevabı o zaman buraya gelir.",
+    "queued": "Sıraya alındı: ajan yanıtını bitirince bunu okur.",
+    "nothingToSummarize": "Ajanla özetlenecek bir sohbet henüz yok.",
+    "newSummary": "Ajanla yeni sohbet. Bir önceki sohbetin şu özetinden başlıyor:",
+    "fileFailed": "O dosyayı indiremedim. Yeniden göndermeyi dene.",
+    "fileNotSent": "{name} dosyasını gönderemedim. Ajanın sayfasında yanıtın yanında duruyor."
   }
 }

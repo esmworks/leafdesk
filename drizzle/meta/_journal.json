@@ -1247,6 +1247,13 @@
       "when": 1793490703912,
       "tag": "0177_agent_approval_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 178,
+      "version": "7",
+      "when": 1793493905559,
+      "tag": "0178_agent_chat_queue_files",
+      "breakpoints": true
     }
   ]
 }

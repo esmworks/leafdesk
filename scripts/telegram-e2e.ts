@@ -9,8 +9,11 @@
  * setting: read only (no changes offered) and off (the workspace isn't offered); and notifications
  * sent to the linked chat, marked read or snoozed from it, by kind and on or off; and an agent's
  * call waiting for an owner, approved, declined or sent back with a note from its message (approve
- * only when all of the call shows, only its owner, only the call they saw, not where apps only read).
- * Creates its own users and workspaces and deletes them afterwards.
+ * only when all of the call shows, only its owner, only the call they saw, not where apps only read);
+ * and chatting with an agent: answers followed as they are written, a message sent meanwhile queued
+ * and its answer following, `/new summary`, a text file sent as a document going to the agent and a
+ * file the agent attaches coming back as one. Creates its own users and workspaces and deletes them
+ * afterwards.
  *
  *   pnpm tsx scripts/telegram-e2e.ts
  *
@@ -32,16 +35,26 @@ const blocked = new Set<number>();
 let editsGone = false;
 let messageIds = 1000;
 const VOICE = Buffer.from("OggS fake voice message bytes");
+const DOC = Buffer.from("note,quarter\nDOC-CONTENT,Q3\n");
 const telegram: Server = createServer(async (req, res) => {
-  let raw = "";
-  for await (const chunk of req) raw += chunk;
+  const chunks: Buffer[] = [];
+  for await (const chunk of req) chunks.push(chunk as Buffer);
+  const body = Buffer.concat(chunks);
+  const raw = body.toString();
   const url = req.url ?? "";
   if (url.startsWith("/file/bot")) {
-    res.writeHead(200, { "Content-Type": "audio/ogg" }).end(VOICE);
+    if (url.includes("/documents/")) res.writeHead(200, { "Content-Type": "text/csv" }).end(DOC);
+    else res.writeHead(200, { "Content-Type": "audio/ogg" }).end(VOICE);
     return;
   }
   const method = url.split("/").at(-1) ?? "";
-  const params = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+  let params: Record<string, unknown> = {};
+  if (String(req.headers["content-type"] ?? "").startsWith("multipart/form-data")) {
+    // A file sent (sendDocument): its fields, and the file's name and text.
+    const form = await new Response(body, { headers: { "Content-Type": String(req.headers["content-type"]) } }).formData();
+    const file = form.get("document") as File | null;
+    params = { chat_id: form.get("chat_id"), caption: form.get("caption"), document: file ? { name: file.name, type: file.type, text: await file.text() } : null };
+  } else if (raw) params = JSON.parse(raw) as Record<string, unknown>;
   const ok = (result: unknown) => res.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ ok: true, result }));
   if (!url.startsWith("/bot123:test-token/")) {
     res.writeHead(401, { "Content-Type": "application/json" }).end(JSON.stringify({ ok: false, error_code: 401, description: "Unauthorized" }));
@@ -49,7 +62,12 @@ const telegram: Server = createServer(async (req, res) => {
   }
   sent.push({ method, params });
   if (method === "getMe") return ok({ id: 1, is_bot: true, first_name: "Leafdesk", username: "leafdesk_test_bot" });
-  if (method === "getFile") return ok({ file_id: params.file_id, file_path: "voice/file_1.oga", file_size: VOICE.length });
+  if (method === "getFile") {
+    return String(params.file_id).startsWith("doc-")
+      ? ok({ file_id: params.file_id, file_path: "documents/file_2.csv", file_size: DOC.length })
+      : ok({ file_id: params.file_id, file_path: "voice/file_1.oga", file_size: VOICE.length });
+  }
+  if (method === "sendDocument") return ok({ message_id: ++messageIds, chat: { id: Number(params.chat_id), type: "private" }, date: 0 });
   if (method === "sendMessage" && blocked.has(Number(params.chat_id))) {
     res.writeHead(403, { "Content-Type": "application/json" }).end(JSON.stringify({ ok: false, error_code: 403, description: "Forbidden: bot was blocked by the user" }));
     return;
@@ -130,6 +148,10 @@ const text = (from: typeof ALICE, body: string, chatType: "private" | "group" = 
 const voice = (from: typeof ALICE): TelegramUpdate => ({
   update_id: updateIds++,
   message: { message_id: updateIds, from, chat: { id: from.id, type: "private" }, date: 0, voice: { file_id: "voice-1", duration: 4, mime_type: "audio/ogg" } },
+});
+const doc = (from: typeof ALICE, name: string, caption?: string): TelegramUpdate => ({
+  update_id: updateIds++,
+  message: { message_id: updateIds, from, chat: { id: from.id, type: "private" }, date: 0, caption, document: { file_id: "doc-1", file_name: name, mime_type: "text/csv", file_size: DOC.length } },
 });
 const press = (from: typeof ALICE, data: string, messageId: number, chatId = from.id): TelegramUpdate => ({
   update_id: updateIds++,
@@ -538,6 +560,8 @@ try {
     await handled;
     return run;
   };
+  /** Everything a model request carries, joined. */
+  const asked = (request: FakeChatRequest) => request.messages.map((m) => textOf(m.content)).join("\n");
   /** What Alice's chat got since `from`, sent or edited, in order. */
   const shownTo = (from: number) =>
     sent.slice(from).filter((s) => (s.method === "sendMessage" || s.method === "editMessageText") && Number(s.params.chat_id) === ALICE.id).map((s) => String(s.params.text));
@@ -547,7 +571,7 @@ try {
   await handleUpdate(press(ALICE, `ws:${ws}`, 3000));
   mark = sent.length;
   await handleUpdate(text(ALICE, "/help"));
-  check(said(ALICE.id, mark).includes("/agent: chat with one of your agents"), "/help names /agent");
+  check(said(ALICE.id, mark).includes("/agent: chat with one of your agents") && said(ALICE.id, mark).includes("/new summary:"), "/help names /agent and /new summary");
   mark = sent.length;
   await handleUpdate(text(ALICE, "/agent"));
   const agentMenu = sent.slice(mark).find((s) => s.method === "sendMessage");
@@ -602,16 +626,35 @@ try {
   const spoken = await toAgent(voice(ALICE));
   check(spoken.prompt === "What did you file?" && shownTo(mark).at(-1) === "The Q3 note.", "a voice message is written down and goes to the agent", shownTo(mark));
 
+  fake.setChat((request) => ({ text: asked(request).includes("QUEUED-TG") ? "Both answered." : "First answered." }));
+  mark = sent.length;
+  const followed = handleUpdate(text(ALICE, "Count the notes"));
+  const counting = await chatRun();
+  await handleUpdate(text(ALICE, "Also QUEUED-TG"));
+  check(said(ALICE.id, mark).includes("Queued: the agent reads it once it has answered."), "a message sent while the agent answers is queued", said(ALICE.id, mark));
+  await flushAgentRuns();
+  await followed;
+  const chained = await chatRun();
+  check(
+    chained.prompt === "Also QUEUED-TG" && chained.source.kind === "chat" && chained.source.after === counting.id && chained.source.telegram === true,
+    "…and goes as the agent's next turn once it has answered",
+    chained.source,
+  );
+  const answers = shownTo(mark).filter((m) => m === "First answered." || m === "Both answered.");
+  check(answers.join("|") === "First answered.|Both answered.", "…whose answer comes here after the first", shownTo(mark));
+
   fake.setChat(() => ({ text: "Done." }));
   mark = sent.length;
   const answering = handleUpdate(text(ALICE, "One"));
   await chatRun();
   await handleUpdate(text(ALICE, "Two"));
-  check(said(ALICE.id, mark).includes("still answering"), "a second message waits for the answer being followed", said(ALICE.id, mark));
+  check(said(ALICE.id, mark).includes("Queued"), "a second message is queued while the answer is followed", said(ALICE.id, mark));
   await handleUpdate(text(ALICE, "/stop"));
   await answering;
   check(said(ALICE.id, mark).includes("I stopped following.") && said(ALICE.id, mark).includes("finishes its answer"), "/stop stops following: the agent finishes on its page", said(ALICE.id, mark));
   await flushAgentRuns();
+  // The run that took "Two" went on too, followed by no one now.
+  await chatRun();
 
   /** Sends a message whose run then waits on a call, as an approval would park it; the run, and the bot's handling still going. */
   const parkedChat = async (body: string, callId: string, notify = true) => {
@@ -643,7 +686,7 @@ try {
   await handleUpdate(press(ALICE, "nt:off", 3002));
   mark = sent.length;
   const quiet = await parkedChat("Send it to the CRM", "chat-call-1");
-  const card = await until(() => sent.slice(mark).find((s) => s.method === "sendMessage" && Number(s.params.chat_id) === ALICE.id && JSON.stringify(s.params.reply_markup).includes('"aa:')), "the call's approval message", 15_000);
+  const card = await until(() => sent.slice(mark).find((s) => s.method === "sendMessage" && Number(s.params.chat_id) === ALICE.id && JSON.stringify(s.params.reply_markup ?? null).includes('"aa:')), "the call's approval message", 15_000);
   check(String(card.params.text).includes("Filer asks to go ahead") && String(card.params.text).includes("Send it to the CRM"), "a call the agent waits on comes as its approval message, with notifications off too", card.params);
   await answerParked(quiet.run.id, "Sent to the CRM.");
   await quiet.handled;
@@ -657,14 +700,16 @@ try {
   mark = sent.length;
   await handleUpdate(text(ALICE, "Meanwhile?"));
   check(
-    said(ALICE.id, mark).includes("The agent is still answering your last message.") && !said(ALICE.id, mark).includes("I'm still answering"),
-    "while the run waits on a call the chat takes other messages (this one the agent's conversation refuses)",
+    said(ALICE.id, mark).includes("Queued: the agent reads it once it has answered.") && !said(ALICE.id, mark).includes("I'm still answering"),
+    "while the run waits on a call the chat takes other messages (this one is queued for the agent's answer)",
     said(ALICE.id, mark),
   );
   await handleUpdate(text(ALICE, "/stop"));
   await loud.handled;
   check(said(ALICE.id, mark).includes("I stopped following."), "/stop stops following an answer waiting on a call", said(ALICE.id, mark));
   await answerParked(loud.run.id, "Logged.");
+  // The run ended here by hand, not by the worker, which would have sent the queued message on: it is dropped.
+  await db.update(agentConversation).set({ queue: [] }).where(eq(agentConversation.id, (await linkNow()).agentConversationId!));
 
   await handleUpdate(press(ALICE, "nt:off", 3004));
   mark = sent.length;
@@ -693,6 +738,37 @@ try {
   await toAgent(text(ALICE, "Fresh start"));
   const freshId = (await linkNow()).agentConversationId;
   check(freshId && freshId !== threadId, "…which the next message opens", freshId);
+
+  fake.setChat(() => ({ text: "- Started afresh\n- TG-SUMMARY" }));
+  mark = sent.length;
+  await handleUpdate(text(ALICE, "/new summary"));
+  const summarizedId = (await linkNow()).agentConversationId;
+  const [summarizedConversation] = summarizedId ? await db.select().from(agentConversation).where(eq(agentConversation.id, summarizedId)) : [];
+  check(
+    summarizedId !== freshId && said(ALICE.id, mark).includes("starts from this summary") && said(ALICE.id, mark).includes("TG-SUMMARY") && summarizedConversation?.messages[0]?.summary === true,
+    "/new summary starts a new conversation from a summary of the last, and shows it",
+    said(ALICE.id, mark),
+  );
+
+  mark = sent.length;
+  await handleUpdate(doc(ALICE, "tool.exe"));
+  check(said(ALICE.id, mark).includes("Agents take text files only"), "a file that isn't text is refused", said(ALICE.id, mark));
+  fake.setChat((request) =>
+    request.messages.some((m) => m.role === "tool") ? { text: "Here is the report." } : { toolCalls: [{ name: "attach_file", arguments: { name: "Report.md", content: "# Report\nTG-REPORT" } }] },
+  );
+  fake.chats.length = 0;
+  mark = sent.length;
+  const docRun = await toAgent(doc(ALICE, "notes.csv", "Sum this up"));
+  const docFiles = (docRun.context as { files?: { name: string; text: string }[] }).files;
+  check(docRun.prompt === "Sum this up" && docFiles?.[0]?.name === "notes.csv" && docFiles[0].text.includes("DOC-CONTENT"), "a text file sent as a document goes to the agent with its caption", docRun.context);
+  check(asked(fake.chats[0]).includes("DOC-CONTENT"), "…and the model reads it");
+  const docSent = sent.slice(mark).find((x) => x.method === "sendDocument");
+  const docSentFile = docSent?.params.document as { name: string; text: string } | undefined;
+  check(
+    docSentFile?.name === "Report.md" && docSentFile.text.includes("TG-REPORT") && shownTo(mark).includes("Here is the report."),
+    "a file the agent attaches comes after its answer, as a document",
+    docSent?.params,
+  );
 
   mark = sent.length;
   await handleUpdate(text(ALICE, "/mode"));

@@ -1,4 +1,7 @@
+import { AGENT_CHAT_FILE_LIMITS, agentChatFileType } from "@/lib/agent-chat-files";
 import { CHAT_MODES, type ChatActionView, type ChatMode, type ChatSourceView, type ChatStepView } from "@/lib/ai-chat";
+import { decodeBytes } from "@/lib/file-viewer";
+import { formatBytes } from "@/lib/files";
 import { MAX_REDO_NOTE } from "@/lib/connections";
 import { pageLabel } from "@/lib/labels";
 import { escapeHtml, markdownToTelegramBlocks, packMessages, preview } from "@/lib/telegram-format";
@@ -22,7 +25,7 @@ import {
   type TelegramMessage,
   type TelegramUpdate,
 } from "./api";
-import { agentPicker, askAgent, pickAgent } from "./agent-chat";
+import { agentPicker, askAgent, newAgentConversationFromSummary, pickAgent } from "./agent-chat";
 import { answerCall, answerNotification } from "./notify";
 import { linkMode, linkOf, linkWithCode, setTelegramNotifications, touchLink, unlinkTelegram, updateLink, type TelegramLinkRow } from "./links";
 import { appPageUrl, changeLines, html, localeOf, send, sendHtml, translatorFor, type Translator } from "./say";
@@ -38,8 +41,9 @@ import { appPageUrl, changeLines, html, localeOf, send, sendHtml, translatorFor,
  * linked person can press them. With /agent, messages go to one of the workspace's agents instead
  * (agent-chat.ts).
  *
- * One question at a time per person: another waits until the answer is in (or /stop). Commands:
- * /start (with a link code: links the account), /help, /new, /workspace, /agent, /mode, /stop,
+ * One question at a time per person: another waits until the answer is in (or /stop); one to an
+ * agent still answering joins its queue instead (agent-chat.ts). Commands:
+ * /start (with a link code: links the account), /help, /new (`/new summary`), /workspace, /agent, /mode, /stop,
  * /notifications, /unlink. The person's inbox notifications come to the chat too (notify.ts), with
  * buttons to mark them read or snooze them, and an agent's call waiting for an owner with buttons
  * to approve, decline or send it back with a note (written in answer to the bot's question).
@@ -121,11 +125,18 @@ async function onMessage(message: TelegramMessage) {
     else await editButtons(chatId, asked.messageId).catch(() => {});
     return void (await sendMessage(chatId, escapeHtml(t(`notify.call.${outcome}`)), { replyTo: asked.messageId }));
   }
-  if (command) return onCommand(link, t, command.command);
+  if (command) return onCommand(link, t, command.command, command.rest);
   const voice = message.voice ?? message.audio;
+  // A file goes only to an agent; the general AI chat reads the caption alone, as before.
+  const document = link.agentId ? (message.document ?? null) : null;
   const question = (text || message.caption || "").trim();
-  if (!question && !voice) return void (await send(chatId, escapeHtml(t("onlyText"))));
-  if (answering.has(link.id)) return void (await send(chatId, escapeHtml(t("busy"))));
+  if (!question && !voice && !document) return void (await send(chatId, escapeHtml(t("onlyText"))));
+  const running = answering.get(link.id);
+  if (running) {
+    // An agent's answer being followed: this message joins the conversation's queue, and the follow under way takes its answer.
+    if (!link.agentId || !agentAnswers.has(running.signal)) return void (await send(chatId, escapeHtml(t("busy"))));
+    return void (await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, { text: question, voice: voice ?? null, document }, running.signal, () => {})));
+  }
   const controller = new AbortController();
   answering.set(link.id, controller);
   // An agent's run waiting on a call frees the chat; its follow goes on among the waiting ones.
@@ -135,7 +146,7 @@ async function onMessage(message: TelegramMessage) {
     waitingFollows.set(link.id, (waitingFollows.get(link.id) ?? new Set()).add(controller));
   };
   try {
-    await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, question, voice ?? null, controller.signal, release));
+    await runAsConnectedApp({ userId: link.userId }, () => ask(link, t, { text: question, voice: voice ?? null, document }, controller.signal, release));
   } finally {
     if (answering.get(link.id) === controller) answering.delete(link.id);
     const waiting = waitingFollows.get(link.id);
@@ -154,7 +165,7 @@ function stopAnswers(link: TelegramLinkRow, all = false): { stopped: boolean; sa
   return { stopped: stopping.length > 0, said: stopping.length > 0 && stopping.every((c) => agentAnswers.has(c.signal)) };
 }
 
-async function onCommand(link: TelegramLinkRow, t: Translator, command: string) {
+async function onCommand(link: TelegramLinkRow, t: Translator, command: string, rest: string) {
   const chatId = link.chatId;
   if (command === "start" || command === "help") return void (await send(chatId, escapeHtml(t("help"))));
   if (command === "stop") {
@@ -170,6 +181,10 @@ async function onCommand(link: TelegramLinkRow, t: Translator, command: string) 
   }
   if (command === "new") {
     const workspace = await runAsConnectedApp({ userId: link.userId }, () => currentWorkspace(link));
+    if (workspace && link.agentId && rest.toLowerCase() === "summary") {
+      void sendTyping(chatId).catch(() => {});
+      return runAsConnectedApp({ userId: link.userId }, () => newAgentConversationFromSummary(link, t, workspace));
+    }
     if (workspace && link.agentId) {
       await updateLink(link.id, { agentConversationId: null });
       return void (await send(chatId, escapeHtml(t("agent.newConversation"))));
@@ -253,8 +268,35 @@ async function heard(link: TelegramLinkRow, t: Translator, workspaceId: string, 
   }
 }
 
-/** Asks the AI chat a question for the link's person and sends its answer to the chat. */
-async function ask(link: TelegramLinkRow, t: Translator, text: string, voice: TelegramMessage["voice"] | null, signal: AbortSignal, release: () => void) {
+/**
+ * Reads a text file sent to an agent: its name and text, or null when the person was told why not
+ * (a kind or size the chat doesn't take, a download that failed).
+ */
+async function documentText(link: TelegramLinkRow, t: Translator, document: NonNullable<TelegramMessage["document"]>, signal: AbortSignal) {
+  const name = document.file_name || "file.txt";
+  const badFile = () => send(link.chatId, escapeHtml(t("agent.refused.badFile", { size: formatBytes(AGENT_CHAT_FILE_LIMITS.bytes) })));
+  if (!agentChatFileType(name, document.mime_type ?? "") || (document.file_size ?? 0) > AGENT_CHAT_FILE_LIMITS.bytes) {
+    await badFile();
+    return null;
+  }
+  try {
+    const blob = await downloadFile(document.file_id, AGENT_CHAT_FILE_LIMITS.bytes, signal);
+    return { name, text: decodeBytes(new Uint8Array(await blob.arrayBuffer())) };
+  } catch (error) {
+    if (signal.aborted) return null;
+    if (error instanceof TelegramApiError && error.code === 413) await badFile();
+    else {
+      if (!(error instanceof TelegramApiError)) console.error("[telegram] couldn't read a file", error);
+      await send(link.chatId, escapeHtml(t("agent.fileFailed")));
+    }
+    return null;
+  }
+}
+
+type Incoming = { text: string; voice: TelegramMessage["voice"] | null; document: TelegramMessage["document"] | null };
+
+/** Asks the AI chat (or the link's agent) a question for the link's person and sends its answer to the chat. */
+async function ask(link: TelegramLinkRow, t: Translator, { text, voice, document }: Incoming, signal: AbortSignal, release: () => void) {
   const chatId = link.chatId;
   const workspace = await currentWorkspace(link);
   if (!workspace) return void (await send(chatId, escapeHtml(t("noWorkspace"))));
@@ -267,11 +309,14 @@ async function ask(link: TelegramLinkRow, t: Translator, text: string, voice: Te
   const approvals: string[] = [];
   try {
     const question = text || (voice ? await heard(link, t, workspace.id, voice, signal) : null);
-    if (!question) return;
     if (link.agentId) {
+      const file = document ? await documentText(link, t, document, signal) : null;
+      if (document && !file) return;
+      if (!question && !file) return;
       agentAnswers.add(signal);
-      return await askAgent(link, t, workspace, question, signal, { waiting: (on) => (waiting = on), release });
+      return await askAgent(link, t, workspace, question ?? "", file ? [file] : [], signal, { waiting: (on) => (waiting = on), release });
     }
+    if (!question) return;
     const mode = linkMode(link.mode);
     const readOnly = mode !== "read" && (await asWrite(() => connectedAppHold(link.userId, workspace.id))) === "readOnly";
     if (readOnly) await send(chatId, html(t, "readOnlyWorkspace", { workspace: escapeHtml(workspace.name) }));

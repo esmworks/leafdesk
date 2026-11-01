@@ -1348,7 +1348,11 @@
       "gone": "Deze agent is niet meer beschikbaar.",
       "paused": "Deze agent is gepauzeerd, dus hij kan niet antwoorden.",
       "aiOff": "AI staat uit in deze werkruimte, dus de agent kan niet antwoorden.",
-      "limitReached": "Deze agent heeft zijn tokens voor deze maand opgebruikt."
+      "limitReached": "Deze agent heeft zijn tokens voor deze maand opgebruikt.",
+      "queueFull": "Er wachten al {max} berichten op het antwoord. Stuur dit bericht zodra de agent heeft geantwoord.",
+      "badFile": "Dit bestand kan niet worden toegevoegd: alleen tekstbestanden (CSV, TSV, TXT, Markdown, JSON), maximaal {max} per bericht.",
+      "nothingToRedo": "Er is geen antwoord om opnieuw te doen.",
+      "summaryFailed": "De agent kon dit gesprek niet samenvatten. Probeer het opnieuw."
     },
     "picker": {
       "search": "Agents zoeken",
@@ -1382,7 +1386,33 @@
       "paused": "Gepauzeerd"
     },
     "deferred": "Wacht tot de stille uren voorbij zijn ({time})…",
-    "deferredApproval": "De agent houdt een aanroep vast tot zijn stille uren voorbij zijn ({time}). Je kunt hem nu goedkeuren."
+    "deferredApproval": "De agent houdt een aanroep vast tot zijn stille uren voorbij zijn ({time}). Je kunt hem nu goedkeuren.",
+    "queued": "In de wachtrij",
+    "queuedHint": "Gaat naar {name} zodra het heeft geantwoord",
+    "removeQueued": "Uit de wachtrij halen",
+    "newWithSummary": "Nieuw gesprek met een samenvatting",
+    "summary": "Samenvatting van een eerder gesprek",
+    "edit": "Bewerken",
+    "regenerate": "Opnieuw genereren",
+    "files": {
+      "attach": "Tekstbestanden toevoegen",
+      "remove": "{name} verwijderen",
+      "download": "{name} downloaden",
+      "tooMany": "Maximaal {max} bestanden per bericht.",
+      "tooLarge": "{name} is groter dan {size}.",
+      "type": "{name} kan niet worden toegevoegd: alleen CSV-, TSV-, TXT-, Markdown- en JSON-bestanden.",
+      "binary": "{name} is geen tekstbestand."
+    },
+    "search": {
+      "open": "Gesprekken doorzoeken",
+      "placeholder": "Doorzoek je gesprekken met {name}",
+      "hint": "Typ minstens {min} tekens.",
+      "empty": "Niets gevonden.",
+      "results": "Zoekresultaten",
+      "inThread": "Chat van de agent",
+      "onPage": "Op een pagina",
+      "onClosedPage": "Op een pagina die je niet kunt openen"
+    }
   },
   "button": {
     "untitled": "Knop",

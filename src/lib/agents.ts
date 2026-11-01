@@ -200,6 +200,10 @@ export type AgentRunSource =
       conversationId: string;
       /** Sent from a connected app (MCP, the REST API, the Telegram bot), which reads the answer. */
       fromApp?: boolean;
+      /** Its messages waited in the queue while this run answered (lib/agent-chat-queue.ts). */
+      after?: string;
+      /** One of them came from the Telegram bot, which follows this run's answer too. */
+      telegram?: true;
     }
   | {
       kind: "mail";
@@ -248,6 +252,8 @@ export type AgentRunContext =
       locale?: string;
       /** The zone the run's times read in: the browser's of whoever wrote a chat message, a schedule's own. */
       timeZone?: string;
+      /** A chat's run: the text files attached to its messages (lib/agent-chat-files.ts), which go to the model as data. */
+      files?: { name: string; size: number; text: string }[];
     };
 
 /** `awaiting_approval`: a tool that may change something outside waits for an owner's answer. */

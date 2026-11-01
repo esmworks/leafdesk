@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Agent chats queue messages, take files, start from summaries and can be searched.** A message
+  written while an agent answers waits under the answer, marked *Queued* (up to 5, each removable),
+  and goes with the others as its next turn once the answer ends, in the app, from MCP's
+  `chat_with_agent` (`status: queued`) and from Telegram, which follows that answer too. Up to 3
+  text files (CSV, TSV, TXT, Markdown, JSON) go with a message, from the chat's box or as a Telegram
+  document; the agent can attach text files to its answer with a new `attach_file` tool, downloads
+  only the person chatting can open, sent to Telegram after the answer. *New conversation with a
+  summary* (and `/new summary` in Telegram) starts a new conversation from a summary the agent's
+  model writes. A search box finds what you said with the agent in all your chats with it, and the
+  last turn can be regenerated or its question edited. Migration 0178 (column
+  `agent_conversation.queue`, table `agent_chat_file`).
+
 - **Rules, quiet hours and a daily change limit for agents.** Owners can set each connection tool
   an agent may use to *Always allow* (its calls go without asking, except on runs that read
   outside content, which still wait for an owner) or *Always decline* (never called), on the

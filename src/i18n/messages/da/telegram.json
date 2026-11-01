@@ -3,7 +3,7 @@
   "linkedNoWorkspace": "Forbundet med Leafdesk som {name}. Du er endnu ikke med i et arbejdsområde, jeg kan svare ud fra: bliv medlem af et, og vælg det så med /workspace.",
   "notLinked": "Denne chat er ikke forbundet med en Leafdesk-konto. Åbn Indstillinger → Forbundne apps → Telegram i Leafdesk, og vælg Forbind Telegram.",
   "badCode": "Det link er udløbet eller allerede brugt. Lav et nyt i Leafdesk: Indstillinger → Forbundne apps → Telegram.",
-  "help": "Stil et spørgsmål, eller send en talebesked, så svarer jeg ud fra dine Leafdesk-sider og henviser til dem.\n\n/new: start en ny samtale\n/workspace: vælg det arbejdsområde, jeg svarer ud fra\n/agent: chat med en af dine agenter\n/mode: vælg, hvad jeg må ændre\n/stop: stop svaret, der er ved at blive skrevet\n/notifications: slå dine notifikationer i denne chat til eller fra\n/unlink: afbryd forbindelsen til denne Telegram-konto",
+  "help": "Stil et spørgsmål, eller send en talebesked, så svarer jeg ud fra dine Leafdesk-sider og henviser til dem.\n\n/new: start en ny samtale\n/new summary: start en ny samtale med en agent ud fra et resumé af den forrige\n/workspace: vælg det arbejdsområde, jeg svarer ud fra\n/agent: chat med en af dine agenter\n/mode: vælg, hvad jeg må ændre\n/stop: stop svaret, der er ved at blive skrevet\n/notifications: slå dine notifikationer i denne chat til eller fra\n/unlink: afbryd forbindelsen til denne Telegram-konto",
   "commands": {
     "new": "Start en ny samtale",
     "workspace": "Vælg det arbejdsområde, jeg svarer ud fra",
@@ -152,7 +152,10 @@
       "tooLong": "En besked til en agent har højst {max} tegn.",
       "busy": "Agenten svarer stadig på din sidste besked.",
       "rateLimited": "For mange beskeder på én gang. Prøv igen om lidt.",
-      "invalid": "Send en besked først."
+      "invalid": "Send en besked først.",
+      "queueFull": "{max} beskeder venter allerede på agentens svar. Send denne, når den har svaret.",
+      "badFile": "Agenter tager kun tekstfiler (CSV, TSV, TXT, Markdown, JSON), op til {size} hver.",
+      "summaryFailed": "Agenten kunne ikke opsummere samtalen. Prøv igen, eller start forfra med /new."
     },
     "failed": {
       "aiOff": "AI er slået fra i dette arbejdsområde.",
@@ -166,6 +169,11 @@
       "costLimit": "Svaret nåede sin omkostningsgrænse.",
       "error": "Noget gik galt, mens agenten svarede."
     },
-    "deferred": "{agent} holder et kald tilbage, til dens stille timer er slut. Svaret kommer her til den tid."
+    "deferred": "{agent} holder et kald tilbage, til dens stille timer er slut. Svaret kommer her til den tid.",
+    "queued": "I kø: agenten læser den, når den har svaret.",
+    "nothingToSummarize": "Der er endnu ingen samtale med agenten at opsummere.",
+    "newSummary": "Ny samtale med agenten. Den starter fra dette resumé af den forrige:",
+    "fileFailed": "Jeg kunne ikke downloade filen. Prøv at sende den igen.",
+    "fileNotSent": "Jeg kunne ikke sende filen {name}. Den ligger ved svaret på agentens side."
   }
 }
