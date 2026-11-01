@@ -271,6 +271,8 @@ export type AgentChatInfo = {
   /** Null when the agent is gone. */
   agent: { id: string; name: string; icon: string | null; description: string } | null;
   conversations: AgentConversationSummary[];
+  /** The labels of the folders on the person's computer its runs in the app may use now (their desktop app is connected); null when none. */
+  computer: string[] | null;
 };
 
 /**

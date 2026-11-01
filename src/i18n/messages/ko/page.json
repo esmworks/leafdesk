@@ -1414,7 +1414,8 @@
       "inThread": "에이전트 채팅",
       "onPage": "페이지에서",
       "onClosedPage": "열 수 없는 페이지에서"
-    }
+    },
+    "computerFiles": "내 컴퓨터의 파일을 사용할 수 있음: {folders}"
   },
   "button": {
     "untitled": "버튼",

@@ -1414,7 +1414,8 @@
       "inThread": "Ajanın sohbeti",
       "onPage": "Bir sayfada",
       "onClosedPage": "Açamadığın bir sayfada"
-    }
+    },
+    "computerFiles": "Bilgisayarınızdaki dosyaları kullanabilir: {folders}"
   },
   "button": {
     "untitled": "Düğme",

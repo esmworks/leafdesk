@@ -662,6 +662,17 @@
         "searchFailed": "Tidak dapat mencari di web",
         "approved": "disetujui"
       },
+      "computer": {
+        "list": "Menampilkan isi folder di komputer",
+        "read": "Membaca file di komputer",
+        "write": "Menulis file di komputer",
+        "trash": "Memindahkan sesuatu di komputer ke tempat sampah",
+        "declined": "ditolak; tidak ada yang dilakukan",
+        "expired": "tidak dijawab tepat waktu; tidak ada yang dilakukan",
+        "failed": "tidak dapat dilakukan",
+        "afterMail": "ditahan setelah membaca email; tidak ada yang dilakukan",
+        "limited": "melewati batas perubahan harian agen; tidak ada yang dilakukan"
+      },
       "tool": {
         "done": "Memanggil “{tool}” di {connection}",
         "failed": "Tidak dapat memanggil “{tool}” di {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "Mengatur akses {subject} ke agen “{target}”: {level}",
         "unshared": "Mengeluarkan {subject} dari berbagi agen “{target}”",
         "creator_added": "Mengizinkan {subject} membuat agen",
-        "creator_removed": "Menghapus {subject} dari yang dapat membuat agen"
+        "creator_removed": "Menghapus {subject} dari yang dapat membuat agen",
+        "local_file": "{op, select, trash {Memindahkan “{path}” ke tempat sampah} other {Menulis “{path}”}} di komputer {target} ({outcome})"
       },
       "connection": {
         "created": "Menambahkan koneksi “{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "selesai",
-      "failed": "gagal"
+      "failed": "gagal",
+      "declined": "ditolak",
+      "expired": "tidak dijawab"
     },
     "agentLevels": {
       "full": "Akses penuh",

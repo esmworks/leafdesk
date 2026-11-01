@@ -37,6 +37,7 @@ import {
   MAX_AGENT_TOKEN_LIMIT,
   OWN_TOOLS_NAME,
   WEB_TOOL_NAMES,
+  isComputerTool,
   type AgentAccessLevel,
   type AgentAccessView,
   type AgentModel,
@@ -69,6 +70,7 @@ export const AGENT_TABS: readonly Exclude<AgentTab, "share">[] = ["settings", "a
 const AgentLimitRequest = lazyPart(() => import("./agent-limit-request").then((m) => m.AgentLimitRequest));
 /** The person's own mailboxes on the Access tab: agent chats in pages bring this module along. */
 const AgentMailboxes = lazyPart(() => import("./agent-mailboxes").then((m) => m.AgentMailboxes));
+const ComputerStepLine = lazyPart(() => import("./computer-step").then((m) => m.ComputerStepLine));
 const AgentShareTab = lazyPart(() => import("./agent-share-tab").then((m) => m.AgentShareTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 const AgentMemoryTab = lazyPart(() => import("./agent-memory-tab").then((m) => m.AgentMemoryTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
@@ -900,6 +902,7 @@ export function AgentStepLine({
     return <WebStepLine step={step} />;
   }
   if (step.kind === "handoff") return <HandoffStepLine step={step} onOpenRun={onOpenRun} />;
+  if (step.kind === "tool" && step.connectionId === null && isComputerTool(step.tool)) return <ComputerStepLine step={step} />;
   if (step.kind === "tool") {
     const connection = step.connectionId === null ? OWN_TOOLS_NAME : (connections[step.connectionId] ?? t("removedConnection"));
     return <ToolStepLine step={step} connection={connection} />;

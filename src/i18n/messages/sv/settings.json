@@ -662,6 +662,17 @@
         "searchFailed": "Kunde inte söka på webben",
         "approved": "godkänt"
       },
+      "computer": {
+        "list": "Listade en mapp på datorn",
+        "read": "Läste en fil på datorn",
+        "write": "Skrev en fil på datorn",
+        "trash": "Flyttade något på datorn till papperskorgen",
+        "declined": "avböjt; inget gjordes",
+        "expired": "inget svar i tid; inget gjordes",
+        "failed": "kunde inte utföras",
+        "afterMail": "stoppat efter att e-post lästs; inget gjordes",
+        "limited": "över agentens dagliga gräns för ändringar; inget gjordes"
+      },
       "tool": {
         "done": "Anropade ”{tool}” på {connection}",
         "failed": "Kunde inte anropa ”{tool}” på {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "Satte åtkomsten för {subject} till agenten ”{target}”: {level}",
         "unshared": "Tog bort {subject} från delningen av agenten ”{target}”",
         "creator_added": "Lät {subject} skapa agenter",
-        "creator_removed": "Tog bort {subject} från dem som kan skapa agenter"
+        "creator_removed": "Tog bort {subject} från dem som kan skapa agenter",
+        "local_file": "{op, select, trash {Flyttade ”{path}” till papperskorgen} other {Skrev ”{path}”}} på {target}s dator ({outcome})"
       },
       "connection": {
         "created": "Lade till anslutningen ”{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "klart",
-      "failed": "misslyckades"
+      "failed": "misslyckades",
+      "declined": "avböjt",
+      "expired": "obesvarat"
     },
     "agentLevels": {
       "full": "Full åtkomst",

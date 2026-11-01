@@ -662,6 +662,17 @@
         "searchFailed": "Kon niet op het web zoeken",
         "approved": "goedgekeurd"
       },
+      "computer": {
+        "list": "Een map op de computer weergegeven",
+        "read": "Een bestand op de computer gelezen",
+        "write": "Een bestand op de computer geschreven",
+        "trash": "Iets op de computer naar de prullenbak verplaatst",
+        "declined": "geweigerd; er is niets gedaan",
+        "expired": "niet op tijd beantwoord; er is niets gedaan",
+        "failed": "kon niet worden uitgevoerd",
+        "afterMail": "tegengehouden na het lezen van e-mail; er is niets gedaan",
+        "limited": "boven de daglimiet aan wijzigingen van de agent; er is niets gedaan"
+      },
       "tool": {
         "done": "“{tool}” aangeroepen op {connection}",
         "failed": "Kon “{tool}” niet aanroepen op {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "De toegang van {subject} tot de agent “{target}” ingesteld: {level}",
         "unshared": "{subject} verwijderd uit het delen van de agent “{target}”",
         "creator_added": "{subject} toestemming gegeven om agents te maken",
-        "creator_removed": "{subject} verwijderd bij wie agents kan maken"
+        "creator_removed": "{subject} verwijderd bij wie agents kan maken",
+        "local_file": "{op, select, trash {Heeft “{path}” naar de prullenbak verplaatst} other {Heeft “{path}” geschreven}} op de computer van {target} ({outcome})"
       },
       "connection": {
         "created": "De koppeling “{target}” toegevoegd",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "klaar",
-      "failed": "mislukt"
+      "failed": "mislukt",
+      "declined": "geweigerd",
+      "expired": "niet beantwoord"
     },
     "agentLevels": {
       "full": "Volledige toegang",

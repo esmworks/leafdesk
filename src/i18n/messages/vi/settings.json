@@ -662,6 +662,17 @@
         "searchFailed": "Không thể tìm kiếm trên web",
         "approved": "đã chấp thuận"
       },
+      "computer": {
+        "list": "Đã liệt kê một thư mục trên máy tính",
+        "read": "Đã đọc một tệp trên máy tính",
+        "write": "Đã ghi một tệp trên máy tính",
+        "trash": "Đã chuyển một mục trên máy tính vào thùng rác",
+        "declined": "bị từ chối; không làm gì cả",
+        "expired": "không được trả lời kịp; không làm gì cả",
+        "failed": "không thực hiện được",
+        "afterMail": "bị giữ lại sau khi đọc email; không làm gì cả",
+        "limited": "vượt giới hạn thay đổi mỗi ngày của tác tử; không làm gì cả"
+      },
       "tool": {
         "done": "Đã gọi “{tool}” trên {connection}",
         "failed": "Không thể gọi “{tool}” trên {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "Đã đặt quyền truy cập của {subject} vào tác tử “{target}”: {level}",
         "unshared": "Đã xóa {subject} khỏi việc chia sẻ tác tử “{target}”",
         "creator_added": "Cho phép {subject} tạo tác tử",
-        "creator_removed": "Đã bỏ {subject} khỏi những người có thể tạo tác tử"
+        "creator_removed": "Đã bỏ {subject} khỏi những người có thể tạo tác tử",
+        "local_file": "{op, select, trash {Đã chuyển “{path}” vào thùng rác} other {Đã ghi “{path}”}} trên máy tính của {target} ({outcome})"
       },
       "connection": {
         "created": "Đã thêm kết nối “{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "hoàn tất",
-      "failed": "thất bại"
+      "failed": "thất bại",
+      "declined": "bị từ chối",
+      "expired": "không trả lời"
     },
     "agentLevels": {
       "full": "Toàn quyền",

@@ -215,7 +215,16 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   are `agent_tool_rule`, written only by `connections/manage.ts` `setAgentGrant`; a call held for
   quiet hours (`lib/quiet-hours.ts`) is an `awaiting_approval` run with `pending.deferredUntil`,
   woken by `run.ts` `wakeDeferred` in the sweep (expiry skips it); every change a run makes goes
-  through `change()` in `run.ts`, which takes the day's count from `agents/daily-changes.ts`. Reminders to the person
+  through `change()` in `run.ts`, which takes the day's count from `agents/daily-changes.ts`.
+  Files on the chatting person's computer: the desktop app (`desktop/src/agent-files.ts`, which
+  checks every path again itself) opens the websocket `/desktop-bridge` (`server.ts` routes it to
+  `server/desktop-bridge/socket.ts`: the session cookie plus the app's header, which no web page can
+  send) and announces folder labels; open apps live in the in-memory registry
+  `server/desktop-bridge/registry.ts` (`globalThis.__leafdeskDesktops`, closed by
+  `account-security.ts` `disconnectEndedSessions`), the messages and the place rule are
+  `lib/desktop-bridge.ts`, and the `computer_*` tools are `agents/computer.ts`, given only to a
+  chat run not from a connected app whose person's app is connected and passes the sign-in
+  policies when it starts, checked again at each call. Reminders to the person
   a run works for (`remind_person`, no recipient argument): `server/ai-reminders.ts`, a notification
   of kind `ai_reminder` waiting snoozed until its time (`deliverSnoozed` wakes it), shown over the
   page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`.
@@ -577,7 +586,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   columns, export, print, site, scim, security, security-switches, ip-allowlist, two-factor, account, admin (signs
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
-  agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention,
+  agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,
   agent-schedule, agent-sharing, agent-guardrails, agent-skills, automation, button, row-buttons, timed-automation, schedule,
   row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against

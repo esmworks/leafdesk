@@ -657,6 +657,17 @@
         "searchFailed": "ウェブを検索できませんでした",
         "approved": "承認済み"
       },
+      "computer": {
+        "list": "コンピューターのフォルダーを一覧しました",
+        "read": "コンピューターのファイルを読みました",
+        "write": "コンピューターにファイルを書き込みました",
+        "trash": "コンピューターの項目をゴミ箱に移動しました",
+        "declined": "拒否されたため、何も行われませんでした",
+        "expired": "時間内に応答がなかったため、何も行われませんでした",
+        "failed": "実行できませんでした",
+        "afterMail": "メールを読んだ後のため保留され、何も行われませんでした",
+        "limited": "エージェントの1日の変更上限を超えたため、何も行われませんでした"
+      },
       "tool": {
         "done": "{connection}で「{tool}」を呼び出しました",
         "failed": "{connection}で「{tool}」を呼び出せませんでした",
@@ -2015,7 +2026,8 @@
         "shared": "エージェント「{target}」に対する{subject}のアクセス権を設定しました：{level}",
         "unshared": "エージェント「{target}」の共有から{subject}を削除しました",
         "creator_added": "{subject}にエージェントの作成を許可しました",
-        "creator_removed": "{subject}をエージェントを作成できる人から外しました"
+        "creator_removed": "{subject}をエージェントを作成できる人から外しました",
+        "local_file": "{target}のコンピューターで{op, select, trash {「{path}」をゴミ箱に移動しました} other {「{path}」を書き込みました}}（{outcome}）"
       },
       "connection": {
         "created": "接続「{target}」を追加しました",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "完了",
-      "failed": "失敗"
+      "failed": "失敗",
+      "declined": "拒否",
+      "expired": "応答なし"
     },
     "agentLevels": {
       "full": "フルアクセス",

@@ -657,6 +657,17 @@
         "searchFailed": "Web’de arama yapılamadı",
         "approved": "onaylandı"
       },
+      "computer": {
+        "list": "Bilgisayarda bir klasör listelendi",
+        "read": "Bilgisayarda bir dosya okundu",
+        "write": "Bilgisayarda bir dosya yazıldı",
+        "trash": "Bilgisayarda bir şey çöp kutusuna taşındı",
+        "declined": "reddedildi; hiçbir şey yapılmadı",
+        "expired": "zamanında yanıt gelmedi; hiçbir şey yapılmadı",
+        "failed": "yapılamadı",
+        "afterMail": "e-posta okunduktan sonra durduruldu; hiçbir şey yapılmadı",
+        "limited": "ajanın günlük değişiklik sınırı aşıldı; hiçbir şey yapılmadı"
+      },
       "tool": {
         "done": "{connection} üzerinde “{tool}” çağrıldı",
         "failed": "{connection} üzerinde “{tool}” çağrılamadı",
@@ -2015,7 +2026,8 @@
         "shared": "Erişim ayarlandı: {subject}, “{target}” ajanında: {level}",
         "unshared": "Paylaşımdan çıkarıldı: {subject}, “{target}” ajanından",
         "creator_added": "Ajan oluşturma izni verildi: {subject}",
-        "creator_removed": "Ajan oluşturma izni kaldırıldı: {subject}"
+        "creator_removed": "Ajan oluşturma izni kaldırıldı: {subject}",
+        "local_file": "{target} kişisinin bilgisayarında {op, select, trash {“{path}” çöp kutusuna taşındı} other {“{path}” yazıldı}} ({outcome})"
       },
       "connection": {
         "created": "“{target}” bağlantısını ekledi",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "tamamlandı",
-      "failed": "başarısız"
+      "failed": "başarısız",
+      "declined": "reddedildi",
+      "expired": "yanıtlanmadı"
     },
     "agentLevels": {
       "full": "Tam erişim",

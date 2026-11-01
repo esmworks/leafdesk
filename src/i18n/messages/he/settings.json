@@ -657,6 +657,17 @@
         "searchFailed": "לא הצליח לחפש ברשת",
         "approved": "אושרה"
       },
+      "computer": {
+        "list": "הציג תיקייה במחשב",
+        "read": "קרא קובץ במחשב",
+        "write": "כתב קובץ במחשב",
+        "trash": "העביר משהו במחשב לאשפה",
+        "declined": "נדחה; דבר לא נעשה",
+        "expired": "אין תשובה בזמן; דבר לא נעשה",
+        "failed": "לא ניתן היה לבצע",
+        "afterMail": "נעצר אחרי קריאת דואר; דבר לא נעשה",
+        "limited": "מעבר למגבלת השינויים היומית של הסוכן; דבר לא נעשה"
+      },
       "tool": {
         "done": "הפעיל את “{tool}” ב־{connection}",
         "failed": "לא הצליח להפעיל את “{tool}” ב־{connection}",
@@ -2015,7 +2026,8 @@
         "shared": "הגדרת הגישה של {subject} לסוכן “{target}”: {level}",
         "unshared": "הסרת {subject} מהשיתוף של הסוכן “{target}”",
         "creator_added": "אפשר ל{subject} ליצור סוכנים",
-        "creator_removed": "הסרת {subject} מהמורשים ליצור סוכנים"
+        "creator_removed": "הסרת {subject} מהמורשים ליצור סוכנים",
+        "local_file": "{op, select, trash {העביר את “{path}” לאשפה} other {כתב את “{path}”}} במחשב של {target} ({outcome})"
       },
       "connection": {
         "created": "הוספת החיבור “{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "בוצע",
-      "failed": "נכשל"
+      "failed": "נכשל",
+      "declined": "נדחה",
+      "expired": "ללא מענה"
     },
     "agentLevels": {
       "full": "גישה מלאה",

@@ -28,6 +28,7 @@ import {
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { AgentFilesBridge, answerCall, appendAudit, auditLine, folderLabels, formatSize, hasProtectedPart, MAX_FOLDERS, oneAtATime, type Approval, type SocketLike } from "./agent-files.ts";
 import { CertificateTrust, isCertificateError, type CertificateProblem } from "./certificates.ts";
 import { showContextMenu } from "./context-menu.ts";
 import { activeShortcut, aiChatPath, defaultShortcut, SHORTCUT_OFF, shortcutChoices, workspaceIn } from "./global-shortcut.ts";
@@ -179,7 +180,10 @@ if (!app.requestSingleInstanceLock()) {
     quitting = true;
     void stopLocal().finally(() => app.quit());
   });
-  app.on("will-quit", () => globalShortcut.unregisterAll());
+  app.on("will-quit", () => {
+    globalShortcut.unregisterAll();
+    agentFiles.stop();
+  });
   void app.whenReady().then(start);
 }
 
@@ -268,8 +272,19 @@ function refreshMenu() {
           applyShortcut();
         },
       },
+      agentFiles: {
+        enabled: settings.agentFiles?.enabled === true,
+        folders: agentFolders(),
+        connected: agentFilesConnected,
+        toggle: toggleAgentFiles,
+        add: () => void addAgentFolder(),
+        remove: removeAgentFolder,
+        showLog: showAgentFilesLog,
+      },
     }),
   );
+  // The menu is drawn again whenever the server, local mode or these settings change.
+  syncAgentFiles();
 }
 
 function switchTab(window: TabbedWindow | undefined, step: number) {
@@ -396,6 +411,118 @@ function reportBackup(result: BackupResult) {
     new Notification({ title: strings().backupFailed, body: problem }).show();
   }
   lastBackupProblem = problem;
+}
+
+// ── Agents' access to files on this computer (agent-files.ts) ─────────────────────────────────
+
+const agentFilesLog = () => path.join(app.getPath("userData"), "logs", "agent-files.log");
+const agentFolders = () => folderLabels(settings.agentFiles?.folders ?? []);
+/** The person sees one question at a time. */
+const askInTurn = oneAtATime();
+let agentFilesConnected = false;
+
+/** Node's WebSocket, which takes headers (the session's cookie and the app's header) unlike a page's. */
+const NodeWebSocket = WebSocket as unknown as new (url: string, init: { headers: Record<string, string> }) => SocketLike;
+
+const agentFiles = new AgentFilesBridge({
+  open: (url, headers) => new NodeWebSocket(url, { headers }),
+  cookie: async (origin) => {
+    const cookies = await session.defaultSession.cookies.get({ url: origin });
+    return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
+  },
+  version: app.getVersion(),
+  answer: (call, origin) =>
+    answerCall(call, {
+      server: origin,
+      folders: agentFolders,
+      ask: (approval, signal) => askInTurn((turn) => askAboutFile(approval, turn))(signal),
+      trash: (fullPath) => shell.trashItem(fullPath),
+      audit: (entry) => appendAudit(agentFilesLog(), auditLine(entry)),
+    }),
+  onStatus: (connected) => {
+    agentFilesConnected = connected;
+    refreshMenu();
+  },
+});
+
+/** Connects the bridge to the server the windows show while file access is on with folders; closes it otherwise. */
+function syncAgentFiles() {
+  const origin = currentOrigin();
+  const on = settings.agentFiles?.enabled === true && !!origin && (!isLocal() || localReady);
+  agentFiles.update(on && origin ? { origin, folders: agentFolders() } : null);
+}
+
+/** Asks the person, in front of everything, whether an agent may write a file or move one to the trash. */
+async function askAboutFile(approval: Approval, signal: AbortSignal): Promise<boolean> {
+  if (signal.aborted) return false;
+  const t = strings();
+  if (process.platform === "darwin") app.focus({ steal: true });
+  const window = liveWindow();
+  if (window) bringForward(window);
+  const detail = [fill(t.agentAskDetail, { workspace: approval.workspace || hostOf(approval.server) || approval.server, path: approval.place })];
+  if (approval.bytes !== undefined) detail.push(fill(t.agentAskSize, { size: formatSize(approval.bytes) }));
+  if (approval.preview) detail.push("", t.agentAskBegins, approval.preview);
+  detail.push("", t.agentAskTimeout);
+  const box = {
+    type: "question" as const,
+    message: fill(approval.op === "write" ? t.agentWriteTitle : t.agentTrashTitle, { agent: approval.agent || "Leafdesk" }),
+    detail: detail.join("\n"),
+    // Don't Allow first and as the default: Return or Escape never allows.
+    buttons: [t.dontAllow, t.allow],
+    defaultId: 0,
+    cancelId: 0,
+    noLink: true,
+    signal,
+  };
+  const { response } = window ? await dialog.showMessageBox(window.window, box) : await dialog.showMessageBox(box);
+  return !signal.aborted && response === 1;
+}
+
+function toggleAgentFiles() {
+  const current = settings.agentFiles ?? { enabled: false, folders: [] };
+  settings.agentFiles = { ...current, enabled: !current.enabled };
+  save();
+  refreshMenu();
+  // Turned on with no folder yet: the next step is picking one.
+  if (settings.agentFiles.enabled && !settings.agentFiles.folders.length) void addAgentFolder();
+}
+
+async function addAgentFolder() {
+  const t = strings();
+  const options = { title: t.agentFilesChoose, message: t.agentFilesChoose, properties: ["openDirectory" as const, "createDirectory" as const] };
+  const window = BrowserWindow.getFocusedWindow() ?? liveWindow()?.window;
+  const { canceled, filePaths } = window ? await dialog.showOpenDialog(window, options) : await dialog.showOpenDialog(options);
+  const folder = filePaths[0];
+  if (canceled || !folder) return;
+  const real = await fs.promises.realpath(folder).catch(() => folder);
+  // A folder that is (or is inside) a place of keys and passwords, or the whole disk, isn't offered to agents.
+  if (hasProtectedPart(real) || path.parse(real).root === real) {
+    const box = { type: "warning" as const, message: t.agentFilesRefused };
+    if (window) await dialog.showMessageBox(window, box);
+    else await dialog.showMessageBox(box);
+    return;
+  }
+  const current = settings.agentFiles ?? { enabled: true, folders: [] };
+  if (current.folders.includes(real) || current.folders.length >= MAX_FOLDERS) return;
+  settings.agentFiles = { enabled: current.enabled, folders: [...current.folders, real] };
+  save();
+  refreshMenu();
+}
+
+function removeAgentFolder(root: string) {
+  if (!settings.agentFiles) return;
+  settings.agentFiles = { ...settings.agentFiles, folders: settings.agentFiles.folders.filter((folder) => folder !== root) };
+  save();
+  refreshMenu();
+}
+
+function showAgentFilesLog() {
+  const file = agentFilesLog();
+  if (fs.existsSync(file)) shell.showItemInFolder(file);
+  else {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    void shell.openPath(path.dirname(file));
+  }
 }
 
 /**

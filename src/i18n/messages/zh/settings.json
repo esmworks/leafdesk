@@ -657,6 +657,17 @@
         "searchFailed": "无法搜索网络",
         "approved": "已批准"
       },
+      "computer": {
+        "list": "列出了电脑上的一个文件夹",
+        "read": "读取了电脑上的一个文件",
+        "write": "在电脑上写入了一个文件",
+        "trash": "把电脑上的内容移到了废纸篓",
+        "declined": "已拒绝，未执行任何操作",
+        "expired": "未及时回应，未执行任何操作",
+        "failed": "无法执行",
+        "afterMail": "读过邮件后被拦下，未执行任何操作",
+        "limited": "超出智能体每日更改上限，未执行任何操作"
+      },
       "tool": {
         "done": "已调用 {connection} 上的“{tool}”",
         "failed": "无法调用 {connection} 上的“{tool}”",
@@ -2015,7 +2026,8 @@
         "shared": "将 {subject} 对智能体“{target}”的访问权限设为：{level}",
         "unshared": "将 {subject} 从智能体“{target}”的分享中移除",
         "creator_added": "允许 {subject} 创建智能体",
-        "creator_removed": "已将 {subject} 从可创建智能体的人员中移除"
+        "creator_removed": "已将 {subject} 从可创建智能体的人员中移除",
+        "local_file": "在 {target} 的电脑上{op, select, trash {将“{path}”移到了废纸篓} other {写入了“{path}”}}（{outcome}）"
       },
       "connection": {
         "created": "添加了连接“{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "已完成",
-      "failed": "失败"
+      "failed": "失败",
+      "declined": "已拒绝",
+      "expired": "未回应"
     },
     "agentLevels": {
       "full": "完全访问",

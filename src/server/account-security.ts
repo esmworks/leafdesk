@@ -5,6 +5,7 @@ import { account, passkey, session, twoFactor, user } from "@/db/schema";
 import { isStrongSession } from "@/lib/auth-security";
 import { revokeAllApiTokens } from "@/server/api/tokens";
 import { getCollab } from "@/server/collab/bridge";
+import { closeEndedDesktopSessions } from "@/server/desktop-bridge/registry";
 import { revokeAllConnectedApps } from "@/server/mcp/grants";
 
 export type PasskeySummary = {
@@ -116,8 +117,9 @@ export async function forgetUnprovenHolder(userId: string, keepAccountId?: strin
 }
 
 /**
- * Drops live collab connections (open pages) of the user's sessions that have ended: all of them
- * once the user has no session left.
+ * Drops live collab connections (open pages) and desktop apps' bridges (agents' files on the
+ * computer, server/desktop-bridge) of the user's sessions that have ended: all of them once the
+ * user has no session left.
  */
 export async function disconnectEndedSessions(userId: string) {
   // It runs after what ended the sessions committed: failing here would only skip what comes next.
@@ -126,6 +128,7 @@ export async function disconnectEndedSessions(userId: string) {
       .select({ id: session.id })
       .from(session)
       .where(and(eq(session.userId, userId), gt(session.expiresAt, new Date())));
+    closeEndedDesktopSessions(userId, live.map((s) => s.id));
     await getCollab().disconnectSessions(userId, live.map((s) => s.id));
   } catch (error) {
     // Scripts and tests run without the collab server; its connections end with their tokens.

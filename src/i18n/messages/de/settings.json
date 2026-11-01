@@ -657,6 +657,17 @@
         "searchFailed": "Konnte nicht im Web suchen",
         "approved": "freigegeben"
       },
+      "computer": {
+        "list": "Hat einen Ordner auf dem Computer aufgelistet",
+        "read": "Hat eine Datei auf dem Computer gelesen",
+        "write": "Hat eine Datei auf dem Computer geschrieben",
+        "trash": "Hat etwas auf dem Computer in den Papierkorb gelegt",
+        "declined": "abgelehnt; nichts wurde getan",
+        "expired": "nicht rechtzeitig beantwortet; nichts wurde getan",
+        "failed": "konnte nicht ausgeführt werden",
+        "afterMail": "nach dem Lesen von E-Mails zurückgehalten; nichts wurde getan",
+        "limited": "über dem Tageslimit an Änderungen des Agenten; nichts wurde getan"
+      },
       "tool": {
         "done": "Hat „{tool}“ bei {connection} aufgerufen",
         "failed": "Konnte „{tool}“ bei {connection} nicht aufrufen",
@@ -2015,7 +2026,8 @@
         "shared": "Hat den Zugriff von {subject} auf den Agenten „{target}“ festgelegt: {level}",
         "unshared": "Hat {subject} aus der Freigabe des Agenten „{target}“ entfernt",
         "creator_added": "Hat {subject} erlaubt, Agenten zu erstellen",
-        "creator_removed": "Hat {subject} aus den Personen entfernt, die Agenten erstellen dürfen"
+        "creator_removed": "Hat {subject} aus den Personen entfernt, die Agenten erstellen dürfen",
+        "local_file": "{op, select, trash {Hat „{path}“ in den Papierkorb gelegt} other {Hat „{path}“ geschrieben}} auf dem Computer von {target} ({outcome})"
       },
       "connection": {
         "created": "Hat die Verbindung „{target}“ hinzugefügt",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "erledigt",
-      "failed": "fehlgeschlagen"
+      "failed": "fehlgeschlagen",
+      "declined": "abgelehnt",
+      "expired": "nicht beantwortet"
     },
     "agentLevels": {
       "full": "Vollzugriff",

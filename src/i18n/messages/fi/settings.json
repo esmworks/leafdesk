@@ -662,6 +662,17 @@
         "searchFailed": "Verkkohaku epäonnistui",
         "approved": "hyväksytty"
       },
+      "computer": {
+        "list": "Listasi kansion tietokoneella",
+        "read": "Luki tiedoston tietokoneelta",
+        "write": "Kirjoitti tiedoston tietokoneelle",
+        "trash": "Siirsi jotain tietokoneelta roskakoriin",
+        "declined": "hylätty; mitään ei tehty",
+        "expired": "ei vastausta ajoissa; mitään ei tehty",
+        "failed": "ei onnistunut",
+        "afterMail": "pysäytetty sähköpostin lukemisen jälkeen; mitään ei tehty",
+        "limited": "yli agentin päivittäisen muutosrajan; mitään ei tehty"
+      },
       "tool": {
         "done": "Kutsui työkalua ”{tool}” yhteydessä {connection}",
         "failed": "Työkalun ”{tool}” kutsuminen yhteydessä {connection} epäonnistui",
@@ -2015,7 +2026,8 @@
         "shared": "Asetti kohteen {subject} käyttöoikeuden agenttiin ”{target}”: {level}",
         "unshared": "Poisti kohteen {subject} agentin ”{target}” jakamisesta",
         "creator_added": "Antoi kohteen {subject} luoda agentteja",
-        "creator_removed": "Poisti kohteen {subject} niiden joukosta, jotka voivat luoda agentteja"
+        "creator_removed": "Poisti kohteen {subject} niiden joukosta, jotka voivat luoda agentteja",
+        "local_file": "{op, select, trash {Siirsi kohteen ”{path}” roskakoriin} other {Kirjoitti tiedoston ”{path}”}} käyttäjän {target} tietokoneella ({outcome})"
       },
       "connection": {
         "created": "Lisäsi yhteyden ”{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "valmis",
-      "failed": "epäonnistui"
+      "failed": "epäonnistui",
+      "declined": "hylätty",
+      "expired": "ei vastattu"
     },
     "agentLevels": {
       "full": "Täydet oikeudet",

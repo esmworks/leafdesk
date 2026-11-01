@@ -662,6 +662,17 @@
         "searchFailed": "Kunne ikke søge på nettet",
         "approved": "godkendt"
       },
+      "computer": {
+        "list": "Viste en mappe på computeren",
+        "read": "Læste en fil på computeren",
+        "write": "Skrev en fil på computeren",
+        "trash": "Flyttede noget på computeren til papirkurven",
+        "declined": "afvist; intet blev gjort",
+        "expired": "intet svar i tide; intet blev gjort",
+        "failed": "kunne ikke udføres",
+        "afterMail": "holdt tilbage efter læsning af e-mail; intet blev gjort",
+        "limited": "over agentens daglige grænse for ændringer; intet blev gjort"
+      },
       "tool": {
         "done": "Kaldte “{tool}” på {connection}",
         "failed": "Kunne ikke kalde “{tool}” på {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "Satte adgangen for {subject} til agenten “{target}”: {level}",
         "unshared": "Fjernede {subject} fra delingen af agenten “{target}”",
         "creator_added": "Lod {subject} oprette agenter",
-        "creator_removed": "Fjernede {subject} fra dem, der kan oprette agenter"
+        "creator_removed": "Fjernede {subject} fra dem, der kan oprette agenter",
+        "local_file": "{op, select, trash {Flyttede “{path}” til papirkurven} other {Skrev “{path}”}} på {target}s computer ({outcome})"
       },
       "connection": {
         "created": "Tilføjede forbindelsen “{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "udført",
-      "failed": "mislykkedes"
+      "failed": "mislykkedes",
+      "declined": "afvist",
+      "expired": "ikke besvaret"
     },
     "agentLevels": {
       "full": "Fuld adgang",

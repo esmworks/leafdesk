@@ -657,6 +657,17 @@
         "searchFailed": "Non è riuscito a cercare sul web",
         "approved": "approvata"
       },
+      "computer": {
+        "list": "Ha elencato una cartella del computer",
+        "read": "Ha letto un file del computer",
+        "write": "Ha scritto un file sul computer",
+        "trash": "Ha spostato qualcosa del computer nel cestino",
+        "declined": "rifiutato; non è stato fatto nulla",
+        "expired": "nessuna risposta in tempo; non è stato fatto nulla",
+        "failed": "non è stato possibile farlo",
+        "afterMail": "trattenuto dopo la lettura di email; non è stato fatto nulla",
+        "limited": "oltre il limite giornaliero di modifiche dell’agente; non è stato fatto nulla"
+      },
       "tool": {
         "done": "Ha chiamato “{tool}” su {connection}",
         "failed": "Impossibile chiamare “{tool}” su {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "Ha impostato l’accesso di {subject} all’agente “{target}”: {level}",
         "unshared": "Ha rimosso {subject} dalla condivisione dell’agente “{target}”",
         "creator_added": "Ha permesso a {subject} di creare agenti",
-        "creator_removed": "Ha rimosso {subject} da chi può creare agenti"
+        "creator_removed": "Ha rimosso {subject} da chi può creare agenti",
+        "local_file": "{op, select, trash {Ha spostato “{path}” nel cestino} other {Ha scritto “{path}”}} sul computer di {target} ({outcome})"
       },
       "connection": {
         "created": "Ha aggiunto la connessione “{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "riuscita",
-      "failed": "non riuscita"
+      "failed": "non riuscita",
+      "declined": "rifiutato",
+      "expired": "senza risposta"
     },
     "agentLevels": {
       "full": "Accesso completo",

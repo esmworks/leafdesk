@@ -662,6 +662,17 @@
         "searchFailed": "Couldn’t search the web",
         "approved": "approved"
       },
+      "computer": {
+        "list": "Listed a folder on the computer",
+        "read": "Read a file on the computer",
+        "write": "Wrote a file on the computer",
+        "trash": "Moved something on the computer to the trash",
+        "declined": "declined; nothing was done",
+        "expired": "no answer in time; nothing was done",
+        "failed": "couldn’t be done",
+        "afterMail": "held back after reading email; nothing was done",
+        "limited": "past the agent’s daily limit of changes; nothing was done"
+      },
       "tool": {
         "done": "Called “{tool}” on {connection}",
         "failed": "Couldn’t call “{tool}” on {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "Set the access of {subject} to the agent “{target}”: {level}",
         "unshared": "Removed {subject} from the sharing of the agent “{target}”",
         "creator_added": "Let {subject} create agents",
-        "creator_removed": "Removed {subject} from those who can create agents"
+        "creator_removed": "Removed {subject} from those who can create agents",
+        "local_file": "{op, select, trash {Moved “{path}” to the trash} other {Wrote “{path}”}} on the computer of {target} ({outcome})"
       },
       "connection": {
         "created": "Added the connection “{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "done",
-      "failed": "failed"
+      "failed": "failed",
+      "declined": "declined",
+      "expired": "not answered"
     },
     "agentLevels": {
       "full": "Full access",

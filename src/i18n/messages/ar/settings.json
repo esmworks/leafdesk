@@ -657,6 +657,17 @@
         "searchFailed": "تعذّر عليه البحث في الويب",
         "approved": "تمت الموافقة"
       },
+      "computer": {
+        "list": "عرض مجلدًا على الكمبيوتر",
+        "read": "قرأ ملفًا على الكمبيوتر",
+        "write": "كتب ملفًا على الكمبيوتر",
+        "trash": "نقل شيئًا على الكمبيوتر إلى سلة المهملات",
+        "declined": "رُفض؛ لم يُفعل شيء",
+        "expired": "لا رد في الوقت المحدد؛ لم يُفعل شيء",
+        "failed": "تعذّر تنفيذه",
+        "afterMail": "أُوقف بعد قراءة البريد؛ لم يُفعل شيء",
+        "limited": "تجاوز حدّ التغييرات اليومي للوكيل؛ لم يُفعل شيء"
+      },
       "tool": {
         "done": "استدعى «{tool}» على {connection}",
         "failed": "تعذّر استدعاء «{tool}» على {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "ضبط وصول {subject} إلى الوكيل «{target}»: {level}",
         "unshared": "أزال {subject} من مشاركة الوكيل «{target}»",
         "creator_added": "سمح لـ {subject} بإنشاء الوكلاء",
-        "creator_removed": "أزال {subject} من الذين يمكنهم إنشاء الوكلاء"
+        "creator_removed": "أزال {subject} من الذين يمكنهم إنشاء الوكلاء",
+        "local_file": "{op, select, trash {نقل “{path}” إلى سلة المهملات} other {كتب “{path}”}} على كمبيوتر {target} ({outcome})"
       },
       "connection": {
         "created": "أضاف الاتصال «{target}»",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "تم",
-      "failed": "فشل"
+      "failed": "فشل",
+      "declined": "مرفوض",
+      "expired": "بلا رد"
     },
     "agentLevels": {
       "full": "وصول كامل",

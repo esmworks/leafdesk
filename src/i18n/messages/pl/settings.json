@@ -657,6 +657,17 @@
         "searchFailed": "Nie udało się wyszukać w internecie",
         "approved": "zatwierdzone"
       },
+      "computer": {
+        "list": "Wyświetlono folder na komputerze",
+        "read": "Odczytano plik na komputerze",
+        "write": "Zapisano plik na komputerze",
+        "trash": "Przeniesiono coś z komputera do kosza",
+        "declined": "odrzucono; nic nie zrobiono",
+        "expired": "brak odpowiedzi na czas; nic nie zrobiono",
+        "failed": "nie udało się",
+        "afterMail": "wstrzymano po odczytaniu e-maili; nic nie zrobiono",
+        "limited": "ponad dzienny limit zmian agenta; nic nie zrobiono"
+      },
       "tool": {
         "done": "Wywołano „{tool}” w połączeniu {connection}",
         "failed": "Nie udało się wywołać „{tool}” w połączeniu {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "Ustawiono dostęp do agenta „{target}” ({subject}): {level}",
         "unshared": "Usunięto z udostępniania agenta „{target}”: {subject}",
         "creator_added": "Pozwolono {subject} tworzyć agentów",
-        "creator_removed": "Usunięto {subject} spośród osób, które mogą tworzyć agentów"
+        "creator_removed": "Usunięto {subject} spośród osób, które mogą tworzyć agentów",
+        "local_file": "{op, select, trash {Przeniesiono „{path}” do kosza} other {Zapisano „{path}”}} na komputerze użytkownika {target} ({outcome})"
       },
       "connection": {
         "created": "Dodano połączenie „{target}”",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "gotowe",
-      "failed": "niepowodzenie"
+      "failed": "niepowodzenie",
+      "declined": "odrzucono",
+      "expired": "bez odpowiedzi"
     },
     "agentLevels": {
       "full": "Pełny dostęp",

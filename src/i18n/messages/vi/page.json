@@ -1414,7 +1414,8 @@
       "inThread": "Trò chuyện của tác nhân",
       "onPage": "Trên một trang",
       "onClosedPage": "Trên một trang bạn không mở được"
-    }
+    },
+    "computerFiles": "Có thể dùng tệp trên máy tính của bạn: {folders}"
   },
   "button": {
     "untitled": "Nút",

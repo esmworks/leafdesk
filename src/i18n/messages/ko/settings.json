@@ -657,6 +657,17 @@
         "searchFailed": "웹을 검색하지 못함",
         "approved": "승인됨"
       },
+      "computer": {
+        "list": "컴퓨터의 폴더 목록을 확인함",
+        "read": "컴퓨터의 파일을 읽음",
+        "write": "컴퓨터에 파일을 씀",
+        "trash": "컴퓨터의 항목을 휴지통으로 옮김",
+        "declined": "거절됨, 아무것도 하지 않음",
+        "expired": "제때 응답이 없어 아무것도 하지 않음",
+        "failed": "실행할 수 없음",
+        "afterMail": "이메일을 읽은 뒤라 보류됨, 아무것도 하지 않음",
+        "limited": "에이전트의 하루 변경 한도를 넘어 아무것도 하지 않음"
+      },
       "tool": {
         "done": "{connection}에서 “{tool}” 호출함",
         "failed": "{connection}에서 “{tool}”을(를) 호출하지 못함",
@@ -2015,7 +2026,8 @@
         "shared": "에이전트 “{target}”에 대한 {subject}의 액세스를 설정했습니다: {level}",
         "unshared": "에이전트 “{target}”의 공유 대상에서 {subject}을(를) 제거했습니다",
         "creator_added": "{subject}에게 에이전트 만들기를 허용했습니다",
-        "creator_removed": "에이전트를 만들 수 있는 사람에서 {subject}을(를) 제거했습니다"
+        "creator_removed": "에이전트를 만들 수 있는 사람에서 {subject}을(를) 제거했습니다",
+        "local_file": "{target}의 컴퓨터에서 {op, select, trash {“{path}”을(를) 휴지통으로 옮김} other {“{path}”을(를) 씀}} ({outcome})"
       },
       "connection": {
         "created": "연결 “{target}”을(를) 추가했습니다",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "완료",
-      "failed": "실패"
+      "failed": "실패",
+      "declined": "거절됨",
+      "expired": "응답 없음"
     },
     "agentLevels": {
       "full": "전체 액세스",

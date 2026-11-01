@@ -35,7 +35,9 @@
  * with at full access or can edit, see sharing.ts) may also change pages at once (WRITE_TOOLS,
  * within MAX_AGENT_WRITES) and calls connections' tools as a request does; anyone else's only
  * reads, with no tool that changes something offered at all. Its answer goes to the conversation when it ends
- * (chat-store.ts).
+ * (chat-store.ts). While that person's desktop app is connected with file access on, a chat's run in
+ * the app also lists and reads files in the folders they allowed, and (where it may change things)
+ * writes them or moves them to the trash, each as the person allows it on that computer (computer.ts).
  *
  * The notes its owners kept from earlier runs go with each run (memory.ts). A run whose input a
  * member or a trusted trigger stands behind may propose new ones (`remember`), which wait for an
@@ -81,6 +83,8 @@ import {
   type AgentRunUsage,
   type AgentStepRecord,
   WEB_TOOL_NAMES,
+  COMPUTER_READ_TOOLS,
+  isComputerTool,
 } from "@/lib/agents";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import { APPROVAL_TIMEOUT_MS, CONNECTION_EVENT_DAYS, MAX_RUN_EXTERNAL_CHARS } from "@/lib/connections";
@@ -132,6 +136,7 @@ import { MAX_REMINDERS_PER_RUN } from "@/lib/ai-reminders";
 import { isTimeZone } from "@/lib/time-zone";
 import { agentSkillRoom, runSkills } from "./skills";
 import { runWebTool, webToolsFor } from "./web";
+import { computerChanges, computerFor, computerStepInput, computerTools, runComputerTool } from "./computer";
 import { agentLevel } from "./sharing";
 import { addAgentUsage, overMonthlyLimit, pruneAgentUsage } from "./usage";
 import { dailyLimitReached, giveBackDailyChange, pruneDailyChanges, takeDailyChange } from "./daily-changes";
@@ -766,6 +771,9 @@ async function converse(
   // Its person closed the mailbox to the agent (or lost it) since the email came.
   if (arrival && !mailBoxes.includes(arrival.mailboxId)) return { status: "failed", code: "mailGone", steps: [...run.steps], usage: run.usage ?? { inputTokens: 0, outputTokens: 0, costUsd: 0, rounds: 0 } };
   const mailTools = agentMailToolset(mailBoxes);
+  // Files on the computer of the person chatting, while their desktop app is connected (computer.ts):
+  // changing them only in the chat of someone who may edit the agent, as other changes.
+  const computer = await computerFor(run.source, run.workspaceId, chatWrites);
   // A schedule's run on a database merges duplicates there only where the agent may edit it, and
   // not when its changes wait for review: a merge can't be proposed.
   const merges = !rowRun && !proposes && databaseId !== null && hasLevel((await pageAccessOf(agent.userId, databaseId)).level, "edit");
@@ -786,6 +794,7 @@ async function converse(
     ...(reminder ? [reminder.tool] : []),
     // A chat's answer may carry files for the person (chat-files.ts).
     ...(chat ? [ATTACH_FILE_TOOL] : []),
+    ...(computer ? computerTools(computer) : []),
     ...(arrival ? [] : toolset.tools),
     ...(moreTools ? [FIND_TOOLS, USE_TOOL] : []),
   ];
@@ -817,6 +826,7 @@ async function converse(
     drafts: Boolean(sender),
     mail: mailTools.length > 0,
     mailArrived: Boolean(arrival),
+    computer: computer ? { folders: computer.folders, writes: computer.writes } : undefined,
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
   // The model its owners chose: every turn of every run of the agent's goes to it (features.ts).
@@ -946,7 +956,8 @@ async function converse(
     return {
       content: `You have made the most changes this agent may make in a day (${agent.dailyChangeLimit}). Nothing was done; finish now, saying what is left to do.`,
       isError: true,
-      step: { kind: "tool", connectionId: external?.connection.id ?? null, tool: external?.tool.name ?? call.name, input: inputSummary(call.arguments), outcome: "limited" },
+      // A file written on the computer is kept by its place and size, never its text (computer.ts).
+      step: { kind: "tool", connectionId: external?.connection.id ?? null, tool: external?.tool.name ?? call.name, input: computerStepInput(call) ?? inputSummary(call.arguments), outcome: "limited" },
     };
   };
 
@@ -970,11 +981,12 @@ async function converse(
   const quiet = agent.quietHours ? parseQuietHours(agent.quietHours) : null;
   /**
    * Whether the run read what anyone may have written, which could steer its calls: a run no one
-   * stands behind (askEveryTool), or one that read a web page or searched. An owner's "allow" rule
-   * doesn't hold there: each call waits for a person, as without one. (A run that read email calls
-   * no connection's tool at all.)
+   * stands behind (askEveryTool), or one that read a web page or searched, or a folder or file on
+   * the person's computer. An owner's "allow" rule doesn't hold there: each call waits for a
+   * person, as without one. (A run that read email calls no connection's tool at all.)
    */
-  const readOutside = () => askEveryTool || steps.some((s) => s.kind === "tool" && s.connectionId === null && webNames.has(s.tool) && s.outcome === "done");
+  const readOutside = () =>
+    askEveryTool || steps.some((s) => s.kind === "tool" && s.connectionId === null && (webNames.has(s.tool) || COMPUTER_READ_TOOLS.has(s.tool)) && s.outcome === "done");
   // Text files attached to a chat's message: data from outside, as an email is.
   const filesAttached = "files" in run.context && (run.context.files?.length ?? 0) > 0;
   /**
@@ -1056,6 +1068,27 @@ async function converse(
       const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
       if (!("action" in prepared)) return prepared;
       return change(call, () => propose(prepared, call));
+    }
+    // Files on the person's computer: a list or a read is data from outside, as a web page is (it
+    // counts toward what a run may read, and taints it); a write or a trash is a change, made only
+    // once the person allows it there, and none after the run read email.
+    if (computer && isComputerTool(call.name)) {
+      const changes = computerChanges(call.name);
+      if (changes && mailRead) {
+        return {
+          content: "You have read email in this run, and email is anyone's words: from here on this run changes no file. Nothing was done; say what you would do instead, and the person can do it.",
+          isError: true,
+          step: { kind: "tool", connectionId: null, tool: call.name, input: computerStepInput(call) ?? "", outcome: "afterMail" },
+        };
+      }
+      const left = Math.min(MAX_RUN_EXTERNAL_CHARS - externalChars, room(messages));
+      if (!changes && left <= 200) return { content: "You have read as much from outside as one run may. Finish with what you have.", isError: true };
+      const make = async (): Promise<CallResult> => {
+        const out = await runComputerTool(call, { id: run.id, workspaceId: run.workspaceId, agent: { userId: agent.userId, name: agent.name }, computer, room: left });
+        externalChars += out.chars;
+        return out;
+      };
+      return changes ? change(call, make, { per: "message" }) : make();
     }
     if (mailRead && !mayCallAfterMail(call.name, Boolean(external))) {
       return {

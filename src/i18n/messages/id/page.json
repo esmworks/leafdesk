@@ -1414,7 +1414,8 @@
       "inThread": "Chat agen",
       "onPage": "Di sebuah halaman",
       "onClosedPage": "Di halaman yang tidak dapat Anda buka"
-    }
+    },
+    "computerFiles": "Dapat memakai file di komputer Anda: {folders}"
   },
   "button": {
     "untitled": "Tombol",

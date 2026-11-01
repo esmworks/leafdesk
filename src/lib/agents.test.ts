@@ -22,6 +22,7 @@ import {
   runPageOf,
   skillStepsToAdd,
   WEB_TOOL_NAMES,
+  COMPUTER_TOOL_NAMES,
   type AgentRunSource,
   type AgentSkillRecord,
   type AgentStepRecord,
@@ -269,6 +270,10 @@ describe("after reading email", () => {
     // A service's error says what it likes too.
     expect(readOthersWords([tool("c1", "list_issues", "failed")])).toBe(true);
     expect(readOthersWords([handoff("done")])).toBe(true);
+    // A folder or a file on the person's computer: anything may have put it there.
+    expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.read, "done")])).toBe(true);
+    expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.list, "done")])).toBe(true);
+    expect(readOthersWords([tool(null, COMPUTER_TOOL_NAMES.read, "failed"), tool(null, COMPUTER_TOOL_NAMES.write, "done"), tool(null, COMPUTER_TOOL_NAMES.trash, "declined")])).toBe(false);
     // Nothing came back: refused, declined, waiting, or Leafdesk's own tools.
     expect(readOthersWords([tool(null, WEB_TOOL_NAMES.read, "refused"), tool("c1", "create_issue", "declined"), tool(null, "create_row", "done"), handoff("queued")])).toBe(false);
     expect(readOthersWords([{ kind: "read", pageId: "p1" }, { kind: "search", query: null, results: 2 }, { kind: "memory", action: "correct", text: "x", memoryId: "m1" }])).toBe(false);
@@ -276,8 +281,12 @@ describe("after reading email", () => {
   });
 
   it("lets such a run only read pages, find and use tools, and use the mail tools", () => {
-    for (const name of ["read_page", "search_pages", "query_database", "find_tools", "use_tool", "search_mail", "read_mail", "read_mail_attachment", "draft_mail"]) expect(mayCallAfterMail(name, false)).toBe(true);
-    for (const name of ["edit_page", "create_page", "update_row", "add_comment", "send_email", "remember", "ask_agent", "read_web_page", "search_web", "leave_note"]) expect(mayCallAfterMail(name, false)).toBe(false);
+    for (const name of ["read_page", "search_pages", "query_database", "find_tools", "use_tool", "search_mail", "read_mail", "read_mail_attachment", "draft_mail", COMPUTER_TOOL_NAMES.list, COMPUTER_TOOL_NAMES.read]) {
+      expect(mayCallAfterMail(name, false)).toBe(true);
+    }
+    for (const name of ["edit_page", "create_page", "update_row", "add_comment", "send_email", "remember", "ask_agent", "read_web_page", "search_web", "leave_note", COMPUTER_TOOL_NAMES.write, COMPUTER_TOOL_NAMES.trash]) {
+      expect(mayCallAfterMail(name, false)).toBe(false);
+    }
     // A connected service's tool, even one that only reads and shares a page tool's name.
     expect(mayCallAfterMail("read_page", true)).toBe(false);
   });

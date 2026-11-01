@@ -657,6 +657,17 @@
         "searchFailed": "N’a pas pu chercher sur le web",
         "approved": "approuvé"
       },
+      "computer": {
+        "list": "A listé un dossier de l’ordinateur",
+        "read": "A lu un fichier de l’ordinateur",
+        "write": "A écrit un fichier sur l’ordinateur",
+        "trash": "A mis quelque chose de l’ordinateur à la corbeille",
+        "declined": "refusé ; rien n’a été fait",
+        "expired": "sans réponse à temps ; rien n’a été fait",
+        "failed": "n’a pas pu être fait",
+        "afterMail": "retenu après la lecture d’e-mails ; rien n’a été fait",
+        "limited": "au-delà de la limite quotidienne de modifications de l’agent ; rien n’a été fait"
+      },
       "tool": {
         "done": "A appelé « {tool} » sur {connection}",
         "failed": "N’a pas pu appeler « {tool} » sur {connection}",
@@ -2015,7 +2026,8 @@
         "shared": "A défini l’accès de {subject} à l’agent « {target} » : {level}",
         "unshared": "A retiré {subject} du partage de l’agent « {target} »",
         "creator_added": "A autorisé {subject} à créer des agents",
-        "creator_removed": "A retiré {subject} des personnes pouvant créer des agents"
+        "creator_removed": "A retiré {subject} des personnes pouvant créer des agents",
+        "local_file": "{op, select, trash {A mis « {path} » à la corbeille} other {A écrit « {path} »}} sur l’ordinateur de {target} ({outcome})"
       },
       "connection": {
         "created": "A ajouté la connexion « {target} »",
@@ -2082,7 +2094,9 @@
     },
     "outcomes": {
       "done": "fait",
-      "failed": "échec"
+      "failed": "échec",
+      "declined": "refusé",
+      "expired": "sans réponse"
     },
     "agentLevels": {
       "full": "Accès complet",

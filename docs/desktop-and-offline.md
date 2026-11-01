@@ -153,6 +153,11 @@ note where AI is off there; *Go → Ask AI Shortcut* picks other keys or turns i
 when another app already has the keys. Offline editing works as in the installed web app, which needs HTTPS
 (or `localhost`) for the service worker.
 
+**Agents and your files.** *Agent File Access* in the Leafdesk menu (File on Windows and Linux),
+off by default, lets agents in your own chats list, read, write and move to the trash text files in
+folders you add there, asking you before every write and move to the trash; see
+[Files on your computer](agents.md#files-on-your-computer).
+
 **Not yet.** Push notifications don't reach the desktop app (the inbox still shows what's new), and
 passkeys may not work in it; sign in with a password, a code or single sign-on there.
 

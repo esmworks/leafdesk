@@ -52,6 +52,7 @@ import { noticeAgentSpending } from "@/server/ai-limit-notices";
 import { aiAvailable } from "@/server/ai-writing";
 import { connectedAppCall } from "@/server/connected-app";
 import { approversOf } from "./approvers";
+import { computerFolders } from "./computer";
 import { answerFiles } from "./chat-store";
 import { AgentError } from "./errors";
 import { kickAgents } from "./kick";
@@ -146,11 +147,13 @@ const placeIs = (chatId: string | null) => (chatId ? eq(agentConversation.chatId
 export async function agentChatInfo(userId: string, workspaceId: string, agentId: string, place: ChatPlace): Promise<AgentChatInfo> {
   const { role, agent, level } = await standing(userId, workspaceId, agentId);
   const state = await chatState(role, level, agent, workspaceId);
-  if (state === "guest" || state === "gone" || state === "noAccess" || !agent) return { state, agent: null, conversations: [] };
+  if (state === "guest" || state === "gone" || state === "noAccess" || !agent) return { state, agent: null, conversations: [], computer: null };
   return {
     state,
     agent: { id: agent.id, name: agent.name, icon: agent.icon, description: agent.description },
     conversations: await conversationsOf(userId, agent.id, place?.chatId ?? null),
+    // Their desktop app's folders the runs of this chat may use (agents/computer.ts).
+    computer: state === "full" || state === "readOnly" ? await computerFolders(userId, workspaceId) : null,
   };
 }
 

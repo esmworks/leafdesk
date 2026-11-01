@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { readAgentFilesSettings, type AgentFilesSettings } from "./agent-files.ts";
 import { readShortcut } from "./global-shortcut.ts";
 import { readLastPage, type LastPage } from "./last-page.ts";
 import { readSavedTabs, type SavedTabs } from "./tabs.ts";
@@ -31,6 +32,8 @@ export type Settings = {
   lastPage?: LastPage;
   /** The windows' tabs, opened again at the next start on the same server (tabs.ts). */
   tabs?: SavedTabs;
+  /** Whether agents in the person's chats may use files in these folders (agent-files.ts); unset is off. */
+  agentFiles?: AgentFilesSettings;
 };
 
 /** Settings kept in a JSON file; a missing or unreadable file means a first start. */
@@ -49,6 +52,7 @@ export function loadSettings(file: string): Settings {
       globalShortcut: readShortcut(value.globalShortcut, process.platform),
       lastPage: readLastPage(value.lastPage),
       tabs: readSavedTabs(value.tabs),
+      agentFiles: readAgentFilesSettings(value.agentFiles),
     };
   } catch {
     return { trustedCertificates: {}, validCertificateHosts: [] };

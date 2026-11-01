@@ -271,6 +271,30 @@ turned off, or an agent past its monthly limit leaves the chat saying so.
 agent, never what was said. The same chat goes on from Telegram after `/agent` (see
 [AI chat from Telegram](ai.md#ai-chat-from-telegram)).
 
+**Files on your computer.** In the [desktop app](desktop-and-offline.md#desktop-app), *Agent File
+Access* in the Leafdesk menu (File on Windows and Linux) lets agents in your own chats use folders
+you pick on that computer. It is off until you turn it on and add a folder; turning it off or
+quitting the app ends it at once, and so does signing out. While it is on, the app keeps a
+connection to the server (signed in as you, and held to the workspace's sign-in policies like the
+app's window) and tells the server only the folders' names. Each message you send an agent in the
+app (its page, its dialog or a block) while the app is connected gets `computer_list_folder` and
+`computer_read_file` (UTF-8 text files of up to 512 KB), and, in the chat of someone who can edit
+the agent, `computer_write_file` (up to 512 KB, making missing folders) and `computer_trash_file`.
+Each write and move to the trash asks you on that computer, every time, with the agent's name, the
+workspace, the file and (for a write) its size and first lines; no answer within 2 minutes is a no,
+and nothing is ever deleted for good. They count as the run's changes (5 a message, and the agent's
+daily limit), and a run that read email makes none. Nothing else gets these tools: not other
+people's chats, schedules, mentions, requests or rows, and not chats from Telegram or other
+connected apps. The app checks every path itself: it stays inside its folder (`..` and links that
+lead outside are refused), places that hold keys, passwords or settings (`.ssh`, `.git`, `.env`
+files, keychains, key files) are never listed, read or written, and it runs no commands. What a
+file holds reaches the model as data from outside, never instructions, and counts toward what the
+run read from outside, so a correction later in the same run is only proposed. The run's steps
+show each call with its path (and a write's size) and whether it was done, declined or unanswered,
+never what a file holds; writes and moves to the trash are in the audit log (`agent.local_file`),
+and the app keeps its own log of every call (*Show Agent File Log*). The chat says which folders
+it can use while the app is connected.
+
 **Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
 for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the
 AI provider names no price). The agent's *Runs* tab shows this month against its limit, and the

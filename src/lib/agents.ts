@@ -367,6 +367,18 @@ export type AgentPendingCall = {
 /** The tools of an agent with web access (server/agents/web.ts): Leafdesk's own, so their steps name no connection. */
 export const WEB_TOOL_NAMES = { read: "read_web_page", search: "search_web" } as const;
 
+/**
+ * The tools a chat's run gets for files on its person's computer, while their desktop app is
+ * connected (server/agents/computer.ts): Leafdesk's own, so their steps name no connection. A
+ * step's input is the file's place as `{"path": "<folder>/<path>"}` (and `bytes` for a write),
+ * never what a file holds; `declined`: the person said no on their computer, `expired`: no one
+ * answered there in time.
+ */
+export const COMPUTER_TOOL_NAMES = { list: "computer_list_folder", read: "computer_read_file", write: "computer_write_file", trash: "computer_trash_file" } as const;
+/** The computer's tools that bring what it holds into the run: words no one in the conversation wrote. */
+export const COMPUTER_READ_TOOLS: ReadonlySet<string> = new Set([COMPUTER_TOOL_NAMES.list, COMPUTER_TOOL_NAMES.read]);
+export const isComputerTool = (name: string) => Object.values(COMPUTER_TOOL_NAMES).some((n) => n === name);
+
 /** What a call to Leafdesk's own tool (no connection) names in place of a connection. */
 export const OWN_TOOLS_NAME = "Leafdesk";
 
@@ -683,10 +695,22 @@ export const mailRun = (source: AgentRunSource): boolean => (source.kind === "ch
 export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "read_mail_attachment", "draft_mail", "sort_mail", "summarize_mail"]);
 
 /**
- * What a run that read email may still call besides the mail tools: reading pages, finding tools,
- * and use_tool, whose writes run.ts refuses on their own.
+ * What a run that read email may still call besides the mail tools: reading pages (and files on
+ * the person's computer, which bring something in but carry nothing out), finding tools, and
+ * use_tool, whose writes run.ts refuses on their own.
  */
-export const READS_AFTER_MAIL: ReadonlySet<string> = new Set(["search_pages", "read_page", "query_database", "list_comments", "page_history", "page_version", "read_attachment", "find_tools", "use_tool"]);
+export const READS_AFTER_MAIL: ReadonlySet<string> = new Set([
+  "search_pages",
+  "read_page",
+  "query_database",
+  "list_comments",
+  "page_history",
+  "page_version",
+  "read_attachment",
+  "find_tools",
+  "use_tool",
+  ...COMPUTER_READ_TOOLS,
+]);
 
 /**
  * Whether a run that read email may make this call: email is anyone's words and could steer it into
@@ -711,14 +735,16 @@ const WEB_TOOLS: ReadonlySet<string> = new Set(Object.values(WEB_TOOL_NAMES));
 /**
  * Whether a run's steps show it read words no one in its conversation wrote: email (readEmail), a
  * web page or search, what a connection's tool answered (failed too: a service's error says what
- * it likes), or another agent's answer, which may carry what that agent read. A chat run that did
- * keeps no correction at once (server/agents/memory.ts).
+ * it likes), a folder or file on the person's computer (anything may have put it there), or
+ * another agent's answer, which may carry what that agent read. A chat run that did keeps no
+ * correction at once (server/agents/memory.ts).
  */
 export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
   readEmail(steps) ||
   steps.some((s) =>
     s.kind === "tool"
-      ? (s.outcome === "done" || s.outcome === "failed") && (s.connectionId !== null || WEB_TOOLS.has(s.tool))
+      ? ((s.outcome === "done" || s.outcome === "failed") && (s.connectionId !== null || WEB_TOOLS.has(s.tool))) ||
+        (s.connectionId === null && s.outcome === "done" && COMPUTER_READ_TOOLS.has(s.tool))
       : s.kind === "handoff" && s.outcome === "done",
   );
 

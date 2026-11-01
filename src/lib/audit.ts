@@ -143,6 +143,7 @@ export const AUDIT_CATEGORIES = {
     "agent.unshared",
     "agent.creator_added",
     "agent.creator_removed",
+    "agent.local_file",
     "review.approved",
     "review.dismissed",
   ],
@@ -520,6 +521,12 @@ export function describeAuditEvent(event: Pick<AuditEvent, "action" | "targetLab
     }
     case "agent.shared":
       values.level = known(t, `audit.agentLevels.${text(d.level)}`, text(d.level));
+      break;
+    case "agent.local_file":
+      // A write or a move to the trash on the person's computer (agents/computer.ts): read as a
+      // choice in the message, with the file's place.
+      values.op = text(d.op);
+      values.path = text(d.path);
       break;
     case "sensitive_content.found":
     case "sensitive_content.dismissed":

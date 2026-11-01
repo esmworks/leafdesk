@@ -1414,7 +1414,8 @@
       "inThread": "Chat de l’agent",
       "onPage": "Sur une page",
       "onClosedPage": "Sur une page que vous ne pouvez pas ouvrir"
-    }
+    },
+    "computerFiles": "Peut utiliser des fichiers de votre ordinateur : {folders}"
   },
   "button": {
     "untitled": "Bouton",

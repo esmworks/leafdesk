@@ -4,6 +4,22 @@
 
 ### Added
 
+- **Agents can use files on your computer, through the desktop app.** *Agent File Access* in the
+  desktop app's menu, off by default, lets you add folders that agents in your own chats may use:
+  while the app is connected, each message you send an agent in the app gets tools to list a
+  folder and read UTF-8 text files there (up to 512 KB), and, if you can edit the agent, to write
+  a file and move one to the trash. The app asks you before every write and move to the trash
+  (agent, workspace, file, size and first lines; no answer within 2 minutes is a no), never deletes
+  for good, keeps every path inside its folder (no `..`, no links leading out), never touches
+  places with keys, passwords or settings (`.ssh`, `.git`, `.env` files, keychains) and keeps a log
+  of every call. The app connects over a new websocket, `/desktop-bridge`, signed in with its
+  session and held to the workspace's sign-in policies; it tells the server only the folders'
+  names. Changes count toward the run's and the agent's daily limits; a run that read email makes
+  none, and what a file holds reaches the model as data from outside, so a correction later in that
+  run is only proposed. Steps show the path and outcome, never contents; writes and moves to the
+  trash are in the audit log (`agent.local_file`). Other people's chats, schedules, mentions and
+  chats from connected apps never get these tools. No migration.
+
 - **Agents keep the corrections you give them in your own chat.** When someone who can edit an
   agent tells it in their chat (its page, a chat block or Telegram) that it got something wrong, or
   must always or never do something, the agent notes it as a correction (`remember` with

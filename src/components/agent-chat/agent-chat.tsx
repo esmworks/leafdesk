@@ -59,6 +59,7 @@ import { AGENT_CHAT_FILE_ACCEPT } from "@/lib/agent-chat-files";
 import { AnswerFiles, FileChips, readChatFiles, useFileProblem } from "./chat-files";
 
 const ChatSearch = lazyPart(() => import("./chat-search").then((m) => m.ChatSearch));
+const ComputerNote = lazyPart(() => import("./computer-note").then((m) => m.ComputerNote));
 
 const NO_SOURCES = new Map();
 const noop = () => {};
@@ -748,6 +749,7 @@ export function AgentChat({
             {error ?? blocked}
           </p>
         )}
+        {info?.computer && <ComputerNote folders={info.computer} />}
         <form
           className={cn("flex flex-wrap items-end gap-2", page && "rounded-xl border border-border bg-bg px-3 py-2 shadow-sm")}
           onSubmit={(e) => {
