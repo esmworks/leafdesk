@@ -199,11 +199,11 @@ export type ChatMessageView = {
 /** `answering`: an answer is on its way in it (maybe asked in another tab, or before a reload). */
 export type ConversationSummary = { id: string; title: string; updatedAt: string; answering?: true };
 
-/** Whether an answer's step kept or dropped a note about the person (declined ones didn't). */
 /** A change that makes a file (of a page, or of a database's rows) and attaches it to a page. */
 export const makesFile = (action: string) => action === "createPdf" || action === "createDocx" || action === "createXlsx";
 
-export const changedMemory = (step: ChatStepView) => step.kind === "memory" && step.outcome !== "declined";
+/** Whether an answer's step kept or dropped a note about the person (declined and undone ones didn't). */
+export const changedMemory = (step: ChatStepView) => step.kind === "memory" && step.outcome !== "declined" && step.outcome !== "undone";
 
 /**
  * Whether an answer's step changed something: a change made in the workspace, a reminder set, or a
