@@ -157,13 +157,13 @@ async function* follow(run: Run, signal?: AbortSignal): AsyncGenerator<RunEvent>
 
 /**
  * Stops the person's answer: true when it was on its way. One that hasn't started yet (the Stop
- * came first) is stopped as it starts.
+ * came first), or that goes on again under the id of one that ended (openRun), is stopped as it
+ * starts.
  */
 export function stopRun(userId: string, runId: string): boolean {
   const run = store.runs.get(runId);
-  if (run) {
-    if (run.userId !== userId) return false;
-    if (run.ended) return false;
+  if (run && run.userId !== userId) return false;
+  if (run && !run.ended) {
     run.controller.abort();
     return true;
   }
@@ -172,9 +172,6 @@ export function stopRun(userId: string, runId: string): boolean {
   if (store.earlyStops.size < MAX_EARLY_STOPS) store.earlyStops.set(`${userId}:${runId}`, now);
   return false;
 }
-
-/** Whether an answer has that id here: on its way, or ended a moment ago. */
-export const knownRun = (runId: string) => store.runs.has(runId);
 
 /** Stops the person's answers in these conversations (being deleted), or in all of theirs in the workspace. */
 export function stopRunsIn(userId: string, workspaceId: string, conversationIds: string[] | "all") {

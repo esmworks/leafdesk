@@ -204,7 +204,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   the run's turns with the model (`converse`, on the turn loop `src/server/assistant/turns.ts`
   `runTurns` that the AI chat's `converseChat` shares: hooks for limits, counting, making room and
   answering calls; Stop is `run.ts` `stopRun`, through `globalThis.__leafdeskAgentChatStops`,
-  ending with code `stopped`); what a run is offered and how each tool call is
+  ending with code `stopped`; one a worker has but isn't answering here is marked
+  `agent_run.stop_asked_at`, which `processRun` reads before it answers, never an in-memory
+  note that a restart or a run taken again would lose); what a run is offered and how each tool call is
   answered (waits, counts, refusals) is `src/server/assistant/dispatch.ts`
   (`setUpRun`, `createDispatch`). Every run is started through `server/triggers.ts`
   `startTriggered` (a target agent or `{ self }` for the person's own AI chat, the source, and a

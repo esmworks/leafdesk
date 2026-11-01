@@ -505,8 +505,10 @@
   tool, offered only then.
 - **Stop an agent's answer.** While an agent answers in its chat, the box's Stop button ends the
   answer at once and keeps what it wrote so far, marked *Stopped*; a message it hasn't started on
-  yet ends before it starts, also when the agent has just taken it up. Nobody is notified, and the next message goes as usual. The REST API
-  and MCP show such a run as failed with the code `stopped`.
+  yet ends before it starts, also when the agent has just taken it up, is taking it up again after
+  an approval, or was answering on a server that stopped (it ends within a few minutes then, not
+  after ten, and never asks the model). Nobody is notified, and the next message goes as usual. The
+  REST API and MCP show such a run as failed with the code `stopped`. Migration 0187.
 - **The AI chat and agents answer with the same turns.** Asking the model, making room when a
   conversation grows too long for it, and the last turn answering with what it has now run the same
   way for both, so a fix in one is a fix in the other.

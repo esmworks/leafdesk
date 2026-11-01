@@ -160,6 +160,12 @@ export const agentRun = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     startedAt: timestamp("started_at", { withTimezone: true }),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
+    /**
+     * A chat run its person stopped while the worker had it but it wasn't answering here (taken a
+     * moment ago, or left running by a stopped server): it ends as stopped as it starts
+     * (server/agents/run.ts stopRun). Cleared when it parks: what it asks then is a new question.
+     */
+    stopAskedAt: timestamp("stop_asked_at", { withTimezone: true }),
   },
   (t) => [
     index("agent_run_due_idx").on(t.status, t.nextAt),

@@ -509,6 +509,10 @@ try {
   const earlyRun = runs.openRun({ id: early, userId: dave, workspaceId, conversationId: null })!;
   check(earlyRun.controller.signal.aborted, "a Stop sent before the answer started stops it as it starts");
   runs.dropRun(earlyRun);
+  // So does the Stop of an answer that ended, for one going on again under its id (resumeChatRun).
+  const resumed = runs.openRun({ id: story.id, userId: dave, workspaceId, conversationId: stopped.conversationId })!;
+  check(resumed.controller.signal.aborted, "…as does one sent once its answer ended, for an answer going on again under its id");
+  runs.dropRun(resumed);
 
   // The page that asked goes (reloaded, closed) while the answer is on its way: it goes on, is
   // saved, and the page coming back follows it again from its start.

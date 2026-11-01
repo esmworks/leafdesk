@@ -213,15 +213,24 @@ try {
   check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: notStarted.runId! })).stopped, "Stop on an answer not started yet ends it");
   const [stoppedEarly] = await db.select().from(agentRun).where(eq(agentRun.id, notStarted.runId!));
   check(stoppedEarly.status === "failed" && stoppedEarly.code === "stopped" && stoppedEarly.startedAt === null, "…before the worker takes it, as stopped", stoppedEarly);
-  // Taken by the worker but not answering yet: the Stop waits for it to start.
+  // Taken by a worker that isn't answering it here (it stopped with the server that ran it): marked,
+  // it ends as stopped once taken again, a few minutes after it last said it was under way.
   const justTaken = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "And this one" });
-  await db.update(agentRun).set({ status: "running" }).where(eq(agentRun.id, justTaken.runId!));
-  check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: justTaken.runId! })).stopped, "Stop on an answer the agent has just taken up ends it");
-  await db.update(agentRun).set({ status: "pending" }).where(eq(agentRun.id, justTaken.runId!));
+  await db
+    .update(agentRun)
+    .set({ status: "running", attempts: 1, startedAt: new Date(), nextAt: new Date(Date.now() - 4 * 60_000) })
+    .where(eq(agentRun.id, justTaken.runId!));
+  check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: justTaken.runId! })).stopped, "Stop on an answer a worker has but isn't writing here ends it");
+  const [markedTaken] = await db.select().from(agentRun).where(eq(agentRun.id, justTaken.runId!));
+  check(markedTaken.status === "running" && markedTaken.stopAskedAt !== null, "…marked, while the worker still has it", { status: markedTaken.status, stopAskedAt: markedTaken.stopAskedAt });
   const chatsBefore = fake.chats.length;
   await flushAgentRuns();
   const [stoppedTaken] = await db.select().from(agentRun).where(eq(agentRun.id, justTaken.runId!));
-  check(stoppedTaken.status === "failed" && stoppedTaken.code === "stopped" && fake.chats.length === chatsBefore, "…as it starts, without asking the model", { status: stoppedTaken.status, code: stoppedTaken.code });
+  check(
+    stoppedTaken.status === "failed" && stoppedTaken.code === "stopped" && fake.chats.length === chatsBefore,
+    "…and taken again, it ends as stopped without asking the model",
+    { status: stoppedTaken.status, code: stoppedTaken.code },
+  );
   const long = Array.from({ length: 60 }, (_, i) => `word${i}`).join(" ");
   fake.setChat(() => ({ text: long }));
   fake.delayMs = 15;
@@ -248,6 +257,19 @@ try {
     { status: stoppedRun.status, code: stoppedRun.code, answer: stoppedRun.answer },
   );
   check(!(await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! })).stopped, "…and Stop on an ended answer does nothing");
+  // Taken up again under the id of that answer, which ended here a moment ago (as after an
+  // approval): not while its answer is over and being saved, but once a worker has it again.
+  const stops = (globalThis as { __leafdeskAgentChatStops?: Map<string, AbortController | null> }).__leafdeskAgentChatStops!;
+  await db.update(agentRun).set({ status: "running" }).where(eq(agentRun.id, stopping.runId!));
+  stops.set(stopping.runId!, null);
+  const whileSaved = await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! });
+  const [unmarked] = await db.select({ at: agentRun.stopAskedAt }).from(agentRun).where(eq(agentRun.id, stopping.runId!));
+  stops.delete(stopping.runId!);
+  const retaken = await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! });
+  const [remarked] = await db.select({ at: agentRun.stopAskedAt }).from(agentRun).where(eq(agentRun.id, stopping.runId!));
+  await db.update(agentRun).set({ status: stoppedRun.status, stopAskedAt: null }).where(eq(agentRun.id, stopping.runId!));
+  check(!whileSaved.stopped && unmarked.at === null, "Stop on an answer being saved comes too late", { whileSaved, unmarked });
+  check(retaken.stopped && remarked.at !== null, "…and on one taken up again under the id of an answer that ended here, it is marked", { retaken, remarked });
   const afterStop = await chat.getAgentConversation(ids.owner, workspaceId, helper.id, first.conversation.id, null);
   check(afterStop.running === null, "the conversation is free for the next message", afterStop.running);
 

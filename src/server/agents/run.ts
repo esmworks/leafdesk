@@ -81,7 +81,7 @@ import { ANSWER_CHARS, answerEvents } from "./answer-text";
 import { threadBefore } from "@/lib/comments";
 import { findMembership, hasLevel, inWorkspace, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
-import { endRun, knownRun, openRun, publish, stopRun as stopAnswer, type ChatRun } from "@/server/ai-chat-runs";
+import { endRun, openRun, publish, type ChatRun } from "@/server/ai-chat-runs";
 import { aiConfig, AiError, isAiError, promptRoomFor, takeWorkspaceCapacity, type AiMessage, type AiToolCall } from "@/server/ai";
 import { agentChatPrompt, agentEventPrompt, agentMailPrompt, agentMentionPrompt, agentRequestPrompt, agentSchedulePrompt, agentSystemPrompt, agentTaskPrompt } from "@/server/ai/prompts";
 import { aiAvailable } from "@/server/ai-writing";
@@ -125,6 +125,11 @@ const SWEEP_INTERVAL_MS = 5_000;
 const STALE_MS = 10 * 60_000;
 /** How often a run under way says so, well within STALE_MS, however long a turn or a tool takes. */
 const HEARTBEAT_MS = 60_000;
+/**
+ * A run its person stopped before it answered here that hasn't said it is under way for this long
+ * was left by a worker that stopped: it's taken again sooner than STALE_MS, to end as stopped.
+ */
+const STOPPED_STALE_MS = 3 * HEARTBEAT_MS;
 /** A run taken this many times (waiting for the AI allowance, or stopping the worker) fails. */
 const MAX_CLAIMS = 40;
 /** The most of the prompt the map of the workspace may take. */
@@ -161,7 +166,8 @@ async function claim(limit: number): Promise<(typeof agentRun.$inferSelect)[]> {
     where id in (
       select id from ${agentRun}
       where ((status = 'pending' and next_at <= now())
-         or (status = 'running' and next_at <= now() - make_interval(secs => ${STALE_MS / 1000})))
+         or (status = 'running' and next_at <= now() - make_interval(secs => ${STALE_MS / 1000}))
+         or (status = 'running' and stop_asked_at is not null and next_at <= now() - make_interval(secs => ${STOPPED_STALE_MS / 1000})))
       order by next_at
       limit ${limit}
       for update skip locked
@@ -174,19 +180,22 @@ async function claim(limit: number): Promise<(typeof agentRun.$inferSelect)[]> {
 }
 
 /**
- * The chat answers under way in this process, by run, for Stop (`stopRun`). On globalThis: the
- * server action asking runs in Next's bundle, the worker in server.ts's module graph.
+ * The chat answers under way in this process, by run, for Stop (`stopRun`): null once its answer is
+ * over and being saved. On globalThis: the server action asking runs in Next's bundle, the worker in
+ * server.ts's module graph.
  */
-const answering = ((globalThis as { __leafdeskAgentChatStops?: Map<string, AbortController> }).__leafdeskAgentChatStops ??= new Map());
+const answering = ((globalThis as { __leafdeskAgentChatStops?: Map<string, AbortController | null> }).__leafdeskAgentChatStops ??= new Map());
 
 /**
- * Stops a chat run its person (`userId`) asked to stop: one answering ends at once with what it
- * wrote so far (code `stopped`, which tells no one); one not started yet ends before the worker
- * takes it; one the worker took but that isn't answering yet stops as it starts (the answers' store
- * keeps the Stop for it). False when it was none of these (it ended already, or waits for an approval).
+ * Stops a chat run its person asked to stop: one answering ends at once with what it wrote so far
+ * (code `stopped`, which tells no one); one not started yet ends before the worker takes it; one
+ * the worker has but that isn't answering here (taken a moment ago, again after an approval, or
+ * left running by a stopped server) is marked (`stop_asked_at`) and ends as it starts. False when
+ * it was none of these (it ended already, its answer is being saved, or it waits for an approval).
  */
-export async function stopRun(runId: string, userId: string): Promise<boolean> {
+export async function stopRun(runId: string): Promise<boolean> {
   const controller = answering.get(runId);
+  if (controller === null) return false;
   if (controller) {
     controller.abort();
     return true;
@@ -200,13 +209,16 @@ export async function stopRun(runId: string, userId: string): Promise<boolean> {
     await finish(taken, { status: "failed", code: "stopped", answer: "" });
     return true;
   }
-  // One that answered here has ended already.
-  if (knownRun(runId)) return false;
-  const [now] = await db.select({ status: agentRun.status }).from(agentRun).where(eq(agentRun.id, runId));
-  if (now?.status !== "running") return false;
-  stopAnswer(userId, runId);
-  // Or it started answering meanwhile.
-  answering.get(runId)?.abort();
+  const [marked] = await db
+    .update(agentRun)
+    .set({ stopAskedAt: new Date() })
+    .where(and(eq(agentRun.id, runId), eq(agentRun.status, "running")))
+    .returning({ id: agentRun.id });
+  if (!marked) return false;
+  // It may have started answering while the mark was written, after processRun looked for one.
+  const started = answering.get(runId);
+  if (started === null) return false;
+  started?.abort();
   return true;
 }
 
@@ -332,10 +344,23 @@ async function park(run: Run, agent: Agent, values: { state: AgentRunState; pend
       usage: values.usage,
       // Taking it again for an answer is no failed attempt.
       attempts: 0,
+      // A Stop that came as it asked is answered by the approval it asks for now.
+      stopAskedAt: null,
       nextAt: deferred ?? new Date(Date.now() + APPROVAL_TIMEOUT_MS),
     })
     .where(eq(agentRun.id, run.id));
   if (!deferred) await notifyApprovers(run, agent.userId);
+}
+
+/**
+ * A chat run its person stopped before it answered here (stopRun's mark): its answer is stopped
+ * before it starts, so it ends as stopped without asking the model. Read once it can be stopped
+ * directly (`answering`), so a Stop coming meanwhile reaches it one way or the other.
+ */
+async function heedEarlierStop(runId: string, stop: AbortController | null) {
+  if (!stop) return;
+  const [asked] = await db.select({ at: agentRun.stopAskedAt }).from(agentRun).where(eq(agentRun.id, runId));
+  if (asked?.at) stop.abort();
 }
 
 // -------------------------------------------------------------------------------------- run
@@ -473,11 +498,13 @@ export async function processRun(run: Run): Promise<void> {
     if (live) publish(live, { type: "done", stopReason: "stop", ms: Date.now() - started });
   };
   try {
-    const outcome = await withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites, moreTools, live, signal: stop?.signal }))
+    const outcome = await heedEarlierStop(run.id, stop)
+      .then(() => withinMember(agent, bound, () => converse(agent, run, { member, bound, trusted, chatWrites, moreTools, live, signal: stop?.signal })))
       .catch((error: unknown) => ({ error }))
       .finally(() => {
         clearInterval(heartbeat);
-        answering.delete(run.id);
+        // Its answer is over: a Stop now comes too late, until it is saved (below).
+        if (stop) answering.set(run.id, null);
         void moreTools.close();
       });
     if ("error" in outcome) {
@@ -497,6 +524,7 @@ export async function processRun(run: Run): Promise<void> {
     return await ended(outcome);
   } finally {
     // However it went: one waiting for an approval, or put back for later, opens again when it goes on.
+    if (stop) answering.delete(run.id);
     if (live) endRun(live);
   }
 }
