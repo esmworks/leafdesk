@@ -187,12 +187,22 @@ button puts it off as the inbox's snooze does (not on agents' requests to go ahe
 only so long). People who linked Telegram get the same notifications there too (see
 [AI chat from Telegram](ai.md#ai-chat-from-telegram)), with a Telegram column of their own.
 
-Push is off until the server has a VAPID key pair. Make one and add the printed lines to `.env`:
+Push is off until the server has a VAPID key pair. Notifications don't go from your server to the
+device: the server hands each one to the push service of the person's browser (Apple's, Google's,
+Mozilla's), which delivers it. A device that turns push on ties its subscription to your public
+key, and the server signs every message with the private key, so only your server can send to
+those devices. Making the keys costs nothing and needs no account anywhere. Make a pair and add the
+printed lines to `.env` (on Dokploy, to the application's **Environment**, then deploy again):
 
 ```bash
 pnpm push:keys mailto:ops@example.com
 # Docker: docker compose run --rm app tsx scripts/generate-vapid-keys.ts mailto:ops@example.com
 ```
+
+The argument is a contact for the push services, written either as `mailto:` and an email address
+or as an `https:` address (`https://notes.example.com`), not both. No mail goes to it and nothing
+is checked: a push service uses it only to reach you if your server misbehaves. Several servers
+may share one key pair; make it once and keep it.
 
 | Variable | Meaning |
 | --- | --- |
