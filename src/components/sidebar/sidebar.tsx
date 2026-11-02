@@ -49,7 +49,7 @@ import {
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { listFavoritesAction } from "@/app/actions/page-menu";
 import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction, restorePageAction } from "@/app/actions/pages";
 import { showToast } from "@/components/toast";
@@ -2178,10 +2178,12 @@ function ResizeHandle() {
 }
 
 /**
- * The sidebar's tabs, as wide as what they show and from the start, so their icons line up with the
- * rows under them: the open one with its name beside its icon, the others only their icons.
- * Pointing at another (or reaching it from the keyboard) shows its name while the open one folds to
- * its icon, so one name shows at a time.
+ * The sidebar's tabs, as wide as what they show, so their icons line up with the rows under them:
+ * the open one with its name beside its icon, the others only their icons (their names in a
+ * tooltip). Pointing at a tab never changes its width: a tab that widened under the pointer moved
+ * the others under it too, and a pointer resting near a tab's edge flipped between two tabs for as
+ * long as it stayed. The open one's name shows only where all of it fits beside the others' icons,
+ * decided from the strip's width (the sidebar's, whatever the tabs show) and the name's own width.
  */
 const countText = (count: number) => (count > 99 ? "99+" : String(count));
 
@@ -2202,68 +2204,93 @@ function SidebarTabs({
     onClick: () => void;
   }[];
 }) {
+  const listRef = useRef<HTMLDivElement>(null);
+  const [nameFits, setNameFits] = useState(true);
+  // What the open tab's name needs: measured again when the tab, a name or a count changes.
+  const measureKey = tabs.map((tab) => `${tab.selected ? "*" : ""}${tab.label}${tab.count ? countText(tab.count.value) : ""}`).join("|");
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const check = () => {
+      const tab = list.querySelector<HTMLElement>("[aria-selected=true]");
+      const icon = tab?.firstElementChild;
+      const name = tab?.querySelector<HTMLElement>("[data-tab-name]");
+      if (!tab || !icon || !name) return;
+      // An icon-only tab's width from its padding and icon, never from a tab, whose width may be
+      // on its way between the two.
+      const style = getComputedStyle(tab);
+      const iconTab = parseFloat(style.paddingInlineStart) + parseFloat(style.paddingInlineEnd) + icon.getBoundingClientRect().width;
+      const gap = parseFloat(getComputedStyle(list).columnGap) || 0;
+      const count = list.children.length;
+      setNameFits(list.clientWidth >= count * iconTab + (count - 1) * gap + name.offsetWidth);
+    };
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(list);
+    void document.fonts?.ready.then(check);
+    return () => observer.disconnect();
+  }, [measureKey]);
+
   return (
-    <div role="tablist" aria-label={label} className="group/tabs mt-0.5 flex gap-0.5">
-      {tabs.map((tab) => (
-        <button
-          key={tab.key}
-          type="button"
-          role="tab"
-          aria-selected={tab.selected}
-          onClick={tab.onClick}
-          disabled={tab.disabled}
-          title={tab.title}
-          data-other-tab={tab.selected ? undefined : ""}
-          className={cn(
-            "group/tab flex h-7 min-w-0 items-center rounded-md px-2 disabled:opacity-50",
-            tab.selected
-              ? "bg-bg-active font-medium text-fg"
-              : "text-fg-muted hover:bg-bg-hover hover:text-fg",
-          )}
-        >
-          {tab.count ? (
-            <span className="relative flex shrink-0">
-              {tab.icon}
-              {/* On the icon's corner while the name is folded away, ringed in the tab's own color so
-                  it doesn't blur into the icon; beside the name while that shows. */}
-              <span
-                aria-hidden
-                className={cn(
-                  "absolute -end-1.5 -top-1.5 min-w-3.5 rounded-full bg-danger px-[3px] text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums ring-2 transition-opacity duration-200 motion-reduce:transition-none",
-                  tab.selected
-                    ? "opacity-0 ring-bg-active group-has-[[data-other-tab]:hover]/tabs:opacity-100 group-has-[[data-other-tab]:focus-visible]/tabs:opacity-100"
-                    : "ring-bg-subtle group-hover/tab:opacity-0 group-focus-visible/tab:opacity-0",
-                )}
-              >
-                {countText(tab.count.value)}
-              </span>
-              <span className="sr-only">{tab.count.label}</span>
-            </span>
-          ) : (
-            tab.icon
-          )}
-          {/* A column that opens from nothing to the name's width, so the name slides in. */}
-          <span
+    <div ref={listRef} role="tablist" aria-label={label} className="mt-0.5 flex gap-0.5">
+      {tabs.map((tab) => {
+        const named = tab.selected && nameFits;
+        return (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            aria-selected={tab.selected}
+            onClick={tab.onClick}
+            disabled={tab.disabled}
+            title={tab.title ?? (named ? undefined : tab.label)}
             className={cn(
-              "grid min-w-0 transition-[grid-template-columns] duration-200 ease-out motion-reduce:transition-none",
-              tab.selected
-                ? "grid-cols-[1fr] group-has-[[data-other-tab]:hover]/tabs:grid-cols-[0fr] group-has-[[data-other-tab]:focus-visible]/tabs:grid-cols-[0fr]"
-                : "grid-cols-[0fr] group-hover/tab:grid-cols-[1fr] group-focus-visible/tab:grid-cols-[1fr]",
+              "group/tab flex h-7 min-w-0 items-center rounded-md px-2 disabled:opacity-50",
+              tab.selected ? "bg-bg-active font-medium text-fg" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
             )}
           >
-            <span className="min-w-0 overflow-hidden">
-              <span className="flex items-center gap-1.5 ps-1.5">
-                <span className="min-w-0 truncate">{tab.label}</span>
-                {tab.count && (
-                  <span aria-hidden className="min-w-4 shrink-0 rounded-full bg-danger px-1 text-center text-[10px] leading-4 font-semibold text-white tabular-nums">
-                    {countText(tab.count.value)}
-                  </span>
-                )}
+            {tab.count ? (
+              <span className="relative flex shrink-0">
+                {tab.icon}
+                {/* On the icon's corner while the name is folded away, ringed in the tab's own color so
+                    it doesn't blur into the icon; beside the name while that shows. */}
+                <span
+                  aria-hidden
+                  className={cn(
+                    "absolute -end-1.5 -top-1.5 min-w-3.5 rounded-full bg-danger px-[3px] text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums ring-2 transition-opacity duration-200 ease-out motion-reduce:transition-none",
+                    tab.selected ? "ring-bg-active" : "ring-bg-subtle group-hover/tab:ring-bg-hover",
+                    named && "opacity-0",
+                  )}
+                >
+                  {countText(tab.count.value)}
+                </span>
+                <span className="sr-only">{tab.count.label}</span>
+              </span>
+            ) : (
+              tab.icon
+            )}
+            {/* A column that opens from nothing to the name's width while the name fades in, so the
+                name slides in whole: it is clipped on the way, never cut short with an ellipsis. */}
+            <span
+              className={cn(
+                "grid min-w-0 transition-[grid-template-columns,opacity] duration-200 ease-out motion-reduce:transition-none",
+                named ? "grid-cols-[1fr] opacity-100" : "grid-cols-[0fr] opacity-0",
+              )}
+            >
+              <span className="min-w-0 overflow-hidden">
+                <span data-tab-name="" className="flex w-max items-center gap-1.5 ps-1.5 whitespace-nowrap">
+                  {tab.label}
+                  {tab.count && (
+                    <span aria-hidden className="min-w-4 shrink-0 rounded-full bg-danger px-1 text-center text-[10px] leading-4 font-semibold text-white tabular-nums">
+                      {countText(tab.count.value)}
+                    </span>
+                  )}
+                </span>
               </span>
             </span>
-          </span>
-        </button>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 }

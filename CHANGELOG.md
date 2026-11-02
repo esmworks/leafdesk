@@ -47,6 +47,11 @@
 
 ### Fixed
 
+- **The sidebar's tabs stay still under the pointer.** Pointing at a tab showed its name while the
+  open one folded, which moved the tabs under the pointer; resting near a tab's edge flipped them
+  back and forth for as long as it stayed, with names cut to a letter or two. Pointing now only
+  highlights a tab and shows its name in a tooltip; the open tab's name slides and fades in when you
+  switch, and shows only where all of it fits, otherwise the tab shows its icon alone.
 - **Putting the phone's keyboard away saves a cell you were typing in.** Done on the keyboard closed
   the keyboard but left a table cell's or a row's text value open over the table; now leaving the
   field saves it and closes it, as Enter and a click elsewhere do.
