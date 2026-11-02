@@ -62,10 +62,14 @@ export function splitViewers<T>(viewers: T[], max = MAX_AVATARS): { shown: T[]; 
   return { shown: viewers.slice(0, max - 1), more: viewers.length - max + 1 };
 }
 
-/** The letter on an avatar: the first character of the name, as the members list shows it. */
-export function initialOf(name: string) {
+/**
+ * The letter on an avatar: the first character of the name, as the members list shows it, made
+ * upper case by the page's language (`locale`), which the server and the browser share: by the
+ * browser's own, a Turkish one would make "iOS" an "İ" where the server wrote "I".
+ */
+export function initialOf(name: string, locale?: string) {
   const first = [...name.trim()][0];
-  return first ? first.toLocaleUpperCase() : "?";
+  return first ? first.toLocaleUpperCase(locale) : "?";
 }
 
 /** Text color for initials on a `#rrggbb` background. */

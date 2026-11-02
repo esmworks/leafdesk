@@ -99,6 +99,9 @@ describe("avatars", () => {
     expect(initialOf("  Ümit  ")).toBe("Ü");
     expect(initialOf("😀 Smile")).toBe("😀");
     expect(initialOf(" ")).toBe("?");
+    // By the page's language, not the runtime's, so the server and a Turkish browser agree.
+    expect(initialOf("iOS", "en")).toBe("I");
+    expect(initialOf("iOS", "tr")).toBe("İ");
   });
 
   it("picks readable text on the cursor colors", () => {

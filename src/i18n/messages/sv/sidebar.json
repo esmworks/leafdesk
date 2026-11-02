@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Öppna sidofältet",
     "close": "Dölj sidofältet",
-    "resize": "Dra för att ändra storlek",
-    "pin": "Håll sidofältet öppet"
+    "resize": "Dra för att ändra storlek"
   },
   "pages": {
     "heading": "Sidor",

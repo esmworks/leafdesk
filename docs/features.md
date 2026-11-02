@@ -40,12 +40,13 @@
   back to its top. Quotes typed in a page become typographic ones (“ ” ‘ ’, ’ in "don’t"), except in
   code, code blocks, equations and diagram sources; Backspace right after one gives back the
   straight quote.
-- **Sidebar**: a rail of icons down its edge and a panel beside it. From the top, the rail holds
-  the workspace (its menu switches workspaces), *Search*, then the places: *Home* (your pages),
-  *My tasks*, *Meetings*, *Journal*, *Chat*, *Mail* and *Agents* (the last four when you have them);
-  at its foot the inbox with its count, Settings, and your picture, which opens the account menu.
+- **Sidebar**: the workspace's name across its top (its menu switches workspaces), a rail of icons
+  down its edge and a panel beside it. From the top, the rail holds *Search*, then the places:
+  *Home* (your pages), *My tasks*, *Meetings*, *Journal*, *Chat*, *Mail* and *Agents* (the last
+  four when you have them); at its foot a button that hides or shows the panel, the inbox with its
+  count, Settings, and your picture, which opens the account menu.
   The panel shows the place picked: its name, what it starts (a new page, today's note, a new chat
-  or message) and its list. Hide the panel with its `«` button or `Cmd/Ctrl+\` and the rail stays:
+  or message) and its list. Hide the panel with that button or `Cmd/Ctrl+\` and the rail stays:
   pointing at a place slides the panel out with that place's list, and clicking one brings the
   panel back. Drag the panel's edge to make it wider. ↑ and ↓ move between the rail's places. On a
   phone both come in a drawer.

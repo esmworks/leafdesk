@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Otwórz pasek boczny",
     "close": "Ukryj pasek boczny",
-    "resize": "Przeciągnij, aby zmienić rozmiar",
-    "pin": "Pozostaw pasek boczny otwarty"
+    "resize": "Przeciągnij, aby zmienić rozmiar"
   },
   "pages": {
     "heading": "Strony",

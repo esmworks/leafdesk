@@ -30,13 +30,15 @@
 
 ### Changed
 
-- **The sidebar's places are a rail of icons down its edge.** The workspace, Search, Home, My
-  tasks, Meetings, Journal, Chat, Mail and Agents sit one under another, with the inbox, Settings
-  and your picture at the foot; the panel beside the rail shows the place picked under its name,
-  with what that place starts (a new page, today's note, a new chat or message). My tasks and
-  Meetings left the sidebar's sections for the rail; layouts saved with them still load. Hiding the
-  panel keeps the rail: pointing at a place slides the panel out with its list, clicking one brings
-  the panel back. On a phone the drawer holds both. The Trash moved into the account menu.
+- **The sidebar's places are a rail of icons down its edge.** The workspace's name runs across the
+  top of the sidebar and opens the menu that switches workspaces. Under it, Search, Home, My tasks,
+  Meetings, Journal, Chat, Mail and Agents sit one under another, with a button that hides or shows
+  the panel, the inbox, Settings and your picture at the foot; the panel beside the rail shows the
+  place picked under its name, with what that place starts (a new page, today's note, a new chat
+  or message). My tasks and Meetings left the sidebar's sections for the rail; layouts saved with
+  them still load. Hiding the panel keeps the rail: pointing at a place slides the panel out with
+  its list, clicking one brings the panel back. On a phone the drawer holds both. The Trash moved
+  into the account menu.
 - **The search box is quieter and shows where you have been.** Its filters sit in one row of
   plain words with *Include archived* beside them, the pages you opened last are listed under
   *Today*, *Yesterday*, *Previous 7 days* and *Older* with the page or database each sits in, and
@@ -83,6 +85,9 @@
 
 ### Fixed
 
+- **A name starting with "i" no longer redraws the page in a Turkish browser.** The letter on a
+  picture-less avatar and on a mailbox's mark is upper-cased by the page's language, not the
+  browser's, so the server and the browser write the same one.
 - **The sidebar's tabs stay still under the pointer.** Pointing at a tab showed its name while the
   open one folded, which moved the tabs under the pointer; resting near a tab's edge flipped them
   back and forth for as long as it stayed, with names cut to a letter or two. Pointing now only

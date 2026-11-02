@@ -36,8 +36,7 @@
   "toggle": {
     "open": "打开侧边栏",
     "close": "隐藏侧边栏",
-    "resize": "拖动以调整大小",
-    "pin": "保持侧边栏打开"
+    "resize": "拖动以调整大小"
   },
   "pages": {
     "heading": "页面",

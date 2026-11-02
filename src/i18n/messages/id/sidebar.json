@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Buka bilah samping",
     "close": "Sembunyikan bilah samping",
-    "resize": "Seret untuk mengubah ukuran",
-    "pin": "Biarkan bilah samping terbuka"
+    "resize": "Seret untuk mengubah ukuran"
   },
   "pages": {
     "heading": "Halaman",
