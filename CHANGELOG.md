@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.7.1 — 2026-11-03
+
+### Upgrading from 0.7.0
+
+- **Back up the database first.** Migrations 0188 to 0191 run automatically when the container
+  starts (from source, run `pnpm db:migrate`). They add the workspace, teamspace and personal AI
+  notes (`0188_memory_layers`), the Focus and Other inbox tabs with blocked senders
+  (`0189_mail_sender_rules`), the AI chat's waiting and unread marks (`0190_chat_run_status`) and
+  each agent's thinking level (`0191_agent_thinking`).
+- **No new settings.** `docker-compose.yml` and `.env` stay as they are.
+
 ### Added
 
 - **A board column's menu moves all its cards at once.** *Move all cards to* takes every card to
@@ -116,7 +127,6 @@
   settings kept running the previous version until the app was closed, and their actions failed.
   Every workspace screen now asks the server's version as it comes back into view, goes online
   again or every 15 minutes while it stays open, and asks to reload when it changed.
-
 - **An agent's schedule can add rows to the database it looks after.** Its runs could change and
   comment on that database's rows but not add new ones, so a schedule that keeps a database in step
   with a spreadsheet or another source listed the new rows for you to add by hand. They now add
