@@ -117,6 +117,10 @@
   Safari.** The title, banners and view bar that stay in place as the table scrolls sideways made
   Safari draw every cell as a layer of its own, so a fast scroll outran its drawing. A table with
   frozen columns can still show a few empty rows at the bottom while scrolling very fast.
+- **Next.js 16.4.3, for its security fixes.** 16.4.1 closed remote code execution in `use cache`
+  functions returning typed arrays and in image optimization of SVG files, and a denial of service
+  through Server Actions. Next.js now asks for sharp 0.35.5 itself, so the override pinning it is
+  gone.
 
 ## 0.7.0 — 2026-11-02
 

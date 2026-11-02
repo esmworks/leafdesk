@@ -12,10 +12,6 @@ allowBuilds:
   unrs-resolver: false
 
 overrides:
-  # Next.js asks for ^0.35.4; 0.35.5 bundles librsvg 2.63.2 (from 2.62.91), with a security fix for
-  # SVG decoding.
-  # Drop this once Next.js resolves 0.35.5 or later on its own.
-  sharp: 0.35.5
   # Mermaid's parser library (chevrotain 11) still asks for a lodash-es with the `_.template` and
   # `_.unset`/`_.omit` advisories; 4.18 is the same API. Drop once chevrotain no longer needs it.
   'lodash-es@<4.17.24': 4.18.1
