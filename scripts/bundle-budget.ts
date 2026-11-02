@@ -149,9 +149,10 @@ import { gzipSync } from "node:zlib";
  * budget.
  * Taps on a table's cells on a touch screen (a tap selects, a double tap edits, a tap on the
  * selected cell opens its menu, which loads when first touched) add under 1 kB to a page's route,
- * which stood at its budget.
+ * which stood at its budget; saving a cell's text when its field loses focus (the phone keyboard's
+ * Done) a few dozen bytes more.
  */
-const BUDGET = { routeFirstLoad: 797, firstLoadShared: 1230, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 798, firstLoadShared: 1230, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

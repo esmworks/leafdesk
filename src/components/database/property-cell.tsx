@@ -989,6 +989,8 @@ function TextEditor({
   const [draft, setDraft] = useState(startWith || initial);
   const [invalid, setInvalid] = useState(false);
   const input = useRef<HTMLTextAreaElement>(null);
+  // Set once the editor has closed, so the blur that follows doesn't save it again.
+  const closed = useRef(false);
 
   useEffect(() => {
     const el = input.current;
@@ -1015,6 +1017,7 @@ function TextEditor({
       }
       if (parsed !== undefined) onChange(parsed);
     }
+    closed.current = true;
     onClose();
     return true;
   };
@@ -1027,6 +1030,12 @@ function TextEditor({
         value={draft}
         inputMode={inputModeOf(prop)}
         aria-label={prop.name}
+        onBlur={() => {
+          // Focus leaving the field saves and closes it, as the keyboard's Done does on a phone. Not
+          // while the window itself loses focus (another app), which gives it back on return.
+          if (closed.current || !document.hasFocus()) return;
+          commit();
+        }}
         onChange={(e) => {
           setDraft(prop.type === "text" ? e.target.value : e.target.value.replace(/\n/g, ""));
           setInvalid(false);
@@ -1039,6 +1048,7 @@ function TextEditor({
             // Before the panel's own Esc, which saves: a key typed on a cell by mistake leaves its value as it was.
             e.preventDefault();
             e.stopPropagation();
+            closed.current = true;
             onClose();
           } else if (e.key === "Tab" && onTab && !e.nativeEvent.isComposing) {
             e.preventDefault();
@@ -1050,16 +1060,19 @@ function TextEditor({
           prop.type === "number" && "tabular-nums",
         )}
       />
-      {invalid && (
-        <div className="border-t border-border px-2 py-1 text-xs text-danger">
-          {t(invalidInputHint(prop))}
-        </div>
-      )}
-      {quickAdd && (
-        <div className="px-2 pb-1.5 empty:hidden">
-          <QuickAddParts quick={quickAdd} text={draft} />
-        </div>
-      )}
+      {/* A press here keeps the focus in the field, which would save and close on losing it. */}
+      <div onMouseDown={(e) => e.preventDefault()}>
+        {invalid && (
+          <div className="border-t border-border px-2 py-1 text-xs text-danger">
+            {t(invalidInputHint(prop))}
+          </div>
+        )}
+        {quickAdd && (
+          <div className="px-2 pb-1.5 empty:hidden">
+            <QuickAddParts quick={quickAdd} text={draft} />
+          </div>
+        )}
+      </div>
     </Floating>
   );
 }
