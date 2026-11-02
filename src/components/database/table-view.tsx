@@ -15,6 +15,7 @@ import { canBeUnique } from "@/lib/unique-values";
 import type { RowColors } from "@/lib/color-rules";
 import { valueType } from "@/lib/derived";
 import { arrangeGroups, canAddToGroup, groupDefaults, groupRowsBy, type Group } from "@/lib/grouping";
+import { requestComments } from "@/lib/comments-request";
 import { isEmptyValue, lostValues, planConversion } from "@/lib/convert-property";
 import { isGroupableProperty, isSortable, moveProperty } from "@/lib/properties";
 import { isAction, isReadOnlyType } from "@/lib/property-types";
@@ -63,7 +64,7 @@ import { lazyPart } from "@/components/lazy-part";
 // A column's menu and the new-property panel open on a click: loaded then.
 const PropertyMenu = lazyPart(() => import("./property-menu").then((m) => m.PropertyMenu));
 const AddPropertyPanel = lazyPart(() => import("./property-menu").then((m) => m.AddPropertyPanel));
-// Opened only by taps on a touch screen (see useCellGrid).
+// Opened by a right click on cells, or a tap on the selected one on a touch screen (see useCellGrid).
 const CellMenu = lazyPart(() => import("./cell-menu").then((m) => m.CellMenu));
 
 /** The Name column; narrower on phones so the next column peeks in. */
@@ -1018,7 +1019,7 @@ export function TableView({
       <div
         ref={box}
         {...grid.containerProps}
-        onPointerDown={(e) => e.pointerType === "touch" && void CellMenu.preload()}
+        onPointerDown={(e) => (e.pointerType === "touch" || e.button === 2 || e.ctrlKey) && void CellMenu.preload()}
         className={cn(
           "page-gutter-table row-panel-room pb-3 outline-none [color-scheme:light_dark]",
           // A double tap edits a cell instead of zooming the page.
@@ -1054,21 +1055,45 @@ export function TableView({
             controls={bodyControls}
           />
         </table>
-        {grid.menu && gridRows[grid.menu.row] && (() => {
-          const { row: at, col, cell } = grid.menu;
+        {grid.menu && grid.bounds && gridRows[grid.menu.row] && (() => {
+          const { row: at, cell, at: point } = grid.menu;
+          const { top, bottom, left, right } = grid.bounds;
           const rowId = gridRows[at].line.row.id;
-          const editable = mayEditCell(rowId, col === 0 ? TITLE : (visible[col - 1]?.id ?? ""));
-          const edit = cell.querySelector<HTMLElement>("[data-cell-edit]");
+          // The rows of the cells selected, which duplicating and trashing take.
+          const rowIds = gridRows.slice(top, bottom + 1).map((r) => r.line.row.id);
+          const single = top === bottom && left === right;
+          const editable = Array.from({ length: right - left + 1 }, (_, i) => left + i).some((c) =>
+            rowIds.some((id) => mayEditCell(id, c === 0 ? TITLE : (visible[c - 1]?.id ?? ""))),
+          );
+          const edit = single ? cell.querySelector<HTMLElement>("[data-cell-edit]") : null;
           return (
             <CellMenu
-              anchor={cell}
+              // A right click's menu closes on any press outside it, the cell's too.
+              anchor={point ? null : cell}
+              at={point}
+              rows={rowIds.length}
               onClose={grid.closeMenu}
               // After the menu has closed, so the editor takes the focus.
-              onEdit={edit ? () => requestAnimationFrame(() => edit.click()) : undefined}
+              onEdit={edit && editable ? () => requestAnimationFrame(() => edit.click()) : undefined}
               onOpenRow={() => opener.open(rowId)}
               onCopy={() => void grid.copy().catch(() => {})}
               onPaste={editable ? () => void grid.paste().catch(() => {}) : undefined}
               onClear={editable ? grid.clear : undefined}
+              onComment={
+                readOnly || rowIds.length > 1
+                  ? undefined
+                  : () => {
+                      opener.open(rowId);
+                      requestComments(rowId);
+                    }
+              }
+              onCopyLink={
+                rowIds.length > 1
+                  ? undefined
+                  : () => void navigator.clipboard.writeText(new URL(opener.href(rowId), window.location.origin).href).catch(() => {})
+              }
+              onDuplicate={readOnly ? undefined : () => void api.duplicateRows(rowIds)}
+              onTrash={readOnly ? undefined : () => void (rowIds.length > 1 ? api.deleteRows(rowIds) : api.deleteRow(rowId))}
             />
           );
         })()}

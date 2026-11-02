@@ -108,7 +108,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   only selects it: `use-cell-grid.ts` stops the click on the editor opener (`data-cell-open` in
   `property-cell.tsx`) unless the cell was already the only one selected or the click came from the
   keyboard (`detail` 0); a finger's tap selects, a double tap edits and a tap on the selected cell
-  opens `cell-menu.tsx`; typing reaches a text opener as `CELL_TYPE_EVENT` (`lib/cell-typing.ts`).
+  opens `cell-menu.tsx`, as a right click does at its point (`Floating`'s `at`); typing reaches a text opener as `CELL_TYPE_EVENT` (`lib/cell-typing.ts`).
   The view bar (tabs, toolbar) scrolls away; only the header row sticks,
   under the page's top bar, and paints a background only while stuck
   (`components/use-stuck-mark.ts`), so a page's pattern shows through at rest.
