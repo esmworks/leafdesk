@@ -718,6 +718,16 @@ main[data-scrolls-sideways] [data-pin-sideways] {
   inset-inline-start: 0;
   width: var(--page-width);
 }
+/*
+ * Painted above the table, which they never cover: in Safari, positioned cells painted after a
+ * sticky box they could pass under each become a layer of their own, and a quick scroll down a
+ * long table then shows blank screens. A layer, so their own z-index utilities still win.
+ */
+@layer base {
+  main[data-scrolls-sideways] [data-pin-sideways] {
+    z-index: 1;
+  }
+}
 
 /*
  * Tables start early so the row-handle column sits in the gutter and names line up with the title.

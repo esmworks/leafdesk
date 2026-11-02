@@ -70,6 +70,10 @@
   and the view bar stay in place and the page's own scrollbar shows at the window's bottom. A
   table inside a page keeps its own box, and its header row is moved with the rows' scroll, frozen
   columns included, which Safari can still draw a frame late now and then.
+- **Scrolling quickly down a long table on a database's own page no longer shows empty screens in
+  Safari.** The title, banners and view bar that stay in place as the table scrolls sideways made
+  Safari draw every cell as a layer of its own, so a fast scroll outran its drawing. A table with
+  frozen columns can still show a few empty rows at the bottom while scrolling very fast.
 
 ## 0.7.0 — 2026-11-02
 

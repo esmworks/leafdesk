@@ -99,7 +99,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   sideways too, so the header holds to the page and moves with the rows in one scroll; the table
   marks `<main>` `data-scrolls-sideways` with `--page-width`, the page area grows to the table and
   what isn't the table carries `data-pin-sideways` (globals.css) to stay in sight. Anything added
-  above a full-page table (a banner, a bar) takes that attribute. Inside a page the rows' box
+  above a full-page table (a banner, a bar) takes that attribute, which also paints it above the
+  table: in Safari the `relative` cells painted after a sticky box each become a layer, and a fast
+  scroll down then shows empty screens (frozen columns, sticky cells, still cost some). Inside a page the rows' box
   scrolls sideways itself, so `sticky` inside it would hold to it, not the page: the two follow
   each other's `scrollLeft` and the header is drawn moved by animations on the rows' scroll
   timeline (`database/head-follow.ts`), which Safari still draws a frame late now and then;
