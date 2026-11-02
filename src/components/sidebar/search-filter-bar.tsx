@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownUp, Calendar, Check, ChevronDown, LayoutGrid, PenLine, UserRound, X } from "lucide-react";
+import { Archive, ArrowDownUp, Calendar, Check, ChevronDown, CircleHelp, LayoutGrid, PenLine, UserRound, X } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { cn, MenuItem, MenuSeparator, menuFieldClass, PageIcon, Popover } from "@/components/ui";
@@ -20,10 +20,11 @@ import { read } from "@/components/read";
 type PersonKey = "createdBy" | "editedBy";
 
 /**
- * The search box's filters as menus under the query (loaded with the box, lazily): teamspaces,
- * who created a page, who last edited it, and when it was last edited or created. A filter in use
- * shows what it holds and can be cleared on its own; they narrow the typed query and list pages
- * without one. Last, how the results are ordered.
+ * The search box's filters as one quiet row of menus under the query (loaded with the box,
+ * lazily): teamspaces, who created a page, who last edited it, when it was last edited or created,
+ * and whether archived pages are found too. A filter in use is drawn pressed with what it holds
+ * and can be cleared on its own; they narrow the typed query and list pages without one. Last,
+ * how the results are ordered.
  */
 export function SearchFilterBar({
   workspaceId,
@@ -31,14 +32,19 @@ export function SearchFilterBar({
   onChange,
   sort,
   onSortChange,
+  includeOutdated,
+  onIncludeOutdated,
 }: {
   workspaceId: string;
   filters: SearchFilters;
   onChange: (filters: SearchFilters) => void;
   sort: SearchSort;
   onSortChange: (sort: SearchSort) => void;
+  includeOutdated: boolean;
+  onIncludeOutdated: (on: boolean) => void;
 }) {
   const t = useTranslations("sidebar.search.filters");
+  const ts = useTranslations("sidebar.search");
   const [options, setOptions] = useState<SearchFilterOptions | null>(null);
 
   useEffect(() => {
@@ -60,7 +66,7 @@ export function SearchFilterBar({
   const personName = (id: string) => options?.people.find((p) => p.id === id)?.name || options?.people.find((p) => p.id === id)?.email || "…";
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 border-b border-border px-3 py-2" role="group" aria-label={t("label")}>
+    <div className="flex flex-wrap items-center gap-0.5 border-b border-border px-2 py-1.5" role="group" aria-label={t("label")}>
       {(options === null || options.teamspaces.length > 0) && (
         <FilterMenu
           icon={<LayoutGrid className="h-3.5 w-3.5" />}
@@ -101,6 +107,16 @@ export function SearchFilterBar({
         </FilterMenu>
       ))}
       <DateMenu date={filters.date} onChange={(date) => onChange({ ...filters, date })} />
+      <button
+        type="button"
+        aria-pressed={includeOutdated}
+        title={ts("includeArchivedHint")}
+        onClick={() => onIncludeOutdated(!includeOutdated)}
+        className={cn(chipClass, includeOutdated ? "bg-bg-hover font-medium text-fg" : "text-fg-muted hover:bg-bg-hover hover:text-fg")}
+      >
+        <Archive className="h-3.5 w-3.5" aria-hidden />
+        <span className="truncate">{ts("includeArchived")}</span>
+      </button>
       {any && (
         <button
           type="button"
@@ -118,6 +134,7 @@ export function SearchFilterBar({
           onClear={() => onSortChange("relevance")}
           clearLabel={t("sortReset")}
           className="w-56"
+          compact
         >
           {SEARCH_SORTS.map((s) => (
             <MenuItem key={s} pressed={sort === s} trailing={sort === s ? <Check className="h-3.5 w-3.5" /> : undefined} onClick={() => onSortChange(s)}>
@@ -136,7 +153,69 @@ function summary(names: string[], t: ReturnType<typeof useTranslations<"sidebar.
   return names.length === 1 ? names[0] : t("more", { first: names[0], count: names.length - 1 });
 }
 
-/** A filter's button and its menu: its name alone while unused, else its name and value with a button clearing it. */
+/** What the row's buttons share: a quiet word with an icon, pressed when in use. */
+const chipClass = "inline-flex h-7 max-w-56 items-center gap-1.5 rounded-md px-2 text-xs";
+
+/**
+ * Under the results: what can be typed into the box (`in:`, `type:`, a phrase, a tag, `>`), each
+ * put into it by a click. `onInsert` is the box's own insert. Behind a help icon, so the box
+ * stays quiet.
+ */
+export function SearchSyntaxHelp({ onInsert, hasCommands }: { onInsert: (token: string) => void; hasCommands: boolean }) {
+  const t = useTranslations("sidebar.search");
+  const tj = useTranslations("journal");
+  const hints: [string, string][] = [
+    ['in:"…"', t("hint.in")],
+    ["type:database", t("hint.type")],
+    ["type:journal", tj("searchHint")],
+    ['"…"', t("hint.phrase")],
+    ["#…", t("hint.tag")],
+    ...(hasCommands ? [[">", t("hint.commands")] as [string, string]] : []),
+  ];
+  // What a click puts in: the opening part of each token, left for the person to finish.
+  const insert = (token: string) => onInsert(token === 'in:"…"' ? 'in:"' : token === '"…"' ? '"' : token === "#…" ? "#" : token);
+  return (
+    <Popover
+      align="end"
+      side="top"
+      className="w-64"
+      trigger={({ open, toggle }) => (
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-label={t("syntax")}
+          title={t("syntax")}
+          onClick={toggle}
+          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg"
+        >
+          <CircleHelp className="h-4 w-4" aria-hidden />
+        </button>
+      )}
+    >
+      {(close) => (
+        <>
+          <p className="px-2 pt-1.5 pb-1 text-xs font-medium text-fg-muted">{t("syntax")}</p>
+          {hints.map(([token, label]) => (
+            <MenuItem
+              key={token}
+              onClick={() => {
+                close();
+                insert(token);
+              }}
+            >
+              <span className="font-medium text-fg">{token}</span> <span className="text-fg-muted">{label}</span>
+            </MenuItem>
+          ))}
+        </>
+      )}
+    </Popover>
+  );
+}
+
+/**
+ * A filter's button and its menu: its name alone while unused (`compact`: its icon alone, the
+ * name as its tooltip), else its name and value with a button clearing it.
+ */
 function FilterMenu({
   icon,
   label,
@@ -144,6 +223,7 @@ function FilterMenu({
   onClear,
   clearLabel,
   className,
+  compact,
   children,
 }: {
   icon: ReactNode;
@@ -152,34 +232,32 @@ function FilterMenu({
   onClear: () => void;
   clearLabel: string;
   className?: string;
+  compact?: boolean;
   children: ReactNode;
 }) {
   return (
-    <span
-      className={cn(
-        "inline-flex h-7 items-center rounded-md border text-xs",
-        value ? "border-accent bg-bg-hover text-fg" : "border-border text-fg-muted",
-      )}
-    >
+    <span className={cn("inline-flex h-7 items-center rounded-md text-xs", value ? "bg-bg-hover font-medium text-fg" : "text-fg-muted")}>
       <Popover
         className={cn("max-h-72 overflow-y-auto", className)}
         trigger={({ open, toggle }) => (
           <button
             type="button"
             aria-expanded={open}
+            aria-label={compact && !value ? label : undefined}
+            title={compact && !value ? label : undefined}
             onClick={toggle}
-            className="inline-flex h-full max-w-56 items-center gap-1.5 rounded-md px-2 hover:text-fg"
+            className={cn(chipClass, "h-full", !value && "hover:bg-bg-hover hover:text-fg")}
           >
             {icon}
-            <span className="truncate">{value ? `${label}: ${value}` : label}</span>
-            {!value && <ChevronDown className="h-3 w-3" aria-hidden />}
+            {(value || !compact) && <span className="truncate">{value ? `${label}: ${value}` : label}</span>}
+            {!value && <ChevronDown className="h-3 w-3 text-fg-faint" aria-hidden />}
           </button>
         )}
       >
         {children}
       </Popover>
       {value && (
-        <button type="button" onClick={onClear} aria-label={`${clearLabel}: ${label}`} title={clearLabel} className="inline-flex h-full items-center pe-1.5 text-fg-muted hover:text-fg">
+        <button type="button" onClick={onClear} aria-label={`${clearLabel}: ${label}`} title={clearLabel} className="inline-flex h-full items-center rounded-md pe-1.5 text-fg-muted hover:text-fg">
           <X className="h-3 w-3" />
         </button>
       )}

@@ -68,10 +68,11 @@
   once the page is saved. Mentioning a group or an agent in a to-do doesn't put it in anyone's
   list; mention the people themselves.
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
-  while your page views aren't recorded or you haven't opened any yet). The menus under the query
-  narrow it by teamspace, by who created a page or edited it last, and by when it was last edited
-  or created (today, the last 7 or 30 days, or days you pick, in your time zone); they list pages
-  without words too. *Sort* orders the results by best match (the default) or by when pages were
+  while your page views aren't recorded or you haven't opened any yet), under *Today*, *Yesterday*,
+  *Previous 7 days* and *Older*, each with the page or database it sits in. The row under the query
+  narrows it by teamspace, by who created a page or edited it last, and by when it was last edited
+  or created (today, the last 7 or 30 days, or days you pick, in your time zone), and *Include
+  archived* finds archived pages too; they list pages without words too. *Sort* orders the results by best match (the default) or by when pages were
   last edited or created, newest or oldest first, over every page that matches. Narrow a search with
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
@@ -82,9 +83,9 @@
   `#` and a letter, the tags of pages you can open that start so come first, most used first with
   how many pages carry each; `/` narrows to a branch and picking one completes it. Type `>` for commands: new page or database,
   from a template, import, trash, inbox, settings and keyboard shortcuts, and, once you type
-  after `>`, each setting you can see (*Settings: Security → Legal holds*). The line under the
-  results puts each of these into the box. The words you typed show in bold in the text under each
-  result.
+  after `>`, each setting you can see (*Settings: Security → Legal holds*). The help icon under the
+  results lists each of these and puts it into the box; Enter opens the chosen page, Cmd/Ctrl+Enter
+  in a new tab. The words you typed show in bold in the text under each result.
 - **Tags**: write `#tag` anywhere in a page's text, at its start or after a space or an opening
   bracket or quote, and find everything carrying it with `#tag` in the search box. A tag is
   letters, digits, `_` and `-` with at least one letter (`#1` isn't one, nor a color like

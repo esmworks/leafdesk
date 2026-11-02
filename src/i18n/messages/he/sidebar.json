@@ -76,6 +76,16 @@
     "verifiedHint": "מישהו עם גישה מלאה אימת את הדף הזה. אפשר להקליד is:verified כדי למצוא רק דפים מאומתים.",
     "includeArchived": "כולל ארכיון",
     "includeArchivedHint": "למצוא גם דפים בארכיון",
+    "when": {
+      "today": "היום",
+      "yesterday": "אתמול",
+      "week": "7 הימים האחרונים",
+      "older": "ישנות יותר"
+    },
+    "keys": {
+      "open": "פתיחה"
+    },
+    "syntax": "תחביר חיפוש",
     "inDocument": "נמצא במסמך {name} שבדף הזה",
     "recent": "נערכו לאחרונה",
     "recentViewed": "נצפו לאחרונה",

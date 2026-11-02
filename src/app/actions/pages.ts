@@ -175,11 +175,13 @@ export async function searchAction(workspaceId: string, query: string, includeOu
  * What the search box shows before anything is typed: the pages the person opened last, or the
  * pages last edited while their views aren't recorded or they haven't opened any yet.
  */
-export async function recentSearchAction(workspaceId: string): Promise<{ source: "viewed" | "edited"; pages: pages.RecentPage[] }> {
+export async function recentSearchAction(workspaceId: string): Promise<{ source: "viewed" | "edited"; pages: (pages.RecentPage & { parent?: string })[] }> {
   const userId = await requireUserId();
-  const viewed = await recentlyViewedPages(userId, workspaceId, 8);
-  if (viewed?.length) return { source: "viewed", pages: viewed };
-  return { source: "edited", pages: await pages.recentPages(userId, workspaceId, 8) };
+  const viewed = await recentlyViewedPages(userId, workspaceId, 12);
+  const found = viewed?.length ? { source: "viewed" as const, pages: viewed } : { source: "edited" as const, pages: await pages.recentPages(userId, workspaceId, 12) };
+  // Where each page sits (a row's database, a subpage's page), shown beside its name.
+  const parents = await pages.parentTitles(userId, found.pages.map((p) => p.id));
+  return { ...found, pages: found.pages.map((p) => ({ ...p, parent: parents.get(p.id) })) };
 }
 
 /** The teamspaces and people the search box's filters offer. */

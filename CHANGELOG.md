@@ -12,6 +12,11 @@
 
 ### Changed
 
+- **The search box is quieter and shows where you have been.** Its filters sit in one row of
+  plain words with *Include archived* beside them, the pages you opened last are listed under
+  *Today*, *Yesterday*, *Previous 7 days* and *Older* with the page or database each sits in, and
+  the line under the results names the keys (Enter opens, Cmd/Ctrl+Enter opens in a new tab); the
+  search syntax waits behind a help icon there.
 - **The bottom of the sidebar shows who is signed in.** Your name and picture sit at the bottom of
   the sidebar, with Settings and the Trash beside them; your name opens a menu with your account,
   People, For review, Skills, Templates, Import, Customize sidebar, a light, dark or system theme

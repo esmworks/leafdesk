@@ -76,6 +76,16 @@
     "verifiedHint": "Một người có toàn quyền đã xác minh trang này. Gõ is:verified để chỉ tìm các trang đã xác minh.",
     "includeArchived": "Bao gồm mục đã lưu trữ",
     "includeArchivedHint": "Tìm cả các trang đã lưu trữ",
+    "when": {
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua",
+      "week": "7 ngày qua",
+      "older": "Cũ hơn"
+    },
+    "keys": {
+      "open": "Mở"
+    },
+    "syntax": "Cú pháp tìm kiếm",
     "inDocument": "Tìm thấy trong tài liệu {name} của trang này",
     "recent": "Chỉnh sửa gần đây",
     "recentViewed": "Xem gần đây",

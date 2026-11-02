@@ -76,6 +76,16 @@
     "verifiedHint": "Tam erişimi olan biri bu sayfayı doğruladı. Yalnızca doğrulanmış sayfaları bulmak için is:verified yazın.",
     "includeArchived": "Arşivlenenleri dahil et",
     "includeArchivedHint": "Arşivlenen sayfaları da bul",
+    "when": {
+      "today": "Bugün",
+      "yesterday": "Dün",
+      "week": "Önceki 7 gün",
+      "older": "Daha eski"
+    },
+    "keys": {
+      "open": "Aç"
+    },
+    "syntax": "Arama sözdizimi",
     "inDocument": "Bu sayfadaki {name} belgesinde bulundu",
     "recent": "Son düzenlenenler",
     "recentViewed": "Son görüntülenenler",

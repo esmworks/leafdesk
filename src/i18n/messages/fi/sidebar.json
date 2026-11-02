@@ -76,6 +76,16 @@
     "verifiedHint": "Joku, jolla on täydet oikeudet, on vahvistanut tämän sivun. Kirjoita is:verified löytääksesi vain vahvistetut sivut.",
     "includeArchived": "Sisällytä arkistoidut",
     "includeArchivedHint": "Etsi myös arkistoituja sivuja",
+    "when": {
+      "today": "Tänään",
+      "yesterday": "Eilen",
+      "week": "Edelliset 7 päivää",
+      "older": "Vanhemmat"
+    },
+    "keys": {
+      "open": "Avaa"
+    },
+    "syntax": "Hakusyntaksi",
     "inDocument": "Löytyi tämän sivun dokumentista {name}",
     "recent": "Viimeksi muokatut",
     "recentViewed": "Viimeksi katsotut",

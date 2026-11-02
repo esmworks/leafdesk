@@ -76,6 +76,16 @@
     "verifiedHint": "フルアクセス権を持つユーザーがこのページを検証しました。is:verified と入力すると、検証済みのページだけを検索できます。",
     "includeArchived": "アーカイブを含める",
     "includeArchivedHint": "アーカイブしたページも検索",
+    "when": {
+      "today": "今日",
+      "yesterday": "昨日",
+      "week": "過去7日間",
+      "older": "それ以前"
+    },
+    "keys": {
+      "open": "開く"
+    },
+    "syntax": "検索構文",
     "inDocument": "このページの文書「{name}」で見つかりました",
     "recent": "最近編集したページ",
     "recentViewed": "最近表示したページ",

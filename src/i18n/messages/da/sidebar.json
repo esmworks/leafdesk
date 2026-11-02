@@ -76,6 +76,16 @@
     "verifiedHint": "En person med fuld adgang har verificeret denne side. Skriv is:verified for kun at finde verificerede sider.",
     "includeArchived": "Medtag arkiverede",
     "includeArchivedHint": "Find også arkiverede sider",
+    "when": {
+      "today": "I dag",
+      "yesterday": "I går",
+      "week": "Sidste 7 dage",
+      "older": "Ældre"
+    },
+    "keys": {
+      "open": "Åbn"
+    },
+    "syntax": "Søgesyntaks",
     "inDocument": "Fundet i dokumentet {name} på denne side",
     "recent": "Redigeret for nylig",
     "recentViewed": "Set for nylig",

@@ -76,6 +76,16 @@
     "verifiedHint": "وثّق هذه الصفحة شخص لديه وصول كامل. اكتب is:verified للعثور على الصفحات الموثّقة فقط.",
     "includeArchived": "تضمين المؤرشفة",
     "includeArchivedHint": "البحث في الصفحات المؤرشفة أيضًا",
+    "when": {
+      "today": "اليوم",
+      "yesterday": "أمس",
+      "week": "آخر 7 أيام",
+      "older": "أقدم"
+    },
+    "keys": {
+      "open": "فتح"
+    },
+    "syntax": "صيغة البحث",
     "inDocument": "عُثر عليه في المستند {name} في هذه الصفحة",
     "recent": "عُدّلت مؤخرًا",
     "recentViewed": "شوهدت مؤخرًا",

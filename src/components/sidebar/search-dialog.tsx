@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { openBlockLink } from "@/components/page/block-focus";
-import { cn, Dialog, PageIcon, pageLabel, Switch } from "@/components/ui";
+import { cn, Dialog, PageIcon, pageLabel } from "@/components/ui";
 import type { PageKind } from "@/db/schema";
+import { byRecency } from "@/lib/chat-recency";
 import { pageOrBlockPath } from "@/lib/mentions";
+import { isMac, keyLabels } from "@/lib/shortcuts";
 import { searchFold } from "@/lib/search-fold";
 import { highlightParts } from "@/lib/search-highlight";
 import { hasFilterValues, NO_SEARCH_FILTERS, type SearchFilters, type SearchSort } from "@/lib/search-filter-state";
@@ -19,7 +21,8 @@ import type { SearchHit } from "@/server/pages";
 import { read, readWith } from "@/components/read";
 
 // Loaded with the box, not with the sidebar: the sidebar is in every page's first load.
-const SearchFilterBar = lazyPart(() => import("./search-filter-bar").then((m) => m.SearchFilterBar), <div className="h-[45px] border-b border-border" />);
+const SearchFilterBar = lazyPart(() => import("./search-filter-bar").then((m) => m.SearchFilterBar), <div className="h-[41px] border-b border-border" />);
+const SearchSyntaxHelp = lazyPart(() => import("./search-filter-bar").then((m) => m.SearchSyntaxHelp), <span className="inline-block h-6 w-6" />);
 
 /**
  * Something the search box can do instead of opening a page: typed after `>`. `keywords`: other
@@ -45,8 +48,14 @@ type PageItem = {
   outdated?: boolean;
   /** Verified right now (server/verification): marked, and ranked above an otherwise equal page. */
   verified?: boolean;
+  /** The page it sits in (a row's database, a subpage's page), when the person may open that too. */
+  parent?: string;
 };
+/** A page of the recent list, with when it was opened (or, while views aren't recorded, edited); dates arrive as strings. */
+type RecentItem = PageItem & { updatedAt: Date | string; viewedAt?: Date | string };
 type Item = { type: "page"; page: PageItem } | { type: "command"; command: SearchCommand } | { type: "tag"; tag: TagSuggestion };
+/** The recent list's runs by day; the 30 days before and older are one. */
+type When = "today" | "yesterday" | "week" | "older";
 
 /** Compared as pickers compare: case and the Turkish dotted and dotless i aside (lib/search-fold). */
 const fold = (value: string) => searchFold(value.normalize("NFC").trim());
@@ -59,7 +68,8 @@ const fold = (value: string) => searchFold(value.normalize("NFC").trim());
  * recorded); and, after `>`, the commands the sidebar hands it. Archived pages are found only with
  * "Include archived" on, and say so. While a `#tag` is typed at the end of the query, the tags of
  * pages the person can open that start so come first, to complete it. `initialQuery`: what it
- * opens with (a tag clicked in a page).
+ * opens with (a tag clicked in a page). Enter opens the chosen page, Mod+Enter (or a Mod+click)
+ * in a new tab.
  */
 export function SearchDialog({
   workspaceId,
@@ -76,11 +86,11 @@ export function SearchDialog({
 }) {
   const router = useRouter();
   const t = useTranslations("sidebar.search");
+  const tp = useTranslations("sidebar.pages");
   const tc = useTranslations("common");
-  const tj = useTranslations("journal");
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
-  const [recent, setRecent] = useState<{ source: "viewed" | "edited"; pages: PageItem[] }>({ source: "edited", pages: [] });
+  const [recent, setRecent] = useState<{ source: "viewed" | "edited"; pages: RecentItem[] }>({ source: "edited", pages: [] });
   const [filters, setFilters] = useState<SearchFilters>(NO_SEARCH_FILTERS);
   const [sort, setSort] = useState<SearchSort>("relevance");
   const [active, setActive] = useState(0);
@@ -182,11 +192,28 @@ export function SearchDialog({
     return [...tags.map((tag): Item => ({ type: "tag", tag })), ...pages.map((page): Item => ({ type: "page", page }))];
   }, [commandMode, trimmed, filtered, commands, hits, recent, tags]);
 
+  // Before anything is typed, the recent pages fall into runs by day: a heading before the first
+  // item of each run, by its index in the one flat list the arrow keys move through.
+  const headings = useMemo(() => {
+    const at = new Map<number, When>();
+    if (commandMode || trimmed || filtered) return at;
+    let index = tags.length;
+    let last: When | null = null;
+    for (const group of byRecency(recent.pages.map((page) => ({ page, updatedAt: String(page.viewedAt ?? page.updatedAt) })))) {
+      const when: When = group.recency === "month" ? "older" : group.recency;
+      if (when !== last) at.set(index, when);
+      last = when;
+      index += group.items.length;
+    }
+    return at;
+  }, [commandMode, trimmed, filtered, recent, tags]);
+
   useEffect(() => {
     list.current?.querySelector(`[data-index="${active}"]`)?.scrollIntoView({ block: "nearest" });
   }, [active]);
 
-  function choose(item: Item | undefined) {
+  /** `newTab`: a page opens in a new tab (the desktop app's own, a browser's), the box closing as usual. */
+  function choose(item: Item | undefined, newTab = false) {
     if (!item) return;
     if (item.type === "tag") {
       // Completes the tag being typed; the box stays open with the pages carrying it.
@@ -196,22 +223,23 @@ export function SearchDialog({
     }
     onClose();
     if (item.type === "command") item.command.run();
+    else if (newTab) window.open(pageOrBlockPath(workspaceId, item.page.id, item.page.blockId), "_blank", "noopener");
     else openBlockLink(pageOrBlockPath(workspaceId, item.page.id, item.page.blockId), router.push);
   }
 
-  /** Puts a filter (or `>`) into the query from the hint line. */
+  /** Puts a filter (or `>`) into the query from the syntax help. */
   function insert(token: string) {
     setQuery((q) => (token === ">" ? `>${q.replace(/^\s*>?/, "")}` : `${q.trimEnd()}${q.trim() ? " " : ""}${token}`));
     input.current?.focus();
   }
 
-  const heading =
-    commandMode ? t("commands") : trimmed || filtered ? null : recent.pages.length ? t(recent.source === "viewed" ? "recentViewed" : "recent") : null;
+  const recents = !commandMode && !trimmed && !filtered;
   const empty = (commandMode || ((trimmed || filtered) && !loading)) && items.length === 0;
+  const mod = keyLabels(["Mod"], isMac())[0];
 
   return (
     // Not clipped: the filter menus may reach past the box while it lists little.
-    <Dialog open={open} onClose={onClose} className="overflow-visible">
+    <Dialog open={open} onClose={onClose} className="max-w-3xl overflow-visible">
       <div className="flex items-center gap-2 border-b border-border px-4">
         {commandMode ? <ChevronRight className="h-4 w-4 text-fg-muted" /> : <Search className="h-4 w-4 text-fg-muted" />}
         <input
@@ -228,7 +256,7 @@ export function SearchDialog({
               setActive((a) => Math.max(a - 1, 0));
             } else if (e.key === "Enter" && !e.nativeEvent.isComposing) {
               e.preventDefault();
-              choose(items[active]);
+              choose(items[active], e.metaKey || e.ctrlKey);
             }
           }}
           placeholder={t("placeholder")}
@@ -240,20 +268,46 @@ export function SearchDialog({
           className="h-12 flex-1 bg-transparent text-base outline-none placeholder:text-fg-faint sm:text-sm"
         />
       </div>
-      {!commandMode && <SearchFilterBar workspaceId={workspaceId} filters={filters} onChange={setFilters} sort={sort} onSortChange={setSort} />}
-      <ul ref={list} id="search-results" role="listbox" aria-label={t("label")} className="max-h-[50vh] overflow-y-auto p-1">
-        {heading && (
-          <li role="presentation" className="px-3 pt-2 pb-1 text-xs font-medium text-fg-muted">
-            {heading}
+      {!commandMode && (
+        <SearchFilterBar
+          workspaceId={workspaceId}
+          filters={filters}
+          onChange={setFilters}
+          sort={sort}
+          onSortChange={setSort}
+          includeOutdated={includeOutdated}
+          onIncludeOutdated={(on) => {
+            setIncludeOutdated(on);
+            input.current?.focus();
+          }}
+        />
+      )}
+      <ul
+        ref={list}
+        id="search-results"
+        role="listbox"
+        aria-label={recents && recent.pages.length ? t(recent.source === "viewed" ? "recentViewed" : "recent") : t("label")}
+        className="max-h-[50vh] overflow-y-auto p-1"
+      >
+        {commandMode && (
+          <li role="presentation" className={headingClass}>
+            {t("commands")}
           </li>
         )}
         {empty && <li role="presentation" className="px-3 py-6 text-center text-sm text-fg-muted">{commandMode ? t("noCommands") : t("noResults")}</li>}
         {tags.length > 0 && (
-          <li role="presentation" className="px-3 pt-2 pb-1 text-xs font-medium text-fg-muted">
+          <li role="presentation" className={headingClass}>
             {t("tags")}
           </li>
         )}
-        {items.map((item, i) => (
+        {items.flatMap((item, i) => [
+          ...(headings.has(i)
+            ? [
+                <li key={`when-${headings.get(i)}`} role="presentation" className={headingClass}>
+                  {t(`when.${headings.get(i)!}`)}
+                </li>,
+              ]
+            : []),
           <li
             key={item.type === "page" ? item.page.id : item.type === "tag" ? `#${item.tag.key}` : item.command.id}
             id={`search-item-${i}`}
@@ -265,8 +319,8 @@ export function SearchDialog({
               data-index={i}
               tabIndex={-1}
               onMouseMove={() => setActive(i)}
-              onClick={() => choose(item)}
-              className={cn("flex w-full items-start gap-2 rounded-md px-3 py-2 text-start", i === active && "bg-bg-hover")}
+              onClick={(e) => choose(item, e.metaKey || e.ctrlKey)}
+              className={cn("flex w-full items-start gap-2.5 rounded-md px-3 py-1.5 text-start", i === active && "bg-bg-hover")}
             >
               {item.type === "command" ? (
                 <>
@@ -285,6 +339,7 @@ export function SearchDialog({
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline gap-2">
                       <span className="min-w-0 truncate text-sm font-medium">{pageLabel(item.page.title, tc("untitled"))}</span>
+                      {item.page.parent && <span className="min-w-0 max-w-[40%] truncate text-xs text-fg-muted">— {item.page.parent}</span>}
                       {item.page.verified && (
                         <span className="flex shrink-0 items-center gap-1 self-center text-xs text-fg-muted" title={t("verifiedHint")}>
                           <BadgeCheck className="h-3 w-3" aria-hidden />
@@ -328,36 +383,29 @@ export function SearchDialog({
                 </>
               )}
             </button>
-          </li>
-        ))}
+          </li>,
+        ])}
       </ul>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border px-4 py-2 text-xs text-fg-muted">
-        <HintButton onClick={() => insert('in:"')} token='in:"…"' label={t("hint.in")} />
-        <HintButton onClick={() => insert("type:database")} token="type:database" label={t("hint.type")} />
-        <HintButton onClick={() => insert("type:journal")} token="type:journal" label={tj("searchHint")} />
-        <HintButton onClick={() => insert('"')} token='"…"' label={t("hint.phrase")} />
-        <HintButton onClick={() => insert("#")} token="#…" label={t("hint.tag")} />
-        {commands.length > 0 && <HintButton onClick={() => insert(">")} token=">" label={t("hint.commands")} />}
-        <span className="ms-auto flex items-center gap-2" title={t("includeArchivedHint")}>
-          <span aria-hidden>{t("includeArchived")}</span>
-          <Switch
-            checked={includeOutdated}
-            onChange={(on) => {
-              setIncludeOutdated(on);
-              input.current?.focus();
-            }}
-            label={t("includeArchived")}
-          />
+      {/* The keys that pick, then the syntax help at the end: what the box can do is a click away, never in the way. */}
+      <div className="flex items-center gap-4 border-t border-border px-4 py-2 text-xs text-fg-muted">
+        <Key keys="↵" label={t("keys.open")} />
+        {!commandMode && <Key keys={`${mod}↵`} label={tp("openInNewTab")} />}
+        <span className="ms-auto inline-flex">
+          <SearchSyntaxHelp onInsert={insert} hasCommands={commands.length > 0} />
         </span>
       </div>
     </Dialog>
   );
 }
 
-function HintButton({ token, label, onClick }: { token: string; label: string; onClick: () => void }) {
+const headingClass = "px-3 pt-2 pb-1 text-xs font-medium text-fg-muted";
+
+/** A key and what it does, in the box's bottom line. */
+function Key({ keys, label }: { keys: string; label: string }) {
   return (
-    <button type="button" onClick={onClick} className="rounded px-1 py-0.5 hover:bg-bg-hover hover:text-fg">
-      <span className="font-medium text-fg">{token}</span> {label}
-    </button>
+    <span className="inline-flex items-center gap-1.5">
+      <kbd className="rounded bg-bg-hover px-1.5 py-0.5 font-sans text-[11px] text-fg-muted">{keys}</kbd>
+      {label}
+    </span>
   );
 }

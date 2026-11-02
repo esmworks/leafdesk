@@ -76,6 +76,16 @@
     "verifiedHint": "Jemand mit Vollzugriff hat diese Seite verifiziert. Gib is:verified ein, um nur verifizierte Seiten zu finden.",
     "includeArchived": "Archivierte einbeziehen",
     "includeArchivedHint": "Auch archivierte Seiten finden",
+    "when": {
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "week": "Letzte 7 Tage",
+      "older": "Älter"
+    },
+    "keys": {
+      "open": "Öffnen"
+    },
+    "syntax": "Suchsyntax",
     "inDocument": "Im Dokument {name} auf dieser Seite gefunden",
     "recent": "Zuletzt bearbeitet",
     "recentViewed": "Zuletzt angesehen",

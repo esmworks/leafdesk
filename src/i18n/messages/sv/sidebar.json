@@ -76,6 +76,16 @@
     "verifiedHint": "Någon med full åtkomst har verifierat den här sidan. Skriv is:verified för att bara hitta verifierade sidor.",
     "includeArchived": "Ta med arkiverade",
     "includeArchivedHint": "Hitta även arkiverade sidor",
+    "when": {
+      "today": "I dag",
+      "yesterday": "I går",
+      "week": "Senaste 7 dagarna",
+      "older": "Äldre"
+    },
+    "keys": {
+      "open": "Öppna"
+    },
+    "syntax": "Söksyntax",
     "inDocument": "Hittad i dokumentet {name} på den här sidan",
     "recent": "Nyligen redigerade",
     "recentViewed": "Nyligen visade",

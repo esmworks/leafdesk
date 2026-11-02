@@ -76,6 +76,16 @@
     "verifiedHint": "Seseorang dengan akses penuh memverifikasi halaman ini. Ketik is:verified untuk menemukan hanya halaman terverifikasi.",
     "includeArchived": "Sertakan yang diarsipkan",
     "includeArchivedHint": "Temukan juga halaman yang diarsipkan",
+    "when": {
+      "today": "Hari ini",
+      "yesterday": "Kemarin",
+      "week": "7 hari terakhir",
+      "older": "Lebih lama"
+    },
+    "keys": {
+      "open": "Buka"
+    },
+    "syntax": "Sintaks pencarian",
     "inDocument": "Ditemukan di dokumen {name} pada halaman ini",
     "recent": "Baru diedit",
     "recentViewed": "Baru dilihat",

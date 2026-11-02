@@ -76,6 +76,16 @@
     "verifiedHint": "拥有完全访问权限的人验证了此页面。输入 is:verified 可只查找已验证的页面。",
     "includeArchived": "包括已归档",
     "includeArchivedHint": "同时查找已归档的页面",
+    "when": {
+      "today": "今天",
+      "yesterday": "昨天",
+      "week": "过去 7 天",
+      "older": "更早"
+    },
+    "keys": {
+      "open": "打开"
+    },
+    "syntax": "搜索语法",
     "inDocument": "在此页面的文档 {name} 中找到",
     "recent": "最近编辑",
     "recentViewed": "最近查看",

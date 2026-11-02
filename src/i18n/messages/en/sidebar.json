@@ -76,6 +76,16 @@
     "verifiedHint": "Someone with full access verified this page. Type is:verified to find only verified pages.",
     "includeArchived": "Include archived",
     "includeArchivedHint": "Also find archived pages",
+    "when": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "week": "Previous 7 days",
+      "older": "Older"
+    },
+    "keys": {
+      "open": "Open"
+    },
+    "syntax": "Search syntax",
     "inDocument": "Found in the document {name} on this page",
     "recent": "Recently edited",
     "recentViewed": "Recently viewed",

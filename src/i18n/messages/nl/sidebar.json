@@ -76,6 +76,16 @@
     "verifiedHint": "Iemand met volledige toegang heeft deze pagina geverifieerd. Typ is:verified om alleen geverifieerde pagina’s te vinden.",
     "includeArchived": "Gearchiveerde meenemen",
     "includeArchivedHint": "Ook gearchiveerde pagina’s vinden",
+    "when": {
+      "today": "Vandaag",
+      "yesterday": "Gisteren",
+      "week": "Afgelopen 7 dagen",
+      "older": "Ouder"
+    },
+    "keys": {
+      "open": "Openen"
+    },
+    "syntax": "Zoeksyntaxis",
     "inDocument": "Gevonden in het document {name} op deze pagina",
     "recent": "Onlangs bewerkt",
     "recentViewed": "Onlangs bekeken",

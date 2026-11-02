@@ -76,6 +76,16 @@
     "verifiedHint": "Alguien con acceso completo verificó esta página. Escribe is:verified para encontrar solo páginas verificadas.",
     "includeArchived": "Incluir archivadas",
     "includeArchivedHint": "Encontrar también páginas archivadas",
+    "when": {
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "week": "Últimos 7 días",
+      "older": "Más antiguas"
+    },
+    "keys": {
+      "open": "Abrir"
+    },
+    "syntax": "Sintaxis de búsqueda",
     "inDocument": "Encontrado en el documento {name} de esta página",
     "recent": "Editadas recientemente",
     "recentViewed": "Vistas recientemente",

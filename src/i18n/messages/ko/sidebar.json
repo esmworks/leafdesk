@@ -76,6 +76,16 @@
     "verifiedHint": "전체 액세스 권한이 있는 사람이 이 페이지를 검증했습니다. 검증된 페이지만 찾으려면 is:verified를 입력하세요.",
     "includeArchived": "보관된 항목 포함",
     "includeArchivedHint": "보관된 페이지도 찾기",
+    "when": {
+      "today": "오늘",
+      "yesterday": "어제",
+      "week": "지난 7일",
+      "older": "이전"
+    },
+    "keys": {
+      "open": "열기"
+    },
+    "syntax": "검색 구문",
     "inDocument": "이 페이지의 문서 {name}에서 찾음",
     "recent": "최근 편집",
     "recentViewed": "최근 본 페이지",
