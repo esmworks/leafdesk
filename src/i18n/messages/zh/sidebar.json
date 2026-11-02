@@ -6,6 +6,12 @@
     "signOut": "退出登录",
     "admin": "服务器管理"
   },
+  "accountMenu": {
+    "theme": "主题",
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统"
+  },
   "nav": {
     "search": "搜索",
     "home": "主页",
@@ -17,7 +23,6 @@
     "import": "导入",
     "graph": "关系图",
     "skills": "技能",
-    "more": "更多",
     "review": "待审阅",
     "reviewCount": "{count, plural, other {# 处更改等待你审阅}}"
   },

@@ -341,10 +341,10 @@ pnpm auth:verify-email ops@example.com
 # Docker: docker compose exec app tsx scripts/verify-email.ts ops@example.com
 ```
 
-Administrators get **Server administration** in the workspace menu and in My account; for
-everyone else `/admin` doesn't exist (404), and its actions do nothing. With
-`WORKSPACE_CREATION=admins`, "New workspace" is hidden from everyone else and the server
-refuses it. The page has:
+Administrators get **Server administration** in the account menu (their name at the bottom of the
+sidebar) and in My account; for everyone else `/admin` doesn't exist (404), and its actions do
+nothing. With `WORKSPACE_CREATION=admins`, "New workspace" is hidden from everyone else and the
+server refuses it. The page has:
 
 - **Accounts:** every account with its email, whether the address is verified, how many
   workspaces it is in, when it was last active, and whether it uses two-step verification;

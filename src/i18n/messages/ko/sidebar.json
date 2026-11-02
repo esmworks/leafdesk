@@ -6,6 +6,12 @@
     "signOut": "로그아웃",
     "admin": "서버 관리"
   },
+  "accountMenu": {
+    "theme": "테마",
+    "light": "라이트",
+    "dark": "다크",
+    "system": "시스템 설정 따르기"
+  },
   "nav": {
     "search": "검색",
     "home": "홈",
@@ -17,7 +23,6 @@
     "import": "가져오기",
     "graph": "그래프",
     "skills": "스킬",
-    "more": "더 보기",
     "review": "검토 대기",
     "reviewCount": "{count, plural, other {검토를 기다리는 변경 #개}}"
   },

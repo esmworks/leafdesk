@@ -6,6 +6,12 @@
     "signOut": "Log ud",
     "admin": "Serveradministration"
   },
+  "accountMenu": {
+    "theme": "Tema",
+    "light": "Lyst",
+    "dark": "Mørkt",
+    "system": "Følg systemet"
+  },
   "nav": {
     "search": "Søg",
     "home": "Hjem",
@@ -17,7 +23,6 @@
     "import": "Importér",
     "graph": "Graf",
     "skills": "Færdigheder",
-    "more": "Mere",
     "review": "Til gennemgang",
     "reviewCount": "{count, plural, one {# ændring venter på din gennemgang} other {# ændringer venter på din gennemgang}}"
   },

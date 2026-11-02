@@ -6,6 +6,12 @@
     "signOut": "Kirjaudu ulos",
     "admin": "Palvelimen ylläpito"
   },
+  "accountMenu": {
+    "theme": "Teema",
+    "light": "Vaalea",
+    "dark": "Tumma",
+    "system": "Seuraa järjestelmää"
+  },
   "nav": {
     "search": "Haku",
     "home": "Etusivu",
@@ -17,7 +23,6 @@
     "import": "Tuo",
     "graph": "Graafi",
     "skills": "Taidot",
-    "more": "Lisää",
     "review": "Tarkistettavat",
     "reviewCount": "{count, plural, one {# muutos odottaa tarkistustasi} other {# muutosta odottaa tarkistustasi}}"
   },

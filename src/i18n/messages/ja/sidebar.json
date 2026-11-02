@@ -6,6 +6,12 @@
     "signOut": "ログアウト",
     "admin": "サーバー管理"
   },
+  "accountMenu": {
+    "theme": "テーマ",
+    "light": "ライト",
+    "dark": "ダーク",
+    "system": "システムに合わせる"
+  },
   "nav": {
     "search": "検索",
     "home": "ホーム",
@@ -17,7 +23,6 @@
     "import": "インポート",
     "graph": "グラフ",
     "skills": "スキル",
-    "more": "その他",
     "review": "確認待ち",
     "reviewCount": "{count, plural, other {確認待ちの変更：#件}}"
   },

@@ -12,6 +12,12 @@
 
 ### Changed
 
+- **The bottom of the sidebar shows who is signed in.** Your name and picture sit at the bottom of
+  the sidebar, with Settings and the Trash beside them; your name opens a menu with your account,
+  People, For review, Skills, Templates, Import, Customize sidebar, a light, dark or system theme
+  switch, keyboard shortcuts, Server administration for administrators, Install app and Sign out.
+  The workspace menu at the top keeps the workspaces and *Settings & members*. The list above fades
+  out under it while there is more to scroll, instead of ending at a line.
 - **The home page, dashboards and sidebar look calmer.** One main button (*New page*) with the others
   beside it unframed; figures, recent pages and dashboard widgets sit on a light surface instead of
   inside lines; lists of tasks and recent pages lose their frames and dividers. In the sidebar,
