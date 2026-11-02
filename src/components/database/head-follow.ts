@@ -1,13 +1,4 @@
-"use client";
-
-import { useSyncExternalStore } from "react";
-
-const noSubscription = () => () => {};
-
-/** Whether this browser can drive animations by a box's scroll (ScrollTimeline); false on the server. */
-export function useScrollTimelines() {
-  return useSyncExternalStore(noSubscription, () => typeof ScrollTimeline === "function", () => false);
-}
+// Loaded when a table first needs it (table-view.tsx), outside every page's first load.
 
 const shift = (x: number, offset?: number) => ({ transform: `translateX(${x}px)`, ...(offset === undefined ? {} : { offset }) });
 const rangeOf = (el: HTMLElement) => Math.max(0, el.scrollWidth - el.clientWidth);

@@ -3,7 +3,7 @@
 import { IconGlyph } from "@/components/builtin-icon";
 import { ArrowDown, ArrowUp, Bot, Plus } from "lucide-react";
 import { useTimeZone, useTranslations } from "next-intl";
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { cn } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { useReorderDrag, type ReorderDragHandlers } from "@/components/use-reorder-drag";
@@ -42,7 +42,6 @@ import { PropertyAccessDialog } from "./property-access-dialog";
 import { PropertyLock, usePropertyAccess } from "./property-access";
 import type { PropertyMenuActions } from "./property-menu";
 import { usePropertyHint } from "./property-hint";
-import { followRowsByTimeline, useScrollTimelines } from "./head-follow";
 import { HIDE_SCROLLBAR, StickyScrollbar } from "./scroll-x";
 import { CalculationRow, showsCalculations } from "./table-calculations";
 import { useRelations } from "./relation-context";
@@ -71,6 +70,9 @@ const CellMenu = lazyPart(() => import("./cell-menu").then((m) => m.CellMenu));
 const NAME_WIDTH = { wide: 280, phone: 180 };
 const WIDTHS: Partial<Record<Property["type"], number>> = { checkbox: 110, number: 140, date: 170 };
 const defaultWidth = (p: Property) => WIDTHS[p.type] ?? 200;
+const noSubscription = () => () => {};
+/** Whether this browser can drive animations by a box's scroll (ScrollTimeline); false on the server. */
+const useScrollTimelines = () => useSyncExternalStore(noSubscription, () => typeof ScrollTimeline === "function", () => false);
 /** Room frozen columns leave for the others to scroll by; below it they don't freeze. */
 const MIN_SCROLL_ROOM = 160;
 /** The row controls' select box (selection.tsx), the part of them frozen columns leave in sight. */
@@ -304,7 +306,15 @@ export function TableView({
     if (!scrollLinked || !rows || !head || !wrapper || !(table instanceof HTMLElement)) return;
     // The row controls' cell and the frozen columns' (the first cells of the header row).
     const cells = frozenKeys ? [...(head.querySelector("thead")?.rows[0]?.cells ?? [])].slice(0, frozenKeys.split(" ").length + 1) : [];
-    return followRowsByTimeline(rows, head, wrapper, table, cells, gutter + tucked);
+    let stop: (() => void) | undefined;
+    let gone = false;
+    void import("./head-follow").then(({ followRowsByTimeline }) => {
+      if (!gone) stop = followRowsByTimeline(rows, head, wrapper, table, cells, gutter + tucked);
+    });
+    return () => {
+      gone = true;
+      stop?.();
+    };
   }, [scrollLinked, frozenKeys, gutter, tucked]);
 
   const setConfig = (config: ViewConfig) => api.updateView(view, { config });
