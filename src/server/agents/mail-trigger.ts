@@ -4,6 +4,7 @@ import { agentMailbox, agentRun, mailbox, mailMessage, workspaceAgent } from "@/
 import { mailTriggerTakes } from "@/lib/agent-mail-trigger";
 import { MAX_MAIL_RUNS_PER_DAY, MAX_MAIL_RUNS_PER_HOUR } from "@/lib/agents";
 import { rowOfMessage } from "@/server/mail-client/read";
+import { senderRules } from "@/server/mail-client/senders";
 import { startTriggered } from "@/server/triggers";
 import { runMailboxes } from "./mail";
 
@@ -30,10 +31,16 @@ export async function mailArrived(box: Box, messageIds: string[]): Promise<numbe
     .where(and(eq(agentMailbox.mailboxId, box.id), eq(agentMailbox.onNewMail, true), eq(workspaceAgent.enabled, true), isNull(workspaceAgent.archivedAt)));
   if (!triggers.length) return 0;
   const fresh = new Date(Date.now() - FRESH_MS);
-  const messages = await db
+  const found = await db
     .select({ id: mailMessage.id, threadId: mailMessage.threadId, fromAddress: mailMessage.fromAddress, subject: mailMessage.subject, draft: mailMessage.draft, automated: mailMessage.automated, sentAt: mailMessage.sentAt })
     .from(mailMessage)
     .where(and(eq(mailMessage.mailboxId, box.id), inArray(mailMessage.id, messageIds), gt(mailMessage.sentAt, fresh)));
+  // Mail from an address the owner blocked goes to the junk instead (mail-client/senders.ts).
+  const rules = await senderRules(
+    box.userId,
+    found.map((m) => m.fromAddress),
+  );
+  const messages = found.filter((m) => rules.get(m.fromAddress.toLowerCase()) !== "block");
   if (!messages.length) return 0;
   // Mail the owner sent from any of their mailboxes here (a copy to themselves, a reply that came back).
   const own = (await db.select({ address: mailbox.address }).from(mailbox).where(and(eq(mailbox.workspaceId, box.workspaceId), eq(mailbox.userId, box.userId)))).map((b) => b.address);

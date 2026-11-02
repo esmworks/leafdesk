@@ -154,8 +154,10 @@ import { gzipSync } from "node:zlib";
  * The Memory page (the person's notes, the workspace's and each teamspace's, one section at a time)
  * is a route of its own: its chunk adds about 3 kB to all first loads together, less the Memory
  * dialog it replaces in every workspace page's first load.
+ * The inbox's Focus and Other tabs and Settings' list of sender rules (with its Remove button) add
+ * under 0.5 kB to all first loads together, which stood at its budget.
  */
-const BUDGET = { routeFirstLoad: 798, firstLoadShared: 1232, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 798, firstLoadShared: 1233, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

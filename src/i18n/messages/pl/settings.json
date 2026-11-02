@@ -48,6 +48,7 @@
       "offlinePages": "offline pobierz bez internetu",
       "mailboxes": "e-mail skrzynka odbiorcza imap smtp podpis",
       "imageSenders": "obrazy zdjęcia zaufani nadawcy poczta",
+      "senderRules": "ważne inne skrzynka odbiorcza sekcje biuletyny zablokuj zablokowany nadawcy spam sortuj",
       "calendars": "ical kanał subskrybuj kalendarz",
       "storageAccounts": "drive s3 pliki chmura",
       "connectedApps": "oauth klienci dostęp odwołaj",

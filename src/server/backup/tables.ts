@@ -197,6 +197,7 @@ export const LEFT_OUT: Record<string, string> = {
   mail_folder: "the Mail tab's folders of members' mailboxes, read again once a mailbox is connected on the new server",
   mail_message: "the headers of members' own mail and AI summaries of their threads, kept for the Mail tab and read again from the mail server",
   mail_image_sender: "senders whose images a member's mailbox always shows, which goes with the mailboxes left out",
+  mail_sender_rule: "where a member's inbox puts each sender's mail, a person's own rules that go with the mailboxes left out",
   mail_send: "when a member's mailbox last sent mail from the Mail tab, an hour's count that goes with the mailboxes left out",
   mail_snooze: "conversations a member snoozed in the Mail tab, which go with the mailboxes left out",
   mail_sender_logo: "logos of the domains mail came from, fetched again from those domains",

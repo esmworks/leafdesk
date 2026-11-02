@@ -48,6 +48,7 @@
       "offlinePages": "오프라인 다운로드 인터넷 없이",
       "mailboxes": "이메일 받은편지함 imap smtp 서명",
       "imageSenders": "이미지 사진 신뢰하는 보낸 사람 메일",
+      "senderRules": "중요 기타 받은편지함 구역 뉴스레터 차단 보낸 사람 스팸 분류",
       "calendars": "ical 피드 구독 캘린더",
       "storageAccounts": "drive s3 파일 클라우드",
       "connectedApps": "oauth 클라이언트 액세스 취소",

@@ -48,6 +48,7 @@
       "offlinePages": "frakoblet nedlasting uten internett offline",
       "mailboxes": "e-post innboks imap smtp postkasse signatur",
       "imageSenders": "bilder grafikk klarerte avsendere e-post",
+      "senderRules": "fokus annet innboks deler nyhetsbrev blokker blokkert avsendere søppelpost spam sorter",
       "calendars": "ical feed abonner kalender",
       "storageAccounts": "disk s3 filer sky lagring",
       "connectedApps": "oauth klienter tilgang trekk tilbake apper",

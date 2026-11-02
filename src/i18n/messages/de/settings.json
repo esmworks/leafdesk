@@ -48,6 +48,7 @@
       "offlinePages": "offline herunterladen ohne Internet",
       "mailboxes": "E-Mail Posteingang IMAP SMTP signatur",
       "imageSenders": "bilder grafiken vertrauenswürdige absender mail",
+      "senderRules": "fokus sonstige posteingang aufteilen bereiche newsletter blockieren blockiert absender spam sortieren",
       "calendars": "iCal Feed abonnieren Kalender",
       "storageAccounts": "Drive S3 Dateien Cloud",
       "connectedApps": "OAuth Clients Zugriff widerrufen",

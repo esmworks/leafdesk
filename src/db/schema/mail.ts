@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { MailboxAuth, MailboxFolders, MailboxStatus, RowEmailDirection, RowEmailStatus } from "../../lib/mail";
 import type { MailAddress, MailAgentMark, MailFolderRole } from "../../lib/mail-client";
+import type { SenderRuleKind } from "../../lib/mail-senders";
 import type { SenderAuth } from "../../lib/sender-marks";
 import { bytea, page, workspace } from "./app";
 import { user } from "./auth";
@@ -309,6 +310,25 @@ export const mailImageSender = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.mailboxId, t.address] })],
+);
+
+/**
+ * Where a person's inbox puts a sender's mail (server/mail-client/senders.ts, lib/mail-senders.ts):
+ * `sender` is an address, or a domain for everyone there; `kind` focus or other picks the inbox's
+ * section, block sends the address's mail to the junk as it comes. One person's rules hold in all
+ * their mailboxes.
+ */
+export const mailSenderRule = pgTable(
+  "mail_sender_rule",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    sender: text("sender").notNull(),
+    kind: text("kind").$type<SenderRuleKind>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.sender] }), check("mail_sender_rule_kind", sql`${t.kind} in ('focus', 'other', 'block')`)],
 );
 
 /**

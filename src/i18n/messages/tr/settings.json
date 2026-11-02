@@ -48,6 +48,7 @@
       "offlinePages": "çevrimdışı indir internetsiz",
       "mailboxes": "e-posta gelen kutusu imap smtp imza",
       "imageSenders": "görseller resimler güvenilen gönderenler posta",
+      "senderRules": "odak diğer gelen kutusu bölüm bülten engelle engellenen gönderen gereksiz spam sırala",
       "calendars": "ical akış abone takvim",
       "storageAccounts": "drive s3 dosyalar bulut",
       "connectedApps": "oauth istemciler erişim iptal",

@@ -48,6 +48,7 @@
       "offlinePages": "offline lataa ilman internetiä",
       "mailboxes": "sähköposti postilaatikko imap smtp allekirjoitus",
       "imageSenders": "kuvat luotetut lähettäjät sähköposti",
+      "senderRules": "tärkeät muut saapuneet osiot uutiskirjeet estä estetty lähettäjät roskaposti spam lajittele",
       "calendars": "ical syöte tilaa kalenteri",
       "storageAccounts": "drive s3 tiedostot pilvi",
       "connectedApps": "oauth asiakkaat pääsy mitätöi yhdistetyt sovellukset",

@@ -234,5 +234,22 @@
       "sorted": "l'ha ordinata",
       "summarized": "l'ha riassunta"
     }
+  },
+  "sections": {
+    "label": "Sezioni della posta in arrivo",
+    "focus": "Principali",
+    "other": "Altre",
+    "emptyOther": "Qui arrivano newsletter, avvisi e altra posta inviata da sistemi automatici."
+  },
+  "senders": {
+    "always": {
+      "other": "Sempre in Altre",
+      "focus": "Sempre in Principali"
+    },
+    "everyoneAt": "Tutti su {domain}",
+    "block": "Blocca {name}",
+    "blocked": "{sender} bloccato. La sua posta va nella posta indesiderata.",
+    "toOther": "La posta di {sender} andrà in Altre d’ora in poi",
+    "toFocus": "La posta di {sender} andrà in Principali d’ora in poi"
   }
 }

@@ -4,7 +4,7 @@ import { Bot, Clock, Database, Inbox, Paperclip, RefreshCw, Search, Star } from 
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { emptyFolderAction, mailActionAction, refreshMailboxAction } from "@/app/actions/mail";
+import { emptyFolderAction, mailActionAction, refreshMailboxAction, removeSenderRuleAction, setSenderRuleAction } from "@/app/actions/mail";
 import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
 import { SelectBox, useSelection } from "@/components/selection";
@@ -26,6 +26,8 @@ import {
   type MailThreadItem,
   type MailUndoneSend,
 } from "@/lib/mail-client";
+import type { MailSection, SenderRuleKind } from "@/lib/mail-senders";
+import { senderDomain } from "@/lib/sender-domain";
 import { highlightParts } from "@/lib/search-highlight";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
@@ -281,6 +283,11 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   const [pane, setPane] = useState({ c: composeParam, n: 0, draft: draftId });
   if (pane.c !== composeParam) setPane(composeParam && composeParam === savedTo ? { ...pane, c: composeParam } : { c: composeParam, n: pane.n + 1, draft: draftId });
   const query = search.get("q") ?? "";
+  // An inbox (all inboxes too) without a search shows its Focus, or its Other (?s=other): what
+  // machines sent, by the person's sender rules (server/mail-client/senders.ts).
+  const section: MailSection | null = folder && !starred && !query && (all || folder.role === "inbox") ? (search.get("s") === "other" ? "other" : "focus") : null;
+  // Conversations waiting unread in Other, as Focus's first page last said.
+  const [otherUnread, setOtherUnread] = useState(0);
   const marks = useMemo(() => mailQueryMarks(query), [query]);
   const [typed, setTyped] = useState(query);
   const [list, setList] = useState<List>({ items: [], next: null, loading: true, error: null });
@@ -302,7 +309,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   // When g was pressed, for g i, g s, g d, g a and g t.
   const goPressed = useRef(0);
   // What the list shows: an answer or an Undo for another mailbox, folder or search is dropped.
-  const listKey = box && folder ? `${all ? ALL_INBOXES : box.id}|${listFolder ?? ""}` : null;
+  const listKey = box && folder ? `${all ? ALL_INBOXES : box.id}|${listFolder ?? ""}|${section ?? ""}` : null;
   const shownKey = listKey ? `${listKey}|${query}` : null;
   const shown = useRef(shownKey);
   useEffect(() => {
@@ -311,12 +318,12 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
 
   const go = useCallback(
     (open: MailOpen, replace = false) => {
-      const href = mailHref(workspaceId, { box: all ? ALL_INBOXES : box?.id, f: listFolder, t: threadId, m: openIn, q: query || null, ...open });
+      const href = mailHref(workspaceId, { box: all ? ALL_INBOXES : box?.id, f: listFolder, s: section, t: threadId, m: openIn, q: query || null, ...open });
       // Only the address changes: the page is the same, so the server isn't asked for it again.
       if (replace) window.history.replaceState(null, "", href);
       else window.history.pushState(null, "", href);
     },
-    [all, box?.id, listFolder, threadId, openIn, query, workspaceId],
+    [all, box?.id, listFolder, section, threadId, openIn, query, workspaceId],
   );
 
   // The first open of a mailbox reads its folders and newest mail.
@@ -339,10 +346,13 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
       const key = shownKey;
       const result = await read(
         "mailThreads",
-        all ? { mailboxId: ALL_INBOXES, folderId: starred ? STARRED : "", workspaceId, search: query, cursor } : { mailboxId: box.id, folderId: listFolder ?? folder.id, search: query, cursor },
+        all
+          ? { mailboxId: ALL_INBOXES, folderId: starred ? STARRED : "", workspaceId, search: query, cursor, section: section ?? undefined }
+          : { mailboxId: box.id, folderId: listFolder ?? folder.id, search: query, cursor, section: section ?? undefined },
       ).catch(() => null);
       if (shown.current !== key) return;
       if (!result?.ok) return setList((l) => ({ ...l, loading: false, error: result?.error ?? t("loadFailed") }));
+      if (result.data.otherUnread !== undefined) setOtherUnread(result.data.otherUnread);
       const skip = new Set([...pending.current.values()].flatMap((p) => p.keys));
       setList((l) => {
         const fresh = result.data.items.filter((i) => !skip.has(itemKey(i)));
@@ -355,7 +365,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
         return { items: [...fresh, ...older], next: older.length ? l.next : result.data.next, loading: false, error: null };
       });
     },
-    [all, starred, box, folder, listFolder, shownKey, query, workspaceId, t],
+    [all, starred, box, folder, listFolder, section, shownKey, query, workspaceId, t],
   );
 
   // All inboxes list the mailboxes read so far: another one read lists it too.
@@ -592,6 +602,44 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     [go, all, folder?.role],
   );
 
+  /**
+   * A sender's mail, an address's or everyone's at a domain, goes to the other section from now on,
+   * or the address is blocked: its conversations listed go to the junk. Undo puts the rule back as
+   * it was (and the moves back, for a block).
+   */
+  const sortSender = useCallback(
+    async (sender: string, kind: SenderRuleKind) => {
+      const result = await setSenderRuleAction({ sender, kind }).catch(() => null);
+      if (!result?.ok) return showToast({ message: result?.error ?? tc("genericError") });
+      const previous = result.data.previous;
+      const restore = () => void (previous ? setSenderRuleAction({ sender, kind: previous }) : removeSenderRuleAction({ sender })).then(() => loadLatest.current(null));
+      const from = (i: MailThreadItem) => {
+        const address = i.mark.address.toLowerCase();
+        return address === sender || (!sender.includes("@") && senderDomain(address) === sender);
+      };
+      const theirs = items.filter(from);
+      if (kind === "block") {
+        act(theirs, "junk");
+        const moved = lastUndo.current?.undo;
+        const undo = () => {
+          moved?.();
+          restore();
+        };
+        showToast({ message: t("senders.blocked", { sender }), undo });
+        lastUndo.current = { undo, toast: currentToast()?.id };
+        return;
+      }
+      // Out of this section at once; the open one makes way for the next.
+      if (section && kind !== section) {
+        if (openKey && theirs.some((i) => itemKey(i) === openKey)) go({ t: null }, true);
+        setList((l) => ({ ...l, items: l.items.filter((i) => !from(i)) }));
+      }
+      showToast({ message: t(kind === "other" ? "senders.toOther" : "senders.toFocus", { sender }), undo: restore });
+      void loadLatest.current(null);
+    },
+    [items, act, section, openKey, go, t, tc],
+  );
+
   /** The pane's draft was saved or thrown away: the address follows it, and the drafts list. */
   const paneSaved = useCallback(
     (id: string | null, open: boolean) => {
@@ -784,7 +832,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   // In all inboxes a thread's mailbox is its own, and in all inboxes and the starred its folder; elsewhere the page's.
   const boxOf = (item: Pick<MailThreadItem, "mailboxId">) => (all ? boxes.find((b) => b.id === item.mailboxId) : null) ?? box;
   const folderOf = (item: Pick<MailThreadItem, "mailboxId" | "folderId">) => boxOf(item).folders?.find((f) => f.id === item.folderId) ?? folder;
-  const hrefOf = (item: MailThreadItem) => mailHref(workspaceId, { box: all ? ALL_INBOXES : box.id, f: listFolder, t: item.threadId, m: all ? item.mailboxId : null, q: query || null });
+  const hrefOf = (item: MailThreadItem) => mailHref(workspaceId, { box: all ? ALL_INBOXES : box.id, f: listFolder, s: section, t: item.threadId, m: all ? item.mailboxId : null, q: query || null });
   // The open thread's mailbox and folder (in all inboxes, of the mailbox the address names when the list hasn't it).
   const openBox = selected ? boxOf(selected) : (all && boxes.find((b) => b.id === openIn)) || box;
   const openFolder = selected ? folderOf(selected) : (openBox.folders?.find((f) => f.role === "inbox") ?? folder);
@@ -844,6 +892,30 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
             />
             {!typed && <kbd className="font-sans text-xs text-fg-faint">/</kbd>}
           </label>
+          {section && (
+            <div role="tablist" aria-label={t("sections.label")} className="-mb-3 flex gap-4">
+              {(["focus", "other"] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="tab"
+                  aria-selected={section === value}
+                  className={cn(
+                    "-mb-px flex items-center gap-1.5 border-b-2 py-2 text-sm whitespace-nowrap transition-colors",
+                    section === value ? "border-fg font-medium text-fg" : "border-transparent text-fg-muted hover:text-fg",
+                  )}
+                  onClick={() => section !== value && go({ s: value === "other" ? "other" : null, t: null })}
+                >
+                  {t(`sections.${value}`)}
+                  {value === "other" && section === "focus" && otherUnread > 0 && (
+                    <span className="text-xs text-fg-faint tabular-nums" aria-label={t("unreadCount", { count: otherUnread })}>
+                      {otherUnread}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div
           ref={listRef}
@@ -870,7 +942,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
           ) : !items.length ? (
             <Notice inList>
               {starred && !query ? <Star className="mx-auto mb-2 h-5 w-5 text-fg-icon" /> : <Inbox className="mx-auto mb-2 h-5 w-5 text-fg-icon" />}
-              {query ? t("emptySearch") : starred ? t("emptyStarred") : t("empty")}
+              {query ? t("emptySearch") : starred ? t("emptyStarred") : section === "other" ? t("sections.emptyOther") : t("empty")}
             </Notice>
           ) : (
             <>
@@ -936,6 +1008,8 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
               setTyped(found);
               go({ q: found, t: null });
             }}
+            section={section}
+            onSender={(sender, kind) => void sortSender(sender, kind)}
           />
         )}
         {snoozing && <SnoozePicker at={snoozing.at} onClose={() => setSnoozing(null)} onPick={(until) => act(snoozing.targets, "snooze", undefined, until)} />}

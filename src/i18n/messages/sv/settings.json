@@ -48,6 +48,7 @@
       "offlinePages": "offline ladda ned utan internet",
       "mailboxes": "e-post inkorg brevlåda imap smtp signatur",
       "imageSenders": "bilder grafik betrodda avsändare mejl",
+      "senderRules": "fokus övrigt inkorg avsnitt nyhetsbrev blockera blockerad avsändare skräppost spam sortera",
       "calendars": "ical flöde prenumerera kalender",
       "storageAccounts": "drive s3 filer moln lagring",
       "connectedApps": "oauth klienter åtkomst återkalla appar",

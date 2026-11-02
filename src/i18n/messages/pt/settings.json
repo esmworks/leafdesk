@@ -48,6 +48,7 @@
       "offlinePages": "offline baixar sem internet",
       "mailboxes": "e-mail caixa de entrada imap smtp assinatura",
       "imageSenders": "imagens fotos remetentes confiáveis e-mail",
+      "senderRules": "prioritários outros caixa de entrada seções boletins bloquear bloqueado remetentes lixo eletrônico spam ordenar",
       "calendars": "ical feed assinar calendário",
       "storageAccounts": "drive s3 arquivos nuvem",
       "connectedApps": "oauth clientes acesso revogar",

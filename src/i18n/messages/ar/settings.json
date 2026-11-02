@@ -48,6 +48,7 @@
       "offlinePages": "دون اتصال تنزيل بلا إنترنت",
       "mailboxes": "بريد صندوق الوارد imap smtp توقيع",
       "imageSenders": "صور مرسلون موثوقون بريد",
+      "senderRules": "المهم أخرى البريد الوارد أقسام نشرات حظر محظور المرسلون غير مرغوب فيه سبام فرز",
       "calendars": "ical موجز اشتراك تقويم",
       "storageAccounts": "drive s3 ملفات سحابة",
       "connectedApps": "oauth عملاء وصول إلغاء",

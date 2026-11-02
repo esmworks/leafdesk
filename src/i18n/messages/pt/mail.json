@@ -234,5 +234,22 @@
       "sorted": "organizou",
       "summarized": "resumiu"
     }
+  },
+  "sections": {
+    "label": "Seções da caixa de entrada",
+    "focus": "Prioritários",
+    "other": "Outros",
+    "emptyOther": "Boletins, avisos e outros e-mails enviados por máquinas chegam aqui."
+  },
+  "senders": {
+    "always": {
+      "other": "Sempre em Outros",
+      "focus": "Sempre em Prioritários"
+    },
+    "everyoneAt": "Todos em {domain}",
+    "block": "Bloquear {name}",
+    "blocked": "{sender} bloqueado. Os e-mails dele vão para o lixo eletrônico.",
+    "toOther": "Os e-mails de {sender} vão para Outros a partir de agora",
+    "toFocus": "Os e-mails de {sender} vão para Prioritários a partir de agora"
   }
 }

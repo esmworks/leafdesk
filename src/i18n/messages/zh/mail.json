@@ -234,5 +234,22 @@
       "sorted": "已整理",
       "summarized": "已总结"
     }
+  },
+  "sections": {
+    "label": "收件箱分区",
+    "focus": "重要",
+    "other": "其他",
+    "emptyOther": "新闻简报、通知以及其他由机器发送的邮件都会到这里。"
+  },
+  "senders": {
+    "always": {
+      "other": "始终放入“其他”",
+      "focus": "始终放入“重要”"
+    },
+    "everyoneAt": "{domain} 的所有人",
+    "block": "屏蔽 {name}",
+    "blocked": "已屏蔽 {sender}，其邮件将进入垃圾邮件。",
+    "toOther": "今后来自 {sender} 的邮件将进入“其他”",
+    "toFocus": "今后来自 {sender} 的邮件将进入“重要”"
   }
 }

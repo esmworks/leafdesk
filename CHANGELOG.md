@@ -20,6 +20,13 @@
   its side), replacing the Memory dialog; the chat asks before keeping one of these, MCP's
   `list_memory` and `change_memory` take a `scope`, and changes to shared notes are in the audit
   log. Migration 0188.
+- **The inbox is split into Focus and Other, and senders can be blocked.** Mail people write lands
+  in *Focus*; newsletters, mailing lists, notices and automatic replies in *Other*, whose unread
+  count shows beside its tab. A right click on a conversation puts its sender's mail, or everyone
+  at their company's domain, always in one or the other, or blocks the address, which moves its
+  mail to the junk and keeps doing so as new mail comes. Rules hold in all your mailboxes and are
+  listed under Account › Email and calendar, *Sender rules*. Notifications come only for mail in
+  *Focus*, and a blocked sender's mail starts no agent's run. Migration 0189.
 
 ### Changed
 

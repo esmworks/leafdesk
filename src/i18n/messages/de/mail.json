@@ -234,5 +234,22 @@
       "sorted": "geordnet",
       "summarized": "zusammengefasst"
     }
+  },
+  "sections": {
+    "label": "Bereiche des Posteingangs",
+    "focus": "Fokus",
+    "other": "Sonstige",
+    "emptyOther": "Newsletter, Benachrichtigungen und andere Mails, die Maschinen senden, landen hier."
+  },
+  "senders": {
+    "always": {
+      "other": "Immer in Sonstige",
+      "focus": "Immer in Fokus"
+    },
+    "everyoneAt": "Alle bei {domain}",
+    "block": "{name} blockieren",
+    "blocked": "{sender} blockiert. Mails von dort gehen in den Spam.",
+    "toOther": "Mails von {sender} gehen ab jetzt in Sonstige",
+    "toFocus": "Mails von {sender} gehen ab jetzt in Fokus"
   }
 }

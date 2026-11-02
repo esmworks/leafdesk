@@ -48,6 +48,7 @@
       "offlinePages": "hors ligne télécharger sans internet",
       "mailboxes": "e-mail boîte de réception imap smtp signature",
       "imageSenders": "images photos expéditeurs de confiance e-mail",
+      "senderRules": "prioritaires autres boîte de réception sections lettres d’information bloquer bloqué expéditeurs indésirables spam trier",
       "calendars": "ical flux s'abonner calendrier",
       "storageAccounts": "drive s3 fichiers cloud",
       "connectedApps": "oauth clients accès révoquer",

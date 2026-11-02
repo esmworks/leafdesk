@@ -234,5 +234,22 @@
       "sorted": "trié",
       "summarized": "résumé"
     }
+  },
+  "sections": {
+    "label": "Sections de la boîte de réception",
+    "focus": "Prioritaires",
+    "other": "Autres",
+    "emptyOther": "Les lettres d’information, notifications et autres messages envoyés par des machines arrivent ici."
+  },
+  "senders": {
+    "always": {
+      "other": "Toujours dans Autres",
+      "focus": "Toujours dans Prioritaires"
+    },
+    "everyoneAt": "Tout le monde chez {domain}",
+    "block": "Bloquer {name}",
+    "blocked": "{sender} bloqué. Ses messages vont dans les indésirables.",
+    "toOther": "Les messages de {sender} iront désormais dans Autres",
+    "toFocus": "Les messages de {sender} iront désormais dans Prioritaires"
   }
 }

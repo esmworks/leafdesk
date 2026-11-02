@@ -234,5 +234,22 @@
       "sorted": "đã sắp xếp",
       "summarized": "đã tóm tắt"
     }
+  },
+  "sections": {
+    "label": "Các mục của hộp thư đến",
+    "focus": "Quan trọng",
+    "other": "Khác",
+    "emptyOther": "Bản tin, thông báo và các thư khác do máy gửi sẽ đến đây."
+  },
+  "senders": {
+    "always": {
+      "other": "Luôn vào Khác",
+      "focus": "Luôn vào Quan trọng"
+    },
+    "everyoneAt": "Mọi người ở {domain}",
+    "block": "Chặn {name}",
+    "blocked": "Đã chặn {sender}. Thư của họ sẽ vào thư rác.",
+    "toOther": "Từ giờ thư từ {sender} sẽ vào Khác",
+    "toFocus": "Từ giờ thư từ {sender} sẽ vào Quan trọng"
   }
 }

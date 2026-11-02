@@ -128,8 +128,7 @@ notifications are on (see [Push notifications](self-hosting.md#push-notification
 minute: who wrote and to which address, never the subject or the text, since a lock screen shows it
 to whoever holds the device. Opening it opens the thread; mail found together comes as one
 notification ("3 new emails") that opens the inbox. Mail already read elsewhere, the owner's own,
-drafts, and mail sent by machines or to lists (newsletters, mailing lists, automatic replies) don't
-come, and nothing goes to the Leafdesk inbox or Telegram. Each mailbox turns it off under Account ›
+drafts, and mail the inbox puts in *Other* (see below) don't come, and nothing goes to the Leafdesk inbox or Telegram. Each mailbox turns it off under Account ›
 Email and calendar, *New mail notifications*.
 
 Each thread in the list has a mark beside it for the other party (whom you wrote to, in your sent
@@ -154,6 +153,17 @@ first, each thread marked with its mailbox's letter; its search looks in all of 
 opened, answered or moved there stays in its own mailbox, and *Move to* offers that mailbox's
 folders (none for a selection across mailboxes). `g` then `s`, `d`, `a` or `t` opens the default
 mailbox's folders.
+
+An inbox (and *All inboxes*) has two tabs over its list: *Focus*, the mail people wrote, and
+*Other*, what machines send: newsletters, mailing lists, notices and automatic replies, told apart
+by their headers. *Other* shows how many of its conversations are unread while *Focus* is open; a
+search, *Starred* and other folders list everything as before. A right click on a conversation
+offers *Always in Other* (or *Always in Focus*) for its sender, or for everyone at the sender's
+domain (not for public mail services such as gmail.com), and *Block*, which moves the sender's mail
+to the junk and sends what they write later there as it comes. Blocking takes one address, never a
+domain. The rules hold in all of the person's mailboxes, can be undone at once, and are listed
+under Account › Email and calendar, *Sender rules*, where one is removed. A blocked address's mail
+starts no agent's run, and only mail in *Focus* comes as a notification.
 
 Mail from a mailing list shows *Unsubscribe* beside its answers. When the list offers a
 one-click address (List-Unsubscribe-Post) the server posts to it, else a mail asking for it goes to

@@ -234,5 +234,22 @@
       "sorted": "lo ordenó",
       "summarized": "lo resumió"
     }
+  },
+  "sections": {
+    "label": "Secciones de la bandeja de entrada",
+    "focus": "Prioritarios",
+    "other": "Otros",
+    "emptyOther": "Aquí llegan los boletines, avisos y demás correos que envían las máquinas."
+  },
+  "senders": {
+    "always": {
+      "other": "Siempre en Otros",
+      "focus": "Siempre en Prioritarios"
+    },
+    "everyoneAt": "Todos en {domain}",
+    "block": "Bloquear a {name}",
+    "blocked": "{sender} bloqueado. Su correo va a correo no deseado.",
+    "toOther": "El correo de {sender} irá a Otros a partir de ahora",
+    "toFocus": "El correo de {sender} irá a Prioritarios a partir de ahora"
   }
 }

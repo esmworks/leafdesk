@@ -48,6 +48,7 @@
       "offlinePages": "オフライン ダウンロード インターネットなし",
       "mailboxes": "メール 受信箱 imap smtp 署名",
       "imageSenders": "画像 写真 信頼する差出人 メール",
+      "senderRules": "優先 その他 受信トレイ 区分 ニュースレター ブロック 差出人 迷惑メール スパム 振り分け",
       "calendars": "ical フィード 購読 カレンダー",
       "storageAccounts": "drive s3 ファイル クラウド",
       "connectedApps": "oauth クライアント アクセス 取り消し",

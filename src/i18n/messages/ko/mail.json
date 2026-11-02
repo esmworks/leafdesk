@@ -234,5 +234,22 @@
       "sorted": "정리함",
       "summarized": "요약함"
     }
+  },
+  "sections": {
+    "label": "받은편지함 구역",
+    "focus": "중요",
+    "other": "기타",
+    "emptyOther": "뉴스레터, 알림 등 기계가 보내는 메일이 여기로 옵니다."
+  },
+  "senders": {
+    "always": {
+      "other": "항상 기타로",
+      "focus": "항상 중요로"
+    },
+    "everyoneAt": "{domain}의 모든 사람",
+    "block": "{name} 차단",
+    "blocked": "{sender}을(를) 차단했습니다. 메일은 스팸함으로 갑니다.",
+    "toOther": "이제부터 {sender}의 메일은 기타로 갑니다",
+    "toFocus": "이제부터 {sender}의 메일은 중요로 갑니다"
   }
 }

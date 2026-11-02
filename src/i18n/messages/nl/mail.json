@@ -234,5 +234,22 @@
       "sorted": "geordend",
       "summarized": "samengevat"
     }
+  },
+  "sections": {
+    "label": "Onderdelen van het postvak IN",
+    "focus": "Focus",
+    "other": "Overig",
+    "emptyOther": "Nieuwsbrieven, meldingen en andere mail die machines sturen komen hier terecht."
+  },
+  "senders": {
+    "always": {
+      "other": "Altijd in Overig",
+      "focus": "Altijd in Focus"
+    },
+    "everyoneAt": "Iedereen bij {domain}",
+    "block": "{name} blokkeren",
+    "blocked": "{sender} geblokkeerd. Hun mail gaat naar ongewenst.",
+    "toOther": "Mail van {sender} gaat voortaan naar Overig",
+    "toFocus": "Mail van {sender} gaat voortaan naar Focus"
   }
 }

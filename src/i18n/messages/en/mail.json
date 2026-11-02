@@ -234,5 +234,22 @@
       "sorted": "sorted it",
       "summarized": "summarized it"
     }
+  },
+  "sections": {
+    "label": "Inbox sections",
+    "focus": "Focus",
+    "other": "Other",
+    "emptyOther": "Newsletters, notices and other mail that machines send land here."
+  },
+  "senders": {
+    "always": {
+      "other": "Always in Other",
+      "focus": "Always in Focus"
+    },
+    "everyoneAt": "Everyone at {domain}",
+    "block": "Block {name}",
+    "blocked": "{sender} blocked. Their mail goes to the junk.",
+    "toOther": "Mail from {sender} goes to Other from now on",
+    "toFocus": "Mail from {sender} goes to Focus from now on"
   }
 }

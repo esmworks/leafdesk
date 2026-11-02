@@ -234,5 +234,22 @@
       "sorted": "merapikan",
       "summarized": "meringkas"
     }
+  },
+  "sections": {
+    "label": "Bagian kotak masuk",
+    "focus": "Fokus",
+    "other": "Lainnya",
+    "emptyOther": "Buletin, pemberitahuan, dan email lain yang dikirim mesin masuk ke sini."
+  },
+  "senders": {
+    "always": {
+      "other": "Selalu di Lainnya",
+      "focus": "Selalu di Fokus"
+    },
+    "everyoneAt": "Semua di {domain}",
+    "block": "Blokir {name}",
+    "blocked": "{sender} diblokir. Email darinya masuk ke spam.",
+    "toOther": "Email dari {sender} masuk ke Lainnya mulai sekarang",
+    "toFocus": "Email dari {sender} masuk ke Fokus mulai sekarang"
   }
 }

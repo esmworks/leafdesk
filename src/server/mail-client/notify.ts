@@ -3,16 +3,18 @@ import { db } from "@/db";
 import { mailbox, mailMessage } from "@/db/schema";
 import { env } from "@/lib/env";
 import { mailPushPayload } from "@/lib/mail-push";
+import { sectionOf } from "@/lib/mail-senders";
 import { pushToPerson } from "@/server/push";
 import { requireMailIn } from "./access";
+import { senderRules } from "./senders";
 
 /**
  * New mail pushed to its mailbox owner's devices (server/push.ts), for a mailbox whose owner left
  * `mailbox.notify` on: the index (indexer.ts `arrived`) calls notifyNewMail with the messages it
  * just added to the inbox, read by the minute's sweep or by a tab watching it. Only mail still
- * unread, sent lately, and neither the owner's own nor automated (lists, newsletters, replies sent
- * by machines) counts; what a pass found goes as one message (lib/mail-push.ts). Only while the
- * owner may use the Mail tab there.
+ * unread, sent lately, not the owner's own, and in the inbox's Focus counts: not automated (lists,
+ * newsletters, replies sent by machines) unless a sender rule says otherwise (senders.ts); what a
+ * pass found goes as one message (lib/mail-push.ts). Only while the owner may use the Mail tab there.
  */
 
 /** Mail sent longer ago than this isn't new: one moved back into the inbox, or long held up on the way. */
@@ -49,8 +51,13 @@ export async function notifyNewMail(box: Box, messageIds: string[]): Promise<num
       b.address.toLowerCase(),
     ),
   );
+  // What the inbox puts in Focus, by the owner's sender rules: never a blocked address's.
+  const rules = await senderRules(
+    box.userId,
+    messages.map((m) => m.fromAddress),
+  );
   const fresh = messages
-    .filter((m) => !m.seen && !m.draft && !m.automated && !own.has(m.fromAddress.toLowerCase()))
+    .filter((m) => !m.seen && !m.draft && !own.has(m.fromAddress.toLowerCase()) && sectionOf(m.automated, rules.get(m.fromAddress.toLowerCase()) ?? null) === "focus")
     .sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime());
   if (!fresh.length) return 0;
   pushToPerson(box.userId, box.workspaceId, (t) => mailPushPayload(box, fresh, t));

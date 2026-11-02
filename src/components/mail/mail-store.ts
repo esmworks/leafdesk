@@ -160,13 +160,15 @@ export function stayInMail(e: { metaKey: boolean; ctrlKey: boolean; shiftKey: bo
   window.history.pushState(null, "", href);
 }
 
-export type MailOpen = { box?: string | null; f?: string | null; t?: string | null; m?: string | null; q?: string | null; c?: string | null };
+/** `s` "other" lists an inbox's Other section, without it its Focus. */
+export type MailOpen = { box?: string | null; f?: string | null; s?: string | null; t?: string | null; m?: string | null; q?: string | null; c?: string | null };
 
 /** The Mail page's address. In all inboxes (`box=all`), `m` is the open thread's mailbox. */
 export function mailHref(workspaceId: string, open: MailOpen = {}) {
   const params = new URLSearchParams();
   if (open.box) params.set("box", open.box);
   if (open.f) params.set("f", open.f);
+  if (open.s === "other") params.set("s", open.s);
   if (open.t) params.set("t", open.t);
   if (open.t && open.m) params.set("m", open.m);
   if (open.q) params.set("q", open.q);

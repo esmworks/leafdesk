@@ -264,7 +264,8 @@ export type MailSenderMark = { address: string; name: string | null; image: stri
 /** An agent's work on a thread, as the Mail tab marks it: its name and icon, and what it did. */
 export type MailThreadAgent = { agentId: string; name: string; icon: string | null; did: MailAgentDeed[] };
 
-export type MailThreadPage = { items: MailThreadItem[]; next: string | null };
+/** A page of threads; the first page of an inbox's Focus also says how many conversations wait unread in Other. */
+export type MailThreadPage = { items: MailThreadItem[]; next: string | null; otherUnread?: number };
 
 /** An attachment of an opened message, downloaded from the mail server when asked. */
 export type MailAttachmentView = { part: string; name: string; contentType: string; size: number; contentId: string | null; inline: boolean };

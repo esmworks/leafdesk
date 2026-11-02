@@ -48,6 +48,7 @@
       "offlinePages": "luring unduh tanpa internet",
       "mailboxes": "email kotak masuk imap smtp tanda tangan",
       "imageSenders": "gambar foto pengirim tepercaya email",
+      "senderRules": "fokus lainnya kotak masuk bagian buletin blokir diblokir pengirim spam urutkan",
       "calendars": "ical umpan berlangganan kalender",
       "storageAccounts": "drive s3 file cloud",
       "connectedApps": "oauth klien akses cabut",

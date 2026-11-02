@@ -378,7 +378,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `selection-bar.tsx`; `act` takes a list of threads, sent in `MAIL_MAX_THREADS` pieces, each to the mailbox and folder
 the item names: all inboxes, `box=all` (`ALL_INBOXES`, one query in `read.ts` `threadPage`), list
 several mailboxes, whose thread ids can repeat, so the list keys threads by `itemKey`; a new key
-  there goes into the `mail` group of `lib/shortcuts.ts` too); leaving a
+  there goes into the `mail` group of `lib/shortcuts.ts` too); the inbox's Focus and Other
+  tabs and blocked senders are `lib/mail-senders.ts` and `senders.ts` (`mail_sender_rule`, a person's
+  rules across their mailboxes; `threadPage`'s `section`, `notify.ts`, `agents/mail-trigger.ts` and
+  the indexer's `junkBlocked` follow them); leaving a
   mailing list is `unsubscribe.ts`, re-reading the headers on the server (`lib/mail-unsubscribe.ts`); why a message's
   images from other sites load is `lib/mail-images.ts`, decided after the fetch for DMARC, from what
   `images.ts` remembers: messages shown before and trusted senders; `body-cache.ts` keys bodies by

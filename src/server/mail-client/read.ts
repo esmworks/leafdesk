@@ -22,6 +22,7 @@ import {
   type MailThreadPage,
   type MailThreadView,
 } from "@/lib/mail-client";
+import { MAIL_SECTIONS, type MailSection } from "@/lib/mail-senders";
 import { logoDomain } from "@/lib/sender-marks";
 import { RowMailError } from "@/server/row-mail/settings";
 import { mailDatabases } from "@/server/row-mail/match";
@@ -33,6 +34,7 @@ import { indexFolder, indexMailbox, indexUids, isIndexed } from "./indexer";
 import { bodyHeld, heldBody } from "./body-cache";
 import { imagesFor } from "./images";
 import { knownLogos, logoUrl, senderLogosEnabled, wantLogos } from "./sender-logos";
+import { senderRuleKind } from "./senders";
 import { ConnectionLost, SHORT_MS, warmImap, withImap, type ImapLane } from "./pool";
 import { decodeText, decodeTransfer, fileView, messageParts, readPart, readParts, type PartRef } from "./structure";
 
@@ -347,14 +349,17 @@ async function threadFolders(box: Box, from: FolderRow | null) {
  * subjects and first lines. The mailbox ALL_INBOXES lists the inboxes of all the person's mailboxes
  * in `workspaceId` as one (its search, all their folders but the trash and junk). The folder STARRED
  * lists the conversations with a starred message in any folder but the trash, junk and snoozed.
+ * An inbox (all inboxes too) without a search lists one `section`, when one is asked for: Focus or
+ * Other, by the person's sender rules (senders.ts).
  */
 export async function listThreads(
   userId: string,
-  input: { mailboxId: string; folderId: string; workspaceId?: string; search?: string; cursor?: string | null; mailboxIds?: string[] },
+  input: { mailboxId: string; folderId: string; workspaceId?: string; search?: string; cursor?: string | null; mailboxIds?: string[]; section?: MailSection },
 ): Promise<MailThreadPage> {
   const search = typeof input.search === "string" ? input.search.trim().slice(0, 500) : "";
   const cursor = typeof input.cursor === "string" ? input.cursor : null;
   const starred = input.folderId === STARRED;
+  const section = !search && !starred ? (MAIL_SECTIONS.find((s) => s === input.section) ?? null) : null;
   if (input.mailboxId === ALL_INBOXES) {
     const workspaceId = input.workspaceId ?? "";
     await requireMailIn(userId, workspaceId);
@@ -378,7 +383,7 @@ export async function listThreads(
           )
       : [];
     const listed = boxes.flatMap((box) => inboxes.filter((f) => f.mailboxId === box.id).map((folder) => ({ box, folder })));
-    return threadPage(userId, workspaceId, listed, search, cursor, starred);
+    return threadPage(userId, workspaceId, listed, search, cursor, starred, section);
   }
   const box = await requireOwnMailbox(userId, input.mailboxId);
   if (starred) {
@@ -387,7 +392,7 @@ export async function listThreads(
     return inbox ? threadPage(userId, box.workspaceId, [{ box, folder: inbox }], search, cursor, true) : { items: [], next: null };
   }
   const folder = await folderOf(box, input.folderId);
-  return threadPage(userId, box.workspaceId, [{ box, folder }], search, cursor);
+  return threadPage(userId, box.workspaceId, [{ box, folder }], search, cursor, false, folder.role === "inbox" ? section : null);
 }
 
 /** The threads of these folders (each of its own mailbox), in one list by their newest message. */
@@ -445,7 +450,15 @@ async function senderMarks(userId: string, workspaceId: string, wanted: MarkWant
   );
 }
 
-async function threadPage(userId: string, workspaceId: string, listed: { box: Box; folder: FolderRow }[], search: string, cursor: string | null, starred = false): Promise<MailThreadPage> {
+async function threadPage(
+  userId: string,
+  workspaceId: string,
+  listed: { box: Box; folder: FolderRow }[],
+  search: string,
+  cursor: string | null,
+  starred = false,
+  section: MailSection | null = null,
+): Promise<MailThreadPage> {
   // Per mailbox: the folders listed (all but the trash and junk for a search, and the snoozed too for the starred) and those whose messages count in a thread.
   const each = await Promise.all(
     listed.map(async ({ box, folder }) => {
@@ -471,6 +484,9 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
   const [at, mailboxId, ...rest] = cursor?.split("|") ?? [];
   const threadId = rest.join("|");
   if (at && mailboxId && threadId && !Number.isNaN(Date.parse(at))) after = sql`(t.last, t.mailbox_id, t.thread_id) < (${at}::timestamptz, ${mailboxId}, ${threadId})`;
+  // A thread is in Other when all its messages listed are: a sender rule's section, else Other for what machines sent.
+  const other = sql`bool_and(coalesce(${senderRuleKind(userId, mailMessage.fromAddress)} <> 'focus', ${mailMessage.automated}))`;
+  const outer = [after, section ? sql`t.other = ${section === "other"}` : undefined].filter((c): c is SQL => !!c);
   // A thread back from a snooze is listed as of the moment it came back (snooze.ts), if that is later.
   const groupsOf = (where: SQL | undefined) => db.execute<{ mailbox_id: string; thread_id: string; last: string; unread: boolean; held: number; unseen: number; starred: boolean; starred_in: string | null; files: boolean; drafts: boolean; newest: string; until: string | null }>(sql`
     select * from (
@@ -482,12 +498,13 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
         (array_agg(${mailMessage.folderId} order by ${mailMessage.sentAt} desc) filter (where ${mailMessage.flagged}))[1] as starred_in,
         bool_or(${mailMessage.hasAttachments}) as files, bool_or(${mailMessage.draft}) as drafts,
         (array_agg(${mailMessage.id} order by ${mailMessage.sentAt} desc, ${mailMessage.uid} desc))[1] as newest
+        ${section ? sql`, ${other} as other` : sql``}
       from ${mailMessage}
       left join ${mailSnooze} on ${mailSnooze.mailboxId} = ${mailMessage.mailboxId} and ${mailSnooze.threadId} = ${mailMessage.threadId}
       where ${where}
       group by ${mailMessage.mailboxId}, ${mailMessage.threadId}
     ) t
-    ${after ? sql`where ${after}` : sql``}
+    ${outer.length ? sql`where ${sql.join(outer, sql` and `)}` : sql``}
     order by t.last desc, t.mailbox_id desc, t.thread_id desc
     limit ${MAIL_PAGE + 1}
   `);
@@ -505,7 +522,22 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
   const page_ = [...groups];
   const more = page_.length > MAIL_PAGE;
   const shown = page_.slice(0, MAIL_PAGE);
-  if (!shown.length) return { items: [], next: null };
+  // The first page of Focus tells how many conversations wait unread in Other, for its tab.
+  const otherUnread =
+    section === "focus" && !cursor
+      ? Number(
+          (
+            await db.execute<{ n: number }>(sql`
+              select count(*)::int as n from (
+                select ${other} as other, bool_or(not ${mailMessage.seen}) as unread
+                from ${mailMessage} where ${inScope}
+                group by ${mailMessage.mailboxId}, ${mailMessage.threadId}
+              ) t where t.other and t.unread
+            `)
+          )[0]?.n ?? 0,
+        )
+      : undefined;
+  if (!shown.length) return { items: [], next: null, otherUnread };
 
   const visible = each.flatMap((e) => e.visible.map((f) => f.id));
   // A thread answered in a draft shows it wherever it is listed.
@@ -606,7 +638,7 @@ async function threadPage(userId: string, workspaceId: string, listed: { box: Bo
     ];
   });
   const last = shown[shown.length - 1];
-  return { items, next: more ? `${new Date(last.last).toISOString()}|${last.mailbox_id}|${last.thread_id}` : null };
+  return { items, next: more ? `${new Date(last.last).toISOString()}|${last.mailbox_id}|${last.thread_id}` : null, otherUnread };
 }
 
 function messageView(m: MessageRow, folders: Map<string, FolderRow>, row: RowChip | null, mark: MailSenderMark | undefined): MailMessageView {

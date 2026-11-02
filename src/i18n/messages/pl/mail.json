@@ -234,5 +234,22 @@
       "sorted": "uporządkował",
       "summarized": "podsumował"
     }
+  },
+  "sections": {
+    "label": "Sekcje skrzynki odbiorczej",
+    "focus": "Ważne",
+    "other": "Inne",
+    "emptyOther": "Tu trafiają biuletyny, powiadomienia i inna poczta wysyłana przez maszyny."
+  },
+  "senders": {
+    "always": {
+      "other": "Zawsze w Inne",
+      "focus": "Zawsze w Ważne"
+    },
+    "everyoneAt": "Wszyscy z {domain}",
+    "block": "Zablokuj: {name}",
+    "blocked": "Zablokowano: {sender}. Poczta od tego nadawcy trafia do spamu.",
+    "toOther": "Poczta od {sender} będzie odtąd trafiać do Inne",
+    "toFocus": "Poczta od {sender} będzie odtąd trafiać do Ważne"
   }
 }

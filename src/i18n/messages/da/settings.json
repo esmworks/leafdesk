@@ -48,6 +48,7 @@
       "offlinePages": "offline download uden internet",
       "mailboxes": "e-mail indbakke IMAP SMTP postkasse signatur",
       "imageSenders": "billeder grafik betroede afsendere mail",
+      "senderRules": "fokus andet indbakke sektioner nyhedsbreve bloker blokeret afsendere uønsket spam sorter",
       "calendars": "iCal feed abonnér kalender",
       "storageAccounts": "drev S3 filer sky",
       "connectedApps": "OAuth klienter adgang tilbagekald",

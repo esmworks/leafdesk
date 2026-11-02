@@ -48,6 +48,7 @@
       "offlinePages": "offline scarica senza internet",
       "mailboxes": "email posta in arrivo imap smtp firma",
       "imageSenders": "immagini foto mittenti attendibili posta",
+      "senderRules": "principali altre posta in arrivo sezioni newsletter blocca bloccato mittenti indesiderata spam ordina",
       "calendars": "ical feed iscriviti calendario",
       "storageAccounts": "drive s3 file cloud",
       "connectedApps": "oauth client accesso revoca",

@@ -3,11 +3,13 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
 import type { MailAction, MailAddress, MailBody, MailboxTabView, MailDraftInput, MailDraftRef, MailDraftView, MailFolderView, MailHeldSend, MailSavedDraft, MailSendStatus, MailThreadPage, MailThreadView, MailUndoneSend } from "@/lib/mail-client";
+import type { MailSection, SenderRuleKind } from "@/lib/mail-senders";
 import { AccessError } from "@/server/access";
 import { getThread, listMailboxes, listThreads, openMailbox, prefetchBodies, readBody, refreshFolder, refreshMailbox } from "@/server/mail-client/read";
 import { suggestAddresses } from "@/server/mail-client/contacts";
 import { discardDraft, openDraft, saveDraft } from "@/server/mail-client/drafts";
 import { forgetImageSender, trustImageSender } from "@/server/mail-client/images";
+import { removeSenderRule, setSenderRule } from "@/server/mail-client/senders";
 import { addMailTasks, type AddedMailTasks, type MailTasksInput } from "@/server/mail-client/tasks";
 import { mailTemplate } from "@/server/mail-client/templates";
 import { unsubscribe } from "@/server/mail-client/unsubscribe";
@@ -51,7 +53,14 @@ export async function refreshFolderAction(mailboxId: string, folderId: string): 
   return run((userId) => refreshFolder(userId, mailboxId, folderId));
 }
 
-export async function listThreadsAction(input: { mailboxId: string; folderId: string; workspaceId?: string; search?: string; cursor?: string | null }): Promise<ActionResult<MailThreadPage>> {
+export async function listThreadsAction(input: {
+  mailboxId: string;
+  folderId: string;
+  workspaceId?: string;
+  search?: string;
+  cursor?: string | null;
+  section?: MailSection;
+}): Promise<ActionResult<MailThreadPage>> {
   return run((userId) => listThreads(userId, input));
 }
 
@@ -89,6 +98,16 @@ export async function trustImageSenderAction(input: { mailboxId: string; address
 /** Stops loading images from this sender unless asked (from a message or from Settings). */
 export async function forgetImageSenderAction(input: { mailboxId: string; address: string }): Promise<ActionResult<null>> {
   return run((userId) => forgetImageSender(userId, input));
+}
+
+/** Puts a sender's mail (an address, or everyone at a domain) in a section of the inbox from now on, or blocks the address. */
+export async function setSenderRuleAction(input: { sender: string; kind: SenderRuleKind }): Promise<ActionResult<{ previous: SenderRuleKind | null }>> {
+  return run((userId) => setSenderRule(userId, input));
+}
+
+/** Takes a sender's rule away (from Settings, or Undo in Mail). */
+export async function removeSenderRuleAction(input: { sender: string }): Promise<ActionResult<null>> {
+  return run((userId) => removeSenderRule(userId, input));
 }
 
 /** Leaves the mailing list a message came from, by its one-click POST or a mail to the list. */

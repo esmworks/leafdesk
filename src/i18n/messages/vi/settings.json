@@ -48,6 +48,7 @@
       "offlinePages": "ngoại tuyến tải xuống không có internet",
       "mailboxes": "email hộp thư đến imap smtp chữ ký",
       "imageSenders": "hình ảnh người gửi tin cậy thư",
+      "senderRules": "quan trọng khác hộp thư đến mục bản tin chặn đã chặn người gửi thư rác spam sắp xếp",
       "calendars": "ical nguồn cấp đăng ký lịch",
       "storageAccounts": "drive s3 tệp đám mây",
       "connectedApps": "oauth ứng dụng khách quyền truy cập thu hồi",

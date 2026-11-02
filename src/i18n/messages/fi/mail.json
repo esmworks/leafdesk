@@ -234,5 +234,22 @@
       "sorted": "järjesteli",
       "summarized": "tiivisti"
     }
+  },
+  "sections": {
+    "label": "Saapuneiden osiot",
+    "focus": "Tärkeät",
+    "other": "Muut",
+    "emptyOther": "Tänne tulevat uutiskirjeet, ilmoitukset ja muu koneiden lähettämä posti."
+  },
+  "senders": {
+    "always": {
+      "other": "Aina Muissa",
+      "focus": "Aina Tärkeissä"
+    },
+    "everyoneAt": "Kaikki osoitteessa {domain}",
+    "block": "Estä {name}",
+    "blocked": "{sender} estetty. Hänen postinsa menee roskapostiin.",
+    "toOther": "Posti lähettäjältä {sender} menee tästä lähtien Muihin",
+    "toFocus": "Posti lähettäjältä {sender} menee tästä lähtien Tärkeisiin"
   }
 }

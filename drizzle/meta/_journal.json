@@ -1324,6 +1324,13 @@
       "when": 1793644930359,
       "tag": "0188_memory_layers",
       "breakpoints": true
+    },
+    {
+      "idx": 189,
+      "version": "7",
+      "when": 1793650346410,
+      "tag": "0189_mail_sender_rules",
+      "breakpoints": true
     }
   ]
 }

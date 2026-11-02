@@ -234,5 +234,22 @@
       "sorted": "sorteret",
       "summarized": "opsummeret"
     }
+  },
+  "sections": {
+    "label": "Indbakkens sektioner",
+    "focus": "Fokus",
+    "other": "Andet",
+    "emptyOther": "Nyhedsbreve, meddelelser og anden post, som maskiner sender, lander her."
+  },
+  "senders": {
+    "always": {
+      "other": "Altid i Andet",
+      "focus": "Altid i Fokus"
+    },
+    "everyoneAt": "Alle hos {domain}",
+    "block": "Bloker {name}",
+    "blocked": "{sender} blokeret. Deres post går til uønsket post.",
+    "toOther": "Post fra {sender} går til Andet fra nu af",
+    "toFocus": "Post fra {sender} går til Fokus fra nu af"
   }
 }

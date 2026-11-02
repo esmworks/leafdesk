@@ -234,5 +234,22 @@
       "sorted": "düzenledi",
       "summarized": "özetledi"
     }
+  },
+  "sections": {
+    "label": "Gelen kutusu bölümleri",
+    "focus": "Odak",
+    "other": "Diğer",
+    "emptyOther": "Bültenler, bildirimler ve makinelerin gönderdiği diğer postalar buraya gelir."
+  },
+  "senders": {
+    "always": {
+      "other": "Hep Diğer’de",
+      "focus": "Hep Odak’ta"
+    },
+    "everyoneAt": "{domain} alan adındaki herkes",
+    "block": "{name} kişisini engelle",
+    "blocked": "{sender} engellendi. Postaları Gereksiz’e gider.",
+    "toOther": "{sender} postaları bundan sonra Diğer’e gelecek",
+    "toFocus": "{sender} postaları bundan sonra Odak’a gelecek"
   }
 }

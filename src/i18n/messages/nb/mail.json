@@ -234,5 +234,22 @@
       "sorted": "sortert",
       "summarized": "oppsummert"
     }
+  },
+  "sections": {
+    "label": "Innboksens deler",
+    "focus": "Fokus",
+    "other": "Annet",
+    "emptyOther": "Nyhetsbrev, varsler og annen e-post som maskiner sender, havner her."
+  },
+  "senders": {
+    "always": {
+      "other": "Alltid i Annet",
+      "focus": "Alltid i Fokus"
+    },
+    "everyoneAt": "Alle hos {domain}",
+    "block": "Blokker {name}",
+    "blocked": "{sender} blokkert. E-posten deres går til søppelpost.",
+    "toOther": "E-post fra {sender} går til Annet fra nå av",
+    "toFocus": "E-post fra {sender} går til Fokus fra nå av"
   }
 }

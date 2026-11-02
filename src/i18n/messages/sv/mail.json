@@ -234,5 +234,22 @@
       "sorted": "sorterat",
       "summarized": "sammanfattat"
     }
+  },
+  "sections": {
+    "label": "Inkorgens avsnitt",
+    "focus": "Fokus",
+    "other": "Övrigt",
+    "emptyOther": "Nyhetsbrev, aviseringar och annan post som maskiner skickar hamnar här."
+  },
+  "senders": {
+    "always": {
+      "other": "Alltid i Övrigt",
+      "focus": "Alltid i Fokus"
+    },
+    "everyoneAt": "Alla på {domain}",
+    "block": "Blockera {name}",
+    "blocked": "{sender} blockerad. Deras post går till skräpposten.",
+    "toOther": "Post från {sender} går till Övrigt från och med nu",
+    "toFocus": "Post från {sender} går till Fokus från och med nu"
   }
 }

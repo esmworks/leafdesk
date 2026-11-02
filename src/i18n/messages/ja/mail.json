@@ -234,5 +234,22 @@
       "sorted": "整理しました",
       "summarized": "要約しました"
     }
+  },
+  "sections": {
+    "label": "受信トレイの区分",
+    "focus": "優先",
+    "other": "その他",
+    "emptyOther": "ニュースレターやお知らせなど、機械が送るメールはここに届きます。"
+  },
+  "senders": {
+    "always": {
+      "other": "常に「その他」へ",
+      "focus": "常に「優先」へ"
+    },
+    "everyoneAt": "{domain} の全員",
+    "block": "{name} をブロック",
+    "blocked": "{sender} をブロックしました。メールは迷惑メールに入ります。",
+    "toOther": "{sender} からのメールは今後「その他」に届きます",
+    "toFocus": "{sender} からのメールは今後「優先」に届きます"
   }
 }

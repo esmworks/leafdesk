@@ -49,6 +49,46 @@ export async function destination(client: ImapFlow, box: Box, all: FolderRow[], 
   return makeFolder(client, box, "Archive", "archive");
 }
 
+/** Moves messages of the folder `client` holds open to `target`, the index following. */
+async function moveHeld(client: ImapFlow, list: MessageRow[], target: FolderRow) {
+  const moved = await client.messageMove(list.map((m) => m.uid).join(","), target.path, { uid: true });
+  for (const m of list) {
+    const uid = moved && moved.uidMap?.get(m.uid);
+    // With the new number the message stays listed where it went; without, the next read finds it there.
+    if (uid) await db.update(mailMessage).set({ folderId: target.id, uid }).where(eq(mailMessage.id, m.id)).catch(() => db.delete(mailMessage).where(eq(mailMessage.id, m.id)));
+    else await db.delete(mailMessage).where(eq(mailMessage.id, m.id));
+  }
+}
+
+/**
+ * Moves these messages of a mailbox to its junk folder, on the background lane: mail from a
+ * blocked sender as it comes (senders.ts). Nothing happens where the server has no junk folder.
+ */
+export async function junkMessages(box: Box, messages: MessageRow[]) {
+  if (!messages.length) return;
+  const all = await folders(box);
+  const junk = all.find((f) => f.role === "junk");
+  if (!junk) return;
+  await withImap(
+    box,
+    async (client) => {
+      for (const source of all) {
+        const list = messages.filter((m) => m.folderId === source.id);
+        if (!list.length || source.id === junk.id) continue;
+        const lock = await client.getMailboxLock(source.path);
+        try {
+          await moveHeld(client, list, junk);
+        } finally {
+          lock.release();
+        }
+        await recount(client, source);
+      }
+      await recount(client, junk);
+    },
+    "background",
+  );
+}
+
 /**
  * Does `action` to threads of a folder. Moves (archive, trash, junk, back to the inbox, or to the
  * folder `to` names) and "delete" (for good, from the trash or junk only) take the thread's
@@ -115,13 +155,7 @@ export async function mailAction(userId: string, input: { mailboxId: string; fol
               ),
             );
         } else if (target) {
-          const moved = await client.messageMove(uids, target.path, { uid: true });
-          for (const m of list) {
-            const uid = moved && moved.uidMap?.get(m.uid);
-            // With the new number the message stays listed where it went; without, the next read finds it there.
-            if (uid) await db.update(mailMessage).set({ folderId: target.id, uid }).where(eq(mailMessage.id, m.id)).catch(() => db.delete(mailMessage).where(eq(mailMessage.id, m.id)));
-            else await db.delete(mailMessage).where(eq(mailMessage.id, m.id));
-          }
+          await moveHeld(client, list, target);
         } else {
           // Deleting for good, or archiving on Gmail (out of the inbox, still in All Mail).
           await client.messageDelete(uids, { uid: true });
