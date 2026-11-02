@@ -37,5 +37,34 @@
     "onPage": "na stronie <page>{title}</page>",
     "tickFailed": "Nie udało się odhaczyć zadania.",
     "untickFailed": "Nie udało się cofnąć odhaczenia. Zrób to na stronie."
+  },
+  "figures": {
+    "label": "Twoja praca w skrócie",
+    "open": "Otwarte zadania",
+    "openNote": "{count, plural, =0 {Nic na dziś} other {Na dziś: #}}",
+    "overdue": "Zaległe",
+    "overdueNote": "Termin minął",
+    "overdueNone": "Brak zaległych",
+    "week": "W tym tygodniu",
+    "weekNote": "Dziś i kolejne 7 dni",
+    "approvals": "Czeka na ciebie",
+    "approvalsNote": "Zmiany do zatwierdzenia",
+    "approvalsNone": "Nic do zatwierdzenia"
+  },
+  "dashboard": {
+    "heading": "Pulpit",
+    "edit": "Edytuj",
+    "done": "Gotowe",
+    "draft": "Skonfiguruj z AI",
+    "drafting": "Konfigurowanie…",
+    "drafted": "{count, plural, other {AI skonfigurowała widżety z twoich baz danych: #.}}",
+    "undo": "Cofnij",
+    "empty": "Zbierz tu liczby, wykresy i listy obszaru roboczego, dla wszystkich.",
+    "setUp": "Skonfiguruję sam",
+    "errors": {
+      "noDatabases": "Obszar roboczy nie ma jeszcze baz danych do pokazania.",
+      "unusable": "AI nie mogła skonfigurować pulpitu. Spróbuj ponownie.",
+      "noAccess": "Tylko właściciele mogą zmieniać pulpit."
+    }
   }
 }

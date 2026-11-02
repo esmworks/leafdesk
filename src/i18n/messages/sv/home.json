@@ -37,5 +37,34 @@
     "onPage": "på <page>{title}</page>",
     "tickFailed": "Det gick inte att bocka av punkten.",
     "untickFailed": "Det gick inte att ta bort bocken. Ta bort den på sidan."
+  },
+  "figures": {
+    "label": "Ditt arbete i en överblick",
+    "open": "Öppna uppgifter",
+    "openNote": "{count, plural, =0 {Inget förfaller i dag} other {# förfaller i dag}}",
+    "overdue": "Försenade",
+    "overdueNote": "Datumet har passerat",
+    "overdueNone": "Inget försenat",
+    "week": "Den här veckan",
+    "weekNote": "I dag och de kommande 7 dagarna",
+    "approvals": "Väntar på dig",
+    "approvalsNote": "Ändringar att godkänna",
+    "approvalsNone": "Inget att godkänna"
+  },
+  "dashboard": {
+    "heading": "Instrumentpanel",
+    "edit": "Redigera",
+    "done": "Klar",
+    "draft": "Konfigurera med AI",
+    "drafting": "Konfigurerar…",
+    "drafted": "{count, plural, other {AI:n konfigurerade # widgetar från dina databaser.}}",
+    "undo": "Ångra",
+    "empty": "Samla arbetsytans siffror, diagram och listor här, för alla.",
+    "setUp": "Konfigurera själv",
+    "errors": {
+      "noDatabases": "Arbetsytan har inga databaser att visa ännu.",
+      "unusable": "AI:n kunde inte konfigurera en instrumentpanel. Försök igen.",
+      "noAccess": "Endast ägare kan ändra instrumentpanelen."
+    }
   }
 }

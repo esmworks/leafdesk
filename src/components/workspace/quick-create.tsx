@@ -41,21 +41,22 @@ export function QuickCreate({ workspaceId }: { workspaceId: string }) {
     });
   }
 
+  // One way in stands out, the page; the others sit beside it without a frame.
   return (
     <div className="space-y-2">
       {/* Phones: equal tiles, icon over label, so no label has to wrap inside a button. */}
-      <div className={cn("grid gap-2 md:flex", canBuild ? "grid-cols-2" : "grid-cols-3")}>
-        <Button onClick={() => create("page")} disabled={pending} className={tile}>
+      <div className={cn("grid gap-1 md:flex md:flex-wrap md:items-center", canBuild ? "grid-cols-2" : "grid-cols-3")}>
+        <Button variant="primary" onClick={() => create("page")} disabled={pending} className={tile}>
           <FileText className="h-4 w-4" /> {t("newPage")}
         </Button>
-        <Button onClick={() => create("database")} disabled={pending} className={tile}>
+        <Button variant="ghost" onClick={() => create("database")} disabled={pending} className={tile}>
           <Database className="h-4 w-4" /> {t("newDatabase")}
         </Button>
-        <Button onClick={() => setTemplatesOpen(true)} disabled={pending} className={tile}>
+        <Button variant="ghost" onClick={() => setTemplatesOpen(true)} disabled={pending} className={tile}>
           <LayoutTemplate className="h-4 w-4" /> {t("fromTemplate")}
         </Button>
         {canBuild && (
-          <Button onClick={() => setBuildOpen(true)} disabled={pending} className={tile}>
+          <Button variant="ghost" onClick={() => setBuildOpen(true)} disabled={pending} className={tile}>
             <Sparkles className="h-4 w-4" /> {tBuild("menuItem")}
           </Button>
         )}

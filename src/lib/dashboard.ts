@@ -63,11 +63,12 @@ export type WidgetColor = (typeof WIDGET_COLORS)[number];
 export const isWidgetColor = (value: unknown): value is WidgetColor => (WIDGET_COLORS as readonly unknown[]).includes(value);
 
 /**
- * A widget's box: a border on the page's background, or with a color its hue's tint (the
- * `.tint-*` palette in globals.css), as a board column of that color.
+ * A widget's box: a filled surface set off from the page without a line (docs/design.md; high
+ * contrast draws one), or with a color its hue's tint (the `.tint-*` palette in globals.css), as a
+ * board column of that color.
  */
 export function widgetBoxClass(color: WidgetColor | undefined): string {
-  return color ? `tint-${color} border-transparent bg-[var(--opt-tint)]` : "border-border bg-bg";
+  return color ? `tint-${color} border-transparent bg-[var(--opt-tint)]` : "border-transparent bg-bg-subtle high-contrast:border-border";
 }
 /** Rows a list widget shows; the rest are counted. */
 export const LIST_WIDGET_ROWS = 8;

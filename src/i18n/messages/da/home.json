@@ -37,5 +37,34 @@
     "onPage": "på <page>{title}</page>",
     "tickFailed": "Opgaven kunne ikke krydses af.",
     "untickFailed": "Fluebenet kunne ikke fjernes. Fjern det på siden."
+  },
+  "figures": {
+    "label": "Dit arbejde på et øjeblik",
+    "open": "Åbne opgaver",
+    "openNote": "{count, plural, =0 {Intet forfalder i dag} other {# forfalder i dag}}",
+    "overdue": "Forsinket",
+    "overdueNote": "Datoen er overskredet",
+    "overdueNone": "Intet forsinket",
+    "week": "Denne uge",
+    "weekNote": "I dag og de næste 7 dage",
+    "approvals": "Venter på dig",
+    "approvalsNote": "Ændringer til godkendelse",
+    "approvalsNone": "Intet at godkende"
+  },
+  "dashboard": {
+    "heading": "Dashboard",
+    "edit": "Rediger",
+    "done": "Færdig",
+    "draft": "Opsæt med AI",
+    "drafting": "Opsætter…",
+    "drafted": "{count, plural, other {AI'en har opsat # widgets fra dine databaser.}}",
+    "undo": "Fortryd",
+    "empty": "Saml arbejdsområdets tal, diagrammer og lister her, for alle.",
+    "setUp": "Opsæt det selv",
+    "errors": {
+      "noDatabases": "Arbejdsområdet har endnu ingen databaser at vise.",
+      "unusable": "AI'en kunne ikke opsætte et dashboard. Prøv igen.",
+      "noAccess": "Kun ejere kan ændre dashboardet."
+    }
   }
 }

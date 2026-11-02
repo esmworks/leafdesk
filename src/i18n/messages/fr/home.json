@@ -37,5 +37,34 @@
     "onPage": "dans <page>{title}</page>",
     "tickFailed": "Impossible de cocher la tâche.",
     "untickFailed": "Impossible de décocher la tâche. Décochez-la dans la page."
+  },
+  "figures": {
+    "label": "Votre travail en un coup d'œil",
+    "open": "Tâches ouvertes",
+    "openNote": "{count, plural, =0 {Rien pour aujourd'hui} other {# pour aujourd'hui}}",
+    "overdue": "En retard",
+    "overdueNote": "Date dépassée",
+    "overdueNone": "Rien en retard",
+    "week": "Cette semaine",
+    "weekNote": "Aujourd'hui et les 7 prochains jours",
+    "approvals": "En attente de vous",
+    "approvalsNote": "Modifications à approuver",
+    "approvalsNone": "Rien à approuver"
+  },
+  "dashboard": {
+    "heading": "Tableau de bord",
+    "edit": "Modifier",
+    "done": "Terminé",
+    "draft": "Configurer avec l'IA",
+    "drafting": "Configuration…",
+    "drafted": "{count, plural, other {L'IA a configuré # widgets à partir de vos bases de données.}}",
+    "undo": "Annuler",
+    "empty": "Réunissez ici les chiffres, graphiques et listes de l'espace de travail, pour tout le monde.",
+    "setUp": "Le configurer moi-même",
+    "errors": {
+      "noDatabases": "L'espace de travail n'a pas encore de base de données à afficher.",
+      "unusable": "L'IA n'a pas pu configurer de tableau de bord. Réessayez.",
+      "noAccess": "Seuls les propriétaires peuvent modifier le tableau de bord."
+    }
   }
 }

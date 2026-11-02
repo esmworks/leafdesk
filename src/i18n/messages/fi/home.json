@@ -37,5 +37,34 @@
     "onPage": "sivulla <page>{title}</page>",
     "tickFailed": "Tehtävää ei voitu rastittaa.",
     "untickFailed": "Rastia ei voitu poistaa. Poista se sivulla."
+  },
+  "figures": {
+    "label": "Työsi yhdellä silmäyksellä",
+    "open": "Avoimet tehtävät",
+    "openNote": "{count, plural, =0 {Tänään ei erääntyviä} other {# erääntyy tänään}}",
+    "overdue": "Myöhässä",
+    "overdueNote": "Päivä on mennyt",
+    "overdueNone": "Ei myöhässä olevia",
+    "week": "Tällä viikolla",
+    "weekNote": "Tänään ja seuraavat 7 päivää",
+    "approvals": "Odottaa sinua",
+    "approvalsNote": "Hyväksyttävät muutokset",
+    "approvalsNone": "Ei hyväksyttävää"
+  },
+  "dashboard": {
+    "heading": "Koontinäyttö",
+    "edit": "Muokkaa",
+    "done": "Valmis",
+    "draft": "Määritä tekoälyllä",
+    "drafting": "Määritetään…",
+    "drafted": "{count, plural, other {Tekoäly määritti # pienoisohjelmaa tietokannoistasi.}}",
+    "undo": "Kumoa",
+    "empty": "Kokoa työtilan luvut, kaaviot ja luettelot tähän kaikille.",
+    "setUp": "Määritän itse",
+    "errors": {
+      "noDatabases": "Työtilassa ei ole vielä näytettäviä tietokantoja.",
+      "unusable": "Tekoäly ei voinut määrittää koontinäyttöä. Yritä uudelleen.",
+      "noAccess": "Vain omistajat voivat muuttaa koontinäyttöä."
+    }
   }
 }

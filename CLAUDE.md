@@ -314,7 +314,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   and `own_request` kinds count failures in a row through `noteScheduleOutcome`, called when the
   run ends, which turns the schedule off at `SCHEDULE_FAILURE_LIMIT` with a `schedule_paused`
   inbox item).
-- **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
+- **Other areas:** the home page's dashboard `home-dashboard.ts` (widgets as a dashboard block's, in
+  the workspace setting `homeDashboard`, written only there, never by `updateWorkspaceSettings`;
+  readers get only widgets of databases they may open), meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
   table synced in `persistPage` by `meeting-notes.ts`; an uploaded file is decoded in the browser
   and sent in a live recording's pieces, `components/voice/meeting-upload-session.ts`), to-dos in
   pages for My tasks `page-tasks.ts`

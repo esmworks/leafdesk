@@ -37,5 +37,34 @@
     "onPage": "on <page>{title}</page>",
     "tickFailed": "Couldn't tick the to-do.",
     "untickFailed": "Couldn't untick the to-do. Untick it in the page."
+  },
+  "figures": {
+    "label": "Your work at a glance",
+    "open": "Open tasks",
+    "openNote": "{count, plural, =0 {None due today} other {# due today}}",
+    "overdue": "Overdue",
+    "overdueNote": "Past their date",
+    "overdueNone": "Nothing overdue",
+    "week": "Due this week",
+    "weekNote": "Today and the next 7 days",
+    "approvals": "Waiting for you",
+    "approvalsNote": "Changes to approve",
+    "approvalsNone": "Nothing to approve"
+  },
+  "dashboard": {
+    "heading": "Dashboard",
+    "edit": "Edit",
+    "done": "Done",
+    "draft": "Set up with AI",
+    "drafting": "Setting up…",
+    "drafted": "{count, plural, one {The AI set up # widget from your databases.} other {The AI set up # widgets from your databases.}}",
+    "undo": "Undo",
+    "empty": "Bring the workspace's numbers, charts and lists together here, for everyone in it.",
+    "setUp": "Set it up myself",
+    "errors": {
+      "noDatabases": "The workspace has no databases to show yet.",
+      "unusable": "The AI couldn't set up a dashboard. Try again.",
+      "noAccess": "Only owners can change the dashboard."
+    }
   }
 }

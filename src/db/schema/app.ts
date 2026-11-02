@@ -199,6 +199,12 @@ export type WorkspaceSettings = {
    * Settings > General and everyone inserts. Checked by parseCalloutStyles (lib/callout-styles-parse) when saved.
    */
   calloutStyles: CalloutStyle[];
+  /**
+   * The dashboard on the workspace's home page (server/home-dashboard.ts): widgets as a dashboard
+   * block stores them (lib/dashboard serializeDashboard) and the period they show. Owners change it
+   * from the home page, never through a settings patch; null until one does.
+   */
+  homeDashboard: { widgets: string; period: string } | null;
 };
 
 export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
@@ -229,6 +235,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   pageViews: true,
   sensitiveContent: false,
   calloutStyles: [],
+  homeDashboard: null,
 };
 
 export const workspace = pgTable("workspace", {

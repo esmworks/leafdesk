@@ -37,5 +37,34 @@
     "onPage": "位于 <page>{title}</page>",
     "tickFailed": "无法勾选该待办事项。",
     "untickFailed": "无法取消勾选。请在页面中取消。"
+  },
+  "figures": {
+    "label": "工作一览",
+    "open": "未完成的任务",
+    "openNote": "{count, plural, =0 {今天没有到期的} other {今天到期 # 项}}",
+    "overdue": "已逾期",
+    "overdueNote": "已过截止日期",
+    "overdueNone": "没有逾期的",
+    "week": "本周",
+    "weekNote": "今天及之后 7 天",
+    "approvals": "等待你处理",
+    "approvalsNote": "待批准的更改",
+    "approvalsNone": "没有待批准的"
+  },
+  "dashboard": {
+    "heading": "仪表盘",
+    "edit": "编辑",
+    "done": "完成",
+    "draft": "用 AI 设置",
+    "drafting": "正在设置…",
+    "drafted": "{count, plural, other {AI 已根据你的数据库设置了 # 个组件。}}",
+    "undo": "撤销",
+    "empty": "在这里为所有人汇总工作区的数字、图表和列表。",
+    "setUp": "自己设置",
+    "errors": {
+      "noDatabases": "工作区还没有可显示的数据库。",
+      "unusable": "AI 无法设置仪表盘，请重试。",
+      "noAccess": "只有所有者可以更改仪表盘。"
+    }
   }
 }

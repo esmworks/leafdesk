@@ -971,14 +971,14 @@ export function Sidebar({
       </SectionGroup>
     ),
     tasks: (
-      <div className="mb-2">
+      <div className="mb-px">
         <SidebarButton icon={<ListTodo className="h-4 w-4" />} href={`/w/${workspaceId}/tasks`} active={pathname === `/w/${workspaceId}/tasks`}>
           {t("sections.tasks")}
         </SidebarButton>
       </div>
     ),
     meetings: (
-      <div className="mb-2">
+      <div className="mb-px">
         <SidebarButton icon={<NotebookPen className="h-4 w-4" />} href={`/w/${workspaceId}/meetings`} active={pathname === `/w/${workspaceId}/meetings`}>
           {t("sections.meetings")}
         </SidebarButton>
@@ -1009,9 +1009,12 @@ export function Sidebar({
             onClick={() => create(null, "page", pagesSpace.id)}
             disabled={offline}
             title={needsServer(t("pages.createFirst"))}
-            className="w-full rounded-md px-2 py-1.5 text-start text-fg-muted hover:bg-bg-hover disabled:opacity-50 disabled:hover:bg-transparent"
+            className="flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
           >
-            {t("pages.createFirst")}
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+              <Plus className="h-3.5 w-3.5" />
+            </span>
+            <span className="truncate ps-1.5">{t("pages.createFirst")}</span>
           </button>
         )}
         <LimitedRoots
@@ -1147,9 +1150,12 @@ export function Sidebar({
             onClick={() => create(null, "page", null)}
             disabled={offline}
             title={needsServer(t("pages.createFirst"))}
-            className="w-full rounded-md px-2 py-1.5 text-start text-fg-muted hover:bg-bg-hover disabled:opacity-50 disabled:hover:bg-transparent"
+            className="flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
           >
-            {t("pages.createFirst")}
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+              <Plus className="h-3.5 w-3.5" />
+            </span>
+            <span className="truncate ps-1.5">{t("pages.createFirst")}</span>
           </button>
         )}
         <LimitedRoots
@@ -1492,13 +1498,13 @@ export function Sidebar({
               {tOffline("banner")}
             </p>
           )}
-          {/* Looks like a search field; opens the search dialog. */}
+          {/* A row like the ones under it; opens the search dialog. */}
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
             disabled={offline}
             title={needsServer(t("nav.search"))}
-            className="mt-1.5 flex h-8 w-full items-center gap-2 rounded-md border border-border bg-bg px-2 text-start text-fg-muted shadow-xs hover:border-fg-faint hover:text-fg disabled:cursor-default disabled:opacity-50"
+            className="mt-1 flex h-7 w-full items-center gap-2 rounded-md px-2 text-start text-fg-muted hover:bg-bg-hover hover:text-fg disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent"
           >
             <Search className="h-4 w-4 shrink-0" />
             <span className="flex-1 truncate">{t("nav.search")}</span>
@@ -1945,7 +1951,7 @@ function SectionGroup({
 }) {
   const { over, handlers } = useRootDrop(drop);
   return (
-    <section className="mb-2" aria-label={label}>
+    <section className="mb-1 not-first:mt-3" aria-label={label}>
       <div
         {...handlers}
         className={cn("group/section flex h-7 items-center rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}
@@ -2172,9 +2178,10 @@ function ResizeHandle() {
 }
 
 /**
- * The sidebar's tabs: the open one is wide, its name beside its icon; the others are narrow, only
- * their icons. Pointing at another (or reaching it from the keyboard) widens it to show its name
- * while the open one narrows to its icon, so one name shows at a time and none is cut short.
+ * The sidebar's tabs, as wide as what they show and from the start, so their icons line up with the
+ * rows under them: the open one with its name beside its icon, the others only their icons.
+ * Pointing at another (or reaching it from the keyboard) shows its name while the open one folds to
+ * its icon, so one name shows at a time.
  */
 const countText = (count: number) => (count > 99 ? "99+" : String(count));
 
@@ -2196,7 +2203,7 @@ function SidebarTabs({
   }[];
 }) {
   return (
-    <div role="tablist" aria-label={label} className="group/tabs mt-1.5 flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
+    <div role="tablist" aria-label={label} className="group/tabs mt-0.5 flex gap-0.5">
       {tabs.map((tab) => (
         <button
           key={tab.key}
@@ -2208,10 +2215,10 @@ function SidebarTabs({
           title={tab.title}
           data-other-tab={tab.selected ? undefined : ""}
           className={cn(
-            "group/tab flex h-7 min-w-0 basis-0 items-center justify-center rounded-md border px-2 transition-[flex-grow] duration-200 ease-out disabled:opacity-50 motion-reduce:transition-none",
+            "group/tab flex h-7 min-w-0 items-center rounded-md px-2 disabled:opacity-50",
             tab.selected
-              ? "grow-[3] border-border bg-bg text-fg shadow-xs group-has-[[data-other-tab]:hover]/tabs:grow group-has-[[data-other-tab]:focus-visible]/tabs:grow"
-              : "grow border-transparent text-fg-muted hover:grow-[3] hover:text-fg focus-visible:grow-[3]",
+              ? "bg-bg-active font-medium text-fg"
+              : "text-fg-muted hover:bg-bg-hover hover:text-fg",
           )}
         >
           {tab.count ? (
@@ -2224,8 +2231,8 @@ function SidebarTabs({
                 className={cn(
                   "absolute -end-1.5 -top-1.5 min-w-3.5 rounded-full bg-danger px-[3px] text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums ring-2 transition-opacity duration-200 motion-reduce:transition-none",
                   tab.selected
-                    ? "opacity-0 ring-bg group-has-[[data-other-tab]:hover]/tabs:opacity-100 group-has-[[data-other-tab]:focus-visible]/tabs:opacity-100"
-                    : "ring-bg-hover group-hover/tab:opacity-0 group-focus-visible/tab:opacity-0",
+                    ? "opacity-0 ring-bg-active group-has-[[data-other-tab]:hover]/tabs:opacity-100 group-has-[[data-other-tab]:focus-visible]/tabs:opacity-100"
+                    : "ring-bg-subtle group-hover/tab:opacity-0 group-focus-visible/tab:opacity-0",
                 )}
               >
                 {countText(tab.count.value)}

@@ -125,7 +125,7 @@ export function AssignedList({
             )}{" "}
             <span className="font-normal text-fg-muted">{group.rows.length}</span>
           </h3>
-          <ul className="divide-y divide-border rounded-md border border-border">
+          <ul className="-mx-2">
             {group.rows.map((item) => {
               const state = marked.get(item.id);
               const done = state !== undefined && state !== "pending";
@@ -164,7 +164,7 @@ export function AssignedList({
               );
               const linkClass = "flex min-w-0 flex-1 items-center gap-2.5 py-3 md:py-2.5";
               return (
-                <li key={item.id} className="flex items-center gap-2.5 px-4 text-sm hover:bg-bg-hover">
+                <li key={item.id} className="flex min-h-10 items-center gap-2.5 rounded-md px-2 text-sm hover:bg-bg-hover">
                   {item.markable ? (
                     <button
                       type="button"

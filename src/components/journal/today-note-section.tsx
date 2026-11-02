@@ -6,7 +6,7 @@ import { pageLabel } from "@/lib/labels";
 import type { DailyNoteSummary } from "@/server/journal";
 import { OpenDailyNoteButton } from "./daily-notes";
 
-const cardClass = "flex w-full items-center gap-2.5 rounded-md border border-border px-4 py-3 text-start text-sm hover:bg-bg-hover";
+const cardClass = "flex w-full items-center gap-2.5 rounded-lg bg-bg-subtle px-4 py-3 text-start text-sm hover:bg-bg-hover";
 
 /**
  * The home page's daily note: today's to open (or start), and the few before it. `notes` are the
@@ -19,7 +19,7 @@ export async function TodayNoteSection({ workspaceId, today, notes }: { workspac
 
   return (
     <section className="space-y-3" aria-labelledby="today-note-heading">
-      <h2 id="today-note-heading" className="text-sm font-semibold">
+      <h2 id="today-note-heading" className="text-base font-semibold">
         {t("todayNote")}
       </h2>
       {todays ? (

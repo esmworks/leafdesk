@@ -37,5 +37,34 @@
     "onPage": "<page>{title}</page> sayfasında",
     "tickFailed": "Yapılacak işaretlenemedi.",
     "untickFailed": "Yapılacağın işareti kaldırılamadı. Sayfada kaldırın."
+  },
+  "figures": {
+    "label": "İşleriniz bir bakışta",
+    "open": "Açık görevler",
+    "openNote": "{count, plural, =0 {Bugün biten yok} other {# tanesi bugün}}",
+    "overdue": "Geciken",
+    "overdueNote": "Tarihi geçti",
+    "overdueNone": "Geciken yok",
+    "week": "Bu hafta",
+    "weekNote": "Bugün ve sonraki 7 gün",
+    "approvals": "Onayınızı bekleyen",
+    "approvalsNote": "Onaylanacak değişiklikler",
+    "approvalsNone": "Bekleyen yok"
+  },
+  "dashboard": {
+    "heading": "Pano",
+    "edit": "Düzenle",
+    "done": "Bitti",
+    "draft": "AI ile kur",
+    "drafting": "Kuruluyor…",
+    "drafted": "{count, plural, other {AI veritabanlarınızdan # widget kurdu.}}",
+    "undo": "Geri al",
+    "empty": "Çalışma alanının sayılarını, grafiklerini ve listelerini herkes için burada toplayın.",
+    "setUp": "Kendim kurayım",
+    "errors": {
+      "noDatabases": "Çalışma alanında henüz gösterilecek veritabanı yok.",
+      "unusable": "AI bir pano kuramadı. Yeniden deneyin.",
+      "noAccess": "Panoyu yalnızca sahipler değiştirebilir."
+    }
   }
 }

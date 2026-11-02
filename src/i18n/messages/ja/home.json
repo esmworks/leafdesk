@@ -37,5 +37,34 @@
     "onPage": "<page>{title}</page> 内",
     "tickFailed": "ToDoにチェックを付けられませんでした。",
     "untickFailed": "チェックを外せませんでした。ページで外してください。"
+  },
+  "figures": {
+    "label": "仕事のひと目でわかる状況",
+    "open": "未完了のタスク",
+    "openNote": "{count, plural, =0 {今日期限のものはありません} other {今日期限: #件}}",
+    "overdue": "期限切れ",
+    "overdueNote": "期限が過ぎています",
+    "overdueNone": "期限切れはありません",
+    "week": "今週",
+    "weekNote": "今日から7日間",
+    "approvals": "あなたの対応待ち",
+    "approvalsNote": "承認待ちの変更",
+    "approvalsNone": "承認待ちはありません"
+  },
+  "dashboard": {
+    "heading": "ダッシュボード",
+    "edit": "編集",
+    "done": "完了",
+    "draft": "AIで設定",
+    "drafting": "設定中…",
+    "drafted": "{count, plural, other {AIがデータベースから#個のウィジェットを設定しました。}}",
+    "undo": "元に戻す",
+    "empty": "ワークスペースの数値・グラフ・リストを、全員のためにここにまとめましょう。",
+    "setUp": "自分で設定する",
+    "errors": {
+      "noDatabases": "表示できるデータベースがまだありません。",
+      "unusable": "AIはダッシュボードを設定できませんでした。もう一度お試しください。",
+      "noAccess": "ダッシュボードを変更できるのはオーナーだけです。"
+    }
   }
 }

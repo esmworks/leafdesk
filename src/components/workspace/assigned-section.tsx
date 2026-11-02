@@ -24,7 +24,7 @@ export async function AssignedSection({
   return (
     <section className="space-y-3" aria-labelledby="assigned-heading">
       <div className="flex items-center justify-between gap-2">
-        <h2 id="assigned-heading" className="shrink-0 text-sm font-semibold">
+        <h2 id="assigned-heading" className="shrink-0 text-base font-semibold">
           {t("assigned")}
         </h2>
         <div className="flex min-w-0 items-center gap-1">
