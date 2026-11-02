@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Changed
+
+- **The inbox's Email tab is now called Row email.** It lists the mail that came in on database
+  rows, not the Mail tab's messages, which it was easy to take it for.
+
+### Fixed
+
+- **The inbox's unread count matches what the inbox shows.** The sidebar's and the app icon's
+  count also took in notices the inbox leaves out (changes for review once none waits, a call
+  already answered, a row change the person may no longer see), which could not be opened or
+  marked read, so the count stayed above the list.
+
 ## 0.7.0 — 2026-11-02
 
 ### Upgrading from 0.6.7

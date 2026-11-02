@@ -1472,16 +1472,35 @@ export async function unarchiveNotifications(userId: string, workspaceId: string
   signal(workspaceId);
 }
 
+/** Kinds `listNotifications` may leave out after reading them (its `shown`), which SQL alone can't count. */
+const LEFT_OUT_AFTER_READING: NotificationKind[] = ["row_update", "row_email", "review", "agent_approval", "agent_limit_request", "ai_limit"];
+
+/**
+ * The unread notifications the inbox shows: those of the kinds the list may leave out are counted
+ * as the list shows them, or the badge would count one no one can open and mark read.
+ */
 export async function unreadCount(userId: string, workspaceId: string, kinds?: NotificationKind[]) {
   await requireMembership(userId, workspaceId);
   const filter = await inboxFilter(userId, workspaceId, kinds);
   if (!filter) return 0;
-  const [row] = await db
-    .select({ n: count() })
+  const rows = await db
+    .select({ kind: notification.kind, n: count() })
     .from(notification)
     .leftJoin(page, eq(page.id, notification.pageId))
-    .where(and(filter, isNull(notification.readAt)));
-  return row?.n ?? 0;
+    .where(and(filter, isNull(notification.readAt)))
+    .groupBy(notification.kind);
+  let total = 0;
+  const checked: NotificationKind[] = [];
+  let toCheck = 0;
+  for (const { kind, n } of rows) {
+    if (LEFT_OUT_AFTER_READING.includes(kind)) {
+      checked.push(kind);
+      toCheck += n;
+    } else total += n;
+  }
+  if (!toCheck) return total;
+  const shown = await listNotifications(userId, { workspaceId, unreadOnly: true, kinds: checked, limit: toCheck });
+  return total + shown.length;
 }
 
 /**

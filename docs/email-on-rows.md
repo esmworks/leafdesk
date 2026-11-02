@@ -80,7 +80,7 @@ in plain text; it goes out from their default mailbox, or another of theirs pick
 reply from the one the message came through), at most 100 an hour from each, is tried again after 1, 5
 and 30 minutes when the server can't be reached, and is put in the mailbox's sent folder. It starts
 with the mailbox's signature under a `-- ` line, which picking another mailbox swaps. Mail that
-comes in tells the mailbox's owner and the row's followers who may read it (the inbox's Email tab,
+comes in tells the mailbox's owner and the row's followers who may read it (the inbox's Row email tab,
 and push); it never comes as a notification email.
 
 An agent's run on a row (or a schedule's run on a database) that works for someone with a
