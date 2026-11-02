@@ -156,7 +156,7 @@
     "enabledHint": "Når det er slået til, kan medlemmer sende sideindhold og rækkeværdier, de kan se, til AI-udbyderen nedenfor. Slå det fra for at holde dette arbejdsområdes indhold væk fra den.",
     "ownersOnly": "Kun ejere kan ændre dette.",
     "memory": "AI-hukommelse",
-    "memoryHint": "Når det er slået til, gemmer AI-chatten korte noter om personer, der fortæller om sig selv, og sender dem med deres senere spørgsmål. Hver person kan slå det fra for sig selv. Når det er slået fra, er visningen Hukommelse skjult, og ingens spørgsmål har noter med; noterne gemmes og slettes ikke. Agenters kørsler har så heller ingen noter med og foreslår ingen.",
+    "memoryHint": "Når det er slået til, gemmer AI-chatten korte noter om personer, der fortæller om sig selv, og sender dem med deres senere spørgsmål, og ejere kan gemme noter for arbejdsområdet og dets teamområder på siden Hukommelse. Hver person kan slå sine egne noter fra. Når det er slået fra, har ingen spørgsmål eller agentkørsler her noter med, og der gemmes ingen; noterne bliver og slettes ikke. Agenters kørsler foreslår så heller ingen.",
     "webSearch": "Websøgning i AI-chatten",
     "webSearchHint": "Når det er slået til, må AI-chatten søge på nettet med serverens søgetjeneste og læse websider, men kun læse: når den har læst fra nettet, bliver du spurgt om hver ændring, den vil lave. Researchtilstand søger også på nettet. Spørgsmål og sidetekst, den søger med, forlader arbejdsområdet og går til søgetjenesten.",
     "autoChanges": "Ændringer uden at spørge",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Fortrød at huske:",
           "forget": "Fortrød at glemme:"
+        },
+        "layer": {
+          "account": "i alle dine arbejdsområder",
+          "workspace": "arbejdsområdets hukommelse",
+          "teamspace": "hukommelse for {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Den lægges i din mappe Kladder: intet sendes, før du sender den fra Mail",
       "mailFrom": "Fra",
       "mailTo": "Til",
-      "mailCc": "Cc"
+      "mailCc": "Cc",
+      "memoryLayer": {
+        "remember": {
+          "account": "Huske dette om dig i alle dine arbejdsområder?",
+          "workspace": "Føje dette til arbejdsområdets hukommelse?",
+          "teamspace": "Føje dette til hukommelsen for {place}?"
+        },
+        "forget": {
+          "account": "Glemme denne note i alle dine arbejdsområder?",
+          "workspace": "Fjerne dette fra arbejdsområdets hukommelse?",
+          "teamspace": "Fjerne dette fra hukommelsen for {place}?"
+        },
+        "hint": {
+          "account": "Hukommelse: sendes med dine spørgsmål i hvert arbejdsområde, hvor din hukommelse er slået til",
+          "workspace": "Arbejdsområdets hukommelse: sendes med hvert medlems spørgsmål og hver agentkørsel",
+          "teamspace": "Hukommelse for {place}: sendes med spørgsmål, der stilles inde i det af personer i det"
+        }
+      }
     },
     "mode": {
       "label": "Ændringer",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Hukommelse",
     "title": "Hukommelse",
-    "close": "Luk",
+    "pageIntro": "Det, AI’en ved, når den svarer: noter om dig og noter, som arbejdsområdet og dets teamområder gemmer til alle i dem. Noter er oplysninger til AI’en, aldrig ordrer, og lader aldrig nogen se mere, end de allerede kan.",
+    "sections": {
+      "mine": "Dig i dette arbejdsområde",
+      "everywhere": "Dig overalt",
+      "shared": "Delt",
+      "workspace": "Hele arbejdsområdet"
+    },
+    "everywhereHelp": "Sendes med dine spørgsmål i hvert arbejdsområde, hvor din hukommelse er slået til: dit sprog, hvordan du kan lide svar. Kun du ser dem, og AI’en spørger, før den gemmer en.",
+    "workspaceHelp": "Sendes med hvert medlems spørgsmål og hver agentkørsel i dette arbejdsområde: hvad virksomheden laver, dens begreber, hvordan den arbejder. Medlemmer ser dem; ejere ændrer dem.",
+    "teamspaceHelp": "Sendes kun med spørgsmål, der stilles inde i dette teamområde af personer i det, og med agentkørsler på dets sider. Dets medlemmer ser dem; dets ejere ændrer dem.",
+    "readOnly": "Du kan se disse noter, men ikke ændre dem.",
+    "workspaceOff": "Ejerne har slået AI-hukommelsen fra i dette arbejdsområde: ingen noter følger med spørgsmål her, og der gemmes ingen. Dine noter overalt følger stadig med dine spørgsmål i andre arbejdsområder.",
+    "byPerson": "Ændret af {name}",
+    "emptyShared": "Ingen noter endnu.",
+    "addPlaceholderEverywhere": "f.eks. Svar på dansk, og fat dig i korthed",
+    "addPlaceholderShared": "f.eks. Vores regnskabsår starter i april",
+    "deleteAll": "Slet alle",
+    "confirmForgetEverywhere": "Vil du glemme alt, hvad AI’en husker om dig i alle dine arbejdsområder?",
+    "confirmDeleteAll": "Vil du slette alle noter i {place}? Spørgsmål der sendes uden dem fra nu af.",
     "updated": "Hukommelsen er opdateret",
-    "intro": "Noter, som AI’en gemmer om dig i dette arbejdsområde og sender med hvert af dine spørgsmål her. Den tilføjer en, når du fortæller om dig selv eller beder den huske noget. Kun du ser dem.",
+    "intro": "Sendes med dine spørgsmål i dette arbejdsområde. AI’en tilføjer en note, når du fortæller om dig selv eller beder den huske noget. Kun du ser dem.",
     "use": "Brug hukommelse",
     "useHint": "Når det er slået fra, sendes dine spørgsmål her uden disse noter, og AI’en gemmer ingen nye. Noterne bliver.",
     "empty": "Intet endnu. Fortæl AI’en om dig selv, eller tilføj en note her.",
@@ -537,7 +577,8 @@
       "notFound": "Den note findes ikke længere.",
       "off": "AI-hukommelsen er slået fra i dette arbejdsområde.",
       "changed": "Den note er ændret siden. Ret den i Hukommelse i stedet.",
-      "busy": "Vent, til svaret er færdigt."
+      "busy": "Vent, til svaret er færdigt.",
+      "held": "En juridisk tilbageholdelse bevarer denne note: den kan ikke slettes, så længe tilbageholdelsen gælder."
     }
   },
   "accounts": {

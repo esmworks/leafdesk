@@ -2130,6 +2130,11 @@
         "set": "Đã đặt {target} được gửi email cho {count, plural, other {# người}}",
         "removed": "Đã dừng gửi email {target}",
         "sent": "Đã gửi email {target} cho {count, plural, other {# người}}"
+      },
+      "memory": {
+        "note_added": "Đã thêm một ghi chú vào bộ nhớ AI của {target}: “{to}”",
+        "note_changed": "Đã thay đổi một ghi chú trong bộ nhớ AI của {target}: “{from}” → “{to}”",
+        "note_deleted": "{count, plural, =1 {Đã xóa một ghi chú khỏi bộ nhớ AI của {target}: “{from}”} other {Đã xóa # ghi chú khỏi bộ nhớ AI của {target}}}"
       }
     },
     "decisions": {

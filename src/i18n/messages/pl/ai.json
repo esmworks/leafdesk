@@ -156,7 +156,7 @@
     "enabledHint": "Gdy włączone, członkowie mogą wysyłać widoczną dla nich treść stron i wartości wierszy do poniższego dostawcy AI. Wyłącz, aby treści tego obszaru roboczego do niego nie trafiały.",
     "ownersOnly": "Tylko właściciele mogą to zmienić.",
     "memory": "Pamięć AI",
-    "memoryHint": "Gdy włączona, czat AI zachowuje krótkie notatki o osobach, które coś o sobie mówią, i wysyła je razem z ich kolejnymi pytaniami. Każdy może ją wyłączyć dla siebie. Gdy wyłączona, widok Pamięć jest ukryty, a niczyje pytania nie zawierają notatek; notatki są zachowywane, a nie usuwane. Uruchomienia agentów również nie zawierają wtedy notatek ani ich nie proponują.",
+    "memoryHint": "Gdy włączona, czat AI zachowuje krótkie notatki o osobach, które coś o sobie mówią, i wysyła je razem z ich kolejnymi pytaniami, a właściciele mogą prowadzić notatki dla obszaru roboczego i jego przestrzeni zespołów na stronie Pamięć. Każdy może wyłączyć własne notatki. Gdy wyłączona, żadne pytanie ani uruchomienie agenta nie zawiera tutaj notatek i żadne nie są zapisywane; notatki pozostają, nie są usuwane. Uruchomienia agentów również nie proponują wtedy żadnych.",
     "webSearch": "Wyszukiwanie w sieci w czacie AI",
     "webSearchHint": "Po włączeniu czat AI może szukać w sieci usługą wyszukiwania serwera i czytać strony internetowe, tylko czytając: po przeczytaniu czegoś z sieci pyta o każdą zmianę, którą chce wprowadzić. Tryb badania też szuka w sieci. Pytania i tekst, którymi szuka, opuszczają obszar roboczy i trafiają do usługi wyszukiwania.",
     "autoChanges": "Zmiany bez pytania",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Cofnięto zapamiętanie:",
           "forget": "Cofnięto zapomnienie:"
+        },
+        "layer": {
+          "account": "we wszystkich twoich obszarach roboczych",
+          "workspace": "pamięć obszaru roboczego",
+          "teamspace": "pamięć {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Trafi do folderu Wersje robocze: nic nie zostanie wysłane, dopóki nie wyślesz jej z Poczty",
       "mailFrom": "Od",
       "mailTo": "Do",
-      "mailCc": "DW"
+      "mailCc": "DW",
+      "memoryLayer": {
+        "remember": {
+          "account": "Zapamiętać to o tobie we wszystkich twoich obszarach roboczych?",
+          "workspace": "Dodać to do pamięci obszaru roboczego?",
+          "teamspace": "Dodać to do pamięci {place}?"
+        },
+        "forget": {
+          "account": "Zapomnieć tę notatkę we wszystkich twoich obszarach roboczych?",
+          "workspace": "Usunąć to z pamięci obszaru roboczego?",
+          "teamspace": "Usunąć to z pamięci {place}?"
+        },
+        "hint": {
+          "account": "Pamięć: wysyłana z twoimi pytaniami w każdym obszarze roboczym, w którym twoja pamięć jest włączona",
+          "workspace": "Pamięć obszaru roboczego: wysyłana z pytaniami każdego członka i każdym uruchomieniem agenta",
+          "teamspace": "Pamięć {place}: wysyłana z pytaniami zadanymi wewnątrz przez jej osoby"
+        }
+      }
     },
     "mode": {
       "label": "Zmiany",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Pamięć",
     "title": "Pamięć",
-    "close": "Zamknij",
+    "pageIntro": "Co AI wie, gdy odpowiada: notatki o tobie oraz notatki, które obszar roboczy i jego przestrzenie zespołów prowadzą dla wszystkich swoich osób. Notatki to informacje dla AI, nigdy polecenia, i nigdy nie pozwalają nikomu zobaczyć więcej, niż już może.",
+    "sections": {
+      "mine": "Ty w tym obszarze roboczym",
+      "everywhere": "Ty wszędzie",
+      "shared": "Wspólne",
+      "workspace": "Cały obszar roboczy"
+    },
+    "everywhereHelp": "Wysyłane z twoimi pytaniami w każdym obszarze roboczym, w którym twoja pamięć jest włączona: twój język, jakie odpowiedzi lubisz. Widzisz je tylko ty, a AI pyta, zanim jakąś zapisze.",
+    "workspaceHelp": "Wysyłane z pytaniami każdego członka i każdym uruchomieniem agenta w tym obszarze roboczym: czym zajmuje się firma, jej pojęcia, jak pracuje. Członkowie je widzą; właściciele je zmieniają.",
+    "teamspaceHelp": "Wysyłane tylko z pytaniami zadanymi wewnątrz tej przestrzeni zespołu przez jej osoby oraz z uruchomieniami agentów na jej stronach. Jej członkowie je widzą; jej właściciele je zmieniają.",
+    "readOnly": "Możesz zobaczyć te notatki, ale nie możesz ich zmienić.",
+    "workspaceOff": "Właściciele wyłączyli pamięć AI w tym obszarze roboczym: tutaj żadne notatki nie idą z pytaniami i żadne nie są zapisywane. Twoje notatki ogólne nadal idą z twoimi pytaniami w innych obszarach roboczych.",
+    "byPerson": "Zmienione przez: {name}",
+    "emptyShared": "Nie ma jeszcze notatek.",
+    "addPlaceholderEverywhere": "np. Odpowiadaj po polsku i krótko",
+    "addPlaceholderShared": "np. Nasz rok obrotowy zaczyna się w kwietniu",
+    "deleteAll": "Usuń wszystkie",
+    "confirmForgetEverywhere": "Zapomnieć wszystko, co AI pamięta o tobie we wszystkich twoich obszarach roboczych?",
+    "confirmDeleteAll": "Usunąć wszystkie notatki z pamięci {place}? Pytania zadawane tam będą odtąd wysyłane bez nich.",
     "updated": "Pamięć zaktualizowana",
-    "intro": "Notatki, które AI przechowuje o tobie w tym obszarze roboczym i wysyła z każdym twoim pytaniem tutaj. Dodaje notatkę, gdy mówisz coś o sobie lub prosisz o zapamiętanie czegoś. Widzisz je tylko ty.",
+    "intro": "Wysyłane z twoimi pytaniami w tym obszarze roboczym. AI dodaje notatkę, gdy mówisz coś o sobie lub prosisz o zapamiętanie czegoś. Widzisz je tylko ty.",
     "use": "Używaj pamięci",
     "useHint": "Gdy wyłączone, twoje pytania są wysyłane tutaj bez tych notatek, a AI nie zapisuje nowych. Notatki pozostają.",
     "empty": "Na razie nic. Powiedz AI coś o sobie lub dodaj notatkę tutaj.",
@@ -537,7 +577,8 @@
       "notFound": "Tej notatki już nie ma.",
       "off": "Pamięć AI jest wyłączona w tym obszarze roboczym.",
       "changed": "Ta notatka zmieniła się od tego czasu. Zmień ją w Pamięci.",
-      "busy": "Poczekaj, aż odpowiedź się zakończy."
+      "busy": "Poczekaj, aż odpowiedź się zakończy.",
+      "held": "Blokada prawna zachowuje tę notatkę: nie można jej usunąć, dopóki blokada obowiązuje."
     }
   },
   "accounts": {

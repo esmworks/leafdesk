@@ -9,6 +9,14 @@
   out from the workspace's databases (the draft can be undone). Everyone sees the widgets whose
   database they may open. Above it, four figures of your own: open tasks, overdue, due this week
   and changes waiting for your approval.
+- **The AI keeps notes for the workspace, its teamspaces and you everywhere.** Beside each
+  person's own notes, owners keep notes about the company that go with every member's questions
+  and every agent's run, and a teamspace's owners keep notes that go only with questions asked
+  inside it by people in it. Notes about you that go to all your workspaces (your language, how you
+  like answers) sit in a section of their own. All of them are on a new *Memory* page (sections down
+  its side), replacing the Memory dialog; the chat asks before keeping one of these, MCP's
+  `list_memory` and `change_memory` take a `scope`, and changes to shared notes are in the audit
+  log. Migration 0188.
 
 ### Changed
 

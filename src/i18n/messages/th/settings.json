@@ -2130,6 +2130,11 @@
         "set": "ตั้งให้ส่ง {target} ทางอีเมลถึง {count, plural, other {# คน}}",
         "removed": "หยุดส่ง {target} ทางอีเมล",
         "sent": "ส่ง {target} ทางอีเมลถึง {count, plural, other {# คน}}"
+      },
+      "memory": {
+        "note_added": "เพิ่มบันทึกในหน่วยความจำ AI ของ {target}: “{to}”",
+        "note_changed": "เปลี่ยนบันทึกในหน่วยความจำ AI ของ {target}: “{from}” → “{to}”",
+        "note_deleted": "{count, plural, =1 {ลบบันทึกจากหน่วยความจำ AI ของ {target}: “{from}”} other {ลบบันทึก # รายการจากหน่วยความจำ AI ของ {target}}}"
       }
     },
     "decisions": {

@@ -156,7 +156,7 @@
     "enabledHint": "Si elles sont activées, les membres peuvent envoyer le contenu des pages et les valeurs des lignes qu’ils voient au fournisseur d’IA ci-dessous. Désactivez-les pour tenir le contenu de cet espace de travail à l’écart.",
     "ownersOnly": "Seuls les propriétaires peuvent modifier ce réglage.",
     "memory": "Mémoire de l’IA",
-    "memoryHint": "Activée, le chat IA garde de courtes notes sur les personnes qui lui parlent d’elles-mêmes et les envoie avec leurs questions suivantes. Chacun peut la désactiver pour soi. Désactivée, la vue Mémoire est masquée et aucune question n’emporte de notes ; les notes sont conservées, pas supprimées. Les exécutions des agents n’emportent alors aucune note et n’en proposent pas non plus.",
+    "memoryHint": "Activée, le chat IA garde de courtes notes sur les personnes qui lui parlent d’elles-mêmes et les envoie avec leurs questions suivantes ; les propriétaires peuvent aussi tenir des notes pour l’espace de travail et ses espaces d’équipe sur la page Mémoire. Chacun peut désactiver ses propres notes. Désactivée, aucune question ni exécution d’agent ici n’emporte de notes et aucune n’est gardée ; les notes restent, pas supprimées. Les exécutions des agents n’en proposent alors pas non plus.",
     "webSearch": "Recherche web dans le chat IA",
     "webSearchHint": "Activé, le chat IA peut chercher sur le web avec le service de recherche du serveur et lire des pages web, en lecture seule : après avoir lu sur le web, chaque modification qu’il veut faire est demandée. Le mode recherche cherche aussi sur le web. Les questions et le texte avec lesquels il cherche quittent l’espace de travail vers le service de recherche.",
     "autoChanges": "Modifications sans demander",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Mémorisation annulée :",
           "forget": "Oubli annulé :"
+        },
+        "layer": {
+          "account": "dans tous vos espaces de travail",
+          "workspace": "mémoire de l’espace de travail",
+          "teamspace": "mémoire de {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Il va dans votre dossier Brouillons : rien n'est envoyé tant que vous ne l'envoyez pas depuis Mail",
       "mailFrom": "De",
       "mailTo": "À",
-      "mailCc": "Cc"
+      "mailCc": "Cc",
+      "memoryLayer": {
+        "remember": {
+          "account": "Retenir ceci sur vous dans tous vos espaces de travail ?",
+          "workspace": "Ajouter ceci à la mémoire de l’espace de travail ?",
+          "teamspace": "Ajouter ceci à la mémoire de {place} ?"
+        },
+        "forget": {
+          "account": "Oublier cette note dans tous vos espaces de travail ?",
+          "workspace": "Retirer ceci de la mémoire de l’espace de travail ?",
+          "teamspace": "Retirer ceci de la mémoire de {place} ?"
+        },
+        "hint": {
+          "account": "Mémoire : envoyée avec vos questions dans chaque espace de travail où votre mémoire est activée",
+          "workspace": "Mémoire de l’espace de travail : envoyée avec les questions de chaque membre et chaque exécution d’agent",
+          "teamspace": "Mémoire de {place} : envoyée avec les questions qui y sont posées, par les personnes qui s’y trouvent"
+        }
+      }
     },
     "mode": {
       "label": "Modifications",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Mémoire",
     "title": "Mémoire",
-    "close": "Fermer",
+    "pageIntro": "Ce que l’IA sait quand elle répond : des notes sur vous, et des notes que l’espace de travail et ses espaces d’équipe gardent pour toutes les personnes qui s’y trouvent. Les notes sont des informations pour l’IA, jamais des ordres, et ne permettent jamais à personne de voir plus que ce qu’il voit déjà.",
+    "sections": {
+      "mine": "Vous dans cet espace de travail",
+      "everywhere": "Vous partout",
+      "shared": "Partagées",
+      "workspace": "Tout l’espace de travail"
+    },
+    "everywhereHelp": "Envoyées avec vos questions dans chaque espace de travail où votre mémoire est activée : votre langue, comment vous aimez les réponses. Vous seul les voyez, et l’IA demande avant d’en garder une.",
+    "workspaceHelp": "Envoyées avec les questions de chaque membre et chaque exécution d’agent dans cet espace de travail : ce que fait l’entreprise, ses termes, sa façon de travailler. Les membres les voient ; les propriétaires les modifient.",
+    "teamspaceHelp": "Envoyées uniquement avec les questions posées dans cet espace d’équipe, par les personnes qui s’y trouvent, et avec les exécutions d’agents sur ses pages. Ses membres les voient ; ses propriétaires les modifient.",
+    "readOnly": "Vous pouvez voir ces notes mais pas les modifier.",
+    "workspaceOff": "Les propriétaires ont désactivé la mémoire de l’IA dans cet espace de travail : aucune note n’accompagne les questions ici et aucune n’est gardée. Vos notes valables partout accompagnent toujours vos questions dans les autres espaces de travail.",
+    "byPerson": "Modifiée par {name}",
+    "emptyShared": "Aucune note pour l’instant.",
+    "addPlaceholderEverywhere": "ex. Répondez en français et restez bref",
+    "addPlaceholderShared": "ex. Notre exercice fiscal commence en avril",
+    "deleteAll": "Tout supprimer",
+    "confirmForgetEverywhere": "Oublier tout ce que l’IA retient de vous dans tous vos espaces de travail ?",
+    "confirmDeleteAll": "Supprimer toutes les notes de {place} ? Les questions posées là-bas partiront désormais sans elles.",
     "updated": "Mémoire mise à jour",
-    "intro": "Des notes que l'IA garde sur vous dans cet espace de travail et envoie avec chacune de vos questions ici. Elle en ajoute une quand vous parlez de vous ou lui demandez de retenir quelque chose. Vous seul les voyez.",
+    "intro": "Envoyées avec vos questions dans cet espace de travail. L’IA ajoute une note quand vous parlez de vous ou lui demandez de retenir quelque chose. Vous seul les voyez.",
     "use": "Utiliser la mémoire",
     "useHint": "Désactivée, vos questions ici partent sans ces notes et l’IA n’en garde pas de nouvelles. Les notes restent.",
     "empty": "Rien pour l'instant. Parlez de vous à l'IA ou ajoutez une note ici.",
@@ -537,7 +577,8 @@
       "notFound": "Cette note n'existe plus.",
       "off": "La mémoire de l’IA est désactivée dans cet espace de travail.",
       "changed": "Cette note a changé depuis. Modifiez-la plutôt dans Mémoire.",
-      "busy": "Attendez la fin de la réponse."
+      "busy": "Attendez la fin de la réponse.",
+      "held": "Une conservation légale protège cette note : elle ne peut pas être supprimée tant que la conservation est en place."
     }
   },
   "accounts": {

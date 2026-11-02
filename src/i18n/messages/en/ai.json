@@ -156,7 +156,7 @@
     "enabledHint": "When on, members can send page content and row values they can see to the AI provider below. Turn off to keep this workspace's content away from it.",
     "ownersOnly": "Only owners can change this.",
     "memory": "AI memory",
-    "memoryHint": "When on, the AI chat keeps short notes about people who tell it about themselves, and sends them with their later questions. Each person can turn it off for themselves. When off, the Memory view is hidden and nobody's questions carry notes; the notes are kept, not deleted. Agents' runs then carry no notes and propose none either.",
+    "memoryHint": "When on, the AI chat keeps short notes about people who tell it about themselves and sends them with their later questions, and owners can keep notes for the workspace and its teamspaces on the Memory page. Each person can turn their own notes off. When off, no question or agent's run here carries notes and none are kept; the notes stay, not deleted. Agents' runs then propose none either.",
     "webSearch": "Web search in the AI chat",
     "webSearchHint": "When on, the AI chat may search the web with the server's search service and read web pages, only reading: after it read from the web, every change it wants to make is asked about. Research mode searches the web too. Questions and page text it searches with leave the workspace for the search service.",
     "autoChanges": "Changes without asking",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Undid remembering:",
           "forget": "Undid forgetting:"
+        },
+        "layer": {
+          "account": "in all your workspaces",
+          "workspace": "workspace memory",
+          "teamspace": "memory of {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "It goes to your Drafts folder: nothing is sent until you send it from Mail",
       "mailFrom": "From",
       "mailTo": "To",
-      "mailCc": "Cc"
+      "mailCc": "Cc",
+      "memoryLayer": {
+        "remember": {
+          "account": "Remember this about you in all your workspaces?",
+          "workspace": "Add this to the workspace's memory?",
+          "teamspace": "Add this to the memory of {place}?"
+        },
+        "forget": {
+          "account": "Forget this note in all your workspaces?",
+          "workspace": "Remove this from the workspace's memory?",
+          "teamspace": "Remove this from the memory of {place}?"
+        },
+        "hint": {
+          "account": "Memory: sent with your questions in every workspace where your memory is on",
+          "workspace": "Workspace memory: sent with every member's questions and every agent's run",
+          "teamspace": "Memory of {place}: sent with questions asked inside it, by people in it"
+        }
+      }
     },
     "mode": {
       "label": "Changes",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Memory",
     "title": "Memory",
-    "close": "Close",
+    "pageIntro": "What the AI knows when it answers: notes about you, and notes the workspace and its teamspaces keep for everyone in them. Notes are information for the AI, never orders, and never let anyone see more than they already can.",
+    "sections": {
+      "mine": "You in this workspace",
+      "everywhere": "You everywhere",
+      "shared": "Shared",
+      "workspace": "Whole workspace"
+    },
+    "everywhereHelp": "Sent with your questions in every workspace where your memory is on: your language, how you like answers. Only you see them, and the AI asks before keeping one.",
+    "workspaceHelp": "Sent with every member's questions and every agent's run in this workspace: what the company does, its terms, how it works. Members see them; owners change them.",
+    "teamspaceHelp": "Sent only with questions asked inside this teamspace, by people in it, and with agents' runs on its pages. Its members see them; its owners change them.",
+    "readOnly": "You can see these notes but not change them.",
+    "workspaceOff": "The owners turned the AI memory off in this workspace: no notes go with questions here and none are kept. Your notes everywhere still go with your questions in other workspaces.",
+    "byPerson": "Changed by {name}",
+    "emptyShared": "No notes yet.",
+    "addPlaceholderEverywhere": "e.g. Answer in Turkish and keep it short",
+    "addPlaceholderShared": "e.g. Our fiscal year starts in April",
+    "deleteAll": "Delete all",
+    "confirmForgetEverywhere": "Forget everything the AI remembers about you in all your workspaces?",
+    "confirmDeleteAll": "Delete all notes of {place}? Questions there go without them from now on.",
     "updated": "Memory updated",
-    "intro": "Notes the AI keeps about you in this workspace, sent with each of your questions here. It adds one when you tell it about yourself or ask it to remember something. Only you see them.",
+    "intro": "Sent with your questions in this workspace. The AI adds a note when you tell it about yourself or ask it to remember something. Only you see them.",
     "use": "Use memory",
     "useHint": "When off, your questions here go without these notes and the AI keeps no new ones. The notes stay.",
     "empty": "Nothing yet. Tell the AI about yourself, or add a note here.",
@@ -537,7 +577,8 @@
       "notFound": "That note isn't there anymore.",
       "off": "The AI memory is turned off in this workspace.",
       "changed": "That note changed since. Change it in Memory instead.",
-      "busy": "Wait until the answer is done."
+      "busy": "Wait until the answer is done.",
+      "held": "A legal hold keeps this note: it can't be deleted while the hold stands."
     }
   },
   "accounts": {

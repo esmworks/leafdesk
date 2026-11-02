@@ -29,13 +29,19 @@ const mocks = vi.hoisted(() => ({
   visibleRow: vi.fn(),
   memoryOn: vi.fn(async () => false),
   memoryForPrompt: vi.fn(async () => ({ text: "", count: 0 })),
+  accountNotesOf: vi.fn(async () => [] as { id: string; text: string }[]),
   stream: vi.fn(async () => ({ result: async () => ({ stopReason: "stop" }) })),
 }));
 vi.mock("./access", () => ({ requireOwnMailbox: mocks.requireOwnMailbox }));
 vi.mock("@/server/ai-writing", () => ({ aiAvailable: mocks.aiAvailable }));
 vi.mock("./read", () => ({ getThread: mocks.getThread, messageForAi: mocks.messageForAi, rowOfMessage: mocks.rowOfMessage }));
 vi.mock("@/server/operations", () => ({ visibleRow: mocks.visibleRow }));
-vi.mock("@/server/ai-memory", () => ({ memoryOn: mocks.memoryOn, memoryForPrompt: mocks.memoryForPrompt }));
+vi.mock("@/server/ai-memory", () => ({
+  memoryOn: mocks.memoryOn,
+  memoryForPrompt: mocks.memoryForPrompt,
+  fitNotes: (notes: { id: string; text: string }[]) => ({ text: notes.map((n) => `- (memory_id ${n.id}) ${n.text}`).join("\n"), count: notes.length, shown: notes.length }),
+}));
+vi.mock("@/server/account-memory", () => ({ accountNotesOf: mocks.accountNotesOf }));
 vi.mock("@/server/ai", async (original) => ({ ...(await original<typeof import("@/server/ai")>()), stream: mocks.stream }));
 
 const { startMailAi } = await import("./ai");
@@ -107,12 +113,13 @@ describe("startMailAi", () => {
     mocks.visibleRow.mockResolvedValue({ databaseTitle: "Müşteriler", row: { title: "Acme Ltd" }, fields: { Şehir: "İzmir" } });
     mocks.memoryOn.mockResolvedValue(true);
     mocks.memoryForPrompt.mockResolvedValue({ text: "(Older notes don't fit in this question.)\n- (memory_id n-1) Kısa yazarım.", count: 2 });
+    mocks.accountNotesOf.mockResolvedValue([{ id: "a-1", text: "Türkçe yazarım." }]);
     await startMailAi("u1", { kind: "write", mailboxId: "box-1", action: "reply", draft: "", answering: "m-9" });
     expect(mocks.rowOfMessage).toHaveBeenCalledWith("u1", "m-9");
     expect(mocks.visibleRow).toHaveBeenCalledWith("u1", "row-1");
     const prompt = JSON.stringify(mocks.stream.mock.calls[0]);
     expect(prompt).toContain("Acme Ltd (a record in Müşteriler)\\nŞehir: İzmir");
-    expect(prompt).toContain("<memory>\\n- Kısa yazarım.\\n</memory>");
+    expect(prompt).toContain("<memory>\\n- Türkçe yazarım.\\n- Kısa yazarım.\\n</memory>");
     expect(prompt).not.toMatch(/memory_id|Older notes/);
   });
 

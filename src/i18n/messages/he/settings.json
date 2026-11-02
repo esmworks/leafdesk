@@ -2130,6 +2130,11 @@
         "set": "הגדרת שליחה בדוא״ל של {target} אל {count, plural, one {אדם אחד} two {שני אנשים} other {# אנשים}}",
         "removed": "הפסקת שליחה בדוא״ל של {target}",
         "sent": "שליחה בדוא״ל של {target} אל {count, plural, one {אדם אחד} two {שני אנשים} other {# אנשים}}"
+      },
+      "memory": {
+        "note_added": "הוספת הערה לזיכרון ה־AI של {target}: “{to}”",
+        "note_changed": "שינוי הערה בזיכרון ה־AI של {target}: “{from}” → “{to}”",
+        "note_deleted": "{count, plural, one {מחיקת הערה מזיכרון ה־AI של {target}: “{from}”} other {מחיקת # הערות מזיכרון ה־AI של {target}}}"
       }
     },
     "decisions": {

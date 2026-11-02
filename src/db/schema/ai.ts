@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique, uniqueIndex, type AnyPgColumn } from "drizzle-orm/pg-core";
-import { databaseProperty, page, tsvector, workspace } from "./app";
+import { databaseProperty, page, teamspace, tsvector, workspace } from "./app";
 import { agentRun, workspaceAgent } from "./agents";
 import { user } from "./auth";
 import { file } from "./files";
@@ -240,6 +240,9 @@ export type ChatMemoryRecord = {
   outcome?: "done" | "declined" | "undone";
   memoryId?: string;
   previous?: { text: string; kind: MemoryKind; saidBy: string | null } | null;
+  /** A note of the person's for every workspace, of the workspace or of a teamspace (`place`, its name then), not their own here. */
+  layer?: "account" | "workspace" | "teamspace";
+  place?: string;
 };
 
 /** A note in use (`kept`), or one an agent's run proposed that waits for an owner (`proposed`). */
@@ -454,6 +457,57 @@ export const aiMemory = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("ai_memory_user_idx").on(t.userId, t.workspaceId, t.createdAt)],
+);
+
+/**
+ * Notes a workspace keeps for the AI (server/shared-memory.ts): with no `teamspaceId` the
+ * workspace's own, written by its owners and sent with every member's questions and every agent's
+ * runs; with one, that teamspace's, written by those who manage it and sent only with what is asked
+ * or done inside it, for its members. They belong to the place, not to whoever wrote them.
+ */
+export const sharedMemory = pgTable(
+  "shared_memory",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    teamspaceId: text("teamspace_id").references(() => teamspace.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    /** Who wrote the note, and who changed it last (null: gone since). */
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    updatedBy: text("updated_by").references(() => user.id, { onDelete: "set null" }),
+    /** The connected app (OAuth client) that kept the note or last changed it over MCP, if one did. */
+    oauthClientId: text("oauth_client_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("shared_memory_place_idx").on(t.workspaceId, t.teamspaceId, t.createdAt)],
+);
+
+/**
+ * Notes about a person in every workspace they are in (server/account-memory.ts): their language,
+ * how they want answers. Only they see and change them; they go with their own questions wherever
+ * their memory is on. Never what a workspace holds: that stays in ai_memory, one workspace's notes.
+ */
+export const accountMemory = pgTable(
+  "account_memory",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    /** The connected app (OAuth client) that kept the note or last changed it over MCP, if one did. */
+    oauthClientId: text("oauth_client_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("account_memory_user_idx").on(t.userId, t.createdAt)],
 );
 
 /**

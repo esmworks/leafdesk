@@ -36,6 +36,9 @@ export const Button = forwardRef<
   return <button ref={ref} type={type} className={cn(buttonClass({ variant, size }), className)} {...props} />;
 });
 
+/** An IconButton's look, for a link that looks like one. */
+export const iconButtonClass = "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-fg-muted transition-colors hover:bg-bg-active hover:text-fg";
+
 export const IconButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { label: string }>(
   function IconButton({ label, className, type = "button", ...props }, ref) {
     return (
@@ -44,10 +47,7 @@ export const IconButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTM
         type={type}
         aria-label={label}
         title={label}
-        className={cn(
-          "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-fg-muted transition-colors hover:bg-bg-active hover:text-fg",
-          className,
-        )}
+        className={cn(iconButtonClass, className)}
         {...props}
       />
     );

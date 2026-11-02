@@ -151,8 +151,11 @@ import { gzipSync } from "node:zlib";
  * selected cell opens its menu, which loads when first touched) add under 1 kB to a page's route,
  * which stood at its budget; saving a cell's text when its field loses focus (the phone keyboard's
  * Done) a few dozen bytes more.
+ * The Memory page (the person's notes, the workspace's and each teamspace's, one section at a time)
+ * is a route of its own: its chunk adds about 3 kB to all first loads together, less the Memory
+ * dialog it replaces in every workspace page's first load.
  */
-const BUDGET = { routeFirstLoad: 798, firstLoadShared: 1230, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 798, firstLoadShared: 1232, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

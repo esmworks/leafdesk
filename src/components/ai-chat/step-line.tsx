@@ -78,6 +78,7 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
         <Icon className={icon} />
         <span className="min-w-0 break-words">
           {label} <span className="text-fg">“{step.text}”</span>
+          {step.layer && <> · {t(`steps.memory.layer.${step.layer}`, { place: step.place ?? "" })}</>}
         </span>
       </>
     );

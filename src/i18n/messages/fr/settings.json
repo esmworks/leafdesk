@@ -2130,6 +2130,11 @@
         "set": "A programmé l’envoi de {target} par e-mail à {count, plural, one {# personne} other {# personnes}}",
         "removed": "A arrêté l’envoi par e-mail de {target}",
         "sent": "A envoyé {target} par e-mail à {count, plural, one {# personne} other {# personnes}}"
+      },
+      "memory": {
+        "note_added": "A ajouté une note à la mémoire IA de {target} : « {to} »",
+        "note_changed": "A modifié une note de la mémoire IA de {target} : « {from} » → « {to} »",
+        "note_deleted": "{count, plural, one {A supprimé une note de la mémoire IA de {target} : « {from} »} other {A supprimé # notes de la mémoire IA de {target}}}"
       }
     },
     "decisions": {

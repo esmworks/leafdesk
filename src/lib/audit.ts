@@ -60,6 +60,9 @@ export const AUDIT_CATEGORIES = {
     "storage.moved",
     "ai_account.attached",
     "ai_account.detached",
+    "memory.note_added",
+    "memory.note_changed",
+    "memory.note_deleted",
   ],
   security: [
     "sso.configured",

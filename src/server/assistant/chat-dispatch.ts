@@ -24,7 +24,7 @@ import { withinWorkspace } from "@/server/connected-app";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { isChatMailTool, MAIL_TOOL_NAMES, prepareMailDraft, runChatMailTool, saveMailDraft } from "@/server/ai-chat-mail";
 import { isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
-import { applyMemory, MEMORY_TOOL_NAMES, prepareMemory, READ_MEMORY_TOOL, readMemory } from "@/server/ai-memory";
+import { applyMemory, MEMORY_TOOL_NAMES, prepareMemory, READ_MEMORY_TOOL, readChatMemory } from "@/server/ai-memory";
 import { noteWrite } from "@/lib/memory-rule";
 import { REMIND_TOOL_NAME, reminderWhen, setReminder } from "@/server/ai-reminders";
 import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, moreToolStep, pickMoreTool, readDocsTopic } from "@/server/ai-more-tools";
@@ -76,6 +76,9 @@ const DECLINED = {
   web: "The person declined this web call: nothing was sent. Don't try it again; answer with what you have, or ask them what to look up.",
   reminder: "The person declined this reminder: none was set. Don't try it again; ask what they want instead.",
 };
+
+const READ_ONLY_SHARED_NOTE =
+  "This chat may change nothing, so it keeps no notes for the workspace or a teamspace: say so; the person can ask again in a chat that may change things.";
 
 export function createChatDispatch(cx: ChatDispatchContext) {
   const { userId, workspaceId, registry, research, external, moreTools, signal } = cx;
@@ -202,13 +205,22 @@ export function createChatDispatch(cx: ChatDispatchContext) {
       if (!decision) return { ask: draft.action };
       return saveMailDraft(userId, draft, decision);
     }
+    // read_memory is offered only when notes didn't fit, or other teamspaces keep some
+    // (ai-chat.ts), and reads only what the person may read: the person's own notes only while
+    // their memory is on. Research reads none.
+    if (call.name === READ_MEMORY_TOOL.name && !research) return readChatMemory(userId, workspaceId, call.arguments, cx.remembers);
     // With the memory off, remember and forget aren't offered: called anyway, they're unknown.
-    if (cx.remembers && call.name === READ_MEMORY_TOOL.name) return readMemory(userId, workspaceId, call.arguments);
     if (cx.remembers && MEMORY_TOOL_NAMES.has(call.name)) {
       // Text read from outside could pass itself off as a lasting note: then the person approves
       // each; in a turn of their own words it is kept at once, with Undo (lib/memory-rule.ts).
       const note = await once(call, () => prepareMemory(userId, workspaceId, call));
       if (!("action" in note)) return note;
+      // A note for the workspace or a teamspace changes what everyone there reads: never from a
+      // chat that may change nothing (only notes about the person are kept there).
+      if (note.where && note.where.layer !== "account" && mode === "read") return { content: READ_ONLY_SHARED_NOTE, isError: true };
+      // A note for all their workspaces, the workspace or a teamspace goes far beyond this chat:
+      // asked about each time, in every mode.
+      if (!decision && note.where) return { ask: note.action };
       if (!decision && mode !== "auto" && noteWrite({ agent: false, personSaid: !outside(), askAll: !cx.autoChanges }) === "ask") return { ask: note.action };
       return applyMemory(userId, workspaceId, cx.conversationId, note, decision ?? "approve");
     }

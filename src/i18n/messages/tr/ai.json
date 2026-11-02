@@ -156,7 +156,7 @@
     "enabledHint": "Açıkken üyeler görebildikleri sayfa içeriğini ve satır değerlerini aşağıdaki yapay zekâ sağlayıcısına gönderebilir. Bu çalışma alanının içeriğini ondan uzak tutmak için kapat.",
     "ownersOnly": "Bunu yalnızca sahipler değiştirebilir.",
     "memory": "Yapay zekâ hafızası",
-    "memoryHint": "Açıkken yapay zekâ sohbeti kendinden bahseden kişiler hakkında kısa notlar tutar ve sonraki sorularıyla birlikte gönderir. Herkes kendisi için kapatabilir. Kapalıyken Hafıza görünümü gizlenir ve hiçbir soru not taşımaz; notlar silinmez, saklanır. Ajan çalışmaları da o zaman not taşımaz ve not önermez.",
+    "memoryHint": "Açıkken yapay zekâ sohbeti kendinden bahseden kişiler hakkında kısa notlar tutar ve sonraki sorularıyla birlikte gönderir; sahipler de Hafıza sayfasında çalışma alanı ve ekip alanları için not tutabilir. Herkes kendi notlarını kapatabilir. Kapalıyken buradaki hiçbir soru ya da ajan çalışması not taşımaz ve yeni not tutulmaz; notlar silinmez, saklanır. Ajan çalışmaları da o zaman not önermez.",
     "webSearch": "AI sohbetinde web araması",
     "webSearchHint": "Açıkken AI sohbeti sunucunun arama hizmetiyle web’de arayabilir ve web sayfalarını okuyabilir, yalnızca okuyarak: web’den okuduktan sonra yapmak istediği her değişiklik sorulur. Araştırma modu da web’de arar. Aramada kullandığı sorular ve metinler çalışma alanından arama hizmetine gider.",
     "autoChanges": "Sormadan değişiklik",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Hatırlama geri alındı:",
           "forget": "Unutma geri alındı:"
+        },
+        "layer": {
+          "account": "tüm çalışma alanlarında",
+          "workspace": "çalışma alanı hafızası",
+          "teamspace": "{place} ekip alanının hafızası"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Taslaklar klasörünüze gider: Posta'dan siz gönderene kadar hiçbir şey gönderilmez",
       "mailFrom": "Kimden",
       "mailTo": "Kime",
-      "mailCc": "Bilgi"
+      "mailCc": "Bilgi",
+      "memoryLayer": {
+        "remember": {
+          "account": "Bu, tüm çalışma alanlarında senin hakkında hatırlansın mı?",
+          "workspace": "Bu, çalışma alanının hafızasına eklensin mi?",
+          "teamspace": "Bu, {place} ekip alanının hafızasına eklensin mi?"
+        },
+        "forget": {
+          "account": "Bu not tüm çalışma alanlarında unutulsun mu?",
+          "workspace": "Bu, çalışma alanının hafızasından kaldırılsın mı?",
+          "teamspace": "Bu, {place} ekip alanının hafızasından kaldırılsın mı?"
+        },
+        "hint": {
+          "account": "Hafıza: hafızanın açık olduğu her çalışma alanında sorularınla birlikte gönderilir",
+          "workspace": "Çalışma alanı hafızası: her üyenin sorularıyla ve her ajan çalışmasıyla birlikte gönderilir",
+          "teamspace": "{place} ekip alanının hafızası: içinde, oradaki kişilerin sorduğu sorularla birlikte gönderilir"
+        }
+      }
     },
     "mode": {
       "label": "Değişiklikler",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Hafıza",
     "title": "Hafıza",
-    "close": "Kapat",
+    "pageIntro": "Yapay zekânın cevap verirken bildikleri: senin hakkındaki notlar, bir de çalışma alanının ve ekip alanlarının içlerindeki herkes için tuttuğu notlar. Notlar yapay zekâ için bilgidir, asla talimat değildir ve kimsenin zaten görebildiğinden fazlasını görmesini sağlamaz.",
+    "sections": {
+      "mine": "Bu çalışma alanında sen",
+      "everywhere": "Her yerde sen",
+      "shared": "Ortak",
+      "workspace": "Tüm çalışma alanı"
+    },
+    "everywhereHelp": "Hafızanın açık olduğu her çalışma alanında sorularınla birlikte gönderilir: dilin, cevapları nasıl sevdiğin. Yalnızca sen görürsün; yapay zekâ bir not tutmadan önce sorar.",
+    "workspaceHelp": "Bu çalışma alanında her üyenin sorularıyla ve her ajan çalışmasıyla birlikte gönderilir: şirketin ne yaptığı, terimleri, nasıl çalıştığı. Üyeler görür; sahipler değiştirir.",
+    "teamspaceHelp": "Yalnızca bu ekip alanının içinde, buradaki kişilerin sorduğu sorularla ve sayfalarındaki ajan çalışmalarıyla birlikte gönderilir. Üyeleri görür; sahipleri değiştirir.",
+    "readOnly": "Bu notları görebilirsin ama değiştiremezsin.",
+    "workspaceOff": "Sahipler bu çalışma alanında yapay zekâ hafızasını kapattı: buradaki sorularla not gitmez ve yeni not tutulmaz. Her yerde geçerli notların diğer çalışma alanlarında sorularınla gitmeye devam eder.",
+    "byPerson": "{name} değiştirdi",
+    "emptyShared": "Henüz not yok.",
+    "addPlaceholderEverywhere": "ör. Türkçe cevap ver ve kısa tut",
+    "addPlaceholderShared": "ör. Mali yılımız nisanda başlar",
+    "deleteAll": "Tümünü sil",
+    "confirmForgetEverywhere": "Yapay zekâ tüm çalışma alanlarında senin hakkında hatırladığı her şeyi unutsun mu?",
+    "confirmDeleteAll": "{place} için tüm notlar silinsin mi? Oradaki sorular bundan sonra notsuz gider.",
     "updated": "Hafıza güncellendi",
-    "intro": "Yapay zekânın bu çalışma alanında senin hakkında tuttuğu notlar; buradaki her sorunla birlikte gönderilir. Kendinden bahsettiğinde ya da bir şeyi hatırlamasını istediğinde not ekler. Notları yalnızca sen görürsün.",
+    "intro": "Bu çalışma alanındaki sorularınla birlikte gönderilir. Kendinden bahsettiğinde ya da bir şeyi hatırlamasını istediğinde yapay zekâ not ekler. Notları yalnızca sen görürsün.",
     "use": "Hafızayı kullan",
     "useHint": "Kapalıyken buradaki soruların bu notlar olmadan gider ve yapay zekâ yeni not tutmaz. Notlar silinmez.",
     "empty": "Henüz not yok. Yapay zekâya kendinden bahset ya da buraya bir not ekle.",
@@ -537,7 +577,8 @@
       "notFound": "Bu not artık yok.",
       "off": "Bu çalışma alanında yapay zekâ hafızası kapalı.",
       "changed": "Bu not o zamandan beri değişti. Hafıza'dan değiştir.",
-      "busy": "Cevap bitene kadar bekle."
+      "busy": "Cevap bitene kadar bekle.",
+      "held": "Bu notu yasal saklama koruyor: saklama sürdükçe silinemez."
     }
   },
   "accounts": {

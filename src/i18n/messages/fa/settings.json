@@ -2130,6 +2130,11 @@
         "set": "{target} را برای ارسال با ایمیل به {count, plural, one {# نفر} other {# نفر}} تنظیم کرد",
         "removed": "ارسال ایمیل {target} را متوقف کرد",
         "sent": "{target} را با ایمیل به {count, plural, one {# نفر} other {# نفر}} ارسال کرد"
+      },
+      "memory": {
+        "note_added": "یادداشتی به حافظهٔ هوش مصنوعی {target} افزود: «{to}»",
+        "note_changed": "یادداشتی را در حافظهٔ هوش مصنوعی {target} تغییر داد: «{from}» → «{to}»",
+        "note_deleted": "{count, plural, one {یادداشتی را از حافظهٔ هوش مصنوعی {target} حذف کرد: «{from}»} other {# یادداشت را از حافظهٔ هوش مصنوعی {target} حذف کرد}}"
       }
     },
     "decisions": {

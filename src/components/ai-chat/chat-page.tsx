@@ -21,7 +21,7 @@ import { rowFromSearch, withRow } from "@/lib/row-panel";
 import { useAiChat, useSharedChat } from "./chat-panel";
 import { ChatStarters } from "./chat-starters";
 import { ChatThread } from "./chat-thread";
-import { MemoryButton } from "./memory-dialog";
+import { MemoryButton } from "./memory-button";
 import { ScopePicker } from "./scope-picker";
 
 // Its boxes beside a conversation, from the first question on and on a wide page only.

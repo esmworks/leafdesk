@@ -2130,6 +2130,11 @@
         "set": "Satte {target} til at blive sendt som e-mail til {count, plural, one {# person} other {# personer}}",
         "removed": "Stoppede e-mails med {target}",
         "sent": "Sendte {target} som e-mail til {count, plural, one {# person} other {# personer}}"
+      },
+      "memory": {
+        "note_added": "Tilføjede en note til AI-hukommelsen for {target}: “{to}”",
+        "note_changed": "Ændrede en note i AI-hukommelsen for {target}: “{from}” → “{to}”",
+        "note_deleted": "{count, plural, one {Slettede en note fra AI-hukommelsen for {target}: “{from}”} other {Slettede # noter fra AI-hukommelsen for {target}}}"
       }
     },
     "decisions": {

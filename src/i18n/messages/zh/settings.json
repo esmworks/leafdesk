@@ -2130,6 +2130,11 @@
         "set": "将 {target} 设置为通过邮件发送给 {count, plural, other {# 个人}}",
         "removed": "停止了 {target} 的邮件发送",
         "sent": "已将 {target} 通过邮件发送给 {count, plural, other {# 个人}}"
+      },
+      "memory": {
+        "note_added": "向 {target} 的 AI 记忆添加了一条笔记：“{to}”",
+        "note_changed": "更改了 {target} 的 AI 记忆中的一条笔记：“{from}” → “{to}”",
+        "note_deleted": "{count, plural, =1 {从 {target} 的 AI 记忆中删除了一条笔记：“{from}”} other {从 {target} 的 AI 记忆中删除了 # 条笔记}}"
       }
     },
     "decisions": {

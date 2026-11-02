@@ -16,7 +16,8 @@ import type { MailAttachmentView } from "@/lib/mail-client";
 import { mailTaskDay } from "@/lib/mail-tasks";
 import { DRAFT_ACTIONS, MAIL_WRITE_ACTIONS, MAX_MAIL_INSTRUCTION, SUMMARY_MESSAGES } from "@/lib/mail-ai";
 import { aiConfig, AiError, contentChars, stream, type AiStream } from "@/server/ai";
-import { memoryForPrompt, memoryOn } from "@/server/ai-memory";
+import { accountNotesOf } from "@/server/account-memory";
+import { fitNotes, memoryForPrompt, memoryOn } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
 import { visibleRow } from "@/server/operations";
 import { requireOwnMailbox } from "./access";
@@ -161,11 +162,17 @@ async function answeringRow(userId: string, messageId: string): Promise<string |
   }
 }
 
-/** The person's newest notes from the AI chat's memory while it is on for them, only the notes: without the chat's ids or its line about older ones. */
+/**
+ * The person's newest notes from the AI chat's memory while it is on for them, theirs for all
+ * workspaces first (their language, how they write), only the notes: without the chat's ids or its
+ * line about older ones. Never the workspace's or a teamspace's notes, which are no one's way of
+ * writing and would carry the workspace's own facts into mail to outside people.
+ */
 async function memoryNotes(userId: string, workspaceId: string): Promise<string | null> {
   if (!(await memoryOn(userId, workspaceId))) return null;
-  const { text } = await memoryForPrompt(userId, workspaceId, MEMORY_CHARS);
-  const notes = text.split("\n").flatMap((line) => {
+  const everywhere = fitNotes(await accountNotesOf(userId), Math.floor(MEMORY_CHARS / 3), "");
+  const { text } = await memoryForPrompt(userId, workspaceId, MEMORY_CHARS - everywhere.text.length);
+  const notes = [everywhere.text, text].join("\n").split("\n").flatMap((line) => {
     const note = /^- \(memory_id [^)]*\) /.exec(line);
     return note ? [`- ${line.slice(note[0].length)}`] : [];
   });

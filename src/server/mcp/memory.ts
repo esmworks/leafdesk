@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { MAX_MEMORIES, MAX_MEMORY_CHARS, type MemoryView } from "@/lib/ai-chat";
+import { MAX_MEMORIES, MAX_MEMORY_CHARS, type MemoryPlaceView, type MemoryView, type SharedNoteView } from "@/lib/ai-chat";
 import { MemoryError, memoryOff } from "@/server/ai-memory";
 import { id } from "@/server/operations";
 import { ToolInputError } from "./format";
@@ -19,7 +19,9 @@ export const memoryInputs = {
     workspace_id: id("workspace").optional().describe("Only this workspace's notes; the notes of every workspace of the user when omitted."),
   }),
   change: z.object({
-    workspace_id: id("workspace"),
+    workspace_id: id("workspace").optional().describe("Not for scope account."),
+    scope: z.enum(["person", "account", "workspace", "teamspace"]).default("person").describe("Whose notes (see list_memory)."),
+    teamspace_id: id("teamspace").optional().describe("scope teamspace: from list_memory."),
     action: z.enum(["add", "update", "delete"]).describe("add: keep a new note (text). update: change a note (memory_id, text). delete: forget notes (memory_ids, or all)."),
     text: noteInput.optional().describe(`add, update: the note, one fact about the user in a sentence of at most ${MAX_MEMORY_CHARS} characters, in the user's language.`),
     memory_id: memoryIdInput.optional().describe("update: the note's memory_id, from list_memory."),
@@ -61,6 +63,8 @@ export async function withMemoryErrors<T>(fn: () => Promise<T>): Promise<T> {
           throw new ToolInputError("A note needs text.");
         case "off":
           throw new ToolInputError(MEMORY_OFF.workspace);
+        case "held":
+          throw new ToolInputError("A legal hold of the workspace keeps these notes: they can't be deleted while it stands.");
       }
     }
     throw error;
@@ -78,3 +82,31 @@ export function describeMemory(workspaceId: string, { off, notes }: { off: keyof
     ? { workspace_id: workspaceId, memory: "off" as const, why: MEMORY_OFF[off], notes: [], notes_kept: notes.length }
     : { workspace_id: workspaceId, memory: "on" as const, notes: notes.map(describeNote) };
 }
+
+/** A note of the workspace or a teamspace as list_memory shows it: who changed it last, too. */
+export function describeSharedNote(note: SharedNoteView) {
+  return { ...describeNote(note), ...(note.by ? { changed_by: note.by } : {}) };
+}
+
+/**
+ * The workspace's notes and its teamspaces' as list_memory shows them beside the user's own: the
+ * workspace's while it has the memory on, and each teamspace's the user is in or manages that keeps
+ * notes or that they may change; nothing for a guest.
+ */
+export function describePlaces(places: { workspace: MemoryPlaceView | null; teamspaces: MemoryPlaceView[] }) {
+  if (!places.workspace) return {};
+  const teamspaces = places.teamspaces.filter((t) => t.notes.length || t.canChange);
+  return {
+    workspace_notes: { can_change: places.workspace.canChange, notes: places.workspace.notes.map(describeSharedNote) },
+    ...(teamspaces.length
+      ? { teamspace_notes: teamspaces.map((t) => ({ teamspace_id: t.id, name: t.name, can_change: t.canChange, notes: t.notes.map(describeSharedNote) })) }
+      : {}),
+  };
+}
+
+/** Why a note of the workspace or a teamspace can't be changed by the user, with a next step. */
+export const NOT_THEIRS = {
+  workspace: "Only the workspace's owners keep its notes. Tell the user; they can ask an owner, or keep the note as their own (scope person).",
+  teamspace:
+    "Only those who manage this teamspace keep its notes, and only in a teamspace the user is in or manages. Tell the user; they can ask its owners, or keep the note as their own (scope person).",
+} as const;

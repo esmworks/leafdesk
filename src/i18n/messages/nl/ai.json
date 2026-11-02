@@ -156,7 +156,7 @@
     "enabledHint": "Als dit aan staat, kunnen leden pagina-inhoud en rijwaarden die ze kunnen zien naar de AI-provider hieronder sturen. Schakel het uit om de inhoud van deze werkruimte daarvan weg te houden.",
     "ownersOnly": "Alleen eigenaren kunnen dit wijzigen.",
     "memory": "AI-geheugen",
-    "memoryHint": "Als dit aan staat, houdt de AI-chat korte notities bij over mensen die iets over zichzelf vertellen, en stuurt die mee met hun latere vragen. Iedereen kan het voor zichzelf uitschakelen. Als het uit staat, is de weergave Geheugen verborgen en gaan er bij niemands vragen notities mee; de notities blijven bewaard en worden niet verwijderd. Runs van agents nemen dan ook geen notities mee en stellen er geen voor.",
+    "memoryHint": "Als dit aan staat, houdt de AI-chat korte notities bij over mensen die iets over zichzelf vertellen en stuurt die mee met hun latere vragen, en kunnen eigenaren op de pagina Geheugen notities bijhouden voor de werkruimte en haar teamruimtes. Iedereen kan zijn eigen notities uitschakelen. Als het uit staat, gaan er hier bij geen enkele vraag of run van een agent notities mee en worden er geen bijgehouden; de notities blijven bewaard en worden niet verwijderd. Runs van agents stellen er dan ook geen voor.",
     "webSearch": "Zoeken op het web in de AI-chat",
     "webSearchHint": "Als dit aan staat, mag de AI-chat met de zoekdienst van de server op het web zoeken en webpagina’s lezen, alleen lezend: nadat er van het web is gelezen, wordt elke wijziging die de chat wil doen eerst gevraagd. De onderzoeksmodus zoekt ook op het web. Vragen en paginatekst waarmee wordt gezocht, verlaten de werkruimte voor de zoekdienst.",
     "autoChanges": "Wijzigingen zonder te vragen",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Onthouden ongedaan gemaakt:",
           "forget": "Vergeten ongedaan gemaakt:"
+        },
+        "layer": {
+          "account": "in al je werkruimtes",
+          "workspace": "werkruimtegeheugen",
+          "teamspace": "geheugen van {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Hij gaat naar je map Concepten: er wordt niets verzonden tot je hem verstuurt vanuit Mail",
       "mailFrom": "Van",
       "mailTo": "Aan",
-      "mailCc": "Cc"
+      "mailCc": "Cc",
+      "memoryLayer": {
+        "remember": {
+          "account": "Dit over jou onthouden in al je werkruimtes?",
+          "workspace": "Dit toevoegen aan het geheugen van de werkruimte?",
+          "teamspace": "Dit toevoegen aan het geheugen van {place}?"
+        },
+        "forget": {
+          "account": "Deze notitie vergeten in al je werkruimtes?",
+          "workspace": "Dit verwijderen uit het geheugen van de werkruimte?",
+          "teamspace": "Dit verwijderen uit het geheugen van {place}?"
+        },
+        "hint": {
+          "account": "Geheugen: meegestuurd met je vragen in elke werkruimte waar je geheugen aan staat",
+          "workspace": "Werkruimtegeheugen: meegestuurd met de vragen van elk lid en elke run van een agent",
+          "teamspace": "Geheugen van {place}: meegestuurd met vragen die daarbinnen worden gesteld, door mensen erin"
+        }
+      }
     },
     "mode": {
       "label": "Wijzigingen",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Geheugen",
     "title": "Geheugen",
-    "close": "Sluiten",
+    "pageIntro": "Wat de AI weet als hij antwoordt: notities over jou, en notities die de werkruimte en haar teamruimtes bijhouden voor iedereen erin. Notities zijn informatie voor de AI, nooit opdrachten, en laten niemand meer zien dan hij al kan zien.",
+    "sections": {
+      "mine": "Jij in deze werkruimte",
+      "everywhere": "Jij overal",
+      "shared": "Gedeeld",
+      "workspace": "Hele werkruimte"
+    },
+    "everywhereHelp": "Meegestuurd met je vragen in elke werkruimte waar je geheugen aan staat: je taal, hoe je antwoorden graag hebt. Alleen jij ziet ze, en de AI vraagt het voordat hij er een bijhoudt.",
+    "workspaceHelp": "Meegestuurd met de vragen van elk lid en elke run van een agent in deze werkruimte: wat het bedrijf doet, zijn termen, hoe het werkt. Leden zien ze; eigenaren wijzigen ze.",
+    "teamspaceHelp": "Alleen meegestuurd met vragen die binnen deze teamruimte worden gesteld, door mensen erin, en met runs van agents op haar pagina’s. Haar leden zien ze; haar eigenaren wijzigen ze.",
+    "readOnly": "Je kunt deze notities zien, maar niet wijzigen.",
+    "workspaceOff": "De eigenaren hebben het AI-geheugen in deze werkruimte uitgeschakeld: hier gaan geen notities mee met vragen en worden er geen bijgehouden. Je notities voor overal gaan in andere werkruimtes nog steeds mee met je vragen.",
+    "byPerson": "Gewijzigd door {name}",
+    "emptyShared": "Nog geen notities.",
+    "addPlaceholderEverywhere": "bijv. Antwoord in het Nederlands en houd het kort",
+    "addPlaceholderShared": "bijv. Ons boekjaar begint in april",
+    "deleteAll": "Alles verwijderen",
+    "confirmForgetEverywhere": "Alles vergeten wat de AI in al je werkruimtes over jou onthoudt?",
+    "confirmDeleteAll": "Alle notities van {place} verwijderen? Vragen daar gaan vanaf nu zonder.",
     "updated": "Geheugen bijgewerkt",
-    "intro": "Notities die de AI in deze werkruimte over jou bijhoudt, meegestuurd met elk van je vragen hier. Er komt er een bij als je iets over jezelf vertelt of vraagt iets te onthouden. Alleen jij ziet ze.",
+    "intro": "Meegestuurd met je vragen in deze werkruimte. De AI voegt een notitie toe als je iets over jezelf vertelt of vraagt iets te onthouden. Alleen jij ziet ze.",
     "use": "Geheugen gebruiken",
     "useHint": "Als dit uit staat, gaan je vragen hier zonder deze notities en houdt de AI geen nieuwe bij. De notities blijven bewaard.",
     "empty": "Nog niets. Vertel de AI iets over jezelf, of voeg hier een notitie toe.",
@@ -537,7 +577,8 @@
       "notFound": "Die notitie bestaat niet meer.",
       "off": "Het AI-geheugen is uitgeschakeld in deze werkruimte.",
       "changed": "Die notitie is sindsdien gewijzigd. Wijzig hem in Geheugen.",
-      "busy": "Wacht tot het antwoord klaar is."
+      "busy": "Wacht tot het antwoord klaar is.",
+      "held": "Een juridische bewaarplicht houdt deze notitie vast: ze kan niet worden verwijderd zolang de bewaarplicht geldt."
     }
   },
   "accounts": {

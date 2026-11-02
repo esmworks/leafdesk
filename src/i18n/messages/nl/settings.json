@@ -2130,6 +2130,11 @@
         "set": "{target} ingesteld om te worden gemaild naar {count, plural, one {# persoon} other {# personen}}",
         "removed": "Is gestopt met het mailen van {target}",
         "sent": "{target} gemaild naar {count, plural, one {# persoon} other {# personen}}"
+      },
+      "memory": {
+        "note_added": "Een notitie toegevoegd aan het AI-geheugen van {target}: “{to}”",
+        "note_changed": "Een notitie in het AI-geheugen van {target} gewijzigd: “{from}” → “{to}”",
+        "note_deleted": "{count, plural, one {Een notitie verwijderd uit het AI-geheugen van {target}: “{from}”} other {# notities verwijderd uit het AI-geheugen van {target}}}"
       }
     },
     "decisions": {
