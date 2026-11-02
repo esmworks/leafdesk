@@ -19,6 +19,10 @@
   count also took in notices the inbox leaves out (changes for review once none waits, a call
   already answered, a row change the person may no longer see), which could not be opened or
   marked read, so the count stayed above the list.
+- **A table's column names no longer wobble as it scrolls sideways.** The header row followed the
+  rows a frame or more late, so its names jumped back and forth against their columns, and at the
+  far end it could pull the rows back. It now moves in the same frame as the rows, frozen columns
+  included.
 
 ## 0.7.0 — 2026-11-02
 

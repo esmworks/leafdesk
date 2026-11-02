@@ -42,6 +42,7 @@ import { PropertyAccessDialog } from "./property-access-dialog";
 import { PropertyLock, usePropertyAccess } from "./property-access";
 import type { PropertyMenuActions } from "./property-menu";
 import { usePropertyHint } from "./property-hint";
+import { followRowsByTimeline, useScrollTimelines } from "./head-follow";
 import { HIDE_SCROLLBAR, StickyScrollbar } from "./scroll-x";
 import { CalculationRow, showsCalculations } from "./table-calculations";
 import { useRelations } from "./relation-context";
@@ -234,6 +235,8 @@ export function TableView({
   // The header row is a table of its own above the box (see the render), so it can stay in sight as
   // the page scrolls down; sideways, each follows the other.
   const headBox = useRef<HTMLDivElement>(null);
+  const headWrapper = useRef<HTMLDivElement>(null);
+  const scrollLinked = useScrollTimelines();
   const [headStrip, setHeadStrip] = useState<HTMLDivElement | null>(null);
   useStuckMark(headStrip);
   useEffect(() => {
@@ -277,17 +280,30 @@ export function TableView({
    * cells but not on the row controls in the gutter.
    */
   const tucked = gutter + handles - SELECT_BOX_WIDTH;
-  const frozen = (i: number, selected = false) =>
+  // Where the header's own frozen cells are moved instead (`held` false): see followRowsByTimeline.
+  const frozen = (i: number, selected = false, held = true) =>
     frozenCount > 0 && i < frozenCount
       ? {
-          style: { insetInlineStart: (i < 0 ? 0 : leftOf(i)) - tucked },
+          style: held ? { insetInlineStart: (i < 0 ? 0 : leftOf(i)) - tucked } : undefined,
           className: cn(
-            "sticky z-30",
+            held ? "sticky z-30" : "relative z-30",
             selected ? "bg-[color-mix(in_srgb,var(--accent)_5%,var(--bg))]" : i < 0 ? "bg-bg" : "bg-[var(--row-bg,var(--bg))]",
             i === frozenCount - 1 && "shadow-[inset_-1px_0_0_var(--border)] rtl:shadow-[inset_1px_0_0_var(--border)]",
           ),
         }
       : { style: undefined, className: undefined };
+  const headFrozen = (i: number) => frozen(i, false, !scrollLinked);
+  const frozenKeys = columnKeys.slice(0, frozenCount).join(" ");
+  useLayoutEffect(() => {
+    const rows = box.current;
+    const head = headBox.current;
+    const wrapper = headWrapper.current;
+    const table = wrapper?.firstElementChild;
+    if (!scrollLinked || !rows || !head || !wrapper || !(table instanceof HTMLElement)) return;
+    // The row controls' cell and the frozen columns' (the first cells of the header row).
+    const cells = frozenKeys ? [...(head.querySelector("thead")?.rows[0]?.cells ?? [])].slice(0, frozenKeys.split(" ").length + 1) : [];
+    return followRowsByTimeline(rows, head, wrapper, table, cells, gutter + tucked);
+  }, [scrollLinked, frozenKeys, gutter, tucked]);
 
   const setConfig = (config: ViewConfig) => api.updateView(view, { config });
   // Column widths and order change the view's settings, which only people who may save them change.
@@ -835,126 +851,132 @@ export function TableView({
           instead of the page. Above frozen columns (z-30), under the page's top bar (z-35). */}
       <div ref={setHeadStrip} className="sticky top-(--table-head-top) z-[31] data-stuck:bg-bg">
         <div ref={headBox} className={cn("page-gutter-table row-panel-room overflow-x-auto [color-scheme:light_dark]", HIDE_SCROLLBAR)}>
-          <table role="presentation" className={tableClass} style={{ width: totalWidth }}>
-            {colgroup}
-            {/* The header row on gray, frozen columns included (not the row handles beside it). */}
-            <thead className="[&_th:not(:first-child)]:bg-bg-subtle">
-              <tr className="group">
-                <th className={cn("p-0 font-normal", frozen(-1).className)} style={frozen(-1).style}>
-                  <div className="flex justify-end">
-                    <SelectBox
-                      checked={selection.all}
-                      indeterminate={selection.some && !selection.all}
-                      label={t("bulk.selectAll")}
-                      visible={selection.some}
-                      onToggle={selection.toggleAll}
-                    />
-                  </div>
-                </th>
-                <HeaderCell
-                  prop={null}
-                  label={t("nameColumn")}
-                  icon="title"
-                  sort={sortOf(TITLE)}
-                  frozen={frozen(0)}
-                  readOnly={readOnly}
-                  onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
-                  onFit={() => fitColumn(TITLE, 0)}
-                  resizing={resizing?.key === TITLE}
-                  actions={{
-                    ...viewActions(TITLE, TITLE),
-                    sort: (direction) => setConfig({ ...view.config, sorts: [{ propertyId: TITLE, direction }] }),
-                    insert: insertBeside(TITLE, ["after"]),
-                  }}
-                />
-                {visible.map((p, i) => {
-                  // Property access: changing the property itself needs "edit" on it.
-                  const fixed = locked || !access.canEditSchema(p.id);
-                  return (
+          {/* As wide as the table, so the box's end padding still counts toward its scroll, as the rows'
+              box's does; clipped, so the moves below don't widen that scroll. */}
+          <div className="w-fit overflow-x-clip">
+            <div ref={headWrapper}>
+              <table role="presentation" className={tableClass} style={{ width: totalWidth }}>
+                {colgroup}
+                {/* The header row on gray, frozen columns included (not the row handles beside it). */}
+                <thead className="[&_th:not(:first-child)]:bg-bg-subtle">
+                  <tr className="group">
+                    <th className={cn("p-0 font-normal", headFrozen(-1).className)} style={headFrozen(-1).style}>
+                      <div className="flex justify-end">
+                        <SelectBox
+                          checked={selection.all}
+                          indeterminate={selection.some && !selection.all}
+                          label={t("bulk.selectAll")}
+                          visible={selection.some}
+                          onToggle={selection.toggleAll}
+                        />
+                      </div>
+                    </th>
                     <HeaderCell
-                      key={p.id}
-                      prop={p}
-                      label={p.name}
-                      icon={p.type}
-                      align={aligns[p.id]}
-                      sort={sortOf(p.id)}
-                      frozen={frozen(i + 1)}
+                      prop={null}
+                      label={t("nameColumn")}
+                      icon="title"
+                      sort={sortOf(TITLE)}
+                      frozen={headFrozen(0)}
                       readOnly={readOnly}
-                      drag={arrangeable ? columnDrag.handlers(p.id) : undefined}
-                      onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
-                      onFit={() => fitColumn(p.id, i + 1)}
-                      resizing={resizing?.key === p.id}
+                      onResize={!arrangeable || phone ? undefined : (e) => startResize(TITLE, nameWidth, e)}
+                      onFit={() => fitColumn(TITLE, 0)}
+                      resizing={resizing?.key === TITLE}
                       actions={{
-                        ...viewActions(p.id, valueType(p)),
-                        // A button holds nothing to filter or count by.
-                        ...(isAction(p.type) ? { filter: undefined, calculation: undefined } : {}),
-                        group:
-                          settingsReadOnly || !isGroupableProperty(p) || groupBy?.id === p.id
-                            ? undefined
-                            : () => setConfig({ ...view.config, groupBy: p.id }),
-                        ungroup: settingsReadOnly || groupBy?.id !== p.id ? undefined : () => setConfig({ ...view.config, groupBy: undefined }),
-                        insert: insertBeside(p.id, ["before", "after"]),
-                        rename: fixed ? undefined : (name) => api.renameProperty(p.id, name),
-                        sort: isSortable(p.type)
-                          ? (direction) => setConfig({ ...view.config, sorts: [{ propertyId: p.id, direction }] })
-                          : undefined,
-                        hide: settingsReadOnly ? undefined : () => setConfig({ ...view.config, hidden: [...(view.config.hidden ?? []), p.id] }),
-                        setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
-                        setDependsOn: fixed ? undefined : (parentId) => api.setDependsOn(p, parentId),
-                        setDescription: fixed ? undefined : (description) => api.setDescription(p, description),
-                        setIcon: fixed ? undefined : (icon) => api.setPropertyIcon(p, icon),
-                        setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
-                        setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
-                        setNumberFormat:
-                          fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
-                        setDateOptions: fixed || !takesDateOptions(p.type) ? undefined : (input) => api.setDateOptions(p, input),
-                        setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
-                        setUrlPreview: fixed || p.type !== "url" ? undefined : (on) => api.setUrlPreview(p, on),
-                        setButton: fixed || p.type !== "button" ? undefined : (options) => api.setRowButton(p, options),
-                        editButtonAutomations:
-                          p.type !== "button" || !buttonAutomations ? undefined : () => buttonAutomations({ propertyId: p.id, label: rowButtonLabel(p) }),
-                        setNumberDisplay: fixed || !takesNumberDisplay(p) ? undefined : (display) => api.setNumberDisplay(p, display),
-                        setRelationOptions: fixed || p.type !== "relation" ? undefined : (input) => api.setRelationOptions(p, input),
-                        setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),
-                        setUnique: fixed || !canBeUnique(p.type) ? undefined : (on) => api.setUnique(p, on),
-                        setOneRow: fixed || p.type !== "relation" ? undefined : (on) => api.setOneRow(p, on),
-                        setStatusCheckbox: fixed || p.type !== "status" ? undefined : (on) => api.setStatusCheckbox(p, on),
-                        makeTwoWay: fixed || p.type !== "relation" ? undefined : () => api.makeTwoWay(p),
-                        setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
-                        setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),
-                        updateAllAutofill:
-                          !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)
-                            ? undefined
-                            : () => ai.refresh?.(p.id, inView.map((r) => r.id)),
-                        duplicate: fixed
-                          ? undefined
-                          : async () =>
-                              placeBeside(
-                                (await api.duplicateProperty(p.id, t("propertyMenu.copyName", { name: p.name })))?.id,
-                                p.id,
-                                "after",
-                              ),
-                        changeType: fixed ? undefined : typeChange(p),
-                        remove: fixed ? undefined : () => api.deleteProperty(p.id),
+                        ...viewActions(TITLE, TITLE),
+                        sort: (direction) => setConfig({ ...view.config, sorts: [{ propertyId: TITLE, direction }] }),
+                        insert: insertBeside(TITLE, ["after"]),
                       }}
                     />
-                  );
-                })}
-                {!readOnly && (
-                  <th className="border-y border-border p-0 text-start font-normal">
-                    {!locked && (
-                      <AddPropertyButton
-                        onCreate={(name, type, relation, derived) => api.addProperty(name, type, undefined, relation, derived)}
-                        onCreateAutofill={
-                          ai.enabled ? (name, config) => api.addAutofillProperty(name, config, inView.map((r) => r.id)) : undefined
-                        }
-                      />
+                    {visible.map((p, i) => {
+                      // Property access: changing the property itself needs "edit" on it.
+                      const fixed = locked || !access.canEditSchema(p.id);
+                      return (
+                        <HeaderCell
+                          key={p.id}
+                          prop={p}
+                          label={p.name}
+                          icon={p.type}
+                          align={aligns[p.id]}
+                          sort={sortOf(p.id)}
+                          frozen={headFrozen(i + 1)}
+                          readOnly={readOnly}
+                          drag={arrangeable ? columnDrag.handlers(p.id) : undefined}
+                          onResize={arrangeable ? (e) => startResize(p.id, colWidth(p), e) : undefined}
+                          onFit={() => fitColumn(p.id, i + 1)}
+                          resizing={resizing?.key === p.id}
+                          actions={{
+                            ...viewActions(p.id, valueType(p)),
+                            // A button holds nothing to filter or count by.
+                            ...(isAction(p.type) ? { filter: undefined, calculation: undefined } : {}),
+                            group:
+                              settingsReadOnly || !isGroupableProperty(p) || groupBy?.id === p.id
+                                ? undefined
+                                : () => setConfig({ ...view.config, groupBy: p.id }),
+                            ungroup: settingsReadOnly || groupBy?.id !== p.id ? undefined : () => setConfig({ ...view.config, groupBy: undefined }),
+                            insert: insertBeside(p.id, ["before", "after"]),
+                            rename: fixed ? undefined : (name) => api.renameProperty(p.id, name),
+                            sort: isSortable(p.type)
+                              ? (direction) => setConfig({ ...view.config, sorts: [{ propertyId: p.id, direction }] })
+                              : undefined,
+                            hide: settingsReadOnly ? undefined : () => setConfig({ ...view.config, hidden: [...(view.config.hidden ?? []), p.id] }),
+                            setOptions: fixed ? undefined : (options) => api.setOptions(p, options),
+                            setDependsOn: fixed ? undefined : (parentId) => api.setDependsOn(p, parentId),
+                            setDescription: fixed ? undefined : (description) => api.setDescription(p, description),
+                            setIcon: fixed ? undefined : (icon) => api.setPropertyIcon(p, icon),
+                            setFormula: fixed ? undefined : (expression) => api.setFormula(p, expression),
+                            setRollup: fixed ? undefined : (rollup) => api.setRollup(p, rollup),
+                            setNumberFormat:
+                              fixed || !takesNumberFormat(p.type, p.options.formula?.type) ? undefined : (format) => api.setNumberFormat(p, format),
+                            setDateOptions: fixed || !takesDateOptions(p.type) ? undefined : (input) => api.setDateOptions(p, input),
+                            setUniqueIdPrefix: fixed || p.type !== "unique_id" ? undefined : (prefix) => api.setUniqueIdPrefix(p, prefix),
+                            setUrlPreview: fixed || p.type !== "url" ? undefined : (on) => api.setUrlPreview(p, on),
+                            setButton: fixed || p.type !== "button" ? undefined : (options) => api.setRowButton(p, options),
+                            editButtonAutomations:
+                              p.type !== "button" || !buttonAutomations ? undefined : () => buttonAutomations({ propertyId: p.id, label: rowButtonLabel(p) }),
+                            setNumberDisplay: fixed || !takesNumberDisplay(p) ? undefined : (display) => api.setNumberDisplay(p, display),
+                            setRelationOptions: fixed || p.type !== "relation" ? undefined : (input) => api.setRelationOptions(p, input),
+                            setOnePerson: fixed || p.type !== "person" ? undefined : (on) => api.setOnePerson(p, on),
+                            setUnique: fixed || !canBeUnique(p.type) ? undefined : (on) => api.setUnique(p, on),
+                            setOneRow: fixed || p.type !== "relation" ? undefined : (on) => api.setOneRow(p, on),
+                            setStatusCheckbox: fixed || p.type !== "status" ? undefined : (on) => api.setStatusCheckbox(p, on),
+                            makeTwoWay: fixed || p.type !== "relation" ? undefined : () => api.makeTwoWay(p),
+                            setPageVisibility: fixed ? undefined : (visibility) => api.setPageVisibility(p, visibility),
+                            setAutofill: fixed || !ai.enabled || !isAutofillType(p.type) ? undefined : (config) => api.setAutofill(p, config),
+                            updateAllAutofill:
+                              !ai.enabled || !ai.refresh || !p.options.ai || !access.canEditValues(p.id)
+                                ? undefined
+                                : () => ai.refresh?.(p.id, inView.map((r) => r.id)),
+                            duplicate: fixed
+                              ? undefined
+                              : async () =>
+                                  placeBeside(
+                                    (await api.duplicateProperty(p.id, t("propertyMenu.copyName", { name: p.name })))?.id,
+                                    p.id,
+                                    "after",
+                                  ),
+                            changeType: fixed ? undefined : typeChange(p),
+                            remove: fixed ? undefined : () => api.deleteProperty(p.id),
+                          }}
+                        />
+                      );
+                    })}
+                    {!readOnly && (
+                      <th className="border-y border-border p-0 text-start font-normal">
+                        {!locked && (
+                          <AddPropertyButton
+                            onCreate={(name, type, relation, derived) => api.addProperty(name, type, undefined, relation, derived)}
+                            onCreateAutofill={
+                              ai.enabled ? (name, config) => api.addAutofillProperty(name, config, inView.map((r) => r.id)) : undefined
+                            }
+                          />
+                        )}
+                      </th>
                     )}
-                  </th>
-                )}
-              </tr>
-            </thead>
-          </table>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
       <div
