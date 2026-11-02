@@ -183,8 +183,8 @@ const EDIT_PAGE = WRITE_TOOLS.find((t) => t.name === "edit_page")!;
 /** Leafdesk's tools on a row's run: update_row and edit_page on that row. Any run may also keep notes (memory.ts). */
 export const AGENT_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, EDIT_PAGE, ADD_COMMENT];
 
-/** Leafdesk's tools on a schedule's run on a database: update_row, edit_page and add_comment on any of its rows. */
-export const SCHEDULED_DATABASE_TOOLS: AiTool[] = [...CHAT_TOOLS, UPDATE_ROW, EDIT_PAGE, ADD_ROW_COMMENT];
+/** Leafdesk's tools on a schedule's run on a database: create_row in it, and update_row, edit_page and add_comment on any of its rows. */
+export const SCHEDULED_DATABASE_TOOLS: AiTool[] = [...CHAT_TOOLS, CREATE_ROW, UPDATE_ROW, EDIT_PAGE, ADD_ROW_COMMENT];
 
 /** The database a schedule's run looks after, if any. */
 export const scheduledDatabase = (source: AgentRunSource) => (isScheduleRun(source) ? (source.databaseId ?? null) : null);
@@ -752,6 +752,17 @@ export function createDispatch(
       // one that may change the workspace without an owner.
       if (!approved) return (await dailyLimitReached(agent)) ? limited(call) : null;
       return change(call, () => asAutomation(() => applyWrite(prepared, "approve", registry)));
+    }
+    // A schedule's run adds rows to the database it looks after, and to no other, as update_row changes them.
+    if (databaseId && call.name === CREATE_ROW.name) {
+      return change(call, async () => {
+        const prepared = await prepareWrite(ctx, run.workspaceId, null, call);
+        if (!("action" in prepared)) return prepared;
+        if (prepared.row?.databaseId !== databaseId) {
+          return { content: `You may add rows only to the database this run looks after (database_id ${databaseId}). Nothing was added.`, isError: true };
+        }
+        return proposes ? propose(prepared, call) : asAutomation(() => applyWrite(prepared, "approve", registry));
+      });
     }
     const mentionWrite = mention && mentionTools.some((t) => t.name === call.name);
     if ((rowRun || databaseId || mentionWrite) && (call.name === "update_row" || call.name === "edit_page" || call.name === "add_comment")) {

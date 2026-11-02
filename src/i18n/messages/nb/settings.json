@@ -939,7 +939,7 @@
       },
       "database": "Database den har ansvar for",
       "noDatabaseOption": "Ingen: den bare leser",
-      "databaseHint": "Hver kjøring leser denne databasen først og kan endre og kommentere radene i den (høyst {max} endringer per kjøring).",
+      "databaseHint": "Hver kjøring leser denne databasen først og kan legge til, endre og kommentere radene i den (høyst {max} endringer per kjøring).",
       "noDatabaseHint": "Uten en database endrer den ingenting: den leser det som er delt med den, og rapporterer.",
       "task": "Oppgave",
       "taskPlaceholder": "f.eks. Gå gjennom alle rader. Sett Status til Forsinket der forfallsdatoen har passert, og list opp hva jeg må gjøre i dag.",

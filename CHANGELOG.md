@@ -15,6 +15,11 @@
 
 ### Fixed
 
+- **An agent's schedule can add rows to the database it looks after.** Its runs could change and
+  comment on that database's rows but not add new ones, so a schedule that keeps a database in step
+  with a spreadsheet or another source listed the new rows for you to add by hand. They now add
+  rows there (and only there), counted with the run's other changes; an agent whose changes wait
+  for review proposes them instead.
 - **The inbox's unread count matches what the inbox shows.** The sidebar's and the app icon's
   count also took in notices the inbox leaves out (changes for review once none waits, a call
   already answered, a row change the person may no longer see), which could not be opened or

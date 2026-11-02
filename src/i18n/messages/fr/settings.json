@@ -939,7 +939,7 @@
       },
       "database": "Base de données dont il s’occupe",
       "noDatabaseOption": "Aucune : il ne fait que lire",
-      "databaseHint": "Chaque exécution lit d’abord cette base de données et peut modifier et commenter ses lignes ({max} modifications au plus par exécution).",
+      "databaseHint": "Chaque exécution lit d’abord cette base de données et peut ajouter, modifier et commenter ses lignes ({max} modifications au plus par exécution).",
       "noDatabaseHint": "Sans base de données, il ne modifie rien : il lit ce qui est partagé avec lui et fait un rapport.",
       "task": "Tâche",
       "taskPlaceholder": "p. ex. Passe toutes les lignes en revue. Mets le Statut sur En retard quand l’échéance est passée, et liste ce que je dois faire aujourd’hui.",

@@ -1,7 +1,7 @@
 /**
  * An agent's schedules: those who can edit an agent (sharing.ts) set when it runs on its own, on a repeat rule in a time zone
  * (lib/schedule, server/schedules), with a task and, if they like, a database it looks after. On a
- * database the run may change and comment on the database's rows (MAX_SCHEDULED_WRITES); on none it
+ * database the run may add, change and comment on the database's rows (MAX_SCHEDULED_WRITES); on none it
  * only reads. When the run ends, whoever set the schedule finds what it did (or why it failed) in
  * their inbox (`agent_report`, see run.ts).
  *

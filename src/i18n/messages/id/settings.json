@@ -939,7 +939,7 @@
       },
       "database": "Basis data yang diurusnya",
       "noDatabaseOption": "Tidak ada: hanya membaca",
-      "databaseHint": "Setiap eksekusi membaca basis data ini terlebih dahulu dan dapat mengubah serta mengomentari barisnya (paling banyak {max} perubahan per eksekusi).",
+      "databaseHint": "Setiap eksekusi membaca basis data ini terlebih dahulu dan dapat menambah, mengubah, serta mengomentari barisnya (paling banyak {max} perubahan per eksekusi).",
       "noDatabaseHint": "Tanpa basis data, agen tidak mengubah apa pun: ia membaca apa yang dibagikan kepadanya dan melapor.",
       "task": "Tugas",
       "taskPlaceholder": "mis. Periksa setiap baris. Atur Status ke Terlambat jika tenggatnya sudah lewat, dan daftarkan apa yang perlu saya lakukan hari ini.",

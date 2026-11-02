@@ -14,7 +14,7 @@
  * answers or has spent AI_RUN_LIMIT_USD (turns.ts). Leafdesk's own tools are narrow: reading what is shared with the agent; on a
  * row's run, changing or commenting on that row; on an event's run, adding rows to databases
  * shared with it to edit (a log of what came in); at most MAX_AGENT_WRITES changes in all. A
- * schedule's run on a database may change and comment on that database's rows instead, at most
+ * schedule's run on a database may add, change and comment on that database's rows instead, at most
  * MAX_SCHEDULED_WRITES times, and tells the owner who set
  * the schedule how it went (`agent_report`). Changes it makes start no automations
  * (`asAutomation`), so agents can't set each other off. On top of those come the tools of

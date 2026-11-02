@@ -939,7 +939,7 @@
       },
       "database": "Baktığı veritabanı",
       "noDatabaseOption": "Yok: yalnızca okur",
-      "databaseHint": "Her çalışma önce bu veritabanını okur, satırlarını değiştirebilir ve yorum yazabilir (çalışma başına en fazla {max} değişiklik).",
+      "databaseHint": "Her çalışma önce bu veritabanını okur; satır ekleyebilir, satırlarını değiştirebilir ve yorum yazabilir (çalışma başına en fazla {max} değişiklik).",
       "noDatabaseHint": "Veritabanı olmadan hiçbir şeyi değiştirmez: kendisiyle paylaşılanları okur ve rapor verir.",
       "task": "Görev",
       "taskPlaceholder": "ör. Tüm satırları gözden geçir. Bitiş tarihi geçenlerin Durumunu Gecikti yap ve bugün yapmam gerekenleri listele.",

@@ -939,7 +939,7 @@
       },
       "database": "Databas den tar hand om",
       "noDatabaseOption": "Ingen: den läser bara",
-      "databaseHint": "Varje körning läser först den här databasen och kan ändra och kommentera dess rader (högst {max} ändringar per körning).",
+      "databaseHint": "Varje körning läser först den här databasen och kan lägga till, ändra och kommentera dess rader (högst {max} ändringar per körning).",
       "noDatabaseHint": "Utan databas ändrar den ingenting: den läser det som delats med den och rapporterar.",
       "task": "Uppgift",
       "taskPlaceholder": "t.ex. Gå igenom varje rad. Sätt Status till Försenad där förfallodatumet har passerat, och lista vad jag behöver göra i dag.",

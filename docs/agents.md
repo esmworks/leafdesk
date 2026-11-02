@@ -80,7 +80,8 @@ limit, or 5 runs asked of it still wait. Each request is recorded in the audit l
 
 **Schedules.** Anyone who can edit an agent gives it up to 10 schedules (its settings, the REST API
 or `set_agent_schedule`): a repeat rule in a time zone, a task and, if they like, a database it looks
-after, whose rows it may then change and comment on (at most 30 changes a run); on none it only reads.
+after, whose rows it may then add, change and comment on (at most 30 changes a run; an agent whose
+changes wait for review proposes them instead); on none it only reads.
 Each run is held to the access of whoever set the schedule last, and tells them how it went: its
 report comes to their inbox, with its first paragraph (200 characters, Markdown dropped) under the
 title there, though never in a push or Telegram notification, and into their chat with the agent.

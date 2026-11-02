@@ -939,7 +939,7 @@
       },
       "database": "Database it looks after",
       "noDatabaseOption": "None: it only reads",
-      "databaseHint": "Each run reads this database first and may change and comment on its rows (at most {max} changes a run).",
+      "databaseHint": "Each run reads this database first and may add, change and comment on its rows (at most {max} changes a run).",
       "noDatabaseHint": "Without a database it changes nothing: it reads what is shared with it and reports.",
       "task": "Task",
       "taskPlaceholder": "e.g. Go through every row. Set Status to Late where the due date has passed, and list what I need to do today.",

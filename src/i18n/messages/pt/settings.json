@@ -939,7 +939,7 @@
       },
       "database": "Banco de dados que ele acompanha",
       "noDatabaseOption": "Nenhum: ele só lê",
-      "databaseHint": "Cada execução lê primeiro este banco de dados e pode alterar e comentar nas linhas dele (no máximo {max} alterações por execução).",
+      "databaseHint": "Cada execução lê primeiro este banco de dados e pode adicionar, alterar e comentar nas linhas dele (no máximo {max} alterações por execução).",
       "noDatabaseHint": "Sem um banco de dados ele não altera nada: lê o que está compartilhado com ele e faz um relatório.",
       "task": "Tarefa",
       "taskPlaceholder": "ex.: Revise todas as linhas. Defina Status como Atrasado onde o prazo já passou e liste o que preciso fazer hoje.",

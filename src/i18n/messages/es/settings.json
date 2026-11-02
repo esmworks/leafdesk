@@ -939,7 +939,7 @@
       },
       "database": "Base de datos que atiende",
       "noDatabaseOption": "Ninguna: solo lee",
-      "databaseHint": "Cada ejecución lee primero esta base de datos y puede cambiar y comentar sus filas (como mucho {max} cambios por ejecución).",
+      "databaseHint": "Cada ejecución lee primero esta base de datos y puede añadir, cambiar y comentar sus filas (como mucho {max} cambios por ejecución).",
       "noDatabaseHint": "Sin base de datos no cambia nada: lee lo que se ha compartido con él e informa.",
       "task": "Tarea",
       "taskPlaceholder": "p. ej. Revisa todas las filas. Pon el Estado en Atrasada donde la fecha límite ya pasó y enumera lo que tengo que hacer hoy.",

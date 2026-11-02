@@ -4,7 +4,7 @@
  * functions and over the REST API (those who can only view and interact with it read them, but
  * don't change them; invalid rules, tasks and databases are refused);
  * a due schedule queues one run of the agent, held to the owner who set it, that reads the database
- * first, changes and comments on its rows (and only its rows), and ends with a report in that
+ * first, adds, changes and comments on its rows (and only its rows), and ends with a report in that
  * owner's inbox; its history names the schedule. A schedule whose last run still waits skips a
  * run; a paused agent or a database in the trash skips runs; whoever set it losing edit access to
  * the agent pauses it ("accessLost") until set again, as does archiving the agent ("agentGone").
@@ -201,6 +201,8 @@ try {
       [
         { name: "update_row", arguments: { row_id: report.id, properties: { Stage: "Late" } } },
         { name: "update_row", arguments: { row_id: elsewhere.id, properties: { Stage: "Late" } } },
+        { name: "create_row", arguments: { database_id: board.id, title: "Plan release 2.2", properties: { Stage: "Todo" } } },
+        { name: "create_row", arguments: { database_id: other.id, title: "Not added here" } },
         { name: "add_comment", arguments: { row_id: release.id, text: "Who owns this release?" } },
         // More changes than a row's run may make: a run on a database is held to its own limit.
         ...Array.from({ length: MAX_AGENT_WRITES }, (_, i) => ({ name: "add_comment", arguments: { row_id: report.id, text: `Reminder ${i + 1}` } })),
@@ -242,7 +244,10 @@ try {
     prompt.includes("Write the quarterly report") && prompt.includes("Ship release 2.1") && prompt.includes("Owner Olcay set a schedule") && prompt.includes(task),
     "its prompt carries the board's rows, who set the schedule and the task",
   );
-  check(first.tools?.some((t) => t.function.name === "update_row") && first.tools?.some((t) => t.function.name === "add_comment"), "it may change and comment on rows");
+  check(
+    ["create_row", "update_row", "add_comment"].every((name) => first.tools?.some((t) => t.function.name === name)),
+    "it may add, change and comment on rows",
+  );
   check(first.tools?.some((t) => t.function.name === "remember"), "on a board people of the workspace wrote, it may propose notes (the owner stands behind it)");
   const results = toolResults(fake.chats.at(-1)!);
   check(results.some((r) => r.includes("only rows of the database this run looks after")), "a row of another database is refused", results);
@@ -256,6 +261,12 @@ try {
     results,
   });
   check(done.steps.some((s) => s.kind === "comment" && s.pageId === release.id && s.outcome === "done"), "it commented on another row of the board", done.steps);
+  const newRows = await db.select({ parentId: page.parentId, title: page.title }).from(page).where(and(inArray(page.parentId, [board.id, other.id]), inArray(page.title, ["Plan release 2.2", "Not added here"])));
+  check(
+    newRows.length === 1 && newRows[0].parentId === board.id && results.some((r) => r.includes("add rows only to the database this run looks after")),
+    "it added a row to the board, and one to another database is refused",
+    { newRows, results },
+  );
   // With the row it changed, more changes than a row's run may make.
   const comments = done.steps.filter((s) => s.kind === "comment" && s.outcome === "done").length;
   check(comments === MAX_AGENT_WRITES + 1, `it may make more than a row's run's ${MAX_AGENT_WRITES} changes`, { comments, steps: done.steps });

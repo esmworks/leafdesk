@@ -939,7 +939,7 @@
       },
       "database": "Tietokanta, jota se hoitaa",
       "noDatabaseOption": "Ei mitään: se vain lukee",
-      "databaseHint": "Jokainen ajo lukee ensin tämän tietokannan ja voi muuttaa ja kommentoida sen rivejä (enintään {max} muutosta ajoa kohden).",
+      "databaseHint": "Jokainen ajo lukee ensin tämän tietokannan ja voi lisätä, muuttaa ja kommentoida sen rivejä (enintään {max} muutosta ajoa kohden).",
       "noDatabaseHint": "Ilman tietokantaa se ei muuta mitään: se lukee sen kanssa jaetun sisällön ja raportoi.",
       "task": "Tehtävä",
       "taskPlaceholder": "esim. Käy läpi jokainen rivi. Aseta Tila-arvoksi Myöhässä, jos määräpäivä on mennyt, ja listaa, mitä minun pitää tehdä tänään.",
