@@ -298,7 +298,12 @@
     "sortedNoDrag": "Baris tidak dapat diseret saat tampilan diurutkan",
     "sortedAscending": "Diurutkan menaik",
     "sortedDescending": "Diurutkan menurun",
-    "fillHandle": "Seret ke atas atau ke bawah untuk mengisi sel dengan nilai ini"
+    "fillHandle": "Seret ke atas atau ke bawah untuk mengisi sel dengan nilai ini",
+    "cellEdit": "Edit",
+    "cellOpenRow": "Buka",
+    "cellCopy": "Salin",
+    "cellPaste": "Tempel",
+    "cellClear": "Kosongkan"
   },
   "rowMenu": {
     "open": "Buka",

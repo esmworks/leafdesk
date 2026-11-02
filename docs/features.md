@@ -385,10 +385,11 @@
   - Table cells work like a spreadsheet's: a click selects a cell (as do the arrow keys), and a
     second click, a double click, Enter or typing edits it; typing over a text, number, link, email
     or phone cell starts with what you typed, and Esc then leaves the value as it was. Checkboxes,
-    stars, buttons and links in cells work with one click, and on a touch screen a tap edits the
-    cell at once. Select a range with Shift and an arrow, Shift+click or a drag; Esc goes back from
-    an editor to its cell and Delete clears the range. Copy puts the range on the clipboard as
-    tab-separated text, and cells pasted from a spreadsheet are written from the active cell on,
+    stars, buttons and links in cells work with one click. On a touch screen a tap selects a cell, a
+    double tap edits it, and a tap on the selected cell opens a menu to edit it, open its row, copy,
+    paste or clear it. Select a range with Shift and an arrow, Shift+click or a drag; Esc goes back
+    from an editor to its cell and Delete clears the range. Copy puts the range on the clipboard
+    as tab-separated text, and cells pasted from a spreadsheet are written from the active cell on,
     each value read as the CSV import reads it (numbers, dates, yes/no, option and people names),
     adding options a select lacks and, in an ungrouped table, rows past the last one. One pasted value fills the whole
     range; cells that don't fit their column or that you may not change are left out and counted.

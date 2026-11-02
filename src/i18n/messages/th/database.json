@@ -298,7 +298,12 @@
     "sortedNoDrag": "ลากแถวไม่ได้ขณะที่มุมมองเรียงลำดับอยู่",
     "sortedAscending": "เรียงจากน้อยไปมาก",
     "sortedDescending": "เรียงจากมากไปน้อย",
-    "fillHandle": "ลากขึ้นหรือลงเพื่อเติมค่านี้ลงในเซลล์"
+    "fillHandle": "ลากขึ้นหรือลงเพื่อเติมค่านี้ลงในเซลล์",
+    "cellEdit": "แก้ไข",
+    "cellOpenRow": "เปิด",
+    "cellCopy": "คัดลอก",
+    "cellPaste": "วาง",
+    "cellClear": "ล้าง"
   },
   "rowMenu": {
     "open": "เปิด",

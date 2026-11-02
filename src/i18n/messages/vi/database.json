@@ -298,7 +298,12 @@
     "sortedNoDrag": "Không thể kéo các hàng khi chế độ xem đang được sắp xếp",
     "sortedAscending": "Đã sắp xếp tăng dần",
     "sortedDescending": "Đã sắp xếp giảm dần",
-    "fillHandle": "Kéo lên hoặc xuống để điền giá trị này vào các ô"
+    "fillHandle": "Kéo lên hoặc xuống để điền giá trị này vào các ô",
+    "cellEdit": "Sửa",
+    "cellOpenRow": "Mở",
+    "cellCopy": "Sao chép",
+    "cellPaste": "Dán",
+    "cellClear": "Xóa"
   },
   "rowMenu": {
     "open": "Mở",

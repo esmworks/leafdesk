@@ -298,7 +298,12 @@
     "sortedNoDrag": "As linhas não podem ser arrastadas enquanto a vista está ordenada",
     "sortedAscending": "Em ordem crescente",
     "sortedDescending": "Em ordem decrescente",
-    "fillHandle": "Arraste para cima ou para baixo para preencher as células com este valor"
+    "fillHandle": "Arraste para cima ou para baixo para preencher as células com este valor",
+    "cellEdit": "Editar",
+    "cellOpenRow": "Abrir",
+    "cellCopy": "Copiar",
+    "cellPaste": "Colar",
+    "cellClear": "Limpar"
   },
   "rowMenu": {
     "open": "Abrir",

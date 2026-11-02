@@ -298,7 +298,12 @@
     "sortedNoDrag": "Görünüm sıralıyken satırlar sürüklenemez",
     "sortedAscending": "Artan sıralı",
     "sortedDescending": "Azalan sıralı",
-    "fillHandle": "Hücreleri bu değerle doldurmak için yukarı ya da aşağı sürükleyin"
+    "fillHandle": "Hücreleri bu değerle doldurmak için yukarı ya da aşağı sürükleyin",
+    "cellEdit": "Düzenle",
+    "cellOpenRow": "Aç",
+    "cellCopy": "Kopyala",
+    "cellPaste": "Yapıştır",
+    "cellClear": "Temizle"
   },
   "rowMenu": {
     "open": "Aç",

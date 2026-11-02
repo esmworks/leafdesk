@@ -298,7 +298,12 @@
     "sortedNoDrag": "ビューが並べ替えられている間は行をドラッグできません",
     "sortedAscending": "昇順で並べ替え済み",
     "sortedDescending": "降順で並べ替え済み",
-    "fillHandle": "上下にドラッグして、この値でセルを埋める"
+    "fillHandle": "上下にドラッグして、この値でセルを埋める",
+    "cellEdit": "編集",
+    "cellOpenRow": "開く",
+    "cellCopy": "コピー",
+    "cellPaste": "貼り付け",
+    "cellClear": "クリア"
   },
   "rowMenu": {
     "open": "開く",

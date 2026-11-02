@@ -298,7 +298,12 @@
     "sortedNoDrag": "Rijen kunnen niet worden versleept zolang de weergave gesorteerd is",
     "sortedAscending": "Oplopend gesorteerd",
     "sortedDescending": "Aflopend gesorteerd",
-    "fillHandle": "Sleep omhoog of omlaag om de cellen met deze waarde te vullen"
+    "fillHandle": "Sleep omhoog of omlaag om de cellen met deze waarde te vullen",
+    "cellEdit": "Bewerken",
+    "cellOpenRow": "Openen",
+    "cellCopy": "Kopiëren",
+    "cellPaste": "Plakken",
+    "cellClear": "Wissen"
   },
   "rowMenu": {
     "open": "Openen",

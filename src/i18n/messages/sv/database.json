@@ -298,7 +298,12 @@
     "sortedNoDrag": "Rader kan inte dras medan vyn är sorterad",
     "sortedAscending": "Sorterad stigande",
     "sortedDescending": "Sorterad fallande",
-    "fillHandle": "Dra uppåt eller nedåt för att fylla cellerna med det här värdet"
+    "fillHandle": "Dra uppåt eller nedåt för att fylla cellerna med det här värdet",
+    "cellEdit": "Redigera",
+    "cellOpenRow": "Öppna",
+    "cellCopy": "Kopiera",
+    "cellPaste": "Klistra in",
+    "cellClear": "Rensa"
   },
   "rowMenu": {
     "open": "Öppna",

@@ -23,13 +23,17 @@ import {
 
 const isTyping = (el: Element) => el.closest("input, textarea, select, [contenteditable='true']") !== null;
 
+/** Two taps on a cell this close together are a double tap. */
+const DOUBLE_TAP_MS = 350;
+
 /**
  * The table's cells as a grid the keyboard moves through: a click makes a cell the active one, and a
  * second click on it (or a double click) opens its editor; arrows move the active cell, Shift with
  * an arrow (or a click) stretches a range from it, Enter opens the active cell's editor (Esc closes
  * it again, and the cell keeps focus), typing opens a text cell's editor with what was typed, and
- * Delete clears the range. Checkboxes, stars, buttons and links in cells work with one click, and
- * a tap on a touch screen opens the editor at once (there is no keyboard to work the grid with).
+ * Delete clears the range. Checkboxes, stars, buttons and links in cells work with one click.
+ * On a touch screen a tap selects a cell too, a double tap opens its editor, and a tap on the
+ * selected cell opens its menu (`menu`: edit, copy, paste, clear), since there is no keyboard.
  * Copying puts the range on the clipboard as tab-separated text, and pasting writes spreadsheet
  * cells from the active cell on.
  * Filling copies the range's values into the cells its handle is dragged over (or, with Mod+D,
@@ -81,6 +85,12 @@ export function useCellGrid({
   // The press that leads to a click: whether it began on the cell that was already the only one
   // selected, and with a finger (see onClickCapture).
   const press = useRef({ onActive: false, touch: false });
+  // The last tap on a cell, to tell a double tap; the menu a tap on the selected cell opens once no
+  // second tap follows (see onClickCapture).
+  const lastTap = useRef<{ cell: string; at: number } | null>(null);
+  const menuSoon = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [menuAt, setMenuAt] = useState<(CellPoint & { cell: HTMLElement }) | null>(null);
+  useEffect(() => () => clearTimeout(menuSoon.current), []);
   // The row the fill handle is dragged to, while it is (see fillHandle).
   const [fillTo, setFillTo] = useState<number | null>(null);
   const filling = bounds && fillTo !== null ? fillTarget(bounds, fillTo) : null;
@@ -110,6 +120,7 @@ export function useCellGrid({
       const target = e.target as Element;
       if (box.current?.contains(target) || target.closest?.("[data-floating]")) return;
       setRange(null);
+      setMenuAt(null);
     };
     const onUp = () => (dragging.current = false);
     document.addEventListener("mousedown", onDown);
@@ -121,6 +132,7 @@ export function useCellGrid({
   }, [stored, box]);
 
   const select = (next: CellRange) => {
+    setMenuAt(null);
     pending.current = { focus: next.anchor, show: next.focus, tries: 0 };
     setRange(next);
   };
@@ -162,6 +174,23 @@ export function useCellGrid({
     document.addEventListener("mouseup", onUp);
     return () => document.removeEventListener("mouseup", onUp);
   });
+
+  /** The range's values as tab-separated text. */
+  const rangeText = (b: CellBounds) => {
+    const cells: (string | number | null)[][] = [];
+    for (let r = b.top; r <= b.bottom; r++) {
+      const row: (string | number | null)[] = [];
+      for (let c = b.left; c <= b.right; c++) row.push(copyText(r, c));
+      cells.push(row);
+    }
+    return toTsv(cells);
+  };
+
+  const clear = () => {
+    if (!bounds) return;
+    const plan = planPaste({ grid: [[""]], target: bounds, rowIds: rowIds(), columns, canEdit, canAddRows: false, timeZone });
+    if (plan.updates.length) write({ ...plan, invalid: 0 });
+  };
 
   const paste = (text: string) => {
     if (!bounds) return;
@@ -215,8 +244,7 @@ export function useCellGrid({
         }
       } else if ((e.key === "Delete" || e.key === "Backspace") && bounds) {
         e.preventDefault();
-        const plan = planPaste({ grid: [[""]], target: bounds, rowIds: rowIds(), columns, canEdit, canAddRows: false, timeZone });
-        if (plan.updates.length) write({ ...plan, invalid: 0 });
+        clear();
       } else if (bounds && cellGridShortcut(e.nativeEvent, isMac()) === "fillDown") {
         // Several rows: each column takes its top cell's value. One row: the row is duplicated.
         e.preventDefault();
@@ -229,14 +257,8 @@ export function useCellGrid({
       // Text the viewer selected inside a cell copies as usual.
       const selected = window.getSelection();
       if (selected && !selected.isCollapsed && selected.toString().trim()) return;
-      const cells: (string | number | null)[][] = [];
-      for (let r = bounds.top; r <= bounds.bottom; r++) {
-        const row: (string | number | null)[] = [];
-        for (let c = bounds.left; c <= bounds.right; c++) row.push(copyText(r, c));
-        cells.push(row);
-      }
       e.preventDefault();
-      e.clipboardData.setData("text/plain", toTsv(cells));
+      e.clipboardData.setData("text/plain", rangeText(bounds));
     },
     onPaste: (e: React.ClipboardEvent<HTMLElement>) => {
       if (!bounds || !fromGrid(e)) return;
@@ -286,11 +308,26 @@ export function useCellGrid({
         return;
       }
       // A first click only makes the cell the active one: its editor opens on a second click (a
-      // double click), Enter or typing. Clicks from the keyboard or a menu (detail 0), taps, and
-      // links and buttons in the cell go through.
-      if (e.detail === 0 || press.current.onActive || press.current.touch) return;
+      // double click), Enter or typing. Clicks from the keyboard or a menu (detail 0), and links
+      // and buttons in the cell, go through.
       const target = e.target as HTMLElement;
-      if (!target.closest("[data-cell-open]") || target.closest("a, button")) return;
+      if (e.detail === 0 || target.closest("a, button")) return;
+      if (press.current.touch) {
+        // A tap selects; a second one soon after (a double tap) opens the editor, and one on the
+        // selected cell later opens its menu, or closes it.
+        const cell = `${row}:${col}`;
+        const again = lastTap.current?.cell === cell && e.timeStamp - lastTap.current.at < DOUBLE_TAP_MS;
+        clearTimeout(menuSoon.current);
+        lastTap.current = again ? null : { cell, at: e.timeStamp };
+        if (again) {
+          setMenuAt(null);
+          return;
+        }
+        const el = e.currentTarget;
+        if (menuAt) setMenuAt(null);
+        else if (press.current.onActive) menuSoon.current = setTimeout(() => setMenuAt({ row, col, cell: el }), DOUBLE_TAP_MS);
+      } else if (press.current.onActive) return;
+      if (!target.closest("[data-cell-open]")) return;
       e.stopPropagation();
     },
   });
@@ -328,5 +365,14 @@ export function useCellGrid({
     spans: !!bounds && (bounds.top !== bounds.bottom || bounds.left !== bounds.right),
     containerProps,
     cellProps,
+    /** The selected cell whose menu a tap opened on a touch screen, while it is the only one selected. */
+    menu: menuAt && bounds && inBounds(bounds, menuAt.row, menuAt.col) && bounds.top === bounds.bottom && bounds.left === bounds.right ? menuAt : null,
+    closeMenu: () => setMenuAt(null),
+    /** Puts the range on the clipboard, as copying does. */
+    copy: () => (bounds ? navigator.clipboard.writeText(rangeText(bounds)) : Promise.resolve()),
+    /** Pastes the clipboard's text from the active cell on (the browser may ask first). */
+    paste: async () => paste(await navigator.clipboard.readText()),
+    /** Clears the range, as Delete does. */
+    clear,
   };
 }
