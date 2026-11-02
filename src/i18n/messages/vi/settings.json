@@ -939,7 +939,7 @@
       },
       "database": "Cơ sở dữ liệu nó phụ trách",
       "noDatabaseOption": "Không có: chỉ đọc",
-      "databaseHint": "Mỗi lần chạy đọc cơ sở dữ liệu này trước và có thể thay đổi cũng như bình luận trên các hàng của nó (tối đa {max} thay đổi mỗi lần chạy).",
+      "databaseHint": "Mỗi lần chạy đọc cơ sở dữ liệu này trước và có thể thêm, thay đổi cũng như bình luận trên các hàng của nó (tối đa {max} thay đổi mỗi lần chạy).",
       "noDatabaseHint": "Không có cơ sở dữ liệu, nó không thay đổi gì: nó đọc những gì được chia sẻ với nó và báo cáo.",
       "task": "Nhiệm vụ",
       "taskPlaceholder": "ví dụ: Xem qua từng hàng. Đặt Trạng thái thành Trễ ở những hàng đã quá hạn, và liệt kê những gì tôi cần làm hôm nay.",

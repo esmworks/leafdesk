@@ -64,6 +64,8 @@ import { lazyPart } from "@/components/lazy-part";
 // A column's menu and the new-property panel open on a click: loaded then.
 const PropertyMenu = lazyPart(() => import("./property-menu").then((m) => m.PropertyMenu));
 const AddPropertyPanel = lazyPart(() => import("./property-menu").then((m) => m.AddPropertyPanel));
+// Opened only by taps on a touch screen (see useCellGrid).
+const CellMenu = lazyPart(() => import("./cell-menu").then((m) => m.CellMenu));
 
 /** The Name column; narrower on phones so the next column peeks in. */
 const NAME_WIDTH = { wide: 280, phone: 180 };
@@ -720,6 +722,11 @@ export function TableView({
   const rowsById = useMemo(() => new Map(rows.map((r) => [r.id, r] as const)), [rows]);
   const gridColumns: PasteColumn[] = [{ key: TITLE, type: "title" }, ...visible.map((p) => ({ key: p.id, type: p.type }))];
   const timeZone = useTimeZone() ?? "UTC";
+  const mayEditCell = (rowId: string | null, key: string) => {
+    if (readOnly) return false;
+    if (key === TITLE) return true;
+    return access.valueAccess(rowId ? rowsById.get(rowId) : null, key) === "edit";
+  };
   const grid = useCellGrid({
     box,
     rowCount: gridRows.length,
@@ -735,11 +742,7 @@ export function TableView({
       const nameOf = new Map(people.map((person) => [person.id, person.name] as const));
       return cellText(p, row.properties[p.id], { titleOf, nameOf, fileText: (f) => `${f.name} (${window.location.origin}${f.url})` });
     },
-    canEdit: (rowId, key) => {
-      if (readOnly) return false;
-      if (key === TITLE) return true;
-      return access.valueAccess(rowId ? rowsById.get(rowId) : null, key) === "edit";
-    },
+    canEdit: mayEditCell,
     // Rows pasted past the last one are added; a grouped table wouldn't know which group they go in.
     canAddRows: !readOnly && !grouping,
     canFill: !readOnly,
@@ -982,8 +985,11 @@ export function TableView({
       <div
         ref={box}
         {...grid.containerProps}
+        onPointerDown={(e) => e.pointerType === "touch" && void CellMenu.preload()}
         className={cn(
           "page-gutter-table row-panel-room overflow-x-auto pb-3 outline-none [color-scheme:light_dark]",
+          // A double tap edits a cell instead of zooming the page.
+          "touch-manipulation",
           // Brought into view from the keyboard, a cell stops below the header row, not under it.
           "[&_[data-cell]]:scroll-mt-[calc(var(--table-head-top)+2.25rem)]",
           HIDE_SCROLLBAR,
@@ -1015,6 +1021,24 @@ export function TableView({
             controls={bodyControls}
           />
         </table>
+        {grid.menu && gridRows[grid.menu.row] && (() => {
+          const { row: at, col, cell } = grid.menu;
+          const rowId = gridRows[at].line.row.id;
+          const editable = mayEditCell(rowId, col === 0 ? TITLE : (visible[col - 1]?.id ?? ""));
+          const edit = cell.querySelector<HTMLElement>("[data-cell-edit]");
+          return (
+            <CellMenu
+              anchor={cell}
+              onClose={grid.closeMenu}
+              // After the menu has closed, so the editor takes the focus.
+              onEdit={edit ? () => requestAnimationFrame(() => edit.click()) : undefined}
+              onOpenRow={() => opener.open(rowId)}
+              onCopy={() => void grid.copy().catch(() => {})}
+              onPaste={editable ? () => void grid.paste().catch(() => {}) : undefined}
+              onClear={editable ? grid.clear : undefined}
+            />
+          );
+        })()}
         {(grouping ? !grouping.shown.length : !rows.length) && (
           <div
             className="border-b border-border px-2 py-6 text-sm text-fg-faint"

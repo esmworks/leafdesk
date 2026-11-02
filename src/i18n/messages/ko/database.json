@@ -298,7 +298,12 @@
     "sortedNoDrag": "보기가 정렬된 동안에는 행을 끌 수 없습니다",
     "sortedAscending": "오름차순 정렬됨",
     "sortedDescending": "내림차순 정렬됨",
-    "fillHandle": "위나 아래로 끌어 이 값으로 셀 채우기"
+    "fillHandle": "위나 아래로 끌어 이 값으로 셀 채우기",
+    "cellEdit": "편집",
+    "cellOpenRow": "열기",
+    "cellCopy": "복사",
+    "cellPaste": "붙여넣기",
+    "cellClear": "지우기"
   },
   "rowMenu": {
     "open": "열기",

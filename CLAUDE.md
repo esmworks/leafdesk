@@ -98,10 +98,14 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   scrolls sideways, so `sticky` inside it would hold to it, not the page); the two follow each
   other's `scrollLeft`, but the header is drawn moved by animations on the rows' scroll timeline
   (`database/head-follow.ts`; scroll events arrive a frame late). The rows' table keeps a
-  zero-height header row for screen readers and as `useTableWindow`'s `start`. The view bar
-  (tabs, toolbar) scrolls away; only the header row sticks, under the page's top bar, and paints
-  a background only while stuck (`components/use-stuck-mark.ts`), so a page's pattern shows
-  through at rest.
+  zero-height header row for screen readers and as `useTableWindow`'s `start`. A click on a cell
+  only selects it: `use-cell-grid.ts` stops the click on the editor opener (`data-cell-open` in
+  `property-cell.tsx`) unless the cell was already the only one selected or the click came from the
+  keyboard (`detail` 0); a finger's tap selects, a double tap edits and a tap on the selected cell
+  opens `cell-menu.tsx`; typing reaches a text opener as `CELL_TYPE_EVENT` (`lib/cell-typing.ts`).
+  The view bar (tabs, toolbar) scrolls away; only the header row sticks,
+  under the page's top bar, and paints a background only while stuck
+  (`components/use-stuck-mark.ts`), so a page's pattern shows through at rest.
   Grouped lists and galleries share `components/database/view-sections.tsx` (the header is
   `GroupHeader` in `group-label.tsx`, also a board's sub-group); a board's sub-groups
   (`subGroupBy`) use the default date and status grouping. A new property-id field of `ViewConfig`
@@ -592,7 +596,10 @@ because they are separate module graphs.
   that room (comments, graph, the chat) close each other through `lib/side-panels.ts`.
   A dialog is `Dialog` built from `DialogHeader` (or a `DialogTitle` in the body for a short
   question), `DialogBody` and `DialogFooter` (Cancel `secondary`, the action last); a panel over its
-  own shade takes `dialogShadow`.
+  own shade takes `dialogShadow`. Fields in a dialog drawn like `Input` (`border-border bg-bg`) are
+  filled in gray by an unlayered rule in globals.css (`[data-dialog] :is(input, select, textarea)`),
+  not by their classes, which every first load carries; a field that must stay outlined there takes
+  other classes.
   A backdrop shading the whole window under a dialog carries `data-window-shade`: that component
   tells the desktop app its color, and the tab strip, which the page can't draw over, takes it too.
   Boxes beside a chat's column on a wide page (the agent's page, the AI chat) are

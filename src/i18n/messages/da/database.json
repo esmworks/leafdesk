@@ -298,7 +298,12 @@
     "sortedNoDrag": "Rækker kan ikke trækkes, mens visningen er sorteret",
     "sortedAscending": "Sorteret stigende",
     "sortedDescending": "Sorteret faldende",
-    "fillHandle": "Træk op eller ned for at udfylde cellerne med denne værdi"
+    "fillHandle": "Træk op eller ned for at udfylde cellerne med denne værdi",
+    "cellEdit": "Rediger",
+    "cellOpenRow": "Åbn",
+    "cellCopy": "Kopiér",
+    "cellPaste": "Indsæt",
+    "cellClear": "Ryd"
   },
   "rowMenu": {
     "open": "Åbn",

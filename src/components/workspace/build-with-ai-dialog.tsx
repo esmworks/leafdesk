@@ -86,7 +86,7 @@ export function BuildWithAiDialog({
   return (
     <Dialog open onClose={pending ? () => {} : onClose} className="max-w-2xl">
       {/* Not a DialogHeader: the back button comes before the icon. */}
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
+      <div className="flex items-start gap-3 px-5 pt-5 pb-3">
         {plan && (
           <IconButton label={t("back")} onClick={() => setPlan(null)} disabled={pending} className="mt-1">
             <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />

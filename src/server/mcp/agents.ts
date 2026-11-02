@@ -117,7 +117,7 @@ const scheduleTaskInput = z
 const scheduleDatabaseInput = id("database")
   .nullable()
   .describe(
-    `A database for the agent to look after: each run reads it first and may change and comment on its rows (at most ${MAX_SCHEDULED_WRITES} changes a run). The user must be able to open it, and the agent needs edit access to change rows (set_agent_access). null: the run only reads and reports.`,
+    `A database for the agent to look after: each run reads it first and may add, change and comment on its rows (at most ${MAX_SCHEDULED_WRITES} changes a run). The user must be able to open it, and the agent needs edit access to change rows (set_agent_access). null: the run only reads and reports.`,
   );
 
 const webAccessInput = z

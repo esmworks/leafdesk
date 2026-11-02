@@ -939,7 +939,7 @@
       },
       "database": "Database, den passer",
       "noDatabaseOption": "Ingen: den læser kun",
-      "databaseHint": "Hver kørsel læser først denne database og kan ændre og kommentere dens rækker (højst {max} ændringer pr. kørsel).",
+      "databaseHint": "Hver kørsel læser først denne database og kan tilføje, ændre og kommentere dens rækker (højst {max} ændringer pr. kørsel).",
       "noDatabaseHint": "Uden en database ændrer den intet: den læser det, der er delt med den, og rapporterer.",
       "task": "Opgave",
       "taskPlaceholder": "f.eks. Gennemgå alle rækker. Sæt Status til Forsinket, hvor forfaldsdatoen er passeret, og list, hvad jeg skal gøre i dag.",

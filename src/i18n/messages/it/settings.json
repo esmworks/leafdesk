@@ -939,7 +939,7 @@
       },
       "database": "Database di cui si occupa",
       "noDatabaseOption": "Nessuno: legge soltanto",
-      "databaseHint": "Ogni esecuzione legge prima questo database e può modificarne e commentarne le righe (al massimo {max} modifiche per esecuzione).",
+      "databaseHint": "Ogni esecuzione legge prima questo database e può aggiungerne, modificarne e commentarne le righe (al massimo {max} modifiche per esecuzione).",
       "noDatabaseHint": "Senza un database non modifica nulla: legge ciò che è condiviso con lui e fa un resoconto.",
       "task": "Attività",
       "taskPlaceholder": "es. Passa in rassegna ogni riga. Imposta Stato su In ritardo dove la scadenza è passata ed elenca cosa devo fare oggi.",

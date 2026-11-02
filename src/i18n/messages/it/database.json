@@ -298,7 +298,12 @@
     "sortedNoDrag": "Le righe non si possono trascinare mentre la vista è ordinata",
     "sortedAscending": "Ordinata in modo crescente",
     "sortedDescending": "Ordinata in modo decrescente",
-    "fillHandle": "Trascina in su o in giù per riempire le celle con questo valore"
+    "fillHandle": "Trascina in su o in giù per riempire le celle con questo valore",
+    "cellEdit": "Modifica",
+    "cellOpenRow": "Apri",
+    "cellCopy": "Copia",
+    "cellPaste": "Incolla",
+    "cellClear": "Cancella"
   },
   "rowMenu": {
     "open": "Apri",

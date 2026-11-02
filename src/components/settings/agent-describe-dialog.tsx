@@ -53,7 +53,7 @@ export function AgentDescribeDialog({
   return (
     <Dialog open onClose={onClose} className="max-w-2xl">
       {/* Not DialogHeader: the back button comes before the title, and the header has no place for a button there. */}
-      <div className="flex shrink-0 items-start gap-3 border-b border-border px-5 py-4">
+      <div className="flex shrink-0 items-start gap-3 px-5 pt-5 pb-3">
         {draft && (
           <IconButton label={t("back")} onClick={() => setDraft(null)} className="-ms-1.5 h-7 w-7">
             <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />

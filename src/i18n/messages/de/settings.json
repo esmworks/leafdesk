@@ -939,7 +939,7 @@
       },
       "database": "Datenbank, um die er sich kümmert",
       "noDatabaseOption": "Keine: Er liest nur",
-      "databaseHint": "Jeder Lauf liest zuerst diese Datenbank und darf ihre Zeilen ändern und kommentieren (höchstens {max} Änderungen pro Lauf).",
+      "databaseHint": "Jeder Lauf liest zuerst diese Datenbank und darf Zeilen hinzufügen, ändern und kommentieren (höchstens {max} Änderungen pro Lauf).",
       "noDatabaseHint": "Ohne Datenbank ändert er nichts: Er liest, was mit ihm geteilt ist, und berichtet.",
       "task": "Aufgabe",
       "taskPlaceholder": "z. B. Geh alle Zeilen durch. Setze den Status auf „Verspätet“, wo das Fälligkeitsdatum vorbei ist, und liste auf, was ich heute erledigen muss.",

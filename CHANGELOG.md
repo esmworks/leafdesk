@@ -6,9 +6,32 @@
 
 - **The inbox's Email tab is now called Row email.** It lists the mail that came in on database
   rows, not the Mail tab's messages, which it was easy to take it for.
+- **A click on a table cell selects it instead of opening its editor.** A second click on the
+  selected cell, a double click, Enter or simply typing opens it, so copying, deleting, moving with
+  the arrows and filling down no longer fight an editor that opened on its own. Typing over a text,
+  number, link, email or phone cell starts its editor with what you typed, and Esc then leaves the
+  value as it was. Checkboxes, stars, buttons and links in cells still work with one click. On a
+  touch screen a tap selects a cell too, a double tap edits it, and a tap on the selected cell opens
+  a menu to edit, open the row, copy, paste or clear it. Lists, boards, galleries and the row page
+  are unchanged.
+- **Dialogs have a calmer, roomier look.** Rounder corners and a deeper shade behind them, a larger
+  title without a line under it, buttons a size up sitting on the dialog instead of a gray bar, and
+  fields filled in gray instead of outlined (high contrast keeps their edge). In the dark theme a
+  dialog is a step lighter than the page, so it no longer reads as a border on the same black.
 
 ### Fixed
 
+- **The installed app notices a new version when it comes back from the background.** Only a tab
+  with a page open learned of a release, through its live connection; the Mail tab, the inbox and
+  settings kept running the previous version until the app was closed, and their actions failed.
+  Every workspace screen now asks the server's version as it comes back into view, goes online
+  again or every 15 minutes while it stays open, and asks to reload when it changed.
+
+- **An agent's schedule can add rows to the database it looks after.** Its runs could change and
+  comment on that database's rows but not add new ones, so a schedule that keeps a database in step
+  with a spreadsheet or another source listed the new rows for you to add by hand. They now add
+  rows there (and only there), counted with the run's other changes; an agent whose changes wait
+  for review proposes them instead.
 - **The inbox's unread count matches what the inbox shows.** The sidebar's and the app icon's
   count also took in notices the inbox leaves out (changes for review once none waits, a call
   already answered, a row change the person may no longer see), which could not be opened or

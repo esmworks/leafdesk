@@ -298,7 +298,12 @@
     "sortedNoDrag": "Wierszy nie można przeciągać, gdy widok jest posortowany",
     "sortedAscending": "Posortowano rosnąco",
     "sortedDescending": "Posortowano malejąco",
-    "fillHandle": "Przeciągnij w górę lub w dół, aby wypełnić komórki tą wartością"
+    "fillHandle": "Przeciągnij w górę lub w dół, aby wypełnić komórki tą wartością",
+    "cellEdit": "Edytuj",
+    "cellOpenRow": "Otwórz",
+    "cellCopy": "Kopiuj",
+    "cellPaste": "Wklej",
+    "cellClear": "Wyczyść"
   },
   "rowMenu": {
     "open": "Otwórz",

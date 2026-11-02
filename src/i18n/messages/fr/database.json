@@ -298,7 +298,12 @@
     "sortedNoDrag": "Les lignes ne se déplacent pas tant que la vue est triée",
     "sortedAscending": "Tri croissant",
     "sortedDescending": "Tri décroissant",
-    "fillHandle": "Faites glisser vers le haut ou le bas pour remplir les cellules avec cette valeur"
+    "fillHandle": "Faites glisser vers le haut ou le bas pour remplir les cellules avec cette valeur",
+    "cellEdit": "Modifier",
+    "cellOpenRow": "Ouvrir",
+    "cellCopy": "Copier",
+    "cellPaste": "Coller",
+    "cellClear": "Effacer"
   },
   "rowMenu": {
     "open": "Ouvrir",

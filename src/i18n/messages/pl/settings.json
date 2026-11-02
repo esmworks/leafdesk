@@ -939,7 +939,7 @@
       },
       "database": "Baza danych, którą się zajmuje",
       "noDatabaseOption": "Brak: tylko czyta",
-      "databaseHint": "Każde uruchomienie najpierw czyta tę bazę danych i może zmieniać i komentować jej wiersze (najwyżej {max} zmian na uruchomienie).",
+      "databaseHint": "Każde uruchomienie najpierw czyta tę bazę danych i może dodawać, zmieniać i komentować jej wiersze (najwyżej {max} zmian na uruchomienie).",
       "noDatabaseHint": "Bez bazy danych niczego nie zmienia: czyta to, co mu udostępniono, i składa raport.",
       "task": "Zadanie",
       "taskPlaceholder": "np. Przejrzyj każdy wiersz. Ustaw Status na Opóźnione tam, gdzie minął termin, i wypisz, co mam dziś zrobić.",

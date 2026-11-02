@@ -939,7 +939,7 @@
       },
       "database": "Database waarover hij gaat",
       "noDatabaseOption": "Geen: hij leest alleen",
-      "databaseHint": "Elke uitvoering leest eerst deze database en mag de rijen ervan wijzigen en er opmerkingen bij plaatsen (maximaal {max} wijzigingen per uitvoering).",
+      "databaseHint": "Elke uitvoering leest eerst deze database en mag er rijen aan toevoegen, de rijen wijzigen en er opmerkingen bij plaatsen (maximaal {max} wijzigingen per uitvoering).",
       "noDatabaseHint": "Zonder database wijzigt hij niets: hij leest wat met hem is gedeeld en brengt verslag uit.",
       "task": "Taak",
       "taskPlaceholder": "bijv. Neem elke rij door. Zet Status op Te laat als de deadline voorbij is, en geef een lijst van wat ik vandaag moet doen.",

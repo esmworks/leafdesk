@@ -298,7 +298,12 @@
     "sortedNoDrag": "Rader kan ikke dras mens visningen er sortert",
     "sortedAscending": "Sortert stigende",
     "sortedDescending": "Sortert synkende",
-    "fillHandle": "Dra opp eller ned for å fylle cellene med denne verdien"
+    "fillHandle": "Dra opp eller ned for å fylle cellene med denne verdien",
+    "cellEdit": "Rediger",
+    "cellOpenRow": "Åpne",
+    "cellCopy": "Kopier",
+    "cellPaste": "Lim inn",
+    "cellClear": "Tøm"
   },
   "rowMenu": {
     "open": "Åpne",

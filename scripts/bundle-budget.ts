@@ -147,8 +147,11 @@ import { gzipSync } from "node:zlib";
  * Stopping an agent's answer and undoing a note the chat kept (the step's Undo, shared by the AI
  * chat and agents' chats in ChatThread) add about 0.15 kB to a page's route, which stood at its
  * budget.
+ * Taps on a table's cells on a touch screen (a tap selects, a double tap edits, a tap on the
+ * selected cell opens its menu, which loads when first touched) add under 1 kB to a page's route,
+ * which stood at its budget.
  */
-const BUDGET = { routeFirstLoad: 796, firstLoadShared: 1230, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 797, firstLoadShared: 1230, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

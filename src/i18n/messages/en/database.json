@@ -298,7 +298,12 @@
     "sortedNoDrag": "Rows can't be dragged while the view is sorted",
     "sortedAscending": "Sorted ascending",
     "sortedDescending": "Sorted descending",
-    "fillHandle": "Drag up or down to fill the cells with this value"
+    "fillHandle": "Drag up or down to fill the cells with this value",
+    "cellEdit": "Edit",
+    "cellOpenRow": "Open",
+    "cellCopy": "Copy",
+    "cellPaste": "Paste",
+    "cellClear": "Clear"
   },
   "rowMenu": {
     "open": "Open",

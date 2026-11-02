@@ -841,7 +841,7 @@ function WizardHeader({ template, step, onBack, onClose }: { template: WizardPro
   const t = useTranslations("settings.agents.wizard");
   const tc = useTranslations("common");
   return (
-    <div className="flex shrink-0 items-start gap-3 border-b border-border px-5 py-4">
+    <div className="flex shrink-0 items-start gap-3 px-5 pt-5 pb-3">
       {onBack && (
         <IconButton label={t("back")} onClick={onBack} className="-ms-1.5 h-7 w-7">
           <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />

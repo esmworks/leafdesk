@@ -298,7 +298,12 @@
     "sortedNoDrag": "אי אפשר לגרור שורות כשהתצוגה ממוינת",
     "sortedAscending": "ממוין בסדר עולה",
     "sortedDescending": "ממוין בסדר יורד",
-    "fillHandle": "גררו למעלה או למטה כדי למלא את התאים בערך הזה"
+    "fillHandle": "גררו למעלה או למטה כדי למלא את התאים בערך הזה",
+    "cellEdit": "עריכה",
+    "cellOpenRow": "פתיחה",
+    "cellCopy": "העתקה",
+    "cellPaste": "הדבקה",
+    "cellClear": "ניקוי"
   },
   "rowMenu": {
     "open": "פתיחה",

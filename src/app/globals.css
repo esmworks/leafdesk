@@ -56,6 +56,8 @@
   --accent-fg: #ffffff;
   --danger: #d03b3b;
   --ring: rgba(47, 125, 79, 0.35);
+  /* The edge of a field in a dialog, which is filled instead (see `[data-dialog]` below). */
+  --field-edge: transparent;
   /* The logo's colors (components/brand/logo.tsx). */
   --logo-tile: #16301f;
   --logo-leaf: #4aa56a;
@@ -155,6 +157,7 @@
     --accent: #1d5c37;
     --danger: #a61f1f;
     --ring: rgba(29, 92, 55, 0.75);
+    --field-edge: var(--border);
     --scrollbar: rgba(11, 12, 14, 0.4);
     --scrollbar-hover: rgba(11, 12, 14, 0.6);
     --icon-gray: #4f5f53;
@@ -284,6 +287,24 @@
   :where(a, button, input, select, textarea, [tabindex]):focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 1px;
+  }
+}
+
+/*
+ * In a dialog, a field drawn like `Input` (components/ui.tsx: an edge and the page's ground) is
+ * filled in gray instead, without the edge, which high contrast gives back (`--field-edge`). Here
+ * rather than in the components' classes, which every first load carries, and outside the layers,
+ * so it wins over those utilities.
+ */
+[data-dialog] :is(input:not([type="checkbox"], [type="radio"]), select, textarea).border-border.bg-bg {
+  border-color: var(--field-edge);
+  background-color: var(--bg-hover);
+  &:focus {
+    border-color: var(--accent);
+  }
+  /* A field marked wrong keeps its red edge. */
+  &.border-danger {
+    border-color: var(--danger);
   }
 }
 

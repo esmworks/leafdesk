@@ -298,7 +298,12 @@
     "sortedNoDrag": "视图已排序时无法拖动行",
     "sortedAscending": "已升序排列",
     "sortedDescending": "已降序排列",
-    "fillHandle": "向上或向下拖动，用此值填充单元格"
+    "fillHandle": "向上或向下拖动，用此值填充单元格",
+    "cellEdit": "编辑",
+    "cellOpenRow": "打开",
+    "cellCopy": "复制",
+    "cellPaste": "粘贴",
+    "cellClear": "清除"
   },
   "rowMenu": {
     "open": "打开",

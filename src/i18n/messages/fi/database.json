@@ -298,7 +298,12 @@
     "sortedNoDrag": "Rivejä ei voi vetää, kun näkymä on lajiteltu",
     "sortedAscending": "Lajiteltu nousevasti",
     "sortedDescending": "Lajiteltu laskevasti",
-    "fillHandle": "Täytä solut tällä arvolla vetämällä ylös tai alas"
+    "fillHandle": "Täytä solut tällä arvolla vetämällä ylös tai alas",
+    "cellEdit": "Muokkaa",
+    "cellOpenRow": "Avaa",
+    "cellCopy": "Kopioi",
+    "cellPaste": "Liitä",
+    "cellClear": "Tyhjennä"
   },
   "rowMenu": {
     "open": "Avaa",

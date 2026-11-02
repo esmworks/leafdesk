@@ -298,7 +298,12 @@
     "sortedNoDrag": "Zeilen lassen sich nicht ziehen, solange die Ansicht sortiert ist",
     "sortedAscending": "Aufsteigend sortiert",
     "sortedDescending": "Absteigend sortiert",
-    "fillHandle": "Nach oben oder unten ziehen, um die Zellen mit diesem Wert zu füllen"
+    "fillHandle": "Nach oben oder unten ziehen, um die Zellen mit diesem Wert zu füllen",
+    "cellEdit": "Bearbeiten",
+    "cellOpenRow": "Öffnen",
+    "cellCopy": "Kopieren",
+    "cellPaste": "Einfügen",
+    "cellClear": "Leeren"
   },
   "rowMenu": {
     "open": "Öffnen",

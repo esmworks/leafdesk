@@ -298,7 +298,12 @@
     "sortedNoDrag": "لا يمكن سحب الصفوف ما دام العرض مرتبًا",
     "sortedAscending": "مرتبة تصاعديًا",
     "sortedDescending": "مرتبة تنازليًا",
-    "fillHandle": "اسحب لأعلى أو لأسفل لملء الخلايا بهذه القيمة"
+    "fillHandle": "اسحب لأعلى أو لأسفل لملء الخلايا بهذه القيمة",
+    "cellEdit": "تعديل",
+    "cellOpenRow": "فتح",
+    "cellCopy": "نسخ",
+    "cellPaste": "لصق",
+    "cellClear": "مسح"
   },
   "rowMenu": {
     "open": "فتح",
