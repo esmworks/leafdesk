@@ -85,4 +85,52 @@ describe("freshness", () => {
     storageListeners.forEach((l) => l({ key: SEEN_BUILD_KEY, newValue: "b3" }));
     expect(f.isStale()).toBe(false);
   });
+
+  it("asks the server's build as the tab comes back into view, at most once a minute, and turns stale on another", async () => {
+    vi.useFakeTimers();
+    const on = new Map<string, () => void>();
+    const target = { addEventListener: (type: string, l: () => void) => on.set(type, l), removeEventListener: (type: string) => on.delete(type) };
+    const page = { ...target, visibilityState: "visible" };
+    const net = { onLine: true };
+    vi.stubGlobal("window", target);
+    vi.stubGlobal("document", page);
+    vi.stubGlobal("navigator", net);
+    try {
+      const f = await tab("b1");
+      let server = "b1";
+      const ask = vi.fn(async () => f.noteServerBuild(server));
+      const stop = f.watchServerBuild(ask);
+      on.get("visibilitychange")!();
+      expect(ask).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(61_000);
+      page.visibilityState = "hidden";
+      on.get("visibilitychange")!();
+      net.onLine = false;
+      page.visibilityState = "visible";
+      on.get("online")!();
+      expect(ask).not.toHaveBeenCalled();
+      net.onLine = true;
+      on.get("visibilitychange")!();
+      on.get("focus")!();
+      expect(ask).toHaveBeenCalledTimes(1);
+      server = "b2";
+      await vi.advanceTimersByTimeAsync(15 * 60_000);
+      expect(ask).toHaveBeenCalledTimes(2);
+      expect(f.isStale()).toBe(true);
+      vi.advanceTimersByTime(61_000);
+      on.get("pageshow")!();
+      expect(ask).toHaveBeenCalledTimes(2);
+      stop();
+      expect([...on.keys()]).toEqual(["storage"]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("never asks in development", async () => {
+    const f = await tab("");
+    const ask = vi.fn(async () => {});
+    f.watchServerBuild(ask)();
+    expect(ask).not.toHaveBeenCalled();
+  });
 });

@@ -15,6 +15,12 @@
 
 ### Fixed
 
+- **The installed app notices a new version when it comes back from the background.** Only a tab
+  with a page open learned of a release, through its live connection; the Mail tab, the inbox and
+  settings kept running the previous version until the app was closed, and their actions failed.
+  Every workspace screen now asks the server's version as it comes back into view, goes online
+  again or every 15 minutes while it stays open, and asks to reload when it changed.
+
 - **An agent's schedule can add rows to the database it looks after.** Its runs could change and
   comment on that database's rows but not add new ones, so a schedule that keeps a database in step
   with a spreadsheet or another source listed the new rows for you to add by hand. They now add

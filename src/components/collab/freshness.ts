@@ -2,9 +2,11 @@ import { CLIENT_BUILD, isForeignBuild, SEEN_BUILD_KEY } from "@/lib/build-id";
 
 /**
  * Whether this tab still runs the server's build (see lib/build-id for why a foreign one must not
- * load a page). Three ways to find out it doesn't:
+ * load a page). Four ways to find out it doesn't:
  * - the collab server refuses it (socket.ts: every reconnect after a redeploy goes through that);
  * - the collab token reply names another build (asked before a page's offline copy is loaded);
+ * - the same reply asked as the tab comes back into view (watchServerBuild), for the screens with
+ *   no page document: the Mail tab, the inbox, settings;
  * - another tab of this browser met a server with another build (localStorage), which is all there
  *   is to go on offline, when the cached HTML of an older build may be what opened.
  * Once stale, a tab stays stale until it reloads.
@@ -68,4 +70,41 @@ export async function whenFresh(askServer: () => Promise<unknown>, waitMs: numbe
     if (!confirmed && isForeignBuild(CLIENT_BUILD, storedBuild())) markStale();
   }
   return !stale;
+}
+
+/** Least time between two checks of watchServerBuild. */
+const CHECK_GAP_MS = 60_000;
+/** How often a tab left in view checks anyway. */
+const CHECK_EVERY_MS = 15 * 60_000;
+
+async function askServerBuild() {
+  const res = await fetch("/api/collab-token", { cache: "no-store" });
+  if (res.ok) noteServerBuild(((await res.json()) as { build?: string | null }).build);
+}
+
+/**
+ * Asks the server's build whenever this tab comes back into view (an installed app brought back
+ * from the background, a window focused again) or back online, and now and then while it stays in
+ * view. A tab on a page learns of a release from its websocket; the other screens never would,
+ * and their server actions would fail as unknown to the new build. Returns the cleanup.
+ */
+export function watchServerBuild(askServer: () => Promise<unknown> = askServerBuild): () => void {
+  if (!CLIENT_BUILD) return () => {};
+  // The page has just loaded from the server: nothing to ask yet.
+  let last = Date.now();
+  const check = () => {
+    if (stale || document.visibilityState !== "visible" || !navigator.onLine) return;
+    if (Date.now() - last < CHECK_GAP_MS) return;
+    last = Date.now();
+    void askServer().catch(() => {});
+  };
+  const events = ["focus", "online", "pageshow"] as const;
+  events.forEach((e) => window.addEventListener(e, check));
+  document.addEventListener("visibilitychange", check);
+  const timer = setInterval(check, CHECK_EVERY_MS);
+  return () => {
+    events.forEach((e) => window.removeEventListener(e, check));
+    document.removeEventListener("visibilitychange", check);
+    clearInterval(timer);
+  };
 }

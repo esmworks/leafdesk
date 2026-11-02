@@ -4,19 +4,22 @@ import { RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Button, cn, DialogBody, DialogFooter, dialogShadow } from "@/components/ui";
-import { isStale, onStale } from "./freshness";
+import { isStale, onStale, watchServerBuild } from "./freshness";
 
 /**
  * Covers the app once this tab turns out to run another build than the server (see lib/build-id):
  * its pages no longer load or sync, and nothing behind it can be typed into. No automatic reload:
  * the last edits may still be on their way into this browser's offline copy, and offline a reload
  * would bring back the same cached build. The edits made here are kept and sent after the reload.
+ * Mounted on every workspace screen, it also asks the server's build as the tab comes back into view.
  */
 export function StaleClientScreen() {
   const t = useTranslations("offline.stale");
   const stale = useSyncExternalStore(onStale, isStale, () => false);
   const [online, setOnline] = useState(true);
   const button = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => watchServerBuild(), []);
 
   useEffect(() => {
     if (!stale) return;
