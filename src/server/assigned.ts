@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, page, type PageKind, type SelectOption } from "@/db/schema";
-import { groupAssigned, type AssignedGroupKey } from "@/lib/assigned";
+import { ASSIGNED_GROUPS, groupAssigned, type AssignedGroupKey } from "@/lib/assigned";
 import { dateDays } from "@/lib/date-value";
 import { atLeast } from "@/lib/property-access";
 import { firstDoneOption, isDoneStatus, optionOf } from "@/lib/properties";
@@ -54,6 +54,8 @@ export type AssignedRows = {
   groups: { key: AssignedGroupKey; rows: AssignedItem[] }[];
   /** Every open row and to-do of the viewer's, of which `groups` holds the first ASSIGNED_LIMIT. */
   total: number;
+  /** How many of them fall in each group, all counted (the home page's figures). */
+  counts: Record<AssignedGroupKey, number>;
 };
 
 /** The page an item is about: the row itself, or the page a to-do is in. */
@@ -79,9 +81,9 @@ export async function assignedRows(
   ]);
   const items: AssignedItem[] = [...rows, ...tasks];
   // Keep the first items in group order, then group those again.
-  const shown = groupAssigned(items, today)
-    .flatMap((g) => g.rows)
-    .slice(0, limit);
+  const all = groupAssigned(items, today);
+  const counts = Object.fromEntries(ASSIGNED_GROUPS.map((key) => [key, all.find((g) => g.key === key)?.rows.length ?? 0])) as Record<AssignedGroupKey, number>;
+  const shown = all.flatMap((g) => g.rows).slice(0, limit);
   // Edit access to each row (or to-do's page) shown, in one query (the candidates were only
   // checked for viewing).
   const markable = [...new Set(shown.filter((r) => r.markable).map(pageOf))];
@@ -93,7 +95,7 @@ export async function assignedRows(
     const editable = new Set(levels.filter((l) => hasLevel(levelFromRank(l.level), "content")).map((l) => l.id));
     for (const item of shown) item.markable = item.markable && editable.has(pageOf(item));
   }
-  return { groups: groupAssigned(shown, today), total: items.length };
+  return { groups: groupAssigned(shown, today), total: items.length, counts };
 }
 
 /**

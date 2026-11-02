@@ -1123,6 +1123,48 @@ export function formulaAnswer(text: string): string {
   return out;
 }
 
+// --------------------------------------------------------------------------- home dashboard
+
+/** A database as the home dashboard's drafter sees it: what its owner may see of it. */
+export type DashboardSource = {
+  id: string;
+  title: string;
+  rows: number;
+  properties: { id: string; name: string; type: string; options?: string[] }[];
+};
+
+const HOME_DASHBOARD_SYSTEM = [
+  "You lay out the dashboard on a workspace's home page: a few widgets that tell the people of the workspace at a glance how their work stands. Each widget shows one of the databases you are given. Answer with one JSON object only: no code fences, no text before or after it.",
+  'Its one field is "widgets", a list of 2 to 8 widgets in reading order (four columns: left to right, then down), each:',
+  '- "databaseId": the id of one of the databases given; "span": how many of the four columns it takes (1 for a number, 2 for a chart or list, up to 4).',
+  '- "title": leave it "" and the app names the widget after what it shows, in each reader\'s language. Write one only when the widget measures something its database\'s name doesn\'t say ("Open value"), in the language of the database names.',
+  '- "view", one of:',
+  '  a number: {"type": "chart", "config": {"chartType": "number"}} counts the rows; with "chartAggregate": {"fn": "sum" | "average" | "min" | "max", "propertyId": "<a number property>"} it adds up that property instead.',
+  '  a chart: {"type": "chart", "config": {"chartType": "bar" | "horizontal_bar" | "donut" | "line", "groupBy": "<property id>"}} counts the rows of each group, or measures a number property with "chartAggregate". Group by a select, status, person or checkbox property; a line chart by a date property.',
+  '  a list of the rows edited last: {"type": "list", "config": {}}.',
+  "Start with two to four numbers for the databases that matter most (how many rows, the sum of an amount), then a chart or two of how rows divide by status or stage, then a list of what changed; let the spans of each row add up to four. Use only the ids given; leave out databases that are only lists of names or settings. Fewer good widgets beat many.",
+].join("\n");
+
+/** The home dashboard drafted from a workspace's databases (server/home-dashboard.ts draftHomeDashboard). */
+export function homeDashboardPrompt(databases: DashboardSource[]): Prompt {
+  const described = databases.map((d) =>
+    [
+      `Database "${attr(d.title) || "Untitled"}" (id ${d.id}), ${d.rows} rows:`,
+      ...d.properties.map((p) => `- ${attr(p.name)} (id ${p.id}, ${p.type}${p.options?.length ? `: ${p.options.map(attr).join(", ")}` : ""})`),
+    ].join("\n"),
+  );
+  return { system: HOME_DASHBOARD_SYSTEM, prompt: `The workspace's databases:\n${tagged("databases", described.join("\n\n"))}` };
+}
+
+/** What the model is told when its dashboard didn't pass, to answer again. */
+export function homeDashboardRepair(problems: string[]): string {
+  return [
+    "The dashboard can't be used as it is:",
+    ...problems.slice(0, 20).map((p) => `- ${p}`),
+    "Answer again with the whole dashboard, these fixed, as one JSON object only.",
+  ].join("\n");
+}
+
 // ------------------------------------------------------------------------------ build with AI
 
 const BUILD_SYSTEM = [

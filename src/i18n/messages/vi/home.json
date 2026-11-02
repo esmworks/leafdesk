@@ -37,5 +37,34 @@
     "onPage": "trong <page>{title}</page>",
     "tickFailed": "Không thể đánh dấu việc cần làm.",
     "untickFailed": "Không thể bỏ đánh dấu. Hãy bỏ trong trang."
+  },
+  "figures": {
+    "label": "Công việc của bạn trong nháy mắt",
+    "open": "Nhiệm vụ đang mở",
+    "openNote": "{count, plural, =0 {Không có gì đến hạn hôm nay} other {# đến hạn hôm nay}}",
+    "overdue": "Quá hạn",
+    "overdueNote": "Đã quá ngày",
+    "overdueNone": "Không có gì quá hạn",
+    "week": "Tuần này",
+    "weekNote": "Hôm nay và 7 ngày tới",
+    "approvals": "Đang chờ bạn",
+    "approvalsNote": "Thay đổi cần duyệt",
+    "approvalsNone": "Không có gì cần duyệt"
+  },
+  "dashboard": {
+    "heading": "Bảng điều khiển",
+    "edit": "Chỉnh sửa",
+    "done": "Xong",
+    "draft": "Thiết lập bằng AI",
+    "drafting": "Đang thiết lập…",
+    "drafted": "{count, plural, other {AI đã thiết lập # widget từ cơ sở dữ liệu của bạn.}}",
+    "undo": "Hoàn tác",
+    "empty": "Tập hợp số liệu, biểu đồ và danh sách của không gian làm việc tại đây, cho mọi người.",
+    "setUp": "Tự thiết lập",
+    "errors": {
+      "noDatabases": "Không gian làm việc chưa có cơ sở dữ liệu nào để hiển thị.",
+      "unusable": "AI không thể thiết lập bảng điều khiển. Hãy thử lại.",
+      "noAccess": "Chỉ chủ sở hữu mới có thể thay đổi bảng điều khiển."
+    }
   }
 }

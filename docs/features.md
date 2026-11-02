@@ -40,7 +40,13 @@
   back to its top. Quotes typed in a page become typographic ones (“ ” ‘ ’, ’ in "don’t"), except in
   code, code blocks, equations and diagram sources; Backspace right after one gives back the
   straight quote.
-- **Home page**: quick buttons for a new page, database or template; today's daily note (or a
+- **Home page**: quick buttons for a new page, database or template; four figures of your own
+  (open tasks, overdue, due this week, changes waiting for your approval), each opening where you
+  deal with them; the workspace's **dashboard**, the same widgets as a dashboard block (numbers,
+  charts, lists and other views of any database), which owners lay out with *Edit* or have the AI
+  draft from the workspace's databases with *Set up with AI* (the draft replaces the widgets until
+  *Undo*; it counts as AI usage). Everyone in the workspace sees the widgets whose database they may
+  open, each worked out for them; guests don't see it. Then today's daily note (or a
   button that starts it) and the few before it; the database rows assigned to you that aren't done
   and that you can open, with the unticked to-dos in pages that mention you (see *My tasks*),
   grouped as overdue, today, the next 7 days, later and no date; *Jump back

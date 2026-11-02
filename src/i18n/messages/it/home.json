@@ -37,5 +37,34 @@
     "onPage": "in <page>{title}</page>",
     "tickFailed": "Impossibile spuntare la cosa da fare.",
     "untickFailed": "Impossibile togliere la spunta. Toglila nella pagina."
+  },
+  "figures": {
+    "label": "Il tuo lavoro a colpo d'occhio",
+    "open": "Attività aperte",
+    "openNote": "{count, plural, =0 {Niente in scadenza oggi} other {# in scadenza oggi}}",
+    "overdue": "In ritardo",
+    "overdueNote": "Data superata",
+    "overdueNone": "Niente in ritardo",
+    "week": "Questa settimana",
+    "weekNote": "Oggi e i prossimi 7 giorni",
+    "approvals": "In attesa di te",
+    "approvalsNote": "Modifiche da approvare",
+    "approvalsNone": "Niente da approvare"
+  },
+  "dashboard": {
+    "heading": "Dashboard",
+    "edit": "Modifica",
+    "done": "Fatto",
+    "draft": "Configura con l'IA",
+    "drafting": "Configurazione…",
+    "drafted": "{count, plural, other {L'IA ha configurato # widget dai tuoi database.}}",
+    "undo": "Annulla",
+    "empty": "Raccogli qui numeri, grafici ed elenchi dello spazio di lavoro, per tutti.",
+    "setUp": "Lo configuro io",
+    "errors": {
+      "noDatabases": "Lo spazio di lavoro non ha ancora database da mostrare.",
+      "unusable": "L'IA non è riuscita a configurare una dashboard. Riprova.",
+      "noAccess": "Solo i proprietari possono modificare la dashboard."
+    }
   }
 }

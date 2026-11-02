@@ -37,5 +37,34 @@
     "onPage": "en <page>{title}</page>",
     "tickFailed": "No se pudo marcar la tarea.",
     "untickFailed": "No se pudo desmarcar la tarea. Desmárcala en la página."
+  },
+  "figures": {
+    "label": "Tu trabajo de un vistazo",
+    "open": "Tareas abiertas",
+    "openNote": "{count, plural, =0 {Nada vence hoy} other {# vencen hoy}}",
+    "overdue": "Atrasadas",
+    "overdueNote": "Fecha pasada",
+    "overdueNone": "Nada atrasado",
+    "week": "Esta semana",
+    "weekNote": "Hoy y los próximos 7 días",
+    "approvals": "Esperando tu respuesta",
+    "approvalsNote": "Cambios por aprobar",
+    "approvalsNone": "Nada por aprobar"
+  },
+  "dashboard": {
+    "heading": "Panel",
+    "edit": "Editar",
+    "done": "Listo",
+    "draft": "Configurar con IA",
+    "drafting": "Configurando…",
+    "drafted": "{count, plural, other {La IA configuró # widgets a partir de tus bases de datos.}}",
+    "undo": "Deshacer",
+    "empty": "Reúne aquí las cifras, gráficos y listas del espacio de trabajo, para todos.",
+    "setUp": "Configurarlo yo",
+    "errors": {
+      "noDatabases": "El espacio de trabajo aún no tiene bases de datos que mostrar.",
+      "unusable": "La IA no pudo configurar un panel. Inténtalo de nuevo.",
+      "noAccess": "Solo los propietarios pueden cambiar el panel."
+    }
   }
 }

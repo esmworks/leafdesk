@@ -37,5 +37,34 @@
     "onPage": "in <page>{title}</page>",
     "tickFailed": "Kan de taak niet afvinken.",
     "untickFailed": "Kan het vinkje niet weghalen. Haal het weg in de pagina."
+  },
+  "figures": {
+    "label": "Je werk in één oogopslag",
+    "open": "Open taken",
+    "openNote": "{count, plural, =0 {Vandaag niets} other {# vandaag}}",
+    "overdue": "Te laat",
+    "overdueNote": "Datum verstreken",
+    "overdueNone": "Niets te laat",
+    "week": "Deze week",
+    "weekNote": "Vandaag en de komende 7 dagen",
+    "approvals": "Wacht op jou",
+    "approvalsNote": "Wijzigingen om goed te keuren",
+    "approvalsNone": "Niets goed te keuren"
+  },
+  "dashboard": {
+    "heading": "Dashboard",
+    "edit": "Bewerken",
+    "done": "Klaar",
+    "draft": "Instellen met AI",
+    "drafting": "Bezig met instellen…",
+    "drafted": "{count, plural, other {De AI heeft # widgets ingesteld uit je databases.}}",
+    "undo": "Ongedaan maken",
+    "empty": "Breng hier de cijfers, grafieken en lijsten van de werkruimte samen, voor iedereen.",
+    "setUp": "Zelf instellen",
+    "errors": {
+      "noDatabases": "De werkruimte heeft nog geen databases om te tonen.",
+      "unusable": "De AI kon geen dashboard instellen. Probeer het opnieuw.",
+      "noAccess": "Alleen eigenaren kunnen het dashboard wijzigen."
+    }
   }
 }

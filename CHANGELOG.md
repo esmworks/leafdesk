@@ -2,8 +2,22 @@
 
 ## Unreleased
 
+### Added
+
+- **Every workspace has a dashboard on its home page.** Owners add numbers, charts and lists of any
+  database with *Edit*, as on a dashboard block, or press *Set up with AI* to have the AI lay one
+  out from the workspace's databases (the draft can be undone). Everyone sees the widgets whose
+  database they may open. Above it, four figures of your own: open tasks, overdue, due this week
+  and changes waiting for your approval.
+
 ### Changed
 
+- **The home page, dashboards and sidebar look calmer.** One main button (*New page*) with the others
+  beside it unframed; figures, recent pages and dashboard widgets sit on a light surface instead of
+  inside lines; lists of tasks and recent pages lose their frames and dividers. In the sidebar,
+  Search is a row like the others, the Home, journal and chat switch drops its gray tray, single
+  rows sit closer together with more room before each section, and "Create your first page" gets
+  its "+" like "Add new".
 - **An agent's settings are a page of their own.** Opening an agent in *Settings → Agents* (or
   *Settings* on its chat page) goes to `/w/<workspace>/agents/<agent>/settings` instead of a dialog
   with two rows of tabs: its name, status and description at the top, its sections down the side

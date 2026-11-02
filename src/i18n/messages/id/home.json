@@ -37,5 +37,34 @@
     "onPage": "di <page>{title}</page>",
     "tickFailed": "Tidak dapat mencentang tugas.",
     "untickFailed": "Tidak dapat menghapus centang. Hapus di halaman."
+  },
+  "figures": {
+    "label": "Pekerjaan Anda sekilas",
+    "open": "Tugas terbuka",
+    "openNote": "{count, plural, =0 {Tidak ada yang jatuh tempo hari ini} other {# jatuh tempo hari ini}}",
+    "overdue": "Terlambat",
+    "overdueNote": "Tanggal sudah lewat",
+    "overdueNone": "Tidak ada yang terlambat",
+    "week": "Minggu ini",
+    "weekNote": "Hari ini dan 7 hari ke depan",
+    "approvals": "Menunggu Anda",
+    "approvalsNote": "Perubahan untuk disetujui",
+    "approvalsNone": "Tidak ada yang perlu disetujui"
+  },
+  "dashboard": {
+    "heading": "Dasbor",
+    "edit": "Edit",
+    "done": "Selesai",
+    "draft": "Siapkan dengan AI",
+    "drafting": "Menyiapkan…",
+    "drafted": "{count, plural, other {AI menyiapkan # widget dari database Anda.}}",
+    "undo": "Urungkan",
+    "empty": "Kumpulkan angka, grafik, dan daftar ruang kerja di sini, untuk semua orang.",
+    "setUp": "Siapkan sendiri",
+    "errors": {
+      "noDatabases": "Ruang kerja belum punya database untuk ditampilkan.",
+      "unusable": "AI tidak dapat menyiapkan dasbor. Coba lagi.",
+      "noAccess": "Hanya pemilik yang dapat mengubah dasbor."
+    }
   }
 }

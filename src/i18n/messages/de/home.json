@@ -37,5 +37,34 @@
     "onPage": "auf <page>{title}</page>",
     "tickFailed": "Das To-do konnte nicht abgehakt werden.",
     "untickFailed": "Das Häkchen konnte nicht entfernt werden. Entferne es in der Seite."
+  },
+  "figures": {
+    "label": "Ihre Arbeit auf einen Blick",
+    "open": "Offene Aufgaben",
+    "openNote": "{count, plural, =0 {Heute nichts fällig} other {# heute fällig}}",
+    "overdue": "Überfällig",
+    "overdueNote": "Datum überschritten",
+    "overdueNone": "Nichts überfällig",
+    "week": "Diese Woche",
+    "weekNote": "Heute und die nächsten 7 Tage",
+    "approvals": "Wartet auf Sie",
+    "approvalsNote": "Änderungen zum Freigeben",
+    "approvalsNone": "Nichts freizugeben"
+  },
+  "dashboard": {
+    "heading": "Dashboard",
+    "edit": "Bearbeiten",
+    "done": "Fertig",
+    "draft": "Mit KI einrichten",
+    "drafting": "Wird eingerichtet…",
+    "drafted": "{count, plural, other {Die KI hat # Widgets aus Ihren Datenbanken eingerichtet.}}",
+    "undo": "Rückgängig",
+    "empty": "Bringen Sie die Zahlen, Diagramme und Listen des Arbeitsbereichs hier für alle zusammen.",
+    "setUp": "Selbst einrichten",
+    "errors": {
+      "noDatabases": "Der Arbeitsbereich hat noch keine Datenbanken, die angezeigt werden können.",
+      "unusable": "Die KI konnte kein Dashboard einrichten. Versuchen Sie es erneut.",
+      "noAccess": "Nur Inhaber können das Dashboard ändern."
+    }
   }
 }
