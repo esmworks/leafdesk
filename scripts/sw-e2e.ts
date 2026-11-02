@@ -283,9 +283,10 @@ try {
     evaluate<{ title: string; body: string; tag: string; icon: string; url: string }[]>(
       `navigator.serviceWorker.ready.then((r) => r.getNotifications(${tag ? JSON.stringify({ tag }) : ""})).then((ns) => ns.map((n) => ({ title: n.title, body: n.body, tag: n.tag, icon: n.icon, url: n.data && n.data.url })))`,
     );
+  // Up to 10 seconds: on a busy CI runner a pushed message took longer than 2.5 to show.
   const until = async <T>(read: () => Promise<T>, done: (value: T) => boolean) => {
     let value = await read();
-    for (let i = 0; i < 100 && !done(value); i++) {
+    for (let i = 0; i < 400 && !done(value); i++) {
       await new Promise((r) => setTimeout(r, 25));
       value = await read();
     }
