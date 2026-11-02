@@ -20,5 +20,5 @@ export function backdropClass(background: PageBackground | null): string | undef
 /** A page's cover: a band across the top in one of the `page-cover-*` gradients (globals.css), or nothing. */
 export function PageCoverBand({ background }: { background: PageBackground | null }) {
   if (!background?.cover) return null;
-  return <div aria-hidden data-page-cover={background.cover} className={`page-cover-${background.cover} relative h-32 shrink-0 md:h-44`} />;
+  return <div aria-hidden data-page-cover={background.cover} data-pin-sideways className={`page-cover-${background.cover} relative h-32 shrink-0 md:h-44`} />;
 }

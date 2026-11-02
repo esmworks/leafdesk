@@ -589,8 +589,10 @@ export function DatabasePage({
               {/* Wide layout: controls sit in the page gutter, the board scrolls edge to edge. */}
               <RowOpenerContext value={opener}>
                 <div ref={sourceRef} data-row-source data-open-rows={centered ? "center" : undefined} className="min-w-0">
-                  {/* Scrolls away with the page: only a table's header row stays in sight (table-view.tsx). */}
-                  <div className={cn("page-gutter", !embedded && "md:pb-2")}>
+                  {/* Scrolls away with the page: only a table's header row stays in sight (table-view.tsx).
+                      Held in place while the page scrolls a table sideways (data-pin-sideways); its
+                      menus open over the header row (z-31), under the page's top bar (z-35). */}
+                  <div data-pin-sideways className={cn("page-gutter", !embedded && "relative z-[32] md:pb-2")}>
                     {embed?.header?.(snapshot)}
                     {offline && <OfflineNotice savedAt={offlineCopyFrom} />}
                     {/* Phones stack the toolbar above the tabs so the tabs get the whole row. */}
@@ -911,6 +913,7 @@ export function DatabasePage({
                         guest={guest}
                         exportable={exportable}
                         onFilter={filterViewBy}
+                        pageScroll={!embedded}
                       />
                     )}
                   </div>

@@ -125,6 +125,7 @@ export function TableView({
   exportable,
   onFilter,
   colors,
+  pageScroll = false,
 }: {
   workspaceId: string;
   databaseId: string;
@@ -151,6 +152,12 @@ export function TableView({
   onFilter?: (columnId: string) => void;
   /** What the view's color rules color, by row id (see lib/color-rules). */
   colors?: ReadonlyMap<string, RowColors>;
+  /**
+   * The page scrolls the table sideways, not a box of its own (a database's own page): its header
+   * row and its rows then move in the same scroll, in every browser. Inside a page's text a table
+   * keeps its own box.
+   */
+  pageScroll?: boolean;
 }) {
   const t = useTranslations("database");
   const tc = useTranslations("common");
@@ -226,27 +233,41 @@ export function TableView({
   const [boxWidth, setBoxWidth] = useState(0);
   // The box's padding before the table (the page's gutter, page-gutter-table), which changes with its width.
   const [gutter, setGutter] = useState(0);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = box.current;
-    if (!el) return;
-    const observer = new ResizeObserver(() => {
-      setBoxWidth(el.clientWidth);
+    // Scrolled by the page, the box is as wide as the table: the room to show it is the page's.
+    const page = pageScroll ? el?.closest("main") : null;
+    const view = page ?? el;
+    if (!el || !view) return;
+    const measure = () => {
+      setBoxWidth(view.clientWidth);
       setGutter(parseFloat(getComputedStyle(el).paddingInlineStart) || 0);
-    });
+      // What stays in sight above and below the table is as wide as the page (globals.css).
+      page?.style.setProperty("--page-width", `${page.clientWidth}px`);
+    };
+    measure();
+    page?.toggleAttribute("data-scrolls-sideways", true);
+    const observer = new ResizeObserver(measure);
     observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+    if (page) observer.observe(page);
+    return () => {
+      observer.disconnect();
+      page?.removeAttribute("data-scrolls-sideways");
+      page?.style.removeProperty("--page-width");
+    };
+  }, [pageScroll]);
   // The header row is a table of its own above the box (see the render), so it can stay in sight as
-  // the page scrolls down; sideways, each follows the other.
+  // the page scrolls down; sideways, each follows the other. Scrolled by the page, both are in the
+  // one scroll and nothing needs to follow.
   const headBox = useRef<HTMLDivElement>(null);
   const headWrapper = useRef<HTMLDivElement>(null);
-  const scrollLinked = useScrollTimelines();
+  const scrollLinked = useScrollTimelines() && !pageScroll;
   const [headStrip, setHeadStrip] = useState<HTMLDivElement | null>(null);
   useStuckMark(headStrip);
   useEffect(() => {
     const rows = box.current;
     const head = headBox.current;
-    if (!rows || !head) return;
+    if (pageScroll || !rows || !head) return;
     // A scroll one side made the other take is not followed back: its event comes a frame later,
     // when the side being scrolled has moved on, and would pull it back, so the table shakes.
     const echoes = new Map<HTMLElement, number>();
@@ -266,7 +287,7 @@ export function TableView({
       rows.removeEventListener("scroll", fromRows);
       head.removeEventListener("scroll", fromHead);
     };
-  }, []);
+  }, [pageScroll]);
   const columnKeys = [TITLE, ...visible.map((p) => p.id)];
   const columnWidths = [nameWidth, ...visible.map(colWidth)];
   const allKeys = [TITLE, ...properties.map((p) => p.id)];
@@ -297,6 +318,8 @@ export function TableView({
         }
       : { style: undefined, className: undefined };
   const headFrozen = (i: number) => frozen(i, false, !scrollLinked);
+  // Scrolled by the page, the header's and the rows' boxes don't scroll: the page does.
+  const ownScroll = !pageScroll && cn("overflow-x-auto", HIDE_SCROLLBAR);
   const frozenKeys = columnKeys.slice(0, frozenCount).join(" ");
   useLayoutEffect(() => {
     const rows = box.current;
@@ -863,7 +886,7 @@ export function TableView({
       {/* A box of its own: inside the rows' box, which scrolls sideways, sticky would hold to that box
           instead of the page. Above frozen columns (z-30), under the page's top bar (z-35). */}
       <div ref={setHeadStrip} className="sticky top-(--table-head-top) z-[31] data-stuck:bg-bg">
-        <div ref={headBox} className={cn("page-gutter-table row-panel-room overflow-x-auto [color-scheme:light_dark]", HIDE_SCROLLBAR)}>
+        <div ref={headBox} className={cn("page-gutter-table row-panel-room [color-scheme:light_dark]", ownScroll)}>
           {/* As wide as the table, so the box's end padding still counts toward its scroll, as the rows'
               box's does; clipped, so the moves below don't widen that scroll. */}
           <div className="w-fit overflow-x-clip">
@@ -997,12 +1020,12 @@ export function TableView({
         {...grid.containerProps}
         onPointerDown={(e) => e.pointerType === "touch" && void CellMenu.preload()}
         className={cn(
-          "page-gutter-table row-panel-room overflow-x-auto pb-3 outline-none [color-scheme:light_dark]",
+          "page-gutter-table row-panel-room pb-3 outline-none [color-scheme:light_dark]",
           // A double tap edits a cell instead of zooming the page.
           "touch-manipulation",
           // Brought into view from the keyboard, a cell stops below the header row, not under it.
           "[&_[data-cell]]:scroll-mt-[calc(var(--table-head-top)+2.25rem)]",
-          HIDE_SCROLLBAR,
+          ownScroll,
           grid.spans && "select-none",
         )}
       >
@@ -1093,7 +1116,8 @@ export function TableView({
           exportable={exportable}
         />
       </div>
-      <StickyScrollbar target={box} />
+      {/* Scrolled by the page, the page's own bar shows at the window's bottom. */}
+      {!pageScroll && <StickyScrollbar target={box} />}
     </div>
   );
 }

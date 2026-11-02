@@ -550,7 +550,7 @@ export function PageView({
       <div ref={rootRef} data-find-scope data-page-area className={cn("flex min-h-full flex-col", backdropClass(background))}>
         {/* Above the content's own layers (frozen table columns, the title's buttons, z-30) as it scrolls under.
             The blur sits on a layer behind it: on the header itself it would hold fixed menus and dialogs inside it. */}
-        <header data-window-controls-clear className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 px-3 before:absolute before:inset-0 before:-z-10 before:bg-bg/90 before:backdrop-blur max-md:ps-1.5">
+        <header data-window-controls-clear data-pin-sideways className="sticky top-0 z-[35] flex h-11 items-center justify-between gap-2 px-3 before:absolute before:inset-0 before:-z-10 before:bg-bg/90 before:backdrop-blur max-md:ps-1.5">
           {panel ? (
             <div className="flex min-w-0 items-center gap-0.5">{panel.controls}</div>
           ) : (
@@ -666,7 +666,7 @@ export function PageView({
         </header>
 
         {page.archived && (
-          <div className="flex items-center justify-center gap-3 bg-danger px-4 py-2 text-sm text-white">
+          <div data-pin-sideways className="flex items-center justify-center gap-3 bg-danger px-4 py-2 text-sm text-white">
             {t("archived.banner")}
             {(page.isRow ? canEdit : canEditStructure) && (
               <Button size="sm" className="border-white/60 bg-transparent text-white hover:bg-white/10" onClick={restore} disabled={pending || offline}>
@@ -692,7 +692,7 @@ export function PageView({
         )}
 
         {info.template && !page.archived && (
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-y border-border bg-bg-subtle px-4 py-2 text-sm">
+          <div data-pin-sideways className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-y border-border bg-bg-subtle px-4 py-2 text-sm">
             <LayoutTemplate className="h-4 w-4 shrink-0 text-fg-muted" />
             <span className="text-fg-muted">{t(`template.${info.template}`)}</span>
             {info.template !== "inside" && (
@@ -719,12 +719,14 @@ export function PageView({
             showBody && pageTextClasses(pageStyle),
           )}
         >
-          <div className={cn("group", wide ? "page-gutter" : "px-4 md:px-[54px]")}>
+          {/* Held in place while a database's page scrolls its table sideways (globals.css), it is a
+              layer of its own then: an open picker raises it too. */}
+          <div data-pin-sideways className={cn("group has-[[data-open]]:z-[36]", wide ? "page-gutter" : "px-4 md:px-[54px]")}>
             {/* Everything stays on the title's line so the content starts higher: the icon before the
                 title, the add-icon and background buttons over its right end. Those show on hover or
                 focus and take no room, so the title keeps its width; on touch screens, where they
                 always show, they sit after it instead. */}
-            {/* While a picker is open the row rises over a database's sticky view bar (z-34) and the
+            {/* While a picker is open the row rises over a database's view bar (z-32) and the
                 top bar (z-35): the picker's own z-50 counts only inside the buttons' z-30 layer. */}
             <div className="relative flex items-start gap-3 has-[[data-open]]:z-[36]">
               {icon && iconPicker}
@@ -1045,7 +1047,7 @@ function OutdatedBanner({
         })
       : t("above");
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-y border-border bg-bg-subtle px-4 py-2 text-sm" title={t("hint")}>
+    <div data-pin-sideways className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-y border-border bg-bg-subtle px-4 py-2 text-sm" title={t("hint")}>
       <Archive className="h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
       <span className="text-fg-muted">{message}</span>
       {onUnarchive && (

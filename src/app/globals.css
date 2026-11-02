@@ -698,8 +698,25 @@
  */
 .page-gutter,
 .page-gutter-table {
-  --gutter: max(3rem, min(6rem, calc((100% - 1104px) / 2)));
+  --gutter: max(3rem, min(6rem, calc((var(--page-width, 100%) - 1104px) / 2)));
   padding-inline: var(--gutter);
+}
+
+/*
+ * A database's own page scrolls its table sideways (table-view.tsx `pageScroll`), so the header
+ * row and the rows move in the one scroll. Meanwhile <main> carries data-scrolls-sideways and
+ * --page-width, its own width: the page grows to the table's width, what isn't the table (top bar,
+ * title, view bar: data-pin-sideways) stays in sight at the page's width, and gutters follow the
+ * page's width rather than the table's.
+ */
+main[data-scrolls-sideways] [data-page-area] {
+  width: min-content;
+  min-width: 100%;
+}
+main[data-scrolls-sideways] [data-pin-sideways] {
+  position: sticky;
+  inset-inline-start: 0;
+  width: var(--page-width);
 }
 
 /*

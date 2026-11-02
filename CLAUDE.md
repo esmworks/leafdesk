@@ -94,10 +94,16 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   which `withUniqueValues` (`server/unique-values.ts`) turns into a `PropertyValueError`; wrap a new
   row write in it. A batch (paste, import, sync) calls `dropRepeatedValues` before writing
   (`checkRows` does), so it never stops partway.
-  A table's header row is a `<table>` of its own in a sticky box above the rows' box (that box
-  scrolls sideways, so `sticky` inside it would hold to it, not the page); the two follow each
-  other's `scrollLeft`, but the header is drawn moved by animations on the rows' scroll timeline
-  (`database/head-follow.ts`; scroll events arrive a frame late). The rows' table keeps a
+  A table's header row is a `<table>` of its own in a sticky box above the rows' box. On a
+  database's own page (`TableView` `pageScroll`) neither box scrolls: `<main>` scrolls the table
+  sideways too, so the header holds to the page and moves with the rows in one scroll; the table
+  marks `<main>` `data-scrolls-sideways` with `--page-width`, the page area grows to the table and
+  what isn't the table carries `data-pin-sideways` (globals.css) to stay in sight. Anything added
+  above a full-page table (a banner, a bar) takes that attribute. Inside a page the rows' box
+  scrolls sideways itself, so `sticky` inside it would hold to it, not the page: the two follow
+  each other's `scrollLeft` and the header is drawn moved by animations on the rows' scroll
+  timeline (`database/head-follow.ts`), which Safari still draws a frame late now and then;
+  measured, only one scroll for both keeps them together there. The rows' table keeps a
   zero-height header row for screen readers and as `useTableWindow`'s `start`. A click on a cell
   only selects it: `use-cell-grid.ts` stops the click on the editor opener (`data-cell-open` in
   `property-cell.tsx`) unless the cell was already the only one selected or the click came from the
