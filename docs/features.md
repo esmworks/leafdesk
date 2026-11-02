@@ -1406,10 +1406,10 @@
   exported as `SKILL.md` (see [Skills](ai.md#skills)).
 - **24 interface languages**: English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai, Vietnamese, Danish, Dutch, Norwegian, Finnish and Swedish, chosen in My account or taken from the
   browser; Arabic, Hebrew and Persian lay the app out right to left (see [Languages](development.md#languages)).
-- **Light and dark themes**: following the system, or chosen for the browser in Preferences, each
-  with a high contrast option (stronger secondary text, lines and focus) that also follows the
-  system's "increase contrast" setting. Ctrl+Shift+L (⌘⇧L on a Mac) switches between light and
-  dark.
+- **Light and dark themes**: following the system, or chosen for the browser in Preferences or in
+  the account menu at the bottom of the sidebar, each with a high contrast option (stronger
+  secondary text, lines and focus) that also follows the system's "increase contrast" setting.
+  Ctrl+Shift+L (⌘⇧L on a Mac) switches between light and dark.
 - **MCP server with OAuth 2.1**: remote MCP endpoint at `/mcp`.
   - Supports Client ID Metadata Documents and Dynamic Client Registration, with PKCE and a
     consent screen.

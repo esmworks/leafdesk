@@ -6,6 +6,12 @@
     "signOut": "Keluar",
     "admin": "Administrasi server"
   },
+  "accountMenu": {
+    "theme": "Tema",
+    "light": "Terang",
+    "dark": "Gelap",
+    "system": "Ikuti sistem"
+  },
   "nav": {
     "search": "Cari",
     "home": "Beranda",
@@ -17,7 +23,6 @@
     "import": "Impor",
     "graph": "Grafik",
     "skills": "Keterampilan",
-    "more": "Lainnya",
     "review": "Untuk ditinjau",
     "reviewCount": "{count, plural, other {# perubahan menunggu tinjauan Anda}}"
   },

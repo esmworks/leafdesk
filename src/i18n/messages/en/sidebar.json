@@ -6,6 +6,12 @@
     "signOut": "Sign out",
     "admin": "Server administration"
   },
+  "accountMenu": {
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "Follow the system"
+  },
   "nav": {
     "search": "Search",
     "home": "Home",
@@ -17,7 +23,6 @@
     "import": "Import",
     "graph": "Graph",
     "skills": "Skills",
-    "more": "More",
     "review": "For review",
     "reviewCount": "{count, plural, one {# change waits for your review} other {# changes wait for your review}}"
   },

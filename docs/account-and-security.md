@@ -8,9 +8,9 @@ Contents: [My account](#my-account), [Who can join a workspace](#who-can-join-a-
 
 ## My account
 
-"My account" in the workspace menu (or the name and picture at its top) opens `/account`. It
-belongs to the person, not to a workspace, so it also works for someone who isn't in any
-workspace and isn't held back by a workspace's two-step policy. The old addresses
+Your name and picture at the bottom of the sidebar open the account menu; the name at its top opens
+`/account`. It belongs to the person, not to a workspace, so it also works for someone who isn't in
+any workspace and isn't held back by a workspace's two-step policy. The old addresses
 (`/w/<id>/settings?tab=preferences`, `accountSecurity`, `apps`) redirect to it.
 
 - **Profile:** name (up to 80 characters) and picture. The browser crops the picture to a

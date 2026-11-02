@@ -10,6 +10,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ChevronUp,
+  ChevronsUpDown,
   ClipboardCheck,
   NotebookPen,
   CloudOff,
@@ -25,7 +26,6 @@ import {
   LayoutTemplate,
   Link2,
   ListTodo,
-  LogOut,
   LogOut as LeaveIcon,
   Mail as MailIcon,
   MessagesSquare,
@@ -35,13 +35,10 @@ import {
   ScrollText,
   Search,
   Settings,
-  ShieldCheck,
-  SlidersHorizontal,
   Sparkles,
   SquarePen,
   Trash2,
   Upload,
-  UserRound,
   Users,
   Waypoints,
   HardDriveDownload,
@@ -81,14 +78,13 @@ import {
   writeOfflineState,
 } from "@/components/offline/offline-store";
 import { reconcileFavorites, wantedPages } from "@/lib/offline";
-import { InstallAppMenuItem } from "@/components/offline/install-app";
 import { dropPushSubscription } from "@/components/settings/push-device";
 import { CELEBRATE_EVENT } from "@/lib/celebrate-event";
 import { REMINDER_EVENT } from "@/lib/reminder-event";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
 import { OPEN_SEARCH_EVENT } from "@/lib/search-open";
-import { comboText, isMac, opensShortcuts } from "@/lib/shortcuts";
+import { isMac, opensShortcuts } from "@/lib/shortcuts";
 import { ShortcutsDialog } from "@/components/shortcuts-dialog";
 import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
 import type { TreeNode } from "@/server/pages";
@@ -112,11 +108,14 @@ import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
 import { lazyPart } from "@/components/lazy-part";
 import { useArrivals } from "./use-arrivals";
+import { useMoreBelow } from "./use-more-below";
 import { useDueReminders } from "./use-due-reminders";
 import { read } from "@/components/read";
 
 // Loaded the first time the inbox opens: it is not needed to show a page.
 const InboxDialog = lazyPart(() => import("./inbox-dialog").then((m) => m.InboxDialog));
+// Loaded the first time the account row at the bottom opens (or a pointer nears it).
+const AccountMenu = lazyPart(() => import("./account-menu").then((m) => m.AccountMenu));
 const ReminderPrompt = lazyPart(() => import("./reminder-prompt").then((m) => m.ReminderPrompt));
 const ArrivalCards = lazyPart(() => import("./arrival-cards").then((m) => m.ArrivalCards));
 // Loaded the first time the Mail tab opens: most people open it now and then.
@@ -227,6 +226,8 @@ export function Sidebar({
   // Layout saves still on their way: a server render read before they land mustn't undo them.
   const savingLayout = useRef(0);
   const [customizing, setCustomizing] = useState(false);
+  const [navEl, setNavEl] = useState<HTMLElement | null>(null);
+  useMoreBelow(navEl);
   const [openSpaces, setOpenSpaces] = useState<Set<string>>(() => new Set());
   // Sections showing all their top-level pages rather than the first SECTION_LIMIT.
   const [showAll, setShowAll] = useState<Set<string>>(() => new Set());
@@ -924,7 +925,6 @@ export function Sidebar({
     router.refresh();
   }
 
-  const accountPath = `/w/${workspaceId}/settings?tab=profile`;
   const treeProps: TreeContext = {
     childrenOf: children,
     expanded,
@@ -1255,23 +1255,6 @@ export function Sidebar({
             >
               {(close) => (
                 <>
-                  {/* Who is signed in; opens their account page (profile, password, sessions, …). */}
-                  <button
-                    type="button"
-                    title={t("workspaceMenu.myAccount")}
-                    onClick={() => {
-                      close();
-                      router.push(accountPath);
-                    }}
-                    className="flex w-full items-center gap-2.5 rounded px-2 py-1.5 text-start hover:bg-bg-hover"
-                  >
-                    <UserAvatar name={user.name || user.email} image={user.image} size="md" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium">{user.name || user.email}</span>
-                      <span className="block truncate text-xs text-fg-muted">{user.email}</span>
-                    </span>
-                  </button>
-                  <MenuSeparator />
                   {workspaces.map((w) => (
                     <MenuItem
                       key={w.id}
@@ -1308,40 +1291,6 @@ export function Sidebar({
                     }}
                   >
                     {t("workspaceMenu.settingsAndMembers")}
-                  </MenuItem>
-                  <MenuItem
-                    icon={<UserRound className="h-4 w-4" />}
-                    onClick={() => {
-                      close();
-                      router.push(accountPath);
-                    }}
-                  >
-                    {t("workspaceMenu.myAccount")}
-                  </MenuItem>
-                  <MenuItem
-                    icon={<Keyboard className="h-4 w-4" />}
-                    trailing={<kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">{comboText(["Mod", "/"], isMac())}</kbd>}
-                    onClick={() => {
-                      close();
-                      setShortcutsOpen(true);
-                    }}
-                  >
-                    {tShortcuts("title")}
-                  </MenuItem>
-                  {isInstanceAdmin && (
-                    <MenuItem
-                      icon={<ShieldCheck className="h-4 w-4" />}
-                      onClick={() => {
-                        close();
-                        router.push(`/admin?from=${encodeURIComponent(workspaceId)}`);
-                      }}
-                    >
-                      {t("workspaceMenu.admin")}
-                    </MenuItem>
-                  )}
-                  <InstallAppMenuItem onDone={close} />
-                  <MenuItem icon={<LogOut className="h-4 w-4" />} onClick={signOut} disabled={offline} title={needsServer(t("workspaceMenu.signOut"))}>
-                    {t("workspaceMenu.signOut")}
                   </MenuItem>
                 </>
               )}
@@ -1571,7 +1520,8 @@ export function Sidebar({
           </p>
         )}
         <nav
-          className="flex-1 overflow-y-auto px-2 pb-4"
+          ref={setNavEl}
+          className="peer flex-1 overflow-y-auto px-2 pb-2"
           aria-label={tab === "chat" ? tAi("history") : tab === "journal" ? t("tabs.journal") : tab === "mail" ? t("tabs.mail") : t("pages.heading")}
         >
           {tab === "mail" ? (
@@ -1623,99 +1573,79 @@ export function Sidebar({
           {tab === "home" && guest && tree.length === 0 && !topLevel && <p className="px-2 py-1.5 text-fg-muted">{t("pages.nothingShared")}</p>}
         </nav>
 
-        <div className="flex items-center gap-0.5 border-t border-border px-2 py-1.5">
-          <FooterButton
-            icon={<Settings className="h-4 w-4" />}
-            label={t("nav.settings")}
-            href={`/w/${workspaceId}/settings`}
-            active={pathname.startsWith(`/w/${workspaceId}/settings`)}
-          />
-          <FooterButton
-            icon={<Trash2 className="h-4 w-4" />}
-            label={t("nav.trash")}
-            onClick={() => setTrashOpen(true)}
-            disabled={offline}
-            title={offline ? needsServer(t("nav.trash")) : undefined}
-          />
-          {/* What is opened now and then: named in a menu rather than as a row of bare icons. */}
+        {/*
+          The list fades out under the account row while there is more of it below (useMoreBelow): a
+          layer in the sidebar's color, not a mask, which would fade the row menus opened inside it too.
+        */}
+        <div aria-hidden className="pointer-events-none relative z-10 h-0 opacity-0 transition-opacity peer-data-more-below:opacity-100">
+          <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-bg-subtle" />
+        </div>
+        {/* Who is signed in, opening what is used now and then; settings and the trash beside it. */}
+        <div className="flex items-center gap-0.5 px-2 pt-1 pb-2">
           <Popover
             side="top"
-            align="end"
-            wrapperClassName="ms-auto"
+            className="min-w-60"
+            wrapperClassName="flex min-w-0 flex-1"
             trigger={({ open, toggle }) => (
-              <IconButton
-                label={t("nav.more")}
+              <button
+                type="button"
                 onClick={toggle}
                 aria-expanded={open}
-                className={cn("h-8 w-8 rounded-md", (open || customizing) && "bg-bg-active text-fg")}
+                onPointerEnter={() => void AccountMenu.preload()}
+                onFocus={() => void AccountMenu.preload()}
+                className={cn(
+                  "flex h-9 w-full min-w-0 items-center gap-2 rounded-md px-2 text-start hover:bg-bg-hover max-md:h-11",
+                  (open || customizing) && "bg-bg-hover",
+                )}
               >
-                <MoreHorizontal className="h-4 w-4" />
-              </IconButton>
+                <UserAvatar name={user.name || user.email} image={user.image} size="sm" />
+                <span className="min-w-0 flex-1 truncate font-medium">{user.name || user.email}</span>
+                <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+              </button>
             )}
           >
-            {(close) => {
-              const go = (run: () => void) => () => {
-                close();
-                run();
-              };
-              return (
-                <>
-                  {/* The people directory, like the members list, isn't for guests. */}
-                  {!guest && (
-                    <MenuItem
-                      icon={<Users className="h-4 w-4" />}
-                      active={pathname === `/w/${workspaceId}/people`}
-                      onClick={go(() => router.push(`/w/${workspaceId}/people`))}
-                    >
-                      {t("nav.people")}
-                    </MenuItem>
-                  )}
-                  <MenuItem
-                    icon={<ClipboardCheck className="h-4 w-4" />}
-                    active={pathname === `/w/${workspaceId}/review`}
-                    disabled={offline}
-                    title={offline ? needsServer(t("nav.review")) : undefined}
-                    onClick={go(() => router.push(`/w/${workspaceId}/review`))}
-                  >
-                    {t("nav.review")}
-                  </MenuItem>
-                  {/* The skills library: guests see the skills shared with them. */}
-                  <MenuItem
-                    icon={<ScrollText className="h-4 w-4" />}
-                    active={pathname === `/w/${workspaceId}/skills`}
-                    disabled={offline}
-                    title={offline ? needsServer(t("nav.skills")) : undefined}
-                    onClick={go(() => router.push(`/w/${workspaceId}/skills`))}
-                  >
-                    {t("nav.skills")}
-                  </MenuItem>
-                  <MenuSeparator />
-                  {/* Templates live here rather than in the page tree; making pages from them needs the top level. */}
-                  {topLevel && (
-                    <MenuItem
-                      icon={<LayoutTemplate className="h-4 w-4" />}
-                      disabled={offline}
-                      title={offline ? needsServer(t("nav.templates")) : undefined}
-                      onClick={go(() => openTemplates(undefined))}
-                    >
-                      {t("nav.templates")}
-                    </MenuItem>
-                  )}
-                  <MenuItem
-                    icon={<Upload className="h-4 w-4" />}
-                    disabled={offline}
-                    title={offline ? needsServer(t("nav.import")) : undefined}
-                    onClick={go(() => openImport(undefined))}
-                  >
-                    {t("nav.import")}
-                  </MenuItem>
-                  <MenuItem icon={<SlidersHorizontal className="h-4 w-4" />} pressed={customizing} onClick={go(() => setCustomizing(!customizing))}>
-                    {t("customize.open")}
-                  </MenuItem>
-                </>
-              );
-            }}
+            {(close) => (
+              <AccountMenu
+                close={close}
+                workspaceId={workspaceId}
+                pathname={pathname}
+                user={user}
+                guest={guest}
+                offline={offline}
+                templates={!!topLevel}
+                customizing={customizing}
+                instanceAdmin={!!isInstanceAdmin}
+                needsServer={needsServer}
+                go={(path) => router.push(path)}
+                onTemplates={() => openTemplates(undefined)}
+                onImport={() => openImport(undefined)}
+                onCustomize={() => setCustomizing(!customizing)}
+                onShortcuts={() => setShortcutsOpen(true)}
+                onSignOut={signOut}
+              />
+            )}
           </Popover>
+          <Link
+            href={`/w/${workspaceId}/settings`}
+            aria-label={t("nav.settings")}
+            title={t("nav.settings")}
+            aria-current={pathname.startsWith(`/w/${workspaceId}/settings`) ? "page" : undefined}
+            className={cn(
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg max-md:h-10 max-md:w-10",
+              pathname.startsWith(`/w/${workspaceId}/settings`) && "bg-bg-active text-fg hover:bg-bg-active",
+            )}
+          >
+            <Settings className="h-4 w-4" />
+          </Link>
+          <IconButton
+            label={t("nav.trash")}
+            title={needsServer(t("nav.trash")) ?? t("nav.trash")}
+            onClick={() => setTrashOpen(true)}
+            disabled={offline}
+            className="h-8 w-8 rounded-md disabled:opacity-50 max-md:h-10 max-md:w-10"
+          >
+            <Trash2 className="h-4 w-4" />
+          </IconButton>
         </div>
       </aside>
       {/* Outside the aside: its slide transform would otherwise anchor these fixed dialogs. */}
@@ -2324,46 +2254,6 @@ function SidebarButton({
 }
 
 /** A named button in the sidebar's bottom bar. */
-function FooterButton({
-  icon,
-  label,
-  href,
-  onClick,
-  active,
-  disabled,
-  title,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  href?: string;
-  onClick?: () => void;
-  active?: boolean;
-  disabled?: boolean;
-  /** Tooltip, e.g. why it is disabled. */
-  title?: string;
-}) {
-  const className = cn(
-    "flex h-8 min-w-0 items-center gap-2 rounded-md px-2 text-fg-muted hover:bg-bg-hover hover:text-fg",
-    "disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-fg-muted",
-    active && "bg-bg-active text-fg hover:bg-bg-active",
-  );
-  const content = (
-    <>
-      <span className="shrink-0">{icon}</span>
-      <span className="truncate">{label}</span>
-    </>
-  );
-  return href ? (
-    <Link href={href} title={title} aria-current={active ? "page" : undefined} className={className}>
-      {content}
-    </Link>
-  ) : (
-    <button type="button" title={title} onClick={onClick} disabled={disabled} className={className}>
-      {content}
-    </button>
-  );
-}
-
 type DropTarget = { id: string; zone: "before" | "inside" | "after" } | null;
 
 type TreeContext = {

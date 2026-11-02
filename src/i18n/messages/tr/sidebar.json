@@ -6,6 +6,12 @@
     "signOut": "Çıkış yap",
     "admin": "Sunucu yönetimi"
   },
+  "accountMenu": {
+    "theme": "Tema",
+    "light": "Açık",
+    "dark": "Koyu",
+    "system": "Sistemi kullan"
+  },
   "nav": {
     "search": "Ara",
     "home": "Ana sayfa",
@@ -17,7 +23,6 @@
     "import": "İçe aktar",
     "graph": "Grafik",
     "skills": "Beceriler",
-    "more": "Diğer",
     "review": "İncelenecekler",
     "reviewCount": "{count, plural, one {# değişiklik incelemenizi bekliyor} other {# değişiklik incelemenizi bekliyor}}"
   },

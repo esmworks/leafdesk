@@ -6,6 +6,12 @@
     "signOut": "Đăng xuất",
     "admin": "Quản trị máy chủ"
   },
+  "accountMenu": {
+    "theme": "Chủ đề",
+    "light": "Sáng",
+    "dark": "Tối",
+    "system": "Theo hệ thống"
+  },
   "nav": {
     "search": "Tìm kiếm",
     "home": "Trang chủ",
@@ -17,7 +23,6 @@
     "import": "Nhập",
     "graph": "Đồ thị",
     "skills": "Kỹ năng",
-    "more": "Thêm",
     "review": "Cần xem xét",
     "reviewCount": "{count, plural, other {# thay đổi đang chờ bạn xem xét}}"
   },

@@ -6,6 +6,12 @@
     "signOut": "Wyloguj się",
     "admin": "Administracja serwerem"
   },
+  "accountMenu": {
+    "theme": "Motyw",
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "system": "Zgodnie z systemem"
+  },
   "nav": {
     "search": "Szukaj",
     "home": "Strona główna",
@@ -17,7 +23,6 @@
     "import": "Importuj",
     "graph": "Graf",
     "skills": "Umiejętności",
-    "more": "Więcej",
     "review": "Do przejrzenia",
     "reviewCount": "{count, plural, one {# zmiana czeka, aż ją przejrzysz} few {# zmiany czekają, aż je przejrzysz} many {# zmian czeka, aż je przejrzysz} other {# zmiany czeka, aż ją przejrzysz}}"
   },

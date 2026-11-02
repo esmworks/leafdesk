@@ -6,6 +6,12 @@
     "signOut": "Se déconnecter",
     "admin": "Administration du serveur"
   },
+  "accountMenu": {
+    "theme": "Thème",
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Suivre le système"
+  },
   "nav": {
     "search": "Rechercher",
     "home": "Accueil",
@@ -17,7 +23,6 @@
     "import": "Importer",
     "graph": "Graphe",
     "skills": "Compétences",
-    "more": "Plus",
     "review": "À vérifier",
     "reviewCount": "{count, plural, one {# modification attend votre vérification} other {# modifications attendent votre vérification}}"
   },

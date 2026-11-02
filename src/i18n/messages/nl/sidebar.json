@@ -6,6 +6,12 @@
     "signOut": "Uitloggen",
     "admin": "Serverbeheer"
   },
+  "accountMenu": {
+    "theme": "Thema",
+    "light": "Licht",
+    "dark": "Donker",
+    "system": "Systeem volgen"
+  },
   "nav": {
     "search": "Zoeken",
     "home": "Start",
@@ -17,7 +23,6 @@
     "import": "Importeren",
     "graph": "Netwerk",
     "skills": "Vaardigheden",
-    "more": "Meer",
     "review": "Ter beoordeling",
     "reviewCount": "{count, plural, one {# wijziging wacht op jouw beoordeling} other {# wijzigingen wachten op jouw beoordeling}}"
   },
