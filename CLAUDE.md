@@ -597,6 +597,9 @@ because they are separate module graphs.
   (they keep a local `cn`). Something fixed to the window's top edge (a side panel, a full-window
   view) starts at `top-(--app-top)`: on macOS the desktop app lays its tab strip over the page
   beside the sidebar, where `components/desktop-tab-strip.tsx` tells it (`desktop/src/windows.ts`).
+  The workspace sidebar is a rail (`sidebar/sidebar-rail.tsx`, `[data-sidebar-rail]`) that always
+  stays and a panel (`[data-sidebar-panel]`) that collapsing hides; padding under macOS's window
+  buttons goes on those two in globals.css, never on the `<aside>`, so each keeps its own surface.
   Something sticky in the workspace's scrolling `<main>` holds at `top-0`: `<main>` starts below the strip already.
   Something fixed to the window's bottom clears a phone's home indicator (`viewport-fit=cover`):
   `bottom-safe-4` instead of `bottom-4` for what floats, `pb-(--safe-bottom)` on a full-height panel.

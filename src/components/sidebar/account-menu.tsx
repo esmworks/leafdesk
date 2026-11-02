@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Sun,
+  Trash2,
   Upload,
   Users,
 } from "lucide-react";
@@ -39,13 +40,14 @@ export type AccountMenuProps = {
   go: (path: string) => void;
   onTemplates: () => void;
   onImport: () => void;
+  onTrash: () => void;
   onCustomize: () => void;
   onShortcuts: () => void;
   onSignOut: () => void;
 };
 
 /**
- * What the account row at the bottom of the sidebar opens: the person's account, the places and
+ * What the account button at the foot of the sidebar's rail opens: the person's account, the places and
  * tools opened now and then, the theme and signing out. Loaded the first time it opens (sidebar.tsx).
  */
 export function AccountMenu(props: AccountMenuProps) {
@@ -97,6 +99,9 @@ export function AccountMenu(props: AccountMenuProps) {
         onClick={run(() => go(place("skills")))}
       >
         {t("nav.skills")}
+      </MenuItem>
+      <MenuItem icon={<Trash2 className="h-4 w-4" />} disabled={offline} title={needsServer(t("nav.trash"))} onClick={run(props.onTrash)}>
+        {t("nav.trash")}
       </MenuItem>
       <MenuSeparator />
       {/* Templates live here rather than in the page tree; making pages from them needs the top level. */}

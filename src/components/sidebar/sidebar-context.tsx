@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsRight, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -15,22 +15,24 @@ function saveLayout(layout: SidebarLayout) {
 
 /**
  * Phone-sized screens (below `md`) show the sidebar as a drawer over the page; wider screens show it
- * as a column the user can collapse. Visibility is decided by CSS breakpoints, so the server render
+ * as a rail of icons and the panel beside it, which the user can collapse (the rail stays). Visibility is decided by CSS breakpoints, so the server render
  * is right on both before any script runs.
  */
 type SidebarContextValue = {
-  /** Desktop: hidden until reopened. */
+  /** Desktop: the panel is hidden until reopened; the rail stays. */
   collapsed: boolean;
   /** Phones: the drawer is showing. */
   drawerOpen: boolean;
-  /** Desktop, collapsed: the sidebar floats over the page while the pointer is on it or its trigger. */
+  /** Desktop, collapsed: the panel floats over the page while the pointer is on it or a rail item. */
   peek: boolean;
-  /** Pointer reached a peek trigger (left edge, open button) or the floating sidebar itself. */
+  /** Pointer reached a rail item or the floating panel itself. */
   showPeek: () => void;
   /** Pointer left; the peek closes after a short grace period so it can cross small gaps. */
   hidePeek: () => void;
   width: number;
   toggle: () => void;
+  /** Desktop: shows the panel again where it was hidden (a rail item clicked); phones keep the drawer as it is. */
+  expand: () => void;
   close: () => void;
   /** Live width while dragging; `save` persists it. */
   setWidth: (width: number, save?: boolean) => void;
@@ -76,6 +78,13 @@ export function SidebarProvider({ initial, children }: { initial: SidebarLayout;
     });
   }, [width]);
 
+  const expand = useCallback(() => {
+    if (window.matchMedia(MOBILE_QUERY).matches) return;
+    setPeek(false);
+    setCollapsed(false);
+    saveLayout({ collapsed: false, width });
+  }, [width]);
+
   const setWidth = useCallback(
     (next: number, save?: boolean) => {
       const w = clampSidebarWidth(next);
@@ -116,10 +125,11 @@ export function SidebarProvider({ initial, children }: { initial: SidebarLayout;
       hidePeek,
       width,
       toggle,
+      expand,
       close: () => setDrawerOpen(false),
       setWidth,
     }),
-    [drawerOpen, collapsed, peek, showPeek, hidePeek, width, toggle, setWidth],
+    [drawerOpen, collapsed, peek, showPeek, hidePeek, width, toggle, expand, setWidth],
   );
 
   return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>;
@@ -130,8 +140,8 @@ export function useSidebar() {
 }
 
 /**
- * Shown while the sidebar is hidden. Hovering it slides the sidebar out over the page (desktop);
- * clicking pins it back in place (desktop) or opens the drawer (phones).
+ * Phones: opens the sidebar's drawer. Wider screens always show the sidebar's rail, whose items
+ * bring a hidden panel back, so the button isn't there.
  */
 export function SidebarOpenButton({ className }: { className?: string }) {
   const t = useTranslations("sidebar.toggle");
@@ -140,29 +150,11 @@ export function SidebarOpenButton({ className }: { className?: string }) {
   return (
     <IconButton
       label={t("open")}
-      title={`${t("open")} (⌘\\)`}
-      className={cn("group/open h-7 w-7 max-md:h-9 max-md:w-9", !sidebar.collapsed && "md:hidden", sidebar.drawerOpen && "max-md:hidden", className)}
+      className={cn("h-9 w-9 md:hidden", sidebar.drawerOpen && "max-md:hidden", className)}
       onClick={sidebar.toggle}
-      onMouseEnter={sidebar.collapsed ? sidebar.showPeek : undefined}
-      onMouseLeave={sidebar.collapsed ? sidebar.hidePeek : undefined}
     >
-      <Menu className="h-4 w-4 max-md:h-5 max-md:w-5 md:group-hover/open:hidden" />
-      <ChevronsRight className="hidden h-4 w-4 md:group-hover/open:block rtl:-scale-x-100" />
+      <Menu className="h-5 w-5" />
     </IconButton>
-  );
-}
-
-/** Desktop, collapsed: an invisible strip on the sidebar's edge of the window that slides the sidebar out. */
-export function SidebarPeekEdge() {
-  const sidebar = useSidebar();
-  if (!sidebar?.collapsed) return null;
-  return (
-    <div
-      aria-hidden
-      className="fixed inset-y-0 inset-s-0 z-40 hidden w-2 md:block"
-      onMouseEnter={sidebar.showPeek}
-      onMouseLeave={sidebar.hidePeek}
-    />
   );
 }
 

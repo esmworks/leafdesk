@@ -40,6 +40,15 @@
   back to its top. Quotes typed in a page become typographic ones (“ ” ‘ ’, ’ in "don’t"), except in
   code, code blocks, equations and diagram sources; Backspace right after one gives back the
   straight quote.
+- **Sidebar**: a rail of icons down its edge and a panel beside it. From the top, the rail holds
+  the workspace (its menu switches workspaces), *Search*, then the places: *Home* (your pages),
+  *My tasks*, *Meetings*, *Journal*, *Chat*, *Mail* and *Agents* (the last four when you have them);
+  at its foot the inbox with its count, Settings, and your picture, which opens the account menu.
+  The panel shows the place picked: its name, what it starts (a new page, today's note, a new chat
+  or message) and its list. Hide the panel with its `«` button or `Cmd/Ctrl+\` and the rail stays:
+  pointing at a place slides the panel out with that place's list, and clicking one brings the
+  panel back. Drag the panel's edge to make it wider. ↑ and ↓ move between the rail's places. On a
+  phone both come in a drawer.
 - **Home page**: quick buttons for a new page, database or template; four figures of your own
   (open tasks, overdue, due this week, changes waiting for your approval), each opening where you
   deal with them; the workspace's **dashboard**, the same widgets as a dashboard block (numbers,
@@ -55,7 +64,7 @@
   opens Leafdesk on the home page or on the page you opened last on any device (while your page
   views are recorded), when you start it or sign in; with the latter, switching to another
   workspace from the sidebar's menu opens the page you opened last there.
-- **My tasks** (in the sidebar; hide or move it like its other sections): every database row
+- **My tasks** (on the sidebar's rail): every database row
   assigned to you across the workspace, in any person property, that isn't done and that you can
   open, by due date or by database, with its status and first date; the first 200, the ones due
   soonest. A row opens beside the list. Tick a row with a status to set it to the first option of
@@ -644,9 +653,8 @@
   owner's approval in the inbox; signed events from the service can start agents, whose every call
   waits for approval unless an owner trusts what that trigger's service sends (see
   [Connections](connections.md#connections)).
-- **Daily notes**: one page of your own for each day. The sidebar has three tabs, *Home* (your
-  pages), *Journal* and *Chat* (your AI conversations), each coming back to where you last were in
-  it. *Journal* (or the home page) opens today's note, made the first time, in your own time zone;
+- **Daily notes**: one page of your own for each day. The sidebar's places (*Home*, *Journal*,
+  *Chat* and the others) each come back to where you last were in them. *Journal* (or the home page) opens today's note, made the first time, in your own time zone;
   its month calendar marks the days that have a note and opens any day's, it lists the notes
   (newest first), and a date mention's menu has *Open that day's note*. Notes are private pages
   kept out of your page list, so nobody else sees them unless you share one. New notes start with
@@ -1393,7 +1401,7 @@
 - **Meeting notes** (with speech to text): `/` *Meeting notes* in a page records a meeting of up to
   three hours, the transcript filling in as you talk (or takes a recording made elsewhere, uploaded
   as an audio or video file), and AI writes the summary, decisions and action items, each linked to
-  its moment in the transcript. *Meetings* in the sidebar lists them. A meeting on a database row
+  its moment in the transcript. *Meetings* on the sidebar's rail lists them. A meeting on a database row
   can start the database's automations, and so an agent, once it is written up
   (see [Meeting notes](ai.md#meeting-notes)).
 - **AI chat from Telegram** (optional, off until the server has a Telegram bot): people link their
@@ -1408,7 +1416,7 @@
 - **24 interface languages**: English, Turkish, German, Spanish, French, Italian, Portuguese, Polish, Russian, Ukrainian, Arabic, Hebrew, Persian, Japanese, Korean, Chinese, Indonesian, Thai, Vietnamese, Danish, Dutch, Norwegian, Finnish and Swedish, chosen in My account or taken from the
   browser; Arabic, Hebrew and Persian lay the app out right to left (see [Languages](development.md#languages)).
 - **Light and dark themes**: following the system, or chosen for the browser in Preferences or in
-  the account menu at the bottom of the sidebar, each with a high contrast option (stronger
+  the account menu at the foot of the sidebar's rail, each with a high contrast option (stronger
   secondary text, lines and focus) that also follows the system's "increase contrast" setting.
   Ctrl+Shift+L (⌘⇧L on a Mac) switches between light and dark.
 - **MCP server with OAuth 2.1**: remote MCP endpoint at `/mcp`.

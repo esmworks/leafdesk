@@ -1,15 +1,15 @@
 "use client";
 
-import { AlertOctagon, Archive, Clock, Folder, Inbox, Mails, Send, SquarePen, Star, FileText, Trash2, type LucideIcon } from "lucide-react";
+import { AlertOctagon, Archive, Clock, Folder, Inbox, Mails, Send, Star, FileText, Trash2, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Fragment, useCallback } from "react";
 import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn } from "@/components/ui";
 import { ALL_INBOXES, STARRED, type MailboxTabView, type MailFolderRole, type MailFolderView } from "@/lib/mail-client";
 import { initialOf, textOn, userColor } from "@/lib/presence";
-import { inboxUnread, mailHref, pickOpen, requestCompose, stayInMail, useMailboxes } from "./mail-store";
+import { inboxUnread, mailHref, pickOpen, stayInMail, useMailboxes } from "./mail-store";
 
 export const FOLDER_ICONS: Record<MailFolderRole, LucideIcon> = {
   inbox: Inbox,
@@ -76,19 +76,12 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
   const search = useSearchParams();
   const { boxes, error } = useMailboxes(workspaceId);
   const { box, folder, all, starred } = pickOpen(boxes, search.get("box"), search.get("f"));
-  const router = useRouter();
   const closeDrawer = useSidebar()?.close;
   // A phone's drawer may show this list over another page, and on the Mail page a folder only changes
   // the address's query, which leaves the drawer open.
   const pick = (e: React.MouseEvent, href: string) => {
     stayInMail(e, href);
     closeDrawer?.();
-  };
-  const compose = () => {
-    requestCompose();
-    closeDrawer?.();
-    const href = mailHref(workspaceId);
-    if (new URL(href, window.location.href).pathname !== window.location.pathname) router.push(href);
   };
 
   if (error) return <p className="px-2 py-1 text-sm text-fg-muted">{error}</p>;
@@ -125,21 +118,12 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
           <StarredLink href={mailHref(workspaceId, { box: ALL_INBOXES, f: STARRED })} label={t("allStarred")} active={all && starred} onPick={pick} />
         </div>
       )}
-      {/* The mailbox and its folders in one column, spaced like the folders. New message is a button
-          at the end of the mailbox's row: a row of its own sat right above the inbox and took its clicks. */}
+      {/* The mailbox and its folders in one column, spaced like the folders. New message is in the
+          sidebar panel's heading (sidebar.tsx). */}
       <div className="space-y-px">
-        <div className={cn(rowClass, "pe-0.5 hover:bg-transparent")}>
+        <div className={cn(rowClass, "hover:bg-transparent")}>
           <MailboxMark address={box.address} />
           <span className="min-w-0 flex-1 truncate font-medium" title={box.address}>{box.address}</span>
-          <button
-            type="button"
-            onClick={compose}
-            aria-label={t("compose")}
-            title={`${t("compose")} (C)`}
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-fg-icon hover:bg-bg-hover hover:text-fg"
-          >
-            <SquarePen className="h-4 w-4" />
-          </button>
         </div>
         {box.folders === null ? (
           <div className="space-y-1.5 px-2 pt-2" aria-busy>

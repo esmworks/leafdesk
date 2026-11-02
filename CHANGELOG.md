@@ -12,20 +12,24 @@
 
 ### Changed
 
-- **My tasks and Meetings sit with the sidebar's tabs.** A section that is one row without a
-  heading joins the block under the search box when it comes first, instead of floating between it
-  and the first heading, and keeps a section's distance when it follows one.
+- **The sidebar's places are a rail of icons down its edge.** The workspace, Search, Home, My
+  tasks, Meetings, Journal, Chat, Mail and Agents sit one under another, with the inbox, Settings
+  and your picture at the foot; the panel beside the rail shows the place picked under its name,
+  with what that place starts (a new page, today's note, a new chat or message). My tasks and
+  Meetings left the sidebar's sections for the rail; layouts saved with them still load. Hiding the
+  panel keeps the rail: pointing at a place slides the panel out with its list, clicking one brings
+  the panel back. On a phone the drawer holds both. The Trash moved into the account menu.
 - **The search box is quieter and shows where you have been.** Its filters sit in one row of
   plain words with *Include archived* beside them, the pages you opened last are listed under
   *Today*, *Yesterday*, *Previous 7 days* and *Older* with the page or database each sits in, and
   the line under the results names the keys (Enter opens, Cmd/Ctrl+Enter opens in a new tab); the
   search syntax waits behind a help icon there.
-- **The bottom of the sidebar shows who is signed in.** Your name and picture sit at the bottom of
-  the sidebar, with Settings and the Trash beside them; your name opens a menu with your account,
-  People, For review, Skills, Templates, Import, Customize sidebar, a light, dark or system theme
+- **The bottom of the sidebar shows who is signed in.** Your picture sits at the foot of the
+  sidebar's rail, under Settings; it opens a menu with your account,
+  People, For review, Skills, Trash, Templates, Import, Customize sidebar, a light, dark or system theme
   switch, keyboard shortcuts, Server administration for administrators, Install app and Sign out.
-  The workspace menu at the top keeps the workspaces and *Settings & members*. The list above fades
-  out under it while there is more to scroll, instead of ending at a line.
+  The workspace menu at the top keeps the workspaces and *Settings & members*. The panel's list
+  fades out at its foot while there is more to scroll, instead of ending at a line.
 - **The home page, dashboards and sidebar look calmer.** One main button (*New page*) with the others
   beside it unframed; figures, recent pages and dashboard widgets sit on a light surface instead of
   inside lines; lists of tasks and recent pages lose their frames and dividers. In the sidebar,

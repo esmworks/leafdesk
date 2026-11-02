@@ -8,7 +8,7 @@ Contents: [My account](#my-account), [Who can join a workspace](#who-can-join-a-
 
 ## My account
 
-Your name and picture at the bottom of the sidebar open the account menu; the name at its top opens
+Your picture at the foot of the sidebar's rail opens the account menu; the name at its top opens
 `/account`. It belongs to the person, not to a workspace, so it also works for someone who isn't in
 any workspace and isn't held back by a workspace's two-step policy. The old addresses
 (`/w/<id>/settings?tab=preferences`, `accountSecurity`, `apps`) redirect to it.

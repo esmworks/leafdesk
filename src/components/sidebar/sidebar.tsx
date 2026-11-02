@@ -10,7 +10,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ChevronUp,
-  ChevronsUpDown,
   ClipboardCheck,
   NotebookPen,
   CloudOff,
@@ -46,7 +45,7 @@ import {
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { listFavoritesAction } from "@/app/actions/page-menu";
 import { archivePageAction, createPageAction, getSidebarAction, movePageAction, renamePageAction, restorePageAction } from "@/app/actions/pages";
 import { showToast } from "@/components/toast";
@@ -102,7 +101,8 @@ import { NewWorkspaceDialog } from "./new-workspace-dialog";
 import { SearchDialog } from "./search-dialog";
 import { inlineSign } from "@/components/direction";
 import { SIDEBAR_WIDTH } from "@/lib/sidebar-layout";
-import { isSettingsPath, SidebarPeekEdge, useSidebar } from "./sidebar-context";
+import { isSettingsPath, useSidebar } from "./sidebar-context";
+import { RailCount, railIconClass, railItemClass, railSelectedClass, RailTabs, type RailTab } from "./sidebar-rail";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
@@ -128,12 +128,6 @@ type Workspace = { id: string; name: string; icon: string | null; role: string }
 const EXPANDED_KEY = "leafdesk:expanded";
 /** Teamspaces the user opened: like pages, a teamspace stays closed until opened. */
 const OPEN_TEAMSPACES_KEY = "leafdesk:open-teamspaces";
-/**
- * A section that is one row without a heading (My tasks, Meetings): spaced like a section, except
- * that it sits right under the tabs when first and 1px under another such row.
- */
-const plainRowClass = "mt-3 first:mt-0 [[data-row]+&]:mt-px";
-
 const TEAMSPACES_GROUP: SidebarSection = "teamspaces";
 const FAVORITES_SECTION: SidebarSection = "favorites";
 const PAGES_SECTION: SidebarSection = "pages";
@@ -164,11 +158,15 @@ function saveSet(key: string, set: Set<string>) {
 type Target = string | null | undefined;
 
 /**
- * What the sidebar lists: the pages (with the home page), the person's daily notes, or their AI
- * conversations. Each is a place too: the tab follows the page that is open, and a tab opens where
- * the person last was in it (its start when there is none, or when it is already the open tab).
+ * What the panel beside the rail lists: the pages (with the home page), the person's daily notes,
+ * their AI conversations, their mail or the agents they may talk to. Each is a place too: the tab
+ * follows the page that is open, and a tab opens where the person last was in it (its start when
+ * there is none, or when it is already the open tab; the agents have no start of their own).
  */
-type SidebarTab = "home" | "journal" | "chat" | "mail";
+type SidebarTab = "home" | "journal" | "chat" | "mail" | "agents";
+const TAB_ICONS: Record<SidebarTab, typeof House> = { home: House, journal: BookOpen, chat: MessagesSquare, mail: MailIcon, agents: Bot };
+/** How long the pointer rests on a rail item before the hidden panel peeks out with what it shows. */
+const PEEK_DELAY = 120;
 
 export function Sidebar({
   workspaceId,
@@ -321,7 +319,7 @@ export function Sidebar({
       });
   }, [searchOpen, offline, workspaceId]);
   const onChatPage = Boolean(aiChat) && isChatPath(pathname, workspaceId);
-  // An agent's page is a chat too: the chat tab, where its agents are listed, stays open beside it.
+  // An agent's page, a chat with it: the agents tab stays open beside it.
   const onAgentPage = Boolean(aiChat) && pathname.startsWith(`/w/${workspaceId}/agents/`);
   const tAi = useTranslations("ai.chat");
   const tJournal = useTranslations("journal");
@@ -520,7 +518,13 @@ export function Sidebar({
 
   // Daily notes are private top-level pages, so the journal only for those who may add them.
   const onMailPage = pathname.startsWith(`/w/${workspaceId}/mail`);
-  const tabs: SidebarTab[] = ["home", ...(topLevel ? (["journal"] as const) : []), ...(aiChat ? (["chat"] as const) : []), ...(mail ? (["mail"] as const) : [])];
+  const tabs: SidebarTab[] = [
+    "home",
+    ...(topLevel ? (["journal"] as const) : []),
+    ...(aiChat ? (["chat"] as const) : []),
+    ...(mail ? (["mail"] as const) : []),
+    ...(agents.length > 0 || onAgentPage ? (["agents"] as const) : []),
+  ];
   // Unread mail in the inboxes, on the Mail tab. The store is loaded after the page, as for composeMail.
   const [mailUnread, setMailUnread] = useState(0);
   useEffect(() => {
@@ -546,7 +550,7 @@ export function Sidebar({
     });
     sidebar?.close();
   };
-  const routeTab: SidebarTab = onChatPage || onAgentPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
+  const routeTab: SidebarTab = onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
   const [tab, setTab] = useState<SidebarTab>(routeTab);
   // Where the person last was in each tab, in this visit.
   const lastPath = useRef<Partial<Record<SidebarTab, string>>>({});
@@ -568,7 +572,34 @@ export function Sidebar({
     if (drawerOpen) return;
     if (back) router.push(back);
     else if (next === "journal") openDailyNote();
+    else if (next === "agents") return;
     else router.push(next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
+  }
+
+  // Desktop, the panel hidden: what a rail item shows while the panel peeks out beside it.
+  const collapsed = !!sidebar?.collapsed;
+  const [peekTab, setPeekTab] = useState<SidebarTab | null>(null);
+  const shownTab = (collapsed && peekTab) || tab;
+  const peekTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(peekTimer.current), []);
+  function hoverTab(next: SidebarTab) {
+    if (!collapsed || drawerOpen) return;
+    clearTimeout(peekTimer.current);
+    peekTimer.current = setTimeout(() => {
+      setPeekTab(next);
+      sidebar?.showPeek();
+    }, PEEK_DELAY);
+  }
+  const leaveTab = () => clearTimeout(peekTimer.current);
+
+  /** A rail item of the panel's: with the panel hidden, it comes back showing that tab. */
+  function pickTab(next: SidebarTab) {
+    if (collapsed && !drawerOpen) {
+      clearTimeout(peekTimer.current);
+      sidebar?.expand();
+      if (next === tab) return;
+    }
+    openTab(next);
   }
 
   function newChat() {
@@ -628,8 +659,6 @@ export function Sidebar({
   const sectionLabel = (key: SidebarSection) =>
     ({
       favorites: t("pages.favorites"),
-      meetings: t("sections.meetings"),
-      tasks: t("sections.tasks"),
       pages: t("pages.heading"),
       teamspaces: t("teamspaces.heading"),
       shared: t("sections.shared"),
@@ -857,7 +886,7 @@ export function Sidebar({
 
   /** The "+" menu of a section: what to add at its top. */
   // eslint-disable-next-line react/display-name -- a Popover render callback, not a component
-  const newMenu = (target: string | null) => (close: () => void) => (
+  const newMenu = (target: Target) => (close: () => void) => (
     <>
       <MenuItem
         icon={<FileText className="h-4 w-4" />}
@@ -952,6 +981,26 @@ export function Sidebar({
 
   if (isSettingsPath(pathname)) return null;
 
+  // Each opens its chat.
+  const agentList = (
+    <ul className="space-y-px">
+      {agents.map((agent) => (
+        <li key={agent.id}>
+          <Link
+            href={agentPagePath(workspaceId, agent.id)}
+            aria-current={pathname === agentPagePath(workspaceId, agent.id) ? "page" : undefined}
+            className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg"
+          >
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
+              {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}
+            </span>
+            <span className="truncate ps-0.5">{agent.name}</span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+
   // Each section as it shows (or null when it has nothing to show), placed in the person's order.
   const sectionContent: Record<SidebarSection, React.ReactNode> = {
     favorites: favorites.length > 0 && (
@@ -975,20 +1024,6 @@ export function Sidebar({
           ))}
         </ul>
       </SectionGroup>
-    ),
-    tasks: (
-      <div data-row className={plainRowClass}>
-        <SidebarButton icon={<ListTodo className="h-4 w-4" />} href={`/w/${workspaceId}/tasks`} active={pathname === `/w/${workspaceId}/tasks`}>
-          {t("sections.tasks")}
-        </SidebarButton>
-      </div>
-    ),
-    meetings: (
-      <div data-row className={plainRowClass}>
-        <SidebarButton icon={<NotebookPen className="h-4 w-4" />} href={`/w/${workspaceId}/meetings`} active={pathname === `/w/${workspaceId}/meetings`}>
-          {t("sections.meetings")}
-        </SidebarButton>
-      </div>
     ),
     pages: pagesSpace && (
       <SectionGroup
@@ -1172,7 +1207,7 @@ export function Sidebar({
         />
       </SectionGroup>
     ),
-    // Each opens its chat in Settings > Agents, where the rest of it is too.
+    // The same list as the agents tab's, folded or not, for those who keep it with their pages.
     agents: agents.length > 0 && (
       <SectionGroup
         label={t("sections.agents")}
@@ -1184,33 +1219,107 @@ export function Sidebar({
           </IconButton>
         }
       >
-        <ul className="space-y-px">
-          {agents.map((agent) => (
-            <li key={agent.id}>
-              <Link
-                href={agentPagePath(workspaceId, agent.id)}
-                aria-current={pathname === agentPagePath(workspaceId, agent.id) ? "page" : undefined}
-                className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg"
-              >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-                  {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}
-                </span>
-                <span className="truncate ps-0.5">{agent.name}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {agentList}
       </SectionGroup>
     ),
   };
   const hiddenSections = new Set(layout.hidden ?? []);
+  const tasksPath = `/w/${workspaceId}/tasks`;
+  const meetingsPath = `/w/${workspaceId}/meetings`;
+  const onOwnPage = pathname === tasksPath || pathname === meetingsPath;
+  const onSettings = pathname.startsWith(`/w/${workspaceId}/settings`);
+  const tabLabel = (key: SidebarTab) =>
+    ({ home: t("tabs.home"), journal: t("tabs.journal"), chat: t("tabs.chat"), mail: t("tabs.mail"), agents: t("sections.agents") })[key];
+  const panelTab = (key: SidebarTab): RailTab => {
+    const Icon = TAB_ICONS[key];
+    const label = tabLabel(key);
+    // Opening the daily notes, the chat or mail takes the server.
+    const unreachable = offline && key !== "home" && key !== tab;
+    return {
+      key,
+      label,
+      icon: <Icon className={railIconClass} />,
+      // On My tasks or Meetings the panel keeps showing its tab; the rail marks the page.
+      selected: tab === key && !onOwnPage,
+      disabled: unreachable || (key === "journal" && openingDailyNote),
+      title: unreachable ? needsServer(label) : undefined,
+      count: key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) } : undefined,
+      onClick: () => pickTab(key),
+      onHover: () => hoverTab(key),
+      onLeave: leaveTab,
+    };
+  };
+  const pageTab = (key: string, label: string, Icon: typeof House, path: string): RailTab => ({
+    key,
+    label,
+    icon: <Icon className={railIconClass} />,
+    selected: pathname === path,
+    onClick: () => router.push(path),
+  });
+  const railTabs: RailTab[] = [
+    panelTab("home"),
+    pageTab("tasks", t("sections.tasks"), ListTodo, tasksPath),
+    pageTab("meetings", t("sections.meetings"), NotebookPen, meetingsPath),
+    ...tabs.filter((key) => key !== "home").map(panelTab),
+  ];
+  const panelTitle = shownTab === "home" ? t("pages.heading") : tabLabel(shownTab);
+  const headButton = "h-7 w-7 disabled:opacity-50";
+  // What the open tab starts: a page (with its other ways in), today's note, a chat, a message.
+  const headActions =
+    shownTab === "home" ? (
+      topLevel && (
+        <Popover
+          align="end"
+          trigger={({ open, toggle }) => (
+            <IconButton
+              label={t("pages.new")}
+              title={needsServer(t("pages.new")) ?? t("pages.new")}
+              onClick={toggle}
+              aria-expanded={open}
+              disabled={offline}
+              className={cn(headButton, open && "bg-bg-active text-fg")}
+            >
+              <SquarePen className="h-4 w-4" />
+            </IconButton>
+          )}
+        >
+          {newMenu(undefined)}
+        </Popover>
+      )
+    ) : shownTab === "journal" ? (
+      <IconButton
+        label={tJournal("openToday")}
+        title={needsServer(tJournal("openToday")) ?? tJournal("openToday")}
+        onClick={() => openDailyNote()}
+        disabled={offline || openingDailyNote}
+        className={headButton}
+      >
+        <CalendarCheck className="h-4 w-4" />
+      </IconButton>
+    ) : shownTab === "chat" ? (
+      <IconButton label={tAi("newChat")} title={tAi("newChat")} onClick={newChat} className={headButton}>
+        <SquarePen className="h-4 w-4" />
+      </IconButton>
+    ) : shownTab === "mail" ? (
+      <IconButton label={tMail("compose")} title={tMail("compose")} onClick={composeMail} className={headButton}>
+        <SquarePen className="h-4 w-4" />
+      </IconButton>
+    ) : (
+      <IconButton
+        label={t("sections.manageAgents")}
+        title={t("sections.manageAgents")}
+        onClick={() => router.push(`/w/${workspaceId}/settings?tab=agents`)}
+        className={headButton}
+      >
+        <MoreHorizontal className="h-4 w-4" />
+      </IconButton>
+    );
 
   return (
     <>
       {sidebar?.drawerOpen && (
         <div aria-hidden data-window-shade className="fixed inset-0 z-40 bg-black/40 md:hidden" onClick={sidebar.close} />
       )}
-      <SidebarPeekEdge />
       <aside
         data-sidebar
         data-sidebar-open={(sidebar && !sidebar.collapsed) || undefined}
@@ -1222,203 +1331,185 @@ export function Sidebar({
           e.preventDefault();
           setLinkMenu({ href, x: e.clientX, y: e.clientY });
         }}
-        // Desktop: an in-flow column the user can resize, or — when hidden — a panel that slides out
-        // over the page while hovered. Phones: a drawer over the page.
+        // Desktop: the rail, then the panel as a column the user can resize, or — when hidden — a
+        // panel that slides out over the page beside the rail while a rail item or it is pointed at.
+        // Phones: both in a drawer over the page.
         style={{ "--sidebar-w": `${sidebar?.width ?? 256}px` } as React.CSSProperties}
-        onMouseEnter={sidebar?.collapsed ? sidebar.showPeek : undefined}
-        onMouseLeave={sidebar?.collapsed ? sidebar.hidePeek : undefined}
+        onMouseLeave={collapsed ? sidebar?.hidePeek : undefined}
         className={cn(
-          "relative flex shrink-0 flex-col border-e border-border bg-bg-subtle text-sm select-none",
-          "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:pb-(--safe-bottom) max-md:w-[min(18rem,85vw)] max-md:shadow-xl md:w-[var(--sidebar-w)]",
-          sidebar?.collapsed &&
-            "md:fixed md:top-12 md:bottom-3 md:inset-s-0 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,visibility] md:duration-200 md:ease-out",
-          sidebar?.collapsed && (sidebar.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-[calc(100%+1rem)] md:rtl:translate-x-[calc(100%+1rem)]"),
+          "relative flex shrink-0 text-sm select-none",
+          "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:w-[min(21rem,90vw)] max-md:shadow-xl",
           !sidebar?.drawerOpen && "max-md:hidden",
           // Phones: rows and their buttons grow from 28px to 36px so they are easy to tap.
           "max-md:[&_.h-7]:h-9 max-md:[&_.w-7]:w-9",
         )}
       >
-        {sidebar && !sidebar.collapsed && <ResizeHandle />}
         <LinkMenu menu={linkMenu} onClose={() => setLinkMenu(null)} />
-        {/* 4px under the tabs: a plain row first in the list joins this block, a section's heading adds its own. */}
-        <div className="p-2 pb-1">
-          <div className="group/head flex items-center gap-1">
-            <Popover
-              trigger={({ toggle }) => (
-                <button
-                  type="button"
-                  onClick={toggle}
-                  className="flex h-8 w-full min-w-0 items-center gap-2 rounded-md px-2 text-start hover:bg-bg-hover"
-                >
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-fg text-[11px] font-semibold text-bg">
-                    {workspace?.icon ?? workspace?.name.slice(0, 1).toUpperCase()}
-                  </span>
-                  <span className="flex-1 truncate font-medium">{workspace?.name}</span>
-                  <ChevronDown className="h-3.5 w-3.5 text-fg-muted" />
-                </button>
-              )}
-              className="w-64"
-              wrapperClassName="flex min-w-0 flex-1"
-            >
-              {(close) => (
-                <>
-                  {workspaces.map((w) => (
-                    <MenuItem
-                      key={w.id}
-                      active={w.id === workspaceId}
-                      onClick={() => {
-                        close();
-                        // The page opened last there, for those who start on it (app/w/[workspaceId]/page.tsx).
-                        router.push(`/w/${w.id}?resume`);
-                      }}
-                    >
-                      {w.name}
-                    </MenuItem>
-                  ))}
-                  {joinable.length > 0 && <JoinableWorkspaces workspaces={joinable} onJoined={close} />}
-                  {canCreateWorkspace && (
-                    <MenuItem
-                      icon={<Plus className="h-4 w-4" />}
-                      disabled={offline}
-                      title={needsServer(t("workspaceMenu.newWorkspace"))}
-                      onClick={() => {
-                        close();
-                        setNewWorkspaceOpen(true);
-                      }}
-                    >
-                      {t("workspaceMenu.newWorkspace")}
-                    </MenuItem>
-                  )}
-                  <MenuSeparator />
+        <div
+          data-sidebar-rail
+          className={cn(
+            "flex w-11 shrink-0 flex-col items-center gap-1 bg-bg-subtle pt-2 pb-2 max-md:w-13 max-md:pb-[calc(var(--safe-bottom)+0.5rem)]",
+            // Alone beside the page, its edge is drawn; beside the panel, the panel's own surface is that edge.
+            collapsed && "md:border-e md:border-border",
+          )}
+        >
+          <Popover
+            trigger={({ open, toggle }) => (
+              <button
+                type="button"
+                onClick={toggle}
+                aria-expanded={open}
+                aria-label={workspace?.name}
+                title={workspace?.name}
+                className={cn(railItemClass, open && "bg-bg-hover")}
+              >
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-fg text-xs font-semibold text-bg max-md:h-7 max-md:w-7">
+                  {workspace?.icon ?? workspace?.name.slice(0, 1).toUpperCase()}
+                </span>
+              </button>
+            )}
+            className="w-64"
+          >
+            {(close) => (
+              <>
+                {workspaces.map((w) => (
                   <MenuItem
-                    icon={<Settings className="h-4 w-4" />}
+                    key={w.id}
+                    active={w.id === workspaceId}
                     onClick={() => {
                       close();
-                      router.push(`/w/${workspaceId}/settings`);
+                      // The page opened last there, for those who start on it (app/w/[workspaceId]/page.tsx).
+                      router.push(`/w/${w.id}?resume`);
                     }}
                   >
-                    {t("workspaceMenu.settingsAndMembers")}
+                    {w.name}
                   </MenuItem>
-                </>
-              )}
-            </Popover>
-            {/* The desktop app on macOS moves these up beside its window buttons (globals.css). */}
-            <div data-sidebar-head-actions className="flex shrink-0 items-center gap-1">
-              <IconButton
-                label={unread > 0 ? `${t("nav.inbox")} · ${t("inbox.unreadCount", { count: unread })}` : t("nav.inbox")}
-                title={needsServer(t("nav.inbox"))}
-                onClick={() => setInboxOpen(true)}
-                disabled={offline}
-                className="relative h-7 w-7 disabled:opacity-50"
-              >
-                <Inbox className="h-4 w-4" />
-                {unread > 0 && (
-                  <span
-                    aria-hidden
-                    className="absolute -top-0.5 -inset-e-0.5 min-w-3.5 rounded-full bg-accent px-0.5 text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums"
+                ))}
+                {joinable.length > 0 && <JoinableWorkspaces workspaces={joinable} onJoined={close} />}
+                {canCreateWorkspace && (
+                  <MenuItem
+                    icon={<Plus className="h-4 w-4" />}
+                    disabled={offline}
+                    title={needsServer(t("workspaceMenu.newWorkspace"))}
+                    onClick={() => {
+                      close();
+                      setNewWorkspaceOpen(true);
+                    }}
                   >
-                    {unread > 9 ? "9+" : unread}
-                  </span>
+                    {t("workspaceMenu.newWorkspace")}
+                  </MenuItem>
                 )}
-              </IconButton>
-              {(topLevel || aiChat || mail) && (
-                // What to start: a page, a chat, a message or a database.
-                <Popover
-                  trigger={({ open, toggle }) => (
-                    <IconButton
-                      label={t("pages.new")}
-                      title={needsServer(t("pages.new"))}
-                      onClick={toggle}
-                      aria-expanded={open}
-                      disabled={offline}
-                      className={cn("h-7 w-7 disabled:opacity-50", open && "bg-bg-active text-fg")}
-                    >
-                      <SquarePen className="h-4 w-4" />
-                    </IconButton>
-                  )}
+                <MenuSeparator />
+                <MenuItem
+                  icon={<Settings className="h-4 w-4" />}
+                  onClick={() => {
+                    close();
+                    router.push(`/w/${workspaceId}/settings`);
+                  }}
                 >
-                  {(close) => (
-                    <>
-                      {topLevel && (
-                        <MenuItem
-                          icon={<FileText className="h-4 w-4" />}
-                          onClick={() => {
-                            close();
-                            create(null, "page", undefined);
-                          }}
-                        >
-                          {t("pages.newPage")}
-                        </MenuItem>
-                      )}
-                      {aiChat && (
-                        <MenuItem
-                          icon={<MessagesSquare className="h-4 w-4" />}
-                          onClick={() => {
-                            close();
-                            newChat();
-                          }}
-                        >
-                          {tAi("newChat")}
-                        </MenuItem>
-                      )}
-                      {mail && (
-                        <MenuItem
-                          icon={<MailIcon className="h-4 w-4" />}
-                          onClick={() => {
-                            close();
-                            composeMail();
-                          }}
-                        >
-                          {tMail("compose")}
-                        </MenuItem>
-                      )}
-                      {topLevel && (
-                        <>
-                          <MenuItem
-                            icon={<Database className="h-4 w-4" />}
-                            onClick={() => {
-                              close();
-                              create(null, "database", undefined);
-                            }}
-                          >
-                            {t("pages.newDatabase")}
-                          </MenuItem>
-                          {canBuild && (
-                            <MenuItem
-                              icon={<Sparkles className="h-4 w-4" />}
-                              onClick={() => {
-                                close();
-                                setBuildFor({ target: undefined });
-                              }}
-                            >
-                              {tBuild("menuItem")}
-                            </MenuItem>
-                          )}
-                          <MenuSeparator />
-                          <MenuItem
-                            icon={<LayoutTemplate className="h-4 w-4" />}
-                            onClick={() => {
-                              close();
-                              openTemplates(undefined);
-                            }}
-                          >
-                            {t("pages.fromTemplate")}
-                          </MenuItem>
-                        </>
-                      )}
-                      <MenuItem
-                        icon={<Globe className="h-4 w-4" />}
-                        onClick={() => {
-                          close();
-                          openImport(undefined, "web");
-                        }}
-                      >
-                        {t("pages.saveFromWeb")}
-                      </MenuItem>
-                    </>
-                  )}
-                </Popover>
-              )}
+                  {t("workspaceMenu.settingsAndMembers")}
+                </MenuItem>
+              </>
+            )}
+          </Popover>
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            disabled={offline}
+            aria-label={t("nav.search")}
+            title={needsServer(t("nav.search")) ?? `${t("nav.search")} (⌘K)`}
+            className={cn(railItemClass, "mt-1")}
+          >
+            <Search className={railIconClass} />
+          </button>
+          <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none]">
+            <RailTabs label={t("tabs.label")} tabs={railTabs} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setInboxOpen(true)}
+            disabled={offline}
+            aria-label={unread > 0 ? `${t("nav.inbox")} · ${t("inbox.unreadCount", { count: unread })}` : t("nav.inbox")}
+            title={needsServer(t("nav.inbox")) ?? t("nav.inbox")}
+            className={cn(railItemClass, inboxOpen && railSelectedClass)}
+          >
+            <Inbox className={railIconClass} />
+            {unread > 0 && <RailCount value={unread} tone="accent" selected={inboxOpen} />}
+          </button>
+          <Link
+            href={`/w/${workspaceId}/settings`}
+            aria-label={t("nav.settings")}
+            title={t("nav.settings")}
+            aria-current={onSettings ? "page" : undefined}
+            className={cn(railItemClass, onSettings && railSelectedClass)}
+          >
+            <Settings className={railIconClass} />
+          </Link>
+          {/* Who is signed in, opening what is used now and then. */}
+          <Popover
+            side="top"
+            className="min-w-60"
+            trigger={({ open, toggle }) => (
+              <button
+                type="button"
+                onClick={toggle}
+                aria-expanded={open}
+                aria-label={user.name || user.email}
+                title={user.name || user.email}
+                onPointerEnter={() => void AccountMenu.preload()}
+                onFocus={() => void AccountMenu.preload()}
+                className={cn(railItemClass, (open || customizing) && "bg-bg-hover")}
+              >
+                <UserAvatar name={user.name || user.email} image={user.image} size="sm" />
+              </button>
+            )}
+          >
+            {(close) => (
+              <AccountMenu
+                close={close}
+                workspaceId={workspaceId}
+                pathname={pathname}
+                user={user}
+                guest={guest}
+                offline={offline}
+                templates={!!topLevel}
+                customizing={customizing}
+                instanceAdmin={!!isInstanceAdmin}
+                needsServer={needsServer}
+                go={(path) => router.push(path)}
+                onTemplates={() => openTemplates(undefined)}
+                onImport={() => openImport(undefined)}
+                onTrash={() => setTrashOpen(true)}
+                onCustomize={() => {
+                  // Arranged where they show: the pages tab, open.
+                  if (!customizing) {
+                    setTab("home");
+                    sidebar?.expand();
+                  }
+                  setCustomizing(!customizing);
+                }}
+                onShortcuts={() => setShortcutsOpen(true)}
+                onSignOut={signOut}
+              />
+            )}
+          </Popover>
+        </div>
+
+        <div
+          data-sidebar-panel
+          onMouseEnter={collapsed ? sidebar?.showPeek : undefined}
+          className={cn(
+            "relative flex min-w-0 flex-col border-e border-border bg-bg max-md:flex-1 max-md:pb-(--safe-bottom) md:w-[var(--sidebar-w)]",
+            collapsed &&
+              "md:fixed md:top-12 md:bottom-3 md:inset-s-11 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,opacity,visibility] md:duration-200 md:ease-out",
+            collapsed && (sidebar?.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-2 md:opacity-0 md:rtl:translate-x-2"),
+          )}
+        >
+          {sidebar && !sidebar.collapsed && <ResizeHandle />}
+          <div className="group/head flex h-12 shrink-0 items-center gap-1 ps-4 pe-2 max-md:h-14">
+            <h2 className="min-w-0 flex-1 truncate font-medium">{panelTitle}</h2>
+            <div className="flex shrink-0 items-center gap-0.5">
+              {headActions}
               {sidebar &&
                 (sidebar.collapsed ? (
                   // Floating over the page: offer to pin it back (desktop only; phones use the drawer).
@@ -1449,53 +1540,14 @@ export function Sidebar({
           </div>
 
           {offline && (
-            <p role="status" className="mt-1 flex items-center gap-2 px-2 py-1 text-xs text-fg-muted" title={tOffline("hint")}>
+            <p role="status" className="mx-2 mb-1 flex items-center gap-2 px-2 py-1 text-xs text-fg-muted" title={tOffline("hint")}>
               <CloudOff className="h-3.5 w-3.5 shrink-0" />
               {tOffline("banner")}
             </p>
           )}
-          {/* A row like the ones under it; opens the search dialog. */}
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            disabled={offline}
-            title={needsServer(t("nav.search"))}
-            className="mt-1 flex h-7 w-full items-center gap-2 rounded-md px-2 text-start text-fg-muted hover:bg-bg-hover hover:text-fg disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent"
-          >
-            <Search className="h-4 w-4 shrink-0" />
-            <span className="flex-1 truncate">{t("nav.search")}</span>
-            <kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">⌘K</kbd>
-          </button>
-          {tabs.length > 1 ? (
-            <SidebarTabs
-              label={t("tabs.label")}
-              tabs={tabs.map((key) => {
-                const Icon = key === "journal" ? BookOpen : key === "chat" ? MessagesSquare : key === "mail" ? MailIcon : House;
-                const label = t(`tabs.${key}`);
-                // Opening the daily notes or the chat takes the server.
-                const unreachable = offline && key !== "home" && key !== tab;
-                return {
-                  key,
-                  label,
-                  icon: <Icon className="h-4 w-4 shrink-0" />,
-                  selected: tab === key,
-                  disabled: unreachable || (key === "journal" && openingDailyNote),
-                  title: unreachable ? needsServer(label) : undefined,
-                  count: key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) } : undefined,
-                  onClick: () => openTab(key),
-                };
-              })}
-            />
-          ) : (
-            <div className="mt-1.5">
-              <SidebarButton icon={<House className="h-4 w-4" />} href={`/w/${workspaceId}`} active={pathname === `/w/${workspaceId}`}>
-                {t("nav.home")}
-              </SidebarButton>
-            </div>
-          )}
           {/* Shown while something waits for the person, or while they are on the page. */}
           {(reviewCount > 0 || pathname === `/w/${workspaceId}/review`) && (
-            <div className="mt-0.5">
+            <div className="mb-1 px-2">
               <SidebarButton
                 icon={<ClipboardCheck className="h-4 w-4" />}
                 href={offline ? undefined : `/w/${workspaceId}/review`}
@@ -1509,151 +1561,70 @@ export function Sidebar({
             </div>
           )}
           {dailyNoteError && (
-            <p role="alert" className="mt-1 px-2 text-xs text-danger">
+            <p role="alert" className="mx-4 mb-1 text-xs text-danger">
               {dailyNoteError}
             </p>
           )}
-        </div>
-
-        {moveError && (
-          <p role="alert" className="mx-4 mb-1 text-xs text-danger">
-            {t("pages.moveFailed")}
-          </p>
-        )}
-        {actionError && (
-          <p role="alert" className="mx-4 mb-1 text-xs text-danger">
-            {actionError}
-          </p>
-        )}
-        <nav
-          ref={setNavEl}
-          className="peer flex-1 overflow-y-auto px-2 pb-2"
-          aria-label={tab === "chat" ? tAi("history") : tab === "journal" ? t("tabs.journal") : tab === "mail" ? t("tabs.mail") : t("pages.heading")}
-        >
-          {tab === "mail" ? (
-            <div className="pt-2">
-              <MailSidebar workspaceId={workspaceId} />
-            </div>
-          ) : tab === "chat" && aiChat ? (
-            <>
-              <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={newChat}>
-                {tAi("newChat")}
-              </SidebarButton>
-              {/* The same section as the home tab's (folded or not alike): an agent's page is a chat with it. */}
-              {agents.length > 0 && <div>{sectionContent.agents}</div>}
-              <div className="mt-2">
-                <ConversationList />
-              </div>
-            </>
-          ) : tab === "journal" ? (
-            <>
-              <div className="px-1 pt-2 pb-3">
-                <DailyNotesCalendar workspaceId={workspaceId} notesKey={journalNotes.map((n) => n.id).join()} />
-              </div>
-              <section aria-labelledby="journal-notes-heading" className="mb-2">
-                <h2 id="journal-notes-heading" className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">
-                  {tJournal("notes")}
-                </h2>
-                {journalNotes.length === 0 ? (
-                  <p className="px-2 py-1 text-xs text-fg-faint">{tJournal("noNotes")}</p>
-                ) : (
-                  <TreeLevel nodes={journalNotes} depth={0} {...treeProps} />
-                )}
-              </section>
-              <div className="px-2">
-                <JournalStartPicker workspaceId={workspaceId} />
-              </div>
-            </>
-          ) : customizing ? (
-            <CustomizeSections
-              sections={sidebarOrder(layout)
-                .filter((key) => (key === PAGES_SECTION ? !!pagesSpace : key === TEAMSPACES_GROUP ? showTeamspaces : key === AGENTS_SECTION ? agents.length > 0 : true))
-                .map((key) => ({ key, label: sectionLabel(key) }))}
-              hidden={hiddenSections}
-              onChange={(order, hidden) => saveLayout({ order, hidden })}
-              onDone={() => setCustomizing(false)}
-            />
-          ) : (
-            sidebarOrder(layout)
-              .filter((key) => !hiddenSections.has(key))
-              .map((key) => <Fragment key={key}>{sectionContent[key]}</Fragment>)
+          {moveError && (
+            <p role="alert" className="mx-4 mb-1 text-xs text-danger">
+              {t("pages.moveFailed")}
+            </p>
           )}
-          {tab === "home" && guest && tree.length === 0 && !topLevel && <p className="px-2 py-1.5 text-fg-muted">{t("pages.nothingShared")}</p>}
-        </nav>
-
-        {/*
-          The list fades out under the account row while there is more of it below (useMoreBelow): a
-          layer in the sidebar's color, not a mask, which would fade the row menus opened inside it too.
-        */}
-        <div aria-hidden className="pointer-events-none relative z-10 h-0 opacity-0 transition-opacity peer-data-more-below:opacity-100">
-          <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-bg-subtle" />
-        </div>
-        {/* Who is signed in, opening what is used now and then; settings and the trash beside it. */}
-        <div className="flex items-center gap-0.5 px-2 pt-1 pb-2">
-          <Popover
-            side="top"
-            className="min-w-60"
-            wrapperClassName="flex min-w-0 flex-1"
-            trigger={({ open, toggle }) => (
-              <button
-                type="button"
-                onClick={toggle}
-                aria-expanded={open}
-                onPointerEnter={() => void AccountMenu.preload()}
-                onFocus={() => void AccountMenu.preload()}
-                className={cn(
-                  "flex h-9 w-full min-w-0 items-center gap-2 rounded-md px-2 text-start hover:bg-bg-hover max-md:h-11",
-                  (open || customizing) && "bg-bg-hover",
-                )}
-              >
-                <UserAvatar name={user.name || user.email} image={user.image} size="sm" />
-                <span className="min-w-0 flex-1 truncate font-medium">{user.name || user.email}</span>
-                <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-              </button>
-            )}
-          >
-            {(close) => (
-              <AccountMenu
-                close={close}
-                workspaceId={workspaceId}
-                pathname={pathname}
-                user={user}
-                guest={guest}
-                offline={offline}
-                templates={!!topLevel}
-                customizing={customizing}
-                instanceAdmin={!!isInstanceAdmin}
-                needsServer={needsServer}
-                go={(path) => router.push(path)}
-                onTemplates={() => openTemplates(undefined)}
-                onImport={() => openImport(undefined)}
-                onCustomize={() => setCustomizing(!customizing)}
-                onShortcuts={() => setShortcutsOpen(true)}
-                onSignOut={signOut}
+          {actionError && (
+            <p role="alert" className="mx-4 mb-1 text-xs text-danger">
+              {actionError}
+            </p>
+          )}
+          <nav ref={setNavEl} className="peer flex-1 overflow-y-auto px-2 pb-2" aria-label={panelTitle}>
+            {shownTab === "mail" ? (
+              <MailSidebar workspaceId={workspaceId} />
+            ) : shownTab === "chat" && aiChat ? (
+              <ConversationList />
+            ) : shownTab === "agents" ? (
+              agentList
+            ) : shownTab === "journal" ? (
+              <>
+                <div className="px-1 pb-3">
+                  <DailyNotesCalendar workspaceId={workspaceId} notesKey={journalNotes.map((n) => n.id).join()} />
+                </div>
+                <section aria-labelledby="journal-notes-heading" className="mb-2">
+                  <h2 id="journal-notes-heading" className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">
+                    {tJournal("notes")}
+                  </h2>
+                  {journalNotes.length === 0 ? (
+                    <p className="px-2 py-1 text-xs text-fg-faint">{tJournal("noNotes")}</p>
+                  ) : (
+                    <TreeLevel nodes={journalNotes} depth={0} {...treeProps} />
+                  )}
+                </section>
+                <div className="px-2">
+                  <JournalStartPicker workspaceId={workspaceId} />
+                </div>
+              </>
+            ) : customizing ? (
+              <CustomizeSections
+                sections={sidebarOrder(layout)
+                  .filter((key) => (key === PAGES_SECTION ? !!pagesSpace : key === TEAMSPACES_GROUP ? showTeamspaces : key === AGENTS_SECTION ? agents.length > 0 : true))
+                  .map((key) => ({ key, label: sectionLabel(key) }))}
+                hidden={hiddenSections}
+                onChange={(order, hidden) => saveLayout({ order, hidden })}
+                onDone={() => setCustomizing(false)}
               />
+            ) : (
+              sidebarOrder(layout)
+                .filter((key) => !hiddenSections.has(key))
+                .map((key) => <Fragment key={key}>{sectionContent[key]}</Fragment>)
             )}
-          </Popover>
-          <Link
-            href={`/w/${workspaceId}/settings`}
-            aria-label={t("nav.settings")}
-            title={t("nav.settings")}
-            aria-current={pathname.startsWith(`/w/${workspaceId}/settings`) ? "page" : undefined}
-            className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg max-md:h-10 max-md:w-10",
-              pathname.startsWith(`/w/${workspaceId}/settings`) && "bg-bg-active text-fg hover:bg-bg-active",
-            )}
-          >
-            <Settings className="h-4 w-4" />
-          </Link>
-          <IconButton
-            label={t("nav.trash")}
-            title={needsServer(t("nav.trash")) ?? t("nav.trash")}
-            onClick={() => setTrashOpen(true)}
-            disabled={offline}
-            className="h-8 w-8 rounded-md disabled:opacity-50 max-md:h-10 max-md:w-10"
-          >
-            <Trash2 className="h-4 w-4" />
-          </IconButton>
+            {shownTab === "home" && guest && tree.length === 0 && !topLevel && <p className="px-2 py-1.5 text-fg-muted">{t("pages.nothingShared")}</p>}
+          </nav>
+
+          {/*
+            The list fades out at the panel's foot while there is more of it below (useMoreBelow): a
+            layer in the panel's color, not a mask, which would fade the row menus opened inside it too.
+          */}
+          <div aria-hidden className="pointer-events-none relative z-10 h-0 opacity-0 transition-opacity peer-data-more-below:opacity-100">
+            <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-bg" />
+          </div>
         </div>
       </aside>
       {/* Outside the aside: its slide transform would otherwise anchor these fixed dialogs. */}
@@ -2112,124 +2083,6 @@ function ResizeHandle() {
       onDoubleClick={() => sidebar.setWidth(SIDEBAR_WIDTH.default, true)}
       className="absolute inset-y-0 -inset-e-1 z-10 hidden w-2 cursor-col-resize after:absolute after:inset-y-0 after:inset-s-[3px] after:w-0.5 after:transition-colors hover:after:bg-accent/60 md:block"
     />
-  );
-}
-
-/**
- * The sidebar's tabs, as wide as what they show, so their icons line up with the rows under them:
- * the open one with its name beside its icon, the others only their icons (their names in a
- * tooltip). Pointing at a tab never changes its width: a tab that widened under the pointer moved
- * the others under it too, and a pointer resting near a tab's edge flipped between two tabs for as
- * long as it stayed. The open one's name shows only where all of it fits beside the others' icons,
- * decided from the strip's width (the sidebar's, whatever the tabs show) and the name's own width.
- */
-const countText = (count: number) => (count > 99 ? "99+" : String(count));
-
-function SidebarTabs({
-  label,
-  tabs,
-}: {
-  label: string;
-  tabs: {
-    key: string;
-    label: string;
-    icon: React.ReactNode;
-    selected: boolean;
-    disabled?: boolean;
-    title?: string;
-    /** A count on the icon's corner (unread mail), with its words for screen readers. */
-    count?: { value: number; label: string };
-    onClick: () => void;
-  }[];
-}) {
-  const listRef = useRef<HTMLDivElement>(null);
-  const [nameFits, setNameFits] = useState(true);
-  // What the open tab's name needs: measured again when the tab, a name or a count changes.
-  const measureKey = tabs.map((tab) => `${tab.selected ? "*" : ""}${tab.label}${tab.count ? countText(tab.count.value) : ""}`).join("|");
-  useLayoutEffect(() => {
-    const list = listRef.current;
-    if (!list) return;
-    const check = () => {
-      const tab = list.querySelector<HTMLElement>("[aria-selected=true]");
-      const icon = tab?.firstElementChild;
-      const name = tab?.querySelector<HTMLElement>("[data-tab-name]");
-      if (!tab || !icon || !name) return;
-      // An icon-only tab's width from its padding and icon, never from a tab, whose width may be
-      // on its way between the two.
-      const style = getComputedStyle(tab);
-      const iconTab = parseFloat(style.paddingInlineStart) + parseFloat(style.paddingInlineEnd) + icon.getBoundingClientRect().width;
-      const gap = parseFloat(getComputedStyle(list).columnGap) || 0;
-      const count = list.children.length;
-      setNameFits(list.clientWidth >= count * iconTab + (count - 1) * gap + name.offsetWidth);
-    };
-    check();
-    const observer = new ResizeObserver(check);
-    observer.observe(list);
-    void document.fonts?.ready.then(check);
-    return () => observer.disconnect();
-  }, [measureKey]);
-
-  return (
-    <div ref={listRef} role="tablist" aria-label={label} className="mt-0.5 flex gap-0.5">
-      {tabs.map((tab) => {
-        const named = tab.selected && nameFits;
-        return (
-          <button
-            key={tab.key}
-            type="button"
-            role="tab"
-            aria-selected={tab.selected}
-            onClick={tab.onClick}
-            disabled={tab.disabled}
-            title={tab.title ?? (named ? undefined : tab.label)}
-            className={cn(
-              "group/tab flex h-7 min-w-0 items-center rounded-md px-2 disabled:opacity-50",
-              tab.selected ? "bg-bg-active font-medium text-fg" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
-            )}
-          >
-            {tab.count ? (
-              <span className="relative flex shrink-0">
-                {tab.icon}
-                {/* On the icon's corner while the name is folded away, ringed in the tab's own color so
-                    it doesn't blur into the icon; beside the name while that shows. */}
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute -end-1.5 -top-1.5 min-w-3.5 rounded-full bg-danger px-[3px] text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums ring-2 transition-opacity duration-200 ease-out motion-reduce:transition-none",
-                    tab.selected ? "ring-bg-active" : "ring-bg-subtle group-hover/tab:ring-bg-hover",
-                    named && "opacity-0",
-                  )}
-                >
-                  {countText(tab.count.value)}
-                </span>
-                <span className="sr-only">{tab.count.label}</span>
-              </span>
-            ) : (
-              tab.icon
-            )}
-            {/* A column that opens from nothing to the name's width while the name fades in, so the
-                name slides in whole: it is clipped on the way, never cut short with an ellipsis. */}
-            <span
-              className={cn(
-                "grid min-w-0 transition-[grid-template-columns,opacity] duration-200 ease-out motion-reduce:transition-none",
-                named ? "grid-cols-[1fr] opacity-100" : "grid-cols-[0fr] opacity-0",
-              )}
-            >
-              <span className="min-w-0 overflow-hidden">
-                <span data-tab-name="" className="flex w-max items-center gap-1.5 ps-1.5 whitespace-nowrap">
-                  {tab.label}
-                  {tab.count && (
-                    <span aria-hidden className="min-w-4 shrink-0 rounded-full bg-danger px-1 text-center text-[10px] leading-4 font-semibold text-white tabular-nums">
-                      {countText(tab.count.value)}
-                    </span>
-                  )}
-                </span>
-              </span>
-            </span>
-          </button>
-        );
-      })}
-    </div>
   );
 }
 
