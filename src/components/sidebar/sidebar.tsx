@@ -128,6 +128,12 @@ type Workspace = { id: string; name: string; icon: string | null; role: string }
 const EXPANDED_KEY = "leafdesk:expanded";
 /** Teamspaces the user opened: like pages, a teamspace stays closed until opened. */
 const OPEN_TEAMSPACES_KEY = "leafdesk:open-teamspaces";
+/**
+ * A section that is one row without a heading (My tasks, Meetings): spaced like a section, except
+ * that it sits right under the tabs when first and 1px under another such row.
+ */
+const plainRowClass = "mt-3 first:mt-0 [[data-row]+&]:mt-px";
+
 const TEAMSPACES_GROUP: SidebarSection = "teamspaces";
 const FAVORITES_SECTION: SidebarSection = "favorites";
 const PAGES_SECTION: SidebarSection = "pages";
@@ -971,14 +977,14 @@ export function Sidebar({
       </SectionGroup>
     ),
     tasks: (
-      <div className="mb-px">
+      <div data-row className={plainRowClass}>
         <SidebarButton icon={<ListTodo className="h-4 w-4" />} href={`/w/${workspaceId}/tasks`} active={pathname === `/w/${workspaceId}/tasks`}>
           {t("sections.tasks")}
         </SidebarButton>
       </div>
     ),
     meetings: (
-      <div className="mb-px">
+      <div data-row className={plainRowClass}>
         <SidebarButton icon={<NotebookPen className="h-4 w-4" />} href={`/w/${workspaceId}/meetings`} active={pathname === `/w/${workspaceId}/meetings`}>
           {t("sections.meetings")}
         </SidebarButton>
@@ -1234,7 +1240,8 @@ export function Sidebar({
       >
         {sidebar && !sidebar.collapsed && <ResizeHandle />}
         <LinkMenu menu={linkMenu} onClose={() => setLinkMenu(null)} />
-        <div className="p-2">
+        {/* 4px under the tabs: a plain row first in the list joins this block, a section's heading adds its own. */}
+        <div className="p-2 pb-1">
           <div className="group/head flex items-center gap-1">
             <Popover
               trigger={({ toggle }) => (
@@ -1508,7 +1515,6 @@ export function Sidebar({
           )}
         </div>
 
-        <div className="pt-1" />
         {moveError && (
           <p role="alert" className="mx-4 mb-1 text-xs text-danger">
             {t("pages.moveFailed")}
@@ -1525,21 +1531,23 @@ export function Sidebar({
           aria-label={tab === "chat" ? tAi("history") : tab === "journal" ? t("tabs.journal") : tab === "mail" ? t("tabs.mail") : t("pages.heading")}
         >
           {tab === "mail" ? (
-            <MailSidebar workspaceId={workspaceId} />
+            <div className="pt-2">
+              <MailSidebar workspaceId={workspaceId} />
+            </div>
           ) : tab === "chat" && aiChat ? (
             <>
               <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={newChat}>
                 {tAi("newChat")}
               </SidebarButton>
               {/* The same section as the home tab's (folded or not alike): an agent's page is a chat with it. */}
-              {agents.length > 0 && <div className="mt-2">{sectionContent.agents}</div>}
+              {agents.length > 0 && <div>{sectionContent.agents}</div>}
               <div className="mt-2">
                 <ConversationList />
               </div>
             </>
           ) : tab === "journal" ? (
             <>
-              <div className="px-1 pt-1 pb-3">
+              <div className="px-1 pt-2 pb-3">
                 <DailyNotesCalendar workspaceId={workspaceId} notesKey={journalNotes.map((n) => n.id).join()} />
               </div>
               <section aria-labelledby="journal-notes-heading" className="mb-2">
@@ -1881,7 +1889,7 @@ function SectionGroup({
 }) {
   const { over, handlers } = useRootDrop(drop);
   return (
-    <section className="mb-1 not-first:mt-3" aria-label={label}>
+    <section className="mt-3 mb-1 first:mt-2" aria-label={label}>
       <div
         {...handlers}
         className={cn("group/section flex h-7 items-center rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}

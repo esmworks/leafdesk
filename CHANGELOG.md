@@ -12,6 +12,9 @@
 
 ### Changed
 
+- **My tasks and Meetings sit with the sidebar's tabs.** A section that is one row without a
+  heading joins the block under the search box when it comes first, instead of floating between it
+  and the first heading, and keeps a section's distance when it follows one.
 - **The search box is quieter and shows where you have been.** Its filters sit in one row of
   plain words with *Include archived* beside them, the pages you opened last are listed under
   *Today*, *Yesterday*, *Previous 7 days* and *Older* with the page or database each sits in, and

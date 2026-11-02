@@ -38,7 +38,7 @@ export function CustomizeSections({
     onChange(keys, hidden.has(key) ? [...hidden].filter((k) => k !== key) : [...hidden, key]);
 
   return (
-    <div className="px-1 pt-1">
+    <div className="px-1 pt-2">
       <p className="px-1 pb-1.5 text-xs text-fg-muted">{t("heading")}</p>
       <ul className="space-y-px">
         {sections.map(({ key, label }, i) => {
