@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Ouvrir la barre latérale",
     "close": "Masquer la barre latérale",
-    "resize": "Faites glisser pour redimensionner",
-    "pin": "Garder la barre latérale ouverte"
+    "resize": "Faites glisser pour redimensionner"
   },
   "pages": {
     "heading": "Pages",

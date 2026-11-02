@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Avaa sivupalkki",
     "close": "Piilota sivupalkki",
-    "resize": "Muuta kokoa vetämällä",
-    "pin": "Pidä sivupalkki auki"
+    "resize": "Muuta kokoa vetämällä"
   },
   "pages": {
     "heading": "Sivut",

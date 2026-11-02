@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Abrir barra lateral",
     "close": "Ocultar barra lateral",
-    "resize": "Arrastra para cambiar el tamaño",
-    "pin": "Mantener la barra lateral abierta"
+    "resize": "Arrastra para cambiar el tamaño"
   },
   "pages": {
     "heading": "Páginas",

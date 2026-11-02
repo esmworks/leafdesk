@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Zijbalk openen",
     "close": "Zijbalk verbergen",
-    "resize": "Sleep om de grootte te wijzigen",
-    "pin": "Zijbalk open houden"
+    "resize": "Sleep om de grootte te wijzigen"
   },
   "pages": {
     "heading": "Pagina’s",

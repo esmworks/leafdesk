@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Apri la barra laterale",
     "close": "Nascondi la barra laterale",
-    "resize": "Trascina per ridimensionare",
-    "pin": "Tieni aperta la barra laterale"
+    "resize": "Trascina per ridimensionare"
   },
   "pages": {
     "heading": "Pagine",

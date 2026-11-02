@@ -1788,9 +1788,10 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
  * preload sets <html data-window-controls>; data-full-screen when macOS hides the buttons). Newer
  * versions put the buttons in their own tab strip and mark it data-desktop-app (and, on macOS,
  * data-tab-strip: below).
- * The sidebar's rail and panel, and the navigation that takes the sidebar's place in settings and
- * admin, start below them; a header the buttons would cover (no open panel beside it, or the
- * sidebar on the right) leaves their width free. The region dragging the window is a strip over the whole width (the root
+ * The sidebar's workspace strip holds them at its start, over the rail and the panel (with the
+ * panel hidden, they sit over the strip and its workspace button goes below them); the navigation
+ * that takes the sidebar's place in settings and admin starts below them; a header the buttons
+ * would cover (no open panel beside it, or the sidebar on the right) leaves their width free. The region dragging the window is a strip over the whole width (the root
  * layout's data-window-drag); what can be clicked or typed in there is cut out of it.
  */
 :root {
@@ -1820,8 +1821,11 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
     :is(button, a[href], input, textarea, select, label, summary, [contenteditable="true"], [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="separator"]) {
     -webkit-app-region: no-drag;
   }
-  &:not([dir="rtl"]) :is([data-sidebar]:not(:has(> [data-sidebar-rail])), [data-sidebar-rail], [data-sidebar-panel]) {
+  &:not([dir="rtl"]) [data-sidebar]:not(:has([data-sidebar-strip])) {
     padding-top: var(--window-controls-height);
+  }
+  &:not([dir="rtl"]) [data-sidebar-strip] {
+    padding-inline-start: var(--window-controls-width);
   }
   /* Right to left the sidebar and a database row's panel take the other side. */
   &[dir="rtl"] [data-window-controls-clear],
@@ -1830,9 +1834,12 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
   }
 }
 @media (min-width: 768px) {
-  /* Hidden, the panel slides out below the header row; beside the rail alone a header leaves only what the buttons take past it. */
-  :root[data-window-controls]:not([data-full-screen]) [data-sidebar]:not([data-sidebar-open]) [data-sidebar-panel] {
-    padding-top: 0;
+  /* The panel hidden, the strip is the rail's width: the buttons take its top, and beside it a header leaves only what they take past it. */
+  :root[data-window-controls]:not([data-full-screen], [dir="rtl"]) [data-sidebar]:not([data-sidebar-open]) [data-sidebar-strip] {
+    height: auto;
+    padding-inline-start: 0;
+    padding-top: var(--window-controls-height);
+    padding-bottom: 0.375rem;
   }
   :root[data-window-controls]:not([data-full-screen], [dir="rtl"]):has([data-sidebar-rail]):not(:has([data-sidebar-open])) main [data-window-controls-clear] {
     padding-left: calc(var(--window-controls-width) - 2.75rem);
@@ -1851,8 +1858,9 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
  * window's full height, and the tab strip, a view of the app's own, lies over the top of the rest
  * of the page, where it was told (components/desktop-tab-strip.tsx). What sits beside the sidebar
  * starts below the strip, panels fixed to the window's edge too (their top is --app-top). The
- * window's buttons sit over the top of the sidebar's rail (and of its panel, when open), which
- * start below them, and that row moves the window, as in the versions before tabs above.
+ * window's buttons sit at the start of the sidebar's workspace strip, and that row moves the
+ * window, as in the versions before tabs above; with the panel hidden the tab strip starts at the
+ * window's edge, over the rail's top, and the workspace strip below it.
  * That row alone: the strip moves the window over the rest, and Electron on macOS gathers every
  * view's regions, so one of the page's under the strip would take the strip's buttons' clicks
  * (--tab-strip-start, from desktop-tab-strip.tsx). Pages without a sidebar, and phone-sized
@@ -1899,8 +1907,23 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
       :is(button, a[href], input, textarea, select, label, summary, [contenteditable="true"], [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="separator"]) {
       -webkit-app-region: no-drag;
     }
-    :is([data-sidebar]:not(:has(> [data-sidebar-rail])), [data-sidebar-rail], [data-sidebar][data-sidebar-open] [data-sidebar-panel]) {
+    [data-sidebar]:not(:has([data-sidebar-strip])) {
       padding-top: var(--window-controls-height);
+    }
+    /* With the tab strip it makes one row: its line under it continues the strip's, drawn just
+       below --app-top, and no line stands between them. */
+    [data-sidebar][data-sidebar-open] [data-sidebar-strip] {
+      height: calc(var(--window-controls-height) + 1px);
+      border-inline-end-color: transparent;
+      padding-inline-start: var(--window-controls-width);
+    }
+    /* With the panel hidden the tab strip runs from the window's edge, over the rail's top: the
+       workspace strip starts below it, carrying the line under the strip on over the rail. */
+    [data-sidebar]:not([data-sidebar-open]) [data-sidebar-strip] {
+      height: auto;
+      margin-top: var(--window-controls-height);
+      border-top: 1px solid var(--color-border);
+      padding-block: 0.375rem;
     }
   }
 }

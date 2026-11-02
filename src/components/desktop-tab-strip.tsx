@@ -6,7 +6,7 @@ import { useEffect } from "react";
  * The desktop app on macOS (`<html data-tab-strip>`, set by its preload) lays its tab strip over
  * the page beside the sidebar, which runs the window's full height (globals.css). This tells it
  * where: `<html data-tab-strip-room="left right">`, what the sidebar takes of the page's width at
- * its left and right edges in CSS pixels (its rail, and its panel while that is open), or "none"
+ * its left and right edges in CSS pixels (its rail and panel; none with the panel hidden), or "none"
  * on pages without a sidebar and in phone-sized windows, where the strip goes above the page.
  * On every system it also tells the strip, which the page can't draw over, the shade a dialog's
  * backdrop lays over the window (`[data-window-shade]`): `<html data-tab-strip-shade="<color>">`.
@@ -61,9 +61,12 @@ export function DesktopTabStrip() {
       let left = 0;
       let right = 0;
       if (sidebar && wide.matches) {
-        // A hidden panel floats over the page: the sidebar's own box is then its rail alone.
-        const box = getComputedStyle(sidebar).position !== "fixed" ? sidebar.getBoundingClientRect() : null;
+        // With the panel hidden, the strip starts at the window's edge beside the window's buttons,
+        // over the rail's top, which starts below it (globals.css); right to left the buttons are
+        // on the other side, so the rail keeps its room there.
         const rtl = root.dir === "rtl";
+        const hidden = !sidebar.hasAttribute("data-sidebar-open") && !rtl;
+        const box = getComputedStyle(sidebar).position !== "fixed" && !hidden ? sidebar.getBoundingClientRect() : null;
         left = Math.max(0, Math.round(box && !rtl ? box.right : 0));
         right = Math.max(0, Math.round(box && rtl ? window.innerWidth - box.left : 0));
         room = `${left} ${right}`;

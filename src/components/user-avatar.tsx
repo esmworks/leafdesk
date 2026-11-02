@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useState, type CSSProperties } from "react";
 import { avatarSrc } from "@/lib/avatar";
 import { initialOf } from "@/lib/presence";
@@ -34,6 +35,7 @@ export function UserAvatar({
   style?: CSSProperties;
   title?: string;
 }) {
+  const locale = useLocale();
   const src = avatarSrc(image);
   const [failed, setFailed] = useState<string | null>(null);
   const base = cn("relative flex shrink-0 items-center justify-center overflow-hidden rounded-full font-medium", SIZES[size]);
@@ -53,7 +55,7 @@ export function UserAvatar({
   }
   return (
     <span aria-hidden title={title} className={cn(base, colors, className)} style={style}>
-      {initialOf(name)}
+      {initialOf(name, locale)}
     </span>
   );
 }

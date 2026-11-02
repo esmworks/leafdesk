@@ -3,7 +3,7 @@
 import { AlertOctagon, Archive, Clock, Folder, Inbox, Mails, Send, Star, FileText, Trash2, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useCallback } from "react";
 import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn } from "@/components/ui";
@@ -63,9 +63,10 @@ function StarredLink({ href, label, active, onPick }: { href: string; label: str
 /** A mailbox's letter, in a color of its own from its address. */
 export function MailboxMark({ address, className }: { address: string; className?: string }) {
   const color = userColor(address);
+  const locale = useLocale();
   return (
     <span aria-hidden className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded text-[10px] font-semibold", className)} style={{ background: color, color: textOn(color) }}>
-      {initialOf(address)}
+      {initialOf(address, locale)}
     </span>
   );
 }

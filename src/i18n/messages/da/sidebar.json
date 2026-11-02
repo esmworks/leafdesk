@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Åbn sidepanel",
     "close": "Skjul sidepanel",
-    "resize": "Træk for at ændre størrelse",
-    "pin": "Hold sidepanelet åbent"
+    "resize": "Træk for at ændre størrelse"
   },
   "pages": {
     "heading": "Sider",

@@ -7,8 +7,6 @@ import {
   CalendarCheck,
   ChevronDown,
   ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   ChevronUp,
   ClipboardCheck,
   NotebookPen,
@@ -29,6 +27,8 @@ import {
   Mail as MailIcon,
   MessagesSquare,
   MoreHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
   Pencil,
   Plus,
   ScrollText,
@@ -578,6 +578,8 @@ export function Sidebar({
 
   // Desktop, the panel hidden: what a rail item shows while the panel peeks out beside it.
   const collapsed = !!sidebar?.collapsed;
+  // The panel beside the rail: pinned open, or in a phone's open drawer.
+  const panelShown = !collapsed || !!sidebar?.drawerOpen;
   const [peekTab, setPeekTab] = useState<SidebarTab | null>(null);
   const shownTab = (collapsed && peekTab) || tab;
   const peekTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -1337,7 +1339,7 @@ export function Sidebar({
         style={{ "--sidebar-w": `${sidebar?.width ?? 256}px` } as React.CSSProperties}
         onMouseLeave={collapsed ? sidebar?.hidePeek : undefined}
         className={cn(
-          "relative flex shrink-0 text-sm select-none",
+          "relative flex shrink-0 flex-col text-sm select-none",
           "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:w-[min(21rem,90vw)] max-md:shadow-xl",
           !sidebar?.drawerOpen && "max-md:hidden",
           // Phones: rows and their buttons grow from 28px to 36px so they are easy to tap.
@@ -1345,27 +1347,35 @@ export function Sidebar({
         )}
       >
         <LinkMenu menu={linkMenu} onClose={() => setLinkMenu(null)} />
+        {/* The workspace, over the rail and the panel: its name and the menu to change it. */}
         <div
-          data-sidebar-rail
+          data-sidebar-strip
           className={cn(
-            "flex w-11 shrink-0 flex-col items-center gap-1 bg-bg-subtle pt-2 pb-2 max-md:w-13 max-md:pb-[calc(var(--safe-bottom)+0.5rem)]",
-            // Alone beside the page, its edge is drawn; beside the panel, the panel's own surface is that edge.
-            collapsed && "md:border-e md:border-border",
+            "flex h-11 shrink-0 items-center border-e border-b border-border bg-bg px-1.5 max-md:h-14",
+            // Beside the hidden panel it is the rail's top: its color, no line under it.
+            collapsed && "md:justify-center md:border-b-transparent md:bg-bg-subtle md:px-0",
           )}
         >
           <Popover
+            wrapperClassName={cn("relative flex min-w-0", !collapsed && "flex-1", collapsed && "max-md:flex-1")}
             trigger={({ open, toggle }) => (
               <button
                 type="button"
                 onClick={toggle}
                 aria-expanded={open}
-                aria-label={workspace?.name}
                 title={workspace?.name}
-                className={cn(railItemClass, open && "bg-bg-hover")}
+                className={cn(
+                  "flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md ps-1.5 pe-2 font-medium text-fg hover:bg-bg-hover max-md:h-10",
+                  // Beside the hidden panel only the rail's width is left: the workspace's icon alone.
+                  collapsed && "md:w-8 md:flex-none md:justify-center md:px-0",
+                  open && "bg-bg-hover",
+                )}
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-fg text-xs font-semibold text-bg max-md:h-7 max-md:w-7">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-fg text-xs font-semibold text-bg max-md:h-7 max-md:w-7">
                   {workspace?.icon ?? workspace?.name.slice(0, 1).toUpperCase()}
                 </span>
+                <span className={cn("min-w-0 truncate", collapsed && "md:sr-only")}>{workspace?.name}</span>
+                <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-fg-muted", collapsed && "md:hidden")} />
               </button>
             )}
             className="w-64"
@@ -1412,218 +1422,219 @@ export function Sidebar({
               </>
             )}
           </Popover>
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            disabled={offline}
-            aria-label={t("nav.search")}
-            title={needsServer(t("nav.search")) ?? `${t("nav.search")} (⌘K)`}
-            className={cn(railItemClass, "mt-1")}
+        </div>
+        <div className="flex min-h-0 flex-1">
+          <div
+            data-sidebar-rail
+            className={cn(
+              "flex w-11 shrink-0 flex-col items-center gap-1 bg-bg-subtle pt-2 pb-2 max-md:w-13 max-md:pb-[calc(var(--safe-bottom)+0.5rem)]",
+              // Alone beside the page, its edge is drawn; beside the panel, the panel's own surface is that edge.
+              collapsed && "md:border-e md:border-border",
+            )}
           >
-            <Search className={railIconClass} />
-          </button>
-          <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none]">
-            <RailTabs label={t("tabs.label")} tabs={railTabs} />
-          </div>
-          <button
-            type="button"
-            onClick={() => setInboxOpen(true)}
-            disabled={offline}
-            aria-label={unread > 0 ? `${t("nav.inbox")} · ${t("inbox.unreadCount", { count: unread })}` : t("nav.inbox")}
-            title={needsServer(t("nav.inbox")) ?? t("nav.inbox")}
-            className={cn(railItemClass, inboxOpen && railSelectedClass)}
-          >
-            <Inbox className={railIconClass} />
-            {unread > 0 && <RailCount value={unread} tone="accent" selected={inboxOpen} />}
-          </button>
-          <Link
-            href={`/w/${workspaceId}/settings`}
-            aria-label={t("nav.settings")}
-            title={t("nav.settings")}
-            aria-current={onSettings ? "page" : undefined}
-            className={cn(railItemClass, onSettings && railSelectedClass)}
-          >
-            <Settings className={railIconClass} />
-          </Link>
-          {/* Who is signed in, opening what is used now and then. */}
-          <Popover
-            side="top"
-            className="min-w-60"
-            trigger={({ open, toggle }) => (
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              disabled={offline}
+              aria-label={t("nav.search")}
+              title={needsServer(t("nav.search")) ?? `${t("nav.search")} (⌘K)`}
+              className={railItemClass}
+            >
+              <Search className={railIconClass} />
+            </button>
+            <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none]">
+              <RailTabs label={t("tabs.label")} tabs={railTabs} />
+            </div>
+            {/* Hides the panel or brings it back, in the same place either way (⌘\ too); on phones it closes the drawer. */}
+            {sidebar && (
               <button
                 type="button"
-                onClick={toggle}
-                aria-expanded={open}
-                aria-label={user.name || user.email}
-                title={user.name || user.email}
-                onPointerEnter={() => void AccountMenu.preload()}
-                onFocus={() => void AccountMenu.preload()}
-                className={cn(railItemClass, (open || customizing) && "bg-bg-hover")}
+                onClick={sidebar.toggle}
+                aria-label={panelShown ? t("toggle.close") : t("toggle.open")}
+                title={`${panelShown ? t("toggle.close") : t("toggle.open")} (⌘\\)`}
+                className={railItemClass}
               >
-                <UserAvatar name={user.name || user.email} image={user.image} size="sm" />
+                {panelShown ? (
+                  <PanelLeftClose className={cn(railIconClass, "rtl:-scale-x-100")} />
+                ) : (
+                  <PanelLeftOpen className={cn(railIconClass, "rtl:-scale-x-100")} />
+                )}
               </button>
             )}
-          >
-            {(close) => (
-              <AccountMenu
-                close={close}
-                workspaceId={workspaceId}
-                pathname={pathname}
-                user={user}
-                guest={guest}
-                offline={offline}
-                templates={!!topLevel}
-                customizing={customizing}
-                instanceAdmin={!!isInstanceAdmin}
-                needsServer={needsServer}
-                go={(path) => router.push(path)}
-                onTemplates={() => openTemplates(undefined)}
-                onImport={() => openImport(undefined)}
-                onTrash={() => setTrashOpen(true)}
-                onCustomize={() => {
-                  // Arranged where they show: the pages tab, open.
-                  if (!customizing) {
-                    setTab("home");
-                    sidebar?.expand();
-                  }
-                  setCustomizing(!customizing);
-                }}
-                onShortcuts={() => setShortcutsOpen(true)}
-                onSignOut={signOut}
-              />
-            )}
-          </Popover>
-        </div>
-
-        <div
-          data-sidebar-panel
-          onMouseEnter={collapsed ? sidebar?.showPeek : undefined}
-          className={cn(
-            "relative flex min-w-0 flex-col border-e border-border bg-bg max-md:flex-1 max-md:pb-(--safe-bottom) md:w-[var(--sidebar-w)]",
-            collapsed &&
-              "md:fixed md:top-12 md:bottom-3 md:inset-s-11 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,opacity,visibility] md:duration-200 md:ease-out",
-            collapsed && (sidebar?.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-2 md:opacity-0 md:rtl:translate-x-2"),
-          )}
-        >
-          {sidebar && !sidebar.collapsed && <ResizeHandle />}
-          <div className="group/head flex h-12 shrink-0 items-center gap-1 ps-4 pe-2 max-md:h-14">
-            <h2 className="min-w-0 flex-1 truncate font-medium">{panelTitle}</h2>
-            <div className="flex shrink-0 items-center gap-0.5">
-              {headActions}
-              {sidebar &&
-                (sidebar.collapsed ? (
-                  // Floating over the page: offer to pin it back (desktop only; phones use the drawer).
-                  <IconButton
-                    label={t("toggle.pin")}
-                    title={`${t("toggle.pin")} (⌘\\)`}
-                    onClick={sidebar.toggle}
-                    className="hidden h-7 w-7 md:inline-flex"
-                  >
-                    <ChevronsRight className="h-4 w-4 rtl:-scale-x-100" />
-                  </IconButton>
-                ) : null)}
-              {sidebar && (
-                <IconButton
-                  data-sidebar-hide
-                  label={t("toggle.close")}
-                  title={`${t("toggle.close")} (⌘\\)`}
-                  onClick={sidebar.toggle}
-                  className={cn(
-                    "h-7 w-7 md:hidden md:group-hover/head:inline-flex md:focus-visible:inline-flex",
-                    sidebar.collapsed && "md:!hidden",
-                  )}
+            <button
+              type="button"
+              onClick={() => setInboxOpen(true)}
+              disabled={offline}
+              aria-label={unread > 0 ? `${t("nav.inbox")} · ${t("inbox.unreadCount", { count: unread })}` : t("nav.inbox")}
+              title={needsServer(t("nav.inbox")) ?? t("nav.inbox")}
+              className={cn(railItemClass, inboxOpen && railSelectedClass)}
+            >
+              <Inbox className={railIconClass} />
+              {unread > 0 && <RailCount value={unread} tone="accent" selected={inboxOpen} />}
+            </button>
+            <Link
+              href={`/w/${workspaceId}/settings`}
+              aria-label={t("nav.settings")}
+              title={t("nav.settings")}
+              aria-current={onSettings ? "page" : undefined}
+              className={cn(railItemClass, onSettings && railSelectedClass)}
+            >
+              <Settings className={railIconClass} />
+            </Link>
+            {/* Who is signed in, opening what is used now and then. */}
+            <Popover
+              side="top"
+              className="min-w-60"
+              trigger={({ open, toggle }) => (
+                <button
+                  type="button"
+                  onClick={toggle}
+                  aria-expanded={open}
+                  aria-label={user.name || user.email}
+                  title={user.name || user.email}
+                  onPointerEnter={() => void AccountMenu.preload()}
+                  onFocus={() => void AccountMenu.preload()}
+                  className={cn(railItemClass, (open || customizing) && "bg-bg-hover")}
                 >
-                  <ChevronsLeft className="h-4 w-4 rtl:-scale-x-100" />
-                </IconButton>
+                  <UserAvatar name={user.name || user.email} image={user.image} size="sm" />
+                </button>
               )}
-            </div>
+            >
+              {(close) => (
+                <AccountMenu
+                  close={close}
+                  workspaceId={workspaceId}
+                  pathname={pathname}
+                  user={user}
+                  guest={guest}
+                  offline={offline}
+                  templates={!!topLevel}
+                  customizing={customizing}
+                  instanceAdmin={!!isInstanceAdmin}
+                  needsServer={needsServer}
+                  go={(path) => router.push(path)}
+                  onTemplates={() => openTemplates(undefined)}
+                  onImport={() => openImport(undefined)}
+                  onTrash={() => setTrashOpen(true)}
+                  onCustomize={() => {
+                    // Arranged where they show: the pages tab, open.
+                    if (!customizing) {
+                      setTab("home");
+                      sidebar?.expand();
+                    }
+                    setCustomizing(!customizing);
+                  }}
+                  onShortcuts={() => setShortcutsOpen(true)}
+                  onSignOut={signOut}
+                />
+              )}
+            </Popover>
           </div>
 
-          {offline && (
-            <p role="status" className="mx-2 mb-1 flex items-center gap-2 px-2 py-1 text-xs text-fg-muted" title={tOffline("hint")}>
-              <CloudOff className="h-3.5 w-3.5 shrink-0" />
-              {tOffline("banner")}
-            </p>
-          )}
-          {/* Shown while something waits for the person, or while they are on the page. */}
-          {(reviewCount > 0 || pathname === `/w/${workspaceId}/review`) && (
-            <div className="mb-1 px-2">
-              <SidebarButton
-                icon={<ClipboardCheck className="h-4 w-4" />}
-                href={offline ? undefined : `/w/${workspaceId}/review`}
-                active={pathname === `/w/${workspaceId}/review`}
-                disabled={offline}
-                title={offline ? needsServer(t("nav.review")) : undefined}
-                badge={reviewCount > 0 ? { count: reviewCount, label: t("nav.reviewCount", { count: reviewCount }) } : undefined}
-              >
-                {t("nav.review")}
-              </SidebarButton>
-            </div>
-          )}
-          {dailyNoteError && (
-            <p role="alert" className="mx-4 mb-1 text-xs text-danger">
-              {dailyNoteError}
-            </p>
-          )}
-          {moveError && (
-            <p role="alert" className="mx-4 mb-1 text-xs text-danger">
-              {t("pages.moveFailed")}
-            </p>
-          )}
-          {actionError && (
-            <p role="alert" className="mx-4 mb-1 text-xs text-danger">
-              {actionError}
-            </p>
-          )}
-          <nav ref={setNavEl} className="peer flex-1 overflow-y-auto px-2 pb-2" aria-label={panelTitle}>
-            {shownTab === "mail" ? (
-              <MailSidebar workspaceId={workspaceId} />
-            ) : shownTab === "chat" && aiChat ? (
-              <ConversationList />
-            ) : shownTab === "agents" ? (
-              agentList
-            ) : shownTab === "journal" ? (
-              <>
-                <div className="px-1 pb-3">
-                  <DailyNotesCalendar workspaceId={workspaceId} notesKey={journalNotes.map((n) => n.id).join()} />
-                </div>
-                <section aria-labelledby="journal-notes-heading" className="mb-2">
-                  <h2 id="journal-notes-heading" className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">
-                    {tJournal("notes")}
-                  </h2>
-                  {journalNotes.length === 0 ? (
-                    <p className="px-2 py-1 text-xs text-fg-faint">{tJournal("noNotes")}</p>
-                  ) : (
-                    <TreeLevel nodes={journalNotes} depth={0} {...treeProps} />
-                  )}
-                </section>
-                <div className="px-2">
-                  <JournalStartPicker workspaceId={workspaceId} />
-                </div>
-              </>
-            ) : customizing ? (
-              <CustomizeSections
-                sections={sidebarOrder(layout)
-                  .filter((key) => (key === PAGES_SECTION ? !!pagesSpace : key === TEAMSPACES_GROUP ? showTeamspaces : key === AGENTS_SECTION ? agents.length > 0 : true))
-                  .map((key) => ({ key, label: sectionLabel(key) }))}
-                hidden={hiddenSections}
-                onChange={(order, hidden) => saveLayout({ order, hidden })}
-                onDone={() => setCustomizing(false)}
-              />
-            ) : (
-              sidebarOrder(layout)
-                .filter((key) => !hiddenSections.has(key))
-                .map((key) => <Fragment key={key}>{sectionContent[key]}</Fragment>)
+          <div
+            data-sidebar-panel
+            onMouseEnter={collapsed ? sidebar?.showPeek : undefined}
+            className={cn(
+              "relative flex min-w-0 flex-col border-e border-border bg-bg max-md:flex-1 max-md:pb-(--safe-bottom) md:w-[var(--sidebar-w)]",
+              collapsed &&
+                "md:fixed md:top-12 md:bottom-3 md:inset-s-11 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,opacity,visibility] md:duration-200 md:ease-out",
+              collapsed && (sidebar?.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-2 md:opacity-0 md:rtl:translate-x-2"),
             )}
-            {shownTab === "home" && guest && tree.length === 0 && !topLevel && <p className="px-2 py-1.5 text-fg-muted">{t("pages.nothingShared")}</p>}
-          </nav>
+          >
+            {sidebar && !sidebar.collapsed && <ResizeHandle />}
+            <div className="flex h-12 shrink-0 items-center gap-1 ps-4 pe-2 max-md:h-14">
+              <h2 className="min-w-0 flex-1 truncate font-medium">{panelTitle}</h2>
+              <div className="flex shrink-0 items-center gap-0.5">
+                {headActions}
+              </div>
+            </div>
 
-          {/*
-            The list fades out at the panel's foot while there is more of it below (useMoreBelow): a
-            layer in the panel's color, not a mask, which would fade the row menus opened inside it too.
-          */}
-          <div aria-hidden className="pointer-events-none relative z-10 h-0 opacity-0 transition-opacity peer-data-more-below:opacity-100">
-            <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-bg" />
+            {offline && (
+              <p role="status" className="mx-2 mb-1 flex items-center gap-2 px-2 py-1 text-xs text-fg-muted" title={tOffline("hint")}>
+                <CloudOff className="h-3.5 w-3.5 shrink-0" />
+                {tOffline("banner")}
+              </p>
+            )}
+            {/* Shown while something waits for the person, or while they are on the page. */}
+            {(reviewCount > 0 || pathname === `/w/${workspaceId}/review`) && (
+              <div className="mb-1 px-2">
+                <SidebarButton
+                  icon={<ClipboardCheck className="h-4 w-4" />}
+                  href={offline ? undefined : `/w/${workspaceId}/review`}
+                  active={pathname === `/w/${workspaceId}/review`}
+                  disabled={offline}
+                  title={offline ? needsServer(t("nav.review")) : undefined}
+                  badge={reviewCount > 0 ? { count: reviewCount, label: t("nav.reviewCount", { count: reviewCount }) } : undefined}
+                >
+                  {t("nav.review")}
+                </SidebarButton>
+              </div>
+            )}
+            {dailyNoteError && (
+              <p role="alert" className="mx-4 mb-1 text-xs text-danger">
+                {dailyNoteError}
+              </p>
+            )}
+            {moveError && (
+              <p role="alert" className="mx-4 mb-1 text-xs text-danger">
+                {t("pages.moveFailed")}
+              </p>
+            )}
+            {actionError && (
+              <p role="alert" className="mx-4 mb-1 text-xs text-danger">
+                {actionError}
+              </p>
+            )}
+            <nav ref={setNavEl} className="peer flex-1 overflow-y-auto px-2 pb-2" aria-label={panelTitle}>
+              {shownTab === "mail" ? (
+                <MailSidebar workspaceId={workspaceId} />
+              ) : shownTab === "chat" && aiChat ? (
+                <ConversationList />
+              ) : shownTab === "agents" ? (
+                agentList
+              ) : shownTab === "journal" ? (
+                <>
+                  <div className="px-1 pb-3">
+                    <DailyNotesCalendar workspaceId={workspaceId} notesKey={journalNotes.map((n) => n.id).join()} />
+                  </div>
+                  <section aria-labelledby="journal-notes-heading" className="mb-2">
+                    <h2 id="journal-notes-heading" className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">
+                      {tJournal("notes")}
+                    </h2>
+                    {journalNotes.length === 0 ? (
+                      <p className="px-2 py-1 text-xs text-fg-faint">{tJournal("noNotes")}</p>
+                    ) : (
+                      <TreeLevel nodes={journalNotes} depth={0} {...treeProps} />
+                    )}
+                  </section>
+                  <div className="px-2">
+                    <JournalStartPicker workspaceId={workspaceId} />
+                  </div>
+                </>
+              ) : customizing ? (
+                <CustomizeSections
+                  sections={sidebarOrder(layout)
+                    .filter((key) => (key === PAGES_SECTION ? !!pagesSpace : key === TEAMSPACES_GROUP ? showTeamspaces : key === AGENTS_SECTION ? agents.length > 0 : true))
+                    .map((key) => ({ key, label: sectionLabel(key) }))}
+                  hidden={hiddenSections}
+                  onChange={(order, hidden) => saveLayout({ order, hidden })}
+                  onDone={() => setCustomizing(false)}
+                />
+              ) : (
+                sidebarOrder(layout)
+                  .filter((key) => !hiddenSections.has(key))
+                  .map((key) => <Fragment key={key}>{sectionContent[key]}</Fragment>)
+              )}
+              {shownTab === "home" && guest && tree.length === 0 && !topLevel && <p className="px-2 py-1.5 text-fg-muted">{t("pages.nothingShared")}</p>}
+            </nav>
+
+            {/*
+              The list fades out at the panel's foot while there is more of it below (useMoreBelow): a
+              layer in the panel's color, not a mask, which would fade the row menus opened inside it too.
+            */}
+            <div aria-hidden className="pointer-events-none relative z-10 h-0 opacity-0 transition-opacity peer-data-more-below:opacity-100">
+              <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-bg" />
+            </div>
           </div>
         </div>
       </aside>

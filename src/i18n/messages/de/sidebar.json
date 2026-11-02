@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Seitenleiste öffnen",
     "close": "Seitenleiste ausblenden",
-    "resize": "Ziehen, um die Größe zu ändern",
-    "pin": "Seitenleiste geöffnet lassen"
+    "resize": "Ziehen, um die Größe zu ändern"
   },
   "pages": {
     "heading": "Seiten",

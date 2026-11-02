@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Open sidebar",
     "close": "Hide sidebar",
-    "resize": "Drag to resize",
-    "pin": "Keep sidebar open"
+    "resize": "Drag to resize"
   },
   "pages": {
     "heading": "Pages",

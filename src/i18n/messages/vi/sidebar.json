@@ -36,8 +36,7 @@
   "toggle": {
     "open": "Mở thanh bên",
     "close": "Ẩn thanh bên",
-    "resize": "Kéo để đổi kích thước",
-    "pin": "Giữ thanh bên luôn mở"
+    "resize": "Kéo để đổi kích thước"
   },
   "pages": {
     "heading": "Trang",
