@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Changed
+
+- **A click on a table cell selects it instead of opening its editor.** A second click on the
+  selected cell, a double click, Enter or simply typing opens it, so copying, deleting, moving with
+  the arrows and filling down no longer fight an editor that opened on its own. Typing over a text,
+  number, link, email or phone cell starts its editor with what you typed, and Esc then leaves the
+  value as it was. Checkboxes, stars, buttons and links in cells still work with one click, and on a
+  touch screen a tap still opens the editor. Lists, boards, galleries and the row page are unchanged.
+
 ## 0.7.0 — 2026-11-02
 
 ### Upgrading from 0.6.7
