@@ -37,6 +37,7 @@
     "movedToPlace": "به {place} منتقل شد",
     "trashed": "به سطل زباله منتقل شد",
     "rowsTrashed": "{count, plural, one {ردیف به سطل زباله منتقل شد} other {# ردیف به سطل زباله منتقل شد}}",
+    "rowsChanged": "{count, plural, one {ردیف تغییر کرد} other {# ردیف تغییر کرد}}",
     "undoFailed": "واگرد انجام نشد."
   },
   "datePhrase": {

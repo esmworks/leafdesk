@@ -220,6 +220,19 @@ const personalMemory = vi.hoisted(() => {
   };
 });
 vi.mock("@/server/ai-memory", () => personalMemory);
+const accountMemory = vi.hoisted(() => ({
+  accountNotes: vi.fn(async (_userId: string) => [] as unknown[]),
+  writeAccountNote: vi.fn(),
+  deleteAccountNotes: vi.fn(async (_userId: string, _ids: string[] | "all") => [] as string[]),
+}));
+vi.mock("@/server/account-memory", () => accountMemory);
+const sharedMemory = vi.hoisted(() => ({
+  memoryPlaces: vi.fn(async (_userId: string, _workspaceId: string) => ({ workspace: null as unknown, teamspaces: [] as unknown[] })),
+  placeNotes: vi.fn(async (_userId: string, _workspaceId: string, _teamspaceId: string | null) => [] as unknown[]),
+  writeSharedNote: vi.fn(),
+  deleteSharedNotes: vi.fn(async (_userId: string, _workspaceId: string, _teamspaceId: string | null, _ids: string[] | "all") => [] as string[]),
+}));
+vi.mock("@/server/shared-memory", () => sharedMemory);
 
 const agentUsage = vi.hoisted(() => ({
   usageMonthsOf: vi.fn(async () => [{ month: "2026-10", runs: 3, inputTokens: 1200, outputTokens: 300, costUsd: 0.02 }]),
@@ -3709,6 +3722,9 @@ describe("the user's memory", () => {
     personalMemory.memoryState.mockResolvedValue({ off: null, notes: [role, tone] });
     personalMemory.keptNotes.mockResolvedValue([role, tone]);
     personalMemory.deleteMemories.mockImplementation(async (_u: string, _w: string, ids: string[] | "all") => (ids === "all" ? ["m-1", "m-2"] : ids.filter((id) => id === "m-1")));
+    accountMemory.accountNotes.mockResolvedValue([]);
+    sharedMemory.memoryPlaces.mockResolvedValue({ workspace: null, teamspaces: [] });
+    sharedMemory.placeNotes.mockResolvedValue([]);
   });
 
   it("registers the read as read-only and the changes as one write, named as the agent memory tool is", async () => {
@@ -3719,7 +3735,8 @@ describe("the user's memory", () => {
     const change = tools.get("change_memory")!;
     expect(change.annotations).toMatchObject({ readOnlyHint: false, idempotentHint: true, destructiveHint: true });
     expect(tools.get("list_memory")!.inputSchema.required ?? []).toEqual([]);
-    expect(change.inputSchema.required).toEqual(["workspace_id", "action"]);
+    expect(change.inputSchema.required).toEqual(["action"]);
+    expect(change.inputSchema.properties.scope.enum).toEqual(["person", "account", "workspace", "teamspace"]);
     expect(change.inputSchema.properties.action.enum).toEqual(["add", "update", "delete"]);
     expect(change.inputSchema.properties.text.maxLength).toBe(300);
     const listed = await listTools(writer);
@@ -3738,6 +3755,7 @@ describe("the user's memory", () => {
     expect(isError).toBe(false);
     expect(personalMemory.memoryState).toHaveBeenCalledWith("user-1", "ws-1");
     expect(data).toEqual({
+      account_notes: [],
       workspace_id: "ws-1",
       memory: "on",
       notes: [
@@ -3777,7 +3795,7 @@ describe("the user's memory", () => {
       personalMemory.memoryOff.mockResolvedValue(off);
       personalMemory.memoryState.mockResolvedValue({ off, notes: [role, tone] });
       const listed = await callTool(reader, "list_memory", { workspace_id: "ws-1" });
-      expect(listed.data).toEqual({ workspace_id: "ws-1", memory: "off", why: expect.stringMatching(why), notes: [], notes_kept: 2 });
+      expect(listed.data).toEqual({ account_notes: [], workspace_id: "ws-1", memory: "off", why: expect.stringMatching(why), notes: [], notes_kept: 2 });
       expect(listed.data.why).toMatch(/change_memory delete with all: true/);
       for (const [name, args] of [
         ["add", { text: "Likes tables" }],
@@ -3847,6 +3865,58 @@ describe("the user's memory", () => {
     }
     expect(personalMemory.writeNote).not.toHaveBeenCalled();
     expect(personalMemory.deleteMemories).toHaveBeenCalledTimes(3);
+  });
+
+  it("lists the user's notes for all workspaces and the workspace's and teamspaces' notes, the workspace's only while its memory is on", async () => {
+    const shared = (id: string, text: string, by: string | null) => ({ ...note(id, text), by });
+    accountMemory.accountNotes.mockResolvedValue([note("a-1", "Answers in Turkish")]);
+    sharedMemory.memoryPlaces.mockResolvedValue({
+      workspace: { id: null, name: null, icon: null, notes: [shared("w-1", "We sell cold rooms", "Ada")], canChange: false },
+      teamspaces: [
+        { id: "ts-1", name: "Sales", icon: null, notes: [shared("t-1", "Offers go out in EUR", null)], canChange: true },
+        { id: "ts-2", name: "Quiet", icon: null, notes: [], canChange: false },
+      ],
+    });
+    const { data } = await callTool(reader, "list_memory", { workspace_id: "ws-1" });
+    expect(data.account_notes).toEqual([expect.objectContaining({ memory_id: "a-1", text: "Answers in Turkish" })]);
+    expect(data.workspace_notes).toEqual({ can_change: false, notes: [expect.objectContaining({ memory_id: "w-1", changed_by: "Ada" })] });
+    // A teamspace with no notes the user can't change says nothing.
+    expect(data.teamspace_notes).toEqual([{ teamspace_id: "ts-1", name: "Sales", can_change: true, notes: [expect.objectContaining({ memory_id: "t-1" })] }]);
+    expect(data.teamspace_notes[0].notes[0].changed_by).toBeUndefined();
+
+    sharedMemory.memoryPlaces.mockClear();
+    personalMemory.memoryState.mockResolvedValue({ off: "workspace", notes: [role] });
+    const off = await callTool(reader, "list_memory", { workspace_id: "ws-1" });
+    expect(off.data.workspace_notes).toBeUndefined();
+    expect(sharedMemory.memoryPlaces).not.toHaveBeenCalled();
+  });
+
+  it("changes the user's notes for all workspaces without a workspace, and the workspace's or a teamspace's only for those who keep them", async () => {
+    accountMemory.writeAccountNote.mockResolvedValue(row("a-1", "Answers in Turkish"));
+    const account = await callTool(writer, "change_memory", { scope: "account", action: "add", text: "Answers in Turkish" });
+    expect(account.isError).toBe(false);
+    expect(accountMemory.writeAccountNote).toHaveBeenCalledWith("user-1", "Answers in Turkish", { app: "client-1" });
+    expect(account.data).toMatchObject({ added: { memory_id: "a-1" }, account_notes: [] });
+    // The person's own notes and the places' need the workspace.
+    expect((await callTool(writer, "change_memory", { action: "add", text: "x" })).text).toMatch(/needs workspace_id/);
+    expect((await callTool(writer, "change_memory", { workspace_id: "ws-1", scope: "teamspace", action: "add", text: "x" })).text).toMatch(/needs teamspace_id/);
+    expect((await callTool(writer, "change_memory", { workspace_id: "ws-1", teamspace_id: "ts-1", action: "add", text: "x" })).text).toMatch(/teamspace_id is for scope teamspace/);
+
+    sharedMemory.writeSharedNote.mockResolvedValue(row("t-1", "Offers go out in EUR"));
+    const room = await callTool(writer, "change_memory", { workspace_id: "ws-1", scope: "teamspace", teamspace_id: "ts-1", action: "update", memory_id: "t-0", text: "Offers go out in EUR" });
+    expect(sharedMemory.writeSharedNote).toHaveBeenCalledWith("user-1", "ws-1", "ts-1", "Offers go out in EUR", { replaces: "t-0", app: "client-1" });
+    expect(room.data).toMatchObject({ updated: { memory_id: "t-1" }, workspace_id: "ws-1", teamspace_id: "ts-1", notes: [] });
+
+    sharedMemory.deleteSharedNotes.mockResolvedValueOnce(["w-1"]);
+    const gone = await callTool(writer, "change_memory", { workspace_id: "ws-1", scope: "workspace", action: "delete", memory_ids: ["w-1", "w-9"] });
+    expect(sharedMemory.deleteSharedNotes).toHaveBeenCalledWith("user-1", "ws-1", null, ["w-1", "w-9"]);
+    expect(gone.data).toMatchObject({ deleted: 1, not_found: ["w-9"] });
+
+    sharedMemory.writeSharedNote.mockRejectedValueOnce(new AccessError("No access"));
+    const refused = await callTool(writer, "change_memory", { workspace_id: "ws-1", scope: "workspace", action: "add", text: "We sell cold rooms" });
+    expect(refused.isError).toBe(true);
+    expect(refused.text).toMatch(/Only the workspace's owners keep its notes/);
+    expect(personalMemory.writeNote).not.toHaveBeenCalled();
   });
 
   it("refuses changes on a read-only connection and words the memory's refusals with a next step", async () => {

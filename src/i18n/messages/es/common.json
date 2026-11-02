@@ -37,6 +37,7 @@
     "movedToPlace": "Movida a {place}",
     "trashed": "Movida a la papelera",
     "rowsTrashed": "{count, plural, one {Fila movida a la papelera} other {# filas movidas a la papelera}}",
+    "rowsChanged": "{count, plural, one {Fila cambiada} other {# filas cambiadas}}",
     "undoFailed": "No se pudo deshacer."
   },
   "datePhrase": {

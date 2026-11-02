@@ -14,7 +14,7 @@ import { History, Loader2, Maximize2, SquarePen, Trash2, X } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
-import { MemoryButton } from "./memory-dialog";
+import { MemoryButton } from "./memory-button";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
 import { read } from "@/components/read";

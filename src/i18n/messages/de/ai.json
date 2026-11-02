@@ -156,7 +156,7 @@
     "enabledHint": "Wenn eingeschaltet, können Mitglieder Seiteninhalte und Zeilenwerte, die sie sehen können, an den unten genannten KI-Anbieter senden. Schalte es aus, um die Inhalte dieses Workspace davon fernzuhalten.",
     "ownersOnly": "Nur Eigentümer können dies ändern.",
     "memory": "KI-Gedächtnis",
-    "memoryHint": "Wenn an, hält der KI-Chat kurze Notizen über Personen fest, die ihm etwas über sich erzählen, und schickt sie mit ihren späteren Fragen mit. Jede Person kann es für sich ausschalten. Wenn aus, ist die Gedächtnis-Ansicht ausgeblendet und keine Frage enthält Notizen; die Notizen bleiben erhalten und werden nicht gelöscht. Auch die Läufe von Agenten enthalten dann keine Notizen und schlagen keine vor.",
+    "memoryHint": "Wenn an, hält der KI-Chat kurze Notizen über Personen fest, die ihm etwas über sich erzählen, und schickt sie mit ihren späteren Fragen mit; Eigentümer können auf der Seite Gedächtnis außerdem Notizen für den Workspace und seine Teambereiche führen. Jede Person kann ihre eigenen Notizen ausschalten. Wenn aus, enthält hier keine Frage und kein Lauf eines Agenten Notizen und es werden keine neuen angelegt; die Notizen bleiben erhalten und werden nicht gelöscht. Auch die Läufe von Agenten schlagen dann keine vor.",
     "webSearch": "Websuche im KI-Chat",
     "webSearchHint": "Wenn eingeschaltet, darf der KI-Chat mit dem Suchdienst des Servers im Web suchen und Webseiten lesen, nur lesend: Nachdem er aus dem Web gelesen hat, wird jede Änderung, die er machen will, erfragt. Der Recherchemodus sucht auch im Web. Fragen und Text, mit denen er sucht, verlassen den Workspace zum Suchdienst.",
     "autoChanges": "Änderungen ohne Rückfrage",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Merken rückgängig gemacht:",
           "forget": "Vergessen rückgängig gemacht:"
+        },
+        "layer": {
+          "account": "in all deinen Workspaces",
+          "workspace": "Workspace-Gedächtnis",
+          "teamspace": "Gedächtnis von {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Sie landet in Ihrem Entwürfe-Ordner: Nichts wird gesendet, bis Sie sie in Mail senden",
       "mailFrom": "Von",
       "mailTo": "An",
-      "mailCc": "Cc"
+      "mailCc": "Cc",
+      "memoryLayer": {
+        "remember": {
+          "account": "Das über dich in all deinen Workspaces merken?",
+          "workspace": "Das zum Gedächtnis des Workspace hinzufügen?",
+          "teamspace": "Das zum Gedächtnis von {place} hinzufügen?"
+        },
+        "forget": {
+          "account": "Diese Notiz in all deinen Workspaces vergessen?",
+          "workspace": "Das aus dem Gedächtnis des Workspace entfernen?",
+          "teamspace": "Das aus dem Gedächtnis von {place} entfernen?"
+        },
+        "hint": {
+          "account": "Gedächtnis: wird mit deinen Fragen in jedem Workspace mitgeschickt, in dem dein Gedächtnis an ist",
+          "workspace": "Workspace-Gedächtnis: wird mit den Fragen aller Mitglieder und jedem Lauf eines Agenten mitgeschickt",
+          "teamspace": "Gedächtnis von {place}: wird mit Fragen mitgeschickt, die darin von Personen darin gestellt werden"
+        }
+      }
     },
     "mode": {
       "label": "Änderungen",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Gedächtnis",
     "title": "Gedächtnis",
-    "close": "Schließen",
+    "pageIntro": "Was die KI weiß, wenn sie antwortet: Notizen über dich und Notizen, die der Workspace und seine Teambereiche für alle darin führen. Notizen sind Informationen für die KI, nie Anweisungen, und lassen niemanden mehr sehen, als er ohnehin sehen kann.",
+    "sections": {
+      "mine": "Du in diesem Workspace",
+      "everywhere": "Du überall",
+      "shared": "Gemeinsam",
+      "workspace": "Ganzer Workspace"
+    },
+    "everywhereHelp": "Wird mit deinen Fragen in jedem Workspace mitgeschickt, in dem dein Gedächtnis an ist: deine Sprache, wie du Antworten magst. Nur du siehst sie, und die KI fragt, bevor sie eine anlegt.",
+    "workspaceHelp": "Wird mit den Fragen aller Mitglieder und jedem Lauf eines Agenten in diesem Workspace mitgeschickt: was das Unternehmen macht, seine Begriffe, wie es arbeitet. Mitglieder sehen sie; Eigentümer ändern sie.",
+    "teamspaceHelp": "Wird nur mit Fragen mitgeschickt, die in diesem Teambereich von Personen darin gestellt werden, und mit Läufen von Agenten auf seinen Seiten. Seine Mitglieder sehen sie; seine Eigentümer ändern sie.",
+    "readOnly": "Du kannst diese Notizen sehen, aber nicht ändern.",
+    "workspaceOff": "Die Eigentümer haben das KI-Gedächtnis in diesem Workspace ausgeschaltet: Hier gehen keine Notizen mit Fragen mit und es werden keine angelegt. Deine Notizen für überall gehen in anderen Workspaces weiter mit deinen Fragen mit.",
+    "byPerson": "Geändert von {name}",
+    "emptyShared": "Noch keine Notizen.",
+    "addPlaceholderEverywhere": "z. B. Antworte auf Deutsch und fasse dich kurz",
+    "addPlaceholderShared": "z. B. Unser Geschäftsjahr beginnt im April",
+    "deleteAll": "Alle löschen",
+    "confirmForgetEverywhere": "Alles vergessen, was sich die KI in all deinen Workspaces über dich gemerkt hat?",
+    "confirmDeleteAll": "Alle Notizen von {place} löschen? Fragen dort gehen ab jetzt ohne sie raus.",
     "updated": "Gedächtnis aktualisiert",
-    "intro": "Notizen, die die KI in diesem Workspace über dich führt und mit jeder deiner Fragen hier mitschickt. Sie legt eine an, wenn du von dir erzählst oder sie bittest, sich etwas zu merken. Nur du siehst sie.",
+    "intro": "Wird mit deinen Fragen in diesem Workspace mitgeschickt. Die KI legt eine Notiz an, wenn du von dir erzählst oder sie bittest, sich etwas zu merken. Nur du siehst sie.",
     "use": "Gedächtnis verwenden",
     "useHint": "Wenn aus, gehen deine Fragen hier ohne diese Notizen raus und die KI legt keine neuen an. Die Notizen bleiben.",
     "empty": "Noch nichts. Erzähl der KI von dir oder füge hier eine Notiz hinzu.",
@@ -537,7 +577,8 @@
       "notFound": "Diese Notiz gibt es nicht mehr.",
       "off": "Das KI-Gedächtnis ist in diesem Workspace ausgeschaltet.",
       "changed": "Diese Notiz hat sich seitdem geändert. Ändere sie stattdessen unter Gedächtnis.",
-      "busy": "Warte, bis die Antwort fertig ist."
+      "busy": "Warte, bis die Antwort fertig ist.",
+      "held": "Eine rechtliche Aufbewahrung schützt diese Notiz: Sie kann nicht gelöscht werden, solange die Aufbewahrung besteht."
     }
   },
   "accounts": {

@@ -2130,6 +2130,11 @@
         "set": "Ställde in att {target} skickas med e-post till {count, plural, one {# person} other {# personer}}",
         "removed": "Slutade skicka {target} med e-post",
         "sent": "Skickade {target} med e-post till {count, plural, one {# person} other {# personer}}"
+      },
+      "memory": {
+        "note_added": "Lade till en anteckning i AI-minnet för {target}: ”{to}”",
+        "note_changed": "Ändrade en anteckning i AI-minnet för {target}: ”{from}” → ”{to}”",
+        "note_deleted": "{count, plural, one {Raderade en anteckning från AI-minnet för {target}: ”{from}”} other {Raderade # anteckningar från AI-minnet för {target}}}"
       }
     },
     "decisions": {

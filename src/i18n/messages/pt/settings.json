@@ -2130,6 +2130,11 @@
         "set": "Configurou o envio por e-mail de {target} para {count, plural, one {# pessoa} other {# pessoas}}",
         "removed": "Parou de enviar {target} por e-mail",
         "sent": "Enviou {target} por e-mail para {count, plural, one {# pessoa} other {# pessoas}}"
+      },
+      "memory": {
+        "note_added": "Adicionou uma nota à memória da IA de {target}: “{to}”",
+        "note_changed": "Alterou uma nota na memória da IA de {target}: “{from}” → “{to}”",
+        "note_deleted": "{count, plural, one {Excluiu uma nota da memória da IA de {target}: “{from}”} other {Excluiu # notas da memória da IA de {target}}}"
       }
     },
     "decisions": {

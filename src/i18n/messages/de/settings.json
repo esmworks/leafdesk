@@ -2130,6 +2130,11 @@
         "set": "Hat {target} für den E-Mail-Versand an {count, plural, one {# Person} other {# Personen}} eingerichtet",
         "removed": "Hat den E-Mail-Versand von {target} beendet",
         "sent": "Hat {target} per E-Mail an {count, plural, one {# Person} other {# Personen}} gesendet"
+      },
+      "memory": {
+        "note_added": "Hat dem KI-Gedächtnis von {target} eine Notiz hinzugefügt: „{to}“",
+        "note_changed": "Hat eine Notiz im KI-Gedächtnis von {target} geändert: „{from}“ → „{to}“",
+        "note_deleted": "{count, plural, one {Hat eine Notiz aus dem KI-Gedächtnis von {target} gelöscht: „{from}“} other {Hat # Notizen aus dem KI-Gedächtnis von {target} gelöscht}}"
       }
     },
     "decisions": {

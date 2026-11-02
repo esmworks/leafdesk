@@ -3,12 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import type { AiAutofillConfig } from "@/lib/ai";
-import { MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
+import { MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS, type MemoryLayer, type MemoryView } from "@/lib/ai-chat";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
 import { decideParkedChange, deleteConversations, getConversation, listConversations, saveReportAsPage, undoChatNote } from "@/server/ai-chat";
-import { addMemory, deleteMemories, listMemories, MemoryError, memoryUse, setMemoryUse, updateMemory } from "@/server/ai-memory";
+import { accountNotes, deleteAccountNotes, writeAccountNote } from "@/server/account-memory";
+import { addMemory, deleteMemories, listMemories, MemoryError, setMemoryUse, updateMemory } from "@/server/ai-memory";
 import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
 import { MAX_PROMPT_NAME, MAX_PROMPT_TEXT, MAX_SAVED_PROMPTS } from "@/lib/ai-saved-prompts";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
@@ -18,6 +19,7 @@ import { snapshotBeforeAiEdit } from "@/server/ai-writing";
 import * as databases from "@/server/databases";
 import { MAX_FORMULA_REQUEST, suggestFormula, type FormulaRequest } from "@/server/formula-ai";
 import { requireUserId } from "@/server/session";
+import { deleteSharedNotes, placeNotes, writeSharedNote } from "@/server/shared-memory";
 import {
   getVoiceNoteInstructions,
   saveVoiceNote,
@@ -158,18 +160,9 @@ export async function saveReportAsPageAction(workspaceId: string, conversationId
   });
 }
 
-export async function listMemoriesAction(workspaceId: string) {
-  return run((userId) => listMemories(userId, String(workspaceId)));
-}
-
 /** Undo on a note an answer kept, changed or dropped: it goes back to what it was. */
 export async function undoChatNoteAction(workspaceId: string, conversationId: string, memoryId: string) {
   return run((userId) => undoChatNote(userId, String(workspaceId), String(conversationId), String(memoryId)));
-}
-
-/** Whether the person has the AI chat's memory on in a workspace (their own switch). */
-export async function memoryUseAction(workspaceId: string) {
-  return run((userId) => memoryUse(userId, String(workspaceId)));
 }
 
 /** Turns the AI chat's memory on or off for the person in a workspace; their notes stay. */
@@ -177,19 +170,39 @@ export async function setMemoryUseAction(workspaceId: string, on: boolean) {
   return run((userId) => setMemoryUse(userId, String(workspaceId), on === true));
 }
 
-/** Adds a note to the person's memory in a workspace. */
-export async function addMemoryAction(workspaceId: string, text: string) {
-  return run((userId) => addMemory(userId, String(workspaceId), String(text)));
-}
+/** A change on the Memory page: a note to add, one changed, or some (or all) deleted. */
+export type NoteChange = { add: string } | { id: string; text: string } | { delete: string };
 
-/** Changes one of the person's notes. */
-export async function updateMemoryAction(workspaceId: string, memoryId: string, text: string) {
-  return run((userId) => updateMemory(userId, String(workspaceId), String(memoryId), String(text)));
-}
-
-/** Deletes one of the person's notes, or all of them in the workspace. */
-export async function deleteMemoryAction(workspaceId: string, memoryId: string | "all") {
-  return run((userId) => deleteMemories(userId, String(workspaceId), memoryId === "all" ? "all" : [String(memoryId)]));
+/**
+ * Changes the notes of one part of the AI's memory, as the Memory page shows it: the person's own
+ * in the workspace, theirs everywhere (`account`), the workspace's or a teamspace's (who may change
+ * those is checked in shared-memory.ts). Returns that part's notes as they are now.
+ */
+export async function changeNoteAction(workspaceId: string, layer: "person" | MemoryLayer, teamspaceId: string | null, change: NoteChange) {
+  return run(async (userId): Promise<(MemoryView & { by?: string | null })[]> => {
+    const ws = String(workspaceId);
+    const c = (change ?? {}) as Record<string, unknown>;
+    const add = typeof c.add === "string" ? c.add : null;
+    const edit = typeof c.id === "string" && typeof c.text === "string" ? { id: c.id, text: c.text } : null;
+    const gone = typeof c.delete === "string" ? (c.delete === "all" ? ("all" as const) : [c.delete]) : null;
+    if (add === null && !edit && !gone) throw new AccessError();
+    if (layer === "person") {
+      if (add !== null) await addMemory(userId, ws, add);
+      else if (edit) await updateMemory(userId, ws, edit.id, edit.text);
+      else await deleteMemories(userId, ws, gone!);
+      return listMemories(userId, ws);
+    }
+    if (layer === "account") {
+      if (add !== null || edit) await writeAccountNote(userId, add ?? edit!.text, { replaces: edit?.id ?? null });
+      else await deleteAccountNotes(userId, gone!);
+      return accountNotes(userId);
+    }
+    if (layer !== "workspace" && layer !== "teamspace") throw new AccessError();
+    const place = layer === "teamspace" ? String(teamspaceId) : null;
+    if (add !== null || edit) await writeSharedNote(userId, ws, place, add ?? edit!.text, { replaces: edit?.id ?? null });
+    else await deleteSharedNotes(userId, ws, place, gone!);
+    return placeNotes(userId, ws, place);
+  });
 }
 
 /**

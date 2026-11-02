@@ -156,7 +156,7 @@
     "enabledHint": "Saat aktif, anggota dapat mengirim isi halaman dan nilai baris yang dapat mereka lihat ke penyedia AI di bawah. Nonaktifkan agar konten ruang kerja ini tidak sampai kepadanya.",
     "ownersOnly": "Hanya pemilik yang dapat mengubah ini.",
     "memory": "Memori AI",
-    "memoryHint": "Saat aktif, obrolan AI menyimpan catatan singkat tentang orang yang menceritakan dirinya kepadanya, dan menyertakannya pada pertanyaan mereka berikutnya. Setiap orang dapat menonaktifkannya untuk dirinya sendiri. Saat nonaktif, tampilan Memori disembunyikan dan pertanyaan siapa pun tidak membawa catatan; catatan disimpan, tidak dihapus. Eksekusi agen kemudian tidak membawa catatan dan tidak mengusulkan catatan juga.",
+    "memoryHint": "Saat aktif, obrolan AI menyimpan catatan singkat tentang orang yang menceritakan dirinya kepadanya dan menyertakannya pada pertanyaan mereka berikutnya, dan pemilik dapat menyimpan catatan untuk ruang kerja dan ruang timnya di halaman Memori. Setiap orang dapat menonaktifkan catatannya sendiri. Saat nonaktif, tidak ada pertanyaan atau eksekusi agen di sini yang membawa catatan dan tidak ada yang disimpan; catatan tetap ada, tidak dihapus. Eksekusi agen kemudian juga tidak mengusulkan catatan.",
     "webSearch": "Pencarian web di obrolan AI",
     "webSearchHint": "Jika aktif, obrolan AI dapat mencari di web dengan layanan pencarian server dan membaca halaman web, hanya membaca: setelah membaca dari web, setiap perubahan yang ingin dibuatnya akan ditanyakan terlebih dahulu. Mode riset juga mencari di web. Pertanyaan dan teks halaman yang dipakai untuk mencari keluar dari ruang kerja menuju layanan pencarian.",
     "autoChanges": "Perubahan tanpa bertanya",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Batal mengingat:",
           "forget": "Batal melupakan:"
+        },
+        "layer": {
+          "account": "di semua ruang kerja Anda",
+          "workspace": "memori ruang kerja",
+          "teamspace": "memori {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Email masuk ke folder Draf: tidak ada yang dikirim sampai Anda mengirimnya dari Mail",
       "mailFrom": "Dari",
       "mailTo": "Kepada",
-      "mailCc": "Cc"
+      "mailCc": "Cc",
+      "memoryLayer": {
+        "remember": {
+          "account": "Ingat ini tentang Anda di semua ruang kerja Anda?",
+          "workspace": "Tambahkan ini ke memori ruang kerja?",
+          "teamspace": "Tambahkan ini ke memori {place}?"
+        },
+        "forget": {
+          "account": "Lupakan catatan ini di semua ruang kerja Anda?",
+          "workspace": "Hapus ini dari memori ruang kerja?",
+          "teamspace": "Hapus ini dari memori {place}?"
+        },
+        "hint": {
+          "account": "Memori: dikirim bersama pertanyaan Anda di setiap ruang kerja tempat memori Anda aktif",
+          "workspace": "Memori ruang kerja: dikirim bersama pertanyaan setiap anggota dan setiap eksekusi agen",
+          "teamspace": "Memori {place}: dikirim bersama pertanyaan yang diajukan di dalamnya oleh orang di dalamnya"
+        }
+      }
     },
     "mode": {
       "label": "Perubahan",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Memori",
     "title": "Memori",
-    "close": "Tutup",
+    "pageIntro": "Apa yang diketahui AI saat menjawab: catatan tentang Anda, dan catatan yang disimpan ruang kerja serta ruang timnya untuk semua orang di dalamnya. Catatan adalah informasi untuk AI, bukan perintah, dan tidak pernah membuat siapa pun melihat lebih dari yang sudah bisa mereka lihat.",
+    "sections": {
+      "mine": "Anda di ruang kerja ini",
+      "everywhere": "Anda di mana saja",
+      "shared": "Bersama",
+      "workspace": "Seluruh ruang kerja"
+    },
+    "everywhereHelp": "Dikirim bersama pertanyaan Anda di setiap ruang kerja tempat memori Anda aktif: bahasa Anda, jawaban seperti apa yang Anda suka. Hanya Anda yang melihatnya, dan AI bertanya sebelum menyimpan catatan.",
+    "workspaceHelp": "Dikirim bersama pertanyaan setiap anggota dan setiap eksekusi agen di ruang kerja ini: apa yang dikerjakan perusahaan, istilahnya, cara kerjanya. Anggota melihatnya; pemilik mengubahnya.",
+    "teamspaceHelp": "Hanya dikirim bersama pertanyaan yang diajukan di dalam ruang tim ini oleh orang di dalamnya, dan bersama eksekusi agen di halaman-halamannya. Anggotanya melihatnya; pemiliknya mengubahnya.",
+    "readOnly": "Anda dapat melihat catatan ini tetapi tidak dapat mengubahnya.",
+    "workspaceOff": "Para pemilik menonaktifkan memori AI di ruang kerja ini: tidak ada catatan yang ikut bersama pertanyaan di sini dan tidak ada yang disimpan. Catatan umum Anda tetap ikut bersama pertanyaan Anda di ruang kerja lain.",
+    "byPerson": "Diubah oleh {name}",
+    "emptyShared": "Belum ada catatan.",
+    "addPlaceholderEverywhere": "mis. Jawab dalam bahasa Indonesia dan singkat saja",
+    "addPlaceholderShared": "mis. Tahun fiskal kami dimulai pada April",
+    "deleteAll": "Hapus semua",
+    "confirmForgetEverywhere": "Lupakan semua yang diingat AI tentang Anda di semua ruang kerja Anda?",
+    "confirmDeleteAll": "Hapus semua catatan {place}? Pertanyaan di sana akan dikirim tanpa catatan itu mulai sekarang.",
     "updated": "Memori diperbarui",
-    "intro": "Catatan yang disimpan AI tentang Anda di ruang kerja ini, dikirim bersama setiap pertanyaan Anda di sini. AI menambahkannya saat Anda menceritakan diri Anda atau memintanya mengingat sesuatu. Hanya Anda yang melihatnya.",
+    "intro": "Dikirim bersama pertanyaan Anda di ruang kerja ini. AI menambahkan catatan saat Anda menceritakan diri Anda atau memintanya mengingat sesuatu. Hanya Anda yang melihatnya.",
     "use": "Gunakan memori",
     "useHint": "Saat nonaktif, pertanyaan Anda di sini dikirim tanpa catatan ini dan AI tidak menyimpan catatan baru. Catatan tetap ada.",
     "empty": "Belum ada. Ceritakan tentang diri Anda kepada AI, atau tambahkan catatan di sini.",
@@ -537,7 +577,8 @@
       "notFound": "Catatan itu sudah tidak ada.",
       "off": "Memori AI dinonaktifkan di ruang kerja ini.",
       "changed": "Catatan itu sudah berubah sejak saat itu. Ubah di Memori saja.",
-      "busy": "Tunggu sampai jawabannya selesai."
+      "busy": "Tunggu sampai jawabannya selesai.",
+      "held": "Penahanan hukum menyimpan catatan ini: catatan tidak dapat dihapus selama penahanan berlaku."
     }
   },
   "accounts": {

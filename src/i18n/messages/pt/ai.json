@@ -156,7 +156,7 @@
     "enabledHint": "Quando ativados, os membros podem enviar o conteúdo das páginas e os valores das linhas que conseguem ver ao provedor de IA abaixo. Desative para manter o conteúdo deste espaço de trabalho longe dele.",
     "ownersOnly": "Só proprietários podem alterar isto.",
     "memory": "Memória da IA",
-    "memoryHint": "Quando ativada, o chat de IA guarda notas curtas sobre as pessoas que falam de si mesmas para ele e as envia junto com as perguntas seguintes delas. Cada pessoa pode desativá-la para si. Quando desativada, a tela Memória fica oculta e as perguntas de ninguém levam notas; as notas são mantidas, não excluídas. As execuções dos agentes também passam a não levar notas nem propor novas.",
+    "memoryHint": "Quando ativada, o chat de IA guarda notas curtas sobre as pessoas que falam de si mesmas para ele e as envia junto com as perguntas seguintes delas, e os proprietários podem manter notas para o espaço de trabalho e seus espaços de equipe na página Memória. Cada pessoa pode desativar as próprias notas. Quando desativada, nenhuma pergunta ou execução de agente aqui leva notas e nenhuma é guardada; as notas são mantidas, não excluídas. As execuções dos agentes também não propõem nenhuma.",
     "webSearch": "Pesquisa na web no chat de IA",
     "webSearchHint": "Quando ativada, o chat de IA pode pesquisar na web com o serviço de pesquisa do servidor e ler páginas web, só lendo: depois de ler da web, cada alteração que quiser fazer é perguntada. O modo pesquisa também pesquisa na web. As perguntas e o texto com que pesquisa saem do espaço de trabalho para o serviço de pesquisa.",
     "autoChanges": "Alterações sem perguntar",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Desfez lembrar:",
           "forget": "Desfez esquecer:"
+        },
+        "layer": {
+          "account": "em todos os seus espaços de trabalho",
+          "workspace": "memória do espaço de trabalho",
+          "teamspace": "memória de {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Ele vai para sua pasta Rascunhos: nada é enviado até você enviá-lo pelo E-mail",
       "mailFrom": "De",
       "mailTo": "Para",
-      "mailCc": "Cc"
+      "mailCc": "Cc",
+      "memoryLayer": {
+        "remember": {
+          "account": "Lembrar isto sobre você em todos os seus espaços de trabalho?",
+          "workspace": "Adicionar isto à memória do espaço de trabalho?",
+          "teamspace": "Adicionar isto à memória de {place}?"
+        },
+        "forget": {
+          "account": "Esquecer esta nota em todos os seus espaços de trabalho?",
+          "workspace": "Remover isto da memória do espaço de trabalho?",
+          "teamspace": "Remover isto da memória de {place}?"
+        },
+        "hint": {
+          "account": "Memória: enviada com suas perguntas em cada espaço de trabalho onde sua memória está ativada",
+          "workspace": "Memória do espaço de trabalho: enviada com as perguntas de cada membro e com cada execução de agente",
+          "teamspace": "Memória de {place}: enviada com as perguntas feitas dentro dele, por quem está nele"
+        }
+      }
     },
     "mode": {
       "label": "Alterações",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Memória",
     "title": "Memória",
-    "close": "Fechar",
+    "pageIntro": "O que a IA sabe ao responder: notas sobre você e notas que o espaço de trabalho e seus espaços de equipe guardam para todos que estão neles. Notas são informação para a IA, nunca ordens, e nunca deixam ninguém ver mais do que já pode.",
+    "sections": {
+      "mine": "Você neste espaço de trabalho",
+      "everywhere": "Você em todo lugar",
+      "shared": "Compartilhadas",
+      "workspace": "Todo o espaço de trabalho"
+    },
+    "everywhereHelp": "Enviadas com suas perguntas em cada espaço de trabalho onde sua memória está ativada: seu idioma, como você gosta das respostas. Só você as vê, e a IA pergunta antes de guardar uma.",
+    "workspaceHelp": "Enviadas com as perguntas de cada membro e com cada execução de agente neste espaço de trabalho: o que a empresa faz, seus termos, como ela trabalha. Os membros as veem; os proprietários as alteram.",
+    "teamspaceHelp": "Enviadas só com as perguntas feitas dentro deste espaço de equipe, por quem está nele, e com as execuções de agentes em suas páginas. Seus membros as veem; seus proprietários as alteram.",
+    "readOnly": "Você pode ver estas notas, mas não alterá-las.",
+    "workspaceOff": "Os proprietários desativaram a memória da IA neste espaço de trabalho: nenhuma nota vai com as perguntas aqui e nenhuma é guardada. Suas notas de todo lugar continuam indo com suas perguntas em outros espaços de trabalho.",
+    "byPerson": "Alterada por {name}",
+    "emptyShared": "Nenhuma nota ainda.",
+    "addPlaceholderEverywhere": "ex.: Responda em português e seja breve",
+    "addPlaceholderShared": "ex.: Nosso ano fiscal começa em abril",
+    "deleteAll": "Excluir todas",
+    "confirmForgetEverywhere": "Esquecer tudo o que a IA lembra sobre você em todos os seus espaços de trabalho?",
+    "confirmDeleteAll": "Excluir todas as notas de {place}? As perguntas feitas lá vão sem elas a partir de agora.",
     "updated": "Memória atualizada",
-    "intro": "Notas que a IA guarda sobre você neste espaço de trabalho, enviadas com cada uma das suas perguntas aqui. Ela adiciona uma quando você fala sobre si ou pede que ela se lembre de algo. Só você as vê.",
+    "intro": "Enviadas com suas perguntas neste espaço de trabalho. A IA adiciona uma nota quando você fala sobre si ou pede que ela se lembre de algo. Só você as vê.",
     "use": "Usar memória",
     "useHint": "Quando desativada, suas perguntas aqui vão sem essas notas e a IA não guarda novas. As notas continuam salvas.",
     "empty": "Nada ainda. Fale sobre você para a IA ou adicione uma nota aqui.",
@@ -537,7 +577,8 @@
       "notFound": "Essa nota não existe mais.",
       "off": "A memória da IA está desativada neste espaço de trabalho.",
       "changed": "Essa nota mudou desde então. Altere-a em Memória.",
-      "busy": "Aguarde até a resposta terminar."
+      "busy": "Aguarde até a resposta terminar.",
+      "held": "Uma retenção legal mantém esta nota: ela não pode ser excluída enquanto a retenção estiver em vigor."
     }
   },
   "accounts": {

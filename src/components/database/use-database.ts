@@ -255,25 +255,45 @@ export function useDatabase(
     [refetch, report],
   );
 
+  // The rows as they show now, for what a bulk write puts back on Undo (see setCellValues).
+  const shownRows = useRef(rows);
+  useEffect(() => {
+    shownRows.current = rows;
+  }, [rows]);
+
   /**
-   * Sets one property on several rows (bulk edit): every row shows the new value right away, and
-   * rows the server skipped (see databases.rowsWithAccess) are reported, then refetched back.
+   * Writes one property (not the title) of several rows, each its own value, in one call per
+   * distinct value: every row shows its new value right away, and rows the server skipped (see
+   * databases.rowsWithAccess) are reported, then refetched back. Returns the rows written; throws
+   * what the server refused.
    */
-  const setCells = useCallback(
-    async (rowIds: string[], key: string, value: unknown) => {
+  const writeCells = useCallback(
+    async (key: string, values: ReadonlyMap<string, unknown>) => {
       const v = ++version.current;
-      const tokens = rowIds.map((rowId) => `${rowId}\u0000${key}`);
+      const tokens = [...values.keys()].map((rowId) => `${rowId}\u0000${key}`);
       setPending((p) => {
         const next = { ...p };
-        for (const rowId of rowIds) next[`${rowId}\u0000${key}`] = { rowId, key, value, version: v };
+        for (const [rowId, value] of values) next[`${rowId}\u0000${key}`] = { rowId, key, value, version: v };
         return next;
       });
+      const byValue = new Map<string, { value: unknown; rowIds: string[] }>();
+      for (const [rowId, value] of values) {
+        const same = JSON.stringify(value ?? null);
+        const group = byValue.get(same) ?? { value: value ?? null, rowIds: [] };
+        group.rowIds.push(rowId);
+        byValue.set(same, group);
+      }
       try {
-        const result = await unwrap(updateRowsPropertiesAction(databaseId, rowIds, { [key]: value }));
-        if (result.skipped.length) setError(tb("skipped", { count: result.skipped.length }));
+        const done: string[] = [];
+        let skipped = 0;
+        for (const { value, rowIds } of byValue.values()) {
+          const result = await unwrap(updateRowsPropertiesAction(databaseId, rowIds, { [key]: value }));
+          done.push(...result.done);
+          skipped += result.skipped.length;
+        }
+        if (skipped) setError(tb("skipped", { count: skipped }));
         await refetch();
-      } catch (e) {
-        report(e);
+        return done;
       } finally {
         setPending((p) => {
           const next = { ...p };
@@ -282,7 +302,41 @@ export function useDatabase(
         });
       }
     },
-    [databaseId, refetch, report, tb],
+    [databaseId, refetch, tb],
+  );
+
+  /**
+   * Sets one property on several rows, each to its own value (bulk edit, a board column's cards
+   * moved together), then offers to undo it: Undo puts back the values the rows showed before.
+   * `message` words the toast for the count of rows changed.
+   */
+  const setCellValues = useCallback(
+    async (key: string, values: ReadonlyMap<string, unknown>, { message }: { message?: (count: number) => string } = {}) => {
+      const before = new Map(shownRows.current.filter((r) => values.has(r.id)).map((r) => [r.id, r.properties[key] ?? null]));
+      try {
+        const done = (await writeCells(key, values)).filter((rowId) => before.has(rowId));
+        if (!done.length) return;
+        showToast({
+          message: message?.(done.length) ?? tc("toast.rowsChanged", { count: done.length }),
+          undo: async () => {
+            try {
+              await writeCells(key, new Map(done.map((rowId) => [rowId, before.get(rowId)])));
+            } catch {
+              showToast({ message: tc("toast.undoFailed") });
+            }
+          },
+        });
+      } catch (e) {
+        report(e);
+      }
+    },
+    [writeCells, report, tc],
+  );
+
+  /** Sets one property on several rows to the same value (see setCellValues). */
+  const setCells = useCallback(
+    (rowIds: string[], key: string, value: unknown) => setCellValues(key, new Map(rowIds.map((rowId) => [rowId, value]))),
+    [setCellValues],
   );
 
   /**
@@ -349,6 +403,7 @@ export function useDatabase(
       setCell,
       setRowValues,
       setCells,
+      setCellValues,
       pasteRows,
       clearError: () => setError(null),
       /** Shows an already translated message in the error banner. */
@@ -840,7 +895,7 @@ export function useDatabase(
     }),
     // patchProperty is a pure helper; the rest are stable callbacks.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only the workspace id of the snapshot is read
-    [databaseId, snapshot?.database.workspaceId, refetch, setCell, setRowValues, setCells, pasteRows, mutateSchema, report, tb, ta],
+    [databaseId, snapshot?.database.workspaceId, refetch, setCell, setRowValues, setCells, setCellValues, pasteRows, mutateSchema, report, tb, ta],
   );
 
   // Back online: replace the offline copy with the server's rows.

@@ -156,7 +156,7 @@
     "enabledHint": "Kun tämä on käytössä, jäsenet voivat lähettää näkemäänsä sivujen sisältöä ja rivien arvoja alla olevalle tekoälypalvelulle. Poista käytöstä, jos haluat pitää tämän työtilan sisällön poissa siltä.",
     "ownersOnly": "Vain omistajat voivat muuttaa tätä.",
     "memory": "Tekoälyn muisti",
-    "memoryHint": "Kun tämä on käytössä, tekoälychat pitää lyhyitä muistiinpanoja henkilöistä, jotka kertovat sille itsestään, ja lähettää ne heidän myöhempien kysymystensä mukana. Kukin voi poistaa sen käytöstä itseltään. Kun tämä ei ole käytössä, Muisti-näkymä on piilotettu eikä kenenkään kysymysten mukana lähetetä muistiinpanoja; muistiinpanot säilytetään, niitä ei poisteta. Agenttien ajoissa ei silloin ole muistiinpanoja, eivätkä ne ehdota uusia.",
+    "memoryHint": "Kun tämä on käytössä, tekoälychat pitää lyhyitä muistiinpanoja henkilöistä, jotka kertovat sille itsestään, ja lähettää ne heidän myöhempien kysymystensä mukana, ja omistajat voivat pitää muistiinpanoja työtilalle ja sen tiimitiloille Muisti-sivulla. Kukin voi poistaa omat muistiinpanonsa käytöstä. Kun tämä ei ole käytössä, minkään kysymyksen tai agentin ajon mukana ei täällä lähetetä muistiinpanoja eikä uusia tallenneta; muistiinpanot säilyvät, niitä ei poisteta. Agenttien ajot eivät silloin myöskään ehdota uusia.",
     "webSearch": "Verkkohaku tekoälychatissa",
     "webSearchHint": "Kun tämä on käytössä, tekoälychat voi hakea verkosta palvelimen hakupalvelulla ja lukea verkkosivuja, vain lukien: kun se on lukenut verkosta, jokaisesta muutoksesta, jonka se haluaa tehdä, kysytään. Tutkimustila hakee myös verkosta. Kysymykset ja sivujen teksti, joilla se hakee, lähtevät työtilasta hakupalvelulle.",
     "autoChanges": "Muutokset kysymättä",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Muistaminen peruttu:",
           "forget": "Unohtaminen peruttu:"
+        },
+        "layer": {
+          "account": "kaikissa työtiloissasi",
+          "workspace": "työtilan muisti",
+          "teamspace": "tiimitilan {place} muisti"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Se menee Luonnokset-kansioon: mitään ei lähetetä ennen kuin lähetät sen Postista",
       "mailFrom": "Lähettäjä",
       "mailTo": "Vastaanottaja",
-      "mailCc": "Kopio"
+      "mailCc": "Kopio",
+      "memoryLayer": {
+        "remember": {
+          "account": "Muistetaanko tämä sinusta kaikissa työtiloissasi?",
+          "workspace": "Lisätäänkö tämä työtilan muistiin?",
+          "teamspace": "Lisätäänkö tämä tiimitilan {place} muistiin?"
+        },
+        "forget": {
+          "account": "Unohdetaanko tämä muistiinpano kaikissa työtiloissasi?",
+          "workspace": "Poistetaanko tämä työtilan muistista?",
+          "teamspace": "Poistetaanko tämä tiimitilan {place} muistista?"
+        },
+        "hint": {
+          "account": "Muisti: lähetetään kysymystesi mukana jokaisessa työtilassa, jossa muistisi on käytössä",
+          "workspace": "Työtilan muisti: lähetetään jokaisen jäsenen kysymysten ja jokaisen agentin ajon mukana",
+          "teamspace": "Tiimitilan {place} muisti: lähetetään sen sisällä siihen kuuluvien esittämien kysymysten mukana"
+        }
+      }
     },
     "mode": {
       "label": "Muutokset",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Muisti",
     "title": "Muisti",
-    "close": "Sulje",
+    "pageIntro": "Mitä tekoäly tietää vastatessaan: muistiinpanot sinusta sekä muistiinpanot, joita työtila ja sen tiimitilat pitävät kaikille niissä oleville. Muistiinpanot ovat tekoälylle tietoa, eivät koskaan käskyjä, eivätkä ne koskaan näytä kenellekään enempää kuin hän jo näkee.",
+    "sections": {
+      "mine": "Sinä tässä työtilassa",
+      "everywhere": "Sinä kaikkialla",
+      "shared": "Jaetut",
+      "workspace": "Koko työtila"
+    },
+    "everywhereHelp": "Lähetetään kysymystesi mukana jokaisessa työtilassa, jossa muistisi on käytössä: kielesi, millaisista vastauksista pidät. Vain sinä näet ne, ja tekoäly kysyy ennen kuin tallentaa sellaisen.",
+    "workspaceHelp": "Lähetetään jokaisen jäsenen kysymysten ja jokaisen agentin ajon mukana tässä työtilassa: mitä yritys tekee, sen termit, miten se toimii. Jäsenet näkevät ne; omistajat muuttavat niitä.",
+    "teamspaceHelp": "Lähetetään vain tämän tiimitilan sisällä siihen kuuluvien esittämien kysymysten mukana sekä sen sivuilla tehtyjen agenttien ajojen mukana. Sen jäsenet näkevät ne; sen omistajat muuttavat niitä.",
+    "readOnly": "Näet nämä muistiinpanot, mutta et voi muuttaa niitä.",
+    "workspaceOff": "Omistajat ovat poistaneet tekoälyn muistin käytöstä tässä työtilassa: kysymysten mukana ei täällä lähetetä muistiinpanoja eikä uusia tallenneta. Kaikkialla käytettävät muistiinpanosi lähetetään yhä kysymystesi mukana muissa työtiloissa.",
+    "byPerson": "Muuttanut: {name}",
+    "emptyShared": "Ei vielä muistiinpanoja.",
+    "addPlaceholderEverywhere": "esim. Vastaa suomeksi ja lyhyesti",
+    "addPlaceholderShared": "esim. Tilikautemme alkaa huhtikuussa",
+    "deleteAll": "Poista kaikki",
+    "confirmForgetEverywhere": "Unohdetaanko kaikki, mitä tekoäly muistaa sinusta kaikissa työtiloissasi?",
+    "confirmDeleteAll": "Poistetaanko kaikki kohteen {place} muistiinpanot? Siellä esitetyt kysymykset lähetetään tästä lähtien ilman niitä.",
     "updated": "Muisti päivitetty",
-    "intro": "Muistiinpanot, joita tekoäly pitää sinusta tässä työtilassa ja lähettää jokaisen kysymyksesi mukana täällä. Se lisää muistiinpanon, kun kerrot sille itsestäsi tai pyydät sitä muistamaan jotain. Vain sinä näet ne.",
+    "intro": "Lähetetään kysymystesi mukana tässä työtilassa. Tekoäly lisää muistiinpanon, kun kerrot sille itsestäsi tai pyydät sitä muistamaan jotain. Vain sinä näet ne.",
     "use": "Käytä muistia",
     "useHint": "Kun tämä ei ole käytössä, kysymyksesi täällä lähetetään ilman näitä muistiinpanoja, eikä tekoäly tallenna uusia. Muistiinpanot säilyvät.",
     "empty": "Ei vielä mitään. Kerro tekoälylle itsestäsi tai lisää muistiinpano tähän.",
@@ -537,7 +577,8 @@
       "notFound": "Muistiinpanoa ei ole enää.",
       "off": "Tekoälyn muisti on poistettu käytöstä tässä työtilassa.",
       "changed": "Muistiinpano on muuttunut sen jälkeen. Muuta se Muistissa.",
-      "busy": "Odota, että vastaus on valmis."
+      "busy": "Odota, että vastaus on valmis.",
+      "held": "Oikeudellinen säilytys pitää tämän muistiinpanon: sitä ei voi poistaa säilytyksen ollessa voimassa."
     }
   },
   "accounts": {

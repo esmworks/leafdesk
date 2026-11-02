@@ -2130,6 +2130,11 @@
         "set": "Set {target} to be emailed to {count, plural, one {# person} other {# people}}",
         "removed": "Stopped emailing {target}",
         "sent": "Emailed {target} to {count, plural, one {# person} other {# people}}"
+      },
+      "memory": {
+        "note_added": "Added a note to the AI memory of {target}: “{to}”",
+        "note_changed": "Changed a note in the AI memory of {target}: “{from}” → “{to}”",
+        "note_deleted": "{count, plural, one {Deleted a note from the AI memory of {target}: “{from}”} other {Deleted # notes from the AI memory of {target}}}"
       }
     },
     "decisions": {

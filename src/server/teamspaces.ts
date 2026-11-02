@@ -940,6 +940,28 @@ export async function teamspaceLabel(userId: string, teamspaceId: string) {
 }
 
 /**
+ * Where the user stands in a teamspace, for its AI notes (server/shared-memory.ts): whether they are
+ * in it (by row, group or a default teamspace) and whether they manage it. Null when they can't see
+ * it (guests, private teamspaces they aren't in, another workspace's).
+ */
+export async function teamspaceStanding(userId: string, teamspaceId: string) {
+  try {
+    const { teamspace: found, role, row } = await visibleTeamspace(userId, teamspaceId);
+    return {
+      id: found.id,
+      name: found.name,
+      workspaceId: found.workspaceId,
+      archived: found.archivedAt !== null,
+      joined: joinedTeamspace(found, row),
+      canManage: canManage(found, role, row),
+    };
+  } catch (error) {
+    if (error instanceof AccessError) return null;
+    throw error;
+  }
+}
+
+/**
  * Who a teamspace page's "everyone" entry reaches: its access and who is in it by row or group
  * (everyone when it is a default one). Only for callers that already checked access to such a page.
  */

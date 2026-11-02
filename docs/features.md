@@ -398,6 +398,9 @@
     over a property for their cards on the line under it, the same in every column: the sum of the
     estimates, the average of a score, the earliest due date, how many are checked. Editors pick it
     by clicking a column's card count, and change it from that line.
+  - A board column's menu moves all its cards at once (*Move all cards to*): to another column, as
+    dragging each would (cards the person may not change stay), or to the trash. Both, and setting
+    a value on selected rows, show a note with *Undo*, which puts back what the rows had.
   - Table cells work like a spreadsheet's: a click selects a cell (as do the arrow keys), and a
     second click, a double click, Enter or typing edits it; typing over a text, number, link, email
     or phone cell starts with what you typed, and Esc then leaves the value as it was. Checkboxes,

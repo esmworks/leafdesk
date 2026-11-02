@@ -2130,6 +2130,11 @@
         "set": "Mengatur “{target}” untuk dikirim lewat email ke {count, plural, other {# orang}}",
         "removed": "Menghentikan pengiriman email “{target}”",
         "sent": "Mengirim “{target}” lewat email ke {count, plural, other {# orang}}"
+      },
+      "memory": {
+        "note_added": "Menambahkan catatan ke memori AI {target}: “{to}”",
+        "note_changed": "Mengubah catatan di memori AI {target}: “{from}” → “{to}”",
+        "note_deleted": "{count, plural, =1 {Menghapus catatan dari memori AI {target}: “{from}”} other {Menghapus # catatan dari memori AI {target}}}"
       }
     },
     "decisions": {

@@ -1317,6 +1317,13 @@
       "when": 1793561900284,
       "tag": "0187_agent_run_stop",
       "breakpoints": true
+    },
+    {
+      "idx": 188,
+      "version": "7",
+      "when": 1793644930359,
+      "tag": "0188_memory_layers",
+      "breakpoints": true
     }
   ]
 }

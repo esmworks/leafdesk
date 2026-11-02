@@ -2130,6 +2130,11 @@
         "set": "{target}を{count, plural, other {#人}}にメール送信するよう設定しました",
         "removed": "{target}のメール送信を停止しました",
         "sent": "{target}を{count, plural, other {#人}}にメール送信しました"
+      },
+      "memory": {
+        "note_added": "{target}のAIメモリーにメモを追加しました：「{to}」",
+        "note_changed": "{target}のAIメモリーのメモを変更しました：「{from}」→「{to}」",
+        "note_deleted": "{count, plural, =1 {{target}のAIメモリーからメモを削除しました：「{from}」} other {{target}のAIメモリーから#件のメモを削除しました}}"
       }
     },
     "decisions": {

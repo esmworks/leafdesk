@@ -18,6 +18,18 @@ export const MAX_MEMORY_CHARS = 300;
 /** A note about the person; `app`: the connected app that kept or last changed it, if one did. */
 export type MemoryView = { id: string; text: string; app: string | null; createdAt: string; updatedAt: string };
 
+/**
+ * Where a note the chat keeps or drops goes, beside the person's own notes in the workspace: their
+ * notes for every workspace (`account`), the workspace's (`workspace`) or a teamspace's.
+ */
+export type MemoryLayer = "account" | "workspace" | "teamspace";
+
+/** A note of the workspace or a teamspace (server/shared-memory.ts): `by`, who changed it last. */
+export type SharedNoteView = MemoryView & { by: string | null };
+
+/** The workspace's notes (`id` null) or a teamspace's, as the Memory page shows them. */
+export type MemoryPlaceView = { id: string | null; name: string | null; icon: string | null; notes: SharedNoteView[]; canChange: boolean };
+
 /** What the chat answers from: the whole workspace, a page and the pages under it, or a teamspace's pages. */
 export type ChatScope = { pageId: string } | { teamspaceId: string } | null;
 
@@ -145,6 +157,8 @@ export type ChatActionView = {
   mail?: { from: string; to: string[]; cc: string[] };
   /** Asked about every time: "don't ask again" isn't offered (server/ai-more-tools.ts ASKED_EACH_TIME). */
   eachTime?: boolean;
+  /** A note kept or dropped elsewhere than the person's own notes in the workspace: where (`place`, a teamspace's name). */
+  memoryLayer?: { layer: MemoryLayer; place: string | null };
   target: ChatPageView;
   title: string | null;
   /** A row renamed: its title now. */
@@ -324,6 +338,11 @@ export function chatPath(workspaceId: string, conversationId?: string | null): s
 }
 
 /** Whether a pathname is the workspace's full-page chat. */
+/** The Memory page: what the AI keeps for the person and the places they are in (`?section=`). */
+export function memoryPagePath(workspaceId: string, section?: string): string {
+  return `/w/${workspaceId}/ai/memory${section ? `?section=${encodeURIComponent(section)}` : ""}`;
+}
+
 export function isChatPath(pathname: string, workspaceId: string): boolean {
   return pathname === `/w/${workspaceId}/ai`;
 }

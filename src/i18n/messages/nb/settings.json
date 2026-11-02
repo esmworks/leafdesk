@@ -2130,6 +2130,11 @@
         "set": "Satte {target} til å sendes på e-post til {count, plural, one {# person} other {# personer}}",
         "removed": "Sluttet å sende {target} på e-post",
         "sent": "Sendte {target} på e-post til {count, plural, one {# person} other {# personer}}"
+      },
+      "memory": {
+        "note_added": "La til et notat i KI-minnet for {target}: «{to}»",
+        "note_changed": "Endret et notat i KI-minnet for {target}: «{from}» → «{to}»",
+        "note_deleted": "{count, plural, one {Slettet et notat fra KI-minnet for {target}: «{from}»} other {Slettet # notater fra KI-minnet for {target}}}"
       }
     },
     "decisions": {

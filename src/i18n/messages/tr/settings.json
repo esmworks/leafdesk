@@ -2130,6 +2130,11 @@
         "set": "{target} için {count, plural, one {# kişiye} other {# kişiye}} e-posta gönderimini ayarladı",
         "removed": "{target} e-posta gönderimini durdurdu",
         "sent": "{target} {count, plural, one {# kişiye} other {# kişiye}} e-postayla gönderildi"
+      },
+      "memory": {
+        "note_added": "{target} için yapay zekâ hafızasına not eklendi: “{to}”",
+        "note_changed": "{target} için yapay zekâ hafızasındaki bir not değiştirildi: “{from}” → “{to}”",
+        "note_deleted": "{count, plural, one {{target} için yapay zekâ hafızasından bir not silindi: “{from}”} other {{target} için yapay zekâ hafızasından # not silindi}}"
       }
     },
     "decisions": {

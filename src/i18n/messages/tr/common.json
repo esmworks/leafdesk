@@ -37,6 +37,7 @@
     "movedToPlace": "{place} konumuna taşındı",
     "trashed": "Çöp kutusuna taşındı",
     "rowsTrashed": "{count, plural, one {Satır çöp kutusuna taşındı} other {# satır çöp kutusuna taşındı}}",
+    "rowsChanged": "{count, plural, one {Satır değişti} other {# satır değişti}}",
     "undoFailed": "Geri alınamadı."
   },
   "datePhrase": {

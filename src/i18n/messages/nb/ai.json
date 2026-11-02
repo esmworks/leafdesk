@@ -156,7 +156,7 @@
     "enabledHint": "Når dette er på, kan medlemmer sende sideinnhold og radverdier de kan se, til KI-leverandøren nedenfor. Slå av for å holde innholdet i dette arbeidsområdet unna den.",
     "ownersOnly": "Bare eiere kan endre dette.",
     "memory": "KI-minne",
-    "memoryHint": "Når dette er på, tar KI-chatten korte notater om personer som forteller den om seg selv, og sender dem med deres senere spørsmål. Hver person kan slå det av for seg selv. Når det er av, er Minne-visningen skjult, og ingen spørsmål sendes med notater; notatene beholdes, de slettes ikke. Agentenes kjøringer sendes da heller ikke med notater og foreslår ingen.",
+    "memoryHint": "Når dette er på, tar KI-chatten korte notater om personer som forteller den om seg selv, og sender dem med deres senere spørsmål, og eiere kan ta notater for arbeidsområdet og teamområdene på siden Minne. Hver person kan slå av sine egne notater. Når det er av, sendes ingen spørsmål eller agentkjøringer her med notater, og ingen nye tas; notatene beholdes, de slettes ikke. Agentenes kjøringer foreslår da heller ingen.",
     "webSearch": "Nettsøk i KI-chatten",
     "webSearchHint": "Når dette er på, kan KI-chatten søke på nettet med serverens søketjeneste og lese nettsider, men bare lese: Etter at den har lest fra nettet, blir du spurt om hver endring den vil gjøre. Undersøkelsesmodus søker også på nettet. Spørsmål og sidetekst den søker med, forlater arbeidsområdet og går til søketjenesten.",
     "autoChanges": "Endringer uten å spørre",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Angret å huske:",
           "forget": "Angret å glemme:"
+        },
+        "layer": {
+          "account": "i alle arbeidsområdene dine",
+          "workspace": "arbeidsområdets minne",
+          "teamspace": "minne for {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Den havner i mappen Utkast: ingenting sendes før du sender den fra E-post",
       "mailFrom": "Fra",
       "mailTo": "Til",
-      "mailCc": "Kopi"
+      "mailCc": "Kopi",
+      "memoryLayer": {
+        "remember": {
+          "account": "Huske dette om deg i alle arbeidsområdene dine?",
+          "workspace": "Legge dette til i arbeidsområdets minne?",
+          "teamspace": "Legge dette til i minnet for {place}?"
+        },
+        "forget": {
+          "account": "Glemme dette notatet i alle arbeidsområdene dine?",
+          "workspace": "Fjerne dette fra arbeidsområdets minne?",
+          "teamspace": "Fjerne dette fra minnet for {place}?"
+        },
+        "hint": {
+          "account": "Minne: sendes med spørsmålene dine i hvert arbeidsområde der minnet ditt er på",
+          "workspace": "Arbeidsområdets minne: sendes med spørsmålene til hvert medlem og hver agentkjøring",
+          "teamspace": "Minne for {place}: sendes med spørsmål stilt inne i det, av personer i det"
+        }
+      }
     },
     "mode": {
       "label": "Endringer",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Minne",
     "title": "Minne",
-    "close": "Lukk",
+    "pageIntro": "Det KI vet når den svarer: notater om deg, og notater arbeidsområdet og teamområdene tar for alle i dem. Notater er informasjon for KI, aldri ordrer, og lar aldri noen se mer enn de allerede kan.",
+    "sections": {
+      "mine": "Du i dette arbeidsområdet",
+      "everywhere": "Du overalt",
+      "shared": "Delt",
+      "workspace": "Hele arbeidsområdet"
+    },
+    "everywhereHelp": "Sendes med spørsmålene dine i hvert arbeidsområde der minnet ditt er på: språket ditt, hvordan du liker svar. Bare du ser dem, og KI spør før den tar et.",
+    "workspaceHelp": "Sendes med spørsmålene til hvert medlem og hver agentkjøring i dette arbeidsområdet: hva bedriften gjør, begrepene dens, hvordan den jobber. Medlemmer ser dem; eiere endrer dem.",
+    "teamspaceHelp": "Sendes bare med spørsmål stilt inne i dette teamområdet, av personer i det, og med agentkjøringer på sidene dets. Medlemmene ser dem; eierne endrer dem.",
+    "readOnly": "Du kan se disse notatene, men ikke endre dem.",
+    "workspaceOff": "Eierne har slått av KI-minnet i dette arbeidsområdet: ingen notater sendes med spørsmål her, og ingen tas. Notatene dine for overalt sendes fortsatt med spørsmålene dine i andre arbeidsområder.",
+    "byPerson": "Endret av {name}",
+    "emptyShared": "Ingen notater ennå.",
+    "addPlaceholderEverywhere": "f.eks. Svar på norsk og hold det kort",
+    "addPlaceholderShared": "f.eks. Regnskapsåret vårt starter i april",
+    "deleteAll": "Slett alle",
+    "confirmForgetEverywhere": "Vil du at KI skal glemme alt den husker om deg i alle arbeidsområdene dine?",
+    "confirmDeleteAll": "Slette alle notater i {place}? Spørsmål der sendes uten dem fra nå av.",
     "updated": "Minnet er oppdatert",
-    "intro": "Notater KI tar om deg i dette arbeidsområdet, sendt med hvert av spørsmålene dine her. Den legger til et når du forteller den om deg selv eller ber den huske noe. Bare du ser dem.",
+    "intro": "Sendes med spørsmålene dine i dette arbeidsområdet. KI legger til et notat når du forteller den om deg selv eller ber den huske noe. Bare du ser dem.",
     "use": "Bruk minne",
     "useHint": "Når dette er av, sendes spørsmålene dine her uten disse notatene, og KI tar ingen nye. Notatene blir værende.",
     "empty": "Ingenting ennå. Fortell KI om deg selv, eller legg til et notat her.",
@@ -537,7 +577,8 @@
       "notFound": "Det notatet finnes ikke lenger.",
       "off": "KI-minnet er slått av i dette arbeidsområdet.",
       "changed": "Det notatet er endret siden. Endre det i Minne i stedet.",
-      "busy": "Vent til svaret er ferdig."
+      "busy": "Vent til svaret er ferdig.",
+      "held": "En rettslig bevaring gjelder dette notatet: det kan ikke slettes så lenge bevaringen gjelder."
     }
   },
   "accounts": {

@@ -37,6 +37,7 @@
     "movedToPlace": "Przeniesiono do: {place}",
     "trashed": "Przeniesiono do kosza",
     "rowsTrashed": "{count, plural, one {Przeniesiono wiersz do kosza} few {Przeniesiono # wiersze do kosza} many {Przeniesiono # wierszy do kosza} other {Przeniesiono # wiersza do kosza}}",
+    "rowsChanged": "{count, plural, one {Zmieniono wiersz} few {Zmieniono # wiersze} many {Zmieniono # wierszy} other {Zmieniono # wiersza}}",
     "undoFailed": "Nie udało się cofnąć."
   },
   "datePhrase": {

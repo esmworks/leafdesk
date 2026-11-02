@@ -115,7 +115,9 @@ import type { FileRow } from "@/server/files";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
-import { memoryForPrompt, MemoryError, memoryOn, MEMORY_TOOLS, READ_MEMORY_TOOL, undoNote } from "@/server/ai-memory";
+import { accountNotesOf } from "@/server/account-memory";
+import { CHAT_READ_MEMORY_TOOL, fitNotes, memoryAvailable, memoryForPrompt, MemoryError, memoryOn, MEMORY_TOOLS, undoNote } from "@/server/ai-memory";
+import { otherTeamspaces, pageTeamspace, sharedMemoryFor } from "@/server/shared-memory";
 import { remindTool } from "@/server/ai-reminders";
 import { awaitDecision, decideChange, runsWaitingHere, type ChatDecision } from "@/server/ai-chat-approvals";
 import { answeringIn, conversationBusy, openRun, runEvents, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
@@ -135,6 +137,8 @@ const THOUGHT_CHARS = 300;
 /** Share of the prompt that earlier questions and answers may take, and what the chat remembers. */
 const HISTORY_SHARE = 0.25;
 const MEMORY_SHARE = 0.2;
+/** Other teamspaces the person is in, named with a question for read_memory and remember. */
+const MAX_LISTED_ROOMS = 20;
 /** How often a stream waiting on the person's decision sends a ping. */
 const PING_MS = 20_000;
 /** How often an answer under way says so, well within the worker's STALE_MS (server/agents/run.ts). */
@@ -531,6 +535,19 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     // the workspace have the memory on.
     // Research only reads: no changes, notes or other services.
     const remembers = !research && !source.appReadOnly && (await memoryOn(userId, workspaceId));
+    // The notes of the workspace and of the teamspace the question is asked in, by their own
+    // rules (shared-memory.ts): not the person's, so their switch leaves them alone. Research reads
+    // none. The person's notes for all their workspaces go where their own notes here go.
+    const askedIn = research || !scope ? null : scope.kind === "teamspace" ? scope.id : await pageTeamspace(scope.id);
+    // The workspace's switch is read once here for both (remembers read it too, with the person's).
+    const available = !research && (remembers || (await memoryAvailable(workspaceId)));
+    const [shared, accountNotes, otherRooms] = available
+      ? await Promise.all([
+          sharedMemoryFor(userId, workspaceId, askedIn, true),
+          remembers ? accountNotesOf(userId) : Promise.resolve([]),
+          otherTeamspaces(userId, workspaceId, askedIn),
+        ])
+      : [{ workspace: [], teamspace: null }, [], []];
     // Tools of connections that change something are left out of a read-only chat.
     const external = setup.connections && !research ? await chatToolset(workspaceId, { writes: initialMode !== "read" }) : null;
     const services = [...new Set([...(external?.byName.values() ?? [])].map((e) => e.connection.name))];
@@ -562,7 +579,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     const skillTitle = skill ? pageLabel(skill.title) : null;
     const system = research
       ? researchSystemPrompt(promptScope, webTools.length > 0, skillTitle, hasFiles)
-      : chatSystemPrompt(promptScope, initialMode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles, mailTools.length > 0);
+      : chatSystemPrompt(promptScope, initialMode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles, mailTools.length > 0, !research);
     const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
     const feature = research ? "chat.research" : "chat";
     // What the model takes, less what every turn sends: the history, the map, memory and tool results
@@ -594,10 +611,26 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       signal,
     });
 
-    // The person's notes, newest first as far as their share of the room takes them; those that
-    // don't fit are read with read_memory, offered only then (also to an answer taken up again).
-    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0, shown: 0 };
-    if (memory.shown < memory.count) tools.push(READ_MEMORY_TOOL);
+    // The notes, newest first as far as their shares of the room take them: the workspace's and the
+    // teamspace's a quarter each, the person's for all workspaces a little, their own here the
+    // rest. Those that don't fit, and other teamspaces' notes, are read with read_memory, offered
+    // only then (also to an answer taken up again).
+    const memoryRoom = Math.floor(room() * MEMORY_SHARE);
+    const readHint = (layer: string) => `(Older notes don't fit here: read them with ${CHAT_READ_MEMORY_TOOL.name}, layer ${layer}.)`;
+    const workspaceNotes = fitNotes(shared.workspace, Math.floor(memoryRoom / 4), readHint("workspace"));
+    const roomNotes = shared.teamspace ? fitNotes(shared.teamspace.notes, Math.floor(memoryRoom / 4), readHint(`teamspace, teamspace_id ${shared.teamspace.id}`)) : null;
+    const everywhere = fitNotes(accountNotes, Math.floor(memoryRoom / 8), readHint("account"));
+    const left = memoryRoom - workspaceNotes.text.length - (roomNotes?.text.length ?? 0) - everywhere.text.length;
+    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.max(0, left)) : { text: "", count: 0, shown: 0 };
+    const cut = [memory, workspaceNotes, everywhere, ...(roomNotes ? [roomNotes] : [])].some((m) => m.shown < m.count);
+    if (cut || otherRooms.some((r) => r.count > 0)) tools.push(CHAT_READ_MEMORY_TOOL);
+    const notesText = {
+      account: everywhere.text,
+      workspace: workspaceNotes.text,
+      teamspace: shared.teamspace && roomNotes ? { id: shared.teamspace.id, name: shared.teamspace.name, text: roomNotes.text } : null,
+      others: otherRooms.slice(0, MAX_LISTED_ROOMS),
+    };
+    const notesSize = notesText.account.length + notesText.workspace.length + (notesText.teamspace?.text.length ?? 0) + notesText.others.length * 80;
 
     // ---------------------------------------------------------------------------- the question
     let messages: AiMessage[];
@@ -611,15 +644,15 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       // Nothing is searched for the model: it gets the map of what there is and decides itself.
       // Asked from a connected app (the Telegram bot), which gets no mail tools: nor what turns that read mail said.
       const history: AiMessage[] = chatHistory(source.fromApp ? withoutMailTurns(earlier) : earlier, Math.floor(room() * HISTORY_SHARE));
-      const filesText = hasFiles ? filesPrompt(read, Math.floor((room() - sizeOf(history) - message.length - memory.text.length) * FILES_SHARE)) : "";
+      const filesText = hasFiles ? filesPrompt(read, Math.floor((room() - sizeOf(history) - message.length - memory.text.length - notesSize) * FILES_SHARE)) : "";
       const imagesSize = read.images.length * IMAGE_CHARS;
-      const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - filesText.length - imagesSize - 2_000);
+      const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - notesSize - filesText.length - imagesSize - 2_000);
       const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope, mapRoom) : "";
       // A question that is only files asks about the files.
       const asked = message || "(The person attached the files without a question: say briefly what they hold and what you could do with them.)";
       question = {
         role: "user",
-        content: chatQuestionPrompt(asked, map, skill?.body, memory.text, { now: new Date(), timeZone }, filesText),
+        content: chatQuestionPrompt(asked, map, skill?.body, memory.text, { now: new Date(), timeZone }, filesText, notesText),
         ...(read.images.length ? { images: read.images } : {}),
       };
       messages = [...history, question];

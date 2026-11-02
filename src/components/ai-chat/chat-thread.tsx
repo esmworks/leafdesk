@@ -43,6 +43,7 @@ import {
   Telescope,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { usePropertyTypeLabel } from "@/components/database/property-icons";
@@ -55,6 +56,7 @@ import {
   changedMemory,
   changedThings,
   makesFile,
+  memoryPagePath,
   type ChatMode,
   type ChatOptions,
   type ChatSourceView,
@@ -70,7 +72,6 @@ import { AttachmentChip } from "./attachment-chip";
 import { useCanRecord } from "@/components/voice/dictation";
 import { chipTrigger } from "./composer-chip";
 import { DictateButton, type DictationNotice } from "./dictate-button";
-import { MemoryDialog } from "./memory-dialog";
 import { carriesFiles, composerBox, CopyAction, MessageTime, questionBox, revealed, roundButton, StepsFold } from "./message-parts";
 import { SkillChip, SkillList, useSkillPicker } from "./skill-picker";
 import { PageLink, reminderLabel, StepLine, undoableNote, UndoableStepLine } from "./step-line";
@@ -123,7 +124,6 @@ export function ChatThread({
   autoFocus?: boolean;
 }) {
   const t = useTranslations("ai.chat");
-  const [memoryOpen, setMemoryOpen] = useState(false);
   // Files go in through the button, by dropping them on the box, or pasted.
   const fileInput = useRef<HTMLInputElement>(null);
   const [dropping, setDropping] = useState(false);
@@ -135,7 +135,6 @@ export function ChatThread({
   const handlers = useMemo(
     () => ({
       source: (source: ChatSourceView) => latest.current.onSource(source),
-      memory: () => setMemoryOpen(true),
       /** Asks the question before the answer at `index` again. */
       retry: (index: number) => {
         const asked = latest.current.chat.messages[index - 1];
@@ -343,7 +342,6 @@ export function ChatThread({
                           last={i === messages.length - 1}
                           onRetry={askAgain && i === messages.length - 1 ? handlers.retry : undefined}
                           onSource={handlers.source}
-                          onMemory={handlers.memory}
                           onUndoNote={chat.undoNote ? handlers.undoNote : undefined}
                           onSaveReport={m.research && chat.conversationId ? handlers.saveReport : undefined}
                           workspaceId={chat.workspaceId}
@@ -629,7 +627,6 @@ export function ChatThread({
           </div>
         </div>
       </div>
-      <MemoryDialog workspaceId={chat.workspaceId} open={memoryOpen} onClose={() => setMemoryOpen(false)} />
       {empty && <div className="flex-[1.4]" aria-hidden />}
     </>
   );
@@ -681,7 +678,6 @@ const Answer = memo(function Answer({
   last,
   onRetry,
   onSource,
-  onMemory,
   onUndoNote,
   onSaveReport,
   workspaceId,
@@ -699,8 +695,6 @@ const Answer = memo(function Answer({
   /** Answers its question again, when it may be. */
   onRetry?: (index: number) => void;
   onSource: (source: ChatSourceView) => void;
-  /** Opens the Memory dialog (from the line saying the answer kept or dropped a note). */
-  onMemory: () => void;
   /** Undoes a note a step kept, changed or dropped at once: null when it was, else why not. */
   onUndoNote?: (memoryId: string) => Promise<string | null>;
   /** A research report: saves it as a page, giving its id (null when it couldn't). */
@@ -734,10 +728,10 @@ const Answer = memo(function Answer({
       {message.note && <p className="mt-1 text-xs text-fg-muted">{message.note === "stopped" ? labels.stopped : labels.cutOff}</p>}
       {/* Notes kept or dropped show even with the steps folded: the person should know. */}
       {done && message.steps?.some(changedMemory) && (
-        <button type="button" onClick={onMemory} className="-ms-1 mt-1.5 flex items-center gap-1.5 rounded px-1 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg">
+        <Link href={memoryPagePath(workspaceId)} className="-ms-1 mt-1.5 flex w-fit items-center gap-1.5 rounded px-1 py-0.5 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg">
           <Brain className="h-3.5 w-3.5 shrink-0" />
           {tMemory("updated")}
-        </button>
+        </Link>
       )}
       {done && (
         <div className={cn("mt-1.5 -ms-1 flex items-center gap-0.5", !last && revealed)}>
@@ -1337,7 +1331,14 @@ function ChangePrompt({
   // A mail draft: shown whole, every recipient and all of its text, as it would be saved.
   const draft = action.action === "draftMail";
   const decisions = memory || reminder || action.action === "connection" || action.eachTime || web || !always ? EACH_TIME_DECISIONS : DECISIONS;
-  const question = action.action === "connection" ? t("question.connection", { connection: action.connection?.name ?? "" }) : t(`question.${action.action}`);
+  // A note for all the person's workspaces, the workspace or a teamspace says where it goes.
+  const layer = memory ? action.memoryLayer : undefined;
+  const question =
+    action.action === "connection"
+      ? t("question.connection", { connection: action.connection?.name ?? "" })
+      : layer
+        ? t(`memoryLayer.${action.action === "forget" ? "forget" : "remember"}.${layer.layer}`, { place: layer.place ?? "" })
+        : t(`question.${action.action}`);
   useEffect(() => {
     first.current?.focus();
   }, [pending.id]);
@@ -1376,7 +1377,9 @@ function ChangePrompt({
           </p>
         )}
         <p className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
-          {memory ? (
+          {layer ? (
+            t(`memoryLayer.hint.${layer.layer}`, { place: layer.place ?? "" })
+          ) : memory ? (
             t("memoryHint")
           ) : reminder ? (
             t("remindHint", { when: reminderLabel(action.content ?? "", locale) })

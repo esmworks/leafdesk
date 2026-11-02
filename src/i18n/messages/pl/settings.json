@@ -2130,6 +2130,11 @@
         "set": "Ustawiono wysyłkę {target} e-mailem do {count, plural, one {# osoby} few {# osób} many {# osób} other {# osoby}}",
         "removed": "Zatrzymano wysyłkę {target} e-mailem",
         "sent": "Wysłano {target} e-mailem do {count, plural, one {# osoby} few {# osób} many {# osób} other {# osoby}}"
+      },
+      "memory": {
+        "note_added": "Dodano notatkę do pamięci AI {target}: „{to}”",
+        "note_changed": "Zmieniono notatkę w pamięci AI {target}: „{from}” → „{to}”",
+        "note_deleted": "{count, plural, one {Usunięto notatkę z pamięci AI {target}: „{from}”} few {Usunięto # notatki z pamięci AI {target}} many {Usunięto # notatek z pamięci AI {target}} other {Usunięto # notatki z pamięci AI {target}}}"
       }
     },
     "decisions": {

@@ -2130,6 +2130,11 @@
         "set": "Asetti kohteen {target} lähetettäväksi sähköpostilla {count, plural, one {# henkilölle} other {# henkilölle}}",
         "removed": "Lopetti kohteen {target} lähettämisen sähköpostilla",
         "sent": "Lähetti kohteen {target} sähköpostilla {count, plural, one {# henkilölle} other {# henkilölle}}"
+      },
+      "memory": {
+        "note_added": "Lisäsi muistiinpanon kohteen {target} tekoälymuistiin: ”{to}”",
+        "note_changed": "Muutti muistiinpanoa kohteen {target} tekoälymuistissa: ”{from}” → ”{to}”",
+        "note_deleted": "{count, plural, one {Poisti muistiinpanon kohteen {target} tekoälymuistista: ”{from}”} other {Poisti # muistiinpanoa kohteen {target} tekoälymuistista}}"
       }
     },
     "decisions": {

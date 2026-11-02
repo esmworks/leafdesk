@@ -4,11 +4,22 @@
 
 ### Added
 
+- **A board column's menu moves all its cards at once.** *Move all cards to* takes every card to
+  another column, as dragging each one would (cards you may not change stay), or to the trash.
+  Both can be undone from the note that follows, as can setting a value on several selected rows.
 - **Every workspace has a dashboard on its home page.** Owners add numbers, charts and lists of any
   database with *Edit*, as on a dashboard block, or press *Set up with AI* to have the AI lay one
   out from the workspace's databases (the draft can be undone). Everyone sees the widgets whose
   database they may open. Above it, four figures of your own: open tasks, overdue, due this week
   and changes waiting for your approval.
+- **The AI keeps notes for the workspace, its teamspaces and you everywhere.** Beside each
+  person's own notes, owners keep notes about the company that go with every member's questions
+  and every agent's run, and a teamspace's owners keep notes that go only with questions asked
+  inside it by people in it. Notes about you that go to all your workspaces (your language, how you
+  like answers) sit in a section of their own. All of them are on a new *Memory* page (sections down
+  its side), replacing the Memory dialog; the chat asks before keeping one of these, MCP's
+  `list_memory` and `change_memory` take a `scope`, and changes to shared notes are in the audit
+  log. Migration 0188.
 
 ### Changed
 

@@ -20,6 +20,8 @@ import { workspacePeople } from "@/server/workspaces";
  *  - deleted properties' values on held rows (server/databases.ts purgeProperty, the retention);
  *  - uploads by held people (server/files.ts cleanups);
  *  - comments by held people (server/comments.ts), and PDF letterheads they made (letterheads.ts);
+ *  - the workspace's and its teamspaces' notes for the AI that held people kept or last changed
+ *    (server/shared-memory.ts);
  *  - the workspace (server/workspace-deletion.ts, and with an account: workspaces.ts) and held
  *    people's accounts (server/account.ts). The foreign keys refuse both too, should a path be missed.
  *

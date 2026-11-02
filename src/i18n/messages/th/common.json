@@ -37,6 +37,7 @@
     "movedToPlace": "ย้ายไปที่ {place} แล้ว",
     "trashed": "ย้ายไปถังขยะแล้ว",
     "rowsTrashed": "{count, plural, other {ย้าย # แถวไปถังขยะแล้ว}}",
+    "rowsChanged": "{count, plural, other {เปลี่ยน # แถวแล้ว}}",
     "undoFailed": "เลิกทำไม่ได้"
   },
   "datePhrase": {

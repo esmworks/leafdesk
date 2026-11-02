@@ -156,7 +156,7 @@
     "enabledHint": "När det är aktiverat kan medlemmar skicka sidinnehåll och radvärden som de kan se till AI-leverantören nedan. Stäng av för att hålla den här arbetsytans innehåll borta från den.",
     "ownersOnly": "Bara ägare kan ändra detta.",
     "memory": "AI-minne",
-    "memoryHint": "När det är aktiverat sparar AI-chatten korta anteckningar om personer som berättar om sig själva, och skickar dem med deras senare frågor. Varje person kan stänga av det för sig själv. När det är avstängt döljs vyn Minne och ingens frågor har med sig anteckningar; anteckningarna sparas, de raderas inte. Agenters körningar har då inte med sig några anteckningar och föreslår inte heller några.",
+    "memoryHint": "När det är aktiverat sparar AI-chatten korta anteckningar om personer som berättar om sig själva och skickar dem med deras senare frågor, och ägare kan spara anteckningar för arbetsytan och dess teamytor på sidan Minne. Varje person kan stänga av sina egna anteckningar. När det är avstängt har ingen fråga eller agentkörning här med sig anteckningar och inga sparas; anteckningarna finns kvar, de raderas inte. Agenters körningar föreslår då inte heller några.",
     "webSearch": "Webbsökning i AI-chatten",
     "webSearchHint": "När det är aktiverat får AI-chatten söka på webben med serverns söktjänst och läsa webbsidor, bara läsa: efter att den har läst från webben frågar den om varje ändring den vill göra. Researchläget söker också på webben. Frågor och sidtext som den söker med lämnar arbetsytan och skickas till söktjänsten.",
     "autoChanges": "Ändringar utan att fråga",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Ångrade att komma ihåg:",
           "forget": "Ångrade att glömma:"
+        },
+        "layer": {
+          "account": "i alla dina arbetsytor",
+          "workspace": "arbetsytans minne",
+          "teamspace": "minne för {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Det hamnar i mappen Utkast: inget skickas förrän du skickar det från Mail",
       "mailFrom": "Från",
       "mailTo": "Till",
-      "mailCc": "Kopia"
+      "mailCc": "Kopia",
+      "memoryLayer": {
+        "remember": {
+          "account": "Komma ihåg detta om dig i alla dina arbetsytor?",
+          "workspace": "Lägga till detta i arbetsytans minne?",
+          "teamspace": "Lägga till detta i minnet för {place}?"
+        },
+        "forget": {
+          "account": "Glömma den här anteckningen i alla dina arbetsytor?",
+          "workspace": "Ta bort detta från arbetsytans minne?",
+          "teamspace": "Ta bort detta från minnet för {place}?"
+        },
+        "hint": {
+          "account": "Minne: skickas med dina frågor i varje arbetsyta där ditt minne är aktiverat",
+          "workspace": "Arbetsytans minne: skickas med varje medlems frågor och varje agentkörning",
+          "teamspace": "Minne för {place}: skickas med frågor som ställs i den, av personer i den"
+        }
+      }
     },
     "mode": {
       "label": "Ändringar",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Minne",
     "title": "Minne",
-    "close": "Stäng",
+    "pageIntro": "Det AI:n vet när den svarar: anteckningar om dig, och anteckningar som arbetsytan och dess teamytor sparar åt alla i dem. Anteckningar är information till AI:n, aldrig order, och låter aldrig någon se mer än de redan kan.",
+    "sections": {
+      "mine": "Du i den här arbetsytan",
+      "everywhere": "Du överallt",
+      "shared": "Delade",
+      "workspace": "Hela arbetsytan"
+    },
+    "everywhereHelp": "Skickas med dina frågor i varje arbetsyta där ditt minne är aktiverat: ditt språk, hur du vill ha svar. Bara du ser dem, och AI:n frågar innan den sparar en.",
+    "workspaceHelp": "Skickas med varje medlems frågor och varje agentkörning i den här arbetsytan: vad företaget gör, dess begrepp, hur det arbetar. Medlemmar ser dem; ägare ändrar dem.",
+    "teamspaceHelp": "Skickas bara med frågor som ställs i den här teamytan, av personer i den, och med agentkörningar på dess sidor. Dess medlemmar ser dem; dess ägare ändrar dem.",
+    "readOnly": "Du kan se de här anteckningarna men inte ändra dem.",
+    "workspaceOff": "Ägarna har stängt av AI-minnet i den här arbetsytan: inga anteckningar följer med frågor här och inga sparas. Dina anteckningar för överallt följer fortfarande med dina frågor i andra arbetsytor.",
+    "byPerson": "Ändrad av {name}",
+    "emptyShared": "Inga anteckningar än.",
+    "addPlaceholderEverywhere": "t.ex. Svara på svenska och fatta dig kort",
+    "addPlaceholderShared": "t.ex. Vårt räkenskapsår börjar i april",
+    "deleteAll": "Radera alla",
+    "confirmForgetEverywhere": "Glömma allt som AI:n kommer ihåg om dig i alla dina arbetsytor?",
+    "confirmDeleteAll": "Radera alla anteckningar i {place}? Frågor där skickas utan dem från och med nu.",
     "updated": "Minnet har uppdaterats",
-    "intro": "Anteckningar som AI:n sparar om dig i den här arbetsytan och skickar med varje fråga du ställer här. Den lägger till en när du berättar om dig själv eller ber den komma ihåg något. Bara du ser dem.",
+    "intro": "Skickas med dina frågor i den här arbetsytan. AI:n lägger till en anteckning när du berättar om dig själv eller ber den komma ihåg något. Bara du ser dem.",
     "use": "Använd minnet",
     "useHint": "När det är avstängt skickas dina frågor här utan de här anteckningarna, och AI:n sparar inga nya. Anteckningarna finns kvar.",
     "empty": "Inget än. Berätta om dig själv för AI:n, eller lägg till en anteckning här.",
@@ -537,7 +577,8 @@
       "notFound": "Den anteckningen finns inte längre.",
       "off": "AI-minnet är avstängt i den här arbetsytan.",
       "changed": "Anteckningen har ändrats sedan dess. Ändra den i Minne i stället.",
-      "busy": "Vänta tills svaret är klart."
+      "busy": "Vänta tills svaret är klart.",
+      "held": "Ett juridiskt bevarande omfattar den här anteckningen: den kan inte raderas så länge bevarandet gäller."
     }
   },
   "accounts": {

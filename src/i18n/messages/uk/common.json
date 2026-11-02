@@ -37,6 +37,7 @@
     "movedToPlace": "Переміщено до {place}",
     "trashed": "Переміщено в кошик",
     "rowsTrashed": "{count, plural, one {# рядок переміщено в кошик} few {# рядки переміщено в кошик} many {# рядків переміщено в кошик} other {# рядка переміщено в кошик}}",
+    "rowsChanged": "{count, plural, one {# рядок змінено} few {# рядки змінено} many {# рядків змінено} other {# рядка змінено}}",
     "undoFailed": "Не вдалося скасувати."
   },
   "datePhrase": {

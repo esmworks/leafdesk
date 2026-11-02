@@ -396,7 +396,7 @@ keeps its notes with the new answer. When your notes are more than a question's 
 takes, the newest go with it and the chat reads the others with `read_memory`, offered only then. It keeps only what you say in your questions,
 never what pages or tool results say, and a note you already have (case aside) is kept once. Your notes go with each of your later questions in that workspace, as notes rather
 than instructions: they never widen what the chat may read or change. The brain button in the chat's
-header opens *Memory*, where you see, add, change and delete notes, or forget everything. Up to 30
+header opens the *Memory* page, where you see, add, change and delete notes, or forget everything. Up to 30
 notes per workspace, 300 characters each. Notes are private to you, never sent with anyone else's
 questions or in another workspace, and are deleted when you leave the workspace or delete your
 account.
@@ -406,6 +406,30 @@ questions then go without your notes and the chat isn't offered `remember` or `f
 the memory is off when asked to remember something). Workspace owners can turn the memory off for
 everyone under Settings → General → AI → *AI memory*, which also hides the *Memory* button. Neither
 switch deletes a note: they come back when the memory is turned on again.
+
+**Notes everywhere, the workspace's and each teamspace's.** Beside your notes in a workspace, the
+*Memory* page has three more kinds, each in its own section:
+
+- *You everywhere*: notes about you that go with your questions in every workspace where your
+  memory is on (your language, how you like answers). Only you see them. The chat keeps one
+  (`remember` with scope `account`) only after asking you, since it reaches all your workspaces;
+  agents never see them.
+- *The workspace's*: what the company does, its terms, how it works. They go with every member's
+  questions and every agent's run in the workspace (not a guest's, nor a run working for a guest).
+  Members see them; only owners change them.
+- *A teamspace's*: what is said in a teamspace stays there. Its notes go only with a question asked
+  inside it (the chat kept to the teamspace or to one of its pages) by someone in it, and with an
+  agent's run on one of its rows, databases or pages for someone in it; reading an open teamspace's
+  pages without joining doesn't bring them. Those in it see them; its owners (and the workspace's
+  owners, unless it is private) change them. An archived teamspace's notes stay, unsent.
+
+The chat may offer to keep a note for the workspace or a teamspace when you may change those, and
+always asks first, saying where it goes. Up to 30 notes of 300 characters in each. When a question
+has no room for all of them, the newest go and the chat reads the rest with `read_memory`, which
+also reads other teamspaces' notes you are in. Changes to the workspace's and teamspaces' notes are
+in the audit log. With the workspace's *AI memory* off, none of them goes anywhere or is kept here,
+and the page shows only your notes everywhere. Agents' own memories ([Agents](agents.md)) stay
+apart: an agent reads the workspace's and the place's notes but never writes them.
 
 **Reminders and routines.** Ask the chat to remind you of something once ("remind me tomorrow at
 9 to call Ayşe") and it sets a reminder for you alone, up to 30 days ahead, on your clock (the
@@ -429,8 +453,10 @@ off* inbox item. For now it is set through the app's server actions (`setOwnRequ
 screen of its own yet.
 
 The same notes reach the AI apps you connect over MCP, so each of them knows you as the chat does:
-`list_memory` reads them (an app is told to at the start of a conversation), and `change_memory`
-keeps a note, changes one or deletes some or all of them, with the chat's
+`list_memory` reads them (an app is told to at the start of a conversation), with your notes
+everywhere and the workspace's and teamspaces' notes you may read, and `change_memory`
+keeps a note, changes one or deletes some or all of them (`scope`: `person`, `account`,
+`workspace` or `teamspace`, the last two only where you may change them), with the chat's
 limits. Apps are told to keep only what you say about yourself, never what pages or tool results
 say, and to tell you what they kept; your app asks you before it calls a tool that changes
 anything, as it does for pages. *Memory* shows which app kept or last changed each note (*Kept by

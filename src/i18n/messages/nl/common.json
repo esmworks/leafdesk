@@ -37,6 +37,7 @@
     "movedToPlace": "Verplaatst naar {place}",
     "trashed": "Naar de prullenbak verplaatst",
     "rowsTrashed": "{count, plural, one {Rij naar de prullenbak verplaatst} other {# rijen naar de prullenbak verplaatst}}",
+    "rowsChanged": "{count, plural, one {Rij gewijzigd} other {# rijen gewijzigd}}",
     "undoFailed": "Ongedaan maken is niet gelukt."
   },
   "datePhrase": {

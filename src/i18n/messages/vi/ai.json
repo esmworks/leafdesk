@@ -156,7 +156,7 @@
     "enabledHint": "Khi bật, các thành viên có thể gửi nội dung trang và giá trị hàng mà họ thấy được đến nhà cung cấp AI bên dưới. Hãy tắt để giữ nội dung của không gian làm việc này không đến tay họ.",
     "ownersOnly": "Chỉ chủ sở hữu mới có thể thay đổi điều này.",
     "memory": "Bộ nhớ AI",
-    "memoryHint": "Khi bật, trò chuyện AI giữ các ghi chú ngắn về những người kể về bản thân họ, và gửi chúng kèm các câu hỏi sau đó của họ. Mỗi người có thể tự tắt cho mình. Khi tắt, chế độ xem Bộ nhớ bị ẩn và câu hỏi của không ai kèm ghi chú; các ghi chú được giữ lại, không bị xóa. Khi đó các lần chạy của tác tử không kèm ghi chú nào và cũng không đề xuất ghi chú nào.",
+    "memoryHint": "Khi bật, trò chuyện AI giữ các ghi chú ngắn về những người kể về bản thân họ và gửi chúng kèm các câu hỏi sau đó của họ, và chủ sở hữu có thể giữ ghi chú cho không gian làm việc và các không gian nhóm của nó trên trang Bộ nhớ. Mỗi người có thể tự tắt ghi chú của mình. Khi tắt, không câu hỏi hay lần chạy tác tử nào ở đây kèm ghi chú và không ghi chú nào được giữ; các ghi chú vẫn còn, không bị xóa. Khi đó các lần chạy của tác tử cũng không đề xuất ghi chú nào.",
     "webSearch": "Tìm kiếm web trong trò chuyện AI",
     "webSearchHint": "Khi bật, trò chuyện AI có thể tìm kiếm trên web bằng dịch vụ tìm kiếm của máy chủ và đọc các trang web, chỉ đọc: sau khi đã đọc từ web, mọi thay đổi nó muốn thực hiện đều được hỏi trước. Chế độ nghiên cứu cũng tìm kiếm trên web. Câu hỏi và văn bản trang dùng để tìm kiếm sẽ rời không gian làm việc để đến dịch vụ tìm kiếm.",
     "autoChanges": "Thay đổi không cần hỏi",
@@ -316,6 +316,11 @@
         "undoneNote": {
           "remember": "Đã hoàn tác ghi nhớ:",
           "forget": "Đã hoàn tác quên:"
+        },
+        "layer": {
+          "account": "trong tất cả không gian làm việc của bạn",
+          "workspace": "bộ nhớ không gian làm việc",
+          "teamspace": "bộ nhớ của {place}"
         }
       },
       "connection": {
@@ -415,7 +420,24 @@
       "draftMailHint": "Email được lưu vào thư mục Nháp: không gì được gửi cho đến khi bạn gửi từ Thư",
       "mailFrom": "Từ",
       "mailTo": "Đến",
-      "mailCc": "Cc"
+      "mailCc": "Cc",
+      "memoryLayer": {
+        "remember": {
+          "account": "Ghi nhớ điều này về bạn trong tất cả không gian làm việc của bạn?",
+          "workspace": "Thêm điều này vào bộ nhớ của không gian làm việc?",
+          "teamspace": "Thêm điều này vào bộ nhớ của {place}?"
+        },
+        "forget": {
+          "account": "Quên ghi chú này trong tất cả không gian làm việc của bạn?",
+          "workspace": "Gỡ điều này khỏi bộ nhớ của không gian làm việc?",
+          "teamspace": "Gỡ điều này khỏi bộ nhớ của {place}?"
+        },
+        "hint": {
+          "account": "Bộ nhớ: được gửi kèm câu hỏi của bạn trong mọi không gian làm việc mà bộ nhớ của bạn đang bật",
+          "workspace": "Bộ nhớ không gian làm việc: được gửi kèm câu hỏi của mọi thành viên và mọi lần chạy tác tử",
+          "teamspace": "Bộ nhớ của {place}: được gửi kèm các câu hỏi được đặt bên trong nó bởi những người trong đó"
+        }
+      }
     },
     "mode": {
       "label": "Thay đổi",
@@ -510,9 +532,27 @@
   "memory": {
     "open": "Bộ nhớ",
     "title": "Bộ nhớ",
-    "close": "Đóng",
+    "pageIntro": "Những gì AI biết khi trả lời: ghi chú về bạn, và ghi chú mà không gian làm việc cùng các không gian nhóm của nó giữ cho mọi người trong đó. Ghi chú là thông tin cho AI, không bao giờ là mệnh lệnh, và không bao giờ cho ai thấy nhiều hơn những gì họ vốn đã thấy được.",
+    "sections": {
+      "mine": "Bạn trong không gian làm việc này",
+      "everywhere": "Bạn ở mọi nơi",
+      "shared": "Dùng chung",
+      "workspace": "Toàn bộ không gian làm việc"
+    },
+    "everywhereHelp": "Được gửi kèm câu hỏi của bạn trong mọi không gian làm việc mà bộ nhớ của bạn đang bật: ngôn ngữ của bạn, cách bạn thích nhận câu trả lời. Chỉ mình bạn thấy chúng, và AI sẽ hỏi trước khi giữ một ghi chú.",
+    "workspaceHelp": "Được gửi kèm câu hỏi của mọi thành viên và mọi lần chạy tác tử trong không gian làm việc này: công ty làm gì, các thuật ngữ, cách làm việc. Thành viên xem được; chủ sở hữu thay đổi chúng.",
+    "teamspaceHelp": "Chỉ được gửi kèm các câu hỏi được đặt bên trong không gian nhóm này bởi những người trong đó, và các lần chạy tác tử trên các trang của nó. Thành viên của nó xem được; chủ sở hữu của nó thay đổi chúng.",
+    "readOnly": "Bạn có thể xem các ghi chú này nhưng không thể thay đổi chúng.",
+    "workspaceOff": "Chủ sở hữu đã tắt bộ nhớ AI trong không gian làm việc này: không ghi chú nào đi kèm câu hỏi ở đây và không ghi chú nào được giữ. Ghi chú ở mọi nơi của bạn vẫn đi kèm câu hỏi của bạn trong các không gian làm việc khác.",
+    "byPerson": "Được thay đổi bởi {name}",
+    "emptyShared": "Chưa có ghi chú nào.",
+    "addPlaceholderEverywhere": "ví dụ: Trả lời bằng tiếng Việt và ngắn gọn",
+    "addPlaceholderShared": "ví dụ: Năm tài chính của chúng tôi bắt đầu vào tháng Tư",
+    "deleteAll": "Xóa tất cả",
+    "confirmForgetEverywhere": "Quên mọi thứ AI ghi nhớ về bạn trong tất cả không gian làm việc của bạn?",
+    "confirmDeleteAll": "Xóa tất cả ghi chú của {place}? Từ giờ các câu hỏi ở đó sẽ được gửi mà không kèm chúng.",
     "updated": "Bộ nhớ đã được cập nhật",
-    "intro": "Các ghi chú AI giữ về bạn trong không gian làm việc này, được gửi kèm mỗi câu hỏi của bạn ở đây. Nó thêm một ghi chú khi bạn kể về bản thân hoặc yêu cầu nó ghi nhớ điều gì đó. Chỉ mình bạn thấy chúng.",
+    "intro": "Được gửi kèm các câu hỏi của bạn trong không gian làm việc này. AI thêm một ghi chú khi bạn kể về bản thân hoặc yêu cầu nó ghi nhớ điều gì đó. Chỉ mình bạn thấy chúng.",
     "use": "Dùng bộ nhớ",
     "useHint": "Khi tắt, các câu hỏi của bạn ở đây được gửi đi mà không kèm các ghi chú này và AI không giữ ghi chú mới. Các ghi chú vẫn còn.",
     "empty": "Chưa có gì. Hãy kể cho AI về bản thân bạn, hoặc thêm một ghi chú tại đây.",
@@ -537,7 +577,8 @@
       "notFound": "Ghi chú đó không còn nữa.",
       "off": "Bộ nhớ AI đã bị tắt trong không gian làm việc này.",
       "changed": "Ghi chú đó đã thay đổi kể từ đó. Hãy sửa nó trong Bộ nhớ.",
-      "busy": "Hãy đợi câu trả lời xong."
+      "busy": "Hãy đợi câu trả lời xong.",
+      "held": "Một lệnh lưu giữ pháp lý giữ ghi chú này: không thể xóa khi lệnh lưu giữ còn hiệu lực."
     }
   },
   "accounts": {
