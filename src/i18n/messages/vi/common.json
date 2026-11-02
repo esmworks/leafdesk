@@ -37,6 +37,7 @@
     "movedToPlace": "Đã chuyển đến {place}",
     "trashed": "Đã chuyển vào thùng rác",
     "rowsTrashed": "{count, plural, other {Đã chuyển # hàng vào thùng rác}}",
+    "rowsChanged": "{count, plural, other {Đã thay đổi # hàng}}",
     "undoFailed": "Không thể hoàn tác."
   },
   "datePhrase": {

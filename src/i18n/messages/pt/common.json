@@ -37,6 +37,7 @@
     "movedToPlace": "Movida para {place}",
     "trashed": "Movida para a lixeira",
     "rowsTrashed": "{count, plural, one {Linha movida para a lixeira} other {# linhas movidas para a lixeira}}",
+    "rowsChanged": "{count, plural, one {Linha alterada} other {# linhas alteradas}}",
     "undoFailed": "Não foi possível desfazer."
   },
   "datePhrase": {

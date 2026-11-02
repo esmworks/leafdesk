@@ -37,6 +37,7 @@
     "movedToPlace": "Siirretty kohteeseen {place}",
     "trashed": "Siirretty roskakoriin",
     "rowsTrashed": "{count, plural, one {Rivi siirrettiin roskakoriin} other {# riviä siirrettiin roskakoriin}}",
+    "rowsChanged": "{count, plural, one {Rivi muutettiin} other {# riviä muutettiin}}",
     "undoFailed": "Kumoaminen epäonnistui."
   },
   "datePhrase": {

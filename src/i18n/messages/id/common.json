@@ -37,6 +37,7 @@
     "movedToPlace": "Dipindahkan ke {place}",
     "trashed": "Dipindahkan ke sampah",
     "rowsTrashed": "{count, plural, other {# baris dipindahkan ke sampah}}",
+    "rowsChanged": "{count, plural, other {# baris diubah}}",
     "undoFailed": "Tidak dapat diurungkan."
   },
   "datePhrase": {

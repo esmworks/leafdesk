@@ -2,7 +2,7 @@
 
 import { IconGlyph } from "@/components/builtin-icon";
 import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
-import { Check, EyeOff, Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRightLeft, Check, ChevronRight, EyeOff, Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { Button, cn, MenuItem, MenuSeparator } from "@/components/ui";
@@ -224,6 +224,21 @@ export function BoardView({
     }
     void api.setOptions(groupBy, options.filter((o) => o.id !== option.id));
   };
+  // A column's menu moves all its cards at once, as dragging each would (cards the viewer may not
+  // move stay), or sends them all to the trash; both offer Undo.
+  const movableCards = (group: Group<Row>) => group.rows.filter(canChangeGroup);
+  const moveAll = (from: Group<Row>, to: Group<Row>) => {
+    const target = groupTarget(groupBy, to);
+    if (target === undefined) return;
+    const left = listValued(groupBy) ? groupKey(from) || null : null;
+    const values = new Map(movableCards(from).map((row) => [row.id, moveGroupValue(groupBy, row.properties[groupBy.id], left, target)]));
+    if (values.size) void api.setCellValues(groupBy.id, values, { message: (count) => t("board.cardsMoved", { count }) });
+  };
+  const trashAll = (group: Group<Row>) => {
+    const ids = group.rows.map((r) => r.id);
+    if (!ids.length || !confirm(t("bulk.confirmTrash", { count: ids.length }))) return;
+    void api.deleteRows(ids);
+  };
   const manualOrder = !(view.config.sorts?.length);
 
   const onColDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -418,6 +433,12 @@ export function BoardView({
               onColor={(color) => updateOption(key, { color })}
               onHide={() => setGroupHidden(key, true)}
               onDelete={() => deleteGroup(group)}
+              groupBy={groupBy}
+              movable={movableCards(group).length}
+              cards={group.rows.length}
+              moveTargets={ordered.filter((g) => groupKey(g) !== key && groupTarget(groupBy, g) !== undefined)}
+              onMoveAll={(to) => moveAll(group, to)}
+              onTrashAll={() => trashAll(group)}
             />
           )}
           {canAdd(group) && (
@@ -747,7 +768,10 @@ function ColumnFigure({
   );
 }
 
-/** The "…" menu on a column header: rename, hide, delete and color for options; hide for "no value". */
+/**
+ * The "…" menu on a column header: rename, hide, delete and color for options; hide for "no value";
+ * and for its `cards`, moving them all to another column (the `movable` ones) or to the trash.
+ */
 function GroupMenu({
   option,
   locked,
@@ -755,6 +779,12 @@ function GroupMenu({
   onColor,
   onHide,
   onDelete,
+  groupBy,
+  movable,
+  cards,
+  moveTargets,
+  onMoveAll,
+  onTrashAll,
 }: {
   option: SelectOption | null;
   locked?: boolean;
@@ -762,14 +792,24 @@ function GroupMenu({
   onColor: (color: string) => void;
   onHide: () => void;
   onDelete: () => void;
+  groupBy: Property;
+  movable: number;
+  cards: number;
+  moveTargets: Group<Row>[];
+  onMoveAll: (to: Group<Row>) => void;
+  onTrashAll: () => void;
 }) {
   const t = useTranslations("database.board");
+  const tBulk = useTranslations("database.bulk");
   const tColor = useTranslations("database.colors");
   const menu = useFloating<HTMLButtonElement>();
+  // The cards' destinations, a page of the menu; it opens on its first page again.
+  const [moving, setMoving] = useState(false);
   const run = (action: () => void) => () => {
     menu.close();
     action();
   };
+  const canMove = movable > 0 && moveTargets.length > 0;
   return (
     <>
       <button
@@ -778,7 +818,10 @@ function GroupMenu({
         draggable={false}
         aria-label={t("groupActions")}
         title={t("groupActions")}
-        onClick={menu.toggle}
+        onClick={() => {
+          setMoving(false);
+          menu.toggle();
+        }}
         className={cn(
           "inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-fg/10 hover:text-fg focus-visible:opacity-100 pointer-coarse:opacity-100",
           menu.open ? "opacity-100" : "opacity-0 group-hover/col:opacity-100",
@@ -787,37 +830,79 @@ function GroupMenu({
         <Ellipsis className="h-3.5 w-3.5" />
       </button>
       <Floating open={menu.open} anchor={menu.el} onClose={menu.close} align="end">
-        <div className="w-52">
-          {option && !locked && (
-            <MenuItem icon={<Pencil className="h-3.5 w-3.5" />} onClick={run(onRename)}>
-              {t("renameGroup")}
+        {moving ? (
+          <div className="w-52">
+            <div className="flex items-center gap-1 border-b border-border px-1 py-1">
+              <button
+                type="button"
+                aria-label={tBulk("back")}
+                onClick={() => setMoving(false)}
+                className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
+              </button>
+              <span className="truncate text-xs text-fg-muted">{t("moveAllTo", { count: cards })}</span>
+            </div>
+            <div className="max-h-72 overflow-y-auto p-1">
+              {canMove &&
+                moveTargets.map((to) => (
+                  <MenuItem key={to.key} onClick={run(() => onMoveAll(to))}>
+                    <GroupLabel prop={groupBy} group={to} />
+                  </MenuItem>
+                ))}
+              {canMove && <MenuSeparator />}
+              <MenuItem danger icon={<Trash2 className="h-3.5 w-3.5" />} onClick={run(onTrashAll)}>
+                {t("trashTarget")}
+              </MenuItem>
+            </div>
+          </div>
+        ) : (
+          <div className="w-52">
+            {option && !locked && (
+              <MenuItem icon={<Pencil className="h-3.5 w-3.5" />} onClick={run(onRename)}>
+                {t("renameGroup")}
+              </MenuItem>
+            )}
+            <MenuItem icon={<EyeOff className="h-3.5 w-3.5" />} onClick={run(onHide)}>
+              {t("hideGroup")}
             </MenuItem>
-          )}
-          <MenuItem icon={<EyeOff className="h-3.5 w-3.5" />} onClick={run(onHide)}>
-            {t("hideGroup")}
-          </MenuItem>
-          {option && !locked && (
-            <>
+            {option && !locked && (
               <MenuItem danger icon={<Trash2 className="h-3.5 w-3.5" />} onClick={run(onDelete)}>
                 {t("deleteGroup")}
               </MenuItem>
-              <MenuSeparator />
-              <div className="px-2 pt-1 pb-1 text-xs text-fg-muted">{t("colors")}</div>
-              {SELECT_COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={run(() => color !== option.color && onColor(color))}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
+            )}
+            {cards > 0 && (
+              <>
+                <MenuSeparator />
+                <MenuItem
+                  icon={<ArrowRightLeft className="h-3.5 w-3.5" />}
+                  trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />}
+                  onClick={() => setMoving(true)}
                 >
-                  <span className={cn(`opt-${color}`, "h-4 w-4 rounded border border-fg/10")} />
-                  <span className="flex-1">{tColor(color)}</span>
-                  {color === option.color && <Check className="h-3.5 w-3.5 text-fg-muted" />}
-                </button>
-              ))}
-            </>
-          )}
-        </div>
+                  {t("moveAll")}
+                </MenuItem>
+              </>
+            )}
+            {option && !locked && (
+              <>
+                <MenuSeparator />
+                <div className="px-2 pt-1 pb-1 text-xs text-fg-muted">{t("colors")}</div>
+                {SELECT_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={run(() => color !== option.color && onColor(color))}
+                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
+                  >
+                    <span className={cn(`opt-${color}`, "h-4 w-4 rounded border border-fg/10")} />
+                    <span className="flex-1">{tColor(color)}</span>
+                    {color === option.color && <Check className="h-3.5 w-3.5 text-fg-muted" />}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+        )}
       </Floating>
     </>
   );

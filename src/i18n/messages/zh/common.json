@@ -37,6 +37,7 @@
     "movedToPlace": "已移动到 {place}",
     "trashed": "已移到回收站",
     "rowsTrashed": "已将 {count} 行移到回收站",
+    "rowsChanged": "已更改 {count} 行",
     "undoFailed": "无法撤销。"
   },
   "datePhrase": {

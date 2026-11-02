@@ -37,6 +37,7 @@
     "movedToPlace": "Flyttad till {place}",
     "trashed": "Flyttad till papperskorgen",
     "rowsTrashed": "{count, plural, one {Raden flyttades till papperskorgen} other {# rader flyttades till papperskorgen}}",
+    "rowsChanged": "{count, plural, one {Raden ändrades} other {# rader ändrades}}",
     "undoFailed": "Det gick inte att ångra."
   },
   "datePhrase": {

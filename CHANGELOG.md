@@ -4,6 +4,9 @@
 
 ### Added
 
+- **A board column's menu moves all its cards at once.** *Move all cards to* takes every card to
+  another column, as dragging each one would (cards you may not change stay), or to the trash.
+  Both can be undone from the note that follows, as can setting a value on several selected rows.
 - **Every workspace has a dashboard on its home page.** Owners add numbers, charts and lists of any
   database with *Edit*, as on a dashboard block, or press *Set up with AI* to have the AI lay one
   out from the workspace's databases (the draft can be undone). Everyone sees the widgets whose

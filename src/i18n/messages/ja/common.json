@@ -37,6 +37,7 @@
     "movedToPlace": "{place}に移動しました",
     "trashed": "ゴミ箱に移動しました",
     "rowsTrashed": "{count}行をゴミ箱に移動しました",
+    "rowsChanged": "{count}行を変更しました",
     "undoFailed": "元に戻せませんでした。"
   },
   "datePhrase": {

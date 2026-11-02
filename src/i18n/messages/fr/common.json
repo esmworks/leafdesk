@@ -37,6 +37,7 @@
     "movedToPlace": "Déplacée vers {place}",
     "trashed": "Déplacée dans la corbeille",
     "rowsTrashed": "{count, plural, one {Ligne déplacée dans la corbeille} other {# lignes déplacées dans la corbeille}}",
+    "rowsChanged": "{count, plural, one {Ligne modifiée} other {# lignes modifiées}}",
     "undoFailed": "Impossible d’annuler."
   },
   "datePhrase": {

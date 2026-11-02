@@ -37,6 +37,7 @@
     "movedToPlace": "הועבר אל {place}",
     "trashed": "הועבר לאשפה",
     "rowsTrashed": "{count, plural, one {השורה הועברה לאשפה} two {שתי שורות הועברו לאשפה} other {# שורות הועברו לאשפה}}",
+    "rowsChanged": "{count, plural, one {השורה השתנתה} two {שתי שורות השתנו} other {# שורות השתנו}}",
     "undoFailed": "לא ניתן היה לבטל."
   },
   "datePhrase": {

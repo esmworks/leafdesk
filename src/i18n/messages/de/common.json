@@ -37,6 +37,7 @@
     "movedToPlace": "Verschoben nach {place}",
     "trashed": "In den Papierkorb verschoben",
     "rowsTrashed": "{count, plural, one {Zeile in den Papierkorb verschoben} other {# Zeilen in den Papierkorb verschoben}}",
+    "rowsChanged": "{count, plural, one {Zeile geändert} other {# Zeilen geändert}}",
     "undoFailed": "Das ließ sich nicht rückgängig machen."
   },
   "datePhrase": {

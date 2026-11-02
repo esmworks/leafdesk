@@ -37,6 +37,7 @@
     "movedToPlace": "Flyttet til {place}",
     "trashed": "Flyttet til papirkurven",
     "rowsTrashed": "{count, plural, one {Raden ble flyttet til papirkurven} other {# rader ble flyttet til papirkurven}}",
+    "rowsChanged": "{count, plural, one {Raden ble endret} other {# rader ble endret}}",
     "undoFailed": "Kunne ikke angre."
   },
   "datePhrase": {
