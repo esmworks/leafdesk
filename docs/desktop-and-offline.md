@@ -57,7 +57,7 @@ Leafdesk itself, with no server to set up, for one person.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../.github/screenshots/desktop-dark.png">
-  <img src="../.github/screenshots/desktop-light.png" alt="The Leafdesk desktop app on macOS running on the computer itself, showing a small business dashboard with open jobs, quotes and the balance sheet">
+  <img src="../.github/screenshots/desktop-light.png" alt="The Leafdesk desktop app on macOS with two tabs, Mail and a launch plan, and a customer's email thread open in the Mail tab">
 </picture>
 
 Download it from the [latest release](https://github.com/esmworks/leafdesk/releases/latest):
