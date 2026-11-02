@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/components/ui";
 import { usePlacement } from "@/components/use-placement";
+import type { ScreenBox } from "@/lib/placement";
 
 /**
  * Popover rendered into document.body with fixed positioning, so it is not clipped by the
@@ -12,6 +13,7 @@ import { usePlacement } from "@/components/use-placement";
  */
 export function Floating({
   anchor,
+  at,
   open,
   onClose,
   children,
@@ -20,6 +22,8 @@ export function Floating({
   className,
 }: {
   anchor: HTMLElement | null;
+  /** A point to open at instead of below the anchor (a right click's). */
+  at?: ScreenBox;
   open: boolean;
   onClose: () => void;
   children: ReactNode;
@@ -29,7 +33,7 @@ export function Floating({
   className?: string;
 }) {
   const panel = useRef<HTMLDivElement>(null);
-  const style = usePlacement(panel, anchor, open, { align, cover });
+  const style = usePlacement(panel, at ?? anchor, open, { align, cover });
   const close = useRef(onClose);
   close.current = onClose;
 

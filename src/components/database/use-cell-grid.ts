@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CELL_TYPE_EVENT, typedCharacter } from "@/lib/cell-typing";
+import { pointBox, type ScreenBox } from "@/lib/placement";
 import { cellGridShortcut, isMac } from "@/lib/shortcuts";
 import {
   clampRange,
@@ -33,7 +34,9 @@ const DOUBLE_TAP_MS = 350;
  * it again, and the cell keeps focus), typing opens a text cell's editor with what was typed, and
  * Delete clears the range. Checkboxes, stars, buttons and links in cells work with one click.
  * On a touch screen a tap selects a cell too, a double tap opens its editor, and a tap on the
- * selected cell opens its menu (`menu`: edit, copy, paste, clear), since there is no keyboard.
+ * selected cell opens its menu (`menu`: edit, copy, paste, clear and the row's actions), since
+ * there is no keyboard; a right click opens the same menu where it was made, on the cells selected
+ * if it falls inside them and on the cell alone otherwise.
  * Copying puts the range on the clipboard as tab-separated text, and pasting writes spreadsheet
  * cells from the active cell on.
  * Filling copies the range's values into the cells its handle is dragged over (or, with Mod+D,
@@ -86,10 +89,10 @@ export function useCellGrid({
   // selected, and with a finger (see onClickCapture).
   const press = useRef({ onActive: false, touch: false });
   // The last tap on a cell, to tell a double tap; the menu a tap on the selected cell opens once no
-  // second tap follows (see onClickCapture).
+  // second tap follows (see onClickCapture), or a right click opens at its point (`at`).
   const lastTap = useRef<{ cell: string; at: number } | null>(null);
   const menuSoon = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const [menuAt, setMenuAt] = useState<(CellPoint & { cell: HTMLElement }) | null>(null);
+  const [menuAt, setMenuAt] = useState<(CellPoint & { cell: HTMLElement; at?: ScreenBox }) | null>(null);
   useEffect(() => () => clearTimeout(menuSoon.current), []);
   // The row the fill handle is dragged to, while it is (see fillHandle).
   const [fillTo, setFillTo] = useState<number | null>(null);
@@ -277,7 +280,8 @@ export function useCellGrid({
       press.current.touch = e.pointerType === "touch";
     },
     onMouseDown: (e: React.MouseEvent<HTMLElement>) => {
-      if (e.button !== 0) return;
+      // Control-click on a Mac is a right click (onContextMenu), which keeps the cells selected.
+      if (e.button !== 0 || (e.ctrlKey && isMac())) return;
       const point = { row, col };
       press.current.onActive = !!bounds && bounds.top === row && bounds.bottom === row && bounds.left === col && bounds.right === col;
       if (e.shiftKey && range) {
@@ -299,6 +303,17 @@ export function useCellGrid({
       if (range.focus.row === row && range.focus.col === col) return;
       window.getSelection()?.removeAllRanges();
       setRange({ anchor: range.anchor, focus: { row, col } });
+    },
+    onContextMenu: (e: React.MouseEvent<HTMLElement>) => {
+      // Editors and links keep the browser's own menu (spelling, opening a link in a new tab).
+      const target = e.target as HTMLElement;
+      if (isTyping(target) || target.closest("a[href]")) return;
+      e.preventDefault();
+      dragging.current = false;
+      if (!bounds || !inBounds(bounds, row, col)) select({ anchor: { row, col }, focus: { row, col } });
+      // From the keyboard (the menu key, Shift+F10) there is no point: the menu opens below the cell.
+      const keyboard = e.clientX === 0 && e.clientY === 0;
+      setMenuAt({ row, col, cell: e.currentTarget, at: keyboard ? undefined : pointBox(e.clientX, e.clientY) });
     },
     onClickCapture: (e: React.MouseEvent<HTMLElement>) => {
       if (shiftClick.current) {
@@ -365,8 +380,8 @@ export function useCellGrid({
     spans: !!bounds && (bounds.top !== bounds.bottom || bounds.left !== bounds.right),
     containerProps,
     cellProps,
-    /** The selected cell whose menu a tap opened on a touch screen, while it is the only one selected. */
-    menu: menuAt && bounds && inBounds(bounds, menuAt.row, menuAt.col) && bounds.top === bounds.bottom && bounds.left === bounds.right ? menuAt : null,
+    /** The cell whose menu a tap or a right click opened, while it is still selected. */
+    menu: menuAt && bounds && inBounds(bounds, menuAt.row, menuAt.col) ? menuAt : null,
     closeMenu: () => setMenuAt(null),
     /** Puts the range on the clipboard, as copying does. */
     copy: () => (bounds ? navigator.clipboard.writeText(rangeText(bounds)) : Promise.resolve()),

@@ -34,10 +34,12 @@
   selected cell, a double click, Enter or simply typing opens it, so copying, deleting, moving with
   the arrows and filling down no longer fight an editor that opened on its own. Typing over a text,
   number, link, email or phone cell starts its editor with what you typed, and Esc then leaves the
-  value as it was. Checkboxes, stars, buttons and links in cells still work with one click. On a
-  touch screen a tap selects a cell too, a double tap edits it, and a tap on the selected cell opens
-  a menu to edit, open the row, copy, paste or clear it. Lists, boards, galleries and the row page
-  are unchanged.
+  value as it was. Checkboxes, stars, buttons and links in cells still work with one click.
+  Right-clicking cells opens a menu where you click: edit, open the row, copy, paste and clear the
+  cells, with their keys beside them, then comment, copy the row's link, duplicate or move to the
+  trash; on cells of several rows, duplicating and trashing take them all. On a touch screen a tap
+  selects a cell too, a double tap edits it, and a tap on the selected cell opens the same menu.
+  Lists, boards, galleries and the row page are unchanged.
 - **Dialogs have a calmer, roomier look.** Rounder corners and a deeper shade behind them, a larger
   title without a line under it, buttons a size up sitting on the dialog instead of a gray bar, and
   fields filled in gray instead of outlined (high contrast keeps their edge). In the dark theme a
