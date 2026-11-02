@@ -181,6 +181,11 @@
     "history": "对话",
     "noHistory": "还没有对话。",
     "untitled": "无标题对话",
+    "status": {
+      "answering": "正在回答",
+      "waiting": "在等你",
+      "unread": "新回答"
+    },
     "deleteConversation": "删除对话",
     "deleteAll": "删除所有对话",
     "confirmDeleteAll": "要删除你在此工作区中的所有 AI 对话吗？",

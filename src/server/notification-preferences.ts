@@ -33,6 +33,7 @@ const COLUMNS = {
   ai_reminder: { inbox: "aiReminderInbox", email: "aiReminderEmails", push: "aiReminderPush", telegram: "aiReminderTelegram" },
   agent_task: { inbox: "agentTaskInbox", email: "agentTaskEmails", push: "agentTaskPush", telegram: "agentTaskTelegram" },
   schedule_paused: { inbox: "schedulePausedInbox", email: "schedulePausedEmails", push: "schedulePausedPush", telegram: "schedulePausedTelegram" },
+  ai_chat_waiting: { inbox: "aiChatWaitingInbox", email: "aiChatWaitingEmails", push: "aiChatWaitingPush", telegram: "aiChatWaitingTelegram" },
 } as const satisfies Record<PreferenceKind, Record<NotificationChannel, keyof typeof userPreference.$inferSelect>>;
 
 const KINDS = Object.keys(COLUMNS) as PreferenceKind[];

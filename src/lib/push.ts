@@ -149,6 +149,8 @@ export type PushItem = {
   aiReminder?: { text: string; agentId: string | null; agentName: string | null; own?: true } | null;
   /** A schedule that turned itself off after failing again and again: an agent's (`agentName`), or the person's own request. */
   schedulePaused?: { task: string; agentId: string | null; agentName: string | null; own: boolean; failures: number } | null;
+  /** The person's AI chat waiting for their decision, while it waits: the conversation it waits in. */
+  chatWaiting?: { conversationId: string; title: string } | null;
 };
 
 /** The line of a comment notification about a suggested edit, in the inbox and in push messages. */
@@ -205,6 +207,12 @@ export function pushPayload(
     const paused = item.schedulePaused;
     title = paused?.agentName ? t("schedulePausedTitle", { agent: paused.agentName }) : t("schedulePausedOwnTitle");
     line = t("schedulePaused", { count: paused?.failures ?? 0 });
+  } else if (item.kind === "ai_chat_waiting") {
+    // Neither what it asks to do (the model wrote it, maybe from what it read) nor the conversation's
+    // title (what the person asked): a lock screen shows it to whoever holds the device.
+    if (!item.chatWaiting) return null;
+    title = t("chatWaitingTitle");
+    line = t("chatWaiting");
   } else if (item.kind === "review") {
     // How many, not what they change: a lock screen shows it to whoever holds the device.
     title = t("reviewTitle");

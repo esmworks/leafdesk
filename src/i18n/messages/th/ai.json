@@ -181,6 +181,11 @@
     "history": "การสนทนา",
     "noHistory": "ยังไม่มีการสนทนา",
     "untitled": "การสนทนาที่ไม่มีชื่อ",
+    "status": {
+      "answering": "กำลังตอบ",
+      "waiting": "รอคุณอยู่",
+      "unread": "คำตอบใหม่"
+    },
     "deleteConversation": "ลบการสนทนา",
     "deleteAll": "ลบการสนทนาทั้งหมด",
     "confirmDeleteAll": "ลบการสนทนา AI ทั้งหมดของคุณในพื้นที่ทำงานนี้หรือไม่",

@@ -234,8 +234,17 @@ keep to it on the server, with your access checked as always. Each question show
 asked of, by the page's or teamspace's name as you may see it now. *Stop* ends an answer; what was written so far
 is kept. Nothing else does: an answer goes on on the server while you visit other pages, reload
 the page or close the tab, and is saved when it's done; opening its conversation again (also in
-another tab) shows it where it is, with a change waiting for your approval, and the *Chat* tab
-marks a conversation while it's being answered. Under an answer are *Copy*, *Answer again* (the latest) and its time; hovering a question
+another tab) shows it where it is, with a change waiting for your approval. The *Chat* tab and
+the panel's *Conversations* mark each conversation with a dot: fading in and out while it's being
+answered, steady in the accent color while it waits for your decision on a change, and steady in
+the text color for an answer you haven't read (one saved after you last had the conversation open
+in the panel or the full-page chat, with the tab in sight). When the chat asks about a change and
+no page of yours follows the answer (you closed the tab, or reloaded and didn't come back within
+about 20 seconds), an *AI chat* inbox item tells you, also as a push notification and in
+Telegram; it opens the conversation and goes once you decide. An answer that finishes while no
+page follows it comes as a push notification only. Both can be turned off under *AI chat* in
+Settings → Preferences; answers asked from Telegram or by a scheduled request of your own aren't
+announced this way. Under an answer are *Copy*, *Answer again* (the latest) and its time; hovering a question
 shows its time, *Edit* (the latest: answered again in its place) and *Copy*. An answer that
 changed things can't be answered again or edited. Conversations are private to you and listed in the sidebar's *Chat* tab and under
 the panel's *Conversations*, where you can delete one, several (tick them, shift-click for a range,

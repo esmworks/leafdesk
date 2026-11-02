@@ -106,6 +106,14 @@ export const userPreference = pgTable("user_preference", {
   schedulePausedInbox: boolean("schedule_paused_inbox").notNull().default(true),
   schedulePausedEmails: boolean("schedule_paused_emails").notNull().default(false),
   /**
+   * My AI chat waits for my answer to a change it asks about while no page of mine follows it
+   * (server/ai-chat.ts): show it in my inbox. Push also covers an answer it finished then (no
+   * inbox item). No email goes out about either (`aiChatWaitingEmails` is kept for the shape every
+   * kind has, and unused).
+   */
+  aiChatWaitingInbox: boolean("ai_chat_waiting_inbox").notNull().default(true),
+  aiChatWaitingEmails: boolean("ai_chat_waiting_emails").notNull().default(false),
+  /**
    * Reactions to my comments: show them in my inbox. No email goes out about them (`reactionEmails`
    * is kept for the shape every kind has, and unused); push and Telegram are off until turned on.
    */
@@ -134,6 +142,7 @@ export const userPreference = pgTable("user_preference", {
   aiReminderPush: boolean("ai_reminder_push").notNull().default(true),
   agentTaskPush: boolean("agent_task_push").notNull().default(true),
   schedulePausedPush: boolean("schedule_paused_push").notNull().default(true),
+  aiChatWaitingPush: boolean("ai_chat_waiting_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -156,6 +165,7 @@ export const userPreference = pgTable("user_preference", {
   aiReminderTelegram: boolean("ai_reminder_telegram").notNull().default(true),
   agentTaskTelegram: boolean("agent_task_telegram").notNull().default(true),
   schedulePausedTelegram: boolean("schedule_paused_telegram").notNull().default(true),
+  aiChatWaitingTelegram: boolean("ai_chat_waiting_telegram").notNull().default(true),
   /**
    * Leafdesk's links opened in a browser go on to the desktop app (lib/desktop-links.ts): "off",
    * "ask" (the page offers to) or "always" (it tries at once, and stays in the browser if no app
@@ -415,12 +425,13 @@ export const NOTIFICATION_KINDS = [
   "ai_reminder",
   "agent_task",
   "schedule_paused",
+  "ai_chat_waiting",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /**
  * The only kinds that may be about no page (access requests are about the page asked for): join
  * requests, changes waiting for review, agents' approvals, notes, reports, reminders and tasks, a detached
- * AI account and AI limits. Readers of the inbox show these by their kind, never by a missing page.
+ * AI account, AI limits and an AI chat waiting. Readers of the inbox show these by their kind, never by a missing page.
  */
 export const PAGELESS_KINDS = [
   "join_request",
@@ -434,6 +445,7 @@ export const PAGELESS_KINDS = [
   "ai_reminder",
   "agent_task",
   "schedule_paused",
+  "ai_chat_waiting",
 ] as const satisfies readonly NotificationKind[];
 /**
  * Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, a
@@ -508,6 +520,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * "schedule_paused": a schedule the user set last failed SCHEDULE_FAILURE_LIMIT times in a row and
  * turned itself off (server/schedules.ts): one of agent `actorId`'s, or (`actorId` null) a request
  * of their own; `message` is the start of its task. It has no page.
+ * "ai_chat_waiting": the user's own AI chat answer, run `agentRunId` (no agent), asks them about a
+ * change while no page of theirs follows it (server/ai-chat.ts); it opens the conversation, has no
+ * page, and goes once they decide (or with the run).
  * Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.
@@ -549,8 +564,8 @@ export const notification = pgTable(
      */
     message: text("message"),
     /**
-     * Agent approval, memory, report and task notifications: the run whose call or notes wait, or
-     * that finished. Not an agent's reminder: runs are deleted after a while, and it may wait longer.
+     * Agent approval, memory, report and task notifications, and an AI chat waiting: the run whose
+     * call or notes wait, or that finished. Not an agent's reminder: runs are deleted after a while, and it may wait longer.
      */
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

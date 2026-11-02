@@ -367,6 +367,13 @@ export const conversation = pgTable(
     key: text("key"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    /**
+     * The AI chat: when its person last had it in front of them (server/ai-chat.ts
+     * markConversationSeen); a turn saved after that (`updatedAt`, which only a saved turn moves)
+     * is a new answer they haven't read. Null: nothing to tell (conversations from before, an
+     * agent's).
+     */
+    seenAt: timestamp("seen_at", { withTimezone: true }),
   },
   (t) => [
     index("conversation_user_idx").on(t.userId, t.workspaceId, t.updatedAt),

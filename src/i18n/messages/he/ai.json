@@ -181,6 +181,11 @@
     "history": "שיחות",
     "noHistory": "אין עדיין שיחות.",
     "untitled": "שיחה ללא כותרת",
+    "status": {
+      "answering": "עונה",
+      "waiting": "מחכה לך",
+      "unread": "תשובה חדשה"
+    },
     "deleteConversation": "מחיקת השיחה",
     "deleteAll": "מחיקת כל השיחות",
     "confirmDeleteAll": "למחוק את כל שיחות ה־AI שלך בסביבת העבודה הזו?",

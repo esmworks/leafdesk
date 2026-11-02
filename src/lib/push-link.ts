@@ -6,6 +6,7 @@
 import { aiLimitPath } from "./agent-guardrails";
 import { agentPagePath } from "./agent-page";
 import { agentMemoryPath, agentReportPath, agentRunPath } from "./agents";
+import { chatPath } from "./ai-chat";
 import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
 import { reviewPath } from "./pending-changes";
@@ -23,6 +24,8 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "agent_task") return item.report?.from ? agentPagePath(item.workspaceId, item.report.from.agentId) : `/w/${item.workspaceId}`;
   // A schedule turned off: the agent's page, where it is set again; one's own request, the AI chat its answers went to.
   if (item.kind === "schedule_paused") return item.schedulePaused?.agentId ? agentPagePath(item.workspaceId, item.schedulePaused.agentId) : `/w/${item.workspaceId}/ai`;
+  // The AI chat waiting opens the conversation, where it asks; once it no longer waits, the chat.
+  if (item.kind === "ai_chat_waiting") return chatPath(item.workspaceId, item.chatWaiting?.conversationId);
   if (item.kind === "review") return reviewPath(item.workspaceId);
   if (item.kind === "ai_limit") return aiLimitPath(item.workspaceId, item.aiLimit?.agent?.id ?? null);
   // The owner answers in the inbox; the agent is where its limit and use are.

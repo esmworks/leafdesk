@@ -181,6 +181,11 @@
     "history": "Keskustelut",
     "noHistory": "Ei vielä keskusteluja.",
     "untitled": "Nimetön keskustelu",
+    "status": {
+      "answering": "Vastaa",
+      "waiting": "Odottaa sinua",
+      "unread": "Uusi vastaus"
+    },
     "deleteConversation": "Poista keskustelu",
     "deleteAll": "Poista kaikki keskustelut",
     "confirmDeleteAll": "Poistetaanko kaikki tekoälykeskustelusi tässä työtilassa?",

@@ -181,6 +181,11 @@
     "history": "Sohbetler",
     "noHistory": "Henüz sohbet yok.",
     "untitled": "Adsız sohbet",
+    "status": {
+      "answering": "Yanıtlıyor",
+      "waiting": "Seni bekliyor",
+      "unread": "Yeni yanıt"
+    },
     "deleteConversation": "Sohbeti sil",
     "deleteAll": "Tüm sohbetleri sil",
     "confirmDeleteAll": "Bu çalışma alanındaki tüm yapay zekâ sohbetlerin silinsin mi?",

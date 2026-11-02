@@ -89,6 +89,8 @@ const texts: Record<string, string> = {
   schedulePausedOwnTitle: "Your scheduled request was turned off",
   // The real text says "time" or "times" (an ICU plural), which this stand-in doesn't do.
   schedulePaused: "It failed {count} times in a row",
+  chatWaitingTitle: "Your AI chat is waiting for you",
+  chatWaiting: "It needs your answer to go on",
 };
 const t = (key: string, values: Record<string, string | number> = {}) => texts[key].replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ""));
 const date = (iso: string) => `on ${iso}`;
@@ -244,6 +246,15 @@ describe("pushPayload", () => {
       url: "/w/ws1/ai",
     });
     expect(JSON.stringify(pushPayload(item({ kind: "schedule_paused", pageId: null, schedulePaused: own }), t, date))).not.toContain("What changed");
+  });
+
+  it("tells the person their AI chat waits, opening the conversation, without what it asks or what they asked", () => {
+    const chatWaiting = { conversationId: "c 1", title: "Move the launch to Friday" };
+    const payload = pushPayload(item({ kind: "ai_chat_waiting", pageId: null, pageTitle: null, actorName: null, chatWaiting }), t, date);
+    expect(payload).toMatchObject({ title: "Your AI chat is waiting for you", body: "It needs your answer to go on", url: "/w/ws1/ai?c=c%201" });
+    expect(JSON.stringify(payload)).not.toContain("launch");
+    // It no longer waits: nothing is sent.
+    expect(pushPayload(item({ kind: "ai_chat_waiting", pageId: null, chatWaiting: null }), t, date)).toBeNull();
   });
 
   it("asks owners about a higher limit while the request waits", () => {

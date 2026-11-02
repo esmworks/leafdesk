@@ -7,6 +7,13 @@
 - **A board column's menu moves all its cards at once.** *Move all cards to* takes every card to
   another column, as dragging each one would (cards you may not change stay), or to the trash.
   Both can be undone from the note that follows, as can setting a value on several selected rows.
+- **The AI chat says when a conversation waits for you or has a new answer.** The *Chat* tab and
+  the panel's *Conversations* show a steady accent dot while an answer waits for your decision on a
+  change, and a steady dot for an answer saved since you last had the conversation open, besides
+  the pulse while one is being written. When the chat asks about a change while no page of yours
+  follows it, an *AI chat* inbox item (also pushed and sent to Telegram) opens the conversation and
+  goes once you decide; an answer that finishes then comes as a push notification. Both can be
+  turned off under *AI chat* in Settings → Preferences. Migration 0190.
 - **Every workspace has a dashboard on its home page.** Owners add numbers, charts and lists of any
   database with *Edit*, as on a dashboard block, or press *Set up with AI* to have the AI lay one
   out from the workspace's databases (the draft can be undone). Everyone sees the widgets whose

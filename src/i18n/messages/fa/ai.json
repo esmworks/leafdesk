@@ -181,6 +181,11 @@
     "history": "گفتگوها",
     "noHistory": "هنوز گفتگویی وجود ندارد.",
     "untitled": "گفتگوی بدون عنوان",
+    "status": {
+      "answering": "در حال پاسخ",
+      "waiting": "منتظر شماست",
+      "unread": "پاسخ تازه"
+    },
     "deleteConversation": "حذف گفتگو",
     "deleteAll": "حذف همه گفتگوها",
     "confirmDeleteAll": "همه گفتگوهای هوش مصنوعی شما در این فضای کاری حذف شوند؟",

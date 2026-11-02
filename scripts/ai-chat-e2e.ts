@@ -5,7 +5,8 @@
  * calls, the streamed answer and its citations; conversations (kept, continued with their history,
  * listed, shown, deleted, only ever to their owner, gone when the person leaves the workspace);
  * stopping an answer, and an answer going on when the page that asked for it goes (followed again
- * from its start, a change waiting for approval included; ai-chat-runs.ts); the turns of a model without a price, input and rate limits and a failing provider; the page
+ * from its start, a change waiting for approval included; ai-chat-runs.ts; one asking while no page
+ * follows it leaves an inbox item, and the list marks it waiting, then its answer new until seen); the turns of a model without a price, input and rate limits and a failing provider; the page
  * and teamspace scopes (kept with each question); the workspace switch and a server without AI; and access, checked on every tool call: a
  * private page shared with nobody, a private teamspace, a page shared with a group, a guest, another
  * workspace, and a page whose access is taken back between two questions. Also the model picked
@@ -30,7 +31,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, isNull, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, conversation: aiConversation, databaseView, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { agentRun, conversation: aiConversation, databaseView, notification, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -46,7 +47,8 @@ const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const index = await import("@/server/semantic-index");
-const { answerUnderWay, chatOptionsFor, decideParkedChange, deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
+const { answerUnderWay, chatOptionsFor, decideParkedChange, deleteConversations, getConversation, listConversations, markConversationSeen, startChat } = await import("@/server/ai-chat");
+const { listInbox } = await import("@/server/notifications");
 const { flushAgentRuns } = await import("@/server/agents/run");
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
@@ -869,6 +871,41 @@ try {
     "changes are kept with the conversation, with the values set",
     keptUpdate,
   );
+  // ── An answer that waits on the person while no page follows it ──────────────────────────────
+  fake.setChat(caller([write("create_row", { database_id: parts.id, title: "Wiper blades" })]));
+  const unwatched = await startRun(alice, { workspaceId, message: "Add wiper blades" });
+  const chatWaitingItems = () => listInbox(alice, workspaceId, ["ai_chat_waiting"]);
+  // Told a ping (20 seconds) after asking, unfollowed both times.
+  let waitingItem: Awaited<ReturnType<typeof chatWaitingItems>>[number] | undefined;
+  for (let i = 0; i < 40 && !waitingItem; i++) {
+    await sleep(1_000);
+    waitingItem = (await chatWaitingItems())[0];
+  }
+  const unwatchedConversation = waitingItem?.chatWaiting?.conversationId ?? null;
+  const unwatchedRun = async () => (await db.select().from(agentRun).where(and(isNull(agentRun.agentId), sql`${agentRun.source}->>'conversationId' = ${unwatchedConversation}`)))[0];
+  check(
+    waitingItem !== undefined && unwatchedConversation !== null && waitingItem.chatWaiting?.title.startsWith("Add wiper blades") && !waitingItem.read,
+    "an answer asking the person while no page follows it leaves an inbox item opening its conversation",
+    waitingItem,
+  );
+  const listedWaiting = (await listConversations(alice, workspaceId)).find((c) => c.id === unwatchedConversation);
+  check(listedWaiting?.waiting === true && !listedWaiting.answering, "…and the list marks the conversation as waiting, not as being answered", listedWaiting);
+  const unwatchedAsk = (await unwatchedRun())?.pending?.askId;
+  check(typeof unwatchedAsk === "string" && (await decideParkedChange(alice, unwatchedAsk, "approve")), "the person decides it");
+  await unwatched.ended;
+  check(
+    (await chatWaitingItems()).length === 0 && (await db.select().from(notification).where(eq(notification.kind, "ai_chat_waiting"))).length === 0,
+    "…and the inbox item goes",
+  );
+  const answeredAway = (await listConversations(alice, workspaceId)).find((c) => c.id === unwatchedConversation);
+  check(answeredAway?.unread === true && !answeredAway.waiting && !answeredAway.answering, "the answer that came while no page followed it is marked new in the list", answeredAway);
+  await markConversationSeen(alice, workspaceId, unwatchedConversation!);
+  check(!(await listConversations(alice, workspaceId)).find((c) => c.id === unwatchedConversation)?.unread, "…until the person has the conversation in front of them");
+  const seenAtOf = async () => (await db.select({ seenAt: aiConversation.seenAt }).from(aiConversation).where(eq(aiConversation.id, unwatchedConversation!)))[0]?.seenAt?.getTime();
+  const seenBefore = await seenAtOf();
+  await markConversationSeen(carol, workspaceId, unwatchedConversation!);
+  check(seenBefore !== undefined && (await seenAtOf()) === seenBefore, "…which nobody else can mark");
+
   // ── An answer whose server stopped while it waited on the person ────────────────────────────
   fake.setChat(caller([write("create_row", { database_id: parts.id, title: "Ice scraper" })]));
   let parkedAsk: string | null = null;

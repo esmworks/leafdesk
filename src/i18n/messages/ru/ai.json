@@ -181,6 +181,11 @@
     "history": "Беседы",
     "noHistory": "Бесед пока нет.",
     "untitled": "Беседа без названия",
+    "status": {
+      "answering": "Отвечает",
+      "waiting": "Ждёт вас",
+      "unread": "Новый ответ"
+    },
     "deleteConversation": "Удалить беседу",
     "deleteAll": "Удалить все беседы",
     "confirmDeleteAll": "Удалить все ваши беседы с ИИ в этом рабочем пространстве?",

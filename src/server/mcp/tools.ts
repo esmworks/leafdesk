@@ -1658,6 +1658,20 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 url: `${env.appUrl}${paused?.agentId ? agentPagePath(n.workspaceId, paused.agentId) : `/w/${n.workspaceId}/ai`}`,
               };
             }
+            // The user's own AI chat waits for their decision on a change, in the app.
+            if (n.kind === "ai_chat_waiting") {
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: `The user's AI chat waits for their decision on a change it asks about, in the conversation "${n.chatWaiting?.title ?? ""}"; they answer it in the app`,
+                actor: null,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}${pushLink(n)}`,
+              };
+            }
             // A visitor reported a published page: owners handle it in the app.
             if (n.kind === "page_reported") {
               return {

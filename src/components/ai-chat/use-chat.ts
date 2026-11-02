@@ -36,7 +36,7 @@ import {
 import { formatBytes } from "@/lib/files";
 import { EMPTY_DRAFT, expandDraft, insertPaste, pasteLineCount, syncDraft, uniqueLabel, type ChatDraft } from "@/lib/chat-paste";
 import { browserTimeZone } from "@/lib/time-zone";
-import { holdAnswering } from "./answering";
+import { holdAnswering, holdWaiting } from "./answering";
 import type { AnswerState } from "./chat-answer";
 
 /** What the model is doing while an answer is on its way: working on a turn, or writing. */
@@ -317,6 +317,9 @@ export function useChat(
   );
   // The sidebar's list marks the conversation while its answer is on its way.
   useEffect(() => (running && conversationId ? holdAnswering(conversationId) : undefined), [running, conversationId]);
+  // And while that answer waits for the person's decision on a change.
+  const asking = running && pending !== null;
+  useEffect(() => (asking && conversationId ? holdWaiting(conversationId) : undefined), [asking, conversationId]);
   // After hydration: the server doesn't know the browser's choice.
   useEffect(() => setModeState(savedMode()), []);
 

@@ -181,6 +181,11 @@
     "history": "Rozmowy",
     "noHistory": "Brak rozmów.",
     "untitled": "Rozmowa bez tytułu",
+    "status": {
+      "answering": "Odpowiada",
+      "waiting": "Czeka na ciebie",
+      "unread": "Nowa odpowiedź"
+    },
     "deleteConversation": "Usuń rozmowę",
     "deleteAll": "Usuń wszystkie rozmowy",
     "confirmDeleteAll": "Usunąć wszystkie twoje rozmowy z AI w tym obszarze roboczym?",

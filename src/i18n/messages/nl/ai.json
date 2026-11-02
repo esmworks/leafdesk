@@ -181,6 +181,11 @@
     "history": "Gesprekken",
     "noHistory": "Nog geen gesprekken.",
     "untitled": "Naamloos gesprek",
+    "status": {
+      "answering": "Antwoordt",
+      "waiting": "Wacht op jou",
+      "unread": "Nieuw antwoord"
+    },
     "deleteConversation": "Gesprek verwijderen",
     "deleteAll": "Alle gesprekken verwijderen",
     "confirmDeleteAll": "Al je AI-gesprekken in deze werkruimte verwijderen?",

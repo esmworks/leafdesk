@@ -210,8 +210,12 @@ export type ChatMessageView = {
   at?: string;
 };
 
-/** `answering`: an answer is on its way in it (maybe asked in another tab, or before a reload). */
-export type ConversationSummary = { id: string; title: string; updatedAt: string; answering?: true };
+/**
+ * `answering`: an answer is on its way in it (maybe asked in another tab, or before a reload);
+ * `waiting`: its answer waits for the person's decision on a change; `unread`: an answer was saved
+ * after they last had it in front of them (lib/chat-status.ts says which one the list shows).
+ */
+export type ConversationSummary = { id: string; title: string; updatedAt: string; answering?: true; waiting?: true; unread?: true };
 
 /** A change that makes a file (of a page, or of a database's rows) and attaches it to a page. */
 export const makesFile = (action: string) => action === "createPdf" || action === "createDocx" || action === "createXlsx";

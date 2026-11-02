@@ -181,6 +181,11 @@
     "history": "Các cuộc trò chuyện",
     "noHistory": "Chưa có cuộc trò chuyện nào.",
     "untitled": "Cuộc trò chuyện chưa có tiêu đề",
+    "status": {
+      "answering": "Đang trả lời",
+      "waiting": "Đang chờ bạn",
+      "unread": "Câu trả lời mới"
+    },
     "deleteConversation": "Xóa cuộc trò chuyện",
     "deleteAll": "Xóa tất cả cuộc trò chuyện",
     "confirmDeleteAll": "Xóa tất cả cuộc trò chuyện AI của bạn trong không gian làm việc này?",

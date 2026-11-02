@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Gauge, Inbox, KeyRound, ListFilter, Mail, NotebookPen, ShieldQuestion, UserPlus } from "lucide-react";
+import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Gauge, Inbox, KeyRound, ListFilter, Mail, NotebookPen, ShieldQuestion, Sparkles, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useEffect } from "react";
@@ -229,6 +229,11 @@ export function InboxDialog({
                       {item.schedulePaused?.agentName ? t("schedulePausedTitle", { agent: item.schedulePaused.agentName }) : t("schedulePausedOwnTitle")}
                     </span>
                   </>
+                ) : item.kind === "ai_chat_waiting" ? (
+                  <>
+                    <Sparkles aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("chatWaitingTitle")}</span>
+                  </>
                 ) : item.kind === "ai_reminder" ? (
                   <>
                     <AlarmClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -309,6 +314,10 @@ export function InboxDialog({
                   : item.report.status === "failed"
                     ? t("taskFailed", { agent: item.report.from?.agentName || t("someone") })
                     : item.report.text || t("taskDone", { agent: item.report.from?.agentName || t("someone") })
+                : item.kind === "ai_chat_waiting"
+                ? item.chatWaiting
+                  ? t("chatWaiting", { title: item.chatWaiting.title || t("chatUntitled") })
+                  : t("chatAnswered")
                 : item.kind === "schedule_paused"
                 ? t("schedulePaused", { count: item.schedulePaused?.failures ?? 0, task: item.schedulePaused?.task ?? "" })
                 : item.kind === "review"

@@ -192,6 +192,15 @@ export function runningIn(userId: string, conversationId: string): string | null
   return liveRun(userId, conversationId)?.id ?? null;
 }
 
+/**
+ * Whether a page follows the person's answer on its way in a conversation now: one that ends or
+ * asks them while none does tells them some other way (ai-chat.ts). Before `done` is published:
+ * an answer that ended has no followers left.
+ */
+export function followedIn(userId: string, conversationId: string): boolean {
+  return (liveRun(userId, conversationId)?.followers.size ?? 0) > 0;
+}
+
 /** The person's conversations in the workspace that an answer is on its way in. */
 export function answeringIn(userId: string, workspaceId: string): Set<string> {
   const ids = new Set<string>();

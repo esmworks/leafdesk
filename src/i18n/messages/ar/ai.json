@@ -181,6 +181,11 @@
     "history": "المحادثات",
     "noHistory": "لا محادثات بعد.",
     "untitled": "محادثة بلا عنوان",
+    "status": {
+      "answering": "يجيب",
+      "waiting": "ينتظرك",
+      "unread": "إجابة جديدة"
+    },
     "deleteConversation": "حذف المحادثة",
     "deleteAll": "حذف كل المحادثات",
     "confirmDeleteAll": "حذف كل محادثاتك مع الذكاء الاصطناعي في مساحة العمل هذه؟",

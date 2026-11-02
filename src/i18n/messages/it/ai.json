@@ -181,6 +181,11 @@
     "history": "Conversazioni",
     "noHistory": "Ancora nessuna conversazione.",
     "untitled": "Conversazione senza titolo",
+    "status": {
+      "answering": "Sta rispondendo",
+      "waiting": "Ti sta aspettando",
+      "unread": "Nuova risposta"
+    },
     "deleteConversation": "Elimina conversazione",
     "deleteAll": "Elimina tutte le conversazioni",
     "confirmDeleteAll": "Eliminare tutte le tue conversazioni con l’IA in questo spazio di lavoro?",

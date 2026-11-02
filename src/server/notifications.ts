@@ -11,6 +11,7 @@ import {
   agentLimitRequest,
   agentRun,
   connection,
+  conversation,
   databaseAutomation,
   databaseProperty,
   emailSequence,
@@ -802,7 +803,11 @@ export type InboxItem = {
   aiReminder: InboxAiReminder | null;
   /** A schedule the user set that turned itself off: whose (an agent, null once gone; or the user's own request) and the start of its task. */
   schedulePaused: InboxSchedulePaused | null;
+  /** The user's AI chat waiting for their decision: the conversation it waits in, while it waits. */
+  chatWaiting: InboxChatWaiting | null;
 };
+
+export type InboxChatWaiting = { conversationId: string; title: string };
 
 /** `agentId` null: the user's own request, or an agent that is gone (`agentName` then null too). */
 export type InboxSchedulePaused = { task: string; agentId: string | null; agentName: string | null; own: boolean; failures: number };
@@ -967,6 +972,8 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
       and(eq(notification.kind, "agent_task"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // A schedule turned off tells whoever set it, who may be a member.
       and(eq(notification.kind, "schedule_paused"), inWorkspace(sql`${userId}`, notification.workspaceId)),
+      // The person's own AI chat waiting on them.
+      and(eq(notification.kind, "ai_chat_waiting"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // So do an agent's reminders about no page; one about a page follows the page, as above.
       and(eq(notification.kind, "ai_reminder"), isNull(notification.pageId), inWorkspace(sql`${userId}`, notification.workspaceId)),
     ),
@@ -1073,7 +1080,7 @@ export async function listNotifications(
   };
   const runsOf = (kind: NotificationKind) => rows.flatMap((r) => (r.kind === kind && r.agentRunId ? [r.agentRunId] : []));
   const reviewWorkspaces = [...new Set(rows.filter((r) => r.kind === "review").map((r) => r.workspaceId))];
-  const [approvals, proposals, reports, updates, emails, reviews, reactions, limits, limitRequests] = await Promise.all([
+  const [approvals, proposals, reports, updates, emails, reviews, reactions, limits, limitRequests, chats] = await Promise.all([
     approvalsOf(userId, runsOf("agent_approval")),
     inboxProposals(userId, runsOf("agent_memory")),
     reportsOf(userId, [...runsOf("agent_report"), ...runsOf("agent_task")]),
@@ -1083,6 +1090,7 @@ export async function listNotifications(
     reactionsOf(rows.filter((r) => r.kind === "reaction")),
     aiLimitAgentsOf(rows.flatMap((r) => ((r.kind === "ai_limit" || r.kind === "ai_reminder" || r.kind === "schedule_paused") && r.actorId ? [r.actorId] : []))),
     limitRequestsOf(rows.flatMap((r) => (r.kind === "agent_limit_request" && r.agentLimitRequestId ? [r.agentLimitRequestId] : []))),
+    chatsWaitingOf(userId, runsOf("ai_chat_waiting")),
   ]);
   // A row update with nothing left the user may see (a property's access changed since) isn't shown,
   // nor a call the user no longer answers (they can't open its row any more).
@@ -1094,6 +1102,8 @@ export async function listNotifications(
       // Nor changes for review once none waits for the user any more.
       (r.kind !== "review" || (reviews.get(r.workspaceId) ?? 0) > 0) &&
       !(r.kind === "agent_approval" && r.agentRunId && approvals.get(r.agentRunId) === null) &&
+      // Nor an AI chat that no longer waits.
+      (r.kind !== "ai_chat_waiting" || (r.agentRunId !== null && chats.has(r.agentRunId))) &&
       // Nor a request for a higher limit that was answered meanwhile.
       (r.kind !== "agent_limit_request" || (r.agentLimitRequestId !== null && limitRequests.has(r.agentLimitRequestId))) &&
       (r.kind !== "ai_limit" || isAiLimitNotice(r.automationMessage)),
@@ -1134,6 +1144,7 @@ export async function listNotifications(
       read: readAt !== null,
       approval: agentRunId && row.kind === "agent_approval" ? (approvals.get(agentRunId) ?? null) : null,
       memory: agentRunId && row.kind === "agent_memory" ? (proposals.get(agentRunId) ?? null) : null,
+      chatWaiting: agentRunId && row.kind === "ai_chat_waiting" ? (chats.get(agentRunId) ?? null) : null,
       report: agentRunId && (row.kind === "agent_report" || row.kind === "agent_task") ? (reports.get(agentRunId) ?? null) : null,
       accessRequest:
         row.kind === "access_request" && requestId
@@ -1412,6 +1423,17 @@ async function approvalsOf(viewer: string, runIds: string[]): Promise<Map<string
     });
   }
   return out;
+}
+
+/** The conversations these runs of `viewer`'s own AI chat wait for their decision in (runs no longer waiting are left out). */
+async function chatsWaitingOf(viewer: string, runIds: string[]): Promise<Map<string, InboxChatWaiting>> {
+  if (!runIds.length) return new Map();
+  const found = await db
+    .select({ id: agentRun.id, conversationId: conversation.id, title: conversation.title })
+    .from(agentRun)
+    .innerJoin(conversation, eq(conversation.id, sql`${agentRun.source}->>'conversationId'`))
+    .where(and(inArray(agentRun.id, runIds), isNull(agentRun.agentId), eq(agentRun.status, "awaiting_approval"), eq(conversation.userId, viewer)));
+  return new Map(found.map((r) => [r.id, { conversationId: r.conversationId, title: r.title }]));
 }
 
 export async function listInbox(userId: string, workspaceId: string, kinds?: NotificationKind[], archived = false, unreadOnly = false): Promise<InboxItem[]> {

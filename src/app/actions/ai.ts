@@ -7,7 +7,7 @@ import { MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS, type MemoryLayer, ty
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
-import { decideParkedChange, deleteConversations, getConversation, listConversations, saveReportAsPage, undoChatNote } from "@/server/ai-chat";
+import { decideParkedChange, deleteConversations, getConversation, listConversations, markConversationSeen, saveReportAsPage, undoChatNote } from "@/server/ai-chat";
 import { accountNotes, deleteAccountNotes, writeAccountNote } from "@/server/account-memory";
 import { addMemory, deleteMemories, listMemories, MemoryError, setMemoryUse, updateMemory } from "@/server/ai-memory";
 import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
@@ -131,6 +131,11 @@ export async function refreshAutofillAction(propertyId: string, rowIds: string[]
 /** The person's AI chat conversations in a workspace, newest first. */
 export async function listConversationsAction(workspaceId: string) {
   return run((userId) => listConversations(userId, String(workspaceId)));
+}
+
+/** The person has one of their conversations in front of them: its answers are no longer new. */
+export async function markConversationSeenAction(workspaceId: string, conversationId: string) {
+  return run((userId) => markConversationSeen(userId, String(workspaceId), String(conversationId)));
 }
 
 /** One of the person's conversations, its sources as they may see them now. */

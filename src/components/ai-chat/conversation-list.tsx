@@ -6,7 +6,8 @@
  * Deleting one or all is in a ⋯ menu so a stray click doesn't lose a conversation. Several are
  * picked with the box that takes a row's dot on hover (shift-click for a range), or all from the
  * heading's menu (where a touch screen starts); the heading then counts them and deletes them
- * together, after asking.
+ * together, after asking. A dot says when an answer is being written in one, waits for the
+ * person's decision, or came while they were away (lib/chat-status.ts).
  */
 import { ListChecks, Loader2, MoreHorizontal, Trash2, X } from "lucide-react";
 import Link from "next/link";
@@ -20,21 +21,26 @@ import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { chatPath } from "@/lib/ai-chat";
 import { byRecency } from "@/lib/chat-recency";
-import { useAnswering } from "./answering";
+import { conversationStatus } from "@/lib/chat-status";
+import { useAnswering, useWaiting } from "./answering";
 import { useAiChat } from "./chat-panel";
+import { StatusDot, StatusLabel } from "./status-dot";
 
-const NONE: { id: string; answering?: true }[] = [];
+const NONE: { id: string; answering?: true; waiting?: true }[] = [];
 /** How often the list is asked again while an answer this tab doesn't follow is on its way. */
 const ELSEWHERE_MS = 4_000;
+/** How often while one this tab doesn't follow waits for a decision (maybe made in another tab). */
+const WAITING_ELSEWHERE_MS = 30_000;
 
 export function ConversationList() {
   const t = useTranslations("ai.chat");
   const router = useRouter();
   const current = useSearchParams().get("c");
   const context = useAiChat()!;
-  const { workspaceId, conversations, refreshConversations } = context;
+  const { workspaceId, conversations, refreshConversations, shownConversation } = context;
   const offline = useIsOffline();
   const answering = useAnswering();
+  const waiting = useWaiting();
   // On a phone the list is a drawer over the chat; only the address's `?c=` changes, so the drawer
   // (which closes when the path does) is closed here.
   const closeDrawer = useSidebar()?.close;
@@ -47,12 +53,21 @@ export function ConversationList() {
   }, [offline, refreshConversations]);
   // Answers this tab doesn't follow (asked before a reload, in another tab, or left on the server
   // when the person moved on): the list is asked again now and then until they're done.
-  const elsewhere = !offline && (conversations ?? NONE).some((c) => c.answering && !answering.has(c.id));
+  const elsewhere = offline ? null : (conversations ?? NONE).some((c) => c.answering && !answering.has(c.id)) ? ELSEWHERE_MS : (conversations ?? NONE).some((c) => c.waiting && !answering.has(c.id)) ? WAITING_ELSEWHERE_MS : null;
   useEffect(() => {
     if (!elsewhere) return;
-    const timer = setInterval(() => void refreshConversations(), ELSEWHERE_MS);
+    const timer = setInterval(() => void refreshConversations(), elsewhere);
     return () => clearInterval(timer);
   }, [elsewhere, refreshConversations]);
+  // Back in the tab: answers that came, or were decided, meanwhile.
+  useEffect(() => {
+    if (offline) return;
+    const back = () => {
+      if (document.visibilityState === "visible") void refreshConversations();
+    };
+    document.addEventListener("visibilitychange", back);
+    return () => document.removeEventListener("visibilitychange", back);
+  }, [offline, refreshConversations]);
 
   /** Deletes conversations; one from its own menu goes at once, more (or all) after asking. */
   async function remove(ids: string[] | "all", ask: boolean) {
@@ -175,6 +190,7 @@ export function ConversationList() {
                 {group.items.map((c) => {
                   const title = c.title || t("untitled");
                   const picked = selection.isSelected(c.id);
+                  const status = conversationStatus(c, { answering: answering.has(c.id), waiting: waiting.has(c.id) }, c.id === shownConversation);
                   return (
                     <li key={c.id} className="group group/heading relative">
                       <Link
@@ -193,10 +209,13 @@ export function ConversationList() {
                             selection.some ? "opacity-0" : "group-hover:opacity-0 group-has-[input:focus-visible]:opacity-0",
                           )}
                         >
-                          {/* Only while an answer is being written for it, fading in and out; the place stays empty otherwise. */}
-                          {(answering.has(c.id) || c.answering) && <span className="h-1.5 w-1.5 rounded-full bg-fg motion-safe:animate-pulse" />}
+                          {/* Only while something goes on in it, or an answer waits to be read; the place stays empty otherwise. */}
+                          <StatusDot status={status} />
                         </span>
-                        <span className="flex-1 truncate ps-0.5">{title}</span>
+                        <span className="flex-1 truncate ps-0.5">
+                          {title}
+                          <StatusLabel status={status} />
+                        </span>
                       </Link>
                       <span className={cn("absolute inset-y-0 inset-s-1 flex items-center", !selection.some && "pointer-coarse:hidden")}>
                         <SelectBox

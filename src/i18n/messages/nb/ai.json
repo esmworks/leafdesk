@@ -181,6 +181,11 @@
     "history": "Samtaler",
     "noHistory": "Ingen samtaler ennå.",
     "untitled": "Samtale uten tittel",
+    "status": {
+      "answering": "Svarer",
+      "waiting": "Venter på deg",
+      "unread": "Nytt svar"
+    },
     "deleteConversation": "Slett samtalen",
     "deleteAll": "Slett alle samtaler",
     "confirmDeleteAll": "Vil du slette alle KI-samtalene dine i dette arbeidsområdet?",

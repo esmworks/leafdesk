@@ -184,7 +184,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`decideParkedChange`), and `getConversation` with one left parked or running there
   (`adoptLeftBehind`), both through `resumeChatRun`, which runs it here under the run's id for
   the page to follow; the row goes with the turn's save. What the chat
-  asks about before a call is `assistant/chat-dispatch.ts`. Chat: `ai-chat.ts`; its tools:
+  asks about before a call is `assistant/chat-dispatch.ts`. An answer that parks or ends while no page follows it
+  (`ai-chat-runs.ts` `followedIn`) tells the person (`ai-chat-notices.ts`: inbox kind `ai_chat_waiting`,
+  push); the list's answering, waiting and unread marks are `listConversations` (`conversation.seen_at`,
+  written by `markConversationSeen`) and `lib/chat-status.ts`. Chat: `ai-chat.ts`; its tools:
   `ai-tools.ts` (reads refuse arguments their schema doesn't name, `unknownArguments`; writes
   reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this

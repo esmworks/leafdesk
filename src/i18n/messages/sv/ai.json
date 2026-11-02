@@ -181,6 +181,11 @@
     "history": "Konversationer",
     "noHistory": "Inga konversationer än.",
     "untitled": "Namnlös konversation",
+    "status": {
+      "answering": "Svarar",
+      "waiting": "Väntar på dig",
+      "unread": "Nytt svar"
+    },
     "deleteConversation": "Radera konversationen",
     "deleteAll": "Radera alla konversationer",
     "confirmDeleteAll": "Radera alla dina AI-konversationer i den här arbetsytan?",

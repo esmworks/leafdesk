@@ -181,6 +181,11 @@
     "history": "Percakapan",
     "noHistory": "Belum ada percakapan.",
     "untitled": "Percakapan tanpa judul",
+    "status": {
+      "answering": "Sedang menjawab",
+      "waiting": "Menunggumu",
+      "unread": "Jawaban baru"
+    },
     "deleteConversation": "Hapus percakapan",
     "deleteAll": "Hapus semua percakapan",
     "confirmDeleteAll": "Hapus semua percakapan AI Anda di ruang kerja ini?",

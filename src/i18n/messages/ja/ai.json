@@ -181,6 +181,11 @@
     "history": "会話",
     "noHistory": "会話はまだありません。",
     "untitled": "無題の会話",
+    "status": {
+      "answering": "回答中",
+      "waiting": "あなたを待っています",
+      "unread": "新しい回答"
+    },
     "deleteConversation": "会話を削除",
     "deleteAll": "すべての会話を削除",
     "confirmDeleteAll": "このワークスペースでのAIとの会話をすべて削除しますか？",

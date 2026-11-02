@@ -181,6 +181,11 @@
     "history": "Unterhaltungen",
     "noHistory": "Noch keine Unterhaltungen.",
     "untitled": "Unbenannte Unterhaltung",
+    "status": {
+      "answering": "Antwortet",
+      "waiting": "Wartet auf dich",
+      "unread": "Neue Antwort"
+    },
     "deleteConversation": "Unterhaltung löschen",
     "deleteAll": "Alle Unterhaltungen löschen",
     "confirmDeleteAll": "Alle deine KI-Unterhaltungen in diesem Workspace löschen?",

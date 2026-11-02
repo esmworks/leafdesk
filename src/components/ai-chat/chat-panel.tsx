@@ -15,6 +15,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { MemoryButton } from "./memory-button";
+import { markConversationSeenAction } from "@/app/actions/ai";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { FOCUS_BLOCK_EVENT } from "@/components/page/block-focus";
 import { read } from "@/components/read";
@@ -22,8 +23,11 @@ import { cn, IconButton, MenuItem, MenuSeparator, Popover } from "@/components/u
 import { onOtherSidePanel, openingSidePanel } from "@/lib/side-panels";
 import { chatPath, isChatPath, sourceHref, type ChatOptions, type ChatScopeView, type ChatSourceView, type ConversationSummary } from "@/lib/ai-chat";
 import type { VoiceNoteLimits } from "@/lib/voice-notes";
+import { conversationStatus } from "@/lib/chat-status";
+import { useAnswering, useWaiting } from "./answering";
 import { ChatThread } from "./chat-thread";
 import { ScopePicker } from "./scope-picker";
+import { StatusDot, StatusLabel } from "./status-dot";
 import { useChat, type Chat } from "./use-chat";
 
 type ChatContext = {
@@ -42,6 +46,8 @@ type ChatContext = {
   /** The person's conversations in the workspace, newest first; null until first asked for. */
   conversations: ConversationSummary[] | null;
   refreshConversations: () => Promise<void>;
+  /** The conversation the person has in front of them (in the panel or the full-page chat), if any. */
+  shownConversation: string | null;
   /** The last page visited outside the full-page chat, where "back to pages" goes. */
   backPath: () => string;
 };
@@ -137,9 +143,29 @@ export function AiChatProvider({
     onAnswered: () => void refreshConversations(),
   });
 
+  // What the person has in front of them is seen (the list's "new answer" goes): a conversation
+  // opened, or its answer ended, while the panel or the full-page chat shows it and the tab is in
+  // sight; once for each length it has. Not while an answer is on its way: it's new when it ends.
+  const shownConversation = open || onChatPage ? chat.conversationId : null;
+  const seen = useRef<string | null>(null);
+  const shownLength = chat.messages.length;
+  useEffect(() => {
+    if (!shownConversation || chat.running) return;
+    const key = `${shownConversation}:${shownLength}`;
+    const mark = () => {
+      if (document.visibilityState !== "visible" || seen.current === key) return;
+      seen.current = key;
+      setConversations((list) => list?.map((c) => (c.id === shownConversation && c.unread ? { ...c, unread: undefined } : c)) ?? list);
+      void markConversationSeenAction(workspaceId, shownConversation).catch(() => {});
+    };
+    mark();
+    document.addEventListener("visibilitychange", mark);
+    return () => document.removeEventListener("visibilitychange", mark);
+  }, [shownConversation, shownLength, chat.running, workspaceId]);
+
   const value = useMemo(
-    () => ({ workspaceId, available, voice, options, open, setOpen, openPanel, conversations, refreshConversations, backPath }),
-    [workspaceId, available, voice, options, open, openPanel, conversations, refreshConversations, backPath],
+    () => ({ workspaceId, available, voice, options, open, setOpen, openPanel, conversations, refreshConversations, shownConversation, backPath }),
+    [workspaceId, available, voice, options, open, openPanel, conversations, refreshConversations, shownConversation, backPath],
   );
   return (
     <Context.Provider value={value}>
@@ -182,7 +208,9 @@ function ChatPanel({
   const router = useRouter();
   const pathname = usePathname();
   const context = useAiChat()!;
-  const { conversations, refreshConversations } = context;
+  const { conversations, refreshConversations, shownConversation } = context;
+  const answering = useAnswering();
+  const waiting = useWaiting();
   const currentPageId = /\/p\/([\w-]+)/.exec(pathname)?.[1] ?? null;
   const offline = useIsOffline();
   const [scope, setScope] = useState<ChatScopeView | null>(null);
@@ -261,23 +289,30 @@ function ChatPanel({
                 <p className="px-2 py-1.5 text-sm text-fg-muted">{t("noHistory")}</p>
               ) : (
                 <>
-                  {conversations.map((c) => (
-                    <div key={c.id} className={cn("group flex items-center gap-1 rounded", c.id === conversationId && "bg-bg-hover")}>
-                      <button
-                        type="button"
-                        className="min-w-0 flex-1 truncate rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
-                        onClick={() => {
-                          close();
-                          void chat.openConversation(c.id);
-                        }}
-                      >
-                        {c.title || t("untitled")}
-                      </button>
-                      <IconButton label={t("deleteConversation")} className="h-7 w-7 opacity-60 group-hover:opacity-100" onClick={() => void remove(c.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </IconButton>
-                    </div>
-                  ))}
+                  {conversations.map((c) => {
+                    const status = conversationStatus(c, { answering: answering.has(c.id), waiting: waiting.has(c.id) }, c.id === shownConversation);
+                    return (
+                      <div key={c.id} className={cn("group flex items-center gap-1 rounded", c.id === conversationId && "bg-bg-hover")}>
+                        <button
+                          type="button"
+                          className="flex min-w-0 flex-1 items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
+                          onClick={() => {
+                            close();
+                            void chat.openConversation(c.id);
+                          }}
+                        >
+                          <span className="min-w-0 flex-1 truncate">
+                            {c.title || t("untitled")}
+                            <StatusLabel status={status} />
+                          </span>
+                          <StatusDot status={status} />
+                        </button>
+                        <IconButton label={t("deleteConversation")} className="h-7 w-7 opacity-60 group-hover:opacity-100" onClick={() => void remove(c.id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </IconButton>
+                      </div>
+                    );
+                  })}
                   <MenuSeparator />
                   <MenuItem
                     icon={<Trash2 className="h-4 w-4" />}

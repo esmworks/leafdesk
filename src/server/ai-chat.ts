@@ -120,7 +120,8 @@ import { CHAT_READ_MEMORY_TOOL, fitNotes, memoryAvailable, memoryForPrompt, Memo
 import { otherTeamspaces, pageTeamspace, sharedMemoryFor } from "@/server/shared-memory";
 import { remindTool } from "@/server/ai-reminders";
 import { awaitDecision, decideChange, runsWaitingHere, type ChatDecision } from "@/server/ai-chat-approvals";
-import { answeringIn, conversationBusy, openRun, runEvents, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
+import { answeringIn, conversationBusy, followedIn, openRun, runEvents, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
+import { dropChatWaiting, noteChatWaiting, pushChatAnswered, tellsPerson } from "@/server/ai-chat-notices";
 import { FIND_TOOLS, lazyMoreTools, USE_TOOL } from "@/server/ai-more-tools";
 import { chatToolset } from "@/server/connections/tools";
 import { createChatDispatch, type ResolvedScope } from "@/server/assistant/chat-dispatch";
@@ -279,12 +280,23 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   // nothing is changed, notes about the person included.
   const appReadOnly = (await asWrite(() => connectedAppHold(userId, input.workspaceId))) === "readOnly";
   const timeZone = isTimeZone(input.timeZone) ? input.timeZone : browserTimeZone();
+  // Seen as it starts (the person is asking): its answer, saved later, is new until they see it.
+  const asked = new Date();
   const conversation: AiConversation =
     existing ??
     ((
       await db
         .insert(conversationTable)
-        .values({ userId, workspaceId: input.workspaceId, title: conversationTitle(message || files.records.map((a) => a.name).join(", ")), model: model?.id ?? null, thinking, messages: [] })
+        .values({
+          userId,
+          workspaceId: input.workspaceId,
+          title: conversationTitle(message || files.records.map((a) => a.name).join(", ")),
+          model: model?.id ?? null,
+          thinking,
+          messages: [],
+          updatedAt: asked,
+          seenAt: asked,
+        })
         .returning()
     )[0] as AiConversation);
   const source: AssistantRunSource = {
@@ -471,6 +483,8 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
   const { userId, timeZone, thinking, replaced } = source;
   const workspaceId = run.workspaceId;
   const research = source.research === true;
+  // Told about away from its page when no page follows it (ai-chat-notices.ts).
+  const tells = tellsPerson(source);
   // An owner may have turned changing without asking off since the question was asked.
   const initialMode = source.mode === "auto" && !setup.autoChanges ? "ask" : source.mode;
   const model = source.model;
@@ -687,12 +701,15 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
      * Asks the person about a change, a note or a web call: the run is parked with what it asks,
      * and waits here for their decision (pinging meanwhile), however long it takes. A server that
      * stops meanwhile leaves it parked: decideParkedChange, or a page opening its conversation
-     * (adoptLeftBehind), goes on with it.
+     * (adoptLeftBehind), goes on with it. Waiting while no page of the person's follows it, at
+     * its asking and a ping later (a page reloading, or opening it, follows it again by then), it
+     * tells them in their inbox (ai-chat-notices.ts), taken back once it no longer waits.
      */
     async function* park(call: AiToolCall, action: ChatActionView): AsyncGenerator<ChatEvent, ChatDecision> {
       // Waiting before the run is parked: the person may answer as soon as they are asked.
       const waiting = awaitDecision(userId, run.id, signal);
       const id = waiting.id;
+      let told = false;
       try {
         await db
           .update(agentRun)
@@ -707,6 +724,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
           .where(eq(agentRun.id, run.id));
         yield { type: "approval", id, action };
         let decision: ChatDecision;
+        let unwatched = tells && !followedIn(userId, conversation.id);
         for (;;) {
           let timer: ReturnType<typeof setTimeout> | undefined;
           const next = await Promise.race([waiting.decision, new Promise<"ping">((r) => (timer = setTimeout(() => r("ping"), PING_MS)))]);
@@ -716,6 +734,12 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
             break;
           }
           yield { type: "ping" };
+          const still = tells && !followedIn(userId, conversation.id);
+          if (still && unwatched && !told) {
+            told = true;
+            await noteChatWaiting(userId, workspaceId, run.id);
+          }
+          unwatched = still;
         }
         const [taken] = await db
           .update(agentRun)
@@ -727,6 +751,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
         return decision;
       } finally {
         waiting.cancel();
+        if (told) await dropChatWaiting(run.id);
       }
     }
     /** Keeps where the answer stands after each call: a run taken up again doesn't make a change twice. */
@@ -891,9 +916,14 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
         replaced,
         model,
         thinking,
+        // Asked through a connected app, it was read there.
+        source.fromApp === true,
       );
       await tx.delete(agentRun).where(eq(agentRun.id, run.id));
     });
+    // Answered while no page follows it: a push says so. Asked before `done` is published, which
+    // lets go of the pages following it.
+    if (!failure && tells && !followedIn(userId, conversation.id)) void pushChatAnswered(userId, workspaceId, conversation.id);
     // The answer ends as soon as its turn is saved: a page opening the conversation now finds the
     // turn there, and no answer on its way to follow again on top of it (ai-chat-runs.ts runningIn).
     yield { type: "sources", sources };
@@ -1039,6 +1069,7 @@ export async function decideParkedChange(userId: string, approvalId: string, dec
     )
     .returning({ id: agentRun.id });
   if (!found) return false;
+  await dropChatWaiting(found.id);
   kickAgents();
   return true;
 }
@@ -1115,16 +1146,18 @@ export async function answerUnderWay(userId: string, conversationId: string): Pr
 
 /**
  * Adds a question and its answer to a conversation, in place of its last `replace` records;
- * `model` and `thinking`: what it now answers with.
+ * `model` and `thinking`: what it now answers with. `seen`: the person read it as it came (no new
+ * answer to mark in the list).
  */
-async function saveTurn(tx: Tx, conversationId: string, records: ChatMessageRecord[], replace: number, model: string | null, thinking: ChatThinking) {
+async function saveTurn(tx: Tx, conversationId: string, records: ChatMessageRecord[], replace: number, model: string | null, thinking: ChatThinking, seen = false) {
   // Keeps the records before the replaced ones (a jsonb array's elements, in order).
+  const now = new Date();
   const kept = replace
     ? sql`coalesce((select jsonb_agg(e order by i) from jsonb_array_elements(${conversationTable.messages}) with ordinality as t(e, i) where i <= jsonb_array_length(${conversationTable.messages}) - ${replace}), '[]'::jsonb)`
     : sql`${conversationTable.messages}`;
   await tx
     .update(conversationTable)
-    .set({ messages: sql`${kept} || ${JSON.stringify(records)}::jsonb`, model, thinking, updatedAt: new Date() })
+    .set({ messages: sql`${kept} || ${JSON.stringify(records)}::jsonb`, model, thinking, updatedAt: now, ...(seen ? { seenAt: now } : {}) })
     .where(eq(conversationTable.id, conversationId));
 }
 
@@ -1210,16 +1243,63 @@ export async function viewSources(userId: string, refs: ChatSourceRef[]): Promis
   });
 }
 
-/** The person's conversations in a workspace, newest first. */
+/**
+ * The person's conversations in a workspace, newest first, each marked when an answer is being
+ * written in it, waits for their decision on a change (parked, here or by a server that stopped), or
+ * was saved after they last had it in front of them (markConversationSeen).
+ */
 export async function listConversations(userId: string, workspaceId: string): Promise<ConversationSummary[]> {
   await requireMembership(userId, workspaceId);
-  const rows = await db
-    .select({ id: conversationTable.id, title: conversationTable.title, updatedAt: conversationTable.updatedAt })
-    .from(conversationTable)
-    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId)))
-    .orderBy(desc(conversationTable.updatedAt));
+  const [rows, parked] = await Promise.all([
+    db
+      .select({
+        id: conversationTable.id,
+        title: conversationTable.title,
+        updatedAt: conversationTable.updatedAt,
+        unread: sql<boolean>`coalesce(${conversationTable.updatedAt} > ${conversationTable.seenAt}, false)`,
+      })
+      .from(conversationTable)
+      .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId)))
+      .orderBy(desc(conversationTable.updatedAt)),
+    db
+      .select({ conversationId: sql<string>`${agentRun.source}->>'conversationId'` })
+      .from(agentRun)
+      .where(
+        and(
+          isNull(agentRun.agentId),
+          eq(agentRun.workspaceId, workspaceId),
+          eq(agentRun.status, "awaiting_approval"),
+          sql`${agentRun.source}->>'userId' = ${userId}`,
+        ),
+      ),
+  ]);
+  const waiting = new Set(parked.map((p) => p.conversationId));
+  // A parked answer is still on its way in this process (ai-chat-runs.ts): it waits, not writes.
   const answering = answeringIn(userId, workspaceId);
-  return rows.map((r) => ({ id: r.id, title: r.title, updatedAt: r.updatedAt.toISOString(), ...(answering.has(r.id) ? { answering: true as const } : {}) }));
+  return rows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    updatedAt: r.updatedAt.toISOString(),
+    ...(answering.has(r.id) && !waiting.has(r.id) ? { answering: true as const } : {}),
+    ...(waiting.has(r.id) ? { waiting: true as const } : {}),
+    ...(r.unread ? { unread: true as const } : {}),
+  }));
+}
+
+/** The person has the conversation in front of them: what it holds now is no new answer. Ids not theirs are left alone. */
+export async function markConversationSeen(userId: string, workspaceId: string, conversationId: string): Promise<void> {
+  await requireMembership(userId, workspaceId);
+  await db
+    .update(conversationTable)
+    .set({ seenAt: new Date() })
+    .where(
+      and(
+        eq(conversationTable.id, conversationId),
+        eq(conversationTable.userId, userId),
+        eq(conversationTable.workspaceId, workspaceId),
+        isNull(conversationTable.agentId),
+      ),
+    );
 }
 
 /**

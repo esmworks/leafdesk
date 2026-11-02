@@ -181,6 +181,11 @@
     "history": "Conversations",
     "noHistory": "No conversations yet.",
     "untitled": "Untitled conversation",
+    "status": {
+      "answering": "Answering",
+      "waiting": "Waiting for you",
+      "unread": "New answer"
+    },
     "deleteConversation": "Delete conversation",
     "deleteAll": "Delete all conversations",
     "confirmDeleteAll": "Delete all your AI conversations in this workspace?",
