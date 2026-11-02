@@ -38,6 +38,10 @@
   before each step, with the AI chat's levels: *Fast*, *Balanced* (the default, as agents worked
   until now) and *Deep*. Versions and copies of an agent keep it; MCP and the REST API show it.
   Migration 0191.
+- **A mention of a database row shows the row's status.** A dot in the status option's color sits
+  before the row's title, named when the pointer rests on it, and a row whose status is done is
+  muted and struck through. It follows the row as its status changes, and stays hidden from
+  people who may not see the status property. Published pages and print show mentions as before.
 
 ### Changed
 

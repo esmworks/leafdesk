@@ -1,6 +1,6 @@
 import { and, asc, countDistinct, desc, eq, inArray, isNull, lte, ne, notInArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
+import { databaseProperty, page, pageLink, pageMention, pagePublication, pageReminder, user, type PageKind } from "@/db/schema";
 import { findTitle, excerpt, linkContexts, linkPlaces, linkTitle, MIN_MENTION_TITLE, type Excerpt, type LinkPlace } from "@/lib/link-context";
 import { bodyReferences, fencedLines, MARKDOWN_PAGE_LINK, markdownPageIds, type MentionPerson } from "@/lib/mentions";
 import { searchFold } from "@/lib/search-fold";
@@ -30,6 +30,9 @@ import { groupMentionTargets } from "@/lib/group-mentions";
 import { mentionableAgents, type AgentCandidate } from "@/server/agents/mentions";
 import { avatarSrc } from "@/lib/avatar";
 import { startSweep } from "@/server/sweep";
+import { atLeast } from "@/lib/property-access";
+import { rowStatusOf, type RowStatus } from "@/lib/row-status";
+import { loadPropertyRules, propertyAccessFor } from "@/server/property-access";
 import { syncSyncedReferences } from "@/server/synced-blocks";
 import { livePublication } from "@/server/publication-live";
 
@@ -267,7 +270,21 @@ export function startReminders() {
  * trash.
  */
 export type PageRef =
-  | { id: string; status: "ok"; workspaceId: string; title: string; icon: string | null; kind: PageKind }
+  | {
+      id: string;
+      status: "ok";
+      workspaceId: string;
+      title: string;
+      icon: string | null;
+      kind: PageKind;
+      /** Asked with `rowStatus`, for a row: its database, whose row changes may change `rowStatus`. */
+      databaseId?: string;
+      /**
+       * Asked with `rowStatus`, for a row whose database has a status property: the value of the
+       * first one (in the database's order), when the row has one and the reader may see it.
+       */
+      rowStatus?: RowStatus;
+    }
   | { id: string; status: "noAccess" | "deleted" };
 
 const MAX_REFS = 200;
@@ -275,12 +292,13 @@ const MAX_REFS = 200;
 /**
  * `standing`: what the user's access allows, whoever is looking (a publisher's, for published
  * pages); otherwise pages of a workspace whose two-step policy holds back this request's session
- * read as no access too.
+ * read as no access too. `rowStatus`: rows also say their database and status (the editor's
+ * chips; published pages, print and comments leave it out).
  */
 export async function resolvePageRefs(
   userId: string,
   pageIds: string[],
-  { standing = false }: { standing?: boolean } = {},
+  { standing = false, rowStatus = false }: { standing?: boolean; rowStatus?: boolean } = {},
 ): Promise<PageRef[]> {
   const ids = [...new Set(pageIds.filter((id) => typeof id === "string" && id && id.length <= 128))].slice(0, MAX_REFS);
   if (!ids.length) return [];
@@ -293,10 +311,12 @@ export async function resolvePageRefs(
       kind: page.kind,
       archived: sql<boolean>`${page.archivedAt} is not null`,
       level: accessRank(userId, sql`${page.id}`),
+      row: rowStatus ? rowStatusSql : sql<RowStatusRead | null>`null`,
     })
     .from(page)
     .where(inArray(page.id, ids));
   const byId = new Map(rows.map((r) => [r.id, r]));
+  const statuses = rowStatus ? await visibleRowStatuses(userId, rows.flatMap((r) => (r.row && levelFromRank(r.level) !== "none" ? [{ id: r.id, ...r.row }] : []))) : null;
   const heldBack = standing
     ? new Set<string>()
     : await workspacesHeldBack(
@@ -308,8 +328,68 @@ export async function resolvePageRefs(
     // A page the user can't see reads the same whether it exists or not.
     if (row && (levelFromRank(row.level) === "none" || heldBack.has(row.workspaceId))) return { id, status: "noAccess" };
     if (!row || row.archived) return { id, status: "deleted" };
-    return { id, status: "ok", workspaceId: row.workspaceId, title: row.title, icon: row.icon, kind: row.kind };
+    const ref: Extract<PageRef, { status: "ok" }> = { id, status: "ok", workspaceId: row.workspaceId, title: row.title, icon: row.icon, kind: row.kind };
+    if (statuses && row.row) {
+      ref.databaseId = row.row.databaseId;
+      const shown = statuses.get(id);
+      if (shown) ref.rowStatus = shown;
+    }
+    return ref;
   });
+}
+
+type RowStatusRead = { databaseId: string; propertyId: string | null; option: unknown };
+
+/**
+ * For a row (a page whose parent is a database), its database, the first status property of that
+ * database (in its order: position, then age) and the option the row holds there; null for other
+ * pages. One subquery of the batch, whatever the number of mentions. The mentioned page's columns
+ * are named in full: Drizzle writes a one-table query's columns bare, which here would name `parent`'s.
+ */
+const rowStatusSql = sql<RowStatusRead | null>`(
+  select jsonb_build_object('databaseId', parent.id, 'propertyId', sp.id, 'option', sp.option)
+  from ${page} parent
+  left join lateral (
+    select dp.id, (
+      select o from jsonb_array_elements(case when jsonb_typeof(dp.options -> 'options') = 'array' then dp.options -> 'options' else '[]'::jsonb end) o
+      where o ->> 'id' = "page"."properties" ->> dp.id
+      limit 1
+    ) as option
+    from ${databaseProperty} dp
+    where dp.database_id = parent.id and dp.type = 'status' and dp.deleted_at is null
+    order by dp.position, dp.created_at
+    limit 1
+  ) sp on true
+  where parent.id = "page"."parent_id" and parent.kind = 'database'
+)`;
+
+/**
+ * The statuses of these rows `userId` may see, by row id: a status property with access rules is
+ * checked against the row (rules can follow the people a row names), once per database with rules.
+ */
+async function visibleRowStatuses(userId: string, rows: ({ id: string } & RowStatusRead)[]): Promise<Map<string, RowStatus>> {
+  const out = new Map<string, RowStatus>();
+  const held = rows.flatMap((r) => {
+    const status = r.propertyId ? rowStatusOf(r.option) : null;
+    return status && r.propertyId ? [{ id: r.id, databaseId: r.databaseId, propertyId: r.propertyId, status }] : [];
+  });
+  if (!held.length) return out;
+  const rules = await loadPropertyRules([...new Set(held.map((r) => r.databaseId))]);
+  const ruled = held.filter((r) => rules.has(r.propertyId));
+  for (const r of held) if (!rules.has(r.propertyId)) out.set(r.id, r.status);
+  if (!ruled.length) return out;
+  const [values, accesses] = await Promise.all([
+    db.select({ id: page.id, properties: page.properties, createdBy: page.createdBy }).from(page).where(inArray(page.id, ruled.map((r) => r.id))),
+    Promise.all([...new Set(ruled.map((r) => r.databaseId))].map(async (id) => [id, await propertyAccessFor(userId, id)] as const)),
+  ]);
+  const rowOf = new Map(values.map((v) => [v.id, v]));
+  const accessOf = new Map(accesses);
+  for (const r of ruled) {
+    const row = rowOf.get(r.id);
+    const access = accessOf.get(r.databaseId);
+    if (row && access && atLeast(access.levelOf(r.propertyId, { properties: row.properties, createdBy: row.createdBy }), "view")) out.set(r.id, r.status);
+  }
+  return out;
 }
 
 /**

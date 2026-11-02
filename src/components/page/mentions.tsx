@@ -93,8 +93,9 @@ async function fetchRefs(ids: string[]) {
   }
 }
 
-function requestRef(id: string) {
-  if (!id || refs.has(id) || wanted.has(id)) return;
+/** `again`: fetch it even when known (a row's values changed). */
+function requestRef(id: string, again = false) {
+  if (!id || (refs.has(id) && !again) || wanted.has(id)) return;
   wanted.add(id);
   batch ??= setTimeout(() => {
     batch = null;
@@ -140,6 +141,9 @@ export function usePageRefUpdates(workspaceId: string) {
 // ---------------------------------------------------------------------------------------------
 // Chips
 
+/** A mentioned row whose status is in its "done" group: its title muted and struck through. */
+const MUTE_DONE_ROWS = true;
+
 function openPage(event: MouseEvent, href: string, push: (href: string) => void) {
   // New tab and friends keep the browser's behaviour.
   if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -156,6 +160,10 @@ function PageMentionChip({ pageId, blockId }: { pageId: string; blockId: string 
   const tc = useTranslations("common");
   const router = useRouter();
   const ref = usePageRef(pageId);
+  // A row's status follows its database's row changes (the page tree's events don't carry them).
+  useChannel(ref?.status === "ok" && ref.databaseId ? `db:${ref.databaseId}` : null, (event) => {
+    if (event === "rows" || event === "schema") requestRef(pageId, true);
+  });
   if (!ref) {
     return (
       <span className="leafdesk-mention leafdesk-mention-page leafdesk-mention-muted">
@@ -174,12 +182,14 @@ function PageMentionChip({ pageId, blockId }: { pageId: string; blockId: string 
     );
   }
   const href = pageOrBlockPath(ref.workspaceId, ref.id, blockId);
+  const status = ref.rowStatus;
   return (
     <a
       href={href}
       className="leafdesk-mention leafdesk-mention-page"
       onClick={(e) => openPage(e, href, router.push)}
       data-mention-status="ok"
+      data-done={MUTE_DONE_ROWS && status?.done ? "" : undefined}
       title={blockId ? t("atBlock") : undefined}
     >
       {ref.icon ? (
@@ -189,6 +199,7 @@ function PageMentionChip({ pageId, blockId }: { pageId: string; blockId: string 
       ) : (
         <PageIcon icon={null} kind={ref.kind} className="leafdesk-mention-icon" />
       )}
+      {status && <span role="img" className="leafdesk-mention-dot" data-color={status.color} aria-label={status.name} title={status.name} />}
       <span className="leafdesk-mention-label">{pageLabel(ref.title, tc("untitled"))}</span>
       {blockId && <Pilcrow className="leafdesk-mention-icon leafdesk-mention-block" aria-label={t("atBlock")} />}
     </a>

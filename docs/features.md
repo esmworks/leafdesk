@@ -710,8 +710,11 @@
   apply its text as suggestions, marked as the AI's.
 - **Mentions and page links**: `@` mentions people (those with your email domain first), groups of the workspace (each member who can
   open the page is notified as if mentioned by name; hovering the mention lists them; Markdown
-  writes it `@Group name`), pages (with their live title, or "No access")
-  and dates with optional reminders, typed in words (`@next friday`, `@aug 31`; with a time,
+  writes it `@Group name`), pages (with their live title, or "No access"; a database row also
+  shows its status as a dot in the option's color, named when the pointer rests on it, and a row
+  whose status is done is struck through; the status is the database's first status property, left
+  out where you may not see that property, and only in the editor, not on published pages or in
+  print) and dates with optional reminders, typed in words (`@next friday`, `@aug 31`; with a time,
   `@fri 5pm`, the date gets a reminder then; see the dates under *Databases*). Resting the pointer on a page mention or a link to a page, in
   the editor or a comment, shows a card with its place, last edit and first lines (a row's first
   values), only to people who may open it; `[[` links to a page, or to a new page inside this one with

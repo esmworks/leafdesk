@@ -55,10 +55,10 @@ export async function mentionedGroupAction(groupId: string): Promise<MentionedGr
   }
 }
 
-/** Live titles and icons of mentioned pages, as far as the user may see them. */
+/** Live titles and icons of mentioned pages, and rows' statuses, as far as the user may see them. */
 export async function resolvePagesAction(pageIds: string[]) {
   const userId = await requireUserId();
-  return mentions.resolvePageRefs(userId, Array.isArray(pageIds) ? pageIds : []);
+  return mentions.resolvePageRefs(userId, Array.isArray(pageIds) ? pageIds : [], { rowStatus: true });
 }
 
 /** What a synced page block shows this user of the page it shows (see server/mentions syncedPageInfo). */

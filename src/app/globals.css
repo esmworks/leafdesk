@@ -1646,6 +1646,29 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
   text-decoration: none;
   font-weight: 400;
 }
+/* A mentioned row's status (components/page/mentions.tsx): a dot in its option's color. */
+.leafdesk-mention-dot {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 9999px;
+  margin-inline-end: 0.3em;
+  vertical-align: 0.08em;
+  background: var(--icon-gray);
+}
+.leafdesk-mention-dot[data-color="brown"] { background: var(--icon-brown); }
+.leafdesk-mention-dot[data-color="orange"] { background: var(--icon-orange); }
+.leafdesk-mention-dot[data-color="yellow"] { background: var(--icon-yellow); }
+.leafdesk-mention-dot[data-color="green"] { background: var(--icon-green); }
+.leafdesk-mention-dot[data-color="blue"] { background: var(--icon-blue); }
+.leafdesk-mention-dot[data-color="purple"] { background: var(--icon-purple); }
+.leafdesk-mention-dot[data-color="pink"] { background: var(--icon-pink); }
+.leafdesk-mention-dot[data-color="red"] { background: var(--icon-red); }
+/* …in its "done" group: the title steps back. */
+.leafdesk-mention[data-done] .leafdesk-mention-label {
+  color: var(--fg-muted);
+  text-decoration-line: line-through;
+}
 
 /*
  * The print view (app/print): light whatever the system theme, so a PDF saved in dark mode reads
