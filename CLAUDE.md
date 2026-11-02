@@ -595,7 +595,10 @@ because they are separate module graphs.
   that room (comments, graph, the chat) close each other through `lib/side-panels.ts`.
   A dialog is `Dialog` built from `DialogHeader` (or a `DialogTitle` in the body for a short
   question), `DialogBody` and `DialogFooter` (Cancel `secondary`, the action last); a panel over its
-  own shade takes `dialogShadow`.
+  own shade takes `dialogShadow`. Fields in a dialog drawn like `Input` (`border-border bg-bg`) are
+  filled in gray by an unlayered rule in globals.css (`[data-dialog] :is(input, select, textarea)`),
+  not by their classes, which every first load carries; a field that must stay outlined there takes
+  other classes.
   A backdrop shading the whole window under a dialog carries `data-window-shade`: that component
   tells the desktop app its color, and the tab strip, which the page can't draw over, takes it too.
   Boxes beside a chat's column on a wide page (the agent's page, the AI chat) are

@@ -128,7 +128,7 @@ export default function AutomationsDialog({
       <DatabasesProvider workspaceId={workspaceId}>
       <SequenceChoicesProvider databaseId={databaseId}>
       {/* Not DialogHeader: the back button goes before the title. */}
-      <div className="flex items-start gap-3 border-b border-border px-5 py-4">
+      <div className="flex items-start gap-3 px-5 pt-5 pb-3">
         {mode.kind !== "list" && (
           <IconButton label={t("back")} onClick={() => setMode({ kind: "list" })} className="mt-1">
             <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" />

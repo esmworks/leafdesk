@@ -37,19 +37,19 @@ export function StaleClientScreen() {
 
   if (!stale) return null;
   return (
-    <div data-window-shade className="fixed inset-0 z-[60] flex items-start justify-center bg-black/30 p-4 pt-[18vh]">
+    <div data-window-shade className="fixed inset-0 z-[60] flex items-start justify-center bg-black/40 p-4 pt-[18vh] dark:bg-black/60">
       <div
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="stale-client-title"
         aria-describedby="stale-client-body"
         data-dialog
-        className={cn("w-full max-w-md overflow-hidden rounded-xl border border-border bg-bg", dialogShadow)}
+        className={cn("w-full max-w-md overflow-hidden rounded-2xl border border-border bg-bg dark:bg-bg-subtle", dialogShadow)}
       >
         <DialogBody className="pt-5">
           <div className="space-y-1.5">
             {/* Not DialogTitle: outside Dialog it has no id to give, and this one keeps its own. */}
-            <h2 id="stale-client-title" className="text-base leading-6 font-semibold text-fg">
+            <h2 id="stale-client-title" className="text-lg leading-6 font-semibold text-fg">
               {t("title")}
             </h2>
             <p id="stale-client-body" className="text-sm text-fg-muted">

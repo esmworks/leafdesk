@@ -237,7 +237,7 @@ export function Dialog({
   if (!open) return null;
   return (
     <DialogTitleId.Provider value={titleId}>
-    <div data-window-shade className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 p-4 pt-[12vh]">
+    <div data-window-shade className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pt-[12vh] dark:bg-black/60">
       <div
         ref={ref}
         role="dialog"
@@ -246,7 +246,8 @@ export function Dialog({
         aria-labelledby={titleId}
         data-dialog
         className={cn(
-          "w-full rounded-xl border border-border bg-bg",
+          // Raised a step above the page in the dark theme, where a shadow hardly shows.
+          "w-full rounded-2xl border border-border bg-bg dark:bg-bg-subtle",
           dialogShadow,
           // cn doesn't merge classes: with two max-w utilities the stylesheet's order would pick, not the caller.
           !className?.split(" ").some((c) => c.startsWith("max-w-")) && "max-w-xl",
@@ -267,7 +268,7 @@ const DialogTitleId = createContext<string | undefined>(undefined);
 /** A dialog's title, for a dialog without a DialogHeader (a short confirmation at the top of its DialogBody). */
 export function DialogTitle({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <h2 id={useContext(DialogTitleId)} className={cn("text-base leading-6 font-semibold text-fg", className)}>
+    <h2 id={useContext(DialogTitleId)} className={cn("text-lg leading-6 font-semibold text-fg", className)}>
       {children}
     </h2>
   );
@@ -298,7 +299,7 @@ export function DialogHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex shrink-0 items-start gap-3 border-b border-border px-5 py-4", className)}>
+    <div className={cn("flex shrink-0 items-start gap-3 px-5 pt-5 pb-3", className)}>
       {icon && (
         <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-subtle text-fg-muted">
           {icon}
@@ -341,10 +342,13 @@ function bodyDefaults(className: string | undefined) {
   ];
 }
 
-/** A dialog's bottom bar of buttons, the main one last: Cancel `secondary`, the action `primary` or `danger`. */
+/**
+ * A dialog's buttons, the main one last: Cancel `secondary`, the action `primary` or `danger`. No
+ * bar of their own: they sit on the dialog, a size up from other buttons.
+ */
 export function DialogFooter({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border bg-bg-subtle px-5 py-3", className)}>
+    <div className={cn("flex shrink-0 flex-wrap items-center justify-end gap-2 px-5 pt-2 pb-5 [&>button]:h-9 [&>button]:px-4", className)}>
       {children}
     </div>
   );

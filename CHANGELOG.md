@@ -12,6 +12,10 @@
   number, link, email or phone cell starts its editor with what you typed, and Esc then leaves the
   value as it was. Checkboxes, stars, buttons and links in cells still work with one click, and on a
   touch screen a tap still opens the editor. Lists, boards, galleries and the row page are unchanged.
+- **Dialogs have a calmer, roomier look.** Rounder corners and a deeper shade behind them, a larger
+  title without a line under it, buttons a size up sitting on the dialog instead of a gray bar, and
+  fields filled in gray instead of outlined (high contrast keeps their edge). In the dark theme a
+  dialog is a step lighter than the page, so it no longer reads as a border on the same black.
 
 ### Fixed
 
