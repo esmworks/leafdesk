@@ -382,12 +382,15 @@
     over a property for their cards on the line under it, the same in every column: the sum of the
     estimates, the average of a score, the earliest due date, how many are checked. Editors pick it
     by clicking a column's card count, and change it from that line.
-  - Table cells work from the keyboard: click a cell or move with the arrow keys, select a range
-    with Shift and an arrow, Shift+click or a drag; Enter edits the cell, Esc goes back to it and
-    Delete clears the range. Copy puts the range on the clipboard as tab-separated text, and cells
-    pasted from a spreadsheet are written from the active cell on, each value read as the CSV
-    import reads it (numbers, dates, yes/no, option and people names), adding options a select
-    lacks and, in an ungrouped table, rows past the last one. One pasted value fills the whole
+  - Table cells work like a spreadsheet's: a click selects a cell (as do the arrow keys), and a
+    second click, a double click, Enter or typing edits it; typing over a text, number, link, email
+    or phone cell starts with what you typed, and Esc then leaves the value as it was. Checkboxes,
+    stars, buttons and links in cells work with one click, and on a touch screen a tap edits the
+    cell at once. Select a range with Shift and an arrow, Shift+click or a drag; Esc goes back from
+    an editor to its cell and Delete clears the range. Copy puts the range on the clipboard as
+    tab-separated text, and cells pasted from a spreadsheet are written from the active cell on,
+    each value read as the CSV import reads it (numbers, dates, yes/no, option and people names),
+    adding options a select lacks and, in an ungrouped table, rows past the last one. One pasted value fills the whole
     range; cells that don't fit their column or that you may not change are left out and counted.
     The handle at the bottom-right of the selection fills the cells it is dragged over (up or down)
     with the selection's values, and Cmd/Ctrl+D fills a range down from its top cell in each column
