@@ -18,9 +18,10 @@ import {
   type VersionScheduleRef,
 } from "@/lib/agent-versions";
 import { editsAgent, type AgentView } from "@/lib/agents";
+import { isChatThinking } from "@/lib/ai-chat";
 import { useRuleSummary } from "./rule-summary";
 
-const NAMED_FIELDS = ["name", "icon", "description", "instructions", "enabled", "model", "web_access", "mail_recipients", "row_changes", "monthly_token_limit", "quiet_hours", "daily_change_limit", "skills", "schedules", "shares"] as const;
+const NAMED_FIELDS = ["name", "icon", "description", "instructions", "enabled", "model", "thinking", "web_access", "mail_recipients", "row_changes", "monthly_token_limit", "quiet_hours", "daily_change_limit", "skills", "schedules", "shares"] as const;
 type NamedField = (typeof NAMED_FIELDS)[number];
 
 /** A setting or part's name; one added since that has no translation yet goes by its column. */
@@ -307,6 +308,7 @@ function PageName({ workspaceId, page }: { workspaceId: string; page: VersionPag
 function VersionChanges({ workspaceId, detail }: { workspaceId: string; detail: AgentVersionDetail }) {
   const t = useTranslations("settings.agents.history");
   const ta = useTranslations("settings.agents.access.level");
+  const tf = useTranslations("settings.agents.form");
   const field = useFieldName();
   const format = useFormatter();
   const ruleSummary = useRuleSummary();
@@ -322,6 +324,7 @@ function VersionChanges({ workspaceId, detail }: { workspaceId: string; detail: 
     if (name === "enabled" && typeof v === "boolean") return v ? t("on") : t("paused");
     if (name === "monthly_token_limit" && typeof v === "number") return t("tokens", { count: v });
     if (name === "model" && (v === "main" || v === "fast")) return t(v === "fast" ? "modelFast" : "modelMain");
+    if (name === "thinking" && isChatThinking(v)) return tf(`thinkingLevels.${v}`);
     if (typeof v === "boolean") return v ? t("yes") : t("no");
     if (typeof v === "number") return format.number(v);
     if (typeof v === "string") return v;

@@ -494,6 +494,17 @@
       "modelMain": "Huvudmodell ({name})",
       "modelFast": "Snabb modell ({name})",
       "modelHelp": "Den snabba modellen kostar mindre och passar rutinmässiga, väldefinierade uppgifter, till exempel sammanfattningar eller sortering av rader. Huvudmodellen passar arbete som kräver omdöme.",
+      "thinking": "Tänkande",
+      "thinkingLevels": {
+        "fast": "Snabb",
+        "balanced": "Balanserad",
+        "deep": "Grundlig"
+      },
+      "thinkingHelp": {
+        "fast": "Lite eller inget tänkande: snabbare och billigare, för rutinjobb med tydliga ramar.",
+        "balanced": "Det vanliga för agenter: så mycket som modellen tänker på egen hand, och lite på den snabba modellen.",
+        "deep": "Så mycket som modellen tänker på egen hand, även på den snabba modellen: långsammare och dyrare."
+      },
       "limitInvalid": "Ange ett heltal från 1 till 1 000 000 000, eller lämna tomt för ingen gräns.",
       "create": "Skapa agent",
       "creating": "Skapar…",
@@ -976,6 +987,7 @@
         "instructions": "Instruktioner",
         "enabled": "Aktiv",
         "model": "Modell",
+        "thinking": "Tänkande",
         "web_access": "Webbåtkomst",
         "mail_recipients": "E-postmottagare",
         "monthly_token_limit": "Månatlig tokengräns",

@@ -494,6 +494,17 @@
       "modelMain": "Model utama ({name})",
       "modelFast": "Model cepat ({name})",
       "modelHelp": "Model cepat lebih murah dan cocok untuk pekerjaan rutin yang jelas, seperti ringkasan atau memilah baris. Model utama cocok untuk pekerjaan yang membutuhkan pertimbangan.",
+      "thinking": "Penalaran",
+      "thinkingLevels": {
+        "fast": "Cepat",
+        "balanced": "Seimbang",
+        "deep": "Mendalam"
+      },
+      "thinkingHelp": {
+        "fast": "Sedikit atau tanpa berpikir: lebih cepat dan murah, untuk pekerjaan rutin yang jelas.",
+        "balanced": "Pengaturan biasa agen: berpikir sebanyak model berpikir sendiri, dan sedikit pada model cepat.",
+        "deep": "Berpikir sebanyak model berpikir sendiri, juga pada model cepat: lebih lambat dan lebih mahal."
+      },
       "limitInvalid": "Masukkan bilangan bulat dari 1 hingga 1.000.000.000, atau kosongkan untuk tanpa batas.",
       "create": "Buat agen",
       "creating": "Membuat…",
@@ -976,6 +987,7 @@
         "instructions": "Instruksi",
         "enabled": "Aktif",
         "model": "Model",
+        "thinking": "Penalaran",
         "web_access": "Akses web",
         "mail_recipients": "Penerima email",
         "monthly_token_limit": "Batas token bulanan",

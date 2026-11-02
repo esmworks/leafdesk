@@ -13,6 +13,7 @@ import { and, count, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent, type AgentRunRow } from "@/db/schema";
 import { MAX_AGENT_MAIL_RECIPIENTS, parseMailRecipients } from "@/lib/agent-mail";
+import { isChatThinking, type ChatThinking } from "@/lib/ai-chat";
 import {
   accessSource,
   agentEmail,
@@ -74,6 +75,8 @@ export type AgentInput = {
   /** Tokens a month; null removes the limit. */
   monthlyTokenLimit?: number | null;
   model?: AgentModel;
+  /** How much its model thinks (lib/ai-chat CHAT_THINKING). */
+  thinking?: ChatThinking;
   /** Whether its runs change rows at once or propose the changes for review. */
   rowChanges?: AgentRowChanges;
   /** When calls an owner's rule allows wait instead (lib/quiet-hours.ts); null: never. */
@@ -129,6 +132,11 @@ function checkModel(value: unknown): AgentModel {
   return value;
 }
 
+function checkThinking(value: unknown): ChatThinking {
+  if (!isChatThinking(value)) throw new AgentError("invalid", 'An agent thinks "fast", "balanced" or "deep"', { reason: "thinking" });
+  return value;
+}
+
 /**
  * `value` as an agent's helpers, chosen by `userId`: each helper they add must be one they can at
  * least interact with (owners: any); those it has already stay.
@@ -168,6 +176,7 @@ export function viewAgent(a: Agent, access: AgentShareLevel): AgentView {
     mailRecipients: a.mailRecipients,
     monthlyTokenLimit: a.monthlyTokenLimit,
     model: a.model,
+    thinking: a.thinking,
     rowChanges: a.rowChanges,
     quietHours: a.quietHours ? parseQuietHours(a.quietHours) : null,
     dailyChangeLimit: a.dailyChangeLimit,
@@ -185,6 +194,7 @@ export const auditDetails = (a: Agent) => ({
   mailRecipients: a.mailRecipients,
   monthlyTokenLimit: a.monthlyTokenLimit,
   model: a.model,
+  thinking: a.thinking,
   rowChanges: a.rowChanges,
   quietHours: a.quietHours,
   dailyChangeLimit: a.dailyChangeLimit,
@@ -273,6 +283,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
   const instructions = clean(input.instructions, MAX_AGENT_INSTRUCTIONS) ?? "";
   const monthlyTokenLimit = input.monthlyTokenLimit === undefined ? null : checkLimit(input.monthlyTokenLimit);
   const model = input.model === undefined ? "main" : checkModel(input.model);
+  const thinking = input.thinking === undefined ? "balanced" : checkThinking(input.thinking);
   const helpers = input.helperAgentIds === undefined ? [] : await checkHelpers(userId, workspaceId, null, input.helperAgentIds);
   const created = await db.transaction(async (tx) => {
     const [{ n }] = await tx
@@ -299,6 +310,7 @@ export async function createAgent(userId: string, workspaceId: string, input: Ag
         mailRecipients: input.mailRecipients === undefined ? [] : checkMailRecipients(input.mailRecipients),
         monthlyTokenLimit,
         model,
+        thinking,
         rowChanges: input.rowChanges === undefined ? "direct" : checkRowChanges(input.rowChanges),
         quietHours: input.quietHours === undefined ? null : checkQuietHours(input.quietHours),
         dailyChangeLimit: input.dailyChangeLimit === undefined ? null : checkDailyChangeLimit(input.dailyChangeLimit),
@@ -356,6 +368,7 @@ export async function updateAgent(userId: string, agentId: string, patch: AgentI
   if (patch.mailRecipients !== undefined) set.mailRecipients = checkMailRecipients(patch.mailRecipients);
   if (patch.monthlyTokenLimit !== undefined) set.monthlyTokenLimit = checkLimit(patch.monthlyTokenLimit);
   if (patch.model !== undefined) set.model = checkModel(patch.model);
+  if (patch.thinking !== undefined) set.thinking = checkThinking(patch.thinking);
   if (patch.rowChanges !== undefined) set.rowChanges = checkRowChanges(patch.rowChanges);
   if (patch.quietHours !== undefined) set.quietHours = checkQuietHours(patch.quietHours);
   if (patch.dailyChangeLimit !== undefined) set.dailyChangeLimit = checkDailyChangeLimit(patch.dailyChangeLimit);

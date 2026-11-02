@@ -494,6 +494,17 @@
       "modelMain": "Hovedmodell ({name})",
       "modelFast": "Rask modell ({name})",
       "modelHelp": "Den raske modellen koster mindre og passer for rutinemessige, veldefinerte oppgaver, som sammendrag eller sortering av rader. Hovedmodellen passer for arbeid som krever skjønn.",
+      "thinking": "Tenking",
+      "thinkingLevels": {
+        "fast": "Rask",
+        "balanced": "Balansert",
+        "deep": "Grundig"
+      },
+      "thinkingHelp": {
+        "fast": "Lite eller ingen tenking: raskere og billigere, for rutineoppgaver med klare rammer.",
+        "balanced": "Det vanlige for agenter: så mye som modellen tenker på egen hånd, og litt på den raske modellen.",
+        "deep": "Så mye som modellen tenker på egen hånd, også på den raske modellen: tregere og dyrere."
+      },
       "limitInvalid": "Skriv inn et heltall fra 1 til 1 000 000 000, eller la feltet stå tomt for ingen grense.",
       "create": "Opprett agent",
       "creating": "Oppretter…",
@@ -976,6 +987,7 @@
         "instructions": "Instruksjoner",
         "enabled": "Aktiv",
         "model": "Modell",
+        "thinking": "Tenking",
         "web_access": "Nettilgang",
         "mail_recipients": "E-postmottakere",
         "monthly_token_limit": "Månedlig tokengrense",

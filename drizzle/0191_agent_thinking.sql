@@ -1,0 +1,1 @@
+ALTER TABLE "workspace_agent" ADD COLUMN "thinking" text DEFAULT 'balanced' NOT NULL;

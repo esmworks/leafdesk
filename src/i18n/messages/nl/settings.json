@@ -494,6 +494,17 @@
       "modelMain": "Hoofdmodel ({name})",
       "modelFast": "Snel model ({name})",
       "modelHelp": "Het snelle model kost minder en past bij routinematige, goed omschreven taken, zoals samenvattingen of rijen sorteren. Het hoofdmodel past bij werk waarvoor oordeelsvermogen nodig is.",
+      "thinking": "Nadenken",
+      "thinkingLevels": {
+        "fast": "Snel",
+        "balanced": "Gebalanceerd",
+        "deep": "Grondig"
+      },
+      "thinkingHelp": {
+        "fast": "Weinig of niet nadenken: sneller en goedkoper, voor routinematige, duidelijk omschreven taken.",
+        "balanced": "Wat agents gewoonlijk doen: zoveel als het model uit zichzelf nadenkt, en een beetje op het snelle model.",
+        "deep": "Zoveel als het model uit zichzelf nadenkt, ook op het snelle model: trager en duurder."
+      },
       "limitInvalid": "Vul een geheel getal in van 1 tot 1.000.000.000, of laat het leeg voor geen limiet.",
       "create": "Agent maken",
       "creating": "Maken…",
@@ -976,6 +987,7 @@
         "instructions": "Instructies",
         "enabled": "Actief",
         "model": "Model",
+        "thinking": "Nadenken",
         "web_access": "Toegang tot het web",
         "mail_recipients": "E-mailontvangers",
         "monthly_token_limit": "Maandelijkse tokenlimiet",

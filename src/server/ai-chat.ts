@@ -99,9 +99,9 @@ import {
   takeWorkspaceCapacity,
   type AiMessage,
   type AiToolCall,
-  type AiRequest,
   type ChatModelOption,
 } from "@/server/ai";
+import { THINKING_LEVELS } from "@/server/ai/thinking-levels";
 import { setTimeout as sleep } from "node:timers/promises";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
@@ -375,12 +375,6 @@ export async function chatOptionsFor(userId: string, workspaceId: string): Promi
   ]);
   return { models, defaultModel: models.find((m) => m.id === latest)?.id ?? models[0]?.id ?? null, defaultThinking, webSearch, autoChanges };
 }
-
-/**
- * What each choice asks of the AI layer: `fast` as little thinking as the model allows, `balanced`
- * the chat feature's own (features.ts), `deep` the model's own default.
- */
-const THINKING_LEVELS: Record<ChatThinking, AiRequest["thinking"]> = { fast: "off", balanced: undefined, deep: "model" };
 
 /**
  * The question's files: the person's own, not sent yet or sent before in this conversation, named

@@ -494,6 +494,17 @@
       "modelMain": "Päämalli ({name})",
       "modelFast": "Nopea malli ({name})",
       "modelHelp": "Nopea malli on edullisempi ja sopii rutiininomaisiin, selkeästi määriteltyihin tehtäviin, kuten yhteenvetoihin tai rivien lajitteluun. Päämalli sopii harkintaa vaativaan työhön.",
+      "thinking": "Ajattelu",
+      "thinkingLevels": {
+        "fast": "Nopea",
+        "balanced": "Tasapainoinen",
+        "deep": "Perusteellinen"
+      },
+      "thinkingHelp": {
+        "fast": "Vähän tai ei lainkaan ajattelua: nopeampi ja edullisempi rutiininomaisiin, selkeisiin tehtäviin.",
+        "balanced": "Agenttien tavallinen: niin paljon kuin malli itse ajattelee, ja nopealla mallilla vähän.",
+        "deep": "Niin paljon kuin malli itse ajattelee, myös nopealla mallilla: hitaampi ja kalliimpi."
+      },
       "limitInvalid": "Anna kokonaisluku väliltä 1–1 000 000 000 tai jätä kenttä tyhjäksi, jos rajaa ei ole.",
       "create": "Luo agentti",
       "creating": "Luodaan…",
@@ -976,6 +987,7 @@
         "instructions": "Ohjeet",
         "enabled": "Aktiivinen",
         "model": "Malli",
+        "thinking": "Ajattelu",
         "web_access": "Verkkoyhteys",
         "mail_recipients": "Sähköpostin vastaanottajat",
         "monthly_token_limit": "Kuukausittainen tokenraja",

@@ -703,6 +703,11 @@ const SCHEMAS: Record<string, JsonSchema> = {
         enum: ["main", "fast"],
         description: "Which of the server's models its runs use: its main model, or its cheaper fast one (the main model where the server has none, or on an own AI account).",
       },
+      thinking: {
+        type: "string",
+        enum: ["fast", "balanced", "deep"],
+        description: "How much its model thinks: little (fast), as agents usually do (balanced) or as much as the model does on its own (deep).",
+      },
       web_access: { type: "boolean", description: "Whether its runs may read public web pages (and search the web, where the server has a search service)." },
       mail_recipients: {
         type: "array",
@@ -727,7 +732,7 @@ const SCHEMAS: Record<string, JsonSchema> = {
           "The token's user's access to the agent: full (everything, sharing and archiving it too; workspace owners always), edit (change and run it), interact (see it, chat with it and mention it).",
       },
     },
-    ["id", "name", "enabled", "archived", "model", "web_access", "mail_recipients", "row_changes", "user_id", "your_access"],
+    ["id", "name", "enabled", "archived", "model", "thinking", "web_access", "mail_recipients", "row_changes", "user_id", "your_access"],
   ),
   AgentList: loose({ workspace_id: id, agents: { type: "array", items: ref("AgentSummary") } }, ["workspace_id", "agents"]),
   AgentUsageMonth: loose(

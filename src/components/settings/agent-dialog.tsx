@@ -27,6 +27,7 @@ import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, DialogFooter, IconButton, Input, PageIcon, pageLabel, selectClass, Switch, textareaClass } from "@/components/ui";
 import type { AgentInput } from "@/server/agents/manage";
 import { MAX_AGENT_MAIL_RECIPIENTS, parseMailRecipients } from "@/lib/agent-mail";
+import { CHAT_THINKING, type ChatThinking } from "@/lib/ai-chat";
 import {
   AGENT_ACCESS_LEVELS,
   AGENT_RUN_HISTORY_DAYS,
@@ -126,6 +127,7 @@ export function AgentForm({
   const [mailRecipients, setMailRecipients] = useState((agent?.mailRecipients ?? []).join(", "));
   const [limit, setLimit] = useState(agent?.monthlyTokenLimit ? String(agent.monthlyTokenLimit) : "");
   const [model, setModel] = useState<AgentModel>(agent?.model ?? "main");
+  const [thinking, setThinking] = useState<ChatThinking>(agent?.thinking ?? "balanced");
   const [rowChanges, setRowChanges] = useState<AgentRowChanges>(agent?.rowChanges ?? "direct");
   const [quiet, setQuiet] = useState(() => quietHoursDraft(agent?.quietHours));
   const [dailyLimit, setDailyLimit] = useState(agent?.dailyChangeLimit ? String(agent.dailyChangeLimit) : "");
@@ -163,6 +165,7 @@ export function AgentForm({
       // Left as they are by anyone but an owner.
       ...(isOwner ? { monthlyTokenLimit, quietHours, dailyChangeLimit } : {}),
       ...(models ? { model } : {}),
+      thinking,
       helperAgentIds: helpers ?? undefined,
     };
     if (agent)
@@ -253,6 +256,19 @@ export function AgentForm({
             <span className="mt-1 block text-xs text-fg-muted">{t("modelHelp")}</span>
           </label>
         )}
+        {shows("advanced") && (
+          <label className={cn("block", (part === null || models) && "border-t border-border pt-3")}>
+            <span className="mb-1 block text-sm">{t("thinking")}</span>
+            <select value={thinking} onChange={(e) => setThinking(e.target.value as ChatThinking)} className={cn(selectClass, "w-full sm:w-auto")}>
+              {CHAT_THINKING.map((level) => (
+                <option key={level} value={level}>
+                  {t(`thinkingLevels.${level}`)}
+                </option>
+              ))}
+            </select>
+            <span className="mt-1 block text-xs text-fg-muted">{t(`thinkingHelp.${thinking}`)}</span>
+          </label>
+        )}
         {shows("tools") && (
           <>
         <label className={cn("block", part === null && "border-t border-border pt-3")}>
@@ -295,7 +311,7 @@ export function AgentForm({
         )}
         {shows("advanced") && (
           <>
-        <label className={cn("block", (part === null || models) && "border-t border-border pt-3")}>
+        <label className="block border-t border-border pt-3">
           <span className="mb-1 block text-sm">{t("limit")}</span>
           <Input
             type="number"

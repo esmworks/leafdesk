@@ -494,6 +494,17 @@
       "modelMain": "主模型（{name}）",
       "modelFast": "快速模型（{name}）",
       "modelHelp": "快速模型成本更低，适合摘要、整理行等明确的常规工作；需要判断的工作适合用主模型。",
+      "thinking": "思考",
+      "thinkingLevels": {
+        "fast": "快速",
+        "balanced": "均衡",
+        "deep": "深入"
+      },
+      "thinkingHelp": {
+        "fast": "很少或不思考：更快更便宜，适合明确的例行工作。",
+        "balanced": "智能体的常规设置：按模型自身的方式思考，快速模型则稍作思考。",
+        "deep": "按模型自身的方式思考，快速模型也是如此：更慢，费用更高。"
+      },
       "limitInvalid": "请输入 1 到 1,000,000,000 之间的整数，或留空表示无上限。",
       "create": "创建智能体",
       "creating": "正在创建…",
@@ -976,6 +987,7 @@
         "instructions": "指令",
         "enabled": "活跃",
         "model": "模型",
+        "thinking": "思考",
         "web_access": "网络访问",
         "mail_recipients": "邮件收件人",
         "monthly_token_limit": "每月令牌上限",

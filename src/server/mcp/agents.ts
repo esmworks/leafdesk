@@ -500,6 +500,7 @@ export function describeAgentSummary(agent: AgentView, helpers?: string[]) {
     enabled: agent.enabled,
     archived: agent.archived,
     model: agent.model,
+    thinking: agent.thinking,
     web_access: agent.webAccess,
     mail_recipients: agent.mailRecipients,
     row_changes: agent.rowChanges,

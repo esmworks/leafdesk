@@ -494,6 +494,17 @@
       "modelMain": "Hovedmodel ({name})",
       "modelFast": "Hurtig model ({name})",
       "modelHelp": "Den hurtige model koster mindre og passer til rutineprægede, veldefinerede opgaver, såsom resuméer eller sortering af rækker. Hovedmodellen passer til arbejde, der kræver dømmekraft.",
+      "thinking": "Tænkning",
+      "thinkingLevels": {
+        "fast": "Hurtig",
+        "balanced": "Afbalanceret",
+        "deep": "Grundig"
+      },
+      "thinkingHelp": {
+        "fast": "Lidt eller ingen tænkning: hurtigere og billigere, til rutineopgaver med klare rammer.",
+        "balanced": "Det sædvanlige for agenter: så meget som modellen selv tænker, og lidt på den hurtige model.",
+        "deep": "Så meget som modellen selv tænker, også på den hurtige model: langsommere og dyrere."
+      },
       "limitInvalid": "Angiv et helt tal fra 1 til 1.000.000.000, eller lad feltet stå tomt for ingen grænse.",
       "create": "Opret agent",
       "creating": "Opretter…",
@@ -976,6 +987,7 @@
         "instructions": "Instruktioner",
         "enabled": "Aktiv",
         "model": "Model",
+        "thinking": "Tænkning",
         "web_access": "Webadgang",
         "mail_recipients": "E-mailmodtagere",
         "monthly_token_limit": "Månedlig tokengrænse",

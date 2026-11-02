@@ -256,12 +256,13 @@ try {
   const target = (await versionsOf(router.id)).find((v) => v.number === 1)!;
   await db
     .update(agentVersion)
-    .set({ snapshot: { ...target.snapshot, settings: { ...target.snapshot.settings, retired_column: "x", monthly_token_limit: -5 } } })
+    .set({ snapshot: { ...target.snapshot, settings: { ...target.snapshot.settings, retired_column: "x", monthly_token_limit: -5, thinking: "loud" } } })
     .where(eq(agentVersion.id, target.id));
   const odd = await restoreAgentVersion(ids.owner, router.id, 1);
   check(
     odd.skipped.some((s) => s.part === "setting" && s.name === "retired_column" && s.reason === "gone") &&
       odd.skipped.some((s) => s.part === "setting" && s.name === "monthly_token_limit" && s.reason === "invalid") &&
+      odd.skipped.some((s) => s.part === "setting" && s.name === "thinking" && s.reason === "invalid") &&
       (await rowOf(router.id)).instructions === "Sort new tickets.\nBe brief.",
     "a setting gone since or no longer valid is skipped; the rest comes back",
     odd.skipped,

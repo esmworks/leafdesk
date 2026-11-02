@@ -116,6 +116,7 @@ import { noticeAgentSpending } from "@/server/ai-limit-notices";
 import { pruneAiUsage } from "@/server/ai/usage-store";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { ANSWER_NOW } from "@/server/ai/turns";
+import { THINKING_LEVELS } from "@/server/ai/thinking-levels";
 import { runTurns } from "@/server/assistant/turns";
 import { createDispatch, MAX_COMMENT, scheduledDatabase, setUpRun, type Ending, type Paused } from "@/server/assistant/dispatch";
 import { pruneTriggerConversations, queueAgentRun } from "@/server/triggers";
@@ -630,7 +631,8 @@ async function converse(
     computer: computer ? { folders: computer.folders, writes: computer.writes } : undefined,
   });
   const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
-  // The model its owners chose: every turn of every run of the agent's goes to it (features.ts).
+  // The model its owners chose: every turn of every run of the agent's goes to it (features.ts). Its
+  // thinking too: "balanced" leaves the feature's own.
   const feature = agent.model === "fast" ? "agent.fast" : "agent";
   const budget = await promptRoomFor(run.workspaceId, feature);
   const room = (messages: AiMessage[]) => roomToRead(messages, () => budget - system.length - toolsSize - messages.reduce((n, m) => n + m.content.length, 0) - 300);
@@ -788,7 +790,7 @@ async function converse(
     messages,
     { round: Math.max(firstRound, usage.rounds), pending: Boolean(saved) },
     {
-      request: () => ({ feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, tools: runTools, sessionId: run.id, signal }),
+      request: () => ({ feature, userId: agent.userId, workspaceId: run.workspaceId, skipRateLimit: true, system, tools: runTools, sessionId: run.id, signal, thinking: THINKING_LEVELS[agent.thinking] }),
       // A chat's turn is streamed: its text so far goes to the person as it comes.
       streaming: Boolean(shown),
       spentUsd: () => usage.costUsd,

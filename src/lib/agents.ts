@@ -606,6 +606,8 @@ export type AgentView = {
   monthlyTokenLimit: number | null;
   /** Which of the server's models its runs use (see AGENT_MODELS). */
   model: AgentModel;
+  /** How much its model thinks (see lib/ai-chat CHAT_THINKING); "balanced" is an agent's usual. */
+  thinking: ChatThinking;
   /** Whether its runs change rows at once or propose the changes for review (see AGENT_ROW_CHANGES). */
   rowChanges: AgentRowChanges;
   /** When connection calls an owner's rule allows wait instead of going (lib/quiet-hours.ts); null: never. */

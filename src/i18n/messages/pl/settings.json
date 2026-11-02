@@ -494,6 +494,17 @@
       "modelMain": "Model główny ({name})",
       "modelFast": "Model szybki ({name})",
       "modelHelp": "Model szybki kosztuje mniej i nadaje się do rutynowych, jasno określonych zadań, takich jak podsumowania czy porządkowanie wierszy. Model główny nadaje się do pracy wymagającej osądu.",
+      "thinking": "Myślenie",
+      "thinkingLevels": {
+        "fast": "Szybko",
+        "balanced": "Zrównoważone",
+        "deep": "Dogłębnie"
+      },
+      "thinkingHelp": {
+        "fast": "Mało lub wcale: szybciej i taniej, do rutynowych, jasno określonych zadań.",
+        "balanced": "Zwykłe ustawienie agentów: tyle myślenia, ile model ma sam z siebie, a na szybkim modelu trochę.",
+        "deep": "Tyle myślenia, ile model ma sam z siebie, także na szybkim modelu: wolniej i drożej."
+      },
       "limitInvalid": "Wpisz liczbę całkowitą od 1 do 1 000 000 000 lub zostaw puste pole, aby nie ustawiać limitu.",
       "create": "Utwórz agenta",
       "creating": "Tworzenie…",
@@ -976,6 +987,7 @@
         "instructions": "Instrukcje",
         "enabled": "Aktywny",
         "model": "Model",
+        "thinking": "Myślenie",
         "web_access": "Dostęp do internetu",
         "mail_recipients": "Odbiorcy e-maili",
         "monthly_token_limit": "Miesięczny limit tokenów",

@@ -34,6 +34,10 @@
   mail to the junk and keeps doing so as new mail comes. Rules hold in all your mailboxes and are
   listed under Account › Email and calendar, *Sender rules*. Notifications come only for mail in
   *Focus*, and a blocked sender's mail starts no agent's run. Migration 0189.
+- **Agents have a thinking level.** An agent's *Advanced* settings choose how much its model thinks
+  before each step, with the AI chat's levels: *Fast*, *Balanced* (the default, as agents worked
+  until now) and *Deep*. Versions and copies of an agent keep it; MCP and the REST API show it.
+  Migration 0191.
 
 ### Changed
 

@@ -15,7 +15,7 @@ import type {
   RunSource,
 } from "@/lib/agents";
 import { conversation, type ChatStepRecord } from "./ai";
-import type { ChatMode } from "@/lib/ai-chat";
+import type { ChatMode, ChatThinking } from "@/lib/ai-chat";
 import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
 import type { QuietHours } from "@/lib/quiet-hours";
@@ -90,6 +90,11 @@ export const workspaceAgent = pgTable(
     monthlyTokenLimit: integer("monthly_token_limit"),
     /** Which of the server's models its runs use: "fast" is AI_FAST_MODEL, where the workspace's AI has one. */
     model: text("model").$type<AgentModel>().notNull().default("main"),
+    /**
+     * How much its model thinks (lib/ai-chat.ts ChatThinking, mapped as the chat maps it:
+     * server/ai/thinking-levels.ts). "balanced" is the agent feature's own (features.ts).
+     */
+    thinking: text("thinking").$type<ChatThinking>().notNull().default("balanced"),
     /** Whether its runs write rows at once or propose the changes for review (lib/agents AGENT_ROW_CHANGES). */
     rowChanges: text("row_changes").$type<AgentRowChanges>().notNull().default("direct"),
     /** When calls an owner's rule lets go without asking wait instead (lib/quiet-hours.ts); null: never. */

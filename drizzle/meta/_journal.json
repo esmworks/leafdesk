@@ -1338,6 +1338,13 @@
       "when": 1793654747199,
       "tag": "0190_chat_run_status",
       "breakpoints": true
+    },
+    {
+      "idx": 191,
+      "version": "7",
+      "when": 1793654846550,
+      "tag": "0191_agent_thinking",
+      "breakpoints": true
     }
   ]
 }

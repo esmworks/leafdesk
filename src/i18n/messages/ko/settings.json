@@ -494,6 +494,17 @@
       "modelMain": "기본 모델 ({name})",
       "modelFast": "빠른 모델 ({name})",
       "modelHelp": "빠른 모델은 비용이 적게 들며 요약이나 행 분류처럼 정해진 일상적인 작업에 적합합니다. 판단이 필요한 작업에는 기본 모델이 적합합니다.",
+      "thinking": "생각",
+      "thinkingLevels": {
+        "fast": "빠르게",
+        "balanced": "균형",
+        "deep": "깊게"
+      },
+      "thinkingHelp": {
+        "fast": "거의 생각하지 않음: 더 빠르고 저렴하며, 정해진 반복 작업에 적합합니다.",
+        "balanced": "에이전트의 기본값: 모델이 스스로 생각하는 만큼 생각하고, 빠른 모델에서는 조금 생각합니다.",
+        "deep": "빠른 모델에서도 모델이 스스로 생각하는 만큼 생각합니다: 더 느리고 비용이 더 듭니다."
+      },
       "limitInvalid": "1부터 1,000,000,000 사이의 정수를 입력하거나, 제한을 두지 않으려면 비워 두세요.",
       "create": "에이전트 만들기",
       "creating": "만드는 중…",
@@ -976,6 +987,7 @@
         "instructions": "지침",
         "enabled": "활성",
         "model": "모델",
+        "thinking": "생각",
         "web_access": "웹 접근",
         "mail_recipients": "이메일 수신자",
         "monthly_token_limit": "월간 토큰 한도",

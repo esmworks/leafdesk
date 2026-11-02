@@ -102,6 +102,7 @@ const input = (value: AgentInput): AgentInput => ({
   mailRecipients: Array.isArray(value?.mailRecipients) ? value.mailRecipients.map(String) : undefined,
   monthlyTokenLimit: value?.monthlyTokenLimit,
   model: value?.model,
+  thinking: value?.thinking,
   rowChanges: value?.rowChanges,
   quietHours: value?.quietHours,
   dailyChangeLimit: value?.dailyChangeLimit,

@@ -494,6 +494,17 @@
       "modelMain": "Ana model ({name})",
       "modelFast": "Hızlı model ({name})",
       "modelHelp": "Hızlı model daha ucuzdur; özet çıkarmak, satırları sınıflandırmak gibi rutin ve iyi tanımlanmış işlere uyar. Ana model muhakeme gerektiren işlere uyar.",
+      "thinking": "Düşünme",
+      "thinkingLevels": {
+        "fast": "Hızlı",
+        "balanced": "Dengeli",
+        "deep": "Derin"
+      },
+      "thinkingHelp": {
+        "fast": "Az ya da hiç düşünmez: daha hızlı ve ucuz; rutin, iyi tanımlanmış işler için.",
+        "balanced": "Ajanların olağan ayarı: model kendi başına ne kadar düşünüyorsa o kadar, hızlı modelde biraz.",
+        "deep": "Model kendi başına ne kadar düşünüyorsa o kadar, hızlı modelde de: daha yavaş ve daha pahalı."
+      },
       "limitInvalid": "1 ile 1.000.000.000 arasında bir tam sayı girin ya da sınır koymamak için boş bırakın.",
       "create": "Ajan oluştur",
       "creating": "Oluşturuluyor…",
@@ -976,6 +987,7 @@
         "instructions": "Talimatlar",
         "enabled": "Etkin",
         "model": "Model",
+        "thinking": "Düşünme",
         "web_access": "Web erişimi",
         "mail_recipients": "E-posta alıcıları",
         "monthly_token_limit": "Aylık token sınırı",

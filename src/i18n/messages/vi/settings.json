@@ -494,6 +494,17 @@
       "modelMain": "Mô hình chính ({name})",
       "modelFast": "Mô hình nhanh ({name})",
       "modelHelp": "Mô hình nhanh rẻ hơn và phù hợp với các công việc thường lệ, được xác định rõ, như tóm tắt hoặc sắp xếp hàng. Mô hình chính phù hợp với công việc cần phán đoán.",
+      "thinking": "Suy nghĩ",
+      "thinkingLevels": {
+        "fast": "Nhanh",
+        "balanced": "Cân bằng",
+        "deep": "Sâu"
+      },
+      "thinkingHelp": {
+        "fast": "Ít hoặc không suy nghĩ: nhanh và rẻ hơn, cho việc thường lệ, rõ ràng.",
+        "balanced": "Mức thường dùng của tác tử: suy nghĩ nhiều như mô hình tự làm, và một chút trên mô hình nhanh.",
+        "deep": "Suy nghĩ nhiều như mô hình tự làm, cả trên mô hình nhanh: chậm hơn và tốn hơn."
+      },
       "limitInvalid": "Hãy nhập một số nguyên từ 1 đến 1.000.000.000, hoặc để trống nếu không giới hạn.",
       "create": "Tạo tác tử",
       "creating": "Đang tạo…",
@@ -976,6 +987,7 @@
         "instructions": "Chỉ dẫn",
         "enabled": "Đang hoạt động",
         "model": "Mô hình",
+        "thinking": "Suy nghĩ",
         "web_access": "Truy cập web",
         "mail_recipients": "Người nhận email",
         "monthly_token_limit": "Giới hạn token hằng tháng",

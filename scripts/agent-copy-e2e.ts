@@ -162,6 +162,7 @@ try {
     description: "Sorts the inbox",
     instructions: "Sort new tickets by product.",
     model: "fast",
+    thinking: "deep",
     webAccess: true,
     rowChanges: "review",
     monthlyTokenLimit: 50_000,
@@ -203,11 +204,12 @@ try {
       copy.description === "Sorts the inbox" &&
       copy.instructions === "Sort new tickets by product." &&
       copy.model === "fast" &&
+      copy.thinking === "deep" &&
       copy.webAccess &&
       copy.rowChanges === "review" &&
       copy.monthlyTokenLimit === 50_000 &&
       !copy.enabled,
-    "…with the agent's icon, description, instructions, model, web access, row changes, token limit and pause",
+    "…with the agent's icon, description, instructions, model, thinking, web access, row changes, token limit and pause",
     copy,
   );
   check(JSON.stringify(await skillsOf(copy.id)) === JSON.stringify([sharedSkill.id, privateSkill.id]), "…its skills, in their order");

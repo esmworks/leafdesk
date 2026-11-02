@@ -1,11 +1,12 @@
 /**
  * Copying an agent: a new agent with the setup of one that works, to change for another team or
  * job. The copy takes how the agent behaves (its name numbered like a page's copy, icon,
- * description, instructions, model, web access, how it changes rows, monthly token limit, quiet
- * hours, daily change limit, whether it is paused, its skills, the agents it can ask and the tools
- * of its connections with their rules), and none of what it reaches or who uses it: no pages are
- * shared with the copy, it is shared as a new agent is (manage.ts createAgent), and it has no
- * schedules, connection triggers, memory, runs, chats, versions or usage of the source.
+ * description, instructions, model, thinking, web access, how it changes rows, monthly token
+ * limit, quiet hours, daily change limit, whether it is paused, its skills, the agents it can ask
+ * and the tools of its connections with their rules), and none of what it reaches or who uses
+ * it: no pages are shared with the copy, it is shared as a new agent is (manage.ts createAgent),
+ * and it has no schedules, connection triggers, memory, runs, chats, versions or usage of the
+ * source.
  *
  * Who may: whoever may create agents in the workspace and edit the agent (they can read its
  * instructions). An archived agent can be copied too; the copy is live. What the copier couldn't
@@ -61,6 +62,7 @@ export async function duplicateAgent(userId: string, agentId: string, overrides:
     quietHours: parseQuietHours(source.quietHours),
     dailyChangeLimit: source.dailyChangeLimit,
     model: source.model,
+    thinking: source.thinking,
     rowChanges: source.rowChanges,
     helperAgentIds: keptHelpers,
     ...Object.fromEntries(Object.entries(overrides).filter(([, value]) => value !== undefined)),

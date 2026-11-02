@@ -29,6 +29,7 @@ import {
   type VersionScheduleRef,
 } from "@/lib/agent-versions";
 import { parseMailRecipients } from "@/lib/agent-mail";
+import { isChatThinking } from "@/lib/ai-chat";
 import { MAX_AGENT_DESCRIPTION, MAX_AGENT_INSTRUCTIONS, MAX_AGENT_NAME, MAX_AGENT_SKILLS, MAX_AGENT_TOKEN_LIMIT } from "@/lib/agents";
 import { parseIcon } from "@/lib/icon";
 import { isDailyChangeLimit, parseQuietHours } from "@/lib/quiet-hours";
@@ -148,6 +149,8 @@ function settingValue(field: string, column: PgColumn, value: unknown): unknown 
       return parseQuietHours(value) ?? undefined;
     case "daily_change_limit":
       return isDailyChangeLimit(value) ? value : undefined;
+    case "thinking":
+      return isChatThinking(value) ? value : undefined;
   }
   // Others by their column's type (and choices, when it has them).
   if (column.enumValues?.length && !column.enumValues.includes(value as string)) return undefined;

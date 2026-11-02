@@ -119,6 +119,14 @@ run records the model that answered it, shown in its *Runs* section, and the wor
 counts its turns under that model. MCP's `create_agent` and `update_agent` and the REST API's
 `PATCH /api/v1/agents/{id}` take `model` (`main` or `fast`).
 
+**Its thinking.** Beside the model, *Advanced* sets how much the agent's model thinks before each
+step, with the AI chat's three levels: *Fast* (as little as the model allows, for routine jobs),
+*Balanced* (the default, what agents always did: the main model thinks as much as it does on its
+own, the fast model a little) and *Deep* (as much as the model does on its own, the fast model
+too: slower, and it costs more). It applies to every run of the agent's and is kept with its
+versions and copies. On the main model *Balanced* and *Deep* think alike. MCP and the REST API
+show it (`thinking` in `list_agents`, `get_agent` and the agent endpoints) but don't change it.
+
 **Web access.** An agent reads nothing outside the workspace unless an owner turns on *Web access*
 in its settings (over MCP and the REST API, `web_access`). Its runs then get `read_web_page`: the
 server fetches a public http(s) page and the agent reads its title and main text (markup, scripts

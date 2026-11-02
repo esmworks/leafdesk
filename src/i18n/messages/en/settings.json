@@ -494,6 +494,17 @@
       "modelMain": "Main model ({name})",
       "modelFast": "Fast model ({name})",
       "modelHelp": "The fast model costs less and suits routine, well-defined jobs, such as summaries or sorting rows. The main model suits work that needs judgment.",
+      "thinking": "Thinking",
+      "thinkingLevels": {
+        "fast": "Fast",
+        "balanced": "Balanced",
+        "deep": "Deep"
+      },
+      "thinkingHelp": {
+        "fast": "Little or no thinking: quicker and cheaper, for routine, well-defined jobs.",
+        "balanced": "An agent’s usual: as much as the model thinks on its own, and a little on the fast model.",
+        "deep": "As much as the model thinks on its own, on the fast model too: slower, and costs more."
+      },
       "limitInvalid": "Enter a whole number from 1 to 1,000,000,000, or leave it empty for no limit.",
       "create": "Create agent",
       "creating": "Creating…",
@@ -976,6 +987,7 @@
         "instructions": "Instructions",
         "enabled": "Active",
         "model": "Model",
+        "thinking": "Thinking",
         "web_access": "Web access",
         "mail_recipients": "Email recipients",
         "monthly_token_limit": "Monthly token limit",

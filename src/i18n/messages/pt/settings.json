@@ -494,6 +494,17 @@
       "modelMain": "Modelo principal ({name})",
       "modelFast": "Modelo rápido ({name})",
       "modelHelp": "O modelo rápido custa menos e serve para tarefas rotineiras e bem definidas, como resumos ou classificar linhas. O modelo principal serve para trabalho que exige discernimento.",
+      "thinking": "Raciocínio",
+      "thinkingLevels": {
+        "fast": "Rápido",
+        "balanced": "Equilibrado",
+        "deep": "Profundo"
+      },
+      "thinkingHelp": {
+        "fast": "Pouco ou nenhum raciocínio: mais rápido e barato, para tarefas rotineiras e bem definidas.",
+        "balanced": "O habitual de um agente: tanto quanto o modelo raciocina por si, e um pouco no modelo rápido.",
+        "deep": "Tanto quanto o modelo raciocina por si, também no modelo rápido: mais lento e mais caro."
+      },
       "limitInvalid": "Digite um número inteiro de 1 a 1.000.000.000, ou deixe vazio para não ter limite.",
       "create": "Criar agente",
       "creating": "Criando…",
@@ -976,6 +987,7 @@
         "instructions": "Instruções",
         "enabled": "Ativo",
         "model": "Modelo",
+        "thinking": "Raciocínio",
         "web_access": "Acesso à web",
         "mail_recipients": "Destinatários de e-mail",
         "monthly_token_limit": "Limite mensal de tokens",

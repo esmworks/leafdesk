@@ -494,6 +494,17 @@
       "modelMain": "Modèle principal ({name})",
       "modelFast": "Modèle rapide ({name})",
       "modelHelp": "Le modèle rapide coûte moins cher et convient aux tâches routinières et bien définies, comme les résumés ou le tri de lignes. Le modèle principal convient au travail qui demande du discernement.",
+      "thinking": "Réflexion",
+      "thinkingLevels": {
+        "fast": "Rapide",
+        "balanced": "Équilibré",
+        "deep": "Approfondi"
+      },
+      "thinkingHelp": {
+        "fast": "Peu ou pas de réflexion : plus rapide et moins cher, pour les tâches courantes et bien définies.",
+        "balanced": "Le réglage habituel des agents : autant que le modèle réfléchit de lui-même, et un peu sur le modèle rapide.",
+        "deep": "Autant que le modèle réfléchit de lui-même, y compris sur le modèle rapide : plus lent et plus coûteux."
+      },
       "limitInvalid": "Saisissez un nombre entier de 1 à 1 000 000 000, ou laissez vide pour aucune limite.",
       "create": "Créer l’agent",
       "creating": "Création…",
@@ -976,6 +987,7 @@
         "instructions": "Instructions",
         "enabled": "Actif",
         "model": "Modèle",
+        "thinking": "Réflexion",
         "web_access": "Accès au web",
         "mail_recipients": "Destinataires des e-mails",
         "monthly_token_limit": "Limite mensuelle de tokens",
