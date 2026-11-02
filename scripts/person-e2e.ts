@@ -335,6 +335,13 @@ try {
   check((await aboutJob(ids.member)).length === 1, "…and a read one stays after unassigning");
   await markRead(ids.member, workspaceId);
   check((await unreadCount(ids.member, workspaceId)) === 0, "mark all as read clears the count");
+  // A notice the inbox leaves out once read (changes for review, none waiting any more) isn't counted either.
+  const [stale] = await db.insert(notification).values({ userId: ids.member, workspaceId, kind: "review" }).returning({ id: notification.id });
+  check(
+    (await listInbox(ids.member, workspaceId)).every((n) => n.id !== stale.id) && (await unreadCount(ids.member, workspaceId)) === 0,
+    "the count leaves out what the inbox doesn't show",
+  );
+  await db.delete(notification).where(eq(notification.id, stale.id));
   await updateRowProperties(ids.owner, inboxJob.id, { Assignee: [ids.owner, ids.bystander] });
   check((await aboutJob(ids.bystander)).length === 1, "…before the row goes to the trash");
   // The guest lost access to the database earlier: assigned or not, the row stays out of their inbox.

@@ -37,7 +37,7 @@ import { read } from "@/components/read";
  * owners, join requests and agents' calls that wait for approval, newest first; opening one marks
  * it read. Access requests and agents' calls can be answered right here, and the others snoozed:
  * they leave the inbox and come back unread when the time is up. Where email on rows is on, the
- * Email tab shows only the messages that came in on rows; opening one opens its row, where it is
+ * Row email tab shows only the messages that came in on rows; opening one opens its row, where it is
  * read and answered. Notifications of one kind about one page that came close together (comments
  * and reactions, or edits) show as one entry, which opens to the single ones (lib/inbox-groups.ts);
  * opening, snoozing or marking the entry read does so to all of them. Notifications can be archived
