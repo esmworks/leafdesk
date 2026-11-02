@@ -21,6 +21,9 @@
 
 ### Fixed
 
+- **Putting the phone's keyboard away saves a cell you were typing in.** Done on the keyboard closed
+  the keyboard but left a table cell's or a row's text value open over the table; now leaving the
+  field saves it and closes it, as Enter and a click elsewhere do.
 - **The installed app notices a new version when it comes back from the background.** Only a tab
   with a page open learned of a release, through its live connection; the Mail tab, the inbox and
   settings kept running the previous version until the app was closed, and their actions failed.
