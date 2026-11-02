@@ -413,6 +413,11 @@
       "triggers": "Auslöser",
       "advanced": "Erweitert"
     },
+    "nav": {
+      "tools": "Werkzeuge",
+      "activity": "Aktivität",
+      "sharing": "Freigabe"
+    },
     "triggers": {
       "description": "Was die Läufe dieses Agenten starten kann und in welche Unterhaltung jeder Lauf geht. Zum Ändern einen öffnen.",
       "loadFailed": "Die Liste konnte nicht geladen werden.",
@@ -590,8 +595,11 @@
       "libraryNote": "Skills legst du in der <link>Skill-Bibliothek</link> an."
     },
     "memory": {
+      "help": "Notizen, die jeden Lauf begleiten. Seine Läufe schlagen sie vor; wer ihn bearbeiten darf, behält sie.",
+      "about": "So funktioniert das Gedächtnis",
       "description": "Notizen, die jedem Lauf dieses Agenten mitgegeben werden, damit er dasselbe nicht neu lernen muss. Seine Läufe schlagen Notizen vor; keine geht mit einem Lauf mit, bis ein Inhaber sie behält. Korrekturen, die jemand, der ihn bearbeiten darf, im eigenen Chat mit ihm gibt, werden sofort behalten.",
       "rule": "Ein Lauf liest Zeilen, Seiten und Ereignisse, die andere Personen und Dienste geschrieben haben, und eine Notiz könnte deren Worte in jeden späteren Lauf tragen. Lesen Sie jeden Vorschlag, bevor Sie ihn behalten. Behaltene Notizen gehen mit jedem Lauf mit, egal wer ihn startet.",
+      "ruleShort": "Eine behaltene Notiz begleitet jeden Lauf, egal wer ihn startet: Lies jeden Vorschlag, bevor du ihn behältst.",
       "off": "Das KI-Gedächtnis ist in diesem Workspace aus: Läufe enthalten keine Notizen und schlagen keine vor, bis ein Inhaber es unter <link>Einstellungen → Allgemein</link> einschaltet.",
       "archived": "Stellen Sie den Agenten wieder her, um sein Gedächtnis zu ändern.",
       "proposedHeading": "{count, plural, one {# Notiz zu prüfen} other {# Notizen zu prüfen}}",

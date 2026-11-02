@@ -4,6 +4,16 @@
 
 ### Changed
 
+- **An agent's settings are a page of their own.** Opening an agent in *Settings → Agents* (or
+  *Settings* on its chat page) goes to `/w/<workspace>/agents/<agent>/settings` instead of a dialog
+  with two rows of tabs: its name, status and description at the top, its sections down the side
+  (instructions, skills, memory, tools, access, connections, triggers, schedules, advanced, then
+  runs and history), *Chat* and *Share* in the top bar. Each section has its own address, so links
+  from the inbox, notifications, automations' runs and pasted agent links open it there; links to
+  an agent in Settings from before lead to the same place.
+- **An agent's memory reads at a glance.** One line says what it is, with the rest behind an info
+  button; proposed notes wait in a box with *Keep* and *Dismiss*; kept notes are plain rows with
+  where and when they came from, and edit and delete show on hover. *Forget everything* is a button.
 - **The inbox's Email tab is now called Row email.** It lists the mail that came in on database
   rows, not the Mail tab's messages, which it was easy to take it for.
 - **A click on a table cell selects it instead of opening its editor.** A second click on the

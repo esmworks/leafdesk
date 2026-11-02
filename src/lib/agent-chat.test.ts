@@ -23,12 +23,15 @@ describe("a pasted agent link", () => {
   it("names a workspace's agent when it is this app's", () => {
     expect(agentLinkRef(`${origin}${agentPath("ws1", "a1")}`, origin)).toEqual({ workspaceId: "ws1", agentId: "a1" });
     expect(agentLinkRef(` ${origin}/w/ws1/settings?agent=a1&tab=agents&run=r1 `, origin)).toEqual({ workspaceId: "ws1", agentId: "a1" });
+    expect(agentLinkRef(`${origin}/w/ws1/agents/a1/settings?section=memory`, origin)).toEqual({ workspaceId: "ws1", agentId: "a1" });
+    expect(agentLinkRef(`${origin}/w/ws1/agents/a1`, origin)).toEqual({ workspaceId: "ws1", agentId: "a1" });
   });
 
   it("is nothing on another origin, another tab or another page", () => {
     expect(agentLinkRef(`https://elsewhere.example${agentPath("ws1", "a1")}`, origin)).toBeNull();
     expect(agentLinkRef(`${origin}/w/ws1/settings?tab=members&agent=a1`, origin)).toBeNull();
     expect(agentLinkRef(`${origin}/w/ws1/p/page?tab=agents&agent=a1`, origin)).toBeNull();
+    expect(agentLinkRef(`${origin}/w/ws1/agents/a1/runs`, origin)).toBeNull();
     expect(agentLinkRef("just some words", origin)).toBeNull();
   });
 });

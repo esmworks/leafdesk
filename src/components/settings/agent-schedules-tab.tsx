@@ -50,7 +50,7 @@ export function AgentSchedulesTab({ workspaceId, agent, onRuns }: { workspaceId:
   const edit = (s: AgentScheduleView) => setDraft({ id: s.id, repeat: repeatFormOf(s.rule, s.timeZone), task: s.task, taskHidden: s.taskHidden, databaseId: s.databaseId ?? "" });
 
   return (
-    <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "opacity-70")}>
+    <div className={cn("space-y-4", pending && "opacity-70")}>
       <p className="text-sm text-fg-muted">{t("description")}</p>
       {!agent.enabled && !agent.archived && <p className="text-sm text-fg-muted">{t("agentPaused")}</p>}
       {agent.archived && <p className="text-sm text-fg-muted">{t("archived")}</p>}

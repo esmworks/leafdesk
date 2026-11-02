@@ -413,6 +413,11 @@
       "triggers": "Pemicu",
       "advanced": "Lanjutan"
     },
+    "nav": {
+      "tools": "Alat",
+      "activity": "Aktivitas",
+      "sharing": "Berbagi"
+    },
     "triggers": {
       "description": "Apa yang dapat memulai jalannya agen ini, dan percakapan tujuan setiap jalannya. Buka salah satu untuk mengubahnya.",
       "loadFailed": "Daftar tidak dapat dimuat.",
@@ -590,8 +595,11 @@
       "libraryNote": "Keterampilan dibuat di <link>pustaka keterampilan</link>."
     },
     "memory": {
+      "help": "Catatan yang menyertai setiap proses. Prosesnya mengusulkannya; orang yang dapat mengeditnya menyimpannya.",
+      "about": "Cara kerja memori",
       "description": "Catatan yang menyertai setiap eksekusi agen ini, sehingga ia tidak perlu mempelajari hal yang sama lagi. Eksekusinya mengusulkan catatan; tidak ada yang menyertai eksekusi sampai pemilik menyimpannya. Koreksi yang diberikan seseorang yang dapat mengeditnya dalam obrolannya sendiri dengan agen ini langsung disimpan.",
       "rule": "Eksekusi membaca baris, halaman, dan peristiwa yang ditulis orang lain dan layanan, dan sebuah catatan dapat membawa kata-kata mereka ke setiap eksekusi berikutnya. Baca setiap usulan sebelum Anda menyimpannya. Catatan yang disimpan menyertai setiap eksekusi, siapa pun yang memulainya.",
+      "ruleShort": "Catatan yang disimpan menyertai setiap proses, siapa pun yang memulainya: baca setiap usulan sebelum menyimpannya.",
       "off": "Memori AI dimatikan di ruang kerja ini: eksekusi tidak membawa catatan dan tidak mengusulkan apa pun sampai pemilik mengaktifkannya di <link>Pengaturan → Umum</link>.",
       "archived": "Pulihkan agen untuk mengubah memorinya.",
       "proposedHeading": "{count, plural, other {# catatan untuk ditinjau}}",

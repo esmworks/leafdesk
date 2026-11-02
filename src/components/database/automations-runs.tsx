@@ -20,6 +20,7 @@ import { listAutomationRunsAction, testAutomationAction } from "@/app/actions/au
 import { Button, cn, IconButton, textareaClass } from "@/components/ui";
 import { APPROVAL_TEST_CODE, hasRow, waitingApproval, type AutomationStep } from "@/lib/automations";
 import { pageLabel } from "@/lib/labels";
+import { agentSettingsPath } from "@/lib/agent-settings";
 import { searchFold } from "@/lib/search-fold";
 import { useDatabaseInfo, useReloadDatabase } from "./automations-data";
 import { parseJson, type Automation, type AutomationRun, type DraftTrigger } from "./automations-shared";
@@ -485,7 +486,7 @@ function AgentRunLink({
   if (!isOwner || action?.type !== "run_agent") return n === null || n === 1 ? <span className="text-fg-muted">{t("agentRunHint")}</span> : null;
   return (
     <Link
-      href={`/w/${workspaceId}/settings?tab=agents&agent=${encodeURIComponent(action.agentId)}&run=${encodeURIComponent(runId)}`}
+      href={agentSettingsPath(workspaceId, encodeURIComponent(action.agentId), "runs", runId)}
       className="text-fg underline underline-offset-2 hover:text-accent"
     >
       {n === null ? t("agentRun") : t("agentRunN", { n })}

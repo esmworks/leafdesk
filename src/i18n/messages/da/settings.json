@@ -413,6 +413,11 @@
       "triggers": "Udløsere",
       "advanced": "Avanceret"
     },
+    "nav": {
+      "tools": "Værktøjer",
+      "activity": "Aktivitet",
+      "sharing": "Deling"
+    },
     "triggers": {
       "description": "Hvad der kan starte agentens kørsler, og hvilken samtale hver kørsel går til. Åbn en for at ændre den.",
       "loadFailed": "Listen kunne ikke indlæses.",
@@ -590,8 +595,11 @@
       "libraryNote": "Færdigheder laves i <link>færdighedsbiblioteket</link>."
     },
     "memory": {
+      "help": "Noter, der følger hver kørsel. Dens kørsler foreslår dem; en, der kan redigere den, beholder dem.",
+      "about": "Sådan virker hukommelsen",
       "description": "Noter, der følger med hver kørsel af denne agent, så den ikke skal lære de samme ting igen. Dens kørsler foreslår noter; ingen følger med en kørsel, før en ejer beholder den. Rettelser, som en, der kan redigere den, giver i sin egen chat med den, beholdes med det samme.",
       "rule": "En kørsel læser rækker, sider og hændelser, som andre personer og tjenester har skrevet, og en note kan bære deres ord ind i alle senere kørsler. Læs hvert forslag, før du beholder det. Beholdte noter følger med hver kørsel, uanset hvem der starter den.",
+      "ruleShort": "En beholdt note følger hver kørsel, uanset hvem der starter den: læs hvert forslag, før du beholder det.",
       "off": "AI-hukommelse er slået fra i dette arbejdsområde: kørsler har ingen noter med og foreslår ingen, før en ejer slår den til under <link>Indstillinger → Generelt</link>.",
       "archived": "Gendan agenten for at ændre dens hukommelse.",
       "proposedHeading": "{count, plural, one {# note til gennemgang} other {# noter til gennemgang}}",

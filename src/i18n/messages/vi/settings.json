@@ -413,6 +413,11 @@
       "triggers": "Trình kích hoạt",
       "advanced": "Nâng cao"
     },
+    "nav": {
+      "tools": "Công cụ",
+      "activity": "Hoạt động",
+      "sharing": "Chia sẻ"
+    },
     "triggers": {
       "description": "Những gì có thể khởi chạy tác tử này, và cuộc trò chuyện mỗi lần chạy đi vào. Mở một mục để thay đổi.",
       "loadFailed": "Không tải được danh sách.",
@@ -590,8 +595,11 @@
       "libraryNote": "Kỹ năng được tạo trong <link>thư viện kỹ năng</link>."
     },
     "memory": {
+      "help": "Ghi chú đi kèm mỗi lần chạy. Các lần chạy đề xuất chúng; người có quyền chỉnh sửa sẽ giữ lại.",
+      "about": "Cách bộ nhớ hoạt động",
       "description": "Các ghi chú đi kèm mọi lần chạy của tác tử này, để nó không phải học lại những điều giống nhau. Các lần chạy của nó đề xuất ghi chú; không ghi chú nào đi kèm lần chạy cho đến khi một chủ sở hữu giữ nó lại. Những đính chính mà người có thể chỉnh sửa tác tử đưa ra trong cuộc trò chuyện riêng của họ được giữ ngay.",
       "rule": "Một lần chạy đọc các hàng, trang và sự kiện mà người khác và các dịch vụ đã viết, và một ghi chú có thể đưa lời của họ vào mọi lần chạy sau. Hãy đọc từng đề xuất trước khi giữ lại. Các ghi chú đã giữ đi kèm mọi lần chạy, bất kể ai khởi động.",
+      "ruleShort": "Ghi chú đã giữ đi kèm mọi lần chạy, bất kể ai khởi chạy: hãy đọc từng đề xuất trước khi giữ.",
       "off": "Bộ nhớ AI đang tắt trong không gian làm việc này: các lần chạy không mang ghi chú nào và không đề xuất ghi chú nào cho đến khi một chủ sở hữu bật nó trong <link>Cài đặt → Chung</link>.",
       "archived": "Hãy khôi phục tác tử để thay đổi bộ nhớ của nó.",
       "proposedHeading": "{count, plural, other {# ghi chú cần xem xét}}",

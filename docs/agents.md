@@ -9,6 +9,12 @@ works on it. An event a connection receives can start it too (see [Connections](
 people who can edit it can ask one for a task of their own over the REST API or MCP, and anyone
 it is shared with can chat with it or mention it in a page's comments to have it answer there.
 
+**Its settings** are a page of their own (*Settings → Agents*, or *Settings* on its chat page): its
+instructions, skills, memory, tools, access, connections, triggers, schedules and advanced settings
+down the side, then its runs and history, and *Share* at the top. Each section has its own address
+(`/w/<workspace>/agents/<agent>/settings?section=memory`), so a link opens it there; links to an
+agent in Settings from before still lead to the same place.
+
 **Its own user.** Each agent acts as a user of its own: a bot user that can't sign in (its address,
 `agent-<id>@agents.leafdesk.invalid`, can't receive mail), added to the workspace as a guest. Like
 any guest it sees only the pages shared with it, never through teamspaces, groups or "everyone",
@@ -87,7 +93,7 @@ report comes to their inbox, with its first paragraph (200 characters, Markdown 
 title there, though never in a push or Telegram notification, and into their chat with the agent.
 A run that checked and found nothing new, and changed nothing, ends itself with `finish_run`
 (`nothing_new`, a reason if it likes): nothing comes to the inbox, push or Telegram, the chat shows it
-as one muted line, *Nothing new* with the reason, its steps folded under it, and its *Runs* tab says
+as one muted line, *Nothing new* with the reason, its steps folded under it, and its *Runs* section says
 *Nothing new*. A run that changed something can't end that way, nor one with a call that wasn't
 made (refused, declined by a rule or a person, never answered, past the daily limit) or a task it
 gave another agent with `assign_agent`: the agent is told to report that instead. One that can't do its task at all ends with `finish_run` `failed` and a reason of up to 300
@@ -109,7 +115,7 @@ well-defined jobs such as summaries or sorting rows. Every turn of every run of 
 it started, goes to that model, with the same tools and limits; on the fast model it thinks a
 little (low effort). The choice isn't shown, and a fast agent runs on the main model, where the
 server has no fast model or the workspace's AI is an own AI account (which has one model). Each
-run records the model that answered it, shown in the *Runs* tab, and the workspace's AI usage
+run records the model that answered it, shown in its *Runs* section, and the workspace's AI usage
 counts its turns under that model. MCP's `create_agent` and `update_agent` and the REST API's
 `PATCH /api/v1/agents/{id}` take `model` (`main` or `fast`).
 
@@ -157,7 +163,7 @@ names no address, what it reads (a form answer, a synced row) can't send mail an
 how a daily report reaches a fixed address; an email to a row's own contact is a draft instead
 (above).
 
-**Your email.** An agent reads no one's mail on its own. On its Access tab, under *Your email*,
+**Your email.** An agent reads no one's mail on its own. In its *Access* section, under *Your email*,
 anyone who may use the agent and the Mail tab opens their own mailboxes to it, one by one; no one
 else can, and other people who use or edit the agent never see that mail. Only the runs that work
 for that person and show what they did to them alone get `search_mail`, `read_mail`,
@@ -173,7 +179,7 @@ read email or a file of one it only reads pages, works on that mail (drafts, `so
 `summarize_mail`) and proposes rows and notes: any other change, a connected service's tool, the
 web, `send_email`, forgetting a note, a handoff note or another agent is refused, and the agent says
 what it would do instead. A note it proposes then is never kept at once, and only the person the
-run worked for reads it (in the *Memory* tab) and may keep it. Its answer may quote that mail, so the chat's later runs that have it in their history
+run worked for reads it (in its *Memory* section) and may keep it. Its answer may quote that mail, so the chat's later runs that have it in their history
 (and the agent's own chat after a schedule that read email) are held the same way; a new
 conversation starts free.
 
@@ -240,10 +246,9 @@ and end as `commentGone` when the comment or its page is gone by then; what they
 owners who can open the page.
 
 **Chatting with an agent.** Anyone the agent is shared with chats with it on its own page, which
-the sidebar's *Agents* section opens (its *Settings* button opens the dialog), in its *Chat* tab, or
-in a page's **Agent chat** block (the slash menu's
-*Agent chat*, or paste a link to the agent's settings, as the *Chat* tab copies it, alone on an
-empty line). Each message the agent answers is one of its runs (shown in its *Runs* tab as a chat
+the sidebar's *Agents* section opens (its *Settings* button opens its settings page), or in a page's
+**Agent chat** block (the slash menu's *Agent chat*, or paste a link to the agent's page or its
+settings alone on an empty line). Each message the agent answers is one of its runs (shown in its *Runs* section as a chat
 message, counted in its usage and held to its monthly limit), with the agent's instructions, skills
 and kept notes, and the conversation's 20 earlier messages. Its steps show as it takes them and its answer as it
 writes it; *Stop* ends an answer under way (or one not started yet) and keeps what it wrote by
@@ -264,10 +269,10 @@ block is on unless asked to. What it may do depends on who writes:
 Guests, people the agent isn't shared with, and readers of a published page, see that the chat
 isn't available to them. Each person's
 conversations are their own, per block (a copy of the block, on a duplicated page or one made from a
-template, shows the same ones) or in the *Chat* tab: nobody else sees them, owners included, and the agent's run history
+template, shows the same ones) or on its page: nobody else sees them, owners included, and the agent's run history
 shows another person's chat messages without what was said. The 20 most recent conversations are
 kept per person and block; in a block **New conversation** starts another and each can be deleted.
-On the agent's page and in its *Chat* tab the chat is one that goes on (its 200 most recent
+On the agent's page the chat is one that goes on (its 200 most recent
 messages show), and what the agent does on its own for you comes into it at the time it starts:
 runs of schedules you set last, tasks you asked for (through the API or the AI assistant) and
 comments of yours that mention it, each marked with what started it, its steps folded, the call it
@@ -298,7 +303,7 @@ turned off, or an agent past its monthly limit leaves the chat saying so.
   on a page they can open).
 - **Regenerate and Edit.** Once the last answer has ended and nothing waits, *Regenerate* under it
   asks again, and *Edit* on the last question changes it and asks again. The answer it replaces
-  leaves the conversation and what the model reads; its run stays in the *Runs* tab. Exported Markdown and HTML show the block as a line naming the
+  leaves the conversation and what the model reads; its run stays in the *Runs* section. Exported Markdown and HTML show the block as a line naming the
 agent, never what was said. The same chat goes on from Telegram after `/agent` (see
 [AI chat from Telegram](ai.md#ai-chat-from-telegram)).
 
@@ -312,7 +317,7 @@ holding it) and the system's settings for apps (`~/Library` on macOS, `AppData` 
 be added. While it is on, the app keeps a connection to the server (signed in as you with the
 app's own session, held to the workspace's sign-in policies like the app's window, and closed when
 that session ends) and tells the server only the folders' names. Each message you send an agent
-from that app's window (its page, its dialog or a block) while the app is connected gets
+from that app's window (its page or a block) while the app is connected gets
 `computer_list_folder` and `computer_read_file` (UTF-8 text files of up to 512 KB), and, in the
 chat of someone who can edit the agent, `computer_write_file` (up to 512 KB, making missing
 folders) and `computer_trash_file`; a message sent from a browser, or from another computer signed
@@ -347,7 +352,7 @@ from a public certificate authority for it.
 
 **Usage and a monthly limit.** Every turn a run takes with the model is added to the agent's usage
 for the calendar month (UTC): its runs, input and output tokens and cost (the cost stays 0 where the
-AI provider names no price). The agent's *Runs* tab shows this month against its limit, and the
+AI provider names no price). The agent's *Runs* section shows this month against its limit, and the
 months before; MCP's `get_agent` and the REST API's `GET /api/v1/agents/{id}/usage` show them too.
 Twelve months are kept. In the agent's settings an owner can set a monthly token limit (input and
 output together): once the month's tokens reach it, a run under way stops at its next turn
@@ -379,20 +384,20 @@ mid-run, before it spends more: the same people hear why, and the audit log and 
 history record the change as the system's. Someone turns it back on after checking its runs.
 
 **Asking for a higher limit.** Only owners change the limit. Someone else with full access to an
-agent that has one asks for more in its *Runs* tab: a number of tokens a month and, if they like, a
+agent that has one asks for more in its *Runs* section: a number of tokens a month and, if they like, a
 reason. The owners get the request in their inbox and by email, and the first to answer raises the
 limit to that number (recorded in the agent's history and the audit log like any change of an
 owner's) or declines it; the person who asked hears which. One request waits at a time per agent
 and person: asking again changes it.
 
-**Skills.** In the agent's *Skills* tab, owners give it up to 10 [skills](ai.md#skills) of the
+**Skills.** In the agent's *Skills* section, owners give it up to 10 [skills](ai.md#skills) of the
 workspace that they can open; each run sends their instructions to the model after the agent's
 own, in the order they were given, as part of its orders. Because a skill's body becomes the
 agent's orders, an agent may only have skills that no one besides the workspace's owners can
 edit: not a member, a teamspace, a group, a guest or an agent (the agent itself included). Giving
 one that others can edit is refused, and every run checks again: a skill someone else can edit by
 then, or that is no longer a skill (unmarked, in the trash), is left out, and the run says so in
-its steps, as the tab does next to the skill. A skill that doesn't fit in what a run may read
+its steps, as the section does next to the skill. A skill that doesn't fit in what a run may read
 (12,000 characters for all of them together, at most a quarter of `AI_MAX_INPUT_CHARS` when set) is left
 out whole, never cut. A run held to someone's access (the member whose change started it, or a
 public form's publisher) also leaves out the skills that person can't open, as it does pages;
@@ -408,7 +413,7 @@ handled). Nobody talks to an agent during a run: everything it reads was written
 row, pages, an event, what a connected service returns), so a note it kept on its own could carry
 anyone's orders into every later run. A run therefore only *proposes* notes, with a `remember` tool:
 each proposal is a step of the run, with credentials masked, and goes with no run until an owner
-keeps it. In the agent's *Memory* tab (and a "notes to review" link next to the agent in the list),
+keeps it. In the agent's *Memory* section (and a "notes to review" link next to the agent in the list),
 owners see the proposals with the run's row and time, keep one as it is or changed, or dismiss it;
 they also write, change and delete notes, and make it forget everything. An owner who can't open a
 proposal's row doesn't see its text (it may quote the row) and can only dismiss it, nor does one
@@ -416,7 +421,7 @@ whose proposal came from a run another owner asked for or scheduled without a da
 note at once with `forget`, which loses at most that note. A note is meant to stay true for
 months; runs are told never to propose progress (what they checked, what remains, counts, row
 positions), and one run proposes at most two notes. When a kept note is incomplete or out of date,
-a run proposes its new text instead of a second note: the *Memory* tab shows the note it would
+a run proposes its new text instead of a second note: the *Memory* section shows the note it would
 change, crossed out, above the new text, and *Keep* changes that note in place. A schedule's run
 also sees the proposals of the same schedule's earlier runs that still wait, and changes one
 rather than proposing it again; the newer text takes its place.
@@ -433,7 +438,7 @@ what a connection's tool or another agent answered, or a file attached to your m
 another connected app (MCP, the REST API) sent the message, a correction is only proposed, as it
 is in every other run (other people's chats can't keep notes at all). One run keeps at most three
 corrections at once; past that, or with the memory full, the next is proposed. Corrections go with
-every later run marked as such, before the agent's other notes. The *Memory* tab lists them first,
+every later run marked as such, before the agent's other notes. The *Memory* section lists them first,
 labelled *Correction · from <person>'s chat*, and labels proposed corrections too; a kept
 correction puts nothing in the owners' inboxes, and the audit log counts it, and its Undo, as a
 change to the agent. `get_agent` marks them with `kind: "correction"` and `said_by`. The AI chat follows the same
@@ -464,7 +469,7 @@ When a run proposes a note, each owner of the workspace who has no item for that
 inbox item (and a push notification, without the note's text), whatever their notification
 choices, and no email: one per agent, however many runs propose. It shows the first proposal's
 text, unless the run was on a row that owner can't open, and how many of the agent's proposals
-wait; opening it opens the agent's *Memory* tab. It can be snoozed, and goes away once every
+wait; opening it opens the agent's *Memory* section. It can be snoozed, and goes away once every
 proposal of the agent has been kept or dismissed (or dropped by a later run). Over
 MCP, owners keep and dismiss proposals, and write, change and delete notes, with
 `change_agent_memory`; `list_notifications` shows the inbox item with the agent's and run's ids.
@@ -536,7 +541,7 @@ settings: people, groups, and everyone in the workspace (owners and members; nev
 at one of three levels. *Full access* can do everything an owner can with the agent, sharing and
 archiving it too. *Can edit* changes its settings, instructions, pages, skills, schedules, memory
 and versions, asks it for runs and adds it to automations, but doesn't share or archive it. *Can
-view & interact* sees the agent and all its tabs read-only, sees only the runs they started
+view & interact* sees the agent and all its settings read-only, sees only the runs they started
 themselves, chats with it and mentions it in comments. A person's own entry decides for them;
 without one, the highest of their groups'; without those, everyone's; with none of them, the agent
 isn't theirs to see, chat with or mention. Owners of the workspace always have full access. A new

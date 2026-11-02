@@ -71,7 +71,7 @@ export function AgentTriggersTab({ workspaceId, agent, onTab }: { workspaceId: s
   };
 
   return (
-    <div className="space-y-3 px-5 py-4">
+    <div className="space-y-3">
       <p className="text-sm text-fg-muted">{t("description")}</p>
       {failed ? (
         <p role="alert" className="text-sm text-danger">

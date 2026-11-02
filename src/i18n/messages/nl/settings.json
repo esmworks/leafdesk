@@ -413,6 +413,11 @@
       "triggers": "Triggers",
       "advanced": "Geavanceerd"
     },
+    "nav": {
+      "tools": "Tools",
+      "activity": "Activiteit",
+      "sharing": "Delen"
+    },
     "triggers": {
       "description": "Wat de runs van deze agent kan starten, en naar welk gesprek elke run gaat. Open er een om het te wijzigen.",
       "loadFailed": "De lijst kon niet worden geladen.",
@@ -590,8 +595,11 @@
       "libraryNote": "Vaardigheden worden gemaakt in de <link>vaardighedenbibliotheek</link>."
     },
     "memory": {
+      "help": "Notities die bij elke run horen. De runs stellen ze voor; iemand die hem kan bewerken houdt ze.",
+      "about": "Zo werkt het geheugen",
       "description": "Notities die met elke uitvoering van deze agent meegaan, zodat hij niet steeds dezelfde dingen opnieuw hoeft te leren. Zijn uitvoeringen stellen notities voor; geen enkele gaat mee met een uitvoering tot een eigenaar haar bewaart. Correcties die iemand die hem mag bewerken in de eigen chat met hem geeft, worden meteen bewaard.",
       "rule": "Een uitvoering leest rijen, pagina’s en gebeurtenissen die andere mensen en diensten hebben geschreven, en een notitie kan hun woorden meenemen naar elke latere uitvoering. Lees elk voorstel voordat je het bewaart. Bewaarde notities gaan mee met elke uitvoering, wie die ook start.",
+      "ruleShort": "Een bewaarde notitie gaat mee met elke run, wie hem ook start: lees elk voorstel voordat je het bewaart.",
       "off": "AI-geheugen staat uit in deze werkruimte: uitvoeringen nemen geen notities mee en stellen er geen voor tot een eigenaar het aanzet in <link>Instellingen → Algemeen</link>.",
       "archived": "Zet de agent terug om zijn geheugen te wijzigen.",
       "proposedHeading": "{count, plural, one {# notitie om te beoordelen} other {# notities om te beoordelen}}",

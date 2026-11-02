@@ -56,7 +56,7 @@
   --accent-fg: #ffffff;
   --danger: #d03b3b;
   --ring: rgba(47, 125, 79, 0.35);
-  /* The edge of a field in a dialog, which is filled instead (see `[data-dialog]` below). */
+  /* The edge of a field in a dialog or a page of settings, which is filled instead (see `[data-dialog]` below). */
   --field-edge: transparent;
   /* The logo's colors (components/brand/logo.tsx). */
   --logo-tile: #16301f;
@@ -291,12 +291,12 @@
 }
 
 /*
- * In a dialog, a field drawn like `Input` (components/ui.tsx: an edge and the page's ground) is
- * filled in gray instead, without the edge, which high contrast gives back (`--field-edge`). Here
+ * In a dialog, or on a page of settings marked `data-filled-fields` (an agent's), a field drawn
+ * like `Input` (components/ui.tsx: an edge and the page's ground) is filled in gray instead, without the edge, which high contrast gives back (`--field-edge`). Here
  * rather than in the components' classes, which every first load carries, and outside the layers,
  * so it wins over those utilities.
  */
-[data-dialog] :is(input:not([type="checkbox"], [type="radio"]), select, textarea).border-border.bg-bg {
+:is([data-dialog], [data-filled-fields]) :is(input:not([type="checkbox"], [type="radio"]), select, textarea).border-border.bg-bg {
   border-color: var(--field-edge);
   background-color: var(--bg-hover);
   &:focus {

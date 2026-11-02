@@ -413,6 +413,11 @@
       "triggers": "Wyzwalacze",
       "advanced": "Zaawansowane"
     },
+    "nav": {
+      "tools": "Narzędzia",
+      "activity": "Aktywność",
+      "sharing": "Udostępnianie"
+    },
     "triggers": {
       "description": "Co może uruchomić przebiegi tego agenta i do której rozmowy trafia każdy przebieg. Otwórz jeden, aby go zmienić.",
       "loadFailed": "Nie udało się wczytać listy.",
@@ -590,8 +595,11 @@
       "libraryNote": "Umiejętności tworzy się w <link>bibliotece umiejętności</link>."
     },
     "memory": {
+      "help": "Notatki dołączane do każdego uruchomienia. Uruchomienia je proponują; zachowuje je ktoś, kto może go edytować.",
+      "about": "Jak działa pamięć",
       "description": "Notatki dołączane do każdego uruchomienia tego agenta, aby nie musiał uczyć się tych samych rzeczy od nowa. Jego uruchomienia proponują notatki; żadna nie trafia do uruchomienia, dopóki właściciel jej nie zachowa. Poprawki, które ktoś mogący go edytować podaje we własnym czacie z nim, są zachowywane od razu.",
       "rule": "Uruchomienie odczytuje wiersze, strony i zdarzenia napisane przez inne osoby i usługi, a notatka mogłaby przenieść ich słowa do każdego późniejszego uruchomienia. Przeczytaj każdą propozycję, zanim ją zachowasz. Zachowane notatki trafiają do każdego uruchomienia, niezależnie od tego, kto je rozpoczyna.",
+      "ruleShort": "Zachowana notatka trafia do każdego uruchomienia, niezależnie od tego, kto je rozpoczyna: przeczytaj każdą propozycję, zanim ją zachowasz.",
       "off": "Pamięć AI jest wyłączona w tym obszarze roboczym: uruchomienia nie zawierają notatek ani ich nie proponują, dopóki właściciel jej nie włączy w sekcji <link>Ustawienia → Ogólne</link>.",
       "archived": "Przywróć agenta, aby zmienić jego pamięć.",
       "proposedHeading": "{count, plural, one {# notatka do przejrzenia} few {# notatki do przejrzenia} many {# notatek do przejrzenia} other {# notatki do przejrzenia}}",

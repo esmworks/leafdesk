@@ -204,7 +204,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   grammar `src/lib/tags.ts` (in the first load too), read from blocks by `lib/tag-blocks.ts`, indexed
   in `page_tag` by `server/page-tags.ts` (persistPage, copies, backfill queue), marked and suggested
   in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
-- **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
+- **Agents.** An agent's settings are a page, `app/w/[workspaceId]/agents/[agentId]/settings` (`components/settings/agent-editor.tsx`,
+  sections in `?section=`, `lib/agent-settings.ts` `agentSettingsPath`); old Settings links redirect there.
+  `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
   `src/lib/agents.ts`; `agent_id` is null only for source `assistant`, a person's own AI chat, as a
   check holds: agent code takes `AgentRunRow` and narrows rows it reads with `isAgentRun`) and
   the run's turns with the model (`converse`, on the turn loop `src/server/assistant/turns.ts`
@@ -576,6 +578,9 @@ because they are separate module graphs.
 - **`updated_at`.** Tables with `$onUpdate` (`grep -rn 'onUpdate' src/db/schema`) get a new
   `updated_at` on every Drizzle `update()`. To leave a row exactly as it was (restores, repairs),
   write raw SQL with `tx.execute(sql\`…\`)`.
+- **Design.** `docs/design.md` is the interface's rules: text roles, spacing, surfaces, one kind of
+  tab, and when something is a dialog or a page of its own (with sections down its side, like an
+  agent's settings, `components/settings/agent-editor.tsx`).
 - **Styling.** Use the tokens in `src/app/globals.css` (`bg-bg`, `text-fg-muted`, `border-border`,
   `bg-accent` …) and the `dark:`, `rtl:` and `high-contrast:` variants. `src/components/ui.tsx` is a
   client module: server components may render its components but must not call `cn()` from it
@@ -596,8 +601,9 @@ because they are separate module graphs.
   that room (comments, graph, the chat) close each other through `lib/side-panels.ts`.
   A dialog is `Dialog` built from `DialogHeader` (or a `DialogTitle` in the body for a short
   question), `DialogBody` and `DialogFooter` (Cancel `secondary`, the action last); a panel over its
-  own shade takes `dialogShadow`. Fields in a dialog drawn like `Input` (`border-border bg-bg`) are
-  filled in gray by an unlayered rule in globals.css (`[data-dialog] :is(input, select, textarea)`),
+  own shade takes `dialogShadow`. Fields in a dialog, or on a page marked `data-filled-fields` (an
+  agent's settings), drawn like `Input` (`border-border bg-bg`) are filled in gray by an unlayered
+  rule in globals.css (`:is([data-dialog], [data-filled-fields]) :is(input, select, textarea)`),
   not by their classes, which every first load carries; a field that must stay outlined there takes
   other classes.
   A backdrop shading the whole window under a dialog carries `data-window-shade`: that component

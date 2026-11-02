@@ -178,7 +178,7 @@ describe("pushPayload", () => {
     expect(pushPayload(call, t, date)).toEqual({
       title: "Helper asks to go ahead",
       body: "Wants to call “send_mail” on Mail",
-      url: "/w/ws1/settings?tab=agents&agent=a1&run=r1",
+      url: "/w/ws1/agents/a1/settings?section=runs&run=r1",
       tag: "n1",
       // It waits only so long: no snoozing, though it can be marked read.
       read: "Mark as read",
@@ -193,7 +193,7 @@ describe("pushPayload", () => {
     expect(pushPayload(notes, t, date)).toEqual({
       title: "Helper wants to remember",
       body: "Proposes 2 notes for its memory",
-      url: "/w/ws1/settings?tab=agents&agent=a1&agentTab=memory",
+      url: "/w/ws1/agents/a1/settings?section=memory",
       tag: "n1",
       read: "Mark as read",
       snooze: "Snooze 1 hour",
@@ -221,7 +221,7 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "ai_limit", pageId: null, pageTitle: null, aiLimit: { notice: "near", agent } }), t, date)).toMatchObject({
       title: "Board keeper",
       body: "Used 80% of its 1000 tokens this month",
-      url: "/w/ws1/settings?tab=agents&agent=a1",
+      url: "/w/ws1/agents/a1/settings?section=advanced",
     });
     expect(pushPayload(item({ kind: "ai_limit", pageId: null, aiLimit: { notice: "reached", agent: null } }), t, date)).toMatchObject({
       title: "AI spending",
@@ -251,7 +251,7 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "agent_limit_request", pageId: null, limitRequest }), t, date)).toMatchObject({
       title: "Higher limit for Board keeper",
       body: "Ayşe asks for 5000 tokens a month",
-      url: "/w/ws1/settings?tab=agents&agent=a1",
+      url: "/w/ws1/agents/a1/settings?section=advanced",
     });
     expect(pushPayload(item({ kind: "agent_limit_request", pageId: null, limitRequest: null }), t, date)).toBeNull();
   });

@@ -217,6 +217,7 @@ not started. For a Supabase project, see [Use Supabase as the database](docs/sel
 - [Connections and MCP](docs/connections.md): connections to other services, and the MCP server for AI assistants.
 - [REST API](docs/rest-api.md): the REST API, tokens and scopes.
 - [Development](docs/development.md): running from source, tests, translations, architecture.
+- [Design](docs/design.md): text sizes, spacing, surfaces, and when something is a dialog or a page.
 
 ## Security
 

@@ -1,12 +1,12 @@
 "use client";
 
 import { IconGlyph } from "@/components/builtin-icon";
-import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, Mail, MailX, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, Users, X } from "lucide-react";
+import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, Mail, MailX, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
 import { lazyPart } from "@/components/lazy-part";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   agentUsageAction,
   createAgentAction,
@@ -23,9 +23,8 @@ import type { ActionResult } from "@/app/actions/workspaces";
 import { StepLine } from "@/components/ai-chat/step-line";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { IconPicker } from "@/components/page/icon-picker";
-import { TabButton } from "@/components/settings/members-panel";
 import { useAction } from "@/components/settings/workspace-settings";
-import { Button, cn, Dialog, DialogFooter, DialogHeader, IconButton, Input, PageIcon, pageLabel, selectClass, Switch, textareaClass } from "@/components/ui";
+import { Button, cn, DialogFooter, IconButton, Input, PageIcon, pageLabel, selectClass, Switch, textareaClass } from "@/components/ui";
 import type { AgentInput } from "@/server/agents/manage";
 import { MAX_AGENT_MAIL_RECIPIENTS, parseMailRecipients } from "@/lib/agent-mail";
 import {
@@ -50,203 +49,27 @@ import {
   editsAgent,
 } from "@/lib/agents";
 import { commentHash } from "@/lib/comments";
-import { AgentChatTab } from "./agent-chat-tab";
-import { AgentConnectionsTab } from "./agent-connections-tab";
 import { AgentGuardrailFields, dailyLimitOf, quietHoursDraft, quietHoursOf } from "./agent-guardrail-fields";
-import { AgentHistoryTab } from "./agent-history-tab";
 import { AskedByLine, HandoffStepLine, type OpenAgentRun } from "./agent-handoff-step";
 import { AgentHelpersField } from "./agent-helpers-field";
-import { AgentSchedulesTab } from "./agent-schedules-tab";
-import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
 import { REMIND_TOOL_NAME } from "@/lib/ai-reminders";
 
-/**
- * The dialog's tabs; `share`, who the agent is shared with, opens from its header rather than the
- * tab bar. Its settings are four sections, each with the tabs in it (`settings` is the instructions,
- * `tools` and `advanced` the form's other parts); runs, the chat and its versions come after them.
- */
-export type AgentTab = "settings" | "skills" | "memory" | "tools" | "access" | "connections" | "triggers" | "schedules" | "advanced" | "runs" | "chat" | "history" | "share";
+/** The section of an agent's settings page a tab of it opens (lib/agent-settings.ts). */
+export type { AgentTab } from "@/lib/agent-settings";
 /** The server's main and fast models' names, shown with the agent's choice between them. */
 export type AgentModelNames = { main: string; fast: string };
-export const AGENT_SECTIONS = {
-  instructions: ["settings", "skills", "memory"],
-  tools: ["tools", "access", "connections"],
-  triggers: ["triggers", "schedules"],
-  advanced: ["advanced"],
-} as const satisfies Record<string, readonly AgentTab[]>;
-type AgentSection = keyof typeof AGENT_SECTIONS;
-/** What the tab bar shows: the sections, then the tabs of their own. */
-const AGENT_NAV: readonly (AgentSection | "runs" | "chat" | "history")[] = ["instructions", "tools", "triggers", "advanced", "runs", "chat", "history"];
-const sectionOf = (tab: AgentTab): AgentSection | null => (Object.keys(AGENT_SECTIONS) as AgentSection[]).find((s) => (AGENT_SECTIONS[s] as readonly AgentTab[]).includes(tab)) ?? null;
 
-// Sharing comes with its section, not with the dialog.
 // Only for those with full access who aren't owners, on an agent with a limit.
 const AgentLimitRequest = lazyPart(() => import("./agent-limit-request").then((m) => m.AgentLimitRequest));
 /** The person's own mailboxes on the Access tab: agent chats in pages bring this module along. */
 const AgentMailboxes = lazyPart(() => import("./agent-mailboxes").then((m) => m.AgentMailboxes));
 const ComputerStepLine = lazyPart(() => import("./computer-step").then((m) => m.ComputerStepLine));
-const AgentShareTab = lazyPart(() => import("./agent-share-tab").then((m) => m.AgentShareTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-hover" />);
-const AgentTriggersTab = lazyPart(() => import("./agent-triggers-tab").then((m) => m.AgentTriggersTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-hover" />);
-const AgentMemoryTab = lazyPart(() => import("./agent-memory-tab").then((m) => m.AgentMemoryTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-hover" />);
 
 /** An agent's emoji, or a robot when it has none. */
 export function AgentIcon({ icon, className }: { icon: string | null; className?: string }) {
   if (icon) return <IconGlyph icon={icon} className={className} />;
   return <Bot className={cn("h-4 w-4 text-fg-muted", className)} aria-hidden />;
-}
-
-/**
- * One agent: its settings, the pages shared with it, its skills, its memory, the connections' tools
- * it may use, its schedules, its latest runs, a chat with it and its versions, in tabs, and who it
- * is shared with. What the viewer may change follows their level on it (`agent.access`): those who
- * can view and interact see every tab read-only, their own runs alone, and chat with it.
- */
-export function AgentDialog({
-  workspaceId,
-  isOwner,
-  agent,
-  tab,
-  runId,
-  proposals = 0,
-  memoryOff = false,
-  models = null,
-  webSearch = false,
-  notice,
-  onTab,
-  onOpenRun,
-  onClose,
-}: {
-  workspaceId: string;
-  /** The viewer owns the workspace: they choose the connections' tools and the token limit, and answer calls. */
-  isOwner: boolean;
-  agent: AgentView;
-  tab: AgentTab;
-  /** The models an agent may choose between; null hides the choice (see AgentForm). */
-  models?: AgentModelNames | null;
-  /** Notes its runs proposed that wait for an owner, counted on the Memory tab. */
-  proposals?: number;
-  memoryOff?: boolean;
-  /** The server has a search service (see AgentForm). */
-  webSearch?: boolean;
-  /** A run to show opened (a link from an automation's history). */
-  runId?: string;
-  /** Said above the tabs' content (what a copy just made took and left out). */
-  notice?: ReactNode;
-  onTab: (tab: AgentTab) => void;
-  /** Opens a run of another agent (one this agent asked, or that asked it). */
-  onOpenRun?: OpenAgentRun;
-  onClose: () => void;
-}) {
-  const t = useTranslations("settings.agents");
-  const tc = useTranslations("common");
-  const tabs = useRef<HTMLDivElement>(null);
-  // A tab a link opens may be past the edge of a narrow window.
-  useEffect(() => {
-    tabs.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
-  }, [tab]);
-  const section = sectionOf(tab);
-  const inSection = section ? AGENT_SECTIONS[section] : [];
-  const memoryBadge = proposals > 0 && (
-    <span className="rounded bg-accent px-1 text-xs font-medium text-accent-fg tabular-nums" aria-label={t("memory.waiting", { count: proposals })}>
-      {proposals}
-    </span>
-  );
-  return (
-    <Dialog open onClose={onClose} className="max-w-3xl">
-      <DialogHeader
-        title={<span className="block truncate">{agent.name}</span>}
-        description={
-          <p className="truncate">
-            {t(`status.${agent.archived ? "archived" : agent.enabled ? "active" : "paused"}`)}
-            {agent.description && ` · ${agent.description}`}
-          </p>
-        }
-        icon={<AgentIcon icon={agent.icon} className="text-lg" />}
-        actions={
-          <Button size="sm" variant={tab === "share" ? "primary" : "ghost"} aria-pressed={tab === "share"} onClick={() => onTab("share")}>
-            <Users className="h-3.5 w-3.5" />
-            {t("share.button")}
-          </Button>
-        }
-        onClose={onClose}
-        closeLabel={tc("close")}
-      />
-      {/* The tabs don't fit a phone: they scroll on their own, without a bar, rather than widening the dialog. */}
-      <div ref={tabs} className="overflow-x-auto px-5 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div role="tablist" aria-label={agent.name} className="inline-flex w-max gap-0.5 rounded-lg bg-bg-hover p-0.5">
-          {AGENT_NAV.map((name) =>
-            name === "runs" || name === "chat" || name === "history" ? (
-              <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
-                {t(`tabs.${name}`)}
-              </TabButton>
-            ) : (
-              <TabButton key={name} active={section === name} onClick={() => onTab(AGENT_SECTIONS[name][0])}>
-                {t(`sections.${name}`)}
-                {name === "instructions" && section !== "instructions" && memoryBadge}
-              </TabButton>
-            ),
-          )}
-        </div>
-        {/* A section's own tabs, under it. */}
-        {inSection.length > 1 && (
-          <div role="tablist" aria-label={section ? t(`sections.${section}`) : undefined} className="mt-2 flex w-max gap-3 text-sm">
-            {inSection.map((name) => (
-              <button
-                key={name}
-                type="button"
-                role="tab"
-                aria-selected={tab === name}
-                onClick={() => onTab(name)}
-                className={cn("flex items-center gap-1.5 border-b-2 pb-0.5", tab === name ? "border-fg text-fg" : "border-transparent text-fg-muted hover:text-fg")}
-              >
-                {name === "settings" ? t("sections.instructions") : name === "tools" ? t("tabs.general") : name === "advanced" ? t("sections.advanced") : name === "triggers" ? t("tabs.allTriggers") : t(`tabs.${name}`)}
-                {name === "memory" && memoryBadge}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-      {notice && (
-        <div role="status" className="border-b border-border bg-bg-subtle px-5 py-2 text-xs text-fg-muted">
-          {notice}
-        </div>
-      )}
-      {!editsAgent(agent) && tab !== "share" && tab !== "chat" && <p className="border-b border-border bg-bg-subtle px-5 py-2 text-xs text-fg-muted">{t("viewOnly")}</p>}
-      {tab === "share" ? (
-        <AgentShareTab workspaceId={workspaceId} agent={agent} />
-      ) : tab === "settings" || tab === "tools" || tab === "advanced" ? (
-        <AgentForm
-          key={tab}
-          workspaceId={workspaceId}
-          agent={agent}
-          isOwner={isOwner}
-          models={models}
-          webSearch={webSearch}
-          part={tab === "settings" ? "instructions" : tab}
-          onDone={onClose}
-        />
-      ) : tab === "access" ? (
-        <AccessTab workspaceId={workspaceId} agent={agent} />
-      ) : tab === "skills" ? (
-        <AgentSkillsTab workspaceId={workspaceId} agent={agent} />
-      ) : tab === "memory" ? (
-        <AgentMemoryTab workspaceId={workspaceId} agent={agent} memoryOff={memoryOff} />
-      ) : tab === "connections" ? (
-        <AgentConnectionsTab workspaceId={workspaceId} agent={agent} isOwner={isOwner} />
-      ) : tab === "triggers" ? (
-        <AgentTriggersTab workspaceId={workspaceId} agent={agent} onTab={onTab} />
-      ) : tab === "schedules" ? (
-        <AgentSchedulesTab workspaceId={workspaceId} agent={agent} onRuns={() => onTab("runs")} />
-      ) : tab === "history" ? (
-        <AgentHistoryTab workspaceId={workspaceId} agent={agent} />
-      ) : tab === "chat" ? (
-        <AgentChatTab workspaceId={workspaceId} agent={agent} />
-      ) : (
-        <RunsTab workspaceId={workspaceId} agent={agent} isOwner={isOwner} runId={runId} onOpenRun={onOpenRun} />
-      )}
-    </Dialog>
-  );
 }
 
 /** What a new agent's form starts with, and how it is created: a drafted agent (see agent-describe-dialog). */
@@ -258,9 +81,9 @@ export type AgentFormDraft = {
 };
 
 /**
- * A new agent (no `agent`, prefilled from `draft` when given) or an agent's settings, all of them or
- * one `part` of them (its dialog's sections): what it is and its instructions; how it may change
- * things and reach out; the model, limits and quiet hours. A part saves the others as they are.
+ * A new agent (no `agent`, prefilled from `draft` when given), in a dialog, or one `part` of an
+ * agent's settings, on its page (agent-editor.tsx): what it is and its instructions; how it may
+ * change things and reach out; the model, limits and quiet hours. A part saves the others as they are.
  */
 export function AgentForm({
   workspaceId,
@@ -309,6 +132,9 @@ export function AgentForm({
   // Null until loaded: saving then leaves them as they are.
   const [helpers, setHelpers] = useState<string[] | null>(null);
   const { pending, error, run } = useAction();
+  // A part is a section of the agent's page: it says it saved, and has nothing to cancel.
+  const inPage = part !== null;
+  const [saved, setSaved] = useState(false);
   // Archived, or shared with the viewer to view and interact only.
   const locked = Boolean(agent?.archived) || (agent ? !editsAgent(agent) : false);
   const clean = name.trim();
@@ -339,7 +165,14 @@ export function AgentForm({
       ...(models ? { model } : {}),
       helperAgentIds: helpers ?? undefined,
     };
-    if (agent) run(() => updateAgentAction(workspaceId, agent.id, value), onDone);
+    if (agent)
+      run(
+        () => updateAgentAction(workspaceId, agent.id, value),
+        () => {
+          setSaved(inPage);
+          onDone();
+        },
+      );
     else run(() => (draft ? draft.create(value) : createAgentAction(workspaceId, value)), (created) => onCreated?.(created));
   };
 
@@ -349,8 +182,9 @@ export function AgentForm({
         e.preventDefault();
         submit();
       }}
+      onChange={() => setSaved(false)}
     >
-      <fieldset disabled={locked || pending} className="max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4">
+      <fieldset disabled={locked || pending} className={cn("space-y-4", !inPage && "max-h-[65vh] overflow-y-auto px-5 py-4")}>
         {agent?.archived && <p className="text-sm text-fg-muted">{t("archivedNote")}</p>}
         {shows("instructions") && (
           <>
@@ -484,25 +318,46 @@ export function AgentForm({
           </>
         )}
       </fieldset>
-      <DialogFooter>
-        {error && (
-          <p role="alert" className="me-auto text-xs text-danger">
-            {error}
-          </p>
-        )}
-        <Button variant="secondary" onClick={onDone}>
-          {tc("cancel")}
-        </Button>
-        <Button type="submit" variant="primary" disabled={locked || pending || !clean || !limitValid || !recipients || !guardrailsValid}>
-          {agent ? (pending ? tc("saving") : tc("save")) : pending ? t("creating") : t("create")}
-        </Button>
-      </DialogFooter>
+      {inPage ? (
+        !locked && (
+          <div className="mt-8 flex items-center justify-end gap-3">
+            {error ? (
+              <p role="alert" className="me-auto text-xs text-danger">
+                {error}
+              </p>
+            ) : (
+              saved && (
+                <p role="status" className="text-[13px] text-fg-muted">
+                  {tc("saved")}
+                </p>
+              )
+            )}
+            <Button type="submit" variant="primary" disabled={pending || !clean || !limitValid || !recipients || !guardrailsValid}>
+              {pending ? tc("saving") : tc("save")}
+            </Button>
+          </div>
+        )
+      ) : (
+        <DialogFooter>
+          {error && (
+            <p role="alert" className="me-auto text-xs text-danger">
+              {error}
+            </p>
+          )}
+          <Button variant="secondary" onClick={onDone}>
+            {tc("cancel")}
+          </Button>
+          <Button type="submit" variant="primary" disabled={locked || pending || !clean || !limitValid || !recipients || !guardrailsValid}>
+            {agent ? (pending ? tc("saving") : tc("save")) : pending ? t("creating") : t("create")}
+          </Button>
+        </DialogFooter>
+      )}
     </form>
   );
 }
 
 /** The pages shared with the agent, their levels, and adding one. */
-function AccessTab({ workspaceId, agent }: { workspaceId: string; agent: AgentView }) {
+export function AccessTab({ workspaceId, agent }: { workspaceId: string; agent: AgentView }) {
   const t = useTranslations("settings.agents.access");
   const tc = useTranslations("common");
   const [access, setAccess] = useState<{ pages: AgentAccessView[]; hidden: number } | null>(null);
@@ -531,7 +386,7 @@ function AccessTab({ workspaceId, agent }: { workspaceId: string; agent: AgentVi
   const editable = editsAgent(agent);
 
   return (
-    <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "opacity-70")}>
+    <div className={cn("space-y-4", pending && "opacity-70")}>
       <p className="text-sm text-fg-muted">{t("description")}</p>
       <p className="flex gap-2 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
         <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
@@ -650,7 +505,7 @@ function useDuration() {
 
 /** The agent's latest runs; each opens to its steps, what it said, and why it failed. */
 /** Those who can view and interact see the runs they started alone (the server leaves the others out). */
-function RunsTab({
+export function RunsTab({
   workspaceId,
   agent,
   isOwner,
@@ -692,7 +547,7 @@ function RunsTab({
   }, [workspaceId, agent.id, version, tc]);
 
   return (
-    <div className="max-h-[65vh] overflow-y-auto px-5 py-3">
+    <div>
       <div className="flex items-center gap-2 pb-2">
         <p className="min-w-0 flex-1 text-xs text-fg-muted">
           {t("description", { days: AGENT_RUN_HISTORY_DAYS })}

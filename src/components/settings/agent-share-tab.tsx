@@ -56,7 +56,7 @@ export function AgentShareTab({ workspaceId, agent }: { workspaceId: string; age
 
   if (!sharing) {
     return (
-      <p className="px-5 py-4 text-sm text-fg-muted" role={loadError ? "alert" : undefined}>
+      <p className="text-sm text-fg-muted" role={loadError ? "alert" : undefined}>
         {loadError ?? tc("loading")}
       </p>
     );
@@ -83,7 +83,7 @@ export function AgentShareTab({ workspaceId, agent }: { workspaceId: string; age
     );
 
   return (
-    <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "opacity-70")}>
+    <div className={cn("space-y-4", pending && "opacity-70")}>
       <p className="text-sm text-fg-muted">{t("description")}</p>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-md border border-border bg-bg-subtle px-3 py-2 text-xs">
         {AGENT_SHARE_LEVELS.map((level) => (

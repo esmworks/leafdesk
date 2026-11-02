@@ -1190,7 +1190,7 @@ async function main() {
       memoryItems[0].agent_id === triage.id &&
       memoryItems[0].run_id === agentRunEntry.id &&
       memoryItems[0].summary.includes(`Printers jam on Mondays ${RUN}`) &&
-      memoryItems[0].url === `${BASE}/w/${ws}/settings?tab=agents&agent=${triage.id}&agentTab=memory`,
+      memoryItems[0].url === `${BASE}/w/${ws}/agents/${triage.id}/settings?section=memory`,
     "list_notifications shows one item for the run's proposals, with the first one's text and a link to the agent's memory",
     memoryItems,
   );

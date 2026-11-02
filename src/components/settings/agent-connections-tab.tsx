@@ -42,7 +42,7 @@ function GrantsList({ workspaceId, agent }: { workspaceId: string; agent: AgentV
   }, [workspaceId, agent.id, tc]);
 
   return (
-    <div className="max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4">
+    <div className="space-y-4">
       <p className="text-sm text-fg-muted">{t("ownersChoose")}</p>
       {!grants ? (
         <p className="text-sm text-fg-muted" role={error ? "alert" : undefined}>
@@ -126,7 +126,7 @@ function GrantsEditor({ workspaceId, agent }: { workspaceId: string; agent: Agen
   };
 
   return (
-    <div className="max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4">
+    <div className="space-y-4">
       <p className="text-sm text-fg-muted">
         {t("description")} {t("rulesNote")}
       </p>

@@ -58,7 +58,7 @@ export function AgentSkillsTab({ workspaceId, agent }: { workspaceId: string; ag
   const full = (given?.skills.length ?? 0) + (given?.hidden ?? 0) >= MAX_AGENT_SKILLS;
 
   return (
-    <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "opacity-70")}>
+    <div className={cn("space-y-4", pending && "opacity-70")}>
       <p className="text-sm text-fg-muted">{t("description")}</p>
       <p className="flex gap-2 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-fg-muted" aria-hidden />

@@ -2775,7 +2775,7 @@ describe("automations", () => {
       agent_id: "agent-1",
       run_id: "run-1",
       summary: expect.stringMatching(/proposed 2 notes.*change_agent_memory.*"Refunds over 100 EUR need a lead" and 1 more$/),
-      url: expect.stringMatching(/\/w\/ws-1\/settings\?tab=agents&agent=agent-1&agentTab=memory$/),
+      url: expect.stringMatching(/\/w\/ws-1\/agents\/agent-1\/settings\?section=memory$/),
     });
     expect(data.notifications[1].summary).toMatch(/can't open.*hidden/);
     expect(data.notifications[1].summary).not.toMatch(/Refunds/);

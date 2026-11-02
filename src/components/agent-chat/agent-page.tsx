@@ -21,7 +21,7 @@ type Agent = { id: string; name: string; icon: string | null; description: strin
 
 /**
  * An agent's own page, which the sidebar opens: a chat with it, the AI chat's thread and box, with
- * who it is above the messages. Its settings stay in the dialog. On a wide page who it is moves
+ * who it is above the messages; its settings are a page of their own (agent-editor.tsx). On a wide page who it is moves
  * into the boxes beside the chat, with its schedules and, once the chat loads, its runs and what
  * they changed (the chat adds those itself).
  */

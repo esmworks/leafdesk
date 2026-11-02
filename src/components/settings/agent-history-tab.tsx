@@ -94,7 +94,7 @@ export function AgentHistoryTab({ workspaceId, agent }: { workspaceId: string; a
   }
 
   return (
-    <div className="max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4">
+    <div className="space-y-4">
       <p className="text-sm text-fg-muted">{t("description", { max: MAX_AGENT_VERSIONS })}</p>
       {restored && (
         <div role="status" className="space-y-1 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
@@ -216,7 +216,7 @@ function VersionPanel({
     !detail.shares.changed.length;
 
   return (
-    <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "opacity-70")}>
+    <div className={cn("space-y-4", pending && "opacity-70")}>
       <button type="button" onClick={onBack} className="flex items-center gap-1 text-sm text-fg-muted hover:text-fg">
         <ArrowLeft className="h-4 w-4 rtl:-scale-x-100" aria-hidden />
         {t("back")}

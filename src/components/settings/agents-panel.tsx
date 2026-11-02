@@ -1,6 +1,7 @@
 "use client";
 
 import { MoreHorizontal, Plus, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -14,10 +15,12 @@ import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, DialogTitle, IconButton, MenuItem, MenuSeparator, selectClass } from "@/components/ui";
 import { AGENT_CREATIONS, hasAgentLevel, type AgentCreation } from "@/lib/agent-sharing";
 import { settingAnchor } from "@/lib/settings-search";
-import { editsAgent, MAX_AGENTS, type AgentView, type CopyLeftOut } from "@/lib/agents";
+import { editsAgent, MAX_AGENTS, type AgentView } from "@/lib/agents";
 import type { BuiltinAgentSummary } from "@/lib/builtin-agents";
 import { AgentDescribeDialog } from "./agent-describe-dialog";
-import { AgentDialog, AgentForm, AgentIcon, type AgentModelNames, type AgentTab } from "./agent-dialog";
+import { agentSettingsPath, type AgentSection } from "@/lib/agent-settings";
+import { AgentForm, AgentIcon, type AgentModelNames } from "./agent-dialog";
+import { rememberCopy } from "./agent-copy-note";
 import { TemplateWizard } from "./agent-template-wizard";
 
 // Shown only while owners choose who creates agents.
@@ -26,8 +29,8 @@ const AgentCreatorsList = lazyPart(() => import("./agent-creators-list").then((m
 /**
  * Settings > Agents: the workspace's agents shared with the viewer (every one, for owners), active
  * or archived. Owners, and members when the workspace lets them (`creation`), create them (from
- * scratch, from a template, or from a description the AI drafts them from). Opening one shows it;
- * what the viewer may change in it, pause, archive and restore follows their level on it.
+ * scratch, from a template, or from a description the AI drafts them from). Opening one goes to its
+ * settings page; what the viewer may change in it, pause, archive and restore follows their level on it.
  */
 export function AgentsPanel({
   workspaceId,
@@ -36,14 +39,10 @@ export function AgentsPanel({
   canCreate,
   agents,
   proposals = {},
-  memoryOff = false,
   webSearch = false,
   templates,
   ai,
   models = null,
-  initialAgentId,
-  initialRunId,
-  initialTab,
 }: {
   workspaceId: string;
   isOwner: boolean;
@@ -55,8 +54,6 @@ export function AgentsPanel({
   agents: AgentView[];
   /** Per agent the viewer can edit, the notes its runs proposed that wait for review. */
   proposals?: Record<string, number>;
-  /** The workspace's AI memory is off: runs carry no notes and keep none. */
-  memoryOff?: boolean;
   /** The server has a search service: agents with web access can search the web too. */
   webSearch?: boolean;
   templates: BuiltinAgentSummary[];
@@ -64,44 +61,24 @@ export function AgentsPanel({
   ai: "on" | "off" | "unavailable";
   /** The server's main and fast models, when an agent may choose between them (see AgentForm). */
   models?: AgentModelNames | null;
-  initialAgentId?: string;
-  initialRunId?: string;
-  /** The tab of `initialAgentId` a link opens (its runs when it names a run, else its settings). */
-  initialTab?: AgentTab;
 }) {
   const t = useTranslations("settings.agents");
   const tc = useTranslations("common");
-  const [view, setView] = useState<"active" | "archived">(() =>
-    agents.find((a) => a.id === initialAgentId)?.archived ? "archived" : "active",
-  );
-  const [open, setOpen] = useState<{ id: string; tab: AgentTab } | null>(() =>
-    initialAgentId && agents.some((a) => a.id === initialAgentId) ? { id: initialAgentId, tab: initialRunId ? "runs" : (initialTab ?? "settings") } : null,
-  );
-  // An agent just made, until the refreshed list brings it.
-  const [made, setMade] = useState<AgentView | null>(null);
+  const router = useRouter();
+  const [view, setView] = useState<"active" | "archived">("active");
   const [creating, setCreating] = useState(false);
   const [describing, setDescribing] = useState(false);
   const [archivingId, setArchivingId] = useState<string | null>(null);
-  // The copy just made, what it was copied from and what it left out, said in its dialog.
-  const [copied, setCopied] = useState<{ id: string; from: string; leftOut: CopyLeftOut } | null>(null);
   const [template, setTemplate] = useState<BuiltinAgentSummary | null>(null);
-  // The run a link opened (from an automation's runs), until its agent is closed.
-  const [linkedRun, setLinkedRun] = useState(initialRunId);
   const { pending, error, run } = useAction();
 
-  const find = (id: string) => agents.find((a) => a.id === id) ?? (made?.id === id ? made : undefined);
-  const opened = open ? find(open.id) : undefined;
-  const archiving = archivingId ? find(archivingId) : undefined;
+  const archiving = archivingId ? agents.find((a) => a.id === archivingId) : undefined;
   const active = agents.filter((a) => !a.archived);
   const archived = agents.filter((a) => a.archived);
   const shown = view === "active" ? active : archived;
   const full = active.length >= MAX_AGENTS;
 
-  const showNew = (agent: AgentView, tab: AgentTab) => {
-    setMade(agent);
-    setView("active");
-    setOpen({ id: agent.id, tab });
-  };
+  const open = (agent: AgentView, section: AgentSection) => router.push(agentSettingsPath(workspaceId, agent.id, section));
 
   return (
     <div>
@@ -159,7 +136,8 @@ export function AgentsPanel({
                   key={agent.id}
                   agent={agent}
                   proposals={proposals[agent.id] ?? 0}
-                  onOpen={(tab) => setOpen({ id: agent.id, tab })}
+                  href={agentSettingsPath(workspaceId, agent.id)}
+                  onOpen={(section) => open(agent, section)}
                   onToggle={() => run(() => updateAgentAction(workspaceId, agent.id, { enabled: !agent.enabled }))}
                   onArchive={() => setArchivingId(agent.id)}
                   onRestore={() => run(() => restoreAgentAction(workspaceId, agent.id))}
@@ -169,8 +147,8 @@ export function AgentsPanel({
                           run(
                             () => duplicateAgentAction(workspaceId, agent.id),
                             ({ agent: copy, leftOut }) => {
-                              setCopied({ id: copy.id, from: agent.name, leftOut });
-                              showNew(copy, "settings");
+                              rememberCopy(copy.id, { from: agent.name, leftOut });
+                              open(copy, "settings");
                             },
                           )
                       : undefined
@@ -222,7 +200,7 @@ export function AgentsPanel({
             onCreated={(agent) => {
               setCreating(false);
               // Next: what it may open.
-              showNew(agent, "access");
+              open(agent, "access");
             }}
           />
         </Dialog>
@@ -236,39 +214,7 @@ export function AgentsPanel({
           onClose={() => setDescribing(false)}
           onCreated={(agent) => {
             setDescribing(false);
-            showNew(agent, "settings");
-          }}
-        />
-      )}
-      {opened && open && (
-        <AgentDialog
-          workspaceId={workspaceId}
-          isOwner={isOwner}
-          agent={opened}
-          tab={open.tab}
-          runId={linkedRun}
-          proposals={proposals[opened.id] ?? 0}
-          memoryOff={memoryOff}
-          models={models}
-          webSearch={webSearch}
-          notice={copied?.id === opened.id ? <CopyNotice from={copied.from} leftOut={copied.leftOut} /> : undefined}
-          onTab={(tab) => setOpen({ id: opened.id, tab })}
-          onOpenRun={(agentId, runId) => {
-            if (!find(agentId)) return;
-            setLinkedRun(runId);
-            setOpen({ id: agentId, tab: "runs" });
-          }}
-          onClose={() => {
-            setOpen(null);
-            setCopied(null);
-            if (!initialAgentId) return;
-            // A reload shouldn't open it again.
-            setLinkedRun(undefined);
-            const url = new URL(window.location.href);
-            url.searchParams.delete("agent");
-            url.searchParams.delete("run");
-            url.searchParams.delete("agentTab");
-            window.history.replaceState(null, "", url);
+            open(agent, "settings");
           }}
         />
       )}
@@ -280,7 +226,7 @@ export function AgentsPanel({
           onClose={() => setTemplate(null)}
           onCreated={(agent) => {
             setTemplate(null);
-            showNew(agent, "settings");
+            open(agent, "settings");
           }}
         />
       )}
@@ -291,6 +237,7 @@ export function AgentsPanel({
 function AgentRow({
   agent,
   proposals,
+  href,
   onOpen,
   onToggle,
   onArchive,
@@ -299,7 +246,9 @@ function AgentRow({
 }: {
   agent: AgentView;
   proposals: number;
-  onOpen: (tab: AgentTab) => void;
+  /** Its settings page. */
+  href: string;
+  onOpen: (section: AgentSection) => void;
   onToggle: () => void;
   onArchive: () => void;
   onRestore: () => void;
@@ -332,9 +281,9 @@ function AgentRow({
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-bg-hover text-lg">
         <AgentIcon icon={agent.icon} />
       </span>
-      <button type="button" onClick={() => onOpen("settings")} className="min-w-0 flex-1 text-start hover:[&>span:first-child]:underline">
+      <Link href={href} className="min-w-0 flex-1 text-start hover:[&>span:first-child]:underline">
         {name}
-      </button>
+      </Link>
       {proposals > 0 && (
         <button
           type="button"
@@ -379,19 +328,6 @@ function AgentRow({
         )}
       </Floating>
     </li>
-  );
-}
-
-/** What a copy took from the agent it copies, and what it left out. */
-function CopyNotice({ from, leftOut }: { from: string; leftOut: CopyLeftOut }) {
-  const t = useTranslations("settings.agents.copy");
-  return (
-    <div className="space-y-1">
-      <p>{t("done", { name: from })}</p>
-      {leftOut.skills && <p>{t("skillsLeftOut", { count: leftOut.skills })}</p>}
-      {leftOut.helpers && <p>{t("helpersLeftOut", { count: leftOut.helpers })}</p>}
-      {leftOut.connections && <p>{t("connectionsLeftOut", { count: leftOut.connections })}</p>}
-    </div>
   );
 }
 

@@ -4,6 +4,8 @@
  * the server, the inbox and the tests.
  */
 
+import { agentSettingsPath } from "./agent-settings";
+
 /** The share of a month's limit at which owners hear the limit is near. */
 export const LIMIT_NEAR_SHARE = 0.8;
 
@@ -48,9 +50,9 @@ export function aiLimitLine(notice: AiLimitNotice, agent: boolean) {
   return notice === "reached" ? "workspaceReached" : "workspaceNear";
 }
 
-/** Where an "ai_limit" item leads: the agent, or the workspace's AI usage in Settings. */
+/** Where an "ai_limit" item leads: the agent's limit (its Advanced settings), or the workspace's AI usage in Settings. */
 export const aiLimitPath = (workspaceId: string, agentId: string | null) =>
-  agentId ? `/w/${workspaceId}/settings?tab=agents&agent=${agentId}` : `/w/${workspaceId}/settings?tab=aiUsage`;
+  agentId ? agentSettingsPath(workspaceId, agentId, "advanced") : `/w/${workspaceId}/settings?tab=aiUsage`;
 
 /** The most characters of the reason a request for a higher agent limit gives. */
 export const MAX_LIMIT_REQUEST_NOTE = 500;

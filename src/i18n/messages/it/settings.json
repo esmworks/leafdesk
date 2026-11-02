@@ -413,6 +413,11 @@
       "triggers": "Attivatori",
       "advanced": "Avanzate"
     },
+    "nav": {
+      "tools": "Strumenti",
+      "activity": "Attività",
+      "sharing": "Condivisione"
+    },
     "triggers": {
       "description": "Cosa può avviare le esecuzioni di questo agente e in quale conversazione va ciascuna. Aprine uno per modificarlo.",
       "loadFailed": "Impossibile caricare l'elenco.",
@@ -590,8 +595,11 @@
       "libraryNote": "Le competenze si creano nella <link>libreria delle competenze</link>."
     },
     "memory": {
+      "help": "Note che accompagnano ogni esecuzione. Le sue esecuzioni le propongono; chi può modificarlo le conserva.",
+      "about": "Come funziona la memoria",
       "description": "Note che accompagnano ogni esecuzione di questo agente, così non deve imparare di nuovo le stesse cose. Le sue esecuzioni propongono note; nessuna accompagna un’esecuzione finché un proprietario non la conserva. Le correzioni che chi può modificarlo gli dà nella propria chat vengono conservate subito.",
       "rule": "Un’esecuzione legge righe, pagine ed eventi scritti da altre persone e servizi, e una nota potrebbe portare le loro parole in ogni esecuzione successiva. Leggi ogni proposta prima di conservarla. Le note conservate accompagnano ogni esecuzione, chiunque la avvii.",
+      "ruleShort": "Una nota conservata accompagna ogni esecuzione, chiunque la avvii: leggi ogni proposta prima di conservarla.",
       "off": "La memoria IA è disattivata in questo spazio di lavoro: le esecuzioni non portano note e non ne propongono finché un proprietario non la attiva in <link>Impostazioni → Generali</link>.",
       "archived": "Ripristina l’agente per modificarne la memoria.",
       "proposedHeading": "{count, plural, one {# nota da rivedere} other {# note da rivedere}}",

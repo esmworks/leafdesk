@@ -2,6 +2,7 @@
 // automation editor.
 
 import { agentPagePath } from "./agent-page";
+import { agentSettingsPath } from "./agent-settings";
 import type { AgentShareLevel } from "./agent-sharing";
 import type { ChatAttachmentRecord, ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
 import type { ChatActionView, ChatMode, ChatScope, ChatThinking } from "./ai-chat";
@@ -90,10 +91,10 @@ export const MAX_MAIL_TASK = MAX_AGENT_PROMPT;
 export const MAX_MAIL_SENDERS = 50;
 export const MAX_MAIL_SUBJECT = 200;
 
-/** Where an agent's memory opens in Settings (its Memory tab), for its owners. */
-export const agentMemoryPath = (workspaceId: string, agentId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}&agentTab=memory`;
-/** Where one of an agent's runs opens in Settings (its Runs tab), for its owners. */
-export const agentRunPath = (workspaceId: string, agentId: string, runId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}&run=${runId}`;
+/** Where an agent's memory opens (its settings' Memory section), for its owners. */
+export const agentMemoryPath = (workspaceId: string, agentId: string) => agentSettingsPath(workspaceId, agentId, "memory");
+/** Where one of an agent's runs opens (its settings' Runs section), for its owners. */
+export const agentRunPath = (workspaceId: string, agentId: string, runId: string) => agentSettingsPath(workspaceId, agentId, "runs", runId);
 /** Where a scheduled run's report opens, for the person who set the schedule: the agent's own chat, at that run. */
 export const agentReportPath = (workspaceId: string, agentId: string, runId: string) => `${agentPagePath(workspaceId, agentId)}?run=${runId}`;
 /** Finished runs are kept this long, as the agent's history. */

@@ -169,6 +169,7 @@ import {
   AGENT_RUN_CODES,
   AGENT_RUN_HISTORY_DAYS,
   agentMemoryPath,
+  agentRunPath,
   agentReportPath,
   MAX_AGENT_SCHEDULES,
   MAX_AGENT_SKILLS,
@@ -1523,7 +1524,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 workspace_id: n.workspaceId,
                 workspace_name: n.workspaceName,
                 url: n.approval
-                  ? `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents&agent=${n.approval.agentId}&run=${n.approval.runId}`
+                  ? `${env.appUrl}${agentRunPath(n.workspaceId, n.approval.agentId, n.approval.runId)}`
                   : `${env.appUrl}/w/${n.workspaceId}/settings?tab=agents`,
               };
             }

@@ -413,6 +413,11 @@
       "triggers": "Tetikleyiciler",
       "advanced": "Gelişmiş"
     },
+    "nav": {
+      "tools": "Araçlar",
+      "activity": "Etkinlik",
+      "sharing": "Paylaşım"
+    },
     "triggers": {
       "description": "Bu ajanın çalışmalarını neyin başlatabileceği ve her çalışmanın hangi konuşmaya gittiği. Değiştirmek için birini açın.",
       "loadFailed": "Liste yüklenemedi.",
@@ -590,8 +595,11 @@
       "libraryNote": "Beceriler <link>beceri kütüphanesinde</link> oluşturulur."
     },
     "memory": {
+      "help": "Her çalışmaya giden notlar. Çalışmaları not önerir; düzenleyebilen biri tutar.",
+      "about": "Hafıza nasıl çalışır",
       "description": "Bu ajanın her çalışmasıyla birlikte giden notlar; aynı şeyleri yeniden öğrenmesi gerekmez. Çalışmaları not önerir; bir sahip tutmadıkça hiçbiri bir çalışmaya gitmez. Ajanı düzenleyebilen birinin kendi sohbetinde verdiği düzeltmeler hemen tutulur.",
       "rule": "Bir çalışma başka kişilerin ve servislerin yazdığı satırları, sayfaları ve olayları okur; bir not onların sözlerini sonraki her çalışmaya taşıyabilir. Tutmadan önce her öneriyi okuyun. Tutulan notlar, kim başlatırsa başlatsın her çalışmaya gider.",
+      "ruleShort": "Tutulan bir not, kim başlatırsa başlatsın her çalışmaya gider: her öneriyi tutmadan önce okuyun.",
       "off": "Bu çalışma alanında yapay zekâ hafızası kapalı: bir sahip <link>Ayarlar → Genel</link> bölümünden açana kadar çalışmalar not taşımaz ve not önermez.",
       "archived": "Hafızasını değiştirmek için ajanı geri getirin.",
       "proposedHeading": "{count, plural, one {İncelenecek # not} other {İncelenecek # not}}",

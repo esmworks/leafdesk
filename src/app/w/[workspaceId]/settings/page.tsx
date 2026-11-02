@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { ACCOUNT_ICONS, AccountTabContent } from "@/components/account/account-tabs";
 import { AgentsPanel } from "@/components/settings/agents-panel";
@@ -83,6 +83,8 @@ import { storedCalloutStyles } from "@/lib/callout-styles-parse";
 import { parseAuditFilters } from "@/lib/audit";
 import { parseStaleMonths } from "@/lib/workspace-check";
 import { isStrongSession } from "@/lib/auth-security";
+import { agentPagePath } from "@/lib/agent-page";
+import { agentSettingsPath, isAgentSection } from "@/lib/agent-settings";
 import { isEventAgentKey } from "@/lib/builtin-agents";
 import {
   ACCOUNT_SETTINGS_TABS,
@@ -211,6 +213,12 @@ export default async function SettingsPage({
   // than quietly showing General: the link isn't broken for them, the tab isn't theirs.
   if (isSettingsTab(requested) && !tabs.includes(requested)) notFound();
   const tab: SettingsTab | AccountSettingsTab = accountTab ?? tabs.find((name) => name === requested) ?? "general";
+  // An agent opened here before it had a page of its own: links in mail, notifications and pages lead there.
+  if (tab === "agents" && typeof query.agent === "string") {
+    if (query.agentTab === "chat") redirect(agentPagePath(workspaceId, query.agent));
+    const run = typeof query.run === "string" ? query.run : null;
+    redirect(agentSettingsPath(workspaceId, query.agent, run ? "runs" : isAgentSection(query.agentTab) ? query.agentTab : null, run));
+  }
   const [t, ta, isAdmin] = await Promise.all([getTranslations("settings"), getTranslations("account"), instanceAdmin(user)]);
   const href = (name: string) => `/w/${workspaceId}/settings?tab=${name}`;
   const tabPicked = typeof query.tab === "string";
@@ -279,14 +287,7 @@ export default async function SettingsPage({
           {tab === "teamspaces" && <TeamspacesTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />}
           {tab === "groups" && <GroupsTab workspaceId={workspaceId} userId={user.id} viewerRole={workspace.role} />}
           {tab === "agents" && (
-            <AgentsTab
-              workspaceId={workspaceId}
-              userId={user.id}
-              isOwner={isOwner}
-              agentId={typeof query.agent === "string" ? query.agent : undefined}
-              runId={typeof query.run === "string" ? query.run : undefined}
-              agentTab={query.agentTab === "memory" || query.agentTab === "schedules" || query.agentTab === "chat" ? query.agentTab : undefined}
-            />
+            <AgentsTab workspaceId={workspaceId} userId={user.id} isOwner={isOwner} />
           )}
           {tab === "snippets" && (
             <SnippetsTab
@@ -792,24 +793,9 @@ async function GroupsTab({ workspaceId, userId, viewerRole }: { workspaceId: str
 
 /**
  * Settings > Agents: owners create and change agents, choose what they may open and read their
- * runs; members see the list (they pick agents in automations). `agent` (and `run`) open one.
+ * runs; members see the list (they pick agents in automations). Each agent opens on its own page.
  */
-async function AgentsTab({
-  workspaceId,
-  userId,
-  isOwner,
-  agentId,
-  runId,
-  agentTab,
-}: {
-  workspaceId: string;
-  userId: string;
-  isOwner: boolean;
-  agentId?: string;
-  runId?: string;
-  /** The agent's tab a link opens (a run opens its runs). */
-  agentTab?: "memory" | "schedules" | "chat";
-}) {
+async function AgentsTab({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
   const [agents, settings, proposals, canCreate] = await Promise.all([
     listAgents(userId, workspaceId, { archived: true }),
     getWorkspaceSettings(userId, workspaceId),
@@ -831,14 +817,10 @@ async function AgentsTab({
       canCreate={canCreate}
       agents={agents}
       proposals={proposals}
-      memoryOff={settings.aiMemory === false}
       webSearch={webSearchService() !== null}
       templates={templates}
       ai={ai}
       models={models}
-      initialAgentId={agentId}
-      initialRunId={runId}
-      initialTab={agentTab}
     />
   );
 }

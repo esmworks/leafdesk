@@ -4,6 +4,7 @@
 
 import type { AgentCommentRecord, AgentEmailRecord, AgentHandoffRecord, AgentRunCode, AgentRunStatus, AgentSkillRecord, AgentStepRecord, AgentToolRecord } from "./agents";
 import type { ChatEvent, ChatStepView } from "./ai-chat";
+import { agentSettingsPath } from "./agent-settings";
 
 /**
  * Chatting with an agent: a person writes to one of the workspace's agents and it answers, each
@@ -80,10 +81,13 @@ export function mapAgentChatLines(markdown: string, fn: (found: { agentId: strin
     .join("\n");
 }
 
-/** An agent's address in the app (its dialog in Settings), which pasted in a page makes a chat with it. */
-export const agentPath = (workspaceId: string, agentId: string) => `/w/${workspaceId}/settings?tab=agents&agent=${agentId}`;
+/** An agent's address in the app (its settings page), which pasted in a page makes a chat with it. */
+export const agentPath = (workspaceId: string, agentId: string) => agentSettingsPath(workspaceId, agentId);
 
-/** The agent an app link names (`agentPath`, any tab), when it is one of this origin's. */
+/**
+ * The agent an app link names, when it is one of this origin's: its own page or settings page (any
+ * section), or the Settings link it had before (`settings?tab=agents&agent=`).
+ */
 export function agentLinkRef(text: string, origin: string): { workspaceId: string; agentId: string } | null {
   let url: URL;
   try {
@@ -92,6 +96,8 @@ export function agentLinkRef(text: string, origin: string): { workspaceId: strin
     return null;
   }
   if (url.origin !== origin) return null;
+  const page = /^\/w\/([\w-]{1,100})\/agents\/([\w-]{1,64})(?:\/settings)?\/?$/.exec(url.pathname);
+  if (page) return { workspaceId: page[1], agentId: page[2] };
   const match = /^\/w\/([\w-]{1,100})\/settings\/?$/.exec(url.pathname);
   const agentId = url.searchParams.get("agent");
   if (!match || url.searchParams.get("tab") !== "agents" || !agentId || !/^[\w-]{1,64}$/.test(agentId)) return null;

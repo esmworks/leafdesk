@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useEffect } from "react";
 import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/actions/access-requests";
 import { decideAgentLimitRequestAction } from "@/app/actions/agents";
+import { agentSettingsPath } from "@/lib/agent-settings";
 import {
   archiveAction,
   archiveReadAction,
@@ -436,7 +437,7 @@ export function InboxDialog({
           onOpenRun={() => {
             if (!item.read) void markRead([item.id]);
             onClose();
-            router.push(`/w/${workspaceId}/settings?tab=agents&agent=${item.approval!.agentId}&run=${item.approval!.runId}`);
+            router.push(agentSettingsPath(workspaceId, item.approval!.agentId, "runs", item.approval!.runId));
           }}
           onAnswered={() => {
             setItems((list) => list?.filter((other) => other.id !== item.id) ?? list);

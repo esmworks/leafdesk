@@ -5,7 +5,7 @@
 
 import { aiLimitPath } from "./agent-guardrails";
 import { agentPagePath } from "./agent-page";
-import { agentMemoryPath, agentReportPath } from "./agents";
+import { agentMemoryPath, agentReportPath, agentRunPath } from "./agents";
 import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
 import { reviewPath } from "./pending-changes";
@@ -14,7 +14,7 @@ import type { PushItem } from "./push";
 /** Where opening the notification leads: the same place the inbox does. */
 export function pushLink(item: PushItem): string {
   if (item.kind === "agent_approval") {
-    return `/w/${item.workspaceId}/settings?tab=agents${item.approval ? `&agent=${item.approval.agentId}&run=${item.approval.runId}` : ""}`;
+    return item.approval ? agentRunPath(item.workspaceId, item.approval.agentId, item.approval.runId) : `/w/${item.workspaceId}/settings?tab=agents`;
   }
   if (item.kind === "agent_memory") return item.memory ? agentMemoryPath(item.workspaceId, item.memory.agentId) : `/w/${item.workspaceId}/settings?tab=agents`;
   if (item.kind === "agent_report") return item.report ? agentReportPath(item.workspaceId, item.report.agentId, item.report.runId) : `/w/${item.workspaceId}/settings?tab=agents`;

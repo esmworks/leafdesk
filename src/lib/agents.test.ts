@@ -174,7 +174,7 @@ describe("scheduled runs", () => {
   });
 
   it("are linked to in the agent's settings", () => {
-    expect(agentRunPath("ws1", "a1", "r1")).toBe("/w/ws1/settings?tab=agents&agent=a1&run=r1");
+    expect(agentRunPath("ws1", "a1", "r1")).toBe("/w/ws1/agents/a1/settings?section=runs&run=r1");
   });
 });
 

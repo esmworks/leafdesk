@@ -82,7 +82,7 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
 
   const editor = (note: AgentMemoryView) =>
     editing?.id === note.id && (
-      <form onSubmit={(e) => save(e, note)} className="flex items-center gap-1">
+      <form onSubmit={(e) => save(e, note)} className="flex min-w-0 flex-1 items-center gap-1">
         <Input
           autoFocus
           aria-label={t("editLabel")}
@@ -91,7 +91,7 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
           onChange={(e) => setEditing({ id: note.id, text: e.target.value })}
           onKeyDown={(e) => {
             if (e.key !== "Escape") return;
-            // Escape cancels the edit, not the dialog.
+            // Escape cancels the edit alone.
             e.stopPropagation();
             setEditing(null);
           }}
@@ -105,30 +105,35 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
       </form>
     );
 
+  // Shown on hover or focus, always on touch.
+  const onHover = "opacity-0 group-hover/note:opacity-100 group-focus-within/note:opacity-100 pointer-coarse:opacity-100";
+  const row = "group/note flex flex-col gap-2 rounded-lg p-2.5 text-sm hover:bg-bg-hover sm:flex-row sm:items-start sm:gap-3";
+
   return (
-    <div className={cn("max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4", pending && "opacity-70")}>
-      <p className="text-sm text-fg-muted">{t("description")}</p>
-      <p className="flex gap-2 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-fg-muted" aria-hidden />
-        <span>{t("rule")}</span>
-      </p>
-      {memoryOff && (
-        <p className="text-sm text-fg-muted">
-          {t.rich("off", {
-            link: (chunks) => (
-              <Link href={`/w/${workspaceId}/settings?tab=general`} className="text-fg underline underline-offset-2 hover:text-accent">
-                {chunks}
-              </Link>
-            ),
-          })}
+    <div className={cn("space-y-8", pending && "opacity-70")}>
+      <div className="space-y-2">
+        <p className="flex gap-2 text-[13px] text-fg-muted">
+          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+          {t("ruleShort")}
         </p>
-      )}
-      {agent.archived && <p className="text-sm text-fg-muted">{t("archived")}</p>}
-      {error && (
-        <p role="alert" className="text-xs text-danger">
-          {error}
-        </p>
-      )}
+        {memoryOff && (
+          <p className="text-[13px] text-fg-muted">
+            {t.rich("off", {
+              link: (chunks) => (
+                <Link href={`/w/${workspaceId}/settings?tab=general`} className="text-fg underline underline-offset-2 hover:text-accent">
+                  {chunks}
+                </Link>
+              ),
+            })}
+          </p>
+        )}
+        {agent.archived && <p className="text-[13px] text-fg-muted">{t("archived")}</p>}
+        {error && (
+          <p role="alert" className="text-xs text-danger">
+            {error}
+          </p>
+        )}
+      </div>
       {!notes ? (
         <p className="text-sm text-fg-muted" role={loadError ? "alert" : undefined}>
           {loadError ?? tc("loading")}
@@ -136,96 +141,97 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
       ) : (
         <>
           {proposed.length > 0 && (
-            <section className="space-y-2">
+            <section className="rounded-lg bg-bg-subtle px-4 py-3.5">
               <div className="flex items-center gap-2">
                 <h3 className="flex-1 text-sm font-medium">{t("proposedHeading", { count: proposed.length })}</h3>
-                {forgets && (
+                {forgets && proposed.length > 1 && (
                   <Button size="sm" variant="ghost" className="hover:text-danger" disabled={pending} onClick={() => remove("proposed")}>
                     {t("dismissAll")}
                   </Button>
                 )}
               </div>
-              <ul aria-label={t("proposedList")} className="divide-y divide-border rounded-md border border-border">
+              <ul aria-label={t("proposedList")} className="-mx-2.5 mt-1 flex flex-col gap-0.5">
                 {proposed.map((note) => (
-                  <li key={note.id} className="px-3 py-2 text-sm">
+                  <li key={note.id} className={row}>
                     {editor(note) || (
-                      <div className="flex items-start gap-1">
-                        <div className="min-w-0 flex-1 py-1">
+                      <>
+                        <div className="min-w-0 flex-1">
                           {note.replaces && (
-                            <p className="mb-0.5 text-xs text-fg-muted">
+                            <p className="mb-1 text-xs text-fg-muted">
                               {t("replaces")} <span className="break-words line-through">{note.replaces.text}</span>
                             </p>
                           )}
                           {note.text === null ? <p className="text-fg-muted">{t(note.run?.othersRun ? "hiddenOthersText" : "hiddenText")}</p> : <p className="break-words">{note.text}</p>}
-                          {note.kind === "correction" && <p className="text-xs font-medium text-fg-muted">{t("correction")}</p>}
-                          <Origin workspaceId={workspaceId} note={note} />
+                          <p className="mt-1 text-xs text-fg-faint">
+                            {note.kind === "correction" && `${t("correction")} · `}
+                            <Origin workspaceId={workspaceId} note={note} />
+                          </p>
                         </div>
-                        {editable && note.text !== null && (
-                          <>
-                            <Button size="sm" variant="primary" disabled={pending || (full && !note.replaces)} onClick={() => run(() => keepAgentMemoryAction(workspaceId, agent.id, note.id), done)}>
-                              {t("keep")}
+                        <div className="flex shrink-0 items-center gap-1">
+                          {editable && note.text !== null && (
+                            <>
+                              <Button size="sm" disabled={pending || (full && !note.replaces)} onClick={() => run(() => keepAgentMemoryAction(workspaceId, agent.id, note.id), done)}>
+                                {t("keep")}
+                              </Button>
+                              <IconButton label={t("edit")} className="h-7 w-7" disabled={pending || (full && !note.replaces)} onClick={() => setEditing({ id: note.id, text: note.text ?? "" })}>
+                                <Pencil className="h-3.5 w-3.5" />
+                              </IconButton>
+                            </>
+                          )}
+                          {forgets && (
+                            <Button size="sm" variant="ghost" className="hover:text-danger" disabled={pending} onClick={() => remove([note.id])}>
+                              {t("dismiss")}
                             </Button>
-                            <IconButton label={t("edit")} className="h-7 w-7" disabled={pending || (full && !note.replaces)} onClick={() => setEditing({ id: note.id, text: note.text ?? "" })}>
-                              <Pencil className="h-3.5 w-3.5" />
-                            </IconButton>
-                          </>
-                        )}
-                        {forgets && (
-                          <IconButton label={t("dismiss")} className="h-7 w-7 hover:text-danger" disabled={pending} onClick={() => remove([note.id])}>
-                            <X className="h-4 w-4" />
-                          </IconButton>
-                        )}
-                      </div>
+                          )}
+                        </div>
+                      </>
                     )}
                   </li>
                 ))}
               </ul>
-              {full && editable && <p className="text-xs text-fg-muted">{t("fullToKeep", { max: MAX_MEMORIES })}</p>}
+              {full && editable && <p className="mt-2 text-xs text-fg-muted">{t("fullToKeep", { max: MAX_MEMORIES })}</p>}
             </section>
           )}
 
-          <section className="space-y-2">
-            <h3 className="text-sm font-medium">{t("keptHeading")}</h3>
+          <section>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-sm font-medium">{t("keptHeading")}</h3>
+              <span className="ms-auto text-xs text-fg-faint tabular-nums">{t("count", { count: kept.length, max: MAX_MEMORIES })}</span>
+            </div>
             {kept.length ? (
-              <ul aria-label={t("keptList")} className="divide-y divide-border rounded-md border border-border">
+              <ul aria-label={t("keptList")} className="-mx-2.5 mt-2 flex flex-col gap-0.5">
                 {kept.map((note) => (
-                  <li key={note.id} className="group/note px-3 py-1.5 text-sm">
+                  <li key={note.id} className={row}>
                     {editor(note) || (
-                      <div className="flex items-start gap-1">
-                        <div className="min-w-0 flex-1 py-1">
+                      <>
+                        <div className="min-w-0 flex-1">
                           <p className="break-words">{note.text}</p>
-                          {note.kind === "correction" && <CorrectionLabel note={note} />}
+                          <p className="mt-1 text-xs text-fg-faint">
+                            {note.kind === "correction" ? <CorrectionLabel note={note} /> : <Origin workspaceId={workspaceId} note={note} kept />}
+                          </p>
                         </div>
-                        {editable && (
-                          <IconButton
-                            label={t("edit")}
-                            className="h-7 w-7 opacity-0 group-hover/note:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60"
-                            disabled={pending}
-                            onClick={() => setEditing({ id: note.id, text: note.text ?? "" })}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </IconButton>
-                        )}
-                        {forgets && (
-                          <IconButton
-                            label={t("delete")}
-                            className="h-7 w-7 opacity-0 group-hover/note:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60 hover:text-danger"
-                            disabled={pending}
-                            onClick={() => remove([note.id])}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </IconButton>
-                        )}
-                      </div>
+                        <div className={cn("flex shrink-0 items-center gap-0.5", onHover)}>
+                          {editable && (
+                            <IconButton label={t("edit")} className="h-7 w-7" disabled={pending} onClick={() => setEditing({ id: note.id, text: note.text ?? "" })}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </IconButton>
+                          )}
+                          {forgets && (
+                            <IconButton label={t("delete")} className="h-7 w-7 hover:text-danger" disabled={pending} onClick={() => remove([note.id])}>
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </IconButton>
+                          )}
+                        </div>
+                      </>
                     )}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="rounded-md border border-dashed border-border px-3 py-4 text-center text-sm text-fg-muted">{t("empty")}</p>
+              <p className="mt-2 text-sm text-fg-muted">{t("empty")}</p>
             )}
             {editable && (
-              <form onSubmit={add} className="flex gap-2">
+              <form onSubmit={add} className="mt-3 flex gap-2">
                 <Input
                   aria-label={t("addLabel")}
                   placeholder={full ? t("full", { max: MAX_MEMORIES }) : t("addPlaceholder")}
@@ -234,16 +240,14 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
                   disabled={full}
                   onChange={(e) => setDraft(e.target.value)}
                 />
-                <Button type="submit" variant="primary" disabled={pending || full || !draft.trim()}>
+                <Button type="submit" disabled={pending || full || !draft.trim()}>
                   {t("add")}
                 </Button>
               </form>
             )}
-            <div className="flex items-center justify-between gap-2 text-xs text-fg-muted">
-              <span>{t("count", { count: kept.length, max: MAX_MEMORIES })}</span>
-              {kept.length > 0 && forgets && (
+            {kept.length > 0 && forgets && (
+              <div className="mt-8 flex justify-end">
                 <Button
-                  size="sm"
                   variant="ghost"
                   className="hover:text-danger"
                   disabled={pending}
@@ -251,10 +255,11 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
                     if (confirm(t("confirmForgetAll", { name: agent.name }))) remove("kept");
                   }}
                 >
+                  <Trash2 className="h-3.5 w-3.5" />
                   {t("forgetAll")}
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </section>
         </>
       )}
@@ -267,19 +272,24 @@ function CorrectionLabel({ note }: { note: AgentMemoryView }) {
   const t = useTranslations("settings.agents.memory");
   const format = useFormatter();
   const when = format.dateTime(new Date(note.updatedAt), { dateStyle: "medium" });
-  return <p className="text-xs text-fg-faint">{`${note.saidBy?.name ? t("correctionFrom", { name: note.saidBy.name }) : t("correction")} · ${when}`}</p>;
+  return <>{`${note.saidBy?.name ? t("correctionFrom", { name: note.saidBy.name }) : t("correction")} · ${when}`}</>;
 }
 
-/** Where a proposal comes from: the run's row (named when the viewer can open it) or connection, and when. */
-function Origin({ workspaceId, note }: { workspaceId: string; note: AgentMemoryView }) {
+/**
+ * Where a note comes from: the run's row (named when the viewer can open it) or connection, and
+ * when; a kept note says when it last changed, and only the date.
+ */
+function Origin({ workspaceId, note, kept = false }: { workspaceId: string; note: AgentMemoryView; kept?: boolean }) {
   const t = useTranslations("settings.agents.memory");
   const tc = useTranslations("common");
   const format = useFormatter();
   const run = note.run;
-  const when = format.dateTime(new Date(run?.createdAt ?? note.createdAt), { dateStyle: "medium", timeStyle: "short" });
-  if (!run) return <p className="text-xs text-fg-faint">{when}</p>;
+  const when = kept
+    ? format.dateTime(new Date(note.updatedAt), { dateStyle: "medium" })
+    : format.dateTime(new Date(run?.createdAt ?? note.createdAt), { dateStyle: "medium", timeStyle: "short" });
+  if (!run) return <>{when}</>;
   return (
-    <p className="text-xs text-fg-faint">
+    <>
       {run.rowId !== null
         ? run.rowTitle !== null
           ? t.rich("fromRow", {
@@ -296,6 +306,6 @@ function Origin({ workspaceId, note }: { workspaceId: string; note: AgentMemoryV
             ? t("fromSchedule")
             : t("fromConnection", { connection: run.connectionName || t("removedConnection") })}
       {` · ${when}`}
-    </p>
+    </>
   );
 }

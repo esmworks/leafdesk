@@ -413,6 +413,11 @@
       "triggers": "Käynnistimet",
       "advanced": "Lisäasetukset"
     },
+    "nav": {
+      "tools": "Työkalut",
+      "activity": "Toiminta",
+      "sharing": "Jakaminen"
+    },
     "triggers": {
       "description": "Mikä voi käynnistää tämän agentin ajot ja mihin keskusteluun kukin ajo menee. Avaa yksi muuttaaksesi sitä.",
       "loadFailed": "Luetteloa ei voitu ladata.",
@@ -590,8 +595,11 @@
       "libraryNote": "Taidot tehdään <link>taitokirjastossa</link>."
     },
     "memory": {
+      "help": "Muistiinpanot, jotka kulkevat jokaisen ajon mukana. Ajot ehdottavat niitä; muokkausoikeuden omaava pitää ne.",
+      "about": "Näin muisti toimii",
       "description": "Muistiinpanot, jotka kulkevat tämän agentin jokaisen ajon mukana, jotta sen ei tarvitse oppia samoja asioita uudelleen. Sen ajot ehdottavat muistiinpanoja; mikään ei kulje ajon mukana ennen kuin omistaja säilyttää sen. Korjaukset, jotka agenttia muokata voiva antaa omassa keskustelussaan sen kanssa, säilytetään heti.",
       "rule": "Ajo lukee muiden ihmisten ja palveluiden kirjoittamia rivejä, sivuja ja tapahtumia, ja muistiinpano voi viedä heidän sanansa jokaiseen myöhempään ajoon. Lue jokainen ehdotus ennen kuin säilytät sen. Säilytetyt muistiinpanot kulkevat jokaisen ajon mukana, käynnistipä sen kuka tahansa.",
+      "ruleShort": "Pidetty muistiinpano kulkee jokaisen ajon mukana, aloitti sen kuka tahansa: lue jokainen ehdotus ennen kuin pidät sen.",
       "off": "Tekoälyn muisti on poistettu käytöstä tässä työtilassa: ajot eivät kuljeta eivätkä ehdota muistiinpanoja, kunnes omistaja ottaa sen käyttöön kohdassa <link>Asetukset → Yleiset</link>.",
       "archived": "Palauta agentti muuttaaksesi sen muistia.",
       "proposedHeading": "{count, plural, one {# tarkistettava muistiinpano} other {# tarkistettavaa muistiinpanoa}}",

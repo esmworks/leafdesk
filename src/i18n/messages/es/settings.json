@@ -413,6 +413,11 @@
       "triggers": "Desencadenantes",
       "advanced": "Avanzado"
     },
+    "nav": {
+      "tools": "Herramientas",
+      "activity": "Actividad",
+      "sharing": "Uso compartido"
+    },
     "triggers": {
       "description": "Lo que puede iniciar las ejecuciones de este agente y la conversación a la que va cada una. Abre uno para cambiarlo.",
       "loadFailed": "No se pudo cargar la lista.",
@@ -590,8 +595,11 @@
       "libraryNote": "Las habilidades se crean en la <link>biblioteca de habilidades</link>."
     },
     "memory": {
+      "help": "Notas que acompañan cada ejecución. Sus ejecuciones las proponen; alguien que pueda editarlo las conserva.",
+      "about": "Cómo funciona la memoria",
       "description": "Notas que acompañan cada ejecución de este agente, para que no tenga que aprender lo mismo otra vez. Sus ejecuciones proponen notas; ninguna acompaña a una ejecución hasta que un propietario la guarda. Las correcciones que alguien que puede editarlo le da en su propio chat se guardan al momento.",
       "rule": "Una ejecución lee filas, páginas y eventos que escribieron otras personas y servicios, y una nota podría llevar sus palabras a cada ejecución posterior. Lee cada propuesta antes de guardarla. Las notas guardadas acompañan a cada ejecución, la inicie quien la inicie.",
+      "ruleShort": "Una nota conservada acompaña cada ejecución, la inicie quien la inicie: lee cada propuesta antes de conservarla.",
       "off": "La memoria de IA está desactivada en este espacio de trabajo: las ejecuciones no llevan notas ni proponen ninguna hasta que un propietario la active en <link>Ajustes → General</link>.",
       "archived": "Restaura el agente para cambiar su memoria.",
       "proposedHeading": "{count, plural, one {# nota por revisar} other {# notas por revisar}}",

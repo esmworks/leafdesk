@@ -413,6 +413,11 @@
       "triggers": "Utløsere",
       "advanced": "Avansert"
     },
+    "nav": {
+      "tools": "Verktøy",
+      "activity": "Aktivitet",
+      "sharing": "Deling"
+    },
     "triggers": {
       "description": "Hva som kan starte agentens kjøringer, og hvilken samtale hver kjøring går til. Åpne en for å endre den.",
       "loadFailed": "Listen kunne ikke lastes.",
@@ -590,8 +595,11 @@
       "libraryNote": "Ferdigheter lages i <link>ferdighetsbiblioteket</link>."
     },
     "memory": {
+      "help": "Notater som følger hver kjøring. Kjøringene foreslår dem; noen som kan redigere den, beholder dem.",
+      "about": "Slik fungerer minnet",
       "description": "Notater som følger med hver kjøring av denne agenten, så den slipper å lære det samme på nytt. Kjøringene foreslår notater; ingen følger med en kjøring før en eier beholder det. Rettelser som noen som kan redigere den, gir i sin egen chat med den, beholdes med en gang.",
       "rule": "En kjøring leser rader, sider og hendelser som andre personer og tjenester har skrevet, og et notat kan bære ordene deres videre inn i alle senere kjøringer. Les hvert forslag før du beholder det. Beholdte notater følger med hver kjøring, uansett hvem som starter den.",
+      "ruleShort": "Et beholdt notat følger hver kjøring, uansett hvem som starter den: les hvert forslag før du beholder det.",
       "off": "KI-minne er slått av i dette arbeidsområdet: kjøringer har ingen notater med seg og foreslår ingen før en eier slår det på under <link>Innstillinger → Generelt</link>.",
       "archived": "Gjenopprett agenten for å endre minnet.",
       "proposedHeading": "{count, plural, one {# notat å se gjennom} other {# notater å se gjennom}}",

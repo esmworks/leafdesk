@@ -413,6 +413,11 @@
       "triggers": "Triggers",
       "advanced": "Advanced"
     },
+    "nav": {
+      "tools": "Tools",
+      "activity": "Activity",
+      "sharing": "Sharing"
+    },
     "triggers": {
       "description": "What can start this agent's runs, and the conversation each run goes to. Open one to change it.",
       "loadFailed": "The list could not be loaded.",
@@ -590,8 +595,11 @@
       "libraryNote": "Skills are made in the <link>skills library</link>."
     },
     "memory": {
+      "help": "Notes that go with every run. Its runs propose them; someone who can edit it keeps them.",
+      "about": "How memory works",
       "description": "Notes that go with every run of this agent, so it doesn’t have to learn the same things again. Its runs propose notes; none goes with a run until an owner keeps it. Corrections someone who can edit it gives in their own chat with it are kept at once.",
       "rule": "A run reads rows, pages and events other people and services wrote, and a note could carry their words into every later run. Read each proposal before you keep it. Kept notes go with every run, whoever starts it.",
+      "ruleShort": "A kept note goes with every run, whoever starts it: read each proposal before keeping it.",
       "off": "AI memory is off in this workspace: runs carry no notes and propose none until an owner turns it on in <link>Settings → General</link>.",
       "archived": "Restore the agent to change its memory.",
       "proposedHeading": "{count, plural, one {# note to review} other {# notes to review}}",
