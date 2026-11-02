@@ -2178,9 +2178,10 @@ function ResizeHandle() {
 }
 
 /**
- * The sidebar's tabs: the open one is wide, its name beside its icon; the others are narrow, only
- * their icons. Pointing at another (or reaching it from the keyboard) widens it to show its name
- * while the open one narrows to its icon, so one name shows at a time and none is cut short.
+ * The sidebar's tabs, as wide as what they show and from the start, so their icons line up with the
+ * rows under them: the open one with its name beside its icon, the others only their icons.
+ * Pointing at another (or reaching it from the keyboard) shows its name while the open one folds to
+ * its icon, so one name shows at a time.
  */
 const countText = (count: number) => (count > 99 ? "99+" : String(count));
 
@@ -2214,10 +2215,10 @@ function SidebarTabs({
           title={tab.title}
           data-other-tab={tab.selected ? undefined : ""}
           className={cn(
-            "group/tab flex h-7 min-w-0 basis-0 items-center justify-center rounded-md px-2 transition-[flex-grow] duration-200 ease-out disabled:opacity-50 motion-reduce:transition-none",
+            "group/tab flex h-7 min-w-0 items-center rounded-md px-2 disabled:opacity-50",
             tab.selected
-              ? "grow-[3] bg-bg-active font-medium text-fg group-has-[[data-other-tab]:hover]/tabs:grow group-has-[[data-other-tab]:focus-visible]/tabs:grow"
-              : "grow text-fg-muted hover:grow-[3] hover:bg-bg-hover hover:text-fg focus-visible:grow-[3]",
+              ? "bg-bg-active font-medium text-fg"
+              : "text-fg-muted hover:bg-bg-hover hover:text-fg",
           )}
         >
           {tab.count ? (
