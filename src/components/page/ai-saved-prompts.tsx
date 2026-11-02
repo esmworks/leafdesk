@@ -181,7 +181,7 @@ export function SavedPromptList({ prompts, workspaceId, onUse }: { prompts: Save
                 <Bookmark className="h-3.5 w-3.5 shrink-0 text-fg-muted" aria-hidden />
                 <span className="truncate">{saved.name}</span>
               </button>
-              <span className={cn("flex shrink-0 gap-0.5 pe-1 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100")}>
+              <span className={cn("flex shrink-0 gap-0.5 pe-1 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100")}>
                 <SmallIconButton label={t("renameNamed", { name: saved.name })} onClick={() => setRenaming({ id: saved.id, name: saved.name })}>
                   <Pencil className="h-3 w-3" />
                 </SmallIconButton>

@@ -23,6 +23,7 @@
   "firstReadHint": "Your latest mail shows in a moment. Older mail, up to three months back, comes in over the next minutes.",
   "empty": "No mail here.",
   "emptySearch": "No mail matches.",
+  "emptyStarred": "No starred conversations.",
   "emptyFolder": {
     "trash": "Empty trash",
     "junk": "Empty junk",
@@ -185,6 +186,7 @@
   "showSource": "Show original",
   "downloadSource": "Download message (.eml)",
   "allInboxes": "All inboxes",
+  "allStarred": "All starred",
   "ai": {
     "summarize": "Summarize",
     "summarizeHint": "Summarize this conversation with AI",

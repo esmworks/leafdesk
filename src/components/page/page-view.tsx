@@ -591,7 +591,8 @@ export function PageView({
               </CrumbSiblings>
             </nav>
           )}
-          <div className="flex shrink-0 items-center gap-0.5">
+          {/* A finger needs bigger buttons than a mouse; the header has the height for them. */}
+          <div className="flex shrink-0 items-center gap-0.5 pointer-coarse:[&_button.h-7]:h-9 pointer-coarse:[&_button.w-7]:w-9">
             <SyncStatus connection={connection} pendingEdits={pendingEdits} />
             {locked && !page.archived && (
               <LockedNotice onUnlock={canEditStructure && !offline ? unlock : undefined} pending={pending} />

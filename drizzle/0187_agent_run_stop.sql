@@ -1,0 +1,1 @@
+ALTER TABLE "agent_run" ADD COLUMN "stop_asked_at" timestamp with time zone;

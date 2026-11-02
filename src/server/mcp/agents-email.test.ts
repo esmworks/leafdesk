@@ -29,3 +29,13 @@ describe("describeAgentRun", () => {
     expect(describeAgentStep({ kind: "mail", action: "search", query: "x", results: 2 })).toMatchObject({ summary: "Searched the user's email" });
   });
 });
+
+describe("describeAgentStep for email", () => {
+  it("tells a report sent to the agent's recipients from a row's draft waiting for review", () => {
+    const sent = describeAgentStep({ kind: "email", pageId: null, subject: "Geciken siparişler", outcome: "sent", to: ["a@b.test", "c@d.test"] });
+    expect(sent).toMatchObject({ outcome: "sent", summary: 'Sent an email to a@b.test, c@d.test: "Geciken siparişler"' });
+    expect(describeAgentStep({ kind: "email", pageId: null, subject: "Rapor", outcome: "failed", to: ["a@b.test"] })).toMatchObject({ summary: 'Failed to send an email to a@b.test: "Rapor"' });
+    expect(describeAgentStep({ kind: "email", pageId: "row-1", subject: "Teklif", outcome: "proposed" })).toMatchObject({ summary: 'Drafted an email for its sender to review (not sent yet): "Teklif"' });
+    expect(describeAgentStep({ kind: "email", pageId: "row-1", subject: "Teklif", outcome: "failed" })).toMatchObject({ summary: 'Failed to draft an email: "Teklif"' });
+  });
+});

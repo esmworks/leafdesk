@@ -1321,6 +1321,15 @@
     "working": "Arbeitet …",
     "waiting": "Wartet auf einen freien KI-Platz …",
     "approval": "Der Agent möchte ein Tool verwenden. Gib den Aufruf frei, damit er weitermachen kann.",
+    "proposals": {
+      "title": "Vorgeschlagene Änderungen",
+      "waiting": "{count, plural, one {# Änderung wartet auf deine Freigabe} other {# Änderungen warten auf deine Freigabe}}",
+      "approved": "{count, plural, other {# freigegeben}}",
+      "approveAll": "{count, plural, one {Freigeben} other {Alle # freigeben}}",
+      "review": "Prüfen",
+      "skipped": "{count, plural, one {# Änderung konnte nicht vorgenommen werden: prüfe sie.} other {# Änderungen konnten nicht vorgenommen werden: prüfe sie.}}",
+      "failed": "Die Änderungen konnten nicht freigegeben werden. Versuche es noch einmal."
+    },
     "steps": "{count, plural, one {# Schritt} other {# Schritte}}",
     "conversations": "Unterhaltungen",
     "newConversation": "Neue Unterhaltung",
@@ -1336,6 +1345,7 @@
       "limitReached": "Der Agent hat seine Tokens für diesen Monat verbraucht.",
       "costLimit": "Der Workspace hat sein monatliches KI-Kostenlimit erreicht.",
       "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
+      "stopped": "Gestoppt.",
       "error": "Etwas ist schiefgelaufen."
     },
     "errors": {
@@ -1399,6 +1409,7 @@
     "regenerate": "Neu generieren",
     "files": {
       "attach": "Textdateien anhängen",
+      "drop": "Lass die Textdateien los, um sie anzuhängen",
       "remove": "{name} entfernen",
       "download": "{name} herunterladen",
       "tooMany": "Höchstens {max} Dateien pro Nachricht.",

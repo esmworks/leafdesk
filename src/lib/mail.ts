@@ -176,6 +176,8 @@ export type MailboxView = {
   signatureText: string | null;
   /** Its signature was pasted from another mail program and is kept as it came (lib/pasted-signature.ts). */
   signaturePasted: boolean;
+  /** New mail in its inbox goes to its owner's devices as push messages. */
+  notify: boolean;
 };
 
 /** The workspace's email settings as the settings section shows them. */

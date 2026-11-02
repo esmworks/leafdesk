@@ -3,17 +3,18 @@
 /**
  * One step an AI answer or an agent's run took (a search, a page read, a database queried, a
  * change made, a note kept about the person or dropped, a call to a connection's tool, a research
- * plan, a web search or a web page read, a thought), as a line: an icon and what happened, the
+ * plan, a web search or a web page read, a reminder set, a thought), as a line: an icon and what happened, the
  * pages it names as links (web pages open in a new tab).
  */
-import { Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, Paperclip, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
+import { AlarmClock, Ban, BookOpen, Brain, BrainCog, CircleAlert, ClipboardList, FileDown, FilePen, FilePlus, Filter, Globe, Lightbulb, ListPlus, ListTree, Mail, Merge, MessageSquarePlus, Paperclip, PencilLine, Plug, Search, Table2, Wrench } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment } from "react";
-import { cn, PageIcon, pageLabel } from "@/components/ui";
+import { Fragment, useState } from "react";
+import { Button, cn, PageIcon, pageLabel } from "@/components/ui";
 import { makesFile, type ChatChange, type ChatPageView, type ChatQueryCondition, type ChatSourceView, type ChatStepView, type ChatWriteView } from "@/lib/ai-chat";
 
 export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (source: ChatSourceView) => void }) {
   const t = useTranslations("ai.chat");
+  const locale = useLocale();
   const icon = "mt-[3px] h-3.5 w-3.5 shrink-0";
   if (step.kind === "search") {
     return (
@@ -64,12 +65,29 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
     const declined = step.outcome === "declined" && (action === "remember" || action === "forget");
     const undone = step.outcome === "undone";
     const Icon = declined || undone ? Ban : action === "forget" ? BrainCog : Brain;
-    const label = declined && (action === "remember" || action === "forget") ? t(`steps.memory.declined.${action}`) : undone ? t("steps.memory.undone") : t(`steps.memory.${action}`);
+    const label =
+      declined && (action === "remember" || action === "forget")
+        ? t(`steps.memory.declined.${action}`)
+        : undone
+          ? action === "remember" || action === "forget"
+            ? t(`steps.memory.undoneNote.${action}`)
+            : t("steps.memory.undone")
+          : t(`steps.memory.${action}`);
     return (
       <>
         <Icon className={icon} />
         <span className="min-w-0 break-words">
           {label} <span className="text-fg">“{step.text}”</span>
+        </span>
+      </>
+    );
+  }
+  if (step.kind === "reminder") {
+    return (
+      <>
+        {step.outcome === "declined" ? <Ban className={icon} /> : <AlarmClock className={icon} />}
+        <span className="min-w-0 break-words">
+          {t(`steps.reminder.${step.outcome}`, { when: reminderLabel(step.when, locale) })} <span className="text-fg">“{step.text}”</span>
         </span>
       </>
     );
@@ -208,6 +226,14 @@ export function StepLine({ step, onSource }: { step: ChatStepView; onSource: (so
       <span className="line-clamp-2 min-w-0 break-words">{step.text}</span>
     </>
   );
+}
+
+/** A reminder's time, "YYYY-MM-DD HH:MM" on the person's clock, in their language ("Mon, 2 Nov, 09:00"). */
+export function reminderLabel(when: string, locale: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/.exec(when);
+  if (!m) return when;
+  const options: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" };
+  return new Intl.DateTimeFormat(locale, options).format(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]));
 }
 
 const WRITE_ICONS = {
@@ -352,5 +378,40 @@ function Condition({ condition }: { condition: ChatQueryCondition }) {
       {condition.property} {/\p{L}/u.test(op) ? op.toLocaleLowerCase(locale) : op}
       {value && ` ${value}`}
     </span>
+  );
+}
+
+/** Whether a step's note can be undone from its line: one kept, changed or dropped at once (lib/memory-rule.ts). */
+export const undoableNote = (step: ChatStepView): step is Extract<ChatStepView, { kind: "memory" }> & { memoryId: string } =>
+  step.kind === "memory" && step.outcome === "done" && Boolean(step.memoryId) && (step.action === "remember" || step.action === "forget" || step.action === "correct");
+
+/** A note a step kept, changed or dropped, with Undo: `onUndo` gives null when it was undone, else why not. */
+export function UndoableStepLine({ step, onSource, onUndo }: { step: ChatStepView; onSource: (source: ChatSourceView) => void; onUndo: () => Promise<string | null> }) {
+  const tc = useTranslations("common");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <>
+      <StepLine step={step} onSource={onSource} />
+      <Button
+        size="sm"
+        variant="ghost"
+        className="-my-0.5 h-6 shrink-0 px-1.5 text-xs"
+        disabled={pending}
+        onClick={async () => {
+          setPending(true);
+          const failed = await onUndo();
+          setPending(false);
+          setError(failed);
+        }}
+      >
+        {tc("toast.undo")}
+      </Button>
+      {error && (
+        <span role="alert" className="text-xs text-danger">
+          {error}
+        </span>
+      )}
+    </>
   );
 }

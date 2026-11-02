@@ -75,7 +75,7 @@ export function CommentsPanel({ pageId, store, onClose, answers }: { pageId: str
     <aside
       aria-label={t("title")}
       // Beside the row panel when the page is in one (it sets --comments-right to its width).
-      className="comments-panel fixed top-11 inset-e-0 bottom-0 z-30 flex w-full flex-col border-s border-border bg-bg md:inset-e-[var(--comments-right,0px)] md:w-[360px]"
+      className="comments-panel fixed top-11 inset-e-0 bottom-0 z-30 flex w-full flex-col pb-(--safe-bottom) border-s border-border bg-bg md:inset-e-[var(--comments-right,0px)] md:w-[360px]"
     >
       <div className="flex h-11 shrink-0 items-center gap-1 px-3">
         <h2 className="flex-1 text-sm font-semibold">{t("title")}</h2>

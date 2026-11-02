@@ -13,7 +13,7 @@ import { join } from "node:path";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { Zip, ZipDeflate, ZipPassThrough } from "fflate";
 import { db } from "@/db";
-import { agentChatFile, aiChatFile, databaseProperty, file, page, user, workspace, workspaceAgent } from "@/db/schema";
+import { conversationFile, databaseProperty, file, page, user, workspace, workspaceAgent } from "@/db/schema";
 import {
   BACKUP_FORMAT,
   BACKUP_VERSION,
@@ -102,7 +102,7 @@ export async function planBackup(userId: string, workspaceId: string): Promise<B
     .select({ files: sql<number>`count(*)::int`, bytes: sql<number>`coalesce(sum(${file.size}), 0)::bigint` })
     .from(file)
     // Files attached to AI chats and agents' chats stay out, like the chats (tables.ts).
-    .where(and(eq(file.workspaceId, workspaceId), sql`${file.id} not in (select ${aiChatFile.fileId} from ${aiChatFile})`, sql`${file.id} not in (select ${agentChatFile.fileId} from ${agentChatFile})`));
+    .where(and(eq(file.workspaceId, workspaceId), sql`${file.id} not in (select ${conversationFile.fileId} from ${conversationFile})`));
   const files = Number(counts.files);
   const fileBytes = Number(counts.bytes);
   if (files + backupTables().length * 64 > MAX_ENTRIES || fileBytes > MAX_FILE_BYTES) throw new BackupError("tooLarge");

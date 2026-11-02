@@ -191,7 +191,7 @@ export function ReadAloud({ root, title, onClose }: { root: HTMLElement | null; 
     <div
       role="region"
       aria-label={t("label")}
-      className="fixed inset-x-0 bottom-4 z-40 mx-auto flex w-fit max-w-[calc(100vw-2rem)] flex-wrap items-center gap-1 rounded-full border border-border bg-bg px-2 py-1.5 shadow-lg print:hidden"
+      className="fixed inset-x-0 bottom-safe-4 z-40 mx-auto flex w-fit max-w-[calc(100vw-2rem)] flex-wrap items-center gap-1 rounded-full border border-border bg-bg px-2 py-1.5 shadow-lg print:hidden"
     >
       {message ? (
         <span className="px-2 text-sm text-fg-muted">{message}</span>

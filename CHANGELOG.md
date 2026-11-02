@@ -2,8 +2,105 @@
 
 ## Unreleased
 
+### Changed
+
+- **The inbox's Email tab is now called Row email.** It lists the mail that came in on database
+  rows, not the Mail tab's messages, which it was easy to take it for.
+- **A click on a table cell selects it instead of opening its editor.** A second click on the
+  selected cell, a double click, Enter or simply typing opens it, so copying, deleting, moving with
+  the arrows and filling down no longer fight an editor that opened on its own. Typing over a text,
+  number, link, email or phone cell starts its editor with what you typed, and Esc then leaves the
+  value as it was. Checkboxes, stars, buttons and links in cells still work with one click, and on a
+  touch screen a tap still opens the editor. Lists, boards, galleries and the row page are unchanged.
+
+### Fixed
+
+- **The inbox's unread count matches what the inbox shows.** The sidebar's and the app icon's
+  count also took in notices the inbox leaves out (changes for review once none waits, a call
+  already answered, a row change the person may no longer see), which could not be opened or
+  marked read, so the count stayed above the list.
+
+## 0.7.0 — 2026-11-02
+
+### Upgrading from 0.6.7
+
+- **Back up the database first.** Migrations 0159 to 0187 run automatically when the container
+  starts (from source, run `pnpm db:migrate`). Among them, `0184_conversations` moves the AI
+  chat's and agents' conversations and their files into the new `conversation` and
+  `conversation_file` tables, and `0185_drop_old_conversations` drops the old ones. The others add
+  the Mail tab's tables (`mail_message`, `mail_send`, `mail_snooze`, `mail_sender_logo` …), several
+  mailboxes per member, agents' guardrails, tasks, mailboxes and approval rules, AI reminders and
+  the Telegram bot's agent chats.
+- **Download the new `docker-compose.yml`.** It passes the new `MAIL_MICROSOFT_CLIENT_ID`,
+  `MAIL_MICROSOFT_CLIENT_SECRET`, `MAIL_MICROSOFT_TENANT` and `SENDER_LOGOS` settings on to the
+  app. An existing `.env` keeps working.
+- **Optional: Microsoft sign-in for mailboxes.** Set `MAIL_MICROSOFT_CLIENT_ID` and
+  `MAIL_MICROSOFT_CLIENT_SECRET` (and `MAIL_MICROSOFT_TENANT` for one organization only) to let
+  members connect Outlook.com and Microsoft 365 mailboxes without a password
+  (docs/email-on-rows.md).
+- **Optional: no sender logos.** The Mail tab looks up the logos of the domains verified mail comes
+  from; `SENDER_LOGOS=off` stops it.
+
 ### Added
 
+- **What someone just sent you comes as a card at the top of the window.** An assignment, a mention,
+  a reply in your thread, a share or an access request that arrives while you have the workspace
+  open shows at the window's top corner with the person's picture, what they did and the page; more
+  stack behind it with a count. Click it to open it and mark it read; it goes by itself after a few
+  seconds, or when closed, and stays unread in the inbox.
+- **Ask the AI chat something on a schedule.** A question of your own can now come round by itself
+  (daily, weekly …, in your time zone), asked as you, with your access, as if you had typed it;
+  its answers line up in one conversation of your AI chat kept for it. It only reads unless you
+  let it change things, and it skips a time while its last answer still waits. Only you see or
+  change it. For now it is set through the app's server actions, not yet a screen.
+- **A schedule that keeps failing turns itself off and tells you.** After 10 failed runs in a row,
+  an agent's schedule or your own scheduled question turns off, and whoever set it gets an inbox
+  notification (its own setting, *Schedules turned off*) naming the agent and the task; a run
+  that goes well counts from 0 again, and setting the schedule again turns it back on. As before,
+  times missed while the server was down make one run, not one each. Migration
+  `0186_trigger_layer` adds `schedule.failures` and the notification kind's settings.
+- **New mail comes as a notification on your phone.** Mail arriving in a Mail tab inbox is pushed,
+  within a minute, to the devices where push notifications are on: who wrote and to which address,
+  never the subject, and opening it opens the thread; several at once come as one notification.
+  Mail you already read, your own, and newsletters, mailing lists and automatic replies don't.
+  Each mailbox turns it off under Account › Email and calendar. Migration `0182_mailbox_notify`
+  adds `mailbox.notify`.
+- **The AI chat sets reminders.** Ask it to remind you of something once ("remind me tomorrow at 9
+  to call Ayşe") and it sets the reminder for you: the box shows its text and time on your clock
+  first, and it comes as an agent's reminder does, over the page you have open, in your inbox and on
+  your phone, titled as your own. The notification setting is now *AI reminders*.
+- **The AI chat hands routines to an agent.** Work to be done again and again ("every morning, list
+  what's due today") goes to one of your agents as a schedule, asked about first, since the chat
+  does nothing later on its own; with changes off it says so.
+- **The sidebar's Mail tab counts unread mail.** A small red count sits on the envelope while the
+  tab is folded, and beside the name when it shows; it adds up the inboxes of all your mailboxes
+  and follows them each minute.
+
+- **The Mail list shows who each conversation is with at a glance.** A mark beside each thread
+  shows the other party: a member's picture or the logo of the organization the mail came from,
+  when it verifiably did (DMARC passed, by a Google or Microsoft mailbox's own check; the logo is
+  the domain's BIMI logo, else its web site's icon, looked up in the background and kept for a
+  month), or else the first letter of their name. A single sender is now named in full. Migration
+  `0181_sender_marks` adds `mail_message.sender_auth` and the `mail_sender_logo` table; mail
+  indexed earlier is checked again a few hundred messages a minute. New setting `SENDER_LOGOS=off`
+  stops the logo look-ups.
+- **Starred mail has its own place in Mail.** *Starred* under the inbox lists a mailbox's
+  conversations with a starred message in any folder but the trash, junk and snoozed, and with
+  several mailboxes *All starred* lists them all. Stars set in another mail program show too. A
+  conversation archived, moved back to the inbox or to a folder from there stays in the list; the
+  search box searches within it.
+- **Installing on iPhone and iPad is explained in the app, and the installed app's icon counts
+  unread notifications.** iPhone and iPad browsers have no install prompt, so *Install app* in the
+  workspace menu now shows there too and explains adding Leafdesk with *Add to Home Screen*. Where
+  the system shows icon badges, the installed app's icon carries the workspace's unread inbox count,
+  while it is closed too: each push notification brings the count along, and its *Mark as read* and
+  *Snooze* buttons bring it down.
+- **Agents propose changes from your email, and you approve them in their chat.** In your chat with
+  an agent that may change rows, row writes after it read email become proposals instead of being
+  refused, and a schedule you set that looks after no database can read the day's email and propose
+  rows and row changes (up to 60 a run). Only you see them; the run's message in the agent's chat
+  shows how many wait, with *Approve all* and *Review*, and *For review* can be narrowed to one run.
+  A run new email started that proposed rows now leaves an inbox report that opens that chat.
 - **Agents can use files on your computer, through the desktop app.** *Agent File Access* in the
   desktop app's menu, off by default and set for each server, lets you add folders that agents in
   your own chats may use (not the disk, your home folder or the system's settings for apps): while
@@ -279,6 +376,26 @@
   any page. Migrations 0164 and 0165; new dependencies `@tiptap/starter-kit` and
   `@tiptap/extensions`.
 
+- **Mail attachments open in the file viewer.** A tap opens one over the conversation, with a
+  close button and the message's other files a swipe away; PDFs, Word documents and Excel
+  workbooks show in place, and a PDF sent as plain bytes (`application/octet-stream`) shows as a
+  PDF.
+- **Mail fits a phone.** A message laid out for a wider column (most newsletters and notices,
+  600px tables) is drawn at its own width and shrunk to fit, by at most 30%, instead of being cut
+  off or squeezed to a few words a line; plain messages and ones that adapt to the screen stay full
+  size. The thread's margins are narrower on a phone and a message's time sits under its sender.
+- **Plain mail reads in the dark theme.** A message in the mail program's default colors (text,
+  links, quotes and tables, as most people's mail is) shows in the page's own colors. Newsletters
+  and other mail with its own colors, backgrounds or pictures keep a white page, which they were
+  made for.
+- **Answers show without the mail they quote.** The earlier mail an answer quotes at its end, as
+  Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark it, folds under
+  *•••* and opens in place.
+- **Replies and forwards carry the earlier mail as it looked.** What is written stays on its
+  own in the editor; the original goes under it with its tables, colors and the images it carries,
+  behind *•••* to look at or taken off with *Remove the quoted message*, and the plain-text part
+  quotes the original's own text with `>`. Drafts keep it from one save to the next. Mail lists
+  leave the "… wrote:" line above a quote out of a message's first line.
 - **Word export, and Word and Excel files from the AI chat.** "Export as Word" in the page menu
   downloads a page or row as a .docx file meant for further editing, with the PDF export's choices
   (letterhead, a row's values, comments): Word's heading styles, numbering and footnotes, tables
@@ -401,6 +518,76 @@
 
 ### Changed
 
+- **Chatting with an agent looks and works like the AI chat.** The agent's page, its chat block in
+  pages and the Chat tab of its settings show the same conversation and question box as the AI chat:
+  the same answers, steps, files, dictation and asking again, with the agent's runs, days and
+  waiting messages between them. The agent's settings are grouped into four parts: Instructions
+  (with skills and memory), Tools and access (with connections), Triggers and Advanced (model, limits
+  and quiet hours); links to a tab still open it.
+- **An agent's chat answer comes the way the AI chat's does.** Its text as it is written, its steps
+  as it takes them and its end now come over the AI chat's own answer stream, so a step shows the
+  moment it is taken rather than up to a second later, and the turn is read once it ends instead
+  of every second; Telegram follows the same stream. Credentials stay masked while it is written,
+  as the kept answer is, and the finished answer no longer flows in a second time. The separate
+  `/api/agents/chat/live` endpoint is gone.
+- **Owners can turn off changes without asking in the AI chat.** Settings → General → AI has a new
+  switch, *Changes without asking*: when off, the chat's *Auto* mode and "Yes, and don't ask again"
+  are gone and every change is asked about, also in answers already under way. It is on by default.
+  The same section lists the models people may pick in the chat.
+- **Everything that starts an agent goes through one place, and keeps to one conversation.**
+  Automations and buttons, mentions, requests, schedules, mail, connection events, chats and agents
+  handing work to each other now all start runs the same way, and each run is linked to a
+  conversation: the one kept for its row, comment thread, mail thread or schedule, the chat it
+  answers, or a new one. What can start an agent is listed in one place, under Triggers → All in
+  its settings, each with the conversation its runs go to and a way to where it is changed. Who sees a run is unchanged. Migration `0186_trigger_layer` adds
+  `agent_run.conversation_id` and `conversation.key`.
+- **The AI chat waits for your decision as long as you take, and survives a restart.** A change it
+  asks about no longer counts as declined after 15 minutes: the answer waits until you decide or
+  stop it, in the app and in Telegram. Each answer is now kept as a run as it goes, so one the
+  server was writing when it restarted goes on from where it was a few minutes later, or as soon as
+  you open its conversation, where you see it go on; one waiting for your decision asks again
+  there. It is kept in the conversation, without making a change twice. Migration 0183.
+- **AI chats and chats with agents are kept in one table.** Migration `0184_conversations` moves
+  `ai_conversation` and `agent_conversation` into `conversation`, and `ai_chat_file` and
+  `agent_chat_file` into `conversation_file`, with their ids, so links, notes and Telegram chats
+  keep pointing at them; `0185_drop_old_conversations` drops the old tables. Nothing changes in
+  the app.
+- **The AI chat keeps notes about you at once, with Undo.** When you tell it about yourself, the
+  note is kept (or changed, or dropped) right away in every mode, and its step has *Undo*; it asks
+  first, as before, only when the answer read something from outside (a web page, an email, a
+  connected service) or while the workspace has changes without asking off. Agents keep the same
+  rule for corrections. Notes too many for a question's room are read with a new `read_memory`
+  tool, offered only then.
+- **Stop an agent's answer.** While an agent answers in its chat, the box's Stop button ends the
+  answer at once and keeps what it wrote so far, marked *Stopped*; a message it hasn't started on
+  yet ends before it starts, also when the agent has just taken it up, is taking it up again after
+  an approval, or was answering on a server that stopped (it ends within a few minutes then, not
+  after ten, and never asks the model). Nobody is notified, and the next message goes as usual. The
+  REST API and MCP show such a run as failed with the code `stopped`. Migration 0187.
+- **The AI chat and agents answer with the same turns.** Asking the model, making room when a
+  conversation grows too long for it, and the last turn answering with what it has now run the same
+  way for both, so a fix in one is a fix in the other.
+- **An agent's chat box is the AI chat's.** The same rounded box with round buttons, files dropped
+  or pasted on it to attach them, and questions dictated where the workspace writes down speech.
+- **Agents are in the sidebar's Chat tab too.** Under New chat, the Chat tab lists the agents you
+  can talk to, above your conversations, and an agent's page keeps the Chat tab open with that
+  agent marked, so talking to the AI and to an agent starts in one place. The Agents section of the
+  Home tab stays, and can be hidden there as before.
+- **Phones: bigger buttons, room for the notch and home indicator, and the keyboard.** On touch
+  screens the page header's buttons are 36 px and a database's toolbar buttons 32 px, and the slash
+  menu leaves out keyboard shortcuts. Installed on a phone, Leafdesk reaches under the notch and
+  home indicator: the page, the side panels, the open sidebar and what floats at the bottom (notes,
+  the selection's bar, the recording bar) end above the indicator, and the page keeps clear of a
+  notch held sideways. On Android the on-screen keyboard shortens the page, so what sits at its
+  bottom, such as the AI chat's box, stays above the keys.
+- **Settings on a phone open as a list.** Settings starts with every section in grouped rows, as a
+  phone's own settings do, and a section opens on its own page with a way back to the list, in
+  place of one row of tabs that scrolled sideways.
+- **On a phone, the sidebar's tabs change only the list.** Switching between Home, Journal, Chat
+  and Mail in the drawer shows that tab's list and leaves the page behind as it was; the page
+  changes when you pick something in the list. Closing the drawer without picking goes back to the
+  page's own tab. The AI chat box's buttons are larger on touch screens, and the floating menu
+  button keeps a background of its own as the page scrolls under it.
 - **AI chat answers flow in as they are written.** The answer's text now comes in a few letters at
   a time, at an even pace, instead of jumping a whole piece at once whenever the network delivers
   one; what is left when it ends is shown over a few frames rather than in one. Only the answer
@@ -416,25 +603,9 @@
   the AI chat. Only the person chatting sees it, with credentials masked as in the kept answer; a
   run taken by another server process still shows its answer whole at the end.
 
-- **Plain mail reads in the dark theme.** A message in the mail program's default colors (text,
-  links, quotes and tables, as most people's mail is) now shows in the page's own colors in the Mail
-  tab, so on the dark theme it no longer sits on a white card. Newsletters and other mail with its
-  own colors, backgrounds or pictures keep their white page, which they were made for.
-
 - **One hourly sending limit per mailbox.** The 100 messages an hour a mailbox may send now count
   the Mail tab's messages and emails written on rows together, kept in the database, so a restart
   no longer starts the count over. Migration 0169 (`mail_send`).
-
-- **Answers in the Mail tab show without the mail they quote.** The earlier mail an HTML answer
-  quotes at its end, as Gmail, Outlook, Apple Mail, Thunderbird, Yahoo and the Mail tab itself mark
-  it, folds under *•••* and opens in place; plain-text answers already did.
-
-- **Replies and forwards from the Mail tab carry the earlier mail as it looked.** It no longer
-  goes into the editor as plain lines: what is written stays on its own, the original goes under
-  it with its tables, colors and the images it carries, behind *•••* to look at or taken off with
-  *Remove the quoted message*, and the plain-text part quotes the original's own text with `>`.
-  Drafts keep it from one save to the next. Mail lists also leave the "… wrote:" line above a
-  quote out of a message's first line.
 
 - **A database's tabs and toolbar scroll away with the page.** On a full database page they no
   longer stay at the top as you scroll down; only a table's column names do, right under the
@@ -463,27 +634,33 @@
   last. Owners get one inbox item per agent instead of one per run. Migration 0162; existing inbox
   items for proposals are cut to one per agent and owner.
 
-- **Chats with agents look like the AI chat.** On an agent's page, in its Chat tab and in an Agent
-  chat block, questions sit in the same box, the steps of an answer show under a running clock
-  and fold into how long it took, and an answer and a question can be copied, with the time on
-  hover. A chat box in an agent's settings no longer scrolls sideways.
 - **The chat list shows a dot only beside a conversation being answered.** Every conversation in
   the sidebar's chat list had a faint dot; now the place stays empty, and the dot fades in and out
   only while an answer is being written.
 
 ### Fixed
 
-- **An agent with a mailbox opened to it says why a run can't read it.** A run started through a
-  connected app (an AI assistant using the MCP server, the REST API, Telegram), a request, a row or
-  a mention has no email tools, so what it read can't leave Leafdesk; the agent asked for the
-  mailbox to be opened to it instead of saying to ask it in its chat in Leafdesk.
+- **An agent's sent reports read as sent in MCP and the REST API.** A run's email to the agent's
+  own recipients went out at once but was listed as a draft waiting for review; it now reads
+  "Sent an email to …", or that it couldn't be sent, while a row's email still reads as a draft.
+- **Dictating a question on a phone no longer covers the AI chat box's chips.** While it records,
+  the model and thinking chips step aside for the timer and Stop.
 
-- **Mail with pictures as wide as the reading pane shows no scrollbar beside it.** The Mail tab
-  showed one that narrowed the message without anything to scroll.
-
-- **Short HTML mail in the Mail tab no longer leaves a gap under it.** Its frame took the height
-  it started with when the message was shorter.
-
+- **The AI chat box fits a phone's width.** With a model choice and a thinking level, its row of
+  buttons ran past the box and pushed Send out of reach, and a longer permission such as "Read
+  only" broke onto two lines; on a narrow box the chips now keep only what tells them apart (the
+  thinking level shows its icon), the permission stays whole on one line and a long model name is
+  cut short.
+- **The top of the installed app on iPhone is no longer blurred.** iOS 26 faded the first lines
+  under the status bar, so a page's header looked washed out and text scrolling up went blurry
+  there; the status bar now sits on a solid band in the page's color. An app added to the Home
+  Screen before this needs no reinstall.
+- **A table no longer widens the whole page on a phone.** The column names kept for screen readers
+  reached outside the table's sideways scrolling, so the page grew to the table's width and could
+  be dragged sideways, header and all.
+- **Buttons that appeared only under the mouse show on touch screens.** Adding a row on a calendar
+  day, adding a sub-item in a list or timeline, refreshing or resizing a bookmark and the saved AI
+  prompts' buttons were hidden until hovered, which a finger can't do.
 - **Google Sheets syncs no longer need a column with a different value in every row.** A sync set
   up with the key column left empty finds rows by their place in the sheet, so ledgers of dates,
   names and amounts come in whole, rows that repeat each other included. Before, an empty key
@@ -494,19 +671,10 @@
 - **The settings' navigation keeps its top in place.** Only its list of settings scrolls now; the
   way back and the search stay put, so in the desktop app they no longer slide under the window's
   buttons.
-- **A message in the Mail tab no longer stays loading when the mail server stops answering.** A
-  connection the server dropped without a word kept the message waiting for minutes; now one that
-  doesn't answer a keep-alive in 10 seconds, or a message in 30, is closed and the message read
-  again on a new one.
-- **The boxes beside a chat no longer cut a line in half.** A long list of sources, changed pages,
-  runs or schedules beside the AI chat and an agent's page fades out at its edges and leaves room
-  under its last line, instead of ending on a line sliced by the box's border.
 - **Closing a source beside the AI chat keeps the conversation where it was.** A page opened from
   an answer's citation, or from the sources beside the conversation, gave focus back on closing to
   the first place that page was cited, so a page an earlier answer also cited took the conversation
   back to its start. Focus now goes back to what was clicked.
-- **Excel exports of a database with a button property** gave the columns after the button the
-  wrong kind: numbers and dates in them came out as text, or text as numbers.
 - **Frozen columns no longer let text show beside them.** Scrolled sideways, a table's frozen
   columns stopped at the page's margin, and the columns scrolling past showed through in the strip
   between them and the edge. They now move along across the margin and hold just short of the
@@ -566,6 +734,28 @@
   the body (`database_id` to `/databases/{database_id}/query`) must leave it out. The AI chat's and
   agents' reading tools (`query_database`, `search_pages`, `read_page` …) tell the model the same,
   so it asks again instead of answering from an unfiltered list.
+- **The AI chat and agents keep what they read where it belongs.** The AI chat's further tools
+  (`use_tool`) reached the person's other workspaces, including one whose owners turned AI off;
+  they now see only the chat's workspace. Comments, agent chats and other people's words read
+  through them reach the model framed as data and make the rest of the answer ask first. A
+  conversation that read files on the person's computer keeps saying so in later turns, even once
+  older messages are trimmed, so connected apps get neither those turns nor a summary drawn from
+  them, and later turns still go without the web, other agents and email. A helper agent asked by
+  a run that read outside words no longer gets its "allow" rules, and other agents' answers read
+  through `agent_tasks` count as outside words. The AI chat's history sent to the Telegram bot
+  leaves out turns that read mail. Memory proposals from runs started by a connection's event show
+  only to workspace owners, connected apps don't get the text of one made by a run that read mail
+  or files on the computer, and a restored backup brings back only notes that were kept. An
+  agent's report by email counts toward the mailbox's sends per hour.
+- **Agent chats lose no steps when a run fails, and wait less.** A run that failed or expired
+  saved the steps it had when it started, dropping its changes, a correction's Undo and the mark
+  that it read mail or files; a message sent behind a run the tab wasn't following stayed queued
+  until the page was reloaded; proposals and reminders made by a mail or schedule run could be
+  made again after a restart; and a spending pause let the other calls of the same turn run. The
+  Telegram bot's AI chat answers are followed like the app's, so asking again in the app can't
+  drop the bot's turn, and a question sent while the app is answering in the same conversation is
+  turned away. An answer opened the moment it ends no longer shows twice, and a conversation still
+  being answered is never cleaned away.
 
 ## 0.6.7 — 2026-10-29
 

@@ -1,0 +1,1 @@
+ALTER TABLE "mailbox" ADD COLUMN "notify" boolean DEFAULT true NOT NULL;

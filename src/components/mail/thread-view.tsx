@@ -13,28 +13,20 @@ import { isAiErrorCode } from "@/lib/ai";
 import type { MailWriteAction } from "@/lib/mail-ai";
 import { pagePath } from "@/lib/mentions";
 import { snoozableFrom, type MailAction, type MailAddress, type MailBody, type MailboxTabView, type MailDraftView, type MailFolderView, type MailMessageView, type MailThreadView, type MailUndoneSend, type MailUnsubscribe } from "@/lib/mail-client";
-import { initialOf, textOn, userColor } from "@/lib/presence";
+import { plainClick, useFileViewer } from "@/components/file-viewer";
 import { lazyPart } from "@/components/lazy-part";
+import { attachmentForViewer, attachmentUrl } from "@/lib/mail-attachments";
 import { type ComposeMode, replyAllAdds } from "./compose-start";
 import { discardDraftAction, forgetImageSenderAction, trustImageSenderAction, unsubscribeAction } from "@/app/actions/mail";
 import { showToast } from "@/components/toast";
 import { cachedBody, cachedThread, forgetBodies, keepBody, keepThread } from "./mail-cache";
 import { MailFrame } from "./mail-frame";
+import { SenderMark } from "./sender-mark";
 import { useWhen } from "./mail-store";
 
 // The editor loads the first time an answer is written.
 const Composer = lazyPart(() => import("./composer").then((m) => m.Composer));
 const MailTasks = lazyPart(() => import("./mail-tasks").then((m) => m.MailTasks));
-
-/** A sender's letter, in the color an address always gets (as people's avatars elsewhere). */
-function Avatar({ who }: { who: MailAddress }) {
-  const color = userColor(who.address);
-  return (
-    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium" style={{ background: color, color: textOn(color) }}>
-      {initialOf(who.name || who.address)}
-    </span>
-  );
-}
 
 const URL_RE = /\bhttps?:\/\/[^\s<>"')\]]+/g;
 
@@ -114,8 +106,8 @@ function DraftCard({ message, onEdit, onDiscard, busy }: { message: MailMessageV
   const t = useTranslations("mail");
   const when = useWhen();
   return (
-    <div className="flex items-center gap-3 border-b border-border px-6 py-3">
-      <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-fg-icon">
+    <div className="flex items-center gap-3 border-b border-border px-4 sm:px-6 py-3">
+      <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-dashed border-border text-fg-icon">
         <Pencil className="h-3.5 w-3.5" />
       </span>
       <button type="button" onClick={onEdit} disabled={busy} className="flex min-w-0 flex-1 items-baseline gap-3 text-start">
@@ -260,12 +252,13 @@ function Message({
 }) {
   const t = useTranslations("mail");
   const when = useWhen();
+  const viewer = useFileViewer();
   const me = message.from.address === box.address;
   const name = (a: MailAddress) => (a.address === box.address ? t("me") : a.name || a.address);
   if (!open) {
     return (
-      <button type="button" onClick={onToggle} className="flex w-full items-center gap-3 border-b border-border px-6 py-3 text-start hover:bg-bg-hover">
-        <Avatar who={message.from} />
+      <button type="button" onClick={onToggle} className="flex w-full items-center gap-3 border-b border-border px-4 sm:px-6 py-3 text-start hover:bg-bg-hover">
+        <SenderMark mark={message.mark} />
         <span className="w-36 shrink-0 truncate text-sm font-medium">{me ? t("me") : message.from.name || message.from.address}</span>
         <span className="min-w-0 flex-1 truncate text-sm text-fg-faint">{message.preview}</span>
         <span className="shrink-0 text-xs text-fg-faint">{when(message.sentAt)}</span>
@@ -275,20 +268,22 @@ function Message({
   const body = loaded?.body;
   const allowReplyAll = replyAllAdds(box, message);
   return (
-    <article className={cn("px-6 py-5", !last && "border-b border-border")}>
+    <article className={cn("px-4 sm:px-6 py-5", !last && "border-b border-border")}>
       <div className="flex items-start gap-1">
         <button type="button" onClick={onToggle} className="flex min-w-0 flex-1 items-start gap-3 text-start">
-          <Avatar who={message.from} />
+          <SenderMark mark={message.mark} />
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2">
               <span className="truncate text-sm font-semibold">{message.from.name || message.from.address}</span>
               {message.from.name && <span className="truncate text-sm text-fg-faint max-sm:hidden">{message.from.address}</span>}
               <span className="flex-1" />
-              <span className="shrink-0 text-xs text-fg-faint" title={when(message.sentAt, true)}>
+              <span className="shrink-0 text-xs text-fg-faint max-sm:hidden" title={when(message.sentAt, true)}>
                 {when(message.sentAt, true)}
               </span>
             </div>
+            {/* On a phone the time goes under the name, which keeps the line to itself beside the buttons. */}
             <div className="truncate text-xs text-fg-muted">
+              <span className="sm:hidden">{when(message.sentAt, true)} · </span>
               {t("toLine", { names: message.to.map(name).join(", ") || "—" })}
               {message.cc.length > 0 && ` · ${t("ccLine", { names: message.cc.map(name).join(", ") })}`}
             </div>
@@ -363,12 +358,22 @@ function Message({
             )}
             {body.attachments.length > 0 && (
               <ul className="mt-4 flex flex-wrap gap-2" aria-label={t("attachments", { count: body.attachments.length })}>
-                {body.attachments.map((file) => (
+                {body.attachments.map((file, index) => (
                   <li key={file.part}>
                     <a
-                      href={`/api/mail/attachment?m=${encodeURIComponent(message.id)}&p=${encodeURIComponent(file.part)}`}
+                      href={attachmentUrl(message.id, file.part)}
                       target="_blank"
                       rel="noopener"
+                      // Opened over the thread, never in a tab of its own: an app on a phone's home
+                      // screen has no way back from one. A click with a modifier still opens a tab.
+                      onClick={(event) => {
+                        if (!plainClick(event)) return;
+                        event.preventDefault();
+                        viewer.open(
+                          body.attachments.map((f) => attachmentForViewer(message.id, f)),
+                          index,
+                        );
+                      }}
                       className="inline-flex max-w-72 items-center gap-2 rounded-md border border-border px-2.5 py-1.5 text-sm hover:bg-bg-hover"
                     >
                       <Paperclip className="h-3.5 w-3.5 shrink-0 text-fg-icon" />
@@ -379,6 +384,7 @@ function Message({
                 ))}
               </ul>
             )}
+            {viewer.element}
           </>
         ) : null}
       </div>
@@ -481,7 +487,7 @@ function SummaryCard({ state, thread, onAgain }: { state: Summary; thread: MailT
   const at = sent.findIndex((m) => m.id === state.messageId);
   const newer = at >= 0 ? sent.length - 1 - at : 0;
   return (
-    <section aria-label={t("ai.summary")} className="mx-6 mt-4 rounded-md border border-border px-3 py-2.5 text-sm">
+    <section aria-label={t("ai.summary")} className="mx-4 sm:mx-6 mt-4 rounded-md border border-border px-3 py-2.5 text-sm">
       <div className="flex items-center gap-2 text-xs font-medium text-fg-muted">
         <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
         <span className="flex-1">{t("ai.summary")}</span>
@@ -785,20 +791,20 @@ export function ThreadView({
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto pb-10">
         {error ? (
-          <p className="px-6 pt-6 text-sm text-fg-muted">{error}</p>
+          <p className="px-4 sm:px-6 pt-6 text-sm text-fg-muted">{error}</p>
         ) : !thread ? (
-          <div className="px-6 pt-5" aria-busy>
+          <div className="px-4 sm:px-6 pt-5" aria-busy>
             <div className="h-7 w-2/3 animate-pulse rounded bg-bg-hover" />
           </div>
         ) : (
           <>
-            <div className="px-6 pt-5">
+            <div className="px-4 sm:px-6 pt-5">
               <h2 className="text-xl leading-snug font-semibold [overflow-wrap:anywhere]">{thread.subject || t("noSubject")}</h2>
             </div>
             {summary.state && <SummaryCard state={summary.state} thread={thread} onAgain={summary.run} />}
             {tasks && <MailTasks workspaceId={workspaceId} mailboxId={box.id} folderId={folder.id} threadId={threadId} row={thread.row} onClose={() => setTasks(false)} />}
             {thread.row && (
-              <div className="mx-6 mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
+              <div className="mx-4 sm:mx-6 mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-border bg-bg-subtle px-3 py-2 text-sm">
                 <Database className="h-4 w-4 shrink-0 text-fg-icon" />
                 <span className="text-fg-muted">{t("onRow")}</span>
                 <a
@@ -845,7 +851,7 @@ export function ThreadView({
               )}
             </div>
             {compose && source && (
-              <div className="px-6 pt-2">
+              <div className="px-4 sm:px-6 pt-2">
                 <Composer
                   key={`${compose}-${source.id}-${editing?.id ?? ""}-${aiStart ?? ""}`}
                   workspaceId={workspaceId}

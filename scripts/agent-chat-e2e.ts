@@ -29,7 +29,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentChatFile, agentConversation, agentRun, agentUsage, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { conversationFile: agentChatFile, conversation: agentConversation, agentRun, agentUsage, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { asWrite, runAsConnectedApp } = await import("@/server/connected-app");
 const { purgeOrphanFiles } = await import("@/server/files");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -42,11 +42,11 @@ type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const agents = await import("@/server/agents/manage");
 const chat = await import("@/server/agents/chat");
 const { flushAgentRuns } = await import("@/server/agents/run");
-const { followLiveText } = await import("@/server/agents/live-text");
+const { followRun } = await import("@/server/ai-chat-runs");
 const { chatFileOfPerson } = await import("@/server/agents/chat-files");
 const { refOf, storageOf } = await import("@/server/storage/workspace");
 const { pageMarkdown } = await import("@/server/export");
-const { agentChatLine, applyLiveEdit } = await import("@/lib/agent-chat");
+const { agentChatLine, agentMessages } = await import("@/lib/agent-chat");
 
 const RUN = `agent-chat-e2e-${Date.now().toString(36)}`;
 
@@ -86,6 +86,16 @@ const toolResults = (request: FakeChatRequest) => request.messages.filter((m) =>
 const toolNames = (request: FakeChatRequest) => (request.tools ?? []).map((t) => t.function.name);
 
 /** A model that makes these tool calls, one per turn, then says `done`. */
+/** A run's events (ai-chat-runs.ts) once the worker in this process has taken it; null if it never does. */
+async function followOnceTaken(userId: string, runId: string) {
+  for (let i = 0; i < 400; i++) {
+    const events = followRun(userId, runId);
+    if (events) return events;
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  return null;
+}
+
 function caller(calls: { name: string; arguments: Record<string, unknown> }[], done = "Done.") {
   return (request: FakeChatRequest): FakeReply => {
     const made = request.messages.filter((m) => m.role === "assistant" && m.tool_calls?.length).length;
@@ -146,6 +156,7 @@ try {
   await flushAgentRuns();
   const [ownerRun] = await db.select().from(agentRun).where(eq(agentRun.id, first.runId!));
   check(ownerRun.status === "done" && ownerRun.source.kind === "chat" && ownerRun.source.userId === ids.owner, "the owner's message is a run with the chat source", ownerRun);
+  check(ownerRun.conversationId === first.conversation.id, "…linked to the conversation it answers (the trigger layer's fixed conversation)", ownerRun.conversationId);
   const ownerTools = toolNames(fake.chats[0]);
   check(["create_row", "update_row", "create_page", "edit_page"].every((n) => ownerTools.includes(n)), "an owner's chat is offered the tools that change pages", ownerTools);
   check(toolResults(fake.chats.at(-1)!).some((r) => r.includes("BOARD-SECRET")), "an owner's chat reads what both the owner and the agent can open");
@@ -168,27 +179,99 @@ try {
 
   // ── The answer as it is written ────────────────────────────────────────────────────────────
   const written = "Orders ship on Tuesdays and Thursdays, from the north depot, before noon.";
-  fake.setChat(() => ({ text: written }));
+  fake.setChat(caller([{ name: "read_page", arguments: { page_id: minutes.id } }], written));
   fake.delayMs = 15;
   const writing = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "When do orders ship?" });
-  check(await chat.mayFollowChatTurn(ids.owner, workspaceId, writing.runId!), "the person chatting may follow what the run writes");
-  check(!(await chat.mayFollowChatTurn(ids.member, workspaceId, writing.runId!)), "no one else may");
-  const followingWriting = new AbortController();
+  const flushingWriting = flushAgentRuns();
+  const events = await followOnceTaken(ids.owner, writing.runId!);
+  check(events !== null, "the person chatting may follow what the run writes");
+  check(followRun(ids.member, writing.runId!) === null, "no one else may");
   const seen: string[] = [];
+  const streamedSteps: string[] = [];
   let liveText = "";
-  const following = (async () => {
-    for await (const edit of followLiveText(writing.runId!, followingWriting.signal)) {
-      liveText = applyLiveEdit(liveText, edit);
+  let lastEvent = "";
+  let turnAtDone: Awaited<ReturnType<typeof chat.chatTurn>> | null = null;
+  for await (const event of events ?? []) {
+    lastEvent = event.type;
+    if (event.type === "text") {
+      liveText += event.text;
       seen.push(liveText);
-    }
-  })();
-  await flushAgentRuns();
-  followingWriting.abort();
-  await following;
+    } else if (event.type === "reset") liveText = "";
+    else if (event.type === "agentStep") streamedSteps.push(`${event.index}:${event.step.kind}`);
+    else if (event.type === "done") turnAtDone = await chat.chatTurn(ids.owner, workspaceId, writing.runId!);
+  }
+  await flushingWriting;
   fake.delayMs = 0;
   const grown = seen.filter(Boolean);
   check(grown.length >= 5 && grown.every((t, i) => i === 0 || t.startsWith(grown[i - 1])), "the answer is followed as it grows, word by word", seen);
-  check(liveText === written && (await chat.chatTurn(ids.owner, workspaceId, writing.runId!)).answer === written, "and ends as the answer the run keeps", liveText);
+  check(streamedSteps.length === 1 && streamedSteps[0] === "0:read", "its steps come as they are taken, by their place in the run", streamedSteps);
+  check(lastEvent === "done" && turnAtDone?.status === "done" && turnAtDone.answer === written && liveText === written, "and it ends, once its turn is saved, as the answer the run keeps", { lastEvent, turnAtDone, liveText });
+
+  // ── Stop ───────────────────────────────────────────────────────────────────────────────────
+  const notStarted = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "Never mind this one" });
+  check((await refusal(chat.stopAgentChat(ids.member, { workspaceId, agentId: helper.id, runId: notStarted.runId! }))) === "noAccess", "no one else stops a person's answer");
+  check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: notStarted.runId! })).stopped, "Stop on an answer not started yet ends it");
+  const [stoppedEarly] = await db.select().from(agentRun).where(eq(agentRun.id, notStarted.runId!));
+  check(stoppedEarly.status === "failed" && stoppedEarly.code === "stopped" && stoppedEarly.startedAt === null, "…before the worker takes it, as stopped", stoppedEarly);
+  // Taken by a worker that isn't answering it here (it stopped with the server that ran it): marked,
+  // it ends as stopped once taken again, a few minutes after it last said it was under way.
+  const justTaken = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "And this one" });
+  await db
+    .update(agentRun)
+    .set({ status: "running", attempts: 1, startedAt: new Date(), nextAt: new Date(Date.now() - 4 * 60_000) })
+    .where(eq(agentRun.id, justTaken.runId!));
+  check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: justTaken.runId! })).stopped, "Stop on an answer a worker has but isn't writing here ends it");
+  const [markedTaken] = await db.select().from(agentRun).where(eq(agentRun.id, justTaken.runId!));
+  check(markedTaken.status === "running" && markedTaken.stopAskedAt !== null, "…marked, while the worker still has it", { status: markedTaken.status, stopAskedAt: markedTaken.stopAskedAt });
+  const chatsBefore = fake.chats.length;
+  await flushAgentRuns();
+  const [stoppedTaken] = await db.select().from(agentRun).where(eq(agentRun.id, justTaken.runId!));
+  check(
+    stoppedTaken.status === "failed" && stoppedTaken.code === "stopped" && fake.chats.length === chatsBefore,
+    "…and taken again, it ends as stopped without asking the model",
+    { status: stoppedTaken.status, code: stoppedTaken.code },
+  );
+  const long = Array.from({ length: 60 }, (_, i) => `word${i}`).join(" ");
+  fake.setChat(() => ({ text: long }));
+  fake.delayMs = 15;
+  const stopping = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: first.conversation.id, message: "Tell me everything" });
+  let partial = "";
+  let stopAsked = false;
+  let lastStopEvent = "";
+  const flushing = flushAgentRuns();
+  for await (const event of (await followOnceTaken(ids.owner, stopping.runId!)) ?? []) {
+    lastStopEvent = event.type;
+    if (event.type === "text") partial += event.text;
+    if (partial.length > 20 && !stopAsked) {
+      stopAsked = true;
+      check((await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! })).stopped, "Stop on an answer being written ends it");
+    }
+  }
+  check(stopAsked && lastStopEvent === "done", "…and whoever follows it is told once it is saved", lastStopEvent);
+  await flushing;
+  fake.delayMs = 0;
+  const [stoppedRun] = await db.select().from(agentRun).where(eq(agentRun.id, stopping.runId!));
+  check(
+    stoppedRun.status === "failed" && stoppedRun.code === "stopped" && Boolean(stoppedRun.answer) && long.startsWith(stoppedRun.answer!) && stoppedRun.answer !== long,
+    "…keeping what it wrote by then",
+    { status: stoppedRun.status, code: stoppedRun.code, answer: stoppedRun.answer },
+  );
+  check(!(await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! })).stopped, "…and Stop on an ended answer does nothing");
+  // Taken up again under the id of that answer, which ended here a moment ago (as after an
+  // approval): not while its answer is over and being saved, but once a worker has it again.
+  const stops = (globalThis as { __leafdeskAgentChatStops?: Map<string, AbortController | null> }).__leafdeskAgentChatStops!;
+  await db.update(agentRun).set({ status: "running" }).where(eq(agentRun.id, stopping.runId!));
+  stops.set(stopping.runId!, null);
+  const whileSaved = await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! });
+  const [unmarked] = await db.select({ at: agentRun.stopAskedAt }).from(agentRun).where(eq(agentRun.id, stopping.runId!));
+  stops.delete(stopping.runId!);
+  const retaken = await chat.stopAgentChat(ids.owner, { workspaceId, agentId: helper.id, runId: stopping.runId! });
+  const [remarked] = await db.select({ at: agentRun.stopAskedAt }).from(agentRun).where(eq(agentRun.id, stopping.runId!));
+  await db.update(agentRun).set({ status: stoppedRun.status, stopAskedAt: null }).where(eq(agentRun.id, stopping.runId!));
+  check(!whileSaved.stopped && unmarked.at === null, "Stop on an answer being saved comes too late", { whileSaved, unmarked });
+  check(retaken.stopped && remarked.at !== null, "…and on one taken up again under the id of an answer that ended here, it is marked", { retaken, remarked });
+  const afterStop = await chat.getAgentConversation(ids.owner, workspaceId, helper.id, first.conversation.id, null);
+  check(afterStop.running === null, "the conversation is free for the next message", afterStop.running);
 
   // ── Leafdesk's further tools ───────────────────────────────────────────────────────────────
   const orders = await createPage(owner, { workspaceId, teamspaceId: general.id, kind: "database", title: "Orders" });
@@ -295,7 +378,7 @@ try {
   const thread = await chat.agentThread(ids.owner, workspaceId, helper.id);
   check(
     thread.conversationId === archiving.conversation.id &&
-      thread.messages.length === 8 &&
+      thread.messages.length === 14 &&
       thread.messages[0].content === "What did the board discuss?" &&
       thread.messages.at(-1)?.content === "Added it.",
     "the dialog's conversations read as one, oldest first, a new message joining the latest",
@@ -472,9 +555,10 @@ try {
   check(body !== null && (await new Response(body).text()) === "order,days\nORD-1,3\n", "the person downloads it as written");
   check((await chatFileOfPerson(ids.member, fileId)) === null, "no one else can");
   const [fileRow] = await db.select({ messages: agentConversation.messages }).from(agentConversation).where(eq(agentConversation.id, talk));
-  const fileQuestion = fileRow.messages.find((m) => m.runId === withFile.runId && m.role === "user");
+  const fileMessages = agentMessages(fileRow.messages);
+  const fileQuestion = fileMessages.find((m) => m.runId === withFile.runId && m.role === "user");
   check(
-    fileQuestion?.files?.[0]?.name === "orders.csv" && !JSON.stringify(fileRow.messages).includes("FILE-CONTENT-LATE") && fileRow.messages.at(-1)?.attached?.[0]?.id === fileId,
+    fileQuestion?.files?.[0]?.name === "orders.csv" && !JSON.stringify(fileRow.messages).includes("FILE-CONTENT-LATE") && fileMessages.at(-1)?.attached?.[0]?.id === fileId,
     "the conversation keeps the file's name and size, never its text",
     fileQuestion,
   );
@@ -579,7 +663,7 @@ try {
   const [lateRun] = await db.select().from(agentRun).where(eq(agentRun.id, late.runId!));
   const lateConversation = await db.select().from(agentConversation).where(eq(agentConversation.id, late.conversation.id));
   check(
-    lateRun.status === "failed" && lateRun.code === "noAccess" && lateConversation[0].messages.at(-1)?.code === "noAccess",
+    lateRun.status === "failed" && lateRun.code === "noAccess" && agentMessages(lateConversation[0].messages).at(-1)?.code === "noAccess",
     "a run whose person is now a guest fails, and the chat says why",
     { lateRun, messages: lateConversation[0].messages },
   );

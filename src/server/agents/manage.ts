@@ -11,7 +11,7 @@
  */
 import { and, count, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent } from "@/db/schema";
+import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent, type AgentRunRow } from "@/db/schema";
 import { MAX_AGENT_MAIL_RECIPIENTS, parseMailRecipients } from "@/lib/agent-mail";
 import {
   accessSource,
@@ -19,6 +19,7 @@ import {
   callConnectionName,
   callToSend,
   isAgentAccessLevel,
+  isAgentRun,
   isAgentModel,
   isAgentRowChanges,
   isEventRun,
@@ -575,7 +576,7 @@ export async function listAgentRuns(userId: string, agentId: string, limit = 30,
     .where(and(eq(agentRun.agentId, agent.id), level === "interact" ? startedBy(userId) : undefined))
     .orderBy(desc(agentRun.createdAt))
     .limit(Math.min(Math.max(limit, 1), 100));
-  return viewRuns(userId, runs, { exact: exact && owner, owner });
+  return viewRuns(userId, runs.filter(isAgentRun), { exact: exact && owner, owner });
 }
 
 /** One of an agent's runs, as listAgentRuns shows it. */
@@ -586,7 +587,7 @@ export async function getAgentRun(userId: string, agentId: string, runId: string
     .from(agentRun)
     .where(and(eq(agentRun.id, runId), eq(agentRun.agentId, agent.id), level === "interact" ? startedBy(userId) : undefined))
     .limit(1);
-  if (!run) throw new AgentError("notFound", "Run not found");
+  if (!run || !isAgentRun(run)) throw new AgentError("notFound", "Run not found");
   return (await viewRuns(userId, [run], { exact: exact && owner, owner }))[0];
 }
 
@@ -597,7 +598,7 @@ const arrivedSubject = (steps: AgentStepRecord[]) => {
   return read && read.kind === "mail" && read.action === "read" ? read.subject : "";
 };
 
-export async function viewRuns(userId: string, runs: (typeof agentRun.$inferSelect)[], { exact, owner }: { exact: boolean; owner: boolean }): Promise<AgentRunView[]> {
+export async function viewRuns(userId: string, runs: AgentRunRow[], { exact, owner }: { exact: boolean; owner: boolean }): Promise<AgentRunView[]> {
   // A helper's run shows as the run that asked it does (accessSource): its row or database counts.
   const rowIds = [
     ...new Set(

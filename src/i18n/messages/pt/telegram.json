@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Em {workspace} os apps só podem ler, então respondo sem alterar nada lá.",
   "busy": "Ainda estou respondendo à sua última pergunta. Envie /stop para pará-la.",
+  "busyInApp": "Esta conversa ainda está sendo respondida no Leafdesk. Pergunte de novo quando essa resposta terminar.",
   "stopped": "Parado.",
   "nothingToStop": "Não estou respondendo nada agora.",
   "unlinked": "Esta conta do Telegram não está mais conectada ao Leafdesk.",
@@ -85,6 +86,7 @@
     "createXlsx": "Criar o arquivo do Excel {title} e anexá-lo a {target}?",
     "source": "Linhas de {name}.",
     "remember": "Lembrar isto sobre você?",
+    "remind": "Lembrar você disto?",
     "forget": "Esquecer esta nota?",
     "connection": "Enviar isto para {connection} ({tool})?",
     "tool": "Fazer esta alteração ({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "O agente usou seus tokens do mês.",
       "costLimit": "A resposta atingiu seu limite de custo.",
       "selfReported": "O agente disse que não conseguiu fazer a tarefa.",
+      "stopped": "Parado.",
       "error": "Algo deu errado enquanto o agente respondia."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "Ele já tinha usado o limite mensal de tokens do agente.",
         "costLimit": "O espaço de trabalho tinha atingido o limite mensal de custo de IA.",
         "selfReported": "O agente disse que não conseguiu fazer a tarefa.",
+        "stopped": "Parado.",
         "error": "Algo deu errado."
       },
       "email": "Ele leu seu e-mail, então o relatório aparece só no Leafdesk."

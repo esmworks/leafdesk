@@ -159,8 +159,12 @@
     "memoryHint": "Når dette er på, tar KI-chatten korte notater om personer som forteller den om seg selv, og sender dem med deres senere spørsmål. Hver person kan slå det av for seg selv. Når det er av, er Minne-visningen skjult, og ingen spørsmål sendes med notater; notatene beholdes, de slettes ikke. Agentenes kjøringer sendes da heller ikke med notater og foreslår ingen.",
     "webSearch": "Nettsøk i KI-chatten",
     "webSearchHint": "Når dette er på, kan KI-chatten søke på nettet med serverens søketjeneste og lese nettsider, men bare lese: Etter at den har lest fra nettet, blir du spurt om hver endring den vil gjøre. Undersøkelsesmodus søker også på nettet. Spørsmål og sidetekst den søker med, forlater arbeidsområdet og går til søketjenesten.",
+    "autoChanges": "Endringer uten å spørre",
+    "autoChangesHint": "Når dette er på, kan folk sette AI-chatten til Auto eller svare «Ikke spør igjen», så den gjør endringer uten å spørre hver gang. Når det er av, spør chatten før hver endring.",
     "provider": "Leverandør",
     "providerValue": "{provider}, modell {model}",
+    "chatModels": "Chatmodeller",
+    "chatModelsValue": "Folk kan velge {models} i AI-chatten.",
     "notConfigured": "Ingen KI-leverandør eller embedding-modell er satt opp på denne serveren, så KI-funksjonene er av. En administrator kan sette dem opp med miljøvariablene AI_PROVIDER og AI_MODEL (og AI_EMBEDDINGS_MODEL) (se README).",
     "noProvider": "Ingen: skriveassistenten, KI-egenskaper og KI-chatten krever AI_PROVIDER og AI_MODEL.",
     "semanticSearch": "Semantisk søk",
@@ -308,7 +312,11 @@
           "forget": "Avslo å glemme:"
         },
         "correct": "Notert som en rettelse:",
-        "undone": "Rettelse angret:"
+        "undone": "Rettelse angret:",
+        "undoneNote": {
+          "remember": "Angret å huske:",
+          "forget": "Angret å glemme:"
+        }
       },
       "connection": {
         "done": "{connection}: kalte {tool}",
@@ -319,6 +327,10 @@
         "done": "Brukte {tool}",
         "failed": "{tool} mislyktes",
         "declined": "Avslått: {tool}"
+      },
+      "reminder": {
+        "done": "Påminnelse satt til {when}:",
+        "declined": "Avslo en påminnelse til {when}:"
       },
       "mail": {
         "searched": "Søkte i e-post etter «{query}» · {count, plural, =0 {ingenting funnet} one {# tråd} other {# tråder}}",
@@ -362,6 +374,7 @@
         "createPage": "Vil du legge til denne siden?",
         "remember": "Skal dette huskes om deg?",
         "forget": "Vil du glemme dette notatet?",
+        "remind": "Skal jeg minne deg på dette?",
         "editPage": "Vil du endre teksten på denne siden?",
         "createPdf": "Vil du lage en PDF av denne siden og legge den ved?",
         "createDocx": "Vil du lage et Word-dokument av denne siden og legge det ved?",
@@ -379,6 +392,7 @@
       "row": "Rad",
       "topLevel": "Øverst i arbeidsområdet, privat for deg",
       "memoryHint": "Minne: sendes med de senere spørsmålene dine i dette arbeidsområdet",
+      "remindHint": "{when}: over siden du har åpen, i innboksen og på telefonen din",
       "cleared": "(tømt)",
       "approve": "Ja",
       "always": "Ja, og ikke spør igjen (Auto)",
@@ -521,7 +535,9 @@
       "tooLong": "Et notat kan ha høyst {max} tegn.",
       "full": "Minnet kan inneholde høyst {max} notater. Slett ett først.",
       "notFound": "Det notatet finnes ikke lenger.",
-      "off": "KI-minnet er slått av i dette arbeidsområdet."
+      "off": "KI-minnet er slått av i dette arbeidsområdet.",
+      "changed": "Det notatet er endret siden. Endre det i Minne i stedet.",
+      "busy": "Vent til svaret er ferdig."
     }
   },
   "accounts": {

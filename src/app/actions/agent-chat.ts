@@ -20,6 +20,7 @@ import {
   removeQueuedAgentChat,
   searchAgentChats,
   sendAgentChat,
+  stopAgentChat,
   summarizeAgentConversation,
   threadRuns,
   type ChatPlace,
@@ -96,6 +97,11 @@ export async function removeQueuedAgentChatAction(workspaceId: string, agentId: 
   return run((userId) =>
     removeQueuedAgentChat(userId, { workspaceId: String(workspaceId), agentId: String(agentId), place: placeOf(place), conversationId: String(conversationId), queuedId: String(queuedId) }),
   );
+}
+
+/** Stop: ends the person's answer under way with what it wrote so far. */
+export async function stopAgentChatAction(workspaceId: string, agentId: string, runId: string) {
+  return run((userId) => stopAgentChat(userId, { workspaceId: String(workspaceId), agentId: String(agentId), runId: String(runId) }));
 }
 
 /** Starts a new conversation from a summary of this one. */

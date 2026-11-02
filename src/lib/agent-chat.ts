@@ -3,7 +3,7 @@
 // editor schemas.
 
 import type { AgentCommentRecord, AgentEmailRecord, AgentHandoffRecord, AgentRunCode, AgentRunStatus, AgentSkillRecord, AgentStepRecord, AgentToolRecord } from "./agents";
-import type { ChatStepView } from "./ai-chat";
+import type { ChatEvent, ChatStepView } from "./ai-chat";
 
 /**
  * Chatting with an agent: a person writes to one of the workspace's agents and it answers, each
@@ -102,7 +102,7 @@ export function agentLinkRef(text: string, origin: string): { workspaceId: strin
 export type AgentChatFileRef = { name: string; size: number };
 /** A text file as it is sent: its name, size in bytes and text (lib/agent-chat-files.ts). */
 export type AgentChatFileIn = AgentChatFileRef & { text: string };
-/** A file the agent attached to its answer (`attach_file`, the `agent_chat_file` table), which only the person opens. */
+/** A file the agent attached to its answer (`attach_file`, a `conversation_file` row), which only the person opens. */
 export type AgentChatAnswerFile = { id: string; name: string; size: number; contentType: string };
 
 /**
@@ -128,6 +128,9 @@ export type AgentChatMessageRecord = {
   localRead?: true;
   at: string;
 };
+
+/** The messages of a conversation with an agent (`conversation.messages` where `agent_id` is set). */
+export const agentMessages = (messages: readonly object[]) => messages as AgentChatMessageRecord[];
 
 /**
  * A message written while the conversation's answer was under way: it waits (at most
@@ -168,6 +171,8 @@ export type AgentChatMessageView = {
   files?: AgentChatFileRef[];
   attached?: AgentChatAnswerFile[];
   summary?: boolean;
+  /** A summary drawn from turns that read files on the person's computer (AgentChatMessageRecord). */
+  localRead?: true;
   at: string;
 };
 
@@ -255,12 +260,14 @@ export type AgentChatSearchHit = {
 };
 
 /**
- * A change to what a turn under way has written so far, as `/api/agents/chat/live` sends it
- * (server/agents/live-text.ts): keep the first `at` letters, then add `add`.
+ * A step a chat run took, as its events bring it to the person chatting (run.ts converse,
+ * server/ai-chat-runs.ts): the `index`th of the run's steps, as chatTurn shows it, with the names of
+ * the connections it names. Those taken before the run went on after an approval come with the turn.
  */
-export type LiveTextEdit = { at: number; add: string };
+export type AgentStepEvent = { type: "agentStep"; index: number; step: AgentChatStepView; connections: Record<string, string> };
 
-export const applyLiveEdit = (text: string, edit: LiveTextEdit) => text.slice(0, edit.at) + edit.add;
+/** What an answer under way sends whoever follows it (`GET /api/ai/chat?run=`): the AI chat's events, and an agent chat run's steps. */
+export type RunEvent = ChatEvent | AgentStepEvent;
 
 /**
  * Where a person stands with an agent's chat: they may chat (`full` when they can edit the agent,
@@ -289,6 +296,6 @@ export const AGENT_CHAT_ERRORS = ["invalid", "tooLong", "busy", "queueFull", "ba
 export type AgentChatError = (typeof AGENT_CHAT_ERRORS)[number] | Exclude<AgentChatState, "full" | "readOnly">;
 
 /** Why a chat's run ended without an answer, as the chat says it (others say "error"). */
-export const AGENT_CHAT_FAILURES = ["aiOff", "agentDisabled", "noAccess", "provider", "timeout", "tooManyAttempts", "approvalTimeout", "limitReached", "costLimit", "selfReported", "error"] as const;
+export const AGENT_CHAT_FAILURES = ["aiOff", "agentDisabled", "noAccess", "provider", "timeout", "tooManyAttempts", "approvalTimeout", "limitReached", "costLimit", "selfReported", "stopped", "error"] as const;
 export const chatFailure = (code: AgentRunCode | null): (typeof AGENT_CHAT_FAILURES)[number] =>
   (AGENT_CHAT_FAILURES as readonly (AgentRunCode | null)[]).includes(code) ? (code as (typeof AGENT_CHAT_FAILURES)[number]) : "error";

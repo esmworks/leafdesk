@@ -20,9 +20,11 @@
  * One run does speak with a person: a chat run. What someone who can edit the agent tells it there
  * it got wrong, or must always or never do, is a correction (`kind` correction), and a correction
  * they said is kept at once, as said by them (`saidBy`), no owner asked: they are one. Only while
- * the run read nothing but their words and the workspace (run.ts `untainted`: no email, web page or
+ * the run read nothing but their words and the workspace (assistant/dispatch.ts `untainted`: no email, web page or
  * search, connection's answer, other agent's answer or attached file), since otherwise the
- * "correction" may be what that told the model to keep; and at most MAX_CORRECTIONS_PER_RUN in a
+ * "correction" may be what that told the model to keep. A run that read email still proposes
+ * (lib/agents.ts READS_AFTER_MAIL), never forgets: its proposal reads only to the person it ran
+ * for (proposingRuns), whose mail it is. At most MAX_CORRECTIONS_PER_RUN in a
  * run, within MAX_MEMORIES kept notes. Past those, and in every other run, a correction is a
  * proposal marked as one. A kept correction is a step of the run (`correct`) that its person takes
  * back with Undo (undoAgentCorrection): the note goes, or the one it changed says again what it said
@@ -47,10 +49,13 @@
  */
 import { and, asc, count, desc, eq, inArray, isNotNull, ne, notExists, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentConversation, agentRun, aiMemory, connection, notification, page, user, workspaceAgent, type ChatMemoryRecord } from "@/db/schema";
+import { agentMessages } from "@/lib/agent-chat";
+import { conversation, agentRun, aiMemory, connection, notification, page, user, workspaceAgent, type ChatMemoryRecord } from "@/db/schema";
 import type { MemoryKind } from "@/db/schema/ai";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import {
+  hasAgentSource,
+  isAgentRun,
   isEventRun,
   isRowRun,
   isScheduleRun,
@@ -58,15 +63,18 @@ import {
   MAX_CORRECTIONS_PER_RUN,
   MAX_HANDOFF_CHARS,
   MAX_PROPOSALS_PER_RUN,
+  readEmail,
   type AgentMemoryView,
   type AgentRunSource,
 } from "@/lib/agents";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat";
+import { readLocalFiles } from "@/lib/local-reads";
 import { redactError, redactText } from "@/lib/redact";
 import { pageVisibleTo, requireMembership, workspaceOwnerIds } from "@/server/access";
 import type { AiTool } from "@/server/ai";
 import { cleanNote, lockNotes, memoryAvailable, MemoryError, sameNote, writeNote } from "@/server/ai-memory";
 import { recordAudit } from "@/server/audit";
+import { connectedAppCall } from "@/server/connected-app";
 import { signalInbox, type InboxAgentMemory } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
 import { AgentError, agentFor, auditDetails } from "./manage";
@@ -105,15 +113,27 @@ async function noteOf(agent: Agent, memoryId: string): Promise<Note> {
 async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string, NonNullable<AgentMemoryView["run"]>>> {
   const runIds = [...new Set(notes.flatMap((n) => (n.agentRunId ? [n.agentRunId] : [])))];
   if (!runIds.length) return new Map();
-  const runs = await db.select({ id: agentRun.id, source: agentRun.source, createdAt: agentRun.createdAt }).from(agentRun).where(inArray(agentRun.id, runIds));
+  const runs = await db
+    .select({ id: agentRun.id, workspaceId: agentRun.workspaceId, source: agentRun.source, steps: agentRun.steps, createdAt: agentRun.createdAt })
+    .from(agentRun)
+    .where(inArray(agentRun.id, runIds))
+    .then((found) => found.filter(hasAgentSource));
+  // What a run that read mail or files on the person's computer said stays in the app, as its
+  // steps and answer do (describeAgentRun in mcp/agents.ts).
+  const throughApp = connectedAppCall(viewer) !== null;
   const rowIds = runs.flatMap((r) => (isRowRun(r.source) ? [r.source.rowId] : []));
+  // A connection's event is the owners' (ownerSeesRun), and so is what its run read (see viewRuns).
+  const eventRun = runs.find((r) => isEventRun(r.source));
+  const owners = eventRun ? new Set(await workspaceOwnerIds(eventRun.workspaceId)) : new Set<string>();
   // A run another owner asked for, or one of their schedules without a database, read with their access (see viewRuns).
   const othersRun = (source: (typeof runs)[number]["source"]) =>
-    source.kind === "request"
-      ? source.requestedBy !== viewer
-      : source.kind === "chat"
-        ? source.userId !== viewer
-        : isScheduleRun(source) && !source.databaseId && source.scheduledBy !== viewer;
+    isEventRun(source)
+      ? !owners.has(viewer)
+      : source.kind === "request"
+        ? source.requestedBy !== viewer
+        : source.kind === "chat"
+          ? source.userId !== viewer
+          : isScheduleRun(source) && !source.databaseId && source.scheduledBy !== viewer;
   const databaseIds = runs.flatMap((r) => (isScheduleRun(r.source) && r.source.databaseId ? [r.source.databaseId] : []));
   const openDatabases = new Set(
     databaseIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, databaseIds), pageVisibleTo(viewer)))).map((p) => p.id) : [],
@@ -138,6 +158,7 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
         scheduled: isScheduleRun(r.source),
         databaseHidden: isScheduleRun(r.source) && Boolean(r.source.databaseId) && !openDatabases.has(r.source.databaseId!),
         othersRun: othersRun(r.source),
+        ...(throughApp && (r.source.kind === "mail" || readEmail(r.steps) || readLocalFiles(r.steps)) ? { appHidden: true as const } : {}),
       },
     ]),
   );
@@ -145,10 +166,12 @@ async function proposingRuns(viewer: string, notes: Note[]): Promise<Map<string,
 
 /**
  * Whether `viewer` may read a proposal: not when it came from a run on a row (or a schedule's
- * database) they can't open, nor from a run another owner started for themselves.
+ * database) they can't open, from a run another owner started for themselves, for anyone but
+ * owners from a run a connection's event started, nor through a connected app from a run that
+ * read mail or files on the computer.
  */
 const readable = (run: AgentMemoryView["run"] | undefined) =>
-  !run || ((run.rowId === null || run.rowTitle !== null) && !run.databaseHidden && !run.othersRun);
+  !run || ((run.rowId === null || run.rowTitle !== null) && !run.databaseHidden && !run.othersRun && !run.appHidden);
 
 /** The names of the people who said these notes' corrections. */
 async function sayers(notes: Note[]): Promise<Map<string, string>> {
@@ -349,7 +372,7 @@ const undoneIn = (steps: AgentRunSteps, index: number, memoryId: string): AgentR
  */
 export async function undoAgentCorrection(userId: string, workspaceId: string, runId: string, memoryId: string, stepIndex: number): Promise<void> {
   const [run] = await db.select().from(agentRun).where(and(eq(agentRun.id, runId), eq(agentRun.workspaceId, workspaceId)));
-  if (!run || run.source.kind !== "chat") throw new AgentError("noteNotFound", "Note not found");
+  if (!run || !isAgentRun(run) || run.source.kind !== "chat") throw new AgentError("noteNotFound", "Note not found");
   const agent = await agentFor(userId, run.agentId, run.source.userId === userId ? "interact" : "edit");
   if (agent.archivedAt) throw new AgentError("archived", "Restore the agent to change its memory");
   const said = correctionAt(run.steps, stepIndex, memoryId);
@@ -371,10 +394,10 @@ export async function undoAgentCorrection(userId: string, workspaceId: string, r
     } else if (note) await tx.delete(aiMemory).where(eq(aiMemory.id, note.id));
     await tx.update(agentRun).set({ steps: undoneIn(run.steps, stepIndex, memoryId) }).where(eq(agentRun.id, run.id));
     const conversationId = run.source.kind === "chat" ? run.source.conversationId : "";
-    const [found] = await tx.select({ messages: agentConversation.messages }).from(agentConversation).where(eq(agentConversation.id, conversationId)).for("update");
+    const [found] = await tx.select({ messages: conversation.messages }).from(conversation).where(eq(conversation.id, conversationId)).for("update");
     if (found) {
-      const messages = found.messages.map((m) => (m.role === "assistant" && m.runId === run.id && m.steps ? { ...m, steps: undoneIn(m.steps, stepIndex, memoryId) } : m));
-      await tx.update(agentConversation).set({ messages }).where(eq(agentConversation.id, conversationId));
+      const messages = agentMessages(found.messages).map((m) => (m.role === "assistant" && m.runId === run.id && m.steps ? { ...m, steps: undoneIn(m.steps, stepIndex, memoryId) } : m));
+      await tx.update(conversation).set({ messages }).where(eq(conversation.id, conversationId));
     }
   });
   await audit(userId, agent, { undone: 1 });
@@ -470,7 +493,7 @@ export async function inboxProposals(viewer: string, runIds: string[]): Promise<
     .select({ id: agentRun.id, agentId: agentRun.agentId })
     .from(agentRun)
     .where(inArray(agentRun.id, runIds));
-  const agentIds = [...new Set(runs.map((r) => r.agentId))];
+  const agentIds = [...new Set(runs.flatMap((r) => r.agentId ?? []))];
   if (!agentIds.length) return new Map();
   const notes = await db
     .select({ note: aiMemory, agentId: workspaceAgent.id, agentName: workspaceAgent.name })
@@ -486,7 +509,7 @@ export async function inboxProposals(viewer: string, runIds: string[]): Promise<
     else byAgent.set(agentId, { agentId, agentName, count: 1, text: readable(proposing.get(note.agentRunId!)) ? note.text : null });
   }
   return new Map(runs.flatMap((r) => {
-    const waiting = byAgent.get(r.agentId);
+    const waiting = r.agentId ? byAgent.get(r.agentId) : undefined;
     return waiting ? [[r.id, { runId: r.id, ...waiting }] as const] : [];
   }));
 }
@@ -768,8 +791,13 @@ export async function runAgentMemoryTool(
   // whether or not that reaches them.
   await noticeProposal(agent, run.id).catch((error: unknown) => console.error("[agents] could not tell owners of a proposed note", redactError(error)));
   const changes = outcome.note.replacesId ? ` as the new text of memory_id ${outcome.note.replacesId}` : "";
+  // A chat's proposal reads only to the person chatting (proposingRuns othersRun), who may edit the agent.
+  const reader =
+    run.source.kind === "chat"
+      ? "The person you chat with can read it and keep it, in your Memory tab"
+      : "An owner of the workspace will read it and decide whether you keep it";
   return {
-    content: `${proposedBecause}${outcome.kind === "changed" ? "Proposed again, in place of the proposal that waited" : "Proposed"}${kind === "correction" ? " as a correction" : ""}${changes} (memory_id ${outcome.note.id}). An owner of the workspace will read it and decide whether you keep it: it is not in your memory yet, and nothing in this run changes because of it.`,
+    content: `${proposedBecause}${outcome.kind === "changed" ? "Proposed again, in place of the proposal that waited" : "Proposed"}${kind === "correction" ? " as a correction" : ""}${changes} (memory_id ${outcome.note.id}). ${reader}: it is not in your memory yet, and nothing in this run changes because of it.`,
     step: step("propose", outcome.note.text),
   };
 }

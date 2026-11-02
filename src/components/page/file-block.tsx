@@ -5,7 +5,7 @@ import { createReactBlockSpec, FileBlockWrapper } from "@blocknote/react";
 import { File as FileIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState, type ReactNode } from "react";
-import { fileIdOf, fileUrl, pdfFileId, spreadsheetFileId } from "@/lib/files";
+import { fileIdOf, fileUrl, pdfFileId, pdfViewUrl, spreadsheetFileId } from "@/lib/files";
 import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
 import { fileBlockConfig, mediaWidth } from "@/lib/media-blocks";
 import { useEmbedHost } from "./database-embed";
@@ -43,11 +43,11 @@ export const FileBlock = createReactBlockSpec(fileBlockConfig, {
       <FileBlockWrapper {...(props as unknown as Parameters<typeof FileBlockWrapper>[0])}>
         {pdf ? (
           <InPlaceBox editor={props.editor as unknown as PageEditor} blockId={props.block.id} stored={props.block.props.width} canEdit={Boolean(host?.editable)}>
-            <PdfViewer fileId={pdf} name={name} />
+            <PdfViewer url={fileUrl(pdf)} viewUrl={pdfViewUrl(pdf)} name={name} />
           </InPlaceBox>
         ) : spreadsheet ? (
           <InPlaceBox editor={props.editor as unknown as PageEditor} blockId={props.block.id} stored={props.block.props.width} canEdit={Boolean(host?.editable)}>
-            <SpreadsheetViewer fileId={spreadsheet} name={name} onConvert={host?.editable ? (file) => convertSpreadsheet(file, host.pageId) : undefined} />
+            <SpreadsheetViewer url={fileUrl(spreadsheet)} name={name} onConvert={host?.editable ? (file) => convertSpreadsheet(file, host.pageId) : undefined} />
           </InPlaceBox>
         ) : uploaded && url.trim().startsWith("/") ? (
           <ViewableFileName url={fileUrl(uploaded)} name={name} />

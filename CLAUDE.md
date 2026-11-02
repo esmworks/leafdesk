@@ -97,7 +97,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   A table's header row is a `<table>` of its own in a sticky box above the rows' box (that box
   scrolls sideways, so `sticky` inside it would hold to it, not the page); the two follow each
   other's `scrollLeft`, and the rows' table keeps a zero-height header row for screen readers and
-  as `useTableWindow`'s `start`. The view bar (tabs, toolbar) scrolls away; only the header row
+  as `useTableWindow`'s `start`. A click on a cell only selects it: `use-cell-grid.ts` stops the
+  click on the editor opener (`data-cell-open` in `property-cell.tsx`) unless the cell was already
+  the only one selected, the click came from the keyboard (`detail` 0) or a finger; typing reaches
+  a text opener as `CELL_TYPE_EVENT` (`lib/cell-typing.ts`). The view bar (tabs, toolbar) scrolls away; only the header row
   sticks, under the page's top bar, and paints a background only while stuck
   (`components/use-stuck-mark.ts`), so a page's pattern shows through at rest.
   Grouped lists and galleries share `components/database/view-sections.tsx` (the header is
@@ -149,9 +152,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   each query and body schema `.strict()`, so a field a route doesn't name answers 400 (a script
   sending a path's id in the body too gets one).
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
-  `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats
-  (`components/agent-chat/agent-chat.tsx`) draw questions, steps and message actions with
-  `components/ai-chat/message-parts.tsx`, so they stay alike. An answer's text flows in a few
+  `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats are one
+  `ChatThread` (`components/ai-chat/chat-thread.tsx`, which takes a `ThreadChat`): an agent's
+  (`components/agent-chat/agent-thread.tsx`, lazy) brings its state from `use-agent-chat.ts` and
+  draws what only it has (days, runs, the queue, the answer under way) through `renderItem`
+  (`agent-items.tsx`); both draw steps and message actions with `message-parts.tsx`. Changing things
+  without asking is the workspace's `aiAutoChanges`, checked in `converseChat` as a run (re)starts. An answer's text flows in a few
   letters a frame (`ai-chat/smooth-text.ts`, called by the lazy markdown renderer when `writing`);
   `chat-thread.tsx` memoizes `Answer` and `Question`, so their props stay stable (`handlers`, read
   through a ref) or every piece redraws the whole conversation. The panel and the full-page chat
@@ -159,14 +165,22 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   request (`ai-chat-runs.ts`, keyed by a run id the browser picks): closing the request only stops
   following it, Stop is `stopChatAction`, and `getConversation`'s `run` is followed again through
   `GET /api/ai/chat?run=`, which replays its events from the `conversation` event (it carries the
-  question: the turn is saved only at the end). Chat: `ai-chat.ts`; its tools:
+  question: the turn is saved only at the end). Each answer is also an `agent_run` without an agent
+  (source `assistant`), which `startChat` runs in its own process (`converseChat`), keeping its
+  state after each tool call; a change it asks about parks it (`awaiting_approval`, the approval id
+  is `pending.askId`) and waits in `ai-chat-approvals.ts`, with no time limit. The agents' worker
+  goes on with one a stopped server left running, or one decided with no one waiting
+  (`decideParkedChange`), and `getConversation` with one left parked or running there
+  (`adoptLeftBehind`), both through `resumeChatRun`, which runs it here under the run's id for
+  the page to follow; the row goes with the turn's save. What the chat
+  asks about before a call is `assistant/chat-dispatch.ts`. Chat: `ai-chat.ts`; its tools:
   `ai-tools.ts` (reads refuse arguments their schema doesn't name, `unknownArguments`; writes
   reuse MCP's checks: form settings in `mcp/form-settings.ts`), and every
   other MCP tool through `ai-more-tools.ts` (`find_tools`, `use_tool`: the MCP server in this
-  process as the person; `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without
-  the latter; it imports `mcp/tools` lazily, which reaches `agents/chat` and so `ai-chat`); CSV files
+  process as the person, held to the chat's workspace by `connected-app.ts` `withinWorkspace`;
+  `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without the latter; it imports `mcp/tools` lazily, which reaches `agents/chat` and so `ai-chat`); CSV files
   attached to questions: `src/lib/chat-attachments.ts` (limits, names) and
-  `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`; semantic
+  `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts` (when a note is kept at once, asked about or proposed, for the chat and agents alike: `lib/memory-rule.ts` `noteWrite`; Undo on a step: `undoNote`; `read_memory` only when notes overflow the prompt); semantic
   index and search: `semantic-index.ts`, `semantic-search.ts`; related pages under a page rank the
   stored chunks against the page's mean embedding (`related-pages.ts`, no model call). Test doubles: `ai/testing.ts`
   (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts). Web
@@ -188,19 +202,38 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   in `page_tag` by `server/page-tags.ts` (persistPage, copies, backfill queue), marked and suggested
   in the editor by `components/page/tags.ts` and `tag-menu.tsx`.
 - **Agents.** `src/server/agents/run.ts` is the worker (`agent_run`, its `source` typed in
-  `src/lib/agents.ts`) and holds the tool lists; runs are queued from `requests.ts`, `chat.ts`,
-  `mentions.ts`, `handoff.ts` and the `agent` schedule kind. A chat run streams its turns: the text so far
-  goes to an in-process store (`agents/live-text.ts`, masked as the kept answer) that
-  `/api/agents/chat/live` sends the person chatting as edits; the answer itself is still
-  `agent_run.answer`, and `agent-chat.tsx` keeps the turn under way in the same list item (and key)
+  `src/lib/agents.ts`; `agent_id` is null only for source `assistant`, a person's own AI chat, as a
+  check holds: agent code takes `AgentRunRow` and narrows rows it reads with `isAgentRun`) and
+  the run's turns with the model (`converse`, on the turn loop `src/server/assistant/turns.ts`
+  `runTurns` that the AI chat's `converseChat` shares: hooks for limits, counting, making room and
+  answering calls; Stop is `run.ts` `stopRun`, through `globalThis.__leafdeskAgentChatStops`,
+  ending with code `stopped`; one a worker has but isn't answering here is marked
+  `agent_run.stop_asked_at`, which `processRun` reads before it answers, never an in-memory
+  note that a restart or a run taken again would lose); what a run is offered and how each tool call is
+  answered (waits, counts, refusals) is `src/server/assistant/dispatch.ts`
+  (`setUpRun`, `createDispatch`). Every run is started through `server/triggers.ts`
+  `startTriggered` (a target agent or `{ self }` for the person's own AI chat, the source, and a
+  conversation rule from `lib/triggers.ts`: `new`, `keyed` on `conversation.key` such as
+  `row:<id>`, `thread:<id>`, `mail:<threadId>`, `schedule:<id>`, or `fixed`), which dedupes,
+  links `agent_run.conversation_id` and kicks the worker; requests, chat, mentions, handoff, mail,
+  connection events, automations, the `agent` and `own_request` schedule kinds and the AI chat
+  all call it. A triggered agent's conversations belong to the agent's own user, so no one lists
+  them; who sees a run is still its `source`. `listTriggers` there is the one list of what starts
+  an agent or a person's own chat. Own requests (`server/own-requests.ts`) are a person's question
+  on a schedule, run as their AI chat by the worker (`resumeChatRun`). A chat run streams its turns into the AI chat's run
+  store (`ai-chat-runs.ts`, keyed by its id, `agent` runs, followed by the person chatting at
+  `GET /api/ai/chat?run=`): text masked as the kept answer (`agents/answer-text.ts`, a `reset` when
+  masking takes shown text back), `agentStep` events by their index, `done` only after `finish`
+  saved the turn; one parked or put back ends there without `done` and opens again under the same
+  id. The answer itself is still `agent_run.answer`, and `use-agent-chat.ts` keeps the turn under way in the same list item (and key)
   as its answer, or the answer's text would flow in a second time. Messages sent while a chat run
-  answers wait in `agent_conversation.queue` (`lib/agent-chat-queue.ts`); `chat-store.ts`
+  answers wait in `conversation.queue` (`lib/agent-chat-queue.ts`); `chat-store.ts`
   `closeChatTurn` runs before `finish` flips the status and, under the conversation row's lock (as
   `sendAgentChat` takes it), writes the answer and starts the queue's run (source `after`), so
   several user records can share one run id (keys and history merge them). Files an agent attaches
-  are `agent_chat_file` rows (`agents/chat-files.ts`), left out of backups and orphan sweeps. Each agent is its own user. Memory
+  are `conversation_file` rows with a `run_id` (`agents/chat-files.ts`), left out of backups and orphan sweeps. Each agent is its own user. Memory
   (`memory.ts`): runs only propose notes, a proposal with `replacesId` changes that kept note in
-  place; except a correction (`ai_memory.kind`) in an editor's own chat while `run.ts`
+  place; except a correction (`ai_memory.kind`) in an editor's own chat while `dispatch.ts`
   `untainted()` holds, kept at once and undone by `undoAgentCorrection` from the step's `previous`
   (the step found by its index in `run.steps`, which the conversation's copy keeps); `lib/agents.ts`
   `readOthersWords` is the one rule of outside words, read by `untainted()` and by `readOutside()`,
@@ -211,13 +244,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   goes out at once from the run's person's mailbox (`send-mail.ts`, through `row-mail/send.ts`
   `sendFromMailbox`). Spending guardrails: `server/ai-limit-notices.ts` (the `ai_limit` inbox
   kind near and at a limit, one row per person and month by a unique index; a new agent spending
-  fast is turned off mid-run from `run.ts`), `agents/limits.ts` (requests for a higher limit,
+  fast is turned off mid-run from `run.ts` and `dispatch.ts`), `agents/limits.ts` (requests for a higher limit,
   answered from owners' inboxes), pure part `lib/agent-guardrails.ts`; who creates agents is
   `sharing.ts` `mayCreate` (`agent_creator` when the setting is `chosen`). Owners' per-tool rules
   are `agent_tool_rule`, written only by `connections/manage.ts` `setAgentGrant`; a call held for
   quiet hours (`lib/quiet-hours.ts`) is an `awaiting_approval` run with `pending.deferredUntil`,
   woken by `run.ts` `wakeDeferred` in the sweep (expiry skips it); every change a run makes goes
-  through `change()` in `run.ts`, which takes the day's count from `agents/daily-changes.ts`.
+  through `change()` in `dispatch.ts`, which takes the day's count from `agents/daily-changes.ts`.
   Files on the chatting person's computer: the desktop app (`desktop/src/agent-files.ts`, which
   checks every path again itself) opens the websocket `/desktop-bridge` (`server.ts` routes it to
   `server/desktop-bridge/socket.ts`: the session cookie plus the app's header, which no web page can
@@ -229,7 +262,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   policies when it starts, checked again at each call. Reminders to the person
   a run works for (`remind_person`, no recipient argument): `server/ai-reminders.ts`, a notification
   of kind `ai_reminder` waiting snoozed until its time (`deliverSnoozed` wakes it), shown over the
-  page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`.
+  page by `components/sidebar/reminder-prompt.tsx`; its clock is `agent_run.context.timeZone`. The
+  AI chat offers the same tool to the person asking (`ai-chat.ts` `remind`, a `reminder` step): its
+  actor is that person, which the inbox reads as `InboxAiReminder.own`.
   A schedule's run may end itself with `finish_run` (`lib/agents.ts` `finishRunCall`): `nothing_new`
   sets `agent_run.quiet` and `reportRun` sends nothing; `failed` is code `selfReported`; the reason
   is the run's `answer` either way. A schedule's run that isn't quiet also goes to its setter's
@@ -237,7 +272,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   Files on the chatting person's computer (`agents/computer.ts`, the desktop app's bridge in
   `server/desktop-bridge/`) go only to chat runs whose source carries the web `sessionId` of the
   connected app's own session (actions pass it; queued turns keep it only when all came from it);
-  once a run or an earlier turn of its conversation read there (`lib/local-reads.ts`), `run.ts`
+  once a run or an earlier turn of its conversation read there (`lib/local-reads.ts`; a later
+  turn starts with a `COMPUTER_EARLIER` step, so trimming the history keeps the mark), `dispatch.ts`
   refuses connection tools, the web, `ask_agent`/`assign_agent` and `send_email` (`localRead`), and
   MCP and the REST API leave out what such turns did and said (`describeAgentRun`, `get_agent_chat`).
   `send_email` counts only toward the daily change limit, never the run's own cap.
@@ -263,7 +299,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `meetings.ts` `summarizeMeeting` through `server/meeting-triggers.ts`; a "row added" trigger with
   `filled` waits on a row added untitled until it is filled in, `lib/automations.ts`
   `newRowWaitsUntil`, and `PageView` leaving a row calls `newRowClosed`) and
-  `src/server/schedules.ts` (`registerScheduleHandler`).
+  `src/server/schedules.ts` (`registerScheduleHandler`; missed times make one run; the `agent`
+  and `own_request` kinds count failures in a row through `noteScheduleOutcome`, called when the
+  run ends, which turns the schedule off at `SCHEDULE_FAILURE_LIMIT` with a `schedule_paused`
+  inbox item).
 - **Other areas:** meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
   table synced in `persistPage` by `meeting-notes.ts`; an uploaded file is decoded in the browser
   and sent in a live recording's pieces, `components/voice/meeting-upload-session.ts`), to-dos in
@@ -273,7 +312,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `page_task_backfill`, which a restore of an older backup fills too), sprints `sprints.ts` (no table: the setup is the `sprints` config on the task database's relation
   with role `sprint`; the current sprint's views filter on a hidden rollup of the sprint state, so
   they follow a completion without changing; rollups show option names, so `updateProperty`
-  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/` (`/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followLiveText` show it, in the agent's latest conversation; a message queued behind a run no follow watches starts a waiter, `watched`, that follows only the queue's run), synced databases (own
+  rewrites such rollup filters when options are renamed), Telegram bot `src/server/telegram/` (`/agent` chats with an agent: `agent-chat.ts`, following its run as `chatTurn` and `followRun` show it, in the agent's latest conversation; a message queued behind a run no follow watches starts a waiter, `watched`, that follows only the queue's run), synced databases (own
   `database_sync` table, `source` jira, github, ical, gcal, postgres or sheets; the runs and the one-minute sweep
   are `jira-sync/run.ts` for all, rows written by `synced-rows.ts`, errors are `JiraError` codes;
   Jira in `jira-sync/` and `src/lib/jira-sync.ts`, GitHub pull requests in `github-pulls/` and
@@ -311,7 +350,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   minutes for the socket timeout, so work someone waits on passes `within` (closed then, throwing
   `ConnectionLost`, which `readBody` tries once more on a new connection); bodies held a few minutes in memory, `body-cache.ts`, and in
   the tab, `components/mail/mail-cache.ts`; HTML cleaned by `html.ts` into a sandboxed frame, drawn in the
-  page's colors when `plain-html.ts` finds only default ones, else on white; the page is
+  page's colors when `plain-html.ts` finds only default ones, else on white; attachments open in
+  the file viewer, never a tab of their own (`lib/mail-attachments.ts` `attachmentForViewer`: its
+  `elsewhere` addresses are `view=pdf` for the PDF frame and `api/mail/attachment/preview` for
+  Word, and `attachmentType` serves a PDF sent as plain bytes as one); the page is
   `components/mail/`, which changes the address with `history.pushState`, never the router (a server
   round trip per click), and holds moves `MAIL_UNDO_SECONDS` before sending them (a new move goes
   into `MOVES` in `mail-app.tsx`; action `move` takes the folder's id in `to`, checked by
@@ -346,6 +388,10 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   the draft saved last by Content-ID, opened again as data URLs marked `data-cid`; a send waits
   `MAIL_UNDO_SECONDS` in memory, `write.ts` `holdMail`, and is counted in `mail_send`, which with
   `row_email` holds a mailbox to `MAX_SENDS_PER_HOUR` (both `write.ts` and `row-mail/send.ts` read both), which scripts skip with `sendHeld`;
+  the list's mark of each thread's other party is `lib/sender-marks.ts` (`mail_message.sender_auth`
+  from the first `Authentication-Results`, counted only for Google and Microsoft mailboxes, `fromReceiver`; kept by the indexer; pictures and logos only on a DMARC pass, logos fetched
+  by the `startSenderLogos` sweep into `mail_sender_logo` (off with `SENDER_LOGOS`), never on a request, and served cached-only
+  by `api/mail/logos/[domain]` to the person whose address `logoUrl` signed);
   AI: `mail-client/ai.ts` behind `/api/ai/mail` (prompts pure in `ai-prompts.ts`), reading bodies
   with `read.ts` `messageForAi`, which never marks them seen; a thread's summary is `mail_message.summary` on its newest message;
   the writer reads the answered mail's row (`rowOfMessage`, the composer's `MailMessageView.row`, then `operations.ts` `visibleRow` as the person) and the person's
@@ -358,14 +404,16 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   an agent gets them only for
   mailboxes their owner opened to it (`agents/mail.ts`, table `agent_mailbox`) on runs `lib/agents.ts`
   `mailRun` allows (shown to that person alone, in the app); its drafts are saved unasked, so
-  `prepareMailDraft` checks recipients, and once a run read mail `run.ts` refuses all but page reads
-  and the mail tools (`state.mailRead`), as in the chat's later runs (`lib/agents.ts` `readEmail` on their
+  `prepareMailDraft` checks recipients, and once a run read mail `dispatch.ts` refuses all but page reads,
+  the mail tools, note proposals (`remember`, read by the run's person alone) and row proposals to the mail's person alone (`state.mailRead`, `mailProposes`;
+  the chat's run message shows them, `agent-chat/run-proposals.tsx`), as in the chat's later runs (`lib/agents.ts` `readEmail` on their
   history, `chat-store.ts`); MCP and the REST API leave out what such runs did and answered;
-  new inbox mail starts runs (source `mail`) through `indexer.ts` `arrived` → `agents/mail-trigger.ts`
+  new inbox mail is pushed to the owner's devices from `indexer.ts` `arrived` → `mail-client/notify.ts`
+  (`mailbox.notify`; no inbox item: `push.ts` `pushToPerson`, texts `lib/mail-push.ts`) and starts runs (source `mail`) through `agents/mail-trigger.ts`
   (filters pure in `lib/agent-mail-trigger.ts`; `store` returns only rows it inserted, so the sweep
   and the IDLE watch never both start one); such a run reads the thread first and starts tainted;
   `sort_mail`/`summarize_mail` and the Mail list's agent marks (`mail_message.agent_marks`) are
-  `ai-chat-mail.ts` `runAgentMailAction`/`markMail`; it may also propose rows (`run.ts` `propose`),
+  `ai-chat-mail.ts` `runAgentMailAction`/`markMail`; it may also propose rows (`dispatch.ts` `propose`),
   stored with `pending_change.private_to` set to the mailbox's owner, which `pending-changes.ts`
   shows, counts and lets answer only to them (`ownProposal`; never to connected apps); a new read
   of pending changes adds it; the built-in `mail-assistant` template sets this up;
@@ -532,6 +580,14 @@ because they are separate module graphs.
   view) starts at `top-(--app-top)`: on macOS the desktop app lays its tab strip over the page
   beside the sidebar, where `components/desktop-tab-strip.tsx` tells it (`desktop/src/windows.ts`).
   Something sticky in the workspace's scrolling `<main>` holds at `top-0`: `<main>` starts below the strip already.
+  Something fixed to the window's bottom clears a phone's home indicator (`viewport-fit=cover`):
+  `bottom-safe-4` instead of `bottom-4` for what floats, `pb-(--safe-bottom)` on a full-height panel.
+  Something `sticky bottom-0` in `<main>` stops above `<main>`'s `pb-(--safe-bottom)`: paint that strip
+  under it (`after:top-full after:h-(--safe-bottom) after:bg-bg`).
+  iOS 26 blurs the top ~40pt of an installed app unless a fixed, full-width box over 10px tall
+  sits at the top edge; the root layout's invisible `data-status-band` is that box (globals.css).
+  An absolutely placed element (an `sr-only` label too) inside a sideways-scrolling box needs a
+  positioned ancestor inside that box, or it escapes the scrolling and widens the page on a phone.
   Something fixed to the window's end edge sits at `inset-e-(--chat-width)` (globals.css), so it stays
   beside the AI chat panel, which `<main>` makes room for; panels beside a page that can't share
   that room (comments, graph, the chat) close each other through `lib/side-panels.ts`.

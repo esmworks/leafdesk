@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Aplikasi hanya boleh membaca di {workspace}, jadi saya menjawab tanpa mengubah apa pun di sana.",
   "busy": "Saya masih menjawab pertanyaan terakhir Anda. Kirim /stop untuk menghentikannya.",
+  "busyInApp": "Percakapan ini masih dijawab di Leafdesk. Tanyakan lagi setelah jawaban itu selesai.",
   "stopped": "Dihentikan.",
   "nothingToStop": "Saya tidak sedang menjawab apa pun saat ini.",
   "unlinked": "Akun Telegram ini tidak lagi tertaut ke Leafdesk.",
@@ -85,6 +86,7 @@
     "createXlsx": "Buat file Excel {title} dan lampirkan ke {target}?",
     "source": "Baris dari {name}.",
     "remember": "Ingat hal ini tentang Anda?",
+    "remind": "Ingatkan Anda tentang ini?",
     "forget": "Lupakan catatan ini?",
     "connection": "Kirim ini ke {connection} ({tool})?",
     "tool": "Lakukan perubahan ini ({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "Agen telah memakai token bulan ini.",
       "costLimit": "Jawaban mencapai batas biayanya.",
       "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+      "stopped": "Dihentikan.",
       "error": "Terjadi masalah saat agen menjawab."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "Agen telah memakai batas token bulanannya.",
         "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanannya.",
         "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+        "stopped": "Dihentikan.",
         "error": "Terjadi kesalahan."
       },
       "email": "Agen ini membaca email Anda, jadi laporannya hanya tampil di Leafdesk."

@@ -37,7 +37,7 @@ import { read } from "@/components/read";
  * owners, join requests and agents' calls that wait for approval, newest first; opening one marks
  * it read. Access requests and agents' calls can be answered right here, and the others snoozed:
  * they leave the inbox and come back unread when the time is up. Where email on rows is on, the
- * Email tab shows only the messages that came in on rows; opening one opens its row, where it is
+ * Row email tab shows only the messages that came in on rows; opening one opens its row, where it is
  * read and answered. Notifications of one kind about one page that came close together (comments
  * and reactions, or edits) show as one entry, which opens to the single ones (lib/inbox-groups.ts);
  * opening, snoozing or marking the entry read does so to all of them. Notifications can be archived
@@ -221,10 +221,17 @@ export function InboxDialog({
                     <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                     <span className="truncate">{t("reportTitle", { agent: item.report?.agentName ?? item.actorName ?? t("someone") })}</span>
                   </>
+                ) : item.kind === "schedule_paused" ? (
+                  <>
+                    <CalendarClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">
+                      {item.schedulePaused?.agentName ? t("schedulePausedTitle", { agent: item.schedulePaused.agentName }) : t("schedulePausedOwnTitle")}
+                    </span>
+                  </>
                 ) : item.kind === "ai_reminder" ? (
                   <>
                     <AlarmClock aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
-                    <span className="truncate">{t("aiReminderTitle", { agent: item.aiReminder?.agentName ?? item.actorName ?? t("someone") })}</span>
+                    <span className="truncate">{item.aiReminder?.own ? t("aiReminderOwnTitle") : t("aiReminderTitle", { agent: item.aiReminder?.agentName ?? item.actorName ?? t("someone") })}</span>
                   </>
                 ) : item.kind === "review" ? (
                   <>
@@ -301,6 +308,8 @@ export function InboxDialog({
                   : item.report.status === "failed"
                     ? t("taskFailed", { agent: item.report.from?.agentName || t("someone") })
                     : item.report.text || t("taskDone", { agent: item.report.from?.agentName || t("someone") })
+                : item.kind === "schedule_paused"
+                ? t("schedulePaused", { count: item.schedulePaused?.failures ?? 0, task: item.schedulePaused?.task ?? "" })
                 : item.kind === "review"
                 ? t("review", { count: item.review?.count ?? 0, agent: item.actorName || t("someone") })
                 : item.kind === "ai_account_detached"

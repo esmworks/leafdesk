@@ -23,6 +23,7 @@
   "firstReadHint": "Uusimmat viestisi näkyvät hetken kuluttua. Vanhemmat viestit, enintään kolmen kuukauden ajalta, tulevat seuraavien minuuttien aikana.",
   "empty": "Ei viestejä.",
   "emptySearch": "Ei hakua vastaavia viestejä.",
+  "emptyStarred": "Ei tähdellä merkittyjä keskusteluja.",
   "emptyFolder": {
     "trash": "Tyhjennä roskakori",
     "junk": "Tyhjennä roskaposti",
@@ -185,6 +186,7 @@
   "showSource": "Näytä alkuperäinen",
   "downloadSource": "Lataa viesti (.eml)",
   "allInboxes": "Kaikki saapuneet",
+  "allStarred": "Kaikki tähdellä merkityt",
   "ai": {
     "summarize": "Tiivistä",
     "summarizeHint": "Tiivistä tämä keskustelu tekoälyllä",

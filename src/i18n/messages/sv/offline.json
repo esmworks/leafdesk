@@ -6,6 +6,12 @@
   "readOnlyCopy": "Offlinekopia från {time}, skrivskyddad",
   "signOutUnsynced": "Vissa sidor har ändringar som inte har nått servern än. Om du loggar ut tas de bort från den här webbläsaren. Logga ut ändå?",
   "installApp": "Installera appen",
+  "iosInstall": {
+    "title": "Lägg till Leafdesk på hemskärmen",
+    "share": "Tryck på Dela-knappen, i webbläsarens verktygsfält eller i menyn bredvid adressen.",
+    "add": "Välj ”Lägg till på hemskärmen” (tryck på Mer om den inte syns) och tryck sedan på Lägg till.",
+    "done": "Leafdesk öppnas sedan från sin symbol i ett eget fönster, utan webbläsarens fält."
+  },
   "page": {
     "documentTitle": "Offline",
     "heading": "Du är offline",

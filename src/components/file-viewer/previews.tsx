@@ -8,7 +8,7 @@ import { SpreadsheetViewer } from "@/components/page/spreadsheet-viewer";
 import { buttonClass, cn } from "@/components/ui";
 import { highlightCode, type CodeToken } from "@/lib/code-highlighter";
 import { csvPreview, prettyJson, previewText, TEXT_KINDS, TEXT_PREVIEW_BYTES, type CsvPreview, type ViewerFormat } from "@/lib/file-viewer";
-import { fileIdOf, formatBytes } from "@/lib/files";
+import { fileIdOf, formatBytes, pdfViewUrl } from "@/lib/files";
 import styles from "@/components/published/published-body.module.css";
 import { Message } from "./file-viewer";
 import type { ViewerFile } from "./index";
@@ -33,13 +33,13 @@ export function FilePreview({ file, name, format, size, type }: Props) {
     case "pdf":
       return (
         <div className={cn(SHEET, "max-w-5xl p-0")}>
-          <PdfViewer fileId={id} name={name} fill />
+          <PdfViewer url={file.url} viewUrl={file.elsewhere?.pdf ?? pdfViewUrl(id)} name={name} fill />
         </div>
       );
     case "spreadsheet":
       return (
         <div className={cn(SHEET, "max-w-6xl p-2")}>
-          <SpreadsheetViewer fileId={id} name={name} fill />
+          <SpreadsheetViewer url={file.url} name={name} fill />
         </div>
       );
     case "docx":
@@ -245,7 +245,7 @@ function DocxPreview({ file, name }: { file: ViewerFile; name: string }) {
   useEffect(() => {
     const controller = new AbortController();
     setState({ status: "loading" });
-    fetch(`${file.url}/preview`, { signal: controller.signal })
+    fetch(file.elsewhere?.docx ?? `${file.url}/preview`, { signal: controller.signal })
       .then(async (res) => {
         const data = (await res.json().catch(() => null)) as { html?: string; picturesLeftOut?: boolean; code?: string } | null;
         if (res.ok && typeof data?.html === "string") setState({ status: "ready", html: data.html, picturesLeftOut: Boolean(data.picturesLeftOut) });
@@ -255,7 +255,7 @@ function DocxPreview({ file, name }: { file: ViewerFile; name: string }) {
         if (!controller.signal.aborted) setState({ status: "failed" });
       });
     return () => controller.abort();
-  }, [file.url, attempt]);
+  }, [file.url, file.elsewhere?.docx, attempt]);
 
   if (state.status === "loading") return <Message role="status">{t("readingDocument")}</Message>;
   if (state.status === "failed" || state.status === "error") {

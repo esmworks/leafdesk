@@ -9,6 +9,9 @@
  * - devices whose sign-in ended get nothing, and signing out deletes the subscription;
  * - a 410 deletes the subscription, other failures are counted; an endpoint on a private address
  *   is refused when subscribing and never contacted when sending;
+ * - new mail in a mailbox's inbox reaches its owner's device without an inbox notification,
+ *   naming who wrote and opening the thread; several in one go come as one message; read, own,
+ *   automated, draft and old mail don't, nor anything once the mailbox's notifications are off;
  * - without VAPID keys nothing is sent.
  * Creates its own users and workspace (and throwaway VAPID keys) and deletes them afterwards.
  *
@@ -52,13 +55,14 @@ process.env.VAPID_SUBJECT = "mailto:push-e2e@example.test";
 // Imported after the environment is set: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { notification, pushSubscription, session, user, userPreference, workspace, workspaceMember } = await import("@/db/schema");
+const { mailbox, mailFolder, mailMessage, notification, pushSubscription, session, user, userPreference, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { addProperty, createRows, updateRowProperties } = await import("@/server/databases");
 const { createPage } = await import("@/server/pages");
 const { recordMentions } = await import("@/server/notifications");
 const { setNotificationPreference } = await import("@/server/notification-preferences");
 const { flushPush, PushSubscriptionError, savePushSubscription } = await import("@/server/push");
+const { notifyNewMail } = await import("@/server/mail-client/notify");
 const { env } = await import("@/lib/env");
 
 registerCollab({
@@ -189,8 +193,9 @@ try {
     payload.title === "Fix login" &&
       payload.body === "Owner Olcay assigned you to “Assignee” · Tasks" &&
       payload.url === `${env.appUrl}/w/${workspaceId}/p/${first.id}` &&
-      payload.tag === assigned.id,
-    "the browser reads what the inbox says, the row's link and the notification as its tag",
+      payload.tag === assigned.id &&
+      payload.unread === 1,
+    "the browser reads what the inbox says, the row's link, the notification as its tag and the unread count",
     payload,
   );
   check(Buffer.byteLength(decrypt(phone, message.body)) < 3_000, "…in under 3 KB");
@@ -209,6 +214,7 @@ try {
   await flushPush();
   const mention = count() === 1 ? JSON.parse(decrypt(phone, received[0].body)) : null;
   check(mention?.title === "Plan" && mention.body === "Owner Olcay sizden bahsetti", "a mention is pushed in the recipient's language", mention);
+  check(mention?.unread === 2, "…counting both unread notifications for the app's icon", mention);
 
   // ------------------------------------------------------------------ preferences
   received.splice(0);
@@ -244,6 +250,91 @@ try {
 
   await db.insert(session).values({ id: `${RUN}-s3`, token: `${RUN}-t3`, userId: ids.member, expiresAt: later, createdAt: now, updatedAt: now });
   await savePushSubscription(ids.member, `${RUN}-s3`, { endpoint: phoneEndpoint, p256dh: phone.p256dh, auth: phone.auth.toString("base64url") }, null);
+
+  // ------------------------------------------------------------------ new mail
+  await db.update(workspace).set({ settings: { email: true } }).where(eq(workspace.id, workspaceId));
+  // In the language they last used, here English (an inbox notification goes in the one it was made in).
+  await db.insert(userPreference).values({ userId: ids.member, locale: "en" }).onConflictDoUpdate({ target: userPreference.userId, set: { locale: "en" } });
+  const [box] = await db
+    .insert(mailbox)
+    .values({
+      workspaceId,
+      userId: ids.member,
+      address: "mert@example.test",
+      isDefault: true,
+      imapHost: "imap.example.test",
+      imapPort: 993,
+      imapSecure: true,
+      smtpHost: "smtp.example.test",
+      smtpPort: 465,
+      smtpSecure: true,
+      username: "mert",
+      secret: "never opened",
+      consentedAt: now,
+    })
+    .returning();
+  const [inbox] = await db.insert(mailFolder).values({ mailboxId: box.id, path: "INBOX", name: "INBOX", role: "inbox" }).returning();
+  let uid = 0;
+  const arrive = async (values: Partial<typeof mailMessage.$inferInsert> = {}) => {
+    uid += 1;
+    const [row] = await db
+      .insert(mailMessage)
+      .values({ mailboxId: box.id, folderId: inbox.id, uid, messageId: `<${RUN}-${uid}@example.test>`, threadId: `m:${RUN}-${uid}`, fromAddress: "ayse@example.test", fromName: "Ayşe Aksoy", subject: "Your quote", sentAt: new Date(), ...values })
+      .returning({ id: mailMessage.id });
+    return row.id;
+  };
+  const inboxOf = async () => (await db.select({ id: notification.id }).from(notification).where(eq(notification.userId, ids.member))).length;
+  const inboxBefore = await inboxOf();
+  received.splice(0);
+  const one = await arrive();
+  check((await notifyNewMail(box, [one])) === 1, "new mail in the inbox is pushed to its owner");
+  await flushPush();
+  check(count() === 1 && received[0].path === "/push/phone", "…to their device, once", received.map((r) => r.path));
+  const mail = JSON.parse(decrypt(phone, received[0].body));
+  check(
+    mail.title === "Ayşe Aksoy" &&
+      mail.body === "New email · mert@example.test" &&
+      mail.url === `${env.appUrl}/w/${workspaceId}/mail?box=${box.id}&f=${inbox.id}&t=${encodeURIComponent(`m:${RUN}-1`)}` &&
+      mail.tag === `mail:${one}` &&
+      mail.read === "" &&
+      mail.snooze === "" &&
+      !JSON.stringify(mail).includes("quote"),
+    "…naming who wrote, never the subject, opening its thread, without buttons",
+    mail,
+  );
+  check((await inboxOf()) === inboxBefore, "…and putting nothing in the inbox");
+
+  received.splice(0);
+  const batch = [
+    await arrive(),
+    await arrive({ fromName: "Can Cakir", fromAddress: "can@example.test" }),
+    await arrive({ seen: true }),
+    await arrive({ automated: true }),
+    await arrive({ fromAddress: "MERT@example.test", fromName: null }),
+    await arrive({ draft: true }),
+    await arrive({ sentAt: new Date(Date.now() - 3 * 86_400_000) }),
+  ];
+  check((await notifyNewMail(box, batch)) === 2, "read, automated, own, draft and long-sent mail aren't new");
+  await flushPush();
+  const several = count() === 1 ? JSON.parse(decrypt(phone, received[0].body)) : null;
+  check(
+    several?.title === "2 new emails" &&
+      several.body.includes("Ayşe Aksoy") &&
+      several.body.includes("Can Cakir") &&
+      several.url === `${env.appUrl}/w/${workspaceId}/mail?box=${box.id}&f=${inbox.id}` &&
+      several.tag === `mail:${box.id}`,
+    "mail found together comes as one message, opening the inbox",
+    several,
+  );
+
+  received.splice(0);
+  await db.update(mailbox).set({ notify: false }).where(eq(mailbox.id, box.id));
+  check((await notifyNewMail({ ...box, notify: false }, [await arrive()])) === 0, "a mailbox whose notifications are off pushes nothing");
+  await db.update(workspace).set({ settings: { email: false } }).where(eq(workspace.id, workspaceId));
+  check((await notifyNewMail(box, [await arrive()])) === 0, "…nor one whose workspace turned email off");
+  await flushPush();
+  check(count() === 0, "…and nothing reaches the device", received.map((r) => r.path));
+
   delete process.env.VAPID_PRIVATE_KEY;
   received.splice(0);
   await updateRowProperties(ids.owner, second.id, { Assignee: [] });

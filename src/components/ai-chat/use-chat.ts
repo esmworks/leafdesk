@@ -20,11 +20,11 @@
  */
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { decideChangeAction, deleteConversationAction, saveReportAsPageAction, stopChatAction } from "@/app/actions/ai";
+import { decideChangeAction, deleteConversationAction, saveReportAsPageAction, stopChatAction, undoChatNoteAction } from "@/app/actions/ai";
 import { read } from "@/components/read";
 import { isAiErrorCode } from "@/lib/ai";
 import { aiAsSuggestions, setAiAsSuggestions } from "@/lib/ai-suggestions";
-import { CHAT_MODES, type ChatActionView, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView, type ChatThinking } from "@/lib/ai-chat";
+import { CHAT_MODES, type ChatActionView, type ChatMessageView, type ChatMode, type ChatOptions, type ChatScopeView, type ChatStepView, type ChatThinking } from "@/lib/ai-chat";
 import {
   CHAT_CSV_MAX_COLUMNS,
   CHAT_CSV_MAX_ROWS,
@@ -42,8 +42,12 @@ import type { AnswerState } from "./chat-answer";
 /** What the model is doing while an answer is on its way: working on a turn, or writing. */
 export type ChatStatus = "thinking" | "writing";
 
-/** `startedAt`: when an answer being written was asked for (for its running time). */
-export type ChatMessage = ChatMessageView & { key: string; startedAt?: number };
+/**
+ * `startedAt`: when an answer being written was asked for (for its running time). `item`: what an
+ * agent's chat shows in its place (its answer, a run it started otherwise, a day…), drawn by the
+ * thread's `renderItem` (components/agent-chat/agent-items.tsx); the AI chat's messages have none.
+ */
+export type ChatMessage = ChatMessageView & { key: string; startedAt?: number; item?: unknown };
 
 /** A change the model asks to make, waiting for the person's decision. */
 export type PendingChange = { id: string; action: ChatActionView };
@@ -76,7 +80,7 @@ let uploads = 0;
 export type QueuedQuestion = { question: string; skill: ChatSkillPick | null; scope: ChatScopeView | null; files: ChatFile[]; research: boolean };
 
 /** Without options from the server (the full page outside the provider): one model, no picker. */
-const NO_OPTIONS: ChatOptions = { models: [], defaultModel: null, defaultThinking: "balanced", webSearch: false };
+const NO_OPTIONS: ChatOptions = { models: [], defaultModel: null, defaultThinking: "balanced", webSearch: false, autoChanges: true };
 
 /**
  * The model's thinking on its current turn, as it comes (not kept): held apart from the messages so
@@ -166,7 +170,9 @@ export function useChat(
   const input = draft.text;
   const [status, setStatus] = useState<ChatStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setModeState] = useState<ChatMode>("ask");
+  const [picked, setModeState] = useState<ChatMode>("ask");
+  // `auto` stays the browser's choice while an owner has changing without asking off: it asks then.
+  const mode: ChatMode = picked === "auto" && !options.autoChanges ? "ask" : picked;
   // What it writes in page bodies goes in as suggested edits: the person's choice (lib/ai-suggestions).
   const [asSuggestions, setAsSuggestionsState] = useState(false);
   useEffect(() => setAsSuggestionsState(aiAsSuggestions()), []);
@@ -610,7 +616,7 @@ export function useChat(
     if (!pending) return;
     const asked = pending;
     setPending(null);
-    if (decision === "always") setMode("auto");
+    if (decision === "always" && options.autoChanges) setMode("auto");
     const result = await decideChangeAction(asked.id, decision);
     // Not sent (offline, say): asked again. When it no longer waited, the stream says how it went.
     if (!result.ok) {
@@ -667,6 +673,16 @@ export function useChat(
     return result.data.pageId;
   }
 
+  /** Undo on a note an answer kept, changed or dropped at once: null when undone (its step says so), else why not. */
+  async function undoNote(memoryId: string): Promise<string | null> {
+    if (!conversationId) return null;
+    const result = await undoChatNoteAction(workspaceId, conversationId, memoryId).catch(() => null);
+    if (!result?.ok) return result?.error ?? t("offline");
+    const undone = (step: ChatStepView): ChatStepView => (step.kind === "memory" && step.memoryId === memoryId && step.outcome === "done" ? { ...step, outcome: "undone" } : step);
+    setMessages((list) => list.map((m) => (m.steps?.some((s) => s.kind === "memory" && s.memoryId === memoryId) ? { ...m, steps: m.steps.map(undone) } : m)));
+    return null;
+  }
+
   /** Deletes a conversation (or all of them); the open one is replaced by a new chat. True when done. */
   async function remove(id: string | "all") {
     if (id === "all" && !confirm(t("confirmDeleteAll"))) return false;
@@ -705,6 +721,7 @@ export function useChat(
     research,
     setResearch,
     saveReport,
+    undoNote,
     status,
     error,
     running,
@@ -724,3 +741,31 @@ export function useChat(
 }
 
 export type Chat = ReturnType<typeof useChat>;
+
+/**
+ * What ChatThread shows of a conversation: the AI chat's (useChat), or an agent's
+ * (components/agent-chat/use-agent-chat.ts). What a chat doesn't offer is left out, and the box
+ * shows no picker for it: a skill, pasted labels, the model and its thinking, research, the mode,
+ * Stop, saving a report.
+ */
+export type ThreadChat = Pick<
+  Chat,
+  "workspaceId" | "conversationId" | "messages" | "status" | "error" | "input" | "setInput" | "inputRef" | "running" | "files" | "attachFiles" | "removeFile" | "queued" | "clearQueue" | "pending" | "decide" | "reasoning"
+> &
+  Partial<
+    Pick<
+      Chat,
+      "skill" | "setSkill" | "pastes" | "pasteInput" | "options" | "model" | "setModel" | "thinking" | "setThinking" | "research" | "setResearch" | "mode" | "setMode" | "asSuggestions" | "setAsSuggestions" | "saveReport" | "stop" | "undoNote"
+    >
+  > & {
+    /** The files it takes: the picker's `accept`, and whether a dropped or pasted file is one (the AI chat's otherwise). */
+    fileAccept?: string;
+    takesFile?: (file: File) => boolean;
+    /** A question on its way to the server: Send waits. */
+    sending?: boolean;
+    /** The longest message the box takes. */
+    maxLength?: number;
+    /** Whether the last question may be asked again or edited (`editKey` names it); the AI chat's own rule otherwise. */
+    askAgain?: boolean;
+    editKey?: string | null;
+  };

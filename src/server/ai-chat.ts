@@ -13,7 +13,7 @@
  * 4. unless the chat's mode is `read`, may make it change things as the person (`create_row`,
  *    `update_row`, `create_page`, `edit_page`, `create_pdf`, `create_docx`, `create_xlsx`,
  *    `add_comment`, `create_database`, `create_form`, with their access checked): in mode `ask` the answer waits
- *    for the person to approve each change (ai-chat-approvals.ts), in `auto` it doesn't; asked
+ *    for the person to approve each change (assistant/chat-dispatch.ts, ai-chat-approvals.ts), in `auto` it doesn't; asked
  *    through a connected app (the Telegram bot, server/telegram) in a workspace that lets apps only
  *    read, the mode is `read` and no notes are kept or dropped;
  * 5. in every mode, may make it keep or drop notes about the person (`remember`, `forget`): what
@@ -43,18 +43,22 @@
  * research mode it plans sub-questions, searches and reads (the web too, where on) and writes a
  * long cited report, with read-only tools, more turns and a token budget of its own.
  *
- * Conversations are kept per person (ai_conversation) and only ever shown to them; cited pages are
+ * Conversations are kept per person (`conversation`, without an agent) and only ever shown to them; cited pages are
  * looked up again with their current access whenever a conversation is shown.
  */
-import { and, desc, eq, inArray, isNotNull, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, isNull, lt, notInArray, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
-  aiConversation,
+  agentRun,
+  conversation as conversationTable,
+  type AgentRunState,
   type ChatAttachmentRecord,
   type ChatMessageRecord,
   type ChatSourceRef,
   type ChatStepRecord,
 } from "@/db/schema";
+import { readEmail, type AssistantRunSource } from "@/lib/agents";
+import { redactValue } from "@/lib/redact";
 import type { AiErrorCode } from "@/lib/ai";
 import {
   changedMemory,
@@ -66,7 +70,6 @@ import {
   reportMarkdown,
   type ChatOptions,
   type ChatActionView,
-  type ChatConnectionRecord,
   type ChatEvent,
   type ChatMessageView,
   type ChatMode,
@@ -84,7 +87,7 @@ import { CHAT_FILE_LIMITS, chatFileKind, chatFileUrl, type ChatAttachmentView } 
 import { pageLabel } from "@/lib/labels";
 import { createPage } from "@/server/pages";
 import { AccessError, connectedAppHold, isGuest, requireMembership, requirePageAccess, WorkspacePolicyError } from "@/server/access";
-import { asWrite } from "@/server/connected-app";
+import { asWrite, connectedAppCall, runAsConnectedApp } from "@/server/connected-app";
 import {
   AiError,
   aiConfig,
@@ -92,11 +95,9 @@ import {
   IMAGE_CHARS,
   isAiError,
   promptRoomFor,
-  stream,
   takeRateLimit,
   takeWorkspaceCapacity,
   type AiMessage,
-  type AiResult,
   type AiToolCall,
   type AiRequest,
   type ChatModelOption,
@@ -105,38 +106,29 @@ import { setTimeout as sleep } from "node:timers/promises";
 import { dropOldToolResults, roomToRead } from "@/server/ai/compact";
 import { browserTimeZone, isTimeZone } from "@/lib/time-zone";
 import { attachmentBlock, chatHistory, chatQuestionPrompt, chatSystemPrompt, researchSystemPrompt } from "@/server/ai/prompts";
-import { ANSWER_NOW, isLastTurn, refuseLastCalls } from "@/server/ai/turns";
+import { ANSWER_NOW } from "@/server/ai/turns";
+import { runTurns } from "@/server/assistant/turns";
 import { attachmentRecords, deleteConversationFiles, keepQuestionFiles, questionFiles, readConversationFiles, type ChatFileContent } from "@/server/ai-chat-files";
-import { chatMailToolset, isChatMailTool, MAIL_TOOL_NAMES, prepareMailDraft, runChatMailTool, saveMailDraft } from "@/server/ai-chat-mail";
-import { chatWebOn, chatWebToolset, isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
-import { chatWebCallAsks, webCallAction } from "@/lib/web-calls";
+import { chatMailToolset } from "@/server/ai-chat-mail";
+import { chatWebOn, chatWebToolset, PLAN_TOOL } from "@/server/ai-chat-web";
 import type { FileRow } from "@/server/files";
 import { getSkillContent, SkillError } from "@/server/skills";
 import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
-import { applyMemory, memoryForPrompt, memoryOn, MEMORY_TOOL_NAMES, MEMORY_TOOLS, prepareMemory } from "@/server/ai-memory";
-import { awaitDecision, type ChatDecision } from "@/server/ai-chat-approvals";
-import { answeringIn, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
-import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, moreToolStep, pickMoreTool, readDocsTopic, USE_TOOL } from "@/server/ai-more-tools";
-import { chatToolNow, chatToolset, inputSummary, runConnectionTool, type ConnectionToolEntry } from "@/server/connections/tools";
+import { memoryForPrompt, MemoryError, memoryOn, MEMORY_TOOLS, READ_MEMORY_TOOL, undoNote } from "@/server/ai-memory";
+import { remindTool } from "@/server/ai-reminders";
+import { awaitDecision, decideChange, runsWaitingHere, type ChatDecision } from "@/server/ai-chat-approvals";
+import { answeringIn, conversationBusy, openRun, runEvents, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
+import { FIND_TOOLS, lazyMoreTools, USE_TOOL } from "@/server/ai-more-tools";
+import { chatToolset } from "@/server/connections/tools";
+import { createChatDispatch, type ResolvedScope } from "@/server/assistant/chat-dispatch";
+import { kickAgents } from "@/server/agents/kick";
+import { startTriggered } from "@/server/triggers";
+import { noteScheduleOutcome } from "@/server/schedules";
 import * as ops from "@/server/operations";
 import { activeVerifications } from "@/server/verification";
-import {
-  applyWrite,
-  ATTACHMENT_TOOLS,
-  ATTACHMENT_WRITE_TOOL_NAMES,
-  ATTACHMENT_WRITE_TOOLS,
-  CHAT_TOOLS,
-  MAP_CHARS,
-  prepareWrite,
-  runTool,
-  visiblePages,
-  workspaceMap,
-  WRITE_TOOL_NAMES,
-  WRITE_TOOLS,
-  type Registry,
-  type ToolOutcome,
-} from "@/server/ai-tools";
+import { workspaceSettings } from "@/server/workspaces";
+import { ATTACHMENT_TOOLS, ATTACHMENT_WRITE_TOOLS, CHAT_TOOLS, MAP_CHARS, visiblePages, workspaceMap, WRITE_TOOLS, type Registry } from "@/server/ai-tools";
 
 /** The most of what the model says before a search or read that is kept as a step. */
 const THOUGHT_CHARS = 300;
@@ -145,6 +137,10 @@ const HISTORY_SHARE = 0.25;
 const MEMORY_SHARE = 0.2;
 /** How often a stream waiting on the person's decision sends a ping. */
 const PING_MS = 20_000;
+/** How often an answer under way says so, well within the worker's STALE_MS (server/agents/run.ts). */
+const HEARTBEAT_MS = 60_000;
+/** Times the worker may take an answer up again before it is given up. */
+const MAX_RESUMES = 10;
 /** The longest skill a question can use: its instructions go with the question whole. */
 export const MAX_CHAT_SKILL = 20_000;
 /** Share of the prompt the conversation's attached files may take (the newest first). */
@@ -209,8 +205,6 @@ async function chatScope(userId: string, workspaceId: string, scope: ChatScope |
   return { kind: "page", id: found.id, title: found.title };
 }
 
-type ResolvedScope = { kind: "page" | "teamspace"; id: string; title: string };
-
 /** The skill a question uses: one of the workspace the person can open, not too long to send. */
 async function chatSkill(userId: string, workspaceId: string, skillId: string): Promise<ChatSkill> {
   const found = await getSkillContent(userId, skillId).catch((error) => {
@@ -224,25 +218,32 @@ async function chatSkill(userId: string, workspaceId: string, skillId: string): 
 
 type ChatSkill = { id: string; title: string; body: string };
 
+/** An AI chat conversation: one without an agent, whose messages are the chat's own records. */
+type AiConversation = Omit<typeof conversationTable.$inferSelect, "messages"> & { messages: ChatMessageRecord[] };
+
 /** The person's conversation (theirs, in this workspace), or noAccess. */
 async function ownConversation(userId: string, workspaceId: string, conversationId: string) {
   const [found] = await db
     .select()
-    .from(aiConversation)
-    .where(and(eq(aiConversation.id, conversationId), eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId)))
+    .from(conversationTable)
+    .where(and(eq(conversationTable.id, conversationId), eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId)))
     .limit(1);
   if (!found) refuse("noAccess", "Conversation not found");
-  return found;
+  return found as AiConversation;
 }
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 /** Characters a list of messages takes in a prompt (as the AI layer counts them). */
 const sizeOf = (messages: AiMessage[]) => messages.reduce((n, m) => n + m.content.length, 0);
 
 /**
  * Starts answering a question. Checks and limits run first and throw AiError (nothing is sent
- * then); the returned events stream the work. `signal` cancels it: what was written so far is kept
- * in the conversation, marked as stopped. The chat's route runs it apart from its request
- * (ai-chat-runs.ts), so only Stop cancels it there.
+ * then); the returned events stream the work. The answer is a run of its own (`agent_run`, source
+ * `assistant`), kept as it goes: one parked for the person's decision waits here for it, and one
+ * a server that stopped left behind is taken up again by the agents' worker (resumeChatRun).
+ * `signal` cancels it: what was written so far is kept in the conversation, marked as stopped. The
+ * chat's route runs it apart from its request (ai-chat-runs.ts), so only Stop cancels it there.
  */
 export async function startChat(userId: string, input: ChatInput, signal?: AbortSignal): Promise<AsyncIterable<ChatEvent>> {
   const message = input.message.trim();
@@ -254,6 +255,9 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
     throw error;
   });
   if (!(await aiAvailable(input.workspaceId))) refuse("disabled", "AI is off for this workspace");
+  // An answer a server that stopped left waiting on the person: no one can answer it now. Given up
+  // before the conversation is read, as what it changed is kept there.
+  if (input.conversationId) await dropLeftBehind(userId, input.conversationId);
   const existing = input.conversationId ? await ownConversation(userId, input.workspaceId, input.conversationId) : null;
   const model = await pickModel(userId, input.workspaceId, input.model ?? existing?.model ?? (existing ? null : await latestModel(userId, input.workspaceId)));
   const thinking = isChatThinking(input.thinking) ? input.thinking : existing ? (existing.thinking ?? "balanced") : await latestThinking(userId, input.workspaceId);
@@ -270,24 +274,46 @@ export async function startChat(userId: string, input: ChatInput, signal?: Abort
   // Asked through a connected app (the Telegram bot) where the workspace lets apps only read:
   // nothing is changed, notes about the person included.
   const appReadOnly = (await asWrite(() => connectedAppHold(userId, input.workspaceId))) === "readOnly";
-  const chat = {
-    scope,
-    skill,
-    existing,
-    // Research only reads.
-    mode: appReadOnly || input.research ? "read" : (input.mode ?? "ask"),
-    replaced,
-    connections: !isGuest(membership.role),
-    memoryChanges: !appReadOnly,
-    timeZone: isTimeZone(input.timeZone) ? input.timeZone : browserTimeZone(),
+  const timeZone = isTimeZone(input.timeZone) ? input.timeZone : browserTimeZone();
+  const conversation: AiConversation =
+    existing ??
+    ((
+      await db
+        .insert(conversationTable)
+        .values({ userId, workspaceId: input.workspaceId, title: conversationTitle(message || files.records.map((a) => a.name).join(", ")), model: model?.id ?? null, thinking, messages: [] })
+        .returning()
+    )[0] as AiConversation);
+  const source: AssistantRunSource = {
+    kind: "assistant",
+    userId,
+    conversationId: conversation.id,
+    scope: scope ? (scope.kind === "page" ? { pageId: scope.id } : { teamspaceId: scope.id }) : null,
+    skillId: skill?.id ?? null,
     model: model?.id ?? null,
     thinking,
-    files,
-    research: input.research === true,
-    web: await chatWebOn(input.workspaceId),
-    asSuggestions: input.asSuggestions === true,
-  } as const;
-  return runChat(userId, input.workspaceId, message, chat, signal);
+    // Research only reads.
+    mode: appReadOnly || input.research ? "read" : (input.mode ?? "ask"),
+    timeZone,
+    ...(input.research ? { research: true as const } : {}),
+    ...(input.asSuggestions ? { asSuggestions: true as const } : {}),
+    ...(connectedAppCall(userId) ? { fromApp: true as const } : {}),
+    ...(appReadOnly ? { appReadOnly: true as const } : {}),
+    files: files.records,
+    replaced,
+    ...(existing ? {} : { started: true as const }),
+  };
+  // The person's own run in their conversation, answered here at once (claimed): the worker leaves it be.
+  const { run } = await startTriggered({
+    target: { self: userId },
+    workspaceId: input.workspaceId,
+    source,
+    context: { actorId: userId, timeZone },
+    prompt: message,
+    conversation: { rule: "fixed", conversationId: conversation.id },
+    claimed: true,
+  });
+  const setup: ChatSetup = { scope, skill, conversation, connections: !isGuest(membership.role), files, web: await chatWebOn(input.workspaceId), autoChanges: await chatAutoOn(input.workspaceId) };
+  return converseChat({ ...run, source }, setup, signal);
 }
 
 /** The model a question asks for, when the workspace's AI offers it; else its main model (null without AI). */
@@ -299,10 +325,10 @@ async function pickModel(userId: string, workspaceId: string, wanted: string | n
 /** The model of the person's latest conversation in the workspace that names one. */
 async function latestModel(userId: string, workspaceId: string): Promise<string | null> {
   const [row] = await db
-    .select({ model: aiConversation.model })
-    .from(aiConversation)
-    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId), isNotNull(aiConversation.model)))
-    .orderBy(desc(aiConversation.updatedAt))
+    .select({ model: conversationTable.model })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId), isNotNull(conversationTable.model)))
+    .orderBy(desc(conversationTable.updatedAt))
     .limit(1);
   return row?.model ?? null;
 }
@@ -310,26 +336,28 @@ async function latestModel(userId: string, workspaceId: string): Promise<string 
 /** How much the person's latest conversation in the workspace that says so thinks; `balanced` without one. */
 async function latestThinking(userId: string, workspaceId: string): Promise<ChatThinking> {
   const [row] = await db
-    .select({ thinking: aiConversation.thinking })
-    .from(aiConversation)
-    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId), isNotNull(aiConversation.thinking)))
-    .orderBy(desc(aiConversation.updatedAt))
+    .select({ thinking: conversationTable.thinking })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId), isNotNull(conversationTable.thinking)))
+    .orderBy(desc(conversationTable.updatedAt))
     .limit(1);
   return isChatThinking(row?.thinking) ? row.thinking : "balanced";
 }
 
 /**
  * What the chat box offers the person in the workspace (see ChatOptions): the models, the one and
- * the thinking a new conversation starts with, and whether the chat searches the web there.
+ * the thinking a new conversation starts with, whether the chat searches the web there and whether
+ * it may change things without asking.
  */
 export async function chatOptionsFor(userId: string, workspaceId: string): Promise<ChatOptions> {
-  const [models, latest, defaultThinking, webSearch] = await Promise.all([
+  const [models, latest, defaultThinking, webSearch, autoChanges] = await Promise.all([
     chatModelsFor(workspaceId),
     latestModel(userId, workspaceId),
     latestThinking(userId, workspaceId),
     chatWebOn(workspaceId),
+    chatAutoOn(workspaceId),
   ]);
-  return { models, defaultModel: models.find((m) => m.id === latest)?.id ?? models[0]?.id ?? null, defaultThinking, webSearch };
+  return { models, defaultModel: models.find((m) => m.id === latest)?.id ?? models[0]?.id ?? null, defaultThinking, webSearch, autoChanges };
 }
 
 /**
@@ -346,7 +374,7 @@ const THINKING_LEVELS: Record<ChatThinking, AiRequest["thinking"]> = { fast: "of
 async function askedFiles(
   userId: string,
   workspaceId: string,
-  existing: typeof aiConversation.$inferSelect | null,
+  existing: AiConversation | null,
   ids: string[],
   replaced: number,
 ): Promise<{ records: ChatAttachmentRecord[]; rows: FileRow[] }> {
@@ -399,105 +427,55 @@ function filesPrompt(files: { contents: ChatFileContent[]; imageNames: string[];
  * The records the last question and its answer take (2), to be asked again; refused when there is
  * none, or when that answer changed things (asking again would make them twice).
  */
-function lastTurn(existing: typeof aiConversation.$inferSelect | null): number {
+function lastTurn(existing: AiConversation | null): number {
   const [question, answer] = existing?.messages.slice(-2) ?? [];
   if (question?.role !== "user" || answer?.role !== "assistant") refuse("invalid", "There is no answer to ask again");
   if (answer.steps?.some(changedThings)) refuse("invalid", "An answer that changed things can't be asked again");
   return 2;
 }
 
-async function* runChat(
-  userId: string,
-  workspaceId: string,
-  message: string,
-  {
-    scope,
-    skill,
-    existing,
-    mode: initialMode,
-    replaced,
-    connections,
-    memoryChanges,
-    timeZone,
-    model,
-    thinking,
-    files,
-    research,
-    web,
-    asSuggestions,
-  }: {
-    scope: ResolvedScope | null;
-    skill: ChatSkill | null;
-    existing: typeof aiConversation.$inferSelect | null;
-    mode: ChatMode;
-    /** Records at the end of the conversation the new turn replaces. */
-    replaced: number;
-    /** The connections' tools allowed the chat are offered (not to guests). */
-    connections: boolean;
-    /** Notes about the person may be kept or dropped (not where a connected app may only read). */
-    memoryChanges: boolean;
-    /** The person's time zone, for what today is. */
-    timeZone: string;
-    /** The model picked (null: the workspace's main one). */
-    model: string | null;
-    /** How much it thinks, unless researching. */
-    thinking: ChatThinking;
-    /** The question's own files: their records (named apart from the conversation's others) and rows. */
-    files: { records: ChatAttachmentRecord[]; rows: FileRow[] };
-    research: boolean;
-    /** The chat may search the web and read web pages. */
-    web: boolean;
-    /** Body writes go in as the AI's suggested edits (collab/suggestion-doc writeBlocksAsSuggestions). */
-    asSuggestions: boolean;
-  },
-  signal?: AbortSignal,
-): AsyncGenerator<ChatEvent> {
-  const ctx: ops.OperationContext = { userId, actor: { userId, model: true, ...(asSuggestions ? { asSuggestions } : {}) }, timeZone };
-  // "Don't ask again" makes the rest of this answer `auto`.
-  let mode = initialMode;
-  // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,
-  // and asked about unless the mode is `auto` (a read-only chat asks too), while both the person and
-  // the workspace have the memory on.
-  // Research only reads: no changes, notes or other services.
-  const remembers = !research && memoryChanges && (await memoryOn(userId, workspaceId));
-  // Tools of connections that change something are left out of a read-only chat.
-  const external = connections && !research ? await chatToolset(workspaceId, { writes: mode !== "read" }) : null;
-  const services = [...new Set([...(external?.byName.values() ?? [])].map((e) => e.connection.name))];
-  // The files of the whole conversation: questions asked later still see what was attached before.
-  const earlierFiles = (existing?.messages.slice(0, existing.messages.length - replaced) ?? []).flatMap((m) => m.attachments ?? []);
-  const read = await readConversationFiles(userId, workspaceId, existing?.id ?? null, earlierFiles, files);
-  const extra = { attachments: read.contents, timeZone };
-  const hasFiles = earlierFiles.length + files.records.length > 0;
-  // Reading files is offered wherever there are some; a database of a CSV file only where changes are.
-  const fileTools = read.contents.length ? [...ATTACHMENT_TOOLS, ...(mode === "read" || research || !read.contents.some((c) => c.kind === "csv") ? [] : ATTACHMENT_WRITE_TOOLS)] : [];
-  const writeTools = new Set([...WRITE_TOOL_NAMES, ...ATTACHMENT_WRITE_TOOL_NAMES]);
-  const webTools = web ? chatWebToolset() : [];
-  // The person's own mail, where they may use the Mail tab; research only reads the workspace.
-  const mailTools = research ? [] : await chatMailToolset(userId, workspaceId, { writes: mode !== "read" });
-  const tools = research
-    ? [PLAN_TOOL, ...CHAT_TOOLS, ...fileTools, ...webTools]
-    : [...CHAT_TOOLS, ...(mode === "read" ? [] : WRITE_TOOLS), FIND_TOOLS, USE_TOOL, ...fileTools, ...(remembers ? MEMORY_TOOLS : []), ...webTools, ...mailTools, ...(external?.tools ?? [])];
-  const promptScope = scope ? { kind: scope.kind, title: scope.kind === "page" ? pageLabel(scope.title) : scope.title } : null;
-  const skillTitle = skill ? pageLabel(skill.title) : null;
-  const system = research
-    ? researchSystemPrompt(promptScope, webTools.length > 0, skillTitle, hasFiles)
-    : chatSystemPrompt(promptScope, mode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles, mailTools.length > 0);
-  const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
-  const feature = research ? "chat.research" : "chat";
-  // What the model takes, less what every turn sends: the history, the map, memory and tool results
-  // share the rest.
-  const budget = await promptRoomFor(workspaceId, feature, model);
-  const room = () => Math.max(0, budget - system.length - toolsSize - 200);
+/** A run of a person's own AI chat. */
+type AssistantRun = typeof agentRun.$inferSelect & { source: AssistantRunSource };
 
-  const conversation =
-    existing ??
-    (
-      await db
-        .insert(aiConversation)
-        .values({ userId, workspaceId, title: conversationTitle(message || files.records.map((a) => a.name).join(", ")), model, thinking, messages: [] })
-        .returning()
-    )[0];
-  const started = Date.now();
+/** What an answer works with besides its run, checked as it (re)starts. */
+type ChatSetup = {
+  scope: ResolvedScope | null;
+  skill: ChatSkill | null;
+  conversation: AiConversation;
+  /** The connections' tools allowed the chat are offered (not to guests). */
+  connections: boolean;
+  /** The question's own files: their records (named apart from the conversation's others) and rows. */
+  files: { records: ChatAttachmentRecord[]; rows: FileRow[] };
+  /** The chat may search the web and read web pages. */
+  web: boolean;
+  /** The chat may change things without asking (the workspace's `aiAutoChanges`); else `auto` asks. */
+  autoChanges: boolean;
+};
+
+/** Whether the workspace lets its AI chat change things without asking (`aiAutoChanges`, on unless an owner turned it off). */
+export async function chatAutoOn(workspaceId: string): Promise<boolean> {
+  return (await workspaceSettings(workspaceId)).aiAutoChanges !== false;
+}
+
+/**
+ * The answer's turns with the model, from the start or from where its run left off (`run.state`):
+ * one going on shows the steps it took before first, for a page following it from here. A change
+ * it asks about waits in this process for the person's decision.
+ */
+async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortSignal | undefined): AsyncGenerator<ChatEvent> {
+  const { source } = run;
+  const { userId, timeZone, thinking, replaced } = source;
+  const workspaceId = run.workspaceId;
+  const research = source.research === true;
+  // An owner may have turned changing without asking off since the question was asked.
+  const initialMode = source.mode === "auto" && !setup.autoChanges ? "ask" : source.mode;
+  const model = source.model;
+  const { scope, skill, conversation, files } = setup;
+  const message = run.prompt;
+  const saved = run.state?.chat ? run.state : null;
+  const ctx: ops.OperationContext = { userId, actor: { userId, model: true, ...(source.asSuggestions ? { asSuggestions: true } : {}) }, timeZone };
+  const promptScope = scope ? { kind: scope.kind, title: scope.kind === "page" ? pageLabel(scope.title) : scope.title } : null;
+  const started = saved?.chat?.startedAt ?? Date.now();
   const scopeView: ChatScopeView | null = promptScope && scope ? { kind: scope.kind, id: scope.id, title: promptScope.title } : null;
   yield {
     type: "conversation",
@@ -518,173 +496,228 @@ async function* runChat(
     ...(replaced ? { replaceLast: true } : {}),
   };
 
-  const registry: Registry = { sources: [], byKey: new Map() };
-  const steps: ChatStepRecord[] = [];
+  const registry = registryOf((saved?.chat?.sources ?? []) as Registry["sources"]);
+  const steps: ChatStepRecord[] = [...(saved?.chat?.steps ?? [])];
   const step = async (record: ChatStepRecord): Promise<ChatEvent> => {
     steps.push(record);
     return { type: "step", step: await viewStep(userId, record) };
   };
-  /** Asks the person about a change, a note or a web call, pinging while the answer waits; their decision. */
-  async function* decide(action: ChatActionView): AsyncGenerator<ChatEvent, ChatDecision | "timeout"> {
-    const waiting = awaitDecision(userId, signal);
-    yield { type: "approval", id: waiting.id, action };
-    for (;;) {
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      const next = await Promise.race([waiting.decision, new Promise<"ping">((r) => (timer = setTimeout(() => r("ping"), PING_MS)))]);
-      clearTimeout(timer);
-      if (next !== "ping") return next;
-      yield { type: "ping" };
-    }
-  }
-  /**
-   * Calls a connection's tool. One that changes something there is asked about first, in every
-   * mode and each time ("don't ask again" doesn't cover it): what it sends comes from the model.
-   */
-  async function* callConnection(entry: ConnectionToolEntry, args: Record<string, unknown>, left: number): AsyncGenerator<ChatEvent, ToolOutcome> {
-    const { connection: conn, tool } = entry;
-    const writes = tool.kind === "write";
-    const record = (outcome: ChatConnectionRecord["outcome"]): ChatConnectionRecord => ({
-      kind: "connection",
-      connectionId: conn.id,
-      connection: conn.name,
-      tool: tool.name,
-      writes,
-      input: inputSummary(args),
-      outcome,
-    });
-    if (left <= 200) return { content: "There's no room left in this answer for more from connected services: answer with what you have.", isError: true };
-    if (writes) {
-      const action: ChatActionView = { action: "connection", connection: { name: conn.name, icon: conn.icon }, target: null, title: tool.title || tool.name, changes: [], content: inputSummary(args, 2_000) };
-      const decision = yield* decide(action);
-      if (decision === "decline" || decision === "timeout") {
-        return {
-          content:
-            decision === "timeout"
-              ? "The person didn't answer in time, so the call wasn't sent. Say what you would have done."
-              : "The person declined this call: it wasn't sent. Don't try it again; say what you would have done, or ask what they want instead.",
-          step: record("declined"),
-        };
-      }
-      const now = await chatToolNow(entry);
-      if (!now) return { content: "This tool is no longer allowed in the chat, so the call wasn't sent. Say what you would have done.", isError: true, step: record("declined") };
-      entry = now;
-    }
-    const out = await runConnectionTool({ entry, args, actorId: userId, chat: true, approvedBy: writes ? userId : null, room: left, signal });
-    return { content: out.content, isError: out.isError, step: record(out.step.outcome === "done" ? "done" : "failed") };
-  }
+  const earlier = conversation.messages.slice(0, conversation.messages.length - replaced);
+  // Notes the answer asked again kept or dropped: they stay done, so they go with the new answer
+  // (shown first), not with the records it replaces.
+  const carried = replaced ? (conversation.messages.at(-1)?.steps ?? []).filter((s) => s.kind === "memory" && s.outcome !== "declined") : [];
+  for (const record of saved ? steps : carried) yield { type: "step", step: await viewStep(userId, record) };
   // Leafdesk's further tools, started when the model first looks for one; a read-only chat gets
   // those that only read.
   const moreTools = lazyMoreTools(userId, { writes: initialMode !== "read" });
-  /**
-   * find_tools and use_tool (ai-more-tools.ts). A further tool that changes something is asked
-   * about as the chat's own changes are (in `ask` mode, which anything read from outside turns
-   * `auto` into), and those that reach people or run on their own in every mode, each time.
-   */
-  async function* callMore(call: AiToolCall, left: number): AsyncGenerator<ChatEvent, ToolOutcome> {
-    const more = await moreTools.open();
-    if (call.name === FIND_TOOLS.name) {
-      const query = typeof call.arguments.query === "string" ? call.arguments.query.slice(0, 200) : "";
-      return { content: findTools(more, query, left) };
-    }
-    const picked = pickMoreTool(more, call, initialMode === "read" ? " (changes are off in this chat)" : "");
-    if (!("tool" in picked)) return picked;
-    const { tool, args } = picked;
-    if (tool.writes && (tool.eachTime || mode !== "auto")) {
-      const action: ChatActionView = { action: "tool", target: null, title: tool.title, changes: [], content: inputSummary(args, 2_000), ...(tool.eachTime ? { eachTime: true } : {}) };
-      const decision = yield* decide(action);
-      if (decision === "decline" || decision === "timeout") {
-        return {
-          content:
-            decision === "timeout"
-              ? "The person didn't answer in time, so nothing was changed. Say what you would have done."
-              : "The person declined this change: nothing was changed. Don't try it again; say what you would have done, or ask what they want instead.",
-          step: moreToolStep(tool, args, "declined"),
-        };
-      }
-      if (decision === "always" && !untrusted && !tool.eachTime) mode = "auto";
-    }
-    try {
-      return await callMoreTool(more, picked, left, signal);
-    } catch (error) {
-      if (signal?.aborted) throw new AiError("aborted", "The answer was stopped");
-      throw error;
-    }
-  }
-  // Notes the answer asked again kept or dropped: they stay done, so they go with the new answer
-  // (shown first), not with the records it replaces.
-  const carried = replaced ? (existing?.messages.at(-1)?.steps ?? []).filter((s) => s.kind === "memory" && s.outcome !== "declined") : [];
-  for (const record of carried) yield { type: "step", step: await viewStep(userId, record) };
   let answer = "";
   let stopReason: "stop" | "length" = "stop";
   let failure: AiErrorCode | null = null;
   // The model that answered, and what the answer's turns cost.
-  let answeredBy: string | null = null;
-  let spentUsd = 0;
+  let answeredBy: string | null = saved?.chat?.answeredBy ?? null;
+  let spentUsd = saved?.chat?.spentUsd ?? 0;
   const limitUsd = aiConfig().limits.runLimitUsd;
-  // Something from outside (the web, a connection's tool) is in the conversation: from then on every
-  // change and note is asked about.
-  let untrusted = false;
-  // What the person wrote in the conversation: a web page whose address they gave is read without asking.
-  const typed = [message, ...(existing?.messages.slice(0, existing.messages.length - replaced) ?? []).filter((m) => m.role === "user").map((m) => m.content)];
+  // While it goes on, the worker doesn't take it as left behind (server/agents/run.ts STALE_MS).
+  const heartbeat = setInterval(() => {
+    db.update(agentRun)
+      .set({ nextAt: new Date() })
+      .where(and(eq(agentRun.id, run.id), eq(agentRun.status, "running")))
+      .catch((error: unknown) => console.error("[ai] could not mark a chat run as under way", error));
+  }, HEARTBEAT_MS);
+  heartbeat.unref?.();
   try {
+    // Keeping notes about the person changes nothing in the workspace: it's offered in every mode,
+    // and asked about unless the mode is `auto` (a read-only chat asks too), while both the person and
+    // the workspace have the memory on.
+    // Research only reads: no changes, notes or other services.
+    const remembers = !research && !source.appReadOnly && (await memoryOn(userId, workspaceId));
+    // Tools of connections that change something are left out of a read-only chat.
+    const external = setup.connections && !research ? await chatToolset(workspaceId, { writes: initialMode !== "read" }) : null;
+    const services = [...new Set([...(external?.byName.values() ?? [])].map((e) => e.connection.name))];
+    // The files of the whole conversation: questions asked later still see what was attached before.
+    const earlierFiles = earlier.flatMap((m) => m.attachments ?? []);
+    const read = await readConversationFiles(userId, workspaceId, conversation.id, earlierFiles, files);
+    const extra = { attachments: read.contents, timeZone };
+    const hasFiles = earlierFiles.length + files.records.length > 0;
+    // Reading files is offered wherever there are some; a database of a CSV file only where changes are.
+    const fileTools = read.contents.length ? [...ATTACHMENT_TOOLS, ...(initialMode === "read" || research || !read.contents.some((c) => c.kind === "csv") ? [] : ATTACHMENT_WRITE_TOOLS)] : [];
+    const webTools = setup.web ? chatWebToolset() : [];
+    // The person's own mail, where they may use the Mail tab; research only reads the workspace.
+    const mailTools = research ? [] : await chatMailToolset(userId, workspaceId, { writes: initialMode !== "read" });
+    // Reminding the person of something changes nothing in the workspace: offered in every mode but research.
+    const tools = research
+      ? [PLAN_TOOL, ...CHAT_TOOLS, ...fileTools, ...webTools]
+      : [
+          ...CHAT_TOOLS,
+          ...(initialMode === "read" ? [] : WRITE_TOOLS),
+          FIND_TOOLS,
+          USE_TOOL,
+          ...fileTools,
+          ...(remembers ? MEMORY_TOOLS : []),
+          remindTool(new Date(), timeZone, true),
+          ...webTools,
+          ...mailTools,
+          ...(external?.tools ?? []),
+        ];
+    const skillTitle = skill ? pageLabel(skill.title) : null;
+    const system = research
+      ? researchSystemPrompt(promptScope, webTools.length > 0, skillTitle, hasFiles)
+      : chatSystemPrompt(promptScope, initialMode !== "read", skillTitle, remembers, services, webTools.length > 0, hasFiles, mailTools.length > 0);
+    const toolsSize = tools.reduce((n, t) => n + t.description.length + JSON.stringify(t.parameters).length, 0);
+    const feature = research ? "chat.research" : "chat";
+    // What the model takes, less what every turn sends: the history, the map, memory and tool results
+    // share the rest.
+    const budget = await promptRoomFor(workspaceId, feature, model);
+    const room = () => Math.max(0, budget - system.length - toolsSize - 200);
+    // What the person wrote in the conversation: a web page whose address they gave is read without asking.
+    const typed = [message, ...earlier.filter((m) => m.role === "user").map((m) => m.content)];
+    const dispatch = createChatDispatch({
+      userId,
+      workspaceId,
+      conversationId: conversation.id,
+      ctx,
+      scope,
+      registry,
+      initialMode,
+      mode: saved?.mode === "auto" && !setup.autoChanges ? "ask" : (saved?.mode ?? initialMode),
+      autoChanges: setup.autoChanges,
+      research,
+      external,
+      moreTools,
+      web: webTools.length > 0,
+      mailTools: new Set(mailTools.map((t) => t.name)),
+      remembers,
+      typed,
+      timeZone,
+      extra,
+      steps,
+      signal,
+    });
+
+    // The person's notes, newest first as far as their share of the room takes them; those that
+    // don't fit are read with read_memory, offered only then (also to an answer taken up again).
+    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0, shown: 0 };
+    if (memory.shown < memory.count) tools.push(READ_MEMORY_TOOL);
+
     // ---------------------------------------------------------------------------- the question
-    // Nothing is searched for the model: it gets the map of what there is and decides itself.
-    const earlier = existing?.messages.slice(0, existing.messages.length - replaced) ?? [];
-    const history: AiMessage[] = chatHistory(earlier, Math.floor(room() * HISTORY_SHARE));
-    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.floor(room() * MEMORY_SHARE)) : { text: "", count: 0 };
-    const filesText = hasFiles ? filesPrompt(read, Math.floor((room() - sizeOf(history) - message.length - memory.text.length) * FILES_SHARE)) : "";
-    const imagesSize = read.images.length * IMAGE_CHARS;
-    const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - filesText.length - imagesSize - 2_000);
-    const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope, mapRoom) : "";
-    // A question that is only files asks about the files.
-    const asked = message || "(The person attached the files without a question: say briefly what they hold and what you could do with them.)";
-    const question: AiMessage = {
-      role: "user",
-      content: chatQuestionPrompt(asked, map, skill?.body, memory.text, { now: new Date(), timeZone }, filesText),
-      ...(read.images.length ? { images: read.images } : {}),
-    };
-    const messages: AiMessage[] = [...history, question];
+    let messages: AiMessage[];
+    let question: AiMessage;
+    if (saved?.chat) {
+      messages = saved.messages as AiMessage[];
+      question = messages[saved.chat.question];
+      // Images aren't kept with the run: read again with the files.
+      if (read.images.length && question.role === "user") question.images = read.images;
+    } else {
+      // Nothing is searched for the model: it gets the map of what there is and decides itself.
+      // Asked from a connected app (the Telegram bot), which gets no mail tools: nor what turns that read mail said.
+      const history: AiMessage[] = chatHistory(source.fromApp ? withoutMailTurns(earlier) : earlier, Math.floor(room() * HISTORY_SHARE));
+      const filesText = hasFiles ? filesPrompt(read, Math.floor((room() - sizeOf(history) - message.length - memory.text.length) * FILES_SHARE)) : "";
+      const imagesSize = read.images.length * IMAGE_CHARS;
+      const mapRoom = Math.min(MAP_CHARS, room() - sizeOf(history) - message.length - (skill?.body.length ?? 0) - memory.text.length - filesText.length - imagesSize - 2_000);
+      const map = mapRoom >= 500 ? await workspaceMap(ctx, workspaceId, scope, mapRoom) : "";
+      // A question that is only files asks about the files.
+      const asked = message || "(The person attached the files without a question: say briefly what they hold and what you could do with them.)";
+      question = {
+        role: "user",
+        content: chatQuestionPrompt(asked, map, skill?.body, memory.text, { now: new Date(), timeZone }, filesText),
+        ...(read.images.length ? { images: read.images } : {}),
+      };
+      messages = [...history, question];
+    }
     // When the model finds it all too long: old tool results go first (it can call the tool again),
     // then the earlier conversation. False when there's nothing left to drop.
     const makeRoom = () => {
       if (dropOldToolResults(messages) > 0) return true;
-      const earlier = messages.indexOf(question);
-      if (earlier > 0) messages.splice(0, earlier);
-      return earlier > 0;
+      const earlierMessages = messages.indexOf(question);
+      if (earlierMessages > 0) messages.splice(0, earlierMessages);
+      return earlierMessages > 0;
     };
     let roomMade = 0;
-    // The last turn called tools instead of answering: it's asked once more, with none run.
-    let closing = false;
+    // Turns with the model so far, and the calls of the latest still to answer (the first one, the
+    // person decided on while the run was parked).
+    let round = saved?.rounds ?? 0;
+    let queue: AiToolCall[] = saved?.queue ?? [];
+    let decided = (saved?.decision?.decision ?? null) as ChatDecision | null;
+
+    /** Where the answer stands, for going on from there. */
+    const snapshot = (): AgentRunState => ({
+      // Images are read again with the files.
+      messages: messages.map((m) => (m.role === "user" && m.images ? { ...m, images: undefined } : m)),
+      queue: queue.map((c) => ({ id: c.id, name: c.name, arguments: c.arguments })),
+      rounds: round,
+      writes: 0,
+      externalChars: 0,
+      mode: dispatch.mode,
+      chat: { question: messages.indexOf(question), sources: registry.sources, steps, spentUsd, answeredBy, startedAt: started },
+    });
+    /**
+     * Asks the person about a change, a note or a web call: the run is parked with what it asks,
+     * and waits here for their decision (pinging meanwhile), however long it takes. A server that
+     * stops meanwhile leaves it parked: decideParkedChange, or a page opening its conversation
+     * (adoptLeftBehind), goes on with it.
+     */
+    async function* park(call: AiToolCall, action: ChatActionView): AsyncGenerator<ChatEvent, ChatDecision> {
+      // Waiting before the run is parked: the person may answer as soon as they are asked.
+      const waiting = awaitDecision(userId, run.id, signal);
+      const id = waiting.id;
+      try {
+        await db
+          .update(agentRun)
+          .set({
+            status: "awaiting_approval",
+            state: snapshot(),
+            pending: { callId: call.id, connectionId: null, tool: call.name, arguments: redactValue(call.arguments), askedAt: new Date().toISOString(), action, askId: id },
+            // Taking it up again after the person's decision is no failed attempt.
+            attempts: 0,
+            nextAt: new Date(),
+          })
+          .where(eq(agentRun.id, run.id));
+        yield { type: "approval", id, action };
+        let decision: ChatDecision;
+        for (;;) {
+          let timer: ReturnType<typeof setTimeout> | undefined;
+          const next = await Promise.race([waiting.decision, new Promise<"ping">((r) => (timer = setTimeout(() => r("ping"), PING_MS)))]);
+          clearTimeout(timer);
+          if (next !== "ping") {
+            decision = next;
+            break;
+          }
+          yield { type: "ping" };
+        }
+        const [taken] = await db
+          .update(agentRun)
+          .set({ status: "running", pending: null, nextAt: new Date() })
+          .where(and(eq(agentRun.id, run.id), eq(agentRun.status, "awaiting_approval")))
+          .returning({ id: agentRun.id });
+        // Gone meanwhile: its conversation was deleted.
+        if (!taken) throw new AiError("aborted", "The answer was stopped");
+        return decision;
+      } finally {
+        waiting.cancel();
+      }
+    }
+    /** Keeps where the answer stands after each call: a run taken up again doesn't make a change twice. */
+    const checkpoint = () =>
+      db
+        .update(agentRun)
+        .set({ state: snapshot(), nextAt: new Date() })
+        .where(and(eq(agentRun.id, run.id), eq(agentRun.status, "running")));
 
     // ------------------------------------------------------------------------------ model turns
     // Turns go on until the model answers; the last (turns.ts) answers with what it has (research
     // writes its report). Each turn also counts against the workspace's rate and cost limits, and
-    // the person can stop the answer.
-    for (let round = 0; ; round++) {
-      // A long answer waits for the workspace's AI allowance rather than failing.
-      for (let wait = round > 0 ? takeWorkspaceCapacity(workspaceId) : 0; wait > 0; wait = takeWorkspaceCapacity(workspaceId)) {
-        yield { type: "ping" };
-        try {
-          await sleep(Math.min(wait, PING_MS), undefined, { signal });
-        } catch {
-          throw new AiError("aborted", "The answer was stopped");
-        }
-      }
-      const last = isLastTurn(round, spentUsd, limitUsd);
-      yield { type: "thinking" };
-      let streamed = "";
-      // Text shown since the last reset: once a tool call starts, it was the model thinking aloud.
-      let shown = false;
-      let result: AiResult;
-      try {
-        const turn = stream({
+    // the person can stop the answer (the request's signal).
+    const turns = runTurns<ChatEvent, never>(
+      messages,
+      { round, pending: queue.length > 0 },
+      {
+        request: () => ({
           feature,
           model,
           userId,
           workspaceId,
           skipRateLimit: true,
           system,
-          messages,
           // Tools stay declared (providers want them while the conversation has tool calls); the
           // last turn is told to answer instead, and what it writes is the answer.
           tools,
@@ -693,138 +726,90 @@ async function* runChat(
           ...(research ? {} : { thinking: THINKING_LEVELS[thinking] }),
           thinkingEvents: true,
           toolEvents: true,
-        });
-        for await (const event of turn) {
-          // The model's thinking is shown as it comes, and not kept.
-          if (event.type === "thinking") {
-            yield { type: "reasoning", text: event.delta };
-            continue;
-          }
-          // Writing a tool call's arguments (rows to add) can take minutes: the page shows it works.
-          if (event.type === "toolCall") {
-            if (shown) yield { type: "reset" };
-            shown = false;
-            yield { type: "thinking" };
-            continue;
-          }
-          streamed += event.delta;
-          answer = streamed;
-          shown = true;
-          yield { type: "text", text: event.delta };
-        }
-        result = await turn.result();
-      } catch (error) {
-        // Too long for the model: the same turn is asked again with room made, twice at most.
-        if (isAiError(error) && error.code === "tooLarge" && !streamed && roomMade < 2 && makeRoom()) {
-          roomMade += 1;
-          round -= 1;
-          continue;
-        }
-        throw error;
-      }
-      answeredBy = result.model;
-      spentUsd += result.usage.costUsd;
-      if (last && result.toolCalls.length && !closing) {
-        closing = true;
-        if (shown) yield { type: "reset" };
-        refuseLastCalls(messages, result);
-        round -= 1;
-        continue;
-      }
-      if (!result.toolCalls.length || last) {
-        answer = result.text;
-        stopReason = result.stopReason === "length" ? "length" : "stop";
-        break;
-      }
-      // Text before a tool call is the model thinking aloud, not the answer: it's kept as a step.
-      if (shown) yield { type: "reset" };
-      const thought = thoughtText(streamed);
-      if (thought) yield await step({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought });
-      answer = "";
-      messages.push(result.message);
-      const answerNext = isLastTurn(round + 1, spentUsd, limitUsd);
-      for (const call of result.toolCalls) {
-        const left = roomToRead(messages, () => room() - sizeOf(messages) - 300);
-        let out: ToolOutcome;
-        const entry = external?.byName.get(call.name);
-        if (entry) {
-          out = yield* callConnection(entry, call.arguments, left);
-          // What a service returns (mail, issues) can be anyone's words: what follows is asked about.
-          if (out.step?.kind === "connection" && out.step.outcome !== "declined") {
-            untrusted = true;
-            if (mode === "auto") mode = "ask";
-          }
-        } else if (MORE_TOOL_NAMES.has(call.name) && !research) out = yield* callMore(call, left);
-        // The docs topics the further tools' inputs point at are read like pages.
-        else if (call.name === "read_page" && isDocsAddress(call.arguments.page_id)) {
-          const docs = await readDocsTopic(call.arguments.page_id, left);
-          out = docs ? { content: docs } : { content: "There is no such docs topic.", isError: true };
-        } else if (research && call.name === PLAN_TOOL.name) out = runPlan(call);
-        else if (webTools.length && isChatWebTool(call.name)) {
-          // What a web call carries leaves the workspace, and what the model read could have put it
-          // there: each is asked about, in every mode, unless it reads an address the person wrote.
-          let decision: ChatDecision | "timeout" = "approve";
-          if (chatWebCallAsks(call, typed)) decision = yield* decide(webCallAction(call));
-          if (decision === "decline" || decision === "timeout") {
-            out = {
-              content:
-                decision === "timeout"
-                  ? "The person didn't answer in time, so nothing was sent to the web. Answer with what you have."
-                  : "The person declined this web call: nothing was sent. Don't try it again; answer with what you have, or ask them what to look up.",
-            };
-          } else {
-            out = await runChatWebTool(call, registry, left);
-            // Web text could pass itself off as the person's wish: what follows is asked about.
-            untrusted = true;
-            if (mode === "auto") mode = "ask";
-          }
-        }
-        else if (mailTools.some((t) => t.name === call.name) && isChatMailTool(call.name)) {
-          if (call.name === MAIL_TOOL_NAMES.draft) {
-            // A draft could carry what the model read to an address an email named: each is asked
-            // about, in every mode, and "don't ask again" doesn't cover the next.
-            const prepared = await prepareMailDraft(userId, workspaceId, call.arguments, timeZone);
-            const decision = "action" in prepared ? yield* decide(prepared.action) : "approve";
-            out = "action" in prepared ? await saveMailDraft(userId, prepared, decision) : prepared;
-          } else {
-            out = await runChatMailTool(userId, workspaceId, call, registry, left);
-            // An image of the mail described by another model: counted against this answer's limit.
-            if (out.usage) spentUsd += out.usage.costUsd;
-            // Mail and its files are anyone's words, and could pass themselves off as the person's wish: what follows is asked about.
-            if (!out.isError) {
-              untrusted = true;
-              if (mode === "auto") mode = "ask";
+        }),
+        streaming: true,
+        spentUsd: () => spentUsd,
+        limitUsd,
+        async *beforeTurn(at) {
+          // A long answer waits for the workspace's AI allowance rather than failing.
+          for (let wait = at > 0 ? takeWorkspaceCapacity(workspaceId) : 0; wait > 0; wait = takeWorkspaceCapacity(workspaceId)) {
+            yield { type: "ping" };
+            try {
+              await sleep(Math.min(wait, PING_MS), undefined, { signal });
+            } catch {
+              throw new AiError("aborted", "The answer was stopped");
             }
           }
-        }
-        // With the memory off, remember and forget aren't offered: called anyway, they're unknown.
-        else if (remembers && MEMORY_TOOL_NAMES.has(call.name)) {
-          // Text the model read could pass itself off as a lasting note: the person approves each.
-          const prepared = await prepareMemory(userId, workspaceId, call);
-          let decision: ChatDecision | "timeout" = "approve";
-          if ("action" in prepared && mode !== "auto") decision = yield* decide(prepared.action);
-          out = "action" in prepared ? await applyMemory(userId, workspaceId, conversation.id, prepared, decision) : prepared;
-        } else if (!writeTools.has(call.name)) out = await runTool(ctx, workspaceId, scope, call, registry, left, extra);
-        else if (mode === "read") out = { content: "Changes are off in this chat: say what you would change instead.", isError: true };
-        else {
-          const prepared = await prepareWrite(ctx, workspaceId, scope, call, extra);
-          let decision: ChatDecision | "timeout" = "approve";
-          if ("action" in prepared && mode === "ask") {
-            decision = yield* decide(prepared.action);
-            if (decision === "always" && !untrusted) mode = "auto";
+          return null;
+        },
+        afterTurn: async (result) => {
+          answeredBy = result.model;
+          spentUsd += result.usage.costUsd;
+          return null;
+        },
+        // Twice at most, and not once text was shown.
+        makeRoom: (streamed) => {
+          if (streamed || roomMade >= 2 || !makeRoom()) return false;
+          roomMade += 1;
+          return true;
+        },
+        thought: async (text) => {
+          answer = "";
+          const thought = thoughtText(text);
+          return thought ? await step({ kind: "thought", text: thought.length > THOUGHT_CHARS ? `${thought.slice(0, THOUGHT_CHARS - 1).trimEnd()}…` : thought }) : null;
+        },
+        async *answerCalls(calls, answerNext) {
+          if (calls) {
+            queue = [...calls];
+            round += 1;
           }
-          out = "action" in prepared ? await applyWrite(prepared, decision, registry) : prepared;
+          while (queue.length) {
+            const call = queue[0];
+            const left = roomToRead(messages, () => room() - sizeOf(messages) - 300);
+            let out = await dispatch.answer(call, decided, left);
+            decided = null;
+            while ("ask" in out) {
+              const decision = yield* park(call, out.ask);
+              out = await dispatch.answer(call, decision, left);
+            }
+            // An image of the mail described by another model: counted against this answer's limit.
+            if (out.usage) spentUsd += out.usage.costUsd;
+            if (out.step) yield await step(out.step);
+            const content = answerNext ? `${out.content}\n\n${ANSWER_NOW}` : out.content;
+            messages.push({ role: "tool", toolCallId: call.id, name: call.name, content, isError: out.isError });
+            queue.shift();
+            await checkpoint();
+          }
+          return null;
+        },
+      },
+    );
+    try {
+      for (;;) {
+        const next = await turns.next();
+        if (next.done) {
+          if (next.value.answered) {
+            answer = next.value.text;
+            stopReason = next.value.stopReason;
+          }
+          break;
         }
-        if (out.step) yield await step(out.step);
-        const content = answerNext ? `${out.content}\n\n${ANSWER_NOW}` : out.content;
-        messages.push({ role: "tool", toolCallId: call.id, name: call.name, content, isError: out.isError });
+        const event = next.value;
+        // What was written so far is kept if the person stops the answer.
+        if (event.type === "text") answer += event.text;
+        else if (event.type === "reset") answer = "";
+        yield event;
       }
+    } finally {
+      // Closed early (no one follows a run that waits here any more): the turn's waits close too.
+      await turns.return({ answered: false, ending: undefined as never });
     }
     if (!answer.trim()) throw new AiError("empty", "The model gave no answer");
   } catch (error) {
     failure = isAiError(error) ? error.code : "provider";
     if (!isAiError(error)) console.error("[ai] chat failed", error);
   } finally {
+    clearInterval(heartbeat);
     await moreTools.close();
   }
 
@@ -838,49 +823,259 @@ async function* runChat(
     const refs: ChatSourceRef[] = registry.sources
       .filter((s) => cited.has(s.n))
       .map((s) => (s.url ? { n: s.n, url: s.url, title: s.title } : { n: s.n, pageId: s.pageId, blockId: s.blockId }));
+    const sources = await viewSources(userId, refs);
     const now = new Date().toISOString();
     const note = stopped ? "stopped" : failure ? undefined : stopReason === "length" ? "cutOff" : undefined;
     const ms = Date.now() - started;
     const kept = files.records;
-    await saveTurn(
-      conversation.id,
-      [
-        {
-          role: "user",
-          content: message,
-          ...(skill ? { skill: { id: skill.id, title: skill.title } } : {}),
-          ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
-          ...(kept.length ? { attachments: kept } : {}),
-          ...(research ? { research: true } : {}),
-          at: now,
-        },
-        {
-          role: "assistant",
-          content: answer,
-          sources: refs,
-          ...(note ? { note } : {}),
-          steps: [...carried, ...steps],
-          ms,
-          ...(research ? { research: true } : {}),
-          ...(answeredBy ? { model: answeredBy } : {}),
-          at: now,
-        },
-      ],
-      replaced,
-      model,
-      thinking,
-    );
-    // Kept with the question: they now go with the conversation.
-    await keepQuestionFiles(conversation.id, kept.map((f) => f.id));
-    await pruneConversations(userId, workspaceId);
-    yield { type: "sources", sources: await viewSources(userId, refs) };
+    // The turn and the run's end together: a run taken up again never answers on top of a kept turn.
+    await db.transaction(async (tx) => {
+      await saveTurn(
+        tx,
+        conversation.id,
+        [
+          {
+            role: "user",
+            content: message,
+            ...(skill ? { skill: { id: skill.id, title: skill.title } } : {}),
+            ...(scope ? { scope: { kind: scope.kind, id: scope.id } } : {}),
+            ...(kept.length ? { attachments: kept } : {}),
+            ...(research ? { research: true } : {}),
+            at: now,
+          },
+          {
+            role: "assistant",
+            content: answer,
+            sources: refs,
+            ...(note ? { note } : {}),
+            steps: [...carried, ...steps],
+            ms,
+            ...(research ? { research: true } : {}),
+            ...(answeredBy ? { model: answeredBy } : {}),
+            at: now,
+          },
+        ],
+        replaced,
+        model,
+        thinking,
+      );
+      await tx.delete(agentRun).where(eq(agentRun.id, run.id));
+    });
+    // The answer ends as soon as its turn is saved: a page opening the conversation now finds the
+    // turn there, and no answer on its way to follow again on top of it (ai-chat-runs.ts runningIn).
+    yield { type: "sources", sources };
     if (!failure) yield { type: "done", stopReason, ms };
     else yield { type: "error", code: failure };
+    // Kept with the question: they now go with the conversation.
+    await keepQuestionFiles(conversation.id, kept.map((f) => f.id));
+    if (source.scheduleId) await scheduledOutcome(source.scheduleId, failure);
+    await pruneConversations(userId, workspaceId);
     return;
   }
+  if (source.scheduleId) await scheduledOutcome(source.scheduleId, failure);
   // Nothing to keep: a conversation this question started goes again.
-  if (!existing) await db.delete(aiConversation).where(and(eq(aiConversation.id, conversation.id), sql`jsonb_array_length(${aiConversation.messages}) = 0`));
+  await db.delete(agentRun).where(eq(agentRun.id, run.id));
+  if (source.started) await db.delete(conversationTable).where(and(eq(conversationTable.id, conversation.id), sql`jsonb_array_length(${conversationTable.messages}) = 0`));
   yield { type: "error", code: failure };
+}
+
+/**
+ * How an answer one of the person's own schedules asked for ended (server/own-requests.ts), for the
+ * schedule's failures in a row; one the person stopped counts neither way.
+ */
+async function scheduledOutcome(scheduleId: string, failure: AiErrorCode | null) {
+  if (failure === "aborted") return;
+  await noteScheduleOutcome(scheduleId, failure === null);
+}
+
+/** The sources an answer may cite, as it left them (server/ai-tools.ts register). */
+function registryOf(sources: Registry["sources"]): Registry {
+  const byKey = new Map(sources.map((s) => [s.url ? `url:${s.url}` : `${s.pageId}#${s.blockId ?? ""}`, s.n] as const));
+  return { sources: [...sources], byKey };
+}
+
+/**
+ * Goes on with an answer of the person's in this process: taken by the agents' worker (after they
+ * decided on a change while no one waited for it here, or left running by a server that stopped),
+ * or by a page opening its conversation (adoptLeftBehind). Its checks run again, with the person's
+ * access as it is now. It runs as a chat answer does (ai-chat-runs.ts, under the run's own id), so
+ * the page follows it; this returns once it ends or asks the person, and a decision it waits on
+ * then is answered here.
+ */
+export async function resumeChatRun(run: AssistantRun): Promise<void> {
+  const { source } = run;
+  if (run.attempts > MAX_RESUMES) return abandon(run);
+  // Asked through a connected app (the Telegram bot): held as it was then.
+  const held = <T>(fn: () => Promise<T>) => (source.fromApp ? runAsConnectedApp({ userId: source.userId }, fn) : fn());
+  const setup = await held(() => resumeSetup(run)).catch((error: unknown) => {
+    if (isAiError(error) || error instanceof AccessError) return null;
+    throw error;
+  });
+  // It can't go on (the person left the workspace, AI is off, the conversation is gone): nothing more is done.
+  if (!setup) return abandon(run);
+  const live = openRun({ id: run.id, userId: source.userId, workspaceId: run.workspaceId, conversationId: source.conversationId });
+  // Followed here already: someone else goes on with it.
+  if (!live) return;
+  let settled = () => {};
+  const asked = new Promise<void>((resolve) => (settled = resolve));
+  async function* events() {
+    try {
+      for await (const event of converseChat(run, setup!, live!.controller.signal)) {
+        yield event;
+        if (event.type === "approval") settled();
+      }
+    } finally {
+      settled();
+    }
+  }
+  void held(() => runEvents(live, events()));
+  await asked;
+}
+
+/**
+ * Goes on here with the person's answer in a conversation that a server that stopped left waiting
+ * on their decision, or left running (its heartbeat stopped): it asks them again, for the page
+ * opening the conversation to follow. The id it runs under, or null when there is none.
+ */
+async function adoptLeftBehind(userId: string, workspaceId: string, conversationId: string): Promise<string | null> {
+  const waitingHere = [...runsWaitingHere()];
+  const [taken] = await db
+    .update(agentRun)
+    .set({ status: "running", nextAt: new Date(), attempts: sql`${agentRun.attempts} + 1` })
+    .where(
+      and(
+        isNull(agentRun.agentId),
+        eq(agentRun.workspaceId, workspaceId),
+        sql`${agentRun.source}->>'userId' = ${userId}`,
+        sql`${agentRun.source}->>'conversationId' = ${conversationId}`,
+        or(
+          and(eq(agentRun.status, "awaiting_approval"), waitingHere.length ? notInArray(agentRun.id, waitingHere) : undefined),
+          and(eq(agentRun.status, "running"), lt(agentRun.nextAt, new Date(Date.now() - 3 * HEARTBEAT_MS))),
+        ),
+      ),
+    )
+    .returning();
+  if (!taken || taken.source.kind !== "assistant") return null;
+  await resumeChatRun({ ...taken, source: taken.source });
+  return runningIn(userId, conversationId);
+}
+
+/** What a run going on works with, checked again as startChat checks it. */
+async function resumeSetup(run: AssistantRun): Promise<ChatSetup> {
+  const { userId, conversationId } = run.source;
+  const membership = await requireMembership(userId, run.workspaceId);
+  if (!(await aiAvailable(run.workspaceId))) refuse("disabled", "AI is off for this workspace");
+  const conversation = await ownConversation(userId, run.workspaceId, conversationId);
+  const scope = run.source.scope ? await chatScope(userId, run.workspaceId, run.source.scope) : null;
+  const skill = run.source.skillId ? await chatSkill(userId, run.workspaceId, run.source.skillId) : null;
+  const rows = (await questionFiles(userId, run.workspaceId, conversationId, run.source.files.map((f) => f.id), { all: false })) ?? [];
+  const there = new Set(rows.map((r) => r.id));
+  return {
+    scope,
+    skill,
+    conversation,
+    connections: !isGuest(membership.role),
+    files: { records: run.source.files.filter((f) => there.has(f.id)), rows },
+    web: await chatWebOn(run.workspaceId),
+    autoChanges: await chatAutoOn(run.workspaceId),
+  };
+}
+
+/**
+ * Decides a change the person was asked about: the answer waiting on it here goes on; one no one
+ * waits on in this process (the server restarted meanwhile) goes on in the agents' worker. False
+ * when it isn't theirs or no longer waits.
+ */
+export async function decideParkedChange(userId: string, approvalId: string, decision: ChatDecision): Promise<boolean> {
+  if (decideChange(userId, approvalId, decision)) return true;
+  const [found] = await db
+    .update(agentRun)
+    .set({
+      status: "pending",
+      pending: null,
+      nextAt: new Date(),
+      state: sql`jsonb_set(${agentRun.state}, '{decision}', ${JSON.stringify({ decision, userId })}::jsonb)`,
+    })
+    .where(
+      and(
+        isNull(agentRun.agentId),
+        eq(agentRun.status, "awaiting_approval"),
+        sql`${agentRun.pending}->>'askId' = ${approvalId}`,
+        sql`${agentRun.source}->>'userId' = ${userId}`,
+      ),
+    )
+    .returning({ id: agentRun.id });
+  if (!found) return false;
+  kickAgents();
+  return true;
+}
+
+/**
+ * Gives up an answer that can't go on: what it changed (rows, pages, notes) is still kept in the
+ * conversation, as a turn marked stopped, as when the person stops it; else it just goes.
+ */
+async function abandon(run: AssistantRun) {
+  const { source } = run;
+  const steps = run.state?.chat?.steps ?? [];
+  const changed = steps.some((s) => changedThings(s) || (s.kind === "memory" && changedMemory(s)));
+  const at = new Date().toISOString();
+  await db.transaction(async (tx) => {
+    if (changed) {
+      const question: ChatMessageRecord = {
+        role: "user",
+        content: run.prompt,
+        ...(source.scope ? { scope: "pageId" in source.scope ? { kind: "page" as const, id: source.scope.pageId } : { kind: "teamspace" as const, id: source.scope.teamspaceId } } : {}),
+        ...(source.files.length ? { attachments: source.files } : {}),
+        ...(source.research ? { research: true } : {}),
+        at,
+      };
+      const ms = Date.now() - (run.state?.chat?.startedAt ?? run.createdAt.getTime());
+      await saveTurn(tx, source.conversationId, [question, { role: "assistant", content: "", sources: [], note: "stopped", steps, ms, at }], source.replaced, source.model, source.thinking);
+    }
+    await tx.delete(agentRun).where(eq(agentRun.id, run.id));
+  });
+  if (changed) await keepQuestionFiles(source.conversationId, source.files.map((f) => f.id));
+  if (source.scheduleId) await scheduledOutcome(source.scheduleId, "provider");
+}
+
+/** Answers of the person's in a conversation left waiting on them by a server that stopped: no one can answer them now. */
+async function dropLeftBehind(userId: string, conversationId: string) {
+  const waitingHere = [...runsWaitingHere()];
+  const left = await db
+    .select()
+    .from(agentRun)
+    .where(
+      and(
+        isNull(agentRun.agentId),
+        eq(agentRun.status, "awaiting_approval"),
+        sql`${agentRun.source}->>'userId' = ${userId}`,
+        sql`${agentRun.source}->>'conversationId' = ${conversationId}`,
+        waitingHere.length ? notInArray(agentRun.id, waitingHere) : undefined,
+      ),
+    );
+  for (const run of left) if (run.source.kind === "assistant") await abandon({ ...run, source: run.source });
+}
+
+/**
+ * Whether a conversation is still being answered, so a question asked there now would be saved
+ * beside that answer: here (ai-chat-runs.ts conversationBusy), or by the agents' worker going on
+ * with one after the person's decision or a restart.
+ */
+export async function answerUnderWay(userId: string, conversationId: string): Promise<boolean> {
+  if (await conversationBusy(userId, conversationId)) return true;
+  const [found] = await db
+    .select({ id: agentRun.id })
+    .from(agentRun)
+    .where(
+      and(
+        isNull(agentRun.agentId),
+        inArray(agentRun.status, ["pending", "running"]),
+        sql`${agentRun.source}->>'userId' = ${userId}`,
+        sql`${agentRun.source}->>'conversationId' = ${conversationId}`,
+      ),
+    )
+    .limit(1);
+  return Boolean(found);
 }
 
 // ---------------------------------------------------------------------------- conversations
@@ -889,38 +1084,39 @@ async function* runChat(
  * Adds a question and its answer to a conversation, in place of its last `replace` records;
  * `model` and `thinking`: what it now answers with.
  */
-async function saveTurn(conversationId: string, records: ChatMessageRecord[], replace: number, model: string | null, thinking: ChatThinking) {
+async function saveTurn(tx: Tx, conversationId: string, records: ChatMessageRecord[], replace: number, model: string | null, thinking: ChatThinking) {
   // Keeps the records before the replaced ones (a jsonb array's elements, in order).
   const kept = replace
-    ? sql`coalesce((select jsonb_agg(e order by i) from jsonb_array_elements(${aiConversation.messages}) with ordinality as t(e, i) where i <= jsonb_array_length(${aiConversation.messages}) - ${replace}), '[]'::jsonb)`
-    : sql`${aiConversation.messages}`;
-  await db
-    .update(aiConversation)
+    ? sql`coalesce((select jsonb_agg(e order by i) from jsonb_array_elements(${conversationTable.messages}) with ordinality as t(e, i) where i <= jsonb_array_length(${conversationTable.messages}) - ${replace}), '[]'::jsonb)`
+    : sql`${conversationTable.messages}`;
+  await tx
+    .update(conversationTable)
     .set({ messages: sql`${kept} || ${JSON.stringify(records)}::jsonb`, model, thinking, updatedAt: new Date() })
-    .where(eq(aiConversation.id, conversationId));
+    .where(eq(conversationTable.id, conversationId));
 }
 
 /** Keeps the person's MAX_CONVERSATIONS most recent conversations in the workspace. */
 async function pruneConversations(userId: string, workspaceId: string) {
   const keep = await db
-    .select({ id: aiConversation.id })
-    .from(aiConversation)
-    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId)))
-    .orderBy(desc(aiConversation.updatedAt))
+    .select({ id: conversationTable.id })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId)))
+    .orderBy(desc(conversationTable.updatedAt))
     .limit(MAX_CONVERSATIONS);
   if (keep.length < MAX_CONVERSATIONS) return;
+  // A conversation being answered (an old one asked again, in another tab or from Telegram) stays:
+  // its answer saves into it.
+  const answering = [...answeringIn(userId, workspaceId)];
   const old = and(
-    eq(aiConversation.userId, userId),
-    eq(aiConversation.workspaceId, workspaceId),
-    notInArray(
-      aiConversation.id,
-      keep.map((k) => k.id),
-    ),
+    eq(conversationTable.userId, userId),
+    eq(conversationTable.workspaceId, workspaceId),
+    isNull(conversationTable.agentId),
+    notInArray(conversationTable.id, [...keep.map((k) => k.id), ...answering]),
   );
-  const gone = await db.select({ id: aiConversation.id }).from(aiConversation).where(old);
+  const gone = await db.select({ id: conversationTable.id }).from(conversationTable).where(old);
   if (!gone.length) return;
   await deleteConversationFiles(gone.map((c) => c.id));
-  await db.delete(aiConversation).where(inArray(aiConversation.id, gone.map((c) => c.id)));
+  await db.delete(conversationTable).where(inArray(conversationTable.id, gone.map((c) => c.id)));
 }
 
 /** A step as the person may see it now: a page read that they can't open has no title. */
@@ -985,10 +1181,10 @@ export async function viewSources(userId: string, refs: ChatSourceRef[]): Promis
 export async function listConversations(userId: string, workspaceId: string): Promise<ConversationSummary[]> {
   await requireMembership(userId, workspaceId);
   const rows = await db
-    .select({ id: aiConversation.id, title: aiConversation.title, updatedAt: aiConversation.updatedAt })
-    .from(aiConversation)
-    .where(and(eq(aiConversation.userId, userId), eq(aiConversation.workspaceId, workspaceId)))
-    .orderBy(desc(aiConversation.updatedAt));
+    .select({ id: conversationTable.id, title: conversationTable.title, updatedAt: conversationTable.updatedAt })
+    .from(conversationTable)
+    .where(and(eq(conversationTable.userId, userId), eq(conversationTable.workspaceId, workspaceId), isNull(conversationTable.agentId)))
+    .orderBy(desc(conversationTable.updatedAt));
   const answering = answeringIn(userId, workspaceId);
   return rows.map((r) => ({ id: r.id, title: r.title, updatedAt: r.updatedAt.toISOString(), ...(answering.has(r.id) ? { answering: true as const } : {}) }));
 }
@@ -1034,7 +1230,7 @@ export async function getConversation(userId: string, workspaceId: string, conve
       };
     }),
   );
-  return { id: found.id, title: found.title, model: found.model, thinking: found.thinking ?? "balanced", messages, run: runningIn(userId, found.id) };
+  return { id: found.id, title: found.title, model: found.model, thinking: found.thinking ?? "balanced", messages, run: runningIn(userId, found.id) ?? (await adoptLeftBehind(userId, workspaceId, found.id)) };
 }
 
 const attachmentView = (a: ChatAttachmentRecord): ChatAttachmentView => ({ ...a, url: chatFileUrl(a.id) });
@@ -1064,17 +1260,63 @@ export async function saveReportAsPage(
   return { pageId: made.id };
 }
 
-/** Deletes conversations of the person (only theirs), stopping answers on their way in them. */
+/**
+ * Undo on a note an answer kept, changed or dropped (ai-memory.ts undoNote): the note goes back to
+ * what it was and the step says it was undone. MemoryError `busy` while the conversation is being
+ * answered (its turn would be saved over the mark), `changed` when the note changed since, `full`.
+ */
+export async function undoChatNote(userId: string, workspaceId: string, conversationId: string, memoryId: string): Promise<void> {
+  await requireMembership(userId, workspaceId);
+  const found = await ownConversation(userId, workspaceId, conversationId);
+  const step = found.messages.flatMap((m) => m.steps ?? []).find((s) => s.kind === "memory" && s.memoryId === memoryId && s.outcome === "done");
+  if (!step || step.kind !== "memory") throw new MemoryError("notFound", "Note not found");
+  if (await answerUnderWay(userId, conversationId)) throw new MemoryError("busy", "The conversation is being answered");
+  const undone = await undoNote(userId, workspaceId, step);
+  if (undone !== "done") throw new MemoryError(undone, "The note can't be undone");
+  await db.transaction(async (tx) => {
+    const [now] = await tx.select({ messages: conversationTable.messages }).from(conversationTable).where(eq(conversationTable.id, conversationId)).for("update");
+    if (!now) return;
+    const messages = (now.messages as ChatMessageRecord[]).map((m) =>
+      m.steps?.some((s) => s.kind === "memory" && s.memoryId === memoryId)
+        ? { ...m, steps: m.steps.map((s) => (s.kind === "memory" && s.memoryId === memoryId && s.outcome === "done" ? { ...s, outcome: "undone" as const } : s)) }
+        : m,
+    );
+    await tx.update(conversationTable).set({ messages }).where(eq(conversationTable.id, conversationId));
+  });
+}
+
+/** Deletes conversations of the person (only theirs), stopping answers on their way in them and dropping those parked there. */
 export async function deleteConversations(userId: string, workspaceId: string, conversationIds: string[] | "all") {
   await requireMembership(userId, workspaceId);
   stopRunsIn(userId, workspaceId, conversationIds);
   const theirs = and(
-    eq(aiConversation.userId, userId),
-    eq(aiConversation.workspaceId, workspaceId),
-    conversationIds === "all" ? undefined : inArray(aiConversation.id, conversationIds.length ? conversationIds : [""]),
+    eq(conversationTable.userId, userId),
+    eq(conversationTable.workspaceId, workspaceId),
+    isNull(conversationTable.agentId),
+    conversationIds === "all" ? undefined : inArray(conversationTable.id, conversationIds.length ? conversationIds : [""]),
   );
   // Their files go with them, from storage too.
-  const gone = await db.select({ id: aiConversation.id }).from(aiConversation).where(theirs);
+  const gone = await db.select({ id: conversationTable.id }).from(conversationTable).where(theirs);
   await deleteConversationFiles(gone.map((c) => c.id));
-  await db.delete(aiConversation).where(theirs);
+  if (gone.length) {
+    await db
+      .delete(agentRun)
+      .where(and(isNull(agentRun.agentId), sql`${agentRun.source}->>'userId' = ${userId}`, sql`${agentRun.source}->>'conversationId' in ${gone.map((c) => c.id)}`));
+  }
+  await db.delete(conversationTable).where(theirs);
+}
+
+/** A conversation's records less the turns whose answer read email (lib/agents.ts readEmail), question and answer alike. */
+export function withoutMailTurns<T extends { role: "user" | "assistant"; steps?: { kind: string; action?: unknown }[] }>(records: T[]): T[] {
+  const kept: T[] = [];
+  for (let i = 0; i < records.length; i++) {
+    const next = records[i + 1];
+    if (records[i].role === "user" && next?.role === "assistant" && readEmail(next.steps)) {
+      i++;
+      continue;
+    }
+    if (records[i].role === "assistant" && readEmail(records[i].steps)) continue;
+    kept.push(records[i]);
+  }
+  return kept;
 }

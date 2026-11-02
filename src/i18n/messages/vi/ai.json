@@ -159,8 +159,12 @@
     "memoryHint": "Khi bật, trò chuyện AI giữ các ghi chú ngắn về những người kể về bản thân họ, và gửi chúng kèm các câu hỏi sau đó của họ. Mỗi người có thể tự tắt cho mình. Khi tắt, chế độ xem Bộ nhớ bị ẩn và câu hỏi của không ai kèm ghi chú; các ghi chú được giữ lại, không bị xóa. Khi đó các lần chạy của tác tử không kèm ghi chú nào và cũng không đề xuất ghi chú nào.",
     "webSearch": "Tìm kiếm web trong trò chuyện AI",
     "webSearchHint": "Khi bật, trò chuyện AI có thể tìm kiếm trên web bằng dịch vụ tìm kiếm của máy chủ và đọc các trang web, chỉ đọc: sau khi đã đọc từ web, mọi thay đổi nó muốn thực hiện đều được hỏi trước. Chế độ nghiên cứu cũng tìm kiếm trên web. Câu hỏi và văn bản trang dùng để tìm kiếm sẽ rời không gian làm việc để đến dịch vụ tìm kiếm.",
+    "autoChanges": "Thay đổi không cần hỏi",
+    "autoChangesHint": "Khi bật, mọi người có thể đặt trò chuyện AI ở chế độ Tự động hoặc chọn \"Đừng hỏi lại\", để nó thay đổi mà không hỏi mỗi lần. Khi tắt, trò chuyện hỏi trước mỗi thay đổi.",
     "provider": "Nhà cung cấp",
     "providerValue": "{provider}, mô hình {model}",
+    "chatModels": "Mô hình trò chuyện",
+    "chatModelsValue": "Có thể chọn {models} trong trò chuyện AI.",
     "notConfigured": "Chưa thiết lập nhà cung cấp AI hay mô hình embedding nào trên máy chủ này, nên các tính năng AI đang tắt. Quản trị viên có thể thiết lập bằng các biến môi trường AI_PROVIDER và AI_MODEL (và AI_EMBEDDINGS_MODEL) (xem README).",
     "noProvider": "Không có: trợ lý viết, thuộc tính AI và trò chuyện AI cần AI_PROVIDER và AI_MODEL.",
     "semanticSearch": "Tìm kiếm ngữ nghĩa",
@@ -308,7 +312,11 @@
           "forget": "Đã từ chối quên:"
         },
         "correct": "Đã ghi nhận là một đính chính:",
-        "undone": "Đã hoàn tác đính chính:"
+        "undone": "Đã hoàn tác đính chính:",
+        "undoneNote": {
+          "remember": "Đã hoàn tác ghi nhớ:",
+          "forget": "Đã hoàn tác quên:"
+        }
       },
       "connection": {
         "done": "{connection}: đã gọi {tool}",
@@ -319,6 +327,10 @@
         "done": "Đã dùng {tool}",
         "failed": "{tool} thất bại",
         "declined": "Đã từ chối: {tool}"
+      },
+      "reminder": {
+        "done": "Đã đặt lời nhắc lúc {when}:",
+        "declined": "Đã từ chối lời nhắc lúc {when}:"
       },
       "mail": {
         "searched": "Đã tìm trong thư “{query}” · {count, plural, =0 {không tìm thấy gì} other {# chuỗi thư}}",
@@ -362,6 +374,7 @@
         "createPage": "Thêm trang này?",
         "remember": "Ghi nhớ điều này về bạn?",
         "forget": "Quên ghi chú này?",
+        "remind": "Nhắc bạn điều này?",
         "editPage": "Thay đổi nội dung của trang này?",
         "createPdf": "Tạo PDF của trang này và đính kèm?",
         "createDocx": "Tạo tài liệu Word của trang này và đính kèm?",
@@ -379,6 +392,7 @@
       "row": "Hàng",
       "topLevel": "Ở cấp cao nhất của không gian làm việc, riêng tư cho bạn",
       "memoryHint": "Bộ nhớ: gửi kèm các câu hỏi sau đó của bạn trong không gian làm việc này",
+      "remindHint": "{when}: phía trên trang bạn đang mở, trong hộp thư đến và trên điện thoại của bạn",
       "cleared": "(đã xóa)",
       "approve": "Có",
       "always": "Có, và đừng hỏi lại (Tự động)",
@@ -521,7 +535,9 @@
       "tooLong": "Một ghi chú có tối đa {max} ký tự.",
       "full": "Bộ nhớ chứa tối đa {max} ghi chú. Hãy xóa một ghi chú trước.",
       "notFound": "Ghi chú đó không còn nữa.",
-      "off": "Bộ nhớ AI đã bị tắt trong không gian làm việc này."
+      "off": "Bộ nhớ AI đã bị tắt trong không gian làm việc này.",
+      "changed": "Ghi chú đó đã thay đổi kể từ đó. Hãy sửa nó trong Bộ nhớ.",
+      "busy": "Hãy đợi câu trả lời xong."
     }
   },
   "accounts": {

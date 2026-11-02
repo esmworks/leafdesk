@@ -11,6 +11,7 @@
     "open": "Venter",
     "decided": "Besvaret",
     "allRows": "Vis alle rækker",
+    "allRuns": "Vis alle kørsler",
     "clear": "Ryd filtre"
   },
   "count": "{count, plural, one {# ændring} other {# ændringer}}",

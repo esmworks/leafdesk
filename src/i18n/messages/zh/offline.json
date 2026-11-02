@@ -6,6 +6,12 @@
   "readOnlyCopy": "{time} 的离线副本，只读",
   "signOutUnsynced": "部分页面的编辑尚未同步到服务器。退出登录会将它们从此浏览器中删除。仍要退出登录吗？",
   "installApp": "安装应用",
+  "iosInstall": {
+    "title": "将 Leafdesk 添加到主屏幕",
+    "share": "轻点“分享”按钮，它在浏览器工具栏中，或在地址旁的菜单里。",
+    "add": "选择“添加到主屏幕”（如果列表中没有，请轻点“更多”），然后轻点“添加”。",
+    "done": "之后 Leafdesk 会从它的图标在独立窗口中打开，没有浏览器的栏。"
+  },
   "page": {
     "documentTitle": "离线",
     "heading": "你已离线",

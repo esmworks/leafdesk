@@ -159,8 +159,12 @@
     "memoryHint": "Als dit aan staat, houdt de AI-chat korte notities bij over mensen die iets over zichzelf vertellen, en stuurt die mee met hun latere vragen. Iedereen kan het voor zichzelf uitschakelen. Als het uit staat, is de weergave Geheugen verborgen en gaan er bij niemands vragen notities mee; de notities blijven bewaard en worden niet verwijderd. Runs van agents nemen dan ook geen notities mee en stellen er geen voor.",
     "webSearch": "Zoeken op het web in de AI-chat",
     "webSearchHint": "Als dit aan staat, mag de AI-chat met de zoekdienst van de server op het web zoeken en webpagina’s lezen, alleen lezend: nadat er van het web is gelezen, wordt elke wijziging die de chat wil doen eerst gevraagd. De onderzoeksmodus zoekt ook op het web. Vragen en paginatekst waarmee wordt gezocht, verlaten de werkruimte voor de zoekdienst.",
+    "autoChanges": "Wijzigingen zonder te vragen",
+    "autoChangesHint": "Als dit aan staat, kunnen mensen de AI-chat op Automatisch zetten of \"Niet meer vragen\" kiezen, zodat hij wijzigingen maakt zonder elke keer te vragen. Als het uit staat, vraagt de chat vóór elke wijziging.",
     "provider": "Provider",
     "providerValue": "{provider}, model {model}",
+    "chatModels": "Chatmodellen",
+    "chatModelsValue": "In de AI-chat kun je {models} kiezen.",
     "notConfigured": "Er is geen AI-provider of embeddingsmodel ingesteld op deze server, dus AI-functies staan uit. Een beheerder kan ze instellen met de omgevingsvariabelen AI_PROVIDER en AI_MODEL (en AI_EMBEDDINGS_MODEL) (zie de README).",
     "noProvider": "Geen: de schrijfassistent, AI-eigenschappen en de AI-chat hebben AI_PROVIDER en AI_MODEL nodig.",
     "semanticSearch": "Semantisch zoeken",
@@ -308,7 +312,11 @@
           "forget": "Vergeten geweigerd:"
         },
         "correct": "Genoteerd als correctie:",
-        "undone": "Correctie ongedaan gemaakt:"
+        "undone": "Correctie ongedaan gemaakt:",
+        "undoneNote": {
+          "remember": "Onthouden ongedaan gemaakt:",
+          "forget": "Vergeten ongedaan gemaakt:"
+        }
       },
       "connection": {
         "done": "{connection}: {tool} aangeroepen",
@@ -319,6 +327,10 @@
         "done": "{tool} gebruikt",
         "failed": "{tool} mislukt",
         "declined": "Geweigerd: {tool}"
+      },
+      "reminder": {
+        "done": "Herinnering gezet voor {when}:",
+        "declined": "Herinnering voor {when} geweigerd:"
       },
       "mail": {
         "searched": "E-mail doorzocht op ‘{query}’ · {count, plural, =0 {niets gevonden} one {# gesprek} other {# gesprekken}}",
@@ -362,6 +374,7 @@
         "createPage": "Deze pagina toevoegen?",
         "remember": "Dit over jou onthouden?",
         "forget": "Deze notitie vergeten?",
+        "remind": "Je hieraan herinneren?",
         "editPage": "De tekst van deze pagina wijzigen?",
         "createPdf": "Een pdf van deze pagina maken en bijvoegen?",
         "createDocx": "Een Word-document van deze pagina maken en bijvoegen?",
@@ -379,6 +392,7 @@
       "row": "Rij",
       "topLevel": "Bovenaan de werkruimte, alleen zichtbaar voor jou",
       "memoryHint": "Geheugen: meegestuurd met je latere vragen in deze werkruimte",
+      "remindHint": "{when}: boven de pagina die je open hebt, in je inbox en op je telefoon",
       "cleared": "(gewist)",
       "approve": "Ja",
       "always": "Ja, en niet meer vragen (Automatisch)",
@@ -521,7 +535,9 @@
       "tooLong": "Een notitie mag maximaal {max} tekens hebben.",
       "full": "Het geheugen bevat maximaal {max} notities. Verwijder er eerst een.",
       "notFound": "Die notitie bestaat niet meer.",
-      "off": "Het AI-geheugen is uitgeschakeld in deze werkruimte."
+      "off": "Het AI-geheugen is uitgeschakeld in deze werkruimte.",
+      "changed": "Die notitie is sindsdien gewijzigd. Wijzig hem in Geheugen.",
+      "busy": "Wacht tot het antwoord klaar is."
     }
   },
   "accounts": {

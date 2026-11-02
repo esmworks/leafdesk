@@ -605,7 +605,7 @@ function RowPanel({
           "--comments-right": `${width}px`,
         } as CSSProperties
       }
-      className="fixed top-(--app-top) bottom-0 inset-e-(--chat-width) z-40 flex flex-col border-s border-border bg-bg shadow-xl outline-none"
+      className="fixed top-(--app-top) bottom-0 inset-e-(--chat-width) z-40 flex flex-col pb-(--safe-bottom) border-s border-border bg-bg shadow-xl outline-none"
     >
       <ResizeHandle width={width} onResize={onResize} />
       <div className="min-h-0 flex-1 overflow-y-auto">{body}</div>

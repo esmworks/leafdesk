@@ -47,10 +47,14 @@ async function chosenContrast() {
   return isContrast(contrast) ? contrast : null;
 }
 
-// The browser bar (and an installed app's title bar) takes the page background of the theme.
+// The browser bar (and an installed app's title bar) takes the page background of the theme. On a
+// phone the page reaches under the notch and home indicator (globals.css keeps clear of them), and
+// the on-screen keyboard shortens the page, so what is fixed to its bottom stays above the keys.
 export async function generateViewport(): Promise<Viewport> {
   const theme = await chosenTheme();
   return {
+    viewportFit: "cover",
+    interactiveWidget: "resizes-content",
     themeColor: theme
       ? THEME_COLORS[theme]
       : [
@@ -67,6 +71,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         {/* The desktop app on macOS moves its window by this strip; hidden everywhere else (globals.css). */}
         <div aria-hidden data-window-drag />
+        {/* Keeps iOS from blurring the top of the installed app (globals.css). */}
+        <div aria-hidden data-status-band />
         <NextIntlClientProvider messages={clientMessages(messages)}>
           <ThemeProvider theme={theme}>
             <LocalModeProvider localMode={env.localMode}>{children}</LocalModeProvider>

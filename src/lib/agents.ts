@@ -3,7 +3,8 @@
 
 import { agentPagePath } from "./agent-page";
 import type { AgentShareLevel } from "./agent-sharing";
-import type { ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
+import type { ChatAttachmentRecord, ChatStepRecord, MemoryKind, MemoryStatus } from "@/db/schema/ai";
+import type { ChatActionView, ChatMode, ChatScope, ChatThinking } from "./ai-chat";
 import type { QuietHours } from "./quiet-hours";
 import type { RepeatRule, ScheduleError } from "./schedule";
 
@@ -52,6 +53,11 @@ export const MAX_AGENT_TOKEN_LIMIT = 1_000_000_000;
 
 /** Writes one run may make. What it may spend is AI_RUN_LIMIT_USD; it has no turn or time limit of its own. */
 export const MAX_AGENT_WRITES = 5;
+/**
+ * Rows one run that read email may propose (assistant/dispatch.ts): nothing changes until the person
+ * approves, so a list read from an email (a day's balances) is proposed whole.
+ */
+export const MAX_MAIL_PROPOSALS = 60;
 /** Other agents one agent may ask (its "Agents it can ask"), and times one run may ask them. */
 export const MAX_AGENT_HELPERS = 10;
 export const MAX_HANDOFFS_PER_RUN = 3;
@@ -198,7 +204,7 @@ export type AgentRunSource =
       kind: "chat";
       /** Who wrote the message; the run is held to their access as well, and is theirs alone. */
       userId: string;
-      /** Their conversation (`agent_conversation`) the answer goes to. */
+      /** Their conversation (`conversation`) the answer goes to. */
       conversationId: string;
       /** Sent from a connected app (MCP, the REST API, the Telegram bot), which reads the answer. */
       fromApp?: boolean;
@@ -231,6 +237,57 @@ export type AgentRunSource =
       threadId: string;
       messageId: string;
     };
+
+/**
+ * A person's own AI chat: the run has no agent (`agent_run.agent_id` null) and runs as them, with
+ * their access, model and limits, and answers in their conversation (`conversation`, made before
+ * the run starts). What the question was asked with is kept here, so the run goes on as it began
+ * after waiting for the person's answer.
+ */
+export type AssistantRunSource = {
+  kind: "assistant";
+  userId: string;
+  conversationId: string;
+  /** The page or teamspace the question keeps to, checked again when the run (re)starts. */
+  scope: ChatScope | null;
+  skillId: string | null;
+  model: string | null;
+  thinking: ChatThinking;
+  /** What the person chose it may change; `state.mode` is what it may now. */
+  mode: ChatMode;
+  /** The person's time zone, for what today is. */
+  timeZone: string;
+  /** Research mode: a plan, searches and reads, then a long cited report; nothing is changed. */
+  research?: true;
+  /** What it writes in page bodies goes in as the AI's suggested edits. */
+  asSuggestions?: true;
+  /** Asked through a connected app (the Telegram bot), which follows the answer and gets no mail tools. */
+  fromApp?: true;
+  /** Asked through a connected app where the workspace lets apps only read: no notes kept or dropped either. */
+  appReadOnly?: true;
+  /** The files attached to the question, in order, named apart from the conversation's others. */
+  files: ChatAttachmentRecord[];
+  /** How many of the conversation's last records the answer replaces once kept (answer again, an edited question). */
+  replaced: number;
+  /** The question started the conversation: it goes again when nothing of the answer is kept. */
+  started?: true;
+  /**
+   * Asked by one of the person's own schedules (kind `own_request`, server/own-requests.ts) rather
+   * than typed: how it ends counts toward the schedule's failures in a row (server/schedules.ts).
+   */
+  scheduleId?: string;
+};
+
+/** What `agent_run.source` holds: an agent's run's start, or a person's own AI chat's. */
+export type RunSource = AgentRunSource | AssistantRunSource;
+
+/**
+ * A run of an agent's: any but a person's own AI chat, which has no agent (a check of the table
+ * holds the two together). `hasAgentSource` for rows read without their agent.
+ */
+export const isAgentRun = <T extends { agentId: string | null; source: RunSource }>(run: T): run is T & { agentId: string; source: AgentRunSource } =>
+  run.agentId !== null && run.source.kind !== "assistant";
+export const hasAgentSource = <T extends { source: RunSource }>(run: T): run is T & { source: AgentRunSource } => run.source.kind !== "assistant";
 
 /** What happened that the run responds to, for its prompt and its history. */
 export type AgentRunContext =
@@ -375,6 +432,9 @@ export type AgentPendingCall = {
   arguments: Record<string, unknown>;
   askedAt: string;
   deferredUntil?: string;
+  /** An AI chat's run (source `assistant`): the change as the person is asked about it in the chat, under `askId` (its `approval` event's id). */
+  action?: ChatActionView;
+  askId?: string;
 };
 
 /** The tools of an agent with web access (server/agents/web.ts): Leafdesk's own, so their steps name no connection. */
@@ -390,6 +450,13 @@ export const WEB_TOOL_NAMES = { read: "read_web_page", search: "search_web" } as
 export const COMPUTER_TOOL_NAMES = { list: "computer_list_folder", read: "computer_read_file", write: "computer_write_file", trash: "computer_trash_file" } as const;
 /** The computer's tools that bring what it holds into the run: words no one in the conversation wrote. */
 export const COMPUTER_READ_TOOLS: ReadonlySet<string> = new Set([COMPUTER_TOOL_NAMES.list, COMPUTER_TOOL_NAMES.read]);
+/**
+ * Not a tool: the step a chat run starts with when an earlier turn of its conversation read files on
+ * the person's computer (lib/local-reads.ts), as `{ kind: "mail", action: "earlier" }` is for email.
+ * Each later turn carries it, so what such a turn did and said stays with the person however far
+ * back the read was, and after older messages are dropped.
+ */
+export const COMPUTER_EARLIER = "computer_earlier";
 export const isComputerTool = (name: string) => Object.values(COMPUTER_TOOL_NAMES).some((n) => n === name);
 
 /** What a call to Leafdesk's own tool (no connection) names in place of a connection. */
@@ -434,7 +501,8 @@ export type ApprovalDecision = "approve" | "decline" | "redo";
  * it is gone (or its mailbox no longer opened to the agent), the model failed, the
  * run took too long, no one answered a call that waited for approval, the agent used its tokens
  * for the month, the workspace's AI reached its monthly cost limit, or a schedule's run said it
- * couldn't do its task (finish_run, see finishRunCall; its reason is the run's answer).
+ * couldn't do its task (finish_run, see finishRunCall; its reason is the run's answer), or the
+ * person stopped a chat's answer (agents/run.ts stopRun; its answer is what was written by then).
  */
 export const AGENT_RUN_CODES = [
   "aiOff",
@@ -452,6 +520,7 @@ export const AGENT_RUN_CODES = [
   "limitReached",
   "costLimit",
   "selfReported",
+  "stopped",
   "error",
 ] as const;
 export type AgentRunCode = (typeof AGENT_RUN_CODES)[number];
@@ -602,6 +671,8 @@ export type AgentMemoryView = {
     databaseHidden: boolean;
     /** Another owner asked for it, or a schedule of theirs without a database started it: its proposals' text is theirs alone. */
     othersRun: boolean;
+    /** Read through a connected app, of a run that read mail or files on the person's computer: its proposals' text shows only in the app. */
+    appHidden?: true;
   } | null;
   /** A proposal's kept note it would change when kept (null: it would be a new note). */
   replaces: { id: string; text: string } | null;
@@ -629,6 +700,8 @@ export type AgentScheduleView = {
   nextRunAt: string | null;
   lastRunAt: string | null;
   lastError: Exclude<ScheduleError, "dashboardGone"> | null;
+  /** Its runs that failed in a row; at SCHEDULE_FAILURE_LIMIT (lib/schedule.ts) it turned itself off. */
+  failures: number;
   /** The owner who set it last: its runs are held to their access. */
   setBy: { id: string; name: string } | null;
 };
@@ -730,8 +803,10 @@ export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "re
 
 /**
  * What a run that read email may still call besides the mail tools: reading pages (and files on
- * the person's computer, which bring something in but carry nothing out), finding tools, and
- * use_tool, whose writes run.ts refuses on their own.
+ * the person's computer, which bring something in but carry nothing out), finding tools, use_tool,
+ * whose writes assistant/dispatch.ts refuses on their own, and `remember`, which then only proposes
+ * a note (dispatch.ts untainted) whose text the run's own person alone reads and keeps
+ * (agents/memory.ts). Never `forget`: it drops a kept note at once.
  */
 export const READS_AFTER_MAIL: ReadonlySet<string> = new Set([
   "search_pages",
@@ -743,6 +818,7 @@ export const READS_AFTER_MAIL: ReadonlySet<string> = new Set([
   "read_attachment",
   "find_tools",
   "use_tool",
+  "remember",
   ...COMPUTER_READ_TOOLS,
 ]);
 
@@ -772,23 +848,30 @@ const WEB_TOOLS: ReadonlySet<string> = new Set(Object.values(WEB_TOOL_NAMES));
  */
 export const OTHERS_WORDS_MORE_TOOLS: ReadonlySet<string> = new Set(["list_agent_runs", "get_agent_chat", "chat_with_agent", "start_agent_run", "list_notifications"]);
 
+/** The tool listing the tasks a run's agent gave others (server/agents/handoff.ts): its step, when it listed an answer, is another agent's words. */
+export const AGENT_TASKS_TOOL = "agent_tasks";
+
 /**
  * Whether a run's steps show it read words no one in its conversation wrote: email (readEmail), a
  * web page or search, what a connection's tool answered (failed too: a service's error says what
  * it likes), a folder or file on the person's computer (anything may have put it there), or
- * another agent's answer, which may carry what that agent read (asked with ask_agent, or read
- * through use_tool: OTHERS_WORDS_MORE_TOOLS). A chat run that did keeps no correction at once
- * (server/agents/memory.ts), and an owner's "allow" rule doesn't hold on it (server/agents/run.ts).
+ * another agent's answer, which may carry what that agent read (asked with ask_agent, read back
+ * with agent_tasks, or read through use_tool: OTHERS_WORDS_MORE_TOOLS). A chat run that did keeps no correction at once
+ * (server/agents/memory.ts), and an owner's "allow" rule doesn't hold on it (server/assistant/dispatch.ts).
+ * The AI chat's own steps count too (a service's answer, the web): from then on its answer asks
+ * before each change (server/ai-chat.ts).
  */
 export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
   readEmail(steps) ||
   steps.some((s) =>
     s.kind === "tool"
       ? ((s.outcome === "done" || s.outcome === "failed") && (s.connectionId !== null || WEB_TOOLS.has(s.tool))) ||
-        (s.connectionId === null && s.outcome === "done" && COMPUTER_READ_TOOLS.has(s.tool))
+        (s.connectionId === null && s.outcome === "done" && (COMPUTER_READ_TOOLS.has(s.tool) || s.tool === AGENT_TASKS_TOOL))
       : s.kind === "leafdesk"
         ? s.outcome === "done" && OTHERS_WORDS_MORE_TOOLS.has(s.tool)
-        : s.kind === "handoff" && s.outcome === "done",
+        : s.kind === "connection"
+          ? s.outcome !== "declined"
+          : s.kind === "web" || (s.kind === "handoff" && s.outcome === "done"),
   );
 
 /**

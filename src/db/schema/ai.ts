@@ -1,9 +1,10 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique, uniqueIndex, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { databaseProperty, page, tsvector, workspace } from "./app";
-import { agentRun } from "./agents";
+import { agentRun, workspaceAgent } from "./agents";
 import { user } from "./auth";
 import { file } from "./files";
+import type { AgentChatMessageRecord, AgentChatQueuedRecord } from "../../lib/agent-chat";
 import type { ChatThinking } from "../../lib/ai-chat";
 
 /**
@@ -154,7 +155,14 @@ export type ChatStepRecord =
   | ChatMemoryRecord
   | ChatConnectionRecord
   | ChatToolRecord
+  | ChatReminderRecord
   | { kind: "thought"; text: string };
+
+/**
+ * A reminder the AI chat set for the person asking (server/ai-reminders.ts): what it says and
+ * when, "YYYY-MM-DD HH:MM" on their clock; `declined` when they said no.
+ */
+export type ChatReminderRecord = { kind: "reminder"; text: string; when: string; outcome: "done" | "declined" };
 
 /**
  * The AI chat on the web (where owners turned it on, server/agents/web.ts): a search (`query`, how
@@ -275,7 +283,7 @@ export type ChatWriteRecord = {
 export type ChatQueryCondition = { property: string; op: string; value: string | null };
 
 /**
- * A file attached to a question of the AI chat (ai_chat_file), with its name, type and size then:
+ * A file attached to a question of the AI chat (conversation_file), with its name, type and size then:
  * its name is unique in the conversation, so the chat's tools can name it. A CSV file also keeps
  * how many rows and columns it has. The file stays with the conversation, so later questions see it
  * too.
@@ -306,14 +314,22 @@ export type ChatMessageRecord = {
   at: string;
 };
 
+/** A message of a conversation: the AI chat's own records, or an agent's (lib/agent-chat.ts). */
+export type ConversationMessageRecord = ChatMessageRecord | AgentChatMessageRecord;
+
 /**
- * AI chat conversations (#41), private to the person who had them: only they can list, read or
- * delete them, and workspace backups leave them out. Deleted with their account, when they leave
- * the workspace and with the workspace.
+ * A person's conversation, private to them: only they can list, read or delete it, and workspace
+ * backups leave it out. With no `agentId` it is their AI chat (#41: `messages` are
+ * ChatMessageRecords; `model` and `thinking` what they picked); with one it is a chat with that
+ * agent (`messages` are AgentChatMessageRecords, each answer one of the agent's runs, source
+ * `chat`), in a page's agent chat block (`chatId`, the block's) or the agent's dialog (no chat id).
+ * Deleted with their account, the agent and the workspace; when they leave the workspace their AI
+ * chats go and their agent chats stop being answered (the run checks they are still in it).
  * Cited pages are looked up again with the reader's current access whenever they are shown.
+ * Migration 0184 moved the former `ai_conversation` and `agent_conversation` rows here, ids kept.
  */
-export const aiConversation = pgTable(
-  "ai_conversation",
+export const conversation = pgTable(
+  "conversation",
   {
     id: text("id")
       .primaryKey()
@@ -324,33 +340,52 @@ export const aiConversation = pgTable(
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
+    /** The agent it is with; null: the person's AI chat. */
+    agentId: text("agent_id").references((): AnyPgColumn => workspaceAgent.id, { onDelete: "cascade" }),
+    /** An agent chat block's conversations (its `chatId` prop); null: the agent's dialog, or the AI chat. */
+    chatId: text("chat_id"),
     title: text("title").notNull().default(""),
     /**
-     * The model the person picked for it, one of those the workspace's AI offers the chat (see
-     * server/ai chatModelsFor); null: the workspace's main model. A new conversation starts with the
-     * model of the person's latest one.
+     * The AI chat: the model the person picked for it, one of those the workspace's AI offers the
+     * chat (see server/ai chatModelsFor); null: the workspace's main model. A new conversation
+     * starts with the model of the person's latest one.
      */
     model: text("model"),
     /** How much its model thinks (lib/ai-chat.ts ChatThinking); null: `balanced`. Kept like `model`. */
     thinking: text("thinking").$type<ChatThinking>(),
-    messages: jsonb("messages").$type<ChatMessageRecord[]>().notNull().default([]),
+    messages: jsonb("messages").$type<ConversationMessageRecord[]>().notNull().default([]),
+    /** An agent chat's messages written while an answer was under way, waiting to go as the next turn (lib/agent-chat-queue.ts). */
+    queue: jsonb("queue").$type<AgentChatQueuedRecord[]>().notNull().default([]),
+    /**
+     * A conversation a trigger keeps going (server/triggers.ts, lib/triggers.ts ConversationRule
+     * `keyed`): what it is about (`row:<id>`, `mail:<threadId>`, `schedule:<id>` …), one per
+     * person, workspace, agent and key. Null for one a person started, or a trigger's fresh one.
+     */
+    key: text("key"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("ai_conversation_user_idx").on(t.userId, t.workspaceId, t.updatedAt)],
+  (t) => [
+    index("conversation_user_idx").on(t.userId, t.workspaceId, t.updatedAt),
+    index("conversation_agent_idx").on(t.agentId, t.userId, t.chatId, t.updatedAt),
+    uniqueIndex("conversation_key_idx")
+      .on(t.userId, t.workspaceId, sql`coalesce(${t.agentId}, '')`, t.key)
+      .where(sql`${t.key} is not null`),
+  ],
 );
 
 /**
- * A file someone attached to a question of the AI chat (server/ai-chat-files.ts): an uploaded
- * `file` of the workspace that no page holds (`file.page_id` null), readable by the person who
- * attached it alone, never through a page (files.ts fileForViewer doesn't know it) or a backup.
- * `conversationId` is set once the question it went with is kept; until then (uploaded, not sent)
- * the upload cleanup removes it after a day. Deleting the conversation deletes its files; when the
- * conversation goes another way (the person leaves the workspace, deletes their account), this row
- * goes with it and the file is removed as an orphan.
+ * A file of a person's conversation, which that person alone opens, never through a page, a
+ * published page or a backup: an uploaded `file` of the workspace on no page (`file.page_id`
+ * null). Either one they attached to a question of the AI chat (no `runId`; server/ai-chat-files.ts,
+ * served by /api/ai/chat/files/[id]; `conversationId` is set once the question it went with is
+ * kept, and until then the upload cleanup removes it after a day), or one an agent attached to its
+ * answer (`attach_file`, `runId` the run; server/agents/chat-files.ts, /api/agents/chat/files/[id]).
+ * Deleting the conversation deletes these rows; a file left without its row is an orphan, which
+ * files.ts purgeOrphanFiles deletes (legal holds kept).
  */
-export const aiChatFile = pgTable(
-  "ai_chat_file",
+export const conversationFile = pgTable(
+  "conversation_file",
   {
     fileId: text("file_id")
       .primaryKey()
@@ -361,10 +396,16 @@ export const aiChatFile = pgTable(
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
-    conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "cascade" }),
+    conversationId: text("conversation_id").references(() => conversation.id, { onDelete: "cascade" }),
+    /** An agent's file: the run whose answer it goes with. */
+    runId: text("run_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("ai_chat_file_user_idx").on(t.userId, t.workspaceId), index("ai_chat_file_conversation_idx").on(t.conversationId)],
+  (t) => [
+    index("conversation_file_user_idx").on(t.userId, t.workspaceId),
+    index("conversation_file_conversation_idx").on(t.conversationId),
+    index("conversation_file_run_idx").on(t.runId),
+  ],
 );
 
 /**
@@ -395,7 +436,7 @@ export const aiMemory = pgTable(
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
-    conversationId: text("conversation_id").references(() => aiConversation.id, { onDelete: "set null" }),
+    conversationId: text("conversation_id").references(() => conversation.id, { onDelete: "set null" }),
     status: text("status").$type<MemoryStatus>().notNull().default("kept"),
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
     /** A proposal's kept note it would change (null: a new note, also once that note is gone). */

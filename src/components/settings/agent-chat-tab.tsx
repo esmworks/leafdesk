@@ -8,7 +8,7 @@ import { agentPath } from "@/lib/agent-chat";
 import type { AgentView } from "@/lib/agents";
 
 // The chat comes with the tab, not with the settings.
-const AgentChat = lazyPart(() => import("@/components/agent-chat/agent-chat").then((m) => m.AgentChat), <div aria-busy="true" className="h-24 animate-pulse rounded-md bg-bg-subtle" />);
+const AgentChat = lazyPart(() => import("@/components/agent-chat/agent-thread").then((m) => m.AgentChat), <div aria-busy="true" className="h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 /**
  * A chat with the agent (lib/agent-chat.ts), for anyone it is shared with: to try it out and give

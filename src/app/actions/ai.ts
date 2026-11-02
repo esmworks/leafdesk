@@ -7,11 +7,11 @@ import { MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS } from "@/lib/ai-chat
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
-import { deleteConversations, getConversation, listConversations, saveReportAsPage } from "@/server/ai-chat";
+import { decideParkedChange, deleteConversations, getConversation, listConversations, saveReportAsPage, undoChatNote } from "@/server/ai-chat";
 import { addMemory, deleteMemories, listMemories, MemoryError, memoryUse, setMemoryUse, updateMemory } from "@/server/ai-memory";
 import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
 import { MAX_PROMPT_NAME, MAX_PROMPT_TEXT, MAX_SAVED_PROMPTS } from "@/lib/ai-saved-prompts";
-import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
+import type { ChatDecision } from "@/server/ai-chat-approvals";
 import { isRunId, stopRun } from "@/server/ai-chat-runs";
 import { AutofillError, requestAutofill, setAutofill } from "@/server/ai-properties";
 import { snapshotBeforeAiEdit } from "@/server/ai-writing";
@@ -162,6 +162,11 @@ export async function listMemoriesAction(workspaceId: string) {
   return run((userId) => listMemories(userId, String(workspaceId)));
 }
 
+/** Undo on a note an answer kept, changed or dropped: it goes back to what it was. */
+export async function undoChatNoteAction(workspaceId: string, conversationId: string, memoryId: string) {
+  return run((userId) => undoChatNote(userId, String(workspaceId), String(conversationId), String(memoryId)));
+}
+
 /** Whether the person has the AI chat's memory on in a workspace (their own switch). */
 export async function memoryUseAction(workspaceId: string) {
   return run((userId) => memoryUse(userId, String(workspaceId)));
@@ -189,12 +194,13 @@ export async function deleteMemoryAction(workspaceId: string, memoryId: string |
 
 /**
  * The person's decision on a change the AI chat asked about (its `approval` event): false when it
- * no longer waits (stopped, timed out or decided) or isn't theirs.
+ * no longer waits (stopped or decided) or isn't theirs.
  */
 export async function decideChangeAction(approvalId: string, decision: ChatDecision) {
   return run(async (userId) => {
     if (decision !== "approve" && decision !== "always" && decision !== "decline") return false;
-    return decideChange(userId, String(approvalId), decision);
+    // Waited on here, or (the server restarted since) parked for the worker to go on with.
+    return decideParkedChange(userId, String(approvalId), decision);
   });
 }
 

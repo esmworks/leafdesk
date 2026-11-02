@@ -159,8 +159,12 @@
     "memoryHint": "When on, the AI chat keeps short notes about people who tell it about themselves, and sends them with their later questions. Each person can turn it off for themselves. When off, the Memory view is hidden and nobody's questions carry notes; the notes are kept, not deleted. Agents' runs then carry no notes and propose none either.",
     "webSearch": "Web search in the AI chat",
     "webSearchHint": "When on, the AI chat may search the web with the server's search service and read web pages, only reading: after it read from the web, every change it wants to make is asked about. Research mode searches the web too. Questions and page text it searches with leave the workspace for the search service.",
+    "autoChanges": "Changes without asking",
+    "autoChangesHint": "When on, people may set the AI chat to Auto, or answer \"Yes, and don't ask again\", so it makes changes without asking each time. When off, the chat asks before every change it makes.",
     "provider": "Provider",
     "providerValue": "{provider}, model {model}",
+    "chatModels": "Chat models",
+    "chatModelsValue": "People can pick {models} in the AI chat.",
     "notConfigured": "No AI provider or embeddings model is set up on this server, so AI features are off. An admin can set them up with the AI_PROVIDER and AI_MODEL (and AI_EMBEDDINGS_MODEL) environment variables (see the README).",
     "noProvider": "None: the writing assistant, AI properties and the AI chat need AI_PROVIDER and AI_MODEL.",
     "semanticSearch": "Semantic search",
@@ -308,7 +312,11 @@
           "forget": "Declined forgetting:"
         },
         "correct": "Noted as a correction:",
-        "undone": "Correction undone:"
+        "undone": "Correction undone:",
+        "undoneNote": {
+          "remember": "Undid remembering:",
+          "forget": "Undid forgetting:"
+        }
       },
       "connection": {
         "done": "{connection}: called {tool}",
@@ -319,6 +327,10 @@
         "done": "Used {tool}",
         "failed": "{tool} failed",
         "declined": "Declined: {tool}"
+      },
+      "reminder": {
+        "done": "Reminder set for {when}:",
+        "declined": "Declined a reminder for {when}:"
       },
       "mail": {
         "searched": "Searched mail for “{query}” · {count, plural, =0 {nothing found} one {# thread} other {# threads}}",
@@ -362,6 +374,7 @@
         "createPage": "Add this page?",
         "remember": "Remember this about you?",
         "forget": "Forget this note?",
+        "remind": "Remind you of this?",
         "editPage": "Change this page's text?",
         "createPdf": "Make a PDF of this page and attach it?",
         "createDocx": "Make a Word document of this page and attach it?",
@@ -379,6 +392,7 @@
       "row": "Row",
       "topLevel": "At the top of the workspace, private to you",
       "memoryHint": "Memory: sent with your later questions in this workspace",
+      "remindHint": "{when}: over the page you have open, in your inbox and on your phone",
       "cleared": "(cleared)",
       "approve": "Yes",
       "always": "Yes, and don't ask again (Auto)",
@@ -521,7 +535,9 @@
       "tooLong": "A note may have at most {max} characters.",
       "full": "Memory holds at most {max} notes. Delete one first.",
       "notFound": "That note isn't there anymore.",
-      "off": "The AI memory is turned off in this workspace."
+      "off": "The AI memory is turned off in this workspace.",
+      "changed": "That note changed since. Change it in Memory instead.",
+      "busy": "Wait until the answer is done."
     }
   },
   "accounts": {

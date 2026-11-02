@@ -48,7 +48,7 @@ import { signalInbox } from "@/server/notifications";
 import { pushNotifications } from "@/server/push";
 import { rowFields } from "@/server/operations";
 import { propertyAccessFor } from "@/server/property-access";
-import { queueAgentRun } from "@/server/agents/run";
+import { startTriggered } from "@/server/triggers";
 import { notAgentUser } from "@/server/agents/users";
 import { recordAudit, runAsAuditOrigin } from "@/server/audit";
 import { enrollRows, SequenceError, type EnrollOutcome, type SequenceErrorCode } from "@/server/sequences/manage";
@@ -346,9 +346,10 @@ export async function processRun(run: Run) {
         } else if (action.type === "run_agent" && !action.forEach) {
           // Queued once (a retry of the run doesn't queue it again); it runs apart, as the agent.
           const prompt = resolveText(action.prompt, ctx.scope).value;
-          step.agentRunId ??= await queueAgentRun({
-            agentId: action.agentId,
-            workspaceId: automation.workspaceId,
+          step.agentRunId ??= (
+            await startTriggered({
+              target: { agentId: action.agentId },
+              workspaceId: automation.workspaceId,
             source: { kind: "automation", automationId: automation.id, automationRunId: run.id, databaseId: automation.databaseId, rowId: run.rowId! },
             context: {
               created: run.created,
@@ -358,7 +359,8 @@ export async function processRun(run: Run) {
               ...(run.basis !== null ? { datePassed: run.basis } : {}),
             },
             prompt,
-          });
+            })
+          ).run.id;
           result = { input: { prompt }, output: { agentRunId: step.agentRunId }, agentRunId: step.agentRunId };
         } else if (action.type === "start_sequence" && !action.forEach) {
           const [outcome] = await enrollRows(runAs, action.sequenceId, [run.rowId!], "automation").catch(followUpFailure);
@@ -964,11 +966,11 @@ async function forEach(ctx: StepContext, action: AutomationAction, step: Automat
         notified += result.notified ?? 0;
         outputs.push(result.output);
       } else if (action.type === "run_agent") {
-        // A run taken again finds the agent runs it already queued (queueAgentRun is idempotent per row).
+        // A run taken again finds the agent runs it already queued (startTriggered is idempotent per row).
         const prompt = resolveText(action.prompt, scope).value;
         const webhookRun = ctx.run.origin === "incoming_webhook";
-        const id = await queueAgentRun({
-          agentId: action.agentId,
+        const { run: queued } = await startTriggered({
+          target: { agentId: action.agentId },
           workspaceId: ctx.automation.workspaceId,
           source: { kind: "automation", automationId: ctx.automation.id, automationRunId: ctx.run.id, databaseId: item.databaseId, rowId: item.id },
           // A request from outside is nobody's: the agent is held to the automation's person and asks before calling out.
@@ -980,8 +982,8 @@ async function forEach(ctx: StepContext, action: AutomationAction, step: Automat
           },
           prompt,
         });
-        if (!agentRunIds[n]) agentRunIds[n] = id;
-        outputs.push({ agentRunId: id });
+        if (!agentRunIds[n]) agentRunIds[n] = queued.id;
+        outputs.push({ agentRunId: queued.id });
       } else if (action.type === "start_sequence") {
         const [outcome] = await enrollRows(ctx.runAs, action.sequenceId, [item.id], "automation").catch(followUpFailure);
         if (!outcome?.ok && outcome?.code === "alreadyEnrolled") {

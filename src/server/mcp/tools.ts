@@ -126,6 +126,7 @@ import * as automations from "@/server/automations/manage";
 import * as agents from "@/server/agents/manage";
 import * as agentChat from "@/server/agents/chat";
 import { aiLimitLine, aiLimitPath } from "@/lib/agent-guardrails";
+import { agentPagePath } from "@/lib/agent-page";
 import { chatFailure } from "@/lib/agent-chat";
 import { helperIdsOf } from "@/server/agents/helpers";
 import * as agentMemory from "@/server/agents/memory";
@@ -1638,6 +1639,22 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 url: `${env.appUrl}${aiLimitPath(n.workspaceId, n.limitRequest?.agentId ?? null)}`,
               };
             }
+            // A schedule the user set turned itself off after failing again and again.
+            if (n.kind === "schedule_paused") {
+              const paused = n.schedulePaused;
+              const whose = paused?.agentName ? `A schedule of the agent "${paused.agentName}"` : "A request of yours on a schedule";
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: `${whose} failed ${paused?.failures ?? 0} times in a row and was turned off; set it again to turn it back on${paused?.task ? ` (task: ${paused.task})` : ""}`,
+                actor: n.actorName,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}${paused?.agentId ? agentPagePath(n.workspaceId, paused.agentId) : `/w/${n.workspaceId}/ai`}`,
+              };
+            }
             // A visitor reported a published page: owners handle it in the app.
             if (n.kind === "page_reported") {
               return {
@@ -1668,7 +1685,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
             }
             // An agent's reminder, about a page or none; the link opens what it is about.
             if (n.kind === "ai_reminder") {
-              const agent = n.aiReminder?.agentName ?? who;
+              const agent = n.aiReminder?.own ? "The AI chat, as the user asked," : (n.aiReminder?.agentName ?? who);
               return {
                 id: n.id,
                 kind: n.kind,
@@ -3393,7 +3410,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     "list_agent_runs",
     {
       title: "List an agent's runs",
-      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (automation, event, request, schedule, mention, chat or an agent's handoff), its status (pending, running, awaiting_approval, done, failed), why it failed (${AGENT_RUN_CODES.join(", ")}; selfReported: a schedule's run gave up), quiet: true if a schedule's run found nothing new (for both, answer says why), its steps, the call it waits on (credentials masked), its answer, tokens used and model. Approve calls in Leafdesk. Those who only interact with it see only their own runs. ${RUN_NOTE}`,
+      description: `List an agent's latest runs, newest first (kept for ${AGENT_RUN_HISTORY_DAYS} days): what started each (automation, event, request, schedule, mention, chat or an agent's handoff), its status (pending, running, awaiting_approval, done, failed), why it failed (${AGENT_RUN_CODES.join(", ")}; selfReported: a schedule's run gave up), quiet: true if a schedule's run found nothing new (for both, answer says why), its steps, the call it waits on (credentials masked), its answer, tokens and model. Approve calls in Leafdesk. Those who only interact with it see their own runs. ${RUN_NOTE}`,
       inputSchema: agentInputs.runs,
       annotations: READ,
     },

@@ -50,6 +50,7 @@ import { useSchema } from "./schema-context";
 import { MarkerChip, useRowCell } from "./row-cell-context";
 import { dateMarker, DATE_MARKERS } from "@/lib/template-values";
 import { lazyPart } from "@/components/lazy-part";
+import { CELL_TYPE_EVENT } from "@/lib/cell-typing";
 
 // The place editor (its search and suggestions) loads when a place is first edited.
 const PlaceEditor = lazyPart(() => import("./place-editor").then((m) => m.PlaceEditor));
@@ -651,6 +652,17 @@ export function PropertyCell({
   // are worked out from the row.
   const readOnly = readOnlyProp || hidden || isReadOnlyType(prop.type);
   const [editing, setEditing] = useState(Boolean(autoEdit) && !readOnly);
+  // What was typed on the table's active cell to open its editor (see use-cell-grid).
+  const [typed, setTyped] = useState<string>();
+  useEffect(() => {
+    if (!anchor || readOnly) return;
+    const onType = (e: Event) => {
+      setTyped((e as CustomEvent<string>).detail);
+      setEditing(true);
+    };
+    anchor.addEventListener(CELL_TYPE_EVENT, onType);
+    return () => anchor.removeEventListener(CELL_TYPE_EVENT, onType);
+  }, [anchor, readOnly]);
 
   const base = cn(
     "flex min-w-0 items-center",
@@ -745,6 +757,8 @@ export function PropertyCell({
         role={readOnly ? undefined : "button"}
         tabIndex={readOnly ? undefined : 0}
         data-cell-edit={readOnly ? undefined : ""}
+        // The table opens a cell's editor on a second click, and a text editor with what is typed.
+        data-cell-open={readOnly ? undefined : TYPED_INTO.has(prop.type) ? "text" : ""}
         onClick={() => !readOnly && setEditing(true)}
         onKeyDown={(e) => {
           if (!readOnly && ((e.key === "Enter" && !e.shiftKey) || e.key === " ") && e.target === e.currentTarget) {
@@ -770,6 +784,7 @@ export function PropertyCell({
           onCreateOption={onCreateOption}
           onClose={() => {
             setEditing(false);
+            setTyped(undefined);
             // Closed from the keyboard (Enter, Esc), the cell takes focus back, so the keyboard
             // carries on from it; a click elsewhere keeps what it focused.
             setTimeout(() => {
@@ -778,7 +793,8 @@ export function PropertyCell({
               }
             });
           }}
-          draft={draft}
+          draft={typed ?? draft}
+          escapeDiscards={typed !== undefined}
           upload={upload}
           rowValues={rowValues}
           onTab={onTab && anchor ? (back) => setTimeout(() => onTab(anchor, back)) : undefined}
@@ -787,6 +803,9 @@ export function PropertyCell({
     </>
   );
 }
+
+/** The types whose editor is a text field (see CellEditor), which typing on a table's cell opens. */
+const TYPED_INTO = new Set<Property["type"]>(["text", "number", "url", "email", "phone"]);
 
 function CellEditor({
   prop,
@@ -799,6 +818,7 @@ function CellEditor({
   upload,
   rowValues,
   onTab,
+  escapeDiscards,
 }: {
   prop: Property;
   value: unknown;
@@ -807,6 +827,8 @@ function CellEditor({
   onCreateOption: CreateOption;
   onClose: () => void;
   draft?: string;
+  /** Esc closes a text editor without saving (it was opened by typing over the value). */
+  escapeDiscards?: boolean;
   upload?: UploadFile;
   rowValues?: Record<string, unknown>;
   onTab?: (back: boolean) => void;
@@ -818,7 +840,16 @@ function CellEditor({
     case "email":
     case "phone":
       return (
-        <TextEditor prop={prop} value={value} anchor={anchor} onChange={onChange} onClose={onClose} startWith={draft} onTab={onTab} />
+        <TextEditor
+          prop={prop}
+          value={value}
+          anchor={anchor}
+          onChange={onChange}
+          onClose={onClose}
+          startWith={draft}
+          escapeDiscards={escapeDiscards}
+          onTab={onTab}
+        />
       );
     case "checklist":
       return (
@@ -937,6 +968,7 @@ function TextEditor({
   onChange,
   onClose,
   startWith,
+  escapeDiscards,
   onTab,
 }: {
   prop: Property;
@@ -945,6 +977,7 @@ function TextEditor({
   onChange: (value: unknown) => void;
   onClose: () => void;
   startWith?: string;
+  escapeDiscards?: boolean;
   /** Tab saves and hands on to the next value (see PropertyCell onTab); without it Tab leaves the field. */
   onTab?: (back: boolean) => void;
 }) {
@@ -1002,6 +1035,11 @@ function TextEditor({
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             commit();
+          } else if (e.key === "Escape" && escapeDiscards) {
+            // Before the panel's own Esc, which saves: a key typed on a cell by mistake leaves its value as it was.
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
           } else if (e.key === "Tab" && onTab && !e.nativeEvent.isComposing) {
             e.preventDefault();
             if (commit()) onTab(e.shiftKey);

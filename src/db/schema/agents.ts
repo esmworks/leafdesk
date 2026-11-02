@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, check, date, doublePrecision, foreignKey, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique, uniqueIndex } from "drizzle-orm/pg-core";
+import { bigint, boolean, check, date, doublePrecision, foreignKey, index, integer, jsonb, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, type AnyPgColumn } from "drizzle-orm/pg-core";
 import type {
   AgentAccessLevel,
   AgentModel,
@@ -12,14 +12,15 @@ import type {
   AgentRunUsage,
   AgentStepRecord,
   ApprovalDecision,
+  RunSource,
 } from "@/lib/agents";
-import type { AgentChatMessageRecord, AgentChatQueuedRecord } from "@/lib/agent-chat";
+import { conversation, type ChatStepRecord } from "./ai";
+import type { ChatMode } from "@/lib/ai-chat";
 import type { MailTriggerFilters } from "@/lib/agent-mail-trigger";
 import type { AgentShareLevel } from "@/lib/agent-sharing";
 import type { QuietHours } from "@/lib/quiet-hours";
 import { page, workspace, workspaceMember } from "./app";
 import { user } from "./auth";
-import { file } from "./files";
 import { memberGroup } from "./groups";
 import { mailbox } from "./mail";
 
@@ -40,7 +41,19 @@ export type AgentRunState = {
   mailRead?: boolean;
   /** It, or its conversation before it, read files on the person's computer (lib/local-reads.ts): from then on nothing goes out. */
   localRead?: boolean;
-  decision?: { decision: ApprovalDecision; userId: string; note?: string };
+  /** `always`: an AI chat's yes, and don't ask again in this answer. */
+  decision?: { decision: ApprovalDecision | "always"; userId: string; note?: string };
+  /**
+   * An AI chat's run (server/ai-chat.ts): where its question sits in `messages`, the sources it may
+   * cite (server/ai-tools.ts Registry), its steps so far, what its turns cost, the model that
+   * answered, and when it started (ms).
+   */
+  chat?: { question: number; sources: unknown[]; steps: ChatStepRecord[]; spentUsd: number; answeredBy: string | null; startedAt: number };
+  /**
+   * An AI chat's run (source `assistant`): what it may change now. It starts as the person chose
+   * and turns from `auto` to `ask` once the run read words no one in the conversation wrote.
+   */
+  mode?: ChatMode;
 };
 
 /**
@@ -105,16 +118,21 @@ export const agentRun = pgTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    agentId: text("agent_id")
-      .notNull()
-      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
+    /** The agent it runs as; null for a person's own AI chat (source `assistant`), which runs as them. */
+    agentId: text("agent_id").references(() => workspaceAgent.id, { onDelete: "cascade" }),
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
-    source: jsonb("source").$type<AgentRunSource>().notNull(),
+    source: jsonb("source").$type<RunSource>().notNull(),
     context: jsonb("context").$type<AgentRunContext>().notNull(),
     /** The task the run was given (an automation action's prompt). */
     prompt: text("prompt").notNull().default(""),
+    /**
+     * The conversation the trigger that started it joined (server/triggers.ts): a fresh one, the one
+     * of its key (a row, an email thread, a schedule) or a chat's own. Only a link: who sees the run
+     * is still decided by its `source` (lib/agents.ts ownerSeesRun). Null for runs from before 0186.
+     */
+    conversationId: text("conversation_id").references((): AnyPgColumn => conversation.id, { onDelete: "set null" }),
     status: text("status").$type<AgentRunStatus>().notNull().default("pending"),
     code: text("code").$type<AgentRunCode>(),
     error: text("error"),
@@ -142,16 +160,28 @@ export const agentRun = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     startedAt: timestamp("started_at", { withTimezone: true }),
     finishedAt: timestamp("finished_at", { withTimezone: true }),
+    /**
+     * A chat run its person stopped while the worker had it but it wasn't answering here (taken a
+     * moment ago, or left running by a stopped server): it ends as stopped as it starts
+     * (server/agents/run.ts stopRun). Cleared when it parks: what it asks then is a new question.
+     */
+    stopAskedAt: timestamp("stop_asked_at", { withTimezone: true }),
   },
   (t) => [
     index("agent_run_due_idx").on(t.status, t.nextAt),
     index("agent_run_agent_idx").on(t.agentId, t.createdAt),
+    index("agent_run_conversation_idx").on(t.conversationId).where(sql`${t.conversationId} is not null`),
     // Tasks an agent gave others (server/agents/handoff.ts `agent_tasks`), read by the giving agent.
     index("agent_run_task_idx")
       .on(sql`(${t.source}->>'fromAgentId')`, t.createdAt)
       .where(sql`${t.source}->>'kind' = 'handoff' and ${t.source}->>'queued' = 'true'`),
+    // A person's own AI chat runs without an agent, and only it.
+    check("agent_run_agent_check", sql`(${t.agentId} is null) = coalesce(${t.source}->>'kind' = 'assistant', false)`),
   ],
 );
+
+/** An agent's run (lib/agents.ts isAgentRun); a person's own AI chat's has no agent. */
+export type AgentRunRow = typeof agentRun.$inferSelect & { agentId: string; source: AgentRunSource };
 
 /**
  * What an agent's runs used in a calendar month (UTC), added to after each turn with the model, so
@@ -249,69 +279,6 @@ export const agentHelper = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.agentId, t.helperId] }), index("agent_helper_helper_idx").on(t.helperId)],
-);
-
-/**
- * A person's conversation with an agent (see lib/agent-chat.ts): in a page's agent chat block
- * (`chatId`, the block's), or in the agent's dialog (no chat id). Each answer is one of the agent's
- * runs (source `chat`), written here when it ends. Private to that person: no one else is shown
- * it, owners included; deleted with their account, the agent and the workspace, and when they
- * leave the workspace their chats stop being answered (the run checks they are still in it).
- */
-export const agentConversation = pgTable(
-  "agent_conversation",
-  {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => crypto.randomUUID()),
-    agentId: text("agent_id")
-      .notNull()
-      .references(() => workspaceAgent.id, { onDelete: "cascade" }),
-    workspaceId: text("workspace_id")
-      .notNull()
-      .references(() => workspace.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    /** The block's conversations (its `chatId` prop); null: the agent's dialog. */
-    chatId: text("chat_id"),
-    title: text("title").notNull().default(""),
-    messages: jsonb("messages").$type<AgentChatMessageRecord[]>().notNull().default([]),
-    /** Messages written while an answer was under way, waiting to go as the next turn (lib/agent-chat-queue.ts). */
-    queue: jsonb("queue").$type<AgentChatQueuedRecord[]>().notNull().default([]),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (t) => [index("agent_conversation_user_idx").on(t.userId, t.agentId, t.chatId, t.updatedAt)],
-);
-
-/**
- * A file an agent attached to its answer in a person's chat (its `attach_file` tool): an uploaded
- * `file` of the workspace on no page, which only that person opens (/api/agents/chat/files/[id]),
- * never through a page, a published page or a backup. It goes with the conversation: once this row
- * is gone (the conversation deleted, the person or the agent removed) the file is an orphan, which
- * files.ts purgeOrphanFiles deletes (legal holds kept).
- */
-export const agentChatFile = pgTable(
-  "agent_chat_file",
-  {
-    fileId: text("file_id")
-      .primaryKey()
-      .references(() => file.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    workspaceId: text("workspace_id")
-      .notNull()
-      .references(() => workspace.id, { onDelete: "cascade" }),
-    conversationId: text("conversation_id")
-      .notNull()
-      .references(() => agentConversation.id, { onDelete: "cascade" }),
-    /** The run whose answer it goes with. */
-    runId: text("run_id").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (t) => [index("agent_chat_file_run_idx").on(t.runId), index("agent_chat_file_conversation_idx").on(t.conversationId)],
 );
 
 /**

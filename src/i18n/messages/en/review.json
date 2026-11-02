@@ -11,6 +11,7 @@
     "open": "Waiting",
     "decided": "Answered",
     "allRows": "Show all rows",
+    "allRuns": "Show all runs",
     "clear": "Clear filters"
   },
   "count": "{count, plural, one {# change} other {# changes}}",

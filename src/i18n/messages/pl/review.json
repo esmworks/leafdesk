@@ -11,6 +11,7 @@
     "open": "Oczekujące",
     "decided": "Rozpatrzone",
     "allRows": "Pokaż wszystkie wiersze",
+    "allRuns": "Pokaż wszystkie uruchomienia",
     "clear": "Wyczyść filtry"
   },
   "count": "{count, plural, one {# zmiana} few {# zmiany} many {# zmian} other {# zmiany}}",

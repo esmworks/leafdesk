@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Apps må kun læse i {workspace}, så jeg svarer uden at ændre noget dér.",
   "busy": "Jeg er stadig ved at svare på dit sidste spørgsmål. Send /stop for at stoppe det.",
+  "busyInApp": "Denne samtale bliver stadig besvaret i Leafdesk. Spørg igen, når svaret er færdigt.",
   "stopped": "Stoppet.",
   "nothingToStop": "Jeg svarer ikke på noget lige nu.",
   "unlinked": "Denne Telegram-konto er ikke længere forbundet med Leafdesk.",
@@ -85,6 +86,7 @@
     "createXlsx": "Vil du lave Excel-filen {title} og vedhæfte den til {target}?",
     "source": "Rækker fra {name}.",
     "remember": "Skal jeg huske dette om dig?",
+    "remind": "Skal jeg minde dig om dette?",
     "forget": "Skal jeg glemme denne note?",
     "connection": "Vil du sende dette til {connection} ({tool})?",
     "tool": "Foretag denne ændring ({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "Agenten har brugt sine tokens for måneden.",
       "costLimit": "Svaret nåede sin omkostningsgrænse.",
       "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+      "stopped": "Stoppet.",
       "error": "Noget gik galt, mens agenten svarede."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "Den havde brugt agentens månedlige tokengrænse.",
         "costLimit": "Arbejdsområdet havde nået sin månedlige grænse for AI-omkostninger.",
         "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+        "stopped": "Stoppet.",
         "error": "Noget gik galt."
       },
       "email": "Den læste din e-mail, så dens rapport vises kun i Leafdesk."

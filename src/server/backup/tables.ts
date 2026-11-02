@@ -20,10 +20,14 @@ const ofPages =
 const ofTeamspaces: Scope = (ws) => sql`teamspace_id in (select id from teamspace where workspace_id = ${ws})`;
 const ofAgents: Scope = (ws) => sql`agent_id in (select id from workspace_agent where workspace_id = ${ws})`;
 const ofConnections: Scope = (ws) => sql`connection_id in (select id from connection where workspace_id = ${ws})`;
-/** Agents' notes: what the AI remembers about a person is theirs alone, like their chats. */
-const agentsNotes: Scope = (ws) => sql`workspace_id = ${ws} and user_id in (select user_id from workspace_agent where workspace_id = ${ws})`;
-/** The workspace's files but those attached to AI chats, which are private to their people like the chats. */
-const files = (ws: string) => sql`(select id from file where workspace_id = ${ws} and id not in (select file_id from ai_chat_file) and id not in (select file_id from agent_chat_file))`;
+/**
+ * Agents' notes: what the AI remembers about a person is theirs alone, like their chats. Only those
+ * kept: a proposal waits on the run that made it, which isn't backed up, and without it would read
+ * as anyone's to see (agents/memory.ts readable).
+ */
+const agentsNotes: Scope = (ws) => sql`workspace_id = ${ws} and status = 'kept' and user_id in (select user_id from workspace_agent where workspace_id = ${ws})`;
+/** The workspace's files but those of people's conversations, which are private to them like the conversations. */
+const files = (ws: string) => sql`(select id from file where workspace_id = ${ws} and id not in (select file_id from conversation_file))`;
 const ofFiles: Scope = (ws) => sql`file_id in ${files(ws)}`;
 
 /** The tables a backup holds, by SQL name, with the rows of the workspace in each. */
@@ -174,7 +178,6 @@ export const LEFT_OUT: Record<string, string> = {
   sheets_write: "changes waiting to be written to a Google spreadsheet; a restored database reads its sheet again",
   connection_oauth: "connection sign-ins in progress",
   storage_deletion: "the old server's queue of files to delete",
-  ai_chat_file: "files attached to AI chats, private to their people like the chats (their files are left out too)",
   assignment_email: "emails waiting to go out",
   row_update_pending: "emails waiting to go out",
   page_update_pending: "emails waiting to go out",
@@ -194,11 +197,11 @@ export const LEFT_OUT: Record<string, string> = {
   mail_image_sender: "senders whose images a member's mailbox always shows, which goes with the mailboxes left out",
   mail_send: "when a member's mailbox last sent mail from the Mail tab, an hour's count that goes with the mailboxes left out",
   mail_snooze: "conversations a member snoozed in the Mail tab, which go with the mailboxes left out",
+  mail_sender_logo: "logos of the domains mail came from, fetched again from those domains",
   storage_move: "moves of files between storages on the old server",
-  ai_conversation: "people's AI chats, which only each of them may read",
+  conversation: "people's AI chats and chats with agents, which only each of them may read (agents' answers are agent runs, not backed up either)",
+  conversation_file: "files of people's conversations, attached to questions or by agents to answers, private to those people like the conversations (their files are left out too)",
   ai_saved_prompt: "the prompts each person saved for the AI assistant, theirs alone like their chats",
-  agent_conversation: "people's chats with agents, which only each of them may read (their answers are agent runs, not backed up either)",
-  agent_chat_file: "files agents attached to their answers in people's chats, private to those people like the chats (their files are left out too)",
   ai_account: "people's own AI provider keys; the workspace uses the new server's AI until an owner attaches one again",
   ai_usage_person: "AI usage by person, which names people of the old server; the workspace's own totals (ai_usage) are backed up",
   page_view: "who opened which page when, for analytics only: not content, and it names people of the old server",

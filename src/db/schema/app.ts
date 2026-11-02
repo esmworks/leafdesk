@@ -33,7 +33,8 @@ import type { SidebarLayout } from "../../lib/sidebar-sections";
 import { aiAccount } from "./ai-accounts";
 import { user } from "./auth";
 
-const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
+/** Postgres binary data, read as bytes. */
+export const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
   dataType: () => "bytea",
   toDriver: (value) => Buffer.from(value),
   fromDriver: (value) => new Uint8Array(value),
@@ -103,6 +104,11 @@ export type WorkspaceSettings = {
    * service then.
    */
   aiWebSearch: boolean;
+  /**
+   * Whether the AI chat may change things without asking each time (its mode `auto` and "don't ask
+   * again", server/ai-chat.ts). Off, every change is asked about; only owners change it.
+   */
+  aiAutoChanges: boolean;
   /**
    * The most the workspace's AI requests may cost in a calendar month (UTC), in US dollars, as an
    * owner set it; null: no limit of its own. Counts what every AI account paid, the workspace's own
@@ -206,6 +212,7 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   ai: true,
   aiMemory: true,
   aiWebSearch: false,
+  aiAutoChanges: true,
   aiMonthlyLimitUsd: null,
   trashRetentionDays: 30,
   export: true,

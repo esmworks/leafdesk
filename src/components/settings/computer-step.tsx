@@ -3,9 +3,15 @@
 import { Monitor } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/components/ui";
-import { COMPUTER_TOOL_NAMES, type AgentToolRecord } from "@/lib/agents";
+import { COMPUTER_EARLIER, COMPUTER_TOOL_NAMES, type AgentToolRecord } from "@/lib/agents";
 
-const OPS = { [COMPUTER_TOOL_NAMES.list]: "list", [COMPUTER_TOOL_NAMES.read]: "read", [COMPUTER_TOOL_NAMES.write]: "write", [COMPUTER_TOOL_NAMES.trash]: "trash" } as const;
+const OPS = {
+  [COMPUTER_TOOL_NAMES.list]: "list",
+  [COMPUTER_TOOL_NAMES.read]: "read",
+  [COMPUTER_TOOL_NAMES.write]: "write",
+  [COMPUTER_TOOL_NAMES.trash]: "trash",
+  [COMPUTER_EARLIER]: "earlier",
+} as const;
 
 /**
  * A run's call on files of its person's computer (server/agents/computer.ts): what it did and
@@ -27,9 +33,11 @@ export function ComputerStepLine({ step }: { step: AgentToolRecord }) {
       <span className="min-w-0 break-words">
         {t(op)}
         {!done && <span className="text-fg-faint"> · {t(why)}</span>}
-        <code className="mt-0.5 block truncate text-xs text-fg-faint" title={path}>
-          {path}
-        </code>
+        {path && (
+          <code className="mt-0.5 block truncate text-xs text-fg-faint" title={path}>
+            {path}
+          </code>
+        )}
       </span>
     </>
   );

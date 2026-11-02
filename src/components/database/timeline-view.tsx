@@ -512,7 +512,7 @@ export function TimelineView({
           <AddSubItemButton
             title={label}
             onAdd={() => void addSubItem(row, lane)}
-            className="ml-auto shrink-0 opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100"
+            className="ml-auto shrink-0 opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100"
           />
         )}
       </div>

@@ -1321,6 +1321,15 @@
     "working": "Bekerja…",
     "waiting": "Menunggu slot AI…",
     "approval": "Agen ingin memakai sebuah alat. Setujui panggilan agar agen melanjutkan.",
+    "proposals": {
+      "title": "Perubahan yang diusulkan",
+      "waiting": "{count, plural, other {# perubahan menunggu persetujuan Anda}}",
+      "approved": "{count, plural, other {# disetujui}}",
+      "approveAll": "{count, plural, one {Setujui} other {Setujui semua (#)}}",
+      "review": "Tinjau",
+      "skipped": "{count, plural, other {# perubahan tidak dapat dibuat: tinjau.}}",
+      "failed": "Perubahan tidak dapat disetujui. Coba lagi."
+    },
     "steps": "{count, plural, other {# langkah}}",
     "conversations": "Percakapan",
     "newConversation": "Percakapan baru",
@@ -1336,6 +1345,7 @@
       "limitReached": "Agen telah memakai token bulanannya.",
       "costLimit": "Ruang kerja telah mencapai batas biaya AI bulanan.",
       "selfReported": "Agen mengatakan bahwa ia tidak dapat menyelesaikan tugasnya.",
+      "stopped": "Dihentikan.",
       "error": "Terjadi kesalahan."
     },
     "errors": {
@@ -1399,6 +1409,7 @@
     "regenerate": "Buat ulang",
     "files": {
       "attach": "Lampirkan file teks",
+      "drop": "Lepaskan file teks untuk melampirkannya",
       "remove": "Hapus {name}",
       "download": "Unduh {name}",
       "tooMany": "Maksimal {max} file per pesan.",

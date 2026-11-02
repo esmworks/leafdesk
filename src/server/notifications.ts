@@ -4,6 +4,7 @@ import { db } from "@/db";
 import type { RequestedLevel } from "@/lib/access-requests";
 import { UNSNOOZABLE_KINDS } from "@/lib/snooze";
 import { REMINDER_PROMPT_MS } from "@/lib/ai-reminders";
+import { ARRIVAL_KINDS, ARRIVAL_WINDOW_MS } from "@/lib/inbox-arrivals";
 import { REMINDER_EVENT } from "@/lib/reminder-event";
 import {
   accessRequest,
@@ -30,7 +31,8 @@ import {
 import { addReactor, parseReactors, reactionSummary, removeReactor, type Reactor } from "@/lib/comment-reactions";
 import { avatarSrc } from "@/lib/avatar";
 import { isAiLimitNotice, type AiLimitNotice } from "@/lib/agent-guardrails";
-import { callConnectionName, callToSend, inboxCallInput, readEmail, runPageOf, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
+import { callConnectionName, callToSend, inboxCallInput, isAgentRun, readEmail, runPageOf, type AgentRunCode, type AgentRunStatus } from "@/lib/agents";
+import { SCHEDULE_FAILURE_LIMIT } from "@/lib/schedule";
 import { newAssignees } from "@/lib/properties";
 import type { PropertyType } from "@/lib/property-types";
 import { readableProperties, referencedIds, resolveValue, type ActivityValue } from "@/lib/row-activity";
@@ -796,11 +798,17 @@ export type InboxItem = {
   aiLimit: InboxAiLimit | null;
   /** Requests for a higher agent limit: what was asked, while it waits for an answer. */
   limitRequest: InboxLimitRequest | null;
-  /** Reminders an agent set: what to remind the user of, and which agent (null once it is gone). */
+  /** Reminders an agent or the AI chat set: what to remind the user of, and which agent (null once it is gone, or `own`). */
   aiReminder: InboxAiReminder | null;
+  /** A schedule the user set that turned itself off: whose (an agent, null once gone; or the user's own request) and the start of its task. */
+  schedulePaused: InboxSchedulePaused | null;
 };
 
-export type InboxAiReminder = { text: string; agentId: string | null; agentName: string | null };
+/** `agentId` null: the user's own request, or an agent that is gone (`agentName` then null too). */
+export type InboxSchedulePaused = { task: string; agentId: string | null; agentName: string | null; own: boolean; failures: number };
+
+/** `own`: one the user asked the AI chat for (its actor is the user). */
+export type InboxAiReminder = { text: string; agentId: string | null; agentName: string | null; own?: true };
 
 export type InboxAiLimit = {
   notice: AiLimitNotice;
@@ -957,6 +965,8 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
       and(eq(notification.kind, "review"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // A task's report goes to the person behind the run that gave it, who may be a member.
       and(eq(notification.kind, "agent_task"), inWorkspace(sql`${userId}`, notification.workspaceId)),
+      // A schedule turned off tells whoever set it, who may be a member.
+      and(eq(notification.kind, "schedule_paused"), inWorkspace(sql`${userId}`, notification.workspaceId)),
       // So do an agent's reminders about no page; one about a page follows the page, as above.
       and(eq(notification.kind, "ai_reminder"), isNull(notification.pageId), inWorkspace(sql`${userId}`, notification.workspaceId)),
     ),
@@ -1071,7 +1081,7 @@ export async function listNotifications(
     rowEmailsOf(userId, rows.filter((r) => r.kind === "row_email")),
     Promise.all(reviewWorkspaces.map(async (id) => [id, await countPendingFor(userId, id)] as const)).then((counts) => new Map(counts)),
     reactionsOf(rows.filter((r) => r.kind === "reaction")),
-    aiLimitAgentsOf(rows.flatMap((r) => ((r.kind === "ai_limit" || r.kind === "ai_reminder") && r.actorId ? [r.actorId] : []))),
+    aiLimitAgentsOf(rows.flatMap((r) => ((r.kind === "ai_limit" || r.kind === "ai_reminder" || r.kind === "schedule_paused") && r.actorId ? [r.actorId] : []))),
     limitRequestsOf(rows.flatMap((r) => (r.kind === "agent_limit_request" && r.agentLimitRequestId ? [r.agentLimitRequestId] : []))),
   ]);
   // A row update with nothing left the user may see (a property's access changed since) isn't shown,
@@ -1094,12 +1104,20 @@ export async function listNotifications(
       actorImage: avatarSrc(actorImage),
       // A reaction's message is the comment it quotes (see reaction below), a comment's what became of its suggestion,
       // an AI limit's which notice it is (aiLimit below), a reminder's what it says (aiReminder below).
-      automationMessage: row.kind === "reaction" || row.kind === "comment" || row.kind === "ai_limit" || row.kind === "ai_reminder" ? null : automationMessage,
+      automationMessage: row.kind === "reaction" || row.kind === "comment" || row.kind === "ai_limit" || row.kind === "ai_reminder" || row.kind === "schedule_paused" ? null : automationMessage,
       aiReminder:
         row.kind === "ai_reminder"
           ? (() => {
+              if (row.actorId === userId) return { text: automationMessage ?? "", agentId: null, agentName: null, own: true as const };
               const agent = (row.actorId && limits.get(row.actorId)) || null;
               return { text: automationMessage ?? "", agentId: agent?.id ?? null, agentName: agent?.name ?? row.actorName };
+            })()
+          : null,
+      schedulePaused:
+        row.kind === "schedule_paused"
+          ? (() => {
+              const agent = (row.actorId && limits.get(row.actorId)) || null;
+              return { task: automationMessage ?? "", agentId: agent?.id ?? null, agentName: agent?.name ?? null, own: row.actorId === null, failures: SCHEDULE_FAILURE_LIMIT };
             })()
           : null,
       aiLimit:
@@ -1325,7 +1343,8 @@ async function reportsOf(viewer: string, runIds: string[]): Promise<Map<string, 
     .from(agentRun)
     .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentRun.agentId))
     .leftJoin(givingAgent, and(sql`${agentRun.source}->>'kind' = 'handoff'`, sql`${givingAgent.id} = ${agentRun.source}->>'fromAgentId'`))
-    .where(inArray(agentRun.id, runIds));
+    .where(inArray(agentRun.id, runIds))
+    .then((found) => found.filter(isAgentRun));
   // A task's run shows as the run that gave it (lib/agents accessSource): its row, database or page counts.
   const pageIds = [...new Set(runs.flatMap((r) => runPageOf(r.source) ?? []))];
   const open = new Set(pageIds.length ? (await db.select({ id: page.id }).from(page).where(and(inArray(page.id, pageIds), pageVisibleTo(viewer)))).map((p) => p.id) : []);
@@ -1365,7 +1384,8 @@ async function approvalsOf(viewer: string, runIds: string[]): Promise<Map<string
     })
     .from(agentRun)
     .innerJoin(workspaceAgent, eq(workspaceAgent.id, agentRun.agentId))
-    .where(and(inArray(agentRun.id, runIds), eq(agentRun.status, "awaiting_approval")));
+    .where(and(inArray(agentRun.id, runIds), eq(agentRun.status, "awaiting_approval")))
+    .then((found) => found.filter(isAgentRun));
   const connectionIds = [...new Set(runs.flatMap((r) => (r.pending?.connectionId ? [r.pending.connectionId] : [])))];
   const names = new Map(
     connectionIds.length ? (await db.select({ id: connection.id, name: connection.name }).from(connection).where(inArray(connection.id, connectionIds))).map((c) => [c.id, c.name]) : [],
@@ -1409,6 +1429,16 @@ export async function dueReminders(userId: string, workspaceId: string, now = ne
 }
 
 /**
+ * What people just sent the user in the workspace, newest first: unread notifications of
+ * ARRIVAL_KINDS come within ARRIVAL_WINDOW_MS. The cards over the page show these as they come
+ * (components/sidebar/arrival-cards.tsx); an older one, or one marked unread again, waits in the inbox.
+ */
+export async function recentArrivals(userId: string, workspaceId: string, now = new Date()): Promise<InboxItem[]> {
+  const items = await listNotifications(userId, { workspaceId, kinds: [...ARRIVAL_KINDS], unreadOnly: true, limit: 10 });
+  return items.filter((item) => now.getTime() - item.createdAt.getTime() <= ARRIVAL_WINDOW_MS);
+}
+
+/**
  * Archives the given notifications, or (`"read"`) every read one in the inbox: they leave the
  * inbox for the archive, read (an email still to come about one doesn't go).
  */
@@ -1442,16 +1472,49 @@ export async function unarchiveNotifications(userId: string, workspaceId: string
   signal(workspaceId);
 }
 
+/** Kinds `listNotifications` may leave out after reading them (its `shown`), which SQL alone can't count. */
+const LEFT_OUT_AFTER_READING: NotificationKind[] = ["row_update", "row_email", "review", "agent_approval", "agent_limit_request", "ai_limit"];
+
+/**
+ * The unread notifications the inbox shows: those of the kinds the list may leave out are counted
+ * as the list shows them, or the badge would count one no one can open and mark read.
+ */
 export async function unreadCount(userId: string, workspaceId: string, kinds?: NotificationKind[]) {
   await requireMembership(userId, workspaceId);
   const filter = await inboxFilter(userId, workspaceId, kinds);
   if (!filter) return 0;
-  const [row] = await db
-    .select({ n: count() })
+  const rows = await db
+    .select({ kind: notification.kind, n: count() })
     .from(notification)
     .leftJoin(page, eq(page.id, notification.pageId))
-    .where(and(filter, isNull(notification.readAt)));
-  return row?.n ?? 0;
+    .where(and(filter, isNull(notification.readAt)))
+    .groupBy(notification.kind);
+  let total = 0;
+  const checked: NotificationKind[] = [];
+  let toCheck = 0;
+  for (const { kind, n } of rows) {
+    if (LEFT_OUT_AFTER_READING.includes(kind)) {
+      checked.push(kind);
+      toCheck += n;
+    } else total += n;
+  }
+  if (!toCheck) return total;
+  const shown = await listNotifications(userId, { workspaceId, unreadOnly: true, kinds: checked, limit: toCheck });
+  return total + shown.length;
+}
+
+/**
+ * The unread count of the workspace one of the user's notifications is in, for the installed app's
+ * icon after a push notification's button changed it (public/sw.js). Null when there is no such
+ * notification or the user left the workspace.
+ */
+export async function unreadCountBeside(userId: string, notificationId: string): Promise<number | null> {
+  const [row] = await db
+    .select({ workspaceId: notification.workspaceId })
+    .from(notification)
+    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId)));
+  if (!row) return null;
+  return unreadCount(userId, row.workspaceId).catch(() => null);
 }
 
 /** The longest a notification can be snoozed for. */

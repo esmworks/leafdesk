@@ -19,7 +19,7 @@ import type { PageEditor } from "./embed-blocks";
  * whether the reader may chat, and how, is the server's to say. The chat itself is loaded only
  * where such a block is shown.
  */
-const AgentChat = lazyPart(() => import("@/components/agent-chat/agent-chat").then((m) => m.AgentChat), <div aria-busy="true" className="my-1 h-24 w-full animate-pulse rounded-lg bg-bg-subtle" />);
+const AgentChat = lazyPart(() => import("@/components/agent-chat/agent-thread").then((m) => m.AgentChat), <div aria-busy="true" className="my-1 h-24 w-full animate-pulse rounded-lg bg-bg-subtle" />);
 
 /** A block just added from the slash menu, whose picker opens as it appears. */
 let pickFor: string | null = null;

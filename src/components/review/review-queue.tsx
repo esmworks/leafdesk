@@ -76,6 +76,7 @@ export function ReviewQueue({
     if (f.agentId) params.set("agent", f.agentId);
     if (f.databaseId) params.set("database", f.databaseId);
     if (f.rowId) params.set("row", f.rowId);
+    if (f.runId) params.set("run", f.runId);
     if (s === "decided") params.set("status", "decided");
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
@@ -129,7 +130,7 @@ export function ReviewQueue({
       return copy;
     });
 
-  const filtered = Boolean(filter.agentId || filter.databaseId || filter.rowId);
+  const filtered = Boolean(filter.agentId || filter.databaseId || filter.rowId || filter.runId);
   const groups = useMemo(() => {
     const byDatabase = new Map<string, { database: PendingChangeView["database"]; changes: PendingChangeView[] }>();
     for (const c of queue.changes) {
@@ -188,6 +189,11 @@ export function ReviewQueue({
           {filter.rowId && (
             <Button size="sm" variant="ghost" onClick={() => change({ filter: { ...filter, rowId: null } })}>
               {t("filters.allRows")}
+            </Button>
+          )}
+          {filter.runId && (
+            <Button size="sm" variant="ghost" onClick={() => change({ filter: { ...filter, runId: null } })}>
+              {t("filters.allRuns")}
             </Button>
           )}
           <span className="ms-auto text-sm text-fg-muted" aria-live="polite">

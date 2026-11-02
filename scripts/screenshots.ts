@@ -1,43 +1,51 @@
 /**
- * Takes the board screenshots the README and the website show, from a small workspace this script
- * makes ("Acme Inc."): a board of nine launch tasks with the workspace's pages beside it, in the
- * light and the dark scheme, in headless Chrome against a running server. Run it again after the
- * interface's look changes.
+ * Takes the screenshots the README and the website show, from a small workspace this script makes
+ * ("Acme Inc."): a board of nine launch tasks with the workspace's pages beside it, and the Mail
+ * tab with a customer's thread open, in the light and the dark scheme, in headless Chrome against a
+ * running server. Run it again after the interface's look changes.
  *
- *   pnpm build && pnpm start          # one terminal
- *   pnpm tsx scripts/screenshots.ts   # another
+ *   pnpm build && MAIL_ALLOWED_HOSTS=127.0.0.1 pnpm start   # one terminal
+ *   pnpm tsx scripts/screenshots.ts                         # another
  *
- * Writes .github/screenshots/board-{light,dark}.png (1440×900 at 2×, the README) and
- * site/img/board-{light,dark}.jpg (1600×1000, the website); scripts/social-preview.ts makes the
+ * Writes .github/screenshots/{board,mail}-{light,dark}.png (1440×900 at 2×, the README) and
+ * site/img/{board,mail}-{light,dark}.jpg (1600×1000, the website); scripts/social-preview.ts makes the
  * social preview images. The workspace is made again on each run; its owner is
  * screenshots@example.test, who can't sign in (the script makes the session). The script writes
  * the new pages' live documents itself, which is safe with the server running: no one has them
- * open yet.
+ * open yet. The Mail tab's shots read a mailbox on GreenMail (greenmail/standalone:2.1.14, started
+ * here with Docker on free ports and removed at the end), which MAIL_ALLOWED_HOSTS lets the server
+ * reach.
  *
  * Env: APP_URL (default http://localhost:3000), DATABASE_URL and BETTER_AUTH_SECRET (read from .env
  * when present; the server's own), CHROME_PATH (default: Google Chrome on macOS).
  */
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { type AddressInfo, createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { makeSignature } from "better-auth/crypto";
+import { ImapFlow } from "imapflow";
+import MailComposer from "nodemailer/lib/mail-composer";
 
 try {
   process.loadEnvFile();
 } catch {}
+// Connecting the mailbox checks its server here too.
+process.env.MAIL_ALLOWED_HOSTS = "127.0.0.1";
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { session, user, workspace, workspaceMember } = await import("@/db/schema");
+const { mailbox, session, user, workspace, workspaceMember } = await import("@/db/schema");
 const { env } = await import("@/lib/env");
 const { createCollab } = await import("@/server/collab/service");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createPage } = await import("@/server/pages");
 const { addProperty, addView, getProperties, insertRows } = await import("@/server/databases");
-const { createWorkspace } = await import("@/server/workspaces");
+const { createWorkspace, updateWorkspaceSettings } = await import("@/server/workspaces");
+const { connectMailbox } = await import("@/server/row-mail/settings");
 
 const BASE = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
 const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -128,6 +136,128 @@ async function seed() {
 }
 
 // ---------------------------------------------------------------------------------------------
+// The mailbox: Alex's inbox on a GreenMail server of its own, in a container removed at the end.
+
+const MAIL_HOST = "127.0.0.1";
+const MAIL_CONTAINER = "leafdesk-greenmail-screenshots";
+const ALEX = "alex@acme.test";
+const OPENED = "Re: Pricing for 40 seats";
+const OPENED_TEXT = "That works for us.";
+const SENT_TEXT = "Great to hear!";
+
+type Mail = { from: string; subject: string; text: string; ago: number; seen?: boolean; starred?: boolean; id?: string; replyTo?: string; file?: string };
+// `ago` in minutes before now; the list shows the newest first.
+const INBOX: Mail[] = [
+  {
+    from: "Priya Shah <priya@northwind.test>",
+    subject: "Pricing for 40 seats",
+    text: "Hi Alex,\n\nThanks for the demo on Tuesday. The team loved the board view and the meeting notes.\n\nCould you send pricing for 40 seats on the yearly plan? We'd like to start before the end of the month.\n\nBest,\nPriya",
+    ago: 26 * 60,
+    seen: true,
+    id: "pricing-1",
+  },
+  {
+    from: "Priya Shah <priya@northwind.test>",
+    subject: OPENED,
+    text: `Hi Alex,\n\n${OPENED_TEXT} We'll sign this week and set up single sign-on with our IT team on Monday.\n\nCould you also share the onboarding checklist you mentioned? Our first teamspace will be Product.\n\nThanks again,\nPriya`,
+    ago: 12,
+    id: "pricing-3",
+    replyTo: "pricing-2",
+  },
+  { from: "Jordan Lee <jordan@fabrikam.test>", subject: "Beta feedback: the new agenda view", text: "Hi Alex, we've been using the agenda view for a week now. A few notes from the team…", ago: 48, starred: true },
+  { from: "Maria Garcia <maria@contoso.test>", subject: "Invoice #2041 for October", text: "Hello, please find our invoice for October attached. Payment is due in 30 days.", ago: 95, file: "Invoice-2041.pdf" },
+  { from: "Sam Patel <sam@acme.test>", subject: "Launch day checklist", text: "Here's the list for Thursday: press kit, status page, the announcement and a quick check of the pricing page.", ago: 160, seen: true },
+  { from: "Chen Wei <chen@tailspin.test>", subject: "Can we move Thursday's call?", text: "Something came up on Thursday afternoon. Would Friday at 10:00 work for you instead?", ago: 230, seen: true },
+  { from: "The Product Weekly <news@productweekly.test>", subject: "Five ideas for faster onboarding", text: "This week: checklists that people finish, welcome pages that answer questions, and more.", ago: 6 * 60, seen: true },
+  { from: "Lena Fischer <lena@woodgrove.test>", subject: "Contract draft v3", text: "Hi Alex, attached is the third draft with the changes from our call. The renewal terms are on page 4.", ago: 22 * 60, seen: true, starred: true, file: "Contract-v3.pdf" },
+  { from: "Tom Becker <tom@acme.test>", subject: "Welcome aboard, Riley!", text: "Everyone, please welcome Riley, who joins the design team today.", ago: 30 * 60, seen: true },
+];
+const SENT: Mail = {
+  from: `Alex Morgan <${ALEX}>`,
+  subject: OPENED,
+  text: `Hi Priya,\n\n${SENT_TEXT} For 40 seats on the yearly plan it's $8 per seat a month, so $3,840 a year, with single sign-on included.\n\nI can have your workspace ready tomorrow.\n\nAlex`,
+  ago: 3 * 60,
+  seen: true,
+  id: "pricing-2",
+  replyTo: "pricing-1",
+};
+
+function freePort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = createServer();
+    server.once("error", reject);
+    server.listen(0, MAIL_HOST, () => {
+      const { port } = server.address() as AddressInfo;
+      server.close(() => resolve(port));
+    });
+  });
+}
+
+const docker = (...args: string[]) => execFileSync("docker", args, { stdio: ["ignore", "pipe", "pipe"] }).toString().trim();
+
+/** Starts GreenMail, puts Alex's mail in it and connects it as Alex's mailbox in the workspace. */
+async function seedMail(workspaceId: string) {
+  const smtpPort = await freePort();
+  const imapPort = await freePort();
+  try {
+    docker("rm", "-f", MAIL_CONTAINER);
+  } catch {}
+  docker(
+    "run",
+    "-d",
+    "--name",
+    MAIL_CONTAINER,
+    "-p",
+    `${MAIL_HOST}:${smtpPort}:3025`,
+    "-p",
+    `${MAIL_HOST}:${imapPort}:3143`,
+    "-e",
+    "GREENMAIL_OPTS=-Dgreenmail.setup.test.smtp -Dgreenmail.setup.test.imap -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled",
+    "greenmail/standalone:2.1.14",
+  );
+  const imap = () => new ImapFlow({ host: MAIL_HOST, port: imapPort, secure: false, auth: { user: ALEX, pass: "x" }, logger: false });
+  let client = imap();
+  for (let i = 0; ; i++) {
+    try {
+      await client.connect();
+      break;
+    } catch (error) {
+      if (i === 60) throw error;
+      await new Promise((r) => setTimeout(r, 500));
+      client = imap();
+    }
+  }
+  const raw = async (mail: Mail, to: string) => {
+    const messageId = (id: string) => `<${id}@screenshots.acme.test>`;
+    const parent = mail.replyTo ? messageId(mail.replyTo) : undefined;
+    return new MailComposer({
+      from: mail.from,
+      to,
+      subject: mail.subject,
+      text: mail.text,
+      date: new Date(Date.now() - mail.ago * 60_000),
+      messageId: mail.id ? messageId(mail.id) : undefined,
+      inReplyTo: parent,
+      references: parent,
+      attachments: mail.file ? [{ filename: mail.file, content: Buffer.from("%PDF-1.4\n%%EOF\n"), contentType: "application/pdf" }] : [],
+    })
+      .compile()
+      .build();
+  };
+  const flags = (mail: Mail) => [...(mail.seen ? ["\\Seen"] : []), ...(mail.starred ? ["\\Flagged"] : [])];
+  try {
+    for (const name of ["Sent", "Drafts", "Archive", "Trash", "Junk"]) await client.mailboxCreate(name);
+    for (const mail of INBOX) await client.append("INBOX", await raw(mail, `Alex Morgan <${ALEX}>`), flags(mail), new Date(Date.now() - mail.ago * 60_000));
+    await client.append("Sent", await raw(SENT, "Priya Shah <priya@northwind.test>"), flags(SENT), new Date(Date.now() - SENT.ago * 60_000));
+  } finally {
+    await client.logout();
+  }
+  await updateWorkspaceSettings(OWNER, workspaceId, { email: true });
+  const servers = { imapHost: MAIL_HOST, imapPort, imapSecure: false, smtpHost: MAIL_HOST, smtpPort, smtpSecure: false };
+  await connectMailbox(OWNER, workspaceId, { address: ALEX, servers, username: ALEX, password: "x", consent: true, displayName: "Alex Morgan", timeZone: "UTC" });
+}
+
+// ---------------------------------------------------------------------------------------------
 // Headless Chrome over the DevTools protocol (Node's WebSocket, no dependencies), as sw-e2e does.
 
 const profile = mkdtempSync(join(tmpdir(), "leafdesk-screenshots-"));
@@ -204,6 +334,9 @@ try {
   await tab("Network.setCookie", { name: "NEXT_LOCALE", value: "en", url: BASE, sameSite: "Lax" });
   await tab("Network.setExtraHTTPHeaders", { headers: { "Accept-Language": "en-US,en;q=0.9" } });
   await tab("Emulation.setLocaleOverride", { locale: "en-US" });
+  // Whenever this runs, the newest mail came in the early afternoon: a fixed offset putting now at 3 pm.
+  const offset = ((15 - new Date().getUTCHours() + 36) % 24) - 12;
+  await tab("Emulation.setTimezoneOverride", { timezoneId: offset === 0 ? "Etc/GMT" : `Etc/GMT${offset > 0 ? "-" : "+"}${Math.abs(offset)}` });
 
   /** The board, in this scheme and size, saved where `out` says. */
   async function board(scheme: "light" | "dark", scale: number, format: "png" | "jpeg", out: string) {
@@ -221,6 +354,33 @@ try {
   await board("dark", 2, "png", ".github/screenshots/board-dark.png");
   await board("light", 1600 / 1440, "jpeg", "site/img/board-light.jpg");
   await board("dark", 1600 / 1440, "jpeg", "site/img/board-dark.jpg");
+
+  /** The Mail tab with Priya's thread open, in this scheme and size, saved where `out` says. */
+  async function mail(scheme: "light" | "dark", scale: number, format: "png" | "jpeg", out: string) {
+    await tab("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: scale, mobile: false });
+    await tab("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: scheme }] });
+    // The thread joins Alex's answer once the sent folder is read too, which may come after the inbox.
+    for (let attempt = 1; ; attempt++) {
+      await tab("Page.navigate", { url: `${BASE}/w/${workspaceId}/mail` });
+      // The first read of the mailbox runs in the background as Mail lists it.
+      await until(`document.querySelectorAll("[data-thread]").length === ${INBOX.length - 1}`, "the inbox's threads");
+      await evaluate(`[...document.querySelectorAll("[data-thread]")].find((el) => el.textContent.includes(${JSON.stringify(OPENED)})).click()`);
+      await until(`document.body.innerText.includes(${JSON.stringify(OPENED_TEXT)}) && document.fonts.status === "loaded"`, "the open thread");
+      await new Promise((r) => setTimeout(r, 2_000));
+      if (await evaluate<boolean>(`document.body.innerText.includes(${JSON.stringify(SENT_TEXT)})`)) break;
+      if (attempt === 10) throw new Error("Alex's answer never joined the thread");
+      await new Promise((r) => setTimeout(r, 3_000));
+    }
+    const { data } = await tab<{ data: string }>("Page.captureScreenshot", { format, ...(format === "jpeg" ? { quality: 88 } : {}) });
+    writeFileSync(join(root, out), Buffer.from(data, "base64"));
+    console.log(`wrote ${out}`);
+  }
+  // After the board's shots, whose sidebar would count the new mail.
+  await seedMail(workspaceId);
+  await mail("light", 2, "png", ".github/screenshots/mail-light.png");
+  await mail("dark", 2, "png", ".github/screenshots/mail-dark.png");
+  await mail("light", 1600 / 1440, "jpeg", "site/img/mail-light.jpg");
+  await mail("dark", 1600 / 1440, "jpeg", "site/img/mail-dark.jpg");
   socket.close();
 } finally {
   const exited = new Promise((r) => chrome.once("exit", r));
@@ -228,6 +388,11 @@ try {
   await Promise.race([exited, new Promise((r) => setTimeout(r, 5_000))]);
   if (chrome.exitCode === null && chrome.signalCode === null) chrome.kill("SIGKILL");
   await db.delete(session).where(eq(session.id, sessionRowId));
+  // The server's sweeps would keep trying the mail server once it is gone.
+  await db.delete(mailbox).where(eq(mailbox.userId, OWNER));
+  try {
+    docker("rm", "-f", MAIL_CONTAINER);
+  } catch {}
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
   rmSync(profile, { recursive: true, force: true });
 }

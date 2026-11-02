@@ -26,7 +26,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, agentUsage, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentRun, agentUsage, conversation, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -158,6 +158,12 @@ try {
   check(
     !(await db.select({ id: agentRun.id }).from(agentRun).where(inArray(agentRun.agentId, [reader.id, archived.id]))).length,
     "…the view-only and archived agents have no runs at all",
+  );
+  const [threadConversation] = queued[0].conversationId ? await db.select().from(conversation).where(eq(conversation.id, queued[0].conversationId)) : [];
+  check(
+    threadConversation?.key === `thread:${threadId}` && threadConversation.agentId === helper.id && threadConversation.userId === helper.userId,
+    "the run joins the agent's conversation kept for the comment thread",
+    threadConversation,
   );
   await flushAgentRuns();
   const [done] = await runsOf(asked.comment!.id);

@@ -12,13 +12,13 @@
  */
 import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, PAGE_LEVELS, workspaceAgent } from "@/db/schema";
+import { PAGE_LEVELS, workspaceAgent } from "@/db/schema";
 import { MAX_AGENT_PROMPT } from "@/lib/agents";
 import { searchFold } from "@/lib/search-fold";
 import { findMembership, isGuest } from "@/server/access";
 import { agentLevels } from "./sharing";
 import { requestLocale } from "@/server/mail/locale";
-import { kickAgents } from "./kick";
+import { startTriggered } from "@/server/triggers";
 import { isAgentUser } from "./users";
 
 /** An agent as the comments' @ menu offers it: its user (what a mention names), name and icon. */
@@ -81,18 +81,16 @@ export async function startMentionRuns(input: {
   const shared = agents.filter((a) => levels.get(a.id) !== "none");
   if (!shared.length) return [];
   const locale = await requestLocale();
-  const queued = await db
-    .insert(agentRun)
-    .values(
-      shared.map((agent) => ({
-        agentId: agent.id,
-        workspaceId: input.workspaceId,
-        source: { kind: "mention" as const, pageId: input.pageId, threadId: input.threadId, commentId: input.commentId, mentionedBy: input.authorId },
-        context: { actorId: input.authorId, locale },
-        prompt: input.text.slice(0, MAX_AGENT_PROMPT),
-      })),
-    )
-    .returning({ id: agentRun.id });
-  kickAgents();
-  return queued.map((r) => r.id);
+  const queued: string[] = [];
+  for (const agent of shared) {
+    const { run } = await startTriggered({
+      target: { agentId: agent.id },
+      workspaceId: input.workspaceId,
+      source: { kind: "mention", pageId: input.pageId, threadId: input.threadId, commentId: input.commentId, mentionedBy: input.authorId },
+      context: { actorId: input.authorId, locale },
+      prompt: input.text.slice(0, MAX_AGENT_PROMPT),
+    });
+    queued.push(run.id);
+  }
+  return queued;
 }

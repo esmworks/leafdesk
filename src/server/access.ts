@@ -19,6 +19,7 @@ import { notAgentUser } from "@/server/agents/users";
 import { INSTANCE_SSO_PROVIDER_ID, workspaceProviderId } from "@/lib/sso-config";
 import {
   appModeHere,
+  boundWorkspace,
   connectedAppCall,
   connectedAppRefusal,
   connectedAppsMode,
@@ -272,6 +273,8 @@ function appsModeOf(call: ConnectedAppCall, workspaceId: string): Promise<Connec
  * outside connected-app requests and for checks on behalf of someone other than the app's user.
  */
 export async function connectedAppHold(userId: string, workspaceId: string): Promise<"hidden" | "readOnly" | null> {
+  const within = boundWorkspace(userId);
+  if (within && within !== workspaceId) return "hidden";
   const call = connectedAppCall(userId);
   return call ? connectedAppRefusal(await appsModeOf(call, workspaceId), call.writing) : null;
 }
@@ -282,6 +285,14 @@ export async function connectedAppHold(userId: string, workspaceId: string): Pro
  * connected-app requests. For lists across workspaces.
  */
 export async function workspacesHiddenFromApp(userId: string): Promise<Set<string>> {
+  const within = boundWorkspace(userId);
+  if (within) {
+    const others = await db
+      .select({ id: workspaceMember.workspaceId })
+      .from(workspaceMember)
+      .where(and(eq(workspaceMember.userId, userId), ne(workspaceMember.workspaceId, within)));
+    return new Set(others.map((r) => r.id));
+  }
   const call = connectedAppCall(userId);
   if (!call) return new Set();
   const rows = await db

@@ -37,6 +37,7 @@ import {
   MAX_AGENT_TOKEN_LIMIT,
   OWN_TOOLS_NAME,
   WEB_TOOL_NAMES,
+  COMPUTER_EARLIER,
   isComputerTool,
   type AgentAccessLevel,
   type AgentAccessView,
@@ -58,12 +59,26 @@ import { AgentHelpersField } from "./agent-helpers-field";
 import { AgentSchedulesTab } from "./agent-schedules-tab";
 import { AgentSkillsTab } from "./agent-skills-tab";
 import { PagePicker, useShareablePages } from "./agent-page-picker";
+import { REMIND_TOOL_NAME } from "@/lib/ai-reminders";
 
-/** The dialog's tabs; `share`, who the agent is shared with, opens from its header rather than the tab bar. */
-export type AgentTab = "settings" | "access" | "skills" | "memory" | "connections" | "schedules" | "runs" | "chat" | "history" | "share";
+/**
+ * The dialog's tabs; `share`, who the agent is shared with, opens from its header rather than the
+ * tab bar. Its settings are four sections, each with the tabs in it (`settings` is the instructions,
+ * `tools` and `advanced` the form's other parts); runs, the chat and its versions come after them.
+ */
+export type AgentTab = "settings" | "skills" | "memory" | "tools" | "access" | "connections" | "triggers" | "schedules" | "advanced" | "runs" | "chat" | "history" | "share";
 /** The server's main and fast models' names, shown with the agent's choice between them. */
 export type AgentModelNames = { main: string; fast: string };
-export const AGENT_TABS: readonly Exclude<AgentTab, "share">[] = ["settings", "access", "skills", "memory", "connections", "schedules", "runs", "chat", "history"];
+export const AGENT_SECTIONS = {
+  instructions: ["settings", "skills", "memory"],
+  tools: ["tools", "access", "connections"],
+  triggers: ["triggers", "schedules"],
+  advanced: ["advanced"],
+} as const satisfies Record<string, readonly AgentTab[]>;
+type AgentSection = keyof typeof AGENT_SECTIONS;
+/** What the tab bar shows: the sections, then the tabs of their own. */
+const AGENT_NAV: readonly (AgentSection | "runs" | "chat" | "history")[] = ["instructions", "tools", "triggers", "advanced", "runs", "chat", "history"];
+const sectionOf = (tab: AgentTab): AgentSection | null => (Object.keys(AGENT_SECTIONS) as AgentSection[]).find((s) => (AGENT_SECTIONS[s] as readonly AgentTab[]).includes(tab)) ?? null;
 
 // Sharing comes with its section, not with the dialog.
 // Only for those with full access who aren't owners, on an agent with a limit.
@@ -72,6 +87,7 @@ const AgentLimitRequest = lazyPart(() => import("./agent-limit-request").then((m
 const AgentMailboxes = lazyPart(() => import("./agent-mailboxes").then((m) => m.AgentMailboxes));
 const ComputerStepLine = lazyPart(() => import("./computer-step").then((m) => m.ComputerStepLine));
 const AgentShareTab = lazyPart(() => import("./agent-share-tab").then((m) => m.AgentShareTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
+const AgentTriggersTab = lazyPart(() => import("./agent-triggers-tab").then((m) => m.AgentTriggersTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 const AgentMemoryTab = lazyPart(() => import("./agent-memory-tab").then((m) => m.AgentMemoryTab), <div aria-busy="true" className="m-5 h-24 animate-pulse rounded-md bg-bg-subtle" />);
 
 /** An agent's emoji, or a robot when it has none. */
@@ -129,6 +145,13 @@ export function AgentDialog({
   useEffect(() => {
     tabs.current?.querySelector<HTMLElement>('[aria-selected="true"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [tab]);
+  const section = sectionOf(tab);
+  const inSection = section ? AGENT_SECTIONS[section] : [];
+  const memoryBadge = proposals > 0 && (
+    <span className="rounded bg-accent px-1 text-xs font-medium text-accent-fg tabular-nums" aria-label={t("memory.waiting", { count: proposals })}>
+      {proposals}
+    </span>
+  );
   return (
     <Dialog open onClose={onClose} className="max-w-3xl">
       <DialogHeader
@@ -149,20 +172,40 @@ export function AgentDialog({
         onClose={onClose}
         closeLabel={tc("close")}
       />
-      {/* Nine tabs don't fit a phone: they scroll on their own, without a bar, rather than widening the dialog. */}
+      {/* The tabs don't fit a phone: they scroll on their own, without a bar, rather than widening the dialog. */}
       <div ref={tabs} className="overflow-x-auto border-b border-border px-5 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div role="tablist" aria-label={agent.name} className="inline-flex w-max gap-0.5 rounded-lg bg-bg-hover p-0.5">
-          {AGENT_TABS.map((name) => (
-            <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
-              {t(`tabs.${name}`)}
-              {name === "memory" && proposals > 0 && (
-                <span className="rounded bg-accent px-1 text-xs font-medium text-accent-fg tabular-nums" aria-label={t("memory.waiting", { count: proposals })}>
-                  {proposals}
-                </span>
-              )}
-            </TabButton>
-          ))}
+          {AGENT_NAV.map((name) =>
+            name === "runs" || name === "chat" || name === "history" ? (
+              <TabButton key={name} active={tab === name} onClick={() => onTab(name)}>
+                {t(`tabs.${name}`)}
+              </TabButton>
+            ) : (
+              <TabButton key={name} active={section === name} onClick={() => onTab(AGENT_SECTIONS[name][0])}>
+                {t(`sections.${name}`)}
+                {name === "instructions" && section !== "instructions" && memoryBadge}
+              </TabButton>
+            ),
+          )}
         </div>
+        {/* A section's own tabs, under it. */}
+        {inSection.length > 1 && (
+          <div role="tablist" aria-label={section ? t(`sections.${section}`) : undefined} className="mt-2 flex w-max gap-3 text-sm">
+            {inSection.map((name) => (
+              <button
+                key={name}
+                type="button"
+                role="tab"
+                aria-selected={tab === name}
+                onClick={() => onTab(name)}
+                className={cn("flex items-center gap-1.5 border-b-2 pb-0.5", tab === name ? "border-fg text-fg" : "border-transparent text-fg-muted hover:text-fg")}
+              >
+                {name === "settings" ? t("sections.instructions") : name === "tools" ? t("tabs.general") : name === "advanced" ? t("sections.advanced") : name === "triggers" ? t("tabs.allTriggers") : t(`tabs.${name}`)}
+                {name === "memory" && memoryBadge}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       {notice && (
         <div role="status" className="border-b border-border bg-bg-subtle px-5 py-2 text-xs text-fg-muted">
@@ -172,8 +215,17 @@ export function AgentDialog({
       {!editsAgent(agent) && tab !== "share" && tab !== "chat" && <p className="border-b border-border bg-bg-subtle px-5 py-2 text-xs text-fg-muted">{t("viewOnly")}</p>}
       {tab === "share" ? (
         <AgentShareTab workspaceId={workspaceId} agent={agent} />
-      ) : tab === "settings" ? (
-        <AgentForm workspaceId={workspaceId} agent={agent} isOwner={isOwner} models={models} webSearch={webSearch} onDone={onClose} />
+      ) : tab === "settings" || tab === "tools" || tab === "advanced" ? (
+        <AgentForm
+          key={tab}
+          workspaceId={workspaceId}
+          agent={agent}
+          isOwner={isOwner}
+          models={models}
+          webSearch={webSearch}
+          part={tab === "settings" ? "instructions" : tab}
+          onDone={onClose}
+        />
       ) : tab === "access" ? (
         <AccessTab workspaceId={workspaceId} agent={agent} />
       ) : tab === "skills" ? (
@@ -182,6 +234,8 @@ export function AgentDialog({
         <AgentMemoryTab workspaceId={workspaceId} agent={agent} memoryOff={memoryOff} />
       ) : tab === "connections" ? (
         <AgentConnectionsTab workspaceId={workspaceId} agent={agent} isOwner={isOwner} />
+      ) : tab === "triggers" ? (
+        <AgentTriggersTab workspaceId={workspaceId} agent={agent} onTab={onTab} />
       ) : tab === "schedules" ? (
         <AgentSchedulesTab workspaceId={workspaceId} agent={agent} onRuns={() => onTab("runs")} />
       ) : tab === "history" ? (
@@ -203,7 +257,11 @@ export type AgentFormDraft = {
   create: (value: AgentInput) => Promise<ActionResult<AgentView>>;
 };
 
-/** A new agent (no `agent`, prefilled from `draft` when given) or an agent's settings. */
+/**
+ * A new agent (no `agent`, prefilled from `draft` when given) or an agent's settings, all of them or
+ * one `part` of them (its dialog's sections): what it is and its instructions; how it may change
+ * things and reach out; the model, limits and quiet hours. A part saves the others as they are.
+ */
 export function AgentForm({
   workspaceId,
   isOwner,
@@ -211,6 +269,7 @@ export function AgentForm({
   models = null,
   webSearch = false,
   draft,
+  part = null,
   onDone,
   onCreated,
 }: {
@@ -227,9 +286,11 @@ export function AgentForm({
   /** The server has a search service: the web access switch says the agent can search too. */
   webSearch?: boolean;
   draft?: AgentFormDraft;
+  part?: "instructions" | "tools" | "advanced" | null;
   onDone: () => void;
   onCreated?: (agent: AgentView) => void;
 }) {
+  const shows = (which: "instructions" | "tools" | "advanced") => part === null || part === which;
   const t = useTranslations("settings.agents.form");
   const tc = useTranslations("common");
   const start = agent ?? draft?.initial;
@@ -291,6 +352,8 @@ export function AgentForm({
     >
       <fieldset disabled={locked || pending} className="max-h-[65vh] space-y-4 overflow-y-auto px-5 py-4">
         {agent?.archived && <p className="text-sm text-fg-muted">{t("archivedNote")}</p>}
+        {shows("instructions") && (
+          <>
         <div className="flex items-end gap-2">
           <IconPicker icon={icon} onChange={setIcon} disabled={locked}>
             {(toggle) => (
@@ -344,8 +407,10 @@ export function AgentForm({
           </div>
           <Switch checked={enabled} label={t("active")} disabled={locked} onChange={setEnabled} />
         </div>
-        {models && (
-          <label className="block border-t border-border pt-3">
+          </>
+        )}
+        {shows("advanced") && models && (
+          <label className={cn("block", part === null && "border-t border-border pt-3")}>
             <span className="mb-1 block text-sm">{t("model")}</span>
             <select value={model} onChange={(e) => setModel(e.target.value as AgentModel)} className={cn(selectClass, "w-full sm:w-auto")}>
               <option value="main">{t("modelMain", { name: models.main })}</option>
@@ -354,7 +419,9 @@ export function AgentForm({
             <span className="mt-1 block text-xs text-fg-muted">{t("modelHelp")}</span>
           </label>
         )}
-        <label className="block border-t border-border pt-3">
+        {shows("tools") && (
+          <>
+        <label className={cn("block", part === null && "border-t border-border pt-3")}>
           <span className="mb-1 block text-sm">{t("rowChanges")}</span>
           <select
             value={rowChanges}
@@ -389,7 +456,12 @@ export function AgentForm({
             {recipients ? t("mailRecipientsHelp") : t("mailRecipientsInvalid", { max: MAX_AGENT_MAIL_RECIPIENTS })}
           </span>
         </label>
-        <label className="block border-t border-border pt-3">
+        <AgentHelpersField workspaceId={workspaceId} agentId={agent?.id ?? null} value={helpers} disabled={locked} onChange={setHelpers} />
+          </>
+        )}
+        {shows("advanced") && (
+          <>
+        <label className={cn("block", (part === null || models) && "border-t border-border pt-3")}>
           <span className="mb-1 block text-sm">{t("limit")}</span>
           <Input
             type="number"
@@ -409,7 +481,8 @@ export function AgentForm({
           </span>
         </label>
         <AgentGuardrailFields quiet={quiet} onQuiet={setQuiet} dailyLimit={dailyLimit} onDailyLimit={setDailyLimit} disabled={locked || !isOwner} ownersOnly={!isOwner} />
-        <AgentHelpersField workspaceId={workspaceId} agentId={agent?.id ?? null} value={helpers} disabled={locked} onChange={setHelpers} />
+          </>
+        )}
       </fieldset>
       <DialogFooter>
         {error && (
@@ -885,6 +958,9 @@ function RunItem({
 }
 
 /** A step of a run: the chat's steps, the comments the agent wrote, its calls to connections and the agents it asked. */
+/** A reminder links to no page. */
+const noSource = () => {};
+
 export function AgentStepLine({
   step,
   connections,
@@ -901,7 +977,13 @@ export function AgentStepLine({
     return <WebStepLine step={step} />;
   }
   if (step.kind === "handoff") return <HandoffStepLine step={step} onOpenRun={onOpenRun} />;
-  if (step.kind === "tool" && step.connectionId === null && isComputerTool(step.tool)) return <ComputerStepLine step={step} />;
+  // A reminder it set reads as the AI chat's do: its step's input is "<when> · <text>" (server/ai-reminders.ts).
+  const said = step.kind === "tool" && step.connectionId === null && step.tool === REMIND_TOOL_NAME && step.outcome === "done" ? step.input.indexOf(" · ") : -1;
+  if (step.kind === "tool" && said > 0) {
+    const reminder = { kind: "reminder", when: step.input.slice(0, said), text: step.input.slice(said + 3), outcome: "done" } as const;
+    return <StepLine step={reminder} onSource={noSource} />;
+  }
+  if (step.kind === "tool" && step.connectionId === null && (isComputerTool(step.tool) || step.tool === COMPUTER_EARLIER)) return <ComputerStepLine step={step} />;
   if (step.kind === "tool") {
     const connection = step.connectionId === null ? OWN_TOOLS_NAME : (connections[step.connectionId] ?? t("removedConnection"));
     return <ToolStepLine step={step} connection={connection} />;

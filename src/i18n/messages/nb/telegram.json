@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Apper kan bare lese i {workspace}, så jeg svarer uten å endre noe der.",
   "busy": "Jeg svarer fortsatt på det forrige spørsmålet ditt. Send /stop for å stoppe det.",
+  "busyInApp": "Denne samtalen blir fortsatt besvart i Leafdesk. Spør igjen når svaret er ferdig.",
   "stopped": "Stoppet.",
   "nothingToStop": "Jeg svarer ikke på noe akkurat nå.",
   "unlinked": "Denne Telegram-kontoen er ikke lenger koblet til Leafdesk.",
@@ -85,6 +86,7 @@
     "createXlsx": "Vil du lage Excel-filen {title} og legge den ved {target}?",
     "source": "Rader fra {name}.",
     "remember": "Vil du at jeg skal huske dette om deg?",
+    "remind": "Skal jeg minne deg på dette?",
     "forget": "Vil du glemme dette notatet?",
     "connection": "Vil du sende dette til {connection} ({tool})?",
     "tool": "Gjøre denne endringen ({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "Agenten har brukt opp tokenene sine for måneden.",
       "costLimit": "Svaret nådde kostnadsgrensen sin.",
       "selfReported": "Agenten sa at den ikke kunne gjøre oppgaven sin.",
+      "stopped": "Stoppet.",
       "error": "Noe gikk galt mens agenten svarte."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "Den hadde brukt opp agentens månedlige tokengrense.",
         "costLimit": "Arbeidsområdet hadde nådd den månedlige kostnadsgrensen for KI.",
         "selfReported": "Agenten sa at den ikke kunne gjøre oppgaven sin.",
+        "stopped": "Stoppet.",
         "error": "Noe gikk galt."
       },
       "email": "Den leste e-posten din, så rapporten vises bare i Leafdesk."

@@ -1321,6 +1321,15 @@
     "working": "עובד…",
     "waiting": "ממתין למקום פנוי ב־AI…",
     "approval": "הסוכן רוצה להשתמש בכלי. יש לאשר את הקריאה כדי שימשיך.",
+    "proposals": {
+      "title": "שינויים מוצעים",
+      "waiting": "{count, plural, one {שינוי אחד ממתין לאישורך} other {# שינויים ממתינים לאישורך}}",
+      "approved": "{count, plural, other {# אושרו}}",
+      "approveAll": "{count, plural, one {אישור} other {אישור הכול (#)}}",
+      "review": "סקירה",
+      "skipped": "{count, plural, other {לא ניתן היה לבצע # שינויים: יש לסקור אותם.}}",
+      "failed": "לא ניתן היה לאשר את השינויים. נסו שוב."
+    },
     "steps": "{count, plural, one {שלב אחד} two {שני שלבים} other {# שלבים}}",
     "conversations": "שיחות",
     "newConversation": "שיחה חדשה",
@@ -1336,6 +1345,7 @@
       "limitReached": "הסוכן ניצל את האסימונים שלו לחודש הזה.",
       "costLimit": "סביבת העבודה הגיעה למגבלת העלות החודשית של ה־AI.",
       "selfReported": "הסוכן דיווח שלא הצליח לבצע את המשימה.",
+      "stopped": "נעצר.",
       "error": "משהו השתבש."
     },
     "errors": {
@@ -1399,6 +1409,7 @@
     "regenerate": "יצירה מחדש",
     "files": {
       "attach": "צירוף קובצי טקסט",
+      "drop": "שחרר את קובצי הטקסט כדי לצרף אותם",
       "remove": "הסרת {name}",
       "download": "הורדת {name}",
       "tooMany": "עד {max} קבצים בהודעה.",

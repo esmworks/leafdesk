@@ -103,6 +103,15 @@ async function inTurn<T>(task: () => Promise<T>): Promise<T> {
 }
 
 /**
+ * The preview of a Word document read from elsewhere (a message's attachment), which the caller
+ * has checked access to: waits its turn like stored ones, and isn't kept.
+ */
+export async function docxPreviewOf(name: string, bytes: Uint8Array): Promise<DocxPreview> {
+  if (bytes.length > DOCX_PREVIEW_LIMITS.bytes) throw new DocxPreviewFailure("tooLarge");
+  return inTurn(() => docxPreviewHtml(name, bytes));
+}
+
+/**
  * The preview of a stored Word document the caller has already checked access to. Throws
  * DocxPreviewFailure: too large, unreadable, the server busy, or the bytes missing from storage.
  */

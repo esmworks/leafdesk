@@ -1321,6 +1321,15 @@
     "working": "作業中…",
     "waiting": "AIの空きを待っています…",
     "approval": "エージェントがツールを使おうとしています。続行させるには呼び出しを承認してください。",
+    "proposals": {
+      "title": "提案された変更",
+      "waiting": "{count, plural, other {# 件の変更が承認を待っています}}",
+      "approved": "{count, plural, other {# 件承認済み}}",
+      "approveAll": "{count, plural, one {承認} other {すべて承認（# 件）}}",
+      "review": "確認",
+      "skipped": "{count, plural, other {# 件の変更を反映できませんでした。確認してください。}}",
+      "failed": "変更を承認できませんでした。もう一度お試しください。"
+    },
     "steps": "{count, plural, other {#ステップ}}",
     "conversations": "会話",
     "newConversation": "新しい会話",
@@ -1336,6 +1345,7 @@
       "limitReached": "エージェントは今月のトークンを使い切りました。",
       "costLimit": "ワークスペースがAIの月間コスト上限に達しました。",
       "selfReported": "エージェントはタスクを完了できなかったと報告しました。",
+      "stopped": "停止しました。",
       "error": "問題が発生しました。"
     },
     "errors": {
@@ -1399,6 +1409,7 @@
     "regenerate": "再生成",
     "files": {
       "attach": "テキストファイルを添付",
+      "drop": "テキストファイルをドロップして添付",
       "remove": "{name} を外す",
       "download": "{name} をダウンロード",
       "tooMany": "1 件のメッセージに添付できるのは {max} ファイルまでです。",

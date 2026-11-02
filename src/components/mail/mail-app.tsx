@@ -13,6 +13,7 @@ import { currentToast, dismissToast, showToast } from "@/components/toast";
 import { Button, cn, Dialog, DialogBody, DialogFooter, DialogTitle, IconButton } from "@/components/ui";
 import {
   ALL_INBOXES,
+  STARRED,
   MAIL_MAX_THREADS,
   MAIL_UNDO_SECONDS,
   mailQueryMarks,
@@ -30,6 +31,7 @@ import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen, type MailOpen } from "./mail-store";
 import { MailboxMark, useFolderName } from "./mail-sidebar";
+import { SenderMark } from "./sender-mark";
 
 // The open thread and a new message load the first time they show.
 const ThreadView = lazyPart(() => import("./thread-view").then((m) => m.ThreadView), <div className="min-w-0 flex-1" />);
@@ -42,6 +44,8 @@ const SnoozePicker = lazyPart(() => import("./snooze-picker").then((m) => m.Snoo
 const REFRESH_MS = 60_000;
 const LIVE_REFRESH_MS = 5 * 60_000;
 const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "move", "snooze", "delete"];
+/** Moves that leave a conversation in the starred list: to folders it lists. */
+const STAYS_STARRED: MailAction[] = ["archive", "inbox", "move"];
 /** g then one of these opens the mailbox's folder of that role, within GO_MS of the g. */
 const GO_KEYS: Record<string, MailFolderView["role"]> = { i: "inbox", s: "sent", d: "drafts", a: "archive", t: "trash" };
 const GO_MS = 1500;
@@ -135,7 +139,8 @@ const ThreadRow = memo(function ThreadRow({
   const t = useTranslations("mail");
   const when = useWhen();
   const locale = useLocale();
-  const senders = item.senders.map((s) => (s.address === me ? t("me") : s.name?.split(" ")[0] || s.address)).join(", ");
+  // One sender by their whole name; several by first names.
+  const senders = item.senders.map((s) => (s.address === me ? t("me") : (item.senders.length > 1 ? s.name?.split(" ")[0] : s.name) || s.address)).join(", ");
   return (
     <div className="group relative">
       <a
@@ -165,12 +170,13 @@ const ThreadRow = memo(function ThreadRow({
         {/* The unread dot gives way to the selection box (laid over it, outside the link) on hover. */}
         <span
           className={cn(
-            "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+            "-me-1 mt-3.5 h-2 w-2 shrink-0 rounded-full",
             item.unread ? "bg-accent" : "bg-transparent",
             selecting || checked ? "opacity-0" : "group-hover:opacity-0 group-has-[input:focus-visible]:opacity-0",
           )}
           aria-hidden
         />
+        <SenderMark mark={item.mark} />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <span className={cn("truncate text-sm", item.unread && "font-semibold")}>
@@ -220,7 +226,7 @@ const ThreadRow = memo(function ThreadRow({
         </div>
       </a>
       {/* A touch screen keeps the dot until a selection starts (the menu's Select). */}
-      <span className={cn("absolute top-2 inset-s-2", !selecting && "pointer-coarse:hidden")}>
+      <span className={cn("absolute top-4 inset-s-2", !selecting && "pointer-coarse:hidden")}>
         <SelectBox
           checked={checked}
           label={t("bulk.selectThread", { subject: item.subject || t("noSubject") })}
@@ -252,7 +258,9 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   const folderName = useFolderName();
   const search = useSearchParams();
   const { boxes, error: boxesError } = useMailboxes(workspaceId);
-  const { box, folder, all } = pickOpen(boxes, search.get("box"), search.get("f"));
+  const { box, folder, all, starred } = pickOpen(boxes, search.get("box"), search.get("f"));
+  // The list's folder in the address: none in all inboxes; the starred are of the mailbox or of all.
+  const listFolder = starred ? STARRED : all ? null : (folder?.id ?? null);
   // All inboxes name the open thread's mailbox beside it.
   const openIn = all ? search.get("m") : null;
   // A thread is opened soon after the list shows, a right click opens its menu at once, and a
@@ -294,7 +302,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   // When g was pressed, for g i, g s, g d, g a and g t.
   const goPressed = useRef(0);
   // What the list shows: an answer or an Undo for another mailbox, folder or search is dropped.
-  const listKey = all ? ALL_INBOXES : box && folder ? `${box.id}|${folder.id}` : null;
+  const listKey = box && folder ? `${all ? ALL_INBOXES : box.id}|${listFolder ?? ""}` : null;
   const shownKey = listKey ? `${listKey}|${query}` : null;
   const shown = useRef(shownKey);
   useEffect(() => {
@@ -303,12 +311,12 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
 
   const go = useCallback(
     (open: MailOpen, replace = false) => {
-      const href = mailHref(workspaceId, { box: all ? ALL_INBOXES : box?.id, f: all ? null : folder?.id, t: threadId, m: openIn, q: query || null, ...open });
+      const href = mailHref(workspaceId, { box: all ? ALL_INBOXES : box?.id, f: listFolder, t: threadId, m: openIn, q: query || null, ...open });
       // Only the address changes: the page is the same, so the server isn't asked for it again.
       if (replace) window.history.replaceState(null, "", href);
       else window.history.pushState(null, "", href);
     },
-    [all, box?.id, folder?.id, threadId, openIn, query, workspaceId],
+    [all, box?.id, listFolder, threadId, openIn, query, workspaceId],
   );
 
   // The first open of a mailbox reads its folders and newest mail.
@@ -331,7 +339,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
       const key = shownKey;
       const result = await read(
         "mailThreads",
-        all ? { mailboxId: ALL_INBOXES, folderId: "", workspaceId, search: query, cursor } : { mailboxId: box.id, folderId: folder.id, search: query, cursor },
+        all ? { mailboxId: ALL_INBOXES, folderId: starred ? STARRED : "", workspaceId, search: query, cursor } : { mailboxId: box.id, folderId: listFolder ?? folder.id, search: query, cursor },
       ).catch(() => null);
       if (shown.current !== key) return;
       if (!result?.ok) return setList((l) => ({ ...l, loading: false, error: result?.error ?? t("loadFailed") }));
@@ -347,7 +355,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
         return { items: [...fresh, ...older], next: older.length ? l.next : result.data.next, loading: false, error: null };
       });
     },
-    [all, box, folder, shownKey, query, workspaceId, t],
+    [all, starred, box, folder, listFolder, shownKey, query, workspaceId, t],
   );
 
   // All inboxes list the mailboxes read so far: another one read lists it too.
@@ -383,7 +391,10 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
             // Offline: the next check tries again.
             .catch(() => false),
         ),
-      ).then((done) => done.some(Boolean) && (!only || checked.some((c) => c.folderId === only.folderId)) && void loadLatest.current(null));
+      ).then(
+        // A star can change in any folder: the starred list is read again for news of any of its mailboxes.
+        (done) => done.some(Boolean) && (!only || checked.some((c) => (starred ? c.mailboxId === only.mailboxId : c.folderId === only.folderId))) && void loadLatest.current(null),
+      );
     };
     changed.current = (mailboxId, folderId) => check({ mailboxId, folderId });
     const again = () => check();
@@ -498,8 +509,8 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
       };
       /** Changes the folders' unread counts by what `count` gives for each thread. */
       const countEach = (count: (i: MailThreadItem) => number) => {
-        // A search lists threads of every folder: the counts wait for the next refresh then.
-        if (query) return;
+        // A search and the starred list threads of every folder: the counts wait for the next refresh then.
+        if (query || starred) return;
         for (const group of groups.values()) countUnread(group[0].mailboxId, group[0].folderId, group.reduce((n, i) => n + count(i), 0));
       };
       const touched = new Set(targets.map(itemKey));
@@ -513,14 +524,21 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
         if (action === "unread" && openKey && touched.has(openKey)) go({ t: null });
         return send();
       }
-      // Out of the list at once, the open one to the next thread left; to the server after the Undo window.
-      if (openKey && touched.has(openKey)) {
+      // In the starred, a thread archived, back in the inbox or moved stays, named by its new folder (when it is known yet).
+      const movedTo =
+        starred && STAYS_STARRED.includes(action)
+          ? new Map(targets.map((i) => [itemKey(i), action === "move" ? to?.id : boxes?.find((b) => b.id === i.mailboxId)?.folders?.find((f) => f.role === action)?.id]))
+          : null;
+      const stays = !!movedTo && [...movedTo.values()].every(Boolean);
+      // Else out of the list at once, the open one to the next thread left; to the server after the Undo window.
+      if (!stays && openKey && touched.has(openKey)) {
         const at = items.findIndex(isOpen);
         const left = (i: MailThreadItem) => !touched.has(itemKey(i));
         const next = items.slice(at + 1).find(left) ?? items.slice(0, Math.max(at, 0)).findLast(left) ?? null;
         go({ t: next?.threadId ?? null, m: all ? next?.mailboxId : null }, true);
       }
-      setList((l) => ({ ...l, items: l.items.filter((i) => !touched.has(itemKey(i))) }));
+      if (stays) setList((l) => ({ ...l, items: l.items.map((i) => (movedTo?.get(itemKey(i)) ? { ...i, folderId: movedTo.get(itemKey(i))! } : i)) }));
+      else setList((l) => ({ ...l, items: l.items.filter((i) => !touched.has(itemKey(i))) }));
       countEach((i) => -i.unseen);
       const from = shown.current;
       const key = crypto.randomUUID();
@@ -529,7 +547,8 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
         if (lastUndo.current?.undo === undo) lastUndo.current = null;
         send();
       }, MAIL_UNDO_SECONDS * 1000);
-      pending.current.set(key, { keys: [...touched], run: send, timer });
+      // A refresh within the window leaves out what waits to go (what stays is listed as it is).
+      pending.current.set(key, { keys: stays ? [] : [...touched], run: send, timer });
       const count = targets.length;
       const done = action as "archive";
       const undo = () => {
@@ -539,7 +558,10 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
         clearTimeout(waiting.timer);
         pending.current.delete(key);
         countEach((i) => i.unseen);
-        if (shown.current === from) setList((l) => ({ ...l, items: [...l.items, ...targets].sort((a, b) => b.sentAt.localeCompare(a.sentAt)) }));
+        if (shown.current !== from) return;
+        const before = new Map(targets.map((i) => [itemKey(i), i]));
+        if (stays) setList((l) => ({ ...l, items: l.items.map((i) => before.get(itemKey(i)) ?? i) }));
+        else setList((l) => ({ ...l, items: [...l.items, ...targets].sort((a, b) => b.sentAt.localeCompare(a.sentAt)) }));
       };
       const time = until ? untilText(locale, until) : "";
       showToast({
@@ -557,7 +579,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
       });
       lastUndo.current = { undo, toast: currentToast()?.id };
     },
-    [all, items, isOpen, openKey, query, go, loadPage, t, workspaceId, folderName, locale],
+    [all, starred, boxes, items, isOpen, openKey, query, go, loadPage, t, workspaceId, folderName, locale],
   );
 
   const openThread = useCallback(
@@ -596,9 +618,9 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     if (!item?.unread || counted.current.has(itemKey(item))) return;
     const key = itemKey(item);
     counted.current.add(key);
-    if (!query) countUnread(item.mailboxId, item.folderId, -item.unseen);
+    if (!query && !starred) countUnread(item.mailboxId, item.folderId, -item.unseen);
     setList((l) => ({ ...l, items: l.items.map((i) => (itemKey(i) === key ? { ...i, unread: false, unseen: 0 } : i)) }));
-  }, [isOpen, query]);
+  }, [isOpen, query, starred]);
 
   const snoozable = !!folder && snoozableFrom(folder);
   // Keyboard (listed in lib/shortcuts.ts): c new, / search, j/k next/previous, Enter/o open, x
@@ -626,12 +648,12 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
       if (Date.now() - goPressed.current < GO_MS) {
         goPressed.current = 0;
         const role = GO_KEYS[e.key];
-        // In all inboxes, g i stays there; the other folders are the default mailbox's.
+        // In all inboxes, g i goes to them; the other folders are the default mailbox's.
         const to = role && !(all && role === "inbox") && box?.folders?.find((f) => f.role === role);
         if (!role || (!to && !all)) return;
         e.preventDefault();
         setCompose(null);
-        go(to ? { box: box!.id, f: to.id, t: null, q: null, c: null } : { t: null, q: null, c: null });
+        go(to ? { box: box!.id, f: to.id, t: null, q: null, c: null } : { f: null, t: null, q: null, c: null });
         return;
       }
       if (e.key === "g") {
@@ -756,12 +778,13 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
     );
   }
 
-  const name = all ? t("allInboxes") : folderName(folder);
-  const unseen = all ? (boxes ?? []).reduce((n, b) => n + (b.folders?.find((f) => f.role === "inbox")?.unseen ?? 0), 0) : folder.unseen;
-  // In all inboxes a thread's mailbox and folder are its own; elsewhere the page's.
+  const name = starred ? t(all ? "allStarred" : "starred") : all ? t("allInboxes") : folderName(folder);
+  // The starred list has no count: it is kept, not read through.
+  const unseen = starred ? 0 : all ? (boxes ?? []).reduce((n, b) => n + (b.folders?.find((f) => f.role === "inbox")?.unseen ?? 0), 0) : folder.unseen;
+  // In all inboxes a thread's mailbox is its own, and in all inboxes and the starred its folder; elsewhere the page's.
   const boxOf = (item: Pick<MailThreadItem, "mailboxId">) => (all ? boxes.find((b) => b.id === item.mailboxId) : null) ?? box;
   const folderOf = (item: Pick<MailThreadItem, "mailboxId" | "folderId">) => boxOf(item).folders?.find((f) => f.id === item.folderId) ?? folder;
-  const hrefOf = (item: MailThreadItem) => mailHref(workspaceId, { box: all ? ALL_INBOXES : box.id, f: all ? null : folder.id, t: item.threadId, m: all ? item.mailboxId : null, q: query || null });
+  const hrefOf = (item: MailThreadItem) => mailHref(workspaceId, { box: all ? ALL_INBOXES : box.id, f: listFolder, t: item.threadId, m: all ? item.mailboxId : null, q: query || null });
   // The open thread's mailbox and folder (in all inboxes, of the mailbox the address names when the list hasn't it).
   const openBox = selected ? boxOf(selected) : (all && boxes.find((b) => b.id === openIn)) || box;
   const openFolder = selected ? folderOf(selected) : (openBox.folders?.find((f) => f.role === "inbox") ?? folder);
@@ -834,7 +857,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
           }}
         >
           {list.error && !items.length ? (
-            <Notice>{list.error}</Notice>
+            <Notice inList>{list.error}</Notice>
           ) : list.loading && !items.length ? (
             <div aria-busy>
               {Array.from({ length: 8 }, (_, i) => (
@@ -845,9 +868,9 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
               ))}
             </div>
           ) : !items.length ? (
-            <Notice>
-              <Inbox className="mx-auto mb-2 h-5 w-5 text-fg-icon" />
-              {query ? t("emptySearch") : t("empty")}
+            <Notice inList>
+              {starred && !query ? <Star className="mx-auto mb-2 h-5 w-5 text-fg-icon" /> : <Inbox className="mx-auto mb-2 h-5 w-5 text-fg-icon" />}
+              {query ? t("emptySearch") : starred ? t("emptyStarred") : t("empty")}
             </Notice>
           ) : (
             <>
@@ -958,12 +981,15 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   );
 }
 
-function Notice({ children }: { children: React.ReactNode }) {
+/** A message in place of the page, or (`inList`) of the list, under a header that has the sidebar's button already. */
+function Notice({ children, inList = false }: { children: React.ReactNode; inList?: boolean }) {
   return (
     <>
-      <div className="h-0">
-        <SidebarOpenButton className="m-2" />
-      </div>
+      {!inList && (
+        <div className="h-0">
+          <SidebarOpenButton className="m-2" />
+        </div>
+      )}
       <div className="mx-auto max-w-sm px-6 py-16 text-center text-sm text-fg-muted">{children}</div>
     </>
   );

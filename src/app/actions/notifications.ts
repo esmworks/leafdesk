@@ -6,6 +6,7 @@ import {
   listInbox,
   markRead,
   markUnread,
+  recentArrivals,
   snoozeNotification,
   unarchiveNotifications,
   unreadCount,
@@ -52,6 +53,12 @@ export async function unarchiveAction(workspaceId: string, notificationIds: stri
 export async function dueRemindersAction(workspaceId: string) {
   const userId = await requireUserId();
   return dueReminders(userId, String(workspaceId));
+}
+
+/** What people just sent the user, for the cards over the page. */
+export async function arrivalsAction(workspaceId: string) {
+  const userId = await requireUserId();
+  return recentArrivals(userId, String(workspaceId));
 }
 
 export async function unreadCountAction(workspaceId: string) {

@@ -4,7 +4,7 @@ import { agentMailbox, agentRun, mailbox, mailMessage, workspaceAgent } from "@/
 import { mailTriggerTakes } from "@/lib/agent-mail-trigger";
 import { MAX_MAIL_RUNS_PER_DAY, MAX_MAIL_RUNS_PER_HOUR } from "@/lib/agents";
 import { rowOfMessage } from "@/server/mail-client/read";
-import { queueAgentRun } from "./run";
+import { startTriggered } from "@/server/triggers";
 import { runMailboxes } from "./mail";
 
 /**
@@ -59,8 +59,8 @@ export async function mailArrived(box: Box, messageIds: string[]): Promise<numbe
           .where(and(eq(agentMailbox.agentId, trigger.agentId), eq(agentMailbox.mailboxId, box.id)));
         break;
       }
-      await queueAgentRun({
-        agentId: trigger.agentId,
+      await startTriggered({
+        target: { agentId: trigger.agentId },
         workspaceId: box.workspaceId,
         source: { kind: "mail", mailboxId: box.id, userId: box.userId, threadId: message.threadId, messageId: message.id },
         context: { actorId: box.userId },

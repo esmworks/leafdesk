@@ -1,7 +1,7 @@
 // Client-safe: shared by the AI chat's server side (src/server/ai-chat.ts, /api/ai/chat) and its
 // panel (src/components/ai-chat).
 
-import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMailRecord, ChatMemoryRecord, ChatStepRecord, ChatToolRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
+import type { ChatAttachmentRecord, ChatChange, ChatConnectionRecord, ChatMailRecord, ChatMemoryRecord, ChatReminderRecord, ChatStepRecord, ChatToolRecord, ChatWebRecord, ChatWriteAction, ChatWriteStepAction } from "@/db/schema/ai";
 import type { PageKind } from "@/db/schema/app";
 import type { BlockChange } from "./page-diff";
 import type { AiErrorCode } from "./ai";
@@ -44,6 +44,8 @@ export type ChatOptions = {
   /** How much a new conversation thinks: the person's latest conversation's choice. */
   defaultThinking: ChatThinking;
   webSearch: boolean;
+  /** The workspace lets the chat change things without asking (mode `auto`, "don't ask again"). */
+  autoChanges: boolean;
 };
 
 /**
@@ -61,9 +63,6 @@ export const isChatThinking = (value: unknown): value is ChatThinking => typeof 
  */
 export const CHAT_MODES = ["ask", "auto", "read"] as const;
 export type ChatMode = (typeof CHAT_MODES)[number];
-
-/** How long a change waits for the person's decision before it counts as declined. */
-export const APPROVAL_TIMEOUT_MS = 15 * 60_000;
 
 /** A source an answer cites, as the reader may see it now. */
 export type ChatSourceView = {
@@ -102,6 +101,7 @@ export type ChatStepView =
   | ChatMemoryRecord
   | ChatConnectionRecord
   | ChatToolRecord
+  | ChatReminderRecord
   | { kind: "thought"; text: string }
   | { kind: "plan"; questions: string[] }
   | ChatWebRecord
@@ -133,8 +133,12 @@ export type ChatWriteView = {
  * draft (`draftMail`, asked in every mode): its subject as title, its text as content and `mail`.
  */
 export type ChatActionView = {
-  /** A change to the workspace, a note about the person to keep or drop (title: its text), a call to a connection's tool, or a web call. */
-  action: ChatWriteAction | "remember" | "forget" | "connection" | "tool" | "readWeb" | "searchWeb" | "draftMail";
+  /**
+   * A change to the workspace, a note about the person to keep or drop (title: its text), a
+   * reminder for them (title: its text, content: when, "YYYY-MM-DD HH:MM" on their clock), a call
+   * to a connection's tool, or a web call.
+   */
+  action: ChatWriteAction | "remember" | "forget" | "remind" | "connection" | "tool" | "readWeb" | "searchWeb" | "draftMail";
   /** A call to a connection's tool: the connection. */
   connection?: { name: string; icon: string | null };
   /** A draft of the person's mail (server/ai-chat-mail.ts, asked in every mode): who it is from and to; `title` its subject, `content` its text. */
@@ -195,19 +199,21 @@ export type ChatMessageView = {
 /** `answering`: an answer is on its way in it (maybe asked in another tab, or before a reload). */
 export type ConversationSummary = { id: string; title: string; updatedAt: string; answering?: true };
 
-/** Whether an answer's step kept or dropped a note about the person (declined ones didn't). */
 /** A change that makes a file (of a page, or of a database's rows) and attaches it to a page. */
 export const makesFile = (action: string) => action === "createPdf" || action === "createDocx" || action === "createXlsx";
 
-export const changedMemory = (step: ChatStepView) => step.kind === "memory" && step.outcome !== "declined";
+/** Whether an answer's step kept or dropped a note about the person (declined and undone ones didn't). */
+export const changedMemory = (step: ChatStepView) => step.kind === "memory" && step.outcome !== "declined" && step.outcome !== "undone";
 
 /**
- * Whether an answer's step changed something: a change made in the workspace, or a call sent to a
- * connection's tool that changes something there (one that failed may have been done too).
+ * Whether an answer's step changed something: a change made in the workspace, a reminder set, or a
+ * call sent to a connection's tool that changes something there (one that failed may have been done too).
  * Asking such an answer again would do it twice.
  */
 export const changedThings = (step: ChatStepView | ChatStepRecord) =>
-  (step.kind === "write" && step.outcome === "done") || ((step.kind === "connection" || step.kind === "leafdesk") && step.writes && step.outcome !== "declined");
+  (step.kind === "write" && step.outcome === "done") ||
+  (step.kind === "reminder" && step.outcome === "done") ||
+  ((step.kind === "connection" || step.kind === "leafdesk") && step.writes && step.outcome !== "declined");
 
 /**
  * Lines of `POST /api/ai/chat`'s newline-delimited JSON answer, in order: `conversation` (its id,

@@ -136,8 +136,19 @@ import { gzipSync } from "node:zlib";
  * section loads when shown, leaving its loader and the rule of which runs read mail.
  * Agents run by new email (the steps of sorting and summarizing a thread in ChatThread, the
  * agents' marks in the Mail tab's list) add under 0.5 kB to all first loads together.
+ * Changes an agent proposes from email, shown under its run's message in the agent's chat, add a
+ * few dozen bytes to a page's route (the box itself loads when a run proposed something), which
+ * stood at its budget.
+ * The Mail tab's unread count, the chat box's chips stepping aside while dictating and the agents
+ * in the sidebar's chat tab add under 0.5 kB to all first loads together, which stood at its budget.
+ * An agent's chat box made the AI chat's (files dropped or pasted, dictation, growing with its
+ * text) and reminders set from the AI chat add a few hundred bytes to a page's route, which stood
+ * at its budget.
+ * Stopping an agent's answer and undoing a note the chat kept (the step's Undo, shared by the AI
+ * chat and agents' chats in ChatThread) add about 0.15 kB to a page's route, which stood at its
+ * budget.
  */
-const BUDGET = { routeFirstLoad: 793, firstLoadShared: 1229, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 796, firstLoadShared: 1230, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

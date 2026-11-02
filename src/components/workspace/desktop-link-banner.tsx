@@ -67,7 +67,7 @@ export default function DesktopLinkBanner({ preference }: { preference: Exclude<
   return (
     <div
       role="status"
-      className="fixed end-4 bottom-4 z-40 flex w-[min(26rem,calc(100vw-2rem))] items-center gap-3 rounded-lg border border-border bg-bg py-2.5 ps-3.5 pe-2 shadow-lg"
+      className="fixed end-4 bottom-safe-4 z-40 flex w-[min(26rem,calc(100vw-2rem))] items-center gap-3 rounded-lg border border-border bg-bg py-2.5 ps-3.5 pe-2 shadow-lg"
     >
       <AppWindow className="h-5 w-5 shrink-0 text-fg-muted" aria-hidden />
       <div className="min-w-0 flex-1">

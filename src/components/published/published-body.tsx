@@ -12,6 +12,7 @@ import { BookmarkCard, EmbedFrame, MediaBox } from "@/components/page/web-card";
 import { PageIcon } from "@/components/ui";
 import { DASHBOARD_CLASS, DASHBOARD_GRID_CLASS, WIDGET_SPAN_CLASS, widgetBoxClass } from "@/lib/dashboard";
 import { nameRange, PERIOD_LABELS } from "@/lib/dashboard-period";
+import { fileUrl, pdfViewUrl } from "@/lib/files";
 import { noteParts } from "@/lib/footnotes";
 import { pageLabel } from "@/lib/labels";
 import { holdsNothing, rowPageSections } from "@/lib/page-visibility";
@@ -300,9 +301,9 @@ export async function PublishedBody({
                   {block.caption && <p className="pt-1.5 text-sm text-fg-muted">{block.caption}</p>}
                 </div>
               ) : block.kind === "pdf" ? (
-                <PdfViewer fileId={block.fileId} name={block.name} caption={block.caption} />
+                <PdfViewer url={fileUrl(block.fileId)} viewUrl={pdfViewUrl(block.fileId)} name={block.name} caption={block.caption} />
               ) : (
-                <SpreadsheetViewer fileId={block.fileId} name={block.name} caption={block.caption} />
+                <SpreadsheetViewer url={fileUrl(block.fileId)} name={block.name} caption={block.caption} />
               )}
             </MediaBox>
           </div>

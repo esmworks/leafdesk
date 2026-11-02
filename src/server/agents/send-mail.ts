@@ -3,10 +3,11 @@ import { db } from "@/db";
 import { mailbox, user } from "@/db/schema";
 import type { AgentEmailRecord } from "@/lib/agents";
 import { checkEmailDraft, explainEmailDraftProblems } from "@/lib/email-draft-check";
-import { MAX_MAIL_TEXT } from "@/lib/mail";
+import { MAX_MAIL_TEXT, MAX_SENDS_PER_HOUR } from "@/lib/mail";
 import { redactText } from "@/lib/redact";
 import type { AiTool } from "@/server/ai";
 import { sendFromMailbox } from "@/server/row-mail/send";
+import { RowMailError } from "@/server/row-mail/settings";
 import { workspaceSettings } from "@/server/workspaces";
 
 /**
@@ -77,6 +78,9 @@ export async function sendAgentEmail(input: { sender: MailSender; recipients: st
   try {
     await sendFromMailbox(sender.box, { fromName: sender.name, to: recipients, subject, text });
   } catch (error) {
+    if (error instanceof RowMailError && error.code === "rateLimited") {
+      return { content: `The mailbox sent ${MAX_SENDS_PER_HOUR} messages in the last hour, the most it may. Nothing was sent; don't try again in this run.`, isError: true, step: step("failed") };
+    }
     const reason = error instanceof Error ? error.message : "unknown";
     return { content: `The mail server refused the message (${reason}). Nothing was sent; don't try again in this run.`, isError: true, step: step("failed") };
   }

@@ -1321,6 +1321,15 @@
     "working": "Arbejder…",
     "waiting": "Venter på en ledig AI-plads…",
     "approval": "Agenten vil bruge et værktøj. Godkend kaldet for at lade den fortsætte.",
+    "proposals": {
+      "title": "Foreslåede ændringer",
+      "waiting": "{count, plural, one {# ændring venter på din godkendelse} other {# ændringer venter på din godkendelse}}",
+      "approved": "{count, plural, other {# godkendt}}",
+      "approveAll": "{count, plural, one {Godkend} other {Godkend alle #}}",
+      "review": "Gennemse",
+      "skipped": "{count, plural, one {# ændring kunne ikke foretages: gennemse den.} other {# ændringer kunne ikke foretages: gennemse dem.}}",
+      "failed": "Ændringerne kunne ikke godkendes. Prøv igen."
+    },
     "steps": "{count, plural, one {# trin} other {# trin}}",
     "conversations": "Samtaler",
     "newConversation": "Ny samtale",
@@ -1336,6 +1345,7 @@
       "limitReached": "Agenten har brugt sine tokens for måneden.",
       "costLimit": "Arbejdsområdet har nået sin månedlige grænse for AI-omkostninger.",
       "selfReported": "Agenten sagde, at den ikke kunne udføre sin opgave.",
+      "stopped": "Stoppet.",
       "error": "Noget gik galt."
     },
     "errors": {
@@ -1399,6 +1409,7 @@
     "regenerate": "Generér igen",
     "files": {
       "attach": "Vedhæft tekstfiler",
+      "drop": "Slip tekstfilerne for at vedhæfte dem",
       "remove": "Fjern {name}",
       "download": "Download {name}",
       "tooMany": "Højst {max} filer pr. besked.",

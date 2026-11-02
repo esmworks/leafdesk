@@ -25,9 +25,11 @@
  */
 import { and, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentHelper, agentRun, workspaceAgent } from "@/db/schema";
+import { agentHelper, agentRun, workspaceAgent, type AgentRunRow } from "@/db/schema";
 import { hasAgentLevel } from "@/lib/agent-sharing";
 import {
+  AGENT_TASKS_TOOL,
+  isAgentRun,
   MAX_AGENT_PROMPT,
   MAX_HANDOFFS_PER_RUN,
   MAX_LISTED_TASKS,
@@ -42,18 +44,25 @@ import { findMembership } from "@/server/access";
 import type { AiTool, AiToolCall } from "@/server/ai";
 import { frameData } from "@/server/connections/tools";
 import type { RunClock } from "./clock";
+import { startTriggered } from "@/server/triggers";
 import { kickAgents } from "./kick";
 import { agentLevel } from "./sharing";
 import { overMonthlyLimit } from "./usage";
 
-type Run = typeof agentRun.$inferSelect;
+type Run = AgentRunRow;
+
+/** A helper's run as it is now (always an agent's). */
+async function runNow(id: string): Promise<Run | undefined> {
+  const [found] = await db.select().from(agentRun).where(eq(agentRun.id, id));
+  return found && isAgentRun(found) ? found : undefined;
+}
 type Agent = typeof workspaceAgent.$inferSelect;
 type HandoffSource = Extract<AgentRunSource, { kind: "handoff" }>;
 type CallResult = { content: string; isError?: boolean; step?: AgentStepRecord };
 
 export const ASK_AGENT = "ask_agent";
 export const ASSIGN_AGENT = "assign_agent";
-export const AGENT_TASKS = "agent_tasks";
+export const AGENT_TASKS = AGENT_TASKS_TOOL;
 /** A wait shorter than this isn't worth starting: the asking run hears there is no time left. */
 const MIN_WAIT_MS = 20_000;
 /** How often a run waiting for a helper the worker took looks again. */
@@ -121,14 +130,14 @@ export async function goOnAsTask(runId: string): Promise<boolean> {
 /**
  * `ask_agent`, `assign_agent` and `agent_tasks` for a run of `agent`, or null when the run may not
  * ask (it is a helper's run itself) or the agent has no one to ask. An agent whose helpers are gone
- * keeps `agent_tasks` while it gave tasks before, for those still under way or done. `bound` and
- * `trusted` are the run's (see processRun in run.ts); `runHelper` does a helper's run in this slot
- * as the worker would.
+ * keeps `agent_tasks` while it gave tasks before, for those still under way or done. `bound` is
+ * the run's (see processRun in run.ts), `trusted` says whether it is still trusted when it asks;
+ * `runHelper` does a helper's run in this slot as the worker would.
  */
 export async function handoffFor(
   agent: Agent,
   run: Run,
-  { bound, trusted, clock, runHelper }: { bound: string | null; trusted: boolean; clock: RunClock; runHelper: (run: Run) => Promise<void> },
+  { bound, trusted, clock, runHelper }: { bound: string | null; trusted: () => boolean; clock: RunClock; runHelper: (run: Run) => Promise<void> },
 ): Promise<{ tools: AiTool[]; call: (call: AiToolCall, room: number) => Promise<CallResult> | null } | null> {
   if (run.source.kind === "handoff") return null;
   const parent = run.source;
@@ -233,7 +242,7 @@ export async function handoffFor(
       .from(agentRun)
       .where(and(eq(agentRun.agentId, helperId), sql`${agentRun.source}->>'parentRunId' = ${run.id}`, sql`${agentRun.source}->>'callId' = ${callId}`))
       .limit(1);
-    return existing;
+    return existing && isAgentRun(existing) ? existing : undefined;
   };
   const sourceFor = (call: AiToolCall, queued: boolean): HandoffSource => ({
     kind: "handoff",
@@ -241,7 +250,9 @@ export async function handoffFor(
     fromAgentId: agent.id,
     callId: call.id,
     boundTo: bound,
-    trusted,
+    // As the run stands when it asks: one that read others' words since it started hands on a task
+    // they may have written, and the helper's run is held as one no one stands behind.
+    trusted: trusted(),
     parent,
     ...(queued ? { queued: true as const } : {}),
   });
@@ -259,20 +270,17 @@ export async function handoffFor(
     let helperRun = await startedBefore(helper.id, call.id);
     let mine = false;
     if (!helperRun) {
-      [helperRun] = await db
-        .insert(agentRun)
-        .values({
-          agentId: helper.id,
-          workspaceId: run.workspaceId,
-          source: sourceFor(call, false),
-          context: { actorId: agent.userId },
-          prompt,
-          // Taken by this slot at once: the worker leaves it be.
-          status: "running",
-          attempts: 1,
-          startedAt: new Date(),
-        })
-        .returning();
+      const { run: inserted } = await startTriggered({
+        target: { agentId: helper.id },
+        workspaceId: run.workspaceId,
+        source: sourceFor(call, false),
+        context: { actorId: agent.userId },
+        prompt,
+        // Taken by this slot at once: the worker leaves it be.
+        claimed: true,
+      });
+      if (!isAgentRun(inserted)) throw new Error("A helper's run is an agent's");
+      helperRun = inserted;
       mine = true;
     }
 
@@ -297,7 +305,7 @@ export async function handoffFor(
     // It goes on as a task: agent_tasks lists it, and its report reaches the person when it ends.
     if (!(await goOnAsTask(ended.id))) {
       // It ended just now: as if the wait had seen it.
-      const [now] = await db.select().from(agentRun).where(eq(agentRun.id, ended.id));
+      const now = await runNow(ended.id);
       if (now?.status === "done" || now?.status === "failed") return answerOf(now);
     }
     return {
@@ -323,10 +331,14 @@ export async function handoffFor(
         .from(agentRun)
         .where(and(eq(agentRun.agentId, helper.id), inArray(agentRun.status, ["pending", "running", "awaiting_approval"]), requestedRuns));
       if ((waiting?.n ?? 0) >= MAX_REQUESTED_RUNS) return null;
-      const [inserted] = await tx
-        .insert(agentRun)
-        .values({ agentId: helper.id, workspaceId: run.workspaceId, source: sourceFor(call, true), context: { actorId: agent.userId }, prompt })
-        .returning({ id: agentRun.id });
+      const { run: inserted } = await startTriggered({
+        target: { agentId: helper.id },
+        workspaceId: run.workspaceId,
+        source: sourceFor(call, true),
+        context: { actorId: agent.userId },
+        prompt,
+        tx,
+      });
       return inserted;
     });
     asked += 1;
@@ -369,7 +381,8 @@ export async function handoffFor(
       if (r.status === "awaiting_approval") return `${head}. It waits for a person to approve one of its calls.`;
       return `${head}. ${r.status === "running" ? "It is working on it." : "It hasn't started yet."}`;
     });
-    return { content: lines.join("\n\n") };
+    // An answer listed is another agent's words (lib/agents.ts readOthersWords), as one ask_agent waited for.
+    return { content: lines.join("\n\n"), ...(done ? { step: { kind: "tool", connectionId: null, tool: AGENT_TASKS, input: only ?? "", outcome: "done" } } : {}) };
   };
 
   if (!helpers.length) return { tools: [tasksTool], call: (call, room) => (call.name === AGENT_TASKS ? tasks(call, room) : null) };
@@ -403,7 +416,7 @@ async function waitFor(given: Run, mine: boolean, askingRunId: string, until: nu
       held = false;
     }
     await db.update(agentRun).set({ nextAt: new Date() }).where(and(eq(agentRun.id, askingRunId), eq(agentRun.status, "running")));
-    const [fresh] = await db.select().from(agentRun).where(eq(agentRun.id, current.id));
+    const fresh = await runNow(current.id);
     if (!fresh) return { ...current, status: "failed", code: "error" };
     current = fresh;
     if (current.status === "done" || current.status === "failed" || current.status === "awaiting_approval" || Date.now() >= until) return current;
@@ -415,7 +428,7 @@ async function waitFor(given: Run, mine: boolean, askingRunId: string, until: nu
         returning id
       `);
       if ([...taken].length) {
-        const [claimed] = await db.select().from(agentRun).where(eq(agentRun.id, current.id));
+        const claimed = await runNow(current.id);
         if (claimed) {
           current = claimed;
           held = true;

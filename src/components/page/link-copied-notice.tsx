@@ -26,7 +26,7 @@ export function LinkCopiedNotice() {
     return () => clearTimeout(timer);
   }, [shown]);
   return (
-    <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center print:hidden">
+    <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-safe-6 z-50 flex justify-center print:hidden">
       {shown > 0 && (
         <span className="flex items-center gap-1.5 rounded-md border border-border bg-bg px-3 py-1.5 text-sm text-fg shadow-lg">
           <Check className="h-4 w-4 text-accent" aria-hidden />

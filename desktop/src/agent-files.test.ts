@@ -89,10 +89,10 @@ test("places stay inside their folder, through links too", async () => {
   try {
     const plan = await resolvePlace(box.folders, "Docs/plan.md");
     assert.equal(plan.exists, true);
-    assert.equal(plan.real, path.join(fs.realpathSync(box.root), "plan.md"));
+    assert.equal(plan.real, path.join(fs.realpathSync.native(box.root), "plan.md"));
     const fresh = await resolvePlace(box.folders, "Docs/new/deeper/file.md");
     assert.equal(fresh.exists, false);
-    assert.equal(fresh.real, path.join(fs.realpathSync(box.root), "new", "deeper", "file.md"));
+    assert.equal(fresh.real, path.join(fs.realpathSync.native(box.root), "new", "deeper", "file.md"));
 
     assert.equal(await refusal(resolvePlace(box.folders, "Docs/../Private/secret.txt")), "outside");
     assert.equal(await refusal(resolvePlace(box.folders, "Docs/sub/../../Private")), "outside");
@@ -183,7 +183,7 @@ test("writes and trashes only once the person allows, making missing folders ins
     assert.ok(replaced.ok && replaced.result.created === false);
     assert.equal(fs.readFileSync(path.join(box.root, "plan.md"), "utf8"), "New plan");
     assert.deepEqual(await answerCall(call("trash", "Docs/plan.md"), allowed.h), { type: "result", id: "trash-1", ok: true, result: { op: "trash" } });
-    assert.deepEqual(allowed.trashed, [path.join(fs.realpathSync(box.root), "plan.md")]);
+    assert.deepEqual(allowed.trashed, [path.join(fs.realpathSync.native(box.root), "plan.md")]);
 
     // Refused before anyone is asked.
     const before = allowed.asked.length;
@@ -620,13 +620,17 @@ test("turned off while the person is asked: the question closes as a no, and a y
     let enabled = true;
     const { h, log } = host(box, true);
     h.folders = () => (enabled ? box.folders : []);
+    let asked!: () => void;
+    const askedYet = new Promise<void>((r) => (asked = r));
     h.ask = (_approval, signal) =>
       new Promise<boolean>((resolve) => {
         const both = AbortSignal.any([signal, off.signal]);
         both.addEventListener("abort", () => resolve(false));
+        asked();
       });
+    // Turned off only once the person is asked: a slow machine reaches the question after a while.
     const pending = answerCall(call("write", "Docs/off.md", "x"), h);
-    await new Promise((r) => setTimeout(r, 5));
+    await askedYet;
     enabled = false;
     off.abort();
     assert.deepEqual(await pending, { type: "result", id: "write-1", ok: false, error: "denied" });

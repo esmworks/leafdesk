@@ -13,18 +13,21 @@ import { dayNumber, dayString, localDay, monthDay, weekdayOf, zonedInstant } fro
 export type RepeatFrequency = "daily" | "weekly" | "monthly" | "yearly";
 
 /**
- * What a schedule does when it runs: add a row from a row template, start an agent's run, or email
- * a dashboard's figures (lib/dashboard-emails).
+ * What a schedule does when it runs: add a row from a row template, start an agent's run, email
+ * a dashboard's figures (lib/dashboard-emails), or ask the AI chat something as the person who set
+ * it (an own request, server/own-requests.ts).
  */
-export type ScheduleKind = "row_template" | "agent" | "dashboard_email";
+export type ScheduleKind = "row_template" | "agent" | "dashboard_email" | "own_request";
 /**
  * "row_template": `dateInTitle` puts the day it runs after the template's title. "agent": `task`
  * is what the agent is asked to do each time. "dashboard_email": which dashboard of the schedule's
- * page, who gets it (user ids) and the period it shows.
+ * page, who gets it (user ids) and the period it shows. "own_request": `task` is the question asked
+ * each time, and `mode` whether the answer may change things (`auto`) or only reads (`read`, the default).
  */
 export type ScheduleSettings = {
   dateInTitle?: boolean;
   task?: string;
+  mode?: "read" | "auto";
   dashboard?: DashboardEmailTarget;
   recipients?: string[];
   period?: SubscriptionPeriod;
@@ -37,6 +40,13 @@ export type ScheduleSettings = {
  * archived), "dashboardGone" (the dashboard an email shows was taken off its page).
  */
 export type ScheduleError = "runAsGone" | "accessLost" | "templateGone" | "agentGone" | "dashboardGone" | "failed";
+
+/**
+ * Runs of a schedule that may fail in a row before it turns itself off (server/schedules.ts
+ * `noteScheduleOutcome`), telling whoever set it (`schedule_paused`). Its `lastError` is then
+ * "failed", and setting it again turns it back on.
+ */
+export const SCHEDULE_FAILURE_LIMIT = 10;
 
 export type RepeatRule = {
   frequency: RepeatFrequency;

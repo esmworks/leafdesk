@@ -6,6 +6,12 @@
   "readOnlyCopy": "Salinan luring dari {time}, hanya baca",
   "signOutUnsynced": "Beberapa halaman memiliki perubahan yang belum sampai ke server. Keluar akan menghapusnya dari browser ini. Tetap keluar?",
   "installApp": "Pasang aplikasi",
+  "iosInstall": {
+    "title": "Tambahkan Leafdesk ke layar utama",
+    "share": "Ketuk tombol Bagikan, di bilah alat browser atau di menu di samping alamat.",
+    "add": "Pilih “Tambah ke Layar Utama” (ketuk Lainnya jika tidak ada), lalu ketuk Tambah.",
+    "done": "Setelah itu Leafdesk terbuka dari ikonnya di jendelanya sendiri, tanpa bilah browser."
+  },
   "page": {
     "documentTitle": "Luring",
     "heading": "Anda sedang luring",

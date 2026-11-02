@@ -11,6 +11,7 @@
     "open": "Väntar",
     "decided": "Besvarade",
     "allRows": "Visa alla rader",
+    "allRuns": "Visa alla körningar",
     "clear": "Rensa filter"
   },
   "count": "{count, plural, one {# ändring} other {# ändringar}}",

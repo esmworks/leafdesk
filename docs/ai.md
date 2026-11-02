@@ -264,10 +264,14 @@ before it is made (what, where, a new row's values and the start of a new page's
 to a page's text the blocks it changes, adds and removes; for a changed row each property's old
 value next to the new one, and the old title when it is renamed) with *Yes*, *Yes, and don't ask
 again* (the mode becomes *Auto*) and *No*, also as 1, 2, 3 on the keyboard (Escape says no); *Auto*
-makes changes without asking; *Read only* doesn't offer the model changes at all. A change is
+makes changes without asking; *Read only* doesn't offer the model changes at all. An owner can turn
+*Auto* off for the workspace (Settings → General → AI, *Changes without asking*): the chat then asks
+before every change, and *Yes, and don't ask again* isn't offered. A change is
 checked (the target, your edit access, the values) before you are asked; nothing is written while it
-waits, and stopping the answer or 15 minutes without an answer leave it unmade (leaving the page
-doesn't: you are asked again when you come back).
+waits, however long you take, and stopping the answer leaves it unmade (leaving the page doesn't:
+you are asked again when you come back). An answer the server was writing when it restarted goes on
+from where it was some minutes later, or as soon as you open its conversation, and you see it go on
+there; one that was waiting for your decision asks again when you open the conversation.
 Changes made, declined or failed show among the answer's steps with links, are kept with the
 conversation (also when the answer itself didn't come), and later questions know them.
 
@@ -381,11 +385,15 @@ is decided or someone edits the page. Only people who may edit the page see it.
 **Memory.** The chat remembers short notes about you in each workspace: who you are, what you work
 on, how you want answers. When you tell it about yourself or ask it to remember something, it keeps
 a note (`remember`, also in place of an older note it corrects) and drops one when you ask it to
-forget (`forget`). Since a note goes with every later question, the chat asks you first, as it
-does before a change (*Yes* or *No*), also in *Read only*, where notes are the one thing it may
-keep; only *Auto* keeps and drops notes without asking. Each note kept, dropped or declined shows
-among the answer's steps, a *Memory updated* line under the answer opens *Memory*, and asking an
-answer again keeps its notes with the new answer. It keeps only what you say in your questions,
+forget (`forget`). It does so at once, in every mode (*Read only* too, where notes are the one
+thing it may keep), and the step it shows has *Undo*, which drops a note it kept, gives a changed
+note its earlier text, or brings a dropped one back (unless you changed the note since). Since a
+note goes with every later question, the chat asks you first (*Yes* or *No*) when the answer read
+something from outside before (a web page, an email, a connected service's tool), and always while
+the workspace has changes without asking off. Each note kept, dropped or declined shows among the
+answer's steps, a *Memory updated* line under the answer opens *Memory*, and asking an answer again
+keeps its notes with the new answer. When your notes are more than a question's share of the room
+takes, the newest go with it and the chat reads the others with `read_memory`, offered only then. It keeps only what you say in your questions,
 never what pages or tool results say, and a note you already have (case aside) is kept once. Your notes go with each of your later questions in that workspace, as notes rather
 than instructions: they never widen what the chat may read or change. The brain button in the chat's
 header opens *Memory*, where you see, add, change and delete notes, or forget everything. Up to 30
@@ -398,6 +406,27 @@ questions then go without your notes and the chat isn't offered `remember` or `f
 the memory is off when asked to remember something). Workspace owners can turn the memory off for
 everyone under Settings → General → AI → *AI memory*, which also hides the *Memory* button. Neither
 switch deletes a note: they come back when the memory is turned on again.
+
+**Reminders and routines.** Ask the chat to remind you of something once ("remind me tomorrow at
+9 to call Ayşe") and it sets a reminder for you alone, up to 30 days ahead, on your clock (the
+browser's time zone): the box asks first, showing what it will say and when, unless the chat is on
+*Auto*. It comes as an agent's reminder does (over the page you have open, in your inbox, as a push
+or Telegram message), titled *Your reminder*; an answer sets at most 3. The chat can't do anything
+later on its own, so work to be done again and again ("every morning, list what's due today",
+"each Friday, sum up the week's sales") goes to one of your agents as a schedule
+([Agents](agents.md)): the chat finds `set_agent_schedule`, makes an agent first with
+`create_agent` when you have none and may make one, and asks you before each. With changes off it
+says so instead. People turn reminders off under *AI reminders* in Settings → Preferences.
+
+**Your own questions on a schedule.** A question can also come round by itself without an agent: a
+repeat rule in your time zone and the question (up to 10 per person and workspace). Each time it is
+asked as you, with your access, model and limits, as if you had typed it, and its answers line up in
+one conversation of your AI chat kept for it. It only reads unless set to change things (*Auto*,
+asking first after reading others' words, as the chat does); while its last answer still waits, a
+time is skipped. Only you list, change or remove it; leaving the workspace pauses it, AI being off
+skips its times, and after 10 failed answers in a row it turns itself off with a *Schedules turned
+off* inbox item. For now it is set through the app's server actions (`setOwnRequestAction`), with no
+screen of its own yet.
 
 The same notes reach the AI apps you connect over MCP, so each of them knows you as the chat does:
 `list_memory` reads them (an app is told to at the start of a conversation), and `change_memory`
@@ -796,12 +825,12 @@ answer made and its sources as links to their pages (`APP_URL` must be an addres
 phone can open). Conversations are the person's AI chat conversations: they show in the app's
 chat history and follow its limits.
 
-**Changes.** In *Ask* mode, each change (a row, a page, a page's text, a note to remember, a call
+**Changes.** In *Ask* mode, each change (a row, a page, a page's text, a call
 to a connection's tool that changes something) and, in every mode, each web search or page read
 (with its words or address) comes as a message saying what and where, with
 *Yes* and *No* buttons (and *Yes, don't ask again* for changes in the workspace). Only the linked
-person can press them; the answer waits up to 15 minutes, then goes on without the change, and
-the message's buttons go once the answer ends.
+person can press them; the answer waits until they do (or stop it), and the message's buttons go
+once the answer ends.
 
 **Notifications.** Each new item of the person's inbox also comes to the chat, as soon as it is
 saved: what the inbox shows for it (the page, or what it is about, then who did what), the

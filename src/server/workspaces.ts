@@ -4,10 +4,9 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/db";
 import {
   account,
-  agentConversation,
   aiAccount,
-  aiConversation,
   aiMemory,
+  conversation,
   apiToken,
   calendarFeed,
   databaseView,
@@ -313,6 +312,17 @@ export async function workspacePeople(workspaceId: string): Promise<WorkspacePer
     .from(workspaceMember)
     .innerJoin(user, eq(user.id, workspaceMember.userId))
     .where(and(eq(workspaceMember.workspaceId, workspaceId), notAgentUser(workspaceMember.userId)));
+}
+
+/** The members of a workspace with these addresses (any case), for showing who mail is from. */
+export async function workspacePeopleByEmail(workspaceId: string, emails: string[]): Promise<WorkspacePerson[]> {
+  const wanted = [...new Set(emails.map((e) => e.toLowerCase()).filter(Boolean))];
+  if (!wanted.length) return [];
+  return db
+    .select({ id: user.id, name: user.name, email: user.email, image: user.image, role: workspaceMember.role })
+    .from(workspaceMember)
+    .innerJoin(user, eq(user.id, workspaceMember.userId))
+    .where(and(eq(workspaceMember.workspaceId, workspaceId), notAgentUser(workspaceMember.userId), inArray(sql`lower(${user.email})`, wanted)));
 }
 
 /** How someone can sign in: a password, single sign-on, a passkey, or another provider's account (by its id: "github"). */
@@ -1200,8 +1210,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     await forgetWorkspaceGrants(tx, workspaceId, targetId);
     // Their AI chat and agent chat conversations quote the workspace's pages, and what it
     // remembers about them is the workspace's context: they go with them.
-    await tx.delete(aiConversation).where(and(eq(aiConversation.workspaceId, workspaceId), eq(aiConversation.userId, targetId)));
-    await tx.delete(agentConversation).where(and(eq(agentConversation.workspaceId, workspaceId), eq(agentConversation.userId, targetId)));
+    await tx.delete(conversation).where(and(eq(conversation.workspaceId, workspaceId), eq(conversation.userId, targetId)));
     await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, targetId)));
     // Their mailbox in the workspace (and its password) goes too; the mail it brought stays on rows.
     await tx.delete(mailbox).where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, targetId)));
@@ -1614,6 +1623,7 @@ const SETTING_VALUES: {
   ai: [true, false],
   aiMemory: [true, false],
   aiWebSearch: [false, true],
+  aiAutoChanges: [true, false],
   trashRetentionDays: TRASH_RETENTION_CHOICES,
   memberInvites: ["owners", "members_with_approval", "any_member"],
   domainJoin: ["join", "request"],
@@ -1812,8 +1822,7 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
     released = await releaseAiAccount(tx, workspaceId, userId);
     // Their AI chat and agent chat conversations quote the workspace's pages, and what it
     // remembers about them is the workspace's context: they go with the membership.
-    await tx.delete(aiConversation).where(and(eq(aiConversation.workspaceId, workspaceId), eq(aiConversation.userId, userId)));
-    await tx.delete(agentConversation).where(and(eq(agentConversation.workspaceId, workspaceId), eq(agentConversation.userId, userId)));
+    await tx.delete(conversation).where(and(eq(conversation.workspaceId, workspaceId), eq(conversation.userId, userId)));
     await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, userId)));
     const heir = await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, userId, heir);

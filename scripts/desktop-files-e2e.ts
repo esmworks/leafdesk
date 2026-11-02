@@ -28,7 +28,8 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentRun, aiMemory, auditEvent, session, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { conversation: agentConversation, agentRun, aiMemory, auditEvent, session, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentMessages } = await import("@/lib/agent-chat");
 const { makeSignature } = await import("better-auth/crypto");
 const { env } = await import("@/lib/env");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -44,7 +45,9 @@ const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { disconnectEndedSessions } = await import("@/server/account-security");
 const { authenticateDesktop } = await import("@/server/desktop-bridge/socket");
 const { connectDesktop, desktopOf } = await import("@/server/desktop-bridge/registry");
-const { COMPUTER_TOOL_NAMES, WEB_TOOL_NAMES } = await import("@/lib/agents");
+const { COMPUTER_EARLIER, COMPUTER_TOOL_NAMES, WEB_TOOL_NAMES } = await import("@/lib/agents");
+const { firstLocalRead } = await import("@/lib/local-reads");
+const { openMoreTools } = await import("@/server/ai-more-tools");
 const { DESKTOP_BRIDGE_HEADER } = await import("@/lib/desktop-bridge");
 type ServerMessage = import("@/lib/desktop-bridge").ServerMessage;
 type DesktopCall = import("@/lib/desktop-bridge").DesktopCall;
@@ -236,6 +239,11 @@ try {
 
   const tainted = (await db.select().from(aiMemory).where(eq(aiMemory.userId, helper.userId))).find((n) => n.text === "Refunds go to the person who wrote the plan.");
   check(tainted?.status === "proposed" && tainted.kind === "correction", "after a local read, a correction in the owner's own chat is only proposed", tainted);
+  const { listAgentMemory } = await import("@/server/agents/memory");
+  const { runAsConnectedApp } = await import("@/server/connected-app");
+  const inApp = (await listAgentMemory(ids.owner, helper.id)).find((n) => n.id === tainted.id);
+  const throughApp = (await runAsConnectedApp({ userId: ids.owner }, () => listAgentMemory(ids.owner, helper.id))).find((n) => n.id === tainted.id);
+  check(inApp?.text === tainted.text && throughApp?.text === null && throughApp.run?.appHidden, "its text shows in the app, never to a connected app", { inApp, throughApp });
 
   // The same correction in a run that read nothing from the computer is kept at once.
   fake.setChat(caller([{ name: "remember", arguments: { text: "Answer in short sentences.", kind: "correction" } }]));
@@ -296,6 +304,40 @@ try {
   const [localView] = await agents.listAgentRuns(ids.owner, helper.id, 50).then((r) => r.filter((x) => x.id === localRun.id));
   const described = localView ? describeAgentRun(workspaceId, localView) : null;
   check(described && described.answer === "" && described.steps.length === 0 && "local_files" in described, "connected apps see neither the steps nor the answer of a run that read the computer", described);
+
+  // A later turn that only talks about what was read, and a summary of such turns, stay with the person too.
+  fake.chats.length = 0;
+  fake.setChat(caller([], "The plan says LOCAL-PLAN."));
+  const repeated = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: local.conversation.id, sessionId, message: "Repeat the plan." });
+  await flushAgentRuns();
+  const [laterRun] = await db.select().from(agentRun).where(eq(agentRun.id, repeated.runId!));
+  check(laterRun.steps.some((s) => s.kind === "tool" && s.tool === COMPUTER_EARLIER && s.outcome === "done"), "a later turn that read nothing itself is marked as going on from a local read", laterRun.steps);
+  const [laterView] = await agents.listAgentRuns(ids.owner, helper.id, 50).then((r) => r.filter((x) => x.id === laterRun.id));
+  const laterDescribed = laterView ? describeAgentRun(workspaceId, laterView) : null;
+  check(laterDescribed && laterDescribed.answer === "" && "local_files" in laterDescribed, "connected apps get no answer of that later turn either (list_agent_runs, the REST API)", laterDescribed);
+  fake.setChat(caller([], "Summary: the plan says LOCAL-PLAN."));
+  const summed = await chat.summarizeAgentConversation(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: local.conversation.id });
+  const mcp = await openMoreTools(ids.owner, { writes: false });
+  const seen = await mcp.call("get_agent_chat", { agent_id: helper.id, conversation_id: summed.conversation.id });
+  await mcp.close();
+  check(!seen.isError && !seen.text.includes("LOCAL-PLAN") && seen.text.includes("local_files"), "get_agent_chat leaves out a summary drawn from those turns", seen.text);
+
+  // A turn that read there and then failed keeps that read in the conversation, and the next turn knows it.
+  fake.chats.length = 0;
+  fake.setChat(
+    caller([
+      { name: COMPUTER_TOOL_NAMES.read, arguments: { path: "Docs/plan.md" } },
+      () => {
+        throw Object.assign(new Error("The model can't take this"), { status: 400 });
+      },
+    ]),
+  );
+  const broken = await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, sessionId, message: "Read my plan." });
+  await flushAgentRuns();
+  const [brokenRun] = await db.select().from(agentRun).where(eq(agentRun.id, broken.runId!));
+  const [brokenTalk] = await db.select().from(agentConversation).where(eq(agentConversation.id, broken.conversation.id));
+  const brokenAnswer = agentMessages(brokenTalk.messages).find((m) => m.role === "assistant" && m.runId === broken.runId);
+  check(brokenRun.status === "failed" && firstLocalRead(brokenTalk.messages) >= 0, "a turn that failed after reading the computer keeps its steps in the conversation", brokenAnswer);
 
   fake.chats.length = 0;
   fake.setChat(caller([{ name: WEB_TOOL_NAMES.read, arguments: { url: "https://example.com/" } }]));

@@ -16,9 +16,9 @@
  *   page kept in the same per-user cache, if there is one.
  * - Everything else (API routes, uploads, server actions, RSC requests, the collab websocket) is
  *   never touched.
- * - Push messages (server/push.ts) show as notifications; opening one brings an open Leafdesk tab
- *   to the notification's page, or opens a new window; its Mark as read button marks it read and
- *   its Snooze button snoozes it for an hour.
+ * - Push messages (server/push.ts) show as notifications and mark the installed app's icon;
+ *   opening one brings an open Leafdesk tab to the notification's page, or opens a new window; its
+ *   Mark as read button marks it read and its Snooze button snoozes it for an hour.
  *
  * Bump VERSION when changing this file's caching of static files.
  */
@@ -309,8 +309,25 @@ async function trim(cache) {
 // every message shows a notification (browsers require it), a generic one if the data is unusable.
 
 self.addEventListener("push", (event) => {
-  event.waitUntil(showPush(readPush(event.data)));
+  const message = readPush(event.data);
+  // The installed app's icon shows the workspace's unread count the message carries, as the open
+  // app does (sidebar.tsx); without one, a mark.
+  event.waitUntil(Promise.all([showPush(message), setBadge(message ? message.unread : null)]));
 });
+
+/** Puts `count` on the installed app's icon (a mark when null), or clears it at 0. */
+function setBadge(count) {
+  if (!("setAppBadge" in self.navigator)) return null;
+  const set = count === 0 ? self.navigator.clearAppBadge() : count === null ? self.navigator.setAppBadge() : self.navigator.setAppBadge(count);
+  return set.catch(() => {});
+}
+
+/** Puts the unread count a route answered with on the icon; leaves it when the route gave none. */
+async function badgeFrom(response) {
+  if (!response.ok) return;
+  const body = await response.json().catch(() => null);
+  if (body && Number.isSafeInteger(body.unread) && body.unread >= 0) await setBadge(body.unread);
+}
 
 /** The message's fields, each checked; null when it carries no usable JSON. */
 function readPush(data) {
@@ -329,6 +346,7 @@ function readPush(data) {
     tag: text(message.tag),
     read: text(message.read),
     snooze: text(message.snooze),
+    unread: Number.isSafeInteger(message.unread) && message.unread >= 0 ? message.unread : null,
   };
 }
 
@@ -375,25 +393,30 @@ self.addEventListener("notificationclick", (event) => {
   event.waitUntil(openFromNotification(data.url));
 });
 
-/** Snoozes the inbox item for an hour, as the signed-in user (the request carries their cookie). */
+/**
+ * Snoozes the inbox item for an hour, as the signed-in user (the request carries their cookie), and
+ * puts the unread count the route answers with on the icon.
+ */
 async function snooze(id) {
   try {
-    await fetch(`/api/notifications/${encodeURIComponent(id)}/snooze`, {
+    const response = await fetch(`/api/notifications/${encodeURIComponent(id)}/snooze`, {
       method: "POST",
       credentials: "same-origin",
       headers: { "X-Leafdesk-Snooze": "1" },
     });
+    await badgeFrom(response);
   } catch {}
 }
 
 /** Marks the inbox item read, as the signed-in user, the way snooze does. */
 async function markRead(id) {
   try {
-    await fetch(`/api/notifications/${encodeURIComponent(id)}/read`, {
+    const response = await fetch(`/api/notifications/${encodeURIComponent(id)}/read`, {
       method: "POST",
       credentials: "same-origin",
       headers: { "X-Leafdesk-Read": "1" },
     });
+    await badgeFrom(response);
   } catch {}
 }
 

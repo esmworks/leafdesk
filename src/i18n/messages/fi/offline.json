@@ -6,6 +6,12 @@
   "readOnlyCopy": "Offline-kopio ajalta {time}, vain luku",
   "signOutUnsynced": "Joillakin sivuilla on muokkauksia, jotka eivät ole vielä päätyneet palvelimelle. Uloskirjautuminen poistaa ne tästä selaimesta. Kirjaudutaanko silti ulos?",
   "installApp": "Asenna sovellus",
+  "iosInstall": {
+    "title": "Lisää Leafdesk kotinäyttöön",
+    "share": "Napauta Jaa-painiketta selaimen työkalupalkissa tai osoitteen vieressä olevassa valikossa.",
+    "add": "Valitse ”Lisää Koti-valikkoon” (napauta Lisää-kohtaa, jos sitä ei näy) ja napauta sitten Lisää.",
+    "done": "Leafdesk avautuu sen jälkeen kuvakkeestaan omaan ikkunaansa ilman selaimen palkkeja."
+  },
   "page": {
     "documentTitle": "Offline",
     "heading": "Olet offline-tilassa",

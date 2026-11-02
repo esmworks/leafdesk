@@ -124,6 +124,7 @@ const ids = { owner: `${RUN}-owner`, alice: `${RUN}-alice` };
 const userIds = Object.values(ids);
 const { owner, alice } = ids;
 const workspaceId = `${RUN}-ws`;
+const otherWorkspaceId = `${RUN}-ws2`;
 
 try {
   await db.insert(user).values(userIds.map((id) => ({ id, name: id, email: `${id}@example.test` })));
@@ -415,6 +416,29 @@ try {
   const six = await Promise.all(Array.from({ length: 6 }, (_, i) => attach(`f${i}.csv`, "a\n1")));
   check((await refusal(() => startChat(alice, { workspaceId, message: "Read them", attachments: six }))) === "invalid", "…and more than five files at once before anything is sent");
 
+  // The person's further tools are held to the chat's workspace: another of theirs reads as one they aren't in.
+  await db.insert(workspace).values({ id: otherWorkspaceId, name: `${RUN}-other` });
+  await db.insert(workspaceMember).values({ workspaceId: otherWorkspaceId, userId: owner, role: "owner" });
+  const [otherGeneral] = await db.select({ id: teamspace.id }).from(teamspace).where(eq(teamspace.workspaceId, otherWorkspaceId));
+  const elsewhere = await createPage(ownerCtx.actor, { workspaceId: otherWorkspaceId, teamspaceId: otherGeneral.id, title: "Elsewhere notes", markdown: "Kept in the other workspace." });
+  fake.setChat(
+    caller([
+      { name: "use_tool", arguments: { name: "list_workspaces", arguments: {} } },
+      { name: "use_tool", arguments: { name: "list_pages", arguments: { workspace_id: otherWorkspaceId } } },
+      { name: "use_tool", arguments: { name: "get_page", arguments: { page_id: elsewhere.id } } },
+    ]),
+  );
+  fake.chats.length = 0;
+  const bound = await ask(owner, { workspaceId, message: "What is in my other workspace?" });
+  const [ownWorkspaces, otherPages, otherPage] = lastResults();
+  check(bound.done && ownWorkspaces.includes(workspaceId) && !ownWorkspaces.includes(otherWorkspaceId), "the chat's further tools list only the chat's workspace", ownWorkspaces);
+  check(!otherPages.includes("Elsewhere notes") && !otherPage.includes("Kept in the other workspace"), "…and never read another workspace of the person's", { otherPages, otherPage });
+  const { openMoreTools } = await import("@/server/ai-more-tools");
+  const more = await openMoreTools(owner, { writes: false });
+  const unbound = await more.call("list_workspaces", {});
+  await more.close();
+  check(unbound.text.includes(otherWorkspaceId), "outside a chat the person's tools still reach both", unbound.text);
+
   fake.setChat(caller([{ name: "read_attachment", arguments: {} }]));
   fake.chats.length = 0;
   const noFiles = await ask(alice, { workspaceId, message: "No files here" });
@@ -424,9 +448,9 @@ try {
 } finally {
   resetAi();
   // The attached files' rows go with the workspace; their stored objects are deleted here.
-  const stored = await db.delete(file).where(inArray(file.workspaceId, [workspaceId])).returning(fileObjectColumns);
+  const stored = await db.delete(file).where(inArray(file.workspaceId, [workspaceId, otherWorkspaceId])).returning(fileObjectColumns);
   await deleteQueued(stored.map(fileObject)).catch(() => 0);
-  await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
+  await db.delete(workspace).where(inArray(workspace.id, [workspaceId, otherWorkspaceId]));
   await db.delete(user).where(inArray(user.id, userIds));
   await fake.close();
   hocuspocus.closeConnections();

@@ -168,7 +168,7 @@ export function MediaResizeHandle({
       }}
       className={cn(
         "absolute inset-y-0 -end-3 flex w-3 cursor-ew-resize touch-none items-center justify-center",
-        "opacity-0 transition-opacity group-hover/bookmark:opacity-100",
+        "opacity-0 transition-opacity group-hover/bookmark:opacity-100 pointer-coarse:opacity-100",
       )}
     >
       <span className="h-10 max-h-[70%] w-1.5 rounded-full border border-bg bg-fg-muted shadow-sm" />
@@ -269,7 +269,7 @@ const BookmarkBlock = createReactBlockSpec(bookmarkBlockConfig, {
               title={t("bookmark.refresh")}
               className={cn(
                 "absolute inset-e-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-bg text-fg-muted shadow-sm hover:bg-bg-hover hover:text-fg",
-                "opacity-0 transition-opacity focus-visible:opacity-100 group-hover/bookmark:opacity-100",
+                "opacity-0 transition-opacity focus-visible:opacity-100 group-hover/bookmark:opacity-100 pointer-coarse:opacity-100",
                 loading && "opacity-100",
               )}
             >

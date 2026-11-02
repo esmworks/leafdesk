@@ -11,6 +11,7 @@
     "open": "Đang chờ",
     "decided": "Đã trả lời",
     "allRows": "Hiện tất cả các hàng",
+    "allRuns": "Hiện tất cả lần chạy",
     "clear": "Xóa bộ lọc"
   },
   "count": "{count, plural, other {# thay đổi}}",

@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Sovellukset saavat vain lukea työtilassa {workspace}, joten vastaan muuttamatta siellä mitään.",
   "busy": "Vastaan vielä edelliseen kysymykseesi. Keskeytä se lähettämällä /stop.",
+  "busyInApp": "Tähän keskusteluun vastataan vielä Leafdeskissä. Kysy uudelleen, kun vastaus on valmis.",
   "stopped": "Keskeytetty.",
   "nothingToStop": "En vastaa juuri nyt mihinkään.",
   "unlinked": "Tätä Telegram-tiliä ei ole enää yhdistetty Leafdeskiin.",
@@ -85,6 +86,7 @@
     "createXlsx": "Luodaanko Excel-tiedosto {title} ja liitetäänkö se kohteeseen {target}?",
     "source": "Rivit: {name}.",
     "remember": "Muistetaanko tämä sinusta?",
+    "remind": "Muistutetaanko tästä?",
     "forget": "Unohdetaanko tämä muistiinpano?",
     "connection": "Lähetetäänkö tämä yhteyteen {connection} ({tool})?",
     "tool": "Tehdäänkö tämä muutos ({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
       "costLimit": "Vastaus saavutti kustannusrajansa.",
       "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
+      "stopped": "Pysäytetty.",
       "error": "Jokin meni vikaan agentin vastatessa."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "Se oli käyttänyt agentin kuukausittaisen tokenrajan.",
         "costLimit": "Työtila oli saavuttanut kuukausittaisen tekoälyn kustannusrajansa.",
         "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
+        "stopped": "Pysäytetty.",
         "error": "Jotain meni pieleen."
       },
       "email": "Se luki sähköpostisi, joten sen raportti näkyy vain Leafdeskissä."

@@ -5,7 +5,7 @@
  * read on in and make a database of (chat-attachment-table.ts); Markdown and text files.
  *
  * Each is an uploaded `file` of the workspace on no page, tied to the person who attached it
- * (`ai_chat_file`): only they can open it (`chatFileForOwner`, served by /api/ai/chat/files/[id]),
+ * (`conversation_file`, without a run): only they can open it (`chatFileForOwner`, served by /api/ai/chat/files/[id]),
  * never through a page, a published page or a backup (files.ts doesn't know it), and only they can
  * attach it to a question. It counts against the workspace's storage like any upload. Once its
  * question is kept it belongs to that conversation: later questions there see it too, and it is
@@ -15,7 +15,7 @@
 import { Readable } from "node:stream";
 import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import { db } from "@/db";
-import { aiChatFile, file } from "@/db/schema";
+import { conversationFile, file } from "@/db/schema";
 import type { ChatAttachmentRecord } from "@/db/schema/ai";
 import { decodeText, readCsvAttachment } from "@/lib/chat-attachment-table";
 import {
@@ -78,7 +78,7 @@ export async function uploadChatFile(userId: string, workspaceId: string, input:
       workspaceId,
       pageId: null,
       uploadedBy: userId,
-      record: async (tx, fileId) => void (await tx.insert(aiChatFile).values({ fileId, userId, workspaceId })),
+      record: async (tx, fileId) => void (await tx.insert(conversationFile).values({ fileId, userId, workspaceId })),
     },
     { ...input, name, body },
     { maxBytes },
@@ -110,8 +110,8 @@ export async function chatFileForOwner(userId: string, fileId: string): Promise<
   const [found] = await db
     .select({ file })
     .from(file)
-    .innerJoin(aiChatFile, eq(aiChatFile.fileId, file.id))
-    .where(and(eq(file.id, fileId), eq(aiChatFile.userId, userId)))
+    .innerJoin(conversationFile, eq(conversationFile.fileId, file.id))
+    .where(and(eq(file.id, fileId), eq(conversationFile.userId, userId), isNull(conversationFile.runId)))
     .limit(1);
   return found?.file ?? null;
 }
@@ -127,13 +127,14 @@ export async function questionFiles(userId: string, workspaceId: string, convers
   const rows = await db
     .select({ file })
     .from(file)
-    .innerJoin(aiChatFile, eq(aiChatFile.fileId, file.id))
+    .innerJoin(conversationFile, eq(conversationFile.fileId, file.id))
     .where(
       and(
         inArray(file.id, unique),
-        eq(aiChatFile.userId, userId),
-        eq(aiChatFile.workspaceId, workspaceId),
-        conversationId ? or(isNull(aiChatFile.conversationId), eq(aiChatFile.conversationId, conversationId)) : isNull(aiChatFile.conversationId),
+        eq(conversationFile.userId, userId),
+        eq(conversationFile.workspaceId, workspaceId),
+        isNull(conversationFile.runId),
+        conversationId ? or(isNull(conversationFile.conversationId), eq(conversationFile.conversationId, conversationId)) : isNull(conversationFile.conversationId),
       ),
     );
   if (all && rows.length !== unique.length) return null;
@@ -240,9 +241,9 @@ export async function attachmentRecords(files: FileRow[], taken: string[]): Prom
 export async function keepQuestionFiles(conversationId: string, fileIds: string[]) {
   if (!fileIds.length) return;
   await db
-    .update(aiChatFile)
+    .update(conversationFile)
     .set({ conversationId })
-    .where(and(inArray(aiChatFile.fileId, fileIds), isNull(aiChatFile.conversationId)));
+    .where(and(inArray(conversationFile.fileId, fileIds), isNull(conversationFile.conversationId)));
 }
 
 /** Deletes the files of these conversations, rows and stored bytes (queued, so a failure is tried again). */
@@ -251,7 +252,7 @@ export async function deleteConversationFiles(conversationIds: string[]) {
   const objects = await db.transaction(async (tx) => {
     const gone = await tx
       .delete(file)
-      .where(inArray(file.id, tx.select({ id: aiChatFile.fileId }).from(aiChatFile).where(inArray(aiChatFile.conversationId, conversationIds))))
+      .where(inArray(file.id, tx.select({ id: conversationFile.fileId }).from(conversationFile).where(inArray(conversationFile.conversationId, conversationIds))))
       .returning(fileObjectColumns);
     const queued = gone.map(fileObject);
     await queueStorageDeletion(tx, queued);

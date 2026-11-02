@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { AGENT_CHAT_FILE_LIMITS, agentChatFileType } from "@/lib/agent-chat-files";
 import { CHAT_MODES, type ChatActionView, type ChatMode, type ChatSourceView, type ChatStepView } from "@/lib/ai-chat";
 import { decodeBytes } from "@/lib/file-viewer";
@@ -8,8 +9,9 @@ import { escapeHtml, markdownToTelegramBlocks, packMessages, preview } from "@/l
 import { connectedAppHold } from "@/server/access";
 import type { AiErrorCode } from "@/lib/ai";
 import { isAiError, sttLimits } from "@/server/ai";
-import { decideChange, type ChatDecision } from "@/server/ai-chat-approvals";
-import { startChat } from "@/server/ai-chat";
+import type { ChatDecision } from "@/server/ai-chat-approvals";
+import { answerUnderWay, decideParkedChange, startChat } from "@/server/ai-chat";
+import { dropRun, followRun, openRun, runEvents } from "@/server/ai-chat-runs";
 import { asWrite, runAsConnectedApp } from "@/server/connected-app";
 import { transcribeDictation } from "@/server/voice-notes";
 import { listWorkspaces } from "@/server/workspaces";
@@ -346,7 +348,24 @@ async function ask(link: TelegramLinkRow, t: Translator, { text, voice, document
     const readOnly = mode !== "read" && (await asWrite(() => connectedAppHold(link.userId, workspace.id))) === "readOnly";
     if (readOnly) await send(chatId, html(t, "readOnlyWorkspace", { workspace: escapeHtml(workspace.name) }));
 
-    const start = (conversationId: string | null) => startChat(link.userId, { workspaceId: workspace.id, conversationId, message: question, mode }, signal);
+    // The conversation is the app's too: one answer at a time in it, wherever it was asked.
+    if (link.conversationId && (await answerUnderWay(link.userId, link.conversationId))) return void (await send(chatId, escapeHtml(t("busyInApp"))));
+    // Kept with the app's answers (ai-chat-runs.ts), so the app sees the conversation busy, and Stop
+    // or deleting it there stops this one too; /stop here stops it as before.
+    const start = async (conversationId: string | null) => {
+      const run = openRun({ id: randomUUID(), userId: link.userId, workspaceId: workspace.id, conversationId })!;
+      const stop = () => run.controller.abort();
+      if (signal.aborted) stop();
+      else signal.addEventListener("abort", stop, { once: true });
+      try {
+        void runEvents(run, await startChat(link.userId, { workspaceId: workspace.id, conversationId, message: question, mode }, run.controller.signal));
+        return followRun(link.userId, run.id)!;
+      } catch (error) {
+        signal.removeEventListener("abort", stop);
+        dropRun(run);
+        throw error;
+      }
+    };
     let events;
     try {
       events = await start(link.conversationId);
@@ -427,6 +446,10 @@ export function approvalText(t: Translator, action: ChatActionView): string {
     lines.push(html(t, "approval.connection", { connection: escapeHtml(action.connection?.name ?? ""), tool: escapeHtml(action.title ?? "") }));
   } else if (action.action === "tool") {
     lines.push(html(t, "approval.tool", { tool: escapeHtml(action.title ?? "") }));
+  } else if (action.action === "remind") {
+    // Its text, then when, on the person's clock.
+    lines.push(escapeHtml(t("approval.remind")), `<blockquote>${escapeHtml(action.title ?? "")}</blockquote>`, `🕘 ${escapeHtml(action.content ?? "")}`);
+    return lines.join("\n");
   } else if (action.action === "remember" || action.action === "forget") {
     lines.push(escapeHtml(t(`approval.${action.action}`)), `<blockquote>${escapeHtml(action.title ?? "")}</blockquote>`);
   } else if (action.action === "readWeb" || action.action === "searchWeb") {
@@ -459,7 +482,7 @@ export function approvalText(t: Translator, action: ChatActionView): string {
 async function askApproval(link: TelegramLinkRow, t: Translator, id: string, action: ChatActionView, mode: ChatMode) {
   const text = approvalText(t, action);
   // "Don't ask again" makes the rest of the answer `auto`, which covers changes to the workspace only.
-  const always = mode === "ask" && !action.eachTime && !["connection", "remember", "forget", "readWeb", "searchWeb"].includes(action.action);
+  const always = mode === "ask" && !action.eachTime && !["connection", "remember", "forget", "remind", "readWeb", "searchWeb"].includes(action.action);
   const keyboard = {
     inline_keyboard: [
       [
@@ -501,7 +524,7 @@ async function onCallback(query: TelegramCallbackQuery) {
     const decision = DECISIONS[choice];
     const text = asked.get(id)?.text ?? escapeHtml(message.text ?? "");
     asked.delete(id);
-    if (!decideChange(link.userId, id, decision)) {
+    if (!(await decideParkedChange(link.userId, id, decision))) {
       await answerCallback(query.id, t("approval.gone"));
       await editMessage(chatId, message.message_id, text).catch(() => {});
       return;

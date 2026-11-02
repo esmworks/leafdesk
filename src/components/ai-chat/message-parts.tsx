@@ -12,6 +12,17 @@ import { useEffect, useState, type ReactNode } from "react";
 import { copyText } from "@/components/settings/copy-button";
 import { cn, IconButton } from "@/components/ui";
 
+/** The box written in, framed alike in both chats; `dropping`: files are dragged over it. */
+export function composerBox(dropping: boolean) {
+  return cn("relative flex flex-col rounded-2xl border bg-bg transition-colors dark:bg-bg-subtle", dropping ? "border-accent ring-1 ring-accent" : "border-border");
+}
+
+/** The box's round buttons (add, Send, Stop); the box gives their size. */
+export const roundButton = "inline-flex shrink-0 items-center justify-center rounded-full transition-[background-color,opacity]";
+
+/** Whether what is dragged over the box carries files. */
+export const carriesFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types).includes("Files");
+
 /** Actions shown on hovering their message (always on touch screens, and while focused). */
 export const revealed = "opacity-0 transition-opacity group-hover/answer:opacity-100 group-hover/question:opacity-100 focus-within:opacity-100 pointer-coarse:opacity-100";
 

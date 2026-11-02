@@ -37,13 +37,16 @@ const box = (over: Partial<Box>): Box =>
 
 const googleBox = (expiresAt: number) => box({ auth: "google", secret: sealJson({ refreshToken: "r1", accessToken: "a1", expiresAt }) });
 
+// Long enough that no sealed secret holds it by chance.
+const RENEWED = "renewed-access-token";
+
 beforeEach(() => {
   vi.stubEnv("BETTER_AUTH_SECRET", "test-secret-that-is-long-enough-000000000000");
   vi.stubEnv("MAIL_GOOGLE_CLIENT_ID", "client");
   vi.stubEnv("MAIL_GOOGLE_CLIENT_SECRET", "secret");
   saved.length = 0;
   refresh.mockReset();
-  refresh.mockResolvedValue({ refreshToken: "r1", accessToken: "a2", expiresAt: Date.now() + 3600_000 });
+  refresh.mockResolvedValue({ refreshToken: "r1", accessToken: RENEWED, expiresAt: Date.now() + 3600_000 });
 });
 
 afterEach(() => vi.unstubAllEnvs());
@@ -61,15 +64,15 @@ describe("mailCredentials", () => {
   });
 
   it("renews one about to run out, and keeps the new one sealed", async () => {
-    expect(await mailCredentials(googleBox(Date.now() + 30_000))).toMatchObject({ accessToken: "a2" });
+    expect(await mailCredentials(googleBox(Date.now() + 30_000))).toMatchObject({ accessToken: RENEWED });
     expect(refresh).toHaveBeenCalledWith({ clientId: "client", clientSecret: "secret" }, expect.objectContaining({ refreshToken: "r1" }));
     const { secret } = saved[0] as { secret: string };
-    expect(secret).not.toContain("a2");
-    expect(openJson<{ accessToken: string }>(secret).accessToken).toBe("a2");
+    expect(secret).not.toContain(RENEWED);
+    expect(openJson<{ accessToken: string }>(secret).accessToken).toBe(RENEWED);
   });
 
   it("renews when asked to, however long the token has left", async () => {
-    expect(await mailCredentials(googleBox(Date.now() + 30 * 60_000), { renew: true })).toMatchObject({ accessToken: "a2" });
+    expect(await mailCredentials(googleBox(Date.now() + 30 * 60_000), { renew: true })).toMatchObject({ accessToken: RENEWED });
   });
 
   it("asks for signing in again when the server has no Google client any more", async () => {
@@ -89,7 +92,7 @@ describe("withMailCredentials", () => {
       return "read";
     });
     expect(result).toBe("read");
-    expect(tokens).toEqual(["a1", "a2"]);
+    expect(tokens).toEqual(["a1", RENEWED]);
   });
 
   it("gives up after the second refusal", async () => {

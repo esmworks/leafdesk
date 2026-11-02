@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { CELL_TYPE_EVENT, typedCharacter } from "@/lib/cell-typing";
 import { cellGridShortcut, isMac } from "@/lib/shortcuts";
 import {
   clampRange,
@@ -23,10 +24,14 @@ import {
 const isTyping = (el: Element) => el.closest("input, textarea, select, [contenteditable='true']") !== null;
 
 /**
- * The table's cells as a grid the keyboard moves through: arrows move the active cell, Shift with
+ * The table's cells as a grid the keyboard moves through: a click makes a cell the active one, and a
+ * second click on it (or a double click) opens its editor; arrows move the active cell, Shift with
  * an arrow (or a click) stretches a range from it, Enter opens the active cell's editor (Esc closes
- * it again, and the cell keeps focus), Delete clears the range. Copying puts the range on the
- * clipboard as tab-separated text, and pasting writes spreadsheet cells from the active cell on.
+ * it again, and the cell keeps focus), typing opens a text cell's editor with what was typed, and
+ * Delete clears the range. Checkboxes, stars, buttons and links in cells work with one click, and
+ * a tap on a touch screen opens the editor at once (there is no keyboard to work the grid with).
+ * Copying puts the range on the clipboard as tab-separated text, and pasting writes spreadsheet
+ * cells from the active cell on.
  * Filling copies the range's values into the cells its handle is dragged over (or, with Mod+D,
  * down from its top row), written like a paste. Keys and clipboard events only count while focus
  * is in the table itself (not in an editor, and not in a page around an inline table), so the
@@ -73,6 +78,9 @@ export function useCellGrid({
   const [, lookAgain] = useState(0);
   const dragging = useRef(false);
   const shiftClick = useRef(false);
+  // The press that leads to a click: whether it began on the cell that was already the only one
+  // selected, and with a finger (see onClickCapture).
+  const press = useRef({ onActive: false, touch: false });
   // The row the fill handle is dragged to, while it is (see fillHandle).
   const [fillTo, setFillTo] = useState<number | null>(null);
   const filling = bounds && fillTo !== null ? fillTarget(bounds, fillTo) : null;
@@ -176,8 +184,19 @@ export function useCellGrid({
     // Focus lands here when the active cell scrolls out of the rendered rows, so keys still arrive.
     tabIndex: -1,
     onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
-      if (!range || !fromGrid(e) || e.altKey) return;
+      if (!range || !fromGrid(e)) return;
       const target = e.target as HTMLElement;
+      const { key, ctrlKey, metaKey, altKey } = e;
+      const typed = !e.defaultPrevented && typedCharacter({ key, ctrlKey, metaKey, altKey, isComposing: e.nativeEvent.isComposing });
+      if (typed) {
+        // The cell's editor opens with the character, as in a spreadsheet; other cells ignore it.
+        const opener = cellAt(range.anchor)?.querySelector<HTMLElement>('[data-cell-open="text"]');
+        if (!opener) return;
+        e.preventDefault();
+        opener.dispatchEvent(new CustomEvent(CELL_TYPE_EVENT, { detail: typed }));
+        return;
+      }
+      if (e.altKey) return;
       if (isArrow(e.key) && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
         select(moveRange(range, e.key, e.shiftKey, size));
@@ -232,9 +251,13 @@ export function useCellGrid({
   const cellProps = (row: number, col: number) => ({
     "data-cell": `${row}:${col}`,
     tabIndex: -1,
+    onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+      press.current.touch = e.pointerType === "touch";
+    },
     onMouseDown: (e: React.MouseEvent<HTMLElement>) => {
       if (e.button !== 0) return;
       const point = { row, col };
+      press.current.onActive = !!bounds && bounds.top === row && bounds.bottom === row && bounds.left === col && bounds.right === col;
       if (e.shiftKey && range) {
         // Stretching the range doesn't open the cell's editor (see onClickCapture).
         e.preventDefault();
@@ -256,10 +279,19 @@ export function useCellGrid({
       setRange({ anchor: range.anchor, focus: { row, col } });
     },
     onClickCapture: (e: React.MouseEvent<HTMLElement>) => {
-      if (!shiftClick.current) return;
-      shiftClick.current = false;
+      if (shiftClick.current) {
+        shiftClick.current = false;
+        e.stopPropagation();
+        e.preventDefault();
+        return;
+      }
+      // A first click only makes the cell the active one: its editor opens on a second click (a
+      // double click), Enter or typing. Clicks from the keyboard or a menu (detail 0), taps, and
+      // links and buttons in the cell go through.
+      if (e.detail === 0 || press.current.onActive || press.current.touch) return;
+      const target = e.target as HTMLElement;
+      if (!target.closest("[data-cell-open]") || target.closest("a, button")) return;
       e.stopPropagation();
-      e.preventDefault();
     },
   });
 

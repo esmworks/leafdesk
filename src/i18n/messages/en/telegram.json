@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Apps may only read in {workspace}, so I answer without changing anything there.",
   "busy": "I'm still answering your last question. Send /stop to stop it.",
+  "busyInApp": "This conversation is still being answered in Leafdesk. Ask again once that answer is done.",
   "stopped": "Stopped.",
   "nothingToStop": "I'm not answering anything right now.",
   "unlinked": "This Telegram account is no longer linked to Leafdesk.",
@@ -85,6 +86,7 @@
     "createXlsx": "Make the Excel file {title} and attach it to {target}?",
     "source": "Rows of {name}.",
     "remember": "Remember this about you?",
+    "remind": "Remind you of this?",
     "forget": "Forget this note?",
     "connection": "Send this to {connection} ({tool})?",
     "tool": "Make this change ({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "The agent used its tokens for the month.",
       "costLimit": "The answer reached its cost limit.",
       "selfReported": "The agent said it couldn't do its task.",
+      "stopped": "Stopped.",
       "error": "Something went wrong while the agent answered."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "It had used the agent’s monthly token limit.",
         "costLimit": "The workspace had reached its monthly AI cost limit.",
         "selfReported": "The agent said it couldn’t do its task.",
+        "stopped": "Stopped.",
         "error": "Something went wrong."
       },
       "email": "It read your email, so its report shows only in Leafdesk."

@@ -70,14 +70,16 @@ const { startScheduledAutomations } = await import("./src/server/automations/sch
 const { startThresholdAutomations } = await import("./src/server/automations/threshold");
 const { startAgents } = await import("./src/server/agents/run");
 const { startSchedules } = await import("./src/server/schedules");
-// Registers what agents' schedules and dashboard emails do when they run.
+// Registers what agents' schedules, dashboard emails and own requests do when they run.
 await import("./src/server/agents/schedules");
 await import("./src/server/dashboard-emails");
+await import("./src/server/own-requests");
 const { retentionJobEnabled } = await import("./src/lib/retention");
 const { startLocalBackups } = await import("./src/server/local-backups");
 const { startRowMailSync } = await import("./src/server/row-mail/sync");
 const { startRowMailSender } = await import("./src/server/row-mail/send");
 const { startMailSnoozes } = await import("./src/server/mail-client/snooze");
+const { startSenderLogos } = await import("./src/server/mail-client/sender-logos");
 const { startSequences } = await import("./src/server/sequences/run");
 const { startDatabaseSyncs } = await import("./src/server/jira-sync/run");
 const { startTelegram } = await import("./src/server/telegram");
@@ -259,6 +261,8 @@ server.listen(port, hostname, () => {
   startRowMailSender();
   // Brings conversations snoozed in the Mail tab back to the inbox when their time comes.
   startMailSnoozes();
+  // Looks up the logos of the domains verified mail in the Mail tab came from.
+  startSenderLogos();
   startSequences();
   // Keeps databases synced from Jira and GitHub in step, each as often as it was set to.
   startDatabaseSyncs();

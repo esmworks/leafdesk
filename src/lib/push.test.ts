@@ -85,6 +85,10 @@ const texts: Record<string, string> = {
   "aiLimit.workspaceReached": "The workspace reached its AI cost limit",
   limitRequestTitle: "Higher limit for {agent}",
   limitRequest: "{actor} asks for {tokens} tokens a month",
+  schedulePausedTitle: "{agent}: schedule turned off",
+  schedulePausedOwnTitle: "Your scheduled request was turned off",
+  // The real text says "time" or "times" (an ICU plural), which this stand-in doesn't do.
+  schedulePaused: "It failed {count} times in a row",
 };
 const t = (key: string, values: Record<string, string | number> = {}) => texts[key].replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? ""));
 const date = (iso: string) => `on ${iso}`;
@@ -227,6 +231,21 @@ describe("pushPayload", () => {
     expect(pushPayload(item({ kind: "ai_limit", pageId: null, aiLimit: null }), t, date)).toBeNull();
   });
 
+  it("tells whoever set a schedule that it turned itself off, without its task", () => {
+    const agentOne = { task: "Sum up the board", agentId: "a1", agentName: "Board keeper", own: false, failures: 10 };
+    expect(pushPayload(item({ kind: "schedule_paused", pageId: null, schedulePaused: agentOne }), t, date)).toMatchObject({
+      title: "Board keeper: schedule turned off",
+      body: "It failed 10 times in a row",
+      url: "/w/ws1/agents/a1",
+    });
+    const own = { task: "What changed today?", agentId: null, agentName: null, own: true, failures: 10 };
+    expect(pushPayload(item({ kind: "schedule_paused", pageId: null, schedulePaused: own }), t, date)).toMatchObject({
+      title: "Your scheduled request was turned off",
+      url: "/w/ws1/ai",
+    });
+    expect(JSON.stringify(pushPayload(item({ kind: "schedule_paused", pageId: null, schedulePaused: own }), t, date))).not.toContain("What changed");
+  });
+
   it("asks owners about a higher limit while the request waits", () => {
     const limitRequest = { agentId: "a1", agentName: "Board keeper", tokens: 5000 };
     expect(pushPayload(item({ kind: "agent_limit_request", pageId: null, limitRequest }), t, date)).toMatchObject({
@@ -268,6 +287,10 @@ describe("encodePushPayload", () => {
 
   it("is the payload as JSON", () => {
     expect(JSON.parse(encodePushPayload(payload))).toEqual(payload);
+  });
+
+  it("carries the workspace's unread count for the app's icon", () => {
+    expect(JSON.parse(encodePushPayload({ ...payload, unread: 3 })).unread).toBe(3);
   });
 
   it("cuts long texts to fit the limit, keeping the link and tag", () => {

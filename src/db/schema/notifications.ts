@@ -99,6 +99,13 @@ export const userPreference = pgTable("user_preference", {
   agentTaskInbox: boolean("agent_task_inbox").notNull().default(true),
   agentTaskEmails: boolean("agent_task_emails").notNull().default(false),
   /**
+   * A schedule I set turned itself off after failing too many times in a row (server/schedules.ts
+   * `noteScheduleOutcome`): show it in my inbox. No email goes out about it (`schedulePausedEmails`
+   * is kept for the shape every kind has, and unused).
+   */
+  schedulePausedInbox: boolean("schedule_paused_inbox").notNull().default(true),
+  schedulePausedEmails: boolean("schedule_paused_emails").notNull().default(false),
+  /**
    * Reactions to my comments: show them in my inbox. No email goes out about them (`reactionEmails`
    * is kept for the shape every kind has, and unused); push and Telegram are off until turned on.
    */
@@ -126,6 +133,7 @@ export const userPreference = pgTable("user_preference", {
   verificationPush: boolean("verification_push").notNull().default(true),
   aiReminderPush: boolean("ai_reminder_push").notNull().default(true),
   agentTaskPush: boolean("agent_task_push").notNull().default(true),
+  schedulePausedPush: boolean("schedule_paused_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -147,6 +155,7 @@ export const userPreference = pgTable("user_preference", {
   verificationTelegram: boolean("verification_telegram").notNull().default(true),
   aiReminderTelegram: boolean("ai_reminder_telegram").notNull().default(true),
   agentTaskTelegram: boolean("agent_task_telegram").notNull().default(true),
+  schedulePausedTelegram: boolean("schedule_paused_telegram").notNull().default(true),
   /**
    * Leafdesk's links opened in a browser go on to the desktop app (lib/desktop-links.ts): "off",
    * "ask" (the page offers to) or "always" (it tries at once, and stays in the browser if no app
@@ -405,6 +414,7 @@ export const NOTIFICATION_KINDS = [
   "agent_limit_request",
   "ai_reminder",
   "agent_task",
+  "schedule_paused",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /**
@@ -423,6 +433,7 @@ export const PAGELESS_KINDS = [
   "agent_limit_request",
   "ai_reminder",
   "agent_task",
+  "schedule_paused",
 ] as const satisfies readonly NotificationKind[];
 /**
  * Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, a
@@ -494,6 +505,9 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * "agent_task": agent `actorId`'s run `agentRunId`, a task another agent gave it while working for
  * the user (server/agents/handoff.ts `assign_agent`), ended; it tells them what it found or why it
  * failed, and has no page.
+ * "schedule_paused": a schedule the user set last failed SCHEDULE_FAILURE_LIMIT times in a row and
+ * turned itself off (server/schedules.ts): one of agent `actorId`'s, or (`actorId` null) a request
+ * of their own; `message` is the start of its task. It has no page.
  * Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.

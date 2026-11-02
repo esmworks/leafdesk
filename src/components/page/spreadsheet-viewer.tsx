@@ -4,7 +4,6 @@ import { Download, FileSpreadsheet, TableProperties } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { Button, cn } from "@/components/ui";
-import { fileUrl } from "@/lib/files";
 import type { SheetCells } from "@/lib/import/xlsx";
 import { columnName, XLSX_MIME } from "@/lib/xlsx";
 import { ExpandButton } from "./pdf-viewer";
@@ -22,7 +21,8 @@ type State = { status: "loading" | "tooLarge" | "unreadable" } | { status: "read
 const NUMBER = /^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i;
 
 type Props = {
-  fileId: string;
+  /** The workbook's address: an upload's (lib/files fileUrl) or a mail attachment's. */
+  url: string;
   name: string;
   caption?: string;
   /** Offered where the reader may edit: imports a sheet of the workbook, given as a file. */
@@ -45,10 +45,10 @@ type Props = {
  */
 export function SpreadsheetViewer(props: Props) {
   // Another file starts over: nothing of the one before shows meanwhile.
-  return <Viewer key={props.fileId} {...props} />;
+  return <Viewer key={props.url} {...props} />;
 }
 
-function Viewer({ fileId, name, caption, onConvert, fill = false }: Props) {
+function Viewer({ url, name, caption, onConvert, fill = false }: Props) {
   const t = useTranslations("page.spreadsheet");
   const tv = useTranslations("page.viewer");
   const [state, setState] = useState<State>({ status: "loading" });
@@ -69,7 +69,7 @@ function Viewer({ fileId, name, caption, onConvert, fill = false }: Props) {
       reader.onerror = () => setState({ status: "unreadable" });
       reader.postMessage({
         type: "open",
-        url: new URL(fileUrl(fileId), location.href).href,
+        url: new URL(url, location.href).href,
         maxBytes: MAX_BYTES,
         unpackedBytes: MAX_UNPACKED_BYTES,
         limits: LIMITS,
@@ -94,7 +94,7 @@ function Viewer({ fileId, name, caption, onConvert, fill = false }: Props) {
       worker.current?.terminate();
       worker.current = null;
     };
-  }, [fileId]);
+  }, [url]);
 
   const showSheet = (sheet: number) => {
     if (state.status !== "ready" || sheet === state.sheet) return;
@@ -106,7 +106,7 @@ function Viewer({ fileId, name, caption, onConvert, fill = false }: Props) {
     if (!onConvert || converting) return;
     setConverting(true);
     try {
-      const res = await fetch(fileUrl(fileId));
+      const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       onConvert(new File([await res.blob()], name || "workbook.xlsx", { type: XLSX_MIME }));
     } catch {
@@ -118,7 +118,7 @@ function Viewer({ fileId, name, caption, onConvert, fill = false }: Props) {
 
   const link = (
     <a
-      href={fileUrl(fileId)}
+      href={url}
       download={name || undefined}
       className="inline-flex max-w-full min-w-0 items-center gap-1.5 text-sm text-fg no-underline hover:underline"
     >
@@ -135,7 +135,7 @@ function Viewer({ fileId, name, caption, onConvert, fill = false }: Props) {
       className={fill ? "flex h-full min-h-0 w-full min-w-0 flex-1 flex-col" : "w-full min-w-0"}
       contentEditable={false}
       data-leafdesk-spreadsheet=""
-      data-file-url={fileUrl(fileId)}
+      data-file-url={url}
       data-file-name={name}
     >
       <div className={cn("flex min-w-0 items-center justify-between gap-2 pb-1.5", fill && "hidden")}>
@@ -154,7 +154,7 @@ function Viewer({ fileId, name, caption, onConvert, fill = false }: Props) {
             {t("convert")}
           </Button>
         )}
-        <ExpandButton url={fileUrl(fileId)} name={name} label={tv("expand")} />
+        <ExpandButton url={url} name={name} label={tv("expand")} />
       </div>
       <div className={cn("overflow-hidden rounded-md border border-border bg-bg", fill && "flex min-h-0 flex-1 flex-col")}>
         {state.status !== "ready" ? (

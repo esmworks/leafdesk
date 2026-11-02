@@ -102,7 +102,7 @@ export default async function WorkspaceLayout({
             user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
           />
           {/* Room for the AI chat panel while it is open (--chat-width in globals.css). */}
-          <main className="min-w-0 flex-1 overflow-y-auto me-(--chat-width)">
+          <main className="min-w-0 flex-1 overflow-y-auto pb-(--safe-bottom) me-(--chat-width)">
             <FloatingSidebarButton />
             {children}
           </main>

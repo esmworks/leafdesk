@@ -159,8 +159,12 @@
     "memoryHint": "När det är aktiverat sparar AI-chatten korta anteckningar om personer som berättar om sig själva, och skickar dem med deras senare frågor. Varje person kan stänga av det för sig själv. När det är avstängt döljs vyn Minne och ingens frågor har med sig anteckningar; anteckningarna sparas, de raderas inte. Agenters körningar har då inte med sig några anteckningar och föreslår inte heller några.",
     "webSearch": "Webbsökning i AI-chatten",
     "webSearchHint": "När det är aktiverat får AI-chatten söka på webben med serverns söktjänst och läsa webbsidor, bara läsa: efter att den har läst från webben frågar den om varje ändring den vill göra. Researchläget söker också på webben. Frågor och sidtext som den söker med lämnar arbetsytan och skickas till söktjänsten.",
+    "autoChanges": "Ändringar utan att fråga",
+    "autoChangesHint": "När det är på kan man ställa AI-chatten på Auto eller svara ”Fråga inte igen”, så gör den ändringar utan att fråga varje gång. När det är av frågar chatten före varje ändring.",
     "provider": "Leverantör",
     "providerValue": "{provider}, modell {model}",
+    "chatModels": "Chattmodeller",
+    "chatModelsValue": "I AI-chatten kan man välja {models}.",
     "notConfigured": "Ingen AI-leverantör eller embeddingsmodell är konfigurerad på den här servern, så AI-funktionerna är avstängda. En administratör kan konfigurera dem med miljövariablerna AI_PROVIDER och AI_MODEL (och AI_EMBEDDINGS_MODEL) (se README).",
     "noProvider": "Ingen: skrivassistenten, AI-egenskaperna och AI-chatten kräver AI_PROVIDER och AI_MODEL.",
     "semanticSearch": "Semantisk sökning",
@@ -308,7 +312,11 @@
           "forget": "Avböjde att glömma:"
         },
         "correct": "Antecknat som en rättelse:",
-        "undone": "Rättelse ångrad:"
+        "undone": "Rättelse ångrad:",
+        "undoneNote": {
+          "remember": "Ångrade att komma ihåg:",
+          "forget": "Ångrade att glömma:"
+        }
       },
       "connection": {
         "done": "{connection}: anropade {tool}",
@@ -319,6 +327,10 @@
         "done": "Använde {tool}",
         "failed": "{tool} misslyckades",
         "declined": "Avböjt: {tool}"
+      },
+      "reminder": {
+        "done": "Påminnelse inställd på {when}:",
+        "declined": "Avböjde en påminnelse på {when}:"
       },
       "mail": {
         "searched": "Sökte i mejlen efter ”{query}” · {count, plural, =0 {inget hittades} one {# konversation} other {# konversationer}}",
@@ -362,6 +374,7 @@
         "createPage": "Lägga till den här sidan?",
         "remember": "Komma ihåg det här om dig?",
         "forget": "Glömma den här anteckningen?",
+        "remind": "Påminna dig om det här?",
         "editPage": "Ändra den här sidans text?",
         "createPdf": "Skapa en PDF av den här sidan och bifoga den?",
         "createDocx": "Skapa ett Word-dokument av den här sidan och bifoga det?",
@@ -379,6 +392,7 @@
       "row": "Rad",
       "topLevel": "Högst upp i arbetsytan, privat för dig",
       "memoryHint": "Minne: skickas med dina senare frågor i den här arbetsytan",
+      "remindHint": "{when}: över sidan du har öppen, i inkorgen och på din telefon",
       "cleared": "(rensat)",
       "approve": "Ja",
       "always": "Ja, och fråga inte igen (Auto)",
@@ -521,7 +535,9 @@
       "tooLong": "En anteckning får vara högst {max} tecken.",
       "full": "Minnet rymmer högst {max} anteckningar. Radera en först.",
       "notFound": "Den anteckningen finns inte längre.",
-      "off": "AI-minnet är avstängt i den här arbetsytan."
+      "off": "AI-minnet är avstängt i den här arbetsytan.",
+      "changed": "Anteckningen har ändrats sedan dess. Ändra den i Minne i stället.",
+      "busy": "Vänta tills svaret är klart."
     }
   },
   "accounts": {

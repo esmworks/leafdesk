@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "在 {workspace} 中应用只能读取，所以我会在不做任何更改的情况下回答。",
   "busy": "我还在回答你上一个问题。发送 /stop 可以停止。",
+  "busyInApp": "此对话仍在 Leafdesk 中回答。请在该回答完成后再提问。",
   "stopped": "已停止。",
   "nothingToStop": "我现在没有在回答任何问题。",
   "unlinked": "此 Telegram 账户已不再关联 Leafdesk。",
@@ -85,6 +86,7 @@
     "createXlsx": "生成 Excel 文件 {title} 并附加到 {target}？",
     "source": "行来自 {name}。",
     "remember": "要记住关于你的这件事吗？",
+    "remind": "要提醒你这件事吗？",
     "forget": "要忘记这条笔记吗？",
     "connection": "要将此内容发送到 {connection}（{tool}）吗？",
     "tool": "要进行此更改吗（{tool}）？",
@@ -168,6 +170,7 @@
       "limitReached": "智能体本月的令牌已用完。",
       "costLimit": "回答已达到费用上限。",
       "selfReported": "代理表示它未能完成任务。",
+      "stopped": "已停止。",
       "error": "智能体回答时出了问题。"
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "它已用完该智能体的每月令牌上限。",
         "costLimit": "工作区此前已达到每月 AI 费用上限。",
         "selfReported": "代理表示它未能完成任务。",
+        "stopped": "已停止。",
         "error": "出了点问题。"
       },
       "email": "它读取了你的邮件，因此报告只在 Leafdesk 中显示。"

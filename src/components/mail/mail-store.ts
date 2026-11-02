@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useSyncExternalStore } from "react";
 import { read } from "@/components/read";
-import { ALL_INBOXES, type MailboxTabView, type MailFolderView } from "@/lib/mail-client";
+import { ALL_INBOXES, STARRED, type MailboxTabView, type MailFolderView } from "@/lib/mail-client";
 
 /**
  * The person's mailboxes and folders in the workspace, shared by the sidebar's Mail tab and the
@@ -80,6 +80,41 @@ export function useMailboxes(workspaceId: string) {
   return current.error === OFFLINE ? { ...current, error: t("loadFailed") } : current;
 }
 
+/** Unread mail in the inboxes of all the mailboxes. */
+export function inboxUnread(boxes: MailboxTabView[]) {
+  return boxes.reduce((n, b) => n + (b.folders?.find((f) => f.role === "inbox")?.unseen ?? 0), 0);
+}
+
+/** How often the sidebar's Mail tab reads the counts again while the window is shown. */
+const UNREAD_AGAIN_MS = 60_000;
+
+/**
+ * Calls `onCount` with the inboxes' unread count now and whenever it changes, reading the mailboxes
+ * again each minute and as the window comes back (the sidebar's Mail tab, which loads this module
+ * lazily). Returns the function that stops it.
+ */
+export function watchInboxUnread(workspaceId: string, onCount: (count: number) => void) {
+  let last = -1;
+  const report = () => {
+    if (state.workspaceId !== workspaceId || !state.boxes) return;
+    const count = inboxUnread(state.boxes);
+    if (count !== last) onCount((last = count));
+  };
+  const unsubscribe = subscribe(report);
+  const again = () => {
+    if (document.visibilityState === "visible") void loadMailboxes(workspaceId);
+  };
+  if (state.workspaceId !== workspaceId || !state.boxes) void loadMailboxes(workspaceId);
+  else report();
+  const timer = setInterval(again, UNREAD_AGAIN_MS);
+  document.addEventListener("visibilitychange", again);
+  return () => {
+    unsubscribe();
+    clearInterval(timer);
+    document.removeEventListener("visibilitychange", again);
+  };
+}
+
 /** Puts a mailbox's newer view in place (after it was opened or refreshed). */
 export function putMailbox(box: MailboxTabView) {
   if (!state.boxes) return;
@@ -105,12 +140,13 @@ export function countUnread(mailboxId: string, folderId: string, delta: number) 
 /**
  * The mailbox and folder an address names, else the default mailbox and its inbox. `all` when it
  * names all inboxes (ALL_INBOXES) and there are several: `box` and `folder` are the default
- * mailbox and its inbox then, for writing and for what the inboxes share.
+ * mailbox and its inbox then, for writing and for what the inboxes share. `starred` when it names
+ * the starred conversations (STARRED), of the mailbox or of all: `folder` is its inbox then.
  */
 export function pickOpen(boxes: MailboxTabView[] | null, boxId: string | null, folderId: string | null) {
   const box = boxes?.find((b) => b.id === boxId) ?? boxes?.[0] ?? null;
   const folder = box?.folders?.find((f) => f.id === folderId) ?? box?.folders?.find((f) => f.role === "inbox") ?? box?.folders?.[0] ?? null;
-  return { box, folder, all: boxId === ALL_INBOXES && (boxes?.length ?? 0) > 1 };
+  return { box, folder, all: boxId === ALL_INBOXES && (boxes?.length ?? 0) > 1, starred: folderId === STARRED };
 }
 
 /**

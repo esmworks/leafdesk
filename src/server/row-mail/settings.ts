@@ -76,6 +76,7 @@ function mailboxView(m: typeof mailbox.$inferSelect): MailboxView {
     signature: m.signature,
     signatureText: m.signatureText,
     signaturePasted: pastedHtml(m.signature) !== null,
+    notify: m.notify,
   };
 }
 
@@ -514,6 +515,19 @@ export async function setMailboxSignature(userId: string, mailboxId: string, htm
   const [saved] = await db
     .update(mailbox)
     .set({ signature: signed?.html ?? null, signatureText: signed?.text ?? null })
+    .where(and(eq(mailbox.id, mailboxId), eq(mailbox.userId, userId)))
+    .returning();
+  if (!saved) throw new RowMailError("noMailbox");
+  return mailboxView(saved);
+}
+
+/** Whether new mail in one of the member's mailboxes goes to their devices as push messages (mail-client/notify.ts). */
+export async function setMailboxNotify(userId: string, mailboxId: string, on: boolean): Promise<MailboxView> {
+  await requireOwnMailbox(userId, mailboxId);
+  if (typeof on !== "boolean") throw new RowMailError("invalid");
+  const [saved] = await db
+    .update(mailbox)
+    .set({ notify: on })
     .where(and(eq(mailbox.id, mailboxId), eq(mailbox.userId, userId)))
     .returning();
   if (!saved) throw new RowMailError("noMailbox");

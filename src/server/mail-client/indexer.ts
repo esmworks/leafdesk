@@ -1,10 +1,11 @@
-import { and, count, eq, gte, inArray, lte, min, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, inArray, isNull, lte, min, sql } from "drizzle-orm";
 import type { FetchMessageObject, FetchQueryObject, ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import { db } from "@/db";
 import { mailFolder, mailMessage, type mailbox } from "@/db/schema";
 import { bareMessageId, isAutomated, normalizeAddress, parseHeaderBlock, parseMessageIds } from "@/lib/mail";
-import { MAIL_BACKFILL_DAYS, MAIL_BACKFILL_LIMIT, previewText, subjectKey, type MailAddress } from "@/lib/mail-client";
+import { MAIL_BACKFILL_DAYS, MAIL_BACKFILL_LIMIT, previewText, subjectKey, type MailAddress, type MailFolderRole } from "@/lib/mail-client";
+import { senderAuth, type SenderAuth } from "@/lib/sender-marks";
 import { discoverFolders, type FolderRow } from "./folders";
 import { hasFiles, messageParts } from "./structure";
 import { threadFor } from "./threads";
@@ -28,8 +29,17 @@ const OWN_FOLDER_EVERY_MS = 10 * 60_000;
 const FOLDER_LIST_EVERY_MS = 10 * 60_000;
 /** Without CONDSTORE, flags are read again for this many of the newest messages each pass. */
 const RECENT_FLAGS = 300;
+/** Messages indexed before their sender's check was kept, read again for it in one pass over a folder. */
+const SENDER_CHECKS = 200;
 
-const FETCH: FetchQueryObject = { uid: true, envelope: true, flags: true, bodyStructure: true, headers: ["references", "auto-submitted", "precedence", "list-id", "list-unsubscribe"], threadId: true, size: true, internalDate: true, source: { maxLength: PREVIEW_BYTES } };
+const FETCH: FetchQueryObject = { uid: true, envelope: true, flags: true, bodyStructure: true, headers: ["references", "auto-submitted", "precedence", "list-id", "list-unsubscribe", "authentication-results"], threadId: true, size: true, internalDate: true, source: { maxLength: PREVIEW_BYTES } };
+
+/** Folders of mail the owner wrote, whose sender is never checked. */
+const OWN_MAIL: (MailFolderRole | null)[] = ["sent", "drafts"];
+
+/** What the provider's check said of a message's sender; null in the owner's own folders. */
+const checkOf = (box: Box, folder: FolderRow, fields: Map<string, string[]>, fromAddress: string): SenderAuth | null =>
+  OWN_MAIL.includes(folder.role) ? null : senderAuth(fields.get("authentication-results"), fromAddress, box);
 
 const addresses = (list: { address?: string; name?: string }[] | undefined): MailAddress[] =>
   (list ?? []).flatMap((a) => {
@@ -113,12 +123,51 @@ async function store(box: Box, folder: FolderRow, messages: FetchMessageObject[]
         hasAttachments: hasFiles(messageParts(message.bodyStructure)),
         size: message.size ?? 0,
         automated,
+        senderAuth: checkOf(box, folder, fields, from?.address ?? ""),
       })
       .onConflictDoNothing()
       .returning({ id: mailMessage.id });
     if (inserted) added.push(inserted.id);
   }
   return added;
+}
+
+/**
+ * Reads the sender's check of messages indexed before it was kept (`sender_auth` null), newest
+ * first, SENDER_CHECKS a pass; the caller holds the folder open.
+ */
+async function checkSenders(client: ImapFlow, box: Box, folder: FolderRow) {
+  if (OWN_MAIL.includes(folder.role)) return;
+  const unchecked = await db
+    .select({ uid: mailMessage.uid, fromAddress: mailMessage.fromAddress })
+    .from(mailMessage)
+    .where(and(eq(mailMessage.folderId, folder.id), isNull(mailMessage.senderAuth)))
+    .orderBy(desc(mailMessage.uid))
+    .limit(SENDER_CHECKS);
+  if (!unchecked.length) return;
+  const from = new Map(unchecked.map((m) => [m.uid, m.fromAddress]));
+  const checked = new Map<SenderAuth, number[]>([
+    ["pass", []],
+    ["fail", []],
+    ["none", []],
+  ]);
+  try {
+    for await (const m of client.fetch(unchecked.map((m) => m.uid).join(","), { uid: true, headers: ["authentication-results"] }, { uid: true })) {
+      if (!from.has(m.uid)) continue;
+      checked.get(senderAuth(parseHeaderBlock(m.headers).get("authentication-results"), from.get(m.uid) ?? "", box))!.push(m.uid);
+      from.delete(m.uid);
+    }
+  } catch (error) {
+    // The marks wait for the next pass when the connection dropped; a server that refuses the
+    // fetch itself would refuse it every pass, so then the rest has nothing to go by.
+    console.warn(`[mail-client] could not read senders' checks in ${folder.path}:`, (error as Error)?.message ?? error);
+    if (!client.usable) from.clear();
+  }
+  // Gone from the server since: nothing to go by (the pass below drops them).
+  checked.get("none")!.push(...from.keys());
+  for (const [auth, uids] of checked) {
+    if (uids.length) await db.update(mailMessage).set({ senderAuth: auth }).where(and(eq(mailMessage.folderId, folder.id), inArray(mailMessage.uid, uids)));
+  }
 }
 
 /** A search's numbers; a search the server didn't answer stops the pass, which must not read it as "none". */
@@ -140,14 +189,18 @@ export async function indexUids(client: ImapFlow, box: Box, folder: FolderRow, u
 }
 
 /**
- * Tells the agents watching the mailbox's inbox (agents/mail-trigger.ts) of mail just come: loaded
- * only then, since agents' code reaches far. Never throws, nor holds up the index.
+ * Tells the agents watching the mailbox's inbox (agents/mail-trigger.ts) of mail just come, and
+ * pushes it to the owner's devices (notify.ts): loaded only then, since agents' and push code reach
+ * far. Never throws, nor holds up the index.
  */
 function arrived(box: Box, messageIds: string[]) {
   if (!messageIds.length) return;
   void import("@/server/agents/mail-trigger")
     .then((m) => m.mailArrived(box, messageIds))
     .catch((error) => console.warn(`[mail-client] new mail in ${box.id} reached no agent:`, (error as Error)?.message ?? error));
+  void import("./notify")
+    .then((m) => m.notifyNewMail(box, messageIds))
+    .catch((error) => console.warn(`[mail-client] new mail in ${box.id} wasn't pushed:`, (error as Error)?.message ?? error));
 }
 
 type FlagState = { uid: number; flags: Set<string> };
@@ -224,6 +277,8 @@ export async function indexFolder(client: ImapFlow, box: Box, folder: FolderRow,
         }
       }
       modseq = condstore && highest ? String(highest) : null;
+
+      await checkSenders(client, box, folder);
 
       // Messages moved or deleted elsewhere.
       const there = new Set(found(await client.search({ uid: `${low}:${Math.max(low, lastUid)}` }, { uid: true })));

@@ -23,6 +23,7 @@
   "firstReadHint": "Din seneste mail vises om et øjeblik. Ældre mail, op til tre måneder tilbage, kommer ind i løbet af de næste minutter.",
   "empty": "Ingen mail her.",
   "emptySearch": "Ingen mail matcher.",
+  "emptyStarred": "Ingen stjernemarkerede samtaler.",
   "emptyFolder": {
     "trash": "Tøm papirkurv",
     "junk": "Tøm uønsket",
@@ -185,6 +186,7 @@
   "showSource": "Vis original",
   "downloadSource": "Hent besked (.eml)",
   "allInboxes": "Alle indbakker",
+  "allStarred": "Alle stjernemarkerede",
   "ai": {
     "summarize": "Opsummer",
     "summarizeHint": "Opsummer denne samtale med AI",

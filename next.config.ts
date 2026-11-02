@@ -35,6 +35,10 @@ const config = (phase: string): NextConfig => ({
   // second copy doesn't take its nodes (synced-body's suggested-edits view).
   serverExternalPackages: ["postgres", "@blocknote/server-util", "prosemirror-model", "jsdom", "yjs", "nodemailer", "@earendil-works/pi-ai", "unpdf", "pdfmake", "web-push", "imapflow", "mailparser"],
   experimental: {
+    // The desktop app's build starts from nothing on every runner and never reads Turbopack's
+    // cache again; written to disk as the build ends, it kept the macOS runner's `next build` open
+    // for more than 20 minutes after the build was done.
+    ...(process.env.LEAFDESK_STANDALONE === "1" && { turbopackFileSystemCacheForBuild: false }),
     // Dev only: with the debug channel React waits for debug data sent over the HMR websocket
     // before it hydrates or applies a navigation. The custom server restarts on every server
     // file change, and the new process doesn't know the old requests, so open tabs froze

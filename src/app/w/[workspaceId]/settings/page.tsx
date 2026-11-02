@@ -114,7 +114,7 @@ import { listConnections } from "@/server/connections/manage";
 import { listPageWebhookDeliveries, listPageWebhooks } from "@/server/page-webhooks/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
-import { aiInfoFor } from "@/server/ai";
+import { aiInfoFor, chatModelsFor } from "@/server/ai";
 import { aiAvailable } from "@/server/ai-writing";
 import { workspaceAiUsage } from "@/server/ai-usage";
 import { workspaceAiView } from "@/server/ai-accounts";
@@ -213,6 +213,7 @@ export default async function SettingsPage({
   const tab: SettingsTab | AccountSettingsTab = accountTab ?? tabs.find((name) => name === requested) ?? "general";
   const [t, ta, isAdmin] = await Promise.all([getTranslations("settings"), getTranslations("account"), instanceAdmin(user)]);
   const href = (name: string) => `/w/${workspaceId}/settings?tab=${name}`;
+  const tabPicked = typeof query.tab === "string";
 
   return (
     <div className="settings-type flex min-h-full flex-col md:flex-row">
@@ -220,6 +221,7 @@ export default async function SettingsPage({
         label={t("title")}
         back={{ href: `/w/${workspaceId}`, label: ta("back", { workspace: workspace.name }) }}
         search={<SettingsSearch items={searchIndex} />}
+        list={{ href: `/w/${workspaceId}/settings`, open: tabPicked }}
         groups={[
           {
             label: ta("title"),
@@ -243,7 +245,8 @@ export default async function SettingsPage({
         ]}
       />
 
-      <div className="min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12">
+      {/* Phones show the list of tabs alone until one is picked (settings-nav.tsx). */}
+      <div className={`min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12 ${tabPicked ? "" : "max-md:hidden"}`}>
         <div className="mx-auto max-w-3xl">
           <SettingsJump setting={typeof query.setting === "string" ? query.setting : undefined} />
           {accountTab && <AccountTabContent tab={accountTabForSettings(accountTab)} session={session} query={query} />}
@@ -407,11 +410,12 @@ async function StorageTab({ workspaceId, userId, isAdmin, notice }: { workspaceI
  * server/ai-accounts.ts) and its provider (see server/ai).
  */
 async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
-  const [settings, t, info, account] = await Promise.all([
+  const [settings, t, info, account, chatModels] = await Promise.all([
     getWorkspaceSettings(userId, workspaceId),
     getTranslations("ai.settings"),
     aiInfoFor(workspaceId),
     workspaceAiView(userId, workspaceId),
+    chatModelsFor(workspaceId),
   ]);
   return (
     <SettingsGroup anchor="ai" title={t("heading")} description={t("description")} className="mt-10">
@@ -422,8 +426,10 @@ async function AiGroup({ workspaceId, userId, isOwner }: { workspaceId: string; 
         enabled={settings.ai !== false}
         memory={settings.aiMemory !== false}
         webSearch={webSearchService() ? settings.aiWebSearch === true : null}
+        autoChanges={settings.aiAutoChanges !== false}
         canEdit={isOwner}
         provider={info && { provider: info.provider, model: info.model }}
+        chatModels={chatModels.map((m) => m.name)}
         embeddings={info?.embeddings ?? null}
       />
     </SettingsGroup>

@@ -23,6 +23,7 @@
   "firstReadHint": "Je nieuwste mail verschijnt zo. Oudere mail, tot drie maanden terug, komt de komende minuten binnen.",
   "empty": "Hier is geen mail.",
   "emptySearch": "Geen mail gevonden.",
+  "emptyStarred": "Geen gesprekken met een ster.",
   "emptyFolder": {
     "trash": "Prullenbak legen",
     "junk": "Ongewenst legen",
@@ -185,6 +186,7 @@
   "showSource": "Origineel weergeven",
   "downloadSource": "Bericht downloaden (.eml)",
   "allInboxes": "Alle postvakken IN",
+  "allStarred": "Alle met ster",
   "ai": {
     "summarize": "Samenvatten",
     "summarizeHint": "Dit gesprek samenvatten met AI",

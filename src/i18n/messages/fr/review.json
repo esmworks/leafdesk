@@ -11,6 +11,7 @@
     "open": "En attente",
     "decided": "Traitées",
     "allRows": "Afficher toutes les lignes",
+    "allRuns": "Afficher toutes les exécutions",
     "clear": "Effacer les filtres"
   },
   "count": "{count, plural, one {# modification} other {# modifications}}",

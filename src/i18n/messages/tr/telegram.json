@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "{workspace} içinde uygulamalar yalnızca okuyabiliyor; bu yüzden orada hiçbir şeyi değiştirmeden yanıtlıyorum.",
   "busy": "Hâlâ önceki soruna yanıt yazıyorum. Durdurmak için /stop gönder.",
+  "busyInApp": "Bu konuşma Leafdesk'te hâlâ yanıtlanıyor. O yanıt bitince yeniden sor.",
   "stopped": "Durduruldu.",
   "nothingToStop": "Şu an yazdığım bir yanıt yok.",
   "unlinked": "Bu Telegram hesabı artık Leafdesk’e bağlı değil.",
@@ -85,6 +86,7 @@
     "createXlsx": "{title} Excel dosyası oluşturulup {target} sayfasına eklensin mi?",
     "source": "Satırlar: {name}.",
     "remember": "Bunu senin hakkında hatırlayayım mı?",
+    "remind": "Bunu sana hatırlatayım mı?",
     "forget": "Bu not unutulsun mu?",
     "connection": "Bu, {connection} ({tool}) hizmetine gönderilsin mi?",
     "tool": "Bu değişiklik yapılsın mı ({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "Ajan bu ayki token hakkını kullandı.",
       "costLimit": "Yanıt maliyet sınırına ulaştı.",
       "selfReported": "Ajan görevini yapamadığını bildirdi.",
+      "stopped": "Durduruldu.",
       "error": "Ajan yanıtlarken bir şeyler ters gitti."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "Ajanın aylık token sınırı dolmuştu.",
         "costLimit": "Çalışma alanı aylık yapay zekâ harcama sınırına ulaşmıştı.",
         "selfReported": "Ajan görevini yapamadığını bildirdi.",
+        "stopped": "Durduruldu.",
         "error": "Bir şeyler ters gitti."
       },
       "email": "E-postanı okudu, bu yüzden raporu yalnızca Leafdesk’te görünüyor."

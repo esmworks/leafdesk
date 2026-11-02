@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "Apps mogen in {workspace} alleen lezen, dus ik antwoord zonder daar iets te wijzigen.",
   "busy": "Ik ben nog bezig met je vorige vraag. Stuur /stop om die te stoppen.",
+  "busyInApp": "Dit gesprek wordt nog beantwoord in Leafdesk. Vraag het opnieuw zodra dat antwoord klaar is.",
   "stopped": "Gestopt.",
   "nothingToStop": "Ik ben op dit moment niets aan het beantwoorden.",
   "unlinked": "Dit Telegram-account is niet meer gekoppeld aan Leafdesk.",
@@ -85,6 +86,7 @@
     "createXlsx": "Het Excel-bestand {title} maken en bij {target} voegen?",
     "source": "Rijen uit {name}.",
     "remember": "Dit over jou onthouden?",
+    "remind": "Je hieraan herinneren?",
     "forget": "Deze notitie vergeten?",
     "connection": "Dit naar {connection} ({tool}) sturen?",
     "tool": "Deze wijziging doorvoeren ({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "De agent heeft zijn tokens voor deze maand gebruikt.",
       "costLimit": "Het antwoord bereikte zijn kostenlimiet.",
       "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
+      "stopped": "Gestopt.",
       "error": "Er ging iets mis terwijl de agent antwoordde."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "Hij had de maandelijkse tokenlimiet van de agent opgebruikt.",
         "costLimit": "De werkruimte had haar maandelijkse limiet voor AI-kosten bereikt.",
         "selfReported": "De agent meldde dat hij zijn taak niet kon uitvoeren.",
+        "stopped": "Gestopt.",
         "error": "Er ging iets mis."
       },
       "email": "Hij heeft je e-mail gelezen, dus zijn verslag staat alleen in Leafdesk."

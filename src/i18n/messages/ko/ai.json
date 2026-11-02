@@ -159,8 +159,12 @@
     "memoryHint": "켜면 AI 채팅이 자신에 대해 이야기한 사람에 관한 짧은 메모를 보관하고, 이후 질문과 함께 보냅니다. 각자 자신의 메모리를 끌 수 있습니다. 끄면 메모리 보기가 숨겨지고 누구의 질문에도 메모가 포함되지 않습니다. 메모는 삭제되지 않고 보관됩니다. 이 경우 에이전트 실행에도 메모가 포함되지 않으며 새 메모도 제안하지 않습니다.",
     "webSearch": "AI 채팅의 웹 검색",
     "webSearchHint": "켜면 AI 채팅이 서버의 검색 서비스로 웹을 검색하고 웹 페이지를 읽을 수 있습니다(읽기만). 웹에서 읽은 뒤에는 바꾸려는 모든 변경을 묻습니다. 리서치 모드도 웹을 검색합니다. 검색에 쓰는 질문과 텍스트는 워크스페이스를 떠나 검색 서비스로 전달됩니다.",
+    "autoChanges": "묻지 않고 변경",
+    "autoChangesHint": "켜면 AI 채팅을 자동으로 두거나 \"다시 묻지 않기\"를 선택할 수 있어, 매번 묻지 않고 변경합니다. 끄면 채팅이 변경할 때마다 먼저 묻습니다.",
     "provider": "공급자",
     "providerValue": "{provider}, 모델 {model}",
+    "chatModels": "채팅 모델",
+    "chatModelsValue": "AI 채팅에서 {models} 중에서 고를 수 있습니다.",
     "notConfigured": "이 서버에 AI 공급자나 임베딩 모델이 설정되어 있지 않아 AI 기능이 꺼져 있습니다. 관리자가 AI_PROVIDER, AI_MODEL(및 AI_EMBEDDINGS_MODEL) 환경 변수로 설정할 수 있습니다(README 참조).",
     "noProvider": "없음: 글쓰기 어시스턴트, AI 속성, AI 채팅에는 AI_PROVIDER와 AI_MODEL이 필요합니다.",
     "semanticSearch": "의미 검색",
@@ -308,7 +312,11 @@
           "forget": "잊기 거절됨:"
         },
         "correct": "수정 사항으로 기록함:",
-        "undone": "수정 사항 취소됨:"
+        "undone": "수정 사항 취소됨:",
+        "undoneNote": {
+          "remember": "기억하기 실행 취소:",
+          "forget": "잊기 실행 취소:"
+        }
       },
       "connection": {
         "done": "{connection}: {tool} 호출함",
@@ -319,6 +327,10 @@
         "done": "{tool} 사용함",
         "failed": "{tool} 실패",
         "declined": "거절함: {tool}"
+      },
+      "reminder": {
+        "done": "{when}에 리마인더를 설정함:",
+        "declined": "{when} 리마인더를 거절함:"
       },
       "mail": {
         "searched": "메일에서 “{query}” 검색 · {count, plural, =0 {찾은 항목 없음} other {스레드 #개}}",
@@ -362,6 +374,7 @@
         "createPage": "이 페이지를 추가할까요?",
         "remember": "이 내용을 기억할까요?",
         "forget": "이 메모를 잊을까요?",
+        "remind": "이 내용을 리마인드할까요?",
         "editPage": "이 페이지의 텍스트를 변경할까요?",
         "createPdf": "이 페이지의 PDF를 만들어 첨부할까요?",
         "createDocx": "이 페이지의 Word 문서를 만들어 첨부할까요?",
@@ -379,6 +392,7 @@
       "row": "행",
       "topLevel": "워크스페이스 최상위, 나만 볼 수 있음",
       "memoryHint": "메모리: 이 워크스페이스에서 이후 질문과 함께 전송됩니다",
+      "remindHint": "{when}: 열려 있는 페이지 위, 받은편지함, 휴대폰에 표시",
       "cleared": "(지워짐)",
       "approve": "예",
       "always": "예, 다시 묻지 않기(자동)",
@@ -521,7 +535,9 @@
       "tooLong": "메모는 최대 {max}자까지 입력할 수 있습니다.",
       "full": "메모리에는 최대 {max}개의 메모를 저장할 수 있습니다. 먼저 하나를 삭제하세요.",
       "notFound": "해당 메모가 더 이상 없습니다.",
-      "off": "이 워크스페이스에서는 AI 메모리가 꺼져 있습니다."
+      "off": "이 워크스페이스에서는 AI 메모리가 꺼져 있습니다.",
+      "changed": "그 메모는 그 후 변경되었습니다. 대신 메모리에서 변경하세요.",
+      "busy": "답변이 끝날 때까지 기다리세요."
     }
   },
   "accounts": {

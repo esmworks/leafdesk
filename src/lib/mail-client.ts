@@ -30,6 +30,8 @@ export const MAIL_UNDO_SECONDS = 5;
 export const MAIL_MAX_THREADS = 200;
 /** The mailbox id that lists the inboxes of all the person's mailboxes in the workspace as one. */
 export const ALL_INBOXES = "all";
+/** The folder id that lists a mailbox's starred conversations, from every folder but the trash, junk and snoozed (in ALL_INBOXES, of all of them). */
+export const STARRED = "starred";
 /** Recipients a message from the Mail tab may have, To, Cc and Bcc together. */
 export const MAX_MAIL_RECIPIENTS = 100;
 /** Attachments a message from the Mail tab may bring, together. */
@@ -225,7 +227,7 @@ export type MailAgentMark = { agentId: string; did: MailAgentDeed[]; at: string 
 
 export type MailThreadItem = {
   threadId: string;
-  /** The mailbox and folder it is listed from, which its moves and flags go to (several in ALL_INBOXES). */
+  /** The mailbox and folder it is listed from, which its moves and flags go to (several in ALL_INBOXES; in STARRED, its newest starred message's). */
   mailboxId: string;
   folderId: string;
   /** The newest message of the thread in this folder, which opening the thread starts from. */
@@ -249,7 +251,15 @@ export type MailThreadItem = {
   row: { rowId: string; databaseId: string; title: string; icon: string | null } | null;
   /** Agents that worked on its messages here, and what they did, for the list's mark (none: empty). */
   agents: MailThreadAgent[];
+  /** The round mark beside it: who the other party is, and the picture shown for them. */
+  mark: MailSenderMark;
 };
+
+/**
+ * Who a conversation's mark stands for (lib/sender-marks.ts): its other party, with a member's own
+ * picture, or the logo of the domain their mail verifiably came from; with neither, their initial.
+ */
+export type MailSenderMark = { address: string; name: string | null; image: string | null; logo: string | null };
 
 /** An agent's work on a thread, as the Mail tab marks it: its name and icon, and what it did. */
 export type MailThreadAgent = { agentId: string; name: string; icon: string | null; did: MailAgentDeed[] };
@@ -277,6 +287,8 @@ export type MailMessageView = {
   hasAttachments: boolean;
   /** The database row its other party is (who wrote it, or whom the owner wrote to): what the writer reads when answering it. */
   row: MailThreadItem["row"];
+  /** The round mark beside it: its sender, as the list draws a thread's other party. */
+  mark: MailSenderMark;
   /** Read from the mail server: null until then, or when the message is gone from it. */
   body: MailBody | null;
 };

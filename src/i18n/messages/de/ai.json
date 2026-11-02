@@ -159,8 +159,12 @@
     "memoryHint": "Wenn an, hält der KI-Chat kurze Notizen über Personen fest, die ihm etwas über sich erzählen, und schickt sie mit ihren späteren Fragen mit. Jede Person kann es für sich ausschalten. Wenn aus, ist die Gedächtnis-Ansicht ausgeblendet und keine Frage enthält Notizen; die Notizen bleiben erhalten und werden nicht gelöscht. Auch die Läufe von Agenten enthalten dann keine Notizen und schlagen keine vor.",
     "webSearch": "Websuche im KI-Chat",
     "webSearchHint": "Wenn eingeschaltet, darf der KI-Chat mit dem Suchdienst des Servers im Web suchen und Webseiten lesen, nur lesend: Nachdem er aus dem Web gelesen hat, wird jede Änderung, die er machen will, erfragt. Der Recherchemodus sucht auch im Web. Fragen und Text, mit denen er sucht, verlassen den Workspace zum Suchdienst.",
+    "autoChanges": "Änderungen ohne Rückfrage",
+    "autoChangesHint": "Wenn aktiviert, können Personen den KI-Chat auf Automatisch stellen oder „Nicht mehr fragen“ wählen, sodass er Änderungen ohne Rückfrage vornimmt. Wenn deaktiviert, fragt der Chat vor jeder Änderung.",
     "provider": "Anbieter",
     "providerValue": "{provider}, Modell {model}",
+    "chatModels": "Chat-Modelle",
+    "chatModelsValue": "Im KI-Chat lässt sich {models} wählen.",
     "notConfigured": "Auf diesem Server ist weder ein KI-Anbieter noch ein Embedding-Modell eingerichtet, daher sind KI-Funktionen aus. Eine Administratorin oder ein Administrator kann sie mit den Umgebungsvariablen AI_PROVIDER und AI_MODEL (und AI_EMBEDDINGS_MODEL) einrichten (siehe README).",
     "noProvider": "Keiner: Schreibassistent, KI-Eigenschaften und KI-Chat brauchen AI_PROVIDER und AI_MODEL.",
     "semanticSearch": "Semantische Suche",
@@ -308,7 +312,11 @@
           "forget": "Vergessen abgelehnt:"
         },
         "correct": "Als Korrektur notiert:",
-        "undone": "Korrektur rückgängig gemacht:"
+        "undone": "Korrektur rückgängig gemacht:",
+        "undoneNote": {
+          "remember": "Merken rückgängig gemacht:",
+          "forget": "Vergessen rückgängig gemacht:"
+        }
       },
       "connection": {
         "done": "{connection}: {tool} aufgerufen",
@@ -319,6 +327,10 @@
         "done": "{tool} verwendet",
         "failed": "{tool} fehlgeschlagen",
         "declined": "Abgelehnt: {tool}"
+      },
+      "reminder": {
+        "done": "Erinnerung gestellt für {when}:",
+        "declined": "Erinnerung für {when} abgelehnt:"
       },
       "mail": {
         "searched": "E-Mails nach „{query}“ durchsucht · {count, plural, =0 {nichts gefunden} one {# Unterhaltung} other {# Unterhaltungen}}",
@@ -362,6 +374,7 @@
         "createPage": "Diese Seite hinzufügen?",
         "remember": "Das über dich merken?",
         "forget": "Diese Notiz vergessen?",
+        "remind": "Dich daran erinnern?",
         "editPage": "Den Text dieser Seite ändern?",
         "createPdf": "Ein PDF dieser Seite erstellen und anhängen?",
         "createDocx": "Ein Word-Dokument dieser Seite erstellen und anhängen?",
@@ -379,6 +392,7 @@
       "row": "Zeile",
       "topLevel": "Ganz oben im Workspace, nur für dich",
       "memoryHint": "Gedächtnis: wird mit deinen weiteren Fragen in diesem Workspace gesendet",
+      "remindHint": "{when}: über der geöffneten Seite, im Posteingang und auf deinem Handy",
       "cleared": "(geleert)",
       "approve": "Ja",
       "always": "Ja, nicht mehr fragen (Automatisch)",
@@ -521,7 +535,9 @@
       "tooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
       "full": "Das Gedächtnis fasst höchstens {max} Notizen. Lösche zuerst eine.",
       "notFound": "Diese Notiz gibt es nicht mehr.",
-      "off": "Das KI-Gedächtnis ist in diesem Workspace ausgeschaltet."
+      "off": "Das KI-Gedächtnis ist in diesem Workspace ausgeschaltet.",
+      "changed": "Diese Notiz hat sich seitdem geändert. Ändere sie stattdessen unter Gedächtnis.",
+      "busy": "Warte, bis die Antwort fertig ist."
     }
   },
   "accounts": {

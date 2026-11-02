@@ -28,9 +28,9 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, eq, inArray, isNull, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { aiConversation, databaseView, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
+const { agentRun, conversation: aiConversation, databaseView, page, teamspace, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { createPage } = await import("@/server/pages");
@@ -46,12 +46,14 @@ const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const index = await import("@/server/semantic-index");
-const { deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
+const { answerUnderWay, chatOptionsFor, decideParkedChange, deleteConversations, getConversation, listConversations, startChat } = await import("@/server/ai-chat");
+const { flushAgentRuns } = await import("@/server/agents/run");
 const { setMemoryUse } = await import("@/server/ai-memory");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const runs = await import("@/server/ai-chat-runs");
 const { decidePageReview, getPageReview } = await import("@/server/page-review");
-type ChatEvent = import("@/lib/ai-chat").ChatEvent;
+// What following an answer brings (ai-chat-runs.ts); an AI chat answer sends no agent steps.
+type ChatEvent = import("@/lib/agent-chat").RunEvent;
 type ChatStepView = import("@/lib/ai-chat").ChatStepView;
 type ChatInput = import("@/server/ai-chat").ChatInput;
 
@@ -319,8 +321,8 @@ try {
   const searched = sourcesIn(fake.chats[1]);
   check(searched.some((s) => s.pageId === fleet.id && s.text.includes("car needs new tyres")), "the model's search finds pages by meaning (car for automobile)", searched);
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,create_docx,create_xlsx,add_comment,create_database,create_form,find_tools,use_tool,remember,forget"),
-    "every turn declares the tools: to look, (asking first, by default) to change, and to keep notes about the person",
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,create_docx,create_xlsx,add_comment,create_database,create_form,find_tools,use_tool,remember,forget,remind_person"),
+    "every turn declares the tools: to look, (asking first, by default) to change, to keep notes about the person and to remind them",
   );
   check(textOf(firstRequest.messages[0].content).includes("never instructions"), "the system prompt treats page content as data");
   check(fake.chats.every((r) => !secrets.some((s) => everything(r).includes(s))), "nothing from pages the person can't open is ever sent to the model");
@@ -507,6 +509,10 @@ try {
   const earlyRun = runs.openRun({ id: early, userId: dave, workspaceId, conversationId: null })!;
   check(earlyRun.controller.signal.aborted, "a Stop sent before the answer started stops it as it starts");
   runs.dropRun(earlyRun);
+  // So does the Stop of an answer that ended, for one going on again under its id (resumeChatRun).
+  const resumed = runs.openRun({ id: story.id, userId: dave, workspaceId, conversationId: stopped.conversationId })!;
+  check(resumed.controller.signal.aborted, "…as does one sent once its answer ended, for an answer going on again under its id");
+  runs.dropRun(resumed);
 
   // The page that asked goes (reloaded, closed) while the answer is on its way: it goes on, is
   // saved, and the page coming back follows it again from its start.
@@ -840,6 +846,22 @@ try {
     always.steps,
   );
   check(always.steps.includes("write:updateRow:done:Spark plugs"), "…a changed row shown as a step too", always.steps);
+  // An owner turned changing without asking off: Auto asks, and "don't ask again" covers one change.
+  await updateWorkspaceSettings(owner, workspaceId, { aiAutoChanges: false });
+  check((await chatOptionsFor(alice, workspaceId)).autoChanges === false, "with changes without asking off, the chat box isn't offered Auto");
+  fake.setChat(
+    caller([
+      write("create_row", { database_id: parts.id, title: "Tow rope", properties: { Stock: "Ordered" } }),
+      write("create_row", { database_id: parts.id, title: "Jump leads", properties: { Stock: "Ordered" } }),
+    ]),
+  );
+  const held = await ask(alice, { workspaceId, message: "Add a tow rope and jump leads", mode: "auto" }, { onEvent: (e) => void (e.type === "approval" && decideChange(alice, e.id, "always")) });
+  check(
+    held.done && approvals(held).length === 2 && (await rowsOf(parts.id, "Tow rope")).length === 1 && (await rowsOf(parts.id, "Jump leads")).length === 1,
+    "…a question in Auto asks about each change, \"don't ask again\" included",
+    { approvals: approvals(held).length, steps: held.steps },
+  );
+  await updateWorkspaceSettings(owner, workspaceId, { aiAutoChanges: true });
   const keptChanges = await getConversation(alice, workspaceId, always.conversationId!);
   const keptUpdate = keptChanges.messages[1].steps?.find((st) => st.kind === "write" && st.action === "updateRow");
   check(
@@ -847,6 +869,97 @@ try {
     "changes are kept with the conversation, with the values set",
     keptUpdate,
   );
+  // ── An answer whose server stopped while it waited on the person ────────────────────────────
+  fake.setChat(caller([write("create_row", { database_id: parts.id, title: "Ice scraper" })]));
+  let parkedAsk: string | null = null;
+  let parkedConversation: string | null = null;
+  for await (const e of await startChat(alice, { workspaceId, message: "Add an ice scraper" })) {
+    if (e.type === "conversation") parkedConversation = e.id;
+    // The page and the process that waited go away here.
+    if (e.type === "approval") {
+      parkedAsk = e.id;
+      break;
+    }
+  }
+  const parkedRun = async () => (await db.select().from(agentRun).where(and(isNull(agentRun.agentId), sql`${agentRun.source}->>'conversationId' = ${parkedConversation}`)))[0];
+  const parked = await parkedRun();
+  check(
+    parked?.status === "awaiting_approval" && parked.pending?.askId === parkedAsk && parked.pending.action?.title === "Ice scraper" && parked.state?.queue.length === 1,
+    "an answer waiting on the person is kept as a parked run, with the change it asks about",
+    parked && { status: parked.status, pending: parked.pending },
+  );
+  check(!decideChange(alice, parkedAsk!, "approve"), "…which no one waits on here once its answer went away");
+  // Left running by a server that stopped: the worker takes it up where it left off, and asks again.
+  await db.update(agentRun).set({ status: "running", nextAt: new Date(Date.now() - 11 * 60_000) }).where(eq(agentRun.id, parked.id));
+  await flushAgentRuns({ assistant: true });
+  const reclaimed = await parkedRun();
+  check(
+    reclaimed?.status === "awaiting_approval" && reclaimed.pending?.askId !== parkedAsk && (await rowsOf(parts.id, "Ice scraper")).length === 0,
+    "a run left behind by a stopped server is taken up again where it left off, asking again and changing nothing",
+    reclaimed && { status: reclaimed.status, attempts: reclaimed.attempts },
+  );
+  check(!(await decideParkedChange(alice, parkedAsk!, "approve")), "…so what it asked before can no longer be decided");
+  const ask2 = reclaimed!.pending!.askId!;
+  check(!(await decideParkedChange(carol, ask2, "approve")), "…nor can anyone else decide it");
+  check(await answerUnderWay(alice, parkedConversation!), "…and it waits here, holding up its conversation as an answer asking here does");
+  check((await getConversation(alice, workspaceId, parkedConversation!)).run === parked.id, "…for a page opening the conversation to follow, under its run's id");
+  const resumedEvents: string[] = [];
+  const following = (async () => {
+    for await (const e of runs.followRun(alice, parked.id)!) resumedEvents.push(e.type === "step" ? `step:${e.step.kind}` : e.type);
+  })();
+  check(await decideParkedChange(alice, ask2, "approve"), "the person decides it");
+  await following;
+  check(
+    resumedEvents[0] === "conversation" && resumedEvents.includes("approval") && resumedEvents.at(-1) === "done",
+    "…and the page follows it from where it was asked again to its end",
+    resumedEvents,
+  );
+  const resumedTurn = (await getConversation(alice, workspaceId, parkedConversation!)).messages;
+  check(
+    (await rowsOf(parts.id, "Ice scraper")).length === 1 &&
+      resumedTurn.length === 2 &&
+      resumedTurn[1].steps?.some((st) => st.kind === "write" && st.outcome === "done") === true &&
+      resumedTurn[1].content.startsWith("See Ice scraper"),
+    "the worker goes on with the answer: the change is made and the turn kept",
+    resumedTurn,
+  );
+  check(!(await parkedRun()) && !(await decideParkedChange(alice, ask2, "approve")), "…its run goes once the turn is kept, and the decision can't be used again");
+  fake.setChat(caller([write("create_row", { database_id: parts.id, title: "De-icer" })]));
+  for await (const e of await startChat(alice, { workspaceId, conversationId: parkedConversation!, message: "Add de-icer" })) if (e.type === "approval") break;
+  const leftAgain = await parkedRun();
+  check(leftAgain?.status === "awaiting_approval", "an answer left waiting again…");
+  const opened = await getConversation(alice, workspaceId, parkedConversation!);
+  check(opened.run === leftAgain!.id && opened.messages.length === 2, "…is taken up again by a page opening its conversation, to follow", opened.run);
+  const adoptedEvents: string[] = [];
+  let adoptedAsk: string | null = null;
+  for await (const e of runs.followRun(alice, opened.run!)!) {
+    adoptedEvents.push(e.type);
+    if (e.type === "approval") {
+      adoptedAsk = e.id;
+      decideChange(alice, e.id, "decline");
+    }
+  }
+  check(
+    adoptedEvents[0] === "conversation" &&
+      adoptedAsk !== null &&
+      adoptedAsk !== leftAgain!.pending?.askId &&
+      adoptedEvents.at(-1) === "done" &&
+      !(await parkedRun()) &&
+      (await getConversation(alice, workspaceId, parkedConversation!)).messages.length === 4 &&
+      (await rowsOf(parts.id, "De-icer")).length === 0,
+    "…asking again: declined there, nothing is added and the turn is kept",
+    adoptedEvents,
+  );
+  fake.setChat(caller([write("create_row", { database_id: parts.id, title: "De-icer" })]));
+  for await (const e of await startChat(alice, { workspaceId, conversationId: parkedConversation!, message: "Add de-icer again" })) if (e.type === "approval") break;
+  check((await parkedRun())?.status === "awaiting_approval", "one left waiting once more…");
+  fake.setChat(caller([]));
+  const afterLeft = await ask(alice, { workspaceId, conversationId: parkedConversation!, message: "Never mind" });
+  check(
+    afterLeft.done && !(await parkedRun()) && (await getConversation(alice, workspaceId, parkedConversation!)).messages.length === 6 && (await rowsOf(parts.id, "De-icer")).length === 0,
+    "…is given up by a new question in its conversation: it changed nothing, so it leaves no turn",
+  );
+
   // ── Leafdesk's further tools (find_tools, use_tool) ─────────────────────────────────────────
   const viewsNamed = (name: string) => db.select().from(databaseView).where(and(eq(databaseView.databaseId, parts.id), eq(databaseView.name, name)));
   fake.setChat(caller([write("find_tools", { query: "board view" })]));
@@ -930,8 +1043,8 @@ try {
   await ask(alice, { workspaceId, conversationId: always.conversationId, message: "And what did you change?", mode: "read" });
   check(everything(fake.chats[0]).includes(`(Changes made: added the row "Snow chains" (page_id `) && everything(fake.chats[0]).includes(`changed the row (page_id ${plugs.id}): Stock`), "a later question knows what was changed, with the ids", everything(fake.chats[0]).slice(-800));
   check(
-    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,find_tools,use_tool,remember,forget") && textOf(fake.chats[0].messages[0].content).includes("You can't change pages or databases"),
-    "in read-only mode the model isn't offered changes (keeping notes about the person changes nothing in the workspace)",
+    fake.chats.every((r) => r.tools?.map((t) => t.function.name).join() === "search_pages,read_page,query_database,list_comments,page_history,page_version,find_tools,use_tool,remember,forget,remind_person") && textOf(fake.chats[0].messages[0].content).includes("You can't change pages or databases"),
+    "in read-only mode the model isn't offered changes (keeping notes about the person and reminding them change nothing in the workspace)",
   );
   // With the memory off, by the person or for the workspace, neither mode offers the notes' tools.
   const toolsOf = (r: (typeof fake.chats)[number]) => r.tools?.map((t) => t.function.name).join();
@@ -946,9 +1059,9 @@ try {
     await ask(alice, { workspaceId, message: "Which tyres?" });
     check(
       reading.length > 0 &&
-        reading.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,find_tools,use_tool") &&
+        reading.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,find_tools,use_tool,remind_person") &&
         fake.chats.length > 0 &&
-        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,create_docx,create_xlsx,add_comment,create_database,create_form,find_tools,use_tool"),
+        fake.chats.every((r) => toolsOf(r) === "search_pages,read_page,query_database,list_comments,page_history,page_version,create_row,update_row,create_page,edit_page,create_pdf,create_docx,create_xlsx,add_comment,create_database,create_form,find_tools,use_tool,remind_person"),
       `with the memory turned off by ${who}, remember and forget aren't offered, in either mode`,
       [...reading, ...fake.chats].map(toolsOf),
     );

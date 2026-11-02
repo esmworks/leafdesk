@@ -157,10 +157,10 @@ export type ApprovalView = {
 export const automationRunPath = (workspaceId: string, databaseId: string, automationId: string, runId: string) =>
   `/w/${workspaceId}/p/${databaseId}?automation=${encodeURIComponent(automationId)}&run=${encodeURIComponent(runId)}`;
 
-/** What the queue is narrowed to (nothing: everything waiting that the viewer can see). */
-export type PendingChangeFilter = { agentId?: string | null; databaseId?: string | null; rowId?: string | null };
+/** What the queue is narrowed to (nothing: everything waiting that the viewer can see); `runId`: what one agent run proposed. */
+export type PendingChangeFilter = { agentId?: string | null; databaseId?: string | null; rowId?: string | null; runId?: string | null };
 
-/** The For review page's path, narrowed to an agent, a database or a row. */
+/** The For review page's path, narrowed to an agent, a database or a row (a run's: run-proposals.tsx). */
 export function reviewPath(workspaceId: string, filter: PendingChangeFilter = {}) {
   const query = new URLSearchParams();
   if (filter.agentId) query.set("agent", filter.agentId);

@@ -247,6 +247,9 @@
     color: var(--fg);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    /* Clear of a phone's notch held sideways (see --safe-bottom below). */
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
 
   /*
@@ -922,6 +925,43 @@
 }
 
 /*
+ * A phone's home indicator: with viewport-fit=cover (app/layout.tsx) an installed app's window
+ * reaches under it. The workspace's page and the panels fixed to the window's bottom end above it
+ * (pb-(--safe-bottom)), and what floats at the bottom rises by as much (bottom-safe-4 is bottom-4
+ * plus the indicator). Zero on screens without one.
+ */
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+@utility bottom-safe-* {
+  bottom: calc(--spacing(--value(integer)) + var(--safe-bottom));
+}
+
+/*
+ * An installed app on iOS 26 and later blurs the top ~40pt of the page under the status bar,
+ * unless a fixed box spanning the window's width and taller than 10px sits at the top edge: then it
+ * paints that box's background there instead. This band is that box (app/layout.tsx); its background
+ * is only read, never painted (clipped to its text, which it has none of).
+ */
+[data-status-band] {
+  display: none;
+}
+@media (display-mode: standalone) {
+  [data-status-band] {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: 2147483647;
+    height: 12px;
+    pointer-events: none;
+    background: var(--color-bg);
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/*
  * The AI chat panel's width (ai-chat/chat-panel.tsx marks the workspace data-chat-open while it is
  * open). In wider windows the page and the row panel end where it starts, rather than lying under
  * it; on a phone it covers the window.
@@ -1261,6 +1301,12 @@ input.leafdesk-callout-title-input {
 :root .bn-mantine .bn-mt-suggestion-menu-item-body {
   padding-right: 0;
   padding-inline-end: 16px;
+}
+/* A touch screen has no keys for them: the shortcuts give their room to the names. */
+@media (pointer: coarse) {
+  :root .bn-mantine .bn-mt-suggestion-menu-item-section[data-position="right"] {
+    display: none;
+  }
 }
 /* Alignment runs with the text: "left" is where a block's text starts and "right" where it ends,
    so right to left they swap sides (the toolbar's buttons are by side, align-buttons.tsx). */
@@ -1638,6 +1684,25 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 }
 @media (prefers-reduced-motion: reduce) {
   [data-dialog] {
+    animation: none;
+  }
+}
+
+/*
+ * A card of what someone just sent (components/sidebar/arrival-cards.tsx) drops a little into
+ * place, each new one on top of the stack.
+ */
+@keyframes leafdesk-arrival-in {
+  from {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+}
+[data-arrival-card] {
+  animation: leafdesk-arrival-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-arrival-card] {
     animation: none;
   }
 }

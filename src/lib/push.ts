@@ -89,8 +89,11 @@ const MAX_BODY = 500;
 const byteLength = (text: string) => new TextEncoder().encode(text).length;
 const cut = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text);
 
-/** The JSON a push message carries, with the title and body shortened until it fits MAX_PUSH_PAYLOAD. */
-export function encodePushPayload(payload: PushPayload): string {
+/**
+ * The JSON a push message carries, with the title and body shortened until it fits MAX_PUSH_PAYLOAD.
+ * `unread` is the workspace's unread count, which the installed app's icon shows (public/sw.js).
+ */
+export function encodePushPayload(payload: PushPayload & { unread?: number }): string {
   let title = cut(payload.title, MAX_TITLE);
   let body = cut(payload.body, MAX_BODY);
   let json = JSON.stringify({ ...payload, title, body });
@@ -142,8 +145,10 @@ export type PushItem = {
   limitRequest?: { agentId: string; agentName: string; tokens: number } | null;
   /** When it was recorded: a verification reminder recorded at or after its date says the verification ended. */
   createdAt?: Date | string;
-  /** Reminders an agent set: what they say, and which agent. */
-  aiReminder?: { text: string; agentId: string | null; agentName: string | null } | null;
+  /** Reminders an agent set: what they say, and which agent; `own`: one the user asked the AI chat for. */
+  aiReminder?: { text: string; agentId: string | null; agentName: string | null; own?: true } | null;
+  /** A schedule that turned itself off after failing again and again: an agent's (`agentName`), or the person's own request. */
+  schedulePaused?: { task: string; agentId: string | null; agentName: string | null; own: boolean; failures: number } | null;
 };
 
 /** The line of a comment notification about a suggested edit, in the inbox and in push messages. */
@@ -195,6 +200,11 @@ export function pushPayload(
     title = t("reportTitle", { agent: item.report.agentName || actor });
     const agent = item.report.from?.agentName || t("someone");
     line = item.report.status === "failed" ? t("taskFailed", { agent }) : t("taskDone", { agent });
+  } else if (item.kind === "schedule_paused") {
+    // Not its task: an agent's may name what is in a database.
+    const paused = item.schedulePaused;
+    title = paused?.agentName ? t("schedulePausedTitle", { agent: paused.agentName }) : t("schedulePausedOwnTitle");
+    line = t("schedulePaused", { count: paused?.failures ?? 0 });
   } else if (item.kind === "review") {
     // How many, not what they change: a lock screen shows it to whoever holds the device.
     title = t("reviewTitle");
@@ -221,7 +231,7 @@ export function pushPayload(
   } else if (item.kind === "ai_reminder") {
     // Not what it says: the model wrote it, maybe from what the run read, and a lock screen shows
     // it to whoever holds the device. The page it is about, as for other kinds.
-    title = t("aiReminderTitle", { agent: item.aiReminder?.agentName || actor });
+    title = item.aiReminder?.own ? t("aiReminderOwnTitle") : t("aiReminderTitle", { agent: item.aiReminder?.agentName || actor });
     line = item.pageId ? item.pageTitle?.trim() || t("untitled") : t("aiReminder");
   } else if (item.kind === "join_request") {
     title = t("joinRequestTitle");

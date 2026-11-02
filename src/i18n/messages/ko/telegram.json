@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "{workspace}에서는 앱이 읽기만 할 수 있으므로 아무것도 변경하지 않고 답합니다.",
   "busy": "아직 이전 질문에 답하는 중입니다. 멈추려면 /stop을 보내세요.",
+  "busyInApp": "이 대화는 아직 Leafdesk에서 답변 중입니다. 답변이 끝나면 다시 질문해 주세요.",
   "stopped": "중지했습니다.",
   "nothingToStop": "지금은 답하고 있는 것이 없습니다.",
   "unlinked": "이 Telegram 계정은 더 이상 Leafdesk에 연결되어 있지 않습니다.",
@@ -85,6 +86,7 @@
     "createXlsx": "Excel 파일 {title}을(를) 만들어 {target}에 첨부할까요?",
     "source": "{name}의 행.",
     "remember": "이 내용을 기억해 둘까요?",
+    "remind": "이 내용을 리마인드할까요?",
     "forget": "이 메모를 잊을까요?",
     "connection": "이 내용을 {connection}({tool})(으)로 보낼까요?",
     "tool": "이 변경을 할까요({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "에이전트가 이번 달 토큰을 모두 사용했습니다.",
       "costLimit": "답변이 비용 한도에 도달했습니다.",
       "selfReported": "에이전트가 작업을 해낼 수 없었다고 알렸습니다.",
+      "stopped": "중지되었습니다.",
       "error": "에이전트가 답하는 중에 문제가 생겼습니다."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "에이전트의 월간 토큰 한도를 모두 사용했습니다.",
         "costLimit": "워크스페이스가 이미 월간 AI 비용 한도에 도달했습니다.",
         "selfReported": "에이전트가 작업을 해낼 수 없었다고 알렸습니다.",
+        "stopped": "중지되었습니다.",
         "error": "문제가 발생했습니다."
       },
       "email": "이메일을 읽었기 때문에 보고서는 Leafdesk에서만 보입니다."

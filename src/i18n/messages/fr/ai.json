@@ -159,8 +159,12 @@
     "memoryHint": "Activée, le chat IA garde de courtes notes sur les personnes qui lui parlent d’elles-mêmes et les envoie avec leurs questions suivantes. Chacun peut la désactiver pour soi. Désactivée, la vue Mémoire est masquée et aucune question n’emporte de notes ; les notes sont conservées, pas supprimées. Les exécutions des agents n’emportent alors aucune note et n’en proposent pas non plus.",
     "webSearch": "Recherche web dans le chat IA",
     "webSearchHint": "Activé, le chat IA peut chercher sur le web avec le service de recherche du serveur et lire des pages web, en lecture seule : après avoir lu sur le web, chaque modification qu’il veut faire est demandée. Le mode recherche cherche aussi sur le web. Les questions et le texte avec lesquels il cherche quittent l’espace de travail vers le service de recherche.",
+    "autoChanges": "Modifications sans demander",
+    "autoChangesHint": "Activé, chacun peut mettre le chat IA en mode Auto ou répondre « Ne plus demander », et il fait les modifications sans demander à chaque fois. Désactivé, le chat demande avant chaque modification.",
     "provider": "Fournisseur",
     "providerValue": "{provider}, modèle {model}",
+    "chatModels": "Modèles du chat",
+    "chatModelsValue": "Dans le chat IA, on peut choisir {models}.",
     "notConfigured": "Aucun fournisseur d’IA ni modèle d’embeddings n’est configuré sur ce serveur, les fonctions d’IA sont donc désactivées. Un administrateur peut les configurer avec les variables d’environnement AI_PROVIDER et AI_MODEL (et AI_EMBEDDINGS_MODEL) (voir le README).",
     "noProvider": "Aucun : l’assistant d’écriture, les propriétés IA et le chat IA nécessitent AI_PROVIDER et AI_MODEL.",
     "semanticSearch": "Recherche sémantique",
@@ -308,7 +312,11 @@
           "forget": "Oubli refusé :"
         },
         "correct": "Noté comme correction :",
-        "undone": "Correction annulée :"
+        "undone": "Correction annulée :",
+        "undoneNote": {
+          "remember": "Mémorisation annulée :",
+          "forget": "Oubli annulé :"
+        }
       },
       "connection": {
         "done": "{connection} : {tool} appelé",
@@ -319,6 +327,10 @@
         "done": "A utilisé {tool}",
         "failed": "Échec de {tool}",
         "declined": "Refusé : {tool}"
+      },
+      "reminder": {
+        "done": "Rappel prévu le {when} :",
+        "declined": "Rappel refusé pour le {when} :"
       },
       "mail": {
         "searched": "Recherche dans les e-mails de « {query} » · {count, plural, =0 {aucun résultat} one {# conversation} other {# conversations}}",
@@ -362,6 +374,7 @@
         "createPage": "Ajouter cette page ?",
         "remember": "Retenir ceci à votre sujet ?",
         "forget": "Oublier cette note ?",
+        "remind": "Vous le rappeler ?",
         "editPage": "Modifier le texte de cette page ?",
         "createPdf": "Créer un PDF de cette page et le joindre ?",
         "createDocx": "Créer un document Word de cette page et le joindre ?",
@@ -379,6 +392,7 @@
       "row": "Ligne",
       "topLevel": "En haut de l'espace de travail, privée",
       "memoryHint": "Mémoire : envoyée avec vos prochaines questions dans cet espace de travail",
+      "remindHint": "{when} : par-dessus la page ouverte, dans votre boîte de réception et sur votre téléphone",
       "cleared": "(effacé)",
       "approve": "Oui",
       "always": "Oui, et ne plus demander (Auto)",
@@ -521,7 +535,9 @@
       "tooLong": "Une note peut contenir au plus {max} caractères.",
       "full": "La mémoire contient au plus {max} notes. Supprimez-en une d'abord.",
       "notFound": "Cette note n'existe plus.",
-      "off": "La mémoire de l’IA est désactivée dans cet espace de travail."
+      "off": "La mémoire de l’IA est désactivée dans cet espace de travail.",
+      "changed": "Cette note a changé depuis. Modifiez-la plutôt dans Mémoire.",
+      "busy": "Attendez la fin de la réponse."
     }
   },
   "accounts": {

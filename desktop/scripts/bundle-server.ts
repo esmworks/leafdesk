@@ -19,6 +19,9 @@ import { build } from "esbuild";
 const repo = path.join(import.meta.dirname, "..", "..");
 const out = path.join(import.meta.dirname, "..", "server");
 const next = path.join(repo, ".next");
+// How long each part took, in the log: on a CI runner it took minutes where a laptop takes seconds.
+const started = performance.now();
+const took = (part: string) => console.log(`${part}: ${((performance.now() - started) / 1000).toFixed(1)} s`);
 
 if (!process.argv.includes("--skip-build")) {
   execFileSync("pnpm", ["build"], {
@@ -37,6 +40,7 @@ if (!process.argv.includes("--skip-build")) {
     },
   });
 }
+took("Next's build");
 if (!fs.existsSync(path.join(next, "standalone", ".next", "BUILD_ID"))) {
   throw new Error("No standalone build in .next: run without --skip-build");
 }
@@ -180,7 +184,9 @@ const { config } = JSON.parse(fs.readFileSync(path.join(next, "required-server-f
   config: { serverExternalPackages: string[] };
 };
 const externals = ["next", ...config.serverExternalPackages];
+took("Compiled server copied");
 const hashed = layOutPackages(path.join(out, "node_modules"));
+took("Packages laid out");
 // The compiled pages load those packages by the names they now have.
 const renamed = [...hashed].filter(([alias, name]) => alias !== name);
 if (renamed.length) {
@@ -261,6 +267,7 @@ await build({
   },
 });
 
+took("Entry points bundled");
 // What those parts need from next, traced as Next traces its own files, is added to its folder.
 {
   const { nodeFileTrace } = fromRepo("next/dist/compiled/@vercel/nft") as {
@@ -288,5 +295,6 @@ const measure = (folder: string): { bytes: number; files: number } =>
     },
     { bytes: 0, files: 0 },
   );
+took("Next's own files traced");
 const { bytes, files } = measure(out);
 console.log(`server/: ${Math.round(bytes / 1024 / 1024)} MB in ${files} files`);

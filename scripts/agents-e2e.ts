@@ -35,6 +35,7 @@ const {
   agentRun,
   auditEvent,
   automationRun,
+  conversation,
   databaseAutomation,
   databaseProperty,
   notification,
@@ -292,6 +293,16 @@ try {
     (await queueAgentRun({ agentId: router.id, workspaceId, source: run.source, context: run.context, prompt: run.prompt })) === run.id,
     "the automation's step taken again finds the run it queued instead of queuing another",
   );
+  const [rowConversation] = run.conversationId ? await db.select().from(conversation).where(eq(conversation.id, run.conversationId)) : [];
+  check(
+    rowConversation?.key === `row:${ticket.id}` && rowConversation.agentId === router.id && rowConversation.userId === router.userId,
+    "an automation's run joins the agent's conversation kept for its row",
+    rowConversation,
+  );
+  const again = await queueAgentRun({ agentId: router.id, workspaceId, source: run.source, context: run.context, prompt: "Check it again." });
+  const [againRun] = await db.select().from(agentRun).where(eq(agentRun.id, again));
+  check(again !== run.id && againRun.conversationId === run.conversationId, "…as does another run on the same row", againRun);
+  await db.delete(agentRun).where(eq(agentRun.id, again));
   check(run.answer === "Set Category to Billing and explained why." && run.usage?.rounds === 6, "the run keeps what the agent said and how many turns it took", { answer: run.answer, usage: run.usage });
   const first = fake.chats[0];
   const prompt = everything(first);

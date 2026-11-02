@@ -1321,6 +1321,15 @@
     "working": "Arbetar…",
     "waiting": "Väntar på en ledig AI-plats…",
     "approval": "Agenten vill använda ett verktyg. Godkänn anropet för att låta den fortsätta.",
+    "proposals": {
+      "title": "Föreslagna ändringar",
+      "waiting": "{count, plural, one {# ändring väntar på ditt godkännande} other {# ändringar väntar på ditt godkännande}}",
+      "approved": "{count, plural, other {# godkända}}",
+      "approveAll": "{count, plural, one {Godkänn} other {Godkänn alla #}}",
+      "review": "Granska",
+      "skipped": "{count, plural, one {# ändring kunde inte göras: granska den.} other {# ändringar kunde inte göras: granska dem.}}",
+      "failed": "Ändringarna kunde inte godkännas. Försök igen."
+    },
     "steps": "{count, plural, one {# steg} other {# steg}}",
     "conversations": "Konversationer",
     "newConversation": "Ny konversation",
@@ -1336,6 +1345,7 @@
       "limitReached": "Agenten har använt sina token för månaden.",
       "costLimit": "Arbetsytan har nått sin månatliga kostnadsgräns för AI.",
       "selfReported": "Agenten meddelade att den inte kunde utföra sin uppgift.",
+      "stopped": "Stoppat.",
       "error": "Något gick fel."
     },
     "errors": {
@@ -1399,6 +1409,7 @@
     "regenerate": "Generera igen",
     "files": {
       "attach": "Bifoga textfiler",
+      "drop": "Släpp textfilerna för att bifoga dem",
       "remove": "Ta bort {name}",
       "download": "Ladda ned {name}",
       "tooMany": "Högst {max} filer per meddelande.",

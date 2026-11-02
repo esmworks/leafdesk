@@ -16,6 +16,7 @@ import {
   getMailSettings,
   RowMailError,
   setDefaultMailbox,
+  setMailboxNotify,
   setMailboxSending,
   setMailboxSignature,
   setMailDatabases,
@@ -82,6 +83,11 @@ export async function setMailboxSendingAction(mailboxId: string, input: { dailyL
 /** What the viewer signs mail from one of their mailboxes with (the editor's HTML; empty for none). */
 export async function setMailboxSignatureAction(mailboxId: string, html: string): Promise<ActionResult<MailboxView>> {
   return run((userId) => setMailboxSignature(userId, mailboxId, html));
+}
+
+/** Whether new mail in one of the viewer's mailboxes is pushed to their devices. */
+export async function setMailboxNotifyAction(mailboxId: string, on: boolean): Promise<ActionResult<MailboxView>> {
+  return run((userId) => setMailboxNotify(userId, mailboxId, on));
 }
 
 /** Makes one of the viewer's mailboxes their default; returns theirs in its workspace. */

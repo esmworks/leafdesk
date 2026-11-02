@@ -13,7 +13,7 @@ import { formatBytes } from "@/lib/files";
 
 /** The files picked, read as text and added to those already there; or why they can't be. */
 export async function readChatFiles(
-  picked: File[],
+  picked: readonly File[],
   already: AgentChatFileIn[],
 ): Promise<{ ok: true; files: AgentChatFileIn[] } | { ok: false; problem: ChatFileProblem; name?: string }> {
   if (already.length + picked.length > AGENT_CHAT_FILE_LIMITS.perMessage) return { ok: false, problem: "tooMany" };

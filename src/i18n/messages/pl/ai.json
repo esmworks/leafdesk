@@ -159,8 +159,12 @@
     "memoryHint": "Gdy włączona, czat AI zachowuje krótkie notatki o osobach, które coś o sobie mówią, i wysyła je razem z ich kolejnymi pytaniami. Każdy może ją wyłączyć dla siebie. Gdy wyłączona, widok Pamięć jest ukryty, a niczyje pytania nie zawierają notatek; notatki są zachowywane, a nie usuwane. Uruchomienia agentów również nie zawierają wtedy notatek ani ich nie proponują.",
     "webSearch": "Wyszukiwanie w sieci w czacie AI",
     "webSearchHint": "Po włączeniu czat AI może szukać w sieci usługą wyszukiwania serwera i czytać strony internetowe, tylko czytając: po przeczytaniu czegoś z sieci pyta o każdą zmianę, którą chce wprowadzić. Tryb badania też szuka w sieci. Pytania i tekst, którymi szuka, opuszczają obszar roboczy i trafiają do usługi wyszukiwania.",
+    "autoChanges": "Zmiany bez pytania",
+    "autoChangesHint": "Gdy włączone, można ustawić czat AI na Automatyczny lub odpowiedzieć „Nie pytaj ponownie”, a czat wprowadza zmiany bez pytania za każdym razem. Gdy wyłączone, czat pyta przed każdą zmianą.",
     "provider": "Dostawca",
     "providerValue": "{provider}, model {model}",
+    "chatModels": "Modele czatu",
+    "chatModelsValue": "W czacie AI można wybrać {models}.",
     "notConfigured": "Na tym serwerze nie skonfigurowano dostawcy AI ani modelu embeddingów, więc funkcje AI są wyłączone. Administrator może je skonfigurować za pomocą zmiennych środowiskowych AI_PROVIDER i AI_MODEL (oraz AI_EMBEDDINGS_MODEL) (zobacz README).",
     "noProvider": "Brak: asystent pisania, właściwości AI i czat AI wymagają AI_PROVIDER i AI_MODEL.",
     "semanticSearch": "Wyszukiwanie semantyczne",
@@ -308,7 +312,11 @@
           "forget": "Odrzucono zapomnienie:"
         },
         "correct": "Zapisano jako poprawkę:",
-        "undone": "Cofnięto poprawkę:"
+        "undone": "Cofnięto poprawkę:",
+        "undoneNote": {
+          "remember": "Cofnięto zapamiętanie:",
+          "forget": "Cofnięto zapomnienie:"
+        }
       },
       "connection": {
         "done": "{connection}: wywołano {tool}",
@@ -319,6 +327,10 @@
         "done": "Użyto {tool}",
         "failed": "{tool} nie powiodło się",
         "declined": "Odrzucono: {tool}"
+      },
+      "reminder": {
+        "done": "Ustawiono przypomnienie na {when}:",
+        "declined": "Odrzucono przypomnienie na {when}:"
       },
       "mail": {
         "searched": "Przeszukano pocztę pod kątem „{query}” · {count, plural, =0 {nic nie znaleziono} one {# wątek} few {# wątki} many {# wątków} other {# wątku}}",
@@ -362,6 +374,7 @@
         "createPage": "Dodać tę stronę?",
         "remember": "Zapamiętać to o tobie?",
         "forget": "Zapomnieć tę notatkę?",
+        "remind": "Przypomnieć ci o tym?",
         "editPage": "Zmienić tekst tej strony?",
         "createPdf": "Utworzyć PDF tej strony i go dołączyć?",
         "createDocx": "Utworzyć dokument Word tej strony i go dołączyć?",
@@ -379,6 +392,7 @@
       "row": "Wiersz",
       "topLevel": "Na najwyższym poziomie obszaru roboczego, prywatnie dla ciebie",
       "memoryHint": "Pamięć: wysyłana z twoimi kolejnymi pytaniami w tym obszarze roboczym",
+      "remindHint": "{when}: nad otwartą stroną, w skrzynce odbiorczej i na telefonie",
       "cleared": "(wyczyszczono)",
       "approve": "Tak",
       "always": "Tak i nie pytaj ponownie (Automatycznie)",
@@ -521,7 +535,9 @@
       "tooLong": "Notatka może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
       "full": "Pamięć mieści najwyżej {max, plural, one {# notatkę} few {# notatki} many {# notatek} other {# notatki}}. Najpierw usuń jedną.",
       "notFound": "Tej notatki już nie ma.",
-      "off": "Pamięć AI jest wyłączona w tym obszarze roboczym."
+      "off": "Pamięć AI jest wyłączona w tym obszarze roboczym.",
+      "changed": "Ta notatka zmieniła się od tego czasu. Zmień ją w Pamięci.",
+      "busy": "Poczekaj, aż odpowiedź się zakończy."
     }
   },
   "accounts": {

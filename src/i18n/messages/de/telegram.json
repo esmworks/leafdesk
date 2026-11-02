@@ -28,6 +28,7 @@
   },
   "readOnlyWorkspace": "In {workspace} dürfen Apps nur lesen, daher antworte ich, ohne dort etwas zu ändern.",
   "busy": "Ich beantworte noch deine letzte Frage. Schick /stop, um anzuhalten.",
+  "busyInApp": "Diese Unterhaltung wird in Leafdesk noch beantwortet. Frag noch einmal, sobald die Antwort fertig ist.",
   "stopped": "Angehalten.",
   "nothingToStop": "Ich beantworte gerade nichts.",
   "unlinked": "Dieses Telegram-Konto ist nicht mehr mit Leafdesk verbunden.",
@@ -85,6 +86,7 @@
     "createXlsx": "Die Excel-Datei {title} erstellen und an {target} anhängen?",
     "source": "Zeilen aus {name}.",
     "remember": "Soll ich mir das über dich merken?",
+    "remind": "Dich daran erinnern?",
     "forget": "Diese Notiz vergessen?",
     "connection": "Das an {connection} ({tool}) senden?",
     "tool": "Diese Änderung vornehmen ({tool})?",
@@ -168,6 +170,7 @@
       "limitReached": "Der Agent hat seine Tokens für den Monat verbraucht.",
       "costLimit": "Die Antwort hat ihr Kostenlimit erreicht.",
       "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
+      "stopped": "Gestoppt.",
       "error": "Beim Antworten des Agenten ist etwas schiefgelaufen."
     },
     "routine": {
@@ -189,6 +192,7 @@
         "limitReached": "Das monatliche Token-Limit des Agenten war aufgebraucht.",
         "costLimit": "Der Workspace hatte sein monatliches KI-Kostenlimit erreicht.",
         "selfReported": "Der Agent hat gemeldet, dass er seine Aufgabe nicht erledigen konnte.",
+        "stopped": "Gestoppt.",
         "error": "Etwas ist schiefgelaufen."
       },
       "email": "Er hat deine E-Mails gelesen, daher steht sein Bericht nur in Leafdesk."

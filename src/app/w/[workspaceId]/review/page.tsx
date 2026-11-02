@@ -24,7 +24,7 @@ export default async function ReviewPage({
   const { workspaceId } = await params;
   const query = await searchParams;
   const { user } = await requireWorkspaceSession(workspaceId);
-  const filter = { agentId: one(query.agent), databaseId: one(query.database), rowId: one(query.row) };
+  const filter = { agentId: one(query.agent), databaseId: one(query.database), rowId: one(query.row), runId: one(query.run) };
   const status = query.status === "decided" ? "decided" : "open";
   const loaded = await Promise.all([listPendingChanges(user.id, workspaceId, { filter, status }), pendingFacets(user.id, workspaceId)]).catch((error) => {
     if (error instanceof AccessError) return null;

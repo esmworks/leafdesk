@@ -23,6 +23,7 @@
   "firstReadHint": "Deine neuesten Mails erscheinen gleich. Ältere Mails, bis zu drei Monate zurück, folgen in den nächsten Minuten.",
   "empty": "Hier sind keine Mails.",
   "emptySearch": "Keine passenden Mails.",
+  "emptyStarred": "Keine Unterhaltungen mit Stern.",
   "emptyFolder": {
     "trash": "Papierkorb leeren",
     "junk": "Spam leeren",
@@ -185,6 +186,7 @@
   "showSource": "Original anzeigen",
   "downloadSource": "Nachricht herunterladen (.eml)",
   "allInboxes": "Alle Posteingänge",
+  "allStarred": "Alle mit Stern",
   "ai": {
     "summarize": "Zusammenfassen",
     "summarizeHint": "Diese Unterhaltung mit KI zusammenfassen",

@@ -35,7 +35,8 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { agentConversation, agentRun, aiMemory, auditEvent, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { conversation: agentConversation, agentRun, aiMemory, auditEvent, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentMessages } = await import("@/lib/agent-chat");
 const { listNotifications, unreadCount } = await import("@/server/notifications");
 const { withdrawApproval } = await import("@/server/connections/approvals");
 const { registerCollab } = await import("@/server/collab/bridge");
@@ -46,7 +47,7 @@ const { setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
-const { MAX_AGENT_PROPOSALS, MAX_CORRECTIONS_PER_RUN, MAX_PROPOSALS_PER_RUN, WEB_TOOL_NAMES } = await import("@/lib/agents");
+const { isAgentRun, MAX_AGENT_PROPOSALS, MAX_CORRECTIONS_PER_RUN, MAX_PROPOSALS_PER_RUN, WEB_TOOL_NAMES } = await import("@/lib/agents");
 const { REDACTED } = await import("@/lib/redact");
 const agents = await import("@/server/agents/manage");
 const memory = await import("@/server/agents/memory");
@@ -140,7 +141,7 @@ try {
     await flushAgentRuns();
     await flushAutomations();
   };
-  const latestRun = async () => (await db.select().from(agentRun).where(eq(agentRun.agentId, router.id)).orderBy(agentRun.createdAt)).at(-1)!;
+  const latestRun = async () => (await db.select().from(agentRun).where(eq(agentRun.agentId, router.id)).orderBy(agentRun.createdAt)).filter(isAgentRun).at(-1)!;
   const notesInDb = () => db.select().from(aiMemory).where(eq(aiMemory.userId, router.userId)).orderBy(aiMemory.createdAt);
   const notices = (runId: string) => db.select().from(notification).where(and(eq(notification.agentRunId, runId), eq(notification.kind, "agent_memory")));
   const inboxItem = async (userId: string, runId: string) => (await listNotifications(userId, { workspaceId })).find((n) => n.kind === "agent_memory" && n.memory?.runId === runId);
@@ -220,6 +221,23 @@ try {
   await memory.deleteAgentMemory(ids.owner, router.id, [hiddenProposal.id]);
   const seen = await memory.listAgentMemory(ids.owner, router.id);
   check(seen[0].text === proposals[0].text && seen[0].run?.rowTitle === "I want a refund", "the owner who can open it sees the note and the row it came from", seen);
+  // A run a connection's event started is the owners' (its list hides it from others): so is what it proposed.
+  const eventRunId = await queueAgentRun({
+    agentId: router.id,
+    workspaceId,
+    source: { kind: "connection", connectionId: `${RUN}-connection`, triggerId: `${RUN}-trigger`, eventId: `${RUN}-event` },
+    context: {} as never,
+    prompt: "An event came.",
+  });
+  await db.update(agentRun).set({ status: "done", finishedAt: new Date() }).where(eq(agentRun.id, eventRunId));
+  const [eventProposal] = await db
+    .insert(aiMemory)
+    .values({ userId: router.userId, workspaceId, text: "EVENT-SECRET goes to the vendor.", status: "proposed", agentRunId: eventRunId })
+    .returning();
+  const memberSees = (await memory.listAgentMemory(ids.member, router.id)).find((n) => n.id === eventProposal.id);
+  const ownerSees = (await memory.listAgentMemory(ids.owner, router.id)).find((n) => n.id === eventProposal.id);
+  check(memberSees?.text === null && ownerSees?.text === eventProposal.text, "a member the agent is shared with doesn't see what a connection's event run proposed; an owner does", { memberSees, ownerSees });
+  await db.delete(aiMemory).where(eq(aiMemory.id, eventProposal.id));
   check(await fails(memory.keepAgentMemory(ids.member, router.id, proposals[0].id), isCode("notAllowed")), "members who can only view and interact can't keep a proposal");
   const keptNote = await memory.keepAgentMemory(ids.owner, router.id, proposals[0].id, "Refund questions are Billing tickets.");
   check(keptNote.status === "kept" && keptNote.text === "Refund questions are Billing tickets." && keptNote.run === null, "an owner keeps a proposal, changed", keptNote);
@@ -596,7 +614,7 @@ try {
   const [afterLater] = await db.select().from(agentRun).where(eq(agentRun.id, twice.run.id));
   const [laterChat] = await db.select().from(agentConversation).where(eq(agentConversation.id, twice.conversationId));
   const outcomeAt = (steps: readonly { kind: string; outcome?: unknown }[] | undefined, i: number) => steps?.[i]?.outcome;
-  const chatSteps = laterChat.messages.find((m) => m.role === "assistant" && m.runId === twice.run.id)?.steps;
+  const chatSteps = agentMessages(laterChat.messages).find((m) => m.role === "assistant" && m.runId === twice.run.id)?.steps;
   check((await notesInDb()).find((n) => n.id === tags.id)?.text === "Tags live in Support.", "undoing the later brings back what the earlier said");
   check(
     outcomeAt(afterLater.steps, secondTag) === "undone" && outcomeAt(afterLater.steps, firstTag) === "done" && outcomeAt(chatSteps, secondTag) === "undone" && outcomeAt(chatSteps, firstTag) === "done",

@@ -11,6 +11,7 @@
     "open": "대기 중",
     "decided": "응답함",
     "allRows": "모든 행 표시",
+    "allRuns": "모든 실행 표시",
     "clear": "필터 지우기"
   },
   "count": "{count, plural, other {변경 #개}}",

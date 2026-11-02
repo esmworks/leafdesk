@@ -1321,6 +1321,15 @@
     "working": "处理中…",
     "waiting": "正在等待 AI 空闲名额…",
     "approval": "智能体想要使用一个工具。批准该调用后它才能继续。",
+    "proposals": {
+      "title": "建议的更改",
+      "waiting": "{count, plural, other {# 项更改等待你批准}}",
+      "approved": "{count, plural, other {已批准 # 项}}",
+      "approveAll": "{count, plural, one {批准} other {全部批准（# 项）}}",
+      "review": "查看",
+      "skipped": "{count, plural, other {有 # 项更改无法完成：请查看。}}",
+      "failed": "无法批准这些更改。请重试。"
+    },
     "steps": "{count, plural, other {# 个步骤}}",
     "conversations": "对话",
     "newConversation": "新对话",
@@ -1336,6 +1345,7 @@
       "limitReached": "该智能体本月的令牌已用完。",
       "costLimit": "工作区已达到每月 AI 费用上限。",
       "selfReported": "代理表示它未能完成任务。",
+      "stopped": "已停止。",
       "error": "出了点问题。"
     },
     "errors": {
@@ -1399,6 +1409,7 @@
     "regenerate": "重新生成",
     "files": {
       "attach": "附加文本文件",
+      "drop": "松开即可附加文本文件",
       "remove": "移除 {name}",
       "download": "下载 {name}",
       "tooMany": "每条消息最多 {max} 个文件。",

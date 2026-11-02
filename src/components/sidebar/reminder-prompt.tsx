@@ -12,7 +12,7 @@ import { snoozeUntil } from "@/lib/snooze";
 import type { InboxItem } from "@/server/notifications";
 
 /**
- * An agent's reminder over the page when its time comes (server/ai-reminders.ts), the oldest of
+ * A reminder an agent or the AI chat set, over the page when its time comes (server/ai-reminders.ts), the oldest of
  * those waiting first: Done marks it read, "in 1 hour" snoozes it, Open marks it read and goes
  * where the inbox would, and closing it (Escape, a click beside it) only takes it off the screen,
  * unread in the inbox. Reading it here reads it in the inbox, and the other tabs close their copy
@@ -52,7 +52,7 @@ export function ReminderPrompt({ workspaceId, reminders, onSeen }: { workspaceId
       <DialogBody className="space-y-3">
         <div className="flex items-center gap-2">
           <AlarmClock aria-hidden className="h-4 w-4 shrink-0 text-accent" />
-          <DialogTitle className="min-w-0 flex-1 truncate">{t("title", { agent })}</DialogTitle>
+          <DialogTitle className="min-w-0 flex-1 truncate">{item.aiReminder?.own ? t("ownTitle") : t("title", { agent })}</DialogTitle>
           <span className="shrink-0 text-xs text-fg-muted">{relativeTime(item.createdAt, locale)}</span>
         </div>
         <p className="text-sm leading-6 break-words whitespace-pre-wrap text-fg">{item.aiReminder?.text}</p>

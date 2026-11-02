@@ -23,6 +23,7 @@
   "firstReadHint": "最新邮件稍后显示。最多三个月前的旧邮件会在接下来几分钟内陆续载入。",
   "empty": "这里没有邮件。",
   "emptySearch": "没有匹配的邮件。",
+  "emptyStarred": "没有已加星标的会话。",
   "emptyFolder": {
     "trash": "清空废纸篓",
     "junk": "清空垃圾邮件",
@@ -185,6 +186,7 @@
   "showSource": "显示原始邮件",
   "downloadSource": "下载邮件 (.eml)",
   "allInboxes": "所有收件箱",
+  "allStarred": "所有已加星标",
   "ai": {
     "summarize": "总结",
     "summarizeHint": "用 AI 总结此对话",

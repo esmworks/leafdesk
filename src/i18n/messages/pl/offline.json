@@ -6,6 +6,12 @@
   "readOnlyCopy": "Kopia offline z {time}, tylko do odczytu",
   "signOutUnsynced": "Niektóre strony mają zmiany, które nie dotarły jeszcze na serwer. Wylogowanie usunie je z tej przeglądarki. Wylogować mimo to?",
   "installApp": "Zainstaluj aplikację",
+  "iosInstall": {
+    "title": "Dodaj Leafdesk do ekranu początkowego",
+    "share": "Stuknij przycisk Udostępnij na pasku narzędzi przeglądarki lub w menu obok adresu.",
+    "add": "Wybierz „Do ekranu początkowego” (stuknij Więcej, jeśli go nie ma), a następnie stuknij Dodaj.",
+    "done": "Leafdesk będzie się wtedy otwierać z ikony we własnym oknie, bez pasków przeglądarki."
+  },
   "page": {
     "documentTitle": "Offline",
     "heading": "Jesteś offline",

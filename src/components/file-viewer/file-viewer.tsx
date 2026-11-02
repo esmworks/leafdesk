@@ -31,12 +31,14 @@ import type { ViewerFile } from "./index";
 export type Probe = { status: "loading" } | { status: "missing" } | { status: "ready"; size: number | null; type: string; name: string | null };
 
 /** The file's stored type, size and name, from a one-byte range request (see lib/file-viewer probeResult). */
-function useProbe(url: string): Probe {
+function useProbe(url: string, known: Probe | null): Probe {
+  const ask = !known;
   // Kept with the URL it answers for: the next file reads as loading until its own answer comes.
   const [probe, setProbe] = useState<{ url: string; probe: Probe } | null>(null);
   useEffect(() => {
-    // An image on another site shows as what the page says it is: its site isn't asked.
-    if (new URL(url, location.href).origin !== location.origin) return;
+    // An image on another site shows as what the page says it is: its site isn't asked. Neither is
+    // the route of a file kept elsewhere, which would read it whole.
+    if (!ask || new URL(url, location.href).origin !== location.origin) return;
     const controller = new AbortController();
     fetch(url, { headers: { Range: "bytes=0-0" }, signal: controller.signal })
       .then((res) => {
@@ -49,7 +51,8 @@ function useProbe(url: string): Probe {
         if (!controller.signal.aborted) setProbe({ url, probe: { status: "missing" } });
       });
     return () => controller.abort();
-  }, [url]);
+  }, [url, ask]);
+  if (known) return known;
   return probe?.url === url ? probe.probe : { status: "loading" };
 }
 
@@ -66,7 +69,7 @@ export default function FileViewer({ files, start, onClose }: { files: ViewerFil
   const dir = useDirection();
   const [index, setIndex] = useState(start);
   const file = files[index] ?? files[0];
-  const probe = useProbe(file.url);
+  const probe = useProbe(file.url, file.elsewhere && file.type ? { status: "ready", size: null, type: file.type, name: file.name } : null);
   const box = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const zoom = useRef<ZoomControl | null>(null);
@@ -163,7 +166,7 @@ export default function FileViewer({ files, start, onClose }: { files: ViewerFil
       onDoubleClick={stop}
       onContextMenu={stop}
       onDragStart={stop}
-      className="fixed inset-x-0 top-(--app-top) bottom-0 z-[100] flex flex-col bg-neutral-950 text-white outline-none"
+      className="fixed inset-x-0 top-(--app-top) bottom-0 z-[100] flex flex-col pb-(--safe-bottom) bg-neutral-950 text-white outline-none"
       data-file-viewer=""
     >
       <div className="flex h-14 shrink-0 items-center gap-1 ps-4 pe-2 sm:gap-2">

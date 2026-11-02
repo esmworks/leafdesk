@@ -1,5 +1,5 @@
 /**
- * Where a chat's runs keep what was said (`agent_conversation`, see lib/agent-chat.ts): the run
+ * Where a chat's runs keep what was said (`conversation` with an agent, see lib/agent-chat.ts): the run
  * reads the conversation before its message, and writes its answer there when it ends, however it
  * ends, with the files it attached; the messages that waited meanwhile (lib/agent-chat-queue.ts)
  * then go as the next turn. Kept apart from chat.ts (the chat's checks and lists), which queues
@@ -7,15 +7,16 @@
  */
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentChatFile, agentConversation, agentRun, file } from "@/db/schema";
+import { conversationFile, conversation, agentRun, file } from "@/db/schema";
 import type { ChatStepRecord } from "@/db/schema/ai";
-import { AGENT_CHAT_HISTORY, type AgentChatAnswerFile, type AgentChatMessageRecord } from "@/lib/agent-chat";
+import { AGENT_CHAT_HISTORY, agentMessages, type AgentChatAnswerFile, type AgentChatMessageRecord } from "@/lib/agent-chat";
 import { mergeTurnQuestions, queuedTurn } from "@/lib/agent-chat-queue";
 import { summaryTurn } from "@/lib/agent-chat-summary";
 import { readEmail, type AgentRunCode, type AgentStepRecord } from "@/lib/agents";
 import { firstLocalRead } from "@/lib/local-reads";
 import { redactError, redactText, redactValue } from "@/lib/redact";
 import { chatHistory } from "@/server/ai/prompts";
+import { startTriggered } from "@/server/triggers";
 import { kickAgents } from "./kick";
 
 type Run = Pick<typeof agentRun.$inferSelect, "id" | "source" | "steps">;
@@ -43,12 +44,13 @@ export async function chatRunHistory(
   if (run.source.kind !== "chat") return { messages: [], mailRead: false, localRead: false };
   const fromApp = Boolean(run.source.fromApp);
   const [found] = await db
-    .select({ messages: agentConversation.messages, chatId: agentConversation.chatId, agentId: agentConversation.agentId })
-    .from(agentConversation)
-    .where(eq(agentConversation.id, run.source.conversationId));
+    .select({ messages: conversation.messages, chatId: conversation.chatId, agentId: conversation.agentId })
+    .from(conversation)
+    .where(eq(conversation.id, run.source.conversationId));
   if (!found) return { messages: [], mailRead: false, localRead: false };
-  const at = found.messages.findIndex((m) => m.role === "user" && m.runId === run.id);
-  const earlier = at >= 0 ? found.messages.slice(0, at) : found.messages;
+  const messages = agentMessages(found.messages);
+  const at = messages.findIndex((m) => m.role === "user" && m.runId === run.id);
+  const earlier = at >= 0 ? messages.slice(0, at) : messages;
   const local = firstLocalRead(earlier);
   // Messages that waited in the queue go with their answer as one question.
   const before = mergeTurnQuestions(fromApp && local >= 0 ? earlier.slice(0, local) : earlier).slice(-AGENT_CHAT_HISTORY);
@@ -62,7 +64,7 @@ export async function chatRunHistory(
     const attachments = m.files?.map((f) => ({ id: "", name: f.name, contentType: "text/plain", size: f.size }));
     return [{ role: m.role, content: `${failed}${attached}`, steps: chatSteps(m.steps), attachments, at: m.at, mail }];
   });
-  const own = found.chatId === null ? await ownRunTurns(found.agentId, run.source.userId, before[0]?.at ?? null, at >= 0 ? found.messages[at].at : null) : [];
+  const own = found.chatId === null && found.agentId ? await ownRunTurns(found.agentId, run.source.userId, before[0]?.at ?? null, at >= 0 ? messages[at].at : null) : [];
   // Turns stay whole (a question, then its answer): a run that started while one was answered goes after it.
   const units: (typeof turns)[] = [];
   for (const turn of turns) {
@@ -85,8 +87,8 @@ export async function chatRunHistory(
 /** What the person wrote earlier in a chat run's conversation: the addresses there are theirs to write to (ai-chat-mail.ts). */
 export async function chatRunTyped(run: Run): Promise<string[]> {
   if (run.source.kind !== "chat") return [];
-  const [found] = await db.select({ messages: agentConversation.messages }).from(agentConversation).where(eq(agentConversation.id, run.source.conversationId));
-  return (found?.messages ?? []).filter((m) => m.role === "user" && m.runId !== run.id).map((m) => m.content);
+  const [found] = await db.select({ messages: conversation.messages }).from(conversation).where(eq(conversation.id, run.source.conversationId));
+  return agentMessages(found?.messages ?? []).filter((m) => m.role === "user" && m.runId !== run.id).map((m) => m.content);
 }
 
 /** Runs of the person's own (other than chats) the history takes, at most. */
@@ -129,10 +131,10 @@ async function ownRunTurns(agentId: string, userId: string, from: string | null,
 export async function answerFiles(runId: string): Promise<AgentChatAnswerFile[]> {
   return db
     .select({ id: file.id, name: file.name, size: file.size, contentType: file.contentType })
-    .from(agentChatFile)
-    .innerJoin(file, eq(file.id, agentChatFile.fileId))
-    .where(eq(agentChatFile.runId, runId))
-    .orderBy(asc(agentChatFile.createdAt));
+    .from(conversationFile)
+    .innerJoin(file, eq(file.id, conversationFile.fileId))
+    .where(eq(conversationFile.runId, runId))
+    .orderBy(asc(conversationFile.createdAt));
 }
 
 /**
@@ -148,55 +150,58 @@ export async function closeChatTurn(run: EndedRun, ending: { answer?: string; co
   if (run.source.kind !== "chat") return;
   const source = run.source;
   try {
+    // Without its steps (a run that threw), those it saved as it went: `run` holds them as it was claimed.
+    const steps = ending.steps ?? (await db.select({ steps: agentRun.steps }).from(agentRun).where(eq(agentRun.id, run.id)))[0]?.steps ?? run.steps;
     const attached = await answerFiles(run.id);
     const next = await db.transaction(async (tx) => {
       const [found] = await tx
-        .select({ messages: agentConversation.messages, queue: agentConversation.queue })
-        .from(agentConversation)
-        .where(eq(agentConversation.id, source.conversationId))
+        .select({ messages: conversation.messages, queue: conversation.queue })
+        .from(conversation)
+        .where(eq(conversation.id, source.conversationId))
         .for("update");
-      if (!found || found.messages.some((m) => m.role === "assistant" && m.runId === run.id)) return null;
+      if (!found || agentMessages(found.messages).some((m) => m.role === "assistant" && m.runId === run.id)) return null;
       const now = Date.now();
       const record: AgentChatMessageRecord = {
         role: "assistant",
         content: redactText(ending.answer ?? "").slice(0, 8_000),
         runId: run.id,
         ...(ending.code ? { code: ending.code } : {}),
-        steps: redactValue(ending.steps ?? run.steps),
+        steps: redactValue(steps),
         ...(attached.length ? { attached } : {}),
         at: new Date(now).toISOString(),
       };
       let added: AgentChatMessageRecord[] = [record];
       let nextRun: string | null = null;
-      if (found.queue.length) {
+      // A chat's run is always an agent's (agent_run_agent_check).
+      if (found.queue.length && run.agentId) {
         const turn = queuedTurn(found.queue, "", now);
         const zone = turn.timeZone ?? ("timeZone" in run.context ? run.context.timeZone : undefined);
-        const [queued] = await tx
-          .insert(agentRun)
-          .values({
-            agentId: run.agentId,
-            workspaceId: run.workspaceId,
-            source: {
-              kind: "chat",
-              userId: source.userId,
-              conversationId: source.conversationId,
-              ...(turn.fromApp ? { fromApp: true } : {}),
-              after: run.id,
-              ...(turn.telegram ? { telegram: true as const } : {}),
-              ...(turn.otherApp ? { otherApp: true as const } : {}),
-              ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
-            },
-            context: { actorId: source.userId, ...(zone ? { timeZone: zone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
-            prompt: turn.prompt,
-          })
-          .returning({ id: agentRun.id });
+        // The queue's turn, in the conversation locked above: the trigger layer only links it there.
+        const { run: queued } = await startTriggered({
+          target: { agentId: run.agentId },
+          workspaceId: run.workspaceId,
+          source: {
+            kind: "chat",
+            userId: source.userId,
+            conversationId: source.conversationId,
+            ...(turn.fromApp ? { fromApp: true } : {}),
+            after: run.id,
+            ...(turn.telegram ? { telegram: true as const } : {}),
+            ...(turn.otherApp ? { otherApp: true as const } : {}),
+            ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
+          },
+          context: { actorId: source.userId, ...(zone ? { timeZone: zone } : {}), ...(turn.files.length ? { files: turn.files } : {}) },
+          prompt: turn.prompt,
+          conversation: { rule: "fixed", conversationId: source.conversationId },
+          tx,
+        });
         nextRun = queued.id;
         added = [record, ...turn.records.map((r) => ({ ...r, runId: queued.id }))];
       }
       await tx
-        .update(agentConversation)
-        .set({ messages: sql`${agentConversation.messages} || ${JSON.stringify(added)}::jsonb`, queue: [], updatedAt: new Date(now) })
-        .where(eq(agentConversation.id, source.conversationId));
+        .update(conversation)
+        .set({ messages: sql`${conversation.messages} || ${JSON.stringify(added)}::jsonb`, queue: [], updatedAt: new Date(now) })
+        .where(eq(conversation.id, source.conversationId));
       return nextRun;
     });
     if (next) kickAgents();

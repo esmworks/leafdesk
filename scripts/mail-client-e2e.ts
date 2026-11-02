@@ -81,6 +81,7 @@ const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { connectMailbox, setMailDatabases, RowMailError } = await import("@/server/row-mail/settings");
 const { syncDue } = await import("@/server/row-mail/sync");
 const read = await import("@/server/mail-client/read");
+const { STARRED } = await import("@/lib/mail-client");
 const { emptyFolder, holdMail, mailAction, sendHeld, sendMail, sendStatus, undoSend } = await import("@/server/mail-client/write");
 const drafts = await import("@/server/mail-client/drafts");
 const { suggestAddresses } = await import("@/server/mail-client/contacts");
@@ -370,6 +371,25 @@ try {
   const archived = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: folder("archive").id });
   check(archived.items[0]?.threadId === teklif!.threadId && archived.items[0].starred, "archiving moves the thread's inbox messages to the archive, flags and all", archived.items);
   check((await uidsIn("Archive")).length === 2 && (await uidsIn("INBOX")).length === 3, "on the server too");
+  // The starred: from every folder, each thread named by the folder of its starred message.
+  const starredList = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: STARRED });
+  check(
+    starredList.items.length === 1 && starredList.items[0].threadId === teklif!.threadId && starredList.items[0].folderId === folder("archive").id && starredList.items[0].count === 3,
+    "the starred list finds a starred thread in any folder, by the folder of its starred message, with all its messages",
+    starredList.items.map((i) => [i.subject, i.folderId, i.count]),
+  );
+  const allStarred = await read.listThreads(ids.ada, { mailboxId: "all", folderId: STARRED, workspaceId });
+  check(allStarred.items.map((i) => i.threadId).join() === teklif!.threadId, "all mailboxes' starred list it too", allStarred.items.map((i) => i.subject));
+  check(
+    (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: STARRED, search: "teklif" })).items.length === 1 &&
+      !(await read.listThreads(ids.ada, { mailboxId: boxId, folderId: STARRED, search: "bülten" })).items.length,
+    "a search in the starred searches the starred alone",
+  );
+  check(
+    (await errorCode(() => read.listThreads(ids.bob, { mailboxId: boxId, folderId: STARRED }))) === "noMailbox" &&
+      !(await read.listThreads(ids.bob, { mailboxId: "all", folderId: STARRED, workspaceId })).items.length,
+    "another member sees none of them",
+  );
   const projeler = opened.folders!.find((f) => f.name === "Projeler")!;
   await mailAction(ids.ada, { mailboxId: boxId, folderId: folder("archive").id, threadIds: [teklif!.threadId], action: "move", to: projeler.id });
   const inProjeler = await read.listThreads(ids.ada, { mailboxId: boxId, folderId: projeler.id });

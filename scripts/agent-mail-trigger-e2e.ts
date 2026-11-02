@@ -9,7 +9,8 @@
  * message with what it did (shown in the Mail tab's list) and leaves its person an inbox report; the
  * hourly limit holds further mail back and says so on the mailbox; a run whose mailbox was closed
  * to the agent fails quietly. Rows it proposes from the email wait in For review for the mailbox's
- * owner alone: another editor of the database, and a connected app, see none of them. The mail
+ * owner alone: another editor of the database, and a connected app, see none of them; a chat that
+ * read email only proposes notes, whose text its person alone reads, and forgets none. The mail
  * assistant template takes only the installer's own mailbox and sets all this up on it.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -72,7 +73,7 @@ const { and, eq, inArray, sql } = await import("drizzle-orm");
 const nodemailer = (await import("nodemailer")).default;
 const { ImapFlow } = await import("imapflow");
 const { db } = await import("@/db");
-const { agentMailbox, agentRun, mailbox, mailMessage, notification, page, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
+const { agentMailbox, agentRun, conversation, mailbox, mailMessage, notification, page, schedule, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { setPagePermission } = await import("@/server/permissions");
 const { runAsConnectedApp } = await import("@/server/connected-app");
 const review = await import("@/server/pending-changes");
@@ -92,6 +93,11 @@ type FakeReply = import("@/server/ai/fake-openai").FakeReply;
 const agents = await import("@/server/agents/manage");
 const { agentMailboxesOf, setAgentMailbox, setAgentMailTrigger } = await import("@/server/agents/mail");
 const { flushAgentRuns } = await import("@/server/agents/run");
+const chat = await import("@/server/agents/chat");
+const { keepAgentMemory, listAgentMemory } = await import("@/server/agents/memory");
+const { setAgentShare } = await import("@/server/agents/sharing");
+const { setAgentSchedule } = await import("@/server/agents/schedules");
+const { runDueSchedules } = await import("@/server/schedules");
 const { installBuiltinAgent } = await import("@/server/agents/builtin");
 const { MAX_MAIL_RUNS_PER_HOUR } = await import("@/lib/agents");
 
@@ -239,6 +245,12 @@ try {
     "new mail from a row starts one run, with the task; lists, auto-replies, strangers and the owner's own mail start none",
     runs.map((r) => ({ source: r.source, status: r.status })),
   );
+  const [mailConversation] = runs[0].conversationId ? await db.select().from(conversation).where(eq(conversation.id, runs[0].conversationId)) : [];
+  check(
+    mailConversation?.key === `mail:${priceMessage!.threadId}` && mailConversation.agentId === helper.id && mailConversation.userId === helper.userId,
+    "the run joins the agent's conversation kept for the mail thread",
+    mailConversation,
+  );
   check((await messageBy(`Haftalık bülten ${RUN}`))?.automated === true && (await messageBy(`Ofis dışında ${RUN}`))?.automated === true, "mailing lists and auto-replies are marked as written by a machine");
 
   // A second message in the thread while its run waits starts no other run.
@@ -353,6 +365,8 @@ try {
   await review.approvePendingChange(ids.ada, change.id);
   const [approved] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, acme.id));
   check((approved.properties as Record<string, unknown>)[notesProperty.id] === "Asks whether Friday delivery works.", "approved by the owner, the row changes", approved.properties);
+  const proposalReport = (await reportsOf()).find((r) => r.agentRunId === proposed.id);
+  check(proposalReport?.kind === "agent_report", "a run that proposed rows leaves its person a report that opens its chat");
 
   // ── The hourly limit ─────────────────────────────────────────────────────────────────────────
   const source = { kind: "mail" as const, mailboxId: box.id, userId: ids.ada, threadId: "earlier", messageId: "earlier" };
@@ -376,7 +390,7 @@ try {
   const [gone] = (await runsOf(helper.id)).filter((r) => r.id === pending[0].id);
   check(gone.status === "failed" && gone.code === "mailGone" && fake.chats.length === 0, "a run whose mailbox was closed to the agent fails without reading", { status: gone.status, code: gone.code });
   const after = await reportsOf();
-  check(after.length === 1, "and leaves no report");
+  check(after.length === 2 && after.every((r) => r.agentRunId !== gone.id), "and leaves no report", after.map((r) => r.agentRunId));
 
   // ── The mail assistant template ──────────────────────────────────────────────────────────────
   const notMine = await installBuiltinAgent(ids.ada, workspaceId, { key: "mail-assistant", databaseId: customers.id, mailboxId: `${RUN}-nope` }).catch((e: unknown) => e);
@@ -392,6 +406,109 @@ try {
   check(opened?.open && opened.trigger.on && opened.trigger.task.length > 0 && opened.trigger.filters.knownOnly, "its mailbox is opened to it and new email there starts it, only from people who are rows", opened);
   const shared = (await agents.listAgentAccess(ids.ada, installed.agent.id)).pages.find((p) => p.pageId === customers.id);
   check(shared?.level === "edit", "and the customers are shared with it to edit", shared);
+
+  // ── Proposals from a chat and a daily schedule ───────────────────────────────────────────────
+  // An agent changing rows directly, with Ada's mailbox opened to it but no trigger.
+  const daily = await agents.createAgent(ids.ada, workspaceId, { name: "Günlük posta", instructions: "You keep the customers current from Ada's email." });
+  await agents.setAgentAccess(ids.ada, daily.id, customers.id, "edit");
+  await setAgentMailbox(ids.ada, daily.id, box.id, true);
+  const notesOf = async () => ((await db.select({ properties: page.properties }).from(page).where(eq(page.id, acme.id)))[0].properties as Record<string, unknown>)[notesProperty.id];
+  fake.chats.length = 0;
+  fake.setChat(
+    caller(
+      [
+        () => ({ name: "update_row", arguments: { row_id: acme.id, properties: { Notes: "Before mail" }, reason: "Ada asked." } }),
+        () => ({ name: "read_mail", arguments: { message_id: priceMessage!.id } }),
+        () => ({ name: "update_row", arguments: { row_id: acme.id, properties: { Notes: "Wants 100 GNK 800 by Friday." }, reason: "Ayşe's price request." } }),
+        () => ({ name: "create_row", arguments: { database_id: customers.id, title: "Can Demir", reason: "Named in the email." } }),
+        () => ({ name: "create_page", arguments: { title: "Notes" } }),
+        () => ({ name: "remember", arguments: { text: "Ada runs Acme's account.", kind: "correction" } }),
+        () => ({ name: "forget", arguments: { memory_id: "any" } }),
+      ],
+      "I proposed two changes from the email.",
+    ),
+  );
+  const chatted = await chat.sendAgentChat(ids.ada, { workspaceId, agentId: daily.id, place: null, conversationId: null, message: "Update Acme from today's email." });
+  await flushAgentRuns();
+  const [chatRun] = await db.select().from(agentRun).where(eq(agentRun.id, chatted.runId!));
+  check(chatRun.status === "done", "the chat's run finishes", { status: chatRun.status, code: chatRun.code, error: chatRun.error });
+  check(["read_mail", "update_row", "create_row"].every((t) => offered(fake.chats[0]).includes(t)), "a chat in the app is offered the mail tools and the row writes", offered(fake.chats[0]));
+  const chatResults = toolResults(fake.chats.at(-1)!);
+  check(
+    !chatResults[0]?.startsWith("Proposed") && chatResults[1]?.includes("GNK 800") && chatResults[2]?.startsWith("Proposed") && chatResults[3]?.startsWith("Proposed") && !chatResults[4]?.startsWith("Proposed"),
+    "before email is read a chat's write is made; after, row writes are proposals and other writes are refused",
+    chatResults,
+  );
+  check(
+    chatResults[5]?.startsWith("Proposed as a correction") && chatResults[5]?.includes("The person you chat with") && chatResults[6]?.includes("proposes notes"),
+    "after email is read a note is only proposed, never kept at once, and forget is refused",
+    chatResults.slice(5),
+  );
+  const notesFor = async (userId: string) => (await listAgentMemory(userId, daily.id)).filter((n) => n.run?.id === chatRun.id);
+  const adaNotes = await notesFor(ids.ada);
+  check(adaNotes.length === 1 && adaNotes[0].status === "proposed" && adaNotes[0].text === "Ada runs Acme's account.", "the person chatting reads the proposed note", adaNotes);
+  await setAgentShare(ids.ada, daily.id, { kind: "person", userId: ids.bob }, "edit");
+  const bobNotes = await notesFor(ids.bob);
+  check(bobNotes.length === 1 && bobNotes[0].text === null, "another editor of the agent sees it without its text", bobNotes);
+  await keepAgentMemory(ids.ada, daily.id, adaNotes[0].id);
+  check((await notesFor(ids.ada)).length === 0 && (await listAgentMemory(ids.ada, daily.id)).some((n) => n.status === "kept" && n.text === "Ada runs Acme's account."), "kept by its person, the note goes with the agent's runs");
+  check((await notesOf()) === "Before mail", "the proposal changes nothing yet");
+  const fromChat = await review.listPendingChanges(ids.ada, workspaceId, { filter: { runId: chatRun.id } });
+  check(fromChat.length === 2 && fromChat.every((c) => c.agent?.id === daily.id), "For review narrowed to the run lists both", fromChat.map((c) => c.kind));
+  check((await review.listPendingChanges(ids.bob, workspaceId, { filter: { runId: chatRun.id } })).length === 0, "another editor of the database sees none of them");
+  await review.approvePendingChange(ids.ada, fromChat.find((c) => c.kind === "update_row")!.id);
+  check((await notesOf()) === "Wants 100 GNK 800 by Friday.", "approved, the row changes");
+
+  // Through a connected app, the same chat reads no email.
+  fake.chats.length = 0;
+  fake.setChat(() => ({ text: "Okay." }));
+  const viaApp = await runAsConnectedApp({ userId: ids.ada }, () =>
+    chat.sendAgentChat(ids.ada, { workspaceId, agentId: daily.id, place: null, conversationId: null, message: "Read my email." }),
+  );
+  await flushAgentRuns();
+  const [appRun] = await db.select().from(agentRun).where(eq(agentRun.id, viaApp.runId!));
+  check(appRun.source.kind === "chat" && appRun.source.fromApp, "a chat from a connected app is marked so", appRun.source);
+  check(!offered(fake.chats[0]).includes("read_mail"), "and gets no mail tools", offered(fake.chats[0]));
+
+  // A daily schedule with no database reads the email and proposes to whoever set it.
+  const morning = { frequency: "daily", interval: 1, weekdays: [], time: "08:00" } as const;
+  const scheduled = await setAgentSchedule(ids.ada, daily.id, null, { rule: morning, timeZone: "Europe/Istanbul", task: "Go through today's email and keep the customers current." });
+  fake.chats.length = 0;
+  fake.setChat(
+    caller(
+      [
+        () => ({ name: "search_mail", arguments: { query: "GNK" } }),
+        () => ({ name: "update_row", arguments: { row_id: acme.id, properties: { Notes: "Delivery by Friday." }, reason: "From the morning's email." } }),
+        () => ({ name: "edit_page", arguments: { page_id: acme.id, markdown: "x" } }),
+      ],
+      "Proposed one change.",
+    ),
+  );
+  await db.update(schedule).set({ nextRunAt: new Date(Date.now() - 60_000) }).where(eq(schedule.id, scheduled.id));
+  await runDueSchedules(new Date());
+  await flushAgentRuns();
+  const [morningRun] = (await runsOf(daily.id)).filter((r) => r.source.kind === "schedule");
+  check(morningRun?.status === "done", "the schedule's run finishes", morningRun && { status: morningRun.status, code: morningRun.code, error: morningRun.error });
+  const morningTools = offered(fake.chats[0]);
+  check(
+    ["search_mail", "read_mail", "draft_mail", "update_row", "create_row"].every((t) => morningTools.includes(t)) && !morningTools.includes("edit_page"),
+    "a schedule with no database is offered the mail tools and row proposals, no page edits",
+    morningTools,
+  );
+  const morningResults = toolResults(fake.chats.at(-1)!);
+  check(morningResults[1]?.startsWith("Proposed") && !morningResults[2]?.startsWith("Proposed"), "its row write is a proposal", morningResults);
+  check((await notesOf()) === "Wants 100 GNK 800 by Friday.", "nothing changes before it is approved");
+  const fromMorning = await review.listPendingChanges(ids.ada, workspaceId, { filter: { runId: morningRun.id } });
+  check(fromMorning.length === 1 && (await review.listPendingChanges(ids.bob, workspaceId, { filter: { runId: morningRun.id } })).length === 0, "it waits for the person who set the schedule alone", fromMorning.length);
+
+  // One bound to a database writes its rows, so it reads no email.
+  const bound = await setAgentSchedule(ids.ada, daily.id, null, { rule: morning, timeZone: "Europe/Istanbul", task: "Tidy the customers.", databaseId: customers.id });
+  fake.chats.length = 0;
+  fake.setChat(() => ({ text: "Tidied." }));
+  await db.update(schedule).set({ nextRunAt: new Date(Date.now() - 60_000) }).where(eq(schedule.id, bound.id));
+  await runDueSchedules(new Date());
+  await flushAgentRuns();
+  check(fake.chats.length > 0 && !offered(fake.chats[0]).includes("read_mail"), "a schedule bound to a database gets no mail tools", offered(fake.chats[0]));
 
   console.log(`\n${passed} checks passed`);
 } finally {

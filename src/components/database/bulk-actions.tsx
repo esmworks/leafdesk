@@ -124,7 +124,7 @@ export function BulkActionBar({
     <div
       role="toolbar"
       aria-label={t("actions")}
-      className="fixed inset-x-0 bottom-4 z-40 mx-auto flex w-fit max-w-[calc(100vw-2rem)] items-center gap-0.5 overflow-x-auto rounded-lg border border-border bg-bg p-1 shadow-lg [scrollbar-width:none]"
+      className="fixed inset-x-0 bottom-safe-4 z-40 mx-auto flex w-fit max-w-[calc(100vw-2rem)] items-center gap-0.5 overflow-x-auto rounded-lg border border-border bg-bg p-1 shadow-lg [scrollbar-width:none]"
     >
       <span className="shrink-0 px-2 text-sm font-medium tabular-nums text-accent">{t("selected", { count: ids.length })}</span>
       {!readOnly && (

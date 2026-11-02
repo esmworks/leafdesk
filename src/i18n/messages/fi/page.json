@@ -1321,6 +1321,15 @@
     "working": "Työskennellään…",
     "waiting": "Odotetaan vapaata tekoälyvuoroa…",
     "approval": "Agentti haluaa käyttää työkalua. Hyväksy kutsu, jotta se voi jatkaa.",
+    "proposals": {
+      "title": "Ehdotetut muutokset",
+      "waiting": "{count, plural, one {# muutos odottaa hyväksyntääsi} other {# muutosta odottaa hyväksyntääsi}}",
+      "approved": "{count, plural, other {# hyväksytty}}",
+      "approveAll": "{count, plural, one {Hyväksy} other {Hyväksy kaikki #}}",
+      "review": "Tarkista",
+      "skipped": "{count, plural, one {# muutosta ei voitu tehdä: tarkista se.} other {# muutosta ei voitu tehdä: tarkista ne.}}",
+      "failed": "Muutoksia ei voitu hyväksyä. Yritä uudelleen."
+    },
     "steps": "{count, plural, one {# vaihe} other {# vaihetta}}",
     "conversations": "Keskustelut",
     "newConversation": "Uusi keskustelu",
@@ -1336,6 +1345,7 @@
       "limitReached": "Agentti on käyttänyt kuukauden tokeninsa.",
       "costLimit": "Työtila on saavuttanut tekoälyn kuukausittaisen kustannusrajansa.",
       "selfReported": "Agentti kertoi, ettei se pystynyt tekemään tehtäväänsä.",
+      "stopped": "Pysäytetty.",
       "error": "Jokin meni vikaan."
     },
     "errors": {
@@ -1399,6 +1409,7 @@
     "regenerate": "Luo uudelleen",
     "files": {
       "attach": "Liitä tekstitiedostoja",
+      "drop": "Pudota tekstitiedostot liittääksesi ne",
       "remove": "Poista {name}",
       "download": "Lataa {name}",
       "tooMany": "Enintään {max} tiedostoa viestiä kohden.",

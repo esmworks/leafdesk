@@ -970,12 +970,14 @@ export function TableView({
       >
         <table className={tableClass} style={{ width: totalWidth }}>
           {colgroup}
-          {/* The column names again for screen readers, with no height; where the rows start (TableBody). */}
+          {/* The column names again for screen readers, with no height; where the rows start (TableBody).
+              Each cell holds its absolutely placed name, or the names escape the sideways scrolling and
+              widen the whole page on a phone. */}
           <thead ref={setThead}>
             <tr>
               <th className="h-0 p-0" />
               {[t("nameColumn"), ...visible.map((p) => p.name)].map((name, i) => (
-                <th key={i} className="h-0 p-0">
+                <th key={i} className="relative h-0 p-0">
                   <span className="sr-only">{name}</span>
                 </th>
               ))}

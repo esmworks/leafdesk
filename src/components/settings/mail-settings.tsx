@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { lazyPart } from "@/components/lazy-part";
 import { useEffect, useState } from "react";
-import { disconnectMailboxAction, setDefaultMailboxAction, setMailDatabasesAction } from "@/app/actions/row-mail";
+import { disconnectMailboxAction, setDefaultMailboxAction, setMailboxNotifyAction, setMailDatabasesAction } from "@/app/actions/row-mail";
 import { updateWorkspaceSettingsAction } from "@/app/actions/workspaces";
 import { Button, cn, IconButton, PageIcon, pageLabel, selectClass, Switch } from "@/components/ui";
 import { MAX_MAILBOXES, type MailboxView, type MailSettingsView, type OwnMailbox } from "@/lib/mail";
@@ -405,6 +405,24 @@ function MailboxGroup({
             onSaved={(saved) => onChange(mailboxes.map((m) => (m.id === saved.id ? saved : m)))}
           />
         ))}
+      {enabled &&
+        mailboxes.map((mailbox, index) => {
+          const title = mailboxes.length > 1 ? ta("notifyFor", { address: mailbox.address }) : ta("notify");
+          const toggle = (
+            <Switch
+              checked={mailbox.notify}
+              disabled={pending}
+              label={title}
+              onChange={(on) => run(() => setMailboxNotifyAction(mailbox.id, on), (saved) => onChange(mailboxes.map((m) => (m.id === saved.id ? saved : m))))}
+            />
+          );
+          // The first is what Settings' search jumps to.
+          return index === 0 ? (
+            <SettingsRow key={`notify-${mailbox.id}`} anchor="mailNotify" title={title} description={ta("notifyHint")} control={toggle} />
+          ) : (
+            <SettingsRow key={`notify-${mailbox.id}`} title={title} description={ta("notifyHint")} control={toggle} />
+          );
+        })}
       {enabled && main && <MailboxSending key={main.id} mailbox={main} onChange={(saved) => onChange(mailboxes.map((m) => (m.id === saved.id ? saved : m)))} />}
       {enabled && (
         <SettingsRow

@@ -4,16 +4,17 @@ import { getConversationAction, listConversationsAction } from "@/app/actions/ai
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftAction, openMailboxAction, prefetchBodiesAction, readBodyAction, refreshFolderAction, sendStatusAction, suggestAddressesAction } from "@/app/actions/mail";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
-import { dueRemindersAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
+import { arrivalsAction, dueRemindersAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
 import { recordPageViewAction } from "@/app/actions/page-views";
 import { placeAtAction } from "@/app/actions/places";
 import { getPageReviewAction, listTrashAction, recentSearchAction, searchAction, searchFilterOptionsAction } from "@/app/actions/pages";
 import { relatedPagesAction } from "@/app/actions/related-pages";
-import { pendingCountAction } from "@/app/actions/review";
+import { pendingCountAction, runProposalsAction } from "@/app/actions/review";
 import { discoverMailServersAction } from "@/app/actions/row-mail";
 import { settingsSearchAction } from "@/app/actions/settings-search";
 import { usableSnippetsAction } from "@/app/actions/snippets";
 import { tagSuggestionsAction } from "@/app/actions/tags";
+import { listTriggersAction } from "@/app/actions/triggers";
 
 /**
  * Server actions that components call on their own (as a page opens, on a timer, as a box fills)
@@ -31,10 +32,13 @@ export const READS = {
   recordPageView: recordPageViewAction,
   unreadCount: unreadCountAction,
   dueReminders: dueRemindersAction,
+  arrivals: arrivalsAction,
   pendingCount: pendingCountAction,
+  runProposals: runProposalsAction,
   sidebarAgents: sidebarAgentsAction,
   agentLimitRequest: pendingAgentLimitRequestAction,
   agentMailboxes: agentMailboxesAction,
+  agentTriggers: listTriggersAction,
   recentSearch: recentSearchAction,
   searchFilterOptions: searchFilterOptionsAction,
   search: searchAction,

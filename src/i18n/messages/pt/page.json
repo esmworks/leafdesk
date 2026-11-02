@@ -1321,6 +1321,15 @@
     "working": "Trabalhando…",
     "waiting": "Aguardando uma vaga de IA…",
     "approval": "O agente quer usar uma ferramenta. Aprove a chamada para ele continuar.",
+    "proposals": {
+      "title": "Alterações propostas",
+      "waiting": "{count, plural, one {# alteração aguarda a sua aprovação} other {# alterações aguardam a sua aprovação}}",
+      "approved": "{count, plural, one {# aprovada} other {# aprovadas}}",
+      "approveAll": "{count, plural, one {Aprovar} other {Aprovar todas (#)}}",
+      "review": "Rever",
+      "skipped": "{count, plural, one {Não foi possível fazer # alteração: reveja-a.} other {Não foi possível fazer # alterações: reveja-as.}}",
+      "failed": "Não foi possível aprovar as alterações. Tente novamente."
+    },
     "steps": "{count, plural, one {# etapa} other {# etapas}}",
     "conversations": "Conversas",
     "newConversation": "Nova conversa",
@@ -1336,6 +1345,7 @@
       "limitReached": "O agente já usou os tokens do mês.",
       "costLimit": "O espaço de trabalho atingiu o limite mensal de custo de IA.",
       "selfReported": "O agente disse que não conseguiu fazer a tarefa.",
+      "stopped": "Parado.",
       "error": "Algo deu errado."
     },
     "errors": {
@@ -1399,6 +1409,7 @@
     "regenerate": "Gerar novamente",
     "files": {
       "attach": "Anexar arquivos de texto",
+      "drop": "Solte os arquivos de texto para anexá-los",
       "remove": "Remover {name}",
       "download": "Baixar {name}",
       "tooMany": "No máximo {max} arquivos por mensagem.",

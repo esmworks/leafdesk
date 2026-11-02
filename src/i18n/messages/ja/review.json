@@ -11,6 +11,7 @@
     "open": "対応待ち",
     "decided": "対応済み",
     "allRows": "すべての行を表示",
+    "allRuns": "すべての実行を表示",
     "clear": "フィルターをクリア"
   },
   "count": "{count, plural, other {#件の変更}}",

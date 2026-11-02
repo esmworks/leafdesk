@@ -111,12 +111,14 @@ import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
 import { lazyPart } from "@/components/lazy-part";
+import { useArrivals } from "./use-arrivals";
 import { useDueReminders } from "./use-due-reminders";
 import { read } from "@/components/read";
 
 // Loaded the first time the inbox opens: it is not needed to show a page.
 const InboxDialog = lazyPart(() => import("./inbox-dialog").then((m) => m.InboxDialog));
 const ReminderPrompt = lazyPart(() => import("./reminder-prompt").then((m) => m.ReminderPrompt));
+const ArrivalCards = lazyPart(() => import("./arrival-cards").then((m) => m.ArrivalCards));
 // Loaded the first time the Mail tab opens: most people open it now and then.
 const MailSidebar = lazyPart(() => import("@/components/mail/mail-sidebar").then((m) => m.MailSidebar));
 // Loaded the first time the import dialog opens, with the readers of every format it takes.
@@ -257,10 +259,23 @@ export function Sidebar({
   const [inboxMounted, setInboxMounted] = useState(false);
   if (inboxOpen && !inboxMounted) setInboxMounted(true);
   const [unread, setUnread] = useState(0);
+  // The workspace whose count `unread` is, once it came.
+  const [countedIn, setCountedIn] = useState<string | null>(null);
+  // The installed app's icon carries the count, where the system shows one.
+  useEffect(() => {
+    if (!("setAppBadge" in navigator)) return;
+    void (unread > 0 ? navigator.setAppBadge(unread) : navigator.clearAppBadge()).catch(() => {});
+  }, [unread]);
   // Agents' reminders whose time came, shown over the page one at a time; `reminderWake` is
   // bumped when the server says one came.
   const [reminderWake, setReminderWake] = useState(0);
   const [reminders, reminderSettled] = useDueReminders(workspaceId, unread, reminderWake);
+  // What people just sent, as cards at the window's top end.
+  const [arrivals, dismissArrivals] = useArrivals(workspaceId, countedIn === workspaceId ? unread : null);
+  // The inbox shows them all: their cards go.
+  useEffect(() => {
+    if (inboxOpen) dismissArrivals();
+  }, [inboxOpen, dismissArrivals]);
   // Changes agents proposed that wait for the person (the "For review" page), counted with the inbox.
   const [reviewCount, setReviewCount] = useState(0);
   // Bumped on every inbox signal so an open inbox reloads.
@@ -299,6 +314,8 @@ export function Sidebar({
       });
   }, [searchOpen, offline, workspaceId]);
   const onChatPage = Boolean(aiChat) && isChatPath(pathname, workspaceId);
+  // An agent's page is a chat too: the chat tab, where its agents are listed, stays open beside it.
+  const onAgentPage = Boolean(aiChat) && pathname.startsWith(`/w/${workspaceId}/agents/`);
   const tAi = useTranslations("ai.chat");
   const tJournal = useTranslations("journal");
   const { open: openDailyNote, pending: openingDailyNote, error: dailyNoteError } = useOpenDailyNote(workspaceId);
@@ -357,7 +374,12 @@ export function Sidebar({
     refreshFavorites();
   }, [workspaceId, refreshFavorites]);
   const refreshInbox = useCallback(() => {
-    read("unreadCount", workspaceId).then(setUnread).catch(() => {});
+    read("unreadCount", workspaceId)
+      .then((count) => {
+        setUnread(count);
+        setCountedIn(workspaceId);
+      })
+      .catch(() => {});
     read("pendingCount", workspaceId).then(setReviewCount).catch(() => {});
     // Agents made or archived elsewhere (the AI chat, settings, another window) show up with it.
     read("sidebarAgents", workspaceId)
@@ -492,6 +514,21 @@ export function Sidebar({
   // Daily notes are private top-level pages, so the journal only for those who may add them.
   const onMailPage = pathname.startsWith(`/w/${workspaceId}/mail`);
   const tabs: SidebarTab[] = ["home", ...(topLevel ? (["journal"] as const) : []), ...(aiChat ? (["chat"] as const) : []), ...(mail ? (["mail"] as const) : [])];
+  // Unread mail in the inboxes, on the Mail tab. The store is loaded after the page, as for composeMail.
+  const [mailUnread, setMailUnread] = useState(0);
+  useEffect(() => {
+    if (!mail) return;
+    let stop: (() => void) | undefined;
+    let gone = false;
+    void import("@/components/mail/mail-store").then(({ watchInboxUnread }) => {
+      if (!gone) stop = watchInboxUnread(workspaceId, setMailUnread);
+    });
+    return () => {
+      gone = true;
+      stop?.();
+      setMailUnread(0);
+    };
+  }, [mail, workspaceId]);
   // A new message, from the New menu or the search box's commands, on the Mail page.
   const composeMail = () => {
     setTab("mail");
@@ -502,7 +539,7 @@ export function Sidebar({
     });
     sidebar?.close();
   };
-  const routeTab: SidebarTab = onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
+  const routeTab: SidebarTab = onChatPage || onAgentPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
   const [tab, setTab] = useState<SidebarTab>(routeTab);
   // Where the person last was in each tab, in this visit.
   const lastPath = useRef<Partial<Record<SidebarTab, string>>>({});
@@ -512,14 +549,26 @@ export function Sidebar({
     lastPath.current[routeTab] = query ? `${pathname}?${query}` : pathname;
   }, [routeTab, pathname, query]);
 
+  // A phone's drawer covers the page: a tab there only changes the list, and what is picked in it opens.
+  const drawerOpen = sidebar?.drawerOpen ?? false;
+  useEffect(() => {
+    if (!drawerOpen) setTab(routeTab);
+  }, [drawerOpen, routeTab]);
+
   function openTab(next: SidebarTab) {
     const back = next === tab ? undefined : lastPath.current[next];
     setTab(next);
+    if (drawerOpen) return;
     if (back) router.push(back);
     else if (next === "journal") openDailyNote();
     else router.push(next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
-    // A new chat on the chat page only changes the address's `?c=`, which leaves a phone's drawer open.
-    if (next === "chat") sidebar?.close();
+  }
+
+  function newChat() {
+    setTab("chat");
+    router.push(chatPath(workspaceId));
+    // On the chat page only the address's `?c=` changes, which leaves a phone's drawer open.
+    sidebar?.close();
   }
 
   /** The teamspace a page lands in under `parentId`, or at the top of `section` (null: private). */
@@ -1168,7 +1217,7 @@ export function Sidebar({
         onMouseLeave={sidebar?.collapsed ? sidebar.hidePeek : undefined}
         className={cn(
           "relative flex shrink-0 flex-col border-e border-border bg-bg-subtle text-sm select-none",
-          "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:w-[min(18rem,85vw)] max-md:shadow-xl md:w-[var(--sidebar-w)]",
+          "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:pb-(--safe-bottom) max-md:w-[min(18rem,85vw)] max-md:shadow-xl md:w-[var(--sidebar-w)]",
           sidebar?.collapsed &&
             "md:fixed md:top-12 md:bottom-3 md:inset-s-0 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,visibility] md:duration-200 md:ease-out",
           sidebar?.collapsed && (sidebar.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-[calc(100%+1rem)] md:rtl:translate-x-[calc(100%+1rem)]"),
@@ -1344,9 +1393,7 @@ export function Sidebar({
                           icon={<MessagesSquare className="h-4 w-4" />}
                           onClick={() => {
                             close();
-                            setTab("chat");
-                            router.push(chatPath(workspaceId));
-                            sidebar?.close();
+                            newChat();
                           }}
                         >
                           {tAi("newChat")}
@@ -1472,6 +1519,7 @@ export function Sidebar({
                   selected: tab === key,
                   disabled: unreachable || (key === "journal" && openingDailyNote),
                   title: unreachable ? needsServer(label) : undefined,
+                  count: key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) } : undefined,
                   onClick: () => openTab(key),
                 };
               })}
@@ -1524,9 +1572,11 @@ export function Sidebar({
             <MailSidebar workspaceId={workspaceId} />
           ) : tab === "chat" && aiChat ? (
             <>
-              <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={() => openTab("chat")}>
+              <SidebarButton icon={<SquarePen className="h-4 w-4" />} onClick={newChat}>
                 {tAi("newChat")}
               </SidebarButton>
+              {/* The same section as the home tab's (folded or not alike): an agent's page is a chat with it. */}
+              {agents.length > 0 && <div className="mt-2">{sectionContent.agents}</div>}
               <div className="mt-2">
                 <ConversationList />
               </div>
@@ -1734,6 +1784,9 @@ export function Sidebar({
             refreshInbox();
           }}
         />
+      )}
+      {arrivals.length > 0 && !inboxOpen && reminders.length === 0 && (
+        <ArrivalCards workspaceId={workspaceId} arrivals={arrivals} onDismiss={dismissArrivals} onRead={refreshInbox} />
       )}
       {canCreateWorkspace && <NewWorkspaceDialog open={newWorkspaceOpen} onClose={() => setNewWorkspaceOpen(false)} />}
       <TemplatesDialog
@@ -2123,12 +2176,24 @@ function ResizeHandle() {
  * their icons. Pointing at another (or reaching it from the keyboard) widens it to show its name
  * while the open one narrows to its icon, so one name shows at a time and none is cut short.
  */
+const countText = (count: number) => (count > 99 ? "99+" : String(count));
+
 function SidebarTabs({
   label,
   tabs,
 }: {
   label: string;
-  tabs: { key: string; label: string; icon: React.ReactNode; selected: boolean; disabled?: boolean; title?: string; onClick: () => void }[];
+  tabs: {
+    key: string;
+    label: string;
+    icon: React.ReactNode;
+    selected: boolean;
+    disabled?: boolean;
+    title?: string;
+    /** A count on the icon's corner (unread mail), with its words for screen readers. */
+    count?: { value: number; label: string };
+    onClick: () => void;
+  }[];
 }) {
   return (
     <div role="tablist" aria-label={label} className="group/tabs mt-1.5 flex gap-0.5 rounded-lg bg-bg-hover p-0.5">
@@ -2149,7 +2214,27 @@ function SidebarTabs({
               : "grow border-transparent text-fg-muted hover:grow-[3] hover:text-fg focus-visible:grow-[3]",
           )}
         >
-          {tab.icon}
+          {tab.count ? (
+            <span className="relative flex shrink-0">
+              {tab.icon}
+              {/* On the icon's corner while the name is folded away, ringed in the tab's own color so
+                  it doesn't blur into the icon; beside the name while that shows. */}
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute -end-1.5 -top-1.5 min-w-3.5 rounded-full bg-danger px-[3px] text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums ring-2 transition-opacity duration-200 motion-reduce:transition-none",
+                  tab.selected
+                    ? "opacity-0 ring-bg group-has-[[data-other-tab]:hover]/tabs:opacity-100 group-has-[[data-other-tab]:focus-visible]/tabs:opacity-100"
+                    : "ring-bg-hover group-hover/tab:opacity-0 group-focus-visible/tab:opacity-0",
+                )}
+              >
+                {countText(tab.count.value)}
+              </span>
+              <span className="sr-only">{tab.count.label}</span>
+            </span>
+          ) : (
+            tab.icon
+          )}
           {/* A column that opens from nothing to the name's width, so the name slides in. */}
           <span
             className={cn(
@@ -2160,7 +2245,14 @@ function SidebarTabs({
             )}
           >
             <span className="min-w-0 overflow-hidden">
-              <span className="block truncate ps-1.5">{tab.label}</span>
+              <span className="flex items-center gap-1.5 ps-1.5">
+                <span className="min-w-0 truncate">{tab.label}</span>
+                {tab.count && (
+                  <span aria-hidden className="min-w-4 shrink-0 rounded-full bg-danger px-1 text-center text-[10px] leading-4 font-semibold text-white tabular-nums">
+                    {countText(tab.count.value)}
+                  </span>
+                )}
+              </span>
             </span>
           </span>
         </button>

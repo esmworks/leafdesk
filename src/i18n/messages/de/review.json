@@ -11,6 +11,7 @@
     "open": "Offen",
     "decided": "Beantwortet",
     "allRows": "Alle Zeilen anzeigen",
+    "allRuns": "Alle Durchläufe anzeigen",
     "clear": "Filter zurücksetzen"
   },
   "count": "{count, plural, one {# Änderung} other {# Änderungen}}",

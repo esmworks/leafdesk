@@ -548,7 +548,13 @@ function describeMemory(workspaceId: string, note: AgentMemoryView) {
         }
       : {}),
     ...(note.replaces ? { replaces: { memory_id: note.replaces.id, text: note.replaces.text } } : {}),
-    ...(note.text === null ? { note: "Proposed by a run on a row (or a database) the user can't open: its text is hidden." } : {}),
+    ...(note.text === null
+      ? {
+          note: note.run?.appHidden
+            ? "Proposed by a run that read email or files on the user's computer: its text shows only in Leafdesk itself."
+            : "Proposed by a run on a row (or a database) the user can't open: its text is hidden.",
+        }
+      : {}),
     created_at: note.createdAt,
     updated_at: note.updatedAt,
   };
@@ -734,13 +740,25 @@ export function describeAgentStep(step: AgentStepRecord) {
         page_id: step.pageId,
         summary: `${step.outcome === "failed" ? "Failed to comment" : "Commented"}: ${quote(short(step.text))}`,
       };
-    case "email":
+    case "email": {
+      // A report to the agent's own recipients (send-mail.ts, no row) goes out at once; a row's
+      // email waits for its sender's review (email-drafts.ts).
+      const to = step.to?.length ? ` to ${step.to.join(", ")}` : "";
+      const done =
+        step.pageId === null
+          ? step.outcome === "failed"
+            ? `Failed to send an email${to}`
+            : `Sent an email${to}`
+          : step.outcome === "failed"
+            ? "Failed to draft an email"
+            : "Drafted an email for its sender to review (not sent yet)";
       return {
         kind: "email",
         outcome: step.outcome,
         page_id: step.pageId,
-        summary: `${step.outcome === "failed" ? "Failed to draft an email" : "Drafted an email for its sender to review (not sent yet)"}${step.subject ? `: ${quote(short(step.subject))}` : ""}`,
+        summary: `${done}${step.subject ? `: ${quote(short(step.subject))}` : ""}`,
       };
+    }
     case "thought":
       return { kind: "thought", summary: step.text };
     // Never what the mail said: describeAgentRun leaves a run that read email out anyway.

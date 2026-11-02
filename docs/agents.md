@@ -60,8 +60,8 @@ agent, database or row), with every value as it was, is now and would become. An
 the row and the values it sets approves a change (as themselves, after editing it if they like) or
 dismisses it, one at a time or several; a row changed since in a value the proposal sets needs
 *Approve anyway*. The person the run worked for hears of new proposals in their inbox, and
-unanswered ones expire after 30 days. Chats with an agent still write directly; the *Request
-answerer* template proposes. An agent's email drafts wait there too (see
+unanswered ones expire after 30 days. Chats with an agent still write directly, until they read
+email (see *Changes from your email wait for you*); the *Request answerer* template proposes. An agent's email drafts wait there too (see
 [Email on rows](email-on-rows.md#email-on-rows)). Over MCP: `list_pending_changes` and
 `answer_pending_change`; over the REST API, `/pending-changes`.
 
@@ -94,6 +94,12 @@ characters: it fails as `selfReported`, and the reason shows in its report, its 
 `list_agent_runs` and the REST API mark a quiet run with `quiet: true`; the reason is its `answer`.
 When the person's chat with the [Telegram bot](ai.md#ai-chat-from-telegram) is pointed at the agent,
 each run that isn't quiet sends its summary there too.
+A schedule's runs all go to one conversation of the agent's kept for that schedule. A run that
+fails (`failed`, including `selfReported`) counts toward the schedule's failures in a row, one that
+ends well counts from 0 again; after 10 in a row the schedule turns itself off and whoever set it
+gets a *Schedules turned off* inbox item (its own notification setting) naming the agent and the
+task. Setting the schedule again turns it back on. Times missed while the server was down make one
+run when it is back, not one each.
 
 **Its model.** Where the server has a fast model (`AI_FAST_MODEL`, see [AI features](ai.md#ai-features)),
 the agent's settings let an owner choose which model its runs use, both named: the main model
@@ -162,11 +168,24 @@ API, a chat sent from a connected app, a row's or a mention's run. Reading marks
 person reads it and sends it from the Mail tab. So that what an email says can't steer a draft to
 someone else, an answer goes only to the people of its thread and a new email only to addresses
 the person wrote in their messages or the schedule's task (or the mailbox's own). Once a run has
-read email or a file of one it only reads pages and works on that mail (drafts, `sort_mail`, `summarize_mail`): any other change, a connected service's tool, the web,
-`send_email`, a note, a handoff note or another agent is refused, and the agent says what it would
-do instead. Its answer may quote that mail, so the chat's later runs that have it in their history
+read email or a file of one it only reads pages, works on that mail (drafts, `sort_mail`,
+`summarize_mail`) and proposes rows and notes: any other change, a connected service's tool, the
+web, `send_email`, forgetting a note, a handoff note or another agent is refused, and the agent says
+what it would do instead. A note it proposes then is never kept at once, and only the person the
+run worked for reads it (in the *Memory* tab) and may keep it. Its answer may quote that mail, so the chat's later runs that have it in their history
 (and the agent's own chat after a schedule that read email) are held the same way; a new
-conversation starts free. MCP and the REST API show neither the steps nor the answer of such runs,
+conversation starts free.
+
+**Changes from your email wait for you.** What email says can't change your pages by itself, but
+the agent can propose rows and changes to rows from it (`create_row`, `update_row`, each with its
+reason, up to 60 in a run, each counted toward its daily change limit) in databases it may edit and you may edit too. In your chat with an
+agent that may change rows, a row write after email was read is such a proposal; a schedule you
+set that looks after no database may propose from its first step, so a daily run can read the
+day's email and leave its changes for you. Since a proposal's values and reason come from your mail,
+only you see, count and answer it, and MCP and the REST API don't list it. The run's message in
+the agent's chat shows how many wait, with *Approve all* and *Review*, which opens *For review*
+narrowed to that run; the run's inbox report opens that chat. A schedule that looks after a
+database changes its rows itself, so it gets no email. MCP and the REST API show neither the steps nor the answer of such runs,
 and `list_notifications` leaves out such a schedule's report: they show only in the app.
 
 **Running on new email.** For a mailbox you opened to an agent, *Run on new email* starts one of
@@ -188,7 +207,8 @@ deleting), and `draft_mail` saves an answer. It may also propose rows and change
 nothing changes until you approve. Since a proposal's values and reason come from your mail, only
 you see, count and answer it under *For review*, and only you are notified; other owners of the
 database or the agent don't see it, nor do MCP or the REST API. Its last message, a sentence or two on what it did,
-shows in your chat with the agent; the inbox tells you only when it saved a draft or failed. The
+shows in your chat with the agent; the inbox tells you only when it saved a draft, proposed rows
+or failed. The
 thread carries the agent's mark in the Mail tab's list, naming what it did. A paused or archived
 agent starts nothing, and closing the mailbox to the agent turns this off.
 
@@ -225,7 +245,8 @@ in a page's **Agent chat** block (the slash menu's
 empty line). Each message the agent answers is one of its runs (shown in its *Runs* tab as a chat
 message, counted in its usage and held to its monthly limit), with the agent's instructions, skills
 and kept notes, and the conversation's 20 earlier messages. Its steps show as it takes them and its answer as it
-writes it. The agent doesn't read the page the
+writes it; *Stop* ends an answer under way (or one not started yet) and keeps what it wrote by
+then, marked *Stopped*. One waiting for an owner's approval is answered there instead. The agent doesn't read the page the
 block is on unless asked to. What it may do depends on who writes:
 
 - **Someone who can edit it** (owners included) gets what a run they ask for gets, held to their
@@ -414,7 +435,10 @@ corrections at once; past that, or with the memory full, the next is proposed. C
 every later run marked as such, before the agent's other notes. The *Memory* tab lists them first,
 labelled *Correction · from <person>'s chat*, and labels proposed corrections too; a kept
 correction puts nothing in the owners' inboxes, and the audit log counts it, and its Undo, as a
-change to the agent. `get_agent` marks them with `kind: "correction"` and `said_by`.
+change to the agent. `get_agent` marks them with `kind: "correction"` and `said_by`. The AI chat follows the same
+rule for the notes it keeps about you: kept at once in a turn of your own words, with Undo, and
+asked about otherwise. Kept notes too many for a run's prompt are read with `read_memory`, offered
+only then.
 
 **Where a schedule's run left off.** A run of a schedule often can't finish everything (a
 connected service lets it read only so much at a time). It leaves where it stopped with
@@ -498,7 +522,7 @@ comes the reminder opens over the page in every tab the person has open in the w
 Telegram message naming the agent and the page, not what it says (a lock screen shows it to whoever
 holds the device), but never by email; one missed for more than 12 hours waits in the inbox. A run sets at most 3, and an
 agent has at most 20 waiting for one person; each is a step of the run. People turn them off under
-*Agent reminders* in Settings → Preferences.
+*AI reminders* in Settings → Preferences, which covers the [AI chat's](ai.md) reminders too.
 
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see
 [AI features](ai.md#ai-features)) and the workspace must have AI on. Otherwise runs end as `aiOff`.

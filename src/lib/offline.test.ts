@@ -112,6 +112,8 @@ describe("pages the service worker keeps", () => {
       expect(sw).toContain(`"${header}": "1"`);
       const handler = readFileSync(new URL(`../app/api/notifications/[id]/${route}/route.ts`, import.meta.url), "utf8");
       expect(handler).toContain(`"${header.toLowerCase()}"`);
+      // The route answers with the unread count, which the worker puts on the icon.
+      expect(handler).toContain("unread: await unreadCountBeside(");
     }
   });
 });

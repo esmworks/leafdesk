@@ -11,6 +11,7 @@
     "open": "En espera",
     "decided": "Respondidos",
     "allRows": "Mostrar todas las filas",
+    "allRuns": "Mostrar todas las ejecuciones",
     "clear": "Quitar filtros"
   },
   "count": "{count, plural, one {# cambio} other {# cambios}}",
