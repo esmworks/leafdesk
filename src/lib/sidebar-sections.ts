@@ -4,6 +4,8 @@
  * personal workspace and a company one can look different, on every device.
  */
 
+import { cleanAgentArrangement, type AgentArrangement } from "./agent-arrangement";
+
 /**
  * The sections in their default order. "pages" is the workspace's default teamspace shown as its
  * plain pages, which only Leafdesk on one computer does (lib/env.ts localMode); elsewhere it is empty.
@@ -21,6 +23,8 @@ export type SidebarLayout = {
   hidden?: SidebarSection[];
   /** Sections showing only their heading. */
   folded?: SidebarSection[];
+  /** How the agents' list is grouped and ordered (lib/agent-arrangement.ts). */
+  agents?: AgentArrangement;
 };
 
 export const isSidebarSection = (value: unknown): value is SidebarSection => SIDEBAR_SECTIONS.includes(value as SidebarSection);
@@ -46,6 +50,12 @@ export function cleanSidebarLayout(input: unknown): SidebarLayout | null {
     if (value === undefined) continue;
     if (!Array.isArray(value)) return null;
     out[key] = [...new Set(value.filter(isSidebarSection))];
+  }
+  const agents = (input as Record<string, unknown>).agents;
+  if (agents !== undefined) {
+    const arrangement = cleanAgentArrangement(agents);
+    if (!arrangement) return null;
+    out.agents = arrangement;
   }
   return out;
 }

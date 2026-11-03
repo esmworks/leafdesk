@@ -253,6 +253,15 @@ Its runs show who mentioned it and on which page (`mention` in `list_agent_runs`
 and end as `commentGone` when the comment or its page is gone by then; what they did shows to the
 owners who can open the page.
 
+**The agents tab.** The sidebar's *Agents* tab lists the agents you may talk to, each with what it
+does, *Off* for one that is turned off, a pulse while a run of your chat with it is going and a
+count of runs waiting for your answer. Put them in groups of your own and drag agents and groups
+into the order you want, or use their menus (a right click or ⋯: move to a group, up or down,
+rename or remove a group); *⋯* in the tab's heading adds a group or sorts by name. The grouping is
+yours alone, on every device, and the *Agents* section under your pages follows it. **+** in the
+heading makes an agent from scratch or from a description the AI drafts, as *Settings → Agents*
+does, for those who may create agents.
+
 **Chatting with an agent.** Anyone the agent is shared with chats with it on its own page, which
 the sidebar's *Agents* section opens (its *Settings* button opens its settings page), or in a page's
 **Agent chat** block (the slash menu's *Agent chat*, or paste a link to the agent's page or its

@@ -17,6 +17,7 @@ import { isChatThinking, type ChatThinking } from "@/lib/ai-chat";
 import {
   accessSource,
   agentEmail,
+  editsAgent,
   callConnectionName,
   callToSend,
   isAgentAccessLevel,
@@ -228,17 +229,65 @@ export async function listAgents(userId: string, workspaceId: string, { archived
   });
 }
 
-/** An agent as the sidebar lists it. */
-export type SidebarAgent = { id: string; name: string; icon: string | null };
+/** An agent as the sidebar lists it: what its row shows, and the runs of the viewer's own chat with it that are going or wait. */
+export type SidebarAgent = {
+  id: string;
+  name: string;
+  icon: string | null;
+  description: string;
+  enabled: boolean;
+  /** The viewer may change it (edit or full access), so its settings open for them. */
+  edits: boolean;
+  /** Runs still working (pending or running). */
+  active: number;
+  /** Runs waiting for an answer to a change they want to make. */
+  waiting: number;
+};
 
-/** The agents someone may talk to, for the sidebar: those listAgents gives them, none for guests. */
+/**
+ * The agents someone may talk to, for the sidebar: those listAgents gives them, none for guests. The
+ * run counts are only the runs the viewer's own chats started (`chat` sources of that person, which
+ * ownerSeesRun always shows them), so the sidebar never reveals a run someone else can't open.
+ */
 export async function sidebarAgents(userId: string, workspaceId: string): Promise<SidebarAgent[]> {
+  let agents: AgentView[];
   try {
-    return (await listAgents(userId, workspaceId)).map((a) => ({ id: a.id, name: a.name, icon: a.icon }));
+    agents = await listAgents(userId, workspaceId);
   } catch (error) {
     if (error instanceof AccessError) return [];
     throw error;
   }
+  if (agents.length === 0) return [];
+  const runs = await db
+    .select({
+      agentId: agentRun.agentId,
+      active: sql<number>`count(*) filter (where ${agentRun.status} in ('pending', 'running'))::int`,
+      waiting: sql<number>`count(*) filter (where ${agentRun.status} = 'awaiting_approval')::int`,
+    })
+    .from(agentRun)
+    .where(
+      and(
+        eq(agentRun.workspaceId, workspaceId),
+        inArray(agentRun.status, ["pending", "running", "awaiting_approval"]),
+        sql`${agentRun.source}->>'kind' = 'chat'`,
+        sql`${agentRun.source}->>'userId' = ${userId}`,
+      ),
+    )
+    .groupBy(agentRun.agentId);
+  const counts = new Map(runs.map((r) => [r.agentId, r]));
+  return agents.map((a) => {
+    const c = counts.get(a.id);
+    return {
+      id: a.id,
+      name: a.name,
+      icon: a.icon,
+      description: a.description,
+      enabled: a.enabled,
+      edits: editsAgent(a),
+      active: c?.active ?? 0,
+      waiting: c?.waiting ?? 0,
+    };
+  });
 }
 
 /** The names of the workspace's agents (archived ones too), for naming them where they are used (automations): for owners and members. */

@@ -20,6 +20,7 @@ import { parseSidebarCookie, SIDEBAR_COOKIE } from "@/lib/sidebar-layout";
 import { getMembership } from "@/server/access";
 import { aiEnabledFor } from "@/server/ai";
 import { sidebarAgents } from "@/server/agents/manage";
+import { canCreateAgents } from "@/server/agents/sharing";
 import { chatOptionsFor } from "@/server/ai-chat";
 import { memoryAvailable } from "@/server/ai-memory";
 import { aiAvailable } from "@/server/ai-writing";
@@ -55,7 +56,7 @@ export default async function WorkspaceLayout({
     }
     notFound();
   }
-  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin, voice, chatOptions, desktopLinks, agents, mail] = await Promise.all([
+  const [workspaces, joinable, sidebar, favorites, topLevel, canCreate, cookieStore, ai, sidebarLayout, memory, aiConfigured, calloutStyles, firstAdmin, voice, chatOptions, desktopLinks, agents, mail, mayCreateAgents] = await Promise.all([
     listWorkspaces(user.id),
     joinableWorkspaces(user.id),
     getSidebar(user.id, workspaceId),
@@ -74,6 +75,7 @@ export default async function WorkspaceLayout({
     env.localMode ? ("off" as const) : getDesktopLinks(user.id),
     sidebarAgents(user.id, workspaceId),
     mailTabShown(user.id, workspaceId),
+    canCreateAgents(user.id, workspaceId),
   ]);
 
   const body = (
@@ -98,6 +100,7 @@ export default async function WorkspaceLayout({
             topLevel={topLevel}
             initialLayout={sidebarLayout}
             initialAgents={agents}
+            canCreateAgents={mayCreateAgents}
             mail={mail}
             user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
           />

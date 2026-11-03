@@ -33,6 +33,13 @@ describe("cleanSidebarLayout", () => {
     });
   });
 
+  it("keeps the agents' arrangement, cleaned", () => {
+    expect(cleanSidebarLayout({ agents: { groups: [{ id: "g", name: "Sales", agents: ["a", "a"] }], loose: ["b"] } })).toEqual({
+      agents: { groups: [{ id: "g", name: "Sales", agents: ["a"] }], loose: ["b"] },
+    });
+    expect(cleanSidebarLayout({ agents: "groups" })).toBeNull();
+  });
+
   it("rejects what isn't a layout", () => {
     expect(cleanSidebarLayout(null)).toBeNull();
     expect(cleanSidebarLayout([])).toBeNull();

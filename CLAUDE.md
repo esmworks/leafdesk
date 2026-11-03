@@ -319,6 +319,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   and `own_request` kinds count failures in a row through `noteScheduleOutcome`, called when the
   run ends, which turns the schedule off at `SCHEDULE_FAILURE_LIMIT` with a `schedule_paused`
   inbox item).
+- **The sidebar's agents tab** (`components/sidebar/agent-list.tsx`): each person's groups and
+  order are `layout.agents` of their sidebar layout (pure rules `lib/agent-arrangement.ts`, cleaned by
+  `lib/sidebar-sections.ts`), never shared; New agent opens Settings > Agents' dialogs as a
+  `lazyPart` (`new-agent.tsx`), fed by `server/agents/creation.ts`, which that tab reads too.
 - **Other areas:** the home page's dashboard `home-dashboard.ts` (widgets as a dashboard block's, in
   the workspace setting `homeDashboard`, written only there, never by `updateWorkspaceSettings`;
   readers get only widgets of databases they may open), meeting notes `meetings.ts` (the block's props, `src/lib/meetings.ts`; its list
@@ -640,7 +644,9 @@ because they are separate module graphs.
   A menu or card that must leave a scrolling box is placed by `components/use-placement.ts`
   (`placePanel` in `lib/placement.ts`: below or flipped above, start or end edge, inside the
   window): through `Floating` (`database/floating.tsx`, a portal), `Popover`'s `at` (a point or an
-  element), or the hook itself; don't measure and place one by hand.
+  element), or the hook itself; don't measure and place one by hand. `Popover`'s `at` is fixed to
+  the window: an ancestor with a transform (`-translate-y-1/2`) becomes its containing block and the
+  scrolling list cuts the menu off.
 - **Rendering cost.** Per-row and per-card components don't call `useRouter`, `useSearchParams` or
   `usePathname`: in Next 16 they re-render on every URL change, `?row=` included. The router is
   read once in `database-page.tsx` and handed down; a card asks `useIsOpenRow`
