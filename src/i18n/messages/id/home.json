@@ -36,7 +36,27 @@
     "untitledTask": "Tugas",
     "onPage": "di <page>{title}</page>",
     "tickFailed": "Tidak dapat mencentang tugas.",
-    "untickFailed": "Tidak dapat menghapus centang. Hapus di halaman."
+    "untickFailed": "Tidak dapat menghapus centang. Hapus di halaman.",
+    "views": {
+      "all": "Semua",
+      "today": "Hari ini",
+      "soon": "7 hari ke depan",
+      "undated": "Tanpa tanggal",
+      "rows": "Baris yang ditugaskan",
+      "todos": "Tugas di halaman"
+    },
+    "viewsLabel": "Tampilan tugas",
+    "byKind": "Menurut jenis",
+    "places": "Database dan halaman",
+    "allPlaces": "Tampilkan semua {count}",
+    "fewerPlaces": "Tampilkan lebih sedikit",
+    "addTodo": "Tambahkan tugas",
+    "addHint": "Masuk ke catatan harian hari ini. Hari yang ditulis, seperti “jumat”, menjadi tanggalnya.",
+    "addEmpty": "Tulis tugasnya dulu.",
+    "addTooLong": "Tugas paling panjang {max} karakter.",
+    "addFailed": "Tugas tidak dapat ditambahkan.",
+    "filtered": "Sebagian tugas Anda, sesuai pilihan di bilah samping.",
+    "filteredEmpty": "Tidak ada apa-apa di sini."
   },
   "figures": {
     "label": "Pekerjaan Anda sekilas",

@@ -10,6 +10,7 @@ import { useRowPanel } from "@/components/database/row-panel-context";
 import { cn, PageIcon } from "@/components/ui";
 import { assignedGroup, type AssignedGroupKey, type AssignedGrouping } from "@/lib/assigned";
 import { pageLabel } from "@/lib/labels";
+import { TASKS_EVENT } from "@/lib/tasks-event";
 import { opensNewTab } from "@/lib/row-panel";
 import type { AssignedItem } from "@/server/assigned";
 
@@ -77,7 +78,10 @@ export function AssignedList({
     setError(null);
     mark(item.id, "pending");
     const result = await markAssignedDoneAction(refOf(item)).catch(() => null);
-    if (result?.ok) mark(item.id, result.data);
+    if (result?.ok) {
+      mark(item.id, result.data);
+      window.dispatchEvent(new Event(TASKS_EVENT));
+    }
     else {
       mark(item.id, null);
       setError(result?.error ?? t(item.type === "row" ? "myTasks.markFailed" : "myTasks.tickFailed"));
@@ -90,7 +94,10 @@ export function AssignedList({
     setError(null);
     mark(item.id, "pending");
     const result = await undoAssignedDoneAction(refOf(item), done).catch(() => null);
-    if (result?.ok) mark(item.id, null);
+    if (result?.ok) {
+      mark(item.id, null);
+      window.dispatchEvent(new Event(TASKS_EVENT));
+    }
     else {
       mark(item.id, done);
       setError(result?.error ?? t(item.type === "row" ? "myTasks.undoFailed" : "myTasks.untickFailed"));

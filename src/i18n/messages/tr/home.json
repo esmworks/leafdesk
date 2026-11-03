@@ -36,7 +36,27 @@
     "untitledTask": "Yapılacak",
     "onPage": "<page>{title}</page> sayfasında",
     "tickFailed": "Yapılacak işaretlenemedi.",
-    "untickFailed": "Yapılacağın işareti kaldırılamadı. Sayfada kaldırın."
+    "untickFailed": "Yapılacağın işareti kaldırılamadı. Sayfada kaldırın.",
+    "views": {
+      "all": "Tümü",
+      "today": "Bugün",
+      "soon": "Önümüzdeki 7 gün",
+      "undated": "Tarihsiz",
+      "rows": "Atanan satırlar",
+      "todos": "Yapılacaklar"
+    },
+    "viewsLabel": "Görev görünümleri",
+    "byKind": "Türe göre",
+    "places": "Veritabanları ve sayfalar",
+    "allPlaces": "Tümünü göster ({count})",
+    "fewerPlaces": "Daha az göster",
+    "addTodo": "Yapılacak ekle",
+    "addHint": "Bugünün günlük notuna eklenir. İçindeki bir gün, örneğin “cuma”, tarihi olur.",
+    "addEmpty": "Önce yapılacağı yazın.",
+    "addTooLong": "Bir yapılacak en fazla {max} karakter olabilir.",
+    "addFailed": "Yapılacak eklenemedi.",
+    "filtered": "Kenar çubuğunda seçtiğiniz kadarıyla görevleriniz.",
+    "filteredEmpty": "Burada bir şey yok."
   },
   "figures": {
     "label": "İşleriniz bir bakışta",

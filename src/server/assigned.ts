@@ -1,7 +1,17 @@
 import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, page, type PageKind, type SelectOption } from "@/db/schema";
-import { ASSIGNED_GROUPS, assignedGroup, groupAssigned, type AssignedGroupKey } from "@/lib/assigned";
+import {
+  ASSIGNED_GROUPS,
+  assignedGroup,
+  countTasks,
+  groupAssigned,
+  inTaskView,
+  taskPlace,
+  type AssignedGroupKey,
+  type TaskPlaceCount,
+  type TaskView,
+} from "@/lib/assigned";
 import { dateDays } from "@/lib/date-value";
 import { atLeast } from "@/lib/property-access";
 import { firstDoneOption, isDoneStatus, optionOf } from "@/lib/properties";
@@ -74,12 +84,14 @@ export async function assignedRows(
   today: string,
   timeZone = "UTC",
   limit = ASSIGNED_LIMIT,
+  { view = "all", place }: { view?: TaskView; place?: string } = {},
 ): Promise<AssignedRows> {
   const [rows, tasks] = await Promise.all([
     openAssignedRows(userId, workspaceId, timeZone, { markable: true }),
     openPageTasks(userId, workspaceId, timeZone, { markable: true }),
   ]);
-  const items: AssignedItem[] = [...rows, ...tasks];
+  // One of the tasks tab's views, or one database's or page's items (lib/assigned.ts).
+  const items: AssignedItem[] = [...rows, ...tasks].filter((item) => inTaskView(item, view, today) && (place === undefined || taskPlace(item) === place));
   // Keep the first items in group order, then group those again.
   const all = groupAssigned(items, today);
   const counts = Object.fromEntries(ASSIGNED_GROUPS.map((key) => [key, all.find((g) => g.key === key)?.rows.length ?? 0])) as Record<AssignedGroupKey, number>;
@@ -110,6 +122,27 @@ export async function dueAssignedCount(userId: string, workspaceId: string, toda
     if (group === "overdue" || group === "today") due[group]++;
   }
   return due;
+}
+
+/** A database or page in the sidebar's tasks tab, with its icon (null for the rows shared without their database). */
+export type TaskPlace = TaskPlaceCount & { icon: string | null; kind: PageKind | null };
+
+export type TaskCounts = { views: Record<TaskView, number>; places: TaskPlace[] };
+
+/**
+ * How many of the person's open rows and to-dos (as `assignedRows` counts them) each of the tasks
+ * tab's views holds, and the databases and pages they are in, the fullest first.
+ */
+export async function taskCounts(userId: string, workspaceId: string, today: string, timeZone = "UTC", locale?: string): Promise<TaskCounts> {
+  const [rows, tasks] = await Promise.all([openAssignedRows(userId, workspaceId, timeZone), openPageTasks(userId, workspaceId, timeZone)]);
+  const { views, places } = countTasks<AssignedItem>([...rows, ...tasks], today, new Intl.Collator(locale));
+  // Pages' icons come with their to-dos; databases' are read once, for those with a title shown.
+  const icons = new Map<string, { icon: string | null; kind: PageKind }>(tasks.map((t) => [t.pageId, { icon: t.pageIcon, kind: t.pageKind }]));
+  const databases = places.filter((p) => p.title !== null && !icons.has(p.id)).map((p) => p.id);
+  if (databases.length) {
+    for (const d of await db.select({ id: page.id, icon: page.icon, kind: page.kind }).from(page).where(inArray(page.id, databases))) icons.set(d.id, d);
+  }
+  return { views, places: places.map((p) => ({ ...p, icon: icons.get(p.id)?.icon ?? null, kind: icons.get(p.id)?.kind ?? null })) };
 }
 
 /**

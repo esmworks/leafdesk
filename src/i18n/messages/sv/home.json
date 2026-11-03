@@ -36,7 +36,27 @@
     "untitledTask": "Att göra",
     "onPage": "på <page>{title}</page>",
     "tickFailed": "Det gick inte att bocka av punkten.",
-    "untickFailed": "Det gick inte att ta bort bocken. Ta bort den på sidan."
+    "untickFailed": "Det gick inte att ta bort bocken. Ta bort den på sidan.",
+    "views": {
+      "all": "Alla",
+      "today": "I dag",
+      "soon": "Kommande 7 dagar",
+      "undated": "Utan datum",
+      "rows": "Tilldelade rader",
+      "todos": "Att göra"
+    },
+    "viewsLabel": "Uppgiftsvyer",
+    "byKind": "Efter typ",
+    "places": "Databaser och sidor",
+    "allPlaces": "Visa alla {count}",
+    "fewerPlaces": "Visa färre",
+    "addTodo": "Lägg till att göra",
+    "addHint": "Hamnar i dagens dagsanteckning. En dag i texten, som ”fredag”, blir dess datum.",
+    "addEmpty": "Skriv uppgiften först.",
+    "addTooLong": "En uppgift får vara högst {max} tecken lång.",
+    "addFailed": "Det gick inte att lägga till uppgiften.",
+    "filtered": "En del av dina uppgifter, som valt i sidofältet.",
+    "filteredEmpty": "Här finns inget."
   },
   "figures": {
     "label": "Ditt arbete i en överblick",

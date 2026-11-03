@@ -319,6 +319,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   and `own_request` kinds count failures in a row through `noteScheduleOutcome`, called when the
   run ends, which turns the schedule off at `SCHEDULE_FAILURE_LIMIT` with a `schedule_paused`
   inbox item).
+- **The sidebar's tasks tab** (`components/sidebar/task-panel.tsx`, a `lazyPart`): My tasks' views
+  and places with counts (`lib/assigned.ts` `TaskView`, `countTasks`; `server/assigned.ts`
+  `taskCounts`, read as `taskCounts`), which narrow the page through `?view=` and `?in=`; its box
+  adds a to-do to today's daily note (`server/own-todos.ts`). Ticking or adding a task fires
+  `lib/tasks-event.ts` `TASKS_EVENT`, which the rail's count and the panel read again on.
 - **The sidebar's agents tab** (`components/sidebar/agent-list.tsx`): each person's groups and
   order are `layout.agents` of their sidebar layout (pure rules `lib/agent-arrangement.ts`, cleaned by
   `lib/sidebar-sections.ts`), never shared; New agent opens Settings > Agents' dialogs as a

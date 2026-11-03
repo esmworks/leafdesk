@@ -12,6 +12,11 @@
   for your answer, refreshed every 15 seconds while the tab is open. **+** in the tab's heading makes
   an agent from scratch or from a description the AI drafts, as Settings → Agents does, and a
   filter box appears from six agents on. The agents under your pages follow the same groups.
+- **My tasks has a panel of its own in the sidebar, with views and a box for to-dos.** Next to the
+  list, the panel shows *All*, *Today*, *Next 7 days*, *No date*, *Assigned rows* and *To-dos*, and
+  the databases and pages your tasks are in, each with how many it holds; picking one narrows the
+  list. *Add a to-do* puts a to-do that mentions you in today's daily note, with a day written in
+  it ("friday") as its date. The counts follow as you tick tasks.
 - **`g` and a letter go to a place of the sidebar.** `g h` Home, `g t` My tasks, `g m` Meetings,
   `g j` Journal, `g c` Chat, `g e` Mail, `g a` Agents, `g i` the inbox and `g s` Settings, outside
   text fields; while `g` waits, each place on the rail shows its letter. On the Mail page its own

@@ -36,7 +36,27 @@
     "untitledTask": "Tehtävä",
     "onPage": "sivulla <page>{title}</page>",
     "tickFailed": "Tehtävää ei voitu rastittaa.",
-    "untickFailed": "Rastia ei voitu poistaa. Poista se sivulla."
+    "untickFailed": "Rastia ei voitu poistaa. Poista se sivulla.",
+    "views": {
+      "all": "Kaikki",
+      "today": "Tänään",
+      "soon": "Seuraavat 7 päivää",
+      "undated": "Ei päivää",
+      "rows": "Osoitetut rivit",
+      "todos": "Tehtävät sivuilla"
+    },
+    "viewsLabel": "Tehtävänäkymät",
+    "byKind": "Tyypin mukaan",
+    "places": "Tietokannat ja sivut",
+    "allPlaces": "Näytä kaikki {count}",
+    "fewerPlaces": "Näytä vähemmän",
+    "addTodo": "Lisää tehtävä",
+    "addHint": "Menee tämän päivän päivämuistiinpanoon. Siinä mainittu päivä, kuten ”perjantai”, tulee sen päiväksi.",
+    "addEmpty": "Kirjoita tehtävä ensin.",
+    "addTooLong": "Tehtävä voi olla enintään {max} merkkiä pitkä.",
+    "addFailed": "Tehtävää ei voitu lisätä.",
+    "filtered": "Osa tehtävistäsi, sivupalkissa valitun mukaan.",
+    "filteredEmpty": "Täällä ei ole mitään."
   },
   "figures": {
     "label": "Työsi yhdellä silmäyksellä",

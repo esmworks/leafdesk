@@ -36,7 +36,27 @@
     "untitledTask": "To-do",
     "onPage": "auf <page>{title}</page>",
     "tickFailed": "Das To-do konnte nicht abgehakt werden.",
-    "untickFailed": "Das Häkchen konnte nicht entfernt werden. Entferne es in der Seite."
+    "untickFailed": "Das Häkchen konnte nicht entfernt werden. Entferne es in der Seite.",
+    "views": {
+      "all": "Alle",
+      "today": "Heute",
+      "soon": "Nächste 7 Tage",
+      "undated": "Ohne Datum",
+      "rows": "Zugewiesene Zeilen",
+      "todos": "To-dos"
+    },
+    "viewsLabel": "Aufgabenansichten",
+    "byKind": "Nach Art",
+    "places": "Datenbanken und Seiten",
+    "allPlaces": "Alle {count} anzeigen",
+    "fewerPlaces": "Weniger anzeigen",
+    "addTodo": "To-do hinzufügen",
+    "addHint": "Kommt in die heutige Tagesnotiz. Ein Tag darin, etwa „Freitag“, wird zu seinem Datum.",
+    "addEmpty": "Schreiben Sie zuerst das To-do.",
+    "addTooLong": "Ein To-do darf höchstens {max} Zeichen lang sein.",
+    "addFailed": "Das To-do konnte nicht hinzugefügt werden.",
+    "filtered": "Ein Teil Ihrer Aufgaben, wie in der Seitenleiste gewählt.",
+    "filteredEmpty": "Hier ist nichts."
   },
   "figures": {
     "label": "Ihre Arbeit auf einen Blick",
