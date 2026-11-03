@@ -11,7 +11,7 @@ import { cn } from "@/components/ui";
  * on the other corner tells what waits there.
  */
 export const railItemClass = cn(
-  "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-fg hover:bg-frame-hover max-md:h-10 max-md:w-10",
+  "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-fg hover:bg-frame-hover max-md:h-10 max-md:w-10",
   "disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-fg",
 );
 export const railSelectedClass = "bg-frame-active hover:bg-frame-active";

@@ -1687,7 +1687,8 @@ export function Sidebar({
             >
               <SearchIcon className={railIconClass} />
             </button>
-            <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none]">
+            {/* The rail's full width and a little room above and below, so the counts on the corners aren't cut off by the scrolling. */}
+            <div className="-my-1 min-h-0 flex-1 self-stretch overflow-y-auto py-1 [scrollbar-width:none]">
               <RailTabs label={t("tabs.label")} tabs={railTabs} goKeys={goShown} />
             </div>
             {/* Hides the panel or brings it back, in the same place either way (⌘\ too); on phones it closes the drawer. */}
