@@ -33,7 +33,7 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   ["editor.custom", { thinking: "medium" }],
   ["editor.", { thinking: "low" }],
   // A mail thread summed up in a few lines while its reader waits: the words are all there.
-  ["mail.summary", { fast: true, thinking: "low" }],
+  ["mail.summary", { fast: true, thinking: "off" }],
   // A thread's tasks as a short JSON list: dates worked out from the mail need a little thinking.
   ["mail.tasks", { thinking: "low" }],
   // The Mail tab's writer, like the editor's: what it writes goes to someone outside.

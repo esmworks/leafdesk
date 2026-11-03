@@ -21,6 +21,28 @@
   written, waiting for your decision, or new) even while another place is open, and *Agents* a dot
   when an agent's call waits for your approval, also beside that agent in its list.
 
+### Changed
+
+- **A thread's AI summary is written only when you ask for it.** Agents' runs on your mail no
+  longer keep summaries of threads (the `summarize_mail` tool is gone, and the *Mail assistant*
+  template no longer summarizes long threads), so a thread shows a summary only after you press
+  *Summarize* in the Mail tab. That summary runs on `AI_FAST_MODEL` when the server has one, now
+  without thinking (it only sums up what the mail says).
+  Summaries agents kept before stay until you write one again.
+
+### Fixed
+
+- **Chat answers flow in evenly, letter by letter, whatever the model.** Models that send their
+  text a sentence or a paragraph at a time made the AI chat's and agents' answers appear a lump at
+  once, then pause; each piece is now spread over the time until the next one is due (up to a
+  second behind), and the end of an answer goes on flowing instead of showing in one frame. The
+  answer stream also asks proxies not to compress it (`Cache-Control: no-transform`), which held
+  its events back behind some reverse proxies.
+- **The chat stays with the answer around a change it asks about.** A chat scrolled to its end
+  stays there when the approval takes the question box's place and when it gives it back, and in
+  an agent's chat the call's approval box goes as soon as you answer it, instead of staying above
+  the answer as it goes on.
+
 ## 0.7.1 — 2026-11-03
 
 ### Upgrading from 0.7.0

@@ -34,7 +34,7 @@ export function answerStream(answer: AiStream, cancel: AbortController, finished
     },
   });
   return new Response(body, {
-    headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store", "X-Accel-Buffering": "no" },
+    headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store, no-transform", "X-Accel-Buffering": "no" },
   });
 }
 

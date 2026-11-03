@@ -45,6 +45,8 @@ export type ItemContext = {
   onUndo: (runId: string, memoryId: string, index: number) => Promise<string | null>;
   onUnqueue: (id: string) => void;
   onRunAnswered: () => void;
+  /** The call the turn under way waits on was answered here (by its id). */
+  onCallAnswered: (callId: string) => void;
 };
 
 /**
@@ -85,6 +87,7 @@ export function AgentThreadItem({ item, text, last, page, context }: { item: Age
       );
     case "live": {
       const { turn } = context;
+      const call = turn?.pending ?? null;
       // In the same box as the answer it becomes: the answer stays mounted and doesn't flow in again.
       return (
         <div data-at="">
@@ -94,7 +97,13 @@ export function AgentThreadItem({ item, text, last, page, context }: { item: Age
             last={false}
             arrived
             context={context}
-            live={{ status: turn?.status ?? "pending", pending: turn?.pending && context.approves ? turn.pending : null, deferredUntil: turn?.deferredUntil ?? null, startedAt: context.askedAt.get(item.runId) }}
+            live={{
+              status: turn?.status ?? "pending",
+              pending: call && context.approves ? call : null,
+              deferredUntil: turn?.deferredUntil ?? null,
+              startedAt: context.askedAt.get(item.runId),
+              onAnswered: call ? () => context.onCallAnswered(call.callId) : undefined,
+            }}
           />
           {turn && turn.attached.length > 0 && <AnswerFiles files={turn.attached} />}
         </div>

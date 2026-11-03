@@ -39,7 +39,7 @@ import { loadMessages } from "@/i18n/messages";
 import { recipientLocale } from "@/server/mail/locale";
 import { MailConnectError } from "@/server/row-mail/connect";
 import { RowMailError } from "@/server/row-mail/settings";
-import { saveSummary, threadForAi, type AiMailFiles } from "@/server/mail-client/ai";
+import { threadForAi, type AiMailFiles } from "@/server/mail-client/ai";
 import { mailFileForAi } from "@/server/mail-client/ai-files";
 import { conversationText } from "@/server/mail-client/ai-prompts";
 import { saveDraft } from "@/server/mail-client/drafts";
@@ -129,11 +129,14 @@ const AGENT_DRAFT_TOOL: AiTool = {
     "Saves an email as a draft in the person's Drafts folder; it is never sent: they read it and send it from the Mail tab. With reply_to it answers that message in its thread, the earlier mail under it, and goes only to people of that thread; a new email goes only to addresses the person wrote in their message or task.",
 };
 
-/** What an agent's run does to the person's mail besides reading and drafting: sorting threads and keeping their summaries. */
-export const AGENT_MAIL_ACTION_NAMES = { sort: "sort_mail", summary: "summarize_mail" } as const;
+/**
+ * What an agent's run does to the person's mail besides reading and drafting: sorting threads. A
+ * thread's summary is written only when the person asks for it in the Mail tab (mail-client/ai.ts),
+ * on the fast model, never by a run on its own.
+ */
+export const AGENT_MAIL_ACTION_NAMES = { sort: "sort_mail" } as const;
 export const AGENT_MAIL_ACTIONS: ReadonlySet<string> = new Set(Object.values(AGENT_MAIL_ACTION_NAMES));
 const SORT_ACTIONS: readonly MailSortAction[] = ["read", "unread", "star", "unstar", "archive", "move"];
-const SUMMARY_CHARS = 1_500;
 
 const AGENT_ACTION_TOOLS: AiTool[] = [
   {
@@ -148,19 +151,6 @@ const AGENT_ACTION_TOOLS: AiTool[] = [
         folder: { type: "string", description: "For move: the name of the folder, as the Mail tab shows it." },
       },
       required: ["message_id", "action"],
-      additionalProperties: false,
-    },
-  },
-  {
-    name: AGENT_MAIL_ACTION_NAMES.summary,
-    description: `Keeps a summary of an email thread, which the Mail tab shows above it: a few short lines in the language of the email, who wants what and by when. At most ${SUMMARY_CHARS} characters; it takes the place of the thread's earlier summary.`,
-    parameters: {
-      type: "object",
-      properties: {
-        message_id: { type: "string", description: "A message_id of the thread." },
-        summary: { type: "string" },
-      },
-      required: ["message_id", "summary"],
       additionalProperties: false,
     },
   },
@@ -522,7 +512,7 @@ export async function markMail(messageId: string, agentId: string, deed: MailAge
 }
 
 /**
- * Runs sort_mail or summarize_mail for an agent's run, as `userId` (the mailbox's owner), on a
+ * Runs sort_mail for an agent's run, as `userId` (the mailbox's owner), on a
  * thread of the mailboxes opened to it (`boxes`).
  */
 export async function runAgentMailAction(
@@ -542,23 +532,6 @@ export async function runAgentMailAction(
   const { box, message } = found;
   const subject = oneLine(message.subject) || "(no subject)";
   const url = mailPath(workspaceId, { mailboxId: box.id, folderId: message.folderId, threadId: message.threadId });
-
-  if (call.name === AGENT_MAIL_ACTION_NAMES.summary) {
-    const summary = text(call.arguments.summary, SUMMARY_CHARS + 1);
-    if (!summary) return { content: `${call.name} needs the summary.`, isError: true };
-    if (summary.length > SUMMARY_CHARS) return { content: `The summary is longer than ${SUMMARY_CHARS} characters.`, isError: true };
-    // On the thread's newest message, as the Mail tab keeps the summaries it makes (mail-client/ai.ts).
-    const [newest] = await db
-      .select({ id: mailMessage.id })
-      .from(mailMessage)
-      .where(and(eq(mailMessage.mailboxId, box.id), eq(mailMessage.threadId, message.threadId), eq(mailMessage.draft, false)))
-      .orderBy(desc(mailMessage.sentAt))
-      .limit(1);
-    if (!newest) return { content: "That thread has nothing to summarize.", isError: true };
-    await saveSummary(newest.id, summary);
-    await markMail(newest.id, scope.agentId, "summarized");
-    return { content: "The summary is kept: the Mail tab shows it above the thread.", step: { kind: "mail", action: "summary", subject, url } };
-  }
 
   const action = SORT_ACTIONS.find((a) => a === call.arguments.action);
   if (!action) return { content: `action is one of ${SORT_ACTIONS.join(", ")}.`, isError: true };

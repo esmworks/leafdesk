@@ -178,7 +178,8 @@ export type ChatWebRecord =
  * subject), or a draft saved (`done`, with where it is), declined by the person or `failed`. `url`
  * is the Mail tab's address of the thread or the drafts. `earlier`:
  * an agent's chat run whose conversation read email before (agents/run.ts), held to what one that
- * read it may do. An agent's run also sorts a thread (`sort`) and keeps its summary (`summary`).
+ * read it may do. An agent's run also sorts a thread (`sort`); `summary` is a thread's summary kept
+ * by an earlier run, when runs still kept them.
  */
 export type ChatMailRecord =
   | { kind: "mail"; action: "search"; query: string; results: number }

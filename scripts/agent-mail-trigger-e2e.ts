@@ -4,14 +4,15 @@
  * already in the inbox when the mailbox is first read starts nothing; new mail the sweep reads
  * starts one run per thread, for its filters only (not the owner's own mail, mailing lists, or
  * senders who aren't rows when `knownOnly`), and a second message in a thread whose run waits
- * starts none; the run reads the thread first, so it is offered page reads and the mail tools only,
- * and it keeps a summary, stars the thread on the server, saves a reply in Drafts, marks the
- * message with what it did (shown in the Mail tab's list) and leaves its person an inbox report; the
- * hourly limit holds further mail back and says so on the mailbox; a run whose mailbox was closed
- * to the agent fails quietly. Rows it proposes from the email wait in For review for the mailbox's
- * owner alone: another editor of the database, and a connected app, see none of them; a chat that
- * read email only proposes notes, whose text its person alone reads, and forgets none. The mail
- * assistant template takes only the installer's own mailbox and sets all this up on it.
+ * starts none; the run reads the thread first, so it is offered page reads and the mail tools only
+ * (no summary: only the person asks for one), stars the thread on the server, saves a reply in
+ * Drafts, marks the message with what it did (shown in the Mail tab's list) and leaves its person an
+ * inbox report; the hourly limit holds further mail back and says so on the mailbox; a run whose
+ * mailbox was closed to the agent fails quietly. Rows it proposes from the email wait in For
+ * review for the mailbox's owner alone: another editor of the database, and a connected app, see
+ * none of them; a chat that read email only proposes notes, whose text its person alone reads, and
+ * forgets none. The mail assistant template takes only the installer's own mailbox and sets all
+ * this up on it.
  * Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/agent-mail-trigger-e2e.ts
@@ -272,7 +273,7 @@ try {
         () => ({ name: "edit_page", arguments: { page_id: customers.id, markdown: "x" } }),
         () => ({ name: "draft_mail", arguments: { to: [customer], subject: `Re: ${subject}`, body: "Merhaba Ayşe Hanım,\n\nFiyatı cuma gününe kadar iletiyoruz.", reply_to: reply.id } }),
       ],
-      "Summarized and starred the price request, and saved an answer in Drafts.",
+      "Starred the price request and saved an answer in Drafts.",
     ),
   );
   await flushAgentRuns();
@@ -280,26 +281,30 @@ try {
   check(done.status === "done", "the run finishes", { status: done.status, code: done.code, error: done.error });
   const tools = offered(fake.chats[0]);
   check(
-    ["read_page", "search_mail", "read_mail", "draft_mail", "sort_mail", "summarize_mail"].every((t) => tools.includes(t)) &&
-      ["edit_page", "create_page", "add_comment", "send_email", "search_web", "read_web_page", "remember", "ask_agent", "use_tool"].every((t) => !tools.includes(t)),
+    ["read_page", "search_mail", "read_mail", "draft_mail", "sort_mail"].every((t) => tools.includes(t)) &&
+      ["summarize_mail", "edit_page", "create_page", "add_comment", "send_email", "search_web", "read_web_page", "remember", "ask_agent", "use_tool"].every((t) => !tools.includes(t)),
     "having read the email, it is offered page reads, row proposals and the mail tools only",
     tools,
   );
   const opening = fake.chats[0].messages.filter((m) => m.role === "user").map((m) => textOf(m.content)).join("\n");
   check(opening.includes("GNK 800") && opening.includes("teslim süresini") && opening.includes("Summarize each email"), "the thread is read before the model's first turn, with the task", opening.slice(0, 600));
   const results = toolResults(fake.chats.at(-1)!);
-  check(results[2]?.includes("There is no folder") && /Unknown tool|not|can't|isn't/i.test(results[3] ?? ""), "the trash and page edits are refused", results);
+  check(
+    /Unknown tool|not|can't|isn't/i.test(results[0] ?? "") && results[2]?.includes("There is no folder") && /Unknown tool|not|can't|isn't/i.test(results[3] ?? ""),
+    "a summary, the trash and page edits are refused",
+    results,
+  );
   const steps = done.steps.filter((s) => s.kind === "mail").map((s): string => (s.kind === "mail" ? s.action : ""));
-  check(["read", "summary", "sort", "draft"].every((a) => steps.includes(a)), "the run's steps show the read, the summary, the sort and the draft", steps);
+  check(["read", "sort", "draft"].every((a) => steps.includes(a)) && !steps.includes("summary"), "the run's steps show the read, the sort and the draft, and no summary", steps);
 
   await settle();
   const [newest] = await db.select().from(mailMessage).where(eq(mailMessage.id, reply.id));
-  check(newest.summary?.startsWith("Ayşe (Acme) asks"), "the summary is kept on the thread's newest message", newest.summary);
+  check(newest.summary === null, "no summary is kept: only the person asks for one, in the Mail tab", newest.summary);
   // The read on the message that started the run, the rest on the one the model worked on.
   const thread = await db.select({ marks: mailMessage.agentMarks }).from(mailMessage).where(and(eq(mailMessage.threadId, reply.threadId), eq(mailMessage.mailboxId, box.id)));
   const marks = thread.flatMap((m) => m.marks ?? []);
   const did = new Set(marks.flatMap((m) => m.did));
-  check(marks.every((m) => m.agentId === helper.id) && ["read", "summarized", "sorted", "drafted"].every((d) => did.has(d as never)), "the thread's messages are marked with what the agent did", marks);
+  check(marks.every((m) => m.agentId === helper.id) && ["read", "sorted", "drafted"].every((d) => did.has(d as never)) && !did.has("summarized"), "the thread's messages are marked with what the agent did", marks);
   const flagged = await asAda(async (client) => {
     const lock = await client.getMailboxLock("INBOX");
     try {

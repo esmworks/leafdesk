@@ -87,7 +87,7 @@ as it can (Claude Sonnet and Opus 5.5 can't stop thinking, so "off" is low effor
 | Meeting notes: summary, decisions and action items | `AI_MODEL` | low |
 | Writing assistant: improve, fix, shorten, translate, continue, summarize | `AI_MODEL` | low |
 | Writing assistant: your own instruction | `AI_MODEL` | medium |
-| Mail: a thread's summary | `AI_FAST_MODEL` | low |
+| Mail: a thread's summary | `AI_FAST_MODEL` | off |
 | Mail: a thread's tasks | `AI_MODEL` | low |
 | Mail: the composer's writer | `AI_MODEL` | low |
 | Chat | `AI_MODEL` (or the model picked, see `AI_CHAT_MODELS`) | medium, or as picked (see *Picking how much it thinks*) |
@@ -120,6 +120,8 @@ newest eight messages (without the earlier mail each one quotes) and writes a fe
 asked or reported, with dates, amounts and what is expected of you, in the language you use
 Leafdesk in. The summary is kept with the thread's newest message, so it shows again the next time
 the thread opens, and says when newer messages came after it; *Summarize again* writes a new one.
+A summary is written only when you press one of them, never as mail comes or by an agent, and on
+`AI_FAST_MODEL` when the server has one.
 It is the one thing the Mail tab keeps that is written from messages' bodies, and it goes with the
 message (moved to another folder or gone from the server). In the composer, the sparkles button
 beside the formatting opens the writer: *Write reply* (in a reply) answers the message, from notes
