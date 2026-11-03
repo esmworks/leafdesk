@@ -258,12 +258,12 @@ does, *Off* for one that is turned off, a pulse while a run of your chat with it
 count of runs waiting for your answer. Put them in groups of your own and drag agents and groups
 into the order you want, or use their menus (a right click or ⋯: move to a group, up or down,
 rename or remove a group); *⋯* in the tab's heading adds a group or sorts by name. The grouping is
-yours alone, on every device, and the *Agents* section under your pages follows it. **+** in the
+yours alone, on every device. **+** in the
 heading makes an agent from scratch or from a description the AI drafts, as *Settings → Agents*
 does, for those who may create agents.
 
 **Chatting with an agent.** Anyone the agent is shared with chats with it on its own page, which
-the sidebar's *Agents* section opens (its *Settings* button opens its settings page), or in a page's
+the sidebar's *Agents* tab opens (its *Settings* button opens its settings page), or in a page's
 **Agent chat** block (the slash menu's *Agent chat*, or paste a link to the agent's page or its
 settings alone on an empty line). Each message the agent answers is one of its runs (shown in its *Runs* section as a chat
 message, counted in its usage and held to its monthly limit), with the agent's instructions, skills

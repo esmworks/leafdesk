@@ -9,11 +9,11 @@ import { cleanAgentArrangement, type AgentArrangement } from "./agent-arrangemen
 /**
  * The sections in their default order. "pages" is the workspace's default teamspace shown as its
  * plain pages, which only Leafdesk on one computer does (lib/env.ts localMode); elsewhere it is empty.
- * "agents" lists the agents the person may talk to. An order saved before a section existed has it
- * after the sections it lists; "tasks" and "meetings", sections once, are on the sidebar's rail now
- * and dropped from saved layouts like any unknown name.
+ * An order saved before a section existed has it after the sections it lists; "tasks", "meetings"
+ * and "agents", sections once, are on the sidebar's rail now and dropped from saved layouts like any
+ * unknown name.
  */
-export const SIDEBAR_SECTIONS = ["favorites", "pages", "teamspaces", "shared", "private", "agents"] as const;
+export const SIDEBAR_SECTIONS = ["favorites", "pages", "teamspaces", "shared", "private"] as const;
 export type SidebarSection = (typeof SIDEBAR_SECTIONS)[number];
 
 export type SidebarLayout = {
