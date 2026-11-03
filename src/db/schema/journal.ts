@@ -54,3 +54,24 @@ export const dailyNote = pgTable(
   },
   (t) => [primaryKey({ columns: [t.workspaceId, t.userId, t.day] }), uniqueIndex("daily_note_page_idx").on(t.pageId)],
 );
+
+/**
+ * Someone's own task list in a workspace (see server/own-tasks.ts): the private database that
+ * tasks added from My tasks' New task row go into. Made with their first such task; one that went
+ * to the trash or was deleted is replaced by a new one the next time.
+ */
+export const taskList = pgTable(
+  "task_list",
+  {
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** The database; null once it was deleted. */
+    pageId: text("page_id").references(() => page.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.userId] }), index("task_list_user_idx").on(t.userId)],
+);

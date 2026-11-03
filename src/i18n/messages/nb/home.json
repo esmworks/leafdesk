@@ -43,20 +43,43 @@
       "soon": "Neste 7 dager",
       "undated": "Uten dato",
       "rows": "Tildelte rader",
-      "todos": "Gjøremål"
+      "todos": "Gjøremål på sider"
     },
     "viewsLabel": "Oppgavevisninger",
     "byKind": "Etter type",
     "places": "Databaser og sider",
     "allPlaces": "Vis alle {count}",
     "fewerPlaces": "Vis færre",
-    "addTodo": "Legg til gjøremål",
-    "addHint": "Havner i dagens dagsnotat. En dag i teksten, som «fredag», blir datoen.",
-    "addEmpty": "Skriv gjøremålet først.",
-    "addTooLong": "Et gjøremål kan være på høyst {max} tegn.",
-    "addFailed": "Kunne ikke legge til gjøremålet.",
+    "addEmpty": "Skriv oppgaven først.",
+    "addTooLong": "En oppgave kan være på høyst {max} tegn.",
+    "addFailed": "Kunne ikke legge til oppgaven.",
     "filtered": "En del av oppgavene dine, slik det er valgt i sidefeltet.",
-    "filteredEmpty": "Her er det ingenting."
+    "filteredEmpty": "Her er det ingenting.",
+    "newTask": "Ny oppgave",
+    "newTaskPlaceholder": "Oppgavenavn, f.eks. «Ring leverandøren fredag #høy @Ayşe»",
+    "newTaskHint": "Enter legger den til i listen din",
+    "date": "Dato",
+    "priorityLabel": "Prioritet",
+    "addPeople": "Legg til personer",
+    "peopleCount": "{count, plural, one {# person} other {# personer}}",
+    "findPerson": "Finn en person",
+    "noPerson": "Ingen funnet",
+    "peopleNote": "De kan også se og redigere denne oppgaven.",
+    "add": "Legg til",
+    "addNotMember": "Noen du valgte, er ikke lenger i dette arbeidsområdet.",
+    "withPeople": "Med {names}",
+    "dates": {
+      "today": "I dag",
+      "tomorrow": "I morgen",
+      "nextWeek": "Neste uke",
+      "none": "Ingen dato"
+    },
+    "priority": {
+      "high": "Høy",
+      "medium": "Middels",
+      "low": "Lav",
+      "none": "Ingen prioritet"
+    }
   },
   "figures": {
     "label": "Arbeidet ditt med ett blikk",

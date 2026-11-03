@@ -43,20 +43,43 @@
       "soon": "Kommande 7 dagar",
       "undated": "Utan datum",
       "rows": "Tilldelade rader",
-      "todos": "Att göra"
+      "todos": "Att göra på sidor"
     },
     "viewsLabel": "Uppgiftsvyer",
     "byKind": "Efter typ",
     "places": "Databaser och sidor",
     "allPlaces": "Visa alla {count}",
     "fewerPlaces": "Visa färre",
-    "addTodo": "Lägg till att göra",
-    "addHint": "Hamnar i dagens dagsanteckning. En dag i texten, som ”fredag”, blir dess datum.",
     "addEmpty": "Skriv uppgiften först.",
     "addTooLong": "En uppgift får vara högst {max} tecken lång.",
     "addFailed": "Det gick inte att lägga till uppgiften.",
     "filtered": "En del av dina uppgifter, som valt i sidofältet.",
-    "filteredEmpty": "Här finns inget."
+    "filteredEmpty": "Här finns inget.",
+    "newTask": "Ny uppgift",
+    "newTaskPlaceholder": "Uppgiftens namn, t.ex. ”Ring leverantören fredag #hög @Ayşe”",
+    "newTaskHint": "Enter lägger till den i din lista",
+    "date": "Datum",
+    "priorityLabel": "Prioritet",
+    "addPeople": "Lägg till personer",
+    "peopleCount": "{count, plural, one {# person} other {# personer}}",
+    "findPerson": "Sök en person",
+    "noPerson": "Ingen hittades",
+    "peopleNote": "De kan också se och redigera uppgiften.",
+    "add": "Lägg till",
+    "addNotMember": "Någon du valde finns inte längre i arbetsytan.",
+    "withPeople": "Med {names}",
+    "dates": {
+      "today": "I dag",
+      "tomorrow": "I morgon",
+      "nextWeek": "Nästa vecka",
+      "none": "Inget datum"
+    },
+    "priority": {
+      "high": "Hög",
+      "medium": "Medel",
+      "low": "Låg",
+      "none": "Ingen prioritet"
+    }
   },
   "figures": {
     "label": "Ditt arbete i en överblick",

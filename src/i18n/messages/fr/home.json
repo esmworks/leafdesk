@@ -43,20 +43,43 @@
       "soon": "7 prochains jours",
       "undated": "Sans date",
       "rows": "Lignes assignées",
-      "todos": "À faire"
+      "todos": "À faire dans les pages"
     },
     "viewsLabel": "Vues des tâches",
     "byKind": "Par type",
     "places": "Bases de données et pages",
     "allPlaces": "Tout afficher ({count})",
     "fewerPlaces": "Afficher moins",
-    "addTodo": "Ajouter une tâche",
-    "addHint": "Va dans la note du jour. Un jour écrit dedans, comme « vendredi », devient sa date.",
     "addEmpty": "Écrivez d'abord la tâche.",
     "addTooLong": "Une tâche peut compter au plus {max} caractères.",
     "addFailed": "Impossible d'ajouter la tâche.",
     "filtered": "Une partie de vos tâches, selon le choix fait dans la barre latérale.",
-    "filteredEmpty": "Rien ici."
+    "filteredEmpty": "Rien ici.",
+    "newTask": "Nouvelle tâche",
+    "newTaskPlaceholder": "Nom de la tâche, ex. « Appeler le fournisseur vendredi #haute @Ayşe »",
+    "newTaskHint": "Entrée l'ajoute à votre liste",
+    "date": "Date",
+    "priorityLabel": "Priorité",
+    "addPeople": "Ajouter des personnes",
+    "peopleCount": "{count, plural, one {# personne} other {# personnes}}",
+    "findPerson": "Chercher une personne",
+    "noPerson": "Personne trouvée",
+    "peopleNote": "Elles peuvent aussi voir et modifier cette tâche.",
+    "add": "Ajouter",
+    "addNotMember": "Une personne choisie ne fait plus partie de cet espace de travail.",
+    "withPeople": "Avec {names}",
+    "dates": {
+      "today": "Aujourd'hui",
+      "tomorrow": "Demain",
+      "nextWeek": "La semaine prochaine",
+      "none": "Sans date"
+    },
+    "priority": {
+      "high": "Haute",
+      "medium": "Moyenne",
+      "low": "Basse",
+      "none": "Sans priorité"
+    }
   },
   "figures": {
     "label": "Votre travail en un coup d'œil",

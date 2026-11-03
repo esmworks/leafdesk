@@ -307,5 +307,15 @@
   "journal": {
     "title": "Diario",
     "markdown": "## Enfoque\n\n- [ ] \n\n## Notas\n\n## Hecho hoy\n"
+  },
+  "taskList": {
+    "title": "Mis pendientes",
+    "status": "Estado",
+    "date": "Fecha",
+    "priority": "Prioridad",
+    "people": "Personas",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Baja"
   }
 }

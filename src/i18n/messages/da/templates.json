@@ -307,5 +307,15 @@
   "journal": {
     "title": "Dagbog",
     "markdown": "## Fokus\n\n- [ ] \n\n## Noter\n\n## Klaret i dag\n"
+  },
+  "taskList": {
+    "title": "Min to-do-liste",
+    "status": "Status",
+    "date": "Dato",
+    "priority": "Prioritet",
+    "people": "Personer",
+    "high": "Høj",
+    "medium": "Mellem",
+    "low": "Lav"
   }
 }

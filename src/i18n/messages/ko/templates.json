@@ -307,5 +307,15 @@
   "journal": {
     "title": "저널",
     "markdown": "## 집중할 일\n\n- [ ] \n\n## 메모\n\n## 오늘 한 일\n"
+  },
+  "taskList": {
+    "title": "내 할 일 목록",
+    "status": "상태",
+    "date": "날짜",
+    "priority": "우선순위",
+    "people": "사람",
+    "high": "높음",
+    "medium": "보통",
+    "low": "낮음"
   }
 }

@@ -1345,6 +1345,13 @@
       "when": 1793654846550,
       "tag": "0191_agent_thinking",
       "breakpoints": true
+    },
+    {
+      "idx": 192,
+      "version": "7",
+      "when": 1793733490243,
+      "tag": "0192_task_list",
+      "breakpoints": true
     }
   ]
 }

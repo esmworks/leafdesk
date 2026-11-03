@@ -43,20 +43,43 @@
       "soon": "Najbliższe 7 dni",
       "undated": "Bez daty",
       "rows": "Przypisane wiersze",
-      "todos": "Do zrobienia"
+      "todos": "Do zrobienia na stronach"
     },
     "viewsLabel": "Widoki zadań",
     "byKind": "Według rodzaju",
     "places": "Bazy danych i strony",
     "allPlaces": "Pokaż wszystkie ({count})",
     "fewerPlaces": "Pokaż mniej",
-    "addTodo": "Dodaj zadanie do zrobienia",
-    "addHint": "Trafia do dzisiejszej notatki dziennej. Dzień wpisany w tekst, np. „piątek”, staje się jego datą.",
     "addEmpty": "Najpierw wpisz zadanie.",
     "addTooLong": "Zadanie może mieć najwyżej {max} znaków.",
     "addFailed": "Nie udało się dodać zadania.",
     "filtered": "Część Twoich zadań, wybrana na pasku bocznym.",
-    "filteredEmpty": "Nic tu nie ma."
+    "filteredEmpty": "Nic tu nie ma.",
+    "newTask": "Nowe zadanie",
+    "newTaskPlaceholder": "Nazwa zadania, np. „Zadzwoń do dostawcy piątek #wysoki @Ayşe”",
+    "newTaskHint": "Enter dodaje je do Twojej listy",
+    "date": "Data",
+    "priorityLabel": "Priorytet",
+    "addPeople": "Dodaj osoby",
+    "peopleCount": "{count, plural, one {# osoba} few {# osoby} many {# osób} other {# osoby}}",
+    "findPerson": "Znajdź osobę",
+    "noPerson": "Nikogo nie znaleziono",
+    "peopleNote": "Też mogą widzieć i edytować to zadanie.",
+    "add": "Dodaj",
+    "addNotMember": "Ktoś, kogo wybrano, nie należy już do tego obszaru roboczego.",
+    "withPeople": "Razem z: {names}",
+    "dates": {
+      "today": "Dziś",
+      "tomorrow": "Jutro",
+      "nextWeek": "Przyszły tydzień",
+      "none": "Bez daty"
+    },
+    "priority": {
+      "high": "Wysoki",
+      "medium": "Średni",
+      "low": "Niski",
+      "none": "Bez priorytetu"
+    }
   },
   "figures": {
     "label": "Twoja praca w skrócie",

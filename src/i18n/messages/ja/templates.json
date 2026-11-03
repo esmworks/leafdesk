@@ -307,5 +307,15 @@
   "journal": {
     "title": "ジャーナル",
     "markdown": "## 今日のフォーカス\n\n- [ ] \n\n## メモ\n\n## 今日やったこと\n"
+  },
+  "taskList": {
+    "title": "マイToDoリスト",
+    "status": "ステータス",
+    "date": "日付",
+    "priority": "優先度",
+    "people": "メンバー",
+    "high": "高",
+    "medium": "中",
+    "low": "低"
   }
 }

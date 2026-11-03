@@ -307,5 +307,15 @@
   "journal": {
     "title": "Päiväkirja",
     "markdown": "## Painopiste\n\n- [ ] \n\n## Muistiinpanot\n\n## Tehty tänään\n"
+  },
+  "taskList": {
+    "title": "Oma tehtävälistani",
+    "status": "Tila",
+    "date": "Päivä",
+    "priority": "Prioriteetti",
+    "people": "Henkilöt",
+    "high": "Korkea",
+    "medium": "Keskitaso",
+    "low": "Matala"
   }
 }

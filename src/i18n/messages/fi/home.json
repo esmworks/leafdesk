@@ -50,13 +50,36 @@
     "places": "Tietokannat ja sivut",
     "allPlaces": "Näytä kaikki {count}",
     "fewerPlaces": "Näytä vähemmän",
-    "addTodo": "Lisää tehtävä",
-    "addHint": "Menee tämän päivän päivämuistiinpanoon. Siinä mainittu päivä, kuten ”perjantai”, tulee sen päiväksi.",
     "addEmpty": "Kirjoita tehtävä ensin.",
     "addTooLong": "Tehtävä voi olla enintään {max} merkkiä pitkä.",
     "addFailed": "Tehtävää ei voitu lisätä.",
     "filtered": "Osa tehtävistäsi, sivupalkissa valitun mukaan.",
-    "filteredEmpty": "Täällä ei ole mitään."
+    "filteredEmpty": "Täällä ei ole mitään.",
+    "newTask": "Uusi tehtävä",
+    "newTaskPlaceholder": "Tehtävän nimi, esim. ”Soita toimittajalle perjantai #korkea @Ayşe”",
+    "newTaskHint": "Enter lisää sen listaasi",
+    "date": "Päivä",
+    "priorityLabel": "Prioriteetti",
+    "addPeople": "Lisää henkilöitä",
+    "peopleCount": "{count, plural, one {# henkilö} other {# henkilöä}}",
+    "findPerson": "Etsi henkilö",
+    "noPerson": "Ketään ei löytynyt",
+    "peopleNote": "Hekin voivat nähdä ja muokata tätä tehtävää.",
+    "add": "Lisää",
+    "addNotMember": "Joku valitsemasi ei ole enää tässä työtilassa.",
+    "withPeople": "Mukana {names}",
+    "dates": {
+      "today": "Tänään",
+      "tomorrow": "Huomenna",
+      "nextWeek": "Ensi viikko",
+      "none": "Ei päivää"
+    },
+    "priority": {
+      "high": "Korkea",
+      "medium": "Keskitaso",
+      "low": "Matala",
+      "none": "Ei prioriteettia"
+    }
   },
   "figures": {
     "label": "Työsi yhdellä silmäyksellä",

@@ -43,20 +43,43 @@
       "soon": "Prossimi 7 giorni",
       "undated": "Senza data",
       "rows": "Righe assegnate",
-      "todos": "Cose da fare"
+      "todos": "Cose da fare nelle pagine"
     },
     "viewsLabel": "Viste delle attività",
     "byKind": "Per tipo",
     "places": "Database e pagine",
     "allPlaces": "Mostra tutte ({count})",
     "fewerPlaces": "Mostra meno",
-    "addTodo": "Aggiungi una cosa da fare",
-    "addHint": "Va nella nota del giorno. Un giorno scritto, come «venerdì», diventa la sua data.",
-    "addEmpty": "Scrivi prima la cosa da fare.",
-    "addTooLong": "Una cosa da fare può avere al massimo {max} caratteri.",
-    "addFailed": "Impossibile aggiungere la cosa da fare.",
+    "addEmpty": "Scrivi prima l'attività.",
+    "addTooLong": "Un'attività può avere al massimo {max} caratteri.",
+    "addFailed": "Impossibile aggiungere l'attività.",
     "filtered": "Una parte delle tue attività, come scelto nella barra laterale.",
-    "filteredEmpty": "Qui non c'è niente."
+    "filteredEmpty": "Qui non c'è niente.",
+    "newTask": "Nuova attività",
+    "newTaskPlaceholder": "Nome dell'attività, es. «Chiamare il fornitore venerdì #alta @Ayşe»",
+    "newTaskHint": "Invio la aggiunge alla tua lista",
+    "date": "Data",
+    "priorityLabel": "Priorità",
+    "addPeople": "Aggiungi persone",
+    "peopleCount": "{count, plural, one {# persona} other {# persone}}",
+    "findPerson": "Cerca una persona",
+    "noPerson": "Nessuno trovato",
+    "peopleNote": "Possono anche vedere e modificare questa attività.",
+    "add": "Aggiungi",
+    "addNotMember": "Una persona scelta non fa più parte di questo spazio di lavoro.",
+    "withPeople": "Con {names}",
+    "dates": {
+      "today": "Oggi",
+      "tomorrow": "Domani",
+      "nextWeek": "La prossima settimana",
+      "none": "Senza data"
+    },
+    "priority": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Bassa",
+      "none": "Senza priorità"
+    }
   },
   "figures": {
     "label": "Il tuo lavoro a colpo d'occhio",

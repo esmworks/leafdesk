@@ -50,13 +50,36 @@
     "places": "Cơ sở dữ liệu và trang",
     "allPlaces": "Hiện tất cả {count}",
     "fewerPlaces": "Hiện ít hơn",
-    "addTodo": "Thêm việc cần làm",
-    "addHint": "Được thêm vào ghi chú hằng ngày hôm nay. Một ngày viết trong đó, như “thứ sáu”, sẽ thành ngày của nó.",
-    "addEmpty": "Hãy viết việc cần làm trước.",
-    "addTooLong": "Một việc cần làm dài tối đa {max} ký tự.",
-    "addFailed": "Không thể thêm việc cần làm.",
+    "addEmpty": "Hãy viết công việc trước.",
+    "addTooLong": "Một công việc dài tối đa {max} ký tự.",
+    "addFailed": "Không thể thêm công việc.",
     "filtered": "Một phần công việc của bạn, theo lựa chọn ở thanh bên.",
-    "filteredEmpty": "Không có gì ở đây."
+    "filteredEmpty": "Không có gì ở đây.",
+    "newTask": "Công việc mới",
+    "newTaskPlaceholder": "Tên công việc, vd. “Gọi nhà cung cấp thứ sáu #cao @Ayşe”",
+    "newTaskHint": "Nhấn Enter để thêm vào danh sách của bạn",
+    "date": "Ngày",
+    "priorityLabel": "Mức ưu tiên",
+    "addPeople": "Thêm người",
+    "peopleCount": "{count} người",
+    "findPerson": "Tìm người",
+    "noPerson": "Không tìm thấy ai",
+    "peopleNote": "Họ cũng có thể xem và sửa công việc này.",
+    "add": "Thêm",
+    "addNotMember": "Một người bạn chọn không còn trong không gian làm việc này.",
+    "withPeople": "Cùng {names}",
+    "dates": {
+      "today": "Hôm nay",
+      "tomorrow": "Ngày mai",
+      "nextWeek": "Tuần sau",
+      "none": "Không có ngày"
+    },
+    "priority": {
+      "high": "Cao",
+      "medium": "Trung bình",
+      "low": "Thấp",
+      "none": "Không ưu tiên"
+    }
   },
   "figures": {
     "label": "Công việc của bạn trong nháy mắt",

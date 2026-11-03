@@ -307,5 +307,15 @@
   "journal": {
     "title": "Günlük",
     "markdown": "## Odak\n\n- [ ] \n\n## Notlar\n\n## Bugün bitenler\n"
+  },
+  "taskList": {
+    "title": "Yapılacaklarım",
+    "status": "Durum",
+    "date": "Tarih",
+    "priority": "Öncelik",
+    "people": "Kişiler",
+    "high": "Yüksek",
+    "medium": "Orta",
+    "low": "Düşük"
   }
 }

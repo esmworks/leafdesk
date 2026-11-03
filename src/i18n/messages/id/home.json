@@ -50,13 +50,36 @@
     "places": "Database dan halaman",
     "allPlaces": "Tampilkan semua {count}",
     "fewerPlaces": "Tampilkan lebih sedikit",
-    "addTodo": "Tambahkan tugas",
-    "addHint": "Masuk ke catatan harian hari ini. Hari yang ditulis, seperti “jumat”, menjadi tanggalnya.",
     "addEmpty": "Tulis tugasnya dulu.",
     "addTooLong": "Tugas paling panjang {max} karakter.",
     "addFailed": "Tugas tidak dapat ditambahkan.",
     "filtered": "Sebagian tugas Anda, sesuai pilihan di bilah samping.",
-    "filteredEmpty": "Tidak ada apa-apa di sini."
+    "filteredEmpty": "Tidak ada apa-apa di sini.",
+    "newTask": "Tugas baru",
+    "newTaskPlaceholder": "Nama tugas, mis. “Telepon pemasok jumat #tinggi @Ayşe”",
+    "newTaskHint": "Enter menambahkannya ke daftar Anda",
+    "date": "Tanggal",
+    "priorityLabel": "Prioritas",
+    "addPeople": "Tambahkan orang",
+    "peopleCount": "{count} orang",
+    "findPerson": "Cari orang",
+    "noPerson": "Tidak ada yang ditemukan",
+    "peopleNote": "Mereka juga bisa melihat dan mengedit tugas ini.",
+    "add": "Tambah",
+    "addNotMember": "Seseorang yang Anda pilih tidak lagi ada di ruang kerja ini.",
+    "withPeople": "Bersama {names}",
+    "dates": {
+      "today": "Hari ini",
+      "tomorrow": "Besok",
+      "nextWeek": "Minggu depan",
+      "none": "Tanpa tanggal"
+    },
+    "priority": {
+      "high": "Tinggi",
+      "medium": "Sedang",
+      "low": "Rendah",
+      "none": "Tanpa prioritas"
+    }
   },
   "figures": {
     "label": "Pekerjaan Anda sekilas",

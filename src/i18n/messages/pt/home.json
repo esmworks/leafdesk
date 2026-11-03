@@ -43,20 +43,43 @@
       "soon": "Próximos 7 dias",
       "undated": "Sem data",
       "rows": "Linhas atribuídas",
-      "todos": "Pendências"
+      "todos": "Pendências em páginas"
     },
     "viewsLabel": "Vistas de tarefas",
     "byKind": "Por tipo",
     "places": "Bases de dados e páginas",
     "allPlaces": "Mostrar todas ({count})",
     "fewerPlaces": "Mostrar menos",
-    "addTodo": "Adicionar uma pendência",
-    "addHint": "Vai para a nota diária de hoje. Um dia escrito nela, como “sexta”, vira a sua data.",
-    "addEmpty": "Escreva a pendência primeiro.",
-    "addTooLong": "Uma pendência pode ter no máximo {max} caracteres.",
-    "addFailed": "Não foi possível adicionar a pendência.",
+    "addEmpty": "Escreva a tarefa primeiro.",
+    "addTooLong": "Uma tarefa pode ter no máximo {max} caracteres.",
+    "addFailed": "Não foi possível adicionar a tarefa.",
     "filtered": "Parte das suas tarefas, como escolhido na barra lateral.",
-    "filteredEmpty": "Nada aqui."
+    "filteredEmpty": "Nada aqui.",
+    "newTask": "Nova tarefa",
+    "newTaskPlaceholder": "Nome da tarefa, ex. “Ligar ao fornecedor sexta #alta @Ayşe”",
+    "newTaskHint": "Enter adiciona-a à sua lista",
+    "date": "Data",
+    "priorityLabel": "Prioridade",
+    "addPeople": "Adicionar pessoas",
+    "peopleCount": "{count, plural, one {# pessoa} other {# pessoas}}",
+    "findPerson": "Procurar uma pessoa",
+    "noPerson": "Ninguém encontrado",
+    "peopleNote": "Também podem ver e editar esta tarefa.",
+    "add": "Adicionar",
+    "addNotMember": "Alguém que escolheu já não está neste espaço de trabalho.",
+    "withPeople": "Com {names}",
+    "dates": {
+      "today": "Hoje",
+      "tomorrow": "Amanhã",
+      "nextWeek": "Próxima semana",
+      "none": "Sem data"
+    },
+    "priority": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa",
+      "none": "Sem prioridade"
+    }
   },
   "figures": {
     "label": "Seu trabalho num relance",

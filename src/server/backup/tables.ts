@@ -102,6 +102,7 @@ export const BACKED_UP: Record<string, Scope> = {
   connection_trigger: ofConnections,
   journal: own,
   daily_note: own,
+  task_list: own,
   mail_database: own,
   row_email: own,
   row_email_attachment: (ws) => sql`row_email_id in (select id from row_email where workspace_id = ${ws})`,

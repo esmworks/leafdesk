@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, Flag } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { useRef, useState, type MouseEvent } from "react";
@@ -8,6 +8,7 @@ import { markAssignedDoneAction, undoAssignedDoneAction, type AssignedItemRef, t
 import { OptionChip } from "@/components/database/property-cell";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { cn, PageIcon } from "@/components/ui";
+import { UserAvatar } from "@/components/user-avatar";
 import { assignedGroup, type AssignedGroupKey, type AssignedGrouping } from "@/lib/assigned";
 import { pageLabel } from "@/lib/labels";
 import { TASKS_EVENT } from "@/lib/tasks-event";
@@ -164,6 +165,20 @@ export function AssignedList({
                   {item.type === "row" && item.status && !done && (
                     <span className="hidden shrink-0 sm:inline-flex">
                       <OptionChip option={item.status} dot />
+                    </span>
+                  )}
+                  {item.type === "row" && item.priority && !done && (
+                    <span title={item.priority.name} className="inline-flex shrink-0">
+                      <Flag className={cn("h-3.5 w-3.5", `icon-${item.priority.color}`)} aria-hidden />
+                      <span className="sr-only">{item.priority.name}</span>
+                    </span>
+                  )}
+                  {item.type === "row" && item.others.length > 0 && (
+                    <span title={item.others.map((o) => o.name).join(", ")} className="flex shrink-0 -space-x-1.5 rtl:space-x-reverse">
+                      {item.others.slice(0, 3).map((o) => (
+                        <UserAvatar key={o.id} name={o.name} image={o.image} size="xs" className="ring-2 ring-bg" />
+                      ))}
+                      <span className="sr-only">{t("myTasks.withPeople", { names: item.others.map((o) => o.name).join(", ") })}</span>
                     </span>
                   )}
                   {item.date && !done && <span className={cn("shrink-0 text-xs tabular-nums", tone(due))}>{dateLabel(item.date)}</span>}
