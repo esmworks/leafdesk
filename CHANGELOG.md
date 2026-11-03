@@ -11,7 +11,7 @@
   that is turned off, a pulse while a run of your chat with it is going and a count of runs waiting
   for your answer, refreshed every 15 seconds while the tab is open. **+** in the tab's heading makes
   an agent from scratch or from a description the AI drafts, as Settings → Agents does, and a
-  filter box appears from six agents on. The agents under your pages follow the same groups.
+  filter box appears from six agents on.
 - **My tasks has a panel of its own in the sidebar, and a New task row that keeps your own list.**
   Next to the list, the panel shows *All*, *Today*, *Next 7 days*, *No date*, *Assigned rows* and
   *To-dos in pages*, and the databases and pages your tasks are in, each with how many it holds;
@@ -31,6 +31,8 @@
 
 ### Changed
 
+- **Agents are listed only in the sidebar's Agents tab.** The *Agents* section under your pages,
+  which showed the same list, is gone; a sidebar layout saved with it drops it.
 - **A calmer look across the app.** Surfaces are plain neutral grays in layers, rows hovered or
   picked take a lighter tint and lines are fainter. On wide windows the rail sits on a gray frame
   and the sidebar's panel and the page are one card above it; the workspace's menu moved from the

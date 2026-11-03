@@ -42,52 +42,19 @@ export type AgentListProps = {
   onRenamingGroup?: (groupId: string | null) => void;
   /** Goes to a page of the app (the agent's settings). */
   navigate?: (href: string) => void;
-  /** The short list under a workspace's pages: names alone, the person's groups as small headings. */
-  compact?: boolean;
 };
 
 /**
  * The agents a person may talk to, one link each, in their own groups and order. In the agents
  * tab, rows and groups move by dragging or from their menus (a right click or the row's ⋯), groups
  * fold, are renamed and removed; each row shows what the agent does and its runs (going, waiting for
- * an answer). The compact list keeps names in the same order.
+ * an answer).
  */
 export function AgentList(props: AgentListProps) {
-  const { agents, arrangement, compact } = props;
+  const { agents, arrangement } = props;
   const t = useTranslations("sidebar.agentList");
   const [query, setQuery] = useState("");
   const { groups, loose } = arrangeAgents(agents, arrangement);
-
-  if (compact) {
-    return (
-      <ul className="space-y-px">
-        {groups.map(({ group, agents: inGroup }) =>
-          inGroup.length === 0 ? null : (
-            <li key={group.id}>
-              <p className="truncate px-2 pt-1.5 pb-0.5 text-[11px] font-medium text-fg-faint">{group.name}</p>
-              <ul className="space-y-px">
-                {inGroup.map((agent) => (
-                  <li key={agent.id}>
-                    <CompactRow agent={agent} {...props} />
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ),
-        )}
-        {groups.some((g) => g.agents.length > 0) && loose.length > 0 && (
-          <li>
-            <p className="truncate px-2 pt-1.5 pb-0.5 text-[11px] font-medium text-fg-faint">{t("other")}</p>
-          </li>
-        )}
-        {loose.map((agent) => (
-          <li key={agent.id}>
-            <CompactRow agent={agent} {...props} />
-          </li>
-        ))}
-      </ul>
-    );
-  }
 
   if (agents.length === 0) return <p className="px-2.5 py-2 text-sm text-fg-muted">{t("empty")}</p>;
 
@@ -525,24 +492,6 @@ function RowLink({ agent, workspaceId, activePath }: { agent: SidebarAgent; work
         <span className={cn("truncate text-sm font-medium", agent.enabled ? "text-fg" : "text-fg-muted")}>{agent.name}</span>
         {(agent.description || !agent.enabled) && <span className="truncate text-xs text-fg-faint">{agent.enabled ? agent.description : t("off")}</span>}
       </span>
-      <AgentState agent={agent} />
-    </Link>
-  );
-}
-
-function CompactRow({ agent, workspaceId, activePath }: AgentListProps & { agent: SidebarAgent }) {
-  const href = agentPagePath(workspaceId, agent.id);
-  const current = activePath === href || activePath.startsWith(`${href}/`);
-  return (
-    <Link
-      href={href}
-      aria-current={current ? "page" : undefined}
-      className="flex h-7 items-center gap-0.5 rounded-md ps-1 pe-2 hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg"
-    >
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-        {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}
-      </span>
-      <span className={cn("min-w-0 flex-1 truncate ps-0.5", !agent.enabled && "text-fg-muted")}>{agent.name}</span>
       <AgentState agent={agent} />
     </Link>
   );

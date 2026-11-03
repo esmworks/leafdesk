@@ -133,7 +133,6 @@ const OPEN_TEAMSPACES_KEY = "leafdesk:open-teamspaces";
 const TEAMSPACES_GROUP: SidebarSection = "teamspaces";
 const FAVORITES_SECTION: SidebarSection = "favorites";
 const PAGES_SECTION: SidebarSection = "pages";
-const AGENTS_SECTION: SidebarSection = "agents";
 /** How often the agents list reads its runs again while it is open. */
 const AGENT_COUNTS_MS = 15_000;
 /** Top-level pages "Private" and "Shared" show before a "More" row. */
@@ -817,7 +816,6 @@ export function Sidebar({
       teamspaces: t("teamspaces.heading"),
       shared: t("sections.shared"),
       private: t("sections.private"),
-      agents: t("sections.agents"),
     })[key];
 
   /** Folds or unfolds a section heading (`open` unfolds or folds it; without it, it toggles). */
@@ -1337,21 +1335,6 @@ export function Sidebar({
           onAll={(all) => setShowAll((prev) => withMember(prev, PRIVATE_SECTION, all))}
           {...treeProps}
         />
-      </SectionGroup>
-    ),
-    // The same list as the agents tab's, folded or not, for those who keep it with their pages.
-    agents: agents.length > 0 && (
-      <SectionGroup
-        label={t("sections.agents")}
-        open={!isFolded(AGENTS_SECTION)}
-        onToggle={() => fold(AGENTS_SECTION)}
-        actions={
-          <IconButton label={t("sections.manageAgents")} onClick={() => router.push(`/w/${workspaceId}/settings?tab=agents`)}>
-            <MoreHorizontal className="h-3.5 w-3.5" />
-          </IconButton>
-        }
-      >
-        <AgentList agents={agents} workspaceId={workspaceId} activePath={pathname} arrangement={layout.agents} compact />
       </SectionGroup>
     ),
   };
@@ -1898,7 +1881,7 @@ export function Sidebar({
               ) : customizing ? (
                 <CustomizeSections
                   sections={sidebarOrder(layout)
-                    .filter((key) => (key === PAGES_SECTION ? !!pagesSpace : key === TEAMSPACES_GROUP ? showTeamspaces : key === AGENTS_SECTION ? agents.length > 0 : true))
+                    .filter((key) => (key === PAGES_SECTION ? !!pagesSpace : key === TEAMSPACES_GROUP ? showTeamspaces : true))
                     .map((key) => ({ key, label: sectionLabel(key) }))}
                   hidden={hiddenSections}
                   onChange={(order, hidden) => saveLayout({ order, hidden })}
