@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "Suodata agentit",
+    "clearFilter": "Tyhjennä suodatin",
     "noMatch": "Ei vastaavia agentteja.",
     "off": "Pois päältä",
     "running": "Käynnissä",

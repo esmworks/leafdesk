@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "Filtrar agentes",
+    "clearFilter": "Limpar filtro",
     "noMatch": "Nenhum agente corresponde.",
     "off": "Desativado",
     "running": "Em execução",

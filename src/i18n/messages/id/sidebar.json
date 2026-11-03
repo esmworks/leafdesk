@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "Saring agen",
+    "clearFilter": "Hapus filter",
     "noMatch": "Tidak ada agen yang cocok.",
     "off": "Nonaktif",
     "running": "Berjalan",

@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "Filtrera agenter",
+    "clearFilter": "Rensa filter",
     "noMatch": "Ingen agent matchar.",
     "off": "Av",
     "running": "Kör",

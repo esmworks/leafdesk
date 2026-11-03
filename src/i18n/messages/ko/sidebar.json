@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "에이전트 필터",
+    "clearFilter": "필터 지우기",
     "noMatch": "일치하는 에이전트가 없습니다.",
     "off": "꺼짐",
     "running": "실행 중",

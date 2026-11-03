@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "Agents filteren",
+    "clearFilter": "Filter wissen",
     "noMatch": "Geen agent gevonden.",
     "off": "Uit",
     "running": "Bezig",

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Bot, Check, ChevronDown, ChevronRight, ExternalLink, Folder, FolderMinus, FolderPlus, MoreHorizontal, Pencil, Settings2, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Bot, Check, ChevronDown, ChevronRight, ExternalLink, Folder, FolderMinus, FolderPlus, MoreHorizontal, Pencil, Search, Settings2, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -96,14 +96,27 @@ export function AgentList(props: AgentListProps) {
   return (
     <div className="flex flex-col">
       {filterable && (
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("filter")}
-          aria-label={t("filter")}
-          className="mx-1 mb-2 h-8 rounded-md bg-bg-hover px-2.5 text-sm text-fg placeholder:text-fg-faint focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        />
+        <label className="mb-1.5 flex h-8 items-center gap-2 rounded-md border border-transparent bg-bg-hover ps-2.5 pe-1 text-fg-icon focus-within:border-border focus-within:bg-bg">
+          <Search className="h-3.5 w-3.5 shrink-0" aria-hidden />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key !== "Escape") return;
+              setQuery("");
+              e.currentTarget.blur();
+            }}
+            placeholder={t("filter")}
+            aria-label={t("filter")}
+            className="min-w-0 flex-1 bg-transparent text-sm text-fg outline-none placeholder:text-fg-faint [&::-webkit-search-cancel-button]:hidden"
+          />
+          {query && (
+            <IconButton label={t("clearFilter")} className="h-6 w-6" onClick={() => setQuery("")}>
+              <X className="h-3.5 w-3.5" />
+            </IconButton>
+          )}
+        </label>
       )}
       {needle ? <Matches {...props} needle={needle} /> : <Arranged {...props} groups={groups} loose={loose} />}
     </div>

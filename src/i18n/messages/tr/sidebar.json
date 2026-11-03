@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "Ajanları filtrele",
+    "clearFilter": "Filtreyi temizle",
     "noMatch": "Eşleşen ajan yok.",
     "off": "Kapalı",
     "running": "Çalışıyor",

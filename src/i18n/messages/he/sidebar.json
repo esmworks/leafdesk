@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "סינון סוכנים",
+    "clearFilter": "ניקוי הסינון",
     "noMatch": "אין סוכן תואם.",
     "off": "כבוי",
     "running": "פועל",

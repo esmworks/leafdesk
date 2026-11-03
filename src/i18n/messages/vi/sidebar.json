@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "Lọc tác nhân",
+    "clearFilter": "Xóa bộ lọc",
     "noMatch": "Không có tác nhân phù hợp.",
     "off": "Đã tắt",
     "running": "Đang chạy",

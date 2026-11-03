@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "Filtrer agenter",
+    "clearFilter": "Ryd filter",
     "noMatch": "Ingen agent matcher.",
     "off": "Fra",
     "running": "Kører",

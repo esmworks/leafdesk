@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "Filtrer agenter",
+    "clearFilter": "Tøm filter",
     "noMatch": "Ingen agent passer.",
     "off": "Av",
     "running": "Kjører",

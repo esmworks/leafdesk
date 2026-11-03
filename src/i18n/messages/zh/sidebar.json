@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "筛选智能体",
+    "clearFilter": "清除筛选",
     "noMatch": "没有匹配的智能体。",
     "off": "已关闭",
     "running": "运行中",

@@ -354,6 +354,7 @@
   },
   "agentList": {
     "filter": "エージェントを絞り込む",
+    "clearFilter": "絞り込みをクリア",
     "noMatch": "一致するエージェントはありません。",
     "off": "オフ",
     "running": "実行中",
