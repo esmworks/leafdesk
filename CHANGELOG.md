@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.7.2 — 2026-11-04
+
+### Upgrading from 0.7.1
+
+- **Back up the database first.** Migration 0192 runs automatically when the container starts
+  (from source, run `pnpm db:migrate`). It adds the `task_list` table, which keeps each person's
+  *My to-do list* database.
+- **No new settings.** `docker-compose.yml` and `.env` stay as they are.
+
 ### Added
 
 - **The agents tab in the sidebar is a place of its own: groups, dragging and New agent.** Put
@@ -11,7 +20,7 @@
   that is turned off, a pulse while a run of your chat with it is going and a count of runs waiting
   for your answer, refreshed every 15 seconds while the tab is open. **+** in the tab's heading makes
   an agent from scratch or from a description the AI drafts, as Settings → Agents does, and a
-  filter box appears from six agents on.
+  filter box, with a search icon and a clear button, appears from six agents on.
 - **My tasks has a panel of its own in the sidebar, and a New task row that keeps your own list.**
   Next to the list, the panel shows *All*, *Today*, *Next 7 days*, *No date*, *Assigned rows* and
   *To-dos in pages*, and the databases and pages your tasks are in, each with how many it holds;
@@ -61,6 +70,10 @@
 
 ### Fixed
 
+- **No scrollbar shows inside the boxes beside a chat.** The boxes beside an agent's or the AI
+  chat's column scrolled with a bar of their own; they scroll without one now.
+- **The rail's counts are no longer cut off.** The counts on the corners of the sidebar rail's
+  icons were clipped by its scrolling list; the list now has room around them.
 - **Chat answers flow in evenly, letter by letter, whatever the model.** Models that send their
   text a sentence or a paragraph at a time made the AI chat's and agents' answers appear a lump at
   once, then pause; each piece is now spread over the time until the next one is due (up to a
