@@ -119,7 +119,9 @@ describe("built-in agents", () => {
       } else if (names.key === "mail-assistant") {
         expect(agent.task.length).toBeLessThanOrEqual(MAX_MAIL_TASK);
         expect(agent.instructions).toContain("db-customers");
-        for (const tool of ["update_row", "create_row", "summarize_mail", "draft_mail", "sort_mail"]) expect(agent.instructions, `${locale} ${tool}`).toContain(tool);
+        for (const tool of ["update_row", "create_row", "draft_mail", "sort_mail"]) expect(agent.instructions, `${locale} ${tool}`).toContain(tool);
+        // A thread's summary is the person's to ask for in the Mail tab: no run keeps one.
+        expect(agent.instructions, locale).not.toContain("summarize_mail");
       } else {
         expect(agent.instructions).toContain(quote(names.property));
       }

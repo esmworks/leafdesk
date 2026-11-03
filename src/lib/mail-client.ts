@@ -219,7 +219,11 @@ export type MailboxTabView = {
 };
 
 /** A thread in a folder's list. */
-/** What an agent did with a message (agents/run.ts): read it when it came, drafted its answer, sorted it (read, starred, archived, moved) or summarized its thread. */
+/**
+ * What an agent did with a message (agents/run.ts): read it when it came, drafted its answer or
+ * sorted it (read, starred, archived, moved); `summarized` is left from runs that still kept
+ * threads' summaries, which only the person asks for now.
+ */
 export const MAIL_AGENT_DEEDS = ["read", "drafted", "sorted", "summarized"] as const;
 export type MailAgentDeed = (typeof MAIL_AGENT_DEEDS)[number];
 /** One agent's work on a message, kept on it (`mail_message.agent_marks`): what it did, the latest first time each. */

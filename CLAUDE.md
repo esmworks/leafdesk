@@ -433,8 +433,9 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   (`mailbox.notify`; no inbox item: `push.ts` `pushToPerson`, texts `lib/mail-push.ts`) and starts runs (source `mail`) through `agents/mail-trigger.ts`
   (filters pure in `lib/agent-mail-trigger.ts`; `store` returns only rows it inserted, so the sweep
   and the IDLE watch never both start one); such a run reads the thread first and starts tainted;
-  `sort_mail`/`summarize_mail` and the Mail list's agent marks (`mail_message.agent_marks`) are
-  `ai-chat-mail.ts` `runAgentMailAction`/`markMail`; it may also propose rows (`dispatch.ts` `propose`),
+  `sort_mail` and the Mail list's agent marks (`mail_message.agent_marks`) are
+  `ai-chat-mail.ts` `runAgentMailAction`/`markMail` (no run writes a thread's summary: only the
+  person's *Summarize* does, `mail.summary` on the fast model); it may also propose rows (`dispatch.ts` `propose`),
   stored with `pending_change.private_to` set to the mailbox's owner, which `pending-changes.ts`
   shows, counts and lets answer only to them (`ownProposal`; never to connected apps); a new read
   of pending changes adds it; the built-in `mail-assistant` template sets this up;

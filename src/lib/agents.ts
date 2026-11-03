@@ -798,11 +798,10 @@ export const mailRun = (source: AgentRunSource): boolean => (source.kind === "ch
 /**
  * The mail tools of an agent's run (server/ai-chat-mail.ts MAIL_TOOL_NAMES and AGENT_MAIL_ACTIONS):
  * reading (an email's files too) and drafting as the AI chat does, and sorting what came (marking
- * it read or starred, archiving it, moving it to one of the mailbox's folders) and keeping a
- * thread's summary, which the Mail tab can undo or the person write again. Never sending, deleting
- * or the trash.
+ * it read or starred, archiving it, moving it to one of the mailbox's folders). Never sending,
+ * deleting or the trash, nor a thread's summary: the person asks for that in the Mail tab.
  */
-export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "read_mail_attachment", "draft_mail", "sort_mail", "summarize_mail"]);
+export const AGENT_MAIL_TOOLS: ReadonlySet<string> = new Set(["search_mail", "read_mail", "read_mail_attachment", "draft_mail", "sort_mail"]);
 
 /**
  * What a run that read email may still call besides the mail tools: reading pages (and files on
