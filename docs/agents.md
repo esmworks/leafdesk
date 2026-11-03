@@ -183,8 +183,8 @@ API, a chat sent from a connected app, a row's or a mention's run. Reading marks
 person reads it and sends it from the Mail tab. So that what an email says can't steer a draft to
 someone else, an answer goes only to the people of its thread and a new email only to addresses
 the person wrote in their messages or the schedule's task (or the mailbox's own). Once a run has
-read email or a file of one it only reads pages, works on that mail (drafts, `sort_mail`,
-`summarize_mail`) and proposes rows and notes: any other change, a connected service's tool, the
+read email or a file of one it only reads pages, works on that mail (drafts, `sort_mail`) and
+proposes rows and notes: any other change, a connected service's tool, the
 web, `send_email`, forgetting a note, a handoff note or another agent is refused, and the agent says
 what it would do instead. A note it proposes then is never kept at once, and only the person the
 run worked for reads it (in its *Memory* section) and may keep it. Its answer may quote that mail, so the chat's later runs that have it in their history
@@ -214,10 +214,10 @@ before it arrived or what was in the inbox when the mailbox was first read. A th
 still waiting gets no second one: the run reads the thread as it is when it starts. A mailbox starts
 at most 20 runs an hour and 100 a day per agent; mail beyond that is left out, and the switch says
 so. The run works for you, so it is held like the runs above, and since it begins by reading the
-email it only reads pages and works on that mail from the start: `summarize_mail` keeps the
-thread's summary (the one the Mail tab shows above it), `sort_mail` marks it read or unread, stars
-or unstars it, archives it or moves it to a folder by name (never the trash or junk, never
-deleting), and `draft_mail` saves an answer. It may also propose rows and changes to rows
+email it only reads pages and works on that mail from the start: `sort_mail` marks it read or
+unread, stars or unstars it, archives it or moves it to a folder by name (never the trash or junk,
+never deleting), and `draft_mail` saves an answer. It never writes a thread's summary: that is
+written only when you ask for it in the Mail tab. It may also propose rows and changes to rows
 (`create_row`, `update_row`, each with its reason) in databases it may edit and you may edit too:
 nothing changes until you approve. Since a proposal's values and reason come from your mail, only
 you see, count and answer it under *For review*, and only you are notified; other owners of the
@@ -660,7 +660,7 @@ mail assistant, your mailbox's new email).
   without a connection has to add one first.
 - **Mail assistant** looks after new email in one of your mailboxes: it finds the sender in a
   database of customers you pick and proposes a new row or a change to theirs (a new phone number,
-  a decision, a next step), summarizes long threads, drafts an answer when the pages it can read
+  a decision, a next step), drafts an answer when the pages it can read
   answer the question (never making up prices or dates), and stars what waits for you. Its setup
   picks the database, the mailbox and whether only mail from people who are rows starts it (on by
   default); it opens the mailbox to the agent, turns *Run on new email* on with the template's task

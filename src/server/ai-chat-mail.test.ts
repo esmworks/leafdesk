@@ -275,7 +275,8 @@ describe("an agent's run", () => {
   it("gets the tools only for mailboxes opened to it, its draft_mail saying whom it may write to", () => {
     expect(agentMailToolset([])).toEqual([]);
     const tools = agentMailToolset(["box-1"]);
-    expect(tools.map((t) => t.name)).toEqual(["search_mail", "read_mail", "read_mail_attachment", "draft_mail", "sort_mail", "summarize_mail"]);
+    // No summarize_mail: a thread's summary is written only when the person asks for it in the Mail tab.
+    expect(tools.map((t) => t.name)).toEqual(["search_mail", "read_mail", "read_mail_attachment", "draft_mail", "sort_mail"]);
     expect(tools[3].description).toMatch(/only to people of that thread/);
   });
 
@@ -365,13 +366,9 @@ describe("an agent sorting and summarizing mail", () => {
     expect(mocks.mailAction).not.toHaveBeenCalled();
   });
 
-  it("keeps a summary on the thread's newest message, within its length", async () => {
-    mocks.boxes = [{ id: "m-9" }];
-    const summary = (text: string) => runAgentMailAction("u1", "ws-1", { name: "summarize_mail", arguments: { message_id: "m-1", summary: text } }, scope);
-    expect((await summary("Ayşe wants a price by Friday.")).step).toMatchObject({ kind: "mail", action: "summary", subject: "Teklif" });
-    expect(mocks.saveSummary).toHaveBeenCalledWith("m-9", "Ayşe wants a price by Friday.");
-    expect(await summary("x".repeat(1_501))).toMatchObject({ isError: true });
-    expect(await summary("  ")).toMatchObject({ isError: true });
-    expect(mocks.saveSummary).toHaveBeenCalledTimes(1);
+  it("keeps no summary of a thread: that is the person's to ask for", async () => {
+    const summary = await runAgentMailAction("u1", "ws-1", { name: "summarize_mail", arguments: { message_id: "m-1", summary: "Ayşe wants a price by Friday." } }, scope);
+    expect(summary).toMatchObject({ isError: true });
+    expect(mocks.saveSummary).not.toHaveBeenCalled();
   });
 });

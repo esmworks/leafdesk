@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Changed
+
+- **A thread's AI summary is written only when you ask for it.** Agents' runs on your mail no
+  longer keep summaries of threads (the `summarize_mail` tool is gone, and the *Mail assistant*
+  template no longer summarizes long threads), so a thread shows a summary only after you press
+  *Summarize* in the Mail tab. That summary runs on `AI_FAST_MODEL` when the server has one, now
+  without thinking (it only sums up what the mail says).
+  Summaries agents kept before stay until you write one again.
+
 ## 0.7.1 — 2026-11-03
 
 ### Upgrading from 0.7.0
