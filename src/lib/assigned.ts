@@ -56,8 +56,67 @@ type Placed = { date: string | null; updatedAt: Date } & (
   | { type: "pageTask"; pageId: string; pageTitle: string }
 );
 
+/**
+ * The parts of My tasks the sidebar's tasks tab lists (`?view=`): everything, what is due by today
+ * (overdue too), what is due within the next 7 days (overdue too), what has no date, and only the
+ * rows or only the to-dos.
+ */
+export type TaskView = "all" | "today" | "soon" | "undated" | "rows" | "todos";
+
+export const TASK_VIEWS: TaskView[] = ["all", "today", "soon", "undated", "rows", "todos"];
+
+export const isTaskView = (value: unknown): value is TaskView => TASK_VIEWS.includes(value as TaskView);
+
+type Viewed = { type?: "row" | "pageTask"; date: string | null; endDate?: string | null };
+
+export function inTaskView(item: Viewed, view: TaskView, today: string): boolean {
+  if (view === "rows") return item.type !== "pageTask";
+  if (view === "todos") return item.type === "pageTask";
+  if (view === "all") return true;
+  const group = assignedGroup(item.date, today, item.endDate);
+  if (view === "undated") return group === "none";
+  if (view === "today") return group === "overdue" || group === "today";
+  return group === "overdue" || group === "today" || group === "next7";
+}
+
+/** The place of rows shared with the viewer without their database, in `?in=` and the sidebar. */
+export const SHARED_PLACE = "shared";
+
+/** The place an item is filed under in `?in=`: its database, the page its to-do is in, or SHARED_PLACE. */
+export const taskPlace = (item: Placed): string => placeOf(item).id ?? SHARED_PLACE;
+
+/** A place in the tasks tab: a database or a page, with how many of the person's items it holds. */
+export type TaskPlaceCount = { id: string; title: string | null; count: number };
+
+/**
+ * How many items each view holds, and the places with how many each: the most first, then by
+ * title, the shared rows (no title) last.
+ */
+export function countTasks<R extends Placed & Viewed>(
+  items: R[],
+  today: string,
+  collator: Intl.Collator = new Intl.Collator(),
+): { views: Record<TaskView, number>; places: TaskPlaceCount[] } {
+  const views = Object.fromEntries(TASK_VIEWS.map((view) => [view, 0])) as Record<TaskView, number>;
+  const places = new Map<string, TaskPlaceCount>();
+  for (const item of items) {
+    for (const view of TASK_VIEWS) if (inTaskView(item, view, today)) views[view]++;
+    const id = taskPlace(item);
+    const place = places.get(id);
+    if (place) place.count++;
+    else places.set(id, { id, title: placeOf(item).title, count: 1 });
+  }
+  return {
+    views,
+    places: [...places.values()].sort(
+      (a, b) =>
+        (a.title === null ? 1 : 0) - (b.title === null ? 1 : 0) || b.count - a.count || collator.compare(a.title ?? "", b.title ?? "") || a.id.localeCompare(b.id),
+    ),
+  };
+}
+
 /** Where an item goes: its database (null: shared without it) or the page its to-do is in. */
-const placeOf = (item: Placed): { id: string | null; title: string | null } =>
+const placeOf =(item: Placed): { id: string | null; title: string | null } =>
   item.type === "pageTask"
     ? { id: item.pageId, title: item.pageTitle }
     : { id: item.databaseTitle === null ? null : item.databaseId, title: item.databaseTitle };

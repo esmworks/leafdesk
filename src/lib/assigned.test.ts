@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assignedGroup, groupAssigned, groupByDatabase } from "./assigned";
+import { assignedGroup, countTasks, groupAssigned, groupByDatabase, inTaskView, isTaskView, SHARED_PLACE, taskPlace, type TaskView } from "./assigned";
 import { firstDoneOption, isDoneStatus } from "./properties";
 
 describe("assignedGroup", () => {
@@ -138,6 +138,53 @@ describe("groupByDatabase", () => {
 
   it("returns nothing for no rows", () => {
     expect(groupByDatabase([])).toEqual([]);
+  });
+});
+
+describe("task views", () => {
+  const today = "2026-10-09";
+  const updatedAt = new Date("2026-10-01T00:00:00Z");
+  const row = (id: string, databaseId: string, databaseTitle: string | null, date: string | null) => ({ id, databaseId, databaseTitle, date, updatedAt });
+  const task = (id: string, pageId: string, pageTitle: string, date: string | null) => ({ type: "pageTask" as const, id, pageId, pageTitle, date, updatedAt });
+  const items = [
+    row("late", "d1", "Tasks", "2026-10-02"),
+    row("now", "d1", "Tasks", today),
+    row("soon", "d2", "Bugs", "2026-10-12"),
+    row("far", "d2", "Bugs", "2026-11-30"),
+    row("shared", "d3", null, null),
+    task("t1", "p1", "Daily note", null),
+    task("t2", "p1", "Daily note", "2026-10-15"),
+  ];
+  const ids = (view: TaskView) => items.filter((item) => inTaskView(item, view, today)).map((item) => item.id);
+
+  it("puts items in each view by their date and kind", () => {
+    expect(ids("all")).toEqual(["late", "now", "soon", "far", "shared", "t1", "t2"]);
+    expect(ids("today")).toEqual(["late", "now"]);
+    expect(ids("soon")).toEqual(["late", "now", "soon", "t2"]);
+    expect(ids("undated")).toEqual(["shared", "t1"]);
+    expect(ids("rows")).toEqual(["late", "now", "soon", "far", "shared"]);
+    expect(ids("todos")).toEqual(["t1", "t2"]);
+  });
+
+  it("files rows under their database, to-dos under their page and rows without a database together", () => {
+    expect(items.map(taskPlace)).toEqual(["d1", "d1", "d2", "d2", SHARED_PLACE, "p1", "p1"]);
+  });
+
+  it("counts views and places, the fullest place first and shared rows last", () => {
+    const { views, places } = countTasks([...items, row("more", "d2", "Bugs", null)], today);
+    expect(views).toEqual({ all: 8, today: 2, soon: 4, undated: 3, rows: 6, todos: 2 });
+    expect(places).toEqual([
+      { id: "d2", title: "Bugs", count: 3 },
+      { id: "p1", title: "Daily note", count: 2 },
+      { id: "d1", title: "Tasks", count: 2 },
+      { id: SHARED_PLACE, title: null, count: 1 },
+    ]);
+  });
+
+  it("knows its views", () => {
+    expect(isTaskView("today")).toBe(true);
+    expect(isTaskView("later")).toBe(false);
+    expect(isTaskView(undefined)).toBe(false);
   });
 });
 

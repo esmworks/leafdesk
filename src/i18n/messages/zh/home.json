@@ -36,7 +36,27 @@
     "untitledTask": "待办事项",
     "onPage": "位于 <page>{title}</page>",
     "tickFailed": "无法勾选该待办事项。",
-    "untickFailed": "无法取消勾选。请在页面中取消。"
+    "untickFailed": "无法取消勾选。请在页面中取消。",
+    "views": {
+      "all": "全部",
+      "today": "今天",
+      "soon": "未来 7 天",
+      "undated": "无日期",
+      "rows": "分配的行",
+      "todos": "页面中的待办"
+    },
+    "viewsLabel": "任务视图",
+    "byKind": "按类型",
+    "places": "数据库和页面",
+    "allPlaces": "显示全部（{count}）",
+    "fewerPlaces": "收起",
+    "addTodo": "添加待办",
+    "addHint": "会加到今天的每日笔记。写在里面的日期，如“周五”，会成为它的日期。",
+    "addEmpty": "请先写下待办。",
+    "addTooLong": "待办最多 {max} 个字符。",
+    "addFailed": "无法添加待办。",
+    "filtered": "你在侧边栏中选中的部分任务。",
+    "filteredEmpty": "这里什么都没有。"
   },
   "figures": {
     "label": "工作一览",

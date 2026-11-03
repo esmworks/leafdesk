@@ -36,7 +36,27 @@
     "untitledTask": "Tarefa",
     "onPage": "em <page>{title}</page>",
     "tickFailed": "Não foi possível marcar a tarefa.",
-    "untickFailed": "Não foi possível desmarcar a tarefa. Desmarque-a na página."
+    "untickFailed": "Não foi possível desmarcar a tarefa. Desmarque-a na página.",
+    "views": {
+      "all": "Todas",
+      "today": "Hoje",
+      "soon": "Próximos 7 dias",
+      "undated": "Sem data",
+      "rows": "Linhas atribuídas",
+      "todos": "Pendências"
+    },
+    "viewsLabel": "Vistas de tarefas",
+    "byKind": "Por tipo",
+    "places": "Bases de dados e páginas",
+    "allPlaces": "Mostrar todas ({count})",
+    "fewerPlaces": "Mostrar menos",
+    "addTodo": "Adicionar uma pendência",
+    "addHint": "Vai para a nota diária de hoje. Um dia escrito nela, como “sexta”, vira a sua data.",
+    "addEmpty": "Escreva a pendência primeiro.",
+    "addTooLong": "Uma pendência pode ter no máximo {max} caracteres.",
+    "addFailed": "Não foi possível adicionar a pendência.",
+    "filtered": "Parte das suas tarefas, como escolhido na barra lateral.",
+    "filteredEmpty": "Nada aqui."
   },
   "figures": {
     "label": "Seu trabalho num relance",

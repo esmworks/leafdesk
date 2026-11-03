@@ -86,6 +86,13 @@
   ticking it ticks the to-do in the page (with edit access to the page), and it leaves the list
   once the page is saved. Mentioning a group or an agent in a to-do doesn't put it in anyone's
   list; mention the people themselves.
+  On My tasks the sidebar's panel lists its views, each with how many it holds: *All*, *Today*
+  (overdue too), *Next 7 days* (overdue too), *No date*, only *Assigned rows* or only *To-dos*, and
+  the databases and pages your tasks are in, the fullest first. Picking one narrows the list to it
+  (the address keeps `?view=` or `?in=`, so a narrowed list can be bookmarked). *Add a to-do* at the
+  panel's top writes a to-do that mentions you at the end of today's daily note, so it shows at
+  once; a day written in it, like "friday" or "tomorrow", comes out of the text as its date (past
+  days stay text). It is there for those who may add daily notes.
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet), under *Today*, *Yesterday*,
   *Previous 7 days* and *Older*, each with the page or database it sits in. The row under the query

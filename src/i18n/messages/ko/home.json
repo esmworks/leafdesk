@@ -36,7 +36,27 @@
     "untitledTask": "할 일",
     "onPage": "<page>{title}</page>에 있음",
     "tickFailed": "할 일을 체크하지 못했습니다.",
-    "untickFailed": "체크를 해제하지 못했습니다. 페이지에서 해제하세요."
+    "untickFailed": "체크를 해제하지 못했습니다. 페이지에서 해제하세요.",
+    "views": {
+      "all": "전체",
+      "today": "오늘",
+      "soon": "다음 7일",
+      "undated": "날짜 없음",
+      "rows": "할당된 행",
+      "todos": "페이지의 할 일"
+    },
+    "viewsLabel": "작업 보기",
+    "byKind": "종류별",
+    "places": "데이터베이스와 페이지",
+    "allPlaces": "모두 보기 ({count})",
+    "fewerPlaces": "간단히 보기",
+    "addTodo": "할 일 추가",
+    "addHint": "오늘의 데일리 노트에 추가됩니다. ‘금요일’처럼 적은 날이 기한이 됩니다.",
+    "addEmpty": "먼저 할 일을 입력하세요.",
+    "addTooLong": "할 일은 최대 {max}자까지 쓸 수 있습니다.",
+    "addFailed": "할 일을 추가하지 못했습니다.",
+    "filtered": "사이드바에서 고른 작업만 보여 줍니다.",
+    "filteredEmpty": "여기에는 아무것도 없습니다."
   },
   "figures": {
     "label": "한눈에 보는 내 업무",

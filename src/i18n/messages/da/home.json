@@ -36,7 +36,27 @@
     "untitledTask": "Opgave",
     "onPage": "på <page>{title}</page>",
     "tickFailed": "Opgaven kunne ikke krydses af.",
-    "untickFailed": "Fluebenet kunne ikke fjernes. Fjern det på siden."
+    "untickFailed": "Fluebenet kunne ikke fjernes. Fjern det på siden.",
+    "views": {
+      "all": "Alle",
+      "today": "I dag",
+      "soon": "Næste 7 dage",
+      "undated": "Uden dato",
+      "rows": "Tildelte rækker",
+      "todos": "To-dos"
+    },
+    "viewsLabel": "Opgavevisninger",
+    "byKind": "Efter type",
+    "places": "Databaser og sider",
+    "allPlaces": "Vis alle {count}",
+    "fewerPlaces": "Vis færre",
+    "addTodo": "Tilføj en to-do",
+    "addHint": "Kommer i dagens dagsnote. En dag i teksten, som “fredag”, bliver dens dato.",
+    "addEmpty": "Skriv først din to-do.",
+    "addTooLong": "En to-do må højst være {max} tegn lang.",
+    "addFailed": "Kunne ikke tilføje din to-do.",
+    "filtered": "En del af dine opgaver, som valgt i sidepanelet.",
+    "filteredEmpty": "Her er intet."
   },
   "figures": {
     "label": "Dit arbejde på et øjeblik",

@@ -1,9 +1,11 @@
 "use server";
 
-import { getTimeZone, getTranslations } from "next-intl/server";
+import { revalidatePath } from "next/cache";
+import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { dayString, localDay } from "@/lib/time-zone";
-import { dueAssignedCount, markAssignedDone } from "@/server/assigned";
+import { dueAssignedCount, markAssignedDone, taskCounts, type TaskCounts } from "@/server/assigned";
 import { updateRowProperties } from "@/server/databases";
+import { addOwnTodo, MAX_OWN_TODO, OwnTodoError } from "@/server/own-todos";
 import { setPageTaskChecked } from "@/server/page-tasks";
 import { requireUserId } from "@/server/session";
 
@@ -77,5 +79,37 @@ export async function undoAssignedDoneAction(item: AssignedItemRef, marked: Assi
     console.error("[assigned] undoing an item marked done failed", error);
     const t = await getTranslations("home.myTasks");
     return { ok: false, error: t(ref.type === "pageTask" ? "untickFailed" : "undoFailed") };
+  }
+}
+
+/**
+ * How many of the user's open rows and to-dos each of the sidebar's tasks views holds, and the
+ * databases and pages they are in (read through `/api/read` as the tasks tab shows). Null when
+ * the count fails: the tab then shows its views without numbers.
+ */
+export async function taskCountsAction(workspaceId: string): Promise<TaskCounts | null> {
+  const userId = await requireUserId();
+  if (!isText(workspaceId)) throw new Error("Invalid workspace");
+  const [timeZone, locale] = await Promise.all([getTimeZone(), getLocale()]);
+  try {
+    return await taskCounts(userId, workspaceId, dayString(localDay(Date.now(), timeZone)), timeZone, locale);
+  } catch {
+    return null;
+  }
+}
+
+/** Adds a to-do the user wrote in the tasks tab to today's daily note, mentioning them (server/own-todos.ts). */
+export async function addOwnTodoAction(workspaceId: string, text: string): Promise<AssignedActionResult<{ pageId: string }>> {
+  const userId = await requireUserId();
+  if (!isText(workspaceId) || typeof text !== "string") throw new Error("Invalid to-do");
+  const [timeZone, locale, t] = await Promise.all([getTimeZone(), getLocale(), getTranslations("home.myTasks")]);
+  try {
+    const { pageId } = await addOwnTodo(userId, workspaceId, text, dayString(localDay(Date.now(), timeZone)), { locale });
+    revalidatePath(`/w/${workspaceId}/tasks`);
+    return { ok: true, data: { pageId } };
+  } catch (error) {
+    if (error instanceof OwnTodoError) return { ok: false, error: t(error.code === "empty" ? "addEmpty" : "addTooLong", { max: MAX_OWN_TODO }) };
+    console.error("[assigned] adding a to-do failed", error);
+    return { ok: false, error: t("addFailed") };
   }
 }

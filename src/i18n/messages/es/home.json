@@ -36,7 +36,27 @@
     "untitledTask": "Tarea",
     "onPage": "en <page>{title}</page>",
     "tickFailed": "No se pudo marcar la tarea.",
-    "untickFailed": "No se pudo desmarcar la tarea. Desmárcala en la página."
+    "untickFailed": "No se pudo desmarcar la tarea. Desmárcala en la página.",
+    "views": {
+      "all": "Todas",
+      "today": "Hoy",
+      "soon": "Próximos 7 días",
+      "undated": "Sin fecha",
+      "rows": "Filas asignadas",
+      "todos": "Pendientes"
+    },
+    "viewsLabel": "Vistas de tareas",
+    "byKind": "Por tipo",
+    "places": "Bases de datos y páginas",
+    "allPlaces": "Mostrar las {count}",
+    "fewerPlaces": "Mostrar menos",
+    "addTodo": "Añadir un pendiente",
+    "addHint": "Va a la nota diaria de hoy. Un día escrito en él, como «viernes», pasa a ser su fecha.",
+    "addEmpty": "Escribe primero el pendiente.",
+    "addTooLong": "Un pendiente puede tener como máximo {max} caracteres.",
+    "addFailed": "No se pudo añadir el pendiente.",
+    "filtered": "Parte de tus tareas, según lo elegido en la barra lateral.",
+    "filteredEmpty": "No hay nada aquí."
   },
   "figures": {
     "label": "Tu trabajo de un vistazo",

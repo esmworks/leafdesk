@@ -36,7 +36,27 @@
     "untitledTask": "To-do",
     "onPage": "on <page>{title}</page>",
     "tickFailed": "Couldn't tick the to-do.",
-    "untickFailed": "Couldn't untick the to-do. Untick it in the page."
+    "untickFailed": "Couldn't untick the to-do. Untick it in the page.",
+    "views": {
+      "all": "All",
+      "today": "Today",
+      "soon": "Next 7 days",
+      "undated": "No date",
+      "rows": "Assigned rows",
+      "todos": "To-dos"
+    },
+    "viewsLabel": "Task views",
+    "byKind": "By kind",
+    "places": "Databases and pages",
+    "allPlaces": "Show all {count}",
+    "fewerPlaces": "Show fewer",
+    "addTodo": "Add a to-do",
+    "addHint": "Goes to today's daily note. A day in it, like “friday”, becomes its date.",
+    "addEmpty": "Write the to-do first.",
+    "addTooLong": "A to-do can be at most {max} characters long.",
+    "addFailed": "Couldn't add the to-do.",
+    "filtered": "Some of your tasks, as picked in the sidebar.",
+    "filteredEmpty": "Nothing here."
   },
   "figures": {
     "label": "Your work at a glance",

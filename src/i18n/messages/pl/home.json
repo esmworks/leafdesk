@@ -36,7 +36,27 @@
     "untitledTask": "Zadanie",
     "onPage": "na stronie <page>{title}</page>",
     "tickFailed": "Nie udało się odhaczyć zadania.",
-    "untickFailed": "Nie udało się cofnąć odhaczenia. Zrób to na stronie."
+    "untickFailed": "Nie udało się cofnąć odhaczenia. Zrób to na stronie.",
+    "views": {
+      "all": "Wszystkie",
+      "today": "Dziś",
+      "soon": "Najbliższe 7 dni",
+      "undated": "Bez daty",
+      "rows": "Przypisane wiersze",
+      "todos": "Do zrobienia"
+    },
+    "viewsLabel": "Widoki zadań",
+    "byKind": "Według rodzaju",
+    "places": "Bazy danych i strony",
+    "allPlaces": "Pokaż wszystkie ({count})",
+    "fewerPlaces": "Pokaż mniej",
+    "addTodo": "Dodaj zadanie do zrobienia",
+    "addHint": "Trafia do dzisiejszej notatki dziennej. Dzień wpisany w tekst, np. „piątek”, staje się jego datą.",
+    "addEmpty": "Najpierw wpisz zadanie.",
+    "addTooLong": "Zadanie może mieć najwyżej {max} znaków.",
+    "addFailed": "Nie udało się dodać zadania.",
+    "filtered": "Część Twoich zadań, wybrana na pasku bocznym.",
+    "filteredEmpty": "Nic tu nie ma."
   },
   "figures": {
     "label": "Twoja praca w skrócie",

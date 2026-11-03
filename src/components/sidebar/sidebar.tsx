@@ -83,6 +83,7 @@ import { dropPushSubscription } from "@/components/settings/push-device";
 import { CELEBRATE_EVENT } from "@/lib/celebrate-event";
 import { REMINDER_EVENT } from "@/lib/reminder-event";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
+import { TASKS_EVENT } from "@/lib/tasks-event";
 import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
 import { OPEN_SEARCH_EVENT } from "@/lib/search-open";
 import { GO_MS, isMac, opensShortcuts, RAIL_GO_KEYS, railGoPlace, startsGo, type RailPlace } from "@/lib/shortcuts";
@@ -127,6 +128,7 @@ const ReminderPrompt = lazyPart(() => import("./reminder-prompt").then((m) => m.
 const ArrivalCards = lazyPart(() => import("./arrival-cards").then((m) => m.ArrivalCards));
 const NewAgentDialog = lazyPart(() => import("./new-agent").then((m) => m.NewAgentDialog));
 // Loaded the first time the Mail tab opens: most people open it now and then.
+const TaskPanel = lazyPart(() => import("./task-panel").then((m) => m.TaskPanel));
 const MailSidebar = lazyPart(() => import("@/components/mail/mail-sidebar").then((m) => m.MailSidebar));
 // Loaded the first time the import dialog opens, with the readers of every format it takes.
 const ImportDialog = lazyPart(() => import("@/components/workspace/import-dialog").then((m) => m.ImportDialog));
@@ -173,8 +175,8 @@ type Target = string | null | undefined;
  * follows the page that is open, and a tab opens where the person last was in it (its start when
  * there is none, or when it is already the open tab; the agents have no start of their own).
  */
-type SidebarTab = "home" | "journal" | "chat" | "mail" | "agents";
-const TAB_ICONS: Record<SidebarTab, typeof House> = { home: House, journal: BookOpen, chat: MessagesSquare, mail: MailIcon, agents: Bot };
+type SidebarTab = "home" | "tasks" | "journal" | "chat" | "mail" | "agents";
+const TAB_ICONS: Record<SidebarTab, typeof House> = { home: House, tasks: ListTodo, journal: BookOpen, chat: MessagesSquare, mail: MailIcon, agents: Bot };
 /** How long the pointer rests on a rail item before the hidden panel peeks out with what it shows. */
 const PEEK_DELAY = 120;
 /** Keys pressed alone on the way to another (Shift for a capital): they leave a waiting g be. */
@@ -584,8 +586,11 @@ export function Sidebar({
 
   // Daily notes are private top-level pages, so the journal only for those who may add them.
   const onMailPage = pathname.startsWith(`/w/${workspaceId}/mail`);
+  const tasksPath = `/w/${workspaceId}/tasks`;
+  const onTasksPage = pathname === tasksPath;
   const tabs: SidebarTab[] = [
     "home",
+    "tasks",
     ...(topLevel ? (["journal"] as const) : []),
     ...(aiChat ? (["chat"] as const) : []),
     ...(mail ? (["mail"] as const) : []),
@@ -616,7 +621,7 @@ export function Sidebar({
     });
     sidebar?.close();
   };
-  const routeTab: SidebarTab = onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
+  const routeTab: SidebarTab = onTasksPage ? "tasks" : onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
   const [tab, setTab] = useState<SidebarTab>(routeTab);
   // Where the person last was in each tab, in this visit.
   const lastPath = useRef<Partial<Record<SidebarTab, string>>>({});
@@ -639,7 +644,7 @@ export function Sidebar({
     if (back) router.push(back);
     else if (next === "journal") openDailyNote();
     else if (next === "agents") return;
-    else router.push(next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
+    else router.push(next === "tasks" ? tasksPath : next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
   }
 
   // Desktop, the panel hidden: what a rail item shows while the panel peeks out beside it.
@@ -673,10 +678,12 @@ export function Sidebar({
     count();
     const timer = setInterval(count, DUE_TASKS_MS);
     document.addEventListener("visibilitychange", count);
+    window.addEventListener(TASKS_EVENT, count);
     return () => {
       current = false;
       clearInterval(timer);
       document.removeEventListener("visibilitychange", count);
+      window.removeEventListener(TASKS_EVENT, count);
     };
   }, [offline, workspaceId]);
   // The conversations, for the Chat mark: the chat's list reads them while it is shown, so here
@@ -1348,12 +1355,11 @@ export function Sidebar({
     ),
   };
   const hiddenSections = new Set(layout.hidden ?? []);
-  const tasksPath = `/w/${workspaceId}/tasks`;
   const meetingsPath = `/w/${workspaceId}/meetings`;
-  const onOwnPage = pathname === tasksPath || pathname === meetingsPath;
+  const onOwnPage = pathname === meetingsPath;
   const onSettings = pathname.startsWith(`/w/${workspaceId}/settings`);
   const tabLabel = (key: SidebarTab) =>
-    ({ home: t("tabs.home"), journal: t("tabs.journal"), chat: t("tabs.chat"), mail: t("tabs.mail"), agents: t("sections.agents") })[key];
+    ({ home: t("tabs.home"), tasks: t("sections.tasks"), journal: t("tabs.journal"), chat: t("tabs.chat"), mail: t("tabs.mail"), agents: t("sections.agents") })[key];
   const panelTab = (key: SidebarTab): RailTab => {
     const Icon = TAB_ICONS[key];
     const label = tabLabel(key);
@@ -1363,11 +1369,11 @@ export function Sidebar({
       key,
       label,
       icon: <Icon className={railIconClass} />,
-      // On My tasks or Meetings the panel keeps showing its tab; the rail marks the page.
+      // On Meetings the panel keeps showing its tab; the rail marks the page.
       selected: tab === key && !onOwnPage,
       disabled: unreachable || (key === "journal" && openingDailyNote),
       title: unreachable ? needsServer(label) : undefined,
-      count: key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) } : undefined,
+      count: key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) } : key === "tasks" ? dueCount : undefined,
       dot:
         key === "chat" && chatMark ? { tone: chatMark, label: t(`rail.chat.${chatMark}`) }
         : key === "agents" && agents.some((a) => a.waiting > 0 || a.approval) ? { tone: "accent", label: t("rail.agentsWaiting") }
@@ -1378,7 +1384,7 @@ export function Sidebar({
       onLeave: leaveTab,
     };
   };
-  const pageTab = (key: "tasks" | "meetings", label: string, Icon: typeof House, path: string, count?: RailTab["count"]): RailTab => ({
+  const pageTab = (key: "meetings", label: string, Icon: typeof House, path: string, count?: RailTab["count"]): RailTab => ({
     key,
     label,
     icon: <Icon className={railIconClass} />,
@@ -1403,9 +1409,9 @@ export function Sidebar({
       : undefined;
   const railTabs: RailTab[] = [
     panelTab("home"),
-    pageTab("tasks", t("sections.tasks"), ListTodo, tasksPath, dueCount),
+    panelTab("tasks"),
     pageTab("meetings", t("sections.meetings"), NotebookPen, meetingsPath),
-    ...tabs.filter((key) => key !== "home").map(panelTab),
+    ...tabs.filter((key) => key !== "home" && key !== "tasks").map(panelTab),
   ];
   onMailTab.current = onMailPage;
   goTo.current = (place) => {
@@ -1462,7 +1468,7 @@ export function Sidebar({
       <IconButton label={tMail("compose")} title={tMail("compose")} onClick={composeMail} className={headButton}>
         <SquarePen className="h-4 w-4" />
       </IconButton>
-    ) : (
+    ) : shownTab === "tasks" ? null : (
       <>
         {canCreateAgents && (
           <Popover
@@ -1840,7 +1846,21 @@ export function Sidebar({
               </p>
             )}
             <nav ref={setNavEl} className="peer flex-1 overflow-y-auto px-2 pb-2" aria-label={panelTitle}>
-              {shownTab === "mail" ? (
+              {shownTab === "tasks" ? (
+                <TaskPanel
+                  workspaceId={workspaceId}
+                  onTasksPage={onTasksPage}
+                  view={searchParams.get("view")}
+                  place={searchParams.get("in")}
+                  by={searchParams.get("by")}
+                  overdue={dueTasks.overdue}
+                  canAdd={!!topLevel}
+                  offline={offline}
+                  onAdded={() => {
+                    if (onTasksPage) router.refresh();
+                  }}
+                />
+              ) : shownTab === "mail" ? (
                 <MailSidebar workspaceId={workspaceId} />
               ) : shownTab === "chat" && aiChat ? (
                 <ConversationList />

@@ -36,7 +36,27 @@
     "untitledTask": "Việc cần làm",
     "onPage": "trong <page>{title}</page>",
     "tickFailed": "Không thể đánh dấu việc cần làm.",
-    "untickFailed": "Không thể bỏ đánh dấu. Hãy bỏ trong trang."
+    "untickFailed": "Không thể bỏ đánh dấu. Hãy bỏ trong trang.",
+    "views": {
+      "all": "Tất cả",
+      "today": "Hôm nay",
+      "soon": "7 ngày tới",
+      "undated": "Không có ngày",
+      "rows": "Hàng được giao",
+      "todos": "Việc cần làm trong trang"
+    },
+    "viewsLabel": "Chế độ xem công việc",
+    "byKind": "Theo loại",
+    "places": "Cơ sở dữ liệu và trang",
+    "allPlaces": "Hiện tất cả {count}",
+    "fewerPlaces": "Hiện ít hơn",
+    "addTodo": "Thêm việc cần làm",
+    "addHint": "Được thêm vào ghi chú hằng ngày hôm nay. Một ngày viết trong đó, như “thứ sáu”, sẽ thành ngày của nó.",
+    "addEmpty": "Hãy viết việc cần làm trước.",
+    "addTooLong": "Một việc cần làm dài tối đa {max} ký tự.",
+    "addFailed": "Không thể thêm việc cần làm.",
+    "filtered": "Một phần công việc của bạn, theo lựa chọn ở thanh bên.",
+    "filteredEmpty": "Không có gì ở đây."
   },
   "figures": {
     "label": "Công việc của bạn trong nháy mắt",

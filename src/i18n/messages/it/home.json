@@ -36,7 +36,27 @@
     "untitledTask": "Da fare",
     "onPage": "in <page>{title}</page>",
     "tickFailed": "Impossibile spuntare la cosa da fare.",
-    "untickFailed": "Impossibile togliere la spunta. Toglila nella pagina."
+    "untickFailed": "Impossibile togliere la spunta. Toglila nella pagina.",
+    "views": {
+      "all": "Tutte",
+      "today": "Oggi",
+      "soon": "Prossimi 7 giorni",
+      "undated": "Senza data",
+      "rows": "Righe assegnate",
+      "todos": "Cose da fare"
+    },
+    "viewsLabel": "Viste delle attività",
+    "byKind": "Per tipo",
+    "places": "Database e pagine",
+    "allPlaces": "Mostra tutte ({count})",
+    "fewerPlaces": "Mostra meno",
+    "addTodo": "Aggiungi una cosa da fare",
+    "addHint": "Va nella nota del giorno. Un giorno scritto, come «venerdì», diventa la sua data.",
+    "addEmpty": "Scrivi prima la cosa da fare.",
+    "addTooLong": "Una cosa da fare può avere al massimo {max} caratteri.",
+    "addFailed": "Impossibile aggiungere la cosa da fare.",
+    "filtered": "Una parte delle tue attività, come scelto nella barra laterale.",
+    "filteredEmpty": "Qui non c'è niente."
   },
   "figures": {
     "label": "Il tuo lavoro a colpo d'occhio",

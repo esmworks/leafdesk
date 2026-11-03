@@ -36,7 +36,27 @@
     "untitledTask": "Taak",
     "onPage": "in <page>{title}</page>",
     "tickFailed": "Kan de taak niet afvinken.",
-    "untickFailed": "Kan het vinkje niet weghalen. Haal het weg in de pagina."
+    "untickFailed": "Kan het vinkje niet weghalen. Haal het weg in de pagina.",
+    "views": {
+      "all": "Alle",
+      "today": "Vandaag",
+      "soon": "Komende 7 dagen",
+      "undated": "Zonder datum",
+      "rows": "Toegewezen rijen",
+      "todos": "Taken in pagina's"
+    },
+    "viewsLabel": "Takenweergaven",
+    "byKind": "Per soort",
+    "places": "Databases en pagina's",
+    "allPlaces": "Alle {count} tonen",
+    "fewerPlaces": "Minder tonen",
+    "addTodo": "Taak toevoegen",
+    "addHint": "Komt in de dagnotitie van vandaag. Een dag erin, zoals ‘vrijdag’, wordt de datum.",
+    "addEmpty": "Schrijf eerst de taak.",
+    "addTooLong": "Een taak mag hoogstens {max} tekens lang zijn.",
+    "addFailed": "De taak kon niet worden toegevoegd.",
+    "filtered": "Een deel van je taken, zoals gekozen in de zijbalk.",
+    "filteredEmpty": "Hier staat niets."
   },
   "figures": {
     "label": "Je werk in één oogopslag",
