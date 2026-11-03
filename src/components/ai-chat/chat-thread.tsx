@@ -240,11 +240,12 @@ export function ChatThread({
     if (el && (opened || asked || el.scrollHeight - el.scrollTop - el.clientHeight < 120)) el.scrollTop = el.scrollHeight;
   }, [messages, status, chat.conversationId]);
   // An answer's text flows in a few letters a frame (smooth-text.ts), between the renders above, and
-  // goes on a moment after its last one: while it is written, the list stays at its end as it grows,
-  // if it was there (not as a step folded open grows it).
+  // goes on for up to a second after its last one: while it is written, the list stays at its end as
+  // it grows, if it was there (not as a step folded open grows it). The list itself shrinking or
+  // growing (a change asked about takes the box's place, then gives it back) keeps it at its end too.
   const writingUntil = useRef(0);
   useEffect(() => {
-    writingUntil.current = running ? Infinity : performance.now() + 1_000;
+    writingUntil.current = running ? Infinity : performance.now() + 1_500;
   }, [running]);
   useEffect(() => {
     const el = listRef.current;
@@ -252,10 +253,14 @@ export function ChatThread({
     if (!el || !content) return;
     let atEnd = true;
     const onScroll = () => (atEnd = el.scrollHeight - el.scrollTop - el.clientHeight < 120);
+    let height = el.clientHeight;
     const observer = new ResizeObserver(() => {
-      if (atEnd && performance.now() < writingUntil.current) el.scrollTop = el.scrollHeight;
+      const resized = el.clientHeight !== height;
+      height = el.clientHeight;
+      if (atEnd && (resized || performance.now() < writingUntil.current)) el.scrollTop = el.scrollHeight;
     });
     el.addEventListener("scroll", onScroll, { passive: true });
+    observer.observe(el);
     observer.observe(content);
     return () => {
       el.removeEventListener("scroll", onScroll);
