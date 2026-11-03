@@ -622,10 +622,11 @@ because they are separate module graphs.
   hides (a workspace's settings hide it: their list, `settings-nav.tsx` `besideRail`, is the panel in `<main>`'s card); on wide windows the panel and `<main>` make one card over the frame (the panel's edges in
   `sidebar.tsx`, `<main>`'s in globals.css, keyed on `[data-sidebar-open]`). The workspace's menu
   is at the panel's foot there; the workspace strip (`[data-sidebar-strip]`) shows only on top of
-  the phone drawer and, icon only, on the rail's top while the panel is hidden. With the panel
-  shown, macOS's window buttons take the frame above the rail and the panel (the `<aside>`'s top
-  padding in globals.css); with it hidden they sit over the strip, and the tab strip runs over
-  the rail's top (`desktop-tab-strip.tsx` reports no room then), so the strip starts below it.
+  the phone drawer and, icon only, on the rail's top while the panel is hidden. macOS's window
+  buttons take the frame above the rail and the panel (the `<aside>`'s top padding in globals.css);
+  the desktop app's tab strip runs from the window's edge over that frame, panel shown or not
+  (`desktop-tab-strip.tsx` reports no room beside a rail, except in full screen with the panel
+  shown), so the workspace strip starts below it.
   The desktop tab strip's colors are `desktop/pages/tabs.css`, kept to the frame's by hand.
   g then a letter opens a rail place (`lib/shortcuts.ts` `RAIL_GO_KEYS`, `railGoPlace`): g is taken
   as it bubbles, the letter in the capture phase, so a page's own single keys never see it; the

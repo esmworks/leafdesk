@@ -6,8 +6,10 @@ import { useEffect } from "react";
  * The desktop app on macOS (`<html data-tab-strip>`, set by its preload) lays its tab strip over
  * the page beside the sidebar, which runs the window's full height (globals.css). This tells it
  * where: `<html data-tab-strip-room="left right">`, what the sidebar takes of the page's width at
- * its left and right edges in CSS pixels (its rail and panel; none with the panel hidden), or "none"
- * on pages without a sidebar and in phone-sized windows, where the strip goes above the page.
+ * its left and right edges in CSS pixels: none beside the workspace's rail, whose frame the strip
+ * lies over from the window's edge, panel shown or not; all of the account's and administration's
+ * own navigation in its place. Or "none" on pages without a sidebar and in phone-sized windows,
+ * where the strip goes above the page.
  * On every system it also tells the strip, which the page can't draw over, the shade a dialog's
  * backdrop lays over the window (`[data-window-shade]`): `<html data-tab-strip-shade="<color>">`.
  */
@@ -61,12 +63,14 @@ export function DesktopTabStrip() {
       let left = 0;
       let right = 0;
       if (sidebar && wide.matches) {
-        // With the panel hidden, the strip starts at the window's edge beside the window's buttons,
-        // over the rail's top, which starts below it (globals.css); right to left the buttons are
-        // on the other side, so the rail keeps its room there.
+        // Beside the workspace's rail, the strip starts at the window's edge beside the window's
+        // buttons, over the frame above the rail and the panel, which start below it (globals.css);
+        // in full screen, with no buttons, only with the panel hidden. Right to left the buttons
+        // are on the other side, so the sidebar keeps its room there.
         const rtl = root.dir === "rtl";
-        const hidden = !sidebar.hasAttribute("data-sidebar-open") && !rtl;
-        const box = getComputedStyle(sidebar).position !== "fixed" && !hidden ? sidebar.getBoundingClientRect() : null;
+        const besideRail = sidebar.querySelector("[data-sidebar-rail]") !== null && !root.hasAttribute("data-full-screen");
+        const fromEdge = (!sidebar.hasAttribute("data-sidebar-open") || besideRail) && !rtl;
+        const box = getComputedStyle(sidebar).position !== "fixed" && !fromEdge ? sidebar.getBoundingClientRect() : null;
         left = Math.max(0, Math.round(box && !rtl ? box.right : 0));
         right = Math.max(0, Math.round(box && rtl ? window.innerWidth - box.left : 0));
         room = `${left} ${right}`;
@@ -80,6 +84,7 @@ export function DesktopTabStrip() {
     // The sidebar comes and goes with the route, and its panel is hidden or shown.
     const mutations = new MutationObserver(schedule);
     mutations.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-sidebar-open"] });
+    mutations.observe(root, { attributes: true, attributeFilter: ["data-full-screen"] });
     window.addEventListener("resize", schedule);
     measure();
     return () => {

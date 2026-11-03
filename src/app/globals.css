@@ -1976,9 +1976,11 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
  * window's full height, and the tab strip, a view of the app's own, lies over the top of the rest
  * of the page, where it was told (components/desktop-tab-strip.tsx). What sits beside the sidebar
  * starts below the strip, panels fixed to the window's edge too (their top is --app-top). The
- * window's buttons sit in the frame above the rail and the panel, and that row moves the window,
- * as in the versions before tabs above; with the panel hidden the tab strip starts at the
- * window's edge, over the rail's top, and the workspace strip below it.
+ * workspace's rail and panel start below it too: the strip runs from the window's edge, beside its
+ * buttons, over the frame above them (with the panel hidden the workspace strip comes below it).
+ * The account's and administration's own navigation keeps the strip beside it: the window's
+ * buttons sit in the frame above it, and that row moves the window, as in the versions before
+ * tabs above. In full screen the workspace's sidebar keeps it beside it too while its panel shows.
  * That row alone: the strip moves the window over the rest, and Electron on macOS gathers every
  * view's regions, so one of the page's under the strip would take the strip's buttons' clicks
  * (--tab-strip-start, from desktop-tab-strip.tsx). Pages without a sidebar, and phone-sized
@@ -2033,22 +2035,15 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
     [data-sidebar][data-sidebar-open] [data-sidebar-panel] {
       margin-top: 0;
     }
-    /* With the tab strip it makes one row: its line under it continues the strip's, drawn just
-       below --app-top, and no line stands between them. */
-    [data-sidebar][data-sidebar-open] [data-sidebar-strip] {
-      height: calc(var(--window-controls-height) + 1px);
-      border-inline-end-color: transparent;
-      padding-inline-start: var(--window-controls-width);
-    }
-    /* With the panel hidden the tab strip runs from the window's edge, over the rail's top: the
-       workspace strip starts below it, on the frame like the strip, so the line under the strip
-       starts at the page's card, past its rounded corner. */
+    /* With the panel hidden the workspace strip starts below the tab strip, over the rail. */
     [data-sidebar]:not([data-sidebar-open]) [data-sidebar-strip] {
       height: auto;
       margin-top: var(--window-controls-height);
       padding-block: 0.375rem;
     }
-    &:has([data-sidebar-rail]):not(:has([data-sidebar-open])) body::after {
+    /* The rail is on the frame like the strip: the line under the strip starts at the card, past
+       its rounded corner. */
+    &:has([data-sidebar-rail]) body::after {
       left: 3.5rem;
     }
   }
