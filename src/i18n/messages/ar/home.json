@@ -50,13 +50,36 @@
     "places": "قواعد البيانات والصفحات",
     "allPlaces": "عرض الكل ({count})",
     "fewerPlaces": "عرض أقل",
-    "addTodo": "إضافة مهمة",
-    "addHint": "تُضاف إلى ملاحظة اليوم. يصبح اليوم المكتوب فيها، مثل «الجمعة»، تاريخها.",
     "addEmpty": "اكتب المهمة أولًا.",
     "addTooLong": "يمكن أن تتكون المهمة من {max} حرف على الأكثر.",
     "addFailed": "تعذّرت إضافة المهمة.",
     "filtered": "جزء من مهامك، كما اخترته في الشريط الجانبي.",
-    "filteredEmpty": "لا شيء هنا."
+    "filteredEmpty": "لا شيء هنا.",
+    "newTask": "مهمة جديدة",
+    "newTaskPlaceholder": "اسم المهمة، مثل «الاتصال بالمورّد الجمعة #عالية @Ayşe»",
+    "newTaskHint": "يضيفها Enter إلى قائمتك",
+    "date": "التاريخ",
+    "priorityLabel": "الأولوية",
+    "addPeople": "إضافة أشخاص",
+    "peopleCount": "{count, plural, zero {لا أحد} one {شخص واحد} two {شخصان} few {# أشخاص} many {# شخصًا} other {# شخص}}",
+    "findPerson": "البحث عن شخص",
+    "noPerson": "لم يُعثر على أحد",
+    "peopleNote": "يمكنهم أيضًا رؤية هذه المهمة وتعديلها.",
+    "add": "إضافة",
+    "addNotMember": "شخص اخترته لم يعد في مساحة العمل هذه.",
+    "withPeople": "مع {names}",
+    "dates": {
+      "today": "اليوم",
+      "tomorrow": "غدًا",
+      "nextWeek": "الأسبوع القادم",
+      "none": "بلا تاريخ"
+    },
+    "priority": {
+      "high": "عالية",
+      "medium": "متوسطة",
+      "low": "منخفضة",
+      "none": "بلا أولوية"
+    }
   },
   "figures": {
     "label": "عملك في لمحة",

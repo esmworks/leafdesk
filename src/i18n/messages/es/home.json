@@ -43,20 +43,43 @@
       "soon": "Próximos 7 días",
       "undated": "Sin fecha",
       "rows": "Filas asignadas",
-      "todos": "Pendientes"
+      "todos": "Pendientes en páginas"
     },
     "viewsLabel": "Vistas de tareas",
     "byKind": "Por tipo",
     "places": "Bases de datos y páginas",
     "allPlaces": "Mostrar las {count}",
     "fewerPlaces": "Mostrar menos",
-    "addTodo": "Añadir un pendiente",
-    "addHint": "Va a la nota diaria de hoy. Un día escrito en él, como «viernes», pasa a ser su fecha.",
-    "addEmpty": "Escribe primero el pendiente.",
-    "addTooLong": "Un pendiente puede tener como máximo {max} caracteres.",
-    "addFailed": "No se pudo añadir el pendiente.",
+    "addEmpty": "Escribe primero la tarea.",
+    "addTooLong": "Una tarea puede tener como máximo {max} caracteres.",
+    "addFailed": "No se pudo añadir la tarea.",
     "filtered": "Parte de tus tareas, según lo elegido en la barra lateral.",
-    "filteredEmpty": "No hay nada aquí."
+    "filteredEmpty": "No hay nada aquí.",
+    "newTask": "Nueva tarea",
+    "newTaskPlaceholder": "Nombre de la tarea, p. ej. «Llamar al proveedor viernes #alta @Ayşe»",
+    "newTaskHint": "Intro la añade a tu lista",
+    "date": "Fecha",
+    "priorityLabel": "Prioridad",
+    "addPeople": "Añadir personas",
+    "peopleCount": "{count, plural, one {# persona} other {# personas}}",
+    "findPerson": "Buscar una persona",
+    "noPerson": "No se encontró a nadie",
+    "peopleNote": "También pueden ver y editar esta tarea.",
+    "add": "Añadir",
+    "addNotMember": "Alguien que elegiste ya no está en este espacio de trabajo.",
+    "withPeople": "Con {names}",
+    "dates": {
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "nextWeek": "La próxima semana",
+      "none": "Sin fecha"
+    },
+    "priority": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja",
+      "none": "Sin prioridad"
+    }
   },
   "figures": {
     "label": "Tu trabajo de un vistazo",

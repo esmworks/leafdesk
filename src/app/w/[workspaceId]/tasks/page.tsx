@@ -3,11 +3,15 @@ import Link from "next/link";
 import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { AssignedCalendarFeedButton } from "@/components/database/calendar-feed";
 import { AssignedList, type AssignedListGroup } from "@/components/workspace/assigned-list";
+import { NewTask } from "@/components/workspace/new-task";
+import { avatarSrc } from "@/lib/avatar";
 import { groupByDatabase, isAssignedGrouping, isTaskView, SHARED_PLACE } from "@/lib/assigned";
 import { pageLabel } from "@/lib/labels";
 import { dayString, localDay } from "@/lib/time-zone";
+import { getMembership, isGuest } from "@/server/access";
 import { assignedRows, MY_TASKS_LIMIT } from "@/server/assigned";
 import { requireWorkspaceSession } from "@/server/session";
+import { workspacePeople } from "@/server/workspaces";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("home.myTasks");
@@ -19,6 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
  * and the unticked to-dos in pages that mention them (server/page-tasks.ts), by due date or by
  * database or page (`?by=database`), the first MY_TASKS_LIMIT of them. The sidebar's tasks tab
  * narrows it to a view (`?view=`, lib/assigned.ts TaskView) or to one database or page (`?in=`).
+ * Its New task row adds to the person's own list (server/own-tasks.ts); guests, who have none, don't get it.
  */
 export default async function MyTasksPage({
   params,
@@ -34,12 +39,20 @@ export default async function MyTasksPage({
   const place = typeof inParam === "string" && inParam.length > 0 && inParam.length <= 64 ? inParam : undefined;
   const timeZone = await getTimeZone();
   const today = dayString(localDay(Date.now(), timeZone));
-  const [assigned, t, locale, tc] = await Promise.all([
+  const [assigned, t, locale, tc, membership] = await Promise.all([
     assignedRows(user.id, workspaceId, today, timeZone, MY_TASKS_LIMIT, { view, place }),
     getTranslations("home"),
     getLocale(),
     getTranslations("common"),
+    getMembership(user.id, workspaceId),
   ]);
+  const adds = !!membership && !isGuest(membership.role);
+  const people = adds
+    ? (await workspacePeople(workspaceId))
+        .filter((p) => p.id !== user.id)
+        .map((p) => ({ id: p.id, name: p.name, image: avatarSrc(p.image) }))
+        .sort((a, b) => a.name.localeCompare(b.name, locale, { sensitivity: "base" }))
+    : [];
   const rows = assigned.groups.flatMap((g) => g.rows);
   const groups: AssignedListGroup[] =
     grouping === "due"
@@ -85,6 +98,11 @@ export default async function MyTasksPage({
         </nav>
         <AssignedCalendarFeedButton workspaceId={workspaceId} />
       </div>
+      {adds && (
+        <div className="mb-4">
+          <NewTask workspaceId={workspaceId} today={today} people={people} />
+        </div>
+      )}
       {rows.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-fg-muted">{filtered ? t("myTasks.filteredEmpty") : t("assignedEmpty")}</p>
       ) : (

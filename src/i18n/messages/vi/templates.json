@@ -307,5 +307,15 @@
   "journal": {
     "title": "Nhật ký",
     "markdown": "## Trọng tâm\n\n- [ ] \n\n## Ghi chú\n\n## Đã làm hôm nay\n"
+  },
+  "taskList": {
+    "title": "Danh sách việc của tôi",
+    "status": "Trạng thái",
+    "date": "Ngày",
+    "priority": "Mức ưu tiên",
+    "people": "Mọi người",
+    "high": "Cao",
+    "medium": "Trung bình",
+    "low": "Thấp"
   }
 }

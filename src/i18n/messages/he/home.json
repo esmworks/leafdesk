@@ -50,13 +50,36 @@
     "places": "מסדי נתונים ודפים",
     "allPlaces": "הצגת כל {count}",
     "fewerPlaces": "הצגת פחות",
-    "addTodo": "הוספת משימה",
-    "addHint": "נכנסת לפתק היומי של היום. יום שכתוב בה, כמו ״שישי״, הופך לתאריך שלה.",
     "addEmpty": "כתבו קודם את המשימה.",
     "addTooLong": "משימה יכולה להכיל עד {max} תווים.",
     "addFailed": "לא ניתן היה להוסיף את המשימה.",
     "filtered": "חלק מהמשימות שלך, כפי שנבחר בסרגל הצד.",
-    "filteredEmpty": "אין כאן כלום."
+    "filteredEmpty": "אין כאן כלום.",
+    "newTask": "משימה חדשה",
+    "newTaskPlaceholder": "שם המשימה, למשל ״להתקשר לספק שישי #גבוהה @Ayşe״",
+    "newTaskHint": "Enter מוסיף אותה לרשימה שלך",
+    "date": "תאריך",
+    "priorityLabel": "עדיפות",
+    "addPeople": "הוספת אנשים",
+    "peopleCount": "{count, plural, one {אדם אחד} other {# אנשים}}",
+    "findPerson": "חיפוש אדם",
+    "noPerson": "לא נמצא אף אחד",
+    "peopleNote": "גם הם יכולים לראות ולערוך את המשימה.",
+    "add": "הוספה",
+    "addNotMember": "מישהו שבחרת כבר לא נמצא בסביבת העבודה הזו.",
+    "withPeople": "עם {names}",
+    "dates": {
+      "today": "היום",
+      "tomorrow": "מחר",
+      "nextWeek": "בשבוע הבא",
+      "none": "ללא תאריך"
+    },
+    "priority": {
+      "high": "גבוהה",
+      "medium": "בינונית",
+      "low": "נמוכה",
+      "none": "ללא עדיפות"
+    }
   },
   "figures": {
     "label": "העבודה שלך במבט אחד",

@@ -307,5 +307,15 @@
   "journal": {
     "title": "Dziennik",
     "markdown": "## Cel dnia\n\n- [ ] \n\n## Notatki\n\n## Zrobione dziś\n"
+  },
+  "taskList": {
+    "title": "Moja lista zadań",
+    "status": "Status",
+    "date": "Data",
+    "priority": "Priorytet",
+    "people": "Osoby",
+    "high": "Wysoki",
+    "medium": "Średni",
+    "low": "Niski"
   }
 }

@@ -307,5 +307,15 @@
   "journal": {
     "title": "Dagboek",
     "markdown": "## Focus\n\n- [ ] \n\n## Notities\n\n## Vandaag gedaan\n"
+  },
+  "taskList": {
+    "title": "Mijn takenlijst",
+    "status": "Status",
+    "date": "Datum",
+    "priority": "Prioriteit",
+    "people": "Mensen",
+    "high": "Hoog",
+    "medium": "Gemiddeld",
+    "low": "Laag"
   }
 }

@@ -43,20 +43,43 @@
       "soon": "Next 7 days",
       "undated": "No date",
       "rows": "Assigned rows",
-      "todos": "To-dos"
+      "todos": "To-dos in pages"
     },
     "viewsLabel": "Task views",
     "byKind": "By kind",
     "places": "Databases and pages",
     "allPlaces": "Show all {count}",
     "fewerPlaces": "Show fewer",
-    "addTodo": "Add a to-do",
-    "addHint": "Goes to today's daily note. A day in it, like “friday”, becomes its date.",
-    "addEmpty": "Write the to-do first.",
-    "addTooLong": "A to-do can be at most {max} characters long.",
-    "addFailed": "Couldn't add the to-do.",
+    "addEmpty": "Write the task first.",
+    "addTooLong": "A task can be at most {max} characters long.",
+    "addFailed": "Couldn't add the task.",
     "filtered": "Some of your tasks, as picked in the sidebar.",
-    "filteredEmpty": "Nothing here."
+    "filteredEmpty": "Nothing here.",
+    "newTask": "New task",
+    "newTaskPlaceholder": "Task name, e.g. “Call the supplier friday #high @Ayşe”",
+    "newTaskHint": "Enter adds it to your list",
+    "date": "Date",
+    "priorityLabel": "Priority",
+    "addPeople": "Add people",
+    "peopleCount": "{count, plural, one {# person} other {# people}}",
+    "findPerson": "Find a person",
+    "noPerson": "No one found",
+    "peopleNote": "They can see and edit this task too.",
+    "add": "Add",
+    "addNotMember": "Someone you picked is no longer in this workspace.",
+    "withPeople": "With {names}",
+    "dates": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "nextWeek": "Next week",
+      "none": "No date"
+    },
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low",
+      "none": "No priority"
+    }
   },
   "figures": {
     "label": "Your work at a glance",

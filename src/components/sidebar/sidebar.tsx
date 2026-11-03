@@ -1856,11 +1856,7 @@ export function Sidebar({
                   place={searchParams.get("in")}
                   by={searchParams.get("by")}
                   overdue={dueTasks.overdue}
-                  canAdd={!!topLevel}
                   offline={offline}
-                  onAdded={() => {
-                    if (onTasksPage) router.refresh();
-                  }}
                 />
               ) : shownTab === "mail" ? (
                 <MailSidebar workspaceId={workspaceId} />

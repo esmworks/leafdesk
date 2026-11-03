@@ -50,13 +50,36 @@
     "places": "データベースとページ",
     "allPlaces": "すべて表示（{count}）",
     "fewerPlaces": "表示を減らす",
-    "addTodo": "ToDoを追加",
-    "addHint": "今日のデイリーノートに追加されます。「金曜」のように書いた日付がその期日になります。",
-    "addEmpty": "先にToDoを入力してください。",
-    "addTooLong": "ToDoは{max}文字以内にしてください。",
-    "addFailed": "ToDoを追加できませんでした。",
+    "addEmpty": "先にタスクを入力してください。",
+    "addTooLong": "タスクは{max}文字以内にしてください。",
+    "addFailed": "タスクを追加できませんでした。",
     "filtered": "サイドバーで選んだタスクだけを表示しています。",
-    "filteredEmpty": "ここには何もありません。"
+    "filteredEmpty": "ここには何もありません。",
+    "newTask": "新しいタスク",
+    "newTaskPlaceholder": "タスク名（例：「仕入れ先に電話 金曜 #高 @Ayşe」）",
+    "newTaskHint": "Enterでリストに追加します",
+    "date": "日付",
+    "priorityLabel": "優先度",
+    "addPeople": "メンバーを追加",
+    "peopleCount": "{count}人",
+    "findPerson": "メンバーを検索",
+    "noPerson": "見つかりません",
+    "peopleNote": "この人たちもこのタスクを表示・編集できます。",
+    "add": "追加",
+    "addNotMember": "選んだメンバーの一人がこのワークスペースにいません。",
+    "withPeople": "{names}と一緒",
+    "dates": {
+      "today": "今日",
+      "tomorrow": "明日",
+      "nextWeek": "来週",
+      "none": "日付なし"
+    },
+    "priority": {
+      "high": "高",
+      "medium": "中",
+      "low": "低",
+      "none": "優先度なし"
+    }
   },
   "figures": {
     "label": "仕事のひと目でわかる状況",

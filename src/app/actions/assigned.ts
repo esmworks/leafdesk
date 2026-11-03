@@ -2,10 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
+import { isTaskPriority, MAX_OWN_TASK, MAX_TASK_HELPERS } from "@/lib/own-tasks";
 import { dayString, localDay } from "@/lib/time-zone";
 import { dueAssignedCount, markAssignedDone, taskCounts, type TaskCounts } from "@/server/assigned";
 import { updateRowProperties } from "@/server/databases";
-import { addOwnTodo, MAX_OWN_TODO, OwnTodoError } from "@/server/own-todos";
+import { addOwnTask, OwnTaskError, type NewOwnTask } from "@/server/own-tasks";
 import { setPageTaskChecked } from "@/server/page-tasks";
 import { requireUserId } from "@/server/session";
 
@@ -98,18 +99,37 @@ export async function taskCountsAction(workspaceId: string): Promise<TaskCounts 
   }
 }
 
-/** Adds a to-do the user wrote in the tasks tab to today's daily note, mentioning them (server/own-todos.ts). */
-export async function addOwnTodoAction(workspaceId: string, text: string): Promise<AssignedActionResult<{ pageId: string }>> {
+/**
+ * Adds a task the user wrote on My tasks to their own list (server/own-tasks.ts), which is made
+ * with the first one: a title, a day or none, a priority or none, and others it is for.
+ */
+export async function addOwnTaskAction(workspaceId: string, task: NewOwnTask): Promise<AssignedActionResult<{ rowId: string; databaseId: string }>> {
   const userId = await requireUserId();
-  if (!isText(workspaceId) || typeof text !== "string") throw new Error("Invalid to-do");
-  const [timeZone, locale, t] = await Promise.all([getTimeZone(), getLocale(), getTranslations("home.myTasks")]);
+  const raw = (task && typeof task === "object" ? task : {}) as Record<string, unknown>;
+  if (
+    !isText(workspaceId) ||
+    typeof raw.title !== "string" ||
+    (raw.date !== null && typeof raw.date !== "string") ||
+    (raw.priority !== null && !isTaskPriority(raw.priority)) ||
+    !Array.isArray(raw.people) ||
+    raw.people.length > MAX_TASK_HELPERS + 1 ||
+    !raw.people.every(isText)
+  ) {
+    throw new Error("Invalid task");
+  }
+  const checked: NewOwnTask = { title: raw.title, date: raw.date, priority: raw.priority, people: raw.people };
+  const [locale, t] = await Promise.all([getLocale(), getTranslations("home.myTasks")]);
   try {
-    const { pageId } = await addOwnTodo(userId, workspaceId, text, dayString(localDay(Date.now(), timeZone)), { locale });
+    const data = await addOwnTask(userId, workspaceId, checked, { locale });
     revalidatePath(`/w/${workspaceId}/tasks`);
-    return { ok: true, data: { pageId } };
+    return { ok: true, data };
   } catch (error) {
-    if (error instanceof OwnTodoError) return { ok: false, error: t(error.code === "empty" ? "addEmpty" : "addTooLong", { max: MAX_OWN_TODO }) };
-    console.error("[assigned] adding a to-do failed", error);
+    if (error instanceof OwnTaskError) {
+      if (error.code === "empty") return { ok: false, error: t("addEmpty") };
+      if (error.code === "tooLong") return { ok: false, error: t("addTooLong", { max: MAX_OWN_TASK }) };
+      if (error.code === "notMember") return { ok: false, error: t("addNotMember") };
+    }
+    console.error("[assigned] adding a task failed", error);
     return { ok: false, error: t("addFailed") };
   }
 }

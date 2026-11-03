@@ -307,5 +307,15 @@
   "journal": {
     "title": "Jurnal",
     "markdown": "## Fokus\n\n- [ ] \n\n## Catatan\n\n## Selesai hari ini\n"
+  },
+  "taskList": {
+    "title": "Daftar tugas saya",
+    "status": "Status",
+    "date": "Tanggal",
+    "priority": "Prioritas",
+    "people": "Orang",
+    "high": "Tinggi",
+    "medium": "Sedang",
+    "low": "Rendah"
   }
 }

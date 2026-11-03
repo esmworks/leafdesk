@@ -50,13 +50,36 @@
     "places": "数据库和页面",
     "allPlaces": "显示全部（{count}）",
     "fewerPlaces": "收起",
-    "addTodo": "添加待办",
-    "addHint": "会加到今天的每日笔记。写在里面的日期，如“周五”，会成为它的日期。",
-    "addEmpty": "请先写下待办。",
-    "addTooLong": "待办最多 {max} 个字符。",
-    "addFailed": "无法添加待办。",
+    "addEmpty": "请先写下任务。",
+    "addTooLong": "任务最多 {max} 个字符。",
+    "addFailed": "无法添加任务。",
     "filtered": "你在侧边栏中选中的部分任务。",
-    "filteredEmpty": "这里什么都没有。"
+    "filteredEmpty": "这里什么都没有。",
+    "newTask": "新任务",
+    "newTaskPlaceholder": "任务名称，例如“给供应商打电话 周五 #高 @Ayşe”",
+    "newTaskHint": "按 Enter 添加到你的列表",
+    "date": "日期",
+    "priorityLabel": "优先级",
+    "addPeople": "添加成员",
+    "peopleCount": "{count} 人",
+    "findPerson": "查找成员",
+    "noPerson": "没有找到",
+    "peopleNote": "他们也可以查看和编辑此任务。",
+    "add": "添加",
+    "addNotMember": "你选择的某人已不在此工作区。",
+    "withPeople": "与 {names}",
+    "dates": {
+      "today": "今天",
+      "tomorrow": "明天",
+      "nextWeek": "下周",
+      "none": "无日期"
+    },
+    "priority": {
+      "high": "高",
+      "medium": "中",
+      "low": "低",
+      "none": "无优先级"
+    }
   },
   "figures": {
     "label": "工作一览",

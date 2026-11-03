@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { databaseProperty, page, type PageKind, type SelectOption } from "@/db/schema";
+import { databaseProperty, page, taskList, user, type PageKind, type SelectOption } from "@/db/schema";
 import {
   ASSIGNED_GROUPS,
   assignedGroup,
@@ -12,6 +12,7 @@ import {
   type TaskPlaceCount,
   type TaskView,
 } from "@/lib/assigned";
+import { avatarSrc } from "@/lib/avatar";
 import { dateDays } from "@/lib/date-value";
 import { atLeast } from "@/lib/property-access";
 import { firstDoneOption, isDoneStatus, optionOf } from "@/lib/properties";
@@ -52,6 +53,10 @@ export type AssignedRow = {
    * shows (assignedRows); false in what openAssignedRows returns.
    */
   markable: boolean;
+  /** A row of someone's own task list (server/own-tasks.ts): its priority, else null. */
+  priority: SelectOption | null;
+  /** A row of someone's own task list: the others it is for, besides the viewer. */
+  others: { id: string; name: string; image: string | null }[];
   updatedAt: Date;
 };
 
@@ -216,7 +221,7 @@ export async function openAssignedRows(
   if (!candidates.length) return [];
 
   const databaseIds = [...new Set(candidates.map((r) => r.parentId!))];
-  const [properties, databases, accessList] = await Promise.all([
+  const [properties, databases, accessList, lists] = await Promise.all([
     loadProperties(databaseIds),
     // A row can be shared without its database: then the database's name stays hidden too.
     db
@@ -224,11 +229,15 @@ export async function openAssignedRows(
       .from(page)
       .where(and(inArray(page.id, databaseIds), pageVisibleTo(userId))),
     Promise.all(databaseIds.map(async (id) => [id, await propertyAccessFor(userId, id)] as const)),
+    db.select({ pageId: taskList.pageId }).from(taskList).where(inArray(taskList.pageId, databaseIds)),
   ]);
   const titles = new Map(databases.map((d) => [d.id, d.title]));
+  const taskLists = new Set(lists.map((l) => l.pageId));
   const access = new Map(accessList);
 
   const rows: AssignedRow[] = [];
+  // The others named in task lists' rows, named once for all of them.
+  const wanted = new Set<string>();
   for (const row of candidates) {
     const databaseId = row.parentId!;
     const props = properties.get(databaseId) ?? [];
@@ -263,8 +272,28 @@ export async function openAssignedRows(
       status: statusProp ? (optionOf(statusProp, value(statusProp.id)) ?? null) : null,
       markable:
         withMarkable && statusProp !== undefined && firstDoneOption(statusProp) !== undefined && atLeast(levels.levelOf(statusProp.id, row), "edit"),
+      ...ownTask(),
       updatedAt: row.updatedAt,
     });
+
+    // A task list's first select is its priority and its first person property who it is for.
+    function ownTask() {
+      if (!taskLists.has(databaseId)) return { priority: null, others: [] };
+      const priorityProp = props.find((p) => p.type === "select" && sees(p.id));
+      const peopleProp = props.find((p) => p.type === "person" && sees(p.id));
+      const named = peopleProp && Array.isArray(value(peopleProp.id)) ? (value(peopleProp.id) as unknown[]) : [];
+      const others = named.filter((id): id is string => typeof id === "string" && id !== userId);
+      for (const id of others) wanted.add(id);
+      return {
+        priority: priorityProp ? (optionOf(priorityProp, value(priorityProp.id)) ?? null) : null,
+        others: others.map((id) => ({ id, name: "", image: null })),
+      };
+    }
+  }
+  if (wanted.size) {
+    const found = await db.select({ id: user.id, name: user.name, image: user.image }).from(user).where(inArray(user.id, [...wanted]));
+    const byId = new Map(found.map((u) => [u.id, { id: u.id, name: u.name, image: avatarSrc(u.image) }]));
+    for (const row of rows) row.others = row.others.flatMap((o) => byId.get(o.id) ?? []);
   }
   return rows;
 }

@@ -87,12 +87,16 @@
   once the page is saved. Mentioning a group or an agent in a to-do doesn't put it in anyone's
   list; mention the people themselves.
   On My tasks the sidebar's panel lists its views, each with how many it holds: *All*, *Today*
-  (overdue too), *Next 7 days* (overdue too), *No date*, only *Assigned rows* or only *To-dos*, and
+  (overdue too), *Next 7 days* (overdue too), *No date*, only *Assigned rows* or only *To-dos in pages*, and
   the databases and pages your tasks are in, the fullest first. Picking one narrows the list to it
-  (the address keeps `?view=` or `?in=`, so a narrowed list can be bookmarked). *Add a to-do* at the
-  panel's top writes a to-do that mentions you at the end of today's daily note, so it shows at
-  once; a day written in it, like "friday" or "tomorrow", comes out of the text as its date (past
-  days stay text). It is there for those who may add daily notes.
+  (the address keeps `?view=` or `?in=`, so a narrowed list can be bookmarked).
+  *New task* at the top of My tasks adds a task to your own list, *My to-do list*: a private
+  database made with your first task, with a status, a date, a priority (*High*, *Medium*, *Low*)
+  and the people it is for. Its buttons set the date (today, tomorrow, Friday, next week or a day
+  in the calendar), the priority and the people; the same can be typed in the name: a day such as
+  "friday", `#high` and `@name`. You are always among its people; the others you add can see and
+  edit that task, and it shows in their My tasks too. Tasks of the list show their priority's flag
+  and the others' pictures in the list. Guests don't get *New task*.
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet), under *Today*, *Yesterday*,
   *Previous 7 days* and *Older*, each with the page or database it sits in. The row under the query

@@ -43,20 +43,43 @@
       "soon": "Önümüzdeki 7 gün",
       "undated": "Tarihsiz",
       "rows": "Atanan satırlar",
-      "todos": "Yapılacaklar"
+      "todos": "Sayfalardaki yapılacaklar"
     },
     "viewsLabel": "Görev görünümleri",
     "byKind": "Türe göre",
     "places": "Veritabanları ve sayfalar",
     "allPlaces": "Tümünü göster ({count})",
     "fewerPlaces": "Daha az göster",
-    "addTodo": "Yapılacak ekle",
-    "addHint": "Bugünün günlük notuna eklenir. İçindeki bir gün, örneğin “cuma”, tarihi olur.",
-    "addEmpty": "Önce yapılacağı yazın.",
-    "addTooLong": "Bir yapılacak en fazla {max} karakter olabilir.",
-    "addFailed": "Yapılacak eklenemedi.",
+    "addEmpty": "Önce görevi yazın.",
+    "addTooLong": "Bir görev en fazla {max} karakter olabilir.",
+    "addFailed": "Görev eklenemedi.",
     "filtered": "Kenar çubuğunda seçtiğiniz kadarıyla görevleriniz.",
-    "filteredEmpty": "Burada bir şey yok."
+    "filteredEmpty": "Burada bir şey yok.",
+    "newTask": "Yeni görev",
+    "newTaskPlaceholder": "Görev adı, ör. “Tedarikçiyi ara cuma #yüksek @Ayşe”",
+    "newTaskHint": "Enter ile listene eklenir",
+    "date": "Tarih",
+    "priorityLabel": "Öncelik",
+    "addPeople": "Kişi ekle",
+    "peopleCount": "{count} kişi",
+    "findPerson": "Kişi ara",
+    "noPerson": "Kimse bulunamadı",
+    "peopleNote": "Bu görevi onlar da görüp düzenleyebilir.",
+    "add": "Ekle",
+    "addNotMember": "Seçtiğiniz biri artık bu çalışma alanında değil.",
+    "withPeople": "{names} ile",
+    "dates": {
+      "today": "Bugün",
+      "tomorrow": "Yarın",
+      "nextWeek": "Gelecek hafta",
+      "none": "Tarih yok"
+    },
+    "priority": {
+      "high": "Yüksek",
+      "medium": "Orta",
+      "low": "Düşük",
+      "none": "Önceliksiz"
+    }
   },
   "figures": {
     "label": "İşleriniz bir bakışta",

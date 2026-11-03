@@ -307,5 +307,15 @@
   "journal": {
     "title": "Journal",
     "markdown": "## Focus\n\n- [ ] \n\n## Notes\n\n## Done today\n"
+  },
+  "taskList": {
+    "title": "My to-do list",
+    "status": "Status",
+    "date": "Date",
+    "priority": "Priority",
+    "people": "People",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low"
   }
 }

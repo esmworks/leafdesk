@@ -14,18 +14,21 @@ const monthIndexOf = (day: string) => Number(day.slice(0, 4)) * 12 + Number(day.
 /**
  * The days of a month to pick a date from in the date editor. A click picks the day; a click with
  * Shift held picks the other end of a range (`extend`). The days from `start` to `end` are marked.
- * Loaded with the editor only (see DateEditor), so the first load doesn't carry it.
+ * Loaded with the editor only (see DateEditor), so the first load doesn't carry it. `single`: one
+ * day is picked, without the range hint (My tasks' New task).
  */
 export function DayGrid({
   start,
   end,
   today,
   onPick,
+  single = false,
 }: {
   start: string | null;
   end: string | null;
   today: string;
   onPick: (day: string, extend: boolean) => void;
+  single?: boolean;
 }) {
   const t = useTranslations("database");
   const format = useFormatter();
@@ -99,7 +102,7 @@ export function DayGrid({
           }),
         )}
       </div>
-      <p className="px-1 pt-1.5 text-xs text-fg-faint">{t("cell.rangeHint")}</p>
+      {!single && <p className="px-1 pt-1.5 text-xs text-fg-faint">{t("cell.rangeHint")}</p>}
     </div>
   );
 }

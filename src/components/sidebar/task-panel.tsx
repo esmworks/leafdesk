@@ -1,10 +1,9 @@
 "use client";
 
-import { CalendarCheck, CalendarDays, CalendarOff, FileText, ListTodo, Plus, SquareCheck, Table2, Users } from "lucide-react";
+import { CalendarCheck, CalendarDays, CalendarOff, FileText, ListTodo, SquareCheck, Table2, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { addOwnTodoAction } from "@/app/actions/assigned";
+import { useCallback, useEffect, useState } from "react";
 import { IconGlyph } from "@/components/builtin-icon";
 import { read } from "@/components/read";
 import { cn } from "@/components/ui";
@@ -37,19 +36,15 @@ export type TaskPanelProps = {
   by: string | null;
   /** Overdue items: today's count is drawn in the danger color then. */
   overdue: number;
-  /** Whether the person may add daily notes, where a to-do written here goes. */
-  canAdd: boolean;
   offline: boolean;
-  /** After a to-do is added: My tasks reads its list again. */
-  onAdded: () => void;
 };
 
 /**
- * The sidebar's tasks tab: a box that adds a to-do to today's daily note, the views of My tasks and
- * the databases and pages its items are in, each with how many items it holds (server/assigned.ts
+ * The sidebar's tasks tab: the views of My tasks and the databases and pages its items are in (the
+ * person's own list among them, server/own-tasks.ts), each with how many items it holds (server/assigned.ts
  * taskCounts). Each opens My tasks narrowed to it (`?view=`, `?in=`).
  */
-export function TaskPanel({ workspaceId, onTasksPage, view: viewParam, place, by, overdue, canAdd, offline, onAdded }: TaskPanelProps) {
+export function TaskPanel({ workspaceId, onTasksPage, view: viewParam, place, by, overdue, offline }: TaskPanelProps) {
   const view = isTaskView(viewParam) ? viewParam : "all";
   const t = useTranslations("home.myTasks");
   const tc = useTranslations("common");
@@ -97,10 +92,6 @@ export function TaskPanel({ workspaceId, onTasksPage, view: viewParam, place, by
 
   return (
     <div className="flex flex-col">
-      {canAdd && <AddTodo workspaceId={workspaceId} offline={offline} onAdded={() => {
-            window.dispatchEvent(new Event(TASKS_EVENT));
-            onAdded();
-          }} />}
       <ul className="space-y-px" aria-label={t("viewsLabel")}>
         {(["all", "today", "soon", "undated"] as const).map(viewRow)}
       </ul>
@@ -146,68 +137,4 @@ function PlaceIcon({ place }: { place: TaskPlace }) {
   }
   const Icon = place.id === SHARED_PLACE ? Users : place.kind === "database" ? Table2 : FileText;
   return <Icon className="h-4 w-4 shrink-0 text-fg-icon" aria-hidden />;
-}
-
-/** The box at the top: Enter adds what is written as a to-do in today's daily note. */
-function AddTodo({ workspaceId, offline, onAdded }: { workspaceId: string; offline: boolean; onAdded: () => void }) {
-  const t = useTranslations("home.myTasks");
-  const [text, setText] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const adding = useRef(false);
-
-  async function add() {
-    if (adding.current || !text.trim()) return;
-    adding.current = true;
-    setError(null);
-    try {
-      const result = await addOwnTodoAction(workspaceId, text);
-      if (!result.ok) return setError(result.error);
-      setText("");
-      onAdded();
-    } catch {
-      setError(t("addFailed"));
-    } finally {
-      adding.current = false;
-    }
-  }
-
-  return (
-    <div className="mb-2">
-      <label className="flex h-8 items-center gap-2 rounded-md border border-transparent bg-bg-hover ps-2.5 pe-2 text-fg-icon focus-within:border-border focus-within:bg-bg">
-        <Plus className="h-3.5 w-3.5 shrink-0" aria-hidden />
-        <input
-          value={text}
-          disabled={offline}
-          onChange={(e) => {
-            setText(e.target.value);
-            setError(null);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
-              e.preventDefault();
-              void add();
-            } else if (e.key === "Escape") {
-              setText("");
-              e.currentTarget.blur();
-            }
-          }}
-          placeholder={t("addTodo")}
-          aria-label={t("addTodo")}
-          aria-describedby="add-todo-hint"
-          className="min-w-0 flex-1 bg-transparent text-sm text-fg outline-none placeholder:text-fg-faint disabled:cursor-default"
-        />
-      </label>
-      {error ? (
-        <p role="alert" className="px-2 pt-1 text-xs text-danger">
-          {error}
-        </p>
-      ) : (
-        text && (
-          <p id="add-todo-hint" className="px-2 pt-1 text-xs text-fg-faint">
-            {t("addHint")}
-          </p>
-        )
-      )}
-    </div>
-  );
 }

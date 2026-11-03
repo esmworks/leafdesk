@@ -43,20 +43,43 @@
       "soon": "Næste 7 dage",
       "undated": "Uden dato",
       "rows": "Tildelte rækker",
-      "todos": "To-dos"
+      "todos": "To-dos på sider"
     },
     "viewsLabel": "Opgavevisninger",
     "byKind": "Efter type",
     "places": "Databaser og sider",
     "allPlaces": "Vis alle {count}",
     "fewerPlaces": "Vis færre",
-    "addTodo": "Tilføj en to-do",
-    "addHint": "Kommer i dagens dagsnote. En dag i teksten, som “fredag”, bliver dens dato.",
-    "addEmpty": "Skriv først din to-do.",
-    "addTooLong": "En to-do må højst være {max} tegn lang.",
-    "addFailed": "Kunne ikke tilføje din to-do.",
+    "addEmpty": "Skriv først opgaven.",
+    "addTooLong": "En opgave må højst være {max} tegn lang.",
+    "addFailed": "Kunne ikke tilføje opgaven.",
     "filtered": "En del af dine opgaver, som valgt i sidepanelet.",
-    "filteredEmpty": "Her er intet."
+    "filteredEmpty": "Her er intet.",
+    "newTask": "Ny opgave",
+    "newTaskPlaceholder": "Opgavenavn, fx “Ring til leverandøren fredag #høj @Ayşe”",
+    "newTaskHint": "Enter føjer den til din liste",
+    "date": "Dato",
+    "priorityLabel": "Prioritet",
+    "addPeople": "Tilføj personer",
+    "peopleCount": "{count, plural, one {# person} other {# personer}}",
+    "findPerson": "Find en person",
+    "noPerson": "Ingen fundet",
+    "peopleNote": "De kan også se og redigere denne opgave.",
+    "add": "Tilføj",
+    "addNotMember": "En, du valgte, er ikke længere i dette arbejdsområde.",
+    "withPeople": "Med {names}",
+    "dates": {
+      "today": "I dag",
+      "tomorrow": "I morgen",
+      "nextWeek": "Næste uge",
+      "none": "Ingen dato"
+    },
+    "priority": {
+      "high": "Høj",
+      "medium": "Mellem",
+      "low": "Lav",
+      "none": "Ingen prioritet"
+    }
   },
   "figures": {
     "label": "Dit arbejde på et øjeblik",
