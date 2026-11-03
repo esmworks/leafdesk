@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Fixed
+
+- **Chat answers flow in evenly, letter by letter, whatever the model.** Models that send their
+  text a sentence or a paragraph at a time made the AI chat's and agents' answers appear a lump at
+  once, then pause; each piece is now spread over the time until the next one is due (up to a
+  second behind), and the end of an answer goes on flowing instead of showing in one frame. The
+  answer stream also asks proxies not to compress it (`Cache-Control: no-transform`), which held
+  its events back behind some reverse proxies.
+- **The chat stays with the answer around a change it asks about.** A chat scrolled to its end
+  stays there when the approval takes the question box's place and when it gives it back, and in
+  an agent's chat the call's approval box goes as soon as you answer it, instead of staying above
+  the answer as it goes on.
+
 ## 0.7.1 — 2026-11-03
 
 ### Upgrading from 0.7.0

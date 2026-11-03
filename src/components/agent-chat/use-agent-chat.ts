@@ -372,7 +372,18 @@ export function useAgentChat({ workspaceId, agentId, place }: { workspaceId: str
     return () => clearTimeout(timer);
   }, [thread, hasAgent, refreshRuns]);
 
-  const shownTurn = useMemo(() => withStreamed(turn, streamed, running), [turn, streamed, running]);
+  // The call the turn under way waited on, answered here: its box goes at once, not with the next
+  // read (a read already under way would still bring it), and the turn is read now, so the run is
+  // followed again as soon as it goes on.
+  const [answeredCall, setAnsweredCall] = useState<string | null>(null);
+  const callAnswered = useCallback((callId: string) => {
+    setAnsweredCall(callId);
+    setLookNow((n) => n + 1);
+  }, []);
+  const shownTurn = useMemo(() => {
+    const shown = withStreamed(turn, streamed, running);
+    return shown?.pending && shown.pending.callId === answeredCall ? { ...shown, status: "running" as const, pending: null } : shown;
+  }, [turn, streamed, running, answeredCall]);
 
   const state = info?.state;
   const canChat = state === "full" || state === "readOnly";
@@ -574,6 +585,7 @@ export function useAgentChat({ workspaceId, agentId, place }: { workspaceId: str
     running,
     arrived,
     turn: shownTurn,
+    callAnswered,
     redoRun,
     conversationId,
     summarizing,
