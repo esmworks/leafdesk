@@ -21,9 +21,10 @@ type Agent = { id: string; name: string; icon: string | null; description: strin
 
 /**
  * An agent's own page, which the sidebar opens: a chat with it, the AI chat's thread and box, with
- * who it is above the messages; its settings are a page of their own (agent-editor.tsx). On a wide page who it is moves
- * into the boxes beside the chat, with its schedules and, once the chat loads, its runs and what
- * they changed (the chat adds those itself).
+ * where it is in the bar on top and the way to its settings, a page of their own (agent-editor.tsx),
+ * at that bar's end. On a narrow page who it is shows above the messages; on a wide page its
+ * schedules and, once the chat loads, its runs and what they changed (the chat adds those itself)
+ * show in boxes beside the chat.
  */
 export function AgentPage({
   workspaceId,
@@ -37,43 +38,49 @@ export function AgentPage({
   focusRun: string | null;
 }) {
   const t = useTranslations("settings.agents");
+  const tSidebar = useTranslations("sidebar");
+  const crumbs = (
+    <nav className="flex min-w-0 items-center gap-1 text-sm text-fg-muted">
+      <span className="flex shrink-0 items-center gap-1 px-1 max-md:hidden">
+        {tSidebar("sections.agents")}
+        <span className="text-fg-faint">/</span>
+      </span>
+      <span title={agent.description || undefined} className="flex min-w-0 items-center gap-1 px-1 py-0.5 text-fg">
+        <span className="text-sm">
+          <AgentGlyph icon={agent.icon} />
+        </span>
+        <span className="truncate md:max-w-60">{agent.name}</span>
+      </span>
+    </nav>
+  );
   const settings = (
-    <Link href={agentPath(workspaceId, agent.id)} className={buttonClass()}>
+    <Link href={agentPath(workspaceId, agent.id)} className={cn(buttonClass({ variant: "ghost" }), "h-7 px-2 font-normal text-fg-muted hover:text-fg")}>
       <Settings2 className="h-4 w-4" /> {t("tabs.settings")}
     </Link>
   );
   const header = (
-    <header className={cn("mb-6 flex flex-wrap items-start gap-4", SIDE_HIDDEN)}>
-      <div className="min-w-0 flex-1 basis-64">
-        <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-bg-subtle text-4xl">
-          <AgentGlyph icon={agent.icon} />
-        </span>
-        <h1 className="font-display text-2xl tracking-tight break-words">{agent.name}</h1>
-        {agent.description && <p className="mt-2 max-w-2xl text-sm text-fg-muted">{agent.description}</p>}
-      </div>
-      {settings}
+    <header className={cn("mb-6", SIDE_HIDDEN)}>
+      <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-bg-subtle text-4xl">
+        <AgentGlyph icon={agent.icon} />
+      </span>
+      <h1 className="font-display text-2xl tracking-tight break-words">{agent.name}</h1>
+      {agent.description && <p className="mt-2 max-w-2xl text-sm text-fg-muted">{agent.description}</p>}
     </header>
   );
-  const aside = (
-    <>
-      <section className="shrink-0 rounded-xl border border-border bg-bg p-4">
-        <div className="mb-3 flex items-start justify-between gap-2">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg-subtle text-2xl">
-            <AgentGlyph icon={agent.icon} />
-          </span>
-          {settings}
-        </div>
-        <h1 className="text-base font-semibold break-words">{agent.name}</h1>
-        {agent.description && (
-          <p title={agent.description} className="mt-1 line-clamp-3 text-sm text-fg-muted">
-            {agent.description}
-          </p>
-        )}
-      </section>
-      {schedules.length > 0 && <Schedules schedules={schedules} />}
-    </>
+  const aside = schedules.length > 0 && <Schedules schedules={schedules} />;
+  return (
+    <AgentChat
+      workspaceId={workspaceId}
+      agentId={agent.id}
+      place={null}
+      variant="page"
+      focusRun={focusRun}
+      header={header}
+      aside={aside}
+      crumbs={crumbs}
+      actions={settings}
+    />
   );
-  return <AgentChat workspaceId={workspaceId} agentId={agent.id} place={null} variant="page" focusRun={focusRun} header={header} aside={aside} />;
 }
 
 function AgentGlyph({ icon }: { icon: string | null }) {

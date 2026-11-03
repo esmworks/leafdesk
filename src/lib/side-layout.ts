@@ -16,5 +16,10 @@ export const SIDE_HIDDEN = "@min-[64rem]/side:hidden";
  * width and the room left for the scrollbar.
  */
 export const SIDE_PAD = "[--side-pad:0px] @min-[64rem]/side:[--side-pad:19rem]";
+/**
+ * As `SIDE_PAD`, but only while the boxes' column (`data-side-column`) holds a box: a page whose
+ * boxes come and go (an agent's, before it has schedules or runs) keeps its column centered without them.
+ */
+export const SIDE_PAD_FILLED = "[--side-pad:0px] @min-[64rem]/side:has-[[data-side-column]_section]:[--side-pad:19rem]";
 /** The boxes' column: its width and the room between the boxes. */
 export const SIDE_COLUMN = "w-72 shrink-0 flex-col gap-3";

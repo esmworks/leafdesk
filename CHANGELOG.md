@@ -37,7 +37,7 @@
   picked take a lighter tint and lines are fainter. On wide windows the rail sits on a gray frame
   and the sidebar's panel and the page are one card above it; the workspace's menu moved from the
   top of the sidebar to the foot of its panel (on the rail's top while the panel is hidden), and
-  the rail's icons are larger. Settings keep the rail, their own list taking the panel's place in the card. The desktop app's tab strip takes the frame's color and starts beside the window's buttons with the panel shown too. Page titles (Home's greeting, My tasks, Meetings, Settings, agents, the chat's
+  the rail's icons are larger. Settings keep the rail, their own list taking the panel's place in the card. An agent's page names it in its top bar, after Agents, with Settings at the bar's end, instead of in a card beside the chat. The desktop app's tab strip takes the frame's color and starts beside the window's buttons with the panel shown too. Page titles (Home's greeting, My tasks, Meetings, Settings, agents, the chat's
   greeting) are set in Roboto Slab, bundled with the app. The rail's icons are thinner and the
   place that is open shows its icon filled, and icons everywhere are drawn with a thinner line.
   Primary buttons are drawn in the text's color (black, white in the dark theme); green stays for
