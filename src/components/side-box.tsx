@@ -28,11 +28,12 @@ export function SideBox({ title, count, children }: { title: string; count?: num
         </button>
       </h2>
       {/* The list fades out at its edges instead of cutting a line in half; the padding is as deep
-          as the fade, so at either end only the empty padding fades. */}
+          as the fade, so at either end only the empty padding fades. The fade shows there is more,
+          so it draws no scrollbar of its own beside the page's. */}
       {open && (
         <ul
           id={id}
-          className="max-h-80 min-h-0 overflow-y-auto overscroll-contain border-t border-border pt-2 pb-5 [mask-image:linear-gradient(to_bottom,transparent,black_0.5rem,black_calc(100%-1.25rem),transparent)]"
+          className="max-h-80 min-h-0 overflow-y-auto overscroll-contain [scrollbar-width:none] border-t border-border pt-2 pb-5 [mask-image:linear-gradient(to_bottom,transparent,black_0.5rem,black_calc(100%-1.25rem),transparent)]"
         >
           {children}
         </ul>
