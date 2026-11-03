@@ -18,6 +18,7 @@ import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
 import { installBuiltinAgent } from "@/server/agents/builtin";
+import { agentCreationInfo } from "@/server/agents/creation";
 import { createAgentFromDraft, draftAgent, type DraftedAgentInput } from "@/server/agents/draft";
 import { duplicateAgent } from "@/server/agents/duplicate";
 import {
@@ -112,6 +113,11 @@ const input = (value: AgentInput): AgentInput => ({
 /** The agents the sidebar lists (sidebar.tsx), again after something changed. */
 export async function sidebarAgentsAction(workspaceId: string) {
   return run(workspaceId, (userId) => sidebarAgents(userId, workspaceId));
+}
+
+/** What the sidebar's New agent needs to open the same dialogs as Settings > Agents. */
+export async function agentCreationAction(workspaceId: string) {
+  return run(workspaceId, (userId) => agentCreationInfo(userId, workspaceId));
 }
 
 export async function createAgentAction(workspaceId: string, value: AgentInput) {

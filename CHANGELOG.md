@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Added
+
+- **The agents tab in the sidebar is a place of its own: groups, dragging and New agent.** Put
+  agents in groups of your own, drag agents and groups into the order you want (or move them from
+  their menus: right click or ⋯), fold, rename and remove groups, and sort by name; the grouping is
+  yours alone and follows you to every device. Each row shows what the agent does, *Off* for one
+  that is turned off, a pulse while a run of your chat with it is going and a count of runs waiting
+  for your answer, refreshed every 15 seconds while the tab is open. **+** in the tab's heading makes
+  an agent from scratch or from a description the AI drafts, as Settings → Agents does, and a
+  filter box appears from six agents on. The agents under your pages follow the same groups.
+
 ## 0.7.1 — 2026-11-03
 
 ### Upgrading from 0.7.0

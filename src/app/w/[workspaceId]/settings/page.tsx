@@ -109,7 +109,7 @@ import { getMailSettings } from "@/server/row-mail/settings";
 import { storageNoticeOf, type StorageNotice } from "@/lib/workspace-storage";
 import { getStorageSettings } from "@/server/storage/settings";
 import { listAgents } from "@/server/agents/manage";
-import { canCreateAgents } from "@/server/agents/sharing";
+import { agentCreationInfo } from "@/server/agents/creation";
 import { proposedNoteCounts } from "@/server/agents/memory";
 import { webSearchService } from "@/server/agents/web";
 import { listConnections } from "@/server/connections/manage";
@@ -796,31 +796,26 @@ async function GroupsTab({ workspaceId, userId, viewerRole }: { workspaceId: str
  * runs; members see the list (they pick agents in automations). Each agent opens on its own page.
  */
 async function AgentsTab({ workspaceId, userId, isOwner }: { workspaceId: string; userId: string; isOwner: boolean }) {
-  const [agents, settings, proposals, canCreate] = await Promise.all([
+  const [agents, settings, proposals, creation] = await Promise.all([
     listAgents(userId, workspaceId, { archived: true }),
     getWorkspaceSettings(userId, workspaceId),
     proposedNoteCounts(userId, workspaceId),
-    canCreateAgents(userId, workspaceId),
+    agentCreationInfo(userId, workspaceId),
   ]);
   // Templates that start from a connection's events are for owners: the connections are theirs.
-  const templates = canCreate ? (await getLocale().then(builtinAgents)).filter((item) => isOwner || !isEventAgentKey(item.key)) : [];
-  const info = await aiInfoFor(workspaceId);
-  const ai = !info ? "unavailable" : settings.ai === false ? "off" : "on";
-  // Agents choose a model only where it makes a difference: the server has a fast model, and the
-  // workspace's AI isn't an own AI account (which has one model).
-  const models = info?.fastModel ? { main: info.model, fast: info.fastModel } : null;
+  const templates = creation.canCreate ? (await getLocale().then(builtinAgents)).filter((item) => isOwner || !isEventAgentKey(item.key)) : [];
   return (
     <AgentsPanel
       workspaceId={workspaceId}
       isOwner={isOwner}
       creation={settings.agentCreation}
-      canCreate={canCreate}
+      canCreate={creation.canCreate}
       agents={agents}
       proposals={proposals}
-      webSearch={webSearchService() !== null}
+      webSearch={creation.webSearch}
       templates={templates}
-      ai={ai}
-      models={models}
+      ai={creation.ai}
+      models={creation.models}
     />
   );
 }

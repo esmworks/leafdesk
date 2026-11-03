@@ -13,6 +13,7 @@ import {
   CloudOff,
   BookOpen,
   Bot,
+  ArrowDownAZ,
   Database,
   ExternalLink,
   FileText,
@@ -38,12 +39,13 @@ import {
   SquarePen,
   Trash2,
   Upload,
+  FolderPlus,
   Users,
   Waypoints,
   HardDriveDownload,
 } from "lucide-react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { listFavoritesAction } from "@/app/actions/page-menu";
@@ -54,6 +56,7 @@ import { setSidebarLayoutAction } from "@/app/actions/workspaces";
 import type { SettingsSearchItem } from "@/lib/settings-search";
 import type { FavoritePage } from "@/server/page-meta";
 import type { SidebarAgent } from "@/server/agents/manage";
+import type { AgentCreationInfo } from "@/server/agents/creation";
 import { useChannel } from "@/components/collab/use-channel";
 import { ViewIcon } from "@/components/database/property-icons";
 import { markNewPage } from "@/components/page/new-page-focus";
@@ -61,7 +64,6 @@ import { DailyNotesCalendar, JournalStartPicker, useOpenDailyNote } from "@/comp
 import { cn, IconButton, MenuItem, MenuSeparator, PageIcon, pageLabel, Popover } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import type { PageKind } from "@/db/schema/app";
-import { agentPagePath } from "@/lib/agent-page";
 import { authClient } from "@/lib/auth-client";
 import { closeOfflineDocs } from "@/components/collab/socket";
 import { useIsOffline } from "@/components/offline/offline-context";
@@ -92,6 +94,9 @@ import type { JoinableWorkspace } from "@/server/join-requests";
 import { JoinableWorkspaces } from "./joinable-workspaces";
 import { PRIVATE_SECTION, SHARED_SECTION, type TreeSection } from "@/lib/tree-sections";
 import { sidebarOrder, withSection, type SidebarLayout, type SidebarSection } from "@/lib/sidebar-sections";
+import { addGroup, settled, sortByName, type AgentArrangement } from "@/lib/agent-arrangement";
+import { agentSettingsPath } from "@/lib/agent-settings";
+import { AgentList, newGroupId } from "./agent-list";
 import { CustomizeSections } from "./customize-sections";
 import { TeamspaceDialog } from "@/components/teamspaces/teamspace-dialog";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
@@ -118,6 +123,7 @@ const InboxDialog = lazyPart(() => import("./inbox-dialog").then((m) => m.InboxD
 const AccountMenu = lazyPart(() => import("./account-menu").then((m) => m.AccountMenu));
 const ReminderPrompt = lazyPart(() => import("./reminder-prompt").then((m) => m.ReminderPrompt));
 const ArrivalCards = lazyPart(() => import("./arrival-cards").then((m) => m.ArrivalCards));
+const NewAgentDialog = lazyPart(() => import("./new-agent").then((m) => m.NewAgentDialog));
 // Loaded the first time the Mail tab opens: most people open it now and then.
 const MailSidebar = lazyPart(() => import("@/components/mail/mail-sidebar").then((m) => m.MailSidebar));
 // Loaded the first time the import dialog opens, with the readers of every format it takes.
@@ -132,6 +138,8 @@ const TEAMSPACES_GROUP: SidebarSection = "teamspaces";
 const FAVORITES_SECTION: SidebarSection = "favorites";
 const PAGES_SECTION: SidebarSection = "pages";
 const AGENTS_SECTION: SidebarSection = "agents";
+/** How often the agents list reads its runs again while it is open. */
+const AGENT_COUNTS_MS = 15_000;
 /** Top-level pages "Private" and "Shared" show before a "More" row. */
 const SECTION_LIMIT = 10;
 /** A teamspace this many people are in asks before a page is added at its top, once per browser (WIDE_ADD_KEY). */
@@ -181,6 +189,7 @@ export function Sidebar({
   topLevel,
   initialLayout,
   initialAgents = [],
+  canCreateAgents = false,
   user,
   joinable = [],
   mail = false,
@@ -206,6 +215,8 @@ export function Sidebar({
   initialLayout: SidebarLayout;
   /** The agents they may talk to: each opens its chat. */
   initialAgents?: SidebarAgent[];
+  /** They may create agents here: the agents tab offers New agent. */
+  canCreateAgents?: boolean;
   user: { id: string; name: string; email: string; image: string | null };
   /** They have a mailbox here and email is on: the Mail tab (server/mail-client). */
   mail?: boolean;
@@ -213,6 +224,7 @@ export function Sidebar({
   const router = useRouter();
   const t = useTranslations("sidebar");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const pathname = usePathname();
   const activeId = /\/p\/([\w-]+)/.exec(pathname)?.[1] ?? null;
   const searchParams = useSearchParams();
@@ -238,6 +250,10 @@ export function Sidebar({
   const [teamspaceDialog, setTeamspaceDialog] = useState<{ teamspace?: TeamspaceSummary } | null>(null);
   const [favorites, setFavorites] = useState(initialFavorites);
   const [agents, setAgents] = useState(initialAgents);
+  // The agents' group whose name is being written, and the New agent dialog with what it needs.
+  const [renamingAgentGroup, setRenamingAgentGroup] = useState<string | null>(null);
+  const [agentCreation, setAgentCreation] = useState<AgentCreationInfo | null>(null);
+  const [newAgent, setNewAgent] = useState<"blank" | "describe" | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const [searchOpen, setSearchOpen] = useState(false);
   // What the search box opens with: a tag clicked in a page (OPEN_SEARCH_EVENT), else nothing.
@@ -582,6 +598,16 @@ export function Sidebar({
   const panelShown = !collapsed || !!sidebar?.drawerOpen;
   const [peekTab, setPeekTab] = useState<SidebarTab | null>(null);
   const shownTab = (collapsed && peekTab) || tab;
+  // The runs of the agents' list move on while it is open: its counts are read again every so often.
+  useEffect(() => {
+    if (shownTab !== "agents" || offline) return;
+    const timer = window.setInterval(() => {
+      read("sidebarAgents", workspaceId)
+        .then((result) => result.ok && setAgents(result.data))
+        .catch(() => {});
+    }, AGENT_COUNTS_MS);
+    return () => window.clearInterval(timer);
+  }, [shownTab, offline, workspaceId]);
   const peekTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(peekTimer.current), []);
   function hoverTab(next: SidebarTab) {
@@ -656,6 +682,22 @@ export function Sidebar({
       // Offline or failed, it still applies here until the next load; folding isn't worth an error.
       .catch(() => {})
       .finally(() => savingLayout.current--);
+  }
+
+  /** Saves how the person grouped and ordered the agents' list (lib/agent-arrangement.ts), for them alone. */
+  const arrangeAgentList = (next: AgentArrangement) => saveLayout({ agents: settled(agents, next) });
+  function newAgentGroup() {
+    const id = newGroupId();
+    arrangeAgentList(addGroup(settled(agents, layout.agents), id, t("agentList.groupDefault")));
+    setRenamingAgentGroup(id);
+  }
+  const sortAgentsByName = () => arrangeAgentList(sortByName(settled(agents, layout.agents), new Map(agents.map((a) => [a.id, a.name])), locale));
+  /** What New agent's dialogs need (whether the AI can draft one), read as its menu first opens. */
+  function loadAgentCreation() {
+    if (agentCreation) return;
+    read("agentCreation", workspaceId)
+      .then((result) => (result.ok ? setAgentCreation(result.data) : setNewAgent(null)))
+      .catch(() => setNewAgent(null));
   }
 
   const sectionLabel = (key: SidebarSection) =>
@@ -983,26 +1025,6 @@ export function Sidebar({
 
   if (isSettingsPath(pathname)) return null;
 
-  // Each opens its chat.
-  const agentList = (
-    <ul className="space-y-px">
-      {agents.map((agent) => (
-        <li key={agent.id}>
-          <Link
-            href={agentPagePath(workspaceId, agent.id)}
-            aria-current={pathname === agentPagePath(workspaceId, agent.id) ? "page" : undefined}
-            className="flex h-7 items-center gap-0.5 rounded-md ps-1 hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg"
-          >
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center">
-              {agent.icon ? <IconGlyph icon={agent.icon} className="text-sm" /> : <Bot className="h-4 w-4 text-fg-muted" aria-hidden />}
-            </span>
-            <span className="truncate ps-0.5">{agent.name}</span>
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-
   // Each section as it shows (or null when it has nothing to show), placed in the person's order.
   const sectionContent: Record<SidebarSection, React.ReactNode> = {
     favorites: favorites.length > 0 && (
@@ -1221,7 +1243,7 @@ export function Sidebar({
           </IconButton>
         }
       >
-        {agentList}
+        <AgentList agents={agents} workspaceId={workspaceId} activePath={pathname} arrangement={layout.agents} compact />
       </SectionGroup>
     ),
   };
@@ -1307,14 +1329,110 @@ export function Sidebar({
         <SquarePen className="h-4 w-4" />
       </IconButton>
     ) : (
-      <IconButton
-        label={t("sections.manageAgents")}
-        title={t("sections.manageAgents")}
-        onClick={() => router.push(`/w/${workspaceId}/settings?tab=agents`)}
-        className={headButton}
-      >
-        <MoreHorizontal className="h-4 w-4" />
-      </IconButton>
+      <>
+        {canCreateAgents && (
+          <Popover
+            align="end"
+            trigger={({ open, toggle }) => (
+              <IconButton
+                label={t("agentList.newAgent")}
+                title={needsServer(t("agentList.newAgent")) ?? t("agentList.newAgent")}
+                onClick={() => {
+                  loadAgentCreation();
+                  toggle();
+                }}
+                aria-expanded={open}
+                disabled={offline}
+                className={cn(headButton, open && "bg-bg-active text-fg")}
+              >
+                <Plus className="h-4 w-4" />
+              </IconButton>
+            )}
+          >
+            {(close) => (
+              <div className="w-60">
+                <MenuItem
+                  icon={<SquarePen className="h-4 w-4" />}
+                  onClick={() => {
+                    close();
+                    setNewAgent("blank");
+                  }}
+                >
+                  {t("agentList.newBlank")}
+                </MenuItem>
+                <MenuItem
+                  icon={<Sparkles className="h-4 w-4" />}
+                  disabled={agentCreation?.ai !== "on"}
+                  onClick={() => {
+                    close();
+                    setNewAgent("describe");
+                  }}
+                >
+                  {t("agentList.newDescribe")}
+                </MenuItem>
+                <MenuItem
+                  icon={<LayoutTemplate className="h-4 w-4" />}
+                  onClick={() => {
+                    close();
+                    router.push(`/w/${workspaceId}/settings?tab=agents`);
+                  }}
+                >
+                  {t("agentList.newTemplate")}
+                </MenuItem>
+              </div>
+            )}
+          </Popover>
+        )}
+        <Popover
+          align="end"
+          trigger={({ open, toggle }) => (
+            <IconButton
+              label={t("agentList.listActions")}
+              title={t("agentList.listActions")}
+              onClick={toggle}
+              aria-expanded={open}
+              className={cn(headButton, open && "bg-bg-active text-fg")}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </IconButton>
+          )}
+        >
+          {(close) => (
+            <div className="w-56">
+              <MenuItem
+                icon={<FolderPlus className="h-4 w-4" />}
+                disabled={offline || agents.length === 0}
+                onClick={() => {
+                  close();
+                  newAgentGroup();
+                }}
+              >
+                {t("agentList.newGroup")}
+              </MenuItem>
+              <MenuItem
+                icon={<ArrowDownAZ className="h-4 w-4" />}
+                disabled={offline || agents.length < 2}
+                onClick={() => {
+                  close();
+                  sortAgentsByName();
+                }}
+              >
+                {t("agentList.sortByName")}
+              </MenuItem>
+              <MenuSeparator />
+              <MenuItem
+                icon={<Settings className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  router.push(`/w/${workspaceId}/settings?tab=agents`);
+                }}
+              >
+                {t("sections.manageAgents")}
+              </MenuItem>
+            </div>
+          )}
+        </Popover>
+      </>
     );
 
   return (
@@ -1591,7 +1709,16 @@ export function Sidebar({
               ) : shownTab === "chat" && aiChat ? (
                 <ConversationList />
               ) : shownTab === "agents" ? (
-                agentList
+                <AgentList
+                  agents={agents}
+                  workspaceId={workspaceId}
+                  activePath={pathname}
+                  arrangement={layout.agents}
+                  onArrange={offline ? undefined : arrangeAgentList}
+                  renamingGroup={renamingAgentGroup}
+                  onRenamingGroup={setRenamingAgentGroup}
+                  navigate={router.push}
+                />
               ) : shownTab === "journal" ? (
                 <>
                   <div className="px-1 pb-3">
@@ -1692,6 +1819,22 @@ export function Sidebar({
         ]}
       />
       <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      {newAgent && agentCreation && (
+        <NewAgentDialog
+          workspaceId={workspaceId}
+          kind={newAgent}
+          info={agentCreation}
+          onClose={() => setNewAgent(null)}
+          onCreated={(agent, kind) => {
+            setNewAgent(null);
+            read("sidebarAgents", workspaceId)
+              .then((result) => result.ok && setAgents(result.data))
+              .catch(() => {});
+            // Next, as Settings > Agents goes on: what a blank one may open, or a drafted one's settings.
+            router.push(agentSettingsPath(workspaceId, agent.id, kind === "blank" ? "access" : "settings"));
+          }}
+        />
+      )}
       {inboxMounted && (
         <InboxDialog
           workspaceId={workspaceId}
