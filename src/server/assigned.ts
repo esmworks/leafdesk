@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseProperty, page, type PageKind, type SelectOption } from "@/db/schema";
-import { ASSIGNED_GROUPS, groupAssigned, type AssignedGroupKey } from "@/lib/assigned";
+import { ASSIGNED_GROUPS, assignedGroup, groupAssigned, type AssignedGroupKey } from "@/lib/assigned";
 import { dateDays } from "@/lib/date-value";
 import { atLeast } from "@/lib/property-access";
 import { firstDoneOption, isDoneStatus, optionOf } from "@/lib/properties";
@@ -96,6 +96,20 @@ export async function assignedRows(
     for (const item of shown) item.markable = item.markable && editable.has(pageOf(item));
   }
   return { groups: groupAssigned(shown, today), total: items.length, counts };
+}
+
+/**
+ * How many of the person's open rows and to-dos (as `assignedRows` counts them) are overdue and
+ * due today, for the sidebar's My tasks: no rows read for showing, nor their edit access.
+ */
+export async function dueAssignedCount(userId: string, workspaceId: string, today: string, timeZone = "UTC"): Promise<{ overdue: number; today: number }> {
+  const [rows, tasks] = await Promise.all([openAssignedRows(userId, workspaceId, timeZone), openPageTasks(userId, workspaceId, timeZone)]);
+  const due = { overdue: 0, today: 0 };
+  for (const item of [...rows, ...tasks]) {
+    const group = assignedGroup(item.date, today, item.endDate);
+    if (group === "overdue" || group === "today") due[group]++;
+  }
+  return due;
 }
 
 /**

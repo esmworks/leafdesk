@@ -159,8 +159,14 @@ import { gzipSync } from "node:zlib";
  * The chat list's marks for an answer waiting for its person or not seen yet, with marking a
  * conversation seen as it shows, are in every workspace page's first load (the sidebar's chat tab
  * and the panel): under 1 kB to all first loads together, which stood at its budget.
+ * The sidebar's agents tab as a place of its own (groups, dragging, New agent; the same list under
+ * the pages tab) adds about 4 kB to a page's route and to all first loads together, which stood at
+ * their budgets.
+ * The sidebar's g then a letter and the rail's marks (due tasks, a chat or agent waiting) work on
+ * every workspace page, so they sit in its first load: about 2 kB to a page's route and 1 kB to all
+ * first loads together.
  */
-const BUDGET = { routeFirstLoad: 798, firstLoadShared: 1234, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1239, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

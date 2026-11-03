@@ -394,5 +394,16 @@
     "show": "Vis {section}",
     "hide": "Skjul {section}",
     "done": "Færdig"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Et svar bliver skrevet",
+      "accent": "Et svar venter på din beslutning",
+      "new": "Et nyt svar"
+    },
+    "agentsWaiting": "En agent venter på din beslutning",
+    "agentWaiting": "venter på din beslutning",
+    "tasksOverdue": "{count, plural, one {# opgave er forsinket} other {# opgaver er forsinkede}}",
+    "tasksToday": "{count, plural, one {# opgave forfalder i dag} other {# opgaver forfalder i dag}}"
   }
 }

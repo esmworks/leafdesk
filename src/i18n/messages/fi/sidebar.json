@@ -394,5 +394,16 @@
     "show": "Näytä {section}",
     "hide": "Piilota {section}",
     "done": "Valmis"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Vastausta kirjoitetaan",
+      "accent": "Vastaus odottaa päätöstäsi",
+      "new": "Uusi vastaus"
+    },
+    "agentsWaiting": "Agentti odottaa päätöstäsi",
+    "agentWaiting": "odottaa päätöstäsi",
+    "tasksOverdue": "{count, plural, one {# tehtävä myöhässä} other {# tehtävää myöhässä}}",
+    "tasksToday": "{count, plural, one {# tehtävä erääntyy tänään} other {# tehtävää erääntyy tänään}}"
   }
 }

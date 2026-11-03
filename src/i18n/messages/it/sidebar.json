@@ -394,5 +394,16 @@
     "show": "Mostra {section}",
     "hide": "Nascondi {section}",
     "done": "Fine"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Una risposta è in scrittura",
+      "accent": "Una risposta attende la tua decisione",
+      "new": "Una nuova risposta"
+    },
+    "agentsWaiting": "Un agente attende la tua decisione",
+    "agentWaiting": "attende la tua decisione",
+    "tasksOverdue": "{count, plural, one {# attività in ritardo} other {# attività in ritardo}}",
+    "tasksToday": "{count, plural, one {# attività in scadenza oggi} other {# attività in scadenza oggi}}"
   }
 }

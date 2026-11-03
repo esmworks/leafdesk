@@ -394,5 +394,16 @@
     "show": "{section} bölümünü göster",
     "hide": "{section} bölümünü gizle",
     "done": "Bitti"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Bir cevap yazılıyor",
+      "accent": "Bir cevap kararını bekliyor",
+      "new": "Yeni bir cevap"
+    },
+    "agentsWaiting": "Bir ajan kararını bekliyor",
+    "agentWaiting": "kararını bekliyor",
+    "tasksOverdue": "{count, plural, one {# görevin süresi geçti} other {# görevin süresi geçti}}",
+    "tasksToday": "{count, plural, one {# görev bugün bitmeli} other {# görev bugün bitmeli}}"
   }
 }

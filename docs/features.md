@@ -50,6 +50,15 @@
   pointing at a place slides the panel out with that place's list, and clicking one brings the
   panel back. Drag the panel's edge to make it wider. ↑ and ↓ move between the rail's places. On a
   phone both come in a drawer.
+  The rail tells what waits in each place: *Mail* counts unread mail; *My tasks* counts your tasks
+  overdue and due today (red when any is overdue, read every few minutes); *Chat* shows a dot while
+  an answer is written, an accent dot when one waits for your decision and a plain dot for an answer
+  you haven't read; *Agents* an accent dot when one of their calls waits for you (workspace owners
+  answer them), with the same dot beside that agent in the list.
+  Press `g` and then a letter to go to a place without the mouse: `h` Home, `t` My tasks, `m`
+  Meetings, `j` Journal, `c` Chat, `e` Mail, `a` Agents, `i` the inbox, `s` Settings. While `g`
+  waits for the letter, each place shows its letter on its corner. Not in text fields; on the Mail
+  page `g` with `i`, `s`, `d`, `a` or `t` opens that folder instead.
 - **Home page**: quick buttons for a new page, database or template; four figures of your own
   (open tasks, overdue, due this week, changes waiting for your approval), each opening where you
   deal with them; the workspace's **dashboard**, the same widgets as a dashboard block (numbers,

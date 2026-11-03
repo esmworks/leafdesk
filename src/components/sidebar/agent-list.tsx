@@ -560,19 +560,25 @@ function GroupNameInput({ name, label, onDone }: { name: string; label: string; 
   );
 }
 
-/** A running dot, and a count of runs waiting for an answer, on the row's end. */
+/**
+ * A running dot, and a count of runs waiting for an answer, on the row's end; a dot for a run of
+ * someone else's waiting for the owner's decision.
+ */
 function AgentState({ agent }: { agent: SidebarAgent }) {
-  const t = useTranslations("sidebar.agentList");
+  const t = useTranslations("sidebar");
   if (agent.waiting > 0) {
     return (
       <span className="shrink-0 rounded-full bg-accent px-1.5 text-[11px] leading-4 font-semibold text-white tabular-nums">
-        <span className="sr-only">{t("waiting", { count: agent.waiting })}</span>
+        <span className="sr-only">{t("agentList.waiting", { count: agent.waiting })}</span>
         <span aria-hidden>{agent.waiting > 99 ? "99+" : agent.waiting}</span>
       </span>
     );
   }
+  if (agent.approval) {
+    return <span className="size-1.5 shrink-0 rounded-full bg-accent" role="img" aria-label={t("rail.agentWaiting")} title={t("rail.agentWaiting")} />;
+  }
   if (agent.active > 0) {
-    return <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-accent" role="img" aria-label={t("running")} title={t("running")} />;
+    return <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-accent" role="img" aria-label={t("agentList.running")} title={t("agentList.running")} />;
   }
   return null;
 }

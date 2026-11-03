@@ -34,7 +34,7 @@ const { archivePage, createPage } = await import("@/server/pages");
 const { setPagePermission } = await import("@/server/permissions");
 const { setPropertyAccess } = await import("@/server/property-access");
 const { createRowTemplate, saveAsTemplate } = await import("@/server/templates");
-const { ASSIGNED_LIMIT, assignedRows } = await import("@/server/assigned");
+const { ASSIGNED_LIMIT, assignedRows, dueAssignedCount } = await import("@/server/assigned");
 const { AccessError } = await import("@/server/access");
 const { createAssignedCalendarFeed, deleteAssignedCalendarFeed, getAssignedCalendarFeed, readCalendarFeed } = await import(
   "@/server/calendar-feeds"
@@ -123,6 +123,8 @@ try {
     titles(asMember),
   );
   check(asMember.total === 6, "the total counts the open rows", asMember.total);
+  const due = await dueAssignedCount(ids.member, workspaceId, today);
+  check(due.overdue === 1 && due.today === 1, "the sidebar's count takes the overdue rows and those due today", due);
   const first = asMember.groups[0].rows[0];
   check(
     first.type === "row" && first.id === overdue.id && first.date === day(-1) && first.status?.name === "Not started" && first.databaseTitle === "Tasks",

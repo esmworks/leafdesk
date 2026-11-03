@@ -394,5 +394,16 @@
     "show": "Afficher {section}",
     "hide": "Masquer {section}",
     "done": "Terminé"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Une réponse est en cours d’écriture",
+      "accent": "Une réponse attend votre décision",
+      "new": "Une nouvelle réponse"
+    },
+    "agentsWaiting": "Un agent attend votre décision",
+    "agentWaiting": "attend votre décision",
+    "tasksOverdue": "{count, plural, one {# tâche en retard} other {# tâches en retard}}",
+    "tasksToday": "{count, plural, one {# tâche à faire aujourd’hui} other {# tâches à faire aujourd’hui}}"
   }
 }

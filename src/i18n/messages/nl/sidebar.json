@@ -394,5 +394,16 @@
     "show": "{section} tonen",
     "hide": "{section} verbergen",
     "done": "Klaar"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Er wordt een antwoord geschreven",
+      "accent": "Een antwoord wacht op je beslissing",
+      "new": "Een nieuw antwoord"
+    },
+    "agentsWaiting": "Een agent wacht op je beslissing",
+    "agentWaiting": "wacht op je beslissing",
+    "tasksOverdue": "{count, plural, one {# taak te laat} other {# taken te laat}}",
+    "tasksToday": "{count, plural, one {# taak vandaag te doen} other {# taken vandaag te doen}}"
   }
 }

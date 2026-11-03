@@ -394,5 +394,16 @@
     "show": "Hiện {section}",
     "hide": "Ẩn {section}",
     "done": "Xong"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Đang viết câu trả lời",
+      "accent": "Một câu trả lời đang chờ bạn quyết định",
+      "new": "Câu trả lời mới"
+    },
+    "agentsWaiting": "Một tác tử đang chờ bạn quyết định",
+    "agentWaiting": "đang chờ bạn quyết định",
+    "tasksOverdue": "{count, plural, other {# việc quá hạn}}",
+    "tasksToday": "{count, plural, other {# việc đến hạn hôm nay}}"
   }
 }

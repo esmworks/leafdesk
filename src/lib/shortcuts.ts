@@ -46,6 +46,26 @@ export const SAVE_VERSION_COMBO = ["Mod", "S"] as const satisfies Combo;
 /** Starts and finishes dictating at the caret (lib/dictation pressesDictate, components/page/dictation.tsx). */
 export const DICTATE_COMBO = ["Mod", "Shift", "D"] as const satisfies Combo;
 
+/** How long after g its second key still counts (the sidebar's places, the Mail tab's folders). */
+export const GO_MS = 1500;
+
+/**
+ * g then one of these opens a place of the sidebar's rail (components/sidebar/sidebar.tsx): a tab
+ * of its panel, a page of its own, the inbox or the settings.
+ */
+export const RAIL_GO_KEYS = {
+  home: "H",
+  tasks: "T",
+  meetings: "M",
+  journal: "J",
+  chat: "C",
+  mail: "E",
+  agents: "A",
+  inbox: "I",
+  settings: "S",
+} as const;
+export type RailPlace = keyof typeof RAIL_GO_KEYS;
+
 export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
   {
     id: "general",
@@ -75,6 +95,16 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "findNext", combos: [["Mod", "G"], ["Enter"]] },
       { id: "findPrevious", combos: [["Mod", "Shift", "G"], ["Shift", "Enter"]] },
       { id: "replaceAll", combos: [["Mod", "Enter"]] },
+      // components/sidebar/sidebar.tsx, outside text fields (railGoPlace).
+      { id: "goHome", combos: [["G", RAIL_GO_KEYS.home]], sequence: true },
+      { id: "goTasks", combos: [["G", RAIL_GO_KEYS.tasks]], sequence: true },
+      { id: "goMeetings", combos: [["G", RAIL_GO_KEYS.meetings]], sequence: true },
+      { id: "goJournal", combos: [["G", RAIL_GO_KEYS.journal]], sequence: true },
+      { id: "goChat", combos: [["G", RAIL_GO_KEYS.chat]], sequence: true },
+      { id: "goMail", combos: [["G", RAIL_GO_KEYS.mail]], sequence: true },
+      { id: "goAgents", combos: [["G", RAIL_GO_KEYS.agents]], sequence: true },
+      { id: "goInbox", combos: [["G", RAIL_GO_KEYS.inbox]], sequence: true },
+      { id: "goSettings", combos: [["G", RAIL_GO_KEYS.settings]], sequence: true },
     ],
   },
   {
@@ -277,4 +307,40 @@ export function opensToggleAll(e: KeyEventLike, mac: boolean): boolean {
 export function cellGridShortcut(e: KeyEventLike, mac: boolean): "fillDown" | null {
   if (e.defaultPrevented || e.isComposing) return null;
   return pressed(e, FILL_DOWN_COMBO.join("+"), mac) ? "fillDown" : null;
+}
+
+/** Not typed into a field or the editor, nor into a dialog or a menu (whose letters find its items), nor with a modifier. */
+function forPage(e: KeyEventLike): boolean {
+  if (e.defaultPrevented || e.isComposing || e.metaKey || e.ctrlKey || e.altKey) return false;
+  const target = e.target as Element | null;
+  return !isEditable(target) && !(typeof target?.closest === "function" && target.closest("[data-dialog], [role=menu], [role=listbox]"));
+}
+
+/** The letter a key types, in lower case; Turkish keyboards type ı and İ for the I key. */
+export function goLetter(key: string): string {
+  return key === "ı" || key === "İ" ? "i" : key.toLowerCase();
+}
+
+/** Whether a key press is g, outside text fields and dialogs: the first key of "go to". */
+export function startsGo(e: KeyEventLike & { repeat?: boolean }): boolean {
+  return !e.repeat && goLetter(e.key) === "g" && !e.shiftKey && forPage(e);
+}
+
+// The letters the Mail tab takes after g for its folders (its mailGo* shortcuts).
+const MAIL_GO_LETTERS = new Set(
+  SHORTCUT_GROUPS.flatMap((group) => (group.id === "mail" ? group.shortcuts : []))
+    .filter((shortcut) => shortcut.sequence)
+    .map((shortcut) => shortcut.combos[0][1].toLowerCase()),
+);
+
+/**
+ * The rail place that a key pressed after g opens (RAIL_GO_KEYS), or null. On the Mail tab the
+ * letters it takes for its folders are left to it.
+ */
+export function railGoPlace(e: KeyEventLike, onMailTab: boolean): RailPlace | null {
+  if (e.shiftKey || !forPage(e)) return null;
+  const letter = goLetter(e.key);
+  if (onMailTab && MAIL_GO_LETTERS.has(letter)) return null;
+  const place = (Object.keys(RAIL_GO_KEYS) as RailPlace[]).find((key) => RAIL_GO_KEYS[key].toLowerCase() === letter);
+  return place ?? null;
 }

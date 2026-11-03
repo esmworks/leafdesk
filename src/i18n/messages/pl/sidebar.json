@@ -394,5 +394,16 @@
     "show": "Pokaż {section}",
     "hide": "Ukryj {section}",
     "done": "Gotowe"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Odpowiedź jest pisana",
+      "accent": "Odpowiedź czeka na Twoją decyzję",
+      "new": "Nowa odpowiedź"
+    },
+    "agentsWaiting": "Agent czeka na Twoją decyzję",
+    "agentWaiting": "czeka na Twoją decyzję",
+    "tasksOverdue": "{count, plural, one {# zadanie po terminie} few {# zadania po terminie} many {# zadań po terminie} other {# zadania po terminie}}",
+    "tasksToday": "{count, plural, one {# zadanie na dziś} few {# zadania na dziś} many {# zadań na dziś} other {# zadania na dziś}}"
   }
 }

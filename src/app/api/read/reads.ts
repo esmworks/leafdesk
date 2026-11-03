@@ -1,4 +1,5 @@
 import { agentChatInfoAction, agentChatTurnAction, agentThreadAction, agentThreadRunsAction, getAgentConversationAction, searchAgentChatsAction } from "@/app/actions/agent-chat";
+import { dueTasksAction } from "@/app/actions/assigned";
 import { agentCreationAction, agentMailboxesAction, pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
@@ -34,6 +35,7 @@ export const READS = {
   dueReminders: dueRemindersAction,
   arrivals: arrivalsAction,
   pendingCount: pendingCountAction,
+  dueTasks: dueTasksAction,
   runProposals: runProposalsAction,
   sidebarAgents: sidebarAgentsAction,
   agentCreation: agentCreationAction,

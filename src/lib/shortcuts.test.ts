@@ -7,9 +7,11 @@ import {
   opensPresentation,
   opensShortcuts,
   opensToggleAll,
+  railGoPlace,
   rowMenuShortcut,
   savesVersion,
   SHORTCUT_GROUPS,
+  startsGo,
 } from "./shortcuts";
 import { SUBSCRIPT, SUPERSCRIPT, TEXT_SCRIPT_SHORTCUTS } from "./text-scripts";
 
@@ -75,6 +77,41 @@ describe("opensShortcuts", () => {
   it("leaves keys something else handled, and text being composed", () => {
     expect(opensShortcuts(press("/", { metaKey: true, defaultPrevented: true }), true)).toBe(false);
     expect(opensShortcuts(press("?", { isComposing: true }, element(false)), false)).toBe(false);
+  });
+});
+
+/** An element inside (or not) something matching a selector the check asks about. */
+const inside = (match: (selector: string) => boolean) => ({ isContentEditable: false, closest: (selector: string) => (match(selector) ? {} : null) });
+
+describe("g then a letter", () => {
+  const page = element(false);
+
+  it("starts on g outside text fields, dialogs and menus, not held down or with a modifier", () => {
+    expect(startsGo(press("g", {}, page))).toBe(true);
+    expect(startsGo(press("g", {}, element(true)))).toBe(false);
+    expect(startsGo(press("g", {}, inside((s) => s.includes("[data-dialog]"))))).toBe(false);
+    expect(startsGo(press("g", {}, inside((s) => s.includes("[role=menu]"))))).toBe(false);
+    expect(startsGo(press("g", { repeat: true } as Partial<KeyboardEvent>, page))).toBe(false);
+    expect(startsGo(press("G", { shiftKey: true }, page))).toBe(false);
+    expect(startsGo(press("g", { metaKey: true }, page))).toBe(false);
+    expect(startsGo(press("g", { defaultPrevented: true }, page))).toBe(false);
+  });
+
+  it("opens the rail's places by their letters, ı and İ being the I key", () => {
+    expect(railGoPlace(press("h", {}, page), false)).toBe("home");
+    expect(railGoPlace(press("t", {}, page), false)).toBe("tasks");
+    expect(railGoPlace(press("e", {}, page), false)).toBe("mail");
+    expect(railGoPlace(press("ı", {}, page), false)).toBe("inbox");
+    expect(railGoPlace(press("İ", {}, page), false)).toBe("inbox");
+    expect(railGoPlace(press("x", {}, page), false)).toBeNull();
+    expect(railGoPlace(press("h", {}, element(true)), false)).toBeNull();
+    expect(railGoPlace(press("h", { ctrlKey: true }, page), false)).toBeNull();
+  });
+
+  it("leaves the Mail tab its folder letters there", () => {
+    for (const letter of ["i", "s", "d", "a", "t"]) expect(railGoPlace(press(letter, {}, page), true)).toBeNull();
+    expect(railGoPlace(press("h", {}, page), true)).toBe("home");
+    expect(railGoPlace(press("c", {}, page), true)).toBe("chat");
   });
 });
 

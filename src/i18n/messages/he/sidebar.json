@@ -394,5 +394,16 @@
     "show": "הצגת {section}",
     "hide": "הסתרת {section}",
     "done": "סיום"
+  },
+  "rail": {
+    "chat": {
+      "busy": "תשובה נכתבת",
+      "accent": "תשובה ממתינה להחלטה שלך",
+      "new": "תשובה חדשה"
+    },
+    "agentsWaiting": "סוכן ממתין להחלטה שלך",
+    "agentWaiting": "ממתין להחלטה שלך",
+    "tasksOverdue": "{count, plural, one {משימה אחת באיחור} two {שתי משימות באיחור} other {# משימות באיחור}}",
+    "tasksToday": "{count, plural, one {משימה אחת להיום} two {שתי משימות להיום} other {# משימות להיום}}"
   }
 }

@@ -394,5 +394,16 @@
     "show": "{section}を表示",
     "hide": "{section}を非表示",
     "done": "完了"
+  },
+  "rail": {
+    "chat": {
+      "busy": "回答を作成中",
+      "accent": "回答があなたの判断を待っています",
+      "new": "新しい回答"
+    },
+    "agentsWaiting": "エージェントがあなたの判断を待っています",
+    "agentWaiting": "あなたの判断待ち",
+    "tasksOverdue": "{count, plural, other {期限切れのタスク：#件}}",
+    "tasksToday": "{count, plural, other {今日が期限のタスク：#件}}"
   }
 }

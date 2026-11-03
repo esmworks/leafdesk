@@ -29,6 +29,7 @@ import {
 import type { MailSection, SenderRuleKind } from "@/lib/mail-senders";
 import { senderDomain } from "@/lib/sender-domain";
 import { highlightParts } from "@/lib/search-highlight";
+import { GO_MS, goLetter } from "@/lib/shortcuts";
 import type { ComposeMode } from "./compose-start";
 import { loadAhead } from "./mail-cache";
 import { countUnread, loadMailboxes, mailHref, onCompose, pickOpen, putFolders, putMailbox, useMailboxes, useWhen, type MailOpen } from "./mail-store";
@@ -50,7 +51,6 @@ const MOVES: MailAction[] = ["archive", "trash", "junk", "inbox", "move", "snooz
 const STAYS_STARRED: MailAction[] = ["archive", "inbox", "move"];
 /** g then one of these opens the mailbox's folder of that role, within GO_MS of the g. */
 const GO_KEYS: Record<string, MailFolderView["role"]> = { i: "inbox", s: "sent", d: "drafts", a: "archive", t: "trash" };
-const GO_MS = 1500;
 /** Messages shown in the list are loaded ahead from the top, at most this many. */
 const AHEAD_TOP = 8;
 const aheadOf = (item: MailThreadItem) => loadAhead([item.messageId]);
@@ -695,7 +695,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
       if (!forPage(e)) return;
       if (Date.now() - goPressed.current < GO_MS) {
         goPressed.current = 0;
-        const role = GO_KEYS[e.key];
+        const role = GO_KEYS[goLetter(e.key)];
         // In all inboxes, g i goes to them; the other folders are the default mailbox's.
         const to = role && !(all && role === "inbox") && box?.folders?.find((f) => f.role === role);
         if (!role || (!to && !all)) return;
@@ -704,9 +704,9 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
         go(to ? { box: box!.id, f: to.id, t: null, q: null, c: null } : { f: null, t: null, q: null, c: null });
         return;
       }
+      // Left to the page too: the sidebar's g then a letter starts with it (lib/shortcuts.ts railGoPlace).
       if (e.key === "g") {
         goPressed.current = Date.now();
-        e.preventDefault();
         return;
       }
       const at = items.findIndex((i) => isOpen(i) || (!!draftId && i.messageId === draftId));

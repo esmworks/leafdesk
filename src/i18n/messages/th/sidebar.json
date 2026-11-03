@@ -394,5 +394,16 @@
     "show": "แสดง {section}",
     "hide": "ซ่อน {section}",
     "done": "เสร็จสิ้น"
+  },
+  "rail": {
+    "chat": {
+      "busy": "กำลังเขียนคำตอบ",
+      "accent": "คำตอบรอการตัดสินใจของคุณ",
+      "new": "คำตอบใหม่"
+    },
+    "agentsWaiting": "เอเจนต์รอการตัดสินใจของคุณ",
+    "agentWaiting": "รอการตัดสินใจของคุณ",
+    "tasksOverdue": "{count, plural, other {งานเลยกำหนด # รายการ}}",
+    "tasksToday": "{count, plural, other {งานครบกำหนดวันนี้ # รายการ}}"
   }
 }

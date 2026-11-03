@@ -612,6 +612,9 @@ because they are separate module graphs.
   (`[data-sidebar-panel]`) that collapsing hides; the room for macOS's window buttons goes on the
   strip in globals.css, never on the `<aside>`, and with the panel hidden the tab strip runs over
   the rail's top (`desktop-tab-strip.tsx` reports no room then), so the strip starts below it.
+  g then a letter opens a rail place (`lib/shortcuts.ts` `RAIL_GO_KEYS`, `railGoPlace`): g is taken
+  as it bubbles, the letter in the capture phase, so a page's own single keys never see it; the
+  Mail tab's folder letters (its `mailGo*` shortcuts) stay its own there.
   Avatar initials are upper-cased by the page's locale (`lib/presence.ts` `initialOf`): a bare
   `toLocaleUpperCase()` differs between the server and a Turkish browser ("iOS" → "I" / "İ") and
   fails hydration.

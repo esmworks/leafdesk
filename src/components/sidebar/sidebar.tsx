@@ -85,7 +85,7 @@ import { REMINDER_EVENT } from "@/lib/reminder-event";
 import { FAVORITES_EVENT } from "@/lib/favorites-event";
 import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/import-spreadsheet-event";
 import { OPEN_SEARCH_EVENT } from "@/lib/search-open";
-import { isMac, opensShortcuts } from "@/lib/shortcuts";
+import { GO_MS, isMac, opensShortcuts, RAIL_GO_KEYS, railGoPlace, startsGo, type RailPlace } from "@/lib/shortcuts";
 import { ShortcutsDialog } from "@/components/shortcuts-dialog";
 import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
 import type { TreeNode } from "@/server/pages";
@@ -101,13 +101,15 @@ import { CustomizeSections } from "./customize-sections";
 import { TeamspaceDialog } from "@/components/teamspaces/teamspace-dialog";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { ConversationList } from "@/components/ai-chat/conversation-list";
+import { useAnswering, useWaiting } from "@/components/ai-chat/answering";
+import { conversationStatus } from "@/lib/chat-status";
 import { chatPath, isChatPath } from "@/lib/ai-chat";
 import { NewWorkspaceDialog } from "./new-workspace-dialog";
 import { SearchDialog } from "./search-dialog";
 import { inlineSign } from "@/components/direction";
 import { SIDEBAR_WIDTH } from "@/lib/sidebar-layout";
 import { isSettingsPath, useSidebar } from "./sidebar-context";
-import { RailCount, railIconClass, railItemClass, railSelectedClass, RailTabs, type RailTab } from "./sidebar-rail";
+import { RailCount, railIconClass, railItemClass, RailKey, railSelectedClass, RailTabs, type RailTab } from "./sidebar-rail";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
@@ -175,6 +177,12 @@ type SidebarTab = "home" | "journal" | "chat" | "mail" | "agents";
 const TAB_ICONS: Record<SidebarTab, typeof House> = { home: House, journal: BookOpen, chat: MessagesSquare, mail: MailIcon, agents: Bot };
 /** How long the pointer rests on a rail item before the hidden panel peeks out with what it shows. */
 const PEEK_DELAY = 120;
+/** Keys pressed alone on the way to another (Shift for a capital): they leave a waiting g be. */
+const MODIFIER_KEYS = new Set(["Shift", "Control", "Alt", "Meta", "CapsLock", "AltGraph"]);
+/** How often the rail's My tasks count is read again while the window is shown. */
+const DUE_TASKS_MS = 5 * 60_000;
+/** How often the conversations are read for the rail's Chat mark while the chat isn't shown. */
+const CHAT_MARK_MS = 2 * 60_000;
 
 export function Sidebar({
   workspaceId,
@@ -504,6 +512,48 @@ export function Sidebar({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // g then a letter opens a place of the rail (lib/shortcuts.ts RAIL_GO_KEYS); while g waits, the
+  // rail shows each place's letter. g is taken as it bubbles, after what it was typed into had its
+  // say (a table cell opens with it); the second key while it is caught, before the page's own
+  // keys (a row panel's j, the Mail tab's e). On the Mail tab its folder letters stay its own.
+  const [goShown, setGoShown] = useState(false);
+  const goTo = useRef<(place: RailPlace) => boolean>(() => false);
+  const onMailTab = useRef(false);
+  useEffect(() => {
+    let armedAt = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const disarm = () => {
+      armedAt = 0;
+      clearTimeout(timer);
+      setGoShown(false);
+    };
+    const onSecond = (e: KeyboardEvent) => {
+      if (!armedAt || MODIFIER_KEYS.has(e.key) || startsGo(e)) return;
+      const place = Date.now() - armedAt < GO_MS ? railGoPlace(e, onMailTab.current) : null;
+      disarm();
+      if (place && goTo.current(place)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    const onFirst = (e: KeyboardEvent) => {
+      if (!startsGo(e)) return;
+      armedAt = Date.now();
+      setGoShown(true);
+      clearTimeout(timer);
+      timer = setTimeout(disarm, GO_MS);
+    };
+    window.addEventListener("keydown", onSecond, true);
+    window.addEventListener("keydown", onFirst);
+    window.addEventListener("blur", disarm);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", onSecond, true);
+      window.removeEventListener("keydown", onFirst);
+      window.removeEventListener("blur", disarm);
+    };
+  }, []);
+
   // Pages by parent; the tops of the sections under `@<section>`.
   const children = useMemo(() => {
     const map = new Map<string, TreeNode[]>();
@@ -608,6 +658,56 @@ export function Sidebar({
     }, AGENT_COUNTS_MS);
     return () => window.clearInterval(timer);
   }, [shownTab, offline, workspaceId]);
+  // Overdue rows and to-dos and those due today, on My tasks: read as the sidebar comes, every few
+  // minutes and as the window comes back (a heavier read than the inbox's, so not on its signals).
+  const [dueTasks, setDueTasks] = useState({ overdue: 0, today: 0 });
+  useEffect(() => {
+    if (offline) return;
+    let current = true;
+    const count = () => {
+      if (document.visibilityState !== "visible") return;
+      read("dueTasks", workspaceId)
+        .then((due) => current && setDueTasks(due))
+        .catch(() => {});
+    };
+    count();
+    const timer = setInterval(count, DUE_TASKS_MS);
+    document.addEventListener("visibilitychange", count);
+    return () => {
+      current = false;
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", count);
+    };
+  }, [offline, workspaceId]);
+  // The conversations, for the Chat mark: the chat's list reads them while it is shown, so here
+  // only as the sidebar comes, now and then while it isn't, and as the window comes back.
+  const refreshConversations = aiChat?.refreshConversations;
+  const chatListShown = !!aiChat && shownTab === "chat";
+  useEffect(() => {
+    if (!refreshConversations || offline || chatListShown) return;
+    const again = () => {
+      if (document.visibilityState === "visible") void refreshConversations();
+    };
+    again();
+    const timer = setInterval(again, CHAT_MARK_MS);
+    document.addEventListener("visibilitychange", again);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", again);
+    };
+  }, [refreshConversations, offline, chatListShown]);
+  const answering = useAnswering();
+  const waiting = useWaiting();
+  const chatMark = useMemo(() => {
+    let mark: "busy" | "accent" | "new" | null = null;
+    for (const c of aiChat?.conversations ?? []) {
+      const status = conversationStatus(c, { answering: answering.has(c.id), waiting: waiting.has(c.id) }, c.id === aiChat?.shownConversation);
+      if (status === "waiting") return "accent";
+      if (status === "unread") mark = "new";
+      else if (status === "answering" && !mark) mark = "busy";
+    }
+    return mark;
+  }, [aiChat?.conversations, aiChat?.shownConversation, answering, waiting]);
   const peekTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(peekTimer.current), []);
   function hoverTab(next: SidebarTab) {
@@ -1268,24 +1368,58 @@ export function Sidebar({
       disabled: unreachable || (key === "journal" && openingDailyNote),
       title: unreachable ? needsServer(label) : undefined,
       count: key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) } : undefined,
+      dot:
+        key === "chat" && chatMark ? { tone: chatMark, label: t(`rail.chat.${chatMark}`) }
+        : key === "agents" && agents.some((a) => a.waiting > 0 || a.approval) ? { tone: "accent", label: t("rail.agentsWaiting") }
+        : undefined,
+      goKey: RAIL_GO_KEYS[key],
       onClick: () => pickTab(key),
       onHover: () => hoverTab(key),
       onLeave: leaveTab,
     };
   };
-  const pageTab = (key: string, label: string, Icon: typeof House, path: string): RailTab => ({
+  const pageTab = (key: "tasks" | "meetings", label: string, Icon: typeof House, path: string, count?: RailTab["count"]): RailTab => ({
     key,
     label,
     icon: <Icon className={railIconClass} />,
     selected: pathname === path,
+    count,
+    goKey: RAIL_GO_KEYS[key],
     onClick: () => router.push(path),
   });
+  const due = dueTasks.overdue + dueTasks.today;
+  const dueCount: RailTab["count"] =
+    due > 0
+      ? {
+          value: due,
+          tone: dueTasks.overdue > 0 ? "danger" : "accent",
+          label: [
+            dueTasks.overdue > 0 && t("rail.tasksOverdue", { count: dueTasks.overdue }),
+            dueTasks.today > 0 && t("rail.tasksToday", { count: dueTasks.today }),
+          ]
+            .filter(Boolean)
+            .join(", "),
+        }
+      : undefined;
   const railTabs: RailTab[] = [
     panelTab("home"),
-    pageTab("tasks", t("sections.tasks"), ListTodo, tasksPath),
+    pageTab("tasks", t("sections.tasks"), ListTodo, tasksPath, dueCount),
     pageTab("meetings", t("sections.meetings"), NotebookPen, meetingsPath),
     ...tabs.filter((key) => key !== "home").map(panelTab),
   ];
+  onMailTab.current = onMailPage;
+  goTo.current = (place) => {
+    if (place === "inbox") {
+      if (offline) return false;
+      setInboxOpen(true);
+    } else if (place === "settings") router.push(`/w/${workspaceId}/settings`);
+    else {
+      const target = railTabs.find((tab) => tab.key === place);
+      if (!target || target.disabled) return false;
+      target.onClick();
+    }
+    return true;
+  };
   const panelTitle = shownTab === "home" ? t("pages.heading") : tabLabel(shownTab);
   const headButton = "h-7 w-7 disabled:opacity-50";
   // What the open tab starts: a page (with its other ways in), today's note, a chat, a message.
@@ -1561,7 +1695,7 @@ export function Sidebar({
               <Search className={railIconClass} />
             </button>
             <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none]">
-              <RailTabs label={t("tabs.label")} tabs={railTabs} />
+              <RailTabs label={t("tabs.label")} tabs={railTabs} goKeys={goShown} />
             </div>
             {/* Hides the panel or brings it back, in the same place either way (⌘\ too); on phones it closes the drawer. */}
             {sidebar && (
@@ -1584,20 +1718,22 @@ export function Sidebar({
               onClick={() => setInboxOpen(true)}
               disabled={offline}
               aria-label={unread > 0 ? `${t("nav.inbox")} · ${t("inbox.unreadCount", { count: unread })}` : t("nav.inbox")}
-              title={needsServer(t("nav.inbox")) ?? t("nav.inbox")}
+              title={needsServer(t("nav.inbox")) ?? `${t("nav.inbox")} (G ${RAIL_GO_KEYS.inbox})`}
               className={cn(railItemClass, inboxOpen && railSelectedClass)}
             >
               <Inbox className={railIconClass} />
               {unread > 0 && <RailCount value={unread} tone="accent" selected={inboxOpen} />}
+              {goShown && !offline && <RailKey letter={RAIL_GO_KEYS.inbox} />}
             </button>
             <Link
               href={`/w/${workspaceId}/settings`}
               aria-label={t("nav.settings")}
-              title={t("nav.settings")}
+              title={`${t("nav.settings")} (G ${RAIL_GO_KEYS.settings})`}
               aria-current={onSettings ? "page" : undefined}
               className={cn(railItemClass, onSettings && railSelectedClass)}
             >
               <Settings className={railIconClass} />
+              {goShown && <RailKey letter={RAIL_GO_KEYS.settings} />}
             </Link>
             {/* Who is signed in, opening what is used now and then. */}
             <Popover

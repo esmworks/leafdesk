@@ -12,6 +12,14 @@
   for your answer, refreshed every 15 seconds while the tab is open. **+** in the tab's heading makes
   an agent from scratch or from a description the AI drafts, as Settings → Agents does, and a
   filter box appears from six agents on. The agents under your pages follow the same groups.
+- **`g` and a letter go to a place of the sidebar.** `g h` Home, `g t` My tasks, `g m` Meetings,
+  `g j` Journal, `g c` Chat, `g e` Mail, `g a` Agents, `g i` the inbox and `g s` Settings, outside
+  text fields; while `g` waits, each place on the rail shows its letter. On the Mail page its own
+  folder letters keep working. The keys are in the keyboard shortcuts list, under *Navigation*.
+- **The sidebar's rail tells what waits in each place.** *My tasks* counts your tasks overdue and
+  due today (red when one is overdue), *Chat* carries the conversation marks (an answer being
+  written, waiting for your decision, or new) even while another place is open, and *Agents* a dot
+  when an agent's call waits for your approval, also beside that agent in its list.
 
 ## 0.7.1 — 2026-11-03
 

@@ -9,7 +9,7 @@
  * (`page_access_level` gives guests nothing from teamspaces, groups or "everyone"), and it's never
  * given full access. Archiving keeps the user, so what the agent did keeps its name.
  */
-import { and, count, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent, type AgentRunRow } from "@/db/schema";
 import { MAX_AGENT_MAIL_RECIPIENTS, parseMailRecipients } from "@/lib/agent-mail";
@@ -47,7 +47,7 @@ import { agentTargets } from "@/lib/automations";
 import { isDailyChangeLimit, MAX_DAILY_CHANGES, parseQuietHours, type QuietHours } from "@/lib/quiet-hours";
 import { ICON_RULE, parseIcon } from "@/lib/icon";
 import type { AgentLevel, AgentShareLevel } from "@/lib/agent-sharing";
-import { AccessError, pageAccessOf, pageVisibleTo, requireMember } from "@/server/access";
+import { AccessError, pageAccessOf, pageVisibleTo, requireMember, workspaceOwnerIds } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
@@ -55,6 +55,7 @@ import { recordAgentVersion, withoutVersions } from "./version-record";
 import { checkHelperIds, dropHelper, helperIdsOf, saveHelpers } from "./helpers";
 import { agentLevels, agentWithLevel, requireAgentCreator, shareNewAgent } from "./sharing";
 
+import { runsAnsweredBy } from "./approvers";
 import { AgentError } from "./errors";
 
 export { AgentError, type AgentErrorCode } from "./errors";
@@ -242,6 +243,8 @@ export type SidebarAgent = {
   active: number;
   /** Runs waiting for an answer to a change they want to make. */
   waiting: number;
+  /** One of its runs, anyone's, waits for the viewer's decision on a call as an owner (approvers.ts). */
+  approval?: true;
 };
 
 /**
@@ -251,8 +254,9 @@ export type SidebarAgent = {
  */
 export async function sidebarAgents(userId: string, workspaceId: string): Promise<SidebarAgent[]> {
   let agents: AgentView[];
+  let approvals: Set<string>;
   try {
-    agents = await listAgents(userId, workspaceId);
+    [agents, approvals] = await Promise.all([listAgents(userId, workspaceId), agentsWaitingOn(userId, workspaceId)]);
   } catch (error) {
     if (error instanceof AccessError) return [];
     throw error;
@@ -286,8 +290,32 @@ export async function sidebarAgents(userId: string, workspaceId: string): Promis
       edits: editsAgent(a),
       active: c?.active ?? 0,
       waiting: c?.waiting ?? 0,
+      ...(approvals.has(a.id) && { approval: true as const }),
     };
   });
+}
+
+/**
+ * The agents of a workspace with a run waiting for `userId` to answer its call: only owners answer
+ * them (approvers.ts), each those runsAnsweredBy gives them. Calls an owner's rule lets go once
+ * quiet hours end wait for no one.
+ */
+async function agentsWaitingOn(userId: string, workspaceId: string): Promise<Set<string>> {
+  if (!(await workspaceOwnerIds(workspaceId)).includes(userId)) return new Set();
+  const runs = await db
+    .select({ id: agentRun.id, agentId: agentRun.agentId, source: agentRun.source })
+    .from(agentRun)
+    .where(
+      and(
+        eq(agentRun.status, "awaiting_approval"),
+        eq(agentRun.workspaceId, workspaceId),
+        isNotNull(agentRun.agentId),
+        sql`${agentRun.pending}->>'deferredUntil' is null`,
+      ),
+    );
+  if (!runs.length) return new Set();
+  const answered = await runsAnsweredBy(userId, runs);
+  return new Set(runs.flatMap((r) => (r.agentId && answered.has(r.id) ? [r.agentId] : [])));
 }
 
 /** The names of the workspace's agents (archived ones too), for naming them where they are used (automations): for owners and members. */

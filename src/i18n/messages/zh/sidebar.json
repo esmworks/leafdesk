@@ -394,5 +394,16 @@
     "show": "显示{section}",
     "hide": "隐藏{section}",
     "done": "完成"
+  },
+  "rail": {
+    "chat": {
+      "busy": "正在撰写回答",
+      "accent": "有回答等待你的决定",
+      "new": "新回答"
+    },
+    "agentsWaiting": "有智能体等待你的决定",
+    "agentWaiting": "等待你的决定",
+    "tasksOverdue": "{count, plural, other {# 项任务已逾期}}",
+    "tasksToday": "{count, plural, other {# 项任务今天到期}}"
   }
 }

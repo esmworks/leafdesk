@@ -394,5 +394,16 @@
     "show": "نمایش {section}",
     "hide": "پنهان کردن {section}",
     "done": "انجام شد"
+  },
+  "rail": {
+    "chat": {
+      "busy": "پاسخی در حال نوشته شدن است",
+      "accent": "پاسخی منتظر تصمیم شماست",
+      "new": "پاسخ تازه"
+    },
+    "agentsWaiting": "عاملی منتظر تصمیم شماست",
+    "agentWaiting": "منتظر تصمیم شماست",
+    "tasksOverdue": "{count, plural, one {# کار عقب افتاده} other {# کار عقب افتاده}}",
+    "tasksToday": "{count, plural, one {# کار سررسید امروز} other {# کار سررسید امروز}}"
   }
 }

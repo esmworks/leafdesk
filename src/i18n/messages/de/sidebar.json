@@ -394,5 +394,16 @@
     "show": "{section} anzeigen",
     "hide": "{section} ausblenden",
     "done": "Fertig"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Eine Antwort wird geschrieben",
+      "accent": "Eine Antwort wartet auf deine Entscheidung",
+      "new": "Eine neue Antwort"
+    },
+    "agentsWaiting": "Ein Agent wartet auf deine Entscheidung",
+    "agentWaiting": "wartet auf deine Entscheidung",
+    "tasksOverdue": "{count, plural, one {# Aufgabe überfällig} other {# Aufgaben überfällig}}",
+    "tasksToday": "{count, plural, one {# Aufgabe heute fällig} other {# Aufgaben heute fällig}}"
   }
 }

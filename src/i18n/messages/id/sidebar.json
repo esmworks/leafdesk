@@ -394,5 +394,16 @@
     "show": "Tampilkan {section}",
     "hide": "Sembunyikan {section}",
     "done": "Selesai"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Jawaban sedang ditulis",
+      "accent": "Jawaban menunggu keputusan Anda",
+      "new": "Jawaban baru"
+    },
+    "agentsWaiting": "Agen menunggu keputusan Anda",
+    "agentWaiting": "menunggu keputusan Anda",
+    "tasksOverdue": "{count, plural, other {# tugas terlambat}}",
+    "tasksToday": "{count, plural, other {# tugas jatuh tempo hari ini}}"
   }
 }

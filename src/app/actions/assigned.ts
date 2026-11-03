@@ -1,7 +1,8 @@
 "use server";
 
-import { getTranslations } from "next-intl/server";
-import { markAssignedDone } from "@/server/assigned";
+import { getTimeZone, getTranslations } from "next-intl/server";
+import { dayString, localDay } from "@/lib/time-zone";
+import { dueAssignedCount, markAssignedDone } from "@/server/assigned";
 import { updateRowProperties } from "@/server/databases";
 import { setPageTaskChecked } from "@/server/page-tasks";
 import { requireUserId } from "@/server/session";
@@ -21,6 +22,22 @@ function checkRef(item: unknown): AssignedItemRef {
   if (raw.type === "row" && isText(raw.rowId)) return { type: "row", rowId: raw.rowId };
   if (raw.type === "pageTask" && isText(raw.pageId) && isText(raw.blockId)) return { type: "pageTask", pageId: raw.pageId, blockId: raw.blockId };
   throw new Error("Invalid item");
+}
+
+/**
+ * How many of the user's open rows and to-dos are overdue and due today on their calendar day
+ * (the sidebar's My tasks, read through `/api/read`). Nothing for someone the workspace doesn't
+ * list rows for (a guest) or when the count fails: it is only a mark.
+ */
+export async function dueTasksAction(workspaceId: string): Promise<{ overdue: number; today: number }> {
+  const userId = await requireUserId();
+  if (!isText(workspaceId)) throw new Error("Invalid workspace");
+  const timeZone = await getTimeZone();
+  try {
+    return await dueAssignedCount(userId, workspaceId, dayString(localDay(Date.now(), timeZone)), timeZone);
+  } catch {
+    return { overdue: 0, today: 0 };
+  }
 }
 
 /**

@@ -394,5 +394,16 @@
     "show": "Visa {section}",
     "hide": "Dölj {section}",
     "done": "Klar"
+  },
+  "rail": {
+    "chat": {
+      "busy": "Ett svar skrivs",
+      "accent": "Ett svar väntar på ditt beslut",
+      "new": "Ett nytt svar"
+    },
+    "agentsWaiting": "En agent väntar på ditt beslut",
+    "agentWaiting": "väntar på ditt beslut",
+    "tasksOverdue": "{count, plural, one {# uppgift är försenad} other {# uppgifter är försenade}}",
+    "tasksToday": "{count, plural, one {# uppgift ska vara klar i dag} other {# uppgifter ska vara klara i dag}}"
   }
 }

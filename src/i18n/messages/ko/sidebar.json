@@ -394,5 +394,16 @@
     "show": "{section} 표시",
     "hide": "{section} 숨기기",
     "done": "완료"
+  },
+  "rail": {
+    "chat": {
+      "busy": "답변을 작성하는 중",
+      "accent": "답변이 결정을 기다리고 있음",
+      "new": "새 답변"
+    },
+    "agentsWaiting": "에이전트가 결정을 기다리고 있음",
+    "agentWaiting": "결정을 기다리는 중",
+    "tasksOverdue": "{count, plural, other {기한이 지난 작업 #개}}",
+    "tasksToday": "{count, plural, other {오늘 마감인 작업 #개}}"
   }
 }
