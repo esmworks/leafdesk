@@ -35,7 +35,7 @@ export function MeetingsList({ workspaceId, meetings, now }: { workspaceId: stri
     <div className="page-gutter pt-[4.25rem] pb-12">
       <header className="mb-6 flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold leading-tight md:text-3xl">{t("heading")}</h1>
+          <h1 className="font-display text-2xl leading-tight tracking-tight md:text-3xl">{t("heading")}</h1>
           <p className="mt-2 text-sm text-fg-muted">{t("description")}</p>
         </div>
         <Button variant="primary" onClick={() => void create()} disabled={creating}>

@@ -27,7 +27,7 @@ export function RailCount({ value, tone, selected }: { value: number; tone: "acc
       className={cn(
         "absolute -top-0.5 -end-0.5 min-w-3.5 rounded-full px-[3px] text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums ring-2",
         tone === "accent" ? "bg-accent" : "bg-danger",
-        selected ? "ring-bg-active" : "ring-bg-subtle",
+        selected ? "ring-bg-active" : "ring-bg",
       )}
     >
       {countText(value)}
@@ -47,7 +47,7 @@ export function RailDot({ tone, selected }: { tone: "accent" | "new" | "busy"; s
         "absolute top-0.5 end-0.5 h-2 w-2 rounded-full ring-2",
         tone === "accent" ? "bg-accent" : "bg-fg",
         tone === "busy" && "motion-safe:animate-pulse",
-        selected ? "ring-bg-active" : "ring-bg-subtle",
+        selected ? "ring-bg-active" : "ring-bg",
       )}
     />
   );

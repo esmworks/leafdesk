@@ -977,7 +977,7 @@ export function ActiveRulesBar({
           type="button"
           title={t("activeRules.saveTitle")}
           onClick={onSave}
-          className="inline-flex h-6 items-center gap-1 rounded-md bg-accent px-2 font-medium text-accent-fg hover:opacity-90"
+          className="inline-flex h-6 items-center gap-1 rounded-md bg-primary px-2 font-medium text-primary-fg hover:opacity-90"
         >
           <Check className="h-3 w-3" />
           {t("activeRules.save")}

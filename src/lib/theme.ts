@@ -21,4 +21,4 @@ export function isContrast(value: unknown): value is Contrast {
 }
 
 /** The browser bar's color in each theme: the page background (see globals.css). */
-export const THEME_COLORS: Record<Theme, string> = { light: "#ffffff", dark: "#18191b" };
+export const THEME_COLORS: Record<Theme, string> = { light: "#ffffff", dark: "#151515" };

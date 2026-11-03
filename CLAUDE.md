@@ -603,8 +603,8 @@ because they are separate module graphs.
   tab, and when something is a dialog or a page of its own (with sections down its side, like an
   agent's settings, `components/settings/agent-editor.tsx`).
 - **Styling.** Use the tokens in `src/app/globals.css` (`bg-bg`, `text-fg-muted`, `border-border`,
-  `bg-accent` …) and the `dark:`, `rtl:` and `high-contrast:` variants. `src/components/ui.tsx` is a
-  client module: server components may render its components but must not call `cn()` from it
+  `bg-accent` …; a primary action is `bg-primary text-primary-fg`, accent is for state and links)
+  and the `dark:`, `rtl:` and `high-contrast:` variants. `src/components/ui.tsx` is a client module: server components may render its components but must not call `cn()` from it
   (they keep a local `cn`). Something fixed to the window's top edge (a side panel, a full-window
   view) starts at `top-(--app-top)`: on macOS the desktop app lays its tab strip over the page
   beside the sidebar, where `components/desktop-tab-strip.tsx` tells it (`desktop/src/windows.ts`).

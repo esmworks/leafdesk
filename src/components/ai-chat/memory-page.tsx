@@ -122,7 +122,7 @@ export function MemoryPage({
       </div>
 
       <header className="mt-4 md:mt-6">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+        <h1 className="font-display text-2xl tracking-tight">{t("title")}</h1>
         <p className="mt-1.5 max-w-[640px] text-sm text-fg-muted">{t("pageIntro")}</p>
         {off && <p className="mt-3 max-w-[640px] rounded-lg bg-bg-subtle px-4 py-3 text-[13px] text-fg-muted">{t("workspaceOff")}</p>}
       </header>

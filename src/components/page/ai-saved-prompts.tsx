@@ -113,7 +113,7 @@ export function SavePromptForm({ prompts, prompt, onDone }: { prompts: SavedProm
       <button
         type="submit"
         disabled={busy || !name.trim()}
-        className="inline-flex h-7 items-center rounded-md bg-accent px-2 text-xs font-medium text-accent-fg hover:opacity-90 disabled:opacity-50"
+        className="inline-flex h-7 items-center rounded-md bg-primary px-2 text-xs font-medium text-primary-fg hover:opacity-90 disabled:opacity-50"
       >
         {t("save")}
       </button>

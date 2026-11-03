@@ -48,7 +48,7 @@ export function AgentPage({
         <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-bg-subtle text-4xl">
           <AgentGlyph icon={agent.icon} />
         </span>
-        <h1 className="text-2xl font-semibold tracking-tight break-words">{agent.name}</h1>
+        <h1 className="font-display text-2xl tracking-tight break-words">{agent.name}</h1>
         {agent.description && <p className="mt-2 max-w-2xl text-sm text-fg-muted">{agent.description}</p>}
       </div>
       {settings}

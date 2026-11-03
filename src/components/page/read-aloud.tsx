@@ -204,7 +204,7 @@ export function ReadAloud({ root, title, onClose }: { root: HTMLElement | null; 
             type="button"
             aria-label={playing ? t("pause") : t("play")}
             title={playing ? t("pause") : t("play")}
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-accent-fg hover:opacity-90 disabled:opacity-50"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-fg hover:opacity-90 disabled:opacity-50"
             disabled={!parts.length}
             onClick={() => (playing ? stop() : playAt(index))}
           >

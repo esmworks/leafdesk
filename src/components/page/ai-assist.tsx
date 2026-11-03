@@ -472,7 +472,7 @@ function PanelButton({ children, onClick, primary }: { children: ReactNode; onCl
       onClick={onClick}
       className={cn(
         "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors",
-        primary ? "bg-accent text-accent-fg hover:opacity-90" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
+        primary ? "bg-primary text-primary-fg hover:opacity-90" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
       )}
     >
       {children}

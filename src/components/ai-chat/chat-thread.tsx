@@ -324,7 +324,7 @@ export function ChatThread({
                   <div className="py-6 text-sm text-fg-muted">{emptyText}</div>
                 ) : page ? (
                   <div className="space-y-2 text-center">
-                    <h2 className="text-2xl font-semibold">{t("greeting")}</h2>
+                    <h2 className="font-display text-2xl tracking-tight">{t("greeting")}</h2>
                     <p className="mx-auto max-w-md text-sm text-fg-muted">{t("intro")}</p>
                   </div>
                 ) : (

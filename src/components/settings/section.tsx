@@ -8,7 +8,7 @@ const cn = (...classes: (string | false | undefined)[]) => classes.filter(Boolea
 export function SettingsHeader({ title, description }: { title: string; description?: ReactNode }) {
   return (
     <header className="mb-8">
-      <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+      <h1 className="font-display text-2xl tracking-tight">{title}</h1>
       {description && <p className="mt-2 text-sm text-fg-muted">{description}</p>}
     </header>
   );

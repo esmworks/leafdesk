@@ -9,31 +9,22 @@ import {
   ChevronRight,
   ChevronUp,
   ClipboardCheck,
-  NotebookPen,
   CloudOff,
-  BookOpen,
-  Bot,
   ArrowDownAZ,
   Database,
   ExternalLink,
   FileText,
   Globe,
-  House,
   Inbox,
   Keyboard,
   LayoutTemplate,
   Link2,
-  ListTodo,
   LogOut as LeaveIcon,
   Mail as MailIcon,
-  MessagesSquare,
   MoreHorizontal,
-  PanelLeftClose,
-  PanelLeftOpen,
   Pencil,
   Plus,
   ScrollText,
-  Search,
   Settings,
   Sparkles,
   SquarePen,
@@ -110,6 +101,7 @@ import { inlineSign } from "@/components/direction";
 import { SIDEBAR_WIDTH } from "@/lib/sidebar-layout";
 import { isSettingsPath, useSidebar } from "./sidebar-context";
 import { RailCount, railIconClass, railItemClass, RailKey, railSelectedClass, RailTabs, type RailTab } from "./sidebar-rail";
+import { BookOpenIcon, ChatsIcon, CheckSquareIcon, EnvelopeIcon, GearIcon, HouseIcon, NotebookIcon, RobotIcon, SearchIcon, SidebarIcon, TrayIcon, type RailIcon } from "./rail-icons";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
@@ -174,7 +166,7 @@ type Target = string | null | undefined;
  * there is none, or when it is already the open tab; the agents have no start of their own).
  */
 type SidebarTab = "home" | "journal" | "chat" | "mail" | "agents";
-const TAB_ICONS: Record<SidebarTab, typeof House> = { home: House, journal: BookOpen, chat: MessagesSquare, mail: MailIcon, agents: Bot };
+const TAB_ICONS: Record<SidebarTab, RailIcon> = { home: HouseIcon, journal: BookOpenIcon, chat: ChatsIcon, mail: EnvelopeIcon, agents: RobotIcon };
 /** How long the pointer rests on a rail item before the hidden panel peeks out with what it shows. */
 const PEEK_DELAY = 120;
 /** Keys pressed alone on the way to another (Shift for a capital): they leave a waiting g be. */
@@ -1359,12 +1351,13 @@ export function Sidebar({
     const label = tabLabel(key);
     // Opening the daily notes, the chat or mail takes the server.
     const unreachable = offline && key !== "home" && key !== tab;
+    // On My tasks or Meetings the panel keeps showing its tab; the rail marks the page.
+    const selected = tab === key && !onOwnPage;
     return {
       key,
       label,
-      icon: <Icon className={railIconClass} />,
-      // On My tasks or Meetings the panel keeps showing its tab; the rail marks the page.
-      selected: tab === key && !onOwnPage,
+      icon: <Icon className={railIconClass} filled={selected} />,
+      selected,
       disabled: unreachable || (key === "journal" && openingDailyNote),
       title: unreachable ? needsServer(label) : undefined,
       count: key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) } : undefined,
@@ -1378,10 +1371,10 @@ export function Sidebar({
       onLeave: leaveTab,
     };
   };
-  const pageTab = (key: "tasks" | "meetings", label: string, Icon: typeof House, path: string, count?: RailTab["count"]): RailTab => ({
+  const pageTab = (key: "tasks" | "meetings", label: string, Icon: RailIcon, path: string, count?: RailTab["count"]): RailTab => ({
     key,
     label,
-    icon: <Icon className={railIconClass} />,
+    icon: <Icon className={railIconClass} filled={pathname === path} />,
     selected: pathname === path,
     count,
     goKey: RAIL_GO_KEYS[key],
@@ -1403,8 +1396,8 @@ export function Sidebar({
       : undefined;
   const railTabs: RailTab[] = [
     panelTab("home"),
-    pageTab("tasks", t("sections.tasks"), ListTodo, tasksPath, dueCount),
-    pageTab("meetings", t("sections.meetings"), NotebookPen, meetingsPath),
+    pageTab("tasks", t("sections.tasks"), CheckSquareIcon, tasksPath, dueCount),
+    pageTab("meetings", t("sections.meetings"), NotebookIcon, meetingsPath),
     ...tabs.filter((key) => key !== "home").map(panelTab),
   ];
   onMailTab.current = onMailPage;
@@ -1605,7 +1598,7 @@ export function Sidebar({
           className={cn(
             "flex h-11 shrink-0 items-center border-e border-b border-border bg-bg px-1.5 max-md:h-14",
             // Beside the hidden panel it is the rail's top: its color, no line under it.
-            collapsed && "md:justify-center md:border-b-transparent md:bg-bg-subtle md:px-0",
+            collapsed && "md:justify-center md:border-b-transparent md:px-0",
           )}
         >
           <Popover
@@ -1679,7 +1672,7 @@ export function Sidebar({
           <div
             data-sidebar-rail
             className={cn(
-              "flex w-11 shrink-0 flex-col items-center gap-1 bg-bg-subtle pt-2 pb-2 max-md:w-13 max-md:pb-[calc(var(--safe-bottom)+0.5rem)]",
+              "flex w-11 shrink-0 flex-col items-center gap-1 bg-bg pt-2 pb-2 max-md:w-13 max-md:pb-[calc(var(--safe-bottom)+0.5rem)]",
               // Alone beside the page, its edge is drawn; beside the panel, the panel's own surface is that edge.
               collapsed && "md:border-e md:border-border",
             )}
@@ -1692,7 +1685,7 @@ export function Sidebar({
               title={needsServer(t("nav.search")) ?? `${t("nav.search")} (⌘K)`}
               className={railItemClass}
             >
-              <Search className={railIconClass} />
+              <SearchIcon className={railIconClass} />
             </button>
             <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none]">
               <RailTabs label={t("tabs.label")} tabs={railTabs} goKeys={goShown} />
@@ -1706,11 +1699,7 @@ export function Sidebar({
                 title={`${panelShown ? t("toggle.close") : t("toggle.open")} (⌘\\)`}
                 className={railItemClass}
               >
-                {panelShown ? (
-                  <PanelLeftClose className={cn(railIconClass, "rtl:-scale-x-100")} />
-                ) : (
-                  <PanelLeftOpen className={cn(railIconClass, "rtl:-scale-x-100")} />
-                )}
+                <SidebarIcon className={cn(railIconClass, "rtl:-scale-x-100")} />
               </button>
             )}
             <button
@@ -1721,7 +1710,7 @@ export function Sidebar({
               title={needsServer(t("nav.inbox")) ?? `${t("nav.inbox")} (G ${RAIL_GO_KEYS.inbox})`}
               className={cn(railItemClass, inboxOpen && railSelectedClass)}
             >
-              <Inbox className={railIconClass} />
+              <TrayIcon className={railIconClass} filled={inboxOpen} />
               {unread > 0 && <RailCount value={unread} tone="accent" selected={inboxOpen} />}
               {goShown && !offline && <RailKey letter={RAIL_GO_KEYS.inbox} />}
             </button>
@@ -1732,7 +1721,7 @@ export function Sidebar({
               aria-current={onSettings ? "page" : undefined}
               className={cn(railItemClass, onSettings && railSelectedClass)}
             >
-              <Settings className={railIconClass} />
+              <GearIcon className={railIconClass} filled={onSettings} />
               {goShown && <RailKey letter={RAIL_GO_KEYS.settings} />}
             </Link>
             {/* Who is signed in, opening what is used now and then. */}

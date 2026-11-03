@@ -153,7 +153,7 @@ export function RowTemplatesMenu({
             title={t("menu")}
             aria-expanded={open}
             onClick={toggle}
-            className="inline-flex h-7 items-center justify-center rounded-e-md border-s border-accent-fg/25 bg-accent px-1.5 text-accent-fg hover:opacity-90"
+            className="inline-flex h-7 items-center justify-center rounded-e-md border-s border-primary-fg/25 bg-primary px-1.5 text-primary-fg hover:opacity-90"
           >
             <ChevronDown className="h-3.5 w-3.5" />
           </button>

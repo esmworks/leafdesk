@@ -13,11 +13,12 @@ of room, and nothing drawn that space could do instead.
 
 Two weights only: regular (400) for what is read, medium (500) or semibold (600) for what names
 or is pressed. Color does the rest of the ranking: `text-fg` for content, `text-fg-muted` for what
-explains it, `text-fg-faint` for counts and times.
+explains it, `text-fg-faint` for counts and times. Page titles alone take the display face
+(`font-display`, Roboto Slab), at the regular weight; everything else is the interface's face.
 
 | Role | Class | Used for |
 | --- | --- | --- |
-| Page title | `text-2xl font-semibold text-fg` | The name at the top of a page (an agent, a settings tab) |
+| Page title | `font-display text-2xl tracking-tight text-fg` | The name at the top of a page (an agent, a settings tab, Home's greeting) |
 | Dialog title | `text-lg font-semibold text-fg` | `DialogTitle` |
 | Section title | `text-base font-semibold text-fg` | A part of a page: *Memory*, *Triggers* |
 | Group title | `text-sm font-medium text-fg` | A list's heading inside a section |
@@ -65,6 +66,8 @@ Separate with space first, a filled surface second and a line last.
 - Shadows: none on what sits in the page; `shadow-lg` for menus and cards that float; `dialogShadow`
   for dialogs and panels over a shade.
 - An icon beside a title stands on its own, without a box around it.
+- Icons are drawn with a 1.5 line (`LucideProvider` in `app/layout.tsx`); the rail's own icons
+  (`sidebar/rail-icons.tsx`) are as thin, and the place that is open shows its icon filled.
 
 ## Navigation inside a screen
 
@@ -95,7 +98,9 @@ or focus (always shown on touch). A row is at least 40 px tall.
 
 ## Buttons
 
-- One `primary` button per screen or dialog: the thing the screen is for.
+- One `primary` button per screen or dialog: the thing the screen is for. It is drawn in the text's
+  color (`bg-primary text-primary-fg`); the green accent is left to what is picked, on or done
+  (checkboxes, switches, today) and to links and counts.
 - Something that deletes or forgets is a button (`ghost` with `hover:text-danger`, or `danger` in
   its confirmation), never a text link.
 - An action that isn't available is hidden when the person can never use it, and disabled with a

@@ -42,15 +42,16 @@
   @variant dark {
     color-scheme: dark;
   }
-  /* Warm neutrals: white surfaces on a faintly warm gray, edged by hairlines. */
+  /* Plain neutral grays in layers: the page, a surface a step above it, and a row hovered or
+     picked as a few percent of the text's color over the page, edged by faint hairlines. */
   --bg: #ffffff;
-  --bg-subtle: #f8f8f7;
-  --bg-hover: #f1f1ee;
-  --bg-active: #e9e9e5;
-  --fg: #1d1d1d;
-  --fg-muted: #6b6b69;
-  --fg-faint: #9d9d9a;
-  --border: #e5e6e1;
+  --bg-subtle: #fafafa;
+  --bg-hover: #f4f4f4;
+  --bg-active: #ececec;
+  --fg: #1a1a1a;
+  --fg-muted: #6b6b6b;
+  --fg-faint: #a1a1a1;
+  --border: #ebebeb;
   /* Brand green (brand/): links, primary buttons and focus rings. */
   --accent: #2f7d4f;
   --accent-fg: #ffffff;
@@ -96,14 +97,14 @@
 /* The print view (app/print) stays light in dark mode: see the end of this file. */
 :root:not(:has([data-print-view])) {
   @variant dark {
-    --bg: #161616;
-    --bg-subtle: #1c1c1c;
-    --bg-hover: #252524;
-    --bg-active: #2e2e2c;
+    --bg: #151515;
+    --bg-subtle: #1a1a1a;
+    --bg-hover: #222222;
+    --bg-active: #2b2b2b;
     --fg: #ededed;
-    --fg-muted: #a0a09e;
-    --fg-faint: #6e6e6c;
-    --border: #2a2a28;
+    --fg-muted: #9e9e9e;
+    --fg-faint: #6c6c6c;
+    --border: #272727;
     --accent: #6cc38a;
     --accent-fg: #0d1117;
     --danger: #ef6b6b;
@@ -189,6 +190,52 @@
   }
 }
 
+/*
+ * Page titles' face (the font-display utility): Roboto Slab (Apache 2.0, fonts/roboto-slab), one
+ * variable file per script, each loaded only when a title uses its letters. Scripts it doesn't
+ * draw (Arabic, Hebrew, Thai, Chinese, Japanese, Korean) take the interface's own face.
+ */
+@font-face {
+  font-family: "Roboto Slab";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/roboto-slab/roboto-slab-cyrillic-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+@font-face {
+  font-family: "Roboto Slab";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/roboto-slab/roboto-slab-cyrillic-wght-normal.woff2") format("woff2");
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+@font-face {
+  font-family: "Roboto Slab";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/roboto-slab/roboto-slab-vietnamese-wght-normal.woff2") format("woff2");
+  unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
+}
+@font-face {
+  font-family: "Roboto Slab";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/roboto-slab/roboto-slab-latin-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: "Roboto Slab";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/roboto-slab/roboto-slab-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-subtle: var(--bg-subtle);
@@ -202,6 +249,9 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  /* A primary button: the text's color, so the green is left to what is picked, on, done or a link. */
+  --color-primary: var(--fg);
+  --color-primary-fg: var(--bg);
   --color-danger: var(--danger);
   --color-added-bg: var(--added-bg);
   --color-added-fg: var(--added-fg);
@@ -213,6 +263,7 @@
   --font-sans:
     -apple-system, "SF Pro Text", "SF Pro Display", BlinkMacSystemFont, "Helvetica Neue", system-ui,
     "Segoe UI Variable Text", "Segoe UI", Roboto, "Noto Sans", Arial, var(--font-cjk-sans), sans-serif;
+  --font-display: "Roboto Slab", var(--font-sans);
 }
 
 /*
@@ -1972,3 +2023,4 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 .leafdesk-editor .bn-block-outer {
   scroll-margin-top: 4rem;
 }
+

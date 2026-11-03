@@ -87,7 +87,7 @@ export function SkillLibrary({
     <div className="mx-auto max-w-4xl px-4 pt-14 pb-12 md:px-6 md:pt-12">
       <header className="mb-6 flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1 basis-64">
-          <h1 className="text-2xl font-semibold tracking-tight">{t("heading")}</h1>
+          <h1 className="font-display text-2xl tracking-tight">{t("heading")}</h1>
           <p className="mt-2 max-w-2xl text-sm text-fg-muted">{t("description")}</p>
           {canCreate && <p className="mt-1 max-w-2xl text-sm text-fg-muted">{t("database.hint")}</p>}
         </div>

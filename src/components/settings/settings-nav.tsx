@@ -51,7 +51,7 @@ export function SettingsNav({
           <ArrowLeft className="h-4 w-4 shrink-0 text-fg-icon rtl:-scale-x-100" aria-hidden />
           <span className="truncate">{back.label}</span>
         </Link>
-        <h1 className="mt-3 mb-1 text-2xl font-semibold text-fg md:hidden">{label}</h1>
+        <h1 className="mt-3 mb-1 font-display text-2xl tracking-tight text-fg md:hidden">{label}</h1>
         {search}
         <div className="flex flex-col gap-6 max-md:mt-5 md:-mx-2 md:-mb-2 md:mt-4 md:min-h-0 md:flex-1 md:gap-5 md:overflow-y-auto md:px-2 md:pb-2">
           {groups.map((group) => (

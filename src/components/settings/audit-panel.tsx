@@ -108,7 +108,7 @@ export async function AuditPanel({
             <input id="audit-to" type="date" name="to" defaultValue={filters.to ?? ""} className={fieldClass} />
           </div>
           <div className="flex items-center gap-2">
-            <button type="submit" className={cn(buttonClass, "bg-accent text-accent-fg hover:opacity-90")}>
+            <button type="submit" className={cn(buttonClass, "bg-primary text-primary-fg hover:opacity-90")}>
               {t("apply")}
             </button>
             {filtered && (

@@ -63,7 +63,7 @@ export default async function WorkspaceHome({
     <div className="page-gutter pt-[4.25rem] pb-12">
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-5">
         <div className="space-y-1">
-          <h1 className="text-2xl leading-tight font-semibold tracking-tight md:text-[28px]">{t("hello", { name: user.name.split(/\s+/)[0] })}</h1>
+          <h1 className="font-display text-2xl leading-tight tracking-tight md:text-[28px]">{t("hello", { name: user.name.split(/\s+/)[0] })}</h1>
           <p className="text-sm text-fg-muted">
             {format.dateTime(now, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone })}
           </p>

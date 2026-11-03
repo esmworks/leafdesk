@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
+import { LucideProvider } from "lucide-react";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { DesktopTabStrip } from "@/components/desktop-tab-strip";
@@ -75,7 +76,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div aria-hidden data-status-band />
         <NextIntlClientProvider messages={clientMessages(messages)}>
           <ThemeProvider theme={theme}>
-            <LocalModeProvider localMode={env.localMode}>{children}</LocalModeProvider>
+            {/* Icons drawn with a 1.5 line, as thin as the rail's (sidebar/rail-icons.tsx); one that sets its own keeps it. */}
+            <LucideProvider strokeWidth={1.5}>
+              <LocalModeProvider localMode={env.localMode}>{children}</LocalModeProvider>
+            </LucideProvider>
             <TimeZoneCookie />
             <StaleDeploymentReload />
             <AppShellSetup />

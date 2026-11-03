@@ -90,7 +90,7 @@ function UrlForm({
           aria-label={t(kind === "bookmark" ? "bookmark.placeholder" : "embed.placeholder")}
           className="h-7 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-fg-faint"
         />
-        <button type="submit" className="shrink-0 rounded-md bg-accent px-2.5 py-1 text-xs font-medium text-accent-fg hover:opacity-90">
+        <button type="submit" className="shrink-0 rounded-md bg-primary px-2.5 py-1 text-xs font-medium text-primary-fg hover:opacity-90">
           {t(kind === "bookmark" ? "bookmark.submit" : "embed.submit")}
         </button>
       </div>

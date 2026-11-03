@@ -23,6 +23,13 @@
 
 ### Changed
 
+- **A calmer look across the app.** Surfaces are plain neutral grays in layers, rows hovered or
+  picked take a lighter tint and lines are fainter; the sidebar's rail shares the page's
+  background. Page titles (Home's greeting, My tasks, Meetings, Settings, agents, the chat's
+  greeting) are set in Roboto Slab, bundled with the app. The rail's icons are thinner and the
+  place that is open shows its icon filled, and icons everywhere are drawn with a thinner line.
+  Primary buttons are drawn in the text's color (black, white in the dark theme); green stays for
+  what is picked, on or done, and for links.
 - **A thread's AI summary is written only when you ask for it.** Agents' runs on your mail no
   longer keep summaries of threads (the `summarize_mail` tool is gone, and the *Mail assistant*
   template no longer summarizes long threads), so a thread shows a summary only after you press

@@ -102,7 +102,7 @@ export function AgentEditor({
       <header className="mt-4 md:mt-6">
         <div className="flex items-center gap-3">
           <AgentIcon icon={agent.icon} className="h-7 w-7 shrink-0 text-[28px] leading-none" />
-          <h1 className="min-w-0 truncate text-2xl font-semibold tracking-tight">{agent.name}</h1>
+          <h1 className="min-w-0 truncate font-display text-2xl tracking-tight">{agent.name}</h1>
           <span className="flex shrink-0 items-center gap-1.5 text-[13px] text-fg-muted">
             <span className={cn("h-[7px] w-[7px] rounded-full", status === "active" ? "bg-accent" : "bg-fg-faint")} aria-hidden />
             {t(`status.${status}`)}

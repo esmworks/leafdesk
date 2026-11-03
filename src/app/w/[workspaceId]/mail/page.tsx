@@ -29,7 +29,7 @@ export default async function MailPage({ params }: { params: Promise<{ workspace
           {/* A primary button's look (ui.tsx buttonClass, which this server component can't call). */}
           <Link
             href="/account?tab=mail"
-            className="mt-5 inline-flex h-8 items-center justify-center rounded-md bg-accent px-3 text-sm font-medium text-accent-fg shadow-[inset_0_1px_0_rgb(255_255_255/0.18),0_1px_2px_rgb(0_0_0/0.12)] transition-colors hover:opacity-90"
+            className="mt-5 inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-fg shadow-[inset_0_1px_0_rgb(255_255_255/0.18),0_1px_2px_rgb(0_0_0/0.12)] transition-colors hover:opacity-90"
           >
             {t("noMailboxAction")}
           </Link>

@@ -58,7 +58,7 @@ export default async function MyTasksPage({
   return (
     <div className="page-gutter pt-[4.25rem] pb-12">
       <header className="mb-6 space-y-2">
-        <h1 className="text-2xl font-bold leading-tight md:text-3xl">{t("myTasks.title")}</h1>
+        <h1 className="font-display text-2xl leading-tight tracking-tight md:text-3xl">{t("myTasks.title")}</h1>
         <p className="text-sm text-fg-muted">{t("myTasks.description")}</p>
       </header>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
