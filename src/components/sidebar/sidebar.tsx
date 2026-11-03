@@ -587,6 +587,8 @@ export function Sidebar({
   const onMailPage = pathname.startsWith(`/w/${workspaceId}/mail`);
   const tasksPath = `/w/${workspaceId}/tasks`;
   const onTasksPage = pathname === tasksPath;
+  // Settings bring their own navigation as the panel (settings-nav.tsx): the rail stays beside it.
+  const onSettingsPage = isSettingsPath(pathname);
   const tabs: SidebarTab[] = [
     "home",
     "tasks",
@@ -627,8 +629,8 @@ export function Sidebar({
   const query = searchParams.toString();
   useEffect(() => {
     setTab(routeTab);
-    lastPath.current[routeTab] = query ? `${pathname}?${query}` : pathname;
-  }, [routeTab, pathname, query]);
+    if (!onSettingsPage) lastPath.current[routeTab] = query ? `${pathname}?${query}` : pathname;
+  }, [routeTab, pathname, query, onSettingsPage]);
 
   // A phone's drawer covers the page: a tab there only changes the list, and what is picked in it opens.
   const drawerOpen = sidebar?.drawerOpen ?? false;
@@ -637,17 +639,18 @@ export function Sidebar({
   }, [drawerOpen, routeTab]);
 
   function openTab(next: SidebarTab) {
-    const back = next === tab ? undefined : lastPath.current[next];
+    // From the settings every tab leaves them, back to where the person was in it.
+    const back = next === tab && !onSettingsPage ? undefined : lastPath.current[next];
     setTab(next);
     if (drawerOpen) return;
     if (back) router.push(back);
     else if (next === "journal") openDailyNote();
-    else if (next === "agents") return;
+    else if (next === "agents" && !onSettingsPage) return;
     else router.push(next === "tasks" ? tasksPath : next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
   }
 
-  // Desktop, the panel hidden: what a rail item shows while the panel peeks out beside it.
-  const collapsed = !!sidebar?.collapsed;
+  // Desktop, the panel hidden (on the settings too): what a rail item shows while the panel peeks out beside it.
+  const collapsed = !!sidebar?.collapsed || onSettingsPage;
   // The panel beside the rail: pinned open, or in a phone's open drawer.
   const panelShown = !collapsed || !!sidebar?.drawerOpen;
   const [peekTab, setPeekTab] = useState<SidebarTab | null>(null);
@@ -730,6 +733,7 @@ export function Sidebar({
   function pickTab(next: SidebarTab) {
     if (collapsed && !drawerOpen) {
       clearTimeout(peekTimer.current);
+      if (onSettingsPage) return openTab(next);
       sidebar?.expand();
       if (next === tab) return;
     }
@@ -1129,8 +1133,6 @@ export function Sidebar({
     keptOffline,
   };
 
-  if (isSettingsPath(pathname)) return null;
-
   // Each section as it shows (or null when it has nothing to show), placed in the person's order.
   const sectionContent: Record<SidebarSection, React.ReactNode> = {
     favorites: favorites.length > 0 && (
@@ -1364,8 +1366,8 @@ export function Sidebar({
     const label = tabLabel(key);
     // Opening the daily notes, the chat or mail takes the server.
     const unreachable = offline && key !== "home" && key !== tab;
-    // On Meetings the panel keeps showing its tab; the rail marks the page.
-    const selected = tab === key && !onOwnPage;
+    // On Meetings and the settings the panel keeps showing its tab; the rail marks the page.
+    const selected = tab === key && !onOwnPage && !onSettingsPage;
     return {
       key,
       label,
@@ -1653,7 +1655,7 @@ export function Sidebar({
       )}
       <aside
         data-sidebar
-        data-sidebar-open={(sidebar && !sidebar.collapsed) || undefined}
+        data-sidebar-open={(sidebar && !collapsed) || undefined}
         // A right click on a link opens the app's own menu for it; a page's row opens its actions instead.
         onContextMenu={(e) => {
           if (e.defaultPrevented) return;
@@ -1707,8 +1709,9 @@ export function Sidebar({
             <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none]">
               <RailTabs label={t("tabs.label")} tabs={railTabs} goKeys={goShown} />
             </div>
-            {/* Hides the panel or brings it back, in the same place either way (⌘\ too); on phones it closes the drawer. */}
-            {sidebar && (
+            {/* Hides the panel or brings it back, in the same place either way (⌘\ too); on phones it closes the drawer.
+                The settings' navigation is the panel there. */}
+            {sidebar && (!onSettingsPage || drawerOpen) && (
               <button
                 type="button"
                 onClick={sidebar.toggle}
@@ -1803,7 +1806,7 @@ export function Sidebar({
               collapsed && (sidebar?.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-2 md:opacity-0 md:rtl:translate-x-2"),
             )}
           >
-            {sidebar && !sidebar.collapsed && <ResizeHandle />}
+            {sidebar && !collapsed && <ResizeHandle />}
             <div className="flex h-12 shrink-0 items-center gap-1 ps-4 pe-2 max-md:h-14">
               <h2 className="min-w-0 flex-1 truncate text-[15px] font-semibold">{panelTitle}</h2>
               <div className="flex shrink-0 items-center gap-0.5">

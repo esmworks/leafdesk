@@ -2041,12 +2041,15 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
       padding-inline-start: var(--window-controls-width);
     }
     /* With the panel hidden the tab strip runs from the window's edge, over the rail's top: the
-       workspace strip starts below it, carrying the line under the strip on over the rail. */
+       workspace strip starts below it, on the frame like the strip, so the line under the strip
+       starts at the page's card, past its rounded corner. */
     [data-sidebar]:not([data-sidebar-open]) [data-sidebar-strip] {
       height: auto;
       margin-top: var(--window-controls-height);
-      border-top: 1px solid var(--color-border);
       padding-block: 0.375rem;
+    }
+    &:has([data-sidebar-rail]):not(:has([data-sidebar-open])) body::after {
+      left: 3.5rem;
     }
   }
 }

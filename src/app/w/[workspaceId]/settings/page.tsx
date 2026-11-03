@@ -224,8 +224,10 @@ export default async function SettingsPage({
   const tabPicked = typeof query.tab === "string";
 
   return (
-    <div className="settings-type flex min-h-full flex-col md:flex-row">
+    // Desktop: the nav stays and the settings scroll beside it, in the page's card (settings-nav.tsx).
+    <div className="settings-type flex min-h-full flex-col md:h-full md:flex-row">
       <SettingsNav
+        besideRail
         label={t("title")}
         back={{ href: `/w/${workspaceId}`, label: ta("back", { workspace: workspace.name }) }}
         search={<SettingsSearch items={searchIndex} />}
@@ -254,7 +256,7 @@ export default async function SettingsPage({
       />
 
       {/* Phones show the list of tabs alone until one is picked (settings-nav.tsx). */}
-      <div className={`min-w-0 flex-1 px-4 py-8 sm:px-8 md:py-12 ${tabPicked ? "" : "max-md:hidden"}`}>
+      <div className={`min-w-0 flex-1 px-4 py-8 sm:px-8 md:overflow-y-auto md:py-12 ${tabPicked ? "" : "max-md:hidden"}`}>
         <div className="mx-auto max-w-3xl">
           <SettingsJump setting={typeof query.setting === "string" ? query.setting : undefined} />
           {accountTab && <AccountTabContent tab={accountTabForSettings(accountTab)} session={session} query={query} />}

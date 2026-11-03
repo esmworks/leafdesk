@@ -6,11 +6,13 @@ export type SettingsNavItem = { href: string; label: string; icon: LucideIcon; a
 export type SettingsNavGroup = { label: string; items: SettingsNavItem[] };
 
 /**
- * The settings' own navigation, in place of the workspace sidebar: a way back, then the groups
- * (the person's account, the workspace). Desktop: a column with the sidebar's look; only the groups
- * scroll, so the way back and the search stay below the desktop app's window buttons. Phones: one
- * screen at a time, the way a phone's own settings go. With no item picked (`list`) the nav is the
- * whole page, every item in grouped rows; with one open it is only a way back to that list.
+ * The settings' own navigation: a way back, then the groups (the person's account, the workspace).
+ * Desktop: a column; only the groups scroll, so the way back and the search stay put. A workspace's
+ * settings keep the workspace's rail (`beside`): the column is the sidebar's panel then, its title
+ * on top and the page's card shared with the settings, and the rail is the way back. Elsewhere it
+ * takes the sidebar's place, a way back on top. Phones: one screen at a time, the way a phone's own
+ * settings go. With no item picked (`list`) the nav is the whole page, every item in grouped rows;
+ * with one open it is only a way back to that list.
  */
 export function SettingsNav({
   label,
@@ -18,6 +20,7 @@ export function SettingsNav({
   search,
   groups,
   list,
+  besideRail = false,
 }: {
   label: string;
   back: { href: string; label: string };
@@ -26,16 +29,18 @@ export function SettingsNav({
   groups: SettingsNavGroup[];
   /** Phones: show every item (`open` false, the page then hides the content), or a way back to them. */
   list: { href: string; open: boolean };
+  /** Beside the workspace's rail, in the page's card (desktop). */
+  besideRail?: boolean;
 }) {
   return (
     <nav
       aria-label={label}
-      // Takes the sidebar's place, so the desktop app keeps its window buttons clear of it the same way (globals.css).
-      data-sidebar
-      data-sidebar-open
-      className={`shrink-0 text-sm md:sticky md:top-0 md:flex md:h-dvh md:w-60 md:flex-col md:border-e md:border-border md:bg-bg-subtle md:p-2 ${
-        list.open ? "border-b border-border px-2 py-1 md:py-2" : "px-4 pt-3 pb-8"
-      }`}
+      // In the sidebar's place, the desktop app keeps its window buttons clear of it the same way (globals.css).
+      data-sidebar={besideRail ? undefined : true}
+      data-sidebar-open={besideRail ? undefined : true}
+      className={`shrink-0 text-sm md:flex md:w-60 md:flex-col md:border-e md:border-border md:p-2 ${
+        besideRail ? "md:bg-bg" : "md:sticky md:top-0 md:h-dvh md:bg-bg-subtle"
+      } ${list.open ? "border-b border-border px-2 py-1 md:py-2" : "px-4 pt-3 pb-8"}`}
     >
       {list.open && (
         <Link href={list.href} className="flex h-10 items-center gap-2 rounded-md px-2 text-fg md:hidden">
@@ -44,9 +49,12 @@ export function SettingsNav({
         </Link>
       )}
       <div className={list.open ? "max-md:hidden md:contents" : "md:contents"}>
+        {besideRail && (
+          <h2 className="flex h-10 items-center px-2 text-[15px] font-semibold text-fg max-md:hidden">{label}</h2>
+        )}
         <Link
           href={back.href}
-          className="flex h-10 items-center gap-2 rounded-md px-2 text-fg hover:bg-bg-hover max-md:-mx-2 md:h-8"
+          className={`flex h-10 items-center gap-2 rounded-md px-2 text-fg hover:bg-bg-hover max-md:-mx-2 md:h-8 ${besideRail ? "md:hidden" : ""}`}
         >
           <ArrowLeft className="h-4 w-4 shrink-0 text-fg-icon rtl:-scale-x-100" aria-hidden />
           <span className="truncate">{back.label}</span>
