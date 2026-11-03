@@ -162,6 +162,7 @@ export function AgentChat({
     onUndo: model.undoCorrection,
     onUnqueue: (id) => void model.unqueue(id),
     onRunAnswered: () => void model.refreshRuns(),
+    onCallAnswered: model.callAnswered,
   };
   const renderItem = (message: ChatMessage, _index: number, last: boolean) => (
     <AgentThreadItem item={message.item as AgentItem} text={message.content} last={last && !running} page={page} context={context} />
