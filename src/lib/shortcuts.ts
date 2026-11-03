@@ -55,11 +55,11 @@ export const GO_MS = 1500;
  */
 export const RAIL_GO_KEYS = {
   home: "H",
+  journal: "J",
   tasks: "T",
   meetings: "M",
-  journal: "J",
-  chat: "C",
   mail: "E",
+  chat: "C",
   agents: "A",
   inbox: "I",
   settings: "S",
@@ -97,11 +97,11 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "replaceAll", combos: [["Mod", "Enter"]] },
       // components/sidebar/sidebar.tsx, outside text fields (railGoPlace).
       { id: "goHome", combos: [["G", RAIL_GO_KEYS.home]], sequence: true },
+      { id: "goJournal", combos: [["G", RAIL_GO_KEYS.journal]], sequence: true },
       { id: "goTasks", combos: [["G", RAIL_GO_KEYS.tasks]], sequence: true },
       { id: "goMeetings", combos: [["G", RAIL_GO_KEYS.meetings]], sequence: true },
-      { id: "goJournal", combos: [["G", RAIL_GO_KEYS.journal]], sequence: true },
-      { id: "goChat", combos: [["G", RAIL_GO_KEYS.chat]], sequence: true },
       { id: "goMail", combos: [["G", RAIL_GO_KEYS.mail]], sequence: true },
+      { id: "goChat", combos: [["G", RAIL_GO_KEYS.chat]], sequence: true },
       { id: "goAgents", combos: [["G", RAIL_GO_KEYS.agents]], sequence: true },
       { id: "goInbox", combos: [["G", RAIL_GO_KEYS.inbox]], sequence: true },
       { id: "goSettings", combos: [["G", RAIL_GO_KEYS.settings]], sequence: true },

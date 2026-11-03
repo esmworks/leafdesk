@@ -8,6 +8,11 @@
   "count": "{count, plural, one {# Besprechung} other {# Besprechungen}}",
   "upcoming": "Anstehend",
   "past": "Vergangen",
+  "panel": {
+    "all": "Alle Besprechungen",
+    "empty": "Noch keine Besprechungsnotizen.",
+    "more": "Alle Besprechungen ansehen"
+  },
   "empty": "Noch keine Besprechungsnotizen. Starte hier eine oder tippe /besprechung auf einer beliebigen Seite.",
   "noMatches": "Keine Besprechung passt zu deiner Suche.",
   "untitled": "Unbenannte Besprechung",

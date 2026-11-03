@@ -20,6 +20,10 @@
   its buttons or typed in the name ("friday #high @Ayşe"); the people you add can see and edit it
   and find it in their own My tasks. The list shows a task's priority flag and the others' pictures.
   Migration 0192.
+- **Meetings has a panel of its own in the sidebar.** The rail's *Meetings* opens a list of the
+  planned meetings and the latest past ones, with their day (or time, today) and a mark while one
+  is recorded or summarized; *All meetings* opens the Meetings page, and the pen in the heading
+  starts a new meeting note. Opening a meeting from the list keeps the panel on Meetings.
 - **`g` and a letter go to a place of the sidebar.** `g h` Home, `g t` My tasks, `g m` Meetings,
   `g j` Journal, `g c` Chat, `g e` Mail, `g a` Agents, `g i` the inbox and `g s` Settings, outside
   text fields; while `g` waits, each place on the rail shows its letter. On the Mail page its own
@@ -31,6 +35,9 @@
 
 ### Changed
 
+- **The sidebar's rail puts its places in groups.** Home and Daily notes, then My tasks and
+  Meetings, then Mail, Chat and Agents, with a little room between the groups; the shortcuts list
+  follows the same order.
 - **The pages panel reads more easily.** Teamspace names are set in a heavier weight with a little
   room above each, every row's text starts at the same line, and the row under the teamspaces says
   *New teamspace* instead of *Add new*.

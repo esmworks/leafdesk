@@ -79,6 +79,8 @@ export type RailTab = {
   dot?: { tone: "accent" | "new" | "busy"; label: string };
   /** The letter that opens it after g (RAIL_GO_KEYS). */
   goKey?: string;
+  /** The kind of place it is: a little room parts it from the one before when that is another. */
+  group?: string;
   onClick: () => void;
   /** The pointer rests on it, or leaves it (the hidden panel peeks out with what it shows). */
   onHover?: () => void;
@@ -106,7 +108,7 @@ export function RailTabs({ label, tabs, goKeys }: { label: string; tabs: RailTab
   };
   return (
     <div role="tablist" aria-orientation="vertical" aria-label={label} onKeyDown={onKeyDown} className="flex flex-col items-center gap-1">
-      {tabs.map((tab) => (
+      {tabs.map((tab, i) => (
         <button
           key={tab.key}
           type="button"
@@ -119,7 +121,7 @@ export function RailTabs({ label, tabs, goKeys }: { label: string; tabs: RailTab
           onClick={tab.onClick}
           onMouseEnter={tab.onHover}
           onMouseLeave={tab.onLeave}
-          className={cn(railItemClass, tab.selected && railSelectedClass)}
+          className={cn(railItemClass, tab.selected && railSelectedClass, i > 0 && tab.group !== tabs[i - 1].group && "mt-2")}
         >
           {tab.icon}
           {tab.count ? (

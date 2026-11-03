@@ -8,6 +8,11 @@
   "count": "{count, plural, other {# cuộc họp}}",
   "upcoming": "Sắp tới",
   "past": "Đã qua",
+  "panel": {
+    "all": "Tất cả cuộc họp",
+    "empty": "Chưa có ghi chú cuộc họp nào.",
+    "more": "Xem tất cả cuộc họp"
+  },
   "empty": "Chưa có ghi chú cuộc họp nào. Hãy bắt đầu một ghi chú tại đây, hoặc gõ /meeting trong bất kỳ trang nào.",
   "noMatches": "Không có cuộc họp nào khớp với tìm kiếm của bạn.",
   "untitled": "Cuộc họp chưa có tiêu đề",

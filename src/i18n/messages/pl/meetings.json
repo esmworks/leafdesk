@@ -8,6 +8,11 @@
   "count": "{count, plural, one {# spotkanie} few {# spotkania} many {# spotkań} other {# spotkania}}",
   "upcoming": "Nadchodzące",
   "past": "Minione",
+  "panel": {
+    "all": "Wszystkie spotkania",
+    "empty": "Nie ma jeszcze notatek ze spotkań.",
+    "more": "Zobacz wszystkie spotkania"
+  },
   "empty": "Nie ma jeszcze notatek ze spotkań. Zacznij tutaj albo wpisz /spotkanie na dowolnej stronie.",
   "noMatches": "Żadne spotkanie nie pasuje do wyszukiwania.",
   "untitled": "Spotkanie bez tytułu",

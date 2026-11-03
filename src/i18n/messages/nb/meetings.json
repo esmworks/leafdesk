@@ -8,6 +8,11 @@
   "count": "{count, plural, one {# møte} other {# møter}}",
   "upcoming": "Kommende",
   "past": "Tidligere",
+  "panel": {
+    "all": "Alle møter",
+    "empty": "Ingen møtenotater ennå.",
+    "more": "Se alle møter"
+  },
   "empty": "Ingen møtenotater ennå. Start et her, eller skriv /møte på en hvilken som helst side.",
   "noMatches": "Ingen møter samsvarer med søket ditt.",
   "untitled": "Møte uten tittel",

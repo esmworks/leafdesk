@@ -2,12 +2,14 @@
 
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { ActionResult } from "@/app/actions/workspaces";
+import { SIDEBAR_MEETINGS } from "@/lib/meeting-list";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
 import {
   createMeetingNote,
   finishMeeting,
   isMeetingError,
+  listMeetings,
   markMeetingGap,
   meetingHeartbeat,
   regenerateMeetingSummary,
@@ -68,7 +70,15 @@ export async function regenerateMeetingSummaryAction(pageId: string, meetingId: 
   return run((user) => regenerateMeetingSummary(user.id, id(pageId), id(meetingId)));
 }
 
-/** "New meeting note" on the Meetings page: a private page with a meeting block, titled for today. */
+/**
+ * The newest meetings for the sidebar's Meetings tab (read through `/api/read`): the planned ones
+ * and the latest past ones, SIDEBAR_MEETINGS in all.
+ */
+export async function sidebarMeetingsAction(workspaceId: string) {
+  return run((user) => listMeetings(user.id, id(workspaceId), { limit: SIDEBAR_MEETINGS }));
+}
+
+/** "New meeting note" on the Meetings page or the sidebar's Meetings tab: a private page with a meeting block, titled for today. */
 export async function createMeetingNoteAction(workspaceId: string) {
   return run(async (user) => {
     const t = await getTranslations("meetings");

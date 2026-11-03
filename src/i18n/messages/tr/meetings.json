@@ -8,6 +8,11 @@
   "count": "{count, plural, one {# toplantı} other {# toplantı}}",
   "upcoming": "Yaklaşan",
   "past": "Geçmiş",
+  "panel": {
+    "all": "Tüm toplantılar",
+    "empty": "Henüz toplantı notu yok.",
+    "more": "Tüm toplantıları gör"
+  },
   "empty": "Henüz toplantı notu yok. Buradan başlatın ya da herhangi bir sayfada /toplantı yazın.",
   "noMatches": "Aramanızla eşleşen toplantı yok.",
   "untitled": "Adsız toplantı",

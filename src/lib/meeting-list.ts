@@ -20,6 +20,9 @@ export type MeetingListItem = {
   preview: string;
 };
 
+/** How many meetings the sidebar's Meetings tab lists; the Meetings page has the rest. */
+export const SIDEBAR_MEETINGS = 40;
+
 /** Whether a listed meeting matches what was typed: every word in its title, page, attendees or summary. */
 export function matchesMeeting(item: MeetingListItem, query: string): boolean {
   const words = searchFold(query).split(/\s+/).filter(Boolean);

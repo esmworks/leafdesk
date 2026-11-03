@@ -8,6 +8,11 @@
   "count": "{count, plural, other {# rapat}}",
   "upcoming": "Mendatang",
   "past": "Lalu",
+  "panel": {
+    "all": "Semua rapat",
+    "empty": "Belum ada catatan rapat.",
+    "more": "Lihat semua rapat"
+  },
   "empty": "Belum ada catatan rapat. Mulai satu di sini, atau ketik /meeting di halaman mana pun.",
   "noMatches": "Tidak ada rapat yang cocok dengan pencarian Anda.",
   "untitled": "Rapat tanpa judul",

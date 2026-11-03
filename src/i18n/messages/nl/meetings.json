@@ -8,6 +8,11 @@
   "count": "{count, plural, one {# vergadering} other {# vergaderingen}}",
   "upcoming": "Gepland",
   "past": "Afgelopen",
+  "panel": {
+    "all": "Alle vergaderingen",
+    "empty": "Nog geen vergadernotities.",
+    "more": "Alle vergaderingen bekijken"
+  },
   "empty": "Nog geen vergadernotities. Begin er hier een, of typ /meeting op een willekeurige pagina.",
   "noMatches": "Geen vergaderingen komen overeen met je zoekopdracht.",
   "untitled": "Naamloze vergadering",

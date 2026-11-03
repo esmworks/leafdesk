@@ -8,6 +8,11 @@
   "count": "{count, plural, one {# kokous} other {# kokousta}}",
   "upcoming": "Tulevat",
   "past": "Menneet",
+  "panel": {
+    "all": "Kaikki kokoukset",
+    "empty": "Ei vielä kokousmuistiinpanoja.",
+    "more": "Näytä kaikki kokoukset"
+  },
   "empty": "Ei vielä kokousmuistiinpanoja. Aloita täältä tai kirjoita /meeting millä tahansa sivulla.",
   "noMatches": "Haullasi ei löytynyt kokouksia.",
   "untitled": "Nimetön kokous",

@@ -8,6 +8,11 @@
   "count": "{count, plural, one {# meeting} other {# meetings}}",
   "upcoming": "Upcoming",
   "past": "Past",
+  "panel": {
+    "all": "All meetings",
+    "empty": "No meeting notes yet.",
+    "more": "See all meetings"
+  },
   "empty": "No meeting notes yet. Start one here, or type /meeting in any page.",
   "noMatches": "No meetings match your search.",
   "untitled": "Untitled meeting",

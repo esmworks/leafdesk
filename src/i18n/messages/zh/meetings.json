@@ -8,6 +8,11 @@
   "count": "{count, plural, other {# 场会议}}",
   "upcoming": "即将开始",
   "past": "已结束",
+  "panel": {
+    "all": "所有会议",
+    "empty": "还没有会议记录。",
+    "more": "查看所有会议"
+  },
   "empty": "还没有会议记录。在这里新建一个，或在任意页面中输入 /会议。",
   "noMatches": "没有与搜索匹配的会议。",
   "untitled": "未命名会议",

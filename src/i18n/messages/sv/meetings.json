@@ -8,6 +8,11 @@
   "count": "{count, plural, one {# möte} other {# möten}}",
   "upcoming": "Kommande",
   "past": "Tidigare",
+  "panel": {
+    "all": "Alla möten",
+    "empty": "Inga mötesanteckningar än.",
+    "more": "Visa alla möten"
+  },
   "empty": "Inga mötesanteckningar än. Börja här, eller skriv /möte på vilken sida som helst.",
   "noMatches": "Inga möten matchar din sökning.",
   "untitled": "Namnlöst möte",

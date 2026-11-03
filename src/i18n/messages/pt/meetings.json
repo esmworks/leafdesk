@@ -8,6 +8,11 @@
   "count": "{count, plural, one {# reunião} other {# reuniões}}",
   "upcoming": "Próximas",
   "past": "Anteriores",
+  "panel": {
+    "all": "Todas as reuniões",
+    "empty": "Ainda não há notas de reunião.",
+    "more": "Ver todas as reuniões"
+  },
   "empty": "Ainda não há notas de reunião. Comece uma aqui ou digite /reunião em qualquer página.",
   "noMatches": "Nenhuma reunião corresponde à sua pesquisa.",
   "untitled": "Reunião sem título",

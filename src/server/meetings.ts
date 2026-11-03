@@ -364,9 +364,10 @@ const MAX_LISTED = 500;
 
 /**
  * The meetings of a workspace the person can see, newest first (by when they started, else when
- * they are planned). Pages in the trash and templates are left out.
+ * they are planned). Pages in the trash and templates are left out. `limit`: fewer, for the
+ * sidebar's list (the planned ones come first, being the newest).
  */
-export async function listMeetings(userId: string, workspaceId: string): Promise<MeetingListItem[]> {
+export async function listMeetings(userId: string, workspaceId: string, { limit = MAX_LISTED }: { limit?: number } = {}): Promise<MeetingListItem[]> {
   await requireMembership(userId, workspaceId);
   const rows = await db
     .select({
@@ -387,7 +388,7 @@ export async function listMeetings(userId: string, workspaceId: string): Promise
     .innerJoin(page, eq(page.id, meetingNote.pageId))
     .where(and(eq(page.workspaceId, workspaceId), isNull(page.archivedAt), eq(page.inTemplate, false), pageVisibleTo(userId)))
     .orderBy(desc(sql`coalesce(${meetingNote.startedAt}, ${meetingNote.scheduledAt}, ${meetingNote.createdAt})`))
-    .limit(MAX_LISTED);
+    .limit(Math.min(limit, MAX_LISTED));
   return rows.map((r) => ({
     ...r,
     scheduledAt: r.scheduledAt?.toISOString() ?? null,

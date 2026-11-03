@@ -4,6 +4,7 @@ import { agentCreationAction, agentMailboxesAction, pendingAgentLimitRequestActi
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
 import { listDatabasesAction, loadDatabaseAction, loadRowAction } from "@/app/actions/databases";
 import { getThreadAction, listMailboxesAction, listThreadsAction, openDraftAction, openMailboxAction, prefetchBodiesAction, readBodyAction, refreshFolderAction, sendStatusAction, suggestAddressesAction } from "@/app/actions/mail";
+import { sidebarMeetingsAction } from "@/app/actions/meetings";
 import { backlinksAction, unlinkedMentionsAction } from "@/app/actions/mentions";
 import { arrivalsAction, dueRemindersAction, listInboxAction, unreadCountAction } from "@/app/actions/notifications";
 import { recordPageViewAction } from "@/app/actions/page-views";
@@ -39,6 +40,7 @@ export const READS = {
   taskCounts: taskCountsAction,
   runProposals: runProposalsAction,
   sidebarAgents: sidebarAgentsAction,
+  sidebarMeetings: sidebarMeetingsAction,
   agentCreation: agentCreationAction,
   agentLimitRequest: pendingAgentLimitRequestAction,
   agentMailboxes: agentMailboxesAction,
