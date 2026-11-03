@@ -36,7 +36,7 @@ describe.each([
   ["light", { ...light, ...hcLight }],
   ["dark", { ...light, ...dark, ...hcDark }],
 ])("high contrast, %s theme", (theme, c) => {
-  const surfaces = ["bg", "bg-subtle", "bg-hover", "bg-active"];
+  const surfaces = ["bg", "bg-subtle", "bg-hover", "bg-active", "frame", "frame-hover", "frame-active"];
 
   it("has every color it is checked with", () => {
     for (const name of [...surfaces, "fg", "fg-muted", "fg-faint", "border", "accent", "accent-fg", "danger"]) {

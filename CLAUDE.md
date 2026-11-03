@@ -613,11 +613,16 @@ because they are separate module graphs.
   (they keep a local `cn`). Something fixed to the window's top edge (a side panel, a full-window
   view) starts at `top-(--app-top)`: on macOS the desktop app lays its tab strip over the page
   beside the sidebar, where `components/desktop-tab-strip.tsx` tells it (`desktop/src/windows.ts`).
-  The workspace sidebar is the workspace strip across its top (`[data-sidebar-strip]`), a rail
-  (`sidebar/sidebar-rail.tsx`, `[data-sidebar-rail]`) that always stays and a panel
-  (`[data-sidebar-panel]`) that collapsing hides; the room for macOS's window buttons goes on the
-  strip in globals.css, never on the `<aside>`, and with the panel hidden the tab strip runs over
+  The workspace sidebar is a rail (`sidebar/sidebar-rail.tsx`, `[data-sidebar-rail]`) that always
+  stays on the window's frame (`bg-frame`) and a panel (`[data-sidebar-panel]`) that collapsing
+  hides; on wide windows the panel and `<main>` make one card over the frame (the panel's edges in
+  `sidebar.tsx`, `<main>`'s in globals.css, keyed on `[data-sidebar-open]`). The workspace's menu
+  is at the panel's foot there; the workspace strip (`[data-sidebar-strip]`) shows only on top of
+  the phone drawer and, icon only, on the rail's top while the panel is hidden. With the panel
+  shown, macOS's window buttons take the frame above the rail and the panel (the `<aside>`'s top
+  padding in globals.css); with it hidden they sit over the strip, and the tab strip runs over
   the rail's top (`desktop-tab-strip.tsx` reports no room then), so the strip starts below it.
+  The desktop tab strip's colors are `desktop/pages/tabs.css`, kept to the frame's by hand.
   g then a letter opens a rail place (`lib/shortcuts.ts` `RAIL_GO_KEYS`, `railGoPlace`): g is taken
   as it bubbles, the letter in the capture phase, so a page's own single keys never see it; the
   Mail tab's folder letters (its `mailGo*` shortcuts) stay its own there.

@@ -11,11 +11,11 @@ import { cn } from "@/components/ui";
  * on the other corner tells what waits there.
  */
 export const railItemClass = cn(
-  "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg max-md:h-10 max-md:w-10",
-  "disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-fg-muted",
+  "relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-fg hover:bg-frame-hover max-md:h-10 max-md:w-10",
+  "disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-fg",
 );
-export const railSelectedClass = "bg-bg-active text-fg hover:bg-bg-active";
-export const railIconClass = "h-[18px] w-[18px]";
+export const railSelectedClass = "bg-frame-active hover:bg-frame-active";
+export const railIconClass = "h-5 w-5";
 
 const countText = (count: number) => (count > 99 ? "99+" : String(count));
 
@@ -27,7 +27,7 @@ export function RailCount({ value, tone, selected }: { value: number; tone: "acc
       className={cn(
         "absolute -top-0.5 -end-0.5 min-w-3.5 rounded-full px-[3px] text-center text-[9px] leading-3.5 font-semibold text-white tabular-nums ring-2",
         tone === "accent" ? "bg-accent" : "bg-danger",
-        selected ? "ring-bg-active" : "ring-bg",
+        selected ? "ring-frame-active" : "ring-frame",
       )}
     >
       {countText(value)}
@@ -47,7 +47,7 @@ export function RailDot({ tone, selected }: { tone: "accent" | "new" | "busy"; s
         "absolute top-0.5 end-0.5 h-2 w-2 rounded-full ring-2",
         tone === "accent" ? "bg-accent" : "bg-fg",
         tone === "busy" && "motion-safe:animate-pulse",
-        selected ? "ring-bg-active" : "ring-bg",
+        selected ? "ring-frame-active" : "ring-frame",
       )}
     />
   );

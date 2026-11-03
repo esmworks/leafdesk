@@ -1575,6 +1575,77 @@ export function Sidebar({
       </>
     );
 
+  // The workspace and the menu to change it: at the panel's foot on wide windows, else in the strip on top.
+  const workspacePicker = (atBottom: boolean) => (
+    <Popover
+      side={atBottom ? "top" : "bottom"}
+      wrapperClassName={cn("relative flex min-w-0", (atBottom || !collapsed) && "flex-1", collapsed && "max-md:flex-1")}
+      trigger={({ open, toggle }) => (
+        <button
+          type="button"
+          onClick={toggle}
+          aria-expanded={open}
+          title={workspace?.name}
+          className={cn(
+            "flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md ps-1.5 pe-2 font-medium text-fg hover:bg-frame-hover max-md:h-10",
+            // Beside the hidden panel only the rail's width is left: the workspace's icon alone.
+            !atBottom && collapsed && "md:w-8 md:flex-none md:justify-center md:px-0",
+            open && "bg-frame-hover",
+          )}
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-fg text-xs font-semibold text-bg max-md:h-7 max-md:w-7">
+            {workspace?.icon ?? workspace?.name.slice(0, 1).toUpperCase()}
+          </span>
+          <span className={cn("min-w-0 truncate", !atBottom && collapsed && "md:sr-only")}>{workspace?.name}</span>
+          <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-fg-muted", !atBottom && collapsed && "md:hidden")} />
+        </button>
+      )}
+      className="w-64"
+    >
+      {(close) => (
+        <>
+          {workspaces.map((w) => (
+            <MenuItem
+              key={w.id}
+              active={w.id === workspaceId}
+              onClick={() => {
+                close();
+                // The page opened last there, for those who start on it (app/w/[workspaceId]/page.tsx).
+                router.push(`/w/${w.id}?resume`);
+              }}
+            >
+              {w.name}
+            </MenuItem>
+          ))}
+          {joinable.length > 0 && <JoinableWorkspaces workspaces={joinable} onJoined={close} />}
+          {canCreateWorkspace && (
+            <MenuItem
+              icon={<Plus className="h-4 w-4" />}
+              disabled={offline}
+              title={needsServer(t("workspaceMenu.newWorkspace"))}
+              onClick={() => {
+                close();
+                setNewWorkspaceOpen(true);
+              }}
+            >
+              {t("workspaceMenu.newWorkspace")}
+            </MenuItem>
+          )}
+          <MenuSeparator />
+          <MenuItem
+            icon={<Settings className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              router.push(`/w/${workspaceId}/settings`);
+            }}
+          >
+            {t("workspaceMenu.settingsAndMembers")}
+          </MenuItem>
+        </>
+      )}
+    </Popover>
+  );
+
   return (
     <>
       {sidebar?.drawerOpen && (
@@ -1605,89 +1676,22 @@ export function Sidebar({
         )}
       >
         <LinkMenu menu={linkMenu} onClose={() => setLinkMenu(null)} />
-        {/* The workspace, over the rail and the panel: its name and the menu to change it. */}
+        {/* The workspace on top of the drawer, and on the rail's top beside the hidden panel; beside the
+            shown panel it is at the panel's foot instead. */}
         <div
           data-sidebar-strip
           className={cn(
-            "flex h-11 shrink-0 items-center border-e border-b border-border bg-bg px-1.5 max-md:h-14",
-            // Beside the hidden panel it is the rail's top: its color, no line under it.
-            collapsed && "md:justify-center md:border-b-transparent md:px-0",
+            "flex h-11 shrink-0 items-center bg-frame px-1.5 max-md:h-14",
+            collapsed ? "md:justify-center md:px-0" : "md:hidden",
           )}
         >
-          <Popover
-            wrapperClassName={cn("relative flex min-w-0", !collapsed && "flex-1", collapsed && "max-md:flex-1")}
-            trigger={({ open, toggle }) => (
-              <button
-                type="button"
-                onClick={toggle}
-                aria-expanded={open}
-                title={workspace?.name}
-                className={cn(
-                  "flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md ps-1.5 pe-2 font-medium text-fg hover:bg-bg-hover max-md:h-10",
-                  // Beside the hidden panel only the rail's width is left: the workspace's icon alone.
-                  collapsed && "md:w-8 md:flex-none md:justify-center md:px-0",
-                  open && "bg-bg-hover",
-                )}
-              >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-fg text-xs font-semibold text-bg max-md:h-7 max-md:w-7">
-                  {workspace?.icon ?? workspace?.name.slice(0, 1).toUpperCase()}
-                </span>
-                <span className={cn("min-w-0 truncate", collapsed && "md:sr-only")}>{workspace?.name}</span>
-                <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-fg-muted", collapsed && "md:hidden")} />
-              </button>
-            )}
-            className="w-64"
-          >
-            {(close) => (
-              <>
-                {workspaces.map((w) => (
-                  <MenuItem
-                    key={w.id}
-                    active={w.id === workspaceId}
-                    onClick={() => {
-                      close();
-                      // The page opened last there, for those who start on it (app/w/[workspaceId]/page.tsx).
-                      router.push(`/w/${w.id}?resume`);
-                    }}
-                  >
-                    {w.name}
-                  </MenuItem>
-                ))}
-                {joinable.length > 0 && <JoinableWorkspaces workspaces={joinable} onJoined={close} />}
-                {canCreateWorkspace && (
-                  <MenuItem
-                    icon={<Plus className="h-4 w-4" />}
-                    disabled={offline}
-                    title={needsServer(t("workspaceMenu.newWorkspace"))}
-                    onClick={() => {
-                      close();
-                      setNewWorkspaceOpen(true);
-                    }}
-                  >
-                    {t("workspaceMenu.newWorkspace")}
-                  </MenuItem>
-                )}
-                <MenuSeparator />
-                <MenuItem
-                  icon={<Settings className="h-4 w-4" />}
-                  onClick={() => {
-                    close();
-                    router.push(`/w/${workspaceId}/settings`);
-                  }}
-                >
-                  {t("workspaceMenu.settingsAndMembers")}
-                </MenuItem>
-              </>
-            )}
-          </Popover>
+          {workspacePicker(false)}
         </div>
         <div className="flex min-h-0 flex-1">
           <div
             data-sidebar-rail
             className={cn(
-              "flex w-11 shrink-0 flex-col items-center gap-1 bg-bg pt-2 pb-2 max-md:w-13 max-md:pb-[calc(var(--safe-bottom)+0.5rem)]",
-              // Alone beside the page, its edge is drawn; beside the panel, the panel's own surface is that edge.
-              collapsed && "md:border-e md:border-border",
+              "flex w-11 shrink-0 flex-col items-center gap-1 bg-frame pt-2 pb-2 max-md:w-13 max-md:pb-[calc(var(--safe-bottom)+0.5rem)]",
             )}
           >
             <button
@@ -1750,7 +1754,7 @@ export function Sidebar({
                   title={user.name || user.email}
                   onPointerEnter={() => void AccountMenu.preload()}
                   onFocus={() => void AccountMenu.preload()}
-                  className={cn(railItemClass, (open || customizing) && "bg-bg-hover")}
+                  className={cn(railItemClass, (open || customizing) && "bg-frame-hover")}
                 >
                   <UserAvatar name={user.name || user.email} image={user.image} size="sm" />
                 </button>
@@ -1792,6 +1796,8 @@ export function Sidebar({
             onMouseEnter={collapsed ? sidebar?.showPeek : undefined}
             className={cn(
               "relative flex min-w-0 flex-col border-e border-border bg-bg max-md:flex-1 max-md:pb-(--safe-bottom) md:w-[var(--sidebar-w)]",
+              // The card the panel and the page make over the frame (globals.css); the page draws the rest of it.
+              !collapsed && "md:mt-2 md:rounded-ss-xl md:border-s md:border-t",
               collapsed &&
                 "md:fixed md:top-12 md:bottom-3 md:inset-s-11 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,opacity,visibility] md:duration-200 md:ease-out",
               collapsed && (sidebar?.peek ? "md:translate-x-0" : "md:invisible md:-translate-x-2 md:opacity-0 md:rtl:translate-x-2"),
@@ -1799,7 +1805,7 @@ export function Sidebar({
           >
             {sidebar && !sidebar.collapsed && <ResizeHandle />}
             <div className="flex h-12 shrink-0 items-center gap-1 ps-4 pe-2 max-md:h-14">
-              <h2 className="min-w-0 flex-1 truncate font-medium">{panelTitle}</h2>
+              <h2 className="min-w-0 flex-1 truncate text-[15px] font-semibold">{panelTitle}</h2>
               <div className="flex shrink-0 items-center gap-0.5">
                 {headActions}
               </div>
@@ -1906,6 +1912,9 @@ export function Sidebar({
               )}
               {shownTab === "home" && guest && tree.length === 0 && !topLevel && <p className="px-2 py-1.5 text-fg-muted">{t("pages.nothingShared")}</p>}
             </nav>
+            <div className="hidden h-12 shrink-0 items-center border-t border-border px-2 md:flex">
+              {workspacePicker(true)}
+            </div>
 
             {/*
               The list fades out at the panel's foot while there is more of it below (useMoreBelow): a

@@ -52,6 +52,11 @@
   --fg-muted: #6b6b6b;
   --fg-faint: #a1a1a1;
   --border: #ebebeb;
+  /* The window's frame around the page, a step darker: the rail and the strip above it, with its
+     own hovered and picked tints, since the page's would vanish into it. */
+  --frame: #f3f3f3;
+  --frame-hover: #e9e9e9;
+  --frame-active: #e1e1e1;
   /* Brand green (brand/): links, primary buttons and focus rings. */
   --accent: #2f7d4f;
   --accent-fg: #ffffff;
@@ -105,6 +110,9 @@
     --fg-muted: #9e9e9e;
     --fg-faint: #6c6c6c;
     --border: #272727;
+    --frame: #0e0e0e;
+    --frame-hover: #1d1d1d;
+    --frame-active: #262626;
     --accent: #6cc38a;
     --accent-fg: #0d1117;
     --danger: #ef6b6b;
@@ -151,6 +159,8 @@
     /* hc:light */
     --bg-hover: #e4e4e7;
     --bg-active: #d4d4d8;
+    --frame-hover: #e4e4e7;
+    --frame-active: #d4d4d8;
     --fg: #0b0c0e;
     --fg-muted: #3d3f45;
     --fg-faint: #575a61;
@@ -241,6 +251,9 @@
   --color-bg-subtle: var(--bg-subtle);
   --color-bg-hover: var(--bg-hover);
   --color-bg-active: var(--bg-active);
+  --color-frame: var(--frame);
+  --color-frame-hover: var(--frame-hover);
+  --color-frame-active: var(--frame-active);
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
   --color-fg-faint: var(--fg-faint);
@@ -1857,13 +1870,31 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 }
 
 /*
+ * Wide windows: the rail sits on the window's frame (--frame), and the panel and the page are one
+ * card above it, edged by a line and rounded at the start of its top; with the panel hidden the
+ * page is the card alone. The panel's side of it is in sidebar.tsx, the page's here, where the
+ * sidebar's open state can reach it.
+ */
+@media (min-width: 768px) {
+  aside[data-sidebar] ~ main {
+    margin-top: max(var(--app-top), 0.5rem);
+    border-top: 1px solid var(--color-border);
+  }
+  aside[data-sidebar]:not([data-sidebar-open]) ~ main {
+    border-inline-start: 1px solid var(--color-border);
+    border-start-start-radius: 0.75rem;
+  }
+}
+
+/*
  * Desktop app versions before tabs, on macOS, have no title bar: the window's buttons sit over the
  * page's top-left corner, centered on the 44px header row, and that row moves the window (their
  * preload sets <html data-window-controls>; data-full-screen when macOS hides the buttons). Newer
  * versions put the buttons in their own tab strip and mark it data-desktop-app (and, on macOS,
  * data-tab-strip: below).
- * The sidebar's workspace strip holds them at its start, over the rail and the panel (with the
- * panel hidden, they sit over the strip and its workspace button goes below them); the navigation
+ * With the panel shown the frame above the rail and the panel holds them, and the cards start
+ * below it (on phones, in the drawer, the workspace strip holds them at its start; with the panel
+ * hidden, they sit over the strip and its workspace button goes below them); the navigation
  * that takes the sidebar's place in settings and admin starts below them; a header the buttons
  * would cover (no open panel beside it, or the sidebar on the right) leaves their width free. The region dragging the window is a strip over the whole width (the root
  * layout's data-window-drag); what can be clicked or typed in there is cut out of it.
@@ -1908,6 +1939,19 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
   }
 }
 @media (min-width: 768px) {
+  /* The panel shown, the window's buttons take the frame above the rail and the panel, and the
+     page's card starts level with the panel's. */
+  :root[data-window-controls]:not([data-full-screen], [dir="rtl"]) {
+    [data-sidebar][data-sidebar-open] {
+      padding-top: var(--window-controls-height);
+    }
+    [data-sidebar][data-sidebar-open] [data-sidebar-panel] {
+      margin-top: 0;
+    }
+    aside[data-sidebar][data-sidebar-open] ~ main {
+      margin-top: var(--window-controls-height);
+    }
+  }
   /* The panel hidden, the strip is the rail's width: the buttons take its top, and beside it a header leaves only what they take past it. */
   :root[data-window-controls]:not([data-full-screen], [dir="rtl"]) [data-sidebar]:not([data-sidebar-open]) [data-sidebar-strip] {
     height: auto;
@@ -1932,8 +1976,8 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
  * window's full height, and the tab strip, a view of the app's own, lies over the top of the rest
  * of the page, where it was told (components/desktop-tab-strip.tsx). What sits beside the sidebar
  * starts below the strip, panels fixed to the window's edge too (their top is --app-top). The
- * window's buttons sit at the start of the sidebar's workspace strip, and that row moves the
- * window, as in the versions before tabs above; with the panel hidden the tab strip starts at the
+ * window's buttons sit in the frame above the rail and the panel, and that row moves the window,
+ * as in the versions before tabs above; with the panel hidden the tab strip starts at the
  * window's edge, over the rail's top, and the workspace strip below it.
  * That row alone: the strip moves the window over the rest, and Electron on macOS gathers every
  * view's regions, so one of the page's under the strip would take the strip's buttons' clicks
@@ -1981,8 +2025,13 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
       :is(button, a[href], input, textarea, select, label, summary, [contenteditable="true"], [role="button"], [role="link"], [role="menuitem"], [role="tab"], [role="separator"]) {
       -webkit-app-region: no-drag;
     }
-    [data-sidebar]:not(:has([data-sidebar-strip])) {
+    [data-sidebar]:not(:has([data-sidebar-strip])),
+    [data-sidebar][data-sidebar-open] {
       padding-top: var(--window-controls-height);
+    }
+    /* The panel's card starts at the strip's line, level with the page's. */
+    [data-sidebar][data-sidebar-open] [data-sidebar-panel] {
+      margin-top: 0;
     }
     /* With the tab strip it makes one row: its line under it continues the strip's, drawn just
        below --app-top, and no line stands between them. */
@@ -2023,4 +2072,5 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 .leafdesk-editor .bn-block-outer {
   scroll-margin-top: 4rem;
 }
+
 

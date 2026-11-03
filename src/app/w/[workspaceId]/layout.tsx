@@ -85,7 +85,7 @@ export default async function WorkspaceLayout({
       {/* Meetings keep recording while the person moves around the workspace (meeting-recorder.tsx). */}
       <MeetingRecorderProvider workspaceId={workspaceId} limits={voice}>
       <RowPanelProvider workspaceId={workspaceId} user={{ id: user.id, name: user.name }}>
-        <div className="flex h-full">
+        <div className="flex h-full bg-frame">
           <Sidebar
             workspaceId={workspaceId}
             workspaces={workspaces}
@@ -105,7 +105,7 @@ export default async function WorkspaceLayout({
             user={{ id: user.id, name: user.name, email: user.email, image: user.image ?? null }}
           />
           {/* Room for the AI chat panel while it is open (--chat-width in globals.css). */}
-          <main className="min-w-0 flex-1 overflow-y-auto pb-(--safe-bottom) me-(--chat-width)">
+          <main className="min-w-0 flex-1 overflow-y-auto bg-bg pb-(--safe-bottom) me-(--chat-width)">
             <FloatingSidebarButton />
             {children}
           </main>

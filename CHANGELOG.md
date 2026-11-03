@@ -29,8 +29,10 @@
 ### Changed
 
 - **A calmer look across the app.** Surfaces are plain neutral grays in layers, rows hovered or
-  picked take a lighter tint and lines are fainter; the sidebar's rail shares the page's
-  background. Page titles (Home's greeting, My tasks, Meetings, Settings, agents, the chat's
+  picked take a lighter tint and lines are fainter. On wide windows the rail sits on a gray frame
+  and the sidebar's panel and the page are one card above it; the workspace's menu moved from the
+  top of the sidebar to the foot of its panel (on the rail's top while the panel is hidden), and
+  the rail's icons are larger. The desktop app's tab strip takes the frame's color. Page titles (Home's greeting, My tasks, Meetings, Settings, agents, the chat's
   greeting) are set in Roboto Slab, bundled with the app. The rail's icons are thinner and the
   place that is open shows its icon filled, and icons everywhere are drawn with a thinner line.
   Primary buttons are drawn in the text's color (black, white in the dark theme); green stays for

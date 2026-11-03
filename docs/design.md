@@ -66,6 +66,11 @@ Separate with space first, a filled surface second and a line last.
 - Shadows: none on what sits in the page; `shadow-lg` for menus and cards that float; `dialogShadow`
   for dialogs and panels over a shade.
 - An icon beside a title stands on its own, without a box around it.
+- The window has a frame (`bg-frame`, a step darker than the page): on wide windows the rail sits
+  on it, and the sidebar's panel and the page are one card above it, edged by a line and rounded
+  at the start of its top. Something on the frame hovers and is picked with `bg-frame-hover` and
+  `bg-frame-active`; the page's own tints would vanish into it. The workspace's menu is at the
+  panel's foot, or on the rail's top while the panel is hidden.
 - Icons are drawn with a 1.5 line (`LucideProvider` in `app/layout.tsx`); the rail's own icons
   (`sidebar/rail-icons.tsx`) are as thin, and the place that is open shows its icon filled.
 
