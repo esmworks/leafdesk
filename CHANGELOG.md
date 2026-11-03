@@ -31,6 +31,9 @@
 
 ### Changed
 
+- **The pages panel reads more easily.** Teamspace names are set in a heavier weight with a little
+  room above each, every row's text starts at the same line, and the row under the teamspaces says
+  *New teamspace* instead of *Add new*.
 - **Agents are listed only in the sidebar's Agents tab.** The *Agents* section under your pages,
   which showed the same list, is gone; a sidebar layout saved with it drops it.
 - **A calmer look across the app.** Surfaces are plain neutral grays in layers, rows hovered or

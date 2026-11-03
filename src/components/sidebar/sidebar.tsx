@@ -1185,7 +1185,7 @@ export function Sidebar({
             <span className="flex h-6 w-6 shrink-0 items-center justify-center">
               <Plus className="h-3.5 w-3.5" />
             </span>
-            <span className="truncate ps-1.5">{t("pages.createFirst")}</span>
+            <span className="truncate ps-0.5">{t("pages.createFirst")}</span>
           </button>
         )}
         <LimitedRoots
@@ -1264,7 +1264,7 @@ export function Sidebar({
             />
           ))}
         </ul>
-        {/* "Add new": a new teamspace, or the list to join one from. */}
+        {/* A new teamspace, or the list to join one from, set apart from the last teamspace's pages. */}
         {!localMode && (
           <button
             type="button"
@@ -1273,12 +1273,12 @@ export function Sidebar({
             }
             disabled={canCreateTeamspace && offline}
             title={canCreateTeamspace ? needsServer(t("teamspaces.new")) : undefined}
-            className="flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
+            className="mt-1 flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start text-fg-muted hover:bg-bg-hover hover:text-fg disabled:opacity-50 disabled:hover:bg-transparent"
           >
             <span className="flex h-6 w-6 shrink-0 items-center justify-center">
               <Plus className="h-3.5 w-3.5" />
             </span>
-            <span className="truncate ps-1.5">{canCreateTeamspace ? t("teamspaces.addNew") : t("teamspaces.browse")}</span>
+            <span className="truncate ps-0.5">{canCreateTeamspace ? t("teamspaces.new") : t("teamspaces.browse")}</span>
           </button>
         )}
       </SectionGroup>
@@ -1326,7 +1326,7 @@ export function Sidebar({
             <span className="flex h-6 w-6 shrink-0 items-center justify-center">
               <Plus className="h-3.5 w-3.5" />
             </span>
-            <span className="truncate ps-1.5">{t("pages.createFirst")}</span>
+            <span className="truncate ps-0.5">{t("pages.createFirst")}</span>
           </button>
         )}
         <LimitedRoots
@@ -2226,7 +2226,8 @@ function TeamspaceSection({
   // Top-level pages locked to those who manage it (server/teamspaces.ts): no adding them here.
   const adds = teamspace.canArrangeTopLevel;
   return (
-    <li>
+    // A little room above each teamspace but the first tells where the one before it ends.
+    <li className="not-first:mt-1">
       <div
         {...handlers}
         data-teamspace={teamspace.id}
@@ -2237,7 +2238,7 @@ function TeamspaceSection({
           aria-expanded={open}
           onClick={onToggle}
           title={teamspace.description || undefined}
-          className="flex h-full min-w-0 flex-1 items-center gap-1.5 text-start"
+          className="flex h-full min-w-0 flex-1 items-center gap-1 text-start"
         >
           <span className="flex h-6 w-6 shrink-0 items-center justify-center">
             <span className="flex group-hover:hidden pointer-coarse:hidden">
@@ -2249,7 +2250,7 @@ function TeamspaceSection({
               <ChevronRight className="hidden h-3.5 w-3.5 text-fg-faint group-hover:block pointer-coarse:block rtl:-scale-x-100" />
             )}
           </span>
-          <span className="truncate">{teamspace.name}</span>
+          <span className="truncate font-medium">{teamspace.name}</span>
         </button>
         <div className="hidden items-center group-hover:flex focus-within:flex has-[[data-open]]:flex pointer-coarse:flex">
           <Popover
@@ -2747,7 +2748,7 @@ function TreeItem({
         kids.length > 0 ? (
           <TreeLevel nodes={kids} {...props} depth={depth + 1} />
         ) : (
-          <p className="py-1 text-xs text-fg-faint" style={{ paddingInlineStart: 28 + depth * 14 }}>
+          <p className="py-1 text-xs text-fg-faint" style={{ paddingInlineStart: 46 + depth * 14 }}>
             {t("pages.noChildren")}
           </p>
         )
