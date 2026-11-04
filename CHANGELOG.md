@@ -30,6 +30,11 @@
 
 - **Mail you alone wrote is listed by whom it went to.** Sent mail, and threads nobody has answered
   yet, read *To: Ayşe* in the list instead of *me* on every row.
+- **An answer goes when another mail program moved what it answers.** A message moved or a folder
+  renumbered elsewhere while an answer was being written no longer stops it with "That message
+  isn't on this row any more": the Mail tab finds the original by its Message-ID, still answers it
+  in its thread, and makes the quote from it again when the saved draft was taken out of the
+  drafts folder elsewhere. A message the Mail tab can't find says so in its own words.
 
 ## 0.7.2 — 2026-11-04
 

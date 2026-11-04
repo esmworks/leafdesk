@@ -36,6 +36,7 @@
   "noneOpen": "Choose a conversation to read it.",
   "loading": "Loading…",
   "loadFailed": "Mail couldn’t be loaded. Try again in a moment.",
+  "gone": "This message is no longer where it was in the mailbox. It may have been moved or deleted in another mail program.",
   "noSubject": "(no subject)",
   "untitledRow": "Untitled",
   "me": "me",

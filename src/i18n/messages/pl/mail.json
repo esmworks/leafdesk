@@ -36,6 +36,7 @@
   "noneOpen": "Wybierz konwersację, aby ją przeczytać.",
   "loading": "Wczytywanie…",
   "loadFailed": "Nie udało się wczytać poczty. Spróbuj ponownie za chwilę.",
+  "gone": "Tej wiadomości nie ma już tam, gdzie była w skrzynce. Mogła zostać przeniesiona lub usunięta w innym programie pocztowym.",
   "noSubject": "(bez tematu)",
   "untitledRow": "Bez tytułu",
   "me": "ja",

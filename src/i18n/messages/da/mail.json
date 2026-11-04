@@ -36,6 +36,7 @@
   "noneOpen": "Vælg en samtale for at læse den.",
   "loading": "Indlæser…",
   "loadFailed": "Mail kunne ikke indlæses. Prøv igen om lidt.",
+  "gone": "Denne besked er ikke længere, hvor den var i postkassen. Den kan være flyttet eller slettet i et andet mailprogram.",
   "noSubject": "(intet emne)",
   "untitledRow": "Uden titel",
   "me": "mig",

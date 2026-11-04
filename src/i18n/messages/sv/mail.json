@@ -36,6 +36,7 @@
   "noneOpen": "Välj en konversation för att läsa den.",
   "loading": "Läser in …",
   "loadFailed": "E-posten kunde inte läsas in. Försök igen om en stund.",
+  "gone": "Det här meddelandet finns inte längre där det låg i brevlådan. Det kan ha flyttats eller tagits bort i ett annat e-postprogram.",
   "noSubject": "(inget ämne)",
   "untitledRow": "Namnlös",
   "me": "jag",

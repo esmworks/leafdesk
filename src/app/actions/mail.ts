@@ -15,7 +15,7 @@ import { mailTemplate } from "@/server/mail-client/templates";
 import { unsubscribe } from "@/server/mail-client/unsubscribe";
 import { emptyFolder, holdMail, mailAction, sendStatus, undoSend } from "@/server/mail-client/write";
 import { MailConnectError } from "@/server/row-mail/connect";
-import { RowMailError } from "@/server/row-mail/settings";
+import { RowMailError, type RowMailErrorCode } from "@/server/row-mail/settings";
 import { requireUserId } from "@/server/session";
 import { SnippetError } from "@/server/snippets";
 
@@ -23,13 +23,19 @@ import { SnippetError } from "@/server/snippets";
 // Reads are served through app/api/read; expected failures come back translated, as Next.js hides
 // thrown messages in production.
 
+/** A mail error as the Mail tab says it: a message gone is gone from the mailbox, not from a row. */
+async function mailErrorText(code: RowMailErrorCode) {
+  if (code === "gone") return (await getTranslations("mail"))("gone");
+  return (await getTranslations("settings.email.errors"))(code);
+}
+
 async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<T>> {
   const userId = await requireUserId();
   try {
     return { ok: true, data: await fn(userId) };
   } catch (error) {
     const t = await getTranslations("settings.email.errors");
-    if (error instanceof RowMailError) return { ok: false, error: t(error.code), code: error.code };
+    if (error instanceof RowMailError) return { ok: false, error: await mailErrorText(error.code), code: error.code };
     if (error instanceof AccessError) return { ok: false, error: t("accessDenied"), code: "accessDenied" };
     // The mail server refused the connection or dropped it (server/mail-client/pool.ts).
     if (error instanceof MailConnectError) return { ok: false, error: t(error.code), code: error.code };
@@ -174,8 +180,7 @@ export async function undoSendAction(sendId: string): Promise<ActionResult<MailU
 export async function sendStatusAction(sendId: string): Promise<ActionResult<MailSendStatus>> {
   return run(async (userId) => {
     const status = sendStatus(userId, sendId);
-    const t = await getTranslations("settings.email.errors");
-    return { state: status.state, error: status.error ? t(status.error) : null, sent: status.sent };
+    return { state: status.state, error: status.error ? await mailErrorText(status.error) : null, sent: status.sent };
   });
 }
 

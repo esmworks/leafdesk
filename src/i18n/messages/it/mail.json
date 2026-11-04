@@ -36,6 +36,7 @@
   "noneOpen": "Scegli una conversazione da leggere.",
   "loading": "Caricamento…",
   "loadFailed": "Impossibile caricare la posta. Riprova tra un momento.",
+  "gone": "Questo messaggio non è più dove si trovava nella casella di posta. Potrebbe essere stato spostato o eliminato in un altro programma di posta.",
   "noSubject": "(nessun oggetto)",
   "untitledRow": "Senza titolo",
   "me": "io",

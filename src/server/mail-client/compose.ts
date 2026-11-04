@@ -1,9 +1,9 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, type SQL } from "drizzle-orm";
 import type { ImapFlow } from "imapflow";
 import MailComposer from "nodemailer/lib/mail-composer";
 import { db } from "@/db";
 import { mailFolder, mailMessage, user, type mailbox } from "@/db/schema";
-import { MAX_MAIL_TEXT, normalizeAddress } from "@/lib/mail";
+import { bareMessageId, MAX_MAIL_TEXT, normalizeAddress } from "@/lib/mail";
 import { MAX_COMPOSE_BYTES, MAX_MAIL_HTML, MAX_MAIL_RECIPIENTS, type MailDraftInput } from "@/lib/mail-client";
 import { RowMailError } from "@/server/row-mail/settings";
 import { INLINE_CID, outgoingBody } from "./outgoing";
@@ -30,18 +30,50 @@ function addresses(values: unknown): string[] {
   return [...new Set(out as string[])];
 }
 
-/** A message of the person's mailbox, with its folder's path; `gone` when it isn't in the index. */
-export async function storedMessage(box: Box, id: unknown): Promise<StoredMessage> {
-  const [found] =
-    typeof id === "string" && id
-      ? await db
-          .select({ message: mailMessage, path: mailFolder.path })
-          .from(mailMessage)
-          .innerJoin(mailFolder, eq(mailFolder.id, mailMessage.folderId))
-          .where(and(eq(mailMessage.id, id), eq(mailMessage.mailboxId, box.id)))
-      : [];
+async function findStored(box: Box, which: SQL): Promise<StoredMessage | null> {
+  const [found] = await db
+    .select({ message: mailMessage, path: mailFolder.path })
+    .from(mailMessage)
+    .innerJoin(mailFolder, eq(mailFolder.id, mailMessage.folderId))
+    .where(and(eq(mailMessage.mailboxId, box.id), which))
+    .orderBy(desc(mailMessage.sentAt))
+    .limit(1);
+  return found ? { ...found.message, path: found.path } : null;
+}
+
+/** A Message-ID as the index keeps it, or null when what came isn't one. */
+function messageIdOf(value: unknown): string | null {
+  const id = typeof value === "string" ? bareMessageId(value) : "";
+  return id && id.length <= 998 && !/[\s<>]/.test(id) ? id : null;
+}
+
+/**
+ * A message of the person's mailbox, with its folder's path: by its id in the index, else by its
+ * Message-ID (`messageId`) wherever the index has it now, as after it was moved or its folder was
+ * numbered anew, which gives it a new id; `gone` when the index has neither.
+ */
+export async function storedMessage(box: Box, id: unknown, messageId?: unknown): Promise<StoredMessage> {
+  const byId = typeof id === "string" && id ? await findStored(box, eq(mailMessage.id, id)) : null;
+  const bare = byId ? null : messageIdOf(messageId);
+  const found = byId ?? (bare ? await findStored(box, eq(mailMessage.messageId, bare)) : null);
   if (!found) throw new RowMailError("gone");
-  return { ...found.message, path: found.path };
+  return found;
+}
+
+/**
+ * The message an answer answers: its Message-ID and the references it carries on, and where it is
+ * when the index has it (to mark it answered). An answer still goes when the index lost it, by the
+ * Message-ID the composer knows.
+ */
+export type Answered = { messageId: string; references: string[]; stored: StoredMessage | null };
+
+async function answered(box: Box, id: unknown, messageId: unknown): Promise<Answered | null> {
+  const stored = await storedMessage(box, id, messageId).catch((error) => {
+    if (error instanceof RowMailError && error.code === "gone" && messageIdOf(messageId)) return null;
+    throw error;
+  });
+  if (stored) return stored.messageId ? { messageId: stored.messageId, references: stored.references, stored } : null;
+  return { messageId: messageIdOf(messageId)!, references: [], stored: null };
 }
 
 export type Written = {
@@ -52,7 +84,7 @@ export type Written = {
   text: string;
   html: string | undefined;
   /** The message it answers, whose references it carries. */
-  answers: StoredMessage | null;
+  answers: Answered | null;
 };
 
 /**
@@ -72,8 +104,8 @@ export async function written(box: Box, draft: MailDraftInput, options: { toSend
   const recipients = to.length + cc.length + bcc.length;
   if (recipients > MAX_MAIL_RECIPIENTS || text.length > MAX_MAIL_TEXT) throw new RowMailError("invalid");
   if (options.toSend && (!recipients || (!subject && !text.trim()))) throw new RowMailError("invalid");
-  const answers = draft.replyTo ? await storedMessage(box, draft.replyTo) : null;
-  return { to, cc, bcc, subject, text, html: cleaned?.html, answers: answers?.messageId ? answers : null };
+  const answers = draft.replyTo ? await answered(box, draft.replyTo, draft.sourceMessageId) : null;
+  return { to, cc, bcc, subject, text, html: cleaned?.html, answers };
 }
 
 /** Files the person added, as attachments, within MAX_COMPOSE_BYTES with the `already` there. */
@@ -147,7 +179,7 @@ export async function buildMessage(userId: string, box: Box, w: Written, attachm
   const parts = new Set(attachments.flatMap((a) => (a.cid ? [a.cid] : [])));
   const html = w.html?.replace(/<img\b[^>]*\bsrc="cid:([^"]+)"[^>]*>/gi, (img, cid: string) => (parts.has(cid) ? img : ""));
   const [person] = await db.select({ name: user.name }).from(user).where(eq(user.id, userId));
-  const references = w.answers ? [...w.answers.references, w.answers.messageId!].slice(-20) : [];
+  const references = w.answers ? [...w.answers.references, w.answers.messageId].slice(-20) : [];
   const node = new MailComposer({
     from: { name: box.displayName || person?.name || "", address: box.address },
     to: w.to,

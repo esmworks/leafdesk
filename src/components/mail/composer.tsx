@@ -180,6 +180,8 @@ export function Composer({
   const answering = mode === "reply" || mode === "replyAll";
   // The message it answers: the one under which it is written, or the one its draft answers.
   const replyTo = answering ? (source?.message.id ?? null) : (draft?.replyTo ?? null);
+  // And its Message-ID, which still finds it when the index has given it a new id meanwhile.
+  const sourceMessageId = answering || mode === "forward" ? (source?.message.messageId ?? null) : (draft?.replyToMessageId ?? null);
   const { editor, linking, setLinking } = useMailEditor({
     html: initial.html,
     placeholder: t("placeholder"),
@@ -247,6 +249,7 @@ export function Composer({
         html: written.html,
         replyTo,
         forward: mode === "forward" ? (source?.message.id ?? null) : null,
+        sourceMessageId,
         draft: ref,
         quote: quoted ? { header: initial.quote } : null,
       }),
