@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import pdfmake from "pdfmake";
 import roboto from "pdfmake/fonts/Roboto.js";
@@ -7,7 +8,11 @@ import type { MdBlock } from "@/lib/content-markdown";
 import { tint } from "@/lib/letterheads";
 import { ENGLISH_STARTER_LABELS, starterTheme } from "@/lib/pdf-theme-starter";
 import type { PdfTheme } from "@/lib/pdf-themes";
-import { pdfDocument, type PdfInput, type PdfSection } from "./pdf-document";
+import { pdfDocument, TITLE_FONT, type PdfInput, type PdfSection } from "./pdf-document";
+
+/** The families pdf.ts registers: Roboto, and Roboto Slab for page titles. */
+const SLAB = join(process.cwd(), "src", "app", "fonts", "roboto-slab", "RobotoSlab-Regular.ttf");
+const FONTS = { ...roboto, [TITLE_FONT]: { normal: SLAB, bold: SLAB, italics: SLAB, bolditalics: SLAB } };
 
 const text = (value: string, styles: Record<string, unknown> = {}) => ({ type: "text", text: value, styles });
 const block = (type: string, content: unknown = [], props: Record<string, unknown> = {}, children: MdBlock[] = []): MdBlock => ({
@@ -188,7 +193,7 @@ describe("pdfDocument", () => {
       ],
     };
     expect(JSON.stringify(contentOf(input([block("paragraph", [text("Body")])], { comments: null })))).not.toContain("Comments");
-    pdfmake.setFonts(roboto);
+    pdfmake.setFonts(FONTS);
     pdfmake.setUrlAccessPolicy(() => false);
     pdfmake.setLocalAccessPolicy(() => true);
     const bytes = await pdfmake.createPdf(pdfDocument(input([block("paragraph", [text("Body")])], { comments }))).getBuffer();
@@ -207,7 +212,7 @@ describe("pdfDocument", () => {
     expect(json).toContain("<svg");
     expect(json).toContain("#0b6fa7");
     expect(json).toContain("#7f6606");
-    pdfmake.setFonts(roboto);
+    pdfmake.setFonts(FONTS);
     pdfmake.setUrlAccessPolicy(() => false);
     pdfmake.setLocalAccessPolicy(() => true);
     const bytes = await pdfmake.createPdf(pdfDocument(input([callout], { icon: "icon:star:blue" }))).getBuffer();
@@ -221,7 +226,7 @@ describe("pdfDocument", () => {
   });
 
   it("renders a PDF whose text reads back, Turkish letters included", async () => {
-    pdfmake.setFonts(roboto);
+    pdfmake.setFonts(FONTS);
     pdfmake.setUrlAccessPolicy(() => false);
     pdfmake.setLocalAccessPolicy(() => true);
     const bytes = await pdfmake
@@ -233,6 +238,10 @@ describe("pdfDocument", () => {
     expect(read).toContain("Sayın ESM Soğutma");
     expect(read).toContain("İstanbul");
     expect(read).toContain("ödeme: 90 gün çek");
+    // The title is set in Roboto Slab, at its regular weight.
+    expect(contentOf(input([]))[0]).toMatchObject({ text: "Offer", font: TITLE_FONT });
+    expect(contentOf(input([]))[0]).not.toHaveProperty("bold");
+    expect(Buffer.from(bytes).toString("latin1")).toContain("RobotoSlab-Regular");
   });
 
   it("counts nested numbered lists in letters, then roman numerals", () => {
@@ -262,13 +271,13 @@ describe("pdfDocument", () => {
       text: [{ text: [{ text: "Offer " }, { text: "見積書", font: "CJK" }, { text: " for " }, { text: "한국", font: "CJK" }] }],
     });
     // Without a CJK font nothing changes.
-    expect(JSON.stringify(contentOf(input([block("paragraph", [text("見積書")])])))).not.toContain('"font"');
+    expect(JSON.stringify(contentOf(input([block("paragraph", [text("見積書")])])).slice(1))).not.toContain('"font"');
   });
 
   const NOTO = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc";
   it.skipIf(!existsSync(NOTO))("renders CJK text that reads back where Noto Sans CJK is installed", async () => {
     const face = [NOTO, "NotoSansCJKjp-Regular"] as unknown as string;
-    pdfmake.setFonts({ ...roboto, CJK: { normal: face, bold: face } });
+    pdfmake.setFonts({ ...FONTS, CJK: { normal: face, bold: face } });
     pdfmake.setLocalAccessPolicy(() => true);
     const bytes = await pdfmake
       .createPdf(pdfDocument({ ...input([block("paragraph", [text("見積書 — 한국어, 中文 and English")])]), cjkFont: "CJK" }))
@@ -361,7 +370,7 @@ describe("pdfDocument in a theme", () => {
   });
 
   it("prints the starter quote on one page, its values read back", async () => {
-    pdfmake.setFonts(roboto);
+    pdfmake.setFonts(FONTS);
     pdfmake.setUrlAccessPolicy(() => false);
     pdfmake.setLocalAccessPolicy(() => true);
     const theme = starterTheme(ENGLISH_STARTER_LABELS);

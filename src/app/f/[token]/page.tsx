@@ -44,7 +44,7 @@ export default async function PublicFormRoute({ params }: Params) {
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-10 pb-16 sm:pt-14">
         {!form.anonymous && !session ? (
           <div>
-            <h1 className="text-3xl font-bold leading-tight break-words">{form.title || tc("untitled")}</h1>
+            <h1 className="page-title text-3xl leading-tight tracking-tight break-words">{form.title || tc("untitled")}</h1>
             <div className="mt-8 rounded-lg border border-border bg-bg-subtle p-5">
               <p className="text-base font-medium">{t("signInTitle")}</p>
               <p className="mt-1 text-sm text-fg-muted">{t("signInBody")}</p>

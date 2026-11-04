@@ -50,7 +50,7 @@ export default async function ReportPublishedRoute({ params, searchParams }: Par
         <div className="flex items-center gap-2 text-fg-muted">
           <PageIcon icon={data.icon} kind={data.kind} className="text-2xl" />
         </div>
-        <h1 className="mt-2 text-2xl font-bold leading-tight break-words">{t("title", { title })}</h1>
+        <h1 className="mt-2 font-display text-2xl leading-tight tracking-tight break-words">{t("title", { title })}</h1>
         <p className="mt-2 text-sm text-fg-muted">{t("description")}</p>
         <div className="mt-6 rounded-xl border border-border bg-bg-subtle/60 p-5">
           {query.sent ? (

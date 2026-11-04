@@ -949,7 +949,7 @@ function TitleField({
   // eslint-disable-next-line react-hooks/exhaustive-deps -- inputRef is a ref object; only a new value matters
   }, [value]);
   // Phones get a step smaller, so a typical title fits on one or two lines.
-  const font = cn("font-semibold leading-tight tracking-tight", compact ? "text-xl md:text-2xl" : "text-[1.75rem] md:text-4xl");
+  const font = cn("page-title leading-tight tracking-tight", compact ? "text-xl md:text-2xl" : "text-[1.75rem] md:text-4xl");
   // An invisible copy of the text sizes the box, so the field is only as wide and tall as its text
   // and a click beside the title doesn't start editing it.
   return (

@@ -223,7 +223,7 @@ export function FormFill<P extends FormProperty>({
         void submit();
       }}
     >
-      <h1 className={cn("font-bold leading-tight break-words", paged && at > 0 ? "text-xl" : "text-3xl")}>{title}</h1>
+      <h1 className={cn("page-title leading-tight tracking-tight break-words", paged && at > 0 ? "text-xl" : "text-3xl")}>{title}</h1>
       {description && (!paged || at === 0) && <p className="mt-2 text-sm whitespace-pre-wrap text-fg-muted">{description}</p>}
       {paged && (
         <div className="mt-6">

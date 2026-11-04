@@ -65,6 +65,10 @@ for (const file of fs.readdirSync(path.join(out, ".next", "server"), { recursive
 // schema snapshots are for making new migrations.
 fs.cpSync(path.join(next, "static"), path.join(out, ".next", "static"), { recursive: true });
 fs.cpSync(path.join(repo, "public"), path.join(out, "public"), { recursive: true });
+// Page titles' font for PDFs and Word files, read by path from the working directory (server/pdf.ts).
+const titleFont = path.join("src", "app", "fonts", "roboto-slab");
+fs.mkdirSync(path.join(out, titleFont), { recursive: true });
+for (const file of ["RobotoSlab-Regular.ttf", "LICENSE"]) fs.copyFileSync(path.join(repo, titleFont, file), path.join(out, titleFont, file));
 fs.cpSync(path.join(repo, "drizzle"), path.join(out, "drizzle"), {
   recursive: true,
   filter: (source) => !source.endsWith("_snapshot.json"),

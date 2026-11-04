@@ -57,7 +57,7 @@ async function ExportDisabled() {
   const t = await getTranslations("page.header");
   return (
     <main className="flex min-h-full flex-col items-center justify-center gap-3 bg-bg px-4 text-center text-fg">
-      <h1 className="text-2xl font-bold">{t("exportDisabled")}</h1>
+      <h1 className="font-display text-2xl tracking-tight">{t("exportDisabled")}</h1>
       <p className="max-w-sm text-sm text-fg-muted">{t("exportDisabledBody")}</p>
     </main>
   );

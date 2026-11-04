@@ -322,7 +322,7 @@ function Slides({
       <div className={cn("relative flex min-h-0 flex-1 flex-col bg-bg", backdropClass(background), pageTextClasses(style))}>
         <div ref={scroller} tabIndex={-1} className="flex min-h-0 flex-1 flex-col overflow-y-auto outline-none" onClick={onSlideClick}>
           <div ref={content} className="presentation-slide m-auto w-full max-w-[56em] py-[8vh]">
-            <h2 id={titleId} className={cn("px-[54px] font-bold leading-tight break-words", index === 0 ? "text-[2.75em]" : "sr-only")}>
+            <h2 id={titleId} className={cn("page-title px-[54px] leading-tight break-words", index === 0 ? "text-[2.75em]" : "sr-only")}>
               {icon && (
                 <span aria-hidden className="mb-[0.25em] block text-[1.4em]">
                   <PageIcon icon={icon} kind={kind} />

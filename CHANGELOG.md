@@ -20,6 +20,11 @@
   sections. Journal's calendar loses the *Open today's note* and *Yesterday's note* buttons (the
   calendar's heading and days do that) and *Start with* is a block of its own under the notes.
   `docs/design.md` describes the recipe (*Sidebar panel*).
+- **Pages, databases and rows take the same title face as the app's own pages.** Their titles are
+  set in Roboto Slab in the editor, on published pages and forms, in print, slides and page
+  history, and in exported PDFs and Word files (which embed the font); a page set to the serif or
+  mono typeface keeps it for its title. The graph's heading and the small pages around published
+  pages (reporting, copying, not found) follow too.
 
 ### Fixed
 
