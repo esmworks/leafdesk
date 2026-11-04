@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { eq } from "drizzle-orm";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -28,7 +29,7 @@ import { fileForViewer, readStored } from "@/server/files";
 import { letterheadForPdf, ownedLetterheadWorkspace } from "@/server/letterheads";
 import { getRow } from "@/server/databases";
 import { getBreadcrumbs } from "@/server/pages";
-import { pdfDocument, type PdfEmbed, type PdfLetterhead, type PdfSection, type PdfTable, type PdfThemeInput } from "@/server/pdf-document";
+import { pdfDocument, TITLE_FONT, type PdfEmbed, type PdfLetterhead, type PdfSection, type PdfTable, type PdfThemeInput } from "@/server/pdf-document";
 import { liveChildren, printedEmbed, printRefs, syncedLabels } from "@/server/print";
 import { publishedDatabase, publishedLoads, publishedRow, type PublishedDatabase, type PublishedProperty } from "@/server/publication";
 import { printableBlocks } from "@/server/published-body";
@@ -47,6 +48,22 @@ import { expandSyncedBlocks, readerStates, syncedNotice } from "@/server/synced-
  */
 
 const FONT_DIR = /[\\/]pdfmake[\\/]fonts[\\/]Roboto[\\/][^\\/]+\.ttf$/;
+
+/**
+ * Page titles' face (pdf-document.ts TITLE_FONT), the static regular cut of the variable files the
+ * app's stylesheet loads, kept beside them; read from the working directory, which the Docker
+ * image and the desktop app's server both start in (desktop/scripts/bundle-server.ts copies it).
+ * Missing, titles fall back to Roboto rather than fail.
+ */
+const TITLE_FONT_FILE = join(process.cwd(), "src", "app", "fonts", "roboto-slab", "RobotoSlab-Regular.ttf");
+const titleFace = existsSync(TITLE_FONT_FILE) ? TITLE_FONT_FILE : roboto.Roboto.normal;
+
+let titleFontBytes: Promise<Buffer | null> | undefined;
+/** The title's font file, for a Word document to embed (docx-export.ts); null when it is missing. */
+export function titleFontData(): Promise<Buffer | null> {
+  titleFontBytes ??= readFile(TITLE_FONT_FILE).catch(() => null);
+  return titleFontBytes;
+}
 
 /**
  * Noto Sans CJK, for Chinese, Japanese and Korean text, where the system has it: the Docker image
@@ -71,6 +88,7 @@ const cjkFamily = (variant: CjkVariant) => `NotoSansCJK${variant}`;
 // A font collection's face is [file, PostScript name], which pdfmake reads though its types leave it out.
 pdfmake.setFonts({
   ...roboto,
+  [TITLE_FONT]: { normal: titleFace, bold: titleFace, italics: titleFace, bolditalics: titleFace },
   ...(CJK_FONT
     ? Object.fromEntries(
         Object.values(CJK_VARIANTS).map((v) => {
@@ -82,7 +100,7 @@ pdfmake.setFonts({
     : {}),
 } as unknown as TFontDictionary);
 pdfmake.setUrlAccessPolicy(() => false);
-pdfmake.setLocalAccessPolicy((path) => FONT_DIR.test(path) || (!!CJK_FONT && (path === CJK_FONT.regular || path === CJK_FONT.bold)));
+pdfmake.setLocalAccessPolicy((path) => FONT_DIR.test(path) || path === TITLE_FONT_FILE || (!!CJK_FONT && (path === CJK_FONT.regular || path === CJK_FONT.bold)));
 
 /** The font family for CJK text in a PDF read in `locale`, or null when the system has none. */
 export function cjkFont(locale: string): string | null {

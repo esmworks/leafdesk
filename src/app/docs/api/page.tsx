@@ -131,7 +131,7 @@ export default async function ApiDocsPage() {
     <div className="min-h-dvh bg-bg">
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-8 md:py-14">
         <header className="mb-10 space-y-4">
-          <h1 className="text-3xl font-semibold tracking-tight">{doc.info.title}</h1>
+          <h1 className="font-display text-3xl tracking-tight">{doc.info.title}</h1>
           <p className="text-fg-muted">{inline(intro)}</p>
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
             <a href="/api/v1/openapi.json" className="text-accent hover:underline">

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { strFromU8, unzipSync } from "fflate";
 import { describe, expect, it } from "vitest";
 import type { MdBlock } from "@/lib/content-markdown";
@@ -45,6 +47,18 @@ describe("docx document", () => {
     expect(doc).toContain('<w:pStyle w:val="Heading2"/>');
     expect(doc).toContain(">Terms<");
     expect(doc).toContain(">Body<");
+  });
+
+  it("sets the title in Roboto Slab, embedding the font when given it", async () => {
+    const plain = await parts(input([]));
+    const title = plain["word/styles.xml"].match(/<w:style [^>]*w:styleId="Title"[\s\S]*?<\/w:style>/)?.[0] ?? "";
+    expect(title).toContain('w:ascii="Roboto Slab"');
+    expect(title).not.toContain("<w:b/>");
+    expect(Object.keys(plain).some((path) => path.endsWith(".odttf"))).toBe(false);
+    const slab = readFileSync(join(process.cwd(), "src", "app", "fonts", "roboto-slab", "RobotoSlab-Regular.ttf"));
+    const embedded = await parts(input([], {}, { titleFont: slab }));
+    expect(embedded["word/fontTable.xml"]).toMatch(/w:name="Roboto Slab"[\s\S]*?<w:embedRegular /);
+    expect(Object.keys(embedded).some((path) => path.endsWith(".odttf"))).toBe(true);
   });
 
   it("writes inline styles, links made absolute and Word footnotes", async () => {

@@ -152,7 +152,7 @@ export async function PublishedView({ loaded }: { loaded: LoadedPage }) {
               <div className={wide ? "page-gutter" : "px-4 sm:px-[54px]"}>
                 <div className="flex items-start gap-3">
                   {data.icon && <div className={cn("shrink-0 leading-tight", wide ? "text-3xl" : "text-4xl")}><IconGlyph icon={data.icon} /></div>}
-                  <h1 className={cn("min-w-0 font-bold leading-tight break-words", wide ? "text-3xl" : "text-4xl")}>{title}</h1>
+                  <h1 className={cn("page-title min-w-0 leading-tight tracking-tight break-words", wide ? "text-3xl" : "text-4xl")}>{title}</h1>
                 </div>
                 <p className="mt-2 text-xs text-fg-faint">
                   {t("lastUpdated", { date: format.dateTime(data.updatedAt, { dateStyle: "medium", timeStyle: "short" }) })}

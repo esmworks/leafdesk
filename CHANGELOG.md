@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Changed
+
+- **Pages, databases and rows take the same title face as the app's own pages.** Their titles are
+  set in Roboto Slab in the editor, on published pages and forms, in print, slides and page
+  history, and in exported PDFs and Word files (which embed the font); a page set to the serif or
+  mono typeface keeps it for its title. The graph's heading and the small pages around published
+  pages (reporting, copying, not found) follow too.
+
 ## 0.7.2 — 2026-11-04
 
 ### Upgrading from 0.7.1

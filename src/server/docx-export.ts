@@ -1,6 +1,6 @@
 import { renderDocx } from "@/server/docx-document";
 import { recordExport } from "@/server/export";
-import { pageDocument, type PageDocumentOptions } from "@/server/pdf";
+import { pageDocument, titleFontData, type PageDocumentOptions } from "@/server/pdf";
 
 /**
  * The page `pageId` as a Word document (.docx), read as `userId` exactly as its PDF is (see
@@ -10,7 +10,7 @@ import { pageDocument, type PageDocumentOptions } from "@/server/pdf";
  */
 export async function pageDocx(userId: string, pageId: string, options: PageDocumentOptions = {}) {
   const { target, letterhead, input } = await pageDocument(userId, pageId, options);
-  const bytes = await renderDocx({ ...input, letterhead });
+  const bytes = await renderDocx({ ...input, letterhead, titleFont: await titleFontData() });
   await recordExport(userId, { workspaceId: target.workspaceId, page: { id: target.id, title: target.title }, format: "docx", comments: options.comments ?? false, pages: 1 });
   return { bytes, title: input.title, workspaceId: target.workspaceId };
 }
