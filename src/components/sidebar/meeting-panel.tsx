@@ -6,6 +6,8 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { IconGlyph } from "@/components/builtin-icon";
 import { read } from "@/components/read";
+import { PanelEmpty, panelHeading, panelIcon, panelMeta, panelMore, panelRow, panelRowActive, panelSection } from "@/components/sidebar/panel";
+import { cn } from "@/components/ui";
 import { isUpcoming, SIDEBAR_MEETINGS, type MeetingListItem } from "@/lib/meeting-list";
 
 /** How often the list is read again while the tab is shown. */
@@ -68,15 +70,16 @@ export function MeetingPanel({ workspaceId, pathname, offline, onPages }: Meetin
     const href = `/w/${workspaceId}/p/${m.pageId}`;
     const status = m.status === "recording" ? t("statusRecording") : m.status === "summarizing" ? t("statusSummarizing") : null;
     const at = when(m);
+    const current = pathname === href;
     return (
       <li key={`${m.pageId}:${m.meetingId}`}>
-        <Link href={href} aria-current={pathname === href ? "page" : undefined} className={rowClass}>
+        <Link href={href} aria-current={current ? "page" : undefined} className={cn(panelRow, current && panelRowActive)}>
           <span className="flex h-4 w-4 shrink-0 items-center justify-center text-fg-icon">
             {m.icon ? <IconGlyph icon={m.icon} className="text-sm" /> : <NotebookPen className="h-4 w-4" aria-hidden />}
           </span>
           <span className="min-w-0 flex-1 truncate">{m.title.trim() || m.pageTitle.trim() || t("untitled")}</span>
           {status && <span role="img" aria-label={status} title={status} className="h-1.5 w-1.5 shrink-0 rounded-full bg-danger motion-safe:animate-pulse" />}
-          {at && <span className="shrink-0 text-xs tabular-nums text-fg-faint">{at}</span>}
+          {at && <span className={cn("shrink-0", panelMeta)}>{at}</span>}
         </Link>
       </li>
     );
@@ -86,37 +89,34 @@ export function MeetingPanel({ workspaceId, pathname, offline, onPages }: Meetin
     <div className="flex flex-col">
       <ul className="space-y-px">
         <li>
-          <Link href={meetingsPath} aria-current={pathname === meetingsPath ? "page" : undefined} className={rowClass}>
-            <CalendarDays className="h-4 w-4 shrink-0 text-fg-icon" aria-hidden />
+          <Link href={meetingsPath} aria-current={pathname === meetingsPath ? "page" : undefined} className={cn(panelRow, pathname === meetingsPath && panelRowActive)}>
+            <CalendarDays className={panelIcon} aria-hidden />
             <span className="min-w-0 flex-1 truncate">{t("panel.all")}</span>
           </Link>
         </li>
       </ul>
       {upcoming.length > 0 && (
-        <section aria-labelledby="meetings-upcoming-heading">
-          <h3 id="meetings-upcoming-heading" className={headingClass}>
+        <section aria-labelledby="meetings-upcoming-heading" className={panelSection}>
+          <h3 id="meetings-upcoming-heading" className={panelHeading}>
             {t("upcoming")}
           </h3>
           <ul className="space-y-px">{upcoming.map(row)}</ul>
         </section>
       )}
       {past.length > 0 && (
-        <section aria-labelledby="meetings-past-heading">
-          <h3 id="meetings-past-heading" className={headingClass}>
+        <section aria-labelledby="meetings-past-heading" className={panelSection}>
+          <h3 id="meetings-past-heading" className={panelHeading}>
             {t("past")}
           </h3>
           <ul className="space-y-px">{past.map(row)}</ul>
         </section>
       )}
-      {meetings?.length === 0 && <p className="px-2 pt-3 text-xs text-fg-faint">{t("panel.empty")}</p>}
+      {meetings?.length === 0 && <PanelEmpty className={panelSection}>{t("panel.empty")}</PanelEmpty>}
       {meetings && meetings.length >= SIDEBAR_MEETINGS && (
-        <Link href={meetingsPath} className="mt-px flex h-7 items-center rounded-md px-2 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg">
+        <Link href={meetingsPath} className={panelMore}>
           {t("panel.more")}
         </Link>
       )}
     </div>
   );
 }
-
-const rowClass = "flex h-7 items-center gap-2 rounded-md px-2 text-sm hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg";
-const headingClass = "flex h-7 items-end px-2 pt-3 pb-1 text-xs font-medium text-fg-faint";

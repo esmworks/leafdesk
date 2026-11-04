@@ -15,7 +15,6 @@
   "openFailed": "Det gick inte att öppna daganteckningen",
   "saveFailed": "Det gick inte att spara inställningen",
   "searchHint": "dina daganteckningar",
-  "yesterday": "Gårdagens anteckning",
   "notes": "Anteckningar",
   "noNotes": "Inga anteckningar än. Välj en dag för att börja en."
 }

@@ -9,14 +9,16 @@
  * together, after asking. A dot says when an answer is being written in one, waits for the
  * person's decision, or came while they were away (lib/chat-status.ts).
  */
-import { ListChecks, Loader2, MoreHorizontal, Trash2, X } from "lucide-react";
+import { ListChecks, Loader2, MessageSquare, MoreHorizontal, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { deleteConversationAction } from "@/app/actions/ai";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { SelectBox, useSelection } from "@/components/selection";
+import { panelHeading, PanelEmpty, panelRowActive, panelSection } from "@/components/sidebar/panel";
 import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton, MenuItem, Popover } from "@/components/ui";
 import { chatPath } from "@/lib/ai-chat";
@@ -32,7 +34,12 @@ const ELSEWHERE_MS = 4_000;
 /** How often while one this tab doesn't follow waits for a decision (maybe made in another tab). */
 const WAITING_ELSEWHERE_MS = 30_000;
 
-export function ConversationList() {
+/**
+ * The sidebar's Chat tab: the person's conversations by recency (lib/chat-recency.ts), each with
+ * its status, selected together from the list's ⋯, which sits in the panel's head (`actionsSlot`,
+ * an element sidebar.tsx renders there) beside New chat.
+ */
+export function ConversationList({ actionsSlot }: { actionsSlot?: HTMLElement | null }) {
   const t = useTranslations("ai.chat");
   const router = useRouter();
   const current = useSearchParams().get("c");
@@ -83,8 +90,8 @@ export function ConversationList() {
     await refreshConversations();
   }
 
-  // Like a page in the sidebar's tree: a dot where a page has its icon, then the title.
-  const row = "flex h-7 w-full items-center gap-0.5 rounded-md ps-1 text-start hover:bg-bg-hover";
+  // Like a page in the sidebar's tree: an icon in a 24 px box (the selection box takes its place), then the title.
+  const row = "flex h-7 w-full items-center gap-0.5 rounded-md ps-1 pe-8 text-start text-sm hover:bg-bg-hover";
   /** A ⋯ button opening a menu: two clicks, so nothing goes by accident. */
   const menu = (label: string, items: (close: () => void) => ReactNode, className: string) => (
     <span className={cn("flex", className)}>
@@ -114,76 +121,73 @@ export function ConversationList() {
   );
   // Shown on hover, and while its menu is open.
   const onHover = "opacity-0 group-hover/heading:opacity-100 focus-within:opacity-100 has-[[data-open]]:opacity-100 pointer-coarse:opacity-100";
+  // The list's own actions, in the panel's head while nothing is selected.
+  const listActions =
+    actionsSlot && !selection.some && !!conversations?.length
+      ? createPortal(
+          menu(t("actionsFor", { name: t("history") }), (close) => (
+            <>
+              <MenuItem
+                icon={<ListChecks className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  selection.toggleAll();
+                }}
+              >
+                {t("selectAll")}
+              </MenuItem>
+              {deleteItem(close, t("deleteAll"), () => void remove("all", true))}
+            </>
+          ), ""),
+          actionsSlot,
+        )
+      : null;
 
   return (
-    <div className="space-y-px">
-      <section aria-labelledby="conversations-heading">
-        {selection.some ? (
-          <div className="flex h-7 items-center gap-0.5 rounded-md ps-1 pe-1">
-            <h2 id="conversations-heading" className="sr-only">
-              {t("history")}
-            </h2>
-            <SelectBox
-              checked={selection.all}
-              indeterminate={!selection.all}
-              label={t("selectAll")}
-              visible
-              onToggle={selection.toggleAll}
-            />
-            <span aria-live="polite" className="min-w-0 flex-1 truncate ps-0.5 text-xs font-medium">
-              {t("selectedCount", { count: selection.ids.length })}
-            </span>
-            <IconButton
-              label={t("deleteSelected")}
-              disabled={offline || busy}
-              onClick={() => void remove(selection.ids, true)}
-              className="h-7 w-7 rounded-md hover:text-danger disabled:opacity-50"
-            >
-              <Trash2 className="h-4 w-4" />
-            </IconButton>
-            <IconButton label={t("clearSelection")} onClick={selection.clear} className="h-7 w-7 rounded-md">
-              <X className="h-4 w-4" />
-            </IconButton>
-          </div>
-        ) : (
-          <div className="group/heading flex h-7 items-center rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover">
-            <h2 id="conversations-heading" className="min-w-0 flex-1 truncate px-2 text-xs font-medium text-fg-muted">
-              {t("history")}
-            </h2>
-            {!!conversations?.length &&
-              menu(
-                t("actionsFor", { name: t("history") }),
-                (close) => (
-                  <>
-                    <MenuItem
-                      icon={<ListChecks className="h-4 w-4" />}
-                      onClick={() => {
-                        close();
-                        selection.toggleAll();
-                      }}
-                    >
-                      {t("selectAll")}
-                    </MenuItem>
-                    {deleteItem(close, t("deleteAll"), () => void remove("all", true))}
-                  </>
-                ),
-                onHover,
-              )}
-          </div>
-        )}
-        {failed && (
-          <p role="alert" className="px-2 py-1 text-xs text-danger">
-            {t("deleteFailed")}
-          </p>
-        )}
-        {conversations === null ? (
-          !offline && <Loader2 className="mx-2 mt-2 h-3.5 w-3.5 animate-spin text-fg-muted" aria-hidden />
-        ) : conversations.length === 0 ? (
-          <p className="px-2 py-1 text-xs text-fg-faint">{t("noHistory")}</p>
-        ) : (
-          byRecency(conversations).map((group) => (
-            <div key={group.recency} role="group" aria-labelledby={`conversations-${group.recency}`}>
-              <h3 id={`conversations-${group.recency}`} className="truncate px-2 pt-2.5 pb-1 text-[11px] font-medium text-fg-faint">
+    <section aria-labelledby="conversations-heading">
+      <h2 id="conversations-heading" className="sr-only">
+        {t("history")}
+      </h2>
+      {listActions}
+      {selection.some && (
+        <div className="mb-1 flex h-7 items-center gap-0.5 rounded-md ps-1 pe-1">
+          <SelectBox
+            checked={selection.all}
+            indeterminate={!selection.all}
+            label={t("selectAll")}
+            visible
+            onToggle={selection.toggleAll}
+          />
+          <span aria-live="polite" className="min-w-0 flex-1 truncate ps-0.5 text-xs font-medium">
+            {t("selectedCount", { count: selection.ids.length })}
+          </span>
+          <IconButton
+            label={t("deleteSelected")}
+            disabled={offline || busy}
+            onClick={() => void remove(selection.ids, true)}
+            className="h-7 w-7 rounded-md hover:text-danger disabled:opacity-50"
+          >
+            <Trash2 className="h-4 w-4" />
+          </IconButton>
+          <IconButton label={t("clearSelection")} onClick={selection.clear} className="h-7 w-7 rounded-md">
+            <X className="h-4 w-4" />
+          </IconButton>
+        </div>
+      )}
+      {failed && (
+        <p role="alert" className="px-2 py-1 text-xs text-danger">
+          {t("deleteFailed")}
+        </p>
+      )}
+      {conversations === null ? (
+        !offline && <Loader2 className="mx-2 mt-2 h-3.5 w-3.5 animate-spin text-fg-muted" aria-hidden />
+      ) : conversations.length === 0 ? (
+        <PanelEmpty>{t("noHistory")}</PanelEmpty>
+      ) : (
+        <div>
+          {byRecency(conversations).map((group) => (
+            <div key={group.recency} role="group" aria-labelledby={`conversations-${group.recency}`} className={cn(panelSection, "first:mt-0")}>
+              <h3 id={`conversations-${group.recency}`} className={cn(panelHeading, "truncate")}>
                 {t(`when.${group.recency}`)}
               </h3>
               <ul className="space-y-px">
@@ -198,24 +202,25 @@ export function ConversationList() {
                         onClick={closeDrawer}
                         aria-current={c.id === current ? "page" : undefined}
                         title={title}
-                        className={cn(row, "pe-8", c.id === current && "bg-bg-active font-medium hover:bg-bg-active", picked && "bg-accent/10 hover:bg-accent/15")}
+                        className={cn(row, c.id === current && panelRowActive, picked && "bg-accent/10 hover:bg-accent/15")}
                       >
-                        {/* The dot gives way to the selection box (laid over it, outside the link) on hover. A touch
-                            screen keeps the dot until a selection starts (⋯ › Select all). */}
+                        {/* The icon gives way to the selection box (laid over it, outside the link) on hover. A touch
+                            screen keeps the icon until a selection starts (⋯ › Select all). */}
                         <span
                           aria-hidden
                           className={cn(
-                            "flex h-6 w-6 shrink-0 items-center justify-center",
+                            "flex h-6 w-6 shrink-0 items-center justify-center text-fg-icon",
                             selection.some ? "opacity-0" : "group-hover:opacity-0 group-has-[input:focus-visible]:opacity-0",
                           )}
                         >
-                          {/* Only while something goes on in it, or an answer waits to be read; the place stays empty otherwise. */}
-                          <StatusDot status={status} />
+                          <MessageSquare className="h-4 w-4" />
                         </span>
-                        <span className="flex-1 truncate ps-0.5">
+                        <span className="min-w-0 flex-1 truncate ps-0.5">
                           {title}
                           <StatusLabel status={status} />
                         </span>
+                        {/* Only while something goes on in it, or an answer waits to be read. */}
+                        <StatusDot status={status} />
                       </Link>
                       <span className={cn("absolute inset-y-0 inset-s-1 flex items-center", !selection.some && "pointer-coarse:hidden")}>
                         <SelectBox
@@ -235,9 +240,9 @@ export function ConversationList() {
                 })}
               </ul>
             </div>
-          ))
-        )}
-      </section>
-    </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

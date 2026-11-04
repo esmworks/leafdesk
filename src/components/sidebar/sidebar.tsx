@@ -91,6 +91,7 @@ import { sidebarOrder, withSection, type SidebarLayout, type SidebarSection } fr
 import { addGroup, settled, sortByName, type AgentArrangement } from "@/lib/agent-arrangement";
 import { agentSettingsPath } from "@/lib/agent-settings";
 import { AgentList, newGroupId } from "./agent-list";
+import { PanelEmpty, panelHeading, panelSection } from "./panel";
 import { CustomizeSections } from "./customize-sections";
 import { TeamspaceDialog } from "@/components/teamspaces/teamspace-dialog";
 import { useAiChat } from "@/components/ai-chat/chat-panel";
@@ -330,6 +331,7 @@ export function Sidebar({
   // Creating or trashing a page failed (e.g. access changed meanwhile), or leaving a teamspace did.
   const [actionError, setActionError] = useState<string | null>(null);
   const [creatingMeeting, setCreatingMeeting] = useState(false);
+  const [chatActionsEl, setChatActionsEl] = useState<HTMLElement | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
   const workspace = workspaces.find((w) => w.id === workspaceId);
   // Guests only see pages shared with them (and their own private pages) and can't move pages to the top.
@@ -369,6 +371,7 @@ export function Sidebar({
   const tBuild = useTranslations("build");
   const tMail = useTranslations("mail");
   const tMeetings = useTranslations("meetings");
+  const tTasks = useTranslations("home.myTasks");
   // Databases drafted by AI: where AI is on in the workspace, and the server can be reached.
   const canBuild = Boolean(aiChat?.available) && !offline;
   /** Tooltip for a control that needs the server while it can't be reached. */
@@ -774,6 +777,13 @@ export function Sidebar({
     setMeetingPages((prev) => new Set(prev).add(res.data.id));
     setTab("meetings");
     router.push(`/w/${workspaceId}/p/${res.data.id}`);
+    sidebar?.close();
+  }
+
+  /** My tasks with its New task form open (`?new=`, read by the page; a new value each time, so a second click opens it again). */
+  function newTask() {
+    setTab("tasks");
+    router.push(`${tasksPath}?new=${Date.now()}`);
     sidebar?.close();
   }
 
@@ -1469,9 +1479,13 @@ export function Sidebar({
         <CalendarCheck className="h-4 w-4" />
       </IconButton>
     ) : shownTab === "chat" ? (
-      <IconButton label={tAi("newChat")} title={tAi("newChat")} onClick={newChat} className={headButton}>
-        <SquarePen className="h-4 w-4" />
-      </IconButton>
+      <>
+        <IconButton label={tAi("newChat")} title={tAi("newChat")} onClick={newChat} className={headButton}>
+          <SquarePen className="h-4 w-4" />
+        </IconButton>
+        {/* The list's ⋯ (select all, delete all), which ConversationList draws here. */}
+        <span ref={setChatActionsEl} className="contents" />
+      </>
     ) : shownTab === "mail" ? (
       <IconButton label={tMail("compose")} title={tMail("compose")} onClick={composeMail} className={headButton}>
         <SquarePen className="h-4 w-4" />
@@ -1486,7 +1500,19 @@ export function Sidebar({
       >
         {creatingMeeting ? <Loader2 className="h-4 w-4 animate-spin" /> : <SquarePen className="h-4 w-4" />}
       </IconButton>
-    ) : shownTab === "tasks" ? null : (
+    ) : shownTab === "tasks" ? (
+      !guest && (
+        <IconButton
+          label={tTasks("newTask")}
+          title={needsServer(tTasks("newTask")) ?? tTasks("newTask")}
+          onClick={newTask}
+          disabled={offline}
+          className={headButton}
+        >
+          <SquarePen className="h-4 w-4" />
+        </IconButton>
+      )
+    ) : (
       <>
         {canCreateAgents && (
           <Popover
@@ -1503,7 +1529,7 @@ export function Sidebar({
                 disabled={offline}
                 className={cn(headButton, open && "bg-bg-active text-fg")}
               >
-                <Plus className="h-4 w-4" />
+                <SquarePen className="h-4 w-4" />
               </IconButton>
             )}
           >
@@ -1867,7 +1893,8 @@ export function Sidebar({
                 {actionError}
               </p>
             )}
-            <nav ref={setNavEl} className="peer flex-1 overflow-y-auto px-2 pb-2" aria-label={panelTitle}>
+            {/* Every panel starts the same 8 px under the head, whatever its first block is. */}
+            <nav ref={setNavEl} className="peer flex-1 overflow-y-auto px-2 pt-2 pb-2" aria-label={panelTitle}>
               {shownTab === "tasks" ? (
                 <TaskPanel
                   workspaceId={workspaceId}
@@ -1883,7 +1910,7 @@ export function Sidebar({
               ) : shownTab === "mail" ? (
                 <MailSidebar workspaceId={workspaceId} />
               ) : shownTab === "chat" && aiChat ? (
-                <ConversationList />
+                <ConversationList actionsSlot={chatActionsEl} />
               ) : shownTab === "agents" ? (
                 <AgentList
                   agents={agents}
@@ -1900,19 +1927,13 @@ export function Sidebar({
                   <div className="px-1 pb-3">
                     <DailyNotesCalendar workspaceId={workspaceId} notesKey={journalNotes.map((n) => n.id).join()} />
                   </div>
-                  <section aria-labelledby="journal-notes-heading" className="mb-2">
-                    <h2 id="journal-notes-heading" className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">
+                  <section aria-labelledby="journal-notes-heading">
+                    <h2 id="journal-notes-heading" className={panelHeading}>
                       {tJournal("notes")}
                     </h2>
-                    {journalNotes.length === 0 ? (
-                      <p className="px-2 py-1 text-xs text-fg-faint">{tJournal("noNotes")}</p>
-                    ) : (
-                      <TreeLevel nodes={journalNotes} depth={0} {...treeProps} />
-                    )}
+                    {journalNotes.length === 0 ? <PanelEmpty>{tJournal("noNotes")}</PanelEmpty> : <TreeLevel nodes={journalNotes} depth={0} {...treeProps} />}
                   </section>
-                  <div className="px-2">
-                    <JournalStartPicker workspaceId={workspaceId} />
-                  </div>
+                  <JournalStartPicker workspaceId={workspaceId} />
                 </>
               ) : customizing ? (
                 <CustomizeSections
@@ -2193,7 +2214,7 @@ function SectionGroup({
 }) {
   const { over, handlers } = useRootDrop(drop);
   return (
-    <section className="mt-3 mb-1 first:mt-2" aria-label={label}>
+    <section className={cn(panelSection, "mb-1 first:mt-0")} aria-label={label}>
       <div
         {...handlers}
         className={cn("group/section flex h-7 items-center rounded-md pe-1 hover:bg-bg-hover has-[[data-open]]:bg-bg-hover", over && "bg-accent/15")}
@@ -2202,7 +2223,7 @@ function SectionGroup({
           type="button"
           aria-expanded={open}
           onClick={onToggle}
-          className="flex h-full min-w-0 flex-1 items-center gap-1 px-2 text-start text-xs font-medium text-fg-faint hover:text-fg-muted"
+          className={cn(panelHeading, "h-full min-w-0 flex-1 gap-1 text-start hover:text-fg-muted")}
         >
           <span className="truncate">{label}</span>
           {open ? (

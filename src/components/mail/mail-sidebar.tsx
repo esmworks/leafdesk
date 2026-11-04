@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, useCallback } from "react";
+import { PanelEmpty, panelHeading, panelIcon, panelMeta, panelRow, panelRowActive, panelSection } from "@/components/sidebar/panel";
 import { useSidebar } from "@/components/sidebar/sidebar-context";
 import { cn } from "@/components/ui";
 import { ALL_INBOXES, STARRED, type MailboxTabView, type MailFolderRole, type MailFolderView } from "@/lib/mail-client";
@@ -27,8 +28,6 @@ export function useFolderName() {
   return useCallback((folder: Pick<MailFolderView, "role" | "name">) => (folder.role ? t(folder.role) : folder.name), [t]);
 }
 
-const rowClass = "flex h-7 w-full items-center gap-2 rounded-md px-2 text-start hover:bg-bg-hover";
-
 function FolderLink({ workspaceId, box, folder, active, onPick }: { workspaceId: string; box: MailboxTabView; folder: MailFolderView; active: boolean; onPick: (e: React.MouseEvent, href: string) => void }) {
   const name = useFolderName();
   const Icon = folder.role ? FOLDER_ICONS[folder.role] : Folder;
@@ -40,12 +39,12 @@ function FolderLink({ workspaceId, box, folder, active, onPick }: { workspaceId:
       href={href}
       onClick={(e) => onPick(e, href)}
       aria-current={active ? "page" : undefined}
-      className={cn(rowClass, active && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
+      className={cn(panelRow, active && panelRowActive)}
       style={folder.depth ? { paddingInlineStart: `${0.5 + folder.depth * 0.75}rem` } : undefined}
     >
-      <Icon className="h-4 w-4 shrink-0 text-fg-icon" />
+      <Icon className={panelIcon} />
       <span className={cn("min-w-0 flex-1 truncate", count > 0 && "font-medium text-fg")}>{name(folder)}</span>
-      {count > 0 && <span className="text-xs font-medium tabular-nums text-fg">{count}</span>}
+      {count > 0 && <span className={panelMeta}>{count}</span>}
     </Link>
   );
 }
@@ -53,8 +52,8 @@ function FolderLink({ workspaceId, box, folder, active, onPick }: { workspaceId:
 /** The starred conversations of a mailbox, or of all of them: no count, they are kept rather than read through. */
 function StarredLink({ href, label, active, onPick }: { href: string; label: string; active: boolean; onPick: (e: React.MouseEvent, href: string) => void }) {
   return (
-    <Link href={href} onClick={(e) => onPick(e, href)} aria-current={active ? "page" : undefined} className={cn(rowClass, active && "bg-bg-active font-medium text-fg hover:bg-bg-active")}>
-      <Star className="h-4 w-4 shrink-0 text-fg-icon" />
+    <Link href={href} onClick={(e) => onPick(e, href)} aria-current={active ? "page" : undefined} className={cn(panelRow, active && panelRowActive)}>
+      <Star className={panelIcon} />
       <span className="min-w-0 flex-1 truncate">{label}</span>
     </Link>
   );
@@ -85,7 +84,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
     closeDrawer?.();
   };
 
-  if (error) return <p className="px-2 py-1 text-sm text-fg-muted">{error}</p>;
+  if (error) return <PanelEmpty className="text-fg-muted">{error}</PanelEmpty>;
   if (!boxes || !box) {
     return (
       <div className="space-y-1.5 px-2 pt-1" aria-busy>
@@ -102,7 +101,7 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
   const allUnread = inboxUnread(boxes);
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col">
       {/* Several mailboxes: their inboxes as one list, and their starred, above the open mailbox. */}
       {boxes.length > 1 && (
         <div className="space-y-px">
@@ -110,22 +109,22 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
             href={allHref}
             onClick={(e) => pick(e, allHref)}
             aria-current={all && !starred ? "page" : undefined}
-            className={cn(rowClass, all && !starred && "bg-bg-active font-medium text-fg hover:bg-bg-active")}
+            className={cn(panelRow, all && !starred && panelRowActive)}
           >
-            <Mails className="h-4 w-4 shrink-0 text-fg-icon" />
+            <Mails className={panelIcon} />
             <span className={cn("min-w-0 flex-1 truncate", allUnread > 0 && "font-medium text-fg")}>{t("allInboxes")}</span>
-            {allUnread > 0 && <span className="text-xs font-medium tabular-nums text-fg">{allUnread}</span>}
+            {allUnread > 0 && <span className={panelMeta}>{allUnread}</span>}
           </Link>
           <StarredLink href={mailHref(workspaceId, { box: ALL_INBOXES, f: STARRED })} label={t("allStarred")} active={all && starred} onPick={pick} />
         </div>
       )}
-      {/* The mailbox and its folders in one column, spaced like the folders. New message is in the
-          sidebar panel's heading (sidebar.tsx). */}
-      <div className="space-y-px">
-        <div className={cn(rowClass, "hover:bg-transparent")}>
+      {/* The open mailbox, its address as the heading of its folders. New message is in the
+          sidebar panel's head (sidebar.tsx). */}
+      <section className={cn(boxes.length > 1 && panelSection)} aria-label={box.address}>
+        <h2 className={cn(panelHeading, "gap-2")} title={box.address}>
           <MailboxMark address={box.address} />
-          <span className="min-w-0 flex-1 truncate font-medium" title={box.address}>{box.address}</span>
-        </div>
+          <span className="min-w-0 truncate">{box.address}</span>
+        </h2>
         {box.folders === null ? (
           <div className="space-y-1.5 px-2 pt-2" aria-busy>
             {[60, 45, 55, 40].map((w) => (
@@ -142,10 +141,10 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
             ))}
           </nav>
         )}
-      </div>
+      </section>
       {own.length > 0 && (
-        <section>
-          <h2 className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">{t("ownFolders")}</h2>
+        <section className={panelSection}>
+          <h2 className={panelHeading}>{t("ownFolders")}</h2>
           <div className="space-y-px">
             {own.map((f) => (
               <FolderLink key={f.id} workspaceId={workspaceId} box={box} folder={f} active={!all && !starred && f.id === folder?.id} onPick={pick} />
@@ -154,23 +153,23 @@ export function MailSidebar({ workspaceId }: { workspaceId: string }) {
         </section>
       )}
       {others.length > 0 && (
-        <section>
-          <h2 className="flex h-7 items-center px-2 text-xs font-medium text-fg-muted">{t("otherMailboxes")}</h2>
+        <section className={panelSection}>
+          <h2 className={panelHeading}>{t("otherMailboxes")}</h2>
           <div className="space-y-px">
             {others.map((other) => {
               const unread = other.folders?.find((f) => f.role === "inbox")?.unseen ?? 0;
               return (
-                <Link key={other.id} href={mailHref(workspaceId, { box: other.id })} onClick={(e) => pick(e, mailHref(workspaceId, { box: other.id }))} className={rowClass} title={other.address}>
+                <Link key={other.id} href={mailHref(workspaceId, { box: other.id })} onClick={(e) => pick(e, mailHref(workspaceId, { box: other.id }))} className={panelRow} title={other.address}>
                   <MailboxMark address={other.address} />
                   <span className="min-w-0 flex-1 truncate">{other.address}</span>
-                  {unread > 0 && <span className="text-xs tabular-nums text-fg-muted">{unread}</span>}
+                  {unread > 0 && <span className={panelMeta}>{unread}</span>}
                 </Link>
               );
             })}
           </div>
         </section>
       )}
-      {box.status === "error" && <p className="px-2 text-xs text-danger">{t("mailboxFailing")}</p>}
+      {box.status === "error" && <PanelEmpty className="text-danger">{t("mailboxFailing")}</PanelEmpty>}
     </div>
   );
 }

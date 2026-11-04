@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { SidebarAgent } from "@/server/agents/manage";
 import { IconGlyph } from "@/components/builtin-icon";
+import { PanelEmpty, panelHeading, panelSection } from "@/components/sidebar/panel";
 import { cn, IconButton, MenuItem, MenuSeparator, Popover } from "@/components/ui";
 import { addGroup, arrangeAgents, foldGroup, MAX_AGENT_GROUP_NAME, moveAgent, moveGroup, removeGroup, renameGroup, settled, type AgentArrangement, type AgentPlace } from "@/lib/agent-arrangement";
 import { agentPagePath } from "@/lib/agent-page";
@@ -56,7 +57,7 @@ export function AgentList(props: AgentListProps) {
   const [query, setQuery] = useState("");
   const { groups, loose } = arrangeAgents(agents, arrangement);
 
-  if (agents.length === 0) return <p className="px-2.5 py-2 text-sm text-fg-muted">{t("empty")}</p>;
+  if (agents.length === 0) return <PanelEmpty>{t("empty")}</PanelEmpty>;
 
   const needle = query.trim().toLocaleLowerCase();
   const filterable = agents.length >= FILTER_FROM;
@@ -94,7 +95,7 @@ export function AgentList(props: AgentListProps) {
 function Matches({ agents, workspaceId, activePath, needle }: AgentListProps & { needle: string }) {
   const t = useTranslations("sidebar.agentList");
   const shown = agents.filter((a) => a.name.toLocaleLowerCase().includes(needle) || a.description.toLocaleLowerCase().includes(needle));
-  if (shown.length === 0) return <p className="px-2.5 py-2 text-sm text-fg-muted">{t("noMatch")}</p>;
+  if (shown.length === 0) return <PanelEmpty>{t("noMatch")}</PanelEmpty>;
   return (
     <ul className="space-y-0.5">
       {shown.map((agent) => (
@@ -312,7 +313,7 @@ function Arranged({
 
   const draggingAgent = dragging?.kind === "agent";
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col">
       {groups.map(({ group, agents: inGroup }, gi) => {
         const open = !group.folded;
         const key = `group:${group.id}`;
@@ -320,7 +321,7 @@ function Arranged({
         const menuOpen = menu?.kind === "group" && menu.id === group.id;
         const agentDrop = agentTarget(key, () => ({ group: group.id, index: inGroup.length }), () => "inside");
         return (
-          <section key={group.id} aria-label={group.name}>
+          <section key={group.id} aria-label={group.name} className={cn(gi > 0 && panelSection)}>
             <div
               draggable={movable && renamingGroup !== group.id}
               onDragStart={(e) => {
@@ -374,11 +375,16 @@ function Arranged({
                   type="button"
                   aria-expanded={open}
                   onClick={() => arrange(foldGroup(current, group.id, open))}
-                  className="flex h-full min-w-0 flex-1 items-center gap-1 px-2 text-start text-xs font-medium text-fg-faint hover:text-fg-muted"
+                  className={cn(panelHeading, "h-full min-w-0 flex-1 gap-1 text-start hover:text-fg-muted")}
                 >
-                  {open ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronRight className="h-3 w-3 shrink-0 rtl:-scale-x-100" />}
                   <span className="truncate">{group.name}</span>
                   <span className="tabular-nums font-normal">{inGroup.length}</span>
+                  {/* Like a section of the pages panel: the chevron shows on hover while open, always while folded. */}
+                  {open ? (
+                    <ChevronDown className="h-3 w-3 shrink-0 opacity-0 group-hover/agentgroup:opacity-100 pointer-coarse:opacity-100" />
+                  ) : (
+                    <ChevronRight className="h-3 w-3 shrink-0 rtl:-scale-x-100" />
+                  )}
                 </button>
               )}
               {movable && renamingGroup !== group.id && (
@@ -446,22 +452,22 @@ function Arranged({
               (inGroup.length > 0 ? (
                 <ul className="space-y-0.5">{inGroup.map((agent, i) => agentRow(agent, group.id, i, inGroup.length))}</ul>
               ) : (
-                <p
+                <PanelEmpty
                   {...agentTarget(`empty:${group.id}`, () => ({ group: group.id, index: 0 }), () => "inside")}
-                  className={cn("rounded-md px-2.5 py-1.5 text-xs text-fg-faint", drop?.key === `empty:${group.id}` && "bg-accent/15")}
+                  className={cn("rounded-md", drop?.key === `empty:${group.id}` && "bg-accent/15")}
                 >
                   {t("emptyGroup")}
-                </p>
+                </PanelEmpty>
               ))}
           </section>
         );
       })}
       {(loose.length > 0 || draggingAgent) && (
-        <section aria-label={groups.length > 0 ? t("other") : undefined}>
+        <section aria-label={groups.length > 0 ? t("other") : undefined} className={cn(groups.length > 0 && panelSection)}>
           {groups.length > 0 && (
             <p
               {...agentTarget("loose", () => ({ group: null, index: 0 }), () => "inside")}
-              className={cn("flex h-7 items-center rounded-md px-2 text-xs font-medium text-fg-faint", drop?.key === "loose" && "bg-accent/15")}
+              className={cn(panelHeading, "rounded-md", drop?.key === "loose" && "bg-accent/15")}
             >
               {t("other")}
             </p>

@@ -7,6 +7,19 @@
 - **A message you send from Mail opens once it has gone.** After a new message's Undo seconds the
   pane says it is sending, then opens it in your sent folder, unless you opened something else
   meanwhile.
+- **The sidebar's panels are built alike.** Pages, Journal, My tasks, Meetings, Mail, Chat and
+  Agents share one row, one heading and one way of showing what is open or empty: every heading is
+  a small gray line in the rows' column, blocks stand 12 px apart, the row of the place that is
+  open is bold on its gray, and counts and times sit faint at the row's end. The panel's heading
+  carries the one thing each place makes: a pen for a page, note, task, message or agent (My tasks
+  gets one, opening the page with its New task form; Agents' **+** becomes a pen), and beside it
+  the list's own actions, so Chat's *Select all* and *Delete all* move from a heading inside the
+  list to its ⋯ there and the list starts with *Today*; its rows show a chat icon, which the
+  selection box takes on hover. Mail's folders read under the mailbox's address as their heading,
+  with plain counts; Agents' groups show their chevron on hover and stand apart like the pages'
+  sections. Journal's calendar loses the *Open today's note* and *Yesterday's note* buttons (the
+  calendar's heading and days do that) and *Start with* is a block of its own under the notes.
+  `docs/design.md` describes the recipe (*Sidebar panel*).
 
 ### Fixed
 
