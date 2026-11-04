@@ -67,7 +67,9 @@ export function AgentThreadItem({ item, text, last, page, context }: { item: Age
       return <QueuedQuestion item={item.queued} page={page} name={context.agentName} onRemove={() => context.onUnqueue(item.queued.id)} />;
     case "run":
       return (
-        <div data-run-id={item.run.id} className="scroll-mt-20">
+        // On the agent's page, runs follow one another with no question between them: the room a question
+        // takes in the AI chat parts them instead (`scroll-mt` less by as much, so a run focused still shows at the same place).
+        <div data-run-id={item.run.id} className={page ? "scroll-mt-14 pt-6" : "scroll-mt-20"}>
           <RunMessage run={item.run} last={last} context={context} />
         </div>
       );
@@ -270,7 +272,7 @@ function RunMessage({ run, last, context }: { run: AgentChatRunView; last: boole
   const from = run.label ? t(`from.${run.kind}On`, { place: run.label }) : t(`from.${run.kind}`);
   if (run.quiet) return <QuietRun run={run} from={from} when={when} context={context} />;
   return (
-    <div className="space-y-1 text-sm" data-agent-run={run.kind}>
+    <div className="space-y-2 text-sm" data-agent-run={run.kind}>
       <p className="flex min-w-0 items-center gap-1.5 text-xs text-fg-muted" title={run.task || undefined}>
         <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
         <span className="min-w-0 truncate">{from}</span>

@@ -120,6 +120,11 @@
 
 ### Fixed
 
+- **A chat without boxes beside it is centered.** The AI chat kept room for its Sources and
+  Changes boxes even when it had none, so its column sat to the side; it is centered now until a
+  box shows, as on an agent's page. On an agent's page, runs that follow one another (schedules,
+  mentions, mail) stand as far apart as a question and its answer, and their heading sits a little
+  further from the answer.
 - **No scrollbar shows inside the boxes beside a chat.** The boxes beside an agent's or the AI
   chat's column scrolled with a bar of their own; they scroll without one now.
 - **The rail's counts are no longer cut off.** The counts on the corners of the sidebar rail's
