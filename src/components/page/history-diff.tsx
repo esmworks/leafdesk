@@ -255,7 +255,7 @@ export function HistoryDiff({ diff, range }: { diff: VersionDiff; range: string 
       ) : (
         <div className="mt-5 space-y-0.5 leading-relaxed">
           {diff.title && (
-            <h1 className="mb-4 text-3xl font-bold">
+            <h1 className="page-title mb-4 text-3xl tracking-tight">
               <Words words={diff.title} />
             </h1>
           )}

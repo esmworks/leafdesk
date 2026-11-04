@@ -74,6 +74,9 @@ export type PdfInput = {
   cjkFont?: string | null;
 };
 
+/** The family a page's title is set in (pdf.ts registers it): Roboto Slab, the face the app gives page titles. */
+export const TITLE_FONT = "RobotoSlab";
+
 /** Han, kana, Hangul, CJK punctuation and full-width forms: what Roboto can't draw and the CJK font can. */
 const CJK_TEXT = /([\u1100-\u11ff\u2e80-\u9fff\ua960-\ua97f\uac00-\ud7ff\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef\u{20000}-\u{3134f}]+)/u;
 
@@ -618,7 +621,7 @@ function sectionContent(section: PdfSection, index: number, input: PdfInput): Co
   const first = section.blocks[0];
   const blocks =
     first?.type === "heading" && plainText(first.content).trim().toLowerCase() === title.toLowerCase() ? section.blocks.slice(1) : section.blocks;
-  const heading: Content = { text: title, fontSize: 22, bold: true };
+  const heading: Content = { text: title, fontSize: 22, font: TITLE_FONT };
   const icon = builtinIconSvg(section.icon, { size: 22, fallbackColor: TEXT });
   const titled = input.theme?.theme.title !== false;
   const out: Content[] = titled

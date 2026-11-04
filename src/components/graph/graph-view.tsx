@@ -540,7 +540,7 @@ export function GraphView({ workspaceId, graph }: { workspaceId: string; graph: 
         {/* The first row is as tall as a page's header, and the open button is pulled into the padding, so it sits where it does on pages. */}
         <div data-window-controls-clear className="flex min-h-11 flex-wrap items-center gap-x-4 gap-y-2">
           <SidebarOpenButton className="-me-2 -ms-2.5 md:-ms-3" />
-          <h1 className="text-lg font-semibold tracking-tight">{t("heading")}</h1>
+          <h1 className="font-display text-2xl tracking-tight">{t("heading")}</h1>
           <p className="text-xs text-fg-muted">{t("count", { pages: shown.nodes.length, edges: shown.edges.length })}</p>
           <IconButton label={t("reload")} onClick={() => router.refresh()} className="ms-auto">
             <RotateCw className="h-4 w-4" />

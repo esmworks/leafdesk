@@ -15,10 +15,15 @@ Two weights only: regular (400) for what is read, medium (500) or semibold (600)
 or is pressed. Color does the rest of the ranking: `text-fg` for content, `text-fg-muted` for what
 explains it, `text-fg-faint` for counts and times. Page titles alone take the display face
 (`font-display`, Roboto Slab), at the regular weight; everything else is the interface's face.
+A page's own title (a document, database or row, wherever it shows: the editor, a published page,
+a form, print, slides, a version's preview) is the `page-title` class (globals.css): the same face,
+or the typeface the page picked (serif, mono). PDFs and Word files set it in Roboto Slab too
+(`server/pdf.ts` reads `src/app/fonts/roboto-slab/RobotoSlab-Regular.ttf`; Word files embed it).
 
 | Role | Class | Used for |
 | --- | --- | --- |
-| Page title | `font-display text-2xl tracking-tight text-fg` | The name at the top of a page (an agent, a settings tab, Home's greeting) |
+| Page title | `font-display text-2xl tracking-tight text-fg` | The name at the top of a page (an agent, a settings tab, Home's greeting, the graph) |
+| A page's own title | `page-title leading-tight tracking-tight` | A document's, database's or row's name, at its own size |
 | Dialog title | `text-lg font-semibold text-fg` | `DialogTitle` |
 | Section title | `text-base font-semibold text-fg` | A part of a page: *Memory*, *Triggers* |
 | Group title | `text-sm font-medium text-fg` | A list's heading inside a section |

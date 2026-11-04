@@ -53,7 +53,10 @@ import { AMOUNT, type PdfInput, type PdfLetterhead, type PdfSection, type PdfTab
 
 export const DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-export type DocxInput = Pick<PdfInput, "title" | "sections" | "images" | "link" | "labels" | "letterhead">;
+export type DocxInput = Pick<PdfInput, "title" | "sections" | "images" | "link" | "labels" | "letterhead"> & {
+  /** The title's face (TITLE_FONT, Roboto Slab) to embed, so Word shows it on computers without it; left out, Word picks a stand-in. */
+  titleFont?: Buffer | null;
+};
 
 // A4 and 2 cm margins, in twips; images are sized in pixels at 96 dpi (15 twips each).
 const PAGE_WIDTH = 11906;
@@ -66,6 +69,8 @@ const LOGO_HEIGHT_PX = 53;
 const LOGO_WIDTH_PX = 213;
 const INDENT = 360;
 const FONT = "Calibri";
+/** Page titles' face, as the app and the PDF set them (the family name in the font file). */
+const TITLE_FONT = "Roboto Slab";
 const CODE_FONT = "Consolas";
 /** Half-points. */
 const BODY_SIZE = 21;
@@ -797,13 +802,14 @@ export function docxDocument(input: DocxInput): Document {
     styles: {
       default: {
         document: { run: { font: FONT, size: BODY_SIZE, color: FG }, paragraph: { spacing: { after: 120, line: 276 } } },
-        title: { run: { font: FONT, size: 44, bold: true, color: FG }, paragraph: { spacing: { after: 240 } } },
+        title: { run: { font: TITLE_FONT, size: 44, color: FG }, paragraph: { spacing: { after: 240 } } },
         heading1: heading(HEADING_SIZES[0], 240),
         heading2: heading(HEADING_SIZES[1], 200),
         heading3: heading(HEADING_SIZES[2], 160),
         hyperlink: { run: { color: LINK, underline: {} } },
       },
     },
+    ...(input.titleFont ? { fonts: [{ name: TITLE_FONT, data: input.titleFont }] } : {}),
     numbering: numbering(),
     footnotes: Object.fromEntries([...walk.notes].map(([id, text]) => [id, { children: [new Paragraph({ children: runs(text, { size: SMALL_SIZE }) })] }])),
     sections: [

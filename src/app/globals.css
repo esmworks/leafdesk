@@ -827,6 +827,19 @@ main[data-scrolls-sideways] [data-pin-sideways] {
 :is(.page-font-serif, .page-font-mono) .leafdesk-editor .bn-default-styles {
   font-family: var(--page-font);
 }
+/*
+ * A page's own title, wherever it shows (the editor, a published page, a form, print, a slide, a
+ * version's preview): the page titles' face at the regular weight, as the app's own pages have it,
+ * or the typeface the page picked, then semibold.
+ */
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+:is(.page-font-serif, .page-font-mono) .page-title {
+  font-family: var(--page-font);
+  font-weight: 600;
+}
 .page-small-text .leafdesk-editor .bn-default-styles {
   font-size: 14px;
 }
