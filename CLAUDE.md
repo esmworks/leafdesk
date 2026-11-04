@@ -319,6 +319,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   and `own_request` kinds count failures in a row through `noteScheduleOutcome`, called when the
   run ends, which turns the schedule off at `SCHEDULE_FAILURE_LIMIT` with a `schedule_paused`
   inbox item).
+- **The sidebar's panels** are built from `components/sidebar/panel.tsx` (row, heading, meta, empty
+  line, block spacing; the rules in `docs/design.md` *Sidebar panel*): a new panel or block takes
+  them, and the panel's head in `sidebar.tsx` (`headActions`) holds what the place makes and its
+  list's ⋯ (the chat's is drawn there by `ConversationList` through `actionsSlot`).
 - **The sidebar's tasks tab** (`components/sidebar/task-panel.tsx`, a `lazyPart`): My tasks' views
   and places with counts (`lib/assigned.ts` `TaskView`, `countTasks`; `server/assigned.ts`
   `taskCounts`, read as `taskCounts`), which narrow the page through `?view=` and `?in=`. My tasks'

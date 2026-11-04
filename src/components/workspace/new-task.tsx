@@ -18,11 +18,31 @@ const NewTaskForm = lazyPart<NewTaskFormProps>(
  * My tasks' New task row: opens a form that adds a task to the person's own list
  * (server/own-tasks.ts) with a day, a priority and others it is for.
  */
-export function NewTask({ workspaceId, today, people }: { workspaceId: string; today: string; people: TaskPerson[] }) {
+export function NewTask({
+  workspaceId,
+  today,
+  people,
+  openKey,
+}: {
+  workspaceId: string;
+  today: string;
+  people: TaskPerson[];
+  /** The address's `?new=`: the form opens for each new value (the sidebar's pen), and the value leaves the address. */
+  openKey?: string | null;
+}) {
   const t = useTranslations("home.myTasks");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!!openKey);
   // Loaded once the page is up, so the form is ready for what is typed the moment it opens.
   useEffect(() => void NewTaskForm.preload(), []);
+  useEffect(() => {
+    if (!openKey) return;
+    setOpen(true);
+    // A reload or the back button shouldn't open it again.
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("new") !== openKey) return;
+    url.searchParams.delete("new");
+    window.history.replaceState(window.history.state, "", url);
+  }, [openKey]);
   if (open) return <NewTaskForm workspaceId={workspaceId} today={today} people={people} onClose={() => setOpen(false)} />;
   return (
     <button

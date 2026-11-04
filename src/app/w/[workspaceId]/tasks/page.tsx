@@ -24,15 +24,16 @@ export async function generateMetadata(): Promise<Metadata> {
  * database or page (`?by=database`), the first MY_TASKS_LIMIT of them. The sidebar's tasks tab
  * narrows it to a view (`?view=`, lib/assigned.ts TaskView) or to one database or page (`?in=`).
  * Its New task row adds to the person's own list (server/own-tasks.ts); guests, who have none, don't get it.
+ * The sidebar's pen opens the page with that form open (`?new=<a new number each time>`).
  */
 export default async function MyTasksPage({
   params,
   searchParams,
 }: {
   params: Promise<{ workspaceId: string }>;
-  searchParams: Promise<{ by?: string; view?: string; in?: string }>;
+  searchParams: Promise<{ by?: string; view?: string; in?: string; new?: string }>;
 }) {
-  const [{ workspaceId }, { by, view: viewParam, in: inParam }] = await Promise.all([params, searchParams]);
+  const [{ workspaceId }, { by, view: viewParam, in: inParam, new: newParam }] = await Promise.all([params, searchParams]);
   const { user } = await requireWorkspaceSession(workspaceId);
   const grouping = isAssignedGrouping(by) ? by : "due";
   const view = isTaskView(viewParam) ? viewParam : "all";
@@ -100,7 +101,7 @@ export default async function MyTasksPage({
       </div>
       {adds && (
         <div className="mb-4">
-          <NewTask workspaceId={workspaceId} today={today} people={people} />
+          <NewTask workspaceId={workspaceId} today={today} people={people} openKey={typeof newParam === "string" && /^\d{1,16}$/.test(newParam) ? newParam : null} />
         </div>
       )}
       {rows.length === 0 ? (

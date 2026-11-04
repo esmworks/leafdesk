@@ -12,10 +12,11 @@ import {
   setJournalStartAction,
   type JournalStartChoice,
 } from "@/app/actions/journal";
+import { panelHeading, panelSection } from "@/components/sidebar/panel";
 import { cn, selectClass } from "@/components/ui";
 import type { JournalStart } from "@/db/schema";
 import { firstDayOfWeek, monthWeeks } from "@/lib/calendar";
-import { addDays, today } from "@/lib/journal";
+import { today } from "@/lib/journal";
 import { pageLabel } from "@/lib/labels";
 import { dayNumber, dayString } from "@/lib/time-zone";
 
@@ -171,22 +172,6 @@ export function DailyNotesCalendar({ workspaceId, notesKey }: { workspaceId: str
           </div>
         ))}
       </div>
-      <div className="flex justify-between gap-2 text-xs">
-        <button
-          type="button"
-          onClick={() => open(now)}
-          className="rounded-md px-1.5 py-1 text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
-          {t("openToday")}
-        </button>
-        <button
-          type="button"
-          onClick={() => open(addDays(now, -1))}
-          className="rounded-md px-1.5 py-1 text-fg-muted hover:bg-bg-hover hover:text-fg"
-        >
-          {t("yesterday")}
-        </button>
-      </div>
       {error && (
         <p role="alert" className="text-xs text-danger">
           {error}
@@ -233,27 +218,31 @@ export function JournalStartPicker({ workspaceId }: { workspaceId: string }) {
   };
 
   return (
-    <label className="block space-y-1 border-t border-border pt-3 text-xs text-fg-muted">
-      <span>{t("startWith")}</span>
-      <select value={value} disabled={saving} onChange={(e) => change(e.target.value)} className={cn(selectClass, "w-full")}>
-        <option value="default">{t("startDefault")}</option>
-        <option value="blank">{t("startBlank")}</option>
-        {choice.templates.length > 0 && (
-          <optgroup label={t("startTemplates")}>
-            {choice.templates.map((template) => (
-              <option key={template.id} value={`template:${template.id}`}>
-                {iconPrefix(template.icon)}
-                {pageLabel(template.title, tc("untitled"))}
-              </option>
-            ))}
-          </optgroup>
+    <section className={panelSection} aria-labelledby="journal-start-heading">
+      <h3 id="journal-start-heading" className={panelHeading}>
+        {t("startWith")}
+      </h3>
+      <div className="px-2">
+        <select value={value} disabled={saving} onChange={(e) => change(e.target.value)} aria-labelledby="journal-start-heading" className={cn(selectClass, "w-full")}>
+          <option value="default">{t("startDefault")}</option>
+          <option value="blank">{t("startBlank")}</option>
+          {choice.templates.length > 0 && (
+            <optgroup label={t("startTemplates")}>
+              {choice.templates.map((template) => (
+                <option key={template.id} value={`template:${template.id}`}>
+                  {iconPrefix(template.icon)}
+                  {pageLabel(template.title, tc("untitled"))}
+                </option>
+              ))}
+            </optgroup>
+          )}
+        </select>
+        {error && (
+          <p role="alert" className="mt-1 text-xs text-danger">
+            {error}
+          </p>
         )}
-      </select>
-      {error && (
-        <span role="alert" className="block text-danger">
-          {error}
-        </span>
-      )}
-    </label>
+      </div>
+    </section>
   );
 }

@@ -15,7 +15,6 @@
   "openFailed": "Päivän muistiinpanon avaaminen epäonnistui",
   "saveFailed": "Asetuksen tallentaminen epäonnistui",
   "searchHint": "päivän muistiinpanoistasi",
-  "yesterday": "Eilisen muistiinpano",
   "notes": "Muistiinpanot",
   "noNotes": "Ei vielä muistiinpanoja. Aloita valitsemalla päivä."
 }

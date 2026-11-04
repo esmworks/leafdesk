@@ -97,9 +97,31 @@ Separate with space first, a filled surface second and a line last.
 
 ## Lists
 
-A row is: an optional 16 px icon, the item in `text-sm text-fg`, an optional second line of meta
-(`text-xs text-fg-faint`: when, from which run, by whom), and its actions at the end, shown on hover
-or focus (always shown on touch). A row is at least 40 px tall.
+A row of a list on a page is: an optional 16 px icon, the item in `text-sm text-fg`, an optional
+second line of meta (`text-xs text-fg-faint`: when, from which run, by whom), and its actions at
+the end, shown on hover or focus (always shown on touch). A row is at least 40 px tall. The
+sidebar's panels are denser; they follow the next section.
+
+## Sidebar panel
+
+Every panel beside the rail (Pages, Journal, My tasks, Meetings, Mail, Chat, Agents) is built from
+the same pieces, exported by `components/sidebar/panel.tsx`, so a person who has learned one has
+learned them all:
+
+- **Head**: the panel's name in `text-[15px] font-semibold`, and at its end the one thing the
+  panel makes (a pen, `SquarePen`, for a page, note, task, message or agent; `CalendarCheck`
+  opens today's note), then a ⋯ with the list's own actions when it has some. Never a text button.
+- **Row** (`panelRow`): 28 px tall, a 16 px icon in `text-fg-icon`, the item in `text-sm`, meta at
+  the end (`panelMeta`: `text-xs text-fg-faint tabular-nums`, a count or a time). Lit on hover; the
+  place that is open takes `panelRowActive` (`bg-bg-active font-medium text-fg`). A row's own
+  actions appear at its end on hover. An agent's row alone has a second line (what it does).
+- **Block** (`panelSection`, 12 px above): a heading (`panelHeading`: 28 px, `text-xs
+  font-medium text-fg-faint`, in the rows' column) and its rows. Nothing else separates blocks;
+  no lines. A block whose heading folds shows its chevron on hover.
+- **Empty** (`PanelEmpty`): one line in `text-xs text-fg-faint`, where the rows would be. "More"
+  (`panelMore`) is a quieter row under a block.
+- Something that is not a row, or a heading, or one of these, doesn't belong in a panel: a text
+  button, a field with a border, a second heading for the whole list (the head names it).
 
 ## Buttons
 

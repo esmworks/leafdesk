@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { IconGlyph } from "@/components/builtin-icon";
 import { read } from "@/components/read";
 import { cn } from "@/components/ui";
+import { panelHeading, panelIcon, panelMeta, panelMore, panelRow, panelRowActive, panelSection } from "@/components/sidebar/panel";
 import { isTaskView, SHARED_PLACE, type TaskView } from "@/lib/assigned";
 import { pageLabel } from "@/lib/labels";
 import { TASKS_EVENT } from "@/lib/tasks-event";
@@ -77,12 +78,13 @@ export function TaskPanel({ workspaceId, onTasksPage, view: viewParam, place, by
   const viewRow = (key: TaskView) => {
     const Icon = VIEW_ICONS[key];
     const count = counts?.views[key];
+    const current = onTasksPage && !place && view === key;
     return (
       <li key={key}>
-        <Link href={href({ view: key })} aria-current={onTasksPage && !place && view === key ? "page" : undefined} className={rowClass}>
-          <Icon className="h-4 w-4 shrink-0 text-fg-icon" aria-hidden />
+        <Link href={href({ view: key })} aria-current={current ? "page" : undefined} className={cn(panelRow, current && panelRowActive)}>
+          <Icon className={panelIcon} aria-hidden />
           <span className="min-w-0 flex-1 truncate">{t(`views.${key}`)}</span>
-          {!!count && <span className={cn("text-xs tabular-nums", key === "today" && overdue > 0 ? "text-danger" : "text-fg-faint")}>{count}</span>}
+          {!!count && <span className={cn(panelMeta, key === "today" && overdue > 0 && "text-danger")}>{count}</span>}
         </Link>
       </li>
     );
@@ -95,26 +97,33 @@ export function TaskPanel({ workspaceId, onTasksPage, view: viewParam, place, by
       <ul className="space-y-px" aria-label={t("viewsLabel")}>
         {(["all", "today", "soon", "undated"] as const).map(viewRow)}
       </ul>
-      <h3 className={headingClass}>{t("byKind")}</h3>
-      <ul className="space-y-px">{(["rows", "todos"] as const).map(viewRow)}</ul>
+      <section aria-labelledby="task-kinds-heading" className={panelSection}>
+        <h3 id="task-kinds-heading" className={panelHeading}>
+          {t("byKind")}
+        </h3>
+        <ul className="space-y-px">{(["rows", "todos"] as const).map(viewRow)}</ul>
+      </section>
       {places.length > 0 && (
-        <section aria-labelledby="task-places-heading">
-          <h3 id="task-places-heading" className={headingClass}>
+        <section aria-labelledby="task-places-heading" className={panelSection}>
+          <h3 id="task-places-heading" className={panelHeading}>
             {t("places")}
           </h3>
           <ul className="space-y-px">
-            {shownPlaces.map((p) => (
-              <li key={p.id}>
-                <Link href={href({ in: p.id })} aria-current={onTasksPage && place === p.id ? "page" : undefined} className={rowClass}>
-                  <PlaceIcon place={p} />
-                  <span className="min-w-0 flex-1 truncate">{p.id === SHARED_PLACE ? t("sharedRows") : pageLabel(p.title, tc("untitled"))}</span>
-                  <span className="text-xs tabular-nums text-fg-faint">{p.count}</span>
-                </Link>
-              </li>
-            ))}
+            {shownPlaces.map((p) => {
+              const current = onTasksPage && place === p.id;
+              return (
+                <li key={p.id}>
+                  <Link href={href({ in: p.id })} aria-current={current ? "page" : undefined} className={cn(panelRow, current && panelRowActive)}>
+                    <PlaceIcon place={p} />
+                    <span className="min-w-0 flex-1 truncate">{p.id === SHARED_PLACE ? t("sharedRows") : pageLabel(p.title, tc("untitled"))}</span>
+                    <span className={panelMeta}>{p.count}</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
           {places.length > PLACES_SHOWN && (
-            <button type="button" onClick={() => setAllPlaces(!allPlaces)} className="mt-px flex h-7 w-full items-center rounded-md px-2 text-xs text-fg-muted hover:bg-bg-hover hover:text-fg">
+            <button type="button" onClick={() => setAllPlaces(!allPlaces)} className={panelMore}>
               {allPlaces ? t("fewerPlaces") : t("allPlaces", { count: places.length })}
             </button>
           )}
@@ -123,9 +132,6 @@ export function TaskPanel({ workspaceId, onTasksPage, view: viewParam, place, by
     </div>
   );
 }
-
-const rowClass = "flex h-7 items-center gap-2 rounded-md px-2 text-sm hover:bg-bg-hover aria-[current=page]:bg-bg-active aria-[current=page]:text-fg";
-const headingClass = "flex h-7 items-end px-2 pt-3 pb-1 text-xs font-medium text-fg-faint";
 
 function PlaceIcon({ place }: { place: TaskPlace }) {
   if (place.icon) {
@@ -136,5 +142,5 @@ function PlaceIcon({ place }: { place: TaskPlace }) {
     );
   }
   const Icon = place.id === SHARED_PLACE ? Users : place.kind === "database" ? Table2 : FileText;
-  return <Icon className="h-4 w-4 shrink-0 text-fg-icon" aria-hidden />;
+  return <Icon className={panelIcon} aria-hidden />;
 }
