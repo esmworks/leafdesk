@@ -6,6 +6,8 @@ import { AssignedSection } from "@/components/workspace/assigned-section";
 import { HomeDashboard } from "@/components/workspace/home-dashboard";
 import { HomeFigures } from "@/components/workspace/home-figures";
 import { QuickCreate } from "@/components/workspace/quick-create";
+import { PlaceTopBar } from "@/components/place-top-bar";
+import { HouseIcon } from "@/components/sidebar/rail-icons";
 import { PageIcon } from "@/components/ui";
 import { pageLabel } from "@/lib/labels";
 import { dayString, localDay } from "@/lib/time-zone";
@@ -51,16 +53,19 @@ export default async function WorkspaceHome({
   ]);
   const guest = !membership || isGuest(membership.role);
   const owner = membership?.role === "owner";
-  const [t, tc, format, parents, dashboard] = await Promise.all([
+  const [t, tc, format, parents, dashboard, tSidebar] = await Promise.all([
     getTranslations("home"),
     getTranslations("common"),
     getFormatter(),
     parentTitles(user.id, [...new Set([...pages, ...(viewed ?? [])].map((p) => p.id))]),
     guest ? null : homeDashboard(user.id, workspaceId, { owner }),
+    getTranslations("sidebar"),
   ]);
 
   return (
-    <div className="page-gutter pt-[4.25rem] pb-12">
+    <>
+    <PlaceTopBar icon={<HouseIcon />} title={tSidebar("tabs.home")} />
+    <div className="page-gutter pt-6 pb-12">
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-5">
         <div className="space-y-1">
           <h1 className="font-display text-2xl leading-tight tracking-tight md:text-[28px]">{t("hello", { name: user.name.split(/\s+/)[0] })}</h1>
@@ -154,5 +159,6 @@ export default async function WorkspaceHome({
         </div>
       </div>
     </div>
+    </>
   );
 }

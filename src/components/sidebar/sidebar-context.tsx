@@ -161,11 +161,12 @@ export function SidebarOpenButton({ className }: { className?: string }) {
 /** Settings bring their own navigation (components/settings/settings-nav) in place of the sidebar's panel. */
 export const isSettingsPath = (pathname: string) => /^\/w\/[^/]+\/settings\/?$/.test(pathname);
 
-/** For pages without a header of their own (home, people): a floating open button. */
+/** For pages without a header of their own (people, …): a floating open button. */
 export function FloatingSidebarButton() {
   const pathname = usePathname();
-  // Pages, the graph, the AI chat and Mail render the button in their own header; settings have their own navigation.
-  if (/\/(p\/[\w-]+|graph\/?$|ai\/?$|mail\/?$)/.test(pathname) || isSettingsPath(pathname)) return null;
+  // Pages, the places with a top bar (components/place-top-bar.tsx), the graph, the AI chat and Mail
+  // render the button in their own header; settings have their own navigation.
+  if (/\/(p\/[\w-]+|graph\/?$|ai\/?$|mail\/?$|tasks\/?$|meetings\/?$|calendar\/?$)/.test(pathname) || /^\/w\/[^/]+\/?$/.test(pathname) || isSettingsPath(pathname)) return null;
   return (
     <div data-window-controls-clear className="sticky top-0 z-20 h-0">
       {/* The page scrolls under it: a background of its own keeps it off the text. */}

@@ -7,6 +7,8 @@ import { useFormatter, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { createMeetingNoteAction } from "@/app/actions/meetings";
 import { IconGlyph } from "@/components/builtin-icon";
+import { PlaceTopBar } from "@/components/place-top-bar";
+import { NotebookIcon } from "@/components/sidebar/rail-icons";
 import { Button, Input } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { isUpcoming, matchesMeeting, type MeetingListItem } from "@/lib/meeting-list";
@@ -32,16 +34,17 @@ export function MeetingsList({ workspaceId, meetings, now }: { workspaceId: stri
   };
 
   return (
-    <div className="page-gutter pt-[4.25rem] pb-12">
-      <header className="mb-6 flex flex-wrap items-start gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="font-display text-2xl leading-tight tracking-tight md:text-3xl">{t("heading")}</h1>
-          <p className="mt-2 text-sm text-fg-muted">{t("description")}</p>
-        </div>
-        <Button variant="primary" onClick={() => void create()} disabled={creating}>
-          {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-          {t("newMeeting")}
-        </Button>
+    <>
+    <PlaceTopBar icon={<NotebookIcon />} title={t("heading")}>
+      <Button variant="primary" size="sm" onClick={() => void create()} disabled={creating}>
+        {creating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+        {t("newMeeting")}
+      </Button>
+    </PlaceTopBar>
+    <div className="page-gutter pt-6 pb-12">
+      <header className="mb-6">
+        <h1 className="font-display text-2xl leading-tight tracking-tight md:text-3xl">{t("heading")}</h1>
+        <p className="mt-2 text-sm text-fg-muted">{t("description")}</p>
       </header>
       {error && (
         <p role="alert" className="mb-4 text-sm text-danger">
@@ -70,6 +73,7 @@ export function MeetingsList({ workspaceId, meetings, now }: { workspaceId: stri
         </div>
       )}
     </div>
+    </>
   );
 }
 

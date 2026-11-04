@@ -7,6 +7,8 @@ import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useCalendarItems } from "@/components/calendar/use-calendar-items";
 import { KIND_TINT } from "@/components/calendar/item-tint";
+import { PlaceTopBar } from "@/components/place-top-bar";
+import { CalendarIcon } from "@/components/sidebar/rail-icons";
 import { useViewerTimeZone } from "@/components/database/use-today";
 import { Button, cn } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
@@ -78,54 +80,53 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
   };
 
   return (
-    <div className="page-gutter pt-[4.25rem] pb-12">
-      <header className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-3">
-        <div className="flex min-w-0 flex-1 basis-full items-baseline gap-3 sm:basis-auto">
-          <h1 className="font-display text-2xl leading-tight tracking-tight md:text-3xl">{heading}</h1>
-          <span className="shrink-0 text-xs whitespace-nowrap tabular-nums text-fg-faint">{t("week", { number: isoWeek(first + 3) })}</span>
+    <>
+      <PlaceTopBar icon={<CalendarIcon />} title={t("metaTitle")}>
+        <Button variant="secondary" size="sm" onClick={() => go({ d: null })} disabled={today >= first && today <= last && !asked}>
+          {t("today")}
+        </Button>
+        <button
+          type="button"
+          aria-label={t("previousWeek")}
+          title={t("previousWeek")}
+          onClick={() => go({ d: anchor - 7 })}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-fg-icon hover:bg-bg-hover hover:text-fg"
+        >
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+        </button>
+        <button
+          type="button"
+          aria-label={t("nextWeek")}
+          title={t("nextWeek")}
+          onClick={() => go({ d: anchor + 7 })}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-fg-icon hover:bg-bg-hover hover:text-fg"
+        >
+          <ChevronRight className="h-4 w-4 rtl:rotate-180" />
+        </button>
+        <div role="group" aria-label={t("layout")} className="ms-1 flex rounded-md bg-bg-hover p-0.5">
+          {(["week", "list"] as const).map((m) => {
+            const Icon = m === "week" ? CalendarDays : List;
+            return (
+              <button
+                key={m}
+                type="button"
+                aria-pressed={mode === m}
+                aria-label={t(m === "week" ? "weekView" : "listView")}
+                title={t(m === "week" ? "weekView" : "listView")}
+                onClick={() => go({ view: m })}
+                className={cn("flex h-6 items-center gap-1.5 rounded px-2 text-xs text-fg-muted hover:text-fg", mode === m && "bg-bg text-fg shadow-sm")}
+              >
+                <Icon className="h-3.5 w-3.5" aria-hidden />
+                <span className="max-sm:hidden">{t(m === "week" ? "weekView" : "listView")}</span>
+              </button>
+            );
+          })}
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" onClick={() => go({ d: null })} disabled={today >= first && today <= last && !asked}>
-            {t("today")}
-          </Button>
-          <div className="flex items-center">
-            <button
-              type="button"
-              aria-label={t("previousWeek")}
-              title={t("previousWeek")}
-              onClick={() => go({ d: anchor - 7 })}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-fg-icon hover:bg-bg-hover hover:text-fg"
-            >
-              <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
-            </button>
-            <button
-              type="button"
-              aria-label={t("nextWeek")}
-              title={t("nextWeek")}
-              onClick={() => go({ d: anchor + 7 })}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-fg-icon hover:bg-bg-hover hover:text-fg"
-            >
-              <ChevronRight className="h-4 w-4 rtl:rotate-180" />
-            </button>
-          </div>
-          <div role="group" aria-label={t("layout")} className="flex rounded-md bg-bg-hover p-0.5">
-            {(["week", "list"] as const).map((m) => {
-              const Icon = m === "week" ? CalendarDays : List;
-              return (
-                <button
-                  key={m}
-                  type="button"
-                  aria-pressed={mode === m}
-                  onClick={() => go({ view: m })}
-                  className={cn("flex h-7 items-center gap-1.5 rounded px-2 text-sm text-fg-muted hover:text-fg", mode === m && "bg-bg text-fg shadow-sm")}
-                >
-                  <Icon className="h-3.5 w-3.5" aria-hidden />
-                  {t(m === "week" ? "weekView" : "listView")}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      </PlaceTopBar>
+      <div className="page-gutter pt-6 pb-12">
+      <header className="mb-4 flex min-w-0 items-baseline gap-3">
+        <h1 className="font-display text-2xl leading-tight tracking-tight md:text-3xl">{heading}</h1>
+        <span className="shrink-0 text-xs whitespace-nowrap tabular-nums text-fg-faint">{t("week", { number: isoWeek(first + 3) })}</span>
       </header>
       <ul aria-label={t("legend")} className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-fg-muted">
         {KINDS.map((kind) => (
@@ -140,7 +141,8 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
       ) : (
         <DayList days={days} placed={placed} today={today} whenOn={whenOn} loaded={items !== null} />
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

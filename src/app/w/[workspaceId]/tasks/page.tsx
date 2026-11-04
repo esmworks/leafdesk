@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale, getTimeZone, getTranslations } from "next-intl/server";
 import { AssignedCalendarFeedButton } from "@/components/database/calendar-feed";
+import { PlaceTopBar } from "@/components/place-top-bar";
+import { CheckSquareIcon } from "@/components/sidebar/rail-icons";
 import { AssignedList, type AssignedListGroup } from "@/components/workspace/assigned-list";
 import { NewTask } from "@/components/workspace/new-task";
 import { avatarSrc } from "@/lib/avatar";
@@ -87,7 +89,11 @@ export default async function MyTasksPage({
   );
 
   return (
-    <div className="page-gutter pt-[4.25rem] pb-12">
+    <>
+      <PlaceTopBar icon={<CheckSquareIcon />} title={t("myTasks.title")}>
+        <AssignedCalendarFeedButton workspaceId={workspaceId} />
+      </PlaceTopBar>
+      <div className="page-gutter pt-6 pb-12">
       <header className="mb-6 space-y-2">
         <h1 className="font-display text-2xl leading-tight tracking-tight md:text-3xl">{title}</h1>
         <p className="text-sm text-fg-muted">{filtered ? t("myTasks.filtered") : t("myTasks.description")}</p>
@@ -97,7 +103,6 @@ export default async function MyTasksPage({
           {tab("due", t("myTasks.byDue"))}
           {tab("database", t("myTasks.byDatabase"))}
         </nav>
-        <AssignedCalendarFeedButton workspaceId={workspaceId} />
       </div>
       {adds && (
         <div className="mb-4">
@@ -112,6 +117,7 @@ export default async function MyTasksPage({
       {assigned.total > rows.length && (
         <p className="mt-4 text-xs text-fg-muted">{t("myTasks.shown", { shown: rows.length, total: assigned.total })}</p>
       )}
-    </div>
+      </div>
+    </>
   );
 }

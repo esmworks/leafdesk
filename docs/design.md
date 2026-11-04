@@ -100,6 +100,12 @@ Separate with space first, a filled surface second and a line last.
   filled like a dialog's (`data-filled-fields`). The section is in the address (`?section=`),
   changed with `history.pushState`, so it switches without a round trip and the back button works.
 
+- A workspace place that isn't a page (Home, My tasks, Meetings, the Calendar) has a page's top
+  bar too (`components/place-top-bar.tsx`, 44 px, sticky): the place's icon and name where a page
+  has its path, and the place's own controls at its end (the Calendar's weeks and layout, Meetings'
+  new note). Not Share, favorites or comments: those belong to pages. Its title then sits where a
+  page's does.
+
 ## Lists
 
 A row of a list on a page is: an optional 16 px icon, the item in `text-sm text-fg`, an optional

@@ -11,6 +11,10 @@
 
 ### Changed
 
+- **Home, My tasks, Meetings and the Calendar have a top bar like a page's.** The place's name sits
+  where a page shows its path, and its controls moved up into the bar: the Calendar's Today, weeks
+  and Week/List, My tasks' calendar subscription, Meetings' New meeting note.
+
 - **A message you send from Mail opens once it has gone.** After a new message's Undo seconds the
   pane says it is sending, then opens it in your sent folder, unless you opened something else
   meanwhile.
