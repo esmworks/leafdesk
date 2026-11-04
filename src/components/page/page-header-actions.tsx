@@ -19,6 +19,7 @@ import {
   CopyMinus,
   CornerUpLeft,
   Download,
+  Ellipsis,
   FileArchive,
   FileDown,
   FileCode,
@@ -53,7 +54,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type * as Y from "yjs";
 import {
@@ -489,23 +490,30 @@ function StyleControls({ style, onStyle }: { style: PageStyle; onStyle: (change:
         <span className="flex-1">{t("fullWidth")}</span>
         <Switch checked={style.fullWidth} onChange={(fullWidth) => onStyle({ fullWidth })} label={t("fullWidth")} />
       </div>
-      <label className="flex items-center gap-2 rounded px-2 py-1.5 text-sm">
-        <Link2 className="h-4 w-4 text-fg-muted" />
-        <span className="flex-1">{t("backlinks")}</span>
-        <select
-          value={style.backlinks}
-          onChange={(e) => onStyle({ backlinks: e.target.value as BacklinksMode })}
-          className="rounded border border-border bg-bg px-1 py-0.5 text-xs text-fg"
-        >
-          {BACKLINKS_MODES.map((mode) => (
-            <option key={mode} value={mode}>
-              {t(`backlinksModes.${mode}`)}
-            </option>
-          ))}
-        </select>
-      </label>
       <MenuSeparator />
     </>
+  );
+}
+
+/** Where the page lists the pages linking to it: set now and then, so under "More actions". */
+function BacklinksControl({ style, onStyle }: { style: PageStyle; onStyle: (change: Partial<PageStyle>) => void }) {
+  const t = useTranslations("page.header.style");
+  return (
+    <label className="flex items-center gap-2 rounded px-2 py-1.5 text-sm">
+      <Link2 className="h-4 w-4 text-fg-muted" />
+      <span className="flex-1">{t("backlinks")}</span>
+      <select
+        value={style.backlinks}
+        onChange={(e) => onStyle({ backlinks: e.target.value as BacklinksMode })}
+        className="rounded border border-border bg-bg px-1 py-0.5 text-xs text-fg"
+      >
+        {BACKLINKS_MODES.map((mode) => (
+          <option key={mode} value={mode}>
+            {t(`backlinksModes.${mode}`)}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -565,7 +573,7 @@ function PageMenu({
   // Whether the exports below (Markdown, ZIP, the PDF dialog's first choice) carry the comments.
   const [exportComments, setExportComments] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [menuPage, setMenuPage] = useState<"main" | "export">("main");
+  const [menuPage, setMenuPage] = useState<"main" | "export" | "more">("main");
   const [voiceInstructionsOpen, setVoiceInstructionsOpen] = useState(false);
   const [rowAccessOpen, setRowAccessOpen] = useState(false);
   // Mounted from its first opening on, so it closes the way it opens.
@@ -703,6 +711,247 @@ function PageMenu({
       }
     });
 
+  // What is used now and then: grouped on a page of its own ("More actions"), so the menu stays
+  // short. Each group is a list of rows; empty groups drop out.
+  const moreGroups = (close: () => void): ReactNode[][] =>
+    [
+      [
+        // The page and the pages around it: beside the page, else in the workspace graph.
+        !page.archived && !offline && (
+          <MenuItem
+            key="graph"
+            icon={<Waypoints className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              if (onGraph) onGraph();
+              else router.push(`/w/${workspaceId}/graph?focus=${encodeURIComponent(page.id)}`);
+            }}
+          >
+            {t("showInGraph")}
+          </MenuItem>
+        ),
+        onPresent && page.hasBody && !isDatabase && !page.archived && (
+          <MenuItem
+            key="present"
+            icon={<Presentation className="h-4 w-4" />}
+            trailing={<kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">{comboText(["Mod", "Alt", "P"], isMac())}</kbd>}
+            onClick={() => {
+              close();
+              onPresent();
+            }}
+          >
+            {t("present")}
+          </MenuItem>
+        ),
+        onReadAloud && page.hasBody && !isDatabase && (
+          <MenuItem
+            key="read-aloud"
+            icon={<AudioLines className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              onReadAloud();
+            }}
+          >
+            {t("readAloud")}
+          </MenuItem>
+        ),
+        // Writing the body needs content access, and the page unlocked; databases have no body.
+        onMarkdown && page.hasBody && !isDatabase && !page.archived && canEditContent && !info.locked && (
+          <MenuItem
+            key="markdown"
+            icon={<FileCode className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              onMarkdown();
+            }}
+          >
+            {t("editMarkdown")}
+          </MenuItem>
+        ),
+        // Who opened and edited the page: for owners and members who may edit it, never guests.
+        canEdit && !info.guest && !info.template && (
+          <MenuItem
+            key="analytics"
+            icon={<ChartColumn className="h-4 w-4" />}
+            disabled={offline}
+            onClick={() => {
+              close();
+              setAnalyticsOpen(true);
+            }}
+          >
+            {t("analytics")}
+          </MenuItem>
+        ),
+      ],
+      [
+        // The database's properties, views, row templates and page, as an empty database to fill anew.
+        isDatabase && !page.archived && canEdit && (page.parentId !== null || info.topLevel) && (
+          <MenuItem key="duplicate-empty" icon={<CopyMinus className="h-4 w-4" />} onClick={() => duplicate(close, true)}>
+            {t("duplicateWithoutRows")}
+          </MenuItem>
+        ),
+        // Duplicates of this row into one; the rows merged go to the trash, which guests don't have.
+        page.isRow && !page.archived && canEditContent && !info.template && !info.guest && (
+          <MenuItem
+            key="merge"
+            icon={<Merge className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              setMergeOpen(true);
+            }}
+          >
+            {tMerge("menuItem")}
+          </MenuItem>
+        ),
+        canSaveTemplate && (
+          <MenuItem key="template" icon={<LayoutTemplate className="h-4 w-4" />} onClick={() => saveAsTemplate(close)}>
+            {page.isRow ? t("saveAsRowTemplate") : t("saveAsTemplate")}
+          </MenuItem>
+        ),
+        // Full access and the right to create teamspaces; pages only (server/teamspace-from-page.ts).
+        info.teamspace && !page.archived && (
+          <MenuItem
+            key="teamspace"
+            icon={<Users className="h-4 w-4" />}
+            onClick={() => {
+              close();
+              setTeamspaceOpen(true);
+            }}
+          >
+            {tTeamspaces("fromPage.menu")}
+          </MenuItem>
+        ),
+        // Full access, like moving it. A page archived with one above it comes back with that one (see its banner).
+        !page.archived && canManage && !info.template && (!info.outdated || info.outdated.own) && (
+          <MenuItem
+            key="archive"
+            icon={info.outdated ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+            title={info.outdated ? undefined : t("archiveHint")}
+            onClick={() => setOutdated(!info.outdated, close)}
+          >
+            {info.outdated ? t("unarchive") : t("archive")}
+          </MenuItem>
+        ),
+        onVerify && (
+          <MenuItem
+            key="verify"
+            icon={<BadgeCheck className="h-4 w-4" />}
+            title={tVerify("menuHint")}
+            onClick={() => {
+              close();
+              onVerify();
+            }}
+          >
+            {info.verified ? tVerify("menuVerified") : tVerify("menu")}
+          </MenuItem>
+        ),
+        // For the REST API and MCP clients, which take a page's, database's or row's id.
+        <MenuItem
+          key="copy-id"
+          icon={<Hash className="h-4 w-4" />}
+          onClick={() => {
+            void navigator.clipboard.writeText(page.id);
+            close();
+          }}
+        >
+          {t("copyId")}
+        </MenuItem>,
+      ],
+      // A database's settings beside its lock: who rows give access to (server/row-access), pull
+      // requests naming rows by their ID (server/github-sync), Slack notifications (an automation)
+      // and how voice notes saved in it are written up.
+      isDatabase && !page.archived && canManage
+        ? [
+            <MenuItem
+              key="row-access"
+              icon={<LockKeyhole className="h-4 w-4" />}
+              title={tRowAccess("menuHint")}
+              onClick={() => {
+                close();
+                setRowAccessOpen(true);
+              }}
+            >
+              {tRowAccess("menuItem")}
+            </MenuItem>,
+            <MenuItem
+              key="github"
+              icon={<GitPullRequest className="h-4 w-4" />}
+              title={tGithub("menuHint")}
+              onClick={() => {
+                close();
+                setGithubOpen(true);
+              }}
+            >
+              {tGithub("menuItem")}
+            </MenuItem>,
+            <MenuItem
+              key="slack"
+              icon={<MessageSquareShare className="h-4 w-4" />}
+              title={tSlack("menuHint")}
+              onClick={() => {
+                close();
+                setSlackOpen(true);
+              }}
+            >
+              {tSlack("menuItem")}
+            </MenuItem>,
+            info.voice && (
+              <MenuItem
+                key="voice"
+                icon={<Mic className="h-4 w-4" />}
+                title={tVoice("menuHint")}
+                onClick={() => {
+                  close();
+                  setVoiceInstructionsOpen(true);
+                }}
+              >
+                {tVoice("menu")}
+              </MenuItem>
+            ),
+          ]
+        : [],
+      [
+        style && onStyle && !page.archived && <BacklinksControl key="backlinks" style={style} onStyle={onStyle} />,
+        // Reusable instructions for the AI chat and MCP clients (server/skills). Templates can't be skills.
+        !isDatabase && !page.archived && !info.template && (canEdit || info.skill) && (
+          <div key="skill" className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={tSkills("menu.hint")}>
+            <ScrollText className="h-4 w-4 text-fg-muted" />
+            <span className="flex-1">{tSkills("menu.toggle")}</span>
+            <Switch checked={Boolean(info.skill)} disabled={!canEdit || pending} onChange={setSkill} label={tSkills("menu.toggle")} />
+          </div>
+        ),
+        // Every row a skill, its description a property (server/skills): a database setting, like the lock.
+        isDatabase && !page.archived && !info.template && (canManage || info.skillDatabase) && (
+          <div key="skill-database" className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={tSkills("menu.databaseHint")}>
+            <ScrollText className="h-4 w-4 text-fg-muted" />
+            <span className="flex-1">{tSkills("menu.database")}</span>
+            <Switch
+              checked={info.skillDatabase}
+              disabled={!canManage || pending}
+              onChange={setSkillDatabase}
+              label={tSkills("menu.database")}
+            />
+          </div>
+        ),
+        // Downloads to this device: read access is enough, templates aren't pages to read.
+        !page.archived && !info.template && page.title !== undefined && (
+          <OfflineToggle
+            key="offline"
+            page={{
+              id: page.id,
+              workspaceId,
+              title: page.title,
+              icon: page.icon ?? null,
+              kind: page.kind,
+              row: Boolean(page.isRow),
+            }}
+          />
+        ),
+      ],
+    ]
+      .map((group) => group.filter(Boolean))
+      .filter((group) => group.length > 0);
+
   const edited = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
     new Date(info.updatedAt),
   );
@@ -833,6 +1082,31 @@ function PageMenu({
                 </p>
               )}
             </div>
+          ) : menuPage === "more" ? (
+            <div className={cn(pending && "pointer-events-none opacity-70")}>
+              <div className="flex items-center gap-1 px-1 pb-1">
+                <button
+                  type="button"
+                  aria-label={t("exportBack")}
+                  onClick={() => setMenuPage("main")}
+                  className="inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-hover hover:text-fg"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
+                </button>
+                <span className="text-sm font-medium">{t("moreActions")}</span>
+              </div>
+              {moreGroups(close).map((group, i) => (
+                <Fragment key={i}>
+                  {i > 0 && <MenuSeparator />}
+                  {group}
+                </Fragment>
+              ))}
+              {error && (
+                <p role="alert" className="px-2 pt-1 text-xs text-danger">
+                  {error}
+                </p>
+              )}
+            </div>
           ) : (
             <div className={cn(pending && "pointer-events-none opacity-70")}>
               {style && onStyle && !page.archived && <StyleControls style={style} onStyle={onStyle} />}
@@ -863,79 +1137,10 @@ function PageMenu({
                   {t(info.watching ? "mute" : "watch")}
                 </MenuItem>
               )}
-              {/* For the REST API and MCP clients, which take a page's, database's or row's id. */}
-              <MenuItem
-                icon={<Hash className="h-4 w-4" />}
-                onClick={() => {
-                  void navigator.clipboard.writeText(page.id);
-                  close();
-                }}
-              >
-                {t("copyId")}
-              </MenuItem>
-              {/* The page and the pages around it: beside the page, else in the workspace graph. */}
-              {!page.archived && !offline && (
-                <MenuItem
-                  icon={<Waypoints className="h-4 w-4" />}
-                  onClick={() => {
-                    close();
-                    if (onGraph) onGraph();
-                    else router.push(`/w/${workspaceId}/graph?focus=${encodeURIComponent(page.id)}`);
-                  }}
-                >
-                  {t("showInGraph")}
-                </MenuItem>
-              )}
-              {onPresent && page.hasBody && !isDatabase && !page.archived && (
-                <MenuItem
-                  icon={<Presentation className="h-4 w-4" />}
-                  trailing={<kbd className="font-sans text-xs text-fg-faint pointer-coarse:hidden">{comboText(["Mod", "Alt", "P"], isMac())}</kbd>}
-                  onClick={() => {
-                    close();
-                    onPresent();
-                  }}
-                >
-                  {t("present")}
-                </MenuItem>
-              )}
-              {onReadAloud && page.hasBody && !isDatabase && (
-                <MenuItem
-                  icon={<AudioLines className="h-4 w-4" />}
-                  onClick={() => {
-                    close();
-                    onReadAloud();
-                  }}
-                >
-                  {t("readAloud")}
-                </MenuItem>
-              )}
               {/* The copy lands beside the original; at the top level that isn't open to every guest. */}
               {!page.archived && canEditContent && (page.parentId !== null || info.topLevel) && (
                 <MenuItem icon={<Copy className="h-4 w-4" />} onClick={() => duplicate(close)}>
                   {t("duplicate")}
-                </MenuItem>
-              )}
-              {/* The database's properties, views, row templates and page, as an empty database to fill anew. */}
-              {isDatabase && !page.archived && canEdit && (page.parentId !== null || info.topLevel) && (
-                <MenuItem icon={<CopyMinus className="h-4 w-4" />} onClick={() => duplicate(close, true)}>
-                  {t("duplicateWithoutRows")}
-                </MenuItem>
-              )}
-              {/* Duplicates of this row into one; the rows merged go to the trash, which guests don't have. */}
-              {page.isRow && !page.archived && canEditContent && !info.template && !info.guest && (
-                <MenuItem
-                  icon={<Merge className="h-4 w-4" />}
-                  onClick={() => {
-                    close();
-                    setMergeOpen(true);
-                  }}
-                >
-                  {tMerge("menuItem")}
-                </MenuItem>
-              )}
-              {canSaveTemplate && (
-                <MenuItem icon={<LayoutTemplate className="h-4 w-4" />} onClick={() => saveAsTemplate(close)}>
-                  {page.isRow ? t("saveAsRowTemplate") : t("saveAsTemplate")}
                 </MenuItem>
               )}
               {/* Moving to another parent needs full access on the page. Templates don't move. */}
@@ -948,40 +1153,6 @@ function PageMenu({
                   }}
                 >
                   {t("moveTo")}
-                </MenuItem>
-              )}
-              {/* Full access and the right to create teamspaces; pages only (server/teamspace-from-page.ts). */}
-              {info.teamspace && !page.archived && (
-                <MenuItem
-                  icon={<Users className="h-4 w-4" />}
-                  onClick={() => {
-                    close();
-                    setTeamspaceOpen(true);
-                  }}
-                >
-                  {tTeamspaces("fromPage.menu")}
-                </MenuItem>
-              )}
-              {/* Full access, like moving it. A page archived with one above it comes back with that one (see its banner). */}
-              {!page.archived && canManage && !info.template && (!info.outdated || info.outdated.own) && (
-                <MenuItem
-                  icon={info.outdated ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                  title={info.outdated ? undefined : t("archiveHint")}
-                  onClick={() => setOutdated(!info.outdated, close)}
-                >
-                  {info.outdated ? t("unarchive") : t("archive")}
-                </MenuItem>
-              )}
-              {onVerify && (
-                <MenuItem
-                  icon={<BadgeCheck className="h-4 w-4" />}
-                  title={tVerify("menuHint")}
-                  onClick={() => {
-                    close();
-                    onVerify();
-                  }}
-                >
-                  {info.verified ? tVerify("menuVerified") : tVerify("menu")}
                 </MenuItem>
               )}
               {!page.archived && (page.isRow ? canEditContent : canEdit) && !templateRoot && (
@@ -1001,6 +1172,8 @@ function PageMenu({
                 </MenuItem>
               )}
 
+              {/* A database's lock is a setting for those with full access; a page's is a guard against
+                  accidental edits, not a permission: whoever may edit the page may unlock it. */}
               {isDatabase && !page.archived && (canManage || info.locked) && (
                 <>
                   <MenuSeparator />
@@ -1016,58 +1189,6 @@ function PageMenu({
                   </div>
                 </>
               )}
-              {/* Who each row gives access to (server/row-access): a database setting, like the lock. */}
-              {isDatabase && !page.archived && canManage && (
-                <MenuItem
-                  icon={<LockKeyhole className="h-4 w-4" />}
-                  title={tRowAccess("menuHint")}
-                  onClick={() => {
-                    close();
-                    setRowAccessOpen(true);
-                  }}
-                >
-                  {tRowAccess("menuItem")}
-                </MenuItem>
-              )}
-              {/* Pull requests that name rows by their ID (server/github-sync), and Slack notifications (an automation). */}
-              {isDatabase && !page.archived && canManage && (
-                <>
-                  <MenuItem
-                    icon={<GitPullRequest className="h-4 w-4" />}
-                    title={tGithub("menuHint")}
-                    onClick={() => {
-                      close();
-                      setGithubOpen(true);
-                    }}
-                  >
-                    {tGithub("menuItem")}
-                  </MenuItem>
-                  <MenuItem
-                    icon={<MessageSquareShare className="h-4 w-4" />}
-                    title={tSlack("menuHint")}
-                    onClick={() => {
-                      close();
-                      setSlackOpen(true);
-                    }}
-                  >
-                    {tSlack("menuItem")}
-                  </MenuItem>
-                </>
-              )}
-              {/* How voice notes saved in the database are written up: a database setting, like the lock. */}
-              {isDatabase && !page.archived && canManage && info.voice && (
-                <MenuItem
-                  icon={<Mic className="h-4 w-4" />}
-                  title={tVoice("menuHint")}
-                  onClick={() => {
-                    close();
-                    setVoiceInstructionsOpen(true);
-                  }}
-                >
-                  {tVoice("menu")}
-                </MenuItem>
-              )}
-              {/* A guard against accidental edits, not a permission: whoever may edit the page may unlock it. */}
               {!isDatabase && !page.archived && (canEdit || info.locked) && (
                 <>
                   <MenuSeparator />
@@ -1079,68 +1200,11 @@ function PageMenu({
                 </>
               )}
 
-              {/* Reusable instructions for the AI chat and MCP clients (server/skills). Templates can't be skills. */}
-              {!isDatabase && !page.archived && !info.template && (canEdit || info.skill) && (
-                <>
-                  {/* Beside the lock switch, which shows whenever they may edit. */}
-                  {!canEdit && !info.locked && <MenuSeparator />}
-                  <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={tSkills("menu.hint")}>
-                    <ScrollText className="h-4 w-4 text-fg-muted" />
-                    <span className="flex-1">{tSkills("menu.toggle")}</span>
-                    <Switch checked={Boolean(info.skill)} disabled={!canEdit || pending} onChange={setSkill} label={tSkills("menu.toggle")} />
-                  </div>
-                </>
-              )}
-
-              {/* Every row a skill, its description a property (server/skills): a database setting, like the lock. */}
-              {isDatabase && !page.archived && !info.template && (canManage || info.skillDatabase) && (
-                <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={tSkills("menu.databaseHint")}>
-                  <ScrollText className="h-4 w-4 text-fg-muted" />
-                  <span className="flex-1">{tSkills("menu.database")}</span>
-                  <Switch
-                    checked={info.skillDatabase}
-                    disabled={!canManage || pending}
-                    onChange={setSkillDatabase}
-                    label={tSkills("menu.database")}
-                  />
-                </div>
-              )}
-
-              {/* Downloads to this device: read access is enough, templates aren't pages to read. */}
-              {!page.archived && !info.template && page.title !== undefined && (
-                <>
-                  <MenuSeparator />
-                  <OfflineToggle
-                    page={{
-                      id: page.id,
-                      workspaceId,
-                      title: page.title,
-                      icon: page.icon ?? null,
-                      kind: page.kind,
-                      row: Boolean(page.isRow),
-                    }}
-                  />
-                </>
-              )}
-
               <MenuSeparator />
-              {/* Hidden while the workspace has export turned off; the routes refuse it too. On a page of
-                  its own, so the menu stays short enough to fit the window. */}
+              {/* Hidden while the workspace has export turned off; the routes refuse it too. */}
               {info.exportable && (
                 <MenuItem icon={<Download className="h-4 w-4" />} trailing={<ChevronRight className="h-4 w-4 rtl:-scale-x-100" />} onClick={() => setMenuPage("export")}>
                   {t("export")}
-                </MenuItem>
-              )}
-              {/* Writing the body needs content access, and the page unlocked; databases have no body. */}
-              {onMarkdown && page.hasBody && !isDatabase && !page.archived && canEditContent && !info.locked && (
-                <MenuItem
-                  icon={<FileCode className="h-4 w-4" />}
-                  onClick={() => {
-                    close();
-                    onMarkdown();
-                  }}
-                >
-                  {t("editMarkdown")}
                 </MenuItem>
               )}
               {/* Suggested edits that wait: all of them at once, for people who may edit. */}
@@ -1180,19 +1244,21 @@ function PageMenu({
                   {isDatabase ? t("databaseHistory") : t("versionHistory")}
                 </MenuItem>
               )}
-              {/* Who opened and edited the page: for owners and members who may edit it, never guests. */}
-              {canEdit && !info.guest && !info.template && (
-                <MenuItem
-                  icon={<ChartColumn className="h-4 w-4" />}
-                  disabled={offline}
-                  onClick={() => {
-                    close();
-                    setAnalyticsOpen(true);
-                  }}
-                >
-                  {t("analytics")}
-                </MenuItem>
-              )}
+              {/* The rest on a page of its own when there are several, so the menu fits the window. */}
+              {(() => {
+                const more = moreGroups(close).flat();
+                if (more.length === 0) return null;
+                if (more.length === 1) return more;
+                return (
+                  <MenuItem
+                    icon={<Ellipsis className="h-4 w-4" />}
+                    trailing={<ChevronRight className="h-4 w-4 rtl:-scale-x-100" />}
+                    onClick={() => setMenuPage("more")}
+                  >
+                    {t("moreActions")}
+                  </MenuItem>
+                );
+              })()}
 
               {(error || zipExport.error) && (
                 <p role="alert" className="px-2 pt-1 text-xs text-danger">

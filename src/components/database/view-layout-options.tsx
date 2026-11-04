@@ -3,6 +3,7 @@
 // The view settings menu, loaded when the menu first opens (see ViewLayoutMenu).
 
 import {
+  Archive,
   ArrowLeft,
   ArrowUpDown,
   CalendarDays,
@@ -18,9 +19,12 @@ import {
   IterationCw,
   ListFilter,
   ListTree,
+  Paintbrush,
   Palette,
+  PanelRight,
   Plus,
   Rows3,
+  Smile,
   Trash2,
   Waypoints,
   X,
@@ -95,10 +99,13 @@ import { columnsOf, FilterEditor, NativeSelect, PropertiesPanel, SortEditor } fr
 
 import { mapColorProperty, timelineDates, timelineGroupProperty, timelineStartProps, type DependenciesHandler, type ViewLayoutMenuProps } from "./view-settings";
 
+/** Views with settings of their own above the shared ones (see LayoutSettings). */
+const OWN_SETTINGS_VIEWS = new Set<View["type"]>(["gallery", "board", "map", "agenda", "calendar", "timeline", "chart", "pivot"]);
+
 /** Views that can show sub-items nested under their parent (see lib/sub-items). */
 const NESTING_VIEWS = new Set<View["type"]>(["table", "list", "timeline"]);
 
-type MenuPage = "main" | "layout" | "properties" | "filter" | "sort" | "group" | "date";
+type MenuPage = "main" | "layout" | "properties" | "filter" | "sort" | "group" | "date" | "subItems" | "openRows" | "appearance";
 type OptionsProps = Omit<ViewLayoutMenuProps, "readOnly"> & { close: () => void; onColorRules: () => void };
 
 /**
@@ -236,19 +243,59 @@ export function ViewLayoutOptions(props: OptionsProps) {
     );
   }
 
+  if (page === "subItems") {
+    const { onSubItems } = props;
+    return subPage(
+      t("subItems.heading"),
+      <div className="w-64">
+        <SubItemsSettings
+          view={view}
+          properties={props.properties}
+          onSet={(patch) => onConfig({ ...config, ...patch })}
+          onSubItems={
+            onSubItems && !locked
+              ? (on, propertyId) => {
+                  close();
+                  onSubItems(on, propertyId);
+                }
+              : undefined
+          }
+        />
+      </div>,
+    );
+  }
+  if (page === "openRows") {
+    return subPage(
+      t("layout.openRows"),
+      <div className="w-60">
+        {OPEN_ROWS.map((where) => (
+          <Choice key={where} active={openRowsOf(config) === where} onClick={() => onConfig({ ...config, openRows: where === "panel" ? undefined : where })}>
+            {t(`layout.openRowsIn.${where}`)}
+          </Choice>
+        ))}
+      </div>,
+    );
+  }
+  if (page === "appearance") {
+    const set = (patch: ViewConfig) => onConfig({ ...config, ...patch });
+    return subPage(
+      t("layout.appearance"),
+      <div className="w-64">
+        <Toggle on={config.showIcons !== false} onChange={(on) => set({ showIcons: on ? undefined : false })}>
+          {t("layout.showIcons")}
+        </Toggle>
+        <Toggle on={config.showVerticalLines !== false} onChange={(on) => set({ showVerticalLines: on ? undefined : false })}>
+          {t("layout.showVerticalLines")}
+        </Toggle>
+        <Toggle on={!!config.stripedRows} onChange={(on) => set({ stripedRows: on || undefined })}>
+          {t("layout.stripedRows")}
+        </Toggle>
+      </div>,
+    );
+  }
+
   const row = (to: MenuPage, icon: ReactNode, label: string, value: ReactNode) => (
-    <MenuItem
-      icon={icon}
-      trailing={
-        <span className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
-          <span className="max-w-28 truncate">{value}</span>
-          <ChevronRight className="h-3.5 w-3.5 shrink-0 rtl:-scale-x-100" />
-        </span>
-      }
-      onClick={() => setPage(to)}
-    >
-      {label}
-    </MenuItem>
+    <PageRow icon={icon} label={label} value={value} onClick={() => setPage(to)} />
   );
   return (
     <div className={cn("max-h-[70vh] overflow-y-auto", view.type === "chart" || view.type === "pivot" ? "w-72 max-w-[calc(100vw-2rem)]" : "w-64")}>
@@ -259,7 +306,7 @@ export function ViewLayoutOptions(props: OptionsProps) {
       {groups && row("group", <Rows3 className="h-3.5 w-3.5" />, t("toolbar.group"), groupBy?.name ?? t("toolbar.noGrouping"))}
       {view.type === "calendar" && row("date", <CalendarDays className="h-3.5 w-3.5" />, t("toolbar.calendarBy"), dateBy?.name ?? "")}
       <MenuSeparator />
-      <LayoutSettings {...props} />
+      <LayoutSettings {...props} onPage={setPage} />
       {(onDuplicate || onDelete) && <MenuSeparator />}
       {onDuplicate && (
         <MenuItem
@@ -446,12 +493,14 @@ function LayoutSettings({
   locked,
   close,
   onColorRules,
-}: OptionsProps) {
+  onPage,
+}: OptionsProps & { onPage: (page: MenuPage) => void }) {
   const t = useTranslations("database.layout");
   const tSprints = useTranslations("database.sprints");
+  const tSub = useTranslations("database.subItems");
   const rows = opensRows(view.type);
-  // A table or list without sub-items has nothing to set about them but turning them on.
-  const subItems = NESTING_VIEWS.has(view.type) && (view.type === "timeline" || !!parentProperty(properties) || (!!onSubItems && !locked));
+  // Shown while they're on, or while they may be turned on.
+  const subItems = NESTING_VIEWS.has(view.type) && (!!parentProperty(properties) || (!!onSubItems && !locked));
   const config = view.config;
   const set = (patch: ViewConfig) => onConfig({ ...config, ...patch });
 
@@ -548,42 +597,6 @@ function LayoutSettings({
           }}
         />
       ) : null}
-      {subItems && (
-        <SubItemsSettings
-          view={view}
-          properties={properties}
-          separated={view.type === "timeline"}
-          onSet={set}
-          onSubItems={
-            onSubItems && !locked
-              ? (on, propertyId) => {
-                  close();
-                  onSubItems(on, propertyId);
-                }
-              : undefined
-          }
-        />
-      )}
-      {rows && (
-        <>
-          {/* After the view's own settings; a table, list or board may have none. */}
-          {(view.type === "gallery" ||
-            view.type === "board" ||
-            view.type === "timeline" ||
-            view.type === "map" ||
-            view.type === "calendar" ||
-            view.type === "agenda" ||
-            subItems) && (
-            <MenuSeparator />
-          )}
-          <Heading>{t("openRows")}</Heading>
-          {OPEN_ROWS.map((where) => (
-            <Choice key={where} active={openRowsOf(config) === where} onClick={() => set({ openRows: where === "panel" ? undefined : where })}>
-              {t(`openRowsIn.${where}`)}
-            </Choice>
-          ))}
-        </>
-      )}
       {view.type === "timeline" && onDependencies && !locked && (
         <DependencySettings
           view={view}
@@ -595,24 +608,36 @@ function LayoutSettings({
           }}
         />
       )}
-      {/* Rows archived on their own stay out of the view unless it shows them (server/page-outdated.ts). */}
-      <MenuSeparator />
+      {/* After the layout's own settings, where it has some. Settings with several choices open a
+          page of their own, so the menu stays short. */}
+      {OWN_SETTINGS_VIEWS.has(view.type) && <MenuSeparator />}
+      {subItems && (
+        <PageRow
+          icon={<ListTree className="h-3.5 w-3.5" />}
+          label={tSub("heading")}
+          value={parentProperty(properties) ? tSub(`displays.${subItemsDisplay(config, parentProperty(properties))}`) : tSub("off")}
+          onClick={() => onPage("subItems")}
+        />
+      )}
       {rows && (
-        <Toggle on={config.showIcons !== false} onChange={(on) => set({ showIcons: on ? undefined : false })}>
-          {t("showIcons")}
-        </Toggle>
+        <PageRow
+          icon={<PanelRight className="h-3.5 w-3.5" />}
+          label={t("openRows")}
+          value={t(`openRowsIn.${openRowsOf(config)}`)}
+          onClick={() => onPage("openRows")}
+        />
       )}
-      {view.type === "table" && (
-        <Toggle on={config.showVerticalLines !== false} onChange={(on) => set({ showVerticalLines: on ? undefined : false })}>
-          {t("showVerticalLines")}
-        </Toggle>
+      {view.type === "table" ? (
+        <PageRow icon={<Paintbrush className="h-3.5 w-3.5" />} label={t("appearance")} value="" onClick={() => onPage("appearance")} />
+      ) : (
+        rows && (
+          <Toggle icon={<Smile className="h-3.5 w-3.5" />} on={config.showIcons !== false} onChange={(on) => set({ showIcons: on ? undefined : false })}>
+            {t("showIcons")}
+          </Toggle>
+        )
       )}
-      {view.type === "table" && (
-        <Toggle on={!!config.stripedRows} onChange={(on) => set({ stripedRows: on || undefined })}>
-          {t("stripedRows")}
-        </Toggle>
-      )}
-      <Toggle on={!!config.showOutdated} onChange={(on) => set({ showOutdated: on || undefined })}>
+      {/* Rows archived on their own stay out of the view unless it shows them (server/page-outdated.ts). */}
+      <Toggle icon={<Archive className="h-3.5 w-3.5" />} on={!!config.showOutdated} onChange={(on) => set({ showOutdated: on || undefined })}>
         {t("showOutdated")}
       </Toggle>
       {rows && (
@@ -641,6 +666,24 @@ function LayoutSettings({
         </MenuItem>
       )}
     </>
+  );
+}
+
+/** A row of the view settings menu opening a page of its own, with the setting's value beside it. */
+function PageRow({ icon, label, value, onClick }: { icon: ReactNode; label: string; value: ReactNode; onClick: () => void }) {
+  return (
+    <MenuItem
+      icon={icon}
+      trailing={
+        <span className="flex min-w-0 items-center gap-1 text-xs text-fg-muted">
+          <span className="max-w-28 truncate">{value}</span>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0 rtl:-scale-x-100" />
+        </span>
+      }
+      onClick={onClick}
+    >
+      {label}
+    </MenuItem>
   );
 }
 
@@ -765,13 +808,11 @@ function MapSettings({
 function SubItemsSettings({
   view,
   properties,
-  separated,
   onSet,
   onSubItems,
 }: {
   view: View;
   properties: Property[];
-  separated?: boolean;
   onSet: (patch: ViewConfig) => void;
   onSubItems?: (on: boolean, propertyId?: string) => void;
 }) {
@@ -785,8 +826,6 @@ function SubItemsSettings({
   const display = subItemsDisplay(view.config, parent);
   return (
     <>
-      {separated && <MenuSeparator />}
-      <Heading>{t("heading")}</Heading>
       {parent ? (
         <>
           {SUB_ITEMS_DISPLAYS.map((d) => (
@@ -1393,7 +1432,8 @@ function SettingRow({ label, children }: { label: string; children: ReactNode })
 }
 
 /** An on/off setting shown as a switch. */
-function Toggle({ on, onChange, children }: { on: boolean; onChange: (on: boolean) => void; children: ReactNode }) {
+/** An on/off setting; `icon` lines it up with the menu's items beside it. */
+function Toggle({ on, onChange, icon, children }: { on: boolean; onChange: (on: boolean) => void; icon?: ReactNode; children: ReactNode }) {
   return (
     <button
       type="button"
@@ -1402,6 +1442,7 @@ function Toggle({ on, onChange, children }: { on: boolean; onChange: (on: boolea
       onClick={() => onChange(!on)}
       className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
     >
+      {icon && <span className="flex h-4 w-4 items-center justify-center text-fg-muted">{icon}</span>}
       <span className="flex-1">{children}</span>
       <span aria-hidden className={cn("relative h-4 w-7 shrink-0 rounded-full transition-colors", on ? "bg-accent" : "bg-bg-active")}>
         <span className={cn("absolute top-0.5 h-3 w-3 rounded-full bg-bg shadow transition-[left,right]", on ? "inset-s-3.5" : "inset-s-0.5")} />

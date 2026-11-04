@@ -521,6 +521,7 @@
     "calculate": "计算",
     "wrap": "自动换行",
     "align": "对齐",
+    "columnLayout": "列布局",
     "alignLeft": "左对齐",
     "alignCenter": "居中",
     "alignRight": "右对齐",
@@ -530,6 +531,7 @@
     "unfreeze": "取消冻结列",
     "duplicate": "创建副本",
     "copyId": "复制属性 ID",
+    "moreSettings": "更多设置",
     "changeType": "更改类型",
     "confirmType": "要将“{name}”更改为{type}吗？",
     "confirmTypeLost": "你看到的行中有 {count} 个值无法转换为{type}，将被清空。",
@@ -921,6 +923,7 @@
     "showIcons": "显示页面图标",
     "showVerticalLines": "显示竖线",
     "stripedRows": "隔行着色",
+    "appearance": "外观",
     "openRows": "行的打开方式",
     "openRowsIn": {
       "panel": "侧边面板",
@@ -1962,6 +1965,7 @@
     "useExisting": "将父项保存在“{name}”中",
     "turnOff": "关闭子项",
     "turnOffHint": "属性及其链接会保留。",
+    "off": "关闭",
     "keptIn": "父项保存在“{name}”中。"
   },
   "dependencies": {

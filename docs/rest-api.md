@@ -45,8 +45,8 @@ later. Settings and `GET /me` (`legacy_scopes: true`) say so; once their access 
 get the scopes chosen, like a new token. The scopes are the REST API's own: those of MCP apps are
 unchanged.
 
-The ids the API takes are in the app too: *Copy ID* in a page's, database's or row's menu, and
-*Copy property ID* in a column's menu (properties are also taken by name).
+The ids the API takes are in the app too: *Copy ID* in a page's, database's or row's menu (under *More actions*), and
+*Copy property ID* in a column's menu (under *More settings*) (properties are also taken by name).
 
 ```bash
 curl http://localhost:3000/api/v1/workspaces -H "Authorization: Bearer $LEAFDESK_TOKEN"
@@ -165,7 +165,7 @@ its **Connected apps and API tokens** switch: in a read-only workspace write end
 can write what you type into a database with one request, from any app:
 
 1. Make an inbox database, say *Inbox*, with the properties you want filled later (a *Type*
-   select with *Idea* and *Task*, a *Due* date). Copy its ID from the database's menu.
+   select with *Idea* and *Task*, a *Due* date). Copy its ID from the database's menu (*More actions* → *Copy ID*).
 2. Create a personal access token with *Rows* write, limited to that workspace.
 3. In the Shortcuts app, make a shortcut with two actions:
    - *Receive* text from the Share Sheet and Quick Actions, and *If there's no input*: *Ask For

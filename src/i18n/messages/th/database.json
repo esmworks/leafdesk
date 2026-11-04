@@ -521,6 +521,7 @@
     "calculate": "คำนวณ",
     "wrap": "ตัดข้อความขึ้นบรรทัดใหม่",
     "align": "การจัดแนว",
+    "columnLayout": "การจัดวางคอลัมน์",
     "alignLeft": "ชิดซ้าย",
     "alignCenter": "กึ่งกลาง",
     "alignRight": "ชิดขวา",
@@ -530,6 +531,7 @@
     "unfreeze": "เลิกตรึงคอลัมน์",
     "duplicate": "ทำสำเนา",
     "copyId": "คัดลอก ID ของคุณสมบัติ",
+    "moreSettings": "การตั้งค่าเพิ่มเติม",
     "changeType": "เปลี่ยนประเภท",
     "confirmType": "เปลี่ยน “{name}” เป็น{type}หรือไม่",
     "confirmTypeLost": "{count, plural, other {# ค่า}}ในแถวที่คุณเห็นแปลงเป็น{type}ไม่ได้และจะถูกล้าง",
@@ -921,6 +923,7 @@
     "showIcons": "แสดงไอคอนของหน้า",
     "showVerticalLines": "แสดงเส้นแนวตั้ง",
     "stripedRows": "สลับสีแถว",
+    "appearance": "ลักษณะ",
     "openRows": "เปิดแถวใน",
     "openRowsIn": {
       "panel": "แผงด้านข้าง",
@@ -1962,6 +1965,7 @@
     "useExisting": "เก็บรายการแม่ไว้ใน “{name}”",
     "turnOff": "ปิดรายการย่อย",
     "turnOffHint": "คุณสมบัติและลิงก์ของคุณสมบัติจะยังอยู่",
+    "off": "ปิด",
     "keptIn": "รายการแม่ถูกเก็บไว้ใน “{name}”"
   },
   "dependencies": {

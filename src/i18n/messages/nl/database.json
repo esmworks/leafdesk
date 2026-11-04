@@ -521,6 +521,7 @@
     "calculate": "Berekenen",
     "wrap": "Tekst laten teruglopen",
     "align": "Uitlijning",
+    "columnLayout": "Kolomindeling",
     "alignLeft": "Links",
     "alignCenter": "Gecentreerd",
     "alignRight": "Rechts",
@@ -530,6 +531,7 @@
     "unfreeze": "Kolommen losmaken",
     "duplicate": "Dupliceren",
     "copyId": "Eigenschaps-ID kopiëren",
+    "moreSettings": "Meer instellingen",
     "changeType": "Type wijzigen",
     "confirmType": "“{name}” wijzigen in {type}?",
     "confirmTypeLost": "{count, plural, one {# waarde} other {# waarden}} in de rijen die je ziet, kan geen {type} worden en wordt gewist.",
@@ -921,6 +923,7 @@
     "showIcons": "Paginapictogrammen tonen",
     "showVerticalLines": "Verticale lijnen tonen",
     "stripedRows": "Afwisselende rijkleuren",
+    "appearance": "Weergave",
     "openRows": "Rijen openen in",
     "openRowsIn": {
       "panel": "Zijpaneel",
@@ -1962,6 +1965,7 @@
     "useExisting": "Bovenliggende items bijhouden in “{name}”",
     "turnOff": "Subitems uitzetten",
     "turnOffHint": "De eigenschappen en hun koppelingen blijven.",
+    "off": "Uit",
     "keptIn": "Bovenliggende items worden bijgehouden in “{name}”."
   },
   "dependencies": {

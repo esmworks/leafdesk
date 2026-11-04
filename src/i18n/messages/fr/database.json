@@ -521,6 +521,7 @@
     "calculate": "Calculer",
     "wrap": "Renvoyer à la ligne",
     "align": "Alignement",
+    "columnLayout": "Disposition de la colonne",
     "alignLeft": "À gauche",
     "alignCenter": "Centré",
     "alignRight": "À droite",
@@ -530,6 +531,7 @@
     "unfreeze": "Libérer les colonnes",
     "duplicate": "Dupliquer",
     "copyId": "Copier l’ID de la propriété",
+    "moreSettings": "Autres réglages",
     "changeType": "Changer le type",
     "confirmType": "Changer « {name} » en {type} ?",
     "confirmTypeLost": "{count, plural, one {# valeur} other {# valeurs}} des lignes que vous voyez ne {count, plural, one {peut} other {peuvent}} pas devenir {type} et {count, plural, one {sera effacée} other {seront effacées}}.",
@@ -921,6 +923,7 @@
     "showIcons": "Afficher les icônes de page",
     "showVerticalLines": "Afficher les lignes verticales",
     "stripedRows": "Lignes alternées",
+    "appearance": "Apparence",
     "openRows": "Ouvrir les lignes dans",
     "openRowsIn": {
       "panel": "Panneau latéral",
@@ -1962,6 +1965,7 @@
     "useExisting": "Garder les parents dans « {name} »",
     "turnOff": "Désactiver les sous-éléments",
     "turnOffHint": "Les propriétés et leurs liens sont conservés.",
+    "off": "Désactivés",
     "keptIn": "Les parents sont gardés dans « {name} »."
   },
   "dependencies": {

@@ -521,6 +521,7 @@
     "calculate": "Calcola",
     "wrap": "Testo a capo",
     "align": "Allineamento",
+    "columnLayout": "Layout colonna",
     "alignLeft": "A sinistra",
     "alignCenter": "Al centro",
     "alignRight": "A destra",
@@ -530,6 +531,7 @@
     "unfreeze": "Sblocca colonne",
     "duplicate": "Duplica",
     "copyId": "Copia ID proprietà",
+    "moreSettings": "Altre impostazioni",
     "changeType": "Cambia tipo",
     "confirmType": "Cambiare “{name}” in {type}?",
     "confirmTypeLost": "{count, plural, one {# valore} other {# valori}} nelle righe che vedi non {count, plural, one {può} other {possono}} diventare {type} e {count, plural, one {verrà cancellato} other {verranno cancellati}}.",
@@ -921,6 +923,7 @@
     "showIcons": "Mostra le icone delle pagine",
     "showVerticalLines": "Mostra le linee verticali",
     "stripedRows": "Righe alternate",
+    "appearance": "Aspetto",
     "openRows": "Apri le righe in",
     "openRowsIn": {
       "panel": "Pannello laterale",
@@ -1962,6 +1965,7 @@
     "useExisting": "Mantieni gli elementi principali in “{name}”",
     "turnOff": "Disattiva i sotto-elementi",
     "turnOffHint": "Le proprietà e i loro collegamenti restano.",
+    "off": "Disattivati",
     "keptIn": "Gli elementi principali sono mantenuti in “{name}”."
   },
   "dependencies": {

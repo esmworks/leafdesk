@@ -521,6 +521,7 @@
     "calculate": "Laske",
     "wrap": "Rivitä teksti",
     "align": "Tasaus",
+    "columnLayout": "Sarakkeen asettelu",
     "alignLeft": "Vasemmalle",
     "alignCenter": "Keskelle",
     "alignRight": "Oikealle",
@@ -530,6 +531,7 @@
     "unfreeze": "Vapauta sarakkeet",
     "duplicate": "Monista",
     "copyId": "Kopioi ominaisuuden ID",
+    "moreSettings": "Lisää asetuksia",
     "changeType": "Vaihda tyyppiä",
     "confirmType": "Vaihdetaanko ominaisuuden ”{name}” tyypiksi {type}?",
     "confirmTypeLost": "{count, plural, one {# arvo} other {# arvoa}} näkemilläsi riveillä ei voi muuntaa tyyppiin {type}, ja ne tyhjennetään.",
@@ -921,6 +923,7 @@
     "showIcons": "Näytä sivujen kuvakkeet",
     "showVerticalLines": "Näytä pystyviivat",
     "stripedRows": "Vuorottelevat rivivärit",
+    "appearance": "Ulkoasu",
     "openRows": "Avaa rivit kohteessa",
     "openRowsIn": {
       "panel": "Sivupaneeli",
@@ -1962,6 +1965,7 @@
     "useExisting": "Säilytä yläkohteet ominaisuudessa ”{name}”",
     "turnOff": "Poista alikohteet käytöstä",
     "turnOffHint": "Ominaisuudet ja niiden linkit säilyvät.",
+    "off": "Pois",
     "keptIn": "Yläkohteet säilytetään ominaisuudessa ”{name}”."
   },
   "dependencies": {

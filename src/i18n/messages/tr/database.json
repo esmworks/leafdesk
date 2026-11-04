@@ -521,6 +521,7 @@
     "calculate": "Hesapla",
     "wrap": "Metni sar",
     "align": "Hizalama",
+    "columnLayout": "Sütun düzeni",
     "alignLeft": "Sola",
     "alignCenter": "Ortaya",
     "alignRight": "Sağa",
@@ -530,6 +531,7 @@
     "unfreeze": "Sabitlemeyi kaldır",
     "duplicate": "Kopyasını oluştur",
     "copyId": "Özellik ID'sini kopyala",
+    "moreSettings": "Diğer ayarlar",
     "changeType": "Türü değiştir",
     "confirmType": "“{name}” {type} türüne çevrilsin mi?",
     "confirmTypeLost": "Gördüğünüz satırlardaki {count} değer {type} türüne çevrilemiyor ve silinecek.",
@@ -921,6 +923,7 @@
     "showIcons": "Sayfa simgelerini göster",
     "showVerticalLines": "Dikey çizgileri göster",
     "stripedRows": "Satırları dönüşümlü renklendir",
+    "appearance": "Görünüş",
     "openRows": "Satırları aç",
     "openRowsIn": {
       "panel": "Yan panelde",
@@ -1962,6 +1965,7 @@
     "useExisting": "Üst öğeler “{name}” içinde tutulsun",
     "turnOff": "Alt öğeleri kapat",
     "turnOffHint": "Özellikler ve bağlantıları kalır.",
+    "off": "Kapalı",
     "keptIn": "Üst öğeler “{name}” içinde tutuluyor."
   },
   "dependencies": {

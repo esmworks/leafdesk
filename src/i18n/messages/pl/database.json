@@ -521,6 +521,7 @@
     "calculate": "Oblicz",
     "wrap": "Zawijaj tekst",
     "align": "Wyrównanie",
+    "columnLayout": "Układ kolumny",
     "alignLeft": "Do lewej",
     "alignCenter": "Do środka",
     "alignRight": "Do prawej",
@@ -530,6 +531,7 @@
     "unfreeze": "Odblokuj kolumny",
     "duplicate": "Duplikuj",
     "copyId": "Kopiuj ID właściwości",
+    "moreSettings": "Więcej ustawień",
     "changeType": "Zmień typ",
     "confirmType": "Zmienić typ „{name}” na {type}?",
     "confirmTypeLost": "{count, plural, one {# wartość w widocznych wierszach nie może stać się typem {type} i zostanie wyczyszczona.} few {# wartości w widocznych wierszach nie mogą stać się typem {type} i zostaną wyczyszczone.} many {# wartości w widocznych wierszach nie może stać się typem {type} i zostanie wyczyszczonych.} other {# wartości w widocznych wierszach nie może stać się typem {type} i zostanie wyczyszczone.}}",
@@ -921,6 +923,7 @@
     "showIcons": "Pokazuj ikony stron",
     "showVerticalLines": "Pokazuj linie pionowe",
     "stripedRows": "Naprzemienne kolory wierszy",
+    "appearance": "Wygląd",
     "openRows": "Otwieraj wiersze w",
     "openRowsIn": {
       "panel": "Panel boczny",
@@ -1962,6 +1965,7 @@
     "useExisting": "Przechowuj elementy nadrzędne w „{name}”",
     "turnOff": "Wyłącz podelementy",
     "turnOffHint": "Właściwości i ich połączenia pozostaną.",
+    "off": "Wyłączone",
     "keptIn": "Elementy nadrzędne są przechowywane w „{name}”."
   },
   "dependencies": {

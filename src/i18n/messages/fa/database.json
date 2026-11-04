@@ -521,6 +521,7 @@
     "calculate": "محاسبه",
     "wrap": "شکستن متن",
     "align": "تراز",
+    "columnLayout": "چیدمان ستون",
     "alignLeft": "چپ",
     "alignCenter": "وسط",
     "alignRight": "راست",
@@ -530,6 +531,7 @@
     "unfreeze": "آزاد کردن ستون‌ها",
     "duplicate": "تکثیر",
     "copyId": "کپی شناسه ویژگی",
+    "moreSettings": "تنظیمات بیشتر",
     "changeType": "تغییر نوع",
     "confirmType": "نوع «{name}» به {type} تغییر کند؟",
     "confirmTypeLost": "{count, plural, one {# مقدار} other {# مقدار}} در ردیف‌هایی که می‌بینید نمی‌تواند به {type} تبدیل شود و پاک خواهد شد.",
@@ -921,6 +923,7 @@
     "showIcons": "نمایش نماد صفحه‌ها",
     "showVerticalLines": "نمایش خطوط عمودی",
     "stripedRows": "رنگ‌آمیزی یک‌درمیان ردیف‌ها",
+    "appearance": "ظاهر",
     "openRows": "باز کردن ردیف‌ها در",
     "openRowsIn": {
       "panel": "پنل کناری",
@@ -1962,6 +1965,7 @@
     "useExisting": "نگه داشتن والدها در «{name}»",
     "turnOff": "خاموش کردن زیرموردها",
     "turnOffHint": "ویژگی‌ها و لینک‌هایشان باقی می‌مانند.",
+    "off": "خاموش",
     "keptIn": "والدها در «{name}» نگه داشته می‌شوند."
   },
   "dependencies": {

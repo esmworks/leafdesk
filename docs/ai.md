@@ -161,7 +161,7 @@ or nothing is: a step that fails takes back what came before it. The AI chat's `
 in Settings > AI usage and is held to the workspace's AI limits.
 
 **AI properties.** In a database, *+* → *AI autofill* adds a text property that AI fills in; any
-text property's menu has *AI autofill…* too. It can write a summary of each row's page, a
+text property's menu has *AI autofill…* too (under *More settings* when it has several). It can write a summary of each row's page, a
 translation of the row's name, page content or another property, or follow your own prompt, where
 `{Property name}` stands for that property's value of the row and `{title}` for its name
 (optionally with the row's page content). Values are ordinary text: filters, sorting, CSV export,
@@ -649,7 +649,7 @@ MP3, WAV, FLAC), where the browser can't record or you have one already. The not
 and text fields to check and change before *Save note*; *Save to* puts it on a private page or in
 a database row, whose select and multi-select properties AI fills in from the options they have
 (never new ones). A database can say how its notes are written up (*Voice note instructions* in
-its page menu, full access, up to 2,000 characters: "company, person met, quote status, next
+its page menu under *More actions*, full access, up to 2,000 characters: "company, person met, quote status, next
 step"); the AI follows them for the content and layout of every note saved there, from the quick
 note or the REST API, adding nothing that wasn't said. In a page, `/` *Voice note* records in a
 dialog and puts the note where the slash menu was opened, its title as a heading; like the writing
@@ -934,8 +934,8 @@ A skill is a page or database row whose body is instructions to reuse: a review 
 write release notes, how to triage a bug. Every row of a skills database is one, however it was
 added (the table, MCP, the REST API, an import or a move), and its *Description* property says
 what it is for; any database becomes a skills database, or stops being one, from its ⋯ menu
-(*Skills database*, full access), which adds a *Description* property when it has none. Any other
-page or row becomes one with *Use as skill* in its `⋯` menu (whoever may edit it); a bar under the
+(*More actions* → *Skills database*, full access), which adds a *Description* property when it has none. Any other
+page or row becomes one with *Use as skill* in its `⋯` menu (under *More actions*; whoever may edit it); a bar under the
 title then holds what the skill is for and when to use it (up to 1024 characters). The lists below
 show that description, or else the start of the body. Databases, templates and the pages in them
 can't be skills, and a copy of a skill isn't one. Skills have no

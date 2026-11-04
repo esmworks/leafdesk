@@ -521,6 +521,7 @@
     "calculate": "Berechnen",
     "wrap": "Text umbrechen",
     "align": "Ausrichtung",
+    "columnLayout": "Spaltenlayout",
     "alignLeft": "Links",
     "alignCenter": "Zentriert",
     "alignRight": "Rechts",
@@ -530,6 +531,7 @@
     "unfreeze": "Fixierung aufheben",
     "duplicate": "Duplizieren",
     "copyId": "Eigenschafts-ID kopieren",
+    "moreSettings": "Weitere Einstellungen",
     "changeType": "Typ ändern",
     "confirmType": "„{name}“ in {type} umwandeln?",
     "confirmTypeLost": "{count, plural, one {# Wert} other {# Werte}} in den sichtbaren Zeilen {count, plural, one {lässt} other {lassen}} sich nicht in {type} umwandeln und {count, plural, one {wird} other {werden}} gelöscht.",
@@ -921,6 +923,7 @@
     "showIcons": "Seitensymbole anzeigen",
     "showVerticalLines": "Senkrechte Linien anzeigen",
     "stripedRows": "Zeilen abwechselnd einfärben",
+    "appearance": "Darstellung",
     "openRows": "Zeilen öffnen",
     "openRowsIn": {
       "panel": "Im Seitenbereich",
@@ -1962,6 +1965,7 @@
     "useExisting": "Übergeordnete Elemente in „{name}“ führen",
     "turnOff": "Unterelemente deaktivieren",
     "turnOffHint": "Die Eigenschaften und ihre Verknüpfungen bleiben erhalten.",
+    "off": "Aus",
     "keptIn": "Übergeordnete Elemente stehen in „{name}“."
   },
   "dependencies": {

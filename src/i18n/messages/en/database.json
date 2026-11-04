@@ -521,6 +521,7 @@
     "calculate": "Calculate",
     "wrap": "Wrap text",
     "align": "Alignment",
+    "columnLayout": "Column layout",
     "alignLeft": "Left",
     "alignCenter": "Center",
     "alignRight": "Right",
@@ -530,6 +531,7 @@
     "unfreeze": "Unfreeze columns",
     "duplicate": "Duplicate",
     "copyId": "Copy property ID",
+    "moreSettings": "More settings",
     "changeType": "Change type",
     "confirmType": "Change “{name}” to {type}?",
     "confirmTypeLost": "{count, plural, one {# value} other {# values}} in the rows you see can’t become {type} and will be cleared.",
@@ -921,6 +923,7 @@
     "showIcons": "Show page icons",
     "showVerticalLines": "Show vertical lines",
     "stripedRows": "Striped rows",
+    "appearance": "Appearance",
     "openRows": "Open rows in",
     "openRowsIn": {
       "panel": "Side panel",
@@ -1962,6 +1965,7 @@
     "useExisting": "Keep parents in “{name}”",
     "turnOff": "Turn off sub-items",
     "turnOffHint": "The properties and their links stay.",
+    "off": "Off",
     "keptIn": "Parents are kept in “{name}”."
   },
   "dependencies": {

@@ -521,6 +521,7 @@
     "calculate": "計算",
     "wrap": "テキストを折り返す",
     "align": "配置",
+    "columnLayout": "列のレイアウト",
     "alignLeft": "左揃え",
     "alignCenter": "中央揃え",
     "alignRight": "右揃え",
@@ -530,6 +531,7 @@
     "unfreeze": "列の固定を解除",
     "duplicate": "複製",
     "copyId": "プロパティIDをコピー",
+    "moreSettings": "その他の設定",
     "changeType": "種類を変更",
     "confirmType": "「{name}」を{type}に変更しますか？",
     "confirmTypeLost": "表示されている行の{count}個の値は{type}に変換できないため、クリアされます。",
@@ -921,6 +923,7 @@
     "showIcons": "ページアイコンを表示",
     "showVerticalLines": "縦線を表示",
     "stripedRows": "行を交互に色分け",
+    "appearance": "外観",
     "openRows": "行を開く場所",
     "openRowsIn": {
       "panel": "サイドパネル",
@@ -1962,6 +1965,7 @@
     "useExisting": "親を「{name}」で管理",
     "turnOff": "サブアイテムをオフにする",
     "turnOffHint": "プロパティとそのリンクは残ります。",
+    "off": "オフ",
     "keptIn": "親は「{name}」で管理されています。"
   },
   "dependencies": {

@@ -181,7 +181,7 @@ Excel values; it is attached to a page or row the chat names, never to the datab
 
 ### Edit as Markdown
 
-"Edit as Markdown" in the page menu (for people who may edit the page; not for databases, locked
+"Edit as Markdown" under *More actions* in the page menu (for people who may edit the page; not for databases, locked
 pages or pages in the trash) opens the page's text as Markdown, in the same form Markdown export,
 MCP and the API use: callouts as `> [!NOTE]`, toggles as `<details>`, equations as `$…$` and
 `$$`, footnotes as `[^1]`, Mermaid code blocks, and `<!-- leafdesk:… -->` comments for database

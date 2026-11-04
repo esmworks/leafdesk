@@ -521,6 +521,7 @@
     "calculate": "Beregn",
     "wrap": "Bryt tekst",
     "align": "Justering",
+    "columnLayout": "Kolonneoppsett",
     "alignLeft": "Venstre",
     "alignCenter": "Midtstilt",
     "alignRight": "Høyre",
@@ -530,6 +531,7 @@
     "unfreeze": "Opphev frysing av kolonner",
     "duplicate": "Dupliser",
     "copyId": "Kopier egenskaps-ID",
+    "moreSettings": "Flere innstillinger",
     "changeType": "Endre type",
     "confirmType": "Vil du endre «{name}» til {type}?",
     "confirmTypeLost": "{count, plural, one {# verdi} other {# verdier}} i radene du ser, kan ikke gjøres om til {type} og blir fjernet.",
@@ -921,6 +923,7 @@
     "showIcons": "Vis sideikoner",
     "showVerticalLines": "Vis loddrette linjer",
     "stripedRows": "Vekslende radfarger",
+    "appearance": "Utseende",
     "openRows": "Åpne rader i",
     "openRowsIn": {
       "panel": "Sidepanel",
@@ -1962,6 +1965,7 @@
     "useExisting": "Behold overordnede elementer i «{name}»",
     "turnOff": "Slå av underelementer",
     "turnOffHint": "Egenskapene og koblingene deres blir værende.",
+    "off": "Av",
     "keptIn": "Overordnede elementer lagres i «{name}»."
   },
   "dependencies": {

@@ -521,6 +521,7 @@
     "calculate": "계산",
     "wrap": "텍스트 줄바꿈",
     "align": "정렬",
+    "columnLayout": "열 레이아웃",
     "alignLeft": "왼쪽",
     "alignCenter": "가운데",
     "alignRight": "오른쪽",
@@ -530,6 +531,7 @@
     "unfreeze": "열 고정 해제",
     "duplicate": "복제",
     "copyId": "속성 ID 복사",
+    "moreSettings": "기타 설정",
     "changeType": "유형 변경",
     "confirmType": "“{name}”을(를) {type}(으)로 변경할까요?",
     "confirmTypeLost": "보이는 행에 있는 값 {count}개는 {type}(으)로 바꿀 수 없어 지워집니다.",
@@ -921,6 +923,7 @@
     "showIcons": "페이지 아이콘 표시",
     "showVerticalLines": "세로선 표시",
     "stripedRows": "행 번갈아 색칠",
+    "appearance": "모양",
     "openRows": "행 열기 위치",
     "openRowsIn": {
       "panel": "사이드 패널",
@@ -1962,6 +1965,7 @@
     "useExisting": "상위 항목을 “{name}”에 유지",
     "turnOff": "하위 항목 끄기",
     "turnOffHint": "속성과 연결은 그대로 유지됩니다.",
+    "off": "꺼짐",
     "keptIn": "상위 항목은 “{name}”에 유지됩니다."
   },
   "dependencies": {

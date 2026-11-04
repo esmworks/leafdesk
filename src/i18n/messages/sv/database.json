@@ -521,6 +521,7 @@
     "calculate": "Beräkna",
     "wrap": "Radbryt text",
     "align": "Justering",
+    "columnLayout": "Kolumnlayout",
     "alignLeft": "Vänster",
     "alignCenter": "Centrerat",
     "alignRight": "Höger",
@@ -530,6 +531,7 @@
     "unfreeze": "Lossa kolumner",
     "duplicate": "Duplicera",
     "copyId": "Kopiera egenskapens ID",
+    "moreSettings": "Fler inställningar",
     "changeType": "Byt typ",
     "confirmType": "Ändra ”{name}” till {type}?",
     "confirmTypeLost": "{count, plural, one {# värde} other {# värden}} i raderna du ser kan inte bli {type} och kommer att rensas.",
@@ -921,6 +923,7 @@
     "showIcons": "Visa sidikoner",
     "showVerticalLines": "Visa lodräta linjer",
     "stripedRows": "Randiga rader",
+    "appearance": "Utseende",
     "openRows": "Öppna rader i",
     "openRowsIn": {
       "panel": "Sidopanel",
@@ -1962,6 +1965,7 @@
     "useExisting": "Behåll överordnade objekt i ”{name}”",
     "turnOff": "Stäng av underobjekt",
     "turnOffHint": "Egenskaperna och deras länkar finns kvar.",
+    "off": "Av",
     "keptIn": "Överordnade objekt finns i ”{name}”."
   },
   "dependencies": {

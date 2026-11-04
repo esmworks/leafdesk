@@ -15,6 +15,16 @@
 
 ### Changed
 
+- **Long menus are shorter.** A column's menu puts freezing, wrapping text and alignment under
+  *Column layout*, and settings seldom changed (unique values, AI autofill, row pages, pinning
+  under the title, property access, copying its ID) under *More settings* when there are several
+  of them. A page's or database's `⋯` menu keeps copying the link, following, duplicating, moving,
+  the trash, the lock, export and history, and puts the rest (presenting, reading aloud, the graph,
+  Markdown, analytics, templates, archiving, verifying, the ID, a database's row access, GitHub,
+  Slack and voice note settings, backlinks, skills and offline) under *More actions*. The view
+  settings menu opens sub-items, where rows open and a table's appearance (page icons, vertical
+  lines, striped rows) on pages of their own.
+
 - **The boxes beside a chat can be hidden.** A button at the end of the top bar of an agent's page
   and of the AI chat hides the boxes beside the conversation, and the conversation is centered; the
   same button brings them back. The choice is kept in the browser for both pages.

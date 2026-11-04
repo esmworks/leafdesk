@@ -101,7 +101,7 @@ use what it gave):
   address is a secret: it is stored sealed, shown again only as a hint
   (`hooks.slack.com/services/…x9Ab`) in the app, MCP and the run history, and kept when the
   automation is saved without it. Like webhooks, it needs export to be on. *Slack notifications*
-  in a database's ••• menu sets one up for a row added or a property changing (to a value).
+  in a database's ••• menu (*More actions*) sets one up for a row added or a property changing (to a value).
 - *Find rows* of this database or another one of the workspace the automation's person can open,
   with filters and sorts as a view has them, up to 100 rows (20 unless set otherwise).
 - *Create a row* in this database or another one the automation's person can edit, with a title

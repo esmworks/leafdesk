@@ -30,8 +30,8 @@
   through it count, as for semantic search; a document's first 80,000 characters are searched,
   and a scan without a text layer has no words to find. The sidebar's new button asks what to make
   (a page, a chat, a database or a page from a template). A page's `⋯` menu counts its words and
-  characters, and *Present* (⌘⌥P, Ctrl+Alt+P) shows it full screen as read-only slides: a new
-  slide at each divider, or else at each heading of level 1 or 2. *Read aloud* reads the page with
+  characters, and *Present* (under *More actions*; ⌘⌥P, Ctrl+Alt+P) shows it full screen as read-only slides: a new
+  slide at each divider, or else at each heading of level 1 or 2. *Read aloud* (there too) reads the page with
   the browser's own speech, nothing sent anywhere: block by block from the title, marking and
   scrolling to the block being read, with pause, the previous and next block, the speed and the
   voice (both remembered in the browser); code blocks are skipped. Resting on a page in the
@@ -406,15 +406,15 @@
   - View tabs that don't fit the row go into a "N more" menu at its end; once it holds six or more,
     it starts with a search field that finds any of the database's views by name (Enter opens the
     first).
-  - Each view with rows can leave out the rows' page icons (Layout → *Show page icons*; published
-    views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
+  - Each view with rows can leave out the rows' page icons (*Show page icons* in the view settings, under
+    *Appearance* for a table; published views too), and a calendar can leave out Saturdays and Sundays (*Show weekends*, month and
     week alike): its weekdays then share the width, and rows only on a weekend are listed under it
     with their day, to open or drag onto a weekday. Boards and galleries can wrap long values on
     their cards onto more lines instead of cutting them off (*Wrap all properties*), and a table
-    can leave out the lines between its columns (*Show vertical lines*; published tables too) or
-    put every other row on a faint shade (*Striped rows*; published tables too). The row under the
+    can leave out the lines between its columns (*Appearance* → *Show vertical lines*; published tables too) or
+    put every other row on a faint shade (*Appearance* → *Striped rows*; published tables too). The row under the
     pointer is always lightly shaded.
-    A table column's menu → *Alignment* puts its values and its name on the left, in the center or
+    A table column's menu → *Column layout* → *Alignment* puts its values and its name on the left, in the center or
     on the right of the column, in that view, on published and printed tables and in PDFs.
   - Large databases: a board column and a gallery show 50 cards, then *Load more* adds as many
     again (Layout → *Load limit*: 10, 25, 50 or 100; filters, sorts, counts and calculations still
@@ -655,7 +655,7 @@
     Its title can hold `@today`, `@now` and `@me`, which become the day, the moment (in the
     maker's time zone, written in their language in the app and as ISO elsewhere) and the maker's
     name in each new row's title.
-  - *Duplicate without rows* (the database's page menu) copies a database's properties, views,
+  - *Duplicate without rows* (the database's page menu, under *More actions*) copies a database's properties, views,
     row templates and its own page, as an empty database to fill anew. Relations, forms and access
     rules come along as with *Duplicate*; automations stay with the original either way.
   - Repeating templates: a row template adds a row by itself every day, every few weeks on chosen
@@ -674,7 +674,7 @@
   request, find rows, create a row (optionally from one of the database's row templates) or update
   the one that matches, wait, ask people for approval, celebrate with confetti for whoever made the
   change (the ready-made *Celebrate finished rows* does it when a row is marked done), or log.
-  *Slack notifications* in a database's ••• menu makes one that posts when a row is added or a
+  *Slack notifications* in a database's ••• menu (under *More actions*) makes one that posts when a row is added or a
   property changes (to a value) in two steps. Steps go for each row an earlier step found
   and use the trigger's and earlier steps' values through `{{templates}}`. Changes can wait in a
   draft, be tried with a test run and be published as numbered versions, and a 30-day run history
@@ -767,7 +767,7 @@
   (the first 20 blocks), each opening that page at the block with the link; and below it the pages
   that write the page's title without linking to it, with a button that turns that text into a
   mention (a Japanese or Chinese title is found inside a sentence too, never inside a longer word).
-  The page's ••• menu sets where its backlinks show: below the page, in a popup under the title, or
+  The page's ••• menu (*More actions* → *Backlinks*) sets where its backlinks show: below the page, in a popup under the title, or
   hidden (for everyone, like the page's typeface).
   Under them, *Related pages* lists up to five pages close in meaning to this one that it doesn't
   link to and isn't linked from (nor its parent or subpages), each with when it was last edited and
@@ -805,7 +805,7 @@
   finds them on the original page only, and its history shows their changes.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. It is beside a page
-  ("Show in graph" in a page's menu: the page and the pages up to three steps from it), and the
+  ("Show in graph" under *More actions* in a page's menu: the page and the pages up to three steps from it), and the
   whole workspace's graph opens from there or from search (*Graph*). The whole graph starts with
   the pages joined by links and relations, and says how to add some when there are few; switches
   show the page tree, database rows and pages without connections. A database with many rows is
@@ -902,7 +902,7 @@
   section for pages only you see. Settings → Teamspaces lists them with filters, their members and
   owners, the default teamspaces and whether members may create teamspaces. Moving a page to
   another teamspace, or to Private, gives it the access of its new place; people it was shared
-  with by name keep theirs. *Turn into teamspace* in a page's ⋯ menu (full access to the page and
+  with by name keep theirs. *Turn into teamspace* in a page's ⋯ menu (under *More actions*; full access to the page and
   the right to create teamspaces) makes a teamspace named after the page: the page and the pages
   right under it become its top-level pages; whoever turns it and those with full access to the page
   own it, those who could edit join as members (and groups that could edit, as groups), members
@@ -939,7 +939,7 @@
   The Share panel shows everyone who can view the page who has it; access inherited from a page
   above names that page only to those who can open it, and guests see people's names but not
   their email addresses, and that a group has access but not which one.
-  A database's *Row access* (its ⋯ menu, full access) lets rows give the people in a person
+  A database's *Row access* (its ⋯ menu → *More actions*, full access) lets rows give the people in a person
   property, or their creator, view, comment, edit or full access to those rows, and can show each
   row only to the people it names (people with full access to the database still see every row);
   search, the sidebar, the API, MCP and the AI chat follow it.
@@ -950,7 +950,8 @@
   owner by default; any member or owner who stays); someone leaving hands them to the oldest owner,
   and so does the identity provider. The audit log records who received how many. Coming back
   starts afresh.
-- **Property access**: people with full access to a database decide, from a column's menu, who
+- **Property access**: people with full access to a database decide, from a column's menu
+  (*More settings* → *Property access*), who
   may see and change that one property: everyone with access to the database can edit it, edit
   only its values, view it, see only that the column exists, or not see it at all, with
   exceptions for people, groups and whoever a person property of the row names (their own rows).
@@ -974,7 +975,7 @@
   7, 30 or 90 days, with CSV export, counted from page history and last edits. While page views
   are recorded (on by default; owners turn it off there, and each person can opt out under
   Settings → General) it adds views, unique viewers, views per person and the most viewed pages,
-  and each page's menu has *Analytics* for people who may edit it: views per day, who opened it
+  and each page's menu has *Analytics* (under *More actions*) for people who may edit it: views per day, who opened it
   and who edited it. A view is an owner or member opening a page, database or row in the app,
   kept as one count per page, person and day for a year; guests, agents, API and MCP clients and
   published pages are never recorded.
@@ -1374,7 +1375,7 @@
   failed; a refused write waits, without pausing the sync, until writing works or the sync goes
   back to reading only, which drops what waits. Tested against a fake Calendar server the e2e
   runs (`scripts/gcal-sync-e2e.ts`), not yet the real Google Calendar connection.
-- **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu of a database with
+- **GitHub pull requests update tasks**: *GitHub pull requests* in the ••• menu (*More actions*) of a database with
   an ID property with a prefix gives a payload URL and a secret to add as a repository webhook
   (JSON, *Pull requests* events). A pull request that names rows by their ID (`TASK-12`, in any
   case, in its title, description or branch; at most 20 per pull request) adds its link to a text

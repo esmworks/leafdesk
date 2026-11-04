@@ -521,6 +521,7 @@
     "calculate": "Beregn",
     "wrap": "Ombryd tekst",
     "align": "Justering",
+    "columnLayout": "Kolonnelayout",
     "alignLeft": "Venstre",
     "alignCenter": "Centreret",
     "alignRight": "Højre",
@@ -530,6 +531,7 @@
     "unfreeze": "Frigør kolonner",
     "duplicate": "Duplikér",
     "copyId": "Kopiér egenskabs-ID",
+    "moreSettings": "Flere indstillinger",
     "changeType": "Skift type",
     "confirmType": "Vil du ændre “{name}” til {type}?",
     "confirmTypeLost": "{count, plural, one {# værdi} other {# værdier}} i de rækker, du ser, kan ikke blive til {type} og vil blive ryddet.",
@@ -921,6 +923,7 @@
     "showIcons": "Vis sideikoner",
     "showVerticalLines": "Vis lodrette linjer",
     "stripedRows": "Skiftende rækkefarver",
+    "appearance": "Udseende",
     "openRows": "Åbn rækker i",
     "openRowsIn": {
       "panel": "Sidepanel",
@@ -1962,6 +1965,7 @@
     "useExisting": "Behold overordnede i “{name}”",
     "turnOff": "Slå underpunkter fra",
     "turnOffHint": "Egenskaberne og deres links bevares.",
+    "off": "Fra",
     "keptIn": "Overordnede gemmes i “{name}”."
   },
   "dependencies": {

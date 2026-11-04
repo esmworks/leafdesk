@@ -19,6 +19,7 @@ import {
   Bot,
   BotOff,
   Calculator,
+  Columns3Cog,
   CalendarCog,
   Check,
   ChevronRight,
@@ -49,6 +50,7 @@ import {
   Ungroup,
   UserRound,
   WrapText,
+  SlidersHorizontal,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
@@ -372,7 +374,6 @@ export function PropertyMenu({
     { align: "center" as const, label: "alignCenter" as const, Icon: AlignCenter },
     { align: rtl ? null : ("end" as const), label: "alignRight" as const, Icon: AlignRight },
   ];
-  const { label: alignLabel, Icon: AlignIcon } = alignChoices.find((c) => c.align === (actions.align?.value ?? null)) ?? alignChoices[0];
   const [page, setPage] = useState<
     | "main"
     | "options"
@@ -388,7 +389,8 @@ export function PropertyMenu({
     | "page-visibility"
     | "autofill"
     | "calculate"
-    | "align"
+    | "more"
+    | "layout"
     | "insert-before"
     | "insert-after"
     | "type"
@@ -397,6 +399,12 @@ export function PropertyMenu({
     | "type-rollup"
     | "type-confirm"
   >("main");
+  // Where a page's back button goes: the main list, or the group it was opened from.
+  const [parent, setParent] = useState<"main" | "more">("main");
+  const open = (next: typeof page, from: "main" | "more" = "main") => {
+    setParent(from);
+    setPage(next);
+  };
   // A type change waiting for the user to accept the values it clears.
   const [pending, setPending] = useState<{ change: TypeChangeInput; lost: number | null } | null>(null);
   const [name, setName] = useState(prop?.name ?? "");
@@ -600,7 +608,7 @@ export function PropertyMenu({
     const current = pageVisibilityOf(prop);
     return (
       <div className="w-60">
-        <SubmenuHeader title={t("rowPage")} onBack={() => setPage("main")} />
+        <SubmenuHeader title={t("rowPage")} onBack={() => setPage(parent)} />
         <MenuSeparator />
         {/* A button has no value, so "only with a value" would hide it everywhere. */}
         {PAGE_VISIBILITIES.filter((v) => prop.type !== "button" || v !== "hide_empty").map((visibility) => (
@@ -623,7 +631,7 @@ export function PropertyMenu({
       <AutofillEditor
         prop={prop}
         name={prop.name}
-        onBack={() => setPage("main")}
+        onBack={() => setPage(parent)}
         onSave={(config) => {
           actions.setAutofill?.(config);
           onDone();
@@ -647,32 +655,6 @@ export function PropertyMenu({
               onDone();
             }}
           />
-        </div>
-      </div>
-    );
-  }
-
-  if (page === "align" && actions.align) {
-    const { value, onChange } = actions.align;
-    return (
-      <div className="w-52">
-        <SubmenuHeader title={t("align")} onBack={() => setPage("main")} />
-        <MenuSeparator />
-        <div className="p-1">
-          {alignChoices.map(({ align, label, Icon }) => (
-            <MenuItem
-              key={label}
-              icon={<Icon className="h-3.5 w-3.5" />}
-              pressed={value === align}
-              trailing={value === align ? <Check className="h-3.5 w-3.5" /> : undefined}
-              onClick={() => {
-                if (align !== value) onChange(align);
-                onDone();
-              }}
-            >
-              {t(label)}
-            </MenuItem>
-          ))}
         </div>
       </div>
     );
@@ -830,18 +812,6 @@ export function PropertyMenu({
         {t("oneRow")}
       </MenuItem>
     ),
-    prop && canBeUnique(prop.type) && actions.setUnique && (
-      <MenuItem
-        key="unique"
-        icon={icon(CopyX)}
-        pressed={Boolean(prop.options.unique)}
-        trailing={prop.options.unique ? icon(Check) : undefined}
-        title={t("uniqueValuesHint")}
-        onClick={run(() => actions.setUnique?.(!prop.options.unique))}
-      >
-        {t("uniqueValues")}
-      </MenuItem>
-    ),
     prop?.type === "person" && actions.setOnePerson && (
       <MenuItem
         key="one-person"
@@ -859,64 +829,87 @@ export function PropertyMenu({
         {ta("updateAll")}
       </MenuItem>
     ),
-    isAutofillType(prop?.type) && actions.setAutofill && (
-      <MenuItem key="autofill" icon={icon(Bot)} onClick={() => setPage("autofill")}>
-        {ta("configure")}
-      </MenuItem>
-    ),
-    isAutofillType(prop?.type) && prop?.options.ai && actions.setAutofill && (
-      <MenuItem key="autofill-off" icon={icon(BotOff)} onClick={run(() => actions.setAutofill?.(null))}>
-        {ta("turnOff")}
-      </MenuItem>
-    ),
     selectType && actions.setOptions && (
       <MenuItem key="options" icon={icon(Settings2)} onClick={() => setPage("options")}>
         {t("editOptions")}
       </MenuItem>
     ),
-    prop && actions.setPageVisibility && (
-      <MenuItem
-        key="page-visibility"
-        icon={icon(pageVisibilityOf(prop) === "show" ? Eye : EyeOff)}
-        trailing={
-          <>
-            <span className="me-1 text-xs">{t(`pageVisibilityShort.${pageVisibilityOf(prop)}`)}</span>
-            <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
-          </>
-        }
-        onClick={() => setPage("page-visibility")}
-      >
-        {t("rowPage")}
-      </MenuItem>
-    ),
-    prop && actions.setPinned && (
-      <MenuItem
-        key="pin"
-        icon={icon(isPinned(prop) ? PinOff : Pin)}
-        disabled={!isPinned(prop) && actions.pinFull}
-        title={!isPinned(prop) && actions.pinFull ? t("pinFull", { max: MAX_PINNED }) : undefined}
-        onClick={run(() => actions.setPinned?.(!isPinned(prop)))}
-      >
-        {t(isPinned(prop) ? "unpinFromTitle" : "pinToTitle")}
-      </MenuItem>
-    ),
-    prop && actions.openAccess && (
-      <MenuItem
-        key="access"
-        icon={icon(Lock)}
-        disabled={!canRestrict(prop.type)}
-        title={canRestrict(prop.type) ? undefined : tAccess("unavailable")}
-        onClick={run(actions.openAccess)}
-      >
-        {tAccess("menuItem")}
-      </MenuItem>
-    ),
-    prop && actions.openAccess && !canRestrict(prop.type) && (
-      <div key="access-hint" className="px-2 pb-1 text-xs text-fg-faint">
-        {tAccess("unavailable")}
-      </div>
-    ),
   ].filter(Boolean);
+  // Settings of the property that are seldom changed: grouped under one item when there are
+  // several, so the menu stays short.
+  const moreItems = (from: "main" | "more") =>
+    [
+      prop && canBeUnique(prop.type) && actions.setUnique && (
+        <MenuItem
+          key="unique"
+          icon={icon(CopyX)}
+          pressed={Boolean(prop.options.unique)}
+          trailing={prop.options.unique ? icon(Check) : undefined}
+          title={t("uniqueValuesHint")}
+          onClick={run(() => actions.setUnique?.(!prop.options.unique))}
+        >
+          {t("uniqueValues")}
+        </MenuItem>
+      ),
+      isAutofillType(prop?.type) && actions.setAutofill && (
+        <MenuItem key="autofill" icon={icon(Bot)} onClick={() => open("autofill", from)}>
+          {ta("configure")}
+        </MenuItem>
+      ),
+      isAutofillType(prop?.type) && prop?.options.ai && actions.setAutofill && (
+        <MenuItem key="autofill-off" icon={icon(BotOff)} onClick={run(() => actions.setAutofill?.(null))}>
+          {ta("turnOff")}
+        </MenuItem>
+      ),
+      prop && actions.setPageVisibility && (
+        <MenuItem
+          key="page-visibility"
+          icon={icon(pageVisibilityOf(prop) === "show" ? Eye : EyeOff)}
+          trailing={
+            <>
+              <span className="me-1 text-xs">{t(`pageVisibilityShort.${pageVisibilityOf(prop)}`)}</span>
+              <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
+            </>
+          }
+          onClick={() => open("page-visibility", from)}
+        >
+          {t("rowPage")}
+        </MenuItem>
+      ),
+      prop && actions.setPinned && (
+        <MenuItem
+          key="pin"
+          icon={icon(isPinned(prop) ? PinOff : Pin)}
+          disabled={!isPinned(prop) && actions.pinFull}
+          title={!isPinned(prop) && actions.pinFull ? t("pinFull", { max: MAX_PINNED }) : undefined}
+          onClick={run(() => actions.setPinned?.(!isPinned(prop)))}
+        >
+          {t(isPinned(prop) ? "unpinFromTitle" : "pinToTitle")}
+        </MenuItem>
+      ),
+      prop && actions.openAccess && (
+        <MenuItem
+          key="access"
+          icon={icon(Lock)}
+          disabled={!canRestrict(prop.type)}
+          title={canRestrict(prop.type) ? undefined : tAccess("unavailable")}
+          onClick={run(actions.openAccess)}
+        >
+          {tAccess("menuItem")}
+        </MenuItem>
+      ),
+      prop && actions.openAccess && !canRestrict(prop.type) && (
+        <div key="access-hint" className="px-2 pb-1 text-xs text-fg-faint">
+          {tAccess("unavailable")}
+        </div>
+      ),
+      prop && (
+        <MenuItem key="copy-id" icon={icon(Hash)} onClick={run(() => void navigator.clipboard.writeText(prop.id))}>
+          {t("copyId")}
+        </MenuItem>
+      ),
+    ].filter(Boolean);
+  const moreCount = moreItems("main").length;
   const view = [
     actions.filter && (
       <MenuItem key="filter" icon={icon(ListFilter)} onClick={run(actions.filter)}>
@@ -948,47 +941,15 @@ export function PropertyMenu({
         {t("calculate")}
       </MenuItem>
     ),
-  ].filter(Boolean);
-  const layout = [
-    actions.freeze && (
-      <MenuItem key="freeze" icon={icon(Pin)} onClick={run(actions.freeze)}>
-        {t("freeze")}
-      </MenuItem>
-    ),
-    actions.unfreeze && (
-      <MenuItem key="unfreeze" icon={icon(PinOff)} onClick={run(actions.unfreeze)}>
-        {t("unfreeze")}
-      </MenuItem>
-    ),
     actions.hide && (
       <MenuItem key="hide" icon={icon(EyeOff)} onClick={run(actions.hide)}>
         {t("hide")}
       </MenuItem>
     ),
-    actions.toggleWrap && (
-      <MenuItem
-        key="wrap"
-        icon={icon(WrapText)}
-        pressed={Boolean(actions.wrapped)}
-        trailing={actions.wrapped ? icon(Check) : undefined}
-        onClick={run(actions.toggleWrap)}
-      >
-        {t("wrap")}
-      </MenuItem>
-    ),
-    actions.align && (
-      <MenuItem
-        key="align"
-        icon={<AlignIcon className="h-3.5 w-3.5" />}
-        trailing={
-          <>
-            <span className="me-1 text-xs">{t(alignLabel)}</span>
-            <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
-          </>
-        }
-        onClick={() => setPage("align")}
-      >
-        {t("align")}
+    // Freezing, wrapping and alignment are one item: they are set once for a column, seldom changed.
+    (actions.freeze || actions.unfreeze || actions.toggleWrap || actions.align) && (
+      <MenuItem key="layout" icon={icon(Columns3Cog)} trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} onClick={() => setPage("layout")}>
+        {t("columnLayout")}
       </MenuItem>
     ),
   ].filter(Boolean);
@@ -1012,18 +973,71 @@ export function PropertyMenu({
       </MenuItem>
     ),
   ].filter(Boolean);
-  // The REST API and MCP clients take a property by its id as well as its name, which can change.
-  const copyId = prop && (
-    <MenuItem key="copy-id" icon={icon(Hash)} onClick={run(() => void navigator.clipboard.writeText(prop.id))}>
-      {t("copyId")}
-    </MenuItem>
-  );
   const remove = prop && actions.remove && (
     <MenuItem key="delete" danger icon={icon(Trash2)} onClick={() => setPage("confirm")}>
       {t("delete")}
     </MenuItem>
   );
-  const sections = [settings, view, layout, insert, copyId ? [copyId] : [], remove ? [remove] : []].filter((s) => s.length);
+  const more =
+    moreCount > 1
+      ? [
+          <MenuItem key="more" icon={icon(SlidersHorizontal)} trailing={<ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />} onClick={() => setPage("more")}>
+            {t("moreSettings")}
+          </MenuItem>,
+        ]
+      : moreItems("main");
+  const sections = [[...settings, ...more], view, insert, remove ? [remove] : []].filter((s) => s.length);
+
+  if (page === "more") {
+    return (
+      <div className="w-60">
+        <SubmenuHeader title={t("moreSettings")} onBack={() => setPage("main")} />
+        <MenuSeparator />
+        {moreItems("more")}
+      </div>
+    );
+  }
+
+  if (page === "layout") {
+    return (
+      <div className="w-60">
+        <SubmenuHeader title={t("columnLayout")} onBack={() => setPage("main")} />
+        <MenuSeparator />
+        {actions.freeze && (
+          <MenuItem icon={icon(Pin)} onClick={run(actions.freeze)}>
+            {t("freeze")}
+          </MenuItem>
+        )}
+        {actions.unfreeze && (
+          <MenuItem icon={icon(PinOff)} onClick={run(actions.unfreeze)}>
+            {t("unfreeze")}
+          </MenuItem>
+        )}
+        {actions.toggleWrap && (
+          <MenuItem icon={icon(WrapText)} pressed={Boolean(actions.wrapped)} trailing={actions.wrapped ? icon(Check) : undefined} onClick={run(actions.toggleWrap)}>
+            {t("wrap")}
+          </MenuItem>
+        )}
+        {actions.align && (
+          <>
+            {(actions.freeze || actions.unfreeze || actions.toggleWrap) && <MenuSeparator />}
+            <div className="px-2 pt-1 pb-0.5 text-xs text-fg-faint">{t("align")}</div>
+            {alignChoices.map(({ align, label, Icon }) => (
+              <MenuItem
+                key={label}
+                icon={<Icon className="h-3.5 w-3.5" />}
+                pressed={actions.align?.value === align}
+                trailing={actions.align?.value === align ? <Check className="h-3.5 w-3.5" /> : undefined}
+                onClick={run(() => align !== actions.align?.value && actions.align?.onChange(align))}
+              >
+                {t(label)}
+              </MenuItem>
+            ))}
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="w-60">

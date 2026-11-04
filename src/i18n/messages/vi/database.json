@@ -521,6 +521,7 @@
     "calculate": "Tính toán",
     "wrap": "Ngắt dòng văn bản",
     "align": "Căn chỉnh",
+    "columnLayout": "Bố cục cột",
     "alignLeft": "Trái",
     "alignCenter": "Giữa",
     "alignRight": "Phải",
@@ -530,6 +531,7 @@
     "unfreeze": "Bỏ cố định các cột",
     "duplicate": "Nhân đôi",
     "copyId": "Sao chép ID thuộc tính",
+    "moreSettings": "Cài đặt khác",
     "changeType": "Đổi kiểu",
     "confirmType": "Đổi “{name}” thành {type}?",
     "confirmTypeLost": "{count, plural, other {# giá trị}} trong các hàng bạn thấy không thể chuyển thành {type} và sẽ bị xóa.",
@@ -921,6 +923,7 @@
     "showIcons": "Hiện biểu tượng trang",
     "showVerticalLines": "Hiện đường kẻ dọc",
     "stripedRows": "Tô màu xen kẽ các hàng",
+    "appearance": "Giao diện",
     "openRows": "Mở các hàng trong",
     "openRowsIn": {
       "panel": "Bảng bên",
@@ -1962,6 +1965,7 @@
     "useExisting": "Giữ các mục cha trong “{name}”",
     "turnOff": "Tắt mục con",
     "turnOffHint": "Các thuộc tính và liên kết của chúng vẫn được giữ.",
+    "off": "Tắt",
     "keptIn": "Các mục cha được giữ trong “{name}”."
   },
   "dependencies": {

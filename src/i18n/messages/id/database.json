@@ -521,6 +521,7 @@
     "calculate": "Hitung",
     "wrap": "Bungkus teks",
     "align": "Perataan",
+    "columnLayout": "Tata letak kolom",
     "alignLeft": "Kiri",
     "alignCenter": "Tengah",
     "alignRight": "Kanan",
@@ -530,6 +531,7 @@
     "unfreeze": "Lepas pembekuan kolom",
     "duplicate": "Duplikat",
     "copyId": "Salin ID properti",
+    "moreSettings": "Setelan lainnya",
     "changeType": "Ubah tipe",
     "confirmType": "Ubah “{name}” menjadi {type}?",
     "confirmTypeLost": "{count, plural, other {# nilai}} pada baris yang Anda lihat tidak dapat menjadi {type} dan akan dikosongkan.",
@@ -921,6 +923,7 @@
     "showIcons": "Tampilkan ikon halaman",
     "showVerticalLines": "Tampilkan garis vertikal",
     "stripedRows": "Warnai baris berselang-seling",
+    "appearance": "Tampilan",
     "openRows": "Buka baris di",
     "openRowsIn": {
       "panel": "Panel samping",
@@ -1962,6 +1965,7 @@
     "useExisting": "Simpan induk di “{name}”",
     "turnOff": "Nonaktifkan sub-item",
     "turnOffHint": "Properti dan tautannya tetap ada.",
+    "off": "Mati",
     "keptIn": "Induk disimpan di “{name}”."
   },
   "dependencies": {

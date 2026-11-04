@@ -521,6 +521,7 @@
     "calculate": "חישוב",
     "wrap": "גלישת טקסט",
     "align": "יישור",
+    "columnLayout": "פריסת עמודה",
     "alignLeft": "שמאל",
     "alignCenter": "מרכז",
     "alignRight": "ימין",
@@ -530,6 +531,7 @@
     "unfreeze": "ביטול הקפאת העמודות",
     "duplicate": "שכפול",
     "copyId": "העתקת מזהה המאפיין",
+    "moreSettings": "הגדרות נוספות",
     "changeType": "שינוי סוג",
     "confirmType": "לשנות את “{name}” לסוג {type}?",
     "confirmTypeLost": "{count, plural, one {ערך אחד} two {שני ערכים} other {# ערכים}} בשורות המוצגות לא יכולים להפוך לסוג {type} ולכן ינוקו.",
@@ -921,6 +923,7 @@
     "showIcons": "הצגת סמלי דפים",
     "showVerticalLines": "הצגת קווים אנכיים",
     "stripedRows": "צביעת שורות לסירוגין",
+    "appearance": "מראה",
     "openRows": "פתיחת שורות ב־",
     "openRowsIn": {
       "panel": "חלונית צד",
@@ -1962,6 +1965,7 @@
     "useExisting": "שמירת ההורים ב־“{name}”",
     "turnOff": "השבתת פריטי המשנה",
     "turnOffHint": "המאפיינים והקישורים שלהם נשארים.",
+    "off": "כבוי",
     "keptIn": "ההורים נשמרים ב־“{name}”."
   },
   "dependencies": {

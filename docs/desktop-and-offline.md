@@ -22,7 +22,7 @@ you opened stay readable offline; they are read-only until the connection is bac
 sharing, comments, favorites, search, the inbox, new pages and the other actions that need the
 server (their buttons say so).
 
-**Downloaded pages.** *Available offline* in a page's ⋯ menu, or in the menu beside it in the
+**Downloaded pages.** *Available offline* in a page's ⋯ menu (under *More actions*), or in the menu beside it in the
 sidebar, downloads it to this device now: its content, a database's rows or a row's values, and
 the files and images it shows (up to 10 MB each, 50 MB per page); *Include sub-pages* (*Include
 rows*) brings up to 50 pages under it along. Favorites are downloaded too unless turned off.
