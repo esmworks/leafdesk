@@ -39,6 +39,10 @@ const config = (phase: string): NextConfig => ({
     // cache again; written to disk as the build ends, it kept the macOS runner's `next build` open
     // for more than 20 minutes after the build was done.
     ...(process.env.LEAFDESK_STANDALONE === "1" && { turbopackFileSystemCacheForBuild: false }),
+    // Dev only: Turbopack's disk cache under .next/dev never shrinks. With a dev server in the main
+    // checkout and in each worktree it grew to 6-36 GB per checkout within days and filled the
+    // disk. Restarts compile from scratch instead.
+    turbopackFileSystemCacheForDev: false,
     // Dev only: with the debug channel React waits for debug data sent over the HMR websocket
     // before it hydrates or applies a navigation. The custom server restarts on every server
     // file change, and the new process doesn't know the old requests, so open tabs froze
