@@ -113,7 +113,8 @@ Every panel beside the rail (Pages, Journal, My tasks, Meetings, Mail, Chat, Age
 the same pieces, exported by `components/sidebar/panel.tsx`, so a person who has learned one has
 learned them all:
 
-- **Head**: the panel's name in `text-[15px] font-semibold`, and at its end the one thing the
+- **Head**: 44 px, as tall as the page's top bar beside it, so both titles sit on one line; the
+  panel's rows start 4 px under it. The panel's name in `text-[15px] font-semibold`, and at its end the one thing the
   panel makes (a pen, `SquarePen`, for a page, note, task, message or agent; `CalendarCheck`
   opens today's note), then a ⋯ with the list's own actions when it has some. Never a text button.
 - **Row** (`panelRow`): 28 px tall, a 16 px icon in `text-fg-icon`, the item in `text-sm`, meta at

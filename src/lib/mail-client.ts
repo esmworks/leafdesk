@@ -349,6 +349,11 @@ export type MailDraftInput = {
   /** The opened message this answers or forwards, by its id in the index. */
   replyTo?: string | null;
   forward?: string | null;
+  /**
+   * The Message-ID of the message it answers or forwards, which finds it when the index no longer
+   * has it under that id (moved in another mail program, or its folder numbered anew).
+   */
+  sourceMessageId?: string | null;
   /** The draft it was saved as last (or opened from), which saving again or sending replaces. */
   draft?: MailDraftRef | null;
   /**
@@ -389,6 +394,8 @@ export type MailDraftView = {
   html: string;
   /** The message it answers, by its id in the index, when the index has it. */
   replyTo: string | null;
+  /** The Message-ID of the message it answers (its In-Reply-To), when it names one. */
+  replyToMessageId: string | null;
   attachments: MailAttachmentView[];
   /** The earlier mail it carries under what is written (server/mail-client/quote.ts), cleaned to show; null without. */
   quote: string | null;

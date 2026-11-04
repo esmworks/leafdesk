@@ -36,6 +36,7 @@
   "noneOpen": "Chọn một cuộc trò chuyện để đọc.",
   "loading": "Đang tải…",
   "loadFailed": "Không tải được thư. Hãy thử lại sau giây lát.",
+  "gone": "Thư này không còn ở vị trí cũ trong hộp thư. Có thể thư đã được di chuyển hoặc xóa trong một chương trình thư khác.",
   "noSubject": "(không có chủ đề)",
   "untitledRow": "Chưa đặt tên",
   "me": "tôi",

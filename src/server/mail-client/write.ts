@@ -248,7 +248,7 @@ async function deliver({ userId, box, draft, w, raw }: Prepared) {
   await sentDraft(userId, box, draft.draft);
   const sent = (await folders(box)).find((f) => f.role === "sent");
   if (sent && !SAVES_SENT.includes(box.imapHost)) await keepSent(box, raw, sent.path);
-  const answers = w.answers;
+  const answers = w.answers?.stored;
   if (answers) {
     await withImap(box, async (client) => {
       const lock = await client.getMailboxLock(answers.path);
@@ -356,7 +356,7 @@ export async function undoSend(userId: string, id: string): Promise<MailUndoneSe
   entry.state = "undone";
   settled(id);
   const saved = await keepAsDraft(userId, entry.draft, entry.attachments, entry.quote);
-  return { id: saved.id, replyTo: entry.w.answers?.id ?? null };
+  return { id: saved.id, replyTo: entry.w.answers?.stored?.id ?? null };
 }
 
 /** How a held message went, for its sender. */

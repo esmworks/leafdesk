@@ -1860,7 +1860,8 @@ export function Sidebar({
             )}
           >
             {sidebar && !collapsed && <ResizeHandle />}
-            <div className="flex h-12 shrink-0 items-center gap-1 ps-4 pe-2 max-md:h-14">
+            {/* As tall as the page's top bar beside it (page-view.tsx), so the two titles sit on one line. */}
+            <div className="flex h-11 shrink-0 items-center gap-1 ps-4 pe-2 max-md:h-14">
               <h2 className="min-w-0 flex-1 truncate text-[15px] font-semibold">{panelTitle}</h2>
               <div className="flex shrink-0 items-center gap-0.5">
                 {headActions}
@@ -1903,8 +1904,8 @@ export function Sidebar({
                 {actionError}
               </p>
             )}
-            {/* Every panel starts the same 8 px under the head, whatever its first block is. */}
-            <nav ref={setNavEl} className="peer flex-1 overflow-y-auto px-2 pt-2 pb-2" aria-label={panelTitle}>
+            {/* Every panel starts the same 4 px under the head, whatever its first block is. */}
+            <nav ref={setNavEl} className="peer flex-1 overflow-y-auto px-2 pt-1 pb-2" aria-label={panelTitle}>
               {shownTab === "tasks" ? (
                 <TaskPanel
                   workspaceId={workspaceId}

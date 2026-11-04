@@ -36,6 +36,7 @@
   "noneOpen": "Pilih percakapan untuk membacanya.",
   "loading": "Memuat…",
   "loadFailed": "Email tidak dapat dimuat. Coba lagi sebentar lagi.",
+  "gone": "Pesan ini tidak lagi berada di tempatnya di kotak surat. Mungkin telah dipindahkan atau dihapus di program email lain.",
   "noSubject": "(tanpa subjek)",
   "untitledRow": "Tanpa judul",
   "me": "saya",

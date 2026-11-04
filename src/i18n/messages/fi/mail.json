@@ -36,6 +36,7 @@
   "noneOpen": "Valitse keskustelu luettavaksi.",
   "loading": "Ladataan…",
   "loadFailed": "Viestejä ei voitu ladata. Yritä hetken kuluttua uudelleen.",
+  "gone": "Tämä viesti ei ole enää siellä, missä se oli postilaatikossa. Se on ehkä siirretty tai poistettu toisessa sähköpostiohjelmassa.",
   "noSubject": "(ei aihetta)",
   "untitledRow": "Nimetön",
   "me": "minä",

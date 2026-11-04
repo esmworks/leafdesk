@@ -36,6 +36,7 @@
   "noneOpen": "Velg en samtale for å lese den.",
   "loading": "Laster …",
   "loadFailed": "E-posten kunne ikke lastes. Prøv igjen om litt.",
+  "gone": "Denne meldingen er ikke lenger der den var i postkassen. Den kan være flyttet eller slettet i et annet e-postprogram.",
   "noSubject": "(uten emne)",
   "untitledRow": "Uten tittel",
   "me": "meg",

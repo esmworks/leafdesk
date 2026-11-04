@@ -699,6 +699,58 @@ try {
   const logoFromDraft = (await lastMessageTo(customer)).replace(/=\r?\n/g, "");
   check(logoFromDraft.includes("Taslaktan, ikinci") && (logoFromDraft.match(/Content-ID: <logo\./gi) ?? []).length === 1, "and go along, once, when the draft is saved again and sent", logoFromDraft.slice(0, 3000));
 
+  // An answer still goes when the index gave the message it answers a new id (moved in another
+  // mail program, its folder numbered anew) and its draft's copy was taken out of the drafts folder
+  const [answeredRow] = await db.select().from(mailMessage).where(eq(mailMessage.id, quoting!.messageId));
+  const lostDraft = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Re: Yeni sipariş", html: "<p>Kayip taslak</p>", replyTo: quoting!.messageId, sourceMessageId: answeredRow.messageId, quote: { header: ["Ayse yazdi:"] } });
+  const draftCopies = () =>
+    asAda(async (client) => {
+      const lock = await client.getMailboxLock("Drafts");
+      try {
+        return (await client.search({ header: { "message-id": lostDraft.messageId } }, { uid: true })) || [];
+      } finally {
+        lock.release();
+      }
+    });
+  const copies = await draftCopies();
+  await asAda(async (client) => {
+    const lock = await client.getMailboxLock("Drafts");
+    try {
+      await client.messageDelete(copies.join(","), { uid: true });
+    } finally {
+      lock.release();
+    }
+  });
+  check(
+    copies.length === 1 && !(await draftCopies()).length && (await db.select().from(mailMessage).where(eq(mailMessage.id, lostDraft.id!))).length === 1,
+    "(the draft is taken out of the drafts folder elsewhere, while the index still names it)",
+  );
+  const lostSend = {
+    mailboxId: boxId,
+    to: [customer],
+    cc: [],
+    bcc: [],
+    subject: "Re: Yeni sipariş",
+    html: "<p>Kayip taslak, gonderildi</p>",
+    replyTo: `moved-${RUN}`,
+    draft: { id: lostDraft.id, messageId: lostDraft.messageId, mailboxId: boxId, keep: [] },
+    quote: { header: ["Ayse yazdi:"] },
+  };
+  check((await errorCode(() => sendMail(ids.ada, lostSend))) === "gone", "an answer whose message the index doesn't have, by id or Message-ID, isn't sent");
+  await sendMail(ids.ada, { ...lostSend, sourceMessageId: answeredRow.messageId });
+  const lostSent = (await lastMessageTo(customer)).replace(/=\r?\n/g, "");
+  check(
+    lostSent.includes("Kayip taslak, gonderildi") && lostSent.includes(`In-Reply-To: <${answeredRow.messageId}>`) && lostSent.includes("leafdesk_quote") && lostSent.includes("Onayl=C4=B1yoruz"),
+    "it goes in its thread, found by its Message-ID, with the quote made from the original again",
+    lostSent.slice(0, 3000),
+  );
+  check((await db.select().from(mailMessage).where(eq(mailMessage.id, answeredRow.id)))[0]?.answered, "and the message it answers is marked answered");
+  await sendMail(ids.ada, { mailboxId: boxId, to: [customer], cc: [], bcc: [], subject: "Re: Yeni sipariş", html: "<p>Taslaktan, Message-ID ile</p>", replyTo: null, sourceMessageId: answeredRow.messageId });
+  check(
+    (await lastMessageTo(customer)).includes(`In-Reply-To: <${answeredRow.messageId}>`),
+    "a draft opened again whose answered message the index doesn't name still answers it by its Message-ID",
+  );
+
   // Forwarding with the original under its header, and its files
   await outside.sendMail({
     ...base,

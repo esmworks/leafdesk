@@ -81,7 +81,7 @@ async function carriedFiles(box: Box, input: MailDraftInput, earlier: Earlier | 
     ]);
   }
   if (!input.forward) return [];
-  const forwarded = await storedMessage(box, input.forward);
+  const forwarded = await storedMessage(box, input.forward, input.sourceMessageId);
   return withImap(box, (client) => filesOf(client, forwarded, "files"));
 }
 
@@ -152,13 +152,18 @@ async function quoteFor(box: Box, input: MailDraftInput, earlier: Earlier | null
   if (!asked || typeof asked !== "object") return null;
   if (earlier?.message) {
     const draft = earlier.message;
-    const kept = await withImap(earlier.box, (client) => keptQuote(client, draft));
+    // A copy taken out of the drafts folder elsewhere (another mail program, a phone) since the
+    // index last read it: the quote is made from the original again.
+    const kept = await withImap(earlier.box, (client) => keptQuote(client, draft)).catch((error) => {
+      if (error instanceof RowMailError && error.code === "gone") return null;
+      throw error;
+    });
     if (kept) return kept;
   }
   const header = Array.isArray(asked.header) ? asked.header.filter((line): line is string => typeof line === "string").slice(0, 12).map((line) => line.replace(/[\r\n]+/g, " ").slice(0, 500)) : null;
   const sourceId = input.forward ?? input.replyTo;
   if (!header?.length || !sourceId) return null;
-  const source = await storedMessage(box, sourceId);
+  const source = await storedMessage(box, sourceId, input.sourceMessageId);
   return withImap(box, (client) => freshQuote(client, source, header, !!input.forward));
 }
 
@@ -309,6 +314,7 @@ export async function openDraft(userId: string, id: string): Promise<MailDraftVi
     subject: message.subject,
     html,
     replyTo: answers?.id ?? null,
+    replyToMessageId: message.inReplyTo,
     attachments: read.parts.attachments.filter((a) => !(a.inline && a.contentId && inMessage.has(a.contentId))).map(fileView),
     quote: split?.quote ? (await cleanMailHtml(split.quote, { images: false, inline: new Map() })).html : null,
   };

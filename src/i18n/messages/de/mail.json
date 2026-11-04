@@ -36,6 +36,7 @@
   "noneOpen": "Wähle eine Unterhaltung zum Lesen.",
   "loading": "Wird geladen…",
   "loadFailed": "Die Mails konnten nicht geladen werden. Versuche es gleich noch einmal.",
+  "gone": "Diese Nachricht ist nicht mehr dort, wo sie im Postfach war. Sie wurde vielleicht in einem anderen Mailprogramm verschoben oder gelöscht.",
   "noSubject": "(kein Betreff)",
   "untitledRow": "Ohne Titel",
   "me": "ich",

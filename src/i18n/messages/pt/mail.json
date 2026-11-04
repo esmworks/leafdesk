@@ -36,6 +36,7 @@
   "noneOpen": "Escolha uma conversa para lê-la.",
   "loading": "Carregando…",
   "loadFailed": "Não foi possível carregar os e-mails. Tente novamente em instantes.",
+  "gone": "Esta mensagem já não está onde estava na caixa de correio. Pode ter sido movida ou eliminada noutro programa de e-mail.",
   "noSubject": "(sem assunto)",
   "untitledRow": "Sem título",
   "me": "eu",

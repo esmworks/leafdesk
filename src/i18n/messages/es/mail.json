@@ -36,6 +36,7 @@
   "noneOpen": "Elige una conversación para leerla.",
   "loading": "Cargando…",
   "loadFailed": "No se pudo cargar el correo. Inténtalo de nuevo en un momento.",
+  "gone": "Este mensaje ya no está donde estaba en el buzón. Puede que se haya movido o eliminado en otro programa de correo.",
   "noSubject": "(sin asunto)",
   "untitledRow": "Sin título",
   "me": "yo",
