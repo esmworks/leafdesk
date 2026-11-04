@@ -637,9 +637,9 @@ because they are separate module graphs.
   The workspace sidebar is a rail (`sidebar/sidebar-rail.tsx`, `[data-sidebar-rail]`) that always
   stays on the window's frame (`bg-frame`) and a panel (`[data-sidebar-panel]`) that collapsing
   hides (a workspace's settings hide it: their list, `settings-nav.tsx` `besideRail`, is the panel in `<main>`'s card); on wide windows the panel and `<main>` make one card over the frame (the panel's edges in
-  `sidebar.tsx`, `<main>`'s in globals.css, keyed on `[data-sidebar-open]`). The workspace's menu
-  is at the panel's foot there; the workspace strip (`[data-sidebar-strip]`) shows only on top of
-  the phone drawer and, icon only, on the rail's top while the panel is hidden. macOS's window
+  `sidebar.tsx`, `<main>`'s in globals.css, keyed on `[data-sidebar-open]`); a phone's drawer is the same rail and
+  card, only with larger rows to tap. The workspace's menu is at the panel's foot; the workspace
+  strip (`[data-sidebar-strip]`) shows only, icon only, on the rail's top while the panel is hidden. macOS's window
   buttons take the frame above the rail and the panel (the `<aside>`'s top padding in globals.css);
   the desktop app's tab strip runs from the window's edge over that frame, panel shown or not
   (`desktop-tab-strip.tsx` reports no room beside a rail, except in full screen with the panel
@@ -674,7 +674,8 @@ because they are separate module graphs.
   tells the desktop app its color, and the tab strip, which the page can't draw over, takes it too.
   Boxes beside a chat's column on a wide page (the agent's page, the AI chat) are
   `components/side-box.tsx` (layout classes `lib/side-layout.ts`): a container query on the page
-  shows them, never the window's width; the AI chat lays them over its list, so its scrollbar stays at
+  shows them, never the window's width; the person hides them with `components/side-boxes-toggle.tsx`
+  (kept in the browser, one choice for both pages); the AI chat lays them over its list, so its scrollbar stays at
   the edge. The lines to a chat's questions and the button back to its latest are
   `components/chat-navigation.tsx`, loaded lazily: `ChatThread` is in every workspace page's first load.
   A menu or card that must leave a scrolling box is placed by `components/use-placement.ts`

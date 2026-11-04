@@ -13,7 +13,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRowPanel } from "@/components/database/row-panel-context";
 import { lazyPart } from "@/components/lazy-part";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { SIDE_COLUMN, SIDE_CONTAINER, SIDE_PAD, SIDE_SHOWN } from "@/lib/side-layout";
+import { SIDE_COLUMN, SIDE_CONTAINER, SIDE_PAD_FILLED, SIDE_SHOWN } from "@/lib/side-layout";
+import { SideBoxesToggle, useSideBoxesHidden } from "@/components/side-boxes-toggle";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton } from "@/components/ui";
 import { chatPath, sourceHref, type ChatScopeView, type ChatSourceView } from "@/lib/ai-chat";
@@ -31,6 +32,7 @@ const ChatSide = lazyPart(() => import("./chat-side").then((m) => m.ChatSide));
 export function ChatPage({ workspaceId, available, memory }: { workspaceId: string; available: boolean; memory: boolean }) {
   const t = useTranslations("ai.chat");
   const router = useRouter();
+  const [sideHidden, setSideHidden] = useSideBoxesHidden();
   const requested = useSearchParams().get("c");
   const context = useAiChat();
   const rowPanel = useRowPanel();
@@ -96,9 +98,9 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
 
   return (
     // The row panel steps through the answers' sources here, and gives focus back to one as it closes.
-    <div data-row-source className={cn(SIDE_CONTAINER, "h-full")}>
-      {/* From the first question on, so the column moves once, as the greeting gives way to the conversation. */}
-      <div className={cn("flex h-full flex-col", chat.messages.length > 0 && SIDE_PAD)}>
+    <div data-row-source className={cn(SIDE_CONTAINER, "group/side h-full")}>
+      {/* Room for the boxes only while one shows (sources, pages): without them, or with them hidden, the column is centered. */}
+      <div className={cn("flex h-full flex-col", !sideHidden && SIDE_PAD_FILLED)}>
         <div data-window-controls-clear className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:ps-1.5">
           <SidebarOpenButton className="me-1 max-md:me-0" />
           {/* A new chat's greeting says what this is; the heading stays for screen readers. */}
@@ -109,6 +111,7 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
           <IconButton label={t("newChat")} className="h-7 w-7" onClick={() => router.push(chatPath(workspaceId))} disabled={!chat.messages.length && !conversationId}>
             <SquarePen className="h-4 w-4" />
           </IconButton>
+          <SideBoxesToggle hidden={sideHidden} onChange={setSideHidden} />
         </div>
         <div className="relative flex min-h-0 flex-1 flex-col">
           <ChatThread
@@ -135,8 +138,8 @@ export function ChatPage({ workspaceId, available, memory }: { workspaceId: stri
           />
           {/* Over the list's end side, which leaves them room: the list, and its scrollbar, reach the window's edge. */}
           {chat.messages.length > 0 && (
-            <aside aria-label={t("side.label")} className={cn(SIDE_SHOWN, "pointer-events-none absolute inset-y-0 end-0 pe-4 pt-2 pb-4")}>
-              <div className={cn(SIDE_COLUMN, "pointer-events-auto flex max-h-full overflow-y-auto")}>
+            <aside aria-label={t("side.label")} className={cn(sideHidden ? "hidden" : SIDE_SHOWN, "pointer-events-none absolute inset-y-0 end-0 pe-4 pt-2 pb-4")}>
+              <div data-side-column className={cn(SIDE_COLUMN, "pointer-events-auto flex max-h-full overflow-y-auto")}>
                 <ChatSide messages={chat.messages} onSource={openSource} />
               </div>
             </aside>

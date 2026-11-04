@@ -531,7 +531,9 @@
     "side": {
       "label": "O tym czacie",
       "sources": "Źródła",
-      "changes": "Zmiany"
+      "changes": "Zmiany",
+      "hide": "Ukryj panel boczny",
+      "show": "Pokaż panel boczny"
     }
   },
   "memory": {

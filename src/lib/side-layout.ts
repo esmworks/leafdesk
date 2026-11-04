@@ -11,14 +11,11 @@ export const SIDE_CONTAINER = "@container/side";
 export const SIDE_SHOWN = "hidden @min-[64rem]/side:flex";
 export const SIDE_HIDDEN = "@min-[64rem]/side:hidden";
 /**
- * Where the boxes lie over a scrolling list (the AI chat), so its scrollbar stays at the window's
- * edge: the list's column takes this much room on its end side (`pe-(--side-pad)`), the boxes'
- * width and the room left for the scrollbar.
- */
-export const SIDE_PAD = "[--side-pad:0px] @min-[64rem]/side:[--side-pad:19rem]";
-/**
- * As `SIDE_PAD`, but only while the boxes' column (`data-side-column`) holds a box: a page whose
- * boxes come and go (an agent's, before it has schedules or runs) keeps its column centered without them.
+ * Where the boxes lie over a scrolling list, so its scrollbar stays at the window's edge: the list's
+ * column takes this much room on its end side (`pe-(--side-pad)`), the boxes' width and the room left
+ * for the scrollbar, only while the boxes' column (`data-side-column`) holds a box. A conversation
+ * without boxes (an agent before its first schedule or run, a chat that cited and changed nothing)
+ * keeps its column centered.
  */
 export const SIDE_PAD_FILLED = "[--side-pad:0px] @min-[64rem]/side:has-[[data-side-column]_section]:[--side-pad:19rem]";
 /** The boxes' column: its width and the room between the boxes. */

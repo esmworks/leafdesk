@@ -531,7 +531,9 @@
     "side": {
       "label": "Om denne chat",
       "sources": "Kilder",
-      "changes": "Ændringer"
+      "changes": "Ændringer",
+      "hide": "Skjul sidepanelet",
+      "show": "Vis sidepanelet"
     }
   },
   "memory": {

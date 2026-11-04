@@ -134,6 +134,10 @@ learned them all:
   (`panelMore`) is a quieter row under a block.
 - Something that is not a row, or a heading, or one of these, doesn't belong in a panel: a text
   button, a field with a border, a second heading for the whole list (the head names it).
+- **Phones**: the drawer is the same rail and panel, the panel the same card over the frame with
+  the workspace's menu at its foot. Only what is tapped grows: rows, a heading that folds and their
+  buttons go from 28 to 36 px, the rail's items from 32 to 40 px. Plain headings and the head stay
+  as they are.
 
 ## Buttons
 

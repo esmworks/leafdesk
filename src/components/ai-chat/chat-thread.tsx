@@ -268,6 +268,16 @@ export function ChatThread({
     };
   }, []);
 
+  // Scrolled down, the list fades out at its top instead of cutting a line in half there (the layer
+  // after it). An attribute, not state: scrolling never draws the conversation again.
+  useEffect(() => {
+    if (!scroller) return;
+    const mark = () => scroller.toggleAttribute("data-scrolled", scroller.scrollTop > 0);
+    mark();
+    scroller.addEventListener("scroll", mark, { passive: true });
+    return () => scroller.removeEventListener("scroll", mark);
+  }, [scroller]);
+
   const hasFiles = chat.files.length > 0;
   const models = chat.options?.models ?? [];
   const takesFile = (file: File) => (chat.takesFile ? chat.takesFile(file) : chatFileKind(file.type, file.name) !== null);
@@ -306,7 +316,7 @@ export function ChatThread({
           ref={list}
           className={cn(
             // A scrollbar's room is kept from the start, so the column doesn't shift when the answers fill the page.
-            "min-h-0 overflow-y-auto font-sans [scrollbar-gutter:stable]",
+            "peer min-h-0 overflow-y-auto font-sans [scrollbar-gutter:stable]",
             // In a box, the list is as tall as its messages until the box's parent stops it.
             box ? "shrink" : "flex-1",
             page ? "px-4 py-6 md:px-8" : box ? "px-3 py-3" : "px-4 py-3",
@@ -360,6 +370,14 @@ export function ChatThread({
             </div>
           </div>
         </div>
+        {/* A layer in the list's color, not a mask, which would fade its scrollbar too: it stops at the scrollbar's room. */}
+        <div
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-s-0 end-2.5 top-0 bg-linear-to-b from-bg opacity-0 transition-opacity peer-data-scrolled:opacity-100",
+            page ? "h-6" : "h-4",
+          )}
+        />
         {turns.length >= 3 && (
           <div className="absolute inset-y-0 start-0 hidden items-center ps-2 md:flex">
             <TurnLines scroller={scroller} turns={turns} />

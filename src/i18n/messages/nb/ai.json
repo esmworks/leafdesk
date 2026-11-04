@@ -531,7 +531,9 @@
     "side": {
       "label": "Om denne chatten",
       "sources": "Kilder",
-      "changes": "Endringer"
+      "changes": "Endringer",
+      "hide": "Skjul sidepanelet",
+      "show": "Vis sidepanelet"
     }
   },
   "memory": {

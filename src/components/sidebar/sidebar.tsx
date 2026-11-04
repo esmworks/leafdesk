@@ -1633,7 +1633,7 @@ export function Sidebar({
   const workspacePicker = (atBottom: boolean) => (
     <Popover
       side={atBottom ? "top" : "bottom"}
-      wrapperClassName={cn("relative flex min-w-0", (atBottom || !collapsed) && "flex-1", collapsed && "max-md:flex-1")}
+      wrapperClassName={cn("relative flex min-w-0", (atBottom || !collapsed) && "flex-1")}
       trigger={({ open, toggle }) => (
         <button
           type="button"
@@ -1723,20 +1723,20 @@ export function Sidebar({
         onMouseLeave={collapsed ? sidebar?.hidePeek : undefined}
         className={cn(
           "relative flex shrink-0 flex-col text-sm select-none",
-          "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:w-[min(21rem,90vw)] max-md:shadow-xl",
+          "max-md:fixed max-md:inset-y-0 max-md:inset-s-0 max-md:z-50 max-md:w-[min(21rem,90vw)] max-md:bg-frame max-md:shadow-xl",
           !sidebar?.drawerOpen && "max-md:hidden",
           // Phones: rows and their buttons grow from 28px to 36px so they are easy to tap.
           "max-md:[&_.h-7]:h-9 max-md:[&_.w-7]:w-9",
         )}
       >
         <LinkMenu menu={linkMenu} onClose={() => setLinkMenu(null)} />
-        {/* The workspace on top of the drawer, and on the rail's top beside the hidden panel; beside the
-            shown panel it is at the panel's foot instead. */}
+        {/* The workspace on the rail's top beside the hidden panel; beside the shown panel, and in a phone's
+            drawer, it is at the panel's foot instead. */}
         <div
           data-sidebar-strip
           className={cn(
-            "flex h-11 shrink-0 items-center bg-frame px-1.5 max-md:h-14",
-            collapsed ? "md:justify-center md:px-0" : "md:hidden",
+            "flex h-11 shrink-0 items-center bg-frame max-md:hidden",
+            collapsed ? "justify-center" : "hidden",
           )}
         >
           {workspacePicker(false)}
@@ -1853,6 +1853,8 @@ export function Sidebar({
             className={cn(
               "relative flex min-w-0 flex-col border-e border-border bg-bg max-md:flex-1 max-md:pb-(--safe-bottom) md:w-[var(--sidebar-w)]",
               // The card the panel and the page make over the frame (globals.css); the page draws the rest of it.
+              // In a phone's drawer the panel is that card alone.
+              "max-md:mt-2 max-md:rounded-ss-xl max-md:border-s max-md:border-t",
               !collapsed && "md:mt-2 md:rounded-ss-xl md:border-s md:border-t",
               collapsed &&
                 "md:fixed md:top-12 md:bottom-3 md:inset-s-11 md:z-50 md:rounded-e-xl md:border md:border-s-0 md:shadow-2xl md:transition-[translate,opacity,visibility] md:duration-200 md:ease-out",
@@ -1861,7 +1863,7 @@ export function Sidebar({
           >
             {sidebar && !collapsed && <ResizeHandle />}
             {/* As tall as the page's top bar beside it (page-view.tsx), so the two titles sit on one line. */}
-            <div className="flex h-11 shrink-0 items-center gap-1 ps-4 pe-2 max-md:h-14">
+            <div className="flex h-11 shrink-0 items-center gap-1 ps-4 pe-2">
               <h2 className="min-w-0 flex-1 truncate text-[15px] font-semibold">{panelTitle}</h2>
               <div className="flex shrink-0 items-center gap-0.5">
                 {headActions}
@@ -1964,7 +1966,7 @@ export function Sidebar({
               )}
               {shownTab === "home" && guest && tree.length === 0 && !topLevel && <p className="px-2 py-1.5 text-fg-muted">{t("pages.nothingShared")}</p>}
             </nav>
-            <div className="hidden h-12 shrink-0 items-center border-t border-border px-2 md:flex">
+            <div className="flex h-12 shrink-0 items-center border-t border-border px-2">
               {workspacePicker(true)}
             </div>
 

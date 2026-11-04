@@ -531,7 +531,9 @@
     "side": {
       "label": "Acerca de este chat",
       "sources": "Fuentes",
-      "changes": "Cambios"
+      "changes": "Cambios",
+      "hide": "Ocultar el panel lateral",
+      "show": "Mostrar el panel lateral"
     }
   },
   "memory": {

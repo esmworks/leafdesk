@@ -531,7 +531,9 @@
     "side": {
       "label": "关于此对话",
       "sources": "来源",
-      "changes": "更改"
+      "changes": "更改",
+      "hide": "隐藏侧边面板",
+      "show": "显示侧边面板"
     }
   },
   "memory": {

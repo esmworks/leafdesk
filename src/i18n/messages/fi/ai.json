@@ -531,7 +531,9 @@
     "side": {
       "label": "Tietoja tästä keskustelusta",
       "sources": "Lähteet",
-      "changes": "Muutokset"
+      "changes": "Muutokset",
+      "hide": "Piilota sivupaneeli",
+      "show": "Näytä sivupaneeli"
     }
   },
   "memory": {
