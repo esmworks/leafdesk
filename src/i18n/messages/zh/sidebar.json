@@ -29,6 +29,7 @@
   "tabs": {
     "label": "侧边栏",
     "home": "主页",
+    "calendar": "日历",
     "journal": "日志",
     "chat": "聊天",
     "mail": "邮件"

@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Calendrier",
+  "today": "Aujourd’hui",
+  "tomorrow": "Demain",
+  "previousMonth": "Mois précédent",
+  "nextMonth": "Mois suivant",
+  "previousWeek": "Semaine précédente",
+  "nextWeek": "Semaine suivante",
+  "dayBusy": "{date}, quelque chose de prévu",
+  "nothingToday": "Rien aujourd’hui",
+  "untitled": "Sans titre",
+  "week": "Semaine {number}",
+  "layout": "Disposition",
+  "weekView": "Semaine",
+  "listView": "Liste",
+  "legend": "Sources",
+  "kinds": {
+    "event": "Événements d’agenda",
+    "meeting": "Réunions",
+    "task": "Tâches"
+  },
+  "allDay": "Toute la journée",
+  "from": "À partir de {time}",
+  "until": "Jusqu’à {time}",
+  "emptyWeek": "Rien dans votre calendrier cette semaine"
+}

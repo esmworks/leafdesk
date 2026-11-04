@@ -29,6 +29,7 @@
   "tabs": {
     "label": "サイドバー",
     "home": "ホーム",
+    "calendar": "カレンダー",
     "journal": "ジャーナル",
     "chat": "チャット",
     "mail": "メール"

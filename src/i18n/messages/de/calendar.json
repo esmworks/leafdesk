@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Kalender",
+  "today": "Heute",
+  "tomorrow": "Morgen",
+  "previousMonth": "Vorheriger Monat",
+  "nextMonth": "Nächster Monat",
+  "previousWeek": "Vorherige Woche",
+  "nextWeek": "Nächste Woche",
+  "dayBusy": "{date}, etwas geplant",
+  "nothingToday": "Heute nichts",
+  "untitled": "Ohne Titel",
+  "week": "KW {number}",
+  "layout": "Layout",
+  "weekView": "Woche",
+  "listView": "Liste",
+  "legend": "Quellen",
+  "kinds": {
+    "event": "Kalendertermine",
+    "meeting": "Besprechungen",
+    "task": "Aufgaben"
+  },
+  "allDay": "Ganztägig",
+  "from": "Ab {time}",
+  "until": "Bis {time}",
+  "emptyWeek": "Diese Woche steht nichts im Kalender"
+}

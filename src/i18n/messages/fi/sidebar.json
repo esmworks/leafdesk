@@ -29,6 +29,7 @@
   "tabs": {
     "label": "Sivupalkki",
     "home": "Etusivu",
+    "calendar": "Kalenteri",
     "journal": "Päiväkirja",
     "chat": "Keskustelu",
     "mail": "Sähköposti"

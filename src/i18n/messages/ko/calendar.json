@@ -1,0 +1,26 @@
+{
+  "metaTitle": "캘린더",
+  "today": "오늘",
+  "tomorrow": "내일",
+  "previousMonth": "이전 달",
+  "nextMonth": "다음 달",
+  "previousWeek": "이전 주",
+  "nextWeek": "다음 주",
+  "dayBusy": "{date}, 예정된 일 있음",
+  "nothingToday": "오늘은 일정이 없습니다",
+  "untitled": "제목 없음",
+  "week": "{number}주차",
+  "layout": "레이아웃",
+  "weekView": "주",
+  "listView": "목록",
+  "legend": "출처",
+  "kinds": {
+    "event": "캘린더 일정",
+    "meeting": "회의",
+    "task": "작업"
+  },
+  "allDay": "종일",
+  "from": "{time}부터",
+  "until": "{time}까지",
+  "emptyWeek": "이번 주 캘린더에 아무것도 없습니다"
+}

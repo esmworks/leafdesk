@@ -25,6 +25,7 @@
     "replaceAll": "Replace all (in the replace field)",
     "goHome": "Go to Home",
     "goTasks": "Go to My tasks",
+    "goCalendar": "Go to Calendar",
     "goMeetings": "Go to Meetings",
     "goJournal": "Go to the journal",
     "goChat": "Go to the AI chat",

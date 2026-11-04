@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Lịch",
+  "today": "Hôm nay",
+  "tomorrow": "Ngày mai",
+  "previousMonth": "Tháng trước",
+  "nextMonth": "Tháng sau",
+  "previousWeek": "Tuần trước",
+  "nextWeek": "Tuần sau",
+  "dayBusy": "{date}, có việc đã lên kế hoạch",
+  "nothingToday": "Hôm nay không có gì",
+  "untitled": "Không có tiêu đề",
+  "week": "Tuần {number}",
+  "layout": "Bố cục",
+  "weekView": "Tuần",
+  "listView": "Danh sách",
+  "legend": "Nguồn",
+  "kinds": {
+    "event": "Sự kiện lịch",
+    "meeting": "Cuộc họp",
+    "task": "Công việc"
+  },
+  "allDay": "Cả ngày",
+  "from": "Từ {time}",
+  "until": "Đến {time}",
+  "emptyWeek": "Tuần này lịch của bạn trống"
+}

@@ -1,0 +1,26 @@
+{
+  "metaTitle": "تقویم",
+  "today": "امروز",
+  "tomorrow": "فردا",
+  "previousMonth": "ماه قبل",
+  "nextMonth": "ماه بعد",
+  "previousWeek": "هفتهٔ قبل",
+  "nextWeek": "هفتهٔ بعد",
+  "dayBusy": "{date}، برنامه‌ای هست",
+  "nothingToday": "امروز چیزی نیست",
+  "untitled": "بدون عنوان",
+  "week": "هفتهٔ {number}",
+  "layout": "چیدمان",
+  "weekView": "هفته",
+  "listView": "فهرست",
+  "legend": "منابع",
+  "kinds": {
+    "event": "رویدادهای تقویم",
+    "meeting": "جلسه‌ها",
+    "task": "کارها"
+  },
+  "allDay": "تمام روز",
+  "from": "از {time}",
+  "until": "تا {time}",
+  "emptyWeek": "این هفته چیزی در تقویم شما نیست"
+}

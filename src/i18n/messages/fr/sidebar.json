@@ -29,6 +29,7 @@
   "tabs": {
     "label": "Barre latérale",
     "home": "Accueil",
+    "calendar": "Calendrier",
     "journal": "Journal",
     "chat": "Discussion",
     "mail": "E-mail"

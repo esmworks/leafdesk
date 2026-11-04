@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Kalender",
+  "today": "Idag",
+  "tomorrow": "Imorgon",
+  "previousMonth": "Föregående månad",
+  "nextMonth": "Nästa månad",
+  "previousWeek": "Föregående vecka",
+  "nextWeek": "Nästa vecka",
+  "dayBusy": "{date}, något planerat",
+  "nothingToday": "Inget idag",
+  "untitled": "Namnlös",
+  "week": "Vecka {number}",
+  "layout": "Layout",
+  "weekView": "Vecka",
+  "listView": "Lista",
+  "legend": "Källor",
+  "kinds": {
+    "event": "Kalenderhändelser",
+    "meeting": "Möten",
+    "task": "Uppgifter"
+  },
+  "allDay": "Heldag",
+  "from": "Från {time}",
+  "until": "Till {time}",
+  "emptyWeek": "Inget i din kalender den här veckan"
+}

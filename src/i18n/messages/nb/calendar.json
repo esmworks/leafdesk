@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Kalender",
+  "today": "I dag",
+  "tomorrow": "I morgen",
+  "previousMonth": "Forrige måned",
+  "nextMonth": "Neste måned",
+  "previousWeek": "Forrige uke",
+  "nextWeek": "Neste uke",
+  "dayBusy": "{date}, noe planlagt",
+  "nothingToday": "Ingenting i dag",
+  "untitled": "Uten tittel",
+  "week": "Uke {number}",
+  "layout": "Oppsett",
+  "weekView": "Uke",
+  "listView": "Liste",
+  "legend": "Kilder",
+  "kinds": {
+    "event": "Kalenderhendelser",
+    "meeting": "Møter",
+    "task": "Oppgaver"
+  },
+  "allDay": "Hele dagen",
+  "from": "Fra {time}",
+  "until": "Til {time}",
+  "emptyWeek": "Ingenting i kalenderen din denne uken"
+}

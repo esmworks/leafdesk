@@ -105,7 +105,7 @@ import { inlineSign } from "@/components/direction";
 import { SIDEBAR_WIDTH } from "@/lib/sidebar-layout";
 import { isSettingsPath, useSidebar } from "./sidebar-context";
 import { RailCount, railIconClass, railItemClass, RailKey, railSelectedClass, RailTabs, type RailTab } from "./sidebar-rail";
-import { BookOpenIcon, ChatsIcon, CheckSquareIcon, EnvelopeIcon, GearIcon, HouseIcon, NotebookIcon, RobotIcon, SearchIcon, SidebarIcon, TrayIcon, type RailIcon } from "./rail-icons";
+import { BookOpenIcon, CalendarIcon, ChatsIcon, CheckSquareIcon, EnvelopeIcon, GearIcon, HouseIcon, NotebookIcon, RobotIcon, SearchIcon, SidebarIcon, TrayIcon, type RailIcon } from "./rail-icons";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
@@ -125,6 +125,7 @@ const NewAgentDialog = lazyPart(() => import("./new-agent").then((m) => m.NewAge
 // Loaded the first time the Mail tab opens: most people open it now and then.
 const TaskPanel = lazyPart(() => import("./task-panel").then((m) => m.TaskPanel));
 const MeetingPanel = lazyPart(() => import("./meeting-panel").then((m) => m.MeetingPanel));
+const CalendarPanel = lazyPart(() => import("./calendar-panel").then((m) => m.CalendarPanel));
 const MailSidebar = lazyPart(() => import("@/components/mail/mail-sidebar").then((m) => m.MailSidebar));
 // Loaded the first time the import dialog opens, with the readers of every format it takes.
 const ImportDialog = lazyPart(() => import("@/components/workspace/import-dialog").then((m) => m.ImportDialog));
@@ -166,26 +167,28 @@ type Target = string | null | undefined;
 
 /**
  * What the panel beside the rail lists: the pages (with the home page), My tasks' views, the
- * meetings, the person's daily notes, their AI conversations, their mail or the agents they may
+ * person's coming days, the meetings, the person's daily notes, their AI conversations, their mail or the agents they may
  * talk to. Each is a place too: the tab follows the page that is open, and a tab opens where the
  * person last was in it (its start when there is none, or when it is already the open tab; the
  * agents have no start of their own).
  */
-type SidebarTab = "home" | "tasks" | "meetings" | "journal" | "chat" | "mail" | "agents";
+type SidebarTab = "home" | "tasks" | "calendar" | "meetings" | "journal" | "chat" | "mail" | "agents";
 const TAB_ICONS: Record<SidebarTab, RailIcon> = {
   home: HouseIcon,
   tasks: CheckSquareIcon,
+  calendar: CalendarIcon,
   meetings: NotebookIcon,
   journal: BookOpenIcon,
   chat: ChatsIcon,
   mail: EnvelopeIcon,
   agents: RobotIcon,
 };
-/** The rail's groups of places, parted by a little room: pages and daily notes, tasks and meetings, mail and the AI. */
+/** The rail's groups of places, parted by a little room: pages and daily notes, tasks, the calendar and meetings, mail and the AI. */
 const TAB_GROUPS: Record<SidebarTab, string> = {
   home: "pages",
   journal: "pages",
   tasks: "work",
+  calendar: "work",
   meetings: "work",
   mail: "talk",
   chat: "talk",
@@ -608,6 +611,8 @@ export function Sidebar({
   const onTasksPage = pathname === tasksPath;
   const meetingsPath = `/w/${workspaceId}/meetings`;
   const onMeetingsPage = pathname === meetingsPath;
+  const calendarPath = `/w/${workspaceId}/calendar`;
+  const onCalendarPage = pathname === calendarPath;
   // Settings bring their own navigation as the panel (settings-nav.tsx): the rail stays beside it.
   const onSettingsPage = isSettingsPath(pathname);
   // By kind (TAB_GROUPS): what is written, the work to do, then mail and the AI.
@@ -615,6 +620,7 @@ export function Sidebar({
     "home",
     ...(topLevel ? (["journal"] as const) : []),
     "tasks",
+    "calendar",
     "meetings",
     ...(mail ? (["mail"] as const) : []),
     ...(aiChat ? (["chat"] as const) : []),
@@ -645,12 +651,16 @@ export function Sidebar({
     });
     sidebar?.close();
   };
-  const pageTab: SidebarTab = onTasksPage ? "tasks" : onMeetingsPage ? "meetings" : onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
+  const pageTab: SidebarTab = onTasksPage ? "tasks" : onCalendarPage ? "calendar" : onMeetingsPage ? "meetings" : onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
   const [tab, setTab] = useState<SidebarTab>(pageTab);
   // The meeting notes the Meetings tab lists: opening one keeps the tab, as a page from the tree doesn't.
   const [meetingPages, setMeetingPages] = useState<ReadonlySet<string>>(() => new Set());
   const noteMeetingPages = useCallback((ids: Set<string>) => setMeetingPages((prev) => (prev.size === ids.size && [...ids].every((id) => prev.has(id)) ? prev : ids)), []);
-  const routeTab: SidebarTab = pageTab === "home" && tab === "meetings" && activeId && meetingPages.has(activeId) ? "meetings" : pageTab;
+  // Likewise the pages the Calendar tab lists.
+  const [calendarPages, setCalendarPages] = useState<ReadonlySet<string>>(() => new Set());
+  const noteCalendarPages = useCallback((ids: Set<string>) => setCalendarPages((prev) => (prev.size === ids.size && [...ids].every((id) => prev.has(id)) ? prev : ids)), []);
+  const keptTab = tab === "meetings" ? meetingPages : tab === "calendar" ? calendarPages : null;
+  const routeTab: SidebarTab = pageTab === "home" && keptTab && activeId && keptTab.has(activeId) ? tab : pageTab;
   // Where the person last was in each tab, in this visit.
   const lastPath = useRef<Partial<Record<SidebarTab, string>>>({});
   const query = searchParams.toString();
@@ -673,7 +683,7 @@ export function Sidebar({
     if (back) router.push(back);
     else if (next === "journal") openDailyNote();
     else if (next === "agents" && !onSettingsPage) return;
-    else router.push(next === "tasks" ? tasksPath : next === "meetings" ? meetingsPath : next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
+    else router.push(next === "tasks" ? tasksPath : next === "calendar" ? calendarPath : next === "meetings" ? meetingsPath : next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
   }
 
   // Desktop, the panel hidden (on the settings too): what a rail item shows while the panel peeks out beside it.
@@ -1389,7 +1399,7 @@ export function Sidebar({
   const hiddenSections = new Set(layout.hidden ?? []);
   const onSettings = pathname.startsWith(`/w/${workspaceId}/settings`);
   const tabLabel = (key: SidebarTab) =>
-    ({ home: t("tabs.home"), tasks: t("sections.tasks"), meetings: t("sections.meetings"), journal: t("tabs.journal"), chat: t("tabs.chat"), mail: t("tabs.mail"), agents: t("sections.agents") })[key];
+    ({ home: t("tabs.home"), tasks: t("sections.tasks"), calendar: t("tabs.calendar"), meetings: t("sections.meetings"), journal: t("tabs.journal"), chat: t("tabs.chat"), mail: t("tabs.mail"), agents: t("sections.agents") })[key];
   const panelTab = (key: SidebarTab): RailTab => {
     const Icon = TAB_ICONS[key];
     const label = tabLabel(key);
@@ -1500,7 +1510,7 @@ export function Sidebar({
       >
         {creatingMeeting ? <Loader2 className="h-4 w-4 animate-spin" /> : <SquarePen className="h-4 w-4" />}
       </IconButton>
-    ) : shownTab === "tasks" ? (
+    ) : shownTab === "calendar" ? null : shownTab === "tasks" ? (
       !guest && (
         <IconButton
           label={tTasks("newTask")}
@@ -1905,6 +1915,8 @@ export function Sidebar({
                   overdue={dueTasks.overdue}
                   offline={offline}
                 />
+              ) : shownTab === "calendar" ? (
+                <CalendarPanel workspaceId={workspaceId} pathname={pathname} offline={offline} onPages={noteCalendarPages} />
               ) : shownTab === "meetings" ? (
                 <MeetingPanel workspaceId={workspaceId} pathname={pathname} offline={offline} onPages={noteMeetingPages} />
               ) : shownTab === "mail" ? (

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+
+- **Calendar on the sidebar's rail.** One place for your week across the workspace: synced Google
+  Calendar and calendar-address events, meeting notes with a time, and your dated tasks and to-dos,
+  each source in its color. A week on its hours with a line at the present time, or a list of its
+  days; the sidebar's panel shows a month and what you have in the coming week. `g` then `k` opens it.
+
 ### Changed
 
 - **A message you send from Mail opens once it has gone.** After a new message's Undo seconds the
