@@ -24,6 +24,8 @@ export type PageTaskEntry = {
   text: string;
   /** The first date mentioned in the to-do as the mention stores it (a day, or a time), or null. */
   date: string | null;
+  /** That mention's reminder (an ISO instant), or null. One on the date's own day is the to-do's time. */
+  remindAt: string | null;
 };
 
 type Inline = { type?: string; text?: unknown; props?: unknown; content?: unknown };
@@ -79,6 +81,7 @@ export function pageTasksIn(blocks: unknown[]): PageTaskEntry[] {
       if (block.type === TODO_BLOCK && typeof block.id === "string" && block.id && !isTicked(block.props) && Array.isArray(block.content)) {
         const people: string[] = [];
         let date: string | null = null;
+        let remindAt: string | null = null;
         const visit = (nodes: unknown) => {
           if (!Array.isArray(nodes)) return;
           for (const node of nodes as Inline[]) {
@@ -87,7 +90,10 @@ export function pageTasksIn(blocks: unknown[]): PageTaskEntry[] {
             if (node.type !== MENTION) continue;
             const m = mentionProps(node.props);
             if (m.kind === "user" && m.userId && !people.includes(m.userId)) people.push(m.userId);
-            if (m.kind === "date" && date === null && parseDateValue(m.date)) date = m.date;
+            if (m.kind === "date" && date === null && parseDateValue(m.date)) {
+              date = m.date;
+              remindAt = m.remindAt && !Number.isNaN(Date.parse(m.remindAt)) ? new Date(m.remindAt).toISOString() : null;
+            }
           }
         };
         visit(block.content);
@@ -98,7 +104,7 @@ export function pageTasksIn(blocks: unknown[]): PageTaskEntry[] {
             // A block copied within the page can keep its id: the first one counts.
             if (seen.has(key)) continue;
             seen.add(key);
-            out.push({ blockId: block.id, userId, text, date });
+            out.push({ blockId: block.id, userId, text, date, remindAt });
           }
         }
       }

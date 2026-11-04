@@ -8,6 +8,10 @@
   Calendar and calendar-address events, meeting notes with a time, and your dated tasks and to-dos,
   each source in its color. A week on its hours with a line at the present time, or a list of its
   days; the sidebar's panel shows a month and what you have in the coming week. `g` then `k` opens it.
+  Drag an item on the week to another day or hour: tasks and to-dos, planned meetings and events of
+  a Google Calendar synced both ways. A to-do dropped on an hour gets a reminder then, which is its
+  time on the calendar; a reminder set on a to-do's own day shows it at that time too (migration
+  0193).
 
 ### Changed
 

@@ -9,10 +9,10 @@
 import { and, desc, eq, inArray, isNull, notExists, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pageTask, pageTaskBackfill, user, workspaceAgent, type PageKind } from "@/db/schema";
-import { dateDays } from "@/lib/date-value";
+import { dateDays, isDay } from "@/lib/date-value";
 import { blockPath, isBlockId } from "@/lib/mentions";
 import { isTicked, pageTasksIn, TODO_BLOCK, type PageTaskEntry } from "@/lib/page-tasks";
-import { dayString } from "@/lib/time-zone";
+import { dayNumber, dayString, localDay } from "@/lib/time-zone";
 import { pageVisibleTo, requireMembership, requirePageAccess } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { startSweep } from "@/server/sweep";
@@ -38,7 +38,7 @@ export type AssignedPageTask = {
   date: string | null;
   /** That date's last day when it is a range, else null. */
   endDate: string | null;
-  /** That date as the mention stores it, or null. */
+  /** That date as the mention stores it, or the time of its reminder when that is on its day (timedOnItsDay); null without one. */
   dateValue: string | null;
   /** Whether the viewer may tick it from the list (edit access to the page's content; see assignedRows). */
   markable: boolean;
@@ -76,7 +76,7 @@ export async function syncPageTasks(pageId: string, blocks: unknown[]) {
   try {
     const found = pageTasksIn(blocks);
     const existing = await db
-      .select({ blockId: pageTask.blockId, userId: pageTask.userId, text: pageTask.text, date: pageTask.date })
+      .select({ blockId: pageTask.blockId, userId: pageTask.userId, text: pageTask.text, date: pageTask.date, remindAt: pageTask.remindAt })
       .from(pageTask)
       .where(eq(pageTask.pageId, pageId));
     if (!existing.length && !found.length) return;
@@ -91,15 +91,17 @@ export async function syncPageTasks(pageId: string, blocks: unknown[]) {
     const had = new Map(existing.map((r) => [keyOf(r), r]));
     const changed = [...wanted.values()].filter((t) => {
       const before = had.get(keyOf(t));
-      return !before || before.text !== t.text || before.date !== t.date;
+      return !before || before.text !== t.text || before.date !== t.date || (before.remindAt?.toISOString() ?? null) !== t.remindAt;
     });
     if (changed.length) {
       await db
         .insert(pageTask)
-        .values(changed.map((t) => ({ pageId, blockId: t.blockId, userId: t.userId, text: t.text, date: t.date })))
+        .values(
+          changed.map((t) => ({ pageId, blockId: t.blockId, userId: t.userId, text: t.text, date: t.date, remindAt: t.remindAt ? new Date(t.remindAt) : null })),
+        )
         .onConflictDoUpdate({
           target: [pageTask.pageId, pageTask.blockId, pageTask.userId],
-          set: { text: sql`excluded.text`, date: sql`excluded.date`, updatedAt: sql`now()` },
+          set: { text: sql`excluded.text`, date: sql`excluded.date`, remindAt: sql`excluded.remind_at`, updatedAt: sql`now()` },
         });
     }
   } catch (error) {
@@ -174,6 +176,7 @@ export async function openPageTasks(
       blockId: pageTask.blockId,
       text: pageTask.text,
       date: pageTask.date,
+      remindAt: pageTask.remindAt,
       updatedAt: pageTask.updatedAt,
       title: page.title,
       icon: page.icon,
@@ -208,11 +211,20 @@ export async function openPageTasks(
       path: blockPath(workspaceId, r.pageId, r.blockId),
       date: days ? dayString(days.start) : null,
       endDate: days && days.end > days.start ? dayString(days.end) : null,
-      dateValue: days ? r.date : null,
+      dateValue: days ? timedOnItsDay(r.date!, r.remindAt, timeZone) : null,
       markable: markable && r.lockedAt === null,
       updatedAt: r.updatedAt,
     };
   });
+}
+
+/**
+ * A to-do's date with its time: a day mention whose reminder is on that day (in `timeZone`) is the
+ * to-do at the reminder's time, as typing "fri 2pm" in the mention sets it; else the date as written.
+ */
+function timedOnItsDay(date: string, remindAt: Date | null, timeZone: string): string {
+  if (!remindAt || !isDay(date) || localDay(remindAt.getTime(), timeZone) !== dayNumber(date)) return date;
+  return remindAt.toISOString();
 }
 
 /** A to-do that can't be ticked from the list: the page no longer has it. */

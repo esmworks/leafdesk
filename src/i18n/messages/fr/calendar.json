@@ -22,5 +22,11 @@
   "allDay": "Toute la journée",
   "from": "À partir de {time}",
   "until": "Jusqu’à {time}",
-  "emptyWeek": "Rien dans votre calendrier cette semaine"
+  "emptyWeek": "Rien dans votre calendrier cette semaine",
+  "moveErrors": {
+    "notFound": "Cet élément n'est plus dans le calendrier",
+    "fixed": "Impossible de le déplacer à cet endroit",
+    "noAccess": "Vous ne pouvez pas modifier cet élément",
+    "failed": "Déplacement impossible. Réessayez."
+  }
 }

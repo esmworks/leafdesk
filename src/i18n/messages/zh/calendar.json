@@ -22,5 +22,11 @@
   "allDay": "全天",
   "from": "{time} 起",
   "until": "至 {time}",
-  "emptyWeek": "本周日历上没有安排"
+  "emptyWeek": "本周日历上没有安排",
+  "moveErrors": {
+    "notFound": "此项已不在日历中",
+    "fixed": "无法移到那里",
+    "noAccess": "你无法更改此项",
+    "failed": "无法移动，请重试。"
+  }
 }

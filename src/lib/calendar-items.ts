@@ -4,7 +4,8 @@
  * Pure and client-safe.
  */
 import { calendarEvent, eventsOn, type CalendarEvent } from "./calendar";
-import { dayNumber, dayString, weekdayOf } from "./time-zone";
+import { moveDateStart, parseDateValue } from "./date-value";
+import { dayNumber, dayString, weekdayOf, zonedInstant } from "./time-zone";
 
 /** Where an item comes from: a synced calendar's event, a meeting note, a row or to-do assigned to the person. */
 export type CalendarItemKind = "event" | "meeting" | "task";
@@ -21,6 +22,12 @@ export type CalendarItem = {
   href: string;
   /** Under its title: an event's place, a meeting's people, the database or page a task is in. */
   detail: string | null;
+  /**
+   * Whether the person may drag it to another day or time (moveCalendarItem says for sure), and
+   * whether it may become a whole day: a planned meeting has a time, a held one doesn't move, nor
+   * does an event of a calendar read without writing back.
+   */
+  moves: { allDay: boolean } | null;
 };
 
 /** The most days one read of items covers: a month shown whole, with its edges and the week after today. */
@@ -56,4 +63,26 @@ export function isoWeek(day: number): number {
   const thursday = day + 3 - ((weekdayOf(day) + 6) % 7);
   const year = new Date(thursday * 86_400_000).getUTCFullYear();
   return Math.floor((thursday - dayNumber(`${year}-01-01`)) / 7) + 1;
+}
+
+/** Where an item is dropped on a week: a day of the all-day strip (`minutes` null) or a time of a day. */
+export type CalendarDrop = { day: number; minutes: number | null };
+
+/**
+ * The date an item gets dropped at `drop`, picked up `grabDays` days after its first: on the
+ * all-day strip whole days, as many as it covered; on the hours a time there, as long as before
+ * when it had times and an end, else without an end. Null when nothing changes.
+ */
+export function droppedDate(placed: PlacedItem, drop: CalendarDrop, timeZone: string, grabDays = 0): string | null {
+  const value = placed.item.date;
+  let next: string | null;
+  if (drop.minutes === null) {
+    const start = drop.day - grabDays;
+    const end = start + (placed.end - placed.start);
+    next = end > start ? `${dayString(start)}/${dayString(end)}` : dayString(start);
+  } else {
+    const at = zonedInstant(drop.day, drop.minutes, timeZone);
+    next = (placed.time ? moveDateStart(value, at) : null) ?? new Date(at).toISOString();
+  }
+  return next === value || (parseDateValue(next) === null) ? null : next;
 }

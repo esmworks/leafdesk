@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { agendaDays, isoWeek, itemMinutes, placeItems, type CalendarItem } from "./calendar-items";
+import { agendaDays, droppedDate, isoWeek, itemMinutes, placeItems, type CalendarItem } from "./calendar-items";
 import { dayNumber } from "./time-zone";
 
-const item = (id: string, date: string, kind: CalendarItem["kind"] = "event"): CalendarItem => ({ id, kind, title: id, icon: null, date, href: `/p/${id}`, detail: null });
+const item = (id: string, date: string, kind: CalendarItem["kind"] = "event"): CalendarItem => ({ id, kind, title: id, icon: null, date, href: `/p/${id}`, detail: null, moves: { allDay: true } });
 
 describe("calendar items", () => {
   it("places items on the viewer's days, leaving out what isn't a date", () => {
@@ -36,5 +36,19 @@ describe("calendar items", () => {
     expect(isoWeek(dayNumber("2026-01-01"))).toBe(1);
     expect(isoWeek(dayNumber("2027-01-01"))).toBe(53);
     expect(isoWeek(dayNumber("2024-12-30"))).toBe(1);
+  });
+
+  it("gives a dropped item its new day or time", () => {
+    const zone = "Europe/Istanbul";
+    const thursday = dayNumber("2026-11-05");
+    const [todo, call, trip] = placeItems([item("todo", "2026-11-05", "task"), item("call", "2026-11-04T07:00:00.000Z/2026-11-04T07:45:00.000Z"), item("trip", "2026-11-02/2026-11-04")], zone);
+    // A day dropped at 14:00 there is that time, without an end.
+    expect(droppedDate(todo, { day: thursday, minutes: 14 * 60 }, zone)).toBe("2026-11-05T11:00:00.000Z");
+    // A time keeps its length; dropped on the all-day strip it is the day.
+    expect(droppedDate(call, { day: thursday, minutes: 9 * 60 + 15 }, zone)).toBe("2026-11-05T06:15:00.000Z/2026-11-05T07:00:00.000Z");
+    expect(droppedDate(call, { day: thursday, minutes: null }, zone)).toBe("2026-11-05");
+    // Days keep how many there were, from the day it was picked up at.
+    expect(droppedDate(trip, { day: thursday, minutes: null }, zone, 1)).toBe("2026-11-04/2026-11-06");
+    expect(droppedDate(todo, { day: thursday, minutes: null }, zone)).toBeNull();
   });
 });

@@ -107,7 +107,12 @@
   month. Clicking an item opens its page. The address keeps the week and the layout (`?d=`,
   `?view=list`). The sidebar's panel holds a month with a dot on days that have something (a day
   opens its week) and what you have from today on for a week: today, tomorrow and the next days
-  with something on them, with their times. It reads only; add and move events where they come from.
+  with something on them, with their times. Drag an item on the week to move it: onto an hour it
+  starts then (keeping its length), onto the strip of whole days it covers days. Tasks and to-dos
+  move anywhere, a planned meeting to another time, events only from a Google Calendar synced both
+  ways (a held meeting and a calendar address's events stay put). A to-do's time is a reminder on
+  its date's own day: dropping it on an hour sets one then, which also reminds you; dropping it on a
+  whole day takes that reminder off. Add events where they come from.
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet), under *Today*, *Yesterday*,
   *Previous 7 days* and *Older*, each with the page or database it sits in. The row under the query

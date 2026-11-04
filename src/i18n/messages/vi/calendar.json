@@ -22,5 +22,11 @@
   "allDay": "Cả ngày",
   "from": "Từ {time}",
   "until": "Đến {time}",
-  "emptyWeek": "Tuần này lịch của bạn trống"
+  "emptyWeek": "Tuần này lịch của bạn trống",
+  "moveErrors": {
+    "notFound": "Mục này không còn trong lịch",
+    "fixed": "Không thể chuyển mục này đến đó",
+    "noAccess": "Bạn không thể thay đổi mục này",
+    "failed": "Không thể chuyển. Hãy thử lại."
+  }
 }

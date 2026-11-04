@@ -17,7 +17,7 @@ const todo = (id: string, content: unknown[], { checked = false, children = [] a
 describe("pageTasksIn", () => {
   it("lists an unticked to-do for the person it mentions, its text without the mention", () => {
     expect(pageTasksIn([todo("b1", [person("ada"), text(": send the invoice")])])).toEqual([
-      { blockId: "b1", userId: "ada", text: "send the invoice", date: null },
+      { blockId: "b1", userId: "ada", text: "send the invoice", date: null, remindAt: null },
     ]);
   });
 
@@ -65,11 +65,14 @@ describe("pageTasksIn", () => {
 
   it("keeps the first date mentioned, a day or a time, and drops dates and page mentions from the text", () => {
     const [day] = pageTasksIn([todo("b1", [text("Ship "), pageMention("p1"), text(" by "), date("2026-10-12"), text(" or "), date("2026-10-20"), person("ada")])]);
-    expect(day).toEqual({ blockId: "b1", userId: "ada", text: "Ship by or", date: "2026-10-12" });
+    expect(day).toEqual({ blockId: "b1", userId: "ada", text: "Ship by or", date: "2026-10-12", remindAt: null });
     const [time] = pageTasksIn([todo("b2", [person("ada"), text(" call at "), date("2026-10-12T09:30:00.000Z")])]);
     expect(time.date).toBe("2026-10-12T09:30:00.000Z");
     const [none] = pageTasksIn([todo("b3", [person("ada"), text(" whenever "), date("soon")])]);
     expect(none.date).toBeNull();
+    const reminded = { type: "mention", props: { kind: "date", date: "2026-11-05", remindAt: "2026-11-05T11:00:00Z" } };
+    const [at] = pageTasksIn([todo("b4", [person("ada"), text(" visit "), reminded, date("2026-11-06")])]);
+    expect(at).toMatchObject({ date: "2026-11-05", remindAt: "2026-11-05T11:00:00.000Z" });
   });
 
   it("reads mentions and text inside links, and a link mention by its title", () => {
@@ -81,7 +84,7 @@ describe("pageTasksIn", () => {
         { type: "link", href: "https://example.com", content: [person("ada")] },
       ]),
     ]);
-    expect(task).toEqual({ blockId: "b1", userId: "ada", text: "Read the brief from Spec", date: null });
+    expect(task).toEqual({ blockId: "b1", userId: "ada", text: "Read the brief from Spec", date: null, remindAt: null });
   });
 
   it("keeps the text short and counts a block copied with its id once", () => {
@@ -93,7 +96,7 @@ describe("pageTasksIn", () => {
   });
 
   it("gives a to-do of only a mention empty text, and skips one without an id", () => {
-    expect(pageTasksIn([todo("b1", [person("ada")])])).toEqual([{ blockId: "b1", userId: "ada", text: "", date: null }]);
+    expect(pageTasksIn([todo("b1", [person("ada")])])).toEqual([{ blockId: "b1", userId: "ada", text: "", date: null, remindAt: null }]);
     expect(pageTasksIn([{ type: "checkListItem", props: {}, content: [person("ada")], children: [] }])).toEqual([]);
   });
 });

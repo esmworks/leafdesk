@@ -1147,13 +1147,15 @@ export function createCollab() {
       await assertWritable(pageId);
       return transactPage(pageId, actor, (doc) => {
         // Read and written in one synchronous run: nothing else changes the document in between.
-        const search = (parent: Y.XmlFragment | Y.XmlElement): Y.XmlElement | null => {
-          // A block's props sit on the element inside its blockContainer, which holds its id.
-          const blockId = parent instanceof Y.XmlElement && parent.nodeName === "blockContainer" ? (parent.getAttribute("id") ?? null) : null;
+        const search = (parent: Y.XmlFragment | Y.XmlElement, enclosing: string | null): Y.XmlElement | null => {
+          // A block's props sit on the element inside its blockContainer, which holds its id; an
+          // inline node (a mention) sits inside that element, and gets the same id.
+          const own = parent instanceof Y.XmlElement && parent.nodeName === "blockContainer" ? parent.getAttribute("id") : undefined;
+          const blockId = own === undefined ? enclosing : typeof own === "string" ? own : null;
           for (const child of parent.toArray()) {
             if (!(child instanceof Y.XmlElement)) continue;
-            if (child.nodeName === type && find(child.getAttributes(), typeof blockId === "string" ? blockId : null)) return child;
-            const inner = search(child);
+            if (child.nodeName === type && find(child.getAttributes(), blockId)) return child;
+            const inner = search(child, blockId);
             if (inner) return inner;
           }
           return null;
@@ -1161,8 +1163,8 @@ export function createCollab() {
         // The page's own blocks, then those of the synced blocks it is the source of.
         const syncedPrefix = syncedFragmentName("");
         const synced = [...doc.share.keys()].filter((name) => name.startsWith(syncedPrefix)).sort();
-        let element = search(doc.getXmlFragment(COLLAB_FRAGMENT));
-        for (const name of synced) element ??= search(doc.getXmlFragment(name));
+        let element = search(doc.getXmlFragment(COLLAB_FRAGMENT), null);
+        for (const name of synced) element ??= search(doc.getXmlFragment(name), null);
         if (!element) return null;
         const next = update(element.getAttributes());
         if (next) {

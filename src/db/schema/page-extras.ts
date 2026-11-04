@@ -53,6 +53,11 @@ export const pageTask = pgTable(
     text: text("text").notNull().default(""),
     /** The first date mentioned in it, as the mention stores it (a day or a time), or null. */
     date: text("date"),
+    /**
+     * That date mention's reminder, or null. One on the mention's own day (in the viewer's zone)
+     * is the to-do's time: the Calendar shows it then (server/calendar.ts).
+     */
+    remindAt: timestamp("remind_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

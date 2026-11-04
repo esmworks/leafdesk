@@ -22,5 +22,11 @@
   "allDay": "Tüm gün",
   "from": "{time} itibarıyla",
   "until": "{time} saatine kadar",
-  "emptyWeek": "Bu hafta takviminde bir şey yok"
+  "emptyWeek": "Bu hafta takviminde bir şey yok",
+  "moveErrors": {
+    "notFound": "Bu artık takvimde değil",
+    "fixed": "Bu oraya taşınamaz",
+    "noAccess": "Bunu değiştiremezsin",
+    "failed": "Taşınamadı. Yeniden dene."
+  }
 }

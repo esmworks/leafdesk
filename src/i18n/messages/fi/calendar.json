@@ -22,5 +22,11 @@
   "allDay": "Koko päivän",
   "from": "Klo {time} alkaen",
   "until": "Klo {time} asti",
-  "emptyWeek": "Kalenterissasi ei ole mitään tällä viikolla"
+  "emptyWeek": "Kalenterissasi ei ole mitään tällä viikolla",
+  "moveErrors": {
+    "notFound": "Tämä ei ole enää kalenterissa",
+    "fixed": "Tätä ei voi siirtää sinne",
+    "noAccess": "Et voi muuttaa tätä",
+    "failed": "Siirto epäonnistui. Yritä uudelleen."
+  }
 }

@@ -244,6 +244,17 @@ export async function finishMeeting(userId: string, pageId: string, meetingId: s
   startSummary(userId, pageId, meetingId, found.workspaceId, false);
 }
 
+/** Plans a meeting not yet started for `at` (an instant); one started or held keeps its time. */
+export async function rescheduleMeeting(userId: string, pageId: string, meetingId: string, at: Date) {
+  if (Number.isNaN(at.getTime())) throw new MeetingError("invalid", "That isn't a time");
+  await meetingPage(userId, pageId);
+  await updateMeeting(userId, pageId, meetingId, (p) => {
+    if (p.startedAt || p.status) throw new MeetingError("invalid", "This meeting has already started");
+    const scheduledAt = at.toISOString();
+    return p.scheduledAt === scheduledAt ? null : { scheduledAt };
+  });
+}
+
 /** Writes the summary again from the transcript, replacing the one there (edits to it included). */
 export async function regenerateMeetingSummary(userId: string, pageId: string, meetingId: string) {
   const found = await meetingPage(userId, pageId);

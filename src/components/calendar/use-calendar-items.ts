@@ -9,8 +9,8 @@ const CALENDAR_MS = 60_000;
 
 /**
  * The person's calendar items from `from` to `to` (YYYY-MM-DD, both included; server/calendar.ts),
- * read again every minute, as the window comes back and as `again` changes (the page shown). Null
- * until the first read; the last items stay while a new range is read.
+ * read again every minute, as the window comes back, as `again` changes (the page shown) and on
+ * `reload`. Null until the first read; the last items stay while a new range is read.
  */
 export function useCalendarItems(workspaceId: string, from: string, to: string, { offline = false, again }: { offline?: boolean; again?: unknown } = {}) {
   const [items, setItems] = useState<{ key: string; items: CalendarItem[] } | null>(null);
@@ -31,5 +31,5 @@ export function useCalendarItems(workspaceId: string, from: string, to: string, 
       document.removeEventListener("visibilitychange", load);
     };
   }, [offline, load, again]);
-  return { items: items?.items ?? null, current: items?.key === key };
+  return { items: items?.items ?? null, current: items?.key === key, reload: load };
 }

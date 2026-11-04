@@ -22,5 +22,11 @@
   "allDay": "Sepanjang hari",
   "from": "Mulai {time}",
   "until": "Sampai {time}",
-  "emptyWeek": "Tidak ada apa pun di kalender Anda minggu ini"
+  "emptyWeek": "Tidak ada apa pun di kalender Anda minggu ini",
+  "moveErrors": {
+    "notFound": "Ini tidak ada lagi di kalender",
+    "fixed": "Ini tidak bisa dipindahkan ke sana",
+    "noAccess": "Anda tidak dapat mengubah ini",
+    "failed": "Gagal memindahkan. Coba lagi."
+  }
 }

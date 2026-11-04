@@ -22,5 +22,11 @@
   "allDay": "Hele dag",
   "from": "Vanaf {time}",
   "until": "Tot {time}",
-  "emptyWeek": "Niets in je agenda deze week"
+  "emptyWeek": "Niets in je agenda deze week",
+  "moveErrors": {
+    "notFound": "Dit staat niet meer in de agenda",
+    "fixed": "Dit kan daar niet naartoe",
+    "noAccess": "Je kunt dit niet wijzigen",
+    "failed": "Verplaatsen mislukt. Probeer het opnieuw."
+  }
 }

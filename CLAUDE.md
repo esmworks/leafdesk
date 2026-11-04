@@ -69,7 +69,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `getCollab()` (`src/server/collab/bridge.ts`: `replaceContent`, `editBlocks`, `setTitle` …), which
   only exists when the app runs through `server.ts`. A block whose data is all in its props, written
   while people may be editing (meeting notes, ticking a to-do), changes them in place with
-  `updateBlockAttributes` (its `find` gets the block's id, which sits on the `blockContainer`):
+  `updateBlockAttributes` (its `find` gets the block's id, which sits on the `blockContainer`; an
+  inline node such as a mention, also found by it, gets the id of the block it is in):
   `editBlocks` and other `writeBlocks` callers read, await, then rewrite, and can lose edits made
   in between. Editor-side rewrites that must ride along with the change that caused them (toggle headings
   taking their section, `components/page/toggle-headings.ts`; column cleanup) are ProseMirror
@@ -333,10 +334,14 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   lists' rows `priority` and `others`. Ticking or adding a task fires `lib/tasks-event.ts`
   `TASKS_EVENT`, which the rail's count and the panel read again on.
 - **The Calendar place** (`app/w/[workspaceId]/calendar`, `components/calendar/`, the sidebar's
-  `calendar-panel.tsx`, a `lazyPart`): read only, `server/calendar.ts` `calendarItems` gathers a
+  `calendar-panel.tsx`, a `lazyPart`): `server/calendar.ts` `calendarItems` gathers a
   person's days from synced ical/gcal databases (rows picked in SQL by their When's first ten
   characters, then `dateOverlaps`; property access applies), meeting notes and `openAssignedRows` /
-  `openPageTasks`; pure part `lib/calendar-items.ts`, read through `read("calendarItems")`.
+  `openPageTasks`; pure part `lib/calendar-items.ts`, read through `read("calendarItems")`. Each
+  item's `moves` says whether the week may drag it; `moveCalendarItem` writes the drop by the item's
+  id (a row's date, a planned meeting's `scheduledAt`, a to-do's first date mention). A to-do's time
+  is its mention's reminder on the mention's own day (`page_task.remind_at`, `timedOnItsDay`): date
+  mentions hold only days, as their Markdown `@YYYY-MM-DD` does.
 - **The sidebar's meetings tab** (`components/sidebar/meeting-panel.tsx`, a `lazyPart`): the
   newest meetings (`sidebarMeetings`, `listMeetings` with `SIDEBAR_MEETINGS`); it hands their page
   ids to `sidebar.tsx`, whose `routeTab` keeps the tab while one of them is open.

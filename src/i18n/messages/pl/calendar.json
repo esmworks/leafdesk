@@ -22,5 +22,11 @@
   "allDay": "Cały dzień",
   "from": "Od {time}",
   "until": "Do {time}",
-  "emptyWeek": "W tym tygodniu nic nie ma w kalendarzu"
+  "emptyWeek": "W tym tygodniu nic nie ma w kalendarzu",
+  "moveErrors": {
+    "notFound": "Tego nie ma już w kalendarzu",
+    "fixed": "Nie można tego tam przenieść",
+    "noAccess": "Nie możesz tego zmienić",
+    "failed": "Nie udało się przenieść. Spróbuj ponownie."
+  }
 }

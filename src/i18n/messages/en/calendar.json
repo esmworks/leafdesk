@@ -22,5 +22,11 @@
   "allDay": "All day",
   "from": "From {time}",
   "until": "Until {time}",
-  "emptyWeek": "Nothing on your calendar this week"
+  "emptyWeek": "Nothing on your calendar this week",
+  "moveErrors": {
+    "notFound": "This is no longer on the calendar",
+    "fixed": "This can't be moved there",
+    "noAccess": "You can't change this",
+    "failed": "Couldn't move it. Try again."
+  }
 }

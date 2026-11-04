@@ -148,11 +148,12 @@ export interface CollabService {
     snapshot?: boolean,
   ): Promise<boolean>;
   /**
-   * Changes some props of the first block of type `type` that `find` picks (by its current props),
-   * wherever it sits, in place: only the props `update` returns are set, so edits people make to
-   * the rest of the page (or to the block's other props) at the same time are never undone.
-   * `update` gets the block's current props and returns the props to set, or null to set none.
-   * `find` also gets the block's id (BlockNote keeps it on the block around the props). The blocks
+   * Changes some props of the first block (or inline node, such as a mention) of type `type` that
+   * `find` picks (by its current props), wherever it sits, in place: only the props `update`
+   * returns are set, so edits people make to the rest of the page (or to the block's other props)
+   * at the same time are never undone. `update` gets the current props and returns the props to
+   * set, or null to set none. `find` also gets the id of the block it is in (BlockNote keeps it on
+   * the block around the props; an inline node gets the id of the block holding it). The blocks
    * of the synced blocks the page holds are looked through after the page's own.
    * Resolves to the block's props after the change, or null when the page has no such block.
    * Refuses a locked page or one in the trash, like the other writes.

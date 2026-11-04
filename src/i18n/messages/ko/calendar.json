@@ -22,5 +22,11 @@
   "allDay": "종일",
   "from": "{time}부터",
   "until": "{time}까지",
-  "emptyWeek": "이번 주 캘린더에 아무것도 없습니다"
+  "emptyWeek": "이번 주 캘린더에 아무것도 없습니다",
+  "moveErrors": {
+    "notFound": "이 항목은 더 이상 캘린더에 없습니다",
+    "fixed": "이 항목은 그곳으로 옮길 수 없습니다",
+    "noAccess": "이 항목을 변경할 수 없습니다",
+    "failed": "옮기지 못했습니다. 다시 시도하세요."
+  }
 }

@@ -22,5 +22,11 @@
   "allDay": "Hele dagen",
   "from": "Fra {time}",
   "until": "Til {time}",
-  "emptyWeek": "Intet i din kalender denne uge"
+  "emptyWeek": "Intet i din kalender denne uge",
+  "moveErrors": {
+    "notFound": "Dette er ikke længere i kalenderen",
+    "fixed": "Dette kan ikke flyttes dertil",
+    "noAccess": "Du kan ikke ændre dette",
+    "failed": "Kunne ikke flytte det. Prøv igen."
+  }
 }

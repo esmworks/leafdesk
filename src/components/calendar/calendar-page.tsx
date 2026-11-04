@@ -4,16 +4,18 @@ import { CalendarDays, ChevronLeft, ChevronRight, CircleCheck, List, NotebookPen
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent } from "react";
+import { moveCalendarItemAction } from "@/app/actions/calendar";
 import { useCalendarItems } from "@/components/calendar/use-calendar-items";
 import { KIND_TINT } from "@/components/calendar/item-tint";
 import { PlaceTopBar } from "@/components/place-top-bar";
+import { showToast } from "@/components/toast";
 import { CalendarIcon } from "@/components/sidebar/rail-icons";
 import { useViewerTimeZone } from "@/components/database/use-today";
 import { Button, cn } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import { dayBlocks, firstDayOfWeek, isAllDay, MINUTES_PER_DAY, weekBars, weekDays } from "@/lib/calendar";
-import { isoWeek, placeItems, type CalendarItemKind, type PlacedItem } from "@/lib/calendar-items";
+import { droppedDate, isoWeek, itemMinutes, placeItems, type CalendarDrop, type CalendarItem, type CalendarItemKind, type PlacedItem } from "@/lib/calendar-items";
 import { isDay } from "@/lib/date-value";
 import { dayNumber, dayString, localDay, wallClock } from "@/lib/time-zone";
 
@@ -21,6 +23,13 @@ import { dayNumber, dayString, localDay, wallClock } from "@/lib/time-zone";
 const HOUR_HEIGHT = 48;
 /** Where the hours open when the week has nothing earlier: 7 in the morning. */
 const MORNING = 7 * 60;
+/** Minutes a drop on the hours snaps to. */
+const SNAP = 15;
+/**
+ * How long a moved item is drawn where it was dropped while reads still have it where it was: a
+ * to-do's date reaches the index only with its page's save.
+ */
+const MOVE_HOLD_MS = 2 * 60_000;
 const KINDS: CalendarItemKind[] = ["event", "meeting", "task"];
 const KIND_ICONS: Record<CalendarItemKind, typeof CalendarDays> = { event: CalendarDays, meeting: NotebookPen, task: CircleCheck };
 
@@ -55,8 +64,27 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
   const first = days[0];
   const last = days[6];
 
-  const { items } = useCalendarItems(workspaceId, dayString(first), dayString(last));
-  const placed = useMemo(() => placeItems(items ?? [], timeZone), [items, timeZone]);
+  const { items, reload } = useCalendarItems(workspaceId, dayString(first), dayString(last));
+  // Items dragged elsewhere, by id: where they were dropped and when.
+  const [moved, setMoved] = useState<Record<string, { date: string; at: number }>>({});
+  const shown = useMemo(
+    () => items?.map((item) => (moved[item.id] && moved[item.id].at > now - MOVE_HOLD_MS ? { ...item, date: moved[item.id].date } : item)) ?? [],
+    [items, moved, now],
+  );
+  const placed = useMemo(() => placeItems(shown, timeZone), [shown, timeZone]);
+
+  const move = async (item: CalendarItem, date: string) => {
+    setMoved((m) => ({ ...m, [item.id]: { date, at: Date.now() } }));
+    const result = await moveCalendarItemAction(workspaceId, item.id, date).catch(() => ({ ok: false, error: "failed" }) as const);
+    if (!result.ok) {
+      setMoved(({ [item.id]: _, ...rest }) => rest);
+      showToast({ message: t(`moveErrors.${result.error}`) });
+      return;
+    }
+    reload();
+    // A to-do's page saves a moment after its date mention changes.
+    setTimeout(reload, 2_500);
+  };
 
   const go = (changes: { d?: number | null; view?: Mode }) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -137,7 +165,19 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
         ))}
       </ul>
       {mode === "week" ? (
-        <WeekGrid days={days} placed={placed} today={today} now={now} timeZone={timeZone} whenOn={whenOn} loaded={items !== null} />
+        <WeekGrid
+          days={days}
+          placed={placed}
+          today={today}
+          now={now}
+          timeZone={timeZone}
+          whenOn={whenOn}
+          loaded={items !== null}
+          onDrop={(p, drop, grabDays) => {
+            const date = droppedDate(p, drop, timeZone, grabDays);
+            if (date) void move(p.item, date);
+          }}
+        />
       ) : (
         <DayList days={days} placed={placed} today={today} whenOn={whenOn} loaded={items !== null} />
       )}
@@ -148,10 +188,41 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
 
 type WhenOn = (p: PlacedItem, day: number) => string;
 
-function WeekGrid({ days, placed, today, now, timeZone, whenOn, loaded }: { days: number[]; placed: PlacedItem[]; today: number; now: number; timeZone: string; whenOn: WhenOn; loaded: boolean }) {
+/** An item being dragged: how many days after its first and minutes after its start it was picked up at. */
+type Drag = { placed: PlacedItem; grabDays: number; grabMinutes: number };
+
+/** Where along a row of `count` equal columns `e` is, from the start edge (the right one in RTL). */
+function columnAt(e: DragEvent<HTMLElement>, el: HTMLElement, count: number): number {
+  const rect = el.getBoundingClientRect();
+  const x = getComputedStyle(el).direction === "rtl" ? rect.right - e.clientX : e.clientX - rect.left;
+  return Math.min(count - 1, Math.max(0, Math.floor(x / (rect.width / count))));
+}
+
+function WeekGrid({
+  days,
+  placed,
+  today,
+  now,
+  timeZone,
+  whenOn,
+  loaded,
+  onDrop,
+}: {
+  days: number[];
+  placed: PlacedItem[];
+  today: number;
+  now: number;
+  timeZone: string;
+  whenOn: WhenOn;
+  loaded: boolean;
+  onDrop: (placed: PlacedItem, drop: CalendarDrop, grabDays: number) => void;
+}) {
   const t = useTranslations("calendar");
   const format = useFormatter();
   const hours = useRef<HTMLDivElement>(null);
+  const [drag, setDrag] = useState<Drag | null>(null);
+  const [target, setTarget] = useState<CalendarDrop | null>(null);
+  const clock = (minutes: number) => format.dateTime(new Date(minutes * 60_000), { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
   const first = days[0];
   const allDay = placed.filter(isAllDay);
   const { bars, lanes } = weekBars(allDay, first);
@@ -166,6 +237,48 @@ function WeekGrid({ days, placed, today, now, timeZone, whenOn, loaded }: { days
     hours.current.scrollTop = Math.max((earliest / 60) * HOUR_HEIGHT - 12, 0);
   }, [loaded, first, earliest]);
   const gridColumns = { gridTemplateColumns: "repeat(7, minmax(0, 1fr))" };
+
+  const startDrag = (e: DragEvent<HTMLElement>, p: PlacedItem, grabDays: number) => {
+    if (!p.item.moves) return e.preventDefault();
+    e.dataTransfer.effectAllowed = "move";
+    // On the hours, from where on the block it was picked up, so the block follows the pointer.
+    const grabMinutes = isAllDay(p) ? 0 : Math.max(0, ((e.clientY - e.currentTarget.getBoundingClientRect().top) / HOUR_HEIGHT) * 60);
+    setDrag({ placed: p, grabDays, grabMinutes });
+  };
+  const endDrag = () => {
+    setDrag(null);
+    setTarget(null);
+  };
+  const over = (e: DragEvent<HTMLElement>, drop: CalendarDrop | null) => {
+    if (!drag || !drop) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (target?.day !== drop.day || target.minutes !== drop.minutes) setTarget(drop);
+  };
+  const dropHere = (e: DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    if (drag && target) onDrop(drag.placed, target, drag.grabDays);
+    endDrag();
+  };
+  /** The time on `day`'s column the dragged block's top is over, snapped. */
+  const slotAt = (e: DragEvent<HTMLElement>, day: number): CalendarDrop | null => {
+    if (!drag) return null;
+    const raw = ((e.clientY - e.currentTarget.getBoundingClientRect().top) / HOUR_HEIGHT) * 60 - drag.grabMinutes;
+    return { day, minutes: Math.min(MINUTES_PER_DAY - SNAP, Math.max(0, Math.round(raw / SNAP) * SNAP)) };
+  };
+  /** The day of the all-day strip the pointer is over, when the dragged item may become whole days. */
+  const stripDayAt = (e: DragEvent<HTMLElement>): CalendarDrop | null =>
+    drag?.placed.item.moves?.allDay ? { day: days[columnAt(e, e.currentTarget, 7)], minutes: null } : null;
+  // The days the dragged item would cover on the strip.
+  const stripGhost =
+    drag && target && target.minutes === null
+      ? (() => {
+          const start = Math.max(target.day - drag.grabDays, first);
+          const end = Math.min(target.day - drag.grabDays + (drag.placed.end - drag.placed.start), first + 6);
+          return end >= start ? { col: start - first, span: end - start + 1 } : null;
+        })()
+      : null;
+  const ghostMinutes = drag ? (itemMinutes(drag.placed) ?? 30) : 0;
 
   return (
     <div className="-mx-2 overflow-x-auto px-2">
@@ -190,16 +303,35 @@ function WeekGrid({ days, placed, today, now, timeZone, whenOn, loaded }: { days
         </div>
         <div className="flex border-b border-border">
           <div className="w-14 shrink-0 px-1.5 py-1.5 text-end text-[11px] leading-4 text-fg-muted">{t("allDay")}</div>
-          <div className="relative grid min-h-8 min-w-0 flex-1 py-1" style={{ ...gridColumns, gridTemplateRows: `repeat(${Math.max(lanes, 1)}, auto)` }}>
+          <div
+            className="relative grid min-h-8 min-w-0 flex-1 py-1"
+            style={{ ...gridColumns, gridTemplateRows: `repeat(${Math.max(lanes, 1)}, auto)` }}
+            onDragOver={(e) => over(e, stripDayAt(e))}
+            onDrop={dropHere}
+          >
             {days.map((day, i) => (
               <div key={day} aria-hidden className="border-s border-border" style={{ gridColumn: i + 1, gridRow: `1 / span ${Math.max(lanes, 1)}`, marginBlock: "-0.25rem" }} />
             ))}
+            {stripGhost && (
+              <div
+                aria-hidden
+                className={cn("pointer-events-none mx-1 rounded-md border border-dashed", KIND_TINT[drag!.placed.item.kind])}
+                style={{ gridColumn: `${stripGhost.col + 1} / span ${stripGhost.span}`, gridRow: `1 / span ${Math.max(lanes, 1)}`, borderColor: "var(--opt-bg)", background: "var(--opt-mark)" }}
+              />
+            )}
             {bars.map((bar) => (
               <div key={bar.event.item.id} style={{ gridColumn: `${bar.col + 1} / span ${bar.span}`, gridRow: bar.lane + 1 }} className="min-w-0 px-1 pb-0.5">
                 <Link
                   href={bar.event.item.href}
                   title={[bar.event.item.title, bar.event.item.detail].filter(Boolean).join(" · ")}
-                  className={cn("flex h-6 items-center gap-1.5 truncate rounded-md border-s-2 px-1.5 text-xs font-medium color-mark mark-hover", KIND_TINT[bar.event.item.kind])}
+                  draggable={!!bar.event.item.moves}
+                  onDragStart={(e) => startDrag(e, bar.event, first + bar.col + columnAt(e, e.currentTarget, bar.span) - bar.event.start)}
+                  onDragEnd={endDrag}
+                  className={cn(
+                    "flex h-6 items-center gap-1.5 truncate rounded-md border-s-2 px-1.5 text-xs font-medium color-mark mark-hover",
+                    KIND_TINT[bar.event.item.kind],
+                    drag?.placed.item.id === bar.event.item.id && "opacity-40",
+                  )}
                   style={{ borderInlineStartColor: "var(--opt-bg)" }}
                 >
                   <span className="truncate">{bar.event.item.title.trim() || t("untitled")}</span>
@@ -218,7 +350,12 @@ function WeekGrid({ days, placed, today, now, timeZone, whenOn, loaded }: { days
               ))}
             </div>
             {days.map((day) => (
-              <div key={day} className={cn("relative min-w-0 flex-1 border-s border-border", day === today && "bg-bg-subtle")}>
+              <div
+                key={day}
+                className={cn("relative min-w-0 flex-1 border-s border-border", day === today && "bg-bg-subtle")}
+                onDragOver={(e) => over(e, slotAt(e, day))}
+                onDrop={dropHere}
+              >
                 {Array.from({ length: 23 }, (_, h) => (
                   <div key={h} aria-hidden className="absolute inset-x-0 border-t border-border" style={{ top: (h + 1) * HOUR_HEIGHT }} />
                 ))}
@@ -230,6 +367,9 @@ function WeekGrid({ days, placed, today, now, timeZone, whenOn, loaded }: { days
                       key={item.id}
                       href={item.href}
                       title={[item.title, whenOn(b.event, day), item.detail].filter(Boolean).join(" · ")}
+                      draggable={!!item.moves}
+                      onDragStart={(e) => startDrag(e, b.event, 0)}
+                      onDragEnd={endDrag}
                       style={{
                         top: (b.top / 60) * HOUR_HEIGHT + 1,
                         height,
@@ -237,7 +377,11 @@ function WeekGrid({ days, placed, today, now, timeZone, whenOn, loaded }: { days
                         width: `calc(${100 / b.cols}% - 4px)`,
                         borderInlineStartColor: "var(--opt-bg)",
                       }}
-                      className={cn("absolute flex flex-col overflow-hidden rounded-md border-s-2 px-1.5 py-0.5 text-xs leading-4 color-mark mark-hover", KIND_TINT[item.kind])}
+                      className={cn(
+                        "absolute flex flex-col overflow-hidden rounded-md border-s-2 px-1.5 py-0.5 text-xs leading-4 color-mark mark-hover",
+                        KIND_TINT[item.kind],
+                        drag?.placed.item.id === item.id && "opacity-40",
+                      )}
                     >
                       <span className="truncate font-medium">{item.title.trim() || t("untitled")}</span>
                       {height >= 30 && <span className="truncate text-[11px] text-fg-muted tabular-nums">{whenOn(b.event, day)}</span>}
@@ -245,6 +389,20 @@ function WeekGrid({ days, placed, today, now, timeZone, whenOn, loaded }: { days
                     </Link>
                   );
                 })}
+                {drag && target && target.minutes !== null && target.day === day && (
+                  <div
+                    aria-hidden
+                    className={cn("pointer-events-none absolute inset-x-0.5 z-20 rounded-md border border-dashed px-1.5 py-0.5 text-xs leading-4 tabular-nums", KIND_TINT[drag.placed.item.kind])}
+                    style={{
+                      top: (target.minutes / 60) * HOUR_HEIGHT + 1,
+                      height: (Math.max(ghostMinutes, 30) / 60) * HOUR_HEIGHT - 2,
+                      borderColor: "var(--opt-bg)",
+                      background: "var(--opt-mark)",
+                    }}
+                  >
+                    {clock(target.minutes)}
+                  </div>
+                )}
                 {day === today && (
                   <div aria-hidden className="pointer-events-none absolute inset-x-0 z-10 flex items-center" style={{ top: (nowMinutes / 60) * HOUR_HEIGHT }}>
                     <span className="-ms-1 h-2 w-2 rounded-full bg-danger" />

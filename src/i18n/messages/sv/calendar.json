@@ -22,5 +22,11 @@
   "allDay": "Heldag",
   "from": "Från {time}",
   "until": "Till {time}",
-  "emptyWeek": "Inget i din kalender den här veckan"
+  "emptyWeek": "Inget i din kalender den här veckan",
+  "moveErrors": {
+    "notFound": "Det här finns inte längre i kalendern",
+    "fixed": "Det går inte att flytta dit",
+    "noAccess": "Du kan inte ändra det här",
+    "failed": "Kunde inte flytta. Försök igen."
+  }
 }
