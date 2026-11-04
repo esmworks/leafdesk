@@ -254,12 +254,14 @@ function Message({
   const when = useWhen();
   const viewer = useFileViewer();
   const me = message.from.address === box.address;
+  // Recipients call the mailbox "me"; a message's sender is named in full, the mailbox too.
   const name = (a: MailAddress) => (a.address === box.address ? t("me") : a.name || a.address);
+  const sender = message.from.name || (me ? box.displayName : null) || message.from.address;
   if (!open) {
     return (
       <button type="button" onClick={onToggle} className="flex w-full items-center gap-3 border-b border-border px-4 sm:px-6 py-3 text-start hover:bg-bg-hover">
         <SenderMark mark={message.mark} />
-        <span className="w-36 shrink-0 truncate text-sm font-medium">{me ? t("me") : message.from.name || message.from.address}</span>
+        <span className="w-36 shrink-0 truncate text-sm font-medium">{sender}</span>
         <span className="min-w-0 flex-1 truncate text-sm text-fg-faint">{message.preview}</span>
         <span className="shrink-0 text-xs text-fg-faint">{when(message.sentAt)}</span>
       </button>
@@ -274,7 +276,7 @@ function Message({
           <SenderMark mark={message.mark} />
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2">
-              <span className="truncate text-sm font-semibold">{message.from.name || message.from.address}</span>
+              <span className="truncate text-sm font-semibold">{sender}</span>
               {message.from.name && <span className="truncate text-sm text-fg-faint max-sm:hidden">{message.from.address}</span>}
               <span className="flex-1" />
               <span className="shrink-0 text-xs text-fg-faint max-sm:hidden" title={when(message.sentAt, true)}>
