@@ -669,7 +669,8 @@ because they are separate module graphs.
   tells the desktop app its color, and the tab strip, which the page can't draw over, takes it too.
   Boxes beside a chat's column on a wide page (the agent's page, the AI chat) are
   `components/side-box.tsx` (layout classes `lib/side-layout.ts`): a container query on the page
-  shows them, never the window's width; the AI chat lays them over its list, so its scrollbar stays at
+  shows them, never the window's width; the person hides them with `components/side-boxes-toggle.tsx`
+  (kept in the browser, one choice for both pages); the AI chat lays them over its list, so its scrollbar stays at
   the edge. The lines to a chat's questions and the button back to its latest are
   `components/chat-navigation.tsx`, loaded lazily: `ChatThread` is in every workspace page's first load.
   A menu or card that must leave a scrolling box is placed by `components/use-placement.ts`

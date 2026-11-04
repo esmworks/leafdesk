@@ -11,6 +11,10 @@
 
 ### Changed
 
+- **The boxes beside a chat can be hidden.** A button at the end of the top bar of an agent's page
+  and of the AI chat hides the boxes beside the conversation, and the conversation is centered; the
+  same button brings them back. The choice is kept in the browser for both pages.
+
 - **Home, My tasks, Meetings and the Calendar have a top bar like a page's.** The place's name sits
   where a page shows its path, and its controls moved up into the bar: the Calendar's Today, weeks
   and Week/List, My tasks' calendar subscription, Meetings' New meeting note.
@@ -125,6 +129,8 @@
   box shows, as on an agent's page. On an agent's page, runs that follow one another (schedules,
   mentions, mail) stand as far apart as a question and its answer, and their heading sits a little
   further from the answer.
+- **A chat fades out under its top bar.** Scrolled down, the AI chat's and an agent's conversation
+  fade out at the top of the list instead of cutting a line in half under the bar.
 - **No scrollbar shows inside the boxes beside a chat.** The boxes beside an agent's or the AI
   chat's column scrolled with a bar of their own; they scroll without one now.
 - **The rail's counts are no longer cut off.** The counts on the corners of the sidebar rail's

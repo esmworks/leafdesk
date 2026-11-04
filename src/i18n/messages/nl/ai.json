@@ -531,7 +531,9 @@
     "side": {
       "label": "Over deze chat",
       "sources": "Bronnen",
-      "changes": "Wijzigingen"
+      "changes": "Wijzigingen",
+      "hide": "Zijpaneel verbergen",
+      "show": "Zijpaneel tonen"
     }
   },
   "memory": {

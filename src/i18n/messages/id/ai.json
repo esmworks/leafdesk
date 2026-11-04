@@ -531,7 +531,9 @@
     "side": {
       "label": "Tentang obrolan ini",
       "sources": "Sumber",
-      "changes": "Perubahan"
+      "changes": "Perubahan",
+      "hide": "Sembunyikan panel samping",
+      "show": "Tampilkan panel samping"
     }
   },
   "memory": {

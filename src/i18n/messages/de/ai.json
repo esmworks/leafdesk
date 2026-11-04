@@ -531,7 +531,9 @@
     "side": {
       "label": "Über diesen Chat",
       "sources": "Quellen",
-      "changes": "Änderungen"
+      "changes": "Änderungen",
+      "hide": "Seitenleiste ausblenden",
+      "show": "Seitenleiste einblenden"
     }
   },
   "memory": {

@@ -531,7 +531,9 @@
     "side": {
       "label": "Om den här chatten",
       "sources": "Källor",
-      "changes": "Ändringar"
+      "changes": "Ändringar",
+      "hide": "Dölj sidopanelen",
+      "show": "Visa sidopanelen"
     }
   },
   "memory": {

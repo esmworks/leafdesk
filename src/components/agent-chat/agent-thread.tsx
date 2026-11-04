@@ -23,6 +23,7 @@ import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { cn, IconButton, selectClass } from "@/components/ui";
 import type { AgentChatMessageView, AgentChatRunView, AgentChatSearchHit, ChatPlace } from "@/lib/agent-chat";
 import { SIDE_COLUMN, SIDE_CONTAINER, SIDE_PAD_FILLED, SIDE_SHOWN } from "@/lib/side-layout";
+import { SideBoxesToggle, useSideBoxesHidden } from "@/components/side-boxes-toggle";
 import { AgentThreadItem, type ItemContext } from "./agent-items";
 import { openedAt, runGoesOn, useAgentChat, type AgentItem } from "./use-agent-chat";
 
@@ -65,6 +66,7 @@ export function AgentChat({
   const voice = useAiChat()?.voice ?? null;
   const [searching, setSearching] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [sideHidden, setSideHidden] = useSideBoxesHidden();
   const thread = place === null;
   const chatId = place?.chatId ?? null;
   const page = variant === "page";
@@ -211,20 +213,21 @@ export function AgentChat({
 
   if (page) {
     return (
-      <div ref={containerRef} className={cn(SIDE_CONTAINER, "h-full")}>
-        <div className={cn("flex h-full flex-col", SIDE_PAD_FILLED)}>
+      <div ref={containerRef} className={cn(SIDE_CONTAINER, "group/side h-full")}>
+        <div className={cn("flex h-full flex-col", !sideHidden && SIDE_PAD_FILLED)}>
           <div data-window-controls-clear className="flex h-11 shrink-0 items-center gap-1 px-3 max-md:ps-1.5">
             <SidebarOpenButton className="me-1 max-md:me-0" />
             {crumbs}
             <div className="ms-auto flex shrink-0 items-center gap-0.5">
               {tools}
               {actions}
+              <SideBoxesToggle hidden={sideHidden} onChange={setSideHidden} />
             </div>
           </div>
           {search && <div className="mx-auto w-full max-w-3xl px-4">{search}</div>}
           <div className="relative flex min-h-0 flex-1 flex-col">
             {chat}
-            <aside aria-label={t("side.label", { name: agent.name })} className={cn(SIDE_SHOWN, "pointer-events-none absolute inset-y-0 end-0 pe-4 pt-2 pb-4")}>
+            <aside aria-label={t("side.label", { name: agent.name })} className={cn(sideHidden ? "hidden" : SIDE_SHOWN, "pointer-events-none absolute inset-y-0 end-0 pe-4 pt-2 pb-4")}>
               <div data-side-column className={cn(SIDE_COLUMN, "pointer-events-auto flex max-h-full overflow-y-auto")}>
                 {aside}
                 <SideBoxes messages={messages} runs={model.runs} onRun={(id) => focusRunNow(containerRef.current, id)} onOpen={openPage} />

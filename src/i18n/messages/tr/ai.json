@@ -531,7 +531,9 @@
     "side": {
       "label": "Bu sohbet hakkında",
       "sources": "Kaynaklar",
-      "changes": "Değişiklikler"
+      "changes": "Değişiklikler",
+      "hide": "Yan paneli gizle",
+      "show": "Yan paneli göster"
     }
   },
   "memory": {

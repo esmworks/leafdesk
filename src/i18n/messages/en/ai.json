@@ -531,7 +531,9 @@
     "side": {
       "label": "About this chat",
       "sources": "Sources",
-      "changes": "Changes"
+      "changes": "Changes",
+      "hide": "Hide the side panel",
+      "show": "Show the side panel"
     }
   },
   "memory": {

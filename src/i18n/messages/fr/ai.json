@@ -531,7 +531,9 @@
     "side": {
       "label": "À propos de cette discussion",
       "sources": "Sources",
-      "changes": "Modifications"
+      "changes": "Modifications",
+      "hide": "Masquer le panneau latéral",
+      "show": "Afficher le panneau latéral"
     }
   },
   "memory": {
