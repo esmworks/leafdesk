@@ -25,6 +25,7 @@
     "replaceAll": "すべて置換（置換フィールド内）",
     "goHome": "ホームへ移動",
     "goTasks": "マイタスクへ移動",
+    "goCalendar": "カレンダーへ移動",
     "goMeetings": "会議へ移動",
     "goJournal": "ジャーナルへ移動",
     "goChat": "AI チャットへ移動",

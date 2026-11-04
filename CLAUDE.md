@@ -332,6 +332,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   access on its person property lets the others named edit the row; `openAssignedRows` gives task
   lists' rows `priority` and `others`. Ticking or adding a task fires `lib/tasks-event.ts`
   `TASKS_EVENT`, which the rail's count and the panel read again on.
+- **The Calendar place** (`app/w/[workspaceId]/calendar`, `components/calendar/`, the sidebar's
+  `calendar-panel.tsx`, a `lazyPart`): read only, `server/calendar.ts` `calendarItems` gathers a
+  person's days from synced ical/gcal databases (rows picked in SQL by their When's first ten
+  characters, then `dateOverlaps`; property access applies), meeting notes and `openAssignedRows` /
+  `openPageTasks`; pure part `lib/calendar-items.ts`, read through `read("calendarItems")`.
 - **The sidebar's meetings tab** (`components/sidebar/meeting-panel.tsx`, a `lazyPart`): the
   newest meetings (`sidebarMeetings`, `listMeetings` with `SIDEBAR_MEETINGS`); it hands their page
   ids to `sidebar.tsx`, whose `routeTab` keeps the tab while one of them is open.

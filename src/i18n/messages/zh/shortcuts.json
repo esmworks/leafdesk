@@ -25,6 +25,7 @@
     "replaceAll": "全部替换（在替换框中）",
     "goHome": "前往主页",
     "goTasks": "前往我的任务",
+    "goCalendar": "前往日历",
     "goMeetings": "前往会议",
     "goJournal": "前往日志",
     "goChat": "前往 AI 聊天",

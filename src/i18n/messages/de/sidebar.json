@@ -29,6 +29,7 @@
   "tabs": {
     "label": "Seitenleiste",
     "home": "Startseite",
+    "calendar": "Kalender",
     "journal": "Journal",
     "chat": "Chat",
     "mail": "Mail"

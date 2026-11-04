@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Agenda",
+  "today": "Vandaag",
+  "tomorrow": "Morgen",
+  "previousMonth": "Vorige maand",
+  "nextMonth": "Volgende maand",
+  "previousWeek": "Vorige week",
+  "nextWeek": "Volgende week",
+  "dayBusy": "{date}, iets gepland",
+  "nothingToday": "Niets vandaag",
+  "untitled": "Naamloos",
+  "week": "Week {number}",
+  "layout": "Indeling",
+  "weekView": "Week",
+  "listView": "Lijst",
+  "legend": "Bronnen",
+  "kinds": {
+    "event": "Agenda-afspraken",
+    "meeting": "Vergaderingen",
+    "task": "Taken"
+  },
+  "allDay": "Hele dag",
+  "from": "Vanaf {time}",
+  "until": "Tot {time}",
+  "emptyWeek": "Niets in je agenda deze week"
+}

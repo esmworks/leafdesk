@@ -42,7 +42,7 @@
   straight quote.
 - **Sidebar**: the workspace's name across its top (its menu switches workspaces), a rail of icons
   down its edge and a panel beside it. From the top, the rail holds *Search*, then the places:
-  *Home* (your pages), *My tasks*, *Meetings*, *Journal*, *Chat*, *Mail* and *Agents* (the last
+  *Home* (your pages), *My tasks*, *Calendar*, *Meetings*, *Journal*, *Chat*, *Mail* and *Agents* (the last
   four when you have them); at its foot a button that hides or shows the panel, the inbox with its
   count, Settings, and your picture, which opens the account menu.
   The panel shows the place picked: its name, what it starts (a new page, today's note, a new chat
@@ -55,8 +55,8 @@
   an answer is written, an accent dot when one waits for your decision and a plain dot for an answer
   you haven't read; *Agents* an accent dot when one of their calls waits for you (workspace owners
   answer them), with the same dot beside that agent in the list.
-  Press `g` and then a letter to go to a place without the mouse: `h` Home, `t` My tasks, `m`
-  Meetings, `j` Journal, `c` Chat, `e` Mail, `a` Agents, `i` the inbox, `s` Settings. While `g`
+  Press `g` and then a letter to go to a place without the mouse: `h` Home, `t` My tasks, `k`
+  Calendar, `m` Meetings, `j` Journal, `c` Chat, `e` Mail, `a` Agents, `i` the inbox, `s` Settings. While `g`
   waits for the letter, each place shows its letter on its corner. Not in text fields; on the Mail
   page `g` with `i`, `s`, `d`, `a` or `t` opens that folder instead.
 - **Home page**: quick buttons for a new page, database or template; four figures of your own
@@ -97,6 +97,17 @@
   "friday", `#high` and `@name`. You are always among its people; the others you add can see and
   edit that task, and it shows in their My tasks too. Tasks of the list show their priority's flag
   and the others' pictures in the list. Guests don't get *New task*.
+- **Calendar** (on the sidebar's rail): your week across the workspace in one place: the events of
+  the calendars synced in (*Sync a Google Calendar calendar* and *Sync a calendar*) whose
+  database you can open, the meeting notes you can open with a planned or started time (from start
+  to end once held), and the dated rows and to-dos of *My tasks*. Each source has its color: events
+  blue, meetings purple, tasks green. The page shows a week on its hours, with whole-day items in a
+  strip above and a line at the present time, or as a list of its days (*Week* / *List*; phones
+  start with the list); *Today* and the arrows move between weeks, with the week's number beside its
+  month. Clicking an item opens its page. The address keeps the week and the layout (`?d=`,
+  `?view=list`). The sidebar's panel holds a month with a dot on days that have something (a day
+  opens its week) and what you have from today on for a week: today, tomorrow and the next days
+  with something on them, with their times. It reads only; add and move events where they come from.
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet), under *Today*, *Yesterday*,
   *Previous 7 days* and *Older*, each with the page or database it sits in. The row under the query

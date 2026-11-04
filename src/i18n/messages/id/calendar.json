@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Kalender",
+  "today": "Hari ini",
+  "tomorrow": "Besok",
+  "previousMonth": "Bulan sebelumnya",
+  "nextMonth": "Bulan berikutnya",
+  "previousWeek": "Minggu sebelumnya",
+  "nextWeek": "Minggu berikutnya",
+  "dayBusy": "{date}, ada yang direncanakan",
+  "nothingToday": "Tidak ada apa-apa hari ini",
+  "untitled": "Tanpa judul",
+  "week": "Minggu {number}",
+  "layout": "Tata letak",
+  "weekView": "Minggu",
+  "listView": "Daftar",
+  "legend": "Sumber",
+  "kinds": {
+    "event": "Acara kalender",
+    "meeting": "Rapat",
+    "task": "Tugas"
+  },
+  "allDay": "Sepanjang hari",
+  "from": "Mulai {time}",
+  "until": "Sampai {time}",
+  "emptyWeek": "Tidak ada apa pun di kalender Anda minggu ini"
+}

@@ -29,6 +29,7 @@
   "tabs": {
     "label": "Barra lateral",
     "home": "Início",
+    "calendar": "Calendário",
     "journal": "Diário",
     "chat": "Chat",
     "mail": "E-mail"

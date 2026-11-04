@@ -25,6 +25,7 @@
     "replaceAll": "모두 바꾸기(바꾸기 입력란에서)",
     "goHome": "홈으로 이동",
     "goTasks": "내 작업으로 이동",
+    "goCalendar": "캘린더로 이동",
     "goMeetings": "회의로 이동",
     "goJournal": "저널로 이동",
     "goChat": "AI 채팅으로 이동",

@@ -1,0 +1,26 @@
+{
+  "metaTitle": "カレンダー",
+  "today": "今日",
+  "tomorrow": "明日",
+  "previousMonth": "前の月",
+  "nextMonth": "次の月",
+  "previousWeek": "前の週",
+  "nextWeek": "次の週",
+  "dayBusy": "{date}、予定あり",
+  "nothingToday": "今日の予定はありません",
+  "untitled": "無題",
+  "week": "第{number}週",
+  "layout": "レイアウト",
+  "weekView": "週",
+  "listView": "リスト",
+  "legend": "ソース",
+  "kinds": {
+    "event": "カレンダーの予定",
+    "meeting": "会議",
+    "task": "タスク"
+  },
+  "allDay": "終日",
+  "from": "{time}から",
+  "until": "{time}まで",
+  "emptyWeek": "今週のカレンダーには何もありません"
+}

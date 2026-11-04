@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Kalenteri",
+  "today": "Tänään",
+  "tomorrow": "Huomenna",
+  "previousMonth": "Edellinen kuukausi",
+  "nextMonth": "Seuraava kuukausi",
+  "previousWeek": "Edellinen viikko",
+  "nextWeek": "Seuraava viikko",
+  "dayBusy": "{date}, jotain suunniteltu",
+  "nothingToday": "Ei mitään tänään",
+  "untitled": "Nimetön",
+  "week": "Viikko {number}",
+  "layout": "Asettelu",
+  "weekView": "Viikko",
+  "listView": "Luettelo",
+  "legend": "Lähteet",
+  "kinds": {
+    "event": "Kalenteritapahtumat",
+    "meeting": "Kokoukset",
+    "task": "Tehtävät"
+  },
+  "allDay": "Koko päivän",
+  "from": "Klo {time} alkaen",
+  "until": "Klo {time} asti",
+  "emptyWeek": "Kalenterissasi ei ole mitään tällä viikolla"
+}

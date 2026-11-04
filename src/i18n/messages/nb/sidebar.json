@@ -29,6 +29,7 @@
   "tabs": {
     "label": "Sidepanel",
     "home": "Hjem",
+    "calendar": "Kalender",
     "journal": "Dagbok",
     "chat": "Chat",
     "mail": "E-post"

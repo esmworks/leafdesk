@@ -25,6 +25,7 @@
     "replaceAll": "Reemplazar todo (en el campo de reemplazo)",
     "goHome": "Ir a Inicio",
     "goTasks": "Ir a Mis tareas",
+    "goCalendar": "Ir al calendario",
     "goMeetings": "Ir a Reuniones",
     "goJournal": "Ir al diario",
     "goChat": "Ir al chat de IA",

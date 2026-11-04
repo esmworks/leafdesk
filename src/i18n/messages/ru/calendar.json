@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Календарь",
+  "today": "Сегодня",
+  "tomorrow": "Завтра",
+  "previousMonth": "Предыдущий месяц",
+  "nextMonth": "Следующий месяц",
+  "previousWeek": "Предыдущая неделя",
+  "nextWeek": "Следующая неделя",
+  "dayBusy": "{date}, что-то запланировано",
+  "nothingToday": "Сегодня ничего",
+  "untitled": "Без названия",
+  "week": "Неделя {number}",
+  "layout": "Вид",
+  "weekView": "Неделя",
+  "listView": "Список",
+  "legend": "Источники",
+  "kinds": {
+    "event": "События календаря",
+    "meeting": "Встречи",
+    "task": "Задачи"
+  },
+  "allDay": "Весь день",
+  "from": "С {time}",
+  "until": "До {time}",
+  "emptyWeek": "На этой неделе в календаре ничего нет"
+}

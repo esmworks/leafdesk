@@ -1,0 +1,26 @@
+{
+  "metaTitle": "ปฏิทิน",
+  "today": "วันนี้",
+  "tomorrow": "พรุ่งนี้",
+  "previousMonth": "เดือนก่อน",
+  "nextMonth": "เดือนถัดไป",
+  "previousWeek": "สัปดาห์ก่อน",
+  "nextWeek": "สัปดาห์ถัดไป",
+  "dayBusy": "{date} มีสิ่งที่วางแผนไว้",
+  "nothingToday": "วันนี้ไม่มีอะไร",
+  "untitled": "ไม่มีชื่อ",
+  "week": "สัปดาห์ที่ {number}",
+  "layout": "เลย์เอาต์",
+  "weekView": "สัปดาห์",
+  "listView": "รายการ",
+  "legend": "แหล่งที่มา",
+  "kinds": {
+    "event": "กิจกรรมในปฏิทิน",
+    "meeting": "การประชุม",
+    "task": "งาน"
+  },
+  "allDay": "ทั้งวัน",
+  "from": "ตั้งแต่ {time}",
+  "until": "จนถึง {time}",
+  "emptyWeek": "สัปดาห์นี้ไม่มีอะไรในปฏิทินของคุณ"
+}

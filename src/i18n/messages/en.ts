@@ -26,9 +26,10 @@ import journal from "./en/journal.json";
 import snippets from "./en/snippets.json";
 import review from "./en/review.json";
 import meetings from "./en/meetings.json";
+import calendar from "./en/calendar.json";
 import build from "./en/build.json";
 import mail from "./en/mail.json";
 
-const messages = { common, auth, consent, sidebar, page, home, settings, database, invite, join, publish, form, import: imports, security, apiTokens, account, offline, teamspaces, ai, people, admin, shortcuts, graph, skills, journal, snippets, review, meetings, build, mail };
+const messages = { common, auth, consent, sidebar, page, home, settings, database, invite, join, publish, form, import: imports, security, apiTokens, account, offline, teamspaces, ai, people, admin, shortcuts, graph, skills, journal, snippets, review, meetings, calendar, build, mail };
 
 export default messages;

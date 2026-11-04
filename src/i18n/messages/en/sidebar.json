@@ -29,6 +29,7 @@
   "tabs": {
     "label": "Sidebar",
     "home": "Home",
+    "calendar": "Calendar",
     "journal": "Journal",
     "chat": "Chat",
     "mail": "Mail"

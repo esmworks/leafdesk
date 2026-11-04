@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Takvim",
+  "today": "Bugün",
+  "tomorrow": "Yarın",
+  "previousMonth": "Önceki ay",
+  "nextMonth": "Sonraki ay",
+  "previousWeek": "Önceki hafta",
+  "nextWeek": "Sonraki hafta",
+  "dayBusy": "{date}, planlanmış bir şey var",
+  "nothingToday": "Bugün bir şey yok",
+  "untitled": "Adsız",
+  "week": "{number}. hafta",
+  "layout": "Düzen",
+  "weekView": "Hafta",
+  "listView": "Liste",
+  "legend": "Kaynaklar",
+  "kinds": {
+    "event": "Takvim etkinlikleri",
+    "meeting": "Toplantılar",
+    "task": "Görevler"
+  },
+  "allDay": "Tüm gün",
+  "from": "{time} itibarıyla",
+  "until": "{time} saatine kadar",
+  "emptyWeek": "Bu hafta takviminde bir şey yok"
+}

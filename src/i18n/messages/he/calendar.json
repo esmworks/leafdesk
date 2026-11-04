@@ -1,0 +1,26 @@
+{
+  "metaTitle": "לוח שנה",
+  "today": "היום",
+  "tomorrow": "מחר",
+  "previousMonth": "החודש הקודם",
+  "nextMonth": "החודש הבא",
+  "previousWeek": "השבוע הקודם",
+  "nextWeek": "השבוע הבא",
+  "dayBusy": "{date}, יש משהו מתוכנן",
+  "nothingToday": "אין כלום היום",
+  "untitled": "ללא כותרת",
+  "week": "שבוע {number}",
+  "layout": "פריסה",
+  "weekView": "שבוע",
+  "listView": "רשימה",
+  "legend": "מקורות",
+  "kinds": {
+    "event": "אירועי לוח שנה",
+    "meeting": "פגישות",
+    "task": "משימות"
+  },
+  "allDay": "כל היום",
+  "from": "החל מ־{time}",
+  "until": "עד {time}",
+  "emptyWeek": "אין כלום בלוח השנה שלך השבוע"
+}

@@ -1,0 +1,26 @@
+{
+  "metaTitle": "التقويم",
+  "today": "اليوم",
+  "tomorrow": "غدًا",
+  "previousMonth": "الشهر السابق",
+  "nextMonth": "الشهر التالي",
+  "previousWeek": "الأسبوع السابق",
+  "nextWeek": "الأسبوع التالي",
+  "dayBusy": "{date}، يوجد شيء مخطط",
+  "nothingToday": "لا شيء اليوم",
+  "untitled": "بلا عنوان",
+  "week": "الأسبوع {number}",
+  "layout": "التخطيط",
+  "weekView": "أسبوع",
+  "listView": "قائمة",
+  "legend": "المصادر",
+  "kinds": {
+    "event": "أحداث التقويم",
+    "meeting": "الاجتماعات",
+    "task": "المهام"
+  },
+  "allDay": "طوال اليوم",
+  "from": "من {time}",
+  "until": "حتى {time}",
+  "emptyWeek": "لا شيء في تقويمك هذا الأسبوع"
+}

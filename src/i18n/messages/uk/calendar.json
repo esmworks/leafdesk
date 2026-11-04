@@ -1,0 +1,26 @@
+{
+  "metaTitle": "Календар",
+  "today": "Сьогодні",
+  "tomorrow": "Завтра",
+  "previousMonth": "Попередній місяць",
+  "nextMonth": "Наступний місяць",
+  "previousWeek": "Попередній тиждень",
+  "nextWeek": "Наступний тиждень",
+  "dayBusy": "{date}, щось заплановано",
+  "nothingToday": "Сьогодні нічого",
+  "untitled": "Без назви",
+  "week": "Тиждень {number}",
+  "layout": "Вигляд",
+  "weekView": "Тиждень",
+  "listView": "Список",
+  "legend": "Джерела",
+  "kinds": {
+    "event": "Події календаря",
+    "meeting": "Зустрічі",
+    "task": "Завдання"
+  },
+  "allDay": "Увесь день",
+  "from": "З {time}",
+  "until": "До {time}",
+  "emptyWeek": "Цього тижня в календарі нічого немає"
+}

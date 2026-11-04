@@ -1,0 +1,26 @@
+{
+  "metaTitle": "日历",
+  "today": "今天",
+  "tomorrow": "明天",
+  "previousMonth": "上个月",
+  "nextMonth": "下个月",
+  "previousWeek": "上一周",
+  "nextWeek": "下一周",
+  "dayBusy": "{date}，有安排",
+  "nothingToday": "今天没有安排",
+  "untitled": "无标题",
+  "week": "第 {number} 周",
+  "layout": "布局",
+  "weekView": "周",
+  "listView": "列表",
+  "legend": "来源",
+  "kinds": {
+    "event": "日历事件",
+    "meeting": "会议",
+    "task": "任务"
+  },
+  "allDay": "全天",
+  "from": "{time} 起",
+  "until": "至 {time}",
+  "emptyWeek": "本周日历上没有安排"
+}

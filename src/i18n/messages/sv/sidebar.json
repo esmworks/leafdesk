@@ -29,6 +29,7 @@
   "tabs": {
     "label": "Sidofält",
     "home": "Start",
+    "calendar": "Kalender",
     "journal": "Dagbok",
     "chat": "Chatt",
     "mail": "E-post"
