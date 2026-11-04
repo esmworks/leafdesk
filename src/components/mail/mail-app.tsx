@@ -22,6 +22,7 @@ import {
   type MailAgentDeed,
   type MailFolderView,
   type MailQueryMarks,
+  type MailSentPlace,
   type MailThreadAgent,
   type MailThreadItem,
   type MailUndoneSend,
@@ -141,8 +142,15 @@ const ThreadRow = memo(function ThreadRow({
   const t = useTranslations("mail");
   const when = useWhen();
   const locale = useLocale();
-  // One sender by their whole name; several by first names.
-  const senders = item.senders.map((s) => (s.address === me ? t("me") : (item.senders.length > 1 ? s.name?.split(" ")[0] : s.name) || s.address)).join(", ");
+  // One sender by their whole name; several by first names. Mail only this mailbox wrote is named
+  // by whom it went to, an address without a name by the part before its @.
+  const senders = item.recipients.length
+    ? t("toList", {
+        names: item.recipients
+          .map((r) => (r.address === me ? t("me") : (item.recipients.length > 1 ? r.name?.split(" ")[0] : r.name) || r.address.split("@")[0]))
+          .join(", "),
+      })
+    : item.senders.map((s) => (s.address === me ? t("me") : (item.senders.length > 1 ? s.name?.split(" ")[0] : s.name) || s.address)).join(", ");
   return (
     <div className="group relative">
       <a
@@ -467,6 +475,16 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
   const afterSend = useRef<(thread: boolean) => void>(() => {});
   afterSend.current = (thread) => {
     if (thread || folder?.role === "sent" || folder?.role === "drafts") void loadPage(null);
+  };
+  // A new message sent from the pane opens in its sent folder once it went, unless a thread or
+  // another message was opened meanwhile; till then the pane says it is going.
+  const [paneSending, setPaneSending] = useState(false);
+  const paneSent = useRef<(sent: MailSentPlace | null) => void>(() => {});
+  paneSent.current = (sent) => {
+    setPaneSending(false);
+    afterSend.current(false);
+    const now = new URLSearchParams(window.location.search);
+    if (sent && !now.get("t") && !now.get("c")) go({ box: sent.mailboxId, f: sent.folderId, s: null, t: sent.threadId, m: null, q: null });
   };
   useEffect(() => setTyped(query), [query]);
 
@@ -1025,9 +1043,15 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
           layout="pane"
           onClose={() => go({ c: null })}
           onSaved={paneSaved}
-          onSent={() => go({ c: null })}
-          onUndone={sendUndone}
-          onDelivered={() => afterSend.current(false)}
+          onSent={() => {
+            setPaneSending(true);
+            go({ c: null });
+          }}
+          onUndone={(draft) => {
+            setPaneSending(false);
+            sendUndone(draft);
+          }}
+          onDelivered={(sent) => paneSent.current(sent)}
         />
       ) : threadId ? (
         <ThreadView
@@ -1049,7 +1073,7 @@ export function MailApp({ workspaceId, ai }: { workspaceId: string; ai: boolean 
           onDelivered={() => afterSend.current(true)}
         />
       ) : (
-        <div className="hidden min-w-0 flex-1 items-center justify-center text-sm text-fg-faint md:flex">{t("noneOpen")}</div>
+        <div className="hidden min-w-0 flex-1 items-center justify-center text-sm text-fg-faint md:flex">{paneSending ? t("composer.sending") : t("noneOpen")}</div>
       )}
     </div>
   );

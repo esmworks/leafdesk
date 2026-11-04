@@ -39,6 +39,7 @@
   "noSubject": "(sin asunto)",
   "untitledRow": "Sin título",
   "me": "yo",
+  "toList": "Para: {names}",
   "hasFiles": "Con archivos",
   "starred": "Destacados",
   "draft": "Borrador",

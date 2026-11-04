@@ -46,6 +46,7 @@ const thread = (over: object = {}) => ({
   folderId: "f-1",
   messageId: "m-1",
   senders: [{ address: "ayse@acme.test", name: "Ayşe Kaya" }],
+  recipients: [],
   subject: "Teklif",
   preview: "Cuma gününe kadar fiyat",
   sentAt: "2026-10-30T09:15:00.000Z",

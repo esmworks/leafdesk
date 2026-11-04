@@ -39,6 +39,7 @@
   "noSubject": "(kein Betreff)",
   "untitledRow": "Ohne Titel",
   "me": "ich",
+  "toList": "An: {names}",
   "hasFiles": "Mit Dateien",
   "starred": "Mit Stern",
   "draft": "Entwurf",

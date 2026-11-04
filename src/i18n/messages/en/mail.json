@@ -39,6 +39,7 @@
   "noSubject": "(no subject)",
   "untitledRow": "Untitled",
   "me": "me",
+  "toList": "To: {names}",
   "hasFiles": "Has files",
   "starred": "Starred",
   "draft": "Draft",

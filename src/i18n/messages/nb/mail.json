@@ -39,6 +39,7 @@
   "noSubject": "(uten emne)",
   "untitledRow": "Uten tittel",
   "me": "meg",
+  "toList": "Til: {names}",
   "hasFiles": "Har filer",
   "starred": "Stjernemerket",
   "draft": "Utkast",

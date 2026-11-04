@@ -21,6 +21,7 @@ import {
   type MailDraftView,
   type MailMessageView,
   type MailSendStatus,
+  type MailSentPlace,
   type MailUndoneSend,
 } from "@/lib/mail-client";
 import type { MailWriteAction } from "@/lib/mail-ai";
@@ -79,9 +80,9 @@ function followSend(sendId: string, then: (status: MailSendStatus) => void, trie
  * folder a moment after each change and as the composer closes; `draft` opens one again.
  * Formatting is the editor's (mail-editor.tsx); sends with ⌘/Ctrl+Enter; files come from the
  * button or dropped on it. A message sent waits MAIL_UNDO_SECONDS on the server for Undo, which
- * makes it a draft again for `onUndone` to open; `onDelivered` follows once it went (or failed and
- * was kept as a draft). With `ai`, the AI writer (composer-ai.tsx) opens from beside the
- * formatting, or at once running `aiStart`; it reads the fields of the database row the answered
+ * makes it a draft again for `onUndone` to open; `onDelivered` follows once it went, with where its
+ * sent copy is in the index when found there (or failed and was kept as a draft). With `ai`, the AI
+ * writer (composer-ai.tsx) opens from beside the formatting, or at once running `aiStart`; it reads the fields of the database row the answered
  * mail's other party is (MailMessageView.row), and says so.
  */
 export function Composer({
@@ -115,7 +116,7 @@ export function Composer({
   /** Its draft was saved (its id in the index now: each save is a new message there) or thrown away (null); `open` while it still shows. */
   onSaved?: (id: string | null, open: boolean) => void;
   onUndone?: (draft: MailUndoneSend) => void;
-  onDelivered?: () => void;
+  onDelivered?: (sent: MailSentPlace | null) => void;
 }) {
   const t = useTranslations("mail.composer");
   const tai = useTranslations("mail.ai");
@@ -369,7 +370,7 @@ export function Composer({
     });
     followSend(sendId, (status) => {
       if (status.state === "failed") showToast({ message: t("notSent", { reason: status.error ?? "" }) });
-      if (status.state === "sent" || status.state === "failed") onDelivered?.();
+      if (status.state === "sent" || status.state === "failed") onDelivered?.(status.state === "sent" ? status.sent : null);
     });
     finish(onSent);
   }

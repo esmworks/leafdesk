@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Changed
+
+- **A message you send from Mail opens once it has gone.** After a new message's Undo seconds the
+  pane says it is sending, then opens it in your sent folder, unless you opened something else
+  meanwhile.
+
+### Fixed
+
+- **Mail you alone wrote is listed by whom it went to.** Sent mail, and threads nobody has answered
+  yet, read *To: Ayşe* in the list instead of *me* on every row.
+
 ## 0.7.2 — 2026-11-04
 
 ### Upgrading from 0.7.1

@@ -39,6 +39,7 @@
   "noSubject": "(بدون موضوع)",
   "untitledRow": "بدون عنوان",
   "me": "من",
+  "toList": "به: {names}",
   "hasFiles": "دارای فایل",
   "starred": "ستاره‌دار",
   "draft": "پیش‌نویس",

@@ -39,6 +39,7 @@
   "noSubject": "(ei aihetta)",
   "untitledRow": "Nimetön",
   "me": "minä",
+  "toList": "Vastaanottaja: {names}",
   "hasFiles": "Sisältää tiedostoja",
   "starred": "Tähdellä merkityt",
   "draft": "Luonnos",

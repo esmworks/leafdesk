@@ -39,6 +39,7 @@
   "noSubject": "(konu yok)",
   "untitledRow": "Adsız",
   "me": "ben",
+  "toList": "Alıcı: {names}",
   "hasFiles": "Dosya var",
   "starred": "Yıldızlı",
   "draft": "Taslak",

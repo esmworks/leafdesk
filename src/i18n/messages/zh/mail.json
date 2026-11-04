@@ -39,6 +39,7 @@
   "noSubject": "（无主题）",
   "untitledRow": "无标题",
   "me": "我",
+  "toList": "收件人：{names}",
   "hasFiles": "有文件",
   "starred": "已加星标",
   "draft": "草稿",

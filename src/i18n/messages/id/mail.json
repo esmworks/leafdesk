@@ -39,6 +39,7 @@
   "noSubject": "(tanpa subjek)",
   "untitledRow": "Tanpa judul",
   "me": "saya",
+  "toList": "Kepada: {names}",
   "hasFiles": "Memiliki file",
   "starred": "Berbintang",
   "draft": "Draf",

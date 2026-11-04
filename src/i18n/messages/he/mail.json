@@ -39,6 +39,7 @@
   "noSubject": "(ללא נושא)",
   "untitledRow": "ללא כותרת",
   "me": "אני",
+  "toList": "אל: {names}",
   "hasFiles": "עם קבצים",
   "starred": "מסומנות בכוכב",
   "draft": "טיוטה",

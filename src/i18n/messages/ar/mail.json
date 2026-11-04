@@ -39,6 +39,7 @@
   "noSubject": "(بلا موضوع)",
   "untitledRow": "بلا عنوان",
   "me": "أنا",
+  "toList": "إلى: {names}",
   "hasFiles": "به ملفات",
   "starred": "المميّزة بنجمة",
   "draft": "مسودة",

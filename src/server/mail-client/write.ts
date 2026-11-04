@@ -2,8 +2,8 @@ import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import type { ImapFlow } from "imapflow";
 import { db } from "@/db";
 import { mailFolder, mailMessage, mailSend, mailSnooze, rowEmail, type mailbox } from "@/db/schema";
-import { MAX_SENDS_PER_HOUR } from "@/lib/mail";
-import { MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, movableTo, snoozableFrom, type MailAction, type MailDraftInput, type MailHeldSend, type MailUndoneSend } from "@/lib/mail-client";
+import { bareMessageId, MAX_SENDS_PER_HOUR } from "@/lib/mail";
+import { MAIL_MAX_THREADS, MAIL_UNDO_SECONDS, movableTo, snoozableFrom, type MailAction, type MailDraftInput, type MailHeldSend, type MailSentPlace, type MailUndoneSend } from "@/lib/mail-client";
 import { snoozeAllowed } from "@/lib/mail-snooze";
 import { RowMailError, type RowMailErrorCode } from "@/server/row-mail/settings";
 import { connectError } from "@/server/row-mail/connect";
@@ -12,6 +12,7 @@ import { requireOwnMailbox } from "./access";
 import { buildMessage, newMessageId, written, type Attachment, type InlineFile, type Written } from "./compose";
 import { draftForSend, keepAsDraft, sentDraft } from "./drafts";
 import { makeFolder, recount } from "./folders";
+import { indexFolder } from "./indexer";
 import { withImap } from "./pool";
 import { withQuote, type Quote } from "./quote";
 
@@ -202,7 +203,7 @@ export async function emptyFolder(userId: string, input: { mailboxId: string; fo
   });
 }
 
-type Prepared = { userId: string; box: Box; draft: MailDraftInput; w: Written; attachments: Attachment[]; quote: Quote | null; raw: Buffer };
+type Prepared = { userId: string; box: Box; draft: MailDraftInput; w: Written; attachments: Attachment[]; quote: Quote | null; raw: Buffer; messageId: string };
 
 /** What the mailbox sent in the last hour: from the Mail tab and to rows, held together to MAX_SENDS_PER_HOUR. */
 async function sentThisHour(box: Box) {
@@ -225,8 +226,9 @@ async function prepare(userId: string, draft: MailDraftInput, files: File[], inl
   if ((await sentThisHour(box)) >= MAX_SENDS_PER_HOUR) throw new RowMailError("rateLimited");
   const { attachments, quote } = await draftForSend(userId, box, draft, typed, files, inline);
   const w = withQuote(typed, quote);
-  const raw = await buildMessage(userId, box, w, attachments, { messageId: newMessageId(box), draft: false });
-  return { userId, box, draft, w, attachments, quote, raw };
+  const messageId = newMessageId(box);
+  const raw = await buildMessage(userId, box, w, attachments, { messageId, draft: false });
+  return { userId, box, draft, w, attachments, quote, raw, messageId };
 }
 
 /**
@@ -274,7 +276,13 @@ export async function sendMail(userId: string, draft: MailDraftInput, files: Fil
  * on the server, not in the browser, a message still goes when its tab is closed meanwhile; a
  * restart in those seconds loses it, but for the draft it was last saved as.
  */
-type Held = Prepared & { timer: ReturnType<typeof setTimeout> | null; state: "held" | "sending" | "sent" | "undone" | "failed"; error: RowMailErrorCode | null };
+type Held = Prepared & {
+  timer: ReturnType<typeof setTimeout> | null;
+  state: "held" | "sending" | "sent" | "undone" | "failed";
+  error: RowMailErrorCode | null;
+  /** Where the sent copy is in the index, once it went and was found there. */
+  sent: MailSentPlace | null;
+};
 const held = ((globalThis as typeof globalThis & { __leafdeskMailHeld?: Map<string, Held> }).__leafdeskMailHeld ??= new Map<string, Held>());
 /** How long the outcome of a send stays to be asked for. */
 const KEPT_MS = 10 * 60_000;
@@ -288,7 +296,7 @@ const settled = (id: string) => setTimeout(() => held.delete(id), KEPT_MS).unref
 export async function holdMail(userId: string, draft: MailDraftInput, files: File[] = [], inline: InlineFile[] = []): Promise<MailHeldSend> {
   const prepared = await prepare(userId, draft, files, inline);
   const id = crypto.randomUUID();
-  held.set(id, { ...prepared, timer: setTimeout(() => void sendHeld(id), MAIL_UNDO_SECONDS * 1000), state: "held", error: null });
+  held.set(id, { ...prepared, timer: setTimeout(() => void sendHeld(id), MAIL_UNDO_SECONDS * 1000), state: "held", error: null, sent: null });
   return { sendId: id };
 }
 
@@ -300,6 +308,7 @@ export async function sendHeld(id: string) {
   entry.state = "sending";
   try {
     await deliver(entry);
+    entry.sent = await findSent(entry).catch(() => null);
     entry.state = "sent";
   } catch (error) {
     entry.error = error instanceof RowMailError ? error.code : "unreachable";
@@ -308,6 +317,31 @@ export async function sendHeld(id: string) {
     await keepAsDraft(entry.userId, entry.draft, entry.attachments, entry.quote).catch((e) => console.error("[mail-client] a message not sent could not be kept as a draft", e));
   }
   settled(id);
+}
+
+/** Tries for the sent folder's next read to find it. */
+const FIND_SENT_TRIES = 3;
+
+/**
+ * Reads the sent folder into the index now, so the message just sent can be opened: a server that
+ * keeps the sent copy itself (SAVES_SENT) may show it a moment later, so it looks a few times.
+ */
+async function findSent({ box, messageId }: Prepared): Promise<MailSentPlace | null> {
+  const wanted = bareMessageId(messageId);
+  for (let tries = 0; tries < FIND_SENT_TRIES; tries++) {
+    if (tries) await new Promise((done) => setTimeout(done, 1500));
+    // Read again each time: the folder's row says how far the index has read it.
+    const sent = (await folders(box)).find((f) => f.role === "sent");
+    if (!sent) return null;
+    await withImap(box, (client) => indexFolder(client, box, sent, 20), "background");
+    const [found] = await db
+      .select({ folderId: mailMessage.folderId, threadId: mailMessage.threadId })
+      .from(mailMessage)
+      .where(and(eq(mailMessage.mailboxId, box.id), eq(mailMessage.folderId, sent.id), eq(mailMessage.messageId, wanted)))
+      .limit(1);
+    if (found) return { mailboxId: box.id, ...found };
+  }
+  return null;
 }
 
 /**
@@ -326,8 +360,8 @@ export async function undoSend(userId: string, id: string): Promise<MailUndoneSe
 }
 
 /** How a held message went, for its sender. */
-export function sendStatus(userId: string, id: string): { state: Held["state"] | "gone"; error: RowMailErrorCode | null } {
+export function sendStatus(userId: string, id: string): { state: Held["state"] | "gone"; error: RowMailErrorCode | null; sent: MailSentPlace | null } {
   const entry = typeof id === "string" ? held.get(id) : undefined;
-  if (!entry || entry.userId !== userId) return { state: "gone", error: null };
-  return { state: entry.state, error: entry.error };
+  if (!entry || entry.userId !== userId) return { state: "gone", error: null, sent: null };
+  return { state: entry.state, error: entry.error, sent: entry.sent };
 }

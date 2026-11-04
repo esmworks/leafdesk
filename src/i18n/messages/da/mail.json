@@ -39,6 +39,7 @@
   "noSubject": "(intet emne)",
   "untitledRow": "Uden titel",
   "me": "mig",
+  "toList": "Til: {names}",
   "hasFiles": "Har filer",
   "starred": "Stjernemarkeret",
   "draft": "Kladde",

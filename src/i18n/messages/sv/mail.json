@@ -39,6 +39,7 @@
   "noSubject": "(inget ämne)",
   "untitledRow": "Namnlös",
   "me": "jag",
+  "toList": "Till: {names}",
   "hasFiles": "Har filer",
   "starred": "Stjärnmärkt",
   "draft": "Utkast",

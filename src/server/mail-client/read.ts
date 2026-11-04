@@ -612,6 +612,14 @@ async function threadPage(
       if (m.fromAddress && !senders.some((s) => s.address === m.fromAddress)) senders.push({ address: m.fromAddress, name: m.fromName });
     }
     const other = party(message);
+    // A thread only the mailbox wrote is named by whom it went to, as the sender would be no one new.
+    const own = from.box.address;
+    const recipients: MailAddress[] = [];
+    if ((senders.length ? senders : [{ address: message.fromAddress }]).every((s) => s.address === own)) {
+      for (const a of [...message.to, ...message.cc]) {
+        if (!recipients.some((r) => r.address === a.address)) recipients.push(a);
+      }
+    }
     return [
       {
         threadId: g.thread_id,
@@ -620,6 +628,7 @@ async function threadPage(
         folderId: (starred && g.starred_in) || from.folder.id,
         messageId: message.id,
         senders: senders.length ? senders.slice(0, 4) : [{ address: message.fromAddress, name: message.fromName }],
+        recipients: recipients.slice(0, 4),
         subject: message.subject,
         preview: message.preview,
         sentAt: new Date(g.last).toISOString(),

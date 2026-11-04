@@ -175,7 +175,7 @@ export async function sendStatusAction(sendId: string): Promise<ActionResult<Mai
   return run(async (userId) => {
     const status = sendStatus(userId, sendId);
     const t = await getTranslations("settings.email.errors");
-    return { state: status.state, error: status.error ? t(status.error) : null };
+    return { state: status.state, error: status.error ? t(status.error) : null, sent: status.sent };
   });
 }
 

@@ -39,6 +39,7 @@
   "noSubject": "(nessun oggetto)",
   "untitledRow": "Senza titolo",
   "me": "io",
+  "toList": "A: {names}",
   "hasFiles": "Con file",
   "starred": "Speciali",
   "draft": "Bozza",

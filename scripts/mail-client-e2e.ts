@@ -577,6 +577,12 @@ try {
   await settle();
   check(sendStatus(ids.ada, goes.sendId).state === "sent" && (await lastMessageTo(customer)).includes("Simdi gidiyor") && (await uidsIn("Drafts")).length === 0, "a message not taken back goes, and its draft with it");
   check((await undoSend(ids.ada, goes.sendId)) === null, "and can't be taken back once gone");
+  const went = sendStatus(ids.ada, goes.sendId).sent;
+  const [wentRow] = went ? await db.select({ subject: mailMessage.subject }).from(mailMessage).where(and(eq(mailMessage.folderId, went.folderId), eq(mailMessage.threadId, went.threadId))) : [];
+  check(went?.mailboxId === boxId && wentRow?.subject === "Geri alınacak", "and its status says where its sent copy is in the index, to open it");
+  const wentList = went ? await read.listThreads(ids.ada, { mailboxId: boxId, folderId: went.folderId }) : null;
+  const sentItem = wentList?.items.find((i) => i.threadId === went?.threadId);
+  check(sentItem?.recipients.map((r) => r.address).join() === customer, "a thread only the mailbox wrote lists whom it went to");
 
   // Writing with formatting, from the other mailbox
   await sendMail(ids.ada, {

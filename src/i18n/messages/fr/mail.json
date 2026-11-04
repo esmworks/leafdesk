@@ -39,6 +39,7 @@
   "noSubject": "(sans objet)",
   "untitledRow": "Sans titre",
   "me": "moi",
+  "toList": "À : {names}",
   "hasFiles": "Avec fichiers",
   "starred": "Favoris",
   "draft": "Brouillon",

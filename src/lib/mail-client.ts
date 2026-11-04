@@ -238,6 +238,8 @@ export type MailThreadItem = {
   messageId: string;
   /** Senders of the thread's messages, newest first, each once. */
   senders: MailAddress[];
+  /** When the mailbox alone wrote it (sent mail), whom its newest message went to, each once; else empty. */
+  recipients: MailAddress[];
   subject: string;
   preview: string;
   sentAt: string;
@@ -367,7 +369,9 @@ export type MailHeldSend = { sendId: string };
 /** A send undone: the draft it went back to (its id in the index, when known) and the message it answers. */
 export type MailUndoneSend = { id: string | null; replyTo: string | null };
 /** How a held send went; `error` is said for its sender when it failed (it is kept as a draft then). */
-export type MailSendStatus = { state: "held" | "sending" | "sent" | "undone" | "failed" | "gone"; error: string | null };
+/** Where a message just sent is in the index: its mailbox, sent folder and thread. */
+export type MailSentPlace = { mailboxId: string; folderId: string; threadId: string };
+export type MailSendStatus = { state: "held" | "sending" | "sent" | "undone" | "failed" | "gone"; error: string | null; sent: MailSentPlace | null };
 
 /** A draft just saved in the mailbox's drafts folder. */
 export type MailSavedDraft = { id: string | null; messageId: string; attachments: MailAttachmentView[] };

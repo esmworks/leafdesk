@@ -39,6 +39,7 @@
   "noSubject": "(제목 없음)",
   "untitledRow": "제목 없음",
   "me": "나",
+  "toList": "받는 사람: {names}",
   "hasFiles": "파일 있음",
   "starred": "별표",
   "draft": "임시 보관",

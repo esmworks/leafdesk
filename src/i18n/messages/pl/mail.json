@@ -39,6 +39,7 @@
   "noSubject": "(bez tematu)",
   "untitledRow": "Bez tytułu",
   "me": "ja",
+  "toList": "Do: {names}",
   "hasFiles": "Ma pliki",
   "starred": "Oznaczone gwiazdką",
   "draft": "Wersja robocza",

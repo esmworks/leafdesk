@@ -39,6 +39,7 @@
   "noSubject": "(ไม่มีหัวเรื่อง)",
   "untitledRow": "ไม่มีชื่อ",
   "me": "ฉัน",
+  "toList": "ถึง: {names}",
   "hasFiles": "มีไฟล์",
   "starred": "ติดดาว",
   "draft": "ฉบับร่าง",

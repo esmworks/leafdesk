@@ -39,6 +39,7 @@
   "noSubject": "（件名なし）",
   "untitledRow": "無題",
   "me": "自分",
+  "toList": "宛先: {names}",
   "hasFiles": "ファイルあり",
   "starred": "スター付き",
   "draft": "下書き",

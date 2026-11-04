@@ -39,6 +39,7 @@
   "noSubject": "(без темы)",
   "untitledRow": "Без названия",
   "me": "я",
+  "toList": "Кому: {names}",
   "hasFiles": "Есть файлы",
   "starred": "С пометкой",
   "draft": "Черновик",
