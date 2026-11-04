@@ -1906,7 +1906,7 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
  * versions put the buttons in their own tab strip and mark it data-desktop-app (and, on macOS,
  * data-tab-strip: below).
  * With the panel shown the frame above the rail and the panel holds them, and the cards start
- * below it (on phones, in the drawer, the workspace strip holds them at its start; with the panel
+ * below it (on phones the drawer's frame holds them above the rail and the panel; with the panel
  * hidden, they sit over the strip and its workspace button goes below them); the navigation
  * that takes the sidebar's place in settings and admin starts below them; a header the buttons
  * would cover (no open panel beside it, or the sidebar on the right) leaves their width free. The region dragging the window is a strip over the whole width (the root
@@ -1949,6 +1949,11 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
   &[dir="rtl"] [data-window-controls-clear],
   &:not(:has([data-sidebar-open])) main [data-window-controls-clear] {
     padding-left: var(--window-controls-width);
+  }
+}
+@media (max-width: 767px) {
+  :root[data-window-controls]:not([data-full-screen], [dir="rtl"]) aside[data-sidebar] {
+    padding-top: var(--window-controls-height);
   }
 }
 @media (min-width: 768px) {

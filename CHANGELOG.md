@@ -32,6 +32,9 @@
   with plain counts; Agents' groups show their chevron on hover and stand apart like the pages'
   sections. Journal's calendar loses the *Open today's note* and *Yesterday's note* buttons (the
   calendar's heading and days do that) and *Start with* is a block of its own under the notes.
+  On phones the drawer now matches too: the workspace's menu moves from its top to the panel's
+  foot, the panel's head is as tall as on wide screens and the panel is the same card over the
+  frame; rows stay larger there to tap.
   `docs/design.md` describes the recipe (*Sidebar panel*).
 - **Pages, databases and rows take the same title face as the app's own pages.** Their titles are
   set in Roboto Slab in the editor, on published pages and forms, in print, slides and page

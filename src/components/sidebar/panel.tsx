@@ -16,8 +16,11 @@ export const panelRowActive = "bg-bg-active font-medium text-fg hover:bg-bg-acti
 export const panelIcon = "h-4 w-4 shrink-0 text-fg-icon";
 /** A block of rows after the first: the room between blocks. */
 export const panelSection = "mt-3";
-/** A block's heading, in the rows' column. */
-export const panelHeading = "flex h-7 items-center px-2 text-xs font-medium text-fg-faint";
+/**
+ * A block's heading, in the rows' column. 28 px on phones too: there the drawer grows only what is
+ * tapped (sidebar.tsx grows every `h-7`), so a plain heading's height is written another way.
+ */
+export const panelHeading = "flex h-[1.75rem] items-center px-2 text-xs font-medium text-fg-faint";
 /** A count or a time at a row's end. */
 export const panelMeta = "text-xs tabular-nums text-fg-faint";
 /** A row that shows more of a block (all places, the whole list): quieter than the rows above it. */
