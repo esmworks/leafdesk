@@ -69,6 +69,11 @@
   isn't on this row any more": the Mail tab finds the original by its Message-ID, still answers it
   in its thread, and makes the quote from it again when the saved draft was taken out of the
   drafts folder elsewhere. A message the Mail tab can't find says so in its own words.
+- **Better Auth 1.7.7, for its security fixes.** 1.7.7 closed signing in as someone else through
+  the Magic Link and OAuth Proxy plugins, which Leafdesk doesn't use, and rate limits stored in
+  PostgreSQL being exceeded by concurrent requests, which Leafdesk keeps in memory. Every Better
+  Auth package, its core and the schema CLI are now pinned to the same release, so they move
+  together.
 
 ## 0.7.2 — 2026-11-04
 
