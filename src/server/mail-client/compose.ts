@@ -104,7 +104,8 @@ export async function written(box: Box, draft: MailDraftInput, options: { toSend
   const recipients = to.length + cc.length + bcc.length;
   if (recipients > MAX_MAIL_RECIPIENTS || text.length > MAX_MAIL_TEXT) throw new RowMailError("invalid");
   if (options.toSend && (!recipients || (!subject && !text.trim()))) throw new RowMailError("invalid");
-  const answers = draft.replyTo ? await answered(box, draft.replyTo, draft.sourceMessageId) : null;
+  // A draft opened again whose answered message the index no longer has comes with its Message-ID alone.
+  const answers = draft.replyTo || (!draft.forward && draft.sourceMessageId) ? await answered(box, draft.replyTo, draft.sourceMessageId) : null;
   return { to, cc, bcc, subject, text, html: cleaned?.html, answers };
 }
 
