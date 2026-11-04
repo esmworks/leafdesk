@@ -72,6 +72,9 @@ import { builtinTemplate, isBuiltinTemplateKey } from "@/lib/builtin-templates";
 import { mapFilterRules } from "@/lib/filters";
 import { atLeast, PROPERTY_LEVELS } from "@/lib/property-access";
 import { normalizeValue } from "@/lib/properties";
+import { REPEAT_FROMS } from "@/lib/row-repeat";
+import { MAX_REPEAT_INTERVAL, REPEAT_FREQUENCIES } from "@/lib/schedule";
+import * as rowRepeats from "@/server/row-repeat";
 import { idFromLink, pageUrl, sliceText, ToolInputError, VersionConflictError } from "./mcp/format";
 import { dashboardsOutput } from "./mcp/dashboards";
 import { markdownDashboards } from "@/lib/dashboard";
@@ -100,6 +103,21 @@ import {
 export type OperationContext = { userId: string; actor: WriteActor; timeZone?: string };
 
 export const MAX_BULK_ROWS = 100;
+
+/** How a row comes round again (server/row-repeat.ts), as row tools take it. */
+export const rowRepeatInput = z
+  .object({
+    property: z.string().min(1).describe("The date property (name or id) that moves on."),
+    frequency: z.enum(REPEAT_FREQUENCIES as [string, ...string[]]),
+    interval: z.number().int().min(1).max(MAX_REPEAT_INTERVAL).optional().describe("Every how many (default 1)."),
+    weekdays: z.array(z.number().int().min(0).max(6)).optional().describe("Weekly from the date: the days, 0 Sunday to 6 Saturday."),
+    from: z.enum(REPEAT_FROMS as [string, ...string[]]).optional().describe('"due" (default) counts from the date, "done" from the day it is marked done.'),
+    until: z.string().optional().describe("The last day a copy may fall on, YYYY-MM-DD."),
+    time_zone: z.string().optional().describe("IANA time zone the days are counted in."),
+  })
+  .describe(
+    "Repeat the row: once it is marked done (its database's first status, else checkbox), a copy opens with this date moved to the next time. null stops it.",
+  );
 
 // ---------------------------------------------------------------------------- input schemas
 
@@ -384,6 +402,7 @@ export const inputs = {
     row_id: id("row"),
     title: z.string().min(1).max(500).optional().describe("New row title."),
     properties: rowProperties.optional(),
+    repeat: rowRepeatInput.nullable().optional(),
   }),
   updateDatabaseRows: z.object({
     database_id: id("database"),
@@ -574,14 +593,44 @@ export async function rowFields(ctx: OperationContext, rowId: string) {
 }
 
 export async function rowOutput(ctx: OperationContext, databaseId: string, rowId: string) {
-  const [fields, row] = await Promise.all([rowFields(ctx, rowId), pages.getPage(ctx.userId, rowId)]);
+  const [fields, row, repeats] = await Promise.all([rowFields(ctx, rowId), pages.getPage(ctx.userId, rowId), rowRepeats.rowRepeatsOf([rowId])]);
+  const repeat = repeats[rowId];
   return {
     id: row.id,
     title: pageLabel(row.title),
     database_id: databaseId,
     ...fields,
+    ...(repeat ? { repeat: await repeatOutput(databaseId, repeat) } : {}),
     url: pageUrl(row.workspaceId, row.id),
   };
+}
+
+/** A row's rule as row tools show it: the date property by name, as `repeat` takes it. */
+async function repeatOutput(databaseId: string, repeat: Awaited<ReturnType<typeof rowRepeats.rowRepeatsOf>>[string]) {
+  const prop = (await databases.getProperties(databaseId)).find((p) => p.id === repeat.propertyId);
+  const { rule } = repeat;
+  return {
+    property: prop?.name ?? repeat.propertyId,
+    frequency: rule.frequency,
+    interval: rule.interval,
+    ...(rule.weekdays.length ? { weekdays: rule.weekdays } : {}),
+    from: rule.from,
+    ...(rule.until ? { until: rule.until } : {}),
+    time_zone: repeat.timeZone,
+    ...(repeat.lastError ? { last_error: repeat.lastError } : {}),
+  };
+}
+
+/** Sets or stops how a row repeats (`repeat` of update_database_row). */
+async function setRepeat(ctx: OperationContext, databaseId: string, rowId: string, repeat: Args<"updateDatabaseRow">["repeat"]) {
+  if (!repeat) return void (await rowRepeats.setRowRepeat(ctx.userId, rowId, null));
+  const { property, time_zone, ...rule } = repeat;
+  const { prop } = resolvePropertyKey(await databases.getProperties(databaseId), property);
+  if (!prop) throw new ToolInputError(`"${property}" isn't a property of this database. Call get_database for the names.`);
+  const existing = (await rowRepeats.rowRepeatsOf([rowId]))[rowId];
+  const timeZone = time_zone ?? ctx.timeZone ?? existing?.timeZone ?? "UTC";
+  if (!isTimeZone(timeZone)) throw new ToolInputError(`"${timeZone}" is not an IANA time zone such as "Europe/Istanbul".`);
+  await rowRepeats.setRowRepeat(ctx.userId, rowId, { propertyId: prop.id, rule: { until: null, ...rule }, timeZone });
 }
 
 /**
@@ -1818,9 +1867,9 @@ export async function completeSprint(ctx: OperationContext, { database_id, dry_r
   };
 }
 
-export async function updateDatabaseRow(ctx: OperationContext, { row_id, title, properties }: Args<"updateDatabaseRow">) {
+export async function updateDatabaseRow(ctx: OperationContext, { row_id, title, properties, repeat }: Args<"updateDatabaseRow">) {
   const { userId, actor } = ctx;
-  if (title === undefined && !properties) throw new ToolInputError("Provide title and/or properties.");
+  if (title === undefined && !properties && repeat === undefined) throw new ToolInputError("Provide title, properties and/or repeat.");
   const { page, parentDatabase } = await loadPage(ctx, row_id);
   if (!parentDatabase) throw new ToolInputError("This page is not a database row. Use update_page for regular pages.");
   if (page.archivedAt) throw new ToolInputError("This row is in the trash.");
@@ -1828,6 +1877,7 @@ export async function updateDatabaseRow(ctx: OperationContext, { row_id, title, 
   if (title !== undefined && isPageLocked(page)) throw new ToolInputError(PAGE_LOCKED_MESSAGE);
   if (properties && Object.keys(properties).length) await databases.updateRowProperties(userId, row_id, properties);
   if (title !== undefined) await pages.renamePage(actor, row_id, title);
+  if (repeat !== undefined) await setRepeat(ctx, parentDatabase.id, row_id, repeat);
   const out = await rowOutput(ctx, parentDatabase.id, row_id);
   // The rename lands in the live document first; report the new title right away.
   return title !== undefined ? { ...out, title } : out;

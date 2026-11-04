@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Questa opzione indica lo stato di uno sprint. Puoi rinominarla oppure disattivare gli sprint prima di eliminarla.",
     "historyEntryGone": "Questa modifica non è più nella cronologia del database.",
     "historyNotUndoable": "I titoli delle righe si ripristinano dalla cronologia della pagina di ciascuna riga.",
+    "repeatNotDate": "Le righe si ripetono su una proprietà data.",
+    "repeatNeedsDone": "Aggiungi prima uno stato o una casella di controllo per segnare le righe come completate: una riga si ripete quando è completata.",
+    "repeatSynced": "Le righe di un database sincronizzato non si ripetono.",
+    "repeatTemplate": "I modelli non si ripetono; le righe create da essi sì.",
     "invalidSlackUrl": "Non è l’indirizzo di un webhook in entrata di Slack (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” collega una sola pagina. Scegline una.",
     "invalidRelationOptions": "Queste impostazioni della relazione non possono essere salvate."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Questo pulsante non fa ancora nulla: imposta cosa fa dal menu della proprietà.",
       "rateLimited": "Questo pulsante è stato cliccato troppo spesso. Attendi un momento e riprova.",
       "noAccess": "Non puoi usare questo pulsante: serve l'accesso in modifica alla riga."
+    }
+  },
+  "repeat": {
+    "label": "Ripeti",
+    "off": "Non ripetere",
+    "custom": "Personalizzata…",
+    "preset": {
+      "daily": "Ogni giorno",
+      "workdays": "Ogni giorno feriale",
+      "weekly": "Ogni settimana il {day}",
+      "monthly": "Ogni mese il giorno {day}",
+      "yearly": "Ogni anno il {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Ogni giorno} other {Ogni # giorni}}",
+      "weekly": "{interval, plural, one {Ogni settimana} other {Ogni # settimane}}",
+      "monthly": "{interval, plural, one {Ogni mese} other {Ogni # mesi}}",
+      "yearly": "{interval, plural, one {Ogni anno} other {Ogni # anni}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {giorno} other {giorni}}",
+      "weekly": "{interval, plural, one {settimana} other {settimane}}",
+      "monthly": "{interval, plural, one {mese} other {mesi}}",
+      "yearly": "{interval, plural, one {anno} other {anni}}"
+    },
+    "onDays": "{every} il {days}",
+    "afterDone": "{every} dopo il completamento",
+    "until": "{rule}, fino al {date}",
+    "endsOn": "Termina il {date}",
+    "everyLabel": "Ogni",
+    "interval": "Quanti",
+    "unit": "Unità",
+    "onLabel": "Giorni",
+    "fromLabel": "Contato da",
+    "from": {
+      "due": "la data",
+      "done": "il giorno in cui è completata"
+    },
+    "untilLabel": "Fine",
+    "save": "Salva",
+    "skip": "Salta questa",
+    "next": "La prossima è stata aperta per il {date}",
+    "failed": "Impossibile salvare la ripetizione.",
+    "error": {
+      "accessLost": "Impossibile aggiungere la prossima: chi ha impostato la ripetizione non può più aggiungere righe qui.",
+      "tooMany": "Fermata per oggi: questa riga è stata completata e riaperta troppe volte."
     }
   }
 }

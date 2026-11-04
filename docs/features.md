@@ -538,6 +538,20 @@
       date for its reminder: `-1d` is the day before), so `+1w` and then `-2d` step through days.
     - Refused rather than guessed: a bare number (`31`, `9`), a two-digit year (`10/28/27`), a day
       that doesn't exist (`feb 29 2027`), `in +2w`.
+  - Rows that come round again: *Repeat* in a date's picker (in a table, a card, a list, an agenda
+    or the row's page) sets the row to repeat every day, every weekday, every week, month or year
+    on the date's own day, or by a rule of its own (every few days, weeks, months or years; on
+    chosen weekdays; until a day). Once the row is marked done (its database's first status, else
+    its first checkbox) a copy of it opens with that date moved to the next time, and the done row
+    stays as the record. A rule is counted from the date, so a row done late opens one copy on the
+    next time from today, not one for each time it missed; or from the day it was done ("every 3
+    months after it's done"). The copy keeps the title, body and values, with its to-dos and
+    checklist unticked and its other dates and files cleared; a start or end date paired with the
+    repeating one moves along. Marked not done again before anyone touched the copy, the copy goes
+    to the trash and the rule comes back. *Skip this one* moves the date on without a copy. A ↻
+    beside the date shows the rule; it turns red when the next copy couldn't be added. Synced
+    databases and templates don't repeat. MCP and the REST API set it with `repeat` on a row
+    update (`update_database_row`, `PATCH /rows/{row_id}`) and show it on the row.
   - Calendar views show a month, with dates over several days as bars across them, or a week with
     its hours; a row is added on a day or at an hour, and dragging it moves its whole date.
   - Date, created time and last edited time properties show dates in the viewer's language as a

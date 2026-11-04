@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, ChevronRight, Copy, MessageSquare, PanelRight, PanelTop, Plus } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -41,6 +41,8 @@ import { RowReviewBanner } from "@/components/review/row-review-banner";
 import { RowEmails } from "./row-emails";
 import { SchemaProvider } from "./schema-context";
 import { RowCellProvider } from "./row-cell-context";
+import { repeatNote, RowRepeatsProvider, type RowRepeatsValue } from "./row-repeat";
+import { showToast } from "@/components/toast";
 import { rowSnapshotOf, type RowSnapshot as Loaded } from "./row-snapshot";
 import type { DerivedInput, Property, RelationInput } from "./types";
 import { usePropertyThreadCount } from "@/components/page/property-threads";
@@ -80,6 +82,8 @@ export function RowProperties({
   const offline = useIsOffline() || offlineCopyFrom !== null;
   const readOnly = readOnlyProp || offline;
   const tc = useTranslations("common");
+  const tRepeat = useTranslations("database.repeat");
+  const locale = useLocale();
   // Actions throw (instead of returning an error) when the session expired or the network failed.
   const safe = useCallback(
     async <T,>(action: Promise<{ ok: true; data: T } | { ok: false; error: string }>) => {
@@ -172,9 +176,12 @@ export function RowProperties({
   const setValue = async (propertyId: string, value: unknown) => {
     const v = ++version.current;
     setPending((p) => ({ ...p, [propertyId]: { value, version: v } }));
+    // Marking a repeating row done says where its next copy goes (row-repeat.tsx).
+    const note = data ? repeatNote(locale, data.repeat ?? undefined, data.properties, data.values, { [propertyId]: value }) : null;
     const res = await safe(updateRowPropertiesAction(rowId, { [propertyId]: value }));
     if (!res.ok) setError(res.error);
     else setError(null);
+    if (res.ok) void note?.then((words) => words && showToast({ message: words(tRepeat) }));
     await refetch();
     setChanges((n) => n + 1);
     setPending((p) => {
@@ -344,6 +351,14 @@ export function RowProperties({
   );
   const template = data?.template === true;
   const rowCell = useMemo(() => ({ rowId, template }), [rowId, template]);
+  const repeatContext = useMemo<RowRepeatsValue>(
+    () => ({
+      repeats: data?.repeat ? { [rowId]: data.repeat } : {},
+      repeatable: Boolean(data?.repeatable) && !readOnly,
+      reload: () => void refetch(),
+    }),
+    [data?.repeat, data?.repeatable, rowId, readOnly, refetch],
+  );
   const aiEnabled = Boolean(data?.ai?.enabled) && !offline;
   const aiContext = useMemo<AiAutofillContextValue>(
     () => ({
@@ -484,12 +499,14 @@ export function RowProperties({
           <SchemaProvider value={data.properties}>
             <PropertyAccessProvider value={accessContext}>
               <AiAutofillProvider value={aiContext}>
+              <RowRepeatsProvider value={repeatContext}>
                 {pinned.length > 0 && (
                   <div role="group" aria-label={t("pinned")} className="mb-4 flex flex-wrap gap-x-6 gap-y-2">
                     {pinned.map((p) => propertyRow(p, "pinned"))}
                   </div>
                 )}
                 {besideHere ? createPortal(list, besideHere) : list}
+              </RowRepeatsProvider>
               </AiAutofillProvider>
             </PropertyAccessProvider>
           </SchemaProvider>

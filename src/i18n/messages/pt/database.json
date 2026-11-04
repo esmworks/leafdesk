@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Esta opção marca o estado de um sprint. Pode renomeá-la ou desativar os sprints antes de a eliminar.",
     "historyEntryGone": "Esta alteração não está mais no histórico do banco de dados.",
     "historyNotUndoable": "Os títulos das linhas são recuperados do histórico de página de cada linha.",
+    "repeatNotDate": "As linhas repetem-se numa propriedade de data.",
+    "repeatNeedsDone": "Adicione primeiro um estado ou uma caixa de verificação para marcar as linhas como concluídas: uma linha repete-se quando é concluída.",
+    "repeatSynced": "As linhas de uma base de dados sincronizada não se repetem.",
+    "repeatTemplate": "Os modelos não se repetem; as linhas criadas a partir deles, sim.",
     "invalidSlackUrl": "Não é o endereço de um webhook de entrada do Slack (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” vincula apenas uma página. Escolha uma.",
     "invalidRelationOptions": "Não é possível salvar estas configurações de relação."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Este botão ainda não faz nada: defina o que ele faz no menu da propriedade.",
       "rateLimited": "Este botão foi clicado vezes demais. Aguarde um momento e tente novamente.",
       "noAccess": "Você não pode usar este botão: é preciso ter acesso de edição à linha."
+    }
+  },
+  "repeat": {
+    "label": "Repetir",
+    "off": "Não repetir",
+    "custom": "Personalizado…",
+    "preset": {
+      "daily": "Todos os dias",
+      "workdays": "Todos os dias úteis",
+      "weekly": "Todas as semanas à {day}",
+      "monthly": "Todos os meses no dia {day}",
+      "yearly": "Todos os anos a {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Todos os dias} other {A cada # dias}}",
+      "weekly": "{interval, plural, one {Todas as semanas} other {A cada # semanas}}",
+      "monthly": "{interval, plural, one {Todos os meses} other {A cada # meses}}",
+      "yearly": "{interval, plural, one {Todos os anos} other {A cada # anos}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {dia} other {dias}}",
+      "weekly": "{interval, plural, one {semana} other {semanas}}",
+      "monthly": "{interval, plural, one {mês} other {meses}}",
+      "yearly": "{interval, plural, one {ano} other {anos}}"
+    },
+    "onDays": "{every}: {days}",
+    "afterDone": "{every} depois de concluída",
+    "until": "{rule}, até {date}",
+    "endsOn": "Termina a {date}",
+    "everyLabel": "A cada",
+    "interval": "Quantos",
+    "unit": "Unidade",
+    "onLabel": "Dias",
+    "fromLabel": "Contado a partir de",
+    "from": {
+      "due": "a data",
+      "done": "o dia em que é concluída"
+    },
+    "untilLabel": "Termina",
+    "save": "Guardar",
+    "skip": "Saltar esta",
+    "next": "A próxima foi aberta para {date}",
+    "failed": "Não foi possível guardar a repetição.",
+    "error": {
+      "accessLost": "Não foi possível adicionar a próxima: quem definiu a repetição já não pode adicionar linhas aqui.",
+      "tooMany": "Parado por hoje: esta linha foi concluída e reaberta vezes demais."
     }
   }
 }

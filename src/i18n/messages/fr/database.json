@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Cette option indique l’état d’un sprint. Renommez-la si vous le souhaitez, ou désactivez les sprints avant de la supprimer.",
     "historyEntryGone": "Cette modification ne figure plus dans l’historique de la base de données.",
     "historyNotUndoable": "Les titres des lignes se rétablissent depuis l’historique de la page de chaque ligne.",
+    "repeatNotDate": "Les lignes se répètent sur une propriété de date.",
+    "repeatNeedsDone": "Ajoutez d’abord un statut ou une case à cocher pour marquer les lignes comme terminées : une ligne se répète une fois terminée.",
+    "repeatSynced": "Les lignes d’une base de données synchronisée ne se répètent pas.",
+    "repeatTemplate": "Les modèles ne se répètent pas ; les lignes créées à partir d’eux, si.",
     "invalidSlackUrl": "Ce n’est pas l’adresse d’un webhook entrant Slack (https://hooks.slack.com/services/…).",
     "oneRow": "« {property} » ne relie qu’une page. Choisissez-en une.",
     "invalidRelationOptions": "Ces réglages de relation ne peuvent pas être enregistrés."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Ce bouton ne fait encore rien : définissez ce qu'il fait depuis le menu de la propriété.",
       "rateLimited": "Ce bouton a été cliqué trop souvent. Attendez un moment et réessayez.",
       "noAccess": "Vous ne pouvez pas utiliser ce bouton : il faut un accès en modification à la ligne."
+    }
+  },
+  "repeat": {
+    "label": "Répéter",
+    "off": "Ne pas répéter",
+    "custom": "Personnalisé…",
+    "preset": {
+      "daily": "Tous les jours",
+      "workdays": "Tous les jours ouvrés",
+      "weekly": "Chaque semaine le {day}",
+      "monthly": "Chaque mois le {day}",
+      "yearly": "Chaque année le {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Tous les jours} other {Tous les # jours}}",
+      "weekly": "{interval, plural, one {Chaque semaine} other {Toutes les # semaines}}",
+      "monthly": "{interval, plural, one {Chaque mois} other {Tous les # mois}}",
+      "yearly": "{interval, plural, one {Chaque année} other {Tous les # ans}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {jour} other {jours}}",
+      "weekly": "{interval, plural, one {semaine} other {semaines}}",
+      "monthly": "{interval, plural, one {mois} other {mois}}",
+      "yearly": "{interval, plural, one {an} other {ans}}"
+    },
+    "onDays": "{every}, le {days}",
+    "afterDone": "{every} après l’avoir terminé",
+    "until": "{rule}, jusqu’au {date}",
+    "endsOn": "Se termine le {date}",
+    "everyLabel": "Tous les",
+    "interval": "Combien",
+    "unit": "Unité",
+    "onLabel": "Jours",
+    "fromLabel": "Compté à partir de",
+    "from": {
+      "due": "la date",
+      "done": "le jour où c’est terminé"
+    },
+    "untilLabel": "Fin",
+    "save": "Enregistrer",
+    "skip": "Passer cette fois",
+    "next": "Prochaine ligne ouverte pour le {date}",
+    "failed": "La répétition n’a pas pu être enregistrée.",
+    "error": {
+      "accessLost": "La suivante n’a pas pu être ajoutée : la personne qui a réglé la répétition ne peut plus ajouter de lignes ici.",
+      "tooMany": "Arrêté pour aujourd’hui : cette ligne a été terminée puis rouverte trop de fois."
     }
   }
 }

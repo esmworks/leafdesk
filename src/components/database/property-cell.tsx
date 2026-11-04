@@ -48,6 +48,7 @@ import { availableOptions, parentOf } from "@/lib/dependent-options";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 import { useSchema } from "./schema-context";
 import { MarkerChip, useRowCell } from "./row-cell-context";
+import { RepeatMark, RepeatRow } from "./row-repeat";
 import { dateMarker, DATE_MARKERS } from "@/lib/template-values";
 import { lazyPart } from "@/components/lazy-part";
 import { CELL_TYPE_EVENT } from "@/lib/cell-typing";
@@ -648,6 +649,8 @@ export function PropertyCell({
 }) {
   const t = useTranslations("database.cell");
   const [anchor, setAnchor] = useState<HTMLDivElement | null>(null);
+  // A row page's values are of its row (row-cell-context) without naming it.
+  const cellRowId = useRowCell()?.rowId ?? rowId;
   // Who created or last edited a row, and when, is filled in by Leafdesk and never edited; formulas
   // are worked out from the row.
   const readOnly = readOnlyProp || hidden || isReadOnlyType(prop.type);
@@ -772,7 +775,10 @@ export function PropertyCell({
             <span className="truncate text-fg-faint">{placeholder ?? t("empty")}</span>
           )
         ) : (
-          <PropertyDisplay prop={prop} value={value} wrap={wrap} style={style} />
+          <>
+            <PropertyDisplay prop={prop} value={value} wrap={wrap} style={style} />
+            {prop.type === "date" && cellRowId && <RepeatMark rowId={cellRowId} propertyId={prop.id} />}
+          </>
         )}
       </div>
       {editing && (
@@ -798,6 +804,7 @@ export function PropertyCell({
           upload={upload}
           rowValues={rowValues}
           onTab={onTab && anchor ? (back) => setTimeout(() => onTab(anchor, back)) : undefined}
+          rowId={cellRowId}
         />
       )}
     </>
@@ -819,6 +826,7 @@ function CellEditor({
   rowValues,
   onTab,
   escapeDiscards,
+  rowId,
 }: {
   prop: Property;
   value: unknown;
@@ -832,6 +840,8 @@ function CellEditor({
   upload?: UploadFile;
   rowValues?: Record<string, unknown>;
   onTab?: (back: boolean) => void;
+  /** The row the value is on: a date's editor offers to repeat it. */
+  rowId?: string;
 }) {
   switch (prop.type) {
     case "text":
@@ -870,7 +880,16 @@ function CellEditor({
         </Floating>
       );
     case "date":
-      return <DateEditor value={value} anchor={anchor} onChange={onChange} onClose={onClose} format={prop.options.date?.format} />;
+      return (
+        <DateEditor
+          value={value}
+          anchor={anchor}
+          onChange={onChange}
+          onClose={onClose}
+          format={prop.options.date?.format}
+          repeatOf={rowId ? { rowId, propertyId: prop.id } : undefined}
+        />
+      );
     case "select":
     case "multi_select":
     case "status":
@@ -1103,12 +1122,15 @@ export function DateEditor({
   onChange,
   onClose,
   format,
+  repeatOf,
 }: {
   value: unknown;
   anchor: HTMLElement | null;
   onChange: (value: unknown) => void;
   onClose: () => void;
   format?: DateFormatKind;
+  /** The row and date property the value is: the editor offers to repeat the row (row-repeat.tsx). */
+  repeatOf?: { rowId: string; propertyId: string };
 }) {
   const t = useTranslations("database.cell");
   const tm = useTranslations("database.templateValues");
@@ -1164,7 +1186,7 @@ export function DateEditor({
   const hasEnd = draft?.end != null;
   const time = draft?.time === true;
   return (
-    <Floating open anchor={anchor} onClose={onClose} className="w-72 p-2">
+    <Floating open anchor={anchor} onClose={onClose} className="max-h-[calc(100dvh-1rem)] w-72 overflow-y-auto p-2">
       {template && (
         // A row template's date may be the day (or moment) a row is added from it.
         <div className="mb-2 border-b border-border px-1 pb-2">
@@ -1271,6 +1293,9 @@ export function DateEditor({
           <span>{t("includeTime")}</span>
           <Switch checked={time} label={t("includeTime")} onChange={(on) => save({ ...base, time: on })} />
         </div>
+        {repeatOf && !template && (
+          <RepeatRow rowId={repeatOf.rowId} propertyId={repeatOf.propertyId} value={draft ? draftValue(draft, timeZone) : null} />
+        )}
       </div>
       <div className="mt-2 flex justify-between gap-2">
         <button

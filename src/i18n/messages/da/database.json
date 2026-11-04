@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Denne mulighed markerer en sprints tilstand. Omdøb den, hvis du vil, eller slå sprints fra, før du sletter den.",
     "historyEntryGone": "Denne ændring er ikke længere i databasens historik.",
     "historyNotUndoable": "Rækketitler hentes tilbage fra hver rækkes sidehistorik.",
+    "repeatNotDate": "Rækker gentages på en datoegenskab.",
+    "repeatNeedsDone": "Tilføj først en status eller et afkrydsningsfelt til at markere rækker som udført: en række gentages, når den er udført.",
+    "repeatSynced": "Rækker i en synkroniseret database gentages ikke.",
+    "repeatTemplate": "Skabeloner gentages ikke; rækkerne lavet ud fra dem kan.",
     "invalidSlackUrl": "Ikke en adresse til en indgående Slack-webhook (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” kan kun koble én side. Vælg én.",
     "invalidRelationOptions": "Disse relationsindstillinger kan ikke gemmes."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Denne knap gør ikke noget endnu: Indstil, hvad den gør, i egenskabens menu.",
       "rateLimited": "Der er klikket på denne knap for tit. Vent et øjeblik, og prøv igen.",
       "noAccess": "Du kan ikke bruge denne knap: Det kræver redigeringsadgang til rækken."
+    }
+  },
+  "repeat": {
+    "label": "Gentag",
+    "off": "Gentag ikke",
+    "custom": "Tilpasset…",
+    "preset": {
+      "daily": "Hver dag",
+      "workdays": "Hver hverdag",
+      "weekly": "Hver uge om {day}en",
+      "monthly": "Hver måned den {day}.",
+      "yearly": "Hvert år den {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Hver dag} other {Hver #. dag}}",
+      "weekly": "{interval, plural, one {Hver uge} other {Hver #. uge}}",
+      "monthly": "{interval, plural, one {Hver måned} other {Hver #. måned}}",
+      "yearly": "{interval, plural, one {Hvert år} other {Hvert #. år}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {dag} other {dage}}",
+      "weekly": "{interval, plural, one {uge} other {uger}}",
+      "monthly": "{interval, plural, one {måned} other {måneder}}",
+      "yearly": "{interval, plural, one {år} other {år}}"
+    },
+    "onDays": "{every}: {days}",
+    "afterDone": "{every} efter den er udført",
+    "until": "{rule}, indtil {date}",
+    "endsOn": "Slutter {date}",
+    "everyLabel": "Hver",
+    "interval": "Antal",
+    "unit": "Enhed",
+    "onLabel": "Dage",
+    "fromLabel": "Regnet fra",
+    "from": {
+      "due": "datoen",
+      "done": "dagen den udføres"
+    },
+    "untilLabel": "Slutter",
+    "save": "Gem",
+    "skip": "Spring denne over",
+    "next": "Den næste er åbnet til {date}",
+    "failed": "Gentagelsen kunne ikke gemmes.",
+    "error": {
+      "accessLost": "Den næste kunne ikke tilføjes: den, der satte gentagelsen op, må ikke længere tilføje rækker her.",
+      "tooMany": "Stoppet for i dag: rækken er udført og åbnet igen for mange gange."
     }
   }
 }

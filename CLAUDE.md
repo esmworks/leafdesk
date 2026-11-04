@@ -85,6 +85,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   A relation's limit to one row (`single`, like a person's), row-page section and the properties
   its linked rows show in chips, that section and the row picker are `src/lib/relation-options.ts`;
   those values ride along in `getRelationTargets`, never a fetch per chip.
+  Rows that repeat: `server/row-repeat.ts` (rules pure in `lib/row-repeat.ts`, table `row_repeat`,
+  one per row, moving to each copy), run from `afterRowWrites` when the done property (agenda's
+  `agendaStatusProperty`) turns done; the rule is claimed by deleting its row first, so two writes
+  open one copy. The copy is `duplicatePage` with `title` and `values`; a copy left untouched
+  (body hash, no person's `row_activity`) goes back to the trash when the row is unticked. The
+  date cell's ↻ and its picker's Repeat row read `components/database/row-repeat.tsx`'s context.
   Unique ID numbers are given out by Postgres triggers (`drizzle/0131_unique_id.sql`), never by app
   code: an inserted row always gets the next number (the value it brings is dropped) and an
   update keeps the old one. Copies that must keep their numbers (a duplicated database, a restored
@@ -593,7 +599,7 @@ because they are separate module graphs.
   names English texts that exist and a group or row marked `anchor="<id>"`, and every settings tab
   has one. A new setting gets an entry there, with the condition the page shows it under.
 - `src/server/mcp/tools-context.test.ts`: the MCP tool list every client sends its model stays
-  under 92 tools, 168.7 KB in all and 12 KB per tool. Raise a number only on purpose, in the same
+  under 92 tools, 169 KB in all and 12 KB per tool. Raise a number only on purpose, in the same
   commit; first move what a model needs only now and then into a docs topic.
 - `scripts/bundle-budget.ts` (CI, after `pnpm build`): gzipped client JS budgets for the largest
   route's first load, all routes' first-load chunks together and the largest on-demand chunk. Lazy

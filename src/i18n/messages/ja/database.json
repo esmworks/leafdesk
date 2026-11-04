@@ -1171,6 +1171,10 @@
     "sprintStateOption": "このオプションはスプリントの状態を表します。名前は変更できますが、削除するには先にスプリントをオフにしてください。",
     "historyEntryGone": "この変更はデータベースの履歴にもうありません。",
     "historyNotUndoable": "行のタイトルは各行のページ履歴から元に戻してください。",
+    "repeatNotDate": "行は日付プロパティで繰り返します。",
+    "repeatNeedsDone": "先に行を完了にするステータスかチェックボックスを追加してください：行は完了すると繰り返します。",
+    "repeatSynced": "同期データベースの行は繰り返しません。",
+    "repeatTemplate": "テンプレートは繰り返しません。テンプレートから作った行は繰り返せます。",
     "invalidSlackUrl": "Slack の Incoming Webhook のアドレスではありません（https://hooks.slack.com/services/…）。",
     "oneRow": "「{property}」にリンクできるのは1ページだけです。1つ選んでください。",
     "invalidRelationOptions": "このリレーションの設定は保存できません。"
@@ -2430,6 +2434,52 @@
       "noAutomation": "このボタンはまだ何もしません。プロパティのメニューで動作を設定してください。",
       "rateLimited": "このボタンのクリックが多すぎます。少し待ってからもう一度お試しください。",
       "noAccess": "このボタンは使えません。行の編集権限が必要です。"
+    }
+  },
+  "repeat": {
+    "label": "繰り返し",
+    "off": "繰り返さない",
+    "custom": "カスタム…",
+    "preset": {
+      "daily": "毎日",
+      "workdays": "平日の毎日",
+      "weekly": "毎週{day}",
+      "monthly": "毎月{day}日",
+      "yearly": "毎年{date}"
+    },
+    "every": {
+      "daily": "{interval, plural, other {#日ごと}}",
+      "weekly": "{interval, plural, other {#週ごと}}",
+      "monthly": "{interval, plural, other {#か月ごと}}",
+      "yearly": "{interval, plural, other {#年ごと}}"
+    },
+    "units": {
+      "daily": "{interval, plural, other {日}}",
+      "weekly": "{interval, plural, other {週}}",
+      "monthly": "{interval, plural, other {か月}}",
+      "yearly": "{interval, plural, other {年}}"
+    },
+    "onDays": "{every}（{days}）",
+    "afterDone": "完了してから{every}",
+    "until": "{rule}、{date}まで",
+    "endsOn": "{date}に終了",
+    "everyLabel": "間隔",
+    "interval": "数",
+    "unit": "単位",
+    "onLabel": "曜日",
+    "fromLabel": "起点",
+    "from": {
+      "due": "日付",
+      "done": "完了した日"
+    },
+    "untilLabel": "終了",
+    "save": "保存",
+    "skip": "今回はスキップ",
+    "next": "次の行を{date}で開きました",
+    "failed": "繰り返しを保存できませんでした。",
+    "error": {
+      "accessLost": "次の行を追加できませんでした：繰り返しを設定した人がここに行を追加できなくなっています。",
+      "tooMany": "今日は停止しました：この行は完了と再オープンが多すぎます。"
     }
   }
 }

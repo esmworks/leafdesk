@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Opsi ini menandai status sprint. Anda boleh mengganti namanya, atau nonaktifkan sprint sebelum menghapusnya.",
     "historyEntryGone": "Perubahan ini sudah tidak ada di riwayat basis data.",
     "historyNotUndoable": "Judul baris dikembalikan dari riwayat halaman masing-masing baris.",
+    "repeatNotDate": "Baris berulang pada properti tanggal.",
+    "repeatNeedsDone": "Tambahkan dulu status atau kotak centang untuk menandai baris selesai: baris berulang saat selesai.",
+    "repeatSynced": "Baris dari database yang disinkronkan tidak berulang.",
+    "repeatTemplate": "Template tidak berulang; baris yang dibuat darinya bisa.",
     "invalidSlackUrl": "Bukan alamat webhook masuk Slack (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” hanya menaut satu halaman. Pilih satu.",
     "invalidRelationOptions": "Pengaturan relasi ini tidak dapat disimpan."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Tombol ini belum melakukan apa pun: atur yang dilakukannya dari menu properti.",
       "rateLimited": "Tombol ini terlalu sering diklik. Tunggu sebentar lalu coba lagi.",
       "noAccess": "Anda tidak dapat memakai tombol ini: perlu akses edit ke baris."
+    }
+  },
+  "repeat": {
+    "label": "Ulangi",
+    "off": "Jangan ulangi",
+    "custom": "Kustom…",
+    "preset": {
+      "daily": "Setiap hari",
+      "workdays": "Setiap hari kerja",
+      "weekly": "Setiap minggu pada {day}",
+      "monthly": "Setiap bulan pada tanggal {day}",
+      "yearly": "Setiap tahun pada {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, other {Setiap # hari}}",
+      "weekly": "{interval, plural, other {Setiap # minggu}}",
+      "monthly": "{interval, plural, other {Setiap # bulan}}",
+      "yearly": "{interval, plural, other {Setiap # tahun}}"
+    },
+    "units": {
+      "daily": "{interval, plural, other {hari}}",
+      "weekly": "{interval, plural, other {minggu}}",
+      "monthly": "{interval, plural, other {bulan}}",
+      "yearly": "{interval, plural, other {tahun}}"
+    },
+    "onDays": "{every} pada {days}",
+    "afterDone": "{every} setelah selesai",
+    "until": "{rule}, sampai {date}",
+    "endsOn": "Berakhir pada {date}",
+    "everyLabel": "Setiap",
+    "interval": "Berapa",
+    "unit": "Satuan",
+    "onLabel": "Hari",
+    "fromLabel": "Dihitung dari",
+    "from": {
+      "due": "tanggalnya",
+      "done": "hari saat selesai"
+    },
+    "untilLabel": "Berakhir",
+    "save": "Simpan",
+    "skip": "Lewati yang ini",
+    "next": "Berikutnya dibuka untuk {date}",
+    "failed": "Pengulangan tidak dapat disimpan.",
+    "error": {
+      "accessLost": "Berikutnya tidak dapat ditambahkan: orang yang mengatur pengulangan tidak lagi boleh menambahkan baris di sini.",
+      "tooMany": "Dihentikan untuk hari ini: baris ini terlalu sering diselesaikan dan dibuka lagi."
     }
   }
 }

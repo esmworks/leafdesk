@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Bu seçenek bir sprintin durumunu belirtir. Adını değiştirebilirsiniz; silmek için önce sprintleri kapatın.",
     "historyEntryGone": "Bu değişiklik artık veritabanının geçmişinde yok.",
     "historyNotUndoable": "Satır başlıkları her satırın kendi sayfa geçmişinden geri getirilir.",
+    "repeatNotDate": "Satırlar bir tarih alanında tekrarlanır.",
+    "repeatNeedsDone": "Önce satırları bitti olarak işaretlemek için bir durum ya da onay kutusu ekleyin: satır bittiğinde tekrarlanır.",
+    "repeatSynced": "Eşitlenen bir veritabanının satırları tekrarlanmaz.",
+    "repeatTemplate": "Şablonlar tekrarlanmaz; onlardan oluşturulan satırlar tekrarlanabilir.",
     "invalidSlackUrl": "Bu bir Slack gelen webhook adresi değil (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” yalnızca bir sayfaya bağlanır. Birini seçin.",
     "invalidRelationOptions": "Bu ilişki ayarları kaydedilemiyor."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Bu buton henüz bir şey yapmıyor: ne yapacağını özelliğin menüsünden ayarlayın.",
       "rateLimited": "Bu butona çok sık tıklandı. Biraz bekleyip tekrar deneyin.",
       "noAccess": "Bu butonu kullanamazsınız: satırı düzenleme izni gerekir."
+    }
+  },
+  "repeat": {
+    "label": "Tekrarla",
+    "off": "Tekrarlama",
+    "custom": "Özel…",
+    "preset": {
+      "daily": "Her gün",
+      "workdays": "Hafta içi her gün",
+      "weekly": "Her hafta {day}",
+      "monthly": "Her ayın {day}. günü",
+      "yearly": "Her yıl {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Her gün} other {# günde bir}}",
+      "weekly": "{interval, plural, one {Her hafta} other {# haftada bir}}",
+      "monthly": "{interval, plural, one {Her ay} other {# ayda bir}}",
+      "yearly": "{interval, plural, one {Her yıl} other {# yılda bir}}"
+    },
+    "units": {
+      "daily": "{interval, plural, other {gün}}",
+      "weekly": "{interval, plural, other {hafta}}",
+      "monthly": "{interval, plural, other {ay}}",
+      "yearly": "{interval, plural, other {yıl}}"
+    },
+    "onDays": "{every} {days}",
+    "afterDone": "{every}, bittikten sonra",
+    "until": "{rule}, {date} tarihine kadar",
+    "endsOn": "{date} tarihinde biter",
+    "everyLabel": "Her",
+    "interval": "Kaç",
+    "unit": "Birim",
+    "onLabel": "Günler",
+    "fromLabel": "Sayım başlangıcı",
+    "from": {
+      "due": "tarih",
+      "done": "bittiği gün"
+    },
+    "untilLabel": "Bitiş",
+    "save": "Kaydet",
+    "skip": "Bunu atla",
+    "next": "Sonraki {date} için açıldı",
+    "failed": "Tekrar kaydedilemedi.",
+    "error": {
+      "accessLost": "Sonraki eklenemedi: tekrarı ayarlayan kişi artık buraya satır ekleyemiyor.",
+      "tooMany": "Bugünlük durdu: bu satır çok kez bitirilip yeniden açıldı."
     }
   }
 }

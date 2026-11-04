@@ -1171,6 +1171,10 @@
     "sprintStateOption": "این گزینه وضعیت اسپرینت را مشخص می‌کند. می‌توانید نامش را تغییر دهید، یا پیش از حذف آن اسپرینت‌ها را خاموش کنید.",
     "historyEntryGone": "این تغییر دیگر در تاریخچه پایگاه داده نیست.",
     "historyNotUndoable": "عنوان ردیف‌ها از تاریخچه صفحه هر ردیف بازگردانده می‌شود.",
+    "repeatNotDate": "ردیف‌ها بر اساس یک ویژگی تاریخ تکرار می‌شوند.",
+    "repeatNeedsDone": "ابتدا یک وضعیت یا چک‌باکس برای علامت‌زدن ردیف‌های انجام‌شده اضافه کنید: ردیف پس از انجام تکرار می‌شود.",
+    "repeatSynced": "ردیف‌های یک پایگاه داده همگام‌شده تکرار نمی‌شوند.",
+    "repeatTemplate": "الگوها تکرار نمی‌شوند؛ ردیف‌هایی که از آن‌ها ساخته می‌شوند می‌توانند.",
     "invalidSlackUrl": "این نشانی یک وب‌هوک ورودی Slack نیست ‏(https://hooks.slack.com/services/…).",
     "oneRow": "«{property}» فقط به یک صفحه پیوند می‌دهد. یکی را انتخاب کنید.",
     "invalidRelationOptions": "این تنظیمات رابطه ذخیره نمی‌شود."
@@ -2430,6 +2434,52 @@
       "noAutomation": "این دکمه هنوز کاری انجام نمی‌دهد: کارش را از منوی ویژگی تنظیم کنید.",
       "rateLimited": "روی این دکمه بیش از حد کلیک شد. کمی صبر کنید و دوباره تلاش کنید.",
       "noAccess": "نمی‌توانید از این دکمه استفاده کنید: دسترسی ویرایش ردیف لازم است."
+    }
+  },
+  "repeat": {
+    "label": "تکرار",
+    "off": "تکرار نشود",
+    "custom": "سفارشی…",
+    "preset": {
+      "daily": "هر روز",
+      "workdays": "هر روز کاری",
+      "weekly": "هر هفته {day}",
+      "monthly": "هر ماه روز {day}",
+      "yearly": "هر سال {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, other {هر # روز}}",
+      "weekly": "{interval, plural, other {هر # هفته}}",
+      "monthly": "{interval, plural, other {هر # ماه}}",
+      "yearly": "{interval, plural, other {هر # سال}}"
+    },
+    "units": {
+      "daily": "{interval, plural, other {روز}}",
+      "weekly": "{interval, plural, other {هفته}}",
+      "monthly": "{interval, plural, other {ماه}}",
+      "yearly": "{interval, plural, other {سال}}"
+    },
+    "onDays": "{every}: {days}",
+    "afterDone": "{every} پس از انجام",
+    "until": "{rule}، تا {date}",
+    "endsOn": "پایان در {date}",
+    "everyLabel": "هر",
+    "interval": "چند",
+    "unit": "واحد",
+    "onLabel": "روزها",
+    "fromLabel": "شمارش از",
+    "from": {
+      "due": "تاریخ",
+      "done": "روز انجام"
+    },
+    "untilLabel": "پایان",
+    "save": "ذخیره",
+    "skip": "این بار رد شود",
+    "next": "بعدی برای {date} باز شد",
+    "failed": "تکرار ذخیره نشد.",
+    "error": {
+      "accessLost": "بعدی اضافه نشد: کسی که تکرار را تنظیم کرده دیگر نمی‌تواند اینجا ردیف اضافه کند.",
+      "tooMany": "برای امروز متوقف شد: این ردیف بیش از حد انجام و دوباره باز شده است."
     }
   }
 }

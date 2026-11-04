@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Tämä vaihtoehto merkitsee sprintin tilaa. Voit nimetä sen uudelleen tai poistaa sprintit käytöstä ennen sen poistamista.",
     "historyEntryGone": "Tämä muutos ei ole enää tietokannan historiassa.",
     "historyNotUndoable": "Rivien otsikot palautetaan kunkin rivin sivuhistoriasta.",
+    "repeatNotDate": "Rivit toistuvat päivämääräominaisuuden mukaan.",
+    "repeatNeedsDone": "Lisää ensin tila tai valintaruutu rivien merkitsemiseksi valmiiksi: rivi toistuu, kun se on valmis.",
+    "repeatSynced": "Synkronoidun tietokannan rivit eivät toistu.",
+    "repeatTemplate": "Mallit eivät toistu; niistä tehdyt rivit voivat.",
     "invalidSlackUrl": "Tämä ei ole Slackin saapuvan webhookin osoite (https://hooks.slack.com/services/…).",
     "oneRow": "”{property}” voi linkittää vain yhden sivun. Valitse yksi.",
     "invalidRelationOptions": "Näitä relaation asetuksia ei voi tallentaa."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Tämä painike ei vielä tee mitään: määritä sen toiminta ominaisuuden valikosta.",
       "rateLimited": "Tätä painiketta napsautettiin liian usein. Odota hetki ja yritä uudelleen.",
       "noAccess": "Et voi käyttää tätä painiketta: se vaatii rivin muokkausoikeuden."
+    }
+  },
+  "repeat": {
+    "label": "Toista",
+    "off": "Älä toista",
+    "custom": "Mukautettu…",
+    "preset": {
+      "daily": "Joka päivä",
+      "workdays": "Joka arkipäivä",
+      "weekly": "Joka viikko: {day}",
+      "monthly": "Joka kuukausi päivänä {day}",
+      "yearly": "Joka vuosi {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Joka päivä} other {# päivän välein}}",
+      "weekly": "{interval, plural, one {Joka viikko} other {# viikon välein}}",
+      "monthly": "{interval, plural, one {Joka kuukausi} other {# kuukauden välein}}",
+      "yearly": "{interval, plural, one {Joka vuosi} other {# vuoden välein}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {päivä} other {päivää}}",
+      "weekly": "{interval, plural, one {viikko} other {viikkoa}}",
+      "monthly": "{interval, plural, one {kuukausi} other {kuukautta}}",
+      "yearly": "{interval, plural, one {vuosi} other {vuotta}}"
+    },
+    "onDays": "{every}: {days}",
+    "afterDone": "{every} valmistumisesta",
+    "until": "{rule}, {date} asti",
+    "endsOn": "Päättyy {date}",
+    "everyLabel": "Välein",
+    "interval": "Kuinka monta",
+    "unit": "Yksikkö",
+    "onLabel": "Päivät",
+    "fromLabel": "Laskettu alkaen",
+    "from": {
+      "due": "päivämäärästä",
+      "done": "valmistumispäivästä"
+    },
+    "untilLabel": "Päättyy",
+    "save": "Tallenna",
+    "skip": "Ohita tämä",
+    "next": "Seuraava avattu päivälle {date}",
+    "failed": "Toistoa ei voitu tallentaa.",
+    "error": {
+      "accessLost": "Seuraavaa ei voitu lisätä: toiston asettaja ei voi enää lisätä rivejä tänne.",
+      "tooMany": "Pysäytetty tältä päivältä: rivi on merkitty valmiiksi ja avattu uudelleen liian monta kertaa."
     }
   }
 }

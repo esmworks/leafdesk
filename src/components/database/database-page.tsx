@@ -36,6 +36,7 @@ import { useViewerTimeZone } from "./use-today";
 import { useDatabase } from "./use-database";
 import { OfflineNotice } from "@/components/offline/offline-notice";
 import { AiAutofillProvider, type AiAutofillContextValue } from "./ai-autofill";
+import { RowRepeatsProvider, type RowRepeatsValue } from "./row-repeat";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { ActiveRulesBar, ViewSearch, ViewTabs, ViewToolbar, type FilterRequest, type ViewExportFormat } from "./view-bar";
 import { saveDownload } from "./download";
@@ -258,6 +259,14 @@ export function DatabasePage({
       refresh: () => void refetch(),
     }),
     [snapshot?.propertyAccess, snapshot?.restrictedPropertyIds, snapshot?.canManageAccess, readOnly, refetch],
+  );
+  const repeatContext = useMemo<RowRepeatsValue>(
+    () => ({
+      repeats: snapshot?.repeats ?? {},
+      repeatable: Boolean(snapshot?.repeatable) && !readOnly,
+      reload: () => void refetch(),
+    }),
+    [snapshot?.repeats, snapshot?.repeatable, readOnly, refetch],
   );
 
   // Changes to a linked view go to its block; the database's own views stay untouched.
@@ -580,6 +589,7 @@ export function DatabasePage({
         <SchemaProvider value={snapshot.properties}>
           <PropertyAccessProvider value={accessContext}>
             <AiAutofillProvider value={aiContext}>
+            <RowRepeatsProvider value={repeatContext}>
             <ButtonAutomationsProvider
               workspaceId={workspaceId}
               databaseId={databaseId}
@@ -952,6 +962,7 @@ export function DatabasePage({
                 )}
               </RowOpenerContext>
             </ButtonAutomationsProvider>
+            </RowRepeatsProvider>
             </AiAutofillProvider>
           </PropertyAccessProvider>
         </SchemaProvider>

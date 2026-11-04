@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Deze optie geeft de status van een sprint aan. Hernoem haar als je wilt, of zet sprints uit voordat je haar verwijdert.",
     "historyEntryGone": "Deze wijziging staat niet meer in de geschiedenis van de database.",
     "historyNotUndoable": "Rijtitels worden teruggezet vanuit de paginageschiedenis van elke rij.",
+    "repeatNotDate": "Rijen herhalen op een datumeigenschap.",
+    "repeatNeedsDone": "Voeg eerst een status of selectievakje toe om rijen af te ronden: een rij herhaalt zodra hij klaar is.",
+    "repeatSynced": "Rijen van een gesynchroniseerde database herhalen niet.",
+    "repeatTemplate": "Sjablonen herhalen niet; de rijen die ervan gemaakt zijn wel.",
     "invalidSlackUrl": "Geen adres van een inkomende Slack-webhook (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” koppelt maar één pagina. Kies er één.",
     "invalidRelationOptions": "Deze relatie-instellingen kunnen niet worden opgeslagen."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Deze knop doet nog niets: stel in het menu van de eigenschap in wat hij doet.",
       "rateLimited": "Er is te vaak op deze knop geklikt. Wacht even en probeer het opnieuw.",
       "noAccess": "Je kunt deze knop niet gebruiken: daarvoor heb je bewerktoegang tot de rij nodig."
+    }
+  },
+  "repeat": {
+    "label": "Herhalen",
+    "off": "Niet herhalen",
+    "custom": "Aangepast…",
+    "preset": {
+      "daily": "Elke dag",
+      "workdays": "Elke werkdag",
+      "weekly": "Elke week op {day}",
+      "monthly": "Elke maand op dag {day}",
+      "yearly": "Elk jaar op {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Elke dag} other {Elke # dagen}}",
+      "weekly": "{interval, plural, one {Elke week} other {Elke # weken}}",
+      "monthly": "{interval, plural, one {Elke maand} other {Elke # maanden}}",
+      "yearly": "{interval, plural, one {Elk jaar} other {Elke # jaar}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {dag} other {dagen}}",
+      "weekly": "{interval, plural, one {week} other {weken}}",
+      "monthly": "{interval, plural, one {maand} other {maanden}}",
+      "yearly": "{interval, plural, one {jaar} other {jaar}}"
+    },
+    "onDays": "{every} op {days}",
+    "afterDone": "{every} nadat hij klaar is",
+    "until": "{rule}, tot {date}",
+    "endsOn": "Eindigt op {date}",
+    "everyLabel": "Elke",
+    "interval": "Hoeveel",
+    "unit": "Eenheid",
+    "onLabel": "Op",
+    "fromLabel": "Geteld vanaf",
+    "from": {
+      "due": "de datum",
+      "done": "de dag dat hij klaar is"
+    },
+    "untilLabel": "Eindigt",
+    "save": "Opslaan",
+    "skip": "Deze overslaan",
+    "next": "Volgende geopend voor {date}",
+    "failed": "De herhaling kon niet worden opgeslagen.",
+    "error": {
+      "accessLost": "De volgende kon niet worden toegevoegd: wie de herhaling instelde, mag hier geen rijen meer toevoegen.",
+      "tooMany": "Gestopt voor vandaag: deze rij is te vaak afgerond en opnieuw geopend."
     }
   }
 }

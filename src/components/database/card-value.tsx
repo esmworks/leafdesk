@@ -55,6 +55,7 @@ export function CardValue({
         onCreateOption={onCreateOption}
         rowValues={row.properties}
         upload={prop.type === "files" ? uploadToPage(row.id) : undefined}
+        rowId={row.id}
       />
     </div>
   );

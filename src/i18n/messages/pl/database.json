@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Ta opcja oznacza stan sprintu. Możesz zmienić jej nazwę albo wyłączyć sprinty przed jej usunięciem.",
     "historyEntryGone": "Tej zmiany nie ma już w historii bazy danych.",
     "historyNotUndoable": "Tytuły wierszy przywraca się z historii strony każdego wiersza.",
+    "repeatNotDate": "Wiersze powtarzają się według właściwości daty.",
+    "repeatNeedsDone": "Najpierw dodaj status lub pole wyboru do oznaczania wierszy jako wykonane: wiersz powtarza się po wykonaniu.",
+    "repeatSynced": "Wiersze synchronizowanej bazy danych się nie powtarzają.",
+    "repeatTemplate": "Szablony się nie powtarzają; utworzone z nich wiersze mogą.",
     "invalidSlackUrl": "To nie jest adres przychodzącego webhooka Slacka (https://hooks.slack.com/services/…).",
     "oneRow": "„{property}” łączy tylko jedną stronę. Wybierz jedną.",
     "invalidRelationOptions": "Nie można zapisać tych ustawień relacji."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Ten przycisk jeszcze nic nie robi: ustaw jego działanie w menu właściwości.",
       "rateLimited": "Ten przycisk był klikany zbyt często. Odczekaj chwilę i spróbuj ponownie.",
       "noAccess": "Nie możesz użyć tego przycisku: wymaga on uprawnień do edycji wiersza."
+    }
+  },
+  "repeat": {
+    "label": "Powtarzaj",
+    "off": "Nie powtarzaj",
+    "custom": "Własne…",
+    "preset": {
+      "daily": "Codziennie",
+      "workdays": "W każdy dzień roboczy",
+      "weekly": "Co tydzień: {day}",
+      "monthly": "Co miesiąc, dnia {day}",
+      "yearly": "Co roku, {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Codziennie} few {Co # dni} many {Co # dni} other {Co # dnia}}",
+      "weekly": "{interval, plural, one {Co tydzień} few {Co # tygodnie} many {Co # tygodni} other {Co # tygodnia}}",
+      "monthly": "{interval, plural, one {Co miesiąc} few {Co # miesiące} many {Co # miesięcy} other {Co # miesiąca}}",
+      "yearly": "{interval, plural, one {Co roku} few {Co # lata} many {Co # lat} other {Co # roku}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {dzień} few {dni} many {dni} other {dnia}}",
+      "weekly": "{interval, plural, one {tydzień} few {tygodnie} many {tygodni} other {tygodnia}}",
+      "monthly": "{interval, plural, one {miesiąc} few {miesiące} many {miesięcy} other {miesiąca}}",
+      "yearly": "{interval, plural, one {rok} few {lata} many {lat} other {roku}}"
+    },
+    "onDays": "{every}: {days}",
+    "afterDone": "{every} po wykonaniu",
+    "until": "{rule}, do {date}",
+    "endsOn": "Kończy się {date}",
+    "everyLabel": "Co",
+    "interval": "Ile",
+    "unit": "Jednostka",
+    "onLabel": "Dni",
+    "fromLabel": "Liczone od",
+    "from": {
+      "due": "daty",
+      "done": "dnia wykonania"
+    },
+    "untilLabel": "Koniec",
+    "save": "Zapisz",
+    "skip": "Pomiń ten raz",
+    "next": "Następny otwarto na {date}",
+    "failed": "Nie udało się zapisać powtarzania.",
+    "error": {
+      "accessLost": "Nie udało się dodać następnego: osoba, która ustawiła powtarzanie, nie może już dodawać tu wierszy.",
+      "tooMany": "Wstrzymane na dziś: ten wiersz był wykonywany i otwierany ponownie zbyt wiele razy."
     }
   }
 }

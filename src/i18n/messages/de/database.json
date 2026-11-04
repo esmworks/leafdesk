@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Diese Option kennzeichnet den Stand eines Sprints. Benenne sie gern um oder schalte Sprints aus, bevor du sie löschst.",
     "historyEntryGone": "Diese Änderung ist nicht mehr im Verlauf der Datenbank.",
     "historyNotUndoable": "Zeilentitel werden über den Seitenverlauf der jeweiligen Zeile wiederhergestellt.",
+    "repeatNotDate": "Zeilen wiederholen sich über eine Datumseigenschaft.",
+    "repeatNeedsDone": "Füge zuerst einen Status oder ein Kontrollkästchen hinzu, um Zeilen als erledigt zu markieren: Eine Zeile wiederholt sich, wenn sie erledigt ist.",
+    "repeatSynced": "Zeilen einer synchronisierten Datenbank wiederholen sich nicht.",
+    "repeatTemplate": "Vorlagen wiederholen sich nicht, die daraus erstellten Zeilen schon.",
     "invalidSlackUrl": "Keine Adresse eines eingehenden Slack-Webhooks (https://hooks.slack.com/services/…).",
     "oneRow": "„{property}“ verknüpft nur eine Seite. Wähle eine.",
     "invalidRelationOptions": "Diese Relationseinstellungen lassen sich nicht speichern."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Diese Schaltfläche tut noch nichts: Lege im Menü der Eigenschaft fest, was sie tut.",
       "rateLimited": "Diese Schaltfläche wurde zu oft angeklickt. Warte kurz und versuche es erneut.",
       "noAccess": "Du kannst diese Schaltfläche nicht verwenden: Dafür brauchst du Bearbeitungszugriff auf die Zeile."
+    }
+  },
+  "repeat": {
+    "label": "Wiederholen",
+    "off": "Nicht wiederholen",
+    "custom": "Eigene…",
+    "preset": {
+      "daily": "Jeden Tag",
+      "workdays": "Jeden Werktag",
+      "weekly": "Jede Woche am {day}",
+      "monthly": "Jeden Monat am {day}.",
+      "yearly": "Jedes Jahr am {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Jeden Tag} other {Alle # Tage}}",
+      "weekly": "{interval, plural, one {Jede Woche} other {Alle # Wochen}}",
+      "monthly": "{interval, plural, one {Jeden Monat} other {Alle # Monate}}",
+      "yearly": "{interval, plural, one {Jedes Jahr} other {Alle # Jahre}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {Tag} other {Tage}}",
+      "weekly": "{interval, plural, one {Woche} other {Wochen}}",
+      "monthly": "{interval, plural, one {Monat} other {Monate}}",
+      "yearly": "{interval, plural, one {Jahr} other {Jahre}}"
+    },
+    "onDays": "{every} am {days}",
+    "afterDone": "{every} nach dem Erledigen",
+    "until": "{rule}, bis {date}",
+    "endsOn": "Endet am {date}",
+    "everyLabel": "Alle",
+    "interval": "Anzahl",
+    "unit": "Einheit",
+    "onLabel": "An",
+    "fromLabel": "Gezählt ab",
+    "from": {
+      "due": "dem Datum",
+      "done": "dem Tag des Erledigens"
+    },
+    "untilLabel": "Endet",
+    "save": "Speichern",
+    "skip": "Diesmal überspringen",
+    "next": "Nächste Zeile für {date} angelegt",
+    "failed": "Die Wiederholung konnte nicht gespeichert werden.",
+    "error": {
+      "accessLost": "Die nächste Zeile konnte nicht angelegt werden: Wer die Wiederholung eingerichtet hat, darf hier keine Zeilen mehr hinzufügen.",
+      "tooMany": "Für heute angehalten: Diese Zeile wurde zu oft erledigt und neu geöffnet."
     }
   }
 }

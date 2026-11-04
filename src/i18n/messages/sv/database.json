@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Det här alternativet anger en sprints läge. Byt namn på det om du vill, eller stäng av sprintar innan du raderar det.",
     "historyEntryGone": "Den här ändringen finns inte längre i databasens historik.",
     "historyNotUndoable": "Radtitlar hämtas tillbaka från varje rads sidhistorik.",
+    "repeatNotDate": "Rader upprepas på en datumegenskap.",
+    "repeatNeedsDone": "Lägg först till en status eller en kryssruta för att markera rader som klara: en rad upprepas när den är klar.",
+    "repeatSynced": "Rader i en synkroniserad databas upprepas inte.",
+    "repeatTemplate": "Mallar upprepas inte; raderna som skapas från dem kan.",
     "invalidSlackUrl": "Inte adressen till en inkommande webhook i Slack (https://hooks.slack.com/services/…).",
     "oneRow": "”{property}” kan bara länka en sida. Välj en.",
     "invalidRelationOptions": "De här relationsinställningarna kan inte sparas."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Den här knappen gör inget än: ställ in vad den gör i egenskapens meny.",
       "rateLimited": "Den här knappen klickades för ofta. Vänta en stund och försök igen.",
       "noAccess": "Du kan inte använda den här knappen: det krävs redigeringsåtkomst till raden."
+    }
+  },
+  "repeat": {
+    "label": "Upprepa",
+    "off": "Upprepa inte",
+    "custom": "Anpassad…",
+    "preset": {
+      "daily": "Varje dag",
+      "workdays": "Varje vardag",
+      "weekly": "Varje vecka på {day}",
+      "monthly": "Varje månad den {day}",
+      "yearly": "Varje år den {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Varje dag} other {Var #:e dag}}",
+      "weekly": "{interval, plural, one {Varje vecka} other {Var #:e vecka}}",
+      "monthly": "{interval, plural, one {Varje månad} other {Var #:e månad}}",
+      "yearly": "{interval, plural, one {Varje år} other {Vart #:e år}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {dag} other {dagar}}",
+      "weekly": "{interval, plural, one {vecka} other {veckor}}",
+      "monthly": "{interval, plural, one {månad} other {månader}}",
+      "yearly": "{interval, plural, one {år} other {år}}"
+    },
+    "onDays": "{every} på {days}",
+    "afterDone": "{every} efter att den är klar",
+    "until": "{rule}, till {date}",
+    "endsOn": "Slutar {date}",
+    "everyLabel": "Var",
+    "interval": "Antal",
+    "unit": "Enhet",
+    "onLabel": "Dagar",
+    "fromLabel": "Räknat från",
+    "from": {
+      "due": "datumet",
+      "done": "dagen den blir klar"
+    },
+    "untilLabel": "Slutar",
+    "save": "Spara",
+    "skip": "Hoppa över den här",
+    "next": "Nästa öppnad för {date}",
+    "failed": "Upprepningen kunde inte sparas.",
+    "error": {
+      "accessLost": "Nästa kunde inte läggas till: den som ställde in upprepningen får inte längre lägga till rader här.",
+      "tooMany": "Stoppad för i dag: raden har markerats klar och öppnats igen för många gånger."
     }
   }
 }

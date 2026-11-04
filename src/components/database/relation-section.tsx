@@ -15,6 +15,7 @@ import { PropertyTypeIcon } from "./property-icons";
 import { RelationPicker } from "./relation-cell";
 import { linkedRows, useRelations } from "./relation-context";
 import { RowCellProvider } from "./row-cell-context";
+import { RowRepeatsProvider } from "./row-repeat";
 import { SchemaProvider } from "./schema-context";
 import type { Property } from "./types";
 
@@ -113,55 +114,58 @@ export default function RelationSection({
                     <span />
                   </div>
                 )}
-                {rows.slice(0, count).map((row) => (
-                  <RowCellProvider key={row.id} value={{ rowId: row.id, template: false }}>
-                    <div role="row" className="group grid items-center gap-x-1 border-b border-border" style={grid}>
-                      <Link
-                        role="cell"
-                        href={href(row.id)}
-                        className="flex min-w-0 items-center gap-1.5 rounded-md px-1 py-1 hover:bg-bg-hover"
-                      >
-                        <PageIcon icon={row.icon} className="h-4 w-4 shrink-0 text-sm" />
-                        <span className="truncate font-medium">{pageLabel(row.title, tc("untitled"))}</span>
-                      </Link>
-                      {columns.map((c) => (
-                        <div key={c.id} role="cell" className="min-w-0">
-                          {row.hidden?.includes(c.id) ? (
-                            <span className="flex min-h-[30px] items-center px-2">
-                              <HiddenValue />
-                            </span>
-                          ) : (
-                            <PropertyCell
-                              variant="panel"
-                              prop={c}
-                              value={row.values?.[c.id]}
-                              readOnly={readOnly}
-                              rowValues={row.values}
-                              onChange={(v) => onRelatedChange(row.id, c.id, v)}
-                              onCreateOption={onCreateOption}
-                            />
-                          )}
-                        </div>
-                      ))}
-                      {!readOnly ? (
-                        <button
-                          type="button"
-                          aria-label={t("unlink", { title: pageLabel(row.title, tc("untitled")) })}
-                          title={t("unlink", { title: pageLabel(row.title, tc("untitled")) })}
-                          onClick={() => unlink(row.id)}
-                          className={cn(
-                            "inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-active hover:text-fg",
-                            "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100",
-                          )}
+                {/* Linked rows are of another database: the row page's repeat rules aren't theirs. */}
+                <RowRepeatsProvider value={null}>
+                  {rows.slice(0, count).map((row) => (
+                    <RowCellProvider key={row.id} value={{ rowId: row.id, template: false }}>
+                      <div role="row" className="group grid items-center gap-x-1 border-b border-border" style={grid}>
+                        <Link
+                          role="cell"
+                          href={href(row.id)}
+                          className="flex min-w-0 items-center gap-1.5 rounded-md px-1 py-1 hover:bg-bg-hover"
                         >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      ) : (
-                        <span />
-                      )}
-                    </div>
-                  </RowCellProvider>
-                ))}
+                          <PageIcon icon={row.icon} className="h-4 w-4 shrink-0 text-sm" />
+                          <span className="truncate font-medium">{pageLabel(row.title, tc("untitled"))}</span>
+                        </Link>
+                        {columns.map((c) => (
+                          <div key={c.id} role="cell" className="min-w-0">
+                            {row.hidden?.includes(c.id) ? (
+                              <span className="flex min-h-[30px] items-center px-2">
+                                <HiddenValue />
+                              </span>
+                            ) : (
+                              <PropertyCell
+                                variant="panel"
+                                prop={c}
+                                value={row.values?.[c.id]}
+                                readOnly={readOnly}
+                                rowValues={row.values}
+                                onChange={(v) => onRelatedChange(row.id, c.id, v)}
+                                onCreateOption={onCreateOption}
+                              />
+                            )}
+                          </div>
+                        ))}
+                        {!readOnly ? (
+                          <button
+                            type="button"
+                            aria-label={t("unlink", { title: pageLabel(row.title, tc("untitled")) })}
+                            title={t("unlink", { title: pageLabel(row.title, tc("untitled")) })}
+                            onClick={() => unlink(row.id)}
+                            className={cn(
+                              "inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted hover:bg-bg-active hover:text-fg",
+                              "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100",
+                            )}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        ) : (
+                          <span />
+                        )}
+                      </div>
+                    </RowCellProvider>
+                  ))}
+                </RowRepeatsProvider>
               </div>
             </div>
           </SchemaProvider>

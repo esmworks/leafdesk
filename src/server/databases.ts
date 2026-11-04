@@ -1201,6 +1201,8 @@ export async function afterRowWrites(
   if (!created && !ai) await queueRowWrites(actorId, databaseId, changes);
   await queueSyncWrites(actorId, databaseId, changes, created);
   if (!shifted && actorId) await shiftWaitingRows(actorId, databaseId, changes);
+  // Rows marked done open their next time (server/row-repeat, which reaches back into this module).
+  if (!created && actorId) await (await import("@/server/row-repeat")).repeatDoneRows(actorId, databaseId, changes);
   await recording;
 }
 
@@ -3639,6 +3641,12 @@ export async function getDatabaseSnapshot(
   const rows: DatabaseRowWithPosition[] = (await withValues(userId, databaseId, stored, properties, { relations, people }, access)).map(
     ({ hasImage: _, ...row }) => (covers ? { ...row, cover: covers.get(row.id) ?? null } : row),
   );
+  // How rows repeat (server/row-repeat), of the rows the viewer sees, and whether rows here may.
+  const rowRepeats = await import("@/server/row-repeat");
+  const allRepeats = await rowRepeats.databaseRowRepeats(databaseId);
+  const shown = new Set(rows.map((r) => r.id));
+  const repeats = Object.fromEntries(Object.entries(allRepeats).filter(([id]) => shown.has(id)));
+  const repeatable = !synced && !database.inTemplate && Boolean(rowRepeats.doneProperty(await getProperties(databaseId)));
   return {
     database: {
       id: database.id,
@@ -3663,6 +3671,8 @@ export async function getDatabaseSnapshot(
       : null,
     relations,
     people,
+    repeats,
+    repeatable,
     viewerId: userId,
   };
 }
@@ -3955,6 +3965,12 @@ export async function getRow(userId: string, rowId: string) {
   const properties = access.visible(all);
   const [relations, people] = await Promise.all([getRelationTargets(userId, properties), getPeople(userId, properties)]);
   const [withDerived] = await withValues(userId, row.parentId, [row], properties, { relations, people }, access);
+  const rowRepeats = await import("@/server/row-repeat");
+  const [repeat = null, [synced]] = await Promise.all([
+    rowRepeats.rowRepeatsOf([row.id]).then((r) => r[row.id]),
+    db.select({ id: databaseSync.id }).from(databaseSync).where(eq(databaseSync.databaseId, row.parentId)),
+  ]);
+  const repeatable = !synced && !row.inTemplate && !row.isTemplate && Boolean(rowRepeats.doneProperty(all));
   return {
     databaseId: row.parentId,
     databaseTitle: database.title,
@@ -3972,6 +3988,10 @@ export async function getRow(userId: string, rowId: string) {
       styles: withDerived.styles,
       /** A row template of the database: its values may say "me", "today" or "now" (lib/template-values). */
       template: row.isTemplate,
+      /** How the row repeats (server/row-repeat), or null. */
+      repeat,
+      /** Whether the row may be set to repeat: its database marks rows done and isn't synced. */
+      repeatable,
     },
     properties,
     /** The viewer's level on each restricted property; missing when none is. */

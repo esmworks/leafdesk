@@ -406,6 +406,7 @@ function AgendaRow({
           value={value}
           anchor={dateAnchor}
           format={date.options.date?.format}
+          repeatOf={{ rowId: row.id, propertyId: date.id }}
           onChange={(next) => void api.setCell(row.id, date.id, next)}
           onClose={() => {
             setDateAnchor(null);

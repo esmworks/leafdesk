@@ -1,7 +1,7 @@
 "use client";
 
 import type { RowButtonOptions } from "@/lib/row-buttons";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   addPropertyAction,
@@ -35,6 +35,7 @@ import {
 import { addAutofillPropertyAction, refreshAutofillAction, setAutofillAction } from "@/app/actions/ai";
 import { archivePageAction, restorePageAction, setPageIconAction } from "@/app/actions/pages";
 import { showToast } from "@/components/toast";
+import { repeatNote } from "./row-repeat";
 import { useChannel, useChannels } from "@/components/collab/use-channel";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { databaseSnapshotKey, deleteSnapshot, loadSnapshot, saveSnapshot } from "@/components/offline/offline-store";
@@ -82,6 +83,8 @@ export function useDatabase(
   const tc = useTranslations("common");
   const tb = useTranslations("database.bulk");
   const ta = useTranslations("ai.autofill");
+  const tr = useTranslations("database.repeat");
+  const locale = useLocale();
   const genericError = tc("genericError");
   // Other failures (thrown page actions, network errors) carry untranslated text, so they get
   // the generic message instead.
@@ -160,6 +163,21 @@ export function useDatabase(
 
   const report = useCallback((e: unknown) => setError(message(e)), [message]);
 
+  // A write marking a repeating row done says where its next copy goes (components/database/row-repeat).
+  const snapshotNow = useRef(snapshot);
+  useEffect(() => {
+    snapshotNow.current = snapshot;
+  }, [snapshot]);
+  const noteRepeat = useCallback(
+    (rowId: string, changes: Record<string, unknown>) => {
+      const s = snapshotNow.current;
+      const row = s?.rows.find((r) => r.id === rowId);
+      const note = s && row ? repeatNote(locale, s.repeats?.[rowId], s.properties, row.properties, changes) : null;
+      return () => void note?.then((words) => words && showToast({ message: words(tr) }));
+    },
+    [tr, locale],
+  );
+
   // Formulas of a row the user just edited are worked out here right away, with the same code the
   // server uses, so the row doesn't show stale results until the refetch. Formulas reading related
   // rows stay as the server worked them out (their rows aren't loaded here).
@@ -211,12 +229,15 @@ export function useDatabase(
   );
 
   const setCell = useCallback(
-    (rowId: string, key: string, value: unknown) =>
-      withPending(rowId, key, value, async () => {
+    (rowId: string, key: string, value: unknown) => {
+      const note = key === TITLE ? () => {} : noteRepeat(rowId, { [key]: value });
+      return withPending(rowId, key, value, async () => {
         if (key === TITLE) await unwrap(renameRowAction(rowId, String(value ?? "")));
         else await unwrap(updateRowPropertiesAction(rowId, { [key]: value }));
-      }),
-    [withPending],
+        note();
+      });
+    },
+    [withPending, noteRepeat],
   );
 
   /**
@@ -235,12 +256,14 @@ export function useDatabase(
         for (const key of keys) next[`${rowId}\u0000${key}`] = { rowId, key, value: values[key], version: v };
         return next;
       });
+      const { [TITLE]: title, ...properties } = values;
+      const note = noteRepeat(rowId, properties);
       try {
-        const { [TITLE]: title, ...properties } = values;
         await Promise.all([
           TITLE in values ? unwrap(renameRowAction(rowId, String(title ?? ""))) : null,
           Object.keys(properties).length ? unwrap(updateRowPropertiesAction(rowId, properties)) : null,
         ]);
+        note();
         await refetch();
       } catch (e) {
         report(e);
@@ -252,7 +275,7 @@ export function useDatabase(
         });
       }
     },
-    [refetch, report],
+    [refetch, report, noteRepeat],
   );
 
   // The rows as they show now, for what a bulk write puts back on Undo (see setCellValues).

@@ -1171,6 +1171,10 @@
     "sprintStateOption": "האפשרות הזו מסמנת את מצב הספרינט. אפשר לשנות את שמה, או לכבות ספרינטים לפני שמוחקים אותה.",
     "historyEntryGone": "השינוי הזה כבר לא מופיע בהיסטוריה של מסד הנתונים.",
     "historyNotUndoable": "כותרות שורות משוחזרות מהיסטוריית העמוד של כל שורה.",
+    "repeatNotDate": "שורות חוזרות לפי מאפיין תאריך.",
+    "repeatNeedsDone": "קודם צריך להוסיף סטטוס או תיבת סימון כדי לסמן שורות כהושלמו: שורה חוזרת כשהיא הושלמה.",
+    "repeatSynced": "שורות של מסד נתונים מסונכרן לא חוזרות.",
+    "repeatTemplate": "תבניות לא חוזרות; השורות שנוצרו מהן יכולות.",
     "invalidSlackUrl": "זו לא כתובת של webhook נכנס של Slack ‏(https://hooks.slack.com/services/…).",
     "oneRow": "„{property}” מקשר עמוד אחד בלבד. בחרו אחד.",
     "invalidRelationOptions": "לא ניתן לשמור את הגדרות הקשר האלה."
@@ -2430,6 +2434,52 @@
       "noAutomation": "הכפתור הזה עדיין לא עושה כלום: הגדירו מה הוא עושה מתפריט המאפיין.",
       "rateLimited": "לחצו על הכפתור הזה יותר מדי פעמים. המתינו רגע ונסו שוב.",
       "noAccess": "אי אפשר להשתמש בכפתור הזה: נדרשת הרשאת עריכה לשורה."
+    }
+  },
+  "repeat": {
+    "label": "חזרה",
+    "off": "ללא חזרה",
+    "custom": "מותאם אישית…",
+    "preset": {
+      "daily": "כל יום",
+      "workdays": "כל יום חול",
+      "weekly": "כל שבוע ביום {day}",
+      "monthly": "כל חודש ב־{day} בחודש",
+      "yearly": "כל שנה ב־{date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {כל יום} other {כל # ימים}}",
+      "weekly": "{interval, plural, one {כל שבוע} other {כל # שבועות}}",
+      "monthly": "{interval, plural, one {כל חודש} other {כל # חודשים}}",
+      "yearly": "{interval, plural, one {כל שנה} other {כל # שנים}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {יום} other {ימים}}",
+      "weekly": "{interval, plural, one {שבוע} other {שבועות}}",
+      "monthly": "{interval, plural, one {חודש} other {חודשים}}",
+      "yearly": "{interval, plural, one {שנה} other {שנים}}"
+    },
+    "onDays": "{every} בימים {days}",
+    "afterDone": "{every} אחרי שהושלם",
+    "until": "{rule}, עד {date}",
+    "endsOn": "מסתיים ב־{date}",
+    "everyLabel": "כל",
+    "interval": "כמה",
+    "unit": "יחידה",
+    "onLabel": "ימים",
+    "fromLabel": "נספר מ",
+    "from": {
+      "due": "התאריך",
+      "done": "היום שבו הושלם"
+    },
+    "untilLabel": "סיום",
+    "save": "שמירה",
+    "skip": "דילוג על הפעם הזו",
+    "next": "הבא נפתח ל־{date}",
+    "failed": "לא ניתן היה לשמור את החזרה.",
+    "error": {
+      "accessLost": "לא ניתן היה להוסיף את הבא: מי שהגדיר את החזרה כבר לא יכול להוסיף כאן שורות.",
+      "tooMany": "נעצר להיום: השורה הזו הושלמה ונפתחה מחדש יותר מדי פעמים."
     }
   }
 }

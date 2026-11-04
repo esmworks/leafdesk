@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Rows that repeat.** *Repeat* in a date's picker sets a database row to come round again: every
+  day, weekday, week, month or year, or a rule of your own (every few days or weeks, on chosen
+  weekdays, counted from the date or from the day it was done, until a day). When the row is
+  marked done a copy opens with the date moved to the next time, its to-dos and checklist
+  unticked; the done row stays as the record. Unticking it again before the copy was touched takes
+  the copy back, and *Skip this one* moves the date without a copy. A ↻ beside the date shows the
+  rule. MCP's `update_database_row` and the REST API's row update take `repeat`; the MCP tool
+  list's budget grows to 169 KB for it (migration 0194).
 - **Calendar on the sidebar's rail.** One place for your week across the workspace: synced Google
   Calendar and calendar-address events, meeting notes with a time, and your dated tasks and to-dos,
   each source in its color. A week on its hours with a line at the present time, or a list of its

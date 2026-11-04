@@ -658,7 +658,12 @@ const rowInputs = {
       .describe(`The rows to add (1-${ops.MAX_BULK_ROWS}).`),
     match_by: matchByParam.optional(),
   }),
-  update: ops.inputs.updateDatabaseRow.extend({ properties: rowValuesParam.optional() }),
+  update: ops.inputs.updateDatabaseRow.extend({
+    properties: rowValuesParam.optional(),
+    repeat: checked(ops.rowRepeatInput, "object", `A copy with a date moved on, each time it's marked done; null stops. ${see("properties")}`)
+      .nullable()
+      .optional(),
+  }),
   updateMany: ops.inputs.updateDatabaseRows.extend({ properties: rowValuesParam }),
 };
 
@@ -1359,6 +1364,7 @@ function allDocs(): Record<DocTopic, Doc> {
         PROPERTIES_DOC,
         `## Writing values\n\n${ops.rowProperties.description ?? ""}`,
         `## Upserting rows (match_by)\n\n${ops.inputs.createDatabaseRow.shape.match_by.unwrap().description ?? ""}`,
+        `## Repeating rows (repeat)\n\n${schemaText("repeat", ops.rowRepeatInput)}`,
         `## Adding a property\n\n${ADD_PROPERTY_DOC}`,
         `## Changing a property\n\n${UPDATE_PROPERTY_DOC}`,
         `## Descriptions and dependent selects\n\n${descriptionInput.description}\n\ndepends_on: ${dependsOnInput.description}\n\noption_parents: ${optionParentsInput.description}`,

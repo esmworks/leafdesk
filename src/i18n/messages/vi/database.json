@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Tùy chọn này đánh dấu trạng thái của sprint. Bạn có thể đổi tên, hoặc tắt sprint trước khi xóa nó.",
     "historyEntryGone": "Thay đổi này không còn trong lịch sử của cơ sở dữ liệu.",
     "historyNotUndoable": "Tiêu đề hàng được khôi phục từ lịch sử trang của từng hàng.",
+    "repeatNotDate": "Hàng lặp lại theo một thuộc tính ngày.",
+    "repeatNeedsDone": "Hãy thêm trạng thái hoặc ô đánh dấu để đánh dấu hàng đã xong trước: hàng lặp lại khi hoàn thành.",
+    "repeatSynced": "Hàng của cơ sở dữ liệu đồng bộ không lặp lại.",
+    "repeatTemplate": "Mẫu không lặp lại; các hàng tạo từ mẫu thì có thể.",
     "invalidSlackUrl": "Không phải địa chỉ webhook đến của Slack (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” chỉ liên kết một trang. Hãy chọn một.",
     "invalidRelationOptions": "Không thể lưu các cài đặt quan hệ này."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Nút này chưa làm gì: hãy đặt việc nút làm trong menu của thuộc tính.",
       "rateLimited": "Nút này bị bấm quá nhiều lần. Đợi một lát rồi thử lại.",
       "noAccess": "Bạn không thể dùng nút này: cần quyền sửa hàng."
+    }
+  },
+  "repeat": {
+    "label": "Lặp lại",
+    "off": "Không lặp lại",
+    "custom": "Tùy chỉnh…",
+    "preset": {
+      "daily": "Hằng ngày",
+      "workdays": "Mọi ngày làm việc",
+      "weekly": "Hằng tuần vào {day}",
+      "monthly": "Hằng tháng vào ngày {day}",
+      "yearly": "Hằng năm vào {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, other {Mỗi # ngày}}",
+      "weekly": "{interval, plural, other {Mỗi # tuần}}",
+      "monthly": "{interval, plural, other {Mỗi # tháng}}",
+      "yearly": "{interval, plural, other {Mỗi # năm}}"
+    },
+    "units": {
+      "daily": "{interval, plural, other {ngày}}",
+      "weekly": "{interval, plural, other {tuần}}",
+      "monthly": "{interval, plural, other {tháng}}",
+      "yearly": "{interval, plural, other {năm}}"
+    },
+    "onDays": "{every} vào {days}",
+    "afterDone": "{every} sau khi hoàn thành",
+    "until": "{rule}, đến {date}",
+    "endsOn": "Kết thúc vào {date}",
+    "everyLabel": "Mỗi",
+    "interval": "Bao nhiêu",
+    "unit": "Đơn vị",
+    "onLabel": "Ngày",
+    "fromLabel": "Tính từ",
+    "from": {
+      "due": "ngày đã đặt",
+      "done": "ngày hoàn thành"
+    },
+    "untilLabel": "Kết thúc",
+    "save": "Lưu",
+    "skip": "Bỏ qua lần này",
+    "next": "Đã mở lần tiếp theo cho {date}",
+    "failed": "Không thể lưu lặp lại.",
+    "error": {
+      "accessLost": "Không thể thêm lần tiếp theo: người đặt lặp lại không còn được thêm hàng ở đây.",
+      "tooMany": "Đã dừng hôm nay: hàng này đã được hoàn thành và mở lại quá nhiều lần."
     }
   }
 }

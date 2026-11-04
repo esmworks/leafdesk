@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Esta opción marca el estado de un sprint. Puedes cambiarle el nombre o desactivar los sprints antes de eliminarla.",
     "historyEntryGone": "Este cambio ya no está en el historial de la base de datos.",
     "historyNotUndoable": "Los títulos de las filas se recuperan desde el historial de página de cada fila.",
+    "repeatNotDate": "Las filas se repiten en una propiedad de fecha.",
+    "repeatNeedsDone": "Añade primero un estado o una casilla para marcar las filas como terminadas: una fila se repite al terminarse.",
+    "repeatSynced": "Las filas de una base de datos sincronizada no se repiten.",
+    "repeatTemplate": "Las plantillas no se repiten; las filas creadas con ellas sí.",
     "invalidSlackUrl": "No es la dirección de un webhook entrante de Slack (https://hooks.slack.com/services/…).",
     "oneRow": "«{property}» enlaza una sola página. Elige una.",
     "invalidRelationOptions": "No se pueden guardar estos ajustes de relación."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Este botón aún no hace nada: configura lo que hace desde el menú de la propiedad.",
       "rateLimited": "Se hizo clic en este botón demasiadas veces. Espera un momento e inténtalo de nuevo.",
       "noAccess": "No puedes usar este botón: necesitas acceso de edición a la fila."
+    }
+  },
+  "repeat": {
+    "label": "Repetir",
+    "off": "No repetir",
+    "custom": "Personalizado…",
+    "preset": {
+      "daily": "Cada día",
+      "workdays": "Cada día laborable",
+      "weekly": "Cada semana el {day}",
+      "monthly": "Cada mes el día {day}",
+      "yearly": "Cada año el {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Cada día} other {Cada # días}}",
+      "weekly": "{interval, plural, one {Cada semana} other {Cada # semanas}}",
+      "monthly": "{interval, plural, one {Cada mes} other {Cada # meses}}",
+      "yearly": "{interval, plural, one {Cada año} other {Cada # años}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {día} other {días}}",
+      "weekly": "{interval, plural, one {semana} other {semanas}}",
+      "monthly": "{interval, plural, one {mes} other {meses}}",
+      "yearly": "{interval, plural, one {año} other {años}}"
+    },
+    "onDays": "{every} el {days}",
+    "afterDone": "{every} después de terminarla",
+    "until": "{rule}, hasta el {date}",
+    "endsOn": "Termina el {date}",
+    "everyLabel": "Cada",
+    "interval": "Cuántos",
+    "unit": "Unidad",
+    "onLabel": "Días",
+    "fromLabel": "Contado desde",
+    "from": {
+      "due": "la fecha",
+      "done": "el día en que se termina"
+    },
+    "untilLabel": "Termina",
+    "save": "Guardar",
+    "skip": "Saltar esta vez",
+    "next": "La siguiente se abrió para el {date}",
+    "failed": "No se pudo guardar la repetición.",
+    "error": {
+      "accessLost": "No se pudo añadir la siguiente: quien configuró la repetición ya no puede añadir filas aquí.",
+      "tooMany": "Detenido por hoy: esta fila se terminó y se volvió a abrir demasiadas veces."
     }
   }
 }

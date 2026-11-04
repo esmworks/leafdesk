@@ -8,6 +8,7 @@ import {
   pageGroupPermission,
   pagePermission,
   propertyPermission,
+  rowRepeat,
   syncedBlockReference,
   type PageKind,
   type RowProperties,
@@ -364,6 +365,7 @@ export async function copyPageTree(
     }
     // After the properties too: a row access rule names a person property.
     await copyRowAccess(tx, plan, source.workspaceId, userId);
+    await copyRowRepeats(tx, plan, userId);
     const root = rows.find((r) => r.id === plan.rootId)!;
     return {
       plan,
@@ -474,10 +476,16 @@ export async function duplicatePage(
   {
     notify = true,
     withoutRows = false,
+    title: givenTitle,
+    values,
   }: {
     notify?: boolean;
     /** Databases (the page itself, or those under it) are copied without their rows (see CopyTarget). */
     withoutRows?: boolean;
+    /** The copy's title, instead of the numbered one Duplicate gives (a repeating row's next time keeps its title). */
+    title?: string;
+    /** A row's copy: its values made from those copied (server/row-repeat), before "row added" automations see them. */
+    values?: (copied: RowProperties) => RowProperties;
   } = {},
 ): Promise<{ id: string; workspaceId: string }> {
   const { userId } = actor;
@@ -502,7 +510,7 @@ export async function duplicatePage(
       throw error;
     });
   }
-  const title = await copyTitle(source);
+  const title = givenTitle ?? (await copyTitle(source));
 
   const { root } = await copyPageTree(actor, source, {
     parentId: source.parentId,
@@ -518,6 +526,10 @@ export async function duplicatePage(
   // A row copied into its database links to the same rows; two-way relations mirror that.
   // Templates link one way only: their links would show up on the linked rows.
   if (parentKind === "database" && !root.inTemplate) {
+    if (values) {
+      root.properties = values(root.properties);
+      await db.update(page).set({ properties: root.properties }).where(eq(page.id, root.id));
+    }
     const properties = await dropCopiedSubItems(root.id, source.parentId!, root.properties);
     await syncPairedRelations(root.id, source.parentId!, {}, properties);
     // A copied row is a new row: "row added" automations run for it.
@@ -585,6 +597,27 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
  * Copied page documents without the reminders of their dates: a reminder belongs to the person who
  * set it on the source page (see lib/mentions). Only bodies that mention a date can hold one.
  */
+/**
+ * The rows of a copied database repeat as their sources do (server/row-repeat), each a chain of
+ * its own, set by whoever copied them. A row copied on its own (Duplicate, a repeat's next time)
+ * doesn't take its source's rule.
+ */
+async function copyRowRepeats(tx: Tx, plan: DuplicatePlan, userId: string) {
+  const pages = [...plan.pageIds].filter(([, copy]) => copy !== plan.rootId).map(([source, copy]) => ({ source, copy }));
+  const databases = [...plan.pageIds].map(([source, copy]) => ({ source, copy }));
+  const properties = [...plan.propertyIds].map(([source, copy]) => ({ source, copy }));
+  if (!pages.length || !properties.length) return;
+  await tx.execute(sql`
+    insert into ${rowRepeat} (row_id, database_id, property_id, rule, time_zone, set_by, chain_id)
+    select pm.copy, dm.copy, prm.copy, r.rule, r.time_zone, ${userId}, gen_random_uuid()::text
+    from ${rowRepeat} r
+    join jsonb_to_recordset(${JSON.stringify(pages)}::jsonb) as pm(source text, copy text) on pm.source = r.row_id
+    join jsonb_to_recordset(${JSON.stringify(databases)}::jsonb) as dm(source text, copy text) on dm.source = r.database_id
+    join jsonb_to_recordset(${JSON.stringify(properties)}::jsonb) as prm(source text, copy text) on prm.source = r.property_id
+    on conflict do nothing
+  `);
+}
+
 async function stripCopiedReminders(tx: Tx, plan: DuplicatePlan) {
   const copies = plan.pages.filter((p) => p.kind === "page").map((p) => p.id);
   if (!copies.length) return;

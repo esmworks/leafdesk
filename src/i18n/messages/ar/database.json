@@ -1171,6 +1171,10 @@
     "sprintStateOption": "يحدّد هذا الخيار حالة السبرنت. يمكنك إعادة تسميته، أو أوقف السبرنتات قبل حذفه.",
     "historyEntryGone": "لم يعد هذا التغيير في سجل قاعدة البيانات.",
     "historyNotUndoable": "تُستعاد عناوين الصفوف من سجل صفحة كل صف.",
+    "repeatNotDate": "تتكرر الصفوف وفق خاصية تاريخ.",
+    "repeatNeedsDone": "أضف أولًا حالة أو خانة اختيار لتعليم الصفوف كمنجزة: يتكرر الصف عند إنجازه.",
+    "repeatSynced": "لا تتكرر صفوف قاعدة بيانات متزامنة.",
+    "repeatTemplate": "القوالب لا تتكرر، لكن الصفوف المنشأة منها يمكنها ذلك.",
     "invalidSlackUrl": "ليس عنوان webhook وارد في Slack ‏(https://hooks.slack.com/services/…).",
     "oneRow": "تربط «{property}» صفحة واحدة فقط. اختر واحدة.",
     "invalidRelationOptions": "لا يمكن حفظ إعدادات العلاقة هذه."
@@ -2430,6 +2434,52 @@
       "noAutomation": "هذا الزر لا يفعل شيئًا بعد: حدّد ما يفعله من قائمة الخاصية.",
       "rateLimited": "تم النقر على هذا الزر كثيرًا. انتظر قليلًا ثم حاول مرة أخرى.",
       "noAccess": "لا يمكنك استخدام هذا الزر: يتطلب صلاحية تعديل الصف."
+    }
+  },
+  "repeat": {
+    "label": "تكرار",
+    "off": "بلا تكرار",
+    "custom": "مخصص…",
+    "preset": {
+      "daily": "كل يوم",
+      "workdays": "كل يوم عمل",
+      "weekly": "كل أسبوع يوم {day}",
+      "monthly": "كل شهر في اليوم {day}",
+      "yearly": "كل سنة في {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, other {كل # يوم}}",
+      "weekly": "{interval, plural, other {كل # أسبوع}}",
+      "monthly": "{interval, plural, other {كل # شهر}}",
+      "yearly": "{interval, plural, other {كل # سنة}}"
+    },
+    "units": {
+      "daily": "{interval, plural, other {يوم}}",
+      "weekly": "{interval, plural, other {أسبوع}}",
+      "monthly": "{interval, plural, other {شهر}}",
+      "yearly": "{interval, plural, other {سنة}}"
+    },
+    "onDays": "{every}: {days}",
+    "afterDone": "{every} بعد إنجازه",
+    "until": "{rule}، حتى {date}",
+    "endsOn": "ينتهي في {date}",
+    "everyLabel": "كل",
+    "interval": "العدد",
+    "unit": "الوحدة",
+    "onLabel": "الأيام",
+    "fromLabel": "يُحسب من",
+    "from": {
+      "due": "التاريخ",
+      "done": "يوم إنجازه"
+    },
+    "untilLabel": "ينتهي",
+    "save": "حفظ",
+    "skip": "تخطَّ هذه المرة",
+    "next": "فُتح التالي ليوم {date}",
+    "failed": "تعذّر حفظ التكرار.",
+    "error": {
+      "accessLost": "تعذّرت إضافة التالي: لم يعد بإمكان من ضبط التكرار إضافة صفوف هنا.",
+      "tooMany": "توقف لليوم: أُنجز هذا الصف وأُعيد فتحه مرات كثيرة جدًا."
     }
   }
 }

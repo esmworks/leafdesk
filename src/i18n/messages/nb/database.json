@@ -1171,6 +1171,10 @@
     "sprintStateOption": "Dette alternativet angir tilstanden til en sprint. Gi det gjerne nytt navn, eller slå av sprinter før du sletter det.",
     "historyEntryGone": "Denne endringen er ikke lenger i databasens historikk.",
     "historyNotUndoable": "Radtitler hentes tilbake fra hver rads sidehistorikk.",
+    "repeatNotDate": "Rader gjentas på en datoegenskap.",
+    "repeatNeedsDone": "Legg først til en status eller en avmerkingsboks for å merke rader som fullført: en rad gjentas når den er fullført.",
+    "repeatSynced": "Rader i en synkronisert database gjentas ikke.",
+    "repeatTemplate": "Maler gjentas ikke; radene laget fra dem kan.",
     "invalidSlackUrl": "Ikke en adresse til en innkommende webhook i Slack (https://hooks.slack.com/services/…).",
     "oneRow": "«{property}» kan bare koble til én side. Velg én.",
     "invalidRelationOptions": "Disse relasjonsinnstillingene kan ikke lagres."
@@ -2430,6 +2434,52 @@
       "noAutomation": "Denne knappen gjør ingenting ennå: angi hva den gjør i egenskapens meny.",
       "rateLimited": "Denne knappen ble klikket for ofte. Vent litt og prøv igjen.",
       "noAccess": "Du kan ikke bruke denne knappen: det krever redigeringstilgang til raden."
+    }
+  },
+  "repeat": {
+    "label": "Gjenta",
+    "off": "Ikke gjenta",
+    "custom": "Egendefinert…",
+    "preset": {
+      "daily": "Hver dag",
+      "workdays": "Hver ukedag",
+      "weekly": "Hver uke på {day}",
+      "monthly": "Hver måned den {day}.",
+      "yearly": "Hvert år den {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Hver dag} other {Hver #. dag}}",
+      "weekly": "{interval, plural, one {Hver uke} other {Hver #. uke}}",
+      "monthly": "{interval, plural, one {Hver måned} other {Hver #. måned}}",
+      "yearly": "{interval, plural, one {Hvert år} other {Hvert #. år}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {dag} other {dager}}",
+      "weekly": "{interval, plural, one {uke} other {uker}}",
+      "monthly": "{interval, plural, one {måned} other {måneder}}",
+      "yearly": "{interval, plural, one {år} other {år}}"
+    },
+    "onDays": "{every} på {days}",
+    "afterDone": "{every} etter at den er fullført",
+    "until": "{rule}, til {date}",
+    "endsOn": "Slutter {date}",
+    "everyLabel": "Hver",
+    "interval": "Antall",
+    "unit": "Enhet",
+    "onLabel": "Dager",
+    "fromLabel": "Regnet fra",
+    "from": {
+      "due": "datoen",
+      "done": "dagen den fullføres"
+    },
+    "untilLabel": "Slutter",
+    "save": "Lagre",
+    "skip": "Hopp over denne",
+    "next": "Den neste er åpnet for {date}",
+    "failed": "Gjentakelsen kunne ikke lagres.",
+    "error": {
+      "accessLost": "Den neste kunne ikke legges til: den som satte opp gjentakelsen, kan ikke lenger legge til rader her.",
+      "tooMany": "Stoppet for i dag: raden er fullført og åpnet igjen for mange ganger."
     }
   }
 }

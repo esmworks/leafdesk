@@ -1171,6 +1171,10 @@
     "sprintStateOption": "ตัวเลือกนี้ระบุสถานะของสปรินต์ เปลี่ยนชื่อได้ หรือปิดสปรินต์ก่อนลบ",
     "historyEntryGone": "การเปลี่ยนแปลงนี้ไม่อยู่ในประวัติของฐานข้อมูลแล้ว",
     "historyNotUndoable": "กู้คืนชื่อแถวได้จากประวัติหน้าของแต่ละแถว",
+    "repeatNotDate": "แถวทำซ้ำตามคุณสมบัติวันที่",
+    "repeatNeedsDone": "เพิ่มสถานะหรือช่องทำเครื่องหมายสำหรับทำเครื่องหมายแถวว่าเสร็จก่อน: แถวจะทำซ้ำเมื่อเสร็จ",
+    "repeatSynced": "แถวของฐานข้อมูลที่ซิงค์ไม่ทำซ้ำ",
+    "repeatTemplate": "เทมเพลตไม่ทำซ้ำ แต่แถวที่สร้างจากเทมเพลตทำได้",
     "invalidSlackUrl": "ไม่ใช่ที่อยู่ของ Incoming Webhook ของ Slack (https://hooks.slack.com/services/…)",
     "oneRow": "“{property}” ลิงก์ได้เพียงหนึ่งหน้า เลือกหนึ่งหน้า",
     "invalidRelationOptions": "บันทึกการตั้งค่าความสัมพันธ์นี้ไม่ได้"
@@ -2430,6 +2434,52 @@
       "noAutomation": "ปุ่มนี้ยังไม่ได้ทำอะไร ตั้งค่าสิ่งที่ปุ่มทำได้จากเมนูของคุณสมบัติ",
       "rateLimited": "คลิกปุ่มนี้บ่อยเกินไป รอสักครู่แล้วลองอีกครั้ง",
       "noAccess": "คุณใช้ปุ่มนี้ไม่ได้ ต้องมีสิทธิ์แก้ไขแถว"
+    }
+  },
+  "repeat": {
+    "label": "ทำซ้ำ",
+    "off": "ไม่ทำซ้ำ",
+    "custom": "กำหนดเอง…",
+    "preset": {
+      "daily": "ทุกวัน",
+      "workdays": "ทุกวันทำงาน",
+      "weekly": "ทุกสัปดาห์ในวัน{day}",
+      "monthly": "ทุกเดือนวันที่ {day}",
+      "yearly": "ทุกปีวันที่ {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, other {ทุก # วัน}}",
+      "weekly": "{interval, plural, other {ทุก # สัปดาห์}}",
+      "monthly": "{interval, plural, other {ทุก # เดือน}}",
+      "yearly": "{interval, plural, other {ทุก # ปี}}"
+    },
+    "units": {
+      "daily": "{interval, plural, other {วัน}}",
+      "weekly": "{interval, plural, other {สัปดาห์}}",
+      "monthly": "{interval, plural, other {เดือน}}",
+      "yearly": "{interval, plural, other {ปี}}"
+    },
+    "onDays": "{every} ในวัน {days}",
+    "afterDone": "{every} หลังทำเสร็จ",
+    "until": "{rule} จนถึง {date}",
+    "endsOn": "สิ้นสุด {date}",
+    "everyLabel": "ทุก",
+    "interval": "จำนวน",
+    "unit": "หน่วย",
+    "onLabel": "วัน",
+    "fromLabel": "นับจาก",
+    "from": {
+      "due": "วันที่ที่ตั้งไว้",
+      "done": "วันที่ทำเสร็จ"
+    },
+    "untilLabel": "สิ้นสุด",
+    "save": "บันทึก",
+    "skip": "ข้ามครั้งนี้",
+    "next": "เปิดครั้งถัดไปสำหรับ {date} แล้ว",
+    "failed": "บันทึกการทำซ้ำไม่ได้",
+    "error": {
+      "accessLost": "เพิ่มครั้งถัดไปไม่ได้: ผู้ที่ตั้งการทำซ้ำไม่สามารถเพิ่มแถวที่นี่ได้อีก",
+      "tooMany": "หยุดไว้สำหรับวันนี้: แถวนี้ถูกทำเสร็จและเปิดใหม่หลายครั้งเกินไป"
     }
   }
 }

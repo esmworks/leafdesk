@@ -26,6 +26,7 @@ import { listGroups } from "@/server/groups";
 import { pasteRows } from "@/server/paste";
 import { getPropertyAccessSettings, loadPropertyRules, setPropertyAccess } from "@/server/property-access";
 import { getRowAccessSettings, setRowAccess } from "@/server/row-access";
+import { setRowRepeat, skipRowRepeat, type RowRepeatInput } from "@/server/row-repeat";
 import { listRowActivity } from "@/server/row-activity-feed";
 import { listDatabaseHistory, undoHistoryEntry } from "@/server/database-history";
 import { listMembers } from "@/server/workspaces";
@@ -167,6 +168,16 @@ export async function renameRowAction(rowId: string, title: string) {
 
 export async function updateRowPropertiesAction(rowId: string, patch: Record<string, unknown>) {
   return run((userId) => databases.updateRowProperties(userId, rowId, patch));
+}
+
+/** How a row comes round again once done (server/row-repeat); null stops it. */
+export async function setRowRepeatAction(rowId: string, input: RowRepeatInput | null) {
+  return run((userId) => setRowRepeat(userId, rowId, input));
+}
+
+/** Moves a repeating row's date to its next time without a copy ("Skip this one"). */
+export async function skipRowRepeatAction(rowId: string) {
+  return run((userId) => skipRowRepeat(userId, rowId));
 }
 
 // Bulk row actions skip rows the user may not change and return them (see databases.rowsWithAccess).

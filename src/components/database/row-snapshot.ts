@@ -2,6 +2,7 @@ import type { loadRowAction } from "@/app/actions/databases";
 import type { AiCellState } from "@/lib/ai";
 import type { FormulaStyle } from "@/lib/formula";
 import type { PropertyAccessInfo } from "@/lib/property-access";
+import type { RowRepeatView } from "@/lib/row-repeat";
 import type { PersonRef, Property, RelationTarget } from "./types";
 
 /** A row's values and schema as its page shows them; also what this browser keeps of it offline. */
@@ -33,6 +34,9 @@ export type RowSnapshot = {
   canSetLayout?: boolean;
   /** The row is one of its database's row templates (its values may say "me", "today", "now"). */
   template?: boolean;
+  /** How the row repeats (server/row-repeat), and whether it may. */
+  repeat?: RowRepeatView | null;
+  repeatable?: boolean;
 };
 
 type LoadedRow = Extract<Awaited<ReturnType<typeof loadRowAction>>, { ok: true }>["data"];
@@ -56,5 +60,7 @@ export function rowSnapshotOf(data: LoadedRow): RowSnapshot {
     beside: data.propertiesBeside,
     canSetLayout: data.canManageAccess,
     template: data.row.template,
+    repeat: data.row.repeat,
+    repeatable: data.row.repeatable,
   };
 }

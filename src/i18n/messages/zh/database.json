@@ -1171,6 +1171,10 @@
     "sprintStateOption": "此选项标记冲刺的状态。可以重命名；如要删除，请先关闭冲刺。",
     "historyEntryGone": "此更改已不在数据库历史中。",
     "historyNotUndoable": "行标题需从各行的页面历史中恢复。",
+    "repeatNotDate": "行按日期属性重复。",
+    "repeatNeedsDone": "请先添加用于标记行已完成的状态或复选框：行完成后才会重复。",
+    "repeatSynced": "同步数据库的行不会重复。",
+    "repeatTemplate": "模板不会重复；由模板创建的行可以。",
     "invalidSlackUrl": "这不是 Slack 传入 Webhook 的地址（https://hooks.slack.com/services/…）。",
     "oneRow": "“{property}”只能关联一个页面。请选择一个。",
     "invalidRelationOptions": "无法保存这些关联设置。"
@@ -2430,6 +2434,52 @@
       "noAutomation": "此按钮还没有任何操作：请在属性菜单中设置它的操作。",
       "rateLimited": "此按钮点击过于频繁。请稍候再试。",
       "noAccess": "你无法使用此按钮：需要该行的编辑权限。"
+    }
+  },
+  "repeat": {
+    "label": "重复",
+    "off": "不重复",
+    "custom": "自定义…",
+    "preset": {
+      "daily": "每天",
+      "workdays": "每个工作日",
+      "weekly": "每周{day}",
+      "monthly": "每月{day}日",
+      "yearly": "每年{date}"
+    },
+    "every": {
+      "daily": "{interval, plural, other {每 # 天}}",
+      "weekly": "{interval, plural, other {每 # 周}}",
+      "monthly": "{interval, plural, other {每 # 个月}}",
+      "yearly": "{interval, plural, other {每 # 年}}"
+    },
+    "units": {
+      "daily": "{interval, plural, other {天}}",
+      "weekly": "{interval, plural, other {周}}",
+      "monthly": "{interval, plural, other {个月}}",
+      "yearly": "{interval, plural, other {年}}"
+    },
+    "onDays": "{every}的{days}",
+    "afterDone": "完成后{every}",
+    "until": "{rule}，直到{date}",
+    "endsOn": "于{date}结束",
+    "everyLabel": "每",
+    "interval": "数量",
+    "unit": "单位",
+    "onLabel": "星期",
+    "fromLabel": "起算于",
+    "from": {
+      "due": "日期",
+      "done": "完成的那天"
+    },
+    "untilLabel": "结束",
+    "save": "保存",
+    "skip": "跳过这次",
+    "next": "已为{date}打开下一条",
+    "failed": "无法保存重复设置。",
+    "error": {
+      "accessLost": "无法添加下一条：设置重复的人已不能在此添加行。",
+      "tooMany": "今天已暂停：这一行完成后又重新打开的次数过多。"
     }
   }
 }

@@ -3,6 +3,7 @@ import type { AiCellState } from "@/lib/ai";
 import type { DatabaseSyncSummary } from "@/lib/jira-sync";
 import type { MapTiles } from "@/lib/place";
 import type { PropertyAccessInfo } from "@/lib/property-access";
+import type { RowRepeatView } from "@/lib/row-repeat";
 import type { TemplateRepeatSummary } from "@/lib/schedule";
 import type {
   DatabaseProperty,
@@ -70,6 +71,10 @@ export type DatabaseSnapshot = {
   restrictedPropertyIds?: string[];
   /** Where map views load their map from (MAP_TILE_URL); null when maps are off on the server. */
   map?: MapTiles | null;
+  /** How rows repeat (server/row-repeat), by row id; missing in copies kept offline before. */
+  repeats?: Record<string, RowRepeatView>;
+  /** Rows may be set to repeat: the database marks rows done and isn't synced. */
+  repeatable?: boolean;
 };
 
 export type DatabaseAi = {

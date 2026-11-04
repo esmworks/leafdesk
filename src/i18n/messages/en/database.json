@@ -1171,6 +1171,10 @@
     "sprintStateOption": "This option marks a sprint’s state. Rename it if you like, or turn sprints off before deleting it.",
     "historyEntryGone": "This change is no longer in the database’s history.",
     "historyNotUndoable": "Row titles are brought back from each row’s page history.",
+    "repeatNotDate": "Rows repeat on a date property.",
+    "repeatNeedsDone": "Add a status or a checkbox to mark rows done first: a row repeats when it’s done.",
+    "repeatSynced": "Rows of a synced database don’t repeat.",
+    "repeatTemplate": "Templates don’t repeat; the rows made from them can.",
     "invalidSlackUrl": "Not a Slack incoming webhook address (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” links one page. Pick one.",
     "invalidRelationOptions": "These relation settings can’t be saved."
@@ -2430,6 +2434,52 @@
       "noAutomation": "This button does nothing yet: set up what it does from the property's menu.",
       "rateLimited": "This button was clicked too often. Wait a moment and try again.",
       "noAccess": "You can't use this button: it takes edit access to the row."
+    }
+  },
+  "repeat": {
+    "label": "Repeat",
+    "off": "Don’t repeat",
+    "custom": "Custom…",
+    "preset": {
+      "daily": "Every day",
+      "workdays": "Every weekday",
+      "weekly": "Every week on {day}",
+      "monthly": "Every month on day {day}",
+      "yearly": "Every year on {date}"
+    },
+    "every": {
+      "daily": "{interval, plural, one {Every day} other {Every # days}}",
+      "weekly": "{interval, plural, one {Every week} other {Every # weeks}}",
+      "monthly": "{interval, plural, one {Every month} other {Every # months}}",
+      "yearly": "{interval, plural, one {Every year} other {Every # years}}"
+    },
+    "units": {
+      "daily": "{interval, plural, one {day} other {days}}",
+      "weekly": "{interval, plural, one {week} other {weeks}}",
+      "monthly": "{interval, plural, one {month} other {months}}",
+      "yearly": "{interval, plural, one {year} other {years}}"
+    },
+    "onDays": "{every} on {days}",
+    "afterDone": "{every} after it’s done",
+    "until": "{rule}, until {date}",
+    "endsOn": "Ends on {date}",
+    "everyLabel": "Every",
+    "interval": "How many",
+    "unit": "Unit",
+    "onLabel": "On",
+    "fromLabel": "Counted from",
+    "from": {
+      "due": "the date",
+      "done": "the day it’s done"
+    },
+    "untilLabel": "Ends",
+    "save": "Save",
+    "skip": "Skip this one",
+    "next": "Next one opened for {date}",
+    "failed": "The repeat couldn’t be saved.",
+    "error": {
+      "accessLost": "The next one couldn’t be added: whoever set the repeat may no longer add rows here.",
+      "tooMany": "Stopped for today: this row was done and opened again too many times."
     }
   }
 }
