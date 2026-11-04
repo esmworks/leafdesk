@@ -18,6 +18,8 @@
 - **A message you send from Mail opens once it has gone.** After a new message's Undo seconds the
   pane says it is sending, then opens it in your sent folder, unless you opened something else
   meanwhile.
+- **Your own messages in a conversation carry your name.** Opened in Mail, a message you sent is
+  headed by your full name instead of *me*; the list and the recipients still say *me*.
 - **The sidebar's panels are built alike.** Pages, Journal, My tasks, Meetings, Mail, Chat and
   Agents share one row, one heading and one way of showing what is open or empty: every heading is
   a small gray line in the rows' column, blocks stand 12 px apart, the row of the place that is
