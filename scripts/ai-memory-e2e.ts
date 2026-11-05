@@ -25,7 +25,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { aiMemory, user, workspace, workspaceMember } = await import("@/db/schema");
+const { aiMemory, memorySummary, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
@@ -198,6 +198,49 @@ try {
     "remember with replaces changes the older note in place",
     afterMove,
   );
+
+  // ── What a note is about ────────────────────────────────────────────────────────────────────
+  fake.setChat(caller([{ name: "remember", arguments: { text: "Wants answers as tables.", category: "preference" } }]));
+  const typed = await ask(alice, { workspaceId, message: "Always show me tables" });
+  const tableNote = (await notesOf(alice)).find((m) => m.text === "Wants answers as tables.");
+  check(typed.done && tableNote?.category === "preference", "remember keeps what a note is about", tableNote);
+  fake.setChat(caller([{ name: "remember", arguments: { text: "Wants answers as short tables.", replaces: tableNote.id } }]));
+  await ask(alice, { workspaceId, message: "Short tables, please" });
+  const retold = (await notesOf(alice)).find((m) => m.id === tableNote.id);
+  check(retold?.text === "Wants answers as short tables." && retold.category === "preference", "…a note in another's place keeps its kind unless told one", retold);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  check(memoryOf(fake.chats[0])?.includes(`- (memory_id ${tableNote.id}) [preference] Wants answers as short tables.`), "…and the model reads the kind with the note", memoryOf(fake.chats[0]));
+  const notOther = (await notesOf(alice)).find((m) => m.id === kept.id);
+  check(notOther?.category === "other" && memoryOf(fake.chats[0])?.includes(`- (memory_id ${kept.id}) Leads the brand team.`), "a note of no kind is other, shown without one");
+  const retyped = await updateMemory(alice, workspaceId, tableNote.id, "Wants answers as short tables.", { category: "work" });
+  check(retyped.category === "work" && retyped.text === "Wants answers as short tables.", "the Memory view changes a note's kind, its text as it was", retyped);
+  await deleteMemories(alice, workspaceId, [tableNote.id]);
+
+  // ── A note's details ────────────────────────────────────────────────────────────────────────
+  const budgetDetails = "Due December 12.\nSend the draft to Finance first.";
+  fake.setChat(caller([{ name: "remember", arguments: { text: "Q4 budget review", category: "work", details: `  ${budgetDetails}\n\n\n` } }]));
+  await ask(alice, { workspaceId, message: "Remember the Q4 budget review: due December 12, the draft goes to Finance first" });
+  const budget = (await notesOf(alice)).find((m) => m.text === "Q4 budget review");
+  check(budget?.details === budgetDetails, "remember keeps a note's details, trimmed", budget);
+  fake.setChat(caller([{ name: "read_memory", arguments: { query: "budget finance" } }]));
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "What did I say about the budget?" });
+  const budgetMemory = memoryOf(fake.chats[0]) ?? "";
+  check(budgetMemory.includes("[work] Q4 budget review (has details)") && !budgetMemory.includes("Finance"), "a question carries the note's line, marked, without its details", budgetMemory);
+  check(toolNames(fake.chats[0]).includes("read_memory"), "…and is offered read_memory for them, though every note fits", toolNames(fake.chats[0]));
+  check(
+    toolResults(fake.chats.at(-1)!).some((r) => r.includes("(person) [work] Q4 budget review") && r.includes("Send the draft to Finance first.")),
+    "read_memory finds the note by its words, saying whose it is, with its details",
+    toolResults(fake.chats.at(-1)!),
+  );
+  const keptDetails = await updateMemory(alice, workspaceId, budget.id, "Q4 budget review (finance)");
+  check(keptDetails.details === budgetDetails && keptDetails.category === "work", "changing a note's line leaves its kind and details as they were", keptDetails);
+  const longDetails = await updateMemory(alice, workspaceId, budget.id, "Q4 budget review", { details: "x".repeat(2001) }).catch((e) => e);
+  check(longDetails instanceof MemoryError && longDetails.code === "detailsTooLong", "details longer than the limit are refused");
+  const droppedDetails = await updateMemory(alice, workspaceId, budget.id, "Q4 budget review", { details: "  " });
+  check(droppedDetails.details === null, "…and empty ones drop them");
+  await deleteMemories(alice, workspaceId, [budget.id]);
 
   // ── Switched off by the person ──────────────────────────────────────────────────────────────
   const offers = (request: FakeChatRequest) => toolNames(request).includes("remember") || toolNames(request).includes("forget");
@@ -388,12 +431,73 @@ try {
   const outsiderList = await listMemories(outsider, workspaceId).catch((e) => e);
   check(outsiderList instanceof AccessError, "someone outside the workspace can't list or add there");
 
+  // ── The summary ─────────────────────────────────────────────────────────────────────────────
+  const { markSummaryCurrent, setSummary, summaryForPrompt, summaryOf, writeSummary } = await import("@/server/memory-summary");
+  const aliceNotes = await listMemories(alice, workspaceId);
+  fake.setChat(() => ({ text: "```markdown\n## Role\nLeads the brand team.\n```" }));
+  fake.chats.length = 0;
+  const summary1 = await writeSummary(alice, workspaceId);
+  check(summary1.text === "## Role\nLeads the brand team." && summary1.writtenBy === "ai" && !summary1.stale, "the AI writes the person's summary from their notes", summary1);
+  check(
+    JSON.stringify(fake.chats[0]).includes(aliceNotes[0].text) && !JSON.stringify(fake.chats[0]).includes("Prefers tables"),
+    "…reading their notes alone",
+  );
+  fake.setChat(answering);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  const withSummary = question(fake.chats[0]);
+  check(
+    withSummary.includes("<memory_summary>\n## Role\nLeads the brand team.\n</memory_summary>") && withSummary.indexOf("<memory_summary>") < withSummary.indexOf("<memory>"),
+    "the summary goes with the person's questions, ahead of their notes",
+    withSummary,
+  );
+  fake.chats.length = 0;
+  await ask(bob, { workspaceId, message: "Hi" });
+  check(!question(fake.chats[0]).includes("brand team"), "…never with anyone else's");
+  const later = await addMemory(alice, workspaceId, "Works from Izmir.");
+  const behind = await summaryOf(alice, workspaceId);
+  check(
+    behind?.stale === true && !behind.withheld && (await summaryForPrompt(alice, workspaceId)) === summary1.text,
+    "a note kept since marks the summary as behind, and it still goes with questions",
+    behind,
+  );
+  const own = await setSummary(alice, workspaceId, "## Role\nLeads brand.");
+  check(own?.writtenBy === "person" && own.stale, "the person can change the summary, which stays behind the notes it was written from", own);
+  const current = await markSummaryCurrent(alice, workspaceId);
+  check(current?.text === "## Role\nLeads brand." && !current.stale && !current.withheld, "…until they mark it as up to date", current);
+  const tooLong = await setSummary(alice, workspaceId, "x".repeat(1501)).catch((e) => e);
+  check(tooLong instanceof MemoryError && tooLong.code === "summaryTooLong", "…up to its limit");
+  await deleteMemories(alice, workspaceId, [later.id]);
+  const held = await summaryOf(alice, workspaceId);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  check(
+    held?.withheld === true && !question(fake.chats[0]).includes("memory_summary") && (await summaryForPrompt(alice, workspaceId)) === "",
+    "forgetting a note the summary was written from keeps the summary from going anywhere",
+    held,
+  );
+  await setMemoryUse(alice, workspaceId, false);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  const summaryOff = await writeSummary(alice, workspaceId).catch((e) => e);
+  const editOff = await setSummary(alice, workspaceId, "## Role\nLeads.").catch((e) => e);
+  check(
+    !question(fake.chats[0]).includes("memory_summary") && summaryOff instanceof MemoryError && summaryOff.code === "personOff" && editOff instanceof MemoryError && editOff.code === "personOff",
+    "with their own memory off, no summary goes or is written, the refusal naming their switch",
+  );
+  await setMemoryUse(alice, workspaceId, true);
+  await deleteMemories(alice, workspaceId, "all");
+  check((await summaryOf(alice, workspaceId)) === null, "forgetting everything here forgets the summary too");
+  await addMemory(alice, workspaceId, "Leads the brand team.");
+  await setSummary(alice, workspaceId, "## Role\nLeads the brand team.");
+
   // ── Leaving ─────────────────────────────────────────────────────────────────────────────────
   await addMemory(alice, otherWs, "Owns the other workspace.");
   await removeMember(owner, workspaceId, alice);
   check((await notesOf(alice)).length === 0 && (await notesOf(alice, otherWs)).length === 1, "someone removed from a workspace loses their notes there, and only there");
   await removeMember(bob, workspaceId, bob);
   check((await notesOf(bob)).length === 0, "…as does someone who leaves");
+  check((await db.select().from(memorySummary).where(eq(memorySummary.userId, alice))).length === 0, "…and their summary there");
   await db.delete(user).where(eq(user.id, alice));
   check((await notesOf(alice, otherWs)).length === 0, "a deleted account takes its notes with it");
 

@@ -39,6 +39,8 @@ const { resetAi, setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi, textOf } = await import("@/server/ai/fake-openai");
 const { getConversation, MAX_CHAT_SKILL, startChat } = await import("@/server/ai-chat");
 const { builtinSkill, builtinSkills } = await import("@/lib/builtin-skills");
+const { importSkills, requireSkillImport } = await import("@/server/skill-import");
+const { strToU8, zipSync } = await import("fflate");
 type ChatInput = import("@/server/ai-chat").ChatInput;
 
 const RUN = `skills-e2e-${Date.now().toString(36)}`;
@@ -410,6 +412,45 @@ try {
   );
   await skills.setSkillDatabase(owner, playbooks.id, false);
   check(!(await skills.listSkills(owner, workspaceId)).some((s) => s.id === coldCall.id), "turned back, its rows stop being skills");
+
+  // ── Importing SKILL.md files ──────────────────────────────────────────────────────────────
+  const zip = zipSync({
+    "README.md": strToU8("Not a skill: the top level's own file."),
+    "release-notes/SKILL.md": strToU8(
+      '---\nname: release-notes\ndescription: >\n  Use when writing the\n  release notes.\nlicense: MIT\n---\n\n# Write release notes\n\n1. Read the merged pull requests.\n2. Group them by area.\n',
+    ),
+    "release-notes/template.md": strToU8("## Added\n\n## Fixed\n"),
+    "release-notes/scripts/collect.sh": strToU8("git log --merges\n"),
+    "triage/SKILL.md": strToU8("---\nname: triage-a-bug\ndescription: \"Sort a bug: who, how bad\"\n---\nAsk for the steps first."),
+  });
+  check((await refusal(() => requireSkillImport(guest, workspaceId))) === "access", "a guest can't import skills");
+  check((await refusal(() => requireSkillImport(outsider, workspaceId))) === "access", "…nor someone outside the workspace");
+  const imported = await importSkills(owner, workspaceId, [{ path: "skills.zip", data: zip }], "en");
+  check(imported.skills.length === 2 && imported.skippedFiles === 0, "a ZIP of skill folders makes one skill per SKILL.md, the top level's files left alone", imported);
+  const notes = imported.skills.find((sk) => sk.title === "Write release notes");
+  const triageImported = imported.skills.find((sk) => sk.title === "Triage a bug");
+  check(notes && triageImported, "…titled by the first heading, else by the name made readable", imported.skills);
+  const notesContent = await skills.getSkillContent(owner, notes.id);
+  check(
+    notesContent.description === "Use when writing the release notes." && notesContent.body.includes("Group them by area") && !notesContent.body.includes("# Write release notes"),
+    "…with the front matter's description and the body as the page, its heading taken out",
+    notesContent,
+  );
+  check((await skills.getSkillContent(owner, triageImported.id)).description === "Sort a bug: who, how bad", "…a quoted description read as written");
+  const filesProp = (await getProperties(notes.databaseId)).find((p) => p.type === "files")!;
+  const [notesRow] = await db.select({ properties: page.properties }).from(page).where(eq(page.id, notes.id));
+  const attached = (notesRow.properties[filesProp.id] as { name: string }[] | undefined) ?? [];
+  check(attached.map((f) => f.name).sort().join() === "collect.sh,template.md", "the other files of a skill's folder go in its Files property", attached);
+  check((await skills.listSkills(owner, workspaceId)).some((sk) => sk.id === triageImported.id), "imported skills are listed like any other");
+  const looseFile = await importSkills(owner, workspaceId, [{ path: "weekly-report.md", data: strToU8("Sum up the week in five bullets.") }], "en");
+  check(looseFile.skills.length === 1 && looseFile.skills[0].title === "Weekly report", "a Markdown file without front matter is a skill named after the file", looseFile);
+  check(
+    (await refusal(() => importSkills(owner, workspaceId, [{ path: "x.zip", data: zipSync({ "a.txt": strToU8("x") }) }], "en"))) === "noSkills",
+    "an upload without a SKILL.md or Markdown file is refused",
+  );
+  check((await refusal(() => importSkills(owner, workspaceId, [{ path: "bad.zip", data: strToU8("not a zip") }], "en"))) === "badFile", "…and one that can't be read");
+  const many = zipSync(Object.fromEntries(Array.from({ length: 21 }, (_, i) => [`s${i}/SKILL.md`, strToU8(`Skill ${i}`)])));
+  check((await refusal(() => importSkills(owner, workspaceId, [{ path: "many.zip", data: many }], "en"))) === "tooManySkills", "…and one with too many skills, before any is made");
 
   for (const builtin of await builtinSkills("en")) check(builtin.markdown.length < MAX_CHAT_SKILL, `the built-in skill ${builtin.key} fits in the chat`);
   fake.chats.length = 0;

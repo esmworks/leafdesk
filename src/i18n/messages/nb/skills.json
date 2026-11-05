@@ -3,6 +3,12 @@
   "heading": "Ferdigheter",
   "description": "Instruksjoner teamet ditt bruker om igjen, lagret som sider: hvordan du rydder opp i møtenotater, svarer en kunde eller sorterer en forespørsel. Velg en i KI-chatten med /, eller fra en KI-app som er koblet til arbeidsområdet. Hver ferdighet er en side eller en databaserad; folk ser ferdighetene de kan åpne.",
   "new": "Ny ferdighet",
+  "import": {
+    "button": "Importer",
+    "label": "Importer ferdigheter fra SKILL.md-, Markdown- eller ZIP-filer",
+    "done": "{count, plural, one {# ferdighet importert.} other {# ferdigheter importert.}}",
+    "skippedFiles": "{count, plural, one {# fil ved siden av ble utelatt.} other {# filer ved siden av ble utelatt.}}"
+  },
   "search": "Søk i ferdigheter",
   "count": "{count, plural, one {# ferdighet} other {# ferdigheter}}",
   "noMatches": "Ingen ferdigheter samsvarer med søket ditt.",
@@ -50,7 +56,13 @@
     "template": "Maler og sidene i dem kan ikke være ferdigheter.",
     "inTrash": "Gjenopprett siden fra papirkurven først.",
     "tooLong": "Beskrivelsen av en ferdighet kan ha høyst {max} tegn.",
-    "notASkill": "Denne siden er ikke lenger en ferdighet."
+    "notASkill": "Denne siden er ikke lenger en ferdighet.",
+    "importTooLarge": "Opplastingen kan være på høyst {mb} MB.",
+    "badFile": "Filen kan ikke leses. Velg en SKILL.md, en Markdown-fil eller en ZIP med ferdighetsmapper.",
+    "noSkills": "Fant ingen SKILL.md- eller Markdown-fil.",
+    "tooManySkills": "Importer høyst {max} ferdigheter om gangen.",
+    "skillTooLong": "En ferdighet i opplastingen er for lang.",
+    "busy": "En annen import pågår fortsatt. Prøv igjen når den er ferdig."
   },
   "database": {
     "title": "Ferdigheter",

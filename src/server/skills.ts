@@ -25,7 +25,7 @@ import { describeSkill, MAX_SKILL_DESCRIPTION, skillNames, skillSlug } from "@/l
 
 export { MAX_SKILL_DESCRIPTION } from "@/lib/skills";
 
-export type SkillErrorCode = "notAPage" | "notADatabase" | "template" | "inTrash" | "tooLong" | "notASkill";
+export type SkillErrorCode = "notAPage" | "notADatabase" | "template" | "inTrash" | "tooLong" | "notASkill" | "importTooLarge" | "badFile" | "noSkills" | "tooManySkills" | "skillTooLong";
 
 /** The icon a new skills database gets. */
 const SKILL_DATABASE_ICON = "🪄";

@@ -165,13 +165,13 @@ async function answeringRow(userId: string, messageId: string): Promise<string |
 /**
  * The person's newest notes from the AI chat's memory while it is on for them, theirs for all
  * workspaces first (their language, how they write), only the notes: without the chat's ids or its
- * line about older ones. Never the workspace's or a teamspace's notes, which are no one's way of
+ * line about older ones, nor a mark of details it has no read_memory for. Never the workspace's or a teamspace's notes, which are no one's way of
  * writing and would carry the workspace's own facts into mail to outside people.
  */
 async function memoryNotes(userId: string, workspaceId: string): Promise<string | null> {
   if (!(await memoryOn(userId, workspaceId))) return null;
-  const everywhere = fitNotes(await accountNotesOf(userId), Math.floor(MEMORY_CHARS / 3), "");
-  const { text } = await memoryForPrompt(userId, workspaceId, MEMORY_CHARS - everywhere.text.length);
+  const everywhere = fitNotes(await accountNotesOf(userId), Math.floor(MEMORY_CHARS / 3), "", { markDetails: false });
+  const { text } = await memoryForPrompt(userId, workspaceId, MEMORY_CHARS - everywhere.text.length, { markDetails: false });
   const notes = [everywhere.text, text].join("\n").split("\n").flatMap((line) => {
     const note = /^- \(memory_id [^)]*\) /.exec(line);
     return note ? [`- ${line.slice(note[0].length)}`] : [];

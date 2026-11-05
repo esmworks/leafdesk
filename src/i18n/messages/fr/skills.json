@@ -3,6 +3,12 @@
   "heading": "Compétences",
   "description": "Les instructions que votre équipe réutilise, sous forme de pages : faire la synthèse d’une réunion, répondre à un client, trier une demande. Choisissez-en une dans le chat IA avec /, ou depuis une app d’IA connectée à l’espace de travail. Chaque compétence est une page ou une ligne de base de données ; chacun voit les compétences qu’il peut ouvrir.",
   "new": "Nouvelle compétence",
+  "import": {
+    "button": "Importer",
+    "label": "Importer des compétences depuis des fichiers SKILL.md, Markdown ou ZIP",
+    "done": "{count, plural, one {# compétence importée.} other {# compétences importées.}}",
+    "skippedFiles": "{count, plural, one {# fichier joint a été laissé de côté.} other {# fichiers joints ont été laissés de côté.}}"
+  },
   "search": "Rechercher des compétences",
   "count": "{count, plural, one {# compétence} other {# compétences}}",
   "noMatches": "Aucune compétence ne correspond à votre recherche.",
@@ -50,7 +56,13 @@
     "template": "Les modèles et les pages qu’ils contiennent ne peuvent pas être des compétences.",
     "inTrash": "Restaurez d’abord la page depuis la corbeille.",
     "tooLong": "La description d’une compétence peut contenir au plus {max} caractères.",
-    "notASkill": "Cette page n’est plus une compétence."
+    "notASkill": "Cette page n’est plus une compétence.",
+    "importTooLarge": "L'envoi peut faire au plus {mb} Mo.",
+    "badFile": "Ce fichier est illisible. Choisissez un SKILL.md, un fichier Markdown ou un ZIP de dossiers de compétences.",
+    "noSkills": "Aucun fichier SKILL.md ou Markdown trouvé.",
+    "tooManySkills": "Importez au plus {max} compétences à la fois.",
+    "skillTooLong": "Une compétence de l'envoi est trop longue.",
+    "busy": "Une autre importation est en cours. Réessayez quand elle sera terminée."
   },
   "database": {
     "title": "Compétences",

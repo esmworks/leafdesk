@@ -571,6 +571,36 @@
     "editLabel": "Notiz",
     "save": "Speichern",
     "cancel": "Abbrechen",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Vorlieben",
+      "work": "Arbeit",
+      "other": "Sonstiges"
+    },
+    "categoryLabel": "Art",
+    "filterLabel": "Anzeigen",
+    "allCategories": "Alle Arten",
+    "search": "Notizen durchsuchen",
+    "noMatch": "Keine passenden Notizen.",
+    "detailsLabel": "Details",
+    "detailsPlaceholder": "Mehr zu dieser Notiz, wenn eine Zeile nicht reicht: warum, wann sie gilt, die Schritte",
+    "addDetails": "Details hinzufügen",
+    "moreDetails": "Alles anzeigen",
+    "lessDetails": "Weniger anzeigen",
+    "summary": {
+      "title": "Zusammenfassung",
+      "hint": "Ein paar Zeilen über dich, aus deinen Notizen geschrieben, die vor ihnen mit deinen Fragen hier mitgehen. Verbundene Apps lesen sie auch.",
+      "write": "Mit KI schreiben",
+      "rewrite": "Neu schreiben",
+      "writing": "Wird geschrieben…",
+      "byAi": "Von der KI aus deinen Notizen geschrieben, {date}",
+      "byYou": "Von dir geschrieben, {date}",
+      "stale": "deine Notizen haben sich seitdem geändert",
+      "withheld": "Eine Notiz, aus der sie geschrieben wurde, hat sich geändert oder wurde vergessen. Sie geht nicht mit deinen Fragen mit, bis du sie neu schreibst oder als aktuell markierst.",
+      "markCurrent": "Als aktuell markieren",
+      "confirmRewrite": "Die Zusammenfassung neu aus deinen Notizen schreiben? Dein eigener Text geht verloren.",
+      "confirmDelete": "Zusammenfassung löschen? Deine Fragen hier gehen ab jetzt ohne sie."
+    },
     "delete": "Löschen",
     "viaApp": "Gespeichert von {app}",
     "count": "{count} von {max} Notizen",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "Schreib, was sich die KI merken soll.",
       "tooLong": "Eine Notiz darf höchstens {max} Zeichen haben.",
+      "detailsTooLong": "Die Details einer Notiz dürfen höchstens {max} Zeichen haben.",
       "full": "Das Gedächtnis fasst höchstens {max} Notizen. Lösche zuerst eine.",
       "notFound": "Diese Notiz gibt es nicht mehr.",
       "off": "Das KI-Gedächtnis ist in diesem Workspace ausgeschaltet.",
+      "personOff": "Dein Gedächtnis ist hier ausgeschaltet: Schalte zuerst „Gedächtnis verwenden“ ein.",
       "changed": "Diese Notiz hat sich seitdem geändert. Ändere sie stattdessen unter Gedächtnis.",
       "busy": "Warte, bis die Antwort fertig ist.",
-      "held": "Eine rechtliche Aufbewahrung schützt diese Notiz: Sie kann nicht gelöscht werden, solange die Aufbewahrung besteht."
+      "held": "Eine rechtliche Aufbewahrung schützt diese Notiz: Sie kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
+      "noNotes": "Lege zuerst ein paar Notizen an: Die Zusammenfassung wird aus ihnen geschrieben.",
+      "summaryTooLong": "Eine Zusammenfassung darf höchstens {max} Zeichen haben."
     }
   },
   "accounts": {

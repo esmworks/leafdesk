@@ -571,6 +571,36 @@
     "editLabel": "Muistiinpano",
     "save": "Tallenna",
     "cancel": "Peruuta",
+    "categories": {
+      "profile": "Profiili",
+      "preference": "Mieltymykset",
+      "work": "Työ",
+      "other": "Muut"
+    },
+    "categoryLabel": "Tyyppi",
+    "filterLabel": "Näytä",
+    "allCategories": "Kaikki tyypit",
+    "search": "Hae muistiinpanoista",
+    "noMatch": "Ei osuvia muistiinpanoja.",
+    "detailsLabel": "Tiedot",
+    "detailsPlaceholder": "Lisää tästä muistiinpanosta, jos rivi ei riitä: miksi, milloin se pätee, vaiheet",
+    "addDetails": "Lisää tietoja",
+    "moreDetails": "Näytä kaikki",
+    "lessDetails": "Näytä vähemmän",
+    "summary": {
+      "title": "Yhteenveto",
+      "hint": "Muutama rivi sinusta muistiinpanojesi pohjalta, ja se kulkee täällä kysymystesi mukana ennen muistiinpanoja. Yhdistetyt sovellukset lukevat sen myös.",
+      "write": "Kirjoita tekoälyllä",
+      "rewrite": "Kirjoita uudelleen",
+      "writing": "Kirjoitetaan…",
+      "byAi": "Tekoälyn kirjoittama muistiinpanoistasi, {date}",
+      "byYou": "Sinun kirjoittamasi, {date}",
+      "stale": "muistiinpanosi ovat muuttuneet sen jälkeen",
+      "withheld": "Muistiinpano, josta se kirjoitettiin, on muuttunut tai unohdettu: se ei kulje kysymystesi mukana ennen kuin kirjoitat sen uudelleen tai merkitset sen ajan tasalle.",
+      "markCurrent": "Merkitse ajan tasalle",
+      "confirmRewrite": "Kirjoitetaanko yhteenveto uudelleen muistiinpanoistasi? Itse kirjoittamasi teksti häviää.",
+      "confirmDelete": "Poistetaanko yhteenveto? Kysymyksesi täällä lähtevät tästä lähtien ilman sitä."
+    },
     "delete": "Poista",
     "viaApp": "Tallentanut: {app}",
     "count": "{count}/{max} muistiinpanoa",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "Kirjoita, mitä muistetaan.",
       "tooLong": "Muistiinpanossa voi olla enintään {max} merkkiä.",
+      "detailsTooLong": "Muistiinpanon tiedoissa voi olla enintään {max} merkkiä.",
       "full": "Muistiin mahtuu enintään {max} muistiinpanoa. Poista ensin yksi.",
       "notFound": "Muistiinpanoa ei ole enää.",
       "off": "Tekoälyn muisti on poistettu käytöstä tässä työtilassa.",
+      "personOff": "Muistisi on täällä pois päältä: ota ensin Käytä muistia käyttöön.",
       "changed": "Muistiinpano on muuttunut sen jälkeen. Muuta se Muistissa.",
       "busy": "Odota, että vastaus on valmis.",
-      "held": "Oikeudellinen säilytys pitää tämän muistiinpanon: sitä ei voi poistaa säilytyksen ollessa voimassa."
+      "held": "Oikeudellinen säilytys pitää tämän muistiinpanon: sitä ei voi poistaa säilytyksen ollessa voimassa.",
+      "noNotes": "Tallenna ensin muutama muistiinpano: yhteenveto kirjoitetaan niistä.",
+      "summaryTooLong": "Yhteenvedossa voi olla enintään {max} merkkiä."
     }
   },
   "accounts": {

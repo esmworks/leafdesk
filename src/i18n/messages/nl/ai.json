@@ -571,6 +571,36 @@
     "editLabel": "Notitie",
     "save": "Opslaan",
     "cancel": "Annuleren",
+    "categories": {
+      "profile": "Profiel",
+      "preference": "Voorkeuren",
+      "work": "Werk",
+      "other": "Overig"
+    },
+    "categoryLabel": "Soort",
+    "filterLabel": "Tonen",
+    "allCategories": "Alle soorten",
+    "search": "Notities doorzoeken",
+    "noMatch": "Geen notities gevonden.",
+    "detailsLabel": "Details",
+    "detailsPlaceholder": "Meer over deze notitie als één regel niet genoeg is: waarom, wanneer ze geldt, de stappen",
+    "addDetails": "Details toevoegen",
+    "moreDetails": "Alles tonen",
+    "lessDetails": "Minder tonen",
+    "summary": {
+      "title": "Samenvatting",
+      "hint": "Een paar regels over jou, geschreven uit je notities, die hier vóór je notities met je vragen meegaan. Gekoppelde apps lezen ze ook.",
+      "write": "Schrijven met AI",
+      "rewrite": "Opnieuw schrijven",
+      "writing": "Bezig met schrijven…",
+      "byAi": "Door de AI geschreven uit je notities, {date}",
+      "byYou": "Door jou geschreven, {date}",
+      "stale": "je notities zijn sindsdien veranderd",
+      "withheld": "Een notitie waaruit hij is geschreven is veranderd of vergeten: hij gaat niet met je vragen mee tot je hem opnieuw schrijft of als bijgewerkt markeert.",
+      "markCurrent": "Als bijgewerkt markeren",
+      "confirmRewrite": "De samenvatting opnieuw uit je notities schrijven? De tekst die je zelf schreef verdwijnt.",
+      "confirmDelete": "Samenvatting verwijderen? Je vragen hier gaan voortaan zonder."
+    },
     "delete": "Verwijderen",
     "viaApp": "Bijgehouden door {app}",
     "count": "{count} van {max} notities",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "Schrijf wat er onthouden moet worden.",
       "tooLong": "Een notitie mag maximaal {max} tekens hebben.",
+      "detailsTooLong": "De details van een notitie mogen hoogstens {max} tekens hebben.",
       "full": "Het geheugen bevat maximaal {max} notities. Verwijder er eerst een.",
       "notFound": "Die notitie bestaat niet meer.",
       "off": "Het AI-geheugen is uitgeschakeld in deze werkruimte.",
+      "personOff": "Je geheugen staat hier uit: zet eerst Geheugen gebruiken aan.",
       "changed": "Die notitie is sindsdien gewijzigd. Wijzig hem in Geheugen.",
       "busy": "Wacht tot het antwoord klaar is.",
-      "held": "Een juridische bewaarplicht houdt deze notitie vast: ze kan niet worden verwijderd zolang de bewaarplicht geldt."
+      "held": "Een juridische bewaarplicht houdt deze notitie vast: ze kan niet worden verwijderd zolang de bewaarplicht geldt.",
+      "noNotes": "Bewaar eerst een paar notities: de samenvatting wordt eruit geschreven.",
+      "summaryTooLong": "Een samenvatting mag hoogstens {max} tekens hebben."
     }
   },
   "accounts": {

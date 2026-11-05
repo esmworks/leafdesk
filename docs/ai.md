@@ -404,11 +404,48 @@ something from outside before (a web page, an email, a connected service's tool)
 the workspace has changes without asking off. Each note kept, dropped or declined shows among the
 answer's steps, a *Memory updated* line under the answer opens *Memory*, and asking an answer again
 keeps its notes with the new answer. When your notes are more than a question's share of the room
-takes, the newest go with it and the chat reads the others with `read_memory`, offered only then. It keeps only what you say in your questions,
+takes, the newest go with it and the chat reads the others with `read_memory` (below). It keeps only what you say in your questions,
 never what pages or tool results say, and a note you already have (case aside) is kept once. Your notes go with each of your later questions in that workspace, as notes rather
 than instructions: they never widen what the chat may read or change. The brain button in the chat's
 header opens the *Memory* page, where you see, add, change and delete notes, or forget everything. Up to 30
-notes per workspace, 300 characters each. Notes are private to you, never sent with anyone else's
+notes per workspace, 300 characters each. Each note has a kind: *Profile* (who you are: role, team,
+goals), *Preferences* (how you like to work and be answered), *Work* (projects, decisions, where
+things live) or *Other*. The chat picks one as it keeps a note (a note in another's place keeps its
+kind unless it gives one) and reads the kind with each note; the *Memory* page groups each part's
+notes by kind, filters and searches them, and sets the kind as you add or change one. Notes kept
+before kinds existed are *Other*, and a list of only those shows without headings.
+
+A note may also have *details* (up to 2,000 characters): what it says in full when one line isn't
+enough, such as why, when it applies or the steps. A question carries only the note's line, marked
+*has details*; the chat reads the details with `read_memory` when the question needs them. The chat
+gives details as it keeps a note (in another's place, the older note's details stay unless it gives
+new ones), and on the *Memory* page *Add details* opens a box under a new note, editing a note
+changes them, and long details show folded. `read_memory` is offered whenever a note shown has
+details, some notes don't fit or another teamspace you are in keeps notes. It searches: with words,
+the 10 notes that have most of them (words in a note's line count more than in its details, newer
+notes first on a tie) with their details, from all the notes the question may read (yours here,
+yours everywhere, the workspace's and its teamspace's), each saying whose it is; with a note's id,
+that note in full; with neither, every note's line. The mail writer and agents' runs get notes'
+lines only.
+
+**Summary.** Above your notes in a workspace, *Memory* keeps a short summary of what the AI knows
+about you: who you are, what you work on now and how you like to work, in a few lines under
+headings. *Write with AI* has the fast model write it from your notes here and everywhere (it reads
+nothing else), and you can change it, write it yourself or delete it (up to 1,500 characters). It
+goes with your questions in that workspace ahead of your notes, so a question whose notes don't all
+fit still has the gist, and connected apps read it as `about` in `list_memory`; a note wins where
+the two disagree. It is never rewritten on its own, and it remembers which notes it was written from:
+- a note kept since marks it as behind (*your notes changed since*); it still goes with questions;
+- a note it was written from changed or forgotten since keeps it from going anywhere, so what you
+  took back never reaches the model through it, and the page says so.
+
+*Write again* writes it from your notes as they are (asking first when the text is one you wrote),
+and *Mark as up to date* says it matches them; changing its text by hand keeps the mark, since only
+you know whether it now does. Like your notes it is yours alone: it goes nowhere while either memory
+switch is off (writing or changing it then says which switch), and it is deleted when you forget
+everything in the workspace or leave it. Deleting it asks first.
+
+Notes are private to you, never sent with anyone else's
 questions or in another workspace, and are deleted when you leave the workspace or delete your
 account.
 
@@ -437,7 +474,7 @@ switch deletes a note: they come back when the memory is turned on again.
 The chat may offer to keep a note for the workspace or a teamspace when you may change those, and
 always asks first, saying where it goes. Up to 30 notes of 300 characters in each. When a question
 has no room for all of them, the newest go and the chat reads the rest with `read_memory`, which
-also reads other teamspaces' notes you are in. Changes to the workspace's and teamspaces' notes are
+also reads other teamspaces' notes you are in (`layer` teamspace with its id). Changes to the workspace's and teamspaces' notes are
 in the audit log. With the workspace's *AI memory* off, none of them goes anywhere or is kept here,
 and the page shows only your notes everywhere. Agents' own memories ([Agents](agents.md)) stay
 apart: an agent reads the workspace's and the place's notes but never writes them.
@@ -467,8 +504,8 @@ The same notes reach the AI apps you connect over MCP, so each of them knows you
 `list_memory` reads them (an app is told to at the start of a conversation), with your notes
 everywhere and the workspace's and teamspaces' notes you may read, and `change_memory`
 keeps a note, changes one or deletes some or all of them (`scope`: `person`, `account`,
-`workspace` or `teamspace`, the last two only where you may change them), with the chat's
-limits. Apps are told to keep only what you say about yourself, never what pages or tool results
+`workspace` or `teamspace`, the last two only where you may change them; `category`: the note's
+kind and `details` its details, as above; `list_memory` shows both), with the chat's limits. Apps are told to keep only what you say about yourself, never what pages or tool results
 say, and to tell you what they kept; your app asks you before it calls a tool that changes
 anything, as it does for pages. *Memory* shows which app kept or last changed each note (*Kept by
 …*), until you change it yourself. With either switch off, an app sees no notes (only how many
@@ -969,6 +1006,17 @@ list until it is restored.
   downloads `<name>.zip` holding `<name>/SKILL.md`: front matter with the name and description,
   then the body as Markdown with links to the app in full: the folder layout AI assistants install
   skills from.
+- **Import**: *Import* in the library (for those who can make skills there) takes SKILL.md and other
+  Markdown files and ZIPs of skill folders (what *Export as SKILL.md* writes, or several such
+  folders; up to 20 MB and 20 skills at once). Each SKILL.md becomes a row of your skills database:
+  its front matter's `description` in *Description*, its body as the page, the title from its first
+  `#` heading or else its `name` made readable (`release-notes` → *Release notes*), and the other
+  files of its folder (scripts, references, templates; up to 20) in *Files*, within the workspace's
+  file limits. An upload without a SKILL.md brings each top-level Markdown file as a skill; files at
+  a ZIP's top level beside skill folders are left alone. One skill opens when imported; several are
+  listed, with a count of files left out. Over HTTP it is `POST /api/skills/import` (a multipart
+  form of `workspaceId` and `file`s, with the `X-Leafdesk-Import` header), one import at a time per
+  person, as for other imports.
 
 ## Snippets
 

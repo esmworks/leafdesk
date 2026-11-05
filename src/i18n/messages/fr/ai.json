@@ -571,6 +571,36 @@
     "editLabel": "Note",
     "save": "Enregistrer",
     "cancel": "Annuler",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Préférences",
+      "work": "Travail",
+      "other": "Autre"
+    },
+    "categoryLabel": "Type",
+    "filterLabel": "Afficher",
+    "allCategories": "Tous les types",
+    "search": "Rechercher dans les notes",
+    "noMatch": "Aucune note ne correspond.",
+    "detailsLabel": "Détails",
+    "detailsPlaceholder": "Plus sur cette note, si une ligne ne suffit pas : pourquoi, quand elle s'applique, les étapes",
+    "addDetails": "Ajouter des détails",
+    "moreDetails": "Tout afficher",
+    "lessDetails": "Afficher moins",
+    "summary": {
+      "title": "Résumé",
+      "hint": "Quelques lignes sur vous, écrites à partir de vos notes, qui accompagnent vos questions ici avant elles. Les applications connectées le lisent aussi.",
+      "write": "Écrire avec l'IA",
+      "rewrite": "Réécrire",
+      "writing": "Rédaction…",
+      "byAi": "Écrit par l'IA à partir de vos notes, {date}",
+      "byYou": "Écrit par vous, {date}",
+      "stale": "vos notes ont changé depuis",
+      "withheld": "Une note dont il est tiré a changé ou a été oubliée : il n'accompagne plus vos questions tant que vous ne le réécrivez pas ou ne le marquez pas comme à jour.",
+      "markCurrent": "Marquer comme à jour",
+      "confirmRewrite": "Réécrire le résumé à partir de vos notes ? Le texte que vous avez écrit sera perdu.",
+      "confirmDelete": "Supprimer le résumé ? Vos questions ici partiront désormais sans lui."
+    },
     "delete": "Supprimer",
     "viaApp": "Enregistrée par {app}",
     "count": "{count} notes sur {max}",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "Écrivez ce qu'il faut retenir.",
       "tooLong": "Une note peut contenir au plus {max} caractères.",
+      "detailsTooLong": "Les détails d'une note peuvent compter au plus {max} caractères.",
       "full": "La mémoire contient au plus {max} notes. Supprimez-en une d'abord.",
       "notFound": "Cette note n'existe plus.",
       "off": "La mémoire de l’IA est désactivée dans cet espace de travail.",
+      "personOff": "Votre mémoire est désactivée ici : activez d'abord Utiliser la mémoire.",
       "changed": "Cette note a changé depuis. Modifiez-la plutôt dans Mémoire.",
       "busy": "Attendez la fin de la réponse.",
-      "held": "Une conservation légale protège cette note : elle ne peut pas être supprimée tant que la conservation est en place."
+      "held": "Une conservation légale protège cette note : elle ne peut pas être supprimée tant que la conservation est en place.",
+      "noNotes": "Gardez d'abord quelques notes : le résumé est écrit à partir d'elles.",
+      "summaryTooLong": "Un résumé peut compter au plus {max} caractères."
     }
   },
   "accounts": {

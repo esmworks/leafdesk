@@ -3,6 +3,12 @@
   "heading": "Færdigheder",
   "description": "Instruktioner, dit team genbruger, gemt som sider: hvordan man afslutter mødenoter, svarer en kunde eller sorterer en henvendelse. Vælg en i AI-chatten med /, eller fra en AI-app, der er forbundet med arbejdsområdet. Hver færdighed er en side eller en databaserække; man ser de færdigheder, man kan åbne.",
   "new": "Ny færdighed",
+  "import": {
+    "button": "Importér",
+    "label": "Importér færdigheder fra SKILL.md-, Markdown- eller ZIP-filer",
+    "done": "{count, plural, one {# færdighed importeret.} other {# færdigheder importeret.}}",
+    "skippedFiles": "{count, plural, one {# fil ved siden af blev udeladt.} other {# filer ved siden af blev udeladt.}}"
+  },
   "search": "Søg i færdigheder",
   "count": "{count, plural, one {# færdighed} other {# færdigheder}}",
   "noMatches": "Ingen færdighed matcher din søgning.",
@@ -50,7 +56,13 @@
     "template": "Skabeloner og siderne i dem kan ikke være færdigheder.",
     "inTrash": "Gendan først siden fra papirkurven.",
     "tooLong": "En færdigheds beskrivelse må højst have {max} tegn.",
-    "notASkill": "Denne side er ikke længere en færdighed."
+    "notASkill": "Denne side er ikke længere en færdighed.",
+    "importTooLarge": "Upload må højst være {mb} MB.",
+    "badFile": "Filen kan ikke læses. Vælg en SKILL.md, en Markdown-fil eller en ZIP med færdighedsmapper.",
+    "noSkills": "Der blev ikke fundet nogen SKILL.md- eller Markdown-fil.",
+    "tooManySkills": "Importér højst {max} færdigheder ad gangen.",
+    "skillTooLong": "En færdighed i uploadet er for lang.",
+    "busy": "En anden import kører stadig. Prøv igen, når den er færdig."
   },
   "database": {
     "title": "Færdigheder",

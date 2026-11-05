@@ -3,6 +3,12 @@
   "heading": "Skills",
   "description": "Instructions your team reuses, kept as pages: how to wrap up meeting notes, reply to a customer or triage a request. Pick one in the AI chat with /, or from an AI app connected to the workspace. Each skill is a page or database row; people see the skills they can open.",
   "new": "New skill",
+  "import": {
+    "button": "Import",
+    "label": "Import skills from SKILL.md, Markdown or ZIP files",
+    "done": "{count, plural, one {Imported # skill.} other {Imported # skills.}}",
+    "skippedFiles": "{count, plural, one {# file beside them was left out.} other {# files beside them were left out.}}"
+  },
   "search": "Search skills",
   "count": "{count, plural, one {# skill} other {# skills}}",
   "noMatches": "No skill matches your search.",
@@ -50,7 +56,13 @@
     "template": "Templates and the pages in them can't be skills.",
     "inTrash": "Restore the page from the trash first.",
     "tooLong": "A skill's description may have at most {max} characters.",
-    "notASkill": "This page isn't a skill anymore."
+    "notASkill": "This page isn't a skill anymore.",
+    "importTooLarge": "The upload may be at most {mb} MB.",
+    "badFile": "That file can't be read. Choose a SKILL.md, a Markdown file or a ZIP of skill folders.",
+    "noSkills": "No SKILL.md or Markdown file was found.",
+    "tooManySkills": "Import at most {max} skills at once.",
+    "skillTooLong": "A skill in the upload is too long.",
+    "busy": "Another import is still running. Try again when it's done."
   },
   "database": {
     "title": "Skills",

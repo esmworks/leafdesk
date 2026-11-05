@@ -3,6 +3,12 @@
   "heading": "Beceriler",
   "description": "Ekibinin tekrar tekrar kullandığı talimatlar, sayfa olarak: toplantı notunu toparlamak, bir müşteriye yanıt yazmak, bir talebi sınıflandırmak. AI sohbetinde / ile ya da çalışma alanına bağlı bir AI uygulamasından seç. Her beceri bir sayfa ya da veritabanı satırıdır; herkes açabildiği becerileri görür.",
   "new": "Yeni beceri",
+  "import": {
+    "button": "İçe aktar",
+    "label": "SKILL.md, Markdown veya ZIP dosyalarından beceri içe aktar",
+    "done": "{count, plural, one {# beceri içe aktarıldı.} other {# beceri içe aktarıldı.}}",
+    "skippedFiles": "{count, plural, one {Yanlarındaki # dosya alınmadı.} other {Yanlarındaki # dosya alınmadı.}}"
+  },
   "search": "Becerilerde ara",
   "count": "{count, plural, one {# beceri} other {# beceri}}",
   "noMatches": "Aramanla eşleşen beceri yok.",
@@ -50,7 +56,13 @@
     "template": "Şablonlar ve içlerindeki sayfalar beceri olamaz.",
     "inTrash": "Önce sayfayı çöp kutusundan geri yükle.",
     "tooLong": "Bir becerinin açıklaması en fazla {max} karakter olabilir.",
-    "notASkill": "Bu sayfa artık bir beceri değil."
+    "notASkill": "Bu sayfa artık bir beceri değil.",
+    "importTooLarge": "Yükleme en fazla {mb} MB olabilir.",
+    "badFile": "Bu dosya okunamıyor. Bir SKILL.md, Markdown dosyası ya da beceri klasörlerinden oluşan bir ZIP seçin.",
+    "noSkills": "Hiç SKILL.md veya Markdown dosyası bulunamadı.",
+    "tooManySkills": "Tek seferde en fazla {max} beceri içe aktarın.",
+    "skillTooLong": "Yüklemedeki bir beceri çok uzun.",
+    "busy": "Başka bir içe aktarma hâlâ sürüyor. Bitince yeniden deneyin."
   },
   "database": {
     "title": "Beceriler",

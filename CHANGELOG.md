@@ -13,6 +13,34 @@
   time on the calendar; a reminder set on a to-do's own day shows it at that time too (migration
   0193).
 
+- **Memory notes have a kind, and the Memory page searches them.** Each note is about the person
+  (*Profile*), how they like to work (*Preferences*), their *Work* or something *Other*. The AI
+  chat picks one as it keeps a note, apps connected over MCP pass `category` to `change_memory` and
+  read it from `list_memory`, and the model reads a note's kind with it. The Memory page groups each
+  part's notes by kind, filters them by kind, searches them, and sets the kind as you add or change
+  a note. Notes kept before are *Other* (migration 0195).
+
+- **Memory notes can have details, and the AI searches its memory.** A note keeps its one line
+  and may carry up to 2,000 characters of details: why, when it applies, the steps. Questions carry
+  only the line, marked as having details, and the chat reads the details with `read_memory` when a
+  question needs them. `read_memory` now searches: the notes with most of the words asked, with their
+  details, across the person's notes here and everywhere, the workspace's and its teamspace's, or
+  one note in full by its id; the chat is offered it whenever a note shown has details. The chat's
+  `remember` and MCP's `change_memory` take `details`, `list_memory` shows them, and the Memory
+  page adds, changes, folds and searches them (migration 0195).
+
+- **A summary of what the AI knows about you.** The Memory page keeps a few lines about you in each
+  workspace (who you are, what you work on, how you like to work), written by the AI from your notes
+  when you ask, or by you. It goes with your questions ahead of your notes, and apps connected over
+  MCP read it as `about` in `list_memory`. It is never rewritten on its own: notes kept since mark
+  it as behind, and a note it was written from changed or forgotten keeps it from being sent until
+  you write it again or mark it as up to date (migration 0195).
+
+- **Import skills from SKILL.md files.** *Import* in the skills library takes SKILL.md and other
+  Markdown files and ZIPs of skill folders, as AI assistants keep them and as *Export as SKILL.md*
+  writes them. Each skill becomes a row of your skills database with its description, its
+  instructions as the page and the other files of its folder in *Files*.
+
 ### Changed
 
 - **An owner's *Disconnect* and *Revoke* in Apps that reach this workspace act on that workspace

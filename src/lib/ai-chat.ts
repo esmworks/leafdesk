@@ -13,10 +13,35 @@ export const MAX_CONVERSATIONS = 50;
 /** Notes the chat may keep about a person in a workspace (its memory), and the longest one. */
 export const MAX_MEMORIES = 30;
 export const MAX_MEMORY_CHARS = 300;
+/**
+ * The longest details a note may carry under its line: what the note says in full (why, when, how),
+ * read with read_memory when a question needs it, never sent with every question.
+ */
+export const MAX_MEMORY_DETAILS_CHARS = 2000;
 
-/** A note of the chat's memory, as the Memory view lists it. */
-/** A note about the person; `app`: the connected app that kept or last changed it, if one did. */
-export type MemoryView = { id: string; text: string; app: string | null; createdAt: string; updatedAt: string };
+/** The longest summary of a person's notes (server/memory-summary.ts), which goes with every question. */
+export const MAX_MEMORY_SUMMARY_CHARS = 1500;
+
+/**
+ * A person's summary as the Memory page shows it: `stale` when they kept notes since it was written,
+ * `withheld` when a note it was written from changed or was forgotten since, which keeps it from
+ * being sent.
+ */
+export type MemorySummaryView = { text: string; writtenBy: "ai" | "person"; updatedAt: string; stale: boolean; withheld: boolean };
+
+/**
+ * What a note is about, so the Memory page can group and filter notes and the model sees what it
+ * reads: who someone is (`profile`), how they like to work (`preference`), projects, decisions and
+ * where things live (`work`), anything else (`other`, the default). No kind for other people: a
+ * person's notes are about them alone.
+ */
+export const MEMORY_CATEGORIES = ["profile", "preference", "work", "other"] as const;
+export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
+
+export const isMemoryCategory = (value: unknown): value is MemoryCategory => (MEMORY_CATEGORIES as readonly unknown[]).includes(value);
+
+/** A note of the chat's memory, as the Memory view lists it; `app`: the connected app that kept or last changed it, if one did. */
+export type MemoryView = { id: string; text: string; details: string | null; category: MemoryCategory; app: string | null; createdAt: string; updatedAt: string };
 
 /**
  * Where a note the chat keeps or drops goes, beside the person's own notes in the workspace: their

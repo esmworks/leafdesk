@@ -571,6 +571,36 @@
     "editLabel": "Nota",
     "save": "Salva",
     "cancel": "Annulla",
+    "categories": {
+      "profile": "Profilo",
+      "preference": "Preferenze",
+      "work": "Lavoro",
+      "other": "Altro"
+    },
+    "categoryLabel": "Tipo",
+    "filterLabel": "Mostra",
+    "allCategories": "Tutti i tipi",
+    "search": "Cerca nelle note",
+    "noMatch": "Nessuna nota corrisponde.",
+    "detailsLabel": "Dettagli",
+    "detailsPlaceholder": "Di più su questa nota, se una riga non basta: perché, quando vale, i passaggi",
+    "addDetails": "Aggiungi dettagli",
+    "moreDetails": "Mostra tutto",
+    "lessDetails": "Mostra meno",
+    "summary": {
+      "title": "Riepilogo",
+      "hint": "Poche righe su di te, scritte dalle tue note, che accompagnano le tue domande qui prima delle note. Anche le app collegate lo leggono.",
+      "write": "Scrivi con l'IA",
+      "rewrite": "Riscrivi",
+      "writing": "Scrittura…",
+      "byAi": "Scritto dall'IA dalle tue note, {date}",
+      "byYou": "Scritto da te, {date}",
+      "stale": "le tue note sono cambiate da allora",
+      "withheld": "Una nota da cui è stato scritto è cambiata o è stata dimenticata: non accompagna le tue domande finché non lo riscrivi o lo segni come aggiornato.",
+      "markCurrent": "Segna come aggiornato",
+      "confirmRewrite": "Riscrivere il riepilogo dalle tue note? Il testo che hai scritto andrà perso.",
+      "confirmDelete": "Eliminare il riepilogo? Da ora le tue domande qui andranno senza."
+    },
     "delete": "Elimina",
     "viaApp": "Conservata da {app}",
     "count": "{count} di {max} note",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "Scrivi cosa ricordare.",
       "tooLong": "Una nota può avere al massimo {max} caratteri.",
+      "detailsTooLong": "I dettagli di una nota possono avere al massimo {max} caratteri.",
       "full": "La memoria contiene al massimo {max} note. Eliminane prima una.",
       "notFound": "Quella nota non esiste più.",
       "off": "La memoria IA è disattivata in questo spazio di lavoro.",
+      "personOff": "La tua memoria qui è disattivata: attiva prima Usa la memoria.",
       "changed": "Quella nota è cambiata nel frattempo. Modificala in Memoria.",
       "busy": "Attendi che la risposta sia finita.",
-      "held": "Una conservazione legale protegge questa nota: non può essere eliminata finché la conservazione è attiva."
+      "held": "Una conservazione legale protegge questa nota: non può essere eliminata finché la conservazione è attiva.",
+      "noNotes": "Tieni prima qualche nota: il riepilogo viene scritto da quelle.",
+      "summaryTooLong": "Un riepilogo può avere al massimo {max} caratteri."
     }
   },
   "accounts": {
