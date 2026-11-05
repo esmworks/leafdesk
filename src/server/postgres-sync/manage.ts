@@ -227,7 +227,7 @@ export async function updatePostgresSync(userId: string, databaseId: string, pat
   }
   if (patch.url !== undefined) {
     const url = urlOf(patch.url);
-    await readSyncedTable(url, row.query, row.mapping);
+    await withSyncReach(userId, row.workspaceId, () => readSyncedTable(url, row.query, row.mapping));
     changes.secrets = sealJson({ url } satisfies PostgresAuth);
     changes.siteUrl = postgresSite(parsePostgresUrl(url)!);
   }

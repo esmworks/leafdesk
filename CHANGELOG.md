@@ -62,6 +62,12 @@
 
 ### Fixed
 
+- **An app allowed before no longer gets around a workspace's sign-in policy.** The consent page
+  sends a session that a workspace holds back (no second step where one is required, a sign-in
+  from outside its approved networks, a password where it asks for single sign-on) to meet the
+  policy before an app may connect, but an app the person had allowed earlier got its code
+  without that page, and with it every workspace the policy kept the session out of. Every
+  authorization now asks the same.
 - **A published page no longer carries its meetings' transcripts.** A meeting block on a
   published page or site shows its title, who came and its takeaways, but the page's HTML also
   held every one of its settings, the whole transcript and the people's ids among them, for any
