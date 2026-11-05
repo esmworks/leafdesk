@@ -6,6 +6,8 @@ import { CutText, MAX_POSTGRES_READ, MAX_POSTGRES_ROWS, MAX_POSTGRES_TEXT, POSTG
 
 vi.mock("@/lib/env", () => ({ env: { connectorAllowedHosts: [] } }));
 vi.mock("@/server/ssrf", () => ({ isBlockedAddress: () => false }));
+const syncReach = vi.hoisted(() => ({ storage: new (require("node:async_hooks") as typeof import("node:async_hooks")).AsyncLocalStorage<boolean>() }));
+vi.mock("@/server/sync-reach", () => ({ syncReachesAllowedHosts: () => syncReach.storage.getStore() === true }));
 
 type Batch = Record<string, string | null>[];
 const server = {
@@ -141,5 +143,14 @@ describe("allowedHost", () => {
     expect(allowedHost({ host: "warehouse", port: 6543 })).toBe(true);
     expect(allowedHost({ host: "warehouse", port: 5432 })).toBe(false);
     expect(allowedHost({ host: "other", port: 5432 })).toBe(false);
+  });
+
+  it("reaches an allowed host only for a sync an owner set up or runs", async () => {
+    const { env } = await import("@/lib/env");
+    const { storage } = syncReach;
+    env.connectorAllowedHosts.push("db");
+    // A member's sync: "db" is a local name, refused before anything connects.
+    await expect(withPostgres("postgres://app:pw@db:5432/shop", async () => "read")).rejects.toMatchObject({ code: "invalidSite" });
+    expect(await storage.run(true, () => withPostgres("postgres://app:pw@db:5432/shop", async () => "read"))).toBe("read");
   });
 });

@@ -15,6 +15,7 @@ describe("builtinIconSvg", () => {
 
   it("draws nothing for an emoji or an icon there isn't", () => {
     expect(builtinIconSvg("⭐")).toBeNull();
+    expect(builtinIconSvg("icon:constructor")).toBeNull();
     expect(builtinIconSvg("icon:no-such-icon")).toBeNull();
     expect(builtinIconSvg(null)).toBeNull();
   });

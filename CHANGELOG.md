@@ -62,6 +62,23 @@
 
 ### Fixed
 
+- **Synced databases reach servers on your own network only when an owner set them up.** Hosts
+  in `CONNECTOR_ALLOWED_HOSTS` are for what owners set up, yet any member who may make a database
+  could point a calendar, Jira, GitHub or PostgreSQL sync at one of them (an internal database
+  server, say) and read what it answered. Such a sync now reaches those hosts only while it is set
+  up, changed or run by an owner of its workspace; anyone else's reaches public addresses only, as
+  the addresses members give do. A sync a member set up against such a host stops with "a local
+  host name" or "a private address" until an owner changes it or runs it.
+- **A page can no longer stall the server for minutes.** A to-do with a long run of colons or
+  dashes, a line of thousands of `[` and a long run of punctuation after a web address each made a
+  text search start over at every character, on every save, every read of the page by MCP, the
+  REST API or the AI, and every workspace check, holding up everything else the server does. They
+  are now read in one pass.
+- **A callout or button with the icon `icon:constructor` no longer breaks the page.** Names every
+  object has of its own were taken for built-in icons, and the page failed to show in the editor,
+  on its published address, in print and in PDFs, as did the page icon address for such a name.
+- **A web download whose redirect or error never ends no longer stays open.** Its body was read
+  and thrown away with no time limit; the connection is now closed at once.
 - **Mail you alone wrote is listed by whom it went to.** Sent mail, and threads nobody has answered
   yet, read *To: Ayşe* in the list instead of *me* on every row.
 - **An answer goes when another mail program moved what it answers.** A message moved or a folder

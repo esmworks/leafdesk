@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 // What Jira or GitHub answers is read only up to a size, so a site can't fill the server's memory.
 
 vi.mock("@/server/connections/fetch", () => ({ checkConnectionUrl: vi.fn(), ConnectionFetchError: class extends Error {}, connectionFetch: vi.fn() }));
+vi.mock("@/server/sync-reach", () => ({ syncFetchReach: () => ({ untrusted: true }) }));
 
 const { answerJson, JiraError } = await import("./client");
 

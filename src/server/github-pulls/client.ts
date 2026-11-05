@@ -1,5 +1,6 @@
 import { GITHUB_PAGE_SIZE, MAX_GITHUB_PULLS, pullRow, type GithubErrorCode, type GithubPullRow, type GithubPullsQuery } from "@/lib/github-pulls-sync";
 import { checkConnectionUrl, ConnectionFetchError, connectionFetch } from "@/server/connections/fetch";
+import { syncFetchReach } from "@/server/sync-reach";
 import { answerJson, JiraError } from "@/server/jira-sync/client";
 
 /**
@@ -22,7 +23,7 @@ const MAX_ANSWER_BYTES = 20_000_000;
 /** Checks an API address before anything is sent there. */
 export function checkGithubApi(apiUrl: string) {
   try {
-    checkConnectionUrl(apiUrl);
+    checkConnectionUrl(apiUrl, syncFetchReach());
   } catch (error) {
     if (error instanceof ConnectionFetchError) throw new GithubPullsError("invalidSite", error.message);
     throw error;
@@ -41,7 +42,7 @@ async function call(apiUrl: string, token: string | null, path: string): Promise
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       signal: AbortSignal.timeout(TIMEOUT_MS),
-    });
+    }, syncFetchReach());
   } catch (error) {
     if (error instanceof ConnectionFetchError) throw new GithubPullsError("invalidSite", error.message);
     throw new GithubPullsError("unreachable", "GitHub could not be reached");

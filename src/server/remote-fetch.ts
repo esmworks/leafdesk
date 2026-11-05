@@ -129,14 +129,16 @@ export async function fetchRemoteFile(input: string, options: RemoteFetchOptions
     if (isIP(host) && isBlocked(host)) throw new RemoteFetchError("That address isn't public", "blocked");
     const res = await get(url, { isBlocked, deadline, headers });
     const status = res.statusCode ?? 0;
+    // Bodies of redirects and errors are dropped, not read: the deadline ended with the answer's
+    // headers, so a body that never ends would keep its socket reading for good.
     if ([301, 302, 303, 307, 308].includes(status) && res.headers.location) {
-      res.resume();
+      res.destroy();
       if (hop >= maxRedirects) throw new RemoteFetchError("Too many redirects", "tooManyRedirects");
       url = new URL(res.headers.location, url);
       continue;
     }
     if (status < 200 || status >= 300) {
-      res.resume();
+      res.destroy();
       throw new RemoteFetchError(`The server answered ${status}`, "httpError");
     }
     const length = res.headers["content-length"] ? Number(res.headers["content-length"]) : null;

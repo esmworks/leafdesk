@@ -23,6 +23,7 @@ import type { WriteActor } from "@/server/collab/bridge";
 import { addProperty, addView, getProperties, requireDatabase, type OptionInput } from "@/server/databases";
 import { discardDatabase, recordImport } from "@/server/import/csv";
 import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
+import { withSyncReach } from "@/server/sync-reach";
 import { openJson, sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
 import { checkJiraSite, JiraError, jiraAccount, jiraProjects, searchIssues, type JiraAuth } from "./client";
@@ -84,11 +85,13 @@ function interval(value: unknown): number {
  * For members of the workspace a sync is being set up in only (within their setup budget).
  */
 export async function checkJira(userId: string, workspaceId: string, input: JiraCredentials): Promise<{ account: string; projects: JiraProject[] }> {
-  const { siteUrl, auth } = credentials(input);
-  await requireMembership(userId, workspaceId);
-  takeSyncSetup(userId);
-  const { name } = await jiraAccount(siteUrl, auth);
-  return { account: name, projects: await jiraProjects(siteUrl, auth) };
+  return withSyncReach(userId, workspaceId, async () => {
+    const { siteUrl, auth } = credentials(input);
+    await requireMembership(userId, workspaceId);
+    takeSyncSetup(userId);
+    const { name } = await jiraAccount(siteUrl, auth);
+    return { account: name, projects: await jiraProjects(siteUrl, auth) };
+  });
 }
 
 export type JiraSyncInput = JiraCredentials & {
@@ -285,9 +288,12 @@ export async function updateJiraSync(userId: string, databaseId: string, patch: 
     } else throw new JiraError("invalidInput", "The reporter goes to a person property of the database");
   }
   if (signingIn) {
-    const { auth } = credentials({ siteUrl: row.siteUrl, email: patch.email, token: patch.token });
-    takeSyncSetup(userId);
-    await jiraAccount(row.siteUrl, auth);
+    const { auth } = await withSyncReach(userId, row.workspaceId, async () => {
+      const checked = credentials({ siteUrl: row.siteUrl, email: patch.email, token: patch.token });
+      takeSyncSetup(userId);
+      await jiraAccount(row.siteUrl, checked.auth);
+      return checked;
+    });
     changes.secrets = sealJson({ ...auth, owner: userId } satisfies SealedAuth);
   }
   await db.update(databaseSync).set(changes).where(eq(databaseSync.id, row.id));
@@ -302,13 +308,15 @@ export async function updateJiraSync(userId: string, databaseId: string, patch: 
  */
 export async function jiraProjectsOf(userId: string, databaseId: string, signIn: JiraCredentials = {}): Promise<JiraProject[]> {
   const row = await requireSync(userId, databaseId);
-  if (signIn.email !== undefined || signIn.token !== undefined) {
-    const { auth } = credentials({ siteUrl: row.siteUrl, email: signIn.email, token: signIn.token });
-    takeSyncSetup(userId);
-    return jiraProjects(row.siteUrl, auth);
-  }
-  if (!ownsSignIn(row, userId)) throw new JiraSignInNeeded("Listing projects needs your own sign-in");
-  return jiraProjects(row.siteUrl, signInOf(row));
+  return withSyncReach(userId, row.workspaceId, async () => {
+    if (signIn.email !== undefined || signIn.token !== undefined) {
+      const { auth } = credentials({ siteUrl: row.siteUrl, email: signIn.email, token: signIn.token });
+      takeSyncSetup(userId);
+      return jiraProjects(row.siteUrl, auth);
+    }
+    if (!ownsSignIn(row, userId)) throw new JiraSignInNeeded("Listing projects needs your own sign-in");
+    return jiraProjects(row.siteUrl, signInOf(row));
+  });
 }
 
 /** Stops syncing: the database and its rows stay as they are, and its sign-in is forgotten. */
@@ -319,5 +327,6 @@ export async function stopJiraSync(userId: string, databaseId: string) {
 
 /** createJiraSync, which starts the history of what it makes (server/database-changes.ts asSetup). */
 export async function createJiraSync(...args: Parameters<typeof untrackedCreateJiraSync>) {
-  return asSetup(() => untrackedCreateJiraSync(...args));
+  const [actor, input] = args;
+  return withSyncReach(actor.userId, input.workspaceId, () => asSetup(() => untrackedCreateJiraSync(...args)));
 }

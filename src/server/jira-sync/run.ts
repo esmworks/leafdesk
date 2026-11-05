@@ -13,6 +13,7 @@ import { runPostgres } from "@/server/postgres-sync/run";
 import { runSheets } from "@/server/sheets-sync/run";
 import { matcher } from "@/server/import/board";
 import { openJson } from "@/server/secret-box";
+import { withSyncReach } from "@/server/sync-reach";
 import { startSweep } from "@/server/sweep";
 import { addOptions, applyRows, liveFields, type SyncedDatabase } from "@/server/synced-rows";
 import { JiraError, searchIssues, type JiraAuth } from "./client";
@@ -103,15 +104,21 @@ export async function runSync(sync: SyncRow) {
     throw error;
   }
   if (database.archivedAt) return null;
-  if (sync.source === "github") return runGithubPulls(sync, database, sync.runAs);
-  if (sync.source === "ical") return runIcal(sync, database, sync.runAs);
-  if (sync.source === "postgres") return runPostgres(sync, database, sync.runAs);
-  if (sync.source === "sheets") return runSheets(sync, database, sync.runAs);
-  if (sync.source === "gcal") return runGcal(sync, database, sync.runAs);
+  const runAs = sync.runAs;
+  // Hosts on CONNECTOR_ALLOWED_HOSTS only for a sync run as an owner (sync-reach.ts).
+  return withSyncReach(runAs, sync.workspaceId, () => runSource(sync, database, runAs));
+}
+
+async function runSource(sync: SyncRow, database: SyncedDatabase, runAs: string) {
+  if (sync.source === "github") return runGithubPulls(sync, database, runAs);
+  if (sync.source === "ical") return runIcal(sync, database, runAs);
+  if (sync.source === "postgres") return runPostgres(sync, database, runAs);
+  if (sync.source === "sheets") return runSheets(sync, database, runAs);
+  if (sync.source === "gcal") return runGcal(sync, database, runAs);
   const auth = openJson<JiraAuth>(sync.secrets);
   const issues = await searchIssues(sync.siteUrl, auth, jqlOf(sync.query as JiraQuery));
   const rows = issues.map((issue) => issueRow(issue, sync.siteUrl)).filter((row): row is JiraRow => row !== null);
-  const written = await applyIssues(database, sync.runAs, sync.mapping as JiraMapping, rows);
+  const written = await applyIssues(database, runAs, sync.mapping as JiraMapping, rows);
   return { count: rows.length, ...written };
 }
 

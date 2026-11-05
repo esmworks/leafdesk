@@ -6,13 +6,15 @@ import { getProperties } from "@/server/databases";
 import { JiraError } from "@/server/jira-sync/client";
 import type { SyncRow } from "@/server/jira-sync/run";
 import { openJson } from "@/server/secret-box";
+import { syncFetchReach } from "@/server/sync-reach";
 import { addOptions, applyRows, liveFields, type SyncedDatabase } from "@/server/synced-rows";
 
 /**
  * Reading a calendar's events (lib/ical-sync) and writing them into its synced database, called by
  * server/jira-sync/run, which holds and records every synced database's runs. The address is
  * fetched through the connections' fetch for web pages: http or https on the usual web ports, to a
- * public address only unless the host is in CONNECTOR_ALLOWED_HOSTS. An error is a JiraError (the
+ * public address only unless the host is in CONNECTOR_ALLOWED_HOSTS and an owner set up the sync
+ * (sync-reach.ts). An error is a JiraError (the
  * runs record every source alike); it never carries the answer.
  */
 
@@ -36,7 +38,7 @@ export const ICAL_TYPES: Record<IcalField, PropertyType> = {
 async function fetchCalendarText(url: string): Promise<string> {
   let response: Response;
   try {
-    response = await connectionFetch(url, { headers: { Accept: "text/calendar, */*;q=0.5", "User-Agent": "Leafdesk" }, signal: AbortSignal.timeout(TIMEOUT_MS) }, { web: true });
+    response = await connectionFetch(url, { headers: { Accept: "text/calendar, */*;q=0.5", "User-Agent": "Leafdesk" }, signal: AbortSignal.timeout(TIMEOUT_MS) }, syncFetchReach(true));
   } catch (error) {
     if (error instanceof ConnectionFetchError) throw new JiraError("invalidSite", error.message);
     throw new JiraError("unreachable", "The calendar could not be reached");

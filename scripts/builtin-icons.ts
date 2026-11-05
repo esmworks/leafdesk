@@ -41,6 +41,11 @@ export type BuiltinIconNode = readonly (readonly [tag: string, attrs: Readonly<R
 export const BUILTIN_ICONS: Readonly<Record<string, BuiltinIconNode>> = {
 ${lines.join("\n")}
 };
+
+/** The drawing of the built-in icon \`name\`, or undefined for a name there isn't (one of Object's own, "constructor", included). */
+export function builtinIconNode(name: string): BuiltinIconNode | undefined {
+  return Object.hasOwn(BUILTIN_ICONS, name) ? BUILTIN_ICONS[name] : undefined;
+}
 `;
 writeFileSync(join(process.cwd(), "src/lib/builtin-icons-data.ts"), out);
 console.log(`${BUILTIN_ICON_NAMES.length} icons written`);

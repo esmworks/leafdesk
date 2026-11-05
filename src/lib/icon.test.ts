@@ -43,6 +43,12 @@ describe("built-in icons", () => {
     expect(new Set(BUILTIN_ICON_NAMES).size).toBe(BUILTIN_ICON_NAMES.length);
   });
 
+  it("has no drawing for names an object has of its own", async () => {
+    const { builtinIconNode } = await import("./builtin-icons-data");
+    for (const name of ["constructor", "to-string", "hasownproperty", "valueof"]) expect(builtinIconNode(name)).toBeUndefined();
+    expect(builtinIconNode("star")?.length).toBeGreaterThan(0);
+  });
+
   it("reads and writes the stored form", () => {
     expect(readBuiltinIcon("icon:star:blue")).toEqual({ name: "star", color: "blue" });
     expect(readBuiltinIcon("icon:star")).toEqual({ name: "star", color: null });

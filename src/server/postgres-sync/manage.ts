@@ -20,6 +20,7 @@ import { addProperty, requireDatabase } from "@/server/databases";
 import { discardDatabase, recordImport } from "@/server/import/csv";
 import { claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "@/server/jira-sync/run";
 import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
+import { withSyncReach } from "@/server/sync-reach";
 import { sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
 import { describeTable, PostgresSyncError, readTable, withPostgres } from "./client";
@@ -81,7 +82,7 @@ export async function createPostgresSync(actor: WriteActor, input: PostgresSyncI
 
   await requireDatabasePlace(userId, input);
   takeSyncSetup(userId);
-  const { query, columns, rows } = await withPostgres(url, async (sql) => {
+  const { query, columns, rows } = await withSyncReach(userId, input.workspaceId, () => withPostgres(url, async (sql) => {
     const table = await describeTable(sql, name.schema, name.table);
     const has = (column: string | null) => column !== null && table.columns.some((c) => c.name === column);
     const keyColumn = asked.key ?? table.primaryKey;
@@ -94,7 +95,7 @@ export async function createPostgresSync(actor: WriteActor, input: PostgresSyncI
       .slice(0, MAX_POSTGRES_COLUMNS) as { name: string; kind: NonNullable<(typeof table.columns)[number]["kind"]> }[];
     const rows = await readTable(sql, query.schema, query.table, keyColumn, [titleColumn, ...columns.map((c) => c.name)]);
     return { query, columns, rows };
-  });
+  }));
 
   const database = await createPage(
     actor,

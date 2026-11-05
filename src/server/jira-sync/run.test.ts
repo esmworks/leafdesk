@@ -16,6 +16,7 @@ vi.mock("@/server/github-pulls/run", () => ({ runGithubPulls: vi.fn() }));
 vi.mock("@/server/import/board", () => ({ matcher: vi.fn() }));
 vi.mock("@/server/synced-rows", () => ({ addOptions: vi.fn(), applyRows: vi.fn(), liveFields: vi.fn() }));
 vi.mock("@/server/secret-box", () => ({ openJson: vi.fn() }));
+vi.mock("@/server/sync-reach", () => ({ withSyncReach: (_userId: string, _workspaceId: string, fn: () => Promise<unknown>) => fn() }));
 
 const { runAndRecord, RUN_TIMEOUT_MS } = await import("./run");
 
