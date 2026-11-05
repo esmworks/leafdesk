@@ -595,7 +595,11 @@
       "writing": "Đang viết…",
       "byAi": "AI viết từ ghi chú của bạn, {date}",
       "byYou": "Do bạn viết, {date}",
-      "stale": "ghi chú của bạn đã thay đổi kể từ đó"
+      "stale": "ghi chú của bạn đã thay đổi kể từ đó",
+      "withheld": "Một ghi chú dùng để viết nó đã thay đổi hoặc bị quên, nên nó không đi kèm câu hỏi của bạn cho đến khi bạn viết lại hoặc đánh dấu là mới nhất.",
+      "markCurrent": "Đánh dấu là mới nhất",
+      "confirmRewrite": "Viết lại bản tóm tắt từ ghi chú của bạn? Văn bản bạn tự viết sẽ mất.",
+      "confirmDelete": "Xóa bản tóm tắt? Từ nay câu hỏi của bạn ở đây sẽ không kèm nó."
     },
     "delete": "Xóa",
     "viaApp": "Được giữ bởi {app}",
@@ -610,6 +614,7 @@
       "full": "Bộ nhớ chứa tối đa {max} ghi chú. Hãy xóa một ghi chú trước.",
       "notFound": "Ghi chú đó không còn nữa.",
       "off": "Bộ nhớ AI đã bị tắt trong không gian làm việc này.",
+      "personOff": "Bộ nhớ của bạn đang tắt ở đây: hãy bật Dùng bộ nhớ trước.",
       "changed": "Ghi chú đó đã thay đổi kể từ đó. Hãy sửa nó trong Bộ nhớ.",
       "busy": "Hãy đợi câu trả lời xong.",
       "held": "Một lệnh lưu giữ pháp lý giữ ghi chú này: không thể xóa khi lệnh lưu giữ còn hiệu lực.",

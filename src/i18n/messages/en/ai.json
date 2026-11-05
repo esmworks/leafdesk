@@ -595,7 +595,11 @@
       "writing": "Writing…",
       "byAi": "Written by the AI from your notes, {date}",
       "byYou": "Written by you, {date}",
-      "stale": "your notes changed since"
+      "stale": "your notes changed since",
+      "withheld": "A note it was written from changed or was forgotten, so it doesn't go with your questions until you write it again or mark it as up to date.",
+      "markCurrent": "Mark as up to date",
+      "confirmRewrite": "Write the summary again from your notes? The text you wrote yourself goes.",
+      "confirmDelete": "Delete the summary? Your questions here go without it from now on."
     },
     "delete": "Delete",
     "viaApp": "Kept by {app}",
@@ -610,6 +614,7 @@
       "full": "Memory holds at most {max} notes. Delete one first.",
       "notFound": "That note isn't there anymore.",
       "off": "The AI memory is turned off in this workspace.",
+      "personOff": "Your memory is turned off here: turn on Use memory first.",
       "changed": "That note changed since. Change it in Memory instead.",
       "busy": "Wait until the answer is done.",
       "held": "A legal hold keeps this note: it can't be deleted while the hold stands.",

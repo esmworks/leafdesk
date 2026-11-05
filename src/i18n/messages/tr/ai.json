@@ -595,7 +595,11 @@
       "writing": "Yazılıyor…",
       "byAi": "Notlarınızdan AI tarafından yazıldı, {date}",
       "byYou": "Sizin yazdığınız, {date}",
-      "stale": "notlarınız o zamandan beri değişti"
+      "stale": "notlarınız o zamandan beri değişti",
+      "withheld": "Yazıldığı notlardan biri değişti ya da unutuldu; yeniden yazana ya da güncel diye işaretleyene kadar sorularınızla gitmiyor.",
+      "markCurrent": "Güncel olarak işaretle",
+      "confirmRewrite": "Özet notlarınızdan yeniden yazılsın mı? Kendi yazdığınız metin gider.",
+      "confirmDelete": "Özet silinsin mi? Buradaki sorularınız bundan sonra onsuz gider."
     },
     "delete": "Sil",
     "viaApp": "{app} kaydetti",
@@ -610,6 +614,7 @@
       "full": "Hafıza en fazla {max} not tutar. Önce birini sil.",
       "notFound": "Bu not artık yok.",
       "off": "Bu çalışma alanında yapay zekâ hafızası kapalı.",
+      "personOff": "Hafızanız burada kapalı: önce Hafızayı kullan'ı açın.",
       "changed": "Bu not o zamandan beri değişti. Hafıza'dan değiştir.",
       "busy": "Cevap bitene kadar bekle.",
       "held": "Bu notu yasal saklama koruyor: saklama sürdükçe silinemez.",

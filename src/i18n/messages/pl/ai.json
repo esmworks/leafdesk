@@ -595,7 +595,11 @@
       "writing": "Piszę…",
       "byAi": "Napisane przez AI na podstawie Twoich notatek, {date}",
       "byYou": "Napisane przez Ciebie, {date}",
-      "stale": "Twoje notatki zmieniły się od tego czasu"
+      "stale": "Twoje notatki zmieniły się od tego czasu",
+      "withheld": "Notatka, na podstawie której powstało, zmieniła się lub została zapomniana: nie trafia do Twoich pytań, dopóki nie napiszesz go ponownie lub nie oznaczysz jako aktualne.",
+      "markCurrent": "Oznacz jako aktualne",
+      "confirmRewrite": "Napisać podsumowanie ponownie na podstawie notatek? Tekst napisany przez Ciebie zniknie.",
+      "confirmDelete": "Usunąć podsumowanie? Twoje pytania tutaj będą odtąd bez niego."
     },
     "delete": "Usuń",
     "viaApp": "Zapisane przez {app}",
@@ -610,6 +614,7 @@
       "full": "Pamięć mieści najwyżej {max, plural, one {# notatkę} few {# notatki} many {# notatek} other {# notatki}}. Najpierw usuń jedną.",
       "notFound": "Tej notatki już nie ma.",
       "off": "Pamięć AI jest wyłączona w tym obszarze roboczym.",
+      "personOff": "Pamięć jest tu wyłączona: najpierw włącz Używaj pamięci.",
       "changed": "Ta notatka zmieniła się od tego czasu. Zmień ją w Pamięci.",
       "busy": "Poczekaj, aż odpowiedź się zakończy.",
       "held": "Blokada prawna zachowuje tę notatkę: nie można jej usunąć, dopóki blokada obowiązuje.",

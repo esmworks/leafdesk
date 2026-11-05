@@ -12,7 +12,15 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useState, type FormEvent, type ReactNode } from "react";
-import { changeNoteAction, deleteMemorySummaryAction, saveMemorySummaryAction, setMemoryUseAction, writeMemorySummaryAction, type NoteChange } from "@/app/actions/ai";
+import {
+  changeNoteAction,
+  deleteMemorySummaryAction,
+  markMemorySummaryCurrentAction,
+  saveMemorySummaryAction,
+  setMemoryUseAction,
+  writeMemorySummaryAction,
+  type NoteChange,
+} from "@/app/actions/ai";
 import { IconGlyph } from "@/components/builtin-icon";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { Button, cn, IconButton, Input, selectClass, Switch, textareaClass } from "@/components/ui";
@@ -100,9 +108,9 @@ export function MemoryPage({
     setBusy(false);
     setError(result.ok ? null : result.error);
     if (result.ok) {
-      setNotes((current) => ({ ...current, [key]: result.data }));
-      // The summary is written from the person's own notes: it may say less than they do now.
-      if (key === "mine" || key === "everywhere") setSummary((current) => current && { ...current, stale: true });
+      setNotes((current) => ({ ...current, [key]: result.data.notes }));
+      // The summary is written from the person's own notes: a change to them may leave it behind.
+      if (result.data.summary !== undefined) setSummary(result.data.summary);
     }
     return result.ok;
   }
@@ -204,7 +212,8 @@ export function MemoryPage({
             <SummaryBox
               workspaceId={workspaceId}
               summary={summary}
-              enabled={use && (notes.mine?.length ?? 0) + (notes.everywhere?.length ?? 0) > 0}
+              use={use}
+              hasNotes={(notes.mine?.length ?? 0) + (notes.everywhere?.length ?? 0) > 0}
               onChange={setSummary}
             />
           )}
@@ -225,7 +234,7 @@ export function MemoryPage({
   );
 }
 
-/** A summary as written: `## ` headings, `- ` bullets and lines, without any other Markdown. */
+/** A summary as written: Markdown headings, `- ` bullets and lines, without any other Markdown (a `#tag` line is a line). */
 function SummaryText({ text }: { text: string }) {
   const blocks: ReactNode[] = [];
   let bullets: string[] = [];
@@ -248,10 +257,11 @@ function SummaryText({ text }: { text: string }) {
     }
     flush();
     if (!line) continue;
-    if (line.startsWith("#")) {
+    const heading = /^#{1,6} /.exec(line);
+    if (heading) {
       blocks.push(
         <p key={blocks.length} className="pt-1 text-xs font-medium text-fg-muted">
-          {line.replace(/^#+\s*/, "")}
+          {line.slice(heading[0].length).trim()}
         </p>,
       );
     } else blocks.push(<p key={blocks.length}>{line}</p>);
@@ -262,18 +272,21 @@ function SummaryText({ text }: { text: string }) {
 
 /**
  * The person's summary of their notes here: written by the AI when they ask, or by them; changed in
- * place or deleted; marked when their notes changed since. `enabled`: their memory is on and they
- * have notes to sum up.
+ * place or deleted, asking first where that loses what they wrote; marked when their notes changed
+ * since, and held back from questions when a note it was written from did (until written again or
+ * marked as up to date). `use`: their memory is on here, which writing and changing it needs.
  */
 function SummaryBox({
   workspaceId,
   summary,
-  enabled,
+  use,
+  hasNotes,
   onChange,
 }: {
   workspaceId: string;
   summary: MemorySummaryView | null;
-  enabled: boolean;
+  use: boolean;
+  hasNotes: boolean;
   onChange: (summary: MemorySummaryView | null) => void;
 }) {
   const t = useTranslations("ai.memory");
@@ -307,26 +320,49 @@ function SummaryBox({
           {summary && editing === null && (
             <p className="text-xs text-fg-muted">
               {summary.writtenBy === "ai" ? t("summary.byAi", { date: when }) : t("summary.byYou", { date: when })}
-              {summary.stale && ` · ${t("summary.stale")}`}
+              {summary.stale && !summary.withheld && ` · ${t("summary.stale")}`}
             </p>
           )}
+          {summary?.withheld && editing === null && <p className="mt-1 text-xs text-danger">{t("summary.withheld")}</p>}
         </div>
         {editing === null && (
           <div className="flex shrink-0 flex-wrap justify-end gap-1">
-            {enabled && (
-              <Button size="sm" disabled={busy} onClick={() => void act("write", () => writeMemorySummaryAction(workspaceId))}>
+            {use && hasNotes && (
+              <Button
+                size="sm"
+                disabled={busy}
+                onClick={() => {
+                  // What the person wrote themselves goes with it: ask first.
+                  if (summary?.writtenBy === "person" && !confirm(t("summary.confirmRewrite"))) return;
+                  void act("write", () => writeMemorySummaryAction(workspaceId));
+                }}
+              >
                 {working === "write" ? t("summary.writing") : summary ? t("summary.rewrite") : t("summary.write")}
               </Button>
             )}
+            {summary && use && (summary.stale || summary.withheld) && (
+              <Button size="sm" variant="ghost" disabled={busy} onClick={() => void act("save", () => markMemorySummaryCurrentAction(workspaceId))}>
+                {t("summary.markCurrent")}
+              </Button>
+            )}
+            {summary && use && (
+              <Button size="sm" variant="ghost" disabled={busy} onClick={() => setEditing(summary.text)}>
+                {t("edit")}
+              </Button>
+            )}
             {summary && (
-              <>
-                <Button size="sm" variant="ghost" disabled={busy} onClick={() => setEditing(summary.text)}>
-                  {t("edit")}
-                </Button>
-                <Button size="sm" variant="ghost" className="hover:text-danger" disabled={busy} onClick={() => void act("save", () => deleteMemorySummaryAction(workspaceId).then((r) => (r.ok ? { ok: true as const, data: null } : r)))}>
-                  {t("delete")}
-                </Button>
-              </>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="hover:text-danger"
+                disabled={busy}
+                onClick={() => {
+                  if (!confirm(t("summary.confirmDelete"))) return;
+                  void act("save", () => deleteMemorySummaryAction(workspaceId).then((r) => (r.ok ? { ok: true as const, data: null } : r)));
+                }}
+              >
+                {t("delete")}
+              </Button>
             )}
           </div>
         )}

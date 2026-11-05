@@ -595,7 +595,11 @@
       "writing": "Rédaction…",
       "byAi": "Écrit par l'IA à partir de vos notes, {date}",
       "byYou": "Écrit par vous, {date}",
-      "stale": "vos notes ont changé depuis"
+      "stale": "vos notes ont changé depuis",
+      "withheld": "Une note dont il est tiré a changé ou a été oubliée : il n'accompagne plus vos questions tant que vous ne le réécrivez pas ou ne le marquez pas comme à jour.",
+      "markCurrent": "Marquer comme à jour",
+      "confirmRewrite": "Réécrire le résumé à partir de vos notes ? Le texte que vous avez écrit sera perdu.",
+      "confirmDelete": "Supprimer le résumé ? Vos questions ici partiront désormais sans lui."
     },
     "delete": "Supprimer",
     "viaApp": "Enregistrée par {app}",
@@ -610,6 +614,7 @@
       "full": "La mémoire contient au plus {max} notes. Supprimez-en une d'abord.",
       "notFound": "Cette note n'existe plus.",
       "off": "La mémoire de l’IA est désactivée dans cet espace de travail.",
+      "personOff": "Votre mémoire est désactivée ici : activez d'abord Utiliser la mémoire.",
       "changed": "Cette note a changé depuis. Modifiez-la plutôt dans Mémoire.",
       "busy": "Attendez la fin de la réponse.",
       "held": "Une conservation légale protège cette note : elle ne peut pas être supprimée tant que la conservation est en place.",

@@ -432,7 +432,7 @@ try {
   check(outsiderList instanceof AccessError, "someone outside the workspace can't list or add there");
 
   // ── The summary ─────────────────────────────────────────────────────────────────────────────
-  const { setSummary, summaryOf, writeSummary } = await import("@/server/memory-summary");
+  const { markSummaryCurrent, setSummary, summaryForPrompt, summaryOf, writeSummary } = await import("@/server/memory-summary");
   const aliceNotes = await listMemories(alice, workspaceId);
   fake.setChat(() => ({ text: "```markdown\n## Role\nLeads the brand team.\n```" }));
   fake.chats.length = 0;
@@ -455,18 +455,41 @@ try {
   await ask(bob, { workspaceId, message: "Hi" });
   check(!question(fake.chats[0]).includes("brand team"), "…never with anyone else's");
   const later = await addMemory(alice, workspaceId, "Works from Izmir.");
-  check((await summaryOf(alice, workspaceId))?.stale === true, "a note kept since marks the summary as behind, which stays as it was");
+  const behind = await summaryOf(alice, workspaceId);
+  check(
+    behind?.stale === true && !behind.withheld && (await summaryForPrompt(alice, workspaceId)) === summary1.text,
+    "a note kept since marks the summary as behind, and it still goes with questions",
+    behind,
+  );
   const own = await setSummary(alice, workspaceId, "## Role\nLeads brand.");
-  check(own?.writtenBy === "person" && !own.stale, "the person can write the summary themselves");
+  check(own?.writtenBy === "person" && own.stale, "the person can change the summary, which stays behind the notes it was written from", own);
+  const current = await markSummaryCurrent(alice, workspaceId);
+  check(current?.text === "## Role\nLeads brand." && !current.stale && !current.withheld, "…until they mark it as up to date", current);
   const tooLong = await setSummary(alice, workspaceId, "x".repeat(1501)).catch((e) => e);
   check(tooLong instanceof MemoryError && tooLong.code === "summaryTooLong", "…up to its limit");
+  await deleteMemories(alice, workspaceId, [later.id]);
+  const held = await summaryOf(alice, workspaceId);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  check(
+    held?.withheld === true && !question(fake.chats[0]).includes("memory_summary") && (await summaryForPrompt(alice, workspaceId)) === "",
+    "forgetting a note the summary was written from keeps the summary from going anywhere",
+    held,
+  );
   await setMemoryUse(alice, workspaceId, false);
   fake.chats.length = 0;
   await ask(alice, { workspaceId, message: "Hi" });
   const summaryOff = await writeSummary(alice, workspaceId).catch((e) => e);
-  check(!question(fake.chats[0]).includes("memory_summary") && summaryOff instanceof MemoryError && summaryOff.code === "off", "with the memory off, no summary goes or is written");
+  const editOff = await setSummary(alice, workspaceId, "## Role\nLeads.").catch((e) => e);
+  check(
+    !question(fake.chats[0]).includes("memory_summary") && summaryOff instanceof MemoryError && summaryOff.code === "personOff" && editOff instanceof MemoryError && editOff.code === "personOff",
+    "with their own memory off, no summary goes or is written, the refusal naming their switch",
+  );
   await setMemoryUse(alice, workspaceId, true);
-  await deleteMemories(alice, workspaceId, [later.id]);
+  await deleteMemories(alice, workspaceId, "all");
+  check((await summaryOf(alice, workspaceId)) === null, "forgetting everything here forgets the summary too");
+  await addMemory(alice, workspaceId, "Leads the brand team.");
+  await setSummary(alice, workspaceId, "## Role\nLeads the brand team.");
 
   // ── Leaving ─────────────────────────────────────────────────────────────────────────────────
   await addMemory(alice, otherWs, "Owns the other workspace.");

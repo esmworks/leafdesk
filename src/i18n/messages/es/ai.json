@@ -595,7 +595,11 @@
       "writing": "Escribiendo…",
       "byAi": "Escrito por la IA a partir de tus notas, {date}",
       "byYou": "Escrito por ti, {date}",
-      "stale": "tus notas cambiaron desde entonces"
+      "stale": "tus notas cambiaron desde entonces",
+      "withheld": "Una nota de la que se escribió cambió o se olvidó: no acompaña a tus preguntas hasta que lo vuelvas a escribir o lo marques como al día.",
+      "markCurrent": "Marcar como al día",
+      "confirmRewrite": "¿Volver a escribir el resumen a partir de tus notas? Se perderá el texto que escribiste.",
+      "confirmDelete": "¿Eliminar el resumen? Tus preguntas aquí irán sin él a partir de ahora."
     },
     "delete": "Eliminar",
     "viaApp": "Guardada por {app}",
@@ -610,6 +614,7 @@
       "full": "La memoria guarda como máximo {max} notas. Elimina una antes.",
       "notFound": "Esa nota ya no existe.",
       "off": "La memoria de la IA está desactivada en este espacio de trabajo.",
+      "personOff": "Tu memoria está desactivada aquí: activa primero Usar la memoria.",
       "changed": "Esa nota ha cambiado desde entonces. Cámbiala en Memoria.",
       "busy": "Espera a que termine la respuesta.",
       "held": "Una retención legal conserva esta nota: no se puede eliminar mientras la retención siga vigente.",

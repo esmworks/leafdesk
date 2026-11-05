@@ -595,7 +595,11 @@
       "writing": "Skriver…",
       "byAi": "Skrevet af AI ud fra dine noter, {date}",
       "byYou": "Skrevet af dig, {date}",
-      "stale": "dine noter er ændret siden"
+      "stale": "dine noter er ændret siden",
+      "withheld": "En note, det blev skrevet ud fra, er ændret eller glemt: det følger ikke med dine spørgsmål, før du skriver det igen eller markerer det som opdateret.",
+      "markCurrent": "Markér som opdateret",
+      "confirmRewrite": "Skriv resuméet igen ud fra dine noter? Den tekst, du selv skrev, forsvinder.",
+      "confirmDelete": "Slet resuméet? Dine spørgsmål her går uden det fremover."
     },
     "delete": "Slet",
     "viaApp": "Gemt af {app}",
@@ -610,6 +614,7 @@
       "full": "Hukommelsen rummer højst {max} noter. Slet først en.",
       "notFound": "Den note findes ikke længere.",
       "off": "AI-hukommelsen er slået fra i dette arbejdsområde.",
+      "personOff": "Din hukommelse er slået fra her: slå først Brug hukommelse til.",
       "changed": "Den note er ændret siden. Ret den i Hukommelse i stedet.",
       "busy": "Vent, til svaret er færdigt.",
       "held": "En juridisk tilbageholdelse bevarer denne note: den kan ikke slettes, så længe tilbageholdelsen gælder.",

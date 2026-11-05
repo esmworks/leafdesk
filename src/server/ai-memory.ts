@@ -24,7 +24,7 @@
  */
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { aiMemory, oauthClient, type ChatMemoryRecord, type MemoryStatus } from "@/db/schema";
+import { aiMemory, memorySummary, oauthClient, type ChatMemoryRecord, type MemoryStatus } from "@/db/schema";
 import type { MemoryKind } from "@/db/schema/ai";
 import { isMemoryCategory, MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, MEMORY_CATEGORIES, type ChatActionView, type MemoryCategory, type MemoryLayer, type MemoryView } from "@/lib/ai-chat";
 import { accountNotesOf, deleteAccountNotes, writeAccountNote } from "@/server/account-memory";
@@ -36,7 +36,7 @@ import { deleteSharedNotes, mayWriteNotes, notePlace, notesAt, sharedMemoryFor, 
 import { teamspaceStanding } from "@/server/teamspaces";
 import { getMemberAiMemory, setMemberAiMemory, workspaceSettings } from "@/server/workspaces";
 
-export type MemoryErrorCode = "empty" | "tooLong" | "detailsTooLong" | "full" | "notFound" | "off" | "changed" | "busy" | "held" | "noNotes" | "summaryTooLong";
+export type MemoryErrorCode = "empty" | "tooLong" | "detailsTooLong" | "full" | "notFound" | "off" | "personOff" | "changed" | "busy" | "held" | "noNotes" | "summaryTooLong";
 
 export class MemoryError extends Error {
   constructor(
@@ -106,13 +106,18 @@ export function cleanNote(text: string): string {
   return flat;
 }
 
+/** Text of several lines as the memory keeps it (details, a summary): one kind of line break, no spaces ending a line, at most one empty line in a row, trimmed. */
+export function tidyText(text: string): string {
+  return text.replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").replace(/\n{3,}/g, "\n\n").trim();
+}
+
 /**
- * A note's details as kept: trimmed, at most one empty line in a row; null when there are none.
- * `undefined` stays undefined (a change that leaves them as they were).
+ * A note's details as kept (tidyText); null when there are none. `undefined` stays undefined (a
+ * change that leaves them as they were).
  */
 export function cleanDetails(details: string | null | undefined): string | null | undefined {
   if (details === undefined) return undefined;
-  const clean = (details ?? "").replace(/\r\n?/g, "\n").replace(/[ \t]+$/gm, "").replace(/\n{3,}/g, "\n\n").trim();
+  const clean = tidyText(details ?? "");
   if (!clean) return null;
   if (clean.length > MAX_MEMORY_DETAILS_CHARS) throw new MemoryError("detailsTooLong", `A note's details may have at most ${MAX_MEMORY_DETAILS_CHARS} characters`);
   return clean;
@@ -254,7 +259,10 @@ export async function updateMemory(userId: string, workspaceId: string, memoryId
   return view(await writeNote(userId, workspaceId, text, { replaces: memoryId, ...more }));
 }
 
-/** Deletes notes of the person (only theirs): some, or all of them in the workspace. Returns the ids of those that went. */
+/**
+ * Deletes notes of the person (only theirs): some, or all of them in the workspace, with the summary
+ * of them (memory-summary.ts) then too. Returns the ids of the notes that went.
+ */
 export async function deleteMemories(userId: string, workspaceId: string, memoryIds: string[] | "all"): Promise<string[]> {
   await requireMembership(userId, workspaceId);
   const gone = await db
@@ -267,6 +275,8 @@ export async function deleteMemories(userId: string, workspaceId: string, memory
       ),
     )
     .returning({ id: aiMemory.id });
+  // Forgetting everything here forgets what was summed up from it too.
+  if (memoryIds === "all") await db.delete(memorySummary).where(and(eq(memorySummary.userId, userId), eq(memorySummary.workspaceId, workspaceId)));
   return gone.map((m) => m.id);
 }
 

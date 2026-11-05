@@ -595,7 +595,11 @@
       "writing": "Scrittura…",
       "byAi": "Scritto dall'IA dalle tue note, {date}",
       "byYou": "Scritto da te, {date}",
-      "stale": "le tue note sono cambiate da allora"
+      "stale": "le tue note sono cambiate da allora",
+      "withheld": "Una nota da cui è stato scritto è cambiata o è stata dimenticata: non accompagna le tue domande finché non lo riscrivi o lo segni come aggiornato.",
+      "markCurrent": "Segna come aggiornato",
+      "confirmRewrite": "Riscrivere il riepilogo dalle tue note? Il testo che hai scritto andrà perso.",
+      "confirmDelete": "Eliminare il riepilogo? Da ora le tue domande qui andranno senza."
     },
     "delete": "Elimina",
     "viaApp": "Conservata da {app}",
@@ -610,6 +614,7 @@
       "full": "La memoria contiene al massimo {max} note. Eliminane prima una.",
       "notFound": "Quella nota non esiste più.",
       "off": "La memoria IA è disattivata in questo spazio di lavoro.",
+      "personOff": "La tua memoria qui è disattivata: attiva prima Usa la memoria.",
       "changed": "Quella nota è cambiata nel frattempo. Modificala in Memoria.",
       "busy": "Attendi che la risposta sia finita.",
       "held": "Una conservazione legale protegge questa nota: non può essere eliminata finché la conservazione è attiva.",

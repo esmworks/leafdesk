@@ -506,9 +506,10 @@ export const sharedMemory = pgTable(
 /**
  * A short summary of what the AI knows about a person in a workspace (server/memory-summary.ts):
  * written by the fast model from their notes here and everywhere when they ask, or by them, and sent
- * with their questions ahead of the notes. `fingerprint` is the notes' as they were when it was
- * written, so the Memory page can say they changed since; it is never rewritten on its own. The
- * person's own like their notes: left out of backups, gone when they leave the workspace.
+ * with their questions ahead of the notes. `sources` are the keys of the notes it was written from
+ * (memory-summary.ts noteKey): one of them changed or gone keeps it from being sent, a note kept
+ * since marks it as behind; it is never rewritten on its own. The person's own like their notes:
+ * left out of backups, gone when they leave the workspace or forget everything there.
  */
 export const memorySummary = pgTable(
   "memory_summary",
@@ -522,7 +523,7 @@ export const memorySummary = pgTable(
     text: text("text").notNull(),
     /** "ai": the model wrote it from the notes; "person": they wrote or changed it themselves. */
     writtenBy: text("written_by").$type<"ai" | "person">().notNull(),
-    fingerprint: text("fingerprint").notNull(),
+    sources: jsonb("sources").$type<string[]>().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.workspaceId] })],

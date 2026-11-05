@@ -22,8 +22,12 @@ export const MAX_MEMORY_DETAILS_CHARS = 2000;
 /** The longest summary of a person's notes (server/memory-summary.ts), which goes with every question. */
 export const MAX_MEMORY_SUMMARY_CHARS = 1500;
 
-/** A person's summary as the Memory page shows it: `stale` when their notes changed since it was written. */
-export type MemorySummaryView = { text: string; writtenBy: "ai" | "person"; updatedAt: string; stale: boolean };
+/**
+ * A person's summary as the Memory page shows it: `stale` when they kept notes since it was written,
+ * `withheld` when a note it was written from changed or was forgotten since, which keeps it from
+ * being sent.
+ */
+export type MemorySummaryView = { text: string; writtenBy: "ai" | "person"; updatedAt: string; stale: boolean; withheld: boolean };
 
 /**
  * What a note is about, so the Memory page can group and filter notes and the model sees what it

@@ -595,7 +595,11 @@
       "writing": "Skriver…",
       "byAi": "Skriven av AI utifrån dina anteckningar, {date}",
       "byYou": "Skriven av dig, {date}",
-      "stale": "dina anteckningar har ändrats sedan dess"
+      "stale": "dina anteckningar har ändrats sedan dess",
+      "withheld": "En anteckning den skrevs utifrån har ändrats eller glömts: den följer inte med dina frågor förrän du skriver om den eller markerar den som aktuell.",
+      "markCurrent": "Markera som aktuell",
+      "confirmRewrite": "Skriva om sammanfattningen utifrån dina anteckningar? Texten du själv skrev försvinner.",
+      "confirmDelete": "Ta bort sammanfattningen? Dina frågor här går utan den från och med nu."
     },
     "delete": "Radera",
     "viaApp": "Sparad av {app}",
@@ -610,6 +614,7 @@
       "full": "Minnet rymmer högst {max} anteckningar. Radera en först.",
       "notFound": "Den anteckningen finns inte längre.",
       "off": "AI-minnet är avstängt i den här arbetsytan.",
+      "personOff": "Ditt minne är avstängt här: slå först på Använd minnet.",
       "changed": "Anteckningen har ändrats sedan dess. Ändra den i Minne i stället.",
       "busy": "Vänta tills svaret är klart.",
       "held": "Ett juridiskt bevarande omfattar den här anteckningen: den kan inte raderas så länge bevarandet gäller.",

@@ -31,7 +31,7 @@ export default async function MemoryRoute({ params }: { params: Promise<{ worksp
     getWorkspace(user.id, workspaceId),
   ]);
   const off = state.off === "workspace";
-  const [places, summary] = await Promise.all([off ? { workspace: null, teamspaces: [] } : memoryPlaces(user.id, workspaceId), off ? null : summaryOf(user.id, workspaceId)]);
+  const [places, summary] = await Promise.all([off ? { workspace: null, teamspaces: [] } : memoryPlaces(user.id, workspaceId), off ? null : summaryOf(user.id, workspaceId, { here: state.notes, everywhere: account })]);
   return (
     <MemoryPage
       workspaceId={workspaceId}

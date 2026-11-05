@@ -595,7 +595,11 @@
       "writing": "Skriver…",
       "byAi": "Skrevet av KI ut fra notatene dine, {date}",
       "byYou": "Skrevet av deg, {date}",
-      "stale": "notatene dine er endret siden"
+      "stale": "notatene dine er endret siden",
+      "withheld": "Et notat det ble skrevet ut fra, er endret eller glemt: det følger ikke med spørsmålene dine før du skriver det på nytt eller merker det som oppdatert.",
+      "markCurrent": "Merk som oppdatert",
+      "confirmRewrite": "Skrive sammendraget på nytt ut fra notatene dine? Teksten du skrev selv, forsvinner.",
+      "confirmDelete": "Slette sammendraget? Spørsmålene dine her går uten det fra nå av."
     },
     "delete": "Slett",
     "viaApp": "Lagret av {app}",
@@ -610,6 +614,7 @@
       "full": "Minnet kan inneholde høyst {max} notater. Slett ett først.",
       "notFound": "Det notatet finnes ikke lenger.",
       "off": "KI-minnet er slått av i dette arbeidsområdet.",
+      "personOff": "Minnet ditt er slått av her: slå på Bruk minne først.",
       "changed": "Det notatet er endret siden. Endre det i Minne i stedet.",
       "busy": "Vent til svaret er ferdig.",
       "held": "En rettslig bevaring gjelder dette notatet: det kan ikke slettes så lenge bevaringen gjelder.",

@@ -32,8 +32,9 @@
 - **A summary of what the AI knows about you.** The Memory page keeps a few lines about you in each
   workspace (who you are, what you work on, how you like to work), written by the AI from your notes
   when you ask, or by you. It goes with your questions ahead of your notes, and apps connected over
-  MCP read it as `about` in `list_memory`. When your notes change, the page says so; the summary is
-  never rewritten on its own (migration 0196).
+  MCP read it as `about` in `list_memory`. It is never rewritten on its own: notes kept since mark
+  it as behind, and a note it was written from changed or forgotten keeps it from being sent until
+  you write it again or mark it as up to date (migration 0196).
 
 - **Import skills from SKILL.md files.** *Import* in the skills library takes SKILL.md and other
   Markdown files and ZIPs of skill folders, as AI assistants keep them and as *Export as SKILL.md*

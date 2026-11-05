@@ -2,40 +2,46 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/db", () => ({ db: {} }));
 
-const { cleanSummary, notesFingerprint, summarySource } = await import("./memory-summary");
+const { cleanSummary, coverage, noteKey, summarySource } = await import("./memory-summary");
 
 const note = (id: string, text: string, more: { details?: string; category?: "work" | "other" } = {}) => ({
   id,
   text,
   details: more.details ?? null,
   category: more.category ?? ("other" as const),
-  updatedAt: new Date(0),
 });
 
 describe("memory summary", () => {
-  it("changes the fingerprint when a note is kept, changed or dropped, not when they come in another order", () => {
+  it("keys a note by its id, kind, text and details", () => {
+    const a = note("a", "Leads design");
+    expect(noteKey(a)).toBe(noteKey({ ...a }));
+    for (const changed of [{ ...a, id: "b" }, { ...a, text: "Leads sales" }, { ...a, category: "work" as const }, { ...a, details: "Since May" }]) {
+      expect(noteKey(changed)).not.toBe(noteKey(a));
+    }
+  });
+
+  it("marks a summary behind when notes were kept since, and holds it back when a note it was written from changed or went", () => {
     const a = note("a", "Leads design");
     const b = note("b", "Answers in Turkish");
-    const base = notesFingerprint([a, b]);
-    expect(notesFingerprint([b, a])).toBe(base);
-    expect(notesFingerprint([a])).not.toBe(base);
-    expect(notesFingerprint([a, { ...b, text: "Answers in English" }])).not.toBe(base);
-    expect(notesFingerprint([a, { ...b, category: "work" as const }])).not.toBe(base);
-    expect(notesFingerprint([a, { ...b, details: "Always" }])).not.toBe(base);
+    const sources = [noteKey(a), noteKey(b)];
+    expect(coverage(sources, { here: [a], everywhere: [b] })).toEqual({ stale: false, withheld: false });
+    expect(coverage(sources, { here: [a, note("c", "Works from Izmir")], everywhere: [b] })).toEqual({ stale: true, withheld: false });
+    expect(coverage(sources, { here: [], everywhere: [b] })).toEqual({ stale: false, withheld: true });
+    expect(coverage(sources, { here: [{ ...a, text: "Leads sales" }], everywhere: [b] })).toEqual({ stale: true, withheld: true });
   });
 
   it("gives the model each note with where it was kept, its kind and its details cut short", () => {
     const source = summarySource({ here: [note("a", "Leads the Q4 launch", { category: "work", details: `Due Friday\n${"x".repeat(400)}` })], everywhere: [note("b", "Answers in Turkish")] });
-    const [first, details, last] = source.split("\n");
-    expect(first).toBe("- (this workspace, work) Leads the Q4 launch");
-    expect(details).toBe("  Due Friday");
-    expect(source.split("\n")[2].length).toBeLessThanOrEqual(2 + 300);
-    expect(source.endsWith("- (everywhere, other) Answers in Turkish")).toBe(true);
-    expect(last).toMatch(/^ {2}x+$/);
+    const lines = source.split("\n");
+    expect(lines[0]).toBe("- (this workspace, work) Leads the Q4 launch");
+    expect(lines[1]).toBe("  Due Friday");
+    expect(lines[2]).toMatch(/^ {2}x+$/);
+    expect(lines[2].length).toBeLessThanOrEqual(2 + 300);
+    expect(lines[3]).toBe("- (everywhere, other) Answers in Turkish");
   });
 
-  it("keeps a summary trimmed, out of a code fence, without runs of empty lines", () => {
+  it("keeps a summary tidied, out of a code fence", () => {
     expect(cleanSummary("```markdown\n## Role\n\n\n\nLeads design\n```")).toBe("## Role\n\nLeads design");
-    expect(cleanSummary("  \r\n## Role\r\nLeads design  ")).toBe("## Role\nLeads design");
+    expect(cleanSummary("  \r\n## Role  \r\nLeads design  ")).toBe("## Role\nLeads design");
   });
 });

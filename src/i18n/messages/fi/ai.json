@@ -595,7 +595,11 @@
       "writing": "Kirjoitetaan…",
       "byAi": "Tekoälyn kirjoittama muistiinpanoistasi, {date}",
       "byYou": "Sinun kirjoittamasi, {date}",
-      "stale": "muistiinpanosi ovat muuttuneet sen jälkeen"
+      "stale": "muistiinpanosi ovat muuttuneet sen jälkeen",
+      "withheld": "Muistiinpano, josta se kirjoitettiin, on muuttunut tai unohdettu: se ei kulje kysymystesi mukana ennen kuin kirjoitat sen uudelleen tai merkitset sen ajan tasalle.",
+      "markCurrent": "Merkitse ajan tasalle",
+      "confirmRewrite": "Kirjoitetaanko yhteenveto uudelleen muistiinpanoistasi? Itse kirjoittamasi teksti häviää.",
+      "confirmDelete": "Poistetaanko yhteenveto? Kysymyksesi täällä lähtevät tästä lähtien ilman sitä."
     },
     "delete": "Poista",
     "viaApp": "Tallentanut: {app}",
@@ -610,6 +614,7 @@
       "full": "Muistiin mahtuu enintään {max} muistiinpanoa. Poista ensin yksi.",
       "notFound": "Muistiinpanoa ei ole enää.",
       "off": "Tekoälyn muisti on poistettu käytöstä tässä työtilassa.",
+      "personOff": "Muistisi on täällä pois päältä: ota ensin Käytä muistia käyttöön.",
       "changed": "Muistiinpano on muuttunut sen jälkeen. Muuta se Muistissa.",
       "busy": "Odota, että vastaus on valmis.",
       "held": "Oikeudellinen säilytys pitää tämän muistiinpanon: sitä ei voi poistaa säilytyksen ollessa voimassa.",

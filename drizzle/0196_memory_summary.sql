@@ -3,7 +3,7 @@ CREATE TABLE "memory_summary" (
 	"workspace_id" text NOT NULL,
 	"text" text NOT NULL,
 	"written_by" text NOT NULL,
-	"fingerprint" text NOT NULL,
+	"sources" jsonb NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "memory_summary_user_id_workspace_id_pk" PRIMARY KEY("user_id","workspace_id")
 );

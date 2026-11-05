@@ -550,13 +550,15 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     const askedIn = research || !scope ? null : scope.kind === "teamspace" ? scope.id : await pageTeamspace(scope.id);
     // The workspace's switch is read once here for both (remembers read it too, with the person's).
     const available = !research && (remembers || (await memoryAvailable(workspaceId)));
-    const [shared, accountNotes, otherRooms] = available
+    // The person's summary of their notes goes whole, ahead of them: it is short (MAX_MEMORY_SUMMARY_CHARS).
+    const [shared, accountNotes, otherRooms, summary] = available
       ? await Promise.all([
           sharedMemoryFor(userId, workspaceId, askedIn, true),
           remembers ? accountNotesOf(userId) : Promise.resolve([]),
           otherTeamspaces(userId, workspaceId, askedIn),
+          remembers ? summaryForPrompt(userId, workspaceId) : Promise.resolve(""),
         ])
-      : [{ workspace: [], teamspace: null }, [], []];
+      : [{ workspace: [], teamspace: null }, [], [], ""];
     // Tools of connections that change something are left out of a read-only chat.
     const external = setup.connections && !research ? await chatToolset(workspaceId, { writes: initialMode !== "read" }) : null;
     const services = [...new Set([...(external?.byName.values() ?? [])].map((e) => e.connection.name))];
@@ -629,8 +631,6 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     const workspaceNotes = fitNotes(shared.workspace, Math.floor(memoryRoom / 4), readHint("workspace"));
     const roomNotes = shared.teamspace ? fitNotes(shared.teamspace.notes, Math.floor(memoryRoom / 4), readHint(`teamspace, teamspace_id ${shared.teamspace.id}`)) : null;
     const everywhere = fitNotes(accountNotes, Math.floor(memoryRoom / 8), readHint("account"));
-    // The person's summary of their notes goes whole, ahead of them: it is short (MAX_MEMORY_SUMMARY_CHARS).
-    const summary = remembers ? await summaryForPrompt(userId, workspaceId) : "";
     const left = memoryRoom - workspaceNotes.text.length - (roomNotes?.text.length ?? 0) - everywhere.text.length - summary.length;
     const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.max(0, left)) : { text: "", count: 0, shown: 0, details: false };
     const fitted = [memory, workspaceNotes, everywhere, ...(roomNotes ? [roomNotes] : [])];

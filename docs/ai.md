@@ -434,9 +434,16 @@ headings. *Write with AI* has the fast model write it from your notes here and e
 nothing else), and you can change it, write it yourself or delete it (up to 1,500 characters). It
 goes with your questions in that workspace ahead of your notes, so a question whose notes don't all
 fit still has the gist, and connected apps read it as `about` in `list_memory`; a note wins where
-the two disagree. It is never rewritten on its own: when your notes change, the page says so and
-*Write again* brings it up to date. Like your notes it is yours alone, goes nowhere while either
-memory switch is off, and is deleted when you leave the workspace.
+the two disagree. It is never rewritten on its own, and it remembers which notes it was written from:
+- a note kept since marks it as behind (*your notes changed since*); it still goes with questions;
+- a note it was written from changed or forgotten since keeps it from going anywhere, so what you
+  took back never reaches the model through it, and the page says so.
+
+*Write again* writes it from your notes as they are (asking first when the text is one you wrote),
+and *Mark as up to date* says it matches them; changing its text by hand keeps the mark, since only
+you know whether it now does. Like your notes it is yours alone: it goes nowhere while either memory
+switch is off (writing or changing it then says which switch), and it is deleted when you forget
+everything in the workspace or leave it. Deleting it asks first.
 
 Notes are private to you, never sent with anyone else's
 questions or in another workspace, and are deleted when you leave the workspace or delete your

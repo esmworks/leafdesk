@@ -595,7 +595,11 @@
       "writing": "Bezig met schrijven…",
       "byAi": "Door de AI geschreven uit je notities, {date}",
       "byYou": "Door jou geschreven, {date}",
-      "stale": "je notities zijn sindsdien veranderd"
+      "stale": "je notities zijn sindsdien veranderd",
+      "withheld": "Een notitie waaruit hij is geschreven is veranderd of vergeten: hij gaat niet met je vragen mee tot je hem opnieuw schrijft of als bijgewerkt markeert.",
+      "markCurrent": "Als bijgewerkt markeren",
+      "confirmRewrite": "De samenvatting opnieuw uit je notities schrijven? De tekst die je zelf schreef verdwijnt.",
+      "confirmDelete": "Samenvatting verwijderen? Je vragen hier gaan voortaan zonder."
     },
     "delete": "Verwijderen",
     "viaApp": "Bijgehouden door {app}",
@@ -610,6 +614,7 @@
       "full": "Het geheugen bevat maximaal {max} notities. Verwijder er eerst een.",
       "notFound": "Die notitie bestaat niet meer.",
       "off": "Het AI-geheugen is uitgeschakeld in deze werkruimte.",
+      "personOff": "Je geheugen staat hier uit: zet eerst Geheugen gebruiken aan.",
       "changed": "Die notitie is sindsdien gewijzigd. Wijzig hem in Geheugen.",
       "busy": "Wacht tot het antwoord klaar is.",
       "held": "Een juridische bewaarplicht houdt deze notitie vast: ze kan niet worden verwijderd zolang de bewaarplicht geldt.",

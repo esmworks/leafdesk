@@ -595,7 +595,11 @@
       "writing": "Menulis…",
       "byAi": "Ditulis AI dari catatan Anda, {date}",
       "byYou": "Ditulis oleh Anda, {date}",
-      "stale": "catatan Anda berubah sejak itu"
+      "stale": "catatan Anda berubah sejak itu",
+      "withheld": "Catatan yang menjadi sumbernya berubah atau dilupakan, jadi ringkasan tidak dikirim bersama pertanyaan Anda sampai ditulis ulang atau ditandai terbaru.",
+      "markCurrent": "Tandai sebagai terbaru",
+      "confirmRewrite": "Tulis ulang ringkasan dari catatan Anda? Teks yang Anda tulis sendiri akan hilang.",
+      "confirmDelete": "Hapus ringkasan? Pertanyaan Anda di sini akan dikirim tanpanya mulai sekarang."
     },
     "delete": "Hapus",
     "viaApp": "Disimpan oleh {app}",
@@ -610,6 +614,7 @@
       "full": "Memori menampung paling banyak {max} catatan. Hapus satu terlebih dahulu.",
       "notFound": "Catatan itu sudah tidak ada.",
       "off": "Memori AI dinonaktifkan di ruang kerja ini.",
+      "personOff": "Memori Anda nonaktif di sini: aktifkan Gunakan memori terlebih dahulu.",
       "changed": "Catatan itu sudah berubah sejak saat itu. Ubah di Memori saja.",
       "busy": "Tunggu sampai jawabannya selesai.",
       "held": "Penahanan hukum menyimpan catatan ini: catatan tidak dapat dihapus selama penahanan berlaku.",
