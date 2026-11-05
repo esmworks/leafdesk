@@ -15,6 +15,15 @@
 
 ### Changed
 
+- **A bare host name on `PUSH_ALLOWED_HOSTS`, `AI_ALLOWED_HOSTS` or `MAIL_ALLOWED_HOSTS` allows
+  its usual ports only.** Anyone signed in gives the address of a push subscription or of their own
+  AI account, and any member the servers of their mailbox, so a host listed by name could be
+  reached on every port it has (another service on the same machine). A bare name now allows ports
+  80, 443, 8080 and 8443 (push, AI) or 25, 143, 465, 587 and 993 (mail), as one on
+  `CONNECTOR_ALLOWED_HOSTS` already did; list a server on another port with it, `ollama:11434`.
+  **Upgrading:** an own AI account or a mailbox on such a server stops reaching it until its port
+  is added to the list.
+
 - **Long menus are shorter.** A column's menu puts freezing, wrapping text and alignment under
   *Column layout*, and settings seldom changed (unique values, AI autofill, row pages, pinning
   under the title, property access, copying its ID) under *More settings* when there are several

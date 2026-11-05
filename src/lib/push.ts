@@ -65,11 +65,14 @@ export function parsePushSubscription(input: unknown, allowedHosts: readonly str
   return { endpoint, p256dh: key, auth: secret };
 }
 
-/** Whether `url` is on PUSH_ALLOWED_HOSTS (by host name, or host and port). */
+/**
+ * Whether `url` is on PUSH_ALLOWED_HOSTS: `host:port` on that port, a bare host on the web's usual
+ * ports only (as server/ssrf.ts onHostList), since anyone signed in gives the address.
+ */
 export function isAllowedPushHost(url: URL, allowedHosts: readonly string[]) {
   const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
   const port = url.port || (url.protocol === "https:" ? "443" : "80");
-  return allowedHosts.includes(host) || allowedHosts.includes(`${host}:${port}`);
+  return allowedHosts.includes(`${host}:${port}`) || (["80", "443", "8080", "8443"].includes(port) && allowedHosts.includes(host));
 }
 
 /**

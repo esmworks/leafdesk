@@ -110,6 +110,9 @@ describe("a typed base URL", () => {
     expect(checkAiUrl("http://gpu/v1").allowed).toBe(true);
     expect(checkAiUrl("http://127.0.0.1:8080/v1").allowed).toBe(true);
     expect(() => checkAiUrl("http://127.0.0.1:8081/v1")).toThrow(/private address|https/);
+    // A bare name is the web's usual ports only: not the host's other services.
+    expect(checkAiUrl("http://gpu:8080/v1").allowed).toBe(true);
+    expect(() => checkAiUrl("http://gpu:6379/v1")).toThrow(/local|https/);
   });
 
   describe("the guarded fetch", () => {
