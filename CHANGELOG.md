@@ -62,6 +62,11 @@
 
 ### Fixed
 
+- **A published page no longer carries its meetings' transcripts.** A meeting block on a
+  published page or site shows its title, who came and its takeaways, but the page's HTML also
+  held every one of its settings, the whole transcript and the people's ids among them, for any
+  visitor to read in the page source. A published feed's excerpts showed the transcript too, and
+  a copy made with *Duplicate* kept it. Visitors now get only what the block shows.
 - **Synced databases reach servers on your own network only when an owner set them up.** Hosts
   in `CONNECTOR_ALLOWED_HOSTS` are for what owners set up, yet any member who may make a database
   could point a calendar, Jira, GitHub or PostgreSQL sync at one of them (an internal database

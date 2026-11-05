@@ -28,6 +28,14 @@ describe("remapFilePaths", () => {
 });
 
 describe("copyPublishedBlocks", () => {
+  it("copies a meeting as its page shows it: no transcript, no people's ids", () => {
+    const [block] = copyPublishedBlocks(
+      [{ id: "m", type: "meeting", props: { meetingId: "m1", title: "Board", attendees: JSON.stringify([{ id: "u1", name: "Ann" }]), transcript: "[{}]", recorder: "u2", summary: "- Ok" }, children: [] }],
+      refs,
+    );
+    expect(block.props).toMatchObject({ title: "Board", transcript: "", recorder: "", summary: "- Ok", attendees: JSON.stringify([{ id: "", name: "Ann" }]) });
+  });
+
   it("turns people into text and drops reminders", () => {
     const [block] = copyPublishedBlocks(
       [paragraph([mention({ kind: "user", userId: "user-1", name: "Ayşe", id: "m1" }), mention({ kind: "date", date: "2026-10-01", remindAt: "2026-09-30T09:00:00Z" })])],
