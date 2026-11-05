@@ -304,7 +304,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   it, never `CONNECTOR_ALLOWED_HOSTS`. Allowed-host lists match through `ssrf.ts` `onHostList` (a
   bare name allows the web's ports only). A synced database's setup checks
   `pages.ts` `requireDatabasePlace` and `sync-setup.ts` limits before any network call, and reads
-  other servers' answers through `readBodyLimited`. The catalog of
+  other servers' answers through `readBodyLimited`; its calls reach `CONNECTOR_ALLOWED_HOSTS` only
+  inside `sync-reach.ts` `withSyncReach` for a workspace owner (setups, changes and `runSync`), so a
+  new network call of a sync's goes inside it. The catalog of
   ready-made services is `src/lib/connection-catalog.ts`; `pnpm catalog:check` probes it live.
 - **Automations and schedules.** `src/server/automations/` (queued from `databases.ts` after row
   writes; `asAutomation` keeps an automation's writes from firing more automations; a total over a
@@ -547,6 +549,10 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `lib/date-phrase.ts` `parseDatePhrase` reads a whole phrase (times, durations, `+2w` from the
   day shown) for `@`, the date property editor, date mentions and date filters. A new place where
   a date is typed uses `components/date-phrase-input.tsx`, which loads the grammar on the first keystroke.
+- **Published HTML carries a custom block's props.** BlockNote writes every prop not at its default
+  as a `data-*` attribute, shown or not: `published-body.ts` `sanitizeValue` keeps what a block
+  shows (a meeting's title, names and takeaways, never its transcript), so a new block with private
+  props gets its case there.
 - **Published links can expire** (`page_publication.expires_at`): every query that serves or
   lists a publication to visitors adds `livePublication()` (`src/server/publication-live.ts`, its own
   module so `mentions.ts` can use it without an import cycle); there is no job that unpublishes.
