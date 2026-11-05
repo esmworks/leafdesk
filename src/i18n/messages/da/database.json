@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Denne egenskab kan ikke have sin egen adgang.",
     "typeChangeRestricted": "“{property}” har adgangsregler, og egenskaber af den type kan ikke have det. Fjern først dens regler.",
     "typeChangeNamesPeople": "Adgangsregler giver personerne i “{property}” adgang. Fjern de regler, før du ændrer dens type.",
+    "typeChangeHidden": "Nogle værdier i “{property}” er skjult for dig, og de ville blive dens valgmuligheder. En, der ser alle rækker og værdier, kan ændre dens type.",
     "invalidRowAccess": "Disse regler for rækkeadgang kan ikke gemmes. Genindlæs, og prøv igen.",
     "invalidAutomation": "Denne automatisering kan ikke gemmes. Tjek dens udløser og handlinger.",
     "tooManyAutomations": "En database kan højst have {max} automatiseringer.",

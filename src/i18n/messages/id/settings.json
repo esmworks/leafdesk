@@ -1701,7 +1701,7 @@
       "disconnect": "Putuskan",
       "revoke": "Cabut",
       "working": "Memutuskan…",
-      "confirmEverywhere": "{kind, select, api_token {Cabut token {name} milik {person}? Token berhenti berfungsi di semua ruang kerjanya.} other {Putuskan {name} dari akun {person}? Ia kehilangan akses ke semua ruang kerjanya sampai mereka menghubungkannya lagi.}}",
+      "confirmCutOff": "{kind, select, api_token {Putuskan token {name} milik {person} dari ruang kerja ini? Di tempat lain yang dijangkaunya, token itu tetap berfungsi.} other {Putuskan {name} dari ruang kerja ini untuk {person}? Ruang kerja lainnya tetap memilikinya, dan menghubungkannya lagi membawanya kembali ke sini.}}",
       "confirmHere": "Cabut token {name} milik {person}? Token berhenti berfungsi.",
       "error": "Tidak dapat memutuskannya. Coba lagi.",
       "gone": "Sudah diputuskan, atau tidak lagi menjangkau ruang kerja ini.",

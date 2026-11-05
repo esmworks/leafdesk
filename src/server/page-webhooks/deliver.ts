@@ -193,6 +193,13 @@ export async function runPageWebhooks(now: Date = new Date()) {
       await deliver(delivery);
     } catch (error) {
       console.error("[page-webhooks] could not send a delivery", redactError(error));
+      // A failure of the server's own, not the address's answer: the claim brings it back after
+      // CLAIM_MS. Counted, so one that keeps failing ends as an address that keeps failing does.
+      const attempts = delivery.attempts + 1;
+      await (attempts >= MAX_WEBHOOK_ATTEMPTS
+        ? finish(delivery, "failed", { error: "The delivery couldn't be prepared", attempts })
+        : db.update(pageWebhookDelivery).set({ attempts }).where(eq(pageWebhookDelivery.id, delivery.id))
+      ).catch((failure) => console.error("[page-webhooks] could not note a failed delivery", redactError(failure)));
     }
   }
   await db

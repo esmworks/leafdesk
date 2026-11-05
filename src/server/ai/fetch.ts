@@ -2,7 +2,7 @@ import { isIP } from "node:net";
 import { Agent, fetch as undiciFetch, type RequestInit as UndiciRequestInit } from "undici";
 import { env } from "@/lib/env";
 import { guardedLookup } from "../connections/fetch";
-import { isBlockedAddress } from "../ssrf";
+import { isBlockedAddress, onHostList } from "../ssrf";
 import { AiError } from "./errors";
 
 /**
@@ -10,15 +10,14 @@ import { AiError } from "./errors";
  * with the rules a connection's or a workspace's storage endpoint has: https only, no credentials
  * in the address, no private address or local name, the connection pinned to an address checked as
  * it is made (so a host can't pass the check with a public address and connect to a private one),
- * and no redirects. Hosts in AI_ALLOWED_HOSTS (name, or name:port) skip these checks, http
- * included, for a model server on the same machine or network.
+ * and no redirects. Hosts in AI_ALLOWED_HOSTS skip these checks, http included, for a model server
+ * on the same machine or network: `name:port` on that port, a bare name on the web's usual ports
+ * only (ssrf.ts onHostList), since anyone signed in types the address.
  */
 
-/** Whether `url` is on AI_ALLOWED_HOSTS (by host name, or host and port). */
+/** Whether `url` is on AI_ALLOWED_HOSTS (see above). */
 function allowedHost(url: URL, allowed = env.aiAllowedHosts) {
-  const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
-  const port = url.port || (url.protocol === "https:" ? "443" : "80");
-  return allowed.includes(host) || allowed.includes(`${host}:${port}`);
+  return onHostList(url, allowed);
 }
 
 /**

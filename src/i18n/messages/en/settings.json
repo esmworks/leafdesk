@@ -1701,7 +1701,7 @@
       "disconnect": "Disconnect",
       "revoke": "Revoke",
       "working": "Disconnecting…",
-      "confirmEverywhere": "{kind, select, api_token {Revoke {person}'s token {name}? It stops working in all their workspaces.} other {Disconnect {name} from {person}'s account? It loses access to all their workspaces until they connect it again.}}",
+      "confirmCutOff": "{kind, select, api_token {Cut {person}'s token {name} off from this workspace? Wherever else it reaches, it keeps working.} other {Disconnect {name} from this workspace for {person}? Their other workspaces keep it, and connecting it again brings it back here.}}",
       "confirmHere": "Revoke {person}'s token {name}? It stops working.",
       "error": "Could not disconnect it. Try again.",
       "gone": "It's already disconnected, or no longer reaches this workspace.",

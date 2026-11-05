@@ -7,7 +7,8 @@
  * owners letting in only the apps they approved (approving and withdrawing, the server's own clients
  * and REST API tokens not held to it), and
  * an owner disconnecting one person's app or token: only owners, only what reaches the workspace,
- * gone from all of that person's workspaces, recorded in this workspace's audit log only.
+ * cut off from this workspace alone when it reaches the person's others too (back when they connect
+ * it again), revoked when it reaches only this one, recorded in this workspace's audit log only.
  * Creates its own users and workspaces and deletes them afterwards.
  *
  *   pnpm tsx scripts/workspace-apps-e2e.ts
@@ -34,7 +35,6 @@ const { handleApiRequest } = await import("@/server/api");
 const { runAsConnectedApp } = await import("@/server/connected-app");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { disconnectWorkspaceApp, listWorkspaceApps, pruneConnectedAppUse, setWorkspaceAppApproved } = await import("@/server/workspace-apps");
-const { noteConnectedAppUse } = await import("@/server/connected-app-use");
 
 const RUN = `workspace-apps-e2e-${Date.now().toString(36)}`;
 
@@ -274,24 +274,29 @@ try {
     "…nor a token that doesn't reach it",
   );
   await db.insert(connectedAppUse).values({ workspaceId: other, userId: ids.member, appKind: "connected_app", appId: clients.assistant, lastUsedAt: now });
+  // The app reaches the member's other workspace too, which this owner has no say in: it is cut
+  // off from this one alone.
   await disconnectWorkspaceApp(ids.owner, ws, { kind: "connected_app", userId: ids.member, id: clients.assistant });
   const consents = await db.select().from(oauthConsent).where(and(eq(oauthConsent.userId, ids.member), eq(oauthConsent.clientId, clients.assistant)));
   const [access] = await db.select({ revoked: oauthAccessToken.revoked }).from(oauthAccessToken).where(eq(oauthAccessToken.id, `${RUN}-at`));
-  const outsiderConsent = await db.select().from(oauthConsent).where(eq(oauthConsent.userId, ids.outsider));
+  check(consents.length === 1 && access?.revoked === null, "an owner disconnects an app reaching the member's other workspace: it stays connected there");
+  check(!(await reads(mcp)) && (await hiddenFor(mcp)).has(ws) && !(await hiddenFor(mcp)).has(other), "…and finds this workspace hidden, not the other");
+  const uses = await usesOf(ids.member);
   check(
-    consents.length === 0 && access?.revoked !== null && outsiderConsent.length === 1,
-    "an owner disconnects the member's app: their consent and tokens go, others' stay",
+    !uses.some((r) => r.appKind === "connected_app" && r.workspaceId === ws) && uses.some((r) => r.appKind === "connected_app" && r.workspaceId === other),
+    "…its use here is forgotten, not there",
+    uses,
   );
-  check(
-    !(await usesOf(ids.member)).some((r) => r.appKind === "connected_app"),
-    "…and when it was last used is forgotten, in every workspace",
-  );
-  noteConnectedAppUse(ids.member, mcp, ws);
-  await settle();
-  check(
-    !(await usesOf(ids.member)).some((r) => r.appKind === "connected_app"),
-    "a request that was under way when it was disconnected doesn't bring its use back",
-  );
+  check(!(await listWorkspaceApps(ids.owner, ws)).apps.some((a) => a.id === clients.assistant), "…and the list here no longer shows it");
+  check(await refused(disconnectWorkspaceApp(ids.owner, ws, { kind: "connected_app", userId: ids.member, id: clients.assistant })), "disconnecting it again finds nothing");
+  // Connected again by the member: a newer consent reaches the workspace again, as after a revocation.
+  await new Promise((r) => setTimeout(r, 20));
+  await db.update(oauthConsent).set({ createdAt: new Date() }).where(and(eq(oauthConsent.userId, ids.member), eq(oauthConsent.clientId, clients.assistant)));
+  check(await reads(mcp), "connected again, it reaches the workspace again");
+  check(await refused(disconnectWorkspaceApp(ids.member, ws, { kind: "connected_app", userId: ids.member, id: clients.assistant })), "members still can't disconnect it");
+  await new Promise((r) => setTimeout(r, 20));
+  await disconnectWorkspaceApp(ids.owner, ws, { kind: "connected_app", userId: ids.member, id: clients.assistant });
+  check(!(await reads(mcp)), "an owner can cut it off again");
   await disconnectWorkspaceApp(ids.owner, ws, { kind: "api_token", userId: ids.member, id: here.token.id });
   check((await rest(here.secret)).status === 401, "an owner revokes the member's token: it stops working");
   check(
@@ -301,10 +306,11 @@ try {
   const events = await db.select().from(auditEvent).where(inArray(auditEvent.workspaceId, [ws, other]));
   const revokes = events.filter((e) => e.action === "connected_app.revoked" || e.action === "api_token.revoked");
   check(
-    revokes.length === 2 &&
+    revokes.length === 3 &&
+      revokes.filter((e) => (e.details as Record<string, unknown>).onlyHere === true).length === 2 &&
       revokes.every((e) => e.workspaceId === ws && e.actorUserId === ids.owner) &&
       revokes.every((e) => (e.details as Record<string, unknown>).subjectId === ids.member && (e.details as Record<string, unknown>).subject === "Member Mert"),
-    "this workspace's audit log records both, by the owner, about the member; their other workspace's doesn't",
+    "this workspace's audit log records each, by the owner, about the member; their other workspace's doesn't",
     revokes.map((e) => [e.workspaceId, e.action, e.actorUserId, e.details]),
   );
   check(
@@ -321,7 +327,10 @@ try {
   const pruned = await pruneConnectedAppUse([ws, other]);
   const left = await db.select().from(connectedAppUse).where(inArray(connectedAppUse.workspaceId, [ws, other]));
   check(
-    pruned === 2 && left.length === 1 && left[0].appId === everywhere.token.id,
+    pruned === 2 &&
+      left.length === 2 &&
+      left.some((r) => r.workspaceId === ws && r.appId === everywhere.token.id) &&
+      left.some((r) => r.workspaceId === other && r.appId === clients.assistant),
     "the daily cleanup forgets uses of expired tokens and of people no longer in the workspace, and keeps the rest",
     { pruned, left },
   );

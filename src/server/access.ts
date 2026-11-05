@@ -1,7 +1,9 @@
 import { and, Column, eq, getTableName, inArray, is, ne, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import {
+  connectedAppCutOff,
   oauthClient,
+  oauthConsent,
   page,
   pageColumns,
   PAGE_LEVELS,
@@ -240,6 +242,22 @@ function appApproved(app: ConnectedAppIdentity | null): SQL {
     or exists (select 1 from ${oauthClient} where ${oauthClient.clientId} = ${app.id} and ${oauthClient.skipConsent}))`;
 }
 
+/**
+ * SQL: an owner cut this app of `userId` off from the workspace (server/workspace-apps.ts
+ * `disconnectWorkspaceApp`), on a row of `workspace`. An MCP app only as connected then: a consent
+ * given again since brings it back, as after a revocation.
+ */
+export function appCutOff(userId: string, app: ConnectedAppIdentity | null): SQL {
+  if (!app) return sql`false`;
+  const connectedBefore =
+    app.kind === "connected_app"
+      ? sql` and exists (select 1 from ${oauthConsent} where ${oauthConsent.userId} = ${userId} and ${oauthConsent.clientId} = ${app.id}
+          and ${oauthConsent.createdAt} <= (${connectedAppCutOff.cutAt} at time zone 'UTC'))`
+      : sql``;
+  return sql`exists (select 1 from ${connectedAppCutOff} where ${connectedAppCutOff.workspaceId} = ${workspace.id}
+    and ${connectedAppCutOff.userId} = ${userId} and ${connectedAppCutOff.appKind} = ${app.kind} and ${connectedAppCutOff.appId} = ${app.id}${connectedBefore})`;
+}
+
 /** SQL: the workspace lets in only approved apps, on a row of `workspace`. */
 const onlyApprovedApps = sql`coalesce((${workspace.settings}->>'onlyApprovedApps')::boolean, false)`;
 
@@ -252,12 +270,14 @@ function appsModeOf(call: ConnectedAppCall, workspaceId: string): Promise<Connec
         mode: sql<string | null>`${workspace.settings}->>'connectedApps'`,
         onlyApproved: sql<boolean>`${onlyApprovedApps}`,
         approved: sql<boolean>`${appApproved(call.app)}`,
+        cutOff: sql<boolean>`${appCutOff(call.userId, call.app)}`,
       })
       .from(workspace)
       .where(eq(workspace.id, workspaceId))
       .limit(1)
       .then(([row]) => {
-        const found = appModeHere(connectedAppsMode(row?.mode), row?.onlyApproved === true, row?.approved !== false);
+        // An app an owner cut off finds the workspace off, as one the owners haven't approved does.
+        const found = row?.cutOff ? "off" : appModeHere(connectedAppsMode(row?.mode), row?.onlyApproved === true, row?.approved !== false);
         // The app reached the workspace: its owners see when (calendar feeds aren't apps). Not when
         // the setting turns it away: hidden here, or a write where apps may only read.
         if (call.app && connectedAppRefusal(found, call.writing) === null) noteConnectedAppUse(call.userId, call.app, workspaceId);
@@ -281,7 +301,7 @@ export async function connectedAppHold(userId: string, workspaceId: string): Pro
 
 /**
  * Of the user's workspaces, the ones hidden from the connected app serving this request (owners
- * turned connected apps off, or let in only apps they approved and not this one); none outside
+ * turned connected apps off, let in only apps they approved and not this one, or cut it off); none outside
  * connected-app requests. For lists across workspaces.
  */
 export async function workspacesHiddenFromApp(userId: string): Promise<Set<string>> {
@@ -302,7 +322,7 @@ export async function workspacesHiddenFromApp(userId: string): Promise<Set<strin
     .where(
       and(
         eq(workspaceMember.userId, userId),
-        sql`(${workspace.settings}->>'connectedApps' = 'off' or (${onlyApprovedApps} and not ${appApproved(call.app)}))`,
+        sql`(${workspace.settings}->>'connectedApps' = 'off' or (${onlyApprovedApps} and not ${appApproved(call.app)}) or ${appCutOff(userId, call.app)})`,
       ),
     );
   return new Set(rows.map((r) => r.id));
@@ -497,6 +517,15 @@ export async function workspaceOwnerIds(workspaceId: string): Promise<string[]> 
 export async function memberWorkspaceIds(userId: string): Promise<string[]> {
   const rows = await db.select({ id: workspaceMember.workspaceId }).from(workspaceMember).where(eq(workspaceMember.userId, userId));
   return rows.map((row) => row.id);
+}
+
+/** How many workspaces besides `workspaceId` the user is in, guests included. */
+export async function otherWorkspacesOf(userId: string, workspaceId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(workspaceMember)
+    .where(and(eq(workspaceMember.userId, userId), ne(workspaceMember.workspaceId, workspaceId)));
+  return row?.n ?? 0;
 }
 
 /** SQL: whether the user (an id expression) is in the workspace, guests included, for filters inside larger queries. */

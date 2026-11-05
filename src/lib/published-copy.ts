@@ -124,12 +124,13 @@ export function copyPublishedBlocks<B extends Block>(blocks: B[], refs: CopyRefs
     if (block.type === AGENT_CHAT_BLOCK) return children as B[];
     // A button's steps name the source workspace's databases and people: the copy keeps its label.
     if (block.type === BUTTON_BLOCK) return [{ ...block, props: { ...props, config: "" }, children }];
-    // A meeting keeps what was said and written up; its people are names only in the new workspace,
-    // and a recording under way there isn't one here.
+    // A meeting keeps what its published page shows, what was written up: not the transcript, which
+    // it doesn't show. Its people are names only in the new workspace, and a recording under way
+    // there isn't one here.
     if (block.type === MEETING_BLOCK) {
       const attendees = serializeAttendees(parseAttendees(props?.attendees).map((a) => ({ id: "", name: a.name })));
       const status = props?.status === "recording" || props?.status === "summarizing" ? "done" : props?.status;
-      return [{ ...block, props: { ...props, attendees, status, recorder: "", recorderName: "" }, children }];
+      return [{ ...block, props: { ...props, attendees, status, recorder: "", recorderName: "", transcript: "" }, children }];
     }
     if (isPageBlockType(block.type)) {
       const pageId = String(props?.pageId ?? "");

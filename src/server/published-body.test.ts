@@ -180,6 +180,29 @@ describe("published page body", () => {
     expect(segments[2]).toMatchObject({ kind: "webEmbed", align: "center", width: 70 });
   });
 
+  it("shows a meeting's takeaways and leaves its transcript and people's ids out of the HTML", async () => {
+    const doc = new Y.Doc();
+    const meeting = {
+      type: "meeting",
+      props: {
+        meetingId: "m1",
+        title: "Board",
+        attendees: JSON.stringify([{ id: "user_secret", name: "Ann" }]),
+        transcript: JSON.stringify([{ c: 0, t: 0, d: 30, text: "SECRET TRANSCRIPT" }]),
+        recorder: "user_rec",
+        recorderName: "Rec",
+        status: "done",
+        summary: "- Budget approved [00:10]",
+      },
+    };
+    doc.transact(() => serverEditor.blocksToYXmlFragment([meeting] as never, doc.getXmlFragment(COLLAB_FRAGMENT)));
+    const html = await bodyHtmlFromYdoc(Y.encodeStateAsUpdate(doc));
+    expect(html).toContain("Board");
+    expect(html).toContain("Ann");
+    expect(html).toContain("Budget approved");
+    for (const hidden of ["SECRET", "user_secret", "user_rec", "data-transcript", "data-recorder", "data-meeting-id"]) expect(html).not.toContain(hidden);
+  });
+
   it("shows uploaded PDFs and workbooks in place and keeps other files as links", async () => {
     const id = "AbCdEfGhIjKlMnOpQrStUv_-";
     const state = await ydocFrom([

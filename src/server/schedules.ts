@@ -13,6 +13,7 @@ import {
   type TemplateRepeatSummary,
 } from "@/lib/schedule";
 import { dayString, isTimeZone, localDay } from "@/lib/time-zone";
+import { redactError } from "@/lib/redact";
 import { AccessError, requirePageAccess } from "@/server/access";
 import { getCollab } from "@/server/collab/bridge";
 import { requireDatabase, withCode } from "@/server/databases";
@@ -179,7 +180,11 @@ export async function runDueSchedules(now = new Date()) {
   let total = 0;
   for (;;) {
     const claimed = await claimDue(now);
-    for (const { row, at } of claimed) await runOne(row, at, now);
+    // Each its own: the batch's next runs are already moved on, so one that throws (writing its
+    // outcome, say) mustn't leave the rest unrun until their next time.
+    for (const { row, at } of claimed) {
+      await runOne(row, at, now).catch((error) => console.error("could not run a schedule", row.id, redactError(error)));
+    }
     total += claimed.length;
     if (claimed.length < BATCH) return total;
   }

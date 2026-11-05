@@ -107,7 +107,7 @@ async function recordConnectedApps(
 }
 
 /** What the workspaces' sign-in policies look at in a session (see SessionFacts in access.ts). */
-type PolicySession = { user: { id: string; twoFactorEnabled?: boolean | null }; session: { authMethod?: string | null; ssoProviderId?: string | null } };
+export type PolicySession = { user: { id: string; twoFactorEnabled?: boolean | null }; session: { authMethod?: string | null; ssoProviderId?: string | null } };
 
 /**
  * Where a session that one of the user's workspaces holds back goes before it may connect an app,

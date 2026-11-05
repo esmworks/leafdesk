@@ -1701,7 +1701,7 @@
       "disconnect": "연결 해제",
       "revoke": "취소",
       "working": "연결 해제 중…",
-      "confirmEverywhere": "{kind, select, api_token {{person}님의 토큰 ‘{name}’을(를) 취소할까요? 그 사람의 모든 워크스페이스에서 작동하지 않게 됩니다.} other {{person}님의 계정에서 {name}의 연결을 해제할까요? 다시 연결할 때까지 그 사람의 모든 워크스페이스에 액세스할 수 없게 됩니다.}}",
+      "confirmCutOff": "{kind, select, api_token {{person}의 토큰 {name}을(를) 이 워크스페이스에서 차단할까요? 그 밖에 닿는 곳에서는 계속 작동합니다.} other {{person}의 {name}을(를) 이 워크스페이스에서 연결 해제할까요? 다른 워크스페이스에서는 유지되며, 다시 연결하면 여기에도 돌아옵니다.}}",
       "confirmHere": "{person}님의 토큰 ‘{name}’을(를) 취소할까요? 더 이상 작동하지 않게 됩니다.",
       "error": "연결을 해제할 수 없습니다. 다시 시도하세요.",
       "gone": "이미 연결이 해제되었거나 더 이상 이 워크스페이스에 접근하지 않습니다.",

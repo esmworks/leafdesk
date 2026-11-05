@@ -644,7 +644,8 @@ search is full-text search, as without AI.
 An OpenAI-compatible server's address is one a person typed, so it is held to the rules
 connections follow: https only, a public address only (checked when the request is made, and the
 connection pinned to it), and no redirects. List servers on your own network in `AI_ALLOWED_HOSTS`
-(comma-separated, a host name or host:port; plain http allowed for those), e.g.
+(comma-separated, a host name or host:port; plain http allowed for those; a bare name is reached on
+ports 80, 443, 8080 and 8443 only, so name the port of a server on another), e.g.
 `AI_ALLOWED_HOSTS=vllm:8000`. The limits above (`AI_MAX_INPUT_CHARS`, `AI_RATE_LIMIT`…) hold for
 own accounts too. What an own account pays counts in the workspace's usage, and the owners' monthly
 limit holds it; the server's `AI_MONTHLY_LIMIT_USD` doesn't (*Usage and cost limits*).

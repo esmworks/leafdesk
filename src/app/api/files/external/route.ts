@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { downloadName, EXTERNAL_DOWNLOAD_MS, MAX_EXTERNAL_DOWNLOAD } from "@/lib/downloads";
 import { dispositionOf } from "@/lib/files";
+import { SlidingWindowLimiter } from "@/lib/rate-limit";
 import { AccessError, requirePageAccess } from "@/server/access";
 import { checkConnectionUrl, ConnectionFetchError, connectionFetch } from "@/server/connections/fetch";
 
@@ -12,7 +13,18 @@ import { checkConnectionUrl, ConnectionFetchError, connectionFetch } from "@/ser
  * `untrusted` reach, so only WEB_FETCH_ALLOWED_HOSTS, never CONNECTOR_ALLOWED_HOSTS, opens a private host) with
  * nothing of the request it was asked with (no cookies), at most MAX_EXTERNAL_DOWNLOAD bytes within
  * EXTERNAL_DOWNLOAD_MS, and streams it back as an attachment, never shown as a page of this site.
+ * The address isn't checked against the page's blocks (a synced block or an embed may show it), so
+ * each person gets DOWNLOADS_PER_WINDOW in a window: enough for a page's files, too few to use the
+ * server to fetch the web for them.
  */
+
+const DOWNLOADS_PER_WINDOW = 120;
+const DOWNLOAD_WINDOW_MS = 10 * 60_000;
+// On globalThis: route modules can be loaded more than once in development.
+const limits = ((globalThis as Record<string, unknown>).__leafdeskExternalDownloads ??= new SlidingWindowLimiter(
+  DOWNLOADS_PER_WINDOW,
+  DOWNLOAD_WINDOW_MS,
+)) as SlidingWindowLimiter;
 
 const HEADERS = {
   "X-Content-Type-Options": "nosniff",
@@ -46,6 +58,12 @@ function limited(body: ReadableStream<Uint8Array>, limit: number, abort: () => v
 export async function GET(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers }).catch(() => null);
   if (!session) return fail(401, "Sign in to download files");
+  const wait = limits.retryAfter(session.user.id);
+  if (wait > 0) {
+    const response = fail(429, "Too many downloads; try again later");
+    response.headers.set("Retry-After", String(Math.ceil(wait / 1000)));
+    return response;
+  }
   const params = new URL(request.url).searchParams;
   const pageId = params.get("pageId") ?? "";
   try {
@@ -62,6 +80,7 @@ export async function GET(request: Request) {
     throw error;
   }
 
+  limits.hit(session.user.id);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), EXTERNAL_DOWNLOAD_MS);
   let response: Response;

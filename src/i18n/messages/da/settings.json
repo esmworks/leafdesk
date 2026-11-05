@@ -1701,7 +1701,7 @@
       "disconnect": "Afbryd",
       "revoke": "Tilbagekald",
       "working": "Afbryder…",
-      "confirmEverywhere": "{kind, select, api_token {Tilbagekald {person}s token {name}? Det holder op med at virke i alle vedkommendes arbejdsområder.} other {Afbryd {name} fra {person}s konto? Den mister adgangen til alle vedkommendes arbejdsområder, indtil vedkommende forbinder den igen.}}",
+      "confirmCutOff": "{kind, select, api_token {Afskær {person}s token {name} fra dette arbejdsområde? Alle andre steder, den når, virker den stadig.} other {Afbryd {name} fra dette arbejdsområde for {person}? Personens andre arbejdsområder beholder den, og forbindes den igen, kommer den tilbage her.}}",
       "confirmHere": "Tilbagekald {person}s token {name}? Det holder op med at virke.",
       "error": "Kunne ikke afbryde den. Prøv igen.",
       "gone": "Den er allerede afbrudt eller når ikke længere dette arbejdsområde.",

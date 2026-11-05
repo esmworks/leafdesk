@@ -22,7 +22,8 @@ import {
 import { isReservedAccount } from "@/server/agents/users";
 import { disconnectEndedSessions, forgetUnprovenHolder } from "@/server/account-security";
 import { claimFirstAdmin } from "@/server/first-admin";
-import { connectedAppAuditPlugin } from "@/server/mcp/grants";
+import { CLIENT_IP_HEADER } from "@/lib/client-ip";
+import { connectedAppAuditPlugin, connectingHeldBack, type PolicySession } from "@/server/mcp/grants";
 import { applyDomainPolicies } from "@/server/join-requests";
 import { mailStatus, PASSWORD_RESET_MINUTES, passwordResetEmail, sendMail, verificationEmail } from "@/server/mail";
 import { recipientLocale, rememberLocale, statedLanguage } from "@/server/mail/locale";
@@ -125,6 +126,7 @@ function createAuth() {
     invitationAllowsSignUp,
     instanceOidc: env.instanceOidc,
     sso: { resolveProvider: resolveSsoProvider },
+    connectingHeldBack: async (headers, session) => Boolean(await connectingHeldBack(session as PolicySession, headers.get(CLIENT_IP_HEADER))),
   });
   return betterAuth({
     ...base,

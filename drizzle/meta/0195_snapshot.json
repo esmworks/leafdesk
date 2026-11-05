@@ -1,6 +1,6 @@
 {
-  "id": "d04c0a89-ffbb-49f6-8d6b-94fc9815d1fd",
-  "prevId": "f62b6ce7-6f55-438f-93b9-0112157182fd",
+  "id": "22f0b39a-5569-4c66-83c8-f58ee305f43d",
+  "prevId": "cfec822d-57c7-4ef9-b32d-157048736efd",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -12236,6 +12236,91 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.memory_summary": {
+      "name": "memory_summary",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "written_by": {
+          "name": "written_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sources": {
+          "name": "sources",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "memory_summary_user_id_user_id_fk": {
+          "name": "memory_summary_user_id_user_id_fk",
+          "tableFrom": "memory_summary",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "memory_summary_workspace_id_workspace_id_fk": {
+          "name": "memory_summary_workspace_id_workspace_id_fk",
+          "tableFrom": "memory_summary",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "memory_summary_user_id_workspace_id_pk": {
+          "name": "memory_summary_user_id_workspace_id_pk",
+          "columns": [
+            "user_id",
+            "workspace_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.page_chunk": {
       "name": "page_chunk",
       "schema": "",
@@ -16735,6 +16820,120 @@
         "calendar_feed_target_check": {
           "name": "calendar_feed_target_check",
           "value": "(\"calendar_feed\".\"view_id\" is null) <> (\"calendar_feed\".\"workspace_id\" is null)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.connected_app_cut_off": {
+      "name": "connected_app_cut_off",
+      "schema": "",
+      "columns": {
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "app_kind": {
+          "name": "app_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "app_id": {
+          "name": "app_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cut_at": {
+          "name": "cut_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "connected_app_cut_off_app_idx": {
+          "name": "connected_app_cut_off_app_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "app_kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "app_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "connected_app_cut_off_workspace_id_workspace_id_fk": {
+          "name": "connected_app_cut_off_workspace_id_workspace_id_fk",
+          "tableFrom": "connected_app_cut_off",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "connected_app_cut_off_user_id_user_id_fk": {
+          "name": "connected_app_cut_off_user_id_user_id_fk",
+          "tableFrom": "connected_app_cut_off",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "connected_app_cut_off_workspace_id_user_id_app_kind_app_id_pk": {
+          "name": "connected_app_cut_off_workspace_id_user_id_app_kind_app_id_pk",
+          "columns": [
+            "workspace_id",
+            "user_id",
+            "app_kind",
+            "app_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "connected_app_cut_off_kind_check": {
+          "name": "connected_app_cut_off_kind_check",
+          "value": "\"connected_app_cut_off\".\"app_kind\" in ('connected_app', 'api_token')"
         }
       },
       "isRLSEnabled": false

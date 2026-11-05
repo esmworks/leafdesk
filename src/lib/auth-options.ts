@@ -336,11 +336,19 @@ export async function routeSsoSignIn(body: unknown, resolve: SsoCallbacks["resol
   return { ...input, email, providerId };
 }
 
+/**
+ * Whether a session may not connect an app yet (server/mcp/grants.ts connectingHeldBack): asked on
+ * every authorization, so an app the person allowed before gets no code while a workspace's
+ * sign-in policy holds the session back either.
+ */
+export type ConnectingHeldBack = (headers: Headers, session: { user: { id: string }; session: Record<string, unknown> }) => Promise<boolean>;
+
 export function baseAuthOptions({
   invitationAllowsSignUp,
   instanceOidc = null,
   sso: ssoCallbacks = {},
-}: { invitationAllowsSignUp?: InvitationCheck; instanceOidc?: InstanceOidc | null; sso?: SsoCallbacks } = {}) {
+  connectingHeldBack,
+}: { invitationAllowsSignUp?: InvitationCheck; instanceOidc?: InstanceOidc | null; sso?: SsoCallbacks; connectingHeldBack?: ConnectingHeldBack } = {}) {
   const before = createAuthMiddleware(async (ctx) => {
     // Hooks see the route pattern, so this also covers the ones with parameters.
     if (SSO_DISABLED_ENDPOINTS.has(ctx.path)) throw APIError.from("NOT_FOUND", { message: "Not found", code: "NOT_FOUND" });
@@ -433,6 +441,16 @@ export function baseAuthOptions({
         allowDynamicClientRegistration: true,
         allowUnauthenticatedClientRegistration: true,
         clientRegistrationRequirePKCE: true,
+        // An app allowed before gets its code without the consent page, whose hooks hold back a
+        // session a workspace's sign-in policy doesn't let in: this asks the same before every code.
+        // A held session goes to the consent page, which sends it to meet the policy first.
+        ...(connectingHeldBack && {
+          postLogin: {
+            page: "/oauth/consent",
+            consentReferenceId: () => undefined,
+            shouldRedirect: ({ headers, user, session }) => connectingHeldBack(headers, { user, session }),
+          },
+        }),
       }),
       cimd({
         fetchClientMetadataResource,

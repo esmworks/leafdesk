@@ -9,6 +9,7 @@ import {
   type JiraProject,
 } from "@/lib/jira-sync";
 import { checkConnectionUrl, ConnectionFetchError, connectionFetch } from "@/server/connections/fetch";
+import { syncFetchReach } from "@/server/sync-reach";
 import { BodyTooLargeError, readBodyLimited } from "@/server/request-body";
 
 /**
@@ -57,7 +58,7 @@ export async function answerJson(response: Response, maxBytes: number): Promise<
 /** Checks a site's address before anything is sent there. */
 export function checkJiraSite(siteUrl: string) {
   try {
-    checkConnectionUrl(siteUrl);
+    checkConnectionUrl(siteUrl, syncFetchReach());
   } catch (error) {
     if (error instanceof ConnectionFetchError) throw new JiraError("invalidSite", error.message);
     throw error;
@@ -74,7 +75,7 @@ async function call(siteUrl: string, auth: JiraAuth, path: string): Promise<unkn
         Accept: "application/json",
       },
       signal: AbortSignal.timeout(TIMEOUT_MS),
-    });
+    }, syncFetchReach());
   } catch (error) {
     if (error instanceof ConnectionFetchError) throw new JiraError("invalidSite", error.message);
     throw new JiraError("unreachable", "Jira could not be reached");

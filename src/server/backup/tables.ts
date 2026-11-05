@@ -153,6 +153,7 @@ export const LEFT_OUT: Record<string, string> = {
   telegram_link: "Telegram accounts linked to people, linked again on the new server",
   telegram_link_code: "Telegram link codes in progress",
   connected_app_use: "when apps reached the workspace on the old server",
+  connected_app_cut_off: "people's apps and tokens cut off from the workspace, which belong to the old server's tokens",
   push_subscription: "browsers subscribed to push on the old server",
   user_preference: "people's own settings on the old server",
   account_memory: "people's own notes for the AI in all their workspaces, which go with their accounts",

@@ -1,7 +1,8 @@
 /**
  * End-to-end check that a page save the database refuses reaches whoever wrote: createPage rejects
  * (and leaves the page without the body), the REST API answers 500 to creating and updating a page,
- * an MCP update_page is an error, open editors hear that the save failed and, after a later save
+ * an MCP update_page is an error, a save that failed is tried again by itself, open editors hear
+ * that the save failed and, after a later save
  * went through, that it is saved again. A temporary CHECK constraint on page.content_text makes
  * the saves fail; it is dropped afterwards, after which writes save as usual. Creates its own
  * users, workspace and OAuth client and deletes them afterwards.
@@ -185,8 +186,23 @@ try {
     await held.disconnect();
   }
 
+  // ------------------------------------------------------------------ left alone
+  // The last editor leaves a page whose save fails, as a closing tab does: nothing else would save
+  // it again, so the server tries by itself, and the change is stored once the database takes it.
+  const editor = await hocuspocus.openDirectConnection(`page:${target.id}`, { userId: owner });
+  const leftError = await rejection(() => service.replaceContent(target.id, `Left alone ${MARKER}`, { userId: owner }));
+  check(isPageSaveFailed(leftError), "a write rejects when it can't be saved", String(leftError));
+  await editor.disconnect({ unloadImmediately: false });
+  // The save on leaving waits for the debounce; it fails too before the database takes saves again.
+  const storing = `onStoreDocument-page:${target.id}`;
+  while (hocuspocus.debouncer.isDebounced(storing) || hocuspocus.debouncer.isCurrentlyExecuting(storing)) await new Promise((r) => setTimeout(r, 100));
+  check(hocuspocus.documents.has(`page:${target.id}`), "…and once its last editor left, the unsaved document stays in memory");
+
   // ------------------------------------------------------------------ after the constraint
   await db.execute(sql.raw(`ALTER TABLE page DROP CONSTRAINT ${CONSTRAINT}`));
+  const retryBy = Date.now() + 15_000;
+  while (!(await stored(target.id)).text.includes("Left alone") && Date.now() < retryBy) await new Promise((r) => setTimeout(r, 250));
+  check((await stored(target.id)).text.includes("Left alone"), "a failed save is tried again until it is stored, with no further change");
   await service.replaceContent(refused.id, `Now saved ${MARKER}`, { userId: owner });
   check((await stored(refused.id)).text.includes(MARKER), "once the database takes it, the same body saves");
 

@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Bu özelliğe ayrı erişim verilemez.",
     "typeChangeRestricted": "“{property}” için erişim kuralları var; bu türdeki özellikler kural alamaz. Önce kurallarını kaldırın.",
     "typeChangeNamesPeople": "Erişim kuralları “{property}” içindeki kişilere erişim veriyor. Türünü değiştirmeden önce bu kuralları kaldırın.",
+    "typeChangeHidden": "“{property}” içindeki bazı değerler sizden gizli ve seçenekleri onlar olurdu. Türünü, her satırı ve değeri gören biri değiştirebilir.",
     "invalidRowAccess": "Bu satır erişim kuralları kaydedilemiyor. Sayfayı yenileyip tekrar deneyin.",
     "invalidAutomation": "Bu otomasyon kaydedilemiyor. Tetikleyicisini ve eylemlerini kontrol edin.",
     "tooManyAutomations": "Bir veritabanında en fazla {max} otomasyon olabilir.",

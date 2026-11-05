@@ -712,7 +712,11 @@ let sweeper: NodeJS.Timeout | null = null;
  */
 export function startFileCleanup() {
   if (sweeper) return;
+  // One run at a time: a long drain of queued deletions mustn't overlap the next hour's run.
+  let sweeping = false;
   const sweep = async () => {
+    if (sweeping) return;
+    sweeping = true;
     try {
       const orphans = await purgeOrphanFiles();
       const unused = await purgeUnusedUploads();
@@ -726,6 +730,8 @@ export function startFileCleanup() {
       if (retired) console.log(`[files] forgot ${retired} workspace storage connections nothing is stored in any more`);
     } catch (error) {
       console.error("[files] cleanup failed", error);
+    } finally {
+      sweeping = false;
     }
   };
   setTimeout(sweep, 60_000).unref();

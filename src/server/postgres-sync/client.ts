@@ -17,12 +17,13 @@ import {
 } from "@/lib/postgres-sync";
 import { JiraError } from "@/server/jira-sync/client";
 import { isBlockedAddress } from "@/server/ssrf";
+import { syncReachesAllowedHosts } from "@/server/sync-reach";
 
 /**
  * Leafdesk's reads of a PostgreSQL database for synced tables (lib/postgres-sync). The server is
  * reached like a connection's: on a public address only, connected to the address checked (so a
  * host can't answer the check with a public address and the connection with a private one), unless
- * the host is in CONNECTOR_ALLOWED_HOSTS, for databases on the same machine or network: a bare
+ * the host is in CONNECTOR_ALLOWED_HOSTS and an owner set up the sync (sync-reach.ts), for databases on the same machine or network: a bare
  * name there allows PostgreSQL's own port 5432 only (as a bare name allows only the web's ports for
  * other fetches, ssrf.ts onHostList), and "name:port" that port. TLS is required on public addresses unless the address's sslmode says
  * otherwise. Every read is one read-only transaction with a time limit, and the connection closes
@@ -41,16 +42,20 @@ export class PostgresSyncError extends JiraError {
   }
 }
 
+/** Whether the connection's host and port are on CONNECTOR_ALLOWED_HOSTS (whoever set up the sync). */
 export function allowedHost(connection: Pick<PostgresConnection, "host" | "port">) {
   const host = connection.host.toLowerCase();
   const allowed = env.connectorAllowedHosts;
   return allowed.includes(`${host}:${connection.port}`) || (connection.port === POSTGRES_PORT && allowed.includes(host));
 }
 
+/** Whether the sync under way may reach the connection's host on the network: allowed, and set up by an owner. */
+const reachesAllowedHost = (connection: Pick<PostgresConnection, "host" | "port">) => syncReachesAllowedHosts() && allowedHost(connection);
+
 /** The address to connect to: the host itself when allowed, else a public address it resolves to. */
 async function addressOf(connection: PostgresConnection): Promise<string> {
   const { host } = connection;
-  if (allowedHost(connection)) return host;
+  if (reachesAllowedHost(connection)) return host;
   if (isIP(host)) {
     if (isBlockedAddress(host)) throw new PostgresSyncError("invalidSite", "A private address");
     return host;
@@ -91,7 +96,7 @@ export async function withPostgres<T>(url: string, fn: (sql: Sql) => Promise<T>)
   const connection = parsePostgresUrl(url);
   if (!connection) throw new PostgresSyncError("invalidInput", "Not a PostgreSQL address");
   const host = await addressOf(connection);
-  const mode = connection.sslmode ?? (allowedHost(connection) ? "prefer" : "require");
+  const mode = connection.sslmode ?? (reachesAllowedHost(connection) ? "prefer" : "require");
   const servername = isIP(connection.host) ? undefined : connection.host;
   const sql = postgres({
     host,

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 // where they asked before the server reaches out to anything.
 
 vi.mock("@/db", () => ({ db: {} }));
-vi.mock("@/server/access", () => ({ AccessError: class AccessError extends Error {} }));
+vi.mock("@/server/access", () => ({ AccessError: class AccessError extends Error {}, findMembership: vi.fn(async () => ({ role: "member" })) }));
 vi.mock("@/server/databases", () => ({ addProperty: vi.fn(), addView: vi.fn(), requireDatabase: vi.fn(), updateView: vi.fn() }));
 vi.mock("@/server/import/csv", () => ({ discardDatabase: vi.fn(), recordImport: vi.fn() }));
 vi.mock("@/server/jira-sync/run", () => ({ claimSync: vi.fn(), runAndRecord: vi.fn() }));

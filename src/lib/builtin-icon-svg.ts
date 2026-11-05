@@ -1,4 +1,4 @@
-import { BUILTIN_ICONS } from "./builtin-icons-data";
+import { builtinIconNode } from "./builtin-icons-data";
 import { readBuiltinIcon, type IconColor } from "./icon-value";
 
 /**
@@ -25,7 +25,7 @@ const escape = (value: string | number) => String(value).replace(/[<>&"']/g, (c)
  */
 export function builtinIconSvg(value: string | null | undefined, { size = 24, fallbackColor = "#1f2023" } = {}): string | null {
   const icon = readBuiltinIcon(value);
-  const node = icon && BUILTIN_ICONS[icon.name];
+  const node = icon && builtinIconNode(icon.name);
   if (!icon || !node) return null;
   const color = icon.color ? ICON_COLOR_HEX[icon.color] : fallbackColor;
   const body = node

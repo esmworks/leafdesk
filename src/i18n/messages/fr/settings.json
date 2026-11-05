@@ -1701,7 +1701,7 @@
       "disconnect": "Déconnecter",
       "revoke": "Révoquer",
       "working": "Déconnexion…",
-      "confirmEverywhere": "{kind, select, api_token {Révoquer le jeton {name} de {person} ? Il cesse de fonctionner dans tous ses espaces de travail.} other {Déconnecter {name} du compte de {person} ? L’application perd l’accès à tous ses espaces de travail jusqu’à ce qu’elle la reconnecte.}}",
+      "confirmCutOff": "{kind, select, api_token {Couper le jeton {name} de {person} de cet espace de travail ? Partout ailleurs où il accède, il continue de fonctionner.} other {Déconnecter {name} de cet espace de travail pour {person} ? Ses autres espaces de travail le gardent, et le reconnecter le ramène ici.}}",
       "confirmHere": "Révoquer le jeton {name} de {person} ? Il cesse de fonctionner.",
       "error": "Impossible de la déconnecter. Réessayez.",
       "gone": "Elle est déjà déconnectée, ou n’atteint plus cet espace de travail.",

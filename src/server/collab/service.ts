@@ -336,7 +336,27 @@ export function createCollab() {
    */
   const failedSaves = new WeakMap<Document, Error>();
 
-  const persistPage = async (pageId: string, doc: Document, context?: Context) => {
+  /** Saves tried again after one failed, by document: how many failed in a row, and the next try. */
+  const retries = new WeakMap<Document, { failures: number; timer: NodeJS.Timeout }>();
+  const stopRetrying = (doc: Document) => {
+    const retry = retries.get(doc);
+    if (retry) clearTimeout(retry.timer);
+    retries.delete(doc);
+  };
+  /** Tries a failed save again, 5 s after the first failure and up to 30 s apart after more. */
+  const retryLater = (instance: Hocuspocus<Context>, doc: Document, payload: Parameters<Hocuspocus<Context>["storeDocumentHooks"]>[1]) => {
+    const failures = (retries.get(doc)?.failures ?? 0) + 1;
+    stopRetrying(doc);
+    const timer = setTimeout(() => {
+      // Still the loaded document, and no save already on its way (a change debounces one).
+      if (instance.documents.get(doc.name) !== doc) return stopRetrying(doc);
+      void instance.storeDocumentHooks(doc, payload, true);
+    }, Math.min(5_000 * 2 ** (failures - 1), 30_000));
+    timer.unref?.();
+    retries.set(doc, { failures, timer });
+  };
+
+  const persistPage = async (pageId: string, doc: Document, context?: Context, onSaved?: () => void) => {
     const userId = context?.userId;
     const [row] = await db
       .select({
@@ -389,6 +409,7 @@ export function createCollab() {
       throw pageSaveFailedError(error);
     }
     // Saved: steps after this one failing doesn't make the page unsaved.
+    onSaved?.();
     if (failedSaves.delete(doc)) doc.broadcastStateless(PAGE_SAVED_EVENT);
     if (shownBefore) {
       // Files this save put into the body (the trigger recorded them, unauthorized) count for the
@@ -534,20 +555,31 @@ export function createCollab() {
       }
     },
 
-    async onStoreDocument({ documentName, document, lastContext }) {
+    async onStoreDocument(payload) {
+      const { documentName, document, lastContext, instance } = payload;
       debug("store", documentName);
       const target = parseName(documentName);
       if (target?.kind !== "page") return;
+      let saved = false;
       try {
-        await persistPage(target.id, document, lastContext);
+        await persistPage(target.id, document, lastContext, () => (saved = true));
+        stopRetrying(document);
       } catch (error) {
         // Hocuspocus swallows hook errors; a failed save must be visible in the logs, and to the
         // writers: open editors stop showing their changes as saved (the next change saves again).
         console.error(`[collab] failed to persist ${documentName}`, error);
+        // A step after the save failed: the page is saved, and may be unloaded as usual.
+        if (saved) {
+          stopRetrying(document);
+          return;
+        }
         if (isPageSaveFailed(error)) {
           failedSaves.set(document, error as Error);
           document.broadcastStateless(PAGE_SAVE_FAILED_EVENT);
         }
+        // Nothing else saves it again once its last editor left (no change, no closing
+        // connection), and it would stay unsaved in memory until a restart dropped it.
+        retryLater(instance, document, payload);
         // Thrown on, so Hocuspocus keeps the document in memory rather than unloading it.
         throw error;
       }

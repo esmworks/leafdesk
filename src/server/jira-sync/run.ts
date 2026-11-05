@@ -13,6 +13,7 @@ import { runPostgres } from "@/server/postgres-sync/run";
 import { runSheets } from "@/server/sheets-sync/run";
 import { matcher } from "@/server/import/board";
 import { openJson } from "@/server/secret-box";
+import { withSyncReach } from "@/server/sync-reach";
 import { startSweep } from "@/server/sweep";
 import { addOptions, applyRows, liveFields, type SyncedDatabase } from "@/server/synced-rows";
 import { JiraError, searchIssues, type JiraAuth } from "./client";
@@ -103,15 +104,21 @@ export async function runSync(sync: SyncRow) {
     throw error;
   }
   if (database.archivedAt) return null;
-  if (sync.source === "github") return runGithubPulls(sync, database, sync.runAs);
-  if (sync.source === "ical") return runIcal(sync, database, sync.runAs);
-  if (sync.source === "postgres") return runPostgres(sync, database, sync.runAs);
-  if (sync.source === "sheets") return runSheets(sync, database, sync.runAs);
-  if (sync.source === "gcal") return runGcal(sync, database, sync.runAs);
+  const runAs = sync.runAs;
+  // Hosts on CONNECTOR_ALLOWED_HOSTS only for a sync run as an owner (sync-reach.ts).
+  return withSyncReach(runAs, sync.workspaceId, () => runSource(sync, database, runAs));
+}
+
+async function runSource(sync: SyncRow, database: SyncedDatabase, runAs: string) {
+  if (sync.source === "github") return runGithubPulls(sync, database, runAs);
+  if (sync.source === "ical") return runIcal(sync, database, runAs);
+  if (sync.source === "postgres") return runPostgres(sync, database, runAs);
+  if (sync.source === "sheets") return runSheets(sync, database, runAs);
+  if (sync.source === "gcal") return runGcal(sync, database, runAs);
   const auth = openJson<JiraAuth>(sync.secrets);
   const issues = await searchIssues(sync.siteUrl, auth, jqlOf(sync.query as JiraQuery));
   const rows = issues.map((issue) => issueRow(issue, sync.siteUrl)).filter((row): row is JiraRow => row !== null);
-  const written = await applyIssues(database, sync.runAs, sync.mapping as JiraMapping, rows);
+  const written = await applyIssues(database, runAs, sync.mapping as JiraMapping, rows);
   return { count: rows.length, ...written };
 }
 
@@ -168,14 +175,30 @@ async function claimDue(now: Date) {
       .orderBy(asc(databaseSync.nextRunAt))
       .limit(BATCH)
       .for("update", { skipLocked: true });
+    const held: SyncRow[] = [];
     for (const row of due) {
-      await tx
-        .update(databaseSync)
-        .set({ nextRunAt: nextRun(row.intervalMinutes, now), runningUntil: new Date(now.getTime() + LEASE_MS) })
-        .where(eq(databaseSync.id, row.id));
+      const changes = { nextRunAt: nextRun(row.intervalMinutes, now), runningUntil: new Date(now.getTime() + LEASE_MS) };
+      await tx.update(databaseSync).set(changes).where(eq(databaseSync.id, row.id));
+      held.push({ ...row, ...changes });
     }
-    return due;
+    return held;
   });
+}
+
+/**
+ * The batch's syncs run one after another, each for up to RUN_TIMEOUT_MS, so a hold taken with the
+ * batch could run out before its turn and let a "Sync now" or another server start the same sync
+ * alongside. Each one's hold starts again just before it runs, if it is still the one the batch
+ * took; null when it isn't (another took the sync meanwhile).
+ */
+async function holdAgain(row: SyncRow): Promise<SyncRow | null> {
+  if (!row.runningUntil) return null;
+  const [held] = await db
+    .update(databaseSync)
+    .set({ runningUntil: new Date(Date.now() + LEASE_MS) })
+    .where(and(eq(databaseSync.id, row.id), eq(databaseSync.runningUntil, row.runningUntil)))
+    .returning();
+  return held ?? null;
 }
 
 /** Holds one sync for a run now (its next run counted from now), or null while another run is going. */
@@ -195,7 +218,10 @@ export async function runDueSyncs(now = new Date()) {
   let total = 0;
   for (;;) {
     const claimed = await claimDue(now);
-    for (const row of claimed) await runAndRecord(row, now);
+    for (const row of claimed) {
+      const held = await holdAgain(row);
+      if (held) await runAndRecord(held, now);
+    }
     total += claimed.length;
     if (claimed.length < BATCH) return total;
   }

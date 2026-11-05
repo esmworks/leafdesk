@@ -27,6 +27,7 @@ import { linkMentionHref, linkMentionTitle } from "@/lib/link-mentions";
 import { withoutSyncedBlocks } from "@/lib/synced-blocks";
 import { IMAGE_BLOCK, parseImageLink } from "@/lib/image-links";
 import { BUTTON_BLOCK } from "@/lib/buttons";
+import { MEETING_BLOCK, parseAttendees, serializeAttendees } from "@/lib/meetings";
 import { serverEditor as editor, type PageBlock } from "@/server/blocknote";
 import { fragmentBlocks } from "@/server/synced-body";
 
@@ -88,6 +89,12 @@ function sanitizeInline(items: Json[]): Json[] {
   return out;
 }
 
+function meetingShown(props: Record<string, Json>): Record<string, Json> {
+  const attendees = serializeAttendees(parseAttendees(props.attendees).map((a) => ({ id: "", name: a.name })));
+  const shown: Record<string, Json> = { title: props.title, attendees, summary: props.summary, decisions: props.decisions, actions: props.actions };
+  return Object.fromEntries(Object.entries(shown).filter(([, value]) => typeof value === "string" && value));
+}
+
 function sanitizeValue(value: Json): Json {
   if (Array.isArray(value)) return sanitizeInline(value);
   if (!value || typeof value !== "object") return value;
@@ -101,7 +108,10 @@ function sanitizeValue(value: Json): Json {
       if ("link" in props && !parseImageLink(props.link)) props.link = "";
       // What a button does is the editors' business: a published page shows its label, disabled.
       if (node.type === BUTTON_BLOCK) props.config = "";
-      next[key] = props;
+      // A meeting shows its title, who came and its takeaways (blocknote.ts meetingElement). The
+      // HTML carries every prop besides as an attribute, so the rest (the transcript, the people's
+      // ids, the recorder) is left out, not just left unshown.
+      next[key] = node.type === MEETING_BLOCK ? meetingShown(props) : props;
     } else {
       next[key] = sanitizeValue(child);
     }

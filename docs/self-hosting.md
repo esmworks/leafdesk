@@ -209,7 +209,7 @@ may share one key pair; make it once and keep it.
 | --- | --- |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | The key pair the server signs push messages with. Keep the private key secret. |
 | `VAPID_SUBJECT` | An address the browsers' push services can reach you at: `mailto:` or `https:`. |
-| `PUSH_ALLOWED_HOSTS` | Optional. Push services on a private network or plain http that push may reach (a push service run next to the server), comma-separated as a host name or `host:port`. |
+| `PUSH_ALLOWED_HOSTS` | Optional. Push services on a private network or plain http that push may reach (a push service run next to the server), comma-separated as a host name (ports 80, 443, 8080 and 8443 only) or `host:port`. |
 
 Without all three VAPID values push is off and its settings are hidden. Changing the keys stops
 push on every device until it is turned on there again. Push needs the service worker, so it works

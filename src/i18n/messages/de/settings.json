@@ -1701,7 +1701,7 @@
       "disconnect": "Trennen",
       "revoke": "Widerrufen",
       "working": "Wird getrennt…",
-      "confirmEverywhere": "{kind, select, api_token {Das Token {name} von {person} widerrufen? Es funktioniert dann in keinem ihrer Workspaces mehr.} other {{name} vom Konto von {person} trennen? Die App verliert den Zugriff auf alle ihre Workspaces, bis sie sie neu verbindet.}}",
+      "confirmCutOff": "{kind, select, api_token {Das Token {name} von {person} von diesem Arbeitsbereich trennen? Überall sonst, wo es hinreicht, funktioniert es weiter.} other {{name} für {person} von diesem Arbeitsbereich trennen? Die anderen Arbeitsbereiche behalten es, und wird es erneut verbunden, kommt es hierher zurück.}}",
       "confirmHere": "Das Token {name} von {person} widerrufen? Es funktioniert dann nicht mehr.",
       "error": "Konnte nicht getrennt werden. Versuch es noch einmal.",
       "gone": "Sie ist schon getrennt oder erreicht diesen Workspace nicht mehr.",

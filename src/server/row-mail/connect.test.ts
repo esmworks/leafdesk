@@ -35,6 +35,9 @@ describe("resolveMailHost", () => {
     expect(allowedMailHost("localhost", 3143)).toBe(true);
     expect(allowedMailHost("localhost", 993)).toBe(false);
     expect(allowedMailHost("mail.office.lan", 25)).toBe(true);
+    expect(allowedMailHost("mail.office.lan", 993)).toBe(true);
+    // A bare name is mail's own ports only, not the host's other services.
+    expect(allowedMailHost("mail.office.lan", 6379)).toBe(false);
     await expect(resolveMailHost("localhost", 3143, async () => [{ address: "127.0.0.1" }])).resolves.toMatchObject({
       address: "127.0.0.1",
       allowed: true,
