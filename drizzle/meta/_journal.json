@@ -1373,6 +1373,13 @@
       "when": 1793846539492,
       "tag": "0195_memory_details",
       "breakpoints": true
+    },
+    {
+      "idx": 196,
+      "version": "7",
+      "when": 1793848782079,
+      "tag": "0196_memory_summary",
+      "breakpoints": true
     }
   ]
 }

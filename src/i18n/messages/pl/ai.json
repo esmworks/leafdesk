@@ -587,6 +587,16 @@
     "addDetails": "Dodaj szczegóły",
     "moreDetails": "Pokaż wszystko",
     "lessDetails": "Pokaż mniej",
+    "summary": {
+      "title": "Podsumowanie",
+      "hint": "Kilka zdań o Tobie, napisanych na podstawie Twoich notatek, które trafiają tu do pytań przed nimi. Połączone aplikacje też je czytają.",
+      "write": "Napisz z AI",
+      "rewrite": "Napisz ponownie",
+      "writing": "Piszę…",
+      "byAi": "Napisane przez AI na podstawie Twoich notatek, {date}",
+      "byYou": "Napisane przez Ciebie, {date}",
+      "stale": "Twoje notatki zmieniły się od tego czasu"
+    },
     "delete": "Usuń",
     "viaApp": "Zapisane przez {app}",
     "count": "Notatki: {count} z {max}",
@@ -602,7 +612,9 @@
       "off": "Pamięć AI jest wyłączona w tym obszarze roboczym.",
       "changed": "Ta notatka zmieniła się od tego czasu. Zmień ją w Pamięci.",
       "busy": "Poczekaj, aż odpowiedź się zakończy.",
-      "held": "Blokada prawna zachowuje tę notatkę: nie można jej usunąć, dopóki blokada obowiązuje."
+      "held": "Blokada prawna zachowuje tę notatkę: nie można jej usunąć, dopóki blokada obowiązuje.",
+      "noNotes": "Najpierw zapisz kilka notatek: podsumowanie powstaje na ich podstawie.",
+      "summaryTooLong": "Podsumowanie może mieć najwyżej {max} znaków."
     }
   },
   "accounts": {

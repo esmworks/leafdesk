@@ -587,6 +587,16 @@
     "addDetails": "Details toevoegen",
     "moreDetails": "Alles tonen",
     "lessDetails": "Minder tonen",
+    "summary": {
+      "title": "Samenvatting",
+      "hint": "Een paar regels over jou, geschreven uit je notities, die hier vóór je notities met je vragen meegaan. Gekoppelde apps lezen ze ook.",
+      "write": "Schrijven met AI",
+      "rewrite": "Opnieuw schrijven",
+      "writing": "Bezig met schrijven…",
+      "byAi": "Door de AI geschreven uit je notities, {date}",
+      "byYou": "Door jou geschreven, {date}",
+      "stale": "je notities zijn sindsdien veranderd"
+    },
     "delete": "Verwijderen",
     "viaApp": "Bijgehouden door {app}",
     "count": "{count} van {max} notities",
@@ -602,7 +612,9 @@
       "off": "Het AI-geheugen is uitgeschakeld in deze werkruimte.",
       "changed": "Die notitie is sindsdien gewijzigd. Wijzig hem in Geheugen.",
       "busy": "Wacht tot het antwoord klaar is.",
-      "held": "Een juridische bewaarplicht houdt deze notitie vast: ze kan niet worden verwijderd zolang de bewaarplicht geldt."
+      "held": "Een juridische bewaarplicht houdt deze notitie vast: ze kan niet worden verwijderd zolang de bewaarplicht geldt.",
+      "noNotes": "Bewaar eerst een paar notities: de samenvatting wordt eruit geschreven.",
+      "summaryTooLong": "Een samenvatting mag hoogstens {max} tekens hebben."
     }
   },
   "accounts": {

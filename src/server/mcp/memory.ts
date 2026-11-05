@@ -83,11 +83,14 @@ export function describeNote(note: MemoryView) {
   return { memory_id: note.id, text: note.text, category: note.category, ...(note.details ? { details: note.details } : {}), ...(note.app ? { kept_by_app: note.app } : {}), created_at: note.createdAt, updated_at: note.updatedAt };
 }
 
-/** The user's memory in a workspace as list_memory shows it: the notes while it is on; while off, why and how many. */
-export function describeMemory(workspaceId: string, { off, notes }: { off: keyof typeof MEMORY_OFF | null; notes: MemoryView[] }) {
+/**
+ * The user's memory in a workspace as list_memory shows it: the notes while it is on, after the
+ * summary of them the user keeps (`about`, server/memory-summary.ts), if any; while off, why and how many.
+ */
+export function describeMemory(workspaceId: string, { off, notes }: { off: keyof typeof MEMORY_OFF | null; notes: MemoryView[] }, about = "") {
   return off
     ? { workspace_id: workspaceId, memory: "off" as const, why: MEMORY_OFF[off], notes: [], notes_kept: notes.length }
-    : { workspace_id: workspaceId, memory: "on" as const, notes: notes.map(describeNote) };
+    : { workspace_id: workspaceId, memory: "on" as const, ...(about ? { about } : {}), notes: notes.map(describeNote) };
 }
 
 /** A note of the workspace or a teamspace as list_memory shows it: who changed it last, too. */

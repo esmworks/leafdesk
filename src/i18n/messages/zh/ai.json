@@ -587,6 +587,16 @@
     "addDetails": "添加详情",
     "moreDetails": "全部显示",
     "lessDetails": "收起",
+    "summary": {
+      "title": "摘要",
+      "hint": "根据你的笔记写成的几行关于你的内容，在这里随你的问题先于笔记发送。已连接的应用也会读取。",
+      "write": "用 AI 撰写",
+      "rewrite": "重新撰写",
+      "writing": "正在撰写…",
+      "byAi": "由 AI 根据你的笔记撰写，{date}",
+      "byYou": "由你撰写，{date}",
+      "stale": "你的笔记此后已有变化"
+    },
     "delete": "删除",
     "viaApp": "由 {app} 保存",
     "count": "{count} / {max} 条笔记",
@@ -602,7 +612,9 @@
       "off": "此工作区已关闭 AI 记忆。",
       "changed": "这条笔记此后已更改。请改在记忆中修改。",
       "busy": "请等待回答完成。",
-      "held": "法律保留保留着此笔记：保留生效期间不能删除。"
+      "held": "法律保留保留着此笔记：保留生效期间不能删除。",
+      "noNotes": "请先记下几条笔记：摘要由笔记写成。",
+      "summaryTooLong": "摘要最多 {max} 个字符。"
     }
   },
   "accounts": {

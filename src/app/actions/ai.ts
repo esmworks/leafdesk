@@ -3,13 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import type { AiAutofillConfig } from "@/lib/ai";
-import { isMemoryCategory, MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, type MemoryCategory, type MemoryLayer, type MemoryView } from "@/lib/ai-chat";
+import { isMemoryCategory, MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, MAX_MEMORY_SUMMARY_CHARS, type MemoryCategory, type MemoryLayer, type MemoryView } from "@/lib/ai-chat";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
 import { decideParkedChange, deleteConversations, getConversation, listConversations, markConversationSeen, saveReportAsPage, undoChatNote } from "@/server/ai-chat";
 import { accountNotes, deleteAccountNotes, writeAccountNote } from "@/server/account-memory";
 import { addMemory, deleteMemories, listMemories, MemoryError, setMemoryUse, updateMemory } from "@/server/ai-memory";
+import { deleteSummary, setSummary, writeSummary } from "@/server/memory-summary";
 import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
 import { MAX_PROMPT_NAME, MAX_PROMPT_TEXT, MAX_SAVED_PROMPTS } from "@/lib/ai-saved-prompts";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
@@ -43,7 +44,8 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
       return { ok: false, error: t(`ai.errors.${error.code}`, { seconds }), code: error.code };
     }
     if (error instanceof MemoryError) {
-      const max = error.code === "full" ? MAX_MEMORIES : error.code === "detailsTooLong" ? MAX_MEMORY_DETAILS_CHARS : MAX_MEMORY_CHARS;
+      const max =
+        error.code === "full" ? MAX_MEMORIES : error.code === "detailsTooLong" ? MAX_MEMORY_DETAILS_CHARS : error.code === "summaryTooLong" ? MAX_MEMORY_SUMMARY_CHARS : MAX_MEMORY_CHARS;
       return { ok: false, error: t(`ai.memory.errors.${error.code}`, { max }), code: error.code };
     }
     if (error instanceof AutofillError) {
@@ -174,6 +176,21 @@ export async function undoChatNoteAction(workspaceId: string, conversationId: st
 /** Turns the AI chat's memory on or off for the person in a workspace; their notes stay. */
 export async function setMemoryUseAction(workspaceId: string, on: boolean) {
   return run((userId) => setMemoryUse(userId, String(workspaceId), on === true));
+}
+
+/** Has the AI write the person's summary of their notes in a workspace, in place of the one they had (server/memory-summary.ts). */
+export async function writeMemorySummaryAction(workspaceId: string) {
+  return run((userId) => writeSummary(userId, String(workspaceId)));
+}
+
+/** Keeps the summary as the person wrote or changed it; an empty one deletes it. */
+export async function saveMemorySummaryAction(workspaceId: string, text: string) {
+  return run((userId) => setSummary(userId, String(workspaceId), typeof text === "string" ? text : ""));
+}
+
+/** Deletes the person's summary in a workspace. */
+export async function deleteMemorySummaryAction(workspaceId: string) {
+  return run((userId) => deleteSummary(userId, String(workspaceId)));
 }
 
 /** A change on the Memory page: a note to add, one changed (its text, what it is about and its details), or some (or all) deleted. */

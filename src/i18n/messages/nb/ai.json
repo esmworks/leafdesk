@@ -587,6 +587,16 @@
     "addDetails": "Legg til detaljer",
     "moreDetails": "Vis alt",
     "lessDetails": "Vis mindre",
+    "summary": {
+      "title": "Sammendrag",
+      "hint": "Noen linjer om deg, skrevet ut fra notatene dine, som følger spørsmålene dine her foran dem. Tilkoblede apper leser det også.",
+      "write": "Skriv med KI",
+      "rewrite": "Skriv på nytt",
+      "writing": "Skriver…",
+      "byAi": "Skrevet av KI ut fra notatene dine, {date}",
+      "byYou": "Skrevet av deg, {date}",
+      "stale": "notatene dine er endret siden"
+    },
     "delete": "Slett",
     "viaApp": "Lagret av {app}",
     "count": "{count} av {max} notater",
@@ -602,7 +612,9 @@
       "off": "KI-minnet er slått av i dette arbeidsområdet.",
       "changed": "Det notatet er endret siden. Endre det i Minne i stedet.",
       "busy": "Vent til svaret er ferdig.",
-      "held": "En rettslig bevaring gjelder dette notatet: det kan ikke slettes så lenge bevaringen gjelder."
+      "held": "En rettslig bevaring gjelder dette notatet: det kan ikke slettes så lenge bevaringen gjelder.",
+      "noNotes": "Lagre noen notater først: sammendraget skrives ut fra dem.",
+      "summaryTooLong": "Et sammendrag kan ha høyst {max} tegn."
     }
   },
   "accounts": {

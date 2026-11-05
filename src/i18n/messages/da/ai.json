@@ -587,6 +587,16 @@
     "addDetails": "Tilføj detaljer",
     "moreDetails": "Vis alt",
     "lessDetails": "Vis mindre",
+    "summary": {
+      "title": "Resumé",
+      "hint": "Et par linjer om dig, skrevet ud fra dine noter, som følger med dine spørgsmål her før noterne. Forbundne apps læser det også.",
+      "write": "Skriv med AI",
+      "rewrite": "Skriv igen",
+      "writing": "Skriver…",
+      "byAi": "Skrevet af AI ud fra dine noter, {date}",
+      "byYou": "Skrevet af dig, {date}",
+      "stale": "dine noter er ændret siden"
+    },
     "delete": "Slet",
     "viaApp": "Gemt af {app}",
     "count": "{count} af {max} noter",
@@ -602,7 +612,9 @@
       "off": "AI-hukommelsen er slået fra i dette arbejdsområde.",
       "changed": "Den note er ændret siden. Ret den i Hukommelse i stedet.",
       "busy": "Vent, til svaret er færdigt.",
-      "held": "En juridisk tilbageholdelse bevarer denne note: den kan ikke slettes, så længe tilbageholdelsen gælder."
+      "held": "En juridisk tilbageholdelse bevarer denne note: den kan ikke slettes, så længe tilbageholdelsen gælder.",
+      "noNotes": "Gem først et par noter: resuméet skrives ud fra dem.",
+      "summaryTooLong": "Et resumé må højst have {max} tegn."
     }
   },
   "accounts": {

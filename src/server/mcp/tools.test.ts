@@ -233,6 +233,8 @@ const sharedMemory = vi.hoisted(() => ({
   deleteSharedNotes: vi.fn(async (_userId: string, _workspaceId: string, _teamspaceId: string | null, _ids: string[] | "all") => [] as string[]),
 }));
 vi.mock("@/server/shared-memory", () => sharedMemory);
+const memorySummary = vi.hoisted(() => ({ summaryForPrompt: vi.fn(async (_userId: string, _workspaceId: string) => "") }));
+vi.mock("@/server/memory-summary", () => memorySummary);
 
 const agentUsage = vi.hoisted(() => ({
   usageMonthsOf: vi.fn(async () => [{ month: "2026-10", runs: 3, inputTokens: 1200, outputTokens: 300, costUsd: 0.02 }]),
@@ -3841,6 +3843,12 @@ describe("the user's memory", () => {
     personalMemory.writeNote.mockResolvedValue(row("m-2", "Wants short answers", true));
     const merged = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "update", memory_id: "m-1", text: "wants short answers" });
     expect(merged.data).toMatchObject({ updated: { memory_id: "m-2" }, merged: true });
+  });
+
+  it("shows the summary the user keeps of their notes, while their memory is on", async () => {
+    memorySummary.summaryForPrompt.mockResolvedValueOnce("## Role\nLeads billing.");
+    const listed = await callTool(writer, "list_memory", { workspace_id: "ws-1" });
+    expect(listed.data).toMatchObject({ workspace_id: "ws-1", memory: "on", about: "## Role\nLeads billing." });
   });
 
   it("keeps what a note is about when asked, and refuses it on delete", async () => {

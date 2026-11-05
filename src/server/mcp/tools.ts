@@ -79,6 +79,7 @@ import * as pages from "@/server/pages";
 import * as accountMemory from "@/server/account-memory";
 import * as personalMemory from "@/server/ai-memory";
 import * as sharedMemory from "@/server/shared-memory";
+import * as memorySummary from "@/server/memory-summary";
 import * as templates from "@/server/templates";
 import { builtinTemplates } from "@/lib/builtin-templates";
 import { AccessError, ConnectedAppReadOnlyError, requirePageAccess } from "@/server/access";
@@ -4447,7 +4448,8 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
   /** The user's notes in a workspace with the workspace's and its teamspaces' (none while the workspace has the memory off). */
   const memoryIn = async (workspaceId: string) => {
     const state = await personalMemory.memoryState(userId, workspaceId);
-    return { ...describeMemory(workspaceId, state), ...(state.off === "workspace" ? {} : describePlaces(await sharedMemory.memoryPlaces(userId, workspaceId))) };
+    const about = state.off ? "" : await memorySummary.summaryForPrompt(userId, workspaceId);
+    return { ...describeMemory(workspaceId, state, about), ...(state.off === "workspace" ? {} : describePlaces(await sharedMemory.memoryPlaces(userId, workspaceId))) };
   };
 
   server.registerTool(

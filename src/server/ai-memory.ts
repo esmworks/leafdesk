@@ -36,7 +36,7 @@ import { deleteSharedNotes, mayWriteNotes, notePlace, notesAt, sharedMemoryFor, 
 import { teamspaceStanding } from "@/server/teamspaces";
 import { getMemberAiMemory, setMemberAiMemory, workspaceSettings } from "@/server/workspaces";
 
-export type MemoryErrorCode = "empty" | "tooLong" | "detailsTooLong" | "full" | "notFound" | "off" | "changed" | "busy" | "held";
+export type MemoryErrorCode = "empty" | "tooLong" | "detailsTooLong" | "full" | "notFound" | "off" | "changed" | "busy" | "held" | "noNotes" | "summaryTooLong";
 
 export class MemoryError extends Error {
   constructor(

@@ -25,7 +25,7 @@ try {
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
-const { aiMemory, user, workspace, workspaceMember } = await import("@/db/schema");
+const { aiMemory, memorySummary, user, workspace, workspaceMember } = await import("@/db/schema");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
 const { removeMember, updateWorkspaceSettings } = await import("@/server/workspaces");
@@ -431,12 +431,50 @@ try {
   const outsiderList = await listMemories(outsider, workspaceId).catch((e) => e);
   check(outsiderList instanceof AccessError, "someone outside the workspace can't list or add there");
 
+  // ── The summary ─────────────────────────────────────────────────────────────────────────────
+  const { setSummary, summaryOf, writeSummary } = await import("@/server/memory-summary");
+  const aliceNotes = await listMemories(alice, workspaceId);
+  fake.setChat(() => ({ text: "```markdown\n## Role\nLeads the brand team.\n```" }));
+  fake.chats.length = 0;
+  const summary1 = await writeSummary(alice, workspaceId);
+  check(summary1.text === "## Role\nLeads the brand team." && summary1.writtenBy === "ai" && !summary1.stale, "the AI writes the person's summary from their notes", summary1);
+  check(
+    JSON.stringify(fake.chats[0]).includes(aliceNotes[0].text) && !JSON.stringify(fake.chats[0]).includes("Prefers tables"),
+    "…reading their notes alone",
+  );
+  fake.setChat(answering);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  const withSummary = question(fake.chats[0]);
+  check(
+    withSummary.includes("<memory_summary>\n## Role\nLeads the brand team.\n</memory_summary>") && withSummary.indexOf("<memory_summary>") < withSummary.indexOf("<memory>"),
+    "the summary goes with the person's questions, ahead of their notes",
+    withSummary,
+  );
+  fake.chats.length = 0;
+  await ask(bob, { workspaceId, message: "Hi" });
+  check(!question(fake.chats[0]).includes("brand team"), "…never with anyone else's");
+  const later = await addMemory(alice, workspaceId, "Works from Izmir.");
+  check((await summaryOf(alice, workspaceId))?.stale === true, "a note kept since marks the summary as behind, which stays as it was");
+  const own = await setSummary(alice, workspaceId, "## Role\nLeads brand.");
+  check(own?.writtenBy === "person" && !own.stale, "the person can write the summary themselves");
+  const tooLong = await setSummary(alice, workspaceId, "x".repeat(1501)).catch((e) => e);
+  check(tooLong instanceof MemoryError && tooLong.code === "summaryTooLong", "…up to its limit");
+  await setMemoryUse(alice, workspaceId, false);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  const summaryOff = await writeSummary(alice, workspaceId).catch((e) => e);
+  check(!question(fake.chats[0]).includes("memory_summary") && summaryOff instanceof MemoryError && summaryOff.code === "off", "with the memory off, no summary goes or is written");
+  await setMemoryUse(alice, workspaceId, true);
+  await deleteMemories(alice, workspaceId, [later.id]);
+
   // ── Leaving ─────────────────────────────────────────────────────────────────────────────────
   await addMemory(alice, otherWs, "Owns the other workspace.");
   await removeMember(owner, workspaceId, alice);
   check((await notesOf(alice)).length === 0 && (await notesOf(alice, otherWs)).length === 1, "someone removed from a workspace loses their notes there, and only there");
   await removeMember(bob, workspaceId, bob);
   check((await notesOf(bob)).length === 0, "…as does someone who leaves");
+  check((await db.select().from(memorySummary).where(eq(memorySummary.userId, alice))).length === 0, "…and their summary there");
   await db.delete(user).where(eq(user.id, alice));
   check((await notesOf(alice, otherWs)).length === 0, "a deleted account takes its notes with it");
 

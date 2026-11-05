@@ -587,6 +587,16 @@
     "addDetails": "Ayrıntı ekle",
     "moreDetails": "Tümünü göster",
     "lessDetails": "Daha az göster",
+    "summary": {
+      "title": "Özet",
+      "hint": "Notlarınızdan yazılan, buradaki sorularınızla notlardan önce giden birkaç satır. Bağladığınız uygulamalar da okur.",
+      "write": "AI ile yaz",
+      "rewrite": "Yeniden yaz",
+      "writing": "Yazılıyor…",
+      "byAi": "Notlarınızdan AI tarafından yazıldı, {date}",
+      "byYou": "Sizin yazdığınız, {date}",
+      "stale": "notlarınız o zamandan beri değişti"
+    },
     "delete": "Sil",
     "viaApp": "{app} kaydetti",
     "count": "{count}/{max} not",
@@ -602,7 +612,9 @@
       "off": "Bu çalışma alanında yapay zekâ hafızası kapalı.",
       "changed": "Bu not o zamandan beri değişti. Hafıza'dan değiştir.",
       "busy": "Cevap bitene kadar bekle.",
-      "held": "Bu notu yasal saklama koruyor: saklama sürdükçe silinemez."
+      "held": "Bu notu yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "noNotes": "Önce birkaç not tutun: özet onlardan yazılır.",
+      "summaryTooLong": "Bir özet en fazla {max} karakter olabilir."
     }
   },
   "accounts": {

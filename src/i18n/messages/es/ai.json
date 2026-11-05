@@ -587,6 +587,16 @@
     "addDetails": "Añadir detalles",
     "moreDetails": "Mostrar todo",
     "lessDetails": "Mostrar menos",
+    "summary": {
+      "title": "Resumen",
+      "hint": "Unas líneas sobre ti, escritas a partir de tus notas, que acompañan a tus preguntas aquí antes que ellas. Las apps conectadas también lo leen.",
+      "write": "Escribir con IA",
+      "rewrite": "Volver a escribir",
+      "writing": "Escribiendo…",
+      "byAi": "Escrito por la IA a partir de tus notas, {date}",
+      "byYou": "Escrito por ti, {date}",
+      "stale": "tus notas cambiaron desde entonces"
+    },
     "delete": "Eliminar",
     "viaApp": "Guardada por {app}",
     "count": "{count} de {max} notas",
@@ -602,7 +612,9 @@
       "off": "La memoria de la IA está desactivada en este espacio de trabajo.",
       "changed": "Esa nota ha cambiado desde entonces. Cámbiala en Memoria.",
       "busy": "Espera a que termine la respuesta.",
-      "held": "Una retención legal conserva esta nota: no se puede eliminar mientras la retención siga vigente."
+      "held": "Una retención legal conserva esta nota: no se puede eliminar mientras la retención siga vigente.",
+      "noNotes": "Guarda primero algunas notas: el resumen se escribe a partir de ellas.",
+      "summaryTooLong": "Un resumen puede tener como máximo {max} caracteres."
     }
   },
   "accounts": {

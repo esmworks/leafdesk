@@ -428,6 +428,16 @@ yours everywhere, the workspace's and its teamspace's), each saying whose it is;
 that note in full; with neither, every note's line. The mail writer and agents' runs get notes'
 lines only.
 
+**Summary.** Above your notes in a workspace, *Memory* keeps a short summary of what the AI knows
+about you: who you are, what you work on now and how you like to work, in a few lines under
+headings. *Write with AI* has the fast model write it from your notes here and everywhere (it reads
+nothing else), and you can change it, write it yourself or delete it (up to 1,500 characters). It
+goes with your questions in that workspace ahead of your notes, so a question whose notes don't all
+fit still has the gist, and connected apps read it as `about` in `list_memory`; a note wins where
+the two disagree. It is never rewritten on its own: when your notes change, the page says so and
+*Write again* brings it up to date. Like your notes it is yours alone, goes nowhere while either
+memory switch is off, and is deleted when you leave the workspace.
+
 Notes are private to you, never sent with anyone else's
 questions or in another workspace, and are deleted when you leave the workspace or delete your
 account.

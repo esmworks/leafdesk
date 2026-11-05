@@ -587,6 +587,16 @@
     "addDetails": "Lisää tietoja",
     "moreDetails": "Näytä kaikki",
     "lessDetails": "Näytä vähemmän",
+    "summary": {
+      "title": "Yhteenveto",
+      "hint": "Muutama rivi sinusta muistiinpanojesi pohjalta, ja se kulkee täällä kysymystesi mukana ennen muistiinpanoja. Yhdistetyt sovellukset lukevat sen myös.",
+      "write": "Kirjoita tekoälyllä",
+      "rewrite": "Kirjoita uudelleen",
+      "writing": "Kirjoitetaan…",
+      "byAi": "Tekoälyn kirjoittama muistiinpanoistasi, {date}",
+      "byYou": "Sinun kirjoittamasi, {date}",
+      "stale": "muistiinpanosi ovat muuttuneet sen jälkeen"
+    },
     "delete": "Poista",
     "viaApp": "Tallentanut: {app}",
     "count": "{count}/{max} muistiinpanoa",
@@ -602,7 +612,9 @@
       "off": "Tekoälyn muisti on poistettu käytöstä tässä työtilassa.",
       "changed": "Muistiinpano on muuttunut sen jälkeen. Muuta se Muistissa.",
       "busy": "Odota, että vastaus on valmis.",
-      "held": "Oikeudellinen säilytys pitää tämän muistiinpanon: sitä ei voi poistaa säilytyksen ollessa voimassa."
+      "held": "Oikeudellinen säilytys pitää tämän muistiinpanon: sitä ei voi poistaa säilytyksen ollessa voimassa.",
+      "noNotes": "Tallenna ensin muutama muistiinpano: yhteenveto kirjoitetaan niistä.",
+      "summaryTooLong": "Yhteenvedossa voi olla enintään {max} merkkiä."
     }
   },
   "accounts": {

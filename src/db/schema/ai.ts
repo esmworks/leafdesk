@@ -504,6 +504,31 @@ export const sharedMemory = pgTable(
 );
 
 /**
+ * A short summary of what the AI knows about a person in a workspace (server/memory-summary.ts):
+ * written by the fast model from their notes here and everywhere when they ask, or by them, and sent
+ * with their questions ahead of the notes. `fingerprint` is the notes' as they were when it was
+ * written, so the Memory page can say they changed since; it is never rewritten on its own. The
+ * person's own like their notes: left out of backups, gone when they leave the workspace.
+ */
+export const memorySummary = pgTable(
+  "memory_summary",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    /** "ai": the model wrote it from the notes; "person": they wrote or changed it themselves. */
+    writtenBy: text("written_by").$type<"ai" | "person">().notNull(),
+    fingerprint: text("fingerprint").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.workspaceId] })],
+);
+
+/**
  * Notes about a person in every workspace they are in (server/account-memory.ts): their language,
  * how they want answers. Only they see and change them; they go with their own questions wherever
  * their memory is on. Never what a workspace holds: that stays in ai_memory, one workspace's notes.

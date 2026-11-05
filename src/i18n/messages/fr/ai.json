@@ -587,6 +587,16 @@
     "addDetails": "Ajouter des détails",
     "moreDetails": "Tout afficher",
     "lessDetails": "Afficher moins",
+    "summary": {
+      "title": "Résumé",
+      "hint": "Quelques lignes sur vous, écrites à partir de vos notes, qui accompagnent vos questions ici avant elles. Les applications connectées le lisent aussi.",
+      "write": "Écrire avec l'IA",
+      "rewrite": "Réécrire",
+      "writing": "Rédaction…",
+      "byAi": "Écrit par l'IA à partir de vos notes, {date}",
+      "byYou": "Écrit par vous, {date}",
+      "stale": "vos notes ont changé depuis"
+    },
     "delete": "Supprimer",
     "viaApp": "Enregistrée par {app}",
     "count": "{count} notes sur {max}",
@@ -602,7 +612,9 @@
       "off": "La mémoire de l’IA est désactivée dans cet espace de travail.",
       "changed": "Cette note a changé depuis. Modifiez-la plutôt dans Mémoire.",
       "busy": "Attendez la fin de la réponse.",
-      "held": "Une conservation légale protège cette note : elle ne peut pas être supprimée tant que la conservation est en place."
+      "held": "Une conservation légale protège cette note : elle ne peut pas être supprimée tant que la conservation est en place.",
+      "noNotes": "Gardez d'abord quelques notes : le résumé est écrit à partir d'elles.",
+      "summaryTooLong": "Un résumé peut compter au plus {max} caractères."
     }
   },
   "accounts": {

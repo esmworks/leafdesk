@@ -10,13 +10,26 @@
 import { Check, ChevronRight, Eye, Pencil, Search, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useState, type FormEvent, type ReactNode } from "react";
-import { changeNoteAction, setMemoryUseAction, type NoteChange } from "@/app/actions/ai";
+import { changeNoteAction, deleteMemorySummaryAction, saveMemorySummaryAction, setMemoryUseAction, writeMemorySummaryAction, type NoteChange } from "@/app/actions/ai";
 import { IconGlyph } from "@/components/builtin-icon";
 import { useIsOffline } from "@/components/offline/offline-context";
 import { Button, cn, IconButton, Input, selectClass, Switch, textareaClass } from "@/components/ui";
-import { chatPath, isMemoryCategory, MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, MEMORY_CATEGORIES, memoryPagePath, type MemoryCategory, type MemoryPlaceView, type MemoryView } from "@/lib/ai-chat";
+import {
+  chatPath,
+  isMemoryCategory,
+  MAX_MEMORIES,
+  MAX_MEMORY_CHARS,
+  MAX_MEMORY_DETAILS_CHARS,
+  MAX_MEMORY_SUMMARY_CHARS,
+  MEMORY_CATEGORIES,
+  memoryPagePath,
+  type MemoryCategory,
+  type MemoryPlaceView,
+  type MemorySummaryView,
+  type MemoryView,
+} from "@/lib/ai-chat";
 
 type Note = MemoryView & { by?: string | null };
 /** `mine` and `everywhere` are the person's; `workspace` the workspace's; anything else a teamspace's id. */
@@ -28,6 +41,7 @@ export function MemoryPage({
   off,
   use: initialUse,
   mine: initialMine,
+  summary: initialSummary,
   account: initialAccount,
   workspace,
   teamspaces,
@@ -39,6 +53,8 @@ export function MemoryPage({
   /** The person's own switch in this workspace. */
   use: boolean;
   mine: MemoryView[];
+  /** The person's summary of their notes here (server/memory-summary.ts), if they keep one. */
+  summary: MemorySummaryView | null;
   account: MemoryView[];
   /** Null for a guest. */
   workspace: MemoryPlaceView | null;
@@ -54,6 +70,7 @@ export function MemoryPage({
     ...Object.fromEntries(teamspaces.map((place) => [place.id!, place.notes])),
   }));
   const [use, setUse] = useState(initialUse);
+  const [summary, setSummary] = useState(initialSummary);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -82,7 +99,11 @@ export function MemoryPage({
     const result = await changeNoteAction(workspaceId, layer, layer === "teamspace" ? key : null, edit);
     setBusy(false);
     setError(result.ok ? null : result.error);
-    if (result.ok) setNotes((current) => ({ ...current, [key]: result.data }));
+    if (result.ok) {
+      setNotes((current) => ({ ...current, [key]: result.data }));
+      // The summary is written from the person's own notes: it may say less than they do now.
+      if (key === "mine" || key === "everywhere") setSummary((current) => current && { ...current, stale: true });
+    }
     return result.ok;
   }
 
@@ -179,6 +200,14 @@ export function MemoryPage({
               {error}
             </p>
           )}
+          {section === "mine" && (
+            <SummaryBox
+              workspaceId={workspaceId}
+              summary={summary}
+              enabled={use && (notes.mine?.length ?? 0) + (notes.everywhere?.length ?? 0) > 0}
+              onChange={setSummary}
+            />
+          )}
           <NoteList
             key={section}
             notes={notes[section] ?? []}
@@ -193,6 +222,154 @@ export function MemoryPage({
         </section>
       </div>
     </div>
+  );
+}
+
+/** A summary as written: `## ` headings, `- ` bullets and lines, without any other Markdown. */
+function SummaryText({ text }: { text: string }) {
+  const blocks: ReactNode[] = [];
+  let bullets: string[] = [];
+  const flush = () => {
+    if (!bullets.length) return;
+    blocks.push(
+      <ul key={blocks.length} className="list-disc space-y-0.5 ps-5">
+        {bullets.map((b, i) => (
+          <li key={i}>{b}</li>
+        ))}
+      </ul>,
+    );
+    bullets = [];
+  };
+  for (const raw of text.split("\n")) {
+    const line = raw.trim();
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      bullets.push(line.slice(2));
+      continue;
+    }
+    flush();
+    if (!line) continue;
+    if (line.startsWith("#")) {
+      blocks.push(
+        <p key={blocks.length} className="pt-1 text-xs font-medium text-fg-muted">
+          {line.replace(/^#+\s*/, "")}
+        </p>,
+      );
+    } else blocks.push(<p key={blocks.length}>{line}</p>);
+  }
+  flush();
+  return <div className="space-y-1 text-sm break-words">{blocks}</div>;
+}
+
+/**
+ * The person's summary of their notes here: written by the AI when they ask, or by them; changed in
+ * place or deleted; marked when their notes changed since. `enabled`: their memory is on and they
+ * have notes to sum up.
+ */
+function SummaryBox({
+  workspaceId,
+  summary,
+  enabled,
+  onChange,
+}: {
+  workspaceId: string;
+  summary: MemorySummaryView | null;
+  enabled: boolean;
+  onChange: (summary: MemorySummaryView | null) => void;
+}) {
+  const t = useTranslations("ai.memory");
+  const format = useFormatter();
+  const offline = useIsOffline();
+  const [editing, setEditing] = useState<string | null>(null);
+  const [working, setWorking] = useState<"write" | "save" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function act(kind: "write" | "save", run: () => Promise<{ ok: true; data: MemorySummaryView | null } | { ok: false; error: string }>) {
+    setWorking(kind);
+    setError(null);
+    const result = await run();
+    setWorking(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    onChange(result.data);
+    setEditing(null);
+  }
+
+  const busy = working !== null || offline;
+  const when = summary ? format.dateTime(new Date(summary.updatedAt), { dateStyle: "medium" }) : "";
+  return (
+    <section aria-label={t("summary.title")} className="mb-6 rounded-md border border-border px-3 py-2.5">
+      <div className="flex items-start gap-2">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-medium">{t("summary.title")}</h3>
+          {!summary && <p className="text-xs text-fg-muted">{t("summary.hint")}</p>}
+          {summary && editing === null && (
+            <p className="text-xs text-fg-muted">
+              {summary.writtenBy === "ai" ? t("summary.byAi", { date: when }) : t("summary.byYou", { date: when })}
+              {summary.stale && ` · ${t("summary.stale")}`}
+            </p>
+          )}
+        </div>
+        {editing === null && (
+          <div className="flex shrink-0 flex-wrap justify-end gap-1">
+            {enabled && (
+              <Button size="sm" disabled={busy} onClick={() => void act("write", () => writeMemorySummaryAction(workspaceId))}>
+                {working === "write" ? t("summary.writing") : summary ? t("summary.rewrite") : t("summary.write")}
+              </Button>
+            )}
+            {summary && (
+              <>
+                <Button size="sm" variant="ghost" disabled={busy} onClick={() => setEditing(summary.text)}>
+                  {t("edit")}
+                </Button>
+                <Button size="sm" variant="ghost" className="hover:text-danger" disabled={busy} onClick={() => void act("save", () => deleteMemorySummaryAction(workspaceId).then((r) => (r.ok ? { ok: true as const, data: null } : r)))}>
+                  {t("delete")}
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+      {error && (
+        <p role="alert" className="mt-2 text-xs text-danger">
+          {error}
+        </p>
+      )}
+      {editing !== null ? (
+        <form
+          className="mt-2 space-y-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void act("save", () => saveMemorySummaryAction(workspaceId, editing));
+          }}
+        >
+          <textarea
+            autoFocus
+            aria-label={t("summary.title")}
+            className={cn(textareaClass, "min-h-32")}
+            rows={8}
+            value={editing}
+            maxLength={MAX_MEMORY_SUMMARY_CHARS}
+            onChange={(e) => setEditing(e.target.value)}
+          />
+          <div className="flex justify-end gap-2">
+            <Button size="sm" onClick={() => setEditing(null)}>
+              {t("cancel")}
+            </Button>
+            <Button size="sm" type="submit" variant="primary" disabled={busy}>
+              {t("save")}
+            </Button>
+          </div>
+        </form>
+      ) : (
+        summary && (
+          <div className="mt-2">
+            <SummaryText text={summary.text} />
+          </div>
+        )
+      )}
+    </section>
   );
 }
 

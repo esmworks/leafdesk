@@ -587,6 +587,16 @@
     "addDetails": "Add details",
     "moreDetails": "Show all",
     "lessDetails": "Show less",
+    "summary": {
+      "title": "Summary",
+      "hint": "A few lines about you, written from your notes, that go with your questions here ahead of them. Apps you connect read it too.",
+      "write": "Write with AI",
+      "rewrite": "Write again",
+      "writing": "Writing…",
+      "byAi": "Written by the AI from your notes, {date}",
+      "byYou": "Written by you, {date}",
+      "stale": "your notes changed since"
+    },
     "delete": "Delete",
     "viaApp": "Kept by {app}",
     "count": "{count} of {max} notes",
@@ -602,7 +612,9 @@
       "off": "The AI memory is turned off in this workspace.",
       "changed": "That note changed since. Change it in Memory instead.",
       "busy": "Wait until the answer is done.",
-      "held": "A legal hold keeps this note: it can't be deleted while the hold stands."
+      "held": "A legal hold keeps this note: it can't be deleted while the hold stands.",
+      "noNotes": "Keep a few notes first: the summary is written from them.",
+      "summaryTooLong": "A summary may have at most {max} characters."
     }
   },
   "accounts": {

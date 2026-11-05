@@ -587,6 +587,16 @@
     "addDetails": "Lägg till detaljer",
     "moreDetails": "Visa allt",
     "lessDetails": "Visa mindre",
+    "summary": {
+      "title": "Sammanfattning",
+      "hint": "Några rader om dig, skrivna utifrån dina anteckningar, som följer med dina frågor här före dem. Anslutna appar läser den också.",
+      "write": "Skriv med AI",
+      "rewrite": "Skriv om",
+      "writing": "Skriver…",
+      "byAi": "Skriven av AI utifrån dina anteckningar, {date}",
+      "byYou": "Skriven av dig, {date}",
+      "stale": "dina anteckningar har ändrats sedan dess"
+    },
     "delete": "Radera",
     "viaApp": "Sparad av {app}",
     "count": "{count} av {max} anteckningar",
@@ -602,7 +612,9 @@
       "off": "AI-minnet är avstängt i den här arbetsytan.",
       "changed": "Anteckningen har ändrats sedan dess. Ändra den i Minne i stället.",
       "busy": "Vänta tills svaret är klart.",
-      "held": "Ett juridiskt bevarande omfattar den här anteckningen: den kan inte raderas så länge bevarandet gäller."
+      "held": "Ett juridiskt bevarande omfattar den här anteckningen: den kan inte raderas så länge bevarandet gäller.",
+      "noNotes": "Spara några anteckningar först: sammanfattningen skrivs utifrån dem.",
+      "summaryTooLong": "En sammanfattning får ha högst {max} tecken."
     }
   },
   "accounts": {

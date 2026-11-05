@@ -587,6 +587,16 @@
     "addDetails": "Thêm chi tiết",
     "moreDetails": "Hiện tất cả",
     "lessDetails": "Thu gọn",
+    "summary": {
+      "title": "Tóm tắt",
+      "hint": "Vài dòng về bạn, viết từ ghi chú của bạn, được gửi kèm câu hỏi của bạn ở đây trước các ghi chú. Ứng dụng đã kết nối cũng đọc nó.",
+      "write": "Viết bằng AI",
+      "rewrite": "Viết lại",
+      "writing": "Đang viết…",
+      "byAi": "AI viết từ ghi chú của bạn, {date}",
+      "byYou": "Do bạn viết, {date}",
+      "stale": "ghi chú của bạn đã thay đổi kể từ đó"
+    },
     "delete": "Xóa",
     "viaApp": "Được giữ bởi {app}",
     "count": "{count} trên {max} ghi chú",
@@ -602,7 +612,9 @@
       "off": "Bộ nhớ AI đã bị tắt trong không gian làm việc này.",
       "changed": "Ghi chú đó đã thay đổi kể từ đó. Hãy sửa nó trong Bộ nhớ.",
       "busy": "Hãy đợi câu trả lời xong.",
-      "held": "Một lệnh lưu giữ pháp lý giữ ghi chú này: không thể xóa khi lệnh lưu giữ còn hiệu lực."
+      "held": "Một lệnh lưu giữ pháp lý giữ ghi chú này: không thể xóa khi lệnh lưu giữ còn hiệu lực.",
+      "noNotes": "Hãy lưu vài ghi chú trước: bản tóm tắt được viết từ chúng.",
+      "summaryTooLong": "Bản tóm tắt tối đa {max} ký tự."
     }
   },
   "accounts": {
