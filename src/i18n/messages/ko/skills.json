@@ -3,6 +3,12 @@
   "heading": "스킬",
   "description": "팀이 반복해서 사용하는 지침을 페이지로 보관합니다. 회의록 정리 방법, 고객에게 답장하는 방법, 요청 분류 방법 등이 있습니다. AI 채팅에서 /로 선택하거나, 워크스페이스에 연결된 AI 앱에서 선택하세요. 각 스킬은 페이지 또는 데이터베이스 행이며, 사용자는 열 수 있는 스킬만 볼 수 있습니다.",
   "new": "새 스킬",
+  "import": {
+    "button": "가져오기",
+    "label": "SKILL.md, Markdown 또는 ZIP 파일에서 스킬 가져오기",
+    "done": "{count, plural, other {스킬 #개를 가져왔습니다.}}",
+    "skippedFiles": "{count, plural, other {함께 있던 파일 #개는 제외했습니다.}}"
+  },
   "search": "스킬 검색",
   "count": "스킬 {count}개",
   "noMatches": "검색과 일치하는 스킬이 없습니다.",
@@ -50,7 +56,13 @@
     "template": "템플릿과 템플릿 안의 페이지는 스킬이 될 수 없습니다.",
     "inTrash": "먼저 휴지통에서 페이지를 복원하세요.",
     "tooLong": "스킬 설명은 최대 {max}자까지 입력할 수 있습니다.",
-    "notASkill": "이 페이지는 더 이상 스킬이 아닙니다."
+    "notASkill": "이 페이지는 더 이상 스킬이 아닙니다.",
+    "importTooLarge": "업로드는 최대 {mb}MB입니다.",
+    "badFile": "이 파일을 읽을 수 없습니다. SKILL.md, Markdown 파일 또는 스킬 폴더 ZIP을 선택하세요.",
+    "noSkills": "SKILL.md나 Markdown 파일을 찾지 못했습니다.",
+    "tooManySkills": "한 번에 최대 {max}개의 스킬을 가져올 수 있습니다.",
+    "skillTooLong": "업로드한 스킬 중 하나가 너무 깁니다.",
+    "busy": "다른 가져오기가 아직 진행 중입니다. 끝난 뒤 다시 시도하세요."
   },
   "database": {
     "title": "스킬",

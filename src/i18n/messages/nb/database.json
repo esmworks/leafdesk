@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Denne egenskapen kan ikke ha egen tilgang.",
     "typeChangeRestricted": "«{property}» har tilgangsregler, og egenskaper av den typen kan ikke ha det. Fjern reglene først.",
     "typeChangeNamesPeople": "Tilgangsregler gir personene i «{property}» tilgang. Fjern disse reglene før du endrer typen.",
+    "typeChangeHidden": "Noen verdier i «{property}» er skjult for deg, og de ville blitt alternativene. Noen som ser alle rader og verdier, kan endre typen.",
     "invalidRowAccess": "Disse reglene for radtilgang kan ikke lagres. Last inn på nytt og prøv igjen.",
     "invalidAutomation": "Denne automatiseringen kan ikke lagres. Kontroller utløseren og handlingene.",
     "tooManyAutomations": "En database kan ha høyst {max} automatiseringer.",

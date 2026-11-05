@@ -63,6 +63,7 @@ async function outcome(fn: () => Promise<unknown>): Promise<string> {
 }
 
 const owner = `${RUN}-owner`;
+const member = `${RUN}-member`;
 const workspaceId = `${RUN}-ws`;
 const actor = { userId: owner };
 const url = target.href;
@@ -80,7 +81,11 @@ const due = (databaseId: string) => db.update(databaseSync).set({ nextRunAt: new
 try {
   await db.insert(user).values({ id: owner, name: owner, email: `${owner}@example.test` });
   await db.insert(workspace).values({ id: workspaceId, name: RUN });
-  await db.insert(workspaceMember).values({ workspaceId, userId: owner, role: "owner" });
+  await db.insert(user).values({ id: member, name: member, email: `${member}@example.test` });
+  await db.insert(workspaceMember).values([
+    { workspaceId, userId: owner, role: "owner" },
+    { workspaceId, userId: member, role: "member" },
+  ]);
   await db.execute(sql.raw(`create schema ${schema}`));
   await db.execute(
     sql.raw(`create table ${schema}.customers (
@@ -99,6 +104,11 @@ try {
 
   // Refused before anything is made.
   check((await outcome(() => setup({ url: "postgres://app:pw@10.0.0.1/shop" }))) === "invalidSite", "a private address is refused");
+  // CONNECTOR_ALLOWED_HOSTS is for what owners set up: a member's sync reaches public addresses only.
+  check(
+    (await outcome(() => createPostgresSync({ userId: member }, { workspaceId, parentId: null, url, table: `${schema}.customers` }))) === "invalidSite",
+    "a member's sync doesn't reach an allowed host",
+  );
   check((await outcome(() => setup({ table: "a.b.c" }))) === "invalidInput", "a bad table name is refused");
   check((await outcome(() => setup({ table: `${schema}.missing` }))) === "notFound", "a missing table is refused");
   check((await outcome(() => setup({ url: wrongPassword }))) === "unauthorized", "a wrong password is refused");
@@ -168,7 +178,7 @@ try {
   await db.execute(sql.raw("set client_min_messages to warning"));
   await db.execute(sql.raw(`drop schema if exists ${schema} cascade`));
   await db.delete(workspace).where(inArray(workspace.id, [workspaceId]));
-  await db.delete(user).where(eq(user.id, owner));
+  await db.delete(user).where(inArray(user.id, [owner, member]));
   hocuspocus.closeConnections();
   await (globalThis as unknown as { __leafdeskSql?: { end(): Promise<void> } }).__leafdeskSql?.end();
 }

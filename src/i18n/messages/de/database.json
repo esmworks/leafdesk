@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Für diese Eigenschaft kann kein eigener Zugriff festgelegt werden.",
     "typeChangeRestricted": "„{property}“ hat Zugriffsregeln, die Eigenschaften dieses Typs nicht haben können. Entferne zuerst die Regeln.",
     "typeChangeNamesPeople": "Zugriffsregeln geben den Personen in „{property}“ Zugriff. Entferne diese Regeln, bevor du den Typ änderst.",
+    "typeChangeHidden": "Einige Werte von „{property}“ sind für dich verborgen und würden zu seinen Optionen. Jemand, der alle Zeilen und Werte sieht, kann den Typ ändern.",
     "invalidRowAccess": "Diese Zeilenzugriffsregeln können nicht gespeichert werden. Lade die Seite neu und versuche es noch einmal.",
     "invalidAutomation": "Diese Automatisierung kann nicht gespeichert werden. Prüfe ihren Auslöser und ihre Aktionen.",
     "tooManyAutomations": "Eine Datenbank kann höchstens {max} Automatisierungen haben.",

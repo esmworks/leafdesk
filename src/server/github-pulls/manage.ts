@@ -21,6 +21,7 @@ import { addProperty, addView, requireDatabase, type OptionInput } from "@/serve
 import { discardDatabase, recordImport } from "@/server/import/csv";
 import { claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "@/server/jira-sync/run";
 import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
+import { withSyncReach } from "@/server/sync-reach";
 import { openJson, sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
 import { checkGithubApi, fetchPulls, GithubPullsError, githubRepository } from "./client";
@@ -243,7 +244,7 @@ export async function updateGithubPullsSync(userId: string, databaseId: string, 
   }
   if (patch.token !== undefined) {
     const token = tokenOf(patch.token);
-    await githubRepository(row.siteUrl, row.query.repo, token);
+    await withSyncReach(userId, row.workspaceId, () => githubRepository(row.siteUrl, row.query.repo, token));
     changes.secrets = sealJson({ token } satisfies GithubAuth);
   }
   await db.update(databaseSync).set(changes).where(eq(databaseSync.id, row.id));
@@ -259,5 +260,6 @@ export async function stopGithubPullsSync(userId: string, databaseId: string) {
 
 /** createGithubPullsSync, which starts the history of what it makes (server/database-changes.ts asSetup). */
 export async function createGithubPullsSync(...args: Parameters<typeof untrackedCreateGithubPullsSync>) {
-  return asSetup(() => untrackedCreateGithubPullsSync(...args));
+  const [actor, input] = args;
+  return withSyncReach(actor.userId, input.workspaceId, () => asSetup(() => untrackedCreateGithubPullsSync(...args)));
 }

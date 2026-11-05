@@ -6,6 +6,7 @@ import {
   account,
   aiAccount,
   aiMemory,
+  memorySummary,
   conversation,
   apiToken,
   calendarFeed,
@@ -1212,6 +1213,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
     // remembers about them is the workspace's context: they go with them.
     await tx.delete(conversation).where(and(eq(conversation.workspaceId, workspaceId), eq(conversation.userId, targetId)));
     await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, targetId)));
+    await tx.delete(memorySummary).where(and(eq(memorySummary.workspaceId, workspaceId), eq(memorySummary.userId, targetId)));
     // Their mailbox in the workspace (and its password) goes too; the mail it brought stays on rows.
     await tx.delete(mailbox).where(and(eq(mailbox.workspaceId, workspaceId), eq(mailbox.userId, targetId)));
     // An allowed email domain doesn't bring them back on their next sign-in; someone an owner
@@ -1825,6 +1827,7 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
     // remembers about them is the workspace's context: they go with the membership.
     await tx.delete(conversation).where(and(eq(conversation.workspaceId, workspaceId), eq(conversation.userId, userId)));
     await tx.delete(aiMemory).where(and(eq(aiMemory.workspaceId, workspaceId), eq(aiMemory.userId, userId)));
+    await tx.delete(memorySummary).where(and(eq(memorySummary.workspaceId, workspaceId), eq(memorySummary.userId, userId)));
     const heir = await oldestOwner(tx, workspaceId);
     await dropFromTeamspaces(tx, workspaceId, userId, heir);
     const handed = heir ? await handOverOrphanedPages(tx, workspaceId, heir) : 0;

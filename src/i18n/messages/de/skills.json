@@ -3,6 +3,12 @@
   "heading": "Skills",
   "description": "Anleitungen, die dein Team immer wieder nutzt, als Seiten: Besprechungsnotizen zusammenfassen, eine Kundennachricht beantworten, eine Anfrage einordnen. Wähle einen im KI-Chat mit / oder in einer mit dem Workspace verbundenen KI-App. Jeder Skill ist eine Seite oder Datenbankzeile; alle sehen die Skills, die sie öffnen können.",
   "new": "Neuer Skill",
+  "import": {
+    "button": "Importieren",
+    "label": "Fähigkeiten aus SKILL.md-, Markdown- oder ZIP-Dateien importieren",
+    "done": "{count, plural, one {# Fähigkeit importiert.} other {# Fähigkeiten importiert.}}",
+    "skippedFiles": "{count, plural, one {# Datei daneben wurde ausgelassen.} other {# Dateien daneben wurden ausgelassen.}}"
+  },
   "search": "Skills durchsuchen",
   "count": "{count, plural, one {# Skill} other {# Skills}}",
   "noMatches": "Kein Skill passt zu deiner Suche.",
@@ -50,7 +56,13 @@
     "template": "Vorlagen und die Seiten darin können keine Skills sein.",
     "inTrash": "Stelle die Seite zuerst aus dem Papierkorb wieder her.",
     "tooLong": "Die Beschreibung eines Skills darf höchstens {max} Zeichen haben.",
-    "notASkill": "Diese Seite ist kein Skill mehr."
+    "notASkill": "Diese Seite ist kein Skill mehr.",
+    "importTooLarge": "Der Upload darf höchstens {mb} MB groß sein.",
+    "badFile": "Diese Datei kann nicht gelesen werden. Wähle eine SKILL.md, eine Markdown-Datei oder ein ZIP mit Skill-Ordnern.",
+    "noSkills": "Keine SKILL.md- oder Markdown-Datei gefunden.",
+    "tooManySkills": "Importiere höchstens {max} Fähigkeiten auf einmal.",
+    "skillTooLong": "Eine Fähigkeit im Upload ist zu lang.",
+    "busy": "Ein anderer Import läuft noch. Versuche es danach erneut."
   },
   "database": {
     "title": "Skills",

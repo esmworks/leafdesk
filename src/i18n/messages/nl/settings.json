@@ -1701,7 +1701,7 @@
       "disconnect": "Ontkoppelen",
       "revoke": "Intrekken",
       "working": "Ontkoppelen…",
-      "confirmEverywhere": "{kind, select, api_token {Het token {name} van {person} intrekken? Het werkt dan in geen enkele werkruimte van die persoon meer.} other {{name} ontkoppelen van het account van {person}? De app verliest de toegang tot al hun werkruimtes tot die persoon haar opnieuw koppelt.}}",
+      "confirmCutOff": "{kind, select, api_token {Het token {name} van {person} afsnijden van deze werkruimte? Overal waar het verder bij kan, blijft het werken.} other {{name} loskoppelen van deze werkruimte voor {person}? Hun andere werkruimtes houden het, en opnieuw koppelen brengt het hier terug.}}",
       "confirmHere": "Het token {name} van {person} intrekken? Het werkt dan niet meer.",
       "error": "Kon niet ontkoppelen. Probeer het opnieuw.",
       "gone": "Het is al ontkoppeld, of bereikt deze werkruimte niet meer.",

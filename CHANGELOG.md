@@ -11,7 +11,7 @@
   unticked; the done row stays as the record. Unticking it again before the copy was touched takes
   the copy back, and *Skip this one* moves the date without a copy. A ↻ beside the date shows the
   rule. MCP's `update_database_row` and the REST API's row update take `repeat`; the MCP tool
-  list's budget grows to 169 KB for it (migration 0194).
+  list's budget grows to 169 KB for it (migration 0196).
 - **Calendar on the sidebar's rail.** One place for your week across the workspace: synced Google
   Calendar and calendar-address events, meeting notes with a time, and your dated tasks and to-dos,
   each source in its color. A week on its hours with a line at the present time, or a list of its
@@ -21,7 +21,51 @@
   time on the calendar; a reminder set on a to-do's own day shows it at that time too (migration
   0193).
 
+- **Memory notes have a kind, and the Memory page searches them.** Each note is about the person
+  (*Profile*), how they like to work (*Preferences*), their *Work* or something *Other*. The AI
+  chat picks one as it keeps a note, apps connected over MCP pass `category` to `change_memory` and
+  read it from `list_memory`, and the model reads a note's kind with it. The Memory page groups each
+  part's notes by kind, filters them by kind, searches them, and sets the kind as you add or change
+  a note. Notes kept before are *Other* (migration 0195).
+
+- **Memory notes can have details, and the AI searches its memory.** A note keeps its one line
+  and may carry up to 2,000 characters of details: why, when it applies, the steps. Questions carry
+  only the line, marked as having details, and the chat reads the details with `read_memory` when a
+  question needs them. `read_memory` now searches: the notes with most of the words asked, with their
+  details, across the person's notes here and everywhere, the workspace's and its teamspace's, or
+  one note in full by its id; the chat is offered it whenever a note shown has details. The chat's
+  `remember` and MCP's `change_memory` take `details`, `list_memory` shows them, and the Memory
+  page adds, changes, folds and searches them (migration 0195).
+
+- **A summary of what the AI knows about you.** The Memory page keeps a few lines about you in each
+  workspace (who you are, what you work on, how you like to work), written by the AI from your notes
+  when you ask, or by you. It goes with your questions ahead of your notes, and apps connected over
+  MCP read it as `about` in `list_memory`. It is never rewritten on its own: notes kept since mark
+  it as behind, and a note it was written from changed or forgotten keeps it from being sent until
+  you write it again or mark it as up to date (migration 0195).
+
+- **Import skills from SKILL.md files.** *Import* in the skills library takes SKILL.md and other
+  Markdown files and ZIPs of skill folders, as AI assistants keep them and as *Export as SKILL.md*
+  writes them. Each skill becomes a row of your skills database with its description, its
+  instructions as the page and the other files of its folder in *Files*.
+
 ### Changed
+
+- **An owner's *Disconnect* and *Revoke* in Apps that reach this workspace act on that workspace
+  only.** An app or a token for all of a person's workspaces was taken from their account
+  everywhere, by the owner of any one workspace they were in, someone who could also add them to
+  it by email without asking. Now it is cut off from that workspace alone and keeps working in the
+  person's others; an app they connect again comes back. One that reaches only that workspace is
+  still revoked (migration 0194).
+
+- **A bare host name on `PUSH_ALLOWED_HOSTS`, `AI_ALLOWED_HOSTS` or `MAIL_ALLOWED_HOSTS` allows
+  its usual ports only.** Anyone signed in gives the address of a push subscription or of their own
+  AI account, and any member the servers of their mailbox, so a host listed by name could be
+  reached on every port it has (another service on the same machine). A bare name now allows ports
+  80, 443, 8080 and 8443 (push, AI) or 25, 143, 465, 587 and 993 (mail), as one on
+  `CONNECTOR_ALLOWED_HOSTS` already did; list a server on another port with it, `ollama:11434`.
+  **Upgrading:** an own AI account or a mailbox on such a server stops reaching it until its port
+  is added to the list.
 
 - **Long menus are shorter.** A column's menu puts freezing, wrapping text and alignment under
   *Column layout*, and settings seldom changed (unique values, AI autofill, row pages, pinning
@@ -70,6 +114,71 @@
 
 ### Fixed
 
+- **Rate limits on public forms and reports count an IPv6 visitor by their network.** A visitor
+  could step through the addresses of their own /64, which a provider hands one subscriber whole,
+  and start every limit over. The address itself still counts for IPv4.
+- **A public form's "already used" error names the question, not the property behind it.** A
+  form asking about a property its visitors can't see showed that property's own name when the
+  answer repeated another row's value.
+- **Downloads of files from other sites are limited to 120 every 10 minutes per person.** The
+  server fetched any web address for anyone who could view a page, enough to use it to fetch the
+  web for them.
+- **An MCP app's *draft_agent* is refused where connected apps may only read.** It saves nothing
+  but spends the workspace's AI.
+- **Background work that could run twice no longer does.** An automation run waiting in a batch
+  behind slow ones could look abandoned to a second server, and the hourly file cleanup could start
+  while the last one was still deleting. A page webhook delivery that failed inside the server
+  (not at its address) was tried again every five minutes for good; it now ends like one whose
+  address keeps failing.
+- **A page whose save failed after its last editor left is saved once the database takes it.**
+  Its changes stayed in the server's memory with nothing to save them again, and a restart lost
+  them. The server now tries again by itself, first after 5 seconds and then every 30. A page that
+  was saved but whose follow-up work failed (links, tasks, tags) is no longer held in memory.
+- **Turning a property into a select no longer shows values hidden from you.** Its options are
+  made from the values, and an editor who can't see some rows (row access) changed the type and
+  read, in the new options or in a dry run, what those rows held. A change that would make options
+  from values hidden from the person is refused, with a message saying why; someone who sees every
+  row can make it.
+- **Health's "remove from relation" no longer tells what a hidden value holds.** On a property
+  whose values were hidden from them, its answer showed whether a value held a given person or
+  option; it now acts only on relations whose values the person may change.
+- **Threshold automations no longer hold up the server's database connections.** Checking one
+  kept a transaction open while it read the whole view on a second connection, so writes to
+  several databases with threshold automations at once could take every connection and leave the
+  server waiting. The view is read first, and the checks after writes run one database at a time.
+- **A synced database no longer runs twice at once.** The sweep took ten due syncs together and ran
+  them one after another; one whose turn came after its hold ran out could be started again by
+  *Sync now* meanwhile and write the same rows twice. Each sync is held again just before it runs.
+- **One schedule failing no longer skips the others due with it.** A schedule whose run failed to
+  be written left the rest of its batch unrun until their next time.
+- **An app allowed before no longer gets around a workspace's sign-in policy.** The consent page
+  sends a session that a workspace holds back (no second step where one is required, a sign-in
+  from outside its approved networks, a password where it asks for single sign-on) to meet the
+  policy before an app may connect, but an app the person had allowed earlier got its code
+  without that page, and with it every workspace the policy kept the session out of. Every
+  authorization now asks the same.
+- **A published page no longer carries its meetings' transcripts.** A meeting block on a
+  published page or site shows its title, who came and its takeaways, but the page's HTML also
+  held every one of its settings, the whole transcript and the people's ids among them, for any
+  visitor to read in the page source. A published feed's excerpts showed the transcript too, and
+  a copy made with *Duplicate* kept it. Visitors now get only what the block shows.
+- **Synced databases reach servers on your own network only when an owner set them up.** Hosts
+  in `CONNECTOR_ALLOWED_HOSTS` are for what owners set up, yet any member who may make a database
+  could point a calendar, Jira, GitHub or PostgreSQL sync at one of them (an internal database
+  server, say) and read what it answered. Such a sync now reaches those hosts only while it is set
+  up, changed or run by an owner of its workspace; anyone else's reaches public addresses only, as
+  the addresses members give do. A sync a member set up against such a host stops with "a local
+  host name" or "a private address" until an owner changes it or runs it.
+- **A page can no longer stall the server for minutes.** A to-do with a long run of colons or
+  dashes, a line of thousands of `[` and a long run of punctuation after a web address each made a
+  text search start over at every character, on every save, every read of the page by MCP, the
+  REST API or the AI, and every workspace check, holding up everything else the server does. They
+  are now read in one pass.
+- **A callout or button with the icon `icon:constructor` no longer breaks the page.** Names every
+  object has of its own were taken for built-in icons, and the page failed to show in the editor,
+  on its published address, in print and in PDFs, as did the page icon address for such a name.
+- **A web download whose redirect or error never ends no longer stays open.** Its body was read
+  and thrown away with no time limit; the connection is now closed at once.
 - **Mail you alone wrote is listed by whom it went to.** Sent mail, and threads nobody has answered
   yet, read *To: Ayşe* in the list instead of *me* on every row.
 - **An answer goes when another mail program moved what it answers.** A message moved or a folder

@@ -7,6 +7,7 @@ import { aiEnabledFor } from "@/server/ai";
 import { memoryState, memoryUse } from "@/server/ai-memory";
 import { requireWorkspaceSession } from "@/server/session";
 import { memoryPlaces } from "@/server/shared-memory";
+import { summaryOf } from "@/server/memory-summary";
 import { getWorkspace } from "@/server/workspaces";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -30,7 +31,7 @@ export default async function MemoryRoute({ params }: { params: Promise<{ worksp
     getWorkspace(user.id, workspaceId),
   ]);
   const off = state.off === "workspace";
-  const places = off ? { workspace: null, teamspaces: [] } : await memoryPlaces(user.id, workspaceId);
+  const [places, summary] = await Promise.all([off ? { workspace: null, teamspaces: [] } : memoryPlaces(user.id, workspaceId), off ? null : summaryOf(user.id, workspaceId, { here: state.notes, everywhere: account })]);
   return (
     <MemoryPage
       workspaceId={workspaceId}
@@ -38,6 +39,7 @@ export default async function MemoryRoute({ params }: { params: Promise<{ worksp
       off={off}
       use={use}
       mine={state.notes}
+      summary={summary}
       account={account}
       workspace={places.workspace}
       teamspaces={places.teamspaces}

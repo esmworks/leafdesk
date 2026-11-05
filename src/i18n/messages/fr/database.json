@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Cette propriété ne peut pas avoir son propre accès.",
     "typeChangeRestricted": "« {property} » a des règles d’accès, impossibles pour une propriété de ce type. Supprimez d’abord ses règles.",
     "typeChangeNamesPeople": "Des règles d’accès donnent accès aux personnes de « {property} ». Supprimez-les avant de changer son type.",
+    "typeChangeHidden": "Certaines valeurs de « {property} » vous sont masquées et deviendraient ses options. Quelqu’un qui voit toutes les lignes et valeurs peut changer son type.",
     "invalidRowAccess": "Ces règles d’accès aux lignes ne peuvent pas être enregistrées. Rechargez la page et réessayez.",
     "invalidAutomation": "Cette automatisation ne peut pas être enregistrée. Vérifiez son déclencheur et ses actions.",
     "tooManyAutomations": "Une base de données peut avoir au plus {max} automatisations.",

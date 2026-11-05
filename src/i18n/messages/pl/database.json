@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Ta właściwość nie może mieć własnych uprawnień dostępu.",
     "typeChangeRestricted": "„{property}” ma reguły dostępu, a właściwości tego typu nie mogą ich mieć. Najpierw usuń jej reguły.",
     "typeChangeNamesPeople": "Reguły dostępu nadają dostęp osobom wskazanym w „{property}”. Usuń te reguły, zanim zmienisz jej typ.",
+    "typeChangeHidden": "Część wartości „{property}” jest przed tobą ukryta, a stałyby się jej opcjami. Typ może zmienić ktoś, kto widzi wszystkie wiersze i wartości.",
     "invalidRowAccess": "Nie można zapisać tych reguł dostępu do wierszy. Odśwież stronę i spróbuj ponownie.",
     "invalidAutomation": "Nie można zapisać tej automatyzacji. Sprawdź jej wyzwalacz i akcje.",
     "tooManyAutomations": "Baza danych może mieć najwyżej {max, plural, one {# automatyzację} few {# automatyzacje} many {# automatyzacji} other {# automatyzacji}}.",

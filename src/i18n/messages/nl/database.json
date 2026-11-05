@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Deze eigenschap kan geen eigen toegang hebben.",
     "typeChangeRestricted": "“{property}” heeft toegangsregels, en eigenschappen van dat type kunnen die niet hebben. Verwijder eerst de regels.",
     "typeChangeNamesPeople": "Toegangsregels geven de personen in “{property}” toegang. Verwijder die regels voordat je het type wijzigt.",
+    "typeChangeHidden": "Sommige waarden van “{property}” zijn voor jou verborgen en zouden de opties worden. Iemand die alle rijen en waarden ziet, kan het type wijzigen.",
     "invalidRowAccess": "Deze regels voor rijtoegang kunnen niet worden opgeslagen. Laad opnieuw en probeer het nog eens.",
     "invalidAutomation": "Deze automatisering kan niet worden opgeslagen. Controleer de trigger en de acties.",
     "tooManyAutomations": "Een database kan maximaal {max} automatiseringen hebben.",

@@ -32,6 +32,7 @@ import { DEFAULT_PAGE_STYLE, pageStyleFromYdoc, type PageStyle } from "@/lib/pag
 import { applyView, computedValues, isHiddenInView, orderProperties } from "@/lib/properties";
 import { coverProperty, galleryCover, withViewSorts } from "@/lib/views";
 import { FEED_EXCERPT_CHARS, feedPlainExcerpt } from "@/lib/feed";
+import { withoutTranscripts } from "@/lib/meetings";
 import { firstImageFile } from "@/lib/files";
 import { withoutDeleted } from "@/lib/deleted-schema";
 import { hideReferences, unknownProperties } from "@/lib/property-access-rows";
@@ -1297,7 +1298,8 @@ async function feedExcerpts(rowIds: string[]): Promise<Map<string, string>> {
     .select({ id: page.id, head: sql<string>`left(${page.contentMarkdown}, ${FEED_EXCERPT_CHARS * 6})` })
     .from(page)
     .where(inArray(page.id, rowIds));
-  return new Map(rows.map((r) => [r.id, feedPlainExcerpt(r.head)]));
+  // A meeting's transcript isn't shown on its published page, nor here.
+  return new Map(rows.map((r) => [r.id, feedPlainExcerpt(withoutTranscripts(r.head))]));
 }
 
 /**

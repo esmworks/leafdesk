@@ -324,6 +324,25 @@ export function meetingMarkdown(raw: Record<string, unknown> | undefined): strin
   return out.join("\n");
 }
 
+/**
+ * Markdown with the transcripts of its meetings (meetingMarkdown's regions) left out, for what
+ * shows a body to people who see the meeting only as its block shows it: a published feed's
+ * excerpts. A region cut short (the start of a long body) loses all of its transcript too.
+ */
+export function withoutTranscripts(markdown: string): string {
+  if (!markdown.includes("<!-- leafdesk:meeting ")) return markdown;
+  const out: string[] = [];
+  let inMeeting = false;
+  let inTranscript = false;
+  for (const line of markdown.split("\n")) {
+    if (line.startsWith("<!-- leafdesk:meeting ")) inMeeting = true;
+    else if (line === "<!-- leafdesk:/meeting -->") inMeeting = inTranscript = false;
+    else if (inMeeting && line === "**Transcript**") inTranscript = true;
+    if (!inTranscript) out.push(line);
+  }
+  return out.join("\n");
+}
+
 type AnyBlock = { id?: string; type: string; props?: Record<string, unknown>; children?: AnyBlock[] };
 
 /**

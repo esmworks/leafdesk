@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { fast } from "./import/linear-fixtures";
 import { isTicked, PAGE_TASK_TEXT_MAX, pageTasksIn } from "./page-tasks";
 
 const text = (value: string) => ({ type: "text", text: value, styles: {} });
@@ -15,6 +16,12 @@ const todo = (id: string, content: unknown[], { checked = false, children = [] a
 });
 
 describe("pageTasksIn", () => {
+  it("reads a to-do of a long run of punctuation in one pass (it runs on every save)", () => {
+    const [task] = fast(() => pageTasksIn([todo("b1", [person("ada"), text(`a${":".repeat(1_000_000)}b`)])]));
+    expect(task.text.startsWith("a::")).toBe(true);
+    expect(fast(() => pageTasksIn([todo("b1", [person("ada"), text(`send it${" ;-".repeat(300_000)}`)])]))[0].text).toBe("send it");
+  });
+
   it("lists an unticked to-do for the person it mentions, its text without the mention", () => {
     expect(pageTasksIn([todo("b1", [person("ada"), text(": send the invoice")])])).toEqual([
       { blockId: "b1", userId: "ada", text: "send the invoice", date: null, remindAt: null },

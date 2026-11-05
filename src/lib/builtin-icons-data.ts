@@ -364,3 +364,8 @@ export const BUILTIN_ICONS: Readonly<Record<string, BuiltinIconNode>> = {
   "circle-stop": [["circle",{"cx":"12","cy":"12","r":"10"}],["rect",{"x":"9","y":"9","width":"6","height":"6","rx":"1"}]],
   "square-pen": [["path",{"d":"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"}],["path",{"d":"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"}]],
 };
+
+/** The drawing of the built-in icon `name`, or undefined for a name there isn't (one of Object's own, "constructor", included). */
+export function builtinIconNode(name: string): BuiltinIconNode | undefined {
+  return Object.hasOwn(BUILTIN_ICONS, name) ? BUILTIN_ICONS[name] : undefined;
+}

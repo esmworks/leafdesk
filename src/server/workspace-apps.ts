@@ -1,14 +1,16 @@
 /**
  * The connected apps that can reach a workspace, for its owners (Settings > Security): MCP clients
  * the people in it authorized, and their REST API tokens for it, with when each one last reached
- * this workspace. An owner can disconnect one person's app; it goes from all their workspaces, as
- * an app or a token belongs to the person, not to one workspace. Owners also approve apps, for
- * workspaces that let in only those (`onlyApprovedApps`, see server/connected-app.ts).
+ * this workspace. An owner can disconnect one person's app: from this workspace alone when it
+ * reaches others of theirs (`connected_app_cut_off`), since anyone may be added to a workspace by
+ * its owners and an app or a token belongs to the person, not to one workspace; revoked when this
+ * is the only workspace it reaches. Owners also approve apps, for workspaces that let in only those
+ * (`onlyApprovedApps`, see server/connected-app.ts).
  */
 import { and, count, desc, eq, gt, inArray, isNull, not, or, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { apiToken, connectedAppUse, oauthClient, oauthConsent, user, workspace } from "@/db/schema";
-import { AccessError, inWorkspace, requireMembership } from "@/server/access";
+import { apiToken, connectedAppCutOff, connectedAppUse, oauthClient, oauthConsent, user, workspace } from "@/db/schema";
+import { AccessError, inWorkspace, otherWorkspacesOf, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { revokeApiToken } from "@/server/api/tokens";
 import { clientDisplayName, revokeConnectedApp } from "@/server/mcp/grants";
@@ -57,6 +59,10 @@ function appsReaching(workspaceId: string, only?: SQL) {
     // Clients that skip consent are the server's own, and disabled ones reach nothing.
     not(sql`coalesce(${oauthClient.skipConsent}, false)`),
     not(sql`coalesce(${oauthClient.disabled}, false)`),
+    // Cut off here by an owner (and not connected again since).
+    sql`not exists (select 1 from ${connectedAppCutOff} where ${connectedAppCutOff.workspaceId} = ${workspaceId}
+      and ${connectedAppCutOff.userId} = ${oauthConsent.userId} and ${connectedAppCutOff.appKind} = 'connected_app'
+      and ${connectedAppCutOff.appId} = ${oauthConsent.clientId} and ${oauthConsent.createdAt} <= (${connectedAppCutOff.cutAt} at time zone 'UTC'))`,
     only,
   );
   const rows = db
@@ -88,6 +94,8 @@ function tokensReaching(workspaceId: string, now: Date, only?: SQL) {
     inWorkspace(apiToken.userId, workspaceId),
     or(isNull(apiToken.workspaceId), eq(apiToken.workspaceId, workspaceId)),
     or(isNull(apiToken.expiresAt), gt(apiToken.expiresAt, now)),
+    sql`not exists (select 1 from ${connectedAppCutOff} where ${connectedAppCutOff.workspaceId} = ${workspaceId}
+      and ${connectedAppCutOff.appKind} = 'api_token' and ${connectedAppCutOff.appId} = ${apiToken.id})`,
     only,
   );
   const rows = db
@@ -207,7 +215,9 @@ export async function setWorkspaceAppApproved(actorId: string, workspaceId: stri
 
 /**
  * Disconnects one person's app or revokes their token, for an owner of a workspace it reaches: the
- * person must be in the workspace, and a token must reach it. Recorded in this workspace's audit log.
+ * person must be in the workspace, and a token must reach it. An app, or a token for all the
+ * person's workspaces, that reaches another of them is cut off from this one alone: an owner here
+ * decides for here, not for workspaces they have no say in. Recorded in this workspace's audit log.
  */
 export async function disconnectWorkspaceApp(
   actorId: string,
@@ -221,8 +231,34 @@ export async function disconnectWorkspaceApp(
       : await tokensReaching(workspaceId, new Date(), and(eq(apiToken.userId, target.userId), eq(apiToken.id, target.id))).rows.limit(1);
   if (!found) throw new AccessError();
   const by = { actorId, workspaceId };
-  if (target.kind === "connected_app") await revokeConnectedApp(target.userId, target.id, by);
-  else await revokeApiToken(target.userId, target.id, by);
+  // An app reaches every workspace of its person; a token all of them unless it is for this one.
+  const everywhere = !("workspaceId" in found) || found.workspaceId === null;
+  const reachesOthers = everywhere && (await otherWorkspacesOf(target.userId, workspaceId)) > 0;
+  if (!reachesOthers) {
+    if (target.kind === "connected_app") await revokeConnectedApp(target.userId, target.id, by);
+    else await revokeApiToken(target.userId, target.id, by);
+    return;
+  }
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(connectedAppCutOff)
+      .values({ workspaceId, userId: target.userId, appKind: target.kind, appId: target.id })
+      .onConflictDoUpdate({ target: [connectedAppCutOff.workspaceId, connectedAppCutOff.userId, connectedAppCutOff.appKind, connectedAppCutOff.appId], set: { cutAt: new Date() } });
+    await tx
+      .delete(connectedAppUse)
+      .where(and(eq(connectedAppUse.workspaceId, workspaceId), eq(connectedAppUse.userId, target.userId), eq(connectedAppUse.appKind, target.kind), eq(connectedAppUse.appId, target.id)));
+    await recordAudit(
+      {
+        workspaceId,
+        actorId,
+        action: target.kind === "connected_app" ? "connected_app.revoked" : "api_token.revoked",
+        target: { type: target.kind, id: target.id, label: target.kind === "connected_app" ? clientDisplayName(found.name, target.id) : found.name },
+        subject: { type: "user", id: target.userId },
+        details: { onlyHere: true },
+      },
+      tx,
+    );
+  });
 }
 
 /**
@@ -250,5 +286,24 @@ export async function pruneConnectedAppUse(workspaceIds?: string[], now = new Da
       ),
     )
     .returning({ appId: connectedAppUse.appId });
-  return deleted.length;
+  // Cut-offs that no longer hold anything off: the person left, the app was connected again or
+  // disconnected everywhere, the token is gone.
+  const lifted = await db
+    .delete(connectedAppCutOff)
+    .where(
+      and(
+        workspaceIds ? inArray(connectedAppCutOff.workspaceId, workspaceIds) : undefined,
+        or(
+          not(inWorkspace(connectedAppCutOff.userId, connectedAppCutOff.workspaceId)),
+          and(
+            eq(connectedAppCutOff.appKind, "connected_app"),
+            sql`not exists (select 1 from ${oauthConsent} where ${oauthConsent.userId} = ${connectedAppCutOff.userId}
+              and ${oauthConsent.clientId} = ${connectedAppCutOff.appId} and ${oauthConsent.createdAt} <= (${connectedAppCutOff.cutAt} at time zone 'UTC'))`,
+          ),
+          and(eq(connectedAppCutOff.appKind, "api_token"), sql`not exists (select 1 from ${apiToken} where ${apiToken.id} = ${connectedAppCutOff.appId})`),
+        ),
+      ),
+    )
+    .returning({ appId: connectedAppCutOff.appId });
+  return deleted.length + lifted.length;
 }

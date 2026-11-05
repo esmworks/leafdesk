@@ -1,10 +1,10 @@
 "use client";
 
-import { Database, Download, LibraryBig, Plus, Search } from "lucide-react";
+import { Database, Download, LibraryBig, Plus, Search, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { createBuiltinSkillAction, createSkillAction } from "@/app/actions/skills";
 import { markNewPage } from "@/components/page/new-page-focus";
 import { Button, buttonClass, cn, Dialog, DialogHeader, Input, PageIcon, pageLabel } from "@/components/ui";
@@ -49,6 +49,8 @@ export function SkillLibrary({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const picker = useRef<HTMLInputElement>(null);
   const shown = useMemo(() => {
     const words = searchFold(query).split(/\s+/).filter(Boolean);
     if (!words.length) return skills;
@@ -68,6 +70,36 @@ export function SkillLibrary({
       }
       markNewPage(result.data.id);
       router.push(withRow(`/w/${workspaceId}/p/${result.data.databaseId}`, result.data.id));
+    });
+
+  // SKILL.md, Markdown or ZIP files: one skill opens, several are listed here (api/skills/import).
+  const importFiles = (files: File[]) =>
+    startTransition(async () => {
+      setError(null);
+      setNotice(null);
+      const form = new FormData();
+      form.set("workspaceId", workspaceId);
+      for (const file of files) form.append("file", file);
+      let answer: { skills?: { id: string; databaseId: string }[]; skippedFiles?: number; error?: string };
+      try {
+        const response = await fetch("/api/skills/import", { method: "POST", body: form, headers: { "X-Leafdesk-Import": "1" } });
+        answer = await response.json();
+      } catch {
+        setError(tc("genericError"));
+        return;
+      }
+      if (!answer.skills) {
+        setError(answer.error ?? tc("genericError"));
+        return;
+      }
+      const skipped = answer.skippedFiles ? ` ${t("import.skippedFiles", { count: answer.skippedFiles })}` : "";
+      if (answer.skills.length === 1 && !skipped) {
+        const [only] = answer.skills;
+        router.push(withRow(`/w/${workspaceId}/p/${only.databaseId}`, only.id));
+        return;
+      }
+      setNotice(`${t("import.done", { count: answer.skills.length })}${skipped}`);
+      router.refresh();
     });
 
   // The new page has the built-in's title and text: it opens without focusing the title.
@@ -107,6 +139,26 @@ export function SkillLibrary({
               </Button>
             )}
             {canCreate && (
+              <>
+                <input
+                  ref={picker}
+                  type="file"
+                  multiple
+                  accept=".md,.markdown,.zip,text/markdown,application/zip"
+                  className="hidden"
+                  aria-label={t("import.label")}
+                  onChange={(e) => {
+                    const files = [...(e.target.files ?? [])];
+                    e.target.value = "";
+                    if (files.length) importFiles(files);
+                  }}
+                />
+                <Button onClick={() => picker.current?.click()} disabled={pending} title={t("import.label")}>
+                  <Upload className="h-4 w-4" /> {t("import.button")}
+                </Button>
+              </>
+            )}
+            {canCreate && (
               <Button variant="primary" onClick={create} disabled={pending}>
                 <Plus className="h-4 w-4" /> {t("new")}
               </Button>
@@ -117,6 +169,11 @@ export function SkillLibrary({
       {error && (
         <p role="alert" className="mb-4 text-sm text-danger">
           {error}
+        </p>
+      )}
+      {notice && (
+        <p role="status" className="mb-4 text-sm text-fg-muted">
+          {notice}
         </p>
       )}
 

@@ -117,6 +117,7 @@ import { teamspaceLabel } from "@/server/teamspaces";
 import { aiAvailable } from "@/server/ai-writing";
 import { accountNotesOf } from "@/server/account-memory";
 import { CHAT_READ_MEMORY_TOOL, fitNotes, memoryAvailable, memoryForPrompt, MemoryError, memoryOn, MEMORY_TOOLS, undoNote } from "@/server/ai-memory";
+import { summaryForPrompt } from "@/server/memory-summary";
 import { otherTeamspaces, pageTeamspace, sharedMemoryFor } from "@/server/shared-memory";
 import { remindTool } from "@/server/ai-reminders";
 import { awaitDecision, decideChange, runsWaitingHere, type ChatDecision } from "@/server/ai-chat-approvals";
@@ -549,13 +550,15 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     const askedIn = research || !scope ? null : scope.kind === "teamspace" ? scope.id : await pageTeamspace(scope.id);
     // The workspace's switch is read once here for both (remembers read it too, with the person's).
     const available = !research && (remembers || (await memoryAvailable(workspaceId)));
-    const [shared, accountNotes, otherRooms] = available
+    // The person's summary of their notes goes whole, ahead of them: it is short (MAX_MEMORY_SUMMARY_CHARS).
+    const [shared, accountNotes, otherRooms, summary] = available
       ? await Promise.all([
           sharedMemoryFor(userId, workspaceId, askedIn, true),
           remembers ? accountNotesOf(userId) : Promise.resolve([]),
           otherTeamspaces(userId, workspaceId, askedIn),
+          remembers ? summaryForPrompt(userId, workspaceId) : Promise.resolve(""),
         ])
-      : [{ workspace: [], teamspace: null }, [], []];
+      : [{ workspace: [], teamspace: null }, [], [], ""];
     // Tools of connections that change something are left out of a read-only chat.
     const external = setup.connections && !research ? await chatToolset(workspaceId, { writes: initialMode !== "read" }) : null;
     const services = [...new Set([...(external?.byName.values() ?? [])].map((e) => e.connection.name))];
@@ -621,24 +624,24 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
 
     // The notes, newest first as far as their shares of the room take them: the workspace's and the
     // teamspace's a quarter each, the person's for all workspaces a little, their own here the
-    // rest. Those that don't fit, and other teamspaces' notes, are read with read_memory, offered
-    // only then (also to an answer taken up again).
+    // rest. Those that don't fit, notes' details and other teamspaces' notes are read with
+    // read_memory, offered only then (also to an answer taken up again).
     const memoryRoom = Math.floor(room() * MEMORY_SHARE);
     const readHint = (layer: string) => `(Older notes don't fit here: read them with ${CHAT_READ_MEMORY_TOOL.name}, layer ${layer}.)`;
     const workspaceNotes = fitNotes(shared.workspace, Math.floor(memoryRoom / 4), readHint("workspace"));
     const roomNotes = shared.teamspace ? fitNotes(shared.teamspace.notes, Math.floor(memoryRoom / 4), readHint(`teamspace, teamspace_id ${shared.teamspace.id}`)) : null;
     const everywhere = fitNotes(accountNotes, Math.floor(memoryRoom / 8), readHint("account"));
-    const left = memoryRoom - workspaceNotes.text.length - (roomNotes?.text.length ?? 0) - everywhere.text.length;
-    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.max(0, left)) : { text: "", count: 0, shown: 0 };
-    const cut = [memory, workspaceNotes, everywhere, ...(roomNotes ? [roomNotes] : [])].some((m) => m.shown < m.count);
-    if (cut || otherRooms.some((r) => r.count > 0)) tools.push(CHAT_READ_MEMORY_TOOL);
+    const left = memoryRoom - workspaceNotes.text.length - (roomNotes?.text.length ?? 0) - everywhere.text.length - summary.length;
+    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.max(0, left)) : { text: "", count: 0, shown: 0, details: false };
+    const fitted = [memory, workspaceNotes, everywhere, ...(roomNotes ? [roomNotes] : [])];
+    if (fitted.some((m) => m.shown < m.count || m.details) || otherRooms.some((r) => r.count > 0)) tools.push(CHAT_READ_MEMORY_TOOL);
     const notesText = {
       account: everywhere.text,
       workspace: workspaceNotes.text,
       teamspace: shared.teamspace && roomNotes ? { id: shared.teamspace.id, name: shared.teamspace.name, text: roomNotes.text } : null,
       others: otherRooms.slice(0, MAX_LISTED_ROOMS),
     };
-    const notesSize = notesText.account.length + notesText.workspace.length + (notesText.teamspace?.text.length ?? 0) + notesText.others.length * 80;
+    const notesSize = summary.length + notesText.account.length + notesText.workspace.length + (notesText.teamspace?.text.length ?? 0) + notesText.others.length * 80;
 
     // ---------------------------------------------------------------------------- the question
     let messages: AiMessage[];
@@ -660,7 +663,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       const asked = message || "(The person attached the files without a question: say briefly what they hold and what you could do with them.)";
       question = {
         role: "user",
-        content: chatQuestionPrompt(asked, map, skill?.body, memory.text, { now: new Date(), timeZone }, filesText, notesText),
+        content: chatQuestionPrompt(asked, map, skill?.body, memory.text, { now: new Date(), timeZone }, filesText, notesText, summary),
         ...(read.images.length ? { images: read.images } : {}),
       };
       messages = [...history, question];

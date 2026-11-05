@@ -3,6 +3,12 @@
   "heading": "Keterampilan",
   "description": "Instruksi yang dipakai ulang tim Anda, disimpan sebagai halaman: cara merangkum catatan rapat, membalas pelanggan, atau memilah permintaan. Pilih satu di obrolan AI dengan /, atau dari aplikasi AI yang terhubung ke ruang kerja. Setiap keterampilan adalah halaman atau baris basis data; orang melihat keterampilan yang dapat mereka buka.",
   "new": "Keterampilan baru",
+  "import": {
+    "button": "Impor",
+    "label": "Impor keterampilan dari file SKILL.md, Markdown, atau ZIP",
+    "done": "{count, plural, other {# keterampilan diimpor.}}",
+    "skippedFiles": "{count, plural, other {# file pendamping tidak disertakan.}}"
+  },
   "search": "Cari keterampilan",
   "count": "{count, plural, other {# keterampilan}}",
   "noMatches": "Tidak ada keterampilan yang cocok dengan pencarian Anda.",
@@ -50,7 +56,13 @@
     "template": "Templat dan halaman di dalamnya tidak dapat menjadi keterampilan.",
     "inTrash": "Pulihkan halaman dari sampah terlebih dahulu.",
     "tooLong": "Deskripsi keterampilan paling banyak {max} karakter.",
-    "notASkill": "Halaman ini bukan lagi keterampilan."
+    "notASkill": "Halaman ini bukan lagi keterampilan.",
+    "importTooLarge": "Unggahan paling besar {mb} MB.",
+    "badFile": "File itu tidak dapat dibaca. Pilih SKILL.md, file Markdown, atau ZIP berisi folder keterampilan.",
+    "noSkills": "Tidak ada file SKILL.md atau Markdown.",
+    "tooManySkills": "Impor paling banyak {max} keterampilan sekaligus.",
+    "skillTooLong": "Salah satu keterampilan dalam unggahan terlalu panjang.",
+    "busy": "Impor lain masih berjalan. Coba lagi setelah selesai."
   },
   "database": {
     "title": "Keterampilan",

@@ -571,6 +571,36 @@
     "editLabel": "Anteckning",
     "save": "Spara",
     "cancel": "Avbryt",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Preferenser",
+      "work": "Arbete",
+      "other": "Övrigt"
+    },
+    "categoryLabel": "Typ",
+    "filterLabel": "Visa",
+    "allCategories": "Alla typer",
+    "search": "Sök i anteckningar",
+    "noMatch": "Inga anteckningar matchar.",
+    "detailsLabel": "Detaljer",
+    "detailsPlaceholder": "Mer om anteckningen om en rad inte räcker: varför, när den gäller, stegen",
+    "addDetails": "Lägg till detaljer",
+    "moreDetails": "Visa allt",
+    "lessDetails": "Visa mindre",
+    "summary": {
+      "title": "Sammanfattning",
+      "hint": "Några rader om dig, skrivna utifrån dina anteckningar, som följer med dina frågor här före dem. Anslutna appar läser den också.",
+      "write": "Skriv med AI",
+      "rewrite": "Skriv om",
+      "writing": "Skriver…",
+      "byAi": "Skriven av AI utifrån dina anteckningar, {date}",
+      "byYou": "Skriven av dig, {date}",
+      "stale": "dina anteckningar har ändrats sedan dess",
+      "withheld": "En anteckning den skrevs utifrån har ändrats eller glömts: den följer inte med dina frågor förrän du skriver om den eller markerar den som aktuell.",
+      "markCurrent": "Markera som aktuell",
+      "confirmRewrite": "Skriva om sammanfattningen utifrån dina anteckningar? Texten du själv skrev försvinner.",
+      "confirmDelete": "Ta bort sammanfattningen? Dina frågor här går utan den från och med nu."
+    },
     "delete": "Radera",
     "viaApp": "Sparad av {app}",
     "count": "{count} av {max} anteckningar",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "Skriv vad som ska kommas ihåg.",
       "tooLong": "En anteckning får vara högst {max} tecken.",
+      "detailsTooLong": "En antecknings detaljer får ha högst {max} tecken.",
       "full": "Minnet rymmer högst {max} anteckningar. Radera en först.",
       "notFound": "Den anteckningen finns inte längre.",
       "off": "AI-minnet är avstängt i den här arbetsytan.",
+      "personOff": "Ditt minne är avstängt här: slå först på Använd minnet.",
       "changed": "Anteckningen har ändrats sedan dess. Ändra den i Minne i stället.",
       "busy": "Vänta tills svaret är klart.",
-      "held": "Ett juridiskt bevarande omfattar den här anteckningen: den kan inte raderas så länge bevarandet gäller."
+      "held": "Ett juridiskt bevarande omfattar den här anteckningen: den kan inte raderas så länge bevarandet gäller.",
+      "noNotes": "Spara några anteckningar först: sammanfattningen skrivs utifrån dem.",
+      "summaryTooLong": "En sammanfattning får ha högst {max} tecken."
     }
   },
   "accounts": {

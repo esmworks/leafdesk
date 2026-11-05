@@ -1,5 +1,5 @@
 {
-  "id": "47af1fbb-f83e-4bc4-aae9-b2fb1ac18c30",
+  "id": "cfec822d-57c7-4ef9-b32d-157048736efd",
   "prevId": "1335a708-bd94-47ec-bb3c-8b6c03e72050",
   "version": "7",
   "dialect": "postgresql",
@@ -16210,203 +16210,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.row_repeat": {
-      "name": "row_repeat",
-      "schema": "",
-      "columns": {
-        "row_id": {
-          "name": "row_id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "database_id": {
-          "name": "database_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "property_id": {
-          "name": "property_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rule": {
-          "name": "rule",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "time_zone": {
-          "name": "time_zone",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "set_by": {
-          "name": "set_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "chain_id": {
-          "name": "chain_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "previous_row_id": {
-          "name": "previous_row_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "made_hash": {
-          "name": "made_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "spawn_day": {
-          "name": "spawn_day",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "spawn_count": {
-          "name": "spawn_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "last_error": {
-          "name": "last_error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "row_repeat_database_idx": {
-          "name": "row_repeat_database_idx",
-          "columns": [
-            {
-              "expression": "database_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "row_repeat_previous_idx": {
-          "name": "row_repeat_previous_idx",
-          "columns": [
-            {
-              "expression": "previous_row_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "row_repeat_row_id_page_id_fk": {
-          "name": "row_repeat_row_id_page_id_fk",
-          "tableFrom": "row_repeat",
-          "tableTo": "page",
-          "columnsFrom": [
-            "row_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "row_repeat_database_id_page_id_fk": {
-          "name": "row_repeat_database_id_page_id_fk",
-          "tableFrom": "row_repeat",
-          "tableTo": "page",
-          "columnsFrom": [
-            "database_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "row_repeat_property_id_database_property_id_fk": {
-          "name": "row_repeat_property_id_database_property_id_fk",
-          "tableFrom": "row_repeat",
-          "tableTo": "database_property",
-          "columnsFrom": [
-            "property_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "row_repeat_set_by_user_id_fk": {
-          "name": "row_repeat_set_by_user_id_fk",
-          "tableFrom": "row_repeat",
-          "tableTo": "user",
-          "columnsFrom": [
-            "set_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "row_repeat_previous_row_id_page_id_fk": {
-          "name": "row_repeat_previous_row_id_page_id_fk",
-          "tableFrom": "row_repeat",
-          "tableTo": "page",
-          "columnsFrom": [
-            "previous_row_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.schedule": {
       "name": "schedule",
       "schema": "",
@@ -16893,6 +16696,120 @@
         "calendar_feed_target_check": {
           "name": "calendar_feed_target_check",
           "value": "(\"calendar_feed\".\"view_id\" is null) <> (\"calendar_feed\".\"workspace_id\" is null)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.connected_app_cut_off": {
+      "name": "connected_app_cut_off",
+      "schema": "",
+      "columns": {
+        "workspace_id": {
+          "name": "workspace_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "app_kind": {
+          "name": "app_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "app_id": {
+          "name": "app_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cut_at": {
+          "name": "cut_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "connected_app_cut_off_app_idx": {
+          "name": "connected_app_cut_off_app_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "app_kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "app_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "connected_app_cut_off_workspace_id_workspace_id_fk": {
+          "name": "connected_app_cut_off_workspace_id_workspace_id_fk",
+          "tableFrom": "connected_app_cut_off",
+          "tableTo": "workspace",
+          "columnsFrom": [
+            "workspace_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "connected_app_cut_off_user_id_user_id_fk": {
+          "name": "connected_app_cut_off_user_id_user_id_fk",
+          "tableFrom": "connected_app_cut_off",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "connected_app_cut_off_workspace_id_user_id_app_kind_app_id_pk": {
+          "name": "connected_app_cut_off_workspace_id_user_id_app_kind_app_id_pk",
+          "columns": [
+            "workspace_id",
+            "user_id",
+            "app_kind",
+            "app_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "connected_app_cut_off_kind_check": {
+          "name": "connected_app_cut_off_kind_check",
+          "value": "\"connected_app_cut_off\".\"app_kind\" in ('connected_app', 'api_token')"
         }
       },
       "isRLSEnabled": false

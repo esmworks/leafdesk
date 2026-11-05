@@ -571,6 +571,36 @@
     "editLabel": "Nota",
     "save": "Guardar",
     "cancel": "Cancelar",
+    "categories": {
+      "profile": "Perfil",
+      "preference": "Preferencias",
+      "work": "Trabajo",
+      "other": "Otro"
+    },
+    "categoryLabel": "Tipo",
+    "filterLabel": "Mostrar",
+    "allCategories": "Todos los tipos",
+    "search": "Buscar notas",
+    "noMatch": "Ninguna nota coincide.",
+    "detailsLabel": "Detalles",
+    "detailsPlaceholder": "Más sobre esta nota, si una línea no basta: por qué, cuándo se aplica, los pasos",
+    "addDetails": "Añadir detalles",
+    "moreDetails": "Mostrar todo",
+    "lessDetails": "Mostrar menos",
+    "summary": {
+      "title": "Resumen",
+      "hint": "Unas líneas sobre ti, escritas a partir de tus notas, que acompañan a tus preguntas aquí antes que ellas. Las apps conectadas también lo leen.",
+      "write": "Escribir con IA",
+      "rewrite": "Volver a escribir",
+      "writing": "Escribiendo…",
+      "byAi": "Escrito por la IA a partir de tus notas, {date}",
+      "byYou": "Escrito por ti, {date}",
+      "stale": "tus notas cambiaron desde entonces",
+      "withheld": "Una nota de la que se escribió cambió o se olvidó: no acompaña a tus preguntas hasta que lo vuelvas a escribir o lo marques como al día.",
+      "markCurrent": "Marcar como al día",
+      "confirmRewrite": "¿Volver a escribir el resumen a partir de tus notas? Se perderá el texto que escribiste.",
+      "confirmDelete": "¿Eliminar el resumen? Tus preguntas aquí irán sin él a partir de ahora."
+    },
     "delete": "Eliminar",
     "viaApp": "Guardada por {app}",
     "count": "{count} de {max} notas",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "Escribe qué recordar.",
       "tooLong": "Una nota puede tener como máximo {max} caracteres.",
+      "detailsTooLong": "Los detalles de una nota pueden tener como máximo {max} caracteres.",
       "full": "La memoria guarda como máximo {max} notas. Elimina una antes.",
       "notFound": "Esa nota ya no existe.",
       "off": "La memoria de la IA está desactivada en este espacio de trabajo.",
+      "personOff": "Tu memoria está desactivada aquí: activa primero Usar la memoria.",
       "changed": "Esa nota ha cambiado desde entonces. Cámbiala en Memoria.",
       "busy": "Espera a que termine la respuesta.",
-      "held": "Una retención legal conserva esta nota: no se puede eliminar mientras la retención siga vigente."
+      "held": "Una retención legal conserva esta nota: no se puede eliminar mientras la retención siga vigente.",
+      "noNotes": "Guarda primero algunas notas: el resumen se escribe a partir de ellas.",
+      "summaryTooLong": "Un resumen puede tener como máximo {max} caracteres."
     }
   },
   "accounts": {

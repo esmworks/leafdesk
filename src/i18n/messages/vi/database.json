@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Thuộc tính này không thể có quyền truy cập riêng.",
     "typeChangeRestricted": "“{property}” có quy tắc truy cập, và các thuộc tính kiểu đó không thể có. Hãy xóa các quy tắc của nó trước.",
     "typeChangeNamesPeople": "Các quy tắc truy cập cấp quyền cho những người trong “{property}”. Hãy xóa các quy tắc đó trước khi đổi kiểu.",
+    "typeChangeHidden": "Một số giá trị của “{property}” bị ẩn với bạn, và chúng sẽ trở thành các tùy chọn. Người thấy mọi hàng và giá trị có thể đổi kiểu của nó.",
     "invalidRowAccess": "Không thể lưu các quy tắc truy cập hàng này. Hãy tải lại và thử lại.",
     "invalidAutomation": "Không thể lưu tự động hóa này. Hãy kiểm tra trình kích hoạt và các hành động của nó.",
     "tooManyAutomations": "Một cơ sở dữ liệu có thể có tối đa {max} tự động hóa.",

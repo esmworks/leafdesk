@@ -571,6 +571,36 @@
     "editLabel": "Notat",
     "save": "Lagre",
     "cancel": "Avbryt",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Preferanser",
+      "work": "Arbeid",
+      "other": "Annet"
+    },
+    "categoryLabel": "Type",
+    "filterLabel": "Vis",
+    "allCategories": "Alle typer",
+    "search": "Søk i notater",
+    "noMatch": "Ingen notater passer.",
+    "detailsLabel": "Detaljer",
+    "detailsPlaceholder": "Mer om dette notatet hvis én linje ikke er nok: hvorfor, når det gjelder, trinnene",
+    "addDetails": "Legg til detaljer",
+    "moreDetails": "Vis alt",
+    "lessDetails": "Vis mindre",
+    "summary": {
+      "title": "Sammendrag",
+      "hint": "Noen linjer om deg, skrevet ut fra notatene dine, som følger spørsmålene dine her foran dem. Tilkoblede apper leser det også.",
+      "write": "Skriv med KI",
+      "rewrite": "Skriv på nytt",
+      "writing": "Skriver…",
+      "byAi": "Skrevet av KI ut fra notatene dine, {date}",
+      "byYou": "Skrevet av deg, {date}",
+      "stale": "notatene dine er endret siden",
+      "withheld": "Et notat det ble skrevet ut fra, er endret eller glemt: det følger ikke med spørsmålene dine før du skriver det på nytt eller merker det som oppdatert.",
+      "markCurrent": "Merk som oppdatert",
+      "confirmRewrite": "Skrive sammendraget på nytt ut fra notatene dine? Teksten du skrev selv, forsvinner.",
+      "confirmDelete": "Slette sammendraget? Spørsmålene dine her går uten det fra nå av."
+    },
     "delete": "Slett",
     "viaApp": "Lagret av {app}",
     "count": "{count} av {max} notater",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "Skriv hva som skal huskes.",
       "tooLong": "Et notat kan ha høyst {max} tegn.",
+      "detailsTooLong": "Detaljene i et notat kan ha høyst {max} tegn.",
       "full": "Minnet kan inneholde høyst {max} notater. Slett ett først.",
       "notFound": "Det notatet finnes ikke lenger.",
       "off": "KI-minnet er slått av i dette arbeidsområdet.",
+      "personOff": "Minnet ditt er slått av her: slå på Bruk minne først.",
       "changed": "Det notatet er endret siden. Endre det i Minne i stedet.",
       "busy": "Vent til svaret er ferdig.",
-      "held": "En rettslig bevaring gjelder dette notatet: det kan ikke slettes så lenge bevaringen gjelder."
+      "held": "En rettslig bevaring gjelder dette notatet: det kan ikke slettes så lenge bevaringen gjelder.",
+      "noNotes": "Lagre noen notater først: sammendraget skrives ut fra dem.",
+      "summaryTooLong": "Et sammendrag kan ha høyst {max} tegn."
     }
   },
   "accounts": {

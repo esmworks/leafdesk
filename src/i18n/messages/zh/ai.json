@@ -571,6 +571,36 @@
     "editLabel": "笔记",
     "save": "保存",
     "cancel": "取消",
+    "categories": {
+      "profile": "个人资料",
+      "preference": "偏好",
+      "work": "工作",
+      "other": "其他"
+    },
+    "categoryLabel": "类型",
+    "filterLabel": "显示",
+    "allCategories": "所有类型",
+    "search": "搜索笔记",
+    "noMatch": "没有匹配的笔记。",
+    "detailsLabel": "详情",
+    "detailsPlaceholder": "一行写不下时，这条笔记的更多内容：原因、适用场合、步骤",
+    "addDetails": "添加详情",
+    "moreDetails": "全部显示",
+    "lessDetails": "收起",
+    "summary": {
+      "title": "摘要",
+      "hint": "根据你的笔记写成的几行关于你的内容，在这里随你的问题先于笔记发送。已连接的应用也会读取。",
+      "write": "用 AI 撰写",
+      "rewrite": "重新撰写",
+      "writing": "正在撰写…",
+      "byAi": "由 AI 根据你的笔记撰写，{date}",
+      "byYou": "由你撰写，{date}",
+      "stale": "你的笔记此后已有变化",
+      "withheld": "写摘要所依据的某条笔记已更改或被遗忘，在你重新撰写或标记为最新之前，它不会随你的问题发送。",
+      "markCurrent": "标记为最新",
+      "confirmRewrite": "根据笔记重新撰写摘要？你自己写的文字将会丢失。",
+      "confirmDelete": "删除摘要？今后你在这里的问题将不再附带它。"
+    },
     "delete": "删除",
     "viaApp": "由 {app} 保存",
     "count": "{count} / {max} 条笔记",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "请写下要记住的内容。",
       "tooLong": "每条笔记最多 {max} 个字符。",
+      "detailsTooLong": "笔记详情最多 {max} 个字符。",
       "full": "记忆最多可保存 {max} 条笔记。请先删除一条。",
       "notFound": "该笔记已不存在。",
       "off": "此工作区已关闭 AI 记忆。",
+      "personOff": "你在这里的记忆已关闭：请先开启“使用记忆”。",
       "changed": "这条笔记此后已更改。请改在记忆中修改。",
       "busy": "请等待回答完成。",
-      "held": "法律保留保留着此笔记：保留生效期间不能删除。"
+      "held": "法律保留保留着此笔记：保留生效期间不能删除。",
+      "noNotes": "请先记下几条笔记：摘要由笔记写成。",
+      "summaryTooLong": "摘要最多 {max} 个字符。"
     }
   },
   "accounts": {

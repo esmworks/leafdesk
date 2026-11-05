@@ -1701,7 +1701,7 @@
       "disconnect": "Disconnetti",
       "revoke": "Revoca",
       "working": "Disconnessione…",
-      "confirmEverywhere": "{kind, select, api_token {Revocare il token {name} di {person}? Smette di funzionare in tutti i suoi spazi di lavoro.} other {Disconnettere {name} dall’account di {person}? Perde l’accesso a tutti i suoi spazi di lavoro finché non lo connette di nuovo.}}",
+      "confirmCutOff": "{kind, select, api_token {Escludere il token {name} di {person} da questo spazio di lavoro? Ovunque altro arrivi, continua a funzionare.} other {Disconnettere {name} da questo spazio di lavoro per {person}? Gli altri suoi spazi di lavoro lo mantengono, e ricollegarlo lo riporta qui.}}",
       "confirmHere": "Revocare il token {name} di {person}? Smette di funzionare.",
       "error": "Impossibile disconnetterla. Riprova.",
       "gone": "È già disconnessa o non raggiunge più questo spazio di lavoro.",

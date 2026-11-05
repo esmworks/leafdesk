@@ -3,6 +3,12 @@
   "heading": "Vaardigheden",
   "description": "Instructies die je team hergebruikt, bewaard als pagina’s: hoe je vergadernotities afrondt, een klant antwoordt of een verzoek beoordeelt. Kies er een in de AI-chat met /, of vanuit een AI-app die aan de werkruimte is gekoppeld. Elke vaardigheid is een pagina of databaserij; iedereen ziet de vaardigheden die hij of zij kan openen.",
   "new": "Nieuwe vaardigheid",
+  "import": {
+    "button": "Importeren",
+    "label": "Vaardigheden importeren uit SKILL.md-, Markdown- of ZIP-bestanden",
+    "done": "{count, plural, one {# vaardigheid geïmporteerd.} other {# vaardigheden geïmporteerd.}}",
+    "skippedFiles": "{count, plural, one {# bijbehorend bestand is weggelaten.} other {# bijbehorende bestanden zijn weggelaten.}}"
+  },
   "search": "Vaardigheden zoeken",
   "count": "{count, plural, one {# vaardigheid} other {# vaardigheden}}",
   "noMatches": "Geen vaardigheid komt overeen met je zoekopdracht.",
@@ -50,7 +56,13 @@
     "template": "Sjablonen en de pagina’s daarin kunnen geen vaardigheden zijn.",
     "inTrash": "Zet de pagina eerst terug uit de prullenbak.",
     "tooLong": "De beschrijving van een vaardigheid mag hooguit {max} tekens hebben.",
-    "notASkill": "Deze pagina is geen vaardigheid meer."
+    "notASkill": "Deze pagina is geen vaardigheid meer.",
+    "importTooLarge": "De upload mag hoogstens {mb} MB zijn.",
+    "badFile": "Dit bestand kan niet worden gelezen. Kies een SKILL.md, een Markdown-bestand of een ZIP met vaardigheidsmappen.",
+    "noSkills": "Geen SKILL.md- of Markdown-bestand gevonden.",
+    "tooManySkills": "Importeer hoogstens {max} vaardigheden tegelijk.",
+    "skillTooLong": "Een vaardigheid in de upload is te lang.",
+    "busy": "Er loopt nog een andere import. Probeer het opnieuw als die klaar is."
   },
   "database": {
     "title": "Vaardigheden",

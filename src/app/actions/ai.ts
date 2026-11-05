@@ -3,13 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import type { AiAutofillConfig } from "@/lib/ai";
-import { MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS, type MemoryLayer, type MemoryView } from "@/lib/ai-chat";
+import { isMemoryCategory, MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, MAX_MEMORY_SUMMARY_CHARS, type MemoryCategory, type MemoryLayer, type MemorySummaryView, type MemoryView } from "@/lib/ai-chat";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
 import { decideParkedChange, deleteConversations, getConversation, listConversations, markConversationSeen, saveReportAsPage, undoChatNote } from "@/server/ai-chat";
 import { accountNotes, deleteAccountNotes, writeAccountNote } from "@/server/account-memory";
 import { addMemory, deleteMemories, listMemories, MemoryError, setMemoryUse, updateMemory } from "@/server/ai-memory";
+import { deleteSummary, markSummaryCurrent, setSummary, summaryOf, writeSummary } from "@/server/memory-summary";
 import { deleteSavedPrompt, listSavedPrompts, renameSavedPrompt, savePrompt, SavedPromptError } from "@/server/ai-saved-prompts";
 import { MAX_PROMPT_NAME, MAX_PROMPT_TEXT, MAX_SAVED_PROMPTS } from "@/lib/ai-saved-prompts";
 import type { ChatDecision } from "@/server/ai-chat-approvals";
@@ -43,7 +44,9 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
       return { ok: false, error: t(`ai.errors.${error.code}`, { seconds }), code: error.code };
     }
     if (error instanceof MemoryError) {
-      return { ok: false, error: t(`ai.memory.errors.${error.code}`, { max: error.code === "full" ? MAX_MEMORIES : MAX_MEMORY_CHARS }), code: error.code };
+      const max =
+        error.code === "full" ? MAX_MEMORIES : error.code === "detailsTooLong" ? MAX_MEMORY_DETAILS_CHARS : error.code === "summaryTooLong" ? MAX_MEMORY_SUMMARY_CHARS : MAX_MEMORY_CHARS;
+      return { ok: false, error: t(`ai.memory.errors.${error.code}`, { max }), code: error.code };
     }
     if (error instanceof AutofillError) {
       return { ok: false, error: t(`ai.autofill.errors.${error.code}`, error.params), code: error.code };
@@ -175,8 +178,31 @@ export async function setMemoryUseAction(workspaceId: string, on: boolean) {
   return run((userId) => setMemoryUse(userId, String(workspaceId), on === true));
 }
 
-/** A change on the Memory page: a note to add, one changed, or some (or all) deleted. */
-export type NoteChange = { add: string } | { id: string; text: string } | { delete: string };
+/** Has the AI write the person's summary of their notes in a workspace, in place of the one they had (server/memory-summary.ts). */
+export async function writeMemorySummaryAction(workspaceId: string) {
+  return run((userId) => writeSummary(userId, String(workspaceId)));
+}
+
+/** Keeps the summary as the person wrote or changed it; an empty one deletes it. */
+export async function saveMemorySummaryAction(workspaceId: string, text: string) {
+  return run((userId) => setSummary(userId, String(workspaceId), typeof text === "string" ? text : ""));
+}
+
+/** The person says their summary matches their notes as they are now (server/memory-summary.ts). */
+export async function markMemorySummaryCurrentAction(workspaceId: string) {
+  return run((userId) => markSummaryCurrent(userId, String(workspaceId)));
+}
+
+/** Deletes the person's summary in a workspace. */
+export async function deleteMemorySummaryAction(workspaceId: string) {
+  return run((userId) => deleteSummary(userId, String(workspaceId)));
+}
+
+/** A change on the Memory page: a note to add, one changed (its text, what it is about and its details), or some (or all) deleted. */
+export type NoteChange =
+  | { add: string; category?: MemoryCategory; details?: string }
+  | { id: string; text: string; category?: MemoryCategory; details?: string }
+  | { delete: string };
 
 /**
  * Changes the notes of one part of the AI's memory, as the Memory page shows it: the person's own
@@ -184,29 +210,34 @@ export type NoteChange = { add: string } | { id: string; text: string } | { dele
  * those is checked in shared-memory.ts). Returns that part's notes as they are now.
  */
 export async function changeNoteAction(workspaceId: string, layer: "person" | MemoryLayer, teamspaceId: string | null, change: NoteChange) {
-  return run(async (userId): Promise<(MemoryView & { by?: string | null })[]> => {
+  return run(async (userId): Promise<{ notes: (MemoryView & { by?: string | null })[]; summary?: MemorySummaryView | null }> => {
     const ws = String(workspaceId);
     const c = (change ?? {}) as Record<string, unknown>;
     const add = typeof c.add === "string" ? c.add : null;
     const edit = typeof c.id === "string" && typeof c.text === "string" ? { id: c.id, text: c.text } : null;
     const gone = typeof c.delete === "string" ? (c.delete === "all" ? ("all" as const) : [c.delete]) : null;
+    // Details left out stay as they were; an empty string drops them.
+    const more = { category: isMemoryCategory(c.category) ? c.category : null, ...(typeof c.details === "string" ? { details: c.details } : {}) };
     if (add === null && !edit && !gone) throw new AccessError();
     if (layer === "person") {
-      if (add !== null) await addMemory(userId, ws, add);
-      else if (edit) await updateMemory(userId, ws, edit.id, edit.text);
+      if (add !== null) await addMemory(userId, ws, add, more);
+      else if (edit) await updateMemory(userId, ws, edit.id, edit.text, more);
       else await deleteMemories(userId, ws, gone!);
-      return listMemories(userId, ws);
+      // The person's own notes are what their summary is written from: it may be behind them now.
+      const [notes, everywhere] = await Promise.all([listMemories(userId, ws), accountNotes(userId)]);
+      return { notes, summary: await summaryOf(userId, ws, { here: notes, everywhere }) };
     }
     if (layer === "account") {
-      if (add !== null || edit) await writeAccountNote(userId, add ?? edit!.text, { replaces: edit?.id ?? null });
+      if (add !== null || edit) await writeAccountNote(userId, add ?? edit!.text, { replaces: edit?.id ?? null, ...more });
       else await deleteAccountNotes(userId, gone!);
-      return accountNotes(userId);
+      const [notes, here] = await Promise.all([accountNotes(userId), listMemories(userId, ws)]);
+      return { notes, summary: await summaryOf(userId, ws, { here, everywhere: notes }) };
     }
     if (layer !== "workspace" && layer !== "teamspace") throw new AccessError();
     const place = layer === "teamspace" ? String(teamspaceId) : null;
-    if (add !== null || edit) await writeSharedNote(userId, ws, place, add ?? edit!.text, { replaces: edit?.id ?? null });
+    if (add !== null || edit) await writeSharedNote(userId, ws, place, add ?? edit!.text, { replaces: edit?.id ?? null, ...more });
     else await deleteSharedNotes(userId, ws, place, gone!);
-    return placeNotes(userId, ws, place);
+    return { notes: await placeNotes(userId, ws, place) };
   });
 }
 

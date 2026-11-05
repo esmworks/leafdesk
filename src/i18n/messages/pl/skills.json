@@ -3,6 +3,12 @@
   "heading": "Umiejętności",
   "description": "Instrukcje, z których twój zespół korzysta wielokrotnie, przechowywane jako strony: jak podsumować notatki ze spotkania, odpowiedzieć klientowi albo sklasyfikować zgłoszenie. Wybierz jedną na czacie AI za pomocą / lub z aplikacji AI połączonej z obszarem roboczym. Każda umiejętność to strona lub wiersz bazy danych; każdy widzi umiejętności, które może otworzyć.",
   "new": "Nowa umiejętność",
+  "import": {
+    "button": "Importuj",
+    "label": "Importuj umiejętności z plików SKILL.md, Markdown lub ZIP",
+    "done": "{count, plural, one {Zaimportowano # umiejętność.} few {Zaimportowano # umiejętności.} many {Zaimportowano # umiejętności.} other {Zaimportowano # umiejętności.}}",
+    "skippedFiles": "{count, plural, one {Pominięto # plik obok.} few {Pominięto # pliki obok.} many {Pominięto # plików obok.} other {Pominięto # pliku obok.}}"
+  },
   "search": "Szukaj umiejętności",
   "count": "{count, plural, one {# umiejętność} few {# umiejętności} many {# umiejętności} other {# umiejętności}}",
   "noMatches": "Żadna umiejętność nie pasuje do wyszukiwania.",
@@ -50,7 +56,13 @@
     "template": "Szablony i znajdujące się w nich strony nie mogą być umiejętnościami.",
     "inTrash": "Najpierw przywróć stronę z kosza.",
     "tooLong": "Opis umiejętności może mieć najwyżej {max, plural, one {# znak} few {# znaki} many {# znaków} other {# znaku}}.",
-    "notASkill": "Ta strona nie jest już umiejętnością."
+    "notASkill": "Ta strona nie jest już umiejętnością.",
+    "importTooLarge": "Przesyłany plik może mieć najwyżej {mb} MB.",
+    "badFile": "Nie można odczytać tego pliku. Wybierz SKILL.md, plik Markdown lub ZIP z folderami umiejętności.",
+    "noSkills": "Nie znaleziono pliku SKILL.md ani Markdown.",
+    "tooManySkills": "Importuj najwyżej {max} umiejętności naraz.",
+    "skillTooLong": "Jedna z umiejętności jest za długa.",
+    "busy": "Inny import nadal trwa. Spróbuj ponownie, gdy się zakończy."
   },
   "database": {
     "title": "Umiejętności",

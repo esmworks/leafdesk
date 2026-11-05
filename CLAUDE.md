@@ -169,6 +169,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`). `defineRoute` makes
   each query and body schema `.strict()`, so a field a route doesn't name answers 400 (a script
   sending a path's id in the body too gets one).
+- **Skills** (`server/skills.ts`, pure part `lib/skills.ts`): pages or rows marked as reusable
+  instructions; SKILL.md export is the page export route's `format=skill`, import is
+  `api/skills/import` → `server/skill-import.ts` (unpacked by `import/archive.ts` `collectFiles`, read
+  by hand in `lib/skill-import.ts`, rows made by `createSkill`).
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
   `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats are one
   `ChatThread` (`components/ai-chat/chat-thread.tsx`, which takes a `ThreadChat`): an agent's
@@ -201,7 +205,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   process as the person, held to the chat's workspace by `connected-app.ts` `withinWorkspace`;
   `HIDDEN` and `ASKED_EACH_TIME` there; agents' runs use it too, without the latter; it imports `mcp/tools` lazily, which reaches `agents/chat` and so `ai-chat`); CSV files
   attached to questions: `src/lib/chat-attachments.ts` (limits, names) and
-  `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`, beside the workspace's and teamspaces' (`shared-memory.ts`, read by the chat and agents' runs, written only by those who manage the place, always asked about) and the person's for every workspace (`account-memory.ts`), all on the Memory page `components/ai-chat/memory-page.tsx` (when a note is kept at once, asked about or proposed, for the chat and agents alike: `lib/memory-rule.ts` `noteWrite`; Undo on a step: `undoNote`; `read_memory` only when notes overflow the prompt); semantic
+  `chat-attachment-table.ts` (the parser, loaded by the box only when a file comes); AI property values: `ai-properties.ts`; notes it keeps: `ai-memory.ts`, beside the workspace's and teamspaces' (`shared-memory.ts`, read by the chat and agents' runs, written only by those who manage the place, always asked about) and the person's for every workspace (`account-memory.ts`), all on the Memory page `components/ai-chat/memory-page.tsx` (when a note is kept at once, asked about or proposed, for the chat and agents alike: `lib/memory-rule.ts` `noteWrite`; Undo on a step: `undoNote`; notes carry an optional `details` text and a `category`; a person's summary of their notes, written by the fast model when they ask and sent ahead of them, is `memory-summary.ts` (table `memory_summary`; its `sources`, the keys of the notes it was written from, mark it behind when notes are kept since and keep it from being sent when one of them changed or went); `read_memory` is a search (`searchNotes`), offered only when notes overflow the prompt or one shown has details, which agents' runs and the mail writer never get marked); semantic
   index and search: `semantic-index.ts`, `semantic-search.ts`; related pages under a page rank the
   stored chunks against the page's mean embedding (`related-pages.ts`, no model call). Test doubles: `ai/testing.ts`
   (`installFauxAi`, unit tests) and `ai/fake-openai.ts` (`startFakeOpenAi`, e2e scripts). Web
@@ -310,7 +314,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   it, never `CONNECTOR_ALLOWED_HOSTS`. Allowed-host lists match through `ssrf.ts` `onHostList` (a
   bare name allows the web's ports only). A synced database's setup checks
   `pages.ts` `requireDatabasePlace` and `sync-setup.ts` limits before any network call, and reads
-  other servers' answers through `readBodyLimited`. The catalog of
+  other servers' answers through `readBodyLimited`; its calls reach `CONNECTOR_ALLOWED_HOSTS` only
+  inside `sync-reach.ts` `withSyncReach` for a workspace owner (setups, changes and `runSync`), so a
+  new network call of a sync's goes inside it. The catalog of
   ready-made services is `src/lib/connection-catalog.ts`; `pnpm catalog:check` probes it live.
 - **Automations and schedules.** `src/server/automations/` (queued from `databases.ts` after row
   writes; `asAutomation` keeps an automation's writes from firing more automations; a total over a
@@ -553,6 +559,10 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `lib/date-phrase.ts` `parseDatePhrase` reads a whole phrase (times, durations, `+2w` from the
   day shown) for `@`, the date property editor, date mentions and date filters. A new place where
   a date is typed uses `components/date-phrase-input.tsx`, which loads the grammar on the first keystroke.
+- **Published HTML carries a custom block's props.** BlockNote writes every prop not at its default
+  as a `data-*` attribute, shown or not: `published-body.ts` `sanitizeValue` keeps what a block
+  shows (a meeting's title, names and takeaways, never its transcript), so a new block with private
+  props gets its case there.
 - **Published links can expire** (`page_publication.expires_at`): every query that serves or
   lists a publication to visitors adds `livePublication()` (`src/server/publication-live.ts`, its own
   module so `mentions.ts` can use it without an import cycle); there is no job that unpublishes.

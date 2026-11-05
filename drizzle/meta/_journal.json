@@ -1363,8 +1363,22 @@
     {
       "idx": 194,
       "version": "7",
-      "when": 1793824573337,
-      "tag": "0194_row_repeat",
+      "when": 1793849398740,
+      "tag": "0194_connected_app_cut_off",
+      "breakpoints": true
+    },
+    {
+      "idx": 195,
+      "version": "7",
+      "when": 1793877012357,
+      "tag": "0195_memory_kinds_details_summary",
+      "breakpoints": true
+    },
+    {
+      "idx": 196,
+      "version": "7",
+      "when": 1793903953430,
+      "tag": "0196_row_repeat",
       "breakpoints": true
     }
   ]

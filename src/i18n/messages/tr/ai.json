@@ -571,6 +571,36 @@
     "editLabel": "Not",
     "save": "Kaydet",
     "cancel": "Vazgeç",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Tercihler",
+      "work": "İş",
+      "other": "Diğer"
+    },
+    "categoryLabel": "Tür",
+    "filterLabel": "Göster",
+    "allCategories": "Tüm türler",
+    "search": "Notlarda ara",
+    "noMatch": "Eşleşen not yok.",
+    "detailsLabel": "Ayrıntılar",
+    "detailsPlaceholder": "Bir satır yetmezse bu not hakkında daha fazlası: neden, ne zaman geçerli, adımlar",
+    "addDetails": "Ayrıntı ekle",
+    "moreDetails": "Tümünü göster",
+    "lessDetails": "Daha az göster",
+    "summary": {
+      "title": "Özet",
+      "hint": "Notlarınızdan yazılan, buradaki sorularınızla notlardan önce giden birkaç satır. Bağladığınız uygulamalar da okur.",
+      "write": "AI ile yaz",
+      "rewrite": "Yeniden yaz",
+      "writing": "Yazılıyor…",
+      "byAi": "Notlarınızdan AI tarafından yazıldı, {date}",
+      "byYou": "Sizin yazdığınız, {date}",
+      "stale": "notlarınız o zamandan beri değişti",
+      "withheld": "Yazıldığı notlardan biri değişti ya da unutuldu; yeniden yazana ya da güncel diye işaretleyene kadar sorularınızla gitmiyor.",
+      "markCurrent": "Güncel olarak işaretle",
+      "confirmRewrite": "Özet notlarınızdan yeniden yazılsın mı? Kendi yazdığınız metin gider.",
+      "confirmDelete": "Özet silinsin mi? Buradaki sorularınız bundan sonra onsuz gider."
+    },
     "delete": "Sil",
     "viaApp": "{app} kaydetti",
     "count": "{count}/{max} not",
@@ -580,12 +610,16 @@
     "errors": {
       "empty": "Neyin hatırlanacağını yaz.",
       "tooLong": "Bir not en fazla {max} karakter olabilir.",
+      "detailsTooLong": "Bir notun ayrıntıları en fazla {max} karakter olabilir.",
       "full": "Hafıza en fazla {max} not tutar. Önce birini sil.",
       "notFound": "Bu not artık yok.",
       "off": "Bu çalışma alanında yapay zekâ hafızası kapalı.",
+      "personOff": "Hafızanız burada kapalı: önce Hafızayı kullan'ı açın.",
       "changed": "Bu not o zamandan beri değişti. Hafıza'dan değiştir.",
       "busy": "Cevap bitene kadar bekle.",
-      "held": "Bu notu yasal saklama koruyor: saklama sürdükçe silinemez."
+      "held": "Bu notu yasal saklama koruyor: saklama sürdükçe silinemez.",
+      "noNotes": "Önce birkaç not tutun: özet onlardan yazılır.",
+      "summaryTooLong": "Bir özet en fazla {max} karakter olabilir."
     }
   },
   "accounts": {

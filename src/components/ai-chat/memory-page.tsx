@@ -7,16 +7,37 @@
  * each teamspace's they are in (server/shared-memory.ts), which those in it read and those who
  * manage it change. While the workspace has the memory off, only the notes everywhere show.
  */
-import { Check, ChevronRight, Eye, Pencil, Trash2, X } from "lucide-react";
+import { Check, ChevronRight, Eye, Pencil, Search, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useState, type FormEvent, type ReactNode } from "react";
-import { changeNoteAction, setMemoryUseAction, type NoteChange } from "@/app/actions/ai";
+import {
+  changeNoteAction,
+  deleteMemorySummaryAction,
+  markMemorySummaryCurrentAction,
+  saveMemorySummaryAction,
+  setMemoryUseAction,
+  writeMemorySummaryAction,
+  type NoteChange,
+} from "@/app/actions/ai";
 import { IconGlyph } from "@/components/builtin-icon";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { Button, cn, IconButton, Input, Switch } from "@/components/ui";
-import { chatPath, MAX_MEMORIES, MAX_MEMORY_CHARS, memoryPagePath, type MemoryPlaceView, type MemoryView } from "@/lib/ai-chat";
+import { Button, cn, IconButton, Input, selectClass, Switch, textareaClass } from "@/components/ui";
+import {
+  chatPath,
+  isMemoryCategory,
+  MAX_MEMORIES,
+  MAX_MEMORY_CHARS,
+  MAX_MEMORY_DETAILS_CHARS,
+  MAX_MEMORY_SUMMARY_CHARS,
+  MEMORY_CATEGORIES,
+  memoryPagePath,
+  type MemoryCategory,
+  type MemoryPlaceView,
+  type MemorySummaryView,
+  type MemoryView,
+} from "@/lib/ai-chat";
 
 type Note = MemoryView & { by?: string | null };
 /** `mine` and `everywhere` are the person's; `workspace` the workspace's; anything else a teamspace's id. */
@@ -28,6 +49,7 @@ export function MemoryPage({
   off,
   use: initialUse,
   mine: initialMine,
+  summary: initialSummary,
   account: initialAccount,
   workspace,
   teamspaces,
@@ -39,6 +61,8 @@ export function MemoryPage({
   /** The person's own switch in this workspace. */
   use: boolean;
   mine: MemoryView[];
+  /** The person's summary of their notes here (server/memory-summary.ts), if they keep one. */
+  summary: MemorySummaryView | null;
   account: MemoryView[];
   /** Null for a guest. */
   workspace: MemoryPlaceView | null;
@@ -54,6 +78,7 @@ export function MemoryPage({
     ...Object.fromEntries(teamspaces.map((place) => [place.id!, place.notes])),
   }));
   const [use, setUse] = useState(initialUse);
+  const [summary, setSummary] = useState(initialSummary);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -82,7 +107,11 @@ export function MemoryPage({
     const result = await changeNoteAction(workspaceId, layer, layer === "teamspace" ? key : null, edit);
     setBusy(false);
     setError(result.ok ? null : result.error);
-    if (result.ok) setNotes((current) => ({ ...current, [key]: result.data }));
+    if (result.ok) {
+      setNotes((current) => ({ ...current, [key]: result.data.notes }));
+      // The summary is written from the person's own notes: a change to them may leave it behind.
+      if (result.data.summary !== undefined) setSummary(result.data.summary);
+    }
     return result.ok;
   }
 
@@ -179,6 +208,15 @@ export function MemoryPage({
               {error}
             </p>
           )}
+          {section === "mine" && (
+            <SummaryBox
+              workspaceId={workspaceId}
+              summary={summary}
+              use={use}
+              hasNotes={(notes.mine?.length ?? 0) + (notes.everywhere?.length ?? 0) > 0}
+              onChange={setSummary}
+            />
+          )}
           <NoteList
             key={section}
             notes={notes[section] ?? []}
@@ -193,6 +231,181 @@ export function MemoryPage({
         </section>
       </div>
     </div>
+  );
+}
+
+/** A summary as written: Markdown headings, `- ` bullets and lines, without any other Markdown (a `#tag` line is a line). */
+function SummaryText({ text }: { text: string }) {
+  const blocks: ReactNode[] = [];
+  let bullets: string[] = [];
+  const flush = () => {
+    if (!bullets.length) return;
+    blocks.push(
+      <ul key={blocks.length} className="list-disc space-y-0.5 ps-5">
+        {bullets.map((b, i) => (
+          <li key={i}>{b}</li>
+        ))}
+      </ul>,
+    );
+    bullets = [];
+  };
+  for (const raw of text.split("\n")) {
+    const line = raw.trim();
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      bullets.push(line.slice(2));
+      continue;
+    }
+    flush();
+    if (!line) continue;
+    const heading = /^#{1,6} /.exec(line);
+    if (heading) {
+      blocks.push(
+        <p key={blocks.length} className="pt-1 text-xs font-medium text-fg-muted">
+          {line.slice(heading[0].length).trim()}
+        </p>,
+      );
+    } else blocks.push(<p key={blocks.length}>{line}</p>);
+  }
+  flush();
+  return <div className="space-y-1 text-sm break-words">{blocks}</div>;
+}
+
+/**
+ * The person's summary of their notes here: written by the AI when they ask, or by them; changed in
+ * place or deleted, asking first where that loses what they wrote; marked when their notes changed
+ * since, and held back from questions when a note it was written from did (until written again or
+ * marked as up to date). `use`: their memory is on here, which writing and changing it needs.
+ */
+function SummaryBox({
+  workspaceId,
+  summary,
+  use,
+  hasNotes,
+  onChange,
+}: {
+  workspaceId: string;
+  summary: MemorySummaryView | null;
+  use: boolean;
+  hasNotes: boolean;
+  onChange: (summary: MemorySummaryView | null) => void;
+}) {
+  const t = useTranslations("ai.memory");
+  const format = useFormatter();
+  const offline = useIsOffline();
+  const [editing, setEditing] = useState<string | null>(null);
+  const [working, setWorking] = useState<"write" | "save" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function act(kind: "write" | "save", run: () => Promise<{ ok: true; data: MemorySummaryView | null } | { ok: false; error: string }>) {
+    setWorking(kind);
+    setError(null);
+    const result = await run();
+    setWorking(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    onChange(result.data);
+    setEditing(null);
+  }
+
+  const busy = working !== null || offline;
+  const when = summary ? format.dateTime(new Date(summary.updatedAt), { dateStyle: "medium" }) : "";
+  return (
+    <section aria-label={t("summary.title")} className="mb-6 rounded-md border border-border px-3 py-2.5">
+      <div className="flex items-start gap-2">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-medium">{t("summary.title")}</h3>
+          {!summary && <p className="text-xs text-fg-muted">{t("summary.hint")}</p>}
+          {summary && editing === null && (
+            <p className="text-xs text-fg-muted">
+              {summary.writtenBy === "ai" ? t("summary.byAi", { date: when }) : t("summary.byYou", { date: when })}
+              {summary.stale && !summary.withheld && ` · ${t("summary.stale")}`}
+            </p>
+          )}
+          {summary?.withheld && editing === null && <p className="mt-1 text-xs text-danger">{t("summary.withheld")}</p>}
+        </div>
+        {editing === null && (
+          <div className="flex shrink-0 flex-wrap justify-end gap-1">
+            {use && hasNotes && (
+              <Button
+                size="sm"
+                disabled={busy}
+                onClick={() => {
+                  // What the person wrote themselves goes with it: ask first.
+                  if (summary?.writtenBy === "person" && !confirm(t("summary.confirmRewrite"))) return;
+                  void act("write", () => writeMemorySummaryAction(workspaceId));
+                }}
+              >
+                {working === "write" ? t("summary.writing") : summary ? t("summary.rewrite") : t("summary.write")}
+              </Button>
+            )}
+            {summary && use && (summary.stale || summary.withheld) && (
+              <Button size="sm" variant="ghost" disabled={busy} onClick={() => void act("save", () => markMemorySummaryCurrentAction(workspaceId))}>
+                {t("summary.markCurrent")}
+              </Button>
+            )}
+            {summary && use && (
+              <Button size="sm" variant="ghost" disabled={busy} onClick={() => setEditing(summary.text)}>
+                {t("edit")}
+              </Button>
+            )}
+            {summary && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="hover:text-danger"
+                disabled={busy}
+                onClick={() => {
+                  if (!confirm(t("summary.confirmDelete"))) return;
+                  void act("save", () => deleteMemorySummaryAction(workspaceId).then((r) => (r.ok ? { ok: true as const, data: null } : r)));
+                }}
+              >
+                {t("delete")}
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+      {error && (
+        <p role="alert" className="mt-2 text-xs text-danger">
+          {error}
+        </p>
+      )}
+      {editing !== null ? (
+        <form
+          className="mt-2 space-y-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void act("save", () => saveMemorySummaryAction(workspaceId, editing));
+          }}
+        >
+          <textarea
+            autoFocus
+            aria-label={t("summary.title")}
+            className={cn(textareaClass, "min-h-32")}
+            rows={8}
+            value={editing}
+            maxLength={MAX_MEMORY_SUMMARY_CHARS}
+            onChange={(e) => setEditing(e.target.value)}
+          />
+          <div className="flex justify-end gap-2">
+            <Button size="sm" onClick={() => setEditing(null)}>
+              {t("cancel")}
+            </Button>
+            <Button size="sm" type="submit" variant="primary" disabled={busy}>
+              {t("save")}
+            </Button>
+          </div>
+        </form>
+      ) : (
+        summary && (
+          <div className="mt-2">
+            <SummaryText text={summary.text} />
+          </div>
+        )
+      )}
+    </section>
   );
 }
 
@@ -213,7 +426,22 @@ function NavItem({ current, count, onClick, children }: { current: boolean; coun
   );
 }
 
-/** One part's notes: each changed in place or deleted, a note to add and deleting them all, for those who may. */
+/** Whether a note (its line or its details) has every word of a search, any case. */
+function matches(note: Note, words: string[], locale: string): boolean {
+  const text = `${note.text}\n${note.details ?? ""}`.toLocaleLowerCase(locale);
+  return words.every((word) => text.includes(word));
+}
+
+/** Details longer than this, or of more lines, show folded until opened. */
+const FOLD_CHARS = 240;
+const FOLD_LINES = 3;
+const folds = (details: string) => details.length > FOLD_CHARS || details.split("\n").length > FOLD_LINES;
+
+/**
+ * One part's notes, grouped by what they are about (flat while every note is `other`), with a
+ * search and a filter by kind: each changed in place or deleted, a note to add and deleting them
+ * all, for those who may.
+ */
 function NoteList({
   notes,
   canChange,
@@ -235,76 +463,178 @@ function NoteList({
   onChange: (change: NoteChange) => Promise<boolean>;
 }) {
   const t = useTranslations("ai.memory");
+  const locale = useLocale();
   const offline = useIsOffline();
   const [draft, setDraft] = useState("");
-  const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
+  const [draftCategory, setDraftCategory] = useState<MemoryCategory>("other");
+  // Null while the new note has no details box open.
+  const [draftDetails, setDraftDetails] = useState<string | null>(null);
+  const [editing, setEditing] = useState<{ id: string; text: string; category: MemoryCategory; details: string } | null>(null);
+  const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
+  const [query, setQuery] = useState("");
+  const [only, setOnly] = useState<MemoryCategory | "all">("all");
   const changes = canChange && !offline;
   const full = notes.length >= MAX_MEMORIES;
+
+  const words = query.toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
+  const shown = notes.filter((note) => (only === "all" || note.category === only) && matches(note, words, locale));
+  // Notes kept before kinds existed are all `other`: a list of them alone has no headings.
+  const grouped = notes.some((note) => note.category !== "other");
+  const groups = grouped
+    ? MEMORY_CATEGORIES.map((category) => ({ category, notes: shown.filter((note) => note.category === category) })).filter((group) => group.notes.length > 0)
+    : [{ category: null, notes: shown }];
 
   async function add(event: FormEvent) {
     event.preventDefault();
     if (!draft.trim() || busy) return;
-    if (await onChange({ add: draft })) setDraft("");
+    if (await onChange({ add: draft, category: draftCategory, ...(draftDetails?.trim() ? { details: draftDetails } : {}) })) {
+      setDraft("");
+      setDraftDetails(null);
+    }
   }
 
   async function save(event: FormEvent) {
     event.preventDefault();
     if (!editing || busy) return;
-    if (await onChange({ id: editing.id, text: editing.text })) setEditing(null);
+    if (await onChange({ id: editing.id, text: editing.text, category: editing.category, details: editing.details })) setEditing(null);
   }
 
+  const kindSelect = (value: MemoryCategory, onSelect: (next: MemoryCategory) => void, disabled = false) => (
+    <select
+      aria-label={t("categoryLabel")}
+      className={cn(selectClass, "max-w-[9rem] shrink-0")}
+      value={value}
+      disabled={disabled}
+      onChange={(e) => {
+        if (isMemoryCategory(e.target.value)) onSelect(e.target.value);
+      }}
+    >
+      {MEMORY_CATEGORIES.map((category) => (
+        <option key={category} value={category}>
+          {t(`categories.${category}`)}
+        </option>
+      ))}
+    </select>
+  );
+
   const action = "h-7 w-7 opacity-0 group-hover/note:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60";
+  const row = (note: Note) =>
+    editing?.id === note.id ? (
+      <li key={note.id} className="py-1.5">
+        <form
+          onSubmit={save}
+          className="space-y-1.5"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setEditing(null);
+          }}
+        >
+          <div className="flex items-center gap-1">
+            <Input autoFocus aria-label={t("editLabel")} value={editing.text} maxLength={MAX_MEMORY_CHARS} onChange={(e) => setEditing({ ...editing, text: e.target.value })} />
+            {kindSelect(editing.category, (category) => setEditing({ ...editing, category }))}
+            <IconButton type="submit" label={t("save")} className="h-8 w-8" disabled={busy || !editing.text.trim()}>
+              <Check className="h-4 w-4" />
+            </IconButton>
+            <IconButton label={t("cancel")} className="h-8 w-8" onClick={() => setEditing(null)}>
+              <X className="h-4 w-4" />
+            </IconButton>
+          </div>
+          <textarea
+            aria-label={t("detailsLabel")}
+            placeholder={t("detailsPlaceholder")}
+            className={cn(textareaClass, "min-h-16")}
+            rows={3}
+            value={editing.details}
+            maxLength={MAX_MEMORY_DETAILS_CHARS}
+            onChange={(e) => setEditing({ ...editing, details: e.target.value })}
+          />
+        </form>
+      </li>
+    ) : (
+      <li key={note.id} className="group/note flex items-start gap-1 py-1.5">
+        <div className="min-w-0 flex-1 py-1">
+          <p className="break-words">{note.text}</p>
+          {note.details && (
+            <>
+              <p className={cn("mt-0.5 text-[13px] break-words whitespace-pre-wrap text-fg-muted", folds(note.details) && !open.has(note.id) && "line-clamp-3")}>{note.details}</p>
+              {folds(note.details) && (
+                <button
+                  type="button"
+                  className="text-xs text-fg-muted hover:text-fg"
+                  aria-expanded={open.has(note.id)}
+                  onClick={() =>
+                    setOpen((current) => {
+                      const next = new Set(current);
+                      if (!next.delete(note.id)) next.add(note.id);
+                      return next;
+                    })
+                  }
+                >
+                  {open.has(note.id) ? t("lessDetails") : t("moreDetails")}
+                </button>
+              )}
+            </>
+          )}
+          {(note.app || (shared && note.by)) && (
+            <p className="mt-0.5 text-xs text-fg-muted">{note.app ? t("viaApp", { app: note.app }) : t("byPerson", { name: note.by! })}</p>
+          )}
+        </div>
+        {changes && (
+          <>
+            <IconButton label={t("edit")} className={action} disabled={busy} onClick={() => setEditing({ id: note.id, text: note.text, category: note.category, details: note.details ?? "" })}>
+              <Pencil className="h-3.5 w-3.5" />
+            </IconButton>
+            <IconButton label={t("delete")} className={action} disabled={busy} onClick={() => void onChange({ delete: note.id })}>
+              <Trash2 className="h-3.5 w-3.5" />
+            </IconButton>
+          </>
+        )}
+      </li>
+    );
+
   return (
     <div className="space-y-3 text-sm">
       {offline && <p className="text-fg-muted">{t("offline")}</p>}
       {notes.length === 0 ? (
         <p className="text-fg-muted">{shared ? t("emptyShared") : t("empty")}</p>
       ) : (
-        <ul className="divide-y divide-border border-y border-border">
-          {notes.map((note) =>
-            editing?.id === note.id ? (
-              <li key={note.id} className="py-1.5">
-                <form onSubmit={save} className="flex items-center gap-1">
-                  <Input
-                    autoFocus
-                    aria-label={t("editLabel")}
-                    value={editing.text}
-                    maxLength={MAX_MEMORY_CHARS}
-                    onChange={(e) => setEditing({ id: note.id, text: e.target.value })}
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") setEditing(null);
-                    }}
-                  />
-                  <IconButton type="submit" label={t("save")} className="h-8 w-8" disabled={busy || !editing.text.trim()}>
-                    <Check className="h-4 w-4" />
-                  </IconButton>
-                  <IconButton label={t("cancel")} className="h-8 w-8" onClick={() => setEditing(null)}>
-                    <X className="h-4 w-4" />
-                  </IconButton>
-                </form>
-              </li>
-            ) : (
-              <li key={note.id} className="group/note flex items-start gap-1 py-1.5">
-                <div className="min-w-0 flex-1 py-1">
-                  <p className="break-words">{note.text}</p>
-                  {(note.app || (shared && note.by)) && (
-                    <p className="mt-0.5 text-xs text-fg-muted">{note.app ? t("viaApp", { app: note.app }) : t("byPerson", { name: note.by! })}</p>
-                  )}
-                </div>
-                {changes && (
-                  <>
-                    <IconButton label={t("edit")} className={action} disabled={busy} onClick={() => setEditing({ id: note.id, text: note.text })}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </IconButton>
-                    <IconButton label={t("delete")} className={action} disabled={busy} onClick={() => void onChange({ delete: note.id })}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </IconButton>
-                  </>
-                )}
-              </li>
-            ),
+        <>
+          <div className="flex items-center gap-2">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
+              <Input type="search" aria-label={t("search")} placeholder={t("search")} value={query} onChange={(e) => setQuery(e.target.value)} className="ps-7" />
+            </div>
+            <select
+              aria-label={t("filterLabel")}
+              className={cn(selectClass, "max-w-[10rem] shrink-0")}
+              value={only}
+              onChange={(e) => {
+                const next = e.target.value;
+                setOnly(isMemoryCategory(next) ? next : "all");
+                // A note added while one kind is shown is of that kind.
+                if (isMemoryCategory(next)) setDraftCategory(next);
+              }}
+            >
+              <option value="all">{t("allCategories")}</option>
+              {MEMORY_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {t(`categories.${category}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+          {shown.length === 0 ? (
+            <p className="text-fg-muted" aria-live="polite">
+              {t("noMatch")}
+            </p>
+          ) : (
+            groups.map((group) => (
+              <div key={group.category ?? "all"}>
+                {group.category && <h3 className="pt-2 pb-1 text-xs font-medium text-fg-muted">{t(`categories.${group.category}`)}</h3>}
+                <ul className="divide-y divide-border border-y border-border">{group.notes.map(row)}</ul>
+              </div>
+            ))
           )}
-        </ul>
+        </>
       )}
       {changes && (
         <>
@@ -317,10 +647,28 @@ function NoteList({
               disabled={full}
               onChange={(e) => setDraft(e.target.value)}
             />
+            {kindSelect(draftCategory, setDraftCategory, full)}
             <Button type="submit" variant="primary" disabled={busy || full || !draft.trim()}>
               {t("add")}
             </Button>
           </form>
+          {!full &&
+            (draftDetails === null ? (
+              <Button size="sm" variant="ghost" className="-mt-1" onClick={() => setDraftDetails("")}>
+                {t("addDetails")}
+              </Button>
+            ) : (
+              <textarea
+                autoFocus
+                aria-label={t("detailsLabel")}
+                placeholder={t("detailsPlaceholder")}
+                className={cn(textareaClass, "min-h-16")}
+                rows={3}
+                value={draftDetails}
+                maxLength={MAX_MEMORY_DETAILS_CHARS}
+                onChange={(e) => setDraftDetails(e.target.value)}
+              />
+            ))}
           <div className="flex items-center justify-between gap-2 text-xs text-fg-muted">
             <span>{t("count", { count: notes.length, max: MAX_MEMORIES })}</span>
             {notes.length > 0 && (

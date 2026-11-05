@@ -3,6 +3,12 @@
   "heading": "Habilidades",
   "description": "Las instrucciones que tu equipo reutiliza, guardadas como páginas: resumir notas de reunión, responder a un cliente, clasificar una solicitud. Elige una en el chat de IA con / o desde una app de IA conectada al espacio de trabajo. Cada habilidad es una página o una fila de base de datos; cada persona ve las habilidades que puede abrir.",
   "new": "Nueva habilidad",
+  "import": {
+    "button": "Importar",
+    "label": "Importar habilidades desde archivos SKILL.md, Markdown o ZIP",
+    "done": "{count, plural, one {# habilidad importada.} other {# habilidades importadas.}}",
+    "skippedFiles": "{count, plural, one {Se omitió # archivo adjunto.} other {Se omitieron # archivos adjuntos.}}"
+  },
   "search": "Buscar habilidades",
   "count": "{count, plural, one {# habilidad} other {# habilidades}}",
   "noMatches": "Ninguna habilidad coincide con tu búsqueda.",
@@ -50,7 +56,13 @@
     "template": "Las plantillas y las páginas que contienen no pueden ser habilidades.",
     "inTrash": "Primero restaura la página desde la papelera.",
     "tooLong": "La descripción de una habilidad puede tener como máximo {max} caracteres.",
-    "notASkill": "Esta página ya no es una habilidad."
+    "notASkill": "Esta página ya no es una habilidad.",
+    "importTooLarge": "La subida puede tener como máximo {mb} MB.",
+    "badFile": "No se puede leer ese archivo. Elige un SKILL.md, un archivo Markdown o un ZIP de carpetas de habilidades.",
+    "noSkills": "No se encontró ningún archivo SKILL.md ni Markdown.",
+    "tooManySkills": "Importa como máximo {max} habilidades a la vez.",
+    "skillTooLong": "Una habilidad de la subida es demasiado larga.",
+    "busy": "Hay otra importación en curso. Inténtalo cuando termine."
   },
   "database": {
     "title": "Habilidades",

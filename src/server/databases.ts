@@ -64,7 +64,7 @@ import { dateMarker } from "@/lib/template-values";
 import { checkedPrefix, claimPrefix, refuseSecondUniqueId } from "@/server/unique-ids";
 import { formatUniqueId, uniqueIdPrefix } from "@/lib/unique-id";
 import { cleanRowButtonOptions, type RowButtonOptions } from "@/lib/row-buttons";
-import { canRestrict, namesPeople } from "@/lib/property-access";
+import { atLeast, canRestrict, namesPeople } from "@/lib/property-access";
 import { moveGroupValue } from "@/lib/grouping";
 import {
   canBeParent,
@@ -2875,6 +2875,8 @@ async function retypeProperty(
         .where(and(eq(page.parentId, target.id), eq(page.isTemplate, false), isNull(page.archivedAt), childVisibleTo(userId, target.id)))
     : undefined;
   const properties = isDerived(prop.type) ? await getProperties(prop.databaseId) : [];
+  // Who may see which values, for options made from them (see plan).
+  const optionAccess = holdsOptions(input.type) ? await propertyAccessFor(userId, prop.databaseId) : null;
 
   // What the values are now and what they become. Rows are read with `lock` in the transaction
   // that writes them, so a cell saved since can't be overwritten with what an older value became.
@@ -2911,6 +2913,15 @@ async function retypeProperty(
           ? (derived.get(row.id) ?? null)
           : row.properties[propertyId];
     const values = rows.map(current);
+    // Options are made from the values, and everyone sees options: from values the user can't see
+    // (rows hidden from them, cells their property access hides) they would learn what those hold.
+    // Made from the seen values only, the others would be lost in the change instead.
+    if (optionAccess) {
+      const hidden = rows.some(
+        (row, i) => !isEmptyValue(values[i]) && (!visible.has(row.id) || !atLeast(optionAccess.levelOf(propertyId, row), "view")),
+      );
+      if (hidden) throw new PropertyValueError(`Some values of "${prop.name}" are hidden from you`, "typeChangeHidden", { property: prop.name });
+    }
 
     // People and related rows, as far as the user may see them (read from the rows' values too).
     const members = await workspacePeopleOf(prop.databaseId);
