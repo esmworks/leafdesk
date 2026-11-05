@@ -31,7 +31,6 @@ try {
 
 const HOST = "127.0.0.1";
 const CONTAINER = "leafdesk-greenmail-followups";
-process.env.MAIL_ALLOWED_HOSTS = HOST;
 
 /** A port nothing listens on now. */
 function freePort(): Promise<number> {
@@ -48,6 +47,8 @@ function freePort(): Promise<number> {
 const given = process.env.GREENMAIL_SMTP_PORT && process.env.GREENMAIL_IMAP_PORT;
 const SMTP_PORT = given ? Number(process.env.GREENMAIL_SMTP_PORT) : await freePort();
 const IMAP_PORT = given ? Number(process.env.GREENMAIL_IMAP_PORT) : await freePort();
+// The test server by host and port: a bare host on MAIL_ALLOWED_HOSTS allows mail's own ports only.
+process.env.MAIL_ALLOWED_HOSTS = `${HOST}:${SMTP_PORT},${HOST}:${IMAP_PORT}`;
 const docker = (...args: string[]) => execFileSync("docker", args, { stdio: ["ignore", "pipe", "pipe"] }).toString().trim();
 if (!given) {
   try {

@@ -21,10 +21,10 @@
  *   docker run -d --name leafdesk-greenmail -p 3025:3025 -p 3143:3143 \
  *     -e GREENMAIL_OPTS="-Dgreenmail.setup.test.smtp -Dgreenmail.setup.test.imap -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled" \
  *     greenmail/standalone:2.1.14
- *   MAIL_ALLOWED_HOSTS=127.0.0.1 pnpm tsx scripts/row-mail-e2e.ts
+ *   pnpm tsx scripts/row-mail-e2e.ts
  *
  * Env: DATABASE_URL (read from .env when present), MAIL_ALLOWED_HOSTS naming the test server's
- * host, GREENMAIL_HOST (127.0.0.1), GREENMAIL_SMTP_PORT (3025) and GREENMAIL_IMAP_PORT (3143).
+ * host and ports (by default the two below), GREENMAIL_HOST (127.0.0.1), GREENMAIL_SMTP_PORT (3025) and GREENMAIL_IMAP_PORT (3143).
  * Migrations must be applied. Run it while no app server uses the same database: the server's own
  * sweeps would read the mailbox and send the queue.
  */
@@ -37,7 +37,7 @@ try {
 const HOST = process.env.GREENMAIL_HOST ?? "127.0.0.1";
 const SMTP_PORT = Number(process.env.GREENMAIL_SMTP_PORT ?? 3025);
 const IMAP_PORT = Number(process.env.GREENMAIL_IMAP_PORT ?? 3143);
-process.env.MAIL_ALLOWED_HOSTS ||= HOST;
+process.env.MAIL_ALLOWED_HOSTS ||= `${HOST}:${SMTP_PORT},${HOST}:${IMAP_PORT}`;
 process.env.MAIL_GOOGLE_CLIENT_ID = "e2e-client";
 process.env.MAIL_GOOGLE_CLIENT_SECRET = "e2e-secret";
 process.env.MAIL_MICROSOFT_CLIENT_ID = "e2e-ms-client";
