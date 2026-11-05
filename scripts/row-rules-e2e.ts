@@ -167,6 +167,23 @@ try {
   check((await levels(D3, alice)) === "comment", "a row's own sharing still counts on a restricted row");
 
   // Property changes
+  // Options are made from a property's values: from rows hidden from the one changing it, they
+  // would show everyone what those hold.
+  const code = await addProperty(owner, D, { name: "Code", type: "text" });
+  await updateRowProperties(owner, D1, { Code: "ALICECODE" });
+  await updateRowProperties(owner, D2, { Code: "HIDDENCODE" });
+  await rejects(
+    () => changePropertyType(alice, code.id, { type: "select", yes: "Yes" }, { dryRun: true }),
+    (e) => e instanceof PropertyValueError && e.code === "typeChangeHidden",
+    "values in rows hidden from an editor don't become options",
+  );
+  const retyped = await changePropertyType(owner, code.id, { type: "select", yes: "Yes" }, { dryRun: true });
+  check(
+    retyped.property.options.options?.map((o) => o.name).sort().join() === "ALICECODE,HIDDENCODE",
+    "…for someone who sees every row they do",
+    retyped.property.options,
+  );
+  await deleteProperty(owner, code.id);
   await rejects(
     () => changePropertyType(owner, assignee.id, { type: "text", yes: "Yes" }),
     (e) => e instanceof PropertyValueError && e.code === "typeChangeNamesPeople",

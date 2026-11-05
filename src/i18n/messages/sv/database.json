@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Den här egenskapen kan inte ha egen åtkomst.",
     "typeChangeRestricted": "”{property}” har åtkomstregler, och egenskaper av den typen kan inte ha det. Ta bort dess regler först.",
     "typeChangeNamesPeople": "Åtkomstregler ger personerna i ”{property}” åtkomst. Ta bort de reglerna innan du byter typ.",
+    "typeChangeHidden": "Några värden i ”{property}” är dolda för dig, och de skulle bli dess alternativ. Någon som ser alla rader och värden kan byta typ.",
     "invalidRowAccess": "De här reglerna för radåtkomst kan inte sparas. Läs in igen och försök på nytt.",
     "invalidAutomation": "Den här automatiseringen kan inte sparas. Kontrollera dess utlösare och åtgärder.",
     "tooManyAutomations": "En databas kan ha högst {max} automatiseringar.",

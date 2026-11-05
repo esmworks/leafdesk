@@ -62,6 +62,14 @@
 
 ### Fixed
 
+- **Turning a property into a select no longer shows values hidden from you.** Its options are
+  made from the values, and an editor who can't see some rows (row access) changed the type and
+  read, in the new options or in a dry run, what those rows held. A change that would make options
+  from values hidden from the person is refused, with a message saying why; someone who sees every
+  row can make it.
+- **Health's "remove from relation" no longer tells what a hidden value holds.** On a property
+  whose values were hidden from them, its answer showed whether a value held a given person or
+  option; it now acts only on relations whose values the person may change.
 - **Threshold automations no longer hold up the server's database connections.** Checking one
   kept a transaction open while it read the whole view on a second connection, so writes to
   several databases with threshold automations at once could take every connection and leave the

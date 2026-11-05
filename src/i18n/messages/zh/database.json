@@ -1141,6 +1141,7 @@
     "cannotRestrict": "此属性不能设置单独的访问权限。",
     "typeChangeRestricted": "“{property}”设有访问规则，而该类型的属性不能设置访问规则。请先移除其规则。",
     "typeChangeNamesPeople": "访问规则为“{property}”中的人员授予了访问权限。更改其类型前请先移除这些规则。",
+    "typeChangeHidden": "“{property}”的部分值对你隐藏，而它们会成为其选项。能看到所有行和值的人可以更改其类型。",
     "invalidRowAccess": "无法保存这些行访问规则。请刷新后重试。",
     "invalidAutomation": "无法保存此自动化。请检查其触发条件和操作。",
     "tooManyAutomations": "一个数据库最多可以有 {max} 个自动化。",

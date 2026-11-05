@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Properti ini tidak dapat memiliki akses sendiri.",
     "typeChangeRestricted": "“{property}” memiliki aturan akses, dan properti bertipe itu tidak dapat memilikinya. Hapus aturannya terlebih dahulu.",
     "typeChangeNamesPeople": "Aturan akses memberi akses kepada orang di “{property}”. Hapus aturan itu sebelum mengubah tipenya.",
+    "typeChangeHidden": "Sebagian nilai “{property}” tersembunyi dari Anda, dan nilai itu akan menjadi opsinya. Orang yang melihat semua baris dan nilai dapat mengubah tipenya.",
     "invalidRowAccess": "Aturan akses baris ini tidak dapat disimpan. Muat ulang dan coba lagi.",
     "invalidAutomation": "Otomatisasi ini tidak dapat disimpan. Periksa pemicu dan tindakannya.",
     "tooManyAutomations": "Basis data dapat memiliki paling banyak {max} otomatisasi.",
