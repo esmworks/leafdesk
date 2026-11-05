@@ -3,6 +3,12 @@
   "heading": "Färdigheter",
   "description": "Instruktioner som ditt team återanvänder, sparade som sidor: hur man sammanfattar mötesanteckningar, svarar en kund eller sorterar ett ärende. Välj en i AI-chatten med / eller från en AI-app som är ansluten till arbetsytan. Varje färdighet är en sida eller databasrad; personer ser de färdigheter de kan öppna.",
   "new": "Ny färdighet",
+  "import": {
+    "button": "Importera",
+    "label": "Importera färdigheter från SKILL.md-, Markdown- eller ZIP-filer",
+    "done": "{count, plural, one {# färdighet importerad.} other {# färdigheter importerade.}}",
+    "skippedFiles": "{count, plural, one {# fil bredvid lämnades utanför.} other {# filer bredvid lämnades utanför.}}"
+  },
   "search": "Sök färdigheter",
   "count": "{count, plural, one {# färdighet} other {# färdigheter}}",
   "noMatches": "Ingen färdighet matchar din sökning.",
@@ -50,7 +56,13 @@
     "template": "Mallar och sidorna i dem kan inte vara färdigheter.",
     "inTrash": "Återställ först sidan från papperskorgen.",
     "tooLong": "En färdighets beskrivning får vara högst {max} tecken.",
-    "notASkill": "Den här sidan är inte längre en färdighet."
+    "notASkill": "Den här sidan är inte längre en färdighet.",
+    "importTooLarge": "Uppladdningen får vara högst {mb} MB.",
+    "badFile": "Filen kan inte läsas. Välj en SKILL.md, en Markdown-fil eller en ZIP med färdighetsmappar.",
+    "noSkills": "Ingen SKILL.md- eller Markdown-fil hittades.",
+    "tooManySkills": "Importera högst {max} färdigheter åt gången.",
+    "skillTooLong": "En färdighet i uppladdningen är för lång.",
+    "busy": "En annan import pågår fortfarande. Försök igen när den är klar."
   },
   "database": {
     "title": "Färdigheter",

@@ -3,6 +3,12 @@
   "heading": "Taidot",
   "description": "Ohjeet, joita tiimisi käyttää uudelleen, sivuina tallennettuina: miten kokousmuistiinpanoista tehdään yhteenveto, miten asiakkaalle vastataan tai miten pyyntö luokitellaan. Valitse taito tekoälychatissa /-merkillä tai työtilaan yhdistetystä tekoälysovelluksesta. Jokainen taito on sivu tai tietokannan rivi; käyttäjät näkevät ne taidot, jotka he voivat avata.",
   "new": "Uusi taito",
+  "import": {
+    "button": "Tuo",
+    "label": "Tuo taitoja SKILL.md-, Markdown- tai ZIP-tiedostoista",
+    "done": "{count, plural, one {# taito tuotiin.} other {# taitoa tuotiin.}}",
+    "skippedFiles": "{count, plural, one {# liitetiedosto jätettiin pois.} other {# liitetiedostoa jätettiin pois.}}"
+  },
   "search": "Hae taitoja",
   "count": "{count, plural, one {# taito} other {# taitoa}}",
   "noMatches": "Haullasi ei löytynyt taitoja.",
@@ -50,7 +56,13 @@
     "template": "Mallit ja niiden sivut eivät voi olla taitoja.",
     "inTrash": "Palauta sivu ensin roskakorista.",
     "tooLong": "Taidon kuvauksessa voi olla enintään {max} merkkiä.",
-    "notASkill": "Tämä sivu ei ole enää taito."
+    "notASkill": "Tämä sivu ei ole enää taito.",
+    "importTooLarge": "Lähetys voi olla enintään {mb} Mt.",
+    "badFile": "Tiedostoa ei voi lukea. Valitse SKILL.md, Markdown-tiedosto tai taitokansioiden ZIP.",
+    "noSkills": "SKILL.md- tai Markdown-tiedostoa ei löytynyt.",
+    "tooManySkills": "Tuo enintään {max} taitoa kerralla.",
+    "skillTooLong": "Lähetyksen taito on liian pitkä.",
+    "busy": "Toinen tuonti on vielä käynnissä. Yritä uudelleen, kun se on valmis."
   },
   "database": {
     "title": "Taidot",

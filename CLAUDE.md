@@ -163,6 +163,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   OpenAPI document is generated from it. Bearer tokens only (`api/tokens.ts`). `defineRoute` makes
   each query and body schema `.strict()`, so a field a route doesn't name answers 400 (a script
   sending a path's id in the body too gets one).
+- **Skills** (`server/skills.ts`, pure part `lib/skills.ts`): pages or rows marked as reusable
+  instructions; SKILL.md export is the page export route's `format=skill`, import is
+  `api/skills/import` → `server/skill-import.ts` (unpacked by `import/archive.ts` `collectFiles`, read
+  by hand in `lib/skill-import.ts`, rows made by `createSkill`).
 - **AI.** `src/server/ai/index.ts` is the only door to the model library: `complete`, `stream`,
   `embed`, `transcribe`, with limits and usage built in. The AI chat and agents' chats are one
   `ChatThread` (`components/ai-chat/chat-thread.tsx`, which takes a `ThreadChat`): an agent's

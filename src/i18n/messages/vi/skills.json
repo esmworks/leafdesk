@@ -3,6 +3,12 @@
   "heading": "Kỹ năng",
   "description": "Các hướng dẫn nhóm của bạn dùng lại, được lưu dưới dạng trang: cách hoàn thiện ghi chú cuộc họp, trả lời khách hàng hoặc phân loại một yêu cầu. Chọn một kỹ năng trong trò chuyện AI bằng /, hoặc từ một ứng dụng AI được kết nối với không gian làm việc. Mỗi kỹ năng là một trang hoặc một hàng cơ sở dữ liệu; mọi người thấy những kỹ năng họ có thể mở.",
   "new": "Kỹ năng mới",
+  "import": {
+    "button": "Nhập",
+    "label": "Nhập kỹ năng từ tệp SKILL.md, Markdown hoặc ZIP",
+    "done": "{count, plural, other {Đã nhập # kỹ năng.}}",
+    "skippedFiles": "{count, plural, other {Đã bỏ qua # tệp đi kèm.}}"
+  },
   "search": "Tìm kỹ năng",
   "count": "{count, plural, other {# kỹ năng}}",
   "noMatches": "Không có kỹ năng nào khớp với tìm kiếm của bạn.",
@@ -50,7 +56,13 @@
     "template": "Các mẫu và những trang trong đó không thể là kỹ năng.",
     "inTrash": "Hãy khôi phục trang từ thùng rác trước.",
     "tooLong": "Mô tả của một kỹ năng có tối đa {max} ký tự.",
-    "notASkill": "Trang này không còn là kỹ năng nữa."
+    "notASkill": "Trang này không còn là kỹ năng nữa.",
+    "importTooLarge": "Tệp tải lên tối đa {mb} MB.",
+    "badFile": "Không đọc được tệp này. Hãy chọn SKILL.md, tệp Markdown hoặc ZIP chứa các thư mục kỹ năng.",
+    "noSkills": "Không tìm thấy tệp SKILL.md hay Markdown nào.",
+    "tooManySkills": "Mỗi lần nhập tối đa {max} kỹ năng.",
+    "skillTooLong": "Một kỹ năng trong tệp tải lên quá dài.",
+    "busy": "Một lần nhập khác vẫn đang chạy. Hãy thử lại khi nó xong."
   },
   "database": {
     "title": "Kỹ năng",

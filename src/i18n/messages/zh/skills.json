@@ -3,6 +3,12 @@
   "heading": "技能",
   "description": "团队反复使用的说明，以页面形式保存：如何整理会议记录、回复客户或分拣请求。在 AI 聊天中输入 / 选择，或从连接到工作区的 AI 应用中选择。每个技能都是一个页面或数据库行；每个人能看到自己可以打开的技能。",
   "new": "新建技能",
+  "import": {
+    "button": "导入",
+    "label": "从 SKILL.md、Markdown 或 ZIP 文件导入技能",
+    "done": "{count, plural, other {已导入 # 个技能。}}",
+    "skippedFiles": "{count, plural, other {已略过 # 个附带文件。}}"
+  },
   "search": "搜索技能",
   "count": "{count} 个技能",
   "noMatches": "没有与你的搜索匹配的技能。",
@@ -50,7 +56,13 @@
     "template": "模板及其中的页面不能作为技能。",
     "inTrash": "请先从回收站恢复该页面。",
     "tooLong": "技能描述最多 {max} 个字符。",
-    "notASkill": "此页面已不再是技能。"
+    "notASkill": "此页面已不再是技能。",
+    "importTooLarge": "上传最多 {mb} MB。",
+    "badFile": "无法读取该文件。请选择 SKILL.md、Markdown 文件或包含技能文件夹的 ZIP。",
+    "noSkills": "未找到 SKILL.md 或 Markdown 文件。",
+    "tooManySkills": "一次最多导入 {max} 个技能。",
+    "skillTooLong": "上传中的某个技能过长。",
+    "busy": "另一个导入仍在进行。完成后再试。"
   },
   "database": {
     "title": "技能",

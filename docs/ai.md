@@ -988,6 +988,17 @@ list until it is restored.
   downloads `<name>.zip` holding `<name>/SKILL.md`: front matter with the name and description,
   then the body as Markdown with links to the app in full: the folder layout AI assistants install
   skills from.
+- **Import**: *Import* in the library (for those who can make skills there) takes SKILL.md and other
+  Markdown files and ZIPs of skill folders (what *Export as SKILL.md* writes, or several such
+  folders; up to 20 MB and 20 skills at once). Each SKILL.md becomes a row of your skills database:
+  its front matter's `description` in *Description*, its body as the page, the title from its first
+  `#` heading or else its `name` made readable (`release-notes` → *Release notes*), and the other
+  files of its folder (scripts, references, templates; up to 20) in *Files*, within the workspace's
+  file limits. An upload without a SKILL.md brings each top-level Markdown file as a skill; files at
+  a ZIP's top level beside skill folders are left alone. One skill opens when imported; several are
+  listed, with a count of files left out. Over HTTP it is `POST /api/skills/import` (a multipart
+  form of `workspaceId` and `file`s, with the `X-Leafdesk-Import` header), one import at a time per
+  person, as for other imports.
 
 ## Snippets
 

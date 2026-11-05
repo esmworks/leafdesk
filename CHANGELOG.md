@@ -29,6 +29,11 @@
   `remember` and MCP's `change_memory` take `details`, `list_memory` shows them, and the Memory
   page adds, changes, folds and searches them (migration 0195).
 
+- **Import skills from SKILL.md files.** *Import* in the skills library takes SKILL.md and other
+  Markdown files and ZIPs of skill folders, as AI assistants keep them and as *Export as SKILL.md*
+  writes them. Each skill becomes a row of your skills database with its description, its
+  instructions as the page and the other files of its folder in *Files*.
+
 ### Changed
 
 - **Long menus are shorter.** A column's menu puts freezing, wrapping text and alignment under

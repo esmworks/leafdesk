@@ -3,6 +3,12 @@
   "heading": "Competenze",
   "description": "Istruzioni che il tuo team riutilizza, conservate come pagine: come riepilogare una riunione, rispondere a un cliente o smistare una richiesta. Scegline una nella chat IA con / oppure da un’app di IA collegata allo spazio di lavoro. Ogni competenza è una pagina o una riga di database; ognuno vede le competenze che può aprire.",
   "new": "Nuova competenza",
+  "import": {
+    "button": "Importa",
+    "label": "Importa abilità da file SKILL.md, Markdown o ZIP",
+    "done": "{count, plural, one {# abilità importata.} other {# abilità importate.}}",
+    "skippedFiles": "{count, plural, one {# file accanto è stato escluso.} other {# file accanto sono stati esclusi.}}"
+  },
   "search": "Cerca competenze",
   "count": "{count, plural, one {# competenza} other {# competenze}}",
   "noMatches": "Nessuna competenza corrisponde alla ricerca.",
@@ -50,7 +56,13 @@
     "template": "I modelli e le pagine al loro interno non possono essere competenze.",
     "inTrash": "Prima ripristina la pagina dal cestino.",
     "tooLong": "La descrizione di una competenza può avere al massimo {max} caratteri.",
-    "notASkill": "Questa pagina non è più una competenza."
+    "notASkill": "Questa pagina non è più una competenza.",
+    "importTooLarge": "Il caricamento può essere al massimo di {mb} MB.",
+    "badFile": "Impossibile leggere il file. Scegli un SKILL.md, un file Markdown o uno ZIP di cartelle di abilità.",
+    "noSkills": "Nessun file SKILL.md o Markdown trovato.",
+    "tooManySkills": "Importa al massimo {max} abilità alla volta.",
+    "skillTooLong": "Un'abilità nel caricamento è troppo lunga.",
+    "busy": "Un'altra importazione è ancora in corso. Riprova quando è finita."
   },
   "database": {
     "title": "Competenze",
