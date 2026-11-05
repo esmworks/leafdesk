@@ -62,6 +62,15 @@
 
 ### Fixed
 
+- **Threshold automations no longer hold up the server's database connections.** Checking one
+  kept a transaction open while it read the whole view on a second connection, so writes to
+  several databases with threshold automations at once could take every connection and leave the
+  server waiting. The view is read first, and the checks after writes run one database at a time.
+- **A synced database no longer runs twice at once.** The sweep took ten due syncs together and ran
+  them one after another; one whose turn came after its hold ran out could be started again by
+  *Sync now* meanwhile and write the same rows twice. Each sync is held again just before it runs.
+- **One schedule failing no longer skips the others due with it.** A schedule whose run failed to
+  be written left the rest of its batch unrun until their next time.
 - **An app allowed before no longer gets around a workspace's sign-in policy.** The consent page
   sends a session that a workspace holds back (no second step where one is required, a sign-in
   from outside its approved networks, a password where it asks for single sign-on) to meet the
