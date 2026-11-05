@@ -62,6 +62,10 @@
 
 ### Fixed
 
+- **A page whose save failed after its last editor left is saved once the database takes it.**
+  Its changes stayed in the server's memory with nothing to save them again, and a restart lost
+  them. The server now tries again by itself, first after 5 seconds and then every 30. A page that
+  was saved but whose follow-up work failed (links, tasks, tags) is no longer held in memory.
 - **Turning a property into a select no longer shows values hidden from you.** Its options are
   made from the values, and an editor who can't see some rows (row access) changed the type and
   read, in the new options or in a dry run, what those rows held. A change that would make options
