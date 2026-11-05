@@ -15,6 +15,13 @@
 
 ### Changed
 
+- **An owner's *Disconnect* and *Revoke* in Apps that reach this workspace act on that workspace
+  only.** An app or a token for all of a person's workspaces was taken from their account
+  everywhere, by the owner of any one workspace they were in, someone who could also add them to
+  it by email without asking. Now it is cut off from that workspace alone and keeps working in the
+  person's others; an app they connect again comes back. One that reaches only that workspace is
+  still revoked (migration 0194).
+
 - **A bare host name on `PUSH_ALLOWED_HOSTS`, `AI_ALLOWED_HOSTS` or `MAIL_ALLOWED_HOSTS` allows
   its usual ports only.** Anyone signed in gives the address of a push subscription or of their own
   AI account, and any member the servers of their mailbox, so a host listed by name could be

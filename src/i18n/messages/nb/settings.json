@@ -1701,7 +1701,7 @@
       "disconnect": "Koble fra",
       "revoke": "Tilbakekall",
       "working": "Kobler fra…",
-      "confirmEverywhere": "{kind, select, api_token {Vil du tilbakekalle tokenet {name} som tilhører {person}? Det slutter å fungere i alle arbeidsområdene deres.} other {Vil du koble {name} fra kontoen til {person}? Den mister tilgangen til alle arbeidsområdene deres til de kobler den til igjen.}}",
+      "confirmCutOff": "{kind, select, api_token {Kutte {person}s token {name} fra dette arbeidsområdet? Alle andre steder den når, fortsetter den å virke.} other {Koble {name} fra dette arbeidsområdet for {person}? De andre arbeidsområdene beholder den, og kobles den til igjen, kommer den tilbake hit.}}",
       "confirmHere": "Vil du tilbakekalle tokenet {name} som tilhører {person}? Det slutter å fungere.",
       "error": "Kunne ikke koble den fra. Prøv igjen.",
       "gone": "Den er allerede koblet fra, eller når ikke lenger dette arbeidsområdet.",

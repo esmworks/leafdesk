@@ -1701,7 +1701,7 @@
       "disconnect": "Ngắt kết nối",
       "revoke": "Thu hồi",
       "working": "Đang ngắt kết nối…",
-      "confirmEverywhere": "{kind, select, api_token {Thu hồi token {name} của {person}? Nó ngừng hoạt động trong mọi không gian làm việc của họ.} other {Ngắt kết nối {name} khỏi tài khoản của {person}? Nó mất quyền truy cập mọi không gian làm việc của họ cho đến khi họ kết nối lại.}}",
+      "confirmCutOff": "{kind, select, api_token {Cắt mã {name} của {person} khỏi không gian làm việc này? Ở mọi nơi khác nó vươn tới, nó vẫn hoạt động.} other {Ngắt {name} khỏi không gian làm việc này cho {person}? Các không gian làm việc khác vẫn giữ nó, và kết nối lại sẽ đưa nó trở lại đây.}}",
       "confirmHere": "Thu hồi token {name} của {person}? Nó sẽ ngừng hoạt động.",
       "error": "Không thể ngắt kết nối. Hãy thử lại.",
       "gone": "Nó đã được ngắt kết nối, hoặc không còn truy cập được không gian làm việc này.",
