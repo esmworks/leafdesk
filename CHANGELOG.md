@@ -78,6 +78,22 @@
 
 ### Fixed
 
+- **Rate limits on public forms and reports count an IPv6 visitor by their network.** A visitor
+  could step through the addresses of their own /64, which a provider hands one subscriber whole,
+  and start every limit over. The address itself still counts for IPv4.
+- **A public form's "already used" error names the question, not the property behind it.** A
+  form asking about a property its visitors can't see showed that property's own name when the
+  answer repeated another row's value.
+- **Downloads of files from other sites are limited to 120 every 10 minutes per person.** The
+  server fetched any web address for anyone who could view a page, enough to use it to fetch the
+  web for them.
+- **An MCP app's *draft_agent* is refused where connected apps may only read.** It saves nothing
+  but spends the workspace's AI.
+- **Background work that could run twice no longer does.** An automation run waiting in a batch
+  behind slow ones could look abandoned to a second server, and the hourly file cleanup could start
+  while the last one was still deleting. A page webhook delivery that failed inside the server
+  (not at its address) was tried again every five minutes for good; it now ends like one whose
+  address keeps failing.
 - **A page whose save failed after its last editor left is saved once the database takes it.**
   Its changes stayed in the server's memory with nothing to save them again, and a restart lost
   them. The server now tries again by itself, first after 5 seconds and then every 30. A page that

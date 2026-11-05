@@ -1,3 +1,4 @@
+import { ipRateKey } from "@/lib/client-ip";
 import { and, desc, eq, gt, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { page, pagePublication, pageReport } from "@/db/schema";
@@ -55,8 +56,9 @@ export async function reportPublishedPage(
   key: string,
   pageId: string,
   input: ReportInput,
-  { userId = null, ip, now = new Date() }: { userId?: string | null; ip: string; now?: Date },
+  { userId = null, ip: address, now = new Date() }: { userId?: string | null; ip: string; now?: Date },
 ): Promise<void> {
+  const ip = ipRateKey(address);
   if (!isReportReason(input.reason)) throw new ReportError("invalid");
   const details = typeof input.details === "string" ? input.details.trim().slice(0, MAX_REPORT_DETAILS) : "";
   const email = typeof input.email === "string" ? input.email.trim() : "";
