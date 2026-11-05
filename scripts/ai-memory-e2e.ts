@@ -213,9 +213,34 @@ try {
   check(memoryOf(fake.chats[0])?.includes(`- (memory_id ${tableNote.id}) [preference] Wants answers as short tables.`), "…and the model reads the kind with the note", memoryOf(fake.chats[0]));
   const notOther = (await notesOf(alice)).find((m) => m.id === kept.id);
   check(notOther?.category === "other" && memoryOf(fake.chats[0])?.includes(`- (memory_id ${kept.id}) Leads the brand team.`), "a note of no kind is other, shown without one");
-  const retyped = await updateMemory(alice, workspaceId, tableNote.id, "Wants answers as short tables.", "work");
+  const retyped = await updateMemory(alice, workspaceId, tableNote.id, "Wants answers as short tables.", { category: "work" });
   check(retyped.category === "work" && retyped.text === "Wants answers as short tables.", "the Memory view changes a note's kind, its text as it was", retyped);
   await deleteMemories(alice, workspaceId, [tableNote.id]);
+
+  // ── A note's details ────────────────────────────────────────────────────────────────────────
+  const budgetDetails = "Due December 12.\nSend the draft to Finance first.";
+  fake.setChat(caller([{ name: "remember", arguments: { text: "Q4 budget review", category: "work", details: `  ${budgetDetails}\n\n\n` } }]));
+  await ask(alice, { workspaceId, message: "Remember the Q4 budget review: due December 12, the draft goes to Finance first" });
+  const budget = (await notesOf(alice)).find((m) => m.text === "Q4 budget review");
+  check(budget?.details === budgetDetails, "remember keeps a note's details, trimmed", budget);
+  fake.setChat(caller([{ name: "read_memory", arguments: { query: "budget finance" } }]));
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "What did I say about the budget?" });
+  const budgetMemory = memoryOf(fake.chats[0]) ?? "";
+  check(budgetMemory.includes("[work] Q4 budget review (has details)") && !budgetMemory.includes("Finance"), "a question carries the note's line, marked, without its details", budgetMemory);
+  check(toolNames(fake.chats[0]).includes("read_memory"), "…and is offered read_memory for them, though every note fits", toolNames(fake.chats[0]));
+  check(
+    toolResults(fake.chats.at(-1)!).some((r) => r.includes("(person) [work] Q4 budget review") && r.includes("Send the draft to Finance first.")),
+    "read_memory finds the note by its words, saying whose it is, with its details",
+    toolResults(fake.chats.at(-1)!),
+  );
+  const keptDetails = await updateMemory(alice, workspaceId, budget.id, "Q4 budget review (finance)");
+  check(keptDetails.details === budgetDetails && keptDetails.category === "work", "changing a note's line leaves its kind and details as they were", keptDetails);
+  const longDetails = await updateMemory(alice, workspaceId, budget.id, "Q4 budget review", { details: "x".repeat(2001) }).catch((e) => e);
+  check(longDetails instanceof MemoryError && longDetails.code === "detailsTooLong", "details longer than the limit are refused");
+  const droppedDetails = await updateMemory(alice, workspaceId, budget.id, "Q4 budget review", { details: "  " });
+  check(droppedDetails.details === null, "…and empty ones drop them");
+  await deleteMemories(alice, workspaceId, [budget.id]);
 
   // ── Switched off by the person ──────────────────────────────────────────────────────────────
   const offers = (request: FakeChatRequest) => toolNames(request).includes("remember") || toolNames(request).includes("forget");

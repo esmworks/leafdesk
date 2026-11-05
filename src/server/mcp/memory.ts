@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { MAX_MEMORIES, MAX_MEMORY_CHARS, MEMORY_CATEGORIES, type MemoryPlaceView, type MemoryView, type SharedNoteView } from "@/lib/ai-chat";
+import { MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, MEMORY_CATEGORIES, type MemoryPlaceView, type MemoryView, type SharedNoteView } from "@/lib/ai-chat";
 import { MemoryError, memoryOff } from "@/server/ai-memory";
 import { id } from "@/server/operations";
 import { ToolInputError } from "./format";
@@ -28,6 +28,7 @@ export const memoryInputs = {
       .enum(MEMORY_CATEGORIES)
       .optional()
       .describe("add, update: what it is about (default other)."),
+    details: z.string().max(MAX_MEMORY_DETAILS_CHARS).optional().describe("add, update: the note in full (\"\" drops it)."),
     memory_id: memoryIdInput.optional().describe("update: the note's memory_id, from list_memory."),
     memory_ids: z.array(memoryIdInput).min(1).max(MAX_MEMORIES).optional().describe("delete: the memory_ids of the notes to forget, from list_memory."),
     all: z.boolean().default(false).describe("delete: forget every note of that scope instead."),
@@ -63,6 +64,8 @@ export async function withMemoryErrors<T>(fn: () => Promise<T>): Promise<T> {
           );
         case "tooLong":
           throw new ToolInputError(`A note has at most ${MAX_MEMORY_CHARS} characters. Make it shorter.`);
+        case "detailsTooLong":
+          throw new ToolInputError(`A note's details have at most ${MAX_MEMORY_DETAILS_CHARS} characters. Make them shorter.`);
         case "empty":
           throw new ToolInputError("A note needs text.");
         case "off":
@@ -77,7 +80,7 @@ export async function withMemoryErrors<T>(fn: () => Promise<T>): Promise<T> {
 
 /** A note as list_memory shows it. */
 export function describeNote(note: MemoryView) {
-  return { memory_id: note.id, text: note.text, category: note.category, ...(note.app ? { kept_by_app: note.app } : {}), created_at: note.createdAt, updated_at: note.updatedAt };
+  return { memory_id: note.id, text: note.text, category: note.category, ...(note.details ? { details: note.details } : {}), ...(note.app ? { kept_by_app: note.app } : {}), created_at: note.createdAt, updated_at: note.updatedAt };
 }
 
 /** The user's memory in a workspace as list_memory shows it: the notes while it is on; while off, why and how many. */

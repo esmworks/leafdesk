@@ -3852,6 +3852,15 @@ describe("the user's memory", () => {
     expect((await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", memory_ids: ["m-4"], category: "work" })).isError).toBe(true);
   });
 
+  it("passes a note's details on, an empty text dropping them, and refuses them on delete", async () => {
+    personalMemory.writeNote.mockResolvedValue({ ...row("m-4", "Q4 budget review"), category: "work" });
+    await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "update", memory_id: "m-4", text: "Q4 budget review", details: "Due December 12." });
+    expect(personalMemory.writeNote).toHaveBeenLastCalledWith("user-1", "ws-1", "Q4 budget review", { replaces: "m-4", details: "Due December 12.", app: "client-1" });
+    await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "update", memory_id: "m-4", text: "Q4 budget review", details: "" });
+    expect(personalMemory.writeNote).toHaveBeenLastCalledWith("user-1", "ws-1", "Q4 budget review", { replaces: "m-4", details: "", app: "client-1" });
+    expect((await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", memory_ids: ["m-4"], details: "x" })).isError).toBe(true);
+  });
+
   it("deletes notes by memory_ids or all of them; ids already gone come back under not_found, the same call again doing no harm", async () => {
     const some = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", memory_ids: ["m-1"] });
     expect(personalMemory.deleteMemories).toHaveBeenCalledWith("user-1", "ws-1", ["m-1"]);

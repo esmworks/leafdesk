@@ -20,6 +20,15 @@
   part's notes by kind, filters them by kind, searches them, and sets the kind as you add or change
   a note. Notes kept before are *Other* (migration 0194).
 
+- **Memory notes can have details, and the AI searches its memory.** A note keeps its one line
+  and may carry up to 2,000 characters of details: why, when it applies, the steps. Questions carry
+  only the line, marked as having details, and the chat reads the details with `read_memory` when a
+  question needs them. `read_memory` now searches: the notes with most of the words asked, with their
+  details, across the person's notes here and everywhere, the workspace's and its teamspace's, or
+  one note in full by its id; the chat is offered it whenever a note shown has details. The chat's
+  `remember` and MCP's `change_memory` take `details`, `list_memory` shows them, and the Memory
+  page adds, changes, folds and searches them (migration 0195).
+
 ### Changed
 
 - **Long menus are shorter.** A column's menu puts freezing, wrapping text and alignment under

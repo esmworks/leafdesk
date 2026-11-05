@@ -26,7 +26,7 @@ import { db } from "@/db";
 import { oauthClient, page, sharedMemory, user, workspace } from "@/db/schema";
 import { MAX_MEMORIES, type MemoryCategory, type SharedNoteView, type MemoryPlaceView } from "@/lib/ai-chat";
 import { AccessError, findMembership, getMembership, isGuest } from "@/server/access";
-import { cleanNote, MemoryError, memoryAvailable, sameNote } from "@/server/ai-memory";
+import { cleanDetails, cleanNote, MemoryError, memoryAvailable, sameNote } from "@/server/ai-memory";
 import { recordAudit, type AuditTarget } from "@/server/audit";
 import { heldUserIds } from "@/server/legal-hold";
 import { listTeamspaces, sidebarTeamspaces, teamspaceStanding } from "@/server/teamspaces";
@@ -55,6 +55,7 @@ async function noteViews(workspaceId: string, teamspaceId: Place): Promise<Share
   return rows.map((r) => ({
     id: r.note.id,
     text: r.note.text,
+    details: r.note.details,
     category: r.note.category,
     app: r.app ?? null,
     by: r.by ?? null,
@@ -131,11 +132,12 @@ export async function writeSharedNote(
   workspaceId: string,
   teamspaceId: Place,
   text: string,
-  { replaces = null, app = null, category = null }: { replaces?: string | null; app?: string | null; category?: MemoryCategory | null } = {},
+  { replaces = null, app = null, category = null, details }: { replaces?: string | null; app?: string | null; category?: MemoryCategory | null; details?: string | null } = {},
 ): Promise<Note & { known?: true }> {
   const place = await requirePlace(userId, workspaceId, teamspaceId, true);
   if (!(await memoryAvailable(workspaceId))) throw new MemoryError("off", "The AI memory is turned off in this workspace");
   const note = cleanNote(text);
+  const more = cleanDetails(details);
   const { written, previous } = await db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`shared_memory:${workspaceId}:${teamspaceId ?? ""}`}))`);
     const notes = await notesAt(workspaceId, teamspaceId, tx);
@@ -149,13 +151,13 @@ export async function writeSharedNote(
     if (target) {
       const [changed] = await tx
         .update(sharedMemory)
-        .set({ text: note, ...(category ? { category } : {}), updatedBy: userId, oauthClientId: app, updatedAt: new Date() })
+        .set({ text: note, ...(category ? { category } : {}), ...(more !== undefined ? { details: more } : {}), updatedBy: userId, oauthClientId: app, updatedAt: new Date() })
         .where(eq(sharedMemory.id, target.id))
         .returning();
       return { written: changed as Note & { known?: true }, previous: target };
     }
     if (notes.length >= MAX_MEMORIES) throw new MemoryError("full", `The memory holds at most ${MAX_MEMORIES} notes`);
-    const [made] = await tx.insert(sharedMemory).values({ workspaceId, teamspaceId, text: note, category: category ?? "other", createdBy: userId, updatedBy: userId, oauthClientId: app }).returning();
+    const [made] = await tx.insert(sharedMemory).values({ workspaceId, teamspaceId, text: note, category: category ?? "other", details: more ?? null, createdBy: userId, updatedBy: userId, oauthClientId: app }).returning();
     return { written: made as Note & { known?: true }, previous: null };
   });
   if (!written.known || previous) {

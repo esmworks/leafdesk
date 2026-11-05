@@ -621,17 +621,17 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
 
     // The notes, newest first as far as their shares of the room take them: the workspace's and the
     // teamspace's a quarter each, the person's for all workspaces a little, their own here the
-    // rest. Those that don't fit, and other teamspaces' notes, are read with read_memory, offered
-    // only then (also to an answer taken up again).
+    // rest. Those that don't fit, notes' details and other teamspaces' notes are read with
+    // read_memory, offered only then (also to an answer taken up again).
     const memoryRoom = Math.floor(room() * MEMORY_SHARE);
     const readHint = (layer: string) => `(Older notes don't fit here: read them with ${CHAT_READ_MEMORY_TOOL.name}, layer ${layer}.)`;
     const workspaceNotes = fitNotes(shared.workspace, Math.floor(memoryRoom / 4), readHint("workspace"));
     const roomNotes = shared.teamspace ? fitNotes(shared.teamspace.notes, Math.floor(memoryRoom / 4), readHint(`teamspace, teamspace_id ${shared.teamspace.id}`)) : null;
     const everywhere = fitNotes(accountNotes, Math.floor(memoryRoom / 8), readHint("account"));
     const left = memoryRoom - workspaceNotes.text.length - (roomNotes?.text.length ?? 0) - everywhere.text.length;
-    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.max(0, left)) : { text: "", count: 0, shown: 0 };
-    const cut = [memory, workspaceNotes, everywhere, ...(roomNotes ? [roomNotes] : [])].some((m) => m.shown < m.count);
-    if (cut || otherRooms.some((r) => r.count > 0)) tools.push(CHAT_READ_MEMORY_TOOL);
+    const memory = remembers ? await memoryForPrompt(userId, workspaceId, Math.max(0, left)) : { text: "", count: 0, shown: 0, details: false };
+    const fitted = [memory, workspaceNotes, everywhere, ...(roomNotes ? [roomNotes] : [])];
+    if (fitted.some((m) => m.shown < m.count || m.details) || otherRooms.some((r) => r.count > 0)) tools.push(CHAT_READ_MEMORY_TOOL);
     const notesText = {
       account: everywhere.text,
       workspace: workspaceNotes.text,

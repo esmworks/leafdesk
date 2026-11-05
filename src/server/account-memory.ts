@@ -13,7 +13,7 @@ import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { accountMemory, oauthClient } from "@/db/schema";
 import { MAX_MEMORIES, type MemoryCategory, type MemoryView } from "@/lib/ai-chat";
-import { cleanNote, MemoryError, sameNote } from "@/server/ai-memory";
+import { cleanDetails, cleanNote, MemoryError, sameNote } from "@/server/ai-memory";
 
 type Note = typeof accountMemory.$inferSelect;
 
@@ -36,6 +36,7 @@ export async function accountNotes(userId: string): Promise<MemoryView[]> {
 export const accountView = (m: Note, app: string | null = null): MemoryView => ({
   id: m.id,
   text: m.text,
+  details: m.details,
   category: m.category,
   app,
   createdAt: m.createdAt.toISOString(),
@@ -51,9 +52,10 @@ export const accountView = (m: Note, app: string | null = null): MemoryView => (
 export async function writeAccountNote(
   userId: string,
   text: string,
-  { replaces = null, app = null, category = null }: { replaces?: string | null; app?: string | null; category?: MemoryCategory | null } = {},
+  { replaces = null, app = null, category = null, details }: { replaces?: string | null; app?: string | null; category?: MemoryCategory | null; details?: string | null } = {},
 ): Promise<Note & { known?: true }> {
   const note = cleanNote(text);
+  const more = cleanDetails(details);
   return db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`account_memory:${userId}`}))`);
     const notes = await accountNotesOf(userId, tx);
@@ -65,11 +67,11 @@ export async function writeAccountNote(
       return { ...known, known: true as const };
     }
     if (target) {
-      const [changed] = await tx.update(accountMemory).set({ text: note, ...(category ? { category } : {}), oauthClientId: app, updatedAt: new Date() }).where(eq(accountMemory.id, target.id)).returning();
+      const [changed] = await tx.update(accountMemory).set({ text: note, ...(category ? { category } : {}), ...(more !== undefined ? { details: more } : {}), oauthClientId: app, updatedAt: new Date() }).where(eq(accountMemory.id, target.id)).returning();
       return changed;
     }
     if (notes.length >= MAX_MEMORIES) throw new MemoryError("full", `The memory holds at most ${MAX_MEMORIES} notes`);
-    const [made] = await tx.insert(accountMemory).values({ userId, text: note, category: category ?? "other", oauthClientId: app }).returning();
+    const [made] = await tx.insert(accountMemory).values({ userId, text: note, category: category ?? "other", details: more ?? null, oauthClientId: app }).returning();
     return made;
   });
 }

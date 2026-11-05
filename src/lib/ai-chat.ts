@@ -13,6 +13,11 @@ export const MAX_CONVERSATIONS = 50;
 /** Notes the chat may keep about a person in a workspace (its memory), and the longest one. */
 export const MAX_MEMORIES = 30;
 export const MAX_MEMORY_CHARS = 300;
+/**
+ * The longest details a note may carry under its line: what the note says in full (why, when, how),
+ * read with read_memory when a question needs it, never sent with every question.
+ */
+export const MAX_MEMORY_DETAILS_CHARS = 2000;
 
 /**
  * What a note is about, so the Memory page can group and filter notes and the model sees what it
@@ -26,7 +31,7 @@ export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 export const isMemoryCategory = (value: unknown): value is MemoryCategory => (MEMORY_CATEGORIES as readonly unknown[]).includes(value);
 
 /** A note of the chat's memory, as the Memory view lists it; `app`: the connected app that kept or last changed it, if one did. */
-export type MemoryView = { id: string; text: string; category: MemoryCategory; app: string | null; createdAt: string; updatedAt: string };
+export type MemoryView = { id: string; text: string; details: string | null; category: MemoryCategory; app: string | null; createdAt: string; updatedAt: string };
 
 /**
  * Where a note the chat keeps or drops goes, beside the person's own notes in the workspace: their

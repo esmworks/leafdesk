@@ -656,19 +656,20 @@ async function converse(
 
   // The agent's kept notes, newest first as far as their share takes them; those that don't fit
   // are read with read_memory, offered only then (to a run taken up again too).
-  const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "", count: 0, shown: 0 };
-  const runTools = memory.shown < memory.count ? [...tools, READ_MEMORY_TOOL] : tools;
+  const memory = memoryOn ? await memoryForPrompt(agent.userId, run.workspaceId, Math.min(MEMORY_CHARS, Math.floor(room([]) * 0.2))) : { text: "", count: 0, shown: 0, details: false };
+  const runTools = memory.shown < memory.count || memory.details ? [...tools, READ_MEMORY_TOOL] : tools;
   // The workspace's notes, and the teamspace's where the run is inside one (its row, the database it
   // looks after, the page it was mentioned on), by the standing of the person it works for
   // (shared-memory.ts): none of a teamspace they aren't in, none at all for a guest. Read for the
-  // first turn only; a run taken up again has them in its messages.
+  // first turn only; a run taken up again has them in its messages. Their lines only: the run's
+  // read_memory reads the agent's own notes, not these notes' details.
   const place = isRowRun(run.source) ? run.source.databaseId : (databaseId ?? mention?.pageId ?? null);
   const sharedNotes = run.state ? { workspace: [], teamspace: null } : await sharedMemoryFor(bound, run.workspaceId, place ? await pageTeamspace(place) : null);
   const sharedRoom = Math.floor(Math.min(SHARED_MEMORY_CHARS, room([]) * 0.15) / 2);
   const shared = agentSharedNotes({
-    workspace: fitNotes(sharedNotes.workspace, sharedRoom, "(Older notes of the workspace don't fit here.)").text,
+    workspace: fitNotes(sharedNotes.workspace, sharedRoom, "(Older notes of the workspace don't fit here.)", { markDetails: false }).text,
     teamspace: sharedNotes.teamspace
-      ? { name: sharedNotes.teamspace.name, text: fitNotes(sharedNotes.teamspace.notes, sharedRoom, "(Older notes of the teamspace don't fit here.)").text }
+      ? { name: sharedNotes.teamspace.name, text: fitNotes(sharedNotes.teamspace.notes, sharedRoom, "(Older notes of the teamspace don't fit here.)", { markDetails: false }).text }
       : null,
   });
 

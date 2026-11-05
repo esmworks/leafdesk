@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import type { AiAutofillConfig } from "@/lib/ai";
-import { isMemoryCategory, MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS, type MemoryCategory, type MemoryLayer, type MemoryView } from "@/lib/ai-chat";
+import { isMemoryCategory, MAX_CONVERSATIONS, MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, type MemoryCategory, type MemoryLayer, type MemoryView } from "@/lib/ai-chat";
 import { isDatabaseErrorCode, PropertyValueError } from "@/lib/properties";
 import { AccessError } from "@/server/access";
 import { isAiError } from "@/server/ai";
@@ -43,7 +43,8 @@ async function run<T>(fn: (userId: string) => Promise<T>): Promise<ActionResult<
       return { ok: false, error: t(`ai.errors.${error.code}`, { seconds }), code: error.code };
     }
     if (error instanceof MemoryError) {
-      return { ok: false, error: t(`ai.memory.errors.${error.code}`, { max: error.code === "full" ? MAX_MEMORIES : MAX_MEMORY_CHARS }), code: error.code };
+      const max = error.code === "full" ? MAX_MEMORIES : error.code === "detailsTooLong" ? MAX_MEMORY_DETAILS_CHARS : MAX_MEMORY_CHARS;
+      return { ok: false, error: t(`ai.memory.errors.${error.code}`, { max }), code: error.code };
     }
     if (error instanceof AutofillError) {
       return { ok: false, error: t(`ai.autofill.errors.${error.code}`, error.params), code: error.code };
@@ -175,8 +176,11 @@ export async function setMemoryUseAction(workspaceId: string, on: boolean) {
   return run((userId) => setMemoryUse(userId, String(workspaceId), on === true));
 }
 
-/** A change on the Memory page: a note to add, one changed (its text and what it is about), or some (or all) deleted. */
-export type NoteChange = { add: string; category?: MemoryCategory } | { id: string; text: string; category?: MemoryCategory } | { delete: string };
+/** A change on the Memory page: a note to add, one changed (its text, what it is about and its details), or some (or all) deleted. */
+export type NoteChange =
+  | { add: string; category?: MemoryCategory; details?: string }
+  | { id: string; text: string; category?: MemoryCategory; details?: string }
+  | { delete: string };
 
 /**
  * Changes the notes of one part of the AI's memory, as the Memory page shows it: the person's own
@@ -190,22 +194,23 @@ export async function changeNoteAction(workspaceId: string, layer: "person" | Me
     const add = typeof c.add === "string" ? c.add : null;
     const edit = typeof c.id === "string" && typeof c.text === "string" ? { id: c.id, text: c.text } : null;
     const gone = typeof c.delete === "string" ? (c.delete === "all" ? ("all" as const) : [c.delete]) : null;
-    const category = isMemoryCategory(c.category) ? c.category : null;
+    // Details left out stay as they were; an empty string drops them.
+    const more = { category: isMemoryCategory(c.category) ? c.category : null, ...(typeof c.details === "string" ? { details: c.details } : {}) };
     if (add === null && !edit && !gone) throw new AccessError();
     if (layer === "person") {
-      if (add !== null) await addMemory(userId, ws, add, category);
-      else if (edit) await updateMemory(userId, ws, edit.id, edit.text, category);
+      if (add !== null) await addMemory(userId, ws, add, more);
+      else if (edit) await updateMemory(userId, ws, edit.id, edit.text, more);
       else await deleteMemories(userId, ws, gone!);
       return listMemories(userId, ws);
     }
     if (layer === "account") {
-      if (add !== null || edit) await writeAccountNote(userId, add ?? edit!.text, { replaces: edit?.id ?? null, category });
+      if (add !== null || edit) await writeAccountNote(userId, add ?? edit!.text, { replaces: edit?.id ?? null, ...more });
       else await deleteAccountNotes(userId, gone!);
       return accountNotes(userId);
     }
     if (layer !== "workspace" && layer !== "teamspace") throw new AccessError();
     const place = layer === "teamspace" ? String(teamspaceId) : null;
-    if (add !== null || edit) await writeSharedNote(userId, ws, place, add ?? edit!.text, { replaces: edit?.id ?? null, category });
+    if (add !== null || edit) await writeSharedNote(userId, ws, place, add ?? edit!.text, { replaces: edit?.id ?? null, ...more });
     else await deleteSharedNotes(userId, ws, place, gone!);
     return placeNotes(userId, ws, place);
   });

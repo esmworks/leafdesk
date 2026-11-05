@@ -15,8 +15,8 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { changeNoteAction, setMemoryUseAction, type NoteChange } from "@/app/actions/ai";
 import { IconGlyph } from "@/components/builtin-icon";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { Button, cn, IconButton, Input, selectClass, Switch } from "@/components/ui";
-import { chatPath, isMemoryCategory, MAX_MEMORIES, MAX_MEMORY_CHARS, MEMORY_CATEGORIES, memoryPagePath, type MemoryCategory, type MemoryPlaceView, type MemoryView } from "@/lib/ai-chat";
+import { Button, cn, IconButton, Input, selectClass, Switch, textareaClass } from "@/components/ui";
+import { chatPath, isMemoryCategory, MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, MEMORY_CATEGORIES, memoryPagePath, type MemoryCategory, type MemoryPlaceView, type MemoryView } from "@/lib/ai-chat";
 
 type Note = MemoryView & { by?: string | null };
 /** `mine` and `everywhere` are the person's; `workspace` the workspace's; anything else a teamspace's id. */
@@ -213,11 +213,16 @@ function NavItem({ current, count, onClick, children }: { current: boolean; coun
   );
 }
 
-/** Whether a note has every word of a search, any case. */
+/** Whether a note (its line or its details) has every word of a search, any case. */
 function matches(note: Note, words: string[], locale: string): boolean {
-  const text = note.text.toLocaleLowerCase(locale);
+  const text = `${note.text}\n${note.details ?? ""}`.toLocaleLowerCase(locale);
   return words.every((word) => text.includes(word));
 }
+
+/** Details longer than this, or of more lines, show folded until opened. */
+const FOLD_CHARS = 240;
+const FOLD_LINES = 3;
+const folds = (details: string) => details.length > FOLD_CHARS || details.split("\n").length > FOLD_LINES;
 
 /**
  * One part's notes, grouped by what they are about (flat while every note is `other`), with a
@@ -249,7 +254,10 @@ function NoteList({
   const offline = useIsOffline();
   const [draft, setDraft] = useState("");
   const [draftCategory, setDraftCategory] = useState<MemoryCategory>("other");
-  const [editing, setEditing] = useState<{ id: string; text: string; category: MemoryCategory } | null>(null);
+  // Null while the new note has no details box open.
+  const [draftDetails, setDraftDetails] = useState<string | null>(null);
+  const [editing, setEditing] = useState<{ id: string; text: string; category: MemoryCategory; details: string } | null>(null);
+  const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
   const [query, setQuery] = useState("");
   const [only, setOnly] = useState<MemoryCategory | "all">("all");
   const changes = canChange && !offline;
@@ -266,13 +274,16 @@ function NoteList({
   async function add(event: FormEvent) {
     event.preventDefault();
     if (!draft.trim() || busy) return;
-    if (await onChange({ add: draft, category: draftCategory })) setDraft("");
+    if (await onChange({ add: draft, category: draftCategory, ...(draftDetails?.trim() ? { details: draftDetails } : {}) })) {
+      setDraft("");
+      setDraftDetails(null);
+    }
   }
 
   async function save(event: FormEvent) {
     event.preventDefault();
     if (!editing || busy) return;
-    if (await onChange({ id: editing.id, text: editing.text, category: editing.category })) setEditing(null);
+    if (await onChange({ id: editing.id, text: editing.text, category: editing.category, details: editing.details })) setEditing(null);
   }
 
   const kindSelect = (value: MemoryCategory, onSelect: (next: MemoryCategory) => void, disabled = false) => (
@@ -297,37 +308,66 @@ function NoteList({
   const row = (note: Note) =>
     editing?.id === note.id ? (
       <li key={note.id} className="py-1.5">
-        <form onSubmit={save} className="flex items-center gap-1">
-          <Input
-            autoFocus
-            aria-label={t("editLabel")}
-            value={editing.text}
-            maxLength={MAX_MEMORY_CHARS}
-            onChange={(e) => setEditing({ ...editing, text: e.target.value })}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") setEditing(null);
-            }}
+        <form
+          onSubmit={save}
+          className="space-y-1.5"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setEditing(null);
+          }}
+        >
+          <div className="flex items-center gap-1">
+            <Input autoFocus aria-label={t("editLabel")} value={editing.text} maxLength={MAX_MEMORY_CHARS} onChange={(e) => setEditing({ ...editing, text: e.target.value })} />
+            {kindSelect(editing.category, (category) => setEditing({ ...editing, category }))}
+            <IconButton type="submit" label={t("save")} className="h-8 w-8" disabled={busy || !editing.text.trim()}>
+              <Check className="h-4 w-4" />
+            </IconButton>
+            <IconButton label={t("cancel")} className="h-8 w-8" onClick={() => setEditing(null)}>
+              <X className="h-4 w-4" />
+            </IconButton>
+          </div>
+          <textarea
+            aria-label={t("detailsLabel")}
+            placeholder={t("detailsPlaceholder")}
+            className={cn(textareaClass, "min-h-16")}
+            rows={3}
+            value={editing.details}
+            maxLength={MAX_MEMORY_DETAILS_CHARS}
+            onChange={(e) => setEditing({ ...editing, details: e.target.value })}
           />
-          {kindSelect(editing.category, (category) => setEditing({ ...editing, category }))}
-          <IconButton type="submit" label={t("save")} className="h-8 w-8" disabled={busy || !editing.text.trim()}>
-            <Check className="h-4 w-4" />
-          </IconButton>
-          <IconButton label={t("cancel")} className="h-8 w-8" onClick={() => setEditing(null)}>
-            <X className="h-4 w-4" />
-          </IconButton>
         </form>
       </li>
     ) : (
       <li key={note.id} className="group/note flex items-start gap-1 py-1.5">
         <div className="min-w-0 flex-1 py-1">
           <p className="break-words">{note.text}</p>
+          {note.details && (
+            <>
+              <p className={cn("mt-0.5 text-[13px] break-words whitespace-pre-wrap text-fg-muted", folds(note.details) && !open.has(note.id) && "line-clamp-3")}>{note.details}</p>
+              {folds(note.details) && (
+                <button
+                  type="button"
+                  className="text-xs text-fg-muted hover:text-fg"
+                  aria-expanded={open.has(note.id)}
+                  onClick={() =>
+                    setOpen((current) => {
+                      const next = new Set(current);
+                      if (!next.delete(note.id)) next.add(note.id);
+                      return next;
+                    })
+                  }
+                >
+                  {open.has(note.id) ? t("lessDetails") : t("moreDetails")}
+                </button>
+              )}
+            </>
+          )}
           {(note.app || (shared && note.by)) && (
             <p className="mt-0.5 text-xs text-fg-muted">{note.app ? t("viaApp", { app: note.app }) : t("byPerson", { name: note.by! })}</p>
           )}
         </div>
         {changes && (
           <>
-            <IconButton label={t("edit")} className={action} disabled={busy} onClick={() => setEditing({ id: note.id, text: note.text, category: note.category })}>
+            <IconButton label={t("edit")} className={action} disabled={busy} onClick={() => setEditing({ id: note.id, text: note.text, category: note.category, details: note.details ?? "" })}>
               <Pencil className="h-3.5 w-3.5" />
             </IconButton>
             <IconButton label={t("delete")} className={action} disabled={busy} onClick={() => void onChange({ delete: note.id })}>
@@ -399,6 +439,23 @@ function NoteList({
               {t("add")}
             </Button>
           </form>
+          {!full &&
+            (draftDetails === null ? (
+              <Button size="sm" variant="ghost" className="-mt-1" onClick={() => setDraftDetails("")}>
+                {t("addDetails")}
+              </Button>
+            ) : (
+              <textarea
+                autoFocus
+                aria-label={t("detailsLabel")}
+                placeholder={t("detailsPlaceholder")}
+                className={cn(textareaClass, "min-h-16")}
+                rows={3}
+                value={draftDetails}
+                maxLength={MAX_MEMORY_DETAILS_CHARS}
+                onChange={(e) => setDraftDetails(e.target.value)}
+              />
+            ))}
           <div className="flex items-center justify-between gap-2 text-xs text-fg-muted">
             <span>{t("count", { count: notes.length, max: MAX_MEMORIES })}</span>
             {notes.length > 0 && (
