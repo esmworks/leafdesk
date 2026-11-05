@@ -35,7 +35,6 @@ const { handleApiRequest } = await import("@/server/api");
 const { runAsConnectedApp } = await import("@/server/connected-app");
 const { updateWorkspaceSettings } = await import("@/server/workspaces");
 const { disconnectWorkspaceApp, listWorkspaceApps, pruneConnectedAppUse, setWorkspaceAppApproved } = await import("@/server/workspace-apps");
-const { noteConnectedAppUse } = await import("@/server/connected-app-use");
 
 const RUN = `workspace-apps-e2e-${Date.now().toString(36)}`;
 
