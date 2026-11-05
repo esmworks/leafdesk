@@ -105,15 +105,17 @@ async function checkAutomation(automation: Automation, now: Date, quiet: boolean
     await setCheckError(automation, "noAccess");
     return false;
   }
+  // Read before the transaction: reading a large view takes a while, and a transaction held open
+  // meanwhile kept one of the pool's connections idle while the read took another, so a burst of
+  // checks could use the pool up and leave every query of the server waiting.
+  const reading = await readThreshold(automation.runAs!, automation.databaseId, trigger, { now, timeZone: automation.timeZone });
+  if (reading.error) {
+    await setCheckError(automation, reading.error);
+    return false;
+  }
+  await setCheckError(automation, null);
   return db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`leafdesk:threshold:${automation.id}`}))`);
-    // Read under the lock: a check that read before another one wrote would put back an older value.
-    const reading = await readThreshold(automation.runAs!, automation.databaseId, trigger, { now, timeZone: automation.timeZone });
-    if (reading.error) {
-      await setCheckError(automation, reading.error);
-      return false;
-    }
-    await setCheckError(automation, null);
     // Published again or turned off meanwhile: that save notes the value itself.
     const [current] = await tx
       .select({ version: databaseAutomation.version, enabled: databaseAutomation.enabled })
@@ -122,6 +124,8 @@ async function checkAutomation(automation: Automation, now: Date, quiet: boolean
     if (!current || current.version !== automation.version || (!quiet && !current.enabled)) return false;
     const met = thresholdMet(reading.value, trigger);
     const [before] = await tx.select().from(automationThreshold).where(eq(automationThreshold.automationId, automation.id));
+    // A check of a later moment wrote meanwhile: this older reading would put back an older value.
+    if (before && before.checkedAt > now) return false;
     await tx
       .insert(automationThreshold)
       .values({ automationId: automation.id, met, value: reading.value, checkedAt: now })
@@ -220,11 +224,16 @@ const SETTLE_MS = 1500;
  */
 export function startThresholdAutomations() {
   const waiting = new Map<string, NodeJS.Timeout>();
+  // One database's checks at a time, so a burst of writes across many databases reads their views
+  // one after another rather than all at once.
+  let queue: Promise<unknown> = Promise.resolve();
   onThresholdRows((databaseId) => {
     if (waiting.has(databaseId)) return;
     const timer = setTimeout(() => {
       waiting.delete(databaseId);
-      runThresholdAutomations({ databaseIds: [databaseId] }).catch((error) => console.error("could not check threshold automations", redactError(error)));
+      queue = queue
+        .then(() => runThresholdAutomations({ databaseIds: [databaseId] }))
+        .catch((error) => console.error("could not check threshold automations", redactError(error)));
     }, SETTLE_MS);
     timer.unref?.();
     waiting.set(databaseId, timer);
