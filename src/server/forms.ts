@@ -1,3 +1,4 @@
+import { ipRateKey } from "@/lib/client-ip";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -107,15 +108,18 @@ export class FormError extends Error {
 
 /**
  * Adds an answer's row; a value another row already holds in a property that keeps them unique
- * (lib/unique-values) is that question's error, as the browser's own checks give.
+ * (lib/unique-values) is that question's error, as the browser's own checks give. It names the
+ * property as the question shows it: a public form may ask about one its visitors can't know of.
  */
-async function answerRow<T>(insert: () => Promise<T>): Promise<T> {
+async function answerRow<T>(questions: ResolvedQuestion<DatabaseProperty>[], insert: () => Promise<T>): Promise<T> {
   try {
     return await insert();
   } catch (error) {
     if (!(error instanceof PropertyValueError) || error.code !== "notUnique" || !error.params.propertyId) throw error;
     const { propertyId, ...params } = error.params;
-    throw new FormError(error.message, "invalidAnswers", [{ propertyId, code: "notUnique", params }]);
+    const question = questions.find((q) => q.propertyId === propertyId);
+    const property = question?.label.trim() || question?.prop?.name || "";
+    throw new FormError(error.message, "invalidAnswers", [{ propertyId, code: "notUnique", params: { ...params, property } }]);
   }
 }
 
@@ -348,9 +352,10 @@ export function takeBytes(limiter: SlidingWindowLimiter, key: string, bytes: num
  */
 export async function uploadPublicFormFile(
   token: string,
-  { userId, ip, ticket, now = Date.now() }: { userId: string | null; ip: string; ticket: unknown; now?: number },
+  { userId, ip: address, ticket, now = Date.now() }: { userId: string | null; ip: string; ticket: unknown; now?: number },
   input: UploadInput,
 ): Promise<StoredFile> {
+  const ip = ipRateKey(address);
   const form = await openPublicForm(token);
   if (!form) throw new FormError("This form is closed", "closed");
   if (!form.anonymous && !userId) throw new FormError("Sign in to fill in this form", "signInRequired");
@@ -402,14 +407,15 @@ export async function submitForm(userId: string, viewId: string, answers: Record
   if (database.archivedAt) throw withCode(new AccessError("Parent page is in the trash"), "parentInTrash");
   // Only what they may set in the row they add (see answerable).
   const properties = await answerable(userId, database.id, await getProperties(database.id), userId);
-  const checked = checkAnswers(formQuestions(view.config.form, properties), answers);
+  const questions = formQuestions(view.config.form, properties);
+  const checked = checkAnswers(questions, answers);
   if (!checked.ok) throw invalidAnswers(checked.errors);
   const { files, rest } = splitFileAnswers(properties, checked.properties);
   // Linked rows and people are looked up as the person answering: only what they can see.
   const values = await normalizeRowProperties(userId, database.id, rest, {}, { createdBy: userId });
   const claimed = await claimFormFiles(database, properties, files);
   const defaults = await liveDefaults(database, properties, view.config.form);
-  const [row] = await answerRow(() => insertRows(database, userId, [{ title: checked.title, properties: { ...defaults, ...values, ...claimed } }]));
+  const [row] = await answerRow(questions, () => insertRows(database, userId, [{ title: checked.title, properties: { ...defaults, ...values, ...claimed } }]));
   await adoptFormFiles(database.id, row.id, claimed);
   await recordSubmission(row.id, view.id, userId);
   return { id: row.id };
@@ -830,8 +836,9 @@ export type PublicSubmission = {
 export async function submitPublicForm(
   token: string,
   submission: PublicSubmission,
-  { userId, ip, now = Date.now() }: { userId: string | null; ip: string; now?: number },
+  { userId, ip: address, now = Date.now() }: { userId: string | null; ip: string; now?: number },
 ): Promise<{ id: string | null }> {
+  const ip = ipRateKey(address);
   assertSize(submission.answers);
   const form = await openPublicForm(token);
   if (!form) throw new FormError("This form is closed", "closed");
@@ -861,7 +868,7 @@ export async function submitPublicForm(
   const creator = form.anonymous ? null : userId;
   // An agent this answer sets off is held to what the form's publisher may open, when no member
   // stands behind the answer: it never hands over what they couldn't.
-  const [row] = await answerRow(() => insertRows(database, creator, [{ title: checked.title, properties: values }], { boundTo: form.publishedBy }));
+  const [row] = await answerRow(questions, () => insertRows(database, creator, [{ title: checked.title, properties: values }], { boundTo: form.publishedBy }));
   await adoptFormFiles(database.id, row.id, claimed);
   await recordSubmission(row.id, form.viewId, creator);
   return { id: row.id };

@@ -56,13 +56,27 @@ function todoText(content: unknown): string {
     }
   };
   walk(content);
-  const text = parts
-    .join("")
-    .replace(/\s+/g, " ")
-    .replace(/^[\s:,;.\-–—]+/u, "")
-    .replace(/[\s:,;\-–—]+$/u, "")
-    .trim();
+  const text = trimTrailing(
+    parts
+      .join("")
+      .replace(/\s+/g, " ")
+      .replace(/^[\s:,;.\-–—]+/u, ""),
+  ).trim();
   return text.length > PAGE_TASK_TEXT_MAX ? `${text.slice(0, PAGE_TASK_TEXT_MAX - 1).trimEnd()}…` : text;
+}
+
+/** Punctuation and spaces a to-do's text doesn't end with (what led up to a mention). */
+const TRAILING = new Set([" ", ":", ",", ";", "-", "–", "—"]);
+
+/**
+ * `text` without TRAILING at its end. Scanned from the end by hand: a regex anchored at the end
+ * (`[…]+$`) tries again from every character of a long run, which a to-do of a million colons
+ * makes minutes of work on every save.
+ */
+function trimTrailing(text: string): string {
+  let end = text.length;
+  while (end > 0 && TRAILING.has(text[end - 1])) end--;
+  return text.slice(0, end);
 }
 
 /**

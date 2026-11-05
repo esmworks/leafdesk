@@ -273,15 +273,28 @@ describe("checkWorkspace", () => {
 
 describe("removeRelationTarget", () => {
   it("keeps the relation's other rows, hidden ones included", async () => {
-    access.requirePageAccess.mockResolvedValue({ properties: { rel: ["a", "dead", "hidden"] } });
-    expect(await removeRelationTarget("u", "row", "rel", "dead")).toBe(true);
-    expect(access.requirePageAccess).toHaveBeenCalledWith("u", "row", "edit");
-    expect(databases.updateRowProperties).toHaveBeenCalledWith("u", "row", { rel: ["a", "hidden"] });
+    access.requirePageAccess.mockResolvedValue({ id: "r1", parentId: "tasks", properties: { "prop-rel": ["a", "dead", "hidden"] } });
+    expect(await removeRelationTarget("u", "r1", "prop-rel", "dead")).toBe(true);
+    expect(access.requirePageAccess).toHaveBeenCalledWith("u", "r1", "edit");
+    expect(databases.updateRowProperties).toHaveBeenCalledWith("u", "r1", { "prop-rel": ["a", "hidden"] });
   });
 
   it("changes nothing when the relation no longer holds the row", async () => {
-    access.requirePageAccess.mockResolvedValue({ properties: { rel: ["a"] } });
-    expect(await removeRelationTarget("u", "row", "rel", "dead")).toBe(false);
+    access.requirePageAccess.mockResolvedValue({ id: "r1", parentId: "tasks", properties: { "prop-rel": ["a"] } });
+    expect(await removeRelationTarget("u", "r1", "prop-rel", "dead")).toBe(false);
+    expect(databases.updateRowProperties).not.toHaveBeenCalled();
+  });
+
+  it("answers alike whatever a value hidden from the person holds, and on other properties", async () => {
+    // Hidden in the row: the same "gone" whether it holds the id or not, so it tells nothing.
+    access.requirePageAccess.mockResolvedValue({ id: "r1", parentId: "tasks", properties: { "prop-hidden": ["dead"], "prop-text": "dead" } });
+    expect(await removeRelationTarget("u", "r1", "prop-hidden", "dead")).toBe(false);
+    expect(await removeRelationTarget("u", "r1", "prop-hidden", "other")).toBe(false);
+    // Not a relation: nothing to fix there.
+    expect(await removeRelationTarget("u", "r1", "prop-text", "dead")).toBe(false);
+    // Seen but not changeable in this row.
+    access.requirePageAccess.mockResolvedValue({ id: "r2", parentId: "tasks", properties: { "prop-rel": ["dead"] } });
+    expect(await removeRelationTarget("u", "r2", "prop-rel", "dead")).toBe(false);
     expect(databases.updateRowProperties).not.toHaveBeenCalled();
   });
 });

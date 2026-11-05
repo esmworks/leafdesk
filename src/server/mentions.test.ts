@@ -21,6 +21,7 @@ import { copyPublishedBlocks, mentionedPageIds } from "@/lib/published-copy";
 import { blocksToMarkdown, markdownToBlocks, pageSchema, serverEditor, type PageBlock } from "./blocknote";
 import { bodySegmentsFromYdoc } from "./published-body";
 import { groupMemberKey, groupMentionTargets } from "@/lib/group-mentions";
+import { fast } from "@/lib/import/linear-fixtures";
 
 function docFrom(blocks: unknown[]) {
   const doc = new Y.Doc();
@@ -412,6 +413,13 @@ describe("links to a block of a page", () => {
       [OTHER, undefined],
     ]);
     expect(markdownPageIds(markdown)).toEqual([PAGE, OTHER]);
+  });
+
+  it("are found in one pass along a line of brackets", () => {
+    const tail = ` [A](/w/${WS}/p/${PAGE})`;
+    for (const run of ["[".repeat(1_000_000), `[${"\\[".repeat(500_000)}`, "[a".repeat(500_000)]) {
+      expect(fast(() => markdownPageIds(run + tail))).toEqual([PAGE]);
+    }
   });
 
   it("keep their block through Markdown and back, as mentions and page-link blocks", async () => {

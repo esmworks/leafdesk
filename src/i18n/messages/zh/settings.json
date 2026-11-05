@@ -1701,7 +1701,7 @@
       "disconnect": "断开连接",
       "revoke": "撤销",
       "working": "正在断开连接…",
-      "confirmEverywhere": "{kind, select, api_token {要撤销 {person} 的令牌 {name} 吗？它将在对方的所有工作区中失效。} other {要从 {person} 的账户中断开 {name} 吗？在对方重新连接之前，它将无法访问对方的任何工作区。}}",
+      "confirmCutOff": "{kind, select, api_token {要将 {person} 的令牌 {name} 从此工作区切断吗？在它能到达的其他地方仍可使用。} other {要为 {person} 断开 {name} 与此工作区的连接吗？其他工作区仍保留它，重新连接后它会回到这里。}}",
       "confirmHere": "要撤销 {person} 的令牌 {name} 吗？它将失效。",
       "error": "无法断开连接。请重试。",
       "gone": "它已断开连接，或已无法访问此工作区。",

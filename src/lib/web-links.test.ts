@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { fast } from "./import/linear-fixtures";
 import { classifyAnswer, classifyFailure, isReported, markdownWebLinks, normalizeWebLink, recheckAfterMs, UNREACHABLE_FAILURES } from "./web-links";
 
 describe("markdownWebLinks", () => {
@@ -35,6 +36,15 @@ describe("markdownWebLinks", () => {
     expect(markdownWebLinks("[x](https://en.wikipedia.org/wiki/Foo_(bar))")).toEqual(["https://en.wikipedia.org/wiki/Foo_(bar)"]);
     expect(markdownWebLinks("Go to https://example.com/a.")).toEqual(["https://example.com/a"]);
     expect(markdownWebLinks('"https://example.com/q?x=1"')).toEqual(["https://example.com/q?x=1"]);
+  });
+
+  it("reads long runs of brackets and closing punctuation in one pass", () => {
+    // Too long an address to keep; what matters is that reading it takes no time.
+    expect(fast(() => markdownWebLinks(`https://example.com/a${".".repeat(1_000_000)}b`))).toEqual([]);
+    expect(fast(() => markdownWebLinks(`Go to https://example.com/a${".!".repeat(300_000)}`))).toEqual(["https://example.com/a"]);
+    expect(fast(() => markdownWebLinks(`http ${"[".repeat(1_000_000)}`))).toEqual([]);
+    expect(fast(() => markdownWebLinks(`http ${"![".repeat(500_000)}`))).toEqual([]);
+    expect(markdownWebLinks("[[x]](https://example.com/b) ![a](https://example.com/i.png)")).toEqual(["https://example.com/b"]);
   });
 });
 

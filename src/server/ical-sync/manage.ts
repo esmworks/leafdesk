@@ -11,6 +11,7 @@ import { discardDatabase, recordImport } from "@/server/import/csv";
 import { JiraError } from "@/server/jira-sync/client";
 import { claimSync, runAndRecord, type SyncOutcome, type SyncRow } from "@/server/jira-sync/run";
 import { createPage, requireDatabasePlace, type DatabaseSeedNames } from "@/server/pages";
+import { withSyncReach } from "@/server/sync-reach";
 import { sealJson } from "@/server/secret-box";
 import { takeSyncSetup } from "@/server/sync-setup";
 import { applyEvents, fetchCalendar, type IcalAuth } from "./run";
@@ -60,7 +61,7 @@ export async function createIcalSync(actor: WriteActor, input: IcalSyncInput): P
   const names = input.names ?? ENGLISH_ICAL_NAMES;
   await requireDatabasePlace(userId, input);
   takeSyncSetup(userId);
-  const calendar = await fetchCalendar(url, names.untitled);
+  const calendar = await withSyncReach(userId, input.workspaceId, () => fetchCalendar(url, names.untitled));
 
   const database = await createPage(
     actor,
@@ -200,7 +201,7 @@ export async function updateIcalSync(userId: string, databaseId: string, patch: 
   }
   if (patch.url !== undefined) {
     const url = urlOf(patch.url);
-    await fetchCalendar(url, row.mapping.untitled);
+    await withSyncReach(userId, row.workspaceId, () => fetchCalendar(url, row.mapping.untitled));
     changes.secrets = sealJson({ url } satisfies IcalAuth);
     changes.siteUrl = new URL(url).origin;
   }

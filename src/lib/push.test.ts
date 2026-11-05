@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatIsoDate } from "./mentions";
-import { encodePushPayload, MAX_PUSH_PAYLOAD, parsePushSubscription, pushLink, pushPayload, vapidFrom, type PushItem } from "./push";
+import { encodePushPayload, isAllowedPushHost, MAX_PUSH_PAYLOAD, parsePushSubscription, pushLink, pushPayload, vapidFrom, type PushItem } from "./push";
 
 const b64 = (bytes: number) => Buffer.alloc(bytes, 7).toString("base64url");
 
@@ -20,6 +20,17 @@ describe("vapidFrom", () => {
 
   it("takes keys with padding or spaces around them", () => {
     expect(vapidFrom({ ...keys, VAPID_PUBLIC_KEY: ` ${keys.VAPID_PUBLIC_KEY}= ` })?.publicKey).toBe(keys.VAPID_PUBLIC_KEY);
+  });
+});
+
+describe("isAllowedPushHost", () => {
+  it("allows a host:port on that port and a bare host on the web's ports only", () => {
+    const allowed = ["push", "relay:9000"];
+    expect(isAllowedPushHost(new URL("http://push/x"), allowed)).toBe(true);
+    expect(isAllowedPushHost(new URL("http://push:8080/x"), allowed)).toBe(true);
+    expect(isAllowedPushHost(new URL("http://push:6379/x"), allowed)).toBe(false);
+    expect(isAllowedPushHost(new URL("http://relay:9000/x"), allowed)).toBe(true);
+    expect(isAllowedPushHost(new URL("http://relay/x"), allowed)).toBe(false);
   });
 });
 

@@ -1701,7 +1701,7 @@
       "disconnect": "Bağlantıyı kes",
       "revoke": "İptal et",
       "working": "Kesiliyor…",
-      "confirmEverywhere": "{kind, select, api_token {{person} kişisinin {name} anahtarı iptal edilsin mi? Tüm çalışma alanlarında çalışmayı bırakır.} other {{name}, {person} kişisinin hesabından kesilsin mi? Kişi yeniden bağlayana kadar hiçbir çalışma alanına ulaşamaz.}}",
+      "confirmCutOff": "{kind, select, api_token {{person} kişisinin {name} token'ı bu çalışma alanından kesilsin mi? Ulaştığı diğer her yerde çalışmaya devam eder.} other {{name}, {person} için bu çalışma alanından kesilsin mi? Diğer çalışma alanlarında kalır; yeniden bağlanırsa buraya da geri gelir.}}",
       "confirmHere": "{person} kişisinin {name} anahtarı iptal edilsin mi? Çalışmayı bırakır.",
       "error": "Bağlantı kesilemedi. Tekrar deneyin.",
       "gone": "Bağlantı zaten kesilmiş ya da artık bu çalışma alanına ulaşmıyor.",

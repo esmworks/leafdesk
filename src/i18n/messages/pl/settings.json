@@ -1701,7 +1701,7 @@
       "disconnect": "Odłącz",
       "revoke": "Unieważnij",
       "working": "Odłączanie…",
-      "confirmEverywhere": "{kind, select, api_token {Unieważnić token {name} należący do: {person}? Przestanie działać we wszystkich obszarach roboczych tej osoby.} other {Odłączyć {name} od konta: {person}? Aplikacja straci dostęp do wszystkich obszarów roboczych tej osoby, dopóki nie zostanie ponownie połączona.}}",
+      "confirmCutOff": "{kind, select, api_token {Odciąć token {name} osoby {person} od tego obszaru roboczego? Wszędzie indziej, dokąd sięga, nadal działa.} other {Odłączyć {name} od tego obszaru roboczego dla osoby {person}? Jej inne obszary robocze go zachowują, a ponowne połączenie przywraca go tutaj.}}",
       "confirmHere": "Unieważnić token {name} należący do: {person}? Przestanie działać.",
       "error": "Nie udało się odłączyć. Spróbuj ponownie.",
       "gone": "Już odłączono lub nie ma już dostępu do tego obszaru roboczego.",

@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Tällä ominaisuudella ei voi olla omia käyttöoikeuksia.",
     "typeChangeRestricted": "Ominaisuudella ”{property}” on käyttöoikeussääntöjä, eikä sen tyyppisillä ominaisuuksilla voi olla niitä. Poista sen säännöt ensin.",
     "typeChangeNamesPeople": "Käyttöoikeussäännöt antavat pääsyn ominaisuudessa ”{property}” nimetyille henkilöille. Poista nämä säännöt ennen tyypin vaihtamista.",
+    "typeChangeHidden": "Osa ominaisuuden ”{property}” arvoista on sinulta piilossa, ja niistä tulisi sen vaihtoehtoja. Tyypin voi vaihtaa joku, joka näkee kaikki rivit ja arvot.",
     "invalidRowAccess": "Näitä rivien käyttöoikeussääntöjä ei voi tallentaa. Lataa uudelleen ja yritä uudestaan.",
     "invalidAutomation": "Tätä automaatiota ei voi tallentaa. Tarkista sen laukaisin ja toiminnot.",
     "tooManyAutomations": "Tietokannalla voi olla enintään {max} automaatiota.",

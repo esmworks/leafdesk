@@ -3174,7 +3174,9 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     ({ workspace_id, description }) =>
       runTool(async () => {
         try {
-          return describeAgentDraft(workspace_id, await draftAgent(userId, workspace_id, description));
+          // Saves nothing, but spends the workspace's AI: held, as a write is, to a workspace whose
+          // owners let connected apps only read there.
+          return describeAgentDraft(workspace_id, await asWrite(() => draftAgent(userId, workspace_id, description)));
         } catch (error) {
           if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) {
             throw new ToolInputError(

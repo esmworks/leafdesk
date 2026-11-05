@@ -1086,6 +1086,15 @@ async function sweep() {
       again = false;
       const runs = await claim();
       for (const run of runs) {
+        // The batch's runs go one after another: each is marked taken again just before its turn,
+        // or one waiting behind slow ones would look stale (STALE_MS) to another server, which
+        // would run it a second time. Gone from "running" meanwhile: someone else has it.
+        const [held] = await db
+          .update(automationRun)
+          .set({ nextAt: new Date() })
+          .where(and(eq(automationRun.id, run.id), eq(automationRun.status, "running")))
+          .returning({ id: automationRun.id });
+        if (!held) continue;
         try {
           await processRun(run);
         } catch (error) {

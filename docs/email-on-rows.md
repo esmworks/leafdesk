@@ -92,7 +92,8 @@ and don't read the row's mail; a draft that isn't a finished message (gaps like 
 
 Mail servers are reached only on public addresses over TLS (implicit or STARTTLS), checked as
 connections are. List a server on your own network in `MAIL_ALLOWED_HOSTS` (comma-separated, a
-host name or `host:port`) to let mailboxes reach it, also without TLS. Backups keep the messages on
+host name or `host:port`; a bare name is reached on mail's own ports 25, 143, 465, 587 and 993
+only) to let mailboxes reach it, also without TLS. Backups keep the messages on
 rows and which databases mail lands on, not the mailboxes: members connect them again after a
 restore.
 

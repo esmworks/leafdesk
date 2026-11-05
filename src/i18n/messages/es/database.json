@@ -1141,6 +1141,7 @@
     "cannotRestrict": "Esta propiedad no puede tener su propio acceso.",
     "typeChangeRestricted": "«{property}» tiene reglas de acceso y las propiedades de ese tipo no pueden tenerlas. Quita antes sus reglas.",
     "typeChangeNamesPeople": "Hay reglas de acceso que dan acceso a las personas de «{property}». Quítalas antes de cambiar su tipo.",
+    "typeChangeHidden": "Algunos valores de «{property}» están ocultos para ti y se convertirían en sus opciones. Alguien que vea todas las filas y valores puede cambiar su tipo.",
     "invalidRowAccess": "No se pueden guardar estas reglas de acceso a las filas. Recarga la página e inténtalo de nuevo.",
     "invalidAutomation": "Esta automatización no se puede guardar. Revisa su desencadenante y sus acciones.",
     "tooManyAutomations": "Una base de datos puede tener como máximo {max} automatizaciones.",

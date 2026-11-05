@@ -1701,7 +1701,7 @@
       "disconnect": "Katkaise yhteys",
       "revoke": "Mitätöi",
       "working": "Katkaistaan yhteyttä…",
-      "confirmEverywhere": "{kind, select, api_token {Mitätöidäänkö henkilön {person} tunnus {name}? Se lakkaa toimimasta kaikissa hänen työtiloissaan.} other {Katkaistaanko sovelluksen {name} yhteys henkilön {person} tililtä? Se menettää pääsyn kaikkiin hänen työtiloihinsa, kunnes hän yhdistää sen uudelleen.}}",
+      "confirmCutOff": "{kind, select, api_token {Katkaistaanko henkilön {person} tunnus {name} tästä työtilasta? Kaikkialla muualla, minne se ulottuu, se toimii edelleen.} other {Katkaistaanko {name} tästä työtilasta henkilöltä {person}? Hänen muut työtilansa säilyttävät sen, ja uudelleen yhdistäminen tuo sen takaisin tänne.}}",
       "confirmHere": "Mitätöidäänkö henkilön {person} tunnus {name}? Se lakkaa toimimasta.",
       "error": "Yhteyden katkaiseminen epäonnistui. Yritä uudelleen.",
       "gone": "Sen yhteys on jo katkaistu, tai se ei enää pääse tähän työtilaan.",

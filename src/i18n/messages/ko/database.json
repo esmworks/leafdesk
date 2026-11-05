@@ -1141,6 +1141,7 @@
     "cannotRestrict": "이 속성에는 별도의 액세스를 설정할 수 없습니다.",
     "typeChangeRestricted": "“{property}”에는 액세스 규칙이 있는데, 해당 유형의 속성에는 규칙을 둘 수 없습니다. 먼저 규칙을 제거하세요.",
     "typeChangeNamesPeople": "액세스 규칙이 “{property}”에 있는 사람에게 액세스를 부여합니다. 유형을 변경하기 전에 해당 규칙을 제거하세요.",
+    "typeChangeHidden": "“{property}”의 일부 값은 나에게 숨겨져 있으며, 그 값이 옵션이 됩니다. 모든 행과 값을 볼 수 있는 사람이 유형을 변경할 수 있습니다.",
     "invalidRowAccess": "이 행 액세스 규칙을 저장할 수 없습니다. 새로고침한 후 다시 시도하세요.",
     "invalidAutomation": "이 자동화를 저장할 수 없습니다. 트리거와 동작을 확인하세요.",
     "tooManyAutomations": "데이터베이스에는 자동화를 최대 {max}개까지 만들 수 있습니다.",

@@ -1141,6 +1141,7 @@
     "cannotRestrict": "This property can’t have its own access.",
     "typeChangeRestricted": "“{property}” has access rules, and properties of that type can’t. Remove its rules first.",
     "typeChangeNamesPeople": "Access rules give the people in “{property}” access. Remove those rules before changing its type.",
+    "typeChangeHidden": "Some values of “{property}” are hidden from you, and they would become its options. Someone who sees every row and value can change its type.",
     "invalidRowAccess": "These row access rules can’t be saved. Reload and try again.",
     "invalidAutomation": "This automation can’t be saved. Check its trigger and actions.",
     "tooManyAutomations": "A database can have at most {max} automations.",

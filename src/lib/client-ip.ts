@@ -61,3 +61,24 @@ export function describeTrustedProxies(trusted: TrustedProxies) {
   if (trusted === 0) return "Visitor addresses: the connection's own address; X-Forwarded-For is ignored (TRUSTED_PROXIES=0)";
   return `Visitor addresses: X-Forwarded-For as written by the last ${trusted === 1 ? "proxy" : `${trusted} proxies`} (TRUSTED_PROXIES=${trusted}); clients must not reach the app past ${trusted === 1 ? "it" : "them"}`;
 }
+
+/**
+ * The key an address is counted under by visitors' rate limits (public forms, reports about
+ * published pages): an IPv4 address as itself (a mapped one too), an IPv6 address by its /64,
+ * which a provider hands one subscriber whole, so stepping through it doesn't reset the limits.
+ */
+export function ipRateKey(ip: string): string {
+  const address = ip.trim().toLowerCase().replace(/%.*$/, "");
+  if (isIP(address) !== 6) return address;
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/.exec(address);
+  if (mapped) return mapped[1];
+  const [head, tail] = address.includes("::") ? address.split("::") : [address, null];
+  const front = head ? head.split(":") : [];
+  const back = tail ? tail.split(":") : [];
+  // An embedded IPv4 tail counts two groups; only the first four are kept, so its form doesn't matter.
+  const groups = tail === null ? front : [...front, ...Array(Math.max(0, 8 - front.length - back.length)).fill("0"), ...back];
+  return `${groups
+    .slice(0, 4)
+    .map((g) => parseInt(g, 16).toString(16))
+    .join(":")}::/64`;
+}

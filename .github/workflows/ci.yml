@@ -246,7 +246,8 @@ jobs:
       - name: Row email end-to-end
         run: pnpm tsx scripts/row-mail-e2e.ts
         env:
-          MAIL_ALLOWED_HOSTS: 127.0.0.1
+          # GreenMail's SMTP and IMAP ports: a bare host would allow mail's own ports only.
+          MAIL_ALLOWED_HOSTS: 127.0.0.1:3025,127.0.0.1:3143
 
       # Follow-up sequences on rows: send window, daily limit, review, answers and out-of-office
       # replies, through the same GreenMail service.

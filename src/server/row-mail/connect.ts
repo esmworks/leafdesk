@@ -25,9 +25,16 @@ export class MailConnectError extends Error {
 
 const CONNECT_TIMEOUT = 20_000;
 
+/** The ports of mail (SMTP, submission, IMAP and their TLS forms): those a bare name on MAIL_ALLOWED_HOSTS allows. */
+const MAIL_PORTS = new Set([25, 143, 465, 587, 993]);
+
+/**
+ * Whether a mail server is on MAIL_ALLOWED_HOSTS: `name:port` on that port, a bare name on mail's
+ * own ports only, since any member types the servers of their mailbox.
+ */
 export function allowedMailHost(host: string, port: number, allowed = env.mailAllowedHosts) {
   const name = host.replace(/^\[|\]$/g, "").toLowerCase();
-  return allowed.includes(name) || allowed.includes(`${name}:${port}`);
+  return allowed.includes(`${name}:${port}`) || (MAIL_PORTS.has(port) && allowed.includes(name));
 }
 
 type Resolve = (host: string) => Promise<{ address: string }[]>;

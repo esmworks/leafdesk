@@ -498,9 +498,10 @@ const MARKDOWN_FENCE = /^ {0,3}(`{3,}|~{3,})/;
 /**
  * A link to a page of this app in Markdown, `[text](/w/<workspace>/p/<page>)` or one of its blocks,
  * `[text](/w/<workspace>/p/<page>#block-<id>)`: text, path, page id and the fragment (`#block-…`,
- * or undefined).
+ * or undefined). The text holds no unescaped "[" and the link starts at no escaped one, so every
+ * "[" is tried once and a line of brackets is read in one pass, not once per bracket.
  */
-export const MARKDOWN_PAGE_LINK = /\[((?:[^\]\\\n]|\\.)*)\]\(\s*<?(\/w\/[\w-]{1,128}\/p\/([\w-]{1,128}))(#block-[\w-]{1,100})?>?\s*\)/g;
+export const MARKDOWN_PAGE_LINK = /(?<!\\)\[((?:[^[\]\\\n]|\\.)*)\]\(\s*<?(\/w\/[\w-]{1,128}\/p\/([\w-]{1,128}))(#block-[\w-]{1,100})?>?\s*\)/g;
 
 /** For each of the Markdown's lines, whether it is fenced code (the fences themselves included). */
 export function fencedLines(lines: string[]): boolean[] {

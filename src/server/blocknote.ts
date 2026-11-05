@@ -1,5 +1,5 @@
 import { isBuiltinIcon, readBuiltinIcon } from "@/lib/icon-value";
-import { BUILTIN_ICONS } from "@/lib/builtin-icons-data";
+import { builtinIconNode } from "@/lib/builtin-icons-data";
 import { ICON_COLOR_HEX } from "@/lib/builtin-icon-svg";
 import { commentPreviewBlockConfig } from "@/lib/comment-refs";
 import { randomBytes } from "node:crypto";
@@ -173,7 +173,7 @@ function iconElement(value: unknown): Node | null {
   if (typeof value !== "string" || !value) return null;
   if (!isBuiltinIcon(value)) return document.createTextNode(value);
   const icon = readBuiltinIcon(value);
-  const node = icon && BUILTIN_ICONS[icon.name];
+  const node = icon && builtinIconNode(icon.name);
   if (!icon || !node) return null;
   const svg = document.createElementNS(SVG, "svg");
   for (const [name, attr] of Object.entries({

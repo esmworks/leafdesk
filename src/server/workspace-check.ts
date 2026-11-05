@@ -471,6 +471,12 @@ async function findBrokenWebLinks(
  */
 export async function removeRelationTarget(userId: string, rowId: string, propertyId: string, targetId: string): Promise<boolean> {
   const row = await requirePageAccess(userId, rowId, "edit");
+  // Only a relation whose values the person may change in this row, as the finding listed it: on
+  // any other property the answer (gone, or a refusal) would tell whether a hidden value holds an id.
+  const prop = row.parentId ? (await loadProperties([row.parentId])).get(row.parentId)?.find((p) => p.id === propertyId) : undefined;
+  if (!row.parentId || prop?.type !== "relation") return false;
+  const access = await propertyAccessFor(userId, row.parentId);
+  if (!atLeast(access.levelOf(propertyId, row), "edit_values")) return false;
   const current = asIds(row.properties[propertyId]);
   if (!current.includes(targetId)) return false;
   await updateRowProperties(userId, rowId, { [propertyId]: current.filter((id) => id !== targetId) });

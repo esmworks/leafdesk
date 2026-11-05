@@ -1701,7 +1701,7 @@
       "disconnect": "Koppla från",
       "revoke": "Återkalla",
       "working": "Kopplar från…",
-      "confirmEverywhere": "{kind, select, api_token {Återkalla {person}s token {name}? Den slutar fungera i alla hens arbetsytor.} other {Koppla från {name} från {person}s konto? Den förlorar åtkomsten till alla hens arbetsytor tills hen ansluter den igen.}}",
+      "confirmCutOff": "{kind, select, api_token {Stänga ute {person}s token {name} från den här arbetsytan? Överallt annars där den når fortsätter den att fungera.} other {Koppla från {name} från den här arbetsytan för {person}? Deras andra arbetsytor behåller den, och ansluts den igen kommer den tillbaka hit.}}",
       "confirmHere": "Återkalla {person}s token {name}? Den slutar fungera.",
       "error": "Det gick inte att koppla från den. Försök igen.",
       "gone": "Den är redan frånkopplad, eller når inte längre den här arbetsytan.",

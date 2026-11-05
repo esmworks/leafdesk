@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clientIpFrom, isPrivateAddress, PRIVATE_PROXY, trustedProxyCount } from "./client-ip";
+import { clientIpFrom, ipRateKey, isPrivateAddress, PRIVATE_PROXY, trustedProxyCount } from "./client-ip";
 
 describe("clientIpFrom", () => {
   it("takes the address the trusted proxy saw, not what the visitor wrote", () => {
@@ -51,5 +51,22 @@ describe("trustedProxyCount", () => {
     expect(trustedProxyCount("")).toBe(PRIVATE_PROXY);
     expect(trustedProxyCount("-1")).toBe(PRIVATE_PROXY);
     expect(trustedProxyCount("abc")).toBe(PRIVATE_PROXY);
+  });
+});
+
+describe("ipRateKey", () => {
+  it("counts an IPv6 address by its /64, whatever its form", () => {
+    const key = ipRateKey("2001:db8:1:2::1");
+    expect(key).toBe("2001:db8:1:2::/64");
+    for (const same of ["2001:0db8:0001:0002:ffff:ffff:ffff:ffff", "2001:DB8:1:2:a:b:c:d", "2001:db8:1:2::1%eth0"]) expect(ipRateKey(same)).toBe(key);
+    expect(ipRateKey("2001:db8:1:3::1")).not.toBe(key);
+    expect(ipRateKey("::1")).toBe("0:0:0:0::/64");
+    expect(ipRateKey("2001:db8::")).toBe("2001:db8:0:0::/64");
+  });
+
+  it("keeps an IPv4 address, mapped or not, as itself", () => {
+    expect(ipRateKey("203.0.113.7")).toBe("203.0.113.7");
+    expect(ipRateKey("::ffff:203.0.113.7")).toBe("203.0.113.7");
+    expect(ipRateKey("unknown")).toBe("unknown");
   });
 });

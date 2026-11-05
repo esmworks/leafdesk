@@ -12,7 +12,7 @@ vi.mock("@/db", () => ({
   },
 }));
 vi.mock("@/server/secret-box", () => ({ openJson: (value: unknown) => value, sealJson: (value: unknown) => value }));
-vi.mock("@/server/access", () => ({ AccessError: class AccessError extends Error {}, requireMembership: vi.fn(async () => ({ role: "member" })) }));
+vi.mock("@/server/access", () => ({ AccessError: class AccessError extends Error {}, requireMembership: vi.fn(async () => ({ role: "member" })), findMembership: vi.fn(async () => ({ role: "member" })) }));
 vi.mock("@/server/databases", () => ({
   addProperty: vi.fn(),
   addView: vi.fn(),

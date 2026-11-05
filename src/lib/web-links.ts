@@ -87,7 +87,17 @@ function withoutFences(markdown: string): string {
 }
 
 /** Characters a bare address doesn't end with: they close the sentence around it. */
-const TRAILING = /[.,;:!?'"’”)\]}>*_~]+$/;
+const TRAILING = new Set([...".,;:!?'\"’”)]}>*_~"]);
+
+/**
+ * `url` without TRAILING at its end, scanned from the end by hand: a regex anchored at the end
+ * (`[…]+$`) tries again from every character of a long run of them.
+ */
+function withoutTrailing(url: string): string {
+  let end = url.length;
+  while (end > 0 && TRAILING.has(url[end - 1])) end--;
+  return url.slice(0, end);
+}
 
 /**
  * The web addresses a page's Markdown links to, each once: links (`[text](https://…)`),
@@ -102,9 +112,10 @@ export function markdownWebLinks(markdown: string): string[] {
     const url = normalizeWebLink(raw);
     if (url && !found.includes(url)) found.push(url);
   };
-  // Images first, taken out so their addresses aren't read as bare ones.
-  const withoutImages = text.replace(/!\[[^\]]*\]\((?:[^()\s]|\([^()\s]*\))*(?:\s+"[^"]*")?\)/g, " ");
-  const withoutLinks = withoutImages.replace(/\[[^\]]*\]\(\s*<?(https?:\/\/(?:[^()\s<>]|\([^()\s]*\))+)>?(?:\s+"[^"]*")?\s*\)/gi, (_, url: string) => {
+  // Images first, taken out so their addresses aren't read as bare ones. The text in brackets
+  // holds no "[", so a line of them is read once rather than once for each.
+  const withoutImages = text.replace(/!\[[^[\]]*\]\((?:[^()\s]|\([^()\s]*\))*(?:\s+"[^"]*")?\)/g, " ");
+  const withoutLinks = withoutImages.replace(/\[[^[\]]*\]\(\s*<?(https?:\/\/(?:[^()\s<>]|\([^()\s]*\))+)>?(?:\s+"[^"]*")?\s*\)/gi, (_, url: string) => {
     add(url);
     return " ";
   });
@@ -116,7 +127,7 @@ export function markdownWebLinks(markdown: string): string[] {
     let url = m[0];
     // A closing parenthesis belongs to the address only when it opened one too (Wikipedia's).
     for (;;) {
-      const trimmed = url.replace(TRAILING, "");
+      const trimmed = withoutTrailing(url);
       if (trimmed === url) break;
       const kept = url.slice(0, trimmed.length + 1);
       if (kept.endsWith(")") && (kept.match(/\(/g)?.length ?? 0) >= (kept.match(/\)/g)?.length ?? 0)) {

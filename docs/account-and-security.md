@@ -186,9 +186,11 @@ the REST API.
   own clients are left out), with what each may do, who connected it, when, and when it last
   reached this workspace (recorded at most once a minute, from when this list was added, for
   requests the workspace let through). It shows the 100 apps and 100 tokens used here most
-  recently, and how many there are in all. *Disconnect* (an app) and *Revoke* (a token) take it from
-  that person's account: an app or a token belongs to the person, so it stops reaching all of their
-  workspaces until they connect it again or make a new token. Only this workspace's audit log
+  recently, and how many there are in all. *Disconnect* (an app) and *Revoke* (a token) cut it off
+  from this workspace: an app or a token belongs to the person, and owners here decide for here
+  only, so one that reaches the person's other workspaces keeps working there, and an app they
+  connect again (a new consent) reaches this workspace again. One that reaches only this workspace
+  (a token made for it, or the person is in no other) is revoked. Only this workspace's audit log
   records it, with the owner as who did it and the person it was about.
   *Approve* and *Withdraw approval* on an app decide whether it reaches the workspace while *Only
   approved apps* is on (a workspace keeps at most 500 approvals); both are recorded in the audit log.

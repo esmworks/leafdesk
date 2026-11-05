@@ -16,6 +16,7 @@ import {
   takeawayLine,
   transcriptLines,
   type TranscriptChunk,
+  withoutTranscripts,
 } from "./meetings";
 
 describe("meeting transcripts", () => {
@@ -126,6 +127,23 @@ const props = {
 };
 
 describe("meetings in Markdown", () => {
+  it("leaves the transcripts out for what shows a body to visitors", () => {
+    const markdown = meetingMarkdown({
+      meetingId: "m1",
+      title: "Board",
+      summary: "- Budget approved [00:10]",
+      transcript: JSON.stringify([{ c: 0, t: 0, d: 30, text: "SECRET TRANSCRIPT" }]),
+    });
+    const body = `Before\n\n${markdown}\n\nAfter **Transcript**`;
+    const shown = withoutTranscripts(body);
+    expect(shown).not.toContain("SECRET");
+    expect(shown).toContain("Budget approved");
+    expect(shown).toContain("<!-- leafdesk:/meeting -->");
+    expect(shown.endsWith("After **Transcript**")).toBe(true);
+    // Cut short before its end, a meeting loses the rest of its transcript too.
+    expect(withoutTranscripts(body.slice(0, body.indexOf("SECRET") + 3))).not.toContain("SEC");
+  });
+
   it("write a region with the takeaways and the transcript, which can't be closed from inside", () => {
     const markdown = meetingMarkdown(props);
     expect(markdown.split("\n")[0]).toBe("<!-- leafdesk:meeting m1 -->");
