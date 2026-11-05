@@ -571,6 +571,17 @@
     "editLabel": "Not",
     "save": "Kaydet",
     "cancel": "Vazgeç",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Tercihler",
+      "work": "İş",
+      "other": "Diğer"
+    },
+    "categoryLabel": "Tür",
+    "filterLabel": "Göster",
+    "allCategories": "Tüm türler",
+    "search": "Notlarda ara",
+    "noMatch": "Eşleşen not yok.",
     "delete": "Sil",
     "viaApp": "{app} kaydetti",
     "count": "{count}/{max} not",

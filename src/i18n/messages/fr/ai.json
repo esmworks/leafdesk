@@ -571,6 +571,17 @@
     "editLabel": "Note",
     "save": "Enregistrer",
     "cancel": "Annuler",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Préférences",
+      "work": "Travail",
+      "other": "Autre"
+    },
+    "categoryLabel": "Type",
+    "filterLabel": "Afficher",
+    "allCategories": "Tous les types",
+    "search": "Rechercher dans les notes",
+    "noMatch": "Aucune note ne correspond.",
     "delete": "Supprimer",
     "viaApp": "Enregistrée par {app}",
     "count": "{count} notes sur {max}",

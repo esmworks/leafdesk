@@ -571,6 +571,17 @@
     "editLabel": "笔记",
     "save": "保存",
     "cancel": "取消",
+    "categories": {
+      "profile": "个人资料",
+      "preference": "偏好",
+      "work": "工作",
+      "other": "其他"
+    },
+    "categoryLabel": "类型",
+    "filterLabel": "显示",
+    "allCategories": "所有类型",
+    "search": "搜索笔记",
+    "noMatch": "没有匹配的笔记。",
     "delete": "删除",
     "viaApp": "由 {app} 保存",
     "count": "{count} / {max} 条笔记",

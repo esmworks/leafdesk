@@ -25,6 +25,19 @@ describe("fitNotes", () => {
     expect(fitted).toEqual({ text: `(more)\n${line("a", "Fix", "correction")}`, count: 2, shown: 1 });
   });
 
+  it("says what a note is about, except for other", () => {
+    const fitted = fitNotes(
+      [
+        { id: "a", text: "Answers in Turkish", category: "preference" as const },
+        { id: "b", text: "Leads the Q3 launch", category: "work" as const },
+        { id: "c", text: "Likes tea", category: "other" as const },
+      ],
+      1000,
+      "(more)",
+    );
+    expect(fitted.text).toBe(`${line("a", "[preference] Answers in Turkish")}\n${line("b", "[work] Leads the Q3 launch")}\n${line("c", "Likes tea")}`);
+  });
+
   it("shows only the overflow line when nothing fits", () => {
     expect(fitNotes([note("a", "Too long for the room")], 3, "(more)")).toEqual({ text: "(more)", count: 1, shown: 0 });
   });

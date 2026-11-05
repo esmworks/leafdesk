@@ -571,6 +571,17 @@
     "editLabel": "Catatan",
     "save": "Simpan",
     "cancel": "Batal",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Preferensi",
+      "work": "Pekerjaan",
+      "other": "Lainnya"
+    },
+    "categoryLabel": "Jenis",
+    "filterLabel": "Tampilkan",
+    "allCategories": "Semua jenis",
+    "search": "Cari catatan",
+    "noMatch": "Tidak ada catatan yang cocok.",
     "delete": "Hapus",
     "viaApp": "Disimpan oleh {app}",
     "count": "{count} dari {max} catatan",

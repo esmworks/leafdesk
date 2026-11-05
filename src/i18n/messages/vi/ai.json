@@ -571,6 +571,17 @@
     "editLabel": "Ghi chú",
     "save": "Lưu",
     "cancel": "Hủy",
+    "categories": {
+      "profile": "Hồ sơ",
+      "preference": "Sở thích",
+      "work": "Công việc",
+      "other": "Khác"
+    },
+    "categoryLabel": "Loại",
+    "filterLabel": "Hiển thị",
+    "allCategories": "Tất cả loại",
+    "search": "Tìm trong ghi chú",
+    "noMatch": "Không có ghi chú phù hợp.",
     "delete": "Xóa",
     "viaApp": "Được giữ bởi {app}",
     "count": "{count} trên {max} ghi chú",

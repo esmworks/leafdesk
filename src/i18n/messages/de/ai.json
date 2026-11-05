@@ -571,6 +571,17 @@
     "editLabel": "Notiz",
     "save": "Speichern",
     "cancel": "Abbrechen",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Vorlieben",
+      "work": "Arbeit",
+      "other": "Sonstiges"
+    },
+    "categoryLabel": "Art",
+    "filterLabel": "Anzeigen",
+    "allCategories": "Alle Arten",
+    "search": "Notizen durchsuchen",
+    "noMatch": "Keine passenden Notizen.",
     "delete": "Löschen",
     "viaApp": "Gespeichert von {app}",
     "count": "{count} von {max} Notizen",

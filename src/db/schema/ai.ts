@@ -5,7 +5,7 @@ import { agentRun, workspaceAgent } from "./agents";
 import { user } from "./auth";
 import { file } from "./files";
 import type { AgentChatMessageRecord, AgentChatQueuedRecord } from "../../lib/agent-chat";
-import type { ChatThinking } from "../../lib/ai-chat";
+import type { ChatThinking, MemoryCategory } from "../../lib/ai-chat";
 
 /**
  * Where an AI autofill value of a row stands (see server/ai-properties.ts): waiting or being worked
@@ -240,7 +240,7 @@ export type ChatMemoryRecord = {
   text: string;
   outcome?: "done" | "declined" | "undone";
   memoryId?: string;
-  previous?: { text: string; kind: MemoryKind; saidBy: string | null } | null;
+  previous?: { text: string; kind: MemoryKind; saidBy: string | null; category?: MemoryCategory } | null;
   /** A note of the person's for every workspace, of the workspace or of a teamspace (`place`, its name then), not their own here. */
   layer?: "account" | "workspace" | "teamspace";
   place?: string;
@@ -447,6 +447,8 @@ export const aiMemory = pgTable(
       .notNull()
       .references(() => workspace.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
+    /** What the note is about (lib/ai-chat.ts MEMORY_CATEGORIES), for grouping and filtering. */
+    category: text("category").$type<MemoryCategory>().notNull().default("other"),
     conversationId: text("conversation_id").references(() => conversation.id, { onDelete: "set null" }),
     status: text("status").$type<MemoryStatus>().notNull().default("kept"),
     agentRunId: text("agent_run_id").references(() => agentRun.id, { onDelete: "cascade" }),
@@ -484,6 +486,8 @@ export const sharedMemory = pgTable(
       .references(() => workspace.id, { onDelete: "cascade" }),
     teamspaceId: text("teamspace_id").references(() => teamspace.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
+    /** What the note is about (lib/ai-chat.ts MEMORY_CATEGORIES), for grouping and filtering. */
+    category: text("category").$type<MemoryCategory>().notNull().default("other"),
     /** Who wrote the note, and who changed it last (null: gone since). */
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     updatedBy: text("updated_by").references(() => user.id, { onDelete: "set null" }),
@@ -510,6 +514,8 @@ export const accountMemory = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     text: text("text").notNull(),
+    /** What the note is about (lib/ai-chat.ts MEMORY_CATEGORIES), for grouping and filtering. */
+    category: text("category").$type<MemoryCategory>().notNull().default("other"),
     /** The connected app (OAuth client) that kept the note or last changed it over MCP, if one did. */
     oauthClientId: text("oauth_client_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

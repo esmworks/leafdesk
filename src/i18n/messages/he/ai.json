@@ -571,6 +571,17 @@
     "editLabel": "הערה",
     "save": "שמירה",
     "cancel": "ביטול",
+    "categories": {
+      "profile": "פרופיל",
+      "preference": "העדפות",
+      "work": "עבודה",
+      "other": "אחר"
+    },
+    "categoryLabel": "סוג",
+    "filterLabel": "הצגה",
+    "allCategories": "כל הסוגים",
+    "search": "חיפוש בהערות",
+    "noMatch": "אין הערות תואמות.",
     "delete": "מחיקה",
     "viaApp": "נשמר על ידי {app}",
     "count": "{count} מתוך {max} הערות",

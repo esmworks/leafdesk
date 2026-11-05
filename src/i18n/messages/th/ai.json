@@ -571,6 +571,17 @@
     "editLabel": "บันทึก",
     "save": "บันทึก",
     "cancel": "ยกเลิก",
+    "categories": {
+      "profile": "โปรไฟล์",
+      "preference": "ความชอบ",
+      "work": "งาน",
+      "other": "อื่นๆ"
+    },
+    "categoryLabel": "ประเภท",
+    "filterLabel": "แสดง",
+    "allCategories": "ทุกประเภท",
+    "search": "ค้นหาโน้ต",
+    "noMatch": "ไม่มีโน้ตที่ตรงกัน",
     "delete": "ลบ",
     "viaApp": "เก็บโดย {app}",
     "count": "{count} จาก {max} บันทึก",

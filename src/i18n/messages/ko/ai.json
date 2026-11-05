@@ -571,6 +571,17 @@
     "editLabel": "메모",
     "save": "저장",
     "cancel": "취소",
+    "categories": {
+      "profile": "프로필",
+      "preference": "선호",
+      "work": "업무",
+      "other": "기타"
+    },
+    "categoryLabel": "종류",
+    "filterLabel": "표시",
+    "allCategories": "모든 종류",
+    "search": "메모 검색",
+    "noMatch": "일치하는 메모가 없습니다.",
     "delete": "삭제",
     "viaApp": "{app}에서 보관함",
     "count": "메모 {count}/{max}개",

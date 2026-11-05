@@ -7,16 +7,16 @@
  * each teamspace's they are in (server/shared-memory.ts), which those in it read and those who
  * manage it change. While the workspace has the memory off, only the notes everywhere show.
  */
-import { Check, ChevronRight, Eye, Pencil, Trash2, X } from "lucide-react";
+import { Check, ChevronRight, Eye, Pencil, Search, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { changeNoteAction, setMemoryUseAction, type NoteChange } from "@/app/actions/ai";
 import { IconGlyph } from "@/components/builtin-icon";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { Button, cn, IconButton, Input, Switch } from "@/components/ui";
-import { chatPath, MAX_MEMORIES, MAX_MEMORY_CHARS, memoryPagePath, type MemoryPlaceView, type MemoryView } from "@/lib/ai-chat";
+import { Button, cn, IconButton, Input, selectClass, Switch } from "@/components/ui";
+import { chatPath, isMemoryCategory, MAX_MEMORIES, MAX_MEMORY_CHARS, MEMORY_CATEGORIES, memoryPagePath, type MemoryCategory, type MemoryPlaceView, type MemoryView } from "@/lib/ai-chat";
 
 type Note = MemoryView & { by?: string | null };
 /** `mine` and `everywhere` are the person's; `workspace` the workspace's; anything else a teamspace's id. */
@@ -213,7 +213,17 @@ function NavItem({ current, count, onClick, children }: { current: boolean; coun
   );
 }
 
-/** One part's notes: each changed in place or deleted, a note to add and deleting them all, for those who may. */
+/** Whether a note has every word of a search, any case. */
+function matches(note: Note, words: string[], locale: string): boolean {
+  const text = note.text.toLocaleLowerCase(locale);
+  return words.every((word) => text.includes(word));
+}
+
+/**
+ * One part's notes, grouped by what they are about (flat while every note is `other`), with a
+ * search and a filter by kind: each changed in place or deleted, a note to add and deleting them
+ * all, for those who may.
+ */
 function NoteList({
   notes,
   canChange,
@@ -235,76 +245,143 @@ function NoteList({
   onChange: (change: NoteChange) => Promise<boolean>;
 }) {
   const t = useTranslations("ai.memory");
+  const locale = useLocale();
   const offline = useIsOffline();
   const [draft, setDraft] = useState("");
-  const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
+  const [draftCategory, setDraftCategory] = useState<MemoryCategory>("other");
+  const [editing, setEditing] = useState<{ id: string; text: string; category: MemoryCategory } | null>(null);
+  const [query, setQuery] = useState("");
+  const [only, setOnly] = useState<MemoryCategory | "all">("all");
   const changes = canChange && !offline;
   const full = notes.length >= MAX_MEMORIES;
+
+  const words = query.toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
+  const shown = notes.filter((note) => (only === "all" || note.category === only) && matches(note, words, locale));
+  // Notes kept before kinds existed are all `other`: a list of them alone has no headings.
+  const grouped = notes.some((note) => note.category !== "other");
+  const groups = grouped
+    ? MEMORY_CATEGORIES.map((category) => ({ category, notes: shown.filter((note) => note.category === category) })).filter((group) => group.notes.length > 0)
+    : [{ category: null, notes: shown }];
 
   async function add(event: FormEvent) {
     event.preventDefault();
     if (!draft.trim() || busy) return;
-    if (await onChange({ add: draft })) setDraft("");
+    if (await onChange({ add: draft, category: draftCategory })) setDraft("");
   }
 
   async function save(event: FormEvent) {
     event.preventDefault();
     if (!editing || busy) return;
-    if (await onChange({ id: editing.id, text: editing.text })) setEditing(null);
+    if (await onChange({ id: editing.id, text: editing.text, category: editing.category })) setEditing(null);
   }
 
+  const kindSelect = (value: MemoryCategory, onSelect: (next: MemoryCategory) => void, disabled = false) => (
+    <select
+      aria-label={t("categoryLabel")}
+      className={cn(selectClass, "max-w-[9rem] shrink-0")}
+      value={value}
+      disabled={disabled}
+      onChange={(e) => {
+        if (isMemoryCategory(e.target.value)) onSelect(e.target.value);
+      }}
+    >
+      {MEMORY_CATEGORIES.map((category) => (
+        <option key={category} value={category}>
+          {t(`categories.${category}`)}
+        </option>
+      ))}
+    </select>
+  );
+
   const action = "h-7 w-7 opacity-0 group-hover/note:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60";
+  const row = (note: Note) =>
+    editing?.id === note.id ? (
+      <li key={note.id} className="py-1.5">
+        <form onSubmit={save} className="flex items-center gap-1">
+          <Input
+            autoFocus
+            aria-label={t("editLabel")}
+            value={editing.text}
+            maxLength={MAX_MEMORY_CHARS}
+            onChange={(e) => setEditing({ ...editing, text: e.target.value })}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setEditing(null);
+            }}
+          />
+          {kindSelect(editing.category, (category) => setEditing({ ...editing, category }))}
+          <IconButton type="submit" label={t("save")} className="h-8 w-8" disabled={busy || !editing.text.trim()}>
+            <Check className="h-4 w-4" />
+          </IconButton>
+          <IconButton label={t("cancel")} className="h-8 w-8" onClick={() => setEditing(null)}>
+            <X className="h-4 w-4" />
+          </IconButton>
+        </form>
+      </li>
+    ) : (
+      <li key={note.id} className="group/note flex items-start gap-1 py-1.5">
+        <div className="min-w-0 flex-1 py-1">
+          <p className="break-words">{note.text}</p>
+          {(note.app || (shared && note.by)) && (
+            <p className="mt-0.5 text-xs text-fg-muted">{note.app ? t("viaApp", { app: note.app }) : t("byPerson", { name: note.by! })}</p>
+          )}
+        </div>
+        {changes && (
+          <>
+            <IconButton label={t("edit")} className={action} disabled={busy} onClick={() => setEditing({ id: note.id, text: note.text, category: note.category })}>
+              <Pencil className="h-3.5 w-3.5" />
+            </IconButton>
+            <IconButton label={t("delete")} className={action} disabled={busy} onClick={() => void onChange({ delete: note.id })}>
+              <Trash2 className="h-3.5 w-3.5" />
+            </IconButton>
+          </>
+        )}
+      </li>
+    );
+
   return (
     <div className="space-y-3 text-sm">
       {offline && <p className="text-fg-muted">{t("offline")}</p>}
       {notes.length === 0 ? (
         <p className="text-fg-muted">{shared ? t("emptyShared") : t("empty")}</p>
       ) : (
-        <ul className="divide-y divide-border border-y border-border">
-          {notes.map((note) =>
-            editing?.id === note.id ? (
-              <li key={note.id} className="py-1.5">
-                <form onSubmit={save} className="flex items-center gap-1">
-                  <Input
-                    autoFocus
-                    aria-label={t("editLabel")}
-                    value={editing.text}
-                    maxLength={MAX_MEMORY_CHARS}
-                    onChange={(e) => setEditing({ id: note.id, text: e.target.value })}
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") setEditing(null);
-                    }}
-                  />
-                  <IconButton type="submit" label={t("save")} className="h-8 w-8" disabled={busy || !editing.text.trim()}>
-                    <Check className="h-4 w-4" />
-                  </IconButton>
-                  <IconButton label={t("cancel")} className="h-8 w-8" onClick={() => setEditing(null)}>
-                    <X className="h-4 w-4" />
-                  </IconButton>
-                </form>
-              </li>
-            ) : (
-              <li key={note.id} className="group/note flex items-start gap-1 py-1.5">
-                <div className="min-w-0 flex-1 py-1">
-                  <p className="break-words">{note.text}</p>
-                  {(note.app || (shared && note.by)) && (
-                    <p className="mt-0.5 text-xs text-fg-muted">{note.app ? t("viaApp", { app: note.app }) : t("byPerson", { name: note.by! })}</p>
-                  )}
-                </div>
-                {changes && (
-                  <>
-                    <IconButton label={t("edit")} className={action} disabled={busy} onClick={() => setEditing({ id: note.id, text: note.text })}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </IconButton>
-                    <IconButton label={t("delete")} className={action} disabled={busy} onClick={() => void onChange({ delete: note.id })}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </IconButton>
-                  </>
-                )}
-              </li>
-            ),
+        <>
+          <div className="flex items-center gap-2">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
+              <Input type="search" aria-label={t("search")} placeholder={t("search")} value={query} onChange={(e) => setQuery(e.target.value)} className="ps-7" />
+            </div>
+            <select
+              aria-label={t("filterLabel")}
+              className={cn(selectClass, "max-w-[10rem] shrink-0")}
+              value={only}
+              onChange={(e) => {
+                const next = e.target.value;
+                setOnly(isMemoryCategory(next) ? next : "all");
+                // A note added while one kind is shown is of that kind.
+                if (isMemoryCategory(next)) setDraftCategory(next);
+              }}
+            >
+              <option value="all">{t("allCategories")}</option>
+              {MEMORY_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {t(`categories.${category}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+          {shown.length === 0 ? (
+            <p className="text-fg-muted" aria-live="polite">
+              {t("noMatch")}
+            </p>
+          ) : (
+            groups.map((group) => (
+              <div key={group.category ?? "all"}>
+                {group.category && <h3 className="pt-2 pb-1 text-xs font-medium text-fg-muted">{t(`categories.${group.category}`)}</h3>}
+                <ul className="divide-y divide-border border-y border-border">{group.notes.map(row)}</ul>
+              </div>
+            ))
           )}
-        </ul>
+        </>
       )}
       {changes && (
         <>
@@ -317,6 +394,7 @@ function NoteList({
               disabled={full}
               onChange={(e) => setDraft(e.target.value)}
             />
+            {kindSelect(draftCategory, setDraftCategory, full)}
             <Button type="submit" variant="primary" disabled={busy || full || !draft.trim()}>
               {t("add")}
             </Button>

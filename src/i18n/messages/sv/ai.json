@@ -571,6 +571,17 @@
     "editLabel": "Anteckning",
     "save": "Spara",
     "cancel": "Avbryt",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Preferenser",
+      "work": "Arbete",
+      "other": "Övrigt"
+    },
+    "categoryLabel": "Typ",
+    "filterLabel": "Visa",
+    "allCategories": "Alla typer",
+    "search": "Sök i anteckningar",
+    "noMatch": "Inga anteckningar matchar.",
     "delete": "Radera",
     "viaApp": "Sparad av {app}",
     "count": "{count} av {max} anteckningar",

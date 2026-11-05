@@ -571,6 +571,17 @@
     "editLabel": "یادداشت",
     "save": "ذخیره",
     "cancel": "لغو",
+    "categories": {
+      "profile": "نمایه",
+      "preference": "ترجیحات",
+      "work": "کار",
+      "other": "سایر"
+    },
+    "categoryLabel": "نوع",
+    "filterLabel": "نمایش",
+    "allCategories": "همه انواع",
+    "search": "جستجو در یادداشت‌ها",
+    "noMatch": "یادداشتی پیدا نشد.",
     "delete": "حذف",
     "viaApp": "نگه‌داشته‌شده توسط {app}",
     "count": "{count} از {max} یادداشت",

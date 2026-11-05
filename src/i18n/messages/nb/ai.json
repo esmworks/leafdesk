@@ -571,6 +571,17 @@
     "editLabel": "Notat",
     "save": "Lagre",
     "cancel": "Avbryt",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Preferanser",
+      "work": "Arbeid",
+      "other": "Annet"
+    },
+    "categoryLabel": "Type",
+    "filterLabel": "Vis",
+    "allCategories": "Alle typer",
+    "search": "Søk i notater",
+    "noMatch": "Ingen notater passer.",
     "delete": "Slett",
     "viaApp": "Lagret av {app}",
     "count": "{count} av {max} notater",

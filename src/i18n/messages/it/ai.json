@@ -571,6 +571,17 @@
     "editLabel": "Nota",
     "save": "Salva",
     "cancel": "Annulla",
+    "categories": {
+      "profile": "Profilo",
+      "preference": "Preferenze",
+      "work": "Lavoro",
+      "other": "Altro"
+    },
+    "categoryLabel": "Tipo",
+    "filterLabel": "Mostra",
+    "allCategories": "Tutti i tipi",
+    "search": "Cerca nelle note",
+    "noMatch": "Nessuna nota corrisponde.",
     "delete": "Elimina",
     "viaApp": "Conservata da {app}",
     "count": "{count} di {max} note",

@@ -571,6 +571,17 @@
     "editLabel": "Заметка",
     "save": "Сохранить",
     "cancel": "Отмена",
+    "categories": {
+      "profile": "Профиль",
+      "preference": "Предпочтения",
+      "work": "Работа",
+      "other": "Другое"
+    },
+    "categoryLabel": "Тип",
+    "filterLabel": "Показать",
+    "allCategories": "Все типы",
+    "search": "Поиск по заметкам",
+    "noMatch": "Нет подходящих заметок.",
     "delete": "Удалить",
     "viaApp": "Сохранено приложением {app}",
     "count": "Заметок: {count} из {max}",

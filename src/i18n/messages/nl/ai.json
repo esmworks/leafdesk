@@ -571,6 +571,17 @@
     "editLabel": "Notitie",
     "save": "Opslaan",
     "cancel": "Annuleren",
+    "categories": {
+      "profile": "Profiel",
+      "preference": "Voorkeuren",
+      "work": "Werk",
+      "other": "Overig"
+    },
+    "categoryLabel": "Soort",
+    "filterLabel": "Tonen",
+    "allCategories": "Alle soorten",
+    "search": "Notities doorzoeken",
+    "noMatch": "Geen notities gevonden.",
     "delete": "Verwijderen",
     "viaApp": "Bijgehouden door {app}",
     "count": "{count} van {max} notities",

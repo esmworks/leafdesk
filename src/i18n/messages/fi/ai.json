@@ -571,6 +571,17 @@
     "editLabel": "Muistiinpano",
     "save": "Tallenna",
     "cancel": "Peruuta",
+    "categories": {
+      "profile": "Profiili",
+      "preference": "Mieltymykset",
+      "work": "Työ",
+      "other": "Muut"
+    },
+    "categoryLabel": "Tyyppi",
+    "filterLabel": "Näytä",
+    "allCategories": "Kaikki tyypit",
+    "search": "Hae muistiinpanoista",
+    "noMatch": "Ei osuvia muistiinpanoja.",
     "delete": "Poista",
     "viaApp": "Tallentanut: {app}",
     "count": "{count}/{max} muistiinpanoa",

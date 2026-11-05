@@ -571,6 +571,17 @@
     "editLabel": "Нотатка",
     "save": "Зберегти",
     "cancel": "Скасувати",
+    "categories": {
+      "profile": "Профіль",
+      "preference": "Уподобання",
+      "work": "Робота",
+      "other": "Інше"
+    },
+    "categoryLabel": "Тип",
+    "filterLabel": "Показати",
+    "allCategories": "Усі типи",
+    "search": "Пошук у нотатках",
+    "noMatch": "Немає відповідних нотаток.",
     "delete": "Видалити",
     "viaApp": "Зберігає {app}",
     "count": "{count} з {max} нотаток",

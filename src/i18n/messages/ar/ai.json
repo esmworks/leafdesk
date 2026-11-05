@@ -571,6 +571,17 @@
     "editLabel": "الملاحظة",
     "save": "حفظ",
     "cancel": "إلغاء",
+    "categories": {
+      "profile": "الملف الشخصي",
+      "preference": "التفضيلات",
+      "work": "العمل",
+      "other": "أخرى"
+    },
+    "categoryLabel": "النوع",
+    "filterLabel": "عرض",
+    "allCategories": "كل الأنواع",
+    "search": "البحث في الملاحظات",
+    "noMatch": "لا توجد ملاحظات مطابقة.",
     "delete": "حذف",
     "viaApp": "يحتفظ بها {app}",
     "count": "{count} من أصل {max} ملاحظات",

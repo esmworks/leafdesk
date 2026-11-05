@@ -571,6 +571,17 @@
     "editLabel": "Notatka",
     "save": "Zapisz",
     "cancel": "Anuluj",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Preferencje",
+      "work": "Praca",
+      "other": "Inne"
+    },
+    "categoryLabel": "Rodzaj",
+    "filterLabel": "Pokaż",
+    "allCategories": "Wszystkie rodzaje",
+    "search": "Szukaj w notatkach",
+    "noMatch": "Brak pasujących notatek.",
     "delete": "Usuń",
     "viaApp": "Zapisane przez {app}",
     "count": "Notatki: {count} z {max}",

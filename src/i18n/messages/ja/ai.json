@@ -571,6 +571,17 @@
     "editLabel": "メモ",
     "save": "保存",
     "cancel": "キャンセル",
+    "categories": {
+      "profile": "プロフィール",
+      "preference": "好み",
+      "work": "仕事",
+      "other": "その他"
+    },
+    "categoryLabel": "種類",
+    "filterLabel": "表示",
+    "allCategories": "すべての種類",
+    "search": "メモを検索",
+    "noMatch": "一致するメモはありません。",
     "delete": "削除",
     "viaApp": "{app}が保持",
     "count": "{count}/{max}件のメモ",

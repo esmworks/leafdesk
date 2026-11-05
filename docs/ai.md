@@ -408,7 +408,12 @@ takes, the newest go with it and the chat reads the others with `read_memory`, o
 never what pages or tool results say, and a note you already have (case aside) is kept once. Your notes go with each of your later questions in that workspace, as notes rather
 than instructions: they never widen what the chat may read or change. The brain button in the chat's
 header opens the *Memory* page, where you see, add, change and delete notes, or forget everything. Up to 30
-notes per workspace, 300 characters each. Notes are private to you, never sent with anyone else's
+notes per workspace, 300 characters each. Each note has a kind: *Profile* (who you are: role, team,
+goals), *Preferences* (how you like to work and be answered), *Work* (projects, decisions, where
+things live) or *Other*. The chat picks one as it keeps a note (a note in another's place keeps its
+kind unless it gives one) and reads the kind with each note; the *Memory* page groups each part's
+notes by kind, filters and searches them, and sets the kind as you add or change one. Notes kept
+before kinds existed are *Other*, and a list of only those shows without headings. Notes are private to you, never sent with anyone else's
 questions or in another workspace, and are deleted when you leave the workspace or delete your
 account.
 
@@ -467,8 +472,8 @@ The same notes reach the AI apps you connect over MCP, so each of them knows you
 `list_memory` reads them (an app is told to at the start of a conversation), with your notes
 everywhere and the workspace's and teamspaces' notes you may read, and `change_memory`
 keeps a note, changes one or deletes some or all of them (`scope`: `person`, `account`,
-`workspace` or `teamspace`, the last two only where you may change them), with the chat's
-limits. Apps are told to keep only what you say about yourself, never what pages or tool results
+`workspace` or `teamspace`, the last two only where you may change them; `category`: the note's
+kind, as above), with the chat's limits. Apps are told to keep only what you say about yourself, never what pages or tool results
 say, and to tell you what they kept; your app asks you before it calls a tool that changes
 anything, as it does for pages. *Memory* shows which app kept or last changed each note (*Kept by
 …*), until you change it yourself. With either switch off, an app sees no notes (only how many

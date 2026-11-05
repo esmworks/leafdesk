@@ -199,6 +199,24 @@ try {
     afterMove,
   );
 
+  // ── What a note is about ────────────────────────────────────────────────────────────────────
+  fake.setChat(caller([{ name: "remember", arguments: { text: "Wants answers as tables.", category: "preference" } }]));
+  const typed = await ask(alice, { workspaceId, message: "Always show me tables" });
+  const tableNote = (await notesOf(alice)).find((m) => m.text === "Wants answers as tables.");
+  check(typed.done && tableNote?.category === "preference", "remember keeps what a note is about", tableNote);
+  fake.setChat(caller([{ name: "remember", arguments: { text: "Wants answers as short tables.", replaces: tableNote.id } }]));
+  await ask(alice, { workspaceId, message: "Short tables, please" });
+  const retold = (await notesOf(alice)).find((m) => m.id === tableNote.id);
+  check(retold?.text === "Wants answers as short tables." && retold.category === "preference", "…a note in another's place keeps its kind unless told one", retold);
+  fake.chats.length = 0;
+  await ask(alice, { workspaceId, message: "Hi" });
+  check(memoryOf(fake.chats[0])?.includes(`- (memory_id ${tableNote.id}) [preference] Wants answers as short tables.`), "…and the model reads the kind with the note", memoryOf(fake.chats[0]));
+  const notOther = (await notesOf(alice)).find((m) => m.id === kept.id);
+  check(notOther?.category === "other" && memoryOf(fake.chats[0])?.includes(`- (memory_id ${kept.id}) Leads the brand team.`), "a note of no kind is other, shown without one");
+  const retyped = await updateMemory(alice, workspaceId, tableNote.id, "Wants answers as short tables.", "work");
+  check(retyped.category === "work" && retyped.text === "Wants answers as short tables.", "the Memory view changes a note's kind, its text as it was", retyped);
+  await deleteMemories(alice, workspaceId, [tableNote.id]);
+
   // ── Switched off by the person ──────────────────────────────────────────────────────────────
   const offers = (request: FakeChatRequest) => toolNames(request).includes("remember") || toolNames(request).includes("forget");
   check((await memoryUse(alice, workspaceId)) && (await memoryAvailable(workspaceId)), "the memory is on by default, for the person and the workspace");

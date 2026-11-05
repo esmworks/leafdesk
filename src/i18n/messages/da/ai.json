@@ -571,6 +571,17 @@
     "editLabel": "Note",
     "save": "Gem",
     "cancel": "Annuller",
+    "categories": {
+      "profile": "Profil",
+      "preference": "Præferencer",
+      "work": "Arbejde",
+      "other": "Andet"
+    },
+    "categoryLabel": "Type",
+    "filterLabel": "Vis",
+    "allCategories": "Alle typer",
+    "search": "Søg i noter",
+    "noMatch": "Ingen noter passer.",
     "delete": "Slet",
     "viaApp": "Gemt af {app}",
     "count": "{count} af {max} noter",

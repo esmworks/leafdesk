@@ -26,7 +26,7 @@ import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { aiMemory, oauthClient, type ChatMemoryRecord, type MemoryStatus } from "@/db/schema";
 import type { MemoryKind } from "@/db/schema/ai";
-import { MAX_MEMORIES, MAX_MEMORY_CHARS, type ChatActionView, type MemoryLayer, type MemoryView } from "@/lib/ai-chat";
+import { isMemoryCategory, MAX_MEMORIES, MAX_MEMORY_CHARS, MEMORY_CATEGORIES, type ChatActionView, type MemoryCategory, type MemoryLayer, type MemoryView } from "@/lib/ai-chat";
 import { accountNotesOf, deleteAccountNotes, writeAccountNote } from "@/server/account-memory";
 import { AccessError, requireMembership } from "@/server/access";
 import type { AiTool } from "@/server/ai";
@@ -135,6 +135,7 @@ export const lockNotes = (tx: Pick<typeof db, "execute">, userId: string, worksp
 const view = (m: Note, app: string | null = null): MemoryView => ({
   id: m.id,
   text: m.text,
+  category: m.category,
   app,
   createdAt: m.createdAt.toISOString(),
   updatedAt: m.updatedAt.toISOString(),
@@ -160,7 +161,8 @@ export async function keptNotes(userId: string, workspaceId: string): Promise<Me
  * once: that one is returned, marked `known`, and the replaced note, if any, goes. Refused with
  * `full` at MAX_MEMORIES (for an agent's proposal, `status` proposed: at `maxProposed` proposals)
  * and `notFound` when the replaced note isn't the person's. `app`: the connected app writing it,
- * recorded on the note it keeps or changes (none: written in Leafdesk).
+ * recorded on the note it keeps or changes (none: written in Leafdesk). `category`: what the note
+ * is about; a changed note keeps its own unless one is given, a new one is `other` without.
  */
 export async function writeNote(
   userId: string,
@@ -173,6 +175,7 @@ export async function writeNote(
     agentRunId = null,
     maxProposed = MAX_MEMORIES,
     app = null,
+    category = null,
   }: {
     replaces?: string | null;
     conversationId?: string | null;
@@ -180,6 +183,7 @@ export async function writeNote(
     agentRunId?: string | null;
     maxProposed?: number;
     app?: string | null;
+    category?: MemoryCategory | null;
   } = {},
 ): Promise<Note & { known?: true }> {
   // Written only while the workspace has the memory on (the person's own switch aside).
@@ -198,12 +202,16 @@ export async function writeNote(
       return { ...known, known: true as const };
     }
     if (target) {
-      const [changed] = await tx.update(aiMemory).set({ text: note, oauthClientId: app, updatedAt: new Date() }).where(eq(aiMemory.id, target.id)).returning();
+      const [changed] = await tx
+        .update(aiMemory)
+        .set({ text: note, ...(category ? { category } : {}), oauthClientId: app, updatedAt: new Date() })
+        .where(eq(aiMemory.id, target.id))
+        .returning();
       return changed;
     }
     const max = status === "kept" ? MAX_MEMORIES : maxProposed;
     if (notes.filter((m) => m.status === status).length >= max) throw new MemoryError("full", `The memory holds at most ${max} notes`);
-    const [made] = await tx.insert(aiMemory).values({ userId, workspaceId, text: note, conversationId, status, agentRunId, oauthClientId: app }).returning();
+    const [made] = await tx.insert(aiMemory).values({ userId, workspaceId, text: note, category: category ?? "other", conversationId, status, agentRunId, oauthClientId: app }).returning();
     return made;
   });
 }
@@ -215,15 +223,15 @@ export async function listMemories(userId: string, workspaceId: string): Promise
 }
 
 /** Keeps a note the person wrote (see writeNote). */
-export async function addMemory(userId: string, workspaceId: string, text: string): Promise<MemoryView> {
+export async function addMemory(userId: string, workspaceId: string, text: string, category: MemoryCategory | null = null): Promise<MemoryView> {
   await requireMembership(userId, workspaceId);
-  return view(await writeNote(userId, workspaceId, text));
+  return view(await writeNote(userId, workspaceId, text, { category }));
 }
 
-/** Changes the text of one of the person's notes (see writeNote: the same as another merges them). */
-export async function updateMemory(userId: string, workspaceId: string, memoryId: string, text: string): Promise<MemoryView> {
+/** Changes the text (and with `category`, what it is about) of one of the person's notes (see writeNote: the same as another merges them). */
+export async function updateMemory(userId: string, workspaceId: string, memoryId: string, text: string, category: MemoryCategory | null = null): Promise<MemoryView> {
   await requireMembership(userId, workspaceId);
-  return view(await writeNote(userId, workspaceId, text, { replaces: memoryId }));
+  return view(await writeNote(userId, workspaceId, text, { replaces: memoryId, category }));
 }
 
 /** Deletes notes of the person (only theirs): some, or all of them in the workspace. Returns the ids of those that went. */
@@ -245,8 +253,12 @@ export async function deleteMemories(userId: string, workspaceId: string, memory
 // --------------------------------------------------------------------------------- the chat
 // The chat checked the person's membership with the question: its tools don't again.
 
-/** A note as the model reads it, with its id for `forget` and `replaces`; an agent's corrections marked. */
-const promptLine = (note: { id: string; text: string; kind?: MemoryKind }) => `- (memory_id ${note.id}) ${note.kind === "correction" ? "(correction) " : ""}${note.text}`;
+/** A note as the prompt and read_memory carry it. */
+type PromptNote = { id: string; text: string; kind?: MemoryKind; category?: MemoryCategory };
+
+/** A note as the model reads it, with its id for `forget` and `replaces`, what it is about unless `other`, and an agent's corrections marked. */
+const promptLine = (note: PromptNote) =>
+  `- (memory_id ${note.id}) ${note.kind === "correction" ? "(correction) " : ""}${note.category && note.category !== "other" ? `[${note.category}] ` : ""}${note.text}`;
 
 /**
  * Notes (oldest first) for a prompt: newest first as far as `maxChars` takes them, an agent's
@@ -254,7 +266,7 @@ const promptLine = (note: { id: string; text: string; kind?: MemoryKind }) => `-
  * first, saying how to read them. `shown`: how many notes went in.
  */
 export function fitNotes(
-  notes: { id: string; text: string; kind?: MemoryKind }[],
+  notes: PromptNote[],
   maxChars: number,
   overflow: string,
 ): { text: string; count: number; shown: number } {
@@ -311,7 +323,7 @@ export const CHAT_READ_MEMORY_TOOL: AiTool = {
 };
 
 /** Notes with `query`'s words (any case), as the model reads them. */
-function matching(notes: { id: string; text: string; kind?: MemoryKind }[], query: unknown): ToolOutcome {
+function matching(notes: PromptNote[], query: unknown): ToolOutcome {
   const lower = (text: string) => text.toLocaleLowerCase("tr");
   const words = lower(typeof query === "string" ? query : "").split(/\s+/).filter(Boolean);
   const found = notes.filter((n) => words.every((w) => lower(n.text).includes(w)));
@@ -361,6 +373,12 @@ export const MEMORY_TOOLS: AiTool[] = [
       properties: {
         text: { type: "string", description: `The note: one fact, in a sentence of at most ${MAX_MEMORY_CHARS} characters, in the person's language.` },
         replaces: { type: "string", description: "The memory_id of the note this one takes the place of, if any." },
+        category: {
+          type: "string",
+          enum: [...MEMORY_CATEGORIES],
+          description:
+            "What the note is about: profile (who they are: role, team, expertise, goals), preference (how they like to work and be answered, corrections), work (projects, decisions and why, deadlines, where things live), other. A note that replaces another keeps its category unless given.",
+        },
         scope: { type: "string", enum: [...SCOPES], description: "Where it is kept: person (default), account, workspace or teamspace." },
         teamspace_id: { type: "string", description: "scope teamspace: the teamspace's id, from the question." },
       },
@@ -389,7 +407,7 @@ export type PreparedMemory = {
   action: ChatActionView;
   where: Where | null;
   change:
-    | { kind: "remember"; text: string; replaces: string | null; previous: ChatMemoryRecord["previous"] }
+    | { kind: "remember"; text: string; category: MemoryCategory | null; replaces: string | null; previous: ChatMemoryRecord["previous"] }
     | { kind: "forget"; id: string; text: string; previous: NonNullable<ChatMemoryRecord["previous"]> };
 };
 
@@ -407,10 +425,11 @@ function refused(error: unknown): ToolOutcome {
 }
 
 /** What a note said before a change, for Undo. */
-const was = (note: { text: string; kind?: MemoryKind; saidBy?: string | null }): NonNullable<ChatMemoryRecord["previous"]> => ({
+const was = (note: { text: string; kind?: MemoryKind; saidBy?: string | null; category?: MemoryCategory }): NonNullable<ChatMemoryRecord["previous"]> => ({
   text: note.text,
   kind: note.kind ?? "note",
   saidBy: note.saidBy ?? null,
+  ...(note.category ? { category: note.category } : {}),
 });
 
 const memoryAction = (action: "remember" | "forget", text: string, where: Where | null): ChatActionView => ({
@@ -432,7 +451,7 @@ const NOT_THEIRS = {
  * The notes `scope` reaches, after checking the person may change them: their own here, theirs for
  * every workspace, the workspace's or a teamspace's. A ToolOutcome when they may not.
  */
-async function notesFor(userId: string, workspaceId: string, scope: Scope, teamspaceId: string): Promise<{ where: Where | null; notes: { id: string; text: string; kind?: MemoryKind; saidBy?: string | null }[] } | ToolOutcome> {
+async function notesFor(userId: string, workspaceId: string, scope: Scope, teamspaceId: string): Promise<{ where: Where | null; notes: (PromptNote & { saidBy?: string | null })[] } | ToolOutcome> {
   if (scope === "account") return { where: { layer: "account", teamspaceId: null, place: null }, notes: await accountNotesOf(userId) };
   if (scope === "workspace") {
     if (!(await mayWriteNotes(userId, workspaceId, null))) return { content: NOT_THEIRS.workspace, isError: true };
@@ -448,7 +467,7 @@ async function notesFor(userId: string, workspaceId: string, scope: Scope, teams
 }
 
 /** Where the note to drop is, among the notes the person may change, or a ToolOutcome. */
-async function findToForget(userId: string, workspaceId: string, id: string): Promise<{ where: Where | null; note: { id: string; text: string; kind?: MemoryKind; saidBy?: string | null } } | ToolOutcome> {
+async function findToForget(userId: string, workspaceId: string, id: string): Promise<{ where: Where | null; note: PromptNote & { saidBy?: string | null } } | ToolOutcome> {
   if (!id) return NOT_FOUND;
   const [mine, everywhere, shared] = await Promise.all([notesOf(userId, workspaceId), accountNotesOf(userId), notePlace(workspaceId, id)]);
   const own = mine.find((m) => m.id === id);
@@ -494,7 +513,8 @@ export async function prepareMemory(
   const known = notes.find((m) => m.id !== replaces && sameNote(m.text, text));
   if (known && !replaces) return { content: `Already remembered (memory_id ${known.id}).` };
   if (!replaces && notes.length >= MAX_MEMORIES) return refused(new MemoryError("full", ""));
-  return { action: memoryAction("remember", text, where), where, change: { kind: "remember", text, replaces, previous: replaced ? was(replaced) : null } };
+  const category = isMemoryCategory(arg("category")) ? (arg("category") as MemoryCategory) : null;
+  return { action: memoryAction("remember", text, where), where, change: { kind: "remember", text, category, replaces, previous: replaced ? was(replaced) : null } };
 }
 
 /**
@@ -534,11 +554,11 @@ export async function applyMemory(
     if (where) {
       const kept =
         where.layer === "account"
-          ? await writeAccountNote(userId, change.text, { replaces: change.replaces })
-          : await writeSharedNote(userId, workspaceId, where.teamspaceId, change.text, { replaces: change.replaces });
+          ? await writeAccountNote(userId, change.text, { replaces: change.replaces, category: change.category })
+          : await writeSharedNote(userId, workspaceId, where.teamspaceId, change.text, { replaces: change.replaces, category: change.category });
       return { content: `Remembered (memory_id ${kept.id}).`, step: step("done", kept.text) };
     }
-    const kept = await writeNote(userId, workspaceId, change.text, { replaces: change.replaces, conversationId });
+    const kept = await writeNote(userId, workspaceId, change.text, { replaces: change.replaces, conversationId, category: change.category });
     // One the person had already is theirs as it was: nothing to undo.
     const undo = kept.known ? {} : { memoryId: kept.id, previous: change.previous };
     return { content: `Remembered (memory_id ${kept.id}).`, step: { ...step("done", kept.text), ...undo } };
@@ -563,12 +583,17 @@ export async function undoNote(userId: string, workspaceId: string, step: ChatMe
       if (!step.previous || note) return "changed";
       if (notes.some((n) => n.status === "kept" && sameNote(n.text, step.previous!.text))) return "done";
       if (notes.filter((n) => n.status === "kept").length >= MAX_MEMORIES) return "full";
-      await tx.insert(aiMemory).values({ id, userId, workspaceId, text: step.previous.text, kind: step.previous.kind, saidBy: step.previous.saidBy, status: "kept" });
+      await tx
+        .insert(aiMemory)
+        .values({ id, userId, workspaceId, text: step.previous.text, category: step.previous.category ?? "other", kind: step.previous.kind, saidBy: step.previous.saidBy, status: "kept" });
       return "done";
     }
     if (!note || note.status !== "kept" || note.text !== step.text) return "changed";
     if (step.previous) {
-      await tx.update(aiMemory).set({ text: step.previous.text, kind: step.previous.kind, saidBy: step.previous.saidBy, updatedAt: new Date() }).where(eq(aiMemory.id, id));
+      await tx
+        .update(aiMemory)
+        .set({ text: step.previous.text, ...(step.previous.category ? { category: step.previous.category } : {}), kind: step.previous.kind, saidBy: step.previous.saidBy, updatedAt: new Date() })
+        .where(eq(aiMemory.id, id));
     } else await tx.delete(aiMemory).where(eq(aiMemory.id, id));
     return "done";
   });

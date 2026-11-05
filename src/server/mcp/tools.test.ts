@@ -3843,6 +3843,15 @@ describe("the user's memory", () => {
     expect(merged.data).toMatchObject({ updated: { memory_id: "m-2" }, merged: true });
   });
 
+  it("keeps what a note is about when asked, and refuses it on delete", async () => {
+    personalMemory.writeNote.mockResolvedValue({ ...row("m-4", "Leads the Q3 launch"), category: "work" });
+    const added = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "add", text: "Leads the Q3 launch", category: "work" });
+    expect(personalMemory.writeNote).toHaveBeenCalledWith("user-1", "ws-1", "Leads the Q3 launch", { category: "work", app: "client-1" });
+    expect(added.data).toMatchObject({ added: { memory_id: "m-4", category: "work" } });
+    expect((await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "add", text: "x", category: "gossip" })).isError).toBe(true);
+    expect((await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", memory_ids: ["m-4"], category: "work" })).isError).toBe(true);
+  });
+
   it("deletes notes by memory_ids or all of them; ids already gone come back under not_found, the same call again doing no harm", async () => {
     const some = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "delete", memory_ids: ["m-1"] });
     expect(personalMemory.deleteMemories).toHaveBeenCalledWith("user-1", "ws-1", ["m-1"]);

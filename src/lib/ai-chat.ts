@@ -14,9 +14,19 @@ export const MAX_CONVERSATIONS = 50;
 export const MAX_MEMORIES = 30;
 export const MAX_MEMORY_CHARS = 300;
 
-/** A note of the chat's memory, as the Memory view lists it. */
-/** A note about the person; `app`: the connected app that kept or last changed it, if one did. */
-export type MemoryView = { id: string; text: string; app: string | null; createdAt: string; updatedAt: string };
+/**
+ * What a note is about, so the Memory page can group and filter notes and the model sees what it
+ * reads: who someone is (`profile`), how they like to work (`preference`), projects, decisions and
+ * where things live (`work`), anything else (`other`, the default). No kind for other people: a
+ * person's notes are about them alone.
+ */
+export const MEMORY_CATEGORIES = ["profile", "preference", "work", "other"] as const;
+export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
+
+export const isMemoryCategory = (value: unknown): value is MemoryCategory => (MEMORY_CATEGORIES as readonly unknown[]).includes(value);
+
+/** A note of the chat's memory, as the Memory view lists it; `app`: the connected app that kept or last changed it, if one did. */
+export type MemoryView = { id: string; text: string; category: MemoryCategory; app: string | null; createdAt: string; updatedAt: string };
 
 /**
  * Where a note the chat keeps or drops goes, beside the person's own notes in the workspace: their

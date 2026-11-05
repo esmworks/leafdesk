@@ -13,6 +13,13 @@
   time on the calendar; a reminder set on a to-do's own day shows it at that time too (migration
   0193).
 
+- **Memory notes have a kind, and the Memory page searches them.** Each note is about the person
+  (*Profile*), how they like to work (*Preferences*), their *Work* or something *Other*. The AI
+  chat picks one as it keeps a note, apps connected over MCP pass `category` to `change_memory` and
+  read it from `list_memory`, and the model reads a note's kind with it. The Memory page groups each
+  part's notes by kind, filters them by kind, searches them, and sets the kind as you add or change
+  a note. Notes kept before are *Other* (migration 0194).
+
 ### Changed
 
 - **Long menus are shorter.** A column's menu puts freezing, wrapping text and alignment under

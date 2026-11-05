@@ -24,7 +24,7 @@
 import { and, asc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { oauthClient, page, sharedMemory, user, workspace } from "@/db/schema";
-import { MAX_MEMORIES, type SharedNoteView, type MemoryPlaceView } from "@/lib/ai-chat";
+import { MAX_MEMORIES, type MemoryCategory, type SharedNoteView, type MemoryPlaceView } from "@/lib/ai-chat";
 import { AccessError, findMembership, getMembership, isGuest } from "@/server/access";
 import { cleanNote, MemoryError, memoryAvailable, sameNote } from "@/server/ai-memory";
 import { recordAudit, type AuditTarget } from "@/server/audit";
@@ -55,6 +55,7 @@ async function noteViews(workspaceId: string, teamspaceId: Place): Promise<Share
   return rows.map((r) => ({
     id: r.note.id,
     text: r.note.text,
+    category: r.note.category,
     app: r.app ?? null,
     by: r.by ?? null,
     createdAt: r.note.createdAt.toISOString(),
@@ -122,14 +123,15 @@ async function auditTarget(workspaceId: string, teamspaceId: Place, name: string
  * Keeps a note at a place, or with `replaces` changes that note to it, for someone who may change
  * the place's notes (AccessError otherwise). A note the place already has (case aside) is kept once:
  * that one is returned, marked `known`, and the replaced one goes. `full` at MAX_MEMORIES, `off`
- * while the workspace has the AI memory off. `app`: the connected app writing it.
+ * while the workspace has the AI memory off. `app`: the connected app writing it. `category`: what
+ * it is about (a changed note keeps its own without one).
  */
 export async function writeSharedNote(
   userId: string,
   workspaceId: string,
   teamspaceId: Place,
   text: string,
-  { replaces = null, app = null }: { replaces?: string | null; app?: string | null } = {},
+  { replaces = null, app = null, category = null }: { replaces?: string | null; app?: string | null; category?: MemoryCategory | null } = {},
 ): Promise<Note & { known?: true }> {
   const place = await requirePlace(userId, workspaceId, teamspaceId, true);
   if (!(await memoryAvailable(workspaceId))) throw new MemoryError("off", "The AI memory is turned off in this workspace");
@@ -147,13 +149,13 @@ export async function writeSharedNote(
     if (target) {
       const [changed] = await tx
         .update(sharedMemory)
-        .set({ text: note, updatedBy: userId, oauthClientId: app, updatedAt: new Date() })
+        .set({ text: note, ...(category ? { category } : {}), updatedBy: userId, oauthClientId: app, updatedAt: new Date() })
         .where(eq(sharedMemory.id, target.id))
         .returning();
       return { written: changed as Note & { known?: true }, previous: target };
     }
     if (notes.length >= MAX_MEMORIES) throw new MemoryError("full", `The memory holds at most ${MAX_MEMORIES} notes`);
-    const [made] = await tx.insert(sharedMemory).values({ workspaceId, teamspaceId, text: note, createdBy: userId, updatedBy: userId, oauthClientId: app }).returning();
+    const [made] = await tx.insert(sharedMemory).values({ workspaceId, teamspaceId, text: note, category: category ?? "other", createdBy: userId, updatedBy: userId, oauthClientId: app }).returning();
     return { written: made as Note & { known?: true }, previous: null };
   });
   if (!written.known || previous) {
