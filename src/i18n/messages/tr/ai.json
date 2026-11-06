@@ -406,12 +406,17 @@
       "cleared": "(temizlenir)",
       "approve": "Evet",
       "always": "Evet, bundan sonra sorma (Otomatik)",
+      "alwaysAlike": "Evet, bu cevapta bunun gibilerini de sorma",
       "decline": "Hayır",
       "waiting": "Onayını bekliyor",
       "page": "Sayfa:",
       "empty": "(boş)",
       "connectionHint": "Çalışma alanının bağlantısıyla gönderilir: {connection} tarafında bir şeyi değiştirebilir",
       "toolHint": "Bu çalışma alanında, senin erişiminle yapılır",
+      "eachTime": {
+        "files": "Bu sohbete dosya eklendiği için her değişiklik ayrı sorulur.",
+        "outside": "Bu cevap sohbetin dışından okuduğu için (web, bağlı bir servis, e-posta ya da başka bir ajan) her değişiklik ayrı sorulur."
+      },
       "readWebHint": "Adresteki her şey o siteye ulaşır",
       "searchWebHint": "Sözcükler web arama hizmetine ulaşır",
       "fromFile": "{name} dosyasından {rows, plural, one {# satır} other {# satır}}",

@@ -7,8 +7,10 @@
  * What the chat may change follows its mode: `read` changes nothing, `ask` asks before each change
  * and note, `auto` doesn't ("yes, don't ask again" turns `ask` into `auto` for the rest of the
  * answer). Once the answer read words no one in the conversation wrote (a service's answer, the
- * web, mail, another agent's: lib/agents.ts readOthersWords on its steps), `auto` asks again, and
- * "don't ask again" no longer holds. Whatever the mode, each change in a connected service, each
+ * web, mail, another agent's: lib/agents.ts readOthersWords on its steps; files attached to the
+ * conversation count from the start), `auto` asks again, and "don't ask again" covers only
+ * changes like the one it was said to: the same kind in the same database or page (`alike`), for
+ * the rest of the answer. What it asks then says why (`eachTimeReason`). Whatever the mode, each change in a connected service, each
  * draft of mail, each web call carrying what the person didn't write, and each further tool that
  * reaches people is asked about, each time.
  *
@@ -30,7 +32,7 @@ import { REMIND_TOOL_NAME, reminderWhen, setReminder } from "@/server/ai-reminde
 import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, moreToolStep, pickMoreTool, readDocsTopic } from "@/server/ai-more-tools";
 import { chatToolNow, inputSummary, runConnectionTool, type ConnectionToolEntry, type ConnectionToolset } from "@/server/connections/tools";
 import type * as ops from "@/server/operations";
-import { applyWrite, ATTACHMENT_WRITE_TOOL_NAMES, prepareWrite, runTool, WRITE_TOOL_NAMES, type Registry, type ToolOutcome } from "@/server/ai-tools";
+import { applyWrite, ATTACHMENT_WRITE_TOOL_NAMES, prepareWrite, runTool, WRITE_TOOL_NAMES, type PreparedWrite, type Registry, type ToolOutcome } from "@/server/ai-tools";
 
 /** A page or teamspace a question keeps to, checked (server/ai-chat.ts chatScope). */
 export type ResolvedScope = { kind: "page" | "teamspace"; id: string; title: string };
@@ -51,6 +53,8 @@ export type ChatDispatchContext = {
   mode: ChatMode;
   /** The workspace lets the chat change things without asking: "don't ask again" makes the mode `auto`. */
   autoChanges: boolean;
+  /** Changes "don't ask again" covers after words from outside (the run's `state.alike`), for one taken up again. */
+  alike?: readonly string[];
   research: boolean;
   /** The connections' tools the chat was offered (null: none). */
   external: ConnectionToolset | null;
@@ -96,6 +100,24 @@ export function createChatDispatch(cx: ChatDispatchContext) {
   // What the conversation read that no one in it wrote: its attached files (the model reads them
   // with the question), or a step's web page, service or email (readOthersWords).
   const outside = () => cx.filesAttached || readOthersWords(cx.steps);
+  // The changes "don't ask again" covers while `auto` can't hold: alikeKey of each, for the rest of the answer.
+  const alike = new Set(cx.autoChanges ? (cx.alike ?? []) : []);
+  /**
+   * What an ask carries when "don't ask again" wouldn't turn the mode `auto`: the reason (files,
+   * or words from outside) is shown on the card, where the choice then covers only changes like
+   * this one (`limited`), or isn't offered (`eachTime`: a further tool, or changes without asking
+   * turned off for the workspace, where the card leaves the choice out by itself).
+   */
+  const eachTimeNow = (limited: boolean): Pick<ChatActionView, "eachTime" | "eachTimeReason"> => {
+    if (!cx.autoChanges) return { eachTime: true };
+    const reason = cx.filesAttached ? "files" : readOthersWords(cx.steps) ? "outside" : null;
+    return reason ? { ...(limited ? {} : { eachTime: true }), eachTimeReason: reason } : {};
+  };
+  /** What "changes like this one" are: the same kind of change in the same database or page (null: no place to hold to). */
+  const alikeKey = (change: PreparedWrite): string | null => {
+    const place = change.row?.databaseId ?? change.action.target?.pageId;
+    return place ? `${change.action.action}:${place}` : null;
+  };
 
   /**
    * Calls a connection's tool. One that changes something there is asked about first, in every
@@ -141,7 +163,7 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     if (!("tool" in picked)) return picked;
     const { tool, args } = picked;
     if (tool.writes && (tool.eachTime || mode !== "auto")) {
-      if (!decision) return { ask: { action: "tool", target: null, title: tool.title, changes: [], content: inputSummary(args, 2_000), ...(tool.eachTime ? { eachTime: true } : {}) } };
+      if (!decision) return { ask: { action: "tool", target: null, title: tool.title, changes: [], content: inputSummary(args, 2_000), ...(tool.eachTime ? { eachTime: true } : eachTimeNow(false)) } };
       if (decision === "decline") return { content: DECLINED.change, step: moreToolStep(tool, args, "declined") };
       if (decision === "always" && cx.autoChanges && !outside() && !tool.eachTime) mode = "auto";
     }
@@ -233,8 +255,13 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     if (mode === "read") return { content: "Changes are off in this chat: say what you would change instead.", isError: true };
     const change = await once(call, () => prepareWrite(cx.ctx, workspaceId, cx.scope, call, cx.extra));
     if (!("action" in change)) return change;
-    if (!decision && mode === "ask") return { ask: change.action };
-    if (decision === "always" && cx.autoChanges && !outside()) mode = "auto";
+    const key = alikeKey(change);
+    // A change with no place to hold to (a page at the top of the workspace) is asked about each time.
+    if (!decision && mode === "ask" && !(key && alike.has(key))) return { ask: { ...change.action, ...eachTimeNow(key !== null) } };
+    if (decision === "always" && cx.autoChanges) {
+      if (!outside()) mode = "auto";
+      else if (key) alike.add(key);
+    }
     return applyWrite(change, decision ?? "approve", registry);
   }
 
@@ -243,6 +270,10 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     /** What the chat may change now. */
     get mode() {
       return mode;
+    },
+    /** The changes "don't ask again" covers while `auto` can't hold (for the run's state). */
+    get alike(): string[] {
+      return [...alike];
     },
   };
 }

@@ -95,6 +95,11 @@
     "aPage": "strona",
     "yes": "Tak",
     "always": "Tak, nie pytaj więcej",
+    "alwaysAlike": "Tak, i nie pytaj więcej o takie zmiany w tej odpowiedzi",
+    "eachTime": {
+      "files": "Do tej rozmowy dołączono pliki, więc o każdą zmianę pytamy osobno.",
+      "outside": "Ta odpowiedź czytała spoza rozmowy (sieć, połączoną usługę, e-mail lub innego agenta), więc o każdą zmianę pytamy osobno."
+    },
     "no": "Nie",
     "approved": "Zatwierdzono.",
     "declined": "Odrzucono.",

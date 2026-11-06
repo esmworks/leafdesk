@@ -466,6 +466,8 @@ export function approvalText(t: Translator, action: ChatActionView): string {
     lines.push(html(t, `approval.${action.action}`, { title: name(action.title), target: name(action.target?.title) }));
   }
   if (action.source) lines.push(html(t, "approval.source", { name: name(action.source) }));
+  // Why "don't ask again" isn't offered: files in the conversation, or words read from outside.
+  if (action.eachTimeReason) lines.push(`<i>${escapeHtml(t(`approval.eachTime.${action.eachTimeReason}`))}</i>`);
   if (action.publicForm) lines.push(escapeHtml(t(`approval.publicForm.${action.publicForm}`)));
   for (const change of action.changes.slice(0, 20)) {
     const value = preview(change.value, 200);
@@ -481,7 +483,8 @@ export function approvalText(t: Translator, action: ChatActionView): string {
 
 async function askApproval(link: TelegramLinkRow, t: Translator, id: string, action: ChatActionView, mode: ChatMode) {
   const text = approvalText(t, action);
-  // "Don't ask again" makes the rest of the answer `auto`, which covers changes to the workspace only.
+  // "Don't ask again" makes the rest of the answer `auto`, which covers changes to the workspace
+  // only; with a reason it can't, it covers only changes like this one.
   const always = mode === "ask" && !action.eachTime && !["connection", "remember", "forget", "remind", "readWeb", "searchWeb"].includes(action.action);
   const keyboard = {
     inline_keyboard: [
@@ -489,7 +492,7 @@ async function askApproval(link: TelegramLinkRow, t: Translator, id: string, act
         { text: t("approval.yes"), callback_data: `ap:${id}:y` },
         { text: t("approval.no"), callback_data: `ap:${id}:n` },
       ],
-      ...(always ? [[{ text: t("approval.always"), callback_data: `ap:${id}:a` }]] : []),
+      ...(always ? [[{ text: t(action.eachTimeReason ? "approval.alwaysAlike" : "approval.always"), callback_data: `ap:${id}:a` }]] : []),
     ],
   };
   asked.set(id, { text, messageId: null });

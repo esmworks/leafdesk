@@ -95,6 +95,11 @@
     "aPage": "en sida",
     "yes": "Ja",
     "always": "Ja, fråga inte igen",
+    "alwaysAlike": "Ja, och fråga inte igen om sådana ändringar i det här svaret",
+    "eachTime": {
+      "files": "Filer är bifogade i den här konversationen, så varje ändring frågas om.",
+      "outside": "Det här svaret läste utanför konversationen (webben, en ansluten tjänst, e-post eller en annan agent), så varje ändring frågas om."
+    },
     "no": "Nej",
     "approved": "Godkänt.",
     "declined": "Avböjt.",

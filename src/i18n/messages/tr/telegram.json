@@ -95,6 +95,11 @@
     "aPage": "bir sayfa",
     "yes": "Evet",
     "always": "Evet, bir daha sorma",
+    "alwaysAlike": "Evet, bu cevapta bunun gibilerini de sorma",
+    "eachTime": {
+      "files": "Bu sohbete dosya eklendiği için her değişiklik ayrı sorulur.",
+      "outside": "Bu cevap sohbetin dışından okuduğu için (web, bağlı bir servis, e-posta ya da başka bir ajan) her değişiklik ayrı sorulur."
+    },
     "no": "Hayır",
     "approved": "Onaylandı.",
     "declined": "Reddedildi.",

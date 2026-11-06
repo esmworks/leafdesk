@@ -95,6 +95,11 @@
     "aPage": "uma página",
     "yes": "Sim",
     "always": "Sim, não perguntar de novo",
+    "alwaysAlike": "Sim, e não perguntar mais sobre alterações como esta nesta resposta",
+    "eachTime": {
+      "files": "Esta conversa tem arquivos anexados, por isso cada alteração é perguntada.",
+      "outside": "Esta resposta leu fora da conversa (a web, um serviço conectado, e-mail ou outro agente), por isso cada alteração é perguntada."
+    },
     "no": "Não",
     "approved": "Aprovado.",
     "declined": "Recusado.",

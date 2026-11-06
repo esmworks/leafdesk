@@ -406,12 +406,17 @@
       "cleared": "(cleared)",
       "approve": "Yes",
       "always": "Yes, and don't ask again (Auto)",
+      "alwaysAlike": "Yes, and don't ask again for changes like this one in this answer",
       "decline": "No",
       "waiting": "Waiting for your approval",
       "page": "Page",
       "empty": "(empty)",
       "connectionHint": "Sent with the workspace's connection: it may change something at {connection}",
       "toolHint": "Done in this workspace, with your access",
+      "eachTime": {
+        "files": "Files are attached to this conversation, so each change is asked about.",
+        "outside": "This answer read from outside the conversation (the web, a connected service, email or another agent), so each change is asked about."
+      },
       "readWebHint": "Everything in the address reaches that site",
       "searchWebHint": "The words reach the web search service",
       "fromFile": "{rows, plural, one {# row} other {# rows}} from {name}",

@@ -143,6 +143,15 @@
 
 ### Fixed
 
+- **The AI chat offered "Yes, and don't ask again" where it didn't hold.** Once an answer has
+  read words no one in the conversation wrote (a web page, a connected service's answer, email,
+  another agent), or while files are attached to the conversation, the chat asks about each change
+  on purpose, in *Auto* too; the card still offered the choice, took it, and asked again at the
+  next change. The question now says why, in the app and in the Telegram bot, and offers *Yes,
+  and don't ask again for changes like this one in this answer* instead: it covers changes of
+  that kind in that database or page (linking the rest of a database's rows, say) for the rest of
+  the answer, also when the answer goes on after a restart, and the mode picker no longer switches
+  to *Auto* on it.
 - **Turning on two-step verification, or adding a passkey, needs a recent sign-in on accounts without a
   password.** A session alone could turn on two-step verification on a Google-only account, which
   signs every other session out: someone holding a stolen session cookie could have locked the

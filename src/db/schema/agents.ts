@@ -54,6 +54,11 @@ export type AgentRunState = {
    * and turns from `auto` to `ask` once the run read words no one in the conversation wrote.
    */
   mode?: ChatMode;
+  /**
+   * An AI chat's run: the kinds of change, in their places, that "yes, and don't ask again" covers
+   * after words from outside, when it can't turn the mode `auto` (chat-dispatch.ts alikeKey).
+   */
+  alike?: string[];
 };
 
 /**

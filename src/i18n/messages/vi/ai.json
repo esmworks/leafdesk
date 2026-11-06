@@ -406,12 +406,17 @@
       "cleared": "(đã xóa)",
       "approve": "Có",
       "always": "Có, và đừng hỏi lại (Tự động)",
+      "alwaysAlike": "Có, và đừng hỏi lại về những thay đổi như thế này trong câu trả lời này",
       "decline": "Không",
       "waiting": "Đang chờ bạn phê duyệt",
       "page": "Trang",
       "empty": "(trống)",
       "connectionHint": "Gửi qua kết nối của không gian làm việc: nó có thể thay đổi điều gì đó tại {connection}",
       "toolHint": "Thực hiện trong không gian làm việc này, với quyền truy cập của bạn",
+      "eachTime": {
+        "files": "Cuộc trò chuyện này có tệp đính kèm, nên mỗi thay đổi đều được hỏi.",
+        "outside": "Câu trả lời này đã đọc từ bên ngoài cuộc trò chuyện (web, dịch vụ đã kết nối, email hoặc một tác tử khác), nên mỗi thay đổi đều được hỏi."
+      },
       "readWebHint": "Mọi thứ trong địa chỉ đều đến trang web đó",
       "searchWebHint": "Các từ khóa đến dịch vụ tìm kiếm web",
       "fromFile": "{rows, plural, other {# hàng}} từ {name}",

@@ -406,12 +406,17 @@
       "cleared": "（已清空）",
       "approve": "是",
       "always": "是，且不再询问（自动）",
+      "alwaysAlike": "是，此回答中类似的更改不再询问",
       "decline": "否",
       "waiting": "等待你的批准",
       "page": "页面",
       "empty": "（空）",
       "connectionHint": "通过工作区的连接发送：可能会更改 {connection} 中的内容",
       "toolHint": "在此工作区中以你的权限进行",
+      "eachTime": {
+        "files": "此对话附有文件，因此每次更改都会询问。",
+        "outside": "此回答读取了对话之外的内容（网页、已连接的服务、电子邮件或其他智能体），因此每次更改都会询问。"
+      },
       "readWebHint": "地址中的所有内容都会发送到该网站",
       "searchWebHint": "这些词语会发送到网页搜索服务",
       "fromFile": "来自 {name} 的 {rows, plural, other {# 行}}",

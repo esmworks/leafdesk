@@ -95,6 +95,11 @@
     "aPage": "một trang",
     "yes": "Có",
     "always": "Có, đừng hỏi lại",
+    "alwaysAlike": "Có, và đừng hỏi lại về những thay đổi như thế này trong câu trả lời này",
+    "eachTime": {
+      "files": "Cuộc trò chuyện này có tệp đính kèm, nên mỗi thay đổi đều được hỏi.",
+      "outside": "Câu trả lời này đã đọc từ bên ngoài cuộc trò chuyện (web, dịch vụ đã kết nối, email hoặc một tác tử khác), nên mỗi thay đổi đều được hỏi."
+    },
     "no": "Không",
     "approved": "Đã phê duyệt.",
     "declined": "Đã từ chối.",

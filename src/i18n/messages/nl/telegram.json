@@ -95,6 +95,11 @@
     "aPage": "een pagina",
     "yes": "Ja",
     "always": "Ja, niet meer vragen",
+    "alwaysAlike": "Ja, en niet meer vragen bij zulke wijzigingen in dit antwoord",
+    "eachTime": {
+      "files": "Aan dit gesprek zijn bestanden toegevoegd, dus elke wijziging wordt gevraagd.",
+      "outside": "Dit antwoord heeft buiten het gesprek gelezen (het web, een gekoppelde dienst, e-mail of een andere agent), dus elke wijziging wordt gevraagd."
+    },
     "no": "Nee",
     "approved": "Goedgekeurd.",
     "declined": "Geweigerd.",

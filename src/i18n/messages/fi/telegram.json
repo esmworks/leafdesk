@@ -95,6 +95,11 @@
     "aPage": "sivu",
     "yes": "Kyllä",
     "always": "Kyllä, älä kysy uudelleen",
+    "alwaysAlike": "Kyllä, äläkä kysy enää tällaisista muutoksista tässä vastauksessa",
+    "eachTime": {
+      "files": "Tähän keskusteluun on liitetty tiedostoja, joten jokaisesta muutoksesta kysytään.",
+      "outside": "Tämä vastaus luki keskustelun ulkopuolelta (verkosta, yhdistetystä palvelusta, sähköpostista tai toiselta agentilta), joten jokaisesta muutoksesta kysytään."
+    },
     "no": "Ei",
     "approved": "Hyväksytty.",
     "declined": "Hylätty.",

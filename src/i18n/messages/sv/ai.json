@@ -406,12 +406,17 @@
       "cleared": "(rensat)",
       "approve": "Ja",
       "always": "Ja, och fråga inte igen (Auto)",
+      "alwaysAlike": "Ja, och fråga inte igen om sådana ändringar i det här svaret",
       "decline": "Nej",
       "waiting": "Väntar på ditt godkännande",
       "page": "Sida",
       "empty": "(tomt)",
       "connectionHint": "Skickas med arbetsytans anslutning: det kan ändra något hos {connection}",
       "toolHint": "Görs i den här arbetsytan, med din åtkomst",
+      "eachTime": {
+        "files": "Filer är bifogade i den här konversationen, så varje ändring frågas om.",
+        "outside": "Det här svaret läste utanför konversationen (webben, en ansluten tjänst, e-post eller en annan agent), så varje ändring frågas om."
+      },
       "readWebHint": "Allt i adressen når fram till den webbplatsen",
       "searchWebHint": "Orden når fram till söktjänsten på webben",
       "fromFile": "{rows, plural, one {# rad} other {# rader}} från {name}",

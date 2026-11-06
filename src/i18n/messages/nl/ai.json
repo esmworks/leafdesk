@@ -406,12 +406,17 @@
       "cleared": "(gewist)",
       "approve": "Ja",
       "always": "Ja, en niet meer vragen (Automatisch)",
+      "alwaysAlike": "Ja, en niet meer vragen bij zulke wijzigingen in dit antwoord",
       "decline": "Nee",
       "waiting": "Wacht op je goedkeuring",
       "page": "Pagina",
       "empty": "(leeg)",
       "connectionHint": "Verstuurd via de koppeling van de werkruimte: dit kan iets wijzigen bij {connection}",
       "toolHint": "Gebeurt in deze werkruimte, met jouw toegang",
+      "eachTime": {
+        "files": "Aan dit gesprek zijn bestanden toegevoegd, dus elke wijziging wordt gevraagd.",
+        "outside": "Dit antwoord heeft buiten het gesprek gelezen (het web, een gekoppelde dienst, e-mail of een andere agent), dus elke wijziging wordt gevraagd."
+      },
       "readWebHint": "Alles in het adres komt bij die site terecht",
       "searchWebHint": "De woorden komen bij de zoekdienst op het web terecht",
       "fromFile": "{rows, plural, one {# rij} other {# rijen}} uit {name}",

@@ -179,7 +179,9 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (`components/agent-chat/agent-thread.tsx`, lazy) brings its state from `use-agent-chat.ts` and
   draws what only it has (days, runs, the queue, the answer under way) through `renderItem`
   (`agent-items.tsx`); both draw steps and message actions with `message-parts.tsx`. Changing things
-  without asking is the workspace's `aiAutoChanges`, checked in `converseChat` as a run (re)starts. An answer's text flows in a few
+  without asking is the workspace's `aiAutoChanges`, checked in `converseChat` as a run (re)starts;
+  once the answer read words from outside (`chat-dispatch.ts` `outside()`), "don't ask again"
+  covers only the same kind of change in the same place, kept in `agent_run.state.alike`. An answer's text flows in a few
   letters a frame (`ai-chat/smooth-text.ts`, called by the lazy markdown renderer when `writing`);
   `chat-thread.tsx` memoizes `Answer` and `Question`, so their props stay stable (`handlers`, read
   through a ref) or every piece redraws the whole conversation. The panel and the full-page chat

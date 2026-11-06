@@ -406,12 +406,17 @@
       "cleared": "(tømt)",
       "approve": "Ja",
       "always": "Ja, og ikke spør igjen (Auto)",
+      "alwaysAlike": "Ja, og ikke spør igjen om slike endringer i dette svaret",
       "decline": "Nei",
       "waiting": "Venter på godkjenningen din",
       "page": "Side",
       "empty": "(tom)",
       "connectionHint": "Sendes med arbeidsområdets tilkobling: det kan endre noe hos {connection}",
       "toolHint": "Gjøres i dette arbeidsområdet, med din tilgang",
+      "eachTime": {
+        "files": "Filer er lagt ved denne samtalen, så hver endring blir spurt om.",
+        "outside": "Dette svaret leste utenfor samtalen (nettet, en tilkoblet tjeneste, e-post eller en annen agent), så hver endring blir spurt om."
+      },
       "readWebHint": "Alt i adressen når fram til det nettstedet",
       "searchWebHint": "Ordene når fram til søketjenesten på nettet",
       "fromFile": "{rows, plural, one {# rad} other {# rader}} fra {name}",

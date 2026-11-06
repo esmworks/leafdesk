@@ -95,6 +95,11 @@
     "aPage": "sebuah halaman",
     "yes": "Ya",
     "always": "Ya, jangan tanya lagi",
+    "alwaysAlike": "Ya, dan jangan tanya lagi untuk perubahan seperti ini dalam jawaban ini",
+    "eachTime": {
+      "files": "Percakapan ini memiliki file terlampir, jadi setiap perubahan ditanyakan.",
+      "outside": "Jawaban ini membaca dari luar percakapan (web, layanan terhubung, email, atau agen lain), jadi setiap perubahan ditanyakan."
+    },
     "no": "Tidak",
     "approved": "Disetujui.",
     "declined": "Ditolak.",

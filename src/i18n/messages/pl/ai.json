@@ -406,12 +406,17 @@
       "cleared": "(wyczyszczono)",
       "approve": "Tak",
       "always": "Tak i nie pytaj ponownie (Automatycznie)",
+      "alwaysAlike": "Tak, i nie pytaj więcej o takie zmiany w tej odpowiedzi",
       "decline": "Nie",
       "waiting": "Oczekiwanie na twoją zgodę",
       "page": "Strona",
       "empty": "(puste)",
       "connectionHint": "Wysyłane przez połączenie obszaru roboczego: może coś zmienić w {connection}",
       "toolHint": "Wykonywane w tej przestrzeni roboczej, z Twoim dostępem",
+      "eachTime": {
+        "files": "Do tej rozmowy dołączono pliki, więc o każdą zmianę pytamy osobno.",
+        "outside": "Ta odpowiedź czytała spoza rozmowy (sieć, połączoną usługę, e-mail lub innego agenta), więc o każdą zmianę pytamy osobno."
+      },
       "readWebHint": "Wszystko w adresie trafia do tej witryny",
       "searchWebHint": "Słowa trafiają do usługi wyszukiwania w internecie",
       "fromFile": "{rows, plural, one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}} z {name}",

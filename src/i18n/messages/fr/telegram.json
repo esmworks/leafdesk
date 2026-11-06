@@ -95,6 +95,11 @@
     "aPage": "une page",
     "yes": "Oui",
     "always": "Oui, ne plus demander",
+    "alwaysAlike": "Oui, et ne plus demander pour les modifications de ce genre dans cette réponse",
+    "eachTime": {
+      "files": "Des fichiers sont joints à cette conversation : chaque modification est donc demandée.",
+      "outside": "Cette réponse a lu en dehors de la conversation (le web, un service connecté, un e-mail ou un autre agent) : chaque modification est donc demandée."
+    },
     "no": "Non",
     "approved": "Approuvé.",
     "declined": "Refusé.",

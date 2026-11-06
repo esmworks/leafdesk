@@ -95,6 +95,11 @@
     "aPage": "a page",
     "yes": "Yes",
     "always": "Yes, don't ask again",
+    "alwaysAlike": "Yes, and don't ask again for changes like this one in this answer",
+    "eachTime": {
+      "files": "Files are attached to this conversation, so each change is asked about.",
+      "outside": "This answer read from outside the conversation (the web, a connected service, email or another agent), so each change is asked about."
+    },
     "no": "No",
     "approved": "Approved.",
     "declined": "Declined.",

@@ -406,12 +406,17 @@
       "cleared": "(geleert)",
       "approve": "Ja",
       "always": "Ja, nicht mehr fragen (Automatisch)",
+      "alwaysAlike": "Ja, und in dieser Antwort bei solchen Änderungen nicht mehr fragen",
       "decline": "Nein",
       "waiting": "Wartet auf deine Zustimmung",
       "page": "Seite",
       "empty": "(leer)",
       "connectionHint": "Wird mit der Verbindung des Arbeitsbereichs gesendet: Es kann bei {connection} etwas ändern",
       "toolHint": "Wird in diesem Arbeitsbereich mit deinem Zugriff ausgeführt",
+      "eachTime": {
+        "files": "An dieser Unterhaltung hängen Dateien, deshalb wird jede Änderung einzeln erfragt.",
+        "outside": "Diese Antwort hat außerhalb der Unterhaltung gelesen (Web, ein verbundener Dienst, E-Mail oder ein anderer Agent), deshalb wird jede Änderung einzeln erfragt."
+      },
       "readWebHint": "Alles in der Adresse erreicht diese Website",
       "searchWebHint": "Die Wörter erreichen den Websuchdienst",
       "fromFile": "{rows, plural, one {# Zeile} other {# Zeilen}} aus {name}",

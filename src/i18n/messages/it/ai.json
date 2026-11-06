@@ -406,12 +406,17 @@
       "cleared": "(svuotato)",
       "approve": "Sì",
       "always": "Sì, e non chiedere più (Auto)",
+      "alwaysAlike": "Sì, e non chiedere più per modifiche come questa in questa risposta",
       "decline": "No",
       "waiting": "In attesa della tua approvazione",
       "page": "Pagina",
       "empty": "(vuoto)",
       "connectionHint": "Inviato con la connessione dello spazio di lavoro: può cambiare qualcosa su {connection}",
       "toolHint": "Fatto in questo spazio di lavoro, con il tuo accesso",
+      "eachTime": {
+        "files": "A questa conversazione sono allegati dei file, quindi ogni modifica viene chiesta.",
+        "outside": "Questa risposta ha letto fuori dalla conversazione (il web, un servizio collegato, l'e-mail o un altro agente), quindi ogni modifica viene chiesta."
+      },
       "readWebHint": "Tutto ciò che c'è nell'indirizzo arriva a quel sito",
       "searchWebHint": "Le parole arrivano al servizio di ricerca web",
       "fromFile": "{rows, plural, one {# riga} other {# righe}} da {name}",

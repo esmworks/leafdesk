@@ -95,6 +95,11 @@
     "aPage": "en side",
     "yes": "Ja",
     "always": "Ja, ikke spør igjen",
+    "alwaysAlike": "Ja, og ikke spør igjen om slike endringer i dette svaret",
+    "eachTime": {
+      "files": "Filer er lagt ved denne samtalen, så hver endring blir spurt om.",
+      "outside": "Dette svaret leste utenfor samtalen (nettet, en tilkoblet tjeneste, e-post eller en annen agent), så hver endring blir spurt om."
+    },
     "no": "Nei",
     "approved": "Godkjent.",
     "declined": "Avslått.",

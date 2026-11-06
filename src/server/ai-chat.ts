@@ -609,6 +609,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       initialMode,
       mode: saved?.mode === "auto" && !setup.autoChanges ? "ask" : (saved?.mode ?? initialMode),
       autoChanges: setup.autoChanges,
+      ...(saved?.alike ? { alike: saved.alike } : {}),
       research,
       external,
       moreTools,
@@ -693,6 +694,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       writes: 0,
       externalChars: 0,
       mode: dispatch.mode,
+      ...(dispatch.alike.length ? { alike: dispatch.alike } : {}),
       chat: { question: messages.indexOf(question), sources: registry.sources, steps, spentUsd, answeredBy, startedAt: started },
     });
     /**

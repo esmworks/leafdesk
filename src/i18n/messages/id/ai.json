@@ -406,12 +406,17 @@
       "cleared": "(dikosongkan)",
       "approve": "Ya",
       "always": "Ya, dan jangan tanya lagi (Otomatis)",
+      "alwaysAlike": "Ya, dan jangan tanya lagi untuk perubahan seperti ini dalam jawaban ini",
       "decline": "Tidak",
       "waiting": "Menunggu persetujuan Anda",
       "page": "Halaman",
       "empty": "(kosong)",
       "connectionHint": "Dikirim lewat koneksi ruang kerja: dapat mengubah sesuatu di {connection}",
       "toolHint": "Dilakukan di ruang kerja ini, dengan akses Anda",
+      "eachTime": {
+        "files": "Percakapan ini memiliki file terlampir, jadi setiap perubahan ditanyakan.",
+        "outside": "Jawaban ini membaca dari luar percakapan (web, layanan terhubung, email, atau agen lain), jadi setiap perubahan ditanyakan."
+      },
       "readWebHint": "Semua isi alamat sampai ke situs tersebut",
       "searchWebHint": "Kata-katanya sampai ke layanan pencarian web",
       "fromFile": "{rows, plural, other {# baris}} dari {name}",

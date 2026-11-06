@@ -95,6 +95,11 @@
     "aPage": "eine Seite",
     "yes": "Ja",
     "always": "Ja, nicht mehr fragen",
+    "alwaysAlike": "Ja, und in dieser Antwort bei solchen Änderungen nicht mehr fragen",
+    "eachTime": {
+      "files": "An dieser Unterhaltung hängen Dateien, deshalb wird jede Änderung einzeln erfragt.",
+      "outside": "Diese Antwort hat außerhalb der Unterhaltung gelesen (Web, ein verbundener Dienst, E-Mail oder ein anderer Agent), deshalb wird jede Änderung einzeln erfragt."
+    },
     "no": "Nein",
     "approved": "Bestätigt.",
     "declined": "Abgelehnt.",

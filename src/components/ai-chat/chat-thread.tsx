@@ -1489,6 +1489,7 @@ function ChangePrompt({
           </div>
         )}
       </div>
+      {action.eachTimeReason && <p className="mt-1.5 text-xs text-fg-muted">{t(`eachTime.${action.eachTimeReason}`)}</p>}
       <div className="mt-2.5 flex flex-col gap-px">
         {decisions.map((d, i) => (
           <button
@@ -1499,7 +1500,7 @@ function ChangePrompt({
             className="flex items-center gap-2 rounded-md px-2 py-1.5 text-start outline-none hover:bg-bg-hover focus-visible:bg-bg-hover"
           >
             <span className="w-3 shrink-0 text-xs text-fg-faint tabular-nums">{i + 1}</span>
-            <span className={cn(d === "decline" && "text-fg-muted")}>{t(d)}</span>
+            <span className={cn(d === "decline" && "text-fg-muted")}>{t(d === "always" && action.eachTimeReason ? "alwaysAlike" : d)}</span>
           </button>
         ))}
       </div>

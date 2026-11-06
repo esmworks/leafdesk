@@ -180,8 +180,19 @@ export type ChatActionView = {
   connection?: { name: string; icon: string | null };
   /** A draft of the person's mail (server/ai-chat-mail.ts, asked in every mode): who it is from and to; `title` its subject, `content` its text. */
   mail?: { from: string; to: string[]; cc: string[] };
-  /** Asked about every time: "don't ask again" isn't offered (server/ai-more-tools.ts ASKED_EACH_TIME). */
+  /**
+   * Asked about every time: "don't ask again" isn't offered. A further tool that reaches people
+   * or runs on its own (server/ai-more-tools.ts ASKED_EACH_TIME), or, with `eachTimeReason`, one
+   * asked about while "don't ask again" wouldn't hold (server/assistant/chat-dispatch.ts).
+   */
   eachTime?: boolean;
+  /**
+   * Why "don't ask again" wouldn't make the rest of the answer `auto`, said on the card: files are
+   * attached to the conversation (`files`), or the answer read words no one in it wrote, from the
+   * web, a connected service, email or another agent (`outside`). Without `eachTime` the choice is
+   * still offered, covering only changes like this one (the same kind in the same database or page).
+   */
+  eachTimeReason?: "files" | "outside";
   /** A note kept or dropped elsewhere than the person's own notes in the workspace: where (`place`, a teamspace's name). */
   memoryLayer?: { layer: MemoryLayer; place: string | null };
   target: ChatPageView;

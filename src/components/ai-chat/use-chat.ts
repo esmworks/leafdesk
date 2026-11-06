@@ -614,12 +614,12 @@ export function useChat(
     setQueue([]);
   }
 
-  /** Answers the change the model asks to make; "always" also makes the mode `auto`. */
+  /** Answers the change the model asks to make; "always" also makes the mode `auto` (not for one with a reason it wouldn't: it covers only changes like it). */
   async function decide(decision: ChangeDecision) {
     if (!pending) return;
     const asked = pending;
     setPending(null);
-    if (decision === "always" && options.autoChanges) setMode("auto");
+    if (decision === "always" && options.autoChanges && !asked.action.eachTime && !asked.action.eachTimeReason) setMode("auto");
     const result = await decideChangeAction(asked.id, decision);
     // Not sent (offline, say): asked again. When it no longer waited, the stream says how it went.
     if (!result.ok) {

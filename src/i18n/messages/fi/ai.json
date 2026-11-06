@@ -406,12 +406,17 @@
       "cleared": "(tyhjennetty)",
       "approve": "Kyllä",
       "always": "Kyllä, äläkä kysy uudelleen (Automaattinen)",
+      "alwaysAlike": "Kyllä, äläkä kysy enää tällaisista muutoksista tässä vastauksessa",
       "decline": "Ei",
       "waiting": "Odottaa hyväksyntääsi",
       "page": "Sivu",
       "empty": "(tyhjä)",
       "connectionHint": "Lähetetään työtilan yhteydellä: se voi muuttaa jotain palvelussa {connection}",
       "toolHint": "Tehdään tässä työtilassa sinun oikeuksillasi",
+      "eachTime": {
+        "files": "Tähän keskusteluun on liitetty tiedostoja, joten jokaisesta muutoksesta kysytään.",
+        "outside": "Tämä vastaus luki keskustelun ulkopuolelta (verkosta, yhdistetystä palvelusta, sähköpostista tai toiselta agentilta), joten jokaisesta muutoksesta kysytään."
+      },
       "readWebHint": "Kaikki osoitteessa oleva päätyy sille sivustolle",
       "searchWebHint": "Sanat päätyvät verkkohakupalveluun",
       "fromFile": "{rows, plural, one {# rivi} other {# riviä}} tiedostosta {name}",
