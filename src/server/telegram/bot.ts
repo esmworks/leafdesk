@@ -483,9 +483,10 @@ export function approvalText(t: Translator, action: ChatActionView): string {
 
 async function askApproval(link: TelegramLinkRow, t: Translator, id: string, action: ChatActionView, mode: ChatMode) {
   const text = approvalText(t, action);
-  // "Don't ask again" makes the rest of the answer `auto`, which covers changes to the workspace
-  // only; with a reason it can't, it covers only changes like this one.
-  const always = mode === "ask" && !action.eachTime && !["connection", "remember", "forget", "remind", "readWeb", "searchWeb"].includes(action.action);
+  // "Don't ask again" makes the rest of the answer `auto` (with a reason it can't, it covers only
+  // changes like this one): never offered on what is asked about every time, which comes marked
+  // `eachTime` (server/assistant/chat-dispatch.ts).
+  const always = mode === "ask" && !action.eachTime;
   const keyboard = {
     inline_keyboard: [
       [

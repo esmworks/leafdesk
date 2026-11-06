@@ -21,7 +21,7 @@ vi.mock("@/server/ai", () => ({
 vi.mock("@/server/connected-app", () => ({ withinWorkspace: (_u: string, _w: string, work: () => unknown) => work() }));
 vi.mock("@/server/ai-chat-mail", () => ({ isChatMailTool: () => false, MAIL_TOOL_NAMES: { draft: "draft_mail" }, prepareMailDraft: vi.fn(), runChatMailTool: vi.fn(), saveMailDraft: vi.fn() }));
 vi.mock("@/server/ai-chat-web", () => ({ isChatWebTool: () => false, PLAN_TOOL: { name: "plan" }, runChatWebTool: vi.fn(), runPlan: vi.fn() }));
-vi.mock("@/server/ai-memory", () => ({ applyMemory: vi.fn(), MEMORY_TOOL_NAMES: new Set(), prepareMemory: vi.fn(), READ_MEMORY_TOOL: { name: "read_memory" }, readChatMemory: vi.fn() }));
+vi.mock("@/server/ai-memory", () => ({ applyMemory: vi.fn(), MEMORY_TOOL_NAMES: new Set(["remember"]), prepareMemory: vi.fn(), READ_MEMORY_TOOL: { name: "read_memory" }, readChatMemory: vi.fn() }));
 vi.mock("@/server/ai-reminders", () => ({ REMIND_TOOL_NAME: "remind_person", reminderWhen: vi.fn(), setReminder: vi.fn() }));
 vi.mock("@/server/ai-more-tools", () => ({
   callMoreTool: vi.fn(),
@@ -29,7 +29,7 @@ vi.mock("@/server/ai-more-tools", () => ({
   findTools: vi.fn(),
   isDocsAddress: () => false,
   lazyMoreTools: vi.fn(),
-  MORE_TOOL_NAMES: new Set(),
+  MORE_TOOL_NAMES: new Set(["use_tool"]),
   moreToolStep: vi.fn(),
   pickMoreTool: vi.fn(),
   readDocsTopic: vi.fn(),
@@ -158,5 +158,36 @@ describe("don't ask again in the AI chat", () => {
     expect("ask" in asked && asked.ask.eachTimeReason).toBeUndefined();
     await dispatch.answer(update("r1"), "always", 10_000);
     expect(dispatch.mode).toBe("ask");
+  });
+
+  it("asks about a further tool's change as about its own, saying why, and never covers one that reaches people", async () => {
+    const { callMoreTool, pickMoreTool } = await import("@/server/ai-more-tools");
+    const tool = (eachTime: boolean) => ({ name: "archive_page", title: "Archive page", description: "", inputSchema: {}, writes: true, eachTime });
+    vi.mocked(pickMoreTool).mockReturnValue({ tool: tool(false), args: {} });
+    vi.mocked(callMoreTool).mockResolvedValue({ content: "Done.", isError: false, step: { kind: "tool", tool: "archive_page", title: "Archive page", input: "", outcome: "done" } as never });
+    const use = (id: string) => ({ id, name: "use_tool", arguments: { name: "archive_page" } });
+    const dispatch = dispatchWith({ steps: [connectionStep] });
+    const asked = await dispatch.answer(use("t1"), null, 10_000);
+    expect("ask" in asked && asked.ask).toMatchObject({ action: "tool", eachTime: true, eachTimeReason: "outside" });
+    await dispatch.answer(use("t1"), "always", 10_000);
+    expect(dispatch.mode).toBe("ask");
+    expect("ask" in (await dispatch.answer(use("t2"), null, 10_000))).toBe(true);
+    // One that reaches people or runs on its own: asked about each time, with no reason to give.
+    vi.mocked(pickMoreTool).mockReturnValue({ tool: tool(true), args: {} });
+    const each = await dispatch.answer(use("t3"), null, 10_000);
+    expect("ask" in each && each.ask).toMatchObject({ eachTime: true });
+    expect("ask" in each && each.ask.eachTimeReason).toBeUndefined();
+  });
+
+  it("says why a note about the person is asked about instead of kept at once", async () => {
+    const { applyMemory, prepareMemory } = await import("@/server/ai-memory");
+    const note = { action: { action: "remember", target: null, title: "Likes tea", changes: [], content: null }, where: null, change: { kind: "remember", text: "Likes tea", category: null, details: null, replaces: null, previous: null } };
+    vi.mocked(prepareMemory).mockResolvedValue(note as never);
+    vi.mocked(applyMemory).mockResolvedValue({ content: "Kept." });
+    const remember = { id: "n1", name: "remember", arguments: { text: "Likes tea" } };
+    const own = await dispatchWith({ remembers: true }).answer(remember, null, 10_000);
+    expect("ask" in own).toBe(false);
+    const asked = await dispatchWith({ remembers: true, filesAttached: true }).answer(remember, null, 10_000);
+    expect("ask" in asked && asked.ask).toMatchObject({ action: "remember", eachTime: true, eachTimeReason: "files" });
   });
 });

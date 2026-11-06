@@ -11,8 +11,9 @@
  * conversation count from the start), `auto` asks again, and "don't ask again" covers only
  * changes like the one it was said to: the same kind in the same database or page (`alike`), for
  * the rest of the answer. What it asks then says why (`eachTimeReason`). Whatever the mode, each change in a connected service, each
- * draft of mail, each web call carrying what the person didn't write, and each further tool that
- * reaches people is asked about, each time.
+ * draft of mail, each web call carrying what the person didn't write, each note and each further
+ * tool that reaches people is asked about, each time: such an ask carries `eachTime`, the one
+ * mark the card and the Telegram bot read to leave the choice out, so a new kind of ask sets it.
  *
  * Agents answer their calls with assistant/dispatch.ts, under rules of their own.
  */
@@ -97,9 +98,11 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     if (!prepared.has(call.id)) prepared.set(call.id, await work());
     return prepared.get(call.id) as T;
   }
-  // What the conversation read that no one in it wrote: its attached files (the model reads them
-  // with the question), or a step's web page, service or email (readOthersWords).
-  const outside = () => cx.filesAttached || readOthersWords(cx.steps);
+  // What the conversation read that no one in it wrote, as the card says it: its attached files
+  // (the model reads them with the question), or a step's web page, service or email
+  // (readOthersWords); null when nothing.
+  const outsideReason = (): NonNullable<ChatActionView["eachTimeReason"]> | null => (cx.filesAttached ? "files" : readOthersWords(cx.steps) ? "outside" : null);
+  const outside = () => outsideReason() !== null;
   // The changes "don't ask again" covers while `auto` can't hold: alikeKey of each, for the rest of the answer.
   const alike = new Set(cx.autoChanges ? (cx.alike ?? []) : []);
   /**
@@ -110,7 +113,7 @@ export function createChatDispatch(cx: ChatDispatchContext) {
    */
   const eachTimeNow = (limited: boolean): Pick<ChatActionView, "eachTime" | "eachTimeReason"> => {
     if (!cx.autoChanges) return { eachTime: true };
-    const reason = cx.filesAttached ? "files" : readOthersWords(cx.steps) ? "outside" : null;
+    const reason = outsideReason();
     return reason ? { ...(limited ? {} : { eachTime: true }), eachTimeReason: reason } : {};
   };
   /** What "changes like this one" are: the same kind of change in the same database or page (null: no place to hold to). */
@@ -138,7 +141,7 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     });
     if (left <= 200) return { content: "There's no room left in this answer for more from connected services: answer with what you have.", isError: true };
     if (writes) {
-      if (!decision) return { ask: { action: "connection", connection: { name: conn.name, icon: conn.icon }, target: null, title: tool.title || tool.name, changes: [], content: inputSummary(args, 2_000) } };
+      if (!decision) return { ask: { action: "connection", connection: { name: conn.name, icon: conn.icon }, target: null, title: tool.title || tool.name, changes: [], content: inputSummary(args, 2_000), eachTime: true } };
       if (decision === "decline") return { content: DECLINED.call, step: record("declined") };
       const now = await chatToolNow(entry);
       if (!now) return { content: "This tool is no longer allowed in the chat, so the call wasn't sent. Say what you would have done.", isError: true, step: record("declined") };
@@ -188,7 +191,7 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     // A text or time that doesn't do is refused below, with the reason, before anyone is asked.
     const when = text && "at" in time ? reminderWhen(time.at, cx.timeZone) : null;
     if (when && mode !== "auto") {
-      if (!decision) return { ask: { action: "remind", target: null, title: text, changes: [], content: when } };
+      if (!decision) return { ask: { action: "remind", target: null, title: text, changes: [], content: when, eachTime: true } };
       if (decision === "decline") return { content: DECLINED.reminder, step: { kind: "reminder", text, when, outcome: "declined" } };
     }
     const out = await setReminder({ workspaceId, actorId: userId, personId: userId, timeZone: cx.timeZone }, call);
@@ -218,7 +221,7 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     if (cx.web && isChatWebTool(call.name)) {
       // What a web call carries leaves the workspace, and what the model read could have put it
       // there: each is asked about, in every mode, unless it reads an address the person wrote.
-      if (!decision && chatWebCallAsks(call, cx.typed)) return { ask: webCallAction(call) };
+      if (!decision && chatWebCallAsks(call, cx.typed)) return { ask: { ...webCallAction(call), eachTime: true } };
       if (decision === "decline") return { content: DECLINED.web };
       return runChatWebTool(call, registry, left);
     }
@@ -246,8 +249,10 @@ export function createChatDispatch(cx: ChatDispatchContext) {
       if (note.where && note.where.layer !== "account" && mode === "read") return { content: READ_ONLY_SHARED_NOTE, isError: true };
       // A note for all their workspaces, the workspace or a teamspace goes far beyond this chat:
       // asked about each time, in every mode.
-      if (!decision && note.where) return { ask: note.action };
-      if (!decision && mode !== "auto" && noteWrite({ agent: false, personSaid: !outside(), askAll: !cx.autoChanges }) === "ask") return { ask: note.action };
+      if (!decision && note.where) return { ask: { ...note.action, eachTime: true } };
+      // One about the person is asked about only for a reason (words from outside, or changes
+      // without asking turned off): the card says which, as it does for a change.
+      if (!decision && mode !== "auto" && noteWrite({ agent: false, personSaid: !outside(), askAll: !cx.autoChanges }) === "ask") return { ask: { ...note.action, ...eachTimeNow(false), eachTime: true } };
       return applyMemory(userId, workspaceId, cx.conversationId, note, decision ?? "approve");
     }
     if (call.name === REMIND_TOOL_NAME && !research) return remind(call, decision);

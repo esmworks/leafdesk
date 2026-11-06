@@ -181,9 +181,11 @@ export type ChatActionView = {
   /** A draft of the person's mail (server/ai-chat-mail.ts, asked in every mode): who it is from and to; `title` its subject, `content` its text. */
   mail?: { from: string; to: string[]; cc: string[] };
   /**
-   * Asked about every time: "don't ask again" isn't offered. A further tool that reaches people
-   * or runs on its own (server/ai-more-tools.ts ASKED_EACH_TIME), or, with `eachTimeReason`, one
-   * asked about while "don't ask again" wouldn't hold (server/assistant/chat-dispatch.ts).
+   * Asked about every time: "don't ask again" isn't offered, and the card and the Telegram bot
+   * read only this. server/assistant/chat-dispatch.ts sets it on every ask the choice never
+   * covers (a connection's call, a reminder, a web call, a note, a mail draft, a further tool that
+   * reaches people or runs on its own: server/ai-more-tools.ts ASKED_EACH_TIME) and, with
+   * `eachTimeReason`, on one asked about while "don't ask again" wouldn't hold.
    */
   eachTime?: boolean;
   /**

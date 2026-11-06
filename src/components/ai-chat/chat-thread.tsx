@@ -1353,7 +1353,9 @@ function ChangePrompt({
   const web = action.action === "readWeb" || action.action === "searchWeb";
   // A mail draft: shown whole, every recipient and all of its text, as it would be saved.
   const draft = action.action === "draftMail";
-  const decisions = memory || reminder || action.action === "connection" || action.eachTime || web || !always ? EACH_TIME_DECISIONS : DECISIONS;
+  // What is asked about every time (a note, a reminder, a web call, a connection's or a further
+  // tool's call, a mail draft) comes marked `eachTime` (server/assistant/chat-dispatch.ts).
+  const decisions = action.eachTime || !always ? EACH_TIME_DECISIONS : DECISIONS;
   // A note for all the person's workspaces, the workspace or a teamspace says where it goes.
   const layer = memory ? action.memoryLayer : undefined;
   const question =
