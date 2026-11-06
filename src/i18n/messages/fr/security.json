@@ -13,7 +13,7 @@
     "challengeExpired": "Cette connexion a expiré. Reconnectez-vous.",
     "locked": "Trop de codes incorrects sur ce compte. Patientez 15 minutes et réessayez.",
     "alreadyEnabled": "La vérification en deux étapes est déjà activée.",
-    "signInAgain": "Pour votre sécurité, déconnectez-vous puis reconnectez-vous avant d’ajouter une clé d’accès.",
+    "signInAgain": "Pour votre sécurité, déconnectez-vous puis reconnectez-vous, et revenez ici dans les 10 minutes.",
     "passkeyExists": "Cet appareil possède déjà une clé d’accès pour votre compte.",
     "passkeyUnknown": "Cette clé d’accès n’est pas enregistrée ici. Elle a peut-être été supprimée.",
     "passkeyFailed": "La clé d’accès n’a pas pu être vérifiée. Réessayez.",

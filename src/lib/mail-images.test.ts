@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { imagesShown, imagesWanted, sameOrganization } from "./mail-images";
 
-const choice = { asked: false, trustedSender: false, mailboxAddress: "erhan@gunaysogutma.com.tr", fromAddress: "simay@example.com" };
+const choice = { asked: false, rememberedCopy: false, trustedSender: false, mailboxAddress: "erhan@gunaysogutma.com.tr", fromAddress: "simay@example.com" };
 
 describe("mail images", () => {
   it("leaves images out unless asked, trusted or from the mailbox's own organization", () => {
@@ -10,6 +10,7 @@ describe("mail images", () => {
     expect(imagesWanted({ ...choice, trustedSender: true })).toBe("sender");
     expect(imagesWanted({ ...choice, fromAddress: "Simay@GunaySogutma.com.tr" })).toBe("domain");
     expect(imagesWanted({ ...choice, asked: true, trustedSender: true })).toBe("asked");
+    expect(imagesWanted({ ...choice, rememberedCopy: true, trustedSender: true })).toBe("copy");
   });
 
   it("doesn't take a public mail service for an organization", () => {
@@ -19,11 +20,18 @@ describe("mail images", () => {
     expect(sameOrganization("", "")).toBe(false);
   });
 
-  it("drops trust, but not the owner's own request, when the sender failed the provider's check", () => {
-    expect(imagesShown("sender", true)).toBeNull();
-    expect(imagesShown("domain", true)).toBeNull();
-    expect(imagesShown("asked", true)).toBe("asked");
-    expect(imagesShown("sender", false)).toBe("sender");
-    expect(imagesShown(null, false)).toBeNull();
+  it("drops trust and a copy's memory, but not the owner's own request, when the sender failed the provider's check", () => {
+    expect(imagesShown("sender", "fail")).toBeNull();
+    expect(imagesShown("copy", "fail")).toBeNull();
+    expect(imagesShown("domain", "fail")).toBeNull();
+    expect(imagesShown("asked", "fail")).toBe("asked");
+    expect(imagesShown("sender", "none")).toBe("sender");
+    expect(imagesShown("copy", "none")).toBe("copy");
+    expect(imagesShown(null, "pass")).toBeNull();
+  });
+
+  it("shows the mailbox's own domain's images only when the provider vouched for the sender", () => {
+    expect(imagesShown("domain", "none")).toBeNull();
+    expect(imagesShown("domain", "pass")).toBe("domain");
   });
 });

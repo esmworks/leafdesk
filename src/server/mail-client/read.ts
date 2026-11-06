@@ -1,8 +1,9 @@
 import { and, asc, desc, eq, inArray, isNull, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { mailbox, mailFolder, mailMessage, mailSnooze, page, workspaceAgent } from "@/db/schema";
-import { dmarcFailed, normalizeAddress, parseHeaderBlock } from "@/lib/mail";
+import { normalizeAddress, parseHeaderBlock } from "@/lib/mail";
 import { imagesShown, sameOrganization, type MailImagesFrom } from "@/lib/mail-images";
+import { senderAuth, type SenderAuth } from "@/lib/sender-marks";
 import { unsubscribeOffer, unsubscribeTargets } from "@/lib/mail-unsubscribe";
 import {
   ALL_INBOXES,
@@ -905,8 +906,11 @@ async function loadBody(box: Box, message: MessageRow, folder: FolderRow, images
   );
   // Gone from the server, or not found this once: the next pass's check takes it out of the index if it is gone.
   if (!result) throw new RowMailError("gone");
-  const unverifiedSender = folder.role !== "sent" && dmarcFailed(result.fields.get("authentication-results"));
-  const shown = imagesShown(images, unverifiedSender);
+  // What the mailbox's provider says of the sender (own mail is one's own): a failure anywhere
+  // marks the sender unverified; only the provider's own pass vouches for the domain's images.
+  const auth: SenderAuth = folder.role === "sent" ? "pass" : senderAuth(result.fields.get("authentication-results"), message.fromAddress, box);
+  const unverifiedSender = auth === "fail";
+  const shown = imagesShown(images, auth);
   const cleaned = result.rawHtml ? await cleanMailHtml(result.rawHtml, { images: !!shown, inline: result.inline }) : null;
   const text = result.text ?? (result.rawHtml ? await htmlText(result.rawHtml) : "");
   step("clean");

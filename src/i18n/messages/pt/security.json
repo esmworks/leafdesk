@@ -13,7 +13,7 @@
     "challengeExpired": "Esta entrada expirou. Entre de novo.",
     "locked": "Códigos incorretos demais nesta conta. Aguarde 15 minutos e tente novamente.",
     "alreadyEnabled": "A verificação em duas etapas já está ativada.",
-    "signInAgain": "Para sua segurança, saia e entre de novo antes de adicionar uma chave de acesso.",
+    "signInAgain": "Para sua segurança, saia e entre de novo, depois volte aqui em até 10 minutos.",
     "passkeyExists": "Este dispositivo já tem uma chave de acesso para sua conta.",
     "passkeyUnknown": "Esta chave de acesso não está registrada aqui. Ela pode ter sido removida.",
     "passkeyFailed": "Não foi possível verificar a chave de acesso. Tente novamente.",

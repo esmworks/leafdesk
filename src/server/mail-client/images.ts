@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, not, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { mailbox, mailImageSender, mailMessage } from "@/db/schema";
 import { normalizeAddress } from "@/lib/mail";
@@ -14,16 +14,30 @@ import { requireOwnMailbox } from "./access";
 type Box = typeof mailbox.$inferSelect;
 type MessageRow = typeof mailMessage.$inferSelect;
 
-/** The same message in every folder it is in: one opened from the archive is the one read in the inbox. */
+/**
+ * The other copies of the message in the mailbox (the same message in another folder: one opened
+ * from the archive is the one read in the inbox), by its Message-ID with its sender, subject and
+ * date. Anyone can write all four into a message of their own, so what a copy remembers holds only
+ * while the provider's check doesn't fail on this one (lib/mail-images.ts imagesShown).
+ */
 const copiesOf = (box: Box, message: MessageRow) =>
-  message.messageId ? and(eq(mailMessage.mailboxId, box.id), eq(mailMessage.messageId, message.messageId)) : eq(mailMessage.id, message.id);
+  message.messageId
+    ? and(
+        eq(mailMessage.mailboxId, box.id),
+        eq(mailMessage.messageId, message.messageId),
+        eq(mailMessage.fromAddress, message.fromAddress),
+        eq(mailMessage.subject, message.subject),
+        eq(mailMessage.sentAt, message.sentAt),
+        not(eq(mailMessage.id, message.id)),
+      )
+    : sql`false`;
 
 /** Why the message's images might load before it is read, remembering a request for them; null when they stay out. */
 export async function imagesFor(box: Box, message: MessageRow, asked: boolean): Promise<MailImagesFrom | null> {
   const from = normalizeAddress(message.fromAddress) ?? "";
-  const [remembered, trusted] = await Promise.all([
+  const [rememberedCopy, trusted] = await Promise.all([
     message.imagesShown || asked
-      ? message.imagesShown
+      ? false
       : db
           .select({ id: mailMessage.id })
           .from(mailMessage)
@@ -38,8 +52,9 @@ export async function imagesFor(box: Box, message: MessageRow, asked: boolean): 
           .then((rows) => rows.length > 0)
       : false,
   ]);
-  if (asked && !message.imagesShown) await db.update(mailMessage).set({ imagesShown: true }).where(copiesOf(box, message));
-  return imagesWanted({ asked: asked || remembered, trustedSender: trusted, mailboxAddress: box.address, fromAddress: from });
+  // Remembered on this row alone: a copy reads it back through copiesOf, under its own check.
+  if (asked && !message.imagesShown) await db.update(mailMessage).set({ imagesShown: true }).where(eq(mailMessage.id, message.id));
+  return imagesWanted({ asked: asked || message.imagesShown, rememberedCopy, trustedSender: trusted, mailboxAddress: box.address, fromAddress: from });
 }
 
 /** Always loads images in mail from this sender to the mailbox. */

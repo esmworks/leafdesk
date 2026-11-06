@@ -13,7 +13,7 @@
     "challengeExpired": "Denne påloggingen har utløpt. Logg på igjen.",
     "locked": "For mange feil koder på denne kontoen. Vent 15 minutter og prøv igjen.",
     "alreadyEnabled": "Totrinnsbekreftelse er allerede på.",
-    "signInAgain": "Av sikkerhetshensyn må du logge av og på igjen før du legger til en passnøkkel.",
+    "signInAgain": "Av sikkerhetshensyn må du logge av og på igjen, og så komme tilbake hit innen 10 minutter.",
     "passkeyExists": "Denne enheten har allerede en passnøkkel for kontoen din.",
     "passkeyUnknown": "Denne passnøkkelen er ikke registrert her. Den kan ha blitt fjernet.",
     "passkeyFailed": "Passnøkkelen kunne ikke bekreftes. Prøv igjen.",

@@ -12,6 +12,7 @@ import {
   passkeyRelyingParty,
   recordAuthMethod,
   requireCodeToDisable,
+  requireFreshToEnable,
   sameOriginPath,
   socialTwoFactorRedirect,
   SSO_PENDING_COOKIE,
@@ -20,6 +21,7 @@ import {
   twoFactorStepUrl,
   turnedTwoFactorOn,
 } from "./auth-security";
+import { FRESH_SIGN_IN_MINUTES } from "./account";
 import { totpCode, totpKeyFromUri } from "./totp";
 
 const APP = "http://localhost:4100";
@@ -245,7 +247,7 @@ describe("Better Auth with our two-step setup", () => {
       secret: SECRET,
       database: memoryAdapter(db),
       emailAndPassword: { enabled: true },
-      session: { additionalFields: { authMethod: { type: "string", required: false, input: false } } },
+      session: { freshAge: FRESH_SIGN_IN_MINUTES * 60, additionalFields: { authMethod: { type: "string", required: false, input: false } } },
       socialProviders: {
         google: {
           clientId: "test-client",
@@ -258,6 +260,7 @@ describe("Better Auth with our two-step setup", () => {
       },
       hooks: {
         before: createAuthMiddleware(async (ctx) => {
+          if (ctx.path === "/two-factor/enable") await requireFreshToEnable(ctx);
           if (ctx.path === "/two-factor/disable") await requireCodeToDisable(ctx);
         }),
       },
@@ -341,6 +344,26 @@ describe("Better Auth with our two-step setup", () => {
     expect((await call(second, "/two-factor/disable", { body: { code: "zzzzz-zzzzz" } })).status).toBe(401);
     expect((await call(second, "/two-factor/disable", { body: { code: backupCodes[1] } })).status).toBe(200);
     expect((await session(second))?.user.twoFactorEnabled).toBe(false);
+  });
+
+  it("lets a passwordless account turn two-step verification on, or add a passkey, only soon after signing in", async () => {
+    const jar = new Jar();
+    await googleSignIn(jar);
+    // A session someone has held for a while, as a stolen cookie would be.
+    vi.useFakeTimers({ toFake: ["Date"], now: Date.now() + (FRESH_SIGN_IN_MINUTES + 1) * 60_000 });
+    try {
+      const enable = await call(jar, "/two-factor/enable", { body: {} });
+      expect(enable.status).toBe(403);
+      expect(((await enable.json()) as { code?: string }).code).toBe("SESSION_NOT_FRESH");
+      expect((await call(jar, "/passkey/generate-register-options")).status).toBe(403);
+    } finally {
+      vi.useRealTimers();
+    }
+    // Signed in again just now: both are allowed.
+    const fresh = new Jar();
+    await googleSignIn(fresh);
+    expect((await call(fresh, "/two-factor/enable", { body: {} })).status).toBe(200);
+    expect((await call(fresh, "/passkey/generate-register-options")).status).toBe(200);
   });
 
   it("signs out the other devices when two-step verification is turned on, but not at a later sign-in's code", async () => {

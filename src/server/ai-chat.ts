@@ -619,6 +619,7 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
       timeZone,
       extra,
       steps,
+      filesAttached: hasFiles,
       signal,
     });
 

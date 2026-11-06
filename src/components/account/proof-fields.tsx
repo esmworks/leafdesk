@@ -1,12 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { SignInAgain } from "@/components/account/sign-in-again";
 import { CodeInput } from "@/components/security/two-factor";
-import { Button, Input } from "@/components/ui";
+import { Input } from "@/components/ui";
 import type { Proof, ProofKind } from "@/lib/account";
-import { authClient } from "@/lib/auth-client";
-import { wipeAllOfflineData } from "@/components/offline/offline-store";
+
+export { SignInAgain };
 
 /** How this account confirms sensitive changes, and whether its session is recent enough for the last resort. */
 export type ProofSetup = { kind: ProofKind; recent: boolean };
@@ -46,29 +46,6 @@ export function ProofFields({ proof, returnTo }: { proof: ProofSetup; returnTo: 
   }
   if (proof.recent) return <p className="text-sm text-fg-muted">{t("recent")}</p>;
   return <SignInAgain returnTo={returnTo} />;
-}
-
-/** Signing out and back in, for accounts that can only prove themselves with a fresh sign-in. */
-export function SignInAgain({ returnTo }: { returnTo: string }) {
-  const t = useTranslations("account.proof");
-  const [pending, setPending] = useState(false);
-  return (
-    <div className="space-y-2 rounded-lg border border-border bg-bg-subtle px-3 py-2.5 text-sm">
-      <p className="text-fg-muted">{t("stale")}</p>
-      <Button
-        size="sm"
-        disabled={pending}
-        onClick={async () => {
-          setPending(true);
-          await authClient.signOut();
-          await wipeAllOfflineData();
-          window.location.href = `/sign-in?next=${encodeURIComponent(returnTo)}`;
-        }}
-      >
-        {t("signInAgain")}
-      </Button>
-    </div>
-  );
 }
 
 /** Whether the form can be sent: accounts proving themselves by a recent sign-in need one. */

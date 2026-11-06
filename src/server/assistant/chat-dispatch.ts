@@ -67,6 +67,8 @@ export type ChatDispatchContext = {
   extra: Parameters<typeof runTool>[6];
   /** This answer's steps so far, as the run adds them: what it read decides what it asks. */
   steps: readonly ChatStepRecord[];
+  /** Files are attached to the conversation: data from outside, as a web page is. */
+  filesAttached: boolean;
   signal?: AbortSignal;
 };
 
@@ -91,7 +93,9 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     if (!prepared.has(call.id)) prepared.set(call.id, await work());
     return prepared.get(call.id) as T;
   }
-  const outside = () => readOthersWords(cx.steps);
+  // What the conversation read that no one in it wrote: its attached files (the model reads them
+  // with the question), or a step's web page, service or email (readOthersWords).
+  const outside = () => cx.filesAttached || readOthersWords(cx.steps);
 
   /**
    * Calls a connection's tool. One that changes something there is asked about first, in every

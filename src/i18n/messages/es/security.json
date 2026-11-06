@@ -13,7 +13,7 @@
     "challengeExpired": "Este inicio de sesión ha caducado. Vuelve a iniciar sesión.",
     "locked": "Demasiados códigos incorrectos en esta cuenta. Espera 15 minutos y vuelve a intentarlo.",
     "alreadyEnabled": "La verificación en dos pasos ya está activada.",
-    "signInAgain": "Por tu seguridad, cierra sesión y vuelve a iniciarla antes de añadir una llave de acceso.",
+    "signInAgain": "Por tu seguridad, cierra sesión y vuelve a iniciarla, y regresa aquí en menos de 10 minutos.",
     "passkeyExists": "Este dispositivo ya tiene una llave de acceso para tu cuenta.",
     "passkeyUnknown": "Esta llave de acceso no está registrada aquí. Puede que se haya quitado.",
     "passkeyFailed": "No se pudo verificar la llave de acceso. Vuelve a intentarlo.",

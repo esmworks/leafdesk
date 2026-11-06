@@ -264,7 +264,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `untainted()` holds, kept at once and undone by `undoAgentCorrection` from the step's `previous`
   (the step found by its index in `run.steps`, which the conversation's copy keeps); `lib/agents.ts`
   `readOthersWords` is the one rule of outside words, read by `untainted()` and by `readOutside()`,
-  which an owner's "allow" rule needs false, so a new source of outside words goes there; a schedule's run reads and leaves `agent_run.handoff`, kept to the same schedule, setter,
+  which an owner's "allow" rule needs false, so a new source of outside words goes there (files
+  attached to a chat and rows no member stands behind count beside it: `run.ts` `memberBehind` and
+  `rowsStoodBehind`, where a synced database's rows are another service's; the AI chat's
+  `chat-dispatch.ts` `outside()` takes `filesAttached` too); `forget` runs only where a correction
+  is kept at once; a schedule's run reads and leaves `agent_run.handoff`, kept to the same schedule, setter,
   database and task (`sameSchedule`); `agent_memory` inbox items are one per agent and owner,
   moved between runs by `withdrawNotices`. Email:
   drafts on rows wait for review (`email-drafts.ts`); a report to the agent's own `mail_recipients`

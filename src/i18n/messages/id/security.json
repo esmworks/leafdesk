@@ -13,7 +13,7 @@
     "challengeExpired": "Proses masuk ini sudah kedaluwarsa. Masuk lagi.",
     "locked": "Terlalu banyak kode salah pada akun ini. Tunggu 15 menit lalu coba lagi.",
     "alreadyEnabled": "Verifikasi dua langkah sudah aktif.",
-    "signInAgain": "Demi keamanan Anda, keluar lalu masuk lagi sebelum menambahkan kunci sandi.",
+    "signInAgain": "Demi keamanan Anda, keluar lalu masuk lagi, kemudian kembali ke sini dalam 10 menit.",
     "passkeyExists": "Perangkat ini sudah memiliki kunci sandi untuk akun Anda.",
     "passkeyUnknown": "Kunci sandi ini tidak terdaftar di sini. Mungkin sudah dihapus.",
     "passkeyFailed": "Kunci sandi tidak dapat diverifikasi. Coba lagi.",

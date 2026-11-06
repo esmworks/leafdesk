@@ -13,7 +13,7 @@
     "challengeExpired": "Lần đăng nhập này đã hết hạn. Hãy đăng nhập lại.",
     "locked": "Quá nhiều mã sai trên tài khoản này. Hãy đợi 15 phút rồi thử lại.",
     "alreadyEnabled": "Xác minh hai bước đã được bật.",
-    "signInAgain": "Vì lý do bảo mật, hãy đăng xuất và đăng nhập lại trước khi thêm khóa truy cập.",
+    "signInAgain": "Vì lý do bảo mật, hãy đăng xuất và đăng nhập lại, rồi quay lại đây trong vòng 10 phút.",
     "passkeyExists": "Thiết bị này đã có khóa truy cập cho tài khoản của bạn.",
     "passkeyUnknown": "Khóa truy cập này chưa được đăng ký ở đây. Có thể nó đã bị xóa.",
     "passkeyFailed": "Không thể xác minh khóa truy cập. Hãy thử lại.",

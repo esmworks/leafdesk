@@ -4,6 +4,7 @@ import { deleteSessionCookie } from "better-auth/cookies";
 import { symmetricDecrypt } from "better-auth/crypto";
 import { twoFactor } from "better-auth/plugins";
 import { passkey } from "@better-auth/passkey";
+import { signedInRecently } from "@/lib/account";
 import { sameOriginPath } from "@/lib/same-origin";
 import { verifyTotp } from "@/lib/totp";
 
@@ -330,6 +331,23 @@ export function passkeyPlugin(appUrl: string) {
     ...passkeyRelyingParty(appUrl),
     authenticatorSelection: { residentKey: "preferred", userVerification: "preferred" },
   });
+}
+
+/**
+ * `hooks.before` for `/two-factor/enable`. Better Auth asks for the password there, but with
+ * `allowPasswordless` an account without one would turn it on with nothing but its session, and
+ * turning it on ends every other session (twoFactorPlugin): a stolen cookie could lock the owner
+ * out of their own account. Such accounts must have signed in within FRESH_SIGN_IN_MINUTES, as
+ * their other sensitive changes ask (lib/account.ts proofKindFor); the screens offer to sign in
+ * again on SESSION_NOT_FRESH.
+ */
+export async function requireFreshToEnable(ctx: Parameters<Parameters<typeof createAuthMiddleware>[0]>[0]) {
+  const session = await getSessionFromCtx(ctx);
+  if (!session) return; // the endpoint answers 401
+  const credential = await ctx.context.internalAdapter.findCredentialAccount(session.user.id);
+  if (credential?.password) return; // the endpoint checks the password
+  if (signedInRecently(session)) return;
+  throw APIError.from("FORBIDDEN", { message: "Sign in again to turn on two-step verification", code: "SESSION_NOT_FRESH" });
 }
 
 /**

@@ -13,7 +13,7 @@
     "challengeExpired": "此次登录已过期。请重新登录。",
     "locked": "此账户的错误验证码次数过多。请等待 15 分钟后重试。",
     "alreadyEnabled": "两步验证已开启。",
-    "signInAgain": "为了你的安全，请在添加通行密钥前退出登录并重新登录。",
+    "signInAgain": "为了你的安全，请退出登录并重新登录，然后在 10 分钟内回到这里。",
     "passkeyExists": "此设备已有你账户的通行密钥。",
     "passkeyUnknown": "此通行密钥未在此注册。它可能已被移除。",
     "passkeyFailed": "无法验证通行密钥。请重试。",

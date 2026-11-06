@@ -7,11 +7,12 @@ import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import {
   passkeyPlugin,
   requireCodeToDisable,
+  requireFreshToEnable,
   socialTwoFactorRedirect,
   twoFactorPlugin,
 } from "@/lib/auth-security";
 import { sso } from "@better-auth/sso";
-import { cleanName } from "@/lib/account";
+import { cleanName, FRESH_SIGN_IN_MINUTES } from "@/lib/account";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { isAgentEmail } from "@/lib/agents";
 import { isRestoredEmail } from "@/lib/reserved-emails";
@@ -357,6 +358,7 @@ export function baseAuthOptions({
       if (body) return { context: { body } };
       return;
     }
+    if (ctx.path === "/two-factor/enable") await requireFreshToEnable(ctx);
     if (ctx.path === "/two-factor/disable") await requireCodeToDisable(ctx);
     if (ctx.path === "/update-user") guardUpdateUser(ctx.body);
     if (ctx.path === "/sign-up/email" && env.signUpDisabled) {
@@ -414,6 +416,10 @@ export function baseAuthOptions({
     session: {
       // SESSION_MAX_AGE_DAYS: how long a sign-in lasts without use (see lib/session-lifetime).
       ...sessionLifetime(env.sessionDays),
+      // How recent a sign-in registers a passkey (Better Auth's freshSessionMiddleware; its default
+      // is a day): a passkey signs in on its own and counts as two-step (isStrongSession), so a
+      // stolen cookie must not add one. The same window as the account's other sensitive changes.
+      freshAge: FRESH_SIGN_IN_MINUTES * 60,
       additionalFields: {
         // How the session was signed in (see authMethodOf); a passkey session counts as two-step.
         authMethod: { type: "string", required: false, input: false },

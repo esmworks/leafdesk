@@ -13,7 +13,7 @@
     "challengeExpired": "Dette login er udløbet. Log ind igen.",
     "locked": "For mange forkerte koder på denne konto. Vent 15 minutter, og prøv igen.",
     "alreadyEnabled": "Totrinsbekræftelse er allerede slået til.",
-    "signInAgain": "Af hensyn til din sikkerhed skal du logge ud og ind igen, før du tilføjer en adgangsnøgle.",
+    "signInAgain": "Af hensyn til din sikkerhed skal du logge ud og ind igen og derefter vende tilbage hertil inden for 10 minutter.",
     "passkeyExists": "Denne enhed har allerede en adgangsnøgle til din konto.",
     "passkeyUnknown": "Denne adgangsnøgle er ikke registreret her. Den er måske blevet fjernet.",
     "passkeyFailed": "Adgangsnøglen kunne ikke bekræftes. Prøv igen.",

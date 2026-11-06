@@ -13,7 +13,7 @@
     "challengeExpired": "To logowanie wygasło. Zaloguj się ponownie.",
     "locked": "Zbyt wiele nieprawidłowych kodów na tym koncie. Odczekaj 15 minut i spróbuj ponownie.",
     "alreadyEnabled": "Weryfikacja dwuetapowa jest już włączona.",
-    "signInAgain": "Ze względów bezpieczeństwa wyloguj się i zaloguj ponownie przed dodaniem klucza dostępu.",
+    "signInAgain": "Ze względów bezpieczeństwa wyloguj się i zaloguj ponownie, a następnie wróć tutaj w ciągu 10 minut.",
     "passkeyExists": "To urządzenie ma już klucz dostępu do twojego konta.",
     "passkeyUnknown": "Ten klucz dostępu nie jest tutaj zarejestrowany. Mógł zostać usunięty.",
     "passkeyFailed": "Nie udało się zweryfikować klucza dostępu. Spróbuj ponownie.",

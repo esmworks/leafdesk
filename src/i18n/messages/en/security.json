@@ -13,7 +13,7 @@
     "challengeExpired": "This sign-in has expired. Sign in again.",
     "locked": "Too many wrong codes on this account. Wait 15 minutes and try again.",
     "alreadyEnabled": "Two-step verification is already on.",
-    "signInAgain": "For your security, sign out and sign in again before adding a passkey.",
+    "signInAgain": "For your security, sign out and sign in again, then come back here within 10 minutes.",
     "passkeyExists": "This device already has a passkey for your account.",
     "passkeyUnknown": "This passkey isn't registered here. It may have been removed.",
     "passkeyFailed": "The passkey couldn't be verified. Try again.",

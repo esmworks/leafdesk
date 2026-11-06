@@ -13,7 +13,7 @@
     "challengeExpired": "Den här inloggningen har gått ut. Logga in igen.",
     "locked": "För många felaktiga koder för det här kontot. Vänta 15 minuter och försök igen.",
     "alreadyEnabled": "Tvåstegsverifiering är redan aktiverad.",
-    "signInAgain": "Av säkerhetsskäl behöver du logga ut och logga in igen innan du lägger till en passkey.",
+    "signInAgain": "Av säkerhetsskäl behöver du logga ut och logga in igen, och sedan komma tillbaka hit inom 10 minuter.",
     "passkeyExists": "Den här enheten har redan en passkey för ditt konto.",
     "passkeyUnknown": "Den här passkeyn är inte registrerad här. Den kan ha tagits bort.",
     "passkeyFailed": "Det gick inte att verifiera passkeyn. Försök igen.",

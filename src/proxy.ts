@@ -35,6 +35,8 @@ export function proxy(request: NextRequest) {
     analytics: onSiteHost && isAnalyticsId(request.headers.get(SITE_ANALYTICS_HEADER)),
   });
   headers.set("content-security-policy", policy);
+  // Ours alone: one a client sent isn't the path (the sign-in page follows only same-origin paths anyway).
+  headers.delete("x-leafdesk-path");
   if (!onSiteHost && RETURNABLE.test(pathname)) {
     const params = new URLSearchParams(request.nextUrl.search);
     params.delete("_rsc");

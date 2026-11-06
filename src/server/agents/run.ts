@@ -53,7 +53,7 @@
  */
 import { and, eq, inArray, isNotNull, isNull, lte, not, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentRun, connection, connectionEvent, connectionTrigger, notification, page, user, workspaceAgent, type AgentRunRow, type AgentRunState } from "@/db/schema";
+import { agentRun, connection, connectionEvent, connectionTrigger, databaseSync, notification, page, user, workspaceAgent, type AgentRunRow, type AgentRunState } from "@/db/schema";
 import {
   AGENT_RUN_HISTORY_DAYS,
   isEventRun,
@@ -452,7 +452,16 @@ export async function processRun(run: Run): Promise<void> {
     const { rowId, databaseId } = run.source;
     const [row] = await db.select({ id: page.id, parentId: page.parentId, archivedAt: page.archivedAt }).from(page).where(eq(page.id, rowId));
     if (!row || row.archivedAt || row.parentId !== databaseId) return finish(run, { status: "failed", code: "rowGone" });
-    if (run.source.kind === "automation") member = await memberBehind(run);
+    if (run.source.kind === "automation") {
+      member = await memberBehind(run);
+      // A synced database's rows are another service's text under the member's name (synced-rows.ts
+      // writes them as whoever set the sync up): the agent stays held to their access, but no
+      // member stands behind what the row says.
+      if (member && (await databaseSynced(databaseId))) {
+        bound = member;
+        member = null;
+      }
+    }
     if (!member) {
       // An answer to a public form from someone the workspace doesn't know: held to the form's
       // publisher, who must still be in the workspace (or the run opens nothing).
@@ -545,12 +554,23 @@ async function memberBehind(run: Run): Promise<string | null> {
 }
 
 /**
+ * Whether a sync (Jira, GitHub, a calendar, PostgreSQL, a sheet) writes the database's rows: what
+ * they say comes from that service, whoever's name the writes carry.
+ */
+async function databaseSynced(databaseId: string) {
+  const [sync] = await db.select({ id: databaseSync.id }).from(databaseSync).where(eq(databaseSync.databaseId, databaseId)).limit(1);
+  return !!sync;
+}
+
+/**
  * Whether people of the workspace (agents included, whose changes are held to someone's access)
- * created and last changed every live row of the database. A row from someone the workspace doesn't
- * know may carry anyone's instructions, so a schedule's run over such a database asks before each
- * connection tool and proposes no notes, as a row's run no member started does.
+ * created and last changed every live row of the database, and no sync writes them. A row from
+ * someone the workspace doesn't know, or from another service, may carry anyone's instructions,
+ * so a schedule's run over such a database asks before each connection tool and proposes no
+ * notes, as a row's run no member started does.
  */
 async function rowsStoodBehind(databaseId: string, workspaceId: string) {
+  if (await databaseSynced(databaseId)) return false;
   const [stranger] = await db
     .select({ id: page.id })
     .from(page)

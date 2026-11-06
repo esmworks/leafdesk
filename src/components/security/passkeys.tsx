@@ -4,6 +4,7 @@ import { KeyRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { SESSION_NOT_FRESH, SignInAgain } from "@/components/account/sign-in-again";
 import { SettingsRow } from "@/components/settings/section";
 import { Button, Input } from "@/components/ui";
 import { authClient } from "@/lib/auth-client";
@@ -120,6 +121,8 @@ export function PasskeySettings({ passkeys }: { passkeys: PasskeySummary[] }) {
   const supported = usePasskeySupport();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A passkey is added only on a recent sign-in (lib/auth-options.ts session.freshAge).
+  const [stale, setStale] = useState(false);
 
   return (
     <>
@@ -129,7 +132,9 @@ export function PasskeySettings({ passkeys }: { passkeys: PasskeySummary[] }) {
       <SettingsRow
         title={passkeys.length ? t("addAnother") : t("empty")}
         description={
-          error ? (
+          stale ? (
+            <SignInAgain />
+          ) : error ? (
             <span className="text-danger">{error}</span>
           ) : supported === false ? (
             t("unsupported")
@@ -140,12 +145,13 @@ export function PasskeySettings({ passkeys }: { passkeys: PasskeySummary[] }) {
         control={
           <Button
             variant={passkeys.length ? "secondary" : "primary"}
-            disabled={pending || supported === false}
+            disabled={pending || stale || supported === false}
             onClick={async () => {
               setPending(true);
               setError(null);
               const result = await addPasskey();
               setPending(false);
+              if (result.error?.code === SESSION_NOT_FRESH) return setStale(true);
               if (result.error) return setError(describe(result.error));
               router.refresh();
             }}

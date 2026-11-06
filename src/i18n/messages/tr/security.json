@@ -13,7 +13,7 @@
     "challengeExpired": "Bu girişin süresi doldu. Yeniden giriş yapın.",
     "locked": "Bu hesapta çok fazla yanlış kod girildi. 15 dakika bekleyip tekrar deneyin.",
     "alreadyEnabled": "İki adımlı doğrulama zaten açık.",
-    "signInAgain": "Güvenliğiniz için passkey eklemeden önce çıkış yapıp yeniden giriş yapın.",
+    "signInAgain": "Güvenliğiniz için çıkış yapıp yeniden giriş yapın, sonra 10 dakika içinde buraya dönün.",
     "passkeyExists": "Bu cihazda hesabınız için zaten bir passkey var.",
     "passkeyUnknown": "Bu passkey burada kayıtlı değil. Kaldırılmış olabilir.",
     "passkeyFailed": "Passkey doğrulanamadı. Tekrar deneyin.",

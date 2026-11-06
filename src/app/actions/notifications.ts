@@ -11,6 +11,7 @@ import {
   unarchiveNotifications,
   unreadCount,
 } from "@/server/notifications";
+import { findMembership } from "@/server/access";
 import { requireUserId } from "@/server/session";
 import { workspaceSettings } from "@/server/workspaces";
 
@@ -21,11 +22,13 @@ import { workspaceSettings } from "@/server/workspaces";
  */
 export async function listInboxAction(workspaceId: string, tab: "all" | "email" | "archived" = "all", unread = false) {
   const userId = await requireUserId();
-  const [items, settings] = await Promise.all([
+  // The inbox is the person's own wherever they are; the workspace's setting is for its people.
+  const [items, settings, membership] = await Promise.all([
     listInbox(userId, workspaceId, tab === "email" ? ["row_email"] : undefined, tab === "archived", unread === true),
     workspaceSettings(workspaceId),
+    findMembership(userId, String(workspaceId)),
   ]);
-  return { items, email: settings.email };
+  return { items, email: membership ? settings.email : false };
 }
 
 const ids = (list: unknown) =>

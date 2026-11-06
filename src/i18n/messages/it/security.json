@@ -13,7 +13,7 @@
     "challengeExpired": "Questo accesso è scaduto. Accedi di nuovo.",
     "locked": "Troppi codici errati per questo account. Attendi 15 minuti e riprova.",
     "alreadyEnabled": "La verifica in due passaggi è già attiva.",
-    "signInAgain": "Per la tua sicurezza, esci e accedi di nuovo prima di aggiungere una passkey.",
+    "signInAgain": "Per la tua sicurezza, esci e accedi di nuovo, poi torna qui entro 10 minuti.",
     "passkeyExists": "Questo dispositivo ha già una passkey per il tuo account.",
     "passkeyUnknown": "Questa passkey non è registrata qui. Potrebbe essere stata rimossa.",
     "passkeyFailed": "Impossibile verificare la passkey. Riprova.",

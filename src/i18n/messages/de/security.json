@@ -13,7 +13,7 @@
     "challengeExpired": "Diese Anmeldung ist abgelaufen. Melde dich erneut an.",
     "locked": "Zu viele falsche Codes für dieses Konto. Warte 15 Minuten und versuch es dann noch einmal.",
     "alreadyEnabled": "Die Bestätigung in zwei Schritten ist bereits aktiviert.",
-    "signInAgain": "Melde dich zu deiner Sicherheit ab und wieder an, bevor du einen Passkey hinzufügst.",
+    "signInAgain": "Melde dich zu deiner Sicherheit ab und wieder an, und komm dann innerhalb von 10 Minuten hierher zurück.",
     "passkeyExists": "Dieses Gerät hat bereits einen Passkey für dein Konto.",
     "passkeyUnknown": "Dieser Passkey ist hier nicht registriert. Möglicherweise wurde er entfernt.",
     "passkeyFailed": "Der Passkey konnte nicht bestätigt werden. Versuch es noch einmal.",

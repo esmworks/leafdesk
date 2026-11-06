@@ -4,6 +4,7 @@ import { KeyRound, Smartphone } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { SESSION_NOT_FRESH, SignInAgain } from "@/components/account/sign-in-again";
 import { addPasskey, usePasskeySupport } from "@/components/security/passkeys";
 import { TwoFactorSetupFlow, useSecurityError } from "@/components/security/two-factor";
 import { Button } from "@/components/ui";
@@ -33,6 +34,8 @@ export function TwoStepGate({
   const [mode, setMode] = useState<"choose" | "app">("choose");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // A passkey is added only on a recent sign-in (lib/auth-options.ts session.freshAge).
+  const [stale, setStale] = useState(false);
   // A full load, so the workspace renders with the session the passkey just created.
   const enter = () => window.location.assign(`/w/${workspaceId}`);
 
@@ -44,6 +47,7 @@ export function TwoStepGate({
       const added = await addPasskey();
       if (added.error) {
         setPending(false);
+        if (added.error.code === SESSION_NOT_FRESH) return setStale(true);
         return setError(describe(added.error));
       }
     }
@@ -89,6 +93,7 @@ export function TwoStepGate({
         {passkeyAllowed && supported === false && <p className="text-xs text-fg-muted">{t("passkeyUnsupported")}</p>}
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
+      {stale && <SignInAgain />}
       <p className="border-t border-border pt-4 text-xs text-fg-muted">
         {t("signedInAs", { email })}{" "}
         <button

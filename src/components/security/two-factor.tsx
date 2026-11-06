@@ -4,6 +4,7 @@ import { Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { SESSION_NOT_FRESH, SignInAgain } from "@/components/account/sign-in-again";
 import { SettingsRow } from "@/components/settings/section";
 import { CopyButton } from "@/components/settings/copy-button";
 import { Button, Dialog, DialogBody, DialogFooter, DialogTitle, Input } from "@/components/ui";
@@ -109,6 +110,7 @@ export function TwoFactorSetupFlow({
   const [step, setStep] = useState<SetupStep>({ name: "start" });
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [stale, setStale] = useState(false);
 
   async function start(form: FormData) {
     setPending(true);
@@ -116,6 +118,8 @@ export function TwoFactorSetupFlow({
     const password = hasPassword ? String(form.get("password") ?? "") : undefined;
     const result = await authClient.twoFactor.enable({ password });
     setPending(false);
+    // An account without a password turns it on only on a recent sign-in (lib/auth-security.ts requireFreshToEnable).
+    if (result.error?.code === SESSION_NOT_FRESH) return setStale(true);
     if (result.error || !result.data || !("totpURI" in result.data) || !result.data.totpURI) {
       return setError(describe(result.error) ?? describe({ code: "UNKNOWN" }));
     }
@@ -160,8 +164,9 @@ export function TwoFactorSetupFlow({
           </label>
         )}
         {error && <p className="text-sm text-danger">{error}</p>}
+        {stale && <SignInAgain />}
         {actions(
-          <Button type="submit" variant="primary" disabled={pending}>
+          <Button type="submit" variant="primary" disabled={pending || stale}>
             {t("continue")}
           </Button>,
         )}

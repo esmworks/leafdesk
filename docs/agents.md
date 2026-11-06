@@ -32,8 +32,8 @@ you set yourself, in the agent's settings or the Share menu, stays).
 **What a run may do.** Search and read what is shared with the agent, query its databases, and
 change or comment on the row that started the run (its values, or its text block by block with
 `edit_page`), or propose those changes for review and draft an email there (below), nothing
-else. A run someone stands behind (not one over a row no member wrote, or an event from a service
-no owner vouched for) also reads through Leafdesk's other tools, as the [AI chat](ai.md#ai-features)
+else. A run someone stands behind (not one over a row no member wrote or a sync writes, or an
+event from a service no owner vouched for) also reads through Leafdesk's other tools, as the [AI chat](ai.md#ai-features)
 does (`find_tools`, `use_tool`): a database's views, automations, the trash, versions and the like;
 only the chat of someone who can edit the agent changes things through them (below). When a member's change started
 the run, the agent is also held to what that member may: it opens, reads and changes only the pages
@@ -142,7 +142,8 @@ the model framed as data from outside Leafdesk, and the agent is told that instr
 page are never its owners'. Each page read and search shows in the run's steps with its address or
 query. It changes nothing, so it isn't one of the run's changes, but it counts with connections'
 tools toward the 40,000 characters a run may read from outside. A run no member stands behind (an
-anonymous or outside form answer, an event from a trigger no owner marked trusted) asks an owner
+anonymous or outside form answer, a row of a synced database, whose text is another service's
+whoever's name the sync writes under, an event from a trigger no owner marked trusted) asks an owner
 before each call, as it does before each connection tool: otherwise what it read could be sent to
 an address a stranger chose. A run someone asked for in words (a chat message, a mention, a
 request) reads what that person may open, some of it written by others, so it asks an owner before
@@ -434,8 +435,11 @@ keeps it. In the agent's *Memory* section (and a "notes to review" link next to 
 owners see the proposals with the run's row and time, keep one as it is or changed, or dismiss it;
 they also write, change and delete notes, and make it forget everything. An owner who can't open a
 proposal's row doesn't see its text (it may quote the row) and can only dismiss it, nor does one
-whose proposal came from a run another owner asked for or scheduled without a database. A run may drop a
-note at once with `forget`, which loses at most that note. A note is meant to stay true for
+whose proposal came from a run another owner asked for or scheduled without a database. A run drops a
+note with `forget` only in the chat of someone who can edit the agent, in a turn that read nothing
+from outside (as a correction is kept at once, below); any other run is refused and tells the
+person which note is wrong, so no web page, service or email can talk it into forgetting what it
+was told. A note is meant to stay true for
 months; runs are told never to propose progress (what they checked, what remains, counts, row
 positions), and one run proposes at most two notes. When a kept note is incomplete or out of date,
 a run proposes its new text instead of a second note: the *Memory* section shows the note it would
@@ -471,7 +475,7 @@ reads it first. That note needs no owner: it goes only to the next run of the sa
 by the same owner, on the same database and with the same task, which reads the same data anyway;
 each run's note takes the place of the one before, and changing the schedule's task starts afresh.
 Runs no member stands behind (an
-anonymous or outside form answer, an event from a trigger no owner marked trusted) get neither
+anonymous or outside form answer, a synced database's row, an event from a trigger no owner marked trusted) get neither
 tool, but the kept notes go with them too. Kept notes reach the model as data, never as
 instructions, and never widen what the agent may change; like its instructions, what they say may
 end up in the rows it writes, whoever started the run. An agent keeps up to 30 notes of 300

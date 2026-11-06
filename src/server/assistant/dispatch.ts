@@ -243,8 +243,8 @@ export async function setUpRun(
   // A mention's run may change the page its comment is on where the agent (and the member) may
   // edit it, and its values when it is a database row.
   const mentionEdits = mention ? await mentionEditing(agent, mention.pageId) : null;
-  // A row no member wrote, or an event from a service no owner vouched for, may carry anyone's
-  // instructions: no connection tool runs without an owner.
+  // A row no member wrote (or a sync did, under a member's name), or an event from a service no
+  // owner vouched for, may carry anyone's instructions: no connection tool runs without an owner.
   const askEveryTool = rowRun ? !member : !trusted;
   // An agent with web access reads pages (and searches) as it reads from a connection: on such a
   // run each call waits for an owner too, or the run could be steered to send what it read to any
@@ -328,8 +328,10 @@ export async function setUpRun(
   // is matched to the rows drafts email from it; each draft waits for them (email-drafts.ts).
   const draftDatabase = databaseId ?? (isRowRun(run.source) ? await databaseOfRow(run.source.rowId) : null);
   const sender = await draftSender(member, run.workspaceId, draftDatabase);
-  // Email to the agent's own recipients, from the mailbox of the member the run works for (send-mail.ts).
-  const mailer = await mailSender(member, run.workspaceId, agent.mailRecipients);
+  // Email to the agent's own recipients, from the mailbox of the member the run works for
+  // (send-mail.ts); not in the chat of someone who can't edit the agent, whose mailbox the
+  // recipients' list (set by an editor) would otherwise send from.
+  const mailer = run.source.kind === "chat" && !chatWrites ? null : await mailSender(member, run.workspaceId, agent.mailRecipients);
   // Its person closed the mailbox to the agent (or lost it) since the email came.
   if (arrival && !mailBoxes.includes(arrival.mailboxId)) {
     const gone: Ending = { status: "failed", code: "mailGone", steps: [...run.steps], usage: run.usage ?? { inputTokens: 0, outputTokens: 0, costUsd: 0, rounds: 0 } };
@@ -678,6 +680,15 @@ export function createDispatch(
       // A correction said in the chat of someone who can edit the agent, while nothing else spoke,
       // is kept at once; any other note is proposed (lib/memory-rule.ts).
       const personSaid = run.source.kind === "chat" && chatWrites && untainted();
+      // Dropping a note isn't proposed, so it happens only where a correction is kept at once: in
+      // such a chat. A run that read others' words (a web page, a connection, email) could be
+      // steered to forget what it was told; one no one is chatting with leaves it to its owners.
+      if (call.name === "forget" && !personSaid) {
+        return {
+          content: "Notes are dropped only in the chat of someone who can edit you, in a turn that read nothing from outside. Nothing was forgotten; tell the person which note is wrong, and they can remove it on the Memory page.",
+          isError: true,
+        };
+      }
       const saidBy = run.source.kind === "chat" && noteWrite({ agent: true, personSaid }) === "keep" ? run.source.userId : null;
       const kept = steps.filter((s) => s.kind === "memory" && s.action === "correct").length;
       return runAgentMemoryTool(agent, run, call, { correction: saidBy ? { saidBy, kept } : null });

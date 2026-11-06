@@ -51,6 +51,35 @@
 
 ### Changed
 
+- **Mail images from the mailbox's own domain load only when the provider vouched for the sender.**
+  A message from an address at the mailbox's own domain used to show its images from other sites
+  unless the provider's check said it came from someone else; anyone can write a From address, so
+  now they show only when the mailbox's provider itself reports DMARC passed (Google and Microsoft
+  mailboxes), as the sender logos beside the list already require. *Show images* and *Always show
+  from this sender* work as before. A message whose images you asked for still shows them when
+  opened from another folder; that copy is matched by its sender, subject and date as well as its
+  Message-ID, and not when the check failed on it.
+- **An agent forgets a note only in an editor's own chat.** `forget` works only where a correction
+  is kept at once: the chat of someone who can edit the agent, in a turn that read nothing from
+  outside (a web page, a connection's answer, a file, email). A schedule's run, or a chat that read
+  such words, is refused and names the note for the person instead, so nothing outside can talk the
+  agent into dropping what it was told.
+- **Rows of a synced database count as another service's words.** A run started by an automation
+  on a row of a database that Jira, GitHub, a calendar, PostgreSQL or Google Sheets writes, or a
+  schedule's run over such a database, asks an owner before each connection tool and proposes
+  rather than keeps notes, as a run over rows no member wrote does: an owner's "allow" rule no
+  longer fires on text a ticket or a spreadsheet cell carried in. The agent stays held to the access
+  of the member the sync runs as.
+- **The AI chat asks before changes once a file is attached.** In a chat allowed to change things
+  without asking, a conversation with a file attached (a CSV, a document, an image) now asks about
+  each change and each note, as it does after reading a web page or a service: what a file says is
+  outside words too.
+- **Dependencies.** undici 8.12.4 (and 7.30.1 under BlockNote's jsdom) and zod 4.6.7 for their
+  advisories, jsdom 31, Better Auth 1.7.18 (its security release of 3 November 2026; none of its
+  fixes was exploitable in Leafdesk's setup), vitest 5.1 with vite 8.3.3. One parse5 for every
+  jsdom: published pages and print now escape `<` and `>` inside attributes, as the HTML standard
+  serializes them. `pnpm audit --prod` passes again.
+
 - **An owner's *Disconnect* and *Revoke* in Apps that reach this workspace act on that workspace
   only.** An app or a token for all of a person's workspaces was taken from their account
   everywhere, by the owner of any one workspace they were in, someone who could also add them to
@@ -113,6 +142,19 @@
   pages (reporting, copying, not found) follow too.
 
 ### Fixed
+
+- **Turning on two-step verification, or adding a passkey, needs a recent sign-in on accounts without a
+  password.** A session alone could turn on two-step verification on a Google-only account, which
+  signs every other session out: someone holding a stolen session cookie could have locked the
+  account's owner out. Such accounts now turn it on only within 10 minutes of signing in, as their
+  other sensitive changes ask, and the screen offers to sign in again. A passkey, which signs in
+  on its own and counts as two-step, was registered on a session up to a day old; it now needs the
+  same 10 minutes.
+- **An agent sends its report email only from an editor's chat.** In the chat of someone who could
+  use an agent but not edit it, `send_email` sent to the agent's recipients from that person's own
+  mailbox, at once and without review; it is no longer offered there.
+- The inbox told someone who isn't in a workspace whether it has email on rows turned on; a
+  client's own `x-leafdesk-path` header never reaches the app any more.
 
 - **Rate limits on public forms and reports count an IPv6 visitor by their network.** A visitor
   could step through the addresses of their own /64, which a provider hands one subscriber whole,

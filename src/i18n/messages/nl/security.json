@@ -13,7 +13,7 @@
     "challengeExpired": "Deze inlogpoging is verlopen. Log opnieuw in.",
     "locked": "Te veel onjuiste codes voor dit account. Wacht 15 minuten en probeer het opnieuw.",
     "alreadyEnabled": "Verificatie in twee stappen staat al aan.",
-    "signInAgain": "Log voor je veiligheid uit en opnieuw in voordat je een toegangssleutel toevoegt.",
+    "signInAgain": "Log voor je veiligheid uit en opnieuw in, en kom dan binnen 10 minuten hier terug.",
     "passkeyExists": "Dit apparaat heeft al een toegangssleutel voor je account.",
     "passkeyUnknown": "Deze toegangssleutel is hier niet geregistreerd. Misschien is hij verwijderd.",
     "passkeyFailed": "De toegangssleutel kon niet worden geverifieerd. Probeer het opnieuw.",

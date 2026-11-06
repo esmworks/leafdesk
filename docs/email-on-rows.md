@@ -116,10 +116,12 @@ and those beside the open one are read ahead, so they open at once (reading ahea
 unread). HTML mail is shown
 cleaned, in a frame of its own, and images from other sites stay out until *Show images* (they tell
 the sender the mail was opened, and from where); a message whose images were shown shows them
-again the next time it opens. *Always show from this sender* loads them at once in that sender's
-mail to the mailbox, and mail from the mailbox's own domain shows them too (not for public mail
-services such as gmail.com), as long as the provider's check doesn't say the mail came from
-someone else (DMARC failed). The senders on that list are under Account › Email and calendar,
+again the next time it opens, in any folder. *Always show from this sender* loads them at once in
+that sender's mail to the mailbox; both hold as long as the provider's check doesn't say the mail
+came from someone else (DMARC failed). Mail from the mailbox's own domain shows them too (not for
+public mail services such as gmail.com), but only when the mailbox's provider itself says the domain
+vouched for the message (DMARC passed, which Google and Microsoft mailboxes report; anyone can write
+a From address). The senders on that list are under Account › Email and calendar,
 where one is removed; *Stop* on a message does the same. The earlier mail an answer quotes at its
 end folds under *•••*, which opens it in place. Messages are grouped into threads by the server's
 thread ids, their references and, within 30 days, a reply's subject.

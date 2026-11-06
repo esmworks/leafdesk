@@ -13,7 +13,7 @@
     "challengeExpired": "Tämä kirjautuminen on vanhentunut. Kirjaudu sisään uudelleen.",
     "locked": "Tälle tilille on annettu liian monta väärää koodia. Odota 15 minuuttia ja yritä uudelleen.",
     "alreadyEnabled": "Kaksivaiheinen tunnistautuminen on jo käytössä.",
-    "signInAgain": "Kirjaudu turvallisuussyistä ulos ja takaisin sisään ennen pääsyavaimen lisäämistä.",
+    "signInAgain": "Kirjaudu turvallisuussyistä ulos ja takaisin sisään ja palaa sitten tänne 10 minuutin kuluessa.",
     "passkeyExists": "Tällä laitteella on jo pääsyavain tilillesi.",
     "passkeyUnknown": "Tätä pääsyavainta ei ole rekisteröity tänne. Se on ehkä poistettu.",
     "passkeyFailed": "Pääsyavainta ei voitu vahvistaa. Yritä uudelleen.",
