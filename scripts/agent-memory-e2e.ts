@@ -1,7 +1,8 @@
 /**
  * End-to-end check of agents' memory against the database, with a fake OpenAI-compatible server
  * scripted per run (src/server/ai/fake-openai.ts): a run a member's change started is offered
- * `remember` and `forget`; what it remembers is only proposed (a step of the run, credentials
+ * `remember` and `forget`, which drops a note only in an owner's own chat that read nothing from
+ * outside; what it remembers is only proposed (a step of the run, credentials
  * masked) and goes with no later run until an owner keeps it; an owner who can't open the run's
  * row doesn't see a proposal's text and can't keep it; kept notes go with every later run inside a
  * <memory> data tag, also runs no member started, which can't propose or drop notes; proposals are
@@ -279,9 +280,17 @@ try {
     keptPrompt.slice(0, 1500),
   );
   const forgetRun = await latestRun();
-  check(forgetRun.steps.some((s) => s.kind === "memory" && s.action === "forget" && s.text.startsWith("Bug tickets")), "a run drops a note at once, as a step", forgetRun.steps);
-  check((await notesInDb()).map((n) => n.text).join() === "Refund questions are Billing tickets.", "…and only that note", await notesInDb());
-  check(toolResults(fake.chats.at(-1)!)[1] === "There is no note with that memory_id.", "it can't drop a note that isn't its own");
+  // A run that read a row could be steered to drop what an owner kept: it only drops notes in a chat (below).
+  const refusedForget = toolResults(fake.chats.at(-1)!);
+  check(
+    !forgetRun.steps.some((s) => s.kind === "memory" && s.action === "forget") && refusedForget.length === 2 && refusedForget.every((r) => r.startsWith("Notes are dropped only in the chat")),
+    "a run on a row can't drop a note, and hears where it can",
+    { steps: forgetRun.steps, refusedForget },
+  );
+  const bugNote = (await notesInDb()).find((n) => n.text.startsWith("Bug tickets"))!;
+  check(bugNote?.status === "kept", "…so the note stays", await notesInDb());
+  await memory.deleteAgentMemory(ids.owner, router.id, [bugNote.id]);
+  check((await notesInDb()).map((n) => n.text).join() === "Refund questions are Billing tickets.", "an owner removes it on the Memory page", await notesInDb());
   // A run that drops its own proposal takes its item away too (the tools as a run calls them).
   const bot = { userId: router.userId, workspaceId };
   await memory.runAgentMemoryTool(bot, forgetRun, { name: "remember", arguments: { text: "Tickets in French go to Sophie." } });
@@ -560,6 +569,26 @@ try {
   fake.setChat(correcting("Telegram correction."));
   await chatRun(ids.owner, "From the bot.", (r) => db.update(agentRun).set({ source: { ...(r.source as Extract<typeof r.source, { kind: "chat" }>), fromApp: true, telegram: true } }).where(eq(agentRun.id, r.id)).then(() => {}));
   check((await notesInDb()).find((n) => n.text === "Telegram correction.")?.status === "kept", "one sent from Telegram is the person's own words: kept at once");
+
+  // Dropping a note is never proposed: it happens only where a correction is kept at once.
+  const dropMe = await memory.addAgentMemory(ids.owner, router.id, "Drop me when told.");
+  const forgetting = () => caller([[{ name: "forget", arguments: { memory_id: dropMe.id } }]]);
+  fake.chats.length = 0;
+  fake.setChat(forgetting());
+  const taintedForget = await chatRun(ids.owner, "Forget that note.", taints[0][1]);
+  check(
+    (await notesInDb()).some((n) => n.id === dropMe.id) && !taintedForget.run.steps.some((s) => s.kind === "memory" && s.action === "forget"),
+    "an owner's chat that read a web page can't drop a note",
+    taintedForget.run.steps,
+  );
+  fake.chats.length = 0;
+  fake.setChat(forgetting());
+  const ownForget = await chatRun(ids.owner, "Forget that note.");
+  check(
+    !(await notesInDb()).some((n) => n.id === dropMe.id) && ownForget.run.steps.some((s) => s.kind === "memory" && s.action === "forget" && s.text === "Drop me when told."),
+    "an owner's own chat drops a note at once, as a step",
+    ownForget.run.steps,
+  );
 
   fake.chats.length = 0;
   fake.setChat(correcting("Members decide where invoices go."));

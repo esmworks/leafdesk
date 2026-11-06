@@ -8,9 +8,10 @@
  * orders into every later run. A run therefore only proposes notes (`remember`): a proposal goes
  * with no run until someone who can edit the agent (a workspace owner, or someone it is shared
  * with at full access or can edit, see sharing.ts) keeps it, as it is or changed, in the agent's
- * Memory tab, where they also write, change and delete notes. A run may drop a note at once
- * (`forget`), which loses at most that note. Runs whose input no member stands behind (askEveryTool
- * in run.ts) get neither tool. Proposals are bounded (MAX_AGENT_PROPOSALS) and go with their run
+ * Memory tab, where they also write, change and delete notes. Dropping a note (`forget`) isn't
+ * proposed, so a run may do it only where a correction is kept at once (assistant/dispatch.ts): a
+ * run that read a row or a page could otherwise be steered to drop what an owner kept. Runs whose
+ * input no member stands behind (askEveryTool in run.ts) get neither tool. Proposals are bounded (MAX_AGENT_PROPOSALS) and go with their run
  * when no owner answered them by the time it is pruned.
  *
  * A run proposes few notes (MAX_PROPOSALS_PER_RUN), and a correction of a kept note as its new
