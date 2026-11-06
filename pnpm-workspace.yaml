@@ -17,6 +17,15 @@ overrides:
   'lodash-es@<4.17.24': 4.18.1
   # Next.js's PostCSS asks for a source-map-js with a denial-of-service advisory on crafted source maps.
   'source-map-js@<1.2.2': 1.2.2
+  # BlockNote's server utilities still ask for jsdom 29, whose undici 7 had TLS validation and
+  # cache poisoning advisories; 7.30.1 fixes them and is the same API.
+  'undici@7': ^7.30.1
+  # jsdom 31 parses with parse5 8.1 and its streaming parser, which would otherwise keep a parse5
+  # 8.0 of its own whose tokenizer lacks what the stream calls ("flushCharacters is not a function").
+  'parse5@8': ^8.1.0
+  # Better Auth lists vitest as an optional peer, which brings vite into the production install;
+  # 8.3.3 has the dev server's file-serving fixes. Nothing runs it in production.
+  vite: ^8.3.3
 
 # Advisories `pnpm audit --prod` reports that don't reach a running Leafdesk. Review them when the
 # weekly dependency check (.github/workflows/dependencies.yml) lists something new.
@@ -30,3 +39,21 @@ auditConfig:
     # sprintf-js under argparse, which only mammoth's command-line tool loads; the .docx importer
     # uses mammoth as a library. No patched sprintf-js is published yet.
     - GHSA-hp3w-g68c-fv3c
+
+minimumReleaseAgeExclude:
+  - '@better-auth/cimd@1.7.18'
+  - '@better-auth/core@1.7.18'
+  - '@better-auth/drizzle-adapter@1.7.18'
+  - '@better-auth/kysely-adapter@1.7.18'
+  - '@better-auth/mcp@1.7.18'
+  - '@better-auth/memory-adapter@1.7.18'
+  - '@better-auth/mongo-adapter@1.7.18'
+  - '@better-auth/oauth-provider@1.7.18'
+  - '@better-auth/passkey@1.7.18'
+  - '@better-auth/prisma-adapter@1.7.18'
+  - '@better-auth/sso@1.7.18'
+  - '@better-auth/telemetry@1.7.18'
+  - better-auth@1.7.18
+  - jsdom@31.0.0
+  - undici@8.12.4
+  - auth@1.7.18

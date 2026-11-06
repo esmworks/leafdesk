@@ -193,7 +193,8 @@ describe("footnotes and hidden callouts on published pages", () => {
       })),
     });
     const body = html(segments);
-    expect(body).toContain('<sup id="footnote-ref-1" data-footnote-ref=""><a href="#footnote-1" title="Note &quot;1&quot; <b>">1</a></sup>');
+    // parse5 8.1 escapes < and > in attribute values too, as the HTML standard now serializes them.
+    expect(body).toContain('<sup id="footnote-ref-1" data-footnote-ref=""><a href="#footnote-1" title="Note &quot;1&quot; &lt;b&gt;">1</a></sup>');
     expect(body).toContain('<a href="#footnote-3" title="Note 3">3</a>');
     expect(body).not.toContain("data-leafdesk-footnote");
   });
