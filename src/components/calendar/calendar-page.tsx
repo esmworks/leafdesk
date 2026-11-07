@@ -283,7 +283,8 @@ function WeekGrid({
   return (
     <div className="-mx-2 overflow-x-auto px-2">
       <div className="min-w-[42rem] overflow-hidden rounded-lg border border-border">
-        <div className="flex border-b border-border bg-bg-subtle">
+        {/* The hours below keep a scrollbar's room; the rows above keep the same, so the columns line up. */}
+        <div className="flex overflow-hidden border-b border-border bg-bg-subtle [scrollbar-gutter:stable]">
           <div className="w-14 shrink-0" />
           <div className="grid min-w-0 flex-1" style={gridColumns}>
             {days.map((day) => (
@@ -301,7 +302,7 @@ function WeekGrid({
             ))}
           </div>
         </div>
-        <div className="flex border-b border-border">
+        <div className="flex overflow-hidden border-b border-border [scrollbar-gutter:stable]">
           <div className="w-14 shrink-0 px-1.5 py-1.5 text-end text-[11px] leading-4 text-fg-muted">{t("allDay")}</div>
           <div
             className="relative grid min-h-8 min-w-0 flex-1 py-1"
@@ -340,7 +341,7 @@ function WeekGrid({
             ))}
           </div>
         </div>
-        <div ref={hours} className="max-h-[calc(100dvh-16rem)] min-h-[20rem] overflow-y-auto">
+        <div ref={hours} className="max-h-[calc(100dvh-16rem)] min-h-[20rem] overflow-y-auto [scrollbar-gutter:stable]">
           <div className="flex" style={{ height: 24 * HOUR_HEIGHT }}>
             <div aria-hidden className="relative w-14 shrink-0">
               {Array.from({ length: 23 }, (_, h) => (
