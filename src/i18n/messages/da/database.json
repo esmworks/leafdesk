@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Denne indstilling for rækkesider kan ikke gemmes.",
     "tooManyPinned": "Rækkesider kan højst fastgøre {max} egenskaber.",
     "calendarFeedNotCalendar": "Man kan kun abonnere på kalendervisninger.",
-    "calendarFeedExportOff": "Arbejdsområdets ejere har slået eksport fra, så kalenderabonnementer er også slået fra.",
-    "webhookExportOff": "Arbejdsområdets ejere har slået eksport fra, så webhooks er også slået fra.",
+    "calendarFeedExportOff": "Arbejdsområdets ejere har slået eksport fra eller forbeholdt sig den, så kalenderabonnementer er også slået fra.",
+    "webhookExportOff": "Arbejdsområdets ejere har slået eksport fra eller forbeholdt sig den, så webhooks er også slået fra.",
     "isTemplate": "Skabeloner kan ikke flyttes eller lægges i papirkurven. Slet dem fra skabelonlisten i stedet.",
     "notATemplate": "Denne side er ikke en skabelon i dette arbejdsområde eller denne database.",
     "propertyRestricted": "Du har ikke adgang til at ændre “{property}”.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Tilføj først en status eller et afkrydsningsfelt til at markere rækker som udført: en række gentages, når den er udført.",
     "repeatSynced": "Rækker i en synkroniseret database gentages ikke.",
     "repeatTemplate": "Skabeloner gentages ikke; rækkerne lavet ud fra dem kan.",
+    "deleteForeverOwners": "Kun arbejdsområdets ejere kan slette dette permanent. Det bliver i papirkurven, hvor det kan gendannes.",
     "invalidSlackUrl": "Ikke en adresse til en indgående Slack-webhook (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” kan kun koble én side. Vælg én.",
     "invalidRelationOptions": "Disse relationsindstillinger kan ikke gemmes."

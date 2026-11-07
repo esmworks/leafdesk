@@ -1613,6 +1613,10 @@
       "never": "Không bao giờ",
       "days": "{count, plural, other {# ngày}}"
     },
+    "deleteForever": {
+      "title": "Chỉ chủ sở hữu được xóa vĩnh viễn",
+      "description": "Người khác vẫn có thể chuyển trang và hàng vào thùng rác và khôi phục, nhưng chỉ chủ sở hữu xóa vĩnh viễn. Thùng rác vẫn tự dọn sau khoảng thời gian ở trên."
+    },
     "historyRetention": {
       "title": "Lịch sử trang",
       "description": "Các phiên bản trước của một trang được giữ {days} ngày, tối đa {count} phiên bản mỗi trang. Phiên bản đã lưu và phiên bản trước khi khôi phục được giữ {keptDays} ngày, phiên bản có tên được giữ chừng nào trang còn, và phiên bản mới nhất của trang luôn được giữ."
@@ -1666,12 +1670,20 @@
       "title": "Cho phép xuất",
       "description": "Mọi người trong không gian làm việc có thể tải trang xuống dưới dạng Markdown, CSV hoặc ZIP và in ra PDF. Tắt: các tùy chọn đó biến mất với tất cả mọi người, kể cả chủ sở hữu."
     },
+    "exportOwners": {
+      "title": "Chỉ chủ sở hữu được xuất",
+      "description": "Thành viên và khách không thể tải xuống hay in trang hoặc đăng ký lịch, và webhook cùng các bước Slack họ thiết lập không gửi gì. Chủ sở hữu vẫn làm được khi việc xuất được cho phép."
+    },
     "connectedApps": {
       "title": "Ứng dụng đã kết nối và token API",
       "description": "Những gì các trợ lý AI và ứng dụng khác kết nối qua MCP, cùng token REST API, được làm trong không gian làm việc này. Chúng không bao giờ có nhiều quyền hơn người đã kết nối chúng. Khi không có quyền truy cập, không gian làm việc bị ẩn với chúng.",
       "full": "Đọc và chỉnh sửa",
       "read": "Chỉ đọc",
       "off": "Không có quyền truy cập"
+    },
+    "connectedAppsOwners": {
+      "title": "Chỉ ứng dụng đã kết nối của chủ sở hữu",
+      "description": "Trợ lý AI, ứng dụng MCP, token API, bot Telegram và đăng ký lịch của thành viên và khách không thấy không gian làm việc này; chỉ ứng dụng của chủ sở hữu truy cập được."
     },
     "onlyApprovedApps": {
       "title": "Chỉ ứng dụng đã duyệt",
@@ -1689,6 +1701,7 @@
       "readsHere": "Chỉ đọc tại đây: các ứng dụng đã kết nối chỉ được đọc",
       "offHere": "Không có quyền truy cập tại đây: các ứng dụng đã kết nối đang tắt",
       "notApprovedHere": "Không có quyền truy cập ở đây: chưa được duyệt",
+      "notOwnerHere": "Không có quyền truy cập ở đây: chỉ ứng dụng của chủ sở hữu",
       "approved": "Đã duyệt",
       "approve": "Duyệt",
       "unapprove": "Rút lại phê duyệt",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Tìm kiếm web của trò chuyện AI",
       "aiMonthlyLimitUsd": "Giới hạn chi phí AI hằng tháng",
       "trashRetentionDays": "Xóa các trang trong thùng rác sau",
+      "deleteForever": "Ai có thể xóa vĩnh viễn",
       "export": "Cho phép xuất",
+      "exportBy": "Ai có thể xuất",
       "connectedApps": "Ứng dụng đã kết nối và token API",
+      "connectedAppsBy": "Ứng dụng đã kết nối của ai truy cập được",
       "onlyApprovedApps": "Chỉ ứng dụng đã duyệt",
       "accessRequests": "Yêu cầu quyền truy cập",
       "memberInvites": "Ai có thể thêm thành viên",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, other {# ngày}}",
       "none": "Không có",
       "owners": "Chỉ chủ sở hữu",
+      "everyone": "Mọi người",
+      "full_access": "Người có toàn quyền truy cập",
       "members": "Chủ sở hữu và thành viên",
       "any": "Mọi cách",
       "sso": "Chỉ đăng nhập một lần",

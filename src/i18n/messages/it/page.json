@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Salva come modello di riga",
     "deleteTemplate": "Elimina modello",
     "exportDisabled": "L’esportazione è disattivata",
-    "exportDisabledBody": "I proprietari di questo spazio di lavoro hanno disattivato l’esportazione e la stampa delle sue pagine.",
+    "exportDisabledBody": "I proprietari di questo spazio hanno disattivato l’esportazione e la stampa delle sue pagine, o le hanno riservate a sé.",
     "showInGraph": "Mostra nel grafo",
     "present": "Presenta",
     "readAloud": "Leggi ad alta voce",

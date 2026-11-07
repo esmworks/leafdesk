@@ -122,16 +122,35 @@ export type WorkspaceSettings = {
    */
   trashRetentionDays: number;
   /**
+   * Who may delete pages and rows of the trash for good (Delete forever, a deleted property's
+   * values): whoever has full access to them, or only the workspace's owners. The trash's
+   * retention deletes on its own either way (server/retention.ts).
+   */
+  deleteForever: "full_access" | "owners";
+  /**
    * Whether people may take the workspace's pages out as files: Markdown, CSV and ZIP exports and
    * the print view ("Export as PDF"). Reading pages through connected apps is `connectedApps`.
    */
   export: boolean;
+  /**
+   * Who `export` lets take pages out: everyone in the workspace, or only its owners. With
+   * "owners", members' and guests' exports, print view, calendar feeds, and the webhooks and
+   * Slack posts of automations, buttons and page webhooks they saved are refused, as with `export`
+   * off (see workspaces.ts `exportAllowed`).
+   */
+  exportBy: "everyone" | "owners";
   /**
    * What connected apps may do in the workspace: MCP clients a user authorized over OAuth and REST
    * API tokens alike (see server/connected-app.ts). "full": whatever their user may; "read": read
    * only, every change refused; "off": the workspace is hidden from them.
    */
   connectedApps: "full" | "read" | "off";
+  /**
+   * Whose connected apps `connectedApps` applies to: everyone's, or only owners'; to the apps of
+   * everyone else (MCP clients, REST API tokens, the Telegram bot, calendar feeds) the workspace
+   * is hidden, as with "off" (see access.ts appsModeOf).
+   */
+  connectedAppsBy: "everyone" | "owners";
   /**
    * Only the MCP apps an owner approved (`approvedApps`) reach the workspace; to the others it is
    * hidden, as with `connectedApps` "off". The server's own clients and REST API tokens aren't held
@@ -221,8 +240,11 @@ export const DEFAULT_WORKSPACE_SETTINGS: WorkspaceSettings = {
   aiAutoChanges: true,
   aiMonthlyLimitUsd: null,
   trashRetentionDays: 30,
+  deleteForever: "full_access",
   export: true,
+  exportBy: "everyone",
   connectedApps: "full",
+  connectedAppsBy: "everyone",
   onlyApprovedApps: false,
   approvedApps: [],
   accessRequests: true,

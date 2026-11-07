@@ -195,7 +195,7 @@ async function exportedTable(
   loaded?: Snapshot,
 ) {
   const snapshot = loaded ?? (await getDatabaseSnapshot(userId, databaseId));
-  await assertExportAllowed(snapshot.database.workspaceId);
+  await assertExportAllowed(snapshot.database.workspaceId, userId);
   const byId = new Map(snapshot.rows.map((row) => [row.id, row]));
   const rows = only ? only.flatMap((id) => byId.get(id) ?? []) : snapshot.rows;
   const propertyById = new Map(snapshot.properties.map((p) => [p.id, p]));
@@ -217,7 +217,7 @@ async function exportedTable(
  */
 async function exportedPivot(userId: string, databaseId: string, view: ViewExport, config: ViewConfig, format: ExportRecord["format"], loaded?: Snapshot) {
   const snapshot = loaded ?? (await getDatabaseSnapshot(userId, databaseId));
-  await assertExportAllowed(snapshot.database.workspaceId);
+  await assertExportAllowed(snapshot.database.workspaceId, userId);
   const byId = new Map(snapshot.rows.map((row) => [row.id, row]));
   const rows = view.rows.flatMap((id) => byId.get(id) ?? []);
   const { properties } = snapshot;
@@ -381,12 +381,13 @@ export class ExportError extends Error {
 }
 
 /**
- * Refuses exports (and the print view) of the workspace's pages while its owners have export
- * turned off. `databaseCsv` and `planExport` ask it themselves; one page's Markdown is checked by
- * the export route, since archives read each page's Markdown after their plan was checked.
+ * Refuses exports (and the print view) of the workspace's pages to `userId` while its owners have
+ * export turned off, or let only owners export and they aren't one. `databaseCsv` and `planExport`
+ * ask it themselves; one page's Markdown is checked by the export route, since archives read each
+ * page's Markdown after their plan was checked.
  */
-export async function assertExportAllowed(workspaceId: string) {
-  if (!(await exportAllowed(workspaceId))) throw new ExportError("disabled");
+export async function assertExportAllowed(workspaceId: string, userId: string) {
+  if (!(await exportAllowed(workspaceId, userId))) throw new ExportError("disabled");
 }
 
 const MB = 1024 * 1024;
@@ -486,7 +487,7 @@ export async function planExport(
     title = ws?.name?.trim() || "Workspace";
     where = sql`p.workspace_id = ${workspaceId} and p.archived_at is null`;
   }
-  await assertExportAllowed(workspaceId);
+  await assertExportAllowed(workspaceId, userId);
 
   const rows = await db.execute<{
     id: string;

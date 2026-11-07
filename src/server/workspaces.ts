@@ -44,7 +44,7 @@ import { isReservedEmail } from "@/lib/reserved-emails";
 import { isEmail, MAX_BULK_EMAILS, normalizeEmail } from "@/lib/emails";
 import { invitedTeamspaces } from "@/lib/invited-teamspaces";
 import { assignableRoles, invitationApplies, linkAccess, memberInviteMode, verifiedAllowedDomains } from "@/lib/membership-policy";
-import { managesPeople, mayChangeRole, mayRemove } from "@/lib/workspace-roles";
+import { managesPeople, mayChangeRole, mayDeleteForever, mayExport, mayRemove } from "@/lib/workspace-roles";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { parseDomains } from "@/lib/sso-config";
 import { parseCalloutStyles } from "@/lib/callout-styles-parse";
@@ -1628,11 +1628,14 @@ const SETTING_VALUES: {
   aiWebSearch: [false, true],
   aiAutoChanges: [true, false],
   trashRetentionDays: TRASH_RETENTION_CHOICES,
+  deleteForever: ["full_access", "owners"],
   memberInvites: ["owners", "members_with_approval", "any_member"],
   domainJoin: ["join", "request"],
   joinRequests: ["nobody", "allowed_domains", "anyone_with_link"],
   export: [true, false],
+  exportBy: ["everyone", "owners"],
   connectedApps: CONNECTED_APPS_MODES,
+  connectedAppsBy: ["everyone", "owners"],
   onlyApprovedApps: [false, true],
   accessRequests: [true, false],
   email: [false, true],
@@ -1898,10 +1901,28 @@ export async function publishingOn(workspaceId: string) {
   return (await workspaceSettings(workspaceId)).publishing !== "off";
 }
 
-/** Whether the workspace lets people export its pages (Markdown, CSV, ZIP, the print view). */
-export async function exportAllowed(workspaceId: string) {
-  return (await workspaceSettings(workspaceId)).export !== false;
+/**
+ * Whether the workspace lets `userId` take its pages out as files (Markdown, CSV, ZIP, the print
+ * view) or send them out (calendar feeds, the webhooks and Slack posts of what they saved): not
+ * while export is off, nor for anyone but its owners while only owners may export (`exportBy`).
+ * Background work asks for the person it runs as. The role is read without the sign-in policies
+ * (findMembership): the request's own checks hold those.
+ */
+export async function exportAllowed(workspaceId: string, userId: string) {
+  const settings = await workspaceSettings(workspaceId);
+  return mayExport(settings, (await findMembership(userId, workspaceId))?.role ?? null);
 }
+
+/**
+ * Whether the workspace lets `userId` delete what is in its trash for good (beside the full access
+ * that takes): not while only its owners may (`deleteForever`) and they aren't one.
+ */
+export async function deleteForeverAllowed(workspaceId: string, userId: string) {
+  const settings = await workspaceSettings(workspaceId);
+  if (settings.deleteForever !== "owners") return true;
+  return mayDeleteForever(settings, (await findMembership(userId, workspaceId))?.role ?? null);
+}
+
 
 /**
  * Whether the user may add pages at the top of the workspace: owners and members add pages

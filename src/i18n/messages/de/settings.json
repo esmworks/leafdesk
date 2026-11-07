@@ -1613,6 +1613,10 @@
       "never": "Nie",
       "days": "{count, plural, one {# Tag} other {# Tagen}}"
     },
+    "deleteForever": {
+      "title": "Nur Eigentümer können endgültig löschen",
+      "description": "Andere können Seiten und Zeilen weiterhin in den Papierkorb verschieben und wiederherstellen, aber nur Eigentümer löschen sie endgültig. Der Papierkorb leert sich trotzdem nach der oben gewählten Zeit."
+    },
     "historyRetention": {
       "title": "Seitenverlauf",
       "description": "Frühere Versionen einer Seite werden {days} Tage lang aufbewahrt, höchstens {count} pro Seite. Gespeicherte Versionen und Versionen von vor einer Wiederherstellung bleiben {keptDays} Tage erhalten, benannte Versionen so lange wie die Seite, und die neueste Version einer Seite bleibt immer."
@@ -1666,12 +1670,20 @@
       "title": "Export erlauben",
       "description": "Alle im Workspace können Seiten als Markdown, CSV oder ZIP herunterladen und als PDF drucken. Aus: Diese Optionen gibt es für niemanden mehr, auch nicht für Inhaber."
     },
+    "exportOwners": {
+      "title": "Nur Eigentümer können exportieren",
+      "description": "Mitglieder und Gäste können Seiten weder herunterladen noch drucken oder Kalender abonnieren, und ihre Webhooks und Slack-Schritte senden nichts. Eigentümer können es weiterhin, solange Export erlaubt ist."
+    },
     "connectedApps": {
       "title": "Verbundene Apps und API-Token",
       "description": "Was KI-Assistenten und andere über MCP verbundene Apps sowie REST-API-Token in diesem Workspace tun dürfen. Sie dürfen nie mehr als die Person, die sie verbunden hat. Ohne Zugriff ist der Workspace für sie unsichtbar.",
       "full": "Lesen und bearbeiten",
       "read": "Nur lesen",
       "off": "Kein Zugriff"
+    },
+    "connectedAppsOwners": {
+      "title": "Nur verbundene Apps von Eigentümern",
+      "description": "KI-Assistenten, MCP-Apps, API-Tokens, Telegram-Bot und Kalenderabos von Mitgliedern und Gästen sehen diesen Workspace nicht; nur Apps von Eigentümern erreichen ihn."
     },
     "onlyApprovedApps": {
       "title": "Nur freigegebene Apps",
@@ -1689,6 +1701,7 @@
       "readsHere": "Liest hier nur: verbundene Apps dürfen nur lesen",
       "offHere": "Hier kein Zugriff: verbundene Apps sind aus",
       "notApprovedHere": "Kein Zugriff hier: nicht freigegeben",
+      "notOwnerHere": "Kein Zugriff hier: nur Apps von Eigentümern",
       "approved": "Freigegeben",
       "approve": "Freigeben",
       "unapprove": "Freigabe zurückziehen",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Websuche im KI-Chat",
       "aiMonthlyLimitUsd": "Monatliches KI-Kostenlimit",
       "trashRetentionDays": "Seiten im Papierkorb löschen nach",
+      "deleteForever": "Wer endgültig löschen kann",
       "export": "Export erlauben",
+      "exportBy": "Wer exportieren kann",
       "connectedApps": "Verbundene Apps und API-Token",
+      "connectedAppsBy": "Wessen verbundene Apps ihn erreichen",
       "onlyApprovedApps": "Nur freigegebene Apps",
       "accessRequests": "Zugriffsanfragen",
       "memberInvites": "Wer Mitglieder hinzufügen kann",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, one {# Tag} other {# Tagen}}",
       "none": "Keine",
       "owners": "Nur Inhaber",
+      "everyone": "Alle",
+      "full_access": "Personen mit Vollzugriff",
       "members": "Inhaber und Mitglieder",
       "any": "Jede Methode",
       "sso": "Nur Single Sign-on",

@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Diese Einstellung für Zeilenseiten kann nicht gespeichert werden.",
     "tooManyPinned": "Zeilenseiten heften bis zu {max} Eigenschaften an.",
     "calendarFeedNotCalendar": "Nur Kalenderansichten können abonniert werden.",
-    "calendarFeedExportOff": "Die Eigentümer des Arbeitsbereichs haben den Export ausgeschaltet, daher sind auch Kalenderabos aus.",
-    "webhookExportOff": "Die Eigentümer des Arbeitsbereichs haben den Export ausgeschaltet, daher sind auch Webhooks aus.",
+    "calendarFeedExportOff": "Die Eigentümer des Workspace haben den Export ausgeschaltet oder sich selbst vorbehalten, daher sind Kalenderabos ebenfalls aus.",
+    "webhookExportOff": "Die Eigentümer des Workspace haben den Export ausgeschaltet oder sich selbst vorbehalten, daher sind Webhooks ebenfalls aus.",
     "isTemplate": "Vorlagen können nicht verschoben oder in den Papierkorb gelegt werden. Lösche sie stattdessen in der Vorlagenliste.",
     "notATemplate": "Diese Seite ist keine Vorlage dieses Workspace oder dieser Datenbank.",
     "propertyRestricted": "Du darfst „{property}“ nicht ändern.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Füge zuerst einen Status oder ein Kontrollkästchen hinzu, um Zeilen als erledigt zu markieren: Eine Zeile wiederholt sich, wenn sie erledigt ist.",
     "repeatSynced": "Zeilen einer synchronisierten Datenbank wiederholen sich nicht.",
     "repeatTemplate": "Vorlagen wiederholen sich nicht, die daraus erstellten Zeilen schon.",
+    "deleteForeverOwners": "Nur die Eigentümer des Workspace können dies endgültig löschen. Es bleibt im Papierkorb und kann wiederhergestellt werden.",
     "invalidSlackUrl": "Keine Adresse eines eingehenden Slack-Webhooks (https://hooks.slack.com/services/…).",
     "oneRow": "„{property}“ verknüpft nur eine Seite. Wähle eine.",
     "invalidRelationOptions": "Diese Relationseinstellungen lassen sich nicht speichern."

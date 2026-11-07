@@ -291,6 +291,8 @@
     "automationRun": "خودکارسازی «{name}»",
     "sensitiveContent": "{kind, select, card {یک شمارهٔ کارت پرداخت} iban {یک شمارهٔ IBAN} national_id {یک شمارهٔ شناسایی ملی} private_key {یک کلید خصوصی} aws_key {یک کلید دسترسی AWS} github_token {یک توکن GitHub} slack_token {یک توکن Slack} api_key {یک کلید API} jwt {یک توکن JSON Web Token} other {محتوای حساس}} اینجا پیدا شد. آن را در تنظیمات > امنیت بررسی کنید.",
     "pageReported": "یک بازدیدکننده این صفحه را گزارش کرد: {reason, select, spam {هرزنامه یا کلاهبرداری} harmful {محتوای نفرت‌آمیز، خشن یا آزاردهنده} illegal {محتوای غیرقانونی} privacy {اطلاعات شخصی} copyright {حق نشر} other {چیز دیگر}}. در تنظیمات > امنیت بررسی کنید.",
+    "massTrash": "{actor} در عرض یک ساعت ردیف‌هایی از این پایگاه داده را به سطل زباله برد، در مجموع {count}. آن را از تاریخچهٔ پایگاه داده برگردانید.",
+    "massTrashDatabase": "{actor} این پایگاه داده را با ردیف‌هایش به سطل زباله برد، در مجموع {count}. پیش از خالی شدن سطل زباله آن را بازگردانید.",
     "aiLimitTitle": "هزینهٔ هوش مصنوعی",
     "aiLimit": {
       "near": "80٪ از سقف ماهانهٔ {limit, number} توکن خود را مصرف کرده است",

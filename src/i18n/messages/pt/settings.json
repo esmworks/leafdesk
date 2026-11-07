@@ -1613,6 +1613,10 @@
       "never": "Nunca",
       "days": "{count, plural, one {# dia} other {# dias}}"
     },
+    "deleteForever": {
+      "title": "Só os proprietários podem excluir definitivamente",
+      "description": "Os demais ainda podem mover páginas e linhas para a lixeira e restaurá-las, mas só os proprietários as excluem definitivamente. A lixeira continua se esvaziando sozinha após o prazo acima."
+    },
     "historyRetention": {
       "title": "Histórico da página",
       "description": "As versões anteriores de uma página são mantidas por {days} dias, até {count} por página. Versões salvas e versões de antes de uma restauração são mantidas por {keptDays} dias, versões com nome enquanto a página existir, e a versão mais recente de uma página sempre fica."
@@ -1666,12 +1670,20 @@
       "title": "Permitir exportação",
       "description": "Todos no espaço de trabalho podem baixar páginas em Markdown, CSV ou ZIP e imprimi-las em PDF. Desativado: essas opções somem para todos, inclusive para os proprietários."
     },
+    "exportOwners": {
+      "title": "Só os proprietários podem exportar",
+      "description": "Membros e convidados não podem baixar nem imprimir páginas nem assinar calendários, e os webhooks e etapas do Slack que configurarem não enviam nada. Os proprietários continuam podendo enquanto a exportação for permitida."
+    },
     "connectedApps": {
       "title": "Apps conectados e tokens de API",
       "description": "O que assistentes de IA e outros apps conectados via MCP, e tokens da API REST, podem fazer neste espaço de trabalho. Eles nunca recebem mais do que a pessoa que os conectou. Sem acesso, o espaço de trabalho fica oculto para eles.",
       "full": "Ler e editar",
       "read": "Somente leitura",
       "off": "Sem acesso"
+    },
+    "connectedAppsOwners": {
+      "title": "Só os apps conectados dos proprietários",
+      "description": "Assistentes de IA, apps MCP, tokens de API, bot do Telegram e assinaturas de calendário de membros e convidados não veem este espaço; só os apps dos proprietários chegam a ele."
     },
     "onlyApprovedApps": {
       "title": "Apenas apps aprovados",
@@ -1689,6 +1701,7 @@
       "readsHere": "Só lê aqui: apps conectados só podem ler",
       "offHere": "Sem acesso aqui: apps conectados estão desativados",
       "notApprovedHere": "Sem acesso aqui: não aprovado",
+      "notOwnerHere": "Sem acesso aqui: só apps de proprietários",
       "approved": "Aprovado",
       "approve": "Aprovar",
       "unapprove": "Retirar aprovação",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Pesquisa na web do chat de IA",
       "aiMonthlyLimitUsd": "Limite mensal de custo de IA",
       "trashRetentionDays": "Excluir páginas da lixeira depois de",
+      "deleteForever": "Quem pode excluir definitivamente",
       "export": "Permitir exportação",
+      "exportBy": "Quem pode exportar",
       "connectedApps": "Apps conectados e tokens de API",
+      "connectedAppsBy": "De quem são os apps conectados que chegam",
       "onlyApprovedApps": "Apenas apps aprovados",
       "accessRequests": "Pedidos de acesso",
       "memberInvites": "Quem pode adicionar membros",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, one {# dia} other {# dias}}",
       "none": "Nenhum",
       "owners": "Só proprietários",
+      "everyone": "Todos",
+      "full_access": "Pessoas com acesso total",
       "members": "Proprietários e membros",
       "any": "Qualquer método",
       "sso": "Só login único",

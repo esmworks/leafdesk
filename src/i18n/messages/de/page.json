@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Als Zeilenvorlage speichern",
     "deleteTemplate": "Vorlage löschen",
     "exportDisabled": "Export ist ausgeschaltet",
-    "exportDisabledBody": "Die Inhaber dieses Workspace haben das Exportieren und Drucken seiner Seiten ausgeschaltet.",
+    "exportDisabledBody": "Die Eigentümer dieses Workspace haben das Exportieren und Drucken seiner Seiten ausgeschaltet oder sich selbst vorbehalten.",
     "showInGraph": "Im Graphen zeigen",
     "present": "Präsentieren",
     "readAloud": "Vorlesen",

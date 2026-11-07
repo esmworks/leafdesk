@@ -125,7 +125,7 @@ async function ensureTaskList(actor: WriteActor, workspaceId: string, locale: st
     .returning({ pageId: taskList.pageId });
   if (won) return created;
   await archivePage(userId, created)
-    .then(() => deletePagePermanently(userId, created))
+    .then(() => deletePagePermanently(userId, created, { discard: true }))
     .catch((error) => console.error("[own-tasks] couldn't remove a duplicate list", error));
   return ensureTaskList(actor, workspaceId, locale);
 }

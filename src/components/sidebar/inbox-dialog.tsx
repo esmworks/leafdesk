@@ -24,6 +24,7 @@ import { groupCounts, groupInbox, type InboxEntry } from "@/lib/inbox-groups";
 import { approvalLevelsFor, initialApprovalLevel, type ApprovalLevel } from "@/lib/access-requests";
 import { SUGGESTION_LINES } from "@/lib/push";
 import { pushLink } from "@/lib/push-link";
+import { parseMassTrash } from "@/lib/mass-trash";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
@@ -334,6 +335,11 @@ export function InboxDialog({
                 ? t("sensitiveContent", { kind: item.automationMessage ?? "" })
                 : item.kind === "page_reported"
                 ? t("pageReported", { reason: item.automationMessage ?? "" })
+                : item.kind === "mass_trash"
+                ? t(parseMassTrash(item.automationMessage)?.what === "database" ? "massTrashDatabase" : "massTrash", {
+                    actor: item.actorName || t("someone"),
+                    count: parseMassTrash(item.automationMessage)?.count ?? 0,
+                  })
                 : item.kind === "access_request"
                 ? item.accessRequest && item.accessRequest.level !== "view"
                   ? t("accessRequestMore", { actor: item.actorName || item.accessRequest.requesterEmail || t("someone"), level: item.accessRequest.level })
@@ -386,7 +392,8 @@ export function InboxDialog({
                         : t("assignment", { actor: item.actorName || t("someone"), property: item.propertyName ?? "" })}
               {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
             </span>
-            {item.automationMessage && (
+            {/* Kinds whose message is a code the line above already says in words don't repeat it. */}
+            {item.automationMessage && !MESSAGE_IN_LINE.has(item.kind) && (
               <bdi className="mt-1 line-clamp-3 text-xs leading-5 break-words whitespace-pre-line text-fg">{item.automationMessage}</bdi>
             )}
             {item.reaction?.excerpt && (
@@ -780,6 +787,9 @@ const SWIPE_SNOOZE: SnoozeChoice = "tomorrow";
 
 /** The most people's pictures a group of notifications shows. */
 const MAX_GROUP_AVATARS = 3;
+
+/** Kinds whose `message` is a code their line already puts in words (a kind found, a reason, rows trashed). */
+const MESSAGE_IN_LINE = new Set<InboxItem["kind"]>(["sensitive_content", "page_reported", "mass_trash"]);
 
 /** The most changes of a row update the inbox lists; the row's activity has all of them. */
 const MAX_ROW_CHANGES = 4;

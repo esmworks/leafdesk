@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "حفظ كقالب صف",
     "deleteTemplate": "حذف القالب",
     "exportDisabled": "التصدير معطّل",
-    "exportDisabledBody": "أوقف مالكو مساحة العمل هذه تصدير صفحاتها وطباعتها.",
+    "exportDisabledBody": "أوقف مالكو مساحة العمل هذه تصدير صفحاتها وطباعتها، أو قصروا ذلك على أنفسهم.",
     "showInGraph": "العرض في الرسم البياني",
     "present": "عرض تقديمي",
     "readAloud": "قراءة بصوت عالٍ",

@@ -10,7 +10,7 @@
 import { and, count, desc, eq, gt, inArray, isNull, not, or, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { apiToken, connectedAppCutOff, connectedAppUse, oauthClient, oauthConsent, user, workspace } from "@/db/schema";
-import { AccessError, inWorkspace, otherWorkspacesOf, requireMembership } from "@/server/access";
+import { AccessError, inWorkspace, otherWorkspacesOf, ownersInOrder, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { revokeApiToken } from "@/server/api/tokens";
 import { clientDisplayName, revokeConnectedApp } from "@/server/mcp/grants";
@@ -30,6 +30,8 @@ export type WorkspaceApp = {
   /** A token's start ("esi_…"), to tell tokens apart. */
   prefix: string | null;
   person: { id: string; name: string; email: string };
+  /** The person is one of the workspace's owners (where only owners' apps come in, the others' don't). */
+  ownersApp: boolean;
   /** It may change pages, not only read them (still held to the workspace's connected-apps setting). */
   writes: boolean;
   /** It reaches the person's other workspaces too: every app, and tokens not limited to this one. */
@@ -126,12 +128,13 @@ export async function listWorkspaceApps(actorId: string, workspaceId: string, no
   await requireMembership(actorId, workspaceId, "owner");
   const apps = appsReaching(workspaceId);
   const tokens = tokensReaching(workspaceId, now);
-  const [appRows, tokenRows, [appCount], [tokenCount], approved] = await Promise.all([
+  const [appRows, tokenRows, [appCount], [tokenCount], approved, owners] = await Promise.all([
     apps.rows.limit(WORKSPACE_APPS_SHOWN),
     tokens.rows.limit(WORKSPACE_APPS_SHOWN),
     apps.total,
     tokens.total,
     approvedApps(workspaceId),
+    ownersInOrder(db, workspaceId).then((ids) => new Set(ids)),
   ]);
   const all: WorkspaceApp[] = [
     ...appRows.map((a) => ({
@@ -140,6 +143,7 @@ export async function listWorkspaceApps(actorId: string, workspaceId: string, no
       name: clientDisplayName(a.name, a.id),
       prefix: null,
       person: a.person,
+      ownersApp: owners.has(a.person.id),
       writes: a.scopes.includes(WRITE_SCOPE),
       allWorkspaces: true,
       connectedAt: a.connectedAt,
@@ -152,6 +156,7 @@ export async function listWorkspaceApps(actorId: string, workspaceId: string, no
       name: t.name,
       prefix: t.prefix,
       person: t.person,
+      ownersApp: owners.has(t.person.id),
       // Any write scope (rows:write, say), or a legacy token's pages:write.
       writes: scopesWrite(t.scopes),
       allWorkspaces: t.workspaceId === null,

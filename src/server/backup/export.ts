@@ -96,7 +96,7 @@ export type BackupPlan = { workspaceId: string; name: string; files: number; fil
 /** Checks that `userId` may back up the workspace and that it fits in one archive. */
 export async function planBackup(userId: string, workspaceId: string): Promise<BackupPlan> {
   await requireMembership(userId, workspaceId, "owner");
-  if (!(await exportAllowed(workspaceId))) throw new BackupError("disabled");
+  if (!(await exportAllowed(workspaceId, userId))) throw new BackupError("disabled");
   const [ws] = await db.select({ name: workspace.name }).from(workspace).where(eq(workspace.id, workspaceId));
   const [counts] = await db
     .select({ files: sql<number>`count(*)::int`, bytes: sql<number>`coalesce(sum(${file.size}), 0)::bigint` })

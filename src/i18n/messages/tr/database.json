@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Bu satır sayfası ayarı kaydedilemiyor.",
     "tooManyPinned": "Satır sayfaları en fazla {max} özelliği sabitler.",
     "calendarFeedNotCalendar": "Yalnızca takvim görünümlerine abone olunabilir.",
-    "calendarFeedExportOff": "Çalışma alanının sahipleri dışa aktarmayı kapattığı için takvim abonelikleri de kapalı.",
-    "webhookExportOff": "Çalışma alanının sahipleri dışa aktarmayı kapattığı için webhook’lar da kapalı.",
+    "calendarFeedExportOff": "Çalışma alanının sahipleri dışa aktarmayı kapattığı ya da kendilerine ayırdığı için takvim abonelikleri de kapalı.",
+    "webhookExportOff": "Çalışma alanının sahipleri dışa aktarmayı kapattığı ya da kendilerine ayırdığı için webhook’lar da kapalı.",
     "isTemplate": "Şablonlar taşınamaz ve çöp kutusuna atılamaz. Onları şablon listesinden silin.",
     "notATemplate": "Bu sayfa bu çalışma alanının ya da veritabanının bir şablonu değil.",
     "propertyRestricted": "“{property}” özelliğini değiştirme yetkiniz yok.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Önce satırları bitti olarak işaretlemek için bir durum ya da onay kutusu ekleyin: satır bittiğinde tekrarlanır.",
     "repeatSynced": "Eşitlenen bir veritabanının satırları tekrarlanmaz.",
     "repeatTemplate": "Şablonlar tekrarlanmaz; onlardan oluşturulan satırlar tekrarlanabilir.",
+    "deleteForeverOwners": "Bunu yalnızca çalışma alanının sahipleri kalıcı olarak silebilir. Çöp kutusunda kalır, oradan geri getirilebilir.",
     "invalidSlackUrl": "Bu bir Slack gelen webhook adresi değil (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” yalnızca bir sayfaya bağlanır. Birini seçin.",
     "invalidRelationOptions": "Bu ilişki ayarları kaydedilemiyor."

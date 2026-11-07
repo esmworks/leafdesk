@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Lagre som radmal",
     "deleteTemplate": "Slett malen",
     "exportDisabled": "Eksport er slått av",
-    "exportDisabledBody": "Eierne av dette arbeidsområdet har slått av eksport og utskrift av sidene.",
+    "exportDisabledBody": "Eierne av dette arbeidsområdet har slått av eksport og utskrift av sidene, eller holdt det for seg selv.",
     "showInGraph": "Vis i grafen",
     "present": "Presenter",
     "readAloud": "Les høyt",

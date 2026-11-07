@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Tallenna rivimallina",
     "deleteTemplate": "Poista malli",
     "exportDisabled": "Vienti on poistettu käytöstä",
-    "exportDisabledBody": "Tämän työtilan omistajat ovat poistaneet sen sivujen viennin ja tulostamisen käytöstä.",
+    "exportDisabledBody": "Tämän työtilan omistajat ovat poistaneet sivujen viennin ja tulostuksen käytöstä tai varanneet sen itselleen.",
     "showInGraph": "Näytä graafissa",
     "present": "Esitä",
     "readAloud": "Lue ääneen",

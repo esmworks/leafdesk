@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Gem som rækkeskabelon",
     "deleteTemplate": "Slet skabelon",
     "exportDisabled": "Eksport er slået fra",
-    "exportDisabledBody": "Ejerne af dette arbejdsområde har slået eksport og udskrivning af dets sider fra.",
+    "exportDisabledBody": "Ejerne af dette arbejdsområde har slået eksport og udskrivning af dets sider fra eller forbeholdt sig det.",
     "showInGraph": "Vis i graf",
     "present": "Præsentér",
     "readAloud": "Læs højt",

@@ -291,6 +291,8 @@
     "automationRun": "Automatyzacja „{name}”",
     "sensitiveContent": "Znaleziono tutaj {kind, select, card {numer karty płatniczej} iban {numer IBAN} national_id {krajowy numer identyfikacyjny} private_key {klucz prywatny} aws_key {klucz dostępu AWS} github_token {token GitHub} slack_token {token Slack} api_key {klucz API} jwt {token JWT (JSON Web Token)} other {poufne treści}}. Sprawdź w sekcji Ustawienia > Bezpieczeństwo.",
     "pageReported": "Odwiedzający zgłosił tę stronę: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}. Sprawdź w Ustawienia > Bezpieczeństwo.",
+    "massTrash": "{actor} w ciągu godziny przeniósł(-a) do kosza wiersze tej bazy danych, łącznie: {count}. Cofnij to w historii bazy danych.",
+    "massTrashDatabase": "{actor} przeniósł(-a) tę bazę danych do kosza razem z jej wierszami (łącznie: {count}). Przywróć ją, zanim kosz się opróżni.",
     "aiLimitTitle": "Wydatki na AI",
     "aiLimit": {
       "near": "Wykorzystano 80% miesięcznego limitu {limit, number} tokenów",

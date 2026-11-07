@@ -291,6 +291,8 @@
     "automationRun": "الأتمتة “{name}”",
     "sensitiveContent": "عُثر هنا على {kind, select, card {رقم بطاقة دفع} iban {رقم IBAN} national_id {رقم هوية وطنية} private_key {مفتاح خاص} aws_key {مفتاح وصول AWS} github_token {رمز GitHub} slack_token {رمز Slack} api_key {مفتاح API} jwt {رمز JSON Web Token} other {محتوى حساس}}. راجع النتيجة في الإعدادات > الأمان.",
     "pageReported": "أبلغ زائر عن هذه الصفحة: {reason, select, spam {رسائل مزعجة أو احتيال} harmful {محتوى يحض على الكراهية أو العنف أو التحرش} illegal {محتوى غير قانوني} privacy {معلومات شخصية} copyright {حقوق النشر} other {شيء آخر}}. راجع ذلك في الإعدادات > الأمان.",
+    "massTrash": "نقل {actor} من صفوف قاعدة البيانات هذه إلى سلة المهملات خلال ساعة: {count}. تراجع عن ذلك من سجل قاعدة البيانات.",
+    "massTrashDatabase": "نقل {actor} قاعدة البيانات هذه إلى سلة المهملات مع صفوفها، وعددها: {count}. استعدها قبل أن تُفرَّغ سلة المهملات.",
     "aiLimitTitle": "إنفاق الذكاء الاصطناعي",
     "aiLimit": {
       "near": "استخدم 80% من حده الشهري البالغ {limit, number} رمز",

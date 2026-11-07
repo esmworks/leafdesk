@@ -275,7 +275,7 @@ const buttonSecret = (pageId: string, blockId: string) => webhookSecret(`button:
 async function webhook(press: Press, step: Extract<ButtonStep, { type: "webhook" }>) {
   if (!step.url.trim()) throw new StepFailure("notConfigured", "No webhook address");
   // Sending the page out is an export of it.
-  if (!(await exportAllowed(press.workspaceId))) throw new StepFailure("exportOff", "This workspace doesn't let content leave it");
+  if (!(await exportAllowed(press.workspaceId, press.userId))) throw new StepFailure("exportOff", "This workspace doesn't let content leave it");
   const [{ title, markdown }, [actor]] = await Promise.all([
     getCollab().readPage(press.pageId),
     db.select({ id: user.id, name: user.name }).from(user).where(eq(user.id, press.userId)),

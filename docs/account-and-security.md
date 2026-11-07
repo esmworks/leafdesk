@@ -168,6 +168,13 @@ the REST API.
   automations can't get a webhook, HTTP request or Send to Slack step nor send one (`webhookExportOff`; one
   saved before may stay, and its runs and test pings fail until export is back on). The member list CSV in
   Settings → Members stays, as it is an owner's own administration tool.
+- **Only owners can export:** off by default. On, export stays for the workspace's owners while
+  everyone else (membership admins, members, guests) loses it as if it were off: no Markdown, CSV,
+  ZIP, PDF or Word export, print view, view download or AI chat spreadsheet, no calendar feed, and
+  the webhook, HTTP request and Send to Slack steps of automations and buttons they saved, and
+  their page webhooks, send nothing. Background work counts as the person it runs as. It doesn't
+  stop someone from copying what they can see by hand: for that, share less (a teamspace's member
+  access, *Row access*, *Property access*).
 - **Connected apps and API tokens:** what MCP apps and personal access tokens may do in the
   workspace, on top of their own permissions and their user's access. *Full access* (default),
   *Read only* (write tools and write endpoints are refused, reads still work), or *Off* (the
@@ -175,6 +182,11 @@ the REST API.
   pages answer as pages the user can't see). This applies to the MCP server, the REST API and the
   AI chat from Telegram (read only: it answers without changing anything); the app itself in the
   browser is not affected.
+- **Only owners' connected apps:** off by default. On, the workspace is hidden from every app of
+  someone who isn't one of its owners, as with *No access*: their MCP apps, REST API tokens, the
+  AI chat from Telegram and their calendar feeds. Owners' apps keep the access chosen above. *Apps
+  that reach this workspace* marks the others *No access here*. Any member can otherwise make an
+  API token and read every row they may see in one call.
 - **Only approved apps:** off by default. On, only the MCP apps an owner approved in *Apps that
   reach this workspace* below reach the workspace; to every other app it is hidden, as with *No
   access*, whoever connected it. An approval is the app's (its OAuth client), so it covers everyone

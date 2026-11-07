@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Zapisz jako szablon wiersza",
     "deleteTemplate": "Usuń szablon",
     "exportDisabled": "Eksport jest wyłączony",
-    "exportDisabledBody": "Właściciele tego obszaru roboczego wyłączyli eksportowanie i drukowanie jego stron.",
+    "exportDisabledBody": "Właściciele tej przestrzeni wyłączyli eksport i drukowanie jej stron lub zastrzegli je dla siebie.",
     "showInGraph": "Pokaż w grafie",
     "present": "Prezentuj",
     "readAloud": "Czytaj na głos",

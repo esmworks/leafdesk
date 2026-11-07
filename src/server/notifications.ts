@@ -545,6 +545,21 @@ export async function recordPageReport(workspaceId: string, pageId: string, reas
 }
 
 /**
+ * Tells `owners` that `actorId` moved many rows of database `databaseId` to the trash, or the
+ * database with them (server/mass-trash.ts, which decides when and keeps it to once an hour per
+ * person and database; `message` is lib/mass-trash `massTrashMessage`). Inbox and push only.
+ */
+export async function recordMassTrash(workspaceId: string, owners: string[], actorId: string, databaseId: string, message: string) {
+  if (!owners.length) return;
+  const inserted = await db
+    .insert(notification)
+    .values(owners.map((userId) => ({ userId, workspaceId, kind: "mass_trash" as const, actorId, pageId: databaseId, message })))
+    .returning({ id: notification.id });
+  signal(workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
+}
+
+/**
  * Tells everyone in the workspace with full access to the page that `requesterId` asked for access
  * (request `requestId`), and emails them right away. The email is in each approver's language, else
  * in the requester's (`locale`, see server/share-emails.ts). Returns who was told.

@@ -4,6 +4,18 @@
 
 ### Added
 
+- **Keep exports, connected apps and deleting for good to owners.** Three switches in Settings →
+  Security for workspaces whose people may see the customer list but shouldn't take it out or wipe
+  it. *Only owners can export* takes downloads, the print view, calendar feeds and the webhook and
+  Slack steps of what others saved from everyone but owners. *Only owners' connected apps* hides
+  the workspace from the MCP apps, API tokens, Telegram chat and calendar feeds of everyone else.
+  *Only owners can delete for good* leaves others trashing and restoring, but not emptying the
+  trash. All three are off until an owner turns them on.
+- **Owners hear about rows trashed in bulk.** When someone who isn't an owner moves 20 or more rows
+  of a database to the trash within an hour, or a database with that many rows, the owners
+  get an inbox item and a push notification that opens the database's history, where one *Undo*
+  brings the rows back, before the trash empties itself.
+
 - **Rows that repeat.** *Repeat* in a date's picker sets a database row to come round again: every
   day, weekday, week, month or year, or a rule of your own (every few days or weeks, on chosen
   weekdays, counted from the date or from the day it was done, until a day). When the row is

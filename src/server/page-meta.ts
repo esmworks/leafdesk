@@ -14,7 +14,7 @@ import { isWatching } from "@/server/page-watch";
 import { isFollowing } from "@/server/row-follow";
 import { skillDescriptionProperty } from "@/server/skills";
 import { canTurnIntoTeamspace } from "@/server/teamspace-from-page";
-import { exportAllowed, topLevelAccess } from "@/server/workspaces";
+import { deleteForeverAllowed, exportAllowed, topLevelAccess } from "@/server/workspaces";
 
 /** What the page header shows: who made and last changed the page, the viewer's access and star. */
 export type PageHeaderInfo = {
@@ -62,6 +62,11 @@ export type PageHeaderInfo = {
   verified: VerificationView | null;
   /** Whether the user may turn the page into a teamspace (server/teamspace-from-page.ts). */
   teamspace: boolean;
+  /**
+   * In the trash: whether the user may delete it for good (full access, and an owner where only
+   * owners may, the workspace's `deleteForever`). False for pages that aren't in the trash.
+   */
+  deletesForever: boolean;
 };
 
 export async function getPageHeaderInfo(userId: string, pageId: string): Promise<PageHeaderInfo> {
@@ -70,7 +75,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   const creator = alias(user, "creator");
   const editor = alias(user, "editor");
   const isSkill = found.isSkill && !found.inTemplate;
-  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated, skillProperty, verified, teamspace] = await Promise.all([
+  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated, skillProperty, verified, teamspace, deletesForever] = await Promise.all([
     db
       .select({
         createdBy: creator.name,
@@ -90,7 +95,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     topLevelAccess(userId, found.workspaceId),
     aiAvailable(found.workspaceId),
     voiceNoteLimits(found.workspaceId),
-    exportAllowed(found.workspaceId),
+    exportAllowed(found.workspaceId, userId),
     level === "full" ? countAccessRequests(pageId) : 0,
     found.parentId ? isFollowing(userId, pageId) : null,
     isWatching(userId, pageId),
@@ -98,6 +103,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     isSkill && found.parentId ? skillDescriptionProperty(found.parentId) : null,
     verificationOf(pageId),
     canTurnIntoTeamspace(userId, found, level),
+    found.archivedAt && level === "full" ? deleteForeverAllowed(found.workspaceId, userId) : false,
   ]);
   return {
     level,
@@ -123,6 +129,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     outdated,
     verified,
     teamspace,
+    deletesForever,
   };
 }
 

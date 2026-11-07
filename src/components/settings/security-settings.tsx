@@ -164,6 +164,68 @@ export function ExportSetting({
   );
 }
 
+/** The settings that keep something to the workspace's owners: the value each takes when on and off. */
+const OWNERS_ONLY = {
+  exportBy: { key: "exportOwners", on: "owners", off: "everyone" },
+  connectedAppsBy: { key: "connectedAppsOwners", on: "owners", off: "everyone" },
+  deleteForever: { key: "deleteForever", on: "owners", off: "full_access" },
+} as const satisfies {
+  [K in keyof WorkspaceSettings]?: { key: string; on: WorkspaceSettings[K]; off: WorkspaceSettings[K] };
+};
+
+/**
+ * Settings > Security: a switch keeping one thing to the workspace's owners (exporting, connected
+ * apps, deleting for good), for people who may see the rest of the workspace but shouldn't take
+ * it out or wipe it.
+ */
+export function OwnersOnlySetting({
+  workspaceId,
+  settings,
+  canEdit,
+  setting,
+}: {
+  workspaceId: string;
+  settings: WorkspaceSettings;
+  canEdit: boolean;
+  setting: keyof typeof OWNERS_ONLY;
+}) {
+  const t = useTranslations("settings.security");
+  const { key, on, off } = OWNERS_ONLY[setting];
+  const [value, setValue] = useState(settings[setting] === on);
+  const { pending, error, run } = useAction();
+
+  return (
+    <SettingsRow
+      title={t(`${key}.title`)}
+      description={
+        error ? (
+          <span className="text-danger">{error}</span>
+        ) : (
+          <>
+            {t(`${key}.description`)}
+            {!canEdit && <> {t("ownersOnly")}</>}
+          </>
+        )
+      }
+      control={
+        <Switch
+          checked={value}
+          label={t(`${key}.title`)}
+          disabled={!canEdit || pending}
+          onChange={(next) => {
+            setValue(next);
+            run(async () => {
+              const result = await updateWorkspaceSettingsAction(workspaceId, { [setting]: next ? on : off });
+              if (!result.ok) setValue(!next);
+              return result;
+            });
+          }}
+        />
+      }
+    />
+  );
+}
+
 /** Whether only the MCP apps owners approved reach the workspace (approved in the list of apps below). */
 export function OnlyApprovedAppsSetting({
   workspaceId,

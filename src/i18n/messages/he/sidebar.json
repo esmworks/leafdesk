@@ -291,6 +291,8 @@
     "automationRun": "האוטומציה “{name}”",
     "sensitiveContent": "נמצא כאן {kind, select, card {מספר כרטיס תשלום} iban {מספר IBAN} national_id {מספר זהות לאומי} private_key {מפתח פרטי} aws_key {מפתח גישה של AWS} github_token {אסימון GitHub} slack_token {אסימון Slack} api_key {מפתח API} jwt {אסימון JSON Web Token} other {תוכן רגיש}}. אפשר לבדוק את הממצא בהגדרות > אבטחה.",
     "pageReported": "מבקר דיווח על הדף הזה: {reason, select, spam {ספאם או הונאה} harmful {תוכן של שנאה, אלימות או הטרדה} illegal {תוכן לא חוקי} privacy {מידע אישי} copyright {זכויות יוצרים} other {משהו אחר}}. בדקו בהגדרות > אבטחה.",
+    "massTrash": "{actor} העביר/ה לפח בתוך שעה שורות ממסד הנתונים הזה, בסך הכול {count}. אפשר לבטל זאת מההיסטוריה של מסד הנתונים.",
+    "massTrashDatabase": "{actor} העביר/ה את מסד הנתונים הזה לפח יחד עם השורות שלו, בסך הכול {count}. שחזרו אותו לפני שהפח מתרוקן.",
     "aiLimitTitle": "הוצאות AI",
     "aiLimit": {
       "near": "נוצלו 80% מהמגבלה החודשית של {limit, number} אסימונים",

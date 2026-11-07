@@ -420,6 +420,7 @@ export const NOTIFICATION_KINDS = [
   "ai_account_detached",
   "sensitive_content",
   "page_reported",
+  "mass_trash",
   "ai_limit",
   "agent_limit_request",
   "ai_reminder",
@@ -450,7 +451,7 @@ export const PAGELESS_KINDS = [
 /**
  * Kinds that always show to the workspace's owners: an agent's call or notes waiting for them, a
  * scheduled run's report, the AI account the workspace ran on gone, sensitive content found, a
- * visitor's report about a published page, AI spending near or at a limit, or a request for a
+ * visitor's report about a published page, many rows moved to the trash by someone else, AI spending near or at a limit, or a request for a
  * higher one (and its answer, to whoever asked).
  */
 export const OWNER_KINDS = [
@@ -460,6 +461,7 @@ export const OWNER_KINDS = [
   "ai_account_detached",
   "sensitive_content",
   "page_reported",
+  "mass_trash",
   "ai_limit",
   "agent_limit_request",
 ] as const satisfies readonly NotificationKind[];
@@ -505,6 +507,8 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * `pageId` (server/sensitive-content.ts); owners hear of a page and kind at most once a day.
  * "page_reported": a visitor reported published page `pageId` for reason `message` (a
  * ReportReason, server/page-reports.ts).
+ * "mass_trash": `actorId`, not an owner, moved many rows of database `pageId` to the trash, or the
+ * database with them; `message` says which and how many (lib/mass-trash, server/mass-trash.ts).
  * "ai_limit": AI spending (server/ai-limit-notices.ts): `message` says what happened ("near": 80% of
  * the month's limit, "reached", "paused": a new agent spending fast was paused, "raised" or
  * "declined": the answer to the user's request for a higher limit), about agent `actorId`, or the

@@ -145,6 +145,7 @@ export const DATABASE_ERROR_CODES = [
   "repeatNeedsDone",
   "repeatSynced",
   "repeatTemplate",
+  "deleteForeverOwners",
 ] as const;
 export type DatabaseErrorCode = (typeof DATABASE_ERROR_CODES)[number];
 export type DatabaseErrorParams = Record<string, string>;

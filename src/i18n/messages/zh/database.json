@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "无法保存此行页面设置。",
     "tooManyPinned": "行页面最多固定 {max} 个属性。",
     "calendarFeedNotCalendar": "只能订阅日历视图。",
-    "calendarFeedExportOff": "工作区所有者已关闭导出功能，因此日历订阅也已关闭。",
-    "webhookExportOff": "工作区所有者已关闭导出功能，因此 Webhook 也已关闭。",
+    "calendarFeedExportOff": "工作区所有者关闭了导出或仅限自己使用，因此日历订阅也已关闭。",
+    "webhookExportOff": "工作区所有者关闭了导出或仅限自己使用，因此 Webhook 也已关闭。",
     "isTemplate": "模板无法移动或放入回收站。请改为在模板列表中删除它们。",
     "notATemplate": "此页面不是此工作区或数据库的模板。",
     "propertyRestricted": "你没有更改“{property}”的权限。",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "请先添加用于标记行已完成的状态或复选框：行完成后才会重复。",
     "repeatSynced": "同步数据库的行不会重复。",
     "repeatTemplate": "模板不会重复；由模板创建的行可以。",
+    "deleteForeverOwners": "只有工作区所有者可以永久删除此项。它会留在废纸篓中，可以从那里恢复。",
     "invalidSlackUrl": "这不是 Slack 传入 Webhook 的地址（https://hooks.slack.com/services/…）。",
     "oneRow": "“{property}”只能关联一个页面。请选择一个。",
     "invalidRelationOptions": "无法保存这些关联设置。"

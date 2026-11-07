@@ -42,7 +42,7 @@ const LAST_USED_EVERY_MS = 3_600_000;
 export type CalendarFeedInfo = { allowed: boolean; feed: { createdAt: Date; lastUsedAt: Date | null } | null };
 
 /** Which of the user's feeds an operation is about: its workspace, its rows and the row it is kept in. */
-type FeedScope = { workspaceId: string; where: SQL; values: { viewId: string } | { workspaceId: string } };
+type FeedScope = { userId: string; workspaceId: string; where: SQL; values: { viewId: string } | { workspaceId: string } };
 
 async function requireCalendarView(userId: string, viewId: string) {
   // A deleted view's feed reads as gone, and works again once the view is restored.
@@ -60,6 +60,7 @@ async function requireCalendarView(userId: string, viewId: string) {
 async function viewScope(userId: string, viewId: string): Promise<FeedScope> {
   const { database } = await requireCalendarView(userId, viewId);
   return {
+    userId,
     workspaceId: database.workspaceId,
     where: and(eq(calendarFeed.userId, userId), eq(calendarFeed.viewId, viewId))!,
     values: { viewId },
@@ -69,6 +70,7 @@ async function viewScope(userId: string, viewId: string): Promise<FeedScope> {
 async function assignedScope(userId: string, workspaceId: string): Promise<FeedScope> {
   await requireMembership(userId, workspaceId);
   return {
+    userId,
     workspaceId,
     where: and(eq(calendarFeed.userId, userId), eq(calendarFeed.workspaceId, workspaceId), isNull(calendarFeed.viewId))!,
     values: { workspaceId },
@@ -80,7 +82,7 @@ const calendarFeedUrl = (secret: string) => `${env.appUrl}/api/calendar/${secret
 
 async function feedInfo(scope: FeedScope, timeZone: string | undefined): Promise<CalendarFeedInfo> {
   const [allowed, [feed]] = await Promise.all([
-    exportAllowed(scope.workspaceId),
+    exportAllowed(scope.workspaceId, scope.userId),
     db.select({ createdAt: calendarFeed.createdAt, lastUsedAt: calendarFeed.lastUsedAt }).from(calendarFeed).where(scope.where),
     // A feed made before feeds kept a zone takes the one its user opens it in.
     isTimeZone(timeZone) ? db.update(calendarFeed).set({ timeZone }).where(and(scope.where, isNull(calendarFeed.timeZone))) : null,
@@ -89,7 +91,7 @@ async function feedInfo(scope: FeedScope, timeZone: string | undefined): Promise
 }
 
 async function createFeed(userId: string, scope: FeedScope, timeZone: string | undefined): Promise<string> {
-  if (!(await exportAllowed(scope.workspaceId))) {
+  if (!(await exportAllowed(scope.workspaceId, userId))) {
     throw withCode(new Error("The workspace's owners turned export off"), "calendarFeedExportOff");
   }
   const secret = FEED_PREFIX + generateTokenSecret().slice(TOKEN_PREFIX.length, TOKEN_PREFIX.length + 36);
@@ -226,7 +228,7 @@ export async function readCalendarFeed(secret: string, now = new Date()): Promis
 /** Whether the workspace allows the feed, recording the read (at most once an hour). */
 async function feedAllowed(feed: Feed, workspaceId: string, now: Date) {
   const [allowed] = await Promise.all([
-    exportAllowed(workspaceId),
+    exportAllowed(workspaceId, feed.userId),
     feed.lastUsedAt && now.getTime() - feed.lastUsedAt.getTime() <= LAST_USED_EVERY_MS
       ? null
       : db.update(calendarFeed).set({ lastUsedAt: now }).where(eq(calendarFeed.id, feed.id)),

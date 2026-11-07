@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Salvar como modelo de linha",
     "deleteTemplate": "Excluir modelo",
     "exportDisabled": "A exportação está desativada",
-    "exportDisabledBody": "Os proprietários deste espaço de trabalho desativaram a exportação e a impressão das páginas.",
+    "exportDisabledBody": "Os proprietários deste espaço desativaram a exportação e a impressão das suas páginas, ou as reservaram para si.",
     "showInGraph": "Mostrar no grafo",
     "present": "Apresentar",
     "readAloud": "Ler em voz alta",

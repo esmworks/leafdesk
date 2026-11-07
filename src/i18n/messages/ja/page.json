@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "行テンプレートとして保存",
     "deleteTemplate": "テンプレートを削除",
     "exportDisabled": "エクスポートはオフになっています",
-    "exportDisabledBody": "このワークスペースのオーナーが、ページのエクスポートと印刷をオフにしています。",
+    "exportDisabledBody": "このワークスペースのオーナーが、ページのエクスポートと印刷をオフにしたか、自分たちだけに限定しました。",
     "showInGraph": "グラフで表示",
     "present": "プレゼンテーション",
     "readAloud": "読み上げ",

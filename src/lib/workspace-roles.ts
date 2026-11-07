@@ -1,4 +1,4 @@
-import type { WorkspaceRole } from "@/db/schema/app";
+import type { WorkspaceRole, WorkspaceSettings } from "@/db/schema/app";
 
 /**
  * What each workspace role may do beyond content, for client and server alike. On content a
@@ -37,3 +37,19 @@ export const mayRemove = (actor: WorkspaceRole | null | undefined, target: Works
 
 /** Sort order for lists of people: owners, membership admins, members, guests. */
 export const ROLE_ORDER: Record<WorkspaceRole, number> = { owner: 0, membership_admin: 1, member: 2, guest: 3 };
+
+/**
+ * Whether someone with `role` (null: not in the workspace) may take its pages out as files, or
+ * send them out, under its settings: not while export is off, and only owners while owners keep it
+ * to themselves (`exportBy`). Read by server/workspaces.ts `exportAllowed`.
+ */
+export function mayExport(settings: Pick<WorkspaceSettings, "export" | "exportBy">, role: WorkspaceRole | null) {
+  if (settings.export === false || !role) return false;
+  return settings.exportBy !== "owners" || role === "owner";
+}
+
+/** Whether someone with `role` may delete the trash's pages for good, beside the full access that takes (`deleteForever`). */
+export function mayDeleteForever(settings: Pick<WorkspaceSettings, "deleteForever">, role: WorkspaceRole | null) {
+  if (!role) return false;
+  return settings.deleteForever !== "owners" || role === "owner";
+}

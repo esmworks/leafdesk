@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Lưu thành mẫu hàng",
     "deleteTemplate": "Xóa mẫu",
     "exportDisabled": "Tính năng xuất đã bị tắt",
-    "exportDisabledBody": "Chủ sở hữu của không gian làm việc này đã tắt việc xuất và in các trang của nó.",
+    "exportDisabledBody": "Chủ sở hữu không gian làm việc này đã tắt việc xuất và in các trang, hoặc giữ cho riêng mình.",
     "showInGraph": "Hiện trong đồ thị",
     "present": "Trình chiếu",
     "readAloud": "Đọc to",

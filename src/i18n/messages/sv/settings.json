@@ -1613,6 +1613,10 @@
       "never": "Aldrig",
       "days": "{count, plural, one {# dag} other {# dagar}}"
     },
+    "deleteForever": {
+      "title": "Bara ägare kan radera permanent",
+      "description": "Andra kan fortfarande flytta sidor och rader till papperskorgen och återställa dem, men bara ägare raderar dem permanent. Papperskorgen töms fortfarande av sig själv efter tiden ovan."
+    },
     "historyRetention": {
       "title": "Sidhistorik",
       "description": "Tidigare versioner av en sida sparas i {days} dagar, upp till {count} per sida. Sparade versioner och versioner från före en återställning sparas i {keptDays} dagar, namngivna versioner så länge sidan finns, och den senaste versionen av en sida finns alltid kvar."
@@ -1666,12 +1670,20 @@
       "title": "Tillåt export",
       "description": "Alla i arbetsytan kan ladda ned sidor som Markdown, CSV eller ZIP och skriva ut dem till PDF. Av: de alternativen försvinner för alla, även ägare."
     },
+    "exportOwners": {
+      "title": "Bara ägare kan exportera",
+      "description": "Medlemmar och gäster kan inte ladda ned eller skriva ut sidor eller prenumerera på kalendrar, och webhooks och Slack-steg de ställer in skickar ingenting. Ägare kan fortfarande så länge export är tillåten."
+    },
     "connectedApps": {
       "title": "Anslutna appar och API-token",
       "description": "Vad AI-assistenter och andra appar som är anslutna via MCP, och REST API-token, får göra i den här arbetsytan. De får aldrig mer än personen som anslöt dem. Utan åtkomst är arbetsytan dold för dem.",
       "full": "Läsa och redigera",
       "read": "Bara läsa",
       "off": "Ingen åtkomst"
+    },
+    "connectedAppsOwners": {
+      "title": "Bara ägares anslutna appar",
+      "description": "Medlemmars och gästers AI-assistenter, MCP-appar, API-token, Telegram-bot och kalenderprenumerationer ser inte den här arbetsytan; bara ägares appar når fram."
     },
     "onlyApprovedApps": {
       "title": "Bara godkända appar",
@@ -1689,6 +1701,7 @@
       "readsHere": "Läser bara här: anslutna appar får bara läsa",
       "offHere": "Ingen åtkomst här: anslutna appar är avstängda",
       "notApprovedHere": "Ingen åtkomst här: inte godkänd",
+      "notOwnerHere": "Ingen åtkomst här: bara ägares appar",
       "approved": "Godkänd",
       "approve": "Godkänn",
       "unapprove": "Dra tillbaka godkännande",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Webbsökning i AI-chatten",
       "aiMonthlyLimitUsd": "Månatlig kostnadsgräns för AI",
       "trashRetentionDays": "Radera sidor i papperskorgen efter",
+      "deleteForever": "Vem kan radera permanent",
       "export": "Tillåt export",
+      "exportBy": "Vem kan exportera",
       "connectedApps": "Anslutna appar och API-token",
+      "connectedAppsBy": "Vems anslutna appar når fram",
       "onlyApprovedApps": "Bara godkända appar",
       "accessRequests": "Åtkomstförfrågningar",
       "memberInvites": "Vem kan lägga till medlemmar",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, one {# dag} other {# dagar}}",
       "none": "Ingen",
       "owners": "Bara ägare",
+      "everyone": "Alla",
+      "full_access": "Personer med full åtkomst",
       "members": "Ägare och medlemmar",
       "any": "Valfritt sätt",
       "sso": "Bara enkel inloggning",

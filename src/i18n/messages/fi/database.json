@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Tätä rivisivun asetusta ei voi tallentaa.",
     "tooManyPinned": "Rivisivuille voi kiinnittää enintään {max} ominaisuutta.",
     "calendarFeedNotCalendar": "Vain kalenterinäkymiä voi tilata.",
-    "calendarFeedExportOff": "Työtilan omistajat ovat poistaneet viennin käytöstä, joten myös kalenteritilaukset ovat pois käytöstä.",
-    "webhookExportOff": "Työtilan omistajat ovat poistaneet viennin käytöstä, joten myös webhookit ovat pois käytöstä.",
+    "calendarFeedExportOff": "Työtilan omistajat ovat poistaneet viennin käytöstä tai varanneet sen itselleen, joten myös kalenteritilaukset ovat pois päältä.",
+    "webhookExportOff": "Työtilan omistajat ovat poistaneet viennin käytöstä tai varanneet sen itselleen, joten myös webhookit ovat pois päältä.",
     "isTemplate": "Malleja ei voi siirtää eikä siirtää roskakoriin. Poista ne sen sijaan malliluettelosta.",
     "notATemplate": "Tämä sivu ei ole tämän työtilan tai tietokannan malli.",
     "propertyRestricted": "Sinulla ei ole oikeutta muuttaa ominaisuutta ”{property}”.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Lisää ensin tila tai valintaruutu rivien merkitsemiseksi valmiiksi: rivi toistuu, kun se on valmis.",
     "repeatSynced": "Synkronoidun tietokannan rivit eivät toistu.",
     "repeatTemplate": "Mallit eivät toistu; niistä tehdyt rivit voivat.",
+    "deleteForeverOwners": "Vain työtilan omistajat voivat poistaa tämän pysyvästi. Se jää roskakoriin, josta sen voi palauttaa.",
     "invalidSlackUrl": "Tämä ei ole Slackin saapuvan webhookin osoite (https://hooks.slack.com/services/…).",
     "oneRow": "”{property}” voi linkittää vain yhden sivun. Valitse yksi.",
     "invalidRelationOptions": "Näitä relaation asetuksia ei voi tallentaa."

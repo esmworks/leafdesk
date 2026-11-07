@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Denne radsideinnstillingen kan ikke lagres.",
     "tooManyPinned": "Radsider kan feste opptil {max} egenskaper.",
     "calendarFeedNotCalendar": "Bare kalendervisninger kan abonneres på.",
-    "calendarFeedExportOff": "Eierne av arbeidsområdet har slått av eksport, så kalenderabonnementer er også slått av.",
-    "webhookExportOff": "Eierne av arbeidsområdet har slått av eksport, så webhooks er også slått av.",
+    "calendarFeedExportOff": "Eierne av arbeidsområdet har slått av eksport eller holdt den for seg selv, så kalenderabonnementer er også av.",
+    "webhookExportOff": "Eierne av arbeidsområdet har slått av eksport eller holdt den for seg selv, så webhooker er også av.",
     "isTemplate": "Maler kan ikke flyttes eller legges i papirkurven. Slett dem fra mallisten i stedet.",
     "notATemplate": "Denne siden er ikke en mal i dette arbeidsområdet eller denne databasen.",
     "propertyRestricted": "Du har ikke tilgang til å endre «{property}».",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Legg først til en status eller en avmerkingsboks for å merke rader som fullført: en rad gjentas når den er fullført.",
     "repeatSynced": "Rader i en synkronisert database gjentas ikke.",
     "repeatTemplate": "Maler gjentas ikke; radene laget fra dem kan.",
+    "deleteForeverOwners": "Bare eierne av arbeidsområdet kan slette dette permanent. Det blir liggende i papirkurven, der det kan gjenopprettes.",
     "invalidSlackUrl": "Ikke en adresse til en innkommende webhook i Slack (https://hooks.slack.com/services/…).",
     "oneRow": "«{property}» kan bare koble til én side. Velg én.",
     "invalidRelationOptions": "Disse relasjonsinnstillingene kan ikke lagres."

@@ -9,6 +9,7 @@ import { agentMemoryPath, agentReportPath, agentRunPath } from "./agents";
 import { chatPath } from "./ai-chat";
 import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
+import { parseMassTrash } from "./mass-trash";
 import { reviewPath } from "./pending-changes";
 import type { PushItem } from "./push";
 
@@ -36,6 +37,11 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "sensitive_content") return `/w/${item.workspaceId}/settings?tab=security#setting-sensitiveFindings`;
   // Reports are dismissed, or the page taken off the web, in Settings > Security.
   if (item.kind === "page_reported") return `/w/${item.workspaceId}/settings?tab=security#setting-pageReports`;
+  // Rows trashed in bulk: the database's history, where they come back in one step; a whole
+  // database, its page in the trash, which brings it back.
+  if (item.kind === "mass_trash" && item.pageId) {
+    return `/w/${item.workspaceId}/p/${item.pageId}${parseMassTrash(item.automationMessage)?.what === "rows" ? "?history=1" : ""}`;
+  }
   // A reminder opens the page it is about, else the chat with the agent that set it.
   if (item.kind === "ai_reminder" && item.pageId === null) return item.aiReminder?.agentId ? agentPagePath(item.workspaceId, item.aiReminder.agentId) : `/w/${item.workspaceId}`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;

@@ -1613,6 +1613,10 @@
       "never": "Aldrig",
       "days": "{count, plural, one {# dag} other {# dage}}"
     },
+    "deleteForever": {
+      "title": "Kun ejere kan slette permanent",
+      "description": "Andre kan stadig flytte sider og rækker til papirkurven og gendanne dem, men kun ejere sletter dem permanent. Papirkurven tømmer sig stadig selv efter tiden ovenfor."
+    },
     "historyRetention": {
       "title": "Sidehistorik",
       "description": "Tidligere versioner af en side gemmes i {days} dage, op til {count} pr. side. Gemte versioner og versioner fra før en gendannelse gemmes i {keptDays} dage, navngivne versioner så længe siden findes, og den nyeste version af en side bliver altid."
@@ -1666,12 +1670,20 @@
       "title": "Tillad eksport",
       "description": "Alle i arbejdsområdet kan downloade sider som Markdown, CSV eller ZIP og udskrive dem til PDF. Fra: de muligheder forsvinder for alle, også ejere."
     },
+    "exportOwners": {
+      "title": "Kun ejere kan eksportere",
+      "description": "Medlemmer og gæster kan ikke downloade eller udskrive sider eller abonnere på kalendere, og de webhooks og Slack-trin, de sætter op, sender intet. Ejere kan stadig, så længe eksport er tilladt."
+    },
     "connectedApps": {
       "title": "Forbundne apps og API-tokens",
       "description": "Hvad AI-assistenter og andre apps forbundet via MCP samt REST API-tokens må gøre i dette arbejdsområde. De får aldrig mere end den person, der forbandt dem. Uden adgang er arbejdsområdet skjult for dem.",
       "full": "Læse og redigere",
       "read": "Kun læse",
       "off": "Ingen adgang"
+    },
+    "connectedAppsOwners": {
+      "title": "Kun ejeres forbundne apps",
+      "description": "Medlemmers og gæsters AI-assistenter, MCP-apps, API-tokens, Telegram-bot og kalenderabonnementer kan ikke se dette arbejdsområde; kun ejeres apps når frem."
     },
     "onlyApprovedApps": {
       "title": "Kun godkendte apps",
@@ -1689,6 +1701,7 @@
       "readsHere": "Læser kun her: forbundne apps må kun læse",
       "offHere": "Ingen adgang her: forbundne apps er slået fra",
       "notApprovedHere": "Ingen adgang her: ikke godkendt",
+      "notOwnerHere": "Ingen adgang her: kun ejeres apps",
       "approved": "Godkendt",
       "approve": "Godkend",
       "unapprove": "Træk godkendelse tilbage",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Websøgning i AI-chat",
       "aiMonthlyLimitUsd": "Månedlig grænse for AI-omkostninger",
       "trashRetentionDays": "Slet sider i papirkurven efter",
+      "deleteForever": "Hvem kan slette permanent",
       "export": "Tillad eksport",
+      "exportBy": "Hvem kan eksportere",
       "connectedApps": "Forbundne apps og API-tokens",
+      "connectedAppsBy": "Hvis forbundne apps når frem",
       "onlyApprovedApps": "Kun godkendte apps",
       "accessRequests": "Adgangsanmodninger",
       "memberInvites": "Hvem kan tilføje medlemmer",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, one {# dag} other {# dage}}",
       "none": "Ingen",
       "owners": "Kun ejere",
+      "everyone": "Alle",
+      "full_access": "Personer med fuld adgang",
       "members": "Ejere og medlemmer",
       "any": "Enhver måde",
       "sso": "Kun single sign-on",

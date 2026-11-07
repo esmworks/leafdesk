@@ -1,5 +1,6 @@
 import { ICON_INPUT } from "@/lib/icon";
 import { MAX_ROW_BUTTON_LABEL, ROW_BUTTON_COLORS, type RowButtonOptions } from "@/lib/row-buttons";
+import { parseMassTrash } from "@/lib/mass-trash";
 import { Readable } from "node:stream";
 import { type CallToolResult, McpServer, ProtocolError, ProtocolErrorCode, type ScopeChallengeHandler } from "@modelcontextprotocol/server";
 import * as z from "zod";
@@ -1691,6 +1692,24 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                 workspace_id: n.workspaceId,
                 workspace_name: n.workspaceName,
                 url: `${env.appUrl}/w/${n.workspaceId}/settings?tab=security#setting-pageReports`,
+              };
+            }
+            // Many rows moved to the trash by someone else: owners bring them back in the app.
+            if (n.kind === "mass_trash") {
+              const notice = parseMassTrash(n.automationMessage);
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary:
+                  notice?.what === "database"
+                    ? `${n.actorName ?? "Someone"} moved the database "${pageLabel(n.pageTitle)}" to the trash with its ${notice.count} rows; restore it from the trash before the workspace's retention deletes it`
+                    : `${n.actorName ?? "Someone"} moved ${notice?.count ?? "many"} rows of the database "${pageLabel(n.pageTitle)}" to the trash within an hour; undo it from the database's history`,
+                actor: n.actorName ?? null,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}${pushLink(n)}`,
               };
             }
             // Sensitive content found on a page: owners review and dismiss it in the app.

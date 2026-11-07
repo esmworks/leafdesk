@@ -108,7 +108,9 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "accessRequests", tab: "security", label: "settings:security.accessRequests.title", when: online },
   { id: "guestPolicies", tab: "security", label: "settings:security.guestsHeading", when: online },
   { id: "exportPolicy", tab: "security", label: "settings:security.export.title", keywords: true },
+  { id: "exportOwners", tab: "security", label: "settings:security.exportOwners.title" },
   { id: "connectedAppsPolicy", tab: "security", label: "settings:security.connectedApps.title", keywords: true },
+  { id: "connectedAppsOwners", tab: "security", label: "settings:security.connectedAppsOwners.title" },
   { id: "onlyApprovedApps", tab: "security", label: "settings:security.onlyApprovedApps.title", keywords: true },
   { id: "sensitiveContent", tab: "security", label: "settings:sensitiveContent.title", keywords: true, when: owner },
   { id: "sensitiveFindings", tab: "security", label: "settings:sensitiveContent.findingsTitle", keywords: true, when: owner },
@@ -118,6 +120,7 @@ export const SETTINGS_SEARCH_ENTRIES: readonly SettingsSearchEntry[] = [
   { id: "pageReports", tab: "security", label: "settings:security.pageReports.title", keywords: true, when: ownerOnline },
   { id: "forms", tab: "security", label: "settings:security.forms.title", when: ownerOnline },
   { id: "retention", tab: "security", label: "settings:security.retentionHeading", keywords: true },
+  { id: "deleteForever", tab: "security", label: "settings:security.deleteForever.title" },
   { id: "legalHolds", tab: "security", label: "settings:legalHolds.title", keywords: true, when: owner },
 
   { id: "storage", tab: "storage", keywords: true },

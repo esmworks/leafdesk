@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Den här inställningen för radsidor kan inte sparas.",
     "tooManyPinned": "Radsidor kan fästa upp till {max} egenskaper.",
     "calendarFeedNotCalendar": "Bara kalendervyer går att prenumerera på.",
-    "calendarFeedExportOff": "Arbetsytans ägare har stängt av export, så kalenderprenumerationer är också avstängda.",
-    "webhookExportOff": "Arbetsytans ägare har stängt av export, så webhooks är också avstängda.",
+    "calendarFeedExportOff": "Arbetsytans ägare har stängt av export eller behållit den för sig själva, så kalenderprenumerationer är också avstängda.",
+    "webhookExportOff": "Arbetsytans ägare har stängt av export eller behållit den för sig själva, så webhooks är också avstängda.",
     "isTemplate": "Mallar kan inte flyttas eller läggas i papperskorgen. Radera dem från mallistan i stället.",
     "notATemplate": "Den här sidan är ingen mall i den här arbetsytan eller databasen.",
     "propertyRestricted": "Du har inte åtkomst att ändra ”{property}”.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Lägg först till en status eller en kryssruta för att markera rader som klara: en rad upprepas när den är klar.",
     "repeatSynced": "Rader i en synkroniserad databas upprepas inte.",
     "repeatTemplate": "Mallar upprepas inte; raderna som skapas från dem kan.",
+    "deleteForeverOwners": "Bara arbetsytans ägare kan radera detta permanent. Det ligger kvar i papperskorgen, där det kan återställas.",
     "invalidSlackUrl": "Inte adressen till en inkommande webhook i Slack (https://hooks.slack.com/services/…).",
     "oneRow": "”{property}” kan bara länka en sida. Välj en.",
     "invalidRelationOptions": "De här relationsinställningarna kan inte sparas."

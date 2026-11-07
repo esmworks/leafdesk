@@ -291,6 +291,8 @@
     "automationRun": "Automatisering ”{name}”",
     "sensitiveContent": "Hittade {kind, select, card {ett betalkortsnummer} iban {ett IBAN} national_id {ett personnummer} private_key {en privat nyckel} aws_key {en AWS-åtkomstnyckel} github_token {en GitHub-token} slack_token {en Slack-token} api_key {en API-nyckel} jwt {en JSON Web Token} other {känsligt innehåll}} här. Granska det i Inställningar > Säkerhet.",
     "pageReported": "En besökare anmälde den här sidan: {reason, select, spam {spam eller bedrägeri} harmful {hatiskt, våldsamt eller trakasserande innehåll} illegal {olagligt innehåll} privacy {personuppgifter} copyright {upphovsrätt} other {något annat}}. Granska det under Inställningar > Säkerhet.",
+    "massTrash": "{actor} flyttade {count} rader i den här databasen till papperskorgen inom en timme. Ångra det från databasens historik.",
+    "massTrashDatabase": "{actor} flyttade den här databasen till papperskorgen med dess {count} rader. Återställ den innan papperskorgen töms.",
     "aiLimitTitle": "AI-kostnader",
     "aiLimit": {
       "near": "Har använt 80 % av månadsgränsen på {limit, number} tokens",

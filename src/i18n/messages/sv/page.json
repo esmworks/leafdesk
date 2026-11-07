@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Spara som radmall",
     "deleteTemplate": "Radera mallen",
     "exportDisabled": "Export är avstängt",
-    "exportDisabledBody": "Ägarna av den här arbetsytan har stängt av export och utskrift av dess sidor.",
+    "exportDisabledBody": "Ägarna till den här arbetsytan har stängt av export och utskrift av dess sidor, eller behållit det för sig själva.",
     "showInGraph": "Visa i grafen",
     "present": "Presentera",
     "readAloud": "Läs upp",

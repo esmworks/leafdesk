@@ -1105,9 +1105,9 @@ async function filePlace(userId: string, workspaceId: string, scope: ChatScopeRe
   if (target.page.kind === "database") return invalidChange(`page_id is a database, which holds no files: give one of its rows or a page for the ${kind}.`);
   if (!canEdit(target.level)) return readOnly;
   try {
-    await assertExportAllowed(workspaceId);
+    await assertExportAllowed(workspaceId, userId);
   } catch (error) {
-    if (error instanceof ExportError) return { content: `The workspace's owners turned export off, so no ${kind} can be made. Tell the person so.`, isError: true };
+    if (error instanceof ExportError) return { content: `The workspace's owners turned export off for this person, so no ${kind} can be made. Tell the person so.`, isError: true };
     throw error;
   }
   const propertyName = text(args.property);

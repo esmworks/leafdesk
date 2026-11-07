@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Ce réglage des pages de ligne ne peut pas être enregistré.",
     "tooManyPinned": "Les pages de ligne épinglent jusqu'à {max} propriétés.",
     "calendarFeedNotCalendar": "Seules les vues calendrier peuvent faire l’objet d’un abonnement.",
-    "calendarFeedExportOff": "Les propriétaires de l’espace de travail ont désactivé l’export, les abonnements de calendrier le sont donc aussi.",
-    "webhookExportOff": "Les propriétaires de l’espace de travail ont désactivé l’export, les webhooks le sont donc aussi.",
+    "calendarFeedExportOff": "Les propriétaires de l’espace ont désactivé l’exportation ou se la sont réservée, donc les abonnements aux calendriers sont aussi désactivés.",
+    "webhookExportOff": "Les propriétaires de l’espace ont désactivé l’exportation ou se la sont réservée, donc les webhooks sont aussi désactivés.",
     "isTemplate": "Les modèles ne peuvent pas être déplacés ni placés dans la corbeille. Supprimez-les plutôt depuis la liste des modèles.",
     "notATemplate": "Cette page n’est pas un modèle de cet espace de travail ou de cette base de données.",
     "propertyRestricted": "Vous n’avez pas l’autorisation de modifier « {property} ».",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Ajoutez d’abord un statut ou une case à cocher pour marquer les lignes comme terminées : une ligne se répète une fois terminée.",
     "repeatSynced": "Les lignes d’une base de données synchronisée ne se répètent pas.",
     "repeatTemplate": "Les modèles ne se répètent pas ; les lignes créées à partir d’eux, si.",
+    "deleteForeverOwners": "Seuls les propriétaires de l’espace peuvent supprimer ceci définitivement. Il reste dans la corbeille, d’où il peut être restauré.",
     "invalidSlackUrl": "Ce n’est pas l’adresse d’un webhook entrant Slack (https://hooks.slack.com/services/…).",
     "oneRow": "« {property} » ne relie qu’une page. Choisissez-en une.",
     "invalidRelationOptions": "Ces réglages de relation ne peuvent pas être enregistrés."

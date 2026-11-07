@@ -25,7 +25,7 @@ export default async function SkillsPage({ params }: { params: Promise<{ workspa
   const [topLevel, skillDatabase, exportable, builtins] = await Promise.all([
     topLevelAccess(user.id, workspaceId),
     findSkillDatabase(user.id, workspaceId),
-    exportAllowed(workspaceId),
+    exportAllowed(workspaceId, user.id),
     getLocale().then(builtinSkills),
   ]);
   return (

@@ -1613,6 +1613,10 @@
       "never": "削除しない",
       "days": "{count}日"
     },
+    "deleteForever": {
+      "title": "完全な削除はオーナーのみ",
+      "description": "ほかの人もページや行をゴミ箱に移動・復元できますが、完全に削除できるのはオーナーだけです。ゴミ箱は上記の期間が過ぎると引き続き自動で空になります。"
+    },
     "historyRetention": {
       "title": "ページ履歴",
       "description": "ページの以前のバージョンは {days} 日間、ページごとに最大 {count} 件保持されます。保存したバージョンと復元前のバージョンは {keptDays} 日間、名前付きのバージョンはページがある限り保持され、ページの最新バージョンは常に残ります。"
@@ -1666,12 +1670,20 @@
       "title": "エクスポートを許可",
       "description": "ワークスペースの全員が、ページをMarkdown、CSV、ZIPでダウンロードしたり、PDFとして印刷したりできます。オフ：オーナーを含む全員がこれらのオプションを使えなくなります。"
     },
+    "exportOwners": {
+      "title": "エクスポートはオーナーのみ",
+      "description": "メンバーとゲストはページのダウンロードや印刷、カレンダーの購読ができず、設定したWebhookやSlackのステップも何も送信しません。エクスポートが許可されている間、オーナーは引き続き行えます。"
+    },
     "connectedApps": {
       "title": "接続済みアプリとAPIトークン",
       "description": "MCPで接続したAIアシスタントやその他のアプリ、REST APIトークンが、このワークスペースでできることです。接続した人の権限を超えることはありません。アクセス権なしの場合、ワークスペースはそれらから見えなくなります。",
       "full": "読み取りと編集",
       "read": "読み取り専用",
       "off": "アクセス権なし"
+    },
+    "connectedAppsOwners": {
+      "title": "オーナーの接続アプリのみ",
+      "description": "メンバーとゲストのAIアシスタント、MCPアプリ、APIトークン、Telegramボット、カレンダー購読からはこのワークスペースが見えません。届くのはオーナーのアプリだけです。"
     },
     "onlyApprovedApps": {
       "title": "承認済みのアプリのみ",
@@ -1689,6 +1701,7 @@
       "readsHere": "ここでは読み取りのみ：接続済みアプリは読み取りのみ可能です",
       "offHere": "ここではアクセス権なし：接続済みアプリはオフです",
       "notApprovedHere": "ここではアクセス不可: 未承認",
+      "notOwnerHere": "ここではアクセスできません：オーナーのアプリのみ",
       "approved": "承認済み",
       "approve": "承認",
       "unapprove": "承認を取り消す",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "AI チャットのウェブ検索",
       "aiMonthlyLimitUsd": "AI の月間コスト上限",
       "trashRetentionDays": "ゴミ箱のページを削除するまでの期間",
+      "deleteForever": "完全に削除できる人",
       "export": "エクスポートを許可",
+      "exportBy": "エクスポートできる人",
       "connectedApps": "接続済みアプリとAPIトークン",
+      "connectedAppsBy": "接続アプリが届く人",
       "onlyApprovedApps": "承認済みのアプリのみ",
       "accessRequests": "アクセスリクエスト",
       "memberInvites": "メンバーを追加できる人",
@@ -1932,6 +1948,8 @@
       "days": "{days}日",
       "none": "なし",
       "owners": "オーナーのみ",
+      "everyone": "全員",
+      "full_access": "フルアクセス権のある人",
       "members": "オーナーとメンバー",
       "any": "すべての方法",
       "sso": "シングルサインオンのみ",

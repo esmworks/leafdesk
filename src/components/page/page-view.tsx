@@ -134,6 +134,15 @@ export function PageView({
   const [icon, setIcon] = useState(page.icon);
   const [background, setBackground] = useState(page.background);
   const [historyOpen, setHistoryOpen] = useState(false);
+  // `?history=1` (the owners' notice of rows trashed in bulk, lib/push-link.ts) opens the history
+  // once, then leaves the address as it was without it.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("history") !== "1") return;
+    url.searchParams.delete("history");
+    window.history.replaceState(window.history.state, "", url);
+    setHistoryOpen(true);
+  }, [page.id]);
   // The prompt Mod+S opens to save the page as a version (version-name-dialog.tsx).
   const [savingVersion, setSavingVersion] = useState(false);
   const [markdownOpen, setMarkdownOpen] = useState(false);
@@ -673,7 +682,7 @@ export function PageView({
                 <RotateCcw className="h-3.5 w-3.5" /> {tc("restore")}
               </Button>
             )}
-            {canDelete && (
+            {canDelete && info.deletesForever && (
               <Button size="sm" className="border-white/60 bg-transparent text-white hover:bg-white/10" onClick={deleteForever} disabled={pending || offline}>
                 {t("archived.deletePermanently")}
               </Button>

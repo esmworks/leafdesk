@@ -291,6 +291,8 @@
     "automationRun": "Automatisering “{name}”",
     "sensitiveContent": "Hier is {kind, select, card {een betaalkaartnummer} iban {een IBAN} national_id {een burgerservicenummer of ander nationaal ID-nummer} private_key {een privésleutel} aws_key {een AWS-toegangssleutel} github_token {een GitHub-token} slack_token {een Slack-token} api_key {een API-sleutel} jwt {een JSON Web Token} other {gevoelige inhoud}} gevonden. Bekijk het in Instellingen > Beveiliging.",
     "pageReported": "Een bezoeker heeft deze pagina gemeld: {reason, select, spam {spam of oplichting} harmful {haatdragende, gewelddadige of intimiderende inhoud} illegal {illegale inhoud} privacy {persoonsgegevens} copyright {auteursrecht} other {iets anders}}. Bekijk het in Instellingen > Beveiliging.",
+    "massTrash": "{actor} heeft binnen een uur {count} rijen van deze database naar de prullenbak verplaatst. Maak het ongedaan vanuit de geschiedenis van de database.",
+    "massTrashDatabase": "{actor} heeft deze database met haar {count} rijen naar de prullenbak verplaatst. Zet haar terug voordat de prullenbak zich leegt.",
     "aiLimitTitle": "AI-uitgaven",
     "aiLimit": {
       "near": "80% van de maandlimiet van {limit, number} tokens gebruikt",

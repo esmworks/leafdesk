@@ -122,7 +122,7 @@ async function holdOf(hook: Hook): Promise<DeliveryCode | null> {
     if (!hook.paused) await db.update(pageWebhook).set({ paused: "notOwner" }).where(eq(pageWebhook.id, hook.id));
     return "notOwner";
   }
-  if (!(await exportAllowed(hook.workspaceId))) return "exportOff";
+  if (!(await exportAllowed(hook.workspaceId, hook.ownerId))) return "exportOff";
   return null;
 }
 

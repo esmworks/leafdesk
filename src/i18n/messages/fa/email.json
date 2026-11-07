@@ -297,6 +297,8 @@
     "review": "{count, plural, one {{agent} تغییری را برای بازبینی شما پیشنهاد کرد} other {# تغییر منتظر بازبینی شماست، آخرینش از {agent}}}",
     "sensitiveContent": "{kind, select, card {یک شمارهٔ کارت پرداخت} iban {یک شمارهٔ IBAN} national_id {یک شمارهٔ شناسایی ملی} private_key {یک کلید خصوصی} aws_key {یک کلید دسترسی AWS} github_token {یک توکن GitHub} slack_token {یک توکن Slack} api_key {یک کلید API} jwt {یک توکن JSON Web Token} other {محتوای حساس}} در این صفحه پیدا شد.",
     "pageReported": "یک بازدیدکننده این صفحه را گزارش کرد: {reason, select, spam {هرزنامه یا کلاهبرداری} harmful {محتوای نفرت‌آمیز، خشن یا آزاردهنده} illegal {محتوای غیرقانونی} privacy {اطلاعات شخصی} copyright {حق نشر} other {چیز دیگر}}.",
+    "massTrash": "{actor} ردیف‌هایی از آن را به سطل زباله برد، در مجموع {count}",
+    "massTrashDatabase": "{actor} آن را با {count} ردیف به سطل زباله برد",
     "aiLimitTitle": "هزینهٔ هوش مصنوعی",
     "aiLimit": {
       "near": "80٪ از سقف ماهانهٔ {limit, number} توکن خود را مصرف کرده است",

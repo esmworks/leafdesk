@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Save as row template",
     "deleteTemplate": "Delete template",
     "exportDisabled": "Export is turned off",
-    "exportDisabledBody": "The owners of this workspace have turned off exporting and printing its pages.",
+    "exportDisabledBody": "The owners of this workspace have turned off exporting and printing its pages, or kept it to themselves.",
     "showInGraph": "Show in graph",
     "present": "Present",
     "readAloud": "Read aloud",

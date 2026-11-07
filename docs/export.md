@@ -9,7 +9,7 @@ rows and the properties it shows, in its order) as CSV, an HTML page or a PDF, f
 database, "Export with row pages") downloads a ZIP of the page and everything under it; owners
 can download the whole workspace from Settings → General → Export, as Markdown and CSV or as PDFs
 (to move a workspace to another server, back it up instead, see [Backups](#backups)). Owners can turn exporting off
-in Settings → Security (see [Workspace security switches](account-and-security.md#workspace-security-switches)). The
+in Settings → Security, or keep it to themselves (see [Workspace security switches](account-and-security.md#workspace-security-switches)). The
 archive mirrors the sidebar:
 
 ```
@@ -50,6 +50,15 @@ and the audit log's events older than
 a year. Pages a legal hold keeps (see Settings > Security > Legal holds) stay in the trash, with all
 their history, until the hold is released. Production servers run this cleanup; set `RETENTION_JOB=on` or `off` to decide otherwise
 (a dev server doesn't run it unless it is `on`).
+
+*Delete forever* (in the trash, on a trashed page, and on a deleted property) takes full access to
+what is deleted. Owners can keep it to themselves with *Only owners can delete for good* under
+Data retention: everyone else can still trash and restore pages and rows, and the trash still
+empties itself after the time chosen. When someone who isn't an owner moves 20 or more rows of one
+database to the trash within an hour, one by one or at once, or a database with that many rows,
+the workspace's owners get an inbox item and a push notification (once an hour per person and
+database). It opens the database's history, where *Undo* brings all those rows back in one step,
+or the trashed database, which *Restore* brings back.
 
 The ZIP is streamed while it is built, one download at a time per person. Larger exports are
 refused up front with a message:

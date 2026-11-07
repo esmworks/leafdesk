@@ -1613,6 +1613,10 @@
       "never": "Aldri",
       "days": "{count, plural, one {# dag} other {# dager}}"
     },
+    "deleteForever": {
+      "title": "Bare eiere kan slette permanent",
+      "description": "Andre kan fortsatt flytte sider og rader til papirkurven og gjenopprette dem, men bare eiere sletter dem permanent. Papirkurven tømmer seg fortsatt selv etter tiden over."
+    },
     "historyRetention": {
       "title": "Sidehistorikk",
       "description": "Tidligere versjoner av en side beholdes i {days} dager, opptil {count} per side. Lagrede versjoner og versjoner fra før en gjenoppretting beholdes i {keptDays} dager, navngitte versjoner så lenge siden finnes, og den nyeste versjonen av en side blir alltid værende."
@@ -1666,12 +1670,20 @@
       "title": "Tillat eksport",
       "description": "Alle i arbeidsområdet kan laste ned sider som Markdown, CSV eller ZIP og skrive dem ut til PDF. Av: disse valgene forsvinner for alle, også eiere."
     },
+    "exportOwners": {
+      "title": "Bare eiere kan eksportere",
+      "description": "Medlemmer og gjester kan ikke laste ned eller skrive ut sider eller abonnere på kalendere, og webhookene og Slack-trinnene de setter opp, sender ingenting. Eiere kan fortsatt så lenge eksport er tillatt."
+    },
     "connectedApps": {
       "title": "Tilkoblede apper og API-tokener",
       "description": "Hva KI-assistenter og andre apper som er koblet til via MCP, og REST API-tokener kan gjøre i dette arbeidsområdet. De får aldri mer enn personen som koblet dem til. Uten tilgang er arbeidsområdet skjult for dem.",
       "full": "Lese og redigere",
       "read": "Bare lese",
       "off": "Ingen tilgang"
+    },
+    "connectedAppsOwners": {
+      "title": "Bare eieres tilkoblede apper",
+      "description": "Medlemmers og gjesters KI-assistenter, MCP-apper, API-tokener, Telegram-bot og kalenderabonnementer ser ikke dette arbeidsområdet; bare eieres apper når fram."
     },
     "onlyApprovedApps": {
       "title": "Bare godkjente apper",
@@ -1689,6 +1701,7 @@
       "readsHere": "Bare lesing her: tilkoblede apper kan bare lese",
       "offHere": "Ingen tilgang her: tilkoblede apper er slått av",
       "notApprovedHere": "Ingen tilgang her: ikke godkjent",
+      "notOwnerHere": "Ingen tilgang her: bare eieres apper",
       "approved": "Godkjent",
       "approve": "Godkjenn",
       "unapprove": "Trekk tilbake godkjenning",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Nettsøk i KI-chat",
       "aiMonthlyLimitUsd": "Månedlig kostnadsgrense for KI",
       "trashRetentionDays": "Slett sider i papirkurven etter",
+      "deleteForever": "Hvem kan slette permanent",
       "export": "Tillat eksport",
+      "exportBy": "Hvem kan eksportere",
       "connectedApps": "Tilkoblede apper og API-tokener",
+      "connectedAppsBy": "Hvem sine tilkoblede apper når fram",
       "onlyApprovedApps": "Bare godkjente apper",
       "accessRequests": "Tilgangsforespørsler",
       "memberInvites": "Hvem kan legge til medlemmer",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, one {# dag} other {# dager}}",
       "none": "Ingen",
       "owners": "Bare eiere",
+      "everyone": "Alle",
+      "full_access": "Personer med full tilgang",
       "members": "Eiere og medlemmer",
       "any": "Hvilken som helst måte",
       "sso": "Bare enkel pålogging",

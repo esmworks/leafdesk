@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "This row page setting can’t be saved.",
     "tooManyPinned": "Row pages pin up to {max} properties.",
     "calendarFeedNotCalendar": "Only calendar views can be subscribed to.",
-    "calendarFeedExportOff": "The workspace’s owners turned export off, so calendar subscriptions are off too.",
-    "webhookExportOff": "The workspace’s owners turned export off, so webhooks are off too.",
+    "calendarFeedExportOff": "The workspace’s owners turned export off, or kept it to themselves, so calendar subscriptions are off too.",
+    "webhookExportOff": "The workspace’s owners turned export off, or kept it to themselves, so webhooks are off too.",
     "isTemplate": "Templates can’t be moved or put in the trash. Delete them from the template list instead.",
     "notATemplate": "This page is not a template of this workspace or database.",
     "propertyRestricted": "You don’t have access to change “{property}”.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Add a status or a checkbox to mark rows done first: a row repeats when it’s done.",
     "repeatSynced": "Rows of a synced database don’t repeat.",
     "repeatTemplate": "Templates don’t repeat; the rows made from them can.",
+    "deleteForeverOwners": "Only the workspace’s owners can delete this for good. It stays in the trash, where it can be restored.",
     "invalidSlackUrl": "Not a Slack incoming webhook address (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” links one page. Pick one.",
     "invalidRelationOptions": "These relation settings can’t be saved."

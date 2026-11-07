@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "שמירה כתבנית שורה",
     "deleteTemplate": "מחיקת התבנית",
     "exportDisabled": "הייצוא מושבת",
-    "exportDisabledBody": "הבעלים של סביבת העבודה הזו השביתו את הייצוא וההדפסה של הדפים שלה.",
+    "exportDisabledBody": "הבעלים של סביבת העבודה הזו כיבו את הייצוא וההדפסה של הדפים שלה, או שמרו אותם לעצמם.",
     "showInGraph": "הצגה בגרף",
     "present": "הצגה כמצגת",
     "readAloud": "הקראה",

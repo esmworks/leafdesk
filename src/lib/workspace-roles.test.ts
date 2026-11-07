@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contentRole, isWorkspaceRole, managesPeople, mayChangeRole, mayRemove, ROLE_ORDER, WORKSPACE_ROLES } from "./workspace-roles";
+import { contentRole, isWorkspaceRole, managesPeople, mayChangeRole, mayDeleteForever, mayExport, mayRemove, ROLE_ORDER, WORKSPACE_ROLES } from "./workspace-roles";
 
 describe("workspace roles", () => {
   it("knows the four roles and nothing else", () => {
@@ -54,5 +54,27 @@ describe("workspace roles", () => {
 
   it("sorts owners, membership admins, members, guests", () => {
     expect([...WORKSPACE_ROLES].reverse().sort((a, b) => ROLE_ORDER[a] - ROLE_ORDER[b])).toEqual(WORKSPACE_ROLES);
+  });
+});
+
+describe("keeping exports and deleting for good to owners", () => {
+  it("lets everyone in export by default, nobody when export is off", () => {
+    for (const role of WORKSPACE_ROLES) {
+      expect(mayExport({ export: true, exportBy: "everyone" }, role)).toBe(true);
+      expect(mayExport({ export: false, exportBy: "everyone" }, role)).toBe(false);
+      expect(mayExport({ export: false, exportBy: "owners" }, role)).toBe(false);
+    }
+    expect(mayExport({ export: true, exportBy: "everyone" }, null)).toBe(false);
+  });
+
+  it("keeps exports to owners when they say so: membership admins are no owners", () => {
+    const settings = { export: true, exportBy: "owners" } as const;
+    expect(WORKSPACE_ROLES.filter((role) => mayExport(settings, role))).toEqual(["owner"]);
+  });
+
+  it("keeps deleting for good to owners when they say so", () => {
+    expect(WORKSPACE_ROLES.every((role) => mayDeleteForever({ deleteForever: "full_access" }, role))).toBe(true);
+    expect(WORKSPACE_ROLES.filter((role) => mayDeleteForever({ deleteForever: "owners" }, role))).toEqual(["owner"]);
+    expect(mayDeleteForever({ deleteForever: "full_access" }, null)).toBe(false);
   });
 });

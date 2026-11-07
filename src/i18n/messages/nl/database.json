@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Deze instelling voor rijpagina’s kan niet worden opgeslagen.",
     "tooManyPinned": "Rijpagina’s maken maximaal {max} eigenschappen vast.",
     "calendarFeedNotCalendar": "Je kunt je alleen abonneren op kalenderweergaven.",
-    "calendarFeedExportOff": "De eigenaren van de werkruimte hebben exporteren uitgeschakeld, dus agenda-abonnementen staan ook uit.",
-    "webhookExportOff": "De eigenaren van de werkruimte hebben exporteren uitgeschakeld, dus webhooks staan ook uit.",
+    "calendarFeedExportOff": "De eigenaren van de werkruimte hebben exporteren uitgezet of voor zichzelf gehouden, dus agenda-abonnementen staan ook uit.",
+    "webhookExportOff": "De eigenaren van de werkruimte hebben exporteren uitgezet of voor zichzelf gehouden, dus webhooks staan ook uit.",
     "isTemplate": "Sjablonen kunnen niet worden verplaatst of in de prullenbak worden gezet. Verwijder ze in plaats daarvan uit de sjabloonlijst.",
     "notATemplate": "Deze pagina is geen sjabloon van deze werkruimte of database.",
     "propertyRestricted": "Je hebt geen toegang om “{property}” te wijzigen.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Voeg eerst een status of selectievakje toe om rijen af te ronden: een rij herhaalt zodra hij klaar is.",
     "repeatSynced": "Rijen van een gesynchroniseerde database herhalen niet.",
     "repeatTemplate": "Sjablonen herhalen niet; de rijen die ervan gemaakt zijn wel.",
+    "deleteForeverOwners": "Alleen de eigenaren van de werkruimte kunnen dit definitief verwijderen. Het blijft in de prullenbak, waar het kan worden teruggezet.",
     "invalidSlackUrl": "Geen adres van een inkomende Slack-webhook (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” koppelt maar één pagina. Kies er één.",
     "invalidRelationOptions": "Deze relatie-instellingen kunnen niet worden opgeslagen."

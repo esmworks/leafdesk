@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "この行のページの設定は保存できません。",
     "tooManyPinned": "行のページに固定できるプロパティは {max} 個までです。",
     "calendarFeedNotCalendar": "購読できるのはカレンダービューだけです。",
-    "calendarFeedExportOff": "ワークスペースのオーナーがエクスポートをオフにしたため、カレンダーの購読もオフになっています。",
-    "webhookExportOff": "ワークスペースのオーナーがエクスポートをオフにしたため、Webhook もオフになっています。",
+    "calendarFeedExportOff": "ワークスペースのオーナーがエクスポートをオフにしたか自分たちだけに限定したため、カレンダー購読もオフです。",
+    "webhookExportOff": "ワークスペースのオーナーがエクスポートをオフにしたか自分たちだけに限定したため、Webhookもオフです。",
     "isTemplate": "テンプレートは移動したりゴミ箱に入れたりできません。代わりにテンプレートの一覧から削除してください。",
     "notATemplate": "このページは、このワークスペースまたはデータベースのテンプレートではありません。",
     "propertyRestricted": "「{property}」を変更する権限がありません。",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "先に行を完了にするステータスかチェックボックスを追加してください：行は完了すると繰り返します。",
     "repeatSynced": "同期データベースの行は繰り返しません。",
     "repeatTemplate": "テンプレートは繰り返しません。テンプレートから作った行は繰り返せます。",
+    "deleteForeverOwners": "これを完全に削除できるのはワークスペースのオーナーだけです。ゴミ箱に残り、そこから復元できます。",
     "invalidSlackUrl": "Slack の Incoming Webhook のアドレスではありません（https://hooks.slack.com/services/…）。",
     "oneRow": "「{property}」にリンクできるのは1ページだけです。1つ選んでください。",
     "invalidRelationOptions": "このリレーションの設定は保存できません。"

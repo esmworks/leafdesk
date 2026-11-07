@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Satır şablonu olarak kaydet",
     "deleteTemplate": "Şablonu sil",
     "exportDisabled": "Dışa aktarma kapalı",
-    "exportDisabledBody": "Bu çalışma alanının sahipleri sayfaların dışa aktarılmasını ve yazdırılmasını kapattı.",
+    "exportDisabledBody": "Bu çalışma alanının sahipleri sayfaların dışa aktarılmasını ve yazdırılmasını kapattı ya da kendilerine ayırdı.",
     "showInGraph": "Grafikte göster",
     "present": "Sunum yap",
     "readAloud": "Sesli oku",

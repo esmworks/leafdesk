@@ -1613,6 +1613,10 @@
       "never": "안 함",
       "days": "{count}일"
     },
+    "deleteForever": {
+      "title": "소유자만 영구 삭제 가능",
+      "description": "다른 사람도 페이지와 행을 휴지통으로 옮기고 복원할 수 있지만, 영구 삭제는 소유자만 합니다. 휴지통은 위의 기간이 지나면 여전히 자동으로 비워집니다."
+    },
     "historyRetention": {
       "title": "페이지 기록",
       "description": "페이지의 이전 버전은 {days}일 동안, 페이지당 최대 {count}개까지 보관됩니다. 저장한 버전과 복원 전 버전은 {keptDays}일 동안, 이름 있는 버전은 페이지가 있는 동안 보관되며, 페이지의 최신 버전은 항상 남습니다."
@@ -1666,12 +1670,20 @@
       "title": "내보내기 허용",
       "description": "워크스페이스의 모든 사람이 페이지를 Markdown, CSV, ZIP으로 다운로드하고 PDF로 인쇄할 수 있습니다. 끄면 소유자를 포함한 모든 사람에게서 이 옵션이 사라집니다."
     },
+    "exportOwners": {
+      "title": "소유자만 내보내기 가능",
+      "description": "멤버와 게스트는 페이지를 다운로드하거나 인쇄하거나 캘린더를 구독할 수 없으며, 이들이 설정한 웹훅과 Slack 단계는 아무것도 보내지 않습니다. 내보내기가 허용되는 동안 소유자는 계속 할 수 있습니다."
+    },
     "connectedApps": {
       "title": "연결된 앱 및 API 토큰",
       "description": "MCP로 연결된 AI 어시스턴트와 기타 앱, REST API 토큰이 이 워크스페이스에서 할 수 있는 일입니다. 연결한 사람보다 더 많은 권한을 갖지 않습니다. 액세스 없음으로 설정하면 이 워크스페이스가 보이지 않습니다.",
       "full": "읽기 및 편집",
       "read": "읽기 전용",
       "off": "액세스 없음"
+    },
+    "connectedAppsOwners": {
+      "title": "소유자의 연결된 앱만",
+      "description": "멤버와 게스트의 AI 어시스턴트, MCP 앱, API 토큰, Telegram 봇, 캘린더 구독에는 이 워크스페이스가 보이지 않으며, 소유자의 앱만 접근합니다."
     },
     "onlyApprovedApps": {
       "title": "승인된 앱만",
@@ -1689,6 +1701,7 @@
       "readsHere": "여기에서는 읽기만 가능: 연결된 앱은 읽기만 할 수 있습니다",
       "offHere": "여기에서는 액세스 없음: 연결된 앱이 꺼져 있습니다",
       "notApprovedHere": "여기에서는 접근 불가: 승인되지 않음",
+      "notOwnerHere": "여기서는 접근 불가: 소유자의 앱만",
       "approved": "승인됨",
       "approve": "승인",
       "unapprove": "승인 철회",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "AI 채팅 웹 검색",
       "aiMonthlyLimitUsd": "월간 AI 비용 한도",
       "trashRetentionDays": "휴지통의 페이지 삭제 기한",
+      "deleteForever": "영구 삭제할 수 있는 사람",
       "export": "내보내기 허용",
+      "exportBy": "내보낼 수 있는 사람",
       "connectedApps": "연결된 앱과 API 토큰",
+      "connectedAppsBy": "연결된 앱이 접근할 수 있는 사람",
       "onlyApprovedApps": "승인된 앱만",
       "accessRequests": "액세스 요청",
       "memberInvites": "멤버를 추가할 수 있는 사람",
@@ -1932,6 +1948,8 @@
       "days": "{days}일",
       "none": "없음",
       "owners": "소유자만",
+      "everyone": "모두",
+      "full_access": "전체 액세스 권한이 있는 사람",
       "members": "소유자와 멤버",
       "any": "모든 방법",
       "sso": "SSO만",

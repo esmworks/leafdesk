@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "행 템플릿으로 저장",
     "deleteTemplate": "템플릿 삭제",
     "exportDisabled": "내보내기가 꺼져 있습니다",
-    "exportDisabledBody": "이 워크스페이스의 소유자가 페이지 내보내기와 인쇄를 꺼 두었습니다.",
+    "exportDisabledBody": "이 워크스페이스의 소유자가 페이지 내보내기와 인쇄를 끄거나 자신들만 쓰도록 했습니다.",
     "showInGraph": "그래프에서 보기",
     "present": "프레젠테이션",
     "readAloud": "소리 내어 읽기",

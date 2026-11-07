@@ -98,13 +98,17 @@ export async function restorePageAction(pageId: string) {
   await pages.restorePage(userId, pageId);
 }
 
-/** A legal hold that keeps the page comes back as a message to show; other failures throw. */
+/** A legal hold that keeps the page, or owners alone deleting for good, comes back as a message to show; other failures throw. */
 export async function deletePagePermanentlyAction(pageId: string): Promise<{ ok: true } | { ok: false; error: string; code: string }> {
   const userId = await requireUserId();
   try {
     await pages.deletePagePermanently(userId, pageId);
     return { ok: true };
   } catch (error) {
+    // Only owners may delete for good here (the workspace's `deleteForever`).
+    if (error instanceof AccessError && (error as { code?: unknown }).code === "deleteForeverOwners") {
+      return { ok: false, error: (await getTranslations("database.errors"))("deleteForeverOwners"), code: "deleteForeverOwners" };
+    }
     if (!(error instanceof LegalHoldError)) throw error;
     return { ok: false, error: (await getTranslations("settings.legalHolds.errors"))(error.code), code: error.code };
   }
@@ -150,7 +154,7 @@ export async function listTrashAction(workspaceId: string) {
     /** When the retention cleanup deletes it for good; null when the workspace keeps trashed pages. */
     deletesAt: r.deletesAt,
     canRestore: hasLevel(r.level, "edit"),
-    canDelete: hasLevel(r.level, "full"),
+    canDelete: r.mayDeleteForever,
     /** A row merged into another one: that row (its title null when the user can't see it). */
     mergedInto: r.mergedInto,
   }));

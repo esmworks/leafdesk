@@ -1613,6 +1613,10 @@
       "never": "永久保留",
       "days": "{count} 天"
     },
+    "deleteForever": {
+      "title": "仅所有者可以永久删除",
+      "description": "其他人仍可将页面和行移到废纸篓并恢复，但只有所有者能永久删除。废纸篓仍会在上述时间后自动清空。"
+    },
     "historyRetention": {
       "title": "页面历史",
       "description": "页面的早期版本保留 {days} 天，每个页面最多 {count} 个。保存的版本和恢复前的版本保留 {keptDays} 天，已命名的版本与页面一同保留，页面的最新版本始终保留。"
@@ -1666,12 +1670,20 @@
       "title": "允许导出",
       "description": "工作区中的每个人都可以将页面下载为 Markdown、CSV 或 ZIP，并打印为 PDF。关闭时：这些选项对所有人（包括所有者）都不可用。"
     },
+    "exportOwners": {
+      "title": "仅所有者可以导出",
+      "description": "成员和访客无法下载或打印页面，也无法订阅日历，他们设置的 Webhook 和 Slack 步骤不会发送任何内容。在允许导出期间，所有者仍然可以。"
+    },
     "connectedApps": {
       "title": "已连接的应用和 API 令牌",
       "description": "通过 MCP 连接的 AI 助手和其他应用以及 REST API 令牌在此工作区中可以做什么。它们获得的权限永远不会超过连接它们的人。无访问权限时，此工作区对它们隐藏。",
       "full": "读取和编辑",
       "read": "只读",
       "off": "无访问权限"
+    },
+    "connectedAppsOwners": {
+      "title": "仅所有者的已连接应用",
+      "description": "成员和访客的 AI 助手、MCP 应用、API 令牌、Telegram 机器人和日历订阅看不到此工作区；只有所有者的应用可以访问。"
     },
     "onlyApprovedApps": {
       "title": "仅限已批准的应用",
@@ -1689,6 +1701,7 @@
       "readsHere": "在此只读：已连接的应用只能读取",
       "offHere": "在此无访问权限：已连接的应用已关闭",
       "notApprovedHere": "此处无访问权限：未批准",
+      "notOwnerHere": "此处无访问权限：仅限所有者的应用",
       "approved": "已批准",
       "approve": "批准",
       "unapprove": "撤销批准",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "AI 聊天网络搜索",
       "aiMonthlyLimitUsd": "每月 AI 费用上限",
       "trashRetentionDays": "回收站中的页面保留期限",
+      "deleteForever": "谁可以永久删除",
       "export": "允许导出",
+      "exportBy": "谁可以导出",
       "connectedApps": "已连接的应用和 API 令牌",
+      "connectedAppsBy": "谁的已连接应用可以访问",
       "onlyApprovedApps": "仅限已批准的应用",
       "accessRequests": "访问申请",
       "memberInvites": "谁可以添加成员",
@@ -1932,6 +1948,8 @@
       "days": "{days} 天",
       "none": "无",
       "owners": "仅所有者",
+      "everyone": "所有人",
+      "full_access": "拥有完全访问权限的人",
       "members": "所有者和成员",
       "any": "任何方式",
       "sso": "仅限单点登录",

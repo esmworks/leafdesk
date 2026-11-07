@@ -76,7 +76,8 @@ import { reciprocalRankFusion, snippetOf } from "@/server/semantic-text";
 import { assertNestable, subtreeHeight } from "@/server/page-depth";
 import { followNewSpace, freezeInheritedEntries, keepFullAccess, makePagePrivate } from "@/server/permissions";
 import { placeTopLevel, requireArrangeTopLevel, requireTeamspaceForPages, sidebarTeamspaces, type TeamspaceSummary } from "@/server/teamspaces";
-import { listWorkspaces, requireTopLevel, workspaceSettings } from "@/server/workspaces";
+import { deleteForeverAllowed, listWorkspaces, requireTopLevel, workspaceSettings } from "@/server/workspaces";
+import { noticeMassTrash } from "@/server/mass-trash";
 
 import { placeInSections, PRIVATE_SECTION, SHARED_SECTION, type TreeSection } from "@/lib/tree-sections";
 import { withUniqueValues } from "@/server/unique-values";
@@ -613,7 +614,12 @@ export async function archivePage(userId: string, pageId: string) {
   await getCollab().pagesTrashed(trashed.map((t) => t.id), true);
   // One event for the page, not for each page under it.
   if (!p.archivedAt) await queuePageTrashed(p.id, userId);
-  if (!p.archivedAt && p.parentId && !p.inTemplate) await recordRows(userId, p.parentId, "rows_trashed", [{ id: p.id, title: p.title }]);
+  if (!p.archivedAt && p.parentId && !p.inTemplate) {
+    await recordRows(userId, p.parentId, "rows_trashed", [{ id: p.id, title: p.title }]);
+    // One row after another adds up: the owners hear when it is many (server/mass-trash.ts).
+    await noticeMassTrash(userId, p.parentId, "rows");
+  }
+  if (!p.archivedAt && p.kind === "database" && !p.inTemplate) await noticeMassTrash(userId, p.id, "database");
   if (!p.archivedAt && (await auditedAsPage(p))) {
     await recordAudit({
       workspaceId: p.workspaceId,
@@ -667,6 +673,7 @@ export async function archiveRows(userId: string, databaseId: string, rowIds: st
   const fresh = rows.filter((r) => !r.archivedAt).map((r) => r.id);
   const titles = fresh.length ? await db.select({ id: page.id, title: page.title }).from(page).where(inArray(page.id, fresh)) : [];
   await recordRows(userId, databaseId, "rows_trashed", titles);
+  await noticeMassTrash(userId, databaseId, "rows");
   getCollab().broadcast(`ws:${database.workspaceId}`, "tree");
   getCollab().broadcast(`db:${databaseId}`, "rows");
   thresholdRowsChanged(databaseId);
@@ -733,9 +740,17 @@ export async function restorePage(userId: string, pageId: string) {
   }
 }
 
-export async function deletePagePermanently(userId: string, pageId: string) {
+/**
+ * Deletes a page of the trash for good, for someone with full access to it, and an owner where only
+ * owners may (`deleteForever`). `discard`: a page the person just made for nothing (a duplicate
+ * journal or task list), which nobody else has seen, and which they delete whatever that setting.
+ */
+export async function deletePagePermanently(userId: string, pageId: string, { discard = false }: { discard?: boolean } = {}) {
   const p = await requirePageAccess(userId, pageId, "full");
   if (!p.archivedAt) throw new Error("Move the page to the trash before deleting it");
+  if (!discard && !(await deleteForeverAllowed(p.workspaceId, userId))) {
+    throw withCode(new AccessError("Only the workspace's owners may delete pages for good"), "deleteForeverOwners");
+  }
   if (!p.parentId) await requireArrangeTopLevel(userId, p.teamspaceId);
   // Said, rather than left in the trash without a word (deleteTrashedPages keeps it either way).
   await refuseHeldPages(p.workspaceId, [pageId]);
@@ -804,7 +819,7 @@ export async function removeOrphanFiles(workspaceId: string) {
  */
 export async function listTrash(userId: string, workspaceId: string) {
   await requireMembership(userId, workspaceId);
-  const { trashRetentionDays } = await workspaceSettings(workspaceId);
+  const [{ trashRetentionDays }, deletes] = await Promise.all([workspaceSettings(workspaceId), deleteForeverAllowed(workspaceId, userId)]);
   // Only roots of archived subtrees; their descendants come back with them. The access level says
   // whether the user may restore (edit) or delete for good (full).
   const rows = await db.execute<{
@@ -838,6 +853,8 @@ export async function listTrash(userId: string, workspaceId: string) {
   return rows.map(({ level, merged_into_id, merged_into_title, ...r }) => ({
     ...r,
     level: levelFromRank(level),
+    /** The person may delete it for good: full access, and an owner where only owners may. */
+    mayDeleteForever: deletes && levelFromRank(level) === "full",
     deletesAt: trashDeletionDate(new Date(r.archived_at), trashRetentionDays),
     // Merged into another row (server/merge-rows.ts): which one, when the user may see it.
     mergedInto: merged_into_id ? { id: merged_into_id, title: merged_into_title } : null,

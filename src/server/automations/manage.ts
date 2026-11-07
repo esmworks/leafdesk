@@ -501,7 +501,7 @@ async function checkActions(
   let people: Awaited<ReturnType<typeof workspacePeople>> | undefined;
   let owner: boolean | undefined;
   let exportOn: boolean | undefined;
-  const exportAllowedOnce = async () => (exportOn ??= await exportAllowed(workspaceId));
+  const exportAllowedOnce = async () => (exportOn ??= await exportAllowed(workspaceId, userId));
   /** People by id, email, name or "me" (guests: by id only), as ids. */
   const personIds = async (refs: string[]) => {
     people ??= await workspacePeople(workspaceId);
@@ -1181,8 +1181,8 @@ export async function testAutomationWebhooks(userId: string, automationId: strin
     database: { id: automation.databaseId },
   });
   const results: { url: string; ok: boolean; httpStatus?: number; code?: string; error?: string }[] = [];
-  // Like the runs, a ping isn't sent while the workspace's owners have export off.
-  const exportOff = !(await exportAllowed(automation.workspaceId));
+  // Like the runs, a ping isn't sent while the workspace's owners have export off (for whoever sends it).
+  const exportOff = !(await exportAllowed(automation.workspaceId, userId));
   const actions = automation.draft?.actions ?? automation.actions;
   for (const action of actions) {
     if (action.type !== "webhook") continue;

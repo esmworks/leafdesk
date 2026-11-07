@@ -79,7 +79,7 @@ export type EmbedInfo =
 export async function getEmbedInfo(userId: string, databaseId: string): Promise<EmbedInfo> {
   const { page: found, level } = await resolvePageAccess(userId, databaseId);
   if (!found || found.kind !== "database" || !hasLevel(level, "view")) return { state: "unavailable" };
-  const [membership, exportable] = await Promise.all([getMembership(userId, found.workspaceId), exportAllowed(found.workspaceId)]);
+  const [membership, exportable] = await Promise.all([getMembership(userId, found.workspaceId), exportAllowed(found.workspaceId, userId)]);
   if (!membership) return { state: "unavailable" };
   return {
     state: "ok",

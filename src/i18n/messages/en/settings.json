@@ -1613,6 +1613,10 @@
       "never": "Never",
       "days": "{count, plural, one {# day} other {# days}}"
     },
+    "deleteForever": {
+      "title": "Only owners can delete for good",
+      "description": "Others can still move pages and rows to the trash and restore them, but only owners delete them for good. The trash still empties itself after the time above."
+    },
     "historyRetention": {
       "title": "Page history",
       "description": "Earlier versions of a page are kept for {days} days, up to {count} per page. Saved versions and versions from before a restore are kept for {keptDays} days, named versions as long as the page, and the latest version of a page always stays."
@@ -1666,12 +1670,20 @@
       "title": "Allow export",
       "description": "Everyone in the workspace can download pages as Markdown, CSV or ZIP and print them to PDF. Off: those options are gone for everyone, owners included."
     },
+    "exportOwners": {
+      "title": "Only owners can export",
+      "description": "Members and guests can’t download or print pages or subscribe to calendars, and the webhooks and Slack steps they set up send nothing. Owners still can while export is allowed."
+    },
     "connectedApps": {
       "title": "Connected apps and API tokens",
       "description": "What AI assistants and other apps connected over MCP, and REST API tokens, may do in this workspace. They never get more than the person who connected them. With no access, the workspace is hidden from them.",
       "full": "Read and edit",
       "read": "Read only",
       "off": "No access"
+    },
+    "connectedAppsOwners": {
+      "title": "Only owners’ connected apps",
+      "description": "Members’ and guests’ AI assistants, MCP apps, API tokens, Telegram bot and calendar subscriptions find this workspace hidden; only owners’ apps reach it."
     },
     "onlyApprovedApps": {
       "title": "Only approved apps",
@@ -1689,6 +1701,7 @@
       "readsHere": "Reads only here: connected apps may only read",
       "offHere": "No access here: connected apps are off",
       "notApprovedHere": "No access here: not approved",
+      "notOwnerHere": "No access here: only owners’ apps",
       "approved": "Approved",
       "approve": "Approve",
       "unapprove": "Withdraw approval",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "AI chat web search",
       "aiMonthlyLimitUsd": "Monthly AI cost limit",
       "trashRetentionDays": "Delete pages in the trash after",
+      "deleteForever": "Who can delete for good",
       "export": "Allow export",
+      "exportBy": "Who can export",
       "connectedApps": "Connected apps and API tokens",
+      "connectedAppsBy": "Whose connected apps reach it",
       "onlyApprovedApps": "Only approved apps",
       "accessRequests": "Access requests",
       "memberInvites": "Who can add members",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, one {# day} other {# days}}",
       "none": "None",
       "owners": "Owners only",
+      "everyone": "Everyone",
+      "full_access": "People with full access",
       "members": "Owners and members",
       "any": "Any way",
       "sso": "Single sign-on only",

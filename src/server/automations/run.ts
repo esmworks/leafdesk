@@ -378,7 +378,7 @@ export async function processRun(run: Run) {
           result = { output: { trashed: true } };
         } else if (action.type === "webhook") {
           // A webhook sends the row out of the workspace: not while its owners have export off.
-          if (!(await exportAllowed(automation.workspaceId))) throw new StepFailure("webhookExportOff", "The workspace's owners turned export off");
+          if (!(await exportAllowed(automation.workspaceId, runAs))) throw new StepFailure("webhookExportOff", "The workspace's owners turned export off");
           // The row as it is now (after the actions before this one); its retries send the same.
           if (step.attempts === 1 || !payload) payload = await webhookPayload(automation, run, row!, runAs);
           const status = await sendWebhook(action.url, {
@@ -567,7 +567,7 @@ const missingNote = <T extends object>(input: T, missing: string[]) => (missing.
  */
 async function sendToSlack(ctx: StepContext, action: Extract<AutomationAction, { type: "slack" }>): Promise<StepResult> {
   const { automation, row } = ctx;
-  if (!(await exportAllowed(automation.workspaceId))) throw new StepFailure("webhookExportOff", "The workspace's owners turned export off");
+  if (!(await exportAllowed(automation.workspaceId, ctx.runAs))) throw new StepFailure("webhookExportOff", "The workspace's owners turned export off");
   const message = resolveText(action.message, escapeSlackValues(ctx.scope));
   const input = missingNote({ message: message.value, to: action.hint }, message.missing);
   const fail = (code: string, text: string, httpStatus: number | null = null) => Object.assign(new HttpStepError(code as HttpStepError["code"], text, httpStatus), { input });
@@ -847,7 +847,7 @@ const responseForHistory = (response: { status: number; headers: Record<string, 
 
 async function httpRequest(ctx: StepContext, action: Extract<AutomationAction, { type: "http_request" }>, step: AutomationStep): Promise<StepResult> {
   // A request sends what it likes out of the workspace: not while its owners have export off.
-  if (!(await exportAllowed(ctx.automation.workspaceId))) throw new StepFailure("webhookExportOff", "The workspace's owners turned export off");
+  if (!(await exportAllowed(ctx.automation.workspaceId, ctx.runAs))) throw new StepFailure("webhookExportOff", "The workspace's owners turned export off");
   const missing: string[] = [];
   const url = resolveText(action.url, ctx.scope);
   missing.push(...url.missing);

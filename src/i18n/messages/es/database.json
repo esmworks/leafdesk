@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Este ajuste de las páginas de fila no se puede guardar.",
     "tooManyPinned": "Las páginas de fila fijan hasta {max} propiedades.",
     "calendarFeedNotCalendar": "Solo se puede suscribir a vistas de calendario.",
-    "calendarFeedExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que las suscripciones de calendario también están desactivadas.",
-    "webhookExportOff": "Los propietarios del espacio de trabajo desactivaron la exportación, así que los webhooks también están desactivados.",
+    "calendarFeedExportOff": "Los propietarios del espacio desactivaron la exportación o se la reservaron, así que las suscripciones a calendarios también están desactivadas.",
+    "webhookExportOff": "Los propietarios del espacio desactivaron la exportación o se la reservaron, así que los webhooks también están desactivados.",
     "isTemplate": "Las plantillas no se pueden mover ni enviar a la papelera. Elimínalas desde la lista de plantillas.",
     "notATemplate": "Esta página no es una plantilla de este espacio de trabajo ni de esta base de datos.",
     "propertyRestricted": "No tienes permiso para cambiar «{property}».",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Añade primero un estado o una casilla para marcar las filas como terminadas: una fila se repite al terminarse.",
     "repeatSynced": "Las filas de una base de datos sincronizada no se repiten.",
     "repeatTemplate": "Las plantillas no se repiten; las filas creadas con ellas sí.",
+    "deleteForeverOwners": "Solo los propietarios del espacio pueden eliminar esto definitivamente. Se queda en la papelera, desde donde se puede restaurar.",
     "invalidSlackUrl": "No es la dirección de un webhook entrante de Slack (https://hooks.slack.com/services/…).",
     "oneRow": "«{property}» enlaza una sola página. Elige una.",
     "invalidRelationOptions": "No se pueden guardar estos ajustes de relación."

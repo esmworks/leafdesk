@@ -297,6 +297,8 @@
     "review": "{count, plural, one {{agent} hat eine Änderung zur Prüfung vorgeschlagen} other {# Änderungen warten auf deine Prüfung, die neueste von {agent}}}",
     "sensitiveContent": "Auf dieser Seite wurde {kind, select, card {eine Zahlungskartennummer} iban {eine IBAN} national_id {eine nationale Ausweisnummer} private_key {ein privater Schlüssel} aws_key {ein AWS-Zugriffsschlüssel} github_token {ein GitHub-Token} slack_token {ein Slack-Token} api_key {ein API-Schlüssel} jwt {ein JSON Web Token} other {sensibler Inhalt}} gefunden.",
     "pageReported": "Ein Besucher hat diese Seite gemeldet: {reason, select, spam {Spam oder Betrug} harmful {hassvolle, gewalttätige oder belästigende Inhalte} illegal {rechtswidrige Inhalte} privacy {persönliche Daten} copyright {Urheberrecht} other {etwas anderes}}.",
+    "massTrash": "{actor} hat {count} ihrer Zeilen in den Papierkorb verschoben",
+    "massTrashDatabase": "{actor} hat sie mit {count} Zeilen in den Papierkorb verschoben",
     "aiLimitTitle": "KI-Ausgaben",
     "aiLimit": {
       "near": "80 % des monatlichen Limits von {limit, number} Tokens verbraucht",

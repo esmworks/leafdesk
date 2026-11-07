@@ -107,7 +107,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
     const hold = await blockedByWorkspacePolicy(session, target.workspaceId);
     if (hold) return new Response(policyRefusal(hold), { status: 403 });
     // Every export this route makes, before any of it is read (also asked by the ZIP and CSV code).
-    await assertExportAllowed(target.workspaceId);
+    await assertExportAllowed(target.workspaceId, userId);
     const labels = await exportLabels();
     if (request.method === "GET" && query.get("subpages") === "1") {
       if (query.get("check") === "1") {

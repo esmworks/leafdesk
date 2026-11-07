@@ -1613,6 +1613,10 @@
       "never": "Hiçbir zaman",
       "days": "{count, plural, other {# gün}}"
     },
+    "deleteForever": {
+      "title": "Yalnızca sahipler kalıcı olarak silebilir",
+      "description": "Diğerleri sayfaları ve satırları yine çöp kutusuna taşıyıp geri getirebilir, ama kalıcı olarak yalnızca sahipler siler. Çöp kutusu yukarıdaki süreden sonra yine kendiliğinden boşalır."
+    },
     "historyRetention": {
       "title": "Sayfa geçmişi",
       "description": "Bir sayfanın önceki sürümleri {days} gün, sayfa başına en fazla {count} tane saklanır. Kaydedilen sürümler ve geri yüklemeden önceki sürümler {keptDays} gün, adlandırılmış sürümler sayfa durdukça saklanır; bir sayfanın en son sürümü her zaman kalır."
@@ -1666,12 +1670,20 @@
       "title": "Dışa aktarmaya izin ver",
       "description": "Çalışma alanındaki herkes sayfaları Markdown, CSV veya ZIP olarak indirebilir ve PDF olarak yazdırabilir. Kapalıyken bu seçenekler sahipler dahil herkes için kalkar."
     },
+    "exportOwners": {
+      "title": "Yalnızca sahipler dışa aktarabilir",
+      "description": "Üyeler ve misafirler sayfaları indiremez, yazdıramaz ya da takvimlere abone olamaz; kurdukları webhook ve Slack adımları hiçbir şey göndermez. Dışa aktarma açıkken sahipler yapabilir."
+    },
     "connectedApps": {
       "title": "Bağlı uygulamalar ve API anahtarları",
       "description": "MCP ile bağlanan yapay zekâ asistanlarının ve diğer uygulamaların, ayrıca REST API anahtarlarının bu çalışma alanında neler yapabileceği. Onları bağlayan kişiden fazlasını hiçbir zaman yapamazlar. Erişim yoksa çalışma alanı onlara hiç görünmez.",
       "full": "Okuma ve düzenleme",
       "read": "Yalnızca okuma",
       "off": "Erişim yok"
+    },
+    "connectedAppsOwners": {
+      "title": "Yalnızca sahiplerin bağlı uygulamaları",
+      "description": "Üyelerin ve misafirlerin yapay zekâ asistanları, MCP uygulamaları, API anahtarları, Telegram botu ve takvim abonelikleri bu çalışma alanını göremez; yalnızca sahiplerin uygulamaları ulaşır."
     },
     "onlyApprovedApps": {
       "title": "Yalnızca onaylı uygulamalar",
@@ -1689,6 +1701,7 @@
       "readsHere": "Burada yalnızca okur: bağlı uygulamalar yalnızca okuyabilir",
       "offHere": "Burada erişimi yok: bağlı uygulamalar kapalı",
       "notApprovedHere": "Burada erişimi yok: onaylanmadı",
+      "notOwnerHere": "Burada erişimi yok: yalnızca sahiplerin uygulamaları",
       "approved": "Onaylı",
       "approve": "Onayla",
       "unapprove": "Onayı geri çek",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "AI sohbeti web araması",
       "aiMonthlyLimitUsd": "Aylık yapay zekâ harcama sınırı",
       "trashRetentionDays": "Çöp kutusundaki sayfaların silinme süresi",
+      "deleteForever": "Kimler kalıcı olarak silebilir",
       "export": "Dışa aktarmaya izin ver",
+      "exportBy": "Kimler dışa aktarabilir",
       "connectedApps": "Bağlı uygulamalar ve API anahtarları",
+      "connectedAppsBy": "Kimlerin bağlı uygulamaları ulaşır",
       "onlyApprovedApps": "Yalnızca onaylı uygulamalar",
       "accessRequests": "Erişim istekleri",
       "memberInvites": "Kimler üye ekleyebilir",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, other {# gün}}",
       "none": "Yok",
       "owners": "Yalnızca sahipler",
+      "everyone": "Herkes",
+      "full_access": "Tam erişimi olanlar",
       "members": "Sahipler ve üyeler",
       "any": "Her yöntem",
       "sso": "Yalnızca çoklu oturum açma",

@@ -139,7 +139,7 @@ import { rowChanged } from "@/server/row-events";
 import { trackSchema } from "@/server/database-changes";
 import { recordRowWrites } from "@/server/row-activity";
 import { queueRowWrites } from "@/server/row-follow";
-import { workspacePeople, workspaceSettings, type WorkspacePerson } from "@/server/workspaces";
+import { deleteForeverAllowed, workspacePeople, workspaceSettings, type WorkspacePerson } from "@/server/workspaces";
 import { agentMarks, isAgentUser } from "@/server/agents/users";
 import { recordAudit } from "@/server/audit";
 import { heldPageIds, refuseHeldPages } from "@/server/legal-hold";
@@ -2632,6 +2632,10 @@ async function untrackedRestoreProperty(userId: string, propertyId: string) {
  */
 export async function purgeProperty(userId: string, propertyId: string) {
   const { prop, database } = await requireDeletedProperty(userId, propertyId);
+  // Its values go for good, as a page's do (pages.ts deletePagePermanently).
+  if (!(await deleteForeverAllowed(database.workspaceId, userId))) {
+    throw withCode(new AccessError("Only the workspace's owners may delete properties for good"), "deleteForeverOwners");
+  }
   const detach = await mayOnlyDetach(userId, await withPair(prop, db, true), true);
   // Its values on rows a legal hold keeps (and the other side's, when that goes too) stay.
   const sides = detach ? [prop] : await withPair(prop, db, true);

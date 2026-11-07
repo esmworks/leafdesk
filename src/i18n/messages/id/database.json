@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Pengaturan halaman baris ini tidak dapat disimpan.",
     "tooManyPinned": "Halaman baris menyematkan paling banyak {max} properti.",
     "calendarFeedNotCalendar": "Hanya tampilan kalender yang dapat dilanggani.",
-    "calendarFeedExportOff": "Pemilik ruang kerja menonaktifkan ekspor, jadi langganan kalender juga nonaktif.",
-    "webhookExportOff": "Pemilik ruang kerja menonaktifkan ekspor, jadi webhook juga nonaktif.",
+    "calendarFeedExportOff": "Pemilik ruang kerja mematikan ekspor atau menyimpannya untuk diri sendiri, jadi langganan kalender juga mati.",
+    "webhookExportOff": "Pemilik ruang kerja mematikan ekspor atau menyimpannya untuk diri sendiri, jadi webhook juga mati.",
     "isTemplate": "Templat tidak dapat dipindahkan atau dimasukkan ke sampah. Hapus dari daftar templat.",
     "notATemplate": "Halaman ini bukan templat ruang kerja atau basis data ini.",
     "propertyRestricted": "Anda tidak memiliki akses untuk mengubah “{property}”.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Tambahkan dulu status atau kotak centang untuk menandai baris selesai: baris berulang saat selesai.",
     "repeatSynced": "Baris dari database yang disinkronkan tidak berulang.",
     "repeatTemplate": "Template tidak berulang; baris yang dibuat darinya bisa.",
+    "deleteForeverOwners": "Hanya pemilik ruang kerja yang dapat menghapus ini secara permanen. Item ini tetap di tempat sampah dan dapat dipulihkan dari sana.",
     "invalidSlackUrl": "Bukan alamat webhook masuk Slack (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” hanya menaut satu halaman. Pilih satu.",
     "invalidRelationOptions": "Pengaturan relasi ini tidak dapat disimpan."

@@ -1613,6 +1613,10 @@
       "never": "Ei koskaan",
       "days": "{count, plural, one {# päivän jälkeen} other {# päivän jälkeen}}"
     },
+    "deleteForever": {
+      "title": "Vain omistajat voivat poistaa pysyvästi",
+      "description": "Muut voivat yhä siirtää sivuja ja rivejä roskakoriin ja palauttaa niitä, mutta vain omistajat poistavat ne pysyvästi. Roskakori tyhjenee silti itsestään yllä valitun ajan jälkeen."
+    },
     "historyRetention": {
       "title": "Versiohistoria",
       "description": "Sivun aiemmat versiot säilytetään {days} päivää, enintään {count} sivua kohden. Tallennetut versiot ja palautusta edeltävät versiot säilytetään {keptDays} päivää, nimetyt versiot niin kauan kuin sivu, ja sivun uusin versio säilyy aina."
@@ -1666,12 +1670,20 @@
       "title": "Salli vienti",
       "description": "Kaikki työtilassa voivat ladata sivuja Markdown-, CSV- tai ZIP-muodossa ja tulostaa niitä PDF:ksi. Pois päältä: nämä vaihtoehdot poistuvat kaikilta, myös omistajilta."
     },
+    "exportOwners": {
+      "title": "Vain omistajat voivat viedä",
+      "description": "Jäsenet ja vieraat eivät voi ladata tai tulostaa sivuja tai tilata kalentereita, eivätkä heidän määrittämänsä webhookit ja Slack-vaiheet lähetä mitään. Omistajat voivat yhä, kun vienti on sallittu."
+    },
     "connectedApps": {
       "title": "Yhdistetyt sovellukset ja API-tunnukset",
       "description": "Mitä MCP:n kautta yhdistetyt tekoälyavustajat ja muut sovellukset sekä REST API -tunnukset saavat tehdä tässä työtilassa. Ne eivät koskaan saa enempää oikeuksia kuin ne yhdistänyt henkilö. Ilman pääsyä työtila on niiltä piilossa.",
       "full": "Luku ja muokkaus",
       "read": "Vain luku",
       "off": "Ei pääsyä"
+    },
+    "connectedAppsOwners": {
+      "title": "Vain omistajien yhdistetyt sovellukset",
+      "description": "Jäsenten ja vieraiden tekoälyavustajat, MCP-sovellukset, API-tunnukset, Telegram-botti ja kalenteritilaukset eivät näe tätä työtilaa; vain omistajien sovellukset ylettyvät siihen."
     },
     "onlyApprovedApps": {
       "title": "Vain hyväksytyt sovellukset",
@@ -1689,6 +1701,7 @@
       "readsHere": "Täällä vain luku: yhdistetyt sovellukset saavat vain lukea",
       "offHere": "Täällä ei pääsyä: yhdistetyt sovellukset ovat pois päältä",
       "notApprovedHere": "Ei pääsyä tähän: ei hyväksytty",
+      "notOwnerHere": "Ei pääsyä tänne: vain omistajien sovellukset",
       "approved": "Hyväksytty",
       "approve": "Hyväksy",
       "unapprove": "Peru hyväksyntä",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Tekoälychatin verkkohaku",
       "aiMonthlyLimitUsd": "Tekoälyn kuukausittainen kustannusraja",
       "trashRetentionDays": "Poista roskakorissa olevat sivut",
+      "deleteForever": "Kuka voi poistaa pysyvästi",
       "export": "Salli vienti",
+      "exportBy": "Kuka voi viedä",
       "connectedApps": "Yhdistetyt sovellukset ja API-tunnukset",
+      "connectedAppsBy": "Kenen yhdistetyt sovellukset ylettyvät",
       "onlyApprovedApps": "Vain hyväksytyt sovellukset",
       "accessRequests": "Käyttöoikeuspyynnöt",
       "memberInvites": "Kuka voi lisätä jäseniä",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, one {# päivä} other {# päivää}}",
       "none": "Ei mitään",
       "owners": "Vain omistajat",
+      "everyone": "Kaikki",
+      "full_access": "Henkilöt, joilla on täysi pääsy",
       "members": "Omistajat ja jäsenet",
       "any": "Mikä tahansa tapa",
       "sso": "Vain kertakirjautuminen",

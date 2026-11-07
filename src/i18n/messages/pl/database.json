@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Nie można zapisać tego ustawienia strony wiersza.",
     "tooManyPinned": "Strony wierszy przypinają do {max} właściwości.",
     "calendarFeedNotCalendar": "Subskrybować można tylko widoki kalendarza.",
-    "calendarFeedExportOff": "Właściciele obszaru roboczego wyłączyli eksport, więc subskrypcje kalendarza również są wyłączone.",
-    "webhookExportOff": "Właściciele obszaru roboczego wyłączyli eksport, więc webhooki również są wyłączone.",
+    "calendarFeedExportOff": "Właściciele przestrzeni wyłączyli eksport lub zastrzegli go dla siebie, więc subskrypcje kalendarzy też są wyłączone.",
+    "webhookExportOff": "Właściciele przestrzeni wyłączyli eksport lub zastrzegli go dla siebie, więc webhooki też są wyłączone.",
     "isTemplate": "Szablonów nie można przenosić ani wrzucać do kosza. Zamiast tego usuń je z listy szablonów.",
     "notATemplate": "Ta strona nie jest szablonem tego obszaru roboczego ani tej bazy danych.",
     "propertyRestricted": "Nie masz uprawnień do zmiany „{property}”.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Najpierw dodaj status lub pole wyboru do oznaczania wierszy jako wykonane: wiersz powtarza się po wykonaniu.",
     "repeatSynced": "Wiersze synchronizowanej bazy danych się nie powtarzają.",
     "repeatTemplate": "Szablony się nie powtarzają; utworzone z nich wiersze mogą.",
+    "deleteForeverOwners": "Tylko właściciele przestrzeni mogą usunąć to trwale. Zostaje w koszu, skąd można to przywrócić.",
     "invalidSlackUrl": "To nie jest adres przychodzącego webhooka Slacka (https://hooks.slack.com/services/…).",
     "oneRow": "„{property}” łączy tylko jedną stronę. Wybierz jedną.",
     "invalidRelationOptions": "Nie można zapisać tych ustawień relacji."

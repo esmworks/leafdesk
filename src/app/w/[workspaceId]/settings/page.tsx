@@ -60,6 +60,7 @@ import {
   PublishingSetting,
   RequireTwoFactorSetting,
   TrashRetentionSetting,
+  OwnersOnlySetting,
 } from "@/components/settings/security-settings";
 import { SettingsGroup, SettingsHeader } from "@/components/settings/section";
 import { SettingsNav } from "@/components/settings/settings-nav";
@@ -602,8 +603,14 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
         <div id={settingAnchor("exportPolicy")}>
           <ExportSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         </div>
+        <div id={settingAnchor("exportOwners")}>
+          <OwnersOnlySetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} setting="exportBy" />
+        </div>
         <div id={settingAnchor("connectedAppsPolicy")}>
           <ConnectedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+        </div>
+        <div id={settingAnchor("connectedAppsOwners")}>
+          <OwnersOnlySetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} setting="connectedAppsBy" />
         </div>
         <div id={settingAnchor("onlyApprovedApps")}>
           <OnlyApprovedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
@@ -629,6 +636,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
             total={apps.total}
             mode={connectedAppsMode(settings.connectedApps)}
             onlyApproved={settings.onlyApprovedApps === true}
+            ownersOnly={settings.connectedAppsBy === "owners"}
           />
         </SettingsGroup>
       )}
@@ -662,6 +670,9 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       )}
       <SettingsGroup anchor="retention" title={t("security.retentionHeading")}>
         <TrashRetentionSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
+        <div id={settingAnchor("deleteForever")}>
+          <OwnersOnlySetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} setting="deleteForever" />
+        </div>
         <HistoryRetentionNote />
       </SettingsGroup>
       {holds && (

@@ -1613,6 +1613,10 @@
       "never": "Nooit",
       "days": "{count, plural, one {# dag} other {# dagen}}"
     },
+    "deleteForever": {
+      "title": "Alleen eigenaren kunnen definitief verwijderen",
+      "description": "Anderen kunnen pagina’s en rijen nog naar de prullenbak verplaatsen en terugzetten, maar alleen eigenaren verwijderen ze definitief. De prullenbak leegt zich nog steeds vanzelf na de tijd hierboven."
+    },
     "historyRetention": {
       "title": "Paginageschiedenis",
       "description": "Eerdere versies van een pagina worden {days} dagen bewaard, tot {count} per pagina. Opgeslagen versies en versies van vóór een herstel blijven {keptDays} dagen, versies met een naam zo lang als de pagina, en de nieuwste versie van een pagina blijft altijd."
@@ -1666,12 +1670,20 @@
       "title": "Exporteren toestaan",
       "description": "Iedereen in de werkruimte kan pagina’s downloaden als Markdown, CSV of ZIP en ze afdrukken naar PDF. Uit: die opties verdwijnen voor iedereen, eigenaren inbegrepen."
     },
+    "exportOwners": {
+      "title": "Alleen eigenaren kunnen exporteren",
+      "description": "Leden en gasten kunnen pagina’s niet downloaden of afdrukken en zich niet op agenda’s abonneren, en de webhooks en Slack-stappen die zij instellen versturen niets. Eigenaren kunnen het nog zolang exporteren is toegestaan."
+    },
     "connectedApps": {
       "title": "Gekoppelde apps en API-tokens",
       "description": "Wat AI-assistenten en andere apps die via MCP zijn gekoppeld, en REST API-tokens, in deze werkruimte mogen doen. Ze krijgen nooit meer dan de persoon die ze heeft gekoppeld. Zonder toegang is de werkruimte voor hen verborgen.",
       "full": "Lezen en bewerken",
       "read": "Alleen lezen",
       "off": "Geen toegang"
+    },
+    "connectedAppsOwners": {
+      "title": "Alleen gekoppelde apps van eigenaren",
+      "description": "AI-assistenten, MCP-apps, API-tokens, Telegram-bot en agenda-abonnementen van leden en gasten zien deze werkruimte niet; alleen apps van eigenaren bereiken haar."
     },
     "onlyApprovedApps": {
       "title": "Alleen goedgekeurde apps",
@@ -1689,6 +1701,7 @@
       "readsHere": "Leest hier alleen: gekoppelde apps mogen alleen lezen",
       "offHere": "Hier geen toegang: gekoppelde apps staan uit",
       "notApprovedHere": "Geen toegang hier: niet goedgekeurd",
+      "notOwnerHere": "Geen toegang hier: alleen apps van eigenaren",
       "approved": "Goedgekeurd",
       "approve": "Goedkeuren",
       "unapprove": "Goedkeuring intrekken",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Zoeken op het web in de AI-chat",
       "aiMonthlyLimitUsd": "Maandelijkse limiet voor AI-kosten",
       "trashRetentionDays": "Pagina’s in de prullenbak verwijderen na",
+      "deleteForever": "Wie definitief kan verwijderen",
       "export": "Exporteren toestaan",
+      "exportBy": "Wie kan exporteren",
       "connectedApps": "Gekoppelde apps en API-tokens",
+      "connectedAppsBy": "Wiens gekoppelde apps haar bereiken",
       "onlyApprovedApps": "Alleen goedgekeurde apps",
       "accessRequests": "Toegangsverzoeken",
       "memberInvites": "Wie leden kan toevoegen",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, one {# dag} other {# dagen}}",
       "none": "Geen",
       "owners": "Alleen eigenaren",
+      "everyone": "Iedereen",
+      "full_access": "Mensen met volledige toegang",
       "members": "Eigenaren en leden",
       "any": "Elke manier",
       "sso": "Alleen eenmalige aanmelding",

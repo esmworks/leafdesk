@@ -261,6 +261,16 @@ export function appCutOff(userId: string, app: ConnectedAppIdentity | null): SQL
 /** SQL: the workspace lets in only approved apps, on a row of `workspace`. */
 const onlyApprovedApps = sql`coalesce((${workspace.settings}->>'onlyApprovedApps')::boolean, false)`;
 
+/**
+ * SQL: the workspace lets in only its owners' apps (`connectedAppsBy`) and `userId` isn't one of
+ * its owners, on a row of `workspace`.
+ */
+function notAnOwnersApp(userId: string): SQL {
+  return sql`(${workspace.settings}->>'connectedAppsBy' = 'owners' and not exists (
+    select 1 from ${workspaceMember} where ${workspaceMember.workspaceId} = ${workspace.id}
+      and ${workspaceMember.userId} = ${userId} and ${workspaceMember.role} = 'owner'))`;
+}
+
 /** The workspace's connected-apps setting as it holds for this request's app, asked once per request. */
 function appsModeOf(call: ConnectedAppCall, workspaceId: string): Promise<ConnectedAppsMode> {
   let mode = call.modes.get(workspaceId);
@@ -271,13 +281,15 @@ function appsModeOf(call: ConnectedAppCall, workspaceId: string): Promise<Connec
         onlyApproved: sql<boolean>`${onlyApprovedApps}`,
         approved: sql<boolean>`${appApproved(call.app)}`,
         cutOff: sql<boolean>`${appCutOff(call.userId, call.app)}`,
+        notOwners: sql<boolean>`${notAnOwnersApp(call.userId)}`,
       })
       .from(workspace)
       .where(eq(workspace.id, workspaceId))
       .limit(1)
       .then(([row]) => {
-        // An app an owner cut off finds the workspace off, as one the owners haven't approved does.
-        const found = row?.cutOff ? "off" : appModeHere(connectedAppsMode(row?.mode), row?.onlyApproved === true, row?.approved !== false);
+        // An app an owner cut off finds the workspace off, as one the owners haven't approved does,
+        // and so does the app of someone not an owner where only owners' apps come in.
+        const found = row?.cutOff || row?.notOwners ? "off" : appModeHere(connectedAppsMode(row?.mode), row?.onlyApproved === true, row?.approved !== false);
         // The app reached the workspace: its owners see when (calendar feeds aren't apps). Not when
         // the setting turns it away: hidden here, or a write where apps may only read.
         if (call.app && connectedAppRefusal(found, call.writing) === null) noteConnectedAppUse(call.userId, call.app, workspaceId);
@@ -301,7 +313,8 @@ export async function connectedAppHold(userId: string, workspaceId: string): Pro
 
 /**
  * Of the user's workspaces, the ones hidden from the connected app serving this request (owners
- * turned connected apps off, let in only apps they approved and not this one, or cut it off); none outside
+ * turned connected apps off, let in only apps they approved and not this one, or only their own apps
+ * and the user isn't an owner, or cut it off); none outside
  * connected-app requests. For lists across workspaces.
  */
 export async function workspacesHiddenFromApp(userId: string): Promise<Set<string>> {
@@ -322,7 +335,8 @@ export async function workspacesHiddenFromApp(userId: string): Promise<Set<strin
     .where(
       and(
         eq(workspaceMember.userId, userId),
-        sql`(${workspace.settings}->>'connectedApps' = 'off' or (${onlyApprovedApps} and not ${appApproved(call.app)}) or ${appCutOff(userId, call.app)})`,
+        sql`(${workspace.settings}->>'connectedApps' = 'off' or (${onlyApprovedApps} and not ${appApproved(call.app)}) or ${appCutOff(userId, call.app)}
+          or (${workspace.settings}->>'connectedAppsBy' = 'owners' and ${workspaceMember.role} <> 'owner'))`,
       ),
     );
   return new Set(rows.map((r) => r.id));

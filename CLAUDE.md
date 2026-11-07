@@ -151,6 +151,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   come from `pages.ts`. Value changes are the rows' `row_activity`, read in groups by
   `server/database-history.ts`, which also undoes entries through the same `databases.ts`
   functions (pure part in `src/lib/database-history.ts`).
+- **What owners keep to themselves.** `workspaces.ts` `exportAllowed(workspaceId, userId)` is the
+  one export check (pure rule `lib/workspace-roles.ts` `mayExport`, settings `export` and
+  `exportBy`); background work (automations, buttons, page webhooks, calendar feeds) passes the
+  person it runs as. `connectedAppsBy` hides the workspace from non-owners' apps in `access.ts`
+  `appsModeOf` and `workspacesHiddenFromApp`; `deleteForever` is `deleteForeverAllowed`, asked by
+  `deletePagePermanently` and `purgeProperty`. Rows trashed in bulk by a non-owner tell the owners
+  (`server/mass-trash.ts`, inbox kind `mass_trash`), called from `archivePage` and `archiveRows`.
 - **Legal holds.** `src/server/legal-hold.ts` is the one check before content is deleted for good
   (Delete forever, trash and history retention, file cleanups, templates, deleted properties,
   comments, letterheads, workspace and account deletion). A new hard delete of pages, rows, files

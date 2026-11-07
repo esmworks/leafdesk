@@ -291,6 +291,8 @@
     "automationRun": "オートメーション「{name}」",
     "sensitiveContent": "ここで{kind, select, card {支払いカード番号} iban {IBAN} national_id {国民ID番号} private_key {秘密鍵} aws_key {AWS アクセスキー} github_token {GitHub トークン} slack_token {Slack トークン} api_key {API キー} jwt {JSON Web Token} other {機密コンテンツ}}が見つかりました。「設定 > セキュリティ」で確認してください。",
     "pageReported": "訪問者がこのページを報告しました：{reason, select, spam {スパムまたは詐欺} harmful {憎悪・暴力・嫌がらせ} illegal {違法なコンテンツ} privacy {個人情報} copyright {著作権} other {その他}}。設定 > セキュリティで確認してください。",
+    "massTrash": "{actor}が1時間以内にこのデータベースの行を{count}件ゴミ箱に移動しました。データベースの履歴から元に戻せます。",
+    "massTrashDatabase": "{actor}がこのデータベースを{count}件の行ごとゴミ箱に移動しました。ゴミ箱が空になる前に復元してください。",
     "aiLimitTitle": "AIの利用額",
     "aiLimit": {
       "near": "月間上限{limit, number}トークンの80%を使用しました",

@@ -1613,6 +1613,10 @@
       "never": "Tidak pernah",
       "days": "{count, plural, other {# hari}}"
     },
+    "deleteForever": {
+      "title": "Hanya pemilik yang dapat menghapus permanen",
+      "description": "Orang lain masih bisa memindahkan halaman dan baris ke tempat sampah dan memulihkannya, tetapi hanya pemilik yang menghapusnya permanen. Tempat sampah tetap kosong sendiri setelah waktu di atas."
+    },
     "historyRetention": {
       "title": "Riwayat halaman",
       "description": "Versi sebelumnya dari sebuah halaman disimpan selama {days} hari, hingga {count} per halaman. Versi yang disimpan dan versi sebelum pemulihan disimpan selama {keptDays} hari, versi bernama selama halaman ada, dan versi terbaru halaman selalu tetap ada."
@@ -1666,12 +1670,20 @@
       "title": "Izinkan ekspor",
       "description": "Semua orang di ruang kerja dapat mengunduh halaman sebagai Markdown, CSV, atau ZIP dan mencetaknya ke PDF. Mati: opsi tersebut hilang untuk semua orang, termasuk pemilik."
     },
+    "exportOwners": {
+      "title": "Hanya pemilik yang dapat mengekspor",
+      "description": "Anggota dan tamu tidak dapat mengunduh atau mencetak halaman atau berlangganan kalender, dan webhook serta langkah Slack yang mereka siapkan tidak mengirim apa pun. Pemilik tetap bisa selama ekspor diizinkan."
+    },
     "connectedApps": {
       "title": "Aplikasi terhubung dan token API",
       "description": "Apa yang boleh dilakukan asisten AI dan aplikasi lain yang terhubung melalui MCP, serta token REST API, di ruang kerja ini. Mereka tidak pernah mendapat lebih dari orang yang menghubungkannya. Tanpa akses, ruang kerja disembunyikan dari mereka.",
       "full": "Baca dan edit",
       "read": "Hanya baca",
       "off": "Tanpa akses"
+    },
+    "connectedAppsOwners": {
+      "title": "Hanya aplikasi terhubung milik pemilik",
+      "description": "Asisten AI, aplikasi MCP, token API, bot Telegram, dan langganan kalender milik anggota dan tamu tidak dapat melihat ruang kerja ini; hanya aplikasi pemilik yang menjangkaunya."
     },
     "onlyApprovedApps": {
       "title": "Hanya aplikasi yang disetujui",
@@ -1689,6 +1701,7 @@
       "readsHere": "Hanya membaca di sini: aplikasi terhubung hanya boleh membaca",
       "offHere": "Tanpa akses di sini: aplikasi terhubung dimatikan",
       "notApprovedHere": "Tidak ada akses di sini: belum disetujui",
+      "notOwnerHere": "Tidak ada akses di sini: hanya aplikasi pemilik",
       "approved": "Disetujui",
       "approve": "Setujui",
       "unapprove": "Tarik persetujuan",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Pencarian web obrolan AI",
       "aiMonthlyLimitUsd": "Batas biaya AI bulanan",
       "trashRetentionDays": "Hapus halaman di sampah setelah",
+      "deleteForever": "Siapa yang dapat menghapus permanen",
       "export": "Izinkan ekspor",
+      "exportBy": "Siapa yang dapat mengekspor",
       "connectedApps": "Aplikasi terhubung dan token API",
+      "connectedAppsBy": "Aplikasi terhubung siapa yang menjangkaunya",
       "onlyApprovedApps": "Hanya aplikasi yang disetujui",
       "accessRequests": "Permintaan akses",
       "memberInvites": "Siapa yang dapat menambah anggota",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, other {# hari}}",
       "none": "Tidak ada",
       "owners": "Hanya pemilik",
+      "everyone": "Semua orang",
+      "full_access": "Orang dengan akses penuh",
       "members": "Pemilik dan anggota",
       "any": "Cara apa pun",
       "sso": "Hanya single sign-on",

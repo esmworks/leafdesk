@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Não é possível salvar esta configuração da página da linha.",
     "tooManyPinned": "As páginas de linha fixam até {max} propriedades.",
     "calendarFeedNotCalendar": "Só é possível assinar visualizações de calendário.",
-    "calendarFeedExportOff": "Os proprietários do espaço de trabalho desativaram a exportação, então as assinaturas de calendário também estão desativadas.",
-    "webhookExportOff": "Os proprietários do espaço de trabalho desativaram a exportação, então os webhooks também estão desativados.",
+    "calendarFeedExportOff": "Os proprietários do espaço desativaram a exportação ou a reservaram para si, então as assinaturas de calendário também estão desativadas.",
+    "webhookExportOff": "Os proprietários do espaço desativaram a exportação ou a reservaram para si, então os webhooks também estão desativados.",
     "isTemplate": "Os modelos não podem ser movidos nem colocados na lixeira. Exclua-os pela lista de modelos.",
     "notATemplate": "Esta página não é um modelo deste espaço de trabalho ou banco de dados.",
     "propertyRestricted": "Você não tem acesso para alterar “{property}”.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Adicione primeiro um estado ou uma caixa de verificação para marcar as linhas como concluídas: uma linha repete-se quando é concluída.",
     "repeatSynced": "As linhas de uma base de dados sincronizada não se repetem.",
     "repeatTemplate": "Os modelos não se repetem; as linhas criadas a partir deles, sim.",
+    "deleteForeverOwners": "Só os proprietários do espaço podem excluir isto definitivamente. Fica na lixeira, de onde pode ser restaurado.",
     "invalidSlackUrl": "Não é o endereço de um webhook de entrada do Slack (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” vincula apenas uma página. Escolha uma.",
     "invalidRelationOptions": "Não é possível salvar estas configurações de relação."

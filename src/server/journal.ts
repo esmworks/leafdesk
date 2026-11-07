@@ -198,7 +198,7 @@ async function ensureJournalPage(actor: WriteActor, workspaceId: string, texts: 
 /** A page made for nothing (another request made the same one first), deleted for good. */
 async function discard(userId: string, pageId: string) {
   await archivePage(userId, pageId)
-    .then(() => deletePagePermanently(userId, pageId))
+    .then(() => deletePagePermanently(userId, pageId, { discard: true }))
     .catch((error) => console.error("[journal] couldn't remove a duplicate page", error));
 }
 

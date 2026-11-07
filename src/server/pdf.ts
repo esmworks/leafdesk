@@ -133,7 +133,7 @@ export type PageDocumentOptions = { properties?: boolean; letterhead?: string; c
  */
 export async function pageDocument(userId: string, pageId: string, { properties = false, letterhead: choice, comments = false }: PageDocumentOptions = {}) {
   const target = await requirePageAccess(userId, pageId, "view");
-  await assertExportAllowed(target.workspaceId);
+  await assertExportAllowed(target.workspaceId, userId);
   const letterhead = await letterheadForPdf(userId, target.workspaceId, choice);
   const [labels, locale] = await Promise.all([pdfLabels(), readerLocale()]);
   const parent = target.parentId ? (await db.select({ kind: page.kind }).from(page).where(eq(page.id, target.parentId)).limit(1))[0] : undefined;

@@ -9,8 +9,8 @@ import { DisconnectWorkspaceAppButton } from "./disconnect-workspace-app-button"
  * Settings > Security, for owners: the apps the workspace's people connected that can reach it,
  * with when each last did, and a way to disconnect one. What each may do here is told with the
  * workspace's connected-apps setting (`mode`), which narrows what their scopes allow, and with
- * `onlyApproved`: then an app owners haven't approved doesn't reach the workspace at all. Apps are
- * approved (or no longer) here.
+ * `onlyApproved`: then an app owners haven't approved doesn't reach the workspace at all, and with
+ * `ownersOnly`: then only owners' apps do. Apps are approved (or no longer) here.
  */
 export async function WorkspaceApps({
   workspaceId,
@@ -18,12 +18,14 @@ export async function WorkspaceApps({
   total,
   mode,
   onlyApproved,
+  ownersOnly,
 }: {
   workspaceId: string;
   apps: WorkspaceApp[];
   total: number;
   mode: ConnectedAppsMode;
   onlyApproved: boolean;
+  ownersOnly: boolean;
 }) {
   const [t, format, now] = await Promise.all([getTranslations("settings.security.workspaceApps"), getFormatter(), getNow()]);
   if (!apps.length) return <p className="px-5 py-8 text-center text-sm text-fg-muted">{t("empty")}</p>;
@@ -31,7 +33,9 @@ export async function WorkspaceApps({
   const may = (app: WorkspaceApp) =>
     mode === "off"
       ? t("offHere")
-      : onlyApproved && app.approved === false
+      : ownersOnly && !app.ownersApp
+        ? t("notOwnerHere")
+        : onlyApproved && app.approved === false
         ? t("notApprovedHere")
         : !app.writes
           ? t("reads")

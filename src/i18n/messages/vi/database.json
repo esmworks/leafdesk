@@ -1134,8 +1134,8 @@
     "invalidPageVisibility": "Không thể lưu cài đặt trang hàng này.",
     "tooManyPinned": "Trang của hàng ghim tối đa {max} thuộc tính.",
     "calendarFeedNotCalendar": "Chỉ có thể đăng ký các chế độ xem lịch.",
-    "calendarFeedExportOff": "Chủ sở hữu của không gian làm việc đã tắt tính năng xuất, nên các đăng ký lịch cũng bị tắt.",
-    "webhookExportOff": "Chủ sở hữu của không gian làm việc đã tắt tính năng xuất, nên các webhook cũng bị tắt.",
+    "calendarFeedExportOff": "Chủ sở hữu không gian làm việc đã tắt việc xuất hoặc giữ cho riêng mình, nên đăng ký lịch cũng tắt.",
+    "webhookExportOff": "Chủ sở hữu không gian làm việc đã tắt việc xuất hoặc giữ cho riêng mình, nên webhook cũng tắt.",
     "isTemplate": "Các mẫu không thể được di chuyển hoặc chuyển vào thùng rác. Hãy xóa chúng từ danh sách mẫu thay vào đó.",
     "notATemplate": "Trang này không phải là mẫu của không gian làm việc hoặc cơ sở dữ liệu này.",
     "propertyRestricted": "Bạn không có quyền thay đổi “{property}”.",
@@ -1177,6 +1177,7 @@
     "repeatNeedsDone": "Hãy thêm trạng thái hoặc ô đánh dấu để đánh dấu hàng đã xong trước: hàng lặp lại khi hoàn thành.",
     "repeatSynced": "Hàng của cơ sở dữ liệu đồng bộ không lặp lại.",
     "repeatTemplate": "Mẫu không lặp lại; các hàng tạo từ mẫu thì có thể.",
+    "deleteForeverOwners": "Chỉ chủ sở hữu không gian làm việc mới xóa vĩnh viễn được mục này. Nó vẫn ở trong thùng rác và có thể khôi phục từ đó.",
     "invalidSlackUrl": "Không phải địa chỉ webhook đến của Slack (https://hooks.slack.com/services/…).",
     "oneRow": "“{property}” chỉ liên kết một trang. Hãy chọn một.",
     "invalidRelationOptions": "Không thể lưu các cài đặt quan hệ này."

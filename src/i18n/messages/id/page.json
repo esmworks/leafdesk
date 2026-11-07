@@ -87,7 +87,7 @@
     "saveAsRowTemplate": "Simpan sebagai templat baris",
     "deleteTemplate": "Hapus templat",
     "exportDisabled": "Ekspor dinonaktifkan",
-    "exportDisabledBody": "Pemilik ruang kerja ini telah menonaktifkan ekspor dan pencetakan halamannya.",
+    "exportDisabledBody": "Pemilik ruang kerja ini mematikan ekspor dan pencetakan halamannya, atau menyimpannya untuk diri sendiri.",
     "showInGraph": "Tampilkan di grafik",
     "present": "Presentasikan",
     "readAloud": "Bacakan",

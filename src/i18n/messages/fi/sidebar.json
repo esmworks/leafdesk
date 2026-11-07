@@ -291,6 +291,8 @@
     "automationRun": "Automaatio ”{name}”",
     "sensitiveContent": "Täältä löytyi {kind, select, card {maksukortin numero} iban {IBAN-tilinumero} national_id {henkilötunnus} private_key {yksityinen avain} aws_key {AWS-käyttöavain} github_token {GitHub-tunnus} slack_token {Slack-tunnus} api_key {API-avain} jwt {JSON Web Token} other {arkaluonteista sisältöä}}. Tarkista se kohdassa Asetukset > Tietoturva.",
     "pageReported": "Vierailija ilmoitti tästä sivusta: {reason, select, spam {roskapostia tai huijaus} harmful {vihamielistä, väkivaltaista tai häiritsevää sisältöä} illegal {laitonta sisältöä} privacy {henkilötietoja} copyright {tekijänoikeus} other {jotain muuta}}. Tarkista se kohdassa Asetukset > Tietoturva.",
+    "massTrash": "{actor} siirsi tunnin sisällä tämän tietokannan rivejä roskakoriin, yhteensä {count}. Peru se tietokannan historiasta.",
+    "massTrashDatabase": "{actor} siirsi tämän tietokannan roskakoriin, ja sen mukana rivejä {count}. Palauta se ennen kuin roskakori tyhjenee.",
     "aiLimitTitle": "Tekoälyn kulutus",
     "aiLimit": {
       "near": "On käyttänyt 80 % kuukausirajastaan, {limit, number} tokenia",

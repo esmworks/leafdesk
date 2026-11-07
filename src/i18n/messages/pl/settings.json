@@ -1613,6 +1613,10 @@
       "never": "Nigdy",
       "days": "{count, plural, one {# dniu} few {# dniach} many {# dniach} other {# dnia}}"
     },
+    "deleteForever": {
+      "title": "Tylko właściciele mogą usuwać trwale",
+      "description": "Inni nadal mogą przenosić strony i wiersze do kosza i je przywracać, ale trwale usuwają je tylko właściciele. Kosz nadal opróżnia się sam po czasie podanym wyżej."
+    },
     "historyRetention": {
       "title": "Historia strony",
       "description": "Wcześniejsze wersje strony są przechowywane przez {days} dni, do {count} na stronę. Zapisane wersje i wersje sprzed przywrócenia są przechowywane przez {keptDays} dni, nazwane wersje tak długo jak strona, a najnowsza wersja strony zawsze zostaje."
@@ -1666,12 +1670,20 @@
       "title": "Zezwól na eksport",
       "description": "Każdy w obszarze roboczym może pobierać strony jako Markdown, CSV lub ZIP i drukować je do PDF. Wyłączone: te opcje znikają dla wszystkich, także dla właścicieli."
     },
+    "exportOwners": {
+      "title": "Tylko właściciele mogą eksportować",
+      "description": "Członkowie i goście nie mogą pobierać ani drukować stron ani subskrybować kalendarzy, a ustawione przez nich webhooki i kroki Slacka niczego nie wysyłają. Właściciele nadal mogą, dopóki eksport jest dozwolony."
+    },
     "connectedApps": {
       "title": "Połączone aplikacje i tokeny API",
       "description": "Co asystenci AI i inne aplikacje połączone przez MCP oraz tokeny REST API mogą robić w tym obszarze roboczym. Nigdy nie dostają więcej niż osoba, która je połączyła. Przy braku dostępu obszar roboczy jest przed nimi ukryty.",
       "full": "Odczyt i edycja",
       "read": "Tylko odczyt",
       "off": "Brak dostępu"
+    },
+    "connectedAppsOwners": {
+      "title": "Tylko połączone aplikacje właścicieli",
+      "description": "Asystenci AI, aplikacje MCP, tokeny API, bot Telegram i subskrypcje kalendarzy członków i gości nie widzą tej przestrzeni; docierają do niej tylko aplikacje właścicieli."
     },
     "onlyApprovedApps": {
       "title": "Tylko zatwierdzone aplikacje",
@@ -1689,6 +1701,7 @@
       "readsHere": "Tutaj tylko odczyt: połączone aplikacje mogą tylko czytać",
       "offHere": "Tutaj brak dostępu: połączone aplikacje są wyłączone",
       "notApprovedHere": "Brak dostępu tutaj: niezatwierdzona",
+      "notOwnerHere": "Brak dostępu tutaj: tylko aplikacje właścicieli",
       "approved": "Zatwierdzona",
       "approve": "Zatwierdź",
       "unapprove": "Wycofaj zatwierdzenie",
@@ -1912,8 +1925,11 @@
       "aiWebSearch": "Wyszukiwanie w sieci w czacie AI",
       "aiMonthlyLimitUsd": "Miesięczny limit kosztów AI",
       "trashRetentionDays": "Usuwaj strony z kosza po",
+      "deleteForever": "Kto może usuwać trwale",
       "export": "Zezwól na eksport",
+      "exportBy": "Kto może eksportować",
       "connectedApps": "Połączone aplikacje i tokeny API",
+      "connectedAppsBy": "Czyje połączone aplikacje docierają",
       "onlyApprovedApps": "Tylko zatwierdzone aplikacje",
       "accessRequests": "Prośby o dostęp",
       "memberInvites": "Kto może dodawać członków",
@@ -1932,6 +1948,8 @@
       "days": "{days, plural, one {# dzień} few {# dni} many {# dni} other {# dnia}}",
       "none": "Brak",
       "owners": "Tylko właściciele",
+      "everyone": "Wszyscy",
+      "full_access": "Osoby z pełnym dostępem",
       "members": "Właściciele i członkowie",
       "any": "Dowolny sposób",
       "sso": "Tylko logowanie jednokrotne",
