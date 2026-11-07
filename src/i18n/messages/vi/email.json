@@ -299,6 +299,8 @@
     "pageReported": "Một khách truy cập đã báo cáo trang này: {reason, select, spam {spam hoặc lừa đảo} harmful {nội dung thù ghét, bạo lực hoặc quấy rối} illegal {nội dung bất hợp pháp} privacy {thông tin cá nhân} copyright {bản quyền} other {vấn đề khác}}.",
     "massTrash": "{actor} đã chuyển {count} hàng của nó vào thùng rác",
     "massTrashDatabase": "{actor} đã chuyển nó vào thùng rác cùng {count} hàng",
+    "massExportTitle": "Nhiều trang đã được xuất",
+    "massExport": "{actor} đã xuất hoặc in {count} trang trong một giờ",
     "aiLimitTitle": "Chi phí AI",
     "aiLimit": {
       "near": "Đã dùng 80% giới hạn hằng tháng {limit, number} token",

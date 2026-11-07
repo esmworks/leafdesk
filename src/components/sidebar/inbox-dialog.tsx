@@ -1,6 +1,6 @@
 "use client";
 
-import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Gauge, Inbox, KeyRound, ListFilter, Mail, NotebookPen, ShieldQuestion, Sparkles, UserPlus } from "lucide-react";
+import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Download, Gauge, Inbox, KeyRound, ListFilter, Mail, NotebookPen, ShieldQuestion, Sparkles, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useEffect } from "react";
@@ -24,6 +24,7 @@ import { groupCounts, groupInbox, type InboxEntry } from "@/lib/inbox-groups";
 import { approvalLevelsFor, initialApprovalLevel, type ApprovalLevel } from "@/lib/access-requests";
 import { SUGGESTION_LINES } from "@/lib/push";
 import { pushLink } from "@/lib/push-link";
+import { parseMassExport } from "@/lib/mass-export";
 import { parseMassTrash } from "@/lib/mass-trash";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
@@ -264,6 +265,11 @@ export function InboxDialog({
                     <Mail aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
                     <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
                   </>
+                ) : item.kind === "mass_export" ? (
+                  <>
+                    <Download aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                    <span className="truncate">{t("massExportTitle")}</span>
+                  </>
                 ) : item.pageId === null ? (
                   <>
                     <UserPlus aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -340,6 +346,8 @@ export function InboxDialog({
                     actor: item.actorName || t("someone"),
                     count: parseMassTrash(item.automationMessage)?.count ?? 0,
                   })
+                : item.kind === "mass_export"
+                ? t("massExport", { actor: item.actorName || t("someone"), count: parseMassExport(item.automationMessage)?.count ?? 0 })
                 : item.kind === "access_request"
                 ? item.accessRequest && item.accessRequest.level !== "view"
                   ? t("accessRequestMore", { actor: item.actorName || item.accessRequest.requesterEmail || t("someone"), level: item.accessRequest.level })
@@ -789,7 +797,7 @@ const SWIPE_SNOOZE: SnoozeChoice = "tomorrow";
 const MAX_GROUP_AVATARS = 3;
 
 /** Kinds whose `message` is a code their line already puts in words (a kind found, a reason, rows trashed). */
-const MESSAGE_IN_LINE = new Set<InboxItem["kind"]>(["sensitive_content", "page_reported", "mass_trash"]);
+const MESSAGE_IN_LINE = new Set<InboxItem["kind"]>(["sensitive_content", "page_reported", "mass_trash", "mass_export"]);
 
 /** The most changes of a row update the inbox lists; the row's activity has all of them. */
 const MAX_ROW_CHANGES = 4;

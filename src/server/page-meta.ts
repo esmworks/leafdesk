@@ -14,7 +14,7 @@ import { isWatching } from "@/server/page-watch";
 import { isFollowing } from "@/server/row-follow";
 import { skillDescriptionProperty } from "@/server/skills";
 import { canTurnIntoTeamspace } from "@/server/teamspace-from-page";
-import { deleteForeverAllowed, exportAllowed, topLevelAccess } from "@/server/workspaces";
+import { deleteForeverAllowed, exportReach, topLevelAccess } from "@/server/workspaces";
 
 /** What the page header shows: who made and last changed the page, the viewer's access and star. */
 export type PageHeaderInfo = {
@@ -41,8 +41,13 @@ export type PageHeaderInfo = {
   ai: boolean;
   /** Voice notes work here: the recording limits, null when the server can't transcribe or AI is off. */
   voice: VoiceNoteLimits | null;
-  /** The workspace lets people export its pages (the menu's export and print entries). */
+  /** The workspace lets this person export its pages (the menu's export and print entries). */
   exportable: boolean;
+  /**
+   * Not `exportable`, but the workspace lets this person print single pages (`exportBy` "pages"),
+   * and this is a page or a row: the menu offers its PDF, Word document and print view only.
+   */
+  printsPage: boolean;
   /** Requests for access waiting on the page; counted for those who can answer them (full access), else 0. */
   accessRequests: number;
   /**
@@ -75,7 +80,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
   const creator = alias(user, "creator");
   const editor = alias(user, "editor");
   const isSkill = found.isSkill && !found.inTemplate;
-  const [[names], [star], membership, topLevel, ai, voice, exportable, accessRequests, following, watching, outdated, skillProperty, verified, teamspace, deletesForever] = await Promise.all([
+  const [[names], [star], membership, topLevel, ai, voice, reach, accessRequests, following, watching, outdated, skillProperty, verified, teamspace, deletesForever] = await Promise.all([
     db
       .select({
         createdBy: creator.name,
@@ -95,7 +100,7 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     topLevelAccess(userId, found.workspaceId),
     aiAvailable(found.workspaceId),
     voiceNoteLimits(found.workspaceId),
-    exportAllowed(found.workspaceId, userId),
+    exportReach(found.workspaceId, userId),
     level === "full" ? countAccessRequests(pageId) : 0,
     found.parentId ? isFollowing(userId, pageId) : null,
     isWatching(userId, pageId),
@@ -120,7 +125,8 @@ export async function getPageHeaderInfo(userId: string, pageId: string): Promise
     template: found.isTemplate ? (found.parentId ? "row" : "workspace") : found.inTemplate ? "inside" : null,
     ai,
     voice,
-    exportable,
+    exportable: reach === "all",
+    printsPage: reach === "page" && found.kind !== "database",
     accessRequests,
     skill: isSkill ? { description: found.skillDescription, property: skillProperty?.name ?? null } : null,
     skillDatabase: found.kind === "database" && found.isSkillDatabase,

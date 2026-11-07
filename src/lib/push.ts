@@ -4,6 +4,7 @@
  */
 
 import { aiLimitLine, type AiLimitNotice } from "./agent-guardrails";
+import { parseMassExport } from "./mass-export";
 import { parseMassTrash } from "./mass-trash";
 import { pushLink } from "./push-link";
 import { canSnooze } from "./snooze";
@@ -245,6 +246,11 @@ export function pushPayload(
     if (!notice) return null;
     title = item.pageTitle?.trim() || t("untitled");
     line = t(notice.what === "database" ? "massTrashDatabase" : "massTrash", { actor, count: notice.count });
+  } else if (item.kind === "mass_export") {
+    const notice = parseMassExport(item.automationMessage);
+    if (!notice) return null;
+    title = t("massExportTitle");
+    line = t("massExport", { actor, count: notice.count });
   } else if (item.kind === "ai_reminder") {
     // Not what it says: the model wrote it, maybe from what the run read, and a lock screen shows
     // it to whoever holds the device. The page it is about, as for other kinds.

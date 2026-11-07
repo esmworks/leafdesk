@@ -299,6 +299,8 @@
     "pageReported": "방문자가 이 페이지를 신고했습니다: {reason, select, spam {스팸 또는 사기} harmful {혐오, 폭력 또는 괴롭힘} illegal {불법 콘텐츠} privacy {개인정보} copyright {저작권} other {기타}}.",
     "massTrash": "{actor} 님이 행 {count}개를 휴지통으로 옮겼습니다",
     "massTrashDatabase": "{actor} 님이 행 {count}개와 함께 휴지통으로 옮겼습니다",
+    "massExportTitle": "많은 페이지를 내보냄",
+    "massExport": "{actor}님이 1시간 안에 페이지 {count}개를 내보내거나 인쇄했습니다",
     "aiLimitTitle": "AI 사용 금액",
     "aiLimit": {
       "near": "월 한도 {limit, number}토큰의 80%를 사용했습니다",

@@ -293,6 +293,8 @@
     "pageReported": "Un visitante denunció esta página: {reason, select, spam {spam o estafa} harmful {contenido de odio, violento o acosador} illegal {contenido ilegal} privacy {información personal} copyright {derechos de autor} other {otra cosa}}. Revísalo en Configuración > Seguridad.",
     "massTrash": "{actor} movió {count} filas de esta base de datos a la papelera en menos de una hora. Deshazlo desde el historial de la base de datos.",
     "massTrashDatabase": "{actor} movió esta base de datos a la papelera con sus {count} filas. Restáurala antes de que la papelera se vacíe.",
+    "massExportTitle": "Muchas páginas exportadas",
+    "massExport": "{actor} exportó o imprimió {count} páginas en una hora. Mira cuáles en el registro de auditoría.",
     "aiLimitTitle": "Gasto de IA",
     "aiLimit": {
       "near": "Ha usado el 80 % de su límite mensual de {limit, number} tokens",

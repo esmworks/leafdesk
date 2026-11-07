@@ -293,6 +293,8 @@
     "pageReported": "Odwiedzający zgłosił tę stronę: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}. Sprawdź w Ustawienia > Bezpieczeństwo.",
     "massTrash": "{actor} w ciągu godziny przeniósł(-a) do kosza wiersze tej bazy danych, łącznie: {count}. Cofnij to w historii bazy danych.",
     "massTrashDatabase": "{actor} przeniósł(-a) tę bazę danych do kosza razem z jej wierszami (łącznie: {count}). Przywróć ją, zanim kosz się opróżni.",
+    "massExportTitle": "Wyeksportowano wiele stron",
+    "massExport": "{actor} wyeksportował(a) lub wydrukował(a) {count} stron w ciągu godziny. Sprawdź które w dzienniku audytu.",
     "aiLimitTitle": "Wydatki na AI",
     "aiLimit": {
       "near": "Wykorzystano 80% miesięcznego limitu {limit, number} tokenów",

@@ -103,6 +103,61 @@ function ChoiceSettingSelect({
   );
 }
 
+/** The choices of who may take pages out: `exportBy` while export is on, and "off" for `export` off. */
+const EXPORT_CHOICES = ["everyone", "pages", "owners", "off"] as const;
+type ExportChoice = (typeof EXPORT_CHOICES)[number];
+
+/**
+ * Settings > Security: who may take pages out, in one list: everyone, owners with the others
+ * printing single pages, owners only (`exportBy`), or nobody (`export` off, owners included).
+ */
+export function ExportBySetting({ workspaceId, settings, canEdit }: { workspaceId: string; settings: WorkspaceSettings; canEdit: boolean }) {
+  const t = useTranslations("settings.security");
+  const [value, setValue] = useState<ExportChoice>(settings.export === false ? "off" : (settings.exportBy ?? "everyone"));
+  const { pending, error, run } = useAction();
+
+  return (
+    <SettingsRow
+      title={t("exportBy.title")}
+      htmlFor="export-by"
+      description={
+        error ? (
+          <span className="text-danger">{error}</span>
+        ) : (
+          <>
+            {t("exportBy.description")}
+            {!canEdit && <> {t("ownersOnly")}</>}
+          </>
+        )
+      }
+      control={
+        <select
+          id="export-by"
+          className={selectClass}
+          value={value}
+          disabled={!canEdit || pending}
+          onChange={(e) => {
+            const next = e.target.value as ExportChoice;
+            const previous = value;
+            setValue(next);
+            run(async () => {
+              const result = await updateWorkspaceSettingsAction(workspaceId, next === "off" ? { export: false } : { export: true, exportBy: next });
+              if (!result.ok) setValue(previous);
+              return result;
+            });
+          }}
+        >
+          {EXPORT_CHOICES.map((choice) => (
+            <option key={choice} value={choice}>
+              {t(`exportBy.${choice}`)}
+            </option>
+          ))}
+        </select>
+      }
+    />
+  );
+}
+
 /** Settings > Security: workspace policies. Owners change them; members see what is set. */
 export function GuestInviteSetting(props: { workspaceId: string; settings: WorkspaceSettings; canEdit: boolean }) {
   return <ChoiceSettingSelect {...props} setting="guestInvites" />;
@@ -118,55 +173,8 @@ export function ConnectedAppsSetting(props: { workspaceId: string; settings: Wor
   return <ChoiceSettingSelect {...props} setting="connectedApps" />;
 }
 
-/** Whether people may export pages (Markdown, CSV, ZIP) and print them to PDF. */
-export function ExportSetting({
-  workspaceId,
-  settings,
-  canEdit,
-}: {
-  workspaceId: string;
-  settings: WorkspaceSettings;
-  canEdit: boolean;
-}) {
-  const t = useTranslations("settings.security");
-  const [value, setValue] = useState(settings.export !== false);
-  const { pending, error, run } = useAction();
-
-  return (
-    <SettingsRow
-      title={t("export.title")}
-      description={
-        error ? (
-          <span className="text-danger">{error}</span>
-        ) : (
-          <>
-            {t("export.description")}
-            {!canEdit && <> {t("ownersOnly")}</>}
-          </>
-        )
-      }
-      control={
-        <Switch
-          checked={value}
-          label={t("export.title")}
-          disabled={!canEdit || pending}
-          onChange={(next) => {
-            setValue(next);
-            run(async () => {
-              const result = await updateWorkspaceSettingsAction(workspaceId, { export: next });
-              if (!result.ok) setValue(!next);
-              return result;
-            });
-          }}
-        />
-      }
-    />
-  );
-}
-
 /** The settings that keep something to the workspace's owners: the value each takes when on and off. */
 const OWNERS_ONLY = {
-  exportBy: { key: "exportOwners", on: "owners", off: "everyone" },
   connectedAppsBy: { key: "connectedAppsOwners", on: "owners", off: "everyone" },
   deleteForever: { key: "deleteForever", on: "owners", off: "full_access" },
 } as const satisfies {
@@ -174,8 +182,8 @@ const OWNERS_ONLY = {
 };
 
 /**
- * Settings > Security: a switch keeping one thing to the workspace's owners (exporting, connected
- * apps, deleting for good), for people who may see the rest of the workspace but shouldn't take
+ * Settings > Security: a switch keeping one thing to the workspace's owners (connected apps,
+ * deleting for good), for people who may see the rest of the workspace but shouldn't take
  * it out or wipe it.
  */
 export function OwnersOnlySetting({

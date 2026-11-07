@@ -299,6 +299,8 @@
     "pageReported": "Ein Besucher hat diese Seite gemeldet: {reason, select, spam {Spam oder Betrug} harmful {hassvolle, gewalttätige oder belästigende Inhalte} illegal {rechtswidrige Inhalte} privacy {persönliche Daten} copyright {Urheberrecht} other {etwas anderes}}.",
     "massTrash": "{actor} hat {count} ihrer Zeilen in den Papierkorb verschoben",
     "massTrashDatabase": "{actor} hat sie mit {count} Zeilen in den Papierkorb verschoben",
+    "massExportTitle": "Viele Seiten exportiert",
+    "massExport": "{actor} hat innerhalb einer Stunde {count} Seiten exportiert oder gedruckt",
     "aiLimitTitle": "KI-Ausgaben",
     "aiLimit": {
       "near": "80 % des monatlichen Limits von {limit, number} Tokens verbraucht",

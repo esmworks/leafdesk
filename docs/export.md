@@ -8,8 +8,8 @@ rows and the properties it shows, in its order) as CSV, an HTML page or a PDF, f
 "Export with subpages" (for a
 database, "Export with row pages") downloads a ZIP of the page and everything under it; owners
 can download the whole workspace from Settings → General → Export, as Markdown and CSV or as PDFs
-(to move a workspace to another server, back it up instead, see [Backups](#backups)). Owners can turn exporting off
-in Settings → Security, or keep it to themselves (see [Workspace security switches](account-and-security.md#workspace-security-switches)). The
+(to move a workspace to another server, back it up instead, see [Backups](#backups)). Owners choose who may export
+in Settings → Security (*Who can export*), nobody included (see [Workspace security switches](account-and-security.md#workspace-security-switches)). The
 archive mirrors the sidebar:
 
 ```
@@ -130,6 +130,12 @@ server's font (Roboto) covers Latin, Greek and Cyrillic letters; Chinese, Japane
 is set in Noto Sans CJK (in the face of the reader's language) where the server has it, as the Docker
 image does (`fonts-noto-cjk`; on other systems install that package or its equivalent). Arabic and
 Hebrew text isn't covered.
+
+Where owners keep export to themselves but let the others print single pages (Settings → Security
+→ *Who can export*), members and guests find only "Export as PDF", "Export as Word (.docx)" and "Print" in
+a page's or row's export menu, for that page alone: no subpages, and the databases its body shows
+print as unavailable. A database's own page offers them nothing, and prints as a line saying so from the
+browser's own print command. Owners hear when someone prints or exports 20 or more pages within an hour.
 
 "Print" in the same menu opens the page's print view (`/print/<page id>`) in a new tab and, once
 its images and diagrams have loaded, the browser's print dialog, where "Save as PDF" keeps the page

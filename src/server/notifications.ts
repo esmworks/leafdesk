@@ -559,6 +559,17 @@ export async function recordMassTrash(workspaceId: string, owners: string[], act
   pushNotifications(inserted.map((n) => n.id));
 }
 
+/** Tells `owners` that `actorId` exported or printed many pages (server/mass-export.ts); `message` as lib/mass-export writes it. */
+export async function recordMassExport(workspaceId: string, owners: string[], actorId: string, message: string) {
+  if (!owners.length) return;
+  const inserted = await db
+    .insert(notification)
+    .values(owners.map((userId) => ({ userId, workspaceId, kind: "mass_export" as const, actorId, pageId: null, message })))
+    .returning({ id: notification.id });
+  signal(workspaceId);
+  pushNotifications(inserted.map((n) => n.id));
+}
+
 /**
  * Tells everyone in the workspace with full access to the page that `requesterId` asked for access
  * (request `requestId`), and emails them right away. The email is in each approver's language, else

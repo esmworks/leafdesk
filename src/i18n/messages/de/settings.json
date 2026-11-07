@@ -1666,13 +1666,13 @@
       "linkHint": "Der Beitrittslink fragt dann einen Eigentümer, statt Personen sofort hinzuzufügen."
     },
     "dataHeading": "Export und verbundene Apps",
-    "export": {
-      "title": "Export erlauben",
-      "description": "Alle im Workspace können Seiten als Markdown, CSV oder ZIP herunterladen und als PDF drucken. Aus: Diese Optionen gibt es für niemanden mehr, auch nicht für Inhaber."
-    },
-    "exportOwners": {
-      "title": "Nur Eigentümer können exportieren",
-      "description": "Mitglieder und Gäste können Seiten weder herunterladen noch drucken oder Kalender abonnieren, und ihre Webhooks und Slack-Schritte senden nichts. Eigentümer können es weiterhin, solange Export erlaubt ist."
+    "exportBy": {
+      "title": "Wer exportieren darf",
+      "description": "Seiten herunterladen (Markdown, CSV, ZIP, PDF, Word), drucken und Kalender-Feeds. Bei einzelnen Seiten drucken Mitglieder und Gäste jeweils eine Seite oder Zeile, ohne Unterseiten und ohne die darin gezeigten Datenbanken. Bei „Nur Eigentümer“ können sie nichts mitnehmen. Niemand: auch für Eigentümer aus.",
+      "everyone": "Alle",
+      "pages": "Eigentümer; andere drucken einzelne Seiten",
+      "owners": "Nur Eigentümer",
+      "off": "Niemand"
     },
     "connectedApps": {
       "title": "Verbundene Apps und API-Token",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Alle mit dem Beitrittslink",
       "members_with_approval": "Mitglieder, mit Zustimmung eines Inhabers",
       "any_member": "Inhaber und Mitglieder",
-      "chosen": "Inhaber und ausgewählte Personen und Gruppen"
+      "chosen": "Inhaber und ausgewählte Personen und Gruppen",
+      "pages": "Eigentümer; andere drucken einzelne Seiten"
     },
     "actions": {
       "member": {

@@ -299,6 +299,8 @@
     "pageReported": "En besøgende har anmeldt denne side: {reason, select, spam {spam eller svindel} harmful {hadsk, voldeligt eller chikanerende indhold} illegal {ulovligt indhold} privacy {personoplysninger} copyright {ophavsret} other {noget andet}}.",
     "massTrash": "{actor} flyttede {count} af dens rækker til papirkurven",
     "massTrashDatabase": "{actor} flyttede den til papirkurven med {count} rækker",
+    "massExportTitle": "Mange sider eksporteret",
+    "massExport": "{actor} eksporterede eller udskrev {count} sider inden for en time",
     "aiLimitTitle": "AI-forbrug",
     "aiLimit": {
       "near": "Har brugt 80 % af sin månedlige grænse på {limit, number} tokens",

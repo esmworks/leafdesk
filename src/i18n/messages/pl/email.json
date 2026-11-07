@@ -299,6 +299,8 @@
     "pageReported": "Odwiedzający zgłosił tę stronę: {reason, select, spam {spam lub oszustwo} harmful {treści nienawistne, brutalne lub nękające} illegal {treści nielegalne} privacy {dane osobowe} copyright {prawa autorskie} other {coś innego}}.",
     "massTrash": "{actor} przeniósł(-a) do kosza jej wiersze, łącznie: {count}",
     "massTrashDatabase": "{actor} przeniósł(-a) ją do kosza z wierszami, łącznie: {count}",
+    "massExportTitle": "Wyeksportowano wiele stron",
+    "massExport": "{actor} wyeksportował(a) lub wydrukował(a) {count} stron w ciągu godziny",
     "aiLimitTitle": "Wydatki na AI",
     "aiLimit": {
       "near": "Wykorzystano 80% miesięcznego limitu {limit, number} tokenów",

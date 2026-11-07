@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contentRole, isWorkspaceRole, managesPeople, mayChangeRole, mayDeleteForever, mayExport, mayRemove, ROLE_ORDER, WORKSPACE_ROLES } from "./workspace-roles";
+import { contentRole, exportReach, isWorkspaceRole, managesPeople, mayChangeRole, mayDeleteForever, mayExport, mayRemove, ROLE_ORDER, WORKSPACE_ROLES } from "./workspace-roles";
 
 describe("workspace roles", () => {
   it("knows the four roles and nothing else", () => {
@@ -70,6 +70,15 @@ describe("keeping exports and deleting for good to owners", () => {
   it("keeps exports to owners when they say so: membership admins are no owners", () => {
     const settings = { export: true, exportBy: "owners" } as const;
     expect(WORKSPACE_ROLES.filter((role) => mayExport(settings, role))).toEqual(["owner"]);
+  });
+
+  it("lets the others print single pages only, and owners everything, with \"pages\"", () => {
+    const settings = { export: true, exportBy: "pages" } as const;
+    expect(WORKSPACE_ROLES.map((role) => exportReach(settings, role))).toEqual(["all", "page", "page", "page"]);
+    expect(WORKSPACE_ROLES.filter((role) => mayExport(settings, role))).toEqual(["owner"]);
+    expect(exportReach({ export: false, exportBy: "pages" }, "member")).toBe("none");
+    expect(exportReach(settings, null)).toBe("none");
+    expect(exportReach({ export: true, exportBy: "owners" }, "member")).toBe("none");
   });
 
   it("keeps deleting for good to owners when they say so", () => {

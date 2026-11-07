@@ -299,6 +299,8 @@
     "pageReported": "有访问者举报了此页面：{reason, select, spam {垃圾信息或诈骗} harmful {仇恨、暴力或骚扰内容} illegal {违法内容} privacy {个人信息} copyright {版权} other {其他}}。",
     "massTrash": "{actor} 将其中 {count} 行移到了废纸篓",
     "massTrashDatabase": "{actor} 将其连同 {count} 行移到了废纸篓",
+    "massExportTitle": "导出了大量页面",
+    "massExport": "{actor} 在一小时内导出或打印了 {count} 个页面",
     "aiLimitTitle": "AI 支出",
     "aiLimit": {
       "near": "已用完每月 {limit, number} 个令牌上限的 80%",

@@ -23,7 +23,7 @@ import type { PageBlock } from "@/server/blocknote";
 import { calloutStylesOf } from "@/server/callout-styles";
 import { getCollab } from "@/server/collab/bridge";
 import { pivotCells, pivotTexts, type PivotTexts } from "@/server/pivot-text";
-import { assertExportAllowed, databaseViewTable, pageThreads, recordExport, type ViewExport } from "@/server/export";
+import { assertExportAllowed, assertPagePrintAllowed, databaseViewTable, ExportError, pageThreads, recordExport, type ViewExport } from "@/server/export";
 import { commentExportLabels } from "@/server/export-labels";
 import { fileForViewer, readStored } from "@/server/files";
 import { letterheadForPdf, ownedLetterheadWorkspace } from "@/server/letterheads";
@@ -133,7 +133,10 @@ export type PageDocumentOptions = { properties?: boolean; letterhead?: string; c
  */
 export async function pageDocument(userId: string, pageId: string, { properties = false, letterhead: choice, comments = false }: PageDocumentOptions = {}) {
   const target = await requirePageAccess(userId, pageId, "view");
-  await assertExportAllowed(target.workspaceId, userId);
+  // Someone who may print single pages only (`exportBy` "pages") gets no database, and none of
+  // those the page's body shows.
+  const onePage = (await assertPagePrintAllowed(target.workspaceId, userId)) === "page";
+  if (onePage && target.kind === "database") throw new ExportError("disabled");
   const letterhead = await letterheadForPdf(userId, target.workspaceId, choice);
   const [labels, locale] = await Promise.all([pdfLabels(), readerLocale()]);
   const parent = target.parentId ? (await db.select({ kind: page.kind }).from(page).where(eq(page.id, target.parentId)).limit(1))[0] : undefined;
@@ -168,7 +171,7 @@ export async function pageDocument(userId: string, pageId: string, { properties 
         })
       : [],
     database: database ? tableOf(database, labels, locale) : null,
-    embeds: await embedsOf(userId, blocks, labels, locale),
+    embeds: onePage ? new Map() : await embedsOf(userId, blocks, labels, locale),
     crumbs: crumbs.map((c) => pageLabel(c.title, labels.untitled)),
     children: children.map((c) => pageLabel(c.title, labels.untitled)),
     comments: commentLabels
@@ -254,6 +257,8 @@ export async function letterheadPreviewPdf(userId: string, letterheadId: string,
  */
 export async function viewPdf(userId: string, databaseId: string, view: ViewExport): Promise<PagePdf> {
   const table = await databaseViewTable(userId, databaseId, view, "pdf");
+  // A view's rows are more than one page: only for those who may take everything out.
+  await assertExportAllowed(table.workspaceId, userId);
   const [letterhead, labels, locale] = await Promise.all([letterheadForPdf(userId, table.workspaceId, undefined), pdfLabels(), readerLocale()]);
   const title = pageLabel(table.title, labels.untitled);
   const bytes = await renderPdf({

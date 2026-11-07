@@ -136,9 +136,13 @@ export type WorkspaceSettings = {
    * Who `export` lets take pages out: everyone in the workspace, or only its owners. With
    * "owners", members' and guests' exports, print view, calendar feeds, and the webhooks and
    * Slack posts of automations, buttons and page webhooks they saved are refused, as with `export`
-   * off (see workspaces.ts `exportAllowed`).
+   * off (see workspaces.ts `exportAllowed`). With "pages", the others may still print one page at
+   * a time: a page or a row, with its own properties, as the print view, a PDF or a Word document,
+   * without its subpages and without the databases its body shows; never a database, a view, a
+   * selection of rows, several pages at once, Markdown, CSV, Excel, a skill or a ZIP
+   * (`exportReach`, lib/workspace-roles.ts).
    */
-  exportBy: "everyone" | "owners";
+  exportBy: "everyone" | "pages" | "owners";
   /**
    * What connected apps may do in the workspace: MCP clients a user authorized over OAuth and REST
    * API tokens alike (see server/connected-app.ts). "full": whatever their user may; "read": read

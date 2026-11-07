@@ -1,0 +1,2 @@
+ALTER TABLE "notification" DROP CONSTRAINT "notification_subject_check";--> statement-breakpoint
+ALTER TABLE "notification" ADD CONSTRAINT "notification_subject_check" CHECK ("notification"."kind" in ('join_request', 'review', 'agent_approval', 'agent_memory', 'agent_report', 'ai_account_detached', 'ai_limit', 'agent_limit_request', 'ai_reminder', 'agent_task', 'schedule_paused', 'ai_chat_waiting', 'mass_export') or "notification"."page_id" is not null);

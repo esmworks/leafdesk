@@ -163,18 +163,26 @@ the REST API.
   other reports) and *Dismiss* closes one; both are in the audit log, as is each report. Nothing
   goes beyond the workspace's owners. One address may send five reports an hour, and each public
   address takes thirty a day.
-- **Export:** on by default. Off removes Markdown, CSV, ZIP and PDF export (and the print view)
+- **Who can export:** one list, *Everyone* (default), *Owners; others print single pages*, *Owners
+  only* or *Nobody*. *Nobody* removes Markdown, CSV, ZIP, PDF and Word export (and the print view)
   for everyone, owners included, and the export routes answer `403`. Calendar feeds stop, and
   automations can't get a webhook, HTTP request or Send to Slack step nor send one (`webhookExportOff`; one
   saved before may stay, and its runs and test pings fail until export is back on). The member list CSV in
   Settings → Members stays, as it is an owner's own administration tool.
-- **Only owners can export:** off by default. On, export stays for the workspace's owners while
-  everyone else (membership admins, members, guests) loses it as if it were off: no Markdown, CSV,
-  ZIP, PDF or Word export, print view, view download or AI chat spreadsheet, no calendar feed, and
-  the webhook, HTTP request and Send to Slack steps of automations and buttons they saved, and
-  their page webhooks, send nothing. Background work counts as the person it runs as. It doesn't
-  stop someone from copying what they can see by hand: for that, share less (a teamspace's member
-  access, *Row access*, *Property access*).
+  With *Owners only*, export stays for the workspace's owners while everyone else (membership
+  admins, members, guests) loses it as if it were off: no Markdown, CSV, ZIP, PDF or Word export,
+  print view, view download or AI chat spreadsheet, no calendar feed, and the webhook, HTTP request
+  and Send to Slack steps of automations and buttons they saved, and their page webhooks, send
+  nothing. Background work counts as the person it runs as. *Owners; others print single pages* is
+  the same, except that the others may still print one page or row at a time: its PDF, its Word
+  document or its print view, from the page's ⋯ menu or the AI chat, without its subpages and with
+  the databases its body shows left out (they print as unavailable). A database, a view, selected
+  rows or several pages at once stay with the owners, and a database's page prints blank from the
+  browser's own print command. When someone who isn't an owner prints or exports 20 or more pages
+  within an hour, the owners get an inbox item and a push notification that opens the audit log at
+  that person's exports. None of this stops someone from copying what they can see by hand or
+  with screenshots: for that, share less (a teamspace's member access, *Row access*, *Property
+  access*).
 - **Connected apps and API tokens:** what MCP apps and personal access tokens may do in the
   workspace, on top of their own permissions and their user's access. *Full access* (default),
   *Read only* (write tools and write endpoints are refused, reads still work), or *Off* (the

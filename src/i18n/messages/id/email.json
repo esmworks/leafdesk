@@ -299,6 +299,8 @@
     "pageReported": "Seorang pengunjung melaporkan halaman ini: {reason, select, spam {spam atau penipuan} harmful {konten kebencian, kekerasan, atau pelecehan} illegal {konten ilegal} privacy {informasi pribadi} copyright {hak cipta} other {hal lain}}.",
     "massTrash": "{actor} memindahkan {count} barisnya ke tempat sampah",
     "massTrashDatabase": "{actor} memindahkannya ke tempat sampah beserta {count} baris",
+    "massExportTitle": "Banyak halaman diekspor",
+    "massExport": "{actor} mengekspor atau mencetak {count} halaman dalam satu jam",
     "aiLimitTitle": "Pengeluaran AI",
     "aiLimit": {
       "near": "Telah memakai 80% dari batas bulanan {limit, number} token",

@@ -52,7 +52,7 @@ import {
   AccessRequestsSetting,
   ConnectedAppsSetting,
   OnlyApprovedAppsSetting,
-  ExportSetting,
+  ExportBySetting,
   GuestInviteSetting,
   GuestPrivatePagesSetting,
   HistoryRetentionNote,
@@ -601,10 +601,7 @@ async function SecurityTab({ workspaceId, userId, isOwner }: { workspaceId: stri
       )}
       <SettingsGroup title={t("security.dataHeading")}>
         <div id={settingAnchor("exportPolicy")}>
-          <ExportSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
-        </div>
-        <div id={settingAnchor("exportOwners")}>
-          <OwnersOnlySetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} setting="exportBy" />
+          <ExportBySetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />
         </div>
         <div id={settingAnchor("connectedAppsPolicy")}>
           <ConnectedAppsSetting workspaceId={workspaceId} settings={settings} canEdit={isOwner} />

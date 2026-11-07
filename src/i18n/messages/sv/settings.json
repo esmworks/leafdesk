@@ -1666,13 +1666,13 @@
       "linkHint": "Länken för att gå med frågar då en ägare i stället för att lägga till personer direkt."
     },
     "dataHeading": "Export och anslutna appar",
-    "export": {
-      "title": "Tillåt export",
-      "description": "Alla i arbetsytan kan ladda ned sidor som Markdown, CSV eller ZIP och skriva ut dem till PDF. Av: de alternativen försvinner för alla, även ägare."
-    },
-    "exportOwners": {
-      "title": "Bara ägare kan exportera",
-      "description": "Medlemmar och gäster kan inte ladda ned eller skriva ut sidor eller prenumerera på kalendrar, och webhooks och Slack-steg de ställer in skickar ingenting. Ägare kan fortfarande så länge export är tillåten."
+    "exportBy": {
+      "title": "Vem kan exportera",
+      "description": "Ladda ned sidor (Markdown, CSV, ZIP, PDF, Word), skriva ut dem och kalenderflöden. Med enstaka sidor skriver medlemmar och gäster ut en sida eller rad åt gången, utan undersidor och utan de databaser den visar. Med endast ägare kan de inte ta ut något. Ingen: avstängt även för ägare.",
+      "everyone": "Alla",
+      "pages": "Ägare; andra skriver ut enstaka sidor",
+      "owners": "Endast ägare",
+      "off": "Ingen"
     },
     "connectedApps": {
       "title": "Anslutna appar och API-token",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Alla som har länken för att gå med",
       "members_with_approval": "Medlemmar, med en ägares godkännande",
       "any_member": "Ägare och medlemmar",
-      "chosen": "Ägare och valda personer och grupper"
+      "chosen": "Ägare och valda personer och grupper",
+      "pages": "Ägare; andra skriver ut enstaka sidor"
     },
     "actions": {
       "member": {

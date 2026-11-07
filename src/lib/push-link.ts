@@ -9,6 +9,7 @@ import { agentMemoryPath, agentReportPath, agentRunPath } from "./agents";
 import { chatPath } from "./ai-chat";
 import { commentHash } from "./comments";
 import { rowEmailHash } from "./mail";
+import { massExportPath, parseMassExport } from "./mass-export";
 import { parseMassTrash } from "./mass-trash";
 import { reviewPath } from "./pending-changes";
 import type { PushItem } from "./push";
@@ -42,6 +43,8 @@ export function pushLink(item: PushItem): string {
   if (item.kind === "mass_trash" && item.pageId) {
     return `/w/${item.workspaceId}/p/${item.pageId}${parseMassTrash(item.automationMessage)?.what === "rows" ? "?history=1" : ""}`;
   }
+  // Pages exported in bulk: the audit log at that person's exports.
+  if (item.kind === "mass_export") return massExportPath(item.workspaceId, parseMassExport(item.automationMessage));
   // A reminder opens the page it is about, else the chat with the agent that set it.
   if (item.kind === "ai_reminder" && item.pageId === null) return item.aiReminder?.agentId ? agentPagePath(item.workspaceId, item.aiReminder.agentId) : `/w/${item.workspaceId}`;
   if (item.pageId === null) return `/w/${item.workspaceId}/settings?tab=members&view=requests`;

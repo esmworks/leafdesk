@@ -293,6 +293,8 @@
     "pageReported": "Một khách truy cập đã báo cáo trang này: {reason, select, spam {spam hoặc lừa đảo} harmful {nội dung thù ghét, bạo lực hoặc quấy rối} illegal {nội dung bất hợp pháp} privacy {thông tin cá nhân} copyright {bản quyền} other {vấn đề khác}}. Xem trong Cài đặt > Bảo mật.",
     "massTrash": "{actor} đã chuyển {count} hàng của cơ sở dữ liệu này vào thùng rác trong vòng một giờ. Hoàn tác từ lịch sử của cơ sở dữ liệu.",
     "massTrashDatabase": "{actor} đã chuyển cơ sở dữ liệu này cùng {count} hàng vào thùng rác. Hãy khôi phục trước khi thùng rác được dọn.",
+    "massExportTitle": "Nhiều trang đã được xuất",
+    "massExport": "{actor} đã xuất hoặc in {count} trang trong một giờ. Xem những trang nào trong nhật ký kiểm tra.",
     "aiLimitTitle": "Chi phí AI",
     "aiLimit": {
       "near": "Đã dùng 80% giới hạn hằng tháng {limit, number} token",

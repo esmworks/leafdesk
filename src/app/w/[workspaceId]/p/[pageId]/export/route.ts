@@ -10,7 +10,7 @@ import { AccessError } from "@/server/access";
 import { MAX_BULK_ROWS } from "@/server/databases";
 import {
   archiveResponse,
-  assertExportAllowed,
+  assertPagePrintAllowed,
   attachment,
   databaseCsv,
   databaseViewTable,
@@ -91,10 +91,17 @@ async function requestedView(request: Request): Promise<ViewExport> {
  * With `?subpages=1`, the page or database with everything under it as a ZIP (see server/export);
  * adding `check=1` only answers whether that export can be made (JSON), so the page menu can say
  * why not before starting a download. Pages the user can't see are 404; with export turned off in
- * the workspace, every export is 403 (`{error: "disabled"}`).
+ * the workspace, every export is 403 (`{error: "disabled"}`), and so is everything but a page's PDF
+ * or Word document for someone it lets print single pages only (`exportBy` "pages").
  * A database's view exports what the view shows with a POST to `?view=1` (see requestedView), as
  * CSV, or with `&format=html` or `&format=pdf` as a page of its own or a PDF.
  */
+/** Whether the request asks for one page printed (a PDF or Word document of a page or a row), all that `exportBy` "pages" leaves the others. */
+function onePagePrint(request: Request, query: URLSearchParams, kind: string) {
+  const format = query.get("format");
+  return request.method === "GET" && kind !== "database" && query.get("subpages") !== "1" && query.get("view") !== "1" && (format === "pdf" || format === "docx");
+}
+
 export async function GET(request: Request, { params }: { params: Promise<{ pageId: string }> }) {
   const session = await getSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
@@ -107,7 +114,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ page
     const hold = await blockedByWorkspacePolicy(session, target.workspaceId);
     if (hold) return new Response(policyRefusal(hold), { status: 403 });
     // Every export this route makes, before any of it is read (also asked by the ZIP and CSV code).
-    await assertExportAllowed(target.workspaceId, userId);
+    // Someone the workspace lets print single pages only gets one page or row as a PDF or Word
+    // document, and nothing else here (pdf.ts checks that again and leaves its databases out).
+    const reach = await assertPagePrintAllowed(target.workspaceId, userId);
+    if (reach === "page" && !onePagePrint(request, query, target.kind)) throw new ExportError("disabled");
     const labels = await exportLabels();
     if (request.method === "GET" && query.get("subpages") === "1") {
       if (query.get("check") === "1") {

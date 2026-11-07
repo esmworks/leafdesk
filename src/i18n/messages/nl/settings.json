@@ -1666,13 +1666,13 @@
       "linkHint": "De deelnamelink vraagt dan een eigenaar in plaats van mensen direct toe te voegen."
     },
     "dataHeading": "Exporteren en gekoppelde apps",
-    "export": {
-      "title": "Exporteren toestaan",
-      "description": "Iedereen in de werkruimte kan pagina’s downloaden als Markdown, CSV of ZIP en ze afdrukken naar PDF. Uit: die opties verdwijnen voor iedereen, eigenaren inbegrepen."
-    },
-    "exportOwners": {
-      "title": "Alleen eigenaren kunnen exporteren",
-      "description": "Leden en gasten kunnen pagina’s niet downloaden of afdrukken en zich niet op agenda’s abonneren, en de webhooks en Slack-stappen die zij instellen versturen niets. Eigenaren kunnen het nog zolang exporteren is toegestaan."
+    "exportBy": {
+      "title": "Wie mag exporteren",
+      "description": "Pagina’s downloaden (Markdown, CSV, ZIP, PDF, Word), printen en agendafeeds. Met losse pagina’s printen leden en gasten één pagina of rij tegelijk, zonder subpagina’s en zonder de databases die erop staan. Met alleen eigenaren kunnen ze niets meenemen. Niemand: ook voor eigenaren uit.",
+      "everyone": "Iedereen",
+      "pages": "Eigenaren; anderen printen losse pagina’s",
+      "owners": "Alleen eigenaren",
+      "off": "Niemand"
     },
     "connectedApps": {
       "title": "Gekoppelde apps en API-tokens",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Iedereen met de deelnamelink",
       "members_with_approval": "Leden, met goedkeuring van een eigenaar",
       "any_member": "Eigenaren en leden",
-      "chosen": "Eigenaren en gekozen mensen en groepen"
+      "chosen": "Eigenaren en gekozen mensen en groepen",
+      "pages": "Eigenaren; anderen printen losse pagina’s"
     },
     "actions": {
       "member": {

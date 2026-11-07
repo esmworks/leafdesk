@@ -6,15 +6,20 @@
 
 - **Keep exports, connected apps and deleting for good to owners.** Three switches in Settings →
   Security for workspaces whose people may see the customer list but shouldn't take it out or wipe
-  it. *Only owners can export* takes downloads, the print view, calendar feeds and the webhook and
+  it. *Who can export: owners only* takes downloads, the print view, calendar feeds and the webhook and
   Slack steps of what others saved from everyone but owners. *Only owners' connected apps* hides
   the workspace from the MCP apps, API tokens, Telegram chat and calendar feeds of everyone else.
   *Only owners can delete for good* leaves others trashing and restoring, but not emptying the
-  trash. All three are off until an owner turns them on.
+  trash. All three are off until an owner turns them on. *Who can export* can also keep exports to
+  owners while the others still print single pages: one page or row at a time as a PDF, a Word
+  document or the print view, without its subpages and without the databases it shows; a
+  database's page then prints blank from the browser's own print command too.
 - **Owners hear about rows trashed in bulk.** When someone who isn't an owner moves 20 or more rows
   of a database to the trash within an hour, or a database with that many rows, the owners
   get an inbox item and a push notification that opens the database's history, where one *Undo*
-  brings the rows back, before the trash empties itself.
+  brings the rows back, before the trash empties itself. The same goes for someone printing or
+  exporting 20 or more pages within an hour: the owners' notice opens the audit log at that
+  person's exports. Migration `0198_mass_export_notice`.
 
 - **Rows that repeat.** *Repeat* in a date's picker sets a database row to come round again: every
   day, weekday, week, month or year, or a rule of your own (every few days or weeks, on chosen
@@ -63,6 +68,10 @@
 
 ### Changed
 
+- **Export is one list in Settings → Security.** *Allow export* and the owners' switch became
+  *Who can export*: *Everyone*, *Owners; others print single pages*, *Owners only* or *Nobody*.
+  *Nobody* is the old *Allow export* off, which took exports from owners too; a workspace that had
+  it off shows *Nobody* until an owner picks another.
 - **Your task list and meeting notes stay out of the page tree.** *My to-do list* and the notes
   started with *New meeting note* are listed in the Tasks and Meetings tabs, so they no longer fill
   *Private* under Home; opening one picks its tab. Moved under a page or into a teamspace, they show

@@ -299,6 +299,8 @@
     "pageReported": "ผู้เยี่ยมชมรายงานหน้านี้: {reason, select, spam {สแปมหรือการหลอกลวง} harmful {เนื้อหาที่สร้างความเกลียดชัง รุนแรง หรือคุกคาม} illegal {เนื้อหาผิดกฎหมาย} privacy {ข้อมูลส่วนตัว} copyright {ลิขสิทธิ์} other {อื่น ๆ}}",
     "massTrash": "{actor} ย้าย {count} แถวไปที่ถังขยะ",
     "massTrashDatabase": "{actor} ย้ายไปที่ถังขยะพร้อม {count} แถว",
+    "massExportTitle": "ส่งออกหลายหน้า",
+    "massExport": "{actor} ส่งออกหรือพิมพ์ {count} หน้าภายในหนึ่งชั่วโมง",
     "aiLimitTitle": "ค่าใช้จ่าย AI",
     "aiLimit": {
       "near": "ใช้ไป 80% ของขีดจำกัดรายเดือน {limit, number} โทเค็น",

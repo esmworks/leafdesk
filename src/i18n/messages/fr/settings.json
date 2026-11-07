@@ -1666,13 +1666,13 @@
       "linkHint": "Le lien d'accès demande alors l'accord d'un propriétaire au lieu d'ajouter les personnes tout de suite."
     },
     "dataHeading": "Exportation et applications connectées",
-    "export": {
-      "title": "Autoriser l’exportation",
-      "description": "Tout le monde dans l’espace de travail peut télécharger des pages en Markdown, CSV ou ZIP et les imprimer en PDF. Désactivé : ces options disparaissent pour tout le monde, propriétaires compris."
-    },
-    "exportOwners": {
-      "title": "Seuls les propriétaires peuvent exporter",
-      "description": "Les membres et les invités ne peuvent ni télécharger, ni imprimer les pages, ni s’abonner aux calendriers, et leurs webhooks et étapes Slack n’envoient rien. Les propriétaires le peuvent toujours tant que l’exportation est autorisée."
+    "exportBy": {
+      "title": "Qui peut exporter",
+      "description": "Télécharger les pages (Markdown, CSV, ZIP, PDF, Word), les imprimer et les flux de calendrier. Avec des pages seules, membres et invités impriment une page ou une ligne à la fois, sans ses sous-pages ni les bases de données qu’elle affiche. Avec propriétaires uniquement, ils ne peuvent rien sortir. Personne : désactivé aussi pour les propriétaires.",
+      "everyone": "Tout le monde",
+      "pages": "Propriétaires ; les autres impriment des pages seules",
+      "owners": "Propriétaires uniquement",
+      "off": "Personne"
     },
     "connectedApps": {
       "title": "Applications connectées et jetons d’API",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Toute personne ayant le lien d’accès",
       "members_with_approval": "Membres, avec l’accord d’un propriétaire",
       "any_member": "Propriétaires et membres",
-      "chosen": "Propriétaires et personnes et groupes choisis"
+      "chosen": "Propriétaires et personnes et groupes choisis",
+      "pages": "Propriétaires ; les autres impriment des pages seules"
     },
     "actions": {
       "member": {

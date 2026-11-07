@@ -34,7 +34,8 @@ import { ENGLISH_SYNCED_LABELS, expandSyncedMarkdown, type SyncedLabels } from "
 import { propertyAccessFor, type PropertyAccess } from "@/server/property-access";
 import { threadsVisibleTo } from "@/server/property-comments";
 import { refOf, storageResolver } from "@/server/storage/workspace";
-import { exportAllowed } from "@/server/workspaces";
+import { exportAllowed, exportReach } from "@/server/workspaces";
+import { noticeMassExport } from "@/server/mass-export";
 
 /**
  * Exports: one page as Markdown or one database as CSV or Excel (the page menu's "Export"), and a page with
@@ -354,6 +355,8 @@ export async function recordExport(userId: string, { workspaceId, page: exported
     target: exported ? { type: "page", id: exported.id, label: exported.title } : { type: "workspace", id: workspaceId },
     details: { format, ...(comments ? { comments: true } : {}), ...counts },
   });
+  // Many pages taken out one by one by someone who isn't an owner: the owners hear of it.
+  if (exported) await noticeMassExport(userId, workspaceId);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -388,6 +391,17 @@ export class ExportError extends Error {
  */
 export async function assertExportAllowed(workspaceId: string, userId: string) {
   if (!(await exportAllowed(workspaceId, userId))) throw new ExportError("disabled");
+}
+
+/**
+ * For the paths that print one page (the print view, PDF, Word): refuses `userId` when the
+ * workspace lets them take nothing out, and otherwise says whether they may have it all ("all") or
+ * this one page only ("page": no database, no subpages, nothing its body shows from databases).
+ */
+export async function assertPagePrintAllowed(workspaceId: string, userId: string): Promise<"all" | "page"> {
+  const reach = await exportReach(workspaceId, userId);
+  if (reach === "none") throw new ExportError("disabled");
+  return reach;
 }
 
 const MB = 1024 * 1024;

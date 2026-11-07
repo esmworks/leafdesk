@@ -44,7 +44,7 @@ import { isReservedEmail } from "@/lib/reserved-emails";
 import { isEmail, MAX_BULK_EMAILS, normalizeEmail } from "@/lib/emails";
 import { invitedTeamspaces } from "@/lib/invited-teamspaces";
 import { assignableRoles, invitationApplies, linkAccess, memberInviteMode, verifiedAllowedDomains } from "@/lib/membership-policy";
-import { managesPeople, mayChangeRole, mayDeleteForever, mayExport, mayRemove } from "@/lib/workspace-roles";
+import { exportReach as exportReachOf, managesPeople, mayChangeRole, mayDeleteForever, mayExport, mayRemove, type ExportReach } from "@/lib/workspace-roles";
 import { TRASH_RETENTION_CHOICES } from "@/lib/retention";
 import { parseDomains } from "@/lib/sso-config";
 import { parseCalloutStyles } from "@/lib/callout-styles-parse";
@@ -1633,7 +1633,7 @@ const SETTING_VALUES: {
   domainJoin: ["join", "request"],
   joinRequests: ["nobody", "allowed_domains", "anyone_with_link"],
   export: [true, false],
-  exportBy: ["everyone", "owners"],
+  exportBy: ["everyone", "pages", "owners"],
   connectedApps: CONNECTED_APPS_MODES,
   connectedAppsBy: ["everyone", "owners"],
   onlyApprovedApps: [false, true],
@@ -1911,6 +1911,16 @@ export async function publishingOn(workspaceId: string) {
 export async function exportAllowed(workspaceId: string, userId: string) {
   const settings = await workspaceSettings(workspaceId);
   return mayExport(settings, (await findMembership(userId, workspaceId))?.role ?? null);
+}
+
+/**
+ * How much the workspace lets `userId` take out (lib/workspace-roles.ts `exportReach`): "page" lets
+ * them print single pages only. Asked by the paths that print one page (the print view, PDF and
+ * Word); every other export asks `exportAllowed`, which is "all" only.
+ */
+export async function exportReach(workspaceId: string, userId: string): Promise<ExportReach> {
+  const settings = await workspaceSettings(workspaceId);
+  return exportReachOf(settings, (await findMembership(userId, workspaceId))?.role ?? null);
 }
 
 /**

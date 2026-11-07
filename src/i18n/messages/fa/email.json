@@ -299,6 +299,8 @@
     "pageReported": "یک بازدیدکننده این صفحه را گزارش کرد: {reason, select, spam {هرزنامه یا کلاهبرداری} harmful {محتوای نفرت‌آمیز، خشن یا آزاردهنده} illegal {محتوای غیرقانونی} privacy {اطلاعات شخصی} copyright {حق نشر} other {چیز دیگر}}.",
     "massTrash": "{actor} ردیف‌هایی از آن را به سطل زباله برد، در مجموع {count}",
     "massTrashDatabase": "{actor} آن را با {count} ردیف به سطل زباله برد",
+    "massExportTitle": "خروجی گرفتن از صفحه‌های زیاد",
+    "massExport": "{actor} در یک ساعت {count} صفحه را خروجی گرفت یا چاپ کرد",
     "aiLimitTitle": "هزینهٔ هوش مصنوعی",
     "aiLimit": {
       "near": "80٪ از سقف ماهانهٔ {limit, number} توکن خود را مصرف کرده است",

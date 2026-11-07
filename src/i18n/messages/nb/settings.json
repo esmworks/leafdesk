@@ -1666,13 +1666,13 @@
       "linkHint": "Bli med-lenken spør da en eier i stedet for å legge til personer med en gang."
     },
     "dataHeading": "Eksport og tilkoblede apper",
-    "export": {
-      "title": "Tillat eksport",
-      "description": "Alle i arbeidsområdet kan laste ned sider som Markdown, CSV eller ZIP og skrive dem ut til PDF. Av: disse valgene forsvinner for alle, også eiere."
-    },
-    "exportOwners": {
-      "title": "Bare eiere kan eksportere",
-      "description": "Medlemmer og gjester kan ikke laste ned eller skrive ut sider eller abonnere på kalendere, og webhookene og Slack-trinnene de setter opp, sender ingenting. Eiere kan fortsatt så lenge eksport er tillatt."
+    "exportBy": {
+      "title": "Hvem kan eksportere",
+      "description": "Laste ned sider (Markdown, CSV, ZIP, PDF, Word), skrive dem ut og kalenderfeeder. Med enkeltsider skriver medlemmer og gjester ut én side eller rad om gangen, uten undersider og uten databasene den viser. Med bare eiere kan de ikke ta ut noe. Ingen: også av for eiere.",
+      "everyone": "Alle",
+      "pages": "Eiere; andre skriver ut enkeltsider",
+      "owners": "Bare eiere",
+      "off": "Ingen"
     },
     "connectedApps": {
       "title": "Tilkoblede apper og API-tokener",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Alle som har bli med-lenken",
       "members_with_approval": "Medlemmer, med godkjenning fra en eier",
       "any_member": "Eiere og medlemmer",
-      "chosen": "Eiere og valgte personer og grupper"
+      "chosen": "Eiere og valgte personer og grupper",
+      "pages": "Eiere; andre skriver ut enkeltsider"
     },
     "actions": {
       "member": {

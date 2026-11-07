@@ -293,6 +293,8 @@
     "pageReported": "A visitor reported this page: {reason, select, spam {spam or a scam} harmful {hateful, violent or harassing content} illegal {illegal content} privacy {personal information} copyright {copyright} other {something else}}. Review it in Settings > Security.",
     "massTrash": "{actor} moved {count} rows of this database to the trash within an hour. Undo it from the database’s history.",
     "massTrashDatabase": "{actor} moved this database to the trash with its {count} rows. Restore it before the trash empties itself.",
+    "massExportTitle": "Many pages exported",
+    "massExport": "{actor} exported or printed {count} pages within an hour. See what in the audit log.",
     "aiLimitTitle": "AI spending",
     "aiLimit": {
       "near": "Used 80% of its monthly limit of {limit, number} tokens",

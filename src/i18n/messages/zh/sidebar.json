@@ -293,6 +293,8 @@
     "pageReported": "有访问者举报了此页面：{reason, select, spam {垃圾信息或诈骗} harmful {仇恨、暴力或骚扰内容} illegal {违法内容} privacy {个人信息} copyright {版权} other {其他}}。请在 设置 > 安全 中查看。",
     "massTrash": "{actor} 在一小时内将此数据库的 {count} 行移到了废纸篓。可在数据库历史中撤销。",
     "massTrashDatabase": "{actor} 将此数据库连同其 {count} 行移到了废纸篓。请在废纸篓清空前恢复。",
+    "massExportTitle": "导出了大量页面",
+    "massExport": "{actor} 在一小时内导出或打印了 {count} 个页面。可在审计日志中查看。",
     "aiLimitTitle": "AI 支出",
     "aiLimit": {
       "near": "已用完每月 {limit, number} 个令牌上限的 80%",

@@ -1666,13 +1666,13 @@
       "linkHint": "Tautan bergabung kemudian meminta persetujuan pemilik alih-alih langsung menambahkan orang."
     },
     "dataHeading": "Ekspor dan aplikasi terhubung",
-    "export": {
-      "title": "Izinkan ekspor",
-      "description": "Semua orang di ruang kerja dapat mengunduh halaman sebagai Markdown, CSV, atau ZIP dan mencetaknya ke PDF. Mati: opsi tersebut hilang untuk semua orang, termasuk pemilik."
-    },
-    "exportOwners": {
-      "title": "Hanya pemilik yang dapat mengekspor",
-      "description": "Anggota dan tamu tidak dapat mengunduh atau mencetak halaman atau berlangganan kalender, dan webhook serta langkah Slack yang mereka siapkan tidak mengirim apa pun. Pemilik tetap bisa selama ekspor diizinkan."
+    "exportBy": {
+      "title": "Siapa yang dapat mengekspor",
+      "description": "Mengunduh halaman (Markdown, CSV, ZIP, PDF, Word), mencetaknya, dan feed kalender. Dengan satu halaman, anggota dan tamu mencetak satu halaman atau baris setiap kali, tanpa subhalaman dan database yang ditampilkannya. Dengan hanya pemilik, mereka tidak dapat membawa keluar apa pun. Tidak ada: mati juga untuk pemilik.",
+      "everyone": "Semua orang",
+      "pages": "Pemilik; yang lain mencetak satu halaman",
+      "owners": "Hanya pemilik",
+      "off": "Tidak ada"
     },
     "connectedApps": {
       "title": "Aplikasi terhubung dan token API",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Siapa pun yang memiliki tautan bergabung",
       "members_with_approval": "Anggota, dengan persetujuan pemilik",
       "any_member": "Pemilik dan anggota",
-      "chosen": "Pemilik serta orang dan grup yang dipilih"
+      "chosen": "Pemilik serta orang dan grup yang dipilih",
+      "pages": "Pemilik; yang lain mencetak satu halaman"
     },
     "actions": {
       "member": {

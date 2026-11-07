@@ -24,7 +24,7 @@ const PAGE_CSS = "@page { margin: 16mm 15mm; }";
 export async function PrintView({
   doc,
   pageId,
-  subpages,
+  subpages: asked,
   auto,
 }: {
   doc: PrintDocument;
@@ -34,6 +34,8 @@ export async function PrintView({
 }) {
   const [t, format] = await Promise.all([getTranslations("page.print"), getFormatter()]);
   const root = doc.sections[0];
+  // Someone who may print one page at a time gets no subpages, whatever the address asks.
+  const subpages = asked && !doc.onePage;
   return (
     <div data-print-view="" className={cn("min-h-full bg-bg text-fg", styles.printView)}>
       <style>{PAGE_CSS}</style>
@@ -41,7 +43,7 @@ export async function PrintView({
         workspaceId={doc.workspaceId}
         pageId={pageId}
         subpages={subpages}
-        canIncludeSubpages={root.kind !== "database"}
+        canIncludeSubpages={root.kind !== "database" && !doc.onePage}
         auto={auto}
       />
       <main className="mx-auto w-full max-w-[900px] px-4 pt-10 pb-24 sm:px-[54px] print:max-w-none print:p-0">

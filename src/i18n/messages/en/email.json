@@ -299,6 +299,8 @@
     "pageReported": "A visitor reported this page: {reason, select, spam {spam or a scam} harmful {hateful, violent or harassing content} illegal {illegal content} privacy {personal information} copyright {copyright} other {something else}}.",
     "massTrash": "{actor} moved {count} of its rows to the trash",
     "massTrashDatabase": "{actor} moved it to the trash with {count} rows",
+    "massExportTitle": "Many pages exported",
+    "massExport": "{actor} exported or printed {count} pages within an hour",
     "aiLimitTitle": "AI spending",
     "aiLimit": {
       "near": "Used 80% of its monthly limit of {limit, number} tokens",

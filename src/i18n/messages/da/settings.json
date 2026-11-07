@@ -1666,13 +1666,13 @@
       "linkHint": "Deltagelseslinket spørger så en ejer i stedet for at tilføje personer med det samme."
     },
     "dataHeading": "Eksport og forbundne apps",
-    "export": {
-      "title": "Tillad eksport",
-      "description": "Alle i arbejdsområdet kan downloade sider som Markdown, CSV eller ZIP og udskrive dem til PDF. Fra: de muligheder forsvinder for alle, også ejere."
-    },
-    "exportOwners": {
-      "title": "Kun ejere kan eksportere",
-      "description": "Medlemmer og gæster kan ikke downloade eller udskrive sider eller abonnere på kalendere, og de webhooks og Slack-trin, de sætter op, sender intet. Ejere kan stadig, så længe eksport er tilladt."
+    "exportBy": {
+      "title": "Hvem kan eksportere",
+      "description": "Download af sider (Markdown, CSV, ZIP, PDF, Word), udskrivning og kalenderfeeds. Med enkelte sider udskriver medlemmer og gæster én side eller række ad gangen, uden undersider og uden de databaser, den viser. Med kun ejere kan de intet tage med ud. Ingen: også slået fra for ejere.",
+      "everyone": "Alle",
+      "pages": "Ejere; andre udskriver enkelte sider",
+      "owners": "Kun ejere",
+      "off": "Ingen"
     },
     "connectedApps": {
       "title": "Forbundne apps og API-tokens",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Alle med deltagelseslinket",
       "members_with_approval": "Medlemmer, med en ejers godkendelse",
       "any_member": "Ejere og medlemmer",
-      "chosen": "Ejere og valgte personer og grupper"
+      "chosen": "Ejere og valgte personer og grupper",
+      "pages": "Ejere; andre udskriver enkelte sider"
     },
     "actions": {
       "member": {

@@ -1666,13 +1666,13 @@
       "linkHint": "此时加入链接会向所有者发送申请，而不是直接添加人员。"
     },
     "dataHeading": "导出和已连接的应用",
-    "export": {
-      "title": "允许导出",
-      "description": "工作区中的每个人都可以将页面下载为 Markdown、CSV 或 ZIP，并打印为 PDF。关闭时：这些选项对所有人（包括所有者）都不可用。"
-    },
-    "exportOwners": {
-      "title": "仅所有者可以导出",
-      "description": "成员和访客无法下载或打印页面，也无法订阅日历，他们设置的 Webhook 和 Slack 步骤不会发送任何内容。在允许导出期间，所有者仍然可以。"
+    "exportBy": {
+      "title": "谁可以导出",
+      "description": "下载页面（Markdown、CSV、ZIP、PDF、Word）、打印页面和日历订阅。逐页打印时，成员和访客每次打印一个页面或一行，不含子页面和页面中显示的数据库。仅所有者时，他们无法带走任何内容。无人：所有者也无法使用。",
+      "everyone": "所有人",
+      "pages": "所有者；其他人只能逐页打印",
+      "owners": "仅所有者",
+      "off": "无人"
     },
     "connectedApps": {
       "title": "已连接的应用和 API 令牌",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "任何拥有加入链接的人",
       "members_with_approval": "成员，需经所有者批准",
       "any_member": "所有者和成员",
-      "chosen": "所有者以及选定的人员和用户组"
+      "chosen": "所有者以及选定的人员和用户组",
+      "pages": "所有者；其他人只能逐页打印"
     },
     "actions": {
       "member": {

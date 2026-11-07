@@ -293,6 +293,8 @@
     "pageReported": "Seorang pengunjung melaporkan halaman ini: {reason, select, spam {spam atau penipuan} harmful {konten kebencian, kekerasan, atau pelecehan} illegal {konten ilegal} privacy {informasi pribadi} copyright {hak cipta} other {hal lain}}. Tinjau di Pengaturan > Keamanan.",
     "massTrash": "{actor} memindahkan {count} baris database ini ke tempat sampah dalam satu jam. Urungkan dari riwayat database.",
     "massTrashDatabase": "{actor} memindahkan database ini ke tempat sampah beserta {count} barisnya. Pulihkan sebelum tempat sampah dikosongkan.",
+    "massExportTitle": "Banyak halaman diekspor",
+    "massExport": "{actor} mengekspor atau mencetak {count} halaman dalam satu jam. Lihat yang mana di log audit.",
     "aiLimitTitle": "Pengeluaran AI",
     "aiLimit": {
       "near": "Telah memakai 80% dari batas bulanan {limit, number} token",

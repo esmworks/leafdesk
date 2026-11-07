@@ -299,6 +299,8 @@
     "pageReported": "מבקר דיווח על הדף הזה: {reason, select, spam {ספאם או הונאה} harmful {תוכן של שנאה, אלימות או הטרדה} illegal {תוכן לא חוקי} privacy {מידע אישי} copyright {זכויות יוצרים} other {משהו אחר}}.",
     "massTrash": "{actor} העביר/ה לפח משורותיו, בסך הכול {count}",
     "massTrashDatabase": "{actor} העביר/ה אותו לפח יחד עם {count} שורות",
+    "massExportTitle": "יוצאו דפים רבים",
+    "massExport": "{actor} ייצא או הדפיס {count} דפים בתוך שעה",
     "aiLimitTitle": "הוצאות AI",
     "aiLimit": {
       "near": "נוצלו 80% מהמגבלה החודשית של {limit, number} אסימונים",

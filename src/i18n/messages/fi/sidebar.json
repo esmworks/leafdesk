@@ -293,6 +293,8 @@
     "pageReported": "Vierailija ilmoitti tästä sivusta: {reason, select, spam {roskapostia tai huijaus} harmful {vihamielistä, väkivaltaista tai häiritsevää sisältöä} illegal {laitonta sisältöä} privacy {henkilötietoja} copyright {tekijänoikeus} other {jotain muuta}}. Tarkista se kohdassa Asetukset > Tietoturva.",
     "massTrash": "{actor} siirsi tunnin sisällä tämän tietokannan rivejä roskakoriin, yhteensä {count}. Peru se tietokannan historiasta.",
     "massTrashDatabase": "{actor} siirsi tämän tietokannan roskakoriin, ja sen mukana rivejä {count}. Palauta se ennen kuin roskakori tyhjenee.",
+    "massExportTitle": "Paljon sivuja viety",
+    "massExport": "{actor} vei tai tulosti {count} sivua tunnin sisällä. Katso mitkä tarkistuslokista.",
     "aiLimitTitle": "Tekoälyn kulutus",
     "aiLimit": {
       "near": "On käyttänyt 80 % kuukausirajastaan, {limit, number} tokenia",

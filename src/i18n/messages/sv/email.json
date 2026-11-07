@@ -299,6 +299,8 @@
     "pageReported": "En besökare anmälde den här sidan: {reason, select, spam {spam eller bedrägeri} harmful {hatiskt, våldsamt eller trakasserande innehåll} illegal {olagligt innehåll} privacy {personuppgifter} copyright {upphovsrätt} other {något annat}}.",
     "massTrash": "{actor} flyttade {count} av dess rader till papperskorgen",
     "massTrashDatabase": "{actor} flyttade den till papperskorgen med {count} rader",
+    "massExportTitle": "Många sidor exporterade",
+    "massExport": "{actor} exporterade eller skrev ut {count} sidor inom en timme",
     "aiLimitTitle": "AI-kostnader",
     "aiLimit": {
       "near": "Har använt 80 % av månadsgränsen på {limit, number} tokens",

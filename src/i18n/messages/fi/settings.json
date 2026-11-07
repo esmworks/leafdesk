@@ -1666,13 +1666,13 @@
       "linkHint": "Liittymislinkki kysyy tällöin omistajalta sen sijaan, että lisäisi ihmiset heti."
     },
     "dataHeading": "Vienti ja yhdistetyt sovellukset",
-    "export": {
-      "title": "Salli vienti",
-      "description": "Kaikki työtilassa voivat ladata sivuja Markdown-, CSV- tai ZIP-muodossa ja tulostaa niitä PDF:ksi. Pois päältä: nämä vaihtoehdot poistuvat kaikilta, myös omistajilta."
-    },
-    "exportOwners": {
-      "title": "Vain omistajat voivat viedä",
-      "description": "Jäsenet ja vieraat eivät voi ladata tai tulostaa sivuja tai tilata kalentereita, eivätkä heidän määrittämänsä webhookit ja Slack-vaiheet lähetä mitään. Omistajat voivat yhä, kun vienti on sallittu."
+    "exportBy": {
+      "title": "Kuka voi viedä",
+      "description": "Sivujen lataaminen (Markdown, CSV, ZIP, PDF, Word), tulostaminen ja kalenterisyötteet. Yksittäisillä sivuilla jäsenet ja vieraat tulostavat yhden sivun tai rivin kerrallaan ilman alasivuja ja sivulla näkyviä tietokantoja. Vain omistajat -asetuksella he eivät voi viedä mitään. Ei kukaan: pois myös omistajilta.",
+      "everyone": "Kaikki",
+      "pages": "Omistajat; muut tulostavat yksittäisiä sivuja",
+      "owners": "Vain omistajat",
+      "off": "Ei kukaan"
     },
     "connectedApps": {
       "title": "Yhdistetyt sovellukset ja API-tunnukset",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Kuka tahansa, jolla on liittymislinkki",
       "members_with_approval": "Jäsenet, omistajan hyväksynnällä",
       "any_member": "Omistajat ja jäsenet",
-      "chosen": "Omistajat sekä valitut henkilöt ja ryhmät"
+      "chosen": "Omistajat sekä valitut henkilöt ja ryhmät",
+      "pages": "Omistajat; muut tulostavat yksittäisiä sivuja"
     },
     "actions": {
       "member": {

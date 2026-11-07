@@ -1,5 +1,6 @@
 import { ICON_INPUT } from "@/lib/icon";
 import { MAX_ROW_BUTTON_LABEL, ROW_BUTTON_COLORS, type RowButtonOptions } from "@/lib/row-buttons";
+import { parseMassExport } from "@/lib/mass-export";
 import { parseMassTrash } from "@/lib/mass-trash";
 import { Readable } from "node:stream";
 import { type CallToolResult, McpServer, ProtocolError, ProtocolErrorCode, type ScopeChallengeHandler } from "@modelcontextprotocol/server";
@@ -1706,6 +1707,20 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                   notice?.what === "database"
                     ? `${n.actorName ?? "Someone"} moved the database "${pageLabel(n.pageTitle)}" to the trash with its ${notice.count} rows; restore it from the trash before the workspace's retention deletes it`
                     : `${n.actorName ?? "Someone"} moved ${notice?.count ?? "many"} rows of the database "${pageLabel(n.pageTitle)}" to the trash within an hour; undo it from the database's history`,
+                actor: n.actorName ?? null,
+                workspace_id: n.workspaceId,
+                workspace_name: n.workspaceName,
+                url: `${env.appUrl}${pushLink(n)}`,
+              };
+            }
+            // Many pages exported or printed by someone else: owners see which in the audit log.
+            if (n.kind === "mass_export") {
+              return {
+                id: n.id,
+                kind: n.kind,
+                read: n.read,
+                created_at: n.createdAt.toISOString(),
+                summary: `${n.actorName ?? "Someone"} exported or printed ${parseMassExport(n.automationMessage)?.count ?? "many"} pages within an hour; the audit log shows which`,
                 actor: n.actorName ?? null,
                 workspace_id: n.workspaceId,
                 workspace_name: n.workspaceName,

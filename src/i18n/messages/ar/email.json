@@ -299,6 +299,8 @@
     "pageReported": "أبلغ زائر عن هذه الصفحة: {reason, select, spam {رسائل مزعجة أو احتيال} harmful {محتوى يحض على الكراهية أو العنف أو التحرش} illegal {محتوى غير قانوني} privacy {معلومات شخصية} copyright {حقوق النشر} other {شيء آخر}}.",
     "massTrash": "نقل {actor} من صفوفها إلى سلة المهملات: {count}",
     "massTrashDatabase": "نقلها {actor} إلى سلة المهملات مع صفوف عددها: {count}",
+    "massExportTitle": "تصدير صفحات كثيرة",
+    "massExport": "صدّر {actor} أو طبع {count} صفحة خلال ساعة",
     "aiLimitTitle": "إنفاق الذكاء الاصطناعي",
     "aiLimit": {
       "near": "استخدم 80% من حده الشهري البالغ {limit, number} رمز",

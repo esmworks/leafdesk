@@ -1666,13 +1666,13 @@
       "linkHint": "The join link then asks an owner instead of adding people right away."
     },
     "dataHeading": "Export and connected apps",
-    "export": {
-      "title": "Allow export",
-      "description": "Everyone in the workspace can download pages as Markdown, CSV or ZIP and print them to PDF. Off: those options are gone for everyone, owners included."
-    },
-    "exportOwners": {
-      "title": "Only owners can export",
-      "description": "Members and guests can’t download or print pages or subscribe to calendars, and the webhooks and Slack steps they set up send nothing. Owners still can while export is allowed."
+    "exportBy": {
+      "title": "Who can export",
+      "description": "Downloading pages (Markdown, CSV, ZIP, PDF, Word), printing them and calendar feeds. With single pages, members and guests print one page or row at a time, without its subpages or the databases it shows. With owners only, they can’t take anything out. Nobody: off for owners too.",
+      "everyone": "Everyone",
+      "pages": "Owners; others print single pages",
+      "owners": "Owners only",
+      "off": "Nobody"
     },
     "connectedApps": {
       "title": "Connected apps and API tokens",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Anyone with the join link",
       "members_with_approval": "Members, with an owner’s approval",
       "any_member": "Owners and members",
-      "chosen": "Owners and chosen people and groups"
+      "chosen": "Owners and chosen people and groups",
+      "pages": "Owners; others print single pages"
     },
     "actions": {
       "member": {

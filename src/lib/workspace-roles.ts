@@ -39,13 +39,22 @@ export const mayRemove = (actor: WorkspaceRole | null | undefined, target: Works
 export const ROLE_ORDER: Record<WorkspaceRole, number> = { owner: 0, membership_admin: 1, member: 2, guest: 3 };
 
 /**
- * Whether someone with `role` (null: not in the workspace) may take its pages out as files, or
- * send them out, under its settings: not while export is off, and only owners while owners keep it
- * to themselves (`exportBy`). Read by server/workspaces.ts `exportAllowed`.
+ * How much of the workspace someone with `role` (null: not in the workspace) may take out as files,
+ * or send out, under its settings: "all", "page" (one page at a time, printed: the print view, a
+ * PDF or a Word document of a page or a row, nothing it shows from databases; see `exportBy`) or
+ * "none". Nothing while export is off; while owners keep it to themselves, the others get nothing
+ * (`exportBy` "owners") or single pages ("pages").
  */
+export type ExportReach = "all" | "page" | "none";
+export function exportReach(settings: Pick<WorkspaceSettings, "export" | "exportBy">, role: WorkspaceRole | null): ExportReach {
+  if (settings.export === false || !role) return "none";
+  if (role === "owner" || settings.exportBy === "everyone" || !settings.exportBy) return "all";
+  return settings.exportBy === "pages" ? "page" : "none";
+}
+
+/** Whether `exportReach` lets them take anything out, as they like. Read by server/workspaces.ts `exportAllowed`. */
 export function mayExport(settings: Pick<WorkspaceSettings, "export" | "exportBy">, role: WorkspaceRole | null) {
-  if (settings.export === false || !role) return false;
-  return settings.exportBy !== "owners" || role === "owner";
+  return exportReach(settings, role) === "all";
 }
 
 /** Whether someone with `role` may delete the trash's pages for good, beside the full access that takes (`deleteForever`). */

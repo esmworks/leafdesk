@@ -293,6 +293,8 @@
     "pageReported": "Ein Besucher hat diese Seite gemeldet: {reason, select, spam {Spam oder Betrug} harmful {hassvolle, gewalttätige oder belästigende Inhalte} illegal {rechtswidrige Inhalte} privacy {persönliche Daten} copyright {Urheberrecht} other {etwas anderes}}. Prüfen Sie es unter Einstellungen > Sicherheit.",
     "massTrash": "{actor} hat innerhalb einer Stunde {count} Zeilen dieser Datenbank in den Papierkorb verschoben. Mach es im Verlauf der Datenbank rückgängig.",
     "massTrashDatabase": "{actor} hat diese Datenbank mit ihren {count} Zeilen in den Papierkorb verschoben. Stelle sie wieder her, bevor sich der Papierkorb leert.",
+    "massExportTitle": "Viele Seiten exportiert",
+    "massExport": "{actor} hat innerhalb einer Stunde {count} Seiten exportiert oder gedruckt. Welche, steht im Audit-Log.",
     "aiLimitTitle": "KI-Ausgaben",
     "aiLimit": {
       "near": "80 % des monatlichen Limits von {limit, number} Tokens verbraucht",

@@ -2,7 +2,8 @@
  * End-to-end check against the database of what owners can keep to themselves (Settings →
  * Security): exporting (`exportBy`), connected apps (`connectedAppsBy`) and deleting for good
  * (`deleteForever`), and the notice they get when someone else trashes many rows of a database
- * (server/mass-trash.ts). The member here has full access to the database, as members of a
+ * (server/mass-trash.ts) or exports many pages (server/mass-export.ts), and printing single pages
+ * only (`exportBy` "pages"). The member here has full access to the database, as members of a
  * teamspace giving full access do. Creates its own users and workspace and deletes them afterwards.
  *
  *   pnpm tsx scripts/owner-controls-e2e.ts
@@ -27,14 +28,22 @@ const { getPageHeaderInfo } = await import("@/server/page-meta");
 const { archivePage, archiveRows, deletePagePermanently, listTrash, restorePage } = await import("@/server/pages");
 const { addProperty, deleteProperty, purgeProperty } = await import("@/server/databases");
 const { setPagePermission } = await import("@/server/permissions");
-const { exportAllowed, updateWorkspaceSettings } = await import("@/server/workspaces");
+const { exportAllowed, exportReach, updateWorkspaceSettings } = await import("@/server/workspaces");
+const { printDocument } = await import("@/server/print");
+const { pageDocument } = await import("@/server/pdf");
 const { MASS_TRASH_ROWS } = await import("@/lib/mass-trash");
+const { MASS_EXPORT_PAGES, parseMassExport } = await import("@/lib/mass-export");
 
 const RUN = `owner-controls-e2e-${Date.now().toString(36)}`;
 
 // Writes notify open editors through the collab service, which only runs inside the app server.
+// The page body read back is a database block showing the customers on the notes page alone.
+const bodies = new Map<string, unknown[]>();
 registerCollab(
-  new Proxy({}, { get: () => async () => undefined }) as unknown as Parameters<typeof registerCollab>[0],
+  new Proxy(
+    {},
+    { get: (_, name) => (name === "readBlocks" ? async (pageId: string) => ({ title: "", blocks: bodies.get(pageId) ?? [] }) : async () => undefined) },
+  ) as unknown as Parameters<typeof registerCollab>[0],
 );
 
 let passed = 0;
@@ -97,6 +106,60 @@ try {
   check(!(await exportAllowed(workspaceId, owner)), "export off holds owners too");
   await updateWorkspaceSettings(owner, workspaceId, { export: true, exportBy: "everyone" });
   check(await exportAllowed(workspaceId, bob), "back to everyone");
+
+  // Single pages only
+  const notes = `${RUN}-notes`;
+  await db.insert(page).values([
+    { id: notes, workspaceId, parentId: null, title: "Notes", position: 9, createdBy: owner },
+    { id: `${notes}-sub`, workspaceId, parentId: notes, title: "Sub", position: 0, createdBy: owner },
+  ]);
+  await setPagePermission(owner, notes, null, "full");
+  bodies.set(notes, [
+    { id: "intro", type: "paragraph", props: {}, content: [{ type: "text", text: "Our customers", styles: {} }], children: [] },
+    { id: "list", type: "database", props: { databaseId: customers.id }, children: [] },
+  ]);
+  await updateWorkspaceSettings(owner, workspaceId, { exportBy: "pages" });
+  check((await exportReach(workspaceId, bob)) === "page" && !(await exportAllowed(workspaceId, bob)), "single pages: the member may print one page, export nothing else");
+  check((await exportReach(workspaceId, owner)) === "all", "…the owner everything");
+  check(code(await refused(assertExportAllowed(workspaceId, bob))) === "disabled", "…so CSV, ZIP and the rest refuse the member");
+  const rowInfo = await getPageHeaderInfo(bob, customers.rowIds[5]);
+  check(!rowInfo.exportable && rowInfo.printsPage, "…whose row menu offers its PDF and print view");
+  check(!(await getPageHeaderInfo(bob, customers.id)).printsPage, "…and the database's menu nothing");
+  const rowPrint = await printDocument(bob, customers.rowIds[5]);
+  check(rowPrint.onePage && rowPrint.sections.length === 1, "the member prints a row");
+  check(code(await refused(printDocument(bob, customers.id))) === "disabled", "…not the database");
+  const notesPrint = await printDocument(bob, notes, { subpages: true });
+  const embedOf = (doc: typeof notesPrint) => doc.sections[0].body.find((b) => b.kind === "embed");
+  check(notesPrint.sections.length === 1, "…a page without its subpages, though asked", notesPrint.sections.length);
+  check(embedOf(notesPrint)?.kind === "embed" && (embedOf(notesPrint) as { database: unknown }).database === null, "…and the database it shows as unavailable", embedOf(notesPrint));
+  const ownersPrint = await printDocument(owner, notes, { subpages: true });
+  check(ownersPrint.sections.length === 2 && (embedOf(ownersPrint) as { database: unknown } | undefined)?.database, "the owner prints it with its subpage and the customers");
+  check((await pageDocument(bob, notes)).input.sections[0].embeds.size === 0, "the member's PDF of the page leaves the customers out");
+  check((await pageDocument(owner, notes)).input.sections[0].embeds.size === 1, "…the owner's has them");
+  check(code(await refused(pageDocument(bob, customers.id))) === "disabled", "…and the member gets no PDF of the database");
+
+  // Pages printed one by one: the member has printed a row and the notes page so far.
+  const exportNotices = () =>
+    db
+      .select({ userId: notification.userId, actorId: notification.actorId, message: notification.message, pageId: notification.pageId })
+      .from(notification)
+      .where(and(eq(notification.kind, "mass_export"), eq(notification.workspaceId, workspaceId)));
+  for (let i = 0; i < MASS_EXPORT_PAGES - 3; i++) await printDocument(bob, customers.rowIds[i + 1]);
+  check((await exportNotices()).length === 0, `fewer than ${MASS_EXPORT_PAGES} pages printed: owners aren't told`);
+  await printDocument(bob, customers.rowIds[25]);
+  const exportTold = await exportNotices();
+  check(
+    exportTold.length === 2 &&
+      exportTold.every((n) => n.actorId === bob && n.pageId === null && parseMassExport(n.message)?.count === MASS_EXPORT_PAGES && parseMassExport(n.message)?.actorId === bob) &&
+      exportTold.map((n) => n.userId).sort().join() === [owner, other].sort().join(),
+    `the ${MASS_EXPORT_PAGES}th page printed tells both owners`,
+    exportTold,
+  );
+  await printDocument(bob, customers.rowIds[26]);
+  check((await exportNotices()).length === 2, "…once an hour per person");
+  for (let i = 0; i < MASS_EXPORT_PAGES; i++) await printDocument(owner, customers.rowIds[i]);
+  check((await exportNotices()).length === 2, "an owner's own prints aren't told");
+  await updateWorkspaceSettings(owner, workspaceId, { exportBy: "everyone" });
 
   // Connected apps
   const asApp = (userId: string) => runAsConnectedApp({ userId }, () => requirePageAccess(userId, customers.id, "view"));

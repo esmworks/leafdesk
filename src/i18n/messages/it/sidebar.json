@@ -293,6 +293,8 @@
     "pageReported": "Un visitatore ha segnalato questa pagina: {reason, select, spam {spam o truffa} harmful {contenuti di odio, violenti o molesti} illegal {contenuti illegali} privacy {dati personali} copyright {diritto d'autore} other {altro}}. Controlla in Impostazioni > Sicurezza.",
     "massTrash": "{actor} ha spostato nel cestino {count} righe di questo database in meno di un’ora. Annulla dalla cronologia del database.",
     "massTrashDatabase": "{actor} ha spostato nel cestino questo database con le sue {count} righe. Ripristinalo prima che il cestino si svuoti.",
+    "massExportTitle": "Molte pagine esportate",
+    "massExport": "{actor} ha esportato o stampato {count} pagine in un’ora. Vedi quali nel registro di controllo.",
     "aiLimitTitle": "Spesa IA",
     "aiLimit": {
       "near": "Utilizzato l’80% del limite mensile di {limit, number} token",

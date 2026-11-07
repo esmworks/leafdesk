@@ -293,6 +293,8 @@
     "pageReported": "Een bezoeker heeft deze pagina gemeld: {reason, select, spam {spam of oplichting} harmful {haatdragende, gewelddadige of intimiderende inhoud} illegal {illegale inhoud} privacy {persoonsgegevens} copyright {auteursrecht} other {iets anders}}. Bekijk het in Instellingen > Beveiliging.",
     "massTrash": "{actor} heeft binnen een uur {count} rijen van deze database naar de prullenbak verplaatst. Maak het ongedaan vanuit de geschiedenis van de database.",
     "massTrashDatabase": "{actor} heeft deze database met haar {count} rijen naar de prullenbak verplaatst. Zet haar terug voordat de prullenbak zich leegt.",
+    "massExportTitle": "Veel pagina’s geëxporteerd",
+    "massExport": "{actor} heeft binnen een uur {count} pagina’s geëxporteerd of geprint. Welke staat in het auditlogboek.",
     "aiLimitTitle": "AI-uitgaven",
     "aiLimit": {
       "near": "80% van de maandlimiet van {limit, number} tokens gebruikt",

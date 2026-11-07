@@ -1666,13 +1666,13 @@
       "linkHint": "Khi đó liên kết tham gia sẽ hỏi một chủ sở hữu thay vì thêm người ngay."
     },
     "dataHeading": "Xuất và ứng dụng đã kết nối",
-    "export": {
-      "title": "Cho phép xuất",
-      "description": "Mọi người trong không gian làm việc có thể tải trang xuống dưới dạng Markdown, CSV hoặc ZIP và in ra PDF. Tắt: các tùy chọn đó biến mất với tất cả mọi người, kể cả chủ sở hữu."
-    },
-    "exportOwners": {
-      "title": "Chỉ chủ sở hữu được xuất",
-      "description": "Thành viên và khách không thể tải xuống hay in trang hoặc đăng ký lịch, và webhook cùng các bước Slack họ thiết lập không gửi gì. Chủ sở hữu vẫn làm được khi việc xuất được cho phép."
+    "exportBy": {
+      "title": "Ai có thể xuất",
+      "description": "Tải trang xuống (Markdown, CSV, ZIP, PDF, Word), in trang và nguồn cấp lịch. Với từng trang, thành viên và khách in mỗi lần một trang hoặc một hàng, không kèm trang con và các cơ sở dữ liệu trang đó hiển thị. Với chỉ chủ sở hữu, họ không thể mang gì ra ngoài. Không ai: tắt cả với chủ sở hữu.",
+      "everyone": "Mọi người",
+      "pages": "Chủ sở hữu; người khác in từng trang",
+      "owners": "Chỉ chủ sở hữu",
+      "off": "Không ai"
     },
     "connectedApps": {
       "title": "Ứng dụng đã kết nối và token API",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Bất kỳ ai có liên kết tham gia",
       "members_with_approval": "Thành viên, với sự chấp thuận của chủ sở hữu",
       "any_member": "Chủ sở hữu và thành viên",
-      "chosen": "Chủ sở hữu cùng những người và nhóm được chọn"
+      "chosen": "Chủ sở hữu cùng những người và nhóm được chọn",
+      "pages": "Chủ sở hữu; người khác in từng trang"
     },
     "actions": {
       "member": {

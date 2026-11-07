@@ -1666,13 +1666,13 @@
       "linkHint": "Link do dołączenia wysyła wtedy prośbę do właściciela, zamiast od razu dodawać osoby."
     },
     "dataHeading": "Eksport i połączone aplikacje",
-    "export": {
-      "title": "Zezwól na eksport",
-      "description": "Każdy w obszarze roboczym może pobierać strony jako Markdown, CSV lub ZIP i drukować je do PDF. Wyłączone: te opcje znikają dla wszystkich, także dla właścicieli."
-    },
-    "exportOwners": {
-      "title": "Tylko właściciele mogą eksportować",
-      "description": "Członkowie i goście nie mogą pobierać ani drukować stron ani subskrybować kalendarzy, a ustawione przez nich webhooki i kroki Slacka niczego nie wysyłają. Właściciele nadal mogą, dopóki eksport jest dozwolony."
+    "exportBy": {
+      "title": "Kto może eksportować",
+      "description": "Pobieranie stron (Markdown, CSV, ZIP, PDF, Word), ich drukowanie i kanały kalendarzy. Przy pojedynczych stronach członkowie i goście drukują jedną stronę lub wiersz naraz, bez podstron i bez baz danych, które pokazuje. Przy opcji tylko właściciele nie mogą niczego wynieść. Nikt: wyłączone także dla właścicieli.",
+      "everyone": "Wszyscy",
+      "pages": "Właściciele; pozostali drukują pojedyncze strony",
+      "owners": "Tylko właściciele",
+      "off": "Nikt"
     },
     "connectedApps": {
       "title": "Połączone aplikacje i tokeny API",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Każdy, kto ma link do dołączenia",
       "members_with_approval": "Członkowie, za zgodą właściciela",
       "any_member": "Właściciele i członkowie",
-      "chosen": "Właściciele oraz wybrane osoby i grupy"
+      "chosen": "Właściciele oraz wybrane osoby i grupy",
+      "pages": "Właściciele; pozostali drukują pojedyncze strony"
     },
     "actions": {
       "member": {

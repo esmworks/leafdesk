@@ -299,6 +299,8 @@
     "pageReported": "Een bezoeker heeft deze pagina gemeld: {reason, select, spam {spam of oplichting} harmful {haatdragende, gewelddadige of intimiderende inhoud} illegal {illegale inhoud} privacy {persoonsgegevens} copyright {auteursrecht} other {iets anders}}.",
     "massTrash": "{actor} heeft {count} van haar rijen naar de prullenbak verplaatst",
     "massTrashDatabase": "{actor} heeft haar met {count} rijen naar de prullenbak verplaatst",
+    "massExportTitle": "Veel pagina’s geëxporteerd",
+    "massExport": "{actor} heeft binnen een uur {count} pagina’s geëxporteerd of geprint",
     "aiLimitTitle": "AI-uitgaven",
     "aiLimit": {
       "near": "80% van de maandlimiet van {limit, number} tokens gebruikt",

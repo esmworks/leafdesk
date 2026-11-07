@@ -980,7 +980,7 @@ function PageMenu({
         )}
       >
         {(close) =>
-          menuPage === "export" && info.exportable ? (
+          menuPage === "export" && (info.exportable || info.printsPage) ? (
             <div className={cn(pending && "pointer-events-none opacity-70")}>
               <div className="flex items-center gap-1 px-1 pb-1">
                 <button
@@ -993,55 +993,60 @@ function PageMenu({
                 </button>
                 <span className="text-sm font-medium">{t("export")}</span>
               </div>
-              <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={t("exportCommentsHint")}>
-                <MessageSquare className="h-4 w-4 text-fg-muted" />
-                <span className="flex-1">{t("exportComments")}</span>
-                <Switch checked={exportComments} onChange={setExportComments} label={t("exportComments")} />
-              </div>
-              <a
-                href={`/w/${workspaceId}/p/${page.id}/export${exportComments && !isDatabase ? "?comments=1" : ""}`}
-                download
-                onClick={() => close()}
-                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
-              >
-                <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
-                  {isDatabase ? <Download className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
-                </span>
-                <span className="flex-1 truncate">{isDatabase ? t("exportCsv") : t("exportMarkdown")}</span>
-              </a>
-              {isDatabase && (
-                <a
-                  href={`/w/${workspaceId}/p/${page.id}/export?format=xlsx`}
-                  download
-                  onClick={() => close()}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
-                >
-                  <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
-                    <FileSpreadsheet className="h-4 w-4" />
-                  </span>
-                  <span className="flex-1 truncate">{t("exportXlsx")}</span>
-                </a>
+              {/* Someone who may print single pages only gets the PDF, Word and print view below. */}
+              {info.exportable && (
+                <>
+                  <div className="flex items-center gap-2 rounded px-2 py-1.5 text-sm" title={t("exportCommentsHint")}>
+                    <MessageSquare className="h-4 w-4 text-fg-muted" />
+                    <span className="flex-1">{t("exportComments")}</span>
+                    <Switch checked={exportComments} onChange={setExportComments} label={t("exportComments")} />
+                  </div>
+                  <a
+                    href={`/w/${workspaceId}/p/${page.id}/export${exportComments && !isDatabase ? "?comments=1" : ""}`}
+                    download
+                    onClick={() => close()}
+                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
+                  >
+                    <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
+                      {isDatabase ? <Download className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                    </span>
+                    <span className="flex-1 truncate">{isDatabase ? t("exportCsv") : t("exportMarkdown")}</span>
+                  </a>
+                  {isDatabase && (
+                    <a
+                      href={`/w/${workspaceId}/p/${page.id}/export?format=xlsx`}
+                      download
+                      onClick={() => close()}
+                      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
+                    >
+                      <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
+                        <FileSpreadsheet className="h-4 w-4" />
+                      </span>
+                      <span className="flex-1 truncate">{t("exportXlsx")}</span>
+                    </a>
+                  )}
+                  {info.skill && (
+                    <a
+                      href={`/w/${workspaceId}/p/${page.id}/export?format=skill`}
+                      download
+                      onClick={() => close()}
+                      title={tSkills("downloadHint")}
+                      className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
+                    >
+                      <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
+                        <ScrollText className="h-4 w-4" />
+                      </span>
+                      <span className="flex-1 truncate">{tSkills("menu.export")}</span>
+                    </a>
+                  )}
+                  <MenuItem
+                    icon={<FileArchive className="h-4 w-4" />}
+                    onClick={() => void zipExport.start(`/w/${workspaceId}/p/${page.id}/export?subpages=1${exportComments ? "&comments=1" : ""}`, close)}
+                  >
+                    {zipExport.pending ? t("exportPreparing") : isDatabase ? t("exportZipDatabase") : t("exportZip")}
+                  </MenuItem>
+                </>
               )}
-              {info.skill && (
-                <a
-                  href={`/w/${workspaceId}/p/${page.id}/export?format=skill`}
-                  download
-                  onClick={() => close()}
-                  title={tSkills("downloadHint")}
-                  className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
-                >
-                  <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
-                    <ScrollText className="h-4 w-4" />
-                  </span>
-                  <span className="flex-1 truncate">{tSkills("menu.export")}</span>
-                </a>
-              )}
-              <MenuItem
-                icon={<FileArchive className="h-4 w-4" />}
-                onClick={() => void zipExport.start(`/w/${workspaceId}/p/${page.id}/export?subpages=1${exportComments ? "&comments=1" : ""}`, close)}
-              >
-                {zipExport.pending ? t("exportPreparing") : isDatabase ? t("exportZipDatabase") : t("exportZip")}
-              </MenuItem>
               {/* A PDF or Word document made on the server, in a letterhead (pdf-export-dialog.tsx). */}
               <MenuItem
                 icon={<FileDown className="h-4 w-4" />}
@@ -1202,7 +1207,7 @@ function PageMenu({
 
               <MenuSeparator />
               {/* Hidden while the workspace has export turned off; the routes refuse it too. */}
-              {info.exportable && (
+              {(info.exportable || info.printsPage) && (
                 <MenuItem icon={<Download className="h-4 w-4" />} trailing={<ChevronRight className="h-4 w-4 rtl:-scale-x-100" />} onClick={() => setMenuPage("export")}>
                   {t("export")}
                 </MenuItem>

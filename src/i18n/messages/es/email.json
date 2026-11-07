@@ -299,6 +299,8 @@
     "pageReported": "Un visitante denunció esta página: {reason, select, spam {spam o estafa} harmful {contenido de odio, violento o acosador} illegal {contenido ilegal} privacy {información personal} copyright {derechos de autor} other {otra cosa}}.",
     "massTrash": "{actor} movió {count} de sus filas a la papelera",
     "massTrashDatabase": "{actor} la movió a la papelera con {count} filas",
+    "massExportTitle": "Muchas páginas exportadas",
+    "massExport": "{actor} exportó o imprimió {count} páginas en una hora",
     "aiLimitTitle": "Gasto de IA",
     "aiLimit": {
       "near": "Ha usado el 80 % de su límite mensual de {limit, number} tokens",

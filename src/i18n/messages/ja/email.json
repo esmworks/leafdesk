@@ -299,6 +299,8 @@
     "pageReported": "訪問者がこのページを報告しました：{reason, select, spam {スパムまたは詐欺} harmful {憎悪・暴力・嫌がらせ} illegal {違法なコンテンツ} privacy {個人情報} copyright {著作権} other {その他}}。",
     "massTrash": "{actor}が{count}件の行をゴミ箱に移動しました",
     "massTrashDatabase": "{actor}が{count}件の行ごとゴミ箱に移動しました",
+    "massExportTitle": "多くのページがエクスポートされました",
+    "massExport": "{actor}が1時間以内に{count}ページをエクスポートまたは印刷しました",
     "aiLimitTitle": "AIの利用額",
     "aiLimit": {
       "near": "月間上限{limit, number}トークンの80%を使用しました",

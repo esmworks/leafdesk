@@ -135,6 +135,7 @@ export function DatabasePage({
   embed?: DatabaseEmbed;
 }) {
   const t = useTranslations("database");
+  const tHeader = useTranslations("page.header");
   const locale = useLocale();
   // Mod+Alt+T opens or closes every group of the view (components/toggle-all.ts).
   useToggleAllShortcut();
@@ -598,7 +599,15 @@ export function DatabasePage({
             >
               {/* Wide layout: controls sit in the page gutter, the board scrolls edge to edge. */}
               <RowOpenerContext value={opener}>
-                <div ref={sourceRef} data-row-source data-open-rows={centered ? "center" : undefined} className="min-w-0">
+                {/* The browser's own print command doesn't take the rows out either where export isn't
+                    the reader's: the database prints as a line saying so. */}
+                {!exportable && <p className="page-gutter hidden text-sm text-fg-muted print:block">{tHeader("exportDisabled")}</p>}
+                <div
+                  ref={sourceRef}
+                  data-row-source
+                  data-open-rows={centered ? "center" : undefined}
+                  className={cn("min-w-0", !exportable && "print:hidden")}
+                >
                   {/* Scrolls away with the page: only a table's header row stays in sight (table-view.tsx).
                       Held in place while the page scrolls a table sideways (data-pin-sideways); its
                       menus open over the header row (z-31), under the page's top bar (z-35). */}

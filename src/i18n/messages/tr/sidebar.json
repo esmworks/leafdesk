@@ -293,6 +293,8 @@
     "pageReported": "Bir ziyaretçi bu sayfayı bildirdi: {reason, select, spam {spam veya dolandırıcılık} harmful {nefret, şiddet veya taciz} illegal {yasa dışı içerik} privacy {kişisel bilgiler} copyright {telif hakkı} other {başka bir şey}}. Ayarlar > Güvenlik'te inceleyin.",
     "massTrash": "{actor} bir saat içinde bu veritabanının {count} satırını çöp kutusuna taşıdı. Veritabanının geçmişinden geri alın.",
     "massTrashDatabase": "{actor} bu veritabanını {count} satırıyla birlikte çöp kutusuna taşıdı. Çöp kutusu boşalmadan geri getirin.",
+    "massExportTitle": "Çok sayfa dışa aktarıldı",
+    "massExport": "{actor} bir saat içinde {count} sayfayı dışa aktardı ya da yazdırdı. Hangilerini denetim kaydında görün.",
     "aiLimitTitle": "Yapay zekâ harcaması",
     "aiLimit": {
       "near": "Ayda {limit, number} tokenlik limitinin %80'ini kullandı",

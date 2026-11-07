@@ -1666,13 +1666,13 @@
       "linkHint": "Katılma bağlantısı bu durumda kişileri hemen eklemek yerine bir sahibe sorar."
     },
     "dataHeading": "Dışa aktarma ve bağlı uygulamalar",
-    "export": {
-      "title": "Dışa aktarmaya izin ver",
-      "description": "Çalışma alanındaki herkes sayfaları Markdown, CSV veya ZIP olarak indirebilir ve PDF olarak yazdırabilir. Kapalıyken bu seçenekler sahipler dahil herkes için kalkar."
-    },
-    "exportOwners": {
-      "title": "Yalnızca sahipler dışa aktarabilir",
-      "description": "Üyeler ve misafirler sayfaları indiremez, yazdıramaz ya da takvimlere abone olamaz; kurdukları webhook ve Slack adımları hiçbir şey göndermez. Dışa aktarma açıkken sahipler yapabilir."
+    "exportBy": {
+      "title": "Kimler dışa aktarabilir",
+      "description": "Sayfaları indirmek (Markdown, CSV, ZIP, PDF, Word), yazdırmak ve takvim akışları. Tek sayfada üyeler ve misafirler bir seferde tek bir sayfa ya da satır yazdırır; alt sayfalar ve sayfadaki veritabanları dahil edilmez. Yalnızca sahiplerde hiçbir şey alamazlar. Hiç kimse: sahipler için de kapalı.",
+      "everyone": "Herkes",
+      "pages": "Sahipler; diğerleri tek sayfa yazdırır",
+      "owners": "Yalnızca sahipler",
+      "off": "Hiç kimse"
     },
     "connectedApps": {
       "title": "Bağlı uygulamalar ve API anahtarları",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Katılma bağlantısına sahip herkes",
       "members_with_approval": "Üyeler, bir sahibin onayıyla",
       "any_member": "Sahipler ve üyeler",
-      "chosen": "Sahipler ve seçilen kişiler ve gruplar"
+      "chosen": "Sahipler ve seçilen kişiler ve gruplar",
+      "pages": "Sahipler; diğerleri tek sayfa yazdırır"
     },
     "actions": {
       "member": {

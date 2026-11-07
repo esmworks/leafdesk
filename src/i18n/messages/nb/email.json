@@ -299,6 +299,8 @@
     "pageReported": "En besøkende rapporterte denne siden: {reason, select, spam {spam eller svindel} harmful {hatefullt, voldelig eller trakasserende innhold} illegal {ulovlig innhold} privacy {personopplysninger} copyright {opphavsrett} other {noe annet}}.",
     "massTrash": "{actor} flyttet {count} av radene til papirkurven",
     "massTrashDatabase": "{actor} flyttet den til papirkurven med {count} rader",
+    "massExportTitle": "Mange sider eksportert",
+    "massExport": "{actor} eksporterte eller skrev ut {count} sider i løpet av en time",
     "aiLimitTitle": "KI-forbruk",
     "aiLimit": {
       "near": "Brukt 80 % av den månedlige grensen på {limit, number} tokener",

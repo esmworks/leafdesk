@@ -293,6 +293,8 @@
     "pageReported": "En besøkende rapporterte denne siden: {reason, select, spam {spam eller svindel} harmful {hatefullt, voldelig eller trakasserende innhold} illegal {ulovlig innhold} privacy {personopplysninger} copyright {opphavsrett} other {noe annet}}. Se det under Innstillinger > Sikkerhet.",
     "massTrash": "{actor} flyttet {count} rader i denne databasen til papirkurven i løpet av en time. Angre det fra databasens historikk.",
     "massTrashDatabase": "{actor} flyttet denne databasen til papirkurven med sine {count} rader. Gjenopprett den før papirkurven tømmes.",
+    "massExportTitle": "Mange sider eksportert",
+    "massExport": "{actor} eksporterte eller skrev ut {count} sider i løpet av en time. Se hvilke i revisjonsloggen.",
     "aiLimitTitle": "KI-forbruk",
     "aiLimit": {
       "near": "Brukt 80 % av den månedlige grensen på {limit, number} tokener",

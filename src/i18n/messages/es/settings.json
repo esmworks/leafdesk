@@ -1666,13 +1666,13 @@
       "linkHint": "El enlace para unirse pregunta entonces a un propietario en vez de añadir a las personas al momento."
     },
     "dataHeading": "Exportación y apps conectadas",
-    "export": {
-      "title": "Permitir exportar",
-      "description": "Todos en el espacio de trabajo pueden descargar páginas como Markdown, CSV o ZIP e imprimirlas en PDF. Desactivado: esas opciones desaparecen para todos, también para los propietarios."
-    },
-    "exportOwners": {
-      "title": "Solo los propietarios pueden exportar",
-      "description": "Los miembros e invitados no pueden descargar ni imprimir páginas ni suscribirse a calendarios, y los webhooks y pasos de Slack que configuren no envían nada. Los propietarios siguen pudiendo mientras se permita exportar."
+    "exportBy": {
+      "title": "Quién puede exportar",
+      "description": "Descargar páginas (Markdown, CSV, ZIP, PDF, Word), imprimirlas y los feeds de calendario. Con páginas sueltas, miembros e invitados imprimen una página o fila cada vez, sin sus subpáginas ni las bases de datos que muestra. Con solo propietarios, no pueden sacar nada. Nadie: desactivado también para los propietarios.",
+      "everyone": "Todos",
+      "pages": "Propietarios; los demás imprimen páginas sueltas",
+      "owners": "Solo propietarios",
+      "off": "Nadie"
     },
     "connectedApps": {
       "title": "Apps conectadas y tokens de API",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Cualquiera con el enlace para unirse",
       "members_with_approval": "Miembros, con la aprobación de un propietario",
       "any_member": "Propietarios y miembros",
-      "chosen": "Propietarios y las personas y grupos elegidos"
+      "chosen": "Propietarios y las personas y grupos elegidos",
+      "pages": "Propietarios; los demás imprimen páginas sueltas"
     },
     "actions": {
       "member": {

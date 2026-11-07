@@ -8,7 +8,7 @@ import { printOrder } from "@/lib/print";
 import { pageVisibleTo, requirePageAccess } from "@/server/access";
 import type { PageBlock } from "@/server/blocknote";
 import { getCollab } from "@/server/collab/bridge";
-import { assertExportAllowed, recordExport } from "@/server/export";
+import { assertPagePrintAllowed, ExportError, recordExport } from "@/server/export";
 import { resolvePageRefs } from "@/server/mentions";
 import { getBreadcrumbs } from "@/server/pages";
 import { ENGLISH_SYNCED_LABELS, expandSyncedBlocks, readerStates, syncedNotice, type SyncedLabels } from "@/server/synced-blocks";
@@ -66,6 +66,11 @@ export type PrintDocument = {
   sections: PrintSection[];
   /** Subpages were asked for and some were left out (see PRINT_MAX_PAGES). */
   truncated: boolean;
+  /**
+   * The reader may print this page only (workspace setting `exportBy` "pages"): no subpages, and
+   * the databases its body shows read as unavailable.
+   */
+  onePage: boolean;
 };
 
 /** How pages the body mentions read in print, in the reader's language (English outside a request). */
@@ -142,7 +147,7 @@ async function subtree(userId: string, rootId: string) {
   return [...rows].map((r) => ({ id: r.id, parentId: r.parent_id, position: Number(r.position), createdAt: r.created_at }));
 }
 
-async function printSection(userId: string, pageId: string, depth: number, index: number): Promise<PrintSection> {
+async function printSection(userId: string, pageId: string, depth: number, index: number, { tables = true }: { tables?: boolean } = {}): Promise<PrintSection> {
   const target = await requirePageAccess(userId, pageId, "view");
   const parent = target.parentId
     ? (await db.select({ kind: page.kind }).from(page).where(eq(page.id, target.parentId)).limit(1))[0]
@@ -173,7 +178,9 @@ async function printSection(userId: string, pageId: string, depth: number, index
     : [];
   // Database blocks, in columns too, as the databases the reader can open. Widgets and blocks
   // showing the same database read it once (see PublishedLoads).
+  // Without `tables` (one page at a time) no database is read: its blocks print as unavailable.
   const loads = publishedLoads();
+  const embedded = (databaseId: string, view: Parameters<typeof printedEmbed>[2]) => (tables ? printedEmbed(userId, databaseId, view, loads) : Promise.resolve(null));
   const resolve = (list: BodySegment[]): Promise<PublishedBlock[]> =>
     Promise.all(
       list.map(async (segment): Promise<PublishedBlock> => {
@@ -190,7 +197,7 @@ async function printSection(userId: string, pageId: string, depth: number, index
             period: segment.period,
             range: periodRange(segment.period, new Date()),
             widgets: await Promise.all(
-              segment.widgets.map(async (w) => widgetShowing(w, await printedEmbed(userId, w.databaseId, { linked: w.view, period: segment.period }, loads))),
+              segment.widgets.map(async (w) => widgetShowing(w, await embedded(w.databaseId, { linked: w.view, period: segment.period }))),
             ),
           };
         }
@@ -198,7 +205,7 @@ async function printSection(userId: string, pageId: string, depth: number, index
         return {
           kind: "embed",
           type: segment.type,
-          database: await printedEmbed(userId, segment.databaseId, segment.type === "linkedView" ? { linked: segment.view } : {}, loads),
+          database: await embedded(segment.databaseId, segment.type === "linkedView" ? { linked: segment.view } : {}),
           ...(segment.view?.hideTitle ? { hideTitle: true as const } : {}),
         };
       }),
@@ -234,17 +241,20 @@ async function printSection(userId: string, pageId: string, depth: number, index
  * What `/print/<pageId>` shows. Throws AccessError when `userId` can't view the page, and an
  * ExportError (`disabled`) while the workspace has export turned off: printing to PDF is an export.
  * With `subpages`, the pages under it follow it in sidebar order, up to PRINT_MAX_PAGES in all.
+ * Someone the workspace lets print single pages only (`exportBy` "pages") gets the page alone,
+ * without the databases its body shows, and never a database (ExportError `disabled`).
  */
 export async function printDocument(userId: string, pageId: string, { subpages = false }: { subpages?: boolean } = {}): Promise<PrintDocument> {
   const root = await requirePageAccess(userId, pageId, "view");
-  await assertExportAllowed(root.workspaceId, userId);
+  const onePage = (await assertPagePrintAllowed(root.workspaceId, userId)) === "page";
+  if (onePage && root.kind === "database") throw new ExportError("disabled");
   const { pages, truncated } =
-    subpages && root.kind !== "database" ? printOrder(root.id, await subtree(userId, root.id)) : { pages: [{ id: root.id, depth: 0 }], truncated: false };
+    subpages && !onePage && root.kind !== "database" ? printOrder(root.id, await subtree(userId, root.id)) : { pages: [{ id: root.id, depth: 0 }], truncated: false };
   // One page at a time: each reads its document and renders HTML, and they come in order anyway.
   const sections: PrintSection[] = [];
   for (const [index, entry] of pages.entries()) {
     try {
-      sections.push(await printSection(userId, entry.id, entry.depth, index));
+      sections.push(await printSection(userId, entry.id, entry.depth, index, { tables: !onePage }));
     } catch (error) {
       // A subpage moved or hidden since the tree was read is left out; the page itself is not.
       if (index === 0) throw error;
@@ -252,5 +262,5 @@ export async function printDocument(userId: string, pageId: string, { subpages =
   }
   // Opening the print view is how a page is exported as PDF.
   await recordExport(userId, { workspaceId: root.workspaceId, page: { id: root.id, title: root.title }, format: "pdf", pages: sections.length });
-  return { workspaceId: root.workspaceId, sections, truncated };
+  return { workspaceId: root.workspaceId, sections, truncated, onePage };
 }

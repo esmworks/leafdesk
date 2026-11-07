@@ -299,6 +299,8 @@
     "pageReported": "Bir ziyaretçi bu sayfayı bildirdi: {reason, select, spam {spam veya dolandırıcılık} harmful {nefret, şiddet veya taciz} illegal {yasa dışı içerik} privacy {kişisel bilgiler} copyright {telif hakkı} other {başka bir şey}}.",
     "massTrash": "{actor} {count} satırını çöp kutusuna taşıdı",
     "massTrashDatabase": "{actor} bunu {count} satırıyla çöp kutusuna taşıdı",
+    "massExportTitle": "Çok sayfa dışa aktarıldı",
+    "massExport": "{actor} bir saat içinde {count} sayfayı dışa aktardı ya da yazdırdı",
     "aiLimitTitle": "Yapay zekâ harcaması",
     "aiLimit": {
       "near": "Ayda {limit, number} tokenlik limitinin %80'ini kullandı",

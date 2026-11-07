@@ -293,6 +293,8 @@
     "pageReported": "En besøgende har anmeldt denne side: {reason, select, spam {spam eller svindel} harmful {hadsk, voldeligt eller chikanerende indhold} illegal {ulovligt indhold} privacy {personoplysninger} copyright {ophavsret} other {noget andet}}. Se det under Indstillinger > Sikkerhed.",
     "massTrash": "{actor} flyttede {count} rækker fra denne database til papirkurven inden for en time. Fortryd det fra databasens historik.",
     "massTrashDatabase": "{actor} flyttede denne database til papirkurven med dens {count} rækker. Gendan den, før papirkurven tømmes.",
+    "massExportTitle": "Mange sider eksporteret",
+    "massExport": "{actor} eksporterede eller udskrev {count} sider inden for en time. Se hvilke i revisionsloggen.",
     "aiLimitTitle": "AI-forbrug",
     "aiLimit": {
       "near": "Har brugt 80 % af sin månedlige grænse på {limit, number} tokens",

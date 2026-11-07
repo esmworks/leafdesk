@@ -1666,13 +1666,13 @@
       "linkHint": "Assim, o link de entrada pede a um proprietário em vez de adicionar pessoas na hora."
     },
     "dataHeading": "Exportação e apps conectados",
-    "export": {
-      "title": "Permitir exportação",
-      "description": "Todos no espaço de trabalho podem baixar páginas em Markdown, CSV ou ZIP e imprimi-las em PDF. Desativado: essas opções somem para todos, inclusive para os proprietários."
-    },
-    "exportOwners": {
-      "title": "Só os proprietários podem exportar",
-      "description": "Membros e convidados não podem baixar nem imprimir páginas nem assinar calendários, e os webhooks e etapas do Slack que configurarem não enviam nada. Os proprietários continuam podendo enquanto a exportação for permitida."
+    "exportBy": {
+      "title": "Quem pode exportar",
+      "description": "Baixar páginas (Markdown, CSV, ZIP, PDF, Word), imprimi-las e os feeds de calendário. Com páginas avulsas, membros e convidados imprimem uma página ou linha por vez, sem as subpáginas nem os bancos de dados que ela mostra. Com somente proprietários, não podem levar nada para fora. Ninguém: desativado também para os proprietários.",
+      "everyone": "Todos",
+      "pages": "Proprietários; os outros imprimem páginas avulsas",
+      "owners": "Somente proprietários",
+      "off": "Ninguém"
     },
     "connectedApps": {
       "title": "Apps conectados e tokens de API",
@@ -1962,7 +1962,8 @@
       "anyone_with_link": "Qualquer pessoa com o link de entrada",
       "members_with_approval": "Membros, com aprovação de um proprietário",
       "any_member": "Proprietários e membros",
-      "chosen": "Proprietários e pessoas e grupos escolhidos"
+      "chosen": "Proprietários e pessoas e grupos escolhidos",
+      "pages": "Proprietários; os outros imprimem páginas avulsas"
     },
     "actions": {
       "member": {
