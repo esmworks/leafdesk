@@ -368,7 +368,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   mentions hold only days, as their Markdown `@YYYY-MM-DD` does.
 - **The sidebar's meetings tab** (`components/sidebar/meeting-panel.tsx`, a `lazyPart`): the
   newest meetings (`sidebarMeetings`, `listMeetings` with `SIDEBAR_MEETINGS`); it hands their page
-  ids to `sidebar.tsx`, whose `routeTab` keeps the tab while one of them is open.
+  ids to `sidebar.tsx`, whose `routeTab` keeps the tab while one of them is open. Pages listed in a
+  tab instead of the tree (the journal, the task list, notes made by "New meeting note", marked in
+  `meeting_page`) are `getSidebar`'s `journalPageId` and `listedApart`, only while private and at
+  the top level; `sidebar.tsx` `listedIn` picks their tab.
 - **The sidebar's agents tab** (`components/sidebar/agent-list.tsx`): each person's groups and
   order are `layout.agents` of their sidebar layout (pure rules `lib/agent-arrangement.ts`, cleaned by
   `lib/sidebar-sections.ts`), never shared; New agent opens Settings > Agents' dialogs as a

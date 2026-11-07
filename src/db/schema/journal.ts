@@ -75,3 +75,25 @@ export const taskList = pgTable(
   },
   (t) => [primaryKey({ columns: [t.workspaceId, t.userId] }), index("task_list_user_idx").on(t.userId)],
 );
+
+/**
+ * A page made by "New meeting note" (see server/meetings.ts createMeetingNote): listed in the
+ * Meetings tab, so the sidebar leaves it out of the page tree while it stays where it was made,
+ * among its maker's private pages at the top level. Moved elsewhere, it shows there as any page.
+ */
+export const meetingPage = pgTable(
+  "meeting_page",
+  {
+    pageId: text("page_id")
+      .primaryKey()
+      .references(() => page.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("meeting_page_owner_idx").on(t.workspaceId, t.userId)],
+);

@@ -96,7 +96,8 @@
   in the calendar), the priority and the people; the same can be typed in the name: a day such as
   "friday", `#high` and `@name`. You are always among its people; the others you add can see and
   edit that task, and it shows in their My tasks too. Tasks of the list show their priority's flag
-  and the others' pictures in the list. Guests don't get *New task*.
+  and the others' pictures in the list. Guests don't get *New task*. The list stays out of the
+  sidebar's page tree while it sits among your private pages; the Tasks tab lists it.
 - **Calendar** (on the sidebar's rail): your week across the workspace in one place: the events of
   the calendars synced in (*Sync a Google Calendar calendar* and *Sync a calendar*) whose
   database you can open, the meeting notes you can open with a planned or started time (from start
@@ -1462,7 +1463,8 @@
   three hours, the transcript filling in as you talk (or takes a recording made elsewhere, uploaded
   as an audio or video file), and AI writes the summary, decisions and action items, each linked to
   its moment in the transcript. *Meetings* on the sidebar's rail lists them in a panel of its own: the planned meetings and the
-  latest past ones, *All meetings* for the Meetings page and a pen that starts a new meeting note. A meeting on a database row
+  latest past ones, *All meetings* for the Meetings page and a pen that starts a new meeting note. Notes started there stay out of the page tree under Home
+  while they sit among your private pages. A meeting on a database row
   can start the database's automations, and so an agent, once it is written up
   (see [Meeting notes](ai.md#meeting-notes)).
 - **AI chat from Telegram** (optional, off until the server has a Telegram bot): people link their

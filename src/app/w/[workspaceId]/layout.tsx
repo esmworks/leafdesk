@@ -93,6 +93,7 @@ export default async function WorkspaceLayout({
             initialTree={sidebar.tree}
             initialTeamspaces={sidebar.teamspaces}
             initialJournalPageId={sidebar.journalPageId}
+            initialListedApart={sidebar.listedApart}
             canCreateTeamspace={canCreate}
             canCreateWorkspace={canCreateWorkspace(user, undefined, undefined, firstAdmin)}
             isInstanceAdmin={isInstanceAdmin(user, undefined, firstAdmin)}

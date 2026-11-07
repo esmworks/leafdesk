@@ -51,6 +51,11 @@
 
 ### Changed
 
+- **Your task list and meeting notes stay out of the page tree.** *My to-do list* and the notes
+  started with *New meeting note* are listed in the Tasks and Meetings tabs, so they no longer fill
+  *Private* under Home; opening one picks its tab. Moved under a page or into a teamspace, they show
+  in the tree as any page. Meeting notes made before are found by their meeting block having come
+  with the page (migration 0197).
 - **A database's month calendar fits the window.** On the database's own page the weeks share the
   height below the calendar, so a six-week month shows whole without scrolling; a short window
   scrolls once weeks reach their least height. A calendar inside a page keeps a fixed height per

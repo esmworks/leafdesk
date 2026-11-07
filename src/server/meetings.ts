@@ -16,7 +16,7 @@
  */
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { meetingNote, page } from "@/db/schema";
+import { meetingNote, meetingPage as madeMeetingPage, page } from "@/db/schema";
 import {
   isStale,
   MAX_MEETING_SECONDS,
@@ -354,11 +354,13 @@ async function summarizeMeeting(userId: string, pageId: string, meetingId: strin
 
 /**
  * A new private page holding a meeting block, planned for now, for "New meeting note". `title`:
- * the page's title (the person's language's "Meeting notes, <date>").
+ * the page's title (the person's language's "Meeting notes, <date>"). It is a meeting_page, so the
+ * sidebar lists it in the Meetings tab, not among the person's pages.
  */
 export async function createMeetingNote(userId: string, workspaceId: string, title: string): Promise<{ id: string }> {
   await requireMembership(userId, workspaceId);
   const created = await createPage({ userId }, { workspaceId, title: title.trim().slice(0, MAX_MEETING_TITLE), teamspaceId: null });
+  await db.insert(madeMeetingPage).values({ pageId: created.id, workspaceId, userId });
   await getCollab().appendBlocks(
     created.id,
     [

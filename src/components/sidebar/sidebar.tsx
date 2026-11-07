@@ -82,7 +82,7 @@ import { OPEN_SEARCH_EVENT } from "@/lib/search-open";
 import { GO_MS, isMac, opensShortcuts, RAIL_GO_KEYS, railGoPlace, startsGo, type RailPlace } from "@/lib/shortcuts";
 import { ShortcutsDialog } from "@/components/shortcuts-dialog";
 import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
-import type { TreeNode } from "@/server/pages";
+import type { SidebarData, TreeNode } from "@/server/pages";
 import type { TeamspaceSummary } from "@/server/teamspaces";
 import type { JoinableWorkspace } from "@/server/join-requests";
 import { JoinableWorkspaces } from "./joinable-workspaces";
@@ -173,6 +173,8 @@ type Target = string | null | undefined;
  * agents have no start of their own).
  */
 type SidebarTab = "home" | "tasks" | "calendar" | "meetings" | "journal" | "chat" | "mail" | "agents";
+type ListedApart = SidebarData["listedApart"];
+const NOTHING_APART: ListedApart = { taskList: null, meetings: [] };
 const TAB_ICONS: Record<SidebarTab, RailIcon> = {
   home: HouseIcon,
   tasks: CheckSquareIcon,
@@ -209,6 +211,7 @@ export function Sidebar({
   initialTree,
   initialTeamspaces,
   initialJournalPageId = null,
+  initialListedApart = NOTHING_APART,
   canCreateTeamspace,
   canCreateWorkspace,
   isInstanceAdmin,
@@ -230,6 +233,8 @@ export function Sidebar({
   initialTeamspaces: TeamspaceSummary[];
   /** The page their daily notes go under: listed in the journal tab rather than with the pages. */
   initialJournalPageId?: string | null;
+  /** Their task list and meeting notes: listed in the Tasks and Meetings tabs rather than with the pages. */
+  initialListedApart?: ListedApart;
   canCreateTeamspace: boolean;
   /** WORKSPACE_CREATION may keep "New workspace" to the server's administrators. */
   canCreateWorkspace: boolean;
@@ -261,6 +266,7 @@ export function Sidebar({
   const [linkMenu, setLinkMenu] = useState<LinkMenuAt | null>(null);
   const [teamspaces, setTeamspaces] = useState(initialTeamspaces);
   const [journalPageId, setJournalPageId] = useState(initialJournalPageId);
+  const [listedApart, setListedApart] = useState(initialListedApart);
   const [layout, setLayout] = useState(initialLayout);
   const folded = useMemo(() => new Set<string>(layout.folded ?? []), [layout.folded]);
   // Folded sections opened to show the page being opened: only here, the saved layout stays folded.
@@ -394,6 +400,7 @@ export function Sidebar({
   }, [initialLayout]);
   useEffect(() => setTeamspaces(initialTeamspaces), [initialTeamspaces]);
   useEffect(() => setJournalPageId(initialJournalPageId), [initialJournalPageId]);
+  useEffect(() => setListedApart(initialListedApart), [initialListedApart]);
   useEffect(() => setFavorites(initialFavorites), [initialFavorites]);
   useEffect(() => setAgents(initialAgents), [initialAgents]);
   // Favorites are downloaded for offline use too, unless the person turned that off on this device.
@@ -420,6 +427,7 @@ export function Sidebar({
         setTree(next.tree);
         setTeamspaces(next.teamspaces);
         setJournalPageId(next.journalPageId);
+        setListedApart(next.listedApart);
       })
       .catch(() => {});
     // Renames, trash and sharing changes show up in Favorites too.
@@ -441,12 +449,12 @@ export function Sidebar({
   // The tree as last loaded is kept in this browser; offline, it replaces the one the page came
   // with (a cached page may be older than the last tree seen).
   useEffect(() => {
-    if (!offline) void saveSnapshot(user.id, treeSnapshotKey(workspaceId), { tree, teamspaces, journalPageId });
-  }, [offline, tree, teamspaces, journalPageId, user.id, workspaceId]);
+    if (!offline) void saveSnapshot(user.id, treeSnapshotKey(workspaceId), { tree, teamspaces, journalPageId, listedApart });
+  }, [offline, tree, teamspaces, journalPageId, listedApart, user.id, workspaceId]);
   useEffect(() => {
     if (!offline) return;
     let current = true;
-    void loadSnapshot<{ tree: TreeNode[]; teamspaces: TeamspaceSummary[]; journalPageId?: string | null }>(
+    void loadSnapshot<{ tree: TreeNode[]; teamspaces: TeamspaceSummary[]; journalPageId?: string | null; listedApart?: ListedApart }>(
       user.id,
       treeSnapshotKey(workspaceId),
     ).then((kept) => {
@@ -455,6 +463,7 @@ export function Sidebar({
       setTree(kept.data.tree);
       setTeamspaces(kept.data.teamspaces);
       setJournalPageId(kept.data.journalPageId ?? null);
+      setListedApart(kept.data.listedApart ?? NOTHING_APART);
     });
     return () => {
       current = false;
@@ -577,32 +586,41 @@ export function Sidebar({
     };
   }, []);
 
+  // The pages listed in a tab of their own (with the pages under them), by the tab.
+  const apart = useMemo(() => {
+    const tabs = new Map<string, SidebarTab>(listedApart.meetings.map((id) => [id, "meetings"]));
+    if (listedApart.taskList) tabs.set(listedApart.taskList, "tasks");
+    if (journalPageId) tabs.set(journalPageId, "journal");
+    return tabs;
+  }, [listedApart, journalPageId]);
   // Pages by parent; the tops of the sections under `@<section>`.
   const children = useMemo(() => {
     const map = new Map<string, TreeNode[]>();
     const ids = new Set(tree.map((n) => n.id));
     for (const node of tree) {
-      // The journal is listed in its own tab, its notes under it there.
-      if (node.id === journalPageId) continue;
+      // The journal, the task list and meeting notes are listed in their own tabs, the journal's
+      // notes under it there.
+      if (apart.has(node.id)) continue;
       // Children of hidden parents (e.g. rows) never reach the tree; orphans go to the top.
       const key = node.parentId && ids.has(node.parentId) ? node.parentId : `@${node.section}`;
       map.set(key, [...(map.get(key) ?? []), node]);
     }
     for (const list of map.values()) list.sort((a, b) => a.position - b.position);
     return map;
-  }, [tree, journalPageId]);
+  }, [tree, apart]);
   const byId = useMemo(() => new Map(tree.map((n) => [n.id, n])), [tree]);
   const rootsOf = (section: TreeSection) => children.get(`@${section}`) ?? [];
   const journalNotes = (journalPageId && children.get(journalPageId)) || [];
 
-  /** Whether a page is the journal or under it. */
-  function inJournal(id: string) {
+  /** The tab listing a page apart from the tree (it or a page above it), if any. */
+  function listedIn(id: string): SidebarTab | null {
     const seen = new Set<string>();
     for (let at: string | null = id; at && !seen.has(at); at = byId.get(at)?.parentId ?? null) {
-      if (at === journalPageId) return true;
+      const tab = apart.get(at);
+      if (tab) return tab;
       seen.add(at);
     }
-    return false;
+    return null;
   }
 
   // Daily notes are private top-level pages, so the journal only for those who may add them.
@@ -651,7 +669,9 @@ export function Sidebar({
     });
     sidebar?.close();
   };
-  const pageTab: SidebarTab = onTasksPage ? "tasks" : onCalendarPage ? "calendar" : onMeetingsPage ? "meetings" : onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : topLevel && activeId && inJournal(activeId) ? "journal" : "home";
+  // The journal's tab is there only for those who may add private top-level pages.
+  const apartTab = activeId ? listedIn(activeId) : null;
+  const pageTab: SidebarTab = onTasksPage ? "tasks" : onCalendarPage ? "calendar" : onMeetingsPage ? "meetings" : onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : apartTab && (apartTab !== "journal" || topLevel) ? apartTab : "home";
   const [tab, setTab] = useState<SidebarTab>(pageTab);
   // The meeting notes the Meetings tab lists: opening one keeps the tab, as a page from the tree doesn't.
   const [meetingPages, setMeetingPages] = useState<ReadonlySet<string>>(() => new Set());
@@ -930,8 +950,8 @@ export function Sidebar({
       });
     }
     const section = node.section;
-    if (inJournal(node.id)) {
-      // Listed in the journal tab, outside the sections.
+    if (listedIn(node.id)) {
+      // Listed in a tab of its own, outside the sections.
     } else if (section === PRIVATE_SECTION || section === SHARED_SECTION) reveal(section);
     else if (section === pagesSpace?.id) reveal(PAGES_SECTION);
     else {

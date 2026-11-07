@@ -15,12 +15,14 @@ import {
   fileReference,
   fileText,
   journal,
+  meetingPage,
   oauthClient,
   page,
   pageColumns,
   pagePermission,
   pageSnapshot,
   type PageKind,
+  taskList,
   teamspace,
   user,
   type ViewType,
@@ -190,21 +192,33 @@ export type SidebarData = {
   teamspaces: TeamspaceSummary[];
   /** The page the user's daily notes go under (see server/journal.ts), listed apart from the other pages. */
   journalPageId: string | null;
+  /**
+   * Private top-level pages listed in a tab of their own instead of the tree: the user's own task
+   * list (server/own-tasks.ts, the Tasks tab) and the meeting notes they made with "New meeting
+   * note" (meeting_page, the Meetings tab). Moved anywhere else, they show in the tree again.
+   */
+  listedApart: { taskList: string | null; meetings: string[] };
 };
 
 /** The sidebar: its page tree, the teamspaces it has a section for and the user's journal. */
 export async function getSidebar(userId: string, workspaceId: string): Promise<SidebarData> {
-  const [tree, teamspaces, [ownJournal]] = await Promise.all([
+  const [tree, teamspaces, [ownJournal], [ownTasks], meetings] = await Promise.all([
     getTree(userId, workspaceId),
     sidebarTeamspaces(userId, workspaceId),
-    db
-      .select({ pageId: journal.pageId })
-      .from(journal)
-      .where(and(eq(journal.workspaceId, workspaceId), eq(journal.userId, userId))),
+    db.select({ pageId: journal.pageId }).from(journal).where(and(eq(journal.workspaceId, workspaceId), eq(journal.userId, userId))),
+    db.select({ pageId: taskList.pageId }).from(taskList).where(and(eq(taskList.workspaceId, workspaceId), eq(taskList.userId, userId))),
+    db.select({ pageId: meetingPage.pageId }).from(meetingPage).where(and(eq(meetingPage.workspaceId, workspaceId), eq(meetingPage.userId, userId))),
   ]);
   // Only while it is in the tree: one in the trash, or out of their reach, is no journal to list.
   const journalPageId = ownJournal?.pageId && tree.some((n) => n.id === ownJournal.pageId) ? ownJournal.pageId : null;
-  return { tree, teamspaces, journalPageId };
+  const privateTop = new Set(tree.filter((n) => n.section === PRIVATE_SECTION && n.parentId === null).map((n) => n.id));
+  const taskListId = ownTasks?.pageId && privateTop.has(ownTasks.pageId) ? ownTasks.pageId : null;
+  return {
+    tree,
+    teamspaces,
+    journalPageId,
+    listedApart: { taskList: taskListId, meetings: meetings.map((m) => m.pageId).filter((id) => privateTop.has(id)) },
+  };
 }
 
 export async function getPage(userId: string, pageId: string) {
