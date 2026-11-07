@@ -1832,7 +1832,8 @@ export function Sidebar({
                   onFocus={() => void AccountMenu.preload()}
                   className={cn(railItemClass, (open || customizing) && "bg-frame-hover")}
                 >
-                  <UserAvatar name={user.name || user.email} image={user.image} size="sm" />
+                  {/* On the rail's frame the usual light fill all but disappears. */}
+                  <UserAvatar name={user.name || user.email} image={user.image} size="sm" colors="bg-fg-muted text-bg" />
                 </button>
               )}
             >
