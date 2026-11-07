@@ -200,6 +200,8 @@ export function PageHeaderActions({
   // The Share panel also opens from elsewhere: an event for this page, or `?share=1` in the URL.
   const searchParams = useSearchParams();
   const [shareOpen, setShareOpen] = useState(() => searchParams.get("share") === "1" && !page.archived);
+  // The PDF dialog opened from the Share panel's foot (the page menu has its own).
+  const [sharePdfOpen, setSharePdfOpen] = useState(false);
   useEffect(() => {
     const onOpen = (e: Event) => {
       if ((e as CustomEvent<{ pageId: string }>).detail?.pageId !== page.id || page.archived) return;
@@ -284,6 +286,32 @@ export function PageHeaderActions({
           )}
         >
           <SharePanel pageId={page.id} currentUser={currentUser} publishable={!info.template} onChange={refresh} />
+          {/* Taking the page out on paper: the same PDF and print view as the page menu's Export, under the same rule. */}
+          {info.exportable && (
+            <div className="border-t border-border p-1">
+              <MenuItem
+                icon={<FileDown className="h-4 w-4" />}
+                onClick={() => {
+                  setShareOpen(false);
+                  setSharePdfOpen(true);
+                }}
+              >
+                {t("exportPdf")}
+              </MenuItem>
+              <a
+                href={printPath(page.id, { auto: true })}
+                target="_blank"
+                rel="noopener"
+                onClick={() => setShareOpen(false)}
+                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-start text-sm hover:bg-bg-hover"
+              >
+                <span className="flex h-4 w-4 items-center justify-center text-fg-muted">
+                  <Printer className="h-4 w-4" />
+                </span>
+                <span className="flex-1 truncate">{t("printView")}</span>
+              </a>
+            </div>
+          )}
         </Popover>
       )}
       {/* The AI chat beside the page; there's no AI to ask without a provider on the server. */}
@@ -342,6 +370,18 @@ export function PageHeaderActions({
         onStyle={onStyle}
         onAnswerAll={onAnswerAll}
       />
+      {sharePdfOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <PdfExportDialog
+            workspaceId={workspaceId}
+            pageId={page.id}
+            isRow={!!page.isRow}
+            format="pdf"
+            onClose={() => setSharePdfOpen(false)}
+          />,
+          document.body,
+        )}
     </>
   );
 }

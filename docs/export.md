@@ -120,6 +120,9 @@ restore checks them against the server's per-workspace storage limit.
 
 ### PDF
 
+"Export as PDF" and "Print" are in the page menu's Export and at the foot of the Share panel, both
+hidden while export is off for the person.
+
 "Export as PDF" in the page menu makes the page's PDF file on the server and downloads it, in one
 of the workspace's letterheads (below) or none; for a row, with its values if asked; with its text
 at 75 to 150 percent of the usual size (*Text size*; the letterhead keeps its size). It reads the
