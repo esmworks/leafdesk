@@ -286,8 +286,9 @@ export function PageHeaderActions({
           )}
         >
           <SharePanel pageId={page.id} currentUser={currentUser} publishable={!info.template} onChange={refresh} />
-          {/* Taking the page out on paper: the same PDF and print view as the page menu's Export, under the same rule. */}
-          {info.exportable && (
+          {/* Taking the page out on paper: the same PDF and print view as the page menu's Export, under the same
+              rule (also for someone who may print single pages, `printsPage`). */}
+          {(info.exportable || info.printsPage) && (
             <div className="border-t border-border p-1">
               <MenuItem
                 icon={<FileDown className="h-4 w-4" />}

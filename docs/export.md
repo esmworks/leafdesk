@@ -136,7 +136,7 @@ Hebrew text isn't covered.
 
 Where owners keep export to themselves but let the others print single pages (Settings → Security
 → *Who can export*), members and guests find only "Export as PDF", "Export as Word (.docx)" and "Print" in
-a page's or row's export menu, for that page alone: no subpages, and the databases its body shows
+a page's or row's export menu (and "Export as PDF" and "Print" at the foot of its Share panel), for that page alone: no subpages, and the databases its body shows
 print as unavailable. A database's own page offers them nothing, and prints as a line saying so from the
 browser's own print command. Owners hear when someone prints or exports 20 or more pages within an hour.
 
