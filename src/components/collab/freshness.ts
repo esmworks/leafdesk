@@ -2,11 +2,13 @@ import { CLIENT_BUILD, isForeignBuild, SEEN_BUILD_KEY } from "@/lib/build-id";
 
 /**
  * Whether this tab still runs the server's build (see lib/build-id for why a foreign one must not
- * load a page). Four ways to find out it doesn't:
+ * load a page). Five ways to find out it doesn't:
  * - the collab server refuses it (socket.ts: every reconnect after a redeploy goes through that);
  * - the collab token reply names another build (asked before a page's offline copy is loaded);
  * - the same reply asked as the tab comes back into view (watchServerBuild), for the screens with
  *   no page document: the Mail tab, the inbox, settings;
+ * - the server answers a server action as one it doesn't have (watchServerActions: a new build has
+ *   other action ids), which is how a tab on such a screen that keeps working learns of a release;
  * - another tab of this browser met a server with another build (localStorage), which is all there
  *   is to go on offline, when the cached HTML of an older build may be what opened.
  * Once stale, a tab stays stale until it reloads.
@@ -54,6 +56,50 @@ if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
     if (event.key === SEEN_BUILD_KEY && isForeignBuild(CLIENT_BUILD, event.newValue)) markStale();
   });
+}
+
+/**
+ * Next's request header naming the server action called, and the header of its answer when the
+ * server has no such action (next/dist/client/components/app-router-headers; freshness.test checks
+ * they still match). Every action call goes out as a `fetch` carrying the first.
+ */
+export const ACTION_HEADER = "next-action";
+export const ACTION_NOT_FOUND_HEADER = "x-nextjs-action-not-found";
+
+/** The error a stale tab's server action fails with before it is sent. */
+export const STALE_ACTION_MESSAGE = "This tab runs another build than the server and has to reload";
+
+function callsAction(input: RequestInfo | URL, init?: RequestInit): boolean {
+  const headers = init?.headers ?? (typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined);
+  if (!headers) return false;
+  try {
+    return new Headers(headers).has(ACTION_HEADER);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Wraps `fetch` to see every server action this tab calls. One the server answers as unknown
+ * (a release gave the actions new ids) marks the tab stale: the caller gets Next's error as before,
+ * and the person the "Leafdesk has been updated" screen instead of a failure out of nowhere. Once
+ * stale, no further action is sent: the server would only refuse each one again, with an error in
+ * its log every time. Other requests pass through untouched.
+ */
+export function watchServerActions(fetchImpl: typeof fetch): typeof fetch {
+  return async (input, init) => {
+    if (!callsAction(input, init)) return fetchImpl(input, init);
+    if (stale) throw new Error(STALE_ACTION_MESSAGE);
+    const res = await fetchImpl(input, init);
+    if (res.headers.get(ACTION_NOT_FOUND_HEADER) === "1") markStale();
+    return res;
+  };
+}
+
+// Installed once as the module loads, for the tab's whole life: an effect's cleanup restoring an
+// earlier `fetch` would undo whatever wrapped it in between. Never in development (no build).
+if (typeof window !== "undefined" && CLIENT_BUILD && typeof window.fetch === "function") {
+  window.fetch = watchServerActions(window.fetch);
 }
 
 /**

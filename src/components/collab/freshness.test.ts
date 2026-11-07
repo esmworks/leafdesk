@@ -1,3 +1,4 @@
+import { ACTION_HEADER as NEXT_ACTION_HEADER, NEXT_ACTION_NOT_FOUND_HEADER } from "next/dist/client/components/app-router-headers";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SEEN_BUILD_KEY } from "@/lib/build-id";
 
@@ -132,5 +133,53 @@ describe("freshness", () => {
     const ask = vi.fn(async () => {});
     f.watchServerBuild(ask)();
     expect(ask).not.toHaveBeenCalled();
+  });
+});
+
+describe("server actions", () => {
+  it("names the headers Next sends an action with and answers an unknown one with", async () => {
+    const f = await tab("b1");
+    expect(f.ACTION_HEADER).toBe(NEXT_ACTION_HEADER);
+    expect(f.ACTION_NOT_FOUND_HEADER).toBe(NEXT_ACTION_NOT_FOUND_HEADER);
+  });
+
+  it("turns stale when the server has no such action, and sends no action after that", async () => {
+    const f = await tab("b1");
+    const unknown = new Response("Server Action unavailable.", { status: 409, headers: { [f.ACTION_NOT_FOUND_HEADER]: "1" } });
+    const server = vi.fn(async () => unknown);
+    const fetch = f.watchServerActions(server);
+    const action = { method: "POST", headers: { [f.ACTION_HEADER]: "408137e7" } };
+    // Not an action: passes through, whatever the answer carries.
+    expect(await fetch("/w/x", { method: "POST" })).toBe(unknown);
+    expect(f.isStale()).toBe(false);
+    expect(await fetch("/w/x", action)).toBe(unknown);
+    expect(f.isStale()).toBe(true);
+    await expect(fetch("/w/x", action)).rejects.toThrow(f.STALE_ACTION_MESSAGE);
+    expect(server).toHaveBeenCalledTimes(2);
+    expect(await fetch("/api/read/sidebar")).toBe(unknown);
+    expect(server).toHaveBeenCalledTimes(3);
+  });
+
+  it("stays fresh while the server knows the actions, however the header is given", async () => {
+    const f = await tab("b1");
+    const known = new Response("0:[]", { status: 200 });
+    const server = vi.fn(async () => known);
+    const fetch = f.watchServerActions(server);
+    expect(await fetch("/w/x", { method: "POST", headers: new Headers({ [f.ACTION_HEADER]: "a" }) })).toBe(known);
+    expect(await fetch(new Request("http://leafdesk.test/w/x", { method: "POST", headers: { [f.ACTION_HEADER]: "a" } }))).toBe(known);
+    expect(await fetch("/w/x", { method: "POST", headers: [[f.ACTION_HEADER, "a"]] })).toBe(known);
+    expect(server).toHaveBeenCalledTimes(3);
+    expect(f.isStale()).toBe(false);
+  });
+
+  it("wraps the window's fetch in a built tab, never in development", async () => {
+    const original = vi.fn();
+    const stub = () => vi.stubGlobal("window", { addEventListener: () => {}, fetch: original });
+    stub();
+    await tab("b1");
+    expect(window.fetch).not.toBe(original);
+    stub();
+    await tab("");
+    expect(window.fetch).toBe(original);
   });
 });

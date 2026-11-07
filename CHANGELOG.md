@@ -155,6 +155,14 @@
 
 ### Fixed
 
+- **A tab of the previous version learns of a release from its next click.** After a release, a
+  tab still running the version before fails every server action, since the new version gives
+  them other ids. A tab on a page learned of the release from its page connection and showed the
+  "Leafdesk has been updated" screen; one on the Mail tab, the inbox or settings got a failure
+  out of nowhere until its next check of the server's version (as it came back into view, or
+  after up to a quarter of an hour in view). The server's answer to such an action now shows
+  that screen at once, and a tab that knows it is behind sends no more actions, which each left
+  an error in the server's log.
 - **The AI chat offered "Yes, and don't ask again" where it didn't hold.** Once an answer has
   read words no one in the conversation wrote (a web page, a connected service's answer, email,
   another agent), or while files are attached to the conversation, the chat asks about each change
