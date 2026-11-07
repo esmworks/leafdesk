@@ -4,6 +4,9 @@
 
 ### Added
 
+- **Export as PDF and Print from the Share panel.** Its foot now has the page menu's two ways of
+  taking a page out on paper, so a row such as a delivery note goes to the printer from where it is
+  shared. They follow the workspace's export settings like the menu's.
 - **Keep exports, connected apps and deleting for good to owners.** Three switches in Settings →
   Security for workspaces whose people may see the customer list but shouldn't take it out or wipe
   it. *Who can export: owners only* takes downloads, the print view, calendar feeds and the webhook and
