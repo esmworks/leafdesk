@@ -26,8 +26,16 @@ const ofConnections: Scope = (ws) => sql`connection_id in (select id from connec
  * as anyone's to see (agents/memory.ts readable).
  */
 const agentsNotes: Scope = (ws) => sql`workspace_id = ${ws} and status = 'kept' and user_id in (select user_id from workspace_agent where workspace_id = ${ws})`;
-/** The workspace's files but those of people's conversations, which are private to them like the conversations. */
-const files = (ws: string) => sql`(select id from file where workspace_id = ${ws} and id not in (select file_id from conversation_file))`;
+/**
+ * Team messages' channels, but direct conversations, which are private to their people like AI
+ * chats (server/messages/).
+ */
+const channels = (ws: string) => sql`(select id from channel where workspace_id = ${ws} and kind <> 'direct')`;
+const ofChannels: Scope = (ws) => sql`channel_id in ${channels(ws)}`;
+const ofChannelMessages: Scope = (ws) => sql`message_id in (select id from channel_message where channel_id in ${channels(ws)})`;
+/** The workspace's files but those of people's conversations and direct messages, which are private to them like the conversations. */
+const files = (ws: string) => sql`(select id from file where workspace_id = ${ws} and id not in (select file_id from conversation_file)
+  and id not in (select file_id from message_file where channel_id not in ${channels(ws)}))`;
 const ofFiles: Scope = (ws) => sql`file_id in ${files(ws)}`;
 
 /** The tables a backup holds, by SQL name, with the rows of the workspace in each. */
@@ -115,6 +123,16 @@ export const BACKED_UP: Record<string, Scope> = {
   // Legal holds come back with the workspace: a restore mustn't be a way out of one.
   legal_hold: own,
   legal_hold_person: (ws) => sql`hold_id in (select id from legal_hold where workspace_id = ${ws})`,
+  message_clock: own,
+  channel: (ws) => sql`id in ${channels(ws)}`,
+  channel_section: own,
+  channel_member: ofChannels,
+  channel_message: ofChannels,
+  message_mention: ofChannelMessages,
+  message_version: ofChannelMessages,
+  message_reaction: ofChannelMessages,
+  message_thread: ofChannels,
+  message_file: ofChannels,
 };
 
 /** Tables older backups held and later ones leave out: a restore passes over them. */
@@ -177,6 +195,10 @@ export const LEFT_OUT: Record<string, string> = {
   page_tag: "the #tags in pages' text, read from the restored pages again (server/page-tags.ts)",
   page_tag_queue: "pages waiting for their #tags to be read; a restore queues its own pages",
   agent_run: "agent runs, kept a few weeks only",
+  message_draft: "what people were writing in channels and hadn't sent",
+  saved_message: "people's own messages saved for later and their reminders",
+  scheduled_message: "messages waiting to be sent later; a restore mustn't send them again",
+  message_status: "people's statuses and quiet hours in team messages",
   agent_daily_change: "agents' changes counted against their daily limits, kept a few days only",
   pending_change: "changes agents proposed for review, kept a few weeks only; the runs that proposed them aren't backed up",
   automation_run: "automation runs; pending ones would run again",

@@ -1,0 +1,263 @@
+/**
+ * Rows read as what a client keeps (lib/message-wire.ts): channels with their counts, a person's
+ * memberships with their unread counts, messages with their reactions and files.
+ */
+import { and, asc, eq, inArray, sql, type SQL } from "drizzle-orm";
+import { db } from "@/db";
+import {
+  channel,
+  channelMember,
+  channelMessage,
+  channelSection,
+  file,
+  messageDraft,
+  messageFile,
+  messageReaction,
+  messageStatus,
+  messageThread,
+  savedMessage,
+  scheduledMessage,
+} from "@/db/schema";
+import { fileUrl } from "@/lib/files";
+import type {
+  ChannelView,
+  DraftView,
+  FileView,
+  MembershipView,
+  MessageView,
+  SavedView,
+  ScheduledView,
+  SectionView,
+  StatusView,
+  ThreadView,
+} from "@/lib/message-wire";
+import { stillInWorkspace } from "./core";
+
+const iso = (date: Date | null | undefined) => (date ? date.toISOString() : null);
+
+/** Unread counts stop here: the list shows 99+. */
+const UNREAD_CAP = 99;
+
+/** The channels matching `where` (a condition on `channel`), as clients keep them. */
+export async function channelViews(where: SQL | undefined): Promise<ChannelView[]> {
+  if (!where) return [];
+  const rows = await db
+    .select({
+      row: channel,
+      memberCount: sql<number>`(select count(*)::int from ${channelMember} cm where cm.channel_id = ${channel.id}
+        and ${stillInWorkspace(sql`cm.user_id`, sql`${channel.workspaceId}`)})`,
+      people: sql<string[]>`case when ${channel.kind} = 'direct' then string_to_array(${channel.directKey}, ',') else '{}'::text[] end`,
+    })
+    .from(channel)
+    .where(where);
+  return rows.map(({ row, memberCount, people }) => ({
+    id: row.id,
+    kind: row.kind,
+    name: row.name,
+    topic: row.topic,
+    description: row.description,
+    posting: row.posting,
+    joinNew: row.joinNew,
+    createdBy: row.createdBy,
+    createdAt: row.createdAt.toISOString(),
+    archivedAt: iso(row.archivedAt),
+    lastSeq: row.lastSeq,
+    lastMessageAt: iso(row.lastMessageAt),
+    memberCount,
+    people: people ?? [],
+    rev: row.rev,
+  }));
+}
+
+/** SQL: a message that counts toward a channel's unread (in its main list, from someone else, not deleted), on alias `m`. */
+const countsUnread = (userId: SQL) =>
+  sql`(m.thread_id is null or m.also_in_channel) and m.kind = 'message' and m.deleted_at is null and m.author_id is distinct from ${userId}`;
+
+/** The person's memberships of the channels matching `where` (a condition on `channel_member`), with what is unread. */
+export async function membershipViews(userId: string, where?: SQL): Promise<MembershipView[]> {
+  const rows = await db
+    .select({
+      row: channelMember,
+      unread: sql<number>`(select count(*)::int from (select 1 from ${channelMessage} m where m.channel_id = ${channelMember.channelId}
+        and m.seq > ${channelMember.lastReadSeq} and ${countsUnread(sql`${channelMember.userId}`)} limit ${UNREAD_CAP + 1}) u)`,
+    })
+    .from(channelMember)
+    .where(and(eq(channelMember.userId, userId), where));
+  return rows.map(({ row, unread }) => ({
+    channelId: row.channelId,
+    role: row.role,
+    joinedAt: row.joinedAt.toISOString(),
+    lastReadSeq: row.lastReadSeq,
+    unread: Math.min(unread, UNREAD_CAP + 1),
+    mentions: row.mentions,
+    notify: row.notify,
+    muted: row.muted,
+    starred: row.starred,
+    hidden: row.hidden,
+    sectionId: row.sectionId,
+    rev: row.rev,
+  }));
+}
+
+/** The messages matching `where` (a condition on `channel_message`), in `seq` order, with reactions and files. */
+export async function messageViews(where: SQL | undefined, options: { order?: "asc" | "desc"; limit?: number } = {}): Promise<MessageView[]> {
+  if (!where) return [];
+  let query = db
+    .select()
+    .from(channelMessage)
+    .where(where)
+    .orderBy(options.order === "desc" ? sql`${channelMessage.seq} desc` : asc(channelMessage.seq))
+    .$dynamic();
+  if (options.limit) query = query.limit(options.limit);
+  return withExtras(await query);
+}
+
+type MessageRow = typeof channelMessage.$inferSelect;
+
+/** Message rows with their reactions and files, as clients keep them. */
+export async function withExtras(rows: MessageRow[]): Promise<MessageView[]> {
+  if (!rows.length) return [];
+  const ids = rows.map((r) => r.id);
+  const [reactions, files] = await Promise.all([
+    db
+      .select({ messageId: messageReaction.messageId, emoji: messageReaction.emoji, userId: messageReaction.userId })
+      .from(messageReaction)
+      .where(inArray(messageReaction.messageId, ids))
+      .orderBy(asc(messageReaction.createdAt)),
+    db
+      .select({
+        messageId: messageFile.messageId,
+        id: file.id,
+        name: file.name,
+        contentType: file.contentType,
+        size: file.size,
+        width: messageFile.width,
+        height: messageFile.height,
+      })
+      .from(messageFile)
+      .innerJoin(file, eq(file.id, messageFile.fileId))
+      .where(inArray(messageFile.messageId, ids))
+      .orderBy(asc(messageFile.createdAt)),
+  ]);
+  const reactionsOf = new Map<string, Map<string, string[]>>();
+  for (const r of reactions) {
+    const byEmoji = reactionsOf.get(r.messageId) ?? new Map<string, string[]>();
+    byEmoji.set(r.emoji, [...(byEmoji.get(r.emoji) ?? []), r.userId]);
+    reactionsOf.set(r.messageId, byEmoji);
+  }
+  const filesOf = new Map<string, FileView[]>();
+  for (const f of files) {
+    if (!f.messageId) continue;
+    filesOf.set(f.messageId, [
+      ...(filesOf.get(f.messageId) ?? []),
+      { id: f.id, url: fileUrl(f.id), name: f.name, contentType: f.contentType, size: f.size, width: f.width, height: f.height },
+    ]);
+  }
+  return rows.map((row) => messageView(row, reactionsOf.get(row.id), filesOf.get(row.id)));
+}
+
+function messageView(row: MessageRow, reactions: Map<string, string[]> | undefined, files: FileView[] | undefined): MessageView {
+  return {
+    id: row.id,
+    channelId: row.channelId,
+    seq: row.seq,
+    threadId: row.threadId,
+    authorId: row.authorId,
+    kind: row.kind,
+    body: row.deletedAt ? "" : row.body,
+    data: row.deletedAt ? null : (row.data ?? null),
+    alsoInChannel: row.alsoInChannel,
+    replyCount: row.replyCount,
+    lastReplySeq: row.lastReplySeq,
+    lastReplyAt: iso(row.lastReplyAt),
+    repliers: row.repliers,
+    editedAt: iso(row.editedAt),
+    deletedAt: iso(row.deletedAt),
+    pinnedAt: iso(row.pinnedAt),
+    pinnedBy: row.pinnedBy,
+    createdAt: row.createdAt.toISOString(),
+    reactions: [...(reactions ?? new Map<string, string[]>())].map(([emoji, userIds]) => ({ emoji, userIds })),
+    files: row.deletedAt ? [] : (files ?? []),
+    rev: row.rev,
+  };
+}
+
+export async function threadViews(userId: string, where?: SQL): Promise<ThreadView[]> {
+  const rows = await db
+    .select()
+    .from(messageThread)
+    .where(and(eq(messageThread.userId, userId), where));
+  return rows.map((r) => ({
+    threadId: r.threadId,
+    channelId: r.channelId,
+    following: r.following,
+    lastReadSeq: r.lastReadSeq,
+    mentions: r.mentions,
+    lastReplyAt: iso(r.lastReplyAt),
+    rev: r.rev,
+  }));
+}
+
+export async function draftViews(userId: string, where?: SQL): Promise<DraftView[]> {
+  const rows = await db
+    .select()
+    .from(messageDraft)
+    .where(and(eq(messageDraft.userId, userId), where));
+  return rows.map((r) => ({ channelId: r.channelId, threadId: r.threadId, body: r.body, fileIds: r.fileIds, updatedAt: r.updatedAt.toISOString(), rev: r.rev }));
+}
+
+export async function savedViews(userId: string, where?: SQL): Promise<SavedView[]> {
+  const rows = await db
+    .select({ row: savedMessage, channelId: channelMessage.channelId })
+    .from(savedMessage)
+    .innerJoin(channelMessage, eq(channelMessage.id, savedMessage.messageId))
+    .where(and(eq(savedMessage.userId, userId), where));
+  return rows.map(({ row, channelId }) => ({
+    messageId: row.messageId,
+    channelId,
+    createdAt: row.createdAt.toISOString(),
+    remindAt: iso(row.remindAt),
+    doneAt: iso(row.doneAt),
+    rev: row.rev,
+  }));
+}
+
+export async function sectionViews(userId: string, where?: SQL): Promise<SectionView[]> {
+  const rows = await db
+    .select()
+    .from(channelSection)
+    .where(and(eq(channelSection.userId, userId), where))
+    .orderBy(asc(channelSection.position));
+  return rows.map((r) => ({ id: r.id, name: r.name, position: r.position, collapsed: r.collapsed, rev: r.rev }));
+}
+
+export async function statusViews(where: SQL): Promise<StatusView[]> {
+  const rows = await db.select().from(messageStatus).where(where);
+  return rows.map((r) => ({
+    userId: r.userId,
+    emoji: r.emoji,
+    text: r.text,
+    statusUntil: iso(r.statusUntil),
+    quietUntil: iso(r.quietUntil),
+    previews: r.previews,
+    rev: r.rev,
+  }));
+}
+
+export async function scheduledViews(userId: string, where?: SQL): Promise<ScheduledView[]> {
+  const rows = await db
+    .select()
+    .from(scheduledMessage)
+    .where(and(eq(scheduledMessage.userId, userId), where))
+    .orderBy(asc(scheduledMessage.sendAt));
+  return rows.map((r) => ({
+    id: r.id,
+    channelId: r.channelId,
+    threadId: r.threadId,
+    body: r.body,
+    fileIds: r.fileIds,
+    sendAt: r.sendAt.toISOString(),
+    failure: r.failure,
+    rev: r.rev,
+  }));
+}

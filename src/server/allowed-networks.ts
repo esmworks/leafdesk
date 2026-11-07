@@ -5,6 +5,7 @@ import { formatIpAddress, ipAllowed, parseAllowedNetworks, storedAllowedNetworks
 import { requireMember, requireMembership } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { getCollab } from "@/server/collab/bridge";
+import { reconnectWorkspace } from "@/server/messages/hub";
 import { refuseInLocalMode } from "@/server/local-mode";
 import { WorkspaceError } from "@/server/workspaces";
 
@@ -95,5 +96,8 @@ export async function writeNetworks(
     return true;
   });
   // Open editors were let in before; the ones the new list holds back reconnect and are refused.
-  if (changed && networks.length > 0) await getCollab().disconnectHeldBack(workspaceId);
+  if (changed && networks.length > 0) {
+    await getCollab().disconnectHeldBack(workspaceId);
+    reconnectWorkspace(workspaceId);
+  }
 }

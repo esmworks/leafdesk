@@ -158,6 +158,7 @@ export const AUDIT_CATEGORIES = {
     "connection.approval_decided",
   ],
   exports: ["export.workspace", "export.page", "backup.created", "backup.restored", "dashboard_email.set", "dashboard_email.removed", "dashboard_email.sent"],
+  messages: ["channel.created", "channel.updated", "channel.archived", "channel.unarchived"],
 } as const;
 
 export type AuditCategory = keyof typeof AUDIT_CATEGORIES;
@@ -212,7 +213,8 @@ export type AuditTargetType =
   | "mailbox"
   | "legal_hold"
   | "webhook"
-  | "audit_stream";
+  | "audit_stream"
+  | "channel";
 
 /** A stored event, as the list and the CSV show it. Names are as they were when it happened. */
 export type AuditEvent = {

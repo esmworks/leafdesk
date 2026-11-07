@@ -29,3 +29,4 @@ export * from "./legal-holds";
 export * from "./webhooks";
 export * from "./syncs";
 export * from "./security";
+export * from "./messages";
