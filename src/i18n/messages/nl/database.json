@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Rijen op zaterdag en zondag",
     "dayRows": "{date}: {count, plural, =0 {geen rijen} one {# rij} other {# rijen}}",
     "emptyDay": "Geen rijen op deze dag.",
+    "more": "+{count} meer",
     "month": "Maand",
     "week": "Week",
     "mode": "Periode",

@@ -4,7 +4,9 @@ import {
   dayBlocks,
   eventsOffGrid,
   eventsOn,
+  hiddenByColumn,
   isAllDay,
+  lanesThatFit,
   isWeekend,
   monthWeeks,
   weekBars,
@@ -94,6 +96,27 @@ describe("weekBars", () => {
       ["timed-late", 2],
     ]);
     expect(eventsOn(events, d("2026-10-13")).map((e) => e.id)).toEqual(["day", "timed-early", "timed-late"]);
+  });
+});
+
+describe("lanes in a day cell of fixed height", () => {
+  it("shows every lane that fits, else leaves room for the count of the rest", () => {
+    // Lanes end 50, 74 and 98 px down a cell.
+    expect(lanesThatFit([50, 74, 98], 100, 24)).toBe(3);
+    expect(lanesThatFit([50, 74, 98], 90, 24)).toBe(1);
+    expect(lanesThatFit([50, 74, 98], 40, 24)).toBe(0);
+    expect(lanesThatFit([], 40, 24)).toBe(0);
+  });
+
+  it("counts the hidden bars on each day they cover", () => {
+    const bars = [
+      { col: 0, span: 7, lane: 0 },
+      { col: 1, span: 3, lane: 1 },
+      { col: 2, span: 1, lane: 2 },
+      { col: 5, span: 4, lane: 1 },
+    ];
+    expect(hiddenByColumn(bars, 1, 7)).toEqual([0, 1, 2, 1, 0, 1, 1]);
+    expect(hiddenByColumn(bars, 3, 7)).toEqual([0, 0, 0, 0, 0, 0, 0]);
   });
 });
 

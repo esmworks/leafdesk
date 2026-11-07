@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Rader på lördagar och söndagar",
     "dayRows": "{date}: {count, plural, =0 {inga rader} one {# rad} other {# rader}}",
     "emptyDay": "Inga rader den här dagen.",
+    "more": "+{count} till",
     "month": "Månad",
     "week": "Vecka",
     "mode": "Period",

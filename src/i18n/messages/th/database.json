@@ -840,6 +840,7 @@
     "weekendRowsTitle": "แถวในวันเสาร์และวันอาทิตย์",
     "dayRows": "{date}: {count, plural, =0 {ไม่มีแถว} other {# แถว}}",
     "emptyDay": "ไม่มีแถวในวันนี้",
+    "more": "+{count} รายการ",
     "month": "เดือน",
     "week": "สัปดาห์",
     "mode": "ช่วงเวลา",

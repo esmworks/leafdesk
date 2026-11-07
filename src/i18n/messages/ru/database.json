@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Строки на субботы и воскресенья",
     "dayRows": "{date}: {count, plural, =0 {нет строк} one {# строка} few {# строки} many {# строк} other {# строки}}",
     "emptyDay": "В этот день нет строк.",
+    "more": "ещё {count}",
     "month": "Месяц",
     "week": "Неделя",
     "mode": "Период",

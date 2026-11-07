@@ -711,7 +711,8 @@ export function PageView({
         <PageCoverBand background={background} />
         <div
           className={cn(
-            "w-full flex-1 pb-32",
+            // A view that fills the window's height (a database's month calendar) needs no room under it.
+            "w-full flex-1 pb-32 has-[[data-fills-page]]:pb-0",
             wide ? "pt-6" : fullWidth ? "page-full-width" : "page-column mx-auto max-w-[900px]",
             !wide && "pt-8 md:pt-12",
             // In the row panel the comments open beside the panel, not over the page.

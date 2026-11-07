@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Lignes des samedis et dimanches",
     "dayRows": "{date} : {count, plural, =0 {aucune ligne} one {# ligne} other {# lignes}}",
     "emptyDay": "Aucune ligne ce jour-là.",
+    "more": "+{count} de plus",
     "month": "Mois",
     "week": "Semaine",
     "mode": "Période",

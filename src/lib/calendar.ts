@@ -153,6 +153,28 @@ export function weekBars<T extends CalendarEvent>(
 }
 
 /**
+ * How many of a week's lanes a day cell of `room` pixels shows, given where each lane ends
+ * (`bottoms`, in pixels from the cell's top, in lane order). All of them when they fit; otherwise
+ * as many as leave `more` pixels under them for the line that counts the rest.
+ */
+export function lanesThatFit(bottoms: number[], room: number, more: number): number {
+  if (bottoms.length === 0 || bottoms[bottoms.length - 1] <= room) return bottoms.length;
+  let shown = 0;
+  while (shown < bottoms.length && bottoms[shown] <= room - more) shown++;
+  return shown;
+}
+
+/** The bars in lanes from `shown` on, counted on each of the `columns` days they cover. */
+export function hiddenByColumn(bars: Pick<WeekBar<unknown>, "col" | "span" | "lane">[], shown: number, columns: number): number[] {
+  const hidden = Array.from({ length: columns }, () => 0);
+  for (const bar of bars) {
+    if (bar.lane < shown) continue;
+    for (let col = bar.col; col < bar.col + bar.span && col < columns; col++) hidden[col]++;
+  }
+  return hidden;
+}
+
+/**
  * The events touching the days `first` to `last` that cover none of the days `shown` keeps: on a
  * calendar without weekends, the rows dated only on a Saturday or Sunday, listed apart so they
  * stay in reach.

@@ -553,7 +553,9 @@
     databases and templates don't repeat. MCP and the REST API set it with `repeat` on a row
     update (`update_database_row`, `PATCH /rows/{row_id}`) and show it on the row.
   - Calendar views show a month, with dates over several days as bars across them, or a week with
-    its hours; a row is added on a day or at an hour, and dragging it moves its whole date.
+    its hours; a row is added on a day or at an hour, and dragging it moves its whole date. On the
+    database's own page the month fills the window's height; a day with more rows than fit lists
+    the rest behind *+N more*.
   - Date, created time and last edited time properties show dates in the viewer's language as a
     full or short date, month/day/year, day/month/year or year/month/day, with times on a 12- or
     24-hour clock, in the app and on published pages (exports, CSV, the API and MCP keep ISO

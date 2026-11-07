@@ -840,6 +840,7 @@
     "weekendRowsTitle": "שורות בימי שבת וראשון",
     "dayRows": "{date}: {count, plural, =0 {אין שורות} one {שורה אחת} two {שתי שורות} other {# שורות}}",
     "emptyDay": "אין שורות ביום הזה.",
+    "more": "+{count} נוספים",
     "month": "חודש",
     "week": "שבוע",
     "mode": "תקופה",

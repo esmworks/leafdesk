@@ -51,6 +51,13 @@
 
 ### Changed
 
+- **A database's month calendar fits the window.** On the database's own page the weeks share the
+  height below the calendar, so a six-week month shows whole without scrolling; a short window
+  scrolls once weeks reach their least height. A calendar inside a page keeps a fixed height per
+  week. A day with more rows than fit shows the ones that do and a *+N more* line that lists all
+  of them. The days are quieter: filled entries without frames or shadows, lighter lines between
+  days, day numbers at the start of each cell, and the 1st of a month named with its month.
+
 - **Mail images from the mailbox's own domain load only when the provider vouched for the sender.**
   A message from an address at the mailbox's own domain used to show its images from other sites
   unless the provider's check said it came from someone else; anyone can write a From address, so

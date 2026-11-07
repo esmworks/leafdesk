@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Cumartesi ve pazar günlerindeki satırlar",
     "dayRows": "{date}: {count, plural, =0 {satır yok} other {# satır}}",
     "emptyDay": "Bu günde satır yok.",
+    "more": "+{count} daha",
     "month": "Ay",
     "week": "Hafta",
     "mode": "Dönem",

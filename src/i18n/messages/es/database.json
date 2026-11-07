@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Filas en sábados y domingos",
     "dayRows": "{date}: {count, plural, =0 {sin filas} one {# fila} other {# filas}}",
     "emptyDay": "No hay filas en este día.",
+    "more": "+{count} más",
     "month": "Mes",
     "week": "Semana",
     "mode": "Periodo",

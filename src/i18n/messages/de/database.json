@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Zeilen an Samstagen und Sonntagen",
     "dayRows": "{date}: {count, plural, =0 {keine Zeilen} one {# Zeile} other {# Zeilen}}",
     "emptyDay": "An diesem Tag gibt es keine Zeilen.",
+    "more": "+{count} weitere",
     "month": "Monat",
     "week": "Woche",
     "mode": "Zeitraum",

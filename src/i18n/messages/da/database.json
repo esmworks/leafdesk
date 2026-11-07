@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Rækker på lørdage og søndage",
     "dayRows": "{date}: {count, plural, =0 {ingen rækker} one {# række} other {# rækker}}",
     "emptyDay": "Ingen rækker på denne dag.",
+    "more": "+{count} mere",
     "month": "Måned",
     "week": "Uge",
     "mode": "Periode",

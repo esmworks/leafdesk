@@ -894,7 +894,7 @@ export function DatabasePage({
                     ) : view.type === "calendar" ? (
                       <div className="page-gutter">
                         <MemoCalendarView
-                        colors={rowColors}
+                          colors={rowColors}
                           workspaceId={workspaceId}
                           view={view}
                           properties={viewProperties}
@@ -903,6 +903,7 @@ export function DatabasePage({
                           readOnly={readOnly}
                           locked={locked}
                           onCreateDateProperty={createDateProperty}
+                          fillPage={!embedded}
                         />
                       </div>
                     ) : (

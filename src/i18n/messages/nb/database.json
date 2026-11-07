@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Rader på lørdager og søndager",
     "dayRows": "{date}: {count, plural, =0 {ingen rader} one {# rad} other {# rader}}",
     "emptyDay": "Ingen rader denne dagen.",
+    "more": "+{count} til",
     "month": "Måned",
     "week": "Uke",
     "mode": "Periode",

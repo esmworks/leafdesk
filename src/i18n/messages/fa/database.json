@@ -840,6 +840,7 @@
     "weekendRowsTitle": "ردیف‌های شنبه‌ها و یکشنبه‌ها",
     "dayRows": "{date}: {count, plural, =0 {بدون ردیف} one {# ردیف} other {# ردیف}}",
     "emptyDay": "در این روز ردیفی وجود ندارد.",
+    "more": "+{count} مورد دیگر",
     "month": "ماه",
     "week": "هفته",
     "mode": "دوره",

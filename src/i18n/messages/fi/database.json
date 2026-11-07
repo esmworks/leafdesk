@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Rivit lauantaina ja sunnuntaina",
     "dayRows": "{date}: {count, plural, =0 {ei rivejä} one {# rivi} other {# riviä}}",
     "emptyDay": "Tälle päivälle ei ole rivejä.",
+    "more": "+{count} lisää",
     "month": "Kuukausi",
     "week": "Viikko",
     "mode": "Jakso",

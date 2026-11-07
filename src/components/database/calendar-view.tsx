@@ -3,7 +3,7 @@
 import { cellMarkClass, colorMarkClass, type RowColors } from "@/lib/color-rules";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { Button, cn, PageIcon } from "@/components/ui";
 import { PHONE_QUERY, useMediaQuery } from "@/components/use-media-query";
 import type { CalendarMode } from "@/db/schema/app";
@@ -13,8 +13,10 @@ import {
   eventsOffGrid,
   eventsOn,
   firstDayOfWeek,
+  hiddenByColumn,
   isAllDay,
   isWeekend,
+  lanesThatFit,
   MINUTES_PER_DAY,
   monthWeeks,
   weekBars,
@@ -27,6 +29,7 @@ import { dayNumber, dayString, monthDay, zonedInstant } from "@/lib/time-zone";
 import { CALENDAR_MODES, viewDateProperty } from "@/lib/views";
 import { CardTitleInput } from "./card-title-input";
 import { CalendarFeedButton } from "./calendar-feed";
+import { Floating } from "./floating";
 import { usePropertyAccess } from "./property-access";
 import { RowValue, shownValues } from "./property-cell";
 import { QuickAddContext } from "./quick-add";
@@ -41,6 +44,19 @@ const MAX_ENTRY_PROPS = 2;
 const HOUR_HEIGHT = 48;
 /** The week's hours take rows and drops by the half hour. */
 const SLOT_MINUTES = 30;
+/** The month's weekday names, in rem. */
+const MONTH_HEAD_REM = 2;
+/** A month's week on a database's own page shares the page's height, but is at least this tall (rem). */
+const MIN_WEEK_REM = 5;
+/** A month's week in a calendar inside a page (rem). */
+const EMBEDDED_WEEK_REM = 7;
+/** The line under a day's shown rows that counts the rest, in pixels. */
+const MORE_HEIGHT = 24;
+/** A month day's number row (1.75rem), in pixels: where its first lane starts. */
+const DAY_HEAD_HEIGHT = 28;
+/** What sits under the month on its page: the calendar's bottom room and each folded list's toggle, in pixels. */
+const BOTTOM_ROOM = 16;
+const TOGGLE_HEIGHT = 40;
 
 type RowEvent = CalendarEvent & { row: Row };
 
@@ -58,6 +74,10 @@ const WORKDAYS = (day: number) => !isWeekend(day);
  * ends, keeping whether it has times. Without weekends (`showWeekends` false) Saturdays and Sundays
  * have no column; rows only on those days are listed under the calendar, where they can be opened
  * and dragged onto a weekday, rather than drawn on a neighbouring day they aren't on.
+ *
+ * On a database's own page (`fillPage`) the month's weeks share the window's height below the
+ * calendar, down to a least height; inside a page each week has a fixed height. A day shows the
+ * lanes that fit and a "+N" line opening all its rows.
  */
 export function CalendarView({
   workspaceId,
@@ -69,6 +89,7 @@ export function CalendarView({
   locked,
   onCreateDateProperty,
   colors,
+  fillPage,
 }: {
   workspaceId: string;
   view: View;
@@ -80,6 +101,8 @@ export function CalendarView({
   onCreateDateProperty: () => void;
   /** What the view's color rules color, by row id (see lib/color-rules). */
   colors?: ReadonlyMap<string, RowColors>;
+  /** The view is its database's whole page (not inside another): the month fills the window's height. */
+  fillPage?: boolean;
 }) {
   const t = useTranslations("database");
   const format = useFormatter();
@@ -170,6 +193,72 @@ export function CalendarView({
     setDropAt(null);
   }, []);
 
+  const undated = dateBy ? rows.filter((r) => !parseDateValue(r.properties[dateBy.id])) : [];
+  // Rows on none of the days shown (only on a Saturday or Sunday) are listed apart.
+  const weekendRows = shownDay === EVERY_DAY ? [] : eventsOffGrid(events, weeks[0], weeks[weeks.length - 1] + 6, shownDay);
+
+  // The month on its database's page: as tall as the window leaves under it, less the folded lists.
+  const monthBox = useRef<HTMLDivElement>(null);
+  const [room, setRoom] = useState<number | null>(null);
+  const filling = !!fillPage && !!dateBy && !phone && mode === "month";
+  const below = BOTTOM_ROOM + TOGGLE_HEIGHT * (Number(weekendRows.length > 0) + Number(undated.length > 0));
+  useLayoutEffect(() => {
+    const box = monthBox.current;
+    const main = box?.closest("main");
+    if (!filling || !box || !main) return;
+    const measure = () => {
+      const top = box.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
+      const padding = parseFloat(getComputedStyle(main).paddingBottom) || 0;
+      setRoom(Math.floor(main.clientHeight - padding - top - below));
+    };
+    measure();
+    // The window, or what is above the calendar (a banner, the view bar wrapping), changing size.
+    const observer = new ResizeObserver(measure);
+    observer.observe(main);
+    for (const child of main.children) observer.observe(child);
+    return () => observer.disconnect();
+  }, [filling, below]);
+
+  // How many lanes each month week shows (by its first day), measured from where its lanes end,
+  // and where the line counting the rest goes: right under the last lane shown.
+  const [fits, setFits] = useState<ReadonlyMap<number, { shown: number; top: number }>>(new Map());
+  const [more, setMore] = useState<{ day: number; anchor: HTMLElement } | null>(null);
+  // The day's list opens in a portal, out of the tab order: its first row takes the focus.
+  const moreList = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (more) moreList.current?.querySelector<HTMLElement>("[role=link]")?.focus();
+  }, [more]);
+  const closeMore = () => {
+    if (more && moreList.current?.contains(document.activeElement)) more.anchor.focus();
+    setMore(null);
+  };
+  const monthShown = !!dateBy && !phone && mode === "month";
+  useLayoutEffect(() => {
+    const box = monthBox.current;
+    if (!monthShown || !box) return;
+    const measure = () => {
+      const next = new Map<number, { shown: number; top: number }>();
+      for (const week of box.querySelectorAll<HTMLElement>("[data-week]")) {
+        const bottoms: number[] = [];
+        for (const bar of week.querySelectorAll<HTMLElement>("[data-lane]")) {
+          const lane = Number(bar.dataset.lane);
+          bottoms[lane] = Math.max(bottoms[lane] ?? 0, bar.offsetTop + bar.offsetHeight);
+        }
+        const ends = Array.from(bottoms, (b) => b ?? 0);
+        const shown = lanesThatFit(ends, week.clientHeight, MORE_HEIGHT);
+        next.set(Number(week.dataset.week), { shown, top: shown > 0 ? ends[shown - 1] : DAY_HEAD_HEIGHT });
+      }
+      const same = (a?: { shown: number; top: number }, b?: { shown: number; top: number }) => a?.shown === b?.shown && a?.top === b?.top;
+      setFits((prev) => (prev.size === next.size && [...next].every(([k, v]) => same(prev.get(k), v)) ? prev : next));
+    };
+    measure();
+    // A week's room (the window) or its rows' heights (values loading, a title wrapping) changing.
+    const observer = new ResizeObserver(measure);
+    for (const week of box.querySelectorAll<HTMLElement>("[data-week], [data-week] > *")) observer.observe(week);
+    return () => observer.disconnect();
+    // `room` too: the weeks shrink to it in the same commit, before an observer would tell.
+  }, [monthShown, weeks, events, entryProps, showIcons, room]);
+
   if (!dateBy) {
     return (
       <div className="flex flex-col items-start gap-3 rounded-lg border border-dashed border-border px-6 py-10">
@@ -187,16 +276,12 @@ export function CalendarView({
     );
   }
 
-  const undated = rows.filter((r) => !parseDateValue(r.properties[dateBy.id]));
   const canAdd = !readOnly && access.canEditValues(dateBy.id);
   const todayDay = dayNumber(today);
   const days = weeks.flatMap((start) => Array.from({ length: 7 }, (_, i) => start + i).filter(shownDay));
   // Columns of a week: 7, or 5 without weekends.
   const columns = days.length / weeks.length;
   const gridColumns = { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` };
-  const lastDay = weeks[weeks.length - 1] + 6;
-  // Rows on none of the days shown (only on a Saturday or Sunday) are listed apart.
-  const weekendRows = shownDay === EVERY_DAY ? [] : eventsOffGrid(events, weeks[0], lastDay, shownDay);
 
   const move = (delta: number) => {
     if (mode === "week") return setAnchor(dayString(anchorDay + 7 * delta));
@@ -223,6 +308,7 @@ export function CalendarView({
     e.preventDefault();
     const rowId = dragId ?? e.dataTransfer.getData("text/plain");
     endDrag();
+    setMore(null);
     const row = rows.find((r) => r.id === rowId);
     if (!row) return;
     const value = row.properties[dateBy.id];
@@ -284,74 +370,118 @@ export function CalendarView({
 
   /**
    * A week's rows of bars over its day cells. The cells take drops; while dragging, the bars let
-   * the pointer through to them. Month weeks have the day numbers on top of their cells.
+   * the pointer through to them. Month weeks have the day numbers on top of their cells, and show
+   * only the lanes their height fits (`fits`), with a line under each day counting the rest.
    */
-  const weekRow = (start: number, list: RowEvent[], header: boolean) => {
+  const weekRow = (start: number, list: RowEvent[], monthWeek: boolean) => {
     const { bars, lanes } = weekBars(list, start, shownDay);
-    const first = header ? 2 : 1;
+    const first = monthWeek ? 2 : 1;
+    const fit = monthWeek ? fits.get(start) : undefined;
+    const shown = fit ? Math.min(fit.shown, lanes) : lanes;
+    const hidden = shown < lanes ? hiddenByColumn(bars, shown, columns) : null;
+    const weekDaysShown = Array.from({ length: 7 }, (_, i) => start + i).filter(shownDay);
     return (
-      <div
-        className={cn("grid", header && "min-h-28")}
-        style={{
-          ...gridColumns,
-          gridTemplateRows: `${header ? "1.75rem " : ""}${lanes ? `repeat(${lanes}, auto) ` : ""}minmax(${header ? "1.5rem" : "1.75rem"}, 1fr)`,
-        }}
-      >
-        {Array.from({ length: 7 }, (_, i) => start + i).filter(shownDay).map((day, i) => {
-          const key = dayString(day);
-          const inMonth = mode === "week" || utcDay(day).getUTCMonth() === month;
-          return (
-            <section
-              key={key}
-              data-day={day}
-              aria-label={dayLabel(day)}
-              {...target(key, (e) => dropOnDay(e, day))}
-              style={{ gridColumn: i + 1, gridRow: "1 / -1" }}
+      <>
+        <div
+          className={cn("grid", monthWeek && "min-h-full")}
+          style={{
+            ...gridColumns,
+            gridTemplateRows: `${monthWeek ? "1.75rem " : ""}${lanes ? `repeat(${lanes}, auto) ` : ""}minmax(${monthWeek ? "1.5rem" : "1.75rem"}, 1fr)`,
+          }}
+        >
+          {weekDaysShown.map((day, i) => {
+            const key = dayString(day);
+            const inMonth = mode === "week" || utcDay(day).getUTCMonth() === month;
+            return (
+              <section
+                key={key}
+                data-day={day}
+                aria-label={dayLabel(day)}
+                {...target(key, (e) => dropOnDay(e, day))}
+                style={{ gridColumn: i + 1, gridRow: "1 / -1" }}
+                className={cn(
+                  "group min-w-0 p-1",
+                  i > 0 && "border-s border-border/60",
+                  monthWeek && !inMonth && "bg-bg-subtle",
+                  dragId && dropAt === key && "bg-bg-hover",
+                )}
+              >
+                {monthWeek && (
+                  <div className="flex h-6 items-center justify-between gap-1">
+                    <DayNumber
+                      day={day}
+                      today={day === todayDay}
+                      faint={!inMonth}
+                      // The 1st names its month, so a week across two months reads at a glance.
+                      label={utcDay(day).getUTCDate() === 1 ? format.dateTime(utcDay(day), { day: "numeric", month: "short", timeZone: "UTC" }) : undefined}
+                    />
+                    {canAdd && (
+                      <button
+                        type="button"
+                        aria-label={t("calendar.addOnDay", { date: dayLabel(day) })}
+                        title={t("calendar.addOnDay", { date: dayLabel(day) })}
+                        onClick={() => addOn(day)}
+                        className="invisible inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-fg-muted group-hover:visible hover:bg-bg-active hover:text-fg focus-visible:visible pointer-coarse:visible"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+          {bars.map((bar) => (
+            <div
+              key={bar.event.id}
+              data-lane={monthWeek ? bar.lane : undefined}
+              style={{ gridColumn: `${bar.col + 1} / span ${bar.span}`, gridRow: bar.lane + first }}
               className={cn(
-                "group min-w-0 p-1",
-                i > 0 && "border-s border-border",
-                !inMonth && "bg-bg-subtle",
-                dragId && dropAt === key && "bg-bg-hover",
+                "min-w-0 pb-1",
+                !bar.before && "ps-1",
+                !bar.after && "pe-1",
+                dragId && "pointer-events-none",
+                // Laid out still, so the week knows how tall its lanes are when it grows.
+                bar.lane >= shown && "invisible",
               )}
             >
-              {header && (
-                <div className="flex h-6 items-center justify-between">
-                  {canAdd ? (
-                    <button
-                      type="button"
-                      aria-label={t("calendar.addOnDay", { date: dayLabel(day) })}
-                      title={t("calendar.addOnDay", { date: dayLabel(day) })}
-                      onClick={() => addOn(day)}
-                      className="invisible inline-flex h-6 w-6 items-center justify-center rounded text-fg-muted group-hover:visible hover:bg-bg-active hover:text-fg focus-visible:visible pointer-coarse:visible"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  ) : (
-                    <span />
-                  )}
-                  <DayNumber day={day} today={day === todayDay} faint={!inMonth} />
+              {entry(bar.event.row, { time: bar.before ? null : timeOf(bar.event), before: bar.before, after: bar.after })}
+            </div>
+          ))}
+        </div>
+        {hidden && (
+          <div className="pointer-events-none absolute inset-x-0 grid" style={{ ...gridColumns, top: fit?.top }}>
+            {hidden.map((count, col) =>
+              count > 0 ? (
+                <div key={col} style={{ gridColumn: col + 1 }} className="min-w-0 px-1">
+                  <button
+                    type="button"
+                    aria-label={t("calendar.dayRows", { date: dayLabel(weekDaysShown[col]), count: eventsOn(events, weekDaysShown[col]).length })}
+                    aria-expanded={more?.day === weekDaysShown[col]}
+                    onClick={(e) => {
+                      const anchor = e.currentTarget;
+                      setMore((open) => (open?.day === weekDaysShown[col] ? null : { day: weekDaysShown[col], anchor }));
+                    }}
+                    className={cn(
+                      "pointer-events-auto flex h-5 w-full min-w-0 items-center rounded-md px-1.5 text-xs font-medium text-fg-muted hover:bg-bg-hover hover:text-fg",
+                      dragId && "pointer-events-none",
+                    )}
+                  >
+                    <span className="truncate">{t("calendar.more", { count })}</span>
+                  </button>
                 </div>
-              )}
-            </section>
-          );
-        })}
-        {bars.map((bar) => (
-          <div
-            key={bar.event.id}
-            style={{ gridColumn: `${bar.col + 1} / span ${bar.span}`, gridRow: bar.lane + first }}
-            className={cn("min-w-0 pb-1", !bar.before && "ps-1", !bar.after && "pe-1", dragId && "pointer-events-none")}
-          >
-            {entry(bar.event.row, { time: bar.before ? null : timeOf(bar.event), before: bar.before, after: bar.after })}
+              ) : null,
+            )}
           </div>
-        ))}
-      </div>
+        )}
+      </>
     );
   };
 
   const weekdayHeader = (
-    <div className="grid border-b border-border bg-bg-subtle" style={gridColumns}>
+    <div className="grid items-center" style={gridColumns}>
       {days.slice(0, columns).map((day) => (
-        <div key={day} className="px-2 py-1.5 text-xs text-fg-muted">
+        <div key={day} className="truncate px-2.5 text-xs font-medium text-fg-muted">
           {format.dateTime(utcDay(day), { weekday: "short", timeZone: "UTC" })}
         </div>
       ))}
@@ -360,10 +490,20 @@ export function CalendarView({
 
   const monthGrid = (
     <div className="-mx-2 overflow-x-auto px-2">
-      <div className="min-w-[42rem] overflow-hidden rounded-lg border border-border">
+      <div
+        ref={monthBox}
+        data-fills-page={filling || undefined}
+        className="grid min-w-[42rem] overflow-hidden rounded-lg border border-border"
+        style={{
+          gridTemplateRows: `${MONTH_HEAD_REM}rem repeat(${weeks.length}, ${fillPage ? `minmax(${MIN_WEEK_REM}rem, 1fr)` : `${EMBEDDED_WEEK_REM}rem`})`,
+          // Never below the weeks' least height (plus the box's edges): a short window scrolls.
+          height: filling && room !== null ? `max(${room}px, calc(${MONTH_HEAD_REM + weeks.length * MIN_WEEK_REM}rem + 2px))` : undefined,
+        }}
+      >
         {weekdayHeader}
-        {weeks.map((start, w) => (
-          <div key={start} className={cn(w > 0 && "border-t border-border")}>
+        {/* Clipped, not hidden: a box that can't scroll, so focusing a row never shifts its week. */}
+        {weeks.map((start) => (
+          <div key={start} data-week={start} className="relative min-h-0 overflow-clip border-t border-border">
             {weekRow(start, events, true)}
           </div>
         ))}
@@ -374,7 +514,7 @@ export function CalendarView({
   const weekGrid = (
     <div className="-mx-2 overflow-x-auto px-2">
       <div className="min-w-[42rem] overflow-hidden rounded-lg border border-border">
-        <div className="flex border-b border-border bg-bg-subtle">
+        <div className="flex border-b border-border">
           <div className="w-14 shrink-0" />
           <div className="grid min-w-0 flex-1" style={gridColumns}>
             {days.map((day) => (
@@ -479,8 +619,8 @@ export function CalendarView({
     <QuickAddContext value={quick}>
       <div className="pb-4">
         <div className="flex flex-wrap items-center gap-1 pb-2">
-          <h3 className="min-w-0 flex-1 truncate text-sm font-medium first-letter:uppercase">{title}</h3>
-          <div role="group" aria-label={t("calendar.mode")} className="inline-flex rounded-md border border-border p-0.5">
+          <h3 className="min-w-0 flex-1 truncate text-base font-semibold first-letter:uppercase">{title}</h3>
+          <div role="group" aria-label={t("calendar.mode")} className="inline-flex gap-0.5 rounded-md bg-bg-hover p-0.5">
             {CALENDAR_MODES.map((m) => (
               <button
                 key={m}
@@ -488,8 +628,8 @@ export function CalendarView({
                 aria-pressed={mode === m}
                 onClick={() => setMode(m)}
                 className={cn(
-                  "h-6 rounded px-2 text-xs",
-                  mode === m ? "bg-bg-active font-medium text-fg" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
+                  "h-6 rounded px-2.5 text-xs transition-colors",
+                  mode === m ? "bg-bg font-medium text-fg shadow-sm" : "text-fg-muted hover:text-fg",
                 )}
               >
                 {t(`calendar.${m}`)}
@@ -537,6 +677,19 @@ export function CalendarView({
           weekGrid
         ) : (
           monthGrid
+        )}
+
+        {more && monthShown && (
+          <Floating anchor={more.anchor} open onClose={closeMore} className="w-64 p-2">
+            <section aria-label={dayLabel(more.day)}>
+              <h4 className="px-0.5 pb-1.5 text-xs font-medium text-fg-muted first-letter:uppercase">
+                {format.dateTime(utcDay(more.day), { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" })}
+              </h4>
+              <div ref={moreList} className="flex max-h-80 flex-col gap-1 overflow-y-auto">
+                {eventsOn(events, more.day).map((e) => entry(e.row, { time: e.start === more.day ? timeOf(e) : null }))}
+              </div>
+            </section>
+          </Floating>
         )}
 
         {weekendRows.length > 0 && (
@@ -597,15 +750,16 @@ export function CalendarView({
   );
 }
 
-function DayNumber({ day, today, faint }: { day: number; today: boolean; faint?: boolean }) {
+function DayNumber({ day, today, faint, label }: { day: number; today: boolean; faint?: boolean; label?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-xs tabular-nums",
-        today ? "bg-accent font-medium text-accent-fg" : faint ? "text-fg-faint" : "text-fg",
+        "inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1.5 text-xs tabular-nums",
+        today ? "bg-accent font-medium text-accent-fg" : faint ? "text-fg-faint" : "text-fg-muted",
+        label && !today && "font-medium",
       )}
     >
-      {utcDay(day).getUTCDate()}
+      {label ?? utcDay(day).getUTCDate()}
     </span>
   );
 }
@@ -647,7 +801,7 @@ function PhoneDays({
   return (
     <>
       <div className="overflow-hidden rounded-lg border border-border">
-        <div className="grid border-b border-border bg-bg-subtle" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+        <div className="grid border-b border-border" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
           {days.slice(0, columns).map((day) => (
             <div key={day} className="py-1.5 text-center text-xs text-fg-muted">
               {format.dateTime(utcDay(day), { weekday: "narrow", timeZone: "UTC" })}
@@ -768,10 +922,10 @@ const CalendarEntry = memo(function CalendarEntry({
         if (e.key === "Enter" && !editTitle && e.target === e.currentTarget) opener.open(row.id, e);
       }}
       className={cn(
-        "min-w-0 cursor-pointer rounded-md border border-border bg-bg px-1.5 py-1 text-xs shadow-sm hover:bg-bg-subtle",
-        before && "rounded-s-none border-s-0",
-        after && "rounded-e-none border-e-0",
-        block && "h-full overflow-hidden py-0.5",
+        "min-w-0 cursor-pointer rounded-md bg-bg-active/70 px-1.5 py-0.5 text-xs leading-4 hover:bg-bg-active",
+        before && "rounded-s-none",
+        after && "rounded-e-none",
+        block && "h-full overflow-hidden",
         dragging && "opacity-40",
         isOpen && "outline-2 outline-accent/60",
         color?.row && `${colorMarkClass(color.row)} mark-hover`,

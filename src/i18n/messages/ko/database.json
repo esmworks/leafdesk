@@ -840,6 +840,7 @@
     "weekendRowsTitle": "토요일과 일요일의 행",
     "dayRows": "{date}: {count, plural, =0 {행 없음} other {행 #개}}",
     "emptyDay": "이날에는 행이 없습니다.",
+    "more": "{count}개 더 보기",
     "month": "월",
     "week": "주",
     "mode": "기간",

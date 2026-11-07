@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Các hàng vào thứ Bảy và Chủ nhật",
     "dayRows": "{date}: {count, plural, =0 {không có hàng} other {# hàng}}",
     "emptyDay": "Không có hàng nào trong ngày này.",
+    "more": "+{count} mục khác",
     "month": "Tháng",
     "week": "Tuần",
     "mode": "Khoảng thời gian",

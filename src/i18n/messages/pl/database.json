@@ -840,6 +840,7 @@
     "weekendRowsTitle": "Wiersze w soboty i niedziele",
     "dayRows": "{date}: {count, plural, =0 {brak wierszy} one {# wiersz} few {# wiersze} many {# wierszy} other {# wiersza}}",
     "emptyDay": "Brak wierszy w tym dniu.",
+    "more": "+{count} więcej",
     "month": "Miesiąc",
     "week": "Tydzień",
     "mode": "Okres",

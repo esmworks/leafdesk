@@ -840,6 +840,7 @@
     "weekendRowsTitle": "الصفوف في أيام السبت والأحد",
     "dayRows": "{date}: {count, plural, =0 {لا صفوف} one {صف واحد} two {صفّان} few {# صفوف} many {# صفًا} other {# صف}}",
     "emptyDay": "لا صفوف في هذا اليوم.",
+    "more": "+{count} أخرى",
     "month": "شهر",
     "week": "أسبوع",
     "mode": "الفترة",
