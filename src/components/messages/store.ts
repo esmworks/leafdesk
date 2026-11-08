@@ -412,10 +412,11 @@ async function start() {
   const ws = workspace;
   try {
     if (rev > 0 && state.ready) {
-      const answer = await call<{ reset: true; rev: number } | (Changes & { reset?: false; keep: Parameters<typeof dropMissing>[0] })>("sync", { since: rev });
+      const answer = await call<{ reset: true; rev: number } | (Changes & { reset?: false; people: PersonView[]; keep: Parameters<typeof dropMissing>[0] })>("sync", { since: rev });
       if (ws !== workspace) return;
       if (answer.reset) await load();
       else {
+        set({ people: new Map(answer.people.map((p) => [p.id, p])) });
         apply(answer, "sync");
         dropMissing(answer.keep);
         rev = answer.rev;

@@ -11,7 +11,7 @@ import { isEmoji, isMessageId, MESSAGE_LIMITS, type MessageData } from "@/lib/me
 import type { MessageView } from "@/lib/message-wire";
 import { heldUserIds } from "@/server/legal-hold";
 import type { Tx } from "@/server/workspaces";
-import { nextSeq } from "./channels";
+import { addPeople, nextSeq, systemMessage } from "./channels";
 import { MessageError, requireChannel, stillInWorkspace, write, type Changed, type ChannelAccess } from "./core";
 import { isActive } from "./hub";
 import { messageViews, withExtras } from "./views";
@@ -102,10 +102,15 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
   if (shown && row.posting === "admins" && member?.role !== "admin" && access.role !== "owner") throw new MessageError("adminsOnly");
   const named = mentionedUserIds(body).filter((uid) => uid !== userId);
   const broadcast = row.kind === "direct" ? null : broadcastOf(body);
+  // Naming an agent outside the channel brings it in, so it answers (agents/channel-mentions.ts).
+  const bringIn =
+    named.length && row.kind !== "direct"
+      ? await import("@/server/agents/channel-mentions").then(({ agentsToBringIn }) => agentsToBringIn(userId, row.workspaceId, access.role, named))
+      : [];
 
   let notInChannel: string[] = [];
   try {
-    await stored(row, root, { id, userId, body, fileIds, data: input.data ?? null, alsoInChannel, shown, named, broadcast }, (outside) => (notInChannel = outside));
+    await stored(row, root, { id, userId, body, fileIds, data: input.data ?? null, alsoInChannel, shown, named, broadcast, bringIn }, (outside) => (notInChannel = outside));
   } catch (error) {
     // The same message sent twice at once (a retry while the first was on its way): the second waited for the first and found its id taken.
     const earlier = await sentBefore(userId, id);
@@ -133,12 +138,17 @@ type Outgoing = {
   shown: boolean;
   named: string[];
   broadcast: "everyone" | "here" | null;
+  /** Agents named to add to the channel first. */
+  bringIn: string[];
 };
 
 /** Stores a message being sent, with its files, mentions, thread and read marks, as one write. */
 async function stored(row: ChannelAccess["channel"], root: MessageRow | null, out: Outgoing, notInChannel: (outside: string[]) => void) {
-  const { id, userId, body, fileIds, alsoInChannel, shown, named, broadcast } = out;
+  const { id, userId, body, fileIds, alsoInChannel, shown, named, broadcast, bringIn } = out;
   await write(row.workspaceId, async (tx, changed) => {
+    // The line saying who brought them in comes before the message.
+    const brought = await addPeople(tx, changed, row, bringIn);
+    if (brought.length) await systemMessage(tx, changed, row, userId, { event: "added", users: brought });
     const seq = await nextSeq(tx, row.id, changed.rev, shown);
     const now = new Date();
     await tx.insert(channelMessage).values({

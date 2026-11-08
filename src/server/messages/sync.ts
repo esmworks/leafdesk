@@ -87,7 +87,7 @@ export async function bootstrap(userId: string, workspaceId: string): Promise<Bo
   };
 }
 
-export type SyncAnswer = (Changes & { reset?: false; keep: { channels: string[]; memberships: string[]; drafts: string[]; saved: string[]; sections: string[]; scheduled: string[] } }) | { reset: true; rev: number };
+export type SyncAnswer = (Changes & { reset?: false; people: PersonView[]; keep: { channels: string[]; memberships: string[]; drafts: string[]; saved: string[]; sections: string[]; scheduled: string[] } }) | { reset: true; rev: number };
 
 export async function sync(userId: string, workspaceId: string, since: unknown): Promise<SyncAnswer> {
   const role = await workspaceRole(userId, workspaceId);
@@ -114,8 +114,10 @@ export async function sync(userId: string, workspaceId: string, since: unknown):
     scheduledViews(userId, and(eq(scheduledMessage.workspaceId, workspaceId), newer(scheduledMessage))),
     stillThere(userId, workspaceId),
   ]);
-  const knows = role === "guest" ? new Set((await peopleFor(userId, workspaceId, true)).map((p) => p.id)) : null;
-  return { rev, channels, memberships, messages, threads, drafts, saved, sections, statuses: knows ? statuses.filter((s) => knows.has(s.userId)) : statuses, scheduled, keep };
+  // People again too: names, pictures, members and agents may have changed while away.
+  const people = await peopleFor(userId, workspaceId, role === "guest");
+  const knows = role === "guest" ? new Set(people.map((p) => p.id)) : null;
+  return { rev, people, channels, memberships, messages, threads, drafts, saved, sections, statuses: knows ? statuses.filter((s) => knows.has(s.userId)) : statuses, scheduled, keep };
 }
 
 async function stillThere(userId: string, workspaceId: string) {

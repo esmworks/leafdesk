@@ -300,12 +300,15 @@ try {
 
   // ------------------------------------------------------------------ sync
   const before = (await bootstrap(ids.bob, workspaceId)).rev;
+  const picture = "https://example.test/ann.png";
+  await db.update(user).set({ image: picture }).where(eq(user.id, ids.ann));
   const late = (await posts.sendMessage(ids.ann, { channelId: design, body: "while you were away", id: crypto.randomUUID() })).message;
   await channels.leaveChannel(ids.bob, secret);
   const caught = await sync(ids.bob, workspaceId, before);
   check(!caught.reset && caught.messages?.some((m) => m.id === late.id), "sync brings messages sent while away", caught);
   check(!caught.reset && !caught.keep.memberships.includes(secret), "and shows which memberships are gone");
   check(!caught.reset && !caught.keep.channels.includes(secret), "and channels no longer seen");
+  check(!caught.reset && caught.people.find((p) => p.id === ids.ann)?.image === picture, "and the people as they are now (a picture set while away)");
   check((await sync(ids.bob, workspaceId, before + 10_000)).reset, "a cursor from the future answers reset");
 
   // ------------------------------------------------------------------ settings

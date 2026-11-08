@@ -4,12 +4,12 @@
  * member's access as well as its own. The run answers in the message's thread, as the agent
  * (server/agents/run.ts), so everyone in the channel reads the answer.
  *
- * The agent must be in the channel: its people brought it in (the composer offers to add someone
- * named who isn't), and only then does a mention reach it (`message_mention` holds only those
- * inside). Only a person's message by name starts a run: never @here or @channel, an agent's own
- * message (its answers included: agents can't set each other off), a guest's, an edit that adds a
- * mention, or a direct conversation. Paused agents still get the run, which answers that they are
- * paused; archived ones none.
+ * The agent must be in the channel: its people brought it in, or a member named it there
+ * (`agentsToBringIn`: sendMessage adds it before storing the message), and only then does a
+ * mention reach it (`message_mention` holds only those inside). Only a person's message by name
+ * starts a run: never @here or @channel, an agent's own message (its answers included: agents
+ * can't set each other off), a guest's, an edit that adds a mention, or a direct conversation.
+ * Paused agents still get the run, which answers that they are paused; archived ones none.
  *
  * Called after a message is stored (messages/posts.ts sendMessage), never inside its transaction.
  */
@@ -28,6 +28,22 @@ import { isAgentUser } from "./users";
  * message brought in from elsewhere, or sent again from a client's retry long after, doesn't).
  */
 const FRESH_MS = 2 * 60_000;
+
+/**
+ * Of the people a member's message names, the agents it brings into the channel, so that they
+ * answer: live ones shared with the writer. Naming an agent is asking it; the writer may add
+ * people anyway, and the channel shows who brought it in. Guests bring none.
+ */
+export async function agentsToBringIn(authorId: string, workspaceId: string, role: Parameters<typeof isGuest>[0], userIds: string[]): Promise<string[]> {
+  if (!userIds.length || isGuest(role)) return [];
+  const agents = await db
+    .select({ id: workspaceAgent.id, userId: workspaceAgent.userId })
+    .from(workspaceAgent)
+    .where(and(eq(workspaceAgent.workspaceId, workspaceId), inArray(workspaceAgent.userId, userIds), isNull(workspaceAgent.archivedAt)));
+  if (!agents.length) return [];
+  const levels = await agentLevels(authorId, workspaceId, agents.map((a) => a.id), role);
+  return agents.filter((a) => levels.get(a.id) !== "none").map((a) => a.userId);
+}
 
 /** Queues a run of each agent the message names that may answer there. Returns the queued runs' ids. */
 export async function startChannelMentionRuns(messageId: string): Promise<string[]> {
