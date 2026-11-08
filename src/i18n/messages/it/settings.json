@@ -51,7 +51,7 @@
       "senderRules": "principali altre posta in arrivo sezioni newsletter blocca bloccato mittenti indesiderata spam ordina",
       "calendars": "ical feed iscriviti calendario",
       "storageAccounts": "drive s3 file cloud",
-      "connectedApps": "oauth client accesso revoca",
+      "connectedApps": "oauth client accesso revoca strumenti mcp",
       "aiAccounts": "chiave api propria chiave fornitore",
       "telegram": "bot chat messaggi",
       "mcp": "assistente model context protocol server",
@@ -1379,7 +1379,10 @@
     "disconnect": "Disconnetti {name}",
     "revokeError": "Impossibile revocare l’accesso. Riprova.",
     "listHeading": "App a cui hai dato accesso",
-    "permissions": "{count, plural, one {# autorizzazione} other {# autorizzazioni}}"
+    "permissions": "{count, plural, one {# autorizzazione} other {# autorizzazioni}}",
+    "allTools": "Elenca tutti gli strumenti",
+    "allToolsHint": "Se disattivato, l’app vede gli strumenti più usati e trova gli altri quando le servono, così le conversazioni restano brevi. Attivalo per le app che caricano gli strumenti solo quando servono, come Claude Code.",
+    "allToolsError": "Impossibile modificare gli strumenti di questa app. Riprova."
   },
   "mcp": {
     "heading": "Connetti un assistente IA",

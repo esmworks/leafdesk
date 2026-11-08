@@ -242,6 +242,16 @@ how each property type's values are written, and the block forms of page bodies.
 inputs as an outline with a pointer to their topic and check them in full when called. A client
 that doesn't read resources gets the same text from `get_page` with the address as `page_id`.
 
+For the same reason an app lists about two dozen core tools (finding, reading and writing pages,
+databases and rows, comments, the inbox, notes and skills) and three that reach the rest:
+`find_tools` says which tools fit what it needs to do (or, without a query, lists them all by
+category) with what each takes, `run_read_tool` calls one that only reads and `run_write_tool`
+one that changes something, so a client that asks before changes still asks. A tool called
+through them runs with the same input checks and the same sign-in scopes as when listed: a
+read-only app is asked to sign in again with write access there too. Apps that load a tool's
+definition only when they need it can list every tool instead: My account → *Connected apps* →
+*List every tool*, per app. Claude Code does that by itself, so it is on for it unless turned off.
+
 The tools cover:
 
 - **Finding things:** `list_workspaces`, `list_teamspaces`, `search` (also by the words of the PDFs, Word documents, Excel workbooks and PowerPoint presentations pages show; such a result names the `document`), `list_pages`, `list_recent_pages`, `list_users` (with when each member joined), `list_groups` (member groups with their members and teamspaces).

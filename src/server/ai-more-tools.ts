@@ -171,56 +171,7 @@ export const USE_TOOL: AiTool = {
 
 export const MORE_TOOL_NAMES: ReadonlySet<string> = new Set([FIND_TOOLS.name, USE_TOOL.name]);
 
-const words = (text: string) => text.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 1);
-
-/** How well a tool fits the query's words: its name counts most, then its title, then what it says it does. */
-function fit(tool: MoreTool, query: string[]): number {
-  const name = new Set(words(tool.name));
-  const title = new Set(words(tool.title));
-  const description = new Set(words(tool.description));
-  let score = 0;
-  for (const word of query) {
-    // "views" finds "view", "properties" finds "property".
-    const forms = [word, word.replace(/ies$/, "y"), word.replace(/es$/, ""), word.replace(/s$/, "")];
-    if (forms.some((f) => name.has(f))) score += 3;
-    else if (forms.some((f) => title.has(f))) score += 2;
-    else if (forms.some((f) => description.has(f))) score += 1;
-  }
-  return score;
-}
-
-/** find_tools' answer: the tools that fit `query` best, each with its inputs, within `room` characters. */
-export function findTools(tools: MoreTools, query: string, room: number): string {
-  const all = [...tools.byName.values()];
-  const asked = words(query);
-  const found = asked.length
-    ? all
-        .map((tool) => ({ tool, score: fit(tool, asked) }))
-        .filter((t) => t.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 5)
-        .map((t) => t.tool)
-    : [];
-  const names = `All of them: ${all.map((t) => t.name).join(", ")}.`;
-  if (!found.length) return `${asked.length ? "No tool fits those words. " : ""}${names} Ask again with words from a name to see what it takes.`;
-  const blocks: string[] = [];
-  let left = room - names.length - 200;
-  for (const tool of found) {
-    const block = [
-      `## ${tool.name} (${tool.title}${tool.writes ? ", changes something" : ", only reads"})`,
-      tool.description,
-      `Inputs (JSON schema): ${JSON.stringify(tool.inputSchema)}`,
-    ].join("\n");
-    if (block.length > left) {
-      // One that doesn't fit is named, to be asked for alone.
-      blocks.push(`## ${tool.name}: too long to show with the others; ask for it by its name.`);
-      continue;
-    }
-    blocks.push(block);
-    left -= block.length;
-  }
-  return `${blocks.join("\n\n")}\n\n${names}`;
-}
+export { findTools } from "@/server/mcp/catalog";
 
 /** The tool use_tool names and its inputs, or what to tell the model when there's no such tool here. */
 export function pickMoreTool(tools: MoreTools, call: AiToolCall, why = ""): { tool: MoreTool; args: Record<string, unknown> } | { content: string; isError: true } {

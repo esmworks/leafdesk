@@ -4,6 +4,16 @@
 
 ### Added
 
+- **AI apps start with a short tool list and find the rest when they need it.** Apps connected over
+  MCP now list about two dozen core tools (pages, databases, rows, comments, the inbox, notes and
+  skills) plus `find_tools`, `run_read_tool` and `run_write_tool`, which find and call the others
+  with the same input checks and sign-in scopes. A conversation starts with about 41 KB of tool
+  definitions instead of 169 KB, and new tools no longer make every conversation longer. My account
+  → *Connected apps* → *List every tool* lists them all for an app that loads tools only when it
+  needs them; it is on by default for Claude Code. The server's instructions now put the notes
+  (`list_memory`) and the way to further tools first, since some apps keep only their beginning.
+  The tool list's test budget is now for the core list (30 tools, 48 KB). Migration
+  `0200_connected_app_tools`.
 - **Messages: channels, direct messages and threads.** A new place on the sidebar's rail (`g`
   then `d`) for talking within the workspace, live over a websocket: public and private channels,
   direct messages of up to nine people, threads beside the channel, mentions of people, `@here` and

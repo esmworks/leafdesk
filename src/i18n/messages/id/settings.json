@@ -51,7 +51,7 @@
       "senderRules": "fokus lainnya kotak masuk bagian buletin blokir diblokir pengirim spam urutkan",
       "calendars": "ical umpan berlangganan kalender",
       "storageAccounts": "drive s3 file cloud",
-      "connectedApps": "oauth klien akses cabut",
+      "connectedApps": "oauth klien akses cabut alat mcp",
       "aiAccounts": "kunci api kunci sendiri penyedia",
       "telegram": "bot obrolan pesan",
       "mcp": "asisten model context protocol server",
@@ -1379,7 +1379,10 @@
     "disconnect": "Putuskan {name}",
     "revokeError": "Tidak dapat mencabut akses. Coba lagi.",
     "listHeading": "Aplikasi yang Anda beri akses",
-    "permissions": "{count, plural, other {# izin}}"
+    "permissions": "{count, plural, other {# izin}}",
+    "allTools": "Tampilkan semua alat",
+    "allToolsHint": "Jika mati, aplikasi melihat alat yang paling sering dipakai dan menemukan yang lain saat dibutuhkan, sehingga percakapannya tetap singkat. Nyalakan untuk aplikasi yang memuat alat hanya saat dibutuhkan, seperti Claude Code.",
+    "allToolsError": "Tidak dapat mengubah alat aplikasi ini. Coba lagi."
   },
   "mcp": {
     "heading": "Hubungkan asisten AI",

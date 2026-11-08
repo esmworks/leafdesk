@@ -51,7 +51,7 @@
       "senderRules": "focus overig postvak in onderdelen nieuwsbrieven blokkeren geblokkeerd afzenders ongewenst spam sorteren",
       "calendars": "ical feed abonneren kalender agenda",
       "storageAccounts": "drive s3 bestanden cloud opslag",
-      "connectedApps": "oauth clients toegang intrekken apps",
+      "connectedApps": "oauth clients toegang intrekken apps tools mcp",
       "aiAccounts": "api-sleutel eigen sleutel aanbieder",
       "telegram": "bot chat berichten",
       "mcp": "assistent model context protocol server",
@@ -1379,7 +1379,10 @@
     "disconnect": "{name} ontkoppelen",
     "revokeError": "Kon de toegang niet intrekken. Probeer het opnieuw.",
     "listHeading": "Apps waaraan je toegang hebt gegeven",
-    "permissions": "{count, plural, one {# machtiging} other {# machtigingen}}"
+    "permissions": "{count, plural, one {# machtiging} other {# machtigingen}}",
+    "allTools": "Alle tools tonen",
+    "allToolsHint": "Uit: de app ziet de meestgebruikte tools en vindt de andere wanneer hij ze nodig heeft, zodat gesprekken kort blijven. Zet het aan voor apps die tools pas laden als ze nodig zijn, zoals Claude Code.",
+    "allToolsError": "De tools van deze app konden niet worden gewijzigd. Probeer het opnieuw."
   },
   "mcp": {
     "heading": "Een AI-assistent koppelen",

@@ -51,7 +51,7 @@
       "senderRules": "focus other inbox split sections newsletters block blocked senders junk spam sort",
       "calendars": "ical feed subscribe calendar",
       "storageAccounts": "drive s3 files cloud",
-      "connectedApps": "oauth clients access revoke",
+      "connectedApps": "oauth clients access revoke tools mcp",
       "aiAccounts": "api key own key provider",
       "telegram": "bot chat messages",
       "mcp": "assistant model context protocol server",
@@ -1379,7 +1379,10 @@
     "disconnect": "Disconnect {name}",
     "revokeError": "Could not revoke access. Try again.",
     "listHeading": "Apps you have given access",
-    "permissions": "{count, plural, one {# permission} other {# permissions}}"
+    "permissions": "{count, plural, one {# permission} other {# permissions}}",
+    "allTools": "List every tool",
+    "allToolsHint": "Off, the app sees the tools used most and finds the others when it needs them, which keeps its conversations short. Turn it on for apps that load tools only when they need them, such as Claude Code.",
+    "allToolsError": "Could not change this app's tools. Try again."
   },
   "mcp": {
     "heading": "Connect an AI assistant",

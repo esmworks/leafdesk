@@ -51,7 +51,7 @@
       "senderRules": "prioritarios otros bandeja de entrada secciones boletines bloquear bloqueado remitentes no deseado spam ordenar",
       "calendars": "ical feed suscribirse calendario",
       "storageAccounts": "drive s3 archivos nube",
-      "connectedApps": "oauth clientes acceso revocar",
+      "connectedApps": "oauth clientes acceso revocar herramientas mcp",
       "aiAccounts": "clave api clave propia proveedor",
       "telegram": "bot chat mensajes",
       "mcp": "asistente model context protocol servidor",
@@ -1379,7 +1379,10 @@
     "disconnect": "Desconectar {name}",
     "revokeError": "No se pudo revocar el acceso. Vuelve a intentarlo.",
     "listHeading": "Apps a las que has dado acceso",
-    "permissions": "{count, plural, one {# permiso} other {# permisos}}"
+    "permissions": "{count, plural, one {# permiso} other {# permisos}}",
+    "allTools": "Mostrar todas las herramientas",
+    "allToolsHint": "Desactivado, la app ve las herramientas más usadas y encuentra las demás cuando las necesita, así sus conversaciones son más cortas. Actívalo en apps que cargan las herramientas solo cuando las necesitan, como Claude Code.",
+    "allToolsError": "No se pudieron cambiar las herramientas de esta app. Inténtalo de nuevo."
   },
   "mcp": {
     "heading": "Conectar un asistente de IA",

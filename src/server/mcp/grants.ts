@@ -2,12 +2,13 @@ import type { BetterAuthPlugin } from "better-auth";
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { oauthAccessToken, oauthClient, oauthConsent, oauthRefreshToken } from "@/db/schema";
+import { connectedAppTools, oauthAccessToken, oauthClient, oauthConsent, oauthRefreshToken } from "@/db/schema";
 import { isStrongSession } from "@/lib/auth-security";
 import { CLIENT_IP_HEADER } from "@/lib/client-ip";
 import { firstPolicyHold, memberWorkspaceIds } from "@/server/access";
 import { recordAudit } from "@/server/audit";
 import { forgetConnectedAppUse } from "@/server/connected-app-use";
+import { listsAllByDefault } from "./tool-lists";
 
 /**
  * JWT access tokens are verified statelessly, so revoking an app in settings would not stop
@@ -42,6 +43,8 @@ export type ConnectedApp = {
   scopes: string[];
   connectedAt: Date;
   updatedAt: Date;
+  /** Lists every tool rather than the core ones and the gates (tool-lists.ts). */
+  allTools: boolean;
 };
 
 export async function listConnectedApps(userId: string): Promise<ConnectedApp[]> {
@@ -54,9 +57,11 @@ export async function listConnectedApps(userId: string): Promise<ConnectedApp[]>
       name: oauthClient.name,
       icon: oauthClient.icon,
       uri: oauthClient.uri,
+      allTools: connectedAppTools.allTools,
     })
     .from(oauthConsent)
     .innerJoin(oauthClient, eq(oauthClient.clientId, oauthConsent.clientId))
+    .leftJoin(connectedAppTools, and(eq(connectedAppTools.clientId, oauthConsent.clientId), eq(connectedAppTools.userId, oauthConsent.userId)))
     .where(eq(oauthConsent.userId, userId))
     .orderBy(desc(oauthConsent.updatedAt));
   return rows.map((r) => ({
@@ -67,6 +72,7 @@ export async function listConnectedApps(userId: string): Promise<ConnectedApp[]>
     scopes: r.scopes,
     connectedAt: r.createdAt,
     updatedAt: r.updatedAt,
+    allTools: r.allTools ?? listsAllByDefault(r.name),
   }));
 }
 

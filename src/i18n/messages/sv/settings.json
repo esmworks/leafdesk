@@ -51,7 +51,7 @@
       "senderRules": "fokus övrigt inkorg avsnitt nyhetsbrev blockera blockerad avsändare skräppost spam sortera",
       "calendars": "ical flöde prenumerera kalender",
       "storageAccounts": "drive s3 filer moln lagring",
-      "connectedApps": "oauth klienter åtkomst återkalla appar",
+      "connectedApps": "oauth klienter åtkomst återkalla appar verktyg mcp",
       "aiAccounts": "api-nyckel egen nyckel leverantör",
       "telegram": "bot chatt meddelanden",
       "mcp": "assistent model context protocol server",
@@ -1379,7 +1379,10 @@
     "disconnect": "Koppla från {name}",
     "revokeError": "Det gick inte att återkalla åtkomsten. Försök igen.",
     "listHeading": "Appar som du har gett åtkomst",
-    "permissions": "{count, plural, one {# behörighet} other {# behörigheter}}"
+    "permissions": "{count, plural, one {# behörighet} other {# behörigheter}}",
+    "allTools": "Visa alla verktyg",
+    "allToolsHint": "Avstängt ser appen de mest använda verktygen och hittar de andra när den behöver dem, så att samtalen blir korta. Slå på det för appar som bara laddar verktyg när de behövs, som Claude Code.",
+    "allToolsError": "Det gick inte att ändra appens verktyg. Försök igen."
   },
   "mcp": {
     "heading": "Anslut en AI-assistent",

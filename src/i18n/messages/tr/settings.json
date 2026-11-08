@@ -51,7 +51,7 @@
       "senderRules": "odak diğer gelen kutusu bölüm bülten engelle engellenen gönderen gereksiz spam sırala",
       "calendars": "ical akış abone takvim",
       "storageAccounts": "drive s3 dosyalar bulut",
-      "connectedApps": "oauth istemciler erişim iptal",
+      "connectedApps": "oauth istemciler erişim iptal araçlar mcp",
       "aiAccounts": "api anahtarı kendi anahtar sağlayıcı",
       "telegram": "bot sohbet mesajlar",
       "mcp": "asistan model bağlam protokolü sunucu",
@@ -1379,7 +1379,10 @@
     "disconnect": "{name} bağlantısını kes",
     "revokeError": "Erişim kaldırılamadı. Tekrar deneyin.",
     "listHeading": "Erişim verdiğiniz uygulamalar",
-    "permissions": "{count, plural, one {# izin} other {# izin}}"
+    "permissions": "{count, plural, one {# izin} other {# izin}}",
+    "allTools": "Tüm araçları listele",
+    "allToolsHint": "Kapalıyken uygulama en çok kullanılan araçları görür, diğerlerini gerektiğinde arayıp bulur; böylece sohbetleri kısa kalır. Araçları yalnızca gerektiğinde yükleyen uygulamalarda (Claude Code gibi) açın.",
+    "allToolsError": "Bu uygulamanın araçları değiştirilemedi. Tekrar deneyin."
   },
   "mcp": {
     "heading": "Yapay zekâ asistanı bağlayın",

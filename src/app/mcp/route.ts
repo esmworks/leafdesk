@@ -14,6 +14,7 @@ import {
   READ_SCOPE,
 } from "@/server/mcp/principal";
 import { rateLimitedResponse, takeMcpRequest } from "@/server/mcp/rate-limit";
+import { toolListOf } from "@/server/mcp/tool-lists";
 import { createMcpServer } from "@/server/mcp/tools";
 
 /**
@@ -22,7 +23,7 @@ import { createMcpServer } from "@/server/mcp/tools";
  * write tools additionally challenge for pages:write. Each user has MCP_RATE_LIMIT requests a
  * minute across all their apps (server/mcp/rate-limit.ts).
  */
-const mcp = createMcpHandler((ctx) => createMcpServer(principalFromAuthInfo(ctx.authInfo)), {
+const mcp = createMcpHandler((ctx) => createMcpServer(principalFromAuthInfo(ctx.authInfo), { tools: ctx.authInfo?.extra?.tools === "all" ? "all" : "core" }), {
   onerror: (error) => console.error("[mcp]", error),
 });
 
@@ -62,7 +63,8 @@ const protectedHandler = requireMcpAuth(
     // A revoked app over the limit hears 429 first, then 401 once it may try again.
     const wait = takeMcpRequest(userId);
     if (wait > 0) return rateLimitedResponse(wait);
-    if (!(await hasActiveGrant(userId, clientId, claims.iat))) return revokedResponse();
+    const [granted, tools] = await Promise.all([hasActiveGrant(userId, clientId, claims.iat), toolListOf(userId, clientId)]);
+    if (!granted) return revokedResponse();
     // Held to each workspace's connected-apps setting; write tools mark themselves (tools.ts). The
     // client is named in the audit log for what the tools change (server/audit.ts).
     const app = {
@@ -71,7 +73,8 @@ const protectedHandler = requireMcpAuth(
       ip: request.headers.get(CLIENT_IP_HEADER),
       userAgent: request.headers.get("user-agent"),
     };
-    return runAsConnectedApp({ userId, app }, () => mcp.fetch(request, { authInfo }));
+    // The tools its list shows (tool-lists.ts): all of them, or the core ones and the gates to the rest.
+    return runAsConnectedApp({ userId, app }, () => mcp.fetch(request, { authInfo: { ...authInfo, extra: { ...authInfo.extra, tools } } }));
   },
   // Signing keys are fetched over HTTP; use loopback so it works behind proxies and port mappings.
   {

@@ -51,7 +51,7 @@
       "senderRules": "fokus andet indbakke sektioner nyhedsbreve bloker blokeret afsendere uønsket spam sorter",
       "calendars": "iCal feed abonnér kalender",
       "storageAccounts": "drev S3 filer sky",
-      "connectedApps": "OAuth klienter adgang tilbagekald",
+      "connectedApps": "OAuth klienter adgang tilbagekald værktøjer mcp",
       "aiAccounts": "API-nøgle egen nøgle udbyder",
       "telegram": "bot chat beskeder",
       "mcp": "assistent model context protocol server",
@@ -1379,7 +1379,10 @@
     "disconnect": "Afbryd {name}",
     "revokeError": "Kunne ikke tilbagekalde adgangen. Prøv igen.",
     "listHeading": "Apps, du har givet adgang",
-    "permissions": "{count, plural, one {# tilladelse} other {# tilladelser}}"
+    "permissions": "{count, plural, one {# tilladelse} other {# tilladelser}}",
+    "allTools": "Vis alle værktøjer",
+    "allToolsHint": "Slået fra ser appen de mest brugte værktøjer og finder de andre, når den har brug for dem, så samtalerne forbliver korte. Slå det til for apps, der kun indlæser værktøjer efter behov, som Claude Code.",
+    "allToolsError": "Kunne ikke ændre denne apps værktøjer. Prøv igen."
   },
   "mcp": {
     "heading": "Forbind en AI-assistent",

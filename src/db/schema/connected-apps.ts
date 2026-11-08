@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, check, index, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { workspace } from "./app";
-import { user } from "./auth";
+import { oauthClient, user } from "./auth";
 
 /**
  * When a connected app last reached a workspace for its user (see server/connected-app-use.ts): an
@@ -53,4 +53,24 @@ export const connectedAppCutOff = pgTable(
     index("connected_app_cut_off_app_idx").on(t.userId, t.appKind, t.appId),
     check("connected_app_cut_off_kind_check", sql`${t.appKind} in ('connected_app', 'api_token')`),
   ],
+);
+
+/**
+ * Whether a person's MCP app lists every Leafdesk tool or the core ones and the gates to the rest
+ * (server/mcp/tool-lists.ts, chosen under Settings > Connected apps). No row: as the app's name
+ * says (tool-lists.ts `listsAllByDefault`). Kept when the app is disconnected, for when it comes back.
+ */
+export const connectedAppTools = pgTable(
+  "connected_app_tools",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    clientId: text("client_id")
+      .notNull()
+      .references(() => oauthClient.clientId, { onDelete: "cascade" }),
+    allTools: boolean("all_tools").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.clientId] })],
 );

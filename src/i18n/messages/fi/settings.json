@@ -51,7 +51,7 @@
       "senderRules": "tärkeät muut saapuneet osiot uutiskirjeet estä estetty lähettäjät roskaposti spam lajittele",
       "calendars": "ical syöte tilaa kalenteri",
       "storageAccounts": "drive s3 tiedostot pilvi",
-      "connectedApps": "oauth asiakkaat pääsy mitätöi yhdistetyt sovellukset",
+      "connectedApps": "oauth asiakkaat pääsy mitätöi yhdistetyt sovellukset työkalut mcp",
       "aiAccounts": "api avain oma avain palveluntarjoaja tekoäly",
       "telegram": "botti chat viestit",
       "mcp": "avustaja model context protocol palvelin",
@@ -1379,7 +1379,10 @@
     "disconnect": "Katkaise yhteys: {name}",
     "revokeError": "Käyttöoikeuden mitätöinti epäonnistui. Yritä uudelleen.",
     "listHeading": "Sovellukset, joille olet antanut pääsyn",
-    "permissions": "{count, plural, one {# käyttöoikeus} other {# käyttöoikeutta}}"
+    "permissions": "{count, plural, one {# käyttöoikeus} other {# käyttöoikeutta}}",
+    "allTools": "Näytä kaikki työkalut",
+    "allToolsHint": "Pois päältä sovellus näkee käytetyimmät työkalut ja löytää muut tarvittaessa, joten keskustelut pysyvät lyhyinä. Ota käyttöön sovelluksille, jotka lataavat työkalut vasta tarvittaessa, kuten Claude Code.",
+    "allToolsError": "Sovelluksen työkaluja ei voitu muuttaa. Yritä uudelleen."
   },
   "mcp": {
     "heading": "Yhdistä tekoälyavustaja",

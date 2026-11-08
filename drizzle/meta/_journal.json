@@ -1401,6 +1401,13 @@
       "when": 1794093568597,
       "tag": "0199_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 200,
+      "version": "7",
+      "when": 1794152922664,
+      "tag": "0200_connected_app_tools",
+      "breakpoints": true
     }
   ]
 }

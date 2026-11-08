@@ -1,23 +1,28 @@
 import { InMemoryTransport, type JSONRPCMessage } from "@modelcontextprotocol/server";
 import { describe, expect, it, vi } from "vitest";
 import { DOC_TOPICS, docUri } from "./docs";
+import { CORE_TOOLS, GATE_TOOLS, toolCategory, type ToolList } from "./catalog";
 import { createMcpServer } from "./tools";
 
-// Every tool schema is sent to the model on every session, so the whole list has a budget.
-// Raise a number only on purpose, in the same commit, and say why in the CHANGELOG. What a model
-// needs only now and then goes into the docs topics (docs.ts), which cost nothing until read.
+// Most apps send every listed tool's schema to the model on every session, so the core list
+// (catalog.ts) has a budget; the rest is reached through find_tools. Raise a number only on
+// purpose, in the same commit, and say why in the CHANGELOG. What a model needs only now and then
+// goes into the docs topics (docs.ts), which cost nothing until read. Every tool, listed or found,
+// keeps the per-tool budget: find_tools shows its schema too.
 vi.mock("@/db", () => ({ db: {} }));
 
-const MAX_TOOLS = 92;
-const MAX_TOTAL_BYTES = 169_000;
+const MAX_TOOLS = 30;
+const MAX_TOTAL_BYTES = 48_000;
 const MAX_TOOL_BYTES = 12_000;
+/** Some apps keep only this much of the instructions (Claude Code). */
+const KEPT_INSTRUCTIONS = 2048;
 
 type Tool = { name: string; description?: string; inputSchema?: unknown };
 type Response = { result?: Record<string, unknown>; error?: { message: string } };
 
 /** Sends `requests` (method and params) to a fresh server after initializing, and returns their responses in order. */
-async function session(requests: { method: string; params: Record<string, unknown> }[]): Promise<Response[]> {
-  const server = createMcpServer({ userId: "user-1", clientId: "client-1", scopes: ["*"] } as never);
+async function session(requests: { method: string; params: Record<string, unknown> }[], tools: ToolList = "core"): Promise<Response[]> {
+  const server = createMcpServer({ userId: "user-1", clientId: "client-1", scopes: ["*"] } as never, { tools });
   const [client, serverSide] = InMemoryTransport.createLinkedPair();
   const inbox: JSONRPCMessage[] = [];
   client.onmessage = (message) => void inbox.push(message);
@@ -37,7 +42,8 @@ async function session(requests: { method: string; params: Record<string, unknow
     method: "initialize",
     params: { protocolVersion: "2025-11-25", capabilities: {}, clientInfo: { name: "tools-context", version: "1" } },
   });
-  await waitFor(1);
+  const initialized = await waitFor(1);
+  instructions = String(initialized.result?.instructions ?? "");
   await client.send({ jsonrpc: "2.0", method: "notifications/initialized" });
   const responses: Response[] = [];
   for (const [i, request] of requests.entries()) {
@@ -48,14 +54,17 @@ async function session(requests: { method: string; params: Record<string, unknow
   return responses;
 }
 
-async function listTools(): Promise<Tool[]> {
-  const [response] = await session([{ method: "tools/list", params: {} }]);
+/** The instructions the last session's server gave. */
+let instructions = "";
+
+async function listTools(tools: ToolList = "core"): Promise<Tool[]> {
+  const [response] = await session([{ method: "tools/list", params: {} }], tools);
   return (response.result?.tools as Tool[] | undefined) ?? [];
 }
 
 describe("the tool list a client sends to its model", () => {
   it("stays inside its byte budget", async () => {
-    const tools = await listTools();
+    const tools = await listTools("core");
     const sizes = tools
       .map((tool) => ({ name: tool.name, bytes: Buffer.byteLength(JSON.stringify(tool)) }))
       .sort((a, b) => b.bytes - a.bytes);
@@ -72,8 +81,31 @@ describe("the tool list a client sends to its model", () => {
     }
   });
 
+  it("keeps every tool, listed or found, inside the per-tool budget", async () => {
+    for (const tool of await listTools("all")) {
+      expect(Buffer.byteLength(JSON.stringify(tool)), `${tool.name} bytes`).toBeLessThanOrEqual(MAX_TOOL_BYTES);
+    }
+  });
+
+  it("names what every conversation needs within the instructions apps keep", async () => {
+    await listTools("core");
+    const kept = instructions.slice(0, KEPT_INSTRUCTIONS);
+    for (const name of ["list_memory", "change_memory", "list_workspaces", GATE_TOOLS.find, GATE_TOOLS.read, GATE_TOOLS.write]) expect(kept).toContain(name);
+    await listTools("all");
+    expect(instructions.slice(0, KEPT_INSTRUCTIONS)).toContain("list_memory");
+    expect(instructions).not.toContain(GATE_TOOLS.find);
+  });
+
+  it("lists the core tools and the gates, and every other tool in all", async () => {
+    const core = (await listTools("core")).map((t) => t.name);
+    const all = (await listTools("all")).map((t) => t.name);
+    expect(new Set(core)).toEqual(new Set([...CORE_TOOLS, ...Object.values(GATE_TOOLS)]));
+    for (const name of CORE_TOOLS) expect(all, name).toContain(name);
+    for (const name of all) if (!CORE_TOOLS.has(name)) expect(toolCategory(name), `${name} has a category in catalog.ts`).not.toBe("other");
+  });
+
   it("gives every tool a description and a unique name", async () => {
-    const tools = await listTools();
+    const tools = await listTools("all");
     const names = new Set(tools.map((tool) => tool.name));
     expect(names.size, "unique tool names").toBe(tools.length);
     for (const tool of tools) {
@@ -82,7 +114,7 @@ describe("the tool list a client sends to its model", () => {
   });
 
   it("points only at docs topics there are", async () => {
-    const text = JSON.stringify(await listTools());
+    const text = JSON.stringify(await listTools("all"));
     const named = new Set([...text.matchAll(/leafdesk:\/\/docs\/([a-z-]+)/g)].map((m) => m[1]));
     expect(named.size).toBeGreaterThan(0);
     for (const topic of named) expect(DOC_TOPICS, `leafdesk://docs/${topic}`).toContain(topic);
@@ -136,5 +168,39 @@ describe("inputs shown only in outline", () => {
     expect(result?.isError ?? true).toBe(true);
     expect(message).toMatch(/filters/);
     expect(message).toMatch(/op/);
+  });
+});
+
+describe("the tools the core list leaves out", () => {
+  const call = (name: string, args: Record<string, unknown>) => session([{ method: "tools/call", params: { name, arguments: args } }]).then(([r]) => r);
+  const text = (r: Response) => ((r.result?.content as { text: string }[] | undefined)?.[0]?.text ?? r.error?.message ?? "");
+
+  it("are found by find_tools with what they take and how to call them", async () => {
+    const found = text(await call(GATE_TOOLS.find, { query: "calendar view" }));
+    expect(found).toMatch(/^## create_database_view \(Create a database view, views, changes something: call it with run_write_tool\)/);
+    expect(found).toContain("Inputs (JSON schema)");
+    expect(found).not.toContain("$schema");
+    const all = text(await call(GATE_TOOLS.find, {}));
+    expect(all).toMatch(/^All of them, by category: /);
+    expect(all).toContain("views: create_database_view, update_database_view");
+  });
+
+  it("can't be called directly, only through the gates", async () => {
+    const direct = await call("list_trash", { workspace_id: "ws-1" });
+    expect(direct.error ?? (direct.result as { isError?: boolean }).isError).toBeTruthy();
+    expect(text(await call(GATE_TOOLS.read, { name: "get_page", arguments: {} }))).toMatch(/in your tool list: call it directly/);
+    expect(text(await call(GATE_TOOLS.read, { name: "no_such_tool", arguments: {} }))).toMatch(/There is no tool "no_such_tool"/);
+  });
+
+  it("are refused by run_read_tool when they change something", async () => {
+    const r = await call(GATE_TOOLS.read, { name: "move_page", arguments: { page_id: "p-1" } });
+    expect((r.result as { isError?: boolean }).isError).toBe(true);
+    expect(text(r)).toBe("move_page changes something: call it with run_write_tool.");
+  });
+
+  it("have their own inputs checked, unknown arguments too", async () => {
+    const r = await call(GATE_TOOLS.write, { name: "move_page", arguments: { page: "p-1" } });
+    expect((r.result as { isError?: boolean }).isError).toBe(true);
+    expect(text(r)).toMatch(/^Invalid arguments for move_page: .*Unknown argument "page"/);
   });
 });

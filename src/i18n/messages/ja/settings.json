@@ -51,7 +51,7 @@
       "senderRules": "優先 その他 受信トレイ 区分 ニュースレター ブロック 差出人 迷惑メール スパム 振り分け",
       "calendars": "ical フィード 購読 カレンダー",
       "storageAccounts": "drive s3 ファイル クラウド",
-      "connectedApps": "oauth クライアント アクセス 取り消し",
+      "connectedApps": "oauth クライアント アクセス 取り消し ツール mcp",
       "aiAccounts": "api キー 自分のキー プロバイダー",
       "telegram": "ボット チャット メッセージ",
       "mcp": "アシスタント model context protocol サーバー",
@@ -1379,7 +1379,10 @@
     "disconnect": "{name}の接続を解除",
     "revokeError": "アクセスを取り消せませんでした。もう一度お試しください。",
     "listHeading": "アクセスを許可したアプリ",
-    "permissions": "{count, plural, other {# 件の権限}}"
+    "permissions": "{count, plural, other {# 件の権限}}",
+    "allTools": "すべてのツールを一覧表示",
+    "allToolsHint": "オフのとき、アプリはよく使うツールだけを見て、ほかのツールは必要なときに探します。そのため会話が短く保たれます。Claude Code のように必要なときだけツールを読み込むアプリではオンにしてください。",
+    "allToolsError": "このアプリのツールを変更できませんでした。もう一度お試しください。"
   },
   "mcp": {
     "heading": "AIアシスタントを接続",

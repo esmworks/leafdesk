@@ -51,7 +51,7 @@
       "senderRules": "重要 其他 收件箱 分区 新闻简报 屏蔽 发件人 垃圾邮件 分类",
       "calendars": "ical 订阅源 订阅 日历",
       "storageAccounts": "drive s3 文件 云",
-      "connectedApps": "oauth 客户端 访问 撤销",
+      "connectedApps": "oauth 客户端 访问 撤销 工具 mcp",
       "aiAccounts": "api 密钥 自有密钥 提供商",
       "telegram": "机器人 聊天 消息",
       "mcp": "助手 model context protocol 服务器",
@@ -1379,7 +1379,10 @@
     "disconnect": "断开 {name} 的连接",
     "revokeError": "无法撤销访问权限。请重试。",
     "listHeading": "你已授予访问权限的应用",
-    "permissions": "{count, plural, other {# 项权限}}"
+    "permissions": "{count, plural, other {# 项权限}}",
+    "allTools": "列出所有工具",
+    "allToolsHint": "关闭时，应用只看到最常用的工具，需要时再查找其他工具，这样对话会更简短。对于只在需要时才加载工具的应用（例如 Claude Code），请打开此项。",
+    "allToolsError": "无法更改此应用的工具。请重试。"
   },
   "mcp": {
     "heading": "连接 AI 助手",

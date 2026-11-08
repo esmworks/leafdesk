@@ -51,7 +51,7 @@
       "senderRules": "fokus sonstige posteingang aufteilen bereiche newsletter blockieren blockiert absender spam sortieren",
       "calendars": "iCal Feed abonnieren Kalender",
       "storageAccounts": "Drive S3 Dateien Cloud",
-      "connectedApps": "OAuth Clients Zugriff widerrufen",
+      "connectedApps": "OAuth Clients Zugriff widerrufen Werkzeuge MCP",
       "aiAccounts": "API-Schlüssel eigener Schlüssel Anbieter",
       "telegram": "Bot Chat Nachrichten",
       "mcp": "Assistent Model Context Protocol Server",
@@ -1379,7 +1379,10 @@
     "disconnect": "{name} trennen",
     "revokeError": "Der Zugriff konnte nicht widerrufen werden. Versuch es noch einmal.",
     "listHeading": "Apps, denen du Zugriff gewährt hast",
-    "permissions": "{count, plural, one {# Berechtigung} other {# Berechtigungen}}"
+    "permissions": "{count, plural, one {# Berechtigung} other {# Berechtigungen}}",
+    "allTools": "Alle Werkzeuge auflisten",
+    "allToolsHint": "Aus: Die App sieht die meistgenutzten Werkzeuge und findet die anderen, wenn sie sie braucht – so bleiben ihre Unterhaltungen kurz. Schalte es für Apps ein, die Werkzeuge erst bei Bedarf laden, etwa Claude Code.",
+    "allToolsError": "Die Werkzeuge dieser App konnten nicht geändert werden. Versuche es erneut."
   },
   "mcp": {
     "heading": "KI-Assistenten verbinden",

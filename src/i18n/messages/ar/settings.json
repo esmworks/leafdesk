@@ -51,7 +51,7 @@
       "senderRules": "المهم أخرى البريد الوارد أقسام نشرات حظر محظور المرسلون غير مرغوب فيه سبام فرز",
       "calendars": "ical موجز اشتراك تقويم",
       "storageAccounts": "drive s3 ملفات سحابة",
-      "connectedApps": "oauth عملاء وصول إلغاء",
+      "connectedApps": "oauth عملاء وصول إلغاء أدوات mcp",
       "aiAccounts": "مفتاح api مفتاح خاص مزود",
       "telegram": "بوت دردشة رسائل",
       "mcp": "مساعد model context protocol خادم",
@@ -1379,7 +1379,10 @@
     "disconnect": "فصل {name}",
     "revokeError": "تعذّر إلغاء الوصول. حاول مرة أخرى.",
     "listHeading": "التطبيقات التي منحتها الوصول",
-    "permissions": "{count, plural, zero {لا أذونات} one {إذن واحد} two {إذنان} few {# أذونات} many {# إذنًا} other {# إذن}}"
+    "permissions": "{count, plural, zero {لا أذونات} one {إذن واحد} two {إذنان} few {# أذونات} many {# إذنًا} other {# إذن}}",
+    "allTools": "عرض كل الأدوات",
+    "allToolsHint": "عند الإيقاف يرى التطبيق الأدوات الأكثر استخدامًا ويجد الأخرى حين يحتاجها، فتبقى محادثاته قصيرة. فعّله للتطبيقات التي لا تحمّل الأدوات إلا عند الحاجة، مثل Claude Code.",
+    "allToolsError": "تعذّر تغيير أدوات هذا التطبيق. حاول مرة أخرى."
   },
   "mcp": {
     "heading": "ربط مساعد ذكاء اصطناعي",

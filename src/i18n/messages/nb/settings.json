@@ -51,7 +51,7 @@
       "senderRules": "fokus annet innboks deler nyhetsbrev blokker blokkert avsendere søppelpost spam sorter",
       "calendars": "ical feed abonner kalender",
       "storageAccounts": "disk s3 filer sky lagring",
-      "connectedApps": "oauth klienter tilgang trekk tilbake apper",
+      "connectedApps": "oauth klienter tilgang trekk tilbake apper verktøy mcp",
       "aiAccounts": "api-nøkkel egen nøkkel leverandør",
       "telegram": "bot chat meldinger",
       "mcp": "assistent model context protocol server",
@@ -1379,7 +1379,10 @@
     "disconnect": "Koble fra {name}",
     "revokeError": "Kunne ikke trekke tilbake tilgangen. Prøv igjen.",
     "listHeading": "Apper du har gitt tilgang",
-    "permissions": "{count, plural, one {# tillatelse} other {# tillatelser}}"
+    "permissions": "{count, plural, one {# tillatelse} other {# tillatelser}}",
+    "allTools": "Vis alle verktøy",
+    "allToolsHint": "Av: appen ser de mest brukte verktøyene og finner de andre når den trenger dem, slik at samtalene holdes korte. Slå det på for apper som bare laster verktøy ved behov, som Claude Code.",
+    "allToolsError": "Kunne ikke endre verktøyene til denne appen. Prøv igjen."
   },
   "mcp": {
     "heading": "Koble til en KI-assistent",

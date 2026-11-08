@@ -51,7 +51,7 @@
       "senderRules": "quan trọng khác hộp thư đến mục bản tin chặn đã chặn người gửi thư rác spam sắp xếp",
       "calendars": "ical nguồn cấp đăng ký lịch",
       "storageAccounts": "drive s3 tệp đám mây",
-      "connectedApps": "oauth ứng dụng khách quyền truy cập thu hồi",
+      "connectedApps": "oauth ứng dụng khách quyền truy cập thu hồi công cụ mcp",
       "aiAccounts": "khóa api khóa riêng nhà cung cấp",
       "telegram": "bot trò chuyện tin nhắn",
       "mcp": "trợ lý model context protocol máy chủ",
@@ -1379,7 +1379,10 @@
     "disconnect": "Ngắt kết nối {name}",
     "revokeError": "Không thể thu hồi quyền truy cập. Hãy thử lại.",
     "listHeading": "Các ứng dụng bạn đã cấp quyền truy cập",
-    "permissions": "{count, plural, other {# quyền}}"
+    "permissions": "{count, plural, other {# quyền}}",
+    "allTools": "Liệt kê mọi công cụ",
+    "allToolsHint": "Khi tắt, ứng dụng thấy các công cụ dùng nhiều nhất và tìm các công cụ khác khi cần, nhờ vậy cuộc trò chuyện ngắn gọn. Hãy bật cho các ứng dụng chỉ tải công cụ khi cần, như Claude Code.",
+    "allToolsError": "Không thể thay đổi công cụ của ứng dụng này. Hãy thử lại."
   },
   "mcp": {
     "heading": "Kết nối một trợ lý AI",

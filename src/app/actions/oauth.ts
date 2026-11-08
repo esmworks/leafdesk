@@ -6,6 +6,7 @@ import type { ActionResult } from "@/app/actions/workspaces";
 import { AccessError } from "@/server/access";
 import { revalidateAccountPages } from "@/server/account-pages";
 import { revokeConnectedApp } from "@/server/mcp/grants";
+import { setAllTools } from "@/server/mcp/tool-lists";
 import { requireUserId } from "@/server/session";
 import { ApprovedAppsFullError, disconnectWorkspaceApp, setWorkspaceAppApproved } from "@/server/workspace-apps";
 
@@ -14,6 +15,17 @@ export async function revokeConnectedAppAction(clientId: string) {
   const userId = await requireUserId();
   await revokeConnectedApp(userId, clientId);
   revalidateAccountPages();
+}
+
+/** Whether one of the user's apps lists every Leafdesk tool or the core ones and the gates to the rest. */
+export async function setAppAllToolsAction(clientId: string, all: boolean): Promise<ActionResult> {
+  const userId = await requireUserId();
+  if (!(await setAllTools(userId, String(clientId), all === true))) {
+    const t = await getTranslations("settings.connectedApps");
+    return { ok: false, error: t("allToolsError") };
+  }
+  revalidateAccountPages();
+  return { ok: true, data: undefined };
 }
 
 /**

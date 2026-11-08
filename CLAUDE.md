@@ -209,7 +209,13 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   needed inputs (filters, view settings, widgets, automation steps, row values) show only an
   outline and a `leafdesk://docs/<topic>` pointer (`mcp/docs.ts` `checked`, `see`) and are checked
   in full when called; the topics are MCP resources written from the strict zod schemas, also read
-  by `get_page`. Related writes of the same risk share one tool with an `action` (`change_memory`,
+  by `get_page`. An app lists only `mcp/catalog.ts` `CORE_TOOLS` plus the gates (`mcp/gates.ts`:
+  `find_tools`, `run_read_tool`, `run_write_tool`, which run a held tool's own input check and
+  scope challenge), unless `connected_app_tools` (`mcp/tool-lists.ts`, per person and app) or the
+  app's name says all; `createMcpServer` without `tools` lists all (tests, e2e scripts, the AI
+  chat). A new tool not in `CORE_TOOLS` gets a category in `catalog.ts`. Only the first 2048
+  characters of the instructions reach Claude Code: what every conversation needs goes in
+  `instructionsFor`'s head. Related writes of the same risk share one tool with an `action` (`change_memory`,
   `set_agent_schedule`); keep reads and writes in separate tools, since clients ask before writes.
   `ops.inputs` is shared with the REST API's OpenAPI: change MCP's view of an input with `.extend`
   in `mcp/`, not there. A tool refuses an argument it doesn't take (`mcp/strict-arguments.ts`,
@@ -669,9 +675,10 @@ because they are separate module graphs.
 - `src/lib/settings-search.test.ts`: every entry of the settings search (`src/lib/settings-search.ts`)
   names English texts that exist and a group or row marked `anchor="<id>"`, and every settings tab
   has one. A new setting gets an entry there, with the condition the page shows it under.
-- `src/server/mcp/tools-context.test.ts`: the MCP tool list every client sends its model stays
-  under 92 tools, 169 KB in all and 12 KB per tool. Raise a number only on purpose, in the same
-  commit; first move what a model needs only now and then into a docs topic.
+- `src/server/mcp/tools-context.test.ts`: the core MCP tool list most clients send their model
+  stays under 30 tools and 48 KB, every tool (listed or found) under 12 KB, and every tool outside
+  the core has a category. Raise a number only on purpose, in the same commit; first move what a
+  model needs only now and then into a docs topic.
 - `scripts/bundle-budget.ts` (CI, after `pnpm build`): gzipped client JS budgets for the largest
   route's first load, all routes' first-load chunks together and the largest on-demand chunk. Lazy
   code has no total. Anything in `src/app/w/[workspaceId]/layout.tsx`'s static imports (sidebar,

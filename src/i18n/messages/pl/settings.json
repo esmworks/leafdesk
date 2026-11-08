@@ -51,7 +51,7 @@
       "senderRules": "ważne inne skrzynka odbiorcza sekcje biuletyny zablokuj zablokowany nadawcy spam sortuj",
       "calendars": "ical kanał subskrybuj kalendarz",
       "storageAccounts": "drive s3 pliki chmura",
-      "connectedApps": "oauth klienci dostęp odwołaj",
+      "connectedApps": "oauth klienci dostęp odwołaj narzędzia mcp",
       "aiAccounts": "klucz api własny klucz dostawca",
       "telegram": "bot czat wiadomości",
       "mcp": "asystent model context protocol serwer",
@@ -1379,7 +1379,10 @@
     "disconnect": "Odłącz {name}",
     "revokeError": "Nie udało się odebrać dostępu. Spróbuj ponownie.",
     "listHeading": "Aplikacje, którym dano dostęp",
-    "permissions": "{count, plural, one {# uprawnienie} few {# uprawnienia} many {# uprawnień} other {# uprawnienia}}"
+    "permissions": "{count, plural, one {# uprawnienie} few {# uprawnienia} many {# uprawnień} other {# uprawnienia}}",
+    "allTools": "Pokaż wszystkie narzędzia",
+    "allToolsHint": "Gdy wyłączone, aplikacja widzi najczęściej używane narzędzia, a pozostałe znajduje, gdy ich potrzebuje, dzięki czemu rozmowy są krótsze. Włącz dla aplikacji, które ładują narzędzia dopiero w razie potrzeby, np. Claude Code.",
+    "allToolsError": "Nie udało się zmienić narzędzi tej aplikacji. Spróbuj ponownie."
   },
   "mcp": {
     "heading": "Połącz asystenta AI",

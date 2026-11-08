@@ -51,7 +51,7 @@
       "senderRules": "חשוב אחר דואר נכנס מדורים ידיעונים חסימה חסום שולחים זבל ספאם מיון",
       "calendars": "ical פיד הרשמה לוח שנה",
       "storageAccounts": "drive s3 קבצים ענן",
-      "connectedApps": "oauth לקוחות גישה ביטול",
+      "connectedApps": "oauth לקוחות גישה ביטול כלים mcp",
       "aiAccounts": "מפתח api מפתח משלך ספק",
       "telegram": "בוט צ׳אט הודעות",
       "mcp": "עוזר model context protocol שרת",
@@ -1379,7 +1379,10 @@
     "disconnect": "ניתוק {name}",
     "revokeError": "לא ניתן היה לבטל את הגישה. יש לנסות שוב.",
     "listHeading": "אפליקציות שנתת להן גישה",
-    "permissions": "{count, plural, one {הרשאה אחת} two {שתי הרשאות} other {# הרשאות}}"
+    "permissions": "{count, plural, one {הרשאה אחת} two {שתי הרשאות} other {# הרשאות}}",
+    "allTools": "הצגת כל הכלים",
+    "allToolsHint": "כשהאפשרות כבויה, האפליקציה רואה את הכלים הנפוצים ומוצאת את האחרים כשהיא צריכה אותם, כך שהשיחות נשארות קצרות. הפעילו אותה לאפליקציות שטוענות כלים רק כשצריך, כמו Claude Code.",
+    "allToolsError": "לא ניתן היה לשנות את הכלים של האפליקציה. נסו שוב."
   },
   "mcp": {
     "heading": "חיבור עוזר AI",

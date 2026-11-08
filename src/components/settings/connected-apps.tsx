@@ -5,6 +5,7 @@ import { safeHttpUrl } from "@/server/mcp/consent";
 import { listConnectedApps, type ConnectedApp } from "@/server/mcp/grants";
 import { requireUser } from "@/server/session";
 import { AppTile } from "./app-tile";
+import { AppToolsSwitch } from "./app-tools-switch";
 import { RevokeAppButton } from "./revoke-app-button";
 import { SettingsGroup } from "./section";
 
@@ -90,6 +91,7 @@ export async function ConnectedApps() {
             <div className="sm:ps-14">
               <div className="mt-3 sm:hidden">{v.access}</div>
               {v.permissions}
+              <AppToolsSwitch clientId={app.clientId} allTools={app.allTools} />
             </div>
           </div>
         );

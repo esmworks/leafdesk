@@ -412,6 +412,15 @@ async function main() {
   const mcp = new LegacySession(refreshed.access_token);
   const init = await mcp.init();
   check(typeof init.instructions === "string" && init.instructions.includes("snapshot"), "server sends instructions");
+  // An app lists the core tools and the gates to the rest until its person lists every tool.
+  const coreList = await mcp.request("tools/list", {});
+  const coreNames: string[] = coreList.message?.result?.tools?.map((t: { name: string }) => t.name) ?? [];
+  check(coreNames.includes("find_tools") && coreNames.includes("run_write_tool") && !coreNames.includes("archive_page"), "an app lists the core tools by default", coreNames);
+  check(init.instructions.slice(0, 2048).includes("find_tools"), "…and its instructions name find_tools early");
+  const found = await mcp.call("find_tools", { query: "archive page" });
+  check(found.text.includes("## archive_page ("), "find_tools finds a tool the list leaves out", found.text.slice(0, 300));
+  const { setAllTools } = await import("@/server/mcp/tool-lists");
+  check(await setAllTools(String(claims.sub), full.client_id, true), "the person lists every tool for the app");
   const list = await mcp.request("tools/list", {});
   const toolNames: string[] = list.message?.result?.tools?.map((t: { name: string }) => t.name) ?? [];
   const expected = [
@@ -1530,10 +1539,10 @@ async function main() {
   check(stepUp.includes("offline_access"), "write step-up also asks for offline_access", stepUp);
   const roModern = await rpc(
     roTokens.access_token,
-    { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "archive_page", arguments: { page_id: root.id }, _meta: modernMeta } },
-    { ...modernHeaders, "mcp-method": "tools/call", "mcp-name": "archive_page" },
+    { jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "run_write_tool", arguments: { name: "archive_page", arguments: { page_id: root.id } }, _meta: modernMeta } },
+    { ...modernHeaders, "mcp-method": "tools/call", "mcp-name": "run_write_tool" },
   );
-  check(roModern.status === 403, "write with read-only token on 2026-07-28 → 403", roModern.status);
+  check(roModern.status === 403, "write through run_write_tool with read-only token on 2026-07-28 → 403", roModern.status);
   const roInbox = await roMcp.request("tools/call", { name: "list_notifications", arguments: {} });
   const inboxStepUp = roInbox.headers.get("www-authenticate") ?? "";
   check(
@@ -1548,10 +1557,13 @@ async function main() {
     "attach_file without files:write → 403 insufficient_scope",
     { status: roFile.status, fileStepUp },
   );
-  const roAgents = await roMcp.call("list_agents", { workspace_id: ws });
-  check(!roAgents.isError && roAgents.data.agents.length === 1, "read-only token can list agents", roAgents.text);
-  const roAgentWrite = await roMcp.request("tools/call", { name: "create_agent", arguments: { workspace_id: ws, name: "Should not exist" } });
-  check(roAgentWrite.status === 403, "create_agent with read-only token → 403", roAgentWrite.status);
+  // This app lists the core tools: the others are reached through run_read_tool and run_write_tool.
+  const roAgents = await roMcp.call("run_read_tool", { name: "list_agents", arguments: { workspace_id: ws } });
+  check(!roAgents.isError && roAgents.data.agents.length === 1, "read-only token can list agents through run_read_tool", roAgents.text);
+  const roGateRefused = await roMcp.call("run_read_tool", { name: "create_agent", arguments: { workspace_id: ws, name: "Should not exist" } });
+  check(roGateRefused.isError && roGateRefused.text.includes("run_write_tool"), "run_read_tool refuses a tool that changes something", roGateRefused.text);
+  const roAgentWrite = await roMcp.request("tools/call", { name: "run_write_tool", arguments: { name: "create_agent", arguments: { workspace_id: ws, name: "Should not exist" } } });
+  check(roAgentWrite.status === 403, "create_agent through run_write_tool with read-only token → 403", roAgentWrite.status);
   const stillThere = await mcp.ok("get_page", { page_id: root.id });
   check(!stillThere.in_trash, "read-only token did not change anything");
 
