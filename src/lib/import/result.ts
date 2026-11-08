@@ -46,6 +46,8 @@ export const IMPORT_ERROR_CODES = [
   "badMonday",
   /** The upload isn't a Confluence space exported as HTML (no page of one in it). */
   "badConfluence",
+  /** The upload isn't a Slack workspace export (no `channels.json` in it). */
+  "badSlack",
   /** Merging: no column goes to a property, or two go to the same one. */
   "badMapping",
   /** The destination is missing, in the trash or not editable, or not a database when merging. */

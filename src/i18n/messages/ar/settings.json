@@ -2163,7 +2163,8 @@
         "created": "أنشأ القناة {target}",
         "updated": "غيّر القناة {target}",
         "archived": "أرشف القناة {target}",
-        "unarchived": "أعاد القناة {target} من الأرشيف"
+        "unarchived": "أعاد القناة {target} من الأرشيف",
+        "imported": "استورد القناة {target}"
       },
       "dashboard_email": {
         "set": "ضبط إرسال {target} بالبريد إلى {count, plural, zero {لا أحد} one {شخص واحد} two {شخصين} few {# أشخاص} many {# شخصًا} other {# شخص}}",

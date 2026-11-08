@@ -275,5 +275,42 @@
     "offline": "Vous êtes hors ligne. L’envoi se fera à votre retour.",
     "timeout": "Le serveur n’a pas répondu à temps.",
     "internal": "Une erreur s’est produite. Réessayez."
+  },
+  "import": {
+    "button": "Importer depuis Slack",
+    "title": "Importer depuis Slack",
+    "intro": "Faites venir les canaux d’un espace de travail Slack et leur historique dans Messages. Dans Slack, un propriétaire exporte les données de l’espace de travail (Paramètres de l’espace de travail, Importer/exporter des données, Exporter) ; choisissez le ZIP obtenu.",
+    "choose": "Choisir le ZIP de l’export",
+    "chooseAnother": "Choisir un autre fichier",
+    "howPeople": "Les personnes sont associées aux membres de cet espace de travail par leur e-mail. Les messages des autres affichent le nom qu’ils avaient dans Slack.",
+    "howChannels": "Les canaux publics et privés arrivent comme de nouveaux canaux ; un nom déjà pris ici reçoit un numéro. Vous êtes ajouté à chacun.",
+    "howHistory": "Les messages gardent leurs heures d’origine, leurs fils et leurs réactions, et arrivent lus : personne n’est notifié.",
+    "download": "Télécharger les fichiers",
+    "downloadHint": "Conserver ici les fichiers partagés dans les messages. Désactivé, ou si un fichier est inaccessible, le message renvoie vers lui sur Slack.",
+    "import": "Importer",
+    "importing": "Importation…",
+    "working": "Un gros export peut prendre quelques minutes. Gardez cette fenêtre ouverte.",
+    "doneTitle": "Importation terminée",
+    "doneSummary": "{channels, plural, one {# canal} other {# canaux}} et {messages, plural, one {# message} other {# messages}} sont arrivés ; {people, plural, =0 {personne n’a été associé à un membre} one {# personne a été associée à un membre} other {# personnes ont été associées à des membres}}.",
+    "doneFiles": "{count, plural, one {# fichier a été téléchargé} other {# fichiers ont été téléchargés}}.",
+    "messageCount": "{count, plural, one {# message} other {# messages}}",
+    "warnings": {
+      "renamed": "#{from} a été importé sous le nom #{to} : le nom était pris.",
+      "alreadyImported": "#{name} avait déjà été importé et a été laissé tel quel.",
+      "unmatchedPeople": "{count, plural, one {# personne n’a correspondu} other {# personnes n’ont correspondu}} à aucun membre par e-mail ({names}) : leurs messages affichent leur nom Slack. Invitez-les avec le même e-mail avant l’import pour que leurs messages soient les leurs.",
+      "reactionsLeftOut": "{count, plural, one {# réaction a été laissée} other {# réactions ont été laissées}} de côté : un emoji personnalisé, ou donnée par quelqu’un qui ne correspond à aucun membre.",
+      "directLeftOut": "{count, plural, one {# conversation directe a été laissée} other {# conversations directes ont été laissées}} de côté : seuls les canaux sont importés.",
+      "repliesWithoutThread": "{count, plural, one {# réponse dont le fil} other {# réponses dont le fil}} n’est pas dans l’export est arrivée comme message à part.",
+      "filesAsLinks": "{count, plural, one {# fichier renvoie} other {# fichiers renvoient}} vers Slack au lieu d’être conservés ici."
+    },
+    "errors": {
+      "tooLarge": "L’export dépasse {limit}.",
+      "tooManyFiles": "L’export contient plus de {limit} fichiers.",
+      "badZip": "Le fichier ZIP est illisible.",
+      "badSlack": "Ce n’est pas un export Slack : il ne contient pas de channels.json. Choisissez le ZIP fourni par l’export de Slack.",
+      "busy": "Une autre importation de votre part est en cours. Réessayez quand elle sera terminée.",
+      "noAccess": "Seuls les propriétaires de l’espace de travail peuvent importer dans Messages.",
+      "failed": "L’importation a échoué. Réessayez."
+    }
   }
 }

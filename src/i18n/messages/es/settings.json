@@ -2163,7 +2163,8 @@
         "created": "Creó el canal {target}",
         "updated": "Cambió el canal {target}",
         "archived": "Archivó el canal {target}",
-        "unarchived": "Sacó del archivo el canal {target}"
+        "unarchived": "Sacó del archivo el canal {target}",
+        "imported": "Importó el canal {target}"
       },
       "dashboard_email": {
         "set": "Programó el envío por correo de {target} a {count, plural, one {# persona} other {# personas}}",

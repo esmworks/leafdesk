@@ -15,6 +15,12 @@
   they are added to. A lost connection catches up on what it missed. Channel changes are in the
   audit log, channels and their messages in backups (direct messages stay out, like AI chats), and
   legal holds keep messages from being deleted. Migration `0199_messages`.
+- **Bring a team chat's history into Messages.** Workspace owners import a chat workspace's export
+  (its ZIP of channels, people and daily messages) from *Messages → Browse channels*. Channels come
+  in as new public or private channels, people are matched to members by email (others show the
+  name they had), and messages keep their original times, threads, edits and reactions, read and
+  without notifying anyone. Files are linked or, when asked, downloaded through the guarded fetch.
+  Importing the same export again leaves its channels be. No migration.
 - **Export as PDF and Print from the Share panel.** Its foot now has the page menu's two ways of
   taking a page out on paper, so a row such as a delivery note goes to the printer from where it is
   shared. They follow the workspace's export settings like the menu's.

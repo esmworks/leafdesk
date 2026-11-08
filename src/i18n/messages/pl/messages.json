@@ -275,5 +275,42 @@
     "offline": "Jesteś offline. Wyślemy, gdy wrócisz.",
     "timeout": "Serwer nie odpowiedział na czas.",
     "internal": "Coś poszło nie tak. Spróbuj ponownie."
+  },
+  "import": {
+    "button": "Importuj ze Slacka",
+    "title": "Importuj ze Slacka",
+    "intro": "Przenieś kanały przestrzeni roboczej Slacka i ich historię do Wiadomości. W Slacku właściciel eksportuje dane przestrzeni (Ustawienia przestrzeni roboczej, Import/eksport danych, Eksportuj); wybierz otrzymany plik ZIP.",
+    "choose": "Wybierz ZIP eksportu",
+    "chooseAnother": "Wybierz inny plik",
+    "howPeople": "Osoby są dopasowywane do członków tej przestrzeni roboczej po adresie e-mail. Wiadomości pozostałych pokazują nazwę, jaką mieli w Slacku.",
+    "howChannels": "Kanały publiczne i prywatne trafiają tu jako nowe kanały; nazwa już zajęta dostaje numer. Zostajesz dodany do każdego z nich.",
+    "howHistory": "Wiadomości zachowują oryginalne godziny, wątki i reakcje oraz trafiają jako przeczytane: nikt nie dostaje powiadomień.",
+    "download": "Pobierz pliki",
+    "downloadHint": "Przechowuj tutaj pliki udostępnione w wiadomościach. Gdy to jest wyłączone lub pliku nie da się pobrać, wiadomość prowadzi do pliku w Slacku.",
+    "import": "Importuj",
+    "importing": "Importowanie…",
+    "working": "Duży eksport może potrwać kilka minut. Nie zamykaj tego okna.",
+    "doneTitle": "Import zakończony",
+    "doneSummary": "Zaimportowano {channels, plural, one {# kanał} few {# kanały} many {# kanałów} other {# kanału}} i {messages, plural, one {# wiadomość} few {# wiadomości} many {# wiadomości} other {# wiadomości}}; {people, plural, =0 {nikt nie pasował do członka} one {# osoba pasowała do członka} few {# osoby pasowały do członków} many {# osób pasowało do członków} other {# osoby pasowało do członków}}.",
+    "doneFiles": "Pobrano {count, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}.",
+    "messageCount": "{count, plural, one {# wiadomość} few {# wiadomości} many {# wiadomości} other {# wiadomości}}",
+    "warnings": {
+      "renamed": "#{from} zaimportowano jako #{to}: nazwa była zajęta.",
+      "alreadyImported": "#{name} zaimportowano już wcześniej i pozostawiono bez zmian.",
+      "unmatchedPeople": "{count, plural, one {# osoba nie pasowała} few {# osoby nie pasowały} many {# osób nie pasowało} other {# osoby nie pasowało}} po e-mailu do żadnego członka ({names}): ich wiadomości pokazują nazwę ze Slacka. Zaproś je z tym samym e-mailem przed importem, aby wiadomości były ich.",
+      "reactionsLeftOut": "Pominięto {count, plural, one {# reakcję} few {# reakcje} many {# reakcji} other {# reakcji}}: własne emoji lub od kogoś, kto nie pasował do żadnego członka.",
+      "directLeftOut": "Pominięto {count, plural, one {# rozmowę bezpośrednią} few {# rozmowy bezpośrednie} many {# rozmów bezpośrednich} other {# rozmowy bezpośredniej}}: importowane są tylko kanały.",
+      "repliesWithoutThread": "{count, plural, one {# odpowiedź, której wątku} few {# odpowiedzi, których wątku} many {# odpowiedzi, których wątku} other {# odpowiedzi, których wątku}} nie ma w eksporcie, trafiło jako osobne wiadomości.",
+      "filesAsLinks": "{count, plural, one {# plik prowadzi} few {# pliki prowadzą} many {# plików prowadzi} other {# pliku prowadzi}} do Slacka zamiast być przechowywane tutaj."
+    },
+    "errors": {
+      "tooLarge": "Eksport przekracza {limit}.",
+      "tooManyFiles": "Eksport ma więcej niż {limit} plików.",
+      "badZip": "Nie można odczytać pliku ZIP.",
+      "badSlack": "To nie jest eksport ze Slacka: brak w nim channels.json. Wybierz plik ZIP z eksportu Slacka.",
+      "busy": "Inny twój import nadal trwa. Spróbuj ponownie, gdy się skończy.",
+      "noAccess": "Tylko właściciele przestrzeni roboczej mogą importować do Wiadomości.",
+      "failed": "Import się nie powiódł. Spróbuj ponownie."
+    }
   }
 }

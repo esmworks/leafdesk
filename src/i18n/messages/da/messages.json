@@ -275,5 +275,42 @@
     "offline": "Du er offline. Det sendes, når du er tilbage.",
     "timeout": "Serveren svarede ikke i tide.",
     "internal": "Noget gik galt. Prøv igen."
+  },
+  "import": {
+    "button": "Importér fra Slack",
+    "title": "Importér fra Slack",
+    "intro": "Hent kanalerne fra et Slack-arbejdsområde og deres historik ind i Beskeder. I Slack eksporterer en ejer arbejdsområdets data (Indstillinger for arbejdsområde, Importér/eksportér data, Eksportér); vælg den ZIP-fil, du får.",
+    "choose": "Vælg eksportens ZIP",
+    "chooseAnother": "Vælg en anden fil",
+    "howPeople": "Personer matches med medlemmer af dette arbejdsområde via e-mail. Andres beskeder viser det navn, de havde i Slack.",
+    "howChannels": "Offentlige og private kanaler kommer ind som nye kanaler; et navn, der allerede er taget her, får et nummer. Du bliver tilføjet til hver af dem.",
+    "howHistory": "Beskeder beholder deres oprindelige tidspunkter, tråde og reaktioner og kommer ind som læst: ingen får besked.",
+    "download": "Download filer",
+    "downloadHint": "Gem de filer, der er delt i beskeder, her. Når det er slået fra, eller en fil ikke kan hentes, linker beskeden til filen i Slack.",
+    "import": "Importér",
+    "importing": "Importerer…",
+    "working": "En stor eksport kan tage et par minutter. Hold dette vindue åbent.",
+    "doneTitle": "Importen er færdig",
+    "doneSummary": "{channels, plural, one {# kanal} other {# kanaler}} og {messages, plural, one {# besked} other {# beskeder}} kom ind; {people, plural, =0 {ingen matchede et medlem} one {# person matchede et medlem} other {# personer matchede medlemmer}}.",
+    "doneFiles": "{count, plural, one {# fil blev} other {# filer blev}} downloadet.",
+    "messageCount": "{count, plural, one {# besked} other {# beskeder}}",
+    "warnings": {
+      "renamed": "#{from} blev importeret som #{to}: navnet var taget.",
+      "alreadyImported": "#{name} var importeret før og blev ladt, som den var.",
+      "unmatchedPeople": "{count, plural, one {# person matchede} other {# personer matchede}} ikke noget medlem via e-mail ({names}): deres beskeder viser deres Slack-navn. Invitér dem med samme e-mail før importen, så deres beskeder bliver deres egne.",
+      "reactionsLeftOut": "{count, plural, one {# reaktion blev} other {# reaktioner blev}} udeladt: en brugerdefineret emoji eller givet af en, der ikke matchede noget medlem.",
+      "directLeftOut": "{count, plural, one {# direkte samtale blev} other {# direkte samtaler blev}} udeladt: kun kanaler importeres.",
+      "repliesWithoutThread": "{count, plural, one {# svar, hvis tråd} other {# svar, hvis tråd}} ikke er i eksporten, kom ind som en selvstændig besked.",
+      "filesAsLinks": "{count, plural, one {# fil linker} other {# filer linker}} til Slack i stedet for at blive gemt her."
+    },
+    "errors": {
+      "tooLarge": "Eksporten er større end {limit}.",
+      "tooManyFiles": "Eksporten har mere end {limit} filer.",
+      "badZip": "ZIP-filen kan ikke læses.",
+      "badSlack": "Det er ikke en Slack-eksport: den har ingen channels.json. Vælg den ZIP-fil, Slacks eksport gav dig.",
+      "busy": "En anden import fra dig kører stadig. Prøv igen, når den er færdig.",
+      "noAccess": "Kun ejere af arbejdsområdet kan importere til Beskeder.",
+      "failed": "Importen mislykkedes. Prøv igen."
+    }
   }
 }

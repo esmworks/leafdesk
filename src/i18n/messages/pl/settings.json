@@ -2163,7 +2163,8 @@
         "created": "Utworzono kanał {target}",
         "updated": "Zmieniono kanał {target}",
         "archived": "Zarchiwizowano kanał {target}",
-        "unarchived": "Przywrócono kanał {target} z archiwum"
+        "unarchived": "Przywrócono kanał {target} z archiwum",
+        "imported": "Zaimportowano kanał {target}"
       },
       "dashboard_email": {
         "set": "Ustawiono wysyłkę {target} e-mailem do {count, plural, one {# osoby} few {# osób} many {# osób} other {# osoby}}",

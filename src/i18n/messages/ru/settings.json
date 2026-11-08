@@ -2163,7 +2163,8 @@
         "created": "Создан канал {target}",
         "updated": "Изменён канал {target}",
         "archived": "Архивирован канал {target}",
-        "unarchived": "Канал {target} возвращён из архива"
+        "unarchived": "Канал {target} возвращён из архива",
+        "imported": "Канал {target} импортирован"
       },
       "dashboard_email": {
         "set": "Настроена отправка {target} по почте: {count, plural, one {# человеку} few {# людям} many {# людям} other {# человека}}",

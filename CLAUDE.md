@@ -180,6 +180,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   see *Conventions*). In the browser `components/messages/store.ts` holds what the socket brought:
   unread is the server's count plus live messages past `countedTo`, the seq it counted. Pages
   change the query with `history.pushState` (`lib/messages.ts` `messagesPath`), never the router.
+  A Slack export comes in through `/api/import` `mode=slack` (owners): read by `lib/import/slack.ts`,
+  written by `messages/import.ts` straight into the tables inside `write` (not `sendMessage`: no
+  notifications, mentions or follows, original times, seq by `ts`), announcing channels only; ids
+  are derived from Slack's, so a second import finds its channels. Reaction names map through the
+  generated `lib/import/slack-emoji.ts` (`scripts/slack-emoji.ts`).
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.

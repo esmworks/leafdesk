@@ -275,5 +275,42 @@
     "offline": "Çevrimdışısınız. Bağlantı geri gelince gönderilecek.",
     "timeout": "Sunucu zamanında yanıt vermedi.",
     "internal": "Bir şeyler ters gitti. Tekrar deneyin."
+  },
+  "import": {
+    "button": "Slack'ten içe aktar",
+    "title": "Slack'ten içe aktar",
+    "intro": "Bir Slack çalışma alanının kanallarını ve geçmişini Mesajlar'a taşıyın. Slack'te bir sahip çalışma alanının verilerini dışa aktarır (Çalışma alanı ayarları, Verileri içe/dışa aktar, Dışa aktar); verdiği ZIP dosyasını seçin.",
+    "choose": "Dışa aktarma ZIP'ini seçin",
+    "chooseAnother": "Başka bir dosya seçin",
+    "howPeople": "Kişiler bu çalışma alanının üyeleriyle e-postalarından eşleştirilir. Diğerlerinin mesajlarında Slack'teki adları görünür.",
+    "howChannels": "Herkese açık ve özel kanallar yeni kanal olarak gelir; burada alınmış bir ad bir sayı alır. Her birine siz de eklenirsiniz.",
+    "howHistory": "Mesajlar özgün zamanlarını, konularını ve tepkilerini korur ve okunmuş olarak gelir: kimseye bildirim gitmez.",
+    "download": "Dosyaları indir",
+    "downloadHint": "Mesajlarda paylaşılan dosyaları burada saklayın. Kapalıyken ya da bir dosyaya ulaşılamazsa mesaj Slack'teki dosyaya bağlantı verir.",
+    "import": "İçe aktar",
+    "importing": "İçe aktarılıyor…",
+    "working": "Büyük bir dışa aktarma birkaç dakika sürebilir. Bu pencereyi açık tutun.",
+    "doneTitle": "İçe aktarma bitti",
+    "doneSummary": "{channels, plural, one {# kanal} other {# kanal}} ve {messages, plural, one {# mesaj} other {# mesaj}} geldi; {people, plural, =0 {kimse bir üyeyle eşleşmedi} one {# kişi bir üyeyle eşleşti} other {# kişi üyelerle eşleşti}}.",
+    "doneFiles": "{count, plural, one {# dosya} other {# dosya}} indirildi.",
+    "messageCount": "{count, plural, one {# mesaj} other {# mesaj}}",
+    "warnings": {
+      "renamed": "#{from}, ad alınmış olduğu için #{to} olarak içe aktarıldı.",
+      "alreadyImported": "#{name} daha önce içe aktarılmıştı ve olduğu gibi bırakıldı.",
+      "unmatchedPeople": "{count, plural, one {# kişi} other {# kişi}} e-postasıyla hiçbir üyeyle eşleşmedi ({names}): mesajlarında Slack'teki adları görünür. Mesajlarının kendilerine ait olması için içe aktarmadan önce onları aynı e-postayla davet edin.",
+      "reactionsLeftOut": "{count, plural, one {# tepki} other {# tepki}} alınmadı: özel bir emoji ya da hiçbir üyeyle eşleşmeyen birinden.",
+      "directLeftOut": "{count, plural, one {# doğrudan konuşma} other {# doğrudan konuşma}} alınmadı: yalnızca kanallar içe aktarılır.",
+      "repliesWithoutThread": "Konusu dışa aktarmada olmayan {count, plural, one {# yanıt} other {# yanıt}} ayrı mesaj olarak geldi.",
+      "filesAsLinks": "{count, plural, one {# dosya} other {# dosya}} burada saklanmak yerine Slack'e bağlantı veriyor."
+    },
+    "errors": {
+      "tooLarge": "Dışa aktarma {limit} boyutundan büyük.",
+      "tooManyFiles": "Dışa aktarmada {limit} dosyadan fazlası var.",
+      "badZip": "ZIP dosyası okunamıyor.",
+      "badSlack": "Bu bir Slack dışa aktarması değil: içinde channels.json yok. Slack'in dışa aktarmasının verdiği ZIP'i seçin.",
+      "busy": "Başka bir içe aktarmanız hâlâ sürüyor. Bitince yeniden deneyin.",
+      "noAccess": "Mesajlar'a yalnızca çalışma alanının sahipleri içe aktarabilir.",
+      "failed": "İçe aktarma başarısız oldu. Yeniden deneyin."
+    }
   }
 }

@@ -19,6 +19,7 @@ const CreateChannelDialog = lazyPart(() => import("./channel-dialogs").then((m) 
 const NewDirectDialog = lazyPart(() => import("./channel-dialogs").then((m) => m.NewDirectDialog));
 const ForwardDialog = lazyPart(() => import("./channel-dialogs").then((m) => m.ForwardDialog));
 const BrowseChannels = lazyPart(() => import("./channel-dialogs").then((m) => m.BrowseChannels));
+const ImportDialog = lazyPart(() => import("./import-dialog").then((m) => m.ImportDialog));
 const MessagesViewPage = lazyPart(() => import("./message-views").then((m) => m.MessagesViewPage));
 const Switcher = lazyPart(() => import("./switcher").then((m) => m.Switcher));
 const ThreadPanel = lazyPart(() => import("./thread-panel").then((m) => m.ThreadPanel), <div className="w-full shrink-0 border-border md:w-[26rem] md:border-s" />);
@@ -62,6 +63,7 @@ export function MessagesApp({ workspaceId, owner }: { workspaceId: string; owner
   const closedReason = useMessages((s) => s.closedReason);
   const [forwarding, setForwarding] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [directing, setDirecting] = useState(false);
   const [switching, setSwitching] = useState(false);
 
@@ -152,6 +154,7 @@ export function MessagesApp({ workspaceId, owner }: { workspaceId: string; owner
       <NewDirectDialog workspaceId={workspaceId} open={directing} close={() => setDirecting(false)} />
       <ForwardDialog workspaceId={workspaceId} messageId={forwarding} close={() => setForwarding(null)} />
       {switching && <Switcher workspaceId={workspaceId} close={() => setSwitching(false)} />}
+      {importing && <ImportDialog workspaceId={workspaceId} open close={() => setImporting(false)} />}
     </>
   );
 
@@ -177,7 +180,7 @@ export function MessagesApp({ workspaceId, owner }: { workspaceId: string; owner
     return (
       <Shell title={t("views.browse")}>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <BrowseChannels workspaceId={workspaceId} create={() => setCreating(true)} />
+          <BrowseChannels workspaceId={workspaceId} create={() => setCreating(true)} importFrom={owner ? () => setImporting(true) : undefined} />
         </div>
         {dialogs}
       </Shell>

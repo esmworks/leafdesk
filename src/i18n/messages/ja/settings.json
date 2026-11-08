@@ -2163,7 +2163,8 @@
         "created": "チャンネル{target}を作成しました",
         "updated": "チャンネル{target}を変更しました",
         "archived": "チャンネル{target}をアーカイブしました",
-        "unarchived": "チャンネル{target}をアーカイブから戻しました"
+        "unarchived": "チャンネル{target}をアーカイブから戻しました",
+        "imported": "チャンネル{target}をインポートしました"
       },
       "dashboard_email": {
         "set": "{target}を{count, plural, other {#人}}にメール送信するよう設定しました",

@@ -2163,7 +2163,8 @@
         "created": "Skapade kanalen {target}",
         "updated": "Ändrade kanalen {target}",
         "archived": "Arkiverade kanalen {target}",
-        "unarchived": "Tog tillbaka kanalen {target} från arkivet"
+        "unarchived": "Tog tillbaka kanalen {target} från arkivet",
+        "imported": "Importerade kanalen {target}"
       },
       "dashboard_email": {
         "set": "Ställde in att {target} skickas med e-post till {count, plural, one {# person} other {# personer}}",

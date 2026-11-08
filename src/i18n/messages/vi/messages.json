@@ -275,5 +275,42 @@
     "offline": "Bạn đang ngoại tuyến. Tin nhắn sẽ được gửi khi bạn kết nối lại.",
     "timeout": "Máy chủ không trả lời kịp.",
     "internal": "Đã xảy ra lỗi. Hãy thử lại."
+  },
+  "import": {
+    "button": "Nhập từ Slack",
+    "title": "Nhập từ Slack",
+    "intro": "Đưa các kênh của một không gian làm việc Slack cùng lịch sử của chúng vào Tin nhắn. Trong Slack, chủ sở hữu xuất dữ liệu của không gian làm việc (Cài đặt không gian làm việc, Nhập/xuất dữ liệu, Xuất); chọn tệp ZIP nhận được.",
+    "choose": "Chọn tệp ZIP đã xuất",
+    "chooseAnother": "Chọn tệp khác",
+    "howPeople": "Mọi người được ghép với thành viên của không gian làm việc này qua email. Tin nhắn của những người khác hiện tên họ có trên Slack.",
+    "howChannels": "Kênh công khai và riêng tư được nhập thành kênh mới; tên đã có ở đây sẽ được thêm số. Bạn được thêm vào từng kênh.",
+    "howHistory": "Tin nhắn giữ nguyên thời gian gốc, chuỗi trả lời và biểu cảm, và được nhập ở trạng thái đã đọc: không ai nhận thông báo.",
+    "download": "Tải tệp xuống",
+    "downloadHint": "Lưu tại đây các tệp được chia sẻ trong tin nhắn. Khi tắt, hoặc không lấy được tệp, tin nhắn sẽ liên kết tới tệp trên Slack.",
+    "import": "Nhập",
+    "importing": "Đang nhập…",
+    "working": "Bản xuất lớn có thể mất vài phút. Hãy giữ cửa sổ này mở.",
+    "doneTitle": "Đã nhập xong",
+    "doneSummary": "Đã nhập {channels, plural, other {# kênh}} và {messages, plural, other {# tin nhắn}}; {people, plural, =0 {không ai khớp với thành viên} other {# người khớp với thành viên}}.",
+    "doneFiles": "Đã tải xuống {count, plural, other {# tệp}}.",
+    "messageCount": "{count, plural, other {# tin nhắn}}",
+    "warnings": {
+      "renamed": "#{from} được nhập thành #{to}: tên đã có người dùng.",
+      "alreadyImported": "#{name} đã được nhập trước đó và được giữ nguyên.",
+      "unmatchedPeople": "{count, plural, other {# người}} không khớp thành viên nào qua email ({names}): tin nhắn của họ hiện tên trên Slack. Hãy mời họ bằng cùng email trước khi nhập để tin nhắn thuộc về họ.",
+      "reactionsLeftOut": "Đã bỏ qua {count, plural, other {# biểu cảm}}: emoji tùy chỉnh, hoặc của người không khớp thành viên nào.",
+      "directLeftOut": "Đã bỏ qua {count, plural, other {# cuộc trò chuyện trực tiếp}}: chỉ nhập các kênh.",
+      "repliesWithoutThread": "{count, plural, other {# trả lời}} có chuỗi không nằm trong bản xuất được nhập thành tin nhắn riêng.",
+      "filesAsLinks": "{count, plural, other {# tệp}} liên kết tới Slack thay vì được lưu tại đây."
+    },
+    "errors": {
+      "tooLarge": "Bản xuất lớn hơn {limit}.",
+      "tooManyFiles": "Bản xuất có hơn {limit} tệp.",
+      "badZip": "Không đọc được tệp ZIP.",
+      "badSlack": "Đây không phải bản xuất của Slack: không có channels.json. Hãy chọn tệp ZIP mà bản xuất của Slack đã tạo.",
+      "busy": "Một lần nhập khác của bạn vẫn đang chạy. Hãy thử lại khi nó xong.",
+      "noAccess": "Chỉ chủ sở hữu không gian làm việc mới có thể nhập vào Tin nhắn.",
+      "failed": "Nhập không thành công. Hãy thử lại."
+    }
   }
 }

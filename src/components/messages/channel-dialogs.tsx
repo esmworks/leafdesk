@@ -637,8 +637,8 @@ export function ChannelDetails({
   );
 }
 
-/** Public channels the person isn't in (and archived ones), to look into or join. */
-export function BrowseChannels({ workspaceId, create }: { workspaceId: string; create: () => void }) {
+/** Public channels the person isn't in (and archived ones), to look into or join; owners may import channels from here (`importFrom`). */
+export function BrowseChannels({ workspaceId, create, importFrom }: { workspaceId: string; create: () => void; importFrom?: () => void }) {
   const t = useTranslations("messages");
   const [query, setQuery] = useState("");
   const [list, setList] = useState<ChannelView[] | null>(null);
@@ -659,6 +659,11 @@ export function BrowseChannels({ workspaceId, create }: { workspaceId: string; c
           <Search className="pointer-events-none absolute start-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-faint" />
           <Input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("searchChannels")} aria-label={t("searchChannels")} className="ps-8" />
         </div>
+        {importFrom && (
+          <Button variant="secondary" onClick={importFrom}>
+            {t("import.button")}
+          </Button>
+        )}
         <Button variant="primary" onClick={create}>
           {t("newChannel")}
         </Button>

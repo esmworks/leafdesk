@@ -2163,7 +2163,8 @@
         "created": "Created the channel {target}",
         "updated": "Changed the channel {target}",
         "archived": "Archived the channel {target}",
-        "unarchived": "Unarchived the channel {target}"
+        "unarchived": "Unarchived the channel {target}",
+        "imported": "Imported the channel {target}"
       },
       "dashboard_email": {
         "set": "Set {target} to be emailed to {count, plural, one {# person} other {# people}}",

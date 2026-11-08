@@ -1280,6 +1280,22 @@
   are listed in the result. Read as the documented layout: the board's name on top, each group's
   name over its header row, subitems one column in under their item, updates on a sheet of their
   own. Tested against files built from that layout, not yet a real export.
+- **Import from Slack** (workspace owners): in Slack, an owner exports the workspace's data
+  (*Workspace settings → Import/Export Data → Export*); in Leafdesk, open *Messages → Browse
+  channels → Import from Slack* and choose the ZIP. Public and private channels come in as new
+  channels (a name already taken gets a number, and the result says so) with their topic, purpose,
+  creation time and archived state; the importing owner joins each as an admin, beside the
+  channel's members who matched. People are matched to the workspace's members by email: their
+  messages, reactions and mentions are theirs; everyone else's messages show the name they had in
+  Slack (invite them with the same email first to have them as theirs). Messages keep their
+  original times, edits and threads (a reply also sent to the channel stays so); Slack's formatting
+  becomes Markdown, emoji names emoji, `@channel` and `@here` plain words. The history comes in
+  read: no one is notified, mentioned or made to follow old threads. Files link to their page on
+  Slack, or with *Download files* are stored in the workspace (fetched as an address anyone gives:
+  only `WEB_FETCH_ALLOWED_HOSTS` reaches a private network; one that can't be fetched stays a link).
+  Direct conversations, custom emoji and reactions of people who matched no member are left out and
+  counted in the result. Importing the same export again leaves its channels as they are. The
+  export may hold up to 100,000 files (one per channel and day); the ZIP's own limits are Import's.
 - **Save a web page**: *Save from web…* in the sidebar's *New* and *+* menus (or Import's *Web
   page* tab) takes a web page's address and saves its title, a link back, its main text (without
   the menus, ads, comments and footers around it) and its pictures, copied into the workspace (up
