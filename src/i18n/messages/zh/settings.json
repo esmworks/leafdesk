@@ -620,6 +620,8 @@
       "proposedList": "其运行提议的笔记",
       "keptHeading": "它记住的内容",
       "keptList": "智能体的笔记",
+      "search": "搜索笔记",
+      "noMatch": "没有匹配的笔记。",
       "empty": "还什么都没有。保留其运行提议的笔记，或在这里写一条。",
       "hiddenText": "在你无法打开的某一行上提议。",
       "hiddenOthersText": "由另一位所有者启动的运行提出。",

@@ -1408,6 +1408,13 @@
       "when": 1794152922664,
       "tag": "0200_connected_app_tools",
       "breakpoints": true
+    },
+    {
+      "idx": 201,
+      "version": "7",
+      "when": 1794157438521,
+      "tag": "0201_memory_embedding",
+      "breakpoints": true
     }
   ]
 }

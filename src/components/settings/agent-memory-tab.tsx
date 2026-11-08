@@ -1,8 +1,8 @@
 "use client";
 
-import { Check, Pencil, ShieldCheck, Trash2, X } from "lucide-react";
+import { Check, Pencil, Search, ShieldCheck, Trash2, X } from "lucide-react";
 import Link from "next/link";
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useEffect, useState, type FormEvent } from "react";
 import {
   addAgentMemoryAction,
@@ -30,6 +30,8 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
   const [loadError, setLoadError] = useState<string | null>(null);
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
   const [draft, setDraft] = useState("");
+  const [query, setQuery] = useState("");
+  const locale = useLocale();
   const { pending, error, run } = useAction();
 
   useEffect(() => {
@@ -54,6 +56,9 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
   // Corrections first: what someone told the agent it got wrong.
   const kept = [...(notes?.filter((n) => n.status === "kept") ?? [])].sort((a, b) => Number(b.kind === "correction") - Number(a.kind === "correction"));
   const full = kept.length >= MAX_MEMORIES;
+  // A search narrows the kept notes to those with every word it has, any case.
+  const words = query.toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
+  const shown = words.length ? kept.filter((note) => words.every((word) => (note.text ?? "").toLocaleLowerCase(locale).includes(word))) : kept;
   const editable = !agent.archived && editsAgent(agent);
   // Forgetting stays open on an archived agent, not to those who only see it.
   const forgets = editsAgent(agent);
@@ -198,9 +203,19 @@ export function AgentMemoryTab({ workspaceId, agent, memoryOff }: { workspaceId:
               <h3 className="text-sm font-medium">{t("keptHeading")}</h3>
               <span className="ms-auto text-xs text-fg-faint tabular-nums">{t("count", { count: kept.length, max: MAX_MEMORIES })}</span>
             </div>
-            {kept.length ? (
+            {kept.length > 0 && (
+              <div className="relative mt-2">
+                <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
+                <Input type="search" aria-label={t("search")} placeholder={t("search")} value={query} onChange={(e) => setQuery(e.target.value)} className="ps-7" />
+              </div>
+            )}
+            {kept.length > 0 && shown.length === 0 ? (
+              <p className="mt-2 text-sm text-fg-muted" aria-live="polite">
+                {t("noMatch")}
+              </p>
+            ) : kept.length ? (
               <ul aria-label={t("keptList")} className="-mx-2.5 mt-2 flex flex-col gap-0.5">
-                {kept.map((note) => (
+                {shown.map((note) => (
                   <li key={note.id} className={row}>
                     {editor(note) || (
                       <>

@@ -620,6 +620,8 @@
       "proposedList": "Von seinen Läufen vorgeschlagene Notizen",
       "keptHeading": "Was er sich merkt",
       "keptList": "Die Notizen des Agenten",
+      "search": "Notizen durchsuchen",
+      "noMatch": "Keine passenden Notizen.",
       "empty": "Noch nichts. Behalten Sie eine Notiz, die seine Läufe vorschlagen, oder schreiben Sie hier eine.",
       "hiddenText": "Auf einer Zeile vorgeschlagen, die Sie nicht öffnen können.",
       "hiddenOthersText": "Von einem Lauf vorgeschlagen, den ein anderer Inhaber gestartet hat.",

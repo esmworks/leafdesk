@@ -1,10 +1,12 @@
 import { InMemoryTransport, type JSONRPCMessage } from "@modelcontextprotocol/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MAX_MEMORIES } from "@/lib/ai-chat";
 import { today } from "@/lib/journal";
 import { PropertyValueError } from "@/lib/properties";
 import { AccessError, ConnectedAppReadOnlyError, requirePageAccess } from "@/server/access";
 import { AiError } from "@/server/ai";
 import { MAX_MARKDOWN_CHARS } from "./format";
+import { LIST_CHARS } from "./memory";
 import type { McpPrincipal } from "./principal";
 import { CONTENT_NOTE, createMcpServer, readDocs } from "./tools";
 
@@ -226,6 +228,8 @@ const accountMemory = vi.hoisted(() => ({
   deleteAccountNotes: vi.fn(async (_userId: string, _ids: string[] | "all") => [] as string[]),
 }));
 vi.mock("@/server/account-memory", () => accountMemory);
+const memoryEmbeddings = vi.hoisted(() => ({ noteSimilarities: vi.fn(async (..._args: unknown[]): Promise<Map<string, number> | null> => null) }));
+vi.mock("@/server/memory-embeddings", () => memoryEmbeddings);
 const sharedMemory = vi.hoisted(() => ({
   memoryPlaces: vi.fn(async (_userId: string, _workspaceId: string) => ({ workspace: null as unknown, teamspaces: [] as unknown[] })),
   placeNotes: vi.fn(async (_userId: string, _workspaceId: string, _teamspaceId: string | null) => [] as unknown[]),
@@ -3939,13 +3943,39 @@ describe("the user's memory", () => {
     expect(searched.data.notes[0]).toMatchObject({ layer: "person", workspace_id: "ws-1", details: expect.stringContaining("Compressor") });
     expect(searched.data.notes[1]).toMatchObject({ layer: "teamspace", teamspace_id: "ts-1" });
     expect(searched.data.notes[2]).toMatchObject({ layer: "workspace", changed_by: "Ada" });
-    expect((await callTool(reader, "list_memory", { query: "coffee" })).data).toMatchObject({ notes: [], none: expect.stringMatching(/No note has those words/) });
+    expect((await callTool(reader, "list_memory", { query: "coffee" })).data).toMatchObject({ notes: [], none: expect.stringMatching(/No note matches that/) });
+
+    // By meaning too: the workspace's embeddings find a note without the words, the account's notes searched with the workspace's.
+    memoryEmbeddings.noteSimilarities.mockResolvedValueOnce(new Map([["a-1", 0.71]]));
+    const meant = await callTool(reader, "list_memory", { workspace_id: "ws-1", query: "which language" });
+    expect(meant.data.notes.map((n: { memory_id: string }) => n.memory_id)).toEqual(["a-1"]);
+    const [searchedNotes, meantQuery, who] = memoryEmbeddings.noteSimilarities.mock.calls.at(-1)!;
+    expect((searchedNotes as { id: string; store: string }[]).map((n) => `${n.store}:${n.id}`)).toEqual([
+      "account_memory:a-1",
+      "ai_memory:m-1",
+      "ai_memory:m-3",
+      "shared_memory:w-1",
+      "shared_memory:t-1",
+    ]);
+    expect([meantQuery, who]).toEqual(["which language", { userId: "user-1", workspaceId: "ws-1" }]);
 
     const one = await callTool(reader, "list_memory", { memory_id: "a-1" });
     expect(one.data).toMatchObject({ layer: "account", memory_id: "a-1", details: "Technical words may stay in English." });
     const missing = await callTool(reader, "list_memory", { workspace_id: "ws-1", memory_id: "nope" });
     expect(missing.isError).toBe(true);
     expect(missing.content[0].text).toMatch(/No note of the user's with this memory_id/);
+
+    // A long memory lists its newest notes as far as the budget goes and counts the rest.
+    const many = Array.from({ length: 200 }, (_, i) => note(`n-${i}`, i === 3 ? "Ships with the cold room kit" : `Note ${i} ${"x".repeat(250)}`));
+    personalMemory.memoryState.mockResolvedValue({ off: null, notes: many });
+    accountMemory.accountNotes.mockResolvedValue(many.map((n) => ({ ...n, id: `a${n.id}` })));
+    const long = await callTool(reader, "list_memory", { workspace_id: "ws-1" });
+    expect(long.data.notes.length).toBeGreaterThan(10);
+    expect(long.data.notes.length + long.data.notes_not_listed).toBe(200);
+    expect(long.data.notes.at(-1).memory_id).toBe("n-199");
+    expect(JSON.stringify(long.data.notes).length).toBeLessThanOrEqual(LIST_CHARS);
+    expect(long.data.account_notes.length + long.data.account_notes_not_listed).toBe(200);
+    expect((await callTool(reader, "list_memory", { workspace_id: "ws-1", query: "cold room kit" })).data.notes.some((n: { memory_id: string }) => n.memory_id === "n-3")).toBe(true);
 
     personalMemory.memoryState.mockResolvedValue({ off: "person", notes: [role, recipe] });
     const offSearch = await callTool(reader, "list_memory", { workspace_id: "ws-1", query: "compressor" });
@@ -3994,7 +4024,7 @@ describe("the user's memory", () => {
 
     const cases: [string, RegExp][] = [
       ["notFound", /No note with this memory_id.*list_memory/],
-      ["full", /full \(60 notes\).*change_memory/],
+      ["full", new RegExp(`full \\(${MAX_MEMORIES} notes\\).*change_memory`)],
       ["tooLong", /at most 300 characters/],
       ["empty", /needs text/],
       ["off", /owners turned the AI memory off/],

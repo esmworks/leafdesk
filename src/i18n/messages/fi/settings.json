@@ -620,6 +620,8 @@
       "proposedList": "Sen ajojen ehdottamat muistiinpanot",
       "keptHeading": "Mitä se muistaa",
       "keptList": "Agentin muistiinpanot",
+      "search": "Hae muistiinpanoista",
+      "noMatch": "Ei osuvia muistiinpanoja.",
       "empty": "Ei vielä mitään. Säilytä sen ajojen ehdottama muistiinpano tai kirjoita sellainen tähän.",
       "hiddenText": "Ehdotettu rivillä, jota et voi avata.",
       "hiddenOthersText": "Toisen omistajan käynnistämän ajon ehdottama.",

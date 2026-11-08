@@ -620,6 +620,8 @@
       "proposedList": "Notes proposées par ses exécutions",
       "keptHeading": "Ce qu’il retient",
       "keptList": "Les notes de l’agent",
+      "search": "Rechercher dans les notes",
+      "noMatch": "Aucune note ne correspond.",
       "empty": "Rien pour l’instant. Gardez une note proposée par ses exécutions, ou écrivez-en une ici.",
       "hiddenText": "Proposée sur une ligne que vous ne pouvez pas ouvrir.",
       "hiddenOthersText": "Proposé par une exécution lancée par un autre propriétaire.",

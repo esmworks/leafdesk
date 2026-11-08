@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique, uniqueIndex, type AnyPgColumn } from "drizzle-orm/pg-core";
+import { bigint, boolean, check, date, doublePrecision, index, integer, jsonb, pgTable, primaryKey, real, text, timestamp, unique, uniqueIndex, type AnyPgColumn } from "drizzle-orm/pg-core";
 import { databaseProperty, page, teamspace, tsvector, workspace } from "./app";
 import { agentRun, workspaceAgent } from "./agents";
 import { user } from "./auth";
@@ -554,6 +554,38 @@ export const accountMemory = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("account_memory_user_idx").on(t.userId, t.createdAt)],
+);
+
+/**
+ * A note's embedding, for searching notes by meaning (server/memory-embeddings.ts): one row per note
+ * of exactly one of ai_memory, shared_memory and account_memory, gone with it. Made when a search
+ * first needs it and made again when `contentHash` (the note's text and details) or `model` (the
+ * searching workspace's embeddings model) no longer match. Derived from the note, so left out of
+ * backups.
+ */
+export const memoryEmbedding = pgTable(
+  "memory_embedding",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    aiMemoryId: text("ai_memory_id")
+      .unique()
+      .references(() => aiMemory.id, { onDelete: "cascade" }),
+    sharedMemoryId: text("shared_memory_id")
+      .unique()
+      .references(() => sharedMemory.id, { onDelete: "cascade" }),
+    accountMemoryId: text("account_memory_id")
+      .unique()
+      .references(() => accountMemory.id, { onDelete: "cascade" }),
+    /** sha256 of the text embedded (the note's line and details). */
+    contentHash: text("content_hash").notNull(),
+    model: text("model").notNull(),
+    dimensions: integer("dimensions").notNull(),
+    embedding: real("embedding").array().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [check("memory_embedding_one_note_check", sql`num_nonnulls(${t.aiMemoryId}, ${t.sharedMemoryId}, ${t.accountMemoryId}) = 1`)],
 );
 
 /**

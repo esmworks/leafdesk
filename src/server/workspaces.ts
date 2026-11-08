@@ -17,6 +17,7 @@ import {
   notification,
   page,
   pageInvitation,
+  memoryEmbedding,
   passkey,
   pageChunk,
   pageGroupPermission,
@@ -26,6 +27,7 @@ import {
   sensitiveFinding,
   sensitiveScan,
   session,
+  sharedMemory,
   ssoProvider,
   user,
   workspace,
@@ -1715,10 +1717,19 @@ export async function updateWorkspaceSettings(
       );
     }
   });
-  // AI off: the workspace's content leaves the semantic search index too (see semantic-index.ts).
+  // AI off: the workspace's content leaves the semantic search index too (see semantic-index.ts),
+  // and its notes' embeddings (memory-embeddings.ts) go.
   if (clean.ai === false) {
     await db.delete(pageChunk).where(eq(pageChunk.workspaceId, workspaceId));
     await db.delete(pageIndexState).where(eq(pageIndexState.workspaceId, workspaceId));
+    await db
+      .delete(memoryEmbedding)
+      .where(
+        or(
+          inArray(memoryEmbedding.aiMemoryId, db.select({ id: aiMemory.id }).from(aiMemory).where(eq(aiMemory.workspaceId, workspaceId))),
+          inArray(memoryEmbedding.sharedMemoryId, db.select({ id: sharedMemory.id }).from(sharedMemory).where(eq(sharedMemory.workspaceId, workspaceId))),
+        ),
+      );
   }
   // Detection off: what it found, and which pages it read, are forgotten (turned on again, it reads everything anew).
   if (clean.sensitiveContent === false) {

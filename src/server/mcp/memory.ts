@@ -91,6 +91,27 @@ export function describeNote(note: MemoryView, full = false) {
   return { memory_id: note.id, text: note.text, category: note.category, ...details, ...(note.app ? { kept_by_app: note.app } : {}), created_at: note.createdAt, updated_at: note.updatedAt };
 }
 
+/** How much of one layer's notes list_memory lists, in characters of JSON: about thirty notes. */
+export const LIST_CHARS = 10_000;
+
+/**
+ * The newest of `notes` (oldest first) whose descriptions fit LIST_CHARS, shown oldest first, and
+ * how many older ones were left out (`notes_not_listed`, found with list_memory's query).
+ */
+export function listNotes<T>(notes: T[], describe: (note: T) => object): { notes: object[]; notes_not_listed?: number } {
+  const taken: object[] = [];
+  let used = 0;
+  for (const note of [...notes].reverse()) {
+    const shown = describe(note);
+    const size = JSON.stringify(shown).length + 1;
+    if (used + size > LIST_CHARS) break;
+    used += size;
+    taken.push(shown);
+  }
+  const left = notes.length - taken.length;
+  return { notes: taken.reverse(), ...(left ? { notes_not_listed: left } : {}) };
+}
+
 /**
  * The user's memory in a workspace as list_memory shows it: the notes while it is on, after the
  * summary of them the user keeps (`about`, server/memory-summary.ts), if any; while off, why and how many.
@@ -98,7 +119,7 @@ export function describeNote(note: MemoryView, full = false) {
 export function describeMemory(workspaceId: string, { off, notes }: { off: keyof typeof MEMORY_OFF | null; notes: MemoryView[] }, about = "") {
   return off
     ? { workspace_id: workspaceId, memory: "off" as const, why: MEMORY_OFF[off], notes: [], notes_kept: notes.length }
-    : { workspace_id: workspaceId, memory: "on" as const, ...(about ? { about } : {}), notes: notes.map((n) => describeNote(n)) };
+    : { workspace_id: workspaceId, memory: "on" as const, ...(about ? { about } : {}), ...listNotes(notes, (n) => describeNote(n)) };
 }
 
 /** A note of the workspace or a teamspace as list_memory shows it: who changed it last, too. */
@@ -143,9 +164,9 @@ export function describePlaces(places: { workspace: MemoryPlaceView | null; team
   if (!places.workspace) return {};
   const teamspaces = places.teamspaces.filter((t) => t.notes.length || t.canChange);
   return {
-    workspace_notes: { can_change: places.workspace.canChange, notes: places.workspace.notes.map((n) => describeSharedNote(n)) },
+    workspace_notes: { can_change: places.workspace.canChange, ...listNotes(places.workspace.notes, (n) => describeSharedNote(n)) },
     ...(teamspaces.length
-      ? { teamspace_notes: teamspaces.map((t) => ({ teamspace_id: t.id, name: t.name, can_change: t.canChange, notes: t.notes.map((n) => describeSharedNote(n)) })) }
+      ? { teamspace_notes: teamspaces.map((t) => ({ teamspace_id: t.id, name: t.name, can_change: t.canChange, ...listNotes(t.notes, (n) => describeSharedNote(n)) })) }
       : {}),
   };
 }

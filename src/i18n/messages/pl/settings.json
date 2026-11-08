@@ -620,6 +620,8 @@
       "proposedList": "Notatki zaproponowane przez uruchomienia",
       "keptHeading": "Co pamięta",
       "keptList": "Notatki agenta",
+      "search": "Szukaj w notatkach",
+      "noMatch": "Brak pasujących notatek.",
       "empty": "Na razie nic. Zachowaj notatkę zaproponowaną przez uruchomienie lub napisz ją tutaj.",
       "hiddenText": "Zaproponowana w wierszu, którego nie możesz otworzyć.",
       "hiddenOthersText": "Zaproponowane przez uruchomienie rozpoczęte przez innego właściciela.",

@@ -426,20 +426,26 @@ gives details as it keeps a note (in another's place, the older note's details s
 new ones), and on the *Memory* page *Add details* opens a box under a new note, editing a note
 changes them, and long details show folded. `read_memory` is offered whenever a note shown has
 details, some notes don't fit or another teamspace you are in keeps notes. It searches: with words,
-the 10 notes that have most of them (words in a note's line count more than in its details, newer
-notes first on a tie) with their details, from all the notes the question may read (yours here,
-yours everywhere, the workspace's and its teamspace's), each saying whose it is; with a note's id,
-that note in full; with neither, every note's line. The mail writer and agents' runs get notes'
-lines only.
+the 10 notes that fit them best, with their details, from all the notes the question may read
+(yours here, yours everywhere, the workspace's and its teamspace's), each saying whose it is; with a
+note's id, that note in full; with neither, every note's line. A note fits by its words (a word
+matches the start of a note's words, and those in its line count more than in its details, newer
+notes first on a tie) and, with an embeddings model ([Semantic search](#semantic-search)), by
+meaning too, the two rankings merged as page search merges them. For that a note's text and
+details go to the embeddings endpoint when a search first needs them (at most 64 notes a search,
+the newest first; the others are found by their words until a later search) and again after the
+note changes; the vectors are deleted with the note, and with the workspace's notes when AI is
+turned off there. The mail writer and agents' runs get notes' lines only.
 
 **Summary.** Above your notes in a workspace, *Memory* keeps a short summary of what the AI knows
 about you: who you are, what you work on now and how you like to work, in a few lines under
-headings. *Write with AI* has the fast model write it from your notes here and everywhere (it reads
-nothing else), and you can change it, write it yourself or delete it (up to 1,500 characters). It
+headings. *Write with AI* has the fast model write it from your notes here and everywhere, the newest of
+both as far as about 24,000 characters go (it reads nothing else), and you can change it, write it yourself or delete it (up to 1,500 characters). It
 goes with your questions in that workspace ahead of your notes, so a question whose notes don't all
 fit still has the gist, and connected apps read it as `about` in `list_memory`; a note wins where
 the two disagree. It is never rewritten on its own, and it remembers which notes it was written from:
-- a note kept since marks it as behind (*your notes changed since*); it still goes with questions;
+- a note kept since that it would now be written from marks it as behind (*your notes changed
+  since*); it still goes with questions;
 - a note it was written from changed or forgotten since keeps it from going anywhere, so what you
   took back never reaches the model through it, and the page says so.
 
@@ -476,7 +482,7 @@ switch deletes a note: they come back when the memory is turned on again.
   owners, unless it is private) change them. An archived teamspace's notes stay, unsent.
 
 The chat may offer to keep a note for the workspace or a teamspace when you may change those, and
-always asks first, saying where it goes. Up to 60 notes of 300 characters in each. When a question
+always asks first, saying where it goes. Up to 500 notes of 300 characters in each. When a question
 has no room for all of them, the newest go and the chat reads the rest with `read_memory`, which
 also reads other teamspaces' notes you are in (`layer` teamspace with its id). Changes to the workspace's and teamspaces' notes are
 in the audit log. With the workspace's *AI memory* off, none of them goes anywhere or is kept here,
@@ -510,8 +516,10 @@ everywhere and the workspace's and teamspaces' notes you may read, and `change_m
 keeps a note, changes one or deletes some or all of them (`scope`: `person`, `account`,
 `workspace` or `teamspace`, the last two only where you may change them; `category`: the note's
 kind and `details` its details, as above), with the chat's limits. `list_memory` lists each note's
-line and marks one with details (`has_details`); `query` searches every note and its details and
-answers with the 10 that match best, details included, and `memory_id` reads one note in full, so a
+line, the newest of each layer within about 10 KB (`notes_not_listed` and
+`account_notes_not_listed` count the older ones), and marks one with details (`has_details`);
+`query` searches every note and its details as `read_memory` does, by words and meaning, and
+answers with the 10 that fit best, details included, and `memory_id` reads one note in full, so a
 conversation starts with the lines only however much the notes say. Apps are told to keep only what you say about yourself, never what pages or tool results
 say, and to tell you what they kept; your app asks you before it calls a tool that changes
 anything, as it does for pages. *Memory* shows which app kept or last changed each note (*Kept by
@@ -525,7 +533,8 @@ chat and semantic search only find and read pages they can open, checked again o
 every `read_page` call (a page whose access was taken back mid-conversation can't be read any
 more, and its old citations no longer show its title). Nothing is sent without someone asking
 (automatic updates follow an edit and run as its author; indexing for semantic search sends page
-text to the embeddings endpoint in the background). Owners can turn AI off for a workspace in
+text to the embeddings endpoint in the background, and a search of the memory sends the notes it
+searches that have no embedding yet). Owners can turn AI off for a workspace in
 Settings → General → AI, which stops all AI features there and deletes its semantic search index. The server logs each request's feature, model, token counts and cost, and counts them for
 the workspace's usage (see *Usage and cost limits*), never its content.
 With a hosted provider, what is sent is subject to that provider's terms; a local model keeps

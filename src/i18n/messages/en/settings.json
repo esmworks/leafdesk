@@ -620,6 +620,8 @@
       "proposedList": "Notes its runs proposed",
       "keptHeading": "What it remembers",
       "keptList": "The agent’s notes",
+      "search": "Search notes",
+      "noMatch": "No notes match.",
       "empty": "Nothing yet. Keep a note its runs propose, or write one here.",
       "hiddenText": "Proposed on a row you can’t open.",
       "hiddenOthersText": "Proposed by a run another owner started.",

@@ -178,6 +178,7 @@ export const LEFT_OUT: Record<string, string> = {
   push_subscription: "browsers subscribed to push on the old server",
   user_preference: "people's own settings on the old server",
   account_memory: "people's own notes for the AI in all their workspaces, which go with their accounts",
+  memory_embedding: "embeddings of the notes for the AI, made again from the notes when a search needs them",
   memory_summary: "the summary of a person's own notes for the AI, private to them like the notes it sums up",
   workspace_invitation: "pending invitations (their links)",
   workspace_join_request: "pending requests to join",

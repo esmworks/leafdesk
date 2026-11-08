@@ -620,6 +620,8 @@
       "proposedList": "Catatan yang diusulkan eksekusinya",
       "keptHeading": "Yang diingatnya",
       "keptList": "Catatan agen",
+      "search": "Cari catatan",
+      "noMatch": "Tidak ada catatan yang cocok.",
       "empty": "Belum ada. Simpan catatan yang diusulkan eksekusinya, atau tulis satu di sini.",
       "hiddenText": "Diusulkan pada baris yang tidak dapat Anda buka.",
       "hiddenOthersText": "Diusulkan oleh eksekusi yang dimulai pemilik lain.",

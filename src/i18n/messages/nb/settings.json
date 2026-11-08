@@ -620,6 +620,8 @@
       "proposedList": "Notater som kjøringene har foreslått",
       "keptHeading": "Det den husker",
       "keptList": "Agentens notater",
+      "search": "Søk i notater",
+      "noMatch": "Ingen notater passer.",
       "empty": "Ingenting ennå. Behold et notat som kjøringene foreslår, eller skriv et her.",
       "hiddenText": "Foreslått på en rad du ikke kan åpne.",
       "hiddenOthersText": "Foreslått av en kjøring en annen eier startet.",

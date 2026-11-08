@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/db", () => ({ db: {} }));
+const noteSimilarities = vi.fn(async (..._args: unknown[]): Promise<Map<string, number> | null> => null);
+vi.mock("@/server/memory-embeddings", () => ({ noteSimilarities }));
 
 const { fitNotes, MEMORY_SEARCH_LIMIT, searchNotes } = await import("./ai-memory");
 
@@ -59,28 +61,45 @@ describe("details", () => {
     expect(plain.details).toBe(false);
   });
 
-  it("reads one note in full by its memory_id", () => {
-    expect(searchNotes(notes, { memory_id: "a" }).content).toBe(`${line("a", "[work] Q4 budget review")}\n    Due December 12.\n    Send the draft to Finance first.`);
-    expect(searchNotes(notes, { memory_id: "zz" }).isError).toBe(true);
+  it("reads one note in full by its memory_id", async () => {
+    expect((await searchNotes(notes, { memory_id: "a" })).content).toBe(`${line("a", "[work] Q4 budget review")}\n    Due December 12.\n    Send the draft to Finance first.`);
+    expect((await searchNotes(notes, { memory_id: "zz" })).isError).toBe(true);
   });
 
-  it("ranks notes by the words they have, the line before the details, newer first on a tie", () => {
+  it("ranks notes by the words they have, the line before the details, newer first on a tie", async () => {
     const many = [
       { id: "1", text: "Budget owner is Finance", details: null },
       { id: "2", text: "Launch moved to Friday", details: "The budget for it is in the Q4 sheet." },
       { id: "3", text: "Q4 budget review", details: null },
       { id: "4", text: "Likes tea", details: null },
     ];
-    const found = searchNotes(many, { query: "Q4 budget" }).content.split("\n").filter((l) => l.startsWith("- "));
+    const found = (await searchNotes(many, { query: "Q4 budget" })).content.split("\n").filter((l) => l.startsWith("- "));
     expect(found.map((l) => /memory_id (\w+)/.exec(l)![1])).toEqual(["3", "2", "1"]);
-    expect(searchNotes(many, { query: "coffee" }).content).toBe("No kept note has those words.");
+    expect((await searchNotes(many, { query: "coffee" })).content).toBe("No kept note matches that.");
     // No words: every note's line, oldest first.
-    expect(searchNotes(many, {}).content.split("\n")).toHaveLength(4);
+    expect((await searchNotes(many, {})).content.split("\n")).toHaveLength(4);
   });
 
-  it("answers a search with at most a few notes and cuts long details", () => {
+  it("finds notes by meaning too when the workspace has an embeddings model, only notes of a table", async () => {
+    const many = [
+      { id: "1", text: "Budget owner is Finance", store: "ai_memory" as const },
+      { id: "2", text: "Prefers green tea", store: "account_memory" as const },
+      { id: "3", text: "Office plant", layer: "x" },
+    ];
+    noteSimilarities.mockResolvedValueOnce(new Map([["2", 0.7]]));
+    const by = { userId: "u1", workspaceId: "w1" };
+    const content = (await searchNotes(many, { query: "favourite drink" }, by)).content;
+    expect(content).toContain("memory_id 2");
+    const [embeddable, query, who] = noteSimilarities.mock.calls.at(-1)!;
+    expect((embeddable as { id: string }[]).map((n) => n.id)).toEqual(["1", "2"]);
+    expect([query, who]).toEqual(["favourite drink", by]);
+    // Without a model (null), the words alone.
+    expect((await searchNotes(many, { query: "favourite drink" }, by)).content).toBe("No kept note matches that.");
+  });
+
+  it("answers a search with at most a few notes and cuts long details", async () => {
     const lots = Array.from({ length: MEMORY_SEARCH_LIMIT + 5 }, (_, i) => ({ id: `n${i}`, text: `Project note ${i}`, details: "x".repeat(1000) }));
-    const content = searchNotes(lots, { query: "project" }).content;
+    const content = (await searchNotes(lots, { query: "project" })).content;
     expect(content.split("\n").filter((l) => l.startsWith("- "))).toHaveLength(MEMORY_SEARCH_LIMIT);
     expect(content).toContain("(more: read_memory with this memory_id)");
   });

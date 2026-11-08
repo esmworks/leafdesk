@@ -620,6 +620,8 @@
       "proposedList": "Anteckningar som dess körningar föreslagit",
       "keptHeading": "Vad den minns",
       "keptList": "Agentens anteckningar",
+      "search": "Sök i anteckningar",
+      "noMatch": "Inga anteckningar matchar.",
       "empty": "Inget än. Behåll en anteckning som dess körningar föreslår, eller skriv en här.",
       "hiddenText": "Föreslagen på en rad som du inte kan öppna.",
       "hiddenOthersText": "Föreslagen av en körning som en annan ägare startade.",

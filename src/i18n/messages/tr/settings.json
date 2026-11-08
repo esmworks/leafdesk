@@ -620,6 +620,8 @@
       "proposedList": "Çalışmalarının önerdiği notlar",
       "keptHeading": "Hatırladıkları",
       "keptList": "Ajanın notları",
+      "search": "Notlarda ara",
+      "noMatch": "Eşleşen not yok.",
       "empty": "Henüz not yok. Çalışmalarının önerdiği bir notu tutun ya da buraya bir not yazın.",
       "hiddenText": "Açamadığınız bir satırda önerildi.",
       "hiddenOthersText": "Başka bir sahibin başlattığı bir çalıştırma önerdi.",

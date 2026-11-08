@@ -1439,13 +1439,22 @@ async function main() {
   check(searchedTheirs.notes.length === 0, "list_memory query never finds another person's note", searchedTheirs);
   const oneNote = await mcp.ok("list_memory", { memory_id: roleId });
   check(oneNote.memory_id === roleId && oneNote.details === `Reports to the finance lead ${RUN}.`, "list_memory memory_id reads one note with its details", oneNote);
-  // The limits are the chat's: 60 notes.
-  for (let i = 0; i < 58; i++) await personal.addMemory(memoryUser, ws, `Filler ${i} ${RUN}`);
+  // The limits are the chat's: MAX_MEMORIES notes.
+  const { MAX_MEMORIES } = await import("@/lib/ai-chat");
+  for (let i = 0; i < MAX_MEMORIES - 2; i++) await personal.addMemory(memoryUser, ws, `Filler ${i} ${RUN}`);
   const memoryFull = await mcp.call("change_memory", { workspace_id: ws, action: "add", text: `One too many ${RUN}` });
-  check(memoryFull.isError && /full \(60 notes\)/.test(memoryFull.text), "a full memory is refused with a next step", memoryFull.text);
+  check(memoryFull.isError && memoryFull.text.includes(`full (${MAX_MEMORIES} notes)`), "a full memory is refused with a next step", memoryFull.text);
+  const listedFull = await mcp.ok("list_memory", { workspace_id: ws });
+  check(
+    listedFull.notes_not_listed > 0 && listedFull.notes.length + listedFull.notes_not_listed === MAX_MEMORIES && listedFull.notes.at(-1)?.text === `Filler ${MAX_MEMORIES - 3} ${RUN}`,
+    "list_memory lists the newest notes within its budget and counts the rest",
+    { listed: listedFull.notes.length, notListed: listedFull.notes_not_listed },
+  );
+  const oldFound = await mcp.ok("list_memory", { workspace_id: ws, query: `Filler 0 ${RUN}` });
+  check(oldFound.notes.some((n: { text: string }) => n.text === `Filler 0 ${RUN}`), "list_memory query finds a note the list leaves out", oldFound.notes.length);
   const fillers = (await personal.listMemories(memoryUser, ws)).filter((n) => n.text.startsWith("Filler")).map((n) => n.id);
   const deletedFillers = await mcp.ok("change_memory", { workspace_id: ws, action: "delete", memory_ids: fillers });
-  check(deletedFillers.deleted === 58 && !deletedFillers.not_found && deletedFillers.notes.length === 2, "change_memory delete deletes notes by memory_ids", deletedFillers);
+  check(deletedFillers.deleted === MAX_MEMORIES - 2 && !deletedFillers.not_found && deletedFillers.notes.length === 2, "change_memory delete deletes notes by memory_ids", deletedFillers);
   const deletedAgain = await mcp.call("change_memory", { workspace_id: ws, action: "delete", memory_ids: fillers.slice(0, 2) });
   check(!deletedAgain.isError && deletedAgain.data?.deleted === 0, "the same delete again does no harm", deletedAgain.text);
   // Off by the user's own switch, or by the owners' for the workspace: nothing read or kept.

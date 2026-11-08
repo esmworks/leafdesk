@@ -620,6 +620,8 @@
       "proposedList": "Noter, dens kørsler har foreslået",
       "keptHeading": "Det, den husker",
       "keptList": "Agentens noter",
+      "search": "Søg i noter",
+      "noMatch": "Ingen noter passer.",
       "empty": "Intet endnu. Behold en note, som dens kørsler foreslår, eller skriv en her.",
       "hiddenText": "Foreslået på en række, du ikke kan åbne.",
       "hiddenOthersText": "Foreslået af en kørsel, som en anden ejer startede.",

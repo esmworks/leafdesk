@@ -620,6 +620,8 @@
       "proposedList": "Notities die zijn uitvoeringen voorstelden",
       "keptHeading": "Wat hij onthoudt",
       "keptList": "De notities van de agent",
+      "search": "Notities doorzoeken",
+      "noMatch": "Geen notities gevonden.",
       "empty": "Nog niets. Bewaar een notitie die zijn uitvoeringen voorstellen, of schrijf er hier een.",
       "hiddenText": "Voorgesteld op een rij die je niet kunt openen.",
       "hiddenOthersText": "Voorgesteld door een uitvoering die een andere eigenaar startte.",

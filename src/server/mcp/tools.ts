@@ -80,7 +80,8 @@ import * as notifications from "@/server/notifications";
 import * as pages from "@/server/pages";
 import * as accountMemory from "@/server/account-memory";
 import * as personalMemory from "@/server/ai-memory";
-import { matchNotes } from "@/lib/memory-search";
+import { rankNotes } from "@/lib/memory-search";
+import * as memoryEmbeddings from "@/server/memory-embeddings";
 import * as sharedMemory from "@/server/shared-memory";
 import * as memorySummary from "@/server/memory-summary";
 import * as templates from "@/server/templates";
@@ -166,7 +167,7 @@ import {
   withSharingErrors,
 } from "./agents";
 import { applyFormLink, formConfigPatch, formInputs, requireProperty, type FormInput } from "./form-settings";
-import { describeLocated, describeMemory, describeNote, describePlaces, describeSharedNote, memoryInputs, NOT_THEIRS, notesOf, requireMemoryOn, withMemoryErrors, type LocatedNote } from "./memory";
+import { describeLocated, describeMemory, describeNote, describePlaces, describeSharedNote, listNotes, LIST_CHARS, memoryInputs, NOT_THEIRS, notesOf, requireMemoryOn, withMemoryErrors, type LocatedNote } from "./memory";
 import { describeWorkspaceCheck } from "./workspace-check";
 import { checkWorkspace } from "@/server/workspace-check";
 import { DEFAULT_DUPLICATE_SIMILARITY, DEFAULT_STALE_MONTHS, MIN_DUPLICATE_SIMILARITY } from "@/lib/workspace-check";
@@ -4527,11 +4528,32 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
     };
   };
 
+  /**
+   * How close the user's notes are to `query` by meaning (memory-embeddings.ts), each workspace's
+   * by its own embeddings model, the account notes by the first workspace's; null where no
+   * workspace searches by meaning, which leaves the words alone.
+   */
+  const similarities = async (account: LocatedNote[], read: { id: string; notes: LocatedNote[] }[], query: string) => {
+    const store = (l: LocatedNote): memoryEmbeddings.NoteStore => (l.layer === "account" ? "account_memory" : l.layer === "person" ? "ai_memory" : "shared_memory");
+    const found = await Promise.all(
+      read.map((w, i) =>
+        memoryEmbeddings.noteSimilarities(
+          [...(i === 0 ? account : []), ...w.notes].map((l) => ({ id: l.note.id, store: store(l), text: l.note.text, details: l.note.details })),
+          query,
+          { userId, workspaceId: w.id },
+        ),
+      ),
+    );
+    const merged = new Map<string, number>();
+    for (const [id, score] of found.flatMap((m) => [...(m ?? [])])) merged.set(id, Math.max(score, merged.get(id) ?? -1));
+    return merged.size ? merged : null;
+  };
+
   server.registerTool(
     "list_memory",
     {
       title: "Read what Leafdesk remembers about the user",
-      description: `Read the user's memory: call this at the start of a conversation (without workspace_id for every workspace's notes, or with the workspace you work in) and let the notes shape your answers, as someone who knows the user would. Each note has a memory_id for change_memory; about is the user's summary of their notes (a note wins over it). The list shows each note's line; a note with has_details says more, which query (a search of every note and its details) or memory_id reads. A workspace with the memory off shows memory: "off", why and no notes. ${PERSONAL_MEMORY_NOTE} ${LAYERS_NOTE}`,
+      description: `Read the user's memory: call this at the start of a conversation (without workspace_id for every workspace's notes, or with the workspace you work in) and let the notes shape your answers, as someone who knows the user would. Each note has a memory_id for change_memory; about is the user's summary of their notes (a note wins over it). The list shows each note's line, the newest of each layer as far as about ${LIST_CHARS / 1000} KB goes (notes_not_listed, account_notes_not_listed: how many older ones it leaves out, which query finds); a note with has_details says more, which query (a search of every note and its details, by words and meaning) or memory_id reads. A workspace with the memory off shows memory: "off", why and no notes. ${PERSONAL_MEMORY_NOTE} ${LAYERS_NOTE}`,
       inputSchema: memoryInputs.list,
       annotations: READ,
     },
@@ -4562,14 +4584,23 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
             return describeLocated(found);
           }
           const byNote = new Map(located.map((l) => [l.note, l] as const));
-          const found = matchNotes(located.map((l) => l.note), search);
+          const found = rankNotes(
+            located.map((l) => l.note),
+            search,
+            await similarities(
+              located.filter((l) => l.layer === "account"),
+              read,
+              search,
+            ),
+          );
           return found.length
             ? { query: search, notes: found.map((note) => describeLocated(byNote.get(note)!)) }
-            : { query: search, notes: [], none: "No note has those words. Call list_memory without query for every note's line." };
+            : { query: search, notes: [], none: "No note matches that. Call list_memory without query for every note's line." };
         }
-        const account_notes = account.map((n) => describeNote(n));
-        if (workspace_id) return { account_notes, ...read[0].shown };
-        return { account_notes, workspaces: read.map((w) => ({ name: w.name, ...w.shown })) };
+        const listed = listNotes(account, (n) => describeNote(n));
+        const account_notes = { account_notes: listed.notes, ...(listed.notes_not_listed ? { account_notes_not_listed: listed.notes_not_listed } : {}) };
+        if (workspace_id) return { ...account_notes, ...read[0].shown };
+        return { ...account_notes, workspaces: read.map((w) => ({ name: w.name, ...w.shown })) };
       }),
   );
 
@@ -4609,7 +4640,8 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
         if (scope === "account") {
           const done =
             action === "delete" ? deleted(await accountMemory.deleteAccountNotes(userId, which)) : written(await accountMemory.writeAccountNote(userId, text!, { ...replaces, app: principal.clientId }));
-          return { ...done, account_notes: (await accountMemory.accountNotes(userId)).map((n) => describeNote(n)) };
+          const listed = listNotes(await accountMemory.accountNotes(userId), (n) => describeNote(n));
+          return { ...done, account_notes: listed.notes, ...(listed.notes_not_listed ? { account_notes_not_listed: listed.notes_not_listed } : {}) };
         }
         if (!workspace_id) throw new ToolInputError(`scope ${scope} needs workspace_id.`);
 
@@ -4622,8 +4654,8 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
               action === "delete"
                 ? deleted(await sharedMemory.deleteSharedNotes(userId, workspace_id, place, which))
                 : written(await sharedMemory.writeSharedNote(userId, workspace_id, place, text!, { ...replaces, app: principal.clientId }));
-            const notes = (await sharedMemory.placeNotes(userId, workspace_id, place)).map((n) => describeSharedNote(n));
-            return { ...done, workspace_id, ...(place ? { teamspace_id: place } : {}), notes };
+            const notes = listNotes(await sharedMemory.placeNotes(userId, workspace_id, place), (n) => describeSharedNote(n));
+            return { ...done, workspace_id, ...(place ? { teamspace_id: place } : {}), ...notes };
           } catch (error) {
             if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) throw new ToolInputError(NOT_THEIRS[scope]);
             throw error;

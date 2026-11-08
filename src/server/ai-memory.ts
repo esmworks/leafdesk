@@ -35,7 +35,8 @@ import type { ToolOutcome } from "@/server/ai-tools";
 import { deleteSharedNotes, mayWriteNotes, notePlace, notesAt, sharedMemoryFor, teamspaceNotesFor, writeSharedNote } from "@/server/shared-memory";
 import { teamspaceStanding } from "@/server/teamspaces";
 import { getMemberAiMemory, setMemberAiMemory, workspaceSettings } from "@/server/workspaces";
-import { matchNotes, MEMORY_SEARCH_LIMIT, queryWords } from "@/lib/memory-search";
+import { MEMORY_SEARCH_LIMIT, queryWords, rankNotes } from "@/lib/memory-search";
+import type { NoteStore } from "@/server/memory-embeddings";
 
 export { MEMORY_SEARCH_LIMIT };
 
@@ -286,8 +287,11 @@ export async function deleteMemories(userId: string, workspaceId: string, memory
 // --------------------------------------------------------------------------------- the chat
 // The chat checked the person's membership with the question: its tools don't again.
 
-/** A note as the prompt and read_memory carry it; `layer`, whose it is, in a search of several. */
-type PromptNote = { id: string; text: string; kind?: MemoryKind; category?: MemoryCategory; details?: string | null; layer?: string };
+/**
+ * A note as the prompt and read_memory carry it; `layer`, whose it is, in a search of several;
+ * `store`, the table it is kept in, which a search by meaning needs (memory-embeddings.ts).
+ */
+type PromptNote = { id: string; text: string; kind?: MemoryKind; category?: MemoryCategory; details?: string | null; layer?: string; store?: NoteStore };
 
 /**
  * A note as the model reads it, with its id for `forget` and `replaces`, whose it is in a search of
@@ -341,7 +345,7 @@ export async function memoryForPrompt(
 /** How much of each note's details a search of read_memory shows. */
 const SEARCH_DETAILS_CHARS = 600;
 
-const QUERY = { type: "string", description: "Words to search the notes and their details for; the notes with most of them come first." };
+const QUERY = { type: "string", description: "What to look for in the notes and their details: notes with its words or close in meaning come first." };
 const MEMORY_ID = { type: "string", description: "One note's memory_id: reads it with all its details." };
 
 /** Reads the notes that didn't fit in the prompt: offered only when some didn't (memoryForPrompt `shown` < `count`). */
@@ -385,10 +389,11 @@ function withDetails(note: PromptNote, max = Infinity): string {
 
 /**
  * read_memory over these notes (oldest first): with `memory_id`, that note in full; with `query`,
- * the notes that match best (words in a note's line count twice those in its details; newer notes
- * first on a tie), at most MEMORY_SEARCH_LIMIT, with their details; with neither, every note's line.
+ * the notes that fit it best, at most MEMORY_SEARCH_LIMIT, with their details: by their words
+ * (words in a note's line count twice those in its details) and, with `by` and an embeddings model
+ * in its workspace, by meaning too (lib/memory-search.ts `rankNotes`); with neither, every note's line.
  */
-export function searchNotes(notes: PromptNote[], args: Record<string, unknown>): ToolOutcome {
+export async function searchNotes(notes: PromptNote[], args: Record<string, unknown>, by?: { userId: string; workspaceId: string }): Promise<ToolOutcome> {
   if (typeof args.memory_id === "string" && args.memory_id.trim()) {
     const found = notes.find((n) => n.id === args.memory_id);
     return found ? { content: withDetails(found) } : { content: "No note you may read has that memory_id.", isError: true };
@@ -396,14 +401,19 @@ export function searchNotes(notes: PromptNote[], args: Record<string, unknown>):
   const query = typeof args.query === "string" ? args.query : "";
   if (!notes.length) return { content: "No notes are kept." };
   if (!queryWords(query).length) return { content: notes.map(promptLine).join("\n") };
-  const found = matchNotes(notes, query);
-  if (!found.length) return { content: "No kept note has those words." };
+  const embeddable = notes.flatMap((n) => (n.store ? [{ ...n, store: n.store }] : []));
+  const similarity = by && embeddable.length ? await (await import("@/server/memory-embeddings")).noteSimilarities(embeddable, query, by) : null;
+  const found = rankNotes(notes, query, similarity);
+  if (!found.length) return { content: "No kept note matches that." };
   return { content: found.map((note) => withDetails(note, SEARCH_DETAILS_CHARS)).join("\n") };
 }
 
+/** Notes of one table, marked for a search by meaning. */
+const kept = (notes: PromptNote[], store: NoteStore) => notes.map((n) => ({ ...n, store }));
+
 /** The kept notes for read_memory (the person's own, or an agent's under its user): searchNotes. */
 export async function readMemory(userId: string, workspaceId: string, args: Record<string, unknown>): Promise<ToolOutcome> {
-  return searchNotes(await notesOf(userId, workspaceId), args);
+  return searchNotes(kept(await notesOf(userId, workspaceId), "ai_memory"), args, { userId, workspaceId });
 }
 
 /**
@@ -414,15 +424,16 @@ export async function readChatMemory(userId: string, workspaceId: string, args: 
   const layer = typeof args.layer === "string" ? args.layer : "all";
   if (!own && (layer === "person" || layer === "account")) return { content: "The person's memory is off: their notes aren't read.", isError: true };
   const teamspaceId = typeof args.teamspace_id === "string" ? args.teamspace_id : "";
+  const by = { userId, workspaceId };
   switch (layer) {
     case "account":
-      return searchNotes(await accountNotesOf(userId), args);
+      return searchNotes(kept(await accountNotesOf(userId), "account_memory"), args, by);
     case "workspace":
-      return searchNotes((await sharedMemoryFor(userId, workspaceId, null)).workspace, args);
+      return searchNotes(kept((await sharedMemoryFor(userId, workspaceId, null)).workspace, "shared_memory"), args, by);
     case "teamspace": {
       const found = teamspaceId ? await teamspaceNotesFor(userId, workspaceId, teamspaceId) : null;
       if (!found) return { content: "No notes of a teamspace the person is in with that teamspace_id.", isError: !teamspaceId };
-      return searchNotes(found.notes, args);
+      return searchNotes(kept(found.notes, "shared_memory"), args, by);
     }
     case "person":
       return readMemory(userId, workspaceId, args);
@@ -433,15 +444,16 @@ export async function readChatMemory(userId: string, workspaceId: string, args: 
         own ? accountNotesOf(userId) : Promise.resolve([]),
         sharedMemoryFor(userId, workspaceId, teamspaceId || null),
       ]);
-      const of = (notes: PromptNote[], name: string) => notes.map((n) => ({ ...n, layer: name }));
+      const of = (notes: PromptNote[], name: string, store: NoteStore) => notes.map((n) => ({ ...n, layer: name, store }));
       return searchNotes(
         [
-          ...of(mine, "person"),
-          ...of(everywhere, "account"),
-          ...of(shared.workspace, "workspace"),
-          ...(shared.teamspace ? of(shared.teamspace.notes, `teamspace ${shared.teamspace.name}`) : []),
+          ...of(mine, "person", "ai_memory"),
+          ...of(everywhere, "account", "account_memory"),
+          ...of(shared.workspace, "workspace", "shared_memory"),
+          ...(shared.teamspace ? of(shared.teamspace.notes, `teamspace ${shared.teamspace.name}`, "shared_memory") : []),
         ],
         args,
+        by,
       );
     }
   }

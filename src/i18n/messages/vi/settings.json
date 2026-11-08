@@ -620,6 +620,8 @@
       "proposedList": "Các ghi chú mà các lần chạy của nó đã đề xuất",
       "keptHeading": "Những gì nó ghi nhớ",
       "keptList": "Các ghi chú của tác tử",
+      "search": "Tìm trong ghi chú",
+      "noMatch": "Không có ghi chú phù hợp.",
       "empty": "Chưa có gì. Hãy giữ một ghi chú mà các lần chạy của nó đề xuất, hoặc viết một ghi chú ở đây.",
       "hiddenText": "Được đề xuất trên một hàng bạn không mở được.",
       "hiddenOthersText": "Được đề xuất bởi một lần chạy do chủ sở hữu khác khởi động.",

@@ -47,6 +47,7 @@ import { AccessError, ConnectedAppReadOnlyError } from "@/server/access";
 import { id } from "@/server/operations";
 import { PermissionError } from "@/server/permissions";
 import { pageUrl, ToolInputError } from "./format";
+import { listNotes } from "./memory";
 import { agentPagePath } from "@/lib/agent-page";
 import type { InboxItem } from "@/server/notifications";
 
@@ -526,6 +527,12 @@ const SKILL_STATUS = {
   tooLong: "left out: it doesn't fit in what a run may read, with the skills before it",
 } as const;
 
+/** The agent's kept notes, the newest as far as list_memory's LIST_CHARS goes, and how many older ones are left out. */
+function keptListed(kept: ReturnType<typeof describeMemory>[]) {
+  const listed = listNotes(kept, (n) => n);
+  return { kept: listed.notes, ...(listed.notes_not_listed ? { kept_not_listed: listed.notes_not_listed } : {}) };
+}
+
 /** A note of an agent's memory, kept or proposed by a run (text null: from a row the user can't open). */
 function describeMemory(workspaceId: string, note: AgentMemoryView) {
   return {
@@ -611,7 +618,7 @@ export function describeAgent(
     ...(memory
       ? {
           memory: {
-            kept: memory.filter((n) => n.status === "kept").map((n) => describeMemory(agent.workspaceId, n)),
+            ...keptListed(memory.filter((n) => n.status === "kept").map((n) => describeMemory(agent.workspaceId, n))),
             proposed: memory.filter((n) => n.status === "proposed").map((n) => describeMemory(agent.workspaceId, n)),
           },
         }
