@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## 0.8.0 — 2026-11-08
+
+### Upgrading from 0.7.2
+
+- **Back up the database first.** Migrations 0193 to 0201 run automatically when the container
+  starts (from source, run `pnpm db:migrate`). They add the tables of Messages, rows that repeat,
+  meeting notes listed apart, apps cut off from one workspace, connected apps' tool lists and
+  notes' embeddings, the kinds, details and summary of memory notes, and to-dos' reminder times
+  (pages holding to-dos are read again in the background).
+- **A reverse proxy must pass Messages' websocket.** Messages talks to the server over a websocket
+  at `/messages-socket`; a proxy in front of Leafdesk forwards its upgrade as it does `/collab`'s,
+  or channels never load. [Self-hosting](docs/self-hosting.md) now has a section on nginx.
+- **A bare host name on `PUSH_ALLOWED_HOSTS`, `AI_ALLOWED_HOSTS` or `MAIL_ALLOWED_HOSTS` allows its
+  usual ports only.** Add the port to a name whose server listens elsewhere (`ollama:11434`).
+- **No new settings.** `docker-compose.yml` and `.env` stay as they are.
+
 ### Added
 
 - **AI apps start with a short tool list and find the rest when they need it.** Apps connected over
@@ -128,6 +144,9 @@
   Markdown files and ZIPs of skill folders, as AI assistants keep them and as *Export as SKILL.md*
   writes them. Each skill becomes a row of your skills database with its description, its
   instructions as the page and the other files of its folder in *Files*.
+- **Running behind nginx is documented.** [Self-hosting](docs/self-hosting.md) shows the
+  websocket upgrades `/collab`, `/messages-socket` and `/desktop-bridge` need, the Host header, the
+  upload size, the read timeout for quiet AI answers, HTTP/2 and `TRUSTED_PROXIES`.
 
 ### Changed
 
@@ -243,6 +262,8 @@
 
 ### Fixed
 
+- **The account picture's letter shows on the rail.** Its circle is filled darker, so the letter
+  stands out on the window's frame.
 - **A long title can be clicked and typed into again.** The Add icon and Add background buttons
   showed over the end of the page's title, so on a long title, and on most titles in the row panel,
   they covered its last words and caught the click meant for it. They now move above the title
