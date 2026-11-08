@@ -98,7 +98,8 @@ const OWN_RUN_TURNS = 5;
  * The agent's finished runs the person started other than by chatting (a schedule they set last, a
  * task they asked for, a comment of theirs that mentioned it), since `from` (or the latest few) and
  * before `until`, each as a turn: what started it, then what it answered. They read with that
- * person's access (or the agent's lower one), as the chat does.
+ * person's access (or the agent's lower one), as the chat does. Not a mention in a channel: its
+ * answer was written over a thread anyone in the channel may have written, and stays there.
  */
 async function ownRunTurns(agentId: string, userId: string, from: string | null, until: string | null) {
   const rows = await db
@@ -109,6 +110,7 @@ async function ownRunTurns(agentId: string, userId: string, from: string | null,
         eq(agentRun.agentId, agentId),
         eq(agentRun.status, "done"),
         sql`(${agentRun.source}->>'scheduledBy' = ${userId} or ${agentRun.source}->>'requestedBy' = ${userId} or ${agentRun.source}->>'mentionedBy' = ${userId})`,
+        sql`${agentRun.source}->>'kind' <> 'channel'`,
         from ? sql`${agentRun.createdAt} >= ${from}::timestamptz` : undefined,
         until ? sql`${agentRun.createdAt} < ${until}::timestamptz` : undefined,
       ),

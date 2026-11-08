@@ -139,8 +139,8 @@ export type AgentRunVia = (typeof AGENT_RUN_VIAS)[number];
 /**
  * What started a run: an automation on a row, an event a connection received, an owner who asked
  * for it with a task of their own (on a row of a database, or on none), one of the agent's
- * schedules (on a database, or on none), a member who mentioned it in a comment, or a person's
- * message in a chat with the agent (see lib/agent-chat.ts).
+ * schedules (on a database, or on none), a member who mentioned it in a comment or in a channel of
+ * Messages, or a person's message in a chat with the agent (see lib/agent-chat.ts).
  */
 export type AgentRunSource =
   | {
@@ -181,6 +181,19 @@ export type AgentRunSource =
       threadId: string;
       commentId: string;
       /** The member who wrote the comment; the run is held to their access as well. */
+      mentionedBy: string;
+    }
+  | {
+      kind: "channel";
+      /**
+       * The channel of Messages the message is in (one the agent is in), its thread's first message
+       * (the message itself when it starts no thread: the answer starts one there) and the message
+       * that mentioned the agent (server/agents/channel-mentions.ts).
+       */
+      channelId: string;
+      threadId: string;
+      messageId: string;
+      /** The member who wrote the message; the run is held to their access as well. */
       mentionedBy: string;
     }
   | {
@@ -512,6 +525,7 @@ export const AGENT_RUN_CODES = [
   "rowGone",
   "databaseGone",
   "commentGone",
+  "messageGone",
   "provider",
   "timeout",
   "tooManyAttempts",
@@ -747,6 +761,8 @@ export type AgentRunView = {
    * (`pageTitle` null and `task` empty where the viewer can't open the page).
    */
   mention: { by: string; byName: string; pageId: string; threadId: string; pageTitle: string | null; task: string } | null;
+  /** A mention in a channel of Messages: the channel's name, null when the viewer can't see the channel. */
+  channel: { by: string; byName: string; channelId: string; threadId: string; messageId: string; channelName: string | null; task: string } | null;
   /** For a run another agent asked for: that agent, its run, and the task (empty where the viewer may not see it). */
   handoff: { fromAgentId: string; fromName: string; parentRunId: string; task: string } | null;
   /** Names of the connections the run's source, steps and waiting call name (removed ones are left out). */
@@ -772,6 +788,9 @@ export const isEventRun = (source: AgentRunSource): source is Extract<AgentRunSo
 
 /** Whether a comment that mentioned the agent started a run. */
 export const isMentionRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "mention" }> => source.kind === "mention";
+
+/** Whether a message in a channel of Messages that mentioned the agent started a run (agents/channel-mentions.ts). */
+export const isChannelRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "channel" }> => source.kind === "channel";
 
 /** Whether new email started a run (agents/mail-trigger.ts). */
 export const isMailRun = (source: AgentRunSource): source is Extract<AgentRunSource, { kind: "mail" }> => source.kind === "mail";
@@ -891,6 +910,7 @@ export function ownerSeesRun(given: AgentRunSource, userId: string, opensPage: b
   const source = accessSource(given);
   if (source.kind === "request") return source.requestedBy === userId && (!isRowRun(source) || opensPage);
   if (source.kind === "chat" || source.kind === "mail") return source.userId === userId;
+  if (isChannelRun(source)) return source.mentionedBy === userId;
   if (isRowRun(source) || isMentionRun(source)) return opensPage;
   if (isScheduleRun(source)) return source.databaseId ? opensPage : source.scheduledBy === userId;
   return true;

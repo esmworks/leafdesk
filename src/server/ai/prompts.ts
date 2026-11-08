@@ -1097,6 +1097,23 @@ export function agentMentionPrompt(input: { comment: string; event: string; page
   return parts.filter(Boolean).join("\n\n");
 }
 
+/**
+ * A run a message in a channel of Messages started (server/agents/run.ts): what happened, the
+ * thread before the message (what others wrote there, already framed as data from outside by the
+ * caller: ai/frame.ts), the workspace, and the message, the mentioner's own words, as the task. The
+ * answer is posted in the thread as it is written.
+ */
+export function agentChannelPrompt(input: { message: string; event: string; thread: string; map: string; memory?: string; shared?: string }): string {
+  const parts = [
+    agentMemory(input.memory, input.shared),
+    `What happened: ${input.event}`,
+    input.thread,
+    input.map ? `The workspace as you can see it:\n${tagged("workspace", input.map)}` : "",
+    `The message that mentioned you, your task. Answer it as a short chat reply:\n${tagged("task", input.message.trim() || "Answer the thread.")}`,
+  ];
+  return parts.filter(Boolean).join("\n\n");
+}
+
 /** The task of one run: what the agent remembers, what happened, the row it happened to, and the workspace as the agent sees it. */
 export function agentTaskPrompt(input: { task: string; event: string; row: string; map: string; memory?: string; shared?: string }): string {
   const parts = [

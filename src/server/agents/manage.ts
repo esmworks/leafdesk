@@ -11,7 +11,7 @@
  */
 import { and, count, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { agentDatabaseShare, agentRun, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent, type AgentRunRow } from "@/db/schema";
+import { agentDatabaseShare, agentRun, channel, connection, databaseAutomation, page, pagePermission, schedule, user, workspaceAgent, type AgentRunRow } from "@/db/schema";
 import { MAX_AGENT_MAIL_RECIPIENTS, parseMailRecipients } from "@/lib/agent-mail";
 import { isChatThinking, type ChatThinking } from "@/lib/ai-chat";
 import {
@@ -25,6 +25,7 @@ import {
   isAgentModel,
   isAgentRowChanges,
   isEventRun,
+  isChannelRun,
   isMentionRun,
   isRowRun,
   isScheduleRun,
@@ -49,6 +50,7 @@ import { ICON_RULE, parseIcon } from "@/lib/icon";
 import type { AgentLevel, AgentShareLevel } from "@/lib/agent-sharing";
 import { AccessError, pageAccessOf, pageVisibleTo, requireMember, workspaceOwnerIds } from "@/server/access";
 import { recordAudit } from "@/server/audit";
+import { channelVisibleTo } from "@/server/messages/core";
 import { removePagePermission, setPagePermission } from "@/server/permissions";
 import { addAgentMembership } from "@/server/workspaces";
 import { recordAgentVersion, withoutVersions } from "./version-record";
@@ -751,6 +753,13 @@ export async function viewRuns(userId: string, runs: AgentRunRow[], { exact, own
       ? (await db.select({ id: page.id, title: page.title }).from(page).where(and(inArray(page.id, mentionPageIds), pageVisibleTo(userId)))).map((p) => [p.id, p.title])
       : [],
   );
+  // A mention in a channel: the channel's name, only for those who may see the channel.
+  const channelIds = [...new Set(runs.flatMap((r) => (isChannelRun(r.source) ? [r.source.channelId] : [])))];
+  const channelNames = new Map(
+    channelIds.length
+      ? (await db.select({ id: channel.id, name: channel.name }).from(channel).where(and(inArray(channel.id, channelIds), channelVisibleTo(userId)))).map((c) => [c.id, c.name ?? ""])
+      : [],
+  );
   // A schedule removed since keeps its runs; they just no longer name it.
   const scheduleIds = [...new Set(runs.flatMap((r) => (isScheduleRun(r.source) ? [r.source.scheduleId] : [])))];
   const liveSchedules = new Set(
@@ -763,7 +772,7 @@ export async function viewRuns(userId: string, runs: AgentRunRow[], { exact, own
           ? [r.source.requestedBy]
           : r.source.kind === "schedule"
             ? [r.source.scheduledBy]
-            : r.source.kind === "mention"
+            : r.source.kind === "mention" || r.source.kind === "channel"
               ? [r.source.mentionedBy]
               : r.source.kind === "chat" || r.source.kind === "mail"
                 ? [r.source.userId]
@@ -837,6 +846,17 @@ export async function viewRuns(userId: string, runs: AgentRunRow[], { exact, own
             pageId: r.source.pageId,
             threadId: r.source.threadId,
             pageTitle: mentionTitles.get(r.source.pageId) ?? null,
+            task: open ? r.prompt : "",
+          }
+        : null,
+      channel: isChannelRun(r.source)
+        ? {
+            by: r.source.mentionedBy,
+            byName: requesters.get(r.source.mentionedBy) ?? "",
+            channelId: r.source.channelId,
+            threadId: r.source.threadId,
+            messageId: r.source.messageId,
+            channelName: channelNames.get(r.source.channelId) ?? null,
             task: open ? r.prompt : "",
           }
         : null,

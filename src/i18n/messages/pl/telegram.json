@@ -188,6 +188,7 @@
         "rowGone": "Wiersz został usunięty.",
         "databaseGone": "Baza danych, którą się zajmuje, została usunięta lub przeniesiona do kosza.",
         "commentGone": "Komentarz, który o nim wspomniał, został usunięty albo jego strona trafiła do kosza.",
+        "messageGone": "Wiadomość, która o nim wspomniała, lub jej wątek zostały usunięte.",
         "provider": "Dostawca AI nie odpowiedział.",
         "timeout": "Uruchomienie trwało zbyt długo.",
         "tooManyAttempts": "Nie udało się rozpocząć na czas: limit AI obszaru roboczego pozostawał wyczerpany.",

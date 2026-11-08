@@ -188,6 +188,7 @@
         "rowGone": "Raden har raderats.",
         "databaseGone": "Databasen den tar hand om har raderats eller flyttats till papperskorgen.",
         "commentGone": "Kommentaren som nämnde den har raderats, eller så har dess sida flyttats till papperskorgen.",
+        "messageGone": "Meddelandet som nämnde den, eller dess tråd, har raderats.",
         "provider": "AI-leverantören svarade inte.",
         "timeout": "Körningen tog för lång tid.",
         "tooManyAttempts": "Den kunde inte starta i tid: arbetsytans AI-kvot förblev förbrukad.",

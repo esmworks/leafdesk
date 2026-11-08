@@ -188,6 +188,7 @@
         "rowGone": "Baris telah dihapus.",
         "databaseGone": "Basis data yang diurusnya dihapus atau dipindahkan ke sampah.",
         "commentGone": "Komentar yang menyebutnya dihapus, atau halamannya dipindahkan ke sampah.",
+        "messageGone": "Pesan yang menyebutnya, atau utasnya, telah dihapus.",
         "provider": "Penyedia AI tidak menjawab.",
         "timeout": "Eksekusi memakan waktu terlalu lama.",
         "tooManyAttempts": "Agen tidak dapat mulai tepat waktu: jatah AI ruang kerja tetap habis.",

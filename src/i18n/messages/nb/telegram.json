@@ -188,6 +188,7 @@
         "rowGone": "Raden ble slettet.",
         "databaseGone": "Databasen den har ansvar for, ble slettet eller flyttet til papirkurven.",
         "commentGone": "Kommentaren som nevnte den, ble slettet, eller siden ble flyttet til papirkurven.",
+        "messageGone": "Meldingen som nevnte den, eller tråden dens, ble slettet.",
         "provider": "KI-leverandøren svarte ikke.",
         "timeout": "Kjøringen tok for lang tid.",
         "tooManyAttempts": "Den kunne ikke starte i tide: arbeidsområdets KI-kvote forble brukt opp.",

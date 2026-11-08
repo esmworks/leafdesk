@@ -188,6 +188,7 @@
         "rowGone": "A linha foi excluída.",
         "databaseGone": "O banco de dados que ele acompanha foi excluído ou movido para a lixeira.",
         "commentGone": "O comentário que o mencionou foi excluído, ou a página dele foi movida para a lixeira.",
+        "messageGone": "A mensagem que o mencionou, ou a conversa dela, foi excluída.",
         "provider": "O provedor de IA não respondeu.",
         "timeout": "A execução demorou demais.",
         "tooManyAttempts": "Não foi possível iniciar a tempo: a cota de IA do espaço de trabalho continuou esgotada.",

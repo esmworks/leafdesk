@@ -188,6 +188,7 @@
         "rowGone": "The row was deleted.",
         "databaseGone": "The database it looks after was deleted or moved to the trash.",
         "commentGone": "The comment that mentioned it was deleted, or its page was moved to the trash.",
+        "messageGone": "The message that mentioned it, or its thread, was deleted.",
         "provider": "The AI provider didn’t answer.",
         "timeout": "The run took too long.",
         "tooManyAttempts": "It couldn’t start in time: the workspace’s AI allowance stayed used up.",

@@ -11,6 +11,7 @@ describe("conversationRuleFor", () => {
     expect(conversationRuleFor({ kind: "schedule", scheduleId: "s1", scheduledBy: "u1" })).toEqual({ rule: "keyed", key: "schedule:s1" });
     expect(conversationRuleFor({ kind: "mention", pageId: "p", threadId: "t1", commentId: "c", mentionedBy: "u1" })).toEqual({ rule: "keyed", key: "thread:t1" });
     expect(conversationRuleFor({ kind: "mail", mailboxId: "m", userId: "u1", threadId: "th1", messageId: "msg" })).toEqual({ rule: "keyed", key: "mail:th1" });
+    expect(conversationRuleFor({ kind: "channel", channelId: "ch", threadId: "root1", messageId: "msg", mentionedBy: "u1" })).toEqual({ rule: "keyed", key: "thread:root1" });
   });
 
   it("starts a fresh conversation for an event, a request on no row and another agent's task", () => {

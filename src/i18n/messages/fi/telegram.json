@@ -188,6 +188,7 @@
         "rowGone": "Rivi poistettiin.",
         "databaseGone": "Tietokanta, jota se hoitaa, poistettiin tai siirrettiin roskakoriin.",
         "commentGone": "Sen maininnut kommentti poistettiin tai sen sivu siirrettiin roskakoriin.",
+        "messageGone": "Viesti, jossa se mainittiin, tai sen ketju on poistettu.",
         "provider": "Tekoälypalvelu ei vastannut.",
         "timeout": "Ajo kesti liian kauan.",
         "tooManyAttempts": "Se ei ehtinyt käynnistyä ajoissa: työtilan tekoälykiintiö pysyi käytettynä.",

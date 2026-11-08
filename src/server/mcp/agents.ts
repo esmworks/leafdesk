@@ -898,6 +898,21 @@ function describeRunSource(workspaceId: string, run: AgentRunView) {
       },
     };
   }
+  if (source.kind === "channel") {
+    const c = run.channel;
+    return {
+      source: {
+        kind: source.kind,
+        mentioned_by: { id: source.mentionedBy, name: c?.byName ?? "" },
+        // The message that mentioned the agent: its task (empty for anyone but its writer).
+        task: c?.task ?? "",
+        // The thread the answer went to; the channel's name only for those who may see it.
+        channel: { id: source.channelId, name: c?.channelName ?? null },
+        thread_id: source.threadId,
+        message_id: source.messageId,
+      },
+    };
+  }
   // A chat's message is its person's alone (empty for anyone else).
   if (source.kind === "chat") return { source: { kind: source.kind, by: { id: source.userId, name: run.chat?.byName ?? "" }, message: run.chat?.message ?? "" } };
   // Whose email came, never what it said: that stays in the app.

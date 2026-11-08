@@ -188,6 +188,7 @@
         "rowGone": "De rij is verwijderd.",
         "databaseGone": "De database waarover hij gaat, is verwijderd of naar de prullenbak verplaatst.",
         "commentGone": "De opmerking die hem vermeldde, is verwijderd, of de pagina ervan is naar de prullenbak verplaatst.",
+        "messageGone": "Het bericht dat hem vermeldde, of de thread ervan, is verwijderd.",
         "provider": "De AI-aanbieder gaf geen antwoord.",
         "timeout": "De uitvoering duurde te lang.",
         "tooManyAttempts": "Hij kon niet op tijd starten: het AI-tegoed van de werkruimte bleef opgebruikt.",

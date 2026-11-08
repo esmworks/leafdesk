@@ -25,7 +25,7 @@ export const MAX_CONVERSATION_KEY = 200;
 /**
  * The conversation a run of this source goes to when its trigger names none: a row's runs (an
  * automation's, a row's request) keep the row's, a schedule's its own, a mention's its comment
- * thread's, new email its thread's; a chat's, an own question's, its conversation; an event's,
+ * thread's (in a channel, its message thread's), new email its thread's; a chat's, an own question's, its conversation; an event's,
  * a request on no row and another agent's task each start a fresh one.
  */
 export function conversationRuleFor(source: RunSource): ConversationRule {
@@ -37,6 +37,7 @@ export function conversationRuleFor(source: RunSource): ConversationRule {
     case "schedule":
       return { rule: "keyed", key: `schedule:${source.scheduleId}` };
     case "mention":
+    case "channel":
       return { rule: "keyed", key: `thread:${source.threadId}` };
     case "mail":
       return { rule: "keyed", key: `mail:${source.threadId}` };
@@ -51,10 +52,10 @@ export function conversationRuleFor(source: RunSource): ConversationRule {
 }
 
 /** A trigger's kind in the list (TriggerView). */
-export const TRIGGER_KINDS = ["chat", "mention", "request", "schedule", "automation", "button", "mail", "connection"] as const;
+export const TRIGGER_KINDS = ["chat", "mention", "channel", "request", "schedule", "automation", "button", "mail", "connection"] as const;
 export type TriggerKind = (typeof TRIGGER_KINDS)[number];
 
-/** Where a trigger can start runs only by being used (chat, mention, request): whether the viewer may now. */
+/** Where a trigger can start runs only by being used (chat, a mention in a comment or a channel, request): whether the viewer may now. */
 export type TriggerAvailability = { available: boolean };
 
 /**
@@ -62,7 +63,7 @@ export type TriggerAvailability = { available: boolean };
  * see it (server/triggers.ts listTriggers). `conversation` is the rule its runs follow.
  */
 export type TriggerView = { conversation: ConversationRuleKind } & (
-  | ({ kind: "chat" | "mention" | "request" } & TriggerAvailability)
+  | ({ kind: "chat" | "mention" | "channel" | "request" } & TriggerAvailability)
   | {
       kind: "schedule";
       id: string;

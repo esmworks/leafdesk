@@ -188,6 +188,7 @@
         "rowGone": "Rækken blev slettet.",
         "databaseGone": "Den database, den passer, blev slettet eller flyttet til papirkurven.",
         "commentGone": "Kommentaren, der omtalte den, blev slettet, eller dens side blev flyttet til papirkurven.",
+        "messageGone": "Beskeden, der nævnte den, eller dens tråd blev slettet.",
         "provider": "AI-udbyderen svarede ikke.",
         "timeout": "Kørslen tog for lang tid.",
         "tooManyAttempts": "Den kunne ikke starte i tide: arbejdsområdets AI-kvote forblev opbrugt.",

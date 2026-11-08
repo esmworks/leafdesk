@@ -787,12 +787,12 @@ const SCHEMAS: Record<string, JsonSchema> = {
       code: {
         type: "string",
         description:
-          "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached, mailGone, costLimit, selfReported (a schedule's run said it couldn't do its task; answer holds its reason), stopped (the person stopped a chat's answer; answer holds what it wrote by then) or error.",
+          "Why it failed: aiOff, agentDisabled, noAccess, rowGone, databaseGone, commentGone, messageGone, provider, timeout, tooManyAttempts, approvalTimeout, connectionGone, limitReached, mailGone, costLimit, selfReported (a schedule's run said it couldn't do its task; answer holds its reason), stopped (the person stopped a chat's answer; answer holds what it wrote by then) or error.",
       },
       error: { type: "string" },
       source: loose(
         {
-          kind: { type: "string", enum: ["automation", "connection", "request", "schedule", "mention", "handoff", "chat", "mail"] },
+          kind: { type: "string", enum: ["automation", "connection", "request", "schedule", "mention", "channel", "handoff", "chat", "mail"] },
           requested_by: loose({ id, name: { type: "string" } }),
           via: { type: "string", enum: ["api", "mcp"] },
           task: {

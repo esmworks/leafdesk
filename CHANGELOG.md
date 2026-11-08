@@ -27,6 +27,13 @@
   name they had), and messages keep their original times, threads, edits and reactions, read and
   without notifying anyone. Files are linked or, when asked, downloaded through the guarded fetch.
   Importing the same export again leaves its channels be. No migration.
+- **Agents answer in Messages channels.** Add an agent to a channel and name it with `@` in a
+  message or a reply: it reads the message and the thread before it, and answers in that thread as
+  itself, for everyone in the channel. The run is held to the access of the member who asked; what
+  others wrote in the thread counts as words from outside, so its connections' calls wait for
+  approval, and its answer notifies no one. Guests, `@here`, `@channel` and agents' own messages
+  start nothing. Its runs show the channel (source `channel`, failure code `messageGone`), and
+  *Mentions in channels* joins the agent's triggers.
 - **Export as PDF and Print from the Share panel.** Its foot now has the page menu's two ways of
   taking a page out on paper, so a row such as a delivery note goes to the printer from where it is
   shared. They follow the workspace's export settings like the menu's.

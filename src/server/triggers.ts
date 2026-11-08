@@ -46,8 +46,8 @@ export type TriggerStart = {
 
 /**
  * What makes two triggered runs the same run: the automation's run and row, the event and trigger,
- * the schedule and the time it was due, the comment that mentioned the agent, or the email that
- * came. A step taken again (its worker stopped before saving that it queued the run) finds the run
+ * the schedule and the time it was due, the comment or channel message that mentioned the agent,
+ * or the email that came. A step taken again (its worker stopped before saving that it queued the run) finds the run
  * it queued rather than queuing another. Null where every run is its own (a chat message, a
  * request, another agent's task).
  */
@@ -56,6 +56,7 @@ function sameSource(source: RunSource, context: AgentRunContext): SQL | null {
   if (source.kind === "automation") return sql`${agentRun.source}->>'automationRunId' = ${source.automationRunId} and ${agentRun.source}->>'rowId' = ${source.rowId}`;
   if (source.kind === "connection") return sql`${agentRun.source}->>'eventId' = ${source.eventId} and ${agentRun.source}->>'triggerId' = ${source.triggerId}`;
   if (source.kind === "mention") return sql`${agentRun.source}->>'commentId' = ${source.commentId}`;
+  if (source.kind === "channel") return sql`${agentRun.source}->>'kind' = 'channel' and ${agentRun.source}->>'messageId' = ${source.messageId}`;
   if (source.kind === "mail") return sql`${agentRun.source}->>'kind' = 'mail' and ${agentRun.source}->>'messageId' = ${source.messageId}`;
   const scheduledFor = "scheduledFor" in context ? context.scheduledFor : undefined;
   if (source.kind === "schedule" && scheduledFor) {
@@ -182,7 +183,7 @@ function runsAgent(actions: unknown, agentId: string): boolean {
 
 /**
  * Everything that can start the agent's runs (or, without `agentId`, the person's own), as
- * `userId` may see it: how it can be used (chat, mention, request), the agent's schedules (a task
+ * `userId` may see it: how it can be used (chat, mention, channel, request), the agent's schedules (a task
  * hidden where it may name a database they can't open), the published automations of databases
  * they can open whose steps run it (a button property's click as `button`), new email in their own
  * mailboxes opened to it, and, for owners, the connections' events that start it. Without an agent:
@@ -211,6 +212,8 @@ export async function listTriggers(userId: string, workspaceId: string, agentId?
     { kind: "chat", conversation: "fixed", available: live },
     // A member's comment mentioning it, on a page it may comment on (agents/mentions.ts).
     { kind: "mention", conversation: "keyed", available: live && !isGuest(membership.role) },
+    // A member's message mentioning it in a channel of Messages it is in (agents/channel-mentions.ts).
+    { kind: "channel", conversation: "keyed", available: live && !isGuest(membership.role) },
     // Asked for through MCP or the REST API by those who can edit it (agents/requests.ts).
     { kind: "request", conversation: "new", available: live && hasAgentLevel(level, "edit") },
   ];

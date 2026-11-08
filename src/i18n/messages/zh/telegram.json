@@ -188,6 +188,7 @@
         "rowGone": "该行已被删除。",
         "databaseGone": "它负责的数据库已被删除或移到回收站。",
         "commentGone": "提及它的评论已被删除，或其页面已移到回收站。",
+        "messageGone": "提及它的消息或其话题已被删除。",
         "provider": "AI 提供方没有响应。",
         "timeout": "运行时间过长。",
         "tooManyAttempts": "未能及时开始：工作区的 AI 额度一直处于用尽状态。",

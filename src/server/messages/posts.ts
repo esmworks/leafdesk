@@ -112,6 +112,13 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
     if (earlier) return earlier;
     throw error;
   }
+  // Agents named in the channel answer in its thread (agents/channel-mentions.ts), once the message is stored.
+  // Loaded here: the agents' worker sends their answers through this module.
+  if (named.length && row.kind !== "direct") {
+    void import("@/server/agents/channel-mentions")
+      .then(({ startChannelMentionRuns }) => startChannelMentionRuns(id))
+      .catch((error) => console.error("[messages] could not ask the agents a message names", error));
+  }
   const [message] = await messageViews(eq(channelMessage.id, id));
   return { message, notInChannel };
 }

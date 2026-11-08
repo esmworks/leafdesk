@@ -68,7 +68,7 @@ const workspaceId = `${RUN}-ws`;
 const emails = { ayse: `${RUN}-ayse@example.test`, bora: `${RUN}-bora@example.test` };
 
 const frames: ServerFrame[] = [];
-const connection = { id: `${RUN}-c`, userId: ids.member, sessionId: "s", workspaceId, guest: false, active: true, viewing: null, send: (f: ServerFrame) => void frames.push(f), close: () => {} };
+const connection = { id: `${RUN}-c`, userId: ids.member, sessionId: "s", workspaceId, guest: false, knows: null, active: true, viewing: null, send: (f: ServerFrame) => void frames.push(f), close: () => {} };
 
 /** The fixture as Slack zips it, with its file pointing at the local server. */
 function fixtureZip(): Uint8Array {

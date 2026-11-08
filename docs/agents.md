@@ -7,7 +7,8 @@ its own. An automation's *Run an agent* action starts it: when the automation ru
 agent gets its instructions, the action's task, what happened to the row and the row itself, and
 works on it. An event a connection receives can start it too (see [Connections](connections.md#connections)),
 people who can edit it can ask one for a task of their own over the REST API or MCP, and anyone
-it is shared with can chat with it or mention it in a page's comments to have it answer there.
+it is shared with can chat with it or mention it in a page's comments, or in a channel of
+Messages it is in, to have it answer there.
 
 **Its settings** are a page of their own (*Settings → Agents*, or *Settings* on its chat page): its
 instructions, skills, memory, tools, access, connections, triggers, schedules and advanced settings
@@ -50,7 +51,7 @@ a time (`AI_CONCURRENCY`), each turn within the workspace's AI allowance
 30 days after it finishes, with what the agent did step by step, its final answer, the tokens it
 used, and why it failed: `aiOff` (the workspace turned AI off), `agentDisabled` (the agent was
 paused or archived), `noAccess` (it can't open what it works on), `rowGone`, `databaseGone`,
-`commentGone` (its row, database or the comment that mentioned it is gone), `provider` (the model
+`commentGone`, `messageGone` (its row, database, or the comment or channel message that mentioned it is gone), `provider` (the model
 failed), `timeout` (the run took too long), `tooManyAttempts` (it was taken up too often without finishing: it couldn't start in time, the
 workspace's AI allowance staying used up),
 `approvalTimeout` (no one answered a call that waited for approval), `connectionGone` (the
@@ -253,6 +254,25 @@ they paste stays as the agent's name) or an agent's own reply, so agents can't s
 Its runs show who mentioned it and on which page (`mention` in `list_agent_runs` and the REST API),
 and end as `commentGone` when the comment or its page is gone by then; what they did shows to the
 owners who can open the page.
+
+**Mentioning an agent in a channel.** An agent answers in *Messages* too, in the channels its
+people brought it into: add it like anyone (*Add people* in the channel's details, or when
+you name it and it isn't in the channel yet: *Add them*), then name it with `@` in a message or a thread's
+reply. When a member's message names an agent in the channel, the agent runs: it reads the
+message (its task) and the thread before it (its last 20 messages, oldest first), and answers with
+a reply in the message's thread, as itself, for everyone in the channel; a message in the channel
+itself starts that thread. The run is held to that member's access as well as the agent's, as a
+comment's mention is, and changes nothing in pages or rows. What others wrote in the thread is
+anyone's words, so the run treats it as data from outside: an owner's rule that lets a
+connection's tool run without asking doesn't hold, and each such call waits for approval (it is
+offered none unless the member owns the workspace: approvals go to them alone), as does a web call
+carrying words the member didn't type (likewise offered only to an owner). It proposes no notes, and its answer mentions no one: names and `@channel` in it are
+plain words. When it can't answer it says why in the thread, as in comments. `@here` and
+`@channel` start no run, nor does naming an agent outside the channel, a guest's message, an
+edit, an agent's own message or a direct message. Its runs show who mentioned it and in which
+channel (`channel` in `list_agent_runs` and the REST API; the channel's name only to those who may
+see it), end as `messageGone` when the message or its thread is deleted by then, and what they
+read and answered shows to the member who asked alone, not in their chat with the agent.
 
 **The agents tab.** The sidebar's *Agents* tab lists the agents you may talk to, each with what it
 does, *Off* for one that is turned off, a pulse while a run of your chat with it is going and a
