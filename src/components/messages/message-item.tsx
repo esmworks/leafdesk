@@ -111,6 +111,7 @@ function Files({ files }: { files: FileView[] }) {
 
 function Reactions({ m, s, writes }: { m: MessageView; s: View; writes: boolean }) {
   const t = useTranslations("messages");
+  const [pickerAt, setPickerAt] = useState<Element | null>(null);
   if (!m.reactions.length) return null;
   const toggle = (emoji: string, on: boolean) => {
     // Shown at once; the server's change follows.
@@ -148,9 +149,9 @@ function Reactions({ m, s, writes }: { m: MessageView; s: View; writes: boolean 
       })}
       {writes && (
         <Popover
-          side="top"
+          at={pickerAt}
           trigger={({ toggle: open }) => (
-            <button type="button" onClick={open} aria-label={t("addReaction")} className="flex h-6 w-7 items-center justify-center rounded-md border border-transparent text-fg-muted hover:border-border hover:text-fg">
+            <button type="button" onClick={(e) => opened(e, setPickerAt, open)} aria-label={t("addReaction")} className="flex h-6 w-7 items-center justify-center rounded-md border border-transparent text-fg-muted hover:border-border hover:text-fg">
               <SmilePlus className="h-3.5 w-3.5" />
             </button>
           )}
@@ -255,6 +256,15 @@ function Editor({ m, done }: { m: MessageView; done: () => void }) {
   );
 }
 
+/**
+ * Opens a row's menu from its button, fixed to the window (`Popover`'s `at`): one placed inside the
+ * scrolling list would lengthen it, and the list, held to its bottom, would jump up under it.
+ */
+function opened(e: { currentTarget: Element }, setAt: (at: Element) => void, toggle: () => void) {
+  setAt(e.currentTarget);
+  toggle();
+}
+
 function VersionsDialogButton({ m }: { m: MessageView }) {
   const t = useTranslations("messages");
   const locale = useLocale();
@@ -307,6 +317,8 @@ function Toolbar({ m, s, ctx, onEdit }: { m: MessageView; s: View; ctx: ItemCont
     const url = new URL(messagesPath(ctx.workspaceId, { channelId: m.channelId, messageId: m.id, threadId: m.threadId }), window.location.href).toString();
     void navigator.clipboard.writeText(url).then(() => showToast({ message: t("linkCopied") }));
   };
+  const [pickerAt, setPickerAt] = useState<Element | null>(null);
+  const [moreAt, setMoreAt] = useState<Element | null>(null);
   const button = "flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:bg-bg-hover hover:text-fg";
   return (
     <div className="absolute -top-4 end-3 z-10 hidden items-center rounded-lg border border-border bg-bg p-0.5 shadow-sm group-hover/message:flex group-focus-within/message:flex has-[[data-open]]:flex">
@@ -319,8 +331,9 @@ function Toolbar({ m, s, ctx, onEdit }: { m: MessageView; s: View; ctx: ItemCont
       {ctx.writes && (
         <Popover
           align="end"
+          at={pickerAt}
           trigger={({ toggle }) => (
-            <button type="button" onClick={toggle} aria-label={t("addReaction")} title={t("addReaction")} className={button}>
+            <button type="button" onClick={(e) => opened(e, setPickerAt, toggle)} aria-label={t("addReaction")} title={t("addReaction")} className={button}>
               <SmilePlus className="h-4 w-4" />
             </button>
           )}
@@ -351,8 +364,9 @@ function Toolbar({ m, s, ctx, onEdit }: { m: MessageView; s: View; ctx: ItemCont
       </button>
       <Popover
         align="end"
+        at={moreAt}
         trigger={({ toggle }) => (
-          <button type="button" onClick={toggle} aria-label={t("actions.more")} title={t("actions.more")} className={button}>
+          <button type="button" onClick={(e) => opened(e, setMoreAt, toggle)} aria-label={t("actions.more")} title={t("actions.more")} className={button}>
             <MoreHorizontal className="h-4 w-4" />
           </button>
         )}
