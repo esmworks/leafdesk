@@ -13,7 +13,7 @@ import { recordAudit } from "@/server/audit";
 import { recipientLocale } from "@/server/mail/locale";
 import { workspacePeople } from "@/server/workspaces";
 import type { Tx } from "@/server/workspaces";
-import { channelVisibleTo, MessageError, requireChannel, workspaceRole, write, type Changed, type ChannelRow } from "./core";
+import { channelVisibleTo, MessageError, requireChannel, stillInWorkspace, workspaceRole, write, type Changed, type ChannelRow } from "./core";
 
 /** Takes the channel's next message number and returns it (the row stays locked until the write ends). */
 export async function nextSeq(tx: Tx, channelId: string, rev: number, shown: boolean): Promise<number> {
@@ -292,17 +292,18 @@ export async function leaveChannel(userId: string, channelId: string): Promise<v
     changed.roster(channelId);
     changed.channel(channelId);
     await systemMessage(tx, changed, row, userId, { event: "left" });
+    await keepAnAdmin(tx, changed, channelId);
   });
 }
 
-/** Adds people to a channel: anyone in it may, but only workspace members (not guests) to a public one. */
+/** Adds people to a channel: anyone in it may, guests only to a private one. */
 export async function addMembers(userId: string, channelId: string, userIds: unknown): Promise<void> {
   const { channel: row, member, role } = await requireChannel(userId, channelId);
   if (!member && role !== "owner") throw new MessageError("notMember");
   if (row.kind === "direct") throw new MessageError("notAllowed");
   if (row.archivedAt) throw new MessageError("archived");
   if (role === "guest") throw new MessageError("notAllowed");
-  const wanted = await peopleOfWorkspace(row.workspaceId, userIds, true);
+  const wanted = await peopleOfWorkspace(row.workspaceId, userIds, row.kind === "private");
   await write(row.workspaceId, async (tx, changed) => {
     const added = await addPeople(tx, changed, row, wanted);
     if (added.length) await systemMessage(tx, changed, row, userId, { event: "added", users: added });
@@ -314,9 +315,6 @@ export async function removeMember(userId: string, channelId: string, targetId: 
   if (typeof targetId !== "string") throw new MessageError("invalid");
   if (targetId === userId) return leaveChannel(userId, channelId);
   const { channel: row } = await requireChannel(userId, channelId, "admin");
-  if (row.joinNew && row.kind === "public") {
-    // Everyone is in the general channel; taking someone out would only have them join again.
-  }
   await write(row.workspaceId, async (tx, changed) => {
     const gone = await tx
       .delete(channelMember)
@@ -327,7 +325,36 @@ export async function removeMember(userId: string, channelId: string, targetId: 
     changed.roster(channelId);
     changed.channel(channelId);
     await systemMessage(tx, changed, row, userId, { event: "removed", users: [targetId] });
+    await keepAnAdmin(tx, changed, channelId);
   });
+}
+
+/** A channel left without an admin makes the one in it longest its admin, so someone can still manage it. */
+async function keepAnAdmin(tx: Tx, changed: Changed, channelId: string) {
+  const [admin] = await tx
+    .select({ userId: channelMember.userId })
+    .from(channelMember)
+    .where(and(eq(channelMember.channelId, channelId), eq(channelMember.role, "admin")))
+    .limit(1);
+  if (admin) return;
+  const [next] = await tx
+    .select({ userId: channelMember.userId })
+    .from(channelMember)
+    .where(
+      and(
+        eq(channelMember.channelId, channelId),
+        stillInWorkspace(sql`${channelMember.userId}`, sql`${channelMember.workspaceId}`),
+        sql`not exists (select 1 from ${workspaceAgent} a where a.user_id = ${channelMember.userId})`,
+      ),
+    )
+    .orderBy(asc(channelMember.joinedAt), asc(channelMember.userId))
+    .limit(1);
+  if (!next) return;
+  await tx
+    .update(channelMember)
+    .set({ role: "admin", rev: changed.rev })
+    .where(and(eq(channelMember.channelId, channelId), eq(channelMember.userId, next.userId)));
+  changed.member(channelId, next.userId);
 }
 
 /** Makes someone in the channel its admin, or a member again (its admins; a channel keeps one admin at least). */

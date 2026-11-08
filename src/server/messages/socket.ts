@@ -63,7 +63,7 @@ import {
 } from "./posts";
 import { cancelScheduled, scheduleMessage } from "./scheduled";
 import { searchMessages } from "./search";
-import { bootstrap, sync } from "./sync";
+import { bootstrap, peopleFor, sync } from "./sync";
 import { messageToTask } from "./to-task";
 
 /** Policies and membership are asked again this often while a connection stays open. */
@@ -290,8 +290,10 @@ export function messagesHooks(): Partial<Hooks> {
       const who = peer.context.messages as Who | undefined;
       if (!who) return peer.close(4401, "Unauthorized");
       let guest = false;
+      let knows: Set<string> | null = null;
       try {
         guest = (await workspaceRole(who.userId, who.workspaceId)) === "guest";
+        if (guest) knows = new Set((await peopleFor(who.userId, who.workspaceId, true)).map((p) => p.id));
       } catch {
         return peer.close(4403, "Removed");
       }
@@ -301,6 +303,7 @@ export function messagesHooks(): Partial<Hooks> {
         sessionId: who.sessionId,
         workspaceId: who.workspaceId,
         guest,
+        knows,
         active: false,
         viewing: null,
         send: (frame) => {

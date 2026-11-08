@@ -73,6 +73,8 @@ const connections = userIds.map((userId) => {
     sessionId: "s",
     workspaceId,
     guest: userId === ids.guest,
+    // The guest shares no channel with anyone yet: they know of themselves only.
+    knows: userId === ids.guest ? new Set([userId]) : null,
     active: false,
     viewing: null as string | null,
     send: (frame: ServerFrame) => void got.push(frame),
@@ -121,6 +123,14 @@ try {
 
   for (const c of connections) addConnection(c);
 
+  // A guest hears of the statuses of people they know of only.
+  clearFrames();
+  await channels.setStatus(ids.owner, workspaceId, { text: "busy" });
+  await settle();
+  check(changesFor(ids.ann).some((c) => c.statuses?.some((x) => x.userId === ids.owner)), "a status is announced to members");
+  check(!changesFor(ids.guest).some((c) => c.statuses?.some((x) => x.userId === ids.owner)), "but not to a guest who doesn't know them");
+  check(!(await bootstrap(ids.guest, workspaceId)).statuses!.some((x) => x.userId === ids.owner), "nor in a guest's first load");
+
   // ------------------------------------------------------------------ channels
   const design = await channels.createChannel(ids.ann, workspaceId, { name: "Design Team", kind: "public", topic: "pixels" });
   const secret = await channels.createChannel(ids.ann, workspaceId, { name: "secret", kind: "private", memberIds: [ids.bob] });
@@ -134,6 +144,10 @@ try {
   check((await posts.channelHistory(ids.bob, { channelId: secret })).messages.length >= 1, "its members read it");
   await channels.joinChannel(ids.bob, design);
   check(await refused(() => channels.joinChannel(ids.owner, secret)), "a private channel can't be joined");
+  check(await refused(() => channels.addMembers(ids.ann, design, [ids.guest]), "invalid"), "guests aren't added to public channels");
+  const solo = await channels.createChannel(ids.ann, workspaceId, { name: "solo", kind: "private", memberIds: [ids.bob] });
+  await channels.leaveChannel(ids.ann, solo);
+  check((await membership(ids.bob, solo))?.role === "admin", "a channel whose last admin leaves gets another");
 
   // ------------------------------------------------------------------ sending, unread, mentions
   clearFrames();
@@ -158,6 +172,14 @@ try {
   check((await membership(ids.bob, design))?.unread === 1, "marking unread from a message brings it back");
   await posts.markAllRead(ids.bob, workspaceId);
   check((await membership(ids.bob, design))?.unread === 0, "mark all read");
+  const twice = crypto.randomUUID();
+  const both = await Promise.allSettled([0, 1].map(() => posts.sendMessage(ids.ann, { id: twice, channelId: design, body: "sent twice at once" })));
+  check(
+    both.every((r) => r.status === "fulfilled" && r.value.message.id === twice),
+    "the same message sent twice at once is stored once and answers both",
+    both.map((r) => (r.status === "rejected" ? String(r.reason) : r.value.message.id)),
+  );
+  await posts.markAllRead(ids.bob, workspaceId);
 
   // Viewing a public channel one isn't in brings its messages live.
   clearFrames();
@@ -178,9 +200,22 @@ try {
   check((await membership(ids.bob, design))?.mentions === 2, "@channel reaches everyone in it");
   await posts.markAllRead(ids.bob, workspaceId);
 
+  // An edit that names someone, or no longer does, changes their count of mentions.
+  const plain = (await posts.sendMessage(ids.ann, { channelId: design, body: "no one yet", id: crypto.randomUUID() })).message;
+  await posts.editMessage(ids.ann, plain.id, { body: `now ${mention(ids.bob, "bob")}` });
+  check((await membership(ids.bob, design))?.mentions === 1, "an edit naming someone counts as their mention");
+  await posts.editMessage(ids.ann, plain.id, { body: "no one again" });
+  check((await membership(ids.bob, design))?.mentions === 0, "an edit no longer naming them takes it back");
+  await posts.markAllRead(ids.bob, workspaceId);
+
   check(await refused(() => posts.sendMessage(ids.owner, { channelId: design, body: "hi", id: crypto.randomUUID() }), "notMember"), "people outside a channel can't write in it");
   await channels.updateChannel(ids.ann, design, { posting: "admins" });
   check(await refused(() => posts.sendMessage(ids.bob, { channelId: design, body: "hi", id: crypto.randomUUID() }), "adminsOnly"), "admins-only posting refuses members");
+  check(
+    await refused(() => posts.sendMessage(ids.bob, { channelId: design, threadId: m2.id, body: "into the channel", alsoInChannel: true, id: crypto.randomUUID() }), "adminsOnly"),
+    "and their replies sent to the channel too",
+  );
+  check((await posts.sendMessage(ids.bob, { channelId: design, threadId: m2.id, body: "a plain reply", id: crypto.randomUUID() })).message.threadId === m2.id, "while replies in a thread stay open");
   await channels.updateChannel(ids.ann, design, { posting: "everyone" });
 
   // ------------------------------------------------------------------ threads
@@ -195,6 +230,8 @@ try {
   check(!history.messages.some((m) => m.id === r1.id) && history.messages.some((m) => m.id === r2.id), "replies stay in their thread unless also sent to the channel");
   await posts.followThread(ids.bob, root.id, false);
   check(!(await bootstrap(ids.bob, workspaceId)).threads!.some((t) => t.threadId === root.id && t.following), "unfollowing a thread");
+  await posts.sendMessage(ids.ann, { channelId: design, threadId: here.id, body: refLink({ kind: "everyone" }, "@channel"), id: crypto.randomUUID() });
+  check(!(await bootstrap(ids.bob, workspaceId)).threads!.some((t) => t.threadId === here.id), "@channel in a thread doesn't make everyone follow it");
 
   // ------------------------------------------------------------------ edits, deletes, reactions, pins
   await posts.editMessage(ids.ann, root.id, { body: "Hello everyone" });

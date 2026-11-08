@@ -5,12 +5,13 @@
  * a channel, replies of threads they follow. Nobody is told of their own message, of a channel they
  * have open in front of them, while their quiet hours last, or as an agent.
  */
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { channel, channelMember, channelMessage, messageMention, messageStatus, messageThread, user, workspaceAgent } from "@/db/schema";
 import { snippet } from "@/lib/message-text";
 import { messagesPath, notifyLevel } from "@/lib/messages";
 import { pushToPerson } from "@/server/push";
+import { stillInWorkspace } from "./core";
 import { isWatching } from "./hub";
 
 /** Tells the people of each new message, without waiting. */
@@ -28,7 +29,12 @@ async function tell(workspaceId: string, messageIds: string[]) {
       .where(eq(channelMessage.id, id));
     if (!row || row.message.kind !== "message" || row.message.deletedAt) continue;
     const { message, channel: place } = row;
-    const members = await db.select().from(channelMember).where(eq(channelMember.channelId, place.id));
+    // Only those still in the workspace: leaving it keeps one's channel rows (and direct
+    // conversations, for when they come back), never their notifications.
+    const members = await db
+      .select()
+      .from(channelMember)
+      .where(and(eq(channelMember.channelId, place.id), stillInWorkspace(sql`${channelMember.userId}`, sql`${channelMember.workspaceId}`)));
     const named = new Map(
       (await db.select({ userId: messageMention.userId, broadcast: messageMention.broadcast }).from(messageMention).where(eq(messageMention.messageId, id))).map((m) => [m.userId, m.broadcast]),
     );

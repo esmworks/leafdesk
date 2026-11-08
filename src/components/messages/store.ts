@@ -694,7 +694,12 @@ export const putMessages = (list: MessageView[]) => {
   set({ messages });
 };
 
+/** Sends on their way now (a call queued while offline included), so a reconnect doesn't send them a second time. */
+const delivering = new Set<string>();
+
 async function deliver(p: Pending) {
+  if (delivering.has(p.id)) return null;
+  delivering.add(p.id);
   try {
     const result = await call<{ message: MessageView; notInChannel: string[] }>("send", { id: p.id, channelId: p.channelId, threadId: p.threadId, body: p.body, fileIds: p.fileIds, alsoInChannel: p.alsoInChannel });
     apply({ rev: 0, messages: [result.message] }, "live");
@@ -702,8 +707,11 @@ async function deliver(p: Pending) {
   } catch (error) {
     // A lost connection sends it again when it comes back; a refusal marks it failed.
     if (error instanceof MessagesError && error.code === "offline") return null;
-    set({ pending: new Map(state.pending).set(p.id, { ...p, failed: true }) });
+    // Unless the message came meanwhile (a send that did go through): then nothing failed.
+    if (state.pending.has(p.id)) set({ pending: new Map(state.pending).set(p.id, { ...p, failed: true }) });
     throw error;
+  } finally {
+    delivering.delete(p.id);
   }
 }
 

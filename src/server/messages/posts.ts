@@ -12,7 +12,7 @@ import type { MessageView } from "@/lib/message-wire";
 import { heldUserIds } from "@/server/legal-hold";
 import type { Tx } from "@/server/workspaces";
 import { nextSeq } from "./channels";
-import { MessageError, requireChannel, write, type Changed, type ChannelAccess } from "./core";
+import { MessageError, requireChannel, stillInWorkspace, write, type Changed, type ChannelAccess } from "./core";
 import { isActive } from "./hub";
 import { messageViews, withExtras } from "./views";
 
@@ -60,7 +60,7 @@ async function broadcastTargets(tx: Tx, workspaceId: string, channelId: string, 
   const rows = await tx
     .select({ userId: channelMember.userId })
     .from(channelMember)
-    .where(eq(channelMember.channelId, channelId));
+    .where(and(eq(channelMember.channelId, channelId), stillInWorkspace(sql`${channelMember.userId}`, sql`${channelMember.workspaceId}`)));
   const others = rows.map((r) => r.userId).filter((id) => id !== userId);
   return kind === "everyone" ? others : others.filter((id) => isActive(workspaceId, id));
 }
@@ -73,13 +73,18 @@ export type SendResult = { message: MessageView; notInChannel: string[] };
  * message stored the first time. A reply names its thread's first message; a file must have been
  * uploaded to the channel by the writer and not sent yet.
  */
+/** The message stored under the client's id by an earlier send of the same one, or null. */
+async function sentBefore(userId: string, id: string): Promise<SendResult | null> {
+  const [already] = await db.select().from(channelMessage).where(eq(channelMessage.id, id)).limit(1);
+  if (!already) return null;
+  if (already.authorId !== userId) throw new MessageError("invalid");
+  return { message: (await withExtras([already]))[0], notInChannel: [] };
+}
+
 export async function sendMessage(userId: string, input: SendInput): Promise<SendResult> {
   const id = isMessageId(input.id) ? input.id.toLowerCase() : crypto.randomUUID();
-  const [already] = await db.select().from(channelMessage).where(eq(channelMessage.id, id)).limit(1);
-  if (already) {
-    if (already.authorId !== userId) throw new MessageError("invalid");
-    return { message: (await withExtras([already]))[0], notInChannel: [] };
-  }
+  const earlier = await sentBefore(userId, id);
+  if (earlier) return earlier;
   const access = await requireChannel(userId, String(input.channelId ?? ""), "write");
   const { channel: row, member } = access;
   const body = bodyOf(input.body ?? "");
@@ -91,13 +96,41 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
     [root] = await db.select().from(channelMessage).where(eq(channelMessage.id, input.threadId)).limit(1);
     if (!root || root.channelId !== row.id || root.threadId || root.kind !== "message") throw new MessageError("notFound");
   }
-  if (!root && row.posting === "admins" && member?.role !== "admin" && access.role !== "owner") throw new MessageError("adminsOnly");
   const alsoInChannel = Boolean(root && input.alsoInChannel === true);
   const shown = !root || alsoInChannel;
+  // Replies stay open to everyone; what shows in the main list is the admins' alone.
+  if (shown && row.posting === "admins" && member?.role !== "admin" && access.role !== "owner") throw new MessageError("adminsOnly");
   const named = mentionedUserIds(body).filter((uid) => uid !== userId);
   const broadcast = row.kind === "direct" ? null : broadcastOf(body);
 
   let notInChannel: string[] = [];
+  try {
+    await stored(row, root, { id, userId, body, fileIds, data: input.data ?? null, alsoInChannel, shown, named, broadcast }, (outside) => (notInChannel = outside));
+  } catch (error) {
+    // The same message sent twice at once (a retry while the first was on its way): the second waited for the first and found its id taken.
+    const earlier = await sentBefore(userId, id);
+    if (earlier) return earlier;
+    throw error;
+  }
+  const [message] = await messageViews(eq(channelMessage.id, id));
+  return { message, notInChannel };
+}
+
+type Outgoing = {
+  id: string;
+  userId: string;
+  body: string;
+  fileIds: string[];
+  data: MessageData | null;
+  alsoInChannel: boolean;
+  shown: boolean;
+  named: string[];
+  broadcast: "everyone" | "here" | null;
+};
+
+/** Stores a message being sent, with its files, mentions, thread and read marks, as one write. */
+async function stored(row: ChannelAccess["channel"], root: MessageRow | null, out: Outgoing, notInChannel: (outside: string[]) => void) {
+  const { id, userId, body, fileIds, alsoInChannel, shown, named, broadcast } = out;
   await write(row.workspaceId, async (tx, changed) => {
     const seq = await nextSeq(tx, row.id, changed.rev, shown);
     const now = new Date();
@@ -110,7 +143,7 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
       authorId: userId,
       body,
       plain: plainText(body),
-      data: input.data ?? null,
+      data: out.data,
       alsoInChannel,
       createdAt: now,
       rev: changed.rev,
@@ -133,7 +166,7 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
     }
 
     const { inside, outside } = await namedIn(tx, row.id, named);
-    notInChannel = outside;
+    notInChannel(outside);
     const everyone = broadcast ? await broadcastTargets(tx, row.workspaceId, row.id, userId, broadcast) : [];
     const told = [...new Set([...inside, ...everyone])];
     if (told.length) {
@@ -144,7 +177,7 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
     }
 
     if (root) {
-      await replied(tx, changed, root, { id, seq, userId, now, told });
+      await replied(tx, changed, root, { id, seq, userId, now, told, named: inside });
     }
     if (shown) {
       if (told.length) {
@@ -180,12 +213,10 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
       .returning({ userId: messageDraft.userId });
     if (drafts.length) changed.draftGone(userId, row.id, threadKey);
   });
-  const [message] = await messageViews(eq(channelMessage.id, id));
-  return { message, notInChannel };
 }
 
 /** A reply's effects on its thread: counts on the first message, who follows it, what they have read. */
-async function replied(tx: Tx, changed: Changed, root: MessageRow, reply: { id: string; seq: number; userId: string; now: Date; told: string[] }) {
+async function replied(tx: Tx, changed: Changed, root: MessageRow, reply: { id: string; seq: number; userId: string; now: Date; told: string[]; named: string[] }) {
   await tx
     .update(channelMessage)
     .set({
@@ -197,8 +228,9 @@ async function replied(tx: Tx, changed: Changed, root: MessageRow, reply: { id: 
     })
     .where(eq(channelMessage.id, root.id));
   changed.message(root.id);
-  // The writer, whoever started the thread and those named follow it (unless they chose not to).
-  const joining = [...new Set([reply.userId, ...(root.authorId ? [root.authorId] : []), ...reply.told])];
+  // The writer, whoever started the thread and those named by name follow it (unless they chose
+  // not to); @channel and @here tell the channel without making everyone in it follow the thread.
+  const joining = [...new Set([reply.userId, ...(root.authorId ? [root.authorId] : []), ...reply.named])];
   await tx
     .insert(messageThread)
     .values(joining.map((uid) => ({ threadId: root.id, userId: uid, channelId: root.channelId, workspaceId: root.workspaceId, following: true, lastReplyAt: reply.now, rev: changed.rev })))
@@ -238,16 +270,23 @@ export async function editMessage(userId: string, messageId: unknown, input: { b
       .set({ body, plain: plainText(body), editedAt: new Date(), rev: changed.rev })
       .where(eq(channelMessage.id, message.id));
     changed.message(message.id);
-    if (dropped.length) {
-      await tx.delete(messageMention).where(and(eq(messageMention.messageId, message.id), inArray(messageMention.userId, dropped), eq(messageMention.broadcast, false)));
-    }
+    const unnamed = dropped.length
+      ? await tx
+          .delete(messageMention)
+          .where(and(eq(messageMention.messageId, message.id), inArray(messageMention.userId, dropped), eq(messageMention.broadcast, false)))
+          .returning({ userId: messageMention.userId })
+      : [];
     const { inside } = await namedIn(tx, row.id, added);
-    if (inside.length) {
-      await tx
-        .insert(messageMention)
-        .values(inside.map((uid) => ({ messageId: message.id, userId: uid, workspaceId: row.workspaceId })))
-        .onConflictDoNothing();
-    }
+    const named = inside.length
+      ? await tx
+          .insert(messageMention)
+          .values(inside.map((uid) => ({ messageId: message.id, userId: uid, workspaceId: row.workspaceId })))
+          .onConflictDoNothing()
+          .returning({ userId: messageMention.userId })
+      : [];
+    // Their counts of unread mentions follow: one named now has it to read, one no longer named doesn't.
+    const recount = [...unnamed, ...named].map((r) => r.userId);
+    if (recount.length) await recountMentions(tx, changed, row.id, recount, message.threadId, message.alsoInChannel);
   });
 }
 
@@ -272,7 +311,6 @@ export async function deleteMessage(userId: string, messageId: unknown): Promise
   if (message.deletedAt) return;
   const own = message.authorId === userId;
   if (!own && member?.role !== "admin" && role !== "owner") throw new MessageError("notAllowed");
-  if (message.kind === "system" && !own && role !== "owner" && member?.role !== "admin") throw new MessageError("notAllowed");
   if (message.authorId && (await heldUserIds(row.workspaceId)).includes(message.authorId)) throw new MessageError("held");
   await write(row.workspaceId, async (tx, changed) => {
     await tx
@@ -287,7 +325,7 @@ export async function deleteMessage(userId: string, messageId: unknown): Promise
     await tx.delete(messageFile).where(eq(messageFile.messageId, message.id));
     // Those it named no longer have it to read.
     const named = await tx.delete(messageMention).where(eq(messageMention.messageId, message.id)).returning({ userId: messageMention.userId });
-    if (named.length) await recountMentions(tx, changed, row.id, named.map((n) => n.userId), message.threadId);
+    if (named.length) await recountMentions(tx, changed, row.id, named.map((n) => n.userId), message.threadId, message.alsoInChannel);
     if (message.threadId) {
       await tx
         .update(channelMessage)
@@ -299,7 +337,7 @@ export async function deleteMessage(userId: string, messageId: unknown): Promise
 }
 
 /** Recounts the unread mentions of these people in the channel's main list (or a thread). */
-async function recountMentions(tx: Tx, changed: Changed, channelId: string, userIds: string[], threadId: string | null) {
+async function recountMentions(tx: Tx, changed: Changed, channelId: string, userIds: string[], threadId: string | null, alsoInChannel: boolean) {
   if (!userIds.length) return;
   if (threadId) {
     const rows = await tx
@@ -312,6 +350,8 @@ async function recountMentions(tx: Tx, changed: Changed, channelId: string, user
       .where(and(eq(messageThread.threadId, threadId), inArray(messageThread.userId, userIds)))
       .returning({ userId: messageThread.userId });
     for (const r of rows) changed.thread(threadId, r.userId);
+    // A reply only in its thread leaves the channel's own counts as they were.
+    if (!alsoInChannel) return;
   }
   const rows = await tx
     .update(channelMember)

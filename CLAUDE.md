@@ -177,7 +177,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   views they may see, and `sync.ts` answers a reconnect from the rows newer than its rev, so a write
   that skips `write` is never seen live nor caught up. Who may see or write a channel is
   `core.ts` `requireChannel`; views are `views.ts` (unread and member counts are subqueries there,
-  see *Conventions*). In the browser `components/messages/store.ts` holds what the socket brought:
+  see *Conventions*). Leaving the workspace keeps one's `channel_member` rows (their direct
+  conversations come back with them), so a list of a channel's people that notifies or counts
+  adds `core.ts` `stillInWorkspace`. A guest's connection carries `knows` (`sync.ts` `peopleFor`):
+  presence and statuses about anyone else don't go to it. In the browser `components/messages/store.ts` holds what the socket brought:
   unread is the server's count plus live messages past `countedTo`, the seq it counted. Pages
   change the query with `history.pushState` (`lib/messages.ts` `messagesPath`), never the router.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI

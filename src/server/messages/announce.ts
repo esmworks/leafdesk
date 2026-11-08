@@ -24,7 +24,7 @@ async function announce(t: Touched) {
   }
 }
 
-async function tell(t: Touched, people: Map<string, { guest: boolean }>) {
+async function tell(t: Touched, people: Map<string, { guest: boolean; knows: Set<string> | null }>) {
   const ids = [...people.keys()];
   const out = new Map<string, Changes>(ids.map((id) => [id, { rev: t.rev }]));
   const put = <K extends keyof Changes>(userId: string, key: K, values: NonNullable<Changes[K]>) => {
@@ -129,7 +129,11 @@ async function tell(t: Touched, people: Map<string, { guest: boolean }>) {
 
   if (t.statuses.size) {
     const statuses = await statusViews(and(eq(messageStatus.workspaceId, t.workspaceId), inArray(messageStatus.userId, [...t.statuses]))!);
-    for (const userId of ids) put(userId, "statuses", statuses);
+    for (const userId of ids) {
+      // A guest hears only of the people they may know of.
+      const knows = people.get(userId)?.knows;
+      put(userId, "statuses", knows ? statuses.filter((s) => s.userId === userId || knows.has(s.userId)) : statuses);
+    }
   }
 
   sendToPeople(t.workspaceId, ids, (userId) => {

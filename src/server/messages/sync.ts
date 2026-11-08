@@ -69,13 +69,28 @@ export async function bootstrap(userId: string, workspaceId: string): Promise<Bo
     scheduledViews(userId, eq(scheduledMessage.workspaceId, workspaceId)),
     peopleFor(userId, workspaceId, role === "guest"),
   ]);
-  return { rev, me: userId, people, presence: presenceIn(workspaceId), channels, memberships, threads, drafts, saved, sections, statuses, scheduled };
+  // A guest hears only of the people they may know of.
+  const knows = role === "guest" ? new Set(people.map((p) => p.id)) : null;
+  return {
+    rev,
+    me: userId,
+    people,
+    presence: presenceIn(workspaceId, knows),
+    channels,
+    memberships,
+    threads,
+    drafts,
+    saved,
+    sections,
+    statuses: knows ? statuses.filter((s) => knows.has(s.userId)) : statuses,
+    scheduled,
+  };
 }
 
 export type SyncAnswer = (Changes & { reset?: false; keep: { channels: string[]; memberships: string[]; drafts: string[]; saved: string[]; sections: string[]; scheduled: string[] } }) | { reset: true; rev: number };
 
 export async function sync(userId: string, workspaceId: string, since: unknown): Promise<SyncAnswer> {
-  await workspaceRole(userId, workspaceId);
+  const role = await workspaceRole(userId, workspaceId);
   const rev = await currentRev(workspaceId);
   if (!Number.isInteger(since) || (since as number) < 0 || (since as number) > rev) return { reset: true, rev };
   const after = since as number;
@@ -99,7 +114,8 @@ export async function sync(userId: string, workspaceId: string, since: unknown):
     scheduledViews(userId, and(eq(scheduledMessage.workspaceId, workspaceId), newer(scheduledMessage))),
     stillThere(userId, workspaceId),
   ]);
-  return { rev, channels, memberships, messages, threads, drafts, saved, sections, statuses, scheduled, keep };
+  const knows = role === "guest" ? new Set((await peopleFor(userId, workspaceId, true)).map((p) => p.id)) : null;
+  return { rev, channels, memberships, messages, threads, drafts, saved, sections, statuses: knows ? statuses.filter((s) => knows.has(s.userId)) : statuses, scheduled, keep };
 }
 
 async function stillThere(userId: string, workspaceId: string) {

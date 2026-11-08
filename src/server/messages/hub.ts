@@ -15,6 +15,8 @@ export type Connection = {
   workspaceId: string;
   /** Their role in the workspace when they connected (a guest sees only the channels they are in). */
   guest: boolean;
+  /** For a guest, the people they may know of (sync.ts `peopleFor`) as they connected; null for everyone. */
+  knows: Set<string> | null;
   /** The tab is in front and the person did something lately. */
   active: boolean;
   /** The channel the tab shows, if any (its "viewing" faces, and changes of a public channel they aren't in). */
@@ -45,12 +47,15 @@ export function connectionsIn(workspaceId: string): Connection[] {
   return [...(hub.workspaces.get(workspaceId)?.values() ?? [])];
 }
 
-/** The people with a connection open in the workspace, and whether one of theirs is a guest's. */
-export function connectedPeople(workspaceId: string): Map<string, { guest: boolean }> {
-  const people = new Map<string, { guest: boolean }>();
-  for (const c of connectionsIn(workspaceId)) people.set(c.userId, { guest: c.guest });
+/** The people with a connection open in the workspace, whether one of theirs is a guest's and whom that guest may know of. */
+export function connectedPeople(workspaceId: string): Map<string, { guest: boolean; knows: Set<string> | null }> {
+  const people = new Map<string, { guest: boolean; knows: Set<string> | null }>();
+  for (const c of connectionsIn(workspaceId)) people.set(c.userId, { guest: c.guest, knows: c.knows });
   return people;
 }
+
+/** Whether what concerns `userId` (presence, status) may go to the connection: a guest hears only of those they know. */
+const mayHear = (c: Pick<Connection, "knows" | "userId">, userId: string) => !c.knows || c.knows.has(userId) || c.userId === userId;
 
 export function addConnection(connection: Connection) {
   const conns = hub.workspaces.get(connection.workspaceId) ?? new Map<string, Connection>();
@@ -123,10 +128,10 @@ function presenceNow(workspaceId: string, userId: string): Presence {
   return theirs.some((c) => c.active) ? "active" : "away";
 }
 
-/** Everyone's presence in the workspace, as others last heard it. */
-export function presenceIn(workspaceId: string): Record<string, Presence> {
+/** Everyone's presence in the workspace (only of the people in `knows`, when given), as others last heard it. */
+export function presenceIn(workspaceId: string, knows: Set<string> | null = null): Record<string, Presence> {
   const out: Record<string, Presence> = {};
-  for (const c of connectionsIn(workspaceId)) out[c.userId] = presenceNow(workspaceId, c.userId);
+  for (const c of connectionsIn(workspaceId)) if (!knows || knows.has(c.userId)) out[c.userId] = presenceNow(workspaceId, c.userId);
   return out;
 }
 
@@ -149,7 +154,7 @@ function settlePresence(workspaceId: string, userId: string) {
       else told.set(userId, state);
       if (told.size) hub.presence.set(workspaceId, told);
       else hub.presence.delete(workspaceId);
-      for (const c of connectionsIn(workspaceId)) c.send({ t: "presence", userId, state });
+      for (const c of connectionsIn(workspaceId)) if (mayHear(c, userId)) c.send({ t: "presence", userId, state });
     }, delay).unref(),
   );
 }
