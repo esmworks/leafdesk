@@ -8,7 +8,7 @@ import { CATCH_UP_MIN_REPLIES } from "@/lib/message-catch-up";
 import { messagesPath } from "@/lib/messages";
 import { CatchUpButton } from "./catch-up-button";
 import { Composer, type ComposerHandle } from "./composer";
-import { continues } from "./message-list";
+import { continues, topIn } from "./message-list";
 import { MessageItem, pendingView, type ItemContext } from "./message-item";
 import { call, channelTitle, loadThread, markThreadRead, messagesState, useMessages, useView } from "./store";
 import { TypingLine } from "./typing-line";
@@ -69,7 +69,7 @@ export function ThreadPanel({ threadId, ctx, close, highlightId, ai }: { threadI
     if (highlightId) {
       const row = el.querySelector<HTMLElement>(`[data-message-id="${highlightId}"]`);
       if (row) {
-        el.scrollTop = row.offsetTop - el.clientHeight / 3;
+        el.scrollTop = topIn(el, row) - el.clientHeight / 3;
         return;
       }
     }

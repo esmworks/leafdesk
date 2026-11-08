@@ -184,6 +184,8 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `catch-up-prompt.ts`, feature `messages.catchUp`): the client sends `since`, the seq read to when
   the channel opened, since reading marks messages read under it; an AI failure answers code `ai`
   with the AiErrorCode as message. Calls that take long pass `call`'s `timeoutMs`.
+  Message rows sit in `content-visibility` wrappers, their offset parents: `offsetTop` is 0 for
+  every row, so positions in a list come from `message-list.tsx` `topIn`.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.

@@ -76,6 +76,11 @@ describe("readCatchUp", () => {
     });
   });
 
+  it("drops the prompt's markers that the model copied", () => {
+    const answer = '{"summary":"Bora asked you [2] something.","decisions":[],"questions":[{"text":"Can you check it? (you)","ref":2}],"open":[]}';
+    expect(readCatchUp(answer, refs, counts)).toMatchObject({ summary: "Bora asked you something.", questions: [{ text: "Can you check it?", messageId: "b" }] });
+  });
+
   it("keeps an answer that isn't JSON as the summary", () => {
     expect(readCatchUp("Nothing much happened.", refs, counts)).toMatchObject({ summary: "Nothing much happened.", decisions: [], questions: [], open: [] });
   });
