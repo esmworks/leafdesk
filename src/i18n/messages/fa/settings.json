@@ -2163,7 +2163,8 @@
         "created": "کانال {target} را ایجاد کرد",
         "updated": "کانال {target} را تغییر داد",
         "archived": "کانال {target} را بایگانی کرد",
-        "unarchived": "کانال {target} را از بایگانی برگرداند"
+        "unarchived": "کانال {target} را از بایگانی برگرداند",
+        "imported": "کانال {target} را وارد کرد"
       },
       "dashboard_email": {
         "set": "{target} را برای ارسال با ایمیل به {count, plural, one {# نفر} other {# نفر}} تنظیم کرد",

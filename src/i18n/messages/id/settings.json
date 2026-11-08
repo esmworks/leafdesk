@@ -2163,7 +2163,8 @@
         "created": "Membuat kanal {target}",
         "updated": "Mengubah kanal {target}",
         "archived": "Mengarsipkan kanal {target}",
-        "unarchived": "Mengembalikan kanal {target} dari arsip"
+        "unarchived": "Mengembalikan kanal {target} dari arsip",
+        "imported": "Mengimpor kanal {target}"
       },
       "dashboard_email": {
         "set": "Mengatur “{target}” untuk dikirim lewat email ke {count, plural, other {# orang}}",

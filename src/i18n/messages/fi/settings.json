@@ -2163,7 +2163,8 @@
         "created": "Perusti kanavan {target}",
         "updated": "Muutti kanavaa {target}",
         "archived": "Arkistoi kanavan {target}",
-        "unarchived": "Palautti kanavan {target} arkistosta"
+        "unarchived": "Palautti kanavan {target} arkistosta",
+        "imported": "Toi kanavan {target}"
       },
       "dashboard_email": {
         "set": "Asetti kohteen {target} lähetettäväksi sähköpostilla {count, plural, one {# henkilölle} other {# henkilölle}}",

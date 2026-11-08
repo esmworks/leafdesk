@@ -10,7 +10,8 @@ import { parseTrelloExport } from "@/lib/import/trello";
 import { spreadsheetTable } from "@/lib/import/xlsx";
 import { PropertyValueError } from "@/lib/properties";
 import { isTimeZone } from "@/lib/time-zone";
-import { AccessError } from "@/server/access";
+import { readSlackExport } from "@/lib/import/slack";
+import { AccessError, requireMembership } from "@/server/access";
 import { isCrossSite } from "@/server/cross-site";
 import { importBoard } from "@/server/import/board";
 import { importConfluence } from "@/server/import/confluence";
@@ -22,6 +23,7 @@ import { importMhtml } from "@/server/import/mhtml";
 import { importPdf } from "@/server/import/pdf";
 import { requireImportPlace, startImport } from "@/server/import/place";
 import { importTrello } from "@/server/import/trello";
+import { importSlackExport, unpackSlackExport } from "@/server/messages/import";
 import { TeamspaceError } from "@/server/teamspaces";
 
 /**
@@ -52,6 +54,9 @@ import { TeamspaceError } from "@/server/teamspaces";
  *   mode=asana      One Asana project's CSV or JSON export (`file`), the same way; `types` (JSON: a
  *                   type or null per column the export has, see lib/import/board) as read when missing.
  *   mode=monday     One Monday.com board's Excel export (or its sheet saved as CSV), the same way.
+ *   mode=slack      A Slack workspace export's ZIP (`file`) into the Messages of `workspaceId`, whose
+ *                   owners alone may import it: answered with a SlackImportResult (lib/import/slack)
+ *                   instead. `download=1`: download the messages' files instead of linking them.
  *
  * A workbook's sheet is `sheet` (an index into its visible worksheets); without it the first one is
  * imported and the others are reported as left out.
@@ -111,8 +116,15 @@ export async function POST(request: Request) {
     // Before any file is read: the user may import there (reading a crafted file can take a while,
     // and nobody else gets to make the server do it), and has no other import reading files.
     if (mode === "csv-merge") await requireMergeTarget(actor.userId, field("databaseId") ?? "");
+    else if (mode === "slack") await requireMembership(actor.userId, workspaceId, "owner");
     else await requireImportPlace(actor.userId, { workspaceId, parentId, teamspaceId });
     release = startImport(actor.userId);
+    if (mode === "slack") {
+      if (uploads.length !== 1) return fail(400, "badRequest", "Send one Slack export");
+      const read = readSlackExport(unpackSlackExport(new Uint8Array(await uploads[0].arrayBuffer())));
+      const imported = await importSlackExport(actor.userId, workspaceId, read, { download: field("download") === "1" });
+      return Response.json(imported, { status: 201, headers: { "Cache-Control": "no-store" } });
+    }
     let result: ImportResult;
     if (mode === "pages") {
       const files = await Promise.all(
@@ -244,7 +256,7 @@ export async function POST(request: Request) {
   }
 }
 
-const MODES = new Set(["pages", "docx", "confluence", "pdf", "mhtml", "enex", "trello", "asana", "monday", "csv-new", "csv-merge"]);
+const MODES = new Set(["pages", "docx", "confluence", "pdf", "mhtml", "enex", "trello", "asana", "monday", "csv-new", "csv-merge", "slack"]);
 
 /** Names for new databases' view in the user's language (English outside a request, e.g. in scripts). */
 const seedNames = () => databaseSeedNames().catch(() => undefined);

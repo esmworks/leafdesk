@@ -291,5 +291,42 @@
     "timeout": "Server tidak menjawab tepat waktu.",
     "ai": "AI tidak dapat menjawab. Coba lagi.",
     "internal": "Terjadi kesalahan. Coba lagi."
+  },
+  "import": {
+    "button": "Impor dari Slack",
+    "title": "Impor dari Slack",
+    "intro": "Bawa kanal-kanal ruang kerja Slack beserta riwayatnya ke Pesan. Di Slack, pemilik mengekspor data ruang kerja (Pengaturan ruang kerja, Impor/Ekspor Data, Ekspor); pilih file ZIP yang diberikan.",
+    "choose": "Pilih ZIP ekspor",
+    "chooseAnother": "Pilih file lain",
+    "howPeople": "Orang dicocokkan dengan anggota ruang kerja ini lewat email. Pesan orang lain menampilkan nama mereka di Slack.",
+    "howChannels": "Kanal publik dan privat masuk sebagai kanal baru; nama yang sudah dipakai di sini diberi nomor. Anda ditambahkan ke setiap kanal.",
+    "howHistory": "Pesan tetap memiliki waktu asli, utas, dan reaksinya, serta masuk dalam keadaan sudah dibaca: tidak ada yang diberi tahu.",
+    "download": "Unduh file",
+    "downloadHint": "Simpan di sini file yang dibagikan dalam pesan. Jika dimatikan, atau file tidak bisa diambil, pesan menautkan ke file di Slack.",
+    "import": "Impor",
+    "importing": "Mengimpor…",
+    "working": "Ekspor yang besar bisa memakan beberapa menit. Biarkan jendela ini terbuka.",
+    "doneTitle": "Impor selesai",
+    "doneSummary": "{channels, plural, other {# kanal}} dan {messages, plural, other {# pesan}} masuk; {people, plural, =0 {tidak ada yang cocok dengan anggota} other {# orang cocok dengan anggota}}.",
+    "doneFiles": "{count, plural, other {# file}} diunduh.",
+    "messageCount": "{count, plural, other {# pesan}}",
+    "warnings": {
+      "renamed": "#{from} diimpor sebagai #{to}: namanya sudah dipakai.",
+      "alreadyImported": "#{name} sudah pernah diimpor dan dibiarkan apa adanya.",
+      "unmatchedPeople": "{count, plural, other {# orang}} tidak cocok dengan anggota mana pun lewat email ({names}): pesan mereka menampilkan nama Slack. Undang mereka dengan email yang sama sebelum mengimpor agar pesan menjadi milik mereka.",
+      "reactionsLeftOut": "{count, plural, other {# reaksi}} dilewati: emoji khusus, atau dari orang yang tidak cocok dengan anggota mana pun.",
+      "directLeftOut": "{count, plural, other {# percakapan langsung}} dilewati: hanya kanal yang diimpor.",
+      "repliesWithoutThread": "{count, plural, other {# balasan}} yang utasnya tidak ada di ekspor masuk sebagai pesan tersendiri.",
+      "filesAsLinks": "{count, plural, other {# file}} menaut ke Slack alih-alih disimpan di sini."
+    },
+    "errors": {
+      "tooLarge": "Ekspor lebih besar dari {limit}.",
+      "tooManyFiles": "Ekspor berisi lebih dari {limit} file.",
+      "badZip": "File ZIP tidak dapat dibaca.",
+      "badSlack": "Ini bukan ekspor Slack: tidak ada channels.json. Pilih file ZIP yang diberikan ekspor Slack.",
+      "busy": "Impor Anda yang lain masih berjalan. Coba lagi setelah selesai.",
+      "noAccess": "Hanya pemilik ruang kerja yang dapat mengimpor ke Pesan.",
+      "failed": "Impor gagal. Coba lagi."
+    }
   }
 }

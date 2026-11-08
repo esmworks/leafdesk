@@ -2163,7 +2163,8 @@
         "created": "Đã tạo kênh {target}",
         "updated": "Đã thay đổi kênh {target}",
         "archived": "Đã lưu trữ kênh {target}",
-        "unarchived": "Đã đưa kênh {target} ra khỏi kho lưu trữ"
+        "unarchived": "Đã đưa kênh {target} ra khỏi kho lưu trữ",
+        "imported": "Đã nhập kênh {target}"
       },
       "dashboard_email": {
         "set": "Đã đặt {target} được gửi email cho {count, plural, other {# người}}",

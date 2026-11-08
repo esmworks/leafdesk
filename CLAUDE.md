@@ -189,6 +189,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   with the AiErrorCode as message. Calls that take long pass `call`'s `timeoutMs`.
   Message rows sit in `content-visibility` wrappers, their offset parents: `offsetTop` is 0 for
   every row, so positions in a list come from `message-list.tsx` `topIn`.
+  A Slack export comes in through `/api/import` `mode=slack` (owners): read by `lib/import/slack.ts`,
+  written by `messages/import.ts` straight into the tables inside `write` (not `sendMessage`: no
+  notifications, mentions or follows, original times, seq by `ts`), announcing channels only; ids
+  are derived from Slack's, so a second import finds its channels. Reaction names map through the
+  generated `lib/import/slack-emoji.ts` (`scripts/slack-emoji.ts`).
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.

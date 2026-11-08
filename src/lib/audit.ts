@@ -158,7 +158,7 @@ export const AUDIT_CATEGORIES = {
     "connection.approval_decided",
   ],
   exports: ["export.workspace", "export.page", "backup.created", "backup.restored", "dashboard_email.set", "dashboard_email.removed", "dashboard_email.sent"],
-  messages: ["channel.created", "channel.updated", "channel.archived", "channel.unarchived"],
+  messages: ["channel.created", "channel.updated", "channel.archived", "channel.unarchived", "channel.imported"],
 } as const;
 
 export type AuditCategory = keyof typeof AUDIT_CATEGORIES;

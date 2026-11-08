@@ -291,5 +291,42 @@
     "timeout": "服务器未及时响应。",
     "ai": "AI 无法回答。请重试。",
     "internal": "出了点问题，请重试。"
+  },
+  "import": {
+    "button": "从 Slack 导入",
+    "title": "从 Slack 导入",
+    "intro": "将 Slack 工作区的频道及其历史记录导入到消息中。在 Slack 中，所有者导出工作区数据（工作区设置、导入/导出数据、导出）；选择得到的 ZIP 文件。",
+    "choose": "选择导出的 ZIP",
+    "chooseAnother": "选择其他文件",
+    "howPeople": "按电子邮件将人员与此工作区的成员匹配。其他人的消息显示他们在 Slack 中的名字。",
+    "howChannels": "公开和私密频道会作为新频道导入；此处已被占用的名称会加上编号。你会被加入每个频道。",
+    "howHistory": "消息保留原来的时间、话题和回应，并以已读状态导入：不会通知任何人。",
+    "download": "下载文件",
+    "downloadHint": "将消息中共享的文件保存在这里。关闭时，或无法获取文件时，消息会链接到 Slack 上的文件。",
+    "import": "导入",
+    "importing": "正在导入…",
+    "working": "较大的导出可能需要几分钟。请保持此窗口打开。",
+    "doneTitle": "导入完成",
+    "doneSummary": "导入了 {channels, plural, other {# 个频道}}和 {messages, plural, other {# 条消息}}；{people, plural, =0 {没有人与成员匹配} other {# 人与成员匹配}}。",
+    "doneFiles": "已下载 {count, plural, other {# 个文件}}。",
+    "messageCount": "{count, plural, other {# 条消息}}",
+    "warnings": {
+      "renamed": "#{from} 的名称已被占用，已导入为 #{to}。",
+      "alreadyImported": "#{name} 之前已导入，保持不变。",
+      "unmatchedPeople": "{count, plural, other {# 人}}未能按电子邮件与任何成员匹配（{names}）：其消息显示 Slack 中的名字。导入前用相同的电子邮件邀请他们，消息就会归属于他们。",
+      "reactionsLeftOut": "{count, plural, other {# 个回应}}未导入：自定义表情，或来自未与成员匹配的人。",
+      "directLeftOut": "{count, plural, other {# 个私信会话}}未导入：只导入频道。",
+      "repliesWithoutThread": "话题不在导出中的 {count, plural, other {# 条回复}}已作为单独的消息导入。",
+      "filesAsLinks": "{count, plural, other {# 个文件}}链接到 Slack，而未保存在这里。"
+    },
+    "errors": {
+      "tooLarge": "导出超过 {limit}。",
+      "tooManyFiles": "导出包含超过 {limit} 个文件。",
+      "badZip": "无法读取 ZIP 文件。",
+      "badSlack": "这不是 Slack 导出：其中没有 channels.json。请选择 Slack 导出得到的 ZIP 文件。",
+      "busy": "你的另一项导入仍在进行。完成后再试一次。",
+      "noAccess": "只有工作区所有者可以导入到消息。",
+      "failed": "导入失败。请再试一次。"
+    }
   }
 }

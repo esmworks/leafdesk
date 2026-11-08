@@ -2163,7 +2163,8 @@
         "created": "Hat den Kanal {target} erstellt",
         "updated": "Hat den Kanal {target} geändert",
         "archived": "Hat den Kanal {target} archiviert",
-        "unarchived": "Hat den Kanal {target} aus dem Archiv geholt"
+        "unarchived": "Hat den Kanal {target} aus dem Archiv geholt",
+        "imported": "Hat den Kanal {target} importiert"
       },
       "dashboard_email": {
         "set": "Hat {target} für den E-Mail-Versand an {count, plural, one {# Person} other {# Personen}} eingerichtet",

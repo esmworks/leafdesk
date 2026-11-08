@@ -2163,7 +2163,8 @@
         "created": "Kanal oluşturuldu: {target}",
         "updated": "Kanal değiştirildi: {target}",
         "archived": "Kanal arşivlendi: {target}",
-        "unarchived": "Kanal arşivden çıkarıldı: {target}"
+        "unarchived": "Kanal arşivden çıkarıldı: {target}",
+        "imported": "Kanal içe aktarıldı: {target}"
       },
       "dashboard_email": {
         "set": "{target} için {count, plural, one {# kişiye} other {# kişiye}} e-posta gönderimini ayarladı",

@@ -2163,7 +2163,8 @@
         "created": "สร้างช่อง {target}",
         "updated": "เปลี่ยนช่อง {target}",
         "archived": "เก็บถาวรช่อง {target}",
-        "unarchived": "นำช่อง {target} กลับจากที่เก็บถาวร"
+        "unarchived": "นำช่อง {target} กลับจากที่เก็บถาวร",
+        "imported": "นำเข้าช่อง {target}"
       },
       "dashboard_email": {
         "set": "ตั้งให้ส่ง {target} ทางอีเมลถึง {count, plural, other {# คน}}",

@@ -291,5 +291,42 @@
     "timeout": "The server didn't answer in time.",
     "ai": "The AI couldn't answer. Try again.",
     "internal": "Something went wrong. Try again."
+  },
+  "import": {
+    "button": "Import from Slack",
+    "title": "Import from Slack",
+    "intro": "Bring a Slack workspace's channels and their history into Messages. In Slack, an owner exports the workspace's data (Workspace settings, Import/Export Data, Export); choose the ZIP it gives you.",
+    "choose": "Choose the export ZIP",
+    "chooseAnother": "Choose another file",
+    "howPeople": "People are matched to members of this workspace by email. Others' messages show the name they had in Slack.",
+    "howChannels": "Public and private channels come in as new channels; a name already taken here gets a number. You're added to each one.",
+    "howHistory": "Messages keep their original times, threads and reactions, and come in read: no one is notified.",
+    "download": "Download files",
+    "downloadHint": "Store the files shared in messages here. When this is off, or a file can't be reached, the message links to it on Slack.",
+    "import": "Import",
+    "importing": "Importing…",
+    "working": "A large export can take a few minutes. Keep this window open.",
+    "doneTitle": "Import finished",
+    "doneSummary": "{channels, plural, one {# channel} other {# channels}} and {messages, plural, one {# message} other {# messages}} came in; {people, plural, =0 {no one matched a member} one {# person matched a member} other {# people matched members}}.",
+    "doneFiles": "{count, plural, one {# file was} other {# files were}} downloaded.",
+    "messageCount": "{count, plural, one {# message} other {# messages}}",
+    "warnings": {
+      "renamed": "#{from} was imported as #{to}: the name was taken.",
+      "alreadyImported": "#{name} was imported before and was left as it is.",
+      "unmatchedPeople": "{count, plural, one {# person} other {# people}} matched no member by email ({names}): their messages show their Slack name. Invite them with the same email before importing to have their messages as theirs.",
+      "reactionsLeftOut": "{count, plural, one {# reaction was} other {# reactions were}} left out: a custom emoji, or given by someone who matched no member.",
+      "directLeftOut": "{count, plural, one {# direct conversation was} other {# direct conversations were}} left out: only channels are imported.",
+      "repliesWithoutThread": "{count, plural, one {# reply} other {# replies}} whose thread isn't in the export came in as messages of their own.",
+      "filesAsLinks": "{count, plural, one {# file links} other {# files link}} to Slack instead of being stored here."
+    },
+    "errors": {
+      "tooLarge": "The export is larger than {limit}.",
+      "tooManyFiles": "The export has more than {limit} files.",
+      "badZip": "The ZIP file can't be read.",
+      "badSlack": "This isn't a Slack export: it has no channels.json. Choose the ZIP Slack's export gave you.",
+      "busy": "Another import of yours is still running. Try again when it's done.",
+      "noAccess": "Only owners of the workspace can import into Messages.",
+      "failed": "The import failed. Try again."
+    }
   }
 }

@@ -291,5 +291,42 @@
     "timeout": "서버가 제시간에 응답하지 않았습니다.",
     "ai": "AI가 응답하지 못했습니다. 다시 시도하세요.",
     "internal": "문제가 발생했습니다. 다시 시도하세요."
+  },
+  "import": {
+    "button": "Slack에서 가져오기",
+    "title": "Slack에서 가져오기",
+    "intro": "Slack 워크스페이스의 채널과 기록을 메시지로 가져옵니다. Slack에서 소유자가 워크스페이스 데이터를 내보낸 뒤(워크스페이스 설정, 데이터 가져오기/내보내기, 내보내기) 받은 ZIP 파일을 선택하세요.",
+    "choose": "내보내기 ZIP 선택",
+    "chooseAnother": "다른 파일 선택",
+    "howPeople": "이메일로 이 워크스페이스의 멤버와 연결합니다. 그 밖의 사람의 메시지에는 Slack에서 쓰던 이름이 표시됩니다.",
+    "howChannels": "공개 채널과 비공개 채널은 새 채널로 만들어지며, 이미 쓰이는 이름에는 번호가 붙습니다. 회원님은 모든 채널에 추가됩니다.",
+    "howHistory": "메시지는 원래 시간, 스레드, 반응을 그대로 유지하고 읽은 상태로 들어옵니다. 아무에게도 알림이 가지 않습니다.",
+    "download": "파일 다운로드",
+    "downloadHint": "메시지에서 공유된 파일을 여기에 저장합니다. 꺼져 있거나 파일을 가져올 수 없으면 메시지가 Slack의 파일로 연결됩니다.",
+    "import": "가져오기",
+    "importing": "가져오는 중…",
+    "working": "내보내기가 크면 몇 분 걸릴 수 있습니다. 이 창을 열어 두세요.",
+    "doneTitle": "가져오기 완료",
+    "doneSummary": "{channels, plural, other {채널 #개}}와 {messages, plural, other {메시지 #개}}를 가져왔습니다. {people, plural, =0 {멤버와 연결된 사람은 없습니다} other {#명이 멤버와 연결되었습니다}}.",
+    "doneFiles": "{count, plural, other {파일 #개}}를 다운로드했습니다.",
+    "messageCount": "{count, plural, other {메시지 #개}}",
+    "warnings": {
+      "renamed": "#{from}은(는) 이름이 이미 쓰여 #{to}(으)로 가져왔습니다.",
+      "alreadyImported": "#{name}은(는) 이전에 가져와서 그대로 두었습니다.",
+      "unmatchedPeople": "{count, plural, other {#명}}은(는) 이메일로 멤버와 연결되지 않았습니다({names}). 이들의 메시지에는 Slack 이름이 표시됩니다. 본인 메시지로 가져오려면 가져오기 전에 같은 이메일로 초대하세요.",
+      "reactionsLeftOut": "{count, plural, other {반응 #개}}를 제외했습니다: 사용자 지정 이모지이거나 멤버와 연결되지 않은 사람의 반응입니다.",
+      "directLeftOut": "{count, plural, other {다이렉트 대화 #개}}를 제외했습니다: 채널만 가져옵니다.",
+      "repliesWithoutThread": "스레드가 내보내기에 없는 {count, plural, other {답글 #개}}는 별도의 메시지로 가져왔습니다.",
+      "filesAsLinks": "{count, plural, other {파일 #개}}는 여기에 저장하지 않고 Slack으로 연결됩니다."
+    },
+    "errors": {
+      "tooLarge": "내보내기가 {limit}보다 큽니다.",
+      "tooManyFiles": "내보내기에 파일이 {limit}개를 넘습니다.",
+      "badZip": "ZIP 파일을 읽을 수 없습니다.",
+      "badSlack": "Slack 내보내기가 아닙니다: channels.json이 없습니다. Slack 내보내기로 받은 ZIP을 선택하세요.",
+      "busy": "다른 가져오기가 아직 진행 중입니다. 끝난 뒤 다시 시도하세요.",
+      "noAccess": "워크스페이스 소유자만 메시지로 가져올 수 있습니다.",
+      "failed": "가져오기에 실패했습니다. 다시 시도하세요."
+    }
   }
 }

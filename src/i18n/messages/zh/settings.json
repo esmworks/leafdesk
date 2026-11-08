@@ -2163,7 +2163,8 @@
         "created": "创建了频道 {target}",
         "updated": "更改了频道 {target}",
         "archived": "归档了频道 {target}",
-        "unarchived": "将频道 {target} 从归档中恢复"
+        "unarchived": "将频道 {target} 从归档中恢复",
+        "imported": "导入了频道 {target}"
       },
       "dashboard_email": {
         "set": "将 {target} 设置为通过邮件发送给 {count, plural, other {# 个人}}",

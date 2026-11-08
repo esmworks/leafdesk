@@ -291,5 +291,42 @@
     "timeout": "De server antwoordde niet op tijd.",
     "ai": "De AI kon niet antwoorden. Probeer het opnieuw.",
     "internal": "Er ging iets mis. Probeer het opnieuw."
+  },
+  "import": {
+    "button": "Importeren uit Slack",
+    "title": "Importeren uit Slack",
+    "intro": "Haal de kanalen van een Slack-werkruimte en hun geschiedenis naar Berichten. In Slack exporteert een eigenaar de gegevens van de werkruimte (Werkruimte-instellingen, Gegevens importeren/exporteren, Exporteren); kies het ZIP-bestand dat je krijgt.",
+    "choose": "Export-ZIP kiezen",
+    "chooseAnother": "Ander bestand kiezen",
+    "howPeople": "Mensen worden op e-mailadres aan leden van deze werkruimte gekoppeld. Berichten van anderen tonen de naam die ze in Slack hadden.",
+    "howChannels": "Openbare en privékanalen komen binnen als nieuwe kanalen; een naam die hier al bestaat krijgt een nummer. Je wordt aan elk kanaal toegevoegd.",
+    "howHistory": "Berichten houden hun oorspronkelijke tijden, threads en reacties en komen gelezen binnen: niemand krijgt een melding.",
+    "download": "Bestanden downloaden",
+    "downloadHint": "Bewaar hier de bestanden die in berichten gedeeld zijn. Staat dit uit of is een bestand niet bereikbaar, dan linkt het bericht naar het bestand in Slack.",
+    "import": "Importeren",
+    "importing": "Bezig met importeren…",
+    "working": "Een grote export kan een paar minuten duren. Houd dit venster open.",
+    "doneTitle": "Import voltooid",
+    "doneSummary": "{channels, plural, one {# kanaal} other {# kanalen}} en {messages, plural, one {# bericht} other {# berichten}} zijn binnengekomen; {people, plural, =0 {niemand kwam overeen met een lid} one {# persoon kwam overeen met een lid} other {# personen kwamen overeen met leden}}.",
+    "doneFiles": "{count, plural, one {# bestand is} other {# bestanden zijn}} gedownload.",
+    "messageCount": "{count, plural, one {# bericht} other {# berichten}}",
+    "warnings": {
+      "renamed": "#{from} is geïmporteerd als #{to}: de naam was al in gebruik.",
+      "alreadyImported": "#{name} was al eerder geïmporteerd en is gelaten zoals het was.",
+      "unmatchedPeople": "{count, plural, one {# persoon kwam} other {# personen kwamen}} op e-mail met geen enkel lid overeen ({names}): hun berichten tonen hun Slack-naam. Nodig ze voor het importeren uit met hetzelfde e-mailadres, dan zijn hun berichten van hen.",
+      "reactionsLeftOut": "{count, plural, one {# reactie is} other {# reacties zijn}} weggelaten: een eigen emoji, of gegeven door iemand die met geen lid overeenkwam.",
+      "directLeftOut": "{count, plural, one {# direct gesprek is} other {# directe gesprekken zijn}} weggelaten: alleen kanalen worden geïmporteerd.",
+      "repliesWithoutThread": "{count, plural, one {# antwoord waarvan de thread} other {# antwoorden waarvan de thread}} niet in de export staat, kwam binnen als los bericht.",
+      "filesAsLinks": "{count, plural, one {# bestand linkt} other {# bestanden linken}} naar Slack in plaats van hier bewaard te worden."
+    },
+    "errors": {
+      "tooLarge": "De export is groter dan {limit}.",
+      "tooManyFiles": "De export heeft meer dan {limit} bestanden.",
+      "badZip": "Het ZIP-bestand kan niet worden gelezen.",
+      "badSlack": "Dit is geen Slack-export: er staat geen channels.json in. Kies het ZIP-bestand dat de export van Slack gaf.",
+      "busy": "Er loopt nog een andere import van je. Probeer het opnieuw als die klaar is.",
+      "noAccess": "Alleen eigenaren van de werkruimte kunnen in Berichten importeren.",
+      "failed": "Het importeren is mislukt. Probeer het opnieuw."
+    }
   }
 }

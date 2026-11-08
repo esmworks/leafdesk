@@ -291,5 +291,42 @@
     "timeout": "Palvelin ei vastannut ajoissa.",
     "ai": "Tekoäly ei voinut vastata. Yritä uudelleen.",
     "internal": "Jokin meni vikaan. Yritä uudelleen."
+  },
+  "import": {
+    "button": "Tuo Slackista",
+    "title": "Tuo Slackista",
+    "intro": "Tuo Slack-työtilan kanavat ja niiden historia Viesteihin. Slackissa omistaja vie työtilan tiedot (Työtilan asetukset, Tietojen tuonti/vienti, Vie); valitse saamasi ZIP-tiedosto.",
+    "choose": "Valitse viennin ZIP",
+    "chooseAnother": "Valitse toinen tiedosto",
+    "howPeople": "Ihmiset yhdistetään tämän työtilan jäseniin sähköpostiosoitteen perusteella. Muiden viesteissä näkyy heidän Slack-nimensä.",
+    "howChannels": "Julkiset ja yksityiset kanavat tulevat uusina kanavina; täällä jo varattu nimi saa numeron. Sinut lisätään jokaiseen.",
+    "howHistory": "Viestit säilyttävät alkuperäiset aikansa, ketjunsa ja reaktionsa ja tulevat luettuina: kenellekään ei lähetetä ilmoitusta.",
+    "download": "Lataa tiedostot",
+    "downloadHint": "Tallenna viesteissä jaetut tiedostot tänne. Kun tämä on pois päältä tai tiedostoa ei saada, viesti linkittää tiedostoon Slackissa.",
+    "import": "Tuo",
+    "importing": "Tuodaan…",
+    "working": "Suuri vienti voi kestää muutaman minuutin. Pidä tämä ikkuna auki.",
+    "doneTitle": "Tuonti valmis",
+    "doneSummary": "Tuli {channels, plural, one {# kanava} other {# kanavaa}} ja {messages, plural, one {# viesti} other {# viestiä}}; {people, plural, =0 {kukaan ei vastannut jäsentä} one {# henkilö vastasi jäsentä} other {# henkilöä vastasi jäseniä}}.",
+    "doneFiles": "{count, plural, one {# tiedosto ladattiin} other {# tiedostoa ladattiin}}.",
+    "messageCount": "{count, plural, one {# viesti} other {# viestiä}}",
+    "warnings": {
+      "renamed": "#{from} tuotiin nimellä #{to}: nimi oli varattu.",
+      "alreadyImported": "#{name} oli tuotu aiemmin, ja se jätettiin ennalleen.",
+      "unmatchedPeople": "{count, plural, one {# henkilö ei vastannut} other {# henkilöä ei vastannut}} yhtään jäsentä sähköpostin perusteella ({names}): heidän viesteissään näkyy Slack-nimi. Kutsu heidät samalla sähköpostilla ennen tuontia, niin viestit ovat heidän omiaan.",
+      "reactionsLeftOut": "{count, plural, one {# reaktio jätettiin} other {# reaktiota jätettiin}} pois: oma emoji, tai sen antoi joku, joka ei vastannut ketään jäsentä.",
+      "directLeftOut": "{count, plural, one {# suora keskustelu jätettiin} other {# suoraa keskustelua jätettiin}} pois: vain kanavat tuodaan.",
+      "repliesWithoutThread": "{count, plural, one {# vastaus, jonka ketju} other {# vastausta, joiden ketju}} puuttuu viennistä, tuli omana viestinään.",
+      "filesAsLinks": "{count, plural, one {# tiedosto linkittää} other {# tiedostoa linkittää}} Slackiin sen sijaan, että ne tallennettaisiin tänne."
+    },
+    "errors": {
+      "tooLarge": "Vienti on suurempi kuin {limit}.",
+      "tooManyFiles": "Viennissä on yli {limit} tiedostoa.",
+      "badZip": "ZIP-tiedostoa ei voi lukea.",
+      "badSlack": "Tämä ei ole Slack-vienti: siinä ei ole tiedostoa channels.json. Valitse Slackin viennistä saamasi ZIP.",
+      "busy": "Toinen tuontisi on vielä käynnissä. Yritä uudelleen, kun se on valmis.",
+      "noAccess": "Vain työtilan omistajat voivat tuoda Viesteihin.",
+      "failed": "Tuonti epäonnistui. Yritä uudelleen."
+    }
   }
 }

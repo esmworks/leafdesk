@@ -2163,7 +2163,8 @@
         "created": "Het kanaal {target} gemaakt",
         "updated": "Het kanaal {target} gewijzigd",
         "archived": "Het kanaal {target} gearchiveerd",
-        "unarchived": "Het kanaal {target} uit het archief teruggehaald"
+        "unarchived": "Het kanaal {target} uit het archief teruggehaald",
+        "imported": "Het kanaal {target} geïmporteerd"
       },
       "dashboard_email": {
         "set": "{target} ingesteld om te worden gemaild naar {count, plural, one {# persoon} other {# personen}}",
