@@ -4,7 +4,7 @@
 
 Settings for running Leafdesk on your own server, beyond the [quick start](../README.md#quick-start-docker).
 
-Contents: [File uploads](#file-uploads), [Email](#email), [Push notifications](#push-notifications), [Social login](#social-login), [Maps and places](#maps-and-places), [Instance administrators](#instance-administrators), [Deploy on Dokploy](#deploy-on-dokploy), [Deploy on Railway](#deploy-on-railway), [Use Supabase as the database](#use-supabase-as-the-database).
+Contents: [File uploads](#file-uploads), [Email](#email), [Push notifications](#push-notifications), [Social login](#social-login), [Maps and places](#maps-and-places), [Instance administrators](#instance-administrators), [Behind nginx](#behind-nginx), [Deploy on Dokploy](#deploy-on-dokploy), [Deploy on Railway](#deploy-on-railway), [Use Supabase as the database](#use-supabase-as-the-database).
 
 ## File uploads
 
@@ -364,6 +364,69 @@ Apps connected over MCP and REST API tokens use OAuth or personal access tokens,
 so signing people out doesn't disconnect them; the person revokes them under Connected apps, and
 a workspace's owners can disconnect one from Settings → Security → *Apps that reach this workspace*.
 Every administrator action is written to the server log (`[admin] …`).
+
+## Behind nginx
+
+The app serves everything on one port (3000 by default), its WebSockets too: `/collab` for live
+editing, `/messages-socket` for Messages and `/desktop-bridge` for the desktop app. No other
+service is needed for them, but nginx passes a WebSocket on only when told to: without the
+`Upgrade` and `Connection` lines below, pages open while live editing and Messages never connect.
+Caddy and Traefik pass WebSockets on by themselves.
+
+```nginx
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  ''      close;
+}
+
+server {
+  listen 443 ssl;
+  http2 on;  # nginx before 1.25.1: "listen 443 ssl http2;" instead
+  server_name notes.example.com;
+  ssl_certificate     /etc/letsencrypt/live/notes.example.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/notes.example.com/privkey.pem;
+
+  client_max_body_size 110m;
+
+  location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_read_timeout 1h;
+    proxy_send_timeout 1h;
+  }
+}
+
+server {
+  listen 80;
+  server_name notes.example.com;
+  return 301 https://$host$request_uri;
+}
+```
+
+- **`Upgrade`, `Connection` and `proxy_http_version 1.1`** carry the WebSockets. The `map` closes
+  ordinary requests' connections as before.
+- **`Host $host`** keeps the address the browser asked for, which `APP_URL` and
+  [sites on their own domain](../README.md#workspace-site-on-its-own-domain) depend on. A site's
+  domain goes into `server_name` (or a `server` block of its own) with the same `location`.
+- **`client_max_body_size`**: nginx refuses bodies over 1 MB unless told otherwise, so uploads and
+  imports would fail with 413. Make it at least the larger of `UPLOAD_MAX_FILE_MB` (default 50) and
+  the 100 MB an import may be, plus a little for the form around the file.
+- **`proxy_read_timeout`**: the WebSockets and the Mail tab's event stream ping every 25 to 30
+  seconds, within nginx's default of 60, but an AI chat answer sends nothing while a tool runs or a
+  change waits for approval. After 60 silent seconds nginx closes it: the answer goes on, but the
+  page stops showing it as it comes.
+- **HTTP/2** lets a browser keep many tabs' live connections to the server at once; over HTTP/1.1
+  it opens at most six per address, and each tab holds one or two.
+- **`X-Forwarded-For`** gives the visitor's address to rate limits, the audit log and approved
+  networks. With nginx on the same machine or a private network, leave `TRUSTED_PROXIES` unset;
+  behind a CDN as well, set it to `2`.
+
+Streams that follow AI answers and new mail tell nginx not to buffer them (`X-Accel-Buffering:
+no`), so no `proxy_buffering` setting is needed.
 
 ## Deploy on Dokploy
 
