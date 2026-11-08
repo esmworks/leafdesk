@@ -1851,7 +1851,8 @@
       "integrations": "App connesse e token API",
       "exports": "Esportazioni",
       "agents": "Agenti",
-      "connections": "Connessioni"
+      "connections": "Connessioni",
+      "messages": "Messaggi del team"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Senza titolo",
@@ -2157,6 +2158,12 @@
         "created": "Ha configurato le pull request di GitHub in {target}",
         "updated": "Ha modificato la configurazione di GitHub di {target}",
         "deleted": "Ha rimosso la configurazione di GitHub di {target}"
+      },
+      "channel": {
+        "created": "Ha creato il canale {target}",
+        "updated": "Ha modificato il canale {target}",
+        "archived": "Ha archiviato il canale {target}",
+        "unarchived": "Ha riportato il canale {target} fuori dall’archivio"
       },
       "dashboard_email": {
         "set": "Ha impostato l’invio via email di {target} a {count, plural, one {# persona} other {# persone}}",

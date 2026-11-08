@@ -4,17 +4,24 @@ import { Hash, Loader2, MessagesSquare } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { lazyPart } from "@/components/lazy-part";
 import { PlaceTopBar } from "@/components/place-top-bar";
 import { Button } from "@/components/ui";
 import { messagesAt, messagesPath } from "@/lib/messages";
-import { BrowseChannels, CreateChannelDialog, ForwardDialog, NewDirectDialog } from "./channel-dialogs";
 import { ChannelView } from "./channel-view";
+import { MessageBody } from "./message-body";
 import type { ItemContext } from "./message-item";
-import { MessagesViewPage } from "./message-views";
 import { listRows } from "./messages-sidebar";
-import { Switcher } from "./switcher";
-import { ThreadPanel } from "./thread-panel";
 import { call, holdConnection, messagesState, unreadSummary, useMessages } from "./store";
+
+// What opens now and then loads when it first shows, keeping the page's first load to a channel.
+const CreateChannelDialog = lazyPart(() => import("./channel-dialogs").then((m) => m.CreateChannelDialog));
+const NewDirectDialog = lazyPart(() => import("./channel-dialogs").then((m) => m.NewDirectDialog));
+const ForwardDialog = lazyPart(() => import("./channel-dialogs").then((m) => m.ForwardDialog));
+const BrowseChannels = lazyPart(() => import("./channel-dialogs").then((m) => m.BrowseChannels));
+const MessagesViewPage = lazyPart(() => import("./message-views").then((m) => m.MessagesViewPage));
+const Switcher = lazyPart(() => import("./switcher").then((m) => m.Switcher));
+const ThreadPanel = lazyPart(() => import("./thread-panel").then((m) => m.ThreadPanel), <div className="w-full shrink-0 border-border md:w-[26rem] md:border-s" />);
 
 const LAST_KEY = "leafdesk:messages-last";
 
@@ -59,6 +66,8 @@ export function MessagesApp({ workspaceId, owner }: { workspaceId: string; owner
   const [switching, setSwitching] = useState(false);
 
   useEffect(() => holdConnection(workspaceId), [workspaceId]);
+  // Messages' Markdown loads beside the socket, so it is there when they come.
+  useEffect(() => void MessageBody.preload(), []);
 
   // Nothing asked for: the conversation open last, else the first one listed.
   useEffect(() => {

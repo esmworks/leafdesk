@@ -104,6 +104,8 @@
   "download": "Download",
   "linkCopied": "Link copied",
   "reminderSet": "Saved, with a reminder",
+  "taskAdded": "Added to your tasks.",
+  "taskFailed": "It couldn't be added to your tasks.",
   "deleteConfirm": "Delete this message? This can't be undone.",
   "loadingVersions": "Loading…",
   "actions": {
@@ -116,6 +118,7 @@
     "copyLink": "Copy link",
     "copyText": "Copy text",
     "forward": "Forward",
+    "task": "Add to my tasks",
     "pin": "Pin to channel",
     "unpin": "Unpin",
     "remind20": "Remind me in 20 minutes",

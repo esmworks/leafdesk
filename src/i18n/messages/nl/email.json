@@ -312,7 +312,13 @@
       "workspaceReached": "De werkruimte heeft de maandelijkse AI-kostenlimiet bereikt"
     },
     "limitRequestTitle": "Hogere limiet voor {agent}",
-    "limitRequest": "{actor} vraagt om {tokens, number} tokens per maand"
+    "limitRequest": "{actor} vraagt om {tokens, number} tokens per maand",
+    "messageIn": "{actor} in {place}",
+    "groupConversation": "een groepsgesprek",
+    "messageFile": "Heeft een bestand gestuurd",
+    "newMessage": "Nieuw bericht",
+    "inThread": "In een discussie",
+    "messageReminder": "Herinnering aan een bericht"
   },
   "agentReply": {
     "aiOff": "Ik kan niet antwoorden: AI staat uit in deze werkruimte.",

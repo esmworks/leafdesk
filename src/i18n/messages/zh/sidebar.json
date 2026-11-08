@@ -32,7 +32,8 @@
     "calendar": "日历",
     "journal": "日志",
     "chat": "聊天",
-    "mail": "邮件"
+    "mail": "邮件",
+    "messages": "消息"
   },
   "toggle": {
     "open": "打开侧边栏",

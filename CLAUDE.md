@@ -167,6 +167,19 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   (Delete forever, trash and history retention, file cleanups, templates, deleted properties,
   comments, letterheads, workspace and account deletion). A new hard delete of pages, rows, files
   or what people wrote calls it; moving to the trash doesn't need to.
+- **Team messages** (`src/server/messages/`, tables in `db/schema/messages.ts`, the place
+  `app/w/[workspaceId]/messages` and `components/messages/`). One websocket per tab,
+  `lib/message-wire.ts` `MESSAGES_PATH` (frames there), served by `socket.ts`, whose `OPS` table is
+  every call a browser may make (a new operation goes there, with its arguments checked by the
+  function it calls). Every write goes through `core.ts` `write`: one transaction taking the
+  workspace's next `rev` (`message_clock`) and recording what it touched in `Changed`; after it
+  commits `announce.ts` sends each connected person (`hub.ts`, in this process's memory) only the
+  views they may see, and `sync.ts` answers a reconnect from the rows newer than its rev, so a write
+  that skips `write` is never seen live nor caught up. Who may see or write a channel is
+  `core.ts` `requireChannel`; views are `views.ts` (unread and member counts are subqueries there,
+  see *Conventions*). In the browser `components/messages/store.ts` holds what the socket brought:
+  unread is the server's count plus live messages past `countedTo`, the seq it counted. Pages
+  change the query with `history.pushState` (`lib/messages.ts` `messagesPath`), never the router.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.
@@ -665,6 +678,10 @@ because they are separate module graphs.
   tag and the snapshot `id`/`prevId` chain, and keep `when` in `_journal.json` increasing
   (`max(now, previous + 1)`). Drizzle skips a migration whose `when` is older than the last applied
   one, silently, on existing databases only.
+- **Drizzle `sql` in select fields.** A column put into a `sql` template inside `select({…})`
+  renders without its table (`"channel_id"`), so in a correlated subquery it resolves to the
+  subquery's own table. Write the outer columns qualified by hand (`"channel_member"."channel_id"`);
+  `where` clauses qualify them themselves.
 - **`updated_at`.** Tables with `$onUpdate` (`grep -rn 'onUpdate' src/db/schema`) get a new
   `updated_at` on every Drizzle `update()`. To leave a row exactly as it was (restores, repairs),
   write raw SQL with `tx.execute(sql\`…\`)`.

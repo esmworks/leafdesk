@@ -32,7 +32,8 @@
     "calendar": "Kalendarz",
     "journal": "Dziennik",
     "chat": "Czat",
-    "mail": "Poczta"
+    "mail": "Poczta",
+    "messages": "Wiadomości"
   },
   "toggle": {
     "open": "Otwórz pasek boczny",

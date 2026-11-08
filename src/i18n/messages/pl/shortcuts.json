@@ -8,7 +8,8 @@
     "text": "Formatowanie tekstu",
     "blocks": "Bloki",
     "databases": "Bazy danych",
-    "mail": "Poczta"
+    "mail": "Poczta",
+    "messages": "Wiadomości"
   },
   "items": {
     "shortcuts": "Pokaż skróty klawiszowe",
@@ -30,6 +31,7 @@
     "goJournal": "Przejdź do dziennika",
     "goChat": "Przejdź do czatu AI",
     "goMail": "Przejdź do poczty",
+    "goMessages": "Przejdź do wiadomości",
     "goAgents": "Przejdź do agentów",
     "goInbox": "Otwórz skrzynkę odbiorczą",
     "goSettings": "Przejdź do ustawień",
@@ -98,6 +100,13 @@
     "mailGoSent": "Przejdź do wysłanych",
     "mailGoDrafts": "Przejdź do szkiców",
     "mailGoArchive": "Przejdź do archiwum",
-    "mailGoTrash": "Przejdź do kosza"
+    "mailGoTrash": "Przejdź do kosza",
+    "messagesSwitch": "Przejdź do kanału lub rozmowy",
+    "messagesNext": "Otwórz następną rozmowę na liście",
+    "messagesPrevious": "Otwórz poprzednią rozmowę na liście",
+    "messagesNextUnread": "Otwórz następną lub poprzednią nieprzeczytaną rozmowę (z ↑)",
+    "messagesReadAll": "Oznacz wszystkie rozmowy jako przeczytane",
+    "messagesNewLine": "Zacznij nowy wiersz w polu wiadomości",
+    "messagesEditLast": "Edytuj swoją ostatnią wiadomość (w pustym polu)"
   }
 }

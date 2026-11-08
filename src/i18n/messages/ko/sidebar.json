@@ -32,7 +32,8 @@
     "calendar": "캘린더",
     "journal": "저널",
     "chat": "채팅",
-    "mail": "메일"
+    "mail": "메일",
+    "messages": "메시지"
   },
   "toggle": {
     "open": "사이드바 열기",

@@ -1851,7 +1851,8 @@
       "integrations": "แอปที่เชื่อมต่อและโทเค็น API",
       "exports": "การส่งออก",
       "agents": "เอเจนต์",
-      "connections": "การเชื่อมต่อ"
+      "connections": "การเชื่อมต่อ",
+      "messages": "ข้อความทีม"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "ไม่มีชื่อ",
@@ -2157,6 +2158,12 @@
         "created": "ตั้งค่า pull request ของ GitHub ใน {target}",
         "updated": "เปลี่ยนการตั้งค่า GitHub ของ {target}",
         "deleted": "นำการตั้งค่า GitHub ของ {target} ออก"
+      },
+      "channel": {
+        "created": "สร้างช่อง {target}",
+        "updated": "เปลี่ยนช่อง {target}",
+        "archived": "เก็บถาวรช่อง {target}",
+        "unarchived": "นำช่อง {target} กลับจากที่เก็บถาวร"
       },
       "dashboard_email": {
         "set": "ตั้งให้ส่ง {target} ทางอีเมลถึง {count, plural, other {# คน}}",

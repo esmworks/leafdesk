@@ -1851,7 +1851,8 @@
       "integrations": "Bağlı uygulamalar ve API anahtarları",
       "exports": "Dışa aktarmalar",
       "agents": "Ajanlar",
-      "connections": "Bağlantılar"
+      "connections": "Bağlantılar",
+      "messages": "Ekip mesajları"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Adsız",
@@ -2157,6 +2158,12 @@
         "created": "{target} içinde GitHub pull request’leri kuruldu",
         "updated": "{target} GitHub kurulumu değiştirildi",
         "deleted": "{target} GitHub kurulumu kaldırıldı"
+      },
+      "channel": {
+        "created": "Kanal oluşturuldu: {target}",
+        "updated": "Kanal değiştirildi: {target}",
+        "archived": "Kanal arşivlendi: {target}",
+        "unarchived": "Kanal arşivden çıkarıldı: {target}"
       },
       "dashboard_email": {
         "set": "{target} için {count, plural, one {# kişiye} other {# kişiye}} e-posta gönderimini ayarladı",

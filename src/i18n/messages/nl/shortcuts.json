@@ -8,7 +8,8 @@
     "text": "Tekstopmaak",
     "blocks": "Blokken",
     "databases": "Databases",
-    "mail": "Mail"
+    "mail": "Mail",
+    "messages": "Berichten"
   },
   "items": {
     "shortcuts": "De sneltoetsen tonen",
@@ -30,6 +31,7 @@
     "goJournal": "Naar het dagboek gaan",
     "goChat": "Naar de AI-chat gaan",
     "goMail": "Naar Mail gaan",
+    "goMessages": "Naar Berichten gaan",
     "goAgents": "Naar agents gaan",
     "goInbox": "Inbox openen",
     "goSettings": "Naar instellingen gaan",
@@ -98,6 +100,13 @@
     "mailGoSent": "Naar verzonden mail gaan",
     "mailGoDrafts": "Naar de concepten gaan",
     "mailGoArchive": "Naar het archief gaan",
-    "mailGoTrash": "Naar de prullenbak gaan"
+    "mailGoTrash": "Naar de prullenbak gaan",
+    "messagesSwitch": "Naar een kanaal of gesprek springen",
+    "messagesNext": "Het volgende gesprek in de lijst openen",
+    "messagesPrevious": "Het vorige gesprek in de lijst openen",
+    "messagesNextUnread": "Het volgende of vorige ongelezen gesprek openen (met ↑)",
+    "messagesReadAll": "Alle gesprekken als gelezen markeren",
+    "messagesNewLine": "Een nieuwe regel beginnen in het berichtvak",
+    "messagesEditLast": "Je laatste bericht bewerken (in een leeg vak)"
   }
 }

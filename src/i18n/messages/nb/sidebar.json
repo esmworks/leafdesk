@@ -32,7 +32,8 @@
     "calendar": "Kalender",
     "journal": "Dagbok",
     "chat": "Chat",
-    "mail": "E-post"
+    "mail": "E-post",
+    "messages": "Meldinger"
   },
   "toggle": {
     "open": "Åpne sidepanelet",

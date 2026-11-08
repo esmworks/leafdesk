@@ -312,7 +312,13 @@
       "workspaceReached": "ワークスペースが月間AIコスト上限に達しました"
     },
     "limitRequestTitle": "{agent}の上限引き上げ",
-    "limitRequest": "{actor}が月間{tokens, number}トークンをリクエストしています"
+    "limitRequest": "{actor}が月間{tokens, number}トークンをリクエストしています",
+    "messageIn": "{place}の{actor}",
+    "groupConversation": "グループの会話",
+    "messageFile": "ファイルを送信しました",
+    "newMessage": "新しいメッセージ",
+    "inThread": "スレッド内",
+    "messageReminder": "メッセージのリマインダー"
   },
   "agentReply": {
     "aiOff": "回答できません: このワークスペースでは AI がオフになっています。",

@@ -312,7 +312,13 @@
       "workspaceReached": "Obszar roboczy osiągnął miesięczny limit kosztów AI"
     },
     "limitRequestTitle": "Wyższy limit dla agenta {agent}",
-    "limitRequest": "{actor} prosi o {tokens, number} tokenów miesięcznie"
+    "limitRequest": "{actor} prosi o {tokens, number} tokenów miesięcznie",
+    "messageIn": "{actor} w {place}",
+    "groupConversation": "rozmowie grupowej",
+    "messageFile": "Wysłano plik",
+    "newMessage": "Nowa wiadomość",
+    "inThread": "W wątku",
+    "messageReminder": "Przypomnienie o wiadomości"
   },
   "agentReply": {
     "aiOff": "Nie mogę odpowiedzieć: AI jest wyłączone w tym obszarze roboczym.",

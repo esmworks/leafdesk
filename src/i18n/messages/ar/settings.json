@@ -1851,7 +1851,8 @@
       "integrations": "التطبيقات المتصلة ورموز API",
       "exports": "عمليات التصدير",
       "agents": "الوكلاء",
-      "connections": "الاتصالات"
+      "connections": "الاتصالات",
+      "messages": "رسائل الفريق"
     },
     "change": "{name}: {from} ← {to}",
     "untitled": "بلا عنوان",
@@ -2157,6 +2158,12 @@
         "created": "أعدّ طلبات السحب في GitHub في {target}",
         "updated": "غيّر إعداد GitHub في {target}",
         "deleted": "أزال إعداد GitHub من {target}"
+      },
+      "channel": {
+        "created": "أنشأ القناة {target}",
+        "updated": "غيّر القناة {target}",
+        "archived": "أرشف القناة {target}",
+        "unarchived": "أعاد القناة {target} من الأرشيف"
       },
       "dashboard_email": {
         "set": "ضبط إرسال {target} بالبريد إلى {count, plural, zero {لا أحد} one {شخص واحد} two {شخصين} few {# أشخاص} many {# شخصًا} other {# شخص}}",

@@ -312,7 +312,13 @@
       "workspaceReached": "Der Workspace hat sein monatliches KI-Kostenlimit erreicht"
     },
     "limitRequestTitle": "Höheres Limit für {agent}",
-    "limitRequest": "{actor} fragt {tokens, number} Tokens im Monat an"
+    "limitRequest": "{actor} fragt {tokens, number} Tokens im Monat an",
+    "messageIn": "{actor} in {place}",
+    "groupConversation": "einer Gruppenunterhaltung",
+    "messageFile": "Hat eine Datei gesendet",
+    "newMessage": "Neue Nachricht",
+    "inThread": "In einem Thread",
+    "messageReminder": "Erinnerung an eine Nachricht"
   },
   "agentReply": {
     "aiOff": "Ich kann nicht antworten: KI ist in diesem Workspace ausgeschaltet.",

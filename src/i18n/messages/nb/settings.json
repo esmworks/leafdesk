@@ -1851,7 +1851,8 @@
       "integrations": "Tilkoblede apper og API-tokener",
       "exports": "Eksporter",
       "agents": "Agenter",
-      "connections": "Tilkoblinger"
+      "connections": "Tilkoblinger",
+      "messages": "Teammeldinger"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Uten tittel",
@@ -2157,6 +2158,12 @@
         "created": "Satte opp pull-forespørsler fra GitHub i {target}",
         "updated": "Endret GitHub-oppsettet for {target}",
         "deleted": "Fjernet GitHub-oppsettet for {target}"
+      },
+      "channel": {
+        "created": "Opprettet kanalen {target}",
+        "updated": "Endret kanalen {target}",
+        "archived": "Arkiverte kanalen {target}",
+        "unarchived": "Hentet kanalen {target} tilbake fra arkivet"
       },
       "dashboard_email": {
         "set": "Satte {target} til å sendes på e-post til {count, plural, one {# person} other {# personer}}",

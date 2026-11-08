@@ -224,6 +224,24 @@ try {
   check(await refused(() => channels.openDirect(ids.guest, workspaceId, [ids.owner])), "a guest writes only to people they share a channel with");
   check(await refused(() => channels.openDirect(ids.ann, workspaceId, [ids.outsider])), "only people of the workspace");
 
+  // Unread counts are each channel's own, and member counts each channel's (both are subqueries
+  // in the channel and membership views).
+  await posts.markAllRead(ids.bob, workspaceId);
+  for (const body of ["one", "two"]) await posts.sendMessage(ids.ann, { channelId: dm, body, id: crypto.randomUUID() });
+  await posts.sendMessage(ids.ann, { channelId: design, body: "three", id: crypto.randomUUID() });
+  const counts = await bootstrap(ids.bob, workspaceId);
+  const unreadIn = (id: string) => counts.memberships!.find((m) => m.channelId === id)?.unread;
+  check(unreadIn(dm) === 2 && unreadIn(design) === 1 && unreadIn(general.id) === 0, "unread counts are per channel", counts.memberships);
+  const peopleIn = (id: string) => counts.channels!.find((c) => c.id === id)?.memberCount;
+  check(peopleIn(dm) === 2 && peopleIn(secret) === 2 && peopleIn(general.id) === 3, "member counts are per channel", counts.channels);
+  await posts.markAllRead(ids.bob, workspaceId);
+
+  // Any member may set the topic, as the socket's call sends it (with the channel's id beside it);
+  // other changes stay with the channel's admins.
+  await channels.updateChannel(ids.bob, design, { channelId: design, topic: "new pixels" } as never);
+  check((await bootstrap(ids.bob, workspaceId)).channels!.find((c) => c.id === design)?.topic === "new pixels", "a member sets the topic");
+  check(await refused(() => channels.updateChannel(ids.bob, design, { channelId: design, name: "renamed" } as never)), "but doesn't rename the channel");
+
   // ------------------------------------------------------------------ saved, drafts, search
   await posts.saveForLater(ids.bob, root.id, { saved: true, remindAt: new Date(Date.now() - 1000).toISOString() });
   const timers = await runMessageTimers(new Date());

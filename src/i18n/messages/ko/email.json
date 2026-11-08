@@ -312,7 +312,13 @@
       "workspaceReached": "워크스페이스가 월간 AI 비용 한도에 도달했습니다"
     },
     "limitRequestTitle": "{agent}의 한도 상향",
-    "limitRequest": "{actor}님이 월 {tokens, number}토큰을 요청했습니다"
+    "limitRequest": "{actor}님이 월 {tokens, number}토큰을 요청했습니다",
+    "messageIn": "{place}의 {actor}",
+    "groupConversation": "그룹 대화",
+    "messageFile": "파일을 보냈습니다",
+    "newMessage": "새 메시지",
+    "inThread": "스레드에서",
+    "messageReminder": "메시지 리마인더"
   },
   "agentReply": {
     "aiOff": "답할 수 없습니다: 이 워크스페이스에서 AI가 꺼져 있습니다.",

@@ -32,7 +32,8 @@
     "calendar": "Kalender",
     "journal": "Journal",
     "chat": "Chat",
-    "mail": "Mail"
+    "mail": "Mail",
+    "messages": "Nachrichten"
   },
   "toggle": {
     "open": "Seitenleiste öffnen",

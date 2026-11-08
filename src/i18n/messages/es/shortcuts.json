@@ -8,7 +8,8 @@
     "text": "Formato de texto",
     "blocks": "Bloques",
     "databases": "Bases de datos",
-    "mail": "Correo"
+    "mail": "Correo",
+    "messages": "Mensajes"
   },
   "items": {
     "shortcuts": "Mostrar los atajos de teclado",
@@ -30,6 +31,7 @@
     "goJournal": "Ir al diario",
     "goChat": "Ir al chat de IA",
     "goMail": "Ir a Correo",
+    "goMessages": "Ir a Mensajes",
     "goAgents": "Ir a los agentes",
     "goInbox": "Abrir la bandeja de entrada",
     "goSettings": "Ir a la configuración",
@@ -98,6 +100,13 @@
     "mailGoSent": "Ir a enviados",
     "mailGoDrafts": "Ir a borradores",
     "mailGoArchive": "Ir a archivados",
-    "mailGoTrash": "Ir a la papelera"
+    "mailGoTrash": "Ir a la papelera",
+    "messagesSwitch": "Saltar a un canal o una conversación",
+    "messagesNext": "Abrir la conversación siguiente de la lista",
+    "messagesPrevious": "Abrir la conversación anterior de la lista",
+    "messagesNextUnread": "Abrir la conversación sin leer siguiente o anterior (con ↑)",
+    "messagesReadAll": "Marcar todas las conversaciones como leídas",
+    "messagesNewLine": "Empezar una línea nueva en el cuadro de mensaje",
+    "messagesEditLast": "Editar tu último mensaje (con el cuadro vacío)"
   }
 }

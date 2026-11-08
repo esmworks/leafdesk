@@ -312,7 +312,13 @@
       "workspaceReached": "Arbeidsområdet nådde den månedlige KI-kostnadsgrensen"
     },
     "limitRequestTitle": "Høyere grense for {agent}",
-    "limitRequest": "{actor} ber om {tokens, number} tokener i måneden"
+    "limitRequest": "{actor} ber om {tokens, number} tokener i måneden",
+    "messageIn": "{actor} i {place}",
+    "groupConversation": "en gruppesamtale",
+    "messageFile": "Sendte en fil",
+    "newMessage": "Ny melding",
+    "inThread": "I en tråd",
+    "messageReminder": "Påminnelse om en melding"
   },
   "agentReply": {
     "aiOff": "Jeg kan ikke svare: KI er slått av i dette arbeidsområdet.",

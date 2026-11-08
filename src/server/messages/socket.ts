@@ -64,6 +64,7 @@ import {
 import { cancelScheduled, scheduleMessage } from "./scheduled";
 import { searchMessages } from "./search";
 import { bootstrap, sync } from "./sync";
+import { messageToTask } from "./to-task";
 
 /** Policies and membership are asked again this often while a connection stays open. */
 const RECHECK_MS = 5 * 60_000;
@@ -235,6 +236,7 @@ const OPS: Record<string, Op> = {
   mentions: (l, a) => mentionsOf(l.who.userId, l.who.workspaceId, a.before),
   reactions: (l) => reactionsTo(l.who.userId, l.who.workspaceId),
   status: (l, a) => setStatus(l.who.userId, l.who.workspaceId, a),
+  task: (l, a) => messageToTask(l.who.userId, a.messageId),
 };
 
 /** The operations a browser may call, for tests and the client's types. */

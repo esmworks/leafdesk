@@ -8,7 +8,8 @@
     "text": "Textformatierung",
     "blocks": "Blöcke",
     "databases": "Datenbanken",
-    "mail": "Mail"
+    "mail": "Mail",
+    "messages": "Nachrichten"
   },
   "items": {
     "shortcuts": "Tastenkombinationen anzeigen",
@@ -30,6 +31,7 @@
     "goJournal": "Zum Journal wechseln",
     "goChat": "Zum KI-Chat wechseln",
     "goMail": "Zu Mail wechseln",
+    "goMessages": "Zu Nachrichten wechseln",
     "goAgents": "Zu den Agenten wechseln",
     "goInbox": "Posteingang öffnen",
     "goSettings": "Zu den Einstellungen wechseln",
@@ -98,6 +100,13 @@
     "mailGoSent": "Zu den gesendeten Mails wechseln",
     "mailGoDrafts": "Zu den Entwürfen wechseln",
     "mailGoArchive": "Zum Archiv wechseln",
-    "mailGoTrash": "Zum Papierkorb wechseln"
+    "mailGoTrash": "Zum Papierkorb wechseln",
+    "messagesSwitch": "Zu einem Kanal oder einer Unterhaltung springen",
+    "messagesNext": "Nächste Unterhaltung der Liste öffnen",
+    "messagesPrevious": "Vorherige Unterhaltung der Liste öffnen",
+    "messagesNextUnread": "Nächste oder vorherige ungelesene Unterhaltung öffnen (mit ↑)",
+    "messagesReadAll": "Alle Unterhaltungen als gelesen markieren",
+    "messagesNewLine": "Neue Zeile im Nachrichtenfeld beginnen",
+    "messagesEditLast": "Deine letzte Nachricht bearbeiten (in einem leeren Feld)"
   }
 }

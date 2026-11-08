@@ -8,7 +8,8 @@
     "text": "Metin biçimlendirme",
     "blocks": "Bloklar",
     "databases": "Veritabanları",
-    "mail": "Posta"
+    "mail": "Posta",
+    "messages": "Mesajlar"
   },
   "items": {
     "shortcuts": "Klavye kısayollarını göster",
@@ -30,6 +31,7 @@
     "goJournal": "Günlüğe git",
     "goChat": "Yapay zekâ sohbetine git",
     "goMail": "Postaya git",
+    "goMessages": "Mesajlara git",
     "goAgents": "Ajanlara git",
     "goInbox": "Gelen kutusunu aç",
     "goSettings": "Ayarlara git",
@@ -98,6 +100,13 @@
     "mailGoSent": "Gönderilenlere git",
     "mailGoDrafts": "Taslaklara git",
     "mailGoArchive": "Arşive git",
-    "mailGoTrash": "Çöp kutusuna git"
+    "mailGoTrash": "Çöp kutusuna git",
+    "messagesSwitch": "Bir kanala ya da yazışmaya geç",
+    "messagesNext": "Listedeki sonraki yazışmayı aç",
+    "messagesPrevious": "Listedeki önceki yazışmayı aç",
+    "messagesNextUnread": "Sonraki ya da önceki okunmamış yazışmayı aç (↑ ile)",
+    "messagesReadAll": "Tüm yazışmaları okundu olarak işaretle",
+    "messagesNewLine": "Mesaj kutusunda yeni satıra geç",
+    "messagesEditLast": "Son mesajınızı düzenleyin (boş kutuda)"
   }
 }

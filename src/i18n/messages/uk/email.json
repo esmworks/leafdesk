@@ -312,7 +312,13 @@
       "workspaceReached": "Робочий простір досяг місячного ліміту витрат на ШІ"
     },
     "limitRequestTitle": "Більший ліміт для агента {agent}",
-    "limitRequest": "{actor} просить {tokens, number} токенів на місяць"
+    "limitRequest": "{actor} просить {tokens, number} токенів на місяць",
+    "messageIn": "{actor} у {place}",
+    "groupConversation": "груповій розмові",
+    "messageFile": "Надіслано файл",
+    "newMessage": "Нове повідомлення",
+    "inThread": "У гілці",
+    "messageReminder": "Нагадування про повідомлення"
   },
   "agentReply": {
     "aiOff": "Не можу відповісти: ШІ вимкнено в цьому робочому просторі.",

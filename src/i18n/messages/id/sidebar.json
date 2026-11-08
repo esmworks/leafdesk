@@ -32,7 +32,8 @@
     "calendar": "Kalender",
     "journal": "Jurnal",
     "chat": "Obrolan",
-    "mail": "Email"
+    "mail": "Email",
+    "messages": "Pesan"
   },
   "toggle": {
     "open": "Buka bilah samping",

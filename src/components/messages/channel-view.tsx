@@ -5,10 +5,11 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SidebarOpenButton } from "@/components/sidebar/sidebar-context";
 import { showToast } from "@/components/toast";
+import { lazyPart } from "@/components/lazy-part";
 import { Button, cn, Popover } from "@/components/ui";
 import type { MessageView } from "@/lib/message-wire";
 import { messagesPath } from "@/lib/messages";
-import { ChannelDetails, type DetailsTab } from "./channel-dialogs";
+import type { DetailsTab } from "./channel-dialogs";
 import { Composer, type ComposerHandle } from "./composer";
 import { MessageBody } from "./message-body";
 import { MessageList } from "./message-list";
@@ -17,6 +18,8 @@ import { stayInMessages } from "./messages-sidebar";
 import { PersonFace } from "./person";
 import { call, channelTitle, messagesState, MessagesError, putMessages, setViewing, useMessages, useView } from "./store";
 import { TypingLine } from "./typing-line";
+
+const ChannelDetails = lazyPart(() => import("./channel-dialogs").then((m) => m.ChannelDetails));
 
 /**
  * One channel or direct conversation: its head (name, topic, people, pinned messages, details),

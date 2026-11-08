@@ -8,7 +8,8 @@
     "text": "Tekstformatering",
     "blocks": "Blokker",
     "databases": "Databaser",
-    "mail": "E-post"
+    "mail": "E-post",
+    "messages": "Meldinger"
   },
   "items": {
     "shortcuts": "Vis hurtigtastene",
@@ -30,6 +31,7 @@
     "goJournal": "Gå til dagboken",
     "goChat": "Gå til AI-chatten",
     "goMail": "Gå til E-post",
+    "goMessages": "Gå til Meldinger",
     "goAgents": "Gå til agenter",
     "goInbox": "Åpne innboksen",
     "goSettings": "Gå til innstillinger",
@@ -98,6 +100,13 @@
     "mailGoSent": "Gå til sendt e-post",
     "mailGoDrafts": "Gå til utkast",
     "mailGoArchive": "Gå til arkivet",
-    "mailGoTrash": "Gå til papirkurven"
+    "mailGoTrash": "Gå til papirkurven",
+    "messagesSwitch": "Gå til en kanal eller samtale",
+    "messagesNext": "Åpne neste samtale i listen",
+    "messagesPrevious": "Åpne forrige samtale i listen",
+    "messagesNextUnread": "Åpne neste eller forrige uleste samtale (med ↑)",
+    "messagesReadAll": "Merk alle samtaler som lest",
+    "messagesNewLine": "Start en ny linje i meldingsfeltet",
+    "messagesEditLast": "Rediger den siste meldingen din (i et tomt felt)"
   }
 }

@@ -312,7 +312,13 @@
       "workspaceReached": "فضای کاری به سقف ماهانهٔ هزینهٔ هوش مصنوعی رسیده است"
     },
     "limitRequestTitle": "سقف بالاتر برای {agent}",
-    "limitRequest": "{actor} {tokens, number} توکن در ماه درخواست می‌کند"
+    "limitRequest": "{actor} {tokens, number} توکن در ماه درخواست می‌کند",
+    "messageIn": "{actor} در {place}",
+    "groupConversation": "یک گفتگوی گروهی",
+    "messageFile": "یک فایل فرستاد",
+    "newMessage": "پیام جدید",
+    "inThread": "در یک رشته",
+    "messageReminder": "یادآوری دربارهٔ یک پیام"
   },
   "agentReply": {
     "aiOff": "نمی‌توانم پاسخ دهم: هوش مصنوعی در این فضای کاری خاموش است.",

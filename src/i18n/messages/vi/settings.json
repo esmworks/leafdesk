@@ -1851,7 +1851,8 @@
       "integrations": "Ứng dụng đã kết nối và token API",
       "exports": "Xuất",
       "agents": "Tác tử",
-      "connections": "Kết nối"
+      "connections": "Kết nối",
+      "messages": "Tin nhắn nhóm"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Chưa đặt tên",
@@ -2157,6 +2158,12 @@
         "created": "Đã thiết lập pull request GitHub trong {target}",
         "updated": "Đã thay đổi thiết lập GitHub của {target}",
         "deleted": "Đã gỡ thiết lập GitHub của {target}"
+      },
+      "channel": {
+        "created": "Đã tạo kênh {target}",
+        "updated": "Đã thay đổi kênh {target}",
+        "archived": "Đã lưu trữ kênh {target}",
+        "unarchived": "Đã đưa kênh {target} ra khỏi kho lưu trữ"
       },
       "dashboard_email": {
         "set": "Đã đặt {target} được gửi email cho {count, plural, other {# người}}",

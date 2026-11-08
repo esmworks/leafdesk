@@ -312,7 +312,13 @@
       "workspaceReached": "L’espace de travail a atteint sa limite mensuelle de coût d’IA"
     },
     "limitRequestTitle": "Limite plus élevée pour {agent}",
-    "limitRequest": "{actor} demande {tokens, number} tokens par mois"
+    "limitRequest": "{actor} demande {tokens, number} tokens par mois",
+    "messageIn": "{actor} dans {place}",
+    "groupConversation": "une conversation de groupe",
+    "messageFile": "A envoyé un fichier",
+    "newMessage": "Nouveau message",
+    "inThread": "Dans un fil",
+    "messageReminder": "Rappel concernant un message"
   },
   "agentReply": {
     "aiOff": "Je ne peux pas répondre : l’IA est désactivée dans cet espace de travail.",

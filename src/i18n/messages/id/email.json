@@ -312,7 +312,13 @@
       "workspaceReached": "Ruang kerja mencapai batas biaya AI bulanannya"
     },
     "limitRequestTitle": "Batas lebih tinggi untuk {agent}",
-    "limitRequest": "{actor} meminta {tokens, number} token sebulan"
+    "limitRequest": "{actor} meminta {tokens, number} token sebulan",
+    "messageIn": "{actor} di {place}",
+    "groupConversation": "percakapan grup",
+    "messageFile": "Mengirim file",
+    "newMessage": "Pesan baru",
+    "inThread": "Di utas",
+    "messageReminder": "Pengingat tentang pesan"
   },
   "agentReply": {
     "aiOff": "Saya tidak dapat menjawab: AI dimatikan di ruang kerja ini.",

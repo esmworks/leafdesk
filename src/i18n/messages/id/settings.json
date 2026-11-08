@@ -1851,7 +1851,8 @@
       "integrations": "Aplikasi terhubung dan token API",
       "exports": "Ekspor",
       "agents": "Agen",
-      "connections": "Koneksi"
+      "connections": "Koneksi",
+      "messages": "Pesan tim"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Tanpa judul",
@@ -2157,6 +2158,12 @@
         "created": "Menyiapkan pull request GitHub di {target}",
         "updated": "Mengubah pengaturan GitHub di {target}",
         "deleted": "Menghapus pengaturan GitHub di {target}"
+      },
+      "channel": {
+        "created": "Membuat kanal {target}",
+        "updated": "Mengubah kanal {target}",
+        "archived": "Mengarsipkan kanal {target}",
+        "unarchived": "Mengembalikan kanal {target} dari arsip"
       },
       "dashboard_email": {
         "set": "Mengatur “{target}” untuk dikirim lewat email ke {count, plural, other {# orang}}",

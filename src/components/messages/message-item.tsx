@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, BookmarkCheck, Copy, Download, FileText, Forward, History, Link2, MailOpen, MessageSquareText, MoreHorizontal, Pencil, Pin, PinOff, SmilePlus, Trash2 } from "lucide-react";
+import { Bookmark, BookmarkCheck, CircleCheck, Copy, Download, FileText, Forward, History, Link2, MailOpen, MessageSquareText, MoreHorizontal, Pencil, Pin, PinOff, SmilePlus, Trash2 } from "lucide-react";
 import { useFormatter, useLocale, useNow, useTranslations } from "next-intl";
 import { memo, useEffect, useRef, useState } from "react";
 import { showToast } from "@/components/toast";
@@ -407,6 +407,20 @@ function Toolbar({ m, s, ctx, onEdit }: { m: MessageView; s: View; ctx: ItemCont
                 }}
               >
                 {t("actions.forward")}
+              </MenuItem>
+            )}
+            {m.kind === "message" && !m.deletedAt && (
+              <MenuItem
+                icon={<CircleCheck className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  void call<{ rowId: string }>("task", { messageId: m.id }).then(
+                    ({ rowId }) => showToast({ message: t("taskAdded"), action: { label: t("open"), run: () => void window.location.assign(`/w/${ctx.workspaceId}/p/${rowId}`) } }),
+                    () => showToast({ message: t("taskFailed") }),
+                  );
+                }}
+              >
+                {t("actions.task")}
               </MenuItem>
             )}
             {ctx.writes && (
