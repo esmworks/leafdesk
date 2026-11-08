@@ -14,6 +14,12 @@
   (`list_memory`) and the way to further tools first, since some apps keep only their beginning.
   The tool list's test budget is now for the core list (30 tools, 48 KB). Migration
   `0200_connected_app_tools`.
+- **AI apps read your notes' lines first and search for the rest.** `list_memory` now lists each
+  note's line and marks those with details (`has_details`) instead of sending every note's details
+  at the start of each conversation; its new `query` searches every note and its details (the 10
+  that match best, details included) and `memory_id` reads one note in full. With that, each
+  memory (yours in a workspace, yours everywhere, the workspace's, each teamspace's, each agent's)
+  now holds up to 60 notes instead of 30. No migration.
 - **Messages: channels, direct messages and threads.** A new place on the sidebar's rail (`g`
   then `d`) for talking within the workspace, live over a websocket: public and private channels,
   direct messages of up to nine people, threads beside the channel, mentions of people, `@here` and

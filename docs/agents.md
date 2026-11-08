@@ -498,7 +498,7 @@ Runs no member stands behind (an
 anonymous or outside form answer, a synced database's row, an event from a trigger no owner marked trusted) get neither
 tool, but the kept notes go with them too. Kept notes reach the model as data, never as
 instructions, and never widen what the agent may change; like its instructions, what they say may
-end up in the rows it writes, whoever started the run. An agent keeps up to 30 notes of 300
+end up in the rows it writes, whoever started the run. An agent keeps up to 60 notes of 300
 characters; up to 10 proposals wait at once, and one no owner answered goes when its run is
 removed after 30 days. Archived agents keep their notes: owners can still delete them, or dismiss
 proposals, but not add, change or keep notes until the agent is restored. With the workspace's *AI memory* switch off

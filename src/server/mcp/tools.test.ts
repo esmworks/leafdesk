@@ -3917,6 +3917,41 @@ describe("the user's memory", () => {
     expect(sharedMemory.memoryPlaces).not.toHaveBeenCalled();
   });
 
+  it("lists each note's line and reads details only through a search or one note, across every layer", async () => {
+    const recipe = { ...note("m-3", "Ready unit bill of materials"), details: "Compressor 4 kW, condenser fan 2×, controller from the usual supplier." };
+    personalMemory.memoryState.mockResolvedValue({ off: null, notes: [role, recipe] });
+    accountMemory.accountNotes.mockResolvedValue([{ ...note("a-1", "Answers in Turkish"), details: "Technical words may stay in English." }]);
+    sharedMemory.memoryPlaces.mockResolvedValue({
+      workspace: { id: null, name: null, icon: null, notes: [{ ...note("w-1", "Ready units are priced in EUR"), by: "Ada" }], canChange: false },
+      teamspaces: [{ id: "ts-1", name: "Sales", icon: null, notes: [{ ...note("t-1", "Offers for ready units go out on Fridays"), by: null }], canChange: true }],
+    });
+
+    const listed = await callTool(reader, "list_memory", { workspace_id: "ws-1" });
+    expect(listed.data.notes[1]).toMatchObject({ memory_id: "m-3", has_details: true });
+    expect(listed.data.notes[1].details).toBeUndefined();
+    expect(listed.data.account_notes[0]).toMatchObject({ memory_id: "a-1", has_details: true });
+    expect(JSON.stringify(listed.data)).not.toContain("Compressor");
+
+    const searched = await callTool(reader, "list_memory", { workspace_id: "ws-1", query: "ready unit compressor" });
+    expect(searched.isError).toBe(false);
+    // Words in the line count twice those in the details: the bill of materials first.
+    expect(searched.data.notes.map((n: { memory_id: string }) => n.memory_id)).toEqual(["m-3", "t-1", "w-1"]);
+    expect(searched.data.notes[0]).toMatchObject({ layer: "person", workspace_id: "ws-1", details: expect.stringContaining("Compressor") });
+    expect(searched.data.notes[1]).toMatchObject({ layer: "teamspace", teamspace_id: "ts-1" });
+    expect(searched.data.notes[2]).toMatchObject({ layer: "workspace", changed_by: "Ada" });
+    expect((await callTool(reader, "list_memory", { query: "coffee" })).data).toMatchObject({ notes: [], none: expect.stringMatching(/No note has those words/) });
+
+    const one = await callTool(reader, "list_memory", { memory_id: "a-1" });
+    expect(one.data).toMatchObject({ layer: "account", memory_id: "a-1", details: "Technical words may stay in English." });
+    const missing = await callTool(reader, "list_memory", { workspace_id: "ws-1", memory_id: "nope" });
+    expect(missing.isError).toBe(true);
+    expect(missing.content[0].text).toMatch(/No note of the user's with this memory_id/);
+
+    personalMemory.memoryState.mockResolvedValue({ off: "person", notes: [role, recipe] });
+    const offSearch = await callTool(reader, "list_memory", { workspace_id: "ws-1", query: "compressor" });
+    expect(offSearch.data.notes).toEqual([]);
+  });
+
   it("changes the user's notes for all workspaces without a workspace, and the workspace's or a teamspace's only for those who keep them", async () => {
     accountMemory.writeAccountNote.mockResolvedValue(row("a-1", "Answers in Turkish"));
     const account = await callTool(writer, "change_memory", { scope: "account", action: "add", text: "Answers in Turkish" });
@@ -3959,7 +3994,7 @@ describe("the user's memory", () => {
 
     const cases: [string, RegExp][] = [
       ["notFound", /No note with this memory_id.*list_memory/],
-      ["full", /full \(30 notes\).*change_memory/],
+      ["full", /full \(60 notes\).*change_memory/],
       ["tooLong", /at most 300 characters/],
       ["empty", /needs text/],
       ["off", /owners turned the AI memory off/],

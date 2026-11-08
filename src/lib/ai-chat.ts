@@ -11,7 +11,7 @@ import type { ChatAttachmentView } from "./chat-attachments";
 export const MAX_CONVERSATIONS = 50;
 
 /** Notes the chat may keep about a person in a workspace (its memory), and the longest one. */
-export const MAX_MEMORIES = 30;
+export const MAX_MEMORIES = 60;
 export const MAX_MEMORY_CHARS = 300;
 /**
  * The longest details a note may carry under its line: what the note says in full (why, when, how),

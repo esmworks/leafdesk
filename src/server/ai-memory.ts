@@ -35,6 +35,9 @@ import type { ToolOutcome } from "@/server/ai-tools";
 import { deleteSharedNotes, mayWriteNotes, notePlace, notesAt, sharedMemoryFor, teamspaceNotesFor, writeSharedNote } from "@/server/shared-memory";
 import { teamspaceStanding } from "@/server/teamspaces";
 import { getMemberAiMemory, setMemberAiMemory, workspaceSettings } from "@/server/workspaces";
+import { matchNotes, MEMORY_SEARCH_LIMIT, queryWords } from "@/lib/memory-search";
+
+export { MEMORY_SEARCH_LIMIT };
 
 export type MemoryErrorCode = "empty" | "tooLong" | "detailsTooLong" | "full" | "notFound" | "off" | "personOff" | "changed" | "busy" | "held" | "noNotes" | "summaryTooLong";
 
@@ -335,8 +338,7 @@ export async function memoryForPrompt(
   return fitNotes(await notesOf(userId, workspaceId), maxChars, `(Older notes don't fit here: read them with ${READ_MEMORY_TOOL.name}.)`, options);
 }
 
-/** Notes a search of read_memory answers with, the best first, and how much of each one's details it shows. */
-export const MEMORY_SEARCH_LIMIT = 10;
+/** How much of each note's details a search of read_memory shows. */
 const SEARCH_DETAILS_CHARS = 600;
 
 const QUERY = { type: "string", description: "Words to search the notes and their details for; the notes with most of them come first." };
@@ -391,21 +393,12 @@ export function searchNotes(notes: PromptNote[], args: Record<string, unknown>):
     const found = notes.find((n) => n.id === args.memory_id);
     return found ? { content: withDetails(found) } : { content: "No note you may read has that memory_id.", isError: true };
   }
-  const lower = (text: string) => text.toLocaleLowerCase("tr");
-  const words = [...new Set(lower(typeof args.query === "string" ? args.query : "").split(/[\s,.;:!?"'()]+/).filter(Boolean))];
+  const query = typeof args.query === "string" ? args.query : "";
   if (!notes.length) return { content: "No notes are kept." };
-  if (!words.length) return { content: notes.map(promptLine).join("\n") };
-  const scored = notes
-    .map((note, index) => {
-      const line = lower(note.text);
-      const details = lower(note.details ?? "");
-      return { note, index, score: words.reduce((sum, w) => sum + (line.includes(w) ? 2 : details.includes(w) ? 1 : 0), 0) };
-    })
-    .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score || b.index - a.index)
-    .slice(0, MEMORY_SEARCH_LIMIT);
-  if (!scored.length) return { content: "No kept note has those words." };
-  return { content: scored.map((s) => withDetails(s.note, SEARCH_DETAILS_CHARS)).join("\n") };
+  if (!queryWords(query).length) return { content: notes.map(promptLine).join("\n") };
+  const found = matchNotes(notes, query);
+  if (!found.length) return { content: "No kept note has those words." };
+  return { content: found.map((note) => withDetails(note, SEARCH_DETAILS_CHARS)).join("\n") };
 }
 
 /** The kept notes for read_memory (the person's own, or an agent's under its user): searchNotes. */

@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, MEMORY_CATEGORIES, type MemoryPlaceView, type MemoryView, type SharedNoteView } from "@/lib/ai-chat";
+import { MEMORY_SEARCH_LIMIT } from "@/lib/memory-search";
 import { MemoryError, memoryOff } from "@/server/ai-memory";
 import { id } from "@/server/operations";
 import { ToolInputError } from "./format";
@@ -17,6 +18,8 @@ const memoryIdInput = z.string().min(1).max(100).describe("The note's memory_id,
 export const memoryInputs = {
   list: z.object({
     workspace_id: id("workspace").optional().describe("Only this workspace's notes; the notes of every workspace of the user when omitted."),
+    query: z.string().max(200).optional().describe(`Words to search every note and its details for: the ${MEMORY_SEARCH_LIMIT} that match best, with their details, instead of the list.`),
+    memory_id: memoryIdInput.optional().describe("One note, with its details, instead of the list."),
   }),
   change: z.object({
     workspace_id: id("workspace").optional().describe("Not for scope account."),
@@ -78,9 +81,14 @@ export async function withMemoryErrors<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-/** A note as list_memory shows it. */
-export function describeNote(note: MemoryView) {
-  return { memory_id: note.id, text: note.text, category: note.category, ...(note.details ? { details: note.details } : {}), ...(note.app ? { kept_by_app: note.app } : {}), created_at: note.createdAt, updated_at: note.updatedAt };
+/**
+ * A note as list_memory shows it: in the list only its line, `has_details` saying there is more,
+ * which a search or a read of the note (`full`) shows. Notes are read at the start of every
+ * conversation, so the list stays short however many notes have details.
+ */
+export function describeNote(note: MemoryView, full = false) {
+  const details = note.details ? (full ? { details: note.details } : { has_details: true as const }) : {};
+  return { memory_id: note.id, text: note.text, category: note.category, ...details, ...(note.app ? { kept_by_app: note.app } : {}), created_at: note.createdAt, updated_at: note.updatedAt };
 }
 
 /**
@@ -90,12 +98,40 @@ export function describeNote(note: MemoryView) {
 export function describeMemory(workspaceId: string, { off, notes }: { off: keyof typeof MEMORY_OFF | null; notes: MemoryView[] }, about = "") {
   return off
     ? { workspace_id: workspaceId, memory: "off" as const, why: MEMORY_OFF[off], notes: [], notes_kept: notes.length }
-    : { workspace_id: workspaceId, memory: "on" as const, ...(about ? { about } : {}), notes: notes.map(describeNote) };
+    : { workspace_id: workspaceId, memory: "on" as const, ...(about ? { about } : {}), notes: notes.map((n) => describeNote(n)) };
 }
 
 /** A note of the workspace or a teamspace as list_memory shows it: who changed it last, too. */
-export function describeSharedNote(note: SharedNoteView) {
-  return { ...describeNote(note), ...(note.by ? { changed_by: note.by } : {}) };
+export function describeSharedNote(note: SharedNoteView, full = false) {
+  return { ...describeNote(note, full), ...(note.by ? { changed_by: note.by } : {}) };
+}
+
+/** A note with whose it is, for a search or a read of one note across every layer list_memory reads. */
+export type LocatedNote =
+  | { layer: "account" | "person"; workspace_id?: string; note: MemoryView }
+  | { layer: "workspace" | "teamspace"; workspace_id: string; teamspace_id?: string | null; note: SharedNoteView };
+
+/** The notes list_memory shows for a workspace (as describeMemory and describePlaces show them), with whose each is. */
+export function notesOf(
+  workspaceId: string,
+  { off, notes }: { off: keyof typeof MEMORY_OFF | null; notes: MemoryView[] },
+  places: { workspace: MemoryPlaceView | null; teamspaces: MemoryPlaceView[] } | null,
+): LocatedNote[] {
+  return [
+    ...(off ? [] : notes.map((note) => ({ layer: "person" as const, workspace_id: workspaceId, note }))),
+    ...(places?.workspace
+      ? [
+          ...places.workspace.notes.map((note) => ({ layer: "workspace" as const, workspace_id: workspaceId, note })),
+          ...places.teamspaces.flatMap((t) => t.notes.map((note) => ({ layer: "teamspace" as const, workspace_id: workspaceId, teamspace_id: t.id, note }))),
+        ]
+      : []),
+  ];
+}
+
+/** A located note in full, saying whose it is. */
+export function describeLocated(located: LocatedNote) {
+  const { note, ...where } = located;
+  return { ...where, ...(located.layer === "workspace" || located.layer === "teamspace" ? describeSharedNote(located.note, true) : describeNote(note, true)) };
 }
 
 /**
@@ -107,9 +143,9 @@ export function describePlaces(places: { workspace: MemoryPlaceView | null; team
   if (!places.workspace) return {};
   const teamspaces = places.teamspaces.filter((t) => t.notes.length || t.canChange);
   return {
-    workspace_notes: { can_change: places.workspace.canChange, notes: places.workspace.notes.map(describeSharedNote) },
+    workspace_notes: { can_change: places.workspace.canChange, notes: places.workspace.notes.map((n) => describeSharedNote(n)) },
     ...(teamspaces.length
-      ? { teamspace_notes: teamspaces.map((t) => ({ teamspace_id: t.id, name: t.name, can_change: t.canChange, notes: t.notes.map(describeSharedNote) })) }
+      ? { teamspace_notes: teamspaces.map((t) => ({ teamspace_id: t.id, name: t.name, can_change: t.canChange, notes: t.notes.map((n) => describeSharedNote(n)) })) }
       : {}),
   };
 }

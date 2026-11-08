@@ -383,7 +383,8 @@ The tools cover:
   (`direct` or `review`). `list_pending_changes` and `answer_pending_change` (approve, with
   edits and `force` for a row changed since, or dismiss) answer what agents proposed for
   review. Owners manage agents; members can list them (see [Agents](agents.md#agents)).
-- **Memory:** `list_memory` (the user's notes in one workspace or all of them) and
+- **Memory:** `list_memory` (the user's notes in one workspace or all of them, each note's line;
+  `query` searches them with their details, `memory_id` reads one in full) and
   `change_memory` (add, update, or delete by ids or all, also while the memory is off): the notes the
   AI chat keeps about the user, theirs alone and only while the memory is on, each showing the app
   that kept it (see [Memory](ai.md#ai-features)).

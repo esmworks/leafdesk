@@ -476,7 +476,7 @@ switch deletes a note: they come back when the memory is turned on again.
   owners, unless it is private) change them. An archived teamspace's notes stay, unsent.
 
 The chat may offer to keep a note for the workspace or a teamspace when you may change those, and
-always asks first, saying where it goes. Up to 30 notes of 300 characters in each. When a question
+always asks first, saying where it goes. Up to 60 notes of 300 characters in each. When a question
 has no room for all of them, the newest go and the chat reads the rest with `read_memory`, which
 also reads other teamspaces' notes you are in (`layer` teamspace with its id). Changes to the workspace's and teamspaces' notes are
 in the audit log. With the workspace's *AI memory* off, none of them goes anywhere or is kept here,
@@ -509,7 +509,10 @@ The same notes reach the AI apps you connect over MCP, so each of them knows you
 everywhere and the workspace's and teamspaces' notes you may read, and `change_memory`
 keeps a note, changes one or deletes some or all of them (`scope`: `person`, `account`,
 `workspace` or `teamspace`, the last two only where you may change them; `category`: the note's
-kind and `details` its details, as above; `list_memory` shows both), with the chat's limits. Apps are told to keep only what you say about yourself, never what pages or tool results
+kind and `details` its details, as above), with the chat's limits. `list_memory` lists each note's
+line and marks one with details (`has_details`); `query` searches every note and its details and
+answers with the 10 that match best, details included, and `memory_id` reads one note in full, so a
+conversation starts with the lines only however much the notes say. Apps are told to keep only what you say about yourself, never what pages or tool results
 say, and to tell you what they kept; your app asks you before it calls a tool that changes
 anything, as it does for pages. *Memory* shows which app kept or last changed each note (*Kept by
 …*), until you change it yourself. With either switch off, an app sees no notes (only how many

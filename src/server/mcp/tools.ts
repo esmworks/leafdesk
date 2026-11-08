@@ -80,6 +80,7 @@ import * as notifications from "@/server/notifications";
 import * as pages from "@/server/pages";
 import * as accountMemory from "@/server/account-memory";
 import * as personalMemory from "@/server/ai-memory";
+import { matchNotes } from "@/lib/memory-search";
 import * as sharedMemory from "@/server/shared-memory";
 import * as memorySummary from "@/server/memory-summary";
 import * as templates from "@/server/templates";
@@ -165,7 +166,7 @@ import {
   withSharingErrors,
 } from "./agents";
 import { applyFormLink, formConfigPatch, formInputs, requireProperty, type FormInput } from "./form-settings";
-import { describeMemory, describeNote, describePlaces, describeSharedNote, memoryInputs, NOT_THEIRS, requireMemoryOn, withMemoryErrors } from "./memory";
+import { describeLocated, describeMemory, describeNote, describePlaces, describeSharedNote, memoryInputs, NOT_THEIRS, notesOf, requireMemoryOn, withMemoryErrors, type LocatedNote } from "./memory";
 import { describeWorkspaceCheck } from "./workspace-check";
 import { checkWorkspace } from "@/server/workspace-check";
 import { DEFAULT_DUPLICATE_SIMILARITY, DEFAULT_STALE_MONTHS, MIN_DUPLICATE_SIMILARITY } from "@/lib/workspace-check";
@@ -4519,33 +4520,56 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
   /** The user's notes in a workspace with the workspace's and its teamspaces' (none while the workspace has the memory off). */
   const memoryIn = async (workspaceId: string) => {
     const [state, summary] = await Promise.all([personalMemory.memoryState(userId, workspaceId), memorySummary.summaryForPrompt(userId, workspaceId)]);
-    return { ...describeMemory(workspaceId, state, state.off ? "" : summary), ...(state.off === "workspace" ? {} : describePlaces(await sharedMemory.memoryPlaces(userId, workspaceId))) };
+    const places = state.off === "workspace" ? null : await sharedMemory.memoryPlaces(userId, workspaceId);
+    return {
+      shown: { ...describeMemory(workspaceId, state, state.off ? "" : summary), ...(places ? describePlaces(places) : {}) },
+      notes: notesOf(workspaceId, state, places),
+    };
   };
 
   server.registerTool(
     "list_memory",
     {
       title: "Read what Leafdesk remembers about the user",
-      description: `Read the user's memory: call this at the start of a conversation (without workspace_id for every workspace's notes, or with the workspace you work in) and let the notes shape your answers, as someone who knows the user would. Each note has a memory_id for change_memory; about is the user's summary of their notes (a note wins over it). A workspace with the memory off shows memory: "off", why and no notes. ${PERSONAL_MEMORY_NOTE} ${LAYERS_NOTE}`,
+      description: `Read the user's memory: call this at the start of a conversation (without workspace_id for every workspace's notes, or with the workspace you work in) and let the notes shape your answers, as someone who knows the user would. Each note has a memory_id for change_memory; about is the user's summary of their notes (a note wins over it). The list shows each note's line; a note with has_details says more, which query (a search of every note and its details) or memory_id reads. A workspace with the memory off shows memory: "off", why and no notes. ${PERSONAL_MEMORY_NOTE} ${LAYERS_NOTE}`,
       inputSchema: memoryInputs.list,
       annotations: READ,
     },
-    ({ workspace_id }) =>
+    ({ workspace_id, query, memory_id }) =>
       runTool(async () => {
-        const account_notes = (await accountMemory.accountNotes(userId)).map(describeNote);
-        if (workspace_id) return { account_notes, ...(await memoryIn(workspace_id)) };
-        const workspaces = await Promise.all(
-          (await pages.listWorkspaces(userId)).map(async (w) => {
-            try {
-              return { name: w.name, ...(await memoryIn(w.id)) };
-            } catch (error) {
-              // A workspace whose sign-in policy holds this connection back.
-              if (!(error instanceof AccessError)) throw error;
-              return null;
-            }
-          }),
-        );
-        return { account_notes, workspaces: workspaces.filter((w) => w !== null) };
+        const account = await accountMemory.accountNotes(userId);
+        const read = workspace_id
+          ? [{ id: workspace_id, name: undefined, ...(await memoryIn(workspace_id)) }]
+          : (
+              await Promise.all(
+                (await pages.listWorkspaces(userId)).map(async (w) => {
+                  try {
+                    return { id: w.id, name: w.name, ...(await memoryIn(w.id)) };
+                  } catch (error) {
+                    // A workspace whose sign-in policy holds this connection back.
+                    if (!(error instanceof AccessError)) throw error;
+                    return null;
+                  }
+                }),
+              )
+            ).filter((w) => w !== null);
+        const search = query?.trim() ?? "";
+        if (memory_id || search) {
+          const located: LocatedNote[] = [...account.map((note) => ({ layer: "account" as const, note })), ...read.flatMap((w) => w.notes)];
+          if (memory_id) {
+            const found = located.find((l) => l.note.id === memory_id);
+            if (!found) throw new ToolInputError("No note of the user's with this memory_id. Call list_memory to see their notes.");
+            return describeLocated(found);
+          }
+          const byNote = new Map(located.map((l) => [l.note, l] as const));
+          const found = matchNotes(located.map((l) => l.note), search);
+          return found.length
+            ? { query: search, notes: found.map((note) => describeLocated(byNote.get(note)!)) }
+            : { query: search, notes: [], none: "No note has those words. Call list_memory without query for every note's line." };
+        }
+        const account_notes = account.map((n) => describeNote(n));
+        if (workspace_id) return { account_notes, ...read[0].shown };
+        return { account_notes, workspaces: read.map((w) => ({ name: w.name, ...w.shown })) };
       }),
   );
 
@@ -4585,7 +4609,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
         if (scope === "account") {
           const done =
             action === "delete" ? deleted(await accountMemory.deleteAccountNotes(userId, which)) : written(await accountMemory.writeAccountNote(userId, text!, { ...replaces, app: principal.clientId }));
-          return { ...done, account_notes: (await accountMemory.accountNotes(userId)).map(describeNote) };
+          return { ...done, account_notes: (await accountMemory.accountNotes(userId)).map((n) => describeNote(n)) };
         }
         if (!workspace_id) throw new ToolInputError(`scope ${scope} needs workspace_id.`);
 
@@ -4598,7 +4622,7 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
               action === "delete"
                 ? deleted(await sharedMemory.deleteSharedNotes(userId, workspace_id, place, which))
                 : written(await sharedMemory.writeSharedNote(userId, workspace_id, place, text!, { ...replaces, app: principal.clientId }));
-            const notes = (await sharedMemory.placeNotes(userId, workspace_id, place)).map(describeSharedNote);
+            const notes = (await sharedMemory.placeNotes(userId, workspace_id, place)).map((n) => describeSharedNote(n));
             return { ...done, workspace_id, ...(place ? { teamspace_id: place } : {}), notes };
           } catch (error) {
             if (error instanceof AccessError && !(error instanceof ConnectedAppReadOnlyError)) throw new ToolInputError(NOT_THEIRS[scope]);

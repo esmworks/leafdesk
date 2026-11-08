@@ -1428,13 +1428,24 @@ async function main() {
     "change_memory delete leaves another person's note alone, listing its id as not found",
     deleteTheirs,
   );
-  // The limits are the chat's: 30 notes.
-  for (let i = 0; i < 28; i++) await personal.addMemory(memoryUser, ws, `Filler ${i} ${RUN}`);
+  // The list shows each note's line; its details come with a search or a read of the one note.
+  await mcp.ok("change_memory", { workspace_id: ws, action: "update", memory_id: roleId, text: `Leads the billing team ${RUN}`, details: `Reports to the finance lead ${RUN}.` });
+  const lines = await mcp.ok("list_memory", { workspace_id: ws });
+  const roleLine = lines.notes.find((n: { memory_id: string }) => n.memory_id === roleId);
+  check(roleLine?.has_details === true && roleLine.details === undefined, "list_memory marks a note with details and leaves them out", roleLine);
+  const searched = await mcp.ok("list_memory", { workspace_id: ws, query: "finance lead" });
+  check(searched.notes[0]?.memory_id === roleId && searched.notes[0].details?.includes("finance lead") && searched.notes[0].layer === "person", "list_memory query finds a note by its details", searched);
+  const searchedTheirs = await mcp.ok("list_memory", { workspace_id: ws, query: "colleague" });
+  check(searchedTheirs.notes.length === 0, "list_memory query never finds another person's note", searchedTheirs);
+  const oneNote = await mcp.ok("list_memory", { memory_id: roleId });
+  check(oneNote.memory_id === roleId && oneNote.details === `Reports to the finance lead ${RUN}.`, "list_memory memory_id reads one note with its details", oneNote);
+  // The limits are the chat's: 60 notes.
+  for (let i = 0; i < 58; i++) await personal.addMemory(memoryUser, ws, `Filler ${i} ${RUN}`);
   const memoryFull = await mcp.call("change_memory", { workspace_id: ws, action: "add", text: `One too many ${RUN}` });
-  check(memoryFull.isError && /full \(30 notes\)/.test(memoryFull.text), "a full memory is refused with a next step", memoryFull.text);
+  check(memoryFull.isError && /full \(60 notes\)/.test(memoryFull.text), "a full memory is refused with a next step", memoryFull.text);
   const fillers = (await personal.listMemories(memoryUser, ws)).filter((n) => n.text.startsWith("Filler")).map((n) => n.id);
   const deletedFillers = await mcp.ok("change_memory", { workspace_id: ws, action: "delete", memory_ids: fillers });
-  check(deletedFillers.deleted === 28 && !deletedFillers.not_found && deletedFillers.notes.length === 2, "change_memory delete deletes notes by memory_ids", deletedFillers);
+  check(deletedFillers.deleted === 58 && !deletedFillers.not_found && deletedFillers.notes.length === 2, "change_memory delete deletes notes by memory_ids", deletedFillers);
   const deletedAgain = await mcp.call("change_memory", { workspace_id: ws, action: "delete", memory_ids: fillers.slice(0, 2) });
   check(!deletedAgain.isError && deletedAgain.data?.deleted === 0, "the same delete again does no harm", deletedAgain.text);
   // Off by the user's own switch, or by the owners' for the workspace: nothing read or kept.
