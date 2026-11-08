@@ -547,7 +547,7 @@ export const MessageItem = memo(function MessageItem({
             {time(m.createdAt, locale)}
           </time>
         ) : (
-          m.authorId && <PersonFace s={s} userId={m.authorId} size="lg" />
+          m.authorId && <PersonFace s={s} userId={m.authorId} size="lg" presence={false} />
         )}
       </div>
       <div className="min-w-0 flex-1">

@@ -6,7 +6,7 @@ import { cn } from "@/components/ui";
 import { textOn, userColor } from "@/lib/presence";
 import type { View } from "./store";
 
-const DOT = { xs: "h-2 w-2", sm: "h-2.5 w-2.5", md: "h-2.5 w-2.5", lg: "h-3 w-3" } as const;
+const DOT = { xs: "h-1.5 w-1.5", sm: "h-2 w-2", md: "h-2 w-2", lg: "h-2 w-2" } as const;
 
 /**
  * A person's face in Messages: their picture or initial in their color, with a dot for whether
@@ -35,7 +35,7 @@ export function PersonFace({ s, userId, size = "md", count, presence = true }: {
         state !== "offline" && (
           <span
             aria-hidden
-            className={cn("absolute -end-0.5 -bottom-0.5 rounded-full ring-2 ring-bg", DOT[size], state === "active" ? "bg-accent" : "border-2 border-fg-faint bg-bg")}
+            className={cn("absolute end-0 bottom-0 rounded-full ring-[1.5px] ring-bg", DOT[size], state === "active" ? "bg-accent" : "border-[1.5px] border-fg-faint bg-bg")}
           />
         )
       )}
