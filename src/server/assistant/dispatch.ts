@@ -359,13 +359,14 @@ export async function setUpRun(
     ...mailTools,
     ...(remembers ? AGENT_MEMORY_TOOLS : []),
     ...(leavesNote ? [HANDOFF_TOOL] : []),
-    ...webTools,
+    // A channel's run asks before a web call carrying words the member didn't type: with no one to answer, it gets none.
+    ...(channelRun && unanswered ? [] : webTools),
     ...(handoff ? handoff.tools : []),
     ...(reminder ? [reminder.tool] : []),
     // A chat's answer may carry files for the person (chat-files.ts).
     ...(chat ? [ATTACH_FILE_TOOL] : []),
     ...(computer ? computerTools(computer) : []),
-    // A channel's run asks before each of a connection's calls (readOutside): with no one to answer, it gets none.
+    // A channel's run asks before each of a connection's calls (readOutside): with no one to answer, none either.
     ...(arrival || (channelRun && unanswered) ? [] : toolset.tools),
     ...(moreTools ? [FIND_TOOLS, USE_TOOL] : []),
   ];

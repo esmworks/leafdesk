@@ -265,8 +265,8 @@ itself starts that thread. The run is held to that member's access as well as th
 comment's mention is, and changes nothing in pages or rows. What others wrote in the thread is
 anyone's words, so the run treats it as data from outside: an owner's rule that lets a
 connection's tool run without asking doesn't hold, and each such call waits for approval (it is
-offered none when the member answers to no owner), as does a web call carrying words the member
-didn't type. It proposes no notes, and its answer mentions no one: names and `@channel` in it are
+offered none unless the member owns the workspace: approvals go to them alone), as does a web call
+carrying words the member didn't type (likewise offered only to an owner). It proposes no notes, and its answer mentions no one: names and `@channel` in it are
 plain words. When it can't answer it says why in the thread, as in comments. `@here` and
 `@channel` start no run, nor does naming an agent outside the channel, a guest's message, an
 edit, an agent's own message or a direct message. Its runs show who mentioned it and in which
