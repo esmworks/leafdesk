@@ -115,44 +115,10 @@
   ways (a held meeting and a calendar address's events stay put). A to-do's time is a reminder on
   its date's own day: dropping it on an hour sets one then, which also reminds you; dropping it on a
   whole day takes that reminder off. Add events where they come from.
-- **Messages** (on the sidebar's rail): the workspace's own conversations, live over a websocket.
-  *Channels* are public (everyone in the workspace finds and joins them) or private (only the people
-  added see them); *direct messages* are between two to nine people. Everyone joins a *general*
-  channel on their first visit, and a channel can take in everyone who joins the workspace later;
-  guests see only the channels they are added to and write directly only to people they share one
-  with. The panel lists starred channels, channels and direct messages, unread ones in bold with
-  their mentions counted, and *Threads*, *Activity* (mentions of you and reactions to your
-  messages), *Saved* and *Drafts and scheduled* above them.
-  The box writes Markdown (`Cmd/Ctrl+B` and `I`, code), `@` mentions people, `@here` (those present
-  now) and `@channel`, `#` links a channel, `:` finds an emoji and `[[` links a page; paste or drop
-  files and pictures (ten a message). Enter sends, Shift+Enter starts a new line, ↑ in an empty box
-  edits your last message, and the arrow beside *Send* schedules it (tomorrow morning, next Monday or
-  a time of your own). What you leave in a box is kept as a draft on the server, on every device.
-  Mentioning someone who isn't in the channel offers to add them. Agents can be added to a
-  channel like people; naming one there has it answer in the message's thread (see
-  [Agents](agents.md)).
-  Each message has replies in a *thread* beside the channel (followed by those who write in it,
-  with *Also send to the channel* for a reply everyone should see), reactions, *Save for later*
-  with an optional reminder, and in its `⋯` menu *Edit* (earlier versions stay readable), *Mark
-  unread from here*, *Copy link*, *Forward*, *Pin to channel*, *Add to my tasks* (a task on your
-  own list whose page quotes the message and links back to it) and *Delete*. A channel shows where
-  you stopped reading with a *New* line, who is typing and who is looking at it now, and in
-  channels of up to 20 people who has read the latest messages.
-  *Search* finds words in every conversation you can read, narrowed with `from:@name`,
-  `in:#channel`, `has:file` (or `image`, `link`, `pin`, `reaction`, `thread`), `before:`,
-  `after:`, `on:` and `"exact words"`. A channel's details (click its name) hold its name, topic
-  (anyone in it may change the topic) and description, its people and their roles, your
-  notifications for it (every message, mentions only or nothing; muted; hidden until something new)
-  and, for its admins, *Only admins post*, *New people join automatically*, *Make the channel
-  private* (for good), leaving and archiving (an archived channel stays readable). New messages
-  that concern you (by that setting; replies in threads you follow) come as push notifications,
-  unless the conversation is open in front of you or your quiet hours last. Keys: `Cmd/Ctrl+Shift+K`
-  jumps to a channel or person, `Alt+↑/↓` to the conversation before or after (with Shift, the
-  unread ones), `Shift+Esc` marks everything read.
-  With AI on, a channel opened with three or more unread messages has *Catch up* (✦) in its head, as has a thread
-  of eight replies or more: the fast model reads what you hadn't read when you opened it (the newest
-  150 messages at most) and sums it up, with the questions put to you, the decisions and what is
-  still open, each point opening its message. It changes nothing: the messages stay unread.
+- **Messages** (on the sidebar's rail): the workspace's own conversations, live over a websocket:
+  public and private channels, direct messages, threads, mentions, reactions, pins, saved and
+  scheduled messages, search, push notifications, agents that answer in channels and *Catch up*
+  with AI. See [Messages](messages.md).
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet), under *Today*, *Yesterday*,
   *Previous 7 days* and *Older*, each with the page or database it sits in. The row under the query
@@ -1286,22 +1252,8 @@
   are listed in the result. Read as the documented layout: the board's name on top, each group's
   name over its header row, subitems one column in under their item, updates on a sheet of their
   own. Tested against files built from that layout, not yet a real export.
-- **Import from Slack** (workspace owners): in Slack, an owner exports the workspace's data
-  (*Workspace settings → Import/Export Data → Export*); in Leafdesk, open *Messages → Browse
-  channels → Import from Slack* and choose the ZIP. Public and private channels come in as new
-  channels (a name already taken gets a number, and the result says so) with their topic, purpose,
-  creation time and archived state; the importing owner joins each as an admin, beside the
-  channel's members who matched. People are matched to the workspace's members by email: their
-  messages, reactions and mentions are theirs; everyone else's messages show the name they had in
-  Slack (invite them with the same email first to have them as theirs). Messages keep their
-  original times, edits and threads (a reply also sent to the channel stays so); Slack's formatting
-  becomes Markdown, emoji names emoji, `@channel` and `@here` plain words. The history comes in
-  read: no one is notified, mentioned or made to follow old threads. Files link to their page on
-  Slack, or with *Download files* are stored in the workspace (fetched as an address anyone gives:
-  only `WEB_FETCH_ALLOWED_HOSTS` reaches a private network; one that can't be fetched stays a link).
-  Direct conversations, custom emoji and reactions of people who matched no member are left out and
-  counted in the result. Importing the same export again leaves its channels as they are. The
-  export may hold up to 100,000 files (one per channel and day); the ZIP's own limits are Import's.
+- **Import from Slack** (workspace owners): a Slack workspace's export comes into Messages as
+  channels with their history, people matched by email; see [Messages](messages.md#import-from-slack).
 - **Save a web page**: *Save from web…* in the sidebar's *New* and *+* menus (or Import's *Web
   page* tab) takes a web page's address and saves its title, a link back, its main text (without
   the menus, ads, comments and footers around it) and its pictures, copied into the workspace (up

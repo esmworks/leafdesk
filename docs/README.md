@@ -7,6 +7,7 @@
 - [Running a server](self-hosting.md): file storage, email, push notifications, social login, maps, administrators, Dokploy, Railway, Supabase.
 - [Export](export.md): Markdown, CSV, PDF and whole-workspace exports, backups, editing a page as Markdown.
 - [Email on rows](email-on-rows.md): members' mailboxes, the Mail tab, mail on database rows, follow-ups.
+- [Messages](messages.md): channels, direct messages and threads, Catch up with AI, agents in channels, importing from Slack.
 - [Accounts and security](account-and-security.md): accounts, who can join, two-step verification, SSO and SCIM, security switches, audit log streaming, sensitive content.
 - [Automations and webhooks](automations.md): database automations, webhooks in and out, page webhooks.
 - [AI features](ai.md): AI providers and models, usage limits, your own AI keys, voice and meeting notes, semantic search, the AI chat from Telegram, skills, snippets.
