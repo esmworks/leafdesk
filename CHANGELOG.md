@@ -15,6 +15,13 @@
   they are added to. A lost connection catches up on what it missed. Channel changes are in the
   audit log, channels and their messages in backups (direct messages stay out, like AI chats), and
   legal holds keep messages from being deleted. Migration `0199_messages`.
+- **Agents answer in Messages channels.** Add an agent to a channel and name it with `@` in a
+  message or a reply: it reads the message and the thread before it, and answers in that thread as
+  itself, for everyone in the channel. The run is held to the access of the member who asked; what
+  others wrote in the thread counts as words from outside, so its connections' calls wait for
+  approval, and its answer notifies no one. Guests, `@here`, `@channel` and agents' own messages
+  start nothing. Its runs show the channel (source `channel`, failure code `messageGone`), and
+  *Mentions in channels* joins the agent's triggers.
 - **Export as PDF and Print from the Share panel.** Its foot now has the page menu's two ways of
   taking a page out on paper, so a row such as a delivery note goes to the printer from where it is
   shared. They follow the workspace's export settings like the menu's.

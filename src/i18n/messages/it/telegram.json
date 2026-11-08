@@ -188,6 +188,7 @@
         "rowGone": "La riga è stata eliminata.",
         "databaseGone": "Il database di cui si occupa è stato eliminato o spostato nel cestino.",
         "commentGone": "Il commento che lo menzionava è stato eliminato, o la sua pagina è stata spostata nel cestino.",
+        "messageGone": "Il messaggio che lo menzionava, o il suo thread, è stato eliminato.",
         "provider": "Il provider IA non ha risposto.",
         "timeout": "L’esecuzione ha richiesto troppo tempo.",
         "tooManyAttempts": "Non è riuscita a partire in tempo: la quota IA dello spazio di lavoro è rimasta esaurita.",

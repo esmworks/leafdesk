@@ -180,6 +180,12 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   see *Conventions*). In the browser `components/messages/store.ts` holds what the socket brought:
   unread is the server's count plus live messages past `countedTo`, the seq it counted. Pages
   change the query with `history.pushState` (`lib/messages.ts` `messagesPath`), never the router.
+  An agent in a channel answers a member's message naming it: `sendMessage` (after its write)
+  calls `agents/channel-mentions.ts` (source `channel`, keyed on the thread's first message), and
+  `run.ts` `finish` posts the answer by `sendMessage` as the agent under the run's id, with
+  `lib/message-text.ts` `withoutCalls`; the thread is outside words (`dispatch.ts` `readOutside`).
+  Anything that stores messages without a person writing them now (an import) must not go through
+  `sendMessage`, or its mentions of agents start runs (only `FRESH_MS` holds them back).
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.
@@ -791,7 +797,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,
-  agent-schedule, agent-sharing, agent-guardrails, agent-skills, automation, button, row-buttons, timed-automation, schedule,
+  agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule,
   row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.

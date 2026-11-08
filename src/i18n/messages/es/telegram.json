@@ -188,6 +188,7 @@
         "rowGone": "La fila se eliminó.",
         "databaseGone": "La base de datos que atiende se eliminó o se movió a la papelera.",
         "commentGone": "El comentario que lo mencionó se eliminó, o su página se movió a la papelera.",
+        "messageGone": "Se eliminó el mensaje que lo mencionaba, o su hilo.",
         "provider": "El proveedor de IA no respondió.",
         "timeout": "La ejecución tardó demasiado.",
         "tooManyAttempts": "No pudo empezar a tiempo: el cupo de IA del espacio de trabajo siguió agotado.",

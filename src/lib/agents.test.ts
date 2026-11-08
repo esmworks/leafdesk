@@ -11,6 +11,7 @@ import {
   MAX_FINISH_REASON,
   inboxCallInput,
   isAgentEmail,
+  isChannelRun,
   isMentionRun,
   isScheduleRun,
   leftUntold,
@@ -197,6 +198,19 @@ describe("who a run is for (sees its work and answers its call)", () => {
     expect(ownerSeesRun(mentioned, "o1", true)).toBe(true);
     expect(ownerSeesRun(mentioned, "o1", false)).toBe(false);
     expect(ownerSeesRun(mentioned, "m1", false)).toBe(false);
+  });
+
+  it("is a channel mention's run for the member who wrote the message alone, whoever can open what", () => {
+    const inChannel: AgentRunSource = { kind: "channel", channelId: "ch", threadId: "root", messageId: "msg", mentionedBy: "m1" };
+    expect(isChannelRun(inChannel)).toBe(true);
+    expect([row, asked, event, mentioned].some(isChannelRun)).toBe(false);
+    expect(runPageOf(inChannel)).toBeNull();
+    expect(ownerSeesRun(inChannel, "m1", false)).toBe(true);
+    expect(ownerSeesRun(inChannel, "o1", true)).toBe(false);
+    // A helper another agent asked for one shows to the same member.
+    const helper: AgentRunSource = { kind: "handoff", parentRunId: "r", fromAgentId: "a", callId: "c", boundTo: "m1", trusted: false, parent: inChannel };
+    expect(ownerSeesRun(helper, "m1", false)).toBe(true);
+    expect(ownerSeesRun(helper, "o1", true)).toBe(false);
   });
 
   it("is a row's or a database's run for the owners who can open it", () => {

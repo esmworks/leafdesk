@@ -128,7 +128,9 @@
   files and pictures (ten a message). Enter sends, Shift+Enter starts a new line, ↑ in an empty box
   edits your last message, and the arrow beside *Send* schedules it (tomorrow morning, next Monday or
   a time of your own). What you leave in a box is kept as a draft on the server, on every device.
-  Mentioning someone who isn't in the channel offers to add them.
+  Mentioning someone who isn't in the channel offers to add them. Agents can be added to a
+  channel like people; naming one there has it answer in the message's thread (see
+  [Agents](agents.md)).
   Each message has replies in a *thread* beside the channel (followed by those who write in it,
   with *Also send to the channel* for a reply everyone should see), reactions, *Save for later*
   with an optional reminder, and in its `⋯` menu *Edit* (earlier versions stay readable), *Mark

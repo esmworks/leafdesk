@@ -1,7 +1,7 @@
 "use client";
 
 import { IconGlyph } from "@/components/builtin-icon";
-import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, Mail, MailX, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
+import { BookCheck, BookX, Bot, CalendarClock, ChevronRight, Globe, Hash, Mail, MailX, MessageSquare, MessageSquareOff, MessagesSquare, Play, Plug, RefreshCw, TriangleAlert, X } from "lucide-react";
 import { lazyPart } from "@/components/lazy-part";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,6 +25,7 @@ import { ApprovalActions } from "@/components/connections/approval-actions";
 import { IconPicker } from "@/components/page/icon-picker";
 import { useAction } from "@/components/settings/workspace-settings";
 import { Button, cn, DialogFooter, IconButton, Input, PageIcon, pageLabel, selectClass, Switch, textareaClass } from "@/components/ui";
+import { messagesPath } from "@/lib/messages";
 import type { AgentInput } from "@/server/agents/manage";
 import { MAX_AGENT_MAIL_RECIPIENTS, parseMailRecipients } from "@/lib/agent-mail";
 import { CHAT_THINKING, type ChatThinking } from "@/lib/ai-chat";
@@ -727,6 +728,17 @@ function RunItem({
                   </Link>
                 ) : (
                   <span className="truncate">{t("fromMentionHidden", { name: run.mention?.byName ?? "" })}</span>
+                )}
+              </span>
+            ) : run.source.kind === "channel" ? (
+              <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+                <Hash aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                {run.channel?.channelName != null ? (
+                  <Link href={messagesPath(workspaceId, { channelId: run.source.channelId, threadId: run.source.threadId, messageId: run.source.messageId })} className="truncate hover:underline">
+                    {t("fromChannel", { name: run.channel.byName, channel: run.channel.channelName })}
+                  </Link>
+                ) : (
+                  <span className="truncate">{t("fromChannelHidden", { name: run.channel?.byName ?? "" })}</span>
                 )}
               </span>
             ) : run.source.kind === "handoff" ? (

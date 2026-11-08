@@ -31,6 +31,7 @@ export function remindedPerson(source: AgentRunSource): string | null {
     case "schedule":
       return source.scheduledBy;
     case "mention":
+    case "channel":
       return source.mentionedBy;
     default:
       return null;

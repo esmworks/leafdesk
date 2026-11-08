@@ -188,6 +188,7 @@
         "rowGone": "Die Zeile wurde gelöscht.",
         "databaseGone": "Die Datenbank, um die er sich kümmert, wurde gelöscht oder in den Papierkorb verschoben.",
         "commentGone": "Der Kommentar, der ihn erwähnt hat, wurde gelöscht, oder seine Seite wurde in den Papierkorb verschoben.",
+        "messageGone": "Die Nachricht, die ihn erwähnt hat, oder ihr Thread wurde gelöscht.",
         "provider": "Der KI-Anbieter hat nicht geantwortet.",
         "timeout": "Der Durchlauf hat zu lange gedauert.",
         "tooManyAttempts": "Er konnte nicht rechtzeitig starten: Das KI-Kontingent des Workspaces blieb aufgebraucht.",

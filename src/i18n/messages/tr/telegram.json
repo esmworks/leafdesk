@@ -188,6 +188,7 @@
         "rowGone": "Satır silinmiş.",
         "databaseGone": "Baktığı veritabanı silindi ya da çöp kutusuna taşındı.",
         "commentGone": "Ondan bahseden yorum silindi ya da sayfası çöp kutusuna taşındı.",
+        "messageGone": "Ondan bahseden mesaj ya da başladığı konu silindi.",
         "provider": "Yapay zekâ sağlayıcısı yanıt vermedi.",
         "timeout": "Çalışma çok uzun sürdü.",
         "tooManyAttempts": "Zamanında başlayamadı: çalışma alanının yapay zekâ kotası dolu kaldı.",

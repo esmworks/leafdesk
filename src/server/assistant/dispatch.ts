@@ -16,6 +16,7 @@ import {
   finishRunCall,
   MAX_FINISH_REASON,
   isEventRun,
+  isChannelRun,
   isMentionRun,
   isMailRun,
   READS_AFTER_MAIL,
@@ -237,6 +238,8 @@ export async function setUpRun(
   const maxWrites = databaseId ? MAX_SCHEDULED_WRITES : MAX_AGENT_WRITES;
   const eventRun = isEventRun(run.source);
   const mention = isMentionRun(run.source) ? run.source : null;
+  // A member's message in a channel of Messages started it: it answers in the message's thread.
+  const channelRun = isChannelRun(accessSource(run.source));
   // New email started it: it reads that email from the start, as anyone's words (see answer), and
   // has only what a run that read email may use.
   const arrival = isMailRun(run.source) ? run.source : null;
@@ -256,7 +259,7 @@ export async function setUpRun(
   // that out: a web call carrying an address or search words the person didn't write (or any, on a
   // helper's run, whose task an agent wrote) waits for an owner too (lib/web-calls.ts).
   const askedFor = accessSource(run.source);
-  const askedInWords = askedFor.kind === "chat" || askedFor.kind === "request" || isMentionRun(askedFor);
+  const askedInWords = askedFor.kind === "chat" || askedFor.kind === "request" || isMentionRun(askedFor) || isChannelRun(askedFor);
   const webAsks = { askEveryTool, typed: askedInWords ? (run.source.kind === "handoff" ? [] : [run.prompt]) : null };
   // A schedule's run (or a helper's run for one) has no one watching and is due again later: it
   // searches, and reads the pages of its task or of its own searches' results, and any other read
@@ -277,18 +280,18 @@ export async function setUpRun(
   // someone no owner answers for (one someone who isn't an owner asked for, set or chats in,
   // approvers.ts): each such call waits for an owner, and would only run out of time.
   const heldTo = accessSource(run.source);
-  const heldToPerson = heldTo.kind === "chat" || heldTo.kind === "request" || heldTo.kind === "mail" || (isScheduleRun(heldTo) && !heldTo.databaseId);
+  const heldToPerson = heldTo.kind === "chat" || heldTo.kind === "request" || heldTo.kind === "mail" || isChannelRun(heldTo) || (isScheduleRun(heldTo) && !heldTo.databaseId);
   const unanswered = heldToPerson && (await approversOf(run)).length === 0;
   const toolset = await agentToolset(agent.id, { writes: (!chat || chatWrites) && !unanswered });
   const connections = [...new Set([...toolset.byName.values()].map((e) => e.connection.name))];
   // What a run reads that no one in the workspace stands behind could fill the owners' review with
   // its own notes: such a run proposes none.
   const memoryOn = await memoryAvailable(run.workspaceId);
-  // A mention's run answers one person in a thread, another agent wrote a helper's task, and
+  // A mention's run (in a comment or a channel) answers one person in a thread, another agent wrote a helper's task, and
   // someone who isn't an owner shouldn't fill the owners' review from a read-only chat: these read
   // the notes owners kept, but propose none.
   const handedOff = run.source.kind === "handoff";
-  const remembers = memoryOn && !askEveryTool && !mention && !handedOff && !arrival && (!chat || chatWrites);
+  const remembers = memoryOn && !askEveryTool && !mention && !isChannelRun(run.source) && !handedOff && !arrival && (!chat || chatWrites);
   // Where it left off goes only to the same schedule's next run, which reads the same: no one approves it.
   const leavesNote = memoryOn && scheduled;
   const mentionTools = mentionEdits?.edits ? [EDIT_PAGE, ...(mentionEdits.row ? [UPDATE_ROW] : [])] : [];
@@ -362,10 +365,11 @@ export async function setUpRun(
     // A chat's answer may carry files for the person (chat-files.ts).
     ...(chat ? [ATTACH_FILE_TOOL] : []),
     ...(computer ? computerTools(computer) : []),
-    ...(arrival ? [] : toolset.tools),
+    // A channel's run asks before each of a connection's calls (readOutside): with no one to answer, it gets none.
+    ...(arrival || (channelRun && unanswered) ? [] : toolset.tools),
     ...(moreTools ? [FIND_TOOLS, USE_TOOL] : []),
   ];
-  return { agent, run, member, chatWrites, outside, ctx, rowRun, scheduled, databaseId, maxWrites, eventRun, mention, arrival, mentionEdits, askEveryTool, webTools, webNames, askedFor, askedInWords, webAsks, unattended, webTask, chat, proposes, ownApproved, clock, heldTo, heldToPerson, unanswered, toolset, connections, memoryOn, handedOff, remembers, leavesNote, mentionTools, handoff, reminded, reminder, mailBoxes, mailHeld, mailProposes, ownTools, reviews, draftDatabase, sender, mailer, mailTools, computer, merges, moreTools, tools };
+  return { agent, run, member, chatWrites, outside, ctx, rowRun, scheduled, databaseId, maxWrites, eventRun, mention, channelRun, arrival, mentionEdits, askEveryTool, webTools, webNames, askedFor, askedInWords, webAsks, unattended, webTask, chat, proposes, ownApproved, clock, heldTo, heldToPerson, unanswered, toolset, connections, memoryOn, handedOff, remembers, leavesNote, mentionTools, handoff, reminded, reminder, mailBoxes, mailHeld, mailProposes, ownTools, reviews, draftDatabase, sender, mailer, mailTools, computer, merges, moreTools, tools };
 }
 
 export type RunSetup = Exclude<Awaited<ReturnType<typeof setUpRun>>, Ending>;
@@ -399,7 +403,7 @@ export function createDispatch(
     queue: AiToolCall[];
   },
 ) {
-  const { agent, run, member, chatWrites, outside, ctx, rowRun, scheduled, databaseId, maxWrites, eventRun, mention, askEveryTool, webNames, webAsks, unattended, webTask, chat, proposes, ownApproved, unanswered, toolset, remembers, leavesNote, mentionTools, handoff, reminded, reminder, mailBoxes, mailProposes, sender, mailer, mailTools, computer, moreTools, tools, memoryOn } = setup;
+  const { agent, run, member, chatWrites, outside, ctx, rowRun, scheduled, databaseId, maxWrites, eventRun, mention, channelRun, askEveryTool, webNames, webAsks, unattended, webTask, chat, proposes, ownApproved, unanswered, toolset, remembers, leavesNote, mentionTools, handoff, reminded, reminder, mailBoxes, mailProposes, sender, mailer, mailTools, computer, moreTools, tools, memoryOn } = setup;
   let { writes, externalChars, webFound, mailRead, localRead, queue } = start;
   // Rows proposed from email (MAX_MAIL_PROPOSALS), apart from the changes it made.
   let proposals = steps.filter((s) => s.kind === "write" && s.outcome === "proposed").length;
@@ -459,12 +463,14 @@ export function createDispatch(
   const filesAttached = "files" in run.context && (run.context.files?.length ?? 0) > 0;
   /**
    * Whether the run read what anyone may have written, which could steer its calls: a run no one
-   * stands behind (askEveryTool), one a file came with, or one whose steps read others' words
+   * stands behind (askEveryTool), one a file or a channel's thread came with, or one whose steps read others' words
    * (readOthersWords: a web page or search, a connection tool's answer, a folder or file on the
    * person's computer, another agent's answer). An owner's "allow" rule doesn't hold there: each
    * call waits for a person, as without one. (A run that read email calls no connection's tool at all.)
    */
-  const readOutside = () => askEveryTool || filesAttached || readOthersWords(steps);
+  // A channel's thread, which anyone in the channel may have written, goes with its task (or, on a
+  // helper's run for one, the asking run's): read from the start.
+  const readOutside = () => askEveryTool || filesAttached || channelRun || readOthersWords(steps);
   outside.read = readOutside;
   /**
    * Whether a chat run, at this point, has read nothing but its person's words and the workspace:

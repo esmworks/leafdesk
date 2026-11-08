@@ -1,6 +1,6 @@
 "use client";
 
-import { AtSign, CalendarClock, ChevronRight, Mail, MessageSquare, MousePointerClick, Plug, Send, Zap, type LucideIcon } from "lucide-react";
+import { AtSign, CalendarClock, ChevronRight, Hash, Mail, MessageSquare, MousePointerClick, Plug, Send, Zap, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -14,6 +14,7 @@ import { useRuleSummary } from "./rule-summary";
 const ICONS: Record<TriggerKind, LucideIcon> = {
   chat: MessageSquare,
   mention: AtSign,
+  channel: Hash,
   request: Send,
   schedule: CalendarClock,
   automation: Zap,
@@ -51,6 +52,7 @@ export function AgentTriggersTab({ workspaceId, agent, onTab }: { workspaceId: s
     switch (trigger.kind) {
       case "chat":
       case "mention":
+      case "channel":
       case "request":
         return { title: t(trigger.kind), detail: t(`${trigger.kind}Hint`), on: trigger.available, open: trigger.kind === "chat" ? () => onTab("chat") : null };
       case "schedule":
@@ -92,7 +94,7 @@ export function AgentTriggersTab({ workspaceId, agent, onTab }: { workspaceId: s
                   {detail && <span className="block truncate text-xs text-fg-muted">{detail}</span>}
                   <span className="block text-xs text-fg-muted">{t(`conversation.${trigger.conversation}`)}</span>
                 </span>
-                {!on && <span className="shrink-0 text-xs text-fg-muted">{trigger.kind === "chat" || trigger.kind === "mention" || trigger.kind === "request" ? t("unavailable") : t("off")}</span>}
+                {!on && <span className="shrink-0 text-xs text-fg-muted">{trigger.kind === "chat" || trigger.kind === "mention" || trigger.kind === "channel" || trigger.kind === "request" ? t("unavailable") : t("off")}</span>}
                 {(open || href) && <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-fg-muted rtl:rotate-180" aria-hidden />}
               </>
             );

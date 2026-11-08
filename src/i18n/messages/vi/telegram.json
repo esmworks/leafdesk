@@ -188,6 +188,7 @@
         "rowGone": "Hàng đã bị xóa.",
         "databaseGone": "Cơ sở dữ liệu mà nó phụ trách đã bị xóa hoặc chuyển vào thùng rác.",
         "commentGone": "Bình luận đã nhắc đến nó bị xóa, hoặc trang của bình luận đã được chuyển vào thùng rác.",
+        "messageGone": "Tin nhắn đã nhắc đến nó, hoặc chuỗi của tin nhắn đó, đã bị xóa.",
         "provider": "Nhà cung cấp AI không phản hồi.",
         "timeout": "Lần chạy mất quá nhiều thời gian.",
         "tooManyAttempts": "Nó không thể khởi động kịp lúc: hạn mức AI của không gian làm việc vẫn bị dùng hết.",
