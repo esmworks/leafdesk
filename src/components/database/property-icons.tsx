@@ -97,6 +97,28 @@ export const NEW_PROPERTY_KINDS: readonly NewPropertyKind[] = PROPERTY_TYPES.fla
   type === "number" ? ["number", "rating", "duration"] : [type],
 );
 
+export type NewPropertyGroup = "basic" | "contact" | "advanced" | "automatic";
+
+const GROUPED_KINDS: Record<NewPropertyGroup, readonly NewPropertyKind[]> = {
+  basic: ["text", "number", "rating", "duration", "select", "multi_select", "status", "date", "checkbox", "checklist"],
+  contact: ["person", "email", "phone", "url", "place", "files"],
+  advanced: ["relation", "rollup", "formula", "unique_id", "button"],
+  automatic: ["created_by", "created_time", "last_edited_by", "last_edited_time"],
+};
+
+/**
+ * The add-property list in groups, so it fits a window: every kind once, a kind no group names
+ * (a type added later) at the end of "advanced".
+ */
+export const NEW_PROPERTY_GROUPS: readonly { group: NewPropertyGroup; kinds: readonly NewPropertyKind[] }[] = (() => {
+  const named = new Set(Object.values(GROUPED_KINDS).flat());
+  const left = NEW_PROPERTY_KINDS.filter((kind) => !named.has(kind));
+  return (Object.keys(GROUPED_KINDS) as NewPropertyGroup[]).map((group) => ({
+    group,
+    kinds: group === "advanced" ? [...GROUPED_KINDS[group], ...left] : GROUPED_KINDS[group],
+  }));
+})();
+
 export function isNumberKind(kind: string): kind is NumberKind {
   return kind in NUMBER_KINDS;
 }

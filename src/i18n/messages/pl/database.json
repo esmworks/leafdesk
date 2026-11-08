@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "Nazwa właściwości",
     "type": "Typ",
+    "typeGroups": {
+      "basic": "Podstawowe",
+      "contact": "Kontakt i pliki",
+      "advanced": "Zaawansowane",
+      "automatic": "Wypełniane automatycznie"
+    },
     "sortAscending": "Sortuj rosnąco",
     "sortDescending": "Sortuj malejąco",
     "filter": "Filtruj",

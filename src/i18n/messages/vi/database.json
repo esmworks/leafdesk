@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "Tên thuộc tính",
     "type": "Kiểu",
+    "typeGroups": {
+      "basic": "Cơ bản",
+      "contact": "Liên hệ và tệp",
+      "advanced": "Nâng cao",
+      "automatic": "Tự động điền"
+    },
     "sortAscending": "Sắp xếp tăng dần",
     "sortDescending": "Sắp xếp giảm dần",
     "filter": "Lọc",

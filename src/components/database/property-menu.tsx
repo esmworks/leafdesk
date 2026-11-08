@@ -83,7 +83,7 @@ import { RelationOptionsEditor } from "./relation-options-menu";
 import { RollupEditor } from "./rollup-editor";
 import { CalculationOptions } from "./table-calculations";
 import { OptionChip } from "./property-cell";
-import { isNumberKind, NEW_PROPERTY_KINDS, NUMBER_KINDS, PropertyTypeIcon, useNewPropertyKindLabel, usePropertyTypeLabel, type NewPropertyKind } from "./property-icons";
+import { isNumberKind, NEW_PROPERTY_GROUPS, NEW_PROPERTY_KINDS, NUMBER_KINDS, PropertyTypeIcon, useNewPropertyKindLabel, usePropertyTypeLabel, type NewPropertyKind } from "./property-icons";
 import { RelationSetup } from "./relation-cell";
 import { useRelations } from "./relation-context";
 import { useSchema } from "./schema-context";
@@ -120,7 +120,9 @@ export function AddPropertyPanel({
   const listId = useId();
   useEffect(() => input.current?.focus(), []);
   const matching = typesMatching(NEW_PROPERTY_KINDS, typeLabel, name);
-  const listed = matching.length ? matching : NEW_PROPERTY_KINDS;
+  // Nothing typed: every type, in groups (in the groups' order, so the arrows follow what is shown).
+  const grouped = !matching.length;
+  const listed = grouped ? NEW_PROPERTY_GROUPS.flatMap((g) => g.kinds) : matching;
   // The type Enter makes: the one moved to with the arrows, else the first found, else text.
   const [moved, setMoved] = useState<number | null>(null);
   const marked = moved ?? (matching.length ? 0 : Math.max(0, listed.indexOf("text")));
@@ -204,8 +206,18 @@ export function AddPropertyPanel({
       />
     );
   }
+  const item = (type: NewPropertyKind) => {
+    const i = listed.indexOf(type);
+    return (
+      <div key={type} data-marked={i === marked ? "" : undefined} className="min-w-0">
+        <MenuItem icon={<PropertyTypeIcon type={type} />} active={i === marked} title={typeLabel(type)} onClick={() => create(type)}>
+          {typeLabel(type)}
+        </MenuItem>
+      </div>
+    );
+  };
   return (
-    <div className="w-60">
+    <div className="w-[26rem] max-w-full">
       <div className="p-1">
         <Input
           ref={input}
@@ -228,15 +240,23 @@ export function AddPropertyPanel({
           className="h-7"
         />
       </div>
-      <div className="px-2 pt-1.5 pb-1 text-xs text-fg-muted">{t("type")}</div>
-      <div ref={types} id={listId}>
-        {listed.map((type, i) => (
-          <div key={type} data-marked={i === marked ? "" : undefined}>
-            <MenuItem icon={<PropertyTypeIcon type={type} />} active={i === marked} onClick={() => create(type)}>
-              {typeLabel(type)}
-            </MenuItem>
-          </div>
-        ))}
+      {/* Held inside the window should it still be too short (the panel's own margin is 8px on each side). */}
+      <div ref={types} id={listId} className="max-h-[calc(100dvh-8rem)] overflow-y-auto">
+        {grouped ? (
+          NEW_PROPERTY_GROUPS.map(({ group, kinds }) => (
+            <div key={group} role="group" aria-labelledby={`${listId}-${group}`}>
+              <div id={`${listId}-${group}`} className="px-2 pt-1.5 pb-0.5 text-xs text-fg-muted">
+                {t(`typeGroups.${group}`)}
+              </div>
+              <div className="grid grid-cols-2">{kinds.map(item)}</div>
+            </div>
+          ))
+        ) : (
+          <>
+            <div className="px-2 pt-1.5 pb-0.5 text-xs text-fg-muted">{t("type")}</div>
+            <div className="grid grid-cols-2">{listed.map(item)}</div>
+          </>
+        )}
       </div>
       {onCreateAutofill && (
         <>

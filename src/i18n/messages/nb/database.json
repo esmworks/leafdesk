@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "Egenskapsnavn",
     "type": "Type",
+    "typeGroups": {
+      "basic": "Grunnleggende",
+      "contact": "Kontakt og filer",
+      "advanced": "Avansert",
+      "automatic": "Fylles ut automatisk"
+    },
     "sortAscending": "Sorter stigende",
     "sortDescending": "Sorter synkende",
     "filter": "Filtrer",

@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "Назва властивості",
     "type": "Тип",
+    "typeGroups": {
+      "basic": "Основні",
+      "contact": "Контакти й файли",
+      "advanced": "Розширені",
+      "automatic": "Заповнюються автоматично"
+    },
     "sortAscending": "Сортувати за зростанням",
     "sortDescending": "Сортувати за спаданням",
     "filter": "Фільтрувати",

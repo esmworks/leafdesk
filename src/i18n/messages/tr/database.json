@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "Özellik adı",
     "type": "Tür",
+    "typeGroups": {
+      "basic": "Temel",
+      "contact": "İletişim ve dosyalar",
+      "advanced": "Gelişmiş",
+      "automatic": "Otomatik"
+    },
     "sortAscending": "Artan sırala",
     "sortDescending": "Azalan sırala",
     "filter": "Filtrele",

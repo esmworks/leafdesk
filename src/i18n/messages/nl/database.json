@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "Naam van de eigenschap",
     "type": "Type",
+    "typeGroups": {
+      "basic": "Basis",
+      "contact": "Contact en bestanden",
+      "advanced": "Geavanceerd",
+      "automatic": "Automatisch ingevuld"
+    },
     "sortAscending": "Oplopend sorteren",
     "sortDescending": "Aflopend sorteren",
     "filter": "Filter",

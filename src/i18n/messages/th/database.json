@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "ชื่อคุณสมบัติ",
     "type": "ประเภท",
+    "typeGroups": {
+      "basic": "พื้นฐาน",
+      "contact": "การติดต่อและไฟล์",
+      "advanced": "ขั้นสูง",
+      "automatic": "กรอกให้อัตโนมัติ"
+    },
     "sortAscending": "เรียงจากน้อยไปมาก",
     "sortDescending": "เรียงจากมากไปน้อย",
     "filter": "ตัวกรอง",

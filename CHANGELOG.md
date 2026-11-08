@@ -101,6 +101,10 @@
 
 ### Changed
 
+- **Adding a property lists the types in groups, two to a line, so the list fits the window.**
+  The table's "+" and a row's *Add property* show *Basic*, *Contact and files*, *Advanced* and
+  *Automatic* types under their headings; typing a name still narrows the list to the types it
+  names, and a window too short for it scrolls the list instead of cutting the menu off.
 - **Export is one list in Settings → Security.** *Allow export* and the owners' switch became
   *Who can export*: *Everyone*, *Owners; others print single pages*, *Owners only* or *Nobody*.
   *Nobody* is the old *Allow export* off, which took exports from owners too; a workspace that had

@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "属性名称",
     "type": "类型",
+    "typeGroups": {
+      "basic": "基本",
+      "contact": "联系方式与文件",
+      "advanced": "高级",
+      "automatic": "自动填写"
+    },
     "sortAscending": "升序排列",
     "sortDescending": "降序排列",
     "filter": "筛选",

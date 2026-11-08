@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "속성 이름",
     "type": "유형",
+    "typeGroups": {
+      "basic": "기본",
+      "contact": "연락처 및 파일",
+      "advanced": "고급",
+      "automatic": "자동으로 채워짐"
+    },
     "sortAscending": "오름차순 정렬",
     "sortDescending": "내림차순 정렬",
     "filter": "필터",

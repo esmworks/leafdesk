@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "Ominaisuuden nimi",
     "type": "Tyyppi",
+    "typeGroups": {
+      "basic": "Perus",
+      "contact": "Yhteystiedot ja tiedostot",
+      "advanced": "Lisää",
+      "automatic": "Täyttyvät itsestään"
+    },
     "sortAscending": "Lajittele nousevasti",
     "sortDescending": "Lajittele laskevasti",
     "filter": "Suodata",

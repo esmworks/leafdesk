@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "نام ویژگی",
     "type": "نوع",
+    "typeGroups": {
+      "basic": "پایه",
+      "contact": "تماس و فایل‌ها",
+      "advanced": "پیشرفته",
+      "automatic": "خودکار پر می‌شوند"
+    },
     "sortAscending": "مرتب‌سازی صعودی",
     "sortDescending": "مرتب‌سازی نزولی",
     "filter": "فیلتر",

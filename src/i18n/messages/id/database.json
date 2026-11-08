@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "Nama properti",
     "type": "Tipe",
+    "typeGroups": {
+      "basic": "Dasar",
+      "contact": "Kontak dan file",
+      "advanced": "Lanjutan",
+      "automatic": "Terisi otomatis"
+    },
     "sortAscending": "Urutkan menaik",
     "sortDescending": "Urutkan menurun",
     "filter": "Filter",

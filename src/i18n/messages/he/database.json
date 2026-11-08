@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "שם המאפיין",
     "type": "סוג",
+    "typeGroups": {
+      "basic": "בסיסיים",
+      "contact": "יצירת קשר וקבצים",
+      "advanced": "מתקדמים",
+      "automatic": "מתמלאים אוטומטית"
+    },
     "sortAscending": "מיון בסדר עולה",
     "sortDescending": "מיון בסדר יורד",
     "filter": "סינון",

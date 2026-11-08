@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "Nome della proprietà",
     "type": "Tipo",
+    "typeGroups": {
+      "basic": "Di base",
+      "contact": "Contatti e file",
+      "advanced": "Avanzati",
+      "automatic": "Compilati automaticamente"
+    },
     "sortAscending": "Ordina in modo crescente",
     "sortDescending": "Ordina in modo decrescente",
     "filter": "Filtra",

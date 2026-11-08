@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "اسم الخاصية",
     "type": "النوع",
+    "typeGroups": {
+      "basic": "أساسية",
+      "contact": "التواصل والملفات",
+      "advanced": "متقدمة",
+      "automatic": "تُملأ تلقائيًا"
+    },
     "sortAscending": "فرز تصاعدي",
     "sortDescending": "فرز تنازلي",
     "filter": "تصفية",

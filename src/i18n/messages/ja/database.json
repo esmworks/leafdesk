@@ -513,6 +513,12 @@
   "propertyMenu": {
     "name": "プロパティ名",
     "type": "種類",
+    "typeGroups": {
+      "basic": "基本",
+      "contact": "連絡先とファイル",
+      "advanced": "高度",
+      "automatic": "自動で入力"
+    },
     "sortAscending": "昇順で並べ替え",
     "sortDescending": "降順で並べ替え",
     "filter": "フィルター",
