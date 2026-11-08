@@ -93,7 +93,8 @@ try {
   const outsider = await agents.createAgent(ids.owner, workspaceId, { name: "Outsider", instructions: "" });
   const mention = (a: { userId: string; name: string }) => refLink({ kind: "user", id: a.userId }, `@${a.name}`);
 
-  const launch = await channels.createChannel(ids.member, workspaceId, { name: `launch-${RUN}`, kind: "public", memberIds: [ids.owner] });
+  // Private: a guest joins only private channels.
+  const launch = await channels.createChannel(ids.member, workspaceId, { name: `launch-${RUN}`, kind: "private", memberIds: [ids.owner] });
   await channels.addMembers(ids.member, launch, [ids.guest, helper.userId]);
 
   // ── A reply in a thread naming the agent ──────────────────────────────────────────────────────
