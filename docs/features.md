@@ -147,7 +147,7 @@
   unless the conversation is open in front of you or your quiet hours last. Keys: `Cmd/Ctrl+Shift+K`
   jumps to a channel or person, `Alt+↑/↓` to the conversation before or after (with Shift, the
   unread ones), `Shift+Esc` marks everything read.
-  With AI on, a channel opened with unread messages has *Catch up* (✦) in its head, as has a thread
+  With AI on, a channel opened with three or more unread messages has *Catch up* (✦) in its head, as has a thread
   of eight replies or more: the fast model reads what you hadn't read when you opened it (the newest
   150 messages at most) and sums it up, with the questions put to you, the decisions and what is
   still open, each point opening its message. It changes nothing: the messages stay unread.

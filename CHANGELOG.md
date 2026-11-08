@@ -15,8 +15,8 @@
   they are added to. A lost connection catches up on what it missed. Channel changes are in the
   audit log, channels and their messages in backups (direct messages stay out, like AI chats), and
   legal holds keep messages from being deleted. Migration `0199_messages`.
-- **Catch up on a channel with AI.** A channel you open with unread messages has *Catch up* in its
-  head, and a thread of eight replies or more has the same button: the AI reads what you haven't
+- **Catch up on a channel with AI.** A channel you open with three or more unread messages has *Catch up*
+  in its head, and a thread of eight replies or more has the same button: the AI reads what you haven't
   (up to the newest 150 messages) and sums it up in a few sentences with the questions put to you,
   the decisions and what is still open, each point opening the message it comes from. It runs on
   the fast model, counts toward the workspace's AI limits, reads only what you may read and leaves
