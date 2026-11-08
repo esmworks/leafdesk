@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { broadcastOf, linkedPageIds, mentionedUserIds, withoutCalls } from "./message-text";
+import { withoutCalls } from "./message-quiet";
+import { broadcastOf, linkedPageIds, mentionedUserIds } from "./message-text";
 
 describe("withoutCalls", () => {
   it("turns mentions of people and @here / @channel into their words, and keeps channels and pages as links", () => {

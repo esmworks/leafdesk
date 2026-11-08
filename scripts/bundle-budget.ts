@@ -169,8 +169,11 @@ import { gzipSync } from "node:zlib";
  * about 27 kB to all first loads together, for which that budget rose 15 kB. Its dialogs, side
  * views, threads, the switcher and messages' Markdown (preloaded as the page opens) load when shown;
  * its tab in the sidebar loads when picked.
+ * Its Catch up button (the card loads when opened), the import of another chat's export (its dialog
+ * loads when opened) and agents answering in channels (their source in agents' runs and triggers)
+ * add about 1.5 kB to all first loads together, for which that budget rose 2 kB.
  */
-const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1254, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1256, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

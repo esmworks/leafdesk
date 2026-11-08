@@ -81,7 +81,7 @@ import { redactError, redactText, redactValue } from "@/lib/redact";
 import { ANSWER_CHARS, answerEvents } from "./answer-text";
 import { threadBefore } from "@/lib/comments";
 import { channelThreadBefore } from "@/lib/agent-channel";
-import { withoutCalls } from "@/lib/message-text";
+import { withoutCalls } from "@/lib/message-quiet";
 import { MESSAGE_LIMITS } from "@/lib/messages";
 import { findMembership, hasLevel, inWorkspace, isGuest, pageAccessOf } from "@/server/access";
 import { runActingFor } from "@/server/acting-for";
@@ -334,7 +334,7 @@ async function replyToMention(run: Pick<Run, "id" | "agentId" | "source" | "cont
 /**
  * Answers the message that mentioned the agent in a channel, in its thread, as the agent: its final
  * message, or a short word on why it has none (in the mentioner's language), as the comment's
- * answer above. Its words call no one (lib/message-text withoutCalls): the agent's answer never
+ * answer above. Its words call no one (lib/message-quiet withoutCalls): the agent's answer never
  * notifies people by name or the channel at large. The run's id is the message's, so a run that
  * ends twice answers once. Never throws: the agent may have left the channel since.
  */

@@ -197,7 +197,7 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   An agent in a channel answers a member's message naming it: `sendMessage` (after its write)
   calls `agents/channel-mentions.ts` (source `channel`, keyed on the thread's first message), and
   `run.ts` `finish` posts the answer by `sendMessage` as the agent under the run's id, with
-  `lib/message-text.ts` `withoutCalls`; the thread is outside words (`dispatch.ts` `readOutside`).
+  `lib/message-quiet.ts` `withoutCalls`; the thread is outside words (`dispatch.ts` `readOutside`).
   Anything that stores messages without a person writing them now (an import) must not go through
   `sendMessage`, or its mentions of agents start runs (only `FRESH_MS` holds them back).
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
