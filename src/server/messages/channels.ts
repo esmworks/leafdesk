@@ -36,7 +36,7 @@ export async function systemMessage(tx: Tx, changed: Changed, row: Pick<ChannelR
 }
 
 /** Adds people to a channel, who start with everything in it read. Returns those who weren't in it. */
-async function addPeople(tx: Tx, changed: Changed, row: ChannelRow, userIds: string[], role: "admin" | "member" = "member"): Promise<string[]> {
+export async function addPeople(tx: Tx, changed: Changed, row: ChannelRow, userIds: string[], role: "admin" | "member" = "member"): Promise<string[]> {
   if (!userIds.length) return [];
   const [{ lastSeq }] = await tx.select({ lastSeq: channel.lastSeq }).from(channel).where(eq(channel.id, row.id));
   const added = await tx

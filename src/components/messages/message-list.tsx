@@ -401,7 +401,11 @@ export function MessageList({
                     <span className="text-xs font-semibold text-danger">{t("newMessages")}</span>
                   </div>
                 ) : line.kind === "message" ? (
-                  <div key={line.key} className="[contain-intrinsic-size:auto_48px] [content-visibility:auto]">
+                  // Skipped while off screen; on screen its actions bar overhangs the row above, which `auto`'s paint containment would cut off.
+                  <div
+                    key={line.key}
+                    className="[contain-intrinsic-size:auto_48px] [content-visibility:auto] focus-within:[content-visibility:visible] hover:[content-visibility:visible] has-[[data-open]]:[content-visibility:visible]"
+                  >
                     <MessageItem m={line.m} continued={line.continued} ctx={ctx} highlighted={line.m.id === highlightId} pending={line.pending} editing={editingId === line.m.id} setEditing={setEditing} />
                     {line.readers && line.readers.length > 0 && (
                       <div className="flex justify-end gap-0.5 px-4 pb-0.5" title={t("readBy", { people: line.readers.map((id) => view.people.get(id)?.name ?? t("someone")).join(", ") })}>

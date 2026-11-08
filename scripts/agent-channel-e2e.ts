@@ -5,8 +5,10 @@
  * thread), held to the member; the run reads the message and the thread before it, framed as data
  * from outside, proposes no notes, and answers in the message's thread as the agent, its words
  * calling no one (no mention, no @channel); a message that starts no thread gets its answer as the
- * thread's first reply. No run starts for an agent outside the channel, @channel alone, a guest's
- * message, the agent's own answer, or a message brought in long after it was written; a run that
+ * thread's first reply. An agent shared with the writer, named outside the channel, is brought in
+ * (a line before the message says by whom) and answers. No run starts for an agent outside the
+ * channel not shared with the writer, @channel alone, a guest's message, the agent's own answer,
+ * or a message brought in long after it was written; a run that
  * can't answer (AI off) says why in the thread. The agent's runs show the channel to those who may
  * see it, and what the run read and answered to the member alone, in the app and over MCP.
  * Creates its own users and workspace and deletes them afterwards.
@@ -23,7 +25,7 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { eq, inArray, sql } = await import("drizzle-orm");
+const { desc, eq, inArray, sql } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { agentRun, channelMessage, conversation, messageMention, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { refLink } = await import("@/lib/message-text");
@@ -35,6 +37,7 @@ type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 const agents = await import("@/server/agents/manage");
 const { flushAgentRuns } = await import("@/server/agents/run");
 const { startChannelMentionRuns } = await import("@/server/agents/channel-mentions");
+const { removeAgentShare } = await import("@/server/agents/sharing");
 const { describeAgentRun } = await import("@/server/mcp/agents");
 const { emailTranslator } = await import("@/server/mail/templates");
 
@@ -91,6 +94,9 @@ try {
   ]);
   const helper = await agents.createAgent(ids.owner, workspaceId, { name: "Helper", icon: "🤖", instructions: "Answer questions in the team chat." });
   const outsider = await agents.createAgent(ids.owner, workspaceId, { name: "Outsider", instructions: "" });
+  // Not shared with the member: naming it brings it nowhere.
+  await removeAgentShare(ids.owner, outsider.id, { kind: "everyone" });
+  const newcomer = await agents.createAgent(ids.owner, workspaceId, { name: "Newcomer", instructions: "" });
   const mention = (a: { userId: string; name: string }) => refLink({ kind: "user", id: a.userId }, `@${a.name}`);
 
   // Private: a guest joins only private channels.
@@ -151,9 +157,21 @@ try {
   const topReplies = await repliesOf(top.id);
   check(topReplies.length === 1 && topReplies[0].authorId === helper.userId && topReplies[0].body === "Here is the answer.", "…and the answer starts the thread under it", topReplies);
 
+  // ── Naming an agent outside the channel ───────────────────────────────────────────────────────
+  const invited = await posts.sendMessage(ids.member, { id: crypto.randomUUID(), channelId: launch, body: `${mention(newcomer)} hello` });
+  check(!invited.notInChannel.length, "an agent shared with the writer, named outside the channel, isn't left out", invited.notInChannel);
+  const [line, said] = await db.select().from(channelMessage).where(eq(channelMessage.channelId, launch)).orderBy(desc(channelMessage.seq)).limit(2).then((rows) => rows.reverse());
+  check(
+    said?.id === invited.message.id && line?.kind === "system" && line.authorId === ids.member && JSON.stringify(line.data).includes(newcomer.userId),
+    "…the member brings it in, said in the line before the message",
+    line,
+  );
+  check((await runsOf(invited.message.id)).length === 1, "…and it gets the run, so it answers");
+  await db.delete(agentRun).where(sql`${agentRun.source}->>'messageId' = ${invited.message.id}`);
+
   // ── What starts nothing ───────────────────────────────────────────────────────────────────────
   const out = await posts.sendMessage(ids.member, { id: crypto.randomUUID(), channelId: launch, body: `${mention(outsider)} are you there?` });
-  check(out.notInChannel.includes(outsider.userId), "an agent outside the channel is named as someone not in it");
+  check(out.notInChannel.includes(outsider.userId), "an agent outside the channel not shared with the writer is named as someone not in it");
   const broadcast = await send(ids.member, launch, `${refLink({ kind: "everyone" }, "@channel")} hello`);
   const fromGuest = await send(ids.guest, launch, `${mention(helper)} hi from a guest`);
   const nothing = await Promise.all([out.message.id, broadcast.id, fromGuest.id].map((id) => runsOf(id, 1).then((rows) => rows.length)));
