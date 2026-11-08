@@ -44,8 +44,9 @@ export async function channelViews(where: SQL | undefined): Promise<ChannelView[
   const rows = await db
     .select({
       row: channel,
-      memberCount: sql<number>`(select count(*)::int from ${channelMember} cm where cm.channel_id = ${channel.id}
-        and ${stillInWorkspace(sql`cm.user_id`, sql`${channel.workspaceId}`)})`,
+      // Columns in select fields are written without their table, which a subquery would read as its own: named in full.
+      memberCount: sql<number>`(select count(*)::int from ${channelMember} cm where cm.channel_id = "channel"."id"
+        and ${stillInWorkspace(sql`cm.user_id`, sql`"channel"."workspace_id"`)})`,
       people: sql<string[]>`case when ${channel.kind} = 'direct' then string_to_array(${channel.directKey}, ',') else '{}'::text[] end`,
     })
     .from(channel)
@@ -78,8 +79,8 @@ export async function membershipViews(userId: string, where?: SQL): Promise<Memb
   const rows = await db
     .select({
       row: channelMember,
-      unread: sql<number>`(select count(*)::int from (select 1 from ${channelMessage} m where m.channel_id = ${channelMember.channelId}
-        and m.seq > ${channelMember.lastReadSeq} and ${countsUnread(sql`${channelMember.userId}`)} limit ${UNREAD_CAP + 1}) u)`,
+      unread: sql<number>`(select count(*)::int from (select 1 from ${channelMessage} m where m.channel_id = "channel_member"."channel_id"
+        and m.seq > "channel_member"."last_read_seq" and ${countsUnread(sql`"channel_member"."user_id"`)} limit ${UNREAD_CAP + 1}) u)`,
     })
     .from(channelMember)
     .where(and(eq(channelMember.userId, userId), where));

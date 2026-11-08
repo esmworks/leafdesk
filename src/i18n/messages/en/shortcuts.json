@@ -8,7 +8,8 @@
     "text": "Text formatting",
     "blocks": "Blocks",
     "databases": "Databases",
-    "mail": "Mail"
+    "mail": "Mail",
+    "messages": "Messages"
   },
   "items": {
     "shortcuts": "Show the keyboard shortcuts",
@@ -30,6 +31,7 @@
     "goJournal": "Go to the journal",
     "goChat": "Go to the AI chat",
     "goMail": "Go to Mail",
+    "goMessages": "Go to Messages",
     "goAgents": "Go to agents",
     "goInbox": "Open the inbox",
     "goSettings": "Go to settings",
@@ -98,6 +100,13 @@
     "mailGoSent": "Go to sent mail",
     "mailGoDrafts": "Go to drafts",
     "mailGoArchive": "Go to the archive",
-    "mailGoTrash": "Go to the trash"
+    "mailGoTrash": "Go to the trash",
+    "messagesSwitch": "Jump to a channel or conversation",
+    "messagesNext": "Open the next conversation in the list",
+    "messagesPrevious": "Open the previous conversation in the list",
+    "messagesNextUnread": "Open the next or previous unread conversation (with ↑)",
+    "messagesReadAll": "Mark every conversation read",
+    "messagesNewLine": "Start a new line in the message box",
+    "messagesEditLast": "Edit your last message (in an empty box)"
   }
 }

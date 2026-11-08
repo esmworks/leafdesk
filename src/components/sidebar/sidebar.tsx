@@ -20,7 +20,9 @@ import {
   LayoutTemplate,
   Link2,
   LogOut as LeaveIcon,
+  Hash,
   Mail as MailIcon,
+  MessagesSquare,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -105,7 +107,7 @@ import { inlineSign } from "@/components/direction";
 import { SIDEBAR_WIDTH } from "@/lib/sidebar-layout";
 import { isSettingsPath, useSidebar } from "./sidebar-context";
 import { RailCount, railIconClass, railItemClass, RailKey, railSelectedClass, RailTabs, type RailTab } from "./sidebar-rail";
-import { BookOpenIcon, CalendarIcon, ChatsIcon, CheckSquareIcon, EnvelopeIcon, GearIcon, HouseIcon, NotebookIcon, RobotIcon, SearchIcon, SidebarIcon, TrayIcon, type RailIcon } from "./rail-icons";
+import { BookOpenIcon, CalendarIcon, ChatDotsIcon, ChatsIcon, CheckSquareIcon, EnvelopeIcon, GearIcon, HouseIcon, NotebookIcon, RobotIcon, SearchIcon, SidebarIcon, TrayIcon, type RailIcon } from "./rail-icons";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
@@ -127,6 +129,8 @@ const TaskPanel = lazyPart(() => import("./task-panel").then((m) => m.TaskPanel)
 const MeetingPanel = lazyPart(() => import("./meeting-panel").then((m) => m.MeetingPanel));
 const CalendarPanel = lazyPart(() => import("./calendar-panel").then((m) => m.CalendarPanel));
 const MailSidebar = lazyPart(() => import("@/components/mail/mail-sidebar").then((m) => m.MailSidebar));
+// Loaded the first time the Messages tab opens; its store (and socket) comes with it.
+const MessagesSidebar = lazyPart(() => import("@/components/messages/messages-sidebar").then((m) => m.MessagesSidebar));
 // Loaded the first time the import dialog opens, with the readers of every format it takes.
 const ImportDialog = lazyPart(() => import("@/components/workspace/import-dialog").then((m) => m.ImportDialog));
 
@@ -172,7 +176,7 @@ type Target = string | null | undefined;
  * person last was in it (its start when there is none, or when it is already the open tab; the
  * agents have no start of their own).
  */
-type SidebarTab = "home" | "tasks" | "calendar" | "meetings" | "journal" | "chat" | "mail" | "agents";
+type SidebarTab = "home" | "tasks" | "calendar" | "meetings" | "journal" | "messages" | "chat" | "mail" | "agents";
 type ListedApart = SidebarData["listedApart"];
 const NOTHING_APART: ListedApart = { taskList: null, meetings: [] };
 const TAB_ICONS: Record<SidebarTab, RailIcon> = {
@@ -182,6 +186,7 @@ const TAB_ICONS: Record<SidebarTab, RailIcon> = {
   meetings: NotebookIcon,
   journal: BookOpenIcon,
   chat: ChatsIcon,
+  messages: ChatDotsIcon,
   mail: EnvelopeIcon,
   agents: RobotIcon,
 };
@@ -192,6 +197,7 @@ const TAB_GROUPS: Record<SidebarTab, string> = {
   tasks: "work",
   calendar: "work",
   meetings: "work",
+  messages: "talk",
   mail: "talk",
   chat: "talk",
   agents: "talk",
@@ -379,6 +385,7 @@ export function Sidebar({
   const tShortcuts = useTranslations("shortcuts");
   const tBuild = useTranslations("build");
   const tMail = useTranslations("mail");
+  const tMessages = useTranslations("messages");
   const tMeetings = useTranslations("meetings");
   const tTasks = useTranslations("home.myTasks");
   // Databases drafted by AI: where AI is on in the workspace, and the server can be reached.
@@ -625,6 +632,8 @@ export function Sidebar({
 
   // Daily notes are private top-level pages, so the journal only for those who may add them.
   const onMailPage = pathname.startsWith(`/w/${workspaceId}/mail`);
+  const messagesPagePath = `/w/${workspaceId}/messages`;
+  const onMessagesPage = pathname === messagesPagePath;
   const tasksPath = `/w/${workspaceId}/tasks`;
   const onTasksPage = pathname === tasksPath;
   const meetingsPath = `/w/${workspaceId}/meetings`;
@@ -640,6 +649,7 @@ export function Sidebar({
     "tasks",
     "calendar",
     "meetings",
+    "messages",
     ...(mail ? (["mail"] as const) : []),
     ...(aiChat ? (["chat"] as const) : []),
     ...(agents.length > 0 || onAgentPage ? (["agents"] as const) : []),
@@ -659,6 +669,37 @@ export function Sidebar({
       setMailUnread(0);
     };
   }, [mail, workspaceId]);
+  // Unread direct messages and mentions in team messages: the socket opens after the page, with its store.
+  const [messagesUnread, setMessagesUnread] = useState({ count: 0, dot: false });
+  useEffect(() => {
+    let stop: (() => void) | undefined;
+    let gone = false;
+    const start = () =>
+      void import("@/components/messages/store").then(({ watchUnread }) => {
+        if (!gone) stop = watchUnread(workspaceId, setMessagesUnread);
+      });
+    // Not in the way of the page's own first work.
+    const idle = typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(start, { timeout: 3000 }) : window.setTimeout(start, 1500);
+    return () => {
+      gone = true;
+      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
+      stop?.();
+      setMessagesUnread({ count: 0, dot: false });
+    };
+  }, [workspaceId]);
+  // A new channel or conversation, from the tab's head or the search box's commands, on the Messages page.
+  const messagesCommand = (command: "newChannel" | "newDirect" | "switch") => {
+    setTab("messages");
+    const send = () => window.dispatchEvent(new CustomEvent("leafdesk:messages-command", { detail: command }));
+    if (onMessagesPage) send();
+    else {
+      router.push(messagesPagePath);
+      // The page listens once it is drawn.
+      window.setTimeout(send, 600);
+    }
+    sidebar?.close();
+  };
   // A new message, from the New menu or the search box's commands, on the Mail page.
   const composeMail = () => {
     setTab("mail");
@@ -671,7 +712,7 @@ export function Sidebar({
   };
   // The journal's tab is there only for those who may add private top-level pages.
   const apartTab = activeId ? listedIn(activeId) : null;
-  const pageTab: SidebarTab = onTasksPage ? "tasks" : onCalendarPage ? "calendar" : onMeetingsPage ? "meetings" : onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : apartTab && (apartTab !== "journal" || topLevel) ? apartTab : "home";
+  const pageTab: SidebarTab = onTasksPage ? "tasks" : onCalendarPage ? "calendar" : onMeetingsPage ? "meetings" : onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : onMessagesPage ? "messages" : apartTab && (apartTab !== "journal" || topLevel) ? apartTab : "home";
   const [tab, setTab] = useState<SidebarTab>(pageTab);
   // The meeting notes the Meetings tab lists: opening one keeps the tab, as a page from the tree doesn't.
   const [meetingPages, setMeetingPages] = useState<ReadonlySet<string>>(() => new Set());
@@ -703,7 +744,7 @@ export function Sidebar({
     if (back) router.push(back);
     else if (next === "journal") openDailyNote();
     else if (next === "agents" && !onSettingsPage) return;
-    else router.push(next === "tasks" ? tasksPath : next === "calendar" ? calendarPath : next === "meetings" ? meetingsPath : next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : `/w/${workspaceId}`);
+    else router.push(next === "tasks" ? tasksPath : next === "calendar" ? calendarPath : next === "meetings" ? meetingsPath : next === "chat" ? chatPath(workspaceId) : next === "mail" ? `/w/${workspaceId}/mail` : next === "messages" ? messagesPagePath : `/w/${workspaceId}`);
   }
 
   // Desktop, the panel hidden (on the settings too): what a rail item shows while the panel peeks out beside it.
@@ -1419,7 +1460,7 @@ export function Sidebar({
   const hiddenSections = new Set(layout.hidden ?? []);
   const onSettings = pathname.startsWith(`/w/${workspaceId}/settings`);
   const tabLabel = (key: SidebarTab) =>
-    ({ home: t("tabs.home"), tasks: t("sections.tasks"), calendar: t("tabs.calendar"), meetings: t("sections.meetings"), journal: t("tabs.journal"), chat: t("tabs.chat"), mail: t("tabs.mail"), agents: t("sections.agents") })[key];
+    ({ home: t("tabs.home"), tasks: t("sections.tasks"), calendar: t("tabs.calendar"), meetings: t("sections.meetings"), journal: t("tabs.journal"), messages: t("tabs.messages"), chat: t("tabs.chat"), mail: t("tabs.mail"), agents: t("sections.agents") })[key];
   const panelTab = (key: SidebarTab): RailTab => {
     const Icon = TAB_ICONS[key];
     const label = tabLabel(key);
@@ -1434,8 +1475,13 @@ export function Sidebar({
       selected,
       disabled: unreachable || (key === "journal" && openingDailyNote),
       title: unreachable ? needsServer(label) : undefined,
-      count: key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) } : key === "tasks" ? dueCount : undefined,
+      count:
+        key === "mail" && mailUnread > 0 ? { value: mailUnread, label: tMail("unreadCount", { count: mailUnread }) }
+        : key === "messages" && messagesUnread.count > 0 ? { value: messagesUnread.count, label: tMessages("unreadCount", { count: messagesUnread.count }) }
+        : key === "tasks" ? dueCount
+        : undefined,
       dot:
+        key === "messages" && !messagesUnread.count && messagesUnread.dot ? { tone: "accent", label: tMessages("unreadChannels") } :
         key === "chat" && chatMark ? { tone: chatMark, label: t(`rail.chat.${chatMark}`) }
         : key === "agents" && agents.some((a) => a.waiting > 0 || a.approval) ? { tone: "accent", label: t("rail.agentsWaiting") }
         : undefined,
@@ -1515,6 +1561,15 @@ export function Sidebar({
         </IconButton>
         {/* The list's ⋯ (select all, delete all), which ConversationList draws here. */}
         <span ref={setChatActionsEl} className="contents" />
+      </>
+    ) : shownTab === "messages" ? (
+      <>
+        <IconButton label={tMessages("newChannel")} title={tMessages("newChannel")} onClick={() => messagesCommand("newChannel")} className={headButton}>
+          <Hash className="h-4 w-4" />
+        </IconButton>
+        <IconButton label={tMessages("newMessage")} title={tMessages("newMessage")} onClick={() => messagesCommand("newDirect")} className={headButton}>
+          <SquarePen className="h-4 w-4" />
+        </IconButton>
       </>
     ) : shownTab === "mail" ? (
       <IconButton label={tMail("compose")} title={tMail("compose")} onClick={composeMail} className={headButton}>
@@ -1943,6 +1998,8 @@ export function Sidebar({
                 <CalendarPanel workspaceId={workspaceId} pathname={pathname} offline={offline} onPages={noteCalendarPages} />
               ) : shownTab === "meetings" ? (
                 <MeetingPanel workspaceId={workspaceId} pathname={pathname} offline={offline} onPages={noteMeetingPages} />
+              ) : shownTab === "messages" ? (
+                <MessagesSidebar workspaceId={workspaceId} />
               ) : shownTab === "mail" ? (
                 <MailSidebar workspaceId={workspaceId} />
               ) : shownTab === "chat" && aiChat ? (
@@ -2033,6 +2090,9 @@ export function Sidebar({
           ...(!guest
             ? [{ id: "people", label: t("nav.people"), icon: <Users className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/people`) }]
             : []),
+          { id: "messages", label: tMessages("title"), icon: <MessagesSquare className="h-4 w-4" />, run: () => router.push(messagesPagePath) },
+          { id: "messages-channel", label: tMessages("newChannel"), icon: <Hash className="h-4 w-4" />, run: () => messagesCommand("newChannel") },
+          { id: "messages-direct", label: tMessages("newMessage"), icon: <MessagesSquare className="h-4 w-4" />, run: () => messagesCommand("newDirect") },
           ...(mail
             ? [
                 { id: "mail", label: tMail("metaTitle"), icon: <MailIcon className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/mail`) },

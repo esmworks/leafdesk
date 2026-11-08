@@ -60,6 +60,7 @@ export const RAIL_GO_KEYS = {
   calendar: "K",
   meetings: "M",
   mail: "E",
+  messages: "D",
   chat: "C",
   agents: "A",
   inbox: "I",
@@ -103,6 +104,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "goCalendar", combos: [["G", RAIL_GO_KEYS.calendar]], sequence: true },
       { id: "goMeetings", combos: [["G", RAIL_GO_KEYS.meetings]], sequence: true },
       { id: "goMail", combos: [["G", RAIL_GO_KEYS.mail]], sequence: true },
+      { id: "goMessages", combos: [["G", RAIL_GO_KEYS.messages]], sequence: true },
       { id: "goChat", combos: [["G", RAIL_GO_KEYS.chat]], sequence: true },
       { id: "goAgents", combos: [["G", RAIL_GO_KEYS.agents]], sequence: true },
       { id: "goInbox", combos: [["G", RAIL_GO_KEYS.inbox]], sequence: true },
@@ -207,6 +209,19 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "mailGoDrafts", combos: [["G", "D"]], sequence: true },
       { id: "mailGoArchive", combos: [["G", "A"]], sequence: true },
       { id: "mailGoTrash", combos: [["G", "T"]], sequence: true },
+    ],
+  },
+  {
+    id: "messages",
+    shortcuts: [
+      // The Messages tab (components/messages/messages-app.tsx); the box's keys are composer.tsx's.
+      { id: "messagesSwitch", combos: [["Mod", "Shift", "K"]] },
+      { id: "messagesNext", combos: [["Alt", "ArrowDown"]] },
+      { id: "messagesPrevious", combos: [["Alt", "ArrowUp"]] },
+      { id: "messagesNextUnread", combos: [["Alt", "Shift", "ArrowDown"]] },
+      { id: "messagesReadAll", combos: [["Shift", "Esc"]] },
+      { id: "messagesNewLine", combos: [["Shift", "Enter"]] },
+      { id: "messagesEditLast", combos: [["ArrowUp"]] },
     ],
   },
 ];

@@ -111,13 +111,38 @@ export function notifyLevel(notify: ChannelNotify, kind: ChannelKind): Exclude<C
   return kind === "direct" ? "all" : "mentions";
 }
 
-/** The address of a channel, a message in it or a thread in the Messages place. */
-export function messagesPath(workspaceId: string, at?: { channelId?: string; messageId?: string; threadId?: string } | null): string {
-  const base = `/w/${workspaceId}/messages`;
-  if (!at?.channelId) return base;
+/** What the Messages place shows besides a channel. */
+export const MESSAGE_VIEWS = ["threads", "activity", "saved", "drafts", "search", "browse"] as const;
+export type MessagesView = (typeof MESSAGE_VIEWS)[number];
+
+/**
+ * Where the Messages place is: a channel (`c`), a thread open beside it (`t`), a message to show
+ * (`m`), or one of its other views (`v`, a search's words in `q`). All in the query, so the page
+ * moves between them with `history.pushState` and no round trip to the server.
+ */
+export type MessagesAt = { channelId?: string | null; threadId?: string | null; messageId?: string | null; view?: MessagesView | null; query?: string | null };
+
+/** The address of a place in Messages. */
+export function messagesPath(workspaceId: string, at?: MessagesAt | null): string {
   const params = new URLSearchParams();
-  if (at.threadId) params.set("thread", at.threadId);
-  if (at.messageId) params.set("m", at.messageId);
+  if (at?.view) params.set("v", at.view);
+  if (at?.query) params.set("q", at.query);
+  if (at?.channelId) params.set("c", at.channelId);
+  if (at?.threadId) params.set("t", at.threadId);
+  if (at?.messageId) params.set("m", at.messageId);
   const query = params.toString();
-  return `${base}/${at.channelId}${query ? `?${query}` : ""}`;
+  return `/w/${workspaceId}/messages${query ? `?${query}` : ""}`;
+}
+
+/** Reads `messagesPath`'s query back. */
+export function messagesAt(search: string | URLSearchParams): MessagesAt {
+  const params = typeof search === "string" ? new URLSearchParams(search) : search;
+  const view = params.get("v");
+  return {
+    view: (MESSAGE_VIEWS as readonly string[]).includes(view ?? "") ? (view as MessagesView) : null,
+    query: params.get("q"),
+    channelId: params.get("c"),
+    threadId: params.get("t"),
+    messageId: params.get("m"),
+  };
 }

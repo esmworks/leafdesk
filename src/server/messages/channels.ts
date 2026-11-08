@@ -207,7 +207,9 @@ export async function updateChannel(
   channelId: string,
   input: { name?: unknown; topic?: unknown; description?: unknown; posting?: unknown; joinNew?: unknown; private?: unknown },
 ): Promise<void> {
-  const topicOnly = Object.keys(input).every((k) => k === "topic");
+  // The socket's call carries the channel's id beside the fields: only the fields count.
+  const fields = Object.keys(input).filter((k) => k !== "channelId" && (input as Record<string, unknown>)[k] !== undefined);
+  const topicOnly = fields.length > 0 && fields.every((k) => k === "topic");
   // Anyone in a channel may set its topic, as in a room; the rest is its admins'.
   const { channel: row, member } = await requireChannel(userId, channelId, topicOnly ? "read" : "admin");
   if (topicOnly && (!member || row.kind === "direct")) throw new MessageError("notAllowed");
