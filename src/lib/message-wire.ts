@@ -152,4 +152,6 @@ export type MessageErrorCode =
   | "held"
   | "policy"
   | "rateLimited"
+  /** An AI request failed; `message` is its AiErrorCode (lib/ai.ts). */
+  | "ai"
   | "internal";

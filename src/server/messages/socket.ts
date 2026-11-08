@@ -37,6 +37,7 @@ import {
   setStatus,
   updateChannel,
 } from "./channels";
+import { catchUp } from "./catch-up";
 import { callError, MessageError, requireChannel, workspaceRole } from "./core";
 import { addConnection, announceTyping, removeConnection, setActive, setViewing, type Connection } from "./hub";
 import {
@@ -237,6 +238,7 @@ const OPS: Record<string, Op> = {
   reactions: (l) => reactionsTo(l.who.userId, l.who.workspaceId),
   status: (l, a) => setStatus(l.who.userId, l.who.workspaceId, a),
   task: (l, a) => messageToTask(l.who.userId, a.messageId),
+  catchUp: (l, a) => catchUp(l.who.userId, a),
 };
 
 /** The operations a browser may call, for tests and the client's types. */

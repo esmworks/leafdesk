@@ -259,6 +259,21 @@
   "loadMore": "Vis flere",
   "switcherPlaceholder": "Gå til en kanal eller person…",
   "switcherNone": "Fant ingenting.",
+  "catchUp": {
+    "button": "Ta igjen",
+    "buttonTitle": "Oppsummer med KI det du gikk glipp av",
+    "threadButtonTitle": "Oppsummer denne tråden med KI",
+    "title": "Det du gikk glipp av",
+    "threadTitle": "Denne tråden kort",
+    "reading": "Leser meldingene…",
+    "nothing": "Ingenting nytt å ta igjen.",
+    "questions": "Spurt til deg",
+    "decisions": "Beslutninger",
+    "open": "Fortsatt åpent",
+    "again": "Oppsummer igjen",
+    "from": "Oppsummert av KI fra {count, plural, one {# melding} other {# meldinger}}",
+    "left": "{count, plural, one {# eldre melding} other {# eldre meldinger}} utelatt"
+  },
   "errors": {
     "notFound": "Det finnes ikke lenger, eller du kan ikke se det.",
     "notAllowed": "Du har ikke lov til å gjøre det her.",
@@ -274,6 +289,7 @@
     "rateLimited": "Ta det litt roligere, og prøv igjen.",
     "offline": "Du er frakoblet. Det sendes når du er tilbake.",
     "timeout": "Serveren svarte ikke i tide.",
+    "ai": "KI-en kunne ikke svare. Prøv igjen.",
     "internal": "Noe gikk galt. Prøv igjen."
   }
 }

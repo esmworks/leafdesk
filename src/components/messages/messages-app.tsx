@@ -53,7 +53,7 @@ export type MessagesCommand = "newChannel" | "newDirect" | "switch";
  * (lib/messages.ts `messagesPath`), moved with `history.pushState`, so going between channels never
  * waits for the server; the store (store.ts) has what the socket brought.
  */
-export function MessagesApp({ workspaceId, owner }: { workspaceId: string; owner: boolean }) {
+export function MessagesApp({ workspaceId, owner, ai }: { workspaceId: string; owner: boolean; /** The workspace has AI (catch up). */ ai: boolean }) {
   const t = useTranslations("messages");
   const params = useSearchParams();
   const at = messagesAt(params);
@@ -216,9 +216,9 @@ export function MessagesApp({ workspaceId, owner }: { workspaceId: string; owner
   return (
     <div className="flex h-full min-h-0">
       <div className={at.threadId ? "flex min-h-0 min-w-0 flex-1 max-md:hidden" : "flex min-h-0 min-w-0 flex-1"}>
-        <ChannelView workspaceId={workspaceId} channelId={at.channelId} highlightId={at.threadId ? null : at.messageId ?? null} openThread={openThread} forward={forward} owner={owner} />
+        <ChannelView workspaceId={workspaceId} channelId={at.channelId} highlightId={at.threadId ? null : at.messageId ?? null} openThread={openThread} forward={forward} owner={owner} ai={ai} />
       </div>
-      {at.threadId && <ThreadPanel key={at.threadId} threadId={at.threadId} ctx={threadCtx} close={closeThread} highlightId={at.messageId ?? null} />}
+      {at.threadId && <ThreadPanel key={at.threadId} threadId={at.threadId} ctx={threadCtx} close={closeThread} highlightId={at.messageId ?? null} ai={ai} />}
       {dialogs}
     </div>
   );

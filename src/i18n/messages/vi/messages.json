@@ -259,6 +259,21 @@
   "loadMore": "Xem thêm",
   "switcherPlaceholder": "Đến một kênh hoặc một người…",
   "switcherNone": "Không tìm thấy gì.",
+  "catchUp": {
+    "button": "Bắt kịp",
+    "buttonTitle": "Tóm tắt bằng AI những gì bạn đã bỏ lỡ",
+    "threadButtonTitle": "Tóm tắt chuỗi này bằng AI",
+    "title": "Những gì bạn bỏ lỡ",
+    "threadTitle": "Tóm tắt chuỗi này",
+    "reading": "Đang đọc tin nhắn…",
+    "nothing": "Không có gì mới để bắt kịp.",
+    "questions": "Hỏi bạn",
+    "decisions": "Quyết định",
+    "open": "Vẫn còn mở",
+    "again": "Tóm tắt lại",
+    "from": "AI tóm tắt từ {count, plural, other {# tin nhắn}}",
+    "left": "Bỏ qua {count, plural, other {# tin nhắn cũ hơn}}"
+  },
   "errors": {
     "notFound": "Nó không còn tồn tại, hoặc bạn không thể xem.",
     "notAllowed": "Bạn không được phép làm việc đó ở đây.",
@@ -274,6 +289,7 @@
     "rateLimited": "Chậm lại một chút rồi thử lại.",
     "offline": "Bạn đang ngoại tuyến. Tin nhắn sẽ được gửi khi bạn kết nối lại.",
     "timeout": "Máy chủ không trả lời kịp.",
+    "ai": "AI không thể trả lời. Hãy thử lại.",
     "internal": "Đã xảy ra lỗi. Hãy thử lại."
   }
 }

@@ -259,6 +259,21 @@
   "loadMore": "더 보기",
   "switcherPlaceholder": "채널 또는 사람으로 이동…",
   "switcherNone": "찾은 항목이 없습니다.",
+  "catchUp": {
+    "button": "따라잡기",
+    "buttonTitle": "놓친 내용을 AI로 요약",
+    "threadButtonTitle": "이 스레드를 AI로 요약",
+    "title": "놓친 내용",
+    "threadTitle": "이 스레드 요약",
+    "reading": "메시지를 읽는 중…",
+    "nothing": "새로운 내용이 없습니다.",
+    "questions": "나에게 온 질문·요청",
+    "decisions": "결정 사항",
+    "open": "미해결",
+    "again": "다시 요약",
+    "from": "{count, plural, other {메시지 #개}}에서 AI가 요약",
+    "left": "{count, plural, other {이전 메시지 #개}}는 제외됨"
+  },
   "errors": {
     "notFound": "더 이상 존재하지 않거나 볼 수 있는 권한이 없습니다.",
     "notAllowed": "여기서는 그 작업을 할 수 없습니다.",
@@ -274,6 +289,7 @@
     "rateLimited": "잠시 후 다시 시도하세요.",
     "offline": "오프라인 상태입니다. 다시 연결되면 보내집니다.",
     "timeout": "서버가 제시간에 응답하지 않았습니다.",
+    "ai": "AI가 응답하지 못했습니다. 다시 시도하세요.",
     "internal": "문제가 발생했습니다. 다시 시도하세요."
   }
 }

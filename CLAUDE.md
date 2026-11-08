@@ -180,6 +180,10 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   see *Conventions*). In the browser `components/messages/store.ts` holds what the socket brought:
   unread is the server's count plus live messages past `countedTo`, the seq it counted. Pages
   change the query with `history.pushState` (`lib/messages.ts` `messagesPath`), never the router.
+  The AI's catch-up is the `catchUp` operation (`catch-up.ts`, prompt and answer pure in
+  `catch-up-prompt.ts`, feature `messages.catchUp`): the client sends `since`, the seq read to when
+  the channel opened, since reading marks messages read under it; an AI failure answers code `ai`
+  with the AiErrorCode as message. Calls that take long pass `call`'s `timeoutMs`.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.

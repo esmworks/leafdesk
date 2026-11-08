@@ -259,6 +259,21 @@
   "loadMore": "Daha fazla göster",
   "switcherPlaceholder": "Bir kanala ya da kişiye git…",
   "switcherNone": "Hiçbir şey bulunamadı.",
+  "catchUp": {
+    "button": "Özetle",
+    "buttonTitle": "Kaçırdıklarınızı AI ile özetleyin",
+    "threadButtonTitle": "Bu mesaj dizisini AI ile özetleyin",
+    "title": "Kaçırdıklarınız",
+    "threadTitle": "Mesaj dizisi kısaca",
+    "reading": "Mesajlar okunuyor…",
+    "nothing": "Yetişilecek yeni bir şey yok.",
+    "questions": "Sizden istenenler",
+    "decisions": "Kararlar",
+    "open": "Açık kalanlar",
+    "again": "Yeniden özetle",
+    "from": "AI {count, plural, one {# mesajdan} other {# mesajdan}} özetledi",
+    "left": "{count, plural, one {# eski mesaj} other {# eski mesaj}} dahil edilmedi"
+  },
   "errors": {
     "notFound": "Artık yok ya da onu göremiyorsunuz.",
     "notAllowed": "Burada bunu yapmaya izniniz yok.",
@@ -274,6 +289,7 @@
     "rateLimited": "Biraz yavaşlayıp tekrar deneyin.",
     "offline": "Çevrimdışısınız. Bağlantı geri gelince gönderilecek.",
     "timeout": "Sunucu zamanında yanıt vermedi.",
+    "ai": "AI yanıt veremedi. Tekrar deneyin.",
     "internal": "Bir şeyler ters gitti. Tekrar deneyin."
   }
 }

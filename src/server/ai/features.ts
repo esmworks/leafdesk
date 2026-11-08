@@ -36,6 +36,9 @@ const PLANS: [feature: string, plan: AiFeaturePlan][] = [
   ["memory.summary", { fast: true, thinking: "off" }],
   // A mail thread summed up in a few lines while its reader waits: the words are all there.
   ["mail.summary", { fast: true, thinking: "off" }],
+  // What a person missed in a channel or thread, as a few points linked to their messages, while
+  // they wait: the words are all there.
+  ["messages.catchUp", { fast: true, thinking: "off" }],
   // A thread's tasks as a short JSON list: dates worked out from the mail need a little thinking.
   ["mail.tasks", { thinking: "low" }],
   // The Mail tab's writer, like the editor's: what it writes goes to someone outside.

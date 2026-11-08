@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { MessagesApp } from "@/components/messages/messages-app";
+import { aiAvailable } from "@/server/ai-writing";
 import { MessageError, workspaceRole } from "@/server/messages/core";
 import { requireWorkspaceSession } from "@/server/session";
 
@@ -18,5 +19,5 @@ export default async function MessagesPage({ params }: { params: Promise<{ works
     if (error instanceof MessageError) notFound();
     throw error;
   });
-  return <MessagesApp workspaceId={workspaceId} owner={role === "owner"} />;
+  return <MessagesApp workspaceId={workspaceId} owner={role === "owner"} ai={await aiAvailable(workspaceId)} />;
 }

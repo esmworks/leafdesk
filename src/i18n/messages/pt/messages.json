@@ -259,6 +259,21 @@
   "loadMore": "Mostrar mais",
   "switcherPlaceholder": "Ir para um canal ou uma pessoa…",
   "switcherNone": "Nada encontrado.",
+  "catchUp": {
+    "button": "Pôr em dia",
+    "buttonTitle": "Resumir com IA o que você perdeu",
+    "threadButtonTitle": "Resumir esta conversa com IA",
+    "title": "O que você perdeu",
+    "threadTitle": "Esta conversa em resumo",
+    "reading": "Lendo as mensagens…",
+    "nothing": "Nada de novo para pôr em dia.",
+    "questions": "Pedido a você",
+    "decisions": "Decisões",
+    "open": "Em aberto",
+    "again": "Resumir de novo",
+    "from": "Resumido pela IA a partir de {count, plural, one {# mensagem} other {# mensagens}}",
+    "left": "{count, plural, one {# mensagem mais antiga ficou} other {# mensagens mais antigas ficaram}} de fora"
+  },
   "errors": {
     "notFound": "Isso não existe mais, ou você não pode vê-lo.",
     "notAllowed": "Você não tem permissão para fazer isso aqui.",
@@ -274,6 +289,7 @@
     "rateLimited": "Vá com um pouco mais de calma e tente novamente.",
     "offline": "Você está offline. O envio acontece quando você voltar.",
     "timeout": "O servidor não respondeu a tempo.",
+    "ai": "A IA não conseguiu responder. Tente de novo.",
     "internal": "Algo deu errado. Tente novamente."
   }
 }

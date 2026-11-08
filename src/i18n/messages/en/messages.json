@@ -259,6 +259,21 @@
   "loadMore": "Show more",
   "switcherPlaceholder": "Go to a channel or person…",
   "switcherNone": "Nothing found.",
+  "catchUp": {
+    "button": "Catch up",
+    "buttonTitle": "Sum up what you missed with AI",
+    "threadButtonTitle": "Sum up this thread with AI",
+    "title": "What you missed",
+    "threadTitle": "This thread in short",
+    "reading": "Reading the messages…",
+    "nothing": "Nothing new to catch up on.",
+    "questions": "Asked of you",
+    "decisions": "Decisions",
+    "open": "Still open",
+    "again": "Sum up again",
+    "from": "Summed up by AI from {count, plural, one {# message} other {# messages}}",
+    "left": "{count, plural, one {# older message} other {# older messages}} left out"
+  },
   "errors": {
     "notFound": "It doesn't exist any more, or you can't see it.",
     "notAllowed": "You aren't allowed to do that here.",
@@ -274,6 +289,7 @@
     "rateLimited": "Slow down a little and try again.",
     "offline": "You're offline. It will go when you're back.",
     "timeout": "The server didn't answer in time.",
+    "ai": "The AI couldn't answer. Try again.",
     "internal": "Something went wrong. Try again."
   }
 }

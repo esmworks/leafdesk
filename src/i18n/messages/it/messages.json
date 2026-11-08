@@ -259,6 +259,21 @@
   "loadMore": "Mostra altro",
   "switcherPlaceholder": "Vai a un canale o a una persona…",
   "switcherNone": "Niente trovato.",
+  "catchUp": {
+    "button": "Recupera",
+    "buttonTitle": "Riassumi con l'IA ciò che ti sei perso",
+    "threadButtonTitle": "Riassumi questo thread con l'IA",
+    "title": "Cosa ti sei perso",
+    "threadTitle": "Questo thread in breve",
+    "reading": "Lettura dei messaggi…",
+    "nothing": "Niente di nuovo da recuperare.",
+    "questions": "Chiesto a te",
+    "decisions": "Decisioni",
+    "open": "Ancora aperto",
+    "again": "Riassumi di nuovo",
+    "from": "Riassunto dall'IA da {count, plural, one {# messaggio} other {# messaggi}}",
+    "left": "{count, plural, one {# messaggio più vecchio escluso} other {# messaggi più vecchi esclusi}}"
+  },
   "errors": {
     "notFound": "Non esiste più, oppure non puoi vederlo.",
     "notAllowed": "Qui non puoi farlo.",
@@ -274,6 +289,7 @@
     "rateLimited": "Rallenta un po’ e riprova.",
     "offline": "Sei offline. Verrà inviato quando torni online.",
     "timeout": "Il server non ha risposto in tempo.",
+    "ai": "L'IA non è riuscita a rispondere. Riprova.",
     "internal": "Qualcosa è andato storto. Riprova."
   }
 }

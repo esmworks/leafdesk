@@ -10,6 +10,7 @@ import { db } from "@/db";
 import { channel, channelMember, messageClock } from "@/db/schema";
 import type { MessageErrorCode } from "@/lib/message-wire";
 import { findMembership, workspaceRoleOf, type AccessError } from "@/server/access";
+import { isAiError } from "@/server/ai/errors";
 import type { Tx } from "@/server/workspaces";
 
 export class MessageError extends Error {
@@ -235,6 +236,7 @@ export async function requireChannel(userId: string, channelId: string, need: "r
 /** Turns what the rest of the server throws into a call's error. */
 export function callError(error: unknown): { code: MessageErrorCode; message: string } {
   if (error instanceof MessageError) return { code: error.code, message: error.message };
+  if (isAiError(error)) return { code: "ai", message: error.code };
   const name = (error as AccessError | undefined)?.name;
   if (name === "AccessError") return { code: "notFound", message: "Not found" };
   if (name && /Policy|TwoFactor|Sso|IpNotAllowed/.test(name)) return { code: "policy", message: "A sign-in policy holds this session back" };
