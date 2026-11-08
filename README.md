@@ -24,10 +24,22 @@ can search, read and edit your workspace after you approve them over OAuth.
   with a sign-in, any other over IMAP and SMTP) with threads, full-text search, snooze, drafts, undo send,
   signatures and snippets; AI summarizes threads and drafts answers from the customer's row, and mail
   on database rows and follow-up sequences keep the conversation with the record.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/mail-dark.png">
+  <img src=".github/screenshots/mail-light.png" alt="The Mail tab: the inbox's conversations beside an open thread with a customer about pricing">
+</picture>
+
 - **Team messages**: channels, direct messages and threads beside the pages they are about, with
   mentions, reactions, saved and scheduled messages, search and push notifications; name an agent
   in a channel and it answers in the thread, *Catch up* sums up what you missed with AI, and a
   Slack export brings the old history in.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/messages-dark.png">
+  <img src=".github/screenshots/messages-light.png" alt="Messages: the channel list beside the #launch channel, with a thread open where an agent lists the launch tasks still open">
+</picture>
+
 - **Realtime and offline**: edit together with live cursors, keep working without a connection.
 - **Built for AI assistants**: connect Claude or any other MCP client over OAuth 2.1 and approve
   what it may read or change; optional AI writing, AI properties, a chat that remembers what you
@@ -45,16 +57,6 @@ can search, read and edit your workspace after you approve them over OAuth.
   AGPL-3.0 licensed, in 24 languages.
 - **Or on your computer**: the desktop app for macOS, Windows and Linux runs Leafdesk on its own,
   with no server to set up, and backs your workspace up every day; it connects to a server too.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/mail-dark.png">
-  <img src=".github/screenshots/mail-light.png" alt="The Mail tab: the inbox's conversations beside an open thread with a customer about pricing">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/screenshots/messages-dark.png">
-  <img src=".github/screenshots/messages-light.png" alt="Messages: the channel list beside the #launch channel, with a thread open where an agent lists the launch tasks still open">
-</picture>
 
 Claude planning a launch in Leafdesk over MCP: a database, its tasks, a board view and a kickoff
 page, all showing up live (sped up):
