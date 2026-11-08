@@ -6,6 +6,7 @@ import { isStrongSession } from "@/lib/auth-security";
 import { revokeAllApiTokens } from "@/server/api/tokens";
 import { getCollab } from "@/server/collab/bridge";
 import { closeEndedDesktopSessions } from "@/server/desktop-bridge/registry";
+import { closeEndedMessageSessions } from "@/server/messages/hub";
 import { revokeAllConnectedApps } from "@/server/mcp/grants";
 
 export type PasskeySummary = {
@@ -129,6 +130,7 @@ export async function disconnectEndedSessions(userId: string) {
       .from(session)
       .where(and(eq(session.userId, userId), gt(session.expiresAt, new Date())));
     closeEndedDesktopSessions(userId, live.map((s) => s.id));
+    closeEndedMessageSessions(userId, live.map((s) => s.id));
     await getCollab().disconnectSessions(userId, live.map((s) => s.id));
   } catch (error) {
     // Scripts and tests run without the collab server; its connections end with their tokens.

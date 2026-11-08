@@ -32,7 +32,8 @@
     "calendar": "Kalender",
     "journal": "Dagbok",
     "chat": "Chatt",
-    "mail": "E-post"
+    "mail": "E-post",
+    "messages": "Meddelanden"
   },
   "toggle": {
     "open": "Öppna sidofältet",

@@ -312,7 +312,13 @@
       "workspaceReached": "Рабочее пространство достигло месячного лимита расходов на ИИ"
     },
     "limitRequestTitle": "Больший лимит для агента {agent}",
-    "limitRequest": "{actor} просит {tokens, number} токенов в месяц"
+    "limitRequest": "{actor} просит {tokens, number} токенов в месяц",
+    "messageIn": "{actor} в {place}",
+    "groupConversation": "групповой переписке",
+    "messageFile": "Отправлен файл",
+    "newMessage": "Новое сообщение",
+    "inThread": "В ветке",
+    "messageReminder": "Напоминание о сообщении"
   },
   "agentReply": {
     "aiOff": "Не могу ответить: ИИ отключён в этом рабочем пространстве.",

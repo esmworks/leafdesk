@@ -1851,7 +1851,8 @@
       "integrations": "Verbundene Apps und API-Token",
       "exports": "Exporte",
       "agents": "Agenten",
-      "connections": "Verbindungen"
+      "connections": "Verbindungen",
+      "messages": "Team-Nachrichten"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Ohne Titel",
@@ -2157,6 +2158,12 @@
         "created": "GitHub-Pull-Requests in {target} eingerichtet",
         "updated": "GitHub-Einrichtung von {target} geändert",
         "deleted": "GitHub-Einrichtung von {target} entfernt"
+      },
+      "channel": {
+        "created": "Hat den Kanal {target} erstellt",
+        "updated": "Hat den Kanal {target} geändert",
+        "archived": "Hat den Kanal {target} archiviert",
+        "unarchived": "Hat den Kanal {target} aus dem Archiv geholt"
       },
       "dashboard_email": {
         "set": "Hat {target} für den E-Mail-Versand an {count, plural, one {# Person} other {# Personen}} eingerichtet",

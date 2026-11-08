@@ -8,7 +8,8 @@
     "text": "Tekstin muotoilu",
     "blocks": "Lohkot",
     "databases": "Tietokannat",
-    "mail": "Sähköposti"
+    "mail": "Sähköposti",
+    "messages": "Viestit"
   },
   "items": {
     "shortcuts": "Näytä pikanäppäimet",
@@ -30,6 +31,7 @@
     "goJournal": "Siirry päiväkirjaan",
     "goChat": "Siirry tekoälykeskusteluun",
     "goMail": "Siirry sähköpostiin",
+    "goMessages": "Siirry viesteihin",
     "goAgents": "Siirry agentteihin",
     "goInbox": "Avaa saapuneet",
     "goSettings": "Siirry asetuksiin",
@@ -98,6 +100,13 @@
     "mailGoSent": "Siirry lähetettyihin",
     "mailGoDrafts": "Siirry luonnoksiin",
     "mailGoArchive": "Siirry arkistoon",
-    "mailGoTrash": "Siirry roskakoriin"
+    "mailGoTrash": "Siirry roskakoriin",
+    "messagesSwitch": "Siirry kanavalle tai keskusteluun",
+    "messagesNext": "Avaa luettelon seuraava keskustelu",
+    "messagesPrevious": "Avaa luettelon edellinen keskustelu",
+    "messagesNextUnread": "Avaa seuraava tai edellinen lukematon keskustelu (↑:n kanssa)",
+    "messagesReadAll": "Merkitse kaikki keskustelut luetuiksi",
+    "messagesNewLine": "Aloita uusi rivi viestikentässä",
+    "messagesEditLast": "Muokkaa viimeisintä viestiäsi (tyhjässä kentässä)"
   }
 }

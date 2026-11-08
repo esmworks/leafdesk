@@ -1851,7 +1851,8 @@
       "integrations": "已连接的应用和 API 令牌",
       "exports": "导出",
       "agents": "智能体",
-      "connections": "连接"
+      "connections": "连接",
+      "messages": "团队消息"
     },
     "change": "{name}：{from} → {to}",
     "untitled": "无标题",
@@ -2157,6 +2158,12 @@
         "created": "在 {target} 中设置了 GitHub 拉取请求",
         "updated": "更改了 {target} 的 GitHub 设置",
         "deleted": "移除了 {target} 的 GitHub 设置"
+      },
+      "channel": {
+        "created": "创建了频道 {target}",
+        "updated": "更改了频道 {target}",
+        "archived": "归档了频道 {target}",
+        "unarchived": "将频道 {target} 从归档中恢复"
       },
       "dashboard_email": {
         "set": "将 {target} 设置为通过邮件发送给 {count, plural, other {# 个人}}",

@@ -164,9 +164,9 @@ export const isSettingsPath = (pathname: string) => /^\/w\/[^/]+\/settings\/?$/.
 /** For pages without a header of their own (people, …): a floating open button. */
 export function FloatingSidebarButton() {
   const pathname = usePathname();
-  // Pages, the places with a top bar (components/place-top-bar.tsx), the graph, the AI chat and Mail
-  // render the button in their own header; settings have their own navigation.
-  if (/\/(p\/[\w-]+|graph\/?$|ai\/?$|mail\/?$|tasks\/?$|meetings\/?$|calendar\/?$)/.test(pathname) || /^\/w\/[^/]+\/?$/.test(pathname) || isSettingsPath(pathname)) return null;
+  // Pages, the places with a top bar (components/place-top-bar.tsx), the graph, the AI chat, Mail
+  // and Messages render the button in their own header; settings have their own navigation.
+  if (/\/(p\/[\w-]+|graph\/?$|ai\/?$|mail\/?$|messages\/?$|tasks\/?$|meetings\/?$|calendar\/?$)/.test(pathname) || /^\/w\/[^/]+\/?$/.test(pathname) || isSettingsPath(pathname)) return null;
   return (
     <div data-window-controls-clear className="sticky top-0 z-20 h-0">
       {/* The page scrolls under it: a background of its own keeps it off the text. */}

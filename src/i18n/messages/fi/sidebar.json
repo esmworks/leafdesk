@@ -32,7 +32,8 @@
     "calendar": "Kalenteri",
     "journal": "Päiväkirja",
     "chat": "Keskustelu",
-    "mail": "Sähköposti"
+    "mail": "Sähköposti",
+    "messages": "Viestit"
   },
   "toggle": {
     "open": "Avaa sivupalkki",

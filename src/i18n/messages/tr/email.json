@@ -312,7 +312,13 @@
       "workspaceReached": "Çalışma alanı aylık yapay zekâ maliyet limitine ulaştı"
     },
     "limitRequestTitle": "{agent} için daha yüksek limit",
-    "limitRequest": "{actor} ayda {tokens, number} token istiyor"
+    "limitRequest": "{actor} ayda {tokens, number} token istiyor",
+    "messageIn": "{actor}, {place} içinde",
+    "groupConversation": "bir grup yazışması",
+    "messageFile": "Bir dosya gönderdi",
+    "newMessage": "Yeni mesaj",
+    "inThread": "Bir mesaj dizisinde",
+    "messageReminder": "Bir mesaj için hatırlatma"
   },
   "agentReply": {
     "aiOff": "Yanıt veremiyorum: bu çalışma alanında yapay zekâ kapalı.",

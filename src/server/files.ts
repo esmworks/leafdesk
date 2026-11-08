@@ -7,7 +7,7 @@ import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { and, asc, eq, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { conversationFile, file, fileReference, page, propertyPermission, storageDeletion, workspaceStorage } from "@/db/schema";
+import { conversationFile, file, fileReference, messageDraft, messageFile, page, propertyPermission, scheduledMessage, storageDeletion, workspaceStorage } from "@/db/schema";
 import { cleanFileName, contentTypeFor, fileIdsIn, fileIdsInProperties, fileUrl, formatBytes, isFileId } from "@/lib/files";
 import { COMMENT_IMAGE_TYPES } from "@/lib/comments";
 import { sameLocation } from "@/lib/workspace-storage";
@@ -53,6 +53,8 @@ import { loadTargets, refOf, removeRetiredStorage, storageFor, storageOf, storag
  * Visitors of a published page (signed in or not) may read files of pages that the publication
  * serves (see publication.anyPagePublished), by the same rules, with the property access of
  * visitors.
+ * Files sent in team messages are their channel's alone (server/messages/files.ts): read by whoever
+ * may read the channel, never through a page or a publication, and kept while their message is.
  *
  * Cleanup: deleting a page for good clears `file.page_id`; once no page shows such a file anymore
  * it is removed (right away, and by the hourly sweep). Uploads that no page ever showed are removed
@@ -285,6 +287,10 @@ export async function fileForViewer(userId: string | null, fileId: string): Prom
   if (!isFileId(fileId)) return null;
   const [found] = await db.select().from(file).where(eq(file.id, fileId)).limit(1);
   if (!found) return null;
+  // A file sent in a message is its channel's (server/messages/files.ts); imported here lazily,
+  // as the messages code imports this module.
+  const inMessage = await (await import("@/server/messages/files")).messageFileReadable(userId, found.id, found.workspaceId);
+  if (inMessage !== null) return inMessage ? found : null;
   const pages = await pagesShowing(found);
   // A workspace whose two-step policy holds back this session shows only what it published.
   if (userId && pages.length && !(await sessionHeldBack(userId, found.workspaceId))) {
@@ -655,6 +661,7 @@ export async function purgeOrphanFiles(workspaceId?: string): Promise<number> {
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id} and r.authorized)`,
           sql`not ${uploadUnderHold()}`,
           sql`not exists (select 1 from ${conversationFile} c where c.file_id = ${file.id})`,
+          sql`not exists (select 1 from ${messageFile} m where m.file_id = ${file.id})`,
           workspaceId ? eq(file.workspaceId, workspaceId) : undefined,
         ),
       )
@@ -692,6 +699,10 @@ export async function purgeUnusedUploads({
           sql`not exists (select 1 from ${fileReference} r where r.file_id = ${file.id})`,
           sql`not ${uploadUnderHold()}`,
           sql`not exists (select 1 from ${conversationFile} c where c.file_id = ${file.id} and c.conversation_id is not null)`,
+          // A message's file waiting in a draft or a scheduled message stays until that goes.
+          sql`not exists (select 1 from ${messageFile} m where m.file_id = ${file.id} and m.message_id is not null)`,
+          sql`not exists (select 1 from ${messageDraft} d where ${file.id} = any(d.file_ids))`,
+          sql`not exists (select 1 from ${scheduledMessage} s where ${file.id} = any(s.file_ids))`,
         ),
       )
       .returning(fileObjectColumns);

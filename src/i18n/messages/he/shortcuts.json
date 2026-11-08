@@ -8,7 +8,8 @@
     "text": "עיצוב טקסט",
     "blocks": "בלוקים",
     "databases": "מסדי נתונים",
-    "mail": "דואר"
+    "mail": "דואר",
+    "messages": "הודעות"
   },
   "items": {
     "shortcuts": "הצגת קיצורי המקלדת",
@@ -30,6 +31,7 @@
     "goJournal": "מעבר ליומן",
     "goChat": "מעבר לצ׳אט הבינה המלאכותית",
     "goMail": "מעבר לדואר",
+    "goMessages": "מעבר להודעות",
     "goAgents": "מעבר לסוכנים",
     "goInbox": "פתיחת הדואר הנכנס",
     "goSettings": "מעבר להגדרות",
@@ -98,6 +100,13 @@
     "mailGoSent": "מעבר לדואר שנשלח",
     "mailGoDrafts": "מעבר לטיוטות",
     "mailGoArchive": "מעבר לארכיון",
-    "mailGoTrash": "מעבר לפח"
+    "mailGoTrash": "מעבר לפח",
+    "messagesSwitch": "מעבר לערוץ או לשיחה",
+    "messagesNext": "פתיחת השיחה הבאה ברשימה",
+    "messagesPrevious": "פתיחת השיחה הקודמת ברשימה",
+    "messagesNextUnread": "פתיחת השיחה הבאה או הקודמת שלא נקראה (עם ↑)",
+    "messagesReadAll": "סימון כל השיחות כנקראו",
+    "messagesNewLine": "שורה חדשה בתיבת ההודעה",
+    "messagesEditLast": "עריכת ההודעה האחרונה שלך (בתיבה ריקה)"
   }
 }

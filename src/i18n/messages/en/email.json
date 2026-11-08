@@ -312,7 +312,13 @@
       "workspaceReached": "The workspace reached its monthly AI cost limit"
     },
     "limitRequestTitle": "Higher limit for {agent}",
-    "limitRequest": "{actor} asks for {tokens, number} tokens a month"
+    "limitRequest": "{actor} asks for {tokens, number} tokens a month",
+    "messageIn": "{actor} in {place}",
+    "groupConversation": "a group conversation",
+    "messageFile": "Sent a file",
+    "newMessage": "New message",
+    "inThread": "In a thread",
+    "messageReminder": "Reminder about a message"
   },
   "agentReply": {
     "aiOff": "I can’t answer: AI is off in this workspace.",

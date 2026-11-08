@@ -86,6 +86,9 @@ const { startTelegram } = await import("./src/server/telegram");
 const { siteGate, upgradeAllowed } = await import("./src/server/site-hosts");
 const { desktopBridgeHooks } = await import("./src/server/desktop-bridge/socket");
 const { DESKTOP_BRIDGE_PATH } = await import("./src/lib/desktop-bridge");
+const { messagesHooks, MAX_MESSAGE_FRAME_BYTES } = await import("./src/server/messages/socket");
+const { MESSAGES_PATH } = await import("./src/lib/message-wire");
+const { startMessageTimers } = await import("./src/server/messages/scheduled");
 
 const { hocuspocus, service } = createCollab();
 registerCollab(service);
@@ -138,6 +141,9 @@ const ws = crossws({
 // answer is at most 512 KB of text, which JSON escaping can grow; anything far bigger is refused.
 const desktopBridge = crossws({ serverOptions: { maxPayload: 4 * 1024 * 1024 }, hooks: desktopBridgeHooks() });
 
+// Team messages (server/messages/): calls and the changes each person is sent, as JSON.
+const messagesSocket = crossws({ serverOptions: { maxPayload: MAX_MESSAGE_FRAME_BYTES }, hooks: messagesHooks() });
+
 const trustedProxies = trustedProxyCount();
 
 const server = createServer((req, res) => {
@@ -189,6 +195,8 @@ function upgrade(req: IncomingMessage, socket: Duplex, head: Buffer, pathname: s
     ws.handleUpgrade(req, socket, head);
   } else if (pathname === DESKTOP_BRIDGE_PATH) {
     desktopBridge.handleUpgrade(req, socket, head);
+  } else if (pathname === MESSAGES_PATH) {
+    messagesSocket.handleUpgrade(req, socket, head);
   } else {
     // Next dev (HMR) websockets.
     handleNextUpgrade(req, socket, head);
@@ -264,6 +272,7 @@ server.listen(port, hostname, () => {
   // Looks up the logos of the domains verified mail in the Mail tab came from.
   startSenderLogos();
   startSequences();
+  startMessageTimers();
   // Keeps databases synced from Jira and GitHub in step, each as often as it was set to.
   startDatabaseSyncs();
   // Answers people's questions to the AI chat from Telegram, when the server has a bot.

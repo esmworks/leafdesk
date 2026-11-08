@@ -1851,7 +1851,8 @@
       "integrations": "接続済みアプリとAPIトークン",
       "exports": "エクスポート",
       "agents": "エージェント",
-      "connections": "接続"
+      "connections": "接続",
+      "messages": "チームメッセージ"
     },
     "change": "{name}：{from} → {to}",
     "untitled": "無題",
@@ -2157,6 +2158,12 @@
         "created": "{target}に GitHub のプルリクエストを設定しました",
         "updated": "{target}の GitHub 設定を変更しました",
         "deleted": "{target}の GitHub 設定を削除しました"
+      },
+      "channel": {
+        "created": "チャンネル{target}を作成しました",
+        "updated": "チャンネル{target}を変更しました",
+        "archived": "チャンネル{target}をアーカイブしました",
+        "unarchived": "チャンネル{target}をアーカイブから戻しました"
       },
       "dashboard_email": {
         "set": "{target}を{count, plural, other {#人}}にメール送信するよう設定しました",

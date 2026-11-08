@@ -32,7 +32,8 @@
     "calendar": "Calendrier",
     "journal": "Journal",
     "chat": "Discussion",
-    "mail": "E-mail"
+    "mail": "E-mail",
+    "messages": "Messages"
   },
   "toggle": {
     "open": "Ouvrir la barre latérale",

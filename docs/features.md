@@ -42,7 +42,7 @@
   straight quote.
 - **Sidebar**: the workspace's name across its top (its menu switches workspaces), a rail of icons
   down its edge and a panel beside it. From the top, the rail holds *Search*, then the places:
-  *Home* (your pages), *My tasks*, *Calendar*, *Meetings*, *Journal*, *Chat*, *Mail* and *Agents* (the last
+  *Home* (your pages), *My tasks*, *Calendar*, *Meetings*, *Messages*, *Journal*, *Chat*, *Mail* and *Agents* (the last
   four when you have them); at its foot a button that hides or shows the panel, the inbox with its
   count, Settings, and your picture, which opens the account menu.
   The panel shows the place picked: its name, what it starts (a new page, today's note, a new chat
@@ -53,10 +53,11 @@
   The rail tells what waits in each place: *Mail* counts unread mail; *My tasks* counts your tasks
   overdue and due today (red when any is overdue, read every few minutes); *Chat* shows a dot while
   an answer is written, an accent dot when one waits for your decision and a plain dot for an answer
-  you haven't read; *Agents* an accent dot when one of their calls waits for you (workspace owners
+  you haven't read; *Messages* counts mentions and unread direct messages, with a dot for other
+  unread channels; *Agents* an accent dot when one of their calls waits for you (workspace owners
   answer them), with the same dot beside that agent in the list.
   Press `g` and then a letter to go to a place without the mouse: `h` Home, `t` My tasks, `k`
-  Calendar, `m` Meetings, `j` Journal, `c` Chat, `e` Mail, `a` Agents, `i` the inbox, `s` Settings. While `g`
+  Calendar, `m` Meetings, `d` Messages, `j` Journal, `c` Chat, `e` Mail, `a` Agents, `i` the inbox, `s` Settings. While `g`
   waits for the letter, each place shows its letter on its corner. Not in text fields; on the Mail
   page `g` with `i`, `s`, `d`, `a` or `t` opens that folder instead.
 - **Home page**: quick buttons for a new page, database or template; four figures of your own
@@ -114,6 +115,38 @@
   ways (a held meeting and a calendar address's events stay put). A to-do's time is a reminder on
   its date's own day: dropping it on an hour sets one then, which also reminds you; dropping it on a
   whole day takes that reminder off. Add events where they come from.
+- **Messages** (on the sidebar's rail): the workspace's own conversations, live over a websocket.
+  *Channels* are public (everyone in the workspace finds and joins them) or private (only the people
+  added see them); *direct messages* are between two to nine people. Everyone joins a *general*
+  channel on their first visit, and a channel can take in everyone who joins the workspace later;
+  guests see only the channels they are added to and write directly only to people they share one
+  with. The panel lists starred channels, channels and direct messages, unread ones in bold with
+  their mentions counted, and *Threads*, *Activity* (mentions of you and reactions to your
+  messages), *Saved* and *Drafts and scheduled* above them.
+  The box writes Markdown (`Cmd/Ctrl+B` and `I`, code), `@` mentions people, `@here` (those present
+  now) and `@channel`, `#` links a channel, `:` finds an emoji and `[[` links a page; paste or drop
+  files and pictures (ten a message). Enter sends, Shift+Enter starts a new line, ↑ in an empty box
+  edits your last message, and the arrow beside *Send* schedules it (tomorrow morning, next Monday or
+  a time of your own). What you leave in a box is kept as a draft on the server, on every device.
+  Mentioning someone who isn't in the channel offers to add them.
+  Each message has replies in a *thread* beside the channel (followed by those who write in it,
+  with *Also send to the channel* for a reply everyone should see), reactions, *Save for later*
+  with an optional reminder, and in its `⋯` menu *Edit* (earlier versions stay readable), *Mark
+  unread from here*, *Copy link*, *Forward*, *Pin to channel*, *Add to my tasks* (a task on your
+  own list whose page quotes the message and links back to it) and *Delete*. A channel shows where
+  you stopped reading with a *New* line, who is typing and who is looking at it now, and in
+  channels of up to 20 people who has read the latest messages.
+  *Search* finds words in every conversation you can read, narrowed with `from:@name`,
+  `in:#channel`, `has:file` (or `image`, `link`, `pin`, `reaction`, `thread`), `before:`,
+  `after:`, `on:` and `"exact words"`. A channel's details (click its name) hold its name, topic
+  (anyone in it may change the topic) and description, its people and their roles, your
+  notifications for it (every message, mentions only or nothing; muted; hidden until something new)
+  and, for its admins, *Only admins post*, *New people join automatically*, *Make the channel
+  private* (for good), leaving and archiving (an archived channel stays readable). New messages
+  that concern you (by that setting; replies in threads you follow) come as push notifications,
+  unless the conversation is open in front of you or your quiet hours last. Keys: `Cmd/Ctrl+Shift+K`
+  jumps to a channel or person, `Alt+↑/↓` to the conversation before or after (with Shift, the
+  unread ones), `Shift+Esc` marks everything read.
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet), under *Today*, *Yesterday*,
   *Previous 7 days* and *Older*, each with the page or database it sits in. The row under the query

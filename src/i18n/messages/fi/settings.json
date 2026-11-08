@@ -1851,7 +1851,8 @@
       "integrations": "Yhdistetyt sovellukset ja API-tunnukset",
       "exports": "Viennit",
       "agents": "Agentit",
-      "connections": "Yhteydet"
+      "connections": "Yhteydet",
+      "messages": "Tiimin viestit"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Nimetön",
@@ -2157,6 +2158,12 @@
         "created": "Otti GitHubin pull requestit käyttöön kohteessa {target}",
         "updated": "Muutti kohteen {target} GitHub-asetuksia",
         "deleted": "Poisti kohteen {target} GitHub-asetukset"
+      },
+      "channel": {
+        "created": "Perusti kanavan {target}",
+        "updated": "Muutti kanavaa {target}",
+        "archived": "Arkistoi kanavan {target}",
+        "unarchived": "Palautti kanavan {target} arkistosta"
       },
       "dashboard_email": {
         "set": "Asetti kohteen {target} lähetettäväksi sähköpostilla {count, plural, one {# henkilölle} other {# henkilölle}}",

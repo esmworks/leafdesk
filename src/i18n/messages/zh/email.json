@@ -312,7 +312,13 @@
       "workspaceReached": "工作区已达到每月 AI 费用上限"
     },
     "limitRequestTitle": "{agent} 的更高上限",
-    "limitRequest": "{actor} 申请每月 {tokens, number} 个令牌"
+    "limitRequest": "{actor} 申请每月 {tokens, number} 个令牌",
+    "messageIn": "{actor}（{place}）",
+    "groupConversation": "群组会话",
+    "messageFile": "发送了一个文件",
+    "newMessage": "新消息",
+    "inThread": "在话题中",
+    "messageReminder": "消息提醒"
   },
   "agentReply": {
     "aiOff": "我无法回答：此工作区已关闭 AI。",

@@ -312,7 +312,13 @@
       "workspaceReached": "Arbejdsområdet har nået sin månedlige AI-omkostningsgrænse"
     },
     "limitRequestTitle": "Højere grænse til {agent}",
-    "limitRequest": "{actor} beder om {tokens, number} tokens om måneden"
+    "limitRequest": "{actor} beder om {tokens, number} tokens om måneden",
+    "messageIn": "{actor} i {place}",
+    "groupConversation": "en gruppesamtale",
+    "messageFile": "Sendte en fil",
+    "newMessage": "Ny besked",
+    "inThread": "I en tråd",
+    "messageReminder": "Påmindelse om en besked"
   },
   "agentReply": {
     "aiOff": "Jeg kan ikke svare: AI er slået fra i dette arbejdsområde.",

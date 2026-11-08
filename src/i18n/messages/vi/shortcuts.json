@@ -8,7 +8,8 @@
     "text": "Định dạng văn bản",
     "blocks": "Khối",
     "databases": "Cơ sở dữ liệu",
-    "mail": "Thư"
+    "mail": "Thư",
+    "messages": "Tin nhắn"
   },
   "items": {
     "shortcuts": "Hiện các phím tắt",
@@ -30,6 +31,7 @@
     "goJournal": "Đến nhật ký",
     "goChat": "Đến trò chuyện AI",
     "goMail": "Đến Thư",
+    "goMessages": "Đến Tin nhắn",
     "goAgents": "Đến tác tử",
     "goInbox": "Mở hộp thư đến",
     "goSettings": "Đến cài đặt",
@@ -98,6 +100,13 @@
     "mailGoSent": "Đến thư đã gửi",
     "mailGoDrafts": "Đến thư nháp",
     "mailGoArchive": "Đến mục lưu trữ",
-    "mailGoTrash": "Đến thùng rác"
+    "mailGoTrash": "Đến thùng rác",
+    "messagesSwitch": "Chuyển đến một kênh hoặc cuộc trò chuyện",
+    "messagesNext": "Mở cuộc trò chuyện tiếp theo trong danh sách",
+    "messagesPrevious": "Mở cuộc trò chuyện trước trong danh sách",
+    "messagesNextUnread": "Mở cuộc trò chuyện chưa đọc tiếp theo hoặc trước đó (với ↑)",
+    "messagesReadAll": "Đánh dấu mọi cuộc trò chuyện đã đọc",
+    "messagesNewLine": "Xuống dòng trong ô tin nhắn",
+    "messagesEditLast": "Sửa tin nhắn cuối cùng của bạn (khi ô trống)"
   }
 }

@@ -312,7 +312,13 @@
       "workspaceReached": "Työtila on saavuttanut kuukausittaisen tekoälykustannusrajansa"
     },
     "limitRequestTitle": "Korkeampi raja agentille {agent}",
-    "limitRequest": "{actor} pyytää {tokens, number} tokenia kuukaudessa"
+    "limitRequest": "{actor} pyytää {tokens, number} tokenia kuukaudessa",
+    "messageIn": "{actor} – {place}",
+    "groupConversation": "ryhmäkeskustelu",
+    "messageFile": "Lähetti tiedoston",
+    "newMessage": "Uusi viesti",
+    "inThread": "Ketjussa",
+    "messageReminder": "Muistutus viestistä"
   },
   "agentReply": {
     "aiOff": "En voi vastata: tekoäly on poistettu käytöstä tässä työtilassa.",

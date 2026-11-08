@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Messages: channels, direct messages and threads.** A new place on the sidebar's rail (`g`
+  then `d`) for talking within the workspace, live over a websocket: public and private channels,
+  direct messages of up to nine people, threads beside the channel, mentions of people, `@here` and
+  `@channel`, reactions, pins, edits with their history, files and pictures, drafts kept on the
+  server, scheduled messages, saved messages with reminders, *Activity* for mentions and reactions,
+  search with `from:`, `in:`, `has:`, `before:`, `after:` and `on:`, read marks in small channels,
+  typing and presence, push notifications by each channel's setting, and *Add to my tasks* on any
+  message. Everyone joins a *general* channel on their first visit; guests see only the channels
+  they are added to. A lost connection catches up on what it missed. Channel changes are in the
+  audit log, channels and their messages in backups (direct messages stay out, like AI chats), and
+  legal holds keep messages from being deleted. Migration `0199_messages`.
 - **Export as PDF and Print from the Share panel.** Its foot now has the page menu's two ways of
   taking a page out on paper, so a row such as a delivery note goes to the printer from where it is
   shared. They follow the workspace's export settings like the menu's.

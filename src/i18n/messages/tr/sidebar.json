@@ -32,7 +32,8 @@
     "calendar": "Takvim",
     "journal": "Günlük",
     "chat": "Sohbet",
-    "mail": "Posta"
+    "mail": "Posta",
+    "messages": "Mesajlar"
   },
   "toggle": {
     "open": "Kenar çubuğunu aç",

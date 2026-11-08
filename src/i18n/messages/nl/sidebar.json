@@ -32,7 +32,8 @@
     "calendar": "Agenda",
     "journal": "Dagboek",
     "chat": "Chat",
-    "mail": "Mail"
+    "mail": "Mail",
+    "messages": "Berichten"
   },
   "toggle": {
     "open": "Zijbalk openen",

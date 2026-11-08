@@ -8,7 +8,8 @@
     "text": "文本格式",
     "blocks": "块",
     "databases": "数据库",
-    "mail": "邮件"
+    "mail": "邮件",
+    "messages": "消息"
   },
   "items": {
     "shortcuts": "显示键盘快捷键",
@@ -30,6 +31,7 @@
     "goJournal": "前往日志",
     "goChat": "前往 AI 聊天",
     "goMail": "前往邮件",
+    "goMessages": "前往消息",
     "goAgents": "前往智能体",
     "goInbox": "打开收件箱",
     "goSettings": "前往设置",
@@ -98,6 +100,13 @@
     "mailGoSent": "前往已发送",
     "mailGoDrafts": "前往草稿",
     "mailGoArchive": "前往归档",
-    "mailGoTrash": "前往废纸篓"
+    "mailGoTrash": "前往废纸篓",
+    "messagesSwitch": "跳转到频道或会话",
+    "messagesNext": "打开列表中的下一个会话",
+    "messagesPrevious": "打开列表中的上一个会话",
+    "messagesNextUnread": "打开下一个或上一个未读会话（配合 ↑）",
+    "messagesReadAll": "将所有会话标为已读",
+    "messagesNewLine": "在消息框中换行",
+    "messagesEditLast": "编辑你的最后一条消息（输入框为空时）"
   }
 }

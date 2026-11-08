@@ -17,6 +17,8 @@ export type Toast = {
   link?: { label: string; href: string };
   /** "Undo": runs once, then the note closes. */
   undo?: () => void | Promise<void>;
+  /** Another action named by its caller ("Add them"): runs once, then the note closes. */
+  action?: { label: string; run: () => void | Promise<void> };
 };
 
 const SHOWN_MS = 6_000;
@@ -74,6 +76,19 @@ export function Toaster() {
               </>
             )}
           </span>
+          {toast.action && (
+            <button
+              type="button"
+              className="shrink-0 rounded px-1.5 py-0.5 font-medium text-accent hover:bg-bg-hover"
+              onClick={() => {
+                const run = toast.action!.run;
+                dismissToast(toast.id);
+                void run();
+              }}
+            >
+              {toast.action.label}
+            </button>
+          )}
           {toast.undo && (
             <button
               type="button"

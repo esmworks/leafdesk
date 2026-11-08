@@ -8,7 +8,8 @@
     "text": "Pemformatan teks",
     "blocks": "Blok",
     "databases": "Basis data",
-    "mail": "Email"
+    "mail": "Email",
+    "messages": "Pesan"
   },
   "items": {
     "shortcuts": "Tampilkan pintasan keyboard",
@@ -30,6 +31,7 @@
     "goJournal": "Buka jurnal",
     "goChat": "Buka obrolan AI",
     "goMail": "Buka Email",
+    "goMessages": "Buka Pesan",
     "goAgents": "Buka agen",
     "goInbox": "Buka kotak masuk",
     "goSettings": "Buka pengaturan",
@@ -98,6 +100,13 @@
     "mailGoSent": "Buka email terkirim",
     "mailGoDrafts": "Buka draf",
     "mailGoArchive": "Buka arsip",
-    "mailGoTrash": "Buka sampah"
+    "mailGoTrash": "Buka sampah",
+    "messagesSwitch": "Lompat ke kanal atau percakapan",
+    "messagesNext": "Buka percakapan berikutnya di daftar",
+    "messagesPrevious": "Buka percakapan sebelumnya di daftar",
+    "messagesNextUnread": "Buka percakapan belum dibaca berikutnya atau sebelumnya (dengan ↑)",
+    "messagesReadAll": "Tandai semua percakapan sudah dibaca",
+    "messagesNewLine": "Mulai baris baru di kotak pesan",
+    "messagesEditLast": "Edit pesan terakhir Anda (di kotak kosong)"
   }
 }

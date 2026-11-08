@@ -8,7 +8,8 @@
     "text": "テキストの書式",
     "blocks": "ブロック",
     "databases": "データベース",
-    "mail": "メール"
+    "mail": "メール",
+    "messages": "メッセージ"
   },
   "items": {
     "shortcuts": "キーボードショートカットを表示",
@@ -30,6 +31,7 @@
     "goJournal": "ジャーナルへ移動",
     "goChat": "AI チャットへ移動",
     "goMail": "メールへ移動",
+    "goMessages": "メッセージへ移動",
     "goAgents": "エージェントへ移動",
     "goInbox": "受信トレイを開く",
     "goSettings": "設定へ移動",
@@ -98,6 +100,13 @@
     "mailGoSent": "送信済みを開く",
     "mailGoDrafts": "下書きを開く",
     "mailGoArchive": "アーカイブを開く",
-    "mailGoTrash": "ゴミ箱を開く"
+    "mailGoTrash": "ゴミ箱を開く",
+    "messagesSwitch": "チャンネルまたは会話へ移動",
+    "messagesNext": "一覧の次の会話を開く",
+    "messagesPrevious": "一覧の前の会話を開く",
+    "messagesNextUnread": "次または前の未読の会話を開く（↑ と併用）",
+    "messagesReadAll": "すべての会話を既読にする",
+    "messagesNewLine": "メッセージ欄で改行する",
+    "messagesEditLast": "最後のメッセージを編集（入力欄が空のとき）"
   }
 }

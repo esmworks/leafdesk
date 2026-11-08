@@ -1851,7 +1851,8 @@
       "integrations": "אפליקציות מחוברות ואסימוני API",
       "exports": "ייצוא",
       "agents": "סוכנים",
-      "connections": "חיבורים"
+      "connections": "חיבורים",
+      "messages": "הודעות צוות"
     },
     "change": "{name}: {from} ← {to}",
     "untitled": "ללא כותרת",
@@ -2157,6 +2158,12 @@
         "created": "הגדרת בקשות משיכה של GitHub ב־{target}",
         "updated": "שינוי הגדרת GitHub של {target}",
         "deleted": "הסרת הגדרת GitHub של {target}"
+      },
+      "channel": {
+        "created": "יצירת הערוץ {target}",
+        "updated": "שינוי הערוץ {target}",
+        "archived": "העברת הערוץ {target} לארכיון",
+        "unarchived": "החזרת הערוץ {target} מהארכיון"
       },
       "dashboard_email": {
         "set": "הגדרת שליחה בדוא״ל של {target} אל {count, plural, one {אדם אחד} two {שני אנשים} other {# אנשים}}",

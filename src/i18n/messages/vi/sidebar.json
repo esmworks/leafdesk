@@ -32,7 +32,8 @@
     "calendar": "Lịch",
     "journal": "Nhật ký",
     "chat": "Trò chuyện",
-    "mail": "Thư"
+    "mail": "Thư",
+    "messages": "Tin nhắn"
   },
   "toggle": {
     "open": "Mở thanh bên",

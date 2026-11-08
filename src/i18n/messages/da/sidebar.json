@@ -32,7 +32,8 @@
     "calendar": "Kalender",
     "journal": "Dagbog",
     "chat": "Chat",
-    "mail": "Mail"
+    "mail": "Mail",
+    "messages": "Beskeder"
   },
   "toggle": {
     "open": "Åbn sidepanel",

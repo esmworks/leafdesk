@@ -1851,7 +1851,8 @@
       "integrations": "Подключённые приложения и API-токены",
       "exports": "Экспорт",
       "agents": "Агенты",
-      "connections": "Подключения"
+      "connections": "Подключения",
+      "messages": "Сообщения команды"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Без названия",
@@ -2157,6 +2158,12 @@
         "created": "Настроены pull request’ы GitHub в {target}",
         "updated": "Изменена настройка GitHub в {target}",
         "deleted": "Удалена настройка GitHub в {target}"
+      },
+      "channel": {
+        "created": "Создан канал {target}",
+        "updated": "Изменён канал {target}",
+        "archived": "Архивирован канал {target}",
+        "unarchived": "Канал {target} возвращён из архива"
       },
       "dashboard_email": {
         "set": "Настроена отправка {target} по почте: {count, plural, one {# человеку} few {# людям} many {# людям} other {# человека}}",

@@ -165,8 +165,12 @@ import { gzipSync } from "node:zlib";
  * The sidebar's g then a letter and the rail's marks (due tasks, a chat or agent waiting) work on
  * every workspace page, so they sit in its first load: about 2 kB to a page's route and 1 kB to all
  * first loads together.
+ * The Messages place is a route of its own: a channel's list, its messages and the message box add
+ * about 27 kB to all first loads together, for which that budget rose 15 kB. Its dialogs, side
+ * views, threads, the switcher and messages' Markdown (preloaded as the page opens) load when shown;
+ * its tab in the sidebar loads when picked.
  */
-const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1239, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1254, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

@@ -312,7 +312,13 @@
       "workspaceReached": "Arbetsytan har nått månadsgränsen för AI-kostnader"
     },
     "limitRequestTitle": "Högre gräns för {agent}",
-    "limitRequest": "{actor} ber om {tokens, number} tokens i månaden"
+    "limitRequest": "{actor} ber om {tokens, number} tokens i månaden",
+    "messageIn": "{actor} i {place}",
+    "groupConversation": "en gruppkonversation",
+    "messageFile": "Skickade en fil",
+    "newMessage": "Nytt meddelande",
+    "inThread": "I en tråd",
+    "messageReminder": "Påminnelse om ett meddelande"
   },
   "agentReply": {
     "aiOff": "Jag kan inte svara: AI är avstängt i den här arbetsytan.",

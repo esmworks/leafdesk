@@ -1851,7 +1851,8 @@
       "integrations": "Anslutna appar och API-token",
       "exports": "Exporter",
       "agents": "Agenter",
-      "connections": "Anslutningar"
+      "connections": "Anslutningar",
+      "messages": "Teammeddelanden"
     },
     "change": "{name}: {from} → {to}",
     "untitled": "Namnlös",
@@ -2157,6 +2158,12 @@
         "created": "Konfigurerade pull requests på GitHub i {target}",
         "updated": "Ändrade GitHub-konfigurationen för {target}",
         "deleted": "Tog bort GitHub-konfigurationen för {target}"
+      },
+      "channel": {
+        "created": "Skapade kanalen {target}",
+        "updated": "Ändrade kanalen {target}",
+        "archived": "Arkiverade kanalen {target}",
+        "unarchived": "Tog tillbaka kanalen {target} från arkivet"
       },
       "dashboard_email": {
         "set": "Ställde in att {target} skickas med e-post till {count, plural, one {# person} other {# personer}}",

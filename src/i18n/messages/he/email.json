@@ -312,7 +312,13 @@
       "workspaceReached": "סביבת העבודה הגיעה למגבלת עלות ה־AI החודשית"
     },
     "limitRequestTitle": "מגבלה גבוהה יותר עבור {agent}",
-    "limitRequest": "{actor} מבקש {tokens, number} אסימונים בחודש"
+    "limitRequest": "{actor} מבקש {tokens, number} אסימונים בחודש",
+    "messageIn": "{actor} ב־{place}",
+    "groupConversation": "שיחה קבוצתית",
+    "messageFile": "שלח/ה קובץ",
+    "newMessage": "הודעה חדשה",
+    "inThread": "בשרשור",
+    "messageReminder": "תזכורת על הודעה"
   },
   "agentReply": {
     "aiOff": "אין באפשרותי לענות: הבינה המלאכותית כבויה בסביבת העבודה הזו.",

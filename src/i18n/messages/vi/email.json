@@ -312,7 +312,13 @@
       "workspaceReached": "Không gian làm việc đã đạt giới hạn chi phí AI hằng tháng"
     },
     "limitRequestTitle": "Giới hạn cao hơn cho {agent}",
-    "limitRequest": "{actor} yêu cầu {tokens, number} token mỗi tháng"
+    "limitRequest": "{actor} yêu cầu {tokens, number} token mỗi tháng",
+    "messageIn": "{actor} trong {place}",
+    "groupConversation": "một cuộc trò chuyện nhóm",
+    "messageFile": "Đã gửi một tệp",
+    "newMessage": "Tin nhắn mới",
+    "inThread": "Trong một chuỗi",
+    "messageReminder": "Lời nhắc về một tin nhắn"
   },
   "agentReply": {
     "aiOff": "Tôi không thể trả lời: AI đang tắt trong không gian làm việc này.",

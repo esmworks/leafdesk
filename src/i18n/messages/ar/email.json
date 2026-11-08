@@ -312,7 +312,13 @@
       "workspaceReached": "بلغت مساحة العمل حد تكلفة الذكاء الاصطناعي الشهري"
     },
     "limitRequestTitle": "حد أعلى لـ {agent}",
-    "limitRequest": "يطلب {actor} ‏{tokens, number} رمز في الشهر"
+    "limitRequest": "يطلب {actor} ‏{tokens, number} رمز في الشهر",
+    "messageIn": "{actor} في {place}",
+    "groupConversation": "محادثة جماعية",
+    "messageFile": "أرسل ملفًا",
+    "newMessage": "رسالة جديدة",
+    "inThread": "في سلسلة ردود",
+    "messageReminder": "تذكير برسالة"
   },
   "agentReply": {
     "aiOff": "لا أستطيع الرد: الذكاء الاصطناعي متوقف في مساحة العمل هذه.",

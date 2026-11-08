@@ -312,7 +312,13 @@
       "workspaceReached": "พื้นที่ทำงานถึงขีดจำกัดค่าใช้จ่าย AI รายเดือนแล้ว"
     },
     "limitRequestTitle": "ขีดจำกัดที่สูงขึ้นสำหรับ {agent}",
-    "limitRequest": "{actor} ขอ {tokens, number} โทเค็นต่อเดือน"
+    "limitRequest": "{actor} ขอ {tokens, number} โทเค็นต่อเดือน",
+    "messageIn": "{actor} ใน {place}",
+    "groupConversation": "การสนทนากลุ่ม",
+    "messageFile": "ส่งไฟล์",
+    "newMessage": "ข้อความใหม่",
+    "inThread": "ในเธรด",
+    "messageReminder": "การเตือนเกี่ยวกับข้อความ"
   },
   "agentReply": {
     "aiOff": "ฉันตอบไม่ได้: AI ถูกปิดในพื้นที่ทำงานนี้",

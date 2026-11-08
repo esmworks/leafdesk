@@ -53,6 +53,7 @@ import { cleanSidebarLayout, type SidebarLayout } from "@/lib/sidebar-sections";
 import { env } from "@/lib/env";
 import { canCreateWorkspace } from "@/lib/instance-admin";
 import { invitationEmail, mailStatus, sendMail } from "@/server/mail";
+import { closeWorkspaceConnections, reconnectWorkspace } from "@/server/messages/hub";
 import { takeInvitationEmail } from "@/server/invitation-limits";
 import {
   AccessError,
@@ -1055,6 +1056,7 @@ export async function setMemberRole(actorId: string, workspaceId: string, target
   // keeps only what their teamspaces and shares give members.
   if (isGuest(role) && !isGuest(previous)) await getCollab().disconnectUser(targetId, workspaceId);
   else if (role !== previous) await getCollab().disconnectLostAccess(workspaceId, [targetId]);
+  if (role !== previous) reconnectWorkspace(workspaceId, targetId);
 }
 
 /** Makes another member an owner and the acting owner a member, in one step. */
@@ -1102,6 +1104,7 @@ export async function transferOwnership(actorId: string, workspaceId: string, ta
   });
   // The acting owner is a member now: their open editors are checked again (see setMemberRole).
   await getCollab().disconnectLostAccess(workspaceId, [actorId]);
+  reconnectWorkspace(workspaceId, actorId);
 }
 
 /**
@@ -1232,6 +1235,7 @@ export async function removeMember(actorId: string, workspaceId: string, targetI
   });
   kickMoves();
   await getCollab().disconnectUser(targetId, workspaceId);
+  closeWorkspaceConnections(workspaceId, targetId);
   if (released) await afterAiAccountReleased([released]);
 }
 
@@ -1722,7 +1726,10 @@ export async function updateWorkspaceSettings(
     await db.delete(sensitiveScan).where(eq(sensitiveScan.workspaceId, workspaceId));
   }
   // Open editors were let in before; the ones the policy now holds back reconnect and are refused.
-  if (clean.requireTwoFactor === true || clean.loginMethod === "sso") await getCollab().disconnectHeldBack(workspaceId);
+  if (clean.requireTwoFactor === true || clean.loginMethod === "sso") {
+    await getCollab().disconnectHeldBack(workspaceId);
+    reconnectWorkspace(workspaceId);
+  }
 }
 
 /**
@@ -1847,6 +1854,7 @@ export async function removeMemberByProvider(workspaceId: string, userId: string
   if (removed) {
     kickMoves();
     await getCollab().disconnectUser(userId, workspaceId);
+    closeWorkspaceConnections(workspaceId, userId);
   }
   if (released) await afterAiAccountReleased([released]);
   return removed;
