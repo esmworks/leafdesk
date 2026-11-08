@@ -1,5 +1,15 @@
 import * as z from "zod";
-import { MAX_MEMORIES, MAX_MEMORY_CHARS, MAX_MEMORY_DETAILS_CHARS, MEMORY_CATEGORIES, type MemoryPlaceView, type MemoryView, type SharedNoteView } from "@/lib/ai-chat";
+import {
+  MAX_MEMORIES,
+  MAX_MEMORY_CHARS,
+  MAX_MEMORY_DETAILS_CHARS,
+  MAX_MEMORY_SUMMARY_CHARS,
+  MEMORY_CATEGORIES,
+  type MemoryPlaceView,
+  type MemorySummaryView,
+  type MemoryView,
+  type SharedNoteView,
+} from "@/lib/ai-chat";
 import { MEMORY_SEARCH_LIMIT } from "@/lib/memory-search";
 import { MemoryError, memoryOff } from "@/server/ai-memory";
 import { id } from "@/server/operations";
@@ -25,7 +35,9 @@ export const memoryInputs = {
     workspace_id: id("workspace").optional().describe("Not for scope account."),
     scope: z.enum(["person", "account", "workspace", "teamspace"]).default("person").describe("Whose notes (see list_memory)."),
     teamspace_id: id("teamspace").optional().describe("scope teamspace: from list_memory."),
-    action: z.enum(["add", "update", "delete"]).describe("add: keep a new note (text). update: change a note (memory_id, text). delete: forget notes (memory_ids, or all)."),
+    action: z
+      .enum(["add", "update", "delete", "summary"])
+      .describe("add: keep a new note (text). update: change a note (memory_id, text). delete: forget notes (memory_ids, or all). summary: write the user's summary (about) in workspace_id (summary)."),
     text: noteInput.optional().describe(`add, update: the note, one fact about the user in a sentence of at most ${MAX_MEMORY_CHARS} characters, in the user's language.`),
     category: z
       .enum(MEMORY_CATEGORIES)
@@ -35,6 +47,13 @@ export const memoryInputs = {
     memory_id: memoryIdInput.optional().describe("update: the note's memory_id, from list_memory."),
     memory_ids: z.array(memoryIdInput).min(1).max(MAX_MEMORIES).optional().describe("delete: the memory_ids of the notes to forget, from list_memory."),
     all: z.boolean().default(false).describe("delete: forget every note of that scope instead."),
+    summary: z
+      .string()
+      .max(MAX_MEMORY_SUMMARY_CHARS)
+      .optional()
+      .describe(
+        `summary: the user's summary in this workspace, written from their notes here and everywhere (list_memory): Markdown of up to three short "## " sections (who they are, what they work on now, how they like to work and be answered), at most ${MAX_MEMORY_SUMMARY_CHARS} characters, in the notes' language; "" deletes it.`,
+      ),
   }),
 };
 
@@ -73,6 +92,10 @@ export async function withMemoryErrors<T>(fn: () => Promise<T>): Promise<T> {
           throw new ToolInputError("A note needs text.");
         case "off":
           throw new ToolInputError(MEMORY_OFF.workspace);
+        case "personOff":
+          throw new ToolInputError(MEMORY_OFF.person);
+        case "summaryTooLong":
+          throw new ToolInputError(`A summary has at most ${MAX_MEMORY_SUMMARY_CHARS} characters. Make it shorter.`);
         case "held":
           throw new ToolInputError("A legal hold of the workspace keeps these notes: they can't be deleted while it stands.");
       }
@@ -112,14 +135,34 @@ export function listNotes<T>(notes: T[], describe: (note: T) => object): { notes
   return { notes: taken.reverse(), ...(left ? { notes_not_listed: left } : {}) };
 }
 
+/** What list_memory says of a summary by its state. */
+export const ABOUT_STATUS = {
+  behind: "Notes were kept since it was written: write it again from the notes (change_memory summary) when it misses something that matters.",
+  held_back:
+    "A note it was written from changed or was forgotten since, so it goes nowhere and its text isn't shown: write it again from the notes (change_memory summary), or delete it.",
+} as const;
+
+/**
+ * The user's summary of their notes in a workspace (`about`, server/memory-summary.ts) as
+ * list_memory shows it: its text with `about_status` current or behind; held back (a note it was
+ * written from changed or went), only the status, since what the user took back mustn't reach an app.
+ */
+export function describeSummary(summary: MemorySummaryView | null) {
+  if (!summary) return {};
+  if (summary.withheld) return { about_status: "held_back" as const, about_note: ABOUT_STATUS.held_back };
+  return summary.stale
+    ? { about: summary.text, about_status: "behind" as const, about_note: ABOUT_STATUS.behind }
+    : { about: summary.text, about_status: "current" as const };
+}
+
 /**
  * The user's memory in a workspace as list_memory shows it: the notes while it is on, after the
- * summary of them the user keeps (`about`, server/memory-summary.ts), if any; while off, why and how many.
+ * summary of them the user keeps (describeSummary), if any; while off, why and how many.
  */
-export function describeMemory(workspaceId: string, { off, notes }: { off: keyof typeof MEMORY_OFF | null; notes: MemoryView[] }, about = "") {
+export function describeMemory(workspaceId: string, { off, notes }: { off: keyof typeof MEMORY_OFF | null; notes: MemoryView[] }, summary: MemorySummaryView | null = null) {
   return off
     ? { workspace_id: workspaceId, memory: "off" as const, why: MEMORY_OFF[off], notes: [], notes_kept: notes.length }
-    : { workspace_id: workspaceId, memory: "on" as const, ...(about ? { about } : {}), ...listNotes(notes, (n) => describeNote(n)) };
+    : { workspace_id: workspaceId, memory: "on" as const, ...describeSummary(summary), ...listNotes(notes, (n) => describeNote(n)) };
 }
 
 /** A note of the workspace or a teamspace as list_memory shows it: who changed it last, too. */

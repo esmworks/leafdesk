@@ -188,9 +188,10 @@ export async function writeSummary(userId: string, workspaceId: string, signal?:
 /**
  * Keeps the summary the person wrote or changed; an empty one deletes it. A changed one keeps the
  * notes it was written from, so a summary behind its notes stays marked so (markSummaryCurrent);
- * a new one is written from the notes as they are.
+ * a new one is written from the notes as they are. `byApp`: a connected app wrote it from the notes
+ * it read (list_memory), so it is marked as written by AI and as written from the notes as they are.
  */
-export async function setSummary(userId: string, workspaceId: string, text: string): Promise<MemorySummaryView | null> {
+export async function setSummary(userId: string, workspaceId: string, text: string, { byApp = false }: { byApp?: boolean } = {}): Promise<MemorySummaryView | null> {
   await requireOn(userId, workspaceId);
   const clean = cleanSummary(text);
   if (!clean) {
@@ -199,7 +200,8 @@ export async function setSummary(userId: string, workspaceId: string, text: stri
   }
   if (clean.length > MAX_MEMORY_SUMMARY_CHARS) throw new MemoryError("summaryTooLong", `A summary may have at most ${MAX_MEMORY_SUMMARY_CHARS} characters`);
   const [row, notes] = await Promise.all([rowOf(userId, workspaceId), sourceNotes(userId, workspaceId)]);
-  return save(userId, workspaceId, { text: clean, writtenBy: "person", sources: row?.sources ?? keysOf(pickSource(notes)) }, notes);
+  const sources = byApp ? keysOf(pickSource(notes)) : (row?.sources ?? keysOf(pickSource(notes)));
+  return save(userId, workspaceId, { text: clean, writtenBy: byApp ? "ai" : "person", sources }, notes);
 }
 
 /** The person says the summary matches their notes as they are now: it goes with questions again, unmarked. */

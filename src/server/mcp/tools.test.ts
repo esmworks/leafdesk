@@ -237,7 +237,12 @@ const sharedMemory = vi.hoisted(() => ({
   deleteSharedNotes: vi.fn(async (_userId: string, _workspaceId: string, _teamspaceId: string | null, _ids: string[] | "all") => [] as string[]),
 }));
 vi.mock("@/server/shared-memory", () => sharedMemory);
-const memorySummary = vi.hoisted(() => ({ summaryForPrompt: vi.fn(async (_userId: string, _workspaceId: string) => "") }));
+type SummaryView = { text: string; writtenBy: "ai" | "person"; updatedAt: string; stale: boolean; withheld: boolean };
+const memorySummary = vi.hoisted(() => ({
+  summaryOf: vi.fn(async (_userId: string, _workspaceId: string) => null as SummaryView | null),
+  setSummary: vi.fn(async (_userId: string, _workspaceId: string, _text: string, _options?: { byApp?: boolean }) => null as SummaryView | null),
+  deleteSummary: vi.fn(async (_userId: string, _workspaceId: string) => {}),
+}));
 vi.mock("@/server/memory-summary", () => memorySummary);
 
 const agentUsage = vi.hoisted(() => ({
@@ -3743,7 +3748,7 @@ describe("the user's memory", () => {
     expect(tools.get("list_memory")!.inputSchema.required ?? []).toEqual([]);
     expect(change.inputSchema.required).toEqual(["action"]);
     expect(change.inputSchema.properties.scope.enum).toEqual(["person", "account", "workspace", "teamspace"]);
-    expect(change.inputSchema.properties.action.enum).toEqual(["add", "update", "delete"]);
+    expect(change.inputSchema.properties.action.enum).toEqual(["add", "update", "delete", "summary"]);
     expect(change.inputSchema.properties.text.maxLength).toBe(300);
     const listed = await listTools(writer);
     const describe = (name: string) => (listed.find((t) => t.name === name) as { description?: string }).description ?? "";
@@ -3849,10 +3854,62 @@ describe("the user's memory", () => {
     expect(merged.data).toMatchObject({ updated: { memory_id: "m-2" }, merged: true });
   });
 
-  it("shows the summary the user keeps of their notes, while their memory is on", async () => {
-    memorySummary.summaryForPrompt.mockResolvedValueOnce("## Role\nLeads billing.");
-    const listed = await callTool(writer, "list_memory", { workspace_id: "ws-1" });
-    expect(listed.data).toMatchObject({ workspace_id: "ws-1", memory: "on", about: "## Role\nLeads billing." });
+  it("shows the summary the user keeps of their notes with its state, never a held back one's text", async () => {
+    const summary = (stale: boolean, withheld: boolean): SummaryView => ({ text: "## Role\nLeads billing.", writtenBy: "person", updatedAt: "2026-11-01T00:00:00.000Z", stale, withheld });
+    memorySummary.summaryOf.mockResolvedValueOnce(summary(false, false));
+    const current = await callTool(writer, "list_memory", { workspace_id: "ws-1" });
+    expect(current.data).toMatchObject({ workspace_id: "ws-1", memory: "on", about: "## Role\nLeads billing.", about_status: "current" });
+    expect(current.data.about_note).toBeUndefined();
+    memorySummary.summaryOf.mockResolvedValueOnce(summary(true, false));
+    const behind = await callTool(writer, "list_memory", { workspace_id: "ws-1" });
+    expect(behind.data).toMatchObject({ about: "## Role\nLeads billing.", about_status: "behind", about_note: expect.stringMatching(/change_memory summary/) });
+    memorySummary.summaryOf.mockResolvedValueOnce(summary(true, true));
+    const held = await callTool(writer, "list_memory", { workspace_id: "ws-1" });
+    expect(held.data).toMatchObject({ about_status: "held_back" });
+    expect(held.data.about).toBeUndefined();
+    expect(held.text).not.toContain("Leads billing");
+    // While the memory is off, the summary isn't read.
+    memorySummary.summaryOf.mockClear();
+    personalMemory.memoryState.mockResolvedValueOnce({ off: "person", notes: [] });
+    const off = await callTool(writer, "list_memory", { workspace_id: "ws-1" });
+    expect(off.data.about).toBeUndefined();
+    expect(memorySummary.summaryOf).not.toHaveBeenCalled();
+  });
+
+  it("writes the user's summary as the app, deletes it with an empty one and refuses other fields", async () => {
+    memorySummary.summaryOf.mockResolvedValueOnce({ text: "## Role\nLeads billing.", writtenBy: "ai", updatedAt: "2026-11-01T00:00:00.000Z", stale: false, withheld: false });
+    const written = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "summary", summary: "## Role\nLeads billing." });
+    expect(written.isError).toBe(false);
+    expect(memorySummary.setSummary).toHaveBeenCalledWith("user-1", "ws-1", "## Role\nLeads billing.", { byApp: true });
+    expect(written.data).toMatchObject({ summary_written: true, workspace_id: "ws-1", about: "## Role\nLeads billing.", about_status: "current" });
+
+    const gone = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "summary", summary: "" });
+    expect(memorySummary.deleteSummary).toHaveBeenCalledWith("user-1", "ws-1");
+    expect(gone.data).toMatchObject({ summary_deleted: true, workspace_id: "ws-1" });
+
+    memorySummary.setSummary.mockClear();
+    const refused = [
+      { workspace_id: "ws-1", action: "summary" },
+      { action: "summary", summary: "x" },
+      { workspace_id: "ws-1", action: "summary", summary: "x", text: "x" },
+      { workspace_id: "ws-1", action: "summary", summary: "x", scope: "account" },
+      { workspace_id: "ws-1", action: "add", text: "x", summary: "x" },
+      { workspace_id: "ws-1", action: "summary", summary: "x".repeat(1501) },
+    ];
+    for (const args of refused) expect((await callTool(writer, "change_memory", args)).isError).toBe(true);
+    expect(memorySummary.setSummary).not.toHaveBeenCalled();
+    // A read-only app writes nothing.
+    expect((await callTool(reader, "change_memory", { workspace_id: "ws-1", action: "summary", summary: "x" })).isError).toBe(true);
+  });
+
+  it("keeps a summary only while the user's memory is on", async () => {
+    personalMemory.memoryOff.mockResolvedValueOnce("person");
+    const result = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "summary", summary: "## Role\nLeads billing." });
+    expect(result.isError).toBe(true);
+    expect(memorySummary.setSummary).not.toHaveBeenCalled();
+    memorySummary.setSummary.mockRejectedValueOnce(new personalMemory.MemoryError("summaryTooLong", "x"));
+    const long = await callTool(writer, "change_memory", { workspace_id: "ws-1", action: "summary", summary: "## Role" });
+    expect(long.text).toMatch(/at most 1500 characters/);
   });
 
   it("keeps what a note is about when asked, and refuses it on delete", async () => {

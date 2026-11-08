@@ -1457,6 +1457,20 @@ async function main() {
   check(deletedFillers.deleted === MAX_MEMORIES - 2 && !deletedFillers.not_found && deletedFillers.notes.length === 2, "change_memory delete deletes notes by memory_ids", deletedFillers);
   const deletedAgain = await mcp.call("change_memory", { workspace_id: ws, action: "delete", memory_ids: fillers.slice(0, 2) });
   check(!deletedAgain.isError && deletedAgain.data?.deleted === 0, "the same delete again does no harm", deletedAgain.text);
+  // The user's summary of their notes: written by the app, current until a note it was written from changes.
+  const about = `## Role\nLeads the billing team ${RUN}.`;
+  const summaryWritten = await mcp.ok("change_memory", { workspace_id: ws, action: "summary", summary: about });
+  check(summaryWritten.summary_written && summaryWritten.about === about && summaryWritten.about_status === "current", "change_memory summary writes the user's summary, current", summaryWritten);
+  await mcp.ok("change_memory", { workspace_id: ws, action: "update", memory_id: tone2Id, text: `Wants short answers in lists ${RUN}` });
+  const summaryHeld = await mcp.ok("list_memory", { workspace_id: ws });
+  check(summaryHeld.about_status === "held_back" && summaryHeld.about === undefined, "list_memory holds a summary back, text and all, once a note it was written from changed", summaryHeld);
+  const summaryAgain = await mcp.ok("change_memory", { workspace_id: ws, action: "summary", summary: about });
+  check(summaryAgain.about === about && summaryAgain.about_status === "current", "…and writing it again from the notes makes it current", summaryAgain);
+  const summaryTooLong = await mcp.call("change_memory", { workspace_id: ws, action: "summary", summary: "x".repeat(1501) });
+  check(summaryTooLong.isError, "change_memory summary refuses one over 1500 characters", summaryTooLong.text);
+  const summaryDeleted = await mcp.ok("change_memory", { workspace_id: ws, action: "summary", summary: "" });
+  check(summaryDeleted.summary_deleted && summaryDeleted.about === undefined && summaryDeleted.about_status === undefined, "change_memory summary \"\" deletes it", summaryDeleted);
+
   // Off by the user's own switch, or by the owners' for the workspace: nothing read or kept.
   await personal.setMemoryUse(memoryUser, ws, false);
   const personOff = await mcp.ok("list_memory", { workspace_id: ws });

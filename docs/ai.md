@@ -442,8 +442,9 @@ about you: who you are, what you work on now and how you like to work, in a few 
 headings. *Write with AI* has the fast model write it from your notes here and everywhere, the newest of
 both as far as about 24,000 characters go (it reads nothing else), and you can change it, write it yourself or delete it (up to 1,500 characters). It
 goes with your questions in that workspace ahead of your notes, so a question whose notes don't all
-fit still has the gist, and connected apps read it as `about` in `list_memory`; a note wins where
-the two disagree. It is never rewritten on its own, and it remembers which notes it was written from:
+fit still has the gist, and connected apps read it as `about` in `list_memory` (with
+`about_status`: `current`, `behind` or `held_back`, the last without its text) and write or delete
+it with `change_memory`'s `summary` action when you ask them to; a note wins where the two disagree. It is never rewritten on its own, and it remembers which notes it was written from:
 - a note kept since that it would now be written from marks it as behind (*your notes changed
   since*); it still goes with questions;
 - a note it was written from changed or forgotten since keeps it from going anywhere, so what you
@@ -515,7 +516,8 @@ The same notes reach the AI apps you connect over MCP, so each of them knows you
 everywhere and the workspace's and teamspaces' notes you may read, and `change_memory`
 keeps a note, changes one or deletes some or all of them (`scope`: `person`, `account`,
 `workspace` or `teamspace`, the last two only where you may change them; `category`: the note's
-kind and `details` its details, as above), with the chat's limits. `list_memory` lists each note's
+kind and `details` its details, as above), with the chat's limits; action `summary` writes your
+summary in a workspace from your notes, marking it current (`""` deletes it). `list_memory` lists each note's
 line, the newest of each layer within about 10 KB (`notes_not_listed` and
 `account_notes_not_listed` count the older ones), and marks one with details (`has_details`);
 `query` searches every note and its details as `read_memory` does, by words and meaning, and

@@ -386,7 +386,8 @@ The tools cover:
 - **Memory:** `list_memory` (the user's notes in one workspace or all of them, each note's line,
   the newest of each layer within about 10 KB; `query` searches them with their details by words
   and meaning, `memory_id` reads one in full) and
-  `change_memory` (add, update, or delete by ids or all, also while the memory is off): the notes the
+  `change_memory` (add, update, or delete by ids or all, also while the memory is off; `summary`
+  writes or deletes the user's summary in a workspace, shown as `about` with its `about_status`): the notes the
   AI chat keeps about the user, theirs alone and only while the memory is on, each showing the app
   that kept it (see [Memory](ai.md#ai-features)).
 - **Snippets:** `list_snippets` (the user's own and the workspace's, with their Markdown and what

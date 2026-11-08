@@ -26,6 +26,11 @@
   the newest notes within a budget, and an agent's Memory tab has a search box. Notes' embeddings
   are made when a search first needs them and deleted with the note or when a workspace turns AI
   off. Migration `0201_memory_embedding`.
+- **Connected apps can write your memory summary.** `change_memory`'s new `summary` action writes
+  the summary of your notes in a workspace (up to 1,500 characters, marked current and as written by
+  AI), and an empty one deletes it, so an app you ask can refresh it from the notes it reads.
+  `list_memory` shows the summary's state beside it in `about_status`: current, behind (notes kept
+  since) or held back, whose text it no longer sends once a note it was written from changed.
 - **Messages: channels, direct messages and threads.** A new place on the sidebar's rail (`g`
   then `d`) for talking within the workspace, live over a websocket: public and private channels,
   direct messages of up to nine people, threads beside the channel, mentions of people, `@here` and
