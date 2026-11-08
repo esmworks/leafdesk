@@ -259,6 +259,21 @@
   "loadMore": "Meer tonen",
   "switcherPlaceholder": "Naar een kanaal of persoon…",
   "switcherNone": "Niets gevonden.",
+  "catchUp": {
+    "button": "Bijlezen",
+    "buttonTitle": "Vat met AI samen wat je hebt gemist",
+    "threadButtonTitle": "Vat deze thread samen met AI",
+    "title": "Wat je hebt gemist",
+    "threadTitle": "Deze thread in het kort",
+    "reading": "Berichten lezen…",
+    "nothing": "Niets nieuws om bij te lezen.",
+    "questions": "Aan jou gevraagd",
+    "decisions": "Besluiten",
+    "open": "Nog open",
+    "again": "Opnieuw samenvatten",
+    "from": "Door AI samengevat uit {count, plural, one {# bericht} other {# berichten}}",
+    "left": "{count, plural, one {# ouder bericht} other {# oudere berichten}} weggelaten"
+  },
   "errors": {
     "notFound": "Het bestaat niet meer, of je kunt het niet zien.",
     "notAllowed": "Dat mag je hier niet doen.",
@@ -274,6 +289,7 @@
     "rateLimited": "Doe het iets rustiger aan en probeer het opnieuw.",
     "offline": "Je bent offline. Het gaat weg zodra je weer online bent.",
     "timeout": "De server antwoordde niet op tijd.",
+    "ai": "De AI kon niet antwoorden. Probeer het opnieuw.",
     "internal": "Er ging iets mis. Probeer het opnieuw."
   }
 }

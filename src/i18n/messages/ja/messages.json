@@ -259,6 +259,21 @@
   "loadMore": "さらに表示",
   "switcherPlaceholder": "チャンネルまたはユーザーへ移動…",
   "switcherNone": "見つかりません。",
+  "catchUp": {
+    "button": "キャッチアップ",
+    "buttonTitle": "見逃した内容を AI で要約",
+    "threadButtonTitle": "このスレッドを AI で要約",
+    "title": "見逃した内容",
+    "threadTitle": "このスレッドの要点",
+    "reading": "メッセージを読んでいます…",
+    "nothing": "新しい内容はありません。",
+    "questions": "あなたへの質問・依頼",
+    "decisions": "決定事項",
+    "open": "未解決",
+    "again": "もう一度要約",
+    "from": "{count, plural, other {# 件のメッセージ}}から AI が要約",
+    "left": "{count, plural, other {古いメッセージ # 件}}は含まれていません"
+  },
   "errors": {
     "notFound": "存在しないか、表示する権限がありません。",
     "notAllowed": "ここではその操作は許可されていません。",
@@ -274,6 +289,7 @@
     "rateLimited": "少し時間をおいてから、もう一度お試しください。",
     "offline": "オフラインです。接続が戻ると送信されます。",
     "timeout": "サーバーが時間内に応答しませんでした。",
+    "ai": "AI が応答できませんでした。もう一度お試しください。",
     "internal": "問題が発生しました。もう一度お試しください。"
   }
 }

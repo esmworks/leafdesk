@@ -8,7 +8,9 @@ import { showToast } from "@/components/toast";
 import { lazyPart } from "@/components/lazy-part";
 import { Button, cn, Popover } from "@/components/ui";
 import type { MessageView } from "@/lib/message-wire";
+import { CATCH_UP_MIN_UNREAD } from "@/lib/message-catch-up";
 import { messagesPath } from "@/lib/messages";
+import { CatchUpButton } from "./catch-up-button";
 import type { DetailsTab } from "./channel-dialogs";
 import { Composer, type ComposerHandle } from "./composer";
 import { MessageBody } from "./message-body";
@@ -33,6 +35,7 @@ export function ChannelView({
   openThread,
   forward,
   owner,
+  ai,
 }: {
   workspaceId: string;
   channelId: string;
@@ -41,6 +44,8 @@ export function ChannelView({
   forward: (messageId: string) => void;
   /** The person owns the workspace (deletes others' messages anywhere). */
   owner: boolean;
+  /** The workspace has AI: offer to catch up on what the person missed. */
+  ai: boolean;
 }) {
   const t = useTranslations("messages");
   const view = useView();
@@ -53,6 +58,9 @@ export function ChannelView({
   const composer = useRef<ComposerHandle>(null);
   const toEnd = useRef<(() => void) | null>(null);
   const [missing, setMissing] = useState(false);
+  // What the person hadn't read when the channel opened, kept while it stays open (reading marks
+  // messages read as they show): a catch-up sums up the messages after it.
+  const [unreadSince, setUnreadSince] = useState<{ channelId: string; seq: number | null } | null>(null);
 
   // The server sends this channel's messages to this tab while it is open, member or not.
   useEffect(() => {
@@ -64,6 +72,11 @@ export function ChannelView({
     setMissing(false);
     requestAnimationFrame(() => composer.current?.focus());
   }, [channelId]);
+  useEffect(() => {
+    if (!ready || !member || !channel || unreadSince?.channelId === channelId) return;
+    setUnreadSince({ channelId, seq: member.unread >= CATCH_UP_MIN_UNREAD && member.lastReadSeq < channel.lastSeq ? member.lastReadSeq : null });
+  }, [ready, member, channel, channelId, unreadSince]);
+  const catchUpSince = unreadSince?.channelId === channelId ? unreadSince.seq : null;
   // A public channel the person isn't in, opened by its link: the server knows it.
   useEffect(() => {
     if (!ready || channel) return;
@@ -173,6 +186,7 @@ export function ChannelView({
               {channel.memberCount}
             </button>
           )}
+          {ai && catchUpSince !== null && <CatchUpButton target={{ channelId, since: catchUpSince }} workspaceId={workspaceId} openThread={openThread} />}
           <PinnedButton channelId={channelId} workspaceId={workspaceId} openThread={openThread} />
           <a
             href={messagesPath(workspaceId, { view: "search", query: direct ? "" : `in:#${channel.name ?? ""} ` })}

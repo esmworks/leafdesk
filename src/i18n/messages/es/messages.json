@@ -259,6 +259,21 @@
   "loadMore": "Mostrar más",
   "switcherPlaceholder": "Ir a un canal o a una persona…",
   "switcherNone": "No se encontró nada.",
+  "catchUp": {
+    "button": "Ponerse al día",
+    "buttonTitle": "Resumir con IA lo que te perdiste",
+    "threadButtonTitle": "Resumir este hilo con IA",
+    "title": "Lo que te perdiste",
+    "threadTitle": "Este hilo en breve",
+    "reading": "Leyendo los mensajes…",
+    "nothing": "Nada nuevo con lo que ponerse al día.",
+    "questions": "Te piden a ti",
+    "decisions": "Decisiones",
+    "open": "Pendiente",
+    "again": "Resumir de nuevo",
+    "from": "Resumido por la IA a partir de {count, plural, one {# mensaje} other {# mensajes}}",
+    "left": "{count, plural, one {# mensaje anterior quedó} other {# mensajes anteriores quedaron}} fuera"
+  },
   "errors": {
     "notFound": "Ya no existe o no puedes verlo.",
     "notAllowed": "No puedes hacer eso aquí.",
@@ -274,6 +289,7 @@
     "rateLimited": "Ve un poco más despacio y vuelve a intentarlo.",
     "offline": "Estás sin conexión. Se enviará cuando vuelvas.",
     "timeout": "El servidor no respondió a tiempo.",
+    "ai": "La IA no pudo responder. Inténtalo de nuevo.",
     "internal": "Algo salió mal. Vuelve a intentarlo."
   }
 }

@@ -259,6 +259,21 @@
   "loadMore": "Mehr anzeigen",
   "switcherPlaceholder": "Zu einem Kanal oder einer Person…",
   "switcherNone": "Nichts gefunden.",
+  "catchUp": {
+    "button": "Aufholen",
+    "buttonTitle": "Mit KI zusammenfassen, was du verpasst hast",
+    "threadButtonTitle": "Diesen Thread mit KI zusammenfassen",
+    "title": "Was du verpasst hast",
+    "threadTitle": "Dieser Thread in Kürze",
+    "reading": "Nachrichten werden gelesen…",
+    "nothing": "Nichts Neues zum Aufholen.",
+    "questions": "An dich gerichtet",
+    "decisions": "Entscheidungen",
+    "open": "Noch offen",
+    "again": "Erneut zusammenfassen",
+    "from": "Von der KI aus {count, plural, one {# Nachricht} other {# Nachrichten}} zusammengefasst",
+    "left": "{count, plural, one {# ältere Nachricht} other {# ältere Nachrichten}} ausgelassen"
+  },
   "errors": {
     "notFound": "Das gibt es nicht mehr oder du kannst es nicht sehen.",
     "notAllowed": "Das darfst du hier nicht.",
@@ -274,6 +289,7 @@
     "rateLimited": "Etwas langsamer, bitte, und versuche es erneut.",
     "offline": "Du bist offline. Es wird gesendet, sobald du wieder online bist.",
     "timeout": "Der Server hat nicht rechtzeitig geantwortet.",
+    "ai": "Die KI konnte nicht antworten. Versuche es erneut.",
     "internal": "Etwas ist schiefgelaufen. Versuche es erneut."
   }
 }

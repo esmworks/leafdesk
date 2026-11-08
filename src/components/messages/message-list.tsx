@@ -30,6 +30,14 @@ export function dayLabel(date: Date, locale: string, words: { today: string; yes
 type Line = { kind: "day"; key: string; label: string } | { kind: "unread"; key: string } | { kind: "message"; key: string; m: MessageView; continued: boolean; pending?: Pending; readers?: string[] };
 
 /** Whether a message follows the one before it under the same name. */
+/**
+ * Where `node` sits from the top of the scrolling `box`'s content. Not `offsetTop`: rows sit in
+ * `content-visibility` wrappers, which are their offset parents, so it is 0 for every row.
+ */
+export function topIn(box: HTMLElement, node: HTMLElement): number {
+  return node.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
+}
+
 export function continues(prev: MessageView | undefined, m: MessageView): boolean {
   if (!prev || prev.kind !== "message" || m.kind !== "message") return false;
   if (prev.authorId !== m.authorId || !!prev.data?.importedFrom !== !!m.data?.importedFrom) return false;
@@ -191,7 +199,7 @@ export function MessageList({
     if (!el) return;
     const rows = el.querySelectorAll<HTMLElement>("[data-message-id]");
     for (const row of rows) {
-      const top = row.offsetTop - el.scrollTop;
+      const top = topIn(el, row) - el.scrollTop;
       if (top >= 0) {
         anchor.current = { id: row.dataset.messageId!, top };
         return;
@@ -205,7 +213,7 @@ export function MessageList({
     if (!el) return;
     if (anchor.current) {
       const row = el.querySelector<HTMLElement>(`[data-message-id="${anchor.current.id}"]`);
-      if (row) el.scrollTop = row.offsetTop - anchor.current.top;
+      if (row) el.scrollTop = topIn(el, row) - anchor.current.top;
       anchor.current = null;
       return;
     }
@@ -214,7 +222,7 @@ export function MessageList({
       if (row) {
         scrolledTo.current = highlightId;
         followEnd.current = false;
-        el.scrollTop = row.offsetTop - el.clientHeight / 3;
+        el.scrollTop = topIn(el, row) - el.clientHeight / 3;
         return;
       }
     }
@@ -223,7 +231,7 @@ export function MessageList({
       if (line) {
         scrolledTo.current = "unread";
         // The first unread message near the top, unless everything fits.
-        const top = line.offsetTop - 48;
+        const top = topIn(el, line) - 48;
         if (el.scrollHeight - top > el.clientHeight) {
           followEnd.current = false;
           el.scrollTop = top;
@@ -262,7 +270,8 @@ export function MessageList({
         // Not at the end: read as far as the last message seen.
         const rows = el.querySelectorAll<HTMLElement>("[data-seq]");
         let seen = 0;
-        for (const row of rows) if (row.offsetTop + row.offsetHeight <= el.scrollTop + el.clientHeight) seen = Math.max(seen, Number(row.dataset.seq) || 0);
+        const bottom = el.getBoundingClientRect().bottom;
+        for (const row of rows) if (row.getBoundingClientRect().bottom <= bottom) seen = Math.max(seen, Number(row.dataset.seq) || 0);
         if (seen && seen < Number.MAX_SAFE_INTEGER && seen > (messagesState().memberships.get(channelId)?.lastReadSeq ?? 0)) markRead(channelId, seen);
       }
     };
@@ -292,7 +301,7 @@ export function MessageList({
     followEnd.current = end && !timeline.hasAfter;
     if (end !== atEnd) setAtEnd(end);
     const line = el.querySelector<HTMLElement>("[data-unread-line]");
-    setUnreadAbove(!!line && line.offsetTop < el.scrollTop);
+    setUnreadAbove(!!line && topIn(el, line) < el.scrollTop);
     if (loading) return;
     if (el.scrollTop < LOAD_PX && timeline.hasBefore) {
       setLoading("before");
@@ -313,7 +322,7 @@ export function MessageList({
   const jumpToUnread = () => {
     const el = box.current;
     const line = el?.querySelector<HTMLElement>("[data-unread-line]");
-    if (el && line) el.scrollTo({ top: line.offsetTop - 48, behavior: "smooth" });
+    if (el && line) el.scrollTo({ top: topIn(el, line) - 48, behavior: "smooth" });
     else if (unreadFrom !== null) {
       scrolledTo.current = null;
       void loadHistory(channelId, { around: "unread" });

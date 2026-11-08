@@ -335,15 +335,15 @@ function send(frame: unknown) {
   if (socket?.readyState === WebSocket.OPEN && helloed) socket.send(JSON.stringify(frame));
 }
 
-/** Calls an operation of the Messages server; waits for the connection while it is down. */
-export function call<T = unknown>(op: string, args?: Record<string, unknown>): Promise<T> {
+/** Calls an operation of the Messages server; waits for the connection while it is down (`timeoutMs` at most, for one that takes long). */
+export function call<T = unknown>(op: string, args?: Record<string, unknown>, timeoutMs = CALL_TIMEOUT_MS): Promise<T> {
   const id = nextId++;
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(() => {
       waiting.delete(id);
       queued = queued.filter((q) => q.id !== id);
       reject(new MessagesError("offline", "No answer"));
-    }, CALL_TIMEOUT_MS);
+    }, timeoutMs);
     waiting.set(id, { resolve: resolve as (data: unknown) => void, reject, timer });
     if (socket?.readyState === WebSocket.OPEN && helloed) send({ t: "call", id, op, args });
     else queued.push({ id, op, args });

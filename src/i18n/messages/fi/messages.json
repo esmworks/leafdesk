@@ -259,6 +259,21 @@
   "loadMore": "Näytä lisää",
   "switcherPlaceholder": "Siirry kanavalle tai henkilöön…",
   "switcherNone": "Mitään ei löytynyt.",
+  "catchUp": {
+    "button": "Ota kiinni",
+    "buttonTitle": "Tiivistä tekoälyllä, mitä jäi näkemättä",
+    "threadButtonTitle": "Tiivistä tämä ketju tekoälyllä",
+    "title": "Mitä jäi näkemättä",
+    "threadTitle": "Ketju lyhyesti",
+    "reading": "Luetaan viestejä…",
+    "nothing": "Ei mitään uutta kiinni otettavaksi.",
+    "questions": "Sinulta pyydetty",
+    "decisions": "Päätökset",
+    "open": "Yhä avoinna",
+    "again": "Tiivistä uudelleen",
+    "from": "Tekoälyn tiivistämä {count, plural, one {# viestistä} other {# viestistä}}",
+    "left": "{count, plural, one {# vanhempi viesti jätettiin} other {# vanhempaa viestiä jätettiin}} pois"
+  },
   "errors": {
     "notFound": "Sitä ei ole enää, tai et voi nähdä sitä.",
     "notAllowed": "Sinulla ei ole lupaa tehdä sitä täällä.",
@@ -274,6 +289,7 @@
     "rateLimited": "Hidasta hieman ja yritä uudelleen.",
     "offline": "Olet offline-tilassa. Viesti lähtee, kun yhteys palaa.",
     "timeout": "Palvelin ei vastannut ajoissa.",
+    "ai": "Tekoäly ei voinut vastata. Yritä uudelleen.",
     "internal": "Jokin meni vikaan. Yritä uudelleen."
   }
 }

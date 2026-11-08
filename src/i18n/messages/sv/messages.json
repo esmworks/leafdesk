@@ -259,6 +259,21 @@
   "loadMore": "Visa fler",
   "switcherPlaceholder": "Gå till en kanal eller person…",
   "switcherNone": "Inget hittades.",
+  "catchUp": {
+    "button": "Kom ikapp",
+    "buttonTitle": "Sammanfatta med AI vad du har missat",
+    "threadButtonTitle": "Sammanfatta tråden med AI",
+    "title": "Det du missade",
+    "threadTitle": "Tråden i korthet",
+    "reading": "Läser meddelandena…",
+    "nothing": "Inget nytt att komma ikapp med.",
+    "questions": "Frågat dig",
+    "decisions": "Beslut",
+    "open": "Fortfarande öppet",
+    "again": "Sammanfatta igen",
+    "from": "Sammanfattat av AI från {count, plural, one {# meddelande} other {# meddelanden}}",
+    "left": "{count, plural, one {# äldre meddelande} other {# äldre meddelanden}} utelämnade"
+  },
   "errors": {
     "notFound": "Det finns inte längre, eller så kan du inte se det.",
     "notAllowed": "Du får inte göra det här.",
@@ -274,6 +289,7 @@
     "rateLimited": "Ta det lite lugnare och försök igen.",
     "offline": "Du är offline. Det skickas när du är tillbaka.",
     "timeout": "Servern svarade inte i tid.",
+    "ai": "AI kunde inte svara. Försök igen.",
     "internal": "Något gick fel. Försök igen."
   }
 }

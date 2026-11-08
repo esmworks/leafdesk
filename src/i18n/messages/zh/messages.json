@@ -259,6 +259,21 @@
   "loadMore": "显示更多",
   "switcherPlaceholder": "前往频道或成员…",
   "switcherNone": "未找到任何内容。",
+  "catchUp": {
+    "button": "补看",
+    "buttonTitle": "用 AI 总结你错过的内容",
+    "threadButtonTitle": "用 AI 总结此话题",
+    "title": "你错过的内容",
+    "threadTitle": "此话题摘要",
+    "reading": "正在读取消息…",
+    "nothing": "没有需要补看的新内容。",
+    "questions": "向你提出的",
+    "decisions": "决定",
+    "open": "仍未解决",
+    "again": "重新总结",
+    "from": "由 AI 根据 {count, plural, other {# 条消息}}总结",
+    "left": "{count, plural, other {# 条较早的消息}}未包含"
+  },
   "errors": {
     "notFound": "它已不存在，或你无权查看。",
     "notAllowed": "你无权在此执行该操作。",
@@ -274,6 +289,7 @@
     "rateLimited": "操作太频繁，请稍后再试。",
     "offline": "你已离线。恢复连接后会自动发送。",
     "timeout": "服务器未及时响应。",
+    "ai": "AI 无法回答。请重试。",
     "internal": "出了点问题，请重试。"
   }
 }

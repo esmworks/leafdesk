@@ -147,6 +147,10 @@
   unless the conversation is open in front of you or your quiet hours last. Keys: `Cmd/Ctrl+Shift+K`
   jumps to a channel or person, `Alt+↑/↓` to the conversation before or after (with Shift, the
   unread ones), `Shift+Esc` marks everything read.
+  With AI on, a channel opened with three or more unread messages has *Catch up* (✦) in its head, as has a thread
+  of eight replies or more: the fast model reads what you hadn't read when you opened it (the newest
+  150 messages at most) and sums it up, with the questions put to you, the decisions and what is
+  still open, each point opening its message. It changes nothing: the messages stay unread.
 - **Search box** (Cmd/Ctrl+K or Cmd/Ctrl+P; with text selected in a page, Cmd/Ctrl+K links it instead): before you type, the pages you opened last (the pages last edited
   while your page views aren't recorded or you haven't opened any yet), under *Today*, *Yesterday*,
   *Previous 7 days* and *Older*, each with the page or database it sits in. The row under the query

@@ -259,6 +259,21 @@
   "loadMore": "Vis flere",
   "switcherPlaceholder": "Gå til en kanal eller person…",
   "switcherNone": "Intet fundet.",
+  "catchUp": {
+    "button": "Indhent",
+    "buttonTitle": "Opsummer med AI, hvad du er gået glip af",
+    "threadButtonTitle": "Opsummer denne tråd med AI",
+    "title": "Det, du gik glip af",
+    "threadTitle": "Denne tråd kort",
+    "reading": "Læser beskederne…",
+    "nothing": "Intet nyt at indhente.",
+    "questions": "Spurgt til dig",
+    "decisions": "Beslutninger",
+    "open": "Stadig åbent",
+    "again": "Opsummer igen",
+    "from": "Opsummeret af AI ud fra {count, plural, one {# besked} other {# beskeder}}",
+    "left": "{count, plural, one {# ældre besked} other {# ældre beskeder}} udeladt"
+  },
   "errors": {
     "notFound": "Det findes ikke længere, eller du kan ikke se det.",
     "notAllowed": "Det må du ikke her.",
@@ -274,6 +289,7 @@
     "rateLimited": "Sæt tempoet lidt ned, og prøv igen.",
     "offline": "Du er offline. Det sendes, når du er tilbage.",
     "timeout": "Serveren svarede ikke i tide.",
+    "ai": "AI kunne ikke svare. Prøv igen.",
     "internal": "Noget gik galt. Prøv igen."
   }
 }

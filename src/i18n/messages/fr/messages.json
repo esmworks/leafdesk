@@ -259,6 +259,21 @@
   "loadMore": "Afficher plus",
   "switcherPlaceholder": "Aller à un canal ou une personne…",
   "switcherNone": "Rien trouvé.",
+  "catchUp": {
+    "button": "Rattraper",
+    "buttonTitle": "Résumer avec l'IA ce que vous avez manqué",
+    "threadButtonTitle": "Résumer ce fil avec l'IA",
+    "title": "Ce que vous avez manqué",
+    "threadTitle": "Ce fil en bref",
+    "reading": "Lecture des messages…",
+    "nothing": "Rien de nouveau à rattraper.",
+    "questions": "Ce qu'on vous demande",
+    "decisions": "Décisions",
+    "open": "Encore ouvert",
+    "again": "Résumer à nouveau",
+    "from": "Résumé par l'IA à partir de {count, plural, one {# message} other {# messages}}",
+    "left": "{count, plural, one {# message plus ancien laissé} other {# messages plus anciens laissés}} de côté"
+  },
   "errors": {
     "notFound": "Cela n’existe plus, ou vous ne pouvez pas le voir.",
     "notAllowed": "Vous n’êtes pas autorisé à faire cela ici.",
@@ -274,6 +289,7 @@
     "rateLimited": "Ralentissez un peu et réessayez.",
     "offline": "Vous êtes hors ligne. L’envoi se fera à votre retour.",
     "timeout": "Le serveur n’a pas répondu à temps.",
+    "ai": "L'IA n'a pas pu répondre. Réessayez.",
     "internal": "Une erreur s’est produite. Réessayez."
   }
 }

@@ -4,8 +4,11 @@ import { Bell, BellOff, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/components/ui";
+import { CATCH_UP_MIN_REPLIES } from "@/lib/message-catch-up";
+import { messagesPath } from "@/lib/messages";
+import { CatchUpButton } from "./catch-up-button";
 import { Composer, type ComposerHandle } from "./composer";
-import { continues } from "./message-list";
+import { continues, topIn } from "./message-list";
 import { MessageItem, pendingView, type ItemContext } from "./message-item";
 import { call, channelTitle, loadThread, markThreadRead, messagesState, useMessages, useView } from "./store";
 import { TypingLine } from "./typing-line";
@@ -14,7 +17,7 @@ import { TypingLine } from "./typing-line";
  * A thread beside the channel: its first message, the replies under it and a box to answer, with
  * whether the person follows it. Read while it is open in a focused tab.
  */
-export function ThreadPanel({ threadId, ctx, close, highlightId }: { threadId: string; ctx: ItemContext; close: () => void; highlightId: string | null }) {
+export function ThreadPanel({ threadId, ctx, close, highlightId, ai }: { threadId: string; ctx: ItemContext; close: () => void; highlightId: string | null; /** The workspace has AI: a long thread offers a catch-up. */ ai: boolean }) {
   const t = useTranslations("messages");
   const view = useView();
   const root = useMessages((s) => s.messages.get(threadId));
@@ -66,7 +69,7 @@ export function ThreadPanel({ threadId, ctx, close, highlightId }: { threadId: s
     if (highlightId) {
       const row = el.querySelector<HTMLElement>(`[data-message-id="${highlightId}"]`);
       if (row) {
-        el.scrollTop = row.offsetTop - el.clientHeight / 3;
+        el.scrollTop = topIn(el, row) - el.clientHeight / 3;
         return;
       }
     }
@@ -88,6 +91,7 @@ export function ThreadPanel({ threadId, ctx, close, highlightId }: { threadId: s
           <h2 className="text-sm font-semibold text-fg">{t("thread")}</h2>
           {channel && <p className="truncate text-xs text-fg-muted">{channelTitle(view, channel, { you: t("you"), someone: t("someone") })}</p>}
         </div>
+        {ai && root && root.replyCount >= CATCH_UP_MIN_REPLIES && <CatchUpButton target={{ channelId: root.channelId, threadId }} workspaceId={ctx.workspaceId} openThread={(id, messageId) => window.history.pushState(null, "", messagesPath(ctx.workspaceId, { channelId: root.channelId, threadId: id, messageId }))} label={false} />}
         {root && (
           <button
             type="button"

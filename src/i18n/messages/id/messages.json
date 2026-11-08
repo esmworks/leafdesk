@@ -259,6 +259,21 @@
   "loadMore": "Tampilkan lebih banyak",
   "switcherPlaceholder": "Buka kanal atau orang…",
   "switcherNone": "Tidak ada yang ditemukan.",
+  "catchUp": {
+    "button": "Kejar ketertinggalan",
+    "buttonTitle": "Ringkas dengan AI apa yang Anda lewatkan",
+    "threadButtonTitle": "Ringkas utas ini dengan AI",
+    "title": "Yang Anda lewatkan",
+    "threadTitle": "Utas ini singkatnya",
+    "reading": "Membaca pesan…",
+    "nothing": "Tidak ada yang baru untuk dikejar.",
+    "questions": "Ditanyakan kepada Anda",
+    "decisions": "Keputusan",
+    "open": "Masih terbuka",
+    "again": "Ringkas lagi",
+    "from": "Diringkas AI dari {count, plural, other {# pesan}}",
+    "left": "{count, plural, other {# pesan lama}} tidak disertakan"
+  },
   "errors": {
     "notFound": "Sudah tidak ada, atau Anda tidak dapat melihatnya.",
     "notAllowed": "Anda tidak diizinkan melakukan itu di sini.",
@@ -274,6 +289,7 @@
     "rateLimited": "Pelan-pelan sedikit, lalu coba lagi.",
     "offline": "Anda sedang offline. Pesan akan terkirim saat Anda kembali online.",
     "timeout": "Server tidak menjawab tepat waktu.",
+    "ai": "AI tidak dapat menjawab. Coba lagi.",
     "internal": "Terjadi kesalahan. Coba lagi."
   }
 }

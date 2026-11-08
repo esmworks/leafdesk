@@ -259,6 +259,21 @@
   "loadMore": "Pokaż więcej",
   "switcherPlaceholder": "Przejdź do kanału lub osoby…",
   "switcherNone": "Nic nie znaleziono.",
+  "catchUp": {
+    "button": "Nadrób zaległości",
+    "buttonTitle": "Podsumuj z AI to, co cię ominęło",
+    "threadButtonTitle": "Podsumuj ten wątek z AI",
+    "title": "Co cię ominęło",
+    "threadTitle": "Ten wątek w skrócie",
+    "reading": "Czytanie wiadomości…",
+    "nothing": "Nic nowego do nadrobienia.",
+    "questions": "Prośby do ciebie",
+    "decisions": "Decyzje",
+    "open": "Wciąż otwarte",
+    "again": "Podsumuj ponownie",
+    "from": "Podsumowane przez AI z {count, plural, one {# wiadomości} few {# wiadomości} many {# wiadomości} other {# wiadomości}}",
+    "left": "Pominięto {count, plural, one {# starszą wiadomość} few {# starsze wiadomości} many {# starszych wiadomości} other {# starszej wiadomości}}"
+  },
   "errors": {
     "notFound": "To już nie istnieje albo nie możesz tego zobaczyć.",
     "notAllowed": "Nie możesz tu tego zrobić.",
@@ -274,6 +289,7 @@
     "rateLimited": "Zwolnij trochę i spróbuj ponownie.",
     "offline": "Jesteś offline. Wyślemy, gdy wrócisz.",
     "timeout": "Serwer nie odpowiedział na czas.",
+    "ai": "AI nie mogła odpowiedzieć. Spróbuj ponownie.",
     "internal": "Coś poszło nie tak. Spróbuj ponownie."
   }
 }
