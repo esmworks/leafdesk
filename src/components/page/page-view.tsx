@@ -498,6 +498,8 @@ export function PageView({
   );
 
   const canChangeHeader = !page.archived && canEdit && !offline && !locked;
+  const titleRowRef = useRef<HTMLDivElement>(null);
+  const buttonsAbove = useButtonsAboveTitle(titleRowRef, canChangeHeader);
   // Touch screens show the header buttons beside the title all the time: icons only, so the title
   // keeps its room on a phone.
   const headerButtonLabel = "pointer-coarse:sr-only";
@@ -734,11 +736,13 @@ export function PageView({
           <div data-pin-sideways className={cn("group has-[[data-open]]:z-[36]", wide ? "page-gutter" : "px-4 md:px-[54px]")}>
             {/* Everything stays on the title's line so the content starts higher: the icon before the
                 title, the add-icon and background buttons over its right end. Those show on hover or
-                focus and take no room, so the title keeps its width; on touch screens, where they
-                always show, they sit after it instead. */}
+                focus and take no room, so the title keeps its width; a title whose text reaches
+                under them (a long one, or any in the narrow row panel) gets them above it instead,
+                or they would cover its end and take the clicks meant for it. On touch screens,
+                where they always show, they sit after it. */}
             {/* While a picker is open the row rises over a database's view bar (z-32) and the
                 top bar (z-35): the picker's own z-50 counts only inside the buttons' z-30 layer. */}
-            <div className="relative flex items-start gap-3 has-[[data-open]]:z-[36]">
+            <div ref={titleRowRef} className="relative flex items-start gap-3 has-[[data-open]]:z-[36]">
               {icon && iconPicker}
               <TitleField
                 inputRef={titleRef}
@@ -750,8 +754,11 @@ export function PageView({
               />
               {canChangeHeader && (
                 <div
+                  data-title-buttons
                   className={cn(
-                    "absolute top-1/2 inset-e-0 z-30 flex -translate-y-1/2 items-center gap-1 rounded-md bg-bg ps-2",
+                    "absolute inset-e-0 z-30 flex items-center gap-1 rounded-md bg-bg ps-2",
+                    // Above the title they fit the room over it, which on a database's page is 24px.
+                    buttonsAbove ? "bottom-full pointer-fine:[&_button]:h-6" : "top-1/2 -translate-y-1/2",
                     "pointer-events-none opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100",
                     // Kept shown while one of their pickers is open (Popover sets data-open).
                     "focus-within:pointer-events-auto focus-within:opacity-100 has-[[data-open]]:pointer-events-auto has-[[data-open]]:opacity-100",
@@ -963,7 +970,7 @@ function TitleField({
   // An invisible copy of the text sizes the box, so the field is only as wide and tall as its text
   // and a click beside the title doesn't start editing it.
   return (
-    <div className="relative inline-block min-w-0 max-w-full align-top">
+    <div data-title-field className="relative inline-block min-w-0 max-w-full align-top">
       <span aria-hidden className={cn("invisible block whitespace-pre-wrap break-words", font)}>
         {(text || tc("untitled")) + "\u00a0"}
       </span>
@@ -992,6 +999,34 @@ function TitleField({
       />
     </div>
   );
+}
+
+/**
+ * Whether the title's add-icon and background buttons go above it: true once the title's text
+ * reaches the room they take at its line's end. Either way they are out of the flow, so moving
+ * them never changes the title's width and the answer can't flip back and forth.
+ */
+function useButtonsAboveTitle(rowRef: RefObject<HTMLDivElement | null>, enabled: boolean) {
+  const [above, setAbove] = useState(false);
+  useLayoutEffect(() => {
+    const row = rowRef.current;
+    const field = row?.querySelector<HTMLElement>("[data-title-field]");
+    const buttons = row?.querySelector<HTMLElement>("[data-title-buttons]");
+    if (!row || !field || !buttons) return;
+    const check = () => {
+      const rowBox = row.getBoundingClientRect();
+      const fieldBox = field.getBoundingClientRect();
+      const room = getComputedStyle(row).direction === "rtl" ? fieldBox.left - rowBox.left : rowBox.right - fieldBox.right;
+      setAbove(room < buttons.offsetWidth);
+    };
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(row);
+    observer.observe(field);
+    observer.observe(buttons);
+    return () => observer.disconnect();
+  }, [rowRef, enabled]);
+  return above;
 }
 
 /** Where index `i` of `before` ends up in `after`, given one contiguous change between them. */

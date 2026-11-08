@@ -179,6 +179,10 @@
 
 ### Fixed
 
+- **A long title can be clicked and typed into again.** The Add icon and Add background buttons
+  showed over the end of the page's title, so on a long title, and on most titles in the row panel,
+  they covered its last words and caught the click meant for it. They now move above the title
+  once its text reaches them.
 - **A tab of the previous version learns of a release from its next click.** After a release, a
   tab still running the version before fails every server action, since the new version gives
   them other ids. A tab on a page learned of the release from its page connection and showed the
