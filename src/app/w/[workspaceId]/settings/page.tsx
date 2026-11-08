@@ -1,6 +1,7 @@
 import {
   Bot,
   Boxes,
+  Brain,
   ChartColumn,
   Coins,
   ContactRound,
@@ -85,6 +86,7 @@ import { parseAuditFilters } from "@/lib/audit";
 import { parseStaleMonths } from "@/lib/workspace-check";
 import { isStrongSession } from "@/lib/auth-security";
 import { agentPagePath } from "@/lib/agent-page";
+import { memoryPagePath } from "@/lib/ai-chat";
 import { agentSettingsPath, isAgentSection } from "@/lib/agent-settings";
 import { isEventAgentKey } from "@/lib/builtin-agents";
 import {
@@ -117,7 +119,7 @@ import { listConnections } from "@/server/connections/manage";
 import { listPageWebhookDeliveries, listPageWebhooks } from "@/server/page-webhooks/manage";
 import { oauthRedirectUrl } from "@/server/connections/client";
 import { env } from "@/lib/env";
-import { aiInfoFor, chatModelsFor } from "@/server/ai";
+import { aiEnabledFor, aiInfoFor, chatModelsFor } from "@/server/ai";
 import { aiAvailable } from "@/server/ai-writing";
 import { workspaceAiUsage } from "@/server/ai-usage";
 import { workspaceAiView } from "@/server/ai-accounts";
@@ -220,7 +222,13 @@ export default async function SettingsPage({
     const run = typeof query.run === "string" ? query.run : null;
     redirect(agentSettingsPath(workspaceId, query.agent, run ? "runs" : isAgentSection(query.agentTab) ? query.agentTab : null, run));
   }
-  const [t, ta, isAdmin] = await Promise.all([getTranslations("settings"), getTranslations("account"), instanceAdmin(user)]);
+  const [t, ta, tm, isAdmin, ai] = await Promise.all([
+    getTranslations("settings"),
+    getTranslations("account"),
+    getTranslations("ai.memory"),
+    instanceAdmin(user),
+    aiEnabledFor(workspaceId),
+  ]);
   const href = (name: string) => `/w/${workspaceId}/settings?tab=${name}`;
   const tabPicked = typeof query.tab === "string";
 
@@ -237,9 +245,12 @@ export default async function SettingsPage({
           {
             label: ta("title"),
             items: [
-              ...ACCOUNT_SETTINGS_TABS.map((name) => {
+              ...ACCOUNT_SETTINGS_TABS.flatMap((name) => {
                 const account = accountTabForSettings(name);
-                return { href: href(name), label: ta(`nav.${account}`), icon: ACCOUNT_ICONS[account], active: tab === name };
+                const item = { href: href(name), label: ta(`nav.${account}`), icon: ACCOUNT_ICONS[account], active: tab === name };
+                // What the AI keeps about the person, after the apps that read it: its own page, also
+                // opened from the chat (none without AI).
+                return name === "apps" && ai ? [item, { href: memoryPagePath(workspaceId), label: tm("title"), icon: Brain }] : [item];
               }),
               // Instance admins reach the server's administration from here too.
               ...(isAdmin

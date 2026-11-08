@@ -31,6 +31,8 @@
   AI), and an empty one deletes it, so an app you ask can refresh it from the notes it reads.
   `list_memory` shows the summary's state beside it in `about_status`: current, behind (notes kept
   since) or held back, whose text it no longer sends once a note it was written from changed.
+- **Memory has a place in Settings.** Settings → My account lists *Memory* after *Connected apps*,
+  opening the Memory page also while the workspace's memory is off, when the chat hides its button.
 - **Messages: channels, direct messages and threads.** A new place on the sidebar's rail (`g`
   then `d`) for talking within the workspace, live over a websocket: public and private channels,
   direct messages of up to nine people, threads beside the channel, mentions of people, `@here` and
