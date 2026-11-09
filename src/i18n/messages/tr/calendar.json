@@ -17,7 +17,8 @@
   "kinds": {
     "event": "Takvim etkinlikleri",
     "meeting": "Toplantılar",
-    "task": "Görevler"
+    "task": "Görevler",
+    "reminder": "Hatırlatmalar"
   },
   "allDay": "Tüm gün",
   "from": "{time} itibarıyla",

@@ -1,10 +1,11 @@
 "use client";
 
-import { CalendarDays, ChevronLeft, ChevronRight, CircleCheck, NotebookPen } from "lucide-react";
+import { AlarmClock, CalendarDays, ChevronLeft, ChevronRight, CircleCheck, NotebookPen } from "lucide-react";
 import Link from "next/link";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { IconGlyph } from "@/components/builtin-icon";
+import { ItemLink } from "@/components/calendar/item-link";
 import { useCalendarItems } from "@/components/calendar/use-calendar-items";
 import { useViewerTimeZone } from "@/components/database/use-today";
 import { PanelEmpty, panelHeading, panelMeta, panelRow, panelRowActive, panelSection } from "@/components/sidebar/panel";
@@ -13,7 +14,7 @@ import { firstDayOfWeek, monthWeeks } from "@/lib/calendar";
 import { agendaDays, CALENDAR_MAX_DAYS, CALENDAR_PANEL_DAYS, placeItems, type CalendarItemKind, type PlacedItem } from "@/lib/calendar-items";
 import { dayString, localDay } from "@/lib/time-zone";
 
-const KIND_ICONS: Record<CalendarItemKind, typeof CalendarDays> = { event: CalendarDays, meeting: NotebookPen, task: CircleCheck };
+const KIND_ICONS: Record<CalendarItemKind, typeof CalendarDays> = { event: CalendarDays, meeting: NotebookPen, task: CircleCheck, reminder: AlarmClock };
 
 /** A day number as a Date at its midnight in UTC: days are formatted in UTC so zones never shift them. */
 const utcDay = (day: number) => new Date(day * 86_400_000);
@@ -61,7 +62,7 @@ export function CalendarPanel({ workspaceId, pathname, offline, onPages }: Calen
   }, [placed, gridFirst, gridLast]);
   const agendaLoaded = together ? shown.items !== null : apart.items !== null;
   const agenda = agendaDays(agendaPlaced, dayString(today), CALENDAR_PANEL_DAYS).filter((d, i) => i === 0 || d.items.length > 0);
-  const pageIds = agenda.flatMap((d) => d.items.flatMap((p) => /\/p\/([^/?#]+)/.exec(p.item.href)?.[1] ?? [])).join(" ");
+  const pageIds = agenda.flatMap((d) => d.items.flatMap((p) => /\/p\/([^/?#]+)/.exec(p.item.href ?? "")?.[1] ?? [])).join(" ");
   useEffect(() => {
     onPages(new Set(pageIds ? pageIds.split(" ") : []));
   }, [pageIds, onPages]);
@@ -158,13 +159,13 @@ export function CalendarPanel({ workspaceId, pathname, offline, onPages }: Calen
                     const time = timeOf(p, n);
                     return (
                       <li key={p.item.id}>
-                        <Link href={p.item.href} aria-current={current ? "page" : undefined} title={p.item.detail ?? undefined} className={cn(panelRow, current && panelRowActive)}>
+                        <ItemLink href={p.item.href} aria-current={current ? "page" : undefined} title={p.item.detail ?? undefined} className={cn(panelRow, current && panelRowActive)}>
                           <span className="flex h-4 w-4 shrink-0 items-center justify-center text-fg-icon">
                             {p.item.icon ? <IconGlyph icon={p.item.icon} className="text-sm" /> : <Icon className="h-4 w-4" aria-hidden />}
                           </span>
                           <span className="min-w-0 flex-1 truncate">{p.item.title.trim() || t("untitled")}</span>
                           {time && <span className={cn("shrink-0", panelMeta)}>{time}</span>}
-                        </Link>
+                        </ItemLink>
                       </li>
                     );
                   })}

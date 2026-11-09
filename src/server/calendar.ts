@@ -1,7 +1,7 @@
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseSync, meetingNote, page } from "@/db/schema";
-import { CALENDAR_MAX_DAYS, type CalendarItem } from "@/lib/calendar-items";
+import { CALENDAR_MAX_DAYS, reminderItem, type CalendarItem } from "@/lib/calendar-items";
 import { dateDays, dateOverlaps, dateSortKey, isDay, parseDateValue, shiftDateValue } from "@/lib/date-value";
 import type { GcalQuery } from "@/lib/gcal-sync";
 import type { IcalMapping } from "@/lib/ical-sync";
@@ -14,19 +14,26 @@ import { getCollab } from "@/server/collab/bridge";
 import { requireDatabase, updateRowProperties } from "@/server/databases";
 import { loadProperties } from "@/server/derived";
 import { isMeetingError, rescheduleMeeting } from "@/server/meetings";
+import { listNotifications, moveReminder } from "@/server/notifications";
 import { openPageTasks } from "@/server/page-tasks";
 import { propertyAccessFor } from "@/server/property-access";
 
 const addDays = (day: string, n: number) => dayString(dayNumber(day) + n);
 /** What moves to any day or time: tasks, and events of calendars written back to. */
 const ANYWHERE = { allDay: true } as const;
+/**
+ * The most reminders still to come one read lists: above what agents may keep waiting for a person
+ * (MAX_WAITING_REMINDERS each) in any workspace with a sensible number of them.
+ */
+const REMINDERS_READ = 500;
 
 /**
  * What the Calendar place shows a person from `from` to `to` (YYYY-MM-DD, both included, their
  * days in `timeZone`): the events of the calendars synced into the workspace (Google Calendar and
  * calendar addresses, server/gcal-sync and ical-sync) whose database and When they may see, the
- * meeting notes they may open, planned or held, and the open rows and to-dos assigned to them
- * that have a date (as My tasks lists them). In the order they start.
+ * meeting notes they may open, planned or held, the open rows and to-dos assigned to them
+ * that have a date (as My tasks lists them), and the reminders agents and the AI chat set them
+ * that haven't come yet (theirs alone, as the inbox's Scheduled tab lists them). In the order they start.
  */
 export async function calendarItems(userId: string, workspaceId: string, input: { from: string; to: string; timeZone: string }): Promise<CalendarItem[]> {
   await requireMembership(userId, workspaceId);
@@ -35,11 +42,12 @@ export async function calendarItems(userId: string, workspaceId: string, input: 
     throw new Error("A calendar reads whole days, at most CALENDAR_MAX_DAYS of them");
   }
   const inRange = (date: string | null): date is string => !!date && dateOverlaps(date, from, to, timeZone);
-  const [events, meetings, rows, tasks] = await Promise.all([
+  const [events, meetings, rows, tasks, reminders] = await Promise.all([
     syncedEvents(userId, workspaceId, from, to),
     meetingItems(userId, workspaceId, from, to),
     openAssignedRows(userId, workspaceId, timeZone),
     openPageTasks(userId, workspaceId, timeZone),
+    listNotifications(userId, { workspaceId, kinds: ["ai_reminder"], pending: true, limit: REMINDERS_READ }),
   ]);
   const items: CalendarItem[] = [
     ...events,
@@ -52,6 +60,16 @@ export async function calendarItems(userId: string, workspaceId: string, input: 
     ...tasks.flatMap((task): CalendarItem[] =>
       inRange(task.dateValue)
         ? [{ id: `todo:${task.id}`, kind: "task", title: task.text || task.pageTitle, icon: task.pageIcon, date: task.dateValue, href: task.path, detail: task.pageTitle, moves: ANYWHERE }]
+        : [],
+    ),
+    ...reminders.flatMap((n): CalendarItem[] =>
+      n.snoozedUntil && n.aiReminder
+        ? [
+            reminderItem(
+              { id: n.id, text: n.aiReminder.text, at: n.snoozedUntil, pageId: n.pageId, agentName: n.aiReminder.agentName, own: n.aiReminder.own === true },
+              workspaceId,
+            ),
+          ]
         : [],
     ),
   ];
@@ -188,7 +206,8 @@ export class CalendarMoveError extends Error {
  * date (an assigned row's first date they see, an event's When), a planned meeting's time, and a
  * to-do's date mention, whose time is a reminder on its day (timedOnItsDay in page-tasks.ts):
  * dropped on a time it gets one then, dropped on a day one it had on its day goes, and one on
- * another day moves along. `timeZone` is the person's, whose days and clock the drop was on.
+ * another day moves along; a reminder still to come, to another time (the person's own, at most
+ * 30 days ahead). `timeZone` is the person's, whose days and clock the drop was on.
  */
 export async function moveCalendarItem(userId: string, workspaceId: string, id: string, value: string, timeZone: string): Promise<void> {
   await requireMembership(userId, workspaceId);
@@ -198,6 +217,12 @@ export async function moveCalendarItem(userId: string, workspaceId: string, id: 
   try {
     if (kind === "task" || kind === "event") return await moveRowDate(userId, workspaceId, kind, first, value, timeZone);
     if (kind === "todo" && second) return await moveTodoDate(userId, workspaceId, first, second, value, timeZone);
+    if (kind === "reminder" && first) {
+      if (!parts.time) throw new CalendarMoveError("fixed");
+      const moved = await moveReminder(userId, workspaceId, first, new Date(parts.start));
+      if (moved === "moved") return;
+      throw new CalendarMoveError(moved === "notFound" ? "notFound" : "fixed");
+    }
     if (kind === "meeting" && second) {
       if (!parts.time) throw new CalendarMoveError("fixed");
       await pageInWorkspace(userId, workspaceId, first);

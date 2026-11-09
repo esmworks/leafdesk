@@ -17,7 +17,8 @@
   "kinds": {
     "event": "日历事件",
     "meeting": "会议",
-    "task": "任务"
+    "task": "任务",
+    "reminder": "提醒"
   },
   "allDay": "全天",
   "from": "{time} 起",

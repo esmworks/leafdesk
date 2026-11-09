@@ -496,7 +496,8 @@ apart: an agent reads the workspace's and the place's notes but never writes the
 browser's time zone): the box asks first, showing what it will say and when, unless the chat is on
 *Auto*. It comes as an agent's reminder does (over the page you have open, in your inbox, as a push
 or Telegram message), titled *Your reminder*; an answer sets at most 3. Until then it waits under
-*Scheduled* in your inbox, where you can move it to another time or cancel it. The chat can't do anything
+*Scheduled* in your inbox, where you can move it to another time or cancel it, and shows on your
+Calendar at its time, where you can drag it to another. The chat can't do anything
 later on its own, so work to be done again and again ("every morning, list what's due today",
 "each Friday, sum up the week's sales") goes to one of your agents as a schedule
 ([Agents](agents.md)): the chat finds `set_agent_schedule`, makes an agent first with

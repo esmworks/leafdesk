@@ -1,14 +1,17 @@
 /**
  * The Calendar place's items (server/calendar.ts): what a person has on their days across a
- * workspace, from the calendars synced into it, its meeting notes and what is assigned to them.
- * Pure and client-safe.
+ * workspace, from the calendars synced into it, its meeting notes, what is assigned to them and the
+ * reminders the AI chat and agents set them that haven't come yet. Pure and client-safe.
  */
 import { calendarEvent, eventsOn, type CalendarEvent } from "./calendar";
 import { moveDateStart, parseDateValue } from "./date-value";
 import { dayNumber, dayString, weekdayOf, zonedInstant } from "./time-zone";
 
-/** Where an item comes from: a synced calendar's event, a meeting note, a row or to-do assigned to the person. */
-export type CalendarItemKind = "event" | "meeting" | "task";
+/**
+ * Where an item comes from: a synced calendar's event, a meeting note, a row or to-do assigned to
+ * the person, a reminder an agent or the AI chat set them (server/ai-reminders.ts) still to come.
+ */
+export type CalendarItemKind = "event" | "meeting" | "task" | "reminder";
 
 export type CalendarItem = {
   /** Unique among the items: the kind and the id of what it is. */
@@ -18,9 +21,9 @@ export type CalendarItem = {
   icon: string | null;
   /** When, as a date value (lib/date-value): a day, a time or a range of either. */
   date: string;
-  /** The page it opens. */
-  href: string;
-  /** Under its title: an event's place, a meeting's people, the database or page a task is in. */
+  /** The page it opens; null for a reminder about no page, which opens the inbox's Scheduled tab. */
+  href: string | null;
+  /** Under its title: an event's place, a meeting's people, the database or page a task is in, the agent that set a reminder. */
   detail: string | null;
   /**
    * Whether the person may drag it to another day or time (moveCalendarItem says for sure), and
@@ -29,6 +32,31 @@ export type CalendarItem = {
    */
   moves: { allDay: boolean } | null;
 };
+
+/** The longest a reminder's text is as an item's title. */
+const REMINDER_TITLE_CHARS = 200;
+
+/**
+ * A reminder still to come as an item, at its time: about its page when it has one, by the agent
+ * that set it (no one named when the person set it themselves through the AI chat). It moves to
+ * another time, never to a whole day.
+ */
+export function reminderItem(
+  reminder: { id: string; text: string; at: Date; pageId: string | null; agentName: string | null; own: boolean },
+  workspaceId: string,
+): CalendarItem {
+  const text = reminder.text.replace(/\s+/g, " ").trim();
+  return {
+    id: `reminder:${reminder.id}`,
+    kind: "reminder",
+    title: text.length > REMINDER_TITLE_CHARS ? `${text.slice(0, REMINDER_TITLE_CHARS - 1)}…` : text,
+    icon: null,
+    date: reminder.at.toISOString(),
+    href: reminder.pageId ? `/w/${workspaceId}/p/${reminder.pageId}` : null,
+    detail: reminder.own ? null : reminder.agentName,
+    moves: { allDay: false },
+  };
+}
 
 /** The most days one read of items covers: a month shown whole, with its edges and the week after today. */
 export const CALENDAR_MAX_DAYS = 62;

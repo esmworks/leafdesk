@@ -103,16 +103,20 @@
 - **Calendar** (on the sidebar's rail): your week across the workspace in one place: the events of
   the calendars synced in (*Sync a Google Calendar calendar* and *Sync a calendar*) whose
   database you can open, the meeting notes you can open with a planned or started time (from start
-  to end once held), and the dated rows and to-dos of *My tasks*. Each source has its color: events
-  blue, meetings purple, tasks green. The page shows a week on its hours, with whole-day items in a
+  to end once held), the dated rows and to-dos of *My tasks*, and the reminders the AI chat and
+  agents set for you that haven't come yet (yours alone, at their time, with the agent that set
+  them; not shown when reminders are turned off in your inbox). Each source has its color: events
+  blue, meetings purple, tasks green, reminders orange. The page shows a week on its hours, with whole-day items in a
   strip above and a line at the present time, or as a list of its days (*Week* / *List*; phones
   start with the list); *Today* and the arrows move between weeks, with the week's number beside its
-  month. Clicking an item opens its page. The address keeps the week and the layout (`?d=`,
+  month. Clicking an item opens its page; a reminder about no page opens the inbox's *Scheduled*
+  tab, where it can be cancelled. The address keeps the week and the layout (`?d=`,
   `?view=list`). The sidebar's panel holds a month with a dot on days that have something (a day
   opens its week) and what you have from today on for a week: today, tomorrow and the next days
   with something on them, with their times. Drag an item on the week to move it: onto an hour it
   starts then (keeping its length), onto the strip of whole days it covers days. Tasks and to-dos
-  move anywhere, a planned meeting to another time, events only from a Google Calendar synced both
+  move anywhere, a planned meeting or a reminder to another time (a reminder at most 30 days
+  ahead), events only from a Google Calendar synced both
   ways (a held meeting and a calendar address's events stay put). A to-do's time is a reminder on
   its date's own day: dropping it on an hour sets one then, which also reminds you; dropping it on a
   whole day takes that reminder off. Add events where they come from.

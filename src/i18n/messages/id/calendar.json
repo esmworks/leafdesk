@@ -17,7 +17,8 @@
   "kinds": {
     "event": "Acara kalender",
     "meeting": "Rapat",
-    "task": "Tugas"
+    "task": "Tugas",
+    "reminder": "Pengingat"
   },
   "allDay": "Sepanjang hari",
   "from": "Mulai {time}",

@@ -17,7 +17,8 @@
   "kinds": {
     "event": "캘린더 일정",
     "meeting": "회의",
-    "task": "작업"
+    "task": "작업",
+    "reminder": "리마인더"
   },
   "allDay": "종일",
   "from": "{time}부터",

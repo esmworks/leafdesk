@@ -17,7 +17,8 @@
   "kinds": {
     "event": "Kalenteritapahtumat",
     "meeting": "Kokoukset",
-    "task": "Tehtävät"
+    "task": "Tehtävät",
+    "reminder": "Muistutukset"
   },
   "allDay": "Koko päivän",
   "from": "Klo {time} alkaen",

@@ -17,7 +17,8 @@
   "kinds": {
     "event": "Kalenderbegivenheder",
     "meeting": "Møder",
-    "task": "Opgaver"
+    "task": "Opgaver",
+    "reminder": "Påmindelser"
   },
   "allDay": "Hele dagen",
   "from": "Fra {time}",

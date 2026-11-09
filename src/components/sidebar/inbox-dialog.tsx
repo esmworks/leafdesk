@@ -23,6 +23,7 @@ import { DatePhraseInput } from "@/components/date-phrase-input";
 import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { InboxSwipe } from "./inbox-swipe";
+import type { InboxTab } from "@/lib/inbox-event";
 import { groupCounts, groupInbox, type InboxEntry } from "@/lib/inbox-groups";
 import { approvalLevelsFor, initialApprovalLevel, type ApprovalLevel } from "@/lib/access-requests";
 import { SUGGESTION_LINES } from "@/lib/push";
@@ -59,12 +60,15 @@ import { read } from "@/components/read";
 export function InboxDialog({
   workspaceId,
   open,
+  openOn,
   onClose,
   version,
   onRead,
 }: {
   workspaceId: string;
   open: boolean;
+  /** The tab it was asked to open on (the Calendar's reminders open Scheduled), null when opened as usual. */
+  openOn: InboxTab | null;
   onClose: () => void;
   /** Bumped when the inbox changed elsewhere, so an open dialog reloads. */
   version: number;
@@ -78,7 +82,13 @@ export function InboxDialog({
   const [items, setItems] = useState<InboxItem[] | null>(null);
   const [error, setError] = useState(false);
   const timeZone = useTimeZone() ?? browserTimeZone();
-  const [tab, setTab] = useState<"all" | "email" | "scheduled" | "archived">("all");
+  const [tab, setTab] = useState<"all" | "email" | "scheduled" | "archived">(openOn ?? "all");
+  // Asked for a tab, it shows that one; switching tabs from there is the person's.
+  const [askedTab, setAskedTab] = useState(openOn);
+  if (openOn !== askedTab) {
+    setAskedTab(openOn);
+    if (openOn) setTab(openOn);
+  }
   const archivedTab = tab === "archived";
   // What is still to come: never read, archived or grouped, only moved, cancelled or brought back.
   const scheduledTab = tab === "scheduled";

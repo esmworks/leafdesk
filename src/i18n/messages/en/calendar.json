@@ -17,7 +17,8 @@
   "kinds": {
     "event": "Calendar events",
     "meeting": "Meetings",
-    "task": "Tasks"
+    "task": "Tasks",
+    "reminder": "Reminders"
   },
   "allDay": "All day",
   "from": "From {time}",

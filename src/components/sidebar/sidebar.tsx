@@ -83,7 +83,7 @@ import { IMPORT_SPREADSHEET_EVENT, type ImportSpreadsheetDetail } from "@/lib/im
 import { OPEN_SEARCH_EVENT } from "@/lib/search-open";
 import { GO_MS, isMac, opensShortcuts, RAIL_GO_KEYS, railGoPlace, startsGo, type RailPlace } from "@/lib/shortcuts";
 import { ShortcutsDialog } from "@/components/shortcuts-dialog";
-import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
+import { INBOX_PREFERENCES_EVENT, OPEN_INBOX_EVENT, type InboxTab } from "@/lib/inbox-event";
 import type { SidebarData, TreeNode } from "@/server/pages";
 import type { TeamspaceSummary } from "@/server/teamspaces";
 import type { JoinableWorkspace } from "@/server/join-requests";
@@ -315,6 +315,8 @@ export function Sidebar({
   // "Build with AI", and the section it was opened from.
   const [buildFor, setBuildFor] = useState<{ target: Target } | null>(null);
   const [inboxOpen, setInboxOpen] = useState(false);
+  // The tab the inbox was asked to open on (OPEN_INBOX_EVENT), until it closes.
+  const [inboxTab, setInboxTab] = useState<InboxTab | null>(null);
   // Mounted from the first opening on, so it closes with its own transition afterwards.
   const [inboxMounted, setInboxMounted] = useState(false);
   if (inboxOpen && !inboxMounted) setInboxMounted(true);
@@ -533,6 +535,16 @@ export function Sidebar({
     window.addEventListener(OPEN_SEARCH_EVENT, onOpenSearch);
     return () => window.removeEventListener(OPEN_SEARCH_EVENT, onOpenSearch);
   }, []);
+
+  useEffect(() => {
+    const onOpenInbox = (event: Event) => {
+      if (offline) return;
+      if ((event as CustomEvent<unknown>).detail === "scheduled") setInboxTab("scheduled");
+      setInboxOpen(true);
+    };
+    window.addEventListener(OPEN_INBOX_EVENT, onOpenInbox);
+    return () => window.removeEventListener(OPEN_INBOX_EVENT, onOpenInbox);
+  }, [offline]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -2135,7 +2147,11 @@ export function Sidebar({
         <InboxDialog
           workspaceId={workspaceId}
           open={inboxOpen}
-          onClose={() => setInboxOpen(false)}
+          openOn={inboxTab}
+          onClose={() => {
+            setInboxOpen(false);
+            setInboxTab(null);
+          }}
           version={inboxVersion}
           onRead={refreshInbox}
         />
