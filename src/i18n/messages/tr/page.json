@@ -670,6 +670,22 @@
         "aliases": "sütun ekle yeni kolon column add"
       }
     },
+    "tabs": {
+      "title": "Sekmeler",
+      "subtext": "Bloklar sekmelerde, her seferinde bir sekme görünür",
+      "aliases": "sekmeler sekme bölümler panel tabs",
+      "label": "Sekmeler",
+      "untitled": "Sekme {number}",
+      "nameLabel": "Sekme adı",
+      "add": "Sekme ekle",
+      "full": "En fazla {max} sekme",
+      "menu": "Sekme seçenekleri",
+      "rename": "Yeniden adlandır",
+      "moveBefore": "Öne taşı",
+      "moveAfter": "Arkaya taşı",
+      "remove": "Sekmeyi sil",
+      "removeAll": "Tüm sekmeleri sil"
+    },
     "turnInto": {
       "title": "Dönüştür",
       "columns": "{count} sütun, her birinde bir blok"

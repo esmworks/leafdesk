@@ -47,6 +47,7 @@ import { CommentsPanel } from "./comments-panel";
 import { KnownResolverThread } from "./known-resolver-thread";
 import { CommentAuth, ServerThreadStore } from "./comment-store";
 import { useColumnSlashItems } from "./columns";
+import { TabKeys, TabStrips, useTabSlashItems } from "./tabs";
 import { FootnoteList, PageTrailProvider, useContentSlashItems, type TrailCrumb } from "./content-blocks";
 import { DATABASE_BLOCK, LINKED_VIEW_BLOCK } from "@/lib/embed-blocks";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
@@ -315,7 +316,7 @@ export default function CollabEditor({
       // Selected table cells can be merged into one, and a merged cell split again; rows and
       // columns take text and background colors, and the first row or column can be a header.
       tables: TABLE_SETTINGS,
-      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), ListMarkers(), QuoteSizeDefault(), ToggleHeadingSections(), SmartQuotes(), QuoteShortcut(), TagMarks(), shortcuts, comments, suggestions],
+      extensions: [KeepUndoAttached(), FindReplace(), codeHighlighting(), BlockDirection(), ListMarkers(), QuoteSizeDefault(), ToggleHeadingSections(), SmartQuotes(), TabKeys(), QuoteShortcut(), TagMarks(), shortcuts, comments, suggestions],
       // A synced block copied with "Copy synced block" lands as a reference; none lands inside one.
       // A link to an agent of the workspace, alone in an empty paragraph, becomes a chat with it.
       pasteHandler: ({ event, editor, defaultPasteHandler }) => {
@@ -493,6 +494,7 @@ export default function CollabEditor({
                 )}
               </CommentComponents>
               <EditorFiles editor={editor} editable={editable} pageId={pageId} />
+              <TabStrips editor={editor} editable={editable} />
             </BlockNoteView>
             {/* A synced page's notes are listed on its own page. */}
             {!nested && <FootnoteList editor={editor} />}
@@ -619,6 +621,7 @@ function SlashMenu({
   const buttonItems = useButtonSlashItem(editor, placeSynced);
   const meetingItems = useMeetingSlashItem(editor);
   const columnItems = useColumnSlashItems(editor);
+  const tabItems = useTabSlashItems(editor);
   const colorItems = useColorSlashItems(editor);
   const aiItems = useAiSlashItems(assistant?.open ?? noop, assistant !== null);
   const voiceItems = useVoiceSlashItems(voiceNote?.open ?? noop, voiceNote !== null);
@@ -639,6 +642,7 @@ function SlashMenu({
             ...embedItems(),
             ...contentItems,
             ...columnItems(),
+            ...tabItems(),
             ...webItems,
             ...pageLinkItems,
             ...syncedPageItems,

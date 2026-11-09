@@ -4,6 +4,7 @@
  * block removed. Blocks are found by their id at any depth, in columns too; get_page and read_page
  * show the ids as `<!-- block … -->` lines before each block when asked for them.
  */
+import { LAYOUT_TYPES } from "./page-diff";
 import { locate, tidyColumns, trimTrailingEmpty, type ReviewBlock } from "./page-review";
 
 export const BLOCK_EDIT_OPS = ["replace", "insert_after", "append", "delete"] as const;
@@ -65,7 +66,7 @@ export function applyBlockEdits(
   return { blocks: blocks.length ? blocks : [{ type: "paragraph", props: {}, content: [], children: [] }] };
 }
 
-/** The blocks a body read with its ids lists: the top-level ones, and those in columns. */
+/** The blocks a body read with its ids lists: the top-level ones, and those in columns and tabs. */
 export function listedBlocks(blocks: readonly ReviewBlock[]): ReviewBlock[] {
-  return blocks.flatMap((b) => (b.type === "columnList" || b.type === "column" ? listedBlocks(b.children ?? []) : [b]));
+  return blocks.flatMap((b) => (LAYOUT_TYPES.has(b.type) ? listedBlocks(b.children ?? []) : [b]));
 }

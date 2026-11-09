@@ -190,6 +190,9 @@ async function printSection(userId: string, pageId: string, depth: number, index
             columns: await Promise.all(segment.columns.map(async (column) => ({ width: column.width, segments: await resolve(column.segments) }))),
           };
         }
+        if (segment.kind === "tabs") {
+          return { kind: "tabs", tabs: await Promise.all(segment.tabs.map(async (tab) => ({ title: tab.title, segments: await resolve(tab.segments) }))) };
+        }
         if (segment.kind === "dashboard") {
           return {
             kind: "dashboard",
@@ -215,6 +218,7 @@ async function printSection(userId: string, pageId: string, depth: number, index
   const collect = (list: PublishedBlock[]) => {
     for (const b of list) {
       if (b.kind === "columns") b.columns.forEach((c) => collect(c.segments));
+      else if (b.kind === "tabs") b.tabs.forEach((t) => collect(t.segments));
       else if (b.kind === "embed" && b.type === "database" && b.database) shown.add(b.database.id);
     }
   };

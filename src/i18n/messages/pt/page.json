@@ -670,6 +670,22 @@
         "aliases": "adicionar coluna nova colunas layout column add"
       }
     },
+    "tabs": {
+      "title": "Abas",
+      "subtext": "Blocos em abas, uma aba visível de cada vez",
+      "aliases": "abas aba guias seções painéis tabs",
+      "label": "Abas",
+      "untitled": "Aba {number}",
+      "nameLabel": "Nome da aba",
+      "add": "Adicionar aba",
+      "full": "Até {max} abas",
+      "menu": "Opções da aba",
+      "rename": "Renomear",
+      "moveBefore": "Mover para antes",
+      "moveAfter": "Mover para depois",
+      "remove": "Excluir aba",
+      "removeAll": "Excluir todas as abas"
+    },
     "turnInto": {
       "title": "Transformar em",
       "columns": "{count} colunas, um bloco em cada"

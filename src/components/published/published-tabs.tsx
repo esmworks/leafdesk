@@ -5,8 +5,9 @@ import { isRtl } from "@/components/direction";
 import { cn, PageIcon } from "@/components/ui";
 
 /**
- * A published dashboard laid out as tabs (lib/dashboard): every tab's view comes drawn from the
- * server, already only the databases published with the page; the visitor picks which one shows.
+ * Tabs on a published page: a dashboard laid out as tabs (lib/dashboard), every tab's view drawn by
+ * the server and only the databases published with the page, or a tabs block (lib/tabs), each tab
+ * its blocks. The visitor picks which one shows. A database's tab carries its icon.
  */
 export function PublishedTabs({
   label,
@@ -14,7 +15,7 @@ export function PublishedTabs({
   children,
 }: {
   label: string;
-  tabs: { id: string; name: string; icon: string | null }[];
+  tabs: { id: string; name: string; icon?: string | null }[];
   /** One panel per tab, in order. */
   children: ReactNode[];
 }) {
@@ -33,7 +34,7 @@ export function PublishedTabs({
   };
   return (
     <div className="min-w-0">
-      <div role="tablist" aria-label={label} onKeyDown={onKeyDown} className="flex min-w-0 items-end gap-0.5 overflow-x-auto border-b border-border">
+      <div role="tablist" aria-label={label} onKeyDown={onKeyDown} className="flex min-w-0 items-end gap-0.5 overflow-x-auto overflow-y-hidden shadow-[inset_0_-1px_0_var(--color-border)]">
         {tabs.map((tab, i) => (
           <button
             key={tab.id}
@@ -46,11 +47,11 @@ export function PublishedTabs({
             tabIndex={i === active ? 0 : -1}
             onClick={() => setActive(i)}
             className={cn(
-              "-mb-px flex max-w-56 min-w-0 shrink-0 items-center gap-1.5 rounded-t border-b-2 px-2.5 py-1.5 text-sm hover:bg-bg-hover focus-visible:outline-2 focus-visible:outline-accent",
+              "flex max-w-56 min-w-0 shrink-0 items-center gap-1.5 rounded-t border-b-2 px-2.5 py-1.5 text-sm hover:bg-bg-hover focus-visible:outline-2 focus-visible:outline-accent",
               i === active ? "border-accent font-medium text-fg" : "border-transparent text-fg-muted hover:text-fg",
             )}
           >
-            <PageIcon icon={tab.icon} kind="database" className="text-sm" />
+            {tab.icon !== undefined && <PageIcon icon={tab.icon} kind="database" className="text-sm" />}
             <span className="truncate">{tab.name}</span>
           </button>
         ))}

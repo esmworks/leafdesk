@@ -147,7 +147,7 @@ export function DashboardTabs({
   return (
     <div className="database-tabs my-2 w-full min-w-0" contentEditable={false}>
       <div className="flex min-w-0 items-end gap-1 border-b border-border">
-        <div role="tablist" aria-label={t("title")} onKeyDown={onKeyDown} className="flex min-w-0 items-end gap-0.5 overflow-x-auto">
+        <div role="tablist" aria-label={t("title")} onKeyDown={onKeyDown} className="-mb-px flex min-w-0 items-end gap-0.5 overflow-x-auto overflow-y-hidden pb-px">
           {tabs.map((widget, index) => (
             <Tab
               key={widget.id}

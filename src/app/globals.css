@@ -1558,6 +1558,25 @@ body:has(.leafdesk-column-drop) .prosemirror-dropcursor-block {
 }
 
 /*
+ * Tabs (see components/page/tabs.tsx): the strip above a tab list's tabs, then the tab that shows
+ * (the list's node view hides the others with a rule of its own). Like a column's, a tab's blocks
+ * start at the list's edge; a line under them shows where the tab ends and the page goes on.
+ */
+.leafdesk-tab-list {
+  margin-block: 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+.leafdesk-tab-strip {
+  margin-bottom: 6px;
+  user-select: none;
+}
+.leafdesk-tab-panels,
+.leafdesk-tab {
+  min-width: 0;
+}
+
+/*
  * Wide column lists (lib/columns `wide`): on a page of standard width, a top-level list reaches
  * past the text into the page's margins, `--wide` of the way out to the page's edges less 48px for
  * the block handles; its outer edges are dragged to set it. The page's width is `--page-area`,

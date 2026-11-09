@@ -24,6 +24,7 @@ import {
   MIN_COLUMNS,
 } from "@/lib/columns";
 import { inlineSign } from "@/components/direction";
+import { isTabBlockType, TAB_BLOCK, TAB_LIST_BLOCK } from "@/lib/tabs";
 import type { PageEditor } from "./embed-blocks";
 
 /**
@@ -383,14 +384,15 @@ const ColumnDrop = createExtension(({ editor }: { editor: PageEditor }) => {
     marker?.remove();
     marker = null;
   };
-  // The blocks being dragged: their ids, or null when it isn't blocks (or holds columns).
+  // The blocks being dragged: their ids, or null when it isn't blocks (or holds columns or tabs,
+  // which no column can hold).
   const dragged = (view: EditorView): string[] | null => {
     const slice = view.dragging?.slice;
     if (!slice) return null;
     const ids: string[] = [];
     let columns = false;
     slice.content.descendants((node) => {
-      if (node.type.name === COLUMN_LIST_BLOCK || node.type.name === COLUMN_BLOCK) columns = true;
+      if (isColumnBlockType(node.type.name) || isTabBlockType(node.type.name)) columns = true;
       if (node.type.name === "blockContainer" && node.attrs.id) {
         ids.push(String(node.attrs.id));
         return false;
@@ -399,8 +401,8 @@ const ColumnDrop = createExtension(({ editor }: { editor: PageEditor }) => {
     });
     return columns || !ids.length ? null : ids;
   };
-  // The block beside which a drop at (x, y) would go: one at the top level or in a column. In the
-  // page's margins, the block level with the pointer.
+  // The block beside which a drop at (x, y) would go: one at the top level, in a column or in a
+  // tab. In the page's margins, the block level with the pointer.
   const besideOf = (view: EditorView, x: number, y: number) => {
     for (const dx of [0, 48, -48, 96]) {
       const hit = document.elementFromPoint(x + dx, y)?.closest(".bn-block-outer[data-id]");
@@ -408,7 +410,7 @@ const ColumnDrop = createExtension(({ editor }: { editor: PageEditor }) => {
       let block = editor.getBlock(hit.getAttribute("data-id")!);
       while (block) {
         const parent = editor.getParentBlock(block);
-        if (!parent || parent.type === COLUMN_BLOCK) break;
+        if (!parent || parent.type === COLUMN_BLOCK || parent.type === TAB_BLOCK) break;
         block = parent;
       }
       return block;
@@ -425,7 +427,7 @@ const ColumnDrop = createExtension(({ editor }: { editor: PageEditor }) => {
             dragover(view, event) {
               const ids = dragged(view);
               const block = ids && editor.isEditable ? besideOf(view, event.clientX, event.clientY) : undefined;
-              if (!ids || !block || ids.includes(block.id) || block.type === COLUMN_LIST_BLOCK) {
+              if (!ids || !block || ids.includes(block.id) || block.type === COLUMN_LIST_BLOCK || block.type === TAB_LIST_BLOCK) {
                 clear();
                 return false;
               }
@@ -505,7 +507,8 @@ export function canTurnIntoColumns(editor: PageEditor, blocks: AnyBlock[]): bool
   if (!blocks.length || blocks.length > MAX_COLUMNS) return false;
   const parent = editor.getParentBlock(blocks[0])?.id;
   return blocks.every(
-    (block) => !isColumnBlockType(block.type) && editor.getParentBlock(block)?.id === parent && !enclosingColumn(editor, block),
+    (block) =>
+      !isColumnBlockType(block.type) && !isTabBlockType(block.type) && editor.getParentBlock(block)?.id === parent && !enclosingColumn(editor, block),
   );
 }
 

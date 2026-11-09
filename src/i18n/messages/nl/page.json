@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout kolom toevoegen nieuw"
       }
     },
+    "tabs": {
+      "title": "Tabbladen",
+      "subtext": "Blokken in tabbladen, één tabblad tegelijk zichtbaar",
+      "aliases": "tabbladen tabblad tabs secties panelen",
+      "label": "Tabbladen",
+      "untitled": "Tabblad {number}",
+      "nameLabel": "Naam van het tabblad",
+      "add": "Tabblad toevoegen",
+      "full": "Hoogstens {max} tabbladen",
+      "menu": "Tabbladopties",
+      "rename": "Hernoemen",
+      "moveBefore": "Naar voren verplaatsen",
+      "moveAfter": "Naar achteren verplaatsen",
+      "remove": "Tabblad verwijderen",
+      "removeAll": "Alle tabbladen verwijderen"
+    },
     "turnInto": {
       "title": "Omzetten naar",
       "columns": "{count} kolommen, één blok per kolom"

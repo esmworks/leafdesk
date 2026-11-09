@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout colonna colonne aggiungi nuova"
       }
     },
+    "tabs": {
+      "title": "Schede",
+      "subtext": "Blocchi in schede, una scheda visibile alla volta",
+      "aliases": "schede scheda sezioni pannelli tabs",
+      "label": "Schede",
+      "untitled": "Scheda {number}",
+      "nameLabel": "Nome della scheda",
+      "add": "Aggiungi scheda",
+      "full": "Al massimo {max} schede",
+      "menu": "Opzioni della scheda",
+      "rename": "Rinomina",
+      "moveBefore": "Sposta prima",
+      "moveAfter": "Sposta dopo",
+      "remove": "Elimina scheda",
+      "removeAll": "Elimina tutte le schede"
+    },
     "turnInto": {
       "title": "Trasforma in",
       "columns": "{count} colonne, un blocco ciascuna"

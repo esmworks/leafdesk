@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout 添加栏 分栏 布局"
       }
     },
+    "tabs": {
+      "title": "标签页",
+      "subtext": "将块放入标签页，每次显示一个",
+      "aliases": "标签页 标签 分区 面板 tabs",
+      "label": "标签页",
+      "untitled": "标签页 {number}",
+      "nameLabel": "标签页名称",
+      "add": "添加标签页",
+      "full": "最多 {max} 个标签页",
+      "menu": "标签页选项",
+      "rename": "重命名",
+      "moveBefore": "移到前面",
+      "moveAfter": "移到后面",
+      "remove": "删除标签页",
+      "removeAll": "删除所有标签页"
+    },
     "turnInto": {
       "title": "转换为",
       "columns": "{count} 栏，每栏一个块"

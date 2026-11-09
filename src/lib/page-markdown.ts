@@ -5,6 +5,7 @@
  * parsing of a stretch of Markdown differs, and both sides parse with the same BlockNote schema.
  */
 import { groupColumns } from "./columns";
+import { groupTabs } from "./tabs";
 import { footnoteMarkdown, type MdBlock } from "./content-markdown";
 import { restoreDashboards } from "./dashboard";
 import { restoreMeetings } from "./meetings";
@@ -33,8 +34,8 @@ export type PageMarkdownOptions = {
 
 /**
  * Reference lines become database blocks (see mergeReferencedBlocks for what carries over), column
- * markers become column lists (lib/columns groupColumns), and footnotes come back with their notes
- * (lib/content-markdown footnoteMarkdown). People and dates mentioned before keep their mention's
+ * and tab markers become column and tab lists (lib/columns groupColumns, lib/tabs groupTabs), and
+ * footnotes come back with their notes (lib/content-markdown footnoteMarkdown). People and dates mentioned before keep their mention's
  * identity (see carryOverMentions), and links the page showed as mentions come back as them
  * (restoreLinkMentions). `parse` reads Markdown without reference lines or footnote
  * definitions in it.
@@ -53,7 +54,7 @@ export async function markdownToPageBlocks<B extends MdBlock>(
       "markdown" in part ? { blocks: await parse(part.markdown) } : part,
     ),
   );
-  const blocks = groupColumns(notes.restore(mergeReferencedBlocks(parts, existing, { keepMissingInline })));
+  const blocks = groupTabs(groupColumns(notes.restore(mergeReferencedBlocks(parts, existing, { keepMissingInline }))));
   if (keepMissingInline && pageId) blocks.push(...missingSources(blocks, existing, pageId));
   carryOverMentions(blocks, carryOver ? existing : []);
   if (carryOver) restoreLinkMentions(blocks, existing);

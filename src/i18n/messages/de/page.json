@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout spalte spalten hinzufügen neu"
       }
     },
+    "tabs": {
+      "title": "Tabs",
+      "subtext": "Blöcke in Tabs, jeweils ein Tab sichtbar",
+      "aliases": "tabs tab reiter registerkarten abschnitte",
+      "label": "Tabs",
+      "untitled": "Tab {number}",
+      "nameLabel": "Tab-Name",
+      "add": "Tab hinzufügen",
+      "full": "Höchstens {max} Tabs",
+      "menu": "Tab-Optionen",
+      "rename": "Umbenennen",
+      "moveBefore": "Nach vorne",
+      "moveAfter": "Nach hinten",
+      "remove": "Tab löschen",
+      "removeAll": "Alle Tabs löschen"
+    },
     "turnInto": {
       "title": "Umwandeln in",
       "columns": "{count} Spalten, je ein Block"

@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout sarake sarakkeet lisää uusi asettelu"
       }
     },
+    "tabs": {
+      "title": "Välilehdet",
+      "subtext": "Lohkot välilehdillä, yksi välilehti näkyy kerrallaan",
+      "aliases": "välilehdet välilehti osiot paneelit tabs",
+      "label": "Välilehdet",
+      "untitled": "Välilehti {number}",
+      "nameLabel": "Välilehden nimi",
+      "add": "Lisää välilehti",
+      "full": "Enintään {max} välilehteä",
+      "menu": "Välilehden asetukset",
+      "rename": "Nimeä uudelleen",
+      "moveBefore": "Siirrä edelle",
+      "moveAfter": "Siirrä perään",
+      "remove": "Poista välilehti",
+      "removeAll": "Poista kaikki välilehdet"
+    },
     "turnInto": {
       "title": "Muuta muotoon",
       "columns": "{count} saraketta, yksi lohko kussakin"

@@ -670,6 +670,22 @@
         "aliases": "kolom tambah baru tata letak column columns add new layout"
       }
     },
+    "tabs": {
+      "title": "Tab",
+      "subtext": "Blok dalam tab, satu tab terlihat sekaligus",
+      "aliases": "tab bagian panel tabs",
+      "label": "Tab",
+      "untitled": "Tab {number}",
+      "nameLabel": "Nama tab",
+      "add": "Tambahkan tab",
+      "full": "Paling banyak {max} tab",
+      "menu": "Opsi tab",
+      "rename": "Ganti nama",
+      "moveBefore": "Pindahkan sebelum",
+      "moveAfter": "Pindahkan setelah",
+      "remove": "Hapus tab",
+      "removeAll": "Hapus semua tab"
+    },
     "turnInto": {
       "title": "Ubah menjadi",
       "columns": "{count} kolom, satu blok per kolom"

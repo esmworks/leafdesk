@@ -4,12 +4,13 @@
  * the others stay. Pure: the server (server/page-review.ts) reads both versions and writes the
  * result through the page's shared document.
  */
-import { diffBlocks, flattenBlocks, type BlockChange, type BlockInput } from "./page-diff";
+import { diffBlocks, flattenBlocks, LAYOUT_TYPES, type BlockChange, type BlockInput } from "./page-diff";
 
 /** A BlockNote block as plain JSON, as the page's document holds it. */
 export type ReviewBlock = Omit<BlockInput, "children"> & { id?: string; children?: ReviewBlock[] };
 
-const isColumn = (block: ReviewBlock) => block.type === "columnList" || block.type === "column";
+/** Blocks that only lay others out (lib/columns, lib/tabs). */
+const isColumn = (block: ReviewBlock) => LAYOUT_TYPES.has(block.type);
 
 function isEmptyParagraph(block: ReviewBlock) {
   return block.type === "paragraph" && !block.children?.length && flattenBlocks([block])[0]?.text === "";
@@ -91,13 +92,20 @@ function idsOf(blocks: readonly ReviewBlock[], out = new Set<string>()) {
   return out;
 }
 
-/** Columns left empty go, and a row of columns left with one column becomes its blocks. */
+/**
+ * Columns left empty go, and a row of columns left with one column becomes its blocks. Tabs left
+ * empty go too (a tab without blocks can't be), and tabs left with no tab at all.
+ */
 export function tidyColumns(blocks: ReviewBlock[]): ReviewBlock[] {
   return blocks.flatMap((block): ReviewBlock[] => {
     if (block.type === "columnList") {
       const columns = (block.children ?? []).map((c) => ({ ...c, children: tidyColumns(c.children ?? []) })).filter((c) => c.children.length);
       if (columns.length < 2) return columns[0]?.children ?? [];
       return [{ ...block, children: columns }];
+    }
+    if (block.type === "tabList") {
+      const tabs = (block.children ?? []).map((t) => ({ ...t, children: tidyColumns(t.children ?? []) })).filter((t) => t.children.length);
+      return tabs.length ? [{ ...block, children: tabs }] : [];
     }
     return block.children?.length ? [{ ...block, children: tidyColumns(block.children) }] : [block];
   });

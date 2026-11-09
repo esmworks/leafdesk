@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout คอลัมน์ เพิ่ม ใหม่"
       }
     },
+    "tabs": {
+      "title": "แท็บ",
+      "subtext": "บล็อกในแท็บ แสดงทีละแท็บ",
+      "aliases": "แท็บ ส่วน แผง tabs",
+      "label": "แท็บ",
+      "untitled": "แท็บ {number}",
+      "nameLabel": "ชื่อแท็บ",
+      "add": "เพิ่มแท็บ",
+      "full": "ได้สูงสุด {max} แท็บ",
+      "menu": "ตัวเลือกแท็บ",
+      "rename": "เปลี่ยนชื่อ",
+      "moveBefore": "ย้ายไปก่อน",
+      "moveAfter": "ย้ายไปหลัง",
+      "remove": "ลบแท็บ",
+      "removeAll": "ลบแท็บทั้งหมด"
+    },
     "turnInto": {
       "title": "เปลี่ยนเป็น",
       "columns": "{count} คอลัมน์ คอลัมน์ละหนึ่งบล็อก"

@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout 열 추가 새 레이아웃"
       }
     },
+    "tabs": {
+      "title": "탭",
+      "subtext": "블록을 탭으로 나누어 한 번에 한 탭씩 표시",
+      "aliases": "탭 섹션 패널 tabs",
+      "label": "탭",
+      "untitled": "탭 {number}",
+      "nameLabel": "탭 이름",
+      "add": "탭 추가",
+      "full": "탭은 최대 {max}개",
+      "menu": "탭 옵션",
+      "rename": "이름 바꾸기",
+      "moveBefore": "앞으로 이동",
+      "moveAfter": "뒤로 이동",
+      "remove": "탭 삭제",
+      "removeAll": "모든 탭 삭제"
+    },
     "turnInto": {
       "title": "전환",
       "columns": "{count}개 열, 열마다 블록 하나"

@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout colonne colonnes ajouter nouvelle disposition"
       }
     },
+    "tabs": {
+      "title": "Onglets",
+      "subtext": "Des blocs dans des onglets, un seul visible à la fois",
+      "aliases": "onglets onglet sections panneaux tabs",
+      "label": "Onglets",
+      "untitled": "Onglet {number}",
+      "nameLabel": "Nom de l'onglet",
+      "add": "Ajouter un onglet",
+      "full": "{max} onglets au maximum",
+      "menu": "Options de l'onglet",
+      "rename": "Renommer",
+      "moveBefore": "Déplacer avant",
+      "moveAfter": "Déplacer après",
+      "remove": "Supprimer l'onglet",
+      "removeAll": "Supprimer tous les onglets"
+    },
     "turnInto": {
       "title": "Transformer en",
       "columns": "{count} colonnes, un bloc par colonne"

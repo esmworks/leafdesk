@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout"
       }
     },
+    "tabs": {
+      "title": "Tabs",
+      "subtext": "Blocks in tabs, one tab shown at a time",
+      "aliases": "tabs tab tabbed sections panels switch",
+      "label": "Tabs",
+      "untitled": "Tab {number}",
+      "nameLabel": "Tab name",
+      "add": "Add tab",
+      "full": "Up to {max} tabs",
+      "menu": "Tab options",
+      "rename": "Rename",
+      "moveBefore": "Move before",
+      "moveAfter": "Move after",
+      "remove": "Delete tab",
+      "removeAll": "Delete all tabs"
+    },
     "turnInto": {
       "title": "Turn into",
       "columns": "{count} columns, one block each"

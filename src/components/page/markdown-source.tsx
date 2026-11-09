@@ -33,6 +33,7 @@ import { BlockDirection } from "./block-direction";
 import { codeHighlighting } from "./code-block";
 import { EmbedHostProvider, type EmbedHost } from "./database-embed";
 import { pageEditorSchema } from "./embed-blocks";
+import { TabStrips } from "./tabs";
 import {
   createSourceEditor,
   insertLink,
@@ -476,7 +477,9 @@ export function MarkdownSourceView({
             <div className="leafdesk-editor mx-auto max-w-3xl py-6">
               <SyncedFrameProvider value={frame}>
                 <EmbedHostProvider value={host}>
-                  <BlockNoteView editor={preview} theme={scheme} editable={false} sideMenu={false} slashMenu={false} formattingToolbar={false} />
+                  <BlockNoteView editor={preview} theme={scheme} editable={false} sideMenu={false} slashMenu={false} formattingToolbar={false}>
+                    <TabStrips editor={preview} editable={false} />
+                  </BlockNoteView>
                 </EmbedHostProvider>
               </SyncedFrameProvider>
             </div>

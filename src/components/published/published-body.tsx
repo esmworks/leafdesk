@@ -31,7 +31,12 @@ const GUTTER = "px-4 sm:px-[54px]";
 
 /** Whether the body has a subpages block, in columns too: the page then lists its subpages there, not again at its end. */
 export const showsSubpages = (blocks: PublishedBlock[]): boolean =>
-  blocks.some((b) => b.kind === "subpages" || (b.kind === "columns" && b.columns.some((c) => showsSubpages(c.segments))));
+  blocks.some(
+    (b) =>
+      b.kind === "subpages" ||
+      (b.kind === "columns" && b.columns.some((c) => showsSubpages(c.segments))) ||
+      (b.kind === "tabs" && b.tabs.some((t) => showsSubpages(t.segments))),
+  );
 
 /**
  * A database row's properties above its body: those pinned under the title first (lib/row-layout),
@@ -64,7 +69,8 @@ export function PublishedRowProperties({ row, print = false }: { row: NonNullabl
  * view and the print view. `links` is where the publication (or its site) serves pages; without
  * it (print) pages and rows are named, not linked, and blocks that only work on screen (a PDF
  * viewer, an embedded site) print as a card naming what they hold. Columns sit side by side and
- * stack below 640px, on paper too (a printed page is wider than that).
+ * stack below 640px, on paper too (a printed page is wider than that). Tabs show one at a time;
+ * on paper every tab prints in turn under its title.
  */
 export async function PublishedBody({
   blocks,
@@ -129,6 +135,31 @@ export async function PublishedBody({
             </div>
           </div>
         );
+      case "tabs": {
+        const name = (tab: { title: string }, n: number) => tab.title || tb("tabs.untitled", { number: n + 1 });
+        if (print) {
+          return (
+            <div key={i} className={cn("my-2", pad)}>
+              {block.tabs.map((tab, n) => (
+                <div key={n} className="mt-3 first:mt-0">
+                  <p className="border-b border-border pb-1 text-sm font-semibold">{name(tab, n)}</p>
+                  {tab.segments.map((inner, j) => segment(inner, j, true))}
+                </div>
+              ))}
+            </div>
+          );
+        }
+        return (
+          <div key={i} className={cn("my-2", pad)}>
+            {/* A line under the tab that shows, as in the editor: where the tabs end. */}
+            <div className="border-b border-border pb-2">
+              <PublishedTabs label={tb("tabs.label")} tabs={block.tabs.map((tab, n) => ({ id: String(n), name: name(tab, n) }))}>
+                {block.tabs.map((tab) => tab.segments.map((inner, j) => segment(inner, j, true)))}
+              </PublishedTabs>
+            </div>
+          </div>
+        );
+      }
       case "dashboard": {
         const title = (widget: PublishedWidget, database: PublishedEmbed) => widget.title || pageLabel(database.title, untitled);
         const view = (widget: PublishedWidget, database: PublishedEmbed) => {

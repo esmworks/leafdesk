@@ -51,7 +51,7 @@ import { propertyAccessFor } from "@/server/property-access";
 import { livePublication } from "@/server/publication-live";
 import { canPublish, publishingOn } from "@/server/workspaces";
 import { calloutStylesOfPage } from "@/server/callout-styles";
-import type { BodyFootnote, BodyHeading, BodySegment, MediaPlacement, PublishedBookmark, PublishedColumn } from "@/server/published-body";
+import type { BodyFootnote, BodyHeading, BodySegment, MediaPlacement, PublishedBookmark, PublishedColumn, PublishedTab } from "@/server/published-body";
 import type { MediaAlignment } from "@/lib/media-placement";
 import type { EmbedTarget } from "@/lib/web-blocks";
 import { refuseInLocalMode } from "@/server/local-mode";
@@ -469,6 +469,7 @@ export type PublishedBlock =
   | ({ kind: "pdf"; fileId: string; name: string; caption: string } & MediaPlacement)
   | ({ kind: "spreadsheet"; fileId: string; name: string; caption: string } & MediaPlacement)
   | { kind: "columns"; columns: PublishedColumn<PublishedBlock>[] }
+  | { kind: "tabs"; tabs: PublishedTab<PublishedBlock>[] }
   /** `range`: the days of the dashboard's period, as of the request; null for all time. */
   | { kind: "dashboard"; widgets: PublishedWidget[]; layout: DashboardLayout; period: DashboardPeriod; range: DayRange | null }
   | { kind: "footnotes"; notes: BodyFootnote[] }
@@ -842,6 +843,9 @@ async function publishedBody(
             kind: "columns",
             columns: await Promise.all(segment.columns.map(async (column) => ({ width: column.width, segments: await resolve(column.segments) }))),
           };
+        }
+        if (segment.kind === "tabs") {
+          return { kind: "tabs", tabs: await Promise.all(segment.tabs.map(async (tab) => ({ title: tab.title, segments: await resolve(tab.segments) }))) };
         }
         if (segment.kind === "dashboard") {
           return {

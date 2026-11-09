@@ -24,6 +24,7 @@ import {
   parseColumnMarker,
   type ColumnMarker,
 } from "./columns";
+import { parseTabMarker, TAB_BLOCK, TAB_LIST_BLOCK, tabMarkerBlock, tabMarkerLine, tabTitle, type TabMarker } from "./tabs";
 import { DASHBOARD_BLOCK, dashboardLine, parseDashboardLine } from "./dashboard";
 import { AGENT_CHAT_BLOCK, agentChatLine, newChatId, parseAgentChatLine } from "./agent-chat";
 import { BUTTON_BLOCK, buttonLine, cleanButtonLabel, parseButtonLine } from "./buttons";
@@ -122,6 +123,11 @@ import { parseSyncedBegin, SYNCED_BLOCK, SYNCED_END_LINE, syncedBeginLine, synce
  *   <!-- leafdesk:column -->      (see lib/columns; groupColumns builds the lists after parsing)
  *   …
  *   <!-- leafdesk:/columns -->
+ *
+ *   <!-- leafdesk:tabs -->        tabs: each "tab" line starts one, with its title, its blocks
+ *   <!-- leafdesk:tab "Title" --> follow (see lib/tabs; groupTabs builds the lists after parsing)
+ *   …
+ *   <!-- leafdesk:/tabs -->
  *
  *   [Title](https://…)                              a bookmark (reads back as a link, see
  *                                                   lib/web-blocks restoreBookmarks)
@@ -273,8 +279,18 @@ export function prepareMarkdownExport<B extends MdBlock>(
   };
 
   const marker = (m: ColumnMarker) => ({ type: "paragraph", content: blockToken(columnMarkerLine(m)), children: [] }) as unknown as B;
+  const tabMarker = (m: TabMarker) => ({ type: "paragraph", content: blockToken(tabMarkerLine(m)), children: [] }) as unknown as B;
   const replace = (list: B[]): B[] =>
     list.flatMap((block): B | B[] => {
+      // Tabs become their blocks between marker lines, every tab in turn (see lib/tabs).
+      if (block.type === TAB_LIST_BLOCK) {
+        const tabs = (block.children ?? []).filter((tab) => tab.type === TAB_BLOCK);
+        return [
+          tabMarker({ kind: "tabs" }),
+          ...tabs.flatMap((tab) => [tabMarker({ kind: "tab", title: tabTitle(tab.props?.title) }), ...replace((tab.children ?? []) as B[])]),
+          tabMarker({ kind: "end" }),
+        ];
+      }
       // Columns become their blocks between marker lines (see lib/columns).
       if (block.type === COLUMN_LIST_BLOCK) {
         const columns = (block.children ?? []).filter((column) => column.type === COLUMN_BLOCK);
@@ -500,6 +516,7 @@ type Pending =
   | { type: typeof PAGE_LINK_BLOCK | typeof SYNCED_PAGE_BLOCK; pageId: string; blockId: string }
   | { type: typeof COMMENT_PREVIEW_BLOCK; pageId: string; threadId: string }
   | { type: typeof COLUMN_BLOCK; marker: ColumnMarker }
+  | { type: typeof TAB_BLOCK; marker: TabMarker }
   | { type: typeof DASHBOARD_BLOCK; id: string }
   | { type: typeof BUTTON_BLOCK; id: string; label: string }
   | { type: typeof AGENT_CHAT_BLOCK; agentId: string; chatId: string }
@@ -573,6 +590,11 @@ export function prepareMarkdownImport(markdown: string, nonce: string, { appUrl 
     const columnMarker = parseColumnMarker(line);
     if (columnMarker) {
       blockLine({ type: COLUMN_BLOCK, marker: columnMarker });
+      continue;
+    }
+    const tabMarker = parseTabMarker(line);
+    if (tabMarker) {
+      blockLine({ type: TAB_BLOCK, marker: tabMarker });
       continue;
     }
     // A synced block's begin line is the block; what follows up to its end line is the source
@@ -848,9 +870,10 @@ function closingDollar(line: string, from: number, delimiter: string): number {
  * Turns the tokens left by prepareMarkdownImport back into blocks and inline equations, and code
  * blocks in the "mermaid" language into diagrams. `parse` reads a callout's own Markdown. Links to
  * pages of the app become page mentions, and `@Name` (for `people`) and `@YYYY-MM-DD` in text
- * become person and date mentions (without ids: see carryOverMentions). Column markers come back
- * as marker blocks, for lib/columns groupColumns to build the lists once the whole body is parsed
- * (a database reference line inside a column splits the parsing).
+ * become person and date mentions (without ids: see carryOverMentions). Column and tab markers
+ * come back as marker blocks, for lib/columns groupColumns and lib/tabs groupTabs to build the
+ * lists once the whole body is parsed (a database reference line inside a column splits the
+ * parsing).
  */
 export async function finishMarkdownImport<B extends MdBlock>(
   blocks: B[],
@@ -953,6 +976,8 @@ export async function finishMarkdownImport<B extends MdBlock>(
         } as unknown as B;
       case COLUMN_BLOCK:
         return columnMarkerBlock<B>(pending.marker);
+      case TAB_BLOCK:
+        return tabMarkerBlock<B>(pending.marker);
       case "codeCaption":
         // Taken by the code block after it (walk); one without a code block after it is dropped there.
         return { type: "paragraph", content: [], children: [] } as unknown as B;

@@ -13,6 +13,9 @@ import { listMarker, listStyleAt } from "@/lib/list-markers";
 
 const key = new PluginKey<DecorationSet>("listMarkers");
 
+/** Nodes that only lay blocks out (lib/columns, lib/tabs): their blocks count from the start again. */
+const LAYOUT_NODES = new Set(["columnList", "column", "tabList", "tab"]);
+
 /** The markers of nested numbered items; exported for tests. */
 export function listMarkerDecorations(doc: PMNode): DecorationSet {
   const found: Decoration[] = [];
@@ -29,9 +32,9 @@ export function listMarkerDecorations(doc: PMNode): DecorationSet {
       } else {
         index = 0;
       }
-      // A block's children sit in a blockGroup after its content; columns hold groups of their own.
+      // A block's children sit in a blockGroup after its content; columns and tabs hold groups of their own.
       block.forEach((child, childOffset) => {
-        if (child.type.name === "blockGroup" || child.type.name === "column" || child.type.name === "columnList") {
+        if (child.type.name === "blockGroup" || LAYOUT_NODES.has(child.type.name)) {
           walk(child, pos + 1 + childOffset + 1, numbered ? depth + 1 : child.type.name === "blockGroup" ? depth : 0);
         }
       });

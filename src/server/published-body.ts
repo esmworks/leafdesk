@@ -3,6 +3,7 @@ import { blocksToPlainText } from "@/lib/blocks";
 import { highlightCode } from "@/lib/code-highlighter";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
+import { TAB_BLOCK, TAB_LIST_BLOCK, tabTitle } from "@/lib/tabs";
 import { applyCalloutStyles, findCalloutStyle, type CalloutStyle } from "@/lib/callout-styles";
 import { BREADCRUMB_BLOCK, CALLOUT_BLOCK, MERMAID_BLOCK, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText } from "@/lib/content-markdown";
@@ -45,8 +46,8 @@ import { fragmentBlocks } from "@/server/synced-body";
  * draw, and so do bookmarks and embeds (an iframe only for an allowlisted provider, see
  * lib/web-blocks), and uploaded PDFs, which the page shows in place. Equations are serialized: KaTeX builds them on the server (see server/blocknote.ts).
  * Code blocks are colored here too, the way the editor colors them (see lib/code-highlighter).
- * Columns come back as a segment holding each column's own segments, so everything above works
- * inside them too. Footnotes are numbered in the order the page has them, columns included, and
+ * Columns come back as a segment holding each column's own segments, and tabs as one holding each
+ * tab's, so everything above works inside them too. Footnotes are numbered in the order the page has them, columns included, and
  * their notes come back as a last segment (see withFootnotes). Blocks with text carry an anchor, so a link to one block (`#block-<id>`) opens
  * the page there (see withBlockAnchors).
  */
@@ -231,6 +232,8 @@ export type BodySegment =
   | ({ kind: "spreadsheet"; fileId: string; name: string; caption: string } & MediaPlacement)
   /** Columns side by side (stacked on narrow screens), each with its own segments. */
   | { kind: "columns"; columns: PublishedColumn<BodySegment>[] }
+  /** Tabs, each with its title and its own segments: one at a time online, all in turn on paper. */
+  | { kind: "tabs"; tabs: PublishedTab<BodySegment>[] }
   /** The notes of the body's footnotes, in order: always the last segment, and only when there are some. */
   | { kind: "footnotes"; notes: BodyFootnote[] };
 
@@ -251,6 +254,9 @@ const placementOf = (props: Record<string, unknown>): MediaPlacement => ({ align
 
 /** A column of a published page: its share of the row (see lib/columns) and what it shows. */
 export type PublishedColumn<S> = { width: number; segments: S[] };
+
+/** A tab of a published page: its title (lib/tabs, "" when it has none) and what it shows. */
+export type PublishedTab<S> = { title: string; segments: S[] };
 
 /** A bookmark card's details, every URL checked to be http(s). */
 export type PublishedBookmark = {
@@ -279,6 +285,7 @@ function inPlaceFileOf(block: PageBlock): { kind: "pdf" | "spreadsheet"; fileId:
 
 const isStandalone = (block: PageBlock) =>
   block.type === COLUMN_LIST_BLOCK ||
+  block.type === TAB_LIST_BLOCK ||
   isEmbedBlockType(block.type) ||
   block.type === DASHBOARD_BLOCK ||
   isWebBlockType(block.type) ||
@@ -661,6 +668,16 @@ export async function bodySegmentsFromBlocks(
         if (columns.length) segments.push({ kind: "columns", columns });
         return;
       }
+      if (block.type === TAB_LIST_BLOCK) {
+        await flush();
+        const tabs: PublishedTab<BodySegment>[] = [];
+        for (const tab of block.children ?? []) {
+          if (tab.type !== TAB_BLOCK) continue;
+          tabs.push({ title: tabTitle((tab.props as { title?: unknown }).title), segments: await segmentsOf(tab.children ?? []) });
+        }
+        if (tabs.length) segments.push({ kind: "tabs", tabs });
+        return;
+      }
       if (block.type === TOC_BLOCK || block.type === BREADCRUMB_BLOCK || block.type === SUBPAGES_BLOCK) {
         await flush();
         segments.push(block.type === TOC_BLOCK ? { kind: "toc", headings } : { kind: block.type === BREADCRUMB_BLOCK ? "breadcrumb" : "subpages" });
@@ -756,11 +773,19 @@ export function bodyDatabaseIds(blocks: PageBlock[]): string[] {
   return [...ids];
 }
 
-/** The body as one HTML string, leaving database blocks out (columns' HTML one after another). */
+/** The body as one HTML string, leaving database blocks out (columns' and tabs' HTML one after another). */
 export async function bodyHtmlFromYdoc(state: Uint8Array | null): Promise<string> {
   const html = (segments: BodySegment[]): string =>
     segments
-      .map((s) => (s.kind === "html" ? s.html : s.kind === "columns" ? s.columns.map((c) => html(c.segments)).join("") : ""))
+      .map((s) =>
+        s.kind === "html"
+          ? s.html
+          : s.kind === "columns"
+            ? s.columns.map((c) => html(c.segments)).join("")
+            : s.kind === "tabs"
+              ? s.tabs.map((t) => html(t.segments)).join("")
+              : "",
+      )
       .join("");
   return html(await bodySegmentsFromYdoc(state));
 }

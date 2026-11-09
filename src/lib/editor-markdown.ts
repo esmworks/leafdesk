@@ -5,6 +5,7 @@
  * lib/content-markdown writes them, so what goes through Markdown comes back as it was.
  */
 import { groupColumns } from "./columns";
+import { groupTabs } from "./tabs";
 import { restoreDashboards } from "./dashboard";
 import { restoreMeetings } from "./meetings";
 import { restoreButtons } from "./buttons";
@@ -53,7 +54,7 @@ export async function editorMarkdownToBlocks<B extends MdBlock>(
     const blocks = await editor.tryParseMarkdownToBlocks(prepared.markdown);
     return finishMarkdownImport(blocks, prepared, id, parse, { appUrl });
   };
-  return restoreButtons(restoreMeetings(restoreDashboards(groupColumns(notes.restore(await parse(notes.markdown))), []), []), []);
+  return restoreButtons(restoreMeetings(restoreDashboards(groupTabs(groupColumns(notes.restore(await parse(notes.markdown)))), []), []), []);
 }
 
 /**

@@ -670,6 +670,22 @@
         "aliases": "cột thêm mới bố cục column columns add new layout"
       }
     },
+    "tabs": {
+      "title": "Thẻ",
+      "subtext": "Các khối trong thẻ, mỗi lần hiện một thẻ",
+      "aliases": "thẻ tab phần bảng tabs",
+      "label": "Thẻ",
+      "untitled": "Thẻ {number}",
+      "nameLabel": "Tên tab",
+      "add": "Thêm tab",
+      "full": "Tối đa {max} thẻ",
+      "menu": "Tùy chọn tab",
+      "rename": "Đổi tên",
+      "moveBefore": "Chuyển lên trước",
+      "moveAfter": "Chuyển ra sau",
+      "remove": "Xóa thẻ",
+      "removeAll": "Xóa tất cả thẻ"
+    },
     "turnInto": {
       "title": "Chuyển thành",
       "columns": "{count} cột, mỗi cột một khối"

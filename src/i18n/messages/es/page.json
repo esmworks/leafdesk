@@ -670,6 +670,22 @@
         "aliases": "columna columnas añadir anadir nueva column add diseño"
       }
     },
+    "tabs": {
+      "title": "Pestañas",
+      "subtext": "Bloques en pestañas, se ve una pestaña a la vez",
+      "aliases": "pestañas pestaña secciones paneles tabs",
+      "label": "Pestañas",
+      "untitled": "Pestaña {number}",
+      "nameLabel": "Nombre de la pestaña",
+      "add": "Añadir pestaña",
+      "full": "Hasta {max} pestañas",
+      "menu": "Opciones de la pestaña",
+      "rename": "Cambiar nombre",
+      "moveBefore": "Mover antes",
+      "moveAfter": "Mover después",
+      "remove": "Eliminar pestaña",
+      "removeAll": "Eliminar todas las pestañas"
+    },
     "turnInto": {
       "title": "Convertir en",
       "columns": "{count} columnas, un bloque en cada una"

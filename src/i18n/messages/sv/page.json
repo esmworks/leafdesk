@@ -670,6 +670,22 @@
         "aliases": "kolumn kolumner lägg till ny layout column columns add new"
       }
     },
+    "tabs": {
+      "title": "Flikar",
+      "subtext": "Block i flikar, en flik visas åt gången",
+      "aliases": "flikar flik sektioner paneler tabs",
+      "label": "Flikar",
+      "untitled": "Flik {number}",
+      "nameLabel": "Flikens namn",
+      "add": "Lägg till flik",
+      "full": "Högst {max} flikar",
+      "menu": "Flikalternativ",
+      "rename": "Byt namn",
+      "moveBefore": "Flytta före",
+      "moveAfter": "Flytta efter",
+      "remove": "Ta bort flik",
+      "removeAll": "Ta bort alla flikar"
+    },
     "turnInto": {
       "title": "Gör om till",
       "columns": "{count} kolumner, ett block i varje"

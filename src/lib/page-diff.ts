@@ -189,15 +189,18 @@ function contentText(content: Content): string {
 
 const MEDIA = new Set(["image", "video", "audio", "file"]);
 
+/** Blocks that only lay others out: columns (lib/columns) and tabs (lib/tabs). */
+export const LAYOUT_TYPES: ReadonlySet<string> = new Set(["columnList", "column", "tabList", "tab"]);
+
 /** Flattens BlockNote blocks (children after their parent, one level deeper) for diffing. */
 export function flattenBlocks(blocks: readonly BlockInput[]): DiffBlock[] {
   const out: DiffBlock[] = [];
   const walk = (list: readonly BlockInput[], depth: number) => {
     let run = 0;
     for (const block of list) {
-      // Columns (lib/columns) only lay blocks out: their blocks are compared as if they followed
-      // one another.
-      if (block.type === "columnList" || block.type === "column") {
+      // Columns and tabs only lay blocks out: their blocks are compared as if they followed one
+      // another.
+      if (LAYOUT_TYPES.has(block.type)) {
         if (block.children?.length) walk(block.children, depth);
         run = 0;
         continue;

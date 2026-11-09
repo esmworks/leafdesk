@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout kolonne kolonner legg til ny oppsett"
       }
     },
+    "tabs": {
+      "title": "Faner",
+      "subtext": "Blokker i faner, én fane vises om gangen",
+      "aliases": "faner fane seksjoner paneler tabs",
+      "label": "Faner",
+      "untitled": "Fane {number}",
+      "nameLabel": "Fanenavn",
+      "add": "Legg til fane",
+      "full": "Høyst {max} faner",
+      "menu": "Fanealternativer",
+      "rename": "Gi nytt navn",
+      "moveBefore": "Flytt foran",
+      "moveAfter": "Flytt etter",
+      "remove": "Slett fane",
+      "removeAll": "Slett alle faner"
+    },
     "turnInto": {
       "title": "Gjør om til",
       "columns": "{count} kolonner, én blokk i hver"

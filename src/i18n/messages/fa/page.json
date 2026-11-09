@@ -670,6 +670,22 @@
         "aliases": "ستون افزودن جدید چیدمان column columns add new layout"
       }
     },
+    "tabs": {
+      "title": "زبانه‌ها",
+      "subtext": "بلوک‌ها در زبانه‌ها، هر بار یک زبانه نمایش داده می‌شود",
+      "aliases": "زبانه زبانه‌ها بخش‌ها پنل tabs",
+      "label": "زبانه‌ها",
+      "untitled": "زبانه {number}",
+      "nameLabel": "نام زبانه",
+      "add": "افزودن زبانه",
+      "full": "حداکثر {max} زبانه",
+      "menu": "گزینه‌های زبانه",
+      "rename": "تغییر نام",
+      "moveBefore": "انتقال به قبل",
+      "moveAfter": "انتقال به بعد",
+      "remove": "حذف زبانه",
+      "removeAll": "حذف همه زبانه‌ها"
+    },
     "turnInto": {
       "title": "تبدیل به",
       "columns": "{count} ستون، در هر ستون یک بلوک"

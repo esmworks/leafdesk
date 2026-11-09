@@ -7,6 +7,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { useLocale, useTimeZone, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { pageEditorSchema, type PageEditor } from "@/components/page/embed-blocks";
+import { TabStrips } from "@/components/page/tabs";
 import { useColorScheme } from "@/components/theme/theme-provider";
 import { useEditorDictionary } from "@/i18n/blocknote";
 import { parseDashboardLine } from "@/lib/dashboard";
@@ -61,6 +62,8 @@ export default function SnippetPreview({ markdown, me, page }: { markdown: strin
       slashMenu={false}
       formattingToolbar={false}
       className="leafdesk-editor snippet-preview"
-    />
+    >
+      <TabStrips editor={editor} editable={false} />
+    </BlockNoteView>
   );
 }

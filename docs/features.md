@@ -172,7 +172,12 @@
   dragged in and out with the side menu, stacked on phones, and on pages of standard width able to
   reach into the margins; `/col2` and `/col3` make them, a block dropped at another's left or right
   side goes beside it, and *Turn into* in a block's menu puts the selected blocks one to a column),
-  also on published pages and in Markdown. Numbered lists nested in numbered lists count in
+  and tabs (`/tabs`: blocks in named tabs, one shown at a time; double-click a tab to name it, *+*
+  adds one, up to 12, and the current tab's menu renames, moves or deletes it; columns fit in a
+  tab, tabs don't go in tabs or columns; which tab shows is each reader's own choice; the cursor
+  moving into another tab, by undo or a link to a block, shows it), also on published pages and in
+  Markdown (`<!-- leafdesk:tabs -->`, `<!-- leafdesk:tab "Title" -->` before each tab's blocks,
+  `<!-- leafdesk:/tabs -->`); printed, in PDFs and Word files every tab is there under its title. Numbered lists nested in numbered lists count in
   letters, then roman numerals, then numbers again (1, a, i), in the editor, on published pages and
   in PDFs; inline code isn't marked by the browser's spelling check. A code block's menu adds a
   *Caption* under the code (published pages and PDFs show it; Markdown writes the line

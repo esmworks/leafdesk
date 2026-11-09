@@ -2,8 +2,20 @@
 
 ## Unreleased
 
+### Added
+
+- **Tabs on pages.** `/tabs` puts blocks in named tabs that show one at a time, for long pages
+  that read better as sections side by side. A tab is named by double-clicking it, *+* adds one (up
+  to 12) and the current tab's menu renames, moves or deletes it. Which tab shows is each reader's
+  own. Published pages switch tabs too; printed pages, PDFs and Word files show every tab under its
+  title, and Markdown writes them between `<!-- leafdesk:tabs -->` and `<!-- leafdesk:/tabs -->`
+  lines, so the MCP server and the AI read and write them.
+
 ### Fixed
 
+- **A dashboard's tabs no longer show a scrollbar beside them.** Where the system always shows
+  scrollbars, a dashboard shown as tabs had a thin vertical one after its last tab, in the app and
+  on published pages.
 - **Forwarding a message from the Mail tab sends its files again.** A forward lost the forwarded
   message's attachments as soon as its draft was saved a second time, which happens a few seconds
   after typing, so most forwards went out without them. The composer now lists those files from the

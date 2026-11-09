@@ -31,6 +31,7 @@ import { codeHighlighting } from "./code-block";
 import { PageTrailProvider, type TrailCrumb } from "./content-blocks";
 import { EmbedHostProvider, type EmbedHost } from "./database-embed";
 import { pageEditorSchema, TABLE_SETTINGS, type PageEditor } from "./embed-blocks";
+import { TabStrips } from "./tabs";
 import { backdropClass } from "./page-backdrop";
 import { SyncedFrameProvider } from "./synced-page";
 import type { PageDoc } from "./use-page-doc";
@@ -347,7 +348,9 @@ function Slides({
                         tableHandles={false}
                         emojiPicker={false}
                         className="leafdesk-editor"
-                      />
+                      >
+                        <TabStrips editor={editor} editable={false} />
+                      </BlockNoteView>
                     </DirectionProvider>
                   </PageTrailProvider>
                 </EmbedHostProvider>

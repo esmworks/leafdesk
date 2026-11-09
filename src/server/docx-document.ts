@@ -26,6 +26,7 @@ import { cleanCodeCaption } from "@/lib/code-caption";
 import { CALLOUT_BLOCK, MATH_BLOCK, MERMAID_BLOCK, BREADCRUMB_BLOCK, FOOTNOTE, INLINE_MATH, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText, type MdBlock } from "@/lib/content-markdown";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
+import { TAB_BLOCK, TAB_LIST_BLOCK, tabTitle } from "@/lib/tabs";
 import { commentText } from "@/lib/comments";
 import { isEmbedBlockType } from "@/lib/embed-blocks";
 import { iconText } from "@/lib/icon-value";
@@ -353,6 +354,17 @@ function blockContent(block: MdBlock, walk: Walk, width: number, level: number, 
         spacer(),
       ];
     }
+    case TAB_LIST_BLOCK:
+      // As on paper: every tab, one after another under its title.
+      return (block.children ?? [])
+        .filter((tab) => tab.type === TAB_BLOCK)
+        .flatMap((tab): Block[] => {
+          const title = tabTitle(prop(tab, "title"));
+          return [
+            ...(title ? [new Paragraph({ children: runs(title, { bold: true }), keepNext: true, spacing: { before: 120, after: 60 }, ...set })] : []),
+            ...blocksContent(tab.children ?? [], walk, width, level, indent),
+          ];
+        });
     case TOC_BLOCK: {
       const headings = collectHeadings(section.blocks);
       return headings.map((h) => new Paragraph({ children: runs(h.text, { color: MUTED }), indent: { left: indent + (h.level - 1) * INDENT }, spacing: { after: 40 } }));

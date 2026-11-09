@@ -4,6 +4,7 @@ import type { Alignment, Column, Content, ContentImage, ContentTable, ContentTex
 import { CALLOUT_BLOCK, MATH_BLOCK, MERMAID_BLOCK, BREADCRUMB_BLOCK, FOOTNOTE, INLINE_MATH, SUBPAGES_BLOCK, TOC_BLOCK } from "@/lib/content-blocks";
 import { plainText, type MdBlock } from "@/lib/content-markdown";
 import { COLUMN_BLOCK, COLUMN_LIST_BLOCK, columnWidth } from "@/lib/columns";
+import { TAB_BLOCK, TAB_LIST_BLOCK, tabTitle } from "@/lib/tabs";
 import { commentText } from "@/lib/comments";
 import { isEmbedBlockType } from "@/lib/embed-blocks";
 import type { ExportedThread } from "@/lib/export-comments";
@@ -391,6 +392,14 @@ function blockContent(block: MdBlock, walk: Walk, width: number): Content[] {
         },
       ];
     }
+    case TAB_LIST_BLOCK:
+      // On paper every tab is there, one after another under its title.
+      return (block.children ?? [])
+        .filter((tab) => tab.type === TAB_BLOCK)
+        .flatMap((tab): Content[] => {
+          const title = tabTitle(prop(tab, "title"));
+          return [...(title ? [{ text: title, bold: true, margin: [0, 6, 0, 4], headlineLevel: 1 } as Content] : []), ...blocksContent(tab.children ?? [], walk, width)];
+        });
     case TOC_BLOCK: {
       const headings = collectHeadings(section.blocks);
       if (!headings.length) return [];

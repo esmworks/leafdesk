@@ -26,6 +26,7 @@ import {
 } from "@/lib/embed-blocks";
 import { CodeBlock } from "./code-block";
 import { columnEditorBlockSpecs } from "./columns";
+import { tabEditorBlockSpecs } from "./tabs";
 import { contentBlockSpecs, contentInlineSpecs } from "./content-blocks";
 import { mentionBlockSpecs, mentionInlineSpecs } from "./mentions";
 import { commentPreviewBlockSpecs } from "./comment-refs";
@@ -133,6 +134,8 @@ export const pageEditorSchema = BlockNoteSchema.create({
     audio: alignedAudioSpec(),
     // Blocks side by side (see columns.tsx).
     ...columnEditorBlockSpecs,
+    // Blocks in named tabs, one shown at a time (see tabs.tsx).
+    ...tabEditorBlockSpecs,
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, ...contentInlineSpecs, ...mentionInlineSpecs },
   // Superscript and subscript (lib/text-scripts), shared with the server's schema.

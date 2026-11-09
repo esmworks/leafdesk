@@ -593,6 +593,17 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   `CommentDate`); a renderer of comment bodies handles text, links and those. ↑ in an empty reply
   (`page/comment-mentions.tsx`) calls the handler of BlockNote's "Edit" item, found among a
   comment's actions by its key `edit-comment`: check it after a BlockNote upgrade.
+  Tabs: `lib/tabs.ts` (nodes, Markdown markers, `groupTabs` after `groupColumns`) and
+  `components/page/tabs.tsx` (the strip, a portal drawn by `TabStrips`, mounted in every
+  BlockNoteView showing page blocks); which tab shows is never stored. BlockNote gives ids only to
+  `blockContainer`, `columnList` and `column`: another container node carries its own `id`
+  attribute and needs `tabIds`' kind of plugin, or it gets a new id on every read. A column holds
+  only blocks, so a node in group `blockGroupChild` (a tab list) can't go in one. Hidden tabs are
+  `display: none`, and the browser's own deletion skips them and joins across, deleting them:
+  `lib/tab-guard.ts` refuses any local edit that takes a tab out of a list that stays, so a new
+  change that does (the strip's move and delete) sets `TAB_EDIT`. Backspace and Delete beside a
+  tab list are `TabKeys`, in `collab-editor.tsx`'s extensions: a new editable editor of page
+  blocks adds it too.
   Cmd/Ctrl+Alt+T: `components/toggle-all.ts` (views with groups join through `useToggleAllGroups`).
   Dictation at the caret: `components/page/dictation.tsx` (phases in `lib/dictation.ts`; recording,
   the transcribe request and one-dictation-at-a-time shared with the chat in `voice/dictation.ts`).
@@ -697,7 +708,9 @@ because they are separate module graphs.
   in `src/i18n/messages/en.ts`. ICU MessageFormat; keys are type-checked. Client components use
   `useTranslations`, server code `getTranslations` from `next-intl/server`; code that also runs
   outside a request (agents' runs, background jobs) uses `createTranslator` with `loadMessages`
-  (`web-clip.ts`), since `getTranslations` throws there.
+  (`web-clip.ts`), since `getTranslations` throws there. A namespace or key missing from
+  `en/*.json` doesn't fail typecheck with an error: tsc runs out of memory ("Map maximum size
+  exceeded"), so add the texts before the code that reads them.
 - **Schema and migrations.** Change `src/db/schema/*`, then `pnpm db:generate`. Hand-written SQL
   (functions, triggers) goes after the generated statements behind `--> statement-breakpoint`, or
   in `drizzle-kit generate --custom --name <name>`. The server never migrates on start: run

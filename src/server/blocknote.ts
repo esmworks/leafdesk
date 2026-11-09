@@ -30,6 +30,7 @@ import {
   tocBlockConfig,
 } from "@/lib/content-blocks";
 import { columnBlockSpecs } from "@/lib/columns";
+import { tabBlockSpecs } from "@/lib/tabs";
 import { quoteBlockSpec } from "@/lib/quote-block";
 import { serverCodeBlockSpec } from "@/lib/code-block";
 import { finishMarkdownImport, plainText, prepareMarkdownExport, prepareMarkdownImport } from "@/lib/content-markdown";
@@ -306,6 +307,7 @@ export const pageSchema = BlockNoteSchema.create({
     // Everything in its props (lib/meetings); its Markdown is its region, transcript included.
     meeting: createBlockSpec(meetingBlockConfig, { render: (block) => meetingElement(block.props) })(),
     ...columnBlockSpecs(),
+    ...tabBlockSpecs(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, inlineMath, footnote, mention },
   styleSpecs: { ...defaultStyleSpecs, ...textScriptStyleSpecs },
@@ -371,9 +373,9 @@ async function parseMarkdown(markdown: string, context: MentionContext): Promise
 /**
  * Blocks for Markdown written into a page (MCP, new pages), given the page's current blocks.
  * Reference lines become database blocks; see mergeReferencedBlocks for what carries over. Column
- * markers become column lists (lib/columns groupColumns), and footnotes come back with their notes
- * (lib/content-markdown footnoteMarkdown). People and dates mentioned before keep their mention's
- * identity (see carryOverMentions).
+ * and tab markers become column and tab lists (lib/columns groupColumns, lib/tabs groupTabs), and
+ * footnotes come back with their notes (lib/content-markdown footnoteMarkdown). People and dates
+ * mentioned before keep their mention's identity (see carryOverMentions).
  */
 export async function markdownToBlocks(
   markdown: string,

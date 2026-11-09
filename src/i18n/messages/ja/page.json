@@ -670,6 +670,22 @@
         "aliases": "column columns add new layout 列 追加 レイアウト"
       }
     },
+    "tabs": {
+      "title": "タブ",
+      "subtext": "ブロックをタブに分け、一度に1つのタブを表示",
+      "aliases": "タブ たぶ セクション パネル tabs",
+      "label": "タブ",
+      "untitled": "タブ {number}",
+      "nameLabel": "タブの名前",
+      "add": "タブを追加",
+      "full": "タブは最大{max}個です",
+      "menu": "タブのオプション",
+      "rename": "名前を変更",
+      "moveBefore": "前に移動",
+      "moveAfter": "後ろに移動",
+      "remove": "タブを削除",
+      "removeAll": "すべてのタブを削除"
+    },
     "turnInto": {
       "title": "変換",
       "columns": "{count} 列（各列に 1 ブロック）"

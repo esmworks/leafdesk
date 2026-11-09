@@ -670,6 +670,22 @@
         "aliases": "kolumna kolumny dodaj nowa układ column columns add new layout"
       }
     },
+    "tabs": {
+      "title": "Karty",
+      "subtext": "Bloki w kartach, widoczna jedna karta naraz",
+      "aliases": "karty karta zakładki sekcje panele tabs",
+      "label": "Karty",
+      "untitled": "Karta {number}",
+      "nameLabel": "Nazwa karty",
+      "add": "Dodaj kartę",
+      "full": "Najwyżej {max} kart",
+      "menu": "Opcje karty",
+      "rename": "Zmień nazwę",
+      "moveBefore": "Przenieś przed",
+      "moveAfter": "Przenieś za",
+      "remove": "Usuń kartę",
+      "removeAll": "Usuń wszystkie karty"
+    },
     "turnInto": {
       "title": "Zamień na",
       "columns": "Kolumny ({count}), po jednym bloku w każdej"
