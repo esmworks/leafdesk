@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import type { BetterAuthPlugin } from "better-auth";
-import { APIError, createAuthEndpoint } from "better-auth/api";
+import { APIError, createAuthEndpoint, formCsrfMiddleware } from "better-auth/api";
 import { setSessionCookie } from "better-auth/cookies";
 import { and, eq, gt, inArray, lt, or } from "drizzle-orm";
 import * as z from "zod";
@@ -113,7 +113,9 @@ export function phoneSignInPlugin() {
     endpoints: {
       phoneSignIn: createAuthEndpoint(
         PHONE_SIGN_IN_ENDPOINT,
-        { method: "POST", body: z.object({ token: z.string().max(128) }) },
+        // Better Auth's sign-in endpoints' own guard: a page on another site can't post a code of
+        // its owner's and sign the visitor into that account.
+        { method: "POST", body: z.object({ token: z.string().max(128) }), use: [formCsrfMiddleware] },
         async (ctx) => {
           // On one computer there is no phone that could reach the server.
           if (env.localMode) throw refused("PHONE_LINK_INVALID", "This sign-in link doesn't work here");
