@@ -125,7 +125,8 @@
     "remind60": "In einer Stunde erinnern",
     "remindTomorrow": "Morgen erinnern",
     "history": "Bearbeitungsverlauf",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "closePoll": "Umfrage beenden"
   },
   "system": {
     "created": "{actor} hat diesen Kanal erstellt.",
@@ -290,7 +291,8 @@
     "offline": "Du bist offline. Es wird gesendet, sobald du wieder online bist.",
     "timeout": "Der Server hat nicht rechtzeitig geantwortet.",
     "ai": "Die KI konnte nicht antworten. Versuche es erneut.",
-    "internal": "Etwas ist schiefgelaufen. Versuche es erneut."
+    "internal": "Etwas ist schiefgelaufen. Versuche es erneut.",
+    "pollClosed": "Die Umfrage ist beendet."
   },
   "import": {
     "button": "Aus Slack importieren",
@@ -351,5 +353,42 @@
     "remove": "{name} löschen",
     "removeConfirm": "Den Webhook {name} löschen? Seine Adresse funktioniert ab sofort nicht mehr; seine Nachrichten bleiben.",
     "title": "Webhooks"
+  },
+  "poll": {
+    "create": "Umfrage erstellen",
+    "title": "Neue Umfrage",
+    "question": "Frage",
+    "questionPlaceholder": "Was möchtest du fragen?",
+    "options": "Antworten",
+    "optionPlaceholder": "Antwort {number}",
+    "addOption": "Antwort hinzufügen",
+    "removeOption": "Antwort {number} entfernen",
+    "multiple": "Mehrere Antworten erlauben",
+    "anonymous": "Anonym",
+    "anonymousHint": "Andere sehen, wie viele jede Antwort gewählt haben, aber nie, wer.",
+    "closes": "Endet",
+    "closesNever": "Nie",
+    "closesDay": "In 1 Tag",
+    "closesWeek": "In 1 Woche",
+    "closesAt": "Zu Datum und Uhrzeit",
+    "closesAtLabel": "Wann die Umfrage endet",
+    "send": "Umfrage senden",
+    "severalAnswers": "Mehrere Antworten",
+    "voteFor": "Für {option} stimmen",
+    "takeBack": "Stimme für {option} zurücknehmen",
+    "votedBy": "{option} gewählt von: {people}",
+    "voters": "{count, plural, =0 {Noch keine Stimmen} one {# Person hat abgestimmt} other {# Personen haben abgestimmt}}",
+    "closed": "Beendet",
+    "closesIn": "Endet {when}",
+    "closeConfirm": "Diese Umfrage beenden? Danach kann niemand mehr abstimmen.",
+    "errors": {
+      "question": "Schreib eine Frage.",
+      "questionTooLong": "Eine Frage hat höchstens {max} Zeichen.",
+      "tooFewOptions": "Gib mindestens zwei Antworten an.",
+      "tooManyOptions": "Eine Umfrage hat höchstens {max} Antworten.",
+      "optionTooLong": "Eine Antwort hat höchstens {max} Zeichen.",
+      "duplicateOptions": "Zwei Antworten sagen dasselbe.",
+      "closesAt": "Wähle ein Ende innerhalb des nächsten Jahres."
+    }
   }
 }

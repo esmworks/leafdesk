@@ -125,7 +125,8 @@
     "remind60": "Lembrar em uma hora",
     "remindTomorrow": "Lembrar amanhã",
     "history": "Histórico de edições",
-    "delete": "Excluir"
+    "delete": "Excluir",
+    "closePoll": "Encerrar enquete"
   },
   "system": {
     "created": "{actor} criou este canal.",
@@ -290,7 +291,8 @@
     "offline": "Você está offline. O envio acontece quando você voltar.",
     "timeout": "O servidor não respondeu a tempo.",
     "ai": "A IA não conseguiu responder. Tente de novo.",
-    "internal": "Algo deu errado. Tente novamente."
+    "internal": "Algo deu errado. Tente novamente.",
+    "pollClosed": "A enquete está encerrada."
   },
   "import": {
     "button": "Importar do Slack",
@@ -351,5 +353,42 @@
     "remove": "Excluir {name}",
     "removeConfirm": "Excluir o webhook “{name}”? O endereço para de funcionar na hora; as mensagens dele continuam.",
     "title": "Webhooks"
+  },
+  "poll": {
+    "create": "Criar uma enquete",
+    "title": "Nova enquete",
+    "question": "Pergunta",
+    "questionPlaceholder": "O que você quer perguntar?",
+    "options": "Opções",
+    "optionPlaceholder": "Opção {number}",
+    "addOption": "Adicionar uma opção",
+    "removeOption": "Remover a opção {number}",
+    "multiple": "Permitir várias respostas",
+    "anonymous": "Anônima",
+    "anonymousHint": "Os outros veem quantos escolheram cada opção, nunca quem.",
+    "closes": "Encerra",
+    "closesNever": "Nunca",
+    "closesDay": "Em 1 dia",
+    "closesWeek": "Em 1 semana",
+    "closesAt": "Em uma data e hora",
+    "closesAtLabel": "Quando a enquete encerra",
+    "send": "Enviar enquete",
+    "severalAnswers": "Várias respostas",
+    "voteFor": "Votar em {option}",
+    "takeBack": "Retirar seu voto em {option}",
+    "votedBy": "Escolheram {option}: {people}",
+    "voters": "{count, plural, =0 {Nenhum voto ainda} one {# pessoa votou} other {# pessoas votaram}}",
+    "closed": "Encerrada",
+    "closesIn": "Encerra {when}",
+    "closeConfirm": "Encerrar esta enquete? Depois disso ninguém poderá votar.",
+    "errors": {
+      "question": "Escreva uma pergunta.",
+      "questionTooLong": "Uma pergunta tem no máximo {max} caracteres.",
+      "tooFewOptions": "Informe pelo menos duas opções.",
+      "tooManyOptions": "Uma enquete tem no máximo {max} opções.",
+      "optionTooLong": "Uma opção tem no máximo {max} caracteres.",
+      "duplicateOptions": "Duas opções dizem a mesma coisa.",
+      "closesAt": "Escolha um encerramento dentro do próximo ano."
+    }
   }
 }

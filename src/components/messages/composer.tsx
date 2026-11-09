@@ -1,9 +1,10 @@
 "use client";
 
-import { AtSign, Bold, ChevronDown, Clock, Code, FileText, Hash, Italic, Loader2, Paperclip, SendHorizontal, SmilePlus, X } from "lucide-react";
+import { AtSign, Bold, ChartBarBig, ChevronDown, Clock, Code, FileText, Hash, Italic, Loader2, Paperclip, SendHorizontal, SmilePlus, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { loadEmojiData, searchEmoji, type EmojiData } from "@/components/icon-picker/emoji-data";
+import { lazyPart } from "@/components/lazy-part";
 import { read } from "@/components/read";
 import { showToast } from "@/components/toast";
 import { cn, MenuItem, Popover } from "@/components/ui";
@@ -22,6 +23,9 @@ import { call, channelTitle, draftKey, messagesState, sendMessage, typing, useMe
  *
  * Enter sends, Shift+Enter starts a new line, ↑ in an empty box edits the person's last message.
  */
+
+/** Writing a poll, loaded the first time someone opens it. */
+const PollDialog = lazyPart(() => import("./poll-dialog").then((m) => m.PollDialog));
 
 type Token = { text: string; ref: MessageRef };
 type Upload = { key: string; name: string; file?: FileView; failed?: boolean };
@@ -117,6 +121,7 @@ export const Composer = forwardRef<
   const [emoji, setEmoji] = useState<EmojiData | null>(null);
   const [pages, setPages] = useState<{ query: string; hits: { id: string; title: string; icon: string | null }[] } | null>(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [pollOpen, setPollOpen] = useState(false);
   const [when, setWhen] = useState("");
   const [dragging, setDragging] = useState(false);
   const loadedFor = useRef<string | null>(null);
@@ -438,6 +443,8 @@ export const Composer = forwardRef<
           ))}
         </div>
       )}
+      {/* Over the window: a fixed dialog, here only so it shares the box's state. */}
+      {pollOpen && <PollDialog channelId={channelId} threadId={threadId} alsoInChannel={alsoInChannel} close={() => setPollOpen(false)} onSent={() => onSent?.()} />}
       {disabled ? (
         <p className="px-3 py-3 text-sm text-fg-muted">{disabled}</p>
       ) : (
@@ -502,6 +509,16 @@ export const Composer = forwardRef<
                 }}
               />
             </label>
+            <button
+              type="button"
+              onClick={() => setPollOpen(true)}
+              onPointerEnter={() => void PollDialog.preload()}
+              aria-label={t("poll.create")}
+              title={t("poll.create")}
+              className={toolButton}
+            >
+              <ChartBarBig className="h-4 w-4" />
+            </button>
             <Popover
               side="top"
               trigger={({ toggle }) => (

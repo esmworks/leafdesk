@@ -125,7 +125,8 @@
     "remind60": "Remind me in an hour",
     "remindTomorrow": "Remind me tomorrow",
     "history": "Edit history",
-    "delete": "Delete"
+    "delete": "Delete",
+    "closePoll": "Close poll"
   },
   "system": {
     "created": "{actor} made this channel.",
@@ -290,7 +291,8 @@
     "offline": "You're offline. It will go when you're back.",
     "timeout": "The server didn't answer in time.",
     "ai": "The AI couldn't answer. Try again.",
-    "internal": "Something went wrong. Try again."
+    "internal": "Something went wrong. Try again.",
+    "pollClosed": "The poll is closed."
   },
   "import": {
     "button": "Import from Slack",
@@ -351,5 +353,42 @@
     "removeConfirm": "Delete the webhook {name}? Its address stops working at once; its messages stay.",
     "failed": "The webhook couldn't be changed. Try again."
   },
-  "viaAutomation": "via the automation {name}"
+  "viaAutomation": "via the automation {name}",
+  "poll": {
+    "create": "Create a poll",
+    "title": "New poll",
+    "question": "Question",
+    "questionPlaceholder": "What do you want to ask?",
+    "options": "Options",
+    "optionPlaceholder": "Option {number}",
+    "addOption": "Add an option",
+    "removeOption": "Remove option {number}",
+    "multiple": "Allow several answers",
+    "anonymous": "Anonymous",
+    "anonymousHint": "Others see how many chose each option, never who.",
+    "closes": "Closes",
+    "closesNever": "Never",
+    "closesDay": "In 1 day",
+    "closesWeek": "In 1 week",
+    "closesAt": "At a date and time",
+    "closesAtLabel": "When the poll closes",
+    "send": "Send poll",
+    "severalAnswers": "Several answers",
+    "voteFor": "Vote for {option}",
+    "takeBack": "Take back your vote for {option}",
+    "votedBy": "Chose {option}: {people}",
+    "voters": "{count, plural, =0 {No votes yet} one {# person voted} other {# people voted}}",
+    "closed": "Closed",
+    "closesIn": "Closes {when}",
+    "closeConfirm": "Close this poll? No one can vote on it after that.",
+    "errors": {
+      "question": "Write a question.",
+      "questionTooLong": "A question has at most {max} characters.",
+      "tooFewOptions": "Give at least two options.",
+      "tooManyOptions": "A poll has at most {max} options.",
+      "optionTooLong": "An option has at most {max} characters.",
+      "duplicateOptions": "Two options say the same thing.",
+      "closesAt": "Pick a closing time within the coming year."
+    }
+  }
 }

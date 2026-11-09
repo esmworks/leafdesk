@@ -125,7 +125,8 @@
     "remind60": "Muistuta tunnin kuluttua",
     "remindTomorrow": "Muistuta huomenna",
     "history": "Muokkaushistoria",
-    "delete": "Poista"
+    "delete": "Poista",
+    "closePoll": "Sulje kysely"
   },
   "system": {
     "created": "{actor} perusti tämän kanavan.",
@@ -290,7 +291,8 @@
     "offline": "Olet offline-tilassa. Viesti lähtee, kun yhteys palaa.",
     "timeout": "Palvelin ei vastannut ajoissa.",
     "ai": "Tekoäly ei voinut vastata. Yritä uudelleen.",
-    "internal": "Jokin meni vikaan. Yritä uudelleen."
+    "internal": "Jokin meni vikaan. Yritä uudelleen.",
+    "pollClosed": "Kysely on suljettu."
   },
   "import": {
     "button": "Tuo Slackista",
@@ -351,5 +353,42 @@
     "remove": "Poista {name}",
     "removeConfirm": "Poistetaanko webhook {name}? Sen osoite lakkaa toimimasta heti; sen viestit säilyvät.",
     "title": "Webhookit"
+  },
+  "poll": {
+    "create": "Luo kysely",
+    "title": "Uusi kysely",
+    "question": "Kysymys",
+    "questionPlaceholder": "Mitä haluat kysyä?",
+    "options": "Vaihtoehdot",
+    "optionPlaceholder": "Vaihtoehto {number}",
+    "addOption": "Lisää vaihtoehto",
+    "removeOption": "Poista vaihtoehto {number}",
+    "multiple": "Salli useita vastauksia",
+    "anonymous": "Nimetön",
+    "anonymousHint": "Muut näkevät, kuinka moni valitsi kunkin vaihtoehdon, mutta eivät koskaan keitä.",
+    "closes": "Sulkeutuu",
+    "closesNever": "Ei koskaan",
+    "closesDay": "1 päivän päästä",
+    "closesWeek": "1 viikon päästä",
+    "closesAt": "Tiettynä päivänä ja aikana",
+    "closesAtLabel": "Milloin kysely sulkeutuu",
+    "send": "Lähetä kysely",
+    "severalAnswers": "Useita vastauksia",
+    "voteFor": "Äänestä vaihtoehtoa {option}",
+    "takeBack": "Peru äänesi vaihtoehdolle {option}",
+    "votedBy": "Valitsivat {option}: {people}",
+    "voters": "{count, plural, =0 {Ei vielä ääniä} one {# henkilö äänesti} other {# henkilöä äänesti}}",
+    "closed": "Suljettu",
+    "closesIn": "Sulkeutuu {when}",
+    "closeConfirm": "Suljetaanko kysely? Sen jälkeen kukaan ei voi äänestää.",
+    "errors": {
+      "question": "Kirjoita kysymys.",
+      "questionTooLong": "Kysymyksessä voi olla enintään {max} merkkiä.",
+      "tooFewOptions": "Anna vähintään kaksi vaihtoehtoa.",
+      "tooManyOptions": "Kyselyssä voi olla enintään {max} vaihtoehtoa.",
+      "optionTooLong": "Vaihtoehdossa voi olla enintään {max} merkkiä.",
+      "duplicateOptions": "Kaksi vaihtoehtoa on samat.",
+      "closesAt": "Valitse sulkeutumisaika seuraavan vuoden sisältä."
+    }
   }
 }

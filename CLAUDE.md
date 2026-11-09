@@ -186,7 +186,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `core.ts` `requireChannel`; views are `views.ts` (unread and member counts are subqueries there,
   see *Conventions*). Leaving the workspace keeps one's `channel_member` rows (their direct
   conversations come back with them), so a list of a channel's people that notifies or counts
-  adds `core.ts` `stillInWorkspace`. A guest's connection carries `knows` (`sync.ts` `peopleFor`):
+  adds `core.ts` `stillInWorkspace`. Polls (`polls.ts`, rules pure in `lib/message-polls.ts`, tables
+  `message_poll` and `message_poll_vote`) ride on the message's view, whose `poll.mine` is the
+  reader's own choices: `views.ts` reads views for one `viewer`, and `announce.ts`, reading a
+  change's messages once for everyone, puts each person's in (`pollChoices`, `withChoices`), so a
+  new place sending message views to a person passes `viewer`. A guest's connection carries `knows` (`sync.ts` `peopleFor`):
   presence and statuses about anyone else don't go to it. In the browser `components/messages/store.ts` holds what the socket brought:
   unread is the server's count plus live messages past `countedTo`, the seq it counted. Pages
   change the query with `history.pushState` (`lib/messages.ts` `messagesPath`), never the router.
@@ -863,7 +867,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,
   agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule, concurrent-writes,
-  row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, follow-ups (starts its own GreenMail container
+  row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, message-polls, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;

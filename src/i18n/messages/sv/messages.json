@@ -125,7 +125,8 @@
     "remind60": "Påminn mig om en timme",
     "remindTomorrow": "Påminn mig i morgon",
     "history": "Redigeringshistorik",
-    "delete": "Radera"
+    "delete": "Radera",
+    "closePoll": "Stäng omröstning"
   },
   "system": {
     "created": "{actor} skapade den här kanalen.",
@@ -290,7 +291,8 @@
     "offline": "Du är offline. Det skickas när du är tillbaka.",
     "timeout": "Servern svarade inte i tid.",
     "ai": "AI kunde inte svara. Försök igen.",
-    "internal": "Något gick fel. Försök igen."
+    "internal": "Något gick fel. Försök igen.",
+    "pollClosed": "Omröstningen är stängd."
   },
   "import": {
     "button": "Importera från Slack",
@@ -351,5 +353,42 @@
     "remove": "Radera ”{name}”",
     "removeConfirm": "Radera webhooken ”{name}”? Adressen slutar fungera direkt; dess meddelanden finns kvar.",
     "title": "Webhooks"
+  },
+  "poll": {
+    "create": "Skapa en omröstning",
+    "title": "Ny omröstning",
+    "question": "Fråga",
+    "questionPlaceholder": "Vad vill du fråga?",
+    "options": "Alternativ",
+    "optionPlaceholder": "Alternativ {number}",
+    "addOption": "Lägg till ett alternativ",
+    "removeOption": "Ta bort alternativ {number}",
+    "multiple": "Tillåt flera svar",
+    "anonymous": "Anonym",
+    "anonymousHint": "Andra ser hur många som valde varje alternativ, aldrig vilka.",
+    "closes": "Stängs",
+    "closesNever": "Aldrig",
+    "closesDay": "Om 1 dag",
+    "closesWeek": "Om 1 vecka",
+    "closesAt": "Vid ett datum och en tid",
+    "closesAtLabel": "När omröstningen stängs",
+    "send": "Skicka omröstning",
+    "severalAnswers": "Flera svar",
+    "voteFor": "Rösta på {option}",
+    "takeBack": "Ta tillbaka din röst på {option}",
+    "votedBy": "Valde {option}: {people}",
+    "voters": "{count, plural, =0 {Inga röster än} one {# person har röstat} other {# personer har röstat}}",
+    "closed": "Stängd",
+    "closesIn": "Stängs {when}",
+    "closeConfirm": "Stänga omröstningen? Efter det kan ingen rösta.",
+    "errors": {
+      "question": "Skriv en fråga.",
+      "questionTooLong": "En fråga har högst {max} tecken.",
+      "tooFewOptions": "Ange minst två alternativ.",
+      "tooManyOptions": "En omröstning har högst {max} alternativ.",
+      "optionTooLong": "Ett alternativ har högst {max} tecken.",
+      "duplicateOptions": "Två alternativ säger samma sak.",
+      "closesAt": "Välj en stängningstid inom det kommande året."
+    }
   }
 }

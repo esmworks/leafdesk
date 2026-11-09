@@ -131,6 +131,8 @@ export const BACKED_UP: Record<string, Scope> = {
   message_mention: ofChannelMessages,
   message_version: ofChannelMessages,
   message_reaction: ofChannelMessages,
+  message_poll: ofChannelMessages,
+  message_poll_vote: ofChannelMessages,
   message_thread: ofChannels,
   message_file: ofChannels,
 };

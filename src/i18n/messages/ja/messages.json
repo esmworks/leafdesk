@@ -125,7 +125,8 @@
     "remind60": "1時間後にリマインド",
     "remindTomorrow": "明日リマインド",
     "history": "編集履歴",
-    "delete": "削除"
+    "delete": "削除",
+    "closePoll": "投票を締め切る"
   },
   "system": {
     "created": "{actor}がこのチャンネルを作成しました。",
@@ -290,7 +291,8 @@
     "offline": "オフラインです。接続が戻ると送信されます。",
     "timeout": "サーバーが時間内に応答しませんでした。",
     "ai": "AI が応答できませんでした。もう一度お試しください。",
-    "internal": "問題が発生しました。もう一度お試しください。"
+    "internal": "問題が発生しました。もう一度お試しください。",
+    "pollClosed": "この投票は締め切られています。"
   },
   "import": {
     "button": "Slackからインポート",
@@ -351,5 +353,42 @@
     "remove": "{name} を削除",
     "removeConfirm": "Webhook「{name}」を削除しますか？アドレスはすぐに使えなくなります。投稿済みのメッセージは残ります。",
     "title": "Webhook"
+  },
+  "poll": {
+    "create": "投票を作成",
+    "title": "新しい投票",
+    "question": "質問",
+    "questionPlaceholder": "何を聞きますか？",
+    "options": "選択肢",
+    "optionPlaceholder": "選択肢 {number}",
+    "addOption": "選択肢を追加",
+    "removeOption": "選択肢 {number} を削除",
+    "multiple": "複数回答を許可",
+    "anonymous": "匿名",
+    "anonymousHint": "他の人には各選択肢を選んだ人数だけが表示され、誰が選んだかは表示されません。",
+    "closes": "締め切り",
+    "closesNever": "なし",
+    "closesDay": "1 日後",
+    "closesWeek": "1 週間後",
+    "closesAt": "日時を指定",
+    "closesAtLabel": "投票の締め切り日時",
+    "send": "投票を送信",
+    "severalAnswers": "複数回答",
+    "voteFor": "{option} に投票",
+    "takeBack": "{option} への投票を取り消す",
+    "votedBy": "{option} を選んだ人: {people}",
+    "voters": "{count, plural, =0 {まだ投票はありません} other {# 人が投票}}",
+    "closed": "締め切り済み",
+    "closesIn": "{when}に締め切り",
+    "closeConfirm": "この投票を締め切りますか？締め切ると誰も投票できなくなります。",
+    "errors": {
+      "question": "質問を入力してください。",
+      "questionTooLong": "質問は {max} 文字以内です。",
+      "tooFewOptions": "選択肢を 2 つ以上入力してください。",
+      "tooManyOptions": "選択肢は {max} 個までです。",
+      "optionTooLong": "選択肢は {max} 文字以内です。",
+      "duplicateOptions": "同じ内容の選択肢が 2 つあります。",
+      "closesAt": "締め切りは今後 1 年以内で選んでください。"
+    }
   }
 }

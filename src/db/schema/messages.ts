@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { bigint, boolean, check, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import type { ChannelKind, ChannelNotify, MessageData, PostingPolicy } from "../../lib/messages";
+import type { PollOption } from "../../lib/message-polls";
 import { file } from "./files";
 import { tsvector, workspace } from "./app";
 import { user } from "./auth";
@@ -237,6 +238,43 @@ export const messageReaction = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.messageId, t.userId, t.emoji] }), index("message_reaction_user_idx").on(t.userId)],
+);
+
+/**
+ * A poll (server/messages/polls.ts): a message whose text is its question, with the options people
+ * vote on. Made with its message and never changed but to close it (`closedAt`, or `closesAt`
+ * passing). Deleting the message deletes the poll and its votes.
+ */
+export const messagePoll = pgTable("message_poll", {
+  messageId: text("message_id")
+    .primaryKey()
+    .references(() => channelMessage.id, { onDelete: "cascade" }),
+  question: text("question").notNull(),
+  /** The choices, in order, each with an id the server gave it. */
+  options: jsonb("options").$type<PollOption[]>().notNull(),
+  /** Each person may choose several options (else one, which a new choice replaces). */
+  multiple: boolean("multiple").notNull().default(false),
+  /** Others see how many chose each option, never who. */
+  anonymous: boolean("anonymous").notNull().default(false),
+  closesAt: timestamp("closes_at", { withTimezone: true }),
+  closedAt: timestamp("closed_at", { withTimezone: true }),
+  closedBy: text("closed_by").references(() => user.id, { onDelete: "set null" }),
+});
+
+/** One person's choice of one option of a poll. */
+export const messagePollVote = pgTable(
+  "message_poll_vote",
+  {
+    messageId: text("message_id")
+      .notNull()
+      .references(() => messagePoll.messageId, { onDelete: "cascade" }),
+    optionId: text("option_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.messageId, t.userId, t.optionId] }), index("message_poll_vote_user_idx").on(t.userId)],
 );
 
 /**

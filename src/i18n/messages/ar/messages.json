@@ -125,7 +125,8 @@
     "remind60": "ذكّرني بعد ساعة",
     "remindTomorrow": "ذكّرني غدًا",
     "history": "سجل التعديلات",
-    "delete": "حذف"
+    "delete": "حذف",
+    "closePoll": "إغلاق الاستطلاع"
   },
   "system": {
     "created": "أنشأ {actor} هذه القناة.",
@@ -290,7 +291,8 @@
     "offline": "أنت غير متصل. ستُرسل عند عودة الاتصال.",
     "timeout": "لم يُجب الخادم في الوقت المحدد.",
     "ai": "تعذّر على الذكاء الاصطناعي الرد. حاول مرة أخرى.",
-    "internal": "حدث خطأ ما. حاول مرة أخرى."
+    "internal": "حدث خطأ ما. حاول مرة أخرى.",
+    "pollClosed": "الاستطلاع مغلق."
   },
   "import": {
     "button": "استيراد من Slack",
@@ -351,5 +353,42 @@
     "remove": "حذف {name}",
     "removeConfirm": "حذف الـ Webhook {name}؟ يتوقف عنوانه عن العمل فورًا، وتبقى رسائله.",
     "title": "Webhooks"
+  },
+  "poll": {
+    "create": "إنشاء استطلاع",
+    "title": "استطلاع جديد",
+    "question": "السؤال",
+    "questionPlaceholder": "ماذا تريد أن تسأل؟",
+    "options": "الخيارات",
+    "optionPlaceholder": "الخيار {number}",
+    "addOption": "إضافة خيار",
+    "removeOption": "إزالة الخيار {number}",
+    "multiple": "السماح بأكثر من إجابة",
+    "anonymous": "مجهول الهوية",
+    "anonymousHint": "يرى الآخرون عدد من اختار كل خيار، وليس من اختاره أبدًا.",
+    "closes": "يُغلق",
+    "closesNever": "أبدًا",
+    "closesDay": "بعد يوم واحد",
+    "closesWeek": "بعد أسبوع واحد",
+    "closesAt": "في تاريخ ووقت محددين",
+    "closesAtLabel": "موعد إغلاق الاستطلاع",
+    "send": "إرسال الاستطلاع",
+    "severalAnswers": "أكثر من إجابة",
+    "voteFor": "التصويت لـ {option}",
+    "takeBack": "سحب تصويتك لـ {option}",
+    "votedBy": "اختاروا {option}: {people}",
+    "voters": "{count, plural, =0 {لا أصوات بعد} zero {لا أصوات بعد} one {صوّت شخص واحد} two {صوّت شخصان} few {صوّت # أشخاص} many {صوّت # شخصًا} other {صوّت # شخص}}",
+    "closed": "مغلق",
+    "closesIn": "يُغلق {when}",
+    "closeConfirm": "إغلاق هذا الاستطلاع؟ لن يتمكن أحد من التصويت بعد ذلك.",
+    "errors": {
+      "question": "اكتب سؤالًا.",
+      "questionTooLong": "يحتوي السؤال على {max} حرفًا على الأكثر.",
+      "tooFewOptions": "أدخل خيارين على الأقل.",
+      "tooManyOptions": "يحتوي الاستطلاع على {max} خيارات على الأكثر.",
+      "optionTooLong": "يحتوي الخيار على {max} حرفًا على الأكثر.",
+      "duplicateOptions": "خياران يقولان الشيء نفسه.",
+      "closesAt": "اختر موعد إغلاق خلال العام القادم."
+    }
   }
 }

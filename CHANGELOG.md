@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Polls in team messages.** The box's *Create a poll* button asks a question with two to ten
+  options, in a channel, a direct conversation or a thread: several answers or one, anonymous or
+  not, closing never, in a day, in a week or at a chosen time. Everyone who can see the message
+  sees the counts as they change; a click on an option votes or takes the vote back, and unless
+  the poll is anonymous the count shows who chose it. The author, or whoever may delete others'
+  messages there, can close it; deleting it drops its votes. Migration 0205 adds the polls and
+  their votes.
 - **Other tools can post in a channel through a webhook.** A channel's admins add one in its
   details and copy its address, shown once; anything that posts to a Slack incoming webhook (alert
   managers, build pipelines, dashboards) can post there instead, with the same payload: text,

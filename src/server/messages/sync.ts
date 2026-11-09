@@ -105,7 +105,7 @@ export async function sync(userId: string, workspaceId: string, since: unknown):
   const [channels, memberships, messages, threads, drafts, saved, sections, statuses, scheduled, keep] = await Promise.all([
     channelViews(and(eq(channel.workspaceId, workspaceId), newer(channel), listed(userId))),
     membershipViews(userId, and(eq(channelMember.workspaceId, workspaceId), newer(channelMember))),
-    messageViews(and(eq(channelMessage.workspaceId, workspaceId), newer(channelMessage), inArray(channelMessage.channelId, mine))),
+    messageViews(and(eq(channelMessage.workspaceId, workspaceId), newer(channelMessage), inArray(channelMessage.channelId, mine)), { viewer: userId }),
     threadViews(userId, and(eq(messageThread.workspaceId, workspaceId), newer(messageThread))),
     draftViews(userId, and(eq(messageDraft.workspaceId, workspaceId), newer(messageDraft))),
     savedViews(userId, and(eq(savedMessage.workspaceId, workspaceId), newer(savedMessage))),

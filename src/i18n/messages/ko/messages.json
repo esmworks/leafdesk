@@ -125,7 +125,8 @@
     "remind60": "1시간 후에 알림",
     "remindTomorrow": "내일 알림",
     "history": "수정 기록",
-    "delete": "삭제"
+    "delete": "삭제",
+    "closePoll": "투표 마감"
   },
   "system": {
     "created": "{actor}님이 이 채널을 만들었습니다.",
@@ -290,7 +291,8 @@
     "offline": "오프라인 상태입니다. 다시 연결되면 보내집니다.",
     "timeout": "서버가 제시간에 응답하지 않았습니다.",
     "ai": "AI가 응답하지 못했습니다. 다시 시도하세요.",
-    "internal": "문제가 발생했습니다. 다시 시도하세요."
+    "internal": "문제가 발생했습니다. 다시 시도하세요.",
+    "pollClosed": "투표가 마감되었습니다."
   },
   "import": {
     "button": "Slack에서 가져오기",
@@ -351,5 +353,42 @@
     "remove": "{name} 삭제",
     "removeConfirm": "웹훅 {name}을(를) 삭제할까요? 주소는 즉시 작동을 멈추며, 메시지는 그대로 남습니다.",
     "title": "웹훅"
+  },
+  "poll": {
+    "create": "투표 만들기",
+    "title": "새 투표",
+    "question": "질문",
+    "questionPlaceholder": "무엇을 묻고 싶으세요?",
+    "options": "선택지",
+    "optionPlaceholder": "선택지 {number}",
+    "addOption": "선택지 추가",
+    "removeOption": "선택지 {number} 삭제",
+    "multiple": "여러 개 선택 허용",
+    "anonymous": "익명",
+    "anonymousHint": "다른 사람에게는 각 선택지를 고른 사람 수만 보이고, 누가 골랐는지는 보이지 않습니다.",
+    "closes": "마감",
+    "closesNever": "없음",
+    "closesDay": "1일 후",
+    "closesWeek": "1주 후",
+    "closesAt": "날짜와 시간 지정",
+    "closesAtLabel": "투표 마감 시각",
+    "send": "투표 보내기",
+    "severalAnswers": "여러 개 선택",
+    "voteFor": "{option}에 투표",
+    "takeBack": "{option} 투표 취소",
+    "votedBy": "{option} 선택: {people}",
+    "voters": "{count, plural, =0 {아직 투표 없음} other {#명 투표}}",
+    "closed": "마감됨",
+    "closesIn": "{when} 마감",
+    "closeConfirm": "이 투표를 마감할까요? 마감하면 아무도 투표할 수 없습니다.",
+    "errors": {
+      "question": "질문을 입력하세요.",
+      "questionTooLong": "질문은 최대 {max}자입니다.",
+      "tooFewOptions": "선택지를 두 개 이상 입력하세요.",
+      "tooManyOptions": "투표의 선택지는 최대 {max}개입니다.",
+      "optionTooLong": "선택지는 최대 {max}자입니다.",
+      "duplicateOptions": "같은 선택지가 두 개 있습니다.",
+      "closesAt": "앞으로 1년 이내의 마감 시각을 고르세요."
+    }
   }
 }
