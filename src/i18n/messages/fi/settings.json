@@ -2350,7 +2350,13 @@
         "step3": "Ota ilmoitukset käyttöön tälle sivustolle.",
         "step4": "Lataa tämä sivu uudelleen ja ota push-ilmoitukset käyttöön täällä."
       }
-    }
+    },
+    "quizAssignedTitle": "Sinulta pyydetyt tietovisat",
+    "quizAssignedDescription": "Joku pyytää sinua tekemään sivulla olevan tietovisan.",
+    "quizAssignedChannel": "Sinulta pyydetyt tietovisat: {channel}",
+    "quizFinishedTitle": "Tietovisojen tulokset",
+    "quizFinishedDescription": "Joku, jota pyysit tekemään tietovisan, läpäisee sen tai käyttää kaikki yrityksensä.",
+    "quizFinishedChannel": "Tietovisojen tulokset: {channel}"
   },
   "site": {
     "description": "Anna tämän työtilan julkaistuille sivuille yksi helppolukuinen osoite, etusivu ja navigointi niiden välillä.",

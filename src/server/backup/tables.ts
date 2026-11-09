@@ -67,6 +67,10 @@ export const BACKED_UP: Record<string, Scope> = {
   page_task: ofPages("page_id"),
   page_watch: ofPages("page_id"),
   page_verification: ofPages("page_id"),
+  // Quizzes with what people answered and who was asked: the page's training record.
+  quiz: own,
+  quiz_attempt: (ws) => sql`quiz_id in (select id from quiz where workspace_id = ${ws})`,
+  quiz_assignment: (ws) => sql`quiz_id in (select id from quiz where workspace_id = ${ws})`,
   thread_mute: ofPages("page_id"),
   thread_state: ofPages("page_id"),
   row_follower: ofPages("row_id"),

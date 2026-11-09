@@ -36,15 +36,18 @@ const KIND_KEYS = {
   agent_task: "agentTask",
   schedule_paused: "schedulePaused",
   ai_chat_waiting: "aiChatWaiting",
+  quiz_assigned: "quizAssigned",
+  quiz_finished: "quizFinished",
 } as const satisfies Record<PreferenceKind, string>;
 const LOCAL_MODE_HIDDEN_KINDS: readonly PreferenceKind[] = ["access_request", "join_request"];
 /**
  * Kinds never sent by email: the email itself is already in the member's mailbox; what waits for
  * review, a follow-up that needs a look, reactions to one's comments, agents' reminders (which
  * open over the page, and come as push notifications), the reports of tasks agents gave each
- * other, schedules that turned themselves off and the AI chat waiting are in the app.
+ * other, schedules that turned themselves off, the AI chat waiting and quizzes asked of one or
+ * finished by those asked are in the app.
  */
-const EMAILLESS_KINDS: readonly PreferenceKind[] = ["row_email", "review", "follow_up", "reaction", "ai_reminder", "agent_task", "schedule_paused", "ai_chat_waiting"];
+const EMAILLESS_KINDS: readonly PreferenceKind[] = ["row_email", "review", "follow_up", "reaction", "ai_reminder", "agent_task", "schedule_paused", "ai_chat_waiting", "quiz_assigned", "quiz_finished"];
 /**
  * Settings > Preferences: for each kind of notification, whether it shows in the inbox, comes by
  * email, when the server can send them (`push`) comes as a push notification and, when the person

@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "העלאה ל־{tokens, number}",
     "limitRequestDecline": "דחייה",
-    "limitRequestFailed": "לא ניתן היה לענות על הבקשה. נסו שוב."
+    "limitRequestFailed": "לא ניתן היה לענות על הבקשה. נסו שוב.",
+    "quizAssigned": "{actor} ביקש ממך לענות על הבוחן",
+    "quizAssignedDue": "{actor} ביקש ממך לענות על הבוחן עד {date}",
+    "quizPassed": "{actor} עבר את הבוחן עם {score}%",
+    "quizFailed": "{actor} ניצל את כל הניסיונות בבוחן ({score}%)"
   },
   "templates": {
     "title": "תבניות",

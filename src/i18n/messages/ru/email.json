@@ -318,7 +318,11 @@
     "messageFile": "Отправлен файл",
     "newMessage": "Новое сообщение",
     "inThread": "В ветке",
-    "messageReminder": "Напоминание о сообщении"
+    "messageReminder": "Напоминание о сообщении",
+    "quizAssigned": "{actor} попросил(а) вас пройти тест",
+    "quizAssignedDue": "{actor} попросил(а) вас пройти тест до {date}",
+    "quizPassed": "{actor} прошёл(-ла) тест с результатом {score}%",
+    "quizFailed": "{actor} исчерпал(а) попытки в тесте ({score}%)"
   },
   "agentReply": {
     "aiOff": "Не могу ответить: ИИ отключён в этом рабочем пространстве.",

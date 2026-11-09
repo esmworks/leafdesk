@@ -836,6 +836,20 @@
   nothing between its lines is only placed, as are synced blocks in imported Markdown. Tables written as Markdown keep their column widths,
   header rows and columns, cell colors and alignment, which Markdown has no form for. Search, by words or by meaning,
   finds them on the original page only, and its history shows their changes.
+- **Quizzes**: `/quiz` adds questions about the page that its readers answer, for training and
+  onboarding. People who can edit the page write the questions (one or several right answers each,
+  up to 50), an explanation for each, the pass mark (80% unless changed) and how many attempts
+  someone gets (any number unless limited). Readers start the quiz, answer every question and
+  submit; the server scores it, and they see which answers were right. The right answers and
+  explanations are shown only to the page's editors, and to a reader once they pass or run out of
+  attempts: never before, never on published pages or in exports, which leave the quiz out (a
+  Markdown export says only that a quiz with so many questions is there). Editors see everyone's
+  best score, attempts and status under *Results*, and *Ask people to take it* asks any of the
+  people who can open the page, by a day or whenever: they find it in their inbox, overdue ones
+  are marked, and the person who asked hears when each passes or runs out of attempts (both kinds
+  can be turned off in the notification settings). A duplicated page gets its own copy of the quiz,
+  with no one's attempts; a quiz block pasted onto another page offers its editors *Make a copy
+  here*.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. It is beside a page
   ("Show in graph" under *More actions* in a page's menu: the page and the pages up to three steps from it), and the

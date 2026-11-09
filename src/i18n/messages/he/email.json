@@ -318,7 +318,11 @@
     "messageFile": "שלח/ה קובץ",
     "newMessage": "הודעה חדשה",
     "inThread": "בשרשור",
-    "messageReminder": "תזכורת על הודעה"
+    "messageReminder": "תזכורת על הודעה",
+    "quizAssigned": "{actor} ביקש ממך לענות על הבוחן",
+    "quizAssignedDue": "{actor} ביקש ממך לענות על הבוחן עד {date}",
+    "quizPassed": "{actor} עבר את הבוחן עם {score}%",
+    "quizFailed": "{actor} ניצל את כל הניסיונות בבוחן ({score}%)"
   },
   "agentReply": {
     "aiOff": "אין באפשרותי לענות: הבינה המלאכותית כבויה בסביבת העבודה הזו.",

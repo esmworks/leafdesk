@@ -316,7 +316,11 @@
     "limitRequestNote": "”{note}”",
     "limitRequestApprove": "Höj till {tokens, number}",
     "limitRequestDecline": "Avslå",
-    "limitRequestFailed": "Det gick inte att besvara begäran. Försök igen."
+    "limitRequestFailed": "Det gick inte att besvara begäran. Försök igen.",
+    "quizAssigned": "{actor} bad dig göra quizet",
+    "quizAssignedDue": "{actor} bad dig göra quizet senast {date}",
+    "quizPassed": "{actor} blev godkänd på quizet med {score} %",
+    "quizFailed": "{actor} har inga försök kvar på quizet ({score} %)"
   },
   "templates": {
     "title": "Mallar",

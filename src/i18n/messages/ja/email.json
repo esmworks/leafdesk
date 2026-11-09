@@ -318,7 +318,11 @@
     "messageFile": "ファイルを送信しました",
     "newMessage": "新しいメッセージ",
     "inThread": "スレッド内",
-    "messageReminder": "メッセージのリマインダー"
+    "messageReminder": "メッセージのリマインダー",
+    "quizAssigned": "{actor}がクイズの受験を依頼しました",
+    "quizAssignedDue": "{actor}が{date}までにクイズを受けるよう依頼しました",
+    "quizPassed": "{actor}がクイズに{score}%で合格しました",
+    "quizFailed": "{actor}がクイズの受験回数を使い切りました（{score}%）"
   },
   "agentReply": {
     "aiOff": "回答できません: このワークスペースでは AI がオフになっています。",

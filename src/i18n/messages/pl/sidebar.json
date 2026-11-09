@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Podnieś do {tokens, number}",
     "limitRequestDecline": "Odrzuć",
-    "limitRequestFailed": "Nie udało się odpowiedzieć na prośbę. Spróbuj ponownie."
+    "limitRequestFailed": "Nie udało się odpowiedzieć na prośbę. Spróbuj ponownie.",
+    "quizAssigned": "{actor} prosi cię o rozwiązanie quizu",
+    "quizAssignedDue": "{actor} prosi cię o rozwiązanie quizu do {date}",
+    "quizPassed": "{actor} zalicza quiz z wynikiem {score}%",
+    "quizFailed": "{actor} wykorzystuje wszystkie próby w quizie ({score}%)"
   },
   "templates": {
     "title": "Szablony",

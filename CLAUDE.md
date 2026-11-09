@@ -658,6 +658,14 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   server SVG for favicons and PDF is `lib/builtin-icon-svg.ts`. Emoji data and names per locale are
   static files in `public/emoji/` written by `scripts/emoji-data.ts`, fetched by the picker and the
   editor's ":" menu, never imported.
+- **Quizzes** (`server/quizzes.ts`, pure part `lib/quizzes.ts`, tables in `db/schema/quizzes.ts`):
+  the block (`lib/quiz-block.ts`, Markdown line `<!-- leafdesk:quiz <id> -->`) holds only the
+  quiz's id; every read and write checks the quiz row's own `page_id`, never the page showing the
+  block (one on another page is `foreign` and offers a copy). Right answers and explanations leave
+  the server only through `quizView` (editors at `QUIZ_EDIT_LEVEL`, or someone `quizDone`); published
+  bodies, print, PDF and Word drop the block and Markdown exports name it (`export.ts` `nameQuizzes`).
+  A duplicated page gets its own quizzes in `duplicate.ts` through `copyQuizzesForCopies`, which
+  rewrites the copies' ids in their documents and Markdown.
 - **Reports about published pages** (`server/page-reports.ts`, table `page_report`): the form is
   its own route, `s/[token]/report`, on the app's address like `duplicate` (a site's domain
   redirects there, `routeOnSiteHost`); `servedPublication` decides whether the page is served.
@@ -864,7 +872,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,
   agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule, concurrent-writes,
   row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, follow-ups (starts its own GreenMail container
-  unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
+  unless given ports), page-watch, page-webhooks, quizzes, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.
 - Each script's header says what it needs. `.github/workflows/ci.yml` shows the env each step gets;
   not every e2e script is in CI.

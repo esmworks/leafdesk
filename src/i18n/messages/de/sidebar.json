@@ -316,7 +316,11 @@
     "limitRequestNote": "„{note}“",
     "limitRequestApprove": "Auf {tokens, number} erhöhen",
     "limitRequestDecline": "Ablehnen",
-    "limitRequestFailed": "Die Anfrage konnte nicht beantwortet werden. Versuche es erneut."
+    "limitRequestFailed": "Die Anfrage konnte nicht beantwortet werden. Versuche es erneut.",
+    "quizAssigned": "{actor} hat dich gebeten, das Quiz zu machen",
+    "quizAssignedDue": "{actor} hat dich gebeten, das Quiz bis {date} zu machen",
+    "quizPassed": "{actor} hat das Quiz mit {score} % bestanden",
+    "quizFailed": "{actor} hat keine Versuche mehr für das Quiz ({score} %)"
   },
   "templates": {
     "title": "Vorlagen",

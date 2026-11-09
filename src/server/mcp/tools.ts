@@ -2,6 +2,7 @@ import { ICON_INPUT } from "@/lib/icon";
 import { MAX_ROW_BUTTON_LABEL, ROW_BUTTON_COLORS, type RowButtonOptions } from "@/lib/row-buttons";
 import { parseMassExport } from "@/lib/mass-export";
 import { parseMassTrash } from "@/lib/mass-trash";
+import { parseQuizNotice } from "@/lib/quiz-block";
 import { Readable } from "node:stream";
 import { type CallToolResult, McpServer, ProtocolError, ProtocolErrorCode, type ScopeChallengeHandler } from "@modelcontextprotocol/server";
 import * as z from "zod";
@@ -1836,6 +1837,10 @@ export function createMcpServer(principal: McpPrincipal, options: { actor?: Writ
                             ? `${who} edited "${title}", a page the user watches (get_page shows it now; get_page_history what changed)`
                           : n.kind === "verification"
                             ? `The user's verification of "${title}" ${n.reminderDate && n.createdAt >= new Date(n.reminderDate) ? "expired" : "ends"} on ${n.reminderDate ?? "a date"} (update_page with verified renews it)`
+                          : n.kind === "quiz_assigned"
+                            ? `${who} asked the user to take the quiz on "${title}"${n.reminderDate ? ` by ${n.reminderDate}` : ""} (it is taken in the app)`
+                          : n.kind === "quiz_finished"
+                            ? `${who}, whom the user asked to take the quiz on "${title}", ${parseQuizNotice(n.automationMessage)?.passed === false ? "ran out of attempts" : "passed it"} with ${parseQuizNotice(n.automationMessage)?.score ?? 0}%`
                           : n.kind === "follow_up"
                             ? `The follow-up "${n.followUp?.sequence ?? ""}" on "${title}" in ${pageLabel(n.databaseTitle)} is paused: its next email didn't pass the check (list_enrollments shows what it found; fix the row or the sequence, then resume it in the app)`
                           : n.kind === "row_email"

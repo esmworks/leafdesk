@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "เพิ่มเป็น {tokens, number}",
     "limitRequestDecline": "ปฏิเสธ",
-    "limitRequestFailed": "ตอบคำขอไม่สำเร็จ ลองอีกครั้ง"
+    "limitRequestFailed": "ตอบคำขอไม่สำเร็จ ลองอีกครั้ง",
+    "quizAssigned": "{actor} ขอให้คุณทำแบบทดสอบ",
+    "quizAssignedDue": "{actor} ขอให้คุณทำแบบทดสอบภายใน {date}",
+    "quizPassed": "{actor} ทำแบบทดสอบผ่านด้วยคะแนน {score}%",
+    "quizFailed": "{actor} ใช้สิทธิ์ทำแบบทดสอบหมดแล้ว ({score}%)"
   },
   "templates": {
     "title": "เทมเพลต",

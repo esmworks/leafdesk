@@ -4,6 +4,7 @@ import { IconGlyph } from "@/components/builtin-icon";
 import {
   Bookmark,
   Bot,
+  ListChecks,
   ChevronRight,
   ChevronsUpDown,
   Database,
@@ -105,6 +106,8 @@ function BlockBody({ block, text, compact }: { block: DiffBlock; text: ReactNode
       return marker(<LayoutDashboard className="mt-1 h-4 w-4" />);
     case "agentChat":
       return marker(<Bot className="mt-1 h-4 w-4" />);
+    case "quiz":
+      return marker(<ListChecks className="mt-1 h-4 w-4" />);
     case "button":
       return marker(<MousePointerClick className="mt-1 h-4 w-4" />);
     case "table":
@@ -130,6 +133,7 @@ function ChangeRow({ change, actions, compact }: { change: BlockChange; actions?
   const tb = useTranslations("page.blocks");
   const td = useTranslations("page.dashboard");
   const ta = useTranslations("page.agentChat");
+  const tq = useTranslations("page.quiz");
   const tbtn = useTranslations("page.button");
   const { block } = change;
   // A database block is only named: the version keeps which database, not its rows back then.
@@ -146,6 +150,8 @@ function ChangeRow({ change, actions, compact }: { change: BlockChange; actions?
           ? td("title")
           : block.type === "agentChat"
           ? ta("label")
+          : block.type === "quiz"
+          ? tq("label")
           : block.type === "button"
           ? tbtn("blockLabel", { label: block.text || tbtn("untitled") })
           : block.text || "\u00a0";

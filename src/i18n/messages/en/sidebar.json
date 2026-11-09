@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Raise to {tokens, number}",
     "limitRequestDecline": "Decline",
-    "limitRequestFailed": "Couldn’t answer the request. Try again."
+    "limitRequestFailed": "Couldn’t answer the request. Try again.",
+    "quizAssigned": "{actor} asked you to take the quiz",
+    "quizAssignedDue": "{actor} asked you to take the quiz by {date}",
+    "quizPassed": "{actor} passed the quiz with {score}%",
+    "quizFailed": "{actor} ran out of attempts at the quiz ({score}%)"
   },
   "templates": {
     "title": "Templates",

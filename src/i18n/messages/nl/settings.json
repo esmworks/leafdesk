@@ -2350,7 +2350,13 @@
         "step3": "Zet meldingen aan voor deze site.",
         "step4": "Laad deze pagina opnieuw en zet hier pushmeldingen aan."
       }
-    }
+    },
+    "quizAssignedTitle": "Quizzen die je moet maken",
+    "quizAssignedDescription": "Iemand vraagt je een quiz op een pagina te maken.",
+    "quizAssignedChannel": "Quizzen die je moet maken: {channel}",
+    "quizFinishedTitle": "Quizresultaten",
+    "quizFinishedDescription": "Iemand die je vroeg een quiz te maken, slaagt of heeft geen pogingen meer.",
+    "quizFinishedChannel": "Quizresultaten: {channel}"
   },
   "site": {
     "description": "Geef de gepubliceerde pagina’s van deze werkruimte één leesbaar adres, een startpagina en navigatie ertussen.",

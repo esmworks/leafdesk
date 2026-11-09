@@ -2350,7 +2350,13 @@
         "step3": "Turn notifications on for this site.",
         "step4": "Reload this page and turn push notifications on here."
       }
-    }
+    },
+    "quizAssignedTitle": "Quizzes asked of you",
+    "quizAssignedDescription": "Someone asks you to take a quiz on a page.",
+    "quizAssignedChannel": "Quizzes asked of you: {channel}",
+    "quizFinishedTitle": "Quiz results",
+    "quizFinishedDescription": "Someone you asked to take a quiz passes it or runs out of attempts.",
+    "quizFinishedChannel": "Quiz results: {channel}"
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

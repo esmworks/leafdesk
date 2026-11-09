@@ -318,7 +318,11 @@
     "messageFile": "Đã gửi một tệp",
     "newMessage": "Tin nhắn mới",
     "inThread": "Trong một chuỗi",
-    "messageReminder": "Lời nhắc về một tin nhắn"
+    "messageReminder": "Lời nhắc về một tin nhắn",
+    "quizAssigned": "{actor} đã đề nghị bạn làm bài kiểm tra",
+    "quizAssignedDue": "{actor} đã đề nghị bạn làm bài kiểm tra trước {date}",
+    "quizPassed": "{actor} đã đạt bài kiểm tra với {score}%",
+    "quizFailed": "{actor} đã hết lượt làm bài kiểm tra ({score}%)"
   },
   "agentReply": {
     "aiOff": "Tôi không thể trả lời: AI đang tắt trong không gian làm việc này.",

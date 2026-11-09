@@ -2350,7 +2350,13 @@
         "step3": "Bật thông báo cho trang web này.",
         "step4": "Tải lại trang này và bật thông báo đẩy tại đây."
       }
-    }
+    },
+    "quizAssignedTitle": "Bài kiểm tra được giao cho bạn",
+    "quizAssignedDescription": "Có người đề nghị bạn làm một bài kiểm tra trên trang.",
+    "quizAssignedChannel": "Bài kiểm tra được giao cho bạn: {channel}",
+    "quizFinishedTitle": "Kết quả bài kiểm tra",
+    "quizFinishedDescription": "Người bạn đề nghị làm bài kiểm tra đã đạt hoặc hết lượt làm bài.",
+    "quizFinishedChannel": "Kết quả bài kiểm tra: {channel}"
   },
   "site": {
     "description": "Cho các trang đã xuất bản của không gian làm việc này một địa chỉ dễ đọc, một trang chủ và điều hướng giữa chúng.",

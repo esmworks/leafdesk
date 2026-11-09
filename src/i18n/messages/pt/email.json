@@ -318,7 +318,11 @@
     "messageFile": "Enviou um arquivo",
     "newMessage": "Nova mensagem",
     "inThread": "Em um tópico",
-    "messageReminder": "Lembrete sobre uma mensagem"
+    "messageReminder": "Lembrete sobre uma mensagem",
+    "quizAssigned": "{actor} pediu que você fizesse o quiz",
+    "quizAssignedDue": "{actor} pediu que você fizesse o quiz até {date}",
+    "quizPassed": "{actor} foi aprovado no quiz com {score}%",
+    "quizFailed": "{actor} esgotou as tentativas no quiz ({score}%)"
   },
   "agentReply": {
     "aiOff": "Não posso responder: a IA está desativada neste espaço de trabalho.",

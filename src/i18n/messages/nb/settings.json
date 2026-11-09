@@ -2350,7 +2350,13 @@
         "step3": "Slå på varsler for dette nettstedet.",
         "step4": "Last inn denne siden på nytt og slå på push-varsler her."
       }
-    }
+    },
+    "quizAssignedTitle": "Quizer du blir bedt om å ta",
+    "quizAssignedDescription": "Noen ber deg ta en quiz på en side.",
+    "quizAssignedChannel": "Quizer du blir bedt om å ta: {channel}",
+    "quizFinishedTitle": "Quizresultater",
+    "quizFinishedDescription": "Noen du har bedt om å ta en quiz, består den eller bruker opp forsøkene.",
+    "quizFinishedChannel": "Quizresultater: {channel}"
   },
   "site": {
     "description": "Gi de publiserte sidene i dette arbeidsområdet én lettlest adresse, en startside og navigasjon mellom dem.",

@@ -2350,7 +2350,13 @@
         "step3": "Schalte Benachrichtigungen für diese Website ein.",
         "step4": "Lade diese Seite neu und schalte hier Push-Benachrichtigungen ein."
       }
-    }
+    },
+    "quizAssignedTitle": "Quizze, um die du gebeten wirst",
+    "quizAssignedDescription": "Jemand bittet dich, ein Quiz auf einer Seite zu machen.",
+    "quizAssignedChannel": "Quizze, um die du gebeten wirst: {channel}",
+    "quizFinishedTitle": "Quiz-Ergebnisse",
+    "quizFinishedDescription": "Jemand, den du um ein Quiz gebeten hast, besteht es oder hat keine Versuche mehr.",
+    "quizFinishedChannel": "Quiz-Ergebnisse: {channel}"
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

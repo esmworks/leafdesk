@@ -114,6 +114,18 @@ export const userPreference = pgTable("user_preference", {
   aiChatWaitingInbox: boolean("ai_chat_waiting_inbox").notNull().default(true),
   aiChatWaitingEmails: boolean("ai_chat_waiting_emails").notNull().default(false),
   /**
+   * Someone asked me to take a quiz on a page (server/quizzes.ts): show it in my inbox. No email
+   * goes out about it (`quizAssignedEmails` is kept for the shape every kind has, and unused).
+   */
+  quizAssignedInbox: boolean("quiz_assigned_inbox").notNull().default(true),
+  quizAssignedEmails: boolean("quiz_assigned_emails").notNull().default(false),
+  /**
+   * Someone I asked to take a quiz passed it or ran out of attempts: show it in my inbox. No email
+   * goes out about it (`quizFinishedEmails` is kept for the shape every kind has, and unused).
+   */
+  quizFinishedInbox: boolean("quiz_finished_inbox").notNull().default(true),
+  quizFinishedEmails: boolean("quiz_finished_emails").notNull().default(false),
+  /**
    * Reactions to my comments: show them in my inbox. No email goes out about them (`reactionEmails`
    * is kept for the shape every kind has, and unused); push and Telegram are off until turned on.
    */
@@ -143,6 +155,8 @@ export const userPreference = pgTable("user_preference", {
   agentTaskPush: boolean("agent_task_push").notNull().default(true),
   schedulePausedPush: boolean("schedule_paused_push").notNull().default(true),
   aiChatWaitingPush: boolean("ai_chat_waiting_push").notNull().default(true),
+  quizAssignedPush: boolean("quiz_assigned_push").notNull().default(true),
+  quizFinishedPush: boolean("quiz_finished_push").notNull().default(true),
   /**
    * Telegram messages per kind, to the Telegram account the person linked (see telegram_link,
    * server/telegram/notify.ts). They follow the inbox as push does.
@@ -166,6 +180,8 @@ export const userPreference = pgTable("user_preference", {
   agentTaskTelegram: boolean("agent_task_telegram").notNull().default(true),
   schedulePausedTelegram: boolean("schedule_paused_telegram").notNull().default(true),
   aiChatWaitingTelegram: boolean("ai_chat_waiting_telegram").notNull().default(true),
+  quizAssignedTelegram: boolean("quiz_assigned_telegram").notNull().default(true),
+  quizFinishedTelegram: boolean("quiz_finished_telegram").notNull().default(true),
   /**
    * Leafdesk's links opened in a browser go on to the desktop app (lib/desktop-links.ts): "off",
    * "ask" (the page offers to) or "always" (it tries at once, and stays in the browser if no app
@@ -428,6 +444,8 @@ export const NOTIFICATION_KINDS = [
   "agent_task",
   "schedule_paused",
   "ai_chat_waiting",
+  "quiz_assigned",
+  "quiz_finished",
 ] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 /**
@@ -532,6 +550,10 @@ export type PreferenceKind = Exclude<NotificationKind, OwnerKind>;
  * "ai_chat_waiting": the user's own AI chat answer, run `agentRunId` (no agent), asks them about a
  * change while no page of theirs follows it (server/ai-chat.ts); it opens the conversation, has no
  * page, and goes once they decide (or with the run).
+ * "quiz_assigned": `actorId` asked the user to take a quiz on page `pageId` (server/quizzes.ts),
+ * by `date` (YYYY-MM-DD) when it has one.
+ * "quiz_finished": `actorId`, whom the user asked to take a quiz on page `pageId`, passed it or ran
+ * out of attempts; `message` holds the score and which (lib/quiz-block.ts quizNoticeMessage).
  * Unread ones are dropped when the change is
  * undone (or the request decided). Rows are recorded
  * whatever the user's preferences; the inbox leaves out the kinds they turned off.

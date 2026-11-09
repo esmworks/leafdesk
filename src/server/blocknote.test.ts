@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
 import { agentChatLine } from "@/lib/agent-chat";
+import { quizLine } from "@/lib/quiz-block";
 import { buttonLine, serializeButtonConfig } from "@/lib/buttons";
 import { blocksToPlainText } from "@/lib/blocks";
 import { COLLAB_FRAGMENT } from "@/lib/collab-constants";
@@ -459,6 +460,36 @@ describe("agent chats in page bodies", () => {
     expect(segments.map((s) => s.kind)).toEqual(["html", "agentChat"]);
     // An id no random block id can contain, unlike a short one such as "a1".
     expect(JSON.stringify(segments)).not.toContain("agent-never-shown");
+  });
+});
+
+describe("quizzes in page bodies", () => {
+  it("round-trip through the Yjs document and Markdown, keeping only the quiz's id", async () => {
+    const doc = docFrom([
+      { type: "paragraph", content: "Read this" },
+      { type: "quiz", props: { quizId: "quiz-1" } },
+    ]);
+    const blocks = read(doc);
+    expect(blocks[1]).toMatchObject({ type: "quiz", props: { quizId: "quiz-1" } });
+    const markdown = (await blocksToMarkdown(blocks)).trim();
+    expect(markdown).toBe(`Read this\n\n${quizLine("quiz-1")}`);
+    const back = await markdownToBlocks(markdown);
+    expect(back.map((b) => [b.type, b.props])).toEqual([
+      ["paragraph", expect.anything()],
+      ["quiz", { quizId: "quiz-1" }],
+    ]);
+  });
+
+  it("keep a block written without a quiz yet", async () => {
+    const [block] = await markdownToBlocks(quizLine(""));
+    expect(block).toMatchObject({ type: "quiz", props: { quizId: "" } });
+  });
+
+  it("are left out of published pages", async () => {
+    const doc = docFrom([{ type: "paragraph", content: "Visible" }, { type: "quiz", props: { quizId: "quiz-never-shown" } }]);
+    const segments = await bodySegmentsFromYdoc(Y.encodeStateAsUpdate(doc));
+    expect(segments.map((s) => s.kind)).toEqual(["html"]);
+    expect(JSON.stringify(segments)).not.toContain("quiz-never-shown");
   });
 });
 

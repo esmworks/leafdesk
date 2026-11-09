@@ -318,7 +318,11 @@
     "messageFile": "Wysłano plik",
     "newMessage": "Nowa wiadomość",
     "inThread": "W wątku",
-    "messageReminder": "Przypomnienie o wiadomości"
+    "messageReminder": "Przypomnienie o wiadomości",
+    "quizAssigned": "{actor} prosi cię o rozwiązanie quizu",
+    "quizAssignedDue": "{actor} prosi cię o rozwiązanie quizu do {date}",
+    "quizPassed": "{actor} zalicza quiz z wynikiem {score}%",
+    "quizFailed": "{actor} wykorzystuje wszystkie próby w quizie ({score}%)"
   },
   "agentReply": {
     "aiOff": "Nie mogę odpowiedzieć: AI jest wyłączone w tym obszarze roboczym.",

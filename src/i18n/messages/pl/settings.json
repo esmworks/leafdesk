@@ -2350,7 +2350,13 @@
         "step3": "Włącz powiadomienia dla tej witryny.",
         "step4": "Odśwież tę stronę i włącz tutaj powiadomienia push."
       }
-    }
+    },
+    "quizAssignedTitle": "Quizy do rozwiązania",
+    "quizAssignedDescription": "Ktoś prosi cię o rozwiązanie quizu na stronie.",
+    "quizAssignedChannel": "Quizy do rozwiązania: {channel}",
+    "quizFinishedTitle": "Wyniki quizów",
+    "quizFinishedDescription": "Osoba, którą poproszono o rozwiązanie quizu, zalicza go lub wykorzystuje wszystkie próby.",
+    "quizFinishedChannel": "Wyniki quizów: {channel}"
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",

@@ -316,7 +316,11 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Nâng lên {tokens, number}",
     "limitRequestDecline": "Từ chối",
-    "limitRequestFailed": "Không thể trả lời yêu cầu. Hãy thử lại."
+    "limitRequestFailed": "Không thể trả lời yêu cầu. Hãy thử lại.",
+    "quizAssigned": "{actor} đã đề nghị bạn làm bài kiểm tra",
+    "quizAssignedDue": "{actor} đã đề nghị bạn làm bài kiểm tra trước {date}",
+    "quizPassed": "{actor} đã đạt bài kiểm tra với {score}%",
+    "quizFailed": "{actor} đã hết lượt làm bài kiểm tra ({score}%)"
   },
   "templates": {
     "title": "Mẫu",
