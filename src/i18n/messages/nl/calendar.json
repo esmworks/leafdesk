@@ -17,7 +17,8 @@
   "kinds": {
     "event": "Agenda-afspraken",
     "meeting": "Vergaderingen",
-    "task": "Taken"
+    "task": "Taken",
+    "reminder": "Herinneringen"
   },
   "allDay": "Hele dag",
   "from": "Vanaf {time}",

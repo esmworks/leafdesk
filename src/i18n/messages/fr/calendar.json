@@ -17,7 +17,8 @@
   "kinds": {
     "event": "Événements d’agenda",
     "meeting": "Réunions",
-    "task": "Tâches"
+    "task": "Tâches",
+    "reminder": "Rappels"
   },
   "allDay": "Toute la journée",
   "from": "À partir de {time}",

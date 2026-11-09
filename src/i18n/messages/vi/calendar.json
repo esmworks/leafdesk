@@ -17,7 +17,8 @@
   "kinds": {
     "event": "Sự kiện lịch",
     "meeting": "Cuộc họp",
-    "task": "Công việc"
+    "task": "Công việc",
+    "reminder": "Lời nhắc"
   },
   "allDay": "Cả ngày",
   "from": "Từ {time}",

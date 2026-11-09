@@ -17,7 +17,8 @@
   "kinds": {
     "event": "カレンダーの予定",
     "meeting": "会議",
-    "task": "タスク"
+    "task": "タスク",
+    "reminder": "リマインダー"
   },
   "allDay": "終日",
   "from": "{time}から",

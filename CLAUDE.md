@@ -417,10 +417,14 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
 - **The Calendar place** (`app/w/[workspaceId]/calendar`, `components/calendar/`, the sidebar's
   `calendar-panel.tsx`, a `lazyPart`): `server/calendar.ts` `calendarItems` gathers a
   person's days from synced ical/gcal databases (rows picked in SQL by their When's first ten
-  characters, then `dateOverlaps`; property access applies), meeting notes and `openAssignedRows` /
-  `openPageTasks`; pure part `lib/calendar-items.ts`, read through `read("calendarItems")`. Each
+  characters, then `dateOverlaps`; property access applies), meeting notes, `openAssignedRows` /
+  `openPageTasks` and AI reminders still to come (`listNotifications` `pending`, kind `ai_reminder`);
+  pure part `lib/calendar-items.ts`, read through `read("calendarItems")`. Each
   item's `moves` says whether the week may drag it; `moveCalendarItem` writes the drop by the item's
-  id (a row's date, a planned meeting's `scheduledAt`, a to-do's first date mention). A to-do's time
+  id (a row's date, a planned meeting's `scheduledAt`, a to-do's first date mention, a reminder's
+  `snoozedUntil` through `notifications.ts` `moveReminder`). An item's `href` is null for a reminder
+  about no page: `components/calendar/item-link.tsx` opens the inbox's Scheduled tab then
+  (`lib/inbox-event.ts` `openInbox`, which `sidebar.tsx` listens for). A to-do's time
   is its mention's reminder on the mention's own day (`page_task.remind_at`, `timedOnItsDay`): date
   mentions hold only days, as their Markdown `@YYYY-MM-DD` does.
 - **The sidebar's meetings tab** (`components/sidebar/meeting-panel.tsx`, a `lazyPart`): the

@@ -10,6 +10,10 @@
   about: move one to another time (a snooze choice or a time typed in words), cancel a reminder, or
   bring a snoozed notification back now. The chat and agents are told where a reminder they set
   waits, so they can point you there.
+- **Reminders still to come are on the Calendar.** The reminders the AI chat and agents set for you
+  show on the Calendar page and the sidebar's Calendar tab at their time, in orange, with the agent
+  that set it: drag one on the week to another time to move it. One about a page opens that page;
+  one about none opens the inbox's *Scheduled* tab. Only you see your reminders.
 
 ### Changed
 

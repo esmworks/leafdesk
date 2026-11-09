@@ -1,12 +1,12 @@
 "use client";
 
-import { CalendarDays, ChevronLeft, ChevronRight, CircleCheck, List, NotebookPen } from "lucide-react";
-import Link from "next/link";
+import { AlarmClock, CalendarDays, ChevronLeft, ChevronRight, CircleCheck, List, NotebookPen } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { moveCalendarItemAction } from "@/app/actions/calendar";
 import { useCalendarItems } from "@/components/calendar/use-calendar-items";
+import { ItemLink } from "@/components/calendar/item-link";
 import { KIND_TINT } from "@/components/calendar/item-tint";
 import { PlaceTopBar } from "@/components/place-top-bar";
 import { showToast } from "@/components/toast";
@@ -30,8 +30,8 @@ const SNAP = 15;
  * to-do's date reaches the index only with its page's save.
  */
 const MOVE_HOLD_MS = 2 * 60_000;
-const KINDS: CalendarItemKind[] = ["event", "meeting", "task"];
-const KIND_ICONS: Record<CalendarItemKind, typeof CalendarDays> = { event: CalendarDays, meeting: NotebookPen, task: CircleCheck };
+const KINDS: CalendarItemKind[] = ["event", "meeting", "task", "reminder"];
+const KIND_ICONS: Record<CalendarItemKind, typeof CalendarDays> = { event: CalendarDays, meeting: NotebookPen, task: CircleCheck, reminder: AlarmClock };
 
 /** A day number as a Date at its midnight in UTC: days are formatted in UTC so zones never shift them. */
 const utcDay = (day: number) => new Date(day * 86_400_000);
@@ -322,7 +322,7 @@ function WeekGrid({
             )}
             {bars.map((bar) => (
               <div key={bar.event.item.id} style={{ gridColumn: `${bar.col + 1} / span ${bar.span}`, gridRow: bar.lane + 1 }} className="min-w-0 px-1 pb-0.5">
-                <Link
+                <ItemLink
                   href={bar.event.item.href}
                   title={[bar.event.item.title, bar.event.item.detail].filter(Boolean).join(" · ")}
                   draggable={!!bar.event.item.moves}
@@ -336,7 +336,7 @@ function WeekGrid({
                   style={{ borderInlineStartColor: "var(--opt-bg)" }}
                 >
                   <span className="truncate">{bar.event.item.title.trim() || t("untitled")}</span>
-                </Link>
+                </ItemLink>
               </div>
             ))}
           </div>
@@ -364,7 +364,7 @@ function WeekGrid({
                   const height = ((b.bottom - b.top) / 60) * HOUR_HEIGHT - 2;
                   const { item } = b.event;
                   return (
-                    <Link
+                    <ItemLink
                       key={item.id}
                       href={item.href}
                       title={[item.title, whenOn(b.event, day), item.detail].filter(Boolean).join(" · ")}
@@ -387,7 +387,7 @@ function WeekGrid({
                       <span className="truncate font-medium">{item.title.trim() || t("untitled")}</span>
                       {height >= 30 && <span className="truncate text-[11px] text-fg-muted tabular-nums">{whenOn(b.event, day)}</span>}
                       {height >= 46 && item.detail && <span className="truncate text-[11px] text-fg-muted">{item.detail}</span>}
-                    </Link>
+                    </ItemLink>
                   );
                 })}
                 {drag && target && target.minutes !== null && target.day === day && (
@@ -439,7 +439,7 @@ function DayList({ days, placed, today, whenOn, loaded }: { days: number[]; plac
               const Icon = KIND_ICONS[p.item.kind];
               return (
                 <li key={p.item.id}>
-                  <Link href={p.item.href} className={cn("flex min-h-10 items-center gap-3 rounded-md px-2 py-2 hover:bg-bg-hover", KIND_TINT[p.item.kind])}>
+                  <ItemLink href={p.item.href} className={cn("flex min-h-10 items-center gap-3 rounded-md px-2 py-2 hover:bg-bg-hover", KIND_TINT[p.item.kind])}>
                     <span className="w-28 shrink-0 text-xs tabular-nums text-fg-muted">{whenOn(p, day)}</span>
                     <span aria-hidden className="w-1 self-stretch rounded-full" style={{ background: "var(--opt-bg)" }} />
                     <Icon className="h-4 w-4 shrink-0 text-fg-icon" aria-hidden />
@@ -447,7 +447,7 @@ function DayList({ days, placed, today, whenOn, loaded }: { days: number[]; plac
                       <span className="block truncate text-sm text-fg">{p.item.title.trim() || t("untitled")}</span>
                       {p.item.detail && <span className="block truncate text-xs text-fg-faint">{p.item.detail}</span>}
                     </span>
-                  </Link>
+                  </ItemLink>
                 </li>
               );
             })}

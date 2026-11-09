@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { agendaDays, droppedDate, isoWeek, itemMinutes, placeItems, type CalendarItem } from "./calendar-items";
+import { agendaDays, droppedDate, isoWeek, itemMinutes, placeItems, reminderItem, type CalendarItem } from "./calendar-items";
 import { dayNumber } from "./time-zone";
 
 const item = (id: string, date: string, kind: CalendarItem["kind"] = "event"): CalendarItem => ({ id, kind, title: id, icon: null, date, href: `/p/${id}`, detail: null, moves: { allDay: true } });
@@ -50,5 +50,30 @@ describe("calendar items", () => {
     // Days keep how many there were, from the day it was picked up at.
     expect(droppedDate(trip, { day: thursday, minutes: null }, zone, 1)).toBe("2026-11-04/2026-11-06");
     expect(droppedDate(todo, { day: thursday, minutes: null }, zone)).toBeNull();
+  });
+
+  it("puts a reminder still to come at its time, moving only to another time", () => {
+    const at = new Date("2026-11-05T06:00:00.000Z");
+    const fromAgent = reminderItem({ id: "n1", text: "  Call   Ayşe\nabout the offer ", at, pageId: "p1", agentName: "Desk helper", own: false }, "w1");
+    expect(fromAgent).toEqual({
+      id: "reminder:n1",
+      kind: "reminder",
+      title: "Call Ayşe about the offer",
+      icon: null,
+      date: "2026-11-05T06:00:00.000Z",
+      href: "/w/w1/p/p1",
+      detail: "Desk helper",
+      moves: { allDay: false },
+    });
+    // About no page it opens the inbox; set by the person themselves, no one is named.
+    const own = reminderItem({ id: "n2", text: "x".repeat(300), at, pageId: null, agentName: null, own: true }, "w1");
+    expect(own.href).toBeNull();
+    expect(own.detail).toBeNull();
+    expect(own.title).toHaveLength(200);
+    expect(own.title.endsWith("…")).toBe(true);
+    // Dropped on another time it is that time, with no end.
+    const [placed] = placeItems([fromAgent], "Europe/Istanbul");
+    expect(placed.time).toBe(true);
+    expect(droppedDate(placed, { day: dayNumber("2026-11-06"), minutes: 14 * 60 + 30 }, "Europe/Istanbul")).toBe("2026-11-06T11:30:00.000Z");
   });
 });

@@ -9,7 +9,9 @@
  * MAX_WAITING_REMINDERS waiting for a person, even when runs set them at once; one turned off in
  * the inbox doesn't open over the page. Until they come, the person alone sees them (and what they
  * snoozed) soonest first, with their time and page, and moves or cancels them: a cancelled one is
- * gone and frees its place under the limit; a snoozed notification comes back at once. The AI chat sets one for the person asking, asked about
+ * gone and frees its place under the limit; a snoozed notification comes back at once. They are on
+ * the person's Calendar at their time (nobody else's), opening their page or else the inbox, and
+ * dragged to another time there; never to a whole day, a time gone by, nor one that has come. The AI chat sets one for the person asking, asked about
  * first (unless on Auto) with its text and time on their clock, never in research; it shows in the
  * inbox as their own; declined, none is set. Asked for a routine, the chat is told it is an agent's
  * schedule, which it adds through use_tool, asked about each time.
@@ -48,6 +50,8 @@ const { flushAgentRuns } = await import("@/server/agents/run");
 const { startChat } = await import("@/server/ai-chat");
 const { decideChange } = await import("@/server/ai-chat-approvals");
 const { listAgentSchedules } = await import("@/server/agents/schedules");
+const { CalendarMoveError, calendarItems, moveCalendarItem } = await import("@/server/calendar");
+const { dayString, localDay } = await import("@/lib/time-zone");
 type ChatInput = import("@/server/ai-chat").ChatInput;
 type ChatActionView = import("@/lib/ai-chat").ChatActionView;
 type ChatEvent = import("@/lib/ai-chat").ChatEvent;
@@ -238,6 +242,48 @@ try {
   const freed = await setReminder(person, call({ text: "After cancelling", at: later }));
   check(!freed.isError, "a cancelled one no longer counts toward the agent's limit", freed);
   check(/under Scheduled in their inbox, where they may move or cancel it/.test(freed.content), "the model hears where the person sees it", freed.content);
+
+  // ── On the Calendar ─────────────────────────────────────────────────────────────────────────
+  const today = localDay(Date.now(), "UTC");
+  const range = { from: dayString(today), to: dayString(today + 2), timeZone: "UTC" };
+  const toCome = await listPending(ids.owner, workspaceId);
+  await db.update(notification).set({ pageId: offer.id }).where(eq(notification.id, toCome[0].id));
+  const onCalendar = (await calendarItems(ids.owner, workspaceId, range)).filter((item) => item.kind === "reminder");
+  const paged = onCalendar.find((item) => item.id === `reminder:${toCome[0].id}`);
+  const plainOne = onCalendar.find((item) => item.id === `reminder:${toCome[1].id}`);
+  check(
+    onCalendar.length === toCome.length &&
+      onCalendar.every((item) => item.detail === "Desk helper" && item.moves?.allDay === false && item.title && item.icon === null) &&
+      paged?.href === `/w/${workspaceId}/p/${offer.id}` &&
+      paged.date === toCome[0].snoozedUntil?.toISOString() &&
+      plainOne?.href === null &&
+      plainOne.title === toCome[1].aiReminder?.text,
+    "every reminder still to come is on the person's Calendar at its time, by its agent, opening its page or else the inbox",
+    { onCalendar, toCome: toCome.map((n) => ({ id: n.id, at: n.snoozedUntil, page: n.pageId })) },
+  );
+  check(!(await calendarItems(ids.member, workspaceId, range)).some((item) => item.kind === "reminder"), "…and on nobody else's");
+  const farRange = { from: dayString(today + 40), to: dayString(today + 45), timeZone: "UTC" };
+  check(!(await calendarItems(ids.owner, workspaceId, farRange)).some((item) => item.kind === "reminder"), "…only on the days of their time");
+  const dropAt = new Date((Math.floor(Date.now() / 900_000) + 8) * 900_000);
+  await moveCalendarItem(ids.owner, workspaceId, `reminder:${toCome[1].id}`, dropAt.toISOString(), "UTC");
+  const [droppedRow] = await db.select({ at: notification.snoozedUntil, readAt: notification.readAt }).from(notification).where(eq(notification.id, toCome[1].id));
+  check(droppedRow?.at?.getTime() === dropAt.getTime() && droppedRow.readAt === null, "dragged to another time, it comes then", droppedRow);
+  const moveFails = async (userId: string, id: string, value: string) => {
+    try {
+      await moveCalendarItem(userId, workspaceId, `reminder:${id}`, value, "UTC");
+      return null;
+    } catch (error) {
+      return error instanceof CalendarMoveError ? error.code : String(error);
+    }
+  };
+  check((await moveFails(ids.owner, toCome[1].id, dayString(today + 1))) === "fixed", "…but never to a whole day");
+  check((await moveFails(ids.owner, toCome[1].id, new Date(Date.now() - 60_000).toISOString())) === "fixed", "…nor to a time gone by");
+  check((await moveFails(ids.owner, toCome[1].id, new Date(Date.now() + 31 * 86_400_000).toISOString())) === "fixed", "…nor more than 30 days ahead");
+  check((await moveFails(ids.member, toCome[1].id, dropAt.toISOString())) === "notFound", "nobody else moves it");
+  const stretch = (await inbox(ids.owner)).find((n) => n.aiReminder?.text === "Stretch");
+  check(stretch && (await moveFails(ids.owner, stretch.id, dropAt.toISOString())) === "notFound", "one that has come isn't sent back by a stale calendar", stretch);
+  const [stretchRow] = await db.select({ at: notification.snoozedUntil }).from(notification).where(eq(notification.id, stretch.id));
+  check(stretchRow?.at === null, "…and stays in the inbox", stretchRow);
   const [shared] = await db
     .insert(notification)
     .values({ userId: ids.owner, workspaceId, kind: "page_shared", actorId: ids.member, pageId: offer.id, snoozedUntil: new Date(Date.now() + 86_400_000) })

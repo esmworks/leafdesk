@@ -17,7 +17,8 @@
   "kinds": {
     "event": "Eventi del calendario",
     "meeting": "Riunioni",
-    "task": "Attività"
+    "task": "Attività",
+    "reminder": "Promemoria"
   },
   "allDay": "Tutto il giorno",
   "from": "Dalle {time}",
