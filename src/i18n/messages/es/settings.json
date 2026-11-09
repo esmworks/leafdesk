@@ -2021,7 +2021,10 @@
         "rows_merged": "Combinó {count, plural, one {# fila} other {# filas}} en {target}",
         "publication_expiry_changed": "{change, select, removed {Quitó la caducidad del enlace web de {target}} other {Hizo que el enlace web de {target} deje de funcionar el {to}}}",
         "reported": "Un visitante denunció {target}: {reason, select, spam {spam o estafa} harmful {contenido de odio, violento o acosador} illegal {contenido ilegal} privacy {información personal} copyright {derechos de autor} other {otra cosa}}",
-        "report_dismissed": "Descartó una denuncia sobre {target}"
+        "report_dismissed": "Descartó una denuncia sobre {target}",
+        "approval_requested": "Pidió a {names} que aprobaran {target}",
+        "approval_decided": "{decision, select, approved {Aprobó {target}} other {Pidió cambios en {target}}}",
+        "approval_withdrawn": "Retiró la solicitud de aprobación de {target}"
       },
       "property": {
         "access_changed": "Cambió el acceso a «{property}» en {target}",
@@ -2350,7 +2353,16 @@
         "step3": "Activa las notificaciones para este sitio.",
         "step4": "Vuelve a cargar esta página y activa aquí las notificaciones push."
       }
-    }
+    },
+    "quizAssignedTitle": "Cuestionarios que te piden",
+    "quizAssignedDescription": "Alguien te pide que hagas un cuestionario en una página.",
+    "quizAssignedChannel": "Cuestionarios que te piden: {channel}",
+    "quizFinishedTitle": "Resultados de cuestionarios",
+    "quizFinishedDescription": "Alguien a quien pediste hacer un cuestionario lo aprueba o se queda sin intentos.",
+    "quizFinishedChannel": "Resultados de cuestionarios: {channel}",
+    "approvalTitle": "Aprobaciones",
+    "approvalDescription": "Alguien te pide aprobar una página, o termina una solicitud de aprobación tuya.",
+    "approvalChannel": "Aprobaciones: {channel}"
   },
   "site": {
     "description": "Dale a las páginas publicadas de este espacio de trabajo una dirección legible, una página de inicio y navegación entre ellas.",

@@ -18,7 +18,8 @@
     "event": "Agenda-afspraken",
     "meeting": "Vergaderingen",
     "task": "Taken",
-    "reminder": "Herinneringen"
+    "reminder": "Herinneringen",
+    "block": "Geplande tijd"
   },
   "allDay": "Hele dag",
   "from": "Vanaf {time}",
@@ -29,5 +30,43 @@
     "fixed": "Dit kan daar niet naartoe",
     "noAccess": "Je kunt dit niet wijzigen",
     "failed": "Verplaatsen mislukt. Probeer het opnieuw."
+  },
+  "durationHours": "{hours} u",
+  "durationMinutes": "{minutes} min",
+  "durationBoth": "{hours} u {minutes} min",
+  "toPlan": {
+    "title": "Te plannen",
+    "toggle": "Taken om te plannen",
+    "help": "Sleep een taak naar de week, of gebruik Tijd plannen.",
+    "filter": "Taken filteren",
+    "empty": "Geen open taken",
+    "noMatch": "Geen taken gevonden",
+    "planned": "{duration} gepland",
+    "planTime": "Tijd plannen",
+    "couldNotLoad": "Je taken konden niet worden geladen"
+  },
+  "planDialog": {
+    "title": "Tijd plannen",
+    "day": "Dag",
+    "start": "Begin",
+    "length": "Duur",
+    "plan": "Plannen"
+  },
+  "blockMenu": {
+    "more": "Meer acties",
+    "openTask": "Taak openen",
+    "markDone": "Taak als klaar markeren",
+    "remove": "Blok verwijderen",
+    "resize": "Sleep om de duur te wijzigen"
+  },
+  "blockErrors": {
+    "notFound": "Deze taak kan niet meer worden gepland",
+    "noAccess": "Je kunt deze taak niet meer openen",
+    "tooShort": "Geplande tijd is minstens 15 minuten",
+    "tooLong": "Geplande tijd is hooguit 12 uur",
+    "invalid": "Kies een dag en een begintijd",
+    "notTask": "Dit is niet een van je taken",
+    "tooMany": "Voor deze taak is al zoveel tijd gepland als kan",
+    "failed": "De geplande tijd kon niet worden gewijzigd. Probeer het opnieuw."
   }
 }

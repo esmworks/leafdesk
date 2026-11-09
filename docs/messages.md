@@ -38,6 +38,24 @@ and picture, up to three a message; the author can take the cards away with ×, 
 after an edit. The server fetches the page as an address anyone gives (only
 `WEB_FETCH_ALLOWED_HOSTS` reaches a private network), and the picture loads from the site itself.
 
+## Polls
+
+*Create a poll* (the chart beside the paperclip under the box) asks a question in a channel, a
+direct conversation or a thread: up to 300 characters, with two to ten options of up to 100 each
+(empty ones are dropped; two that read the same are refused). *Allow several answers* lets people
+pick more than one; *Anonymous* shows everyone how many chose each option but never who; *Closes*
+ends the voting never, in a day, in a week or at a time you pick. The poll is a message whose text
+is its question, so search, notifications and *Catch up* read it as any other.
+
+Everyone who can see the message sees each option's count and share and how many voted, before
+and after voting. Click an option to choose it (with one answer, a new choice replaces the old;
+with several, each click adds or removes one) and click your choice again to take it back. Unless
+the poll is anonymous, the count beside an option shows who chose it. Everyone in the channel
+votes, guests too, even where only its admins post; people reading a public channel they haven't
+joined see the results only. The poll's author, the channel's admins and the workspace's owners
+can *Close poll* from its `⋯` menu; a closed poll, or one past its time, takes no more votes and
+says *Closed*. A poll can't be edited; deleting it deletes its votes too.
+
 ## Threads, reactions and the message menu
 
 Each message has replies in a *thread* beside the channel (followed by those who write in it,

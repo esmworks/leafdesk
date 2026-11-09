@@ -125,7 +125,8 @@
     "remind60": "Ricordamelo tra un’ora",
     "remindTomorrow": "Ricordamelo domani",
     "history": "Cronologia modifiche",
-    "delete": "Elimina"
+    "delete": "Elimina",
+    "closePoll": "Chiudi sondaggio"
   },
   "system": {
     "created": "{actor} ha creato questo canale.",
@@ -290,7 +291,8 @@
     "offline": "Sei offline. Verrà inviato quando torni online.",
     "timeout": "Il server non ha risposto in tempo.",
     "ai": "L'IA non è riuscita a rispondere. Riprova.",
-    "internal": "Qualcosa è andato storto. Riprova."
+    "internal": "Qualcosa è andato storto. Riprova.",
+    "pollClosed": "Il sondaggio è chiuso."
   },
   "import": {
     "button": "Importa da Slack",
@@ -351,5 +353,42 @@
     "remove": "Elimina {name}",
     "removeConfirm": "Eliminare il webhook {name}? Il suo indirizzo smette subito di funzionare; i suoi messaggi restano.",
     "title": "Webhook"
+  },
+  "poll": {
+    "create": "Crea un sondaggio",
+    "title": "Nuovo sondaggio",
+    "question": "Domanda",
+    "questionPlaceholder": "Cosa vuoi chiedere?",
+    "options": "Opzioni",
+    "optionPlaceholder": "Opzione {number}",
+    "addOption": "Aggiungi un'opzione",
+    "removeOption": "Rimuovi l'opzione {number}",
+    "multiple": "Consenti più risposte",
+    "anonymous": "Anonimo",
+    "anonymousHint": "Gli altri vedono quanti hanno scelto ogni opzione, mai chi.",
+    "closes": "Chiusura",
+    "closesNever": "Mai",
+    "closesDay": "Tra 1 giorno",
+    "closesWeek": "Tra 1 settimana",
+    "closesAt": "A una data e ora",
+    "closesAtLabel": "Quando si chiude il sondaggio",
+    "send": "Invia sondaggio",
+    "severalAnswers": "Più risposte",
+    "voteFor": "Vota per {option}",
+    "takeBack": "Ritira il tuo voto per {option}",
+    "votedBy": "Hanno scelto {option}: {people}",
+    "voters": "{count, plural, =0 {Ancora nessun voto} one {# persona ha votato} other {# persone hanno votato}}",
+    "closed": "Chiuso",
+    "closesIn": "Si chiude {when}",
+    "closeConfirm": "Chiudere questo sondaggio? Dopo nessuno potrà più votare.",
+    "errors": {
+      "question": "Scrivi una domanda.",
+      "questionTooLong": "Una domanda ha al massimo {max} caratteri.",
+      "tooFewOptions": "Indica almeno due opzioni.",
+      "tooManyOptions": "Un sondaggio ha al massimo {max} opzioni.",
+      "optionTooLong": "Un'opzione ha al massimo {max} caratteri.",
+      "duplicateOptions": "Due opzioni dicono la stessa cosa.",
+      "closesAt": "Scegli una chiusura entro il prossimo anno."
+    }
   }
 }

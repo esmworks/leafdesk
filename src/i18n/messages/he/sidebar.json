@@ -318,7 +318,13 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "העלאה ל־{tokens, number}",
     "limitRequestDecline": "דחייה",
-    "limitRequestFailed": "לא ניתן היה לענות על הבקשה. נסו שוב."
+    "limitRequestFailed": "לא ניתן היה לענות על הבקשה. נסו שוב.",
+    "quizAssigned": "{actor} ביקש ממך לענות על הבוחן",
+    "quizAssignedDue": "{actor} ביקש ממך לענות על הבוחן עד {date}",
+    "quizPassed": "{actor} עבר את הבוחן עם {score}%",
+    "quizFailed": "{actor} ניצל את כל הניסיונות בבוחן ({score}%)",
+    "approvalRequested": "{actor} מבקש/ת שתאשרו את הדף הזה",
+    "approvalDecided": "{outcome, select, approved {אושר: {actor} נתן/ה את האישור האחרון שנדרש} other {{actor} ביקש/ה שינויים בדף הזה}}"
   },
   "templates": {
     "title": "תבניות",

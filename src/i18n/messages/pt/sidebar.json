@@ -318,7 +318,13 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Aumentar para {tokens, number}",
     "limitRequestDecline": "Recusar",
-    "limitRequestFailed": "Não foi possível responder ao pedido. Tente novamente."
+    "limitRequestFailed": "Não foi possível responder ao pedido. Tente novamente.",
+    "quizAssigned": "{actor} pediu que você fizesse o quiz",
+    "quizAssignedDue": "{actor} pediu que você fizesse o quiz até {date}",
+    "quizPassed": "{actor} foi aprovado no quiz com {score}%",
+    "quizFailed": "{actor} esgotou as tentativas no quiz ({score}%)",
+    "approvalRequested": "{actor} pede que você aprove esta página",
+    "approvalDecided": "{outcome, select, approved {Aprovada: {actor} deu a última aprovação necessária} other {{actor} pediu alterações nesta página}}"
   },
   "templates": {
     "title": "Modelos",

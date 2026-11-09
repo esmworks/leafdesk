@@ -18,7 +18,8 @@
     "event": "Wydarzenia z kalendarza",
     "meeting": "Spotkania",
     "task": "Zadania",
-    "reminder": "Przypomnienia"
+    "reminder": "Przypomnienia",
+    "block": "Zaplanowany czas"
   },
   "allDay": "Cały dzień",
   "from": "Od {time}",
@@ -29,5 +30,43 @@
     "fixed": "Nie można tego tam przenieść",
     "noAccess": "Nie możesz tego zmienić",
     "failed": "Nie udało się przenieść. Spróbuj ponownie."
+  },
+  "durationHours": "{hours} godz.",
+  "durationMinutes": "{minutes} min",
+  "durationBoth": "{hours} godz. {minutes} min",
+  "toPlan": {
+    "title": "Do zaplanowania",
+    "toggle": "Zadania do zaplanowania",
+    "help": "Przeciągnij zadanie na tydzień albo użyj opcji Zaplanuj czas.",
+    "filter": "Filtruj zadania",
+    "empty": "Brak otwartych zadań",
+    "noMatch": "Żadne zadanie nie pasuje",
+    "planned": "Zaplanowano: {duration}",
+    "planTime": "Zaplanuj czas",
+    "couldNotLoad": "Nie udało się wczytać twoich zadań"
+  },
+  "planDialog": {
+    "title": "Zaplanuj czas",
+    "day": "Dzień",
+    "start": "Początek",
+    "length": "Czas trwania",
+    "plan": "Zaplanuj"
+  },
+  "blockMenu": {
+    "more": "Więcej działań",
+    "openTask": "Otwórz zadanie",
+    "markDone": "Oznacz zadanie jako wykonane",
+    "remove": "Usuń blok",
+    "resize": "Przeciągnij, aby zmienić czas trwania"
+  },
+  "blockErrors": {
+    "notFound": "Tego zadania nie można już zaplanować",
+    "noAccess": "Nie możesz już otworzyć tego zadania",
+    "tooShort": "Zaplanowany czas to co najmniej 15 minut",
+    "tooLong": "Zaplanowany czas to najwyżej 12 godzin",
+    "invalid": "Wybierz dzień i godzinę rozpoczęcia",
+    "notTask": "To nie jest jedno z twoich zadań",
+    "tooMany": "To zadanie ma już tyle zaplanowanego czasu, ile może",
+    "failed": "Nie udało się zmienić zaplanowanego czasu. Spróbuj ponownie."
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, BookmarkCheck, CircleCheck, Copy, Download, FileText, Forward, History, Link2, MailOpen, MessageSquareText, MoreHorizontal, Pencil, Pin, PinOff, SmilePlus, Trash2, Webhook } from "lucide-react";
+import { Bookmark, BookmarkCheck, CircleCheck, Copy, Download, FileText, Forward, History, Link2, Lock, MailOpen, MessageSquareText, MoreHorizontal, Pencil, Pin, PinOff, SmilePlus, Trash2, Webhook } from "lucide-react";
 import { useFormatter, useLocale, useNow, useTranslations } from "next-intl";
 import { memo, useEffect, useRef, useState, type MouseEvent } from "react";
 import { plainClick, useFileViewer } from "@/components/file-viewer";
@@ -8,6 +8,7 @@ import { lazyPart } from "@/components/lazy-part";
 import { showToast } from "@/components/toast";
 import { cn, MenuItem, MenuSeparator, Popover, textareaClass } from "@/components/ui";
 import { formatBytes } from "@/lib/files";
+import { pollClosed } from "@/lib/message-polls";
 import type { FileView, MessageView } from "@/lib/message-wire";
 import { messagesPath, type SystemEvent } from "@/lib/messages";
 import { EmojiPicker, QUICK_REACTIONS, rememberEmoji } from "./emoji-picker";
@@ -17,6 +18,11 @@ import { call, channelTitle, dropPending, patchMessage, personName, retrySend, u
 
 /** Link cards load with the first message that has them: their bookmark card brings the embed rules along. */
 const LinkCards = lazyPart(() => import("./link-cards").then((m) => m.LinkCards));
+/** A poll loads with the first message that is one; until then its question shows. */
+const PollCard = lazyPart(
+  () => import("./poll-card").then((m) => m.PollCard),
+  ({ poll }) => <p className="mt-1 text-sm font-medium break-words whitespace-pre-wrap text-fg">{poll.question}</p>,
+);
 
 /** What a message row may do in the place it shows (a channel's list, a thread, a result list). */
 export type ItemContext = {
@@ -29,6 +35,8 @@ export type ItemContext = {
   moderates: boolean;
   /** Writing is possible here (a member, the channel not archived). */
   writes: boolean;
+  /** Voting in polls is possible here (a member, the channel not archived, even where only admins post); `writes` when left out. */
+  votes?: boolean;
   /** In a thread's panel: no thread summary, replies are what it lists. */
   inThread?: boolean;
 };
@@ -58,6 +66,7 @@ export function pendingView(p: Pending, me: string): MessageView {
     createdAt: p.createdAt,
     reactions: [],
     files: [],
+    poll: null,
     rev: 0,
   };
 }
@@ -411,7 +420,7 @@ function Toolbar({ m, s, ctx, onEdit }: { m: MessageView; s: View; ctx: ItemCont
       >
         {(close) => (
           <>
-            {own && ctx.writes && m.kind === "message" && (
+            {own && ctx.writes && m.kind === "message" && !m.poll && (
               <MenuItem
                 icon={<Pencil className="h-4 w-4" />}
                 onClick={() => {
@@ -504,6 +513,18 @@ function Toolbar({ m, s, ctx, onEdit }: { m: MessageView; s: View; ctx: ItemCont
               </MenuItem>
             ))}
             {m.editedAt && <VersionsDialogButton m={m} />}
+            {m.poll && !pollClosed(m.poll) && (own || ctx.moderates) && (
+              <MenuItem
+                icon={<Lock className="h-4 w-4" />}
+                onClick={() => {
+                  close();
+                  if (!window.confirm(t("poll.closeConfirm"))) return;
+                  void call("closePoll", { messageId: m.id }).catch(() => showToast({ message: t("errors.internal") }));
+                }}
+              >
+                {t("actions.closePoll")}
+              </MenuItem>
+            )}
             {(own || ctx.moderates) && (
               <>
                 <MenuSeparator />
@@ -623,7 +644,11 @@ export const MessageItem = memo(function MessageItem({
           <Editor m={m} done={() => setEditing(null)} />
         ) : (
           <>
-            {m.body && <MessageBody body={m.body} workspaceId={ctx.workspaceId} edited={m.editedAt ? new Date(m.editedAt).toLocaleString(locale) : null} />}
+            {m.poll ? (
+              <PollCard m={m} poll={m.poll} votes={(ctx.votes ?? ctx.writes) && !pending} />
+            ) : (
+              m.body && <MessageBody body={m.body} workspaceId={ctx.workspaceId} edited={m.editedAt ? new Date(m.editedAt).toLocaleString(locale) : null} />
+            )}
             <Forwarded m={m} s={s} workspaceId={ctx.workspaceId} />
             {m.files.length > 0 && <Files files={m.files} />}
             {m.data?.previews?.length ? <LinkCards messageId={m.id} previews={m.data.previews} own={m.authorId === s.me} /> : null}

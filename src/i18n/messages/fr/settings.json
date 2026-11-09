@@ -2021,7 +2021,10 @@
         "rows_merged": "A fusionné {count, plural, one {# ligne} other {# lignes}} dans {target}",
         "publication_expiry_changed": "{change, select, removed {A retiré l’expiration du lien web de {target}} other {A fait expirer le lien web de {target} le {to}}}",
         "reported": "Un visiteur a signalé {target} : {reason, select, spam {spam ou arnaque} harmful {contenu haineux, violent ou harcelant} illegal {contenu illégal} privacy {informations personnelles} copyright {droit d'auteur} other {autre chose}}",
-        "report_dismissed": "A ignoré un signalement concernant {target}"
+        "report_dismissed": "A ignoré un signalement concernant {target}",
+        "approval_requested": "A demandé à {names} d’approuver {target}",
+        "approval_decided": "{decision, select, approved {A approuvé {target}} other {A demandé des modifications à {target}}}",
+        "approval_withdrawn": "A retiré la demande d’approbation de {target}"
       },
       "property": {
         "access_changed": "A modifié l’accès à « {property} » dans {target}",
@@ -2350,7 +2353,16 @@
         "step3": "Activez les notifications pour ce site.",
         "step4": "Rechargez cette page et activez ici les notifications push."
       }
-    }
+    },
+    "quizAssignedTitle": "Quiz qui vous sont demandés",
+    "quizAssignedDescription": "Quelqu’un vous demande de répondre à un quiz sur une page.",
+    "quizAssignedChannel": "Quiz qui vous sont demandés : {channel}",
+    "quizFinishedTitle": "Résultats des quiz",
+    "quizFinishedDescription": "Une personne à qui vous avez demandé de répondre à un quiz le réussit ou épuise ses tentatives.",
+    "quizFinishedChannel": "Résultats des quiz : {channel}",
+    "approvalTitle": "Approbations",
+    "approvalDescription": "Quelqu’un vous demande d’approuver une page, ou une de vos demandes d’approbation se termine.",
+    "approvalChannel": "Approbations : {channel}"
   },
   "site": {
     "description": "Donnez aux pages publiées de cet espace de travail une adresse lisible, une page d’accueil et une navigation commune.",

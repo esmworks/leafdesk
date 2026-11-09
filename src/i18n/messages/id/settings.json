@@ -2021,7 +2021,10 @@
         "rows_merged": "Menggabungkan {count, plural, other {# baris}} ke {target}",
         "publication_expiry_changed": "{change, select, removed {Menghapus masa berlaku tautan web {target}} other {Mengatur tautan web {target} berhenti berfungsi pada {to}}}",
         "reported": "Seorang pengunjung melaporkan {target}: {reason, select, spam {spam atau penipuan} harmful {konten kebencian, kekerasan, atau pelecehan} illegal {konten ilegal} privacy {informasi pribadi} copyright {hak cipta} other {hal lain}}",
-        "report_dismissed": "Mengabaikan laporan tentang {target}"
+        "report_dismissed": "Mengabaikan laporan tentang {target}",
+        "approval_requested": "Meminta {names} menyetujui {target}",
+        "approval_decided": "{decision, select, approved {Menyetujui {target}} other {Meminta perubahan pada {target}}}",
+        "approval_withdrawn": "Menarik permintaan persetujuan untuk {target}"
       },
       "property": {
         "access_changed": "Mengubah siapa yang dapat mengakses “{property}” di {target}",
@@ -2350,7 +2353,16 @@
         "step3": "Aktifkan notifikasi untuk situs ini.",
         "step4": "Muat ulang halaman ini dan aktifkan notifikasi push di sini."
       }
-    }
+    },
+    "quizAssignedTitle": "Kuis yang diminta dari Anda",
+    "quizAssignedDescription": "Seseorang meminta Anda mengerjakan kuis di sebuah halaman.",
+    "quizAssignedChannel": "Kuis yang diminta dari Anda: {channel}",
+    "quizFinishedTitle": "Hasil kuis",
+    "quizFinishedDescription": "Seseorang yang Anda minta mengerjakan kuis lulus atau kehabisan kesempatan.",
+    "quizFinishedChannel": "Hasil kuis: {channel}",
+    "approvalTitle": "Persetujuan",
+    "approvalDescription": "Seseorang meminta Anda menyetujui halaman, atau permintaan persetujuan Anda selesai.",
+    "approvalChannel": "Persetujuan: {channel}"
   },
   "site": {
     "description": "Beri halaman terbit ruang kerja ini satu alamat yang mudah dibaca, sebuah beranda, dan navigasi di antaranya.",

@@ -318,7 +318,13 @@
     "messageFile": "Heeft een bestand gestuurd",
     "newMessage": "Nieuw bericht",
     "inThread": "In een discussie",
-    "messageReminder": "Herinnering aan een bericht"
+    "messageReminder": "Herinnering aan een bericht",
+    "quizAssigned": "{actor} heeft je gevraagd de quiz te maken",
+    "quizAssignedDue": "{actor} heeft je gevraagd de quiz vóór {date} te maken",
+    "quizPassed": "{actor} is geslaagd voor de quiz met {score}%",
+    "quizFailed": "{actor} heeft geen pogingen meer voor de quiz ({score}%)",
+    "approvalRequested": "{actor} vraagt je deze pagina goed te keuren",
+    "approvalDecided": "{outcome, select, approved {Goedgekeurd: {actor} gaf de laatste nodige goedkeuring} other {{actor} vroeg wijzigingen aan deze pagina}}"
   },
   "agentReply": {
     "aiOff": "Ik kan niet antwoorden: AI staat uit in deze werkruimte.",

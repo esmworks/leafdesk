@@ -1,4 +1,5 @@
 import { AGENT_CHAT_BLOCK } from "./agent-chat";
+import { QUIZ_BLOCK } from "./quiz-block";
 import { BUTTON_BLOCK } from "./buttons";
 import { DASHBOARD_BLOCK, parseDashboard, serializeDashboard } from "./dashboard";
 import { isEmbedBlockType } from "./embed-blocks";
@@ -122,6 +123,8 @@ export function copyPublishedBlocks<B extends Block>(blocks: B[], refs: CopyRefs
     }
     // A chat with an agent of the source workspace: the copy's workspace has no such agent.
     if (block.type === AGENT_CHAT_BLOCK) return children as B[];
+    // A quiz lives in the source workspace, and the published page never showed it.
+    if (block.type === QUIZ_BLOCK) return children as B[];
     // A button's steps name the source workspace's databases and people: the copy keeps its label.
     if (block.type === BUTTON_BLOCK) return [{ ...block, props: { ...props, config: "" }, children }];
     // A meeting keeps what its published page shows, what was written up: not the transcript, which

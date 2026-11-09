@@ -399,6 +399,7 @@ export function ImportDialog({
       "pdfTooComplex",
       "badEnex",
       "badMhtml",
+      "badJex",
       "badTrello",
       "badAsana",
       "badMonday",
@@ -804,6 +805,8 @@ export function ImportDialog({
               <p className="text-sm text-fg-muted">{t("pages.help")}</p>
               <p className="text-sm text-fg-muted">{t("pages.notion")}</p>
               <p className="text-sm text-fg-muted">{t("pages.obsidian")}</p>
+              <p className="text-sm text-fg-muted">{t("pages.logseq")}</p>
+              <p className="text-sm text-fg-muted">{t("pages.joplin")}</p>
               <p className="text-sm text-fg-muted">{t("pages.textbundle")}</p>
               <div
                 onDragOver={(e) => {

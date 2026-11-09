@@ -1,9 +1,10 @@
 import { sql } from "drizzle-orm";
-import { boolean, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, check, date, index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { ApprovalDecision, ApprovalRule, ApprovalStatus } from "@/lib/page-approvals";
 import type { Attendee } from "@/lib/meetings";
 import type { SiteHeaderLink, SiteTheme } from "@/lib/site";
 import type { WebLinkStatus } from "@/lib/web-links";
-import { databaseView, page, workspace } from "./app";
+import { databaseView, page, pageSnapshot, workspace } from "./app";
 import { user } from "./auth";
 
 /**
@@ -62,6 +63,41 @@ export const pageTask = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.pageId, t.blockId, t.userId] }), index("page_task_user_idx").on(t.userId, t.updatedAt)],
+);
+
+/**
+ * Time a person blocked out on their Calendar for one of their tasks (server/work-blocks.ts): a
+ * row (`blockId` null) or a to-do of a page (its block id, as in `page_task`). Their own plan:
+ * nobody else reads it. A task may have several; the task's own date stays as it is. `title` is the
+ * task's title when it was planned, shown once a ticked to-do has left `page_task`. Whether its page
+ * is in the trash or still theirs to open is worked out from the page when it is listed.
+ */
+export const workBlock = pgTable(
+  "work_block",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    blockId: text("block_id"),
+    title: text("title").notNull().default(""),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("work_block_user_idx").on(t.userId, t.startsAt),
+    index("work_block_page_idx").on(t.pageId),
+    check("work_block_length_check", sql`${t.endsAt} >= ${t.startsAt} + interval '15 minutes' and ${t.endsAt} <= ${t.startsAt} + interval '12 hours'`),
+  ],
 );
 
 /**
@@ -165,6 +201,57 @@ export const pageVerification = pgTable(
     index("page_verification_workspace_idx").on(t.workspaceId),
     index("page_verification_expires_idx").on(t.expiresAt).where(sql`${t.expiresAt} is not null`),
   ],
+);
+
+/**
+ * Requests to approve a page (server/page-approvals.ts, rules in lib/page-approvals): one row per
+ * round. Sending one saves the page as a named version (`snapshot_id`), which the approvers
+ * approve; page history retention keeps every version a round points at. One open round per page
+ * at a time: a new one withdraws it. Deleting the page deletes its rounds.
+ */
+export const pageApproval = pgTable(
+  "page_approval",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => page.id, { onDelete: "cascade" }),
+    snapshotId: text("snapshot_id").references(() => pageSnapshot.id, { onDelete: "set null" }),
+    requestedBy: text("requested_by").references(() => user.id, { onDelete: "set null" }),
+    rule: text("rule").$type<ApprovalRule>().notNull(),
+    note: text("note"),
+    dueDate: date("due_date", { mode: "string" }),
+    status: text("status").$type<ApprovalStatus>().notNull().default("open"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("page_approval_page_idx").on(t.pageId, t.createdAt),
+    index("page_approval_snapshot_idx").on(t.snapshotId),
+    uniqueIndex("page_approval_open_idx").on(t.pageId).where(sql`${t.status} = 'open'`),
+  ],
+);
+
+/** Each approver of a round and what they decided (null while they haven't). */
+export const pageApprovalDecision = pgTable(
+  "page_approval_decision",
+  {
+    approvalId: text("approval_id")
+      .notNull()
+      .references(() => pageApproval.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    decision: text("decision").$type<ApprovalDecision>(),
+    comment: text("comment"),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+  },
+  (t) => [primaryKey({ columns: [t.approvalId, t.userId] }), index("page_approval_decision_user_idx").on(t.userId)],
 );
 
 /**

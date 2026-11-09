@@ -1,7 +1,9 @@
 /**
  * End-to-end check of importing: Markdown files and ZIPs as a page tree (folders, index files,
  * Notion's layout and ids, databases from CSV files with their row pages, links between the files
- * as page links, images uploaded, an Obsidian vault's wikilinks, embeds, aliases and callouts), CSV files as new databases (guessed and chosen types) and into
+ * as page links, images uploaded, an Obsidian vault's wikilinks, embeds, aliases and callouts, a
+ * Logseq graph's pages, journal days, links, block references and to-dos, a Joplin export's
+ * notebooks, notes, resources, to-dos and tags), CSV files as new databases (guessed and chosen types) and into
  * existing ones (column mapping, new options, people and relations by name, cells that don't fit),
  * Excel workbooks (a database exported as one comes back with the same values), Word documents
  * (a page each, titled by their first heading, pictures uploaded), Confluence spaces exported as
@@ -77,6 +79,7 @@ const { importBoard } = await import("@/server/import/board");
 const { readAsanaExport } = await import("@/lib/import/asana");
 const { readMondayExport } = await import("@/lib/import/monday");
 const boardFixtures = await import("@/lib/import/board-fixtures");
+const { tar } = await import("@/lib/import/tar-fixtures");
 const { databaseCsv, databaseXlsx } = await import("@/server/export");
 const importRoute = await import("@/app/api/import/route");
 
@@ -335,6 +338,74 @@ try {
     "an alias, a Markdown link by name (not a path from the file) and a link to a block all lead to the note",
     planBody,
   );
+
+  // A Logseq graph: pages at the top, journal days by their title, namespaces, aliases, block references, to-dos
+  const BLOCK = "64f0c3a1-1111-4222-8333-944455556666";
+  const graphZip = zip({
+    "Notes graph/logseq/config.edn": '{:journal/page-title-format "MMM do, yyyy"}',
+    "Notes graph/logseq/custom.css": "",
+    "Notes graph/pages/Roadmap.md": `alias:: Plans\n\n- ## Goals\n\t- Ship the beta\n\t  id:: ${BLOCK}\n- See [[Projects/Launch]] and [[Jan 15th, 2024]]\n- ![shot](../assets/shot.png)\n- Mentions [[Somewhere else]]`,
+    "Notes graph/pages/Projects___Launch.md": `- Builds on ((${BLOCK})) from [[Plans]]`,
+    "Notes graph/journals/2024_01_15.md": "- TODO Call the printer\n  SCHEDULED: <2024-01-16 Tue>\n- DONE Write [[Roadmap]]",
+    "Notes graph/assets/shot.png": png,
+  });
+  const graph = await importPages(owner, { workspaceId, parentId: home.id, files: [{ path: "graph.zip", data: graphZip }] });
+  const graphRoot = graph.pages.find((p) => p.title === "Notes graph")!;
+  check(graph.pages.length === 1 && graphRoot && graph.created.files === 1, "a Logseq graph's ZIP imports as its folder, its settings left out", graph);
+  const roadmap = await byTitle(graphRoot.id, "Roadmap");
+  const launch = await byTitle((await byTitle(graphRoot.id, "Projects")).id, "Launch");
+  const day = await byTitle((await byTitle(graphRoot.id, "journals")).id, "Jan 15th, 2024");
+  await eventually(async () => (await body(roadmap.id)).includes(pagePath(workspaceId, launch.id)), "the roadmap body");
+  const roadmapBody = await body(roadmap.id);
+  check(
+    roadmapBody.includes(pagePath(workspaceId, launch.id)) && roadmapBody.includes(pagePath(workspaceId, day.id)),
+    "links to a namespaced page and to a journal day by its title lead to their pages",
+    roadmapBody,
+  );
+  check(/^## Goals/m.test(roadmapBody) && roadmapBody.includes("Ship the beta") && !roadmapBody.includes("id::"), "a heading block comes out of the list, block ids go", roadmapBody);
+  const shot = (await db.select().from(file).where(eq(file.pageId, roadmap.id)))[0];
+  check(shot?.name === "shot.png" && roadmapBody.includes(`/api/files/${shot.id}`), "a picture from assets is uploaded", roadmapBody);
+  check(roadmapBody.includes("Somewhere else") && !roadmapBody.includes("[[Somewhere else]]"), "a link to a page the graph has no file for is its text", roadmapBody);
+  check(!graph.warnings.some((w) => w.code === "unresolvedLink"), "…and isn't reported", graph.warnings);
+  await eventually(async () => (await body(launch.id)).includes("Ship the beta"), "the launch body");
+  const graphLaunchBody = await body(launch.id);
+  check(
+    graphLaunchBody.includes("Ship the beta") && graphLaunchBody.includes(pagePath(workspaceId, roadmap.id)),
+    "a block reference is the block's text, an alias leads to its page",
+    graphLaunchBody,
+  );
+  check(!roadmapBody.includes("* \n"), "a block of nothing but a picture leaves no empty bullet", roadmapBody);
+  await eventually(async () => (await body(day.id)).includes("Call the printer"), "the journal day's body");
+  const dayBody = await body(day.id);
+  check(/\[ \] Call the printer @2024-01-16/.test(dayBody) && /\[x\] Write/.test(dayBody), "task markers become to-dos, a scheduled day a date mention", dayBody);
+
+  // A Joplin export (.jex, a tar archive): notebooks as pages over their notes, resources, links, to-dos, tags
+  const jid = (n: number) => n.toString(16).padStart(32, "0");
+  const jitem = (title: string, text: string | null, props: Record<string, string | number>) =>
+    [title, ...(text === null ? [] : [text]), Object.entries(props).map(([k, v]) => `${k}: ${v}`).join("\n")].join("\n\n");
+  const jex = tar({
+    [`${jid(1)}.md`]: jitem("Work", null, { id: jid(1), parent_id: "", type_: 2 }),
+    [`${jid(2)}.md`]: jitem("Plan", `Read [the list](:/${jid(3)}).\n\n![chart](:/${jid(4)})`, { id: jid(2), parent_id: jid(1), is_todo: 0, type_: 1 }),
+    [`${jid(3)}.md`]: jitem("Shopping", "- milk", { id: jid(3), parent_id: jid(1), is_todo: 1, todo_completed: 0, todo_due: Date.UTC(2026, 10, 20), type_: 1 }),
+    [`${jid(4)}.md`]: jitem("chart.png", null, { id: jid(4), mime: "image/png", filename: "", file_extension: "png", type_: 4 }),
+    [`resources/${jid(4)}.png`]: png,
+    [`${jid(5)}.md`]: jitem("q3", null, { id: jid(5), type_: 5 }),
+    [`${jid(6)}.md`]: jitem("", null, { id: jid(6), note_id: jid(2), tag_id: jid(5), type_: 6 }),
+    [`${jid(7)}.md`]: jitem("", "", { id: jid(7), encryption_applied: 1, encryption_cipher_text: "xyz", type_: 1 }),
+  });
+  const joplin = await importPages(owner, { workspaceId, parentId: home.id, files: [{ path: "Notes.jex", data: jex }] });
+  const work = joplin.pages.find((p) => p.title === "Work")!;
+  check(joplin.pages.length === 1 && work && joplin.created.pages === 3 && joplin.created.files === 1, "a Joplin export imports its notebook with its notes", joplin);
+  check(joplin.warnings.some((w) => w.code === "encryptedText" && w.page === "Notes.jex"), "encrypted items are reported", joplin.warnings);
+  const jplan = await byTitle(work.id, "Plan");
+  const shopping = await byTitle(work.id, "Shopping");
+  await eventually(async () => (await body(jplan.id)).includes(pagePath(workspaceId, shopping.id)), "the Joplin note's body");
+  const jplanBody = await body(jplan.id);
+  const chart = (await db.select().from(file).where(eq(file.pageId, jplan.id)))[0];
+  check(chart?.name === "chart.png" && jplanBody.includes(`/api/files/${chart.id}`) && jplanBody.includes("#q3"), "links between notes, resources and tags come along", jplanBody);
+  await eventually(async () => (await body(shopping.id)).includes("Shopping"), "the to-do note's body");
+  check(/\[ \] Shopping @2026-11-20/.test(await body(shopping.id)), "a to-do note starts with its checkbox and due day", await body(shopping.id));
+  check((await failure(() => importPages(owner, { workspaceId, parentId: home.id, files: [{ path: "Bad.jex", data: new TextEncoder().encode("x".repeat(600)) }] }))) === "badJex", "a .jex that isn't a tar archive is refused");
 
   // Plain Markdown (no wikilinks, no .obsidian folder) isn't read as a vault
   const plain = await importPages(owner, {

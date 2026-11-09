@@ -1,6 +1,6 @@
 /**
  * Rows read as what a client keeps (lib/message-wire.ts): channels with their counts, a person's
- * memberships with their unread counts, messages with their reactions and files.
+ * memberships with their unread counts, messages with their reactions, files and polls.
  */
 import { and, asc, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
@@ -12,6 +12,8 @@ import {
   file,
   messageDraft,
   messageFile,
+  messagePoll,
+  messagePollVote,
   messageReaction,
   messageStatus,
   messageThread,
@@ -25,6 +27,7 @@ import type {
   FileView,
   MembershipView,
   MessageView,
+  PollView,
   SavedView,
   ScheduledView,
   SectionView,
@@ -100,8 +103,11 @@ export async function membershipViews(userId: string, where?: SQL): Promise<Memb
   }));
 }
 
-/** The messages matching `where` (a condition on `channel_message`), in `seq` order, with reactions and files. */
-export async function messageViews(where: SQL | undefined, options: { order?: "asc" | "desc"; limit?: number } = {}): Promise<MessageView[]> {
+/**
+ * The messages matching `where` (a condition on `channel_message`), in `seq` order, with reactions,
+ * files and polls. `viewer`: whose own choices in polls `mine` holds (none without one).
+ */
+export async function messageViews(where: SQL | undefined, options: { order?: "asc" | "desc"; limit?: number; viewer?: string | null } = {}): Promise<MessageView[]> {
   if (!where) return [];
   let query = db
     .select()
@@ -110,16 +116,81 @@ export async function messageViews(where: SQL | undefined, options: { order?: "a
     .orderBy(options.order === "desc" ? sql`${channelMessage.seq} desc` : asc(channelMessage.seq))
     .$dynamic();
   if (options.limit) query = query.limit(options.limit);
-  return withExtras(await query);
+  return withExtras(await query, options.viewer ?? null);
 }
 
 type MessageRow = typeof channelMessage.$inferSelect;
+type PollRow = typeof messagePoll.$inferSelect;
+type PollVotes = { poll: PollRow; votes: { optionId: string; userId: string }[] };
 
-/** Message rows with their reactions and files, as clients keep them. */
-export async function withExtras(rows: MessageRow[]): Promise<MessageView[]> {
+/** The polls among these messages, with every vote on them. */
+async function pollsOf(ids: string[]): Promise<Map<string, PollVotes>> {
+  const polls = await db.select().from(messagePoll).where(inArray(messagePoll.messageId, ids));
+  if (!polls.length) return new Map();
+  const votes = await db
+    .select({ messageId: messagePollVote.messageId, optionId: messagePollVote.optionId, userId: messagePollVote.userId })
+    .from(messagePollVote)
+    .where(
+      inArray(
+        messagePollVote.messageId,
+        polls.map((p) => p.messageId),
+      ),
+    )
+    .orderBy(asc(messagePollVote.createdAt));
+  return new Map(polls.map((poll) => [poll.messageId, { poll, votes: votes.filter((v) => v.messageId === poll.messageId) }]));
+}
+
+/** A poll as `viewer` sees it: who chose what only when it isn't anonymous, and their own choices. */
+function pollView({ poll, votes }: PollVotes, viewer: string | null): PollView {
+  const options = poll.options.map((o) => {
+    const ids = votes.filter((v) => v.optionId === o.id).map((v) => v.userId);
+    return { id: o.id, text: o.text, count: ids.length, voters: poll.anonymous ? null : ids };
+  });
+  const known = new Set(poll.options.map((o) => o.id));
+  return {
+    question: poll.question,
+    options,
+    multiple: poll.multiple,
+    anonymous: poll.anonymous,
+    voters: new Set(votes.filter((v) => known.has(v.optionId)).map((v) => v.userId)).size,
+    closesAt: iso(poll.closesAt),
+    closedAt: iso(poll.closedAt),
+    closedBy: poll.closedBy,
+    mine: viewer ? poll.options.filter((o) => votes.some((v) => v.userId === viewer && v.optionId === o.id)).map((o) => o.id) : [],
+  };
+}
+
+/**
+ * The choices these people made in these messages' polls, by person, then message: announce.ts reads
+ * a change's messages once for everyone and gives each person their own `mine` from this.
+ */
+export async function pollChoices(messageIds: string[], userIds: string[]): Promise<Map<string, Map<string, Set<string>>>> {
+  const out = new Map<string, Map<string, Set<string>>>();
+  if (!messageIds.length || !userIds.length) return out;
+  const rows = await db
+    .select({ messageId: messagePollVote.messageId, optionId: messagePollVote.optionId, userId: messagePollVote.userId })
+    .from(messagePollVote)
+    .where(and(inArray(messagePollVote.messageId, messageIds), inArray(messagePollVote.userId, userIds)));
+  for (const r of rows) {
+    const mine = out.get(r.userId) ?? new Map<string, Set<string>>();
+    mine.set(r.messageId, (mine.get(r.messageId) ?? new Set()).add(r.optionId));
+    out.set(r.userId, mine);
+  }
+  return out;
+}
+
+/** A message view with its poll's `mine` set to these choices (as `pollChoices` gives them for one person). */
+export function withChoices(m: MessageView, choices: Map<string, Set<string>> | undefined): MessageView {
+  if (!m.poll) return m;
+  const chosen = choices?.get(m.id);
+  return { ...m, poll: { ...m.poll, mine: chosen ? m.poll.options.filter((o) => chosen.has(o.id)).map((o) => o.id) : [] } };
+}
+
+/** Message rows with their reactions, files and polls, as clients keep them; `viewer`'s own choices in polls in `mine`. */
+export async function withExtras(rows: MessageRow[], viewer: string | null): Promise<MessageView[]> {
   if (!rows.length) return [];
   const ids = rows.map((r) => r.id);
-  const [reactions, files] = await Promise.all([
+  const [reactions, files, polls] = await Promise.all([
     db
       .select({ messageId: messageReaction.messageId, emoji: messageReaction.emoji, userId: messageReaction.userId })
       .from(messageReaction)
@@ -139,6 +210,7 @@ export async function withExtras(rows: MessageRow[]): Promise<MessageView[]> {
       .innerJoin(file, eq(file.id, messageFile.fileId))
       .where(inArray(messageFile.messageId, ids))
       .orderBy(asc(messageFile.createdAt)),
+    pollsOf(ids),
   ]);
   const reactionsOf = new Map<string, Map<string, string[]>>();
   for (const r of reactions) {
@@ -154,10 +226,13 @@ export async function withExtras(rows: MessageRow[]): Promise<MessageView[]> {
       { id: f.id, url: fileUrl(f.id), name: f.name, contentType: f.contentType, size: f.size, width: f.width, height: f.height },
     ]);
   }
-  return rows.map((row) => messageView(row, reactionsOf.get(row.id), filesOf.get(row.id)));
+  return rows.map((row) => {
+    const poll = polls.get(row.id);
+    return messageView(row, reactionsOf.get(row.id), filesOf.get(row.id), poll && !row.deletedAt ? pollView(poll, viewer) : null);
+  });
 }
 
-function messageView(row: MessageRow, reactions: Map<string, string[]> | undefined, files: FileView[] | undefined): MessageView {
+function messageView(row: MessageRow, reactions: Map<string, string[]> | undefined, files: FileView[] | undefined, poll: PollView | null): MessageView {
   return {
     id: row.id,
     channelId: row.channelId,
@@ -179,6 +254,7 @@ function messageView(row: MessageRow, reactions: Map<string, string[]> | undefin
     createdAt: row.createdAt.toISOString(),
     reactions: [...(reactions ?? new Map<string, string[]>())].map(([emoji, userIds]) => ({ emoji, userIds })),
     files: row.deletedAt ? [] : (files ?? []),
+    poll,
     rev: row.rev,
   };
 }

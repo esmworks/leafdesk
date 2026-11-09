@@ -318,7 +318,13 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Raise to {tokens, number}",
     "limitRequestDecline": "Decline",
-    "limitRequestFailed": "Couldn’t answer the request. Try again."
+    "limitRequestFailed": "Couldn’t answer the request. Try again.",
+    "quizAssigned": "{actor} asked you to take the quiz",
+    "quizAssignedDue": "{actor} asked you to take the quiz by {date}",
+    "quizPassed": "{actor} passed the quiz with {score}%",
+    "quizFailed": "{actor} ran out of attempts at the quiz ({score}%)",
+    "approvalRequested": "{actor} asks you to approve this page",
+    "approvalDecided": "{outcome, select, approved {Approved: {actor} gave the last approval needed} other {{actor} requested changes to this page}}"
   },
   "templates": {
     "title": "Templates",

@@ -1,11 +1,13 @@
 /**
  * Messages themselves: sending (replies, files, mentions), editing with history, deleting,
  * reactions, pins, what each person has read in a channel or a thread, threads they follow, and
- * the pages of a channel's history a client loads.
+ * the pages of a channel's history a client loads. A poll is sent here too, as a message whose
+ * text is its question (polls.ts takes the votes).
  */
 import { and, asc, desc, eq, gt, inArray, isNull, lt, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { channelMember, channelMessage, file, messageDraft, messageFile, messageMention, messageReaction, messageThread, messageVersion, savedMessage } from "@/db/schema";
+import { channelMember, channelMessage, file, messageDraft, messageFile, messageMention, messagePoll, messagePollVote, messageReaction, messageThread, messageVersion, savedMessage } from "@/db/schema";
+import type { PollSettings } from "@/lib/message-polls";
 import { broadcastOf, hasWords, mentionedUserIds, plainText } from "@/lib/message-text";
 import { isEmoji, isMessageId, MESSAGE_LIMITS, type MessageData } from "@/lib/messages";
 import type { MessageView } from "@/lib/message-wire";
@@ -66,7 +68,8 @@ async function broadcastTargets(tx: Tx, workspaceId: string, channelId: string, 
   return kind === "everyone" ? others : others.filter((id) => isActive(workspaceId, id));
 }
 
-export type SendInput = { id?: unknown; channelId?: unknown; threadId?: unknown; body?: unknown; fileIds?: unknown; alsoInChannel?: unknown; data?: MessageData };
+/** `poll`: a poll already checked (lib/message-polls.ts `readPollInput`), stored with the message; its question is the body. */
+export type SendInput = { id?: unknown; channelId?: unknown; threadId?: unknown; body?: unknown; fileIds?: unknown; alsoInChannel?: unknown; data?: MessageData; poll?: PollSettings };
 export type SendResult = { message: MessageView; notInChannel: string[] };
 
 /**
@@ -79,7 +82,7 @@ async function sentBefore(userId: string, id: string): Promise<SendResult | null
   const [already] = await db.select().from(channelMessage).where(eq(channelMessage.id, id)).limit(1);
   if (!already) return null;
   if (already.authorId !== userId) throw new MessageError("invalid");
-  return { message: (await withExtras([already]))[0], notInChannel: [] };
+  return { message: (await withExtras([already], userId))[0], notInChannel: [] };
 }
 
 export async function sendMessage(userId: string, input: SendInput): Promise<SendResult> {
@@ -88,8 +91,8 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
   if (earlier) return earlier;
   const access = await requireChannel(userId, String(input.channelId ?? ""), "write");
   const { channel: row, member } = access;
-  const body = bodyOf(input.body ?? "");
-  const fileIds = fileIdsOf(input.fileIds);
+  const body = input.poll ? input.poll.question : bodyOf(input.body ?? "");
+  const fileIds = input.poll ? [] : fileIdsOf(input.fileIds);
   if (!hasWords(body) && !fileIds.length && !input.data?.forward) throw new MessageError("invalid", "A message needs words or a file");
   let root: MessageRow | null = null;
   if (input.threadId !== undefined && input.threadId !== null) {
@@ -111,7 +114,7 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
 
   let notInChannel: string[] = [];
   try {
-    await stored(row, root, { id, userId, body, fileIds, data: input.data ?? null, alsoInChannel, shown, named, broadcast, bringIn }, (outside) => (notInChannel = outside));
+    await stored(row, root, { id, userId, body, fileIds, data: input.data ?? null, poll: input.poll ?? null, alsoInChannel, shown, named, broadcast, bringIn }, (outside) => (notInChannel = outside));
   } catch (error) {
     // The same message sent twice at once (a retry while the first was on its way): the second waited for the first and found its id taken.
     const earlier = await sentBefore(userId, id);
@@ -126,7 +129,7 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
       .catch((error) => console.error("[messages] could not ask the agents a message names", error));
   }
   previewSoon(id, body);
-  const [message] = await messageViews(eq(channelMessage.id, id));
+  const [message] = await messageViews(eq(channelMessage.id, id), { viewer: userId });
   return { message, notInChannel };
 }
 
@@ -136,6 +139,7 @@ type Outgoing = {
   body: string;
   fileIds: string[];
   data: MessageData | null;
+  poll: PollSettings | null;
   alsoInChannel: boolean;
   shown: boolean;
   named: string[];
@@ -167,6 +171,10 @@ async function stored(row: ChannelAccess["channel"], root: MessageRow | null, ou
       createdAt: now,
       rev: changed.rev,
     });
+    if (out.poll) {
+      const { question, options, multiple, anonymous, closesAt } = out.poll;
+      await tx.insert(messagePoll).values({ messageId: id, question, options, multiple, anonymous, closesAt });
+    }
     changed.message(id);
     changed.channel(row.id);
     changed.sent(id);
@@ -272,6 +280,9 @@ export async function editMessage(userId: string, messageId: unknown, input: { b
   const { message, channel: row } = await messageFor(userId, messageId, "write");
   if (message.authorId !== userId || message.kind !== "message") throw new MessageError("notAllowed");
   if (message.deletedAt) throw new MessageError("notFound");
+  // A poll's words are its question, which stays as people voted on it.
+  const [poll] = await db.select({ id: messagePoll.messageId }).from(messagePoll).where(eq(messagePoll.messageId, message.id)).limit(1);
+  if (poll) throw new MessageError("notAllowed");
   const body = bodyOf(input.body ?? "");
   if (body === message.body) return;
   const [{ files }] = await db
@@ -343,6 +354,9 @@ export async function deleteMessage(userId: string, messageId: unknown): Promise
     changed.channel(row.id);
     await tx.delete(messageReaction).where(eq(messageReaction.messageId, message.id));
     await tx.delete(messageVersion).where(eq(messageVersion.messageId, message.id));
+    // A poll goes with its votes.
+    await tx.delete(messagePollVote).where(eq(messagePollVote.messageId, message.id));
+    await tx.delete(messagePoll).where(eq(messagePoll.messageId, message.id));
     // Its files lose their message; the cleanup deletes them (files.ts purgeOrphanFiles).
     await tx.delete(messageFile).where(eq(messageFile.messageId, message.id));
     // Those it named no longer have it to read.
@@ -434,7 +448,7 @@ export async function pin(userId: string, messageId: unknown, on: boolean): Prom
 /** The channel's pinned messages, newest pin first. */
 export async function pinnedMessages(userId: string, channelId: unknown): Promise<MessageView[]> {
   const { channel: row } = await requireChannel(userId, String(channelId ?? ""));
-  const views = await messageViews(and(eq(channelMessage.channelId, row.id), sql`${channelMessage.pinnedAt} is not null`));
+  const views = await messageViews(and(eq(channelMessage.channelId, row.id), sql`${channelMessage.pinnedAt} is not null`), { viewer: userId });
   return views.sort((a, b) => (b.pinnedAt ?? "").localeCompare(a.pinnedAt ?? ""));
 }
 
@@ -539,7 +553,7 @@ export async function channelHistory(
   const { channel: row, member } = await requireChannel(userId, String(input.channelId ?? ""));
   const limit = Math.min(Math.max(Number(input.limit) || MESSAGE_LIMITS.page, 1), 100);
   const main = and(eq(channelMessage.channelId, row.id), or(isNull(channelMessage.threadId), eq(channelMessage.alsoInChannel, true)));
-  const page = async (where: SQL | undefined, order: "asc" | "desc", n: number) => messageViews(and(main, where), { order, limit: n });
+  const page = async (where: SQL | undefined, order: "asc" | "desc", n: number) => messageViews(and(main, where), { order, limit: n, viewer: userId });
 
   let anchor: number | null = null;
   if (input.around === "unread") anchor = member && member.lastReadSeq < row.lastSeq ? member.lastReadSeq + 1 : null;
@@ -579,8 +593,8 @@ export async function channelHistory(
 export async function threadMessages(userId: string, threadId: unknown): Promise<{ root: MessageView; replies: MessageView[] }> {
   const { message } = await messageFor(userId, threadId);
   if (message.threadId) throw new MessageError("invalid");
-  const [root] = await withExtras([message]);
-  const replies = await messageViews(eq(channelMessage.threadId, message.id), { limit: 2000 });
+  const [root] = await withExtras([message], userId);
+  const replies = await messageViews(eq(channelMessage.threadId, message.id), { limit: 2000, viewer: userId });
   return { root, replies };
 }
 
@@ -588,7 +602,7 @@ export async function threadMessages(userId: string, threadId: unknown): Promise
 export async function messagesById(userId: string, ids: unknown): Promise<MessageView[]> {
   if (!Array.isArray(ids) || ids.length > 200 || ids.some((id) => typeof id !== "string")) throw new MessageError("invalid");
   if (!ids.length) return [];
-  const views = await messageViews(inArray(channelMessage.id, ids as string[]));
+  const views = await messageViews(inArray(channelMessage.id, ids as string[]), { viewer: userId });
   const allowed = new Set<string>();
   for (const channelId of new Set(views.map((v) => v.channelId))) {
     try {

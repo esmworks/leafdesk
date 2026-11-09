@@ -30,6 +30,13 @@ describe("paths", () => {
     expect(isIgnoredPath("a/b.md")).toBe(false);
   });
 
+  it("ignores a Logseq graph's backups, not its settings", () => {
+    expect(isIgnoredPath("Graph/logseq/bak/pages/a/2024.md")).toBe(true);
+    expect(isIgnoredPath("logseq/version-files/base/pages/a.md")).toBe(true);
+    expect(isIgnoredPath("Graph/logseq/config.edn")).toBe(false);
+    expect(isIgnoredPath("notes/bak/a.md")).toBe(false);
+  });
+
   it("tells files apart by extension", () => {
     expect(importFileKind("a/B.MD")).toBe("markdown");
     expect(importFileKind("a.markdown")).toBe("markdown");

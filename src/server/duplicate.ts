@@ -50,6 +50,7 @@ import { placeTopLevel, TeamspaceError } from "@/server/teamspaces";
 import { freeCopiedPrefixes } from "@/server/unique-ids";
 import { requireTopLevel } from "@/server/workspaces";
 import { uniquePropertyIds } from "@/server/unique-values";
+import { copyQuizzesForCopies } from "@/server/quizzes";
 
 /** Larger subtrees are refused rather than copied in one long transaction. */
 export const MAX_DUPLICATE_PAGES = 2000;
@@ -320,6 +321,8 @@ export async function copyPageTree(
     else if (!target.parentId && target.teamspaceId) await keepFullAccess(tx, source.workspaceId, plan.rootId, userId);
     await pointAtCopiedDatabases(tx, plan);
     await pointAtCopiedSyncedBlocks(tx, plan);
+    // Each copied page gets its own quizzes, without anyone's attempts (server/quizzes.ts).
+    await copyQuizzesForCopies(tx, plan, userId);
     if (target.stripComments) await stripCopiedComments(tx, plan);
     await copyReferences(tx, rows);
     await copyPageTags(tx, rows);

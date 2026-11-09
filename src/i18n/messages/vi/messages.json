@@ -125,7 +125,8 @@
     "remind60": "Nhắc tôi sau một giờ",
     "remindTomorrow": "Nhắc tôi ngày mai",
     "history": "Lịch sử chỉnh sửa",
-    "delete": "Xóa"
+    "delete": "Xóa",
+    "closePoll": "Đóng bình chọn"
   },
   "system": {
     "created": "{actor} đã tạo kênh này.",
@@ -290,7 +291,8 @@
     "offline": "Bạn đang ngoại tuyến. Tin nhắn sẽ được gửi khi bạn kết nối lại.",
     "timeout": "Máy chủ không trả lời kịp.",
     "ai": "AI không thể trả lời. Hãy thử lại.",
-    "internal": "Đã xảy ra lỗi. Hãy thử lại."
+    "internal": "Đã xảy ra lỗi. Hãy thử lại.",
+    "pollClosed": "Bình chọn đã đóng."
   },
   "import": {
     "button": "Nhập từ Slack",
@@ -351,5 +353,42 @@
     "remove": "Xóa “{name}”",
     "removeConfirm": "Xóa webhook “{name}”? Địa chỉ của nó ngừng hoạt động ngay; các tin nhắn của nó vẫn được giữ.",
     "title": "Webhook"
+  },
+  "poll": {
+    "create": "Tạo bình chọn",
+    "title": "Bình chọn mới",
+    "question": "Câu hỏi",
+    "questionPlaceholder": "Bạn muốn hỏi gì?",
+    "options": "Lựa chọn",
+    "optionPlaceholder": "Lựa chọn {number}",
+    "addOption": "Thêm lựa chọn",
+    "removeOption": "Xóa lựa chọn {number}",
+    "multiple": "Cho phép chọn nhiều",
+    "anonymous": "Ẩn danh",
+    "anonymousHint": "Người khác thấy có bao nhiêu người chọn mỗi lựa chọn, không bao giờ thấy là ai.",
+    "closes": "Đóng lúc",
+    "closesNever": "Không bao giờ",
+    "closesDay": "Sau 1 ngày",
+    "closesWeek": "Sau 1 tuần",
+    "closesAt": "Vào ngày giờ cụ thể",
+    "closesAtLabel": "Thời điểm bình chọn đóng",
+    "send": "Gửi bình chọn",
+    "severalAnswers": "Chọn nhiều",
+    "voteFor": "Bình chọn cho {option}",
+    "takeBack": "Rút lại bình chọn cho {option}",
+    "votedBy": "Đã chọn {option}: {people}",
+    "voters": "{count, plural, =0 {Chưa có ai bình chọn} other {# người đã bình chọn}}",
+    "closed": "Đã đóng",
+    "closesIn": "Đóng {when}",
+    "closeConfirm": "Đóng bình chọn này? Sau đó không ai có thể bình chọn nữa.",
+    "errors": {
+      "question": "Hãy viết câu hỏi.",
+      "questionTooLong": "Câu hỏi có tối đa {max} ký tự.",
+      "tooFewOptions": "Hãy đưa ra ít nhất hai lựa chọn.",
+      "tooManyOptions": "Một bình chọn có tối đa {max} lựa chọn.",
+      "optionTooLong": "Một lựa chọn có tối đa {max} ký tự.",
+      "duplicateOptions": "Hai lựa chọn giống nhau.",
+      "closesAt": "Hãy chọn thời điểm đóng trong vòng một năm tới."
+    }
   }
 }

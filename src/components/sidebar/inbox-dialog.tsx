@@ -30,6 +30,7 @@ import { SUGGESTION_LINES } from "@/lib/push";
 import { pushLink } from "@/lib/push-link";
 import { parseMassExport } from "@/lib/mass-export";
 import { parseMassTrash } from "@/lib/mass-trash";
+import { parseQuizNotice } from "@/lib/quiz-block";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
@@ -444,10 +445,23 @@ export function InboxDialog({
                         ? t("rowUpdate", { actor: item.actorName || t("someone") })
                       : item.kind === "page_updated"
                         ? t("pageUpdated", { actor: item.actorName || t("someone") })
+                      : item.kind === "approval_requested"
+                        ? t("approvalRequested", { actor: item.actorName || t("someone") })
+                      : item.kind === "approval_decided"
+                        ? t("approvalDecided", { actor: item.actorName || t("someone"), outcome: item.automationMessage === "approved" ? "approved" : "changes" })
                       : item.kind === "verification"
                         ? // Recorded at or after the end: it ended; before it: it ends soon.
                           t(item.reminderDate && new Date(item.createdAt) >= new Date(item.reminderDate) ? "verificationEnded" : "verificationEnds", {
                             date: item.reminderDate ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(item.reminderDate)) : "",
+                          })
+                      : item.kind === "quiz_assigned"
+                        ? item.reminderDate
+                          ? t("quizAssignedDue", { actor: item.actorName || t("someone"), date: formatIsoDate(item.reminderDate, locale) })
+                          : t("quizAssigned", { actor: item.actorName || t("someone") })
+                      : item.kind === "quiz_finished"
+                        ? t(parseQuizNotice(item.automationMessage)?.passed === false ? "quizFailed" : "quizPassed", {
+                            actor: item.actorName || t("someone"),
+                            score: parseQuizNotice(item.automationMessage)?.score ?? 0,
                           })
                       : item.kind === "row_email"
                         ? t("rowEmail", { from: item.rowEmail?.from || t("someone") })

@@ -125,7 +125,8 @@
     "remind60": "Recordármelo en una hora",
     "remindTomorrow": "Recordármelo mañana",
     "history": "Historial de ediciones",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "closePoll": "Cerrar encuesta"
   },
   "system": {
     "created": "{actor} creó este canal.",
@@ -290,7 +291,8 @@
     "offline": "Estás sin conexión. Se enviará cuando vuelvas.",
     "timeout": "El servidor no respondió a tiempo.",
     "ai": "La IA no pudo responder. Inténtalo de nuevo.",
-    "internal": "Algo salió mal. Vuelve a intentarlo."
+    "internal": "Algo salió mal. Vuelve a intentarlo.",
+    "pollClosed": "La encuesta está cerrada."
   },
   "import": {
     "button": "Importar desde Slack",
@@ -351,5 +353,42 @@
     "remove": "Eliminar {name}",
     "removeConfirm": "¿Eliminar el webhook {name}? Su dirección deja de funcionar al instante; sus mensajes se quedan.",
     "title": "Webhooks"
+  },
+  "poll": {
+    "create": "Crear una encuesta",
+    "title": "Nueva encuesta",
+    "question": "Pregunta",
+    "questionPlaceholder": "¿Qué quieres preguntar?",
+    "options": "Opciones",
+    "optionPlaceholder": "Opción {number}",
+    "addOption": "Añadir una opción",
+    "removeOption": "Quitar la opción {number}",
+    "multiple": "Permitir varias respuestas",
+    "anonymous": "Anónima",
+    "anonymousHint": "Los demás ven cuántos eligieron cada opción, nunca quiénes.",
+    "closes": "Cierra",
+    "closesNever": "Nunca",
+    "closesDay": "En 1 día",
+    "closesWeek": "En 1 semana",
+    "closesAt": "En una fecha y hora",
+    "closesAtLabel": "Cuándo cierra la encuesta",
+    "send": "Enviar encuesta",
+    "severalAnswers": "Varias respuestas",
+    "voteFor": "Votar por {option}",
+    "takeBack": "Retirar tu voto por {option}",
+    "votedBy": "Eligieron {option}: {people}",
+    "voters": "{count, plural, =0 {Aún no hay votos} one {# persona votó} other {# personas votaron}}",
+    "closed": "Cerrada",
+    "closesIn": "Cierra {when}",
+    "closeConfirm": "¿Cerrar esta encuesta? Después nadie podrá votar.",
+    "errors": {
+      "question": "Escribe una pregunta.",
+      "questionTooLong": "Una pregunta tiene como máximo {max} caracteres.",
+      "tooFewOptions": "Indica al menos dos opciones.",
+      "tooManyOptions": "Una encuesta tiene como máximo {max} opciones.",
+      "optionTooLong": "Una opción tiene como máximo {max} caracteres.",
+      "duplicateOptions": "Dos opciones dicen lo mismo.",
+      "closesAt": "Elige un cierre dentro del próximo año."
+    }
   }
 }

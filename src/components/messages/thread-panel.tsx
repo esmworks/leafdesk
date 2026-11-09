@@ -80,7 +80,7 @@ export function ThreadPanel({ threadId, ctx, close, highlightId, ai }: { threadI
   const following = thread?.following ?? false;
   const threadCtx = useMemo<ItemContext>(() => ({ ...ctx, inThread: true }), [ctx]);
   const editLast = () => {
-    const mine = [...replies].reverse().find((r) => !r.p && r.m.authorId === view.me && !r.m.deletedAt && r.m.kind === "message");
+    const mine = [...replies].reverse().find((r) => !r.p && r.m.authorId === view.me && !r.m.deletedAt && r.m.kind === "message" && !r.m.poll);
     if (mine) setEditing(mine.m.id);
   };
 

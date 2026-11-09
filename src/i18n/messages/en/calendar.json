@@ -18,7 +18,8 @@
     "event": "Calendar events",
     "meeting": "Meetings",
     "task": "Tasks",
-    "reminder": "Reminders"
+    "reminder": "Reminders",
+    "block": "Planned time"
   },
   "allDay": "All day",
   "from": "From {time}",
@@ -29,5 +30,43 @@
     "fixed": "This can't be moved there",
     "noAccess": "You can't change this",
     "failed": "Couldn't move it. Try again."
+  },
+  "durationHours": "{hours} h",
+  "durationMinutes": "{minutes} min",
+  "durationBoth": "{hours} h {minutes} min",
+  "toPlan": {
+    "title": "To plan",
+    "toggle": "Tasks to plan",
+    "help": "Drag a task onto the week, or use Plan time.",
+    "filter": "Filter tasks",
+    "empty": "No open tasks",
+    "noMatch": "No tasks match",
+    "planned": "{duration} planned",
+    "planTime": "Plan time",
+    "couldNotLoad": "Couldn't load your tasks"
+  },
+  "planDialog": {
+    "title": "Plan time",
+    "day": "Day",
+    "start": "Start",
+    "length": "Length",
+    "plan": "Plan"
+  },
+  "blockMenu": {
+    "more": "More actions",
+    "openTask": "Open task",
+    "markDone": "Mark task done",
+    "remove": "Remove block",
+    "resize": "Drag to change the length"
+  },
+  "blockErrors": {
+    "notFound": "This task can't be planned anymore",
+    "noAccess": "You can no longer open this task",
+    "tooShort": "Planned time is at least 15 minutes",
+    "tooLong": "Planned time is at most 12 hours",
+    "invalid": "Pick a day and a start time",
+    "notTask": "This isn't one of your tasks",
+    "tooMany": "This task has as much planned time as it can hold",
+    "failed": "Couldn't change the planned time. Try again."
   }
 }

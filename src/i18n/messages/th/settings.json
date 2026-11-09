@@ -2021,7 +2021,10 @@
         "rows_merged": "รวม {count, plural, other {# แถว}} เข้ากับ {target}",
         "publication_expiry_changed": "{change, select, removed {ลบวันหมดอายุของลิงก์เว็บของ {target}} other {ตั้งให้ลิงก์เว็บของ {target} หยุดทำงานเมื่อ {to}}}",
         "reported": "ผู้เยี่ยมชมรายงาน {target}: {reason, select, spam {สแปมหรือการหลอกลวง} harmful {เนื้อหาที่สร้างความเกลียดชัง รุนแรง หรือคุกคาม} illegal {เนื้อหาผิดกฎหมาย} privacy {ข้อมูลส่วนตัว} copyright {ลิขสิทธิ์} other {อื่น ๆ}}",
-        "report_dismissed": "ปิดรายงานเกี่ยวกับ {target}"
+        "report_dismissed": "ปิดรายงานเกี่ยวกับ {target}",
+        "approval_requested": "ขอให้ {names} อนุมัติ {target}",
+        "approval_decided": "{decision, select, approved {อนุมัติ {target}} other {ขอให้แก้ไข {target}}}",
+        "approval_withdrawn": "ถอนคำขออนุมัติ {target}"
       },
       "property": {
         "access_changed": "เปลี่ยนว่าใครเข้าถึง “{property}” ใน {target} ได้",
@@ -2350,7 +2353,16 @@
         "step3": "เปิดการแจ้งเตือนสำหรับเว็บไซต์นี้",
         "step4": "โหลดหน้านี้ใหม่แล้วเปิดการแจ้งเตือนแบบพุชที่นี่"
       }
-    }
+    },
+    "quizAssignedTitle": "แบบทดสอบที่คุณได้รับคำขอ",
+    "quizAssignedDescription": "มีคนขอให้คุณทำแบบทดสอบในหน้าหนึ่ง",
+    "quizAssignedChannel": "แบบทดสอบที่คุณได้รับคำขอ: {channel}",
+    "quizFinishedTitle": "ผลแบบทดสอบ",
+    "quizFinishedDescription": "คนที่คุณขอให้ทำแบบทดสอบทำผ่านหรือใช้สิทธิ์ทำหมดแล้ว",
+    "quizFinishedChannel": "ผลแบบทดสอบ: {channel}",
+    "approvalTitle": "การอนุมัติ",
+    "approvalDescription": "มีคนขอให้คุณอนุมัติหน้า หรือคำขออนุมัติของคุณสิ้นสุดลง",
+    "approvalChannel": "การอนุมัติ: {channel}"
   },
   "site": {
     "description": "ให้หน้าที่เผยแพร่ของพื้นที่ทำงานนี้มีที่อยู่ที่อ่านง่ายหนึ่งที่อยู่ หน้าแรก และการนำทางระหว่างหน้า",

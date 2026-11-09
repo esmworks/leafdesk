@@ -318,7 +318,13 @@
     "limitRequestNote": "“{note}”",
     "limitRequestApprove": "Podnieś do {tokens, number}",
     "limitRequestDecline": "Odrzuć",
-    "limitRequestFailed": "Nie udało się odpowiedzieć na prośbę. Spróbuj ponownie."
+    "limitRequestFailed": "Nie udało się odpowiedzieć na prośbę. Spróbuj ponownie.",
+    "quizAssigned": "{actor} prosi cię o rozwiązanie quizu",
+    "quizAssignedDue": "{actor} prosi cię o rozwiązanie quizu do {date}",
+    "quizPassed": "{actor} zalicza quiz z wynikiem {score}%",
+    "quizFailed": "{actor} wykorzystuje wszystkie próby w quizie ({score}%)",
+    "approvalRequested": "{actor} prosi Cię o zatwierdzenie tej strony",
+    "approvalDecided": "{outcome, select, approved {Zatwierdzona: {actor} udzielił(a) ostatniego potrzebnego zatwierdzenia} other {{actor} poprosił(a) o zmiany na tej stronie}}"
   },
   "templates": {
     "title": "Szablony",

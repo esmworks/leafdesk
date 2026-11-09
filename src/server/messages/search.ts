@@ -88,5 +88,5 @@ export async function searchMessages(userId: string, workspaceId: string, input:
     )
     .orderBy(desc(channelMessage.createdAt))
     .limit(PAGE + 1);
-  return { messages: await withExtras(rows.slice(0, PAGE)), more: rows.length > PAGE };
+  return { messages: await withExtras(rows.slice(0, PAGE), userId), more: rows.length > PAGE };
 }

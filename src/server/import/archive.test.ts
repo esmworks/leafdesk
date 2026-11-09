@@ -1,6 +1,7 @@
 import { strToU8, zipSync } from "fflate";
 import { describe, expect, it } from "vitest";
 import { IMPORT_LIMITS } from "@/lib/import/markdown";
+import { tar } from "@/lib/import/tar-fixtures";
 import { collectFiles, entryName } from "./archive";
 
 const ID = "0123456789abcdef0123456789abcdef";
@@ -21,6 +22,18 @@ function withoutUtf8Flag(data: Uint8Array) {
 }
 
 describe("collectFiles", () => {
+  it("leaves a Logseq graph's backups out before they count toward the limits", () => {
+    const backups = Object.fromEntries(Array.from({ length: IMPORT_LIMITS.files + 1 }, (_, i) => [`Graph/logseq/bak/pages/p${i}.md`, "- old"]));
+    const { files } = collectFiles([{ path: "graph.zip", data: zip({ ...backups, "Graph/logseq/config.edn": "{}", "Graph/pages/a.md": "- a" }) }]);
+    expect([...files.keys()].sort()).toEqual(["Graph/logseq/config.edn", "Graph/pages/a.md"]);
+  });
+
+  it("unpacks a Joplin export into a folder of its name, and refuses one that isn't a tar archive", () => {
+    const { files } = collectFiles([{ path: "In/Notes.jex", data: tar({ [`${ID}.md`]: "x", [`resources/${ID}.png`]: "png" }) }]);
+    expect([...files.keys()].sort()).toEqual([`In/Notes.jex/${ID}.md`, `In/Notes.jex/resources/${ID}.png`]);
+    expect(() => collectFiles([{ path: "Bad.jex", data: strToU8("x".repeat(600)) }])).toThrow(/Joplin/);
+  });
+
   it("reads UTF-8 names in a ZIP that doesn't flag them as UTF-8", () => {
     const data = withoutUtf8Flag(zip({ "Toplantı notları/Çalışma planı.md": "# Plan", "plain.md": "x" }));
     const { files, skipped } = collectFiles([{ path: "upload.zip", data }]);

@@ -318,7 +318,13 @@
     "limitRequestNote": "«{note}»",
     "limitRequestApprove": "Øk til {tokens, number}",
     "limitRequestDecline": "Avslå",
-    "limitRequestFailed": "Kunne ikke besvare forespørselen. Prøv igjen."
+    "limitRequestFailed": "Kunne ikke besvare forespørselen. Prøv igjen.",
+    "quizAssigned": "{actor} ba deg ta quizen",
+    "quizAssignedDue": "{actor} ba deg ta quizen innen {date}",
+    "quizPassed": "{actor} besto quizen med {score} %",
+    "quizFailed": "{actor} har brukt opp forsøkene på quizen ({score} %)",
+    "approvalRequested": "{actor} ber deg godkjenne denne siden",
+    "approvalDecided": "{outcome, select, approved {Godkjent: {actor} ga den siste nødvendige godkjenningen} other {{actor} ba om endringer på denne siden}}"
   },
   "templates": {
     "title": "Maler",

@@ -4,6 +4,41 @@
 
 ### Added
 
+- **Logseq graphs and Joplin exports can be imported.** On Import's Markdown & ZIP tab, a Logseq
+  graph's folder (or a ZIP of it) brings its pages, namespaces and journal days with links between
+  them, block references, to-dos with their scheduled days and pictures from `assets/`; a Joplin
+  `.jex` export brings its notebooks as pages over their notes, with links between notes,
+  attachments, to-dos with their due days and tags.
+
+- **Polls in team messages.** The box's *Create a poll* button asks a question with two to ten
+  options, in a channel, a direct conversation or a thread: several answers or one, anonymous or
+  not, closing never, in a day, in a week or at a chosen time. Everyone who can see the message
+  sees the counts as they change; a click on an option votes or takes the vote back, and unless
+  the poll is anonymous the count shows who chose it. The author, or whoever may delete others'
+  messages there, can close it; deleting it drops its votes. Migration 0205 adds the polls and
+  their votes.
+- **Quizzes on pages.** `/quiz` adds questions with one or several right answers, explanations, a
+  pass mark and a limit on attempts; readers take it and the server scores it. Right answers and
+  explanations reach only the page's editors, and a reader once they pass or run out of attempts,
+  never published pages or exports. Editors see everyone's results and ask people to take it by a
+  day: they get an inbox item, and the person who asked hears when each passes or runs out of
+  attempts. A duplicated page gets its own quiz. Migration 0206 adds the quiz, attempt and
+  assignment tables and the two notification kinds' settings.
+- **Plan time for your tasks on the Calendar.** A *To plan* list beside the week holds your open
+  tasks from My tasks with the time already planned for each; drag one onto an hour, or use *Plan
+  time* (a day, a start and a length), to block out time for it. A task may have several blocks of
+  15 minutes to 12 hours; they are yours alone, move and change length on the week, open, mark
+  done or are removed from their menu, show in the sidebar's Calendar panel, and hide while their
+  task is in the trash. Migration 0207 adds their table.
+- **Ask people to approve a page.** From a page's or row's `⋯` menu, someone who can edit it asks
+  up to twenty people who can open it to approve it, everyone or any one, with an optional due
+  date and note. Sending saves the page as a named version and the approval is of that version:
+  approvers decide in a box under the title (requesting changes needs a comment), and a badge
+  shows *Approved · by …* or *Changed since approval* and opens the history of requests. Approvers
+  and the requester hear of it in the inbox (*Approvals* in Settings > Preferences), decisions are
+  in the audit log, and search's `is:approved` finds approved pages unchanged since. Migration
+  0208 adds its tables.
+
 - **A library lists the whole workspace in one place.** The rail's new Library (`g` then `l`)
   shows teamspaces, recently opened pages, favorites, shared and private pages, meeting notes,
   agents and skills, one tab each, with a search over the tab's list and the button that makes

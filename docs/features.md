@@ -123,6 +123,17 @@
   ways (a held meeting and a calendar address's events stay put). A to-do's time is a reminder on
   its date's own day: dropping it on an hour sets one then, which also reminds you; dropping it on a
   whole day takes that reminder off. Add events where they come from.
+  *Plan time for a task*: the *To plan* list beside the week (under it on narrower windows; the
+  list button in the top bar hides it, remembered in your browser) holds your open tasks from *My
+  tasks*, by due date then title, each with the time already planned for it, and a filter box.
+  Drag a task onto an hour of the week to block out an hour there, or use its *Plan time* button
+  (a day, a start and a length; works on phones and from the keyboard). A task may have several
+  blocks, from 15 minutes to 12 hours each; its own date stays as it is. Blocks are drawn in an
+  outlined green, are yours alone (nobody else sees them) and show in the sidebar's panel like
+  other items. Drag a block to move it, pull its bottom edge to change its length in 15-minute
+  steps, and right-click it (or use its ⋯) to open the task, mark it done (a row's status, a to-do
+  ticked) or remove the block. A block of a done task stays, struck through; one whose task went
+  to the trash, or that you can no longer open, stops showing (a restore brings it back).
 - **Messages** (on the sidebar's rail): the workspace's own conversations, live over a websocket:
   public and private channels, direct messages, threads, mentions, reactions, pins, saved and
   scheduled messages, search, push notifications, agents that answer in channels and *Catch up*
@@ -137,7 +148,8 @@
   `in:Projects` or `in:"Launch plan"` (that page and everything under it; several pages of that
   title, or several `in:`, search under any of them; a title nobody can see finds nothing) and
   `type:page`, `type:database`, `type:row` (database rows) or `type:journal` (your daily notes),
-  and `is:verified` (pages verified right now, see *Verified pages*), and `#home` or `tag:home`
+  and `is:verified` (pages verified right now, see *Verified pages*), `is:approved` (pages approved
+  and unchanged since, see *Approvals*), and `#home` or `tag:home`
   (pages carrying that tag or one under it, see *Tags*; with several tags, pages carrying each);
   filters work without words too, listing the pages they match, last edited first. While you type
   `#` and a letter, the tags of pages you can open that start so come first, most used first with
@@ -839,6 +851,20 @@
   nothing between its lines is only placed, as are synced blocks in imported Markdown. Tables written as Markdown keep their column widths,
   header rows and columns, cell colors and alignment, which Markdown has no form for. Search, by words or by meaning,
   finds them on the original page only, and its history shows their changes.
+- **Quizzes**: `/quiz` adds questions about the page that its readers answer, for training and
+  onboarding. People who can edit the page write the questions (one or several right answers each,
+  up to 50), an explanation for each, the pass mark (80% unless changed) and how many attempts
+  someone gets (any number unless limited). Readers start the quiz, answer every question and
+  submit; the server scores it, and they see which answers were right. The right answers and
+  explanations are shown only to the page's editors, and to a reader once they pass or run out of
+  attempts: never before, never on published pages or in exports, which leave the quiz out (a
+  Markdown export says only that a quiz with so many questions is there). Editors see everyone's
+  best score, attempts and status under *Results*, and *Ask people to take it* asks any of the
+  people who can open the page, by a day or whenever: they find it in their inbox, overdue ones
+  are marked, and the person who asked hears when each passes or runs out of attempts (both kinds
+  can be turned off in the notification settings). A duplicated page gets its own copy of the quiz,
+  with no one's attempts; a quiz block pasted onto another page offers its editors *Make a copy
+  here*.
 - **Graph**: every page someone can open in a workspace as a point, joined by the links between
   pages, database relations and the page tree, laid out by how they connect. It is beside a page
   ("Show in graph" under *More actions* in a page's menu: the page and the pages up to three steps from it), and the
@@ -898,6 +924,25 @@
   `verified` (`week`, `month`, `quarter`, `year`, a day, `forever`, or `none` to remove it).
   Settings > Health lists the pages whose verification expired. Templates and pages in the trash
   aren't verified, and published pages don't show verification.
+- **Approvals**: someone who can edit a page or row asks people to approve it from the page's `⋯`
+  menu (*Ask for approval*): one to twenty people who can open the page, whether everyone must
+  approve or any one is enough, an optional due date and a note on what changed and why. Sending
+  saves the page as a named version, *Sent for approval*, and the request is about that exact
+  version: later edits never pass as approved. Each approver gets an inbox item and, under the
+  title, a box with who asked, the note and the due date, *Approve* and *Request changes* (which
+  needs a comment), and the version sent, opened in the page history; when the page changed since
+  it was sent, the box says the approval is of that version. Anyone requesting changes ends the
+  request; everyone approving (or one, with *Any one is enough*) ends it approved, renames the
+  version *Approved* and tells whoever asked, as does a request for changes (*Approvals* in Settings >
+  Preferences: inbox, push and Telegram). Under the title a badge reads *Approved · by A, B · 3 Nov*,
+  or *Changed since approval* once the title or body differ from the approved version; it opens the
+  history of requests (each approver's decision, comment and time, and the versions), where
+  editors ask again and the requester, or someone with full access, withdraws one still waiting. A
+  page has one request waiting at a time: a new one withdraws it. Someone who can no longer open
+  the page can't decide; if everyone must approve, the request then waits until it is withdrawn.
+  The versions sent are kept for good, requests, decisions and withdrawals are in the audit log,
+  and a copy of the page, published pages and exports carry none of it. Databases, templates and
+  pages in the trash aren't approved, and guests don't ask for approval.
 - **Page history**: versions are saved automatically while you edit and before every AI edit.
   You can preview and restore any version (those of the last week listed as "2 hours ago" or
   "yesterday", older ones by their date, the exact time on hover), and see what changed since it or
@@ -1174,6 +1219,29 @@
   wikilink or its ZIP holds the `.obsidian` folder; other Markdown keeps `%%`, `^` and `==` as
   written. A note whose first line is a heading other than its file name takes the heading as its
   title (links still find it by file name).
+- **Import from Logseq**: choose the graph's folder (or a ZIP of it) on Import's *Markdown & ZIP*
+  tab; it is recognised by its `logseq/config.edn`. Pages come in at the top of the graph's page,
+  a namespace's pages (`Projects/Launch`) under a page of the namespace, and journal days under
+  *journals*, titled as the graph titles them (its `:journal/page-title-format`). Links to pages,
+  to their `alias::` names and to journal days become page links; a link to a page the graph has no
+  file for (Logseq makes those on the fly) stays as its text, and `#[[two words]]` becomes the tag
+  `#two-words`. The outline stays a bulleted list, except headings (with code, tables, quotes and
+  pictures) at the top of it, which come out as headings and blocks of their own. TODO, DOING,
+  LATER and NOW become to-dos, DONE ticked ones and CANCELED ticked and struck through; a
+  SCHEDULED or DEADLINE day becomes a date mention on the to-do, so it shows in My tasks. Block
+  references and block embeds become the referenced block's text, a page embed a link to the page
+  on a line of its own, and pictures and files from `assets/` are uploaded. Macros the editor has
+  nothing for (`{{query …}}`) stay visible as code. Left out: the `logseq/` settings and backups,
+  drawings and whiteboards, internal block properties (`id::`, `collapsed::` …) and logbooks;
+  other properties stay as `key: value` lines in their block. Pages kept as Org files aren't read.
+  An import makes at most 500 pages, journal days included, so a larger graph doesn't go in at once.
+- **Import from Joplin**: in Joplin choose *File → Export all → JEX* (or export one notebook as
+  JEX) and pick the `.jex` file on Import's *Markdown & ZIP* tab. Each notebook becomes a page
+  with its notebooks and notes under it, each note a page with its Markdown. Links between notes
+  become page links, pictures and attachments are uploaded, a to-do note starts with its checkbox
+  (ticked when done) and its due day as a date mention, and a note's tags end it as `#tags`.
+  Notes and notebooks in Joplin's trash and conflict copies are left out; encrypted notes can't be
+  read and are counted in the result. A Markdown export from Joplin imports as plain Markdown.
 - **Import from Confluence**: in Confluence, open a space's settings and choose *Export space →
   HTML*, then pick the downloaded ZIP on Import's Confluence tab. Each page of the space becomes a
   page, nested as the space's index lists them (a page it leaves out goes under the parent its

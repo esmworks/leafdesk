@@ -125,7 +125,8 @@
     "remind60": "یک ساعت دیگر یادآوری کن",
     "remindTomorrow": "فردا یادآوری کن",
     "history": "تاریخچهٔ ویرایش",
-    "delete": "حذف"
+    "delete": "حذف",
+    "closePoll": "بستن نظرسنجی"
   },
   "system": {
     "created": "{actor} این کانال را ساخت.",
@@ -290,7 +291,8 @@
     "offline": "آفلاین هستید. وقتی برگردید ارسال می‌شود.",
     "timeout": "سرور به‌موقع پاسخ نداد.",
     "ai": "هوش مصنوعی نتوانست پاسخ دهد. دوباره تلاش کن.",
-    "internal": "مشکلی پیش آمد. دوباره تلاش کنید."
+    "internal": "مشکلی پیش آمد. دوباره تلاش کنید.",
+    "pollClosed": "نظرسنجی بسته شده است."
   },
   "import": {
     "button": "وارد کردن از Slack",
@@ -351,5 +353,42 @@
     "remove": "حذف {name}",
     "removeConfirm": "وب‌هوک {name} حذف شود؟ نشانی آن بی‌درنگ از کار می‌افتد؛ پیام‌هایش می‌مانند.",
     "title": "وب‌هوک‌ها"
+  },
+  "poll": {
+    "create": "ایجاد نظرسنجی",
+    "title": "نظرسنجی جدید",
+    "question": "پرسش",
+    "questionPlaceholder": "چه می‌خواهید بپرسید؟",
+    "options": "گزینه‌ها",
+    "optionPlaceholder": "گزینه {number}",
+    "addOption": "افزودن گزینه",
+    "removeOption": "حذف گزینه {number}",
+    "multiple": "اجازه چند پاسخ",
+    "anonymous": "ناشناس",
+    "anonymousHint": "دیگران می‌بینند چند نفر هر گزینه را انتخاب کرده‌اند، هرگز چه کسانی.",
+    "closes": "بسته می‌شود",
+    "closesNever": "هرگز",
+    "closesDay": "یک روز دیگر",
+    "closesWeek": "یک هفته دیگر",
+    "closesAt": "در تاریخ و ساعت مشخص",
+    "closesAtLabel": "زمان بسته شدن نظرسنجی",
+    "send": "ارسال نظرسنجی",
+    "severalAnswers": "چند پاسخ",
+    "voteFor": "رأی به {option}",
+    "takeBack": "پس گرفتن رأی شما به {option}",
+    "votedBy": "{option} را انتخاب کردند: {people}",
+    "voters": "{count, plural, =0 {هنوز رأیی نیست} one {# نفر رأی داد} other {# نفر رأی دادند}}",
+    "closed": "بسته",
+    "closesIn": "{when} بسته می‌شود",
+    "closeConfirm": "این نظرسنجی بسته شود؟ پس از آن کسی نمی‌تواند رأی دهد.",
+    "errors": {
+      "question": "یک پرسش بنویسید.",
+      "questionTooLong": "پرسش حداکثر {max} نویسه دارد.",
+      "tooFewOptions": "دست‌کم دو گزینه وارد کنید.",
+      "tooManyOptions": "نظرسنجی حداکثر {max} گزینه دارد.",
+      "optionTooLong": "گزینه حداکثر {max} نویسه دارد.",
+      "duplicateOptions": "دو گزینه یکسان‌اند.",
+      "closesAt": "زمان بسته شدن را در یک سال آینده انتخاب کنید."
+    }
   }
 }

@@ -63,6 +63,7 @@ import {
   threadMessages,
 } from "./posts";
 import { hidePreviews } from "./link-previews";
+import { closePoll, sendPoll, votePoll } from "./polls";
 import { createWebhook, deleteWebhook, listWebhooks } from "./webhooks";
 import { cancelScheduled, scheduleMessage } from "./scheduled";
 import { searchMessages } from "./search";
@@ -175,6 +176,12 @@ const OPS: Record<string, Op> = {
     if (!l.sends.take()) throw new MessageError("rateLimited");
     return sendMessage(l.who.userId, { id: a.id, channelId: a.channelId, threadId: a.threadId, body: a.body, fileIds: a.fileIds, alsoInChannel: a.alsoInChannel });
   },
+  sendPoll: (l, a) => {
+    if (!l.sends.take()) throw new MessageError("rateLimited");
+    return sendPoll(l.who.userId, { id: a.id, channelId: a.channelId, threadId: a.threadId, alsoInChannel: a.alsoInChannel, poll: a.poll });
+  },
+  votePoll: (l, a) => votePoll(l.who.userId, a.messageId, a.optionId, a.on),
+  closePoll: (l, a) => closePoll(l.who.userId, a.messageId),
   forward: (l, a) => {
     if (!l.sends.take()) throw new MessageError("rateLimited");
     return forwardMessage(l.who.userId, { messageId: a.messageId, channelId: a.channelId, body: a.body, id: a.id });
