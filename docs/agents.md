@@ -570,7 +570,9 @@ comes the reminder opens over the page in every tab the person has open in the w
 *Remind me in 1 hour*, *Open*; closing it leaves it unread), comes to their inbox and as a push or
 Telegram message naming the agent and the page, not what it says (a lock screen shows it to whoever
 holds the device), but never by email; one missed for more than 12 hours waits in the inbox. A run sets at most 3, and an
-agent has at most 20 waiting for one person; each is a step of the run. People turn them off under
+agent has at most 20 waiting for one person; each is a step of the run. Until they come, the
+person sees them under *Scheduled* in their inbox, with their time and page, and may move or cancel
+them there (a cancelled one no longer counts toward the 20). People turn them off under
 *AI reminders* in Settings → Preferences, which covers the [AI chat's](ai.md) reminders too.
 
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see

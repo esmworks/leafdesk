@@ -2,29 +2,35 @@
 
 import {
   archiveNotifications,
+  cancelReminder,
   dueReminders,
   listInbox,
+  listPending,
   markRead,
   markUnread,
   recentArrivals,
   snoozeNotification,
   unarchiveNotifications,
   unreadCount,
+  unsnoozeNotification,
 } from "@/server/notifications";
 import { findMembership } from "@/server/access";
 import { requireUserId } from "@/server/session";
 import { workspaceSettings } from "@/server/workspaces";
 
 /**
- * The inbox, only the email that came in on rows (`tab` "email") or the archived notifications
- * (`tab` "archived"), and whether the workspace has email on rows turned on (the Email tab shows
- * only then). `unread`: only the notifications not read yet.
+ * The inbox, only the email that came in on rows (`tab` "email"), the archived notifications
+ * (`tab` "archived") or what is still to come (`tab` "scheduled": AI reminders and snoozed
+ * notifications, soonest first), and whether the workspace has email on rows turned on (the Email
+ * tab shows only then). `unread`: only the notifications not read yet.
  */
-export async function listInboxAction(workspaceId: string, tab: "all" | "email" | "archived" = "all", unread = false) {
+export async function listInboxAction(workspaceId: string, tab: "all" | "email" | "archived" | "scheduled" = "all", unread = false) {
   const userId = await requireUserId();
   // The inbox is the person's own wherever they are; the workspace's setting is for its people.
   const [items, settings, membership] = await Promise.all([
-    listInbox(userId, workspaceId, tab === "email" ? ["row_email"] : undefined, tab === "archived", unread === true),
+    tab === "scheduled"
+      ? listPending(userId, String(workspaceId))
+      : listInbox(userId, workspaceId, tab === "email" ? ["row_email"] : undefined, tab === "archived", unread === true),
     workspaceSettings(workspaceId),
     findMembership(userId, String(workspaceId)),
   ]);
@@ -86,4 +92,18 @@ export async function markUnreadAction(workspaceId: string, notificationIds: str
 export async function snoozeAction(notificationId: string, until: string) {
   const userId = await requireUserId();
   return snoozeNotification(userId, notificationId, new Date(until));
+}
+
+/** Cancels one of the user's AI reminders that hasn't come yet; false when there is none. */
+export async function cancelReminderAction(notificationId: string) {
+  const userId = await requireUserId();
+  if (typeof notificationId !== "string") return false;
+  return cancelReminder(userId, notificationId);
+}
+
+/** Brings a snoozed notification back to the inbox now; false when none waits. */
+export async function unsnoozeAction(notificationId: string) {
+  const userId = await requireUserId();
+  if (typeof notificationId !== "string") return false;
+  return unsnoozeNotification(userId, notificationId);
 }

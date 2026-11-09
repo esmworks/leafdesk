@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+
+- **The inbox's Scheduled tab shows what is still to come.** Reminders the AI chat and agents set
+  for you, and notifications you snoozed, used to show nowhere until their time. They are now
+  listed under *Scheduled*, soonest first, with their time on your clock and the page they are
+  about: move one to another time (a snooze choice or a time typed in words), cancel a reminder, or
+  bring a snoozed notification back now. The chat and agents are told where a reminder they set
+  waits, so they can point you there.
+
 ### Changed
 
 - **Words in a page's headings count for more in search.** A page whose heading has the words
