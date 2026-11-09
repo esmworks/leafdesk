@@ -82,6 +82,7 @@ const channelMessage = loose(
     last_reply_at: { type: ["string", "null"] },
     files: { type: "array", items: loose({ id, name: { type: "string" }, type: { type: "string" }, size: { type: "integer" }, url: { type: "string" } }) },
     reactions: { type: "array", items: loose({ emoji: { type: "string" }, count: { type: "integer" } }) },
+    poll: loose({ options: { type: "array", items: loose({ text: { type: "string" }, votes: { type: "integer" } }) }, multiple: { type: "boolean" }, closed: { type: "boolean" } }),
     channel_id: id,
     channel: { type: "string" },
     url,
