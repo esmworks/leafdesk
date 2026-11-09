@@ -3,14 +3,17 @@
 import { Archive, Bell, Hash, Lock, LogOut, Search, Shield, UserMinus, UserPlus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
+import { lazyPart } from "@/components/lazy-part";
 import { showToast } from "@/components/toast";
 import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, Input, selectClass, Switch, textareaClass } from "@/components/ui";
 import type { ChannelView } from "@/lib/message-wire";
 import { channelName, channelNameError, MESSAGE_LIMITS, messagesPath, type ChannelNotify } from "@/lib/messages";
-import { ChannelWebhooks } from "./channel-webhooks";
 import { MessageBody } from "./message-body";
 import { PersonFace } from "./person";
 import { call, channelTitle, MessagesError, messagesState, useMessages, useView } from "./store";
+
+/** A channel's webhooks, shown to its admins only: loaded when their details first open. */
+const ChannelWebhooks = lazyPart(() => import("./channel-webhooks").then((m) => m.ChannelWebhooks));
 
 const fold = (s: string) => s.normalize("NFKD").replace(/\p{M}/gu, "").toLocaleLowerCase();
 
