@@ -29,7 +29,10 @@
     "issues": "Ilmoita ongelmasta",
     "issuesDescription": "Virheet ja ideat kirjataan projektin vianseurantaan.",
     "issuesLink": "Avaa ilmoitus",
-    "notice": "Leafdesk sisältää muiden tekemiä avoimen lähdekoodin ohjelmistoja; niiden tiedot ovat <link>NOTICE</link>-tiedostossa."
+    "notice": "Leafdesk sisältää muiden tekemiä avoimen lähdekoodin ohjelmistoja; niiden tiedot ovat <link>NOTICE</link>-tiedostossa.",
+    "newer": "Leafdesk {latest} on julkaistu",
+    "newerDescription": "Uudempi versio kuin tämän palvelimen käyttämä. Palvelimen ylläpitäjä voi päivittää sen.",
+    "newerNotes": "Uutta"
   },
   "profile": {
     "description": "Miltä näytät muille kaikissa työtiloissa, sähköpostiosoite, jolla kirjaudut, ja tilisi poistaminen.",

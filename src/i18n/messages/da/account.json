@@ -29,7 +29,10 @@
     "issues": "Rapportér et problem",
     "issuesDescription": "Fejl og idéer går til projektets issue tracker.",
     "issuesLink": "Opret et issue",
-    "notice": "Leafdesk indeholder open source-software fra andre; deres meddelelser står i filen <link>NOTICE</link>."
+    "notice": "Leafdesk indeholder open source-software fra andre; deres meddelelser står i filen <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} er udkommet",
+    "newerDescription": "En nyere version end den, denne server kører. Den, der driver serveren, kan opdatere den.",
+    "newerNotes": "Nyheder"
   },
   "profile": {
     "description": "Hvordan du vises for andre i alle arbejdsområder, den e-mail, du logger ind med, og sletning af din konto.",

@@ -29,7 +29,10 @@
     "issues": "Sorun bildirin",
     "issuesDescription": "Hatalar ve öneriler projenin sorun takipçisine gider.",
     "issuesLink": "Sorun açın",
-    "notice": "Leafdesk başkalarının açık kaynak yazılımlarını da içerir; bunların bildirimleri <link>NOTICE</link> dosyasındadır."
+    "notice": "Leafdesk başkalarının açık kaynak yazılımlarını da içerir; bunların bildirimleri <link>NOTICE</link> dosyasındadır.",
+    "newer": "Leafdesk {latest} çıktı",
+    "newerDescription": "Bu sunucunun çalıştırdığından daha yeni bir sürüm. Sunucuyu yöneten kişi güncelleyebilir.",
+    "newerNotes": "Yenilikler"
   },
   "profile": {
     "description": "Tüm çalışma alanlarında başkalarına nasıl göründüğünüz, giriş yaptığınız e-posta ve hesabınızı silme.",

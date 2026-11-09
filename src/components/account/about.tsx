@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Logo } from "@/components/brand/logo";
 import { SettingsGroup, SettingsHeader, SettingsRow } from "@/components/settings/section";
 import { APP_INFO } from "@/server/app-info";
+import { latestRelease } from "@/server/update-check";
 
 function Outbound({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -16,10 +17,14 @@ function Outbound({ href, children }: { href: string; children: ReactNode }) {
 
 const bare = (url: string) => url.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
-/** Which Leafdesk this server runs, who makes it, its license and where to read more or report a problem. */
-export async function AboutLeafdesk() {
+/**
+ * Which Leafdesk this server runs, who makes it, its license and where to read more or report a
+ * problem. Instance admins (`admin`) also read when a newer release is out (server/update-check.ts).
+ */
+export async function AboutLeafdesk({ admin = false }: { admin?: boolean }) {
   const t = await getTranslations("account.about");
   const ta = await getTranslations("account");
+  const release = admin ? latestRelease() : null;
   return (
     <>
       <SettingsHeader title={ta("nav.about")} description={t("description")} />
@@ -31,6 +36,13 @@ export async function AboutLeafdesk() {
             description={APP_INFO.version}
             control={<Outbound href={APP_INFO.releaseNotes}>{t("releaseNotes")}</Outbound>}
           />
+          {release?.newer && (
+            <SettingsRow
+              title={t("newer", { latest: release.latest })}
+              description={t("newerDescription")}
+              control={<Outbound href={release.url}>{t("newerNotes")}</Outbound>}
+            />
+          )}
           <SettingsRow title={t("author")} control={<Outbound href={APP_INFO.authorUrl}>{APP_INFO.author}</Outbound>} />
           <SettingsRow
             title={t("license")}

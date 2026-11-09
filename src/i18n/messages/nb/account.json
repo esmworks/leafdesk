@@ -29,7 +29,10 @@
     "issues": "Rapporter et problem",
     "issuesDescription": "Feil og ideer sendes til prosjektets saksliste.",
     "issuesLink": "Opprett en sak",
-    "notice": "Leafdesk inneholder åpen kildekode fra andre; merknadene deres står i filen <link>NOTICE</link>."
+    "notice": "Leafdesk inneholder åpen kildekode fra andre; merknadene deres står i filen <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} er ute",
+    "newerDescription": "En nyere versjon enn den denne serveren kjører. Den som drifter serveren, kan oppdatere den.",
+    "newerNotes": "Nyheter"
   },
   "profile": {
     "description": "Hvordan du vises for andre i alle arbeidsområder, e-postadressen du logger på med, og sletting av kontoen.",

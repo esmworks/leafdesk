@@ -29,7 +29,10 @@
     "issues": "Informar de un problema",
     "issuesDescription": "Los errores y las ideas van al gestor de incidencias del proyecto.",
     "issuesLink": "Abrir una incidencia",
-    "notice": "Leafdesk incluye software de código abierto de otros; sus avisos están en el archivo <link>NOTICE</link>."
+    "notice": "Leafdesk incluye software de código abierto de otros; sus avisos están en el archivo <link>NOTICE</link>.",
+    "newer": "Ya está disponible Leafdesk {latest}",
+    "newerDescription": "Una versión más reciente que la que ejecuta este servidor. Quien administra el servidor puede actualizarlo.",
+    "newerNotes": "Novedades"
   },
   "profile": {
     "description": "Cómo te ven los demás en todos los espacios de trabajo, el correo con el que inicias sesión y la eliminación de tu cuenta.",

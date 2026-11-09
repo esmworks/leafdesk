@@ -29,7 +29,10 @@
     "issues": "Báo lỗi",
     "issuesDescription": "Lỗi và ý tưởng được gửi đến trình theo dõi vấn đề của dự án.",
     "issuesLink": "Mở một vấn đề",
-    "notice": "Leafdesk bao gồm phần mềm mã nguồn mở của bên khác; thông báo bản quyền của chúng nằm trong tệp <link>NOTICE</link>."
+    "notice": "Leafdesk bao gồm phần mềm mã nguồn mở của bên khác; thông báo bản quyền của chúng nằm trong tệp <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} đã ra mắt",
+    "newerDescription": "Bản phát hành mới hơn bản máy chủ này đang chạy. Người quản lý máy chủ có thể cập nhật.",
+    "newerNotes": "Có gì mới"
   },
   "profile": {
     "description": "Cách bạn hiển thị với người khác trong mọi không gian làm việc, email bạn dùng để đăng nhập và việc xóa tài khoản.",

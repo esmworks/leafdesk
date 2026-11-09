@@ -29,7 +29,10 @@
     "issues": "Laporkan masalah",
     "issuesDescription": "Bug dan ide dikirim ke pelacak isu proyek.",
     "issuesLink": "Buka isu",
-    "notice": "Leafdesk menyertakan perangkat lunak sumber terbuka milik pihak lain; pemberitahuannya ada di berkas <link>NOTICE</link>."
+    "notice": "Leafdesk menyertakan perangkat lunak sumber terbuka milik pihak lain; pemberitahuannya ada di berkas <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} sudah rilis",
+    "newerDescription": "Rilis yang lebih baru daripada yang dijalankan server ini. Pengelola server dapat memperbaruinya.",
+    "newerNotes": "Yang baru"
   },
   "profile": {
     "description": "Cara Anda tampil bagi orang lain di setiap ruang kerja, email untuk masuk, dan penghapusan akun Anda.",

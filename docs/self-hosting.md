@@ -314,6 +314,22 @@ Everyone in every workspace can then fetch it.
 Health then says the links aren't checked. See [Workspace health](features.md) for what counts as
 broken.
 
+## New releases
+
+The instance admin page (`/admin`, see below) says when a newer Leafdesk is out, with a link to
+its release notes; the About tab of an administrator's account says so too. Twice a day the server
+asks GitHub's public API for the project's latest release
+(`https://api.github.com/repos/esmworks/leafdesk/releases/latest`): a plain request with a 5-second
+timeout that sends nothing about the server or its people. Nothing updates by itself; see the
+release notes for how to upgrade. To never ask, for a server that shouldn't reach the internet on
+its own, set:
+
+```bash
+UPDATE_CHECK=off
+```
+
+The desktop app's own server never asks.
+
 ## Instance administrators
 
 The first account created on a new server is its administrator, so whoever installs Leafdesk can

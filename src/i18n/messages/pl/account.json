@@ -29,7 +29,10 @@
     "issues": "Zgłoś problem",
     "issuesDescription": "Błędy i pomysły trafiają do systemu zgłoszeń projektu.",
     "issuesLink": "Utwórz zgłoszenie",
-    "notice": "Leafdesk zawiera oprogramowanie open source innych autorów; ich informacje znajdują się w pliku <link>NOTICE</link>."
+    "notice": "Leafdesk zawiera oprogramowanie open source innych autorów; ich informacje znajdują się w pliku <link>NOTICE</link>.",
+    "newer": "Wyszedł Leafdesk {latest}",
+    "newerDescription": "Nowsza wersja niż ta, której używa ten serwer. Osoba zarządzająca serwerem może go zaktualizować.",
+    "newerNotes": "Co nowego"
   },
   "profile": {
     "description": "Jak widzą cię inni we wszystkich obszarach roboczych, adres e-mail, którym się logujesz, i usuwanie konta.",

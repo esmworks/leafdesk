@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- **The admin page says when a newer Leafdesk is out.** Twice a day the server asks GitHub's public
+  API for the latest release and `/admin` (and an administrator's About tab) names it, with a link
+  to its release notes. `UPDATE_CHECK=off` stops the check; the desktop app never makes it.
+
 ### Fixed
 
 - **Forwarding a message from the Mail tab sends its files again.** A forward lost the forwarded

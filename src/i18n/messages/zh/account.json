@@ -29,7 +29,10 @@
     "issues": "报告问题",
     "issuesDescription": "缺陷和想法请提交到项目的问题跟踪器。",
     "issuesLink": "提交问题",
-    "notice": "Leafdesk 包含他人开发的开源软件；相关声明见 <link>NOTICE</link> 文件。"
+    "notice": "Leafdesk 包含他人开发的开源软件；相关声明见 <link>NOTICE</link> 文件。",
+    "newer": "Leafdesk {latest} 已发布",
+    "newerDescription": "比此服务器运行的版本更新。服务器的管理者可以进行更新。",
+    "newerNotes": "新功能"
   },
   "profile": {
     "description": "你在各个工作区中向他人展示的形象、你用于登录的邮箱，以及删除账户。",

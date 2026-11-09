@@ -93,5 +93,15 @@
     "clearTitle": "Xóa các mạng được phê duyệt của {workspace}?",
     "clearBody": "Mọi người trong không gian làm việc lại mở được nó từ mọi mạng, và nhật ký kiểm tra của nó ghi lại việc bạn đã xóa danh sách. Chủ sở hữu có thể đặt lại trong Cài đặt → Bảo mật.",
     "clearConfirm": "Xóa danh sách"
+  },
+  "version": {
+    "heading": "Phiên bản",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} đã ra mắt (bạn đang chạy {running})",
+    "newerDescription": "Ghi chú phát hành cho biết những gì đã thay đổi và cách nâng cấp.",
+    "latest": "Đây là bản phát hành mới nhất.",
+    "unknown": "Chưa có phản hồi về bản phát hành mới; máy chủ hỏi GitHub hai lần mỗi ngày.",
+    "off": "Máy chủ không tìm bản phát hành mới (UPDATE_CHECK đang tắt).",
+    "releaseNotes": "Ghi chú phát hành"
   }
 }

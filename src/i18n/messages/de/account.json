@@ -29,7 +29,10 @@
     "issues": "Problem melden",
     "issuesDescription": "Fehler und Ideen gehören in den Issue-Tracker des Projekts.",
     "issuesLink": "Issue eröffnen",
-    "notice": "Leafdesk enthält Open-Source-Software anderer; ihre Hinweise stehen in der Datei <link>NOTICE</link>."
+    "notice": "Leafdesk enthält Open-Source-Software anderer; ihre Hinweise stehen in der Datei <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} ist erschienen",
+    "newerDescription": "Eine neuere Version als die, die dieser Server ausführt. Wer den Server betreibt, kann ihn aktualisieren.",
+    "newerNotes": "Was ist neu"
   },
   "profile": {
     "description": "Wie andere dich in allen Workspaces sehen, die E-Mail-Adresse, mit der du dich anmeldest, und das Löschen deines Kontos.",

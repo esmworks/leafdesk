@@ -29,7 +29,10 @@
     "issues": "Segnala un problema",
     "issuesDescription": "Bug e idee vanno nel sistema di segnalazione del progetto.",
     "issuesLink": "Apri una segnalazione",
-    "notice": "Leafdesk include software open source di terzi; le relative note si trovano nel file <link>NOTICE</link>."
+    "notice": "Leafdesk include software open source di terzi; le relative note si trovano nel file <link>NOTICE</link>.",
+    "newer": "È uscito Leafdesk {latest}",
+    "newerDescription": "Una versione più recente di quella in uso su questo server. Chi gestisce il server può aggiornarlo.",
+    "newerNotes": "Novità"
   },
   "profile": {
     "description": "Come ti vedono gli altri in ogni spazio di lavoro, l’email con cui accedi e l’eliminazione del tuo account.",

@@ -93,5 +93,15 @@
     "clearTitle": "Kosongkan jaringan yang disetujui untuk {workspace}?",
     "clearBody": "Semua orang di ruang kerja dapat membukanya dari jaringan mana pun lagi, dan log audit ruang kerja mencatat bahwa Anda mengosongkan daftar. Pemiliknya dapat mengaturnya lagi di Pengaturan → Keamanan.",
     "clearConfirm": "Kosongkan daftar"
+  },
+  "version": {
+    "heading": "Versi",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} sudah rilis (Anda memakai {running})",
+    "newerDescription": "Catatan rilis menjelaskan apa yang berubah dan cara memperbarui.",
+    "latest": "Ini rilis terbaru.",
+    "unknown": "Belum ada jawaban tentang rilis baru; server bertanya ke GitHub dua kali sehari.",
+    "off": "Server tidak mencari rilis baru (UPDATE_CHECK nonaktif).",
+    "releaseNotes": "Catatan rilis"
   }
 }

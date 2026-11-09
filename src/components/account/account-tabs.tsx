@@ -76,7 +76,7 @@ export async function AccountTabContent({ tab, session, query = {} }: { tab: Acc
   if (tab === "preferences") return <PreferencesTab userId={session.user.id} />;
   if (tab === "mail") return <MailTab userId={session.user.id} query={query} />;
   if (tab === "offline") return <OfflineTab userId={session.user.id} />;
-  if (tab === "about") return <AboutLeafdesk />;
+  if (tab === "about") return <AboutLeafdesk admin={await instanceAdmin(session.user)} />;
   if (tab === "snippets") return <SnippetsTab userId={session.user.id} name={session.user.name} />;
   const [t, storage] = await Promise.all([getTranslations("account"), instanceAdmin(session.user).then((isAdmin) => getStorageAccounts(session.user.id, { isAdmin }))]);
   return (

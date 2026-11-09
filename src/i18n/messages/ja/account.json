@@ -29,7 +29,10 @@
     "issues": "問題を報告",
     "issuesDescription": "バグやアイデアはプロジェクトのIssueトラッカーにお寄せください。",
     "issuesLink": "Issueを作成",
-    "notice": "Leafdeskにはほかの開発者によるオープンソースソフトウェアが含まれています。その表示は<link>NOTICE</link>ファイルにあります。"
+    "notice": "Leafdeskにはほかの開発者によるオープンソースソフトウェアが含まれています。その表示は<link>NOTICE</link>ファイルにあります。",
+    "newer": "Leafdesk {latest} が公開されました",
+    "newerDescription": "このサーバーで動いているものより新しいリリースです。サーバーの管理者が更新できます。",
+    "newerNotes": "新機能"
   },
   "profile": {
     "description": "すべてのワークスペースでほかの人にどう表示されるか、ログインに使うメールアドレス、アカウントの削除です。",

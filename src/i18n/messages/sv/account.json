@@ -29,7 +29,10 @@
     "issues": "Rapportera ett problem",
     "issuesDescription": "Buggar och idéer hamnar i projektets ärendehantering.",
     "issuesLink": "Skapa ett ärende",
-    "notice": "Leafdesk innehåller programvara med öppen källkod från andra; deras meddelanden finns i filen <link>NOTICE</link>."
+    "notice": "Leafdesk innehåller programvara med öppen källkod från andra; deras meddelanden finns i filen <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} har släppts",
+    "newerDescription": "En nyare version än den som den här servern kör. Den som driver servern kan uppdatera den.",
+    "newerNotes": "Nyheter"
   },
   "profile": {
     "description": "Hur andra ser dig i alla arbetsytor, e-postadressen du loggar in med och borttagning av ditt konto.",

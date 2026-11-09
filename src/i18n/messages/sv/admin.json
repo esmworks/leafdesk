@@ -93,5 +93,15 @@
     "clearTitle": "Rensa de godkända nätverken för {workspace}?",
     "clearBody": "Alla i arbetsytan kan öppna den från alla nätverk igen, och dess granskningslogg registrerar att du rensade listan. Dess ägare kan ange den igen i Inställningar → Säkerhet.",
     "clearConfirm": "Rensa listan"
+  },
+  "version": {
+    "heading": "Version",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} har släppts (du kör {running})",
+    "newerDescription": "I versionsinformationen står vad som har ändrats och hur du uppdaterar.",
+    "latest": "Det här är den senaste versionen.",
+    "unknown": "Inget svar om nya versioner än; servern frågar GitHub två gånger om dagen.",
+    "off": "Servern letar inte efter nya versioner (UPDATE_CHECK är avstängt).",
+    "releaseNotes": "Versionsinformation"
   }
 }

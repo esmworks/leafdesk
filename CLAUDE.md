@@ -582,7 +582,8 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   the logo is document content kept in `pdf_letterhead`, not page decoration; a letterhead's
   `theme` is JSON checked by `lib/pdf-themes.ts`, drawn by `pdf-theme-layout.ts`, described for
   models by `pdf-theme-docs.ts`, changed by the AI in `pdf-theme-ai.ts`), backup `backup/`, SSO `sso.ts`, SCIM
-  `scim.ts`, sealed secrets `secret-box.ts`.
+  `scim.ts`, sealed secrets `secret-box.ts`, the admin page's "a newer release is out"
+  `update-check.ts` (GitHub's latest release twice a day, kept on `globalThis`, `UPDATE_CHECK`).
 - **Editor odds and ends.** Media alignment and in-place width: `lib/media-blocks.ts` (file and
   audio specs shared with the server) and `lib/media-placement.ts` (pure; published pages use it).
   Shiki ships no grammar for some languages: `lib/code-grammars.ts` holds small ones (patterns as

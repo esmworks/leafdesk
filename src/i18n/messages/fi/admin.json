@@ -93,5 +93,15 @@
     "clearTitle": "Tyhjennetäänkö työtilan {workspace} hyväksytyt verkot?",
     "clearBody": "Kaikki työtilan jäsenet voivat taas avata sen mistä tahansa verkosta, ja sen tarkastuslokiin kirjataan, että tyhjensit luettelon. Sen omistajat voivat asettaa sen uudelleen kohdassa Asetukset → Tietoturva.",
     "clearConfirm": "Tyhjennä luettelo"
+  },
+  "version": {
+    "heading": "Versio",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} on julkaistu (käytössäsi {running})",
+    "newerDescription": "Julkaisutiedoista näet, mikä muuttui ja miten päivität.",
+    "latest": "Tämä on uusin versio.",
+    "unknown": "Uusista versioista ei vielä tietoa; palvelin kysyy GitHubilta kahdesti päivässä.",
+    "off": "Palvelin ei etsi uusia versioita (UPDATE_CHECK on pois päältä).",
+    "releaseNotes": "Julkaisutiedot"
   }
 }

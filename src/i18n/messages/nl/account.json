@@ -29,7 +29,10 @@
     "issues": "Een probleem melden",
     "issuesDescription": "Bugs en ideeën gaan naar de issuetracker van het project.",
     "issuesLink": "Een issue openen",
-    "notice": "Leafdesk bevat opensourcesoftware van anderen; hun vermeldingen staan in het bestand <link>NOTICE</link>."
+    "notice": "Leafdesk bevat opensourcesoftware van anderen; hun vermeldingen staan in het bestand <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} is uit",
+    "newerDescription": "Een nieuwere versie dan die deze server draait. Wie de server beheert, kan hem bijwerken.",
+    "newerNotes": "Wat is er nieuw"
   },
   "profile": {
     "description": "Hoe anderen je in elke werkruimte zien, het e-mailadres waarmee je inlogt, en het verwijderen van je account.",
