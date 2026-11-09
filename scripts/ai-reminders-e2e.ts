@@ -7,7 +7,9 @@
  * zone's clock; what is no time, gone by or too far ahead, pages the person or the agent can't open
  * and calls past the per-run limit are refused; one about no page shows too; an agent has at most
  * MAX_WAITING_REMINDERS waiting for a person, even when runs set them at once; one turned off in
- * the inbox doesn't open over the page. The AI chat sets one for the person asking, asked about
+ * the inbox doesn't open over the page. Until they come, the person alone sees them (and what they
+ * snoozed) soonest first, with their time and page, and moves or cancels them: a cancelled one is
+ * gone and frees its place under the limit; a snoozed notification comes back at once. The AI chat sets one for the person asking, asked about
  * first (unless on Auto) with its text and time on their clock, never in research; it shows in the
  * inbox as their own; declined, none is set. Asked for a routine, the chat is told it is an agent's
  * schedule, which it adds through use_tool, asked about each time.
@@ -28,7 +30,7 @@ try {
 const { and, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { agentRun, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
-const { deliverSnoozed, dueReminders, listNotifications, snoozeNotification } = await import("@/server/notifications");
+const { cancelReminder, deliverSnoozed, dueReminders, listNotifications, listPending, snoozeNotification, unsnoozeNotification } = await import("@/server/notifications");
 const { setNotificationPreference } = await import("@/server/notification-preferences");
 const { registerCollab } = await import("@/server/collab/bridge");
 const { createCollab } = await import("@/server/collab/service");
@@ -124,7 +126,7 @@ try {
   const tool = fake.chats[0].tools?.find((t) => t.function.name === REMIND_TOOL_NAME) as { function: { name: string; description?: string } } | undefined;
   check(tool, "a chat run is offered remind_person", toolNames(fake.chats[0]));
   check(/in Europe\/Istanbul/.test(tool.function.description ?? "") && /"\d{4}-\d{2}-\d{2}T09:00"/.test(tool.function.description ?? ""), "…on the clock of the zone the message came with", tool.function.description);
-  check(/^Reminder set for \d{4}-\d{2}-\d{2} \d{2}:\d{2} \(Europe\/Istanbul\)\.$/.test(toolResults(fake.chats.at(-1)!)[0]), "the model hears when, on that clock", toolResults(fake.chats.at(-1)!));
+  check(/^Reminder set for \d{4}-\d{2}-\d{2} \d{2}:\d{2} \(Europe\/Istanbul\)\. It waits under Scheduled in their inbox/.test(toolResults(fake.chats.at(-1)!)[0]), "the model hears when, on that clock", toolResults(fake.chats.at(-1)!));
   const [set] = await reminders();
   check(
     set &&
@@ -212,6 +214,41 @@ try {
     "an agent has at most MAX_WAITING_REMINDERS waiting for a person, even when they are set at once",
     { over, stillWaiting },
   );
+
+  // ── Still to come: seen, moved, cancelled ───────────────────────────────────────────────────
+  const pending = await listPending(ids.owner, workspaceId);
+  check(
+    pending.length === stillWaiting &&
+      pending.every((n) => n.kind === "ai_reminder" && n.snoozedUntil && n.snoozedUntil > new Date() && n.aiReminder?.agentName === "Desk helper" && n.aiReminder.text),
+    "the person sees every reminder still to come, with its time, its text and who set it",
+    pending.map((n) => ({ kind: n.kind, at: n.snoozedUntil, reminder: n.aiReminder })),
+  );
+  check((await listPending(ids.member, workspaceId)).length === 0, "…and nobody else sees them");
+  const last = pending.at(-1)!;
+  const sooner = new Date(Date.now() + 20 * 60_000);
+  check(!(await snoozeNotification(ids.member, last.id, sooner)), "nobody else moves one");
+  check(await snoozeNotification(ids.owner, last.id, sooner), "the person moves one to another time");
+  const moved = await listPending(ids.owner, workspaceId);
+  check(moved[0]?.id === last.id && moved[0].snoozedUntil?.getTime() === sooner.getTime() && !moved[0].read, "…and it comes first: soonest first, at its new time", moved[0]);
+  check(!(await unsnoozeNotification(ids.owner, last.id)), "a reminder isn't brought back early, only moved or cancelled");
+  check(!(await cancelReminder(ids.member, last.id)), "nobody else cancels one");
+  check(await cancelReminder(ids.owner, last.id), "the person cancels one");
+  check(!(await reminders()).some((r) => r.id === last.id) && (await listPending(ids.owner, workspaceId)).length === stillWaiting - 1, "…which is gone, never to come");
+  check(!(await cancelReminder(ids.owner, last.id)), "…and can't be cancelled twice");
+  const freed = await setReminder(person, call({ text: "After cancelling", at: later }));
+  check(!freed.isError, "a cancelled one no longer counts toward the agent's limit", freed);
+  check(/under Scheduled in their inbox, where they may move or cancel it/.test(freed.content), "the model hears where the person sees it", freed.content);
+  const [shared] = await db
+    .insert(notification)
+    .values({ userId: ids.owner, workspaceId, kind: "page_shared", actorId: ids.member, pageId: offer.id, snoozedUntil: new Date(Date.now() + 86_400_000) })
+    .returning({ id: notification.id });
+  const withSnoozed = (await listPending(ids.owner, workspaceId)).at(-1);
+  check(withSnoozed?.id === shared.id && withSnoozed.pageTitle === "Offer for Ayşe" && withSnoozed.snoozedUntil, "a snoozed notification is still to come too, with its page", withSnoozed);
+  check(!(await cancelReminder(ids.owner, shared.id)), "…which isn't cancelled, being no reminder");
+  check(await unsnoozeNotification(ids.owner, shared.id), "…but brought back now");
+  const back = (await listNotifications(ids.owner, { workspaceId })).find((n) => n.id === shared.id);
+  check(back && !back.read && back.snoozedUntil === null && !(await listPending(ids.owner, workspaceId)).some((n) => n.id === shared.id), "…unread in the inbox, no longer to come", back);
+  await db.delete(notification).where(eq(notification.id, shared.id));
 
   // ── The AI chat sets one for the person asking ─────────────────────────────────────────────
   /** Runs a question to the end (the member's, unless `as` says), deciding each approval it asks for. */

@@ -871,7 +871,11 @@
   yet. On a phone, swipe an item toward the end of the line to mark it read (or unread again) and
   toward its start to snooze it until tomorrow morning. Archive an item, or every read one at once
   (*Archive read*), to clear the inbox: archived items are read, listed under *Archived* and can be
-  moved back. *Unread only*, beside the tabs, lists just what you haven't read. Choose per kind
+  moved back. *Scheduled* lists what is still to come, soonest first with its time on your clock:
+  the reminders the AI chat and agents set for you (with the page they are about) and what you
+  snoozed. Move one to another time (one of the snooze choices, or a time typed in words such as
+  `fri 17:00`; a day alone means 9:00), cancel a reminder, or bring a snoozed item back now.
+  *Unread only*, beside the tabs, lists just what you haven't read. Choose per kind
   whether it shows in the inbox, whether it comes by email and, on the devices where you turn them
   on, as a [push notification](self-hosting.md#push-notifications).
 - **Verified pages**: someone with full access marks a page, database or row as checked and right

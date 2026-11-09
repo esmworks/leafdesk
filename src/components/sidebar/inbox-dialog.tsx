@@ -1,22 +1,25 @@
 "use client";
 
-import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Download, Gauge, Inbox, KeyRound, ListFilter, Mail, NotebookPen, ShieldQuestion, Sparkles, UserPlus } from "lucide-react";
+import { AlarmClock, Archive, ArchiveRestore, CalendarClock, Check, CheckCheck, ChevronDown, ChevronRight, ClipboardCheck, Download, Gauge, Inbox, KeyRound, ListFilter, Mail, NotebookPen, ShieldQuestion, Sparkles, Trash2, Undo2, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState, useEffect } from "react";
+import { useLocale, useTimeZone, useTranslations } from "next-intl";
+import { useMemo, useState, useEffect, type ReactNode } from "react";
 import { approveAccessRequestAction, declineAccessRequestAction } from "@/app/actions/access-requests";
 import { decideAgentLimitRequestAction } from "@/app/actions/agents";
 import { agentSettingsPath } from "@/lib/agent-settings";
 import {
   archiveAction,
   archiveReadAction,
+  cancelReminderAction,
   markReadAction,
   markUnreadAction,
   snoozeAction,
   unarchiveAction,
+  unsnoozeAction,
 } from "@/app/actions/notifications";
 import { ApprovalActions } from "@/components/connections/approval-actions";
 import { Value } from "@/components/database/row-activity";
+import { DatePhraseInput } from "@/components/date-phrase-input";
 import { Button, cn, Dialog, IconButton, PageIcon, pageLabel } from "@/components/ui";
 import { UserAvatar } from "@/components/user-avatar";
 import { InboxSwipe } from "./inbox-swipe";
@@ -29,6 +32,9 @@ import { parseMassTrash } from "@/lib/mass-trash";
 import { formatIsoDate } from "@/lib/mentions";
 import { relativeTime } from "@/lib/relative-time";
 import { canSnooze, SNOOZE_CHOICES, snoozeUntil, type SnoozeChoice } from "@/lib/snooze";
+import type { DatePhrase } from "@/lib/date-phrase";
+import { comesAt, phraseInstant } from "@/lib/scheduled";
+import { browserTimeZone } from "@/lib/time-zone";
 import type { InboxAccessRequest, InboxItem, InboxLimitRequest, InboxRowUpdate } from "@/server/notifications";
 import { aiLimitLine } from "@/lib/agent-guardrails";
 import { read } from "@/components/read";
@@ -45,7 +51,10 @@ import { read } from "@/components/read";
  * and reactions, or edits) show as one entry, which opens to the single ones (lib/inbox-groups.ts);
  * opening, snoozing or marking the entry read does so to all of them. Notifications can be archived
  * (one by one, or every read one at once): they move to the Archived tab, read, and can be moved
- * back from there.
+ * back from there. The Scheduled tab lists what is still to come, soonest first, with its time: the
+ * reminders the AI chat and agents set for the user and the notifications they snoozed. Each can be
+ * moved to another time (a choice, or a time typed in words), a reminder cancelled, and a snoozed
+ * notification brought back to the inbox at once.
  */
 export function InboxDialog({
   workspaceId,
@@ -68,12 +77,15 @@ export function InboxDialog({
   const tc = useTranslations("common");
   const [items, setItems] = useState<InboxItem[] | null>(null);
   const [error, setError] = useState(false);
-  const [tab, setTab] = useState<"all" | "email" | "archived">("all");
+  const timeZone = useTimeZone() ?? browserTimeZone();
+  const [tab, setTab] = useState<"all" | "email" | "scheduled" | "archived">("all");
   const archivedTab = tab === "archived";
+  // What is still to come: never read, archived or grouped, only moved, cancelled or brought back.
+  const scheduledTab = tab === "scheduled";
   const [emailTab, setEmailTab] = useState(false);
   // Only the notifications not read yet (not in the archive, where they are read).
   const [unreadOnly, setUnreadOnly] = useState(false);
-  const onlyUnread = unreadOnly && !archivedTab;
+  const onlyUnread = unreadOnly && !archivedTab && !scheduledTab;
 
   useEffect(() => {
     if (!open) return;
@@ -136,11 +148,34 @@ export function InboxDialog({
 
   // The notification whose snooze choices are open.
   const [snoozing, setSnoozing] = useState<string | null>(null);
-  const snooze = async (id: string, choice: SnoozeChoice) => {
+  const snooze = async (id: string, choice: SnoozeChoice | Date) => {
     setSnoozing(null);
+    const until = choice instanceof Date ? choice : snoozeUntil(choice, new Date());
     try {
-      if (!(await snoozeAction(id, snoozeUntil(choice, new Date()).toISOString()))) throw new Error("not snoozed");
-      setItems((list) => list?.filter((item) => item.id !== id) ?? list);
+      if (!(await snoozeAction(id, until.toISOString()))) throw new Error("not snoozed");
+      // In the Scheduled tab it stays, at its new place; elsewhere it leaves the list until then.
+      setItems(
+        (list) =>
+          (scheduledTab
+            ? list?.map((item) => (item.id === id ? { ...item, snoozedUntil: until } : item)).sort((a, b) => +new Date(a.snoozedUntil!) - +new Date(b.snoozedUntil!))
+            : list?.filter((item) => item.id !== id)) ?? list,
+      );
+    } catch {
+      setError(true);
+    }
+    onRead();
+  };
+  /** A time typed in words: a moment as it is, a day at 9:00 on the user's clock (as snoozing until tomorrow). */
+  const snoozeTo = (id: string, found: DatePhrase) => {
+    const at = phraseInstant(found, timeZone);
+    if (at.getTime() <= Date.now()) return setError(true);
+    void snooze(id, at);
+  };
+  // Cancels a reminder still to come, or brings a snoozed notification back to the inbox now.
+  const settle = async (item: InboxItem) => {
+    setItems((list) => list?.filter((other) => other.id !== item.id) ?? list);
+    try {
+      if (!(await (item.kind === "ai_reminder" ? cancelReminderAction(item.id) : unsnoozeAction(item.id)))) throw new Error("gone");
     } catch {
       setError(true);
     }
@@ -148,7 +183,10 @@ export function InboxDialog({
   };
 
   const unread = items?.filter((item) => !item.read) ?? [];
-  const entries = useMemo(() => (items ? groupInbox(items) : null), [items]);
+  const entries = useMemo(
+    () => (items ? (scheduledTab ? items.map((item): InboxEntry<InboxItem> => ({ type: "item", item })) : groupInbox(items)) : null),
+    [items, scheduledTab],
+  );
   // The groups opened to their single notifications.
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
   const toggleGroup = (key: string) =>
@@ -174,22 +212,40 @@ export function InboxDialog({
   };
 
   /** One notification of the list, on its own or (`nested`) opened from its group. */
-  const itemRow = (item: InboxItem, nested = false) => (
-    <li key={item.id} className={cn("relative", nested && "ms-4 border-s border-border ps-1")}>
+  /** A row's frame: swiped to read or snooze, except what is still to come (nothing to read yet). */
+  const rowFrame = (item: InboxItem, children: ReactNode) =>
+    scheduledTab ? (
+      // group/row: the row's actions show while it is hovered or focused, as InboxSwipe's frame does.
+      <div className="group/row relative bg-bg">{children}</div>
+    ) : (
       <InboxSwipe
         read={item.read}
         snoozable={canSnooze(item.kind) && !archivedTab}
         onRead={() => void (item.read ? markUnread([item.id]) : markRead([item.id]))}
         onSnooze={() => void snooze(item.id, SWIPE_SNOOZE)}
       >
+        {children}
+      </InboxSwipe>
+    );
+
+  /** One notification of the list, on its own or (`nested`) opened from its group. */
+  const itemRow = (item: InboxItem, nested = false) => {
+    // What is still to come is unread until it comes, which isn't news yet.
+    const unread = !item.read && !scheduledTab;
+    const comes = scheduledTab && item.snoozedUntil ? new Date(item.snoozedUntil) : null;
+    return (
+    <li key={item.id} className={cn("relative", nested && "ms-4 border-s border-border ps-1")}>
+      {rowFrame(
+        item,
+        <>
         <button
           type="button"
           className={cn(
             ROW_CLASS,
-            canSnooze(item.kind) && !archivedTab ? "[@media(hover:none)]:pe-[4.5rem]" : "[@media(hover:none)]:pe-10",
+            scheduledTab || (canSnooze(item.kind) && !archivedTab) ? "[@media(hover:none)]:pe-[4.5rem]" : "[@media(hover:none)]:pe-10",
           )}
           onClick={() => {
-            if (!item.read) void markRead([item.id]);
+            if (unread) void markRead([item.id]);
             onClose();
             // Join requests are decided in Settings > Members; an agent's call opens its run, its
             // proposed notes its memory, a scheduled run's report that run in the agent's chat.
@@ -198,12 +254,12 @@ export function InboxDialog({
         >
           <span
             aria-hidden
-            className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", item.read ? "bg-transparent" : "bg-accent")}
+            className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", unread ? "bg-accent" : "bg-transparent")}
           />
           <span className="min-w-0 flex-1">
             {/* Opened from its group, which names the page already. */}
             {!nested && (
-              <span className={cn("flex items-center gap-1.5 text-sm", !item.read && "font-medium")}>
+              <span className={cn("flex items-center gap-1.5 text-sm", unread && "font-medium")}>
                 {item.kind === "agent_approval" ? (
                   <>
                     <ShieldQuestion aria-hidden className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
@@ -286,7 +342,7 @@ export function InboxDialog({
             <span
               className={cn(
                 "break-words",
-                nested ? cn("text-sm", !item.read && "font-medium") : "mt-0.5 text-xs leading-5 text-fg-muted",
+                nested ? cn("text-sm", unread && "font-medium") : "mt-0.5 text-xs leading-5 text-fg-muted",
                 // A run's report can run long: the run itself has all of it. (line-clamp sets its own
                 // display, which `block` would override.)
                 item.kind === "agent_report" || item.kind === "agent_task" ? "line-clamp-3" : "block",
@@ -400,6 +456,13 @@ export function InboxDialog({
                         : t("assignment", { actor: item.actorName || t("someone"), property: item.propertyName ?? "" })}
               {item.databaseTitle !== null && <> · {pageLabel(item.databaseTitle, tc("untitled"))}</>}
             </span>
+            {/* A reminder's title names who set it: the page it is about goes under its text. */}
+            {item.kind === "ai_reminder" && item.pageId && (
+              <span className="mt-1 flex items-center gap-1.5 text-xs text-fg-muted">
+                <PageIcon icon={item.pageIcon} kind="page" className="text-xs" />
+                <span className="truncate">{pageLabel(item.pageTitle ?? "", tc("untitled"))}</span>
+              </span>
+            )}
             {/* Kinds whose message is a code the line above already says in words don't repeat it. */}
             {item.automationMessage && !MESSAGE_IN_LINE.has(item.kind) && (
               <bdi className="mt-1 line-clamp-3 text-xs leading-5 break-words whitespace-pre-line text-fg">{item.automationMessage}</bdi>
@@ -415,19 +478,26 @@ export function InboxDialog({
               </span>
             )}
           </span>
-          <time
-            dateTime={new Date(item.createdAt).toISOString()}
-            className={TIME_CLASS}
-            title={new Date(item.createdAt).toLocaleString(locale)}
-          >
-            {relativeTime(item.createdAt, locale)}
-          </time>
-          {!item.read && <span className="sr-only">{t("unread")}</span>}
+          {comes ? (
+            // When it comes, on the user's clock: a time, not "in 3 days", to check against what they asked for.
+            <time dateTime={comes.toISOString()} className={cn(TIME_CLASS, "text-fg-muted")} title={comes.toLocaleString(locale, { timeZone })}>
+              {comesAt(comes, locale, timeZone)}
+            </time>
+          ) : (
+            <time
+              dateTime={new Date(item.createdAt).toISOString()}
+              className={TIME_CLASS}
+              title={new Date(item.createdAt).toLocaleString(locale)}
+            >
+              {relativeTime(item.createdAt, locale)}
+            </time>
+          )}
+          {unread && <span className="sr-only">{t("unread")}</span>}
         </button>
         <div className={ROW_ACTIONS_CLASS}>
-          {canSnooze(item.kind) && !archivedTab && (
+          {(scheduledTab || (canSnooze(item.kind) && !archivedTab)) && (
             <IconButton
-              label={t("snooze")}
+              label={scheduledTab ? t("changeTime") : t("snooze")}
               aria-expanded={snoozing === item.id}
               className="text-fg-faint"
               onClick={() => setSnoozing(snoozing === item.id ? null : item.id)}
@@ -435,22 +505,44 @@ export function InboxDialog({
               <AlarmClock className="h-3.5 w-3.5" />
             </IconButton>
           )}
-          <IconButton
-            label={archivedTab ? t("unarchive") : t("archive")}
-            className="text-fg-faint"
-            onClick={() => void archive([item.id], archivedTab)}
-          >
-            {archivedTab ? <ArchiveRestore className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
-          </IconButton>
+          {scheduledTab ? (
+            item.kind === "ai_reminder" ? (
+              <IconButton label={t("cancelReminder")} className="text-fg-faint" onClick={() => void settle(item)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </IconButton>
+            ) : (
+              <IconButton label={t("unsnooze")} className="text-fg-faint" onClick={() => void settle(item)}>
+                <Undo2 className="h-3.5 w-3.5" />
+              </IconButton>
+            )
+          ) : (
+            <IconButton
+              label={archivedTab ? t("unarchive") : t("archive")}
+              className="text-fg-faint"
+              onClick={() => void archive([item.id], archivedTab)}
+            >
+              {archivedTab ? <ArchiveRestore className="h-3.5 w-3.5" /> : <Archive className="h-3.5 w-3.5" />}
+            </IconButton>
+          )}
         </div>
-      </InboxSwipe>
+        </>,
+      )}
       {snoozing === item.id && (
-        <div className="flex flex-wrap items-center gap-1 pb-2 ps-[2.125rem] pe-3" role="group" aria-label={t("snooze")}>
+        <div className="flex flex-wrap items-center gap-1 pb-2 ps-[2.125rem] pe-3" role="group" aria-label={scheduledTab ? t("changeTime") : t("snooze")}>
           {SNOOZE_CHOICES.map((choice) => (
             <Button key={choice} size="sm" variant="secondary" onClick={() => void snooze(item.id, choice)}>
               {t(`snoozeChoice.${choice}`)}
             </Button>
           ))}
+          {scheduledTab && (
+            // Any other time, typed in words ("fri 17:00", "nov 20"); a day alone means 9:00 then.
+            <DatePhraseInput
+              onPick={(found) => snoozeTo(item.id, found)}
+              onDone={() => setSnoozing(null)}
+              className="mt-1 w-full"
+              inputClassName="h-7"
+            />
+          )}
         </div>
       )}
       {item.approval && (
@@ -489,7 +581,8 @@ export function InboxDialog({
         />
       )}
     </li>
-  );
+    );
+  };
 
   /** Notifications of one kind about one page, as one entry (lib/inbox-groups.ts). */
   const groupRow = (entry: Extract<InboxEntry<InboxItem>, { type: "group" }>) => {
@@ -603,7 +696,7 @@ export function InboxDialog({
               <span className="max-sm:sr-only">{t("archiveRead")}</span>
             </Button>
           )}
-          {unread.length > 0 && !archivedTab && (
+          {unread.length > 0 && !archivedTab && !scheduledTab && (
             <Button size="sm" variant="ghost" className="whitespace-nowrap" title={t("markAllRead")} onClick={() => void markRead()}>
               <CheckCheck aria-hidden className="h-3.5 w-3.5" />
               {/* On a phone the icons alone, so the title keeps its line. */}
@@ -613,7 +706,7 @@ export function InboxDialog({
         </div>
         <div className="mt-1.5 flex gap-4 px-4">
           <div role="tablist" aria-label={t("tabs")} className="flex gap-4">
-            {(emailTab ? (["all", "email", "archived"] as const) : (["all", "archived"] as const)).map((value) => (
+            {(emailTab ? (["all", "email", "scheduled", "archived"] as const) : (["all", "scheduled", "archived"] as const)).map((value) => (
               <button
                 key={value}
                 type="button"
@@ -629,14 +722,14 @@ export function InboxDialog({
                   setTab(value);
                 }}
               >
-                {value === "all" ? t("tabAll") : value === "email" ? t("tabEmail") : t("tabArchived")}
+                {value === "all" ? t("tabAll") : value === "email" ? t("tabEmail") : value === "scheduled" ? t("tabScheduled") : t("tabArchived")}
                 {value === "all" && tab === "all" && unread.length > 0 && (
                   <span className="rounded bg-accent px-1.5 text-[11px] leading-4 font-medium text-accent-fg tabular-nums">{unread.length}</span>
                 )}
               </button>
             ))}
           </div>
-          {!archivedTab && (
+          {!archivedTab && !scheduledTab && (
             <button
               type="button"
               aria-pressed={unreadOnly}
@@ -665,8 +758,20 @@ export function InboxDialog({
       <ul className="max-h-[60vh] overflow-y-auto p-1.5">
         {items?.length === 0 && (
           <li className="flex flex-col items-center gap-2 px-3 py-10 text-center text-sm text-fg-muted">
-            <Inbox aria-hidden className="h-6 w-6 text-fg-faint" strokeWidth={1.5} />
-            {archivedTab ? t("emptyArchived") : onlyUnread ? t("emptyUnread") : tab === "email" ? t("emptyEmail") : t("empty")}
+            {scheduledTab ? (
+              <AlarmClock aria-hidden className="h-6 w-6 text-fg-faint" strokeWidth={1.5} />
+            ) : (
+              <Inbox aria-hidden className="h-6 w-6 text-fg-faint" strokeWidth={1.5} />
+            )}
+            {archivedTab
+              ? t("emptyArchived")
+              : scheduledTab
+                ? t("emptyScheduled")
+                : onlyUnread
+                  ? t("emptyUnread")
+                  : tab === "email"
+                    ? t("emptyEmail")
+                    : t("empty")}
           </li>
         )}
         {entries?.map((entry) => (entry.type === "item" ? itemRow(entry.item) : groupRow(entry)))}

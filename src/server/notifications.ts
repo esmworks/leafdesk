@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray, isNotNull, isNull, lte, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, inArray, isNotNull, isNull, lte, ne, notInArray, or, sql, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import type { RequestedLevel } from "@/lib/access-requests";
@@ -777,6 +777,8 @@ export type InboxItem = {
   workspaceId: string;
   workspaceName: string;
   createdAt: Date;
+  /** When it comes: set only for those still waiting (an AI reminder, a snoozed notification), listed with `pending`. */
+  snoozedUntil: Date | null;
   read: boolean;
   actorId: string | null;
   actorName: string | null;
@@ -956,7 +958,7 @@ const givingAgent = alias(workspaceAgent, "giving_agent");
  * leave for an owner (none has a page) only while the user owns the workspace; snoozed ones not
  * until their time. Null when every kind is off. Expects `page` left-joined.
  */
-async function inboxFilter(userId: string, workspaceId?: string, only?: NotificationKind[], archived = false): Promise<SQL | null> {
+async function inboxFilter(userId: string, workspaceId?: string, only?: NotificationKind[], archived = false, pending = false): Promise<SQL | null> {
   const kinds = (await inboxKinds(userId)).filter((k) => !only || only.includes(k));
   if (!kinds.length) return null;
   return and(
@@ -965,8 +967,9 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
     inArray(notification.kind, kinds),
     // The inbox and the archive are apart (see archiveNotifications).
     archived ? isNotNull(notification.archivedAt) : isNull(notification.archivedAt),
-    // Snoozed ones come back by themselves (deliverSnoozed); until then they aren't there.
-    or(isNull(notification.snoozedUntil), lte(notification.snoozedUntil, sql`now()`)),
+    // Snoozed ones come back by themselves (deliverSnoozed); until then they aren't there, only
+    // among those still to come (`pending`, the inbox's Scheduled tab).
+    pending ? gt(notification.snoozedUntil, sql`now()`) : or(isNull(notification.snoozedUntil), lte(notification.snoozedUntil, sql`now()`)),
     // A message hidden from its row leaves the inbox too.
     or(
       ne(notification.kind, "row_email"),
@@ -1009,7 +1012,9 @@ async function inboxFilter(userId: string, workspaceId?: string, only?: Notifica
 /**
  * The user's notifications, newest first: in one workspace, or in all of them (MCP). Visibility
  * follows the page, so a workspace the user left shows nothing. With `ids`, only those, as the
- * inbox would show them (push notifications, see server/push.ts).
+ * inbox would show them (push notifications, see server/push.ts). With `pending`, instead, the
+ * ones still waiting for their time (AI reminders and snoozed notifications), soonest first: they
+ * are the person's alone, as the inbox is.
  */
 export async function listNotifications(
   userId: string,
@@ -1020,12 +1025,13 @@ export async function listNotifications(
     ids: only,
     kinds,
     archived = false,
-  }: { workspaceId?: string; unreadOnly?: boolean; limit?: number; ids?: string[]; kinds?: NotificationKind[]; archived?: boolean } = {},
+    pending = false,
+  }: { workspaceId?: string; unreadOnly?: boolean; limit?: number; ids?: string[]; kinds?: NotificationKind[]; archived?: boolean; pending?: boolean } = {},
 ): Promise<InboxItem[]> {
   if (only && !only.length) return [];
   if (workspaceId) await requireMembership(userId, workspaceId);
   const [filter, hidden] = await Promise.all([
-    inboxFilter(userId, workspaceId, kinds, archived),
+    inboxFilter(userId, workspaceId, kinds, archived, pending),
     workspaceId || only ? new Set<string>() : workspacesHiddenFromApp(userId),
   ]);
   if (!filter) return [];
@@ -1036,6 +1042,7 @@ export async function listNotifications(
       workspaceId: notification.workspaceId,
       workspaceName: workspace.name,
       createdAt: notification.createdAt,
+      snoozedUntil: notification.snoozedUntil,
       readAt: notification.readAt,
       actorId: notification.actorId,
       actorName: actor.name,
@@ -1090,7 +1097,7 @@ export async function listNotifications(
         hidden.size ? notInArray(notification.workspaceId, [...hidden]) : undefined,
       ),
     )
-    .orderBy(desc(notification.createdAt))
+    .orderBy(pending ? asc(notification.snoozedUntil) : desc(notification.createdAt))
     .limit(limit);
   // Guests don't learn the addresses of people in the workspace (see listAccessRequests).
   const guestIn = new Map<string, Promise<boolean>>();
@@ -1581,6 +1588,46 @@ export async function snoozeNotification(userId: string, notificationId: string,
     .update(notification)
     .set({ snoozedUntil: until, readAt: null })
     .where(and(eq(notification.id, notificationId), eq(notification.userId, userId), notInArray(notification.kind, [...UNSNOOZABLE_KINDS])))
+    .returning({ workspaceId: notification.workspaceId });
+  if (!row) return false;
+  signal(row.workspaceId);
+  return true;
+}
+
+/**
+ * What waits for the user in the workspace: AI reminders not come yet and snoozed notifications,
+ * soonest first (the inbox's Scheduled tab). Moved with snoozeNotification, a reminder cancelled
+ * with cancelReminder, a snoozed notification brought back with unsnoozeNotification.
+ */
+export async function listPending(userId: string, workspaceId: string): Promise<InboxItem[]> {
+  return listNotifications(userId, { workspaceId, pending: true });
+}
+
+/**
+ * Cancels one of the user's AI reminders that hasn't come yet: it is deleted, so it never comes
+ * and no longer counts toward MAX_WAITING_REMINDERS. False when there is no such reminder (it came
+ * meanwhile, or isn't theirs).
+ */
+export async function cancelReminder(userId: string, notificationId: string, now = new Date()) {
+  const [row] = await db
+    .delete(notification)
+    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId), eq(notification.kind, "ai_reminder"), gt(notification.snoozedUntil, now)))
+    .returning({ workspaceId: notification.workspaceId });
+  if (!row) return false;
+  signal(row.workspaceId);
+  return true;
+}
+
+/**
+ * Brings one of the user's snoozed notifications back to the inbox now, unread at the top and not
+ * pushed again (they asked for it). An AI reminder isn't brought back: it is moved or cancelled.
+ * False when there is no such notification waiting.
+ */
+export async function unsnoozeNotification(userId: string, notificationId: string, now = new Date()) {
+  const [row] = await db
+    .update(notification)
+    .set({ snoozedUntil: null, readAt: null, createdAt: now })
+    .where(and(eq(notification.id, notificationId), eq(notification.userId, userId), ne(notification.kind, "ai_reminder"), gt(notification.snoozedUntil, now)))
     .returning({ workspaceId: notification.workspaceId });
   if (!row) return false;
   signal(row.workspaceId);

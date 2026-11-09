@@ -57,7 +57,8 @@ export function remindTool(now: Date, timeZone: string, chat = false): AiTool {
         ? `comes to their inbox and to their phone. Use it when they ask to be reminded of something once, at a time; not to tell them what you did (your answer does that). `
         : `comes to their inbox and to their phone. Use it when they ask to be reminded of something, or when your task says to remind them; not to tell them what you did (your answer does that). `) +
       `${nowLine(now, timeZone)} Give the time on their clock, as "${example}" for tomorrow at 9:00 there. ` +
-      `At most ${MAX_REMINDER_AHEAD_MS / 86_400_000} days ahead, ${MAX_REMINDERS_PER_RUN} reminders per ${chat ? "answer" : "run"}.`,
+      `At most ${MAX_REMINDER_AHEAD_MS / 86_400_000} days ahead, ${MAX_REMINDERS_PER_RUN} reminders per ${chat ? "answer" : "run"}. ` +
+      `Until it comes, the person sees it, and may move or cancel it, under Scheduled in their inbox.`,
     parameters: {
       type: "object",
       properties: {
@@ -139,7 +140,7 @@ export async function setReminder(
   }
   const local = reminderWhen(time.at, input.timeZone);
   return {
-    content: `Reminder set for ${local} (${input.timeZone}).`,
+    content: `Reminder set for ${local} (${input.timeZone}). It waits under Scheduled in their inbox, where they may move or cancel it.`,
     step: { kind: "tool", connectionId: null, tool: REMIND_TOOL_NAME, input: `${local} · ${text}`.slice(0, 400), outcome: "done" },
   };
 }
