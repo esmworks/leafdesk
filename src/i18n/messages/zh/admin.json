@@ -93,5 +93,15 @@
     "clearTitle": "清空 {workspace} 的已批准网络？",
     "clearBody": "工作区中的所有人将再次可以从任何网络打开它，审计日志会记录是你清空了列表。所有者可以在“设置 → 安全”中重新设置。",
     "clearConfirm": "清空列表"
+  },
+  "version": {
+    "heading": "版本",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} 已发布（你使用的是 {running}）",
+    "newerDescription": "发行说明中介绍了变更内容和升级方法。",
+    "latest": "这是最新版本。",
+    "unknown": "尚未获得新版本的信息；服务器每天向 GitHub 查询两次。",
+    "off": "服务器不检查新版本（UPDATE_CHECK 已关闭）。",
+    "releaseNotes": "发行说明"
   }
 }

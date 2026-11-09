@@ -16,7 +16,7 @@ import { verifyTotp } from "@/lib/totp";
 export const APP_NAME = "Leafdesk";
 
 /** How a session was signed in, kept on the session row (`session.auth_method`). */
-export type AuthMethod = "password" | "social" | "sso" | "passkey" | "totp" | "recovery-code";
+export type AuthMethod = "password" | "social" | "sso" | "passkey" | "totp" | "recovery-code" | "phone";
 
 /** The endpoints where a single sign-on (OIDC callback, SAML assertion consumer) signs someone in. */
 export const SSO_SIGN_IN_PATHS = ["/sso/callback/:providerId", "/sso/saml2/sp/acs/:providerId"] as const;
@@ -33,6 +33,8 @@ const AUTH_METHOD_BY_PATH: Record<string, AuthMethod> = {
   "/passkey/verify-authentication": "passkey",
   "/two-factor/verify-totp": "totp",
   "/two-factor/verify-backup-code": "recovery-code",
+  // A QR code from the account page (server/phone-sign-in.ts).
+  "/phone-sign-in": "phone",
 };
 
 /** The sign-in method behind a new session, from the endpoint that creates it. */
@@ -189,7 +191,8 @@ export function turnedTwoFactorOn(ctx: {
 
 /**
  * Better Auth's two-factor plugin, with its sign-in challenge extended from password sign-in to
- * social sign-in (the provider callback, and `/sign-in/social` with an ID token). Without that,
+ * social sign-in (the provider callback, and `/sign-in/social` with an ID token) and to a phone
+ * signed in with a QR code (`/phone-sign-in`). Without that,
  * "Continue with Google" would skip the code. The challenge itself (trusted devices, the pending
  * sign-in cookie, attempt counting) stays the plugin's own.
  *
@@ -222,6 +225,8 @@ export function twoFactorPlugin() {
             challenge.matcher(ctx) ||
             ctx.path === "/callback/:id" ||
             ctx.path === "/sign-in/social" ||
+            // A phone signed in with a QR code enters the code too (server/phone-sign-in.ts).
+            ctx.path === "/phone-sign-in" ||
             isSsoSignInPath(ctx.path),
           handler: challenge.handler,
         },

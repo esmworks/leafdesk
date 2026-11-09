@@ -1429,6 +1429,13 @@
       "when": 1794250498753,
       "tag": "0203_channel_webhook",
       "breakpoints": true
+    },
+    {
+      "idx": 204,
+      "version": "7",
+      "when": 1794250537319,
+      "tag": "0204_qr_sign_in",
+      "breakpoints": true
     }
   ]
 }

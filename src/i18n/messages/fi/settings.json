@@ -99,7 +99,8 @@
       "domainPeople": "verkkotunnus tilit käyttäjät yritys sähköposti varjo hallitsemattomat",
       "openOnStart": "käynnistys aloitus ensimmäinen sivu viimeksi avattu viimeisin",
       "pageReports": "ilmoita ilmoitus väärinkäyttö valitus poisto julkaistu julkinen verkko sivut",
-      "dashboardEmails": "tilaus raportti aikataulu viikoittain yhteenveto sähköposti"
+      "dashboardEmails": "tilaus raportti aikataulu viikoittain yhteenveto sähköposti",
+      "phoneSignIn": "qr koodi puhelin mobiili skannaa laite kirjaudu"
     }
   },
   "workspace": {
@@ -2188,6 +2189,9 @@
         "note_added": "Lisäsi muistiinpanon kohteen {target} tekoälymuistiin: ”{to}”",
         "note_changed": "Muutti muistiinpanoa kohteen {target} tekoälymuistissa: ”{from}” → ”{to}”",
         "note_deleted": "{count, plural, one {Poisti muistiinpanon kohteen {target} tekoälymuistista: ”{from}”} other {Poisti # muistiinpanoa kohteen {target} tekoälymuistista}}"
+      },
+      "account": {
+        "phone_signed_in": "Kirjautui toisella laitteella QR-koodilla"
       }
     },
     "decisions": {
@@ -2310,7 +2314,43 @@
     "dashboardEmailsHeading": "Koontinäyttöjen sähköpostit",
     "dashboardEmailsDescription": "Sinulle aikataulun mukaan sähköpostilla lähetettävät koontinäytöt ja ne, jotka olet määrittänyt muille.",
     "dashboardEmailsNone": "Ei koontinäyttöjen sähköposteja",
-    "dashboardEmailsNoneDescription": "Saadaksesi koontinäytön sähköpostilla avaa se ja valitse Sähköposti pienoisohjelmien yläpuolelta."
+    "dashboardEmailsNoneDescription": "Saadaksesi koontinäytön sähköpostilla avaa se ja valitse Sähköposti pienoisohjelmien yläpuolelta.",
+    "unblock": {
+      "ownHeading": "Näin sallit ne uudelleen: {platform}",
+      "others": "Ohjeet muille selaimille ja laitteille",
+      "all": "Näin sallit ne uudelleen",
+      "chrome": {
+        "name": "Chrome, Edge ja muut Chromium-selaimet",
+        "step1": "Napsauta osoiterivin alussa, osoitteen vasemmalla puolella olevaa kuvaketta.",
+        "step2": "Ota Ilmoitukset käyttöön tai valitse Salli. Jos sitä ei ole listassa, avaa Sivustoasetukset ja muuta se siellä.",
+        "step3": "Lataa tämä sivu uudelleen ja ota push-ilmoitukset käyttöön täällä."
+      },
+      "safari": {
+        "name": "Safari Macilla",
+        "step1": "Valitse valikkoriviltä Safari, sitten Asetukset, ja avaa Verkkosivustot.",
+        "step2": "Valitse vasemmalla olevasta listasta Ilmoitukset.",
+        "step3": "Aseta tämä sivusto tilaan Salli, lataa sitten tämä sivu uudelleen ja ota push-ilmoitukset käyttöön täällä."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Napsauta osoiterivin alussa olevaa kuvaketta.",
+        "step2": "Poista Estetty kohdan Lähetä ilmoituksia vierestä.",
+        "step3": "Lataa tämä sivu uudelleen, ota push-ilmoitukset käyttöön täällä ja valitse Salli, kun sitä kysytään."
+      },
+      "ios": {
+        "name": "iPhone ja iPad, Leafdesk Koti-valikossa",
+        "step1": "Avaa Asetukset-appi ja napauta Ilmoitukset.",
+        "step2": "Napauta appien listassa Leafdeskia.",
+        "step3": "Laita Salli ilmoitukset päälle ja avaa Leafdesk uudelleen Koti-valikosta."
+      },
+      "android": {
+        "name": "Chrome Androidilla",
+        "step1": "Napauta osoiterivin alussa olevaa kuvaketta.",
+        "step2": "Napauta Luvat ja sitten Ilmoitukset.",
+        "step3": "Ota ilmoitukset käyttöön tälle sivustolle.",
+        "step4": "Lataa tämä sivu uudelleen ja ota push-ilmoitukset käyttöön täällä."
+      }
+    }
   },
   "site": {
     "description": "Anna tämän työtilan julkaistuille sivuille yksi helppolukuinen osoite, etusivu ja navigointi niiden välillä.",

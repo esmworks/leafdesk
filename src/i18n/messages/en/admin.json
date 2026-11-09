@@ -93,5 +93,15 @@
     "clearTitle": "Clear the approved networks of {workspace}?",
     "clearBody": "Everyone in the workspace can open it from any network again, and its audit log records that you cleared the list. Its owners can set it again in Settings → Security.",
     "clearConfirm": "Clear list"
+  },
+  "version": {
+    "heading": "Version",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} is out (you run {running})",
+    "newerDescription": "Read what changed and how to upgrade in the release notes.",
+    "latest": "This is the latest release.",
+    "unknown": "No answer about new releases yet; the server asks GitHub twice a day.",
+    "off": "The server doesn't look for new releases (UPDATE_CHECK is off).",
+    "releaseNotes": "Release notes"
   }
 }

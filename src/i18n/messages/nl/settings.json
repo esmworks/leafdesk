@@ -99,7 +99,8 @@
       "domainPeople": "domein accounts gebruikers bedrijf e-mail schaduw onbeheerd",
       "openOnStart": "start opstarten eerste pagina laatst bezocht recent",
       "pageReports": "melden melding misbruik klacht verwijderen gepubliceerd openbaar web pagina's",
-      "dashboardEmails": "abonnement rapport schema planning wekelijks samenvatting e-mail dashboard"
+      "dashboardEmails": "abonnement rapport schema planning wekelijks samenvatting e-mail dashboard",
+      "phoneSignIn": "qr code telefoon mobiel scannen apparaat inloggen"
     }
   },
   "workspace": {
@@ -2188,6 +2189,9 @@
         "note_added": "Een notitie toegevoegd aan het AI-geheugen van {target}: “{to}”",
         "note_changed": "Een notitie in het AI-geheugen van {target} gewijzigd: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {Een notitie verwijderd uit het AI-geheugen van {target}: “{from}”} other {# notities verwijderd uit het AI-geheugen van {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Gebruikte een QR-code om op een ander apparaat in te loggen"
       }
     },
     "decisions": {
@@ -2310,7 +2314,43 @@
     "dashboardEmailsHeading": "Dashboard-e-mails",
     "dashboardEmailsDescription": "Dashboards die je volgens een schema per e-mail krijgt, en die je voor anderen hebt ingesteld.",
     "dashboardEmailsNone": "Geen dashboard-e-mails",
-    "dashboardEmailsNoneDescription": "Om een dashboard per e-mail te krijgen, open je het en kies je E-mail boven de widgets."
+    "dashboardEmailsNoneDescription": "Om een dashboard per e-mail te krijgen, open je het en kies je E-mail boven de widgets.",
+    "unblock": {
+      "ownHeading": "Zo sta je ze weer toe in {platform}:",
+      "others": "Stappen voor andere browsers en apparaten",
+      "all": "Zo sta je ze weer toe",
+      "chrome": {
+        "name": "Chrome, Edge en andere Chromium-browsers",
+        "step1": "Klik op het pictogram aan het begin van de adresbalk, links van het adres.",
+        "step2": "Zet Meldingen aan of kies Toestaan. Staat het er niet bij, open dan Site-instellingen en wijzig het daar.",
+        "step3": "Laad deze pagina opnieuw en zet hier pushmeldingen aan."
+      },
+      "safari": {
+        "name": "Safari op een Mac",
+        "step1": "Kies in de menubalk Safari, dan Instellingen, en open Websites.",
+        "step2": "Klik links in de lijst op Berichtgeving.",
+        "step3": "Zet deze site op Sta toe, laad deze pagina opnieuw en zet hier pushmeldingen aan."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Klik op het pictogram aan het begin van de adresbalk.",
+        "step2": "Verwijder Geblokkeerd naast Meldingen verzenden.",
+        "step3": "Laad deze pagina opnieuw, zet hier pushmeldingen aan en kies Toestaan als erom gevraagd wordt."
+      },
+      "ios": {
+        "name": "iPhone en iPad, Leafdesk op het beginscherm",
+        "step1": "Open de app Instellingen en tik op Berichtgeving.",
+        "step2": "Tik op Leafdesk in de lijst met apps.",
+        "step3": "Zet Sta berichtgeving toe aan en open Leafdesk daarna opnieuw vanaf het beginscherm."
+      },
+      "android": {
+        "name": "Chrome op Android",
+        "step1": "Tik op het pictogram aan het begin van de adresbalk.",
+        "step2": "Tik op Rechten en dan op Meldingen.",
+        "step3": "Zet meldingen aan voor deze site.",
+        "step4": "Laad deze pagina opnieuw en zet hier pushmeldingen aan."
+      }
+    }
   },
   "site": {
     "description": "Geef de gepubliceerde pagina’s van deze werkruimte één leesbaar adres, een startpagina en navigatie ertussen.",

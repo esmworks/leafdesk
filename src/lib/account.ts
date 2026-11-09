@@ -33,7 +33,11 @@ export type AccountErrorCode =
   | "avatarType"
   | "avatarTooLarge"
   | "samePassword"
-  | "resetStepExpired";
+  | "resetStepExpired"
+  /** A workspace asks for single sign-on, which a phone signed in with a QR code wouldn't have (server/phone-sign-in.ts). */
+  | "phoneSignInSso"
+  /** A workspace requires two-step verification and the account has none for the phone to ask for. */
+  | "phoneSignInTwoFactor";
 
 export const MAX_NAME_LENGTH = 80;
 /** Same bounds Better Auth checks on sign-up and password changes. */

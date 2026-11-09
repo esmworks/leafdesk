@@ -29,7 +29,10 @@
     "issues": "Rapporter et problem",
     "issuesDescription": "Feil og ideer sendes til prosjektets saksliste.",
     "issuesLink": "Opprett en sak",
-    "notice": "Leafdesk inneholder åpen kildekode fra andre; merknadene deres står i filen <link>NOTICE</link>."
+    "notice": "Leafdesk inneholder åpen kildekode fra andre; merknadene deres står i filen <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} er ute",
+    "newerDescription": "En nyere versjon enn den denne serveren kjører. Den som drifter serveren, kan oppdatere den.",
+    "newerNotes": "Nyheter"
   },
   "profile": {
     "description": "Hvordan du vises for andre i alle arbeidsområder, e-postadressen du logger på med, og sletting av kontoen.",
@@ -168,7 +171,9 @@
     "samePassword": "Velg et annet passord enn det gamle.",
     "resetStepExpired": "Dette trinnet er utløpt. Logg på med det gamle passordet igjen.",
     "storageStuck": "Filene til {workspaces} ligger i lagringen din og har ikke noe sted å flyttes til. Be eierne om å konfigurere lagring, eller flytt filene først.",
-    "legalHold": "En rettslig bevaring i {workspaces} holder på kontoen din. Be en eier der om å oppheve den først."
+    "legalHold": "En rettslig bevaring i {workspaces} holder på kontoen din. Be en eier der om å oppheve den først.",
+    "phoneSignInSso": "{workspaces} ber deg logge på med enkel pålogging, så en QR-kode kan ikke logge på telefonen din.",
+    "phoneSignInTwoFactor": "{workspaces} krever totrinnsbekreftelse. Slå det på for kontoen din først."
   },
   "mail": {
     "description": "Postkassene og kalenderadressene dine, i alle arbeidsområdene du er med i.",
@@ -249,5 +254,31 @@
     "unlinkConfirm": "Koble fra Telegram",
     "unlinking": "Kobler fra…",
     "unreachable": "Serveren får ikke kontakt med Telegram akkurat nå. Prøv igjen senere."
+  },
+  "phoneSignIn": {
+    "heading": "Andre enheter",
+    "title": "Logg på telefonen din",
+    "description": "Vis en QR-kode og skann den med telefonkameraet for å logge på der uten å skrive passordet. Hver kode virker én gang, i to minutter.",
+    "show": "Vis QR-kode",
+    "blockedSso": "{workspaces} ber deg logge på med enkel pålogging, så en QR-kode kan ikke logge på telefonen din. Logg heller på telefonen med enkel pålogging.",
+    "blockedTwoFactor": "{workspaces} krever totrinnsbekreftelse. Slå det på for kontoen din ovenfor; telefonen ber da om en kode etter skanningen.",
+    "dialogTitle": "Logg på telefonen din",
+    "confirmBody": "Bekreft først at det er deg. Den som skanner koden, kommer inn på kontoen din, så vis den bare til din egen telefon.",
+    "showCode": "Vis kode",
+    "scan": "Rett telefonkameraet mot koden, åpne lenken det finner, og bekreft.",
+    "codeLabel": "QR-kode som logger en telefon på kontoen din",
+    "validFor": "Virker én gang, i {seconds, plural, one {# sekund til} other {# sekunder til}}.",
+    "expired": "Denne koden er utløpt.",
+    "expiredNote": "Vis en ny kode for å prøve igjen.",
+    "newCode": "Ny kode",
+    "metaTitle": "Logg på denne enheten",
+    "invalidTitle": "Denne koden virker ikke",
+    "invalidBody": "Den er utløpt eller allerede brukt. Vis en ny kode på kontosiden din og skann den igjen.",
+    "phoneTitle": "Logge på denne enheten?",
+    "phoneBody": "Denne enheten logges på Leafdesk som {name} ({email}).",
+    "phoneConfirm": "Logg på",
+    "phoneWarning": "Fortsett bare hvis du nettopp skannet denne koden på din egen skjerm.",
+    "refusedSso": "Et arbeidsområde du er med i, krever enkel pålogging. Logg heller på denne enheten med enkel pålogging.",
+    "refusedTwoFactor": "Et arbeidsområde du er med i, krever totrinnsbekreftelse. Slå det på for kontoen din først, og vis så en ny kode."
   }
 }

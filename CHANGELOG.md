@@ -22,6 +22,19 @@
   `GET /workspaces/{id}/channels`, `GET` and `POST /channels/{id}/messages` and
   `GET /workspaces/{id}/messages/search`, under the new `messages:read` and `messages:write`
   scopes. They run with the person's own access; Leafdesk's AI chat and agents don't get them.
+- **Sign in on your phone with a QR code.** My account → Security shows, after the same proof as a
+  password change, a QR code whose link signs the phone's browser in as you once the page there is
+  confirmed. Each code works once, for two minutes, and only its hash is stored; the phone still
+  enters a two-step code when the account has one. People a workspace holds to single sign-on, or
+  to two-step verification they haven't turned on, get no code, with the reason, and each of the
+  person's workspaces records the sign-in in its audit log. Migration 0204 adds its table.
+- **The admin page says when a newer Leafdesk is out.** Twice a day the server asks GitHub's public
+  API for the latest release and `/admin` (and an administrator's About tab) names it, with a link
+  to its release notes. `UPDATE_CHECK=off` stops the check; the desktop app never makes it.
+- **Steps to allow notifications a browser blocks.** Where push notifications are blocked,
+  Settings → Preferences lists how to allow them again in the browser in use (Chrome and Edge,
+  Safari on a Mac, Firefox, the iPhone and iPad Home Screen app, Chrome on Android), with the other
+  browsers' steps a click away.
 
 ### Changed
 

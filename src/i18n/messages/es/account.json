@@ -29,7 +29,10 @@
     "issues": "Informar de un problema",
     "issuesDescription": "Los errores y las ideas van al gestor de incidencias del proyecto.",
     "issuesLink": "Abrir una incidencia",
-    "notice": "Leafdesk incluye software de código abierto de otros; sus avisos están en el archivo <link>NOTICE</link>."
+    "notice": "Leafdesk incluye software de código abierto de otros; sus avisos están en el archivo <link>NOTICE</link>.",
+    "newer": "Ya está disponible Leafdesk {latest}",
+    "newerDescription": "Una versión más reciente que la que ejecuta este servidor. Quien administra el servidor puede actualizarlo.",
+    "newerNotes": "Novedades"
   },
   "profile": {
     "description": "Cómo te ven los demás en todos los espacios de trabajo, el correo con el que inicias sesión y la eliminación de tu cuenta.",
@@ -168,7 +171,9 @@
     "samePassword": "Elige una contraseña distinta de la anterior.",
     "resetStepExpired": "Este paso ha caducado. Vuelve a iniciar sesión con tu contraseña anterior.",
     "storageStuck": "Los archivos de {workspaces} están en tu almacenamiento y no tienen adónde moverse. Pide a sus propietarios que configuren un almacenamiento o mueve antes los archivos.",
-    "legalHold": "Una retención legal en {workspaces} conserva tu cuenta. Pide primero a un propietario de allí que la levante."
+    "legalHold": "Una retención legal en {workspaces} conserva tu cuenta. Pide primero a un propietario de allí que la levante.",
+    "phoneSignInSso": "{workspaces} te pide iniciar sesión con inicio de sesión único, así que un código QR no puede iniciar sesión en tu teléfono.",
+    "phoneSignInTwoFactor": "{workspaces} exige la verificación en dos pasos. Actívala primero para tu cuenta."
   },
   "mail": {
     "description": "Tus buzones y direcciones de calendario, en todos tus espacios de trabajo.",
@@ -249,5 +254,31 @@
     "unlinkConfirm": "Desconectar Telegram",
     "unlinking": "Desconectando…",
     "unreachable": "El servidor no puede comunicarse con Telegram ahora mismo. Inténtalo más tarde."
+  },
+  "phoneSignIn": {
+    "heading": "Otros dispositivos",
+    "title": "Iniciar sesión en tu teléfono",
+    "description": "Muestra un código QR y escanéalo con la cámara de tu teléfono para iniciar sesión allí sin escribir tu contraseña. Cada código funciona una vez, durante dos minutos.",
+    "show": "Mostrar código QR",
+    "blockedSso": "{workspaces} te pide iniciar sesión con inicio de sesión único, así que un código QR no puede iniciar sesión en tu teléfono. Inicia sesión allí con el inicio de sesión único.",
+    "blockedTwoFactor": "{workspaces} exige la verificación en dos pasos. Actívala para tu cuenta más arriba; después tu teléfono pedirá un código tras escanear.",
+    "dialogTitle": "Iniciar sesión en tu teléfono",
+    "confirmBody": "Primero confirma que eres tú. Quien escanee el código entra en tu cuenta, así que muéstralo solo a tu propio teléfono.",
+    "showCode": "Mostrar código",
+    "scan": "Apunta la cámara de tu teléfono al código, abre el enlace que encuentre y confirma.",
+    "codeLabel": "Código QR que inicia sesión en tu cuenta desde un teléfono",
+    "validFor": "Funciona una vez, durante {seconds, plural, one {# segundo más} other {# segundos más}}.",
+    "expired": "Este código ha caducado.",
+    "expiredNote": "Muestra un código nuevo para intentarlo otra vez.",
+    "newCode": "Código nuevo",
+    "metaTitle": "Iniciar sesión en este dispositivo",
+    "invalidTitle": "Este código no funciona",
+    "invalidBody": "Ha caducado o ya se usó. Muestra un código nuevo en la página de tu cuenta y escanéalo otra vez.",
+    "phoneTitle": "¿Iniciar sesión en este dispositivo?",
+    "phoneBody": "Este dispositivo iniciará sesión en Leafdesk como {name} ({email}).",
+    "phoneConfirm": "Iniciar sesión",
+    "phoneWarning": "Continúa solo si acabas de escanear este código en tu propia pantalla.",
+    "refusedSso": "Un espacio de trabajo en el que estás exige el inicio de sesión único. Inicia sesión en este dispositivo con el inicio de sesión único.",
+    "refusedTwoFactor": "Un espacio de trabajo en el que estás exige la verificación en dos pasos. Actívala primero para tu cuenta y luego muestra un código nuevo."
   }
 }

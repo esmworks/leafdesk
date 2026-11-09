@@ -29,7 +29,10 @@
     "issues": "Ilmoita ongelmasta",
     "issuesDescription": "Virheet ja ideat kirjataan projektin vianseurantaan.",
     "issuesLink": "Avaa ilmoitus",
-    "notice": "Leafdesk sisältää muiden tekemiä avoimen lähdekoodin ohjelmistoja; niiden tiedot ovat <link>NOTICE</link>-tiedostossa."
+    "notice": "Leafdesk sisältää muiden tekemiä avoimen lähdekoodin ohjelmistoja; niiden tiedot ovat <link>NOTICE</link>-tiedostossa.",
+    "newer": "Leafdesk {latest} on julkaistu",
+    "newerDescription": "Uudempi versio kuin tämän palvelimen käyttämä. Palvelimen ylläpitäjä voi päivittää sen.",
+    "newerNotes": "Uutta"
   },
   "profile": {
     "description": "Miltä näytät muille kaikissa työtiloissa, sähköpostiosoite, jolla kirjaudut, ja tilisi poistaminen.",
@@ -168,7 +171,9 @@
     "samePassword": "Valitse salasana, joka eroaa vanhasta.",
     "resetStepExpired": "Tämä vaihe on vanhentunut. Kirjaudu uudelleen vanhalla salasanallasi.",
     "storageStuck": "Työtilojen {workspaces} tiedostot ovat tallennustilassasi, eikä niille ole siirtopaikkaa. Pyydä niiden omistajia määrittämään tallennustila tai siirrä tiedostot ensin.",
-    "legalHold": "Oikeudellinen säilytys työtiloissa {workspaces} pitää tilisi. Pyydä siellä omistajaa vapauttamaan se ensin."
+    "legalHold": "Oikeudellinen säilytys työtiloissa {workspaces} pitää tilisi. Pyydä siellä omistajaa vapauttamaan se ensin.",
+    "phoneSignInSso": "{workspaces} edellyttää kertakirjautumista, joten QR-koodi ei voi kirjata puhelintasi sisään.",
+    "phoneSignInTwoFactor": "{workspaces} edellyttää kaksivaiheista vahvistusta. Ota se ensin käyttöön tilillesi."
   },
   "mail": {
     "description": "Postilaatikkosi ja kalenteriosoitteesi kaikissa työtiloissasi.",
@@ -249,5 +254,31 @@
     "unlinkConfirm": "Poista Telegram-yhteys",
     "unlinking": "Poistetaan yhteyttä…",
     "unreachable": "Palvelin ei juuri nyt tavoita Telegramia. Yritä myöhemmin uudelleen."
+  },
+  "phoneSignIn": {
+    "heading": "Muut laitteet",
+    "title": "Kirjaudu puhelimellasi",
+    "description": "Näytä QR-koodi ja skannaa se puhelimen kameralla kirjautuaksesi sillä kirjoittamatta salasanaa. Jokainen koodi toimii kerran, kahden minuutin ajan.",
+    "show": "Näytä QR-koodi",
+    "blockedSso": "{workspaces} edellyttää kertakirjautumista, joten QR-koodi ei voi kirjata puhelintasi sisään. Kirjaudu puhelimella kertakirjautumisella.",
+    "blockedTwoFactor": "{workspaces} edellyttää kaksivaiheista vahvistusta. Ota se käyttöön tilillesi yllä; puhelin kysyy sitten koodia skannauksen jälkeen.",
+    "dialogTitle": "Kirjaudu puhelimellasi",
+    "confirmBody": "Vahvista ensin henkilöllisyytesi. Koodin skannaaja pääsee tilillesi, joten näytä se vain omalle puhelimellesi.",
+    "showCode": "Näytä koodi",
+    "scan": "Osoita puhelimen kameralla koodia, avaa sen löytämä linkki ja vahvista.",
+    "codeLabel": "QR-koodi, joka kirjaa puhelimen tilillesi",
+    "validFor": "Toimii kerran, vielä {seconds, plural, one {# sekunnin} other {# sekuntia}}.",
+    "expired": "Tämä koodi on vanhentunut.",
+    "expiredNote": "Näytä uusi koodi yrittääksesi uudelleen.",
+    "newCode": "Uusi koodi",
+    "metaTitle": "Kirjaudu tällä laitteella",
+    "invalidTitle": "Tämä koodi ei toimi",
+    "invalidBody": "Se on vanhentunut tai jo käytetty. Näytä uusi koodi tilisivullasi ja skannaa se uudelleen.",
+    "phoneTitle": "Kirjaudutaanko tällä laitteella?",
+    "phoneBody": "Tämä laite kirjautuu Leafdeskiin käyttäjänä {name} ({email}).",
+    "phoneConfirm": "Kirjaudu",
+    "phoneWarning": "Jatka vain, jos skannasit tämän koodin juuri omalta näytöltäsi.",
+    "refusedSso": "Työtila, johon kuulut, edellyttää kertakirjautumista. Kirjaudu tällä laitteella kertakirjautumisella.",
+    "refusedTwoFactor": "Työtila, johon kuulut, edellyttää kaksivaiheista vahvistusta. Ota se ensin käyttöön tilillesi ja näytä sitten uusi koodi."
   }
 }

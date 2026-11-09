@@ -1,4 +1,4 @@
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,7 +11,9 @@ import { firstAdminId } from "@/server/first-admin";
 import { checkInstanceAdmin, countLiveSessions, listInstanceUsers, listNetworkRestrictedWorkspaces } from "@/server/instance-admin";
 import { mailStatus } from "@/server/mail";
 import { listWorkspaces } from "@/server/pages";
+import { APP_INFO } from "@/server/app-info";
 import { getSession } from "@/server/session";
+import { latestRelease } from "@/server/update-check";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("admin");
@@ -47,6 +49,7 @@ export default async function AdminPage({
   ]);
   const from = workspaces.find((w) => w.id === query.from) ?? workspaces[0];
   const emailReset = mailStatus() === "smtp";
+  const release = env.updateCheck && !env.localMode ? latestRelease() : null;
 
   return (
     <div className="settings-type flex min-h-full flex-col md:flex-row">
@@ -71,6 +74,32 @@ export default async function AdminPage({
         <div className="mx-auto max-w-5xl">
           <SettingsHeader title={t("title")} description={firstAdmin === session.user.id ? t("descriptionFirstAccount") : t("description")} />
           <div className="space-y-10">
+            <SettingsGroup title={t("version.heading")}>
+              <SettingsRow
+                title={release?.newer ? t("version.newer", { latest: release.latest, running: APP_INFO.version }) : t("version.running", { running: APP_INFO.version })}
+                description={
+                  release?.newer
+                    ? t("version.newerDescription")
+                    : release
+                      ? t("version.latest")
+                      : env.updateCheck && !env.localMode
+                        ? t("version.unknown")
+                        : t("version.off")
+                }
+                control={
+                  <a
+                    href={release?.newer ? release.url : APP_INFO.releaseNotes}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-sm hover:underline"
+                  >
+                    {t("version.releaseNotes")}
+                    <ExternalLink className="h-3.5 w-3.5 text-fg-muted" aria-hidden />
+                  </a>
+                }
+              />
+            </SettingsGroup>
+
             <SettingsGroup title={t("workspaces.heading")}>
               <SettingsRow
                 title={env.workspaceCreation === "admins" ? t("workspaces.admins") : t("workspaces.everyone")}

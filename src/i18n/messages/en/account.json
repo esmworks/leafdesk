@@ -29,7 +29,10 @@
     "issues": "Report a problem",
     "issuesDescription": "Bugs and ideas go to the project's issue tracker.",
     "issuesLink": "Open an issue",
-    "notice": "Leafdesk includes open-source software by others; their notices are in the <link>NOTICE</link> file."
+    "notice": "Leafdesk includes open-source software by others; their notices are in the <link>NOTICE</link> file.",
+    "newer": "Leafdesk {latest} is out",
+    "newerDescription": "A newer release than the one this server runs. Whoever runs the server can update it.",
+    "newerNotes": "What's new"
   },
   "profile": {
     "description": "How you appear to others in every workspace, the email you sign in with, and deleting your account.",
@@ -168,7 +171,9 @@
     "samePassword": "Choose a password different from the old one.",
     "resetStepExpired": "This step has expired. Sign in with your old password again.",
     "storageStuck": "The files of {workspaces} are in your storage and have nowhere to move to. Ask their owners to set up storage, or move the files first.",
-    "legalHold": "A legal hold in {workspaces} keeps your account. Ask an owner there to release it first."
+    "legalHold": "A legal hold in {workspaces} keeps your account. Ask an owner there to release it first.",
+    "phoneSignInSso": "{workspaces} asks you to sign in with single sign-on, so a QR code can't sign your phone in.",
+    "phoneSignInTwoFactor": "{workspaces} requires two-step verification. Turn it on for your account first."
   },
   "mail": {
     "description": "Your mailboxes and calendar addresses, in every workspace you're in.",
@@ -249,5 +254,31 @@
     "unlinkConfirm": "Unlink Telegram",
     "unlinking": "Unlinking…",
     "unreachable": "The server can't reach Telegram right now. Try again later."
+  },
+  "phoneSignIn": {
+    "heading": "Other devices",
+    "title": "Sign in on your phone",
+    "description": "Show a QR code and scan it with your phone's camera to sign in there without typing your password. Each code works once, for two minutes.",
+    "show": "Show QR code",
+    "blockedSso": "{workspaces} asks you to sign in with single sign-on, so a QR code can't sign your phone in. Sign in on your phone with single sign-on instead.",
+    "blockedTwoFactor": "{workspaces} requires two-step verification. Turn it on for your account above; your phone then asks for a code after scanning.",
+    "dialogTitle": "Sign in on your phone",
+    "confirmBody": "Confirm it's you first. Whoever scans the code gets into your account, so show it only to your own phone.",
+    "showCode": "Show code",
+    "scan": "Point your phone's camera at the code, open the link it finds and confirm.",
+    "codeLabel": "QR code that signs a phone in to your account",
+    "validFor": "Works once, for {seconds, plural, one {# more second} other {# more seconds}}.",
+    "expired": "This code has expired.",
+    "expiredNote": "Show a new code to try again.",
+    "newCode": "New code",
+    "metaTitle": "Sign in on this device",
+    "invalidTitle": "This code doesn't work",
+    "invalidBody": "It has expired or was used already. Show a new code on your account page and scan it again.",
+    "phoneTitle": "Sign in on this device?",
+    "phoneBody": "This signs this device in to Leafdesk as {name} ({email}).",
+    "phoneConfirm": "Sign in",
+    "phoneWarning": "Continue only if you just scanned this code on your own screen.",
+    "refusedSso": "A workspace you're in asks for single sign-on. Sign in on this device with single sign-on instead.",
+    "refusedTwoFactor": "A workspace you're in requires two-step verification. Turn it on for your account first, then show a new code."
   }
 }

@@ -93,5 +93,15 @@
     "clearTitle": "{workspace} için onaylı ağlar temizlensin mi?",
     "clearBody": "Çalışma alanındaki herkes onu yeniden her ağdan açabilir; listeyi sizin temizlediğiniz denetim kaydına yazılır. Sahipleri listeyi Ayarlar → Güvenlik bölümünden yeniden ayarlayabilir.",
     "clearConfirm": "Listeyi temizle"
+  },
+  "version": {
+    "heading": "Sürüm",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} çıktı (sizdeki {running})",
+    "newerDescription": "Nelerin değiştiğini ve nasıl güncelleneceğini sürüm notlarında okuyabilirsiniz.",
+    "latest": "Bu en yeni sürüm.",
+    "unknown": "Yeni sürümler hakkında henüz yanıt yok; sunucu günde iki kez GitHub'a soruyor.",
+    "off": "Sunucu yeni sürüm aramıyor (UPDATE_CHECK kapalı).",
+    "releaseNotes": "Sürüm notları"
   }
 }

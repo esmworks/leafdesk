@@ -11,6 +11,7 @@ import { INBOX_PREFERENCES_EVENT } from "@/lib/inbox-event";
 import type { NotificationChannel, NotificationPreferences } from "@/server/notification-preferences";
 import { appWorker, base64UrlToBytes, madeWithKey, pushSupported } from "./push-device";
 import { SettingsRow } from "./section";
+import { NotificationUnblockHelp } from "./notification-unblock";
 
 const KIND_KEYS = {
   assignment: "assignment",
@@ -236,6 +237,8 @@ function PushDeviceRow({ publicKey, endpoints }: { publicKey: string; endpoints:
           </Button>
         ) : null
       }
-    />
+    >
+      {state === "blocked" && !error && <NotificationUnblockHelp />}
+    </SettingsRow>
   );
 }

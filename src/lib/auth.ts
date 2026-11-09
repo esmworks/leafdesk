@@ -33,6 +33,7 @@ import {
   holdRequiredPasswordReset,
   requiredPasswordPlugin,
 } from "@/server/required-password";
+import { phoneSignInPlugin } from "@/server/phone-sign-in";
 import { joinThroughSso, resolveSsoProvider, ssoAccountCreation } from "@/server/sso";
 import { acceptInvitation, createPersonalWorkspace, invitationAllowsSignUp, joinWithLink } from "@/server/workspaces";
 
@@ -278,7 +279,7 @@ function createAuth() {
         },
       },
     },
-    plugins: [...base.plugins, requiredPasswordPlugin(), connectedAppAuditPlugin(), nextCookies()],
+    plugins: [...base.plugins, requiredPasswordPlugin(), connectedAppAuditPlugin(), phoneSignInPlugin(), nextCookies()],
   });
 }
 

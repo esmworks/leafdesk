@@ -93,5 +93,15 @@
     "clearTitle": "Tømme de godkjente nettverkene for {workspace}?",
     "clearBody": "Alle i arbeidsområdet kan åpne det fra alle nettverk igjen, og revisjonsloggen registrerer at du tømte listen. Eierne kan angi den på nytt under Innstillinger → Sikkerhet.",
     "clearConfirm": "Tøm listen"
+  },
+  "version": {
+    "heading": "Versjon",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} er ute (du kjører {running})",
+    "newerDescription": "I versjonsnotatene står det hva som er endret og hvordan du oppdaterer.",
+    "latest": "Dette er den nyeste versjonen.",
+    "unknown": "Ikke noe svar om nye versjoner ennå; serveren spør GitHub to ganger om dagen.",
+    "off": "Serveren ser ikke etter nye versjoner (UPDATE_CHECK er av).",
+    "releaseNotes": "Versjonsnotater"
   }
 }

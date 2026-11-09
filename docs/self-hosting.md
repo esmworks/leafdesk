@@ -180,7 +180,10 @@ way (the provider's login stays); on a verified account a reset leaves its other
 New inbox items can also come as system notifications on people's devices, while Leafdesk is
 closed too. Each person turns them on per device in My account → Preferences ("Push notifications
 on this device"), and picks there, per kind of notification, whether it comes as a push next to
-the inbox and email. Push follows the inbox: a kind kept out of the inbox isn't pushed. Opening a
+the inbox and email. Where the browser blocks Leafdesk's notifications, that row lists the steps to
+allow them again for the browser in use (Chrome and Edge, Safari on a Mac, Firefox, the Home
+Screen app on iPhone and iPad, Chrome on Android), with the others' behind *Steps for other
+browsers and devices*. Push follows the inbox: a kind kept out of the inbox isn't pushed. Opening a
 notification brings an open Leafdesk tab to the page, or opens one; its "Mark as read" button
 marks the inbox item read (its email, if still to come, then doesn't go) and its "Snooze 1 hour"
 button puts it off as the inbox's snooze does (not on agents' requests to go ahead, which wait
@@ -313,6 +316,22 @@ Everyone in every workspace can then fetch it.
 
 Health then says the links aren't checked. See [Workspace health](features.md) for what counts as
 broken.
+
+## New releases
+
+The instance admin page (`/admin`, see below) says when a newer Leafdesk is out, with a link to
+its release notes; the About tab of an administrator's account says so too. Twice a day the server
+asks GitHub's public API for the project's latest release
+(`https://api.github.com/repos/esmworks/leafdesk/releases/latest`): a plain request with a 5-second
+timeout that sends nothing about the server or its people. Nothing updates by itself; see the
+release notes for how to upgrade. To never ask, for a server that shouldn't reach the internet on
+its own, set:
+
+```bash
+UPDATE_CHECK=off
+```
+
+The desktop app's own server never asks.
 
 ## Instance administrators
 

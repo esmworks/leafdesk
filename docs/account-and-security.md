@@ -29,6 +29,15 @@ any workspace and isn't held back by a workspace's two-step policy. The old addr
   Every session that ends (signed out here or on the device, or ended by turning two-step
   verification on or by a password reset) also closes its live collaboration connections. A session ends after
   `SESSION_MAX_AGE_DAYS` without use (see below).
+- **Sign in on your phone** (Security): after the same proof as a password change, shows a QR
+  code. The phone's camera opens its link, the page there names the account, and *Sign in* signs
+  that browser in, no password typed. A code works once and for two minutes; showing a new one
+  replaces it, and only a hash of it is stored. The phone gets a sign-in of its own, not a copy of
+  the computer's: with two-step verification on it asks for the code, a workspace's approved
+  networks apply to it as to any device, and people a workspace holds to single sign-on, or to
+  two-step verification they haven't turned on, get no code at all, with the reason. Each of the
+  person's workspaces records the sign-in in its audit log. Not offered in the desktop app's
+  local mode.
 - **Security, connected apps, language and notifications:** as before, moved here from the
   workspace settings.
 - **Delete account:** type the account's email to confirm. It is refused while the person is the
@@ -41,7 +50,8 @@ any workspace and isn't held back by a workspace's two-step policy. The old addr
 Changing the email or password and deleting the account ask for the password again, or for a
 two-step code (or recovery code) on accounts without one. An account with neither needs a
 sign-in from the last 10 minutes. These checks are rate-limited per person (10 tries per 15
-minutes), as are email changes (5 an hour), picture uploads (20 an hour) and signing out devices.
+minutes), as are email changes (5 an hour), picture uploads (20 an hour), phone sign-in codes (5
+every 10 minutes) and signing out devices.
 
 How long a sign-in lasts is set for the whole server:
 

@@ -155,6 +155,8 @@ services:
       WEB_LINK_CHECKS: ${WEB_LINK_CHECKS:-}
       # Mail tab: off stops looking up the logos of the domains verified mail came from.
       SENDER_LOGOS: ${SENDER_LOGOS:-}
+      # Instance admin page: off stops asking GitHub twice a day whether a newer Leafdesk is out.
+      UPDATE_CHECK: ${UPDATE_CHECK:-}
       # Email on rows: mail servers on a private network that mailboxes may reach (see docs/email-on-rows.md).
       MAIL_ALLOWED_HOSTS: ${MAIL_ALLOWED_HOSTS:-}
       # Email on rows: the Google OAuth client mailboxes sign in with instead of an app password.

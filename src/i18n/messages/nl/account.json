@@ -29,7 +29,10 @@
     "issues": "Een probleem melden",
     "issuesDescription": "Bugs en ideeën gaan naar de issuetracker van het project.",
     "issuesLink": "Een issue openen",
-    "notice": "Leafdesk bevat opensourcesoftware van anderen; hun vermeldingen staan in het bestand <link>NOTICE</link>."
+    "notice": "Leafdesk bevat opensourcesoftware van anderen; hun vermeldingen staan in het bestand <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} is uit",
+    "newerDescription": "Een nieuwere versie dan die deze server draait. Wie de server beheert, kan hem bijwerken.",
+    "newerNotes": "Wat is er nieuw"
   },
   "profile": {
     "description": "Hoe anderen je in elke werkruimte zien, het e-mailadres waarmee je inlogt, en het verwijderen van je account.",
@@ -168,7 +171,9 @@
     "samePassword": "Kies een ander wachtwoord dan het oude.",
     "resetStepExpired": "Deze stap is verlopen. Log opnieuw in met je oude wachtwoord.",
     "storageStuck": "De bestanden van {workspaces} staan in jouw opslag en kunnen nergens naartoe. Vraag de eigenaren om opslag in te stellen, of verplaats eerst de bestanden.",
-    "legalHold": "Een juridische bewaarplicht in {workspaces} houdt je account vast. Vraag een eigenaar daar om haar eerst op te heffen."
+    "legalHold": "Een juridische bewaarplicht in {workspaces} houdt je account vast. Vraag een eigenaar daar om haar eerst op te heffen.",
+    "phoneSignInSso": "{workspaces} vraagt je in te loggen met single sign-on, dus een QR-code kan je telefoon niet laten inloggen.",
+    "phoneSignInTwoFactor": "{workspaces} vereist verificatie in twee stappen. Zet die eerst aan voor je account."
   },
   "mail": {
     "description": "Je mailboxen en agenda-adressen, in elke werkruimte waarin je zit.",
@@ -249,5 +254,31 @@
     "unlinkConfirm": "Telegram ontkoppelen",
     "unlinking": "Ontkoppelen…",
     "unreachable": "De server kan Telegram op dit moment niet bereiken. Probeer het later opnieuw."
+  },
+  "phoneSignIn": {
+    "heading": "Andere apparaten",
+    "title": "Inloggen op je telefoon",
+    "description": "Toon een QR-code en scan hem met de camera van je telefoon om daar in te loggen zonder je wachtwoord te typen. Elke code werkt één keer, twee minuten lang.",
+    "show": "QR-code tonen",
+    "blockedSso": "{workspaces} vraagt je in te loggen met single sign-on, dus een QR-code kan je telefoon niet laten inloggen. Log op je telefoon in met single sign-on.",
+    "blockedTwoFactor": "{workspaces} vereist verificatie in twee stappen. Zet die hierboven aan voor je account; je telefoon vraagt dan na het scannen om een code.",
+    "dialogTitle": "Inloggen op je telefoon",
+    "confirmBody": "Bevestig eerst dat jij het bent. Wie de code scant, komt in je account, dus laat hem alleen aan je eigen telefoon zien.",
+    "showCode": "Code tonen",
+    "scan": "Richt de camera van je telefoon op de code, open de gevonden link en bevestig.",
+    "codeLabel": "QR-code die een telefoon bij je account laat inloggen",
+    "validFor": "Werkt één keer, nog {seconds, plural, one {# seconde} other {# seconden}}.",
+    "expired": "Deze code is verlopen.",
+    "expiredNote": "Toon een nieuwe code om het opnieuw te proberen.",
+    "newCode": "Nieuwe code",
+    "metaTitle": "Inloggen op dit apparaat",
+    "invalidTitle": "Deze code werkt niet",
+    "invalidBody": "Hij is verlopen of al gebruikt. Toon een nieuwe code op je accountpagina en scan hem opnieuw.",
+    "phoneTitle": "Inloggen op dit apparaat?",
+    "phoneBody": "Dit apparaat logt in bij Leafdesk als {name} ({email}).",
+    "phoneConfirm": "Inloggen",
+    "phoneWarning": "Ga alleen verder als je deze code net op je eigen scherm hebt gescand.",
+    "refusedSso": "Een werkruimte waar je in zit vereist single sign-on. Log op dit apparaat in met single sign-on.",
+    "refusedTwoFactor": "Een werkruimte waar je in zit vereist verificatie in twee stappen. Zet die eerst aan voor je account en toon dan een nieuwe code."
   }
 }

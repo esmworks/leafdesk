@@ -99,7 +99,8 @@
       "domainPeople": "domain konten benutzer firma e-mail schatten-it unverwaltet",
       "openOnStart": "start starten erste seite zuletzt besucht",
       "pageReports": "melden meldung missbrauch beschwerde entfernen veröffentlicht öffentlich web seiten",
-      "dashboardEmails": "Abo Bericht Zeitplan wöchentlich Zusammenfassung Report E-Mail"
+      "dashboardEmails": "Abo Bericht Zeitplan wöchentlich Zusammenfassung Report E-Mail",
+      "phoneSignIn": "qr code smartphone handy mobil scannen gerät anmelden"
     }
   },
   "workspace": {
@@ -2188,6 +2189,9 @@
         "note_added": "Hat dem KI-Gedächtnis von {target} eine Notiz hinzugefügt: „{to}“",
         "note_changed": "Hat eine Notiz im KI-Gedächtnis von {target} geändert: „{from}“ → „{to}“",
         "note_deleted": "{count, plural, one {Hat eine Notiz aus dem KI-Gedächtnis von {target} gelöscht: „{from}“} other {Hat # Notizen aus dem KI-Gedächtnis von {target} gelöscht}}"
+      },
+      "account": {
+        "phone_signed_in": "Mit einem QR-Code auf einem anderen Gerät angemeldet"
       }
     },
     "decisions": {
@@ -2310,7 +2314,43 @@
     "dashboardEmailsHeading": "Dashboard-E-Mails",
     "dashboardEmailsDescription": "Dashboards, die dir nach Zeitplan per E-Mail gesendet werden, und die, die du für andere eingerichtet hast.",
     "dashboardEmailsNone": "Keine Dashboard-E-Mails",
-    "dashboardEmailsNoneDescription": "Um ein Dashboard per E-Mail zu erhalten, öffne es und wähle über den Widgets E-Mail."
+    "dashboardEmailsNoneDescription": "Um ein Dashboard per E-Mail zu erhalten, öffne es und wähle über den Widgets E-Mail.",
+    "unblock": {
+      "ownHeading": "So erlaubst du sie wieder in {platform}:",
+      "others": "Schritte für andere Browser und Geräte",
+      "all": "So erlaubst du sie wieder",
+      "chrome": {
+        "name": "Chrome, Edge und andere Chromium-Browser",
+        "step1": "Klicke auf das Symbol am Anfang der Adressleiste, links von der Adresse.",
+        "step2": "Schalte Benachrichtigungen ein oder stelle sie auf Zulassen. Fehlt der Eintrag, öffne die Website-Einstellungen und ändere es dort.",
+        "step3": "Lade diese Seite neu und schalte hier Push-Benachrichtigungen ein."
+      },
+      "safari": {
+        "name": "Safari auf dem Mac",
+        "step1": "Wähle in der Menüleiste Safari, dann Einstellungen, und öffne Websites.",
+        "step2": "Klicke links in der Liste auf Mitteilungen.",
+        "step3": "Stelle diese Website auf Erlauben, lade dann diese Seite neu und schalte hier Push-Benachrichtigungen ein."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Klicke auf das Symbol am Anfang der Adressleiste.",
+        "step2": "Entferne neben Benachrichtigungen senden das Blockiert.",
+        "step3": "Lade diese Seite neu, schalte hier Push-Benachrichtigungen ein und wähle Erlauben, wenn du gefragt wirst."
+      },
+      "ios": {
+        "name": "iPhone und iPad, Leafdesk auf dem Home-Bildschirm",
+        "step1": "Öffne die App Einstellungen und tippe auf Mitteilungen.",
+        "step2": "Tippe in der Liste der Apps auf Leafdesk.",
+        "step3": "Schalte Mitteilungen erlauben ein und öffne Leafdesk dann erneut vom Home-Bildschirm."
+      },
+      "android": {
+        "name": "Chrome auf Android",
+        "step1": "Tippe auf das Symbol am Anfang der Adressleiste.",
+        "step2": "Tippe auf Berechtigungen und dann auf Benachrichtigungen.",
+        "step3": "Schalte Benachrichtigungen für diese Website ein.",
+        "step4": "Lade diese Seite neu und schalte hier Push-Benachrichtigungen ein."
+      }
+    }
   },
   "site": {
     "description": "Gib den veröffentlichten Seiten dieses Workspace eine gemeinsame, gut lesbare Adresse, eine Startseite und eine Navigation zwischen ihnen.",

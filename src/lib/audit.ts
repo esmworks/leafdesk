@@ -81,6 +81,7 @@ export const AUDIT_CATEGORIES = {
     "audit_stream.removed",
     "sensitive_content.found",
     "sensitive_content.dismissed",
+    "account.phone_signed_in",
   ],
   pages: [
     "page.created",

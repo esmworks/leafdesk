@@ -99,7 +99,8 @@
       "domainPeople": "domain accounts users company email shadow unmanaged",
       "openOnStart": "startup launch first page last visited recent",
       "pageReports": "report abuse flag complaint takedown published public web pages",
-      "dashboardEmails": "subscription report schedule weekly summary"
+      "dashboardEmails": "subscription report schedule weekly summary",
+      "phoneSignIn": "qr code phone mobile scan device sign in"
     }
   },
   "workspace": {
@@ -2188,6 +2189,9 @@
         "note_added": "Added a note to the AI memory of {target}: “{to}”",
         "note_changed": "Changed a note in the AI memory of {target}: “{from}” → “{to}”",
         "note_deleted": "{count, plural, one {Deleted a note from the AI memory of {target}: “{from}”} other {Deleted # notes from the AI memory of {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Used a QR code to sign in on another device"
       }
     },
     "decisions": {
@@ -2310,7 +2314,43 @@
     "dashboardEmailsHeading": "Dashboard emails",
     "dashboardEmailsDescription": "Dashboards emailed to you on a schedule, and the ones you set up for others.",
     "dashboardEmailsNone": "No dashboard emails",
-    "dashboardEmailsNoneDescription": "To get a dashboard by email, open it and choose Email above its widgets."
+    "dashboardEmailsNoneDescription": "To get a dashboard by email, open it and choose Email above its widgets.",
+    "unblock": {
+      "ownHeading": "To allow them again in {platform}:",
+      "others": "Steps for other browsers and devices",
+      "all": "How to allow them again",
+      "chrome": {
+        "name": "Chrome, Edge and other Chromium browsers",
+        "step1": "Click the icon at the start of the address bar, left of the address.",
+        "step2": "Turn Notifications on or set it to Allow. If it isn't listed, open Site settings and change it there.",
+        "step3": "Reload this page and turn push notifications on here."
+      },
+      "safari": {
+        "name": "Safari on a Mac",
+        "step1": "In the menu bar, choose Safari, then Settings, and open Websites.",
+        "step2": "Click Notifications in the list on the left.",
+        "step3": "Set this site to Allow, then reload this page and turn push notifications on here."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Click the icon at the start of the address bar.",
+        "step2": "Next to Send notifications, remove Blocked.",
+        "step3": "Reload this page, turn push notifications on here and choose Allow when asked."
+      },
+      "ios": {
+        "name": "iPhone and iPad, Leafdesk on the Home Screen",
+        "step1": "Open the Settings app and tap Notifications.",
+        "step2": "Tap Leafdesk in the list of apps.",
+        "step3": "Turn on Allow Notifications, then open Leafdesk from the Home Screen again."
+      },
+      "android": {
+        "name": "Chrome on Android",
+        "step1": "Tap the icon at the start of the address bar.",
+        "step2": "Tap Permissions, then Notifications.",
+        "step3": "Turn notifications on for this site.",
+        "step4": "Reload this page and turn push notifications on here."
+      }
+    }
   },
   "site": {
     "description": "Give this workspace's published pages one readable address, a home page and navigation between them.",

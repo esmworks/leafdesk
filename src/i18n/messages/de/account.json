@@ -29,7 +29,10 @@
     "issues": "Problem melden",
     "issuesDescription": "Fehler und Ideen gehören in den Issue-Tracker des Projekts.",
     "issuesLink": "Issue eröffnen",
-    "notice": "Leafdesk enthält Open-Source-Software anderer; ihre Hinweise stehen in der Datei <link>NOTICE</link>."
+    "notice": "Leafdesk enthält Open-Source-Software anderer; ihre Hinweise stehen in der Datei <link>NOTICE</link>.",
+    "newer": "Leafdesk {latest} ist erschienen",
+    "newerDescription": "Eine neuere Version als die, die dieser Server ausführt. Wer den Server betreibt, kann ihn aktualisieren.",
+    "newerNotes": "Was ist neu"
   },
   "profile": {
     "description": "Wie andere dich in allen Workspaces sehen, die E-Mail-Adresse, mit der du dich anmeldest, und das Löschen deines Kontos.",
@@ -168,7 +171,9 @@
     "samePassword": "Wählen Sie ein anderes Passwort als das alte.",
     "resetStepExpired": "Dieser Schritt ist abgelaufen. Melden Sie sich erneut mit Ihrem alten Passwort an.",
     "storageStuck": "Die Dateien von {workspaces} liegen in deinem Speicher und können nirgendwohin verschoben werden. Bitte ihre Inhaber, Speicher einzurichten, oder verschiebe die Dateien zuerst.",
-    "legalHold": "Eine rechtliche Aufbewahrung in {workspaces} schützt Ihr Konto. Bitten Sie dort zuerst einen Inhaber, sie aufzuheben."
+    "legalHold": "Eine rechtliche Aufbewahrung in {workspaces} schützt Ihr Konto. Bitten Sie dort zuerst einen Inhaber, sie aufzuheben.",
+    "phoneSignInSso": "{workspaces} verlangt die Anmeldung per Single Sign-on, daher kann ein QR-Code dein Smartphone nicht anmelden.",
+    "phoneSignInTwoFactor": "{workspaces} verlangt die Bestätigung in zwei Schritten. Schalte sie zuerst für dein Konto ein."
   },
   "mail": {
     "description": "Deine Postfächer und Kalenderadressen, in allen deinen Workspaces.",
@@ -249,5 +254,31 @@
     "unlinkConfirm": "Telegram trennen",
     "unlinking": "Wird getrennt …",
     "unreachable": "Der Server erreicht Telegram gerade nicht. Versuch es später noch einmal."
+  },
+  "phoneSignIn": {
+    "heading": "Andere Geräte",
+    "title": "Auf dem Smartphone anmelden",
+    "description": "Zeige einen QR-Code an und scanne ihn mit der Kamera deines Smartphones, um dich dort ohne Passwort anzumelden. Jeder Code funktioniert einmal, zwei Minuten lang.",
+    "show": "QR-Code anzeigen",
+    "blockedSso": "{workspaces} verlangt die Anmeldung per Single Sign-on, daher kann ein QR-Code dein Smartphone nicht anmelden. Melde dich dort stattdessen per Single Sign-on an.",
+    "blockedTwoFactor": "{workspaces} verlangt die Bestätigung in zwei Schritten. Schalte sie oben für dein Konto ein; dein Smartphone fragt dann nach dem Scannen nach einem Code.",
+    "dialogTitle": "Auf dem Smartphone anmelden",
+    "confirmBody": "Bestätige zuerst, dass du es bist. Wer den Code scannt, kommt in dein Konto – zeige ihn nur deinem eigenen Smartphone.",
+    "showCode": "Code anzeigen",
+    "scan": "Richte die Kamera deines Smartphones auf den Code, öffne den gefundenen Link und bestätige.",
+    "codeLabel": "QR-Code, der ein Smartphone bei deinem Konto anmeldet",
+    "validFor": "Funktioniert einmal, noch {seconds, plural, one {# Sekunde} other {# Sekunden}}.",
+    "expired": "Dieser Code ist abgelaufen.",
+    "expiredNote": "Zeige einen neuen Code an, um es erneut zu versuchen.",
+    "newCode": "Neuer Code",
+    "metaTitle": "Auf diesem Gerät anmelden",
+    "invalidTitle": "Dieser Code funktioniert nicht",
+    "invalidBody": "Er ist abgelaufen oder wurde bereits verwendet. Zeige auf deiner Kontoseite einen neuen Code an und scanne ihn erneut.",
+    "phoneTitle": "Auf diesem Gerät anmelden?",
+    "phoneBody": "Damit wird dieses Gerät bei Leafdesk als {name} ({email}) angemeldet.",
+    "phoneConfirm": "Anmelden",
+    "phoneWarning": "Fahre nur fort, wenn du diesen Code gerade auf deinem eigenen Bildschirm gescannt hast.",
+    "refusedSso": "Ein Arbeitsbereich, in dem du bist, verlangt Single Sign-on. Melde dich auf diesem Gerät stattdessen per Single Sign-on an.",
+    "refusedTwoFactor": "Ein Arbeitsbereich, in dem du bist, verlangt die Bestätigung in zwei Schritten. Schalte sie zuerst für dein Konto ein und zeige dann einen neuen Code an."
   }
 }

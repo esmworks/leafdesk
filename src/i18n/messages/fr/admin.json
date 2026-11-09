@@ -93,5 +93,15 @@
     "clearTitle": "Vider les réseaux approuvés de {workspace} ?",
     "clearBody": "Tout le monde dans l’espace de travail pourra à nouveau l’ouvrir depuis n’importe quel réseau, et son journal d’audit indiquera que vous avez vidé la liste. Ses propriétaires peuvent la redéfinir dans Paramètres → Sécurité.",
     "clearConfirm": "Vider la liste"
+  },
+  "version": {
+    "heading": "Version",
+    "running": "Leafdesk {running}",
+    "newer": "Leafdesk {latest} est disponible (vous utilisez {running})",
+    "newerDescription": "Les notes de version indiquent ce qui a changé et comment mettre à jour.",
+    "latest": "C’est la version la plus récente.",
+    "unknown": "Pas encore de réponse sur les nouvelles versions ; le serveur interroge GitHub deux fois par jour.",
+    "off": "Le serveur ne cherche pas de nouvelles versions (UPDATE_CHECK est désactivé).",
+    "releaseNotes": "Notes de version"
   }
 }

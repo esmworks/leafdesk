@@ -99,7 +99,8 @@
       "domainPeople": "domena konta użytkownicy firma e-mail shadow niezarządzane",
       "openOnStart": "start uruchomienie pierwsza strona ostatnio odwiedzona",
       "pageReports": "zgłoś zgłoszenie nadużycie skarga usunięcie opublikowana publiczna sieć strony",
-      "dashboardEmails": "subskrypcja raport harmonogram cotygodniowe podsumowanie e-mail"
+      "dashboardEmails": "subskrypcja raport harmonogram cotygodniowe podsumowanie e-mail",
+      "phoneSignIn": "kod qr telefon komórka skanuj urządzenie zaloguj"
     }
   },
   "workspace": {
@@ -2188,6 +2189,9 @@
         "note_added": "Dodano notatkę do pamięci AI {target}: „{to}”",
         "note_changed": "Zmieniono notatkę w pamięci AI {target}: „{from}” → „{to}”",
         "note_deleted": "{count, plural, one {Usunięto notatkę z pamięci AI {target}: „{from}”} few {Usunięto # notatki z pamięci AI {target}} many {Usunięto # notatek z pamięci AI {target}} other {Usunięto # notatki z pamięci AI {target}}}"
+      },
+      "account": {
+        "phone_signed_in": "Użył kodu QR, aby zalogować się na innym urządzeniu"
       }
     },
     "decisions": {
@@ -2310,7 +2314,43 @@
     "dashboardEmailsHeading": "E-maile z pulpitami",
     "dashboardEmailsDescription": "Pulpity wysyłane do Ciebie e-mailem według harmonogramu oraz te, które skonfigurowano dla innych.",
     "dashboardEmailsNone": "Brak e-maili z pulpitami",
-    "dashboardEmailsNoneDescription": "Aby dostawać pulpit e-mailem, otwórz go i wybierz E-mail nad widżetami."
+    "dashboardEmailsNoneDescription": "Aby dostawać pulpit e-mailem, otwórz go i wybierz E-mail nad widżetami.",
+    "unblock": {
+      "ownHeading": "Jak znów na nie zezwolić w {platform}:",
+      "others": "Kroki dla innych przeglądarek i urządzeń",
+      "all": "Jak znów na nie zezwolić",
+      "chrome": {
+        "name": "Chrome, Edge i inne przeglądarki Chromium",
+        "step1": "Kliknij ikonę na początku paska adresu, po lewej stronie adresu.",
+        "step2": "Włącz Powiadomienia lub wybierz Zezwalaj. Jeśli ich tam nie ma, otwórz Ustawienia witryny i zmień to tam.",
+        "step3": "Odśwież tę stronę i włącz tutaj powiadomienia push."
+      },
+      "safari": {
+        "name": "Safari na Macu",
+        "step1": "Na pasku menu wybierz Safari, następnie Ustawienia, i otwórz Witryny.",
+        "step2": "Kliknij Powiadomienia na liście po lewej.",
+        "step3": "Ustaw tę witrynę na Zezwalaj, odśwież tę stronę i włącz tutaj powiadomienia push."
+      },
+      "firefox": {
+        "name": "Firefox",
+        "step1": "Kliknij ikonę na początku paska adresu.",
+        "step2": "Obok Wysyłanie powiadomień usuń Zablokowano.",
+        "step3": "Odśwież tę stronę, włącz tutaj powiadomienia push i wybierz Zezwól, gdy pojawi się pytanie."
+      },
+      "ios": {
+        "name": "iPhone i iPad, Leafdesk na ekranie początkowym",
+        "step1": "Otwórz aplikację Ustawienia i stuknij Powiadomienia.",
+        "step2": "Stuknij Leafdesk na liście aplikacji.",
+        "step3": "Włącz Pozwalaj na powiadomienia, a potem otwórz Leafdesk ponownie z ekranu początkowego."
+      },
+      "android": {
+        "name": "Chrome na Androidzie",
+        "step1": "Dotknij ikony na początku paska adresu.",
+        "step2": "Dotknij Uprawnienia, a potem Powiadomienia.",
+        "step3": "Włącz powiadomienia dla tej witryny.",
+        "step4": "Odśwież tę stronę i włącz tutaj powiadomienia push."
+      }
+    }
   },
   "site": {
     "description": "Nadaj opublikowanym stronom tego obszaru roboczego jeden czytelny adres, stronę główną i nawigację między nimi.",
