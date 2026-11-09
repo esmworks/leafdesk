@@ -93,7 +93,8 @@ import {
 } from "@/lib/dependencies";
 import { calculationFormat, checkNumberFormat, takesNumberFormat, valueFormat } from "@/lib/number-format";
 import { checkNumberDisplay } from "@/lib/number-display";
-import { checkRelationOptions, shownPropertyIds, showableType, type RelationOptionsInput } from "@/lib/relation-options";
+import { checkRelationOptions, linksOne, shownPropertyIds, showableType, type RelationOptionsInput } from "@/lib/relation-options";
+import { mergeListEdit } from "@/lib/list-merge";
 import { isPageVisibility, type PageVisibility } from "@/lib/page-visibility";
 import { canPin, isPinned, MAX_PINNED } from "@/lib/row-layout";
 import { checkDateOptions, type DateOptionsInput } from "@/lib/date-options";
@@ -773,6 +774,68 @@ async function resolveRelationValue(userId: string, prop: DatabaseProperty, inpu
   return out;
 }
 
+/** A transaction of the one pool (src/db). */
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Rows' values as they are now, locked until the transaction ends: a write and the two-way links
+ * it makes start from them, not from a read made before (a concurrent write of the same row would
+ * otherwise leave links behind that the row no longer holds). Locked in id order, so two writes of
+ * several rows never wait for each other.
+ */
+async function lockRowValues(tx: Tx, rowIds: string[]) {
+  const rows = await tx
+    .select({ id: page.id, properties: page.properties })
+    .from(page)
+    .where(inArray(page.id, rowIds))
+    .orderBy(asc(page.id))
+    .for("update");
+  return new Map(rows.map((r) => [r.id, r.properties]));
+}
+
+/** Postgres gave up on a transaction caught in a deadlock (two-way links written from both ends at once). */
+const deadlocked = (error: unknown) => {
+  for (let e = error as { code?: string; cause?: unknown } | undefined, depth = 0; e && depth < 3; e = e.cause as typeof e, depth++) {
+    if (e.code === "40P01") return true;
+  }
+  return false;
+};
+
+/** Runs a row write's transaction again when Postgres broke a deadlock by ending it. */
+async function retryingDeadlocks<T>(write: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await write();
+    } catch (error) {
+      if (attempt >= 3 || !deadlocked(error)) throw error;
+    }
+  }
+}
+
+/** List-valued properties whose edit merges with others' (lib/list-merge): not those holding one item. */
+function mergesLists(prop: DatabaseProperty) {
+  if (prop.type === "multi_select" || prop.type === "files") return true;
+  if (prop.type === "person") return !prop.options.person?.single;
+  if (prop.type === "relation") return !linksOne(prop.options.relation);
+  return false;
+}
+
+/** `values` with each list a `base` names merged into the row's list as it is now (`current`). */
+function mergedListValues(
+  properties: DatabaseProperty[],
+  values: Record<string, unknown>,
+  current: Record<string, unknown>,
+  base: Record<string, unknown>,
+) {
+  const merged = { ...values };
+  for (const prop of properties) {
+    if (!(prop.id in values) || !(prop.id in base) || !mergesLists(prop)) continue;
+    const list = mergeListEdit(current[prop.id], base[prop.id], values[prop.id]);
+    merged[prop.id] = list.length ? list : null;
+  }
+  return merged;
+}
+
 const asIds = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
 
 const isParentProperty = (prop: DatabaseProperty) => parentProperty([prop]) === prop;
@@ -860,23 +923,28 @@ export async function syncPairedRelations(
   await syncPairedRelationsMany(databaseId, [{ rowId, before, after }]);
 }
 
-/** `syncPairedRelations` for several rows of one database; each related database is notified once. */
+/**
+ * `syncPairedRelations` for several rows of one database; each related database is notified once.
+ * Given a transaction (`conn`), it writes inside it and leaves the notices to the caller, after the
+ * commit: it returns the databases to notify.
+ */
 export async function syncPairedRelationsMany(
   databaseId: string,
   changes: { rowId: string; before: Record<string, unknown>; after: Record<string, unknown> }[],
-) {
+  conn: Tx | typeof db = db,
+): Promise<Set<string>> {
   const all = await getProperties(databaseId);
   const props = all.filter((p) => p.type === "relation" && p.options.relation?.pairedPropertyId);
-  if (!props.length) return;
+  const touched = new Set<string>();
+  if (!props.length) return touched;
   const parentKey = parentProperty(all)?.id;
   // Paired properties that link to one row (RelationConfig `single`): a row linked
   // from here leaves the row it linked to before, as sub-items leave their old parent.
-  const paired = await db
+  const paired = await conn
     .select({ id: databaseProperty.id, options: databaseProperty.options })
     .from(databaseProperty)
     .where(inArray(databaseProperty.id, props.map((p) => p.options.relation!.pairedPropertyId!)));
   const single = new Set(paired.filter((p) => p.options.relation?.single).map((p) => p.id));
-  const touched = new Set<string>();
   for (const { rowId, before, after } of changes) {
     for (const prop of props) {
       const relation = prop.options.relation!;
@@ -890,13 +958,13 @@ export async function syncPairedRelationsMany(
       const current = sql`coalesce(${page.properties} -> ${key}, '[]'::jsonb)`;
       // Rows added as sub-items get this row as their only parent: they leave their old parent's list.
       if (added.length && parentKey === key) {
-        await moveSubItems(databaseId, rowId, added, key, prop.id);
+        await moveSubItems(databaseId, rowId, added, key, prop.id, databaseId, conn);
         touched.add(databaseId);
       } else if (added.length && single.has(key)) {
-        await moveSubItems(databaseId, rowId, added, key, prop.id, relation.databaseId);
+        await moveSubItems(databaseId, rowId, added, key, prop.id, relation.databaseId, conn);
         touched.add(databaseId);
       } else if (added.length) {
-        await db
+        await conn
           .update(page)
           .set({
             properties: sql`jsonb_set(${page.properties}, ${path}::text[], ${current} || to_jsonb(${rowId}::text))`,
@@ -910,7 +978,7 @@ export async function syncPairedRelationsMany(
           );
       }
       if (removed.length) {
-        await db
+        await conn
           .update(page)
           .set({
             properties: sql`case when (${current} - ${rowId}::text) = '[]'::jsonb then ${page.properties} - ${key}
@@ -921,7 +989,8 @@ export async function syncPairedRelationsMany(
       touched.add(relation.databaseId);
     }
   }
-  for (const id of touched) notifyRows(id);
+  if (conn === db) for (const id of touched) notifyRows(id);
+  return touched;
 }
 
 /**
@@ -937,13 +1006,14 @@ async function moveSubItems(
   parentKey: string,
   childrenKey: string,
   childDatabaseId = databaseId,
+  conn: Tx | typeof db = db,
 ) {
-  const children = await db
+  const children = await conn
     .select({ id: page.id, properties: page.properties })
     .from(page)
     .where(and(inArray(page.id, childIds), eq(page.parentId, childDatabaseId)));
   if (!children.length) return;
-  await db
+  await conn
     .update(page)
     .set({ properties: sql`jsonb_set(${page.properties}, ${`{${parentKey}}`}::text[], jsonb_build_array(${parentId}::text))` })
     .where(inArray(page.id, children.map((c) => c.id)));
@@ -951,7 +1021,7 @@ async function moveSubItems(
   for (const child of children) {
     const old = asIds(child.properties[parentKey]).filter((id) => id !== parentId);
     if (!old.length) continue;
-    await db
+    await conn
       .update(page)
       .set({
         properties: sql`case when (${current} - ${child.id}::text) = '[]'::jsonb then ${page.properties} - ${childrenKey}
@@ -976,35 +1046,53 @@ export async function dropCopiedSubItems(rowId: string, databaseId: string, prop
   return rest;
 }
 
-export async function updateRowProperties(userId: string, rowId: string, patch: Record<string, unknown>) {
+/**
+ * Sets values of one row. `base`: the values the edit started from, for list-valued properties
+ * (tags, people, linked rows, files): what the edit added and took away is applied to the list as
+ * it is now, so someone else's change made meanwhile stays (lib/list-merge). Without it a list is
+ * written as given.
+ */
+export async function updateRowProperties(
+  userId: string,
+  rowId: string,
+  patch: Record<string, unknown>,
+  { base }: { base?: Record<string, unknown> } = {},
+) {
   const row = await requirePageAccess(userId, rowId, "content");
   if (!row.parentId) throw withCode(new Error("Page is not a database row"), "notADatabaseRow");
   assertNotInTrash(row);
-  await requireDatabase(userId, row.parentId, "view");
-  const normalized = await normalizeRowProperties(userId, row.parentId, patch, row.properties, { createdBy: row.createdBy, template: row.isTemplate });
-  await checkLoops(row.parentId, [{ rowId, values: normalized }]);
-  const { set, cleared } = splitPatch(normalized);
-  const next = { ...row.properties, ...set };
-  for (const k of cleared) delete next[k];
-  // Merged in SQL, so a write to another property of this row since it was read here (another
-  // person, an agent or an automation) is kept rather than overwritten with what was read.
-  const [written] = await withUniqueValues(() =>
-    db
-      .update(page)
-      .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
-      .where(eq(page.id, rowId))
-      .returning({ properties: page.properties }),
+  const databaseId = row.parentId;
+  await requireDatabase(userId, databaseId, "view");
+  const normalized = await normalizeRowProperties(userId, databaseId, patch, row.properties, { createdBy: row.createdBy, template: row.isTemplate });
+  await checkLoops(databaseId, [{ rowId, values: normalized }]);
+  const properties = base && Object.keys(base).length ? await getProperties(databaseId) : null;
+  // The row is read again locked, and its two-way links written in the same transaction: what
+  // they mirror is what the row holds, whichever of two writes at once ends last.
+  const { before, after, linked } = await withUniqueValues(() =>
+    retryingDeadlocks(() =>
+      db.transaction(async (tx) => {
+        const before = (await lockRowValues(tx, [rowId])).get(rowId) ?? row.properties;
+        const values = properties ? mergedListValues(properties, normalized, before, base!) : normalized;
+        const { set, cleared } = splitPatch(values);
+        // Merged in SQL as well: the lock covers this row's writes made through here only.
+        const [written] = await tx
+          .update(page)
+          .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
+          .where(eq(page.id, rowId))
+          .returning({ properties: page.properties });
+        const after = written?.properties ?? before;
+        // Templates link one way and assign nobody: their values only seed the rows made from them.
+        const linked = row.inTemplate ? new Set<string>() : await syncPairedRelationsMany(databaseId, [{ rowId, before, after }], tx);
+        return { before, after, linked };
+      }),
+    ),
   );
-  // Templates link one way and assign nobody: their values only seed the rows made from them.
-  if (!row.inTemplate) {
-    await syncPairedRelations(rowId, row.parentId, row.properties, next);
-    await afterRowWrites(userId, row.parentId, [{ rowId, before: row.properties, after: next }]);
-  } else {
-    await authorizeRowFiles(userId, [{ rowId, before: row.properties, after: next }]);
-  }
-  notifyRows(row.parentId);
-  rowChanged({ rowId, databaseId: row.parentId, userId });
-  return written?.properties ?? next;
+  for (const id of linked) notifyRows(id);
+  if (!row.inTemplate) await afterRowWrites(userId, databaseId, [{ rowId, before, after }]);
+  else await authorizeRowFiles(userId, [{ rowId, before, after }]);
+  notifyRows(databaseId);
+  rowChanged({ rowId, databaseId, userId });
+  return after;
 }
 
 /** Normalized row values split into the ones to store and the ids to clear (null values). */
@@ -1126,30 +1214,37 @@ export async function updateRowsProperties(
     group.ids.push(row.id);
     groups.set(key, group);
   }
-  // Merged in SQL, so a concurrent edit of another property of the same row isn't overwritten.
-  await withUniqueValues(() =>
-    db.transaction(async (tx) => {
-      for (const { values, ids: groupIds } of groups.values()) {
-        const { set, cleared } = splitPatch(values);
-        await tx
-          .update(page)
-          .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
-          .where(inArray(page.id, groupIds));
-      }
-    }),
+  // Merged in SQL, so a concurrent edit of another property of the same row isn't overwritten;
+  // the rows are read again locked and their two-way links written with them (see updateRowProperties).
+  const templated = new Set(rows.filter((row) => row.inTemplate).map((row) => row.id));
+  const { changes, linked } = await withUniqueValues(() =>
+    retryingDeadlocks(() =>
+      db.transaction(async (tx) => {
+        const before = await lockRowValues(tx, rows.map((row) => row.id));
+        const after = new Map<string, Record<string, unknown>>();
+        for (const { values, ids: groupIds } of groups.values()) {
+          const { set, cleared } = splitPatch(values);
+          const written = await tx
+            .update(page)
+            .set({ properties: mergedProperties(set, cleared), updatedBy: userId })
+            .where(inArray(page.id, groupIds))
+            .returning({ id: page.id, properties: page.properties });
+          for (const w of written) after.set(w.id, w.properties);
+        }
+        const changes = rows.map((row) => ({
+          rowId: row.id,
+          before: before.get(row.id) ?? row.properties,
+          after: after.get(row.id) ?? before.get(row.id) ?? row.properties,
+        }));
+        // Rows of a database kept as a template link one way and assign nobody (see updateRowProperties).
+        const linked = await syncPairedRelationsMany(databaseId, changes.filter((c) => !templated.has(c.rowId)), tx);
+        return { changes, linked };
+      }),
+    ),
   );
-
-  // Rows of a database kept as a template link one way and assign nobody (see updateRowProperties).
-  const changeOf = (row: (typeof rows)[number]) => {
-    const { set, cleared } = splitPatch(perRow.get(row.id)!);
-    const after: Record<string, unknown> = { ...row.properties, ...set };
-    for (const k of cleared) delete after[k];
-    return { rowId: row.id, before: row.properties, after };
-  };
-  const changes = rows.filter((row) => !row.inTemplate).map(changeOf);
-  await authorizeRowFiles(userId, rows.filter((row) => row.inTemplate).map(changeOf));
-  await syncPairedRelationsMany(databaseId, changes);
-  await afterRowWrites(userId, databaseId, changes);
+  for (const id of linked) notifyRows(id);
+  await authorizeRowFiles(userId, changes.filter((c) => templated.has(c.rowId)));
+  await afterRowWrites(userId, databaseId, changes.filter((c) => !templated.has(c.rowId)));
   notifyRows(databaseId);
   for (const row of rows) rowChanged({ rowId: row.id, databaseId, userId });
   return { done: rows.map((r) => r.id), skipped };

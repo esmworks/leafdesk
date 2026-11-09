@@ -71,8 +71,11 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   while people may be editing (meeting notes, ticking a to-do), changes them in place with
   `updateBlockAttributes` (its `find` gets the block's id, which sits on the `blockContainer`; an
   inline node such as a mention, also found by it, gets the id of the block it is in):
-  `editBlocks` and other `writeBlocks` callers read, await, then rewrite, and can lose edits made
-  in between. Editor-side rewrites that must ride along with the change that caused them (toggle headings
+  `editBlocks` and other `writeBlocks` callers read, await, then rewrite: a write without an
+  expected version is made again when the body changed meanwhile, and gives up after
+  `WRITE_ATTEMPTS` (`pageBusyError`), so its `build` must be safe to run twice. Row writes lock
+  the row (`lockRowValues`) and write two-way links in the same transaction; list values the app
+  sends carry `base` (`lib/list-merge.ts`). Editor-side rewrites that must ride along with the change that caused them (toggle headings
   taking their section, `components/page/toggle-headings.ts`; column cleanup) are ProseMirror
   `appendTransaction` plugins that skip transactions carrying `ySyncPluginKey` meta (others' edits
   and undo), so they make one undo step and never run twice. Saves derive markdown and text (`collab/service.ts` `persistPage`) and announce `pageChanged()` (`page-events.ts`); row value
@@ -821,7 +824,7 @@ plus the `scripts/*-e2e.ts` of the area you touched (`pnpm tsx scripts/<name>-e2
   everyone out), sso (with a mock identity provider; see its header), scale.
 - **Needs no server on the same database**, because a server's workers would take the queued work:
   agents, agent-api, agent-approvers, agent-chat, agent-copy, agent-handoff, agent-memory, agent-mention, desktop-files,
-  agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule,
+  agent-schedule, agent-sharing, agent-guardrails, agent-skills, agent-channel, automation, button, row-buttons, timed-automation, schedule, concurrent-writes,
   row-activity, row-follow, row-mail, ai-reminders, web-links, discussions, follow-ups (starts its own GreenMail container
   unless given ports), page-watch, page-webhooks, verify, wins-log, jira-sync, github-pulls-sync, sheets-sync, sprints. `connector-e2e` starts its own `next dev` against
   `<database>_peer`, which must exist; no other dev server may run in the same checkout.

@@ -4,6 +4,17 @@
 
 ### Fixed
 
+- **A server write no longer undoes what someone typed at the same moment.** Buttons that edit a
+  page, the AI chat's edits, appending to a page (mail tasks, MCP, the REST API) and API or MCP
+  page updates sent without `expected_version` read the body, worked out the change and then wrote
+  it: anything an open editor changed in between was put back as it was. Such a write is now made
+  again on the body as it is then; after a few tries it gives up with nothing written (REST
+  `409 page_busy`). Restoring a version saves what was typed during it in the way back too.
+- **Two people editing the same row's links or tags at once no longer lose one of them.** A row
+  write now reads the row again locked and writes its two-way links in the same transaction, so a
+  linked row never keeps a back-link to a row that no longer links to it. Tags, people, linked rows
+  and files changed in the app merge with changes made meanwhile: two people adding a tag at the
+  same time both keep theirs, and a removal takes away only what it removed.
 - **Forwarding a message from the Mail tab sends its files again.** A forward lost the forwarded
   message's attachments as soon as its draft was saved a second time, which happens a few seconds
   after typing, so most forwards went out without them. The composer now lists those files from the

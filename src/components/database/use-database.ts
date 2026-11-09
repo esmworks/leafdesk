@@ -206,6 +206,24 @@ export function useDatabase(
       });
   }, [snapshot, pending, removed, formulas]);
 
+  // The values on screen, which a list edit (tags, people, linked rows, files) started from: the
+  // server merges what it added and took away into the list as it is then (lib/list-merge).
+  const pendingNow = useRef(pending);
+  useEffect(() => {
+    pendingNow.current = pending;
+  }, [pending]);
+  const listBase = useCallback((rowId: string, values: Record<string, unknown>) => {
+    const row = snapshotNow.current?.rows.find((r) => r.id === rowId);
+    if (!row) return undefined;
+    const base: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(values)) {
+      const shown = pendingNow.current[`${rowId}\u0000${key}`];
+      const before = shown ? shown.value : row.properties[key];
+      if (Array.isArray(value) || Array.isArray(before)) base[key] = before ?? null;
+    }
+    return Object.keys(base).length ? base : undefined;
+  }, []);
+
   const withPending = useCallback(
     async (rowId: string, key: string, value: unknown, write: () => Promise<unknown>) => {
       const token = `${rowId}\u0000${key}`;
@@ -231,13 +249,14 @@ export function useDatabase(
   const setCell = useCallback(
     (rowId: string, key: string, value: unknown) => {
       const note = key === TITLE ? () => {} : noteRepeat(rowId, { [key]: value });
+      const base = key === TITLE ? undefined : listBase(rowId, { [key]: value });
       return withPending(rowId, key, value, async () => {
         if (key === TITLE) await unwrap(renameRowAction(rowId, String(value ?? "")));
-        else await unwrap(updateRowPropertiesAction(rowId, { [key]: value }));
+        else await unwrap(updateRowPropertiesAction(rowId, { [key]: value }, base));
         note();
       });
     },
-    [withPending, noteRepeat],
+    [withPending, noteRepeat, listBase],
   );
 
   /**
@@ -249,6 +268,7 @@ export function useDatabase(
     async (rowId: string, values: Record<string, unknown>) => {
       const keys = Object.keys(values);
       if (!keys.length) return;
+      const base = listBase(rowId, values);
       const v = ++version.current;
       const tokens = keys.map((key) => `${rowId}\u0000${key}`);
       setPending((p) => {
@@ -261,7 +281,7 @@ export function useDatabase(
       try {
         await Promise.all([
           TITLE in values ? unwrap(renameRowAction(rowId, String(title ?? ""))) : null,
-          Object.keys(properties).length ? unwrap(updateRowPropertiesAction(rowId, properties)) : null,
+          Object.keys(properties).length ? unwrap(updateRowPropertiesAction(rowId, properties, base)) : null,
         ]);
         note();
         await refetch();
@@ -275,7 +295,7 @@ export function useDatabase(
         });
       }
     },
-    [refetch, report, noteRepeat],
+    [refetch, report, noteRepeat, listBase],
   );
 
   // The rows as they show now, for what a bulk write puts back on Undo (see setCellValues).

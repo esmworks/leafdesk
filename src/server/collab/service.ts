@@ -61,7 +61,7 @@ import { queuePageUpdated } from "@/server/page-webhooks/queue";
 import { queueRowSave } from "@/server/row-follow";
 import { queueSyncTitle } from "@/server/sync-writes";
 import { authorizeCollab, parseDocName as parseName, type DocTarget } from "./authorize";
-import { isPageSaveFailed, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
+import { isPageSaveFailed, pageBusyError, pageSaveFailedError, type BodyWrite, type Channel, type CollabService, type CommentOpResult, type PageContent, type VersionCheck, type WriteActor } from "./bridge";
 import { anchorThread, reanchor, threadQuotes } from "./comment-marks";
 import { commentError, runOp } from "./comment-ops";
 import { stampPresence } from "./presence";
@@ -633,6 +633,9 @@ export function createCollab() {
   const modelWritten = <T extends unknown[] | null>(actor: WriteActor, blocks: T, existing: readonly unknown[]): T =>
     actor.model && blocks ? (mediaAsLinks(blocks as never[], existing as never[], new URL(env.appUrl).origin) as unknown as T) : blocks;
 
+  /** How often a body write without an expected version is made again when open editors changed the body meanwhile. */
+  const WRITE_ATTEMPTS = 5;
+
   const writeBlocks = async (
     pageId: string,
     actor: WriteActor,
@@ -660,22 +663,30 @@ export function createCollab() {
       const touch = () => {
         touched = true;
       };
-      const watching = check.expectedVersion !== undefined;
-      if (watching) fragment.observeDeep(touch);
+      // Watched always: a write without an expected version is made again from the body as it is
+      // then, so what someone typed meanwhile isn't written back over with the body read before.
+      const checked = check.expectedVersion !== undefined;
+      fragment.observeDeep(touch);
       try {
-        if (check.expectedVersion !== undefined) {
+        if (checked) {
           const current = await version();
           if (touched || current !== check.expectedVersion) {
             return { next: null, write: { conflict: true, version: touched ? await version() : current } satisfies BodyWrite };
           }
         }
-        // The page as it reads: pending suggestions are not applied (they stay where the write leaves blocks as they were).
-        const existing = fragmentBlocks(fragment);
-        const next = modelWritten(actor, await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl, pageId }), existing);
-        if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
-        // Only a write that changes something is saved before.
-        if (snapshot && next) snapshotId = await snapshotBefore(pageId, doc, aiWrite ? "before_mcp_write" : snapshot, actor);
-        if (touched) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
+        let existing: ReturnType<typeof fragmentBlocks>;
+        let next: Awaited<ReturnType<typeof build>>;
+        for (let attempt = 1; ; attempt++) {
+          touched = false;
+          // The page as it reads: pending suggestions are not applied (they stay where the write leaves blocks as they were).
+          existing = fragmentBlocks(fragment);
+          next = modelWritten(actor, await build(existing, { people: await mentionablePeople(pageId), appUrl: env.appUrl, pageId }), existing);
+          // Only a write that changes something is saved before (once, however often it is made again).
+          if (!touched && snapshot && next && !snapshotId) snapshotId = await snapshotBefore(pageId, doc, aiWrite ? "before_mcp_write" : snapshot, actor);
+          if (!touched) break;
+          if (checked) return { next: null, write: { conflict: true, version: await version() } satisfies BodyWrite };
+          if (attempt >= WRITE_ATTEMPTS) throw pageBusyError();
+        }
         // `next` null: nothing to write.
         if (next) {
           doc.transact(
@@ -693,7 +704,7 @@ export function createCollab() {
         if (aiWrite && next) afterVersion = after;
         return { next, write: versioned ? ({ conflict: false, version: after! } satisfies BodyWrite) : null };
       } finally {
-        if (watching) fragment.unobserveDeep(touch);
+        fragment.unobserveDeep(touch);
       }
     });
     if (snapshotId && afterVersion) {
@@ -1108,6 +1119,8 @@ export function createCollab() {
         pageId,
         actor,
         async (existing, mentions) => {
+          // Made again on a body someone changed meanwhile: what this try finds is what counts.
+          missing = null;
           const made = await buildEdits(pageId, actor, existing, mentions, edits);
           if ("missing" in made) {
             missing = made.missing;
@@ -1243,7 +1256,23 @@ export function createCollab() {
         .filter((ref) => ref.pageId === snap.pageId)
         .map((ref) => ({ name: syncedFragmentName(ref.syncId), blocks: editor.yXmlFragmentToBlocks(old.getXmlFragment(syncedFragmentName(ref.syncId))) }));
       await transactPage(snap.pageId, actor, async (doc) => {
-        await snapshotBefore(snap.pageId, doc, "before_restore", actor);
+        // The way back holds what open editors wrote while it was saved too: saved again until none did.
+        const body = doc.getXmlFragment(COLLAB_FRAGMENT);
+        let touched = false;
+        const touch = () => {
+          touched = true;
+        };
+        body.observeDeep(touch);
+        try {
+          for (let attempt = 1; ; attempt++) {
+            touched = false;
+            await snapshotBefore(snap.pageId, doc, "before_restore", actor);
+            if (!touched) break;
+            if (attempt >= WRITE_ATTEMPTS) throw pageBusyError();
+          }
+        } finally {
+          body.unobserveDeep(touch);
+        }
         migrateDocTitle(doc, { source: "local", context: actor });
         doc.transact(
           () => {
