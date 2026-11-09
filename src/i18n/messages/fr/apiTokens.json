@@ -119,6 +119,10 @@
       "audit": {
         "name": "Journal d’audit",
         "hint": "Le journal d’audit de l’espace de travail (propriétaires uniquement, pour un jeton limité à un espace de travail dont ils sont propriétaires)."
+      },
+      "messages": {
+        "hint": "Les canaux et leurs messages ; l’écriture envoie des messages en votre nom.",
+        "name": "Messages"
       }
     },
     "summary": {

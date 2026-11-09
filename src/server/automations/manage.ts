@@ -71,6 +71,7 @@ import { isTimeZone } from "@/lib/time-zone";
 import type { FilterCombinator, FilterEntry, SortRule } from "@/db/schema/app";
 import { getMembership, pageVisibleTo } from "@/server/access";
 import { slackUrlHint, slackWebhookUrl } from "@/lib/slack";
+import { writableChannel } from "@/server/messages/automation-channels";
 import { LinkPreviewError } from "@/server/link-preview";
 import { recordAudit } from "@/server/audit";
 import { releaseDatabaseFromAgents, shareDatabaseWithAgents } from "@/server/agents/manage";
@@ -134,6 +135,8 @@ export type AutomationActionInput = (
    * Slack step `urlFrom` (its own id when not given), which is never shown.
    */
   | { type: "slack"; url?: string | null; message?: string | null; urlFrom?: string | null }
+  /** `channel`: a channel of the workspace's Messages by id or name (`#name` too) the saver can write in. */
+  | { type: "channel_message"; channel: string; message?: string | null }
 ) & { id?: string | null };
 
 /** An automation as typed: properties and people by id or name (see above). */
@@ -366,6 +369,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   start_sequence: "follow_up",
   approval: "approval",
   slack: "slack",
+  channel_message: "channel",
 };
 
 /** Every step's id: the one given (checked), or a new one from its type. */
@@ -738,9 +742,15 @@ async function checkActions(
         throw new PropertyValueError("The workspace's owners turned export off, so automations can't send to Slack", "webhookExportOff", {});
       }
       step = { type: "slack", sealed, hint, message };
+    } else if (action?.type === "channel_message") {
+      const message = checkText(action.message, "A channel message", MAX_STEP_MESSAGE).trim();
+      if (!message) throw invalid(`${label}: say what to post`);
+      const channelId = await writableChannel(userId, workspaceId, String(action.channel ?? ""));
+      if (!channelId) throw invalid(`${label}: "${action.channel}" is not a channel you can post in`, { value: action.channel });
+      step = { type: "channel_message", channelId, message };
     } else {
       throw invalid(
-        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait", "log", "celebrate", "approval", "start_sequence" or "slack"',
+        'Each step is "set_properties", "notify", "webhook", "run_agent", "move_to_trash", "http_request", "find_rows", "create_row", "upsert_row", "wait", "log", "celebrate", "approval", "start_sequence", "slack" or "channel_message"',
       );
     }
     step.id = id;

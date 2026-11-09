@@ -2174,7 +2174,9 @@
         "updated": "Ændrede kanalen {target}",
         "archived": "Arkiverede kanalen {target}",
         "unarchived": "Hentede kanalen {target} tilbage fra arkivet",
-        "imported": "Importerede kanalen {target}"
+        "imported": "Importerede kanalen {target}",
+        "webhook_created": "Tilføjede en webhook til kanalen {target}",
+        "webhook_deleted": "Slettede en webhook i kanalen {target}"
       },
       "dashboard_email": {
         "set": "Satte {target} til at blive sendt som e-mail til {count, plural, one {# person} other {# personer}}",

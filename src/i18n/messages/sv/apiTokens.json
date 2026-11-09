@@ -119,6 +119,10 @@
       "audit": {
         "name": "Granskningslogg",
         "hint": "Arbetsytans granskningslogg (bara ägare, för en token som är begränsad till en arbetsyta de äger)."
+      },
+      "messages": {
+        "hint": "Kanaler och deras meddelanden; skrivning skickar meddelanden som dig.",
+        "name": "Meddelanden"
       }
     },
     "summary": {

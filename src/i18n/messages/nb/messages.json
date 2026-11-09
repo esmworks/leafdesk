@@ -328,5 +328,28 @@
       "noAccess": "Bare eiere av arbeidsområdet kan importere til Meldinger.",
       "failed": "Importen mislyktes. Prøv igjen."
     }
+  },
+  "removePreviews": "Fjern forhåndsvisninger",
+  "viaAutomation": "via automatiseringen «{name}»",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Legg til",
+    "address": "Webhook-adresse",
+    "cancel": "Avbryt",
+    "copied": "Adressen er kopiert",
+    "copy": "Kopier adressen",
+    "copyNow": "Kopier denne adressen nå: den vises ikke igjen. Alle som har den, kan legge ut meldinger her.",
+    "create": "Opprett",
+    "failed": "Webhooken kunne ikke endres. Prøv igjen.",
+    "hint": "Verktøy som legger ut i en chats innkommende webhook (varsler, bygg, dashbord), kan legge ut i denne kanalen i stedet, med samme innhold.",
+    "lastUsed": "sist lagt ut {when}",
+    "loading": "Laster inn…",
+    "name": "Navn på webhooken",
+    "namePlaceholder": "For eksempel Grafana-varsler",
+    "neverUsed": "har ikke lagt ut noe ennå",
+    "none": "Ingen webhooker ennå.",
+    "remove": "Slett {name}",
+    "removeConfirm": "Vil du slette webhooken «{name}»? Adressen slutter å virke med en gang; meldingene blir værende.",
+    "title": "Webhooker"
   }
 }

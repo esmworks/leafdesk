@@ -2174,7 +2174,9 @@
         "updated": "เปลี่ยนช่อง {target}",
         "archived": "เก็บถาวรช่อง {target}",
         "unarchived": "นำช่อง {target} กลับจากที่เก็บถาวร",
-        "imported": "นำเข้าช่อง {target}"
+        "imported": "นำเข้าช่อง {target}",
+        "webhook_created": "เพิ่มเว็บฮุกในช่อง {target}",
+        "webhook_deleted": "ลบเว็บฮุกของช่อง {target}"
       },
       "dashboard_email": {
         "set": "ตั้งให้ส่ง {target} ทางอีเมลถึง {count, plural, other {# คน}}",

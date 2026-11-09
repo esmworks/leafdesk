@@ -1518,7 +1518,8 @@
         "celebrate": "Festeggia con i coriandoli",
         "approval": "Chiedi approvazione",
         "start_sequence": "Avvia un follow-up",
-        "slack": "Invia a Slack"
+        "slack": "Invia a Slack",
+        "channel_message": "Pubblica in un canale"
       },
       "trashHelp": "Sposta la riga nel cestino, da cui può essere ripristinata finché il cestino non viene svuotato. Dopo questa azione non può essere eseguito nient’altro.",
       "addAction": "Aggiungi azione",
@@ -1583,7 +1584,9 @@
         "needView": "Scegli la vista le cui righe vengono contate.",
         "needNumber": "Scegli la proprietà numerica su cui calcolare.",
         "needThreshold": "Inserisci il numero con cui confrontare.",
-        "needButton": "Scegli il pulsante che la avvia."
+        "needButton": "Scegli il pulsante che la avvia.",
+        "needChannel": "Scegli il canale in cui pubblicare.",
+        "needChannelMessage": "Scrivi il messaggio da pubblicare."
       },
       "agent": "Agente",
       "chooseAgent": "Scegli un agente…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Modello predefinito del database",
       "rowTemplateDefaultNamed": "Il modello predefinito ({name})",
       "rowTemplateGone": "Un modello che non esiste più",
-      "rowTemplateHelp": "La riga parte come copia del modello. I valori impostati qui sostituiscono quelli del modello; un titolo vuoto mantiene quello del modello."
+      "rowTemplateHelp": "La riga parte come copia del modello. I valori impostati qui sostituiscono quelli del modello; un titolo vuoto mantiene quello del modello.",
+      "channel": "Canale",
+      "channelHelp": "Pubblica il messaggio nel canale a tuo nome, con un link alla riga. Il Markdown funziona.",
+      "channelLoading": "Caricamento dei canali…",
+      "channelMessage": "Messaggio",
+      "channelNone": "Non sei in nessun canale in cui puoi pubblicare. Prima unisciti a uno in Messaggi.",
+      "channelPick": "Scegli un canale",
+      "channelPrivate": "privato",
+      "channelUnknown": "Un canale in cui non puoi pubblicare"
     },
     "variables": {
       "button": "Inserisci una variabile",

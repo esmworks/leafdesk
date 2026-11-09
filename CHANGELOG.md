@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Added
+
+- **Other tools can post in a channel through a webhook.** A channel's admins add one in its
+  details and copy its address, shown once; anything that posts to a Slack incoming webhook (alert
+  managers, build pipelines, dashboards) can post there instead, with the same payload: text,
+  blocks and attachments become Markdown, the message shows the webhook's name and the channel is
+  notified as for any message. Webhooks are rate-limited, stop when the channel is archived or
+  their maker leaves the workspace, and are in the audit log. Migration 0202 adds them.
+- **Automations post in a channel.** The new *Post in a channel* step writes a message with the
+  trigger's values in a Messages channel, as the automation's person, with a link to the row, and
+  says which automation posted it.
+- **Links in messages get preview cards.** A message's web links (up to three) show the page's
+  title, description and picture under it; the author can take the cards away.
+- **A message's files open in the file viewer, and videos play in the message.** Pictures, PDFs
+  and documents open in the viewer with arrows between them; each file keeps a download button.
+- **Apps and API tokens can read and send team messages.** MCP has `list_channels`,
+  `read_channel_messages`, `search_messages` and `send_channel_message`; the REST API has
+  `GET /workspaces/{id}/channels`, `GET` and `POST /channels/{id}/messages` and
+  `GET /workspaces/{id}/messages/search`, under the new `messages:read` and `messages:write`
+  scopes. They run with the person's own access; Leafdesk's AI chat and agents don't get them.
+
 ### Fixed
 
 - **Forwarding a message from the Mail tab sends its files again.** A forward lost the forwarded

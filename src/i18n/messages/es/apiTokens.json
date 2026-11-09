@@ -119,6 +119,10 @@
       "audit": {
         "name": "Registro de auditoría",
         "hint": "El registro de auditoría del espacio de trabajo (solo propietarios, para un token limitado a un espacio de trabajo del que son propietarios)."
+      },
+      "messages": {
+        "hint": "Canales y sus mensajes; escribir envía mensajes en tu nombre.",
+        "name": "Mensajes"
       }
     },
     "summary": {

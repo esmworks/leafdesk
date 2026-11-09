@@ -2174,7 +2174,9 @@
         "updated": "Змінено канал {target}",
         "archived": "Архівовано канал {target}",
         "unarchived": "Канал {target} повернуто з архіву",
-        "imported": "Канал {target} імпортовано"
+        "imported": "Канал {target} імпортовано",
+        "webhook_created": "Додано вебхук до каналу {target}",
+        "webhook_deleted": "Видалено вебхук каналу {target}"
       },
       "dashboard_email": {
         "set": "Налаштовано надсилання {target} поштою: {count, plural, one {# людині} few {# людям} many {# людям} other {# людини}}",

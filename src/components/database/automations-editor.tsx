@@ -29,6 +29,7 @@ import {
   type AutomationActionType,
 } from "@/lib/automations";
 import { TEMPLATE_ROOTS } from "@/lib/automation-templates";
+import { ChannelMessageEditor } from "./automations-channel";
 import { useSchemas } from "./automations-data";
 import { TestRunPanel } from "./automations-runs";
 import {
@@ -67,7 +68,7 @@ export { selectClass };
 /** Steps offered to add, grouped as the menu shows them. */
 const STEP_GROUPS: { group: "rows" | "people" | "outside" | "flow"; types: AutomationActionType[] }[] = [
   { group: "rows", types: ["set_properties", "find_rows", "create_row", "upsert_row", "move_to_trash"] },
-  { group: "people", types: ["notify", "celebrate", "approval", "run_agent", "start_sequence"] },
+  { group: "people", types: ["notify", "channel_message", "celebrate", "approval", "run_agent", "start_sequence"] },
   { group: "outside", types: ["slack", "http_request", "webhook"] },
   { group: "flow", types: ["wait", "log"] },
 ];
@@ -658,6 +659,8 @@ function StepBody({
           <p className="text-xs text-fg-faint">{t("steps.slackHelp")}</p>
         </div>
       );
+    case "channel_message":
+      return <ChannelMessageEditor databaseId={databaseId} action={action} onChange={onChange} />;
     case "log":
       return (
         <div className="space-y-1">

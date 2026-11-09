@@ -1518,7 +1518,8 @@
         "celebrate": "Mit Konfetti feiern",
         "approval": "Freigabe anfragen",
         "start_sequence": "Follow-up starten",
-        "slack": "An Slack senden"
+        "slack": "An Slack senden",
+        "channel_message": "In einem Kanal posten"
       },
       "trashHelp": "Verschiebt die Zeile in den Papierkorb, aus dem sie wiederhergestellt werden kann, bis er geleert wird. Nach dieser Aktion kann nichts mehr laufen.",
       "addAction": "Aktion hinzufügen",
@@ -1583,7 +1584,9 @@
         "needView": "Wähle die Ansicht, deren Zeilen gezählt werden.",
         "needNumber": "Wähle die Zahleneigenschaft, über die berechnet wird.",
         "needThreshold": "Gib die Zahl zum Vergleichen ein.",
-        "needButton": "Wähle die Schaltfläche, die sie auslöst."
+        "needButton": "Wähle die Schaltfläche, die sie auslöst.",
+        "needChannel": "Wähle den Kanal, in dem gepostet wird.",
+        "needChannelMessage": "Schreibe die Nachricht, die gepostet wird."
       },
       "agent": "Agent",
       "chooseAgent": "Agenten wählen…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Standardvorlage der Datenbank",
       "rowTemplateDefaultNamed": "Die Standardvorlage ({name})",
       "rowTemplateGone": "Eine Vorlage, die es nicht mehr gibt",
-      "rowTemplateHelp": "Die Zeile beginnt als Kopie der Vorlage. Hier gesetzte Werte ersetzen die der Vorlage; ein leerer Titel behält den der Vorlage."
+      "rowTemplateHelp": "Die Zeile beginnt als Kopie der Vorlage. Hier gesetzte Werte ersetzen die der Vorlage; ein leerer Titel behält den der Vorlage.",
+      "channel": "Kanal",
+      "channelHelp": "Postet die Nachricht in deinem Namen in den Kanal, mit einem Link zur Zeile. Markdown funktioniert.",
+      "channelLoading": "Kanäle werden geladen…",
+      "channelMessage": "Nachricht",
+      "channelNone": "Du bist in keinem Kanal, in dem du posten kannst. Tritt zuerst unter Nachrichten einem bei.",
+      "channelPick": "Kanal wählen",
+      "channelPrivate": "privat",
+      "channelUnknown": "Ein Kanal, in dem du nicht posten kannst"
     },
     "variables": {
       "button": "Variable einfügen",

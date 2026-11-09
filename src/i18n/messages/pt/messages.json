@@ -328,5 +328,28 @@
       "noAccess": "Só proprietários do workspace podem importar para Mensagens.",
       "failed": "A importação falhou. Tente de novo."
     }
+  },
+  "removePreviews": "Remover prévias",
+  "viaAutomation": "pela automação “{name}”",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Adicionar",
+    "address": "Endereço do webhook",
+    "cancel": "Cancelar",
+    "copied": "Endereço copiado",
+    "copy": "Copiar endereço",
+    "copyNow": "Copie este endereço agora: ele não será mostrado de novo. Quem tiver o endereço pode publicar aqui.",
+    "create": "Criar",
+    "failed": "Não foi possível alterar o webhook. Tente novamente.",
+    "hint": "Ferramentas que publicam no webhook de entrada de um chat (alertas, builds, painéis) podem publicar neste canal, com o mesmo conteúdo.",
+    "lastUsed": "última publicação {when}",
+    "loading": "Carregando…",
+    "name": "Nome do webhook",
+    "namePlaceholder": "Por exemplo, alertas do Grafana",
+    "neverUsed": "ainda não publicou",
+    "none": "Nenhum webhook ainda.",
+    "remove": "Excluir {name}",
+    "removeConfirm": "Excluir o webhook “{name}”? O endereço para de funcionar na hora; as mensagens dele continuam.",
+    "title": "Webhooks"
   }
 }

@@ -1518,7 +1518,8 @@
         "celebrate": "紙吹雪でお祝い",
         "approval": "承認を依頼",
         "start_sequence": "フォローアップを開始",
-        "slack": "Slack に送信"
+        "slack": "Slack に送信",
+        "channel_message": "チャンネルに投稿"
       },
       "trashHelp": "行をゴミ箱に移動します。ゴミ箱が空になるまでは復元できます。このアクションの後には何も実行できません。",
       "addAction": "アクションを追加",
@@ -1583,7 +1584,9 @@
         "needView": "行を数えるビューを選択してください。",
         "needNumber": "計算する数値プロパティを選択してください。",
         "needThreshold": "比較する数値を入力してください。",
-        "needButton": "実行するボタンを選んでください。"
+        "needButton": "実行するボタンを選んでください。",
+        "needChannel": "投稿先のチャンネルを選択してください。",
+        "needChannelMessage": "投稿するメッセージを入力してください。"
       },
       "agent": "エージェント",
       "chooseAgent": "エージェントを選択…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "データベースの既定のテンプレート",
       "rowTemplateDefaultNamed": "既定のテンプレート（{name}）",
       "rowTemplateGone": "存在しないテンプレート",
-      "rowTemplateHelp": "行はテンプレートのコピーとして作成されます。ここで設定した値はテンプレートの値より優先され、タイトルが空ならテンプレートのタイトルになります。"
+      "rowTemplateHelp": "行はテンプレートのコピーとして作成されます。ここで設定した値はテンプレートの値より優先され、タイトルが空ならテンプレートのタイトルになります。",
+      "channel": "チャンネル",
+      "channelHelp": "行へのリンクを付けて、あなたとしてチャンネルにメッセージを投稿します。Markdown が使えます。",
+      "channelLoading": "チャンネルを読み込み中…",
+      "channelMessage": "メッセージ",
+      "channelNone": "投稿できるチャンネルに参加していません。先にメッセージでチャンネルに参加してください。",
+      "channelPick": "チャンネルを選択",
+      "channelPrivate": "非公開",
+      "channelUnknown": "投稿できないチャンネル"
     },
     "variables": {
       "button": "変数を挿入",

@@ -2174,7 +2174,9 @@
         "updated": "Ändrade kanalen {target}",
         "archived": "Arkiverade kanalen {target}",
         "unarchived": "Tog tillbaka kanalen {target} från arkivet",
-        "imported": "Importerade kanalen {target}"
+        "imported": "Importerade kanalen {target}",
+        "webhook_created": "Lade till en webhook i kanalen {target}",
+        "webhook_deleted": "Raderade en webhook i kanalen {target}"
       },
       "dashboard_email": {
         "set": "Ställde in att {target} skickas med e-post till {count, plural, one {# person} other {# personer}}",

@@ -1,5 +1,6 @@
 import { agentChatInfoAction, agentChatTurnAction, agentThreadAction, agentThreadRunsAction, getAgentConversationAction, searchAgentChatsAction } from "@/app/actions/agent-chat";
 import { dueTasksAction, taskCountsAction } from "@/app/actions/assigned";
+import { automationChannelsAction } from "@/app/actions/automations";
 import { calendarItemsAction } from "@/app/actions/calendar";
 import { agentCreationAction, agentMailboxesAction, pendingAgentLimitRequestAction, sidebarAgentsAction } from "@/app/actions/agents";
 import { getConversationAction, listConversationsAction } from "@/app/actions/ai";
@@ -27,6 +28,7 @@ import { listTriggersAction } from "@/app/actions/triggers";
  * Their results go as JSON with dates (lib/read-wire.ts).
  */
 export const READS = {
+  automationChannels: automationChannelsAction,
   backlinks: backlinksAction,
   unlinkedMentions: unlinkedMentionsAction,
   relatedPages: relatedPagesAction,

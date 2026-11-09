@@ -1518,7 +1518,8 @@
         "celebrate": "Fira med konfetti",
         "approval": "Be om godkännande",
         "start_sequence": "Starta en uppföljning",
-        "slack": "Skicka till Slack"
+        "slack": "Skicka till Slack",
+        "channel_message": "Skriv i en kanal"
       },
       "trashHelp": "Flyttar raden till papperskorgen, där den kan återställas tills papperskorgen töms. Inget kan köras efter den här åtgärden.",
       "addAction": "Lägg till åtgärd",
@@ -1583,7 +1584,9 @@
         "needView": "Välj vyn vars rader räknas.",
         "needNumber": "Välj talegenskapen som ska beräknas.",
         "needThreshold": "Ange talet att jämföra med.",
-        "needButton": "Välj knappen som kör den."
+        "needButton": "Välj knappen som kör den.",
+        "needChannel": "Välj kanalen att skriva i.",
+        "needChannelMessage": "Skriv meddelandet som ska skickas."
       },
       "agent": "Agent",
       "chooseAgent": "Välj en agent…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Databasens standardmall",
       "rowTemplateDefaultNamed": "Standardmallen ({name})",
       "rowTemplateGone": "En mall som inte längre finns",
-      "rowTemplateHelp": "Raden börjar som en kopia av mallen. Värden som anges här ersätter mallens; en tom titel behåller mallens."
+      "rowTemplateHelp": "Raden börjar som en kopia av mallen. Värden som anges här ersätter mallens; en tom titel behåller mallens.",
+      "channel": "Kanal",
+      "channelHelp": "Skriver meddelandet i kanalen som dig, med en länk till raden. Markdown fungerar.",
+      "channelLoading": "Läser in kanaler…",
+      "channelMessage": "Meddelande",
+      "channelNone": "Du är inte med i någon kanal där du kan skriva. Gå med i en under Meddelanden först.",
+      "channelPick": "Välj en kanal",
+      "channelPrivate": "privat",
+      "channelUnknown": "En kanal där du inte kan skriva"
     },
     "variables": {
       "button": "Infoga en variabel",

@@ -328,5 +328,28 @@
       "noAccess": "Only owners of the workspace can import into Messages.",
       "failed": "The import failed. Try again."
     }
-  }
+  },
+  "removePreviews": "Remove previews",
+  "webhook": "Webhook",
+  "webhooks": {
+    "title": "Webhooks",
+    "add": "Add",
+    "hint": "Tools that post to a chat's incoming webhook (alerts, builds, dashboards) can post to this channel instead, with the same payload.",
+    "name": "Webhook name",
+    "namePlaceholder": "For example Grafana alerts",
+    "create": "Create",
+    "cancel": "Cancel",
+    "copyNow": "Copy this address now: it won't be shown again. Anyone who has it can post here.",
+    "address": "Webhook address",
+    "copy": "Copy address",
+    "copied": "Address copied",
+    "loading": "Loading…",
+    "none": "No webhooks yet.",
+    "lastUsed": "last posted {when}",
+    "neverUsed": "hasn't posted yet",
+    "remove": "Delete {name}",
+    "removeConfirm": "Delete the webhook {name}? Its address stops working at once; its messages stay.",
+    "failed": "The webhook couldn't be changed. Try again."
+  },
+  "viaAutomation": "via the automation {name}"
 }

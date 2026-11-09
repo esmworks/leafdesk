@@ -2174,7 +2174,9 @@
         "updated": "Kanal değiştirildi: {target}",
         "archived": "Kanal arşivlendi: {target}",
         "unarchived": "Kanal arşivden çıkarıldı: {target}",
-        "imported": "Kanal içe aktarıldı: {target}"
+        "imported": "Kanal içe aktarıldı: {target}",
+        "webhook_created": "Kanala webhook eklendi: {target}",
+        "webhook_deleted": "Kanalın bir webhook’u silindi: {target}"
       },
       "dashboard_email": {
         "set": "{target} için {count, plural, one {# kişiye} other {# kişiye}} e-posta gönderimini ayarladı",

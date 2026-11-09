@@ -33,6 +33,7 @@ import { sendTestDelivery } from "@/server/page-webhooks/deliver";
 import { describeDelivery, describeWebhook, toWebhookInput, toWebhookPatch, webhookInputs } from "@/server/page-webhooks/describe";
 import * as webhooks from "@/server/page-webhooks/manage";
 import * as ops from "@/server/operations";
+import * as messageOps from "@/server/messages/operations";
 import { MAX_ACTIVITY_PAGE } from "@/server/row-activity-feed";
 import { MAX_HISTORY_PAGE } from "@/lib/database-history";
 import { MAX_FILTER_VALUES } from "@/lib/search-filters";
@@ -45,7 +46,7 @@ import { AiError, sttLimits } from "@/server/ai";
 import { pageUrl } from "@/server/mcp/format";
 import { createVoiceNote } from "@/server/voice-notes";
 import { ApiError, insufficientScope } from "./errors";
-import { cursorInput, decodeCursor, decodeTimeCursor, encodeTimeCursor, nextCursor, paginate } from "./pagination";
+import { cursorInput, decodeCursor, decodeTimeCursor, encodeCursor, encodeTimeCursor, nextCursor, paginate } from "./pagination";
 import type { ApiPrincipal } from "./tokens";
 
 /**
@@ -74,7 +75,7 @@ export type ApiRoute<Q extends Schema = Schema, B extends Schema = Schema> = {
   /** Relative to /api/v1, with `{name}` path parameters. */
   path: string;
   operationId: string;
-  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Agents" | "Review" | "Follow-ups" | "Webhooks" | "Audit log";
+  tag: "Account" | "Workspaces" | "Pages" | "Databases" | "Rows" | "Comments" | "Messages" | "Agents" | "Review" | "Follow-ups" | "Webhooks" | "Audit log";
   summary: string;
   description?: string;
   /** What the token needs to call it; null for any token (GET /me). */
@@ -136,6 +137,12 @@ async function requirePageInWorkspace(principal: ApiPrincipal, pageId: string) {
   if (!principal.workspaceId) return;
   const [row] = await db.select({ workspaceId: page.workspaceId }).from(page).where(eq(page.id, pageId)).limit(1);
   if (!row || row.workspaceId !== principal.workspaceId) throw new AccessError();
+}
+
+/** A channel, for a token bound to a workspace: one of another workspace reads as not found. */
+async function requireChannelInWorkspace(principal: ApiPrincipal, channelId: string) {
+  if (!principal.workspaceId) return;
+  if ((await messageOps.workspaceOfChannel(channelId)) !== principal.workspaceId) throw new AccessError();
 }
 
 /** A change waiting for review, for the token's user (refused for a token of another workspace). */
@@ -718,6 +725,87 @@ export const API_ROUTES: ApiRoute[] = [
     handler: async ({ principal, ctx, params, body }) => {
       await requirePageInWorkspace(principal, params.page_id);
       return ops.addComment(ctx, { ...body, page_id: params.page_id });
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/workspaces/{workspace_id}/channels",
+    operationId: "listChannels",
+    tag: "Messages",
+    summary: "List channels",
+    description: "The Messages channels and direct conversations of the workspace the user may read, most recently active first. Only members post in a channel.",
+    scope: "messages:read",
+    query: z.object({ include_archived: z.stringbool().default(false).describe("Also list archived channels (true or false).") }),
+    response: "ChannelList",
+    handler: async ({ principal, ctx, params, query }) => {
+      requireWorkspace(principal, params.workspace_id);
+      return messageOps.listChannels(ctx, { workspace_id: params.workspace_id, include_archived: query.include_archived });
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/channels/{channel_id}/messages",
+    operationId: "listChannelMessages",
+    tag: "Messages",
+    summary: "Read a channel's messages",
+    description:
+      "The channel's latest messages, oldest first, or a thread's replies with thread_id; next_cursor reads older ones. Bodies are Markdown in which people, channels and pages are leafdesk: links.",
+    scope: "messages:read",
+    query: z.object({
+      thread_id: z.string().min(1).optional().describe("A thread's first message: its replies instead of the channel's list."),
+      limit: limitInput(100, 30),
+      cursor: cursorInput,
+    }),
+    response: "MessageList",
+    handler: async ({ principal, ctx, params, query }) => {
+      await requireChannelInWorkspace(principal, params.channel_id);
+      const before = query.cursor ? decodeCursor(query.cursor) : undefined;
+      const { next_before, ...result } = await messageOps.readMessages(ctx, { channel_id: params.channel_id, thread_id: query.thread_id, before: before || undefined, limit: query.limit });
+      const next = next_before ? encodeCursor(next_before) : null;
+      return { ...result, next_cursor: next, has_more: next !== null };
+    },
+  }),
+  defineRoute({
+    method: "GET",
+    path: "/workspaces/{workspace_id}/messages/search",
+    operationId: "searchMessages",
+    tag: "Messages",
+    summary: "Search messages",
+    description: "Messages in the channels the user may read, newest first: words, optionally narrowed to a channel, an author or a time range.",
+    scope: "messages:read",
+    query: z.object({
+      query: z.string().max(500).optional().describe('Words, each matched as the start of a word; "quoted phrases" whole.'),
+      channel_id: z.string().min(1).optional().describe("Only this channel."),
+      from: z.string().min(1).optional().describe("Only messages this user wrote."),
+      after: z.string().optional().describe("Only messages sent after this date or time (ISO 8601)."),
+      before: z.string().optional().describe("Only messages sent before this date or time (ISO 8601)."),
+      cursor: cursorInput,
+    }),
+    response: "MessageList",
+    handler: async ({ principal, ctx, params, query }) => {
+      requireWorkspace(principal, params.workspace_id);
+      if (query.channel_id) await requireChannelInWorkspace(principal, query.channel_id);
+      const cursor = decodeTimeCursor(query.cursor) ?? undefined;
+      const { next_cursor, ...result } = await messageOps.searchMessages(ctx, { ...query, workspace_id: params.workspace_id, cursor });
+      const next = next_cursor ? encodeTimeCursor(next_cursor) : null;
+      return { ...result, next_cursor: next, has_more: next !== null };
+    },
+  }),
+  defineRoute({
+    method: "POST",
+    path: "/channels/{channel_id}/messages",
+    operationId: "sendChannelMessage",
+    tag: "Messages",
+    summary: "Send a message",
+    description:
+      "Sends a message as the user in a channel or direct conversation they are a member of, or a reply in a thread (thread_id). Mentioned people ([@Name](leafdesk:user/<user id>)) are notified.",
+    scope: "messages:write",
+    body: messageOps.messageInputs.sendChannelMessage.omit({ channel_id: true }),
+    status: 201,
+    response: "MessageSent",
+    handler: async ({ principal, ctx, params, body }) => {
+      await requireChannelInWorkspace(principal, params.channel_id);
+      return messageOps.sendChannelMessage(ctx, { ...body, channel_id: params.channel_id });
     },
   }),
   defineRoute({

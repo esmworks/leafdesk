@@ -31,7 +31,18 @@ export type MessageData = {
   agentRunId?: string;
   /** Came from an import (Slack): who wrote it there, when no person here matched. */
   importedFrom?: { source: "slack"; name: string };
+  /** Posted to a channel's webhook (server/messages/webhooks.ts): it has no author and shows the webhook's name. */
+  webhook?: { id: string; name: string };
+  /** Posted by an automation's "Post in a channel" step, as its person: the message names it. */
+  automation?: { id: string; name: string };
+  /** Cards of the web links in its words, fetched by the server after it was sent or edited (server/messages/link-previews.ts). */
+  previews?: MessagePreview[];
+  /** Its author took the previews away: none are fetched for it again. */
+  previewsHidden?: boolean;
 };
+
+/** A web link's card under a message (lib/message-links). */
+export type MessagePreview = { url: string; title: string; description: string; image: string; favicon: string; siteName: string };
 
 export const MESSAGE_LIMITS = {
   /** Characters of a message's Markdown. */

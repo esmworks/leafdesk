@@ -2174,7 +2174,9 @@
         "updated": "שינוי הערוץ {target}",
         "archived": "העברת הערוץ {target} לארכיון",
         "unarchived": "החזרת הערוץ {target} מהארכיון",
-        "imported": "ייבוא הערוץ {target}"
+        "imported": "ייבוא הערוץ {target}",
+        "webhook_created": "הוספת webhook לערוץ {target}",
+        "webhook_deleted": "מחיקת webhook של הערוץ {target}"
       },
       "dashboard_email": {
         "set": "הגדרת שליחה בדוא״ל של {target} אל {count, plural, one {אדם אחד} two {שני אנשים} other {# אנשים}}",

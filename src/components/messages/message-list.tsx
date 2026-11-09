@@ -42,6 +42,7 @@ export function continues(prev: MessageView | undefined, m: MessageView): boolea
   if (!prev || prev.kind !== "message" || m.kind !== "message") return false;
   if (prev.authorId !== m.authorId || !!prev.data?.importedFrom !== !!m.data?.importedFrom) return false;
   if (prev.data?.importedFrom && prev.data.importedFrom.name !== m.data?.importedFrom?.name) return false;
+  if (prev.data?.webhook?.id !== m.data?.webhook?.id) return false;
   if (m.data?.forward) return false;
   return new Date(m.createdAt).getTime() - new Date(prev.createdAt).getTime() < GROUP_MS;
 }

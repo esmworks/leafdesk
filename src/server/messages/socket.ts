@@ -62,6 +62,8 @@ import {
   sendMessage,
   threadMessages,
 } from "./posts";
+import { hidePreviews } from "./link-previews";
+import { createWebhook, deleteWebhook, listWebhooks } from "./webhooks";
 import { cancelScheduled, scheduleMessage } from "./scheduled";
 import { searchMessages } from "./search";
 import { bootstrap, peopleFor, sync } from "./sync";
@@ -182,6 +184,10 @@ const OPS: Record<string, Op> = {
   versions: (l, a) => messageHistory(l.who.userId, a.messageId),
   react: (l, a) => react(l.who.userId, a.messageId, a.emoji, a.on),
   pin: (l, a) => pin(l.who.userId, a.messageId, a.on === true),
+  hidePreviews: (l, a) => hidePreviews(l.who.userId, l.who.workspaceId, a.messageId),
+  webhooks: (l, a) => listWebhooks(l.who.userId, a.channelId),
+  addWebhook: (l, a) => createWebhook(l.who.userId, a.channelId, a.name),
+  removeWebhook: (l, a) => deleteWebhook(l.who.userId, a.webhookId),
   pinned: (l, a) => pinnedMessages(l.who.userId, a.channelId),
   read: (l, a) => markRead(l.who.userId, a.channelId, a.seq),
   unread: (l, a) => markUnread(l.who.userId, a.channelId, a.seq),

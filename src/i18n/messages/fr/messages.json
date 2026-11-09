@@ -328,5 +328,28 @@
       "noAccess": "Seuls les propriétaires de l’espace de travail peuvent importer dans Messages.",
       "failed": "L’importation a échoué. Réessayez."
     }
+  },
+  "removePreviews": "Retirer les aperçus",
+  "viaAutomation": "via l’automatisation {name}",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Ajouter",
+    "address": "Adresse du webhook",
+    "cancel": "Annuler",
+    "copied": "Adresse copiée",
+    "copy": "Copier l’adresse",
+    "copyNow": "Copiez cette adresse maintenant : elle ne sera plus affichée. Quiconque la possède peut publier ici.",
+    "create": "Créer",
+    "failed": "Le webhook n’a pas pu être modifié. Réessayez.",
+    "hint": "Les outils qui publient sur le webhook entrant d’une messagerie (alertes, builds, tableaux de bord) peuvent publier dans ce canal à la place, avec le même contenu.",
+    "lastUsed": "dernière publication {when}",
+    "loading": "Chargement…",
+    "name": "Nom du webhook",
+    "namePlaceholder": "Par exemple Alertes Grafana",
+    "neverUsed": "n’a encore rien publié",
+    "none": "Aucun webhook pour l’instant.",
+    "remove": "Supprimer {name}",
+    "removeConfirm": "Supprimer le webhook {name} ? Son adresse cesse aussitôt de fonctionner ; ses messages restent.",
+    "title": "Webhooks"
   }
 }

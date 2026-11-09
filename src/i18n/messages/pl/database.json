@@ -1518,7 +1518,8 @@
         "celebrate": "Świętuj konfetti",
         "approval": "Poproś o zatwierdzenie",
         "start_sequence": "Uruchom follow-up",
-        "slack": "Wyślij do Slacka"
+        "slack": "Wyślij do Slacka",
+        "channel_message": "Opublikuj na kanale"
       },
       "trashHelp": "Przenosi wiersz do kosza, skąd można go przywrócić, dopóki kosz nie zostanie opróżniony. Po tej akcji nic więcej nie może się uruchomić.",
       "addAction": "Dodaj akcję",
@@ -1583,7 +1584,9 @@
         "needView": "Wybierz widok, którego wiersze są liczone.",
         "needNumber": "Wybierz właściwość liczbową, z której liczyć.",
         "needThreshold": "Wpisz liczbę do porównania.",
-        "needButton": "Wybierz przycisk, który ją uruchamia."
+        "needButton": "Wybierz przycisk, który ją uruchamia.",
+        "needChannel": "Wybierz kanał, na którym ma się pojawić wiadomość.",
+        "needChannelMessage": "Napisz wiadomość do opublikowania."
       },
       "agent": "Agent",
       "chooseAgent": "Wybierz agenta…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Domyślny szablon bazy danych",
       "rowTemplateDefaultNamed": "Szablon domyślny ({name})",
       "rowTemplateGone": "Szablon, który już nie istnieje",
-      "rowTemplateHelp": "Wiersz powstaje jako kopia szablonu. Wartości ustawione tutaj zastępują wartości szablonu; pusty tytuł zachowuje tytuł szablonu."
+      "rowTemplateHelp": "Wiersz powstaje jako kopia szablonu. Wartości ustawione tutaj zastępują wartości szablonu; pusty tytuł zachowuje tytuł szablonu.",
+      "channel": "Kanał",
+      "channelHelp": "Publikuje wiadomość na kanale w twoim imieniu, z linkiem do wiersza. Działa Markdown.",
+      "channelLoading": "Wczytywanie kanałów…",
+      "channelMessage": "Wiadomość",
+      "channelNone": "Nie należysz do żadnego kanału, na którym możesz publikować. Najpierw dołącz do jakiegoś w Wiadomościach.",
+      "channelPick": "Wybierz kanał",
+      "channelPrivate": "prywatny",
+      "channelUnknown": "Kanał, na którym nie możesz publikować"
     },
     "variables": {
       "button": "Wstaw zmienną",

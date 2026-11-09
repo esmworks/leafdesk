@@ -328,5 +328,28 @@
       "noAccess": "Hanya pemilik ruang kerja yang dapat mengimpor ke Pesan.",
       "failed": "Impor gagal. Coba lagi."
     }
+  },
+  "removePreviews": "Hapus pratinjau",
+  "viaAutomation": "melalui otomatisasi {name}",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Tambahkan",
+    "address": "Alamat webhook",
+    "cancel": "Batal",
+    "copied": "Alamat disalin",
+    "copy": "Salin alamat",
+    "copyNow": "Salin alamat ini sekarang: alamat ini tidak akan ditampilkan lagi. Siapa pun yang memilikinya dapat memposting di sini.",
+    "create": "Buat",
+    "failed": "Webhook tidak dapat diubah. Coba lagi.",
+    "hint": "Alat yang memposting ke webhook masuk sebuah aplikasi chat (peringatan, build, dasbor) dapat memposting ke kanal ini sebagai gantinya, dengan payload yang sama.",
+    "lastUsed": "terakhir memposting {when}",
+    "loading": "Memuat…",
+    "name": "Nama webhook",
+    "namePlaceholder": "Misalnya Peringatan Grafana",
+    "neverUsed": "belum pernah memposting",
+    "none": "Belum ada webhook.",
+    "remove": "Hapus {name}",
+    "removeConfirm": "Hapus webhook {name}? Alamatnya langsung berhenti berfungsi; pesannya tetap ada.",
+    "title": "Webhook"
   }
 }

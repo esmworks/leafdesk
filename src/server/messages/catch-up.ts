@@ -59,7 +59,7 @@ export async function catchUp(userId: string, input: { channelId?: unknown; thre
   const shown: CatchUpMessage[] = messages.filter(said).map((m) => ({
     id: m.id,
     threadId: m.threadId,
-    author: (m.authorId && names.get(m.authorId)) || "Someone",
+    author: (m.authorId && names.get(m.authorId)) || m.data?.webhook?.name || m.data?.importedFrom?.name || "Someone",
     mine: m.authorId === userId,
     mentionsYou: mentionedUserIds(m.body).includes(userId) || broadcastOf(m.body) !== null,
     at: new Date(m.createdAt),

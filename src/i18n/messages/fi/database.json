@@ -1518,7 +1518,8 @@
         "celebrate": "Juhli konfeteilla",
         "approval": "Pyydä hyväksyntää",
         "start_sequence": "Aloita seurantasarja",
-        "slack": "Lähetä Slackiin"
+        "slack": "Lähetä Slackiin",
+        "channel_message": "Julkaise kanavalla"
       },
       "trashHelp": "Siirtää rivin roskakoriin, josta sen voi palauttaa, kunnes roskakori tyhjennetään. Tämän toiminnon jälkeen ei voi suorittaa mitään.",
       "addAction": "Lisää toiminto",
@@ -1583,7 +1584,9 @@
         "needView": "Valitse näkymä, jonka rivit lasketaan.",
         "needNumber": "Valitse numeroominaisuus, josta lasketaan.",
         "needThreshold": "Anna luku, johon verrataan.",
-        "needButton": "Valitse painike, joka käynnistää sen."
+        "needButton": "Valitse painike, joka käynnistää sen.",
+        "needChannel": "Valitse kanava, jolle julkaistaan.",
+        "needChannelMessage": "Kirjoita julkaistava viesti."
       },
       "agent": "Agentti",
       "chooseAgent": "Valitse agentti…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Tietokannan oletusmalli",
       "rowTemplateDefaultNamed": "Oletusmalli ({name})",
       "rowTemplateGone": "Malli, jota ei enää ole",
-      "rowTemplateHelp": "Rivi alkaa mallin kopiona. Tässä asetetut arvot korvaavat mallin arvot; tyhjä otsikko säilyttää mallin otsikon."
+      "rowTemplateHelp": "Rivi alkaa mallin kopiona. Tässä asetetut arvot korvaavat mallin arvot; tyhjä otsikko säilyttää mallin otsikon.",
+      "channel": "Kanava",
+      "channelHelp": "Julkaisee viestin kanavalla sinun nimissäsi, linkin kera riviin. Markdown toimii.",
+      "channelLoading": "Ladataan kanavia…",
+      "channelMessage": "Viesti",
+      "channelNone": "Et ole millään kanavalla, jolle voit julkaista. Liity ensin johonkin Viesteissä.",
+      "channelPick": "Valitse kanava",
+      "channelPrivate": "yksityinen",
+      "channelUnknown": "Kanava, jolle et voi julkaista"
     },
     "variables": {
       "button": "Lisää muuttuja",

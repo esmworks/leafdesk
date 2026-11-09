@@ -2174,7 +2174,9 @@
         "updated": "Het kanaal {target} gewijzigd",
         "archived": "Het kanaal {target} gearchiveerd",
         "unarchived": "Het kanaal {target} uit het archief teruggehaald",
-        "imported": "Het kanaal {target} geïmporteerd"
+        "imported": "Het kanaal {target} geïmporteerd",
+        "webhook_created": "Een webhook aan het kanaal {target} toegevoegd",
+        "webhook_deleted": "Een webhook van het kanaal {target} verwijderd"
       },
       "dashboard_email": {
         "set": "{target} ingesteld om te worden gemaild naar {count, plural, one {# persoon} other {# personen}}",

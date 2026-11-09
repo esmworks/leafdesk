@@ -119,6 +119,10 @@
       "audit": {
         "name": "Auditlogboek",
         "hint": "Het auditlogboek van de werkruimte (alleen eigenaren, voor een token dat beperkt is tot een werkruimte waarvan ze eigenaar zijn)."
+      },
+      "messages": {
+        "hint": "Kanalen en hun berichten; schrijven verstuurt berichten als jou.",
+        "name": "Berichten"
       }
     },
     "summary": {

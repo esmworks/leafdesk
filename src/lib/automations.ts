@@ -233,6 +233,12 @@ export type AutomationAction = (
    * is shown of it.
    */
   | { type: "slack"; sealed?: string; hint: string; message: string }
+  /**
+   * Posts `message` (Markdown with templates) in a channel of the workspace's Messages, as the
+   * automation's person, with the row (or the database) as a link. Its person must be able to
+   * write there when the automation is saved and when it runs.
+   */
+  | { type: "channel_message"; channelId: string; message: string }
 ) & { id?: string };
 
 export type ApprovalAction = {
@@ -266,6 +272,7 @@ export const AUTOMATION_ACTION_TYPES = [
   "start_sequence",
   "approval",
   "slack",
+  "channel_message",
 ] as const satisfies AutomationActionType[];
 
 /**

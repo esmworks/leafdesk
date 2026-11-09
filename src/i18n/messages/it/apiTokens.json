@@ -119,6 +119,10 @@
       "audit": {
         "name": "Registro di controllo",
         "hint": "Il registro di controllo dello spazio di lavoro (solo per i proprietari, con un token limitato a uno spazio di lavoro di cui sono proprietari)."
+      },
+      "messages": {
+        "hint": "Canali e i loro messaggi; la scrittura invia messaggi a tuo nome.",
+        "name": "Messaggi"
       }
     },
     "summary": {

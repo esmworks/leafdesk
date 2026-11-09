@@ -2174,7 +2174,9 @@
         "updated": "チャンネル{target}を変更しました",
         "archived": "チャンネル{target}をアーカイブしました",
         "unarchived": "チャンネル{target}をアーカイブから戻しました",
-        "imported": "チャンネル{target}をインポートしました"
+        "imported": "チャンネル{target}をインポートしました",
+        "webhook_created": "チャンネル{target}に Webhook を追加しました",
+        "webhook_deleted": "チャンネル{target}の Webhook を削除しました"
       },
       "dashboard_email": {
         "set": "{target}を{count, plural, other {#人}}にメール送信するよう設定しました",

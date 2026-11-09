@@ -200,6 +200,7 @@ export const LEFT_OUT: Record<string, string> = {
   message_draft: "what people were writing in channels and hadn't sent",
   saved_message: "people's own messages saved for later and their reminders",
   scheduled_message: "messages waiting to be sent later; a restore mustn't send them again",
+  channel_webhook: "secret addresses tools post to; a restored workspace makes new ones",
   message_status: "people's statuses and quiet hours in team messages",
   agent_daily_change: "agents' changes counted against their daily limits, kept a few days only",
   pending_change: "changes agents proposed for review, kept a few weeks only; the runs that proposed them aren't backed up",

@@ -343,6 +343,12 @@ const actionInput = z.discriminatedUnion("type", [
     url: z.string().max(MAX_WEBHOOK_URL).optional().describe("A Slack incoming webhook (https://hooks.slack.com/services/…), kept secret. Omit to keep the saved one."),
     message: z.string().max(MAX_STEP_MESSAGE).optional(),
   }),
+  z.object({
+    type: z.literal("channel_message"),
+    id: stepId,
+    channel: z.string().min(1).max(200).describe("A Messages channel you can post in, by id or #name."),
+    message: z.string().min(1).max(MAX_STEP_MESSAGE).describe("Markdown; templates allowed. The row's link is added."),
+  }),
 ]);
 
 const TEMPLATE_NOTE =
@@ -353,7 +359,7 @@ export const actionsInput = z
   .min(1)
   .max(MAX_AUTOMATION_ACTIONS)
   .describe(
-    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (inbox, and email as each person chooses, to people who can open the row), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (2xx within 15 s, no redirects; network errors, timeouts and 502-504 retried up to 5 times), find_rows, create_row, upsert_row, wait, log, celebrate (confetti for whoever made the change), approval (asks the people named and in the row's person properties, in "For review"; the run waits: rejected stops it, see on_timeout; noApprovers if nobody is found; not for_each; a test run skips it), start_sequence (a follow-up of the database on the row, from the runner's default mailbox; rows in it already: alreadyEnrolled) or slack (posts the message, Slack mrkdwn, and the row's link to a Slack incoming webhook; list_automations shows a hint of its url). A schedule, view_threshold or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each over an earlier find_rows step ({{item}}: that row by name, id, title, url); webhook and move_to_trash are impossible. A run_agent step gives the agent edit access to the database while an automation runs it; only workspace owners and agent editors add or change one. A step's optional id names its output in later templates ({{find.rows}}): a-z, 0-9, _, a letter first, at most 32, not "trigger" or "item"; default its type (find, find_2 …). ${TEMPLATE_NOTE}`,
+    `What the automation does, in order (at most ${MAX_AUTOMATION_ACTIONS} steps; each works or fails on its own): set_properties, notify (inbox, and email as each person chooses, to people who can open the row), webhook, run_agent (queues a run of an agent on the row), move_to_trash (the last step; not with run_agent), http_request (2xx within 15 s, no redirects; network errors, timeouts and 502-504 retried up to 5 times), find_rows, create_row, upsert_row, wait, log, celebrate (confetti for whoever made the change), approval (asks the people named and in the row's person properties, in "For review"; the run waits: rejected stops it, see on_timeout; noApprovers if nobody is found; not for_each; a test run skips it), start_sequence (a follow-up of the database on the row, from the runner's default mailbox; rows in it already: alreadyEnrolled), slack (posts the message, Slack mrkdwn, and the row's link to a Slack incoming webhook; list_automations shows a hint of its url) or channel_message (posts the message and the row's link in a Messages channel, as you). A schedule, view_threshold or incoming_webhook automation has no row: set_properties, run_agent and notify with properties need for_each over an earlier find_rows step ({{item}}: that row by name, id, title, url); webhook and move_to_trash are impossible. A run_agent step gives the agent edit access to the database while an automation runs it; only workspace owners and agent editors add or change one. A step's optional id names its output in later templates ({{find.rows}}): a-z, 0-9, _, a letter first, at most 32, not "trigger" or "item"; default its type (find, find_2 …). ${TEMPLATE_NOTE}`,
   );
 
 const nameInput = z.string().min(1).max(MAX_AUTOMATION_NAME);
@@ -385,7 +391,7 @@ const triggerParam = checked(
 const actionsParam = checked(
   actionsInput,
   "array",
-  `The steps in order, each {type, …}: set_properties, notify, webhook, slack, run_agent, move_to_trash, http_request, find_rows, create_row, upsert_row, wait, approval, start_sequence, celebrate or log; for_each repeats one per row an earlier find_rows found, and {{templates}} read earlier outputs. ${see("automations")}`,
+  `The steps in order, each {type, …}: set_properties, notify, webhook, slack, channel_message, run_agent, move_to_trash, http_request, find_rows, create_row, upsert_row, wait, approval, start_sequence, celebrate or log; for_each repeats one per row an earlier find_rows found, and {{templates}} read earlier outputs. ${see("automations")}`,
 );
 
 export const automationInputs = {
@@ -589,6 +595,9 @@ async function toActions(userId: string, actions: ActionsArg): Promise<Automatio
         break;
       case "slack":
         step = { type: "slack", ...(a.url ? { url: a.url } : {}), ...(a.message !== undefined ? { message: a.message } : {}) };
+        break;
+      case "channel_message":
+        step = { type: "channel_message", channel: a.channel, message: a.message };
         break;
       case "start_sequence":
         step = { type: "start_sequence", sequence: a.sequence, ...forEach };
@@ -954,6 +963,8 @@ function describeAction(ctx: AutomationContext, action: AutomationAction, all: A
       return { ...base, type: "celebrate", summary: "Confetti for whoever made the change" };
     case "slack":
       return { ...base, type: "slack", url: action.hint, message: action.message, summary: `Send to Slack (${action.hint})` };
+    case "channel_message":
+      return { ...base, type: "channel_message", channel: action.channelId, message: action.message, summary: "Post in a Messages channel" };
     case "start_sequence": {
       const sequence = { id: action.sequenceId, name: ctx.sequences.find((s) => s.id === action.sequenceId)?.name ?? null };
       return {

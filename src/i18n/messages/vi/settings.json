@@ -2174,7 +2174,9 @@
         "updated": "Đã thay đổi kênh {target}",
         "archived": "Đã lưu trữ kênh {target}",
         "unarchived": "Đã đưa kênh {target} ra khỏi kho lưu trữ",
-        "imported": "Đã nhập kênh {target}"
+        "imported": "Đã nhập kênh {target}",
+        "webhook_created": "Đã thêm một webhook vào kênh {target}",
+        "webhook_deleted": "Đã xóa một webhook của kênh {target}"
       },
       "dashboard_email": {
         "set": "Đã đặt {target} được gửi email cho {count, plural, other {# người}}",

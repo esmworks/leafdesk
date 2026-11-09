@@ -328,5 +328,28 @@
       "noAccess": "Alleen eigenaren van de werkruimte kunnen in Berichten importeren.",
       "failed": "Het importeren is mislukt. Probeer het opnieuw."
     }
+  },
+  "removePreviews": "Voorbeelden verwijderen",
+  "viaAutomation": "via de automatisering “{name}”",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Toevoegen",
+    "address": "Webhookadres",
+    "cancel": "Annuleren",
+    "copied": "Adres gekopieerd",
+    "copy": "Adres kopiëren",
+    "copyNow": "Kopieer dit adres nu: het wordt niet meer getoond. Iedereen die het heeft, kan hier berichten plaatsen.",
+    "create": "Maken",
+    "failed": "De webhook kon niet worden gewijzigd. Probeer het opnieuw.",
+    "hint": "Tools die berichten naar de inkomende webhook van een chat sturen (meldingen, builds, dashboards), kunnen ze in plaats daarvan in dit kanaal plaatsen, met dezelfde inhoud.",
+    "lastUsed": "laatst geplaatst {when}",
+    "loading": "Laden…",
+    "name": "Naam van de webhook",
+    "namePlaceholder": "Bijvoorbeeld Grafana-meldingen",
+    "neverUsed": "heeft nog niets geplaatst",
+    "none": "Nog geen webhooks.",
+    "remove": "{name} verwijderen",
+    "removeConfirm": "De webhook “{name}” verwijderen? Het adres werkt meteen niet meer; de berichten blijven staan.",
+    "title": "Webhooks"
   }
 }

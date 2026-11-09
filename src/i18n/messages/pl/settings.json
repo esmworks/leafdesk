@@ -2174,7 +2174,9 @@
         "updated": "Zmieniono kanał {target}",
         "archived": "Zarchiwizowano kanał {target}",
         "unarchived": "Przywrócono kanał {target} z archiwum",
-        "imported": "Zaimportowano kanał {target}"
+        "imported": "Zaimportowano kanał {target}",
+        "webhook_created": "Dodano webhook do kanału {target}",
+        "webhook_deleted": "Usunięto webhook kanału {target}"
       },
       "dashboard_email": {
         "set": "Ustawiono wysyłkę {target} e-mailem do {count, plural, one {# osoby} few {# osób} many {# osób} other {# osoby}}",

@@ -2174,7 +2174,9 @@
         "updated": "Mengubah kanal {target}",
         "archived": "Mengarsipkan kanal {target}",
         "unarchived": "Mengembalikan kanal {target} dari arsip",
-        "imported": "Mengimpor kanal {target}"
+        "imported": "Mengimpor kanal {target}",
+        "webhook_created": "Menambahkan webhook ke kanal {target}",
+        "webhook_deleted": "Menghapus webhook dari kanal {target}"
       },
       "dashboard_email": {
         "set": "Mengatur “{target}” untuk dikirim lewat email ke {count, plural, other {# orang}}",

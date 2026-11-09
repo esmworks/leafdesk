@@ -14,6 +14,7 @@ import type { Tx } from "@/server/workspaces";
 import { addPeople, nextSeq, systemMessage } from "./channels";
 import { MessageError, requireChannel, stillInWorkspace, write, type Changed, type ChannelAccess } from "./core";
 import { isActive } from "./hub";
+import { previewMessageLinks, previewSoon } from "./link-previews";
 import { messageViews, withExtras } from "./views";
 
 type MessageRow = typeof channelMessage.$inferSelect;
@@ -124,6 +125,7 @@ export async function sendMessage(userId: string, input: SendInput): Promise<Sen
       .then(({ startChannelMentionRuns }) => startChannelMentionRuns(id))
       .catch((error) => console.error("[messages] could not ask the agents a message names", error));
   }
+  previewSoon(id, body);
   const [message] = await messageViews(eq(channelMessage.id, id));
   return { message, notInChannel };
 }
@@ -305,6 +307,9 @@ export async function editMessage(userId: string, messageId: unknown, input: { b
     const recount = [...unnamed, ...named].map((r) => r.userId);
     if (recount.length) await recountMentions(tx, changed, row.id, recount, message.threadId, message.alsoInChannel);
   });
+  // The cards follow the words: new links get theirs, and links taken out take theirs along.
+  if (message.data?.previews?.length) void previewMessageLinks(message.id);
+  else previewSoon(message.id, body);
 }
 
 /** Earlier words of a message, oldest first, for anyone who may read it. */

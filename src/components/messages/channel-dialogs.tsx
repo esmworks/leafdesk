@@ -7,6 +7,7 @@ import { showToast } from "@/components/toast";
 import { Button, cn, Dialog, DialogBody, DialogFooter, DialogHeader, Input, selectClass, Switch, textareaClass } from "@/components/ui";
 import type { ChannelView } from "@/lib/message-wire";
 import { channelName, channelNameError, MESSAGE_LIMITS, messagesPath, type ChannelNotify } from "@/lib/messages";
+import { ChannelWebhooks } from "./channel-webhooks";
 import { MessageBody } from "./message-body";
 import { PersonFace } from "./person";
 import { call, channelTitle, MessagesError, messagesState, useMessages, useView } from "./store";
@@ -598,6 +599,8 @@ export function ChannelDetails({
             )}
           </section>
         )}
+
+        {!direct && admin && !channel.archivedAt && <ChannelWebhooks channelId={channelId} />}
 
         <section className="space-y-1 py-3">
           {!direct && member && (

@@ -2174,7 +2174,9 @@
         "updated": "更改了频道 {target}",
         "archived": "归档了频道 {target}",
         "unarchived": "将频道 {target} 从归档中恢复",
-        "imported": "导入了频道 {target}"
+        "imported": "导入了频道 {target}",
+        "webhook_created": "向频道 {target} 添加了一个 Webhook",
+        "webhook_deleted": "删除了频道 {target} 的一个 Webhook"
       },
       "dashboard_email": {
         "set": "将 {target} 设置为通过邮件发送给 {count, plural, other {# 个人}}",

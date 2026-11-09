@@ -1518,7 +1518,8 @@
         "celebrate": "Rayakan dengan konfeti",
         "approval": "Minta persetujuan",
         "start_sequence": "Mulai tindak lanjut",
-        "slack": "Kirim ke Slack"
+        "slack": "Kirim ke Slack",
+        "channel_message": "Posting di kanal"
       },
       "trashHelp": "Memindahkan baris ke sampah, tempat baris dapat dipulihkan hingga sampah dikosongkan. Tidak ada yang dapat berjalan setelah tindakan ini.",
       "addAction": "Tambahkan tindakan",
@@ -1583,7 +1584,9 @@
         "needView": "Pilih tampilan yang barisnya dihitung.",
         "needNumber": "Pilih properti angka yang akan dihitung.",
         "needThreshold": "Masukkan angka pembanding.",
-        "needButton": "Pilih tombol yang menjalankannya."
+        "needButton": "Pilih tombol yang menjalankannya.",
+        "needChannel": "Pilih kanal tujuan posting.",
+        "needChannelMessage": "Tulis pesan yang akan diposting."
       },
       "agent": "Agen",
       "chooseAgent": "Pilih agen…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Templat bawaan database",
       "rowTemplateDefaultNamed": "Templat bawaan ({name})",
       "rowTemplateGone": "Templat yang sudah tidak ada",
-      "rowTemplateHelp": "Baris dimulai sebagai salinan templat. Nilai yang diatur di sini menggantikan nilai templat; judul kosong mempertahankan judul templat."
+      "rowTemplateHelp": "Baris dimulai sebagai salinan templat. Nilai yang diatur di sini menggantikan nilai templat; judul kosong mempertahankan judul templat.",
+      "channel": "Kanal",
+      "channelHelp": "Memposting pesan di kanal atas nama Anda, dengan tautan ke baris. Markdown berfungsi.",
+      "channelLoading": "Memuat kanal…",
+      "channelMessage": "Pesan",
+      "channelNone": "Anda tidak berada di kanal mana pun yang dapat Anda posting. Bergabunglah dulu ke salah satunya di Pesan.",
+      "channelPick": "Pilih kanal",
+      "channelPrivate": "privat",
+      "channelUnknown": "Kanal yang tidak dapat Anda posting"
     },
     "variables": {
       "button": "Sisipkan variabel",

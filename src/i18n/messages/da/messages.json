@@ -328,5 +328,28 @@
       "noAccess": "Kun ejere af arbejdsområdet kan importere til Beskeder.",
       "failed": "Importen mislykkedes. Prøv igen."
     }
+  },
+  "removePreviews": "Fjern forhåndsvisninger",
+  "viaAutomation": "via automatiseringen {name}",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Tilføj",
+    "address": "Webhook-adresse",
+    "cancel": "Annuller",
+    "copied": "Adresse kopieret",
+    "copy": "Kopiér adresse",
+    "copyNow": "Kopiér adressen nu: den bliver ikke vist igen. Alle, der har den, kan skrive her.",
+    "create": "Opret",
+    "failed": "Webhooken kunne ikke ændres. Prøv igen.",
+    "hint": "Værktøjer, der sender til en chats indgående webhook (alarmer, builds, dashboards), kan sende til denne kanal i stedet, med samme payload.",
+    "lastUsed": "skrev senest {when}",
+    "loading": "Indlæser…",
+    "name": "Navn på webhook",
+    "namePlaceholder": "For eksempel Grafana-alarmer",
+    "neverUsed": "har ikke skrevet endnu",
+    "none": "Ingen webhooks endnu.",
+    "remove": "Slet {name}",
+    "removeConfirm": "Vil du slette webhooken {name}? Adressen holder op med at virke med det samme; dens beskeder bliver.",
+    "title": "Webhooks"
   }
 }

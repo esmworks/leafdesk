@@ -328,5 +328,28 @@
       "noAccess": "Vain työtilan omistajat voivat tuoda Viesteihin.",
       "failed": "Tuonti epäonnistui. Yritä uudelleen."
     }
+  },
+  "removePreviews": "Poista esikatselut",
+  "viaAutomation": "automaation {name} kautta",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "Lisää",
+    "address": "Webhookin osoite",
+    "cancel": "Peruuta",
+    "copied": "Osoite kopioitu",
+    "copy": "Kopioi osoite",
+    "copyNow": "Kopioi osoite nyt: sitä ei näytetä uudelleen. Kuka tahansa, jolla se on, voi julkaista täällä.",
+    "create": "Luo",
+    "failed": "Webhookia ei voitu muuttaa. Yritä uudelleen.",
+    "hint": "Työkalut, jotka julkaisevat chatin saapuvaan webhookiin (hälytykset, buildit, kojelaudat), voivat julkaista sen sijaan tälle kanavalle samalla sisällöllä.",
+    "lastUsed": "julkaisi viimeksi {when}",
+    "loading": "Ladataan…",
+    "name": "Webhookin nimi",
+    "namePlaceholder": "Esimerkiksi Grafana-hälytykset",
+    "neverUsed": "ei ole vielä julkaissut",
+    "none": "Ei vielä webhookeja.",
+    "remove": "Poista {name}",
+    "removeConfirm": "Poistetaanko webhook {name}? Sen osoite lakkaa toimimasta heti; sen viestit säilyvät.",
+    "title": "Webhookit"
   }
 }

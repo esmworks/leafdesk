@@ -1518,7 +1518,8 @@
         "celebrate": "Ăn mừng bằng pháo giấy",
         "approval": "Yêu cầu phê duyệt",
         "start_sequence": "Bắt đầu một chuỗi theo dõi",
-        "slack": "Gửi tới Slack"
+        "slack": "Gửi tới Slack",
+        "channel_message": "Đăng vào một kênh"
       },
       "trashHelp": "Chuyển hàng vào thùng rác, nơi có thể khôi phục cho đến khi thùng rác được làm trống. Không có gì chạy được sau hành động này.",
       "addAction": "Thêm hành động",
@@ -1583,7 +1584,9 @@
         "needView": "Hãy chọn chế độ xem có các hàng được đếm.",
         "needNumber": "Hãy chọn thuộc tính số để tính.",
         "needThreshold": "Hãy nhập số để so sánh.",
-        "needButton": "Chọn nút chạy nó."
+        "needButton": "Chọn nút chạy nó.",
+        "needChannel": "Hãy chọn kênh để đăng.",
+        "needChannelMessage": "Hãy viết tin nhắn cần đăng."
       },
       "agent": "Tác tử",
       "chooseAgent": "Chọn một tác tử…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Mẫu mặc định của cơ sở dữ liệu",
       "rowTemplateDefaultNamed": "Mẫu mặc định ({name})",
       "rowTemplateGone": "Mẫu không còn tồn tại",
-      "rowTemplateHelp": "Hàng bắt đầu là bản sao của mẫu. Giá trị đặt ở đây thay cho giá trị của mẫu; tiêu đề trống sẽ giữ tiêu đề của mẫu."
+      "rowTemplateHelp": "Hàng bắt đầu là bản sao của mẫu. Giá trị đặt ở đây thay cho giá trị của mẫu; tiêu đề trống sẽ giữ tiêu đề của mẫu.",
+      "channel": "Kênh",
+      "channelHelp": "Đăng tin nhắn vào kênh với tư cách bạn, kèm liên kết tới hàng. Dùng được Markdown.",
+      "channelLoading": "Đang tải kênh…",
+      "channelMessage": "Tin nhắn",
+      "channelNone": "Bạn chưa ở trong kênh nào có thể đăng. Hãy tham gia một kênh trong Tin nhắn trước.",
+      "channelPick": "Chọn một kênh",
+      "channelPrivate": "riêng tư",
+      "channelUnknown": "Một kênh bạn không thể đăng"
     },
     "variables": {
       "button": "Chèn một biến",

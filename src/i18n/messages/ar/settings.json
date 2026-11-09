@@ -2174,7 +2174,9 @@
         "updated": "غيّر القناة {target}",
         "archived": "أرشف القناة {target}",
         "unarchived": "أعاد القناة {target} من الأرشيف",
-        "imported": "استورد القناة {target}"
+        "imported": "استورد القناة {target}",
+        "webhook_created": "أضاف Webhook إلى القناة {target}",
+        "webhook_deleted": "حذف Webhook من القناة {target}"
       },
       "dashboard_email": {
         "set": "ضبط إرسال {target} بالبريد إلى {count, plural, zero {لا أحد} one {شخص واحد} two {شخصين} few {# أشخاص} many {# شخصًا} other {# شخص}}",

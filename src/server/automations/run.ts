@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { automationRun, automationVersion, databaseAutomation, databaseView, notification, page, user, type AutomationDefinition } from "@/db/schema";
@@ -392,6 +393,8 @@ export async function processRun(run: Run) {
           result = await httpRequest(ctx, action, step);
         } else if (action.type === "slack") {
           result = await sendToSlack(ctx, action);
+        } else if (action.type === "channel_message") {
+          result = await postInChannel(ctx, action, ids[i]);
         } else if (action.type === "find_rows") {
           result = await findRows(ctx, action);
         } else if (action.type === "create_row") {
@@ -603,6 +606,36 @@ async function sendToSlack(ctx: StepContext, action: Extract<AutomationAction, {
               ? "Slack answered with a redirect"
               : "Couldn't reach Slack";
     throw fail(error.code, text, error.httpStatus);
+  }
+}
+
+/**
+ * A "Post in a channel" step: the message, with the row's link (the database's, for a run without
+ * a row), sent in the channel as the automation's person, who must still be able to post there.
+ * Its id comes from the run and the step, so a step taken again after a restart doesn't post twice.
+ */
+async function postInChannel(ctx: StepContext, action: Extract<AutomationAction, { type: "channel_message" }>, stepId: string): Promise<StepResult> {
+  const { automation, row, run } = ctx;
+  const message = resolveText(action.message, ctx.scope);
+  const input = missingNote({ message: message.value, channelId: action.channelId }, message.missing);
+  let link: { url: string; title: string };
+  if (row) link = { url: rowUrl(automation.workspaceId, row.id), title: pageLabel(row.title) };
+  else {
+    const [database] = await db.select({ title: page.title }).from(page).where(eq(page.id, automation.databaseId));
+    link = { url: rowUrl(automation.workspaceId, automation.databaseId), title: pageLabel(database?.title ?? "") };
+  }
+  const label = link.title.replace(/[[\]\\]/g, "") || link.url;
+  const body = `${message.value.trim()}\n\n[${label}](${link.url})`;
+  const hex = createHash("sha256").update(`${run.id}\n${stepId}`).digest("hex");
+  const id = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-5${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+  const { sendMessage } = await import("@/server/messages/posts");
+  const { MessageError } = await import("@/server/messages/core");
+  try {
+    const sent = await sendMessage(ctx.runAs, { id, channelId: action.channelId, body, data: { automation: { id: automation.id, name: automation.name } } });
+    return { input, output: { messageId: sent.message.id } };
+  } catch (error) {
+    if (error instanceof MessageError) throw Object.assign(new StepFailure(`channel_${error.code}`, error.code === "notMember" || error.code === "notFound" ? "The automation's person can't post in this channel any more" : error.code === "archived" ? "The channel is archived" : error.message), { input });
+    throw error;
   }
 }
 

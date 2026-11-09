@@ -1518,7 +1518,8 @@
         "celebrate": "Celebrar com confetes",
         "approval": "Pedir aprovação",
         "start_sequence": "Iniciar um acompanhamento",
-        "slack": "Enviar ao Slack"
+        "slack": "Enviar ao Slack",
+        "channel_message": "Publicar em um canal"
       },
       "trashHelp": "Move a linha para a lixeira, de onde ela pode ser restaurada até a lixeira ser esvaziada. Nada pode ser executado depois desta ação.",
       "addAction": "Adicionar ação",
@@ -1583,7 +1584,9 @@
         "needView": "Escolha a visualização cujas linhas serão contadas.",
         "needNumber": "Escolha a propriedade numérica a calcular.",
         "needThreshold": "Digite o número para comparar.",
-        "needButton": "Escolha o botão que a executa."
+        "needButton": "Escolha o botão que a executa.",
+        "needChannel": "Escolha o canal onde publicar.",
+        "needChannelMessage": "Escreva a mensagem a publicar."
       },
       "agent": "Agente",
       "chooseAgent": "Escolha um agente…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Modelo padrão do banco de dados",
       "rowTemplateDefaultNamed": "O modelo padrão ({name})",
       "rowTemplateGone": "Um modelo que já não existe",
-      "rowTemplateHelp": "A linha começa como uma cópia do modelo. Os valores definidos aqui substituem os do modelo; um título vazio mantém o do modelo."
+      "rowTemplateHelp": "A linha começa como uma cópia do modelo. Os valores definidos aqui substituem os do modelo; um título vazio mantém o do modelo.",
+      "channel": "Canal",
+      "channelHelp": "Publica a mensagem no canal em seu nome, com um link para a linha. Markdown funciona.",
+      "channelLoading": "Carregando canais…",
+      "channelMessage": "Mensagem",
+      "channelNone": "Você não está em nenhum canal onde possa publicar. Entre em um em Mensagens primeiro.",
+      "channelPick": "Escolha um canal",
+      "channelPrivate": "privado",
+      "channelUnknown": "Um canal onde você não pode publicar"
     },
     "variables": {
       "button": "Inserir uma variável",

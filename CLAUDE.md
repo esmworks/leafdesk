@@ -201,6 +201,15 @@ BlockNote on Yjs; Tailwind v4; next-intl. Node 24, pnpm 11. A separate Electron 
   `lib/message-quiet.ts` `withoutCalls`; the thread is outside words (`dispatch.ts` `readOutside`).
   Anything that stores messages without a person writing them now (an import) must not go through
   `sendMessage`, or its mentions of agents start runs (only `FRESH_MS` holds them back).
+  Webhooks (`webhooks.ts`, table `channel_webhook`, route `api/messages/webhooks/[id]/[secret]`)
+  insert an authorless message straight inside `write` (`data.webhook`, no mentions, no previews);
+  their payloads are read by the pure `lib/slack-payload.ts`, which reuses the importer's mrkdwn
+  reader. Link cards are `link-previews.ts` (`data.previews`, fetched after `sendMessage` and
+  edits through `server/link-preview.ts`, stored only while the body is unchanged). The automation
+  step `channel_message` posts through `sendMessage` as the run's person under an id derived from
+  the run and step, so a retried run posts once (`automations/run.ts` `postInChannel`); the
+  channels it offers are `automation-channels.ts`. MCP's and the REST API's message calls are
+  `messages/operations.ts` (`requireMembership` first), hidden from the AI chat and agents.
 - **Shared operations.** `src/server/operations.ts` is what the MCP tools, the REST API, the AI
   chat, agents and automations do with pages, databases, rows and comments. Each operation runs as
   `ctx.userId` with that person's access; the caller checks its own scopes first.

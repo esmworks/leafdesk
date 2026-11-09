@@ -123,6 +123,7 @@ export type DraftAction = { key: string; id: string } & (
    * the id the step was saved with, whose address it keeps when renamed.
    */
   | { type: "slack"; url: string; hint: string; savedId: string; message: string }
+  | { type: "channel_message"; channelId: string; message: string }
 );
 
 export type DraftActionOf<T extends AutomationActionType> = Extract<DraftAction, { type: T }>;
@@ -167,6 +168,7 @@ const ID_STEMS: Record<AutomationActionType, string> = {
   start_sequence: "follow_up",
   approval: "approval",
   slack: "slack",
+  channel_message: "channel",
 };
 
 export function newStepId(type: AutomationActionType, taken: string[]) {
@@ -349,6 +351,8 @@ export function toDraft(automation: Automation, properties: Property[]): Draft {
         return { ...base, type: "webhook", url: action.url };
       case "slack":
         return { ...base, type: "slack", url: "", hint: action.hint, savedId: ids[i], message: action.message };
+      case "channel_message":
+        return { ...base, type: "channel_message", channelId: action.channelId, message: action.message };
       case "start_sequence":
         return { ...base, type: "start_sequence", sequenceId: action.sequenceId, forEach: action.forEach ?? "" };
       case "approval":
@@ -399,6 +403,8 @@ export function newAction(type: AutomationActionType, actions: DraftAction[], tr
       return { ...base, type, url: "" };
     case "slack":
       return { ...base, type, url: "", hint: "", savedId: "", message: "" };
+    case "channel_message":
+      return { ...base, type, channelId: "", message: "" };
     case "start_sequence":
       return { ...base, type, sequenceId: "", forEach };
     case "approval":
@@ -558,6 +564,11 @@ export function draftProblem(
         break;
       case "slack":
         if (!action.url.trim() && !action.hint) problem = "needSlackUrl";
+        else if (badText(action.message)) problem = "badTemplate";
+        break;
+      case "channel_message":
+        if (!action.channelId) problem = "needChannel";
+        else if (!action.message.trim()) problem = "needChannelMessage";
         else if (badText(action.message)) problem = "badTemplate";
         break;
       case "http_request": {
@@ -735,6 +746,8 @@ export function actionsInput(draft: Draft, properties: Property[], schemaOf: (da
           // Left out, the address stays the saved step's, which the browser never had.
           ...(action.url.trim() ? { url: action.url.trim() } : { urlFrom: action.savedId || id }),
         };
+      case "channel_message":
+        return { id, type: "channel_message" as const, channel: action.channelId, message: action.message.trim() };
       case "start_sequence":
         return { id, type: "start_sequence" as const, sequence: action.sequenceId, ...forEach };
       case "approval":

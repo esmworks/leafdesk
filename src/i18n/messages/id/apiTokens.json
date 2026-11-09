@@ -119,6 +119,10 @@
       "audit": {
         "name": "Log audit",
         "hint": "Log audit ruang kerja (khusus pemilik, untuk token yang dibatasi pada ruang kerja yang mereka miliki)."
+      },
+      "messages": {
+        "hint": "Kanal dan pesannya; akses tulis mengirim pesan atas nama Anda.",
+        "name": "Pesan"
       }
     },
     "summary": {

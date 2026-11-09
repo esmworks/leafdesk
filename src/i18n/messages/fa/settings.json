@@ -2174,7 +2174,9 @@
         "updated": "کانال {target} را تغییر داد",
         "archived": "کانال {target} را بایگانی کرد",
         "unarchived": "کانال {target} را از بایگانی برگرداند",
-        "imported": "کانال {target} را وارد کرد"
+        "imported": "کانال {target} را وارد کرد",
+        "webhook_created": "یک وب‌هوک به کانال {target} افزود",
+        "webhook_deleted": "یک وب‌هوک کانال {target} را حذف کرد"
       },
       "dashboard_email": {
         "set": "{target} را برای ارسال با ایمیل به {count, plural, one {# نفر} other {# نفر}} تنظیم کرد",

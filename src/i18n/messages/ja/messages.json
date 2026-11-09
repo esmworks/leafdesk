@@ -328,5 +328,28 @@
       "noAccess": "メッセージにインポートできるのはワークスペースのオーナーだけです。",
       "failed": "インポートに失敗しました。もう一度お試しください。"
     }
+  },
+  "removePreviews": "プレビューを削除",
+  "viaAutomation": "オートメーション「{name}」経由",
+  "webhook": "Webhook",
+  "webhooks": {
+    "add": "追加",
+    "address": "Webhook のアドレス",
+    "cancel": "キャンセル",
+    "copied": "アドレスをコピーしました",
+    "copy": "アドレスをコピー",
+    "copyNow": "このアドレスを今すぐコピーしてください。再表示はされません。アドレスを知っている人は誰でもここに投稿できます。",
+    "create": "作成",
+    "failed": "Webhook を変更できませんでした。もう一度お試しください。",
+    "hint": "チャットの Incoming Webhook に投稿するツール（アラート、ビルド、ダッシュボードなど）は、同じペイロードのままこのチャンネルに投稿できます。",
+    "lastUsed": "最終投稿 {when}",
+    "loading": "読み込み中…",
+    "name": "Webhook の名前",
+    "namePlaceholder": "例：Grafana アラート",
+    "neverUsed": "まだ投稿していません",
+    "none": "Webhook はまだありません。",
+    "remove": "{name} を削除",
+    "removeConfirm": "Webhook「{name}」を削除しますか？アドレスはすぐに使えなくなります。投稿済みのメッセージは残ります。",
+    "title": "Webhook"
   }
 }

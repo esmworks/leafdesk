@@ -1518,7 +1518,8 @@
         "celebrate": "Fejr med konfetti",
         "approval": "Bed om godkendelse",
         "start_sequence": "Start en opfølgning",
-        "slack": "Send til Slack"
+        "slack": "Send til Slack",
+        "channel_message": "Skriv i en kanal"
       },
       "trashHelp": "Flytter rækken til papirkurven, hvorfra den kan gendannes, indtil papirkurven tømmes. Intet kan køre efter denne handling.",
       "addAction": "Tilføj handling",
@@ -1583,7 +1584,9 @@
         "needView": "Vælg den visning, hvis rækker tælles.",
         "needNumber": "Vælg den taligenskab, der skal beregnes på.",
         "needThreshold": "Indtast tallet, der skal sammenlignes med.",
-        "needButton": "Vælg den knap, der kører den."
+        "needButton": "Vælg den knap, der kører den.",
+        "needChannel": "Vælg den kanal, der skal skrives i.",
+        "needChannelMessage": "Skriv den besked, der skal sendes."
       },
       "agent": "Agent",
       "chooseAgent": "Vælg en agent…",
@@ -1834,7 +1837,15 @@
       "rowTemplateDefault": "Databasens standardskabelon",
       "rowTemplateDefaultNamed": "Standardskabelonen ({name})",
       "rowTemplateGone": "En skabelon, der ikke længere findes",
-      "rowTemplateHelp": "Rækken starter som en kopi af skabelonen. Værdier, der sættes her, går forud for skabelonens; en tom titel beholder skabelonens."
+      "rowTemplateHelp": "Rækken starter som en kopi af skabelonen. Værdier, der sættes her, går forud for skabelonens; en tom titel beholder skabelonens.",
+      "channel": "Kanal",
+      "channelHelp": "Skriver beskeden i kanalen som dig, med et link til rækken. Markdown virker.",
+      "channelLoading": "Indlæser kanaler…",
+      "channelMessage": "Besked",
+      "channelNone": "Du er ikke med i en kanal, du kan skrive i. Deltag i en under Beskeder først.",
+      "channelPick": "Vælg en kanal",
+      "channelPrivate": "privat",
+      "channelUnknown": "En kanal, du ikke kan skrive i"
     },
     "variables": {
       "button": "Indsæt en variabel",

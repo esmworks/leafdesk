@@ -2174,7 +2174,9 @@
         "updated": "Hat den Kanal {target} geändert",
         "archived": "Hat den Kanal {target} archiviert",
         "unarchived": "Hat den Kanal {target} aus dem Archiv geholt",
-        "imported": "Hat den Kanal {target} importiert"
+        "imported": "Hat den Kanal {target} importiert",
+        "webhook_created": "Hat dem Kanal {target} einen Webhook hinzugefügt",
+        "webhook_deleted": "Hat einen Webhook des Kanals {target} gelöscht"
       },
       "dashboard_email": {
         "set": "Hat {target} für den E-Mail-Versand an {count, plural, one {# Person} other {# Personen}} eingerichtet",
