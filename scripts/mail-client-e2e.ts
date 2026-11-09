@@ -766,6 +766,14 @@ try {
   await sweep();
   const liste = (await read.listThreads(ids.ada, { mailboxId: boxId, folderId: inbox.id })).items.find((t) => t.subject === "Fiyat listesi");
   const forwardHeader = ["---------- Forwarded message ----------", `From: ${customer}`, "Subject: Fiyat listesi"];
+  // The composer names the forwarded files still listed on its first save; with none taken off they all go.
+  const listeFiles = (await read.readBody(ids.ada, { id: liste!.messageId })).attachments.filter((a) => !a.inline);
+  const forwardNone = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [sales], cc: [], bcc: [], subject: "Fwd: Fiyat listesi", html: "<p>Dosyasiz</p>", forward: liste!.messageId, forwardFiles: [], quote: { header: forwardHeader } });
+  check(forwardNone.attachments.length === 0, "a forward whose files were all taken off brings none", forwardNone.attachments);
+  await drafts.discardDraft(ids.ada, { id: forwardNone.id, messageId: forwardNone.messageId, mailboxId: boxId, keep: [] });
+  const forwardNamed = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [sales], cc: [], bcc: [], subject: "Fwd: Fiyat listesi", html: "<p>Dosyali</p>", forward: liste!.messageId, forwardFiles: listeFiles.map((a) => a.part), quote: { header: forwardHeader } });
+  check(forwardNamed.attachments.map((a) => a.name).join() === "liste.pdf", "a forward brings the files it names, which its draft then keeps", forwardNamed.attachments);
+  await drafts.discardDraft(ids.ada, { id: forwardNamed.id, messageId: forwardNamed.messageId, mailboxId: boxId, keep: [] });
   const forwardDraft = await drafts.saveDraft(ids.ada, { mailboxId: boxId, to: [sales], cc: [], bcc: [], subject: "Fwd: Fiyat listesi", html: "<p>Bilgine</p>", forward: liste!.messageId, quote: { header: forwardHeader } });
   const openedForward = await drafts.openDraft(ids.ada, forwardDraft.id!);
   check(

@@ -354,6 +354,12 @@ export type MailDraftInput = {
    * has it under that id (moved in another mail program, or its folder numbered anew).
    */
   sourceMessageId?: string | null;
+  /**
+   * The files of the forwarded message going along, by their parts there: read only while there is
+   * no draft before (after its first save a forward keeps them from its draft, `draft.keep`). Left
+   * out, all of its files go; empty, none.
+   */
+  forwardFiles?: string[] | null;
   /** The draft it was saved as last (or opened from), which saving again or sending replaces. */
   draft?: MailDraftRef | null;
   /**

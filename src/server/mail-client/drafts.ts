@@ -61,16 +61,19 @@ async function earlierDraft(userId: string, box: Box, ref: MailDraftRef | null |
   if (!ref || typeof ref !== "object") return null;
   const found = await ownDraft(userId, ref.id);
   const messageId = typeof ref.messageId === "string" && MESSAGE_ID.test(ref.messageId) ? ref.messageId : (found?.message.messageId ?? null);
-  const keep = Array.isArray(ref.keep) ? ref.keep.filter((p): p is string => typeof p === "string" && /^\d+(\.\d+)*$/.test(p)).slice(0, 40) : [];
+  const keep = partList(ref.keep);
   if (!found && !messageId) return null;
   return { box: found?.box ?? box, message: found?.message ?? null, messageId, keep };
 }
 type Earlier = NonNullable<Awaited<ReturnType<typeof earlierDraft>>>;
 
+/** Parts of a message's files named by the composer (a draft's `keep`, a forward's `forwardFiles`). */
+const partList = (list: unknown) => (Array.isArray(list) ? list.filter((p): p is string => typeof p === "string" && /^\d+(\.\d+)*$/.test(p)).slice(0, 40) : []);
+
 /**
  * The files a message keeps from its draft before, or (a first save, or a send without one) brings
- * from what it forwards; and from the draft before, the pictures its text still shows (`pictures`)
- * that weren't sent again.
+ * from what it forwards: those of `forwardFiles` still listed, all when it names none; and from the
+ * draft before, the pictures its text still shows (`pictures`) that weren't sent again.
  */
 async function carriedFiles(box: Box, input: MailDraftInput, earlier: Earlier | null, pictures: Set<string>): Promise<Attachment[]> {
   if (earlier?.message) {
@@ -82,7 +85,9 @@ async function carriedFiles(box: Box, input: MailDraftInput, earlier: Earlier | 
   }
   if (!input.forward) return [];
   const forwarded = await storedMessage(box, input.forward, input.sourceMessageId);
-  return withImap(box, (client) => filesOf(client, forwarded, "files"));
+  const parts = input.forwardFiles == null ? "files" : partList(input.forwardFiles);
+  if (Array.isArray(parts) && !parts.length) return [];
+  return withImap(box, (client) => filesOf(client, forwarded, parts));
 }
 
 /** Everything a message brings: what it carries over, then the files and the pictures of its text added now. */

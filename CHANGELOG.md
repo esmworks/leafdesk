@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Fixed
+
+- **Forwarding a message from the Mail tab sends its files again.** A forward lost the forwarded
+  message's attachments as soon as its draft was saved a second time, which happens a few seconds
+  after typing, so most forwards went out without them. The composer now lists those files from the
+  start, keeps them from save to save, and sends only the ones left in it.
+
 ## 0.8.0 — 2026-11-08
 
 ### Upgrading from 0.7.2

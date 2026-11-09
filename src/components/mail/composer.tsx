@@ -35,11 +35,15 @@ import { RecipientField } from "./recipient-field";
 const ComposerAi = lazyPart(() => import("./composer-ai").then((m) => m.ComposerAi));
 const TemplateMenu = lazyPart(() => import("./template-menu").then((m) => m.TemplateMenu));
 
-/** A file of the message: one added here, or one its saved draft holds on the mail server (by its part there). */
-type Attached = { file: File } | { stored: MailAttachmentView };
+/**
+ * A file of the message: one added here, one its saved draft holds on the mail server (by its part
+ * there), or one of the message it forwards (by its part in that one), until the first save.
+ */
+type Attached = { file: File } | { stored: MailAttachmentView } | { forwarded: MailAttachmentView };
 
-const sizeOf = (a: Attached) => ("file" in a ? a.file.size : Math.round(a.stored.size / 1.37));
-const nameOf = (a: Attached) => ("file" in a ? a.file.name : a.stored.name);
+const onServer = (a: Exclude<Attached, { file: File }>) => ("stored" in a ? a.stored : a.forwarded);
+const sizeOf = (a: Attached) => ("file" in a ? a.file.size : Math.round(onServer(a).size / 1.37));
+const nameOf = (a: Attached) => ("file" in a ? a.file.name : onServer(a).name);
 
 /**
  * The editor's HTML as it is sent: its pictures shown from the browser written as the parts of the
@@ -149,7 +153,9 @@ export function Composer({
         `${t("to")}: ${m.to.map(showAddress).join(", ")}`,
       ],
     );
-    return { ...start, from: box, bcc: [] as Recipient[], files: [] as Attached[] };
+    // A forward shows the files it brings, which can be taken off before it goes.
+    const forwarding = mode === "forward" && source?.body ? source.body.attachments.filter((a) => !a.inline).map((forwarded): Attached => ({ forwarded })) : [];
+    return { ...start, from: box, bcc: [] as Recipient[], files: forwarding };
   });
   const [from, setFrom] = useState(initial.from);
   const [to, setTo] = useState(initial.to);
@@ -159,6 +165,8 @@ export function Composer({
   const [showBcc, setShowBcc] = useState(initial.bcc.length > 0);
   const [subject, setSubject] = useState(initial.subject);
   const [files, setFiles] = useState(initial.files);
+  // A forward opened before the forwarded message's body came, which it then reads its files from.
+  const [forwardsAll] = useState(() => mode === "forward" && !draft && !source?.body);
   // The earlier mail goes under what is written (the server adds it): shown folded, taken off on asking.
   const quotedFirst = draft ? !!draft.quote : !!initial.quote;
   const [quoted, setQuoted] = useState(quotedFirst);
@@ -230,12 +238,18 @@ export function Composer({
     });
   };
 
-  /** The message as sent to the server: the draft it replaces, the files it keeps from it, the files added since. */
+  /**
+   * The message as sent to the server: the draft it replaces, the files it keeps from it (or before
+   * its first save, those of the message it forwards), the files added since. A forward opened
+   * before the forwarded message's body came doesn't know its files: it brings them all.
+   */
   const formOf = (fields: Recipient[][]) => {
     const { from, subject, files, quoted } = latest.current;
     const ref: MailDraftRef | null = savedDraft.current
       ? { ...savedDraft.current, keep: files.flatMap((f) => ("stored" in f ? [f.stored.part] : [])) }
       : null;
+    const forwarded = files.filter((f): f is { forwarded: MailAttachmentView } => "forwarded" in f);
+    const allForwarded = forwardsAll && !savedDraft.current;
     const form = new FormData();
     const written = withPictureIds(editor?.isEmpty ? "" : (editor?.getHTML() ?? html.current));
     form.set(
@@ -250,6 +264,7 @@ export function Composer({
         replyTo,
         forward: mode === "forward" ? (source?.message.id ?? null) : null,
         sourceMessageId,
+        forwardFiles: mode === "forward" && !savedDraft.current && !allForwarded ? forwarded.map((f) => f.forwarded.part) : undefined,
         draft: ref,
         quote: quoted ? { header: initial.quote } : null,
       }),
@@ -264,7 +279,7 @@ export function Composer({
       form.append("inline", file);
       form.append("inlineCid", cid);
     }
-    return { form, kept, added, shown: written.cids };
+    return { form, sent: [...forwarded, ...kept, ...added], allForwarded, shown: written.cids };
   };
 
   /** Saves the draft now, after a save under way; nothing when nothing changed since the last. */
@@ -274,7 +289,7 @@ export function Composer({
     const run = saves.current.then(async () => {
       if (done.current || sendingNow.current || !latest.current.touched || savedEdits.current === edits.current) return;
       const at = edits.current;
-      const { form, kept, added, shown } = formOf(fieldsNow(false));
+      const { form, sent, allForwarded, shown } = formOf(fieldsNow(false));
       setSaveState("saving");
       const result = await saveDraftAction(form).catch(() => null);
       if (!result?.ok) return setSaveState("failed");
@@ -282,13 +297,15 @@ export function Composer({
       savedPictures.current = new Set(shown);
       savedEdits.current = at;
       // The files sent now are on the server: they are kept from there from now on, in the order
-      // they went (the files it kept, then the ones added), unless they were taken off meanwhile.
+      // they went (those forwarded or kept, then the ones added), unless they were taken off
+      // meanwhile. Those of a forward that brought all its files come first, new to the list.
       const stored = result.data.attachments;
-      if (stored.length === kept.length + added.length) {
-        const swap = new Map<Attached, Attached>([...kept, ...added].map((a, i) => [a, { stored: stored[i] }]));
+      const brought = stored.length - sent.length;
+      if (brought === 0 || (allForwarded && brought > 0)) {
+        const swap = new Map<Attached, Attached>(sent.map((a, i) => [a, { stored: stored[brought + i] }]));
         // The same files, now from the server: no change to save again.
         swapped.current = true;
-        setFiles((list) => list.map((a) => swap.get(a) ?? a));
+        setFiles((list) => [...stored.slice(0, brought).map((s): Attached => ({ stored: s })), ...list.map((a) => swap.get(a) ?? a)]);
       }
       setSaveState(done.current ? "idle" : "saved");
       saved.current?.(result.data.id, mounted.current);

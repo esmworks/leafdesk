@@ -510,7 +510,9 @@ several mailboxes, whose thread ids can repeat, so the list keys threads by `ite
   shadow root by `components/mail/pasted-signature.tsx` and cleaned on its own terms when sent;
   the MIME message is `compose.ts`, drafts live in the
   server's Drafts folder, `drafts.ts`: each save APPENDs anew under the same Message-ID and removes
-  the old copy only after, files kept are read back from it by part number; an answer's or forward's
+  the old copy only after, files kept are read back from it by part number (`draft.keep`, so the
+  composer must turn every file a save returned into a `stored` one, or the next save drops it); a
+  forward's files are named by their parts in the original (`forwardFiles`) until its first save; an answer's or forward's
   earlier mail never enters the editor: the server adds it under what is written (`quote.ts`, a
   `.leafdesk_quote` / `.leafdesk_forward` element, from the original the first time and from the
   draft before after that); pictures in the text are the editor's `Picture` node, sent as `cid:`
