@@ -644,7 +644,18 @@
     "oldestFirst": "Ældste først",
     "aToZ": "A til Å",
     "settings": "Indstillinger",
-    "byYou": "Dig"
+    "byYou": "Dig",
+    "keptBy": "Gemt af",
+    "lastEdited": "Sidst ændret",
+    "openNote": "Åbn",
+    "rename": "Omdøb",
+    "copyText": "Kopiér tekst",
+    "duplicate": "Duplikér",
+    "deleted": "Note slettet",
+    "copied": "Kopieret",
+    "appAuthor": "Forbundet app",
+    "personAuthor": "Ændrede den sidst",
+    "youAuthor": "Dig"
   },
   "accounts": {
     "heading": "AI",

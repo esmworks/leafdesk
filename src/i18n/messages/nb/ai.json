@@ -644,7 +644,18 @@
     "oldestFirst": "Eldste først",
     "aToZ": "A til Å",
     "settings": "Innstillinger",
-    "byYou": "Deg"
+    "byYou": "Deg",
+    "keptBy": "Lagret av",
+    "lastEdited": "Sist endret",
+    "openNote": "Åpne",
+    "rename": "Gi nytt navn",
+    "copyText": "Kopier tekst",
+    "duplicate": "Dupliser",
+    "deleted": "Notat slettet",
+    "copied": "Kopiert",
+    "appAuthor": "Tilkoblet app",
+    "personAuthor": "Endret den sist",
+    "youAuthor": "Deg"
   },
   "accounts": {
     "heading": "KI",

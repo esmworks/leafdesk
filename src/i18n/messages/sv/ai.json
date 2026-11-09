@@ -644,7 +644,18 @@
     "oldestFirst": "Äldsta först",
     "aToZ": "A till Ö",
     "settings": "Inställningar",
-    "byYou": "Du"
+    "byYou": "Du",
+    "keptBy": "Sparad av",
+    "lastEdited": "Senast ändrad",
+    "openNote": "Öppna",
+    "rename": "Byt namn",
+    "copyText": "Kopiera text",
+    "duplicate": "Duplicera",
+    "deleted": "Anteckningen togs bort",
+    "copied": "Kopierat",
+    "appAuthor": "Ansluten app",
+    "personAuthor": "Ändrade den senast",
+    "youAuthor": "Du"
   },
   "accounts": {
     "heading": "AI",

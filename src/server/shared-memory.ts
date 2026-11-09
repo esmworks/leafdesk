@@ -46,7 +46,7 @@ export async function notesAt(workspaceId: string, teamspaceId: Place, reader: P
 /** The notes of a place as the Memory page and MCP list them: who changed each last, and the app, if one did. */
 async function noteViews(workspaceId: string, teamspaceId: Place): Promise<SharedNoteView[]> {
   const rows = await db
-    .select({ note: sharedMemory, by: user.name, app: oauthClient.name })
+    .select({ note: sharedMemory, by: user.name, byId: user.id, byImage: user.image, app: oauthClient.name })
     .from(sharedMemory)
     .leftJoin(user, eq(user.id, sharedMemory.updatedBy))
     .leftJoin(oauthClient, eq(oauthClient.clientId, sharedMemory.oauthClientId))
@@ -59,6 +59,8 @@ async function noteViews(workspaceId: string, teamspaceId: Place): Promise<Share
     category: r.note.category,
     app: r.app ?? null,
     by: r.by ?? null,
+    byId: r.byId ?? null,
+    byImage: r.byImage ?? null,
     createdAt: r.note.createdAt.toISOString(),
     updatedAt: r.note.updatedAt.toISOString(),
   }));

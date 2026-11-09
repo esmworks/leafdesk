@@ -644,7 +644,18 @@
     "oldestFirst": "Más antiguos primero",
     "aToZ": "De la A a la Z",
     "settings": "Configuración",
-    "byYou": "Tú"
+    "byYou": "Tú",
+    "keptBy": "Guardada por",
+    "lastEdited": "Última edición",
+    "openNote": "Abrir",
+    "rename": "Cambiar nombre",
+    "copyText": "Copiar texto",
+    "duplicate": "Duplicar",
+    "deleted": "Nota eliminada",
+    "copied": "Copiado",
+    "appAuthor": "App conectada",
+    "personAuthor": "La cambió por última vez",
+    "youAuthor": "Tú"
   },
   "accounts": {
     "heading": "IA",

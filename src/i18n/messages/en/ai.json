@@ -644,7 +644,18 @@
     "oldestFirst": "Oldest first",
     "aToZ": "A to Z",
     "settings": "Settings",
-    "byYou": "You"
+    "byYou": "You",
+    "keptBy": "Kept by",
+    "lastEdited": "Last edited",
+    "openNote": "Open",
+    "rename": "Rename",
+    "copyText": "Copy text",
+    "duplicate": "Duplicate",
+    "deleted": "Note deleted",
+    "copied": "Copied",
+    "appAuthor": "Connected app",
+    "personAuthor": "Changed it last",
+    "youAuthor": "You"
   },
   "accounts": {
     "heading": "AI",

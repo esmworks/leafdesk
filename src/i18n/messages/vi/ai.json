@@ -644,7 +644,18 @@
     "oldestFirst": "Cũ nhất trước",
     "aToZ": "Từ A đến Z",
     "settings": "Cài đặt",
-    "byYou": "Bạn"
+    "byYou": "Bạn",
+    "keptBy": "Lưu bởi",
+    "lastEdited": "Sửa lần cuối",
+    "openNote": "Mở",
+    "rename": "Đổi tên",
+    "copyText": "Sao chép văn bản",
+    "duplicate": "Nhân bản",
+    "deleted": "Đã xóa ghi chú",
+    "copied": "Đã sao chép",
+    "appAuthor": "Ứng dụng đã kết nối",
+    "personAuthor": "Người sửa gần nhất",
+    "youAuthor": "Bạn"
   },
   "accounts": {
     "heading": "AI",

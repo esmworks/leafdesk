@@ -65,9 +65,15 @@
 ### Changed
 
 - **Memory has a page of its own, laid out like a database.** It moved from under the chat to
-  `/w/<workspace>/memory` (old links still lead there); its parts are tabs, notes are rows grouped
-  by kind with who kept them and when, a toolbar filters, sorts and searches them, and a note opens
-  in a dialog to change it. "Use memory" and deleting all notes are in the page's settings menu.
+  `/w/<workspace>/memory` (old links still lead there); its parts are tabs, notes are one-line rows
+  grouped by kind with who kept them and when, and a toolbar filters, sorts and searches them. A
+  note opens in a panel at the window's edge: its line as the title, its kind, who kept it and when,
+  and its details as the body, each saved as you leave it. A row is renamed in place from the pencil
+  on hover; its right-click menu opens, renames, copies, duplicates, changes the kind or deletes it
+  (also the Delete key), and a deleted note comes back with Undo. Notes kept by an AI app show the
+  app's logo (Claude, ChatGPT, Gemini, Cursor and others), people their picture or a colored
+  initial. The summary opens in the same panel. "Use memory" and deleting all notes are in the
+  page's settings menu.
   It is in the account menu now (your picture at the foot of the rail), under Skills, instead
   of Settings → My account.
 

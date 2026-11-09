@@ -644,7 +644,18 @@
     "oldestFirst": "Спочатку старі",
     "aToZ": "За алфавітом",
     "settings": "Налаштування",
-    "byYou": "Ви"
+    "byYou": "Ви",
+    "keptBy": "Зберіг",
+    "lastEdited": "Остання зміна",
+    "openNote": "Відкрити",
+    "rename": "Перейменувати",
+    "copyText": "Копіювати текст",
+    "duplicate": "Дублювати",
+    "deleted": "Нотатку видалено",
+    "copied": "Скопійовано",
+    "appAuthor": "Підключений застосунок",
+    "personAuthor": "Змінив останнім",
+    "youAuthor": "Ви"
   },
   "accounts": {
     "heading": "ШІ",

@@ -644,7 +644,18 @@
     "oldestFirst": "Сначала старые",
     "aToZ": "По алфавиту",
     "settings": "Настройки",
-    "byYou": "Вы"
+    "byYou": "Вы",
+    "keptBy": "Сохранил",
+    "lastEdited": "Последнее изменение",
+    "openNote": "Открыть",
+    "rename": "Переименовать",
+    "copyText": "Копировать текст",
+    "duplicate": "Дублировать",
+    "deleted": "Заметка удалена",
+    "copied": "Скопировано",
+    "appAuthor": "Подключённое приложение",
+    "personAuthor": "Изменил последним",
+    "youAuthor": "Вы"
   },
   "accounts": {
     "heading": "ИИ",

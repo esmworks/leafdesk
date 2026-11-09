@@ -644,7 +644,18 @@
     "oldestFirst": "Älteste zuerst",
     "aToZ": "A bis Z",
     "settings": "Einstellungen",
-    "byYou": "Du"
+    "byYou": "Du",
+    "keptBy": "Gespeichert von",
+    "lastEdited": "Zuletzt bearbeitet",
+    "openNote": "Öffnen",
+    "rename": "Umbenennen",
+    "copyText": "Text kopieren",
+    "duplicate": "Duplizieren",
+    "deleted": "Notiz gelöscht",
+    "copied": "Kopiert",
+    "appAuthor": "Verbundene App",
+    "personAuthor": "Zuletzt geändert von",
+    "youAuthor": "Du"
   },
   "accounts": {
     "heading": "KI",

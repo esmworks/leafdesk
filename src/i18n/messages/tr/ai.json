@@ -644,7 +644,18 @@
     "oldestFirst": "Önce en eski",
     "aToZ": "A'dan Z'ye",
     "settings": "Ayarlar",
-    "byYou": "Sen"
+    "byYou": "Sen",
+    "keptBy": "Kaydeden",
+    "lastEdited": "Son değişiklik",
+    "openNote": "Aç",
+    "rename": "Yeniden adlandır",
+    "copyText": "Metni kopyala",
+    "duplicate": "Çoğalt",
+    "deleted": "Not silindi",
+    "copied": "Kopyalandı",
+    "appAuthor": "Bağlı uygulama",
+    "personAuthor": "Son değiştiren",
+    "youAuthor": "Sen"
   },
   "accounts": {
     "heading": "Yapay zekâ",

@@ -49,8 +49,11 @@ export type MemoryView = { id: string; text: string; details: string | null; cat
  */
 export type MemoryLayer = "account" | "workspace" | "teamspace";
 
-/** A note of the workspace or a teamspace (server/shared-memory.ts): `by`, who changed it last. */
-export type SharedNoteView = MemoryView & { by: string | null };
+/**
+ * A note of the workspace or a teamspace (server/shared-memory.ts): `by`, who changed it last, with
+ * their id (for their avatar's color) and profile picture.
+ */
+export type SharedNoteView = MemoryView & { by: string | null; byId: string | null; byImage: string | null };
 
 /** The workspace's notes (`id` null) or a teamspace's, as the Memory page shows them. */
 export type MemoryPlaceView = { id: string | null; name: string | null; icon: string | null; notes: SharedNoteView[]; canChange: boolean };

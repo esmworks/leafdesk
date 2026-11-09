@@ -54,5 +54,5 @@ export function proxy(request: NextRequest) {
 // or the files in public/. No page's path starts like these (a site's page on its own domain may
 // start with "mcp-", so only the MCP endpoint itself is left out).
 export const config = {
-  matcher: ["/((?!api/|_next/static/|_next/image|mcp(?:/|$)|scim/|\\.well-known/|favicon\\.ico|icon\\.svg|apple-icon\\.png|sw\\.js|manifest\\.webmanifest|icons/|connections/).*)"],
+  matcher: ["/((?!api/|_next/static/|_next/image|mcp(?:/|$)|scim/|\\.well-known/|favicon\\.ico|icon\\.svg|apple-icon\\.png|sw\\.js|manifest\\.webmanifest|icons/|connections/|apps/).*)"],
 };

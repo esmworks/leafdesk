@@ -644,7 +644,18 @@
     "oldestFirst": "最早优先",
     "aToZ": "按名称",
     "settings": "设置",
-    "byYou": "你"
+    "byYou": "你",
+    "keptBy": "保存者",
+    "lastEdited": "上次编辑",
+    "openNote": "打开",
+    "rename": "重命名",
+    "copyText": "复制文本",
+    "duplicate": "创建副本",
+    "deleted": "已删除笔记",
+    "copied": "已复制",
+    "appAuthor": "已连接的应用",
+    "personAuthor": "最后修改者",
+    "youAuthor": "你"
   },
   "accounts": {
     "heading": "AI",

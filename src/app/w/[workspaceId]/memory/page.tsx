@@ -29,6 +29,7 @@ export default async function MemoryRoute({ params }: { params: Promise<{ worksp
   return (
     <MemoryPage
       workspaceId={workspaceId}
+      me={{ id: user.id, name: user.name, image: user.image ?? null }}
       off={off}
       use={use}
       mine={state.notes}

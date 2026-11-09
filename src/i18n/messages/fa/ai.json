@@ -644,7 +644,18 @@
     "oldestFirst": "قدیمی‌ترین اول",
     "aToZ": "الفبایی",
     "settings": "تنظیمات",
-    "byYou": "شما"
+    "byYou": "شما",
+    "keptBy": "ذخیره‌شده توسط",
+    "lastEdited": "آخرین ویرایش",
+    "openNote": "باز کردن",
+    "rename": "تغییر نام",
+    "copyText": "کپی متن",
+    "duplicate": "تکثیر",
+    "deleted": "یادداشت حذف شد",
+    "copied": "کپی شد",
+    "appAuthor": "برنامهٔ متصل",
+    "personAuthor": "آخرین تغییردهنده",
+    "youAuthor": "شما"
   },
   "accounts": {
     "heading": "هوش مصنوعی",

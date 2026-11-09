@@ -715,6 +715,7 @@ because they are separate module graphs.
 - `src/lib/search-words.test.ts`: `CJK_RANGES` matches the latest migration that defines
   `cjk_bigrams`. `src/lib/offline.test.ts`: `public/sw.js` follows `src/lib/offline.ts`.
   `src/lib/connection-catalog.test.ts`: `public/connections/*.png` matches the catalog.
+  `src/lib/app-logos.test.ts`: `public/apps/*.png` (known AI apps' logos, served outside the proxy) matches `APP_LOGOS`.
   `src/lib/contrast.test.ts`: colors in `globals.css` keep their contrast.
 - `src/lib/settings-search.test.ts`: every entry of the settings search (`src/lib/settings-search.ts`)
   names English texts that exist and a group or row marked `anchor="<id>"`, and every settings tab

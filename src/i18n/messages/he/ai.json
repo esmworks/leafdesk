@@ -644,7 +644,18 @@
     "oldestFirst": "הישנים קודם",
     "aToZ": "לפי א״ב",
     "settings": "הגדרות",
-    "byYou": "את/ה"
+    "byYou": "את/ה",
+    "keptBy": "נשמר על ידי",
+    "lastEdited": "נערך לאחרונה",
+    "openNote": "פתיחה",
+    "rename": "שינוי שם",
+    "copyText": "העתקת הטקסט",
+    "duplicate": "שכפול",
+    "deleted": "ההערה נמחקה",
+    "copied": "הועתק",
+    "appAuthor": "אפליקציה מחוברת",
+    "personAuthor": "שינה אותה לאחרונה",
+    "youAuthor": "את/ה"
   },
   "accounts": {
     "heading": "AI",

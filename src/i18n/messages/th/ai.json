@@ -644,7 +644,18 @@
     "oldestFirst": "เก่าสุดก่อน",
     "aToZ": "ตามตัวอักษร",
     "settings": "การตั้งค่า",
-    "byYou": "คุณ"
+    "byYou": "คุณ",
+    "keptBy": "บันทึกโดย",
+    "lastEdited": "แก้ไขล่าสุด",
+    "openNote": "เปิด",
+    "rename": "เปลี่ยนชื่อ",
+    "copyText": "คัดลอกข้อความ",
+    "duplicate": "ทำซ้ำ",
+    "deleted": "ลบบันทึกแล้ว",
+    "copied": "คัดลอกแล้ว",
+    "appAuthor": "แอปที่เชื่อมต่อ",
+    "personAuthor": "ผู้แก้ไขล่าสุด",
+    "youAuthor": "คุณ"
   },
   "accounts": {
     "heading": "AI",

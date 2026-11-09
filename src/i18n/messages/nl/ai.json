@@ -644,7 +644,18 @@
     "oldestFirst": "Oudste eerst",
     "aToZ": "A tot Z",
     "settings": "Instellingen",
-    "byYou": "Jij"
+    "byYou": "Jij",
+    "keptBy": "Bewaard door",
+    "lastEdited": "Laatst bewerkt",
+    "openNote": "Openen",
+    "rename": "Naam wijzigen",
+    "copyText": "Tekst kopiëren",
+    "duplicate": "Dupliceren",
+    "deleted": "Notitie verwijderd",
+    "copied": "Gekopieerd",
+    "appAuthor": "Gekoppelde app",
+    "personAuthor": "Laatst gewijzigd door",
+    "youAuthor": "Jij"
   },
   "accounts": {
     "heading": "AI",

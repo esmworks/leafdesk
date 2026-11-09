@@ -644,7 +644,18 @@
     "oldestFirst": "Terlama dulu",
     "aToZ": "A ke Z",
     "settings": "Pengaturan",
-    "byYou": "Anda"
+    "byYou": "Anda",
+    "keptBy": "Disimpan oleh",
+    "lastEdited": "Terakhir diubah",
+    "openNote": "Buka",
+    "rename": "Ganti nama",
+    "copyText": "Salin teks",
+    "duplicate": "Duplikat",
+    "deleted": "Catatan dihapus",
+    "copied": "Disalin",
+    "appAuthor": "Aplikasi terhubung",
+    "personAuthor": "Terakhir mengubahnya",
+    "youAuthor": "Anda"
   },
   "accounts": {
     "heading": "AI",

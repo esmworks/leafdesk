@@ -644,7 +644,18 @@
     "oldestFirst": "오래된순",
     "aToZ": "이름순",
     "settings": "설정",
-    "byYou": "나"
+    "byYou": "나",
+    "keptBy": "저장한 사람",
+    "lastEdited": "마지막 수정",
+    "openNote": "열기",
+    "rename": "이름 바꾸기",
+    "copyText": "텍스트 복사",
+    "duplicate": "복제",
+    "deleted": "메모를 삭제했습니다",
+    "copied": "복사했습니다",
+    "appAuthor": "연결된 앱",
+    "personAuthor": "마지막으로 변경한 사람",
+    "youAuthor": "나"
   },
   "accounts": {
     "heading": "AI",

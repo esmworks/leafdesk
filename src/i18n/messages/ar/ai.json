@@ -644,7 +644,18 @@
     "oldestFirst": "الأقدم أولًا",
     "aToZ": "أبجديًا",
     "settings": "الإعدادات",
-    "byYou": "أنت"
+    "byYou": "أنت",
+    "keptBy": "حفظها",
+    "lastEdited": "آخر تعديل",
+    "openNote": "فتح",
+    "rename": "إعادة تسمية",
+    "copyText": "نسخ النص",
+    "duplicate": "تكرار",
+    "deleted": "حُذفت الملاحظة",
+    "copied": "تم النسخ",
+    "appAuthor": "تطبيق متصل",
+    "personAuthor": "آخر من غيّرها",
+    "youAuthor": "أنت"
   },
   "accounts": {
     "heading": "الذكاء الاصطناعي",

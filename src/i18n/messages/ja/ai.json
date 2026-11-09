@@ -644,7 +644,18 @@
     "oldestFirst": "古い順",
     "aToZ": "名前順",
     "settings": "設定",
-    "byYou": "あなた"
+    "byYou": "あなた",
+    "keptBy": "保存した人",
+    "lastEdited": "最終更新",
+    "openNote": "開く",
+    "rename": "名前を変更",
+    "copyText": "テキストをコピー",
+    "duplicate": "複製",
+    "deleted": "メモを削除しました",
+    "copied": "コピーしました",
+    "appAuthor": "連携アプリ",
+    "personAuthor": "最後に変更した人",
+    "youAuthor": "あなた"
   },
   "accounts": {
     "heading": "AI",

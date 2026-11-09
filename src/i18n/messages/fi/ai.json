@@ -644,7 +644,18 @@
     "oldestFirst": "Vanhimmat ensin",
     "aToZ": "A–Ö",
     "settings": "Asetukset",
-    "byYou": "Sinä"
+    "byYou": "Sinä",
+    "keptBy": "Tallentaja",
+    "lastEdited": "Muokattu viimeksi",
+    "openNote": "Avaa",
+    "rename": "Nimeä uudelleen",
+    "copyText": "Kopioi teksti",
+    "duplicate": "Monista",
+    "deleted": "Muistiinpano poistettu",
+    "copied": "Kopioitu",
+    "appAuthor": "Yhdistetty sovellus",
+    "personAuthor": "Muutti viimeksi",
+    "youAuthor": "Sinä"
   },
   "accounts": {
     "heading": "Tekoäly",
