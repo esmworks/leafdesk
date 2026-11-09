@@ -4,6 +4,11 @@
 
 ### Added
 
+- **A library lists the whole workspace in one place.** The rail's new Library (`g` then `l`)
+  shows teamspaces, recently opened pages, favorites, shared and private pages, meeting notes,
+  agents and skills, one tab each, with a search over the tab's list and the button that makes
+  something new there.
+
 - **Other tools can post in a channel through a webhook.** A channel's admins add one in its
   details and copy its address, shown once; anything that posts to a Slack incoming webhook (alert
   managers, build pipelines, dashboards) can post there instead, with the same payload: text,
@@ -58,6 +63,13 @@
   you, never yours or another agent's.
 
 ### Changed
+
+- **Memory has a page of its own, laid out like a database.** It moved from under the chat to
+  `/w/<workspace>/memory` (old links still lead there); its parts are tabs, notes are rows grouped
+  by kind with who kept them and when, a toolbar filters, sorts and searches them, and a note opens
+  in a dialog to change it. "Use memory" and deleting all notes are in the page's settings menu.
+  It is in the account menu now (your picture at the foot of the rail), under Skills, instead
+  of Settings → My account.
 
 - **Words in a page's headings count for more in search.** A page whose heading has the words
   now ranks above one that only mentions them in passing; the title still counts most. Migration

@@ -638,7 +638,13 @@
       "held": "En rettslig bevaring gjelder dette notatet: det kan ikke slettes så lenge bevaringen gjelder.",
       "noNotes": "Lagre noen notater først: sammendraget skrives ut fra dem.",
       "summaryTooLong": "Et sammendrag kan ha høyst {max} tegn."
-    }
+    },
+    "sort": "Sorter",
+    "newestFirst": "Nyeste først",
+    "oldestFirst": "Eldste først",
+    "aToZ": "A til Å",
+    "settings": "Innstillinger",
+    "byYou": "Deg"
   },
   "accounts": {
     "heading": "KI",

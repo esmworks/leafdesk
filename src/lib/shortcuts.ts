@@ -65,6 +65,7 @@ export const RAIL_GO_KEYS = {
   agents: "A",
   inbox: "I",
   settings: "S",
+  library: "L",
 } as const;
 export type RailPlace = keyof typeof RAIL_GO_KEYS;
 
@@ -109,6 +110,7 @@ export const SHORTCUT_GROUPS: readonly ShortcutGroup[] = [
       { id: "goAgents", combos: [["G", RAIL_GO_KEYS.agents]], sequence: true },
       { id: "goInbox", combos: [["G", RAIL_GO_KEYS.inbox]], sequence: true },
       { id: "goSettings", combos: [["G", RAIL_GO_KEYS.settings]], sequence: true },
+      { id: "goLibrary", combos: [["G", RAIL_GO_KEYS.library]], sequence: true },
     ],
   },
   {

@@ -23,6 +23,8 @@
     "import": "นำเข้า",
     "graph": "กราฟ",
     "skills": "ทักษะ",
+    "library": "คลัง",
+    "memory": "หน่วยความจำ",
     "review": "รอตรวจสอบ",
     "reviewCount": "{count, plural, other {มี # การเปลี่ยนแปลงรอให้คุณตรวจสอบ}}"
   },
@@ -416,5 +418,12 @@
     "agentWaiting": "รอการตัดสินใจของคุณ",
     "tasksOverdue": "{count, plural, other {งานเลยกำหนด # รายการ}}",
     "tasksToday": "{count, plural, other {งานครบกำหนดวันนี้ # รายการ}}"
+  },
+  "library": {
+    "description": "ทุกอย่างในพื้นที่ทำงานนี้ รวมไว้ในที่เดียว",
+    "recents": "ล่าสุด",
+    "empty": "ยังไม่มีอะไรที่นี่",
+    "location": "ตำแหน่ง",
+    "date": "วันที่"
   }
 }

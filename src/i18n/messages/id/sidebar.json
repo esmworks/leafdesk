@@ -23,6 +23,8 @@
     "import": "Impor",
     "graph": "Grafik",
     "skills": "Keterampilan",
+    "library": "Pustaka",
+    "memory": "Memori",
     "review": "Untuk ditinjau",
     "reviewCount": "{count, plural, other {# perubahan menunggu tinjauan Anda}}"
   },
@@ -416,5 +418,12 @@
     "agentWaiting": "menunggu keputusan Anda",
     "tasksOverdue": "{count, plural, other {# tugas terlambat}}",
     "tasksToday": "{count, plural, other {# tugas jatuh tempo hari ini}}"
+  },
+  "library": {
+    "description": "Semua isi ruang kerja ini, di satu tempat.",
+    "recents": "Terbaru",
+    "empty": "Belum ada apa-apa di sini.",
+    "location": "Lokasi",
+    "date": "Tanggal"
   }
 }

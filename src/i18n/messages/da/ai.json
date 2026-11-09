@@ -638,7 +638,13 @@
       "held": "En juridisk tilbageholdelse bevarer denne note: den kan ikke slettes, så længe tilbageholdelsen gælder.",
       "noNotes": "Gem først et par noter: resuméet skrives ud fra dem.",
       "summaryTooLong": "Et resumé må højst have {max} tegn."
-    }
+    },
+    "sort": "Sortér",
+    "newestFirst": "Nyeste først",
+    "oldestFirst": "Ældste først",
+    "aToZ": "A til Å",
+    "settings": "Indstillinger",
+    "byYou": "Dig"
   },
   "accounts": {
     "heading": "AI",

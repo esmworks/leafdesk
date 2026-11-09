@@ -411,21 +411,23 @@ keeps its notes with the new answer. When your notes are more than a question's 
 takes, the newest go with it and the chat reads the others with `read_memory` (below). It keeps only what you say in your questions,
 never what pages or tool results say, and a note you already have (case aside) is kept once. Your notes go with each of your later questions in that workspace, as notes rather
 than instructions: they never widen what the chat may read or change. The brain button in the chat's
-header and *Memory* under Settings → My account (after *Connected apps*) open the *Memory* page,
-where you see, add, change and delete notes, or forget everything. Up to 500
+header, *Memory* in the account menu (your picture at the foot of the sidebar's rail) and the search
+box open the *Memory* page (`/w/<workspace>/memory`). It is laid out like a database: its parts are tabs, each
+note a row with who kept it and when, and a note opens in a dialog where you change or delete it;
+*New note* adds one, and the settings button holds *Use memory* and forgetting everything. Up to 500
 notes per workspace, 300 characters each. Each note has a kind: *Profile* (who you are: role, team,
 goals), *Preferences* (how you like to work and be answered), *Work* (projects, decisions, where
 things live) or *Other*. The chat picks one as it keeps a note (a note in another's place keeps its
 kind unless it gives one) and reads the kind with each note; the *Memory* page groups each part's
-notes by kind, filters and searches them, and sets the kind as you add or change one. Notes kept
-before kinds existed are *Other*, and a list of only those shows without headings.
+notes by kind under a colored label you can fold, filters, sorts and searches them, and sets the
+kind as you add or change one. Notes kept before kinds existed are *Other*.
 
 A note may also have *details* (up to 2,000 characters): what it says in full when one line isn't
 enough, such as why, when it applies or the steps. A question carries only the note's line, marked
 *has details*; the chat reads the details with `read_memory` when the question needs them. The chat
 gives details as it keeps a note (in another's place, the older note's details stay unless it gives
-new ones), and on the *Memory* page *Add details* opens a box under a new note, editing a note
-changes them, and long details show folded. `read_memory` is offered whenever a note shown has
+new ones), and on the *Memory* page a note's dialog has a box for them; a row shows their first
+line under the note. `read_memory` is offered whenever a note shown has
 details, some notes don't fit or another teamspace you are in keeps notes. It searches: with words,
 the 10 notes that fit them best, with their details, from all the notes the question may read
 (yours here, yours everywhere, the workspace's and its teamspace's), each saying whose it is; with a
@@ -464,7 +466,7 @@ account.
 The *Use memory* switch at the top of *Memory* turns it off for you in that workspace: your
 questions then go without your notes and the chat isn't offered `remember` or `forget` (it says
 the memory is off when asked to remember something). Workspace owners can turn the memory off for
-everyone under Settings → General → AI → *AI memory*, which also hides the chat's *Memory* button (the page stays in Settings, with your notes everywhere). Neither
+everyone under Settings → General → AI → *AI memory*, which also hides the chat's *Memory* button (the account menu still opens the page, with your notes everywhere). Neither
 switch deletes a note: they come back when the memory is turned on again.
 
 **Notes everywhere, the workspace's and each teamspace's.** Beside your notes in a workspace, the

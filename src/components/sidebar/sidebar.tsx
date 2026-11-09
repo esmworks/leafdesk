@@ -3,6 +3,7 @@
 import { IconGlyph } from "@/components/builtin-icon";
 import {
   Bell,
+  Brain,
   BellOff,
   CalendarCheck,
   ChevronDown,
@@ -18,6 +19,7 @@ import {
   Inbox,
   Keyboard,
   LayoutTemplate,
+  Library,
   Link2,
   LogOut as LeaveIcon,
   Hash,
@@ -100,14 +102,14 @@ import { useAiChat } from "@/components/ai-chat/chat-panel";
 import { ConversationList } from "@/components/ai-chat/conversation-list";
 import { useAnswering, useWaiting } from "@/components/ai-chat/answering";
 import { conversationStatus } from "@/lib/chat-status";
-import { chatPath, isChatPath } from "@/lib/ai-chat";
+import { chatPath, isChatPath, memoryPagePath } from "@/lib/ai-chat";
 import { NewWorkspaceDialog } from "./new-workspace-dialog";
 import { SearchDialog } from "./search-dialog";
 import { inlineSign } from "@/components/direction";
 import { SIDEBAR_WIDTH } from "@/lib/sidebar-layout";
 import { isSettingsPath, useSidebar } from "./sidebar-context";
 import { RailCount, railIconClass, railItemClass, RailKey, railSelectedClass, RailTabs, type RailTab } from "./sidebar-rail";
-import { BookOpenIcon, CalendarIcon, ChatDotsIcon, ChatsIcon, CheckSquareIcon, EnvelopeIcon, GearIcon, HouseIcon, NotebookIcon, RobotIcon, SearchIcon, SidebarIcon, TrayIcon, type RailIcon } from "./rail-icons";
+import { BookOpenIcon, BooksIcon, CalendarIcon, ChatDotsIcon, ChatsIcon, CheckSquareIcon, EnvelopeIcon, GearIcon, HouseIcon, NotebookIcon, RobotIcon, SearchIcon, SidebarIcon, TrayIcon, type RailIcon } from "./rail-icons";
 import { TrashDialog } from "./trash-dialog";
 import { TemplatesDialog } from "@/components/workspace/templates-dialog";
 import { BuildWithAiDialog } from "@/components/workspace/build-with-ai";
@@ -378,6 +380,8 @@ export function Sidebar({
       });
   }, [searchOpen, offline, workspaceId]);
   const onChatPage = Boolean(aiChat) && isChatPath(pathname, workspaceId);
+  // The Memory page is the chat's: the panel stays on (or turns to) the chat's list there.
+  const onMemoryPage = Boolean(aiChat) && pathname === `/w/${workspaceId}/memory`;
   // An agent's page, a chat with it: the agents tab stays open beside it.
   const onAgentPage = Boolean(aiChat) && pathname.startsWith(`/w/${workspaceId}/agents/`);
   const tAi = useTranslations("ai.chat");
@@ -724,7 +728,7 @@ export function Sidebar({
   };
   // The journal's tab is there only for those who may add private top-level pages.
   const apartTab = activeId ? listedIn(activeId) : null;
-  const pageTab: SidebarTab = onTasksPage ? "tasks" : onCalendarPage ? "calendar" : onMeetingsPage ? "meetings" : onAgentPage ? "agents" : onChatPage ? "chat" : onMailPage ? "mail" : onMessagesPage ? "messages" : apartTab && (apartTab !== "journal" || topLevel) ? apartTab : "home";
+  const pageTab: SidebarTab = onTasksPage ? "tasks" : onCalendarPage ? "calendar" : onMeetingsPage ? "meetings" : onAgentPage ? "agents" : onChatPage || onMemoryPage ? "chat" : onMailPage ? "mail" : onMessagesPage ? "messages" : apartTab && (apartTab !== "journal" || topLevel) ? apartTab : "home";
   const [tab, setTab] = useState<SidebarTab>(pageTab);
   // The meeting notes the Meetings tab lists: opening one keeps the tab, as a page from the tree doesn't.
   const [meetingPages, setMeetingPages] = useState<ReadonlySet<string>>(() => new Set());
@@ -1471,6 +1475,7 @@ export function Sidebar({
   };
   const hiddenSections = new Set(layout.hidden ?? []);
   const onSettings = pathname.startsWith(`/w/${workspaceId}/settings`);
+  const onLibrary = pathname === `/w/${workspaceId}/library`;
   const tabLabel = (key: SidebarTab) =>
     ({ home: t("tabs.home"), tasks: t("sections.tasks"), calendar: t("tabs.calendar"), meetings: t("sections.meetings"), journal: t("tabs.journal"), messages: t("tabs.messages"), chat: t("tabs.chat"), mail: t("tabs.mail"), agents: t("sections.agents") })[key];
   const panelTab = (key: SidebarTab): RailTab => {
@@ -1478,8 +1483,8 @@ export function Sidebar({
     const label = tabLabel(key);
     // Opening the daily notes, the chat or mail takes the server.
     const unreachable = offline && key !== "home" && key !== tab;
-    // On the settings the panel keeps showing its tab; the rail marks the page.
-    const selected = tab === key && !onSettingsPage;
+    // On the settings and the library the panel keeps showing its tab; the rail marks the page.
+    const selected = tab === key && !onSettingsPage && !onLibrary;
     return {
       key,
       label,
@@ -1525,6 +1530,7 @@ export function Sidebar({
       if (offline) return false;
       setInboxOpen(true);
     } else if (place === "settings") router.push(`/w/${workspaceId}/settings`);
+    else if (place === "library") router.push(`/w/${workspaceId}/library`);
     else {
       const target = railTabs.find((tab) => tab.key === place);
       if (!target || target.disabled) return false;
@@ -1875,6 +1881,16 @@ export function Sidebar({
               {goShown && !offline && <RailKey letter={RAIL_GO_KEYS.inbox} />}
             </button>
             <Link
+              href={`/w/${workspaceId}/library`}
+              aria-label={t("nav.library")}
+              title={`${t("nav.library")} (G ${RAIL_GO_KEYS.library})`}
+              aria-current={onLibrary ? "page" : undefined}
+              className={cn(railItemClass, onLibrary && railSelectedClass)}
+            >
+              <BooksIcon className={railIconClass} filled={onLibrary} />
+              {goShown && <RailKey letter={RAIL_GO_KEYS.library} />}
+            </Link>
+            <Link
               href={`/w/${workspaceId}/settings`}
               aria-label={t("nav.settings")}
               title={`${t("nav.settings")} (G ${RAIL_GO_KEYS.settings})`}
@@ -1915,6 +1931,7 @@ export function Sidebar({
                   templates={!!topLevel}
                   customizing={customizing}
                   instanceAdmin={!!isInstanceAdmin}
+                  memory={!!aiChat}
                   needsServer={needsServer}
                   go={(path) => router.push(path)}
                   onTemplates={() => openTemplates(undefined)}
@@ -2096,6 +2113,8 @@ export function Sidebar({
                 { id: "trash", label: t("nav.trash"), icon: <Trash2 className="h-4 w-4" />, run: () => setTrashOpen(true) },
                 { id: "graph", label: t("nav.graph"), icon: <Waypoints className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/graph`) },
                 { id: "skills", label: t("nav.skills"), icon: <ScrollText className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/skills`) },
+                { id: "library", label: t("nav.library"), icon: <Library className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/library`) },
+                ...(aiChat ? [{ id: "memory", label: t("nav.memory"), icon: <Brain className="h-4 w-4" />, run: () => router.push(memoryPagePath(workspaceId)) }] : []),
                 { id: "review", label: t("nav.review"), icon: <ClipboardCheck className="h-4 w-4" />, run: () => router.push(`/w/${workspaceId}/review`) },
               ]
             : []),

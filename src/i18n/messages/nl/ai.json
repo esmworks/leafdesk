@@ -638,7 +638,13 @@
       "held": "Een juridische bewaarplicht houdt deze notitie vast: ze kan niet worden verwijderd zolang de bewaarplicht geldt.",
       "noNotes": "Bewaar eerst een paar notities: de samenvatting wordt eruit geschreven.",
       "summaryTooLong": "Een samenvatting mag hoogstens {max} tekens hebben."
-    }
+    },
+    "sort": "Sorteren",
+    "newestFirst": "Nieuwste eerst",
+    "oldestFirst": "Oudste eerst",
+    "aToZ": "A tot Z",
+    "settings": "Instellingen",
+    "byYou": "Jij"
   },
   "accounts": {
     "heading": "AI",

@@ -638,7 +638,13 @@
       "held": "Penahanan hukum menyimpan catatan ini: catatan tidak dapat dihapus selama penahanan berlaku.",
       "noNotes": "Simpan beberapa catatan dulu: ringkasan ditulis dari catatan itu.",
       "summaryTooLong": "Ringkasan paling banyak {max} karakter."
-    }
+    },
+    "sort": "Urutkan",
+    "newestFirst": "Terbaru dulu",
+    "oldestFirst": "Terlama dulu",
+    "aToZ": "A ke Z",
+    "settings": "Pengaturan",
+    "byYou": "Anda"
   },
   "accounts": {
     "heading": "AI",

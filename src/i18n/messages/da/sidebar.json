@@ -23,6 +23,8 @@
     "import": "Importér",
     "graph": "Graf",
     "skills": "Færdigheder",
+    "library": "Bibliotek",
+    "memory": "Hukommelse",
     "review": "Til gennemgang",
     "reviewCount": "{count, plural, one {# ændring venter på din gennemgang} other {# ændringer venter på din gennemgang}}"
   },
@@ -416,5 +418,12 @@
     "agentWaiting": "venter på din beslutning",
     "tasksOverdue": "{count, plural, one {# opgave er forsinket} other {# opgaver er forsinkede}}",
     "tasksToday": "{count, plural, one {# opgave forfalder i dag} other {# opgaver forfalder i dag}}"
+  },
+  "library": {
+    "description": "Alt i dette arbejdsområde samlet ét sted.",
+    "recents": "Seneste",
+    "empty": "Intet her endnu.",
+    "location": "Placering",
+    "date": "Dato"
   }
 }

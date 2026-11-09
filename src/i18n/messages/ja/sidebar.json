@@ -23,6 +23,8 @@
     "import": "インポート",
     "graph": "グラフ",
     "skills": "スキル",
+    "library": "ライブラリ",
+    "memory": "メモリー",
     "review": "確認待ち",
     "reviewCount": "{count, plural, other {確認待ちの変更：#件}}"
   },
@@ -416,5 +418,12 @@
     "agentWaiting": "あなたの判断待ち",
     "tasksOverdue": "{count, plural, other {期限切れのタスク：#件}}",
     "tasksToday": "{count, plural, other {今日が期限のタスク：#件}}"
+  },
+  "library": {
+    "description": "このワークスペースのすべてを一か所に。",
+    "recents": "最近",
+    "empty": "まだ何もありません。",
+    "location": "場所",
+    "date": "日付"
   }
 }

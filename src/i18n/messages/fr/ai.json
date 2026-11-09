@@ -638,7 +638,13 @@
       "held": "Une conservation légale protège cette note : elle ne peut pas être supprimée tant que la conservation est en place.",
       "noNotes": "Gardez d'abord quelques notes : le résumé est écrit à partir d'elles.",
       "summaryTooLong": "Un résumé peut compter au plus {max} caractères."
-    }
+    },
+    "sort": "Trier",
+    "newestFirst": "Plus récents d'abord",
+    "oldestFirst": "Plus anciens d'abord",
+    "aToZ": "De A à Z",
+    "settings": "Paramètres",
+    "byYou": "Vous"
   },
   "accounts": {
     "heading": "IA",

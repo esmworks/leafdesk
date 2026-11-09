@@ -23,6 +23,8 @@
     "import": "Import",
     "graph": "Graph",
     "skills": "Skills",
+    "library": "Library",
+    "memory": "Memory",
     "review": "For review",
     "reviewCount": "{count, plural, one {# change waits for your review} other {# changes wait for your review}}"
   },
@@ -416,5 +418,12 @@
     "agentWaiting": "waits for your decision",
     "tasksOverdue": "{count, plural, one {# task overdue} other {# tasks overdue}}",
     "tasksToday": "{count, plural, one {# task due today} other {# tasks due today}}"
+  },
+  "library": {
+    "description": "Everything in this workspace, in one place.",
+    "recents": "Recents",
+    "empty": "Nothing here yet.",
+    "location": "Location",
+    "date": "Date"
   }
 }

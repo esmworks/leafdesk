@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Brain,
   ClipboardCheck,
   Keyboard,
   LayoutTemplate,
@@ -35,6 +36,8 @@ export type AccountMenuProps = {
   templates: boolean;
   customizing: boolean;
   instanceAdmin: boolean;
+  /** The workspace has AI: what it keeps about the person is a page of its own. */
+  memory: boolean;
   /** Why something needs the server, while offline. */
   needsServer: (label: string) => string | undefined;
   go: (path: string) => void;
@@ -100,6 +103,18 @@ export function AccountMenu(props: AccountMenuProps) {
       >
         {t("nav.skills")}
       </MenuItem>
+      {/* What the AI keeps about the person, beside the skills it works with; the chat's header links there too. */}
+      {props.memory && (
+        <MenuItem
+          icon={<Brain className="h-4 w-4" />}
+          active={pathname === place("memory")}
+          disabled={offline}
+          title={needsServer(t("nav.memory"))}
+          onClick={run(() => go(place("memory")))}
+        >
+          {t("nav.memory")}
+        </MenuItem>
+      )}
       <MenuItem icon={<Trash2 className="h-4 w-4" />} disabled={offline} title={needsServer(t("nav.trash"))} onClick={run(props.onTrash)}>
         {t("nav.trash")}
       </MenuItem>

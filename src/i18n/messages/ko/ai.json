@@ -638,7 +638,13 @@
       "held": "법적 보존이 이 메모를 보존하고 있습니다. 보존이 유지되는 동안 삭제할 수 없습니다.",
       "noNotes": "먼저 메모를 몇 개 남기세요. 요약은 메모로 작성됩니다.",
       "summaryTooLong": "요약은 최대 {max}자까지입니다."
-    }
+    },
+    "sort": "정렬",
+    "newestFirst": "최신순",
+    "oldestFirst": "오래된순",
+    "aToZ": "이름순",
+    "settings": "설정",
+    "byYou": "나"
   },
   "accounts": {
     "heading": "AI",

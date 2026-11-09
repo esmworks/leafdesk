@@ -23,6 +23,8 @@
     "import": "ייבוא",
     "graph": "גרף",
     "skills": "מיומנויות",
+    "library": "ספרייה",
+    "memory": "זיכרון",
     "review": "לבדיקה",
     "reviewCount": "{count, plural, one {שינוי אחד ממתין לבדיקה שלך} two {שני שינויים ממתינים לבדיקה שלך} other {# שינויים ממתינים לבדיקה שלך}}"
   },
@@ -416,5 +418,12 @@
     "agentWaiting": "ממתין להחלטה שלך",
     "tasksOverdue": "{count, plural, one {משימה אחת באיחור} two {שתי משימות באיחור} other {# משימות באיחור}}",
     "tasksToday": "{count, plural, one {משימה אחת להיום} two {שתי משימות להיום} other {# משימות להיום}}"
+  },
+  "library": {
+    "description": "כל מה שבסביבת העבודה הזו, במקום אחד.",
+    "recents": "אחרונים",
+    "empty": "אין כאן עדיין כלום.",
+    "location": "מיקום",
+    "date": "תאריך"
   }
 }

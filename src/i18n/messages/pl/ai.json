@@ -638,7 +638,13 @@
       "held": "Blokada prawna zachowuje tę notatkę: nie można jej usunąć, dopóki blokada obowiązuje.",
       "noNotes": "Najpierw zapisz kilka notatek: podsumowanie powstaje na ich podstawie.",
       "summaryTooLong": "Podsumowanie może mieć najwyżej {max} znaków."
-    }
+    },
+    "sort": "Sortuj",
+    "newestFirst": "Od najnowszych",
+    "oldestFirst": "Od najstarszych",
+    "aToZ": "Od A do Z",
+    "settings": "Ustawienia",
+    "byYou": "Ty"
   },
   "accounts": {
     "heading": "AI",

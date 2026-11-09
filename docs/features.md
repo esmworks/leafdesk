@@ -45,7 +45,10 @@
   down its edge and a panel beside it. From the top, the rail holds *Search*, then the places:
   *Home* (your pages), *My tasks*, *Calendar*, *Meetings*, *Messages*, *Journal*, *Chat*, *Mail* and *Agents* (the last
   four when you have them); at its foot a button that hides or shows the panel, the inbox with its
-  count, Settings, and your picture, which opens the account menu.
+  count, the *Library*, Settings, and your picture, which opens the account menu. The *Library*
+  (`g` then `l`) lists the whole workspace, one tab each: teamspaces, recently opened pages,
+  favorites, shared and private pages, meeting notes, agents and skills, with a search over the
+  tab's list and the button that makes something new there.
   The panel shows the place picked: its name, what it starts (a new page, today's note, a new chat
   or message) and its list. Hide the panel with that button or `Cmd/Ctrl+\` and the rail stays:
   pointing at a place slides the panel out with that place's list, and clicking one brings the

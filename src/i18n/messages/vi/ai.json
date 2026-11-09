@@ -638,7 +638,13 @@
       "held": "Một lệnh lưu giữ pháp lý giữ ghi chú này: không thể xóa khi lệnh lưu giữ còn hiệu lực.",
       "noNotes": "Hãy lưu vài ghi chú trước: bản tóm tắt được viết từ chúng.",
       "summaryTooLong": "Bản tóm tắt tối đa {max} ký tự."
-    }
+    },
+    "sort": "Sắp xếp",
+    "newestFirst": "Mới nhất trước",
+    "oldestFirst": "Cũ nhất trước",
+    "aToZ": "Từ A đến Z",
+    "settings": "Cài đặt",
+    "byYou": "Bạn"
   },
   "accounts": {
     "heading": "AI",

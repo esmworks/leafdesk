@@ -23,6 +23,8 @@
     "import": "Importer",
     "graph": "Graf",
     "skills": "Ferdigheter",
+    "library": "Bibliotek",
+    "memory": "Minne",
     "review": "Til gjennomgang",
     "reviewCount": "{count, plural, one {# endring venter på gjennomgangen din} other {# endringer venter på gjennomgangen din}}"
   },
@@ -416,5 +418,12 @@
     "agentWaiting": "venter på avgjørelsen din",
     "tasksOverdue": "{count, plural, one {# oppgave er forsinket} other {# oppgaver er forsinket}}",
     "tasksToday": "{count, plural, one {# oppgave forfaller i dag} other {# oppgaver forfaller i dag}}"
+  },
+  "library": {
+    "description": "Alt i dette arbeidsområdet, samlet på ett sted.",
+    "recents": "Nylige",
+    "empty": "Ingenting her ennå.",
+    "location": "Plassering",
+    "date": "Dato"
   }
 }
