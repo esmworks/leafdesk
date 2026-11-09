@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## 0.8.1 — 2026-11-10
+
+### Upgrading from 0.8.0
+
+- **Back up the database first.** Migrations 0202 to 0208 run automatically when the container
+  starts (from source, run `pnpm db:migrate`). They keep pages' headings' text apart for search
+  and rebuild the page table's search index once (this takes a while on a large workspace), and
+  add channel webhooks, phone sign-in codes, message polls, quizzes, time planned for tasks and
+  page approvals.
+- **One new optional setting.** `UPDATE_CHECK=off` stops the server from asking GitHub twice a day
+  whether a newer Leafdesk is out. Download the new `docker-compose.yml` to set it with Compose;
+  otherwise `docker-compose.yml` and `.env` stay as they are.
+
 ### Added
 
 - **Logseq graphs and Joplin exports can be imported.** On Import's Markdown & ZIP tab, a Logseq
