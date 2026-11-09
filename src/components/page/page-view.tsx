@@ -43,7 +43,6 @@ import type { Decision } from "@/lib/suggestions";
 import { useIsOffline, useOffline } from "@/components/offline/offline-context";
 import { SkillBar } from "@/components/skills/skill-bar";
 import { VerificationBadge } from "./verification";
-import { ApprovalBadge } from "./approval-badge";
 import { DarkScheme } from "@/components/theme/theme-provider";
 import { rememberPage } from "@/components/offline/offline-store";
 import { PAGE_HEADER_EVENT } from "@/lib/collab-constants";
@@ -68,6 +67,12 @@ const MarkdownSourceView = lazyPart(() => import("./markdown-source").then((m) =
 // Loaded when it opens, likewise.
 const Presentation = lazyPart(() => import("./presentation").then((m) => m.default));
 const VerifyDialog = lazyPart(() => import("./verify-dialog").then((m) => m.VerifyDialog));
+// The approval badge under the title, on the few pages with a request; until its code is there a
+// line of its height stands in, so the body doesn't move down when it comes.
+const ApprovalBadge = lazyPart(
+  () => import("./approval-badge").then((m) => m.ApprovalBadge),
+  <span aria-hidden className="mt-2 inline-block h-5 w-px" />,
+);
 const ApprovalDialog = lazyPart(() => import("./approval-dialog").then((m) => m.ApprovalDialog));
 // Loaded when a request waits for the reader's decision.
 const ApprovalBanner = lazyPart(() => import("./approval-banner").then((m) => m.ApprovalBanner));
