@@ -28,7 +28,7 @@ import { clockText, dayString, localDay, wallClock } from "@/lib/time-zone";
 import { hasLevel, pageAccessOf } from "@/server/access";
 import type { AiTool, AiToolCall } from "@/server/ai";
 import { nowLine } from "@/server/ai/prompts";
-import { cancelReminder, listPending, moveReminder } from "@/server/notifications";
+import { cancelReminder, listNotifications, moveReminder } from "@/server/notifications";
 
 export { CHANGE_REMINDER_TOOL_NAME, LIST_REMINDERS_TOOL_NAME, REMIND_TOOL_NAME };
 
@@ -218,10 +218,14 @@ export type PendingReminder = {
  */
 type ReminderScope = { workspaceId: string; personId: string; timeZone: string; actorId?: string };
 
+/** The most reminders list_reminders reads: every agent's MAX_WAITING_REMINDERS for a few agents, and the person's own. */
+const MAX_LISTED = 200;
+
 /** The person's reminders still to come in the scope, soonest first. */
 export async function pendingReminders(scope: ReminderScope): Promise<PendingReminder[]> {
-  const items = (await listPending(scope.personId, scope.workspaceId).catch(() => [])).filter(
-    (n) => n.kind === "ai_reminder" && n.snoozedUntil && (!scope.actorId || n.actorId === scope.actorId),
+  // Reminders alone, as the Scheduled tab lists them: snoozed notifications would take their room under the inbox's limit.
+  const items = (await listNotifications(scope.personId, { workspaceId: scope.workspaceId, pending: true, kinds: ["ai_reminder"], limit: MAX_LISTED }).catch(() => [])).filter(
+    (n) => n.snoozedUntil && (!scope.actorId || n.actorId === scope.actorId),
   );
   // An agent learns no title of a page it can no longer open (the person still may).
   const hidden = new Set<string>();
