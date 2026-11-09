@@ -638,7 +638,13 @@
       "held": "リーガルホールドによりこのメモは保持されています。ホールド中は削除できません。",
       "noNotes": "まずメモをいくつか残してください。まとめはメモから書かれます。",
       "summaryTooLong": "まとめは {max} 文字までです。"
-    }
+    },
+    "sort": "並べ替え",
+    "newestFirst": "新しい順",
+    "oldestFirst": "古い順",
+    "aToZ": "名前順",
+    "settings": "設定",
+    "byYou": "あなた"
   },
   "accounts": {
     "heading": "AI",

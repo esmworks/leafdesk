@@ -638,7 +638,13 @@
       "held": "Eine rechtliche Aufbewahrung schützt diese Notiz: Sie kann nicht gelöscht werden, solange die Aufbewahrung besteht.",
       "noNotes": "Lege zuerst ein paar Notizen an: Die Zusammenfassung wird aus ihnen geschrieben.",
       "summaryTooLong": "Eine Zusammenfassung darf höchstens {max} Zeichen haben."
-    }
+    },
+    "sort": "Sortieren",
+    "newestFirst": "Neueste zuerst",
+    "oldestFirst": "Älteste zuerst",
+    "aToZ": "A bis Z",
+    "settings": "Einstellungen",
+    "byYou": "Du"
   },
   "accounts": {
     "heading": "KI",

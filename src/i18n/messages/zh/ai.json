@@ -638,7 +638,13 @@
       "held": "法律保留保留着此笔记：保留生效期间不能删除。",
       "noNotes": "请先记下几条笔记：摘要由笔记写成。",
       "summaryTooLong": "摘要最多 {max} 个字符。"
-    }
+    },
+    "sort": "排序",
+    "newestFirst": "最新优先",
+    "oldestFirst": "最早优先",
+    "aToZ": "按名称",
+    "settings": "设置",
+    "byYou": "你"
   },
   "accounts": {
     "heading": "AI",

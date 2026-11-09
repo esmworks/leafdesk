@@ -23,6 +23,8 @@
     "import": "İçe aktar",
     "graph": "Grafik",
     "skills": "Beceriler",
+    "library": "Kütüphane",
+    "memory": "Hafıza",
     "review": "İncelenecekler",
     "reviewCount": "{count, plural, one {# değişiklik incelemenizi bekliyor} other {# değişiklik incelemenizi bekliyor}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "kararını bekliyor",
     "tasksOverdue": "{count, plural, one {# görevin süresi geçti} other {# görevin süresi geçti}}",
     "tasksToday": "{count, plural, one {# görev bugün bitmeli} other {# görev bugün bitmeli}}"
+  },
+  "library": {
+    "description": "Bu çalışma alanındaki her şey tek bir yerde.",
+    "recents": "Son açılanlar",
+    "empty": "Burada henüz bir şey yok.",
+    "location": "Konum",
+    "date": "Tarih"
   }
 }

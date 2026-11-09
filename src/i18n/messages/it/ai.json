@@ -638,7 +638,13 @@
       "held": "Una conservazione legale protegge questa nota: non può essere eliminata finché la conservazione è attiva.",
       "noNotes": "Tieni prima qualche nota: il riepilogo viene scritto da quelle.",
       "summaryTooLong": "Un riepilogo può avere al massimo {max} caratteri."
-    }
+    },
+    "sort": "Ordina",
+    "newestFirst": "Prima i più recenti",
+    "oldestFirst": "Prima i meno recenti",
+    "aToZ": "Dalla A alla Z",
+    "settings": "Impostazioni",
+    "byYou": "Tu"
   },
   "accounts": {
     "heading": "IA",

@@ -638,7 +638,13 @@
       "held": "Bu notu yasal saklama koruyor: saklama sürdükçe silinemez.",
       "noNotes": "Önce birkaç not tutun: özet onlardan yazılır.",
       "summaryTooLong": "Bir özet en fazla {max} karakter olabilir."
-    }
+    },
+    "sort": "Sırala",
+    "newestFirst": "Önce en yeni",
+    "oldestFirst": "Önce en eski",
+    "aToZ": "A'dan Z'ye",
+    "settings": "Ayarlar",
+    "byYou": "Sen"
   },
   "accounts": {
     "heading": "Yapay zekâ",

@@ -638,7 +638,13 @@
       "held": "Uma retenção legal mantém esta nota: ela não pode ser excluída enquanto a retenção estiver em vigor.",
       "noNotes": "Guarde algumas notas primeiro: o resumo é escrito a partir delas.",
       "summaryTooLong": "Um resumo pode ter no máximo {max} caracteres."
-    }
+    },
+    "sort": "Ordenar",
+    "newestFirst": "Mais recentes primeiro",
+    "oldestFirst": "Mais antigos primeiro",
+    "aToZ": "De A a Z",
+    "settings": "Configurações",
+    "byYou": "Você"
   },
   "accounts": {
     "heading": "IA",

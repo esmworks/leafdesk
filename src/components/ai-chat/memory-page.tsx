@@ -1,14 +1,15 @@
 "use client";
 
 /**
- * The Memory page: what the AI keeps for its answers, one part at a time down the side (`?section=`,
- * changed in place without a server round trip). The person's notes in this workspace (with their
- * "Use memory" switch) and everywhere (server/account-memory.ts), only theirs; the workspace's and
- * each teamspace's they are in (server/shared-memory.ts), which those in it read and those who
- * manage it change. While the workspace has the memory off, only the notes everywhere show.
+ * The Memory page: what the AI keeps for its answers, laid out like a database. Its parts are the
+ * tabs (`?section=`, changed in place without a server round trip): the person's notes in this
+ * workspace (their "Use memory" switch is in the settings menu) and everywhere
+ * (server/account-memory.ts), only theirs; the workspace's and each teamspace's they are in
+ * (server/shared-memory.ts), which those in it read and those who manage it change. Notes are rows
+ * grouped by kind, each opened in a dialog to change it. While the workspace has the memory off,
+ * only the notes everywhere show.
  */
-import { Check, ChevronRight, Eye, Pencil, Search, Trash2, X } from "lucide-react";
-import Link from "next/link";
+import { ArrowUpDown, Brain, ChevronRight, Eye, ListFilter, Pencil, Plus, Search, Settings2, Trash2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { useState, type FormEvent, type ReactNode } from "react";
@@ -23,9 +24,24 @@ import {
 } from "@/app/actions/ai";
 import { IconGlyph } from "@/components/builtin-icon";
 import { useIsOffline } from "@/components/offline/offline-context";
-import { Button, cn, IconButton, Input, selectClass, Switch, textareaClass } from "@/components/ui";
+import { PlaceTopBar } from "@/components/place-top-bar";
 import {
-  chatPath,
+  Button,
+  cn,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+  IconButton,
+  Input,
+  MenuItem,
+  MenuSeparator,
+  Popover,
+  selectClass,
+  Switch,
+  textareaClass,
+} from "@/components/ui";
+import {
   isMemoryCategory,
   MAX_MEMORIES,
   MAX_MEMORY_CHARS,
@@ -40,12 +56,15 @@ import {
 } from "@/lib/ai-chat";
 
 type Note = MemoryView & { by?: string | null };
-/** `mine` and `everywhere` are the person's; `workspace` the workspace's; anything else a teamspace's id. */
+/** `mine`, `everywhere`, `workspace` or a teamspace's id. */
 type Section = string;
+type Sort = "newest" | "oldest" | "name";
+
+/** Each kind's label color (globals.css `.opt-*`). */
+const KIND_COLOR: Record<MemoryCategory, string> = { profile: "opt-blue", preference: "opt-purple", work: "opt-green", other: "opt-gray" };
 
 export function MemoryPage({
   workspaceId,
-  workspaceName,
   off,
   use: initialUse,
   mine: initialMine,
@@ -55,7 +74,6 @@ export function MemoryPage({
   teamspaces,
 }: {
   workspaceId: string;
-  workspaceName: string;
   /** The workspace's owners turned the memory off: only the person's notes everywhere show. */
   off: boolean;
   /** The person's own switch in this workspace. */
@@ -69,7 +87,9 @@ export function MemoryPage({
   teamspaces: MemoryPlaceView[];
 }) {
   const t = useTranslations("ai.memory");
-  const tChat = useTranslations("ai.chat");
+  const format = useFormatter();
+  const locale = useLocale();
+  const offline = useIsOffline();
   const params = useSearchParams();
   const [notes, setNotes] = useState<Record<string, Note[]>>(() => ({
     mine: initialMine,
@@ -81,6 +101,13 @@ export function MemoryPage({
   const [summary, setSummary] = useState(initialSummary);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [query, setQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [only, setOnly] = useState<MemoryCategory | "all">("all");
+  const [sort, setSort] = useState<Sort>("newest");
+  const [closed, setClosed] = useState<ReadonlySet<MemoryCategory>>(new Set());
+  // The note open in the dialog, or null with the kind a new one starts as.
+  const [dialog, setDialog] = useState<{ note: Note | null; category: MemoryCategory } | null>(null);
 
   const yours: Section[] = off ? ["everywhere"] : ["mine", "everywhere"];
   const shared: MemoryPlaceView[] = off ? [] : [...(workspace ? [workspace] : []), ...teamspaces];
@@ -133,77 +160,222 @@ export function MemoryPage({
           ? t("teamspaceHelp")
           : t("workspaceHelp");
   const canChange = section === "mine" || section === "everywhere" || place?.canChange === true;
+  const changes = canChange && !offline;
   const confirmAll =
     section === "mine"
       ? t("confirmForgetAll")
       : section === "everywhere"
         ? t("confirmForgetEverywhere")
         : t("confirmDeleteAll", { place: label(section) });
+  const placeholder = section === "mine" ? t("addPlaceholder") : section === "everywhere" ? t("addPlaceholderEverywhere") : t("addPlaceholderShared");
+
+  const list = notes[section] ?? [];
+  const full = list.length >= MAX_MEMORIES;
+  const words = query.toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
+  const shown = list
+    .filter((note) => (only === "all" || note.category === only) && matches(note, words, locale))
+    .sort((a, b) =>
+      sort === "name" ? a.text.localeCompare(b.text, locale) : (sort === "newest" ? -1 : 1) * a.updatedAt.localeCompare(b.updatedAt),
+    );
+  const groups = MEMORY_CATEGORIES.map((category) => ({ category, notes: shown.filter((note) => note.category === category) })).filter(
+    (group) => group.notes.length > 0,
+  );
+  const settingsShown = section === "mine" || (changes && list.length > 0);
+  const startNew = (category: MemoryCategory) => {
+    setError(null);
+    setDialog({ note: null, category });
+  };
+
+  const thisYear = new Date().getFullYear();
+  const day = (iso: string) => {
+    const date = new Date(iso);
+    return format.dateTime(date, date.getFullYear() === thisYear ? { month: "short", day: "numeric" } : { dateStyle: "medium" });
+  };
+  /** Who kept a note: the connected app, the person who last changed a shared one, or the reader. */
+  const author = (note: Note) => (note.app ? note.app : note.by ? note.by : place ? null : t("byYou"));
+  const authorTitle = (note: Note) => (note.app ? t("viaApp", { app: note.app }) : note.by ? t("byPerson", { name: note.by }) : undefined);
+
+  const toolButton = (open: boolean, on = false) => cn("h-7 w-7", open && "bg-bg-active text-fg", on && "text-accent");
+  const menu = (current: boolean, text: string, onPick: () => void, icon?: ReactNode) => (
+    <MenuItem key={text} icon={icon} active={current} pressed={current} onClick={onPick}>
+      {text}
+    </MenuItem>
+  );
 
   return (
-    <div data-filled-fields className="mx-auto w-full max-w-[1040px] px-4 pt-14 pb-16 md:px-8 md:pt-2">
-      <div className="flex h-11 items-center gap-1 text-sm text-fg-muted">
-        <Link href={chatPath(workspaceId)} className="shrink-0 rounded-md px-1 py-0.5 hover:bg-bg-hover hover:text-fg">
-          {tChat("title")}
-        </Link>
-        <ChevronRight className="h-3 w-3 shrink-0 rtl:rotate-180" aria-hidden />
-        <span className="min-w-0 flex-1 truncate text-fg">{t("title")}</span>
-      </div>
+    <>
+      <PlaceTopBar icon={<Brain />} title={t("title")} />
+      <div className="page-gutter pt-6 pb-16">
+        <header className="mb-6">
+          <h1 className="flex items-center gap-2.5 font-display text-2xl leading-tight tracking-tight md:text-3xl">
+            <Brain aria-hidden className="h-7 w-7 shrink-0 text-fg-icon" strokeWidth={1.75} />
+            {t("title")}
+          </h1>
+          <p className="mt-2 max-w-[640px] text-sm text-fg-muted">{t("pageIntro")}</p>
+          {off && <p className="mt-3 max-w-[640px] rounded-lg bg-bg-subtle px-4 py-3 text-[13px] text-fg-muted">{t("workspaceOff")}</p>}
+        </header>
 
-      <header className="mt-4 md:mt-6">
-        <h1 className="font-display text-2xl tracking-tight">{t("title")}</h1>
-        <p className="mt-1.5 max-w-[640px] text-sm text-fg-muted">{t("pageIntro")}</p>
-        {off && <p className="mt-3 max-w-[640px] rounded-lg bg-bg-subtle px-4 py-3 text-[13px] text-fg-muted">{t("workspaceOff")}</p>}
-      </header>
-
-      <div className="mt-6 flex flex-col gap-6 md:mt-8 md:flex-row md:gap-12">
-        {all.length > 1 && (
-          // A phone has no room beside the section: the list is a row that scrolls on its own.
-          <nav
-            aria-label={t("title")}
-            className="-mx-4 flex shrink-0 gap-0.5 overflow-x-auto px-4 [scrollbar-width:none] md:sticky md:top-4 md:mx-0 md:w-[188px] md:flex-col md:self-start md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden"
-          >
-            {yours.map((key) => (
-              <NavItem key={key} current={section === key} count={notes[key]?.length ?? 0} onClick={() => go(key)}>
-                {label(key)}
-              </NavItem>
-            ))}
-            {shared.length > 0 && (
-              <>
-                <div className="shrink-0 px-2 pt-4 pb-1 text-xs text-fg-faint max-md:hidden">{t("sections.shared")}</div>
-                <span className="mx-1 my-1.5 w-px shrink-0 bg-border md:hidden" aria-hidden />
-              </>
+        <div className="relative flex flex-wrap items-end gap-x-4">
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-border" />
+          <div role="tablist" aria-label={t("title")} className="relative flex min-w-0 max-w-full gap-4 overflow-x-auto [scrollbar-width:none]">
+            {all.map((key) => {
+              const current = key === section;
+              const count = notes[key]?.length ?? 0;
+              const icon = shared.find((p) => keyOf(p) === key && p.id)?.icon;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={current}
+                  onClick={() => go(key)}
+                  className={cn(
+                    "flex shrink-0 items-center gap-1.5 border-b-2 py-2 text-sm whitespace-nowrap transition-colors",
+                    current ? "border-fg font-medium text-fg" : "border-transparent text-fg-muted hover:text-fg",
+                  )}
+                >
+                  {icon && <IconGlyph icon={icon} className="h-4 w-4 shrink-0 text-[15px]" />}
+                  {label(key)}
+                  {count > 0 && <span className="text-xs font-normal text-fg-faint tabular-nums">{count}</span>}
+                </button>
+              );
+            })}
+          </div>
+          <div className="relative ms-auto flex items-center gap-0.5 pb-1.5">
+            <Popover
+              align="end"
+              trigger={({ open, toggle }) => (
+                <IconButton label={t("filterLabel")} title={t("filterLabel")} aria-expanded={open} onClick={toggle} className={toolButton(open, only !== "all")}>
+                  <ListFilter className="h-4 w-4" />
+                </IconButton>
+              )}
+            >
+              {(close) => (
+                <div className="w-52">
+                  {menu(only === "all", t("allCategories"), () => {
+                    setOnly("all");
+                    close();
+                  })}
+                  <MenuSeparator />
+                  {MEMORY_CATEGORIES.map((category) =>
+                    menu(
+                      only === category,
+                      t(`categories.${category}`),
+                      () => {
+                        setOnly(category);
+                        close();
+                      },
+                      <span className={cn(KIND_COLOR[category], "h-3 w-3 rounded-sm")} />,
+                    ),
+                  )}
+                </div>
+              )}
+            </Popover>
+            <Popover
+              align="end"
+              trigger={({ open, toggle }) => (
+                <IconButton label={t("sort")} title={t("sort")} aria-expanded={open} onClick={toggle} className={toolButton(open, sort !== "newest")}>
+                  <ArrowUpDown className="h-4 w-4" />
+                </IconButton>
+              )}
+            >
+              {(close) => (
+                <div className="w-48">
+                  {(
+                    [
+                      ["newest", t("newestFirst")],
+                      ["oldest", t("oldestFirst")],
+                      ["name", t("aToZ")],
+                    ] as const
+                  ).map(([key, text]) =>
+                    menu(sort === key, text, () => {
+                      setSort(key);
+                      close();
+                    }),
+                  )}
+                </div>
+              )}
+            </Popover>
+            {searching || query ? (
+              <div className="relative">
+                <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" />
+                <Input
+                  type="search"
+                  autoFocus
+                  aria-label={t("search")}
+                  placeholder={t("search")}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onBlur={() => setSearching(false)}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Escape") return;
+                    setQuery("");
+                    setSearching(false);
+                  }}
+                  className="h-7 w-40 ps-7 sm:w-52"
+                />
+              </div>
+            ) : (
+              <IconButton label={t("search")} title={t("search")} onClick={() => setSearching(true)} className="h-7 w-7">
+                <Search className="h-4 w-4" />
+              </IconButton>
             )}
-            {shared.map((p) => (
-              <NavItem key={keyOf(p)} current={section === keyOf(p)} count={notes[keyOf(p)]?.length ?? 0} onClick={() => go(keyOf(p))}>
-                {p.icon && <IconGlyph icon={p.icon} className="h-4 w-4 shrink-0 text-[15px]" />}
-                <span className="min-w-0 flex-1 truncate">{label(keyOf(p))}</span>
-              </NavItem>
-            ))}
-          </nav>
-        )}
-
-        <section aria-label={label(section)} className="max-w-[640px] min-w-0 flex-1">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold">{section === "workspace" ? workspaceName : label(section)}</h2>
-            <p className="mt-1 text-[13px] text-fg-muted">{help}</p>
-            {!canChange && (
-              <p className="mt-3 flex gap-2 text-[13px] text-fg-muted">
-                <Eye className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                {t("readOnly")}
-              </p>
+            {settingsShown && (
+              <Popover
+                align="end"
+                trigger={({ open, toggle }) => (
+                  <IconButton label={t("settings")} title={t("settings")} aria-expanded={open} onClick={toggle} className={toolButton(open)}>
+                    <Settings2 className="h-4 w-4" />
+                  </IconButton>
+                )}
+              >
+                {(close) => (
+                  <div className="w-72">
+                    {section === "mine" && (
+                      <div className="flex items-start gap-3 px-2 py-1.5">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm">{t("use")}</p>
+                          <p className="text-xs text-fg-muted">{t("useHint")}</p>
+                        </div>
+                        <Switch checked={use} label={t("use")} disabled={busy || offline} onChange={(next) => void toggleUse(next)} />
+                      </div>
+                    )}
+                    {section === "mine" && changes && list.length > 0 && <MenuSeparator />}
+                    {changes && list.length > 0 && (
+                      <MenuItem
+                        danger
+                        icon={<Trash2 className="h-4 w-4" />}
+                        disabled={busy}
+                        onClick={() => {
+                          close();
+                          if (confirm(confirmAll)) void change(section, { delete: "all" });
+                        }}
+                      >
+                        {place ? t("deleteAll") : t("forgetAll")}
+                      </MenuItem>
+                    )}
+                  </div>
+                )}
+              </Popover>
+            )}
+            {canChange && (
+              <Button variant="primary" size="sm" className="ms-1.5" disabled={!changes || full} onClick={() => startNew(only === "all" ? "other" : only)}>
+                <Plus className="h-3.5 w-3.5" />
+                {t("addLabel")}
+              </Button>
             )}
           </div>
-          {section === "mine" && (
-            <div className="mb-6 flex items-start gap-3 rounded-md border border-border px-3 py-2 text-sm">
-              <div className="min-w-0 flex-1">
-                <p className="font-medium">{t("use")}</p>
-                <p className="text-xs text-fg-muted">{t("useHint")}</p>
-              </div>
-              <Switch checked={use} label={t("use")} disabled={busy} onChange={(next) => void toggleUse(next)} />
-            </div>
+        </div>
+
+        <div role="tabpanel" aria-label={label(section)} className="pt-4">
+          <p className="mb-4 max-w-[640px] text-[13px] text-fg-muted">{help}</p>
+          {place && !place.canChange && (
+            <p className="mb-4 flex items-center gap-1.5 text-[13px] text-fg-muted">
+              <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              {t("readOnly")}
+            </p>
           )}
-          {error && (
+          {error && !dialog && (
             <p role="alert" className="mb-3 text-xs text-danger">
               {error}
             </p>
@@ -217,20 +389,263 @@ export function MemoryPage({
               onChange={setSummary}
             />
           )}
-          <NoteList
-            key={section}
-            notes={notes[section] ?? []}
-            canChange={canChange}
-            busy={busy}
-            shared={place !== null}
-            placeholder={section === "mine" ? t("addPlaceholder") : section === "everywhere" ? t("addPlaceholderEverywhere") : t("addPlaceholderShared")}
-            confirmAll={confirmAll}
-            allLabel={place ? t("deleteAll") : t("forgetAll")}
-            onChange={(edit) => change(section, edit)}
-          />
-        </section>
+          {canChange && offline && <p className="mb-3 text-[13px] text-fg-muted">{t("offline")}</p>}
+
+          {list.length === 0 ? (
+            <div className="py-6">
+              <p className="text-sm text-fg-muted">{place ? t("emptyShared") : t("empty")}</p>
+              {changes && <NewRow label={t("addLabel")} onClick={() => startNew("other")} />}
+            </div>
+          ) : groups.length === 0 ? (
+            <p className="py-6 text-sm text-fg-muted">{t("noMatch")}</p>
+          ) : (
+            groups.map(({ category, notes: inGroup }) => {
+              const open = !closed.has(category);
+              return (
+                <section key={category} aria-label={t(`categories.${category}`)} className="mb-5">
+                  <div className="flex h-9 items-center gap-1.5">
+                    <button
+                      type="button"
+                      aria-expanded={open}
+                      onClick={() =>
+                        setClosed((current) => {
+                          const next = new Set(current);
+                          if (open) next.add(category);
+                          else next.delete(category);
+                          return next;
+                        })
+                      }
+                      className="flex items-center gap-1.5 rounded-md px-1 py-0.5 hover:bg-bg-hover"
+                    >
+                      <ChevronRight
+                        aria-hidden
+                        className={cn("h-3.5 w-3.5 text-fg-faint transition-transform", open ? "rotate-90" : "rtl:-scale-x-100")}
+                      />
+                      <span className={cn(KIND_COLOR[category], "rounded px-1.5 text-xs leading-5 font-medium")}>{t(`categories.${category}`)}</span>
+                    </button>
+                    <span className="text-xs text-fg-faint tabular-nums">{inGroup.length}</span>
+                  </div>
+                  {open && (
+                    <ul className="mt-0.5">
+                      {inGroup.map((note) => (
+                        <li key={note.id} className="group/note flex items-center rounded-md hover:bg-bg-hover">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setError(null);
+                              setDialog({ note, category: note.category });
+                            }}
+                            className="flex min-h-10 min-w-0 flex-1 items-center gap-3 rounded-md px-2 py-1.5 text-start"
+                          >
+                            <span className="min-w-0 flex-1">
+                              <span className="flex items-start gap-1.5">
+                                <span className="line-clamp-2 text-sm font-medium break-words text-fg">{note.text}</span>
+                                {changes && (
+                                  <Pencil aria-hidden className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fg-faint opacity-0 group-hover/note:opacity-100" />
+                                )}
+                              </span>
+                              {note.details && <span className="mt-0.5 block truncate text-xs text-fg-muted">{note.details}</span>}
+                            </span>
+                            {author(note) && (
+                              <span title={authorTitle(note)} className="hidden max-w-40 shrink-0 truncate text-xs text-fg-muted sm:block">
+                                {author(note)}
+                              </span>
+                            )}
+                            <time dateTime={note.updatedAt} className="w-20 shrink-0 text-end text-xs text-fg-faint tabular-nums">
+                              {day(note.updatedAt)}
+                            </time>
+                          </button>
+                          {changes && (
+                            <IconButton
+                              label={t("delete")}
+                              title={t("delete")}
+                              disabled={busy}
+                              onClick={() => void change(section, { delete: note.id })}
+                              className="me-1 h-7 w-7 shrink-0 opacity-0 group-hover/note:opacity-100 pointer-coarse:opacity-60 hover:text-danger focus-visible:opacity-100"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </IconButton>
+                          )}
+                        </li>
+                      ))}
+                      {changes && !full && (
+                        <li>
+                          <NewRow label={t("addLabel")} onClick={() => startNew(category)} />
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </section>
+              );
+            })
+          )}
+          {list.length > 0 && (
+            <p className="mt-2 text-xs text-fg-faint tabular-nums">
+              {full ? t("full", { max: MAX_MEMORIES }) : t("count", { count: list.length, max: MAX_MEMORIES })}
+            </p>
+          )}
+        </div>
       </div>
-    </div>
+      {dialog && (
+        <NoteDialog
+          key={dialog.note?.id ?? "new"}
+          note={dialog.note}
+          category={dialog.category}
+          readOnly={!changes}
+          busy={busy}
+          full={full}
+          error={error}
+          placeholder={placeholder}
+          by={dialog.note ? author(dialog.note) : null}
+          when={dialog.note ? day(dialog.note.updatedAt) : null}
+          onSave={async (edit) => {
+            if (await change(section, edit)) setDialog(null);
+          }}
+          onDelete={async (id) => {
+            if (await change(section, { delete: id })) setDialog(null);
+          }}
+          onClose={() => {
+            setError(null);
+            setDialog(null);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+/** The row under a group (or an empty list) that starts a new note. */
+function NewRow({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="flex h-9 w-full items-center gap-2 rounded-md px-2 text-sm text-fg-muted hover:bg-bg-hover hover:text-fg">
+      <Plus className="h-4 w-4" aria-hidden />
+      {label}
+    </button>
+  );
+}
+
+/** One note to read, change or delete, or a new one: its line, kind and details. */
+function NoteDialog({
+  note,
+  category,
+  readOnly,
+  busy,
+  full,
+  error,
+  placeholder,
+  by,
+  when,
+  onSave,
+  onDelete,
+  onClose,
+}: {
+  note: Note | null;
+  category: MemoryCategory;
+  readOnly: boolean;
+  busy: boolean;
+  full: boolean;
+  error: string | null;
+  placeholder: string;
+  by: string | null;
+  when: string | null;
+  onSave: (edit: NoteChange) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  onClose: () => void;
+}) {
+  const t = useTranslations("ai.memory");
+  const tc = useTranslations("common");
+  const [text, setText] = useState(note?.text ?? "");
+  const [kind, setKind] = useState<MemoryCategory>(note?.category ?? category);
+  const [details, setDetails] = useState(note?.details ?? "");
+  const blocked = readOnly || busy || !text.trim() || (!note && full);
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    if (blocked) return;
+    void onSave(
+      note
+        ? { id: note.id, text, category: kind, details }
+        : { add: text, category: kind, ...(details.trim() ? { details } : {}) },
+    );
+  }
+
+  return (
+    <Dialog open onClose={onClose} className="max-w-lg">
+      <form onSubmit={submit}>
+        <DialogHeader title={note ? t("editLabel") : t("addLabel")} onClose={onClose} closeLabel={tc("close")} />
+        <DialogBody>
+          <label className="block space-y-1.5">
+            <span className="text-sm text-fg-muted">{t("editLabel")}</span>
+            <textarea
+              autoFocus={!readOnly}
+              readOnly={readOnly}
+              rows={2}
+              className={cn(textareaClass, "min-h-16")}
+              placeholder={placeholder}
+              value={text}
+              maxLength={MAX_MEMORY_CHARS}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                // A note is one line: Enter keeps it.
+                if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  e.currentTarget.form?.requestSubmit();
+                }
+              }}
+            />
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm text-fg-muted">{t("categoryLabel")}</span>
+            <select
+              className={cn(selectClass, "w-full")}
+              value={kind}
+              disabled={readOnly}
+              onChange={(e) => {
+                if (isMemoryCategory(e.target.value)) setKind(e.target.value);
+              }}
+            >
+              {MEMORY_CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {t(`categories.${c}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block space-y-1.5">
+            <span className="text-sm text-fg-muted">{t("detailsLabel")}</span>
+            <textarea
+              readOnly={readOnly}
+              rows={4}
+              className={cn(textareaClass, "min-h-24")}
+              placeholder={t("detailsPlaceholder")}
+              value={details}
+              maxLength={MAX_MEMORY_DETAILS_CHARS}
+              onChange={(e) => setDetails(e.target.value)}
+            />
+          </label>
+          {note && (by || when) && <p className="text-xs text-fg-faint tabular-nums">{[by, when].filter(Boolean).join(" · ")}</p>}
+          {!note && full && <p className="text-xs text-fg-muted">{t("full", { max: MAX_MEMORIES })}</p>}
+          {error && (
+            <p role="alert" className="text-xs text-danger">
+              {error}
+            </p>
+          )}
+        </DialogBody>
+        <DialogFooter>
+          {note && !readOnly && (
+            <Button variant="ghost" className="me-auto hover:text-danger" disabled={busy} onClick={() => void onDelete(note.id)}>
+              {t("delete")}
+            </Button>
+          )}
+          <Button onClick={onClose}>{readOnly ? tc("close") : t("cancel")}</Button>
+          {!readOnly && (
+            <Button type="submit" variant="primary" disabled={blocked}>
+              {t("save")}
+            </Button>
+          )}
+        </DialogFooter>
+      </form>
+    </Dialog>
   );
 }
 
@@ -409,284 +824,8 @@ function SummaryBox({
   );
 }
 
-function NavItem({ current, count, onClick, children }: { current: boolean; count: number; onClick: () => void; children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      aria-current={current ? "page" : undefined}
-      onClick={onClick}
-      className={cn(
-        "flex h-8 shrink-0 items-center gap-2 rounded-md px-2 text-start text-sm whitespace-nowrap",
-        current ? "bg-bg-hover font-medium text-fg" : "text-fg-muted hover:bg-bg-hover hover:text-fg",
-      )}
-    >
-      {typeof children === "string" ? <span className="min-w-0 flex-1 truncate">{children}</span> : children}
-      {count > 0 && <span className="text-xs text-fg-faint tabular-nums">{count}</span>}
-    </button>
-  );
-}
-
 /** Whether a note (its line or its details) has every word of a search, any case. */
 function matches(note: Note, words: string[], locale: string): boolean {
   const text = `${note.text}\n${note.details ?? ""}`.toLocaleLowerCase(locale);
   return words.every((word) => text.includes(word));
-}
-
-/** Details longer than this, or of more lines, show folded until opened. */
-const FOLD_CHARS = 240;
-const FOLD_LINES = 3;
-const folds = (details: string) => details.length > FOLD_CHARS || details.split("\n").length > FOLD_LINES;
-
-/**
- * One part's notes, grouped by what they are about (flat while every note is `other`), with a
- * search and a filter by kind: each changed in place or deleted, a note to add and deleting them
- * all, for those who may.
- */
-function NoteList({
-  notes,
-  canChange,
-  busy,
-  shared,
-  placeholder,
-  confirmAll,
-  allLabel,
-  onChange,
-}: {
-  notes: Note[];
-  canChange: boolean;
-  busy: boolean;
-  /** The workspace's or a teamspace's: each note says who changed it last. */
-  shared: boolean;
-  placeholder: string;
-  confirmAll: string;
-  allLabel: string;
-  onChange: (change: NoteChange) => Promise<boolean>;
-}) {
-  const t = useTranslations("ai.memory");
-  const locale = useLocale();
-  const offline = useIsOffline();
-  const [draft, setDraft] = useState("");
-  const [draftCategory, setDraftCategory] = useState<MemoryCategory>("other");
-  // Null while the new note has no details box open.
-  const [draftDetails, setDraftDetails] = useState<string | null>(null);
-  const [editing, setEditing] = useState<{ id: string; text: string; category: MemoryCategory; details: string } | null>(null);
-  const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
-  const [query, setQuery] = useState("");
-  const [only, setOnly] = useState<MemoryCategory | "all">("all");
-  const changes = canChange && !offline;
-  const full = notes.length >= MAX_MEMORIES;
-
-  const words = query.toLocaleLowerCase(locale).split(/\s+/).filter(Boolean);
-  const shown = notes.filter((note) => (only === "all" || note.category === only) && matches(note, words, locale));
-  // Notes kept before kinds existed are all `other`: a list of them alone has no headings.
-  const grouped = notes.some((note) => note.category !== "other");
-  const groups = grouped
-    ? MEMORY_CATEGORIES.map((category) => ({ category, notes: shown.filter((note) => note.category === category) })).filter((group) => group.notes.length > 0)
-    : [{ category: null, notes: shown }];
-
-  async function add(event: FormEvent) {
-    event.preventDefault();
-    if (!draft.trim() || busy) return;
-    if (await onChange({ add: draft, category: draftCategory, ...(draftDetails?.trim() ? { details: draftDetails } : {}) })) {
-      setDraft("");
-      setDraftDetails(null);
-    }
-  }
-
-  async function save(event: FormEvent) {
-    event.preventDefault();
-    if (!editing || busy) return;
-    if (await onChange({ id: editing.id, text: editing.text, category: editing.category, details: editing.details })) setEditing(null);
-  }
-
-  const kindSelect = (value: MemoryCategory, onSelect: (next: MemoryCategory) => void, disabled = false) => (
-    <select
-      aria-label={t("categoryLabel")}
-      className={cn(selectClass, "max-w-[9rem] shrink-0")}
-      value={value}
-      disabled={disabled}
-      onChange={(e) => {
-        if (isMemoryCategory(e.target.value)) onSelect(e.target.value);
-      }}
-    >
-      {MEMORY_CATEGORIES.map((category) => (
-        <option key={category} value={category}>
-          {t(`categories.${category}`)}
-        </option>
-      ))}
-    </select>
-  );
-
-  const action = "h-7 w-7 opacity-0 group-hover/note:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-60";
-  const row = (note: Note) =>
-    editing?.id === note.id ? (
-      <li key={note.id} className="py-1.5">
-        <form
-          onSubmit={save}
-          className="space-y-1.5"
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setEditing(null);
-          }}
-        >
-          <div className="flex items-center gap-1">
-            <Input autoFocus aria-label={t("editLabel")} value={editing.text} maxLength={MAX_MEMORY_CHARS} onChange={(e) => setEditing({ ...editing, text: e.target.value })} />
-            {kindSelect(editing.category, (category) => setEditing({ ...editing, category }))}
-            <IconButton type="submit" label={t("save")} className="h-8 w-8" disabled={busy || !editing.text.trim()}>
-              <Check className="h-4 w-4" />
-            </IconButton>
-            <IconButton label={t("cancel")} className="h-8 w-8" onClick={() => setEditing(null)}>
-              <X className="h-4 w-4" />
-            </IconButton>
-          </div>
-          <textarea
-            aria-label={t("detailsLabel")}
-            placeholder={t("detailsPlaceholder")}
-            className={cn(textareaClass, "min-h-16")}
-            rows={3}
-            value={editing.details}
-            maxLength={MAX_MEMORY_DETAILS_CHARS}
-            onChange={(e) => setEditing({ ...editing, details: e.target.value })}
-          />
-        </form>
-      </li>
-    ) : (
-      <li key={note.id} className="group/note flex items-start gap-1 py-1.5">
-        <div className="min-w-0 flex-1 py-1">
-          <p className="break-words">{note.text}</p>
-          {note.details && (
-            <>
-              <p className={cn("mt-0.5 text-[13px] break-words whitespace-pre-wrap text-fg-muted", folds(note.details) && !open.has(note.id) && "line-clamp-3")}>{note.details}</p>
-              {folds(note.details) && (
-                <button
-                  type="button"
-                  className="text-xs text-fg-muted hover:text-fg"
-                  aria-expanded={open.has(note.id)}
-                  onClick={() =>
-                    setOpen((current) => {
-                      const next = new Set(current);
-                      if (!next.delete(note.id)) next.add(note.id);
-                      return next;
-                    })
-                  }
-                >
-                  {open.has(note.id) ? t("lessDetails") : t("moreDetails")}
-                </button>
-              )}
-            </>
-          )}
-          {(note.app || (shared && note.by)) && (
-            <p className="mt-0.5 text-xs text-fg-muted">{note.app ? t("viaApp", { app: note.app }) : t("byPerson", { name: note.by! })}</p>
-          )}
-        </div>
-        {changes && (
-          <>
-            <IconButton label={t("edit")} className={action} disabled={busy} onClick={() => setEditing({ id: note.id, text: note.text, category: note.category, details: note.details ?? "" })}>
-              <Pencil className="h-3.5 w-3.5" />
-            </IconButton>
-            <IconButton label={t("delete")} className={action} disabled={busy} onClick={() => void onChange({ delete: note.id })}>
-              <Trash2 className="h-3.5 w-3.5" />
-            </IconButton>
-          </>
-        )}
-      </li>
-    );
-
-  return (
-    <div className="space-y-3 text-sm">
-      {offline && <p className="text-fg-muted">{t("offline")}</p>}
-      {notes.length === 0 ? (
-        <p className="text-fg-muted">{shared ? t("emptyShared") : t("empty")}</p>
-      ) : (
-        <>
-          <div className="flex items-center gap-2">
-            <div className="relative min-w-0 flex-1">
-              <Search className="pointer-events-none absolute top-1/2 inset-s-2 h-3.5 w-3.5 -translate-y-1/2 text-fg-faint" aria-hidden />
-              <Input type="search" aria-label={t("search")} placeholder={t("search")} value={query} onChange={(e) => setQuery(e.target.value)} className="ps-7" />
-            </div>
-            <select
-              aria-label={t("filterLabel")}
-              className={cn(selectClass, "max-w-[10rem] shrink-0")}
-              value={only}
-              onChange={(e) => {
-                const next = e.target.value;
-                setOnly(isMemoryCategory(next) ? next : "all");
-                // A note added while one kind is shown is of that kind.
-                if (isMemoryCategory(next)) setDraftCategory(next);
-              }}
-            >
-              <option value="all">{t("allCategories")}</option>
-              {MEMORY_CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {t(`categories.${category}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-          {shown.length === 0 ? (
-            <p className="text-fg-muted" aria-live="polite">
-              {t("noMatch")}
-            </p>
-          ) : (
-            groups.map((group) => (
-              <div key={group.category ?? "all"}>
-                {group.category && <h3 className="pt-2 pb-1 text-xs font-medium text-fg-muted">{t(`categories.${group.category}`)}</h3>}
-                <ul className="divide-y divide-border border-y border-border">{group.notes.map(row)}</ul>
-              </div>
-            ))
-          )}
-        </>
-      )}
-      {changes && (
-        <>
-          <form onSubmit={add} className="flex gap-2">
-            <Input
-              aria-label={t("addLabel")}
-              placeholder={full ? t("full", { max: MAX_MEMORIES }) : placeholder}
-              value={draft}
-              maxLength={MAX_MEMORY_CHARS}
-              disabled={full}
-              onChange={(e) => setDraft(e.target.value)}
-            />
-            {kindSelect(draftCategory, setDraftCategory, full)}
-            <Button type="submit" variant="primary" disabled={busy || full || !draft.trim()}>
-              {t("add")}
-            </Button>
-          </form>
-          {!full &&
-            (draftDetails === null ? (
-              <Button size="sm" variant="ghost" className="-mt-1" onClick={() => setDraftDetails("")}>
-                {t("addDetails")}
-              </Button>
-            ) : (
-              <textarea
-                autoFocus
-                aria-label={t("detailsLabel")}
-                placeholder={t("detailsPlaceholder")}
-                className={cn(textareaClass, "min-h-16")}
-                rows={3}
-                value={draftDetails}
-                maxLength={MAX_MEMORY_DETAILS_CHARS}
-                onChange={(e) => setDraftDetails(e.target.value)}
-              />
-            ))}
-          <div className="flex items-center justify-between gap-2 text-xs text-fg-muted">
-            <span>{t("count", { count: notes.length, max: MAX_MEMORIES })}</span>
-            {notes.length > 0 && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="hover:text-danger"
-                disabled={busy}
-                onClick={() => {
-                  if (confirm(confirmAll)) void onChange({ delete: "all" });
-                }}
-              >
-                {allLabel}
-              </Button>
-            )}
-          </div>
-        </>
-      )}
-    </div>
-  );
 }

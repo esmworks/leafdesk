@@ -23,6 +23,8 @@
     "import": "Importar",
     "graph": "Grafo",
     "skills": "Habilidades",
+    "library": "Biblioteca",
+    "memory": "Memória",
     "review": "Para revisar",
     "reviewCount": "{count, plural, one {# alteração aguarda sua revisão} other {# alterações aguardam sua revisão}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "aguarda sua decisão",
     "tasksOverdue": "{count, plural, one {# tarefa atrasada} other {# tarefas atrasadas}}",
     "tasksToday": "{count, plural, one {# tarefa vence hoje} other {# tarefas vencem hoje}}"
+  },
+  "library": {
+    "description": "Tudo deste espaço de trabalho, num só lugar.",
+    "recents": "Recentes",
+    "empty": "Ainda não há nada aqui.",
+    "location": "Localização",
+    "date": "Data"
   }
 }

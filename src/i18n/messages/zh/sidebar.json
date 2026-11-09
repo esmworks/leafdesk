@@ -23,6 +23,8 @@
     "import": "导入",
     "graph": "关系图",
     "skills": "技能",
+    "library": "资料库",
+    "memory": "记忆",
     "review": "待审阅",
     "reviewCount": "{count, plural, other {# 处更改等待你审阅}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "等待你的决定",
     "tasksOverdue": "{count, plural, other {# 项任务已逾期}}",
     "tasksToday": "{count, plural, other {# 项任务今天到期}}"
+  },
+  "library": {
+    "description": "此工作区的所有内容，集中在一处。",
+    "recents": "最近",
+    "empty": "这里还没有内容。",
+    "location": "位置",
+    "date": "日期"
   }
 }

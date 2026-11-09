@@ -23,6 +23,8 @@
     "import": "درون‌ریزی",
     "graph": "گراف",
     "skills": "مهارت‌ها",
+    "library": "کتابخانه",
+    "memory": "حافظه",
     "review": "برای بازبینی",
     "reviewCount": "{count, plural, one {# تغییر منتظر بازبینی شماست} other {# تغییر منتظر بازبینی شماست}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "منتظر تصمیم شماست",
     "tasksOverdue": "{count, plural, one {# کار عقب افتاده} other {# کار عقب افتاده}}",
     "tasksToday": "{count, plural, one {# کار سررسید امروز} other {# کار سررسید امروز}}"
+  },
+  "library": {
+    "description": "همه‌چیزِ این فضای کار، در یک جا.",
+    "recents": "اخیر",
+    "empty": "هنوز چیزی اینجا نیست.",
+    "location": "محل",
+    "date": "تاریخ"
   }
 }

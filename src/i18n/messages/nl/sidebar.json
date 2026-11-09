@@ -23,6 +23,8 @@
     "import": "Importeren",
     "graph": "Netwerk",
     "skills": "Vaardigheden",
+    "library": "Bibliotheek",
+    "memory": "Geheugen",
     "review": "Ter beoordeling",
     "reviewCount": "{count, plural, one {# wijziging wacht op jouw beoordeling} other {# wijzigingen wachten op jouw beoordeling}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "wacht op je beslissing",
     "tasksOverdue": "{count, plural, one {# taak te laat} other {# taken te laat}}",
     "tasksToday": "{count, plural, one {# taak vandaag te doen} other {# taken vandaag te doen}}"
+  },
+  "library": {
+    "description": "Alles in deze werkruimte op één plek.",
+    "recents": "Recent",
+    "empty": "Hier staat nog niets.",
+    "location": "Locatie",
+    "date": "Datum"
   }
 }

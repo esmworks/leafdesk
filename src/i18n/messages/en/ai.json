@@ -638,7 +638,13 @@
       "held": "A legal hold keeps this note: it can't be deleted while the hold stands.",
       "noNotes": "Keep a few notes first: the summary is written from them.",
       "summaryTooLong": "A summary may have at most {max} characters."
-    }
+    },
+    "sort": "Sort",
+    "newestFirst": "Newest first",
+    "oldestFirst": "Oldest first",
+    "aToZ": "A to Z",
+    "settings": "Settings",
+    "byYou": "You"
   },
   "accounts": {
     "heading": "AI",

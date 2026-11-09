@@ -23,6 +23,8 @@
     "import": "Nhập",
     "graph": "Đồ thị",
     "skills": "Kỹ năng",
+    "library": "Thư viện",
+    "memory": "Bộ nhớ",
     "review": "Cần xem xét",
     "reviewCount": "{count, plural, other {# thay đổi đang chờ bạn xem xét}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "đang chờ bạn quyết định",
     "tasksOverdue": "{count, plural, other {# việc quá hạn}}",
     "tasksToday": "{count, plural, other {# việc đến hạn hôm nay}}"
+  },
+  "library": {
+    "description": "Mọi thứ trong không gian làm việc này, ở cùng một nơi.",
+    "recents": "Gần đây",
+    "empty": "Chưa có gì ở đây.",
+    "location": "Vị trí",
+    "date": "Ngày"
   }
 }

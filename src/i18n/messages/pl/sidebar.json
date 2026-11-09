@@ -23,6 +23,8 @@
     "import": "Importuj",
     "graph": "Graf",
     "skills": "Umiejętności",
+    "library": "Biblioteka",
+    "memory": "Pamięć",
     "review": "Do przejrzenia",
     "reviewCount": "{count, plural, one {# zmiana czeka, aż ją przejrzysz} few {# zmiany czekają, aż je przejrzysz} many {# zmian czeka, aż je przejrzysz} other {# zmiany czeka, aż ją przejrzysz}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "czeka na Twoją decyzję",
     "tasksOverdue": "{count, plural, one {# zadanie po terminie} few {# zadania po terminie} many {# zadań po terminie} other {# zadania po terminie}}",
     "tasksToday": "{count, plural, one {# zadanie na dziś} few {# zadania na dziś} many {# zadań na dziś} other {# zadania na dziś}}"
+  },
+  "library": {
+    "description": "Wszystko z tego obszaru roboczego w jednym miejscu.",
+    "recents": "Ostatnie",
+    "empty": "Nic tu jeszcze nie ma.",
+    "location": "Lokalizacja",
+    "date": "Data"
   }
 }

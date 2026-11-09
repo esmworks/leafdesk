@@ -23,6 +23,8 @@
     "import": "Tuo",
     "graph": "Graafi",
     "skills": "Taidot",
+    "library": "Kirjasto",
+    "memory": "Muisti",
     "review": "Tarkistettavat",
     "reviewCount": "{count, plural, one {# muutos odottaa tarkistustasi} other {# muutosta odottaa tarkistustasi}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "odottaa päätöstäsi",
     "tasksOverdue": "{count, plural, one {# tehtävä myöhässä} other {# tehtävää myöhässä}}",
     "tasksToday": "{count, plural, one {# tehtävä erääntyy tänään} other {# tehtävää erääntyy tänään}}"
+  },
+  "library": {
+    "description": "Kaikki tämän työtilan sisältö yhdessä paikassa.",
+    "recents": "Viimeisimmät",
+    "empty": "Täällä ei ole vielä mitään.",
+    "location": "Sijainti",
+    "date": "Päivämäärä"
   }
 }

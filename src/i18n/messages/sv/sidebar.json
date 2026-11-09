@@ -23,6 +23,8 @@
     "import": "Importera",
     "graph": "Graf",
     "skills": "Färdigheter",
+    "library": "Bibliotek",
+    "memory": "Minne",
     "review": "Att granska",
     "reviewCount": "{count, plural, one {# ändring väntar på din granskning} other {# ändringar väntar på din granskning}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "väntar på ditt beslut",
     "tasksOverdue": "{count, plural, one {# uppgift är försenad} other {# uppgifter är försenade}}",
     "tasksToday": "{count, plural, one {# uppgift ska vara klar i dag} other {# uppgifter ska vara klara i dag}}"
+  },
+  "library": {
+    "description": "Allt i den här arbetsytan, samlat på ett ställe.",
+    "recents": "Senaste",
+    "empty": "Inget här än.",
+    "location": "Plats",
+    "date": "Datum"
   }
 }

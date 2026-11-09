@@ -178,8 +178,11 @@ import { gzipSync } from "node:zlib";
  * the Messages route (link cards, a channel's webhooks and the phone code's dialog load when shown),
  * and the phone's sign-in page from a QR code is a route of its own (under 1 kB): all first loads
  * together stood at their budget and rose 3 kB.
+ * The Library is a route of its own (its tabs' lists, search and new buttons; New agent's dialog
+ * loads when opened), and the Memory page laid out like a database (tabs, toolbar, groups, a note's
+ * dialog): about 6 kB to all first loads together, for which that budget rose 8 kB.
  */
-const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1260, onDemandChunk: 450 };
+const BUDGET = { routeFirstLoad: 804, firstLoadShared: 1268, onDemandChunk: 450 };
 
 const NEXT = ".next";
 const kB = (bytes: number) => bytes / 1024;

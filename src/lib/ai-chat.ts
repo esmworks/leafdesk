@@ -382,12 +382,12 @@ export function chatPath(workspaceId: string, conversationId?: string | null): s
   return `/w/${workspaceId}/ai${conversationId ? `?c=${encodeURIComponent(conversationId)}` : ""}`;
 }
 
-/** Whether a pathname is the workspace's full-page chat. */
 /** The Memory page: what the AI keeps for the person and the places they are in (`?section=`). */
 export function memoryPagePath(workspaceId: string, section?: string): string {
-  return `/w/${workspaceId}/ai/memory${section ? `?section=${encodeURIComponent(section)}` : ""}`;
+  return `/w/${workspaceId}/memory${section ? `?section=${encodeURIComponent(section)}` : ""}`;
 }
 
+/** Whether a pathname is the workspace's full-page chat. */
 export function isChatPath(pathname: string, workspaceId: string): boolean {
   return pathname === `/w/${workspaceId}/ai`;
 }

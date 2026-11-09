@@ -638,7 +638,13 @@
       "held": "Oikeudellinen säilytys pitää tämän muistiinpanon: sitä ei voi poistaa säilytyksen ollessa voimassa.",
       "noNotes": "Tallenna ensin muutama muistiinpano: yhteenveto kirjoitetaan niistä.",
       "summaryTooLong": "Yhteenvedossa voi olla enintään {max} merkkiä."
-    }
+    },
+    "sort": "Lajittele",
+    "newestFirst": "Uusimmat ensin",
+    "oldestFirst": "Vanhimmat ensin",
+    "aToZ": "A–Ö",
+    "settings": "Asetukset",
+    "byYou": "Sinä"
   },
   "accounts": {
     "heading": "Tekoäly",

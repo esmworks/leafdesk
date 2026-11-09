@@ -23,6 +23,8 @@
     "import": "Importa",
     "graph": "Grafo",
     "skills": "Competenze",
+    "library": "Libreria",
+    "memory": "Memoria",
     "review": "Da rivedere",
     "reviewCount": "{count, plural, one {# modifica attende la tua revisione} other {# modifiche attendono la tua revisione}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "attende la tua decisione",
     "tasksOverdue": "{count, plural, one {# attività in ritardo} other {# attività in ritardo}}",
     "tasksToday": "{count, plural, one {# attività in scadenza oggi} other {# attività in scadenza oggi}}"
+  },
+  "library": {
+    "description": "Tutto ciò che c'è in questo spazio di lavoro, in un unico posto.",
+    "recents": "Recenti",
+    "empty": "Ancora niente qui.",
+    "location": "Posizione",
+    "date": "Data"
   }
 }

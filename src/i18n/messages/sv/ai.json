@@ -638,7 +638,13 @@
       "held": "Ett juridiskt bevarande omfattar den här anteckningen: den kan inte raderas så länge bevarandet gäller.",
       "noNotes": "Spara några anteckningar först: sammanfattningen skrivs utifrån dem.",
       "summaryTooLong": "En sammanfattning får ha högst {max} tecken."
-    }
+    },
+    "sort": "Sortera",
+    "newestFirst": "Nyaste först",
+    "oldestFirst": "Äldsta först",
+    "aToZ": "A till Ö",
+    "settings": "Inställningar",
+    "byYou": "Du"
   },
   "accounts": {
     "heading": "AI",

@@ -23,6 +23,8 @@
     "import": "가져오기",
     "graph": "그래프",
     "skills": "스킬",
+    "library": "라이브러리",
+    "memory": "메모리",
     "review": "검토 대기",
     "reviewCount": "{count, plural, other {검토를 기다리는 변경 #개}}"
   },
@@ -422,5 +424,12 @@
     "agentWaiting": "결정을 기다리는 중",
     "tasksOverdue": "{count, plural, other {기한이 지난 작업 #개}}",
     "tasksToday": "{count, plural, other {오늘 마감인 작업 #개}}"
+  },
+  "library": {
+    "description": "이 워크스페이스의 모든 것을 한곳에서.",
+    "recents": "최근",
+    "empty": "아직 아무것도 없습니다.",
+    "location": "위치",
+    "date": "날짜"
   }
 }
