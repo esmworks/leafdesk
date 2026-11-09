@@ -8,7 +8,7 @@ import { moveCalendarItemAction } from "@/app/actions/calendar";
 import { planWorkBlockAction } from "@/app/actions/work-blocks";
 import { useCalendarItems } from "@/components/calendar/use-calendar-items";
 import { ItemLink } from "@/components/calendar/item-link";
-import { BLOCK_LOOK, KIND_TINT } from "@/components/calendar/item-tint";
+import { BLOCK_FILL, BLOCK_LOOK, KIND_TINT } from "@/components/calendar/item-tint";
 import { lazyPart } from "@/components/lazy-part";
 import { PlaceTopBar } from "@/components/place-top-bar";
 import { showToast } from "@/components/toast";
@@ -237,7 +237,7 @@ export function CalendarPage({ workspaceId }: { workspaceId: string }) {
       <ul aria-label={t("legend")} className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-fg-muted">
         {KINDS.map((kind) => (
           <li key={kind} className={cn("flex items-center gap-1.5", KIND_TINT[kind])}>
-            <span aria-hidden className="h-2.5 w-2.5 rounded-sm border" style={kind === "block" ? BLOCK_LOOK : { background: "var(--opt-bg)", borderColor: "var(--opt-bg)" }} />
+            <span aria-hidden className={cn("h-2.5 w-2.5 rounded-sm border", kind === "block" && BLOCK_FILL)} style={kind === "block" ? BLOCK_LOOK : { background: "var(--opt-bg)", borderColor: "var(--opt-bg)" }} />
             {t(`kinds.${kind}`)}
           </li>
         ))}
@@ -477,7 +477,7 @@ function WeekGrid({
                   }
                   className={cn(
                     "flex h-6 items-center gap-1.5 truncate rounded-md px-1.5 text-xs font-medium",
-                    bar.event.item.kind === "block" ? "border hover:bg-bg-hover" : "border-s-2 color-mark mark-hover",
+                    bar.event.item.kind === "block" ? cn("border hover:bg-bg-hover", BLOCK_FILL) : "border-s-2 color-mark mark-hover",
                     KIND_TINT[bar.event.item.kind],
                     drag?.placed.item.id === bar.event.item.id && "opacity-40",
                   )}
@@ -537,7 +537,7 @@ function WeekGrid({
                           onDragStart={(e) => startDrag(e, b.event, 0)}
                           onDragEnd={endDrag}
                           style={BLOCK_LOOK}
-                          className={cn("absolute inset-0 flex flex-col overflow-hidden rounded-md border px-1.5 py-0.5 pe-6 text-xs leading-4 hover:bg-bg-hover", KIND_TINT.block)}
+                          className={cn("absolute inset-0 flex flex-col overflow-hidden rounded-md border px-1.5 py-0.5 pe-6 text-xs leading-4 hover:bg-bg-hover", BLOCK_FILL, KIND_TINT.block)}
                         >
                           <span className={cn("truncate font-medium", item.done && "text-fg-muted line-through")}>{item.title.trim() || t("untitled")}</span>
                           {height >= 30 && <span className="truncate text-[11px] text-fg-muted tabular-nums">{when}</span>}
@@ -667,7 +667,7 @@ function DayList({
                     <span className="w-28 shrink-0 text-xs tabular-nums text-fg-muted">{whenOn(p, day)}</span>
                     <span
                       aria-hidden
-                      className={cn("w-1 self-stretch rounded-full", p.item.kind === "block" && "border")}
+                      className={cn("w-1 self-stretch rounded-full", p.item.kind === "block" && cn("border", BLOCK_FILL))}
                       style={p.item.kind === "block" ? BLOCK_LOOK : { background: "var(--opt-bg)" }}
                     />
                     <Icon className="h-4 w-4 shrink-0 text-fg-icon" aria-hidden />
