@@ -551,11 +551,11 @@ function QuizResults({ view }: { view: OwnView }) {
             <thead>
               <tr className="text-start text-xs text-fg-faint">
                 <th className="py-1.5 pe-3 text-start font-medium">{t("person")}</th>
-                <th className="py-1.5 pe-3 text-start font-medium">{t("best")}</th>
-                <th className="py-1.5 pe-3 text-start font-medium">{t("attempts")}</th>
-                <th className="py-1.5 pe-3 text-start font-medium">{t("status")}</th>
-                <th className="py-1.5 pe-3 text-start font-medium">{t("due")}</th>
-                <th className="py-1.5" />
+                <th className="w-20 py-1.5 pe-3 text-start font-medium whitespace-nowrap">{t("best")}</th>
+                <th className="w-20 py-1.5 pe-3 text-start font-medium whitespace-nowrap">{t("attempts")}</th>
+                <th className="w-40 py-1.5 pe-3 text-start font-medium whitespace-nowrap">{t("status")}</th>
+                <th className="w-40 py-1.5 pe-3 text-start font-medium whitespace-nowrap">{t("due")}</th>
+                <th className="w-8 py-1.5" />
               </tr>
             </thead>
             <tbody>
@@ -567,10 +567,10 @@ function QuizResults({ view }: { view: OwnView }) {
                     <td className="py-1.5 pe-3">
                       <span className="flex items-center gap-2">
                         <UserAvatar name={name} image={row.image} size="xs" />
-                        <span className="truncate">{name}</span>
+                        <span className="whitespace-nowrap">{name}</span>
                       </span>
                     </td>
-                    <td className="py-1.5 pe-3 tabular-nums">{row.best === null ? "–" : `${row.best}%`}</td>
+                    <td className="py-1.5 pe-3 tabular-nums">{row.best === null ? "–" : new Intl.NumberFormat(locale, { style: "percent" }).format(row.best / 100)}</td>
                     <td className="py-1.5 pe-3 tabular-nums">{row.attempts}</td>
                     <td className={cn("py-1.5 pe-3", row.passed ? "text-accent" : "text-fg-muted")}>{statusOf(row)}</td>
                     <td className={cn("py-1.5 pe-3 tabular-nums", overdue ? "text-danger" : "text-fg-muted")}>
