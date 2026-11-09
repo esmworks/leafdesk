@@ -87,6 +87,8 @@
     "source": "Rivit: {name}.",
     "remember": "Muistetaanko tämä sinusta?",
     "remind": "Muistutetaanko tästä?",
+    "cancelReminder": "Perutaanko tämä muistutus?",
+    "moveReminder": "Siirretäänkö tämä muistutus?",
     "forget": "Unohdetaanko tämä muistiinpano?",
     "connection": "Lähetetäänkö tämä yhteyteen {connection} ({tool})?",
     "tool": "Tehdäänkö tämä muutos ({tool})?",

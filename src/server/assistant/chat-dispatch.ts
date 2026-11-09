@@ -29,7 +29,16 @@ import { isChatMailTool, MAIL_TOOL_NAMES, prepareMailDraft, runChatMailTool, sav
 import { isChatWebTool, PLAN_TOOL, runChatWebTool, runPlan } from "@/server/ai-chat-web";
 import { applyMemory, MEMORY_TOOL_NAMES, prepareMemory, READ_MEMORY_TOOL, readChatMemory } from "@/server/ai-memory";
 import { noteWrite } from "@/lib/memory-rule";
-import { REMIND_TOOL_NAME, reminderWhen, setReminder } from "@/server/ai-reminders";
+import {
+  applyReminderChange,
+  CHANGE_REMINDER_TOOL_NAME,
+  LIST_REMINDERS_TOOL_NAME,
+  listReminders,
+  prepareReminderChange,
+  REMIND_TOOL_NAME,
+  reminderWhen,
+  setReminder,
+} from "@/server/ai-reminders";
 import { callMoreTool, FIND_TOOLS, findTools, isDocsAddress, lazyMoreTools, MORE_TOOL_NAMES, moreToolStep, pickMoreTool, readDocsTopic } from "@/server/ai-more-tools";
 import { chatToolNow, inputSummary, runConnectionTool, type ConnectionToolEntry, type ConnectionToolset } from "@/server/connections/tools";
 import type * as ops from "@/server/operations";
@@ -82,6 +91,7 @@ const DECLINED = {
   call: "The person declined this call: it wasn't sent. Don't try it again; say what you would have done, or ask what they want instead.",
   web: "The person declined this web call: nothing was sent. Don't try it again; answer with what you have, or ask them what to look up.",
   reminder: "The person declined this reminder: none was set. Don't try it again; ask what they want instead.",
+  reminderChange: "The person declined this: the reminder stays as it was. Don't try it again; ask what they want instead.",
 };
 
 const READ_ONLY_SHARED_NOTE =
@@ -184,7 +194,7 @@ export function createChatDispatch(cx: ChatDispatchContext) {
    * `auto`): the card also shows them the time it took from their words.
    */
   async function remind(call: AiToolCall, decision: ChatDecision | null): Promise<ChatAnswer> {
-    const set = cx.steps.filter((s) => s.kind === "reminder" && s.outcome === "done").length;
+    const set = cx.steps.filter((s) => s.kind === "reminder" && !s.action && s.outcome === "done").length;
     if (set >= MAX_REMINDERS_PER_RUN) return { content: `You have set ${MAX_REMINDERS_PER_RUN} reminders, the most one answer may set.`, isError: true };
     const text = reminderText(call.arguments.text);
     const time = reminderTime(call.arguments.at, new Date(), cx.timeZone);
@@ -197,6 +207,38 @@ export function createChatDispatch(cx: ChatDispatchContext) {
     const out = await setReminder({ workspaceId, actorId: userId, personId: userId, timeZone: cx.timeZone }, call);
     if (out.isError || !when) return { content: out.content, isError: true };
     return { content: out.content, step: { kind: "reminder", text, when, outcome: "done" } };
+  }
+
+  /**
+   * Cancels or moves one of the person's reminders in this workspace (any of theirs: they are
+   * asking), asked about as setting one is: the card shows its text and its time, or both times.
+   */
+  async function changeReminder(call: AiToolCall, decision: ChatDecision | null): Promise<ChatAnswer> {
+    const scope = { workspaceId, personId: userId, timeZone: cx.timeZone };
+    const change = await once(call, () => prepareReminderChange(scope, call));
+    if (!("action" in change)) return { content: change.content, isError: true };
+    const { action, reminder, when, was } = change;
+    const step = (outcome: "done" | "declined") => ({ kind: "reminder" as const, action, text: reminder.text, when, outcome });
+    if (mode !== "auto") {
+      if (!decision) {
+        return {
+          ask: {
+            action: action === "cancel" ? "cancelReminder" : "moveReminder",
+            target: null,
+            title: reminder.text,
+            changes: [],
+            content: when,
+            ...(action === "move" ? { reminderWas: was } : {}),
+            // Never covered by "don't ask again"; the card says why when Auto would have held otherwise.
+            ...eachTimeNow(false),
+            eachTime: true,
+          },
+        };
+      }
+      if (decision === "decline") return { content: DECLINED.reminderChange, step: step("declined") };
+    }
+    const out = await applyReminderChange(scope, change);
+    return out.isError ? { content: out.content, isError: true } : { content: out.content, step: step("done") };
   }
 
   /** The call's outcome, or what to ask the person (`decision` null: not asked yet). */
@@ -256,6 +298,12 @@ export function createChatDispatch(cx: ChatDispatchContext) {
       return applyMemory(userId, workspaceId, cx.conversationId, note, decision ?? "approve");
     }
     if (call.name === REMIND_TOOL_NAME && !research) return remind(call, decision);
+    // The person's own reminders: read as the inbox's Scheduled tab shows them, changed as asked.
+    if (call.name === LIST_REMINDERS_TOOL_NAME && !research) {
+      const listed = await listReminders({ workspaceId, personId: userId, timeZone: cx.timeZone });
+      return { content: listed.content, step: { kind: "reminder", action: "list", results: listed.count, others: listed.others } };
+    }
+    if (call.name === CHANGE_REMINDER_TOOL_NAME && !research) return changeReminder(call, decision);
     if (!writeTools.has(call.name)) return runTool(cx.ctx, workspaceId, cx.scope, call, registry, left, cx.extra);
     if (mode === "read") return { content: "Changes are off in this chat: say what you would change instead.", isError: true };
     const change = await once(call, () => prepareWrite(cx.ctx, workspaceId, cx.scope, call, cx.extra));

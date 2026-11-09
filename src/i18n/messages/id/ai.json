@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "Pengingat diatur untuk {when}:",
-        "declined": "Pengingat untuk {when} ditolak:"
+        "declined": "Pengingat untuk {when} ditolak:",
+        "listed": "Melihat pengingat Anda · {count, plural, =0 {tidak ada yang menunggu} other {# menunggu}}",
+        "cancel": {
+          "done": "Pengingat untuk {when} dibatalkan:",
+          "declined": "Menolak membatalkan pengingat untuk {when}:"
+        },
+        "move": {
+          "done": "Pengingat dipindahkan ke {when}:",
+          "declined": "Menolak memindahkan pengingat ke {when}:"
+        }
       },
       "mail": {
         "searched": "Mencari email untuk “{query}” · {count, plural, =0 {tidak ada yang ditemukan} other {# utas}}",
@@ -385,6 +394,8 @@
         "remember": "Ingat hal ini tentang Anda?",
         "forget": "Lupakan catatan ini?",
         "remind": "Ingatkan Anda tentang ini?",
+        "cancelReminder": "Batalkan pengingat ini?",
+        "moveReminder": "Pindahkan pengingat ini?",
         "editPage": "Ubah teks halaman ini?",
         "createPdf": "Buat PDF halaman ini dan lampirkan?",
         "createDocx": "Buat dokumen Word halaman ini dan lampirkan?",
@@ -403,6 +414,8 @@
       "topLevel": "Di bagian atas ruang kerja, privat untuk Anda",
       "memoryHint": "Memori: dikirim bersama pertanyaan Anda berikutnya di ruang kerja ini",
       "remindHint": "{when}: di atas halaman yang Anda buka, di kotak masuk, dan di ponsel Anda",
+      "cancelReminderHint": "{when}: tidak akan datang",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "(dikosongkan)",
       "approve": "Ya",
       "always": "Ya, dan jangan tanya lagi (Otomatis)",

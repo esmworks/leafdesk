@@ -22,7 +22,16 @@ vi.mock("@/server/connected-app", () => ({ withinWorkspace: (_u: string, _w: str
 vi.mock("@/server/ai-chat-mail", () => ({ isChatMailTool: () => false, MAIL_TOOL_NAMES: { draft: "draft_mail" }, prepareMailDraft: vi.fn(), runChatMailTool: vi.fn(), saveMailDraft: vi.fn() }));
 vi.mock("@/server/ai-chat-web", () => ({ isChatWebTool: () => false, PLAN_TOOL: { name: "plan" }, runChatWebTool: vi.fn(), runPlan: vi.fn() }));
 vi.mock("@/server/ai-memory", () => ({ applyMemory: vi.fn(), MEMORY_TOOL_NAMES: new Set(["remember"]), prepareMemory: vi.fn(), READ_MEMORY_TOOL: { name: "read_memory" }, readChatMemory: vi.fn() }));
-vi.mock("@/server/ai-reminders", () => ({ REMIND_TOOL_NAME: "remind_person", reminderWhen: vi.fn(), setReminder: vi.fn() }));
+vi.mock("@/server/ai-reminders", () => ({
+  REMIND_TOOL_NAME: "remind_person",
+  LIST_REMINDERS_TOOL_NAME: "list_reminders",
+  CHANGE_REMINDER_TOOL_NAME: "change_reminder",
+  reminderWhen: vi.fn(),
+  setReminder: vi.fn(),
+  listReminders: vi.fn(),
+  prepareReminderChange: vi.fn(),
+  applyReminderChange: vi.fn(),
+}));
 vi.mock("@/server/ai-more-tools", () => ({
   callMoreTool: vi.fn(),
   FIND_TOOLS: { name: "find_tools" },
@@ -189,5 +198,44 @@ describe("don't ask again in the AI chat", () => {
     expect("ask" in own).toBe(false);
     const asked = await dispatchWith({ remembers: true, filesAttached: true }).answer(remember, null, 10_000);
     expect("ask" in asked && asked.ask).toMatchObject({ action: "remember", eachTime: true, eachTimeReason: "files" });
+  });
+});
+
+describe("the person's reminders in the AI chat", () => {
+  const reminder = { id: "n1", at: new Date("2026-11-10T06:00:00Z"), text: "Call Ayşe", pageId: null, pageTitle: null, by: { own: false, agentName: "Desk helper" } } as const;
+  const move = { id: "m1", name: "change_reminder", arguments: { action: "move", reminder_id: "n1", at: "2026-11-11T09:00" } };
+
+  it("lists them as a step, which counts as others' words when an agent set one", async () => {
+    const { listReminders } = await import("@/server/ai-reminders");
+    vi.mocked(listReminders).mockResolvedValue({ content: "1 reminder", count: 1, others: true });
+    const listed = await dispatchWith().answer({ id: "l1", name: "list_reminders", arguments: {} }, null, 10_000);
+    expect(listed).toMatchObject({ content: "1 reminder", step: { kind: "reminder", action: "list", results: 1, others: true } });
+    // Changes after such a list are asked about again, on Auto too.
+    const after = dispatchWith({ mode: "auto", steps: ["step" in listed ? listed.step! : connectionStep] });
+    expect("ask" in (await after.answer(update("r1"), null, 10_000))).toBe(true);
+  });
+
+  it("asks before moving or cancelling one, each time, with its text and times, and changes nothing when declined", async () => {
+    const { applyReminderChange, prepareReminderChange } = await import("@/server/ai-reminders");
+    vi.mocked(prepareReminderChange).mockResolvedValue({ action: "move", reminder, at: new Date("2026-11-11T06:00:00Z"), when: "2026-11-11 09:00", was: "2026-11-10 09:00" });
+    vi.mocked(applyReminderChange).mockResolvedValue({ content: "Moved." });
+    const dispatch = dispatchWith();
+    const asked = await dispatch.answer(move, null, 10_000);
+    expect("ask" in asked && asked.ask).toMatchObject({ action: "moveReminder", title: "Call Ayşe", content: "2026-11-11 09:00", reminderWas: "2026-11-10 09:00", eachTime: true });
+    const declined = await dispatch.answer(move, "decline", 10_000);
+    expect(declined).toMatchObject({ step: { kind: "reminder", action: "move", outcome: "declined" } });
+    expect(applyReminderChange).not.toHaveBeenCalled();
+    const done = await dispatchWith().answer({ ...move, id: "m2" }, "approve", 10_000);
+    expect(done).toMatchObject({ content: "Moved.", step: { kind: "reminder", action: "move", text: "Call Ayşe", when: "2026-11-11 09:00", outcome: "done" } });
+  });
+
+  it("changes one without asking on Auto, and refuses what doesn't do before anyone is asked", async () => {
+    const { applyReminderChange, prepareReminderChange } = await import("@/server/ai-reminders");
+    vi.mocked(prepareReminderChange).mockResolvedValue({ action: "cancel", reminder, at: null, when: "2026-11-10 09:00", was: "2026-11-10 09:00" });
+    vi.mocked(applyReminderChange).mockResolvedValue({ content: "Cancelled." });
+    const cancel = { id: "c1", name: "change_reminder", arguments: { action: "cancel", reminder_id: "n1" } };
+    expect(await dispatchWith({ mode: "auto" }).answer(cancel, null, 10_000)).toMatchObject({ content: "Cancelled.", step: { action: "cancel", outcome: "done" } });
+    vi.mocked(prepareReminderChange).mockResolvedValue({ content: "There is no reminder still to come with that id.", isError: true });
+    expect(await dispatchWith().answer({ ...cancel, id: "c2" }, null, 10_000)).toEqual({ content: "There is no reminder still to come with that id.", isError: true });
   });
 });

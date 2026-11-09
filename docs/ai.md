@@ -497,7 +497,13 @@ browser's time zone): the box asks first, showing what it will say and when, unl
 *Auto*. It comes as an agent's reminder does (over the page you have open, in your inbox, as a push
 or Telegram message), titled *Your reminder*; an answer sets at most 3. Until then it waits under
 *Scheduled* in your inbox, where you can move it to another time or cancel it, and shows on your
-Calendar at its time, where you can drag it to another. The chat can't do anything
+Calendar at its time, where you can drag it to another. The chat does both too: ask "which
+reminders do I have?" and it lists the ones still to come in the workspace, yours and those agents
+set for you, with their time on your clock, page and who set it; ask it to cancel or move one
+("drop the one about Ayşe", "move it to Friday at 10") and the box asks first, showing the reminder
+and its time (both times for a move), unless the chat is on *Auto*. Once it has read a reminder an
+agent wrote, it asks even on *Auto*, as after other words from outside. Snoozed notifications are
+listed only under *Scheduled*. The chat can't do anything
 later on its own, so work to be done again and again ("every morning, list what's due today",
 "each Friday, sum up the week's sales") goes to one of your agents as a schedule
 ([Agents](agents.md)): the chat finds `set_agent_schedule`, makes an agent first with

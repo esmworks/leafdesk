@@ -51,6 +51,11 @@
   show on the Calendar page and the sidebar's Calendar tab at their time, in orange, with the agent
   that set it: drag one on the week to another time to move it. One about a page opens that page;
   one about none opens the inbox's *Scheduled* tab. Only you see your reminders.
+- **The AI chat lists your reminders, and cancels or moves one.** Ask "which reminders do I have?"
+  and it lists those still to come, yours and those agents set for you, with their time on your
+  clock, page and who set it; ask it to cancel or move one and it asks first (unless on *Auto*),
+  showing the reminder and its time. Agents can list, cancel and move the reminders they set for
+  you, never yours or another agent's.
 
 ### Changed
 

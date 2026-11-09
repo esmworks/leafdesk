@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "Promemoria impostato per {when}:",
-        "declined": "Promemoria rifiutato per {when}:"
+        "declined": "Promemoria rifiutato per {when}:",
+        "listed": "Promemoria controllati · {count, plural, =0 {nessuno in attesa} one {# in attesa} other {# in attesa}}",
+        "cancel": {
+          "done": "Promemoria per {when} annullato:",
+          "declined": "Annullamento del promemoria per {when} rifiutato:"
+        },
+        "move": {
+          "done": "Promemoria spostato a {when}:",
+          "declined": "Spostamento del promemoria a {when} rifiutato:"
+        }
       },
       "mail": {
         "searched": "Cercato nella posta «{query}» · {count, plural, =0 {nessun risultato} one {# conversazione} other {# conversazioni}}",
@@ -385,6 +394,8 @@
         "remember": "Ricordare questo su di te?",
         "forget": "Dimenticare questa nota?",
         "remind": "Te lo ricordo?",
+        "cancelReminder": "Annullare questo promemoria?",
+        "moveReminder": "Spostare questo promemoria?",
         "editPage": "Modificare il testo di questa pagina?",
         "createPdf": "Creare un PDF di questa pagina e allegarlo?",
         "createDocx": "Creare un documento Word di questa pagina e allegarlo?",
@@ -403,6 +414,8 @@
       "topLevel": "Al primo livello dello spazio di lavoro, visibile solo a te",
       "memoryHint": "Memoria: inviata con le tue prossime domande in questo spazio di lavoro",
       "remindHint": "{when}: sopra la pagina aperta, nella posta in arrivo e sul tuo telefono",
+      "cancelReminderHint": "{when}: non arriverà più",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "(svuotato)",
       "approve": "Sì",
       "always": "Sì, e non chiedere più (Auto)",

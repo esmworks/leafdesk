@@ -172,10 +172,13 @@ export type ChatWriteView = {
 export type ChatActionView = {
   /**
    * A change to the workspace, a note about the person to keep or drop (title: its text), a
-   * reminder for them (title: its text, content: when, "YYYY-MM-DD HH:MM" on their clock), a call
+   * reminder for them (title: its text, content: when, "YYYY-MM-DD HH:MM" on their clock) or one
+   * of theirs cancelled or moved (the same, content its time then or its new one), a call
    * to a connection's tool, or a web call.
    */
-  action: ChatWriteAction | "remember" | "forget" | "remind" | "connection" | "tool" | "readWeb" | "searchWeb" | "draftMail";
+  action: ChatWriteAction | "remember" | "forget" | "remind" | "cancelReminder" | "moveReminder" | "connection" | "tool" | "readWeb" | "searchWeb" | "draftMail";
+  /** A reminder moved (`moveReminder`, content: its new time): the time it had, "YYYY-MM-DD HH:MM" on the person's clock. */
+  reminderWas?: string;
   /** A call to a connection's tool: the connection. */
   connection?: { name: string; icon: string | null };
   /** A draft of the person's mail (server/ai-chat-mail.ts, asked in every mode): who it is from and to; `title` its subject, `content` its text. */
@@ -262,13 +265,13 @@ export const makesFile = (action: string) => action === "createPdf" || action ==
 export const changedMemory = (step: ChatStepView) => step.kind === "memory" && step.outcome !== "declined" && step.outcome !== "undone";
 
 /**
- * Whether an answer's step changed something: a change made in the workspace, a reminder set, or a
+ * Whether an answer's step changed something: a change made in the workspace, a reminder set, cancelled or moved, or a
  * call sent to a connection's tool that changes something there (one that failed may have been done too).
  * Asking such an answer again would do it twice.
  */
 export const changedThings = (step: ChatStepView | ChatStepRecord) =>
   (step.kind === "write" && step.outcome === "done") ||
-  (step.kind === "reminder" && step.outcome === "done") ||
+  (step.kind === "reminder" && step.action !== "list" && step.outcome === "done") ||
   ((step.kind === "connection" || step.kind === "leafdesk") && step.writes && step.outcome !== "declined");
 
 /**

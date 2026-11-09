@@ -1,6 +1,7 @@
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { databaseSync, meetingNote, page } from "@/db/schema";
+import { MAX_REMINDER_AHEAD_MS } from "@/lib/ai-reminders";
 import { CALENDAR_MAX_DAYS, reminderItem, type CalendarItem } from "@/lib/calendar-items";
 import { dateDays, dateOverlaps, dateSortKey, isDay, parseDateValue, shiftDateValue } from "@/lib/date-value";
 import type { GcalQuery } from "@/lib/gcal-sync";
@@ -219,9 +220,13 @@ export async function moveCalendarItem(userId: string, workspaceId: string, id: 
     if (kind === "todo" && second) return await moveTodoDate(userId, workspaceId, first, second, value, timeZone);
     if (kind === "reminder" && first) {
       if (!parts.time) throw new CalendarMoveError("fixed");
-      const moved = await moveReminder(userId, workspaceId, first, new Date(parts.start));
-      if (moved === "moved") return;
-      throw new CalendarMoveError(moved === "notFound" ? "notFound" : "fixed");
+      // A reminder goes at most MAX_REMINDER_AHEAD_MS ahead, never back in time.
+      const until = new Date(parts.start);
+      const now = Date.now();
+      if (!(until.getTime() > now && until.getTime() <= now + MAX_REMINDER_AHEAD_MS)) throw new CalendarMoveError("fixed");
+      // Never one that has come meanwhile (a stale calendar): only a reminder still to come, in this workspace.
+      if (await moveReminder(userId, first, until, { workspaceId })) return;
+      throw new CalendarMoveError("notFound");
     }
     if (kind === "meeting" && second) {
       if (!parts.time) throw new CalendarMoveError("fixed");

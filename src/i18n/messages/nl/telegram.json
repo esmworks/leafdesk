@@ -87,6 +87,8 @@
     "source": "Rijen uit {name}.",
     "remember": "Dit over jou onthouden?",
     "remind": "Je hieraan herinneren?",
+    "cancelReminder": "Deze herinnering annuleren?",
+    "moveReminder": "Deze herinnering verplaatsen?",
     "forget": "Deze notitie vergeten?",
     "connection": "Dit naar {connection} ({tool}) sturen?",
     "tool": "Deze wijziging doorvoeren ({tool})?",

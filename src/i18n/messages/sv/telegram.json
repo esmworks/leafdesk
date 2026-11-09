@@ -87,6 +87,8 @@
     "source": "Rader från {name}.",
     "remember": "Komma ihåg det här om dig?",
     "remind": "Påminna dig om det här?",
+    "cancelReminder": "Ställa in den här påminnelsen?",
+    "moveReminder": "Flytta den här påminnelsen?",
     "forget": "Glömma den här anteckningen?",
     "connection": "Skicka det här till {connection} ({tool})?",
     "tool": "Göra den här ändringen ({tool})?",

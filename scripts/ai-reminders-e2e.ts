@@ -13,7 +13,10 @@
  * the person's Calendar at their time (nobody else's), opening their page or else the inbox, and
  * dragged to another time there; never to a whole day, a time gone by, nor one that has come. The AI chat sets one for the person asking, asked about
  * first (unless on Auto) with its text and time on their clock, never in research; it shows in the
- * inbox as their own; declined, none is set. Asked for a routine, the chat is told it is an agent's
+ * inbox as their own; declined, none is set. It lists the person's reminders still to come (theirs
+ * and agents', with ids, never anyone else's) and cancels or moves one, asked about first (unless
+ * on Auto, and again once an agent's words were read); an agent lists, cancels and moves only those
+ * it set for that person. Asked for a routine, the chat is told it is an agent's
  * schedule, which it adds through use_tool, asked about each time.
  * Creates its own users and workspace and deletes them afterwards.
  *
@@ -29,7 +32,7 @@ try {
 } catch {}
 
 // Imported after .env is loaded: the database client reads DATABASE_URL when it is created.
-const { and, eq, inArray } = await import("drizzle-orm");
+const { and, desc, eq, inArray } = await import("drizzle-orm");
 const { db } = await import("@/db");
 const { agentRun, notification, teamspace, user, workspace, workspaceAgent, workspaceMember } = await import("@/db/schema");
 const { cancelReminder, deliverSnoozed, dueReminders, listNotifications, listPending, snoozeNotification, unsnoozeNotification } = await import("@/server/notifications");
@@ -41,7 +44,7 @@ const { setAiEnv } = await import("@/server/ai/testing");
 const { startFakeOpenAi } = await import("@/server/ai/fake-openai");
 type FakeChatRequest = import("@/server/ai/fake-openai").FakeChatRequest;
 type FakeReply = import("@/server/ai/fake-openai").FakeReply;
-const { MAX_REMINDERS_PER_RUN, MAX_WAITING_REMINDERS } = await import("@/lib/ai-reminders");
+const { CHANGE_REMINDER_TOOL_NAME, LIST_REMINDERS_TOOL_NAME, MAX_REMINDERS_PER_RUN, MAX_WAITING_REMINDERS } = await import("@/lib/ai-reminders");
 const { REMINDER_EVENT } = await import("@/lib/reminder-event");
 const { REMIND_TOOL_NAME, remindersSet, setReminder } = await import("@/server/ai-reminders");
 const agents = await import("@/server/agents/manage");
@@ -333,7 +336,7 @@ try {
     own,
   );
   check(
-    chatSet.steps.some((st) => st.kind === "reminder" && st.outcome === "done" && st.when === `${tomorrow} 09:00` && st.text === "Call Ayşe about the offer"),
+    chatSet.steps.some((st) => st.kind === "reminder" && !st.action && st.outcome === "done" && st.when === `${tomorrow} 09:00` && st.text === "Call Ayşe about the offer"),
     "…as a step of the answer",
     chatSet.steps,
   );
@@ -349,7 +352,7 @@ try {
   fake.setChat(caller([[{ name: REMIND_TOOL_NAME, arguments: { text: "Water the plants", at: `${tomorrow}T18:00` } }]], "Okay."));
   const declined = await ask({ message: "Remind me to water the plants at six tomorrow", mode: "ask" }, "decline");
   check(
-    (await ownReminders()).length === 1 && declined.steps.some((st) => st.kind === "reminder" && st.outcome === "declined"),
+    (await ownReminders()).length === 1 && declined.steps.some((st) => st.kind === "reminder" && !st.action && st.outcome === "declined"),
     "declined, no reminder is set, and the step says so",
     declined.steps,
   );
@@ -359,7 +362,128 @@ try {
   fake.chats.length = 0;
   fake.setChat(() => ({ text: "A report." }));
   await ask({ message: "Research the offers", research: true });
-  check(fake.chats.length > 0 && fake.chats.every((c) => !toolNames(c).includes(REMIND_TOOL_NAME)), "research isn't offered it");
+  check(
+    fake.chats.length > 0 && fake.chats.every((c) => ![REMIND_TOOL_NAME, LIST_REMINDERS_TOOL_NAME, CHANGE_REMINDER_TOOL_NAME].some((name) => toolNames(c).includes(name))),
+    "research isn't offered it, nor listing or changing reminders",
+  );
+
+  // ── The AI chat lists the person's reminders, and cancels or moves one ─────────────────────
+  // One the agent set for the member too, beside the member's own; and one of the owner's own.
+  const fromAgent = await setReminder({ workspaceId, actorId: helper.userId, personId: ids.member, timeZone: "Europe/Istanbul" }, call({ text: "Send Ayşe the contract", at: `${tomorrow}T11:00` }));
+  check(!fromAgent.isError, "an agent sets one for the member", fromAgent);
+  await setReminder({ workspaceId, actorId: ids.owner, personId: ids.owner, timeZone: "Europe/Istanbul" }, call({ text: "Owner's own", at: `${tomorrow}T12:00` }));
+  const waitingFor = async (userId: string) => (await reminders()).filter((r) => r.userId === userId && r.snoozedUntil && r.snoozedUntil > new Date());
+  const [plants] = (await waitingFor(ids.member)).filter((r) => r.message === "Water the plants");
+  const [contract] = (await waitingFor(ids.member)).filter((r) => r.message === "Send Ayşe the contract");
+  const [ownersOwn] = (await waitingFor(ids.owner)).filter((r) => r.message === "Owner's own");
+
+  fake.chats.length = 0;
+  fake.setChat(caller([[{ name: LIST_REMINDERS_TOOL_NAME, arguments: {} }]], "You have two."));
+  const listed = await ask({ message: "Which reminders do I have?", mode: "ask" });
+  check(toolNames(fake.chats[0]).includes(LIST_REMINDERS_TOOL_NAME) && toolNames(fake.chats[0]).includes(CHANGE_REMINDER_TOOL_NAME), "the AI chat offers list_reminders and change_reminder", toolNames(fake.chats[0]));
+  const list = toolResults(fake.chats.at(-1)!)[0] ?? "";
+  check(
+    /^2 reminders still to come, soonest first \(times on their clock in Europe\/Istanbul\)/.test(list) &&
+      list.indexOf("Send Ayşe the contract") < list.indexOf("Water the plants") &&
+      list.includes(`id ${plants.id} · ${tomorrow} 18:00 · "Water the plants" · set by them`) &&
+      list.includes(`id ${contract.id} · ${tomorrow} 11:00 · "Send Ayşe the contract" · set by the agent "Desk helper"`),
+    "…which lists the person's reminders still to come, soonest first, on their clock, with their ids and who set them",
+    list,
+  );
+  check(!list.includes("Call Ayşe about the offer") && !list.includes("Owner's own") && !list.includes("Wait "), "…never one that came, nor anyone else's", list);
+  check(
+    listed.asked.length === 0 && listed.steps.some((st) => st.kind === "reminder" && st.action === "list" && st.results === 2 && st.others),
+    "…without asking, as a step that marks an agent's words read",
+    listed.steps,
+  );
+
+  fake.setChat(caller([[{ name: CHANGE_REMINDER_TOOL_NAME, arguments: { action: "cancel", reminder_id: plants.id } }]], "Cancelled."));
+  const keep = await ask({ message: "Cancel the one about the plants", mode: "ask" }, "decline");
+  check(
+    keep.asked[0]?.action === "cancelReminder" && keep.asked[0].title === "Water the plants" && keep.asked[0].content === `${tomorrow} 18:00` && keep.asked[0].eachTime === true,
+    "cancelling one is asked about first, with its text and time",
+    keep.asked,
+  );
+  check((await waitingFor(ids.member)).some((r) => r.id === plants.id) && keep.steps.some((st) => st.kind === "reminder" && st.action === "cancel" && st.outcome === "declined"), "…declined, it stays", keep.steps);
+  fake.setChat(caller([[{ name: CHANGE_REMINDER_TOOL_NAME, arguments: { action: "cancel", reminder_id: plants.id } }]], "Cancelled."));
+  const cancelled = await ask({ message: "Cancel the one about the plants", mode: "ask" });
+  check(
+    !(await reminders()).some((r) => r.id === plants.id) && cancelled.steps.some((st) => st.kind === "reminder" && st.action === "cancel" && st.outcome === "done" && st.text === "Water the plants"),
+    "…approved, it is gone, as a step of the answer",
+    cancelled.steps,
+  );
+
+  fake.setChat(caller([[{ name: CHANGE_REMINDER_TOOL_NAME, arguments: { action: "move", reminder_id: contract.id, at: `${tomorrow}T15:30` } }]], "Moved."));
+  const moveAuto = await ask({ message: "Move the contract one to 15:30", mode: "auto" });
+  const [contractNow] = (await reminders()).filter((r) => r.id === contract.id);
+  check(
+    moveAuto.asked.length === 0 && contractNow.snoozedUntil?.toISOString() === new Date(`${tomorrow}T12:30:00Z`).toISOString() && contractNow.actorId === helper.userId,
+    "on Auto, one an agent set is moved without asking, to the time on the person's clock",
+    { asked: moveAuto.asked, at: contractNow.snoozedUntil },
+  );
+  check(moveAuto.steps.some((st) => st.kind === "reminder" && st.action === "move" && st.when === `${tomorrow} 15:30`), "…as a step with its new time", moveAuto.steps);
+  fake.setChat(caller([[{ name: LIST_REMINDERS_TOOL_NAME, arguments: {} }], [{ name: CHANGE_REMINDER_TOOL_NAME, arguments: { action: "move", reminder_id: contract.id, at: `${tomorrow}T16:00` } }]], "Moved."));
+  const afterList = await ask({ message: "What do I have, and move the contract one to 16:00", mode: "auto" }, "decline");
+  check(afterList.asked[0]?.action === "moveReminder" && afterList.asked[0].reminderWas === `${tomorrow} 15:30` && afterList.asked[0].eachTimeReason === "outside", "…but once an agent's reminder was read, Auto asks again, showing both times", afterList.asked);
+
+  fake.setChat(
+    caller(
+      [
+        [
+          { name: CHANGE_REMINDER_TOOL_NAME, arguments: { action: "cancel", reminder_id: ownersOwn.id } },
+          { name: CHANGE_REMINDER_TOOL_NAME, arguments: { action: "move", reminder_id: contract.id, at: "next week" } },
+          { name: CHANGE_REMINDER_TOOL_NAME, arguments: { action: "snooze", reminder_id: contract.id } },
+        ],
+      ],
+      "Couldn't.",
+    ),
+  );
+  fake.chats.length = 0;
+  const refusedChanges = await ask({ message: "Cancel the owner's reminder", mode: "auto" });
+  const why = toolResults(fake.chats.at(-1)!);
+  check(
+    refusedChanges.asked.length === 0 && /no reminder still to come with that id/.test(why[0]) && /date and time/.test(why[1]) && /"cancel" or "move"/.test(why[2]),
+    "someone else's reminder, a time that is none or an action it hasn't are refused, each with a reason, before anyone is asked",
+    why,
+  );
+  check((await waitingFor(ids.owner)).some((r) => r.id === ownersOwn.id), "…and the other person's reminder stays");
+
+  // ── An agent lists, cancels and moves only the reminders it set ────────────────────────────
+  fake.chats.length = 0;
+  fake.setChat(caller([[{ name: LIST_REMINDERS_TOOL_NAME, arguments: {} }]], "Here they are."));
+  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "Which reminders did you set for me?", timeZone: "Europe/Istanbul" });
+  await flushAgentRuns();
+  check(toolNames(fake.chats[0]).includes(LIST_REMINDERS_TOOL_NAME) && toolNames(fake.chats[0]).includes(CHANGE_REMINDER_TOOL_NAME), "an agent's chat run is offered both tools", toolNames(fake.chats[0]));
+  const agentList = toolResults(fake.chats.at(-1)!)[0] ?? "";
+  const helperWaiting = (await waitingFor(ids.owner)).filter((r) => r.actorId === helper.userId);
+  check(
+    agentList.startsWith(`${helperWaiting.length} reminders still to come`) && !agentList.includes("Owner's own") && !agentList.includes("set by") && !agentList.includes("Send Ayşe the contract"),
+    "…which lists only those it set for that person: not theirs, nor others'",
+    agentList.slice(0, 300),
+  );
+  const target = helperWaiting[0];
+  fake.setChat(
+    caller([
+      [
+        { name: CHANGE_REMINDER_TOOL_NAME, arguments: { action: "cancel", reminder_id: ownersOwn.id } },
+        { name: CHANGE_REMINDER_TOOL_NAME, arguments: { action: "move", reminder_id: target.id, at: `${tomorrow}T07:15` } },
+      ],
+    ]),
+  );
+  fake.chats.length = 0;
+  await chat.sendAgentChat(ids.owner, { workspaceId, agentId: helper.id, place: null, conversationId: null, message: "Cancel mine and move one of yours to 7:15.", timeZone: "Europe/Istanbul" });
+  await flushAgentRuns();
+  const agentWhy = toolResults(fake.chats.at(-1)!);
+  const [targetNow] = (await reminders()).filter((r) => r.id === target.id);
+  check(/no reminder still to come with that id that you set/.test(agentWhy[0]) && (await waitingFor(ids.owner)).some((r) => r.id === ownersOwn.id), "…refuses the person's own", agentWhy);
+  check(
+    /^Moved: .* now comes at \d{4}-\d{2}-\d{2} 07:15 \(Europe\/Istanbul\)/.test(agentWhy[1]) && targetNow.snoozedUntil?.toISOString() === new Date(`${tomorrow}T04:15:00Z`).toISOString(),
+    "…and moves its own",
+    { agentWhy, at: targetNow.snoozedUntil },
+  );
+  const [lastRun] = await db.select().from(agentRun).where(eq(agentRun.agentId, helper.id)).orderBy(desc(agentRun.createdAt)).limit(1);
+  check(lastRun.steps.some((st) => st.kind === "tool" && st.tool === CHANGE_REMINDER_TOOL_NAME && st.outcome === "done" && st.input.startsWith(`move ${tomorrow} 07:15 · `)), "…as a step of its run", lastRun.steps);
+  check(remindersSet(lastRun.steps) === 0, "…which doesn't count toward the reminders it may set");
 
   // ── …and hands a routine to an agent as a schedule ────────────────────────────────────────
   // Members make agents only where owners let them: the owner asks.

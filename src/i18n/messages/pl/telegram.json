@@ -87,6 +87,8 @@
     "source": "Wiersze z {name}.",
     "remember": "Zapamiętać to o tobie?",
     "remind": "Przypomnieć ci o tym?",
+    "cancelReminder": "Anulować to przypomnienie?",
+    "moveReminder": "Przenieść to przypomnienie?",
     "forget": "Zapomnieć tę notatkę?",
     "connection": "Wysłać to do {connection} ({tool})?",
     "tool": "Wprowadzić tę zmianę ({tool})?",

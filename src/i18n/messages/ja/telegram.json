@@ -87,6 +87,8 @@
     "source": "{name} の行。",
     "remember": "これをあなたについて覚えておきますか？",
     "remind": "これをリマインドしますか？",
+    "cancelReminder": "このリマインダーを取り消しますか？",
+    "moveReminder": "このリマインダーを移動しますか？",
     "forget": "このメモを忘れますか？",
     "connection": "これを {connection}（{tool}）に送信しますか？",
     "tool": "この変更を行いますか（{tool}）？",

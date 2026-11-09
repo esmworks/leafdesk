@@ -159,10 +159,15 @@ export type ChatStepRecord =
   | { kind: "thought"; text: string };
 
 /**
- * A reminder the AI chat set for the person asking (server/ai-reminders.ts): what it says and
- * when, "YYYY-MM-DD HH:MM" on their clock; `declined` when they said no.
+ * A reminder the AI chat set for the person asking (server/ai-reminders.ts, no `action`): what it
+ * says and when, "YYYY-MM-DD HH:MM" on their clock; `declined` when they said no. Or their
+ * reminders still to come, listed (`list`: how many; `others`: one an agent set, whose words the
+ * answer then has read), or one of them cancelled or moved (`when`: the time it had, or its new one).
  */
-export type ChatReminderRecord = { kind: "reminder"; text: string; when: string; outcome: "done" | "declined" };
+export type ChatReminderRecord =
+  | { kind: "reminder"; action?: undefined; text: string; when: string; outcome: "done" | "declined" }
+  | { kind: "reminder"; action: "list"; results: number; others: boolean }
+  | { kind: "reminder"; action: "cancel" | "move"; text: string; when: string; outcome: "done" | "declined" };
 
 /**
  * The AI chat on the web (where owners turned it on, server/agents/web.ts): a search (`query`, how

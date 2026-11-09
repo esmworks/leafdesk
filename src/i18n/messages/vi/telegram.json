@@ -87,6 +87,8 @@
     "source": "Các hàng của {name}.",
     "remember": "Ghi nhớ điều này về bạn?",
     "remind": "Nhắc bạn điều này?",
+    "cancelReminder": "Hủy lời nhắc này?",
+    "moveReminder": "Dời lời nhắc này?",
     "forget": "Quên ghi chú này?",
     "connection": "Gửi nội dung này đến {connection} ({tool})?",
     "tool": "Thực hiện thay đổi này ({tool})?",

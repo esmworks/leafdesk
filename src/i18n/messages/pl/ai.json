@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "Ustawiono przypomnienie na {when}:",
-        "declined": "Odrzucono przypomnienie na {when}:"
+        "declined": "Odrzucono przypomnienie na {when}:",
+        "listed": "Sprawdzono przypomnienia · {count, plural, =0 {brak oczekujących} one {# oczekuje} few {# oczekują} many {# oczekuje} other {# oczekuje}}",
+        "cancel": {
+          "done": "Anulowano przypomnienie na {when}:",
+          "declined": "Odrzucono anulowanie przypomnienia na {when}:"
+        },
+        "move": {
+          "done": "Przeniesiono przypomnienie na {when}:",
+          "declined": "Odrzucono przeniesienie przypomnienia na {when}:"
+        }
       },
       "mail": {
         "searched": "Przeszukano pocztę pod kątem „{query}” · {count, plural, =0 {nic nie znaleziono} one {# wątek} few {# wątki} many {# wątków} other {# wątku}}",
@@ -385,6 +394,8 @@
         "remember": "Zapamiętać to o tobie?",
         "forget": "Zapomnieć tę notatkę?",
         "remind": "Przypomnieć ci o tym?",
+        "cancelReminder": "Anulować to przypomnienie?",
+        "moveReminder": "Przenieść to przypomnienie?",
         "editPage": "Zmienić tekst tej strony?",
         "createPdf": "Utworzyć PDF tej strony i go dołączyć?",
         "createDocx": "Utworzyć dokument Word tej strony i go dołączyć?",
@@ -403,6 +414,8 @@
       "topLevel": "Na najwyższym poziomie obszaru roboczego, prywatnie dla ciebie",
       "memoryHint": "Pamięć: wysyłana z twoimi kolejnymi pytaniami w tym obszarze roboczym",
       "remindHint": "{when}: nad otwartą stroną, w skrzynce odbiorczej i na telefonie",
+      "cancelReminderHint": "{when}: już nie przyjdzie",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "(wyczyszczono)",
       "approve": "Tak",
       "always": "Tak i nie pytaj ponownie (Automatycznie)",

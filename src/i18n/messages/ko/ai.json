@@ -340,7 +340,16 @@
       },
       "reminder": {
         "done": "{when}에 리마인더를 설정함:",
-        "declined": "{when} 리마인더를 거절함:"
+        "declined": "{when} 리마인더를 거절함:",
+        "listed": "리마인더를 확인함 · {count, plural, =0 {대기 중인 항목 없음} other {#개 대기 중}}",
+        "cancel": {
+          "done": "{when} 리마인더를 취소함:",
+          "declined": "{when} 리마인더 취소를 거절함:"
+        },
+        "move": {
+          "done": "리마인더를 {when}(으)로 옮김:",
+          "declined": "리마인더를 {when}(으)로 옮기는 것을 거절함:"
+        }
       },
       "mail": {
         "searched": "메일에서 “{query}” 검색 · {count, plural, =0 {찾은 항목 없음} other {스레드 #개}}",
@@ -385,6 +394,8 @@
         "remember": "이 내용을 기억할까요?",
         "forget": "이 메모를 잊을까요?",
         "remind": "이 내용을 리마인드할까요?",
+        "cancelReminder": "이 리마인더를 취소할까요?",
+        "moveReminder": "이 리마인더를 옮길까요?",
         "editPage": "이 페이지의 텍스트를 변경할까요?",
         "createPdf": "이 페이지의 PDF를 만들어 첨부할까요?",
         "createDocx": "이 페이지의 Word 문서를 만들어 첨부할까요?",
@@ -403,6 +414,8 @@
       "topLevel": "워크스페이스 최상위, 나만 볼 수 있음",
       "memoryHint": "메모리: 이 워크스페이스에서 이후 질문과 함께 전송됩니다",
       "remindHint": "{when}: 열려 있는 페이지 위, 받은편지함, 휴대폰에 표시",
+      "cancelReminderHint": "{when}: 더 이상 오지 않음",
+      "moveReminderHint": "{was} → {when}",
       "cleared": "(지워짐)",
       "approve": "예",
       "always": "예, 다시 묻지 않기(자동)",

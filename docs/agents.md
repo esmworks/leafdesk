@@ -573,7 +573,9 @@ holds the device), but never by email; one missed for more than 12 hours waits i
 agent has at most 20 waiting for one person; each is a step of the run. Until they come, the
 person sees them under *Scheduled* in their inbox, with their time and page, and on their
 Calendar; they may move one there (on the Calendar by dragging it to another time) or cancel it
-(a cancelled one no longer counts toward the 20). People turn them off under
+(a cancelled one no longer counts toward the 20). The same runs also get `list_reminders` and
+`change_reminder`, which list, cancel and move only the reminders that agent set for that person,
+never the person's own or another agent's ("move your reminder to 10"). People turn them off under
 *AI reminders* in Settings → Preferences, which covers the [AI chat's](ai.md) reminders too.
 
 **AI must be on.** Agents use the chat model: the server needs an AI provider (see

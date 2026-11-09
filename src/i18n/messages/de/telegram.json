@@ -87,6 +87,8 @@
     "source": "Zeilen aus {name}.",
     "remember": "Soll ich mir das über dich merken?",
     "remind": "Dich daran erinnern?",
+    "cancelReminder": "Diese Erinnerung absagen?",
+    "moveReminder": "Diese Erinnerung verschieben?",
     "forget": "Diese Notiz vergessen?",
     "connection": "Das an {connection} ({tool}) senden?",
     "tool": "Diese Änderung vornehmen ({tool})?",

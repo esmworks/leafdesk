@@ -119,7 +119,7 @@ import { accountNotesOf } from "@/server/account-memory";
 import { CHAT_READ_MEMORY_TOOL, fitNotes, memoryAvailable, memoryForPrompt, MemoryError, memoryOn, MEMORY_TOOLS, undoNote } from "@/server/ai-memory";
 import { summaryForPrompt } from "@/server/memory-summary";
 import { otherTeamspaces, pageTeamspace, sharedMemoryFor } from "@/server/shared-memory";
-import { remindTool } from "@/server/ai-reminders";
+import { changeReminderTool, listRemindersTool, remindTool } from "@/server/ai-reminders";
 import { awaitDecision, decideChange, runsWaitingHere, type ChatDecision } from "@/server/ai-chat-approvals";
 import { answeringIn, conversationBusy, followedIn, openRun, runEvents, runningIn, stopRunsIn } from "@/server/ai-chat-runs";
 import { dropChatWaiting, noteChatWaiting, pushChatAnswered, tellsPerson } from "@/server/ai-chat-notices";
@@ -572,7 +572,8 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
     const webTools = setup.web ? chatWebToolset() : [];
     // The person's own mail, where they may use the Mail tab; research only reads the workspace.
     const mailTools = research ? [] : await chatMailToolset(userId, workspaceId, { writes: initialMode !== "read" });
-    // Reminding the person of something changes nothing in the workspace: offered in every mode but research.
+    // Reminding the person of something changes nothing in the workspace: offered in every mode but
+    // research, as are listing their reminders and cancelling or moving one (asked about unless `auto`).
     const tools = research
       ? [PLAN_TOOL, ...CHAT_TOOLS, ...fileTools, ...webTools]
       : [
@@ -583,6 +584,8 @@ async function* converseChat(run: AssistantRun, setup: ChatSetup, signal: AbortS
           ...fileTools,
           ...(remembers ? MEMORY_TOOLS : []),
           remindTool(new Date(), timeZone, true),
+          listRemindersTool(true),
+          changeReminderTool(new Date(), timeZone, true),
           ...webTools,
           ...mailTools,
           ...(external?.tools ?? []),

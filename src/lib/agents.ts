@@ -877,7 +877,8 @@ export const AGENT_TASKS_TOOL = "agent_tasks";
  * web page or search, what a connection's tool answered (failed too: a service's error says what
  * it likes), a folder or file on the person's computer (anything may have put it there), or
  * another agent's answer, which may carry what that agent read (asked with ask_agent, read back
- * with agent_tasks, or read through use_tool: OTHERS_WORDS_MORE_TOOLS). A chat run that did keeps no correction at once
+ * with agent_tasks, or read through use_tool: OTHERS_WORDS_MORE_TOOLS, or its reminders, which the
+ * AI chat lists with the person's own). A chat run that did keeps no correction at once
  * (server/agents/memory.ts), and an owner's "allow" rule doesn't hold on it (server/assistant/dispatch.ts).
  * The AI chat's own steps count too (a service's answer, the web): from then on its answer asks
  * before each change (server/ai-chat.ts).
@@ -892,7 +893,7 @@ export const readOthersWords = (steps: readonly AgentStepRecord[]): boolean =>
         ? s.outcome === "done" && OTHERS_WORDS_MORE_TOOLS.has(s.tool)
         : s.kind === "connection"
           ? s.outcome !== "declined"
-          : s.kind === "web" || (s.kind === "handoff" && s.outcome === "done"),
+          : s.kind === "web" || (s.kind === "handoff" && s.outcome === "done") || (s.kind === "reminder" && s.action === "list" && s.others),
   );
 
 /**
